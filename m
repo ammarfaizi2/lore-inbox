@@ -1,86 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbTISMr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 08:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbTISMr3
+	id S261539AbTISMur (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 08:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbTISMur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 08:47:29 -0400
-Received: from [193.126.32.23] ([193.126.32.23]:47324 "EHLO
-	mail.paradigma.co.pt") by vger.kernel.org with ESMTP
-	id S261538AbTISMr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 08:47:27 -0400
-Date: Fri, 19 Sep 2003 13:47:30 +0100
-From: Nuno Monteiro <nuno@paradigma.co.pt>
-To: Bernhard Rosenkraenzer <bero@arklinux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: via-rhine apparently broken in 2.4.23-pre4
-Message-ID: <20030919124730.GA1512@hobbes.itsari.int>
-References: <Pine.LNX.4.56.0309190254480.18687@dot.kde.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed	DelSp=Yes
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.56.0309190254480.18687@dot.kde.org>; from bero@arklinux.org on Fri, Sep 19, 2003 at 01:58:21 +0100
-X-Mailer: Balsa 2.0.14
+	Fri, 19 Sep 2003 08:50:47 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:54145 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261539AbTISMup
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 08:50:45 -0400
+Date: Fri, 19 Sep 2003 08:52:13 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BUG at mm/memory.c:1501 in 2.6.0-test5
+In-Reply-To: <95932E0ADB@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.53.0309190838440.14130@chaos>
+References: <95932E0ADB@vcnet.vc.cvut.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003.09.19 01:58, Bernhard Rosenkraenzer wrote:
-> Unverified (due to lack of hardware) report from a user:
-> 
-> Updating from 2.4.22 to 2.4.23-pre4 breaks networking with an onboard
-> VIA Rhine II chip.
-> 
-> It seems to transfer about 2 kB of data, then stall forever.
+On Thu, 18 Sep 2003, Petr Vandrovec wrote:
+
+> On 18 Sep 03 at 13:43, William Lee Irwin III wrote:
+> > On Thu, Sep 18, 2003 at 10:27:58PM +0200, Petr Vandrovec wrote:
+> > > EIP:    0060:[<c015be10>]    Tainted: PF
+> >
+> >                 snprintf(buf, sizeof(buf), "Tainted: %c%c%c",
+> >                         tainted & TAINT_PROPRIETARY_MODULE ? 'P' : 'G',
+> >                         tainted & TAINT_FORCED_MODULE ? 'F' : ' ',
+> >                         tainted & TAINT_UNSAFE_SMP ? 'S' : ' ');
+> >
+> > This is probably the reason you're not getting much in the way of a
+> > response.
+>
+> I explicitly stated that it happened shortly after I shut down VMware UI,
+> and that I spent whole day trying to find what's going on, finally
+> politely asking for help, hoping that someone could have a clue
+> what went wrong.
+>                                             Petr Vandrovec
 >
 
-Hi,
+Okay. I'll be more specific. The "Tainted PF" shown above is
+because you have installed a module that is [P]roprietary and
+it was [F]orced to load.
 
+Any module running inside the kernel can destroy anything.
+There is no protection inside the kernel. A simple bug in any
+module can not only cause your machine to die, but it can, in
+principle, destroy everything on your hard disk as well as
+shutting down your LAN, causing millions of dollars of
+damages (seriously). It is possible.
 
-I can't confirm that, it's working perfectly here.
+Therefore, If you report a bug, and your system is tainted
+with a proprietary module, nobody can help you because the
+source-code of the module isn't available for review. Therefore
+nobody will waste time reviewing kernel code when a single
+out-of-bounds pointer, or a single failure to free a resource
+or a lock on some seldom-used path in that proprietary module
+could kill the kernel.
 
-root:~# lspci -v -s 00:12.0
-00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II]  
-(rev 74)
-        Subsystem: Asustek Computer, Inc.: Unknown device 80a1
-        Flags: bus master, stepping, medium devsel, latency 32, IRQ 23
-        I/O ports at b400 [size=256]
-        Memory at e5000000 (32-bit, non-prefetchable) [size=256]
-        Capabilities: [40] Power Management version 2
-
-root:~# uname -a
-Linux hobbes 2.4.23-pre4 #1 Fri Sep 19 12:43:29 WEST 2003 i686 unknown  
-unknown GNU/Linux
-
-root:~# ifconfig|grep -A7 eth0
-eth0      Link encap:Ethernet  HWaddr 00:0C:6E:19:06:A9
-          inet addr:192.168.0.17  Bcast:192.168.0.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:74532 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:73461 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100
-          RX bytes:15080003 (14.3 Mb)  TX bytes:7089544 (6.7 Mb)
-          Interrupt:23 Base address:0x6000
-
-Relevant dmesg:
-
-via-rhine.c:v1.10-LK1.1.19  July-12-2003  Written by Donald Becker
-  http://www.scyld.com/network/via-rhine.html
-eth0: VIA VT6102 Rhine-II at 0xe5000000, 00:0c:6e:19:06:a9, IRQ 23.
-eth0: MII PHY found at address 1, status 0x786d advertising 01e1 Link  
-41e1.
-
-It's an Asus A7V8X board connected to a nortel baystack 350 switch, and  
-the kernel is built with ACPI, local APIC and IO-APIC (which are known  
-for breaking stuff on occasion, although have always worked flawlessly  
-here) and highmem (2Gb installed). See if your user can try booting with  
-"pci=noapic" or "acpi=off" or "noapic", it should probably help.
-
-Now, booting back to 2.6.0-test5 ;)
-
+That said, the proprietary module may be faultless. However,
+nobody is going to be able to find the problem without being
+able to review the source-code of that module. So, don't install
+that module, wait for the crash again, then file another
+report. If the machine doesn't crash again, then you've probably
+found the problem, that "secret" module code that the vendor
+doesn't want you to see because you might vomit or might reverse-
+engineer, resulting in a better product.
 
 Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-		Nuno
 

@@ -1,359 +1,449 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265271AbTLFXMw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 18:12:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265272AbTLFXMw
+	id S265270AbTLFXmc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 18:42:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbTLFXmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 18:12:52 -0500
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:4619 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id S265271AbTLFXMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 18:12:43 -0500
-Message-ID: <3FD26269.9080700@dcrdev.demon.co.uk>
-Date: Sat, 06 Dec 2003 23:12:41 +0000
-From: Dan Creswell <dan@dcrdev.demon.co.uk>
+	Sat, 6 Dec 2003 18:42:32 -0500
+Received: from pD9519294.dip.t-dialin.net ([217.81.146.148]:10244 "EHLO
+	Yozhikbook.Yozhikbook") by vger.kernel.org with ESMTP
+	id S265270AbTLFXmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 18:42:21 -0500
+Message-ID: <3FD2694D.5090706@rambler.ru>
+Date: Sun, 07 Dec 2003 00:42:05 +0100
+From: Pavel Alexeev <al_pavel@rambler.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en, en-us
+X-Accept-Language: en-us, en, de, ru
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Irq balancing problem?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: PROBLEM: (Bug report) USB Mass Storage in 2.6.0-test11 (cannot mount
+ flash drive)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Folks,
+Hi!
+Sorry, i am totally stumped as to whom to send the report :)
 
-I've been testing -test11 here and come across an odd piece of 
-behaviour.  I'm running Fedora Core on a dual PIV Xeon and have suffered 
-a number of stability problems.  After some poking around through 
-various archives, I found some discussion about irq balancing with 
-multiple APIC's potentially causing problems.
+[1.] One line summary of the problem:
+-------------------------------------
 
-With that, I first tried passing noirqbalance as a kernel parameter - no 
-dice - still get lock ups.
+I cannot mount any USB mass storage drive when using kernel 2.6.0-test11
 
-So, then I also disabled the user-space irq balancing daemon (in 
-addition to passing noirqbalance) and, voila, my system is now stable.
+[2.] Full description of the problem/report:
+--------------------------------------------
 
-Even with all this balancing disabled, a cat /proc/interrupts shows 
-interrupts being spread across CPU's.  My next step will be to re-enable 
-in-kernel irq balancing and see what happens.
+After plugging the HP Photosmart 720 USB cable in my notebook HP Omnibook xe4500 i see
+in /var/log/messages:
 
-Just wondering if anyone has any theories on what's happening/going 
-wrong?  I've attached the dmesg output below for -test11.
+Dec  6 19:28:18 mycomp kernel: hub 1-0:1.0: new USB device on port 2, assigned address 3
+Dec  6 19:28:18 mycomp modprobe: FATAL: Module usb_storage already in kernel. 
+Dec  6 19:28:18 mycomp kernel: scsi1 : SCSI emulation for USB Mass Storage devices
+Dec  6 19:28:18 mycomp scsi.agent[894]: bogus sysfs  DEVPATH=/devices/pci0000:00/0000:00:02.0/usb1/1-2/1-2:1.0/ho st1/1:0:0:0
+Dec  6 19:28:18 mycomp kernel:   Vendor:           Model:                   Rev:     
+Dec  6 19:28:18 mycomp kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
+Dec  6 19:28:18 mycomp kernel: Attached scsi generic sg0 at scsi1, channel 0, id 0, lun 0,  type 0
 
-Cheers,
+But I cannot mount the device:
 
-Dan.
+bash-2.05b# mount /dev/sg0 /mnt/flash
+mount: /dev/sg0 is not a block device
+bash-2.05b# mount /dev/sda1 /mnt/flash
+mount: /dev/sda1 is not a valid block device
+bash-2.05b# mount /dev/sdb1 /mnt/flash
+mount: /dev/sdb1 is not a valid block device
+...
 
-Dmesg output:
-
-a2 elevator=deadline noirqbalance
-Initializing CPU#0
-PID hash table entries: 4096 (order 12: 32768 bytes)
-Detected 2667.013 MHz processor.
-Console: colour VGA+ 80x25
-Memory: 2071220k/2096576k available (1814k kernel code, 24216k reserved, 
-649k data, 436k init, 1179072k highmem)
-Calibrating delay loop... 5259.26 BogoMIPS
-Dentry cache hash table entries: 262144 (order: 8, 1048576 bytes)
-Inode-cache hash table entries: 131072 (order: 7, 524288 bytes)
-Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-CPU:     After generic identify, caps: bfebfbff 00000000 00000000 00000000
-CPU:     After vendor identify, caps: bfebfbff 00000000 00000000 00000000
-CPU: Trace cache: 12K uops, L1 D cache: 8K
-CPU: L2 cache: 512K
-CPU: Physical Processor ID: 0
-CPU:     After all inits, caps: bfebfbff 00000000 00000000 00000080
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU#0: Intel P4/Xeon Extended MCE MSRs (12) available
-CPU#0: Thermal monitoring enabled
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-CPU0: Intel(R) Xeon(TM) CPU 2.66GHz stepping 05
-per-CPU timeslice cutoff: 1462.58 usecs.
-task migration cache decay timeout: 2 msecs.
-enabled ExtINT on CPU#0
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Booting processor 1/6 eip 2000
-Initializing CPU#1
-masked ExtINT on CPU#1
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Calibrating delay loop... 5324.80 BogoMIPS
-CPU:     After generic identify, caps: bfebfbff 00000000 00000000 00000000
-CPU:     After vendor identify, caps: bfebfbff 00000000 00000000 00000000
-CPU: Trace cache: 12K uops, L1 D cache: 8K
-CPU: L2 cache: 512K
-CPU: Physical Processor ID: 6
-CPU:     After all inits, caps: bfebfbff 00000000 00000000 00000080
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#1.
-CPU#1: Intel P4/Xeon Extended MCE MSRs (12) available
-CPU#1: Thermal monitoring enabled
-CPU1: Intel(R) Xeon(TM) CPU 2.66GHz stepping 05
-Total of 2 processors activated (10584.06 BogoMIPS).
-WARNING: No sibling found for CPU 0.
-WARNING: No sibling found for CPU 1.
-ENABLING IO-APIC IRQs
-Setting 2 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 2 ... ok.
-Setting 3 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 3 ... ok.
-Setting 4 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 4 ... ok.
-init IO_APIC IRQs
- IO-APIC (apicid-pin) 2-0, 2-3, 2-5, 2-10, 2-11, 2-20, 2-21, 2-22, 3-2, 
-3-3, 3-4, 3-5, 3-6, 3-7, 3-8, 3-9, 3-10, 3-11, 3-12, 3-13, 3-14, 3-15, 
-3-16, 3-17, 3-18, 3-19, 3-20, 3-21, 3-22, 3-23, 4-0, 4-1, 4-2, 4-3, 4-4, 
-4-5, 4-6, 4-7, 4-8, 4-9, 4-10, 4-11, 4-12, 4-13, 4-14, 4-15, 4-16, 4-17, 
-4-18, 4-19, 4-20, 4-21, 4-22, 4-23 not connected.
-..TIMER: vector=0x31 pin1=2 pin2=0
-number of MP IRQ sources: 21.
-number of IO-APIC #2 registers: 24.
-number of IO-APIC #3 registers: 24.
-number of IO-APIC #4 registers: 24.
-testing the IO APIC.......................
-IO APIC #2......
-.... register #00: 02000000
-.......    : physical APIC id: 02
-.......    : Delivery Type: 0
-.......    : LTS          : 0
-.... register #01: 00178020
-.......     : max redirection entries: 0017
-.......     : PRQ implemented: 1
-.......     : IO APIC version: 0020
-.... register #02: 00000000
-.......     : arbitration: 00
-.... register #03: 00000001
-.......     : Boot DT    : 1
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:  
- 00 000 00  1    0    0   0   0    0    0    00
- 01 001 01  0    0    0   0   0    1    1    39
- 02 001 01  0    0    0   0   0    1    1    31
- 03 000 00  1    0    0   0   0    0    0    00
- 04 001 01  0    0    0   0   0    1    1    41
- 05 000 00  1    0    0   0   0    0    0    00
- 06 001 01  0    0    0   0   0    1    1    49
- 07 001 01  0    0    0   0   0    1    1    51
- 08 001 01  0    0    0   0   0    1    1    59
- 09 001 01  0    0    0   0   0    1    1    61
- 0a 000 00  1    0    0   0   0    0    0    00
- 0b 000 00  1    0    0   0   0    0    0    00
- 0c 001 01  0    0    0   0   0    1    1    69
- 0d 001 01  0    0    0   0   0    1    1    71
- 0e 001 01  0    0    0   0   0    1    1    79
- 0f 001 01  0    0    0   0   0    1    1    81
- 10 001 01  1    1    0   1   0    1    1    89
- 11 001 01  1    1    0   1   0    1    1    91
- 12 001 01  1    1    0   1   0    1    1    99
- 13 001 01  1    1    0   1   0    1    1    A1
- 14 000 00  1    0    0   0   0    0    0    00
- 15 000 00  1    0    0   0   0    0    0    00
- 16 000 00  1    0    0   0   0    0    0    00
- 17 001 01  1    1    0   1   0    1    1    A9
-IO APIC #3......
-.... register #00: 03000000
-.......    : physical APIC id: 03
-.......    : Delivery Type: 0
-.......    : LTS          : 0
-.... register #01: 00178020
-.......     : max redirection entries: 0017
-.......     : PRQ implemented: 1
-.......     : IO APIC version: 0020
-.... register #02: 03000000
-.......     : arbitration: 03
-.... register #03: 00000001
-.......     : Boot DT    : 1
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:  
- 00 001 01  1    1    0   1   0    1    1    B1
- 01 001 01  1    1    0   1   0    1    1    B9
- 02 000 00  1    0    0   0   0    0    0    00
- 03 000 00  1    0    0   0   0    0    0    00
- 04 000 00  1    0    0   0   0    0    0    00
- 05 000 00  1    0    0   0   0    0    0    00
- 06 000 00  1    0    0   0   0    0    0    00
- 07 000 00  1    0    0   0   0    0    0    00
- 08 000 00  1    0    0   0   0    0    0    00
- 09 000 00  1    0    0   0   0    0    0    00
- 0a 000 00  1    0    0   0   0    0    0    00
- 0b 000 00  1    0    0   0   0    0    0    00
- 0c 000 00  1    0    0   0   0    0    0    00
- 0d 000 00  1    0    0   0   0    0    0    00
- 0e 000 00  1    0    0   0   0    0    0    00
- 0f 000 00  1    0    0   0   0    0    0    00
- 10 000 00  1    0    0   0   0    0    0    00
- 11 000 00  1    0    0   0   0    0    0    00
- 12 000 00  1    0    0   0   0    0    0    00
- 13 000 00  1    0    0   0   0    0    0    00
- 14 000 00  1    0    0   0   0    0    0    00
- 15 000 00  1    0    0   0   0    0    0    00
- 16 000 00  1    0    0   0   0    0    0    00
- 17 000 00  1    0    0   0   0    0    0    00
-IO APIC #4......
-.... register #00: 04000000
-.......    : physical APIC id: 04
-.......    : Delivery Type: 0
-.......    : LTS          : 0
-.... register #01: 00178020
-.......     : max redirection entries: 0017
-.......     : PRQ implemented: 1
-.......     : IO APIC version: 0020
-.... register #02: 04000000
-.......     : arbitration: 04
-.... register #03: 00000001
-.......     : Boot DT    : 1
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:  
- 00 000 00  1    0    0   0   0    0    0    00
- 01 000 00  1    0    0   0   0    0    0    00
- 02 000 00  1    0    0   0   0    0    0    00
- 03 000 00  1    0    0   0   0    0    0    00
- 04 000 00  1    0    0   0   0    0    0    00
- 05 000 00  1    0    0   0   0    0    0    00
- 06 000 00  1    0    0   0   0    0    0    00
- 07 000 00  1    0    0   0   0    0    0    00
- 08 000 00  1    0    0   0   0    0    0    00
- 09 000 00  1    0    0   0   0    0    0    00
- 0a 000 00  1    0    0   0   0    0    0    00
- 0b 000 00  1    0    0   0   0    0    0    00
- 0c 000 00  1    0    0   0   0    0    0    00
- 0d 000 00  1    0    0   0   0    0    0    00
- 0e 000 00  1    0    0   0   0    0    0    00
- 0f 000 00  1    0    0   0   0    0    0    00
- 10 000 00  1    0    0   0   0    0    0    00
- 11 000 00  1    0    0   0   0    0    0    00
- 12 000 00  1    0    0   0   0    0    0    00
- 13 000 00  1    0    0   0   0    0    0    00
- 14 000 00  1    0    0   0   0    0    0    00
- 15 000 00  1    0    0   0   0    0    0    00
- 16 000 00  1    0    0   0   0    0    0    00
- 17 000 00  1    0    0   0   0    0    0    00
-IRQ to pin mappings:
-IRQ0 -> 0:2
-IRQ1 -> 0:1
-IRQ4 -> 0:4
-IRQ6 -> 0:6
-IRQ7 -> 0:7
-IRQ8 -> 0:8
-IRQ9 -> 0:9
-IRQ12 -> 0:12
-IRQ13 -> 0:13
-IRQ14 -> 0:14
-IRQ15 -> 0:15
-IRQ16 -> 0:16
-IRQ17 -> 0:17
-IRQ18 -> 0:18
-IRQ19 -> 0:19
-IRQ23 -> 0:23
-IRQ24 -> 1:0
-IRQ25 -> 1:1
-.................................... done.
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 2665.0458 MHz.
-..... host bus clock speed is 133.0272 MHz.
-checking TSC synchronization across 2 CPUs: passed.
-Starting migration thread for cpu 0
-Bringing up 1
-CPU 1 IS NOW UP!
-Starting migration thread for cpu 1
-CPUS done 8
-NET: Registered protocol family 16
-EISA bus registered
-PCI: PCI BIOS revision 2.10 entry at 0xfd8d5, last bus=5
-PCI: Using configuration type 1
-mtrr: v2.0 (20020519)
-SCSI subsystem initialized
-PCI: Probing PCI hardware
-PCI: Probing PCI hardware (bus 00)
-PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
-Transparent bridge - 0000:00:1e.0
-PCI: Using IRQ router PIIX/ICH [8086/24c0] at 0000:00:1f.0
-PCI->APIC IRQ transform: (B0,I29,P0) -> 16
-PCI->APIC IRQ transform: (B0,I29,P1) -> 19
-PCI->APIC IRQ transform: (B0,I29,P2) -> 18
-PCI->APIC IRQ transform: (B0,I29,P3) -> 23
-PCI->APIC IRQ transform: (B1,I0,P0) -> 17
-PCI->APIC IRQ transform: (B3,I3,P0) -> 24
-PCI->APIC IRQ transform: (B3,I3,P1) -> 25
-PCI->APIC IRQ transform: (B5,I2,P0) -> 17
-PCI->APIC IRQ transform: (B5,I3,P0) -> 16
-SBF: Simple Boot Flag extension found and enabled.
-SBF: Setting boot flags 0x80
-ikconfig 0.7 with /proc/config*
-highmem bounce pool size: 64 pages
-VFS: Disk quotas dquot_6.5.1
-Initializing Cryptographic API
-pty: 2048 Unix98 ptys configured
-Real Time Clock Driver v1.12
-hw_random hardware driver 1.0.0 loaded
-Linux agpgart interface v0.100 (c) Dave Jones
-agpgart: Detected an Intel E7505 Chipset.
-agpgart: Maximum main memory to use for agp memory: 1919M
-agpgart: AGP aperture is 128M @ 0xe0000000
-Serial: 8250/16550 driver $Revision: 1.90 $ 48 ports, IRQ sharing enabled
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-Using deadline io scheduler
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ICH4: IDE controller at PCI slot 0000:00:1f.1
-ICH4: chipset revision 2
-ICH4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0x1460-0x1467, BIOS settings: hda:DMA, hdb:pio
-hda: HL-DT-STDVD-ROM GDR8161B, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide-floppy driver 0.99.newide
-GDT: Storage RAID Controller Driver. Version: 2.08
-GDT: Found 0 PCI Storage RAID Controllers
-st: Version 20030811, fixed bufsize 32768, s/g segs 256
-Fusion MPT base driver 2.05.00.03
-Copyright (c) 1999-2002 LSI Logic Corporation
-mptbase: Initiating ioc0 bringup
-ioc0: 53C1030: Capabilities={Initiator}
-mptbase: Initiating ioc1 bringup
-ioc1: 53C1030: Capabilities={Initiator}
-mptbase: 2 MPT adapters found, 2 installed.
-Fusion MPT SCSI Host driver 2.05.00.03
-scsi0 : ioc0: LSI53C1030, FwRev=01000000h, Ports=1, MaxQ=255, IRQ=24
-  Vendor: SEAGATE   Model: ST336607LW        Rev: 0006
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-SCSI device sda: 71132960 512-byte hdwr sectors (36420 MB)
-SCSI device sda: drive cache: write through
- sda: sda1 sda2 sda3 sda4 < sda5 >
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
-scsi1 : ioc1: LSI53C1030, FwRev=01000000h, Ports=1, MaxQ=255, IRQ=25
-  Vendor: SEAGATE   Model: ST336607LW        Rev: 0006
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-SCSI device sdb: 71132960 512-byte hdwr sectors (36420 MB)
-SCSI device sdb: drive cache: write through
- sdb: sdb1 sdb2
-Attached scsi disk sdb at scsi1, channel 0, id 1, lun 0
-Attached scsi generic sg1 at scsi1, channel 0, id 1, lun 0,  type 0
-mice: PS/2 mouse device common for all mice
-input: ImExPS/2 Generic Explorer Mouse on isa0060/serio1
-serio: i8042 AUX port at 0x60,0x64 irq 12
-input: AT Translated Set 2 keyboard on isa0060/serio0
-serio: i8042 KBD port at 0x60,0x64 irq 1
-md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
-EISA: Probing bus 0 at eisa0
-NET: Registered protocol family 2
-IP: routing cache hash table of 16384 buckets, 128Kbytes
-TCP: Hash tables configured (established 524288 bind 65536)
-NET: Registered protocol family 1
-NET: Registered protocol family 17
+When I use the 2.4.22 kernel (compiled with the same options in .config-file), the
+command "mount /dev/sda1 /mnt/flash" works fine!
+I have tried the same with the 128MB USB Flash Drive (noname). The contents of the /var/log/messages:
 
 
+Dec 6 14:49:25 mycomp kernel: hub 1-0:1.0: new USB device on port 2, assigned address 2
+Dec 6 14:49:25 mycomp kernel: Initializing USB Mass Storage driver...
+Dec 6 14:49:26 mycomp kernel: scsi0 : SCSI emulation for USB Mass Storage devices
+Dec 6 14:49:26 mycomp scsi.agent[597]: bogus sysfs  DEVPATH=/devices/pci0000:00/0000:00:02.0/usb1/1-2/1-2:1.0/ho st0/0:0:0:0
+Dec 6 14:49:26 mycomp kernel: Vendor: Model: USB DISK Pro Rev: 1.09
+Dec 6 14:49:26 mycomp kernel: Type: Direct-Access ANSI SCSI revision: 02
+Dec 6 14:49:26 mycomp kernel: Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0, type 0
+Dec 6 14:49:26 mycomp kernel: drivers/usb/core/usb.c: registered new driver usb-storage
+Dec 6 14:49:26 mycomp kernel: USB Mass Storage support registered.
+
+But when I do the same under 2.4.22, it works also fine! The output in /var/log/messages
+when using 2.4.22:
+
+Dec 6 12:26:05 mycomp kernel: hub.c: new USB device 00:02.0-2, assigned address 2
+Dec 6 12:26:08 mycomp kernel: Initializing USB Mass Storage driver...
+Dec 6 12:26:08 mycomp kernel: usb.c: registered new driver usb-storage
+Dec 6 12:26:08 mycomp kernel: scsi0 : SCSI emulation for USB Mass Storage devices
+Dec 6 12:26:08 mycomp kernel: USB Mass Storage support registered.
+Dec 6 12:29:30 mycomp kernel: sda: sda1
+
+[3.] Keywords (i.e., modules, networking, kernel):
+--------------------------------------------------
+
+USB Mass Storage, kernel 2.6.0-test11, mount
+
+[4.] Kernel version (from /proc/version):
+-----------------------------------------
+
+Linux version 2.6.0-test11 (gcc version 3.2.3)
+
+[5.] Output of Oops.. message (if applicable) with symbolic information 
+     resolved (see Documentation/oops-tracing.txt)
+-----------------------------------------------------------------------
+
+No Oops.. message
+
+[6.] A small shell script or example program which triggers the
+     problem (if possible)
+---------------------------------------------------------------
+
+Not possible :)
+
+[7.] Environment
+[7.1.] Software (add the output of the ver_linux script here)
+-------------------------------------------------------------
+
+Linux Yozhikbook 2.6.0-test11 #9 Sat Dec 6 14:43:41 CET 2003 i686 unknown unknown GNU/Linux
+
+Gnu C                  3.2.3
+Gnu make               3.80
+util-linux             2.12
+mount                  2.12
+module-init-tools      0.9.14
+e2fsprogs              1.34
+pcmcia-cs              3.2.5
+PPP                    2.4.1
+nfs-utils              1.0.6
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Linux C++ Library      5.0.3
+Procps                 2.0.16
+Net-tools              1.60
+Kbd                    1.08
+Sh-utils               5.0
+Modules Loaded         usb_storage radeon snd_pcm_oss snd_mixer_oss uhci_hcd ohci_hcd ehci_hcd usbcore
+
+[7.2.] Processor information (from /proc/cpuinfo):
+--------------------------------------------------
+
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Pentium(R) 4 Mobile CPU 1.70GHz
+stepping        : 4
+cpu MHz         : 1699.976
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat p
+se36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 3342.33
+
+[7.3.] Module information (from /proc/modules):
+-----------------------------------------------
+
+usb_storage 26368 0 - Live 0xd0914000
+radeon 117400 2 - Live 0xd0937000
+snd_pcm_oss 51844 0 - Live 0xd0906000
+snd_mixer_oss 19072 1 snd_pcm_oss, Live 0xd08b5000
+uhci_hcd 30344 0 - Live 0xd08ed000
+ohci_hcd 17664 0 - Live 0xd08c2000
+ehci_hcd 23552 0 - Live 0xd08bb000
+usbcore 105684 6 usb_storage,uhci_hcd,ohci_hcd,ehci_hcd, Live 0xd08d2000
+
+[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
+--------------------------------------------------------------------------
+
+bash-2.05b# cat ioports
+0000-001f : dma1
+0020-0021 : pic1
+0040-005f : timer
+0060-006f : keyboard
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+0376-0376 : ide1
+0378-037a : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+0cf8-0cff : PCI conf1
+1000-10ff : 0000:00:06.0
+  1000-10ff : ALI 5451
+1400-14ff : 0000:00:08.0
+1800-180f : 0000:00:10.0
+  1800-1807 : ide0
+  1808-180f : ide1
+1c00-1cff : 0000:00:12.0
+  1c00-1cff : eth0
+4000-40ff : PCI CardBus #02
+4400-44ff : PCI CardBus #02
+4800-48ff : PCI CardBus #06
+4c00-4cff : PCI CardBus #06
+8000-803f : 0000:00:11.0
+8040-805f : 0000:00:11.0
+9000-9fff : PCI Bus #01
+  9000-90ff : 0000:01:00.0
+
+bash-2.05b# cat iomem  
+00000000-0009f7ff : System RAM
+0009f800-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000cf000-000cffff : Extension ROM
+000e0000-000effff : Extension ROM
+000f0000-000fffff : System ROM
+00100000-0feeffff : System RAM
+  00100000-0039665c : Kernel code
+  0039665d-004be57f : Kernel data
+0fef0000-0fefefff : ACPI Tables
+0feff000-0fefffff : ACPI Non-volatile Storage
+0ff00000-0fffffff : reserved
+10000000-10000fff : 0000:00:0a.0
+  10000000-10000fff : yenta_socket
+10001000-10001fff : 0000:00:0a.1
+  10001000-10001fff : yenta_socket
+10400000-107fffff : PCI CardBus #02
+10800000-10bfffff : PCI CardBus #02
+10c00000-10ffffff : PCI CardBus #06
+11000000-113fffff : PCI CardBus #06
+e0000000-e0000fff : 0000:00:02.0
+  e0000000-e0000fff : ohci_hcd
+e0001000-e0001fff : 0000:00:06.0
+e0002000-e0002fff : 0000:00:08.0
+e0003000-e00037ff : 0000:00:0c.0
+  e0003000-e00037ff : ohci1394
+e0004000-e0007fff : 0000:00:0c.0
+e0008000-e0008fff : 0000:00:12.0
+  e0008000-e0008fff : eth0
+e0100000-e01fffff : PCI Bus #01
+  e0100000-e010ffff : 0000:01:00.0
+e8000000-efffffff : PCI Bus #01
+  e8000000-efffffff : 0000:01:00.0
+f0000000-f7ffffff : 0000:00:00.0
+fffc0000-ffffffff : reserved
+
+[7.5.] PCI information ('lspci -vvv' as root)
+---------------------------------------------
+
+00:00.0 Host bridge: ALi Corporation M1671 Super P4 Northbridge [AGP4X,PCI and SDR/DDR] (rev 02)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
+	Latency: 0
+	Region 0: Memory at f0000000 (32-bit, prefetchable) [size=128M]
+	Capabilities: [b0] AGP version 2.0
+		Status: RQ=28 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW+ AGP3- Rate=x1,x2,x4
+		Command: RQ=1 ArqSz=0 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x4
+	Capabilities: [a4] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:01.0 PCI bridge: ALi Corporation PCI to AGP Controller (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+	I/O behind bridge: 00009000-00009fff
+	Memory behind bridge: e0100000-e01fffff
+	Prefetchable memory behind bridge: e8000000-efffffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+
+00:02.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03) (prog-if 10 [OHCI])
+	Subsystem: Hewlett-Packard Company: Unknown device 0025
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (20000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at e0000000 (32-bit, non-prefetchable) [size=4K]
+	Capabilities: [60] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:06.0 Multimedia audio controller: ALi Corporation M5451 PCI AC-Link Controller Audio Device (rev 02)
+	Subsystem: Hewlett-Packard Company: Unknown device 0025
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR+ <PERR+
+	Latency: 64 (500ns min, 6000ns max)
+	Interrupt: pin A routed to IRQ 5
+	Region 0: I/O ports at 1000 [size=256]
+	Region 1: Memory at e0001000 (32-bit, non-prefetchable) [size=4K]
+	Capabilities: [dc] Power Management version 2
+		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:07.0 ISA bridge: ALi Corporation M1533 PCI to ISA Bridge [Aladdin IV]
+	Subsystem: ALi Corporation ALI M1533 Aladdin IV ISA Bridge
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Capabilities: [a0] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:08.0 Modem: ALi Corporation Intel 537 [M5457 AC-Link Modem] (prog-if 00 [Generic])
+	Subsystem: Hewlett-Packard Company: Unknown device 0025
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at e0002000 (32-bit, non-prefetchable) [disabled] [size=4K]
+	Region 1: I/O ports at 1400 [disabled] [size=256]
+	Capabilities: [40] Power Management version 2
+		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0a.0 CardBus bridge: Texas Instruments PCI1250 PC card Cardbus Controller (rev 01)
+	Subsystem: Hewlett-Packard Company: Unknown device 0025
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 168, cache line size 20
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=00, secondary=02, subordinate=05, sec-latency=176
+	Memory window 0: 10400000-107ff000 (prefetchable)
+	Memory window 1: 10800000-10bff000
+	I/O window 0: 00004000-000040ff
+	I/O window 1: 00004400-000044ff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+00:0a.1 CardBus bridge: Texas Instruments PCI1250 PC card Cardbus Controller (rev 01)
+	Subsystem: Hewlett-Packard Company: Unknown device 0025
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 168, cache line size 20
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at 10001000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=00, secondary=06, subordinate=09, sec-latency=176
+	Memory window 0: 10c00000-10fff000 (prefetchable)
+	Memory window 1: 11000000-113ff000
+	I/O window 0: 00004800-000048ff
+	I/O window 1: 00004c00-00004cff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+00:0c.0 FireWire (IEEE 1394): Texas Instruments TSB43AB21 IEEE-1394a-2000 Controller (PHY/Link) (prog-if 10 [OHCI])
+	Subsystem: Hewlett-Packard Company: Unknown device 0025
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (500ns min, 1000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at e0003000 (32-bit, non-prefetchable) [size=2K]
+	Region 1: Memory at e0004000 (32-bit, non-prefetchable) [size=16K]
+	Capabilities: [44] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME+
+
+00:10.0 IDE interface: ALi Corporation M5229 IDE (rev c4) (prog-if b0)
+	Subsystem: Hewlett-Packard Company: Unknown device 0025
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (500ns min, 1000ns max)
+	Interrupt: pin A routed to IRQ 0
+	Region 4: I/O ports at 1800 [size=16]
+	Capabilities: [60] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.0 Bridge: ALi Corporation M7101 PMU
+	Subsystem: Hewlett-Packard Company: Unknown device 0025
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+
+00:12.0 Ethernet controller: National Semiconductor Corporation DP83815 (MacPhyter) Ethernet Controller
+	Subsystem: Unknown device 3c08:a400
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 90 (2750ns min, 13000ns max)
+	Interrupt: pin A routed to IRQ 11
+	Region 0: I/O ports at 1c00 [size=256]
+	Region 1: Memory at e0008000 (32-bit, non-prefetchable) [size=4K]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+	Capabilities: [40] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=320mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME+
+
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M6 LY (prog-if 00 [VGA])
+	Subsystem: Hewlett-Packard Company: Unknown device 0025
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B+
+	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 66 (2000ns min), cache line size 08
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at e8000000 (32-bit, prefetchable) [size=128M]
+	Region 1: I/O ports at 9000 [size=256]
+	Region 2: Memory at e0100000 (32-bit, non-prefetchable) [size=64K]
+	Expansion ROM at <unassigned> [disabled] [size=128K]
+	Capabilities: [58] AGP version 2.0
+		Status: RQ=48 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2,x4
+		Command: RQ=28 ArqSz=0 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x4
+	Capabilities: [50] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+[7.6.] SCSI information (from /proc/scsi/scsi)
+----------------------------------------------
+
+Attached devices:
+Host: scsi2 Channel: 00 Id: 00 Lun: 00
+  Vendor:          Model: USB DISK Pro     Rev: 1.09
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+
+Note: USB Flash inserted, HP Photosmart not inserted
+
+[7.7.] Other information that might be relevant to the problem
+       (please look in /proc and include all information that you
+       think to be relevant):
+-----------------------------------------------------------------
+
+bash-2.05b# ls -lR /proc/scsi
+/proc/scsi:
+total 0
+-r--r--r--    1 root     root            0 2003-12-07 00:27 device_info
+-r--r--r--    1 root     root            0 2003-12-07 00:27 scsi
+dr-xr-xr-x    2 root     root            0 2003-12-07 00:27 sg
+dr-xr-xr-x    2 root     root            0 2003-12-07 00:27 usb-storage
+
+/proc/scsi/sg:
+total 0
+-rw-r--r--    1 root     root            0 2003-12-07 00:27 allow_dio
+-r--r--r--    1 root     root            0 2003-12-07 00:27 debug
+-rw-r--r--    1 root     root            0 2003-12-07 00:27 def_reserved_size
+-r--r--r--    1 root     root            0 2003-12-07 00:27 device_hdr
+-r--r--r--    1 root     root            0 2003-12-07 00:27 device_strs
+-r--r--r--    1 root     root            0 2003-12-07 00:27 devices
+-r--r--r--    1 root     root            0 2003-12-07 00:27 version
+
+/proc/scsi/usb-storage:
+total 0
+-rw-r--r--    1 root     root            0 2003-12-07 00:27 2
+
+
+bash-2.05b# cat /proc/scsi/usb-storage/2
+   Host scsi2: usb-storage
+       Vendor:         
+      Product: USB DISK Pro
+Serial Number: 073B1C3000A4
+     Protocol: Transparent SCSI
+    Transport: Bulk
+       Quirks:
+
+[X.] Other notes, patches, fixes, workarounds:
+----------------------------------------------
+I have no patches applied to the compiled kernel.
+PCMCIA-cards (FAT file system) work fine! I can successfully mount these cards with
+mount -t vfat /dev/hde1 /mnt/pcmcia
+
+Best regards,
+Pavel Alexeev
 
 

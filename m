@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267478AbTBFSDY>; Thu, 6 Feb 2003 13:03:24 -0500
+	id <S267474AbTBFSFF>; Thu, 6 Feb 2003 13:05:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267474AbTBFSDY>; Thu, 6 Feb 2003 13:03:24 -0500
-Received: from node181b.a2000.nl ([62.108.24.27]:16775 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id <S267473AbTBFSDX>;
-	Thu, 6 Feb 2003 13:03:23 -0500
-Date: Thu, 6 Feb 2003 19:12:41 +0100 (CET)
-From: Stephan van Hienen <raid@a2000.nu>
-To: AU <au@surfer.sbm.temple.edu>
-cc: Hans-Peter Jansen <hp@lisa-gmbh.de>, Shawn Evans <shawnwe@hotmail.com>,
-       linux-raid@vger.kernel.org, Andre Hedrick <andre@linux-ide.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Promise FastTrak TX4 losing interrupts (with apic mode)
-In-Reply-To: <Pine.SGI.4.32.0302060924010.93623-100000@surfer.sbm.temple.edu>
-Message-ID: <Pine.LNX.4.53.0302061907550.17629@ddx.a2000.nu>
-References: <Pine.SGI.4.32.0302060924010.93623-100000@surfer.sbm.temple.edu>
+	id <S267476AbTBFSFE>; Thu, 6 Feb 2003 13:05:04 -0500
+Received: from uswest-dsl-142-38.cortland.com ([209.162.142.38]:4358 "HELO
+	warez.scriptkiddie.org") by vger.kernel.org with SMTP
+	id <S267474AbTBFSFE>; Thu, 6 Feb 2003 13:05:04 -0500
+Date: Thu, 6 Feb 2003 10:14:41 -0800 (PST)
+From: Lamont Granquist <lamont@scriptkiddie.org>
+To: Stephen Clark <sclark46@earthlink.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NAT counting
+In-Reply-To: <3E427554.1030701@earthlink.net>
+Message-ID: <20030206101319.P14724-100000@coredump.scriptkiddie.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Feb 2003, AU wrote:
 
-> Try to boot with apic=no or acpi=oldboot
-like i do now with append noapic, it works ok
+If anyone is working on fixing this, they'll also need to fix up TCP
+timestamps and maybe ISNs as well as IPids.
 
-did some more tests today :
-plugged the fasttrak tx4 into 3 different machines
-all smp (dual p3/dual p2/dual xeon)
-with all i get lost interrupts
+On Thu, 6 Feb 2003, Stephen Clark wrote:
+> Hi all,
+>
+> Is Linux being fixed to prevent this?
+>
+>
+> "how to remotely count the number of machines hiding behind a NAT box"
+> <http://www.research.att.com/%7Esmb/papers/fnat.pdf> /
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 
-if i boot with noapic problem is solved
-
-(tried updating the bios for the promise, but doesn't help)
-
-looks like there is really something wrong with the (bios?) tx4
-
-i have 3 of these cards here
-putting 2 together in an mainbord also doesn't work (then the tx4 bios is
-complaining about no assigned irq)
-
-and if i use 1 card in a system, i always have to press 'esc' to continu
-after the bios tells me there is no array
-
-i really think i should have bought the highpoint 4 port cards :(

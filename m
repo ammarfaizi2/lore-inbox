@@ -1,53 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129053AbQKFJkE>; Mon, 6 Nov 2000 04:40:04 -0500
+	id <S129338AbQKFJjP>; Mon, 6 Nov 2000 04:39:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129493AbQKFJjy>; Mon, 6 Nov 2000 04:39:54 -0500
-Received: from smtp1.jp.psi.net ([154.33.63.111]:15377 "EHLO smtp1.jp.psi.net")
-	by vger.kernel.org with ESMTP id <S129357AbQKFJjp>;
-	Mon, 6 Nov 2000 04:39:45 -0500
-From: "Rainer Mager" <rmager@vgkk.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: OOPS when using 4GB memory setting
-Date: Mon, 6 Nov 2000 17:33:59 +0900
-Message-ID: <NEBBJBCAFMMNIHGDLFKGIEBCCHAA.rmager@vgkk.com>
+	id <S129357AbQKFJjE>; Mon, 6 Nov 2000 04:39:04 -0500
+Received: from [62.254.209.2] ([62.254.209.2]:4856 "EHLO cam-gw.zeus.co.uk")
+	by vger.kernel.org with ESMTP id <S129338AbQKFJi4>;
+	Mon, 6 Nov 2000 04:38:56 -0500
+Date: Mon, 6 Nov 2000 09:38:53 +0000 (GMT)
+From: Stephen Landamore <stephenl@zeus.com>
+To: Thomas Pollinger <tpolling@rhone.ch>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG REPORT] TCP/IP weirdness in 2.2.15
+In-Reply-To: <5.0.0.25.0.20001103173708.034fb360@stargate>
+Message-ID: <Pine.LNX.4.10.10011060917300.6962-100000@phaedra.cam.zeus.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi Thomas,
 
-	Please respond directly since I'm not on this mailing list.
+On Fri, 3 Nov 2000, Thomas Pollinger wrote:
+> Running a 'cvs get' on the Linux clients of a larger source tree
+> eventually hangs the client in the middle of the get process. The
+> hang is *always* reproduceable (however it does not always hang at
+> the same place, sometimes after 1', sometimes after 5' to
+> 10'). Several runs on Win NT did not show this problem.
+[...]
+> At last, I tried to do the same on another HP-UX box and there was
+> no blocking at all.
+>
+> What is interesting to know is that between the HP-UX server and the
+> HP client is a Linux router with a 3c905 card, 2.2.14 kernel.
 
-	I have 2 intertwined problems that my initial web research has failed to
-reveal help. I recently upgraded machines and the new one has 1GB RAM. If I
-build a 2.4.0pre10 (or 8 or 9, I haven't tried earlier) kernel and chose the
-1GB memory setting then only 900504 K is detected (but everything runs
-stably). If I chose the 4GB memory setting then the full 1 G is detected but
-I get oops. I can reliably force an oops by mounting a samba drive and then
-accessing it (via ls for example).
-	So, is this a known issue? Should I do an oops analysis? What can I do to
-fix this?
+Let me see if I understand this correct:
 
-	Also 2 items of note. The kernel that comes RetHat 6.2 detects all of the
-RAM and is stable. Related to this, although not that important, I also
-noticed that via this RedHad kernel, hdparm shows memory access (not disk)
-of over 200 MB/s. On my 2.4 kernels this is about 120MB/s. Any ideas why?
-	Second, it is a dual PIII system so is an SMP kernel, if that makes a
-difference.
+	Client	Router	Server
+	------------------------------------
+	Linux	Linux	HPUX		Bad
+	WinNT	Linux	HPUX		Good
+	HPUX	Linux	HPUX		Good
 
+With all Linux boxes version 2.2.something
 
-	Any help would be greatly appreciated.
+Is this correct?
 
---Rainer
+This is slightly different from my situation; I had a Linux client and
+Linux server directly connected to the same switch (3Com Superstack
+II, FWIW)
+
+I found the client always hung in my test; this was only visible at
+the end of a SPEC run. Analysing tcpdump etc showed that in fact it
+died somewhere early in the test, almost always before 10 minutes
+worth of run.
+
+In the end I 'fixed' the problem by using a HPUX server :-/ ... I
+observe that there _are_ some SPECweb99 submissions with Linux (the
+Tux result), I'm curious to know if the people who actually did the
+test run experienced any problems...
+
+Perhaps if I get time I'll repeat the experiment with (a) the most
+recent Alan pre-2.2 kernel and (b) the most recent 2.4-test kernel...
+
+I'll re-iterate my original request, which was not "it's broke - can
+you fix it" but was "okay, how do I go about tracking this one down?"
+
+cheers,
+stephen
+
+--
+Stephen Landamore, <slandamore@zeus.com>              Zeus Technology
+Tel: +44 1223 525000                      Universally Serving the Net
+Fax: +44 1223 525100                              http://www.zeus.com
+Zeus Technology, Zeus House, Cowley Road, Cambridge, CB4 0ZT, ENGLAND
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265947AbUGZVhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265932AbUGZVg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265947AbUGZVhR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 17:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUGZVhR
+	id S265932AbUGZVg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 17:36:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265938AbUGZVg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 17:37:17 -0400
-Received: from pop.gmx.de ([213.165.64.20]:28103 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265947AbUGZVhJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 17:37:09 -0400
-X-Authenticated: #5964578
-Date: Mon, 26 Jul 2004 23:36:51 +0200
-From: Dexter Filmore <Dexter.Filmore@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: whining noise - possible bug in nForce2 support?
-Message-Id: <20040726233651.0cf10aae@shodan.citadel>
-Organization: SCHWA Corporation
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Jul 2004 17:36:29 -0400
+Received: from mail019.syd.optusnet.com.au ([211.29.132.73]:9684 "EHLO
+	mail019.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265932AbUGZVgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 17:36:11 -0400
+Message-ID: <41057940.6090104@kolivas.org>
+Date: Tue, 27 Jul 2004 07:36:00 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, rusty@rustcorp.com.au
+Subject: Hackbench broken by 2.6.8-rc1+
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigBF6D0D6D319A384EE345842A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigBF6D0D6D319A384EE345842A
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Don't know who else to ask about this: 
+After a brief discussion with Rusty about hackbench he explained that it 
+was more a pass/fail benchmark than anything else - failing by running 
+forever. Well recently I noticed all kernels were doing it so did some 
+regression testing to see when it started. 2.6.7 runs fine, but 
+2.6.8-rc1 onwards get hard rebooted after 12 hours.
 
-Just upgraded my mobo to a ECS N2U400-A nForce2 board, standard MCP
-southbridge, latest BIOS.
-CPU is AMD Athlon XP 1800+, 2x256MB PC266 RAM.
-Kernel version is 2.6.7, tested distros are Slackware 10 and Knoppix 3.4.
+I've been using the 8x boxen at osdl with
+TEST: hackbench on stp8-001 running PLM ID 3049 [ linux-2.6.7 ]
+LILO: append = 'profile=2'
+Script Params: 25 200
 
-Board work alright so far, but as soon as I start a 2.6 kernel, the board will
-produce a high pitched whining sound.
-This doesn't happen with 2.4 or a wide spread OS from Redmond, only with 2.6.
-I tried test kernels without ACPI, APM and such, no success.
+I'll investigate further to see if I can track down the patch that 
+started this but it may take some time. Suffice to say that the 
+2.6.8-rc* versions may not be safe in certain server settings until that 
+time.
 
-Interesting thing: as long as the hard disk has something to do, the noise
-vanishes but returns as soon as the disk idles again.
+Cheers,
+Con
 
-This is way beyond me. Anybody got an idea?
+--------------enigBF6D0D6D319A384EE345842A
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-Dex
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFBBXlAZUg7+tp6mRURAsP1AJ4vxM96oN5rZbakA5qxLKfwUO3VFwCfWjJb
+kQ4q4kQGGOo6usMhICgGkqQ=
+=OaXA
+-----END PGP SIGNATURE-----
 
-
--- 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCS d--(+)@ s-:+ a- C+++(++++) UL+>++++ P+>++ L+++>++++ E-- W++ N o? K-
-w--(---) !O M+ V- PS++(+) PE(-) Y+ PGP(-) t++(---)@ 5 X+(++) R+(++) tv--(+)@ 
-b+(+++) DI+++ D G++ e* h>++ r%>* y?
-------END GEEK CODE BLOCK------
-
-http://www.againsttcpa.com - nothing fights like the opposition
+--------------enigBF6D0D6D319A384EE345842A--

@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVA3ND0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbVA3NFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbVA3ND0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 08:03:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVA3ND0
+	id S261701AbVA3NFV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 08:05:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVA3NFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 08:03:26 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:19214 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261699AbVA3NDQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 08:03:16 -0500
-Date: Sun, 30 Jan 2005 14:03:14 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: greg@kroah.com, perex@suse.cz
-Cc: alsa-devel@alsa-project.org, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] usbusx2yaudio.c: remove an unused variable
-Message-ID: <20050130130314.GL3185@stusta.de>
+	Sun, 30 Jan 2005 08:05:20 -0500
+Received: from mba.ocn.ne.jp ([210.190.142.172]:7879 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S261701AbVA3NFE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 08:05:04 -0500
+Date: Sun, 30 Jan 2005 22:05:37 +0900 (JST)
+Message-Id: <20050130.220537.45151614.anemo@mba.ocn.ne.jp>
+To: ralf@linux-mips.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, bunk@stusta.de
+Subject: Re: [PATCH] Fix SERIAL_TXX9 dependencies
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <20050130001555.GA3648@linux-mips.org>
+References: <20050129131134.75dacb41.akpm@osdl.org>
+	<20050129231255.GA3185@stusta.de>
+	<20050130001555.GA3648@linux-mips.org>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.3 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.6.11-rc a completely unused variable was added, resulting in the 
-following compile warning:
+>>>>> On Sun, 30 Jan 2005 00:15:55 +0000, Ralf Baechle <ralf@linux-mips.org> said:
+ralf> Ask for SERIAL_TXX9 only on those devices that actually have
+ralf> one.
 
-<--  snip  -->
+Well, "depends on MIPS || PCI" was intentional.  The driver can be
+used for both TX39/TX49 internal SIO and TC86C001 PCI chip.  TC86C001
+chip can be available for any platform with PCI bus (though I have
+never seen it on platform other than MIPS ...)
 
-...
-  CC      sound/usb/usx2y/usx2yhwdeppcm.o
-In file included from sound/usb/usx2y/usx2yhwdeppcm.c:53:
-sound/usb/usx2y/usbusx2yaudio.c: In function `usX2Y_urbs_allocate':
-sound/usb/usx2y/usbusx2yaudio.c:418: warning: unused variable `ep'
-...
+So I suppose "depends on HAS_TXX9_SERIAL || PCI" might be better, but
+Ralf's patch will be OK for now.
 
-<--  snip  -->
-
-
-This patch removes this unused variable.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.11-rc2-mm2-full/sound/usb/usx2y/usbusx2yaudio.c.old	2005-01-30 12:26:58.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/sound/usb/usx2y/usbusx2yaudio.c	2005-01-30 12:27:03.000000000 +0100
-@@ -415,7 +415,6 @@
- 	unsigned int pipe;
- 	int is_playback = subs == subs->usX2Y->subs[SNDRV_PCM_STREAM_PLAYBACK];
- 	struct usb_device *dev = subs->usX2Y->chip.dev;
--	struct usb_host_endpoint *ep;
- 
- 	pipe = is_playback ? usb_sndisocpipe(dev, subs->endpoint) :
- 			usb_rcvisocpipe(dev, subs->endpoint);
-
+Thank you.
+---
+Atsushi Nemoto

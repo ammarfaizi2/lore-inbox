@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267765AbUIOXFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267737AbUIOXFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267765AbUIOXFm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 19:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267700AbUIOXFW
+	id S267737AbUIOXFo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 19:05:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267725AbUIOXEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 19:05:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49814 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267765AbUIOXCU
+	Wed, 15 Sep 2004 19:04:42 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:37518 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S267751AbUIOXED
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 19:02:20 -0400
-Date: Thu, 16 Sep 2004 00:02:17 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Frank van Maarseveen <frankvm@xs4all.nl>
-Cc: Andrew Schretter <schrett@math.duke.edu>, NFS@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: vfs bug. was: Re: [NFS] 2.6.8.1 kernel NFS client connectathon failure
-Message-ID: <20040915230217.GM23987@parcelfarce.linux.theplanet.co.uk>
-References: <200409152054.i8FKsTNV002355@roma.math.duke.edu> <20040915222358.GA23118@janus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040915222358.GA23118@janus>
-User-Agent: Mutt/1.4.1i
+	Wed, 15 Sep 2004 19:04:03 -0400
+Date: Thu, 16 Sep 2004 00:03:48 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Deepak Saxena <dsaxena@plexity.net>
+cc: Netdev <netdev@oss.sgi.com>, leonid.grossman@s2io.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The ultimate TOE design
+In-Reply-To: <20040915213600.GA12153@plexity.net>
+Message-ID: <Pine.LNX.4.61.0409160002480.23011@fogarty.jakma.org>
+References: <4148991B.9050200@pobox.com> <Pine.LNX.4.61.0409152102050.23011@fogarty.jakma.org>
+ <20040915213600.GA12153@plexity.net>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 12:23:58AM +0200, Frank van Maarseveen wrote:
-> Behavior I see is identical to that on a local (ext3) fs on 2.6.8.1 and
-> also on local ext3 on 2.4.27, namely that TEMP/BAR still exists. This
-> looks like a long standing kernel bug since the rename(2) seems to
-> succeed:
-> 
-> (snippet from strace):
-> write(3, "...", 3)                      = 3
-> close(3)                                = 0
-> link("FOO", "TEMP/BAR")                 = 0
-> rename("TEMP/BAR", "FOO")               = 0
-> unlink("FOO")                           = 0
+On Wed, 15 Sep 2004, Deepak Saxena wrote:
 
-Behaviour is REQUIRED by POSIX and SuS.
+> Unfortunately all the SW that lets one make use of the interesting 
+> features of the IXPs (microEngines, crypto, etc) is a pile of 
+> propietary code.
 
-<quote>
-     If the old argument and the new argument both refer to, and both
-     link to the same existing file, rename() returns successfully and
-     performs no other action.
-</quote>
+My vague understanding is that while Intel's microengine code is 
+proprietary, they do provide the docs to the microengines to let you 
+write your own, no?
 
-So what you get is
-	* after link(2) success - FOO and TEMP/BAR being links to the same
-file.
-	* after rename(2) (required) success - same as before
-	* after unlink(2) - FOO is removed, TEMP/BAR remains.
+> ~Deepak
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+Better tried by twelve than carried by six.
+ 		-- Jeff Cooper

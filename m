@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131175AbRCRJga>; Sun, 18 Mar 2001 04:36:30 -0500
+	id <S131197AbRCRJna>; Sun, 18 Mar 2001 04:43:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131158AbRCRJgL>; Sun, 18 Mar 2001 04:36:11 -0500
-Received: from colorfullife.com ([216.156.138.34]:15119 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129166AbRCRJf6>;
-	Sun, 18 Mar 2001 04:35:58 -0500
-Message-ID: <001801c0af8e$bda30c10$5517fea9@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: <engler@csl.Stanford.EDU>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [CHECKER] blocking w/ spinlock or interrupt's disabled
-Date: Sun, 18 Mar 2001 10:35:00 +0100
+	id <S131236AbRCRJnU>; Sun, 18 Mar 2001 04:43:20 -0500
+Received: from web1105.mail.yahoo.com ([128.11.23.125]:17928 "HELO
+	web1105.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S131197AbRCRJnO>; Sun, 18 Mar 2001 04:43:14 -0500
+Message-ID: <20010318094232.12088.qmail@web1105.mail.yahoo.com>
+Date: Sun, 18 Mar 2001 10:42:32 +0100 (CET)
+From: willy tarreau <wtarreau@yahoo.fr>
+Subject: [PATCH] printk msglevel identification broken since 2.4.2ac13
+To: andrewm@uow.edu.au, alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: multipart/mixed; boundary="0-650250286-984908552=:10413"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> enclosed are 163 potential bugs in 2.4.1 where blocking functions are
-> > called with either interrupts disabled or a spin lock held. The
-> > checker works by:
->
-> Here's the file manifest. Apologies.
->
-> drivers/atm/idt77105.c
-> [...]
-> drivers/char/cyclades.c
+--0-650250286-984908552=:10413
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
-Unortunately schedule() with disabled interrupts is a feature, it's
-needed for the old (deprecated and waiting for termination in 2.5)
-sleep_on() functions.
+Hi Andrew & Alan,
 
-Is it difficult to split it into "interrupts disabled" and "spin lock
-held"?
+I noticed that in 2.4.2ac20, all netfilter logs come
+to
+the console, whatever the log levels, and the
+beginning
+of the line is always prepended with '<4>'.
 
---
+I found in printk.c that a test is done for the length
+of the message to be strictly larger than 3 chars. But
+ipt_LOG uses 2 consecutive printk, one with only '<4>'
+and one with the message. It may be possible that
+other
+drivers to the same. Looking back in patches show this
+is present since 2.4.2ac13.
 
-    Manfred
+This trivial patch allows a 3-char message to set the
+message level.
+
+Cheers,
+Willy
 
 
+___________________________________________________________
+Do You Yahoo!? -- Pour dialoguer en direct avec vos amis, 
+Yahoo! Messenger : http://fr.messenger.yahoo.com
+--0-650250286-984908552=:10413
+Content-Type: application/x-unknown; name="2.4.2-ac20-printk-fix"
+Content-Transfer-Encoding: base64
+Content-Description: 2.4.2-ac20-printk-fix
+Content-Disposition: attachment; filename="2.4.2-ac20-printk-fix"
 
+ZGlmZiAtdXJOIDIuNC4yLWFjMjAva2VybmVsL3ByaW50ay5jIDIuNC4yLWFj
+MjAtcHJpbnRrZml4L2tlcm5lbC9wcmludGsuYwotLS0gMi40LjItYWMyMC9r
+ZXJuZWwvcHJpbnRrLmMJV2VkIE1hciAxNCAwNzo0MDowNiAyMDAxCisrKyAy
+LjQuMi1hYzIwLXByaW50a2ZpeC9rZXJuZWwvcHJpbnRrLmMJU3VuIE1hciAx
+OCAxMDoxMDozMSAyMDAxCkBAIC0zMjgsNyArMzI4LDcgQEAKIAlzdGFydF9w
+cmludCA9IHN0YXJ0OwogCXdoaWxlIChjdXJfaW5kZXggIT0gZW5kKSB7CiAJ
+CWlmICgJbXNnX2xldmVsIDwgMCAmJgotCQkJKChlbmQgLSBjdXJfaW5kZXgp
+ID4gMykgJiYKKwkJCSgoZW5kIC0gY3VyX2luZGV4KSA+PSAzKSAmJgogCQkJ
+TE9HX0JVRihjdXJfaW5kZXggKyAwKSA9PSAnPCcgJiYKIAkJCUxPR19CVUYo
+Y3VyX2luZGV4ICsgMSkgPj0gJzAnICYmCiAJCQlMT0dfQlVGKGN1cl9pbmRl
+eCArIDEpIDw9ICc3JyAmJgo=
 
+--0-650250286-984908552=:10413--

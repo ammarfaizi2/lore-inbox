@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132605AbRAGOeR>; Sun, 7 Jan 2001 09:34:17 -0500
+	id <S132902AbRAGOnt>; Sun, 7 Jan 2001 09:43:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132976AbRAGOeD>; Sun, 7 Jan 2001 09:34:03 -0500
-Received: from nilpferd.fachschaften.tu-muenchen.de ([129.187.176.79]:8656
-	"HELO nilpferd.fachschaften.tu-muenchen.de") by vger.kernel.org
-	with SMTP id <S132605AbRAGOds>; Sun, 7 Jan 2001 09:33:48 -0500
-Date: Sun, 7 Jan 2001 15:33:42 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: <bunk@pluto.fachschaften.tu-muenchen.de>
-To: Philip Armstrong <phil@kantaka.co.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Related VIA PCI crazyness?
-In-Reply-To: <20010107122800.A636@kantaka.co.uk>
-Message-ID: <Pine.NEB.4.31.0101071449220.29839-100000@pluto.fachschaften.tu-muenchen.de>
+	id <S132915AbRAGOnj>; Sun, 7 Jan 2001 09:43:39 -0500
+Received: from james.kalifornia.com ([208.179.0.2]:7533 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S132902AbRAGOn0>; Sun, 7 Jan 2001 09:43:26 -0500
+Message-ID: <3A588082.BCE1F971@linux.com>
+Date: Sun, 07 Jan 2001 06:43:14 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-ac2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Matthias Juchem <juchem@uni-mannheim.de>
+CC: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new bug report script
+In-Reply-To: <Pine.LNX.4.30.0101071523090.7104-100000@gandalf.math.uni-mannheim.de>
+Content-Type: multipart/mixed;
+ boundary="------------4A39ACB5CBB2D64A9DEF6F4F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001, Philip Armstrong wrote:
+This is a multi-part message in MIME format.
+--------------4A39ACB5CBB2D64A9DEF6F4F
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> In supplement to Evan Thompson's emails with the subject "Additional
-> info. for PCI VIA IDE crazyness. Please read." I've noticed the
-> following message with recent 2.4.0 test + release kernels:
->
-> IRQ routing conflict in pirq table! Try 'pci=autoirq'
->...
-> and the output of lspci is:
->
-> 00:00.0 Host bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3] (rev 03)
-> 00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
-> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA [Apollo VP] (rev 41)
-> 00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-> 00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 02)
-> 00:07.3 Bridge: VIA Technologies, Inc. VT82C586B ACPI (rev 10)
-> 00:08.0 SCSI storage controller: Advanced System Products, Inc ABP940-U / ABP960-U (rev 03)
-> 00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
->...
+Matthias Juchem wrote:
 
-I have exactly the same board and the same symptoms: I have a Realtek
-Semiconductor Co., Ltd. RTL-8029(AS) (using the NE2000-PCI driver). I
-always get the 'pci=autoirq' error message from the card when booting but
-it took some time until I noticed it because the card works without any
-problems. I get the same error message in 2.4.0-ac1 with the VIA IDE
-driver upgraded to v3.6 . I don't have module support in my kernels.
+> Why can't I assume that perl is installed? It can be found on every
+> standard Linux/Unix installation.
 
-> HTH someone.
->
-> cheers,
->
-> Phil Armstrong
+No it can't.  Perl isn't on any of my distributions as part of the standard
+installation.
 
-cu,
-Adrian
 
--- 
-A "No" uttered from deepest conviction is better and greater than a
-"Yes" merely uttered to please, or what is worse, to avoid trouble.
-                -- Mahatma Ghandi
+> My script is intended for the one who likes to provide bug reports but is
+> too lazy to look up all the information or simply is not sure about what
+> to include.
 
+Why can't it be done in sh?
+
+-d
+
+
+--------------4A39ACB5CBB2D64A9DEF6F4F
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
+
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+url:www.blue-labs.org
+adr:;;;;;;
+version:2.1
+email;internet:david@blue-labs.org
+title:Blue Labs Developer
+note;quoted-printable:GPG key: http://www.blue-labs.org/david@nifty.key=0D=0A
+x-mozilla-cpt:;9952
+fn:David Ford
+end:vcard
+
+--------------4A39ACB5CBB2D64A9DEF6F4F--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

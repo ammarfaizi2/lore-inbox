@@ -1,29 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284220AbRLKXsz>; Tue, 11 Dec 2001 18:48:55 -0500
+	id <S284171AbRLKXzP>; Tue, 11 Dec 2001 18:55:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284242AbRLKXsq>; Tue, 11 Dec 2001 18:48:46 -0500
-Received: from zok.sgi.com ([204.94.215.101]:38328 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S284220AbRLKXsc>;
-	Tue, 11 Dec 2001 18:48:32 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Craig Christophel <merlin@transgeek.com>
-Cc: Olaf Kirch <okir@monad.swb.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1-pre8 -- fix to compile nfs as module 
-In-Reply-To: Your message of "Tue, 11 Dec 2001 08:19:35 CDT."
-             <20011211091616.8AE46C7382@smtp.transgeek.com> 
-Mime-Version: 1.0
+	id <S284177AbRLKXzG>; Tue, 11 Dec 2001 18:55:06 -0500
+Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:48391
+	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
+	id <S284171AbRLKXy7>; Tue, 11 Dec 2001 18:54:59 -0500
+From: Tim Hockin <thockin@hockin.org>
+Message-Id: <200112112329.fBBNTqc13889@www.hockin.org>
+Subject: Re: NULL pointer dereference in moxa driver
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Tue, 11 Dec 2001 15:29:51 -0800 (PST)
+Cc: skraw@ithnet.com (Stephan von Krawczynski),
+        xi@borderworlds.dk (Christian Laursen), linux-kernel@vger.kernel.org
+In-Reply-To: <E16DwgD-0007R1-00@the-village.bc.nu> from "Alan Cox" at Dec 11, 2001 11:51:21 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 12 Dec 2001 10:48:22 +1100
-Message-ID: <10961.1008114502@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Dec 2001 08:19:35 -0500, 
-Craig Christophel <merlin@transgeek.com> wrote:
->added an ifdef for modversions in fs/nfs/inode.c.  
+> There is no maintainer, and our code base has drifted a fair way from what
+> moxa originally submitted (being a 2.0 driver with the serial transmit race
+> bug).
+> 
+> Anyone who wants to beat the mxser driver into shape, go for it.
 
-Don't!  The Makefile automatically adds modversions.h when required,
-any code that explicitly includes modversions.h is broken.
+I'm using it under 2.4.x, but I missed the rest of this thread - what are
+the issues?
 

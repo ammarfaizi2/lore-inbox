@@ -1,87 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262661AbUJ1UcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262446AbUJ1U3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262661AbUJ1UcL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 16:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbUJ1U3m
+	id S262446AbUJ1U3N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 16:29:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbUJ1U20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 16:29:42 -0400
-Received: from wproxy.gmail.com ([64.233.184.204]:45865 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262892AbUJ1U0q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 16:26:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=KMckSoAgXBTja81LlFBEYnfHDyyv+rdxlGGBz0G3xHnjWbYZ15cTvURR5Obj33OUfFggEASAnFy0y4IjUMVYnunC8eHOIgJ+tV9kUvkgFT7ZUrYyh6gqH4Lz0CX6ljkGBDp5h/94NhLo7Ds39mwsA56IgcdtC01DYgMPAFBVUIM=
-Message-ID: <1a56ea39041028132610a1579e@mail.gmail.com>
-Date: Thu, 28 Oct 2004 21:26:46 +0100
-From: DaMouse <damouse@gmail.com>
-Reply-To: DaMouse <damouse@gmail.com>
-To: "blaisorblade_spam@yahoo.it" <blaisorblade_spam@yahoo.it>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/1] uml: fix mainline lazyness about TTY layer patch
-In-Reply-To: <20041028200635.3366D7436@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 28 Oct 2004 16:28:26 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:38308 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262446AbUJ1UXX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 16:23:23 -0400
+Subject: Re: BK kernel workflow
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Xavier Bestel <xavier.bestel@free.fr>, James Bruce <bruce@andrew.cmu.edu>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Andrea Arcangeli <andrea@novell.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041028151004.GA3934@work.bitmover.com>
+References: <20041025162022.GA27979@work.bitmover.com>
+	 <20041025164732.GE14325@dualathlon.random>
+	 <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
+	 <Pine.LNX.4.61.0410252350240.17266@scrub.home>
+	 <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org>
+	 <Pine.LNX.4.61.0410270223080.877@scrub.home>
+	 <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
+	 <4180B9E9.3070801@andrew.cmu.edu>
+	 <20041028135348.GA18099@work.bitmover.com>
+	 <1098972379.3109.24.camel@gonzales>
+	 <20041028151004.GA3934@work.bitmover.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-References: <20041028200635.3366D7436@localhost>
+Message-Id: <1098991205.9557.29.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 28 Oct 2004 20:20:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Oct 2004 22:04:51 +0200, blaisorblade_spam@yahoo.it
-<blaisorblade_spam@yahoo.it> wrote:
-> 
-> While changing the TTY layer, an API parameter was removed, so it was removed
-> by almost all calls, changing their prototype. But one use of one such
-> function was not updated, breaking UML compilation. This is the fix.
-> 
-> Should go in directly - trivial fix.
-> 
-> Thanks for the breakage, too :-).
-> 
-> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
-> ---
-> 
->  vanilla-linux-2.6.9-paolo/arch/um/drivers/line.c |    2 --
->  vanilla-linux-2.6.9-paolo/arch/um/drivers/ssl.c  |    2 +-
->  2 files changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff -puN arch/um/drivers/ssl.c~uml-mainline-is-lazy-fix arch/um/drivers/ssl.c
-> --- vanilla-linux-2.6.9/arch/um/drivers/ssl.c~uml-mainline-is-lazy-fix  2004-10-27 01:47:58.000000000 +0200
-> +++ vanilla-linux-2.6.9-paolo/arch/um/drivers/ssl.c     2004-10-27 01:48:07.000000000 +0200
-> @@ -119,7 +119,7 @@ static int ssl_write(struct tty_struct *
-> 
->  static void ssl_put_char(struct tty_struct *tty, unsigned char ch)
->  {
-> -       line_write(serial_lines, tty, 0, &ch, sizeof(ch));
-> +       line_write(serial_lines, tty, &ch, sizeof(ch));
->  }
-> 
->  static void ssl_flush_chars(struct tty_struct *tty)
-> diff -puN arch/um/drivers/line.c~uml-mainline-is-lazy-fix arch/um/drivers/line.c
-> --- vanilla-linux-2.6.9/arch/um/drivers/line.c~uml-mainline-is-lazy-fix 2004-10-27 01:49:16.000000000 +0200
-> +++ vanilla-linux-2.6.9-paolo/arch/um/drivers/line.c    2004-10-27 01:49:47.000000000 +0200
-> @@ -110,7 +110,6 @@ static int flush_buffer(struct line *lin
->  int line_write(struct line *lines, struct tty_struct *tty, const char *buf, int len)
->  {
->         struct line *line;
-> -       char *new;
->         unsigned long flags;
->         int n, err, i, ret = 0;
-> 
-> @@ -143,7 +142,6 @@ int line_write(struct line *lines, struc
->         }
->   out_up:
->         up(&line->sem);
-> - out_free:
->         return(ret);
->  }
-> 
+On Iau, 2004-10-28 at 16:10, Larry McVoy wrote:
+> "Fair use" != "reverse engineering" in any venue so far as I know.
 
-http://dictionary.reference.com/search?q=lazyness
-NOW who's lazy :P
+Reverse engineering is enshrined in EU law as a right (although this
+started due to abuse by car companies not for computing). While people
+jump up and down and point to that its not always clear you can do so
+for the purposes of cloning rather than interoperability.
 
--DaMouse
+Ie its one thing to reverse engineer BK to make a BK->Subversion tool
+but quite another to reverse engineer it to reimplement BK
 
--- 
-I know I broke SOMETHING but its their fault for not fixing it before me
+(leaving aside that all the patch files are publically grabbable and
+every patch Linus sends goes out to a mailing list so it would be a
+rather hard work way of doing it)
+
+I don't use BK. It's not causing problems for me.
+
+Alan
+

@@ -1,71 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbUJYS1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbUJYS3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbUJYS1P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 14:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbUJYSZs
+	id S261246AbUJYS3y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 14:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbUJYS3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 14:25:48 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:15326 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261198AbUJYSXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 14:23:39 -0400
-Message-ID: <417D44A7.2030904@grupopie.com>
-Date: Mon, 25 Oct 2004 19:23:35 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+	Mon, 25 Oct 2004 14:29:49 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:27537 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261225AbUJYS1r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 14:27:47 -0400
+Message-ID: <417D4621.5010604@tmr.com>
+Date: Mon, 25 Oct 2004 14:29:53 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-Cc: "Nico Augustijn." <kernel@janestarz.com>, hvr@gnu.org,
-       clemens@endorphin.org, linux-kernel@vger.kernel.org
-Subject: Re: Cryptoloop patch for builtin default passphrase
-References: <200410251354.31226.kernel@janestarz.com> <200410251719.i9PHJmOi009687@turing-police.cc.vt.edu>            <417D38F7.1040204@grupopie.com> <200410251754.i9PHsVrI018284@turing-police.cc.vt.edu>
-In-Reply-To: <200410251754.i9PHsVrI018284@turing-police.cc.vt.edu>
+Newsgroups: mail.linux-kernel
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: Re: [PATCH] I2C update for 2.6.9
+References: <1098231506642@kroah.com> <10982315063481@kroah.com>
+In-Reply-To: <10982315063481@kroah.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.3; VDF: 6.28.0.34; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 25 Oct 2004 18:33:43 BST, Paulo Marques said:
+Greg KH wrote:
+
+> Trip points
+> ===========
 > 
+> Trip points are now numbered (point1, point2, etc...) instead of named
+> (_off, _min, _max, _full...). This solves the problem of various chips
+> having a different number of trip points. The interface is still chip
+> independent in that it doesn't require chip-specific knowledge to be
+> used by user-space apps.
+
+It would seem that all chips would have off, max, full, etc, but mapping 
+nondescript names into functionality may require some chip info anyway. 
+As you note, with some chips these are not nice linear points on a line, 
+  so it would seem to tell if the top points were "max norm" and "max 
+safe" vs. "critical" and "shutdown NOW" is still going to need some 
+information on the chip, both points and operating range.
+
+That's an observation, not a complaint, not even a question unless you 
+feel the urge to enlighten me.
 > 
->>I don't have any feelings about this patch, but it seems to me that you 
->>could always store the contents of the nvram somewhere "safe" (you could 
->>even write them down and take it to a safe deposit box in a bank :) ), 
->>and, if those contents happen to change, you could always write them 
->>again...
-
-I really didn't want to pursue this further, but...
-
-> That's assuming that your machine will even *boot* correctly and cleanly if the
-> contents of the NVRAM are put back.
-
-You can always boot with a rescue CD or something, assuming that you 
-don't have a stupid file system (I think there is none in Linux) that 
-mounts even with the wrong magic number and trashes the block device 
-contents.
-
-(why would you need confidential information to boot in the first place?)
-
-> And if you're doing the "write it down and type it in again" thing, you might
-> as well just use a passphrase, as it's defeating the whole concept of
-> using /dev/nvram to xor against....
-
-No it is not. You would just type in again *if* the contents of nvram 
-got lost which shouldn't happen in the first place (or at least happen 
-rarely).
-
-This is a "just in case" scenario, not a everytime scenario liake the 
-passphrase approach.
-
-As I said before, I have no strong feelings about this patch, I just 
-don't like to see things defeated over false arguments...
+> The reason for this change is that newer chips tend to have more trip
+> points. the LM63 has 8, the LM93 has no less than 12. Also, I read in
+> the LM63 datasheet that ideal pwm vs temperature curve were parabolic in
+> shape. Seems hard to achieve this if we arbitrarily lock the number of
+> trip points to 3 ;)
+> 
+> I also introduced an optional hysteresis temperature for trip points.
+> The LM63 has this. Since it makes full sense I'd expect other chips to
+> propose this as well.
+> 
+> As before, there are two sets of files, each chip driver picks the one
+> matching its internal model: trip points are either temperature
+> channel-dependent (ADM1031...) or pwm channel-dependent (IT87xx...). If
+> we ever come accross fan speed-driven pwm outputs where trip points are
+> fan channel-dependent we may have to offer a third set of files. We'll
+> see when/if this happens.
+> 
+> I hope I have taken everyone's comments and advice into account and we
+> can make this interface proposal part of the sysfs interface standard
+> now. I'm sorry it took so long. Comments welcome.
 
 -- 
-Paulo Marques - www.grupopie.com
-
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

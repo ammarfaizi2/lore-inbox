@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271995AbRIDQoR>; Tue, 4 Sep 2001 12:44:17 -0400
+	id <S271998AbRIDQoR>; Tue, 4 Sep 2001 12:44:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271998AbRIDQoH>; Tue, 4 Sep 2001 12:44:07 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:47882 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S271997AbRIDQn5>; Tue, 4 Sep 2001 12:43:57 -0400
-Date: Tue, 4 Sep 2001 09:44:10 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Simon Hay <simon@haywired.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Multiple monitors
-In-Reply-To: <3B93CF91.A6D59DA8@haywired.org>
-Message-ID: <Pine.LNX.4.10.10109040941490.22429-100000@transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271997AbRIDQoH>; Tue, 4 Sep 2001 12:44:07 -0400
+Received: from are.twiddle.net ([64.81.246.98]:27013 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S271995AbRIDQn4>;
+	Tue, 4 Sep 2001 12:43:56 -0400
+Date: Tue, 4 Sep 2001 09:44:12 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: Paul Mackerras <paulus@samba.org>
+Cc: David Mosberger <davidm@hpl.hp.com>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: [PATCH] avoid unnecessary cache flushes
+Message-ID: <20010904094412.B18163@twiddle.net>
+Mail-Followup-To: Paul Mackerras <paulus@samba.org>,
+	David Mosberger <davidm@hpl.hp.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, davem@redhat.com
+In-Reply-To: <15247.29338.3671.548678@cargo.ozlabs.ibm.com> <20010903131436.A16069@twiddle.net> <15251.59286.154267.431231@napali.hpl.hp.com> <20010903134125.B16069@twiddle.net> <15252.13330.652765.959658@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15252.13330.652765.959658@cargo.ozlabs.ibm.com>; from paulus@samba.org on Tue, Sep 04, 2001 at 11:53:22AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 04, 2001 at 11:53:22AM +1000, Paul Mackerras wrote:
+> If the page is a private page (private COW or anonymous page) then I
+> don't see where the kernel would be modifying the page.
 
-> Apologies in advance if this is a question that's already been answered
-> somewhere...  I'm looking for a way to install multiple (or rather, two)
-> PCI/AGP cards in a machine and connect a monitor to each one, and use
-> them both *in console mode* - preferably with some nice way to say
-> 'assign virtual console 2 to the first screen, and 5 to the second' -
-> that way you could have one tailing log files, showing 'top', whatever. 
-> A quick search of the web/newsgroups turned up various patches that
-> looked ideal, but a closer inspection revealed that they either relied
-> on you having a Hercules mono card, or only applied against kernel
-> <0.99, or both...  I was just wondering if anyone's thought
-> about/written a similar patch for more recent hardware/versions?  I was
-> using a console Linux machine running BB (ASCII art demo -
-> http://aa-project.sourceforge.net/) just to attract attention to our
-> stand today and was thinking it would be really neat to have one machine
-> driving several screens...
+ptrace set breakpoint?
 
-Hi!
+> For alpha, the thing that my patch does that might hurt is the change
+> from flush_icache_page to flush_icache_range in kernel/ptrace.c.  Any
+> comment on that?
 
-  Tkae a look at the linux console project.
+Hum.  Yes.  We need a way to distinguish between userspace and
+kernelspace icache flushes.
 
-http://www.sf.net/projects/linuxconsole. 
+Previously, flush_icache_page was used exclusively for userspace
+and flush_icache_range exclusively for kernelspace.  Since I _do_
+have address space numbers, I can avoid the "flush all" by allocating
+a new ASN for the user process.  Which doesn't work for the kernel
+of course; there I do have to flush all.
 
-  I pretty much have rewritten the console system. I have been running a
-multidesktop system for some time now. It needs some more work but the
-core of it is their.  
 
+r~

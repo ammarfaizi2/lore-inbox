@@ -1,38 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263281AbTLXB22 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 20:28:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTLXB22
+	id S263434AbTLXBm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 20:42:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTLXBmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 20:28:28 -0500
-Received: from mx1.net.titech.ac.jp ([131.112.125.25]:47112 "HELO
-	mx1.net.titech.ac.jp") by vger.kernel.org with SMTP id S263281AbTLXB2Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 20:28:25 -0500
-Date: Wed, 24 Dec 2003 10:28:22 +0900 (JST)
-Message-Id: <20031224.102822.71105854.ryutaroh@it.ss.titech.ac.jp>
-To: junkio@cox.net
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cannot input bar with JP106 keyboards
-From: ryutaroh@it.ss.titech.ac.jp
-In-Reply-To: <7v4qvrtfo3.fsf@assigned-by-dhcp.cox.net>
-References: <20031219.212456.74735601.ryutaroh@it.ss.titech.ac.jp>
-	<fa.kfih9j0.q4e8bi@ifi.uio.no>
-	<7v4qvrtfo3.fsf@assigned-by-dhcp.cox.net>
-X-Mailer: Mew version 3.3 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+	Tue, 23 Dec 2003 20:42:49 -0500
+Received: from zero.voxel.net ([209.123.232.253]:48512 "EHLO zero.voxel.net")
+	by vger.kernel.org with ESMTP id S263434AbTLXBmm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 20:42:42 -0500
+Subject: [PATCH 1/7] more CardServices() removals (drivers/net/wireless)
+From: Andres Salomon <dilinger@voxel.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+n3asgjBwqxiQHRhE6LE"
+Message-Id: <1072226717.5300.11.camel@spiral.internal>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 23 Dec 2003 20:42:23 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Junio C Hamano <junkio@cox.net>
-> rm> We cannot input | (bar) with the JP 106 keyboards (the standard Japanese
-> rm> keyboards).
-> Known problem.  Look for string "Japanese" in the post-halloween doc.
-> http://www.linux.org.uk/~davej/docs/post-halloween-2.6.txt
 
-Thank you for your comments.
-I understand the situation.
+--=-+n3asgjBwqxiQHRhE6LE
+Content-Type: multipart/mixed; boundary="=-O0VHvyks+M+hlzNMJcMf"
 
-Ryutaroh
+
+--=-O0VHvyks+M+hlzNMJcMf
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+This wraps up drivers/net/wireless.  Still remaining:
+
+- sound/pcmcia/vx
+- drivers/{bluetooth,isdn,parport,telephony}
+- drivers/mtd/maps
+- drivers/scsi/pcmcia
+- drivers/char/pcmcia/synclink_cs.c
+
+If you've already done any of the above, please let me know.
+
+
+--=-O0VHvyks+M+hlzNMJcMf
+Content-Disposition: attachment; filename=101-cs_remove.patch
+Content-Type: text/x-patch; name=101-cs_remove.patch; charset=us-ascii
+Content-Transfer-Encoding: base64
+
+UmV2aXNpb246IGxpbnV4LS1tYWlubGluZS0tMi42LS1wYXRjaC0zMA0KQXJjaGl2ZTogZGlsaW5n
+ZXJAdm94ZWwubmV0LS0yMDAzLXNwaXJhbA0KQ3JlYXRvcjogQW5kcmVzIFNhbG9tb24gPGRpbGlu
+Z2VyQHZveGVsLm5ldD4NCkRhdGU6IFR1ZSBEZWMgMjMgMTg6Mjg6MTMgRVNUIDIwMDMNClN0YW5k
+YXJkLWRhdGU6IDIwMDMtMTItMjMgMjM6Mjg6MTMgR01UDQpNb2RpZmllZC1maWxlczogZHJpdmVy
+cy9uZXQvd2lyZWxlc3MvYWlyb19jcy5jDQpOZXctcGF0Y2hlczogZGlsaW5nZXJAdm94ZWwubmV0
+LS0yMDAzLXNwaXJhbC9saW51eC0tbWFpbmxpbmUtLTIuNi0tcGF0Y2gtMzANClN1bW1hcnk6IENh
+cmRTZXJ2aWNlcygpIHJlbW92YWwsIGFjdCAyLCBwdC4gMS4NCktleXdvcmRzOiANCg0KUmVtb3Zl
+IGNhbGxzIHRvIENhcmRTZXJ2aWNlcygpLCBhY3QgMiwgcGFydCAxOyBhaXJvX2NzLmMuDQoNCiog
+YWRkZWQgZmlsZXMNCg0KICAgIHthcmNofS9saW51eC9saW51eC0tbWFpbmxpbmUvbGludXgtLW1h
+aW5saW5lLS0yLjYvZGlsaW5nZXJAdm94ZWwubmV0LS0yMDAzLXNwaXJhbC9wYXRjaC1sb2cvcGF0
+Y2gtMzANCg0KKiBtb2RpZmllZCBmaWxlcw0KDQotLS0gb3JpZy9kcml2ZXJzL25ldC93aXJlbGVz
+cy9haXJvX2NzLmMNCisrKyBtb2QvZHJpdmVycy9uZXQvd2lyZWxlc3MvYWlyb19jcy5jDQpAQCAt
+MjMzLDcgKzIzMyw3IEBADQogCWNsaWVudF9yZWcuZXZlbnRfaGFuZGxlciA9ICZhaXJvX2V2ZW50
+Ow0KIAljbGllbnRfcmVnLlZlcnNpb24gPSAweDAyMTA7DQogCWNsaWVudF9yZWcuZXZlbnRfY2Fs
+bGJhY2tfYXJncy5jbGllbnRfZGF0YSA9IGxpbms7DQotCXJldCA9IENhcmRTZXJ2aWNlcyhSZWdp
+c3RlckNsaWVudCwgJmxpbmstPmhhbmRsZSwgJmNsaWVudF9yZWcpOw0KKwlyZXQgPSBwY21jaWFf
+cmVnaXN0ZXJfY2xpZW50KCZsaW5rLT5oYW5kbGUsICZjbGllbnRfcmVnKTsNCiAJaWYgKHJldCAh
+PSAwKSB7DQogCQljc19lcnJvcihsaW5rLT5oYW5kbGUsIFJlZ2lzdGVyQ2xpZW50LCByZXQpOw0K
+IAkJYWlyb19kZXRhY2gobGluayk7DQpAQCAtMjc3LDcgKzI3Nyw3IEBADQogCQ0KIAkvKiBCcmVh
+ayB0aGUgbGluayB3aXRoIENhcmQgU2VydmljZXMgKi8NCiAJaWYgKGxpbmstPmhhbmRsZSkNCi0J
+CUNhcmRTZXJ2aWNlcyhEZXJlZ2lzdGVyQ2xpZW50LCBsaW5rLT5oYW5kbGUpOw0KKwkJcGNtY2lh
+X2RlcmVnaXN0ZXJfY2xpZW50KGxpbmstPmhhbmRsZSk7DQogCQ0KIAkNCiAJDQpAQCAtMjk4LDEx
+ICsyOTgsOCBAQA0KICAgDQogICA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ki8NCiANCi0jZGVmaW5lIENTX0NIRUNL
+KGZuLCBhcmdzLi4uKSBcDQotd2hpbGUgKChsYXN0X3JldD1DYXJkU2VydmljZXMobGFzdF9mbj0o
+Zm4pLGFyZ3MpKSE9MCkgZ290byBjc19mYWlsZWQNCi0NCi0jZGVmaW5lIENGR19DSEVDSyhmbiwg
+YXJncy4uLikgXA0KLWlmIChDYXJkU2VydmljZXMoZm4sIGFyZ3MpICE9IDApIGdvdG8gbmV4dF9l
+bnRyeQ0KKyNkZWZpbmUgQ1NfQ0hFQ0soZm4sIHJldCkgXA0KK2RvIHsgbGFzdF9mbiA9IChmbik7
+IGlmICgobGFzdF9yZXQgPSAocmV0KSkgIT0gMCkgZ290byBjc19mYWlsZWQ7IH0gd2hpbGUgKDAp
+DQogDQogc3RhdGljIHZvaWQgYWlyb19jb25maWcoZGV2X2xpbmtfdCAqbGluaykNCiB7DQpAQCAt
+MzI5LDkgKzMyNiw5IEBADQogCXR1cGxlLlR1cGxlRGF0YSA9IGJ1ZjsNCiAJdHVwbGUuVHVwbGVE
+YXRhTWF4ID0gc2l6ZW9mKGJ1Zik7DQogCXR1cGxlLlR1cGxlT2Zmc2V0ID0gMDsNCi0JQ1NfQ0hF
+Q0soR2V0Rmlyc3RUdXBsZSwgaGFuZGxlLCAmdHVwbGUpOw0KLQlDU19DSEVDSyhHZXRUdXBsZURh
+dGEsIGhhbmRsZSwgJnR1cGxlKTsNCi0JQ1NfQ0hFQ0soUGFyc2VUdXBsZSwgaGFuZGxlLCAmdHVw
+bGUsICZwYXJzZSk7DQorCUNTX0NIRUNLKEdldEZpcnN0VHVwbGUsIHBjbWNpYV9nZXRfZmlyc3Rf
+dHVwbGUoaGFuZGxlLCAmdHVwbGUpKTsNCisJQ1NfQ0hFQ0soR2V0VHVwbGVEYXRhLCBwY21jaWFf
+Z2V0X3R1cGxlX2RhdGEoaGFuZGxlLCAmdHVwbGUpKTsNCisJQ1NfQ0hFQ0soUGFyc2VUdXBsZSwg
+cGNtY2lhX3BhcnNlX3R1cGxlKGhhbmRsZSwgJnR1cGxlLCAmcGFyc2UpKTsNCiAJbGluay0+Y29u
+Zi5Db25maWdCYXNlID0gcGFyc2UuY29uZmlnLmJhc2U7DQogCWxpbmstPmNvbmYuUHJlc2VudCA9
+IHBhcnNlLmNvbmZpZy5ybWFza1swXTsNCiAJDQpAQCAtMzUxLDEyICszNDgsMTMgQEANCiAJICB3
+aWxsIG9ubHkgdXNlIHRoZSBDSVMgdG8gZmlsbCBpbiBpbXBsZW1lbnRhdGlvbi1kZWZpbmVkIGRl
+dGFpbHMuDQogCSovDQogCXR1cGxlLkRlc2lyZWRUdXBsZSA9IENJU1RQTF9DRlRBQkxFX0VOVFJZ
+Ow0KLQlDU19DSEVDSyhHZXRGaXJzdFR1cGxlLCBoYW5kbGUsICZ0dXBsZSk7DQorCUNTX0NIRUNL
+KEdldEZpcnN0VHVwbGUsIHBjbWNpYV9nZXRfZmlyc3RfdHVwbGUoaGFuZGxlLCAmdHVwbGUpKTsN
+CiAJd2hpbGUgKDEpIHsNCiAJCWNpc3RwbF9jZnRhYmxlX2VudHJ5X3QgZGZsdCA9IHsgMCB9Ow0K
+IAkJY2lzdHBsX2NmdGFibGVfZW50cnlfdCAqY2ZnID0gJihwYXJzZS5jZnRhYmxlX2VudHJ5KTsN
+Ci0JCUNGR19DSEVDSyhHZXRUdXBsZURhdGEsIGhhbmRsZSwgJnR1cGxlKTsNCi0JCUNGR19DSEVD
+SyhQYXJzZVR1cGxlLCBoYW5kbGUsICZ0dXBsZSwgJnBhcnNlKTsNCisJCWlmIChwY21jaWFfZ2V0
+X3R1cGxlX2RhdGEoaGFuZGxlLCAmdHVwbGUpICE9IDAgfHwNCisJCQkJcGNtY2lhX3BhcnNlX3R1
+cGxlKGhhbmRsZSwgJnR1cGxlLCAmcGFyc2UpICE9IDApDQorCQkJZ290byBuZXh0X2VudHJ5Ow0K
+IAkJDQogCQlpZiAoY2ZnLT5mbGFncyAmIENJU1RQTF9DRlRBQkxFX0RFRkFVTFQpIGRmbHQgPSAq
+Y2ZnOw0KIAkJaWYgKGNmZy0+aW5kZXggPT0gMCkgZ290byBuZXh0X2VudHJ5Ow0KQEAgLTQwNSw3
+ICs0MDMsOCBAQA0KIAkJfQ0KIAkJDQogCQkvKiBUaGlzIHJlc2VydmVzIElPIHNwYWNlIGJ1dCBk
+b2Vzbid0IGFjdHVhbGx5IGVuYWJsZSBpdCAqLw0KLQkJQ0ZHX0NIRUNLKFJlcXVlc3RJTywgbGlu
+ay0+aGFuZGxlLCAmbGluay0+aW8pOyANCisJCWlmIChwY21jaWFfcmVxdWVzdF9pbyhsaW5rLT5o
+YW5kbGUsICZsaW5rLT5pbykgIT0gMCkNCisJCQlnb3RvIG5leHRfZW50cnk7DQogCQkNCiAJCS8q
+DQogCQkgIE5vdyBzZXQgdXAgYSBjb21tb24gbWVtb3J5IHdpbmRvdywgaWYgbmVlZGVkLiAgVGhl
+cmUgaXMgcm9vbQ0KQEAgLTQyNSwxNiArNDI0LDE3IEBADQogCQkJcmVxLkJhc2UgPSBtZW0tPndp
+blswXS5ob3N0X2FkZHI7DQogCQkJcmVxLlNpemUgPSBtZW0tPndpblswXS5sZW47DQogCQkJcmVx
+LkFjY2Vzc1NwZWVkID0gMDsNCi0JCQlsaW5rLT53aW4gPSAod2luZG93X2hhbmRsZV90KWxpbmst
+PmhhbmRsZTsNCi0JCQlDRkdfQ0hFQ0soUmVxdWVzdFdpbmRvdywgJmxpbmstPndpbiwgJnJlcSk7
+DQorCQkJaWYgKHBjbWNpYV9yZXF1ZXN0X3dpbmRvdygmbGluay0+aGFuZGxlLCAmcmVxLCAmbGlu
+ay0+d2luKSAhPSAwKQ0KKwkJCQlnb3RvIG5leHRfZW50cnk7DQogCQkJbWFwLlBhZ2UgPSAwOyBt
+YXAuQ2FyZE9mZnNldCA9IG1lbS0+d2luWzBdLmNhcmRfYWRkcjsNCi0JCQlDRkdfQ0hFQ0soTWFw
+TWVtUGFnZSwgbGluay0+d2luLCAmbWFwKTsNCisJCQlpZiAocGNtY2lhX21hcF9tZW1fcGFnZShs
+aW5rLT53aW4sICZtYXApICE9IDApDQorCQkJCWdvdG8gbmV4dF9lbnRyeTsNCiAJCX0NCiAJCS8q
+IElmIHdlIGdvdCB0aGlzIGZhciwgd2UncmUgY29vbCEgKi8NCiAJCWJyZWFrOw0KIAkJDQogCW5l
+eHRfZW50cnk6DQotCQlDU19DSEVDSyhHZXROZXh0VHVwbGUsIGhhbmRsZSwgJnR1cGxlKTsNCisJ
+CUNTX0NIRUNLKEdldE5leHRUdXBsZSwgcGNtY2lhX2dldF9uZXh0X3R1cGxlKGhhbmRsZSwgJnR1
+cGxlKSk7DQogCX0NCiAJDQogICAgIC8qDQpAQCAtNDQzLDE0ICs0NDMsMTQgQEANCiAgICAgICBp
+cnEgc3RydWN0dXJlIGlzIGluaXRpYWxpemVkLg0KICAgICAqLw0KIAlpZiAobGluay0+Y29uZi5B
+dHRyaWJ1dGVzICYgQ09ORl9FTkFCTEVfSVJRKQ0KLQkJQ1NfQ0hFQ0soUmVxdWVzdElSUSwgbGlu
+ay0+aGFuZGxlLCAmbGluay0+aXJxKTsNCisJCUNTX0NIRUNLKFJlcXVlc3RJUlEsIHBjbWNpYV9y
+ZXF1ZXN0X2lycShsaW5rLT5oYW5kbGUsICZsaW5rLT5pcnEpKTsNCiAJDQogCS8qDQogCSAgVGhp
+cyBhY3R1YWxseSBjb25maWd1cmVzIHRoZSBQQ01DSUEgc29ja2V0IC0tIHNldHRpbmcgdXANCiAJ
+ICB0aGUgSS9PIHdpbmRvd3MgYW5kIHRoZSBpbnRlcnJ1cHQgbWFwcGluZywgYW5kIHB1dHRpbmcg
+dGhlDQogCSAgY2FyZCBhbmQgaG9zdCBpbnRlcmZhY2UgaW50byAiTWVtb3J5IGFuZCBJTyIgbW9k
+ZS4NCiAJKi8NCi0JQ1NfQ0hFQ0soUmVxdWVzdENvbmZpZ3VyYXRpb24sIGxpbmstPmhhbmRsZSwg
+JmxpbmstPmNvbmYpOw0KKwlDU19DSEVDSyhSZXF1ZXN0Q29uZmlndXJhdGlvbiwgcGNtY2lhX3Jl
+cXVlc3RfY29uZmlndXJhdGlvbihsaW5rLT5oYW5kbGUsICZsaW5rLT5jb25mKSk7DQogCSgobG9j
+YWxfaW5mb190KilsaW5rLT5wcml2KS0+ZXRoX2RldiA9IA0KIAkJaW5pdF9haXJvX2NhcmQoIGxp
+bmstPmlycS5Bc3NpZ25lZElSUSwNCiAJCQkJbGluay0+aW8uQmFzZVBvcnQxLCAxICk7DQpAQCAt
+NTI2LDEyICs1MjYsMTIgQEANCiAJDQogCS8qIERvbid0IGJvdGhlciBjaGVja2luZyB0byBzZWUg
+aWYgdGhlc2Ugc3VjY2VlZCBvciBub3QgKi8NCiAJaWYgKGxpbmstPndpbikNCi0JCUNhcmRTZXJ2
+aWNlcyhSZWxlYXNlV2luZG93LCBsaW5rLT53aW4pOw0KLQlDYXJkU2VydmljZXMoUmVsZWFzZUNv
+bmZpZ3VyYXRpb24sIGxpbmstPmhhbmRsZSk7DQorCQlwY21jaWFfcmVsZWFzZV93aW5kb3cobGlu
+ay0+d2luKTsNCisJcGNtY2lhX3JlbGVhc2VfY29uZmlndXJhdGlvbihsaW5rLT5oYW5kbGUpOw0K
+IAlpZiAobGluay0+aW8uTnVtUG9ydHMxKQ0KLQkJQ2FyZFNlcnZpY2VzKFJlbGVhc2VJTywgbGlu
+ay0+aGFuZGxlLCAmbGluay0+aW8pOw0KKwkJcGNtY2lhX3JlbGVhc2VfaW8obGluay0+aGFuZGxl
+LCAmbGluay0+aW8pOw0KIAlpZiAobGluay0+aXJxLkFzc2lnbmVkSVJRKQ0KLQkJQ2FyZFNlcnZp
+Y2VzKFJlbGVhc2VJUlEsIGxpbmstPmhhbmRsZSwgJmxpbmstPmlycSk7DQorCQlwY21jaWFfcmVs
+ZWFzZV9pcnEobGluay0+aGFuZGxlLCAmbGluay0+aXJxKTsNCiAJbGluay0+c3RhdGUgJj0gfkRF
+Vl9DT05GSUc7DQogDQogCWlmIChsaW5rLT5zdGF0ZSAmIERFVl9TVEFMRV9DT05GSUcpDQpAQCAt
+NTc2LDcgKzU3Niw3IEBADQogCWNhc2UgQ1NfRVZFTlRfUkVTRVRfUEhZU0lDQUw6DQogCQlpZiAo
+bGluay0+c3RhdGUgJiBERVZfQ09ORklHKSB7DQogCQkJbmV0aWZfZGV2aWNlX2RldGFjaChsb2Nh
+bC0+ZXRoX2Rldik7DQotCQkJQ2FyZFNlcnZpY2VzKFJlbGVhc2VDb25maWd1cmF0aW9uLCBsaW5r
+LT5oYW5kbGUpOw0KKwkJCXBjbWNpYV9yZWxlYXNlX2NvbmZpZ3VyYXRpb24obGluay0+aGFuZGxl
+KTsNCiAJCX0NCiAJCWJyZWFrOw0KIAljYXNlIENTX0VWRU5UX1BNX1JFU1VNRToNCkBAIC01ODQs
+NyArNTg0LDcgQEANCiAJCS8qIEZhbGwgdGhyb3VnaC4uLiAqLw0KIAljYXNlIENTX0VWRU5UX0NB
+UkRfUkVTRVQ6DQogCQlpZiAobGluay0+c3RhdGUgJiBERVZfQ09ORklHKSB7DQotCQkJQ2FyZFNl
+cnZpY2VzKFJlcXVlc3RDb25maWd1cmF0aW9uLCBsaW5rLT5oYW5kbGUsICZsaW5rLT5jb25mKTsN
+CisJCQlwY21jaWFfcmVxdWVzdF9jb25maWd1cmF0aW9uKGxpbmstPmhhbmRsZSwgJmxpbmstPmNv
+bmYpOw0KIAkJCXJlc2V0X2Fpcm9fY2FyZChsb2NhbC0+ZXRoX2Rldik7DQogCQkJbmV0aWZfZGV2
+aWNlX2F0dGFjaChsb2NhbC0+ZXRoX2Rldik7DQogCQl9DQoNCg0KDQo=
+
+--=-O0VHvyks+M+hlzNMJcMf--
+
+--=-+n3asgjBwqxiQHRhE6LE
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/6OGd78o9R9NraMQRApi1AJ9jZcYBUebblvkSHy41KZJ1sFSFPwCcDZEx
+rHTV2g3rCqEpQArU04PKxDQ=
+=llj5
+-----END PGP SIGNATURE-----
+
+--=-+n3asgjBwqxiQHRhE6LE--
+

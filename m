@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262076AbTCUVVC>; Fri, 21 Mar 2003 16:21:02 -0500
+	id <S262755AbTCUVEn>; Fri, 21 Mar 2003 16:04:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261966AbTCUVTp>; Fri, 21 Mar 2003 16:19:45 -0500
-Received: from h-64-105-35-91.SNVACAID.covad.net ([64.105.35.91]:62656 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S261914AbTCUVT0>; Fri, 21 Mar 2003 16:19:26 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Fri, 21 Mar 2003 13:30:23 -0800
-Message-Id: <200303212130.NAA07922@adam.yggdrasil.com>
-To: hch@infradead.org
-Subject: Re: small devfs patch for 2.5.65, plan to replace /sbin/hotplug
-Cc: linux-kernel@vger.kernel.org
+	id <S262739AbTCUVDc>; Fri, 21 Mar 2003 16:03:32 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:16134 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S263791AbTCUSsE>; Fri, 21 Mar 2003 13:48:04 -0500
+Date: Fri, 21 Mar 2003 18:59:05 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: PATCH: module for legacy PC9800 ide
+Message-ID: <20030321185905.A7664@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+	torvalds@transmeta.com
+References: <200303211928.h2LJSjWS025795@hraefn.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200303211928.h2LJSjWS025795@hraefn.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Fri, Mar 21, 2003 at 07:28:45PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Mar 2003, Christoph Hellwig wrote:
-> - this patch doesn't include notify.c :)
+On Fri, Mar 21, 2003 at 07:28:45PM +0000, Alan Cox wrote:
+> +	/* These ports are probably used by IDE I/F.  */
+> +	request_region(0x430, 1, "ide");
+> +	request_region(0x435, 1, "ide");
 
-	Arg!  OK, please try:
+No error chechking?
 
-ftp://ftp.yggdrasil.com/pub/dist/device_control/devfs/smalldevfs-2.5.65-v14.patch
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."

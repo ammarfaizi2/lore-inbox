@@ -1,217 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311917AbSCTSRh>; Wed, 20 Mar 2002 13:17:37 -0500
+	id <S311915AbSCTSSa>; Wed, 20 Mar 2002 13:18:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311915AbSCTSR2>; Wed, 20 Mar 2002 13:17:28 -0500
-Received: from petkele.almamedia.fi ([194.215.205.158]:9969 "HELO
-	petkele.almamedia.fi") by vger.kernel.org with SMTP
-	id <S293020AbSCTSRX>; Wed, 20 Mar 2002 13:17:23 -0500
-Message-ID: <3C98D20D.AE7C557D@pp.inet.fi>
-Date: Wed, 20 Mar 2002 20:16:45 +0200
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
-X-Accept-Language: en
+	id <S311912AbSCTSSS>; Wed, 20 Mar 2002 13:18:18 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:40188 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S293020AbSCTSSB>; Wed, 20 Mar 2002 13:18:01 -0500
+Date: Wed, 20 Mar 2002 10:16:44 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Scalability problem (kmap_lock) with -aa kernels
+Message-ID: <122510000.1016648204@flay>
+In-Reply-To: <20020320173959.F4268@dualathlon.random>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>, Herbert Valerio Riedel <hvr@hvrlab.org>
-CC: Andrea Arcangeli <andrea@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre3aa2
-In-Reply-To: <20020314032801.C1273@dualathlon.random> <3C912ACF.AF3EE6F0@pp.inet.fi> <20020315105621.GA22169@suse.de> <3C9230C6.4119CB4C@pp.inet.fi> <20020318191352.GF28487@suse.de> <3C97C924.A9A256F6@pp.inet.fi> <20020320075431.GG25171@suse.de>
-Content-Type: multipart/mixed;
- boundary="------------CFBCCF88DF5B19BDE367E180"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------CFBCCF88DF5B19BDE367E180
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+--On Wednesday, March 20, 2002 17:39:59 +0100 Andrea Arcangeli <andrea@suse.de> wrote:
 
-Jens Axboe wrote:
-> On Wed, Mar 20 2002, Jari Ruusu wrote:
-> > And, about sleeping in loop_make_request(), I have also changed the code in
-> > such way that it defaults to code that may sleep in loop_make_request(). But
-> > non-sleeping code is still present (but not currently used), like this:
-> >
-> > #if 1
-> >     may-sleep-in-loop_make_request-code-here
-> > #else
-> >     non-sleeping-loop_make_request-code-here
-> > #endif
+> On Wed, Mar 20, 2002 at 08:14:31AM -0800, Martin J. Bligh wrote:
+>> I don't believe that kmap_high is really O(N) on the size of the pool.
 > 
-> The solution I prefer is to have loop_make_request() block when we run
-> out of pre-allocated buffers, ie similar to "normal" block drivers when
-> they run out of request slots. This provides a nice throttling mechanism
-> and makes sure that loop doesn't eat into the memory polls too heavily.
+> It is O(N), that's the worst case. Of course assuming that the number of
+> entries in the pool is N and that it is variable, for us it is variable
+> at compile time.
+> ...
+> and if we didn't find anything we call flush_all_zero_pkmaps that does a
+> whole O(N) scan on the pool to try to release the entries that aren't
+> pinned and then we try again. In short if we increase the pool size, we
+> linearly increase the time we spend on it (actually more than linearly
+> because we'll run out of l1/l2/l3 while the pool size increases)
+
+Worst case I agree is about is O(N), though you're forgetting the cost of
+the global tlb_flush_all. Average case isn't by a long way, it's more like
+O(1).
+
+N = size of pool - number of permanent maps (makes the math readable)
+F = cost of global tlbflush.
+
+cost without flush = 1, which happens every time we do an alloc.
+cost of flush = N + F (N to go through flush_all_pkmaps, zeroing)
+
+=> average cost = 1/N + (N+F)/N = (1+F+N)/N = 1 + (1+F)/N
+
+So the cost (on average) actually gets cheaper as the pool size increases.
+Yes, I've simpilified things a little by ignoring the case of stepping over
+the permanently allocated maps (this get less frequent as pool size is
+increased, thus this actually helps), and by ignoring the cache effects
+you mention, but I'm sure you see my point.
+
+If you wanted to fix the worst case for latency issues, I would think it
+would be possible to split the pool in half - we could still allocate out
+of one half whilst we flush the other half (release the lock during a
+half-flush, but mark in a current_half variable (protected by the lock) 
+where newcomers should be currently allocating from). I haven't really
+thought this last bit through, so it might be totally bogus.
+
+But all this is moot, as what's killing me is really the global lock ;-)
+
+>> If you could give me a patch to do that, I'd be happy to try it out.
 > 
-> In any way, do it one way and remove the other.
+> I will do that in the next -aa. I've quite a lot of stuff pending
 
-OK, non-sleeping code is gone.
+Cool - thanks.
+ 
+> The only brainer problem with the total removal of the persistent kmaps
+> are the copy-users, what's your idea about it? (and of course I'm not
+> going to change that anyways in 2.4, it's not a showstopper)
 
-> > 2.4.19-pre3 loop code wanders to loop_get_buffer() and transfer function in
-> > LO_FLAGS_BH_REMAP optimization case.
-> 
-> So the 'new' version does exactly the same, but doesn't do it in
-> loop_get_buffer().
+Writing that up now ...
 
-I found a new bug in stock loop driver: LO_FLAGS_BH_REMAP optimization is
-never enabled because init hook for type 0 transfer is never executed. That
-bug is not dangerous, but is not fixed by patch that I posted here
-yesterday... so here is new one that fixes it.
-
-
-Herbert Valerio Riedel wrote:
-> ...well, you still haven't honored my modest wish of the innocent 2
-> #define's and 1 typedef...
-
-Your cryptoapi specific defines and typedef are now included.
-
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
---------------CFBCCF88DF5B19BDE367E180
-Content-Type: application/x-gzip;
- name="loop-fixes-2.4.19-pre3-v2.diff.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="loop-fixes-2.4.19-pre3-v2.diff.gz"
-
-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
-blxgAAA=
---------------CFBCCF88DF5B19BDE367E180--
+M.
 

@@ -1,43 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbUKFXXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbUKFXfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261414AbUKFXXD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 18:23:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbUKFXXD
+	id S261284AbUKFXfA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 18:35:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUKFXfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 18:23:03 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:22933 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S261414AbUKFXXA (ORCPT
+	Sat, 6 Nov 2004 18:35:00 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:53148 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S261284AbUKFXe4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 18:23:00 -0500
-Date: Sun, 7 Nov 2004 00:22:33 +0100
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: torvalds@osdl.org, alan@lxorguk.ukuu.org.uk, vojtech@ucw.cz
+	Sat, 6 Nov 2004 18:34:56 -0500
+Date: Sun, 7 Nov 2004 00:34:42 +0100 (MET)
+From: <Andries.Brouwer@cwi.nl>
+Message-Id: <200411062334.iA6NYg517315@apps.cwi.nl>
+To: akpm@osdl.org, torvalds@osdl.org
+Subject: [PATCH] minix_clear_inode fix
 Cc: linux-kernel@vger.kernel.org
-Subject: [no problem] PC110 broke 2.6.9
-Message-ID: <20041106232228.GA9446@apps.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yesterday I muttered that 2.6.9 had a mouse problem, and soon
-afterwards I also noticed that my ADSL didnt work.
+The patch below fixes two flaws in minix_clear_inode.
 
-I just looked at what was wrong, and the reason turns out to be
-a correct fix in the pc110pad_init() call of request_region().
+The first is that it tests bh which is never initialized.
+(&bh is a parameter of minix_V1_raw_inode, but that routine
+can fail and return before it has set bh)
 
-Before 2.6.9 the test there was wrong, so that the region was
-seen as unavailable and pc110pad.c did not do anything.
-
-In 2.6.9 the test is correct, the region and irq are reserved and my
-ethernet card can no longer reserve its irq and ADSL fails.
-Moreover, now pc110pad.c does I/O causing my mouse problems.
-
-Easy solution: CONFIG_MOUSE_PC110PAD=n
-
-I write this in some detail in the hope that this inspires somebody
-to figure out whether it is possible to probe & detect this PC110.
+The second is that generic_delete_inode() goes BUG()
+in case inode->i_state != I_CLEAR. Clearly, it is expected
+that inode->i_sb->s_op->delete_inode does a clear_inode()
+at some point. But minix_delete_inode() calls minix_free_inode()
+and that routine can print an error and return early, before
+calling clear_inode().
 
 Andries
+
+
+diff -uprN -X /linux/dontdiff a/fs/minix/bitmap.c b/fs/minix/bitmap.c
+--- a/fs/minix/bitmap.c	2003-12-18 03:59:16.000000000 +0100
++++ b/fs/minix/bitmap.c	2004-11-06 17:40:47.000000000 +0100
+@@ -160,7 +160,8 @@ minix_V2_raw_inode(struct super_block *s
+ 
+ static void minix_clear_inode(struct inode *inode)
+ {
+-	struct buffer_head *bh;
++	struct buffer_head *bh = NULL;
++
+ 	if (INODE_VERSION(inode) == MINIX_V1) {
+ 		struct minix_inode *raw_inode;
+ 		raw_inode = minix_V1_raw_inode(inode->i_sb, inode->i_ino, &bh);
+@@ -188,24 +189,26 @@ void minix_free_inode(struct inode * ino
+ 	struct buffer_head * bh;
+ 	unsigned long ino;
+ 
+-	if (inode->i_ino < 1 || inode->i_ino > sbi->s_ninodes) {
+-		printk("free_inode: inode 0 or nonexistent inode\n");
+-		return;
+-	}
+ 	ino = inode->i_ino;
++	if (ino < 1 || ino > sbi->s_ninodes) {
++		printk("minix_free_inode: inode 0 or nonexistent inode\n");
++		goto out;
++	}
+ 	if ((ino >> 13) >= sbi->s_imap_blocks) {
+-		printk("free_inode: nonexistent imap in superblock\n");
+-		return;
++		printk("minix_free_inode: nonexistent imap in superblock\n");
++		goto out;
+ 	}
+ 
++	minix_clear_inode(inode);	/* clear on-disk copy */
++
+ 	bh = sbi->s_imap[ino >> 13];
+-	minix_clear_inode(inode);
+-	clear_inode(inode);
+ 	lock_kernel();
+ 	if (!minix_test_and_clear_bit(ino & 8191, bh->b_data))
+-		printk("free_inode: bit %lu already cleared.\n",ino);
++		printk("minix_free_inode: bit %lu already cleared.\n", ino);
+ 	unlock_kernel();
+ 	mark_buffer_dirty(bh);
++ out:
++	clear_inode(inode);		/* clear in-memory copy */
+ }
+ 
+ struct inode * minix_new_inode(const struct inode * dir, int * error)

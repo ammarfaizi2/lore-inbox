@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265782AbRFXWzY>; Sun, 24 Jun 2001 18:55:24 -0400
+	id <S265783AbRFXW5E>; Sun, 24 Jun 2001 18:57:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265783AbRFXWzO>; Sun, 24 Jun 2001 18:55:14 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:61446 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S265782AbRFXWzC>;
-	Sun, 24 Jun 2001 18:55:02 -0400
-Date: Sun, 24 Jun 2001 18:54:59 -0400 (EDT)
-Message-Id: <200106242254.f5OMsxQ405511@saturn.cs.uml.edu>
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-To: linux-kernel@vger.kernel.org
-Cc: viro@math.psu.edu, phillips@bonn-fries.net, chaffee@cs.berkeley.edu,
-        storner@image.dk, mnalis-umsdos@voyager.hr
-Subject: FAT32 superiority over ext2 :-)
+	id <S265784AbRFXW4y>; Sun, 24 Jun 2001 18:56:54 -0400
+Received: from iq.sch.bme.hu ([152.66.214.168]:37837 "EHLO iq.rulez.org")
+	by vger.kernel.org with ESMTP id <S265783AbRFXW4s>;
+	Sun, 24 Jun 2001 18:56:48 -0400
+Date: Mon, 25 Jun 2001 01:08:01 +0200 (CEST)
+From: Sasi Peter <sape@iq.rulez.org>
+To: "J . A . Magallon" <jamagallon@able.es>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] gcc 2.95.2 vs. 3.0 (fwd)
+In-Reply-To: <20010625004822.C1799@werewolf.able.es>
+Message-ID: <Pine.LNX.4.33.0106250059000.27257-100000@iq.rulez.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 25 Jun 2001, J . A . Magallon wrote:
 
-By dumb luck (?), FAT32 is compatible with the phase-tree algorithm
-as seen in Tux2. This means it offers full data integrity.
-Yep, it whips your typical journalling filesystem. Look at what
-we have in the superblock (boot sector):
+> Sure it is opendivx ? I think you are just using gcc compiled code for
+> the 'interface' and 'glue' to windows divx decoders (/usr/lib/win32/*.dll)
+> that do the real hard work.
 
-    __u32  fat32_length;  /* sectors/FAT */
-    __u16  flags;         /* bit 8: fat mirroring, low 4: active fat */
-    __u8   version[2];    /* major, minor filesystem version */
-    __u32  root_cluster;  /* first cluster in root directory */
-    __u16  info_sector;   /* filesystem info sector */
+Have a look at mplayer.sourceforge.net. MPlayer besides DLL loading also
+features native Opendivx en/decoding, and native MPEG1/2 decoding.
+Actually the tests were performed by the leader of the development of
+mplayer, and he did compile the whole opendivx encore/decore code used in
+this player, taken from the original sources.
 
-All in one atomic write, one can...
+> Redo the tests with am MPEG2 movie.
 
-1. change the active FAT
-2. change the root directory
-3. change the free space count
+Actually since the original posting, on the mplayer-devel list the
+maintainer of mpeg2play (the portable parts of mplayer as a separate
+player, w/o the dll stuff) also tested how well MPEG1/2 decoding works if
+compiled w/ gcc 2.95.2 vs 3.0, and he was disappointed too, because there
+was a slight decrease in the performanceof the generated code...
 
-That's enough to atomically move from one phase to the next.
-You create new directories in the free space, and make FAT
-changes to an inactive FAT copy. Then you write the superblock
-to atomically transition to the next phase.
+If you want proof of these, grab the C sources from the mentioned
+sourceforge project site, and repeat the test yourself.
+
+-- 
+SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/
 

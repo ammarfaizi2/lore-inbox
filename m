@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264361AbTICSbD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 14:31:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264295AbTICS3s
+	id S264251AbTICSdg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 14:33:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264282AbTICS3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 14:29:48 -0400
-Received: from crete.csd.uch.gr ([147.52.16.2]:7163 "EHLO crete.csd.uch.gr")
-	by vger.kernel.org with ESMTP id S264239AbTICS3R (ORCPT
+	Wed, 3 Sep 2003 14:29:40 -0400
+Received: from holomorphy.com ([66.224.33.161]:46729 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264231AbTICSZk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 14:29:17 -0400
-Organization: 
-Date: Wed, 3 Sep 2003 21:26:06 +0300 (EEST)
-From: Panagiotis Papadakos <papadako@csd.uoc.gr>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: IOMEGA ZIP 100 ATAPI problems with 2.6
-In-Reply-To: <20030901200530.64ad6fb9.akpm@osdl.org>
-Message-ID: <Pine.GSO.4.53.0309032124040.20174@oneiro.csd.uch.gr>
-References: <Pine.GSO.4.53.0308310037230.27956@oneiro.csd.uch.gr>
- <3F515301.4040305@sbcglobal.net> <3F532C67.6070904@sbcglobal.net>
- <Pine.GSO.4.53.0309020539380.9075@oneiro.csd.uch.gr> <20030901200530.64ad6fb9.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Sep 2003 14:25:40 -0400
+Date: Wed, 3 Sep 2003 11:26:45 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Larry McVoy <lm@work.bitmover.com>, "Brown, Len" <len.brown@intel.com>,
+       Giuliano Pochini <pochini@shiny.it>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Scaling noise
+Message-ID: <20030903182645.GT4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Larry McVoy <lm@work.bitmover.com>,
+	"Brown, Len" <len.brown@intel.com>,
+	Giuliano Pochini <pochini@shiny.it>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEB@hdsmsx402.hd.intel.com> <20030903111934.GF10257@work.bitmover.com> <20030903180037.GP4306@holomorphy.com> <20030903180547.GD5769@work.bitmover.com> <20030903181550.GR4306@holomorphy.com> <20030903181552.GF5769@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030903181552.GF5769@work.bitmover.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With -mm5 I get the followimg Oops when trying to mount the ZIP
+On Wed, Sep 03, 2003 at 11:15:50AM -0700, William Lee Irwin III wrote:
+>> Independent operating system instances running under a hypervisor don't
+>> qualify as a cache-coherent cluster that I can tell; it's merely dynamic
+>> partitioning, which is great, but nothing to do with clustering or SMP.
 
-EIP: 0060:[<c025deb4>] Not tainted VLI
-....
-EIP is at idefloppy_input_buffers+0x34/0x120
-....
-Call Trace:
-[<c025e5a2>] idefloppy_pc_intr+0x212/0x2d0
-[<c0127602>] update_one_process+0xb2/0x120
-[<c024cb7b>] ide_intr+0xeb/0x190
-[<c025e390>] idefloppy_pc_intr+0x0/0x2d0
-[<c010c7aa>] handle_IRQ_event+0x3a/0x70
-[<c010cb31>] do_IRQ+0x91/0x130
-......
+On Wed, Sep 03, 2003 at 11:15:52AM -0700, Larry McVoy wrote:
+> they can map memory between instances
 
-Regards
-	Panagiotis Papadakos
+That's just enough of a hypervisor API for the kernel to do the rest,
+which it is very explicitly not doing. It also has other uses.
 
+
+-- wli

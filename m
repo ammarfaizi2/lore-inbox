@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264740AbSJ3RA4>; Wed, 30 Oct 2002 12:00:56 -0500
+	id <S264744AbSJ3RLl>; Wed, 30 Oct 2002 12:11:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264744AbSJ3RA4>; Wed, 30 Oct 2002 12:00:56 -0500
-Received: from 216-42-72-152.ppp.netsville.net ([216.42.72.152]:56456 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id <S264740AbSJ3RAz>;
-	Wed, 30 Oct 2002 12:00:55 -0500
-Subject: Re: 2.5 merge candidate list, final version.  (End of "crunch 
-	time"series.)
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Hans Reiser <reiser@namesys.com>,
-       torvalds@transmeta.com, Nikita Danilov <Nikita@namesys.com>,
-       landley@trommello.org, linux-kernel@vger.kernel.org
-In-Reply-To: <3DBFA7E3.345690B2@digeo.com>
-References: <200210280534.16821.landley@trommello.org>
-	<15805.27643.403378.829985@laputa.namesys.com>
-	<3DBF9600.4060208@namesys.com> <3DBF9BA5.6000100@pobox.com> 
-	<3DBFA7E3.345690B2@digeo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 30 Oct 2002 12:06:57 -0500
-Message-Id: <1035997617.14236.82.camel@tiny>
+	id <S264750AbSJ3RLl>; Wed, 30 Oct 2002 12:11:41 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:25861 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S264744AbSJ3RLj>; Wed, 30 Oct 2002 12:11:39 -0500
+Message-Id: <200210301717.g9UHHs902706@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] 2.5 current bk fix setting scsi queue depths 
+In-Reply-To: Message from Patrick Mansfield <patmans@us.ibm.com> 
+   of "Wed, 30 Oct 2002 08:58:44 PST." <20021030085844.A11040@eng2.beaverton.ibm.com> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 30 Oct 2002 11:17:52 -0600
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-30 at 04:35, Andrew Morton wrote:
-> Jeff Garzik wrote:
-> > 
-> > Hans Reiser wrote:
-> > 
-> > > We are going to submit a patch appropriate for inclusion as an
-> > > experimental FS on Halloween.   I hope you will forgive our pushing
-> > > the limit timewise, it is not by choice, but the algorithms we used to
-> > > more than double reiserfs V3 performance were, quite frankly, hard to
-> > > code.
-> > 
-> > Does your merge change the core code at all?  Does it add new syscalls?
-> > 
-> 
-> Their changes are tiny, and sensible.  See
-> http://www.namesys.com/snapshots/2002.10.29/
-> 
-> But I'd like to ask about the status of reiser3 support.
-> 
-> Chris had patches *ages* ago to convert it to use direct-to-BIO for
-> reads, and writes should be done as well.  reiserfs3 is still using
-> buffer-head-based IO for bulk reads and writes.  That's a 25-30% hit
-> in CPU cost, and all the old ZONE_NORMAL-full-of-buffer_heads
-> problems.
-> 
-> Any plans to get that work finished off?
+patmans@us.ibm.com said:
+> This patch fixes a problem with the current linus bk tree setting scsi
+> queue depths to 1. Please apply. 
 
-Very much so, but I wanted it on top of the data journaling stuff to
-make porting that easier.  But, in the interest in getting something
-more stable and faster out the door asap, I'll pull just the
-direct-to-BIO stuff out.
+This patch causes the depth specification to be retained when we release 
+commandblocks.  Since releasing command blocks is supposed only to be done 
+when we give up the device (and therefore, is supposed to clear everything), 
+your fix looks like it's merely masking a problem, not fixing it.
 
--chris
+Is the real problem that this controller is getting a release command blocks 
+and then a reallocate of them after slave_attach is called?  If so, that's 
+probably what needs to be fixed.
+
+James
 
 

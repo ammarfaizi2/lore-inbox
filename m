@@ -1,66 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbUCCNm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 08:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbUCCNm3
+	id S261674AbUCCNkv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 08:40:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbUCCNkv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 08:42:29 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:11910 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261791AbUCCNm1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 08:42:27 -0500
-Message-ID: <4045E0C1.9020806@namesys.com>
-Date: Wed, 03 Mar 2004 16:42:25 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Wed, 3 Mar 2004 08:40:51 -0500
+Received: from everest.2mbit.com ([24.123.221.2]:59550 "EHLO mail.sosdg.org")
+	by vger.kernel.org with ESMTP id S261674AbUCCNkt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 08:40:49 -0500
+Message-ID: <4045DFC1.2010904@greatcn.org>
+Date: Wed, 03 Mar 2004 21:38:09 +0800
+From: Coywolf Qi Hunt <coywolf@greatcn.org>
+Organization: GreatCN.org & The Summit Open Source Develoment Group
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en, zh
 MIME-Version: 1.0
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-CC: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       David Weinehall <david@southpole.se>,
-       Andrew Ho <andrewho@animezone.org>, Dax Kelson <dax@gurulabs.com>,
-       Peter Nelson <pnelson@andrew.cmu.edu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
-       jfs-discussion@www-124.southbury.usf.ibm.com, reiserfs-list@namesys.com,
-       linux-xfs@oss.sgi.com
-Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
-References: <4044119D.6050502@andrew.cmu.edu> <200403030700.57164.robin.rosenberg.lists@dewire.com> <1078307033.904.1.camel@teapot.felipe-alfaro.com> <200403031059.26483.robin.rosenberg.lists@dewire.com>
-In-Reply-To: <200403031059.26483.robin.rosenberg.lists@dewire.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: David Weinehall <david@southpole.se>
+CC: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+References: <401417A3.7000206@lovecn.org> <20040125222914.GB20879@khan.acc.umu.se> <1075223456.5219.1.camel@midux> <40172C5E.3090201@lovecn.org> <20040128033755.GC16675@khan.acc.umu.se>
+In-Reply-To: <20040128033755.GC16675@khan.acc.umu.se>
+X-Scan-Signature: a772fa79f254a9a4d3a3c5c6ceb66bb8
+X-SA-Exim-Connect-IP: 218.24.169.178
+X-SA-Exim-Mail-From: coywolf@greatcn.org
+Subject: [PATCH 2.0.40] Fix comment error of prepare_binprm() in exec.c
+Content-Type: multipart/mixed;
+ boundary="------------060409070103000503020809"
+X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
+	*      [score: 0.0000]
+X-SA-Exim-Version: 3.1+cvs (built Wed, 25 Feb 2004 14:12:50 -0500)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin Rosenberg wrote:
+This is a multi-part message in MIME format.
+--------------060409070103000503020809
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
->On Wednesday 03 March 2004 10:43, Felipe Alfaro Solana wrote:
->  
->
->>But XFS easily breaks down due to media defects. Once ago I used XFS,
->>but I lost all data on one of my volumes due to a bad block on my hard
->>disk. XFS was unable to recover from the error, and the XFS recovery
->>tools were unable to deal with the error.
->>    
->>
->
->What file systems work on defect media? 
->
->As for crashed disks I rarely bothered trying to "fix" them anymore. I save
->what I can and restore what's backed up and recovery tools (other than
->the undo-delete ones) usually destroy what's left, but that's not unique to
->XFS. Depending on how good my backups are I sometimes try the recovery
->tools just to see, but that has never helped so far.
->
->-- robin
->
->
->  
->
-Never attempt to recover without first dd_rescue ing to a good hard 
-drive, and doing the recovery there on good hard drive.
+David Weinehall wrote:
+
+> My aim for 2.0.41 is to make it a cleanup-release; remove warnings, tidy
+> up a little source-code mess, kill dead code, fix typos etc.
+> 
+> 
+> Regards: David Weinehall
+
+Hello, David
+
+In the comment of prepare_binprm() in fs/exec.c, 512 bytes should be 128 
+bytes.
+
+	Coywolf
+
 
 -- 
-Hans
+Coywolf Qi Hunt
+Admin of http://GreatCN.org and http://LoveCN.org
 
+--------------060409070103000503020809
+Content-Type: text/plain;
+ name="patch-cy0403030-2.0.40"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-cy0403030-2.0.40"
 
+--- linux-2.0.40/fs/exec.c	2004-02-27 11:48:20.000000000 +0800
++++ linux-2.0.40-cy/fs/exec.c	2004-03-03 21:14:28.000000000 +0800
+@@ -528,7 +528,7 @@
+ 
+ /* 
+  * Fill the binprm structure from the inode. 
+- * Check permissions, then read the first 512 bytes
++ * Check permissions, then read the first 128 bytes
+  */
+ int prepare_binprm(struct linux_binprm *bprm)
+ {
+
+--------------060409070103000503020809--

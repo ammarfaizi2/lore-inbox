@@ -1,106 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267986AbUIJWSy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267998AbUIJWUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267986AbUIJWSy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 18:18:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267984AbUIJWSy
+	id S267998AbUIJWUn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 18:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267979AbUIJWUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 18:18:54 -0400
-Received: from ultra7.eskimo.com ([204.122.16.70]:8463 "EHLO ultra7.eskimo.com")
-	by vger.kernel.org with ESMTP id S267979AbUIJWSj (ORCPT
+	Fri, 10 Sep 2004 18:20:42 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:30922 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S267987AbUIJWTp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 18:18:39 -0400
-Date: Fri, 10 Sep 2004 15:18:34 -0700
-From: Elladan <elladan@eskimo.com>
-To: Timothy Miller <miller@techsource.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040910221834.GC8698@eskimo.com>
-References: <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy> <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy> <20040826053200.GU31237@waste.org> <20040826075348.GT1284@nysv.org> <20040826163234.GA9047@delft.aura.cs.cmu.edu> <Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org> <4141FF13.8030009@techsource.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4141FF13.8030009@techsource.com>
-User-Agent: Mutt/1.5.6+20040523i
+	Fri, 10 Sep 2004 18:19:45 -0400
+Date: Fri, 10 Sep 2004 23:19:42 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       =?ISO-8859-1?Q?Felix_K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: radeon-pre-2
+In-Reply-To: <9e47339104091011402e8341d0@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0409102254250.13921@skynet>
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de> 
+ <Pine.LNX.4.58.0409100209100.32064@skynet>  <9e47339104090919015b5b5a4d@mail.gmail.com>
+  <20040910153135.4310c13a.felix@trabant>  <9e47339104091008115b821912@mail.gmail.com>
+  <1094829278.17801.18.camel@localhost.localdomain>  <9e4733910409100937126dc0e7@mail.gmail.com>
+  <1094832031.17883.1.camel@localhost.localdomain>  <9e47339104091010221f03ec06@mail.gmail.com>
+  <1094835846.17932.11.camel@localhost.localdomain> <9e47339104091011402e8341d0@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 10, 2004 at 03:22:59PM -0400, Timothy Miller wrote:
-> 
-> Linus Torvalds wrote:
-> 
-> >The same goes for something like a "container file". Whether you see it as
-> >"dir-as-file" or "file-as-dir" (and I agree with Jan that the two are
-> >totally equivalent), the point of having the capability in the kernel is
-> >not that the operations cannot be done in user space - the point is that
-> >they cannot be done in user space _safely_. The kernel is kind of the
-> >thing that guarantees that everybody follows the rules.
-> 
-> Well, it CAN be done safely if every client has to go through the kernel 
-> which does all the appropriate locks/semaphors and then passes the 
-> request down to the daemon.  (Isn't NFS implemented this way?)
-> 
-> This is very micro-kernel-ish, but it's a reasonable idea to do it this 
-> way in cases where things are non-critical.
-> 
-> Say there's a way to cd into a tgz file to look around.  If the access 
-> methods through the kernel get routed back to a user-space process 
-> (which probably does some amount of caching in memory and on disk of 
-> uncompressed bits of the archive), it could be a bit slower than if it 
-> were all in-kernel.  The thing is that the processing time in the daemon 
-> is probably quite high compared to the overhead of the context switches, 
-> so it doesn't cost much.  (And if it CAN be done in userspace without 
-> being horribly convoluted or unsafe, then it SHOULD be done in 
-> userspace.)  Besides, even if it were a LOT slower to access a tgz file 
-> without extracting it first, I would STILL think it was wonderful AND 
-> use it a LOT.
 
-This is only safe for some limited definitions of safety.
+>
+> You are focusing on the resource claiming problem. That is an easy
+> problem to solve, it's also not the one that is causing the hard
+> problems.
 
-Leaving aside the obvious complexities of making sure the user space
-daemon doesn't just do something crazy, you have a number of problems:
+I have to agree with Jon, nobody has addressed any of the issues he raises
+except the one that is quite simple to solve, resource sharing is easy,
 
-* Which user does the daemon run as?  If it runs as root, it needs to
-  enforce strict security requirements in terms of VFS operations coming
-  in, and also, it has all the problems of a SUID application running on
-  an arbitrary user file.  I don't know about you, but I don't trust
-  joebob's tarfsd to be suid when running on some script kiddie tarball.
+I think people are stuck in a graphics card having separate 2d/3d paths
+and never the twain need meet, well that doesn't work, the 2d/3d split is
+only in your mind, a graphics card is a single device, hence should only
+one device driver, fbdev is not a complete driver, for all the reasons JOn
+mentions (dualhead being a major one), the DRM is not a complete driver as
+it ignores the basic VGA parts of the chip and relies on X or fb to set
+them up..
 
-  If it runs as the user making the request, then what happens when two
-  users try to open the same file at the same time.  Do they see two
-  different views of the file?  Is one of them locked out?  How can they
-  possibly synchronize if the views are writable?
+> on a key stroke command. This completely violates normal OS rules of
+> one driver per device. If video can do it, I want to do it for the
+> disk and net subsystems too.
 
-* If the daemon runs as a user, then what happens if you try to run a
-  suid program inside of the view?  What if root tries to walk into a
-  tar file?  The conservative view is that the kernel would need to
-  always return ENOENT for any process with elevated capabilities, but
-  even this is not safe.
+If the kernel developers can address this point I would be most
+interested, in fact I don't want to hear any more about sharing lowlevel
+VGA device drivers until someone addresses why it is acceptable to have
+two separate driver driving the same hardware for video and not for
+anything else.. (remembering graphics cards are not-multifunction cards -
+like Christoph used as an example before - 2d/3d are not separate
+functions...)...
 
-* Consider what happens if foo.tar/blah_blah is automatically bound to
-  enter a tarfsd view of foo.tar.  What happens if I point the web
-  server at foo.tar/blah?  The web server runs as httpd or something, so
-  presumably httpd ends up running some sort of tarfsd view on the
-  file.  But if the tarball was made by a malicious person, presumably
-  it can obtain httpd user access now by exploiting a bug in tarfsd.
+Also I don't think what Jon has in mind is going to be truly possible and
+IMHO an efficient flexible graphics card memory management system is
+something worthy of multiple PhDs (maybe I'll go back to college), Ians
+work is going to exist mainly in userspace using the DRM for paging things
+and locking, I think the only way we can really do this is with a simple
+fb memory manager in the kernel that the userspace one overrides and then
+tells the fb drivers the new settings - and the fb drivers use those
+settings until told otherwise..
 
-* Even if you assume the view is read-only and the kernel coerces all
-  permissions and ownership and such, there's the possibility of tarfsd
-  presenting unexpected syscall results - weird error codes, short
-  reads, file data changing underneath mmap, etc. that user applications
-  don't expect and may be susceptible to.
+Dave.
 
-* Besides all these security issues, if this scheme is writable it has
-  all the resource problems that loopback network filesystems suffer.
-  What if the kernel is short on memory and tries to flush dirty buffers
-  to reclaim it.  If those buffers are running against the user FS
-  daemon, then that daemon must wake up to clear dirty buffers.  If it
-  tries to allocate memory, deadlock in the kernel.
-
-
-Probably the security problems can be solved to some degree by being
-very paranoid in the kernel (at an associated loss in utility), and the
-resource issues can be solved by restricting dirty buffers for loopback
-mounts (at an associated loss in performance), but it's hardly simple.
-
--J
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 

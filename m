@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVCNPTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVCNPW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbVCNPTO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 10:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVCNPTN
+	id S261537AbVCNPW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 10:22:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVCNPWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 10:19:13 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:57487 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S261536AbVCNPSx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 10:18:53 -0500
-In-Reply-To: <1110812661.5863.7.camel@gaston>
-References: <20050301211824.GC16465@locomotive.unixthugs.org> <1109806334.5611.121.camel@gaston> <42275536.8060507@suse.com> <20050303202319.GA30183@suse.de> <42277ED8.6050500@suse.com> <b34edd09a60d945f41bbe123a8321f22@kernel.crashing.org> <1110808986.5863.2.camel@gaston> <0409878c894cf868678d8e5226e20c42@kernel.crashing.org> <1110812661.5863.7.camel@gaston>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Message-Id: <b7c54b74795bfea1bb6285d943b25341@kernel.crashing.org>
-Cc: Jeff Mahoney <jeffm@suse.com>, Olaf Hering <olh@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH 2/3] openfirmware: adds sysfs nodes for openfirmware	devices
-Date: Mon, 14 Mar 2005 16:19:50 +0100
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-X-Mailer: Apple Mail (2.619.2)
-X-MIMETrack: Itemize by SMTP Server on D12ML064/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
- 14/03/2005 16:18:47,
-	Serialize by Router on D12ML064/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
- 14/03/2005 16:18:49,
-	Serialize complete at 14/03/2005 16:18:49
+	Mon, 14 Mar 2005 10:22:25 -0500
+Received: from vmlinux.org ([193.41.214.66]:33000 "EHLO vmlinux.org")
+	by vger.kernel.org with ESMTP id S261537AbVCNPWI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 10:22:08 -0500
+Message-ID: <4235AC0B.70507@vmlinux.org>
+Date: Mon, 14 Mar 2005 16:21:47 +0100
+From: Jakob Eriksson <jakov@vmlinux.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+Cc: Stas Sergeev <stsp@aknet.ru>, Pavel Machek <pavel@ucw.cz>,
+       Alan Cox <alan@redhat.com>, Linux kernel <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       wine-devel@winehq.org, torvalds@osdl.org
+Subject: Re: [patch] x86: fix ESP corruption CPU bug
+References: <42348474.7040808@aknet.ru> <20050313201020.GB8231@elf.ucw.cz>	<4234A8DD.9080305@aknet.ru>	<Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org>	<Pine.LNX.4.58.0503131614360.2822@ppc970.osdl.org>	<423518A7.9030704@aknet.ru> <m14qfey3iz.fsf@muc.de>
+In-Reply-To: <m14qfey3iz.fsf@muc.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I choose the spec.  If an implementation is not conformant to the 
->> spec,
->> it doesn't "work".
->>
->> Not to say that Linux doesn't have to work around bugs in actual
->> implementations, of course.  And there's a lot of those.  Too bad ;-)
+Andi Kleen wrote:
+
+>Stas Sergeev <stsp@aknet.ru> writes:
+>  
 >
-> Yah, well.. ok, let's say we have a spec... and an implementation that
-> represents about 90% of the machines concerned. Those 90% have the
-> "bug"... what do you chose ? :)
+>>>Another way of saying the same thing: I absolutely hate seeing
+>>>patches that fix some theoretical issue that no Linux apps will ever
+>>>care about.
+>>>      
+>>>
+>>No, it is not theoretical, but it is mainly
+>>about a DOS games and an MS linker, as for
+>>me. The things I'd like to get working, but
+>>the ones you may not care too much about:)
+>>The particular game I want to get working,
+>>is "Master of Orion 2" for DOS.
+>>    
+>>
+>
+>How about you just run it in dosbox instead of dosemu ?
+>  
+>
 
-What do you mean?  I already said we have to work around this bug --
-but it IS a bug.  That's all.
+Yes, that's a solution of course, but it is a bit like saying why
+not use Open Office instead of MS Word.
 
-> The separator in "compatible", afaik, is \0, not space btw.
+A long term goal of wine is to support DOS apps to. Of course
+it's not a priority, but it's there.
 
-Please re-read my original message?  Yes the "separator" is 0x00;
-of course it isn't space, as space isn't allowed at all.
-
-> On possibiliy would be to have the kernel replace spaces with
-> underscores for the sake of matching. That would make life easier for
-> everybody.
-
-Yes, that'll probably work just fine.  Or use 0xb1, showing that this
-is "plus-minus" correct :-)
-
-
-Segher
+regards,
+Jakob
 

@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132609AbRDIDRh>; Sun, 8 Apr 2001 23:17:37 -0400
+	id <S132680AbRDIDZ5>; Sun, 8 Apr 2001 23:25:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132678AbRDIDR2>; Sun, 8 Apr 2001 23:17:28 -0400
-Received: from mnh-1-08.mv.com ([207.22.10.40]:60681 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S132609AbRDIDRW>;
-	Sun, 8 Apr 2001 23:17:22 -0400
-Message-Id: <200104090429.XAA02621@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: user-mode port 0.40-2.4.3
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 08 Apr 2001 23:29:07 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S132681AbRDIDZs>; Sun, 8 Apr 2001 23:25:48 -0400
+Received: from infortrend.com.tw ([203.67.221.1]:29452 "EHLO infortrend.com.tw")
+	by vger.kernel.org with ESMTP id <S132680AbRDIDZf>;
+	Sun, 8 Apr 2001 23:25:35 -0400
+Reply-To: <warren@infortrend.com.tw>
+From: "warren" <warren@infortrend.com.tw>
+To: <linux-kernel@vger.kernel.org>
+Subject: race condition on looking up inodes
+Date: Mon, 9 Apr 2001 11:26:51 +0800
+Message-ID: <000201c0c0a4$eb5c7b10$321ea8c0@saturn>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The user-mode port of 2.4.3 is available.
 
-Added --help and --version, which do the obvious things
 
-UML now creates a /tmp/uml/<name> pid file.  The name can be set with the 
-'-umid=<name>' switch.  This is intended to make it easier for a UI to control 
-a number of virtual machines.  There is a more general interface coming which 
-will replace the pid file with a socket to a low-level console inside UML.
+Hi,
+    I had post a simillar message before.
+    Thanks for the replay from Albert D. Cahalan. But i found some results
+confusing me.
+    For example,  process 1 and process 2 run concurrently and execute the
+following system calls.
 
-Fixed several major crashes and numerous smaller bugs.  The major fixes 
-required some surgery from which UML still hasn't totally recovered, so it's 
-still a bit wobbly.  In particular, if it swaps, processes will start 
-segfaulting, and the swap code will start spitting out various 
-frightening-sounding messages.
+    rename("/usr/hybrid/cfg/data","/usr/mytemp/data1"); /*for process 1*/
 
-A number of hostfs bugfixes and cleanup.  One major new feature here - hostfs 
-can now be the root filesystem.  This is done by assigning a directory to a 
-ubd device, i.e. 'ubd0=/path/to/uml/root'.  A little bit of magic will cause 
-this to be mounted as a hostfs filesystem.  Requirements: hostfs compiled into 
-the kernel, /etc/fstab in that filesystem must have the / fs type as hostfs, 
-you (the user running UML) must own all the files (they will be magically 
-owned by root inside the virtual machine).
+   ----------------------------------------------------------------
 
-modify_ldt is now implemented.
+  rename("/usr/mytemp/data1","/usr/test");/* for process 2*/
 
-/proc/cmdline is now right.
+  ----------------------------------------------------------------
+  It is possible that context switch happens when process 1 is look ing up
+the inode for "/usr/mytemp/data1"  or the inode for "/usr/hybrid/cfg/data".
 
-gdb automatically gets breakpoints set on panic and BUG.
+ It will result in diffrent behaviour for process 2 and confuses the
+application.
+  If so,how does Linux solve?
 
-The project's home page is http://user-mode-linux.sourceforge.net
+  Thanks.
 
-Downloads are available at http://sourceforge.net/project/filelist.php?group_id
-=429 and ftp://ftp.nl.linux.org/pub/uml/
 
-				Jeff
-
+    Warren
 

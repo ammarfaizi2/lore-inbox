@@ -1,83 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132795AbRADE6d>; Wed, 3 Jan 2001 23:58:33 -0500
+	id <S129324AbRADFGp>; Thu, 4 Jan 2001 00:06:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132796AbRADE6X>; Wed, 3 Jan 2001 23:58:23 -0500
-Received: from m11.boston.juno.com ([63.211.172.74]:12689 "EHLO
-	m11.boston.juno.com") by vger.kernel.org with ESMTP
-	id <S132795AbRADE6M>; Wed, 3 Jan 2001 23:58:12 -0500
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Date: Wed, 3 Jan 2001 23:51:31 -0500
-Subject: 2.4.0-prerelease-ac5 : 'make dep' error
-Message-ID: <20010103.235132.-322857.2.fdavis112@juno.com>
-X-Mailer: Juno 5.0.15
+	id <S129436AbRADFG0>; Thu, 4 Jan 2001 00:06:26 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:38860 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129324AbRADFGS>;
+	Thu, 4 Jan 2001 00:06:18 -0500
+Date: Thu, 4 Jan 2001 00:06:00 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Oliver Xymoron <oxymoron@waste.org>
+cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Andreas Dilger <adilger@enel.ucalgary.ca>,
+        Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
+        "Theodore Y. Ts'o" <tytso@mit.edu>,
+        Ext2 development mailing list 
+	<ext2-devel@lists.sourceforge.net>
+Subject: Re: [Ext2-devel] Re: [RFC] ext2_new_block() behaviour
+In-Reply-To: <Pine.LNX.4.30.0101032234450.1971-100000@waste.org>
+Message-ID: <Pine.GSO.4.21.0101032355040.19195-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary=--__JNP_000_1aae.6e54.24b2
-X-Juno-Line-Breaks: 9-6,7,9-14,16-23,24-32767
-From: Frank Davis <fdavis112@juno.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format.  Since your mail reader does not understand
-this format, some or all of this message may not be legible.
 
-----__JNP_000_1aae.6e54.24b2
-Content-Type: text/plain; charset=us-ascii  
-Content-Transfer-Encoding: 7bit
 
-Hello,
-       I received the following make dep error while compiling
-prerelease-ac5 .
-Regards,
-Frank
+On Wed, 3 Jan 2001, Oliver Xymoron wrote:
 
-make -C acpi fastdep
-make[4]: Entering directory `/usr/src/linux/drivers/acpi'
-/usr/src/linux/Rules.make:224: *** Recursive variable `CFLAGS' references
-itself (eventually).  Stop.
-make[4]: Leaving directory `/usr/src/linux/drivers/acpi'
-make[3]: *** [_sfdep_acpi] Error 2
-make[3]: Leaving directory `/usr/src/linux/drivers'
-make[2]: *** [fastdep] Error 2
-make[2]: Leaving directory `/usr/src/linux/drivers'
-make[1]: *** [_sfdep_drivers] Error 2
-make[1]: Leaving directory `/usr/src/linux'
-make: *** [dep-files] Error 2
-----__JNP_000_1aae.6e54.24b2
-Content-Type: text/html; charset=us-ascii  
-Content-Transfer-Encoding: quoted-printable
+> On Wed, 3 Jan 2001, Alexander Viro wrote:
+> 
+> > On Wed, 3 Jan 2001, Stephen C. Tweedie wrote:
+> >
+> > > Having preallocated blocks allocated immediately is deliberate:
+> > > directories grow slowly and remain closed most of the time, so the
+> > > normal preallocation regime of only preallocating open files and
+> > > discarding preallocation on close just doesn't work.
+> >
+> > Erm. For directories we would not have the call of discard_prealloc()
+> > on close(2) - they have NULL ->release() anyway and for them it would
+> > happen only on ext2_put_inode(), i.e. upon the final dput(). Which would
+> > not happen while some descendent would stay in dcache.
+> 
+> I bet it long predates dcache though..
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META content=3D"text/html; charset=3Dwindows-1252" http-equiv=3DContent-=
-Type>
-<META content=3D"MSHTML 5.00.2314.1000" name=3DGENERATOR></HEAD>
-<BODY bottomMargin=3D0 leftMargin=3D3 rightMargin=3D3 topMargin=3D0>
-<DIV>Hello,</DIV>
-<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I received the following make dep=
-=20
-error while compiling prerelease-ac5 .</DIV>
-<DIV>Regards,</DIV>
-<DIV>Frank</DIV>
-<DIV>&nbsp;</DIV>
-<DIV><SPAN style=3D"mso-fareast-font-family: 'MS Mincho'">make -C acpi=20
-fastdep<BR>make[4]: Entering directory=20
-`/usr/src/linux/drivers/acpi'<BR>/usr/src/linux/Rules.make:224: *** =
-Recursive=20
-variable `CFLAGS' references itself (eventually).<SPAN=20
-style=3D"mso-spacerun: yes">&nbsp; </SPAN>Stop.<BR>make[4]: Leaving =
-directory=20
-`/usr/src/linux/drivers/acpi'<BR>make[3]: *** [_sfdep_acpi] Error 2<BR>make=
-[3]:=20
-Leaving directory `/usr/src/linux/drivers'<BR>make[2]: *** [fastdep] Error=
-=20
-2<BR>make[2]: Leaving directory `/usr/src/linux/drivers'<BR>make[1]: ***=20
-[_sfdep_drivers] Error 2<BR>make[1]: Leaving directory `/usr/src/linux'<BR>=
-make:=20
-*** [dep-files] Error 2<BR></SPAN></DIV></BODY></HTML>
+Not too likely. <checking CVS> It went in in 2.1.93. Apr 2 1998...
+Dcache was there ~50 versions before that.
 
-----__JNP_000_1aae.6e54.24b2--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

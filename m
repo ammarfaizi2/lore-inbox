@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262850AbTEMEtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 00:49:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262863AbTEMEtQ
+	id S262874AbTEMFPu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 01:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbTEMFPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 00:49:16 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:13328 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262850AbTEMEtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 00:49:15 -0400
-Date: Tue, 13 May 2003 07:01:33 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] How to fix MPS 1.4 + ACPI behaviour ?
-Message-ID: <20030513050133.GA4720@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <200305122135.53751.josh@stack.nl>
+	Tue, 13 May 2003 01:15:50 -0400
+Received: from ns.suse.de ([213.95.15.193]:24593 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262874AbTEMFPs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 01:15:48 -0400
+Date: Tue, 13 May 2003 07:28:33 +0200
+From: Andi Kleen <ak@suse.de>
+To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, hch@infradead.org,
+       greg@kroah.com, linux-security-module@wirex.com
+Subject: Re: [PATCH] Early init for security modules
+Message-ID: <20030513052832.GF10596@Wotan.suse.de>
+References: <20030512200309.C20068@figure1.int.wirex.com> <20030512201518.X19432@figure1.int.wirex.com> <20030513050336.GA10596@Wotan.suse.de> <20030512222000.A21486@figure1.int.wirex.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200305122135.53751.josh@stack.nl>
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030512222000.A21486@figure1.int.wirex.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jos Hulzink <josh@stack.nl>
-Date: Mon, May 12, 2003 at 09:35:53PM +0200
-> Hi,
+On Mon, May 12, 2003 at 10:20:00PM -0700, Chris Wright wrote:
+> * Andi Kleen (ak@suse.de) wrote:
+> > 
+> > It would work for x86-64. But why can't you use core_initcall() or 
+> > postcore_initcall() ? 
 > 
-> (kernel: 2.5.69)
-> 
-> The conclusion of bug 699 is that some / all i386 SMP systems that use MPS 1.4 
-> (and higher ? or all MPS versions ?), should boot with the "pci=noacpi" 
-> parameter to prevent IRQ problems.
-> 
-Is this with or without IOAPIC? I got some problems with MPS 1.4, acpi
-and the local ioapic on a uniprocessor system, see bugzilla 678. I think
-it's a different problem, though.
+> This is too late.  Those are just for order in do_initcalls() which is
+> well after some kernel threads have been created and filesystems have been
+> mounted, etc.  This patch allows statically linked modules to catch
+> the creation of such kernel objects and give them all consistent labels.
 
-Jurriaan
--- 
-Evayne's smile turned sharply inward, although it remained on her face,
-changed in tone and texture. "It loses none of its power," she whispered,
-"and all of its romance."
-	Michelle West - Hunter's Death
-Debian (Unstable) GNU/Linux 2.5.69 4112 bogomips load av: 0.64 0.16 0.05
+I would give them a generic name then in case someone else needs that too, 
+like "early_initcalls" 
+
+May be useful for some architecture initialization for example.
+
+-Andi

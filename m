@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270850AbUJVIvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270789AbUJVIwd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270850AbUJVIvF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 04:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270871AbUJVIvE
+	id S270789AbUJVIwd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 04:52:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270876AbUJVIvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 04:51:04 -0400
-Received: from mail.humboldt.co.uk ([81.2.65.18]:30115 "EHLO
-	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S270850AbUJVItJ
+	Fri, 22 Oct 2004 04:51:20 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:13074 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S270866AbUJVIui
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 04:49:09 -0400
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-From: Adrian Cox <adrian@humboldt.co.uk>
-To: Kendall Bennett <KendallB@scitechsoft.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4177ABC9.8291.20E9CB7A@localhost>
-References: <4176E08B.2050706@techsource.com>
-	 <4177ABC9.8291.20E9CB7A@localhost>
-Content-Type: text/plain
-Message-Id: <1098434942.5755.34.camel@newt>
+	Fri, 22 Oct 2004 04:50:38 -0400
+Date: Fri, 22 Oct 2004 01:50:07 -0700
+To: Jens Axboe <axboe@suse.de>
+Cc: Bill Huey <bhuey@lnxw.com>, Thomas Gleixner <tglx@linutronix.de>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041022085007.GA24444@nietzsche.lynx.com>
+References: <1098350190.26758.24.camel@thomas> <20041021095344.GA10531@suse.de> <1098352441.26758.30.camel@thomas> <20041021101103.GC10531@suse.de> <20041021195842.GA23864@nietzsche.lynx.com> <20041021201443.GF32465@suse.de> <20041021202422.GA24555@nietzsche.lynx.com> <20041021203350.GK32465@suse.de> <20041021203821.GA24628@nietzsche.lynx.com> <20041022061901.GM32465@suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 22 Oct 2004 09:49:02 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041022061901.GM32465@suse.de>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 20:30, Kendall Bennett wrote:
+On Fri, Oct 22, 2004 at 08:19:01AM +0200, Jens Axboe wrote:
+> It has to go, why? Because your deadlock detection breaks? Doesn't seem
+> a very strong reason to me at all, sorry.
 
-> Most embedded customers care less about overall performance of the 
-> graphics hardware but more about low cost, low power and longevity. That 
-> is the reason that ATI committed to continue production of the Radeon 
-> Mobility M1 for many years to come. That is also the reason the Chips & 
-> Tech (now Asiliant) 6900 chipset is so popular for embedded customers, 
-> because they have been using the same hardware for years (but now that 
-> the 69000 is winding down, many are moving to the Mobility M1).
+The deadlock detector is needed. Whether you understand that or not is
+irrelevant to the current work that's being done. And your idiot attacks
+against it doesn't correct these issues nor does it gain credibility
+with the audience that does find it useful.
 
-Also consider the Fujitsu Coral parts for embedded use:
-http://www.fme.gsdc.de/gsdc.htm?macrofam/mb86295.htm
-
-They have a large manual, though I can't vouch for completeness. They
-have 3D and alpha blending. They don't have legacy VGA registers, and
-they don't have a VGA BIOS. In an embedded system, that's a bonus.
-
-This is the competition facing a new open source graphics chip in the
-embedded segment. 
-
-- Adrian Cox
-Humboldt Solutions Ltd.
-
+bill
 

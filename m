@@ -1,122 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315819AbSEJGvP>; Fri, 10 May 2002 02:51:15 -0400
+	id <S315820AbSEJHDw>; Fri, 10 May 2002 03:03:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315820AbSEJGvO>; Fri, 10 May 2002 02:51:14 -0400
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:5575 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S315819AbSEJGvM>; Fri, 10 May 2002 02:51:12 -0400
-Message-Id: <5.1.0.14.2.20020510155122.02d97910@mira-sjcm-3.cisco.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 10 May 2002 16:50:23 +1000
-To: Andrew Morton <akpm@zip.com.au>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: O_DIRECT performance impact on 2.4.18 (was: Re: [PATCH] 2.5.14
-  IDE 56)
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Padraig Brady <padraig@antefacto.com>,
-        Anton Altaparmakov <aia21@cantab.net>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CDAC4EB.FC4FE5CF@zip.com.au>
+	id <S315821AbSEJHDv>; Fri, 10 May 2002 03:03:51 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:22995 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S315820AbSEJHDu>;
+	Fri, 10 May 2002 03:03:50 -0400
+Date: Fri, 10 May 2002 16:58:36 +1000
+From: Anton Blanchard <anton@samba.org>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Robert Love <rml@tech9.net>, tchiwam <tchiwam@ees2.oulu.fi>,
+        linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>,
+        Gerrit Huizenga <gh@us.ibm.com>, Clifford White <ctwhite@us.ibm.com>,
+        oliendm@us.ibm.com
+Subject: Re: x86 question: Can a process have > 3GB memory?
+Message-ID: <20020510065836.GD17965@krispykreme>
+In-Reply-To: <1020980411.880.93.camel@summit> <200205092356.g49NuTS70861@saturn.cs.uml.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:50 AM 9/05/2002 -0700, Andrew Morton wrote:
-> >          /dev/md0 raid-0 with O_DIRECT:          91847kbyte/sec (2781usec
-> >          /dev/md0 
-> raid-0:                                129455kbyte/sec (1978usec
-> >          /dev/md0 raid-0 with O_NOCOPY:  195868kbyte/sec (1297usec
->
->hmm.  Why is O_DIRECT always the slowest?  (and it would presumably do
->even worse with an 8k transfer size).
 
-i just reproduced the test to validate the data.  i'm using 8kbyte blocks here.
-on kernel is 2.4.18, O_DIRECT is still the slowest.
+> Huh? Unless you mean ppc64, ppc is worse.
+> On a Mac, you get 2 GB of virtual memory per
+> process. You get up to 512 MB of physical memory
+> without highmem support, or usually 4 GB with
+> highmem support. 
 
-this machine has 2GB RAM, so it has 1.1GB RAM in HighMem.
+This is fixed in recent kernels, you can specify it with a CONFIG
+option:
 
-booting a kernel with 'profile=2' set, the numbers were as follows:
+# uname -a
+Linux 2.4.19-pre5 #185 Fri Apr 5 14:36:40 EST 2002 ppc
 
-  - Base performance, /dev/md0 raid-0 8-disk array:
-         [root@mel-stglab-host1 src]# readprofile -r; 
-./test_disk_performance bs=8k blocks=4M /dev/md0
-         Completed writing 31250 mbytes in 214. 94761 seconds (153.05 
-Mbytes/sec), 53usec mean latency
+# cat /proc/self/maps  
+0fea5000-0ffbb000 r-xp 00000000 03:0c 163581     /lib/libc-2.2.5.so
+0ffbb000-0ffc5000 ---p 00116000 03:0c 163581     /lib/libc-2.2.5.so
+0ffc5000-0ffeb000 rw-p 00110000 03:0c 163581     /lib/libc-2.2.5.so
+0ffeb000-0fff0000 rw-p 00000000 00:00 0
+10000000-10003000 r-xp 00000000 03:0c 1554092    /bin/cat
+10012000-10013000 rw-p 00002000 03:0c 1554092    /bin/cat
+10013000-10015000 rwxp 00000000 00:00 0
+48000000-48014000 r-xp 00000000 03:0c 163537     /lib/ld-2.2.5.so
+48014000-48015000 rw-p 00000000 00:00 0
+48023000-48027000 rw-p 00013000 03:0c 163537     /lib/ld-2.2.5.so
+bfffe000-c0000000 rwxp fffff000 00:00 0
 
-  - using /dev/md0 raid-0 8-disk array with O_DIRECT:
-         [root@mel-stglab-host1 src]# readprofile -r; 
-./test_disk_performance bs=8k blocks=4M direct /dev/md0
-         Completed reading 31250 mbytes in 1229.830726 seconds (26.64 
-Mbytes/sec), 306usec mean latency
+Of course on ppc64 kernels you have a full 4GB of userspace since
+the kernel sits at the top of the 64bit address space.
 
-  - using /dev/md0 raid-0 8-disk array with O_NOCOPY hack:
-         [root@mel-stglab-host1 src]# readprofile -r; 
-./test_disk_performance bs=8k blocks=4M nocopy /dev/md0
-         Completed writing 31250 mbytes in 163.602116 seconds (200.29 
-Mbytes/sec), 39usec mean latency
+> As with x86, the latest chips
+> offer a 36-bit (64 GB) physical address space.
 
-so O_DIRECT in 2.4.18 still shows up as a 55% performance hit versus no 
-O_DIRECT.
-anyone have any clues?
+Paulus also has a hack that allows up to 15G of memory on POWER3 class
+machines although that isnt currently in the ppc32 tree.
 
-from the profile of the O_DIRECT kernel, we have:
-         [root@mel-stglab-host1 src]# cat /tmp/profile2.txt | sort -n -k3 | 
-tail -20
-         c01ceb90 submit_bh                                   270   2.4107
-         c01fc8c0 scsi_init_io_vc                             286   0.7772
-         c0136ec0 create_bounce                               323   0.9908
-         c0139d80 unlock_buffer                               353   4.4125
-         c012f7d0 kmem_cache_alloc                            465   1.6146
-         c0115a40 __wake_up                                   470   2.4479
-         c01fa720 __scsi_end_request                          509   1.7674
-         c01fae00 scsi_request_fn                             605   0.7002
-         c013cab0 end_buffer_io_kiobuf                        675  10.5469
-         c01154e0 schedule                                    849   0.6170
-         c0131a40 rmqueue                                     868   1.5069
-         c025ede0 raid0_make_request                          871   2.5923
-         c0225ee0 qla2x00_done                                973   1.6436
-         c013cb60 brw_kiovec                                 1053   1.0446
-         c01ce400 __make_request                             1831   1.1110
-         c01f30e0 scsi_dispatch_cmd                          1854   2.0692
-         c011d010 do_softirq                                 2183   9.7455
-         c0136c30 bounce_end_io_read                        13947  39.6222
-         c0105230 default_idle                             231472 3616.7500
-         00000000 total                                    266665   0.1425
+> That's not all! Linus recently singled out the PowerPC
+> MMU for a nice long abusive rant. :-) You get hashed
+> page tables. You get this:
+> 
+> As with x86, segment registers map a 32-bit virtual
+> address space onto a larger one. The top 4 bits of
+> a 32-bit virtual address are used to select a segment,
+> and the segment provides 24 more address bits to
+> give you a 52-bit virtual address. Eeeew.
 
-contrast this to the profile where we're not using O_DIRECT:
-         [root@mel-stglab-host1 src]# cat /tmp/profile3_base.txt | sort -n 
--k3 | tail -20
-         c012fdc0 kmem_cache_reap                             369   0.4707
-         c013b330 set_bh_page                                 397   4.9625
-         c011d010 do_softirq                                  419   1.8705
-         c0131a40 rmqueue                                     466   0.8090
-         c01fa720 __scsi_end_request                          484   1.6806
-         c012fa60 kmem_cache_free                             496   3.8750
-         c013bd00 block_read_full_page                        523   0.7783
-         c012f7d0 kmem_cache_alloc                            571   1.9826
-         c013db39 _text_lock_buffer                           729   0.9812
-         c0130ca0 shrink_cache                                747   0.7781
-         c01cea70 generic_make_request                        833   2.8924
-         c025ede0 raid0_make_request                          930   2.7679
-         c013b280 get_unused_buffer_head                      975   5.5398
-         c01fc8c0 scsi_init_io_vc                            1003   2.7255
-         c013d490 try_to_free_buffers                        1757   4.7745
-         c013a9d0 end_buffer_io_async                        2482  14.1023
-         c01ce400 __make_request                             2687   1.6305
-         c012a6e0 file_read_actor                            6951  27.1523
-         c0105230 default_idle                              15227 237.9219
-         00000000 total                                     45048   0.0241
+This is all very well and good, put my ppc64 machine still outperforms
+anything out there on the kernel compile benchmark :)
 
-the biggest difference here is bounce_end_io_read in O_DIRECT.
-given there's still lots of idle-time, i'll file up lockmeter on here and 
-see if theres any gremlins there.
-
-
-cheers,
-
-lincoln.
-
+Anton

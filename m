@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263092AbTCLIgZ>; Wed, 12 Mar 2003 03:36:25 -0500
+	id <S263094AbTCLIga>; Wed, 12 Mar 2003 03:36:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263094AbTCLIgZ>; Wed, 12 Mar 2003 03:36:25 -0500
-Received: from packet.digeo.com ([12.110.80.53]:11422 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263092AbTCLIgZ>;
-	Wed, 12 Mar 2003 03:36:25 -0500
-Date: Wed, 12 Mar 2003 00:48:01 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Anders Gustafsson <andersg@0x63.nu>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix big initramfs (was: [PATCH] gen_init_cpio fixes for
- 2.5.64)
-Message-Id: <20030312004801.527dfdf1.akpm@digeo.com>
-In-Reply-To: <20030312082203.GA22432@h55p111.delphi.afb.lu.se>
-References: <20030305060817.GC26458@kroah.com>
-	<20030308004249.GA23071@kroah.com>
-	<20030308004340.GB23071@kroah.com>
-	<20030308143745.GB7234@h55p111.delphi.afb.lu.se>
-	<20030309060452.GA28835@kroah.com>
-	<20030312082203.GA22432@h55p111.delphi.afb.lu.se>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S263095AbTCLIga>; Wed, 12 Mar 2003 03:36:30 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:17156 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S263094AbTCLIg2>;
+	Wed, 12 Mar 2003 03:36:28 -0500
+Date: Wed, 12 Mar 2003 09:47:10 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: scott thomason <scott-kernel@thomasons.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bio too big device
+Message-ID: <20030312084710.GA4816@win.tue.nl>
+References: <200303112055.31854.scott-kernel@thomasons.org> <Pine.LNX.4.10.10303112100270.391-100000@master.linux-ide.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Mar 2003 08:47:02.0270 (UTC) FILETIME=[F36D39E0:01C2E873]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10303112100270.391-100000@master.linux-ide.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anders Gustafsson <andersg@0x63.nu> wrote:
->
-> Patch below makes the call to page_writeback_init() explicit in
-> start_kernel, just before populate_rootfs().
+> On Tue, 11 Mar 2003, scott thomason wrote:
 > 
+> > I frequently receive this message in my syslog, apparently 
+> > whenever there are periods of significant write activity:
+> > 
+> >     bio too big device ide0(3,7) (256 > 255)
+> >     bio too big device ide1(22,6) (256 > 255)
 
-Fair enough.
+On Tue, Mar 11, 2003 at 09:01:25PM -0800, Andre Hedrick wrote:
 
-> +extern void page_writeback_init(void);
+> That has to be a BIO bug or IDE setup bug.
+> 
+> 256 sectors is legal and correct for 28-bit addressing.
 
-But please don't put declarations of external functions into .c.  It is
-always the wrong thing to do, even though others have done it...
+Yes, it is. However, Paul Gortmaker reported on his old 700MB
+Maxtor 7850 AV that would give errors with 256-sector requests
+and work well with 255-sector requests. In a later post he
+added that one has to work hard to evoke this error - usually
+256-sector requests are fine, but after torturing the disk with
+an hour of simultaneous untar and make, an error occurred.
 
-writeback.h is a fine place for this declaration.
+Maybe that is the only disk that gives problems.
+
+Jens replied:
+
+= The 256 is _not_ a bug in the driver, it's more likely a bug in your
+= drive. 256 is a perfectly legal transfer size. That said, maybe it is
+= a good idea to leave it at 255 just for safety
+
+So that is how this length was limited.
+
+In short: 256 is legal, has always been legal, nothing wrong with it.
+But at least one old disk has been discovered that was happier with 255.
+
+Andries
+

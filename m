@@ -1,64 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262936AbUDAQCh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 11:02:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262939AbUDAQCh
+	id S262941AbUDAQJm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 11:09:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbUDAQJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 11:02:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:32675 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262936AbUDAQCd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 11:02:33 -0500
-Date: Thu, 1 Apr 2004 08:02:22 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-In-Reply-To: <1080834032.2626.94.camel@sisko.scot.redhat.com>
-Message-ID: <Pine.LNX.4.58.0404010750100.1116@ppc970.osdl.org>
-References: <1080771361.1991.73.camel@sisko.scot.redhat.com> 
- <Pine.LNX.4.58.0403311433240.1116@ppc970.osdl.org> 
- <1080776487.1991.113.camel@sisko.scot.redhat.com> 
- <Pine.LNX.4.58.0403311550040.1116@ppc970.osdl.org>
- <1080834032.2626.94.camel@sisko.scot.redhat.com>
+	Thu, 1 Apr 2004 11:09:42 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:39435 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262941AbUDAQJj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 11:09:39 -0500
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: "Nikita V. Youshchenko" <yoush@cs.msu.su>, linux-kernel@vger.kernel.org
+Subject: Re: Strange 'zombie' problem both in 2.4 and 2.6
+Date: Thu, 1 Apr 2004 19:09:20 +0300
+User-Agent: KMail/1.5.4
+References: <200404011442.18078@zigzag.lvk.cs.msu.su> <200404011617.08261.vda@port.imtp.ilyichevsk.odessa.ua> <200404011920.55030@zigzag.lvk.cs.msu.su>
+In-Reply-To: <200404011920.55030@zigzag.lvk.cs.msu.su>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404011909.20671.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > > It looks like at some moment kernel looses the abitily to inform
+> > > process that their threads are over. AKAIK, this is done by SIGCHLD?
+> > > Anyway, manual sending SIGCHLD to the parent of zombies does not help.
+> >
+> > Did you try stracing parent process? It can receive SIGCHLD but
+> > ignore/mishandle it.
+>
+> I tried to use strace -f, so all threads exist in the output. No signals
+> arrive, expect those send manually by kill().
+> Stracing same binary on another host shows that SIGRT_1 arrives to the
+> parent.
+> I may send the strace logs, but they are somewhat large.
+> So kernel really stops devivering signals.
 
+Post reasonably small pieces of them.
 
-On Thu, 1 Apr 2004, Stephen C. Tweedie wrote:
-> 
-> So it appears that on Solaris, MS_ASYNC is kicking off instant IO, but
-> is not waiting for existing IO to complete first.
+> As far as I understand, in case of threads SIGRT_1 is used instead of
+> SIGCHLD.
+> So I tried to send SIGRT_1 to the parent manually. And zombies disappeared!
+> However, new zombies appear soon. They may still be removed by manual
+> SIGRT_1, but it is not a solution for a kernel bug :).
 
-A much more likely schenario is that Solaris is really doing the same
-thing we are, but it _also_ ends up opportunistically trying to put the
-resultant pages on the IO queues if possible (ie do a "write-ahead": start
-writeout if that doesn't imply blocking).
+Maybe. Maybe not. I am no expert, I'd try to learn out how SIGRT_1
+is generated in normal case (I suppose kernel does not distinguish
+between threads and processes, maybe it's done by threading libs?)
 
-We could probably do that too, it seems easy enough. A 
-"TestSetPageLocked()" along with setting the BIO_RW_AHEAD flag. The only 
-problem is that I don't think we really have support for doing write-ahead 
-(ie we clear the page "dirty" bit too early, so if the write gets 
-cancelled due to the IO queues being full, the dirty bit gets lost.
+> > Probably they get reparented to init and it wait()'s for them,
+> > ending their afterlife. So SIGCHLD works (at least in this case).
+>
+> Seems that signal passing works only after reparenting zombies.
+>
+> > > Unfortunately, this did not eliminate the problem: it happened today
+> > > again. The difference is that when running in 2.6, most binaries use
+> > > NPTL libs from /lib/i686/cmov/, and seem not to be affected by the
+> > > problem (i.e. no zombies from them). However, users need to run some
+> > > statically-linked binaries (without source available) that have
+> > > non-NPTL libs statically linked and so still use linuxthreads; those
+> > > are affected (i.e. do create zombies). So problem is not rendering
+> > > server unusable (so it no longer that critical), but it still exists
+> > > in the 2.6 kernel.
+> >
+> > Sounds like userspace problem in threading libraries.
+> > What version of glibc/linuxthreads was in use before?
+> > Maybe post your report on linuxthreads mailing list.
+>
+> I doubt it is a userspace problem.
+> It happens with the same userspace libs and binaries (or even same running
+> processes) with which it did not happen sometime ago.
+> It happens at the same moment with different processes running from
+> different accounts.
+> Restarting processes doesn't help.
+> It is not reprodusable on other hosts.
+> Manual signal send (kill -33 <parentpid>) removes already existing zombies.
+> I can hardly imagine a userspace problem that behaves like this.
 
-So we don't want to go there for now, but it's something to keep in mind, 
-perhaps. 
-		
-> Worse, it doesn't seem to be implemented consistently either.  I've been
-> trying on a few other Unixen while writing this.  First on a Tru64 box,
-> and it is _not_ kicking off any IO at all for MS_ASYNC, except for the
-> 30-second regular sync.  The same appears to be true on FreeBSD.  And on
-> HP-UX, things go in the other direction: the performance of MS_ASYNC is
-> identical to MS_SYNC, both in terms of observed disk IO during the sync
-> and the overall rate of the msync loop.
+I won't argue. One thing is clear: not enough info at this time :(
 
-If you check HP-UX, make sure it's a recent one. HPUX has historically 
-been just too broken for words when it comes to mmap() (ie some _really_ 
-strange semantics, like not being able to unmap partial mappings etc).
+Try to instrument (printk("...")) parts of kernel responsible for
+handling exit() etc.
+--
+vda
+>
+> Nikita
 
-		Linus

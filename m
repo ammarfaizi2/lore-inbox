@@ -1,46 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270585AbUJTU7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268919AbUJTVt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270585AbUJTU7e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 16:59:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269066AbUJTU66
+	id S268919AbUJTVt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 17:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268892AbUJTVod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 16:58:58 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:29403 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269992AbUJTU44 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 16:56:56 -0400
-Subject: Re: forcing PS/2 USB emulation off
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Alexandre Oliva <aoliva@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-In-Reply-To: <20041017225733.GA25435@kroah.com>
-References: <orzn2lyw8k.fsf@livre.redhat.lsd.ic.unicamp.br>
-	 <20041017225733.GA25435@kroah.com>
+	Wed, 20 Oct 2004 17:44:33 -0400
+Received: from fmr11.intel.com ([192.55.52.31]:23761 "EHLO
+	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
+	id S268919AbUJTVnh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 17:43:37 -0400
+Subject: Re: gradual timeofday overhaul
+From: Len Brown <len.brown@intel.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
+       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       george anzinger <george@mvista.com>
+In-Reply-To: <1098292168.1429.96.camel@krustophenia.net>
+References: <Pine.LNX.4.53.0410200441210.11067@gockel.physik3.uni-rostock.de>
+	 <1098258460.26595.4320.camel@d845pe>
+	 <1098292168.1429.96.camel@krustophenia.net>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1098302041.12412.39.camel@localhost.localdomain>
+Organization: 
+Message-Id: <1098308547.26605.4360.camel@d845pe>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 20 Oct 2004 20:54:02 +0100
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 20 Oct 2004 17:42:27 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-10-17 at 23:57, Greg KH wrote:
-> It's already in the -mm kernels, and will be sent to Linus after 2.6.9
-> is out.  If you could test that kernel and verify that it works for this
-> situation, I would appreciate it.
+On Wed, 2004-10-20 at 13:09, Lee Revell wrote:
+> On Wed, 2004-10-20 at 03:47, Len Brown wrote:
+> > The current design with HZ=1000 gives us 1ms = 1000usec between
+> > clock ticks.  But some platforms take nearly that long just
+> > to enter/exit low power states; which means that on Linux
+> > the hardware pays a long idle state exit latency
+> > (performance hit) but gets little or no power savings
+> > from the time it resides in that idle state.
+> 
+> My testing shows that the timer interrupt runs for about 21 usec.
+> That's 2.1% of its time just running the timer ISR!  No wonder this
+> causes PM issues, 2.1% cpu load is not exactly an idle machine.  This
+> is a 600Mhz C3, so on a slower embedded system this might be 5%.
+> 
+> So, any solution that would allow high res timers with Hz = 100 would
+> be welcome.
 
-It would be ok if someone bothered to copy the USB core code (or better
-yet call into it) but the patch in the -mm tree doesn't know about the
-zillion OHCI controller bugs, and doesn't know about the suprise
-interrupt on switch from BIOS->host you sometimes see.
+5% residency in the clock tick handler is likely more of a problem when
+we're _not_ idle -- a 5% performance hit.  When we're idle we've got
+nothing better to do with the processor than run these instructions for
+5% of the time and run no instructions 95% of the time -- so tick
+handler residency isn't the problem in idle, tick frequency is the
+problem.
 
-The real fix is to link the USB code early enough to run before the PC
-keyboard code. I've had this confirmed by BIOS folks as well.
+When an interrupt occurrs, the hardware needs to ramp up its voltages,
+resume its clocks and all the stuff it need to do to get out of the
+power saving state to run the code that services the interrupt.  This
+"exit latency" can take a long time.  On a volume Centrino system today
+it is up to 185usec.  On other hardware it is as high as 1000 usec. 
+Time spent in this exit latency is a double penalty -- we're not saving
+power and we're delaying before the processor starts executing
+instructions -- so we want to pay this price only when necessary.
 
-But *please* if you are going to copy USB mode switching code copy
-working code including all the nasty gungy details!
+-Len
 

@@ -1,88 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269008AbUIQUwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269028AbUIQVCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269008AbUIQUwF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 16:52:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269018AbUIQUsu
+	id S269028AbUIQVCq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 17:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269018AbUIQU6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 16:48:50 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:13747 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S269001AbUIQUrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 16:47:22 -0400
-Date: Sun, 12 Sep 2004 22:11:11 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Elladan <elladan@eskimo.com>
-Cc: Timothy Miller <miller@techsource.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040912201111.GB4637@openzaurus.ucw.cz>
-References: <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy> <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy> <20040826053200.GU31237@waste.org> <20040826075348.GT1284@nysv.org> <20040826163234.GA9047@delft.aura.cs.cmu.edu> <Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org> <4141FF13.8030009@techsource.com> <20040910221834.GC8698@eskimo.com>
+	Fri, 17 Sep 2004 16:58:10 -0400
+Received: from mailfe02.swip.net ([212.247.154.33]:58292 "EHLO
+	mailfe02.swip.net") by vger.kernel.org with ESMTP id S268982AbUIQUy0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 16:54:26 -0400
+X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
+Date: Fri, 17 Sep 2004 22:54:22 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6] smbfs & "du" illness
+Message-ID: <20040917205422.GD2685@bouh.is-a-geek.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040910221834.GC8698@eskimo.com>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-I'm talking about uservfs.sf.net, aka podfuk, which implements tarfs
-(and more).
+When smbmounting some samba-served share and running du on linux with
+smbfs, one gets crazy results:
 
-> Leaving aside the obvious complexities of making sure the user space
-> daemon doesn't just do something crazy, you have a number of problems:
-> 
-> * Which user does the daemon run as?  If it runs as root, it needs to
->   enforce strict security requirements in terms of VFS operations coming
->   in, and also, it has all the problems of a SUID application running on
->   an arbitrary user file.  I don't know about you, but I don't trust
->   joebob's tarfsd to be suid when running on some script kiddie tarball.
+$ ls -l file
+-rwxr-xr-x  1 samy thibault 348K 2004-05-12 18:04 file*
+$ du file
+512M    file
+$ stat file
+  File: `file'
+  Size: 356352          Blocks: 1048576       IO Block: 4096   fichier régulier
+Device: bh/11d  Inode: 80199       Links: 1
+Access: (0755/-rwxr-xr-x)  Uid: ( 1000/sthibaul)   Gid: (  101/  vmware)
+Access: 2004-09-15 23:33:53.000000000 +0200
+Modify: 2004-05-12 18:04:28.000000000 +0200
+Change: 2004-05-12 18:04:28.000000000 +0200
 
-It needs to run as root. If there's bug in tar, that script kiddie is going
-to get your users anyway. Audit the code.
+This can be reproduced with a 2.6 kernel reading at any recent samba
+server (2.2 or 3.0). 2.4 works fine.
 
-> * If the daemon runs as a user, then what happens if you try to run a
+What happens is that samba & kernel's smbfs don't agree on the meaning
+of the 2nd 64-bit value in unix extension: samba/smbd/trans2.c tells
+(and has always told since addition, cvs rev 1.149.4.47):
+SOFF_T(p,0,get_allocation_size(NULL,&sbuf)); /* Number of bytes used on disk - 64 Bit
+while the kernel does (and has always been doing since addition to
+2.5.40)
+        fattr->f_blocks = LVAL(p, 8);
+I.e. takes it as a number of sectors.
 
-It does not.
+Who is wrong ? I could find some draft here:
+http://uranus.it.swin.edu.au/~jn/linux/smbfs/Byron_Deadwiler_Paper.doc
+which tells that:
+CIFS Extensions for UNIX systems V1
+LARGE_INTEGER NumOfBlocks
+Number of file system block used to store file
 
-> * Consider what happens if foo.tar/blah_blah is automatically bound to
->   enter a tarfsd view of foo.tar.  What happens if I point the web
->   server at foo.tar/blah?  The web server runs as httpd or something, so
->   presumably httpd ends up running some sort of tarfsd view on the
->   file.  But if the tarball was made by a malicious person, presumably
->   it can obtain httpd user access now by exploiting a bug in tarfsd.
+Which is on the kernel's side...
 
-If there's a bug in tar, I can do a lot of interesting things. Audit tar.
+But I discussed about it with samba people (see
+http://lists.samba.org/archive/samba-technical/2004-September/thread.html
+"Unix Extension & "du"" subject), and they told that they modified
+it into bytes because there was no block size specified.
 
-> * Even if you assume the view is read-only and the kernel coerces all
->   permissions and ownership and such, there's the possibility of tarfsd
->   presenting unexpected syscall results - weird error codes, short
->   reads, file data changing underneath mmap, etc. that user applications
->   don't expect and may be susceptible to.
+Some conservative way of correcting it is the following:
 
-FUD. Fix tarfsd if its problem.
+--- fs/smbfs/proc.c.vanilla	2004-09-17 22:18:38.000000000 +0200
++++ fs/smbfs/proc.c	2004-09-17 22:36:12.000000000 +0200
+@@ -2095,6 +2095,9 @@ void smb_decode_unix_basic(struct smb_fa
+ 
+ 	fattr->f_size = LVAL(p, 0);
+ 	fattr->f_blocks = LVAL(p, 8);
++	if (fattr->f_blocks * 512 - fattr->f_size >= 512*512 - 512)
++		/* samba reports bytes, convert to sectors */
++		fattr->f_blocks >>= 9;
+ 	fattr->f_ctime = smb_ntutc2unixutc(LVAL(p, 16));
+ 	fattr->f_atime = smb_ntutc2unixutc(LVAL(p, 24));
+ 	fattr->f_mtime = smb_ntutc2unixutc(LVAL(p, 32));
 
-> * Besides all these security issues, if this scheme is writable it has
+Which works fine, even if samba people think back to tell a number of
+sectors. Why 512*512 - 512 ? Because that's the minimum gap you'll
+see between "bytes taken as sectors" size and real size: when the
+file is 512 bytes and the disk uses 512b blocks.
 
-There are no security issues. Yes, uservfs is security-sensitive code.
+Now another trouble is that samba people also use a minimum of 1Mo
+(hence the number in the above fstat result). I'm not sure what to do
+with this: should we then use file size which we divide into sectors
+ourselves ? Or should we keep 1Mo, getting some strange results to some
+extent ?
 
->   all the resource problems that loopback network filesystems suffer.
->   What if the kernel is short on memory and tries to flush dirty buffers
->   to reclaim it.  If those buffers are running against the user FS
->   daemon, then that daemon must wake up to clear dirty buffers.  If it
->   tries to allocate memory, deadlock in the kernel.
-
-Coda solves this: all writable things are file-backed on file in /tmp =>
-bad performance if you only need piece of very large file,
-but no deadlocks.
-
-> Probably the security problems can be solved to some degree by being
-> very paranoid in the kernel (at an associated loss in utility), and the
-> resource issues can be solved by restricting dirty buffers for loopback
-> mounts (at an associated loss in performance), but it's hardly simple.
-
-See sources. It is <1000 lines of code.
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+Regards,
+Samuel Thibault

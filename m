@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131958AbRAJR3G>; Wed, 10 Jan 2001 12:29:06 -0500
+	id <S132041AbRAJRcg>; Wed, 10 Jan 2001 12:32:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132041AbRAJR24>; Wed, 10 Jan 2001 12:28:56 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:59283 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131958AbRAJR2m>;
-	Wed, 10 Jan 2001 12:28:42 -0500
-Date: Wed, 10 Jan 2001 12:28:38 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        linux-kernel@vger.kernel.org
-Subject: Re: `rmdir .` doesn't work in 2.4
-In-Reply-To: <20010110160359.E19503@athlon.random>
-Message-ID: <Pine.GSO.4.21.0101101216370.13614-100000@weyl.math.psu.edu>
+	id <S130339AbRAJRc0>; Wed, 10 Jan 2001 12:32:26 -0500
+Received: from Morgoth.esiway.net ([193.194.16.157]:62224 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S132041AbRAJRcP>; Wed, 10 Jan 2001 12:32:15 -0500
+Date: Wed, 10 Jan 2001 18:32:09 +0100 (CET)
+From: Marco Colombo <marco@esi.it>
+To: Alan Shutko <ats@acm.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] More compile warning fixes for 2.4.0
+In-Reply-To: <874rz7pcwn.fsf@wesley.springies.com>
+Message-ID: <Pine.LNX.4.21.0101101759150.16888-100000@Megathlon.ESI>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10 Jan 2001, Alan Shutko wrote:
 
-
-On Wed, 10 Jan 2001, Andrea Arcangeli wrote:
-
-> > Do we have enough protection to ensure this for other filesystems?
+> Marco Colombo <marco@esi.it> writes:
 > 
-> Note that this has nothing to do with `rmdir .`. You will run into the
-> mentioned issue just now with '''rmdir "`pwd`"'''. I've not checked
-> the other fses but I would put such support into the VFS rather than in ext2
-> (vfs can do that for you, if you do that the lowlevel fs will never get a
-> readdir for a delete dentry).
+> > But what happens if I delete the stm1 line? We have:
+> > 
+> > 	case xxx:
+> > 		/* fallthrough */
+> > 	case yyy:
+> > 		stm2;
+> > 
+> > which is wrong. 
+> 
+> AFAIK, that's perfectly correct.  It's only the case where you have a
+> label at the end of a block (without a statement following it) where
+> it's an error.
+> 
+> In the grammar, a statement must follow a label, but a
+> labeled-statement is a type of statement, so you can stack labels as
+> much as you want, as long as there's a statement somewhere after them.
+> 
+> That is, assuming I'm reading the standard right (ISO/IEC 9899:1990,
+> Section 6.6, 6.6.1).        
 
-That's precisely what I've already done. grep for IS_DEADDIR() and notice
-that it's only checked under ->i_zombie. Both rmdir() and rename() hold
-it on victim, readdir() holds it on directory it wants to read and everything
-that creates or removes objects holds it on parent. Successful rmdir()
-and rename()-over-directory set S_DEAD in the ->i_flags before dropping
-->i_zombie.
+Opps, sorry, I misunderstood Linus' message, then. 
 
-The only thing that can happen with the dead directory is ->lookup().
+.TM.
+-- 
+      ____/  ____/   /
+     /      /       /			Marco Colombo
+    ___/  ___  /   /		      Technical Manager
+   /          /   /			 ESI s.r.l.
+ _____/ _____/  _/		       Colombo@ESI.it
 
-IOW, in 2.4 most of filesystems had dropped the -EBUSY on rmdir() they
-used to have. And ext2 got rid of the special handling of dead directories -
-these checks are done in VFS now. The only fs with special treatment of
-rmdir()/rename() wrt busy victims is NFS, IIRC.
-
-Filesystems still can refuse to remove busy directories (same test as in
-2.2) but there's almost no reasons for that.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,57 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbTD2MlN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 08:41:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbTD2MlN
+	id S261863AbTD2MrF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 08:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTD2MrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 08:41:13 -0400
-Received: from net049s.hetnet.nl ([194.151.104.184]:19464 "EHLO hetnet.nl")
-	by vger.kernel.org with ESMTP id S261857AbTD2MlM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 08:41:12 -0400
-Content-Class: urn:content-classes:message
-From: <bas.mevissen@hetnet.nl>
-To: "Martin List-Petersen" <martin@list-petersen.dk>,
-       "David S. Miller" <davem@redhat.com>
-Cc: <bas.mevissen@hetnet.nl>, <linux-kernel@vger.kernel.org>
-Subject: RE: Broadcom BCM4306/BCM2050  support
-Date: Tue, 29 Apr 2003 14:51:12 +0200
-Message-ID: <4b4e01c30e4e$0352c5a0$d16897c2@hetnet.nl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Microsoft CDO for Windows 2000
-Thread-Index: AcMOTgNSONr+6Ho7EdeYPABQi7AS7A==
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	Tue, 29 Apr 2003 08:47:04 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:14749 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261863AbTD2Mq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 08:46:56 -0400
+Date: Tue, 29 Apr 2003 14:59:04 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Chandrasekhar <chandrasekhar.nagaraj@patni.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Stack Trace dump in do_IRQ
+Message-ID: <20030429125904.GA7949@wohnheim.fh-wedel.de>
+References: <NHBBIPBFKBJLCPPIPIBCCEAICAAA.chandrasekhar.nagaraj@patni.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <NHBBIPBFKBJLCPPIPIBCCEAICAAA.chandrasekhar.nagaraj@patni.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 29 April 2003 18:04:28 +0530, Chandrasekhar wrote:
+> 
+> We have a custom driver which runs on Red Hat Advanced Server 2.1(kernel
+> version 2.4.9-e.3).
+> On loading  the driver (using insmod) and running our configuration program,
+> we got folowing warning message "do_IRQ: stack overflow: 1786" and along
+> with the stack trace.
+> 
+> The configuration program, however, ran successfully.
+> 
+> On going through the do_IRQ code in arch/i386/kernel/irq.c we found that is
+> is used for debugging check for stack overflow i.e if the stack size is less
+> than 2KB free.
+> There is no similar debugging check in other kernels like 2.4.7-10,2.4.18-3
+> and 2.4.18-14.
+> What is the significance of this debugging information and why other kernels
+> dont have the same check? Also, if the stack overflow can cause future
+> problems, then
+> how can we increase the stack size? Thanks in advance for any information on
+> this.
 
-David S. Miller wrote:
+I don't know those kernel versions, they appear to be redhat-specific.
+But current mainline kernels, both 2.4 and 2.5 have had this check for
+a while already. You have to set a config option to enable them.
 
-> Don't expect specs or opensource drivers for any of these pieces
-> of hardware until these vendors figure out a way to hide the frequency
-> programming interface.
+In principle, there is absolutely no way how linux can tell when the
+check will spill over. The check in do_irq simply checks if the kernel
+was close, at the time of that interrupt. This is enough to catch
+dangerous code paths and fix them, before any real problems occur.
 
-What did Intersil do? How did the linux-wlan-ng project handle this?
+"close" for mainline kernels means, there is less than 1k of free
+stack left. Your redhat kernel seems to use 2k, I even go as far as
+5k, but that definitely fills my logs. 1786 is the number of bytes
+still free on the stack. Should be enough for you.
 
-> The only halfway plausible idea I've seen is to not document the
-> frequency programming registers, and users get a "region" key file that
-> has opaque register values to program into the appropriate registers.
-> The file is per-region (one for US, Germany, etc.)and the wireless
-> kernel driver reads in this file to do the frequency programming.
+If you can reproduce something as low as 1786 for a recent 2.4 or 2.5
+kernel, I'd be interested in the backtrace. For 2.4.9, I just don't
+care. :)
 
-Here in The Netherlands, it is quite common to use a US version of Windows and to keep (most of)  the regional settings of the US. So on Windows, most of the time the region is likely to be wrong. I gues that in cases where things are critical, a different firmware version is used. 
+Jörn
 
-It is not really a practical problem however, because the allowed frequencies have become pretty the same over time. The same applies to modems: they are also country-specific. But in practice, it is not really a concern.
-
-But how to go furter with this? Does someone have contacts within Broadcom?
-
-Regards,
-
-Bas.
-
-
-
---------------------------------------------------------------------------------
+-- 
+Fantasy is more important than knowlegde. Knowlegde is limited,
+while fantasy embraces the whole world.
+-- Albert Einstein

@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263802AbUGFM2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUGFMaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263802AbUGFM2d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 08:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263815AbUGFM2c
+	id S263818AbUGFMaK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 08:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263790AbUGFMaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 08:28:32 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:30660 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S263802AbUGFM2b (ORCPT
+	Tue, 6 Jul 2004 08:30:10 -0400
+Received: from news.ti.com ([192.94.94.33]:6622 "EHLO dragon.ti.com")
+	by vger.kernel.org with ESMTP id S263815AbUGFMaC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 08:28:31 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Joseph Fannin <jhf@rivenstone.net>, Andrew Morton <akpm@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>, benh@kernel.crashing.org
-Subject: Re: 2.6.7-mm6 - ppc32 inconsistent kallsyms data 
-In-reply-to: Your message of "Tue, 06 Jul 2004 19:09:23 +1000."
-             <1089104963.9417.4.camel@bach> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 06 Jul 2004 22:28:22 +1000
-Message-ID: <2816.1089116902@ocs3.ocs.com.au>
+	Tue, 6 Jul 2004 08:30:02 -0400
+Message-ID: <40EA9B31.3000404@ti.com>
+Date: Tue, 06 Jul 2004 15:29:37 +0300
+From: Alexander Sirotkin <demiurg@ti.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: cardbus/pci question
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Jul 2004 12:29:43.0262 (UTC) FILETIME=[EA4E4FE0:01C46354]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 06 Jul 2004 19:09:23 +1000, 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
->On Tue, 2004-07-06 at 17:31, Keith Owens wrote:
->> This is a real linker problem on ppc32.  The linker automatically adds
->> _SDA_BASE_ and _SDA2_BASE_ symbols, these symbols are not defined in
->> vmlinux.lds.S.
->
->What type are those symbols?  I'm surprised they're not 'A' which is
->already ignored...
+I could not find any information on this in the archives, so I thought I 
+might ask it here.
 
-'D'
+Theoretically, it should be possible to write cardbus driver as a 
+regular PCI driver. It will
+not support hotplug, of course, but if one can assume that the hardware 
+is plugged in by the
+time the driver is loaded, it should work. One issue does bother me a 
+little bit - cardbus is
+connected to the PCI bus through a bridge. The question is - do I have 
+to configure that bridge
+from my driver (to get memory mappings and interrupts), because 
+obviously the OS won't
+do it for me when I'm not registered as cardbus driver.
+
+Thanks.
+
+In your answer, please CC me since I'm not subscribed to the list.
+
+-- 
+Alexander Sirotkin
+SW Engineer
+
+Texas Instruments
+Broadband Communications Israel (BCIL)
+Tel:  +972-9-9706587
+________________________________________________________________________
+"Those who do not understand Unix are condemned to reinvent it, poorly."
+      -- Henry Spencer 
+
 

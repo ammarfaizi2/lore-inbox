@@ -1,115 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263154AbUB0VwY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 16:52:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263150AbUB0VwY
+	id S263135AbUB0Vwj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 16:52:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263150AbUB0Vwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 27 Feb 2004 16:52:39 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:5267 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263135AbUB0VwY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 27 Feb 2004 16:52:24 -0500
-Received: from fed1mtao04.cox.net ([68.6.19.241]:37257 "EHLO
-	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S263135AbUB0VwN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 16:52:13 -0500
-Date: Fri, 27 Feb 2004 14:52:11 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>, "Amit S. Kale" <amitkale@emsyssoft.com>,
-       kgdb-bugreport@lists.sourceforge.net
-Subject: [KGDB PATCH][6/7] KGDBOE fixes
-Message-ID: <20040227215211.GI1052@smtp.west.cox.net>
-References: <20040227212301.GC1052@smtp.west.cox.net> <20040227212548.GD1052@smtp.west.cox.net> <20040227213254.GE1052@smtp.west.cox.net> <20040227214031.GF1052@smtp.west.cox.net> <20040227214605.GH1052@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040227214605.GH1052@smtp.west.cox.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Date: Fri, 27 Feb 2004 15:51:36 -0600 (CST)
+From: olof@austin.ibm.com
+To: torvalds@osdl.org
+cc: benh@kernel.crashing.org, <linux-kernel@vger.kernel.org>,
+       <linuxppc64-dev@lists.linuxppc.org>
+Subject: [PATCH] ppc64: Add iommu=on for enabling DART on small-mem machines
+Message-ID: <Pine.A41.4.44.0402271524190.43108-100000@forte.austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.  The following is a couple of small but important cleanups to kgdboe.
-- memset out_buf in case we don't have it full when we flush.
-- In rx_hook, if netpoll_trap() is set, clear it.  If kgdb_isn't connected,
-  schedule a breakpoint, and never call breakpoint() directly.
-- In kgdb_serial->hook, set netpoll_trap(1).  kgdb_serial->hook must be
-  called prior to using a 'serial' port, so this is where we should stick
-  this.
-- Backout unneeded changes to other files.
+Linus,
 
---- linux-2.6.3/drivers/net/kgdb_eth.c.orig	2004-02-27 13:27:53.778658691 -0700
-+++ linux-2.6.3/drivers/net/kgdb_eth.c	2004-02-27 13:32:07.920255062 -0700
-@@ -18,6 +18,7 @@
-  * Refactored for netpoll API by Matt Mackall <mpm@selenic.com>
-  *
-  * Some cleanups by Pavel Machek <pavel@suse.cz>
-+ * Further cleanups by Tom Rini <trini@mvista.com>
-  */
- 
- #include <linux/module.h>
-@@ -60,7 +61,6 @@
- static atomic_t in_count;
- int kgdboe = 0;			/* Default to tty mode */
- 
--extern void breakpoint(void);
- static void rx_hook(struct netpoll *np, int port, char *msg, int len);
- 
- static struct netpoll np = {
-@@ -89,6 +89,7 @@
- {
- 	if (out_count && np.dev) {
- 		netpoll_send_udp(&np, out_buf, out_count);
-+		memset(out_buf, 0, sizeof(out_buf));
- 		out_count = 0;
+Below patch makes it possible for people like me with a small-mem G5 to
+enable the DART. I see two reasons for wanting to do so:
+
+1. To debug/test DART/iommu code itself (small audience, including
+   myself).
+2. To debug drivers on small-mem machines, since bad pci_map*() usage will
+   be punished (possibly larger audience).
+
+
+Thanks,
+
+-Olof
+
+
+===== arch/ppc64/kernel/prom.c 1.56 vs edited =====
+--- 1.56/arch/ppc64/kernel/prom.c	Fri Feb 27 16:44:57 2004
++++ edited/arch/ppc64/kernel/prom.c	Fri Feb 27 15:48:10 2004
+@@ -516,6 +516,9 @@
+ 	return mem;
+ }
+
++#ifdef CONFIG_PMAC_DART
++static int dart_force_on;
++#endif
+
+ static unsigned long __init
+ prom_initialize_lmb(unsigned long mem)
+@@ -539,10 +542,12 @@
+ 		prom_print(opt);
+ 		prom_print(RELOC("\n"));
+ 		opt += 6;
+-		while(*opt && *opt == ' ')
++		while (*opt && *opt == ' ')
+ 			opt++;
+ 		if (!strncmp(opt, RELOC("off"), 3))
+ 			nodart = 1;
++		else if (!strncmp(opt, RELOC("on"), 2))
++			RELOC(dart_force_on) = 1;
  	}
- }
-@@ -107,12 +108,15 @@
- 	np->remote_port = port;
+ #else
+ 	nodart = 1;
+@@ -763,8 +768,10 @@
+ 	extern unsigned long dart_tablebase;
+ 	extern unsigned long dart_tablesize;
 
-+	/* Do we need to clear the trap? */
-+	if (netpoll_trap())
-+		netpoll_set_trap(0);
- 	/* Is this gdb trying to attach? */
--	if (!netpoll_trap() && len == 8 && !strncmp(msg, "$Hc-1#09", 8))
--		breakpoint();
-+	if (kgdb_connected) {
-+		kgdb_schedule_breakpoint();
- 
- 	for (i = 0; i < len; i++) {
- 		if (msg[i] == 3)
--			breakpoint();
-+			kgdb_schedule_breakpoint();
- 
- 		if (atomic_read(&in_count) >= IN_BUF_SIZE) {
- 			/* buffer overflow, clear it */
-@@ -138,6 +141,9 @@
- 	/* Un-initalized, don't go further. */
- 	if (kgdboe != 1)
- 		return 1;
-+
-+	netpoll_set_trap(1);
-+
- 	return 0;
- }
- 
---- linux-2.6.3/net/core/skbuff.c.orig	2004-02-27 13:30:21.107968572 -0700
-+++ linux-2.6.3/net/core/skbuff.c	2004-02-27 13:30:44.279825113 -0700
-@@ -55,7 +55,6 @@
- #include <linux/rtnetlink.h>
- #include <linux/init.h>
- #include <linux/highmem.h>
--#include <linux/debugger.h>
- 
- #include <net/protocol.h>
- #include <net/dst.h>
---- linux-2.6.3/net/core/dev.c.orig	2004-02-27 13:30:27.687508165 -0700
-+++ linux-2.6.3/net/core/dev.c	2004-02-27 13:30:44.261829108 -0700
-@@ -1547,6 +1547,7 @@
- }
- #endif
- 
-+
- /**
-  *	netif_rx	-	post buffer to the network code
-  *	@skb: buffer to post
+-	/* Only reserve DART space if machine has more than 2Gb of RAM */
+-	if (lmb_end_of_DRAM() <= 0x80000000ull)
++	/* Only reserve DART space if machine has more than 2GB of RAM
++	 * or if requested with iommu=on on cmdline.
++	 */
++	if (lmb_end_of_DRAM() <= 0x80000000ull && !RELOC(dart_force_on))
+ 		return;
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+ 	/* 512 pages is max DART tablesize. */
+
+
+
+
+Olof Johansson                                        Office: 4E002/905
+Linux on Power Development                            IBM Systems Group
+Email: olof@austin.ibm.com                          Phone: 512-838-9858
+All opinions are my own and not those of IBM
+
+

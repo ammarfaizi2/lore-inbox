@@ -1,99 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130651AbRCFNSI>; Tue, 6 Mar 2001 08:18:08 -0500
+	id <S130661AbRCFNT2>; Tue, 6 Mar 2001 08:19:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130655AbRCFNR7>; Tue, 6 Mar 2001 08:17:59 -0500
-Received: from nic-31-c31-100.mn.mediaone.net ([24.31.31.100]:32640 "EHLO
-	nic-31-c31-100.mn.mediaone.net") by vger.kernel.org with ESMTP
-	id <S130651AbRCFNRs>; Tue, 6 Mar 2001 08:17:48 -0500
-Date: Tue, 6 Mar 2001 07:17:40 -0600 (CST)
-From: "Scott M. Hoffman" <scott@mediaone.net>
-X-X-Sender: <scott@nic-31-c31-100.mn.mediaone.net>
-Reply-To: <scott1021@mediaone.net>
-To: God <atm@pinky.penguinpowered.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.2-ac12
-In-Reply-To: <Pine.LNX.4.21.0103060507140.878-100000@scotch.homeip.net>
-Message-ID: <Pine.LNX.4.32.0103060713400.3095-100000@nic-31-c31-100.mn.mediaone.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130775AbRCFNTS>; Tue, 6 Mar 2001 08:19:18 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:42258 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S130661AbRCFNTA>;
+	Tue, 6 Mar 2001 08:19:00 -0500
+Date: Tue, 6 Mar 2001 14:18:43 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Adrian Levi <a_levi@dingoblue.net.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible Bug? 2.2.18
+Message-ID: <20010306141843.I2803@suse.de>
+In-Reply-To: <003901c0a600$1a5d3220$0200a8c0@dingoblue.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <003901c0a600$1a5d3220$0200a8c0@dingoblue.net.au>; from a_levi@dingoblue.net.au on Tue, Mar 06, 2001 at 03:41:31PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Mar 2001, God wrote:
+On Tue, Mar 06 2001, Adrian Levi wrote:
+> running 2.2.18 on a AMD486DX4 - 120 with 34Mb Ram running RH6.2 I obtained
+> these errors while trying to copy files from a burnt CD.
+> 
+> Mar  6 10:13:33 lefty kernel: hdb: command error: status=0x51 { DriveReady
+> SeekComplete Error }
+> Mar  6 10:13:33 lefty kernel: hdb: command error: error=0x54
+> Mar  6 10:13:33 lefty kernel: end_request: I/O error, dev 03:40 (hdb),
+> sector 140520
+> Mar  6 10:13:33 lefty kernel: ATAPI device hdb:
+> Mar  6 10:13:34 lefty kernel:   Error: Illegal request -- (Sense key=0x05)
+> Mar  6 10:13:34 lefty kernel:   Illegal mode for this track or incompatible
+> medium -- (asc=0x64, ascq=0x00)
+> Mar  6 10:40:57 lefty kernel: hdb: command error: status=0x51 { DriveReady
+> SeekComplete Error }
+> Mar  6 10:40:57 lefty kernel: hdb: command error: error=0x54
+> Mar  6 10:40:57 lefty kernel: ATAPI device hdb:
+> Mar  6 10:40:57 lefty kernel:   Error: Illegal request -- (Sense key=0x05)
+> Mar  6 10:40:57 lefty kernel:   Illegal mode for this track or incompatible
+> medium -- (asc=0x64, ascq=0x00)
 
-> On Mon, 5 Mar 2001, Scott M. Hoffman wrote:
->
-> > On Mon, 5 Mar 2001, Richard B. Johnson wrote:
-> > >
-> > > I   -- S T R O N G L Y -- suggest that nobody use this kernel with
-> > > a BusLogic SCSI controller until this problem is fixed.
-> > >
-> > > Dick Johnson
-> >
-> >  It may not be related, but out of five boot attempts, only one got past
-> > the IDE driver stage(ie, below from 2.4.2 :
-> >   VP_IDE: IDE controller on PCI bus 00 dev 39
-> >   VP_IDE: chipset revision 16
-> >   VP_IDE: not 100% native mode: will probe irqs later
-> >   ide: Assuming 33MHz system bus speed for PIO modes; override with
-> >   idebus=xx
-> >   VP_IDE: VIA vt82c596b (rev 23) IDE UDMA66 controller on pci00:07.1
-> >       ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
-> >       ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:DMA)
-> >   I've had 2.4.2 running great for the past 10 days. Need any more info?
->
-> heh... I had (probably still do), the same problem.  Took me a few boots
-> before it would get passed the drives (this was right after upgrading to
-> 2.4.2).
->
-> PIIX4: IDE controller on PCI bus 00 dev 21
-> PIIX4: chipset revision 1
-> PIIX4: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:DMA
->     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:DMA, hdd:DMA
-> hda: QUANTUM FIREBALL CX6.4A, ATA DISK drive
-> hdb: ST33210A, ATA DISK drive
-> hdc: WDC AC2340F, ATA DISK drive
-> hdd: ATAPI CD-ROM DRIVE 40X MAXIMUM, ATAPI CD/DVD-ROM drive
->
->
-> Other then the fact that as I look down at the drive activity light on the
-> case, it's lit ... things from a IO standpoint seem to be ok .. (and I
-> hope it stays that way) ...
->
-> btw, for the curious:
->
->
-> # iostat
-> Linux 2.4.2 (scotch)    03/06/2001
->
-> tty:     tin       tout   avg-cpu:  %user   %nice    %sys   %idle  %iowait
->            0          0              1.09    0.00    0.69    0.00   98.22
-> Disks:         tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
-> hdisk0        0.00         0.00         0.00          0          0
-> hdisk1        0.00         0.00         0.00          0          0
-> hdisk2        0.00         0.00         0.00          0          0
->
-> # hdparm -I /dev/hdd
-> hdd: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> hdd: drive_cmd: error=0x04
->
-> /dev/hdd:
-> hdd: drive_cmd: status=0x58 { DriveReady SeekComplete DataRequest }
->  HDIO_DRIVE_CMD(identify) failed: Input/output error
->
->
-> Doesn't matter what I have hdparm do to the drive, after running a
-> function the drive / bus activity light turns off ...
->
->
-> Thoughts?
+This looks like you're copying from an audio or vcd track.
 
- I have not had problems with 2.4.2, just tried 2.4.2-ac12.  About the IDE
-stage it just reboots.
- As for your iostat output, which version do you have?  The stock one with
-RH7 needs to be upgraded to work with 2.4 kernels.  I'm using 3.3.5 now,
-which seems to work.
+> The system locked hard with the drive light on, not accepting commands via
+> telnet. I plugged in a Keyboard and Monitor and line after line of:
+> 
+> hdb: Missed Interupt   (As close as i can get via memory).
 
+Ugh
+
+-- 
+Jens Axboe
 

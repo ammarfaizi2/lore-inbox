@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263265AbTJLONl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 10:13:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTJLONl
+	id S261869AbTJLOdD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 10:33:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTJLOdD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 10:13:41 -0400
-Received: from cmu-24-35-14-252.mivlmd.cablespeed.com ([24.35.14.252]:7849
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263265AbTJLONj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 10:13:39 -0400
-Date: Sun, 12 Oct 2003 10:13:14 -0400 (EDT)
-From: Thomas Molina <tmolina@cablespeed.com>
-X-X-Sender: tmolina@localhost.localdomain
-To: Mike Galbraith <efault@gmx.de>
-cc: Manfred Spraul <manfred@colorfullife.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test7 DEBUG_PAGEALLOC oops
-In-Reply-To: <Pine.LNX.4.44.0310120806130.29523-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0310121010580.29523-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 12 Oct 2003 10:33:03 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:30900 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S261869AbTJLOdB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 10:33:01 -0400
+Date: Sun, 12 Oct 2003 16:32:45 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "Mark Williams (MWP)" <mwp@internode.on.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS causing kernel panic?
+Message-ID: <20031012143245.GA21010@louise.pinerecords.com>
+References: <20031012121331.GA665@linux.comp> <yw1xhe2eiqru.fsf@zaphod.guide> <20031012140048.GA554@linux.comp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031012140048.GA554@linux.comp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Oct 2003, Thomas Molina wrote:
+On Oct-12 2003, Sun, 23:30 +0930
+Mark Williams (MWP) <mwp@internode.on.net> wrote:
 
-> On Sun, 12 Oct 2003, Mike Galbraith wrote:
-> 
-> > At 08:58 AM 10/12/2003 +0200, Manfred Spraul wrote:
-> > >Could you try the attached patch?
-> > >It updates the end of stack detection to handle unaligned stacks.
+> > "Mark Williams (MWP)" <mwp@internode.on.net> writes:
 > > 
-> > Works fine.  (modulo moving kstack_end above ASSEMBLY)
+> > > I am having rather ugly problems with this card using the PDC20269 chip.
+> > > Almost as soon as either of the HDDs on the controller are used, the
+> > > kernel hangs solid with a dump of debugging info.
+> > 
+> > That dump could be useful.  Also full output of dmesg and "lspci -vv"
+> > can be helpful.
 > 
-> I'm the one with bugzilla 973.  I'm trying the patch with a source tree 
-> synced up from bk this morning and having a few problems.  My in-laws are 
-> visiting today, so my work on this will be intermittent.  I am interested, 
-> however.
+> Ok, seems this is not a controller fault, but really a problem with
+> ReiserFS (!!).
 
-Note to self:  next time read the whole message, including the part in 
-parenthesis.  The patch, modulo Mike's modulo (move the function where I 
-was told to move the function), does indeed work fine.  
+Do you really expect reiserfs code (or any other fs code for that matter)
+not to choke on a corrupted filesystem?
 
-Testing continues, but thanks!
+Put the disk on a trusted controller and fsck.
 
+-- 
+Tomas Szepe <szepe@pinerecords.com>

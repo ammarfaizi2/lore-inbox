@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289844AbSBUDmy>; Wed, 20 Feb 2002 22:42:54 -0500
+	id <S292316AbSBUEQw>; Wed, 20 Feb 2002 23:16:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292316AbSBUDmo>; Wed, 20 Feb 2002 22:42:44 -0500
-Received: from gw.wmich.edu ([141.218.1.100]:33413 "EHLO gw.wmich.edu")
-	by vger.kernel.org with ESMTP id <S289844AbSBUDm3>;
-	Wed, 20 Feb 2002 22:42:29 -0500
-Subject: Re: ide cd-recording not working in 2.4.18-rc2-ac1
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S292321AbSBUEQm>; Wed, 20 Feb 2002 23:16:42 -0500
+Received: from web12308.mail.yahoo.com ([216.136.173.106]:30215 "HELO
+	web12308.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S292316AbSBUEQX>; Wed, 20 Feb 2002 23:16:23 -0500
+Message-ID: <20020221041622.16473.qmail@web12308.mail.yahoo.com>
+Date: Wed, 20 Feb 2002 20:16:22 -0800 (PST)
+From: Raghu Angadi <raghuangadi@yahoo.com>
+Subject: Re: memory corruption in tcp bind hash buckets on SMP? 
+To: "David S. Miller" <davem@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16diR7-0005RF-00@the-village.bc.nu>
-In-Reply-To: <E16diR7-0005RF-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 20 Feb 2002 22:42:30 -0500
-Message-Id: <1014262955.799.27.camel@psuedomode>
-Mime-Version: 1.0
+In-Reply-To: <20020213.190743.66058963.davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-02-20 at 20:54, Alan Cox wrote:
-> > I get this on every cd I try and I've tried more than I'd have liked to.
-> > 
-> > Performing OPC...
-> > 
-> /usr/bin/cdrecord: Input/output error. write_g1: scsi sendcmd: no error
-> > CDB:  2A 00 00 00 00 1F 00 00 1F 00
-> > status: 0x2 (CHECK CONDITION)
-> > Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 21 00 00 00
-> > Sense Key: 0x5 Illegal Request, Segment 0
-> > Sense Code: 0x21 Qual 0x00 (logical block address out of range) Fru 0x0
-> 
-> Thats saying that cdrecord sent the drive a bogus command.
-> 
-> > Now I know every cd isn't bad because they used to work in older
-> > 2.4.17ish kernels.  I have scsi-generic support compiled as a module as
-> 
-> Does it still work with them ?
-> 
-> > SCSI subsystem driver Revision: 1.00
-> > scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-> 
-> Right same as I am using
-> 
-> > not sure what else I can get informationwize about what the drive is
-> > doing.  
-> 
-> What type of IDE controller ?
 
-VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
+--- "David S. Miller" <davem@redhat.com> wrote:
+>    From: Raghu Angadi <raghuangadi@yahoo.com>
+>    Date: Wed, 13 Feb 2002 16:51:52 -0800 (PST)    
+>    --- "David S. Miller" <davem@redhat.com> wrote:
+>    > 
+>    > This bug is fixed in the 2.4.9 Red Hat 7.2 errata kernels.
+
+We tried the latest errata kernel from redhat.com (2.4.9-21). This one still
+has the same problem. We saw exactly the same problem at the same place in
+the code. I can add the oops here if you like. 
+
+(link to the original mail for this thread:
+	http://www.uwsg.iu.edu/hypermail/linux/kernel/0202.1/1193.html)
+
+We are trying to fix this problem but did not have much success yet. I will
+happy to provide any more info if somebody needs.
+
+Raghu.
+   
+>    Thanks, Is the following diff the only culprit/fix?
+>    
+> There are others, seatch for more instances of tcp_tw_get()
+> and tcp_tw_put() and things like atomic_set(tw->count, 1);
 
 
-If i retry over and over sometimes it will eventually work.  (same cd)  
-
-
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Sports - Coverage of the 2002 Olympic Games
+http://sports.yahoo.com

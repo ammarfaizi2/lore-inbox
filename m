@@ -1,79 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292036AbSCDG7A>; Mon, 4 Mar 2002 01:59:00 -0500
+	id <S292062AbSCDHTZ>; Mon, 4 Mar 2002 02:19:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292045AbSCDG6l>; Mon, 4 Mar 2002 01:58:41 -0500
-Received: from smtp.cogeco.net ([216.221.81.25]:37090 "EHLO fep9.cogeco.net")
-	by vger.kernel.org with ESMTP id <S292036AbSCDG6b>;
-	Mon, 4 Mar 2002 01:58:31 -0500
-Subject: SIS DRI module unresolved symbols
-From: "Nix N. Nix" <nix@go-nix.ca>
-To: linux-kernel@vger.kernel.org
+	id <S292079AbSCDHTP>; Mon, 4 Mar 2002 02:19:15 -0500
+Received: from zero.tech9.net ([209.61.188.187]:54027 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S292062AbSCDHTE>;
+	Mon, 4 Mar 2002 02:19:04 -0500
+Subject: Re: interrupt - spin lock question
+From: Robert Love <rml@tech9.net>
+To: sridharv@ufl.edu
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1015223610.3c83153a33024@webmail.health.ufl.edu>
+In-Reply-To: <1015219129.3c8303b9e87a7@webmail.health.ufl.edu>
+	<1015219669.868.35.camel@phantasy> 
+	<1015223610.3c83153a33024@webmail.health.ufl.edu>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/1.0.2 
-Date: 04 Mar 2002 01:57:35 -0500
-Message-Id: <1015225109.992.30.camel@tux>
+Date: 04 Mar 2002 02:19:09 -0500
+Message-Id: <1015226350.15281.0.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to set up a friend of mine with a Linux box (RedHat 7.2 -
-XFree86 4.1.0). I'm running into problems getting the SIS DRI module to
-load into the kernel because sis_malloc and, I believe sis_free do not
-resolve.  I tried compiling it into the kernel, but the link at the end
-failed, for the same reasons. The details:
+On Mon, 2002-03-04 at 01:33, sridharv@ufl.edu wrote:
 
-<*> /dev/agpgart (AGP Support)                                       
-[*]   Intel 440LX/BX/GX and I815/I830M/I840/I850 support             
-[*]   Intel I810/I815/I830M (on-board) support                       
-[*]   VIA chipset support                                            
-[*]   AMD Irongate, 761, and 762 support                             
-[*]   Generic SiS support                                            
-[*]   ALI chipset support                                            
-[*]   Serverworks LE/HE support                                      
-[*] Direct Rendering Manager (XFree86 DRI support)                   
-[ ]   Build drivers for old (XFree 4.0) DRM                          
---- DRM 4.1 drivers                                                  
-<M>   3dfx Banshee/Voodoo3+                                          
-<M>   ATI Rage 128                                                   
-<M>   ATI Radeon                                                     
-<M>   Intel I810                                                     
-<M>   Matrox g200/g400                                               
-<*>   SiS                                                            
+> ok things are clear now. so the spin_lock_irq friends are actually for 2 
+> purposes - preventing racing from interrupts and from SMP. so if SMP is not 
+> chosen only the local_irq_disable() part works right??
+> 
+> do { local_irq_disable();         spin_lock(lock); } while (0)
 
-This produces:
-... -o vmlinux
-drivers/char/drm/drm.o: In function `sis_fb_alloc':
-drivers/char/drm/drm.o(.text+0x6893): undefined reference to
-`sis_malloc'
-drivers/char/drm/drm.o(.text+0x68d6): undefined reference to `sis_free'
-drivers/char/drm/drm.o: In function `sis_fb_free':
-drivers/char/drm/drm.o(.text+0x69c8): undefined reference to `sis_free'
-drivers/char/drm/drm.o: In function `sis_final_context':
-drivers/char/drm/drm.o(.text+0x6e4e): undefined reference to `sis_free'
+Correct.  Although, you would want to use spin_lock_irqsave most of the
+time, not spin_lock_irq (difference is, the stored flags value is used
+to restore interrupts to there previous condition instead of
+unconditionally reenable them).
 
-Granted, he does have the one chipset not supported: 5591/5592. 
-Nonetheless, the kernel should still compile and link.  Anyway, here's
-his lspci output:
+Btw, Go Gators!
 
-00:00.0 Host bridge: Silicon Integrated Systems [SiS] 630 Host (rev 21)
-00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev
-d0)
-00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
-00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900
-10/100 Ethernet (rev 83)
-00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
-00:01.3 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
-00:01.4 Multimedia audio controller: Silicon Integrated Systems [SiS]
-SiS PCI Audio Accelerator (rev 02)
-00:02.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
-01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS]
-SiS630 GUI Accelerator+3D (rev 21)
-
-The same thing happens with 2.4.17 .
-
-
-
-Thanks for your help.
+	Robert Love
 

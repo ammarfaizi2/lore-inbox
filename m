@@ -1,86 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274694AbRITXDe>; Thu, 20 Sep 2001 19:03:34 -0400
+	id <S274697AbRITXPf>; Thu, 20 Sep 2001 19:15:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274693AbRITXDY>; Thu, 20 Sep 2001 19:03:24 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:17142 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274689AbRITXDM>;
-	Thu, 20 Sep 2001 19:03:12 -0400
-Date: Fri, 21 Sep 2001 01:03:40 +0200
+	id <S274698AbRITXPZ>; Thu, 20 Sep 2001 19:15:25 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:22518 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274697AbRITXPL>;
+	Thu, 20 Sep 2001 19:15:11 -0400
+Date: Fri, 21 Sep 2001 01:15:14 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.10-pre11
-Message-ID: <20010921010340.L729@athlon.random>
-In-Reply-To: <20010921003136.H729@athlon.random> <Pine.GSO.4.21.0109201835320.5631-100000@weyl.math.psu.edu>
+To: Robert Love <rml@tech9.net>
+Cc: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Andrew Morton <akpm@zip.com.au>, Chris Mason <mason@suse.com>,
+        Beau Kuiper <kuib-kl@ljbc.wa.edu.au>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: [PATCH] Significant performace improvements on reiserfs systems
+Message-ID: <20010921011514.M729@athlon.random>
+In-Reply-To: <20010920170812.CCCACE641B@ns1.suse.com> <3BAA29C2.A9718F49@zip.com.au> <1001019170.6090.134.camel@phantasy> <200109202112.f8KLCXG16849@zero.tech9.net> <1001024694.6048.246.camel@phantasy> <20010921003742.I729@athlon.random> <1001026597.6048.278.camel@phantasy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0109201835320.5631-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Sep 20, 2001 at 06:44:18PM -0400
+In-Reply-To: <1001026597.6048.278.camel@phantasy>; from rml@tech9.net on Thu, Sep 20, 2001 at 06:56:04PM -0400
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 20, 2001 at 06:44:18PM -0400, Alexander Viro wrote:
+On Thu, Sep 20, 2001 at 06:56:04PM -0400, Robert Love wrote:
+> On Thu, 2001-09-20 at 18:37, Andrea Arcangeli wrote:
+> > On Thu, Sep 20, 2001 at 06:24:48PM -0400, Robert Love wrote:
+> > >
+> > > if (current->need_resched && current->lock_depth == 0) {
+> > > 	unlock_kernel();
+> > > 	lock_kernel();
+> > > }
 > 
+> > nitpicking: the above is fine but it isn't complete, it may work for
+> > most cases but for a generic function it would be better implemented
+> > similarly to release_kernel_lock_save/restore so you take care of
+> > lock_depth > 0 too:
 > 
-> On Fri, 21 Sep 2001, Andrea Arcangeli wrote:
+> Let me explain a little about the patch, and then I am interested in if
+> your opinion changes.
 > 
-> > Of course, however if you want I can first fix initrd (I was just
-> > looking into it in the last minutes), the security fix broke initrd
-> > badly unfortunately [didn't tested initrd but just the ramdisks before
-> > posting it] (not sure why initrd broke at the moment but I believe the
-> > design of the fix was the right one, so it is probably an implementation
-> > detail). So unless you need it urgently I will try to fix initrd first,
-> > then I will send to you so you can go ahead without risk of future rejects.
-> 
-> I'd suggest to stop treating initrd as block device.  It has to keep
-> S_IFBLK in mode bits, indeed, but I'd rather set ->f_op upon open() and
-> stop worrying about it.
-> 
-> We don't need buffer-cache access to it anyway - if you look carefully
-> you will see that we actually copy its contents to normal ramdisk
-> first.  So just having ->read() (essentially copy_to_user()) is
-> perfectly OK. 
+> When unlock_kernel() is called, the preemption code will be enabled and
+> check if the preemption count is non-zero -- its handled just like a
 
-of course, we never used initrd blkdev, we just use the ramdisk always
-from userspace.  Initrd doesn't need to be a blockdev, we could just
-copy the ram ourself and just call ->write on the ramdisk. userspace
-just sees /dev/ram0, /dev/initrd is a kernel internal thing that doesn't
-need to be visible, and if anybody uses /dev/initrd somehow that just
-insane (and it doesn't even look possible to make anything useful out of
-/dev/initrd anyways).
+All I'm saying is that you should check for >= 0, not == 0.
 
-> Check how old code was dealing with it - it's really the best way to
-> treat that sucker.  We probably will be better off if we make it a
-> character device at some point in 2.5 and move the thing to char/mem.c,
-> but anyway, it had never been a proper block device (== one with
-> requests queue, etc.) and there's no point in making it such now.
-> 
-> Again, the proper way to treat it is to convert it into character
-> device at some point.  Userland won't actually care - after the
-> boot it's gone.  And kernel is using it only via ->read(), so
-> there's no point trying to make it similar to real ramdisks.
-
-1) I am tentated to fix the initrd bug by just killing initrd blkdev,
-completly instead of going to mark PageSecure all the initrd pages.
-
-2) Otherwise I can make a brute hack one liner approch with a global
-field that ignores the PageSecure bit on reads until I finished to fill
-in the /dev/ram0 :) (slowdown production paths for a boot thing but
-doesn't matter, but ok we aren't writing proprietary software here and
-this isn't the right thing ;)
-
-3) I can just mark the initrd pages as PageSecure, then I can safely
-forget about them.
-
-What do you prefer for the next 2.4.10 mainline? I'd like to have this
-fixed _fast_ and to be included in mainline, since the security problem
-is ugly (not too bad though since /dev/ram0 is readable only by root by
-default) and because people really needs initrd.
-
-Suggestions are very welcome.
+But anwyays it's pretty depressing to see such a costly check needed to
+get latency right with the preemptive kernel approch, with
+non-preemptive kernel we'd need to just check need_resched and a call
+schedule in the unlikely case so it would be even lighter :) and no
+fixed costs in UP spinlocks, per-cpu datastrctures etc... The point of
+preemptive kernel would be just to prevent us to put such kind of
+explicit (costly) checks in the code. My theory was that the cpu-costly
+loops are mostly protected by some lock anyways and the fact you're
+writing such horrid (but helpful) code is a kind of proof.
 
 Andrea

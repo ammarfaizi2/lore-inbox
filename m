@@ -1,72 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317495AbSFRQ72>; Tue, 18 Jun 2002 12:59:28 -0400
+	id <S317493AbSFRQ6b>; Tue, 18 Jun 2002 12:58:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317496AbSFRQ71>; Tue, 18 Jun 2002 12:59:27 -0400
-Received: from warden3-p.diginsite.com ([208.147.64.186]:26592 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id <S317495AbSFRQ7T>; Tue, 18 Jun 2002 12:59:19 -0400
-Date: Tue, 18 Jun 2002 09:54:42 -0700 (PDT)
-From: David Lang <dlang@diginsite.com>
-To: Padraig Brady <padraig@antefacto.com>
-cc: DervishD <raul@pleyades.net>, Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Shrinking ext3 directories
-In-Reply-To: <3D0F5DFE.5060301@antefacto.com>
-Message-ID: <Pine.LNX.4.44.0206180952000.16916-100000@dlang.diginsite.com>
+	id <S317494AbSFRQ6a>; Tue, 18 Jun 2002 12:58:30 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:65498 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S317493AbSFRQ63>; Tue, 18 Jun 2002 12:58:29 -0400
+Message-ID: <3D0F669C.89596EC0@nortelnetworks.com>
+Date: Tue, 18 Jun 2002 12:58:04 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Schwartz <davids@webmaster.com>
+Cc: rml@tech9.net, mgix@mgix.com, linux-kernel@vger.kernel.org
+Subject: Re: Question about sched_yield()
+References: <20020618093644.AAA9337@shell.webmaster.com@whenever>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this won't be part of the htree indexing, however the biggest reason to be
-concerned about shrinking the directory is the horrible performance that
-ext2/3 have when dealing with large directories and the htree stuff will
-hopefully eliminate that performance problem so the only remaining reason
-would be to free up a few K of disk space (which is a MUCH less critical
-issue)
+David Schwartz wrote:
+> 
+> >And you seem to have a misconception about sched_yield, too.  If a
+> >machine has n tasks, half of which are doing CPU-intense work and the
+> >other half of which are just yielding... why on Earth would the yielding
+> >tasks get any noticeable amount of CPU use?
+> 
+>         Because they are not blocking. They are in an endless CPU burning loop. They
+> should get CPU use for the same reason they should get CPU use if they're the
+> only threads running. They are always ready-to-run.
+> 
+> >Quite frankly, even if the supposed standard says nothing of this... I
+> >do not care: calling sched_yield in a loop should not show up as a CPU
+> >hog.
+> 
+>         It has to. What if the only task running is:
+> 
+>         while(1) sched_yield();
+> 
+>         What would you expect?
 
-David Lang
+If there is only the one task, then sure it's going to be 100% cpu on that task.
 
+However, if there is anything else other than the idle task that wants to run,
+then it should run until it exhausts its timeslice.
 
- On Tue, 18 Jun 2002, Padraig Brady
-wrote:
+One process looping on sched_yield() and another one doing calculations should
+result in almost the entire system being devoted to calculations.
 
-> Date: Tue, 18 Jun 2002 17:21:18 +0100
-> From: Padraig Brady <padraig@antefacto.com>
-> To: DervishD <raul@pleyades.net>
-> Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-> Subject: Re: Shrinking ext3 directories
->
-> DervishD wrote:
-> >     Hi all :))
-> >
-> >     All of you know that if you create a lot of files or directories
-> > within a directory on ext2/3 and after that you remove them, the
-> > blocks aren't freed (this is the reason behind the lost+found block
-> > preallocation). If you want to 'shrink' the directory now that it
-> > doesn't contain a lot of leafs, the only solution I know is creating
-> > a new directory, move the remaining leafs to it, remove the
-> > 'big-unshrinken' directory and after that renaming the new directory:
-> >
-> >     $ mkdir new-dir
-> >     $ mv bigone/* new-dir/
-> >     $ rmdir bigone
-> >     $ mv new-dir bigone
-> >     (Well, sort of)
->
-> The zipdir component of fslint does this (while maintaining permissions
-> etc.).
->
-> >     Any other way of doing the same without the mess?
->
-> Not at present I think. Perhaps we'll get it for free with
-> the new htree directory indexing?
->
-> Padraig.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

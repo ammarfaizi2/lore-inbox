@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292728AbSCINLl>; Sat, 9 Mar 2002 08:11:41 -0500
+	id <S292754AbSCINQV>; Sat, 9 Mar 2002 08:16:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292729AbSCINLb>; Sat, 9 Mar 2002 08:11:31 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:30475 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S292728AbSCINLV>; Sat, 9 Mar 2002 08:11:21 -0500
-Message-ID: <3C8A09BD.7080103@evision-ventures.com>
-Date: Sat, 09 Mar 2002 14:10:21 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S292751AbSCINQL>; Sat, 9 Mar 2002 08:16:11 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:9989 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S292748AbSCINP6>;
+	Sat, 9 Mar 2002 08:15:58 -0500
+Date: Sat, 9 Mar 2002 10:15:55 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Russell King <rmk@arm.linux.org.uk>, <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: bk://linux.bkbits.net/linux-2.5
+In-Reply-To: <3C89E887.D8B9E6C1@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.44L.0203091014460.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.6-pre3 boot hangs in ide probing
-In-Reply-To: <3C89C3D4.3070004@wanadoo.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Rousselet wrote:
-> The motherboard is abit BE6 (4 ide, piix and hpt366) with a pIII 
-> coppermine.
-> For reference below is dmesg with a booting 2.5.6-pre2.
-> 
+On Sat, 9 Mar 2002, Jeff Garzik wrote:
+> Russell King wrote:
+> > On Fri, Mar 08, 2002 at 11:35:11PM -0300, Rik van Riel wrote:
+> > > For now I've put up the 2.5 tree on bk://linuxvm.bkbits.net/linus-2.5
+> >
+> > Jeff also does this - http://gkernel.bkbits.net/linus-2.5
+> >
+> > Seems a little wasteful to have multiple trees of the same thing available
+> > from the same place.
+>
+> Rik thinks that a cron job will somehow notice Linus updates faster than
+> I do :)
 
-I observed the same on pre3. But the bug is not ide related,
-since the plain ide patches applied on top of pre2 just worked.
+Not necessarily, but it will notice Linus updates even while
+you or I are asleep.  Sleep latency for humans tends to be
+quite bad.
 
-(I happen to own the same hpt366 card as you.)
+regards,
+
+Rik
+-- 
+<insert bitkeeper endorsement here>
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

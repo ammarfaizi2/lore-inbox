@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262850AbSJAWPI>; Tue, 1 Oct 2002 18:15:08 -0400
+	id <S262869AbSJAWTv>; Tue, 1 Oct 2002 18:19:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262852AbSJAWPI>; Tue, 1 Oct 2002 18:15:08 -0400
-Received: from host-63-69-231-252.verestar.net ([63.69.231.252]:40606 "EHLO
-	venus.tis.com.ar") by vger.kernel.org with ESMTP id <S262850AbSJAWPF>;
-	Tue, 1 Oct 2002 18:15:05 -0400
-Date: Tue, 1 Oct 2002 19:20:18 -0300
-To: mec@shout.net
+	id <S262873AbSJAWTu>; Tue, 1 Oct 2002 18:19:50 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:17156 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262869AbSJAWSh>;
+	Tue, 1 Oct 2002 18:18:37 -0400
+Date: Mon, 30 Sep 2002 00:38:23 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Greg Ungerer <gerg@snapgear.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Fatal error in menuconfig
-Message-ID: <20021001192018.A1225@technisys.com.ar>
+Subject: Re: Conserving memory for an embedded application
+Message-ID: <20020930003822.A35@toy.ucw.cz>
+References: <3D9156E6.1030703@snapgear.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22i
-From: =?iso-8859-1?Q?Nicol=E1s_Lichtmaier?= <nick@technisys.com.ar>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3D9156E6.1030703@snapgear.com>; from gerg@snapgear.com on Wed, Sep 25, 2002 at 04:25:42PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting this while trying to access the alsa sound section in 2.5.40:
+Hi!
 
----------------------------------------------------------------
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
+> >> One question I have is whether it is possible to burn an uncompressed image
+> >> of the kernel into flash, and then boot the kernel in-place, so that it is
+> >> not copied to RAM when it runs.  Of course the kernel would need RAM for
+> >> its data structures and user programs, but it would seem to me I should be
+> >> able to run the kernel without making a RAM copy.
+> > The uclinux guys have eXecute In Place  - google search for uclinux and XIP 
+> > will produce a stack of hits - here's one:
+> > http://www.snapgear.com/tb20010618.html
+> 
+> Yep, we have this for uClinux. Currently we are only doing
+> this on MMU-less processors though, I haven't heard of anyone
+> doing kernel (or apps) XIP from flash on VM processors.
 
- Q> ./scripts/Menuconfig: line 823: MCmenu74: command not found
+I thought they were doing XIP on VTechHelio? That's MIPS39xx and has MMU.
+See linux-vr project.
 
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
-
-make: *** [menuconfig] Error 1
----------------------------------------------------------------
-
-If I redirect stderr to a file I also see this in that file:
-
-./scripts/Menuconfig: ./MCmenu74: line 56: syntax error near unexpected token `fi'
-./scripts/Menuconfig: ./MCmenu74: line 56: `fi'
-make: *** [menuconfig] Error 1
-
-Thanks!

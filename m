@@ -1,109 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285465AbRLSJIe>; Wed, 19 Dec 2001 04:08:34 -0500
+	id <S284451AbRLSJWD>; Wed, 19 Dec 2001 04:22:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285466AbRLSJIO>; Wed, 19 Dec 2001 04:08:14 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50763 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S285465AbRLSJIH>; Wed, 19 Dec 2001 04:08:07 -0500
-To: Alexander Viro <viro@math.psu.edu>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>
-Subject: Re: Booting a modular kernel through a multiple streams file
-In-Reply-To: <Pine.GSO.4.21.0112190313080.9963-100000@weyl.math.psu.edu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 Dec 2001 01:47:47 -0700
-In-Reply-To: <Pine.GSO.4.21.0112190313080.9963-100000@weyl.math.psu.edu>
-Message-ID: <m1ellrwq8c.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S284608AbRLSJVx>; Wed, 19 Dec 2001 04:21:53 -0500
+Received: from [212.16.7.124] ([212.16.7.124]:14464 "HELO laputa.namesys.com")
+	by vger.kernel.org with SMTP id <S284451AbRLSJVq>;
+	Wed, 19 Dec 2001 04:21:46 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15392.23378.580068.10294@laputa.namesys.com>
+Date: Wed, 19 Dec 2001 12:18:10 +0300
+To: Diego Calleja <grundig@teleline.es>
+Cc: linux-kernel@vger.kernel.org,
+        Reiserfs mail-list <Reiserfs-List@Namesys.COM>
+Subject: Re: [grundig@teleline.es: Re: Reiserfs corruption on 2.4.17-rc1!]
+In-Reply-To: <20011218221122.B381@diego>
+In-Reply-To: <20011217025856.A1649@diego>
+	<13425.1008580831@nova.botz.org>
+	<20011218003359.A555@diego>
+	<15391.12150.650359.33792@laputa.namesys.com>
+	<20011218220828.A381@diego>
+	<20011218221122.B381@diego>
+X-Mailer: VM 6.96 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu> writes:
+Diego Calleja writes:
+ > 
+ > On Tue, 18 Dec 2001 22:08:28 Diego Calleja wrote:
+ > 
 
-> On 19 Dec 2001, Eric W. Biederman wrote:
-> 
-> > Alexander Viro <viro@math.psu.edu> writes:
-> > 
-> > > They are related to the fact that we enter userland too late.  Which can
-> > > (and should) be fixed.
-> > 
-> > Agreed, we need to be careful with the userland we introduce as it can
-> > easily get huge if we use standard components.
-> 
-> If by standard components you mean glibc - definitely.  It's not going
-> to be there.
+[...]
 
-Actually any general purpose piece of software.  glibc is big and just
-about everything else on a linux box is big for the same reasons, it
-handles lots of cases.  glibc is extra big because it isn't
-stripped. 
+ > > 
+ > > ftp://ftp.namesys.com/pub/reiserfsprogs/pre/reiserfsprogs-3.x.0k_pre11.tar.gz,
+ > > 
+ > > build it and run reiserfsck from there. If your root file system is
+ > > dead, you will have to do this from some other media (like floppy).
+ > Well, I've a copy of all data in another partition...I'm running from it.
+ > I've downloaded that version....well, it don't crash, here's output:
+ > root@diego:~/reiserfsprogs-3.x.0k_pre11/fsck# ./reiserfsck -i /dev/hdc5
+ > 
+ > <-------------reiserfsck, 2001------------->
+ > reiserfsprogs 3.x.0k_pre11
+ > 
+ > Will read-only check consistency of the filesystem on /dev/hdc5
+ > Will put log info to 'stdout'
+ > 
+ > Do you want to run this program?[N/Yes] (note need to type Yes):Yes
+ > ###########
+ > reiserfsck --check started at Tue Dec 18 21:59:12 2001
+ > ###########
+ > Replaying journal..
+ > 0 transactions replayed
+ > reserved=8193
+ > Checking S+tree../  1 (of   2)/  3 (of 110)/ 15 (of 149)node (10667) with
+ > wrong level (18771) found in the tree (should be 1)
+ > whole subtree skipped
+ > ok
+ > Comparing bitmaps..free block count 1970606 mismatches with a correct one
+ > 1971004.
+ > on-disk bitmap does not match to the correct one. 91 bytes differ
+ > Bad nodes were found, Semantic pass skipped
+ > There were found 3 corruptions which can be fixed only during
+ > --rebuild-tree
+ > ###########
+ > reiserfsck finished at Tue Dec 18 22:06:23 2001
+ > ###########
+ > 
+ > If I do --rebuild tree, will I lose my data?
 
-Just for credentials I have a static user space dhcp and tftp just
-16KB (uncompressed).  If I knew what was involved in the nfs
-mount code I'd contribute this and you would be feature complete.
+You shouldn't. But backup is always your best friend.
+And, I am sorry, for misguiding you, last reiserfsprogs are 
 
+ftp://ftp.namesys.com/pub/reiserfsprogs/pre/reiserfsprogs-3.x.0k-pre13.tar.gz
 
-> > Have you done the work to allow the cpio archive to be changed in
-> > a binary kernel yet?
-> 
-> It can be left by the loader in the way we currently leave initrd.
+use them in stead.
 
-O.k. but this isn't implemented currently correct?  The whole
-bootloader leaving something, and having something included with
-the kernel build is where I see unresolved technical details.
+ > 
+ > 
+ > > 
+ > >  > 	-I'm not a kernel hacker, so I can't try anything...what I
+ > > know is
+ > >  > that
+ > >  > 		/etc in hc5 doesn't work. /usr, /var....works
+ > > correctly.
+ > >  > 
+ > >  > Well, I'd like to know what's happened in my drive. Can somebody try
+ > > to
+ > >  > give an explanation?
+ > >  > 
+ > >  > Diego Calleja
+ > > 
 
-Probably the simplest solution is to allow files to come from both
-locations with the additional bootloader files overwriting the
-compiled in files.  And just dropping initrd support altogether.
+Nikita.
 
-Currently there is another issue of how to replace the compiled
-in default files, but that can probably be resolved after we start
-sucking in cpio archives.
-
-The protocol details and the implementation issues are what really
-fascinate me at this point.
-
-> > > use for initrd images.  IOW, we are backwards compatible with old
-> > > loaders.
-> > 
-> > Al what is the current status of your initramfs work?
-> 
-> nfsroot needs more work on it, other than that we can have it very
-> soon - almost everything we need is already merged into the tree.
-
-O.k. the kernel has all of your dependencies for this patch, cool.
-  
-> > So far I have concentrated a lot on the simple, and much less on full
-> > featured boot loaders that load data off of filesystems etc.  I need
-> > to look at dynamically composing and manipulating images.  Seeing the
-> > direction you are taking with initramfs would be a great help there.
-> 
-> man cpio.
-
-Here I am thinking protocol and logistics, and you think I'm asking
-about data format.
-
-> 
-> > Portability across cpu architectures for a boot protocol is not a
-> > silly goal.  If you stir in a linux booting linux patch plus a small
-> > user space you get one bootloader across all of the linux platforms
-> > with more potential than any bootloader currently out there.
-> 
-> You still need to get the original kernel in core...
-
-Given that I haven't seen a bootloader without a stage1 I don't see
-this a major problem, and since we run linux on the platform someone
-has obviously figured out some way to boot it.   It is the all singing
-all dancing all interacting bootloader that is worth standardizing.
-Having an X App to select your boot image just might be worth it :)
-
-The only real issue with using linux as a bootloader is there a
-serious delay during kernel initialization.  Lately the 10 or 15
-seconds of kernel time this takes has been 50% of my boot time.  The
-other 45% going to stupid rc scripts.
-
-Eric

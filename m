@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266205AbUALPyP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 10:54:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266223AbUALPyO
+	id S266440AbUALQJR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 11:09:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266472AbUALQJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 10:54:14 -0500
-Received: from mail46-s.fg.online.no ([148.122.161.46]:20979 "EHLO
-	mail46.fg.online.no") by vger.kernel.org with ESMTP id S266205AbUALPyI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 10:54:08 -0500
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] ALSA 1.0.1
-References: <Pine.LNX.4.58.0401082059300.13704@pnote.perex-int.cz>
-From: Harald Arnesen <harald@skogtun.org>
-Date: Mon, 12 Jan 2004 16:53:54 +0100
-In-Reply-To: <Pine.LNX.4.58.0401082059300.13704@pnote.perex-int.cz> (Jaroslav
- Kysela's message of "Thu, 8 Jan 2004 21:15:07 +0100 (CET)")
-Message-ID: <87ptdpf9il.fsf@basilikum.skogtun.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 Jan 2004 11:09:17 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:61119 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266440AbUALQJL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 11:09:11 -0500
+Subject: Re: smp dead lock of io_request_lock/queue_lock patch
+From: Doug Ledford <dledford@redhat.com>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Jens Axboe <axboe@suse.de>, Martin Peschke3 <MPESCHKE@de.ibm.com>,
+       Arjan Van de Ven <arjanv@redhat.com>, Peter Yao <peter@exavio.com.cn>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi mailing list <linux-scsi@vger.kernel.org>
+In-Reply-To: <1073923459.2186.23.camel@mulgrave>
+References: <OF2581AA2D.BFD408D2-ONC1256E19.004BE052-C1256E19.004E1561@de.ibm.com>
+	 <20040112141330.GH24638@suse.de>
+	 <1073920110.3114.268.camel@compaq.xsintricity.com>
+	 <1073921054.2186.16.camel@mulgrave>  <20040112154345.GE1255@suse.de>
+	 <1073922773.3114.275.camel@compaq.xsintricity.com>
+	 <1073923459.2186.23.camel@mulgrave>
+Content-Type: text/plain
+Message-Id: <1073923538.3114.278.camel@compaq.xsintricity.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Mon, 12 Jan 2004 11:05:39 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jaroslav Kysela <perex@suse.cz> writes:
+On Mon, 2004-01-12 at 11:04, James Bottomley wrote:
+> On Mon, 2004-01-12 at 10:52, Doug Ledford wrote:
+> > Well, the scsi-dledford-2.4 tree is intended to be someplace I can put
+> > all the stuff I'm having to carry forward in our kernels, so that's
+> > distinctly different than a driver update only tree.  I could do that
+> > separately and I have no problem doing that.
+> 
+> I'll take that as a "yes" then ;-)
+> 
+> Thanks for doing this, beacuse I really wasn't looking forward to trying
+> to sort it all out.
 
-> Hello all,
->
-> The ALSA 1.0.1 code for 2.6 kernels is available. I think that this update
-> might be included into -mm or standard 2.6 kernels.
->
->   - ICE1712 driver updated
+No problem.  I'll set up a tree later today and start watching for 2.4
+driver updates.
 
-Still doesn't work on my TerraTec 6fire LT.
+> I trust your judgement about this, so it sounds like we have the
+> beginnings of a good working model for 2.4
 
->From dmesg after "modprobe snd-1712":
+Cool.  I'm good with that.
 
-request_module: failed /sbin/modprobe -- snd-card-0. error = 256
-unable to send register 0x7f byte to CS8427
-unable to find CS8427 signature (expected 0x71, read 0xfffffffb), initialization is not completed
-CS8427 initialization failed
-ICE1712: probe of 0000:00:11.0 failed with error -14
 -- 
-Hilsen Harald.
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc.
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+
+

@@ -1,34 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270273AbRHHCgi>; Tue, 7 Aug 2001 22:36:38 -0400
+	id <S270274AbRHHCji>; Tue, 7 Aug 2001 22:39:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270275AbRHHCg2>; Tue, 7 Aug 2001 22:36:28 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:65145 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S270273AbRHHCgS>; Tue, 7 Aug 2001 22:36:18 -0400
-Date: Tue, 7 Aug 2001 22:36:25 -0400
-From: Bill Nottingham <notting@redhat.com>
-To: Stuart Lynne <sl@fireplug.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-Message-ID: <20010807223625.A8330@nostromo.devel.redhat.com>
-Mail-Followup-To: Stuart Lynne <sl@fireplug.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010807135135.J17723@fireplug.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010807135135.J17723@fireplug.net>; from sl@fireplug.net on Tue, Aug 07, 2001 at 01:51:35PM -0700
+	id <S270276AbRHHCjS>; Tue, 7 Aug 2001 22:39:18 -0400
+Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:39930
+	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
+	id <S270274AbRHHCjL>; Tue, 7 Aug 2001 22:39:11 -0400
+From: Jesse Pollard <jesse@cats-chateau.net>
+Reply-To: jesse@cats-chateau.net
+To: Keith Owens <kaos@ocs.com.au>,
+        Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Subject: Re: using mount from SUID scripts?
+Date: Tue, 7 Aug 2001 21:29:07 -0500
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Kernel Developer List <linux-kernel@vger.kernel.org>
+In-Reply-To: <27034.997233173@kao2.melbourne.sgi.com>
+In-Reply-To: <27034.997233173@kao2.melbourne.sgi.com>
+MIME-Version: 1.0
+Message-Id: <01080721385400.15022@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stuart Lynne (sl@fireplug.net) said: 
-> So not being able to reliable map ethernet devices to names is a feature
-> not a bug .... 
+On Tue, 07 Aug 2001, Keith Owens wrote:
+>On Tue, 7 Aug 2001 16:29:39 -0700, 
+>Matthew Dharm <mdharm-kernel@one-eyed-alien.net> wrote:
+>>I've got an SUID perl script (yes, it's EUID is really 0) which I'd like to
+>>use mount from to mount a file via loopback...
+>>
+>>Unfortunately, it looks like mount refuses to actually mount anything if
+>>the EUID and UID aren't the same....
+>
+>Are you sure the problem is mount?  Some versions of bash drop euid(0)
+>when they execute scripts from setuid programs.
+>
 
-With reasonable scriptage and 'nameif', it's doable. Only for
-ethernet at the moment, however (and I haven't actually implementing
-something that does this.)  But it *is* doable.
+not mount, and likely not the shell - the thing is that perl doesn't like it
+when the  effective uid is not equal to the real uid. Perl is very good at
+limiting the damange an unsuspecting script does. This is to prevent passing
+a "confused" environment to the shell.
 
-Bill
+The following can work around this:
+
+	($r,$e) = ( $>, $< );	# save real and effective uid's
+	$< = $e;		# force real uid to the effective
+	`/bin/mount ....`
+	($>, $<) = ($r,$e);	# restore mixed state
+
+Remember, the options to mount should come from a fixed table with user
+selected input used to select which table entry to use... or a strictly
+fixed mount command.
+
+Otherwise you have an even bigger security hole.
+
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: jesse@cats-chateau.net
+
+Any opinions expressed are solely my own.

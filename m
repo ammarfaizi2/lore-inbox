@@ -1,71 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264675AbTFLC1t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 22:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264676AbTFLC1t
+	id S262498AbTFLC02 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 22:26:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264672AbTFLC02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 22:27:49 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:36876 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S264675AbTFLC1r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 22:27:47 -0400
-Date: Thu, 12 Jun 2003 12:41:19 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove anon_hash_chain
-Message-ID: <Mutt.LNX.4.44.0306121238450.19403-100000@excalibur.intercode.com.au>
+	Wed, 11 Jun 2003 22:26:28 -0400
+Received: from gateway.penguincomputing.com ([64.243.132.186]:58535 "EHLO
+	inside.penguincomputing.com") by vger.kernel.org with ESMTP
+	id S262498AbTFLC00 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 22:26:26 -0400
+Message-ID: <3EE7E809.1000005@penguincomputing.com>
+Date: Wed, 11 Jun 2003 19:40:09 -0700
+From: Philip Pokorny <ppokorny@penguincomputing.com>
+Organization: Penguin Computing
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: Re: [PATCH] More i2c driver changes for 2.5.70
+References: <10553638062379@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch against current bk removes anon_hash_chain from fs/inode.c, as 
-all inodes in the 2.5 kernel must be associated with a superblock, and the 
-anon hash is no longer needed.
+I think there is a race condition here in the "set" functions.
+
+I had added a  down()/up() semaphore pair to the write clauses of the 
+functions in the pre-sysfs driver to prevent the xx_update_client() call 
+from modifying the cached values at the same time that the set_xxx() 
+function was trying to change them.
+
+So for example:
+
+ >  static ssize_t set_temp_max(struct device *dev, const char *buf,
+ >  		size_t count, int nr)
+ >  {
+ >  	struct i2c_client *client = to_i2c_client(dev);
+ >  	struct lm85_data *data = i2c_get_clientdata(client);
+ >
+ >  	int val = simple_strtol(buf, NULL, 10);
+ > +     down(&data->update_lock);
+ >  	data->temp_max[nr] = TEMP_TO_REG(val);
+ >  	lm85_write_value(client, LM85_REG_TEMP_MAX(nr),
+ >                                     data->temp_max[nr]);
+ > +     up(&data->update_lock);
+ >  	return count;
+ >  }
+
+Isn't that still needed?
+
+:v)
+
+Greg KH wrote:
+> ChangeSet 1.1419.1.3, 2003/06/11 11:42:47-07:00, margitsw@t-online.de
+> 
+> [PATCH] I2C: add LM85 driver
+> 
+> Nothing extra in sysfs (yet) but I have left the way open in the driver
+> to do this.
+> Provides vid, vrm, fan_input(1-4), fan_min(1-4), pwm(1-3),
+> pwm_enable(1-3), in_input(0-4), in_min(0-4), in_max(0-4),
+> temp_input(1-3), temp_min(1-3), temp_max(1-3), alarms.
+> 
+> 
+>  drivers/i2c/chips/Kconfig  |   19 
+>  drivers/i2c/chips/Makefile |    1 
+>  drivers/i2c/chips/lm85.c   | 1223 +++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 1241 insertions(+), 2 deletions(-)
+> 
 
 
-- James
+
+> +static ssize_t show_temp_max(struct device *dev, char *buf, int nr)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct lm85_data *data = i2c_get_clientdata(client);
+> +
+> +	lm85_update_client(client);
+> +	return sprintf(buf,"%d\n", TEMP_FROM_REG(data->temp_max[nr]) );
+> +}
+
+
+
+> +static ssize_t set_temp_max(struct device *dev, const char *buf, 
+> +		size_t count, int nr)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct lm85_data *data = i2c_get_clientdata(client);
+> +
+> +	int val = simple_strtol(buf, NULL, 10);
+> +	data->temp_max[nr] = TEMP_TO_REG(val);
+> +	lm85_write_value(client, LM85_REG_TEMP_MAX(nr), data->temp_max[nr]);
+> +	return count;
+> +}
+
+
 -- 
-James Morris
-<jmorris@intercode.com.au>
-
-diff -purN -X dontdiff bk.pending/fs/inode.c bk.w1/fs/inode.c
---- bk.pending/fs/inode.c	2003-06-12 10:57:14.000000000 +1000
-+++ bk.w1/fs/inode.c	2003-06-12 11:36:44.255403074 +1000
-@@ -71,7 +71,6 @@ static unsigned int i_hash_shift;
- LIST_HEAD(inode_in_use);
- LIST_HEAD(inode_unused);
- static struct hlist_head *inode_hashtable;
--static HLIST_HEAD(anon_hash_chain); /* for inodes with NULL i_sb */
- 
- /*
-  * A simple spinlock to protect the list manipulations.
-@@ -918,15 +917,12 @@ EXPORT_SYMBOL(iget_locked);
-  *	@hashval: unsigned long value used to locate this object in the
-  *		inode_hashtable.
-  *
-- *	Add an inode to the inode hash for this superblock. If the inode
-- *	has no superblock it is added to a separate anonymous chain.
-+ *	Add an inode to the inode hash for this superblock.
-  */
-  
- void __insert_inode_hash(struct inode *inode, unsigned long hashval)
- {
--	struct hlist_head *head = &anon_hash_chain;
--	if (inode->i_sb)
--		head = inode_hashtable + hash(inode->i_sb, hashval);
-+	struct hlist_head *head = inode_hashtable + hash(inode->i_sb, hashval);
- 	spin_lock(&inode_lock);
- 	hlist_add_head(&inode->i_hash, head);
- 	spin_unlock(&inode_lock);
-@@ -936,7 +932,7 @@ void __insert_inode_hash(struct inode *i
-  *	remove_inode_hash - remove an inode from the hash
-  *	@inode: inode to unhash
-  *
-- *	Remove an inode from the superblock or anonymous hash.
-+ *	Remove an inode from the superblock.
-  */
-  
- void remove_inode_hash(struct inode *inode)
+Philip Pokorny, Director of Engineering
+Tel: 415-358-2635   Fax: 415-358-2646   Toll Free: 888-PENGUIN
+PENGUIN COMPUTING, INC.
+www.penguincomputing.com
 

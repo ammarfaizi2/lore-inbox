@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267377AbTA1RN4>; Tue, 28 Jan 2003 12:13:56 -0500
+	id <S267407AbTA1RN3>; Tue, 28 Jan 2003 12:13:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267426AbTA1RN4>; Tue, 28 Jan 2003 12:13:56 -0500
-Received: from [217.167.51.129] ([217.167.51.129]:20451 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S267377AbTA1RNy>;
-	Tue, 28 Jan 2003 12:13:54 -0500
-Subject: Re: [patch 2.5] VGA IO on systems with multiple PCI IO domains
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Martin Mares <mj@ucw.cz>,
-       Richard Henderson <rth@twiddle.net>,
-       "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030128201057.A690@jurassic.park.msu.ru>
-References: <20030128132406.A9195@jurassic.park.msu.ru>
-	 <Pine.GSO.4.21.0301281126390.9269-100000@vervain.sonytel.be>
-	 <20030128201057.A690@jurassic.park.msu.ru>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1043774595.536.4.camel@zion.wanadoo.fr>
+	id <S267426AbTA1RN3>; Tue, 28 Jan 2003 12:13:29 -0500
+Received: from waste.org ([209.173.204.2]:46816 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S267407AbTA1RN2>;
+	Tue, 28 Jan 2003 12:13:28 -0500
+Date: Tue, 28 Jan 2003 11:22:36 -0600
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Stanley Yee <SYee@snapappliance.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sendfile support in linux
+Message-ID: <20030128172236.GR3186@waste.org>
+References: <057889C7F1E5D61193620002A537E8690B4387@NCBDC>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 28 Jan 2003 18:23:15 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <057889C7F1E5D61193620002A537E8690B4387@NCBDC>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-28 at 18:10, Ivan Kokshaysky wrote: 
-> Here's the patch that converts vgacon.c to pci_request_legacy_resource().
-> Tested on i386 and a single-bus alpha (alpha specific bits not included
-> here).
+On Mon, Jan 27, 2003 at 05:45:20PM -0800, Stanley Yee wrote:
+> I'm trying to find out more about sendfile(2).  So far, from what I've
+> gathered, it sounds like the requirements for it are (please correct me if
+> I'm wrong):
 > 
-> Note that it breaks ppc, as VGA_MAP_MEM() is removed...
+> 1.  A kernel with sendfile support (i.e. 2.4.X)
+> 2.  A network card capable of doing the TCP checksum in the hardware
+> 3.  The application must support sendfile 
 
-Ok, if I understand properly, all we have to do on PPC is to implement a
-pci_request_legacy_resource() that will do the right thing for legacy
-VGA memory as well ?
+Don't confuse sendfile with zerocopy. You generally need to use
+sendfile to take advantage of zerocopy, but you can still get
+advantages from sendfile without having hardware support, mainly in
+terms of reducing syscall overhead. And without sendfile, you can
+still get performance benefits from zerocopy..
+ 
+> Do you know what applications support zerocopy (sendfile)?  I noticed that a
+> zerocopy NFS patch was added to the 2.5.x tree.  Does the 2.4.X NFS daemon
+> support zerocopy?  Does samba support zerocopy and if so what version?
 
-Then, please, check the return value of pci_request_legacy_resource()
-for getting to the VGA memory. Some machines (typically PowerMacs)
-simply don't give you a way to generate PCI cycles to those low memory
-addresses (you can't do VGA on those).
+Sendfile is mostly used by webservers. You can check the Samba
+changelogs for when they started using sendfile. And 2.4 NFS doesn't
+use zerocopy, AFAIK.
 
-Disabling VGA dynamically depending on the machine have been a real pain
-until now. With that change, it will now just be a matter for our PPC
-implementation of pci_request_legacy_resource() to fail on machines
-where VGA memory can't be reached.
-
-Ben.
-
-
-
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

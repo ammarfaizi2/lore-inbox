@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261344AbSJYLFV>; Fri, 25 Oct 2002 07:05:21 -0400
+	id <S261352AbSJYLIr>; Fri, 25 Oct 2002 07:08:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261352AbSJYLFV>; Fri, 25 Oct 2002 07:05:21 -0400
-Received: from wiprom2mx2.wipro.com ([203.197.164.42]:38076 "EHLO
-	wiprom2mx2.wipro.com") by vger.kernel.org with ESMTP
-	id <S261344AbSJYLFU>; Fri, 25 Oct 2002 07:05:20 -0400
-From: "Pavan Kumar Reddy N.S." <pavan.kumar@wipro.com>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: Enabling kdb?
-Date: Fri, 25 Oct 2002 16:41:23 +0530
-Message-ID: <000401c27c17$40bd6040$6009720a@wipro.com>
+	id <S261365AbSJYLIq>; Fri, 25 Oct 2002 07:08:46 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:32775 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S261352AbSJYLIq>; Fri, 25 Oct 2002 07:08:46 -0400
+Message-Id: <200210251108.g9PB86p15344@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Csum and csum copyroutines benchmark
+Date: Fri, 25 Oct 2002 14:00:37 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Momchil Velikov <velco@fadata.bg>, Russell King <rmk@arm.linux.org.uk>,
+       Roy Sigurd Karlsbakk <roy@karlsbakk.net>, netdev@oss.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200210231218.18733.roy@karlsbakk.net> <200210250906.g9P96Yp14775@Port.imtp.ilyichevsk.odessa.ua> <1035541191.12995.12.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1035541191.12995.12.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPartTM-000-0980a8fd-983d-481b-ad62-ea4cd9e51710"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
-Importance: Normal
-X-OriginalArrivalTime: 25 Oct 2002 11:11:23.0933 (UTC) FILETIME=[412C9CD0:01C27C17]
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 25 October 2002 08:19, Alan Cox wrote:
+> On Fri, 2002-10-25 at 14:59, Denis Vlasenko wrote:
+> > Well, that makes it run entirely in L0 cache. This is unrealistic
+> > for actual use. movntq is x3 faster when you hit RAM instead of L0.
+> >
+> > You need to be more clever than that - generate pseudo-random
+> > offsets in large buffer and run on ~1K pieces of that buffer.
+>
+> In a lot of cases its extremely realistic to assume the network
+> buffers are in cache. The copy/csum path is often touching just
+> generated data, or data we just accessed via read(). The csum RX path
+> from a card with DMA is probably somewhat different.
 
-This is a multi-part message in MIME format.
+'Touching' is not interesting since it will pump data
+into cache, no matter how you 'touch' it.
 
-------=_NextPartTM-000-0980a8fd-983d-481b-ad62-ea4cd9e51710
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Running benchmarks against 1K static buffer makes cache red hot
+and causes _all writes_ to hit it. It may lead to wrong conclusions. 
 
-
-Can any one give information on how to enable the kdb for kernel.
-
--pavan
-
-============================================ 
-PAVAN KUMAR REDDY N.S. 
-Sr.Software Engineer
-Wipro Technologies
-53/1, Hosur road, Madivala 
-Bangalore - 68. 
-Phone Off: +91-80-5502001-8 extn: 6087. 
-      Res: +91-80-6685179
-http://www.wipro.com/linux/
-============================================  
-
-
-------=_NextPartTM-000-0980a8fd-983d-481b-ad62-ea4cd9e51710
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-**************************Disclaimer**************************************************    
- 
- Information contained in this E-MAIL being proprietary to Wipro Limited is 'privileged' 
-and 'confidential' and intended for use only by the individual or entity to which it is 
-addressed. You are notified that any use, copying or dissemination of the information 
-contained in the E-MAIL in any manner whatsoever is strictly prohibited.
-
-****************************************************************************************
-
-------=_NextPartTM-000-0980a8fd-983d-481b-ad62-ea4cd9e51710--
+Is _dst_ buffer of csum_copy going to be used by processor soon?
+If yes, we shouldn't use movntq, we want to cache dst.
+If no, we should by all means use movntq.
+If sometimes, then optimal strategy does not exist. :(
+--
+vda

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262826AbVCDA4m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262830AbVCDAym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262826AbVCDA4m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 19:56:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262824AbVCDAzJ
+	id S262830AbVCDAym (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 19:54:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262828AbVCDAtC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 19:55:09 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:23308 "HELO
+	Thu, 3 Mar 2005 19:49:02 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:22540 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262820AbVCDAss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 19:48:48 -0500
-Date: Fri, 4 Mar 2005 01:48:40 +0100
+	id S262824AbVCDArl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 19:47:41 -0500
+Date: Fri, 4 Mar 2005 01:47:38 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] unexport is_console_locked
-Message-ID: <20050304004840.GX4608@stusta.de>
+Subject: [2.6 patch] unexport idle_cpu
+Message-ID: <20050304004738.GV4608@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,14 +25,14 @@ I didn't find any possible modular usage in the kernel.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.11-rc5-mm1-full/kernel/printk.c.old	2005-03-04 00:58:16.000000000 +0100
-+++ linux-2.6.11-rc5-mm1-full/kernel/printk.c	2005-03-04 00:58:22.000000000 +0100
-@@ -675,7 +675,6 @@
- {
- 	return console_locked;
+--- linux-2.6.11-rc5-mm1-full/kernel/sched.c.old	2005-03-04 01:06:21.000000000 +0100
++++ linux-2.6.11-rc5-mm1-full/kernel/sched.c	2005-03-04 01:06:36.000000000 +0100
+@@ -3387,8 +3387,6 @@
+ 	return cpu_curr(cpu) == cpu_rq(cpu)->idle;
  }
--EXPORT_SYMBOL(is_console_locked);
  
+-EXPORT_SYMBOL_GPL(idle_cpu);
+-
  /**
-  * release_console_sem - unlock the console system
-
+  * idle_task - return the idle task for a given cpu.
+  * @cpu: the processor in question.

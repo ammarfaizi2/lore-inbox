@@ -1,74 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317966AbSFSSSQ>; Wed, 19 Jun 2002 14:18:16 -0400
+	id <S317969AbSFSS1Q>; Wed, 19 Jun 2002 14:27:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317967AbSFSSSP>; Wed, 19 Jun 2002 14:18:15 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:2058 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S317966AbSFSSSO>;
-	Wed, 19 Jun 2002 14:18:14 -0400
-Date: Wed, 19 Jun 2002 20:18:14 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, Andries.Brouwer@cwi.nl,
-       Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH+discussion] symlink recursion
-Message-ID: <20020619181814.GA16548@win.tue.nl>
-References: <E17KghU-0000oC-00@starship> <Pine.LNX.4.44.0206190900560.2053-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0206190900560.2053-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.25i
+	id <S317971AbSFSS1P>; Wed, 19 Jun 2002 14:27:15 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:28888 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S317969AbSFSS1O>; Wed, 19 Jun 2002 14:27:14 -0400
+Date: Wed, 19 Jun 2002 20:27:10 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Kirk Reiser <kirk@braille.uwo.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: another sched.c error with athlon
+In-Reply-To: <x7hejzyx4u.fsf@speech.braille.uwo.ca>
+Message-ID: <Pine.NEB.4.44.0206192025550.10290-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 19, 2002 at 09:05:53AM -0700, Linus Torvalds wrote:
+On 19 Jun 2002, Kirk Reiser wrote:
 
-> Actually, the trip to the filesystem itself is not recursive. We only have
-> one lookup _active_ at a time, so the stack depth is fairly well bounded.
-
-In your previous letter you wanted to play semantical tricks with the
-word recursive, even though you understood perfectly well what I meant
-with "nonrecursive" (and you yourself used the same terminology in older
-posts).
-
-Now I hesitate whether I should react to the above statement.
-Maybe this time there are semantical tricks with the word active,
-but it sounds a bit as if you misunderstand the situation.
-
-Let me state the facts instead of worrying about semantics.
-
-The routine link_path_walk() in namei.c will call do_follow_link()
-in case of a symlink, and this routine will call
-	dentry->d_inode->i_op->follow_link(),
-say, nfs_follow_link(), which calls vfs_follow_link(),
-which calls link_path_walk(), etc.
-
-You see that in a stack of N invocations, there will also
-be N stack frames of foofs_follow_link().
-So, yes, in the way I use recursive, routines like nfs_follow_link()
-are indeed recursive: they end up calling themselves.
-
-Last Sunday or so I gave a demo patch that takes the filesystems
-out of the loop. Then symlink resolution is still recursive but
-there will be at most one invocation of foofs_follow_link().
-
-Yesterday I showed that it is also easy to avoid recursion altogether.
-
-These are independent stages, and one might consider doing one
-and not the other.
-
-Andries
+> Here's another error I'm getting from sched.c and don't seem to be
+> able to find where it should be #define'd.
+>
+>   gcc -Wp,-MD,./.sched.o.d -D__KERNEL__
+>   -I/usr/src/linux-2.5.23/include -Wall -Wstrict-prototypes
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
+> -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686
+> -malign-functions=4  -nostdinc -iwithprefix include
+> -fno-omit-frame-pointer -DKBUILD_BASENAME=sched   -c -o sched.o
+> sched.c
+> sched.c: In function `sys_sched_setaffinity':
+> sched.c:1332: `cpu_online_map' undeclared (first use in this function)
+> sched.c:1332: (Each undeclared identifier is reported only once
+> sched.c:1332: for each function it appears in.)
+> sched.c: In function `sys_sched_getaffinity':
+> sched.c:1391: `cpu_online_map' undeclared (first use in this function)
+> make[1]: *** [sched.o] Error 1
 
 
-[Now that I write anyway, let me address others:
-(i) The "depth" that is limited by 5 is the number of symlinks
-that is being resolved at the same time; there is a much larger
-limit (40) on the total number of symlinks resolved during a
-path lookup.
-(ii) 5 sounds like a very small number, but a Google search turns
-up very few people who have problems. It would be nice to be able
-to say "echo 32 > /proc/sys/fs/max-symlink-depth" to get a different
-limit, and with the present implementation that is impossible,
-but the fact remains that it is not a real problem that many people
-have problems with. This is more a scalability problem.]
+The following patch (that is already in Linus' BK repository) fixes this:
+
+--- a/include/linux/smp.h	Wed Jun 19 00:00:41 2002
++++ b/include/linux/smp.h	Wed Jun 19 00:00:41 2002
+@@ -86,6 +86,7 @@
+ #define smp_call_function(func,info,retry,wait)	({ 0; })
+ static inline void smp_send_reschedule(int cpu) { }
+ static inline void smp_send_reschedule_all(void) { }
++#define cpu_online_map				1
+ #define cpu_online(cpu)				1
+ #define num_online_cpus()			1
+ #define __per_cpu_data
+
+>   Kirk
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

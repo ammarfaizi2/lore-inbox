@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264717AbUDWFcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264724AbUDWFv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264717AbUDWFcq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 01:32:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264667AbUDWFcq
+	id S264724AbUDWFv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 01:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264723AbUDWFv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 01:32:46 -0400
-Received: from [82.138.8.106] ([82.138.8.106]:19444 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S264717AbUDWFZX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 01:25:23 -0400
-X-Comment-To: Andrew Morton
-Cc: Linus Torvalds <torvalds@osdl.org>, pbadari@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       alex@clusterfs.com
-Subject: Re: ext3 reservation question.
-References: <200404211655.47329.pbadari@us.ibm.com>
-	<Pine.LNX.4.58.0404211959560.18945@ppc970.osdl.org>
-	<20040421204036.4e530732.akpm@osdl.org>
-From: Alex Tomas <alex@clusterfs.com>
+	Fri, 23 Apr 2004 01:51:26 -0400
+Received: from RJ141219067.user.veloxzone.com.br ([200.141.219.67]:22980 "EHLO
+	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+	id S264724AbUDWFu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 01:50:59 -0400
+Date: Fri, 23 Apr 2004 02:50:27 -0300 (BRT)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
 To: linux-kernel@vger.kernel.org
-Organization: HOME
-Date: Fri, 23 Apr 2004 09:22:55 +0400
-Message-ID: <m365bre09c.fsf@bzzz.home.net>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+Subject: Re: 2.6.6-rc2-mm1
+Message-ID: <Pine.LNX.4.58.0404230244580.1813@pervalidus.dyndns.org>
+X-Archive: encrypt
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Andrew Morton (AM) writes:
+> - Several framebuffer driver fixes.  Please test.
 
- AM> That worked fine on ext2.  But on ext3 we have a transaction open in
- AM> prepare_write(), and the forced writeback will cause arbitrary amounts of
- AM> unexpected metadata to be pumped into the current transaction, causing the
- AM> fs to explode.
+Which surely broke my framebuffer, which worked fine with
+2.6.6-rc1-mm1.
 
-why to open transaction for ->prepare_write()? as for me, it doesn't
-touch metadata to be stored on a disk.
+I have the following in my init script:
 
-I've partial implemented following idea:
+if lspci | grep -q 'MGA G400'; then
+modprobe matroxfb_base
+con2fb /dev/fb0 /dev/tty1
+con2fb /dev/fb0 /dev/tty2
+fi
 
-->prepare_write() recognizes are blocks being written holes or reserved.
-  it they are holes and haven't reserved yet, then set a flag about this.
-  note that ->prepare_write() doesn't look right place to put reservation
-  in because copy_from_user() in generic_file_aio_write_nolock() may fail.
+And options matroxfb_base vesa=0x117
+in /etc/modprobe.conf.
 
-->commit_write() looks at that flag and if it's set tries to reserve blocks.
-  if reservation fails then ->commit_write() returns -ENOSPC, ext3_file_write()
-  recognizes this, requests flushing and wait for free space.
+After the above loaded my monitor turned black and the led
+started blinking. I just hope such changes can't damage it.
 
-->invalidatepage() drops reservation if space for page still non-allocated
+BTW, I'm not sure why, but the con2fb lines only work for the
+first tty. I have to manually run "con2fb /dev/fb0 /dev/tty2"
+after I boot. Isn't con2fb supposed to do it for any ?
 
-->writepages() and ->writepage() drop reservation upon real allocation
-
-I expect data=ordered mode to be very simple to implement: just put bio
-submited in ->writepages() on list for correspondend transaction and
-wait for completion of bio's in commit_transaction().
-
-does this all make sense?
-
-thanks, Alex
-
+-- 
+http://www.pervalidus.net/contact.html

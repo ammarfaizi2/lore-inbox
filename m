@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262371AbTENOth (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 10:49:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbTENOth
+	id S262373AbTENOtm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 10:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbTENOtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 10:49:37 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:43208 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S262371AbTENOtg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 10:49:36 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "ismail donmez" <kde@smtp-send.myrealbox.com>, gutko@poczta.onet.pl
-Subject: Re: supermount
-Date: Thu, 15 May 2003 01:04:23 +1000
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <1052919631.273b9220kde@smtp-send.myrealbox.com>
-In-Reply-To: <1052919631.273b9220kde@smtp-send.myrealbox.com>
+	Wed, 14 May 2003 10:49:42 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:25678 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S262373AbTENOti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 10:49:38 -0400
+Date: Wed, 14 May 2003 10:02:10 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: mika.penttila@kolumbus.fi, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Race between vmtruncate and mapped areas?
+Message-ID: <18240000.1052924530@baldur.austin.ibm.com>
+In-Reply-To: <20030513181018.4cbff906.akpm@digeo.com>
+References: <154080000.1052858685@baldur.austin.ibm.com>
+ <3EC15C6D.1040403@kolumbus.fi><199610000.1052864784@baldur.austin.ibm.com>
+ <20030513181018.4cbff906.akpm@digeo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-9"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200305150104.23616.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 May 2003 23:40, ismail donmez wrote:
-> Yeah I wonder the same for some time . Is there a good reason not to
-> include supermount in kernel?
->
-> -----Original Message-----
-> From: Maciej Górnicki <gutko@poczta.onet.pl>
-> To: linux-kernel@vger.kernel.org
-> Date: Tue, 13 May 2003 18:30:02 +0200
-> Subject: supermount
->
-> Hello,
-> Why supermount code is not included in kernel?
-> It's maintained by Juan Jose Quintela from Mandrake...
 
-Watch this space. There's some work happening with 2.4 bug testing with some 
-supermount development work and then 2.5 will follow soon enough. The current 
-version (call it a fork?) of 1.2.5 has a problem with filesystems that can 
-write the same file with different case (eg vfat writing file.c and File.c) 
-but can be found at the new sourceforge home:
-http://supermount-ng.sf.net
-A bugfix for that known bug should be available soon and then it will need 
-lots more testing...
-Con
+--On Tuesday, May 13, 2003 18:10:18 -0700 Andrew Morton <akpm@digeo.com>
+wrote:
+
+> That's the one.  Process is sleeping on I/O in filemap_nopage(), wakes up
+> after the truncate has done its thing and the page gets instantiated in
+> pagetables.
+> 
+> But it's an anon page now.  So the application (which was racy anyway)
+> gets itself an anonymous page.
+
+Which the application thinks is still part of the file, and will expect its
+changes to be written back.  Granted, if the page fault occurred just after
+the truncate it'd get SIGBUS, so it's clearly not a robust assumption, but
+it will result in unexpected behavior.  Note that if the application later
+extends the file to include this page it could result in a corrupted file,
+since all the pages around it will be written properly.
+
+Dave
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
+

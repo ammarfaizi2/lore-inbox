@@ -1,51 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261461AbSKBWB7>; Sat, 2 Nov 2002 17:01:59 -0500
+	id <S261448AbSKBV6L>; Sat, 2 Nov 2002 16:58:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261463AbSKBWB7>; Sat, 2 Nov 2002 17:01:59 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:1739 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S261461AbSKBWBg>;
-	Sat, 2 Nov 2002 17:01:36 -0500
-Date: Sat, 2 Nov 2002 23:08:07 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] total-epoll r2 ...
-Message-ID: <20021102220807.GA9947@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Davide Libenzi <davidel@xmailserver.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021102213759.GA9440@outpost.ds9a.nl> <Pine.LNX.4.44.0211021409570.951-100000@blue1.dev.mcafeelabs.com>
+	id <S261450AbSKBV6L>; Sat, 2 Nov 2002 16:58:11 -0500
+Received: from sproxy.gmx.de ([213.165.64.20]:24285 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261448AbSKBV6K>;
+	Sat, 2 Nov 2002 16:58:10 -0500
+Date: Sat, 2 Nov 2002 23:04:26 +0100
+From: Hanno =?ISO-8859-1?Q?B=F6ck?= <hanno@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: radeonfb still not working in 2.4.20-rc1
+Message-Id: <20021102230426.4c37f17e.hanno@gmx.de>
+X-Mailer: Sylpheed version 0.8.5claws (GTK+ 1.2.10; )
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211021409570.951-100000@blue1.dev.mcafeelabs.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 02, 2002 at 02:11:44PM -0800, Davide Libenzi wrote:
+The radeonfb is still broken on some systems in 2.4.20-rc1.
 
-> > Am I correct in understanding that this is no longer true because epoll_ctl
-> > inserts an event if the poll condition is met?
-> 
-> Yep, I forgot to edit that one ...
-
-Cool - this makes epoll a really nice interface.
-
-> > Furthermore, I don't think the epoll(2) page is that helpful as even an
-> > application developer that follows lkml (ie, me) has any use of the
-> > 'waitqueue' analogy.
-> 
-> Sigh, I liked Jamie explanation :)
-> Ok, there's still some work to do on man pages ...
-
-You could put this in epoll.4 perhaps.
-
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+I would suggest updating to the version found in the -ac kernels. I think it's important to have it working in 2.4.20.

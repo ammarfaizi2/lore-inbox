@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279631AbRJXWoo>; Wed, 24 Oct 2001 18:44:44 -0400
+	id <S279630AbRJXWxF>; Wed, 24 Oct 2001 18:53:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279632AbRJXWoh>; Wed, 24 Oct 2001 18:44:37 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59148 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S279631AbRJXWmz>; Wed, 24 Oct 2001 18:42:55 -0400
-Date: Wed, 24 Oct 2001 15:41:42 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>,
-        Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: [RFC] New Driver Model for 2.5
-In-Reply-To: <E15wWiC-0002uM-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0110241535150.9019-100000@penguin.transmeta.com>
+	id <S279633AbRJXWwz>; Wed, 24 Oct 2001 18:52:55 -0400
+Received: from home.geizhals.at ([213.229.14.34]:55053 "HELO home.geizhals.at")
+	by vger.kernel.org with SMTP id <S279630AbRJXWwp>;
+	Wed, 24 Oct 2001 18:52:45 -0400
+Message-ID: <3BD746D3.20700@geizhals.at>
+Date: Thu, 25 Oct 2001 00:55:15 +0200
+From: "Marinos J. Yannikos" <mjy@geizhals.at>
+Organization: Geizhals Preisvergleich
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.5) Gecko/20011011
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gdth / SCSI read performance issues (2.2.19 and 2.4.10)
+In-Reply-To: <3BD6B278.3070300@geizhals.at> <3BD6ECE6.8C9435C4@zip.com.au> <3BD729B6.6030902@geizhals.at> <3BD73280.7FC6526D@zip.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
-On Wed, 24 Oct 2001, Alan Cox wrote:
->
-> I don't think it is a big problem. We can add virtual nodes. They way I
-> see it we either
-> 	a) put in grungy subsystem hacks
-> 	b) register virtual device nodes for subsystems when needed
->
-> b feels cleaner
+> [...] you can't read files through the filesystem
+> at greater than 17?  Which filesystem?
 
-I agree. I would personally see us using _more_ "virtual device node"
-things already: right now we have things like SuperIO chips that contain
-both a serial line and a parallel port (and...), and some drivers do
-really ugly things with them - keep them as one "struct pci_dev", and then
-have two drivers sharing the device.
 
-It would be much cleaner to have _one_ driver for such SuperIO chips (a
-"multinode" driver), which just creates two virtual pci_dev structures,
-and lets the regular serial driver handle the "virtual serial device" etc.
+ext2 (on which I did a "tune2fs -j", but then I found out that the
+kernel apparently doesn't support ext3). But, see below.
 
-That has the advantage of:
- - not needing special hacks in various serial/parallel drivers
- - the devices show up naturally and logically in whatever user mode
-   "device m nager" tree
 
-So the device nodes do not have to match the physical tree. The physical
-device tree only sets up the initial physical scanning, and obviously
-limits _reality_ ;)
+>    [...] It'd be interesting to test it on the same machine with
 
-		Linus
+>    the vendor's drivers and win2k.
+
+
+Indeed - can't do so, unfortunately. It could also be an issue
+with the RAID-5 configuration (block size and arrangement of the
+disks in the array could be less than optimal as suggested by
+the ICP BIOS), so I'm in touch with the very helpful ICP support
+people as well.
+
+
+> 	dd if=large_file of=/dev/null bs=4096k
+
+
+OK, that's quite odd - now I get a reasonable ~55 MB/s whatever I
+try (dd, cp), so that must have been my mistake (or due to the
+kernel profiling option?).
+
+By the way, I'm having lock-ups with 2.4.13 that I can reproduce
+(vi <file on reiserfs partition> ... :q ... "Segmentation fault"
+... lock-up - console input still works, but apparently processes
+don't get scheduled).
+
+Regards,
+  Marinos
+
+-- 
+Marinos Yannikos, CEO
+Preisvergleich Internet Services AG
+Franzensbrückenstraße 8/2/16, A-1020 Wien
+Tel./Fax: (+431) 5811609-52/-55
 

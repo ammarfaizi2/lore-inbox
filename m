@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264188AbRFFVyk>; Wed, 6 Jun 2001 17:54:40 -0400
+	id <S264191AbRFFV6u>; Wed, 6 Jun 2001 17:58:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264189AbRFFVya>; Wed, 6 Jun 2001 17:54:30 -0400
-Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:11529 "EHLO
-	moisil.badula.org") by vger.kernel.org with ESMTP
-	id <S264188AbRFFVyW>; Wed, 6 Jun 2001 17:54:22 -0400
-Date: Wed, 6 Jun 2001 14:54:14 -0700
-Message-Id: <200106062154.f56LsE115507@moisil.badula.org>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: "Tom Sightler" <ttsig@tuxyturvy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.5-ac9
-In-Reply-To: <002e01c0eead$03c6d890$26040a0a@zeusinc.com>
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.2.19 (i586))
+	id <S264194AbRFFV6l>; Wed, 6 Jun 2001 17:58:41 -0400
+Received: from cloven-ext.nks.net ([216.139.204.130]:4121 "EHLO
+	homer.mkintl.com") by vger.kernel.org with ESMTP id <S264190AbRFFV63>;
+	Wed, 6 Jun 2001 17:58:29 -0400
+Message-ID: <3B1EA75B.8AC19AA0@illusionary.com>
+Date: Wed, 06 Jun 2001 17:57:47 -0400
+From: Derek Glidden <dglidden@illusionary.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Break 2.4 VM in five easy steps
+In-Reply-To: <E157kt7-0000Td-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Jun 2001 13:20:41 -0400, Tom Sightler <ttsig@tuxyturvy.com> wrote:
->> 2.4.5-ac9
+Alan Cox wrote:
 > 
->> o Fix xircom_cb problems with some cisco kit (Ion Badulescu)
+> > I'm beginning to be amazed at the Linux VM hackers' attitudes regarding
+> > this problem.  I expect this sort of behaviour from academics - ignoring
+> > real actual problems being reported by real actual people really and
 > 
-> I'm not sure what this is supposed to fix, but it makes my Xircom
-> RBEM56G-100 almost useless on my network at the office.  Actually, I can't
-> quite blame just this patch, it only makes the problem worse, the driver
-> from 2.4.5-ac3 worked, but with 1 second ping times, the new driver barely
-> works at all, it seems to think the link is not there, at least not enough
-> to pull an IP address.
+> Actually I find your attitude amazing. If you would like a quote on fixing
+> specific VM problems Im sure several people will be happy to tender.
 
-The patch does only one thing: it instructs the card not to negotiate
-full-duplex modes, because (for undocumented and yet unexplained reasons)
-full-duplex modes don't work well on this card.
+The very first thing I said in my very first message on this topic is
+that I've been following LKML for a couple of weeks now and following
+the VM work.  I _know_ there are VM problems.  I _know_ there are people
+working on the problems.  Yet, when I post a specific example, with
+_clear and simple_ instructions on how to reproduce a problem I'm
+experiencing and an offer to do whatever I can to help fix the problem,
+I am told repeatedly, in effect "you need more swap, that's your
+problem" (which isn't really even related to the issue I reported) by
+names I have come to recognize and respect despite my status as not a
+kernel hacker. Why shouldn't I be flabbergasted by that?
 
-If you had problems before, then their cause is most likely elsewhere.
-1-second ping time is definitely wrong.
+> I guess the patch to fix this that I have in my mailbox to merge doesnt exist.
+> A pity because if it doesnt exist I cant send it to you
 
-> The last driver that worked moderately well for me was the one from
-> 2.4.4-ac11, it still had a few issues, mostly when resuming, but everything
-> worked at home on my 10Mb hub, and at the office on my 10/100Mb FD Cisco
-> 6509.  I must admist that I haven't tested every version in between.
-
-The thing is, I don't really see any significant differences between the
-2.4.4-ac11 driver and the 2.4.5-ac9 driver. I see lots of clean-ups, some
-power management stuff, and the half-duplex stuff. None of them should
-affect the core functionality directly..
-
-Please do me a favor: comment out the call to set_half_duplex() (in
-xircom_up), recompile and see if it makes a difference.
-
-> One other note, the version in 2.4.4-ac11 is listed as 1.33 while the
-> version in 2.4.5-ac9 is 1.11, why did we go backwards?  Were there
-> significant problems with the newer version?  The 1.33 sure seems to work
-> better for me.
-
-The CVS version is almost irrelevant, I guess Arjan simply rebuild his
-repository.
-
-Ion
+huh ... I just don't know how to take that except it seems to uphold
+everything I said to which you responded so intensely.
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#!/usr/bin/perl -w
+$_='while(read+STDIN,$_,2048){$a=29;$b=73;$c=142;$t=255;@t=map
+{$_%16or$t^=$c^=($m=(11,10,116,100,11,122,20,100)[$_/16%8])&110;
+$t^=(72,@z=(64,72,$a^=12*($_%16-2?0:$m&17)),$b^=$_%64?12:0,@z)
+[$_%8]}(16..271);if((@a=unx"C*",$_)[20]&48){$h=5;$_=unxb24,join
+"",@b=map{xB8,unxb8,chr($_^$a[--$h+84])}@ARGV;s/...$/1$&/;$d=
+unxV,xb25,$_;$e=256|(ord$b[4])<<9|ord$b[3];$d=$d>>8^($f=$t&($d
+>>12^$d>>4^$d^$d/8))<<17,$e=$e>>8^($t&($g=($q=$e>>14&7^$e)^$q*
+8^$q<<6))<<9,$_=$t[$_]^(($h>>=8)+=$f+(~$g&$t))for@a[128..$#a]}
+print+x"C*",@a}';s/x/pack+/g;eval 
+
+usage: qrpff 153 2 8 105 225 < /mnt/dvd/VOB_FILENAME \
+    | extract_mpeg2 | mpeg2dec - 
+
+http://www.eff.org/                    http://www.opendvd.org/ 
+         http://www.cs.cmu.edu/~dst/DeCSS/Gallery/

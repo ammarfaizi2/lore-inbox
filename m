@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262900AbTCQGQR>; Mon, 17 Mar 2003 01:16:17 -0500
+	id <S262903AbTCQGSC>; Mon, 17 Mar 2003 01:18:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262903AbTCQGQR>; Mon, 17 Mar 2003 01:16:17 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58897 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262900AbTCQGQQ>; Mon, 17 Mar 2003 01:16:16 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Why is get_current() not const function?
-Date: Mon, 17 Mar 2003 06:26:26 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <b53pqi$ud9$1@penguin.transmeta.com>
-References: <20030313061926.S3910@devserv.devel.redhat.com>
-X-Trace: palladium.transmeta.com 1047882418 6017 127.0.0.1 (17 Mar 2003 06:26:58 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 17 Mar 2003 06:26:58 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S262904AbTCQGSC>; Mon, 17 Mar 2003 01:18:02 -0500
+Received: from holomorphy.com ([66.224.33.161]:54744 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262903AbTCQGSB>;
+	Mon, 17 Mar 2003 01:18:01 -0500
+Date: Sun, 16 Mar 2003 22:28:38 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>, Mark Haverkamp <markh@osdl.org>
+Subject: Re: [Lse-tech] [PATCH][ANNOUNCE] 32way/8quad NUMAQ booting with 16 IOAPICs, 223 IRQs
+Message-ID: <20030317062838.GN5891@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Zwane Mwaikambo <zwane@holomorphy.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	LSE <lse-tech@lists.sourceforge.net>,
+	Mark Haverkamp <markh@osdl.org>
+References: <Pine.LNX.4.50.0303071148150.18716-100000@montezuma.mastecende.com> <20030317055415.GM5891@holomorphy.com> <Pine.LNX.4.50.0303170107560.2229-100000@montezuma.mastecende.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0303170107560.2229-100000@montezuma.mastecende.com>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030313061926.S3910@devserv.devel.redhat.com>,
-Jakub Jelinek  <jakub@redhat.com> wrote:
->
->Anyone remembers why get_current function (on arches which define
->current to get_current()) is not const
+On Sun, 16 Mar 2003, William Lee Irwin III wrote:
+>> Running out of IRQ's? Simply jacking up NR_IRQS and HARDIRQ_BITS should
+>> suffice if this is what I think it is.
 
-Because it makes no difference at all on x86, since gcc will ignore
-"const" for inline functions. At least that used to be true.
+On Mon, Mar 17, 2003 at 01:11:44AM -0500, Zwane Mwaikambo wrote:
+> I'll have to see what repurcussions that will bring about, but i'll add 
+> that to the TODO list.
 
->					 and why on x86-64
->the movq %%gs:0, %0 inline asm is volatile with "memory" clobber?
+Well, I tried it in my prior attempt and didn't have problems in that
+area. AFAICT it "just works" if you jack up the numbers.
 
-Can't help you on that one, but it looks like it uses various helper
-functions for doing the x86-64 per-processor data structures, and I bet
-those helper functions are shared by _other_ users who definitely want
-to have their data properly re-read. Ie "current()" may be constant in
-process context, but that sure isn't true about a lot of other things in
-the per-processor data structures.
+Also, NUMA-Q's max at 640 routeable RTE's with 16 quads so you'll only
+need to add 1 to HARDIRQ_BITS.
 
-		Linus
+The cpu count issue I've fixed in a separate patch.
+
+
+-- wli

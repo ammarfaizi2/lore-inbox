@@ -1,50 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbVCDE0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262046AbVCDEf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262398AbVCDE0W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 23:26:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVCCTlt
+	id S262046AbVCDEf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 23:35:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVCDEdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 14:41:49 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:49322
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S262340AbVCCTPt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 14:15:49 -0500
-Subject: Re: RFD: Kernel release numbering
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Greg KH <greg@kroah.com>, "David S. Miller" <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050303170808.GG4608@stusta.de>
-References: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
-	 <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>
-	 <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>
-	 <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>
-	 <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com>
-	 <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
-	 <20050303170808.GG4608@stusta.de>
-Content-Type: text/plain
-Date: Thu, 03 Mar 2005 20:15:35 +0100
-Message-Id: <1109877336.4032.47.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Mar 2005 23:33:44 -0500
+Received: from vms046pub.verizon.net ([206.46.252.46]:50417 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262625AbVCDEHs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 23:07:48 -0500
+Date: Thu, 03 Mar 2005 23:07:46 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.11 vs DVB cx88 stuffs
+In-reply-to: <4227CE34.2040805@osdl.org>
+To: linux-kernel@vger.kernel.org
+Reply-to: gene.heskett@verizon.net
+Message-id: <200503032307.46716.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200503032119.04675.gene.heskett@verizon.net>
+ <4227CE34.2040805@osdl.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-03 at 18:08 +0100, Adrian Bunk wrote:
+On Thursday 03 March 2005 21:55, Randy.Dunlap wrote:
+>Gene Heskett wrote:
+>> Greetings;
+>>
+>> I've a new pcHDTV-3000 card, and I thought maybe it would
+>> be a good idea to build the cx88 stuff in the DVB section
+>> of a make xconfig.
+>>
+>> It doesn't build, spitting out this bailout:
+>>
+>>   CC [M]  drivers/media/video/cx88/cx88-cards.o
+>> drivers/media/video/cx88/cx88-cards.c: In function
+>> `hauppauge_eeprom_dvb': drivers/media/video/cx88/cx88-cards.c:694:
+>> error: `PLLTYPE_DTT7595' undeclared (first use in this function)
+>> drivers/media/video/cx88/cx88-cards.c:694: error: (Each undeclared
+>> identifier is reported only once
+>> drivers/media/video/cx88/cx88-cards.c:694: error: for each
+>> function it appears in.)
+>> drivers/media/video/cx88/cx88-cards.c:698: error:
+>> `PLLTYPE_DTT7592' undeclared (first use in this function)
+>> drivers/media/video/cx88/cx88-cards.c: In function
+>> `cx88_card_setup': drivers/media/video/cx88/cx88-cards.c:856:
+>> error: `PLLTYPE_DTT7579' undeclared (first use in this function)
+>> make[4]: *** [drivers/media/video/cx88/cx88-cards.o] Error 1
+>> make[3]: *** [drivers/media/video/cx88] Error 2
+>> make[2]: *** [drivers/media/video] Error 2
+>>
+>> This is from a freshly unpacked src tree for 2.6.11, with only the
+>> bk-ieee1394 patch applied.  That doesn't touch this.
+>>
+>> Comments?
+>>
+>> Another patch needed maybe?
+>
+>Sure, some patch is needed.  Let's ask the maintainer (cc-ed).
+>
+>BTW, to get this you had to enable CONFIG_BROKEN:
+>
+>config VIDEO_CX88_DVB
+>         tristate "DVB Support for cx2388x based TV cards"
+>         depends on VIDEO_CX88 && DVB_CORE && BROKEN
+>         select VIDEO_BUF_DVB
 
-> This only attacks part of the problem.
+You're right of course Randy.  Thats an option I hadn't canceled out 
+of force of habit because at one point i needed a driver for the 
+advansys scsi cards that you all had rendered an opinion that it was 
+broken.  IMO the maintainer had vanished.  I looked at the code, but 
+came to the conclusion I was looking at a bowl of spagetti.  I'm no 
+good at sorting stuff like that.
 
-It still does not solve the problem of "untested" releases. Users will
-still ignore the linus-tree-rcX kernels. 
-
-So we move the real -rcX phase after the so called stable release. 
-
-Doing -rcX from the "sucker" tree up to a stable release makes much more
-sense and would have more testers and get back lost confidence.
-
-tglx
-
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

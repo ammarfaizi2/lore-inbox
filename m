@@ -1,351 +1,245 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261173AbSKTOsD>; Wed, 20 Nov 2002 09:48:03 -0500
+	id <S261290AbSKTO6s>; Wed, 20 Nov 2002 09:58:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261286AbSKTOsD>; Wed, 20 Nov 2002 09:48:03 -0500
-Received: from kobra.efd.lth.se ([130.235.34.36]:46810 "EHLO kobra.efd.lth.se")
-	by vger.kernel.org with ESMTP id <S261173AbSKTOr7>;
-	Wed, 20 Nov 2002 09:47:59 -0500
-Date: Wed, 20 Nov 2002 15:54:59 +0100 (MET)
-From: Jacob Kroon <d00jkr@efd.lth.se>
-To: linux-kernel@vger.kernel.org
-Subject: OSS VIA82cxxx sound driver problem.
-Message-ID: <Pine.GSO.4.44.0211201535470.12611-200000@login-4.efd.lth.se>
+	id <S261218AbSKTO6s>; Wed, 20 Nov 2002 09:58:48 -0500
+Received: from ns.suse.de ([213.95.15.193]:61445 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261205AbSKTO6l>;
+	Wed, 20 Nov 2002 09:58:41 -0500
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SuSE Linux AG
+To: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH] Make inode_ops->setxattr value parameter const (2.4.x + 2.5.x)
+Date: Wed, 20 Nov 2002 16:05:45 +0100
+User-Agent: KMail/1.4.3
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Dave Kleikamp <shaggy@austin.ibm.com>, Steve Best <sbest@us.ibm.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-1037804099=:12611"
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_L9RVRPIEJ9G2USYG5BAW"
+Message-Id: <200211201605.45786.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
----559023410-851401618-1037804099=:12611
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+--------------Boundary-00=_L9RVRPIEJ9G2USYG5BAW
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+Hello,
+
+the setxattr inode operation is defined like this in 2.4 and 2.5:
+
+=09int (*setxattr) (struct dentry *dentry, const char *name,
+=09=09=09 void *value, size_t size, int flags);
+
+the original type of the value parameter was `const void *'; the const=20
+obviously has been lost at some point. The definition should be:
+
+=09int (*setxattr) (struct dentry *dentry, const char *name,
+=09=09=09 const void *value, size_t size, int flags);
+
+Please apply the attached patches.
 
 
-System:
-AMD Athlon 800Mhz
-Kernel 2.4.19, built with GCC 3.2
-VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-PCI bridge: VIA Technologies, Inc. VT8371 [KX133 AGP] (rev 0).
+Thanks,
+Andreas.
 
-I've compiled the VIA82cxxx driver into the kernel, not as a module. The
-driver works correctly for some time, but after a while it seems that it
-can't set certain output frequencies (but it still plays sound), as I
-noticed that XMMS plays songs at a slower frequency.
+------------------------------------------------------------------
+ Andreas Gruenbacher                                SuSE Linux AG
+ mailto:agruen@suse.de                     Deutschherrnstr. 15-19
+ http://www.suse.de/                   D-90429 Nuernberg, Germany
 
-Small output of "dmesg", whole log in attachment:
+--------------Boundary-00=_L9RVRPIEJ9G2USYG5BAW
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="linux-2.5.48-setxattr-const-value.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="linux-2.5.48-setxattr-const-value.diff"
 
-...
-...
-attempt to access beyond end of device
-16:40: rw=0, want=479602, limit=479600
-via82cxxx: timeout while reading AC97 codec (0xAC0000)
-via82cxxx: Codec rate locked at 48Khz
-via_audio: ignoring drain playback error -11
-via_audio: ignoring drain playback error -11
+Make inode_ops->setxattr value parameter const
 
-Quake 3 sounds ok, probably becuse it's playing audio at a rate that the
-driver still can set (11Khz i think).
+Add `const' to the value parameter definition of the setxattr inode
+operation and fix the resulting warnings in fs/jfs/xattr.c: File
+systems are not supposed to modify the value.
 
-/Jacob
+Also fixes the non-const usage in jfs, ext2, and ext3.
 
----559023410-851401618-1037804099=:12611
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="boot.log"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.44.0211201554590.12611@login-4.efd.lth.se>
-Content-Description: 
-Content-Disposition: attachment; filename="boot.log"
+--- linux-2.5.48.orig/fs/ext2/xattr.c	2002-11-18 05:29:48.000000000 +0100
++++ linux-2.5.48/fs/ext2/xattr.c	2002-11-18 20:15:55.000000000 +0100
+@@ -230,7 +230,7 @@
+  */
+ int
+ ext2_setxattr(struct dentry *dentry, const char *name,
+-	      void *value, size_t size, int flags)
++	      const void *value, size_t size, int flags)
+ {
+ 	struct ext2_xattr_handler *handler;
+ 	struct inode *inode = dentry->d_inode;
+--- linux-2.5.48.orig/fs/ext2/xattr.h	2002-11-18 05:29:22.000000000 +0100
++++ linux-2.5.48/fs/ext2/xattr.h	2002-11-18 20:17:07.000000000 +0100
+@@ -67,7 +67,7 @@
+ extern int ext2_xattr_register(int, struct ext2_xattr_handler *);
+ extern void ext2_xattr_unregister(int, struct ext2_xattr_handler *);
+ 
+-extern int ext2_setxattr(struct dentry *, const char *, void *, size_t, int);
++extern int ext2_setxattr(struct dentry *, const char *, const void *, size_t, int);
+ extern ssize_t ext2_getxattr(struct dentry *, const char *, void *, size_t);
+ extern ssize_t ext2_listxattr(struct dentry *, char *, size_t);
+ extern int ext2_removexattr(struct dentry *, const char *);
+--- linux-2.5.48.orig/fs/ext3/xattr.c	2002-11-18 05:29:47.000000000 +0100
++++ linux-2.5.48/fs/ext3/xattr.c	2002-11-18 20:18:39.000000000 +0100
+@@ -223,7 +223,7 @@
+  */
+ int
+ ext3_setxattr(struct dentry *dentry, const char *name,
+-	      void *value, size_t size, int flags)
++	      const void *value, size_t size, int flags)
+ {
+ 	struct ext3_xattr_handler *handler;
+ 	struct inode *inode = dentry->d_inode;
+--- linux-2.5.48.orig/fs/ext3/xattr.h	2002-11-18 05:29:56.000000000 +0100
++++ linux-2.5.48/fs/ext3/xattr.h	2002-11-18 20:18:12.000000000 +0100
+@@ -66,7 +66,7 @@
+ extern int ext3_xattr_register(int, struct ext3_xattr_handler *);
+ extern void ext3_xattr_unregister(int, struct ext3_xattr_handler *);
+ 
+-extern int ext3_setxattr(struct dentry *, const char *, void *, size_t, int);
++extern int ext3_setxattr(struct dentry *, const char *, const void *, size_t, int);
+ extern ssize_t ext3_getxattr(struct dentry *, const char *, void *, size_t);
+ extern ssize_t ext3_listxattr(struct dentry *, char *, size_t);
+ extern int ext3_removexattr(struct dentry *, const char *);
+--- linux-2.5.48.orig/fs/jfs/jfs_xattr.h	2002-11-18 05:29:53.000000000 +0100
++++ linux-2.5.48/fs/jfs/jfs_xattr.h	2002-11-18 23:40:06.000000000 +0100
+@@ -52,9 +52,9 @@
+ #define	END_EALIST(ealist) \
+ 	((struct jfs_ea *) (((char *) (ealist)) + EALIST_SIZE(ealist)))
+ 
+-extern int __jfs_setxattr(struct inode *, const char *, void *, size_t,
+-			int);
+-extern int jfs_setxattr(struct dentry *, const char *, void *, size_t,
++extern int __jfs_setxattr(struct inode *, const char *, const void *, size_t,
++			  int);
++extern int jfs_setxattr(struct dentry *, const char *, const void *, size_t,
+ 			int);
+ extern ssize_t __jfs_getxattr(struct inode *, const char *, void *, size_t);
+ extern ssize_t jfs_getxattr(struct dentry *, const char *, void *, size_t);
+--- linux-2.5.48.orig/fs/jfs/xattr.c	2002-11-18 05:29:31.000000000 +0100
++++ linux-2.5.48/fs/jfs/xattr.c	2002-11-18 20:20:16.000000000 +0100
+@@ -706,7 +706,7 @@
+ }
+ 
+ static int can_set_xattr(struct inode *inode, const char *name,
+-			 void *value, size_t value_len)
++			 const void *value, size_t value_len)
+ {
+ 	if (IS_RDONLY(inode))
+ 		return -EROFS;
+@@ -735,7 +735,7 @@
+ #endif
+ }
+ 
+-int __jfs_setxattr(struct inode *inode, const char *name, void *value,
++int __jfs_setxattr(struct inode *inode, const char *name, const void *value,
+ 		   size_t value_len, int flags)
+ {
+ 	struct jfs_ea_list *ealist;
+@@ -874,7 +874,7 @@
+ 	return rc;
+ }
+ 
+-int jfs_setxattr(struct dentry *dentry, const char *name, void *value,
++int jfs_setxattr(struct dentry *dentry, const char *name, const void *value,
+ 		 size_t value_len, int flags)
+ {
+ 	if (value == NULL) {	/* empty EA, do not remove */
+--- linux-2.5.48.orig/include/linux/fs.h	2002-11-18 05:29:29.000000000 +0100
++++ linux-2.5.48/include/linux/fs.h	2002-11-18 20:13:06.000000000 +0100
+@@ -782,7 +782,7 @@
+ 	int (*permission) (struct inode *, int);
+ 	int (*setattr) (struct dentry *, struct iattr *);
+ 	int (*getattr) (struct vfsmount *mnt, struct dentry *, struct kstat *);
+-	int (*setxattr) (struct dentry *, const char *, void *, size_t, int);
++	int (*setxattr) (struct dentry *, const char *,const void *,size_t,int);
+ 	ssize_t (*getxattr) (struct dentry *, const char *, void *, size_t);
+ 	ssize_t (*listxattr) (struct dentry *, char *, size_t);
+ 	int (*removexattr) (struct dentry *, const char *);
 
-TGludXggdmVyc2lvbiAyLjQuMTkgKGZvb2JhckBENjQwLnNwYXJ0YS5hZmIu
-bHUuc2UpIChnY2MgdmVyc2lvbiAzLjIgKENSVVgpKSAjMSBTdW4gTm92IDEw
-IDE3OjQwOjAwIENFVCAyMDAyDQpCSU9TLXByb3ZpZGVkIHBoeXNpY2FsIFJB
-TSBtYXA6DQogQklPUy1lODIwOiAwMDAwMDAwMDAwMDAwMDAwIC0gMDAwMDAw
-MDAwMDA5ZmMwMCAodXNhYmxlKQ0KIEJJT1MtZTgyMDogMDAwMDAwMDAwMDA5
-ZmMwMCAtIDAwMDAwMDAwMDAwYTAwMDAgKHJlc2VydmVkKQ0KIEJJT1MtZTgy
-MDogMDAwMDAwMDAwMDBmMDAwMCAtIDAwMDAwMDAwMDAxMDAwMDAgKHJlc2Vy
-dmVkKQ0KIEJJT1MtZTgyMDogMDAwMDAwMDAwMDEwMDAwMCAtIDAwMDAwMDAw
-MDdmZjAwMDAgKHVzYWJsZSkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDdmZjAw
-MDAgLSAwMDAwMDAwMDA3ZmYzMDAwIChBQ1BJIE5WUykNCiBCSU9TLWU4MjA6
-IDAwMDAwMDAwMDdmZjMwMDAgLSAwMDAwMDAwMDA4MDAwMDAwIChBQ1BJIGRh
-dGEpDQogQklPUy1lODIwOiAwMDAwMDAwMGZmZmYwMDAwIC0gMDAwMDAwMDEw
-MDAwMDAwMCAocmVzZXJ2ZWQpDQoxMjdNQiBMT1dNRU0gYXZhaWxhYmxlLg0K
-T24gbm9kZSAwIHRvdGFscGFnZXM6IDMyNzUyDQp6b25lKDApOiA0MDk2IHBh
-Z2VzLg0Kem9uZSgxKTogMjg2NTYgcGFnZXMuDQp6b25lKDIpOiAwIHBhZ2Vz
-Lg0KS2VybmVsIGNvbW1hbmQgbGluZTogYXV0byBCT09UX0lNQUdFPUNSVVgg
-cm8gcm9vdD0zMDEgcXVpZXQNCkxvY2FsIEFQSUMgZGlzYWJsZWQgYnkgQklP
-UyAtLSByZWVuYWJsaW5nLg0KRm91bmQgYW5kIGVuYWJsZWQgbG9jYWwgQVBJ
-QyENCkluaXRpYWxpemluZyBDUFUjMA0KRGV0ZWN0ZWQgODAxLjgzMiBNSHog
-cHJvY2Vzc29yLg0KQ29uc29sZTogY29sb3VyIFZHQSsgMTMyeDYwDQpDYWxp
-YnJhdGluZyBkZWxheSBsb29wLi4uIDE1OTkuMDcgQm9nb01JUFMNCk1lbW9y
-eTogMTI3NDUyay8xMzEwMDhrIGF2YWlsYWJsZSAoMTA1Mmsga2VybmVsIGNv
-ZGUsIDMxNjhrIHJlc2VydmVkLCAyNDBrIGRhdGEsIDI0MGsgaW5pdCwgMGsg
-aGlnaG1lbSkNCkRlbnRyeSBjYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDE2
-Mzg0IChvcmRlcjogNSwgMTMxMDcyIGJ5dGVzKQ0KSW5vZGUgY2FjaGUgaGFz
-aCB0YWJsZSBlbnRyaWVzOiA4MTkyIChvcmRlcjogNCwgNjU1MzYgYnl0ZXMp
-DQpNb3VudC1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDIwNDggKG9yZGVy
-OiAyLCAxNjM4NCBieXRlcykNCkJ1ZmZlci1jYWNoZSBoYXNoIHRhYmxlIGVu
-dHJpZXM6IDQwOTYgKG9yZGVyOiAyLCAxNjM4NCBieXRlcykNClBhZ2UtY2Fj
-aGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAzMjc2OCAob3JkZXI6IDUsIDEzMTA3
-MiBieXRlcykNCkNQVTogQmVmb3JlIHZlbmRvciBpbml0LCBjYXBzOiAwMTgz
-ZmJmZiBjMWMzZmJmZiAwMDAwMDAwMCwgdmVuZG9yID0gMg0KQ1BVOiBMMSBJ
-IENhY2hlOiA2NEsgKDY0IGJ5dGVzL2xpbmUpLCBEIGNhY2hlIDY0SyAoNjQg
-Ynl0ZXMvbGluZSkNCkNQVTogTDIgQ2FjaGU6IDUxMksgKDY0IGJ5dGVzL2xp
-bmUpDQpDUFU6IEFmdGVyIHZlbmRvciBpbml0LCBjYXBzOiAwMTgzZmJmZiBj
-MWMzZmJmZiAwMDAwMDAwMCAwMDAwMDAwMA0KSW50ZWwgbWFjaGluZSBjaGVj
-ayBhcmNoaXRlY3R1cmUgc3VwcG9ydGVkLg0KSW50ZWwgbWFjaGluZSBjaGVj
-ayByZXBvcnRpbmcgZW5hYmxlZCBvbiBDUFUjMC4NCkNQVTogICAgIEFmdGVy
-IGdlbmVyaWMsIGNhcHM6IDAxODNmYmZmIGMxYzNmYmZmIDAwMDAwMDAwIDAw
-MDAwMDAwDQpDUFU6ICAgICAgICAgICAgIENvbW1vbiBjYXBzOiAwMTgzZmJm
-ZiBjMWMzZmJmZiAwMDAwMDAwMCAwMDAwMDAwMA0KQ1BVOiBBTUQgQXRobG9u
-KHRtKSBQcm9jZXNzb3Igc3RlcHBpbmcgMDINCkVuYWJsaW5nIGZhc3QgRlBV
-IHNhdmUgYW5kIHJlc3RvcmUuLi4gZG9uZS4NCkNoZWNraW5nICdobHQnIGlu
-c3RydWN0aW9uLi4uIE9LLg0KUE9TSVggY29uZm9ybWFuY2UgdGVzdGluZyBi
-eSBVTklGSVgNCmVuYWJsZWQgRXh0SU5UIG9uIENQVSMwDQpFU1IgdmFsdWUg
-YmVmb3JlIGVuYWJsaW5nIHZlY3RvcjogMDAwMDAwMDANCkVTUiB2YWx1ZSBh
-ZnRlciBlbmFibGluZyB2ZWN0b3I6IDAwMDAwMDAwDQpVc2luZyBsb2NhbCBB
-UElDIHRpbWVyIGludGVycnVwdHMuDQpjYWxpYnJhdGluZyBBUElDIHRpbWVy
-IC4uLg0KLi4uLi4gQ1BVIGNsb2NrIHNwZWVkIGlzIDgwMS44NDM4IE1Iei4N
-Ci4uLi4uIGhvc3QgYnVzIGNsb2NrIHNwZWVkIGlzIDIwMC40NjA4IE1Iei4N
-CmNwdTogMCwgY2xvY2tzOiAyMDA0NjA4LCBzbGljZTogMTAwMjMwNA0KQ1BV
-MDxUMDoyMDA0NjA4LFQxOjEwMDIzMDQsRDowLFM6MTAwMjMwNCxDOjIwMDQ2
-MDg+DQptdHJyOiB2MS40MCAoMjAwMTAzMjcpIFJpY2hhcmQgR29vY2ggKHJn
-b29jaEBhdG5mLmNzaXJvLmF1KQ0KbXRycjogZGV0ZWN0ZWQgbXRyciB0eXBl
-OiBJbnRlbA0KUENJOiBQQ0kgQklPUyByZXZpc2lvbiAyLjEwIGVudHJ5IGF0
-IDB4ZmIyNzAsIGxhc3QgYnVzPTENClBDSTogVXNpbmcgY29uZmlndXJhdGlv
-biB0eXBlIDENClBDSTogUHJvYmluZyBQQ0kgaGFyZHdhcmUNClVua25vd24g
-YnJpZGdlIHJlc291cmNlIDA6IGFzc3VtaW5nIHRyYW5zcGFyZW50DQpQQ0k6
-IFVzaW5nIElSUSByb3V0ZXIgVklBIFsxMTA2LzA2ODZdIGF0IDAwOjA3LjAN
-ClBDSTogRGlzYWJsaW5nIFZpYSBleHRlcm5hbCBBUElDIHJvdXRpbmcNCkxp
-bnV4IE5FVDQuMCBmb3IgTGludXggMi40DQpCYXNlZCB1cG9uIFN3YW5zZWEg
-VW5pdmVyc2l0eSBDb21wdXRlciBTb2NpZXR5IE5FVDMuMDM5DQpJbml0aWFs
-aXppbmcgUlQgbmV0bGluayBzb2NrZXQNCmFwbTogQklPUyB2ZXJzaW9uIDEu
-MiBGbGFncyAweDA3IChEcml2ZXIgdmVyc2lvbiAxLjE2KQ0KU3RhcnRpbmcg
-a3N3YXBkDQpKb3VybmFsbGVkIEJsb2NrIERldmljZSBkcml2ZXIgbG9hZGVk
-DQpkZXZmczogdjEuMTJhICgyMDAyMDUxNCkgUmljaGFyZCBHb29jaCAocmdv
-b2NoQGF0bmYuY3Npcm8uYXUpDQpkZXZmczogYm9vdF9vcHRpb25zOiAweDEN
-ClVuaWZvcm0gTXVsdGktUGxhdGZvcm0gRS1JREUgZHJpdmVyIFJldmlzaW9u
-OiA2LjMxDQppZGU6IEFzc3VtaW5nIDMzTUh6IHN5c3RlbSBidXMgc3BlZWQg
-Zm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUgd2l0aCBpZGVidXM9eHgNClZQX0lE
-RTogSURFIGNvbnRyb2xsZXIgb24gUENJIGJ1cyAwMCBkZXYgMzkNClZQX0lE
-RTogY2hpcHNldCByZXZpc2lvbiAxNg0KVlBfSURFOiBub3QgMTAwJSBuYXRp
-dmUgbW9kZTogd2lsbCBwcm9iZSBpcnFzIGxhdGVyDQppZGU6IEFzc3VtaW5n
-IDMzTUh6IHN5c3RlbSBidXMgc3BlZWQgZm9yIFBJTyBtb2Rlczsgb3ZlcnJp
-ZGUgd2l0aCBpZGVidXM9eHgNClZQX0lERTogVklBIHZ0ODJjNjg2YSAocmV2
-IDIyKSBJREUgVURNQTY2IGNvbnRyb2xsZXIgb24gcGNpMDA6MDcuMQ0KICAg
-IGlkZTA6IEJNLURNQSBhdCAweGQwMDAtMHhkMDA3LCBCSU9TIHNldHRpbmdz
-OiBoZGE6RE1BLCBoZGI6cGlvDQogICAgaWRlMTogQk0tRE1BIGF0IDB4ZDAw
-OC0weGQwMGYsIEJJT1Mgc2V0dGluZ3M6IGhkYzpwaW8sIGhkZDpETUENCmhk
-YTogTWF4dG9yIDUxNTM2VTMsIEFUQSBESVNLIGRyaXZlDQpoZGQ6IENSLTI4
-MDFURSwgQVRBUEkgQ0QvRFZELVJPTSBkcml2ZQ0KaWRlMCBhdCAweDFmMC0w
-eDFmNywweDNmNiBvbiBpcnEgMTQNCmlkZTEgYXQgMHgxNzAtMHgxNzcsMHgz
-NzYgb24gaXJxIDE1DQpoZGE6IDMwMDE1MjE2IHNlY3RvcnMgKDE1MzY4IE1C
-KSB3LzIwNDhLaUIgQ2FjaGUsIENIUz0xODY4LzI1NS82MywgVURNQSg2NikN
-CmhkZDogQVRBUEkgOFggQ0QtUk9NIENELVIgZHJpdmUsIDUxMmtCIENhY2hl
-LCBETUENClVuaWZvcm0gQ0QtUk9NIGRyaXZlciBSZXZpc2lvbjogMy4xMg0K
-UGFydGl0aW9uIGNoZWNrOg0KIC9kZXYvaWRlL2hvc3QwL2J1czAvdGFyZ2V0
-MC9sdW4wOiBwMSBwMiBwMyBwNA0KODEzOXRvbyBGYXN0IEV0aGVybmV0IGRy
-aXZlciAwLjkuMjUNClBDSTogRm91bmQgSVJRIDExIGZvciBkZXZpY2UgMDA6
-MDkuMA0KUENJOiBTaGFyaW5nIElSUSAxMSB3aXRoIDAwOjA3LjINClBDSTog
-U2hhcmluZyBJUlEgMTEgd2l0aCAwMDowNy4zDQpldGgwOiBSZWFsVGVrIFJU
-TDgxMzkgRmFzdCBFdGhlcm5ldCBhdCAweGM4ODA0MDAwLCAwMDpjMDpjYToz
-MDo5NzozYywgSVJRIDExDQpldGgwOiAgSWRlbnRpZmllZCA4MTM5IGNoaXAg
-dHlwZSAnUlRMLTgxMzlDJw0KVmlhIDY4NmEgYXVkaW8gZHJpdmVyIDEuOS4x
-DQpQQ0k6IEZvdW5kIElSUSA1IGZvciBkZXZpY2UgMDA6MDcuNQ0KYWM5N19j
-b2RlYzogQUM5NyBBdWRpbyBjb2RlYywgaWQ6IDB4NDE0NDoweDUzNDAgKEFu
-YWxvZyBEZXZpY2VzIEFEMTg4MSkNCnZpYTgyY3h4eDogYm9hcmQgIzEgYXQg
-MHhEQzAwLCBJUlEgNQ0KTkVUNDogTGludXggVENQL0lQIDEuMCBmb3IgTkVU
-NC4wDQpJUCBQcm90b2NvbHM6IElDTVAsIFVEUCwgVENQDQpJUDogcm91dGlu
-ZyBjYWNoZSBoYXNoIHRhYmxlIG9mIDUxMiBidWNrZXRzLCA0S2J5dGVzDQpU
-Q1A6IEhhc2ggdGFibGVzIGNvbmZpZ3VyZWQgKGVzdGFibGlzaGVkIDgxOTIg
-YmluZCAxNjM4NCkNCk5FVDQ6IFVuaXggZG9tYWluIHNvY2tldHMgMS4wL1NN
-UCBmb3IgTGludXggTkVUNC4wLg0Ka2pvdXJuYWxkIHN0YXJ0aW5nLiAgQ29t
-bWl0IGludGVydmFsIDUgc2Vjb25kcw0KRVhUMy1mczogbW91bnRlZCBmaWxl
-c3lzdGVtIHdpdGggb3JkZXJlZCBkYXRhIG1vZGUuDQpWRlM6IE1vdW50ZWQg
-cm9vdCAoZXh0MyBmaWxlc3lzdGVtKSByZWFkb25seS4NCk1vdW50ZWQgZGV2
-ZnMgb24gL2Rldg0KRnJlZWluZyB1bnVzZWQga2VybmVsIG1lbW9yeTogMjQw
-ayBmcmVlZA0KQWRkaW5nIFN3YXA6IDEzNjU0NGsgc3dhcC1zcGFjZSAocHJp
-b3JpdHkgLTEpDQpFWFQzIEZTIDIuNC0wLjkuMTcsIDEwIEphbiAyMDAyIG9u
-IGlkZTAoMywxKSwgaW50ZXJuYWwgam91cm5hbA0Ka2pvdXJuYWxkIHN0YXJ0
-aW5nLiAgQ29tbWl0IGludGVydmFsIDUgc2Vjb25kcw0KRVhUMyBGUyAyLjQt
-MC45LjE3LCAxMCBKYW4gMjAwMiBvbiBpZGUwKDMsMiksIGludGVybmFsIGpv
-dXJuYWwNCkVYVDMtZnM6IG1vdW50ZWQgZmlsZXN5c3RlbSB3aXRoIG9yZGVy
-ZWQgZGF0YSBtb2RlLg0Ka2pvdXJuYWxkIHN0YXJ0aW5nLiAgQ29tbWl0IGlu
-dGVydmFsIDUgc2Vjb25kcw0KRVhUMyBGUyAyLjQtMC45LjE3LCAxMCBKYW4g
-MjAwMiBvbiBpZGUwKDMsNCksIGludGVybmFsIGpvdXJuYWwNCkVYVDMtZnM6
-IG1vdW50ZWQgZmlsZXN5c3RlbSB3aXRoIG9yZGVyZWQgZGF0YSBtb2RlLg0K
-c3B1cmlvdXMgODI1OUEgaW50ZXJydXB0OiBJUlE3Lg0KZXRoMDogU2V0dGlu
-ZyAxMDBtYnBzIGZ1bGwtZHVwbGV4IGJhc2VkIG9uIGF1dG8tbmVnb3RpYXRl
-ZCBwYXJ0bmVyIGFiaWxpdHkgNDFlMS4NCm52aWRpYTogbG9hZGluZyBOVklE
-SUEgTGludXggeDg2IE5WZHJpdmVyIEtlcm5lbCBNb2R1bGUgIDEuMC0zMTIz
-ICBUdWUgQXVnIDI3IDE1OjU2OjQ4IFBEVCAyMDAyDQpJU08gOTY2MCBFeHRl
-bnNpb25zOiBSUklQXzE5OTFBDQpVRFA6IHNob3J0IHBhY2tldDogMTk0LjQ3
-LjI0MS42NzoxMzcgMC83NiB0byAxOTQuNDcuMjQzLjI1NToxMzcNClVEUDog
-c2hvcnQgcGFja2V0OiAxOTQuNDcuMjQyLjEyMDoxMzcgMC83NiB0byAxOTQu
-NDcuMjQzLjI1NToxMzcNCklTTyA5NjYwIEV4dGVuc2lvbnM6IFJSSVBfMTk5
-MUENCklTTyA5NjYwIEV4dGVuc2lvbnM6IFJSSVBfMTk5MUENClVEUDogc2hv
-cnQgcGFja2V0OiAxOTQuNDcuMjQwLjI4OjEzNyAwLzc2IHRvIDE5NC40Ny4y
-NDMuMjU1OjEzNw0KSVNPIDk2NjAgRXh0ZW5zaW9uczogUlJJUF8xOTkxQQ0K
-YXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQw
-OiBydz0wLCB3YW50PTY3Nzk1MiwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRv
-IGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdh
-bnQ9Njc3OTU0LCBsaW1pdD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJl
-eW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk2MDIs
-IGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBv
-ZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3OTYwNCwgbGltaXQ9NDc5
-NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0K
-MTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NjA2LCBsaW1pdD00Nzk2MDANCmF0dGVt
-cHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9
-MCwgd2FudD00Nzk2MDgsIGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nl
-c3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3
-OTYxMCwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQg
-ZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NjEyLCBsaW1p
-dD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2
-aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk2MTQsIGxpbWl0PTQ3OTYwMA0K
-YXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQw
-OiBydz0wLCB3YW50PTQ3OTYxNiwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRv
-IGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdh
-bnQ9NDc5NjE4LCBsaW1pdD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJl
-eW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk2MjAs
-IGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBv
-ZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3OTYyMiwgbGltaXQ9NDc5
-NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0K
-MTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NjI0LCBsaW1pdD00Nzk2MDANCmF0dGVt
-cHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9
-MCwgd2FudD00Nzk2MjYsIGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nl
-c3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3
-OTYyOCwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQg
-ZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NjMwLCBsaW1p
-dD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2
-aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk2MzIsIGxpbWl0PTQ3OTYwMA0K
-YXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQw
-OiBydz0wLCB3YW50PTQ3OTYzNCwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRv
-IGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdh
-bnQ9NDc5NjM2LCBsaW1pdD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJl
-eW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk2Mzgs
-IGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBv
-ZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3OTY0MCwgbGltaXQ9NDc5
-NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0K
-MTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NjQyLCBsaW1pdD00Nzk2MDANCmF0dGVt
-cHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9
-MCwgd2FudD00Nzk2NDQsIGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nl
-c3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3
-OTY0NiwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQg
-ZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NjQ4LCBsaW1p
-dD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2
-aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk2NTAsIGxpbWl0PTQ3OTYwMA0K
-YXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQw
-OiBydz0wLCB3YW50PTQ3OTY1MiwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRv
-IGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdh
-bnQ9NDc5NjU0LCBsaW1pdD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJl
-eW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk2NTYs
-IGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBv
-ZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3OTY1OCwgbGltaXQ9NDc5
-NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0K
-MTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NjYwLCBsaW1pdD00Nzk2MDANCmF0dGVt
-cHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9
-MCwgd2FudD00Nzk2NjIsIGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nl
-c3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3
-OTY2NCwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQg
-ZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NjY2LCBsaW1p
-dD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2
-aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk2NjgsIGxpbWl0PTQ3OTYwMA0K
-YXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQw
-OiBydz0wLCB3YW50PTQ3OTY3MCwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRv
-IGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdh
-bnQ9NDc5NjcyLCBsaW1pdD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJl
-eW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk2NzQs
-IGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBv
-ZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3OTY3NiwgbGltaXQ9NDc5
-NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0K
-MTY6NDA6IHJ3PTAsIHdhbnQ9NDc5Njc4LCBsaW1pdD00Nzk2MDANCmF0dGVt
-cHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9
-MCwgd2FudD00Nzk2ODAsIGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nl
-c3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3
-OTY4MiwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQg
-ZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdhbnQ9NDc5Njg0LCBsaW1p
-dD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2
-aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk2ODYsIGxpbWl0PTQ3OTYwMA0K
-YXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQw
-OiBydz0wLCB3YW50PTQ3OTY4OCwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRv
-IGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdh
-bnQ9NDc5NjkwLCBsaW1pdD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJl
-eW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk2OTIs
-IGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBv
-ZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3OTY5NCwgbGltaXQ9NDc5
-NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0K
-MTY6NDA6IHJ3PTAsIHdhbnQ9NDc5Njk2LCBsaW1pdD00Nzk2MDANCmF0dGVt
-cHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9
-MCwgd2FudD00Nzk2OTgsIGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nl
-c3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3
-OTcwMCwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQg
-ZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NzAyLCBsaW1p
-dD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2
-aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk3MDQsIGxpbWl0PTQ3OTYwMA0K
-YXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQw
-OiBydz0wLCB3YW50PTQ3OTcwNiwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRv
-IGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdh
-bnQ9NDc5NzA4LCBsaW1pdD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJl
-eW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk3MTAs
-IGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBv
-ZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3OTcxMiwgbGltaXQ9NDc5
-NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0K
-MTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NzE0LCBsaW1pdD00Nzk2MDANCmF0dGVt
-cHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9
-MCwgd2FudD00Nzk3MTYsIGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nl
-c3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3
-OTcxOCwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQg
-ZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NzIwLCBsaW1p
-dD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2
-aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk3MjIsIGxpbWl0PTQ3OTYwMA0K
-YXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQw
-OiBydz0wLCB3YW50PTQ3OTcyNCwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRv
-IGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdh
-bnQ9NDc5NzI2LCBsaW1pdD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJl
-eW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk3Mjgs
-IGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBv
-ZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3OTczMCwgbGltaXQ9NDc5
-NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0K
-MTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NzMyLCBsaW1pdD00Nzk2MDANCmF0dGVt
-cHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9
-MCwgd2FudD00Nzk3MzQsIGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nl
-c3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3
-OTczNiwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQg
-ZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NzM4LCBsaW1p
-dD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2
-aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk3NDAsIGxpbWl0PTQ3OTYwMA0K
-YXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQw
-OiBydz0wLCB3YW50PTQ3OTc0MiwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRv
-IGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdh
-bnQ9NDc5NzQ0LCBsaW1pdD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJl
-eW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk3NDYs
-IGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBv
-ZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3OTc0OCwgbGltaXQ9NDc5
-NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0K
-MTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NzUwLCBsaW1pdD00Nzk2MDANCmF0dGVt
-cHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9
-MCwgd2FudD00Nzk3NTIsIGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nl
-c3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3
-OTc1NCwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQg
-ZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NzU2LCBsaW1p
-dD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2
-aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk3NTgsIGxpbWl0PTQ3OTYwMA0K
-YXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQw
-OiBydz0wLCB3YW50PTQ3OTc2MCwgbGltaXQ9NDc5NjAwDQphdHRlbXB0IHRv
-IGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0KMTY6NDA6IHJ3PTAsIHdh
-bnQ9NDc5NzYyLCBsaW1pdD00Nzk2MDANCmF0dGVtcHQgdG8gYWNjZXNzIGJl
-eW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9MCwgd2FudD00Nzk3NjQs
-IGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nlc3MgYmV5b25kIGVuZCBv
-ZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3OTc2NiwgbGltaXQ9NDc5
-NjAwDQphdHRlbXB0IHRvIGFjY2VzcyBiZXlvbmQgZW5kIG9mIGRldmljZQ0K
-MTY6NDA6IHJ3PTAsIHdhbnQ9NDc5NzY4LCBsaW1pdD00Nzk2MDANCmF0dGVt
-cHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2aWNlDQoxNjo0MDogcnc9
-MCwgd2FudD00Nzk3NzAsIGxpbWl0PTQ3OTYwMA0KYXR0ZW1wdCB0byBhY2Nl
-c3MgYmV5b25kIGVuZCBvZiBkZXZpY2UNCjE2OjQwOiBydz0wLCB3YW50PTQ3
-OTYwMiwgbGltaXQ9NDc5NjAwDQp2aWE4MmN4eHg6IHRpbWVvdXQgd2hpbGUg
-cmVhZGluZyBBQzk3IGNvZGVjICgweEFDMDAwMCkNCnZpYTgyY3h4eDogQ29k
-ZWMgcmF0ZSBsb2NrZWQgYXQgNDhLaHoNCnZpYV9hdWRpbzogaWdub3Jpbmcg
-ZHJhaW4gcGxheWJhY2sgZXJyb3IgLTExDQp2aWFfYXVkaW86IGlnbm9yaW5n
-IGRyYWluIHBsYXliYWNrIGVycm9yIC0xMQ0K
----559023410-851401618-1037804099=:12611--
+--------------Boundary-00=_L9RVRPIEJ9G2USYG5BAW
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="linux-2.4.20-rc2-setxattr-const-value.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="linux-2.4.20-rc2-setxattr-const-value.diff"
+
+Make inode_ops->setxattr value parameter const
+
+Add `const' to the value parameter definition of the setxattr inode
+operation and fix the resulting warnings in fs/jfs/xattr.c: File
+systems are not supposed to modify the value.
+
+Also fixes the non-const usage in jfs.
+
+--- linux-2.4.20-rc2.patch/include/linux/fs.h~xattr-const	2002-11-18 23:51:35.000000000 +0100
++++ linux-2.4.20-rc2.patch-agruen/include/linux/fs.h	2002-11-18 23:51:35.000000000 +0100
+@@ -866,7 +866,7 @@
+ 	int (*revalidate) (struct dentry *);
+ 	int (*setattr) (struct dentry *, struct iattr *);
+ 	int (*getattr) (struct dentry *, struct iattr *);
+-	int (*setxattr) (struct dentry *, const char *, void *, size_t, int);
++	int (*setxattr) (struct dentry *, const char *, const void *, size_t, int);
+ 	ssize_t (*getxattr) (struct dentry *, const char *, void *, size_t);
+ 	ssize_t (*listxattr) (struct dentry *, char *, size_t);
+ 	int (*removexattr) (struct dentry *, const char *);
+--- linux-2.4.20-rc2.patch/fs/jfs/xattr.c~xattr-const	2002-11-18 23:51:35.000000000 +0100
++++ linux-2.4.20-rc2.patch-agruen/fs/jfs/xattr.c	2002-11-18 23:51:35.000000000 +0100
+@@ -641,7 +641,7 @@
+ }
+ 
+ static int can_set_xattr(struct inode *inode, const char *name,
+-			 void *value, size_t value_len)
++			 const void *value, size_t value_len)
+ {
+ 	if (IS_RDONLY(inode))
+ 		return -EROFS;
+@@ -660,7 +660,7 @@
+ 	return permission(inode, MAY_WRITE);
+ }
+ 
+-int __jfs_setxattr(struct inode *inode, const char *name, void *value,
++int __jfs_setxattr(struct inode *inode, const char *name, const void *value,
+ 		   size_t value_len, int flags)
+ {
+ 	struct jfs_ea_list *ealist;
+@@ -799,7 +799,7 @@
+ 	return rc;
+ }
+ 
+-int jfs_setxattr(struct dentry *dentry, const char *name, void *value,
++int jfs_setxattr(struct dentry *dentry, const char *name, const void *value,
+ 		 size_t value_len, int flags)
+ {
+ 	if (value == NULL) {	/* empty EA, do not remove */
+--- linux-2.4.20-rc2.patch/fs/jfs/jfs_xattr.h~xattr-const	2002-11-18 23:52:56.000000000 +0100
++++ linux-2.4.20-rc2.patch-agruen/fs/jfs/jfs_xattr.h	2002-11-18 23:40:27.000000000 +0100
+@@ -52,8 +52,10 @@
+ #define	END_EALIST(ealist) \
+ 	((struct jfs_ea *) (((char *) (ealist)) + EALIST_SIZE(ealist)))
+ 
+-extern int __jfs_setxattr(struct inode *, const char *, void *, size_t, int);
+-extern int jfs_setxattr(struct dentry *, const char *, void *, size_t, int);
++extern int __jfs_setxattr(struct inode *, const char *, const void *, size_t,
++			  int);
++extern int jfs_setxattr(struct dentry *, const char *, const void *, size_t,
++			int);
+ extern ssize_t __jfs_getxattr(struct inode *, const char *, void *, size_t);
+ extern ssize_t jfs_getxattr(struct dentry *, const char *, void *, size_t);
+ extern ssize_t jfs_listxattr(struct dentry *, char *, size_t);
+
+_
+
+--------------Boundary-00=_L9RVRPIEJ9G2USYG5BAW--
+

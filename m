@@ -1,56 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132485AbRDHEqv>; Sun, 8 Apr 2001 00:46:51 -0400
+	id <S132484AbRDHEmt>; Sun, 8 Apr 2001 00:42:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132496AbRDHEql>; Sun, 8 Apr 2001 00:46:41 -0400
-Received: from fluent1.pyramid.net ([206.100.220.212]:13613 "EHLO
-	fluent1.pyramid.net") by vger.kernel.org with ESMTP
-	id <S132485AbRDHEqe>; Sun, 8 Apr 2001 00:46:34 -0400
-Message-Id: <4.3.2.7.2.20010407214043.00b63100@mail.fluent-access.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Sat, 07 Apr 2001 21:46:21 -0700
+	id <S132485AbRDHEmk>; Sun, 8 Apr 2001 00:42:40 -0400
+Received: from cogent.ecohler.net ([216.135.202.106]:53691 "EHLO
+	cogent.ecohler.net") by vger.kernel.org with ESMTP
+	id <S132484AbRDHEma>; Sun, 8 Apr 2001 00:42:30 -0400
+Date: Sun, 8 Apr 2001 00:42:07 -0400
+From: lists@sapience.com
 To: linux-kernel@vger.kernel.org
-From: Stephen Satchell <satch@fluent-access.com>
-Subject: Re: goodbye
-In-Reply-To: <20010407210224.A1022@debian.org>
-In-Reply-To: <20010408125621.C14550@higherplane.net>
- <Pine.LNX.4.21.0104031800030.14090-100000@imladris.rielhome.conectiva>
- <20010404012102Z131724-406+7418@vger.kernel.org>
- <20010408023228.L805@mea-ext.zmailer.org>
- <20010404012102Z131724-406+7418@vger.kernel.org>
- <9ao861$f1$1@ns1.clouddancer.com>
- <20010408020720.55CC8683B@mail.clouddancer.com>
- <20010408125621.C14550@higherplane.net>
+Cc: gibbs@scsiguy.com
+Subject: Re: aic7xxx 6.1.10 and 2.4.4-pre1
+Message-ID: <20010408004206.A29133@sapience.com>
+In-Reply-To: <20010407195031.B25801@sapience.com> <200104080139.f381dZs92143@aslan.scsiguy.com> <20010408001132.A28840@sapience.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010408001132.A28840@sapience.com>; from lists@sapience.com on Sun, Apr 08, 2001 at 12:11:32AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:02 PM 4/7/01 -0700, Joseph Carter wrote:
->Not always an option.  There are many places in the world in which your
->ISP is a monopoly.  And even in your simplistic view of the world, there
->are many places in the United States where you are held captibe by not
->having more than one local ISP.  That's even more true of broadband
->connections.  Monopoly service is the rule there, not the exception.
+  Well my aicxxx problems continue:
 
-Concur.  One reason I started up my own sendmail for outgoing mail was 
-because Pacific Bell Internet (in its various brand names) refused to close 
-up open relays, even when their large clients ran spam relay servers.  When 
-ORBS caused my mail to be blocked to the Linux Kernel list because of this, 
-I complained to "technical support".  Their response was for me to sue ORBS 
-for causing my mails to be blocked!  When asked when PBI was going to close 
-up the mail relay from their customers' open servers, they said "never."
+  I did it again and indeed verified similar error messages as I had
+  under stock 2.4.3 and 2.4.3+aic 6.1.8. This time it died during boot itself
+  starting with complaints from ssh/xinet et al - then I started seeing the
+  scsi errors.  (I believe I had also tried ac26 with similar problems hwhich IIRC 
+  is  6.1.5).
 
-I had broadband access with them.  Fortunately PBI was clueless enough that 
-I could run my own outgoing mail server and get connectivity back.  It took 
-nine months before I could move off of them.
+  Anyway, it goes around in a loop with stuff like:
 
-Other contributors may not be as fortunate -- I've heard about ISPs that 
-block all SMTP traffic not involving their mail servers.  When they are the 
-only ISP in town, that makes for a bad situation.
+  SCB 1 ...
+  scsi ... 
+  scsi   ... recovery complete ..
+  scsi   ... code aweke ..
+  scsi   ... aic7xxx_abort returns 8194
 
-I also expect nothing to come from this off-topic discussion, so this will 
-most likely be the last you hear from me on this subject.
+  or somwething similar. The aic7xxx_abort returns 8194 i remember exactly the others 
+  I'm a bit shaky on. Anyway it seems to loop with the recovery/abort thing.
 
-Satch
+  What can I do to help track down the problem? 
+
+  Regards,
+
+
+  Gene/
+
+  
+
+-------------------------------------------------------------------
+
+I enclose output of ver_linux - I note that it incorrectly reports util-linux
+becuase it uses mount --version. On my redhat system mount is 2.10r while util-linux
+is 2.10s-11. 
+
+
+Linux snap 2.4.1-0.1.9 #1 Wed Feb 14 22:15:15 EST 2001 i686 unknown
+ 
+Gnu C                  2.96
+Gnu make               3.79.1
+binutils               2.10.91.0.2
+util-linux             2.10r
+modutils               2.4.5
+e2fsprogs              1.19
+reiserfsprogs          3.x.0b
+pcmcia-cs              3.1.22
+PPP                    2.4.0
+Linux C Library        2.2.2
+Dynamic linker (ldd)   2.2.2
+Procps                 2.0.7
+Net-tools              1.57
+Console-tools          0.3.3
+Sh-utils               2.0
+Modules Loaded         emu10k1 soundcore autofs joydev hid input 3c59x ipchains ide-scsi ide-cd cdrom usb-uhci usbcore aic7xxx sd_mod scsi_mod
+
+-------------------------------------------------------------------
+
+
+On Sun, Apr 08, 2001 at 12:11:32AM -0400, lists@sapience.com wrote:
+> 
+> I used 5000ms. I still freeze up with 2.4.3 + 6.1.10.
+> 
+> ...
 

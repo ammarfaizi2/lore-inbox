@@ -1,66 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263671AbVCECXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263643AbVCECWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263671AbVCECXE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 21:23:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263647AbVCECEz
+	id S263643AbVCECWz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 21:22:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbVCEB7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 21:04:55 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:2532 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263645AbVCEBsd (ORCPT
+	Fri, 4 Mar 2005 20:59:38 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:13282 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263641AbVCEBsX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 20:48:33 -0500
+	Fri, 4 Mar 2005 20:48:23 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:to:subject:from:user-agent:content-type:references:in-reply-to:message-id:date;
-        b=PL//OXY54dpWxxyxm4Mbairy0fsrnXE7yy5o2XktVL5TG4eWEMfk7dB/vQGOqydsuoGSX+LIm/H/u1Ie2XeclS5lcM+jjLZHtg9QWRdBvX8BMp222WyS4nNvDdF61Brix1jIQkIZBsya1d+vdiq5FTpDMi7NBdi7fzeetjHLQHs=
+        b=mRNtSdbQKzRIJvDQpRyC8bKV07XJiUU1gtMwWyD+Ay9R+m2KX2HG3l6NSx2G1/tXV7zNHutHbZqN/Eu7II6qpMjJt3xB+5lahR94GbvvocNGeKp4pL36KgdPn6XpFFgk5RPIVsOp2jwnSJZT5UraPQvzrvOKaktvPeL/2QEp4TI=
 To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
        lkml <linux-kernel@vger.kernel.org>,
        linux-ide <linux-ide@vger.kernel.org>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 2.6.11-rc3 06/08] ide: convert set_xfer_rate() to use taskfile ioctl
+Subject: Re: [PATCH 2.6.11-rc3 04/08] ide: remove unused fields ide_drive_t->rq and ide_task_t->special
 From: Tejun Heo <htejun@gmail.com>
 User-Agent: lksp 0.1
 Content-Type: text/plain; charset=US-ASCII
 References: <20050305014758.4EDB4992@htj.dyndns.org>
 In-Reply-To: <20050305014758.4EDB4992@htj.dyndns.org>
-Message-ID: <20050305014823.8EA1C3D9@htj.dyndns.org>
-Date: Sat,  5 Mar 2005 10:48:28 +0900 (KST)
+Message-ID: <20050305014813.00CE05B7@htj.dyndns.org>
+Date: Sat,  5 Mar 2005 10:48:18 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-06_ide_taskfile_set_xfer_rate.patch
+04_ide_remove_unused_fields.patch
 
-	Convert set_xfer_rate() to use taskfile ioctl.
+	Remove unused fields ide_drive_t->rq and ide_task_t->special
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 
- ide.c |   15 ++++++++++++---
- 1 files changed, 12 insertions(+), 3 deletions(-)
+ drivers/ide/ide-tape.c |    1 -
+ include/linux/ide.h    |    2 --
+ 2 files changed, 3 deletions(-)
 
-Index: linux-taskfile-ng/drivers/ide/ide.c
+Index: linux-taskfile-ng/drivers/ide/ide-tape.c
 ===================================================================
---- linux-taskfile-ng.orig/drivers/ide/ide.c	2005-03-05 10:37:51.451393268 +0900
-+++ linux-taskfile-ng/drivers/ide/ide.c	2005-03-05 10:46:59.933824315 +0900
-@@ -1250,10 +1250,19 @@ static int set_pio_mode (ide_drive_t *dr
+--- linux-taskfile-ng.orig/drivers/ide/ide-tape.c	2005-03-05 10:37:51.567375213 +0900
++++ linux-taskfile-ng/drivers/ide/ide-tape.c	2005-03-05 10:46:59.482894810 +0900
+@@ -1733,7 +1733,6 @@ static int idetape_end_request(ide_drive
+ 	}
+ 	ide_end_drive_cmd(drive, 0, 0);
+ //	blkdev_dequeue_request(rq);
+-//	drive->rq = NULL;
+ //	end_that_request_last(rq);
  
- static int set_xfer_rate (ide_drive_t *drive, int arg)
- {
--	int err = ide_wait_cmd(drive,
--			WIN_SETFEATURES, (u8) arg,
--			SETFEATURES_XFER, 0, NULL);
-+	ide_task_t task;
-+	struct ata_taskfile *tf = &task.tf;
-+	int err;
-+
-+	memset(&task, 0, sizeof(task));
-+
-+	tf->protocol	= ATA_PROT_NODATA;
-+	tf->flags	= ATA_TFLAG_OUT_ADDR;
-+	tf->feature	= SETFEATURES_XFER;
-+	tf->nsect	= arg;
-+	tf->command	= WIN_SETFEATURES;
+ 	if (remove_stage)
+Index: linux-taskfile-ng/include/linux/ide.h
+===================================================================
+--- linux-taskfile-ng.orig/include/linux/ide.h	2005-03-05 10:46:59.095955301 +0900
++++ linux-taskfile-ng/include/linux/ide.h	2005-03-05 10:46:59.483894654 +0900
+@@ -660,7 +660,6 @@ typedef struct ide_drive_s {
  
-+	err = ide_raw_taskfile(drive, &task, 0, NULL);
- 	if (!err && arg) {
- 		ide_set_xfer_rate(drive, (u8) arg);
- 		ide_driveid_update(drive);
+ 	request_queue_t		*queue;	/* request queue */
+ 
+-	struct request		*rq;	/* current request */
+ 	struct ide_drive_s 	*next;	/* circular list of hwgroup drives */
+ 	struct ide_driver_s	*driver;/* (ide_driver_t *) */
+ 	void		*driver_data;	/* extra driver data */
+@@ -934,7 +933,6 @@ typedef struct ide_task_s {
+ 	ide_pre_handler_t	*prehandler;
+ 	ide_handler_t		*handler;
+ 	struct request		*rq;		/* copy of request */
+-	void			*special;	/* valid_t generally */
+ } ide_task_t;
+ 
+ typedef struct hwgroup_s {

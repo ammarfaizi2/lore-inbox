@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291637AbSBHQ5A>; Fri, 8 Feb 2002 11:57:00 -0500
+	id <S291649AbSBHRCu>; Fri, 8 Feb 2002 12:02:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291649AbSBHQ4u>; Fri, 8 Feb 2002 11:56:50 -0500
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:11315 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id <S291637AbSBHQ4h>;
-	Fri, 8 Feb 2002 11:56:37 -0500
-Date: Fri, 8 Feb 2002 16:59:47 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: <tigran@einstein.homenet>
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch] larger kernel stack (8k->16k) per task
-In-Reply-To: <20020208110930.C1429@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.33.0202081645170.1359-100000@einstein.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291651AbSBHRCk>; Fri, 8 Feb 2002 12:02:40 -0500
+Received: from ns.suse.de ([213.95.15.193]:38926 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S291649AbSBHRC1>;
+	Fri, 8 Feb 2002 12:02:27 -0500
+Date: Fri, 8 Feb 2002 18:02:16 +0100
+From: Dave Jones <davej@suse.de>
+To: Andreas Happe <andreashappe@subdimension.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, green@namesys.com
+Subject: Re: boot problems using 2.5.3-dj3 || -dj4
+Message-ID: <20020208180216.H32413@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Andreas Happe <andreashappe@subdimension.com>,
+	lkml <linux-kernel@vger.kernel.org>, green@namesys.com
+In-Reply-To: <000c01c1b0bf$567ab910$704e2e3e@angband>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <000c01c1b0bf$567ab910$704e2e3e@angband>; from andreashappe@gmx.net on Fri, Feb 08, 2002 at 05:40:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Feb 2002, Arjan van de Ven wrote:
-> If you need even more in your code (I assume you do otherwise you wouldn't
-> have done the work) then I really suggest you take a long hard look and fix
-> the obvious bugs or the design....
+On Fri, Feb 08, 2002 at 05:40:35PM +0100, Andreas Happe wrote:
+ > From: "Andreas Happe" <andreashappe@gmx.net>
+ > 
+ > > With dj4 the computer generates a kernel - oops instead of just freezing.
+ > 
+ > sorry, with dj4 modprobe dies with the error message
+ > "PAP-14030: direct2indirect: posted or inserted byte exists in the
+ > treeinvalid operand: 0000"
 
-Arjan, I completely agree with you, but please do not overlook one obvious
-thing -- sometimes (well, most of the time) in order to fix those stack
-corruption issues you _first_ need to apply this patch and then it becomes
-obvious that the reason for this "random" corruption is the stack
-overflow. A kernel panic is not shouting like "I am a stack overflow!"
-(yes, I know of Andrea's IKD of course, but sometimes it is preferrable to
-apply a small non-intrusive patch instead)
+ Ok, that's one for Oleg & Co to take a look at.
+ Can you run the oops dump through ksymoops ?
 
-So, I found this patch useful at least for debugging. Moreover, I think it
-would be very useful to have it in Linus' kernel as a CONFIG_ option so
-that if people complain about random memory corruption then they can try
-to reproduce it with larger stack and then (with aid of /proc/stack) the
-offender is found and fixed. I cc'd Alan; if he thinks this is a bad idea
-I would be interested to know why.
-
-Regards,
-Tigran
-
-
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

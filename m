@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263850AbUFIMvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265766AbUFIMy0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263850AbUFIMvM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 08:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265763AbUFIMvM
+	id S265766AbUFIMy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 08:54:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265782AbUFIMy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 08:51:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:48085 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263850AbUFIMvL (ORCPT
+	Wed, 9 Jun 2004 08:54:26 -0400
+Received: from moutng.kundenserver.de ([212.227.126.184]:64511 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S265766AbUFIMyY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 08:51:11 -0400
-Subject: Re: [STACK] >4k call path in hp/compaq fibre channel driver
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: chase.maupin@hp.com, iss_storagedev@hp.com, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20040609124302.GI21168@wohnheim.fh-wedel.de>
-References: <20040609124302.GI21168@wohnheim.fh-wedel.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4JH9Csq66ucciLfBOeGD"
-Organization: Red Hat UK
-Message-Id: <1086785454.2810.13.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 09 Jun 2004 14:50:54 +0200
+	Wed, 9 Jun 2004 08:54:24 -0400
+From: Christian Borntraeger <linux-kernel@borntraeger.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [STACK] >3k call path in xfs
+Date: Wed, 9 Jun 2004 14:54:17 +0200
+User-Agent: KMail/1.6.2
+References: <20040609122647.GF21168@wohnheim.fh-wedel.de>
+In-Reply-To: <20040609122647.GF21168@wohnheim.fh-wedel.de>
+Cc: nathans@sgi.com, owner-xfs@oss.sgi.com,
+       =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200406091454.21182.linux-kernel@borntraeger.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jörn Engel wrote:
+> 3k is not really bad yet, I just like to keep 1k of headroom for
+> surprises like an extra int foo[256] in a structure.
+> stackframes for call path too long (3064):
+[...]
+>       12  panic
+[...]
 
---=-4JH9Csq66ucciLfBOeGD
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+I agree thats good to reduce stack size. 
 
-On Wed, 2004-06-09 at 14:43, J=C3=B6rn Engel wrote:
-> Chase, I guess this code won't live long with 4k stacks.  Can you
-> please fix CpqTsProcessIMQEntry() and PeekIMQEntry()?
->=20
-> Linus, Andrew, how about marking CONFIG_SCSI_CPQFCTS as broken for the
-> time being?
+On the other hand I think call traces containing panic are not a call trace 
+I want to see at all.
 
-isn't it already? I thought it never got adjusted to the 2.6 scsi layer
-already (or the 2.4 one for that matter)
+cheers
 
---=-4JH9Csq66ucciLfBOeGD
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAxweuxULwo51rQBIRAhQvAJ9bMj6ttd+sflUsKjKd9BK7ajIhHACdEQah
-QAQPmrTb5A/Yp41LBH/GVYQ=
-=TKfq
------END PGP SIGNATURE-----
-
---=-4JH9Csq66ucciLfBOeGD--
-
+Christian

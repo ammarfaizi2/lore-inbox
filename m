@@ -1,38 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289606AbSCLXRk>; Tue, 12 Mar 2002 18:17:40 -0500
+	id <S287204AbSCLXXU>; Tue, 12 Mar 2002 18:23:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289272AbSCLXRf>; Tue, 12 Mar 2002 18:17:35 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:42368 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S290289AbSCLXRE>;
-	Tue, 12 Mar 2002 18:17:04 -0500
-Date: Tue, 12 Mar 2002 15:14:43 -0800 (PST)
-Message-Id: <20020312.151443.03370128.davem@redhat.com>
-To: beezly@beezly.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dropped packets on SUN GEM
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1015974664.2652.10.camel@monkey>
-In-Reply-To: <1015974664.2652.10.camel@monkey>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S289243AbSCLXXL>; Tue, 12 Mar 2002 18:23:11 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:33257 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S287204AbSCLXXE>;
+	Tue, 12 Mar 2002 18:23:04 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: Linux <linux-kernel@vger.kernel.org>
+Subject: Re: uname reports 'unknown' 
+In-Reply-To: Your message of "12 Mar 2002 17:59:53 CDT."
+             <1015973994.303.2.camel@coredump> 
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 13 Mar 2002 10:22:46 +1100
+Message-ID: <15303.1015975366@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Beezly <beezly@beezly.org.uk>
-   Date: 12 Mar 2002 23:11:04 +0000
-   
-   Is this normal? - Because it seems the amount of time to recover from a
-   hang is inversely proportional to the amount of work it is doing, I am
-   able to artificially improve the "uptime" of the card by permanantly
-   running a ping -f <host> on the box!!
+On 12 Mar 2002 17:59:53 -0500, 
+Shawn Starr <spstarr@sh0n.net> wrote:
+>Perhaps it should display P54C which is my P200 processor type?
 
-What I believe happens is that when the RX overflow condition occurs,
-there will be some packets that will be corrupted as a result.
+Talk to sh-utils, uname -p is not kernel defined.
 
-I find it really odd that you can reproduce this condition so readily.
-Does it happen under normal usage or do you have to issue a ping flood
-or some other packet intensive job to trigger the problem?  Also, are
-you getting Pause enabled on the link consistently?

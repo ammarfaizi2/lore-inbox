@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRBHMUH>; Thu, 8 Feb 2001 07:20:07 -0500
+	id <S131118AbRBHMV1>; Thu, 8 Feb 2001 07:21:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131171AbRBHMT5>; Thu, 8 Feb 2001 07:19:57 -0500
-Received: from [64.160.188.242] ([64.160.188.242]:24591 "HELO
-	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S129051AbRBHMTq>; Thu, 8 Feb 2001 07:19:46 -0500
-Date: Thu, 8 Feb 2001 04:19:41 -0800 (PST)
-From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: APIC errors with 2.4.2-pre1
-Message-ID: <Pine.LNX.4.30.0102080417050.30734-100000@ns-01.hislinuxbox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131002AbRBHMVR>; Thu, 8 Feb 2001 07:21:17 -0500
+Received: from ns.caldera.de ([212.34.180.1]:21778 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S130316AbRBHMVI>;
+	Thu, 8 Feb 2001 07:21:08 -0500
+Date: Thu, 8 Feb 2001 13:20:49 +0100
+Message-Id: <200102081220.NAA15426@ns.caldera.de>
+From: Christoph Hellwig <hch@caldera.de>
+To: jamey@crl.dec.com (Jamey Hicks)
+Cc: linux-hotplug-devel@lists.sourceforge.net, adam@yggdrasil.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: hotplugging with regular PCI cards
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <C88F387E7F6ED4118B5308002BC3EB1E032783@yen.crl.dec.com>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <C88F387E7F6ED4118B5308002BC3EB1E032783@yen.crl.dec.com> you wrote:
+>
+> It looks like support for this is available at:
+>
+>    http://opensource.compaq.com/sourceforge/project/?group_id=13
+>
 
-OK, talked with someone who knows a little more about this than i do.
-According to him, one reason I may be getting these errors is due to the
-fact that the HPT370 controller is using IRQ18 which falls in the APIC
-extended IRQ range (16 - 31).
+If that server would actually work - everytime I try to access it
+it is down. (Not even PINGable).
 
-If this is a problem is there a work-around? I don't know how to change
-the IRQ the HPT370 is using since it's an onboard card.
+	Christoph
 
 -- 
-David D.W. Downey - RHCE
-Consulting Engineer
-Ensim Corporation - Sunnyvale, CA
-
+Of course it doesn't work. We've performed a software upgrade.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

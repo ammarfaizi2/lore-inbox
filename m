@@ -1,66 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285482AbRLYL5c>; Tue, 25 Dec 2001 06:57:32 -0500
+	id <S285492AbRLYMDY>; Tue, 25 Dec 2001 07:03:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285484AbRLYL5X>; Tue, 25 Dec 2001 06:57:23 -0500
-Received: from mail1.arcor-ip.de ([145.253.2.10]:32718 "EHLO mail1.arcor-ip.de")
-	by vger.kernel.org with ESMTP id <S285482AbRLYL5O>;
-	Tue, 25 Dec 2001 06:57:14 -0500
-Message-ID: <3C28698A.9020606@arcormail.de>
-Date: Tue, 25 Dec 2001 12:56:58 +0100
-From: Hartmut Holz <hartmut.holz@arcormail.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S285484AbRLYMDO>; Tue, 25 Dec 2001 07:03:14 -0500
+Received: from web20305.mail.yahoo.com ([216.136.226.86]:14087 "HELO
+	web20305.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S285492AbRLYMDD>; Tue, 25 Dec 2001 07:03:03 -0500
+Message-ID: <20011225120303.99542.qmail@web20305.mail.yahoo.com>
+Date: Tue, 25 Dec 2001 04:03:03 -0800 (PST)
+From: Amber Palekar <amber_palekar@yahoo.com>
+Subject: Re: syscall from modules
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <01122513462001.02101@manta>
 MIME-Version: 1.0
-To: "=?ISO-8859-1?Q?Fr=E9d=E9ric?= L. W. Meunier" <0@pervalidus.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: EMU10K1: IRQ 10 ?
-In-Reply-To: <20011225034725.GA148@pervalidus> <200112250401.fBP41E025476@barn.psychohorse.com> <20011225043232.GC148@pervalidus> <200112250440.fBP4eu025586@barn.psychohorse.com> <20011225054059.GD148@pervalidus>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FrÈdÈric L. W. Meunier wrote:
+hi,
+   if i export these syms .. firstly ill have to
+change the source/patch the kernel which is not
+advisable then every time i write such a module .. ill
+have to make sure that i export all these symbols and
+there are no conflicts due to some wierd deps that
+might be present ( u never know ! ) So i am looking
+for a descent way to do the same
 
-> On Mon, Dec 24, 2001 at 08:41:19PM -0800, Matthew Johnson wrote:
+Still in need of help,
+Amber 
+
+--- vda <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+> On Tuesday 25 December 2001 09:31, Amber Palekar
+> wrote:
+> >  Hi,
+> >    I am trying to write a linux kernel module.I
+> want
+> >  to  use sys_sendto,sys_recvfrom etc calls from
+> the
+> >  module.However these symbols are not present in
+> >  'ksyms'.One sluggish option is to modify socket.c
+> (
+> >  which contains these function definitions ) to
+> >  export  the symbols. However this would require
+> > comiling the  entire kernel.Is there a descent way
+> to
+> > do this ??
 > 
->>On Monday 24 December 2001 08:32 pm, you wrote:
->>
-> 
->>>>I'd cheat and use sndconfig ot yast2 or whatever else.
->>>>Failing that I can give you some idea via my modules.conf,
->>>>but I use SuSE, whcih in turn uses Alsa.
->>>>
->>>OK, so I'll try ALSA.
->>>
->>>My modules.conf just includes 'alias sound emu10k1'.
->>>
-> 
-> Dec 25 03:13:38 pervalidus kernel: PCI: Found IRQ 10 for device 00:0b.0
-> 
-> OK, ALSA worked, while OSS from the kernel didn't. I don't
-> know why.
-> 
-> I still have a problem. Sound is very distorted with a lot of
-> noise when I do a 'cat /home/ftp/pub/sound/ra/english.au >
-> /dev/audio' . Maybe my speakers are broken ? I never used
-> them before. Time to do more testing. Yes, I know nothing
-> about sound.
-> 
+> I don't know much about module writing.
+> Why do you think it's wrong to export those fns?
+> --
+> vda
 
 
-Same for me. But if you use a real application like plaympeg or
-sox hi.au -t ossdsp /dev/dsp it works fine. I'm using emu10k1
-from http://opensource.creative.com
-
-
-
-
-
--- 
-Hartmut Holz                                EMail: H.Holz@hamburg.de
-Kieler Straﬂe 231			    Phone: +49 4085080014	
-22525 Hamburg
-Germany
-
+__________________________________________________
+Do You Yahoo!?
+Send your FREE holiday greetings online!
+http://greetings.yahoo.com

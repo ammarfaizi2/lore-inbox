@@ -1,335 +1,277 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129453AbRCBT3t>; Fri, 2 Mar 2001 14:29:49 -0500
+	id <S129444AbRCBT3k>; Fri, 2 Mar 2001 14:29:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129458AbRCBT3j>; Fri, 2 Mar 2001 14:29:39 -0500
-Received: from palrel1.hp.com ([156.153.255.242]:14086 "HELO palrel1.hp.com")
-	by vger.kernel.org with SMTP id <S129444AbRCBT32>;
-	Fri, 2 Mar 2001 14:29:28 -0500
-Date: Fri, 2 Mar 2001 11:32:35 -0800 (PST)
-From: Grant Grundler <grundler@cup.hp.com>
-Message-Id: <200103021932.LAA29704@milano.cup.hp.com>
-To: linux-kernel@vger.kernel.org
-Subject: PATCH 2.4.0 parisc PCI support
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129453AbRCBT3a>; Fri, 2 Mar 2001 14:29:30 -0500
+Received: from ip164-208.fli-ykh.psinet.ne.jp ([210.129.164.208]:46789 "EHLO
+	standard.erephon") by vger.kernel.org with ESMTP id <S129443AbRCBT3L>;
+	Fri, 2 Mar 2001 14:29:11 -0500
+Message-ID: <3A9FF46A.27443273@yk.rim.or.jp>
+Date: Sat, 03 Mar 2001 04:28:42 +0900
+From: Ishikawa <ishikawa@yk.rim.or.jp>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: ja, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+CC: Douglas Gilbert <dougg@torque.net>, rgooch@atnf.csiro.au
+Subject: Found out why "sg" was loaded automagically. Re: devfs: "cd" device not 
+ showing up initially.
+In-Reply-To: <3A8595DC.B33CB0B2@torque.net> <3A874BE2.51C58711@yk.rim.or.jp>
+Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-This patch contains the support parisc-linux needs in PCI generic.
-My patch is not as clean as I'd like - but it should work.
-Please send changes/feedback directly to me.
+Some time ago,  I posted a question concerning
+the device name "cd" (module sr_mod) not appearing automatically
+under my 2.4.x devfs/devfsd configuration.
+However,  "generic"  (module sg) does appear
+automagically.  This confused me a bit.
 
-Code in parisc-linux CVS (based on 2.4.0) does boot on my OB800
-(133Mhz Pentium), C3000, and A500 with PCI-PCI bridge support
-working. I'm quite certain PCI-PCI bridge configuration (ie BIOS
-didn't configure the bridge) support was broken.  I'm not able to
-test on alpha though...alpha may want to see #ifdef __hppa__
-around some of the code I've changed.
+The subject I used back then was like
+"devfs: "cd" device not showing up initially.
 
-I think the plan is to update the arch/parisc support in the near
-future so parisc builds actually work from linus' tree.
+Doug Gilbert was kind enough to explain to me
+that the module loading needed  be done explicitly
+for sr_mod so that "cd" entries were registered by
+devfs/devfsd. Then I came to wonder why
+"generic" registeted by the module sg showed up.
+I thought that I was not calling for automatic loading
+of "sg" myself.
+After a bit of exchange, Doug even went so far as to read
+my config files to check for obvious mistakes, and we
+could not find one.
 
-grant
+It took me a while to figure out why "sg" was inserted
+automatically.
+The cause had nothing to do with devfs/devfsd interaction.
 
-Grant Grundler
-parisc-linux {PCI|IOMMU|SMP} hacker
-+1.408.447.7253
+I found the answer today.
+
+Short answer:
+
+On my Debian GNU/Linux PC,
+/etc/rcS.d/S20modutils (a symlink to /etc/init.d/modutils )
+calls modprobe to install modules listed in
+a file called  /etc/modules at boot time,
+and "sg" was listed there.
+(I don't know / have forgotten why "sg" is listed there.)
+
+I didn't realize that Debian uses this /etc/modules file as part
+of its grand module configuration scheme.
+(Or I have forgotten about this completely.)
+
+--- somewhat longer description.
+
+I followed the suggestions given by various
+parties after my post, and when I inserted  the
+printk() inside a few scsi-related modules as
+suggested by Doug Gilbert, the problem became immediately apparent.
+The module "sg" was inserted by "modprobe", which in
+turn was called from "S20modutils".
+(swapon had nothing to do with the "sg" loading  as I recently  suspected.)
+
+[I was going to insert "echo this is $0 or something to that effect in all of the
+init script files to see where the sg loading was taking place, but
+embedding the printk in a few C source files was easiter and so I tried it first.]
+
+After seeing the message in dmesg output (now I use 128KB buffer
+for printk to capture all the devfs/devfsd interaction debug messages),
+I had to read /etc/init.d/S20modutils to find out why.
+It turns out the Debian module init  script uses /etc/modules
+to list kernel module names that need to be inserted at boot up time.
+And, for reasons unknown to me (now), the name "sg" was there (!).
+
+I should have realized that something was amiss when
+lsmod showed unused modules as in
+
+ tmscsim                29920   0  (unused)
+ sg                     25728   0  (unused)
+ nls_cp437               4384   0  (unused)
+ hpfs                   69216   0  (unused)
+
+tmscsim is where the CD changer is located.
+Until I manually mount a CD in there, the
+module is unused. But what about other threes?
+Forgetting about "sg", I had a nagging suspition
+especially about  the last two entries.
+Why are they loaded at all? I could not figure
+out why until today. These are also listed
+in /etc/modules, and "auto" is not given.
+So kerneld is not started at boot time...
+
+FYO, just to show what the lsmod output looks like after
+mounting a CD in nakamichi changer.
+
+>duron:/home/ishikawa# mount /dev/scsi/host1/bus0/target6/lun0/cd /mnt2
+>mount: special device /dev/scsi/host1/bus0/target6/lun0/cd does not exist
+(* Oops I have forgotten the manual loading of sr_mod.o *)
+>duron:/home/ishikawa# mkdir /mnt2
+>mkdir: cannot create directory `/mnt2': File exists
+>duron:/home/ishikawa# modprobe sr_mod
+>duron:/home/ishikawa# mount /dev/scsi/host1/bus0/target6/lun0/cd /mnt2
+>mount: block device /dev/scsi/host1/bus0/target6/lun0/cd is write-protected, mounting read-only
+>duron:/home/ishikawa# lsmod
+>Module                  Size  Used by
+>isofs                  19280   1  (autoclean)
+>sr_mod                 13200   1
+>cdrom                  26912   0  [sr_mod]
+>tmscsim                29920   1
+>sg                     25728   0  (unused)
+>nls_cp437               4384   0  (unused)
+>hpfs                   69216   0  (unused)
+>duron:/home/ishikawa# ls /mnt2
+>Copyright  Solaris_2.7
+>duron:/home/ishikawa#
+
+This final answer that I am posting today only shows that I have been using
+module loading under linux for quite a long time
+without understanding its implementation ver well.
+(The first time I used module loading was to re-order the scsi host scanning
+about three or four years ago.
+Using module was one of the few wasy aside from
+physically swaping bus slots to change the scaned order of host adaptors back then.
+The original kernel/distribution that I used then was
+the one that came Yggrdrasil 1994,  but I had upgraded
+various pieces to use more modern kernel and tools.
+I switched to Debian about two or three years ago.
+Now I figure I must have have bumped into this module
+configuration issues back when I switched to Debian,
+but I  must have taken care of them quickly
+and forgotten about them completely if so.)
+
+So anyway, this finally has answered my question that originated from
+my observation about device name registration
+under devfsd, module loading caused by devfsd, and
+the module configuration mechanism under Debian GNU/Linux.
+
+Below is attached in the hope that the quirks of debian module handling (or
+good feature) will be more widely known amongkernel hackers so that
+it would be easier to diagnose some questions from the
+clueless Debian distribution users regarding modules.
+
+Usually, the Debian's excellent package system
+takes care of these details (for me at least), and
+I have not encountered much difficulty before.
+But this time, I am experimenting with
+the kernel 2.4.x and devfs/devfsd before
+the stable Debian distribution incorporates them.
+
+Thanks to all people  for the helpful tips.
+
+Happy Hacking
+
+Chiaki Ishikawa
+
+Usage of /etc/modules in Debian GNU/Linux:
+
+Debian's modutils script reads /etc/modules
+file to load modules at boot time.
+But the generic documentation about module use
+distributed in /usr/src/linux/Documentation  doesn't mention
+this Debian-specific file at all.
+Grepping the files with /etc/modules and excluding /etc/modules.conf
+resulted in only three hits and they refer to different entity (/etc/modules
+being a directory where the modules are stored, it seems.)
+
+This gets me confused, and I needed to read the various documents to see if what I gather
+from reading S20modutils is correct.
+
+man modules
+
+produced a very short explanation of /etc/modules.
+
+   Quote: "The /etc/modules file contains the names of
+    kernel modules that are to be loaded at boot time, one
+    per line."
+
+   To summarize, the special entry
+   "auto" forces the use of kerneld at boot time.
+   Without it, it seems that when the initlevel
+   changes to 2, 3, 4 or 5, the kerneld is invoked.
+
+I need to see if this is indeed Debian specific.
+If so, this might explain why no one mentions the apparent
+/etc/modules (instead of /etc/modules.conf, etc.)
+when I raised my question about "sg" being loaded seemingly
+without my calling for it.
+
+Before writing this memo, I tried to see if other
+distributions use similar mechanisms ("What is this
+/etc/modules?" was my first reaction after looking
+the modutils init script.) and after
+reading the following pages found doing web search,
+I am fairly convinced that this /etc/modules file is Debian-only concoction.
+Debian distribution is trying to be clever using
+/etc/modules and it seems to work most of the time, but
+sometimes this could lead to user confusion.
+(It is like offering nice GUI for configuration management without
+the user/operator realizing what gos underneath.
+Please don't think I am disparaging Debian. It is excellent distribution
+and that is why I use it now.)
+
+/etc/modules.conf is also not to be manually edited under Degian GNU/Linux.
+Instead module developers are encouraged to create
+entry files under the directory /etc/modutils
+to be combined and inseted into the final /etc/modules.conf.
+Running modconf(?) seems to integrate all the entry files into
+the final /etc/modules.conf...
+My system has these entries below /etc/modutils now.
+
+duron:/home/ishikawa# ls -l /etc/modutils
+total 32
+-rw-r--r--    1 root     root          432 Nov 23 02:05 0keep
+-rw-r--r--    1 root     root         1146 Nov 13 22:37 aliases
+drwxr-xr-x    2 root     root         4096 Dec  1 03:53 arch
+-rw-r--r--    1 root     root         2753 Sep 12 05:41 devfsd
+-rw-r--r--    1 root     root          260 Dec 25  1999 paths
+-rw-r--r--    1 root     root           37 Dec 24  1998 pcmcia
+-rw-r--r--    1 root     root          117 Jan 21  2000 raidtools
+-rw-r--r--    1 root     root          494 May  9  2000 setserial
 
 
-Index: drivers/pci/Makefile
-===================================================================
-RCS file: /home/cvs/parisc/linux/drivers/pci/Makefile,v
-retrieving revision 1.1.1.4
-retrieving revision 1.6
-diff -u -p -r1.1.1.4 -r1.6
---- Makefile	2001/01/09 16:57:56	1.1.1.4
-+++ Makefile	2001/02/02 15:35:25	1.6
-@@ -21,6 +21,7 @@ obj-$(CONFIG_PROC_FS) += proc.o
- #
- obj-$(CONFIG_ALPHA) += setup-bus.o setup-irq.o
- obj-$(CONFIG_ARM) += setup-bus.o setup-irq.o
-+obj-$(CONFIG_PARISC64) += setup-bus.o
- 
- ifndef CONFIG_X86
- obj-y += syscall.o
-Index: drivers/pci/pci.c
-===================================================================
-RCS file: /home/cvs/parisc/linux/drivers/pci/pci.c,v
-retrieving revision 1.1.1.6
-diff -u -p -r1.1.1.6 pci.c
---- pci.c	2001/01/09 16:57:56	1.1.1.6
-+++ pci.c	2001/03/02 18:44:59
-@@ -615,6 +615,7 @@ static void pci_read_bases(struct pci_de
- 	}
- }
- 
-+
- void __init pci_read_bridge_bases(struct pci_bus *child)
- {
- 	struct pci_dev *dev = child->self;
-@@ -628,7 +629,7 @@ void __init pci_read_bridge_bases(struct
- 	if (!dev)		/* It's a host bus, nothing to read */
- 		return;
- 
--	for(i=0; i<3; i++)
-+	for(i=0; i<4; i++)
- 		child->resource[i] = &dev->resource[PCI_BRIDGE_RESOURCES+i];
- 
- 	res = child->resource[0];
-@@ -644,12 +645,16 @@ void __init pci_read_bridge_bases(struct
- 		res->end = limit + 0xfff;
- 		res->name = child->name;
- 	} else {
-+		
- 		/*
--		 * Ugh. We don't know enough about this bridge. Just assume
--		 * that it's entirely transparent.
-+		 * Either this is not a PCI-PCI bridge or it's not
-+		 * configured yet. Since this code only supports PCI-PCI
-+		 * bridge, we better not be called for any other type.
-+		 * Don't muck the resources since it will confuse the
-+		 * platform specific code which does that.
- 		 */
--		printk("Unknown bridge resource %d: assuming transparent\n", 0);
--		child->resource[0] = child->parent->resource[0];
-+		printk("PCI : ignoring %s PCI-PCI bridge (I/O BASE not configured)\n", child->self->slot_name);
-+		return;
- 	}
- 
- 	res = child->resource[1];
-@@ -664,8 +669,8 @@ void __init pci_read_bridge_bases(struct
- 		res->name = child->name;
- 	} else {
- 		/* See comment above. Same thing */
--		printk("Unknown bridge resource %d: assuming transparent\n", 1);
--		child->resource[1] = child->parent->resource[1];
-+		printk("PCI : ignoring %s PCI-PCI bridge (MMIO base not configured)\n", child->self->slot_name);
-+		return;
- 	}
- 
- 	res = child->resource[2];
-@@ -690,11 +695,10 @@ void __init pci_read_bridge_bases(struct
- 		res->end = limit + 0xfffff;
- 		res->name = child->name;
- 	} else {
--		/* See comments above */
--		printk("Unknown bridge resource %d: assuming transparent\n", 2);
--		child->resource[2] = child->parent->resource[2];
-+		/* Base > limit means the prefetchable mem is disabled.*/
- 	}
- }
-+
- 
- static struct pci_bus * __init pci_alloc_bus(void)
- {
-Index: drivers/pci/setup-bus.c
-===================================================================
-RCS file: /home/cvs/parisc/linux/drivers/pci/setup-bus.c,v
-retrieving revision 1.1.1.2
-retrieving revision 1.5
-diff -u -p -r1.1.1.2 -r1.5
---- setup-bus.c	2001/01/09 16:57:56	1.1.1.2
-+++ setup-bus.c	2001/02/22 01:11:47	1.5
-@@ -23,7 +23,7 @@
- #include <linux/slab.h>
- 
- 
--#define DEBUG_CONFIG 1
-+#define DEBUG_CONFIG 0
- #if DEBUG_CONFIG
- # define DBGC(args)     printk args
- #else
-@@ -32,6 +32,7 @@
- 
- #define ROUND_UP(x, a)		(((x) + (a) - 1) & ~((a) - 1))
- 
-+
- static int __init
- pbus_assign_resources_sorted(struct pci_bus *bus,
- 			     struct pbus_set_ranges_data *ranges)
-@@ -46,7 +47,6 @@ pbus_assign_resources_sorted(struct pci_
- 	for (ln=bus->devices.next; ln != &bus->devices; ln=ln->next) {
- 		struct pci_dev *dev = pci_dev_b(ln);
- 		u16 class = dev->class >> 8;
--		u16 cmd;
- 
- 		/* First, disable the device to avoid side
- 		   effects of possibly overlapping I/O and
-@@ -57,12 +57,23 @@ pbus_assign_resources_sorted(struct pci_
- 		if (class == PCI_CLASS_DISPLAY_VGA
- 				|| class == PCI_CLASS_NOT_DEFINED_VGA)
- 			found_vga = 1;
-+#ifndef __hppa__
-+/*
-+** If I/O or MEM ranges are overlapping, that's a BIOS bug.
-+** Fix it in quirks?
-+**
-+** Disabling *all* devices is bad. Console, root, etc get
-+** disabled this way.
-+** -ggg
-+*/
- 		else if (class >> 8 != PCI_BASE_CLASS_BRIDGE) {
-+			u16 cmd;
- 			pci_read_config_word(dev, PCI_COMMAND, &cmd);
- 			cmd &= ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY
- 						| PCI_COMMAND_MASTER);
- 			pci_write_config_word(dev, PCI_COMMAND, cmd);
- 		}
-+#endif
- 
- 		/* Reserve some resources for CardBus.
- 		   Are these values reasonable? */
-@@ -137,8 +148,10 @@ pci_setup_bridge(struct pci_bus *bus)
- 	pcibios_fixup_pbus_ranges(bus, &ranges);
- 
- 	DBGC(("PCI: Bus %d, bridge: %s\n", bus->number, bridge->name));
--	DBGC(("  IO window: %04lx-%04lx\n", ranges.io_start, ranges.io_end));
--	DBGC(("  MEM window: %08lx-%08lx\n", ranges.mem_start, ranges.mem_end));
-+	DBGC(("  IO window : %04lx-%04lx\n", ranges.io_start, ranges.io_end));
-+	DBGC(("  MEM window: %08lx-%08lx\n", ranges.mem_start,ranges.mem_end));
-+	DBGC(("  Pref MEM  : %lx-%lx\n", bus->resource[2]->start,
-+		bus->resource[2]->end));
- 
- 	/* Set up the top and bottom of the PCI I/O segment for this bus. */
- 	pci_read_config_dword(bridge, PCI_IO_BASE, &l);
-@@ -161,17 +174,57 @@ pci_setup_bridge(struct pci_bus *bus)
- 	pci_write_config_dword(bridge, PCI_MEMORY_BASE, l);
- 
- 	/* Set up PREF base/limit. */
--	l = (bus->resource[2]->start >> 16) & 0xfff0;
--	l |= bus->resource[2]->end & 0xfff00000;
-+	if (bus->resource[2]->start == bus->resource[2]->end) {
-+		/*
-+		** 5.3.2 Prefetchable Memory Base and Limit Address Registers
-+		**     (From DEC 21154 Data sheet, page 67)
-+		** "To turn off the prefetchable memory address range,
-+		** write the prefetchable memory base address register
-+		** with a value greater than that of the prefetchable
-+		** memory limit address register...."
-+		**
-+		** We can't otherwise disable Prefetchable mem window
-+		** since the PCI_COMMAND_MEMORY bit is shared with
-+		** non-prefetchable MEM window register.
-+		*/
-+		l = 0x0000ffff;
-+	} else {
-+		l = (bus->resource[2]->start >> 16) & 0xfff0;
-+		l |= bus->resource[2]->end & 0xfff00000;
-+	}
- 	pci_write_config_dword(bridge, PCI_PREF_MEMORY_BASE, l);
- 
-+#ifdef __hppa__
-+/* XXX FIXME
-+** PCI_BRIDGE_CONTROL and PCI_COMMAND programming need to be revisited
-+** to support FBB.  Make all this crud "configurable" by the arch specific
-+** (ie "PCI BIOS") support and the ifdef __hppa__ crap can go away then.
-+*/
-+	/*
-+	** ISA stuff confuses PDC PAT configuration.
-+	** VGA will probably crash the system at the moment.
-+	** (Fortunately, only _A_ dares install VGA in a parisc box :^)
-+	** - ggg
-+	*/
-+	l = PCI_BRIDGE_CTL_PARITY | PCI_BRIDGE_CTL_SERR;
-+#else
- 	/* Check if we have VGA behind the bridge.
- 	   Enable ISA in either case. */
- 	l = (bus->resource[0]->flags & IORESOURCE_BUS_HAS_VGA) ? 0x0c : 0x04;
-+#endif
- 	pci_write_config_word(bridge, PCI_BRIDGE_CONTROL, l);
-+
-+
-+	pci_write_config_dword(bridge, PCI_COMMAND, 0xffff0007
-+#ifdef __hppa__
-+			/* servers definitely want SERR/PERR enabled. */
-+			| PCI_COMMAND_SERR | PCI_COMMAND_PARITY
-+#endif
-+		);
- }
- 
--static void __init
-+
-+void __init
- pbus_assign_resources(struct pci_bus *bus, struct pbus_set_ranges_data *ranges)
- {
- 	struct list_head *ln;
-@@ -183,24 +236,16 @@ pbus_assign_resources(struct pci_bus *bu
- 		ranges->found_vga = 1;
- 		/* Propogate presence of the VGA to upstream bridges */
- 		for (b = bus; b->parent; b = b->parent) {
--#if 0
--			/* ? Do we actually need to enable PF memory? */
--			b->resource[2]->start = 0;
--#endif
- 			b->resource[0]->flags |= IORESOURCE_BUS_HAS_VGA;
- 		}
- 	}
-+
- 	for (ln=bus->children.next; ln != &bus->children; ln=ln->next) {
- 		struct pci_bus *b = pci_bus_b(ln);
- 
--		b->resource[0]->start = ranges->io_start = ranges->io_end;
--		b->resource[1]->start = ranges->mem_start = ranges->mem_end;
--
-+		ranges->io_start = ranges->io_end;
-+		ranges->mem_start = ranges->mem_end;
- 		pbus_assign_resources(b, ranges);
--
--		b->resource[0]->end = ranges->io_end - 1;
--		b->resource[1]->end = ranges->mem_end - 1;
--
- 		pci_setup_bridge(b);
- 	}
- }
-Index: drivers/pci/setup-res.c
-===================================================================
-RCS file: /home/cvs/parisc/linux/drivers/pci/setup-res.c,v
-retrieving revision 1.1.1.3
-retrieving revision 1.7
-diff -u -p -r1.1.1.3 -r1.7
---- setup-res.c	2001/01/09 16:57:56	1.1.1.3
-+++ setup-res.c	2001/02/22 01:11:47	1.7
-@@ -14,6 +14,8 @@
- /*
-  * Nov 2000, Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-  *	     Resource sorting
-+ * Feb 2001, Grant Grundler <gurndler@puffin.external.hp.com>
-+ *           Fix PCI-PCI bridge support and add __hppa__ support
-  */
- 
- #include <linux/init.h>
-@@ -25,7 +27,7 @@
- #include <linux/slab.h>
- 
- 
--#define DEBUG_CONFIG 1
-+#define DEBUG_CONFIG 0
- #if DEBUG_CONFIG
- # define DBGC(args)     printk args
- #else
-@@ -115,7 +117,7 @@ pci_assign_resource(struct pci_dev *dev,
- 		 * window (it will just not perform as well).
- 		 */
- 		if (!(res->flags & IORESOURCE_PREFETCH) || pci_assign_bus_resource(bus, dev, res, size, min, 0, i) < 0) {
--			printk(KERN_ERR "PCI: Failed to allocate resource %d for %s\n", i, dev->name);
-+			printk(KERN_ERR "PCI: Failed to allocate resource %d for %s\n", i, dev->slot_name);
- 			return -EBUSY;
- 		}
- 	}
-@@ -138,11 +140,13 @@ pdev_sort_resources(struct pci_dev *dev,
- 		struct resource_list *list, *tmp;
- 		unsigned long r_size;
- 
-+#ifndef __hppa__
- 		/* PCI-PCI bridges may have I/O ports or
- 		   memory on the primary bus */
- 		if (dev->class >> 8 == PCI_CLASS_BRIDGE_PCI &&
- 						i >= PCI_BRIDGE_RESOURCES)
- 			continue;
-+#endif
- 
- 		r = &dev->resource[i];
- 		r_size = r->end - r->start;
+Yes, most of the time, Debian's great packaging system
+takes care these details automatically, so we don't need
+to dive into these details.
+This time, I was experimenting with devfs/devfsd before
+the stable release of Debian incorporates devfs yet.
+Being a curious type, I could not help wondering
+why "sg" was loaded automagically, and found out
+that I didn't know much about Debian's own module config
+mechanism at all!
+
+cf. pages I found after google search Debian /etc/modules
+
+Some exchanges concerning this on debian-user mailing list:
+    http://www.geocrawler.com/archives/3/199/2000/7/50/4119224/
+    http://www.geocrawler.com/archives/3/199/2000/7/50/4119745/
+
+A page about module usage (generic explanation, but it has a
+caveat abut Debain near the end.)
+    http://www.users.dircon.co.uk/~trix/Raven/EyeView/SSR02/SSR02-10.htm
+
+One posting to lpi-discuss mailing list (I think this is where
+the discussion on the proposed Linux professional certificate
+of a sort is done. A paragraph mentions the inter-distribution
+differences of various config files related to modules.
+Wish I had known
+about the differences in advance.)
+    http://www.lpi.org/archives/lpi-discuss/2000-02/msg00003.html
+
+One user of filesystem coda was also confused initially
+but figured it out about how Debian module config system worked.
+    http://www.coda.cs.cmu.edu/maillists/codalist-2000/0337.html
+
+One post to a mailing list where the debian way of module
+loading, /etc/modules, is mentioend very briefly. Long URL.
+
+http://faqchest.dynhost.com/linux/KPLUG/kplug-00/kplug-0010/kplug-001014/kplug00101608_14774.html
+
+PS: my original comment about the
+devfs readme file under /usr/src/linux/Documentation/fs/devfs is still valid.
+The device names are not quite up to date  and match the currently used ones.
+I wonder if someone in the know can upgrade at least the  device names in the file.
+
+[end of mail.]
+
+

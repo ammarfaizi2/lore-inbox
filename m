@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262368AbUDHTjN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 15:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUDHTjN
+	id S262370AbUDHTs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 15:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbUDHTs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 15:39:13 -0400
-Received: from mail.cyclades.com ([64.186.161.6]:3250 "EHLO intra.cyclades.com")
-	by vger.kernel.org with ESMTP id S262368AbUDHTjM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 15:39:12 -0400
-Date: Thu, 8 Apr 2004 16:11:09 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linux-kernel@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: Linux 2.4.26-rc2
-Message-ID: <20040408191109.GA15888@logos.cnet>
-References: <20040406004251.GA24918@logos.cnet> <16498.3704.252459.691039@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16498.3704.252459.691039@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.5.1i
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Thu, 8 Apr 2004 15:48:27 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:55956 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262370AbUDHTs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 15:48:26 -0400
+Date: Thu, 8 Apr 2004 20:48:22 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+cc: mbligh@aracnet.com, <akpm@osdl.org>, <andrea@suse.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: NUMA API for Linux
+In-Reply-To: <Pine.LNX.4.58.0404081503110.28416@ruby.engin.umich.edu>
+Message-ID: <Pine.LNX.4.44.0404082029390.7600-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 11:57:12AM +1000, Paul Mackerras wrote:
-> Marcelo,
+On Thu, 8 Apr 2004, Rajesh Venkatasubramanian wrote:
 > 
-> Any chance of getting this patch in before 2.4.26 final?
+> I guess using vm_private_data for nonlinear is not a problem because
+> we use list i_mmap_nonlinear for nonlinear vmas.
 > 
-> This patch is needed for compiling 2.4 with recent versions of gcc,
-> such as the gcc 3.3.3 hammer branch or gcc 3.4.  The gcc developers
-> changed the name of the attribute that indicates that something is
-> actually needed, even though gcc can't see why, from "__unused__" to
-> "__used__".  This patch copes with that.
-> 
-> The patch is from Stephen Rothwell.  He discovered the problem on
-> ppc64, but in fact it would exist on any architecture.
+> As you have found out vm_private_data is only used if vm_file != NULL
+> or VM_RESERVED or VM_DONTEXPAND is set. I think we can revert back to
+> i_mmap{_shared} list for such special cases and use prio_tree for
+> others. I maybe missing something. Please teach me.
 
-Applied, 
+Sorry, I don't understand what you're proposing here, and why?
+Oh, to save 4 bytes of vma by making the special cases use a list,
+no need for vm_set_head, and vm_private_data for the driver itself;
+but regular vmas use prio_tree, with vm_set_head in vm_private_data.
+Hmm, right now it's getting too much for me: can we keep it simplish
+for now, and come back to this later?
 
-thanks!
+Hugh
+

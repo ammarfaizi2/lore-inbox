@@ -1,100 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263983AbTLTMab (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 07:30:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264126AbTLTMab
+	id S264126AbTLTMko (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 07:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264258AbTLTMkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 07:30:31 -0500
-Received: from mail1.cc.huji.ac.il ([132.64.1.17]:679 "EHLO
-	mail1.cc.huji.ac.il") by vger.kernel.org with ESMTP id S263983AbTLTMaS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 07:30:18 -0500
-Date: Sat, 20 Dec 2003 14:30:16 +0200 (IST)
-From: Voicu Liviu <pacman@mscc.huji.ac.il>
-To: Craig Bradney <cbradney@zip.com.au>
-Cc: Disconnect <lkml@sigkill.net>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4] Nforce2 oops and occasional hang (tried the lockups patch,
- no difference)
-In-Reply-To: <1071865339.9969.3.camel@athlonxp.bradney.info>
-Message-ID: <Pine.LNX.4.44.0312201428270.17852-100000@pluto.mscc.huji.ac.il>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 20 Dec 2003 07:40:43 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:3456 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S264126AbTLTMkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 07:40:33 -0500
+Date: Sat, 20 Dec 2003 12:46:25 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200312201246.hBKCkP4a000191@81-2-122-30.bradfords.org.uk>
+To: ryutaroh@it.ss.titech.ac.jp, vojtech@suse.cz
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031220.185244.71103628.ryutaroh@it.ss.titech.ac.jp>
+References: <20031219123645.GA28801@ucw.cz>
+ <20031220.183049.74735752.ryutaroh@it.ss.titech.ac.jp>
+ <20031220093532.GB6017@ucw.cz>
+ <20031220.185244.71103628.ryutaroh@it.ss.titech.ac.jp>
+Subject: Re: [PATCH] cannot input bar with JP106 keyboards
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Dec 2003, Craig Bradney wrote:
-
-> On Fri, 2003-12-19 at 18:24, Disconnect wrote:
-> > On Thu, 2003-12-18 at 13:52, Disconnect wrote:
-> > > memory/cpu timings.  (Even underclocked it to 133 and 1G with no
-> > > change.)  So its unfortunately back on a stock 2.4.23-pre9 with
-> > > noapic/noacpi. (It disables one of the sets of usb ports, as I recall,
-> > > but it mostly works...)
+> > > By the way, the bar key on JP 106 keyboard is actually the backslash
+> > > key and bar is equal to shift-backslash on JP 106. But there is
+> > > another backslash key (scancode 0x73) and input of backslash is not a
+> > > problem.
 > > 
-> > Update: Underclocked from 1.8G to 1.2G (whups, meant to go down only
-> > 2-300mhz) and its been vaguely stable for about 1.5 days.  I don't have
-> > another week (yet..) to run it under its normal load and wait for a
-> > crash, so what I'm going to do is:
-> >  - Move the workload (web/mail/..) to a different machine so this one
-> > can be down for an extended period
-> >  - Replace the ram with new sticks (they arrived this morning)
-> >  - Reclock everything to stock (1.83G cpu, 200mhz ram and verify the
-> > timings from kingston)
-> >  - Replace the video card
-> >  - Memtest86 until it cries
-> >  - If it passes, bonnie++ on the new drives
-> >  - If that passes, usb/acpi/apic testing with the associated patches
-> > 
-> > Anyone still watching this?  Tips and suggestions on what else might be
-> > useful/informative are more than welcome.  The tests above mostly
-> > replicate what I did when building this box, and it passed them then..
-> > 
-> > Recap:
-> >  Epox 8rda+ nforce2 mobo
-I have Epox 8rda3+
-> >  AMD Athlon XP 2500+ (Barton) 1.83G
-same
-> >  Kingston HyperX PC3200
-corsair twinx 512 (2 stiks of 256)
-> >  WD Caviar WD1200JB 8M/UDMA100
-seagate
-> >  Antec case w/ 350W AMD-certified PSU
-black case (not something special)
-My system works with 2.4 and 2.6 even overclocked to 10x190 (1900 Mhz)
-Cheers
-
-> > 
-> > Oopses and occasional hangs, usually in do_generic_file_read, using
-> > stock kernel.org 2.4.2x kernels.  Hardware passed testing (memtest86,
-> > bonnie++) before I put Linux on it.
+> > Keycode 183 is correct for the japanese backslash key. 2.4 didn't
+> > differentiate, 2.6 does. You just need to update your keymap.
 > 
-> Does this not relate directly to the APIC/IOAPIC issues with 2.6 kernel
-> and nforce chipset motherboards? 
+> 2.4 kernel does differentiate two backslash key on JP 106 keyboard.
 > 
-> Craig
+> When I press lower-right backslash (scancode 0x73), I get keycode
+> 89 on both Linux 2.4 and 2.6.
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> When I press upper-right backslash (scancode 0x7d), whose key top is
+> Japanese yen and bar, I get keycode 124 on Linux 2.4 but 183 on Linux
+> 2.6.
 > 
+> Is the change of keycode of upper-right backslash a new feature of
+> Linux 2.6? What is the advantage of this new feature?
 
--- 
-Liviu Voicu
-Assistant Programmer and network support
-Computation Center, Mount Scopus
-Hebrew University of Jerusalem
-Tel: 972(2)-5881253
-E-mail: "Liviu Voicu"<pacman@mscc.huji.ac.il>
+The placement of some keys seems to have changed over time.  For
+example, tilde was once shift-0, whilst shift-caret was once overbar.
+My keyboard is marked in this way, and I am used to using shift-0 for
+tilde, however, shift-caret is apparently now popular as tilde, with
+shift-0 producing nothing.
 
-/**
- * cat /usr/src/linux/arch/i386/boot/bzImage > /dev/dsp
- * ( and the voice of God will be heard! )
- *
- */
+Backslash and Yen share the same code in 8-bit variations of
+ASCII-based.  Therefore, the lower-right backslash key and the
+upper-right Yen key may in some cases be used interchangably.
 
-Click here to see my GPG signature:
-----------------------------------
-	http://search.keyserver.net:11371/pks/lookup?template=netensearch%2Cnetennomatch%2Cnetenerror&search=pacman%40mscc.huji.ac.il&op=vindex&fingerprint=on&submit=Get+List
+However, with unicode representations, both backslash and Yen and
+tilde and overbar have separate codes and I personally think it would
+be a good idea to default to the traditional key-mappings, so that
+these characters can be easily input on systems which correctly
+support them.
 
+Note - whilst I am fairly sure the above information is accurate, I am
+less sure about the following:
+
+As I understand it there was traditionally a distinction between pipe,
+(a broken vertical line), and bar, (solid vertical line).
+
+The markings on my keyboard are as follows:
+
+Pipe is the fourth character on the lower-right backslash key.
+Bar is the second character on the upper-right yen key.
+
+However, my keyboard emulates a US one in Set 2, and produces the
+Linux 'pipe' symbol, for example as in
+
+cat foo | less
+
+when the bar key is pressed.
+
+John.

@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265239AbTF1Ovo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 10:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265251AbTF1Ovo
+	id S265253AbTF1O6D (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 10:58:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbTF1O6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 10:51:44 -0400
-Received: from www.wireboard.com ([216.151.155.101]:34212 "EHLO
-	varsoon.wireboard.com") by vger.kernel.org with ESMTP
-	id S265239AbTF1Ovo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 10:51:44 -0400
-To: Joshua Penix <jpenix@binarytribe.com>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 28 Jun 2003 10:58:03 -0400
+Received: from mail47-s.fg.online.no ([148.122.161.47]:18384 "EHLO
+	mail47.fg.online.no") by vger.kernel.org with ESMTP id S265253AbTF1O6B convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 10:58:01 -0400
+From: Svein Ove Aas <svein.ove@aas.no>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Dell vs. GPL
-References: <Pine.LNX.4.44.0306280005000.29249-100000@gibson.mw.luc.edu>
-	<1056780761.10255.10.camel@granite>
-From: Doug McNaught <doug@mcnaught.org>
-Date: 28 Jun 2003 11:05:59 -0400
-In-Reply-To: Joshua Penix's message of "27 Jun 2003 23:12:41 -0700"
-Message-ID: <m3n0g21bu0.fsf@varsoon.wireboard.com>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.7
+Date: Sat, 28 Jun 2003 17:12:13 +0200
+User-Agent: KMail/1.5.2
+References: <Pine.LNX.4.44.0306280005000.29249-100000@gibson.mw.luc.edu> <1056780761.10255.10.camel@granite> <m3n0g21bu0.fsf@varsoon.wireboard.com>
+In-Reply-To: <m3n0g21bu0.fsf@varsoon.wireboard.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200306281712.15947.svein.ove@aas.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Penix <jpenix@binarytribe.com> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Fri, 2003-06-27 at 22:51, Fluke wrote:
-> >   Dell is providing binary only derived works of the Linux kernel and the 
-> > modutils package at ftp://ftp.dell.com/fixes/boot-floppy-rh9.tar.gz
-> > 
-> >   The GPL appears to provide four terms under section 3 that Dell may 
-> > legally redistribute these works:
-> > 
-> > - In regards to GPL 3a, Dell does *NOT* provide the source code as part of 
-> > the tar.gz
-> 
-> Stop right there.  Yes they do.  Mount those images and you'll find boot
-> disks identical to the RedHat-provided ones, except that the vmlinuz
-> kernel image is different.  The difference is produced by applying the
-> 'serverworks.patch' file that is ALSO included right along with the disk
-> images.
+lørdag 28. juni 2003, 17:05, skrev Doug McNaught:
+> AIUI, they need to supply full source, not just a patch against code
+> you get from someone else.
 
-AIUI, they need to supply full source, not just a patch against code
-you get from someone else.
+Now that's just silly.
 
--Doug
+The kernel is *how* many megabytes?
+And it's very easily available. You may be right, but if you are it's for very 
+legalistic reasons that don't matter in real life.
+
+Personally I'd rather download a small patch than a multi-megabyte kernel 
+nearly identical to the one I have in /usr/src.
+
+- - Svein Ove Aas
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+/bBN9OlFkai3rMARAno/AKCGYu9TuxujsubVZNiHuTxjeZChHACgoxpJ
+UCYcGhSL9MXTui3xTTfimP8=
+=58hh
+-----END PGP SIGNATURE-----
+

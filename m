@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271295AbRICGn4>; Mon, 3 Sep 2001 02:43:56 -0400
+	id <S271306AbRICHHS>; Mon, 3 Sep 2001 03:07:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271304AbRICGnr>; Mon, 3 Sep 2001 02:43:47 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:196 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S271295AbRICGng>;
-	Mon, 3 Sep 2001 02:43:36 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: scsi_lib.c undefined symbol 
-In-Reply-To: Your message of "Mon, 03 Sep 2001 00:19:17 -0400."
-             <3B9304C5.4070006@lycosmail.com> 
+	id <S271318AbRICHHI>; Mon, 3 Sep 2001 03:07:08 -0400
+Received: from fe010.worldonline.dk ([212.54.64.195]:2579 "HELO
+	fe010.worldonline.dk") by vger.kernel.org with SMTP
+	id <S271310AbRICHGw>; Mon, 3 Sep 2001 03:06:52 -0400
+Date: Mon, 3 Sep 2001 09:07:03 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jonathan Lahr <lahr@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: io_request_lock/queue_lock patch
+Message-ID: <20010903090703.C6875@suse.de>
+In-Reply-To: <20010830134930.F23680@us.ibm.com> <20010831075613.A2855@suse.de> <20010831075201.N23680@us.ibm.com> <20010831200333.A9069@suse.de> <20010831113308.A28193@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 03 Sep 2001 16:43:38 +1000
-Message-ID: <16485.999499418@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <20010831113308.A28193@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 03 Sep 2001 00:19:17 -0400, 
-Adam Schrotenboer <ajschrotenboer@lycosmail.com> wrote:
->I have gotten this a couple times w/ other versions of the kernel, but 
->this is 2.4.9-ac6. (2.4.8-ac12 worked, but that may be a fluke)
->
->gcc -D__KERNEL__ -I/mnt/hda3/kernel/2.4.9-ac6/linux/include -Wall 
->-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
->-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
->-march=athlon  -DMODULE -DMODVERSIONS -include 
->/mnt/hda3/kernel/2.4.9-ac6/linux/include/linux/modversions.h   -c -o 
->scsi_lib.o scsi_lib.c
->scsi_lib.c: In function `__scsi_end_request':
->scsi_lib.c:379: `queued_sectors_Rc37b18c1' undeclared (first use in this 
->function)
+On Fri, Aug 31 2001, Jonathan Lahr wrote:
+> 
+> > > Please elaborate on "no, no, no".   Are you suggesting that no further
+> > > improvements can be made or should be attempted on the 2.4 i/o subsystem?
+> > 
+> > Of course not. The no no no just means that attempting to globally remove the
+> > io_request_lock at this point is a no-go, so don't even go there. The
+> > sledgehammer approach will not fly at this point, it's just way too risky.
+> 
+> I agree that reducing locking scope is often problematic.  However,
+> this patch does not globally remove the io_request_lock.  The purpose
+> of the patch is to protect request queue integrity with a per queue 
+> lock instead of the global io_request_lock.  My intent was to leave 
+> other io_request_lock serialization intact.  Any insight into whether
+> the patch leaves data unprotected would be appreciated.
 
-User error.  scsi_lib.c comes from 2.4.9-ac6 but include/linux/blkdev.h
-is still at base 2.4.9.  Your patches did not apply clean, start from a
-fresh source tree and retry.  blkdev.h must contain queued_sectors, it
-must not contain max_segments.
+You are now browsing the request list without agreeing on what lock is
+being held -- what happens to drivers assuming that io_request_lock
+protects the list? Boom. For 2.4 we simply cannot afford to muck around
+with this, it's jsut too dangerous. For 2.5 I already completely removed
+the io_request_lock (also helps to catch references to it from drivers).
+
+I agree with your SCSI approach, it's the same we took. Low level
+drivers must be responsible for their own locking, the mid layer should
+not pre-grab anything for them. 
+
+-- 
+Jens Axboe
 

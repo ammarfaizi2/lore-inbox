@@ -1,88 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263936AbTKSQte (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 11:49:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263938AbTKSQte
+	id S263941AbTKSRLa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 12:11:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263938AbTKSRLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 11:49:34 -0500
-Received: from spoetnik.kulnet.kuleuven.ac.be ([134.58.240.46]:48842 "EHLO
-	spoetnik.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id S263936AbTKSQta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 11:49:30 -0500
-From: Frank Dekervel <kervel@drie.kotnet.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test9-mm4 (does not boot)
-Date: Wed, 19 Nov 2003 17:49:28 +0100
-User-Agent: KMail/1.5.93
-MIME-Version: 1.0
+	Wed, 19 Nov 2003 12:11:30 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:6120 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S263941AbTKSRL3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 12:11:29 -0500
+Date: Wed, 19 Nov 2003 17:06:14 +0000
+From: Dave Jones <davej@redhat.com>
+To: kernel@mikebell.org, linux-kernel@vger.kernel.org
+Subject: Re: /proc/mtrr in 2.6
+Message-ID: <20031119170614.GB27802@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, kernel@mikebell.org,
+	linux-kernel@vger.kernel.org
+References: <20031119051233.GB1485@mikebell.org> <20031119161044.GA27802@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200311191749.28327.kervel@drie.kotnet.org>
+In-Reply-To: <20031119161044.GA27802@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+On Wed, Nov 19, 2003 at 04:10:44PM +0000, Dave Jones wrote:
+ > On Tue, Nov 18, 2003 at 09:12:34PM -0800, kernel@mikebell.org wrote:
+ >  > In 2.6, having /proc/mtrr support in a kernel run on a system which
+ >  > lacks MTRR support (like my crusoe) results in /proc/mtrr existing, but
+ >  > giving EIO if you try to read it. On 2.4, it is detected as not existing
+ >  > and not created. Is this the new intentional behaviour, or just a bug?
+ > 
+ > Need something like this perhaps ?
 
-2.6.0-test9-mm4 doesn't boot for me ... oops followed by 
-kernel panic - attempted to kill init (2.6.0-test9 works fine). 
-it crashes right after initialising PNP  bios. The (undecoded) oops doesn't 
-seem to make a lot of  sense (i wrote the oops down and i typed it in), and 
-ksymoops doesn't show a lot too. 
-
-Someone has an idea what this could be, or a hint to improve oops 
-output ? (i can reproduce it as much as i want to)
-
-------------------- oops output
-general protection fault: 0000 [#1]
-PREEMPT SMP
-CPU: 0
-EIP: 0098:[<00002d6c>] Not tainted VLI
-EFLAGS: 00010097
-EIP is at 0x2d6c
-eax: 00003410 ebx: 00000082  ecx: 00020000 edx: 00000002
-esi: 00002630 edi: c1a4004d  ebp: c1a40000 esp: c1a47ee2
-ds: 0060 es: 0060 ss:0068
-Process swapper (PID:1 threadinfo=c1a46000 task=c1a5f980)
-Stack: 00000410 341026de 00000000 836d004d 0004cfea 00020002 7f28830c cfeacff2
-       64090909 01090109 007b6264 6000007b 00a00246 622000b0 00a861e6 00000086
-       000b0000 00010090 00a80000 00b00000 00a00002 bee90000 0060c02b 00820000
-Call Trace:
-
-Code:
-      bad EIP Value
-
------------------- ksymoops -V -K -L -o /lib/modules/2.6.0-test9-mm4/ -m /boot/System.map-2.6.0-test9-mm4 < /root/oops.txt
-
-Warning (Oops_read): Code line not seen, dumping what data is available
+Better yet, get the logic right..
 
 
->>EIP; 00002d6c Before first symbol   <=====
+--- linux-2.5/arch/i386/kernel/cpu/mtrr/if.c~	Wed Nov 19 17:04:50 2003
++++ linux-2.5/arch/i386/kernel/cpu/mtrr/if.c	Wed Nov 19 17:05:29 2003
+@@ -352,6 +352,14 @@
+ 
+ static int __init mtrr_if_init(void)
+ {
++	struct cpuinfo_x86 *c = &boot_cpu_data;
++
++	if ((!cpu_has(c, X86_FEATURE_MTRR)) &&
++		(!cpu_has(c, X86_FEATURE_K6_MTRR)) &&
++		(!cpu_has(c, X86_FEATURE_CYRIX_ARR)) &&
++		(!cpu_has(c, X86_FEATURE_CENTAUR_MCR)))
++	return -ENODEV;
++
+ 	proc_root_mtrr =
+ 	    create_proc_entry("mtrr", S_IWUSR | S_IRUGO, &proc_root);
+ 	if (proc_root_mtrr) {
 
->>edi; c1a4004d <__crc_unregister_chrdev+112bbc/1668b5>
->>ebp; c1a40000 <__crc_unregister_chrdev+112b6f/1668b5>
->>esp; c1a47ee2 <__crc_unregister_chrdev+11aa51/1668b5>
-
-----------------
-
-
-
-
-
-op Wednesday 19 November 2003 07:52 , schreef Andrew Morton  in <20031118225120.1d213db2.akpm@osdl.org> :
-
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/
-> 
-> 
-> . Several fixes against patches which are only in -mm at present.
-> 
-> . Minor fixes which we'll queue for post-2.6.0.
-> 
-> . The interactivity problems which the ACPI PM timer patch showed up
->   should be fixed here - please sing out if not.
--- 
-Frank Dekervel - frank.dekervel@student.kuleuven.ac.be
-Mechelsestraat 88
-3000 Leuven (Belgium)

@@ -1,157 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265872AbTBPFJl>; Sun, 16 Feb 2003 00:09:41 -0500
+	id <S265543AbTBPFH6>; Sun, 16 Feb 2003 00:07:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265890AbTBPFJl>; Sun, 16 Feb 2003 00:09:41 -0500
-Received: from [209.195.52.121] ([209.195.52.121]:5022 "HELO
-	warden2b.diginsite.com") by vger.kernel.org with SMTP
-	id <S265872AbTBPFJi>; Sun, 16 Feb 2003 00:09:38 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Nicolas Pitre <nico@cam.org>
-Cc: Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-Date: Sat, 15 Feb 2003 21:18:42 -0800 (PST)
-Subject: Re: openbkweb-0.0
-In-Reply-To: <Pine.LNX.4.44.0302151836370.13273-100000@xanadu.home>
-Message-ID: <Pine.LNX.4.44.0302152104500.6594-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265570AbTBPFH6>; Sun, 16 Feb 2003 00:07:58 -0500
+Received: from virtisp1.zianet.com ([216.234.192.105]:40964 "HELO
+	mesatop.zianet.com") by vger.kernel.org with SMTP
+	id <S265543AbTBPFH4>; Sun, 16 Feb 2003 00:07:56 -0500
+Subject: [PATCH] 2.5.61 yet more pedantry: complement vs compliment.
+From: Steven Cole <elenstev@mesatop.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 15 Feb 2003 22:09:34 -0700
+Message-Id: <1045372175.5611.121.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, as I see it there are two different groups wanting access to this
-stuff without useing bitkeeper.
+A compliment is an expression of esteem, respect, affection, or
+admiration.  As far as I can tell, this word does not yet have a
+place in the kernel source.  
 
-1. people who want to get a copy of that the kernel looks like right NOW
-for who the currently hourly diffs and mailing list of patch submissions
-isn't good enough.
+A complement on the other hand, is what is meant in the following
+places.  Diffed against 2.5.61 up through cset 1.1043.
 
-These people want CVS/rsync access to the files, cut could probably be
-satisfied with FTP/HTTP access and appropriate mirroring software.
+Steven
 
-2. people who can't/won't use bitkeeper but who want not only the
-resulting files, but also all the underlying change history info.
+diff -ur linux-2.5.61-1043-orig/Documentation/s390/Debugging390.txt linux-2.5.61-1043/Documentation/s390/Debugging390.txt
+--- linux-2.5.61-1043-orig/Documentation/s390/Debugging390.txt	Thu Jan 16 19:21:42 2003
++++ linux-2.5.61-1043/Documentation/s390/Debugging390.txt	Sat Feb 15 21:50:01 2003
+@@ -10,7 +10,7 @@
+ This document is intended to give an good overview of how to debug 
+ Linux for s/390 & z/Architecture it isn't intended as a complete reference & not a
+ tutorial on the fundamentals of C & assembly, it dosen't go into
+-390 IO in any detail. It is intended to compliment the documents in the
++390 IO in any detail. It is intended to complement the documents in the
+ reference section below & any other worthwhile references you get.
+ 
+ It is intended like the Enterprise Systems Architecture/390 Reference Summary
+diff -ur linux-2.5.61-1043-orig/arch/alpha/lib/csum_ipv6_magic.S linux-2.5.61-1043/arch/alpha/lib/csum_ipv6_magic.S
+--- linux-2.5.61-1043-orig/arch/alpha/lib/csum_ipv6_magic.S	Thu Jan 16 19:21:44 2003
++++ linux-2.5.61-1043/arch/alpha/lib/csum_ipv6_magic.S	Sat Feb 15 21:50:01 2003
+@@ -84,7 +84,7 @@
+ 	extwl	$0,2,$1		# e0    : fold 17-bit value
+ 	zapnot	$0,3,$0		# .. e1 :
+ 	addq	$0,$1,$0	# e0    :
+-	not	$0,$0		# e1    : and compliment.
++	not	$0,$0		# e1    : and complement.
+ 
+ 	zapnot	$0,3,$0		# e0    :
+ 	ret			# .. e1 :
+diff -ur linux-2.5.61-1043-orig/arch/ppc/kernel/irq.c linux-2.5.61-1043/arch/ppc/kernel/irq.c
+--- linux-2.5.61-1043-orig/arch/ppc/kernel/irq.c	Thu Jan 16 19:22:30 2003
++++ linux-2.5.61-1043/arch/ppc/kernel/irq.c	Sat Feb 15 21:50:01 2003
+@@ -20,7 +20,7 @@
+  * The MPC8xx has an interrupt mask in the SIU.  If a bit is set, the
+  * interrupt is _enabled_.  As expected, IRQ0 is bit 0 in the 32-bit
+  * mask register (of which only 16 are defined), hence the weird shifting
+- * and compliment of the cached_irq_mask.  I want to be able to stuff
++ * and complement of the cached_irq_mask.  I want to be able to stuff
+  * this right into the SIU SMASK register.
+  * Many of the prep/chrp functions are conditional compiled on CONFIG_8xx
+  * to reduce code space and undefined function references.
+diff -ur linux-2.5.61-1043-orig/drivers/char/rio/rioboot.c linux-2.5.61-1043/drivers/char/rio/rioboot.c
+--- linux-2.5.61-1043-orig/drivers/char/rio/rioboot.c	Thu Jan 16 19:21:47 2003
++++ linux-2.5.61-1043/drivers/char/rio/rioboot.c	Sat Feb 15 21:50:01 2003
+@@ -410,7 +410,7 @@
+ 		** compatible with the whole Tp family. (lies, damn lies, it'll never
+ 		** work in a month of Sundays).
+ 		**
+-		** The nfix nyble is the 1s compliment of the nyble value you
++		** The nfix nyble is the 1s complement of the nyble value you
+ 		** want to load - in this case we wanted 'F' so we nfix loaded '0'.
+ 		*/
+ 
+diff -ur linux-2.5.61-1043-orig/drivers/scsi/aic7xxx/aic79xx.reg linux-2.5.61-1043/drivers/scsi/aic7xxx/aic79xx.reg
+--- linux-2.5.61-1043-orig/drivers/scsi/aic7xxx/aic79xx.reg	Mon Feb 10 12:23:02 2003
++++ linux-2.5.61-1043/drivers/scsi/aic7xxx/aic79xx.reg	Sat Feb 15 21:50:01 2003
+@@ -3725,7 +3725,7 @@
+ 
+ 	/*
+ 	 * The minimum number of commands still outstanding required
+-	 * to continue coalessing (2's compliment of value).
++	 * to continue coalessing (2's complement of value).
+ 	 */
+ 	INT_COALESSING_MINCMDS {
+ 		size		1
+diff -ur linux-2.5.61-1043-orig/include/asm-mips64/sn/launch.h linux-2.5.61-1043/include/asm-mips64/sn/launch.h
+--- linux-2.5.61-1043-orig/include/asm-mips64/sn/launch.h	Thu Jan 16 19:22:44 2003
++++ linux-2.5.61-1043/include/asm-mips64/sn/launch.h	Sat Feb 15 21:50:01 2003
+@@ -52,7 +52,7 @@
+ /*
+  * The launch routine is called only if the complement address is correct.
+  *
+- * Before control is transferred to a routine, the compliment address
++ * Before control is transferred to a routine, the complement address
+  * is zeroed (invalidated) to prevent an accidental call from a spurious
+  * interrupt.
+  *
+diff -ur linux-2.5.61-1043-orig/include/asm-mips64/sn/nmi.h linux-2.5.61-1043/include/asm-mips64/sn/nmi.h
+--- linux-2.5.61-1043-orig/include/asm-mips64/sn/nmi.h	Thu Jan 16 19:22:13 2003
++++ linux-2.5.61-1043/include/asm-mips64/sn/nmi.h	Sat Feb 15 21:50:01 2003
+@@ -42,7 +42,7 @@
+  * The NMI routine is called only if the complement address is
+  * correct.
+  *
+- * Before control is transferred to a routine, the compliment address
++ * Before control is transferred to a routine, the complement address
+  * is zeroed (invalidated) to prevent an accidental call from a spurious
+  * interrupt.
+  *
+diff -ur linux-2.5.61-1043-orig/include/asm-sparc64/ptrace.h linux-2.5.61-1043/include/asm-sparc64/ptrace.h
+--- linux-2.5.61-1043-orig/include/asm-sparc64/ptrace.h	Thu Jan 16 19:22:21 2003
++++ linux-2.5.61-1043/include/asm-sparc64/ptrace.h	Sat Feb 15 21:50:01 2003
+@@ -268,7 +268,7 @@
+ #define PTRACE_SETFPAREGS         21
+ 
+ /* There are for debugging 64-bit processes, either from a 32 or 64 bit
+- * parent.  Thus their compliments are for debugging 32-bit processes only.
++ * parent.  Thus their complements are for debugging 32-bit processes only.
+  */
+ 
+ #define PTRACE_GETREGS64	  22
 
-This info is stored in SCCS format so just getting a current copy of the
-tree including the SCCS directories should be good enough to satisfy them
-and they can then run all the normal SCCS tools to access the info.
 
-can the SCCS stuff be exported through CVS or do these people need some
-other mechanism to get them?
 
-after my offer to admin a mirror of bkbits that provides access through
-ohter mechanisms I have been contacted by some people willing to provide
-the server/bandwidth to host such a system and we are discussing the
-details of how this will be setup so now the question is what services do
-people need from such a mirror?
-
-On the basis that it's easier to provide everything rather then to
-convince people to change tools :-) here is what I'm thinking of (all of
-these obviously read-only)
-
-CVS
-rsync
-FTP
-HTTP
-
-is there anything else people want?
-
-all of these would provide access to the raw files in the tree(s), none of
-these will provide tarballs (if you want those contact the people who are
-already hosting such services and live with the timelag)
-
-David Lang
-
- On Sat, 15 Feb 2003, Nicolas Pitre wrote:
-
-> Date: Sat, 15 Feb 2003 23:08:58 -0500 (EST)
-> From: Nicolas Pitre <nico@cam.org>
-> To: Larry McVoy <lm@bitmover.com>
-> Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
-> Subject: Re: openbkweb-0.0
->
-> On Sat, 15 Feb 2003, Larry McVoy wrote:
->
-> > On Sat, Feb 15, 2003 at 08:44:59PM +0000, Alan Cox wrote:
-> > > On Sat, 2003-02-15 at 18:12, Larry McVoy wrote:
-> > > > All of this sounds great and is exactly what is already the plan.
-> > > > There is one missing item.  A consensus in the community that if we
-> > > > provide BK, the CVS mirror, bkbits hosting, in return the community
-> > > > agrees to leave off using BK to copy BK.
-> > >
-> > > The community is an amorphous thing so thats tricky to define
-> >
-> > You're right, I thought of that after I posted.  What would probably
-> > work best is if someone who was not particularly BK friendly but
-> > is acknowledged as a Linux leader were to step forward and agree to
-> > represent the community interests.
->
-> Larry, what you ask is impossible.
->
-> This community isn't hierarchized and is unlikely to form a single opinion
-> on anything like corporate politics.  No one can be authoritative of
-> everybody else's opinion.
->
-> It doesn't work in a pull model either where you ask for things.  Rather,
-> you must push things and see how it goes, how people react.
->
-> > It's clear from the fuss this causes about every three weeks that people
-> > don't feel safe, on either side.  You're scared that we're going to do
-> > some evil thing and we're scared that you are going to do evil thing.
->
-> That might be true, but I think the BK opponents from the community are more
-> concerned by preserving their "freedom" (or ability) to access the
-> up-to-the-minute changes that appeared in the official kernel reference
-> repository, and without being forced to use a proprietary tool with a
-> proprietary protocol and with restrictive license terms.  I really think it
-> has nothing to do with BK itself beside the fact that it's BK that is used
-> to handle the data they cherish so much and no "free" path currently exists
-> to that data.  Even if hourly snapshots do exist, that still makes those
-> people sort of second class citizens.  They want the changes available to
-> them in real time but in the most purist free way too.  The best answer is a
-> CVS gateway IMHO, and then the true believers, or those who simply can't
-> comply with your license for all sort of good and legitimate reasons, won't
-> have anything against you from that moment since they won't see BK as an
-> obstacle in the way.
->
-> If a real time CVS gateway exists, and bkbits.net is pushing CVS commits to
-> kernel.org and linux.org.uk just to name those few obvious examples among
-> others, then individuals within this community will have the choice between
-> many tools according to their respective characteristics and not based on the
-> quality of service with regards to the kernel repository.
->
-> Only then people won't be able to invoke the BitMover lock-in argument
-> against the Linux community (regardless if that was your intention or not),
-> and only then will you be able to consider those who try to reverse-engineer
-> your "technology" as bad people, since invoking fair use will then be much
-> harder to legitimate.
->
-> In other words, if people can have real time change sets to the reference
-> kernel and have the possibility of ignoring you and BK entirely at the same
-> time, only then the issue will be closed.
->
-> > Maybe it's not possible, but it would be nice if we could, operating in
-> > good faith, work out some sort of agreement that made sense.  Yeah, I
-> > know it isn't binding, that the best you could do on the community side is
-> > have a bunch of people stand up and say "hey, leave BitMover alone, they
-> > are doing a good service" but I'd take that over the current mess any day.
->
-> You are doing the best you can in the terms you chose, and a lot of people
-> including myself are extremely grateful.  Your terms are just totally
-> incompatible with the view of some people.  And many of those people just
-> don't like what you do and they _never_ will, that's a simple fact of life.
-> Your only way out is to provide a mechanism that will allow them to totally
-> ignore you without impairing their access to the kernel development data.
-> BK might be way ahead at what it does, but real-time access to the kernel
-> repository must _not_ be among the advantages of BK against competitor
-> products/solutions.
->
->
-> Nicolas
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->

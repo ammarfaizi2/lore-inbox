@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287571AbRLaRXb>; Mon, 31 Dec 2001 12:23:31 -0500
+	id <S287574AbRLaRYo>; Mon, 31 Dec 2001 12:24:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287581AbRLaRXV>; Mon, 31 Dec 2001 12:23:21 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:5382 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S287577AbRLaRXL>; Mon, 31 Dec 2001 12:23:11 -0500
-Date: Mon, 31 Dec 2001 09:26:34 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: timothy.covell@ashavan.org, <Dieter.Nuetzel@hamburg.de>, <rml@tech9.net>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Balanced Multi Queue Scheduler ...
-In-Reply-To: <20011231173715.7f7e0260.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.40.0112310925440.1443-100000@blue1.dev.mcafeelabs.com>
+	id <S287575AbRLaRYc>; Mon, 31 Dec 2001 12:24:32 -0500
+Received: from h00e02954cece.ne.mediaone.net ([24.91.228.68]:17792 "EHLO
+	gonzo.amherst.genlogic.com") by vger.kernel.org with ESMTP
+	id <S287574AbRLaRYT>; Mon, 31 Dec 2001 12:24:19 -0500
+Message-ID: <3C309F51.9050908@mediaone.net>
+Date: Mon, 31 Dec 2001 12:24:33 -0500
+From: Sam Krasnik <genlogic@mediaone.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: kernel lockup?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Dec 2001, Stephan von Krawczynski wrote:
+*please cc the replies to me*
 
-> On Sun, 30 Dec 2001 15:46:13 -0800 (PST)
-> Davide Libenzi <davidel@xmailserver.org> wrote:
->
-> > > And can you please post a patch for this?
-> >
-> > http://www.xmailserver.org/linux-patches/mss-2.html#patches
->
-> Sorry, I meant for 2.4 :-)
+hello
 
-I continue the development on 2.5.x sorry. Some good news could come from
-Alan anyway.
+i have been getting some (i thought) kernel lockups. only a hard reset would
+help. originally i thought it was the emu10k1 sb live driver, and i read
+that 2.4.7 didn't have the problem (i was using 2.4.8). i also tried using
+alsa, which didn't work either.
+
+however, after seeing it still happening, i am led to believe that it may
+be some power management problem or not a kernel problem at all...
+(in which case this mailing list is NOT where i should be posting,
+sorry for the distraction if i am wrong). the lockup only happens after
+extended periods of idle time (specifically in the morning after a night
+of not using the computer). the sysrq works, so i guess it isn't a hard
+lockup? if it is kernel...what then? if not...what could be the problem?
 
 
+thx
 
-- Davide
-
+--sam
 

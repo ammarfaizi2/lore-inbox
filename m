@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289998AbSAOQIc>; Tue, 15 Jan 2002 11:08:32 -0500
+	id <S290022AbSAOQPm>; Tue, 15 Jan 2002 11:15:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290004AbSAOQIW>; Tue, 15 Jan 2002 11:08:22 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:62921 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S289998AbSAOQIN>;
-	Tue, 15 Jan 2002 11:08:13 -0500
-Date: Tue, 15 Jan 2002 11:08:11 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Paul Larson <plars@austin.ibm.com>
-cc: Davide Libenzi <davidel@xmailserver.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.2
-In-Reply-To: <Pine.LNX.4.33.0201150943210.3557-100000@eclipse.ltc.austin.ibm.com>
-Message-ID: <Pine.GSO.4.21.0201151107480.4339-100000@weyl.math.psu.edu>
+	id <S290025AbSAOQPc>; Tue, 15 Jan 2002 11:15:32 -0500
+Received: from [216.151.155.108] ([216.151.155.108]:44299 "EHLO
+	varsoon.denali.to") by vger.kernel.org with ESMTP
+	id <S290022AbSAOQP2>; Tue, 15 Jan 2002 11:15:28 -0500
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Felix von Leitner <felix-dietlibc@fefe.de>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>, Greg KH <greg@kroah.com>,
+        linux-kernel@vger.kernel.org, andersen@codepoet.org
+Subject: Re: [RFC] klibc requirements
+In-Reply-To: <Pine.LNX.4.40.0201150649430.23491-100000@dlang.diginsite.com>
+From: Doug McNaught <doug@wireboard.com>
+Date: 15 Jan 2002 11:15:18 -0500
+In-Reply-To: David Lang's message of "Tue, 15 Jan 2002 06:54:46 -0800 (PST)"
+Message-ID: <m3k7ujzj3d.fsf@varsoon.denali.to>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Lang <david.lang@digitalinsight.com> writes:
 
+> as an example (not for the boot process, but an example of a replacement
+> libc use) I use the firewall toolkit, it has been around for a _loooong_
+> time (in software terms anyway) and has a firly odd licence (free for you
+> to use, source available, cannot sell it) which is not compatable with the
+> GPL. with glibc staticly linked this makes huge binaries, with libc5 they
+> were a lot smaller. I would like to try to use this small libc for these
+> proxies, but if the library is GPL, not LGPL I'm not allowed to.
 
-On Tue, 15 Jan 2002, Paul Larson wrote:
+Hmm, I think you can; you just can't redistribute it.  Can you even
+redistribute fwtk on non-commercial terms?
 
-> On Mon, 14 Jan 2002, Davide Libenzi wrote:
-> > Linus, i've a weird behavior with 2.5.2
-> > swapon first fails at boot ( early stage ) then it succeed ( late boot
-> > stage ) but the swap is not actually activated. Running swapon by hand it
-> > reports a seccessful operation but the swap is not on.
-> > I'm trying to understand what is happening ...
-> 
-> I am having this problem also
-
-ftp.math.psu.edu/pub/viro/LB38-fix-C2
-
+-Doug
+-- 
+Let us cross over the river, and rest under the shade of the trees.
+   --T. J. Jackson, 1863

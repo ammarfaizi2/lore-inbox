@@ -1,73 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263167AbTHVNoa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 09:44:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263180AbTHVNoa
+	id S263156AbTHVNnr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 09:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbTHVNnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 09:44:30 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:61648
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S263167AbTHVNo0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 09:44:26 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Wiktor Wodecki <wodecki@gmx.de>
-Subject: Re: [PATCH]O18int
-Date: Fri, 22 Aug 2003 23:51:16 +1000
-User-Agent: KMail/1.5.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200308222231.25059.kernel@kolivas.org> <20030822134136.GA711@gmx.de>
-In-Reply-To: <20030822134136.GA711@gmx.de>
+	Fri, 22 Aug 2003 09:43:47 -0400
+Received: from [213.187.195.158] ([213.187.195.158]:24815 "EHLO
+	kokeicha.ingate.se") by vger.kernel.org with ESMTP id S263156AbTHVNnq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 09:43:46 -0400
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "Gabor Z. Papp" <gzp@papp.hu>, mostrows@speakeasy.net,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: PPPoE Oops with 2.4.22-rc
+References: <5ff3.3f388c4b.4453f@gzp1.gzp.hu>
+	<Pine.LNX.4.44.0308121415540.10199-100000@logos.cnet>
+	<39a.3f392c6f.86e8b@gzp1.gzp.hu>
+From: Marcus Sundberg <marcus@ingate.com>
+Date: 22 Aug 2003 15:43:01 +0200
+In-Reply-To: <39a.3f392c6f.86e8b@gzp1.gzp.hu>
+Message-ID: <vezni16c62.fsf_-_@inigo.ingate.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308222351.16691.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 22 August 2003 23:41, Wiktor Wodecki wrote:
-> On Fri, Aug 22, 2003 at 10:31:20PM +1000, Con Kolivas wrote:
-> Content-Description: clearsigned data
->
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > Here is a small patchlet.
-> >
-> > It is possible tasks were getting more sleep_avg credit on requeuing than
-> > they could burn off while running so I've removed the on runqueue bonus
-> > to requeuing task.
-> >
-> > Note this applies onto O16.3 or 2.6.0-test3-mm3 as O17 was dropped.
-> >
-> > This patch is also available here along with a patch against 2.6.0-test3:
-> > http://kernel.kolivas.org/2.5
-> >
-> > Con
->
-> this patch still makes my xmms skip on light io load (untar kernel
-> source, open lkml mailbox folder) while opening mozilla. Even after
-> mozilla is there xmms is still skipping. Processes take ages to spawn.
-> And no, I'm not in swap. A 'su -'is taking 10 seconds to procceed.
-> Same applies when rm -Rf'ing a kernel tree.
-> Here is some more data for the curious:
+Hi,
 
-> note the load of 11. I can even get it to 30 while doing 3 tar xf
-> bla.tar simultanously.
+this patch fixes one crash in pppoe_connect():
 
-Complete mystery.
->
-> I'm going to fetch some fish in the next two weeks in poland, so I will
-> not be able to do any more testing from sunday on. Happy coding (while I
-> stick to O10 *g*)
+--- linux-2.4.21-rc2/drivers/net/pppoe.c~	Wed May 14 00:08:52 2003
++++ linux-2.4.21-rc2/drivers/net/pppoe.c	Wed May 14 00:18:47 2003
+@@ -606,7 +606,8 @@
+ 		/* Delete the old binding */
+ 		delete_item(po->pppoe_pa.sid,po->pppoe_pa.remote);
+ 
+-		dev_put(po->pppoe_dev);
++		if (po->pppoe_dev)
++			dev_put(po->pppoe_dev);
+ 
+ 		memset(po, 0, sizeof(struct pppox_opt));
+ 		po->sk = sk;
 
-Thanks for comments. ]
-
-There it is again; the reference to darn O10. Hrm. One question before your 
-holiday; your O10 kernel is it the same kernel tree or a different/newere 
-one? I'm looking to blame something else here I know but I need to know; this 
-just doesn't hold with any testing here.
-
-Con
-
+//Marcus
+-- 
+---------------------------------------+--------------------------
+  Marcus Sundberg <marcus@ingate.com>  | Firewalls with SIP & NAT
+ Firewall Developer, Ingate Systems AB |  http://www.ingate.com/

@@ -1,196 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315192AbSGIMxg>; Tue, 9 Jul 2002 08:53:36 -0400
+	id <S315202AbSGINEt>; Tue, 9 Jul 2002 09:04:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315191AbSGIMxf>; Tue, 9 Jul 2002 08:53:35 -0400
-Received: from basket.ball.reliam.net ([213.91.6.7]:2052 "HELO
-	basket.ball.reliam.net") by vger.kernel.org with SMTP
-	id <S315171AbSGIMx0>; Tue, 9 Jul 2002 08:53:26 -0400
-Date: Tue, 9 Jul 2002 14:57:08 +0200
-From: Tobias Rittweiler <inkognito.anonym@uni.de>
-X-Mailer: The Bat! (v1.60q)
-Reply-To: Tobias Rittweiler <inkognito.anonym@uni.de>
-X-Priority: 3 (Normal)
-Message-ID: <1132541765.20020709145708@uni.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re[2]: [PATCH] 2.4 IDE core for 2.5
-In-Reply-To: <20020709124827.GA1940@suse.de>
-References: <20020709102249.GA20870@suse.de> <01742490.20020709144349@uni.de>
- <20020709124827.GA1940@suse.de>
+	id <S315207AbSGINEs>; Tue, 9 Jul 2002 09:04:48 -0400
+Received: from gw-fxb-in.genebee.msu.ru ([195.208.219.253]:61445 "EHLO
+	libro.genebee.msu.su") by vger.kernel.org with ESMTP
+	id <S315202AbSGINEr>; Tue, 9 Jul 2002 09:04:47 -0400
+Date: Tue, 9 Jul 2002 17:09:18 +0400 (MSD)
+From: Tim Alexeevsky <realtim@mail.ru>
+X-X-Sender: <tim@zhuchka>
+Reply-To: <realtim@mail.ru>
+To: Alex Riesen <Alexander.Riesen@synopsys.com>
+cc: Tim Alexeevsky <realtim@mail.ru>, <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: File accessing.
+In-Reply-To: <20020709114749.GB32293@riesen-pc.gr05.synopsys.com>
+Message-ID: <Pine.LNX.4.33.0207091657110.1450-100000@zhuchka>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jens,
+Today Alex Riesen wrote:
 
-Tuesday, July 9, 2002, 2:48:27 PM, you wrote:
+AR>On Tue, Jul 09, 2002 at 01:47:41PM +0400, Tim Alexeevsky wrote:
+AR>>    But if this is the reason for this subproblem, there are some others
+AR>> and they all seem to appear simultaneously. They all are the problems with
+AR>> accessing files. And as long as I got the first problem I will have a
+AR>> lots of them on different filesystems until I reboot the system (AFAIK).
+AR>>    Maybe the reason is some damage in global filesystem handling. (Is that
+AR>> VFS?)
+AR>that's not the reason 8-) That are consequences.
+   You mean that mistake in reiserfs lead to global filesystem error?
+   I think it did not, because I didn't mount reiserfs before all those things
+have started. And mounted it only later to find out some info on that
+partition.
 
->> After downloading each of the 7 .gz-patches, applying them without any
->> complains, I started to compile the new bzImage, but I got an error
->> in relation to the FAT support. By switching this support off
->> everything'll compile without any further problem though, and I can
->> boot from this image even.. :-)
+AR>Maybe upgrade the kernel as well? 2.4.19-rc1 seems to be quiet stable
+AR>for me and there was some changes to reiserfs since 2.4.17.
+   I think I would. As soon as I will get to the place where the
+connection speed is more than 9600 and connection itself is stable... :-/
 
-JA> Please send me your full .config, I'll fix this in the next version.
+Good luck,
 
-========================================================================
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_MODULES=y
-CONFIG_KMOD=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_PREEMPT=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_NOHIGHMEM=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PM=y
-CONFIG_APM=y
-CONFIG_APM_DO_ENABLE=y
-CONFIG_APM_DISPLAY_BLANK=y
-CONFIG_APM_REAL_MODE_POWER_OFF=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
-CONFIG_PCMCIA=y
-CONFIG_CARDBUS=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PNP=y
-CONFIG_ISAPNP=y
-CONFIG_PNPBIOS=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IPV6=y
-CONFIG_IDE=y
-CONFIG_IDE_24=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_BONDING=m
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_E100=y
-CONFIG_NET_PCMCIA=y
-CONFIG_PCMCIA_PCNET=y
-CONFIG_NET_PCMCIA_RADIO=y
-CONFIG_PCMCIA_RAYCS=y
-CONFIG_INPUT=m
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=y
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_AGP_I810=y
-CONFIG_AGP_VIA=y
-CONFIG_AGP_SIS=y
-CONFIG_AGP_ALI=y
-CONFIG_DRM=y
-CONFIG_DRM_TDFX=y
-CONFIG_DRM_RADEON=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_FAT_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_SMB_FS=m
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_852=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_15=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FBCON_CFB24=y
-CONFIG_FBCON_ACCEL=y
-CONFIG_FBCON_FONTS=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_SOUND=m
-CONFIG_SOUND_PRIME=m
-CONFIG_SOUND_OSS=m
-CONFIG_SOUND_SB=m
-CONFIG_SOUND_AWE32_SYNTH=m
-CONFIG_USB=m
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_ACM=m
-========================================================================
+                                                         Tim
 
-
--- 
-cheers,
-  Tobias
-
-http://freebits.org
+,-----------------------------------------------------------------------------.
+|                Wakko of Borg: Heeeeeeellllllllo Collective!                 |
+`-----------------------------------------------------------------------------'
 

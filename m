@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264993AbUETF5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUETGO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264993AbUETF5e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 01:57:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUETF5e
+	id S264984AbUETGO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 02:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264996AbUETGO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 01:57:34 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:34946
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S264993AbUETF5c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 01:57:32 -0400
-From: Rob Landley <rob@landley.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6 kernel header licensing.
-Date: Thu, 20 May 2004 00:56:40 -0500
-User-Agent: KMail/1.5.4
-Cc: torvalds@osdl.org, Mariusz Mazur <mmazur@kernel.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 20 May 2004 02:14:28 -0400
+Received: from hermes.py.intel.com ([146.152.216.3]:2512 "EHLO
+	hermes.py.intel.com") by vger.kernel.org with ESMTP id S264984AbUETGO0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 02:14:26 -0400
+Subject: [BKPATCH] ACPI for 2.4
+From: Len Brown <len.brown@intel.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1085033653.12359.484.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 20 May 2004 02:14:14 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405200056.40444.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using Mariusz Mazur's kernel headers package to compile my C library 
-against, and I asked him what the license on his package was.  He said it's 
-derived from the 2.6 kernel, so the license is whatever's on the 2.6 kernel.
+Hi Marcelo, please do a 
 
-That's the GPL.
+	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.4.27
 
-This means that even though these are cleaned up kernel headers with kernel 
-internal stuff stripped out, and designed to compile a userspace C library 
-against, there's a license conflict if I use the resulting C library to 
-compile anything but GPL software.  Technically, if I use them to compile BSD 
-software with the advertising clause, I can't distribute the result.  The 
-three P's (Perl, Python, and PHP) are right out.
+thanks,
+-Len
 
-Now I'm fairly certain this was not the intent.  And I could probably make a 
-case in court that the intent of header files is to provide an external API 
-to compile against, so the userspace portions of the kernel headers are 
-pretty much by definition an external interface boundary that the GPL's terms 
-won't cross.  (They define the boundary; that's what they're for.)
+ps. a plain patch is also available here:
+ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.4.27/acpi-20040326-2.4.27.diff.gz
 
-But I'd really rather just get this resolved politely now.
+This will update the following files:
 
-Would anybody on linux-kernel like to venture an opinion about whether the 
-license on Mariusz's Mazur's kernel headers package could be changed to LGPL 
-instead of GPL?  (Since that's what the LGPL is, in point of fact, for.  And 
-for years the glibc people have been grabbing kernel headers and blithely 
-using them to create an LGPL product with nobody complaining, and in fact 
-before uclibc you couldn't have a functional linux kernel sysem without it, 
-so there's a de facto license of some sort anyway that it would be nice to 
-make explicit.)
+ arch/x86_64/kernel/io_apic.c |    3 ++-
+ drivers/acpi/Makefile        |    2 +-
+ drivers/acpi/ac.c            |    2 ++
+ drivers/acpi/asus_acpi.c     |   24 ++++++++++++++++++++++++
+ drivers/acpi/battery.c       |    6 ++++++
+ drivers/acpi/bus.c           |   14 +++-----------
+ drivers/acpi/button.c        |   17 +++++++++--------
+ drivers/acpi/ec.c            |    6 ++++++
+ drivers/acpi/fan.c           |    2 ++
+ drivers/acpi/power.c         |    2 ++
+ drivers/acpi/thermal.c       |   10 ++++++++++
+ 11 files changed, 67 insertions(+), 21 deletions(-)
 
-The kernel headers in question can be found here:
+through these ChangeSets:
 
-http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
+<len.brown@intel.com> (04/05/18 1.1359.6.21)
+   [ACPI] remove /proc files before unloading modules
+   from Sau Dan Lee, Zhenyu Wang
+   http://bugzilla.kernel.org/show_bug.cgi?id=2705
 
-Linus?  Anybody?
+<len.brown@intel.com> (04/05/18 1.1359.6.20)
+   [ACPI] revert button module unload fix (OSDL 2281)
+   Cset exclude: len.brown@intel.com|ChangeSet|20040504154434|56458
+   Cset exclude: len.brown@intel.com|ChangeSet|20040428081912|57065
+   Cset exclude: len.brown@intel.com|ChangeSet|20040428054017|55837
 
--- 
-www.linucon.org: Linux Expo and Science Fiction Convention
-October 8-10, 2004 in Austin Texas.  (I'm the con chair.)
+<len.brown@intel.com> (04/05/14 1.1359.6.19)
+   [ACPI] delete IOAPIC-disable workaround on x86_64/VIA
+   BTW. looks like 2.6 has an IOMMU disable workaround here that may be
+needed or VIA in 2.4.
+   http://bugme.osdl.org/show_bug.cgi?id=1530
+
+
+
 

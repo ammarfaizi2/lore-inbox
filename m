@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263238AbTCNEAc>; Thu, 13 Mar 2003 23:00:32 -0500
+	id <S263250AbTCNEGe>; Thu, 13 Mar 2003 23:06:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263239AbTCNEAb>; Thu, 13 Mar 2003 23:00:31 -0500
-Received: from bitmover.com ([192.132.92.2]:31365 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S263238AbTCNEAa>;
-	Thu, 13 Mar 2003 23:00:30 -0500
-Date: Thu, 13 Mar 2003 20:11:14 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] BK->CVS (linux 2.4)
-Message-ID: <20030314041114.GQ7275@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20030312154759.GB13792@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030312154759.GB13792@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S263251AbTCNEGe>; Thu, 13 Mar 2003 23:06:34 -0500
+Received: from dyn-ctb-210-9-246-80.webone.com.au ([210.9.246.80]:41220 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id <S263250AbTCNEGd>;
+	Thu, 13 Mar 2003 23:06:33 -0500
+Message-ID: <3E7157C4.2040901@cyberone.com.au>
+Date: Fri, 14 Mar 2003 15:17:08 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+MIME-Version: 1.0
+To: Shane Shrybman <shrybman@sympatico.ca>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.64-mm>1 Problems starting gnome?
+References: <1047613046.2267.97.camel@mars.goatskin.org>
+In-Reply-To: <1047613046.2267.97.camel@mars.goatskin.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 12, 2003 at 07:47:59AM -0800, Larry McVoy wrote:
-> >     mkdir ws
-> >     cd ws
-> >     cvs -d:pserver:anonymous@kernel.bkbits.net:/home/cvs co linux-2.5
-> > 
-> > Each of the releases are tagged, they are of the form v2_5_64 etc.
-> 
-> This now works for linux-2.4 as well.
+Shane Shrybman wrote:
 
-New exports of 2.4 and 2.5 are up.  They should have more accurate 
-users on the deltas.  Please take a look at a file you know you 
-have modified and compare it the BK tree.  For example compare
+>Hi Andrew et al.
+>
+>I am having problems starting gnome in the 2.5.64-mmX (X>1). 2.5.64 and
+>2.5.64-mm1 work ok, 2.5.64-mm2 doesn't compile for me and the more
+>recent -mm don't work.
+>
+Processes getting stuck in D is most likely to be an anticipatory
+scheduler bug. Please boot with elevator=deadline. Thanks.
 
-cvs -d:pserver:anonymous@kernel.bkbits.net:/home/cvs rlog linux-2.5/Makefile
-http://linux.bkbits.net:8080/linux-2.5/hist/Makefile
-
-I think they are closer now, let me know if you find a bug.
-
-I have the tarballs of the RCS files available as well, let me know if you
-want them.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

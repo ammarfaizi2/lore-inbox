@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbUKIOrb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbUKIOwm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbUKIOrb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 09:47:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbUKIOrb
+	id S261546AbUKIOwm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 09:52:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbUKIOwm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 09:47:31 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16133 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261530AbUKIOr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 09:47:27 -0500
-Date: Tue, 9 Nov 2004 14:47:23 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Woodhouse <dwmw2@infradead.org>, Andrew Morton <akpm@osdl.org>,
+	Tue, 9 Nov 2004 09:52:42 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:36046 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261546AbUKIOwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 09:52:40 -0500
+Subject: Re: [PATCH] Correctly flush 8250 buffers, notify ldisc of line
+	status changes.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Correctly flush 8250 buffers, notify ldisc of line status changes.
-Message-ID: <20041109144723.C15570@flint.arm.linux.org.uk>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1099659997.20469.71.camel@localhost.localdomain> <20041109012212.463009c7.akpm@osdl.org> <1099998437.6081.68.camel@localhost.localdomain> <1099998926.15462.21.camel@localhost.localdomain> <20041109132810.A15570@flint.arm.linux.org.uk> <1100006241.15742.6.camel@localhost.localdomain>
+In-Reply-To: <1100011170.4542.142.camel@hades.cambridge.redhat.com>
+References: <1099659997.20469.71.camel@localhost.localdomain>
+	 <20041109012212.463009c7.akpm@osdl.org>
+	 <1099998437.6081.68.camel@localhost.localdomain>
+	 <1099998926.15462.21.camel@localhost.localdomain>
+	 <20041109132810.A15570@flint.arm.linux.org.uk>
+	 <1100006241.15742.6.camel@localhost.localdomain>
+	 <1100011170.4542.142.camel@hades.cambridge.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1100008158.16045.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1100006241.15742.6.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Tue, Nov 09, 2004 at 01:17:22PM +0000
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 09 Nov 2004 13:49:19 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 09, 2004 at 01:17:22PM +0000, Alan Cox wrote:
-> So its broken, totally and utterly. Its the kind of undefined,
-> unserialized crap that I'm trying to get _OUT_ of the serial layer.
+On Maw, 2004-11-09 at 14:39, David Woodhouse wrote:
+> Actually I needed it to respond to CTS going away, and it provides a
+> notification *before* the data are *sent*. Which lets me know that the
+> first bytes of my packet were dropped by the automatic contention
+> detection circuitry and I need to flush the rest of the packet from the
+> FIFO rather than letting the hardware driver wait for CTS to come back
+> then then send a corrupt half-packet.
 
-I think you mean the tty layer here - the tty layer is where most of
-the serialisation problems remain, and the locking in the serial
-layer is mostly there to work around the tty layers deficiencies.
+But you can't flush the fifo from that callback, you don't have any
+locking on it. What are you locking semantics ? Define them, versus
+open, versus close, versus other I/O.
 
-I would have liked to have rewritten the tty layer along the lines
-that Ted was suggesting, but that would've been far too much work
-for me to do alone.
+> That solves a different problem, and isn't quite as useful to me. I want
+> to be able to respond to CTS going low as quickly as possible, by
+> flushing the rest of the characters from the outgoing queue. I was happy
+> enough with using a tasklet to actually call the flush method, to avoid
+> the deadlock you pointed out without changing the locking of all the
+> hardware drivers). 
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+So you want to replace a tasklet that responds to the event with a
+tasklet which is called by the event ? Tell me how they differ when low
+latency is set on the tty - I don't see any difference in performance
+
+> > Andrew - please reject the patch.
+> 
+> I'll submit the bit which makes the flush_buffer method work on its own.
+> Alan, would you care to offer a viable alternative which solves the
+> problem I'm interested in?
+
+If you can't define the locking semantics, its not viable anyway. I see
+two things we can do usefully here. The first is to teach
+tty_flip_buffer_push more about urgency - since the new tty code I'm
+running/crashing/debugging has a real packet queue not just flip buffers
+we can queue a tiny message to the queue front and we can probably begin
+to cheat a bit more on low_latency v immediate.
+
+

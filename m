@@ -1,78 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268536AbUHYGPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268538AbUHYG25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268536AbUHYGPj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 02:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268535AbUHYGPi
+	id S268538AbUHYG25 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 02:28:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268539AbUHYG25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 02:15:38 -0400
-Received: from mail.kroah.org ([69.55.234.183]:57814 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268536AbUHYGPO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 02:15:14 -0400
-Date: Tue, 24 Aug 2004 23:14:45 -0700
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alex Williamson <alex.williamson@hp.com>, akpm@osdl.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       sensors@Stimpy.netroedge.com
-Subject: Re: [BK PATCH] I2C update for 2.6.8-rc1
-Message-ID: <20040825061445.GA16938@kroah.com>
-References: <20040715000527.GA18923@kroah.com> <1093384722.8445.10.camel@tdi> <20040824220450.GE11165@kroah.com> <Pine.LNX.4.58.0408241721330.17766@ppc970.osdl.org> <1093397881.9555.6.camel@tdi> <Pine.LNX.4.58.0408241847460.17766@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408241847460.17766@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i
+	Wed, 25 Aug 2004 02:28:57 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:50067 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S268538AbUHYG2y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 02:28:54 -0400
+Message-ID: <412C315D.1000708@hovedpuden.dk>
+Date: Wed, 25 Aug 2004 08:27:41 +0200
+From: =?ISO-8859-1?Q?John_Damm_S=F8rensen?= <john@hovedpuden.dk>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: /dev/[*]st* does not work with EXBAYTE 8505 with 2.6 kernels
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-yoursite-MailScanner-Information: Please contact the ISP for more information
+X-yoursite-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 24, 2004 at 07:02:47PM -0700, Linus Torvalds wrote:
-> On Tue, 24 Aug 2004, Alex Williamson wrote:
-> > > How about this _trivial_ change? Does that fix things for you guys? Can 
-> > > you send the /proc/ioport output if this works out for you, just so that 
-> > > we can see?
-> > 
-> >    Yes, this works.  Please commit.
-> 
-> Greg? Opinions? I'll happily commit it, since it's almost certainly bound
-> to be better than what we have now, but I have to admit that I could also 
-> see it causing confusion if two devices are set up by the BIOS to be on 
-> top of each other (since insert_resource() would indeed allow that).
-> 
-> Now, admittedly, that would be a VERY broken BIOS, and likely such a 
-> situation wouldn't have worked _anyway_, but you're the PCI maintainer, so 
-> you get to sit in the hot seat and say aye or nay.
+I have just upgraded from RH9 Linux 2.4 to FC2 Linux 2.6 and now my
+EXABYTE 8505 no longer works.
 
-It looks correct to me, please apply it.  If it breaks people's boxes
-that used to work, I'm sure I'll hear about it :)
+If I try to access it with mt (using any device like nst0) I get no such
+device error message. Same thing with stinit.
 
-> > 1200-121f : motherboard
-> >   1200-121f : 0000:00:1f.3
-> 
-> This is apparently the one that used to cause trouble, and you can see it 
-> from the nesting level: the device nests inside the description, rather 
-> than the other way around.
-> 
-> This does bring up an alternate fix: namely to do the PCI quirks 
-> _earlier_.
-> 
-> If we had done the PCI quirk handling and probing for this device _before_
-> ACPI populated the IO stuff, and we'd never have seen this problem. Why 
-> did we let ACPI come in first in the first place? Greg? Len?
+The tape drive is found during boot, as this snippet from dmesg shows:
+qla1280: QLA12160 found on PCI bus 1, dev 8
+ACPI: PCI interrupt 0000:01:08.0[A] -> GSI 11 (level, low) -> IRQ 11
+scsi(1): Reading NVRAM
+qla1280_isr(): index 1 asynchronous BUS_RESET
+qla1280_isr(): index 0 asynchronous BUS_RESET
+scsi(1:0): Resetting SCSI BUS
+scsi(1:1): Resetting SCSI BUS
+scsi1 : QLogic QLA12160 PCI to SCSI Host Adapter
+        Firmware version: 10.04.32, Driver version 3.24.3
+   Vendor: EXABYTE   Model: EXB-85058SQANXR0  Rev: 0808
+   Type:   Sequential-Access                  ANSI SCSI revision: 02
+scsi(1:0:4:0): Sync: period 50, offset 14
 
-I don't really know, I think that happened before both Len and I took
-over this code base.  I don't have a problem with doing it in this
-order, but I'm sure there's some ACPI issue that I'm not aware of that
-needs to be run first.
+cat of /proc/scsi/scsi also shows the tape device:
+Attached devices:
+Host: scsi0 Channel: 00 Id: 02 Lun: 00
+   Vendor: COMPAQ   Model: ST34371W         Rev: 0682
+   Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 04 Lun: 00
+   Vendor: SEAGATE  Model: ST39103LW        Rev: 0002
+   Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi1 Channel: 00 Id: 04 Lun: 00
+   Vendor: EXABYTE  Model: EXB-85058SQANXR0 Rev: 0808
+   Type:   Sequential-Access                ANSI SCSI revision: 02
 
-> The right order (I think) should be:
->  - walk the existing PCI setup, do the header quirks, populate the device 
->    and resource trees..
->  - _than_ do the ACPI resources
+lsmod seems to contain the necessary driver modules as well:
 
-For a box such as this one, it would make sense to do it in this order,
-I agree.
+Module                  Size  Used by
+st                     30429  0
+qlogicfas408            6473  0
+parport_pc             21249  1
+lp                      9133  0
+parport                35977  2 parport_pc,lp
+md5                     3905  1
+ipv6                  217349  16
+autofs4                20677  0
+sunrpc                141861  1
+iptable_filter          2369  0
+ip_tables              13889  1 iptable_filter
+3c59x                  33385  0
+dm_mod                 47317  0
+button                  4825  0
+battery                 7117  0
+asus_acpi               9177  0
+ac                      3533  0
+ext3                   96937  4
+jbd                    66521  1 ext3
+qla1280                81997  0
+sd_mod                 17473  5
+scsi_mod              105360  3 st,qla1280,sd_mod
 
-thanks,
+Any hints?
+Please don't tell me that the 8505 is no longer supported.
 
-greg k-h
+Cheers
+John
+
+
+

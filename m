@@ -1,71 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280521AbRJaVMl>; Wed, 31 Oct 2001 16:12:41 -0500
+	id <S280526AbRJaVRV>; Wed, 31 Oct 2001 16:17:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280522AbRJaVMc>; Wed, 31 Oct 2001 16:12:32 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:35082 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S280521AbRJaVMN>;
-	Wed, 31 Oct 2001 16:12:13 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Date: Wed, 31 Oct 2001 22:11:09 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [Patch] Re: Nasty suprise with uptime
-CC: Andreas Dilger <adilger@turbolabs.com>,
+	id <S280524AbRJaVRM>; Wed, 31 Oct 2001 16:17:12 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:30081 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S280523AbRJaVRD>; Wed, 31 Oct 2001 16:17:03 -0500
+Date: Wed, 31 Oct 2001 16:17:36 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: Gerhard Mack <gmack@innerfire.net>,
         Tim Schmielau <tim@physik3.uni-rostock.de>,
         vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <7DFB419183D@vcnet.vc.cvut.cz>
+Subject: Re: [Patch] Re: Nasty suprise with uptime
+In-Reply-To: <20011031135215.O16554@lynx.no>
+Message-ID: <Pine.LNX.3.95.1011031161340.21906B-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31 Oct 01 at 15:39, Richard B. Johnson wrote:
-> A fix exists, though. The existing, possibly wrong, boot time could
-> be grabbed during the set-time sys-call, the difference between the
-> existing (wrong) time and the boot time could be calculated, the
-> new (correct) time could be set, then the boot-time would be changed
-> to the new correct time, minus the calculated difference. This
-> would result in a correct boot-time.
+On Wed, 31 Oct 2001, Andreas Dilger wrote:
+
+> On Oct 31, 2001  12:11 -0800, Gerhard Mack wrote:
+> > Yes that I understand and it works right up until the jiffie count wraps.
+> > But now we have people adding cost to everything else just so we can all
+> > have good uptime values.  Since AFIK the drivers handle the wrap cleanly
+> > the only thing that it bothers is the uptime stats.
+> > 
+> > Now we have people making jiffies more expensive just to deal with uptime.
+> > At least as far as I can see it should just be easier/better to make
+> > uptime use something else.
 > 
->     dif_time = time - boot_time;
->         time = new_time;
->         boot_time = time - dif_time;
+> What about the following.  Since jiffies wraps are extremely rare, it
+> should be enough to have something along the lines of the following
+> in the uptime code only (or globally accessible for any code that
+> needs to use a full 64-bit jiffies value):
 > 
-> Uptime could then be present time minus boot time. No mucking with
-> timer ticks are required.
+> u64 get_jiffies64(void)
+> {
+> 	static unsigned long jiffies_hi = 0;
+> 	static unsigned long jiffies_last = INITIAL_JIFFIES;
+> 
+> 	/* probably need locking for this part */
+> 	if (jiffies < jiffies_last) {	/* We have a wrap */
+> 		jiffies_hi++;
+> 		jiffies_last = jiffies;
+> 	}
+> 
+> 	return (jiffies | ((u64)jiffies_hi) << LONG_SHIFT));
+> }
+> 
+> This means you need to call something that _checks_ the uptime
+> (or needs the 64-bit jiffies value) at least once every 1.3 years.
+> If you don't do it at least that often, you probably don't care
+> about the uptime anyways.
+> 
+> This only impacts anything that really needs a 64-bit jiffies count,
+> and has zero impact everywhere else.
+> 
+> Cheers, Andreas
 
-Hi,
-  this reminds me. Year or so ago there was patch from someone, which 
-detected jiffies overflow in /proc/uptime proc_read() code, so only thing
-you had to do was run 'uptime', 'w', 'top' or something like that
-every 497 days - you can schedule it as cron job for Jan 1, 0:00:00,
-to find some workoholics.
+Ah, yes. It's perfect. It could be put right in the 'uptime' code.
+It has zero overhead otherwise. Just check the uptime every year
+or so and it's always correct. A dummy call to your procedure
+every time the system time is set would make it robust.
 
-  Patch was something like:
+Cheers,
+Dick Johnson
 
-...  
-static unsigned long long jiffies_hi = 0;
-static unsigned long old_jiffies = 0;
-unsigned long jiffy_cache;
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-/* some spinlock or inode lock or something like that */
-jiffy_cache = jiffies;
-if (jiffy_cache < old_jiffies) {
-   jiffies_hi += 1ULL << BITS_PER_LONG;
-}
-old_jiffies = jiffy_cache;
-grand_jiffies = jiffies_hi + jiffy_cache;
-/* unlock */
-/* now do division and all strange things to format number for userspace */
-...
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
-Even if you add running uptime every year to your crontab, 
-it will consume less than 700,000,000 CPU cycles consumed by just 64bit
-inc in timer interrupt.
-                                        Best regards,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
+

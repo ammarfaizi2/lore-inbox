@@ -1,88 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272166AbTG3UGC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 16:06:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272223AbTG3UGC
+	id S272223AbTG3UHl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 16:07:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272229AbTG3UHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 16:06:02 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:12976 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S272166AbTG3UF7
+	Wed, 30 Jul 2003 16:07:41 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:56821 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272223AbTG3UHk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 16:05:59 -0400
-Date: Wed, 30 Jul 2003 15:05:39 -0500
-From: linas@austin.ibm.com
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Race in 2.6.0-test2 timer code
-Message-ID: <20030730150539.A28284@forte.austin.ibm.com>
-References: <20030729135643.2e9b74bc.akpm@osdl.org> <Pine.LNX.4.44.0307300733200.25010-100000@localhost.localdomain>
+	Wed, 30 Jul 2003 16:07:40 -0400
+Subject: Re: TSCs are a no-no on i386
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030730184529.GE21734@fs.tum.de>
+References: <20030730135623.GA1873@lug-owl.de>
+	 <20030730181006.GB21734@fs.tum.de> <20030730183033.GA970@matchmail.com>
+	 <20030730184529.GE21734@fs.tum.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1059595260.10447.6.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0307300733200.25010-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Jul 30, 2003 at 07:57:32AM +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 30 Jul 2003 21:01:00 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30, 2003 at 07:57:32AM +0200, Ingo Molnar wrote:
+On Mer, 2003-07-30 at 19:45, Adrian Bunk wrote:
+>   Note that this can also allow Step-A 486's to correctly run multi-thread
+>   applications since cmpxchg has a wrong opcode on this early CPU.
 > 
-> and i dont think Linas' patch is correct either - how can the timer base
-> change under us? We are holding the timer spinlock.
+>   Don't use this to enable multi-threading on an SMP machine, the lock
+>   atomicity can't be guaranted!
 
-I deduced the need for the patch by looking at the locking code immediately
-above it, which takes pains to get old_base and new_base correctly locked.
-My patch was to handle the case of old_base being NULL, which seemed to be 
-unhandled.  
+That is of course the other problem with this approach - you can't
+really get the intended results without some extremely heavyweight code
+(using an IPI to halt all CPU's, doing the access and then resuming
+them)
 
-Comments & disclaimers:
--- I don't quite have the 'big picture' for the timer code yet,
-   so please excuse any thinko's below.
--- I don't know under what cases timer->base can be NULL, but clearly
-   there are checks for it being NULL, ergo...
--- I then see a race where timer->base is NULL, and so old_base is NULL, 
-   then some other CPU sets timer->base, then we get the lock
-   on new_base, and blandly assume timer->base is NULL, which it no longer 
-   is.
+The bigger problem (and certainly with some of the cmov emulation hacks
+I've seen) is getting the security checking right when you need to
+reprocess the user data - another reason to do it in userspace with a
+preload 8)
 
-A bit more graphically ... 
-
-timer->base = NULL;  /* starting condition */
-
-cpu 1                                   cpu 2
---------                                ---------
-mod_timer()  {                          
-
-old_base = timer->base;
-if (old_base &&  ) { /* not taken */
-}
-else
-.                                       spin_lock(&cpu2_base->lock);
-.                                       timer->base = cpu2_base;
-.                                       spin_unlock(&cpu2_base->lock);
-.
-spin_lock(&new_base->lock);
-                                                                                
-/* Uhh oh, timer->base is not null,
-   in fact its cpu2 base, and we aren't
-   checking for this before we clobber it.
- */
-
-
-I don't see what prevents the above from happening.  And if the 
-above really can't happen, then I also don't understand why the fancy
-old_base, new-base locking code is required at all. 
-
-
-> What i'd propose is the attached (tested, against 2.6.0-test2) patch
-
-Due to technical difficulties at this end, I'm having trouble testing
-any patches.  The guy who knows how to run the test case to reproduce
-this is out sick,  its a big hairy testcase with all sorts of stuff 
-going on, and I can't make it go.  It can take 8+ hours to hit it.
-I'll need a few days ... 
-
-The other machine that hits it is a 6-way smp powerpc running nothing 
-but 6 copies of setiathome, but it takes 48+ hours to reproduce there, 
-so testing is even slower there ...
-
---linas

@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318745AbSHANPF>; Thu, 1 Aug 2002 09:15:05 -0400
+	id <S318697AbSHAN2U>; Thu, 1 Aug 2002 09:28:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318746AbSHANPF>; Thu, 1 Aug 2002 09:15:05 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:48308 "EHLO
+	id <S318737AbSHAN2U>; Thu, 1 Aug 2002 09:28:20 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:39358 "EHLO
 	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318745AbSHANPE>; Thu, 1 Aug 2002 09:15:04 -0400
-Date: Thu, 1 Aug 2002 18:52:36 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Mala Anand <manand@us.ibm.com>
-Cc: "Luck, Tony" <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
-       lse <lse-tech@lists.sourceforge.net>,
-       Bill Hartner <Bill_Hartner@us.ibm.com>
+	id <S318697AbSHAN2T>; Thu, 1 Aug 2002 09:28:19 -0400
 Subject: Re: [Lse-tech] [RFC]  per cpu slab fix to reduce freemiss
-Message-ID: <20020801185236.B32256@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <OFAA15AB55.4677568D-ON87256C07.0049E839@boulder.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <OFAA15AB55.4677568D-ON87256C07.0049E839@boulder.ibm.com>; from manand@us.ibm.com on Thu, Aug 01, 2002 at 07:42:10AM -0500
+To: dipankar@beaverton.ibm.com
+Cc: Bill Hartner <Bill_Hartner@us.ibm.com>, linux-kernel@vger.kernel.org,
+       lse <lse-tech@lists.sourceforge.net>,
+       "Luck, Tony" <tony.luck@intel.com>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF6D440764.727DFE3C-ON87256C08.0049B06D@boulder.ibm.com>
+From: "Mala Anand" <manand@us.ibm.com>
+Date: Thu, 1 Aug 2002 08:31:45 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 08/01/2002 07:31:39 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 07:42:10AM -0500, Mala Anand wrote:
-> 
-> 
-> Tony Luck wrote..
-> >> No I am using the object(beginning space) to store the links. When
-> >> allocated, I can initialize the space occupied by the link address.
-> 
-> >You can't use the start of the object (or any other part) in this way,
-> >you'll have no way to restore the value you overwrote.
-> 
-> >Take a look at Jeff Bonwick's paper on slab allocators which explains
-> >this a lot better than I can:
-> 
-> >
-> http://www.usenix.org/publications/library/proceedings/bos94/full_papers/bon
-> 
-> >wick.a
-> 
-> In the present design there is a limit on how many free objects are held
-> in the per cpu array. So when an object is freed it might end in another
-> cpu more often.  The main cost lies in memory latency than execution of
-> initializing the fields.  I doubt if we get the same gain as explained in
-> the paper by preserving the fields between uses on an SMP/NUMA machines.
-> 
-> I agree that preserving read only variables that can be used between uses
-> will help performance. We still can do that by revising the assumption to
-> leave the first 4 or whatever bytes needed to store the links. What do you
-> think?
 
-Mala,
+Dipankar wrote..
+>Isn't it possible to tune the cpucache limit by writing to
+>/proc/slabinfo so that you avoid frequent draining of free objects ?
+>Am I missing something here ?
 
-Isn't it possible to tune the cpucache limit by writing to
-/proc/slabinfo so that you avoid frequent draining of free objects ?
-Am I missing something here ?
+Are you referring to raising the per cpu array limit? I don't think you
+tune that using /proc/slabinfo.  However that does not solve the problem,
+it only delays it.  It needs to grow/shrink dynamically based on need. I
+am not only referring to frequently draining of free objects but also
+as a result of this refilling the object array due to subsequent
+allocations and so on.
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+Regards,
+    Mala
+
+
+   Mala Anand
+   IBM Linux Technology Center - Kernel Performance
+   E-mail:manand@us.ibm.com
+   Phone:838-8088; Tie-line:678-8088
+
+
+
+
+
+

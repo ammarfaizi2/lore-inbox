@@ -1,94 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261722AbTJRQ5M (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 12:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbTJRQ5M
+	id S261705AbTJRQtj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 12:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbTJRQtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 12:57:12 -0400
-Received: from mcomail04.maxtor.com ([134.6.76.13]:52240 "EHLO
-	mcomail04.maxtor.com") by vger.kernel.org with ESMTP
-	id S261722AbTJRQ5J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 12:57:09 -0400
-Message-ID: <785F348679A4D5119A0C009027DE33C105CDB2EE@mcoexc04.mlm.maxtor.com>
-From: "Mudama, Eric" <eric_mudama@Maxtor.com>
-To: "'John Bradford'" <john@grabjohn.com>, Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       Norman Diamond <ndiamond@wta.att.ne.jp>,
-       Hans Reiser <reiser@namesys.com>, Wes Janzen <superchkn@sbcglobal.net>,
-       linux-kernel@vger.kernel.org
-Subject: RE: Blockbusting news, this is important (Re: Why are bad disk se
-	ctors numbered strangely, and what happens to them?)
-Date: Sat, 18 Oct 2003 10:54:25 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Sat, 18 Oct 2003 12:49:39 -0400
+Received: from adsl-215-226.38-151.net24.it ([151.38.226.215]:5905 "EHLO
+	gateway.milesteg.arr") by vger.kernel.org with ESMTP
+	id S261705AbTJRQth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 12:49:37 -0400
+Date: Sat, 18 Oct 2003 18:49:35 +0200
+From: Daniele Venzano <webvenza@libero.it>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test8
+Message-ID: <20031018164934.GA937@picchio.gall.it>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0310171530001.1988-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310171530001.1988-100000@home.osdl.org>
+X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.22
+X-Copyright: Forwarding or publishing without permission is prohibited.
+X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
+X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 17, 2003 at 03:31:00PM -0700, Linus Torvalds wrote:
+> 
+> More changes than I would have liked, but most of them are fairly small. 
+> The most noticeable changes:
+> 
 
+I get these two sleeping functions etc. etc. on boot with 2.6.0-test8:
 
-> -----Original Message-----
-> From: John Bradford [mailto:john@grabjohn.com]
->
-> Drive manufacturers could sell advanced firmware to data recovery
-> companies for a price that would pay for itself after 3-4 data
-> recovery jobs.  Given that you could then do far more advanced
-> recovery then people could themselves, I am suprised this hasn't
-> happened before.  Of course, free and open firmware would be nice in
-> general, but that hasn't arrived yet.
+Kernel command line: root=/dev/hda3
+Local APIC disabled by BIOS -- reenabling.
+Found and enabled local APIC!
+Initializing CPU#0
+PID hash table entries: 2048 (order 11: 16384 bytes)
+Debug: sleeping function called from invalid context at include/linux/rwsem.h:66
+in_atomic():1, irqs_disabled():1
+Call Trace:
+ [<c011d1d0>] __might_sleep+0xa0/0xd0
+ [<c02796f0>] cpufreq_register_notifier+0x30/0xa0
+ [<c0105000>] rest_init+0x0/0x60
+ [<c03b330b>] init_tsc+0x4b/0x170
+ [<c03b683b>] init_timers+0x3b/0x40
+ [<c0105000>] rest_init+0x0/0x60
+ [<c011467d>] select_timer+0x2d/0x50
+ [<c03afa8e>] time_init+0x3e/0x70
+ [<c03ac675>] start_kernel+0xb5/0x160
+ [<c03ac480>] unknown_bootoption+0x0/0x100
 
-To pay for itself it would have to cost multiple millions of dollars.  The
-#1 constraint in an IDE drive is cost per gigabyte, since 99.9% of
-purchasers don't look at anything else.  This means that we strip down
-things like our electronics and internal mask ROMs to their minimum required
-size.  Specialized code with extra features would inherently be larger,
-which gives two choices:
+Detected 1674.442 MHz processor.
+Console: colour VGA+ 80x25
+Memory: 482692k/491432k available (1930k kernel code, 7948k reserved, 789k data, 144k init, 0k highmem)
+Calibrating delay loop... 3309.56 BogoMIPS
+Debug: sleeping function called from invalid context at mm/page_alloc.c:548
+in_atomic():1, irqs_disabled():0
+Call Trace:
+ [<c0105000>] rest_init+0x0/0x60
+ [<c011d1d0>] __might_sleep+0xa0/0xd0
+ [<c013db75>] __alloc_pages+0x335/0x340
+ [<c011fdbc>] printk+0x12c/0x180
+ [<c0105000>] rest_init+0x0/0x60
+ [<c013dbf0>] get_zeroed_page+0x20/0x60
+ [<c03b6a7c>] pidmap_init+0xc/0x40
+ [<c03ac69d>] start_kernel+0xdd/0x160
+ [<c03ac480>] unknown_bootoption+0x0/0x100
 
-1. burdon 60 million drives per year with the capability to run this
-software
-2. 1-off or 2-off or whatever for the few times a year that you get asked
-for this
+Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
+Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
+[...]
 
-#1 is prohibitive from a cost perspective since the demand simply isn't that
-high.  #2 is prohibitive because of the engineering and manufacturing
-resources required to build a special product.
+Apart from that, everything work well (of what has been tested 8) ).
 
-Plus, all data recovery would be on drives already sold...  Since every
-drive optimizes itself as part of the manufacturing process to the exact
-capabilities of the channel ASIC, heads they were manufactured with, etc,
-the only way for these new recovery tools to work reliably would be to use
-option #1 above, which I've already said isn't worth the cost.  I hear about
-people swapping PCBs on disk drives to recover data when one fries... yes
-this can work to some degree, but I absolutely wouldn't trust anything
-written in a swapped-board setup.
+-- 
+----------------------------------------
+Daniele Venzano
+Web: http://digilander.iol.it/webvenza/
 
-The community of knowledgable users who could use such features and would be
-willing to pay, say, $20 extra for the cost, is nothing next to the number
-of users who go to Dell's website and say "this drive is 20GB more for $10
-less, lets get this one!"
-
-> Although, to be honest, except where performance is critical, remap on
-> read is pointless.  It saves you from having to identify the bad block
-> again when you write to it.  Generally, guaranteed remap on write is
-> what I want.  What happens on read is less important if your data
-> isn't intact.  I can see your point of view for not re-mapping on read
-> given that advanced firmwares are not available, and the fact that it
-> allows you to do some form of data recovery.  Overall, though, if it
-> gets to the point where you have to start doing such data recovery,
-> downtime is usually significant, and for some applications, having the
-> data in a week's time may be little more than useless.  Predicting
-> possible disk fauliures is a good idea.
-
-Writes are destructive, and very often "fix" the problem on the media.  If
-the write succeeds, and can be read by the disk, there's no point in
-remapping.  It is only when you're unable to write to a specific area that
-remap-on-write makes any sense.
-
-We keep track of where we have trouble reading or writing, and use that to
-reassign based on various criteria automatically.
-
-Best data to use, I'd guess, for "predicting" failures, is the blown rev
-counter in smart.  If you're blowing revs, you're having trouble getting the
-data you want off or onto the drive.
-
---eric

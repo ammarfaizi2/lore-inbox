@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262502AbUBXWeK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 17:34:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbUBXWdf
+	id S262503AbUBXWeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 17:34:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262504AbUBXWdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 17:33:35 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:40348 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S262504AbUBXWbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 17:31:42 -0500
-Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
-From: Christophe Saout <christophe@saout.de>
-To: James Morris <jmorris@redhat.com>
-Cc: Matt Mackall <mpm@selenic.com>, Jean-Luc Cooke <jlcooke@certainkey.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       James Morris <jmorris@intercode.com.au>
-In-Reply-To: <Xine.LNX.4.44.0402241726450.26251-100000@thoron.boston.redhat.com>
-References: <Xine.LNX.4.44.0402241726450.26251-100000@thoron.boston.redhat.com>
-Content-Type: text/plain
-Message-Id: <1077661909.26811.1.camel@leto.cs.pocnet.net>
+	Tue, 24 Feb 2004 17:33:42 -0500
+Received: from mail.kroah.org ([65.200.24.183]:14789 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262503AbUBXWb3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 17:31:29 -0500
+Date: Tue, 24 Feb 2004 14:30:43 -0800
+From: Greg KH <greg@kroah.com>
+To: marcel cotta <mc123@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3 - Badness in pci_find_subsys at drivers/pci/search.c:167
+Message-ID: <20040224223043.GA2455@kroah.com>
+References: <403B7627.6080805@mail.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 24 Feb 2004 23:31:49 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <403B7627.6080805@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Di, den 24.02.2004 schrieb James Morris um 23:26:
-
-> > BTW: I think there's a bug in the ipv6 code, it uses spin_lock to
-> > protect itself, this will cause a sleep-inside-spinlock warning. (found
-> > while grepping through the source for other cryptoapi users)
+On Tue, Feb 24, 2004 at 05:04:55PM +0100, marcel cotta wrote:
+> i came across this while playing with hdparm
 > 
-> Where is the bug?
+> Call Trace:
+>  [<c0264128>] pci_find_subsys+0xe8/0xf0
+>  [<c026415f>] pci_find_device+0x2f/0x40
+>  [<c02e5d89>] ide_system_bus_speed+0x69/0x90
+>  [<c02e528e>] ali15x3_tune_drive+0x1e/0x250
 
-net/ipv6/addrconf.c: __ipv6_regen_rndid
+Ugh, this is due to calling system_bus_clock() from within an interrupt.
+Is there any good reason to do this?  Can't we just cache the bus speed
+in the local device structure if we really have to do this from within
+an interrupt?
 
->        spin_lock(&md5_tfm_lock);
->        if (unlikely(md5_tfm == NULL)) {
->                spin_unlock(&md5_tfm_lock);
->                return -1;
->        }
->        crypto_digest_init(md5_tfm);
->        crypto_digest_update(md5_tfm, sg, 2);
->        crypto_digest_final(md5_tfm, idev->work_digest);
->        spin_unlock(&md5_tfm_lock);
+thanks,
 
-
+greg k-h

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273815AbRIXILO>; Mon, 24 Sep 2001 04:11:14 -0400
+	id <S273819AbRIXIOo>; Mon, 24 Sep 2001 04:14:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273820AbRIXILE>; Mon, 24 Sep 2001 04:11:04 -0400
-Received: from lego.zianet.com ([204.134.124.54]:38406 "EHLO lego.zianet.com")
-	by vger.kernel.org with ESMTP id <S273815AbRIXIKw>;
-	Mon, 24 Sep 2001 04:10:52 -0400
-Message-ID: <3BAEE975.10602@zianet.com>
-Date: Mon, 24 Sep 2001 02:06:13 -0600
-From: Steven Spence <kwijibo@zianet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4+) Gecko/20010921
-X-Accept-Language: en-us
+	id <S273820AbRIXIOe>; Mon, 24 Sep 2001 04:14:34 -0400
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:34541 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S273819AbRIXIOR>; Mon, 24 Sep 2001 04:14:17 -0400
+From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
+Message-Id: <200109240814.f8O8E4E00975@sunrise.pg.gda.pl>
+Subject: Re: [PATCH] PART1: Proposed init & module changes for 2.5
+To: rusty@rustcorp.com.au (Rusty Russell)
+Date: Mon, 24 Sep 2001 10:14:03 +0200 (MET DST)
+Cc: dcinege@psychosis.com, linux-kernel@vger.kernel.org
+In-Reply-To: <E15lOLW-0000SC-00@wagner> from "Rusty Russell" at Sep 24, 2001 03:31:58 PM
+Reply-To: ankry@green.mif.pg.gda.pl
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Matthew Koch <mkoch@synitech.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: EMU10k1 Driver
-In-Reply-To: <32832.65.11.238.48.1001284227.squirrel@mail.synitech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Koch wrote:
+"Rusty Russell wrote:"
+> > I don't suggest implementing the complete module loading in the boot loader,
+> > (I'm still not even sure I really like it in the kernel.  ; > )
+[...]
+> > only loading the modules themselves into memory for the kernel access during 
+> > it's exec. (Like an initrd image is loaded) If a boot loader wants to 
+> > understand and use modules.dep or do on the fly dependency checking, or have 
+> > kernel userland utils to update it's conifg intelligently, that's it's 
+> > business. I only want to see a way modules can be preloaded before kernel 
+> > exec.
+> 
+> Why not just put them in the initrd image?  The kernel is not going to
+> use the entire module as it is, so it will have to copy it anyway...
 
->I'm experiencing issues with the EMU10k1 driver in kernel's 2.4.9 and
->2.4.10.  I have an SB Live! X-Gamer card (not 5.1).  It worked perfectly
->under 2.4.7.  The mixer is recognized as a SigmaTel card, which is obviously
->mistaken.  In addition to that, sound quality is poor and the mixer is not
->displaying all the options, specifically digital1 and digital2, the front
->and rear outputs.  I'm writing here because the code itself has no contacts
->listed as far as I found.  Are there any known fixes to this?  Thank you.
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
-Alot has changed with respect to DSP routing and such since the 2.4.7 
-version.
+Somebody wants to modularize all binary formats, including binfmt_elf ... ?
 
-Try www.opensource.creative.com or emu10k1-devel@opensource.creative.com
-for more info on driver devel.
-
-Steve
-
+Andrzej
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk

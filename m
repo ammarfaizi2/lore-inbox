@@ -1,56 +1,180 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289142AbSAGIkM>; Mon, 7 Jan 2002 03:40:12 -0500
+	id <S289136AbSAGIkT>; Mon, 7 Jan 2002 03:40:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289136AbSAGIjx>; Mon, 7 Jan 2002 03:39:53 -0500
-Received: from dns1.rz.fh-heilbronn.de ([141.7.1.18]:32656 "EHLO
-	dns1.rz.fh-heilbronn.de") by vger.kernel.org with ESMTP
-	id <S289140AbSAGIju>; Mon, 7 Jan 2002 03:39:50 -0500
-Date: Mon, 7 Jan 2002 09:39:47 +0100 (CET)
-From: Oliver Paukstadt <pstadt@stud.fh-heilbronn.de>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>,
-        <linux-raid@vger.kernel.org>
-Subject: Re: 2.4.17 RAID-1 EXT3  reliable to hang....
-In-Reply-To: <3C395A2C.B7A24844@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0201070933590.4076-100000@lola.stud.fh-heilbronn.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289140AbSAGIjz>; Mon, 7 Jan 2002 03:39:55 -0500
+Received: from ns3.miraclelinux.com ([61.120.40.82]:4085 "EHLO
+	dns01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id <S289139AbSAGIju>; Mon, 7 Jan 2002 03:39:50 -0500
+Date: Mon, 7 Jan 2002 17:39:44 +0900
+From: Yasuma Takeda <yasuma@miraclelinux.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] removed socket buffer in unix domain socket
+Message-Id: <20020107173944.05623687.yasuma@miraclelinux.com>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart_Mon__7_Jan_2002_17:39:44_+0900_083e6930"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jan 2002, Andrew Morton wrote:
+This is a multi-part message in MIME format.
 
-> Matti Aarnio wrote:
-> >
-> >   I have partial evidence that EXT3 may be part of the problem,
-> >   as another machine with RAID-1 disks with EXT2 filesystems
-> >   is not hanging up when running RedHat 2.4.16-0.9custom kernel.
-> >   That another machine has, however, IDE disks.
->
-> I'd be surprised if an ext3 bug could cause a freeze as solid
-> as this one.  ext3's write submission patterns are somewhat different
-> from other filesystems, and we've exposed a few problem in underlying
-> layers in the past because of this.  But who knows...
->
-> Have you enabled the NMI watchdog?  nmi_watchdog=1 on the LILO
-> commandline?
->
-> Also, I'd be inclined to enable all the kernel debug options,
-> including SLAB debug.
-Heavy traffic on ext3 seems to cause short system freezes.
-
-Seems only to happen on 2 or more processor boxes.
-
-I'm not deep into kernel nor ext3, but how is the journal flushed if
-full?
-
-Greetings Oli
-
-+++the jungle near manaos - the amazonas full of piranhas - the birds of++
-+++paradies - disapear into the green desert - for years an years we're+++
-+++hungry and desperate - for the only thing worth living - the E><CESS+++
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+--Multipart_Mon__7_Jan_2002_17:39:44_+0900_083e6930
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
 
+Hi,
+
+I found a problem to unix domain socket.
+
+The unix_gc function removes socket buffers of the socket
+which is connectted but not acceptted yet.
+
+After one process executes "Mark phase" of unix_gc function,
+another process registers socket buffer by using sendmsg with SCM_RIGHTS.
+At the next moment, the socket buffer is removed.
+
+I attached the test program.
+When I execute one server and two clients on SMP machine
+(kernel 2.4.16 and PentiumIII x 2), I can reporduce this problem.
+
+Following is a patch to avoid this problem.
+
+--- kernel-2.4.16/net/unix/garbage.c.sv       Mon Jan  7 15:46:22 2002
++++ kernel-2.4.16/net/unix/garbage.c  Mon Jan  7 15:51:22 2002
+@@ -279,7 +279,7 @@
+                                /*
+                                 *      Do we have file descriptors ?
+                                 */
+-                               if(UNIXCB(skb).fp)
++                               if(s->dead && UNIXCB(skb).fp)
+                                {
+                                        __skb_unlink(skb, skb->list);
+                                        __skb_queue_tail(&hitlist,skb);
+
+
+Regards,
+
+ Yasuma Takeda
+
+
+
+--Multipart_Mon__7_Jan_2002_17:39:44_+0900_083e6930
+Content-Type: text/x-csrc;
+ name="client.c"
+Content-Disposition: attachment;
+ filename="client.c"
+Content-Transfer-Encoding: base64
+
+I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlIDxzeXMvc29ja2V0Lmg+CiNpbmNsdWRlIDxzeXMv
+dGltZS5oPgojaW5jbHVkZSA8c3lzL3R5cGVzLmg+CiNpbmNsdWRlIDxzeXMvc29ja2V0Lmg+CiNp
+bmNsdWRlIDxzeXMvZmNudGwuaD4KI2luY2x1ZGUgPG5ldGluZXQvaW4uaD4KI2luY2x1ZGUgPHN5
+cy91aW8uaD4KI2luY2x1ZGUgPHN5cy91bi5oPgojaW5jbHVkZSA8dW5pc3RkLmg+CiNpbmNsdWRl
+IDxlcnJuby5oPgoKbWFpbihpbnQgYXJnYyxjaGFyICoqIGFyZ3YpCnsKCglzdHJ1Y3Qgc29ja2Fk
+ZHJfdW4gc29ja2FkZHI7CgljaGFyIGxpbmVbMTI4XTsKCWNoYXIgcmVwbHlbMTI4XTsKCWludCBz
+b2NrZXRfZXJybm87CglpbnQgaSwgZXJyLCBuOwoJaW50IHM7CglpbnQgcmV0OwoJaW50CWZkWzJd
+OwoJc3RydWN0IAljbXNnaGRyICpjbXNnOwoJaW50IAkqZmRwdHI7CgljaGFyIAljbXNnYnVmW0NN
+U0dfU1BBQ0Uoc2l6ZW9mIChpbnQpKV07CglzdHJ1Y3QgaW92ZWMgdmVjOwoJc3RydWN0IG1zZ2hk
+ciBtc2doZHI7CgoJaWYgKCBzb2NrZXRwYWlyKCBBRl9VTklYLCBTT0NLX1NUUkVBTSwgMCwgZmQg
+KSA9PSAtMSApIHsKCQlmcHJpbnRmKHN0ZGVyciwgInNvY2tldHBhaXQgZXJyb3JcbiIpOwoJfQoJ
+Y2xvc2UoZmRbMV0pOwoKCW4gPSAwOwoJd2hpbGUgKDEpIHsKCQlpZiAoKHM9c29ja2V0KEFGX1VO
+SVgsIFNPQ0tfU1RSRUFNLCAwKSkgPT0gLTEpIHsKCQkJc29ja2V0X2Vycm5vID0gZXJybm87CgkJ
+CWZwcmludGYoc3RkZXJyLCJjYW4ndCBjcmVhdGUgc29ja2V0IFslZF1cbiIsc29ja2V0X2Vycm5v
+KTsKCQkJZXhpdCgtMSk7CgkJfQoKCQltZW1zZXQoJnNvY2thZGRyLCAnXDAnLCBzaXplb2Yoc29j
+a2FkZHIpKTsKCQlzb2NrYWRkci5zdW5fZmFtaWx5ICAgICAgPSBBRl9VTklYOwoJCXN0cmNweShz
+b2NrYWRkci5zdW5fcGF0aCwgIi90bXAvdW5peF9kX3Rlc3QiKTsKCQkKCQlpZiAoY29ubmVjdChz
+LChzdHJ1Y3Qgc29ja2FkZHIgKikmc29ja2FkZHIsc2l6ZW9mKHNvY2thZGRyKSkgPT0gLTEpIHsK
+CQkJc29ja2V0X2Vycm5vID0gZXJybm87CgkJCWZwcmludGYoc3RkZXJyLCJjb25uZWN0IGVycm9y
+IFslZF1cbiIsZXJybm8pOwoJCQlleGl0KC0xKTsKCQl9CgkJCgkJZm9yKGkgPSAwIDsgaSA8IDEy
+OCA7IGkrKykgewoJCQlsaW5lW2ldID0gMDsKCQl9CgkJc3ByaW50ZihsaW5lLCAiWyVkXTpjbGll
+bnQgcGlkIGlzICVkIiwgbiwgZ2V0cGlkKCkpOwoJCQoJCXZlYy5pb3ZfYmFzZSA9IGxpbmU7CgkJ
+dmVjLmlvdl9sZW4gID0gMTI4OwoJCQoJCW1zZ2hkci5tc2dfbmFtZSAgICAgICA9IE5VTEw7CgkJ
+bXNnaGRyLm1zZ19uYW1lbGVuICAgID0gMDsKCQltc2doZHIubXNnX2lvdiAgICAgICAgPSAmdmVj
+OwoJCW1zZ2hkci5tc2dfaW92bGVuICAgICA9IDE7CgkJbXNnaGRyLm1zZ19mbGFncyA9IDA7CgkJ
+CgkJbXNnaGRyLm1zZ19jb250cm9sID0gY21zZ2J1ZjsKCQltc2doZHIubXNnX2NvbnRyb2xsZW4g
+PSBzaXplb2YgY21zZ2J1ZjsKCQljbXNnID0gQ01TR19GSVJTVEhEUigmbXNnaGRyKTsKCQljbXNn
+LT5jbXNnX2xlbiAgID0gQ01TR19MRU4oc2l6ZW9mKGludCkgKiAxKTsKCQljbXNnLT5jbXNnX2xl
+dmVsID0gU09MX1NPQ0tFVDsKCQljbXNnLT5jbXNnX3R5cGUgID0gU0NNX1JJR0hUUzsKCQlmZHB0
+ciA9IChpbnQgKilDTVNHX0RBVEEoY21zZyk7CgkJbWVtY3B5KGZkcHRyLCBmZCwgc2l6ZW9mKGlu
+dCkgKiAxKTsKCQltc2doZHIubXNnX2NvbnRyb2xsZW4gPSBjbXNnLT5jbXNnX2xlbjsKCQkKCQlp
+ZiAoKHJldCA9IHNlbmRtc2cocywgJm1zZ2hkciwgMCApKSA8IDEyOCkgewoJCQlmcHJpbnRmKHN0
+ZGVyciwgInNlbmRtc2cgZXJyb3IgJWRcbiIsIGVycm5vKTsKCQkJZXhpdCgtMSk7CgkJfQoJCWZw
+cmludGYoc3RkZXJyLCAiWyVkXTpzZW5kbXNnKCkgJWQgYnl0ZSBPSy4gZmQ6JWRcbiIsIG4sIHJl
+dCwgZmRbMF0pOwoJCQoJCXZlYy5pb3ZfYmFzZSA9IHJlcGx5OwoJCXZlYy5pb3ZfbGVuICA9IDEy
+ODsKCQkKCQltc2doZHIubXNnX25hbWUgICAgICAgPSBOVUxMOwoJCW1zZ2hkci5tc2dfbmFtZWxl
+biAgICA9IDA7CgkJbXNnaGRyLm1zZ19pb3YgICAgICAgID0gJnZlYzsKCQltc2doZHIubXNnX2lv
+dmxlbiAgICAgPSAxOwoJCW1zZ2hkci5tc2dfZmxhZ3MgPSAwOwoJCW1zZ2hkci5tc2dfY29udHJv
+bGxlbiA9IDA7CgkJbXNnaGRyLm1zZ19jb250cm9sICAgID0gTlVMTDsKCQkKCQlpZiAoKHJldCA9
+IHJlY3Ztc2cocywgJm1zZ2hkciwgMCkpIDwgMTI4KSB7CgkJCWZwcmludGYoc3RkZXJyLCAicmVj
+dm1zZygpIGVycm9yICVkXG4iLCBlcnJubyk7CgkJCWV4aXQoLTEpOwoJCX0KCQlmcHJpbnRmKHN0
+ZGVyciwgInJlY3ZtZ3MoKSAlZCBieXRlIE9LLlxuIiwgcmV0KTsKCgkJY2xvc2Uocyk7CgkJbisr
+OwoJfQoJCglmcHJpbnRmKHN0ZGVyciwiR09PRCBCWSBcbiIpOwoJZXhpdCAoMCk7Cn0KCgoKCg==
+
+--Multipart_Mon__7_Jan_2002_17:39:44_+0900_083e6930
+Content-Type: text/x-csrc;
+ name="server.c"
+Content-Disposition: attachment;
+ filename="server.c"
+Content-Transfer-Encoding: base64
+
+I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlIDxzeXMvc29ja2V0Lmg+CiNpbmNsdWRlIDxzeXMv
+dGltZS5oPgojaW5jbHVkZSA8c3lzL3R5cGVzLmg+CiNpbmNsdWRlIDxzeXMvc29ja2V0Lmg+CiNp
+bmNsdWRlIDxuZXRpbmV0L2luLmg+CiNpbmNsdWRlIDxzeXMvdWlvLmg+CiNpbmNsdWRlIDxzeXMv
+dW4uaD4KI2luY2x1ZGUgPGZjbnRsLmg+CiNpbmNsdWRlIDx1bmlzdGQuaD4KI2luY2x1ZGUgPGVy
+cm5vLmg+CiNpbmNsdWRlIDx0aW1lLmg+CgptYWluKGludCBhcmdjLGNoYXIgKiogYXJndikKewoJ
+aW50IHM7CglzdHJ1Y3Qgc29ja2FkZHJfdW4gc29ja2FkZHI7CgljaGFyIGxpbmVbMTI4XTsKCWNo
+YXIgcmVwbHlbMTI4XTsKCWludCBzb2NrZXRfZXJybm87CglpbnQgaSwgZXJyOwoJaW50IGZsYWdz
+OwoJZmRfc2V0IHJlYWRfc2V0LCByZWFkX2N1cjsKCWludCBtYXhfZmQ7CglpbnQgcmV0OwoJc3Ry
+dWN0ICBpb3ZlYyB2ZWM7CglzdHJ1Y3QgIG1zZ2hkciBtc2doZHI7CglpbnQJY2xpZW50X2ZkOwoJ
+c3RydWN0ICBjbXNnaGRyICpjbXNnOwoJaW50CSpwYXNzX2ZkX3B0cjsKCWNoYXIJY21zZ2J1ZltD
+TVNHX1NQQUNFKHNpemVvZiAoaW50KSldOwoJCglpZiAoKHM9c29ja2V0KEFGX1VOSVgsIFNPQ0tf
+U1RSRUFNLCAwKSkgPT0gLTEpIHsKCQlzb2NrZXRfZXJybm8gPSBlcnJubzsKCQlmcHJpbnRmKHN0
+ZG91dCwiY2FuJ3QgY3JlYXRlIHNvY2tldCBbJWRdXG4iLHNvY2tldF9lcnJubyk7CgkJZXhpdCgt
+MSk7Cgl9CgkKCXVubGluaygiL3RtcC91bml4X2RfdGVzdCIpOwoJbWVtc2V0KCZzb2NrYWRkciwg
+J1wwJywgc2l6ZW9mKHNvY2thZGRyKSk7Cglzb2NrYWRkci5zdW5fZmFtaWx5ICAgICAgPSBBRl9V
+TklYOwoJc3RyY3B5KHNvY2thZGRyLnN1bl9wYXRoLCAiL3RtcC91bml4X2RfdGVzdCIpOwoJCglp
+ZiAoYmluZChzLChzdHJ1Y3Qgc29ja2FkZHIgKikmc29ja2FkZHIsIHNpemVvZihzb2NrYWRkcikp
+IDwgMCkgewoJCXNvY2tldF9lcnJubyA9IGVycm5vOwoJCWZwcmludGYoc3Rkb3V0LCJjYW4ndCBi
+aW5kIHNvY2tldCBbJWRdXG4iLGVycm5vKTsKCQlleGl0KC0xKTsKCX0KCQoJaWYgKGxpc3Rlbihz
+LCAxMCkgPCAwKSB7CgkJZnByaW50ZihzdGRvdXQsICJsaXN0ZW4oKSBlcnJvciAlZFxuIiwgc29j
+a2V0X2Vycm5vKTsKCQlleGl0KC0xKTsKCX0KCglGRF9aRVJPKCZyZWFkX3NldCk7CglGRF9TRVQo
+cywgJnJlYWRfc2V0KTsKCW1heF9mZCA9IHM7CgljbGllbnRfZmQgPSAtMTsKCglmb3IoOzspIHsK
+CQlmb3IoaSA9IDAgOyBpIDwgMTI4IDsgaSsrKSB7CgkJCWxpbmVbaV0gPSAwOwoJCX0KCQkKCQly
+ZWFkX2N1ciA9IHJlYWRfc2V0OwoJCXJldCA9IHNlbGVjdChtYXhfZmQrMSwgJnJlYWRfY3VyLCBO
+VUxMLCBOVUxMLCBOVUxMKTsKCQlpZiAocmV0ID09IC0xKSB7CgkJCWZwcmludGYoc3Rkb3V0LCAi
+c2VsZWN0KCkgZXJyb3IgJWRcbiIsIGVycm5vKTsKCQkJY29udGludWU7CgkJfQoJCWZvciAoaSA9
+IDA7IGkgPD0gbWF4X2ZkOyBpKyspIHsKCQkJaWYgKEZEX0lTU0VUKGksICZyZWFkX2N1cikpIHsK
+CQkJCWlmIChpID09IHMpIHsKCQkJCQlzdHJ1Y3Qgc29ja2FkZHJfdW4gICAgYWRkcmVzczsKCQkJ
+CQlpbnQJbGVuOwoKCQkJCQlpZiAoY2xpZW50X2ZkICE9IC0xKSB7CgkJCQkJCWNsb3NlKGNsaWVu
+dF9mZCk7CgkJCQkJfQoKCQkJCQlsZW4gPSBzaXplb2Yoc3RydWN0IHNvY2thZGRyX3VuKTsKCQkJ
+CQljbGllbnRfZmQgPSBhY2NlcHQocywgKHN0cnVjdCBzb2NrYWRkciAqKSZhZGRyZXNzLCAmbGVu
+KTsKCQkJCQlpZiAoY2xpZW50X2ZkID09IC0xKSB7CgkJCQkJCWZwcmludGYoc3Rkb3V0LCAiYWNj
+ZXB0KCkgZXJyb3IgJWRcbiIsIGVycm5vKTsKCQkJCQkJZXhpdCgtMSk7CgkJCQkJfQoJCQkJCWlm
+ICggY2xpZW50X2ZkID4gbWF4X2ZkICkgbWF4X2ZkID0gY2xpZW50X2ZkOwoJCQkJfSBlbHNlIGlm
+IChpID09IGNsaWVudF9mZCkgewoJCQkJCWZwcmludGYoc3Rkb3V0LCAicmVhZCBmcm9tIGNsaWVu
+dF9mZFxuIik7CgkJCQl9CgkJCQkKCQkJCW1zZ2hkci5tc2dfbmFtZSAgICA9IE5VTEw7CgkJCQlt
+c2doZHIubXNnX25hbWVsZW4gPSAwOwoJCQkJbXNnaGRyLm1zZ19pb3YgICAgID0gJnZlYzsKCQkJ
+CW1zZ2hkci5tc2dfaW92bGVuICA9IDE7CgkJCQltc2doZHIubXNnX2NvbnRyb2wgICAgPSBjbXNn
+YnVmOwoJCQkJbXNnaGRyLm1zZ19jb250cm9sbGVuID0gc2l6ZW9mKGNtc2didWYpOwoJCQkJdmVj
+Lmlvdl9iYXNlICA9IGxpbmU7CgkJCQl2ZWMuaW92X2xlbiAgID0gMTI4OwoJCQkJaWYgKChyZXQg
+PSByZWN2bXNnKGNsaWVudF9mZCwgJm1zZ2hkciwgMCkpIDwgMTI4KSB7CgkJCQkJZnByaW50Zihz
+dGRvdXQsICJyZWN2bXNnKCkgZXJyb3IgJWRcbiIsIGVycm5vKTsKCQkJCQlleGl0KC0xKTsKCQkJ
+CX0KCQkJCWZvciAoY21zZyA9IENNU0dfRklSU1RIRFIoJm1zZ2hkcik7IGNtc2cgIT0gTlVMTDsg
+Y21zZyA9IENNU0dfTlhUSERSKCZtc2doZHIsIGNtc2cpKSB7CgkJCQkJaWYgKGNtc2ctPmNtc2df
+bGV2ZWwgPT0gU09MX1NPQ0tFVCkgewoJCQkJCQlwYXNzX2ZkX3B0ciA9IChpbnQgKilDTVNHX0RB
+VEEoY21zZyk7CgkJCQkJCWJyZWFrOwoJCQkJCX0KCQkJCX0KCQkJCWZwcmludGYoc3Rkb3V0LCAi
+cmVjdm1zZygpIGlzIGRvbmUuXG4iKTsKCQkJCWNsb3NlKCpwYXNzX2ZkX3B0cik7CgoJCQkJbXNn
+aGRyLm1zZ19uYW1lICAgID0gTlVMTDsKCQkJCW1zZ2hkci5tc2dfbmFtZWxlbiA9IDA7CgkJCQlt
+c2doZHIubXNnX2lvdiAgICAgPSAmdmVjOwoJCQkJbXNnaGRyLm1zZ19pb3ZsZW4gID0gMTsKCQkJ
+CW1zZ2hkci5tc2dfY29udHJvbGxlbiA9IDA7CgkJCQltc2doZHIubXNnX2NvbnRyb2wgICAgPSBO
+VUxMOwoJCQkJdmVjLmlvdl9iYXNlICA9IHJlcGx5OwoJCQkJdmVjLmlvdl9sZW4gICA9IDEyODsK
+CQkJCWlmICgocmV0ID0gc2VuZG1zZyhjbGllbnRfZmQsICZtc2doZHIsIDAgKSkgPCAxMjgpIHsK
+CQkJCQlmcHJpbnRmKHN0ZG91dCwgInNlbmRtc2cgZXJyb3IgJWRcbiIsIGVycm5vKTsKCQkJCQll
+eGl0KC0xKTsKCQkJCX0KCQkJCWZwcmludGYoc3Rkb3V0LCAic2VuZG1zZygpICVkIGJ5dGUgT0su
+IFxuIiwgcmV0KTsKCQkJCQoJCQkJRkRfWkVSTygmcmVhZF9zZXQpOwoJCQkJRkRfU0VUKHMsICZy
+ZWFkX3NldCk7CgkJCQlicmVhazsKCQkJfQoJCX0KCQkKCX0KCWZwcmludGYoc3Rkb3V0LCJHT09E
+IEJZIFxuIik7CglleGl0ICgwKTsKfQo=
+
+--Multipart_Mon__7_Jan_2002_17:39:44_+0900_083e6930--

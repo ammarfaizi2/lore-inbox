@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263806AbUIFC7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUIFC7N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbUIFC7I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 22:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbUIFC7H
+	id S264213AbUIFC7N (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 22:59:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267405AbUIFC7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 22:59:07 -0400
-Received: from mail.kroah.org ([69.55.234.183]:29163 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263806AbUIFC7D (ORCPT
+	Sun, 5 Sep 2004 22:59:13 -0400
+Received: from mail.kroah.org ([69.55.234.183]:36587 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264213AbUIFC7I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 22:59:03 -0400
-Date: Sun, 5 Sep 2004 17:20:23 -0700
+	Sun, 5 Sep 2004 22:59:08 -0400
+Date: Sun, 5 Sep 2004 11:00:32 -0400
 From: Greg KH <greg@kroah.com>
-To: James Lamanna <jamesl@appliedminds.com>
+To: John Lenz <lenz@cs.wisc.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Remove Phidget Blacklist if kernel driver is not selected
-Message-ID: <20040906002023.GB16840@kroah.com>
-References: <auto-000000530333@appliedminds.com>
+Subject: Re: Backlight and LCD module patches [2]
+Message-ID: <20040905150032.GF12701@kroah.com>
+References: <20040617223517.59a56c7e.zap@homelink.ru> <20040725215917.GA7279@hydra.mshome.net> <20040813232739.GB5063@kroah.com> <1093056693l.30570l.0l@hydra>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <auto-000000530333@appliedminds.com>
+In-Reply-To: <1093056693l.30570l.0l@hydra>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 29, 2004 at 03:21:06PM -0700, James Lamanna wrote:
-> This patch (compile-tested not runtime tested yet)
-> is to remove the blacklisting of Phidgets 
-> if the PhidgetServo kernel driver is not included
-> in the kernel.
-> (Right now it gets rid of all Phidget Blacklists, as more
-> drivers are added I would expect they would be per-driver
-> segmented).
+On Sat, Aug 21, 2004 at 02:51:33AM +0000, John Lenz wrote:
 > 
-> It gets quite annoying to have to patch recent kernels 
-> everytime to use userspace tools (libhid + libphidgets)
-> as opposed to using the kernel driver, which cannot be
-> used because of the HID blacklist.
-> 
-> I don't understand why a kernel driver for the
-> PhidgetServo was included in the kernel. Wasn't the
-> point of the HID layer to be able to present HID devices
-> to userspace so that kernel drivers don't have to be 
-> written for each and every device?
-> It seems to be that the way to control a fairly simple
-> device like the PhidgetServo is through userspace and
-> the kernel shouldn't be bothered with the device control
-> details.
+> Here.  A few notes on the implementation.  I have a global lock protecting
+> all match operations because otherwise we get a dining philosophers problem.
+> (Say the same class is in two class_match structures, class1 in the first 
+> one and class2 in the second...)
 
-Yes, you are correct.  I'm going to rip out the in-kernel version (Oh
-no! Not again...) because this can all be done better and safer from
-userspace.
+You also have some duplicated code in one function, which implies that
+you didn't test this patch (it's in the updated patch you sent me too) :)
 
-But the hid blacklist is still correct, even when using the userspace
-library, as the hid driver should never bind to these devices.
+> The bigger question of how should we be linking these together in the first 
+> place?
+
+I thought you only wanted the ability to actually find the different
+class devices.  Then the code would take it from there.  Not this
+complex driver core linking logic that you implemented.
+
+> Instead of using this class_match stuff, we could use class_interface.
+
+Exactly.  Why don't you all use that instead?
 
 thanks,
 

@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317679AbSGJXh7>; Wed, 10 Jul 2002 19:37:59 -0400
+	id <S317682AbSGJXoK>; Wed, 10 Jul 2002 19:44:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317680AbSGJXh6>; Wed, 10 Jul 2002 19:37:58 -0400
-Received: from gremlin.ics.uci.edu ([128.195.1.70]:63394 "HELO
-	gremlin.ics.uci.edu") by vger.kernel.org with SMTP
-	id <S317679AbSGJXh5>; Wed, 10 Jul 2002 19:37:57 -0400
-Date: Wed, 10 Jul 2002 16:40:27 -0700 (PDT)
-From: Mukesh Rajan <mrajan@ics.uci.edu>
-To: kobras@tat.physik.uni-tuebingen.de
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: HDD test bench
-In-Reply-To: <20020710231335.GG29001@khan.acc.umu.se>
-Message-ID: <Pine.SOL.4.20.0207101636590.10900-100000@hobbit.ics.uci.edu>
+	id <S317683AbSGJXoJ>; Wed, 10 Jul 2002 19:44:09 -0400
+Received: from pD952AE71.dip.t-dialin.net ([217.82.174.113]:63875 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317682AbSGJXoI>; Wed, 10 Jul 2002 19:44:08 -0400
+Date: Wed, 10 Jul 2002 17:45:57 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
+       Pavel Machek <pavel@ucw.cz>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] /proc/cpuinfo output from some arch
+In-Reply-To: <20020711003743.B25089@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0207101744040.5067-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Hi,
 
-i am currently exploring some power optimization algorithm for HDs
-exploiting multiple power states.
+On Thu, 11 Jul 2002, Russell King wrote:
+> As far as SMP systems and cpufreq is concerned, we're going to have
+> a /proc/sys/cpu/all/ as well - you can't control the clock rate of
+> each cpu independently on such systems (otherwise they wouldn't be
+> very symetric.)
 
-i am looking for suggestions to generate a test bench simulating user
-activity. i will have to open and read/write to files on the basis of a
-trace file. currently i'm doing it in a very ad hoc fashion. i have some
-100 dummy files of varying sizes and generating random read/write
-requests. any better way would be appreciated. 
+Yes, asymmetric multiprocessing is a much more diffcult field, but 
+it's not currently an issue to us. (Well, we had this issue long ago, but 
+the SMP approach won, because even though it's uncool, it's still easier 
+to handle. Maybe AMP will return one day...)
 
-thanks,
-mukesh
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

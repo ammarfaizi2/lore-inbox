@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291545AbSB0C0r>; Tue, 26 Feb 2002 21:26:47 -0500
+	id <S291640AbSB0C2H>; Tue, 26 Feb 2002 21:28:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291539AbSB0C0i>; Tue, 26 Feb 2002 21:26:38 -0500
-Received: from [203.94.130.164] ([203.94.130.164]:3844 "EHLO bad-sports.com")
-	by vger.kernel.org with ESMTP id <S291545AbSB0C0Y>;
-	Tue, 26 Feb 2002 21:26:24 -0500
-Date: Wed, 27 Feb 2002 13:55:33 +1100 (EST)
-From: Brett <brett@bad-sports.com>
-To: Dave Jones <davej@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.5-dj1 - ide_set_handler/kernel timer <-- and now dj2 as well
-In-Reply-To: <Pine.LNX.4.33.0202220348540.14170-100000@Appserv.suse.de>
-Message-ID: <Pine.LNX.4.44.0202271352310.29386-100000@bad-sports.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291664AbSB0C1u>; Tue, 26 Feb 2002 21:27:50 -0500
+Received: from zero.tech9.net ([209.61.188.187]:43791 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S291640AbSB0C1g>;
+	Tue, 26 Feb 2002 21:27:36 -0500
+Subject: Re: is there a spin_trylock_irqsave?
+From: Robert Love <rml@tech9.net>
+To: Gigi Sebastian Alapatt <ggnet@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <F132iGXix4A2DreBBsQ00008ce6@hotmail.com>
+In-Reply-To: <F132iGXix4A2DreBBsQ00008ce6@hotmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 26 Feb 2002 21:27:37 -0500
+Message-Id: <1014776857.879.104.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hey,
-
-Subject says it all... still getting these
-Oh, and the kernel just panicked.
-
-Traded some emails with andre about this last time,
-and he was unable to get it to stop.
-
-any ideas ?
-
-	/ Brett
-
-On Fri, 22 Feb 2002, Dave Jones wrote:
-
-> On Fri, 22 Feb 2002, Brett wrote:
+On Tue, 2002-02-26 at 21:14, Gigi Sebastian Alapatt wrote:
 > 
-> > This just popped up a few minutes after boot:
-> > hda: ide_set_handler: handler not null; old=c01c4d30, new=c01c4d30
-> > bug: kernel timer added twice at c01c6197.
+> Is there a spin_trylock_irqsave?
 > 
-> Argh, I thought things would be less problematic by dropping
-> those ide changes.   Looks like I missed something.
-> I'll take a look in the morning.
+> Basicially
 > 
-> 
+> spin_once_trylock_irqsave?
+
+No, although there is a spin_trylock_bh for whatever reason.
+
+Implementing this would not be hard, you just need to disable irqs
+_before_ spin_trylock to avoid a race.  Something like:
+
+	int dog;
+	unsigned long flags;
+
+	local_irq_save(flags);
+	dog = spin_trylock(lock);
+	if (!dog)
+		local_irq_restore(flags);
+
+Oh, I'll just attach a patch.  Enjoy,
+
+	Robert Love
+
+diff -urN linus/include/linux/spinlock.h linux/include/linux/spinlock.h
+--- linus/include/linux/spinlock.h	Tue Feb 26 20:17:12 2002
++++ linux/include/linux/spinlock.h	Tue Feb 26 21:22:22 2002
+@@ -38,6 +38,12 @@
+ 						__r = spin_trylock(lock);      \
+ 						if (!__r) local_bh_enable();   \
+ 						__r; })
++#define spin_trylock_irqsave(lock, flags)	({ int __r;		       \
++						local_irq_save(flags);         \
++						__r = spin_trylock(lock);      \
++						if (!__r)                      \
++						local_irq_restore(flags);      \
++						__r; })
+ 
+ /* Must define these before including other files, inline functions need them */
+ 
 

@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274034AbRISJig>; Wed, 19 Sep 2001 05:38:36 -0400
+	id <S274030AbRISJ61>; Wed, 19 Sep 2001 05:58:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274029AbRISJi0>; Wed, 19 Sep 2001 05:38:26 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:32781 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S274028AbRISJiH>; Wed, 19 Sep 2001 05:38:07 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: ebiederm@xmission.com (Eric W. Biederman),
-        "Rob Fuller" <rfuller@nsisoftware.com>
-Subject: Re: broken VM in 2.4.10-pre9
-Date: Wed, 19 Sep 2001 11:45:44 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-In-Reply-To: <878A2048A35CD141AD5FC92C6B776E4907BB98@xchgind02.nsisw.com> <m166ahst39.fsf@frodo.biederman.org>
-In-Reply-To: <m166ahst39.fsf@frodo.biederman.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010919093828Z17304-2759+92@humbolt.nl.linux.org>
+	id <S274029AbRISJ6R>; Wed, 19 Sep 2001 05:58:17 -0400
+Received: from maclaurence.math.u-psud.fr ([129.175.50.15]:16903 "EHLO
+	maclaurence") by vger.kernel.org with ESMTP id <S273350AbRISJ6N>;
+	Wed, 19 Sep 2001 05:58:13 -0400
+Date: Wed, 19 Sep 2001 11:59:17 +0200
+To: linux-kernel@vger.kernel.org
+Subject: min/max and all that jazz
+Message-ID: <20010919115917.A12129@maclaurence.math.u-psud.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 17, 2001 06:03 pm, Eric W. Biederman wrote:
-> In linux we have avoided reverse maps (unlike the BSD's) which tends
-> to make the common case fast at the expense of making it more
-> difficult to handle times when the VM system is under extreme load and
-> we are swapping etc.
+gcc has a warning option -Wsign-compare (not turned on by -Wall):
 
-What do you suppose is the cost of the reverse map?  I get the impression you 
-think it's more expensive than it is.
+`-Wsign-compare'
+     Warn when a comparison between signed and unsigned values could
+     produce an incorrect result when the signed value is converted to
+     unsigned.  This warning is also enabled by `-W'; to get the other
+     warnings of `-W' without this warning, use `-W -Wno-sign-compare'.
 
---
-Daniel
+This might pick up some errors of the kind the new min/max macros
+are trying to catch...
+
+Duncan.
+
+PS: please CC any comments to me, since I'm not subscribed to the list.

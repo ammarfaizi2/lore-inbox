@@ -1,79 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269984AbUJNHQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269989AbUJNHUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269984AbUJNHQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 03:16:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269986AbUJNHQ6
+	id S269989AbUJNHUj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 03:20:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269988AbUJNHUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 03:16:58 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:62125 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269984AbUJNHQ4 (ORCPT
+	Thu, 14 Oct 2004 03:20:37 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:52408 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S269991AbUJNHTG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 03:16:56 -0400
-Date: Thu, 14 Oct 2004 09:18:10 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Sven Dietrich <sdietrich@mvista.com>, Daniel Walker <dwalker@mvista.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       abatyrshin@ru.mvista.com, amakarov@ru.mvista.com, emints@ru.mvista.com,
-       ext-rt-dev@mvista.com, hzhang@ch.mvista.com, yyang@ch.mvista.com,
-       "Witold. Jaworski@Unibw-Muenchen. De" 
-	<witold.jaworski@unibw-muenchen.de>,
-       arnd.heursch@unibw-muenchen.de
-Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-Message-ID: <20041014071810.GB9729@elte.hu>
-References: <20041011215420.GA19796@elte.hu> <EOEGJOIIAIGENMKBPIAECEIEDKAA.sdietrich@mvista.com> <20041012055029.GB1479@elte.hu> <20041014050905.GA6927@in.ibm.com>
+	Thu, 14 Oct 2004 03:19:06 -0400
+Date: Thu, 14 Oct 2004 17:16:59 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       linux-xfs@oss.sgi.com
+Subject: Re: Page cache write performance issue
+Message-ID: <20041014071659.GB1768@frodo>
+References: <20041013054452.GB1618@frodo> <20041012231945.2aff9a00.akpm@osdl.org> <20041013063955.GA2079@frodo> <20041013000206.680132ad.akpm@osdl.org> <20041013172352.B4917536@wobbly.melbourne.sgi.com> <416CE423.3000607@cyberone.com.au> <20041013013941.49693816.akpm@osdl.org> <20041014005300.GA716@frodo> <20041013202041.2e7066af.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041014050905.GA6927@in.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20041013202041.2e7066af.akpm@osdl.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Dipankar Sarma <dipankar@in.ibm.com> wrote:
-
-> On Tue, Oct 12, 2004 at 07:50:29AM +0200, Ingo Molnar wrote:
-> > 
-> > regarding RCU serialization - i think that is the way to go - i dont
-> > think there is any sensible way to extend RCU to a fully preempted
-> > model, RCU is all about per-CPU-ness and per-CPU-ness is quite limited 
-> > in a fully preemptible model.
+On Wed, Oct 13, 2004 at 08:20:41PM -0700, Andrew Morton wrote:
+> Nathan Scott <nathans@sgi.com> wrote:
+> >  I just tried switching CONFIG_HIGHMEM off, and so running the
+> >  machine with 512MB; then adjusted the test to write 256M into
+> >  the page cache, again in 1K sequential chunks.  A similar mis-
+> >  behaviour happens, though the numbers are slightly better (up
+> >  from ~4 to ~6.5MB/sec).  Both ext2 and xfs see this.  When I
+> >  drop the file size down to 128M with this kernel, I see good
+> >  results again (as we'd expect).
 > 
-> It seems that way to me too. Long ago I implemented preemptible RCU,
-> but did not follow it through because I believed it was not a good
-> idea. The original patch is here :
+> No such problem here, with
 > 
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0205.1/0026.html
+> 	dd if=/dev/zero of=x bs=1k count=128k
+> 
+> on a 256MB machine.  xfs and ext2.
 
-interesting!
+Yup, rebooted with mem=128M and on my box, & that crawls.
+Maybe its just this old hunk 'o junk, I suppose; odd that
+2.6.8 was OK with this though.
 
-> This allows read-side critical sections of RCU to be preempted. It
-> will take a bit of work to re-use it in RCU as of now, but I don't
-> think it makes sense to do so. [...]
+> Can you exhibit this one more than one machine?
 
-note that meanwhile i have implemented another variant:
+I haven't got a second ia32 box atm - setting one up soon,
+will let you know how it goes.
 
-  http://marc.theaimsgroup.com/?l=linux-kernel&m=109771365907797&w=2
+> Silly question: what does `grep sync' /etc/fstab say over there? ;)
 
-i dont think this will be the final interface (the _rt postfix is
-stupid, it should probably be _spin?), but i think this is roughly the
-structure of how to attack it - a minimal extension to the RCU APIs to
-allow for serialization. What do you think about this particular
-approach?
+Same thing it said on 2.6.8. :)  Nada.
 
-> [...] My primary concern is DoS/OOM situation due to preempted tasks
-> holding up RCU.
+cheers.
 
-in the serialization solution in -U0 it would be possible to immediately
-free the RCU entries and hence have no DoS/OOM situation - although the
--U0 patch does not do this yet.
-
-	Ingo
+-- 
+Nathan

@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315407AbSEONwZ>; Wed, 15 May 2002 09:52:25 -0400
+	id <S315460AbSEOODH>; Wed, 15 May 2002 10:03:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315460AbSEONwY>; Wed, 15 May 2002 09:52:24 -0400
-Received: from mail.s3.kth.se ([130.237.48.5]:47880 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id <S315407AbSEONwY>;
-	Wed, 15 May 2002 09:52:24 -0400
-To: "Kingsley Foreman" <kingsley@uglypunk.com>
-Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: do u get better performance from optimizing the code
-In-Reply-To: <023101c1fc14$e62c4150$0f0da8c0@Sabine>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 15 May 2002 15:52:14 +0200
-Message-ID: <yw1xhel9v7qp.fsf@calippo.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S315799AbSEOODG>; Wed, 15 May 2002 10:03:06 -0400
+Received: from tartu.cyber.ee ([193.40.6.68]:23305 "EHLO tartu.cyber.ee")
+	by vger.kernel.org with ESMTP id <S315460AbSEOODG>;
+	Wed, 15 May 2002 10:03:06 -0400
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Adaptec Aic7xxx driver & 2.4.19pre8aa2
+In-Reply-To: <20020515130328.GA19698@spylog.ru>
+User-Agent: tin/1.5.12-20020227 ("Toxicity") (UNIX) (Linux/2.4.18 (i586))
+Message-Id: <E177zMw-0000ml-00@roos.tartu-labor>
+Date: Wed, 15 May 2002 17:03:06 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Kingsley Foreman" <kingsley@uglypunk.com> writes:
+I have had similar problems with integrated AIC7850 on Digital Celebris GL 5133
+ST. 2.4.19-pre7 and pre8 only tested so far, no earlier kernels tested at all.
 
-> just out of curiosity will the kernel perform better if you
-> change the optimizations using C++ eg use  -O9 or something during compile
+Selecting old adaptec scsi deriver works like a charm.
 
-The kernel is written in C, so don't use a C++ compiler. GCC has four
-levels of optimization:
-0 = nothing
-1 = -O, simple things
-2 = some more
-3 = function inlining etc.
+AN> aic7xxx_dev_reset returns 0x2002
 
-Anyting >3 is treated as 3.
+I had 0x2008 here IIRC. Did not capture the output because this was about the
+root partition and I had no serial cable at home. Will capture it with serial
+console today.
 
 -- 
-Måns Rullgård
-mru@users.sf.net
+Meelis Roos (mroos@linux.ee)

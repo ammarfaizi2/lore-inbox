@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbUKHShg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbUKHS1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbUKHShg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 13:37:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbUKHSgD
+	id S261157AbUKHS1H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 13:27:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbUKHSZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 13:36:03 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:6158 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261196AbUKHSfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 13:35:20 -0500
-Date: Mon, 8 Nov 2004 19:34:49 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] kill IN_STRING_C
-Message-ID: <20041108183449.GC15077@stusta.de>
-References: <20041107142445.GH14308@stusta.de> <20041108134448.GA2456@wotan.suse.de> <20041108153436.GB9783@stusta.de> <20041108161935.GC2456@wotan.suse.de> <20041108163101.GA13234@stusta.de> <20041108175120.GB27525@wotan.suse.de>
+	Mon, 8 Nov 2004 13:25:08 -0500
+Received: from postman2.arcor-online.net ([151.189.20.157]:55222 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S261156AbUKHSTH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 13:19:07 -0500
+Date: Mon, 8 Nov 2004 19:18:32 +0100
+From: Juergen Quade <quade@hsnr.de>
+To: dtor_core@ameritech.net
+Cc: LKML <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [RFT/PATCH] Toshiba Satellite, Synaptics & keyboard problems
+Message-ID: <20041108181832.GA26966@hsnr.de>
+References: <200411080154.54279.dtor_core@ameritech.net> <20041108083531.GA17236@hsnr.de> <d120d50004110806334f69507c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20041108175120.GB27525@wotan.suse.de>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <d120d50004110806334f69507c@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 06:51:20PM +0100, Andi Kleen wrote:
-> On Mon, Nov 08, 2004 at 05:31:01PM +0100, Adrian Bunk wrote:
-> > On Mon, Nov 08, 2004 at 05:19:35PM +0100, Andi Kleen wrote:
-> > > > Rethinking it, I don't even understand the sprintf example in your 
-> > > > changelog entry - shouldn't an inclusion of kernel.h always get it 
-> > > > right?
-> > > 
-> > > Newer gcc rewrites sprintf(buf,"%s",str) to strcpy(buf,str) transparently.
-> > 
-> > Which gcc is "Newer"?
-> 
-> I saw it with 3.3-hammer, which had additional optimizations in this 
-> area at some point. Note that 3.3-hammer is widely used. I don't 
-> know if 3.4 does it in the same way.
+> ...
+> Well, this one is pretty easy - make sure that you have a recent
+> version of Synaptics X driver and change protocol in your XF86Config
+> to "auto-dev". (most likely you wree using /dev/input/exentX as your
+> device and in 2.6.9 your keyboard and touchpad swapped their
+> event devices).
 
-Is this a -hammer specific problem?
-If yes, does a -no-builtin-sprintf fix it?
+Gotcha!
+Your guess was right. Thanks a lot!
 
-Or is the problem a missing #include <linux/kernel.h> at the top of 
-include/linux/string.h?
-
-> -Andi
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+          Juergen.

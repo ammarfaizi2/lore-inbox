@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317936AbSFNPnf>; Fri, 14 Jun 2002 11:43:35 -0400
+	id <S317628AbSFNPt5>; Fri, 14 Jun 2002 11:49:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317940AbSFNPne>; Fri, 14 Jun 2002 11:43:34 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:46028 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S317936AbSFNPnd>; Fri, 14 Jun 2002 11:43:33 -0400
-Date: Fri, 14 Jun 2002 17:14:31 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Dan Aloni <da-x@gmx.net>, Linux Kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][2.5] 2.5.21 deadlocks on UP (SMP kernel) w/ IOAPIC
-In-Reply-To: <Pine.LNX.4.44.0206141732160.2640-100000@e2>
-Message-ID: <Pine.LNX.4.44.0206141712590.30400-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317940AbSFNPt5>; Fri, 14 Jun 2002 11:49:57 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:9115 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S317628AbSFNPtx>;
+	Fri, 14 Jun 2002 11:49:53 -0400
+Date: Sat, 15 Jun 2002 01:47:38 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, matthew@wil.cx
+Subject: Re: [PATCH] make file leases work as they should
+Message-Id: <20020615014738.07daaa2f.sfr@canb.auug.org.au>
+In-Reply-To: <20020614222211.3169bb60.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.7.7 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch updated to fix a thinko spotted out by Dan Aloni
+On Fri, 14 Jun 2002 22:22:11 +1000 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+>
+> This patch is against a recent BK tree (I wouldn't normally do this,
+> but the fs/locks.c file has changed significantly since 2.5.21).
 
---- linux-2.5.19/arch/i386/kernel/io_apic.c.orig	Fri Jun 14 17:43:20 2002
-+++ linux-2.5.19/arch/i386/kernel/io_apic.c	Fri Jun 14 17:42:23 2002
-@@ -251,7 +251,7 @@
- 	irq_balance_t *entry = irq_balance + irq;
- 	unsigned long now = jiffies;
- 
--	if (unlikely(entry->timestamp != now)) {
-+	if ((entry->timestamp != now) && (smp_num_cpus > 1)) {
- 		unsigned long allowed_mask;
- 		int random_number;
- 
+My mistake, this patch also applies to 2.5.21 (with some slight
+offsets).
 
-Linus, please apply.
-
-Regards,
-	Zwane Mwaikambo
 -- 
-http://function.linuxpower.ca
-		
-
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313165AbSDDNn1>; Thu, 4 Apr 2002 08:43:27 -0500
+	id <S313168AbSDDN66>; Thu, 4 Apr 2002 08:58:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313167AbSDDNnQ>; Thu, 4 Apr 2002 08:43:16 -0500
-Received: from inet-mail1.oracle.com ([148.87.2.201]:11934 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id <S313165AbSDDNnL>; Thu, 4 Apr 2002 08:43:11 -0500
-Message-ID: <3CAC57B0.5090902@oracle.com>
-Date: Thu, 04 Apr 2002 15:40:00 +0200
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020326
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stelian Pop <stelian.pop@fr.alcove.com>
-CC: "Adam J. Richter" <adam@yggdrasil.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Patch: linux-2.5.8-pre1/kernel/exit.c change caused BUG() at
- boot time
-In-Reply-To: <20020404035910.A281@baldur.yggdrasil.com> <20020404125614.GE9820@come.alcove-fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313170AbSDDN6s>; Thu, 4 Apr 2002 08:58:48 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:52392 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S313168AbSDDN6f>; Thu, 4 Apr 2002 08:58:35 -0500
+Date: Thu, 4 Apr 2002 15:58:26 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: davej@suse.de, pavel@atrey.karlin.mff.cuni.cz
+Subject: [PATCH 2.5.8-pre1] nbd compile fixes...
+Message-ID: <20020404135826.GG9820@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	davej@suse.de, pavel@atrey.karlin.mff.cuni.cz
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian Pop wrote:
-> On Thu, Apr 04, 2002 at 03:59:10AM -0800, Adam J. Richter wrote:
-> 
-> 
->>	When I attempted to boot linux-2.5.8-pre1, I got a kernel
->>BUG() for exit.c line 519.  The was a small change to to kernel/exit.c
->>in 2.5.8-pre1 which deleted a kernel_lock() call.  Restoring that line
->>resulted in a kernel that booted fine.  I am sending this email from
->>the machine running that kernel (so I guess a matching release of
->>the kernel lock is already in the code).
-> 
-> 
-> It should be added that the bug is hit only if CONFIG_PREEMPT is on.
+In 2.5.8-pre1 include/linux/nbd.h a struct member name was changed
+from 'queue_lock' to 'tx_lock', with the comment "nbd compile fix"
+from Dave Jones.
 
-Just to say that
+In fact, since nbd.c still reference 'queue_lock' I suspect that
+the actual modifications to nbd.c were lost somewhere in etherspace
+between Dave and Linus.
 
-  * I hit the bug
-  * I have CONFIG_PREEMPT
-  * Adam's fix "works for me (TM)"
+Either provide the right fix for nbd.c or apply the attached patch,
+which reverts the patch to nbd.h.
 
---alessandro
+In other words, the attached patch provides a "nbd compile fix" by
+reverting the previous "nbd compile fix" :-)
 
-  "time is never time at all / you can never ever leave
-    without leaving a piece of youth"
-                    (Smashing Pumpkins, "Tonight, tonight")
+Stelian.
 
+
+===== include/linux/nbd.h 1.7 vs edited =====
+--- 1.7/include/linux/nbd.h	Sun Mar 31 15:43:18 2002
++++ edited/include/linux/nbd.h	Thu Apr  4 13:53:15 2002
+@@ -70,7 +70,7 @@
+ 	struct file * file; 		/* If == NULL, device is not ready, yet	*/
+ 	int magic;			/* FIXME: not if debugging is off	*/
+ 	struct list_head queue_head;	/* Requests are added here...			*/
+-	struct semaphore tx_lock;
++	struct semaphore queue_lock;
+ };
+ #endif
+ 
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

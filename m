@@ -1,73 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277099AbRJDDVI>; Wed, 3 Oct 2001 23:21:08 -0400
+	id <S277006AbRJDDiC>; Wed, 3 Oct 2001 23:38:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277098AbRJDDU5>; Wed, 3 Oct 2001 23:20:57 -0400
-Received: from femail28.sdc1.sfba.home.com ([24.254.60.18]:48566 "EHLO
-	femail28.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S277099AbRJDDUt>; Wed, 3 Oct 2001 23:20:49 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-Organization: Boundaries Unlimited
-To: drepper@redhat.com, ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
-Date: Wed, 3 Oct 2001 19:20:39 -0400
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200110031249.HAA50103@tomcat.admin.navo.hpc.mil> <m1r8sk1tuq.fsf@frodo.biederman.org>
-In-Reply-To: <m1r8sk1tuq.fsf@frodo.biederman.org>
+	id <S277100AbRJDDhx>; Wed, 3 Oct 2001 23:37:53 -0400
+Received: from mpdr0.cleveland.oh.ameritech.net ([206.141.223.14]:28612 "EHLO
+	mailhost.cle.ameritech.net") by vger.kernel.org with ESMTP
+	id <S277006AbRJDDhd>; Wed, 3 Oct 2001 23:37:33 -0400
+Date: Wed, 3 Oct 2001 23:37:55 -0400 (EDT)
+From: Stephen Torri <storri@ameritech.net>
+X-X-Sender: <torri@base.torri.linux>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Unresolved modules 2.4.10-ac4
+Message-ID: <Pine.LNX.4.33.0110032310550.7092-100000@base.torri.linux>
 MIME-Version: 1.0
-Message-Id: <01100319203903.00728@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 October 2001 14:06, Eric W. Biederman wrote:
+Received the following unresolved sysmbol messages after compiling acpi as
+modules. They were received during make modules_install.
 
-> > But not modify a busy executable.
->
-> Have ld-linux.so set the MAP_DENYWRITE bit when it is mapping
-> the library.
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.10-ac4/kernel/drivers/acpi/ospm/button/ospm_button.o
 
-And of course since the FSF wrote it, it's not quite that simple...
+depmod: 	acpi_ut_debug_print_raw
+depmod: 	acpi_ut_debug_print
+depmod: 	acpi_ut_status_exit
+depmod: 	acpi_ut_trace
 
->/* The right way to map in the shared library files is MAP_COPY, which
->   makes a virtual copy of the data at the time of the mmap call; this
->   guarantees the mapped pages will be consistent even if the file is
->   overwritten.  Some losing VM systems like Linux's lack MAP_COPY.  All we
->   get is MAP_PRIVATE, which copies each page when it is modified; this
->   means if the file is overwritten, we may at some point get some pages
->   from the new version after starting with pages from the old version.  */
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.10-ac4/kernel/drivers/acpi/ospm/ec/ospm_ec.o
 
-I.E. it seems like they go out of their way to ALLOW writing to the libaries. 
- (I assume they KNOW the difference between MAP_DENYWRITE, MAP_COPY, and 
-MAP_PRIVATE...?)
+depmod: 	acpi_ut_debug_print_raw
+depmod: 	acpi_ut_debug_print
+depmod: 	acpi_ut_status_exit
+depmod: 	acpi_ut_exit
+depmod: 	acpi_ut_trace
 
-This look right to anybody else?  Or am I about to wander into weird 
-side-effect land?  (Is there a reason they DON'T want a read-only mapping?  
-Are they writing data into those pages, perhaps doing the linking fixup 
-stuff?  What?)
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.10-ac4/kernel/drivers/acpi/ospm/processor/ospm_processor.o
 
---- elf/dl-load.bak Wed Oct  3 18:53:37 2001
-+++ elf/dl-load.c   Wed Oct  3 18:55:57 2001
-@@ -48,7 +48,7 @@
-    means if the file is overwritten, we may at some point get some pages
-    from the new version after starting with pages from the old version.  */
- #ifndef MAP_COPY
--# define MAP_COPY      MAP_PRIVATE
-+# define MAP_COPY      MAP_DENYWRITE
- #endif
- 
- /* Some systems link their relocatable objects for another base address
+depmod: 	acpi_ut_debug_print_raw
+depmod: 	acpi_ut_debug_print
+depmod: 	acpi_ut_status_exit
+depmod: 	acpi_ut_trace
 
-I should just try this and see what it does.  On a machine I don't mind 
-reinstalling from scratch.  Which means I need to dig up a spare keyboard for 
-my junk machine...  (And figure out how to get glibc's ./configure script to 
-realise that linuxthreads is, in fact, there in the source directory.  It's 
-right there.  Use it.  Don't yell at me it's not there.  I didn't make this 
-SRPM, I changed one line...  Sigh...)
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.10-ac4/kernel/drivers/acpi/ospm/system/ospm_system.o
 
-In the morning...
+depmod: 	acpi_ut_debug_print_raw
+depmod: 	acpi_ut_debug_print
+depmod: 	dmi_broken
+depmod: 	init_8259A
+depmod: 	acpi_ut_status_exit
+depmod: 	acpi_ut_trace
 
-Rob
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.10-ac4/kernel/drivers/acpi/ospm/thermal/ospm_thermal.o
+
+depmod: 	acpi_ut_debug_print_raw
+depmod: 	acpi_ut_debug_print
+depmod: 	acpi_ut_status_exit
+depmod: 	acpi_ut_exit
+depmod: 	acpi_ut_trace
+
+Kernel setup: 2.4.10 patched with 2.4.10-ac4
+
+#define CONFIG_ACPI 1
+#define CONFIG_ACPI_DEBUG 1
+#undef  CONFIG_ACPI_BUSMGR
+#define CONFIG_ACPI_BUSMGR_MODULE 1
+#undef  CONFIG_ACPI_SYS
+#define CONFIG_ACPI_SYS_MODULE 1
+#undef  CONFIG_ACPI_CPU
+#define CONFIG_ACPI_CPU_MODULE 1
+#undef  CONFIG_ACPI_BUTTON
+#define CONFIG_ACPI_BUTTON_MODULE 1
+#undef  CONFIG_ACPI_AC
+#undef  CONFIG_ACPI_EC
+#define CONFIG_ACPI_EC_MODULE 1
+#undef  CONFIG_ACPI_CMBATT
+#undef  CONFIG_ACPI_THERMAL
+#define CONFIG_ACPI_THERMAL_MODULE 1
+
+At this point I went and redid the configuration but said "Y" to all ACPI
+options that I had previously said "M". Now the compile went perfectly and
+here is the kernel config:
+
+#define CONFIG_ACPI 1
+#define CONFIG_ACPI_DEBUG 1
+#define CONFIG_ACPI_BUSMGR 1
+#define CONFIG_ACPI_SYS 1
+#define CONFIG_ACPI_CPU 1
+#define CONFIG_ACPI_BUTTON 1
+#undef  CONFIG_ACPI_AC
+#define CONFIG_ACPI_EC 1
+#undef  CONFIG_ACPI_CMBATT
+#define CONFIG_ACPI_THERMAL 1
+
+Hope this helps
+
+Stephen
+

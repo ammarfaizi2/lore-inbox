@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265701AbUIDSwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUIDTBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265701AbUIDSwL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 14:52:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUIDSwL
+	id S265805AbUIDTBN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 15:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265817AbUIDTBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 14:52:11 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:42605 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S265701AbUIDSwI
+	Sat, 4 Sep 2004 15:01:13 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:524 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S265805AbUIDTA5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 14:52:08 -0400
-Message-ID: <413A0EEE.4000007@cs.aau.dk>
-Date: Sat, 04 Sep 2004 20:52:30 +0200
+	Sat, 4 Sep 2004 15:00:57 -0400
+Message-ID: <413A10FE.5050209@cs.aau.dk>
+Date: Sat, 04 Sep 2004 21:01:18 +0200
 From: =?ISO-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
 User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040814)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
 Cc: umbrella-devel@lists.sourceforge.net,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [Umbrella-devel] Re: Getting full path from dentry in LSM hooks
-References: <41385FA5.806@cs.aau.dk> <20040903133238.A4145@infradead.org> <413865B4.7080208@cs.aau.dk> <20040903140449.A4253@infradead.org> <41386FB7.2060804@cs.aau.dk> <20040903150111.A4884@infradead.org> <4138CBEF.9000909@cs.aau.dk> <20040904120958.B14123@infradead.org>
-In-Reply-To: <20040904120958.B14123@infradead.org>
+References: <200409040241.i842fZxa003725@localhost.localdomain>
+In-Reply-To: <200409040241.i842fZxa003725@localhost.localdomain>
 X-Enigmail-Version: 0.85.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Fri, Sep 03, 2004 at 09:54:23PM +0200, Kristian Sørensen wrote:
-> 
->>>>We are working on a project called Umbrella, (umbrella.sf.net) which 
->>>>implements processbased mandatory accesscontrol in the Linux kernel. 
->>>>This access control is controlled by "restriction", e.g. by restricting 
->>>> some process from accessing any given file or directory.
->>>>
->>>>E.g. if a root owned process is restricted from accessing /var/www, and 
->>>>the process is compromised by an attacker, no mater what he does, he 
->>>>would not be able to access this directory.
->>>
->>>
->>>mount --bind /var/www /home/joe/p0rn/, and then?
->>
->>Actually this "attack" is avoided, because restrictions are enherited, 
->>from parent proces to its children.
+Horst von Brand wrote:
+>>Also simple bufferoverflows in suid-root programs may be avoided.
 > 
 > 
-> If you restrict your process on the path /var/ww/ but the same objects
-> are also available below a different path, what does that have to do with
-> child processes?
-Well nothing :-) The point was, that links and mount bindings are 
-handled, and if the parent is restricted from accessing a file, the 
-child is too.
+> How?
+You can (naturally) not avoid the attack and thereby the process from 
+crashing - but you can avoid the effects of it. E.g. if you restrict the 
+suid-root process form spawning new processes, it would not be able to 
+spawn a root shell, programs liks passwd and cdrecord would be good 
+candidates to this restriction.
+
+
+>>                                                                  The 
+>>simple way would to set the restriction "no fork", and thus if an 
+>>attacker tries to fork a (root) shell, this would be denied.
+> 
+> 
+> A simple exec(2) will do. Or overwriting a file. Or... If you restrict all
+> potentially dangerous operations, you have nothing useful left.
+> 
+> 
+>>                                                             Another way 
+>>could be to heavily restrict access to the filesystem. If the program is 
+>>restricted from /var, the root shell spawned by the attack would not 
+>>have access either. (restrictions are enherited from parent to children).
+> 
+> 
+> Just delete /var. Oops, it is there for a purpose...
+Sure... but not all programs really need access to this. My calendar on 
+my PDA for one do not. It (restricting /var) was, as I hope you 
+guessed?, an example!
+
+
+A cool thing is also, that if you restrict the init process from 
+accessing a secific directory, then all processes in the system will be 
+restricted from this. This will be utilized by Umbrella, to introduce 
+signed files (public key cryptography). The area of the public keys will 
+be protected by the kernel - simply by restricting Init from this location.
+
 
 KS.

@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311610AbSCNMxO>; Thu, 14 Mar 2002 07:53:14 -0500
+	id <S311608AbSCNM7y>; Thu, 14 Mar 2002 07:59:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311608AbSCNMxF>; Thu, 14 Mar 2002 07:53:05 -0500
-Received: from dsl-213-023-038-002.arcor-ip.net ([213.23.38.2]:33953 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S311609AbSCNMwx>;
-	Thu, 14 Mar 2002 07:52:53 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: root@chaos.analogic.com, wli@holomorphy.com
-Subject: Re: 2.4.19pre2aa1
-Date: Thu, 14 Mar 2002 13:47:19 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrea Arcangeli <andrea@suse.de>, wli@parcelfarce.linux.theplanet.co.uk,
-        linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
-        phillips@bonn-fries.net
-In-Reply-To: <Pine.LNX.3.95.1020314071041.3534A-100000@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.3.95.1020314071041.3534A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16lUdc-0000Oz-00@starship>
+	id <S311611AbSCNM7g>; Thu, 14 Mar 2002 07:59:36 -0500
+Received: from ns.suse.de ([213.95.15.193]:34832 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S311608AbSCNM7O>;
+	Thu, 14 Mar 2002 07:59:14 -0500
+Date: Thu, 14 Mar 2002 13:59:12 +0100
+From: Dave Jones <davej@suse.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19pre3aa2
+Message-ID: <20020314135912.C19636@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020314032801.C1273@dualathlon.random> <20020314133223.B19636@suse.de> <3C909B89.1000903@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C909B89.1000903@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Mar 14, 2002 at 07:46:01AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 14, 2002 01:18 pm, Richard B. Johnson wrote:
-> On Wed, 13 Mar 2002 wli@holomorphy.com wrote:
-> > [big swinging math stuff]
->
-> Listen you incompetent amoeba. I attempted to tell you in a nice
-> way that your apparent mastery of technical mumbo-jumbo will be
-> detected by many who have actual knowledge and expertise in the
-> area in which you pretend to be competent.
+On Thu, Mar 14, 2002 at 07:46:01AM -0500, Jeff Garzik wrote:
+ 
+ > Could you be convinced to post your vendor choice patch to linux-kernel 
+ > perhaps?  :)
+ > (yes, I know I already have it, I would like others to see it)
 
-You were way wide of the mark, though admittedly Bill reacted more 
-agressively than necessary, it's what happens when you use steroids to build 
-up your math muscles ;-)
+Sure. it's against something ancient, and I've not had time to rediff/update it.
+If there's sufficient interest, I'll do so soon..
 
-Bill knows what a pseudorandom generator is, and how to use it for testing 
-hash functions, so do I.  I don't really like the one you showed, though I 
-appeciate the fact it's a couple of assembly instructions and has a decent 
-period.  Did you run a spectral test[1] on it?  I'd be surprised if the 
-results are pretty, though pleasantly surprised.  I have one myself sitting 
-around somewhere that's 2 or 3 instructions long, based on an LSR, which does 
-have some analyzable properties.  Though for serious testing I wouldn't use 
-it - I'd crack my Numerical Recipes in C or use urandom, taking it on faith 
-that the coder was duly diligent.  A few cycles saved evaluating the hash 
-just isn't worth it if you then have to wonder if patterns in your generator 
-are showing through to your test results.
-
-You missed a lot if you didn't notice the quality of Bill's work on the hash.
-I 100% agree with his approach[2].  The fact he managed to satisfy davem 
-should tell you a lot - we now have nice, short multiplicative hashes to use 
-that get evaluated as fast shift-adds on sparc.  These hashes have *provably* 
-good behavior.  Thanks Bill.
-
-[1] see Knuth
-[2] well, I sort of put him up to it...
+ http://www.codemonkey.org.uk/patches/old/cpu-choice-2.diff
 
 -- 
-Daniel
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

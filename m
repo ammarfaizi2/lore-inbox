@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129045AbQKIUXn>; Thu, 9 Nov 2000 15:23:43 -0500
+	id <S130985AbQKIUZX>; Thu, 9 Nov 2000 15:25:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129566AbQKIUXd>; Thu, 9 Nov 2000 15:23:33 -0500
-Received: from ns.caldera.de ([212.34.180.1]:28691 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S129045AbQKIUXX>;
-	Thu, 9 Nov 2000 15:23:23 -0500
-Date: Thu, 9 Nov 2000 21:22:28 +0100
-Message-Id: <200011092022.VAA03494@ns.caldera.de>
-From: Christoph Hellwig <hch@caldera.de>
-To: root@chaos.analogic.com ("Richard B. Johnson")
-Cc: Linux kernel <linux-kernel@vger.kernel.org>,
-        Brian Gerst <bgerst@didntduck.org>
-Subject: Re: Module open() problems, Linux 2.4.0
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <Pine.LNX.3.95.1001109150621.15404A-100000@chaos.analogic.com>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
+	id <S130876AbQKIUZN>; Thu, 9 Nov 2000 15:25:13 -0500
+Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:31888 "HELO tsx-prime.MIT.EDU")
+	by vger.kernel.org with SMTP id <S131152AbQKIUY5>;
+	Thu, 9 Nov 2000 15:24:57 -0500
+Date: Thu, 9 Nov 2000 15:24:40 -0500
+Message-Id: <200011092024.PAA21945@tsx-prime.MIT.EDU>
+From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: paulj@itg.ie, rothwell@holly-springs.nc.us, cr@sap.com,
+        richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
+In-Reply-To: Alan Cox's message of Thu, 9 Nov 2000 14:26:33 +0000 (GMT),
+	<E13tsex-0001Cs-00@the-village.bc.nu>
+Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
+Phone: (781) 391-3464
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.3.95.1001109150621.15404A-100000@chaos.analogic.com> you wrote:
-> This may be, as you say, "harmless". It is, however, a bug. The
-> reporting must be correct or large complex systems can't be
-> developed or maintained.
+   Date: Thu, 9 Nov 2000 14:26:33 +0000 (GMT)
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 
-No.  It is not.  The module usage count doesn't have a direct relation
-to the number of open devices.  The module count just makes the modules
-un-removable if it is non-zero.  It doesn't matter at all, when and where
-you in- and decrease it, as long as the module is always protected against
-unload when in use (e.g. opened).
+   > Actually, he's been quite specific.  It's ok to have binary modules as
+   > long as they conform to the interface defined in /proc/ksyms.  
 
-	Christoph
+   What is completely unclear is if he has the authority to say that given that
+   there is code from other people including the FSF merged into the
+   tree.
 
--- 
-Always remember that you are unique.  Just like everyone else.
+He said it long enough ago that presumably people who merged code in
+would have accepted it as an implicit agreement, if it had been
+documented in the COPYING file.  Unfortuantely, it wasn't so documented,
+so I agree it's unclear.
+
+   I've taken to telling folks who ask about binary modules to talk to
+   their legal department. The whole question is simply to complicated
+   for anyone else to work on.
+
+... and at that point we run intothe oft-debated (but never tested in a
+court of law) question of into the whether or not Copyright can infect
+across a link, especially since the link is done by the end-user.  (Yes,
+there are some questions about inline functions in the header files.)
+
+The intent of what the FSF would like the case to be is clear, but it's
+not clear at all that Copyright law works that way; intent doesn't
+matter if the laws don't give you the right to sue on those grounds.
+See a lawyer and get official legal advice indeed....
+
+
+						- Ted
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

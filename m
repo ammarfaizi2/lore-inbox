@@ -1,72 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262566AbTLBSDU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 13:03:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTLBSDT
+	id S262719AbTLBSBk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 13:01:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbTLBSBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 13:03:19 -0500
-Received: from havoc.gtf.org ([63.247.75.124]:34195 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S262566AbTLBSDO (ORCPT
+	Tue, 2 Dec 2003 13:01:40 -0500
+Received: from host213.137.0.249.manx.net ([213.137.0.249]:32779 "EHLO server")
+	by vger.kernel.org with ESMTP id S262719AbTLBSBf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 13:03:14 -0500
-Date: Tue, 2 Dec 2003 12:59:57 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Murthy Kambhampaty <murthy.kambhampaty@goeci.com>
-Cc: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
-       Russell Cattelan <cattelan@xfs.org>, Nathan Scott <nathans@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: XFS for 2.4
-Message-ID: <20031202175957.GA1990@gtf.org>
-References: <2D92FEBFD3BE1346A6C397223A8DD3FC0924C8@THOR.goeci.com>
+	Tue, 2 Dec 2003 13:01:35 -0500
+Date: Tue, 2 Dec 2003 18:01:33 +0000
+From: Matthew Bell <m.bell@bvrh.co.uk>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: becker@scyld.com, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][OBVIOUS] 3c515.c: Enable ISAPNP when built as a module.
+Message-Id: <20031202180133.442704ea.m.bell@bvrh.co.uk>
+In-Reply-To: <1778.1070335215@kao2.melbourne.sgi.com>
+References: <20031202024028.49265a8f.m.bell@bvrh.co.uk>
+	<1778.1070335215@kao2.melbourne.sgi.com>
+Organization: Beach View Residential Home, Ltd.
+X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2D92FEBFD3BE1346A6C397223A8DD3FC0924C8@THOR.goeci.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: multipart/mixed; boundary="=_server-25041-1070388089-0001-2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 02, 2003 at 12:45:38PM -0500, Murthy Kambhampaty wrote:
-> i) Would the linux 2.4 kernel maintainer please stop trolling the XFS
-> mailing list.
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-Ok, we'll avoid discussing a major point in XFS's life -- potentially
-being merged into 2.4 -- on XFS list.  Makes sense.
+--=_server-25041-1070388089-0001-2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
+On Tue, 02 Dec 2003 14:20:15 +1100
+Keith Owens <kaos@ocs.com.au> wrote:
 
-> iii) The 2.4 series kernel is the here and now, regardless of how near we
-> all hope/project the 2.6 kernel to be (has Andrew Morton even taken it over
-> from Linus?). Pushing 2.6 on users, and unjustifiably blocking the adoption
-> of advanced features into the current linux kernel is pretty absurd. XFS has
+>Your mailer wrapped the lines.
 
-This is bogus logic.
+I include the patch as a plain text attachment this time; I hope as you are not
+LT this doens't matter :)
+ 
+> Only test CONFIG_ISAPNP || CONFIG_ISAPNP_MODULE, not MODULE.
+> CONFIG_foo_MODULE can only be defined when MODULE is defined.
+> 
+> #if defined(CONFIG_ISAPNP) || defined(CONFIG_ISAPNP_MODULE)
 
-Nobody is forcing 2.6 on anyone.  People who wish to use XFS in 2.4
-_can do so today_...  without any merging from Marcelo.
+I don't think so; from a brief look trhough Configure and Makefile, this only
+happens when CONFIG_ISAPNP is declared as a dependency of the driver in
+question. In this case it is optional so we have to check manually.
 
-Merging is nothing more than moving a patch from one place to another.
+--=_server-25041-1070388089-0001-2
+Content-Type: text/plain; name="3c515.diff"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="3c515.diff"
 
+--- linux-2.4.19.orig/drivers/net/3c515.c	2002-02-25 19:37:59.000000000 +0000
++++ linux-2.4.19/drivers/net/3c515.c	2002-08-03 18:24:05.000000000 +0100
+@@ -370,7 +370,7 @@
+ 	{ "Default", 0, 0xFF, XCVR_10baseT, 10000},
+ };
+ 
+-#ifdef CONFIG_ISAPNP
++#if defined(CONFIG_ISAPNP) || (defined (MODULE) && defined (CONFIG_ISAPNP_MODULE))
+ static struct isapnp_device_id corkscrew_isapnp_adapters[] = {
+ 	{	ISAPNP_ANY_ID, ISAPNP_ANY_ID,
+ 		ISAPNP_VENDOR('T', 'C', 'M'), ISAPNP_FUNCTION(0x5051),
+@@ -462,12 +462,12 @@
+ {
+ 	int cards_found = 0;
+ 	static int ioaddr;
+-#ifdef CONFIG_ISAPNP
++#if defined(CONFIG_ISAPNP) || (defined (MODULE) && defined (CONFIG_ISAPNP_MODULE))
+ 	short i;
+ 	static int pnp_cards;
+ #endif
+ 
+-#ifdef CONFIG_ISAPNP
++#if defined(CONFIG_ISAPNP) || (defined (MODULE) && defined (CONFIG_ISAPNP_MODULE))
+ 	if(nopnp == 1)
+ 		goto no_pnp;
+ 	for(i=0; corkscrew_isapnp_adapters[i].vendor != 0; i++) {
+@@ -530,7 +530,7 @@
+ 	/* Check all locations on the ISA bus -- evil! */
+ 	for (ioaddr = 0x100; ioaddr < 0x400; ioaddr += 0x20) {
+ 		int irq;
+-#ifdef CONFIG_ISAPNP
++#if defined(CONFIG_ISAPNP) || (defined (MODULE) && defined (CONFIG_ISAPNP_MODULE))
+ 		/* Make sure this was not already picked up by isapnp */
+ 		if(ioaddr == corkscrew_isapnp_phys_addr[0]) continue;
+ 		if(ioaddr == corkscrew_isapnp_phys_addr[1]) continue;
 
-> If you can't come up with something more concrete than "I don't like your
-> coding style" and "I'm not sure your patch won't break something", it seems
-> only fair you take the XFS patches.
-
-This is bogus logic.
-
-It's _very_ wise to hold off on a patch if
-(a) the code is difficult to read, and therefore difficult to review and
-    fix (read: style)
-(b) the maintainer is not assured of patch reliability (read: "I'm not
-    sure the patch won't break things")
-
-Both (a) and (b) are vaild concerns for long term maintenance costs.
-
-Particularly (b).  If Marcelo is not assured of patch reliability, then
-he absolutely --should not-- merge XFS into 2.4.  That's just the way
-the system works.  And it's a good system.
-
-	Jeff
-
-
-
+--=_server-25041-1070388089-0001-2--

@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVAaItd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVAaI5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbVAaItd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 03:49:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVAaItd
+	id S261569AbVAaI5v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 03:57:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVAaI5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 03:49:33 -0500
-Received: from fw.osdl.org ([65.172.181.6]:51378 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261566AbVAaItW (ORCPT
+	Mon, 31 Jan 2005 03:57:51 -0500
+Received: from styx.suse.cz ([82.119.242.94]:45728 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261569AbVAaI5t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 03:49:22 -0500
-Date: Mon, 31 Jan 2005 00:48:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: rmk+lkml@arm.linux.org.uk, e9925248@student.tuwien.ac.at,
+	Mon, 31 Jan 2005 03:57:49 -0500
+Date: Mon, 31 Jan 2005 10:01:26 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Roman Zippel <zippel@linux-m68k.org>, Andries Brouwer <aebr@win.tue.nl>,
        linux-kernel@vger.kernel.org
-Subject: Re: Deadlock in serial driver 2.6.x
-Message-Id: <20050131004857.07f5e2c4.akpm@osdl.org>
-In-Reply-To: <1107157019.14847.64.camel@localhost.localdomain>
-References: <20050126132047.GA2713@stud4.tuwien.ac.at>
-	<20050126231329.440fbcd8.akpm@osdl.org>
-	<1106844084.14782.45.camel@localhost.localdomain>
-	<20050130164840.D25000@flint.arm.linux.org.uk>
-	<1107157019.14847.64.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Subject: Re: Possible bug in keyboard.c (2.6.10)
+Message-ID: <20050131090126.GB27820@ucw.cz>
+References: <Pine.LNX.4.61.0501270318290.4545@82.117.197.34> <20050129045055.GS8859@parcelfarce.linux.theplanet.co.uk> <20050129112510.GB2268@ucw.cz> <200501291835.59597.dtor_core@ameritech.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501291835.59597.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->
-> On Sul, 2005-01-30 at 16:48, Russell King wrote:
->  > Unsolvable as the tty layer currently stands.  tty needs to not call back
->  > into serial drivers when they supply read characters from their interrupt
->  > functions.
+On Sat, Jan 29, 2005 at 06:35:59PM -0500, Dmitry Torokhov wrote:
+> On Saturday 29 January 2005 06:25, Vojtech Pavlik wrote:
+> > On Sat, Jan 29, 2005 at 04:50:55AM +0000, Al Viro wrote:
+> > 
+> > > > I'm very sorry about the locking, but the thing grew up in times of
+> > > > kernel 2.0, which didn't require any locking. There are a few possible
+> > > 
+> > > Incorrect.  You have blocking allocations in critical areas and they
+> > > required locking all way back.
+> > 
+> > Ok. I see a problem where input_register_device() calls input handler
+> > connect methods, which do kmalloc(). This would be bad even on 2.0.
+> > 
+> > Anything else? I believe the ->open()/->release() methods are still
+> > protected.
+> > 
 > 
->  The tty layer cannot fix this for now, and I don't intend to fix it. Fix
->  the serial driver: the fix is quite simple since you can keep a field in
->  the driver for now to detect recursive calling into the echo case and
->  don't relock.
+> evdev, tsdev, mousedev, joydev need to protect their client lists because
+> interrupt could try to deliver event to already deleted device (client)
 
-Are we sure that the serial driver is the only one which will hit this
-deadlock?
+Oh, of course. The protection doesn't apply to the event routine.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277293AbRJJP7s>; Wed, 10 Oct 2001 11:59:48 -0400
+	id <S277295AbRJJQAN>; Wed, 10 Oct 2001 12:00:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277295AbRJJP7j>; Wed, 10 Oct 2001 11:59:39 -0400
-Received: from hq2.fsmlabs.com ([209.155.42.199]:37383 "HELO hq2.fsmlabs.com")
-	by vger.kernel.org with SMTP id <S277288AbRJJP7Y>;
-	Wed, 10 Oct 2001 11:59:24 -0400
-Date: Wed, 10 Oct 2001 09:54:36 -0600
-From: Victor Yodaiken <yodaiken@fsmlabs.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
-Message-ID: <20011010095436.A8784@hq2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15299.64114.664515.425183@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.3.18i
-Organization: FSM Labs
+	id <S277296AbRJJP77>; Wed, 10 Oct 2001 11:59:59 -0400
+Received: from paloma12.e0k.nbg-hannover.de ([62.159.219.12]:28406 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S277295AbRJJP7x>; Wed, 10 Oct 2001 11:59:53 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Justin A <justin@bouncybouncy.net>
+Subject: Re: 2.4.10-ac10-preempt lmbench output.
+Date: Wed, 10 Oct 2001 17:37:40 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200110100358.NAA17519@isis.its.uow.edu.au> <20011010120009.851921E7C9@Cantor.suse.de> <20011010153653.Q726@athlon.random>
+In-Reply-To: <20011010153653.Q726@athlon.random>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011010155953Z277295-760+23277@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001 at 05:36:18PM +1000, Paul Mackerras wrote:
-> Linus Torvalds writes:
-> 
-> > And THAT is the hard part. Doing lookup without locks ends up being
-> > pretty much worthless, because you need the locks for the removal
-> > anyway, at which point the whole thing looks pretty moot.
-> > 
-> > Did I miss something?
-> 
-> I believe this all becomes (much more) useful when you are doing
-> read-copy-update.
-> 
-> There is an assumption that anyone modifying the list (inserting or
-> deleting) would take a lock first, so the deletion is just a pointer
-> assignment.  Any reader traversing the list (without a lock) sees
-> either the old pointer or the new, which is fine.
-> 
-> The difficulty is in making sure that no reader is still inspecting
-> the list element you just removed before you free it, or modify any
-> field that the reader would be looking at (particularly the `next'
-> field :).  One way of doing that is to defer the free or modification
-> to a quiescent point.  If you have a separate `next_free' field, you
-> could safely put the element on a list of elements to be freed at the
-> next quiescent point.
+Am Mittwoch, 10. Oktober 2001 05:25 schrieb Justin A:
+> On Tue, Oct 09, 2001 at 08:36:56PM -0400, safemode wrote:
+> > Heavily io bound processes (dbench 32)  still causes something as light as
+> > an mp3 player to skip, though.   That probably wont be fixed intil 2.5,
+> > since 
+>
+> What buffer size are you using in your mp3 player?  I have xmms set to
+> 5000ms or so and it never skips.
 
+OK, I'll give xmms with this buffer size a go, too.
 
-And the "next quiescent point" must be a synchronization point and that must
-have spinlocks around it!
-Although I kind of like the idea of
-	normal operation create mess by avoiding synchronization
-	when system seems idle, get BKL, and clean up. 
+> mpg321(esd or oss) also never skips no matter what I do,
 
+Do you have link to the mpg321 (oss) version for me?
 
-> 
-> Paul.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> but the original mpg123-oss will with even light load
+> on the cpu/disk.
+
+I get the hiccup with mpg123 and noatun (artsd, KDE-2.2.1).
+
+>
+> This is with 2.4.10-ac9+preempt on an athlon 700
+
+Here with Linus tree.
+
+-Dieter

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313711AbSEUMat>; Tue, 21 May 2002 08:30:49 -0400
+	id <S314340AbSEUMaX>; Tue, 21 May 2002 08:30:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314277AbSEUMas>; Tue, 21 May 2002 08:30:48 -0400
-Received: from xsmtp.ethz.ch ([129.132.97.6]:3110 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S313711AbSEUMar>;
-	Tue, 21 May 2002 08:30:47 -0400
-Message-ID: <3CEA3D8D.8090901@debian.org>
-Date: Tue, 21 May 2002 14:29:01 +0200
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc-Christian Petersen <mcp@linux-systeme.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: menuconfig|xconfig question
-In-Reply-To: <fa.ftrutbv.flidp2@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S314277AbSEUMaW>; Tue, 21 May 2002 08:30:22 -0400
+Received: from 216-42-72-145.ppp.netsville.net ([216.42.72.145]:19162 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S313711AbSEUMaW>; Tue, 21 May 2002 08:30:22 -0400
+Subject: Re: [reiserfs-dev] [patch 5/15] reiserfs locking fix
+From: Chris Mason <mason@suse.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        "reiserfs-dev@namesys.com" <reiserfs-dev@namesys.com>
+In-Reply-To: <3CE7FF5A.FEDD69CB@zip.com.au>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 May 2002 12:30:46.0962 (UTC) FILETIME=[554E6920:01C200C3]
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 21 May 2002 08:29:05 -0400
+Message-Id: <1021984145.22608.173.camel@tiny>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Marc-Christian Petersen wrote:
-
-> Hi there,
+On Sun, 2002-05-19 at 15:39, Andrew Morton wrote:
 > 
-> is it possible to have a message box popped up with menuconfig|xconfig if i 
-> select something in the config? It would be nice, so really important things 
-> are forced to the user.
+> 
+> reiserfs is using b_inode_buffers and fsync_buffers_list() for
+> attaching dependent buffers to its journal.  For writeout prior to
+> commit.
+> 
+> This worked OK when a global lock was used everywhere, but the locking
+> is currently incorrect - try_to_free_buffers() is taking a different
+> lock when detaching buffers from their "foreign" inode.  So list_head
+> corruption could occur on SMP.
 
+Thanks Andrew, this is working for me here.
 
-No. Every configuration option is important! (and in a lot of such
-configurations you will not boot if you choose the wrong option).
-So it is better not to have such popup box. It will only annoy users.
-
-Some configuration write some text between dangerous options,
-or create a sub menu with a warning text.
-
-ciao
-	cate
-
+-chris
 
 

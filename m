@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263597AbTFDRsE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 13:48:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTFDRsE
+	id S263737AbTFDRtT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 13:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263742AbTFDRtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 13:48:04 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:32198 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S263597AbTFDRr7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 13:47:59 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-2"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: 2.4.21-rc7 ACPI broken
-Date: Wed, 4 Jun 2003 11:01:25 -0700
-Message-ID: <F760B14C9561B941B89469F59BA3A847E96F22@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.4.21-rc7 ACPI broken
-Thread-Index: AcMqweBC/sW7ms8fTlyY5U2QBOaX0QAAUcqQ
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: =?ISO-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>,
-       "Linux Kernel Mailing" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Jun 2003 18:01:26.0280 (UTC) FILETIME=[51055880:01C32AC3]
+	Wed, 4 Jun 2003 13:49:19 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:37895 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S263737AbTFDRtN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 13:49:13 -0400
+Subject: Re: file write performance drop between 2.5.60 and 2.5.70
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Vladimir Saveliev <vs@namesys.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com
+In-Reply-To: <200306042017.53435.vs@namesys.com>
+References: <200306042017.53435.vs@namesys.com>
+Content-Type: text/plain
+Message-Id: <1054749758.699.5.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 04 Jun 2003 20:02:39 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Martin MOKREJ© [mailto:mmokrejs@natur.cuni.cz] 
-> ACPI: Core Subsystem version [20011018]
+On Wed, 2003-06-04 at 18:17, Vladimir Saveliev wrote:
+> Hi
+> 
+> It looks like file write performance dropped somewhere between 2.5.60 and 
+> 2.5.70.
+> Doing
+> time dd if=/dev/zero of=file bs=4096 count=60000
+> 
+> on a box with Xeon(TM) CPU 2.40GHz and 1gb of RAM
+> I get for ext2
+> 2.5.60: 	real	1.42 sys 0.77
+> 2.5.70: 	real 1.73 sys 1.23
+> for reiserfs
+> 2.5.60: 	real 1.62 sys 1.56
+> 2.5.70: 	real 1.90 sys 1.86
+> 
+> Any ideas of what could cause this drop?
 
-Old ACPI code, get patch from http://sf.net/projects/acpi and report back if problems persist.
+What filesystem are you using?
 
-Regards -- Andy

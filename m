@@ -1,95 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbUKKECY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262171AbUKKEEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262092AbUKKECY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 23:02:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbUKKECX
+	id S262171AbUKKEEl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 23:04:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbUKKEEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 23:02:23 -0500
-Received: from [61.48.53.74] ([61.48.53.74]:25084 "EHLO freya.yggdrasil.com")
-	by vger.kernel.org with ESMTP id S262089AbUKKECM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 23:02:12 -0500
-Date: Thu, 11 Nov 2004 11:53:20 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Message-Id: <200411111953.iABJrK204297@freya.yggdrasil.com>
-To: linux-kernel@vger.kernel.org, linux-os@cahos.analogic.com
-Subject: Re: DEVFS_FS
-Cc: akpm@osdl.org, alebyte@gmail.com, gene.haskett@verizon.net,
-       linux-fsdevel@vger.kernel.org
+	Wed, 10 Nov 2004 23:04:07 -0500
+Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:17848 "HELO
+	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262167AbUKKEDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 23:03:51 -0500
+Date: Wed, 10 Nov 2004 20:03:46 -0800
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Serious stability issues with 2.6.10-rc1
+Message-ID: <20041111040346.GA2815@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org,
+	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+References: <pan.2004.10.25.01.20.55.763270@triplehelix.org> <417C9955.4030507@pobox.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
+Content-Disposition: inline
+In-Reply-To: <417C9955.4030507@pobox.com>
+User-Agent: Mutt/1.5.6+20040722i
+From: joshk@triplehelix.org (Joshua Kwan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->What is the approved substitute for DEVFS_FS that is marked
->obsolete?
 
-	DEVFS_FS is not obsolete.  Rather, this is a case of misstatements
-being repeated so many times that people start to believe it.
+--envbJBWh7q8WU6mo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	1. Only devfs (or the lookup trapping facility used in my remake
-of it) can configure new devices on demand based on accesses to files
-missing from /dev, which allows for faster boot time (no need
-to initialize device you won't use during this session), easier fixing
-of device driver bugs, and potentially less memory utilization (the new
-devfs implementation plus lookup traps have a code size of about 5kB combined;
-the inode+dname utilization of devfs is less than sysfs due to there
-being fewer nodes and you can run devfs without sysfs, and when
-inode+dname memory utilization of both are fixed, the size of the
-unnecessarily loaded kernel modules will dominate).
+On Mon, Oct 25, 2004 at 02:12:37AM -0400, Jeff Garzik wrote:
+> Could you please search through the various 2.6.9-bk snapshots, to see=20
+> where this behavior starts?
 
-	2. Only devfs allows a device driver to pass suggested names
-for arbitrary minor device numbers (e.g., /dev/sound/mixer,
-/dev/sound/dsp).  Otherwise, a configuration file or a static /dev
-has to know these things in advance.
+OK, after long periods of testing things, it seems to be a change that
+happened between 2.6.9-bk7 and 2.6.10-rc1.
 
-	3. Only devfs allows a device driver to pass suggested names
-for arbitrary related facilities that do not fall under the same
-major device number (e.g., CD-ROM's, tapes).
+I have an interdiff generated, I can't really see what would cause the
+problem... IANAKH though. ideas?
 
-	Fundamentally, the functionality of being able to trap accesses
-to nonexistent devices and the ability to pass the additional string
-information in #2 and #3 provide a more flexible user interface as
-new kernel facilities are developed, and communicating the relevant
-information through a virtual file system is useful for avoid
-unnecessary serialization and deferring certain initializations (for
-example, until later in a boot process).
+--=20
+Joshua Kwan
 
-	By the way, with devfs, especially under the new implementation,
-it is not particularly difficult to remap the names using {,UN}REGISTER
-events from a shadow file system (or directly from /dev if you also
-want the default names), without the underlying configuration having
-any prior knowledge about device numbers.  Many statements in Greg
-Kroah-Hartmann's "udev and devfs - The final word" that seem to
-contract this seem to me to be wrong or misleading when it would
-be easy to be clearer (for example, "devfs does not handle the need
-for dynamic major/minor numbers", when devfs does not care and not
-know whether the major/minor device number passed to it were
-dynamically allocated).
+--envbJBWh7q8WU6mo
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-	This is not to say that I am "against udev" by every possible
-interpretation of that term.  I think using sysfs or hotplug events to
-create nodes in /dev (but usually not to load the corresponding kernel
-modules) is a useful user interface improvement.  I also hope to see
-the devfs interface evolve to do things like be able to statically export
-the default /dev file mappers from kernel modules, just as hardware
-device ID tables are exported, and, if sysfs memory consumption were
-to improve radically (the sysfs backing store patch would really help),
-then the memory usage, the _requirement_ of a user level helper
-program (instead of it just being an option) and the loss of ability
-to select devfs and sysfs independently _might_ be offset by
-simplification of other user level helper code (by making /dev
-maintenance one of multiple duties of a sysfs watching facility).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: http://triplehelix.org/~joshk/pubkey_gpg.asc
 
-	I think that Linux users would be much better served by allowing
-the devfs functionality to be actively maintained, improved and exported
-to "non-devfs" systems (for example the tmpfs lookup trapping) in general,
-and, in particular, by integrating my devfs rewrite instead of
-refusing it (and I have offered to arrange it so that the kernel can
-be configured with either the old or the new devfs implementation).
-Whether this functionality is called "devfs" in the future is not
-important, but providing its functionality for those who want it is,
-and that is what is being undermined by not integrating the new devfs
-implementation.
+iQIVAwUBQZLkoaOILr94RG8mAQLxMg//WStjmvXpNfycibMc7UBUeXoAZzYE3TB0
+hEmtzqdfnJDJ4IMKBVS46mObaHwNOaqPss8TyKBivyQXo7rgtlDe5g8e4PHnkqk4
+NXvO6jRVI/8b04K8WM3nVYtrbPt+r40THZZPAviAxPNZRCKd2ll0ebuMWx85OLQP
+ZlAY1QFu4fjXsgCaUOmt1YWHH2yaliqeQKYA2+lWL6nYqfZiwPv1cTqLwrnpsHmk
+KIMsBsVaTPW990UEhd7Jx+3zm36T6Nc5S65LlAoPcBVGG37XtjwKAT8GMlnBwsRv
+mUoXz9v7ODahX4P7AAhQnJwWXdhPkna5+WT2SxqV/w+xxAlxRfufXQrfZPNZreSj
+L8lCQqyWt0cxLV/ul4I6G448IWqUPnOuiQuKRIlGz0CXt16GfNhBWRUkEUpjRo08
+XO9AvsPK7k/rwHd2i8uYQnAnr7bD+y2Coc8tbYXhw1TPDe2gaiw64R/OZ9WgsNyi
+RZ4HD+X24Umr4PNkRlb251U4P25AfudruLLi2mk743AXkUwSGWgmy/EHsMkFsWkv
+sx/lNZulpjTub2QoyhmL5at9thUfdJZyt+elRmqHN1UBXY4k5dskgJGTNgng2Sbh
+RN0+CMgyK/DtO0xfv8xZN9/OU7pnPA1PZv/ECbYkokqUHa2j9aXrcJQ/Na4TprKa
+TQLGOeucN0k=
+=/NDm
+-----END PGP SIGNATURE-----
 
-                    __     ______________ 
-Adam J. Richter        \ /
-adam@yggdrasil.com      | g g d r a s i l
+--envbJBWh7q8WU6mo--

@@ -1,140 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270626AbTHOQv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 12:51:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267724AbTHOQM1
+	id S270022AbTHOQzM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 12:55:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270148AbTHOQMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 12:12:27 -0400
+	Fri, 15 Aug 2003 12:12:12 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:59269 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S267952AbTHOQJD (ORCPT
+	by vger.kernel.org with ESMTP id S267724AbTHOQJC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 12:09:03 -0400
-Date: Fri, 15 Aug 2003 12:26:50 -0300
-From: Eduardo Pereira Habkost <ehabkost@conectiva.com.br>
-To: tim@cyberelk.net
-Cc: grant@torque.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] pd.c: blk_init_queue() changes
-Message-ID: <20030815152650.GR1685@duckman.distro.conectiva>
+	Fri, 15 Aug 2003 12:09:02 -0400
+Subject: Re: Trying to run 2.6.0-test3
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <0daa01c36330$50e76d70$1aee4ca5@DIAMONDLX60>
+References: <0a5b01c36305$4dec8b80$1aee4ca5@DIAMONDLX60>
+	 <1060937593.604.14.camel@teapot.felipe-alfaro.com>
+	 <0b8801c36314$17890fa0$1aee4ca5@DIAMONDLX60>
+	 <1060948426.589.3.camel@teapot.felipe-alfaro.com>
+	 <0daa01c36330$50e76d70$1aee4ca5@DIAMONDLX60>
+Content-Type: text/plain
+Message-Id: <1060959729.744.6.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jx/LfW4V5TfZLeq7"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 15 Aug 2003 17:02:10 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2003-08-15 at 15:20, Norman Diamond wrote:
 
---jx/LfW4V5TfZLeq7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > > Guess why I compiled it without ACPI support and with APM support.  Guess
+> > > why my kernel command line has acpi=off apm=on.  (Although the command line
+> > > options are redundant with the self-compiled kernel configuration, they are
+> > > necessary when booting a generic kernel.  Yes I know that the machine has
+> > > just enough ACPI hooks to cause problems when anyone other than Windows 98
+> > > tries to use ACPI.  It's not even recommended to force ACPI on when
+> > > installing Windows 98 on this machine.  Windows 2000 blue screens if ACPI is
+> > > forced on.  Linux doesn't panic when its default ACPI takes over, but it
+> > > does prevent APM from working.)
+> >
+> > If you turn ACPI on, you won't need APM support.
+> 
+> WRONG.  ACPI DOESN'T WORK ON THE MACHINE I'M DOING THIS ON.  DID
+> YOU TRY READING WHAT YOU QUOTED THERE?  Yes I know you volunteer
+> more effort on Linux than I do, but you're asking me to flame you anyway.
+> How many times do you need to be told?
+
+Yes, I tried reading. You said Linux doesn't panic while using ACPI, so
+I supposed ACPI just worked but the problem was you wanted APM support.
+
+> > To be sincere, I don't know exactly why "pci=usepirqmask" needs to be
+> > used. I'm no hardware expert. But I know that I needed it when I wasn't
+> > using ACPI.
+> 
+> Hmm.  Then some dependency seems to be broken in kernel compilation.  When
+> ACPI is not compiled in, it should know that the effect of "pci=usepirqmask"
+> should be compiled in (whatever that effect is).
+
+It's not a problem with dependencies. On ACPI-enabled kernels, you using
+ACPI routing. If you boot using "acpi=off", then you're using standard
+PCI routing and that, in turn, on same machines, it warns you to use
+"pci=usepirqmask". Don't know why, on some machines using standard PCI
+routing, you don't need to boot with "pci=usepirqmask". I suppose it
+will be some kind of hardware incompatibility or a bad implementation.
 
 
-The following patch against 2.6-bk changes pd.c to the new
-blk_init_queue()/blk_cleanup_queue() interface, and makes the error
-handling on pd_init() cleaner.
-
-Without these changes, pd.c is unable to compile.
-
---=20
-Eduardo
-
-
-diff -Nru a/drivers/block/paride/pd.c b/drivers/block/paride/pd.c
---- a/drivers/block/paride/pd.c	Fri Aug 15 12:15:46 2003
-+++ b/drivers/block/paride/pd.c	Fri Aug 15 12:15:46 2003
-@@ -654,7 +654,7 @@
- 	return pd_identify(disk);
- }
-=20
--static struct request_queue pd_queue;
-+static struct request_queue *pd_queue;
-=20
- static int pd_detect(void)
- {
-@@ -704,7 +704,7 @@
- 			set_capacity(p, disk->capacity);
- 			disk->gd =3D p;
- 			p->private_data =3D disk;
--			p->queue =3D &pd_queue;
-+			p->queue =3D pd_queue;
- 			add_disk(p);
- 		}
- 	}
-@@ -782,7 +782,7 @@
- 	spin_lock_irqsave(&pd_lock, saved_flags);
- 	end_request(pd_req, success);
- 	pd_busy =3D 0;
--	do_pd_request(&pd_queue);
-+	do_pd_request(pd_queue);
- 	spin_unlock_irqrestore(&pd_lock, saved_flags);
- }
-=20
-@@ -888,22 +888,37 @@
-=20
- static int __init pd_init(void)
- {
-+	int ret =3D -EINVAL;
- 	if (disable)
--		return -1;
--	if (register_blkdev(major, name))
--		return -1;
-+		goto err;
-=20
--	blk_init_queue(&pd_queue, do_pd_request, &pd_lock);
--	blk_queue_max_sectors(&pd_queue, cluster);
-+	ret =3D register_blkdev(major, name);
-+	if (ret < 0)
-+		goto err;
-+	=09
-+
-+	pd_queue =3D blk_init_queue(do_pd_request, &pd_lock);
-+	if (!pd_queue) {
-+		ret =3D -ENOMEM;
-+		goto err_unregister;
-+	}
-+	blk_queue_max_sectors(pd_queue, cluster);
-=20
- 	printk("%s: %s version %s, major %d, cluster %d, nice %d\n",
- 	       name, name, PD_VERSION, major, cluster, nice);
- 	pd_init_units();
- 	if (!pd_detect()) {
--		unregister_blkdev(major, name);
--		return -1;
-+		ret =3D -ENODEV;
-+		goto err_freequeue;
- 	}
- 	return 0;
-+
-+err_freequeue:
-+	blk_cleanup_queue(pd_queue);
-+err_unregister:
-+	unregister_blkdev(major, name);
-+err:
-+	return ret;
- }
-=20
- static void __exit pd_exit(void)
-@@ -920,7 +935,7 @@
- 			pi_release(disk->pi);
- 		}
- 	}
--	blk_cleanup_queue(&pd_queue);
-+	blk_cleanup_queue(pd_queue);
- }
-=20
- MODULE_LICENSE("GPL");
-
---jx/LfW4V5TfZLeq7
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/PPu5caRJ66w1lWgRApaLAJ9AxACS717wXSNnvsbeArn9F6cMVgCgqhtI
-5svYozHoik+cpofD7vWjf2g=
-=Ictw
------END PGP SIGNATURE-----
-
---jx/LfW4V5TfZLeq7--

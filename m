@@ -1,81 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267403AbUH1J6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267399AbUH1KGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267403AbUH1J6G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 05:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267435AbUH1J5a
+	id S267399AbUH1KGV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 06:06:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266391AbUH1KEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 05:57:30 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:59290 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S267403AbUH1JxT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 05:53:19 -0400
-Date: Sat, 28 Aug 2004 09:53:07 +0000 (UTC)
-From: dulle <dulle@free.fr>
-Reply-To: dulle@free.fr
-To: linux-kernel@vger.kernel.org
-Message-ID: <Pine.LNX.4.60.0408280858090.1577@ganymede.chateauneuf.fr>
+	Sat, 28 Aug 2004 06:04:23 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:21458 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S267447AbUH1JzC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 05:55:02 -0400
+Message-ID: <41305674.6030405@namesys.com>
+Date: Sat, 28 Aug 2004 02:55:00 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811839-1502480738-1093683503=:1577"
-Content-ID: <Pine.LNX.4.60.0408280908160.1609@ganymede.chateauneuf.fr>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: =?ISO-8859-1?Q?Markus_T=F6rnqvist?= <mjt@nysv.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Andrew Morton <akpm@osdl.org>,
+       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+References: <412D9FE6.9050307@namesys.com> <200408261812.i7QICW8r002679@localhost.localdomain> <20040827203216.GC1284@nysv.org> <Pine.LNX.4.58.0408271335421.14196@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0408271335421.14196@ppc970.osdl.org>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Linus Torvalds wrote:
 
----1463811839-1502480738-1093683503=:1577
-Content-Type: TEXT/PLAIN; CHARSET=X-UNKNOWN; FORMAT=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Content-ID: <Pine.LNX.4.60.0408280908161.1609@ganymede.chateauneuf.fr>
+>On Fri, 27 Aug 2004, Markus Törnqvist wrote:
+>  
+>
+>>People will say it when people stop using Linux on servers because
+>>they can integrate metadata easier in other operating systems ;)
+>>    
+>>
+>
+>Heh. Considering that WinFS seems to be delayed yet more, I don't think 
+>that's a very strong argument.
+>
+>Hell will freeze over before Microsoft does a filesystem right. Besides,
+>WinFS is likely almost in user mode anyway, ie mostly a library, rather
+>like the gnome people are already doing with nome storage.
+>
+>So there's really no point in trying to push your agenda by trying to 
+>scare people with MS activities. Linux kernel developers do what's right 
+>because it is _right_, not because somebody else does it.
+>
+>		Linus
+>
+>
+>  
+>
+Apple will get it right.  I promise it.  I have met Dominic, and he is 
+very very sharp.  Look at the Tiger demos on their website.  Simple 
+interface, looks nice to me.... 
 
+The one area he might screw up is performance, but I don't care to count 
+on that.
 
-Craig Milo Rogers wrote:
+WinFS first tried to put it all in the FS, and then it became a user 
+mode library almost certainly because they are making the standard 
+mistakes the database guys make when they try to emulate file systems 
+without changing the core balanced tree algorithms, and their 
+performance sucked and they had to back off.  It took 11 years for me to 
+get it right, and they aren't as crazy-err-persistent as I am.;-)
 
->       Hmmm... a poster on Slashdot claims that entropy measurements
->imply that the pwcx code is interpolating rather that truly
->decompressing.
+We might get lucky and have them produce another NTFS, but then again, 
+when Microsoft focuses on a task, they do much better at it than they do 
+most of the time, and they are focused on WinFS.  They have hired very 
+sharp people.  We can hope that they don't know how to use them, but 
+when they hire people like Gerard Salton for $1 million a year, there is 
+just possibly a chance that they might try to get their money's worth 
+out of him.
 
-That  is  clearly  false.   Amateur   astronomers   have
-extensively used the pwc  webcams  for  years  now,  and
-these type of applications is most demanding in term  of
-resolution. And amateur astronomers  know  what  CCD  is
-about, and would not be fooled by such a flaw.
+You should not be complacent about WinFS being delayed to 2007, because 
+even if I get funding for enhanced ReiserFS semantics tomorrow we also 
+can't get the job done before 2007.  This is big science, not writing a 
+device driver.
 
-Moreover the CCD chip inside philips cameras  (at  least
-those using a CCD and not a CMOS) is a (roughly) 640x480
-chip (sony ICX098) http://www.sony.co.jp/~semicon/japan-
-ese/img/sonyj01/e6803249.pdf that probably costs 5 or  6
-times the price of a 160x120 chip.
+Finally, how much harm will it be if we do it right and it is important 
+and they fail?  Suppose I am wrong about them, and we create a powerful 
+unifying namespace for Linux before any other OS does?  Is that so bad?
 
-These cams do have a 640x480 chip and process images  in
-consequence, slashdot or not.
+Creating a powerful namespace at the heart of Linux is the most 
+important enhancement you can make to the OS. 
 
-And their hardware is extremely robust and efficient.
+Finally the storage layer is good enough to support putting the 
+relationship between keywords (actually keyobjects in my scheme....) and 
+their documents directly into the FS without losing performance for 
+traditional file system usage patterns, and I get to stop tweaking 
+performance and go have fun with semantics in the next major release.
 
-Also as a not uninterested user, and a bit off-topic,  I
-just want to underline the impact that those webcams and
-pwc may have in totally unexpected domains, making  them
-far more than just gadgets.
-
-The quality  of  those  webcams  by  Philips  (and  some
-others), and the versatility of the pwc  driver  have  a
-leading role in the  -real-  revolution  that  planetary
-astronomical  imaging   has   experienced   since   they
-appeared. A simple web search  on  'webcam'  and  either
-'jupiter', 'saturn', 'mars' will confirm that for a  few
-years these gadgets  have  outperformed  (for  different
-reasons) specialized astronomical CCD  cameras  (costing
-20, 50 or 100 times more)  in  that  particular  domain.
-(just check
-http://www.ort.cuhk.edu.hk/ericng/webcam/planets.htm
-for some jaw-dropping shots)
-
-The  amateur  astronomer  community  has  had   valuable
-exchange with Nemosoft in order to get the best of these
-devices, and the result is a typical example of what can
-be achieved when combining new  ideas  and  open  source
-projects.
-
-Regards
--- Fran=E7ois Meyer
----1463811839-1502480738-1093683503=:1577--
+Hans

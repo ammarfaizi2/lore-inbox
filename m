@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291630AbSBNNUT>; Thu, 14 Feb 2002 08:20:19 -0500
+	id <S291633AbSBNN1k>; Thu, 14 Feb 2002 08:27:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291633AbSBNNUA>; Thu, 14 Feb 2002 08:20:00 -0500
-Received: from gold.MUSKOKA.COM ([216.123.107.5]:26897 "EHLO gold.muskoka.com")
-	by vger.kernel.org with ESMTP id <S291630AbSBNNTk>;
-	Thu, 14 Feb 2002 08:19:40 -0500
-Message-ID: <3C6BB872.11A067BC@yahoo.com>
-Date: Thu, 14 Feb 2002 08:15:30 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.20 i586)
+	id <S291637AbSBNN13>; Thu, 14 Feb 2002 08:27:29 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46354 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291633AbSBNN1Q>; Thu, 14 Feb 2002 08:27:16 -0500
+Subject: Re: Linux 2.4.18-rc1
+To: bunk@fs.tum.de (Adrian Bunk)
+Date: Thu, 14 Feb 2002 13:40:40 +0000 (GMT)
+Cc: marcelo@conectiva.com.br (Marcelo Tosatti),
+        linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <Pine.NEB.4.44.0202141404210.25879-100000@mimas.fachschaften.tu-muenchen.de> from "Adrian Bunk" at Feb 14, 2002 02:14:26 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Christoph Pittracher <pitt@gmx.at>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.2.20 RAM requirements
-In-Reply-To: <E16b5w1-0006Js-00@the-village.bc.nu> <200202140144.50805@pitt4u.2y.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16bM7s-0008TY-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'll take a stab at this one - bet you are using zImage, and once
-you try bzImage it will work.  Saw this just recently on a low
-mem machine (LILO/loadlin) & haven't had a chance to investigate
-further.
-
-Please also report gcc/binutils etc. used.
-
-Paul.
-
-Christoph Pittracher wrote:
+>   tridentfb.c:524: #error "Floating point maths. This needs fixing before
+>   the driver is safe"
 > 
-> On Wednesday 13 February 2002 21:23, Alan Cox wrote:
-> > > I wanted to boot kernel version 2.2.20 on my old Pentium 75Mhz
-> > > system with 16MB RAM. After "uncompressing linux" i get a: "Out Of
-> > > Memory -- System halted".
-> > > Kernel version 2.2.19 works without problems (same kernel
-> > > configuration). I didn't tried 2.4 kernels yet, but I wonder that
-> > > 2.2.20 needs so much memory?
-> > It doesn't. What boot loader are you using ?
-> 
-> LILO version 21.5-1 beta
-> from Debian 2.2r5.
+> which makes it pretty useless. Since this is a stable kernel series I want
+> to suggest that if there's no fix for this before 2.4.18-final to remove
+> the trident support from 2.4.18 and to re-add it in 2.4.19-pre1 (with
+> the hope that it will be fixed before 2.4.19-final).
 
+Or just comment out the Config.in line for it ?

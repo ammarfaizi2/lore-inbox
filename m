@@ -1,137 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264633AbUE0OrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264628AbUE0Otf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264633AbUE0OrR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 10:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264628AbUE0Oqr
+	id S264628AbUE0Otf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 10:49:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264601AbUE0Otf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 10:46:47 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:28570 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S264592AbUE0Oqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 10:46:30 -0400
-Message-ID: <40B5FF96.44F9EE15@nospam.org>
-Date: Thu, 27 May 2004 16:47:51 +0200
-From: Zoltan Menyhart <Zoltan.Menyhart_AT_bull.net@nospam.org>
-Reply-To: Zoltan.Menyhart@bull.net
-Organization: Bull S.A.
-X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Matthias Fouquet-Lapar <mfl@kernel.paris.sgi.com>
-CC: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Hot plug vs. reliability
-References: <200405271217.i4RCHpTg001943@mtv-vpn-hw-mfl-1.corp.sgi.com>
+	Thu, 27 May 2004 10:49:35 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:4745
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264628AbUE0OtV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 10:49:21 -0400
+Date: Thu, 27 May 2004 16:49:16 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Andi Kleen <ak@muc.de>, "David S. Miller" <davem@redhat.com>,
+       mingo@elte.hu, riel@redhat.com, torvalds@osdl.org, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 4k stacks in 2.6
+Message-ID: <20040527144916.GE3889@dualathlon.random>
+References: <1ZQpn-1Rx-1@gated-at.bofh.it> <1ZQz8-1Yh-15@gated-at.bofh.it> <1ZRFf-2Vt-3@gated-at.bofh.it> <203Zu-4aT-15@gated-at.bofh.it> <206b3-5WN-33@gated-at.bofh.it> <20baw-1Lz-15@gated-at.bofh.it> <m38yff7zn3.fsf@averell.firstfloor.org> <20040527112705.GA21190@wohnheim.fh-wedel.de> <20040527134950.GB3889@dualathlon.random> <20040527141547.GC23194@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040527141547.GC23194@wohnheim.fh-wedel.de>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Fouquet-Lapar wrote:
+On Thu, May 27, 2004 at 04:15:47PM +0200, Jörn Engel wrote:
+> On Thu, 27 May 2004 15:49:50 +0200, Andrea Arcangeli wrote:
+> > On Thu, May 27, 2004 at 01:27:05PM +0200, Jörn Engel wrote:
+> > > Cool!  If that is included, I don't have any objections against 4k
+> > > stacks anymore.
+> > 
+> > note that it will introduce an huge slowdown, there's no way to enable
+> > that in production. But for testing it's fine.
 > 
-> My (limited) understanding of hotplug is that the major motivations
-> are more adminstrative/reconfiguration then actually replacing failing
-> components "on-the-fly".
-
-I agree, in this case there is no loss of MTBF.
-Yet let's call this activity as run time re-partitioning of the machine.
-(Most people - me too - consider hot plugging as physically plugging
-things in / out.)
-
-> Tyically you'll have similar burn-in tests for the components. The same
-> probably is true for component repair
-
-But the new comers are tested in a different environment, with
-different tolerance range. I just simply do not trust :-)
-
-> > There are cases when not the "worst case" design is used. You select
-> > components "carefully". E.g. you use a quicker component after a
-> > slower one to compensate the excessive delay, or you select parallel
-> > components with similar irregularities (no problem if they are too
-> > slow assuming they are similarly slow). How can we match a hot
-> > plug device with the existing ones ?
+> Would it be possible to add something short to the function preamble
+> on x86 then?  Similar to this code, maybe:
 > 
-> A fair amount of devices copes with this that for example electrical
-> driver impedance is adjusted by the device after a specific number of
-> operations. Totally invisible to SW.
-
-I do not think the timing / the delays are auto adjusting. You select
-a component X to work next to the component Y because you know that
-X in "here" and Y in "there" in the tolerance range...
-
-> > A test can do any "irregular" operation whatever it wants. E.g.
-> > the memory controller can be switched into a test mode, that allows
-> > reading / writing the memory without the intervention of the ECC
-> > logic. One can fill in the memory with some predefined pattern and
-> > check if the ECC logic does what it has to do. Can we do this for
-> > memory hot plug without breaking a running OS ?
-> > Another example: we add a CPU board and we need to make sure that
-> > the coherency dialog goes fine. Can we carry out these tests
-> > without perturbing the already on line CPUs ?
-> > How can we make sure that a freshly inserted I/O card can reach
-> > all the memory it has to, it can interrupt any CPU it has to ?
-> > (Again, without breaking the OS.)
+> if (!(stack_pointer & 0xe00))	/* less than 512 bytes left */
+> 	*NULL = 1;
 > 
-> I think a lot (all ?) can be done with on-line diagnostics. Clearly adding
-> a defective CPU or node board which causes coherency traffic to fail
-> should not happen.
+> Not sure how this can be translated into short and fast x86 assembler,
+> but if it is possible, I would really like to have it.  Then all we
+> have left to do is make sure no function ever uses more than 512
+> bytes.  Famous last words, I know.
 
-Probably it is platform dependent.
-I saw our FW guys doing a couple of black magic, e.g. pumping data in / out
-to / from the LSIs through JTAGs, "abusing" the "back doors".
-Another example: we bought some Intel IA64 boards (CPUs + memory) and
-I saw things, by use of an In Target Probe, like switching back to i386 mode (!!!)
-or freely playing with cache attributes or doing tricky synchronization
-among the CPUs.
-I've simply got concerns...
+If it would be _inlined_ it would be *much* faster, but it would likely
+be measurable anyways. Less measurable though. There's no way with gcc
+to inline the above in the preamble, one could hack gcc for it though
+(there's exactly an asm preable thing in gcc that is the one that is
+currently implemented as call mcount plus the register saving, chaning
+it to the above may be feasible, though it would need a new option in
+gcc)
 
-> > We cannot remove safely failing memory / CPUs. In most of the cases
-> > it is too late. We (in the OS) can see some corrected CPU, memory, I/O
-> > and platform errors. Yet the OS has not got and should not have the
-> > knowledge when a component is "enough bad". I think it is the firmware
-> > that has all the information about the details of the HW events.
-> > Do you know of some firmware services which can say something like:
-> > "hey, remove the component X otherwise your MTBF will drop by 95 %..." ?
-> 
-> That's a point where I totally disagree. I think the OS should have at least
-> the option to know about every failure in the system. The OS should log
-> these events, I think in a fair amount of cases recovery is possible.
-> It might impact the application, but the OS can recover. This would not
-> be possible from the firmware alone.
-
-Well, the OS can log events, why not ?
-Yet what do you do if you cannot boot, cannot read the log ?
-We've got an embedded computer (service processor) that logs everything
-and it's got a private Ethernet plug => you can read its log even if
-the main machine is off.
-
-I think the OS has to be platform independent. How can a platform independent
-OS know if <n> errors of this / that type requires what intervention ?
-We'll have the same binary of the OS (+ drivers) for a small desk top or
-for a 32 CPU "main frame". Only the firmware is different...
-
-Most of our clients run a single (HPC) application on a machine.
-For them, there is no use to save the OS. I can understand that in other
-environments with many applications it is important to save the OS.
-
-> I'm currently looking at scenarios where the OS would provide hooks
-> for an application to implement "self-healing", i.e. the application
-> is notified about an uncorrectable memory error for example and can attempt
-> to work around it.
-
-Most of our clients just do not want to touch their 10 year old rubbish
-Fortran programs. If I get a hint of danger (today it does not come from the FW)
-I could take a check point and call for service intervention...
-
-> > Today HW components are sold without much testing. They say O.K. got
-> > a problem?, just send it back, we'll refund. Thanks. I just have broken
-> > my system.
-> 
-> I think this really is vendor/platform specific. Many vendors will do extensive
-> testing of components shipped to customers in addition to root-cause failure
-> analysis of returned components.
-
-Probably, we should change platform - just kidding ;-)
-
-Thanks,
-
-Zoltán
+another nice thing to have (this one zerocost at runtime) would be a
+way to set a limit on the size of the local variables for each function.
+gcc knows that value very well, it's the sub it does on the stack
+pointer the first few asm instructions after the call.  That would
+reduce the common mistakes.  An equivalent script is the one from Keith
+Owens checking the vmlinux binary after compilation but I'm afraid
+people runs that one only after the fact.

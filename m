@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262144AbTESJqi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 05:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbTESJqi
+	id S261408AbTESJuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 05:50:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbTESJuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 05:46:38 -0400
-Received: from [211.168.65.125] ([211.168.65.125]:2576 "HELO aol.com")
-	by vger.kernel.org with SMTP id S262016AbTESJqg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 05:46:36 -0400
-Message-ID: <655201c31dea$28d89060$aa329eab@fmikynbplpbtf>
-Reply-To: <ssamantra@aol.com>
-From: <ssamantra@aol.com>
-To: Everybody@vger.kernel.org
-Subject: Please confirm your request!
-Date: Mon, 19 May 2003 15:36:44 +0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Mon, 19 May 2003 05:50:16 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:17681 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261408AbTESJuP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 05:50:15 -0400
+Date: Mon, 19 May 2003 11:03:08 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch] futex-fixes-2.5.69-A0
+Message-ID: <20030519110308.A8663@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
+References: <Pine.LNX.4.44.0305191054350.5302-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0305191054350.5302-100000@localhost.localdomain>; from mingo@elte.hu on Mon, May 19, 2003 at 10:58:56AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, May 19, 2003 at 10:58:56AM +0200, Ingo Molnar wrote:
+> +static inline
+> +struct page *__pin_page_atomic (struct page *page)
 
-We have purchased a lead list purporting to be a list of people interested
-in increasing their odds of
-winning the official UK lottery and we would like to ask your permission
-first before sending any further 
-information.
+Please fix the indentation.  Documentation/CondingStyle sais:
 
-This is the most exciting development project in the history of playing the
-lottery game.
-If you play the official UK Lotto then do what everyone else is doing now
-in the UK and around the 
-Globe. Join the e-lottery syndicate and increase your odds to 1 in 13.
-Refer friends and family and earn 
-up to £97,000 per month (cc.$150,000 USD) in referral fees alone.
+static inline struct page *__pin_page_atomic(struct page *page)
 
-Results by email, free service to all! Worldwide Applications Welcome!
+many people like
 
-To receive further information, Please reply to the link  below:
+static inline struct page *
+__pin_page_atomic(struct page *page)
 
-gazbo67@excite.com  and put More info please in the subject line.
-
-Oh don't forget to send me your full name too.
-
-Those who do not respond, will not be contacted again and will be removed
-from the lead list.
-
-Thanks
-
-Gary
-
-P.S. For those wishing to become more active with referral networking and
-run a home based business,
-this might be just the thing you are looking for. I personally have not
-seen or been involved in anything
-so explosive!!.
-
-
-
+but this is just crap.
 

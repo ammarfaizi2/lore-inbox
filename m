@@ -1,16 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267525AbRGWTrR>; Mon, 23 Jul 2001 15:47:17 -0400
+	id <S268338AbRGWTwg>; Mon, 23 Jul 2001 15:52:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267917AbRGWTrH>; Mon, 23 Jul 2001 15:47:07 -0400
-Received: from csa.iisc.ernet.in ([144.16.67.8]:25617 "EHLO csa.iisc.ernet.in")
-	by vger.kernel.org with ESMTP id <S267525AbRGWTqs>;
-	Mon, 23 Jul 2001 15:46:48 -0400
-Date: Tue, 24 Jul 2001 01:16:32 +0530 (IST)
-From: Sourav Sen <sourav@csa.iisc.ernet.in>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Arp problem 
-Message-ID: <Pine.SOL.3.96.1010724011120.10879A-100000@kohinoor.csa.iisc.ernet.in>
+	id <S268333AbRGWTw0>; Mon, 23 Jul 2001 15:52:26 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:15120 "HELO holly.csn.ul.ie")
+	by vger.kernel.org with SMTP id <S268357AbRGWTwG>;
+	Mon, 23 Jul 2001 15:52:06 -0400
+Date: Mon, 23 Jul 2001 20:52:04 +0100 (IST)
+From: Dave Airlie <airlied@skynet.ie>
+X-X-Sender: <airlied@skynet>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Dave Airlie <airlied@skynet.ie>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        <nfs-devel@linux.kernel.org>, <nfs@lists.sourceforge.net>
+Subject: Re: [NFS] Solaris 2.6 server Linux 2.2.19 client .. stale handle
+In-Reply-To: <shslmlfwkwo.fsf@charged.uio.no>
+Message-ID: <Pine.LNX.4.32.0107232051280.22712-100000@skynet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -18,23 +23,37 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
 
-Hi,
-	I have a machine with multiple network cards with different IP
-addresses assigned. All are in the same network (I need this for
-whatever reason). But when a arp request
-appears on the wire for any of these IP addresses, all the interfaces go
-ahead and give their respective ethernet addresses against that IP
-address (I have seen this with tcpdump). This causes the other machines to
-pick up wrong ethernet address against the IP address. 
+Cool,
+	I noticed another problem on our system also, that explains some
+of the times I see it ...
 
-	Anybody having any idea why such a thing might happen. All cards
-are with DEC 21140 chip. I am using RH6.2 with kernel version 2.2.14-5.0.
+Thanks,
+	Dave.
 
-	I am ready to give more info on the configuration etc (ifconfig
-dump, routing table etc.).
+On 23 Jul 2001, Trond Myklebust wrote:
 
-TIA
-sourav
---------------------------------------------------------------------------------
+> >>>>> " " == Dave Airlie <airlied@skynet.ie> writes:
+>
+>      > Hi,
+>      > 	I'm running Linux 2.2.19 client NFSv3 from a Solaris 2.6
+>      > 	server,
+>      > when the server reboots I get stale handles on any mounts from
+>      > that server...
+>
+>      > I though this got fixed ages ago... or do I need to patch
+>      > something on the Solaris side?
+>
+> No. I just need to do a backport of
+>
+>   http://www.fys.uio.no/~trondmy/src/2.4.7/linux-2.4.7-stale.dif
+>
+> Cheers,
+>   Trond
+>
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied@skynet.ie
+pam_smb / Linux DecStation / Linux VAX / ILUG person
 
 

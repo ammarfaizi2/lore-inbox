@@ -1,38 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270270AbRHRSCp>; Sat, 18 Aug 2001 14:02:45 -0400
+	id <S270271AbRHRSFP>; Sat, 18 Aug 2001 14:05:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270271AbRHRSCf>; Sat, 18 Aug 2001 14:02:35 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:8347 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S270270AbRHRSC0>; Sat, 18 Aug 2001 14:02:26 -0400
-Date: Sat, 18 Aug 2001 12:02:27 -0600
-Message-Id: <200108181802.f7II2Rv12385@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subjectd: devfsd-v1.3.17 available
+	id <S270274AbRHRSFF>; Sat, 18 Aug 2001 14:05:05 -0400
+Received: from mail.fbab.net ([212.75.83.8]:37650 "HELO mail.fbab.net")
+	by vger.kernel.org with SMTP id <S270271AbRHRSEz>;
+	Sat, 18 Aug 2001 14:04:55 -0400
+X-Qmail-Scanner-Mail-From: mag@fbab.net via mail.fbab.net
+X-Qmail-Scanner-Rcpt-To: fred@arkansaswebs.com linux-kernel@vger.kernel.org
+X-Qmail-Scanner: 0.94 (No viruses found. Processed in 7.608449 secs)
+Message-ID: <001901c12810$97ef3a70$020a0a0a@totalmef>
+From: "Magnus Naeslund\(f\)" <mag@fbab.net>
+To: "Fred Jackson" <fred@arkansaswebs.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <01081812570001.09229@bits.linuxball>
+Subject: Re: 2.4.xx won't recompile.
+Date: Sat, 18 Aug 2001 20:07:07 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. I've just released version 1.3.17 of my devfsd (devfs
-daemon) at: http://www.atnf.csiro.au/~rgooch/linux/
 
-Tarball directly available from:
-ftp://ftp.??.kernel.org/pub/linux/daemons/devfsd/devfsd.tar.gz
+From: "Fred Jackson" <fred@arkansaswebs.com>
+> 
+[snipi]
+> 
+> I start with the usual 
+> make mrproper
+> make xconfig ( I load a kernel config file - originally created with 
+> 2.4.8) 
+> make bzImage
+> make modules
+> make modules_install
+> make install
+> 
+> (i've already edited lilo.conf and the links in the /boot directory)
+> 
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/devfsd.tar.gz
+Isn't it more safe to do it like this:
 
-This works with devfs-patch-v130, kernel 2.3.46 and devfs-patch-v99.7
-(or later).
+make mrproper
+cp ../linux-2.4.8/.config .
+make oldconfig
+make xconfig
+make bzImage && make modules && make modules_install && make install
 
-The main changes are:
+?
+I thought this was the proper way to do it, no?
 
-- Dynamically load libnsl at run-time as needed, rather than
-  linking. Based on patch from Adam J. Richter.
+Magnus
 
-				Regards,
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ Programmer/Networker [|] Magnus Naeslund
+ PGP Key: http://www.genline.nu/mag_pgp.txt
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+

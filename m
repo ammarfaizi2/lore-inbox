@@ -1,18 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264187AbTCXNA3>; Mon, 24 Mar 2003 08:00:29 -0500
+	id <S264186AbTCXM6s>; Mon, 24 Mar 2003 07:58:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264188AbTCXNA3>; Mon, 24 Mar 2003 08:00:29 -0500
-Received: from chii.cinet.co.jp ([61.197.228.217]:17536 "EHLO
+	id <S264187AbTCXM6s>; Mon, 24 Mar 2003 07:58:48 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:16512 "EHLO
 	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S264187AbTCXNAK>; Mon, 24 Mar 2003 08:00:10 -0500
-Date: Mon, 24 Mar 2003 22:10:13 +0900
+	id <S264186AbTCXM6g>; Mon, 24 Mar 2003 07:58:36 -0500
+Date: Mon, 24 Mar 2003 22:08:46 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       James Simmons <jsimmons@infradead.org>
-Subject: [PATCH 2.5.65-ac4] Complete support for PC-9800 sub-arch (5/9) kanji console
-Message-ID: <20030324131013.GE2508@yuzuki.cinet.co.jp>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH 2.5.65-ac4] Complete support for PC-9800 sub-arch (4/9) IDE
+Message-ID: <20030324130846.GD2508@yuzuki.cinet.co.jp>
 References: <20030324130025.GA2465@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,637 +22,218 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.65-ac4. (5/9)
+against 2.5.65-ac4. (4/9)
 
-Add japanese kanji character support to PC98 console.
+PC98 standard IDE I/F support.
+ - Change default IO port address and IRQ.
+ - Request region exactly for other optional cards.
+ - Get BIOS C/H/S parameter for PC98.
 
 Regards,
 Osamu Tomita
 
-diff -Nru linux/drivers/char/console_macros.h linux98/drivers/char/console_macros.h
---- linux/drivers/char/console_macros.h	2003-03-23 21:55:14.000000000 +0900
-+++ linux98/drivers/char/console_macros.h	2003-03-24 00:13:03.000000000 +0900
-@@ -69,6 +69,16 @@
- #define complement_mask (vc_cons[currcons].d->vc_complement_mask)
- #define s_complement_mask (vc_cons[currcons].d->vc_s_complement_mask)
- #define hi_font_mask	(vc_cons[currcons].d->vc_hi_font_mask)
-+#define kanji_mode     (vc_cons[currcons].d->vc_kanji_mode)
-+#define s_kanji_mode   (vc_cons[currcons].d->vc_s_kanji_mode)
-+#define kanji_char1    (vc_cons[currcons].d->vc_kanji_char1)
-+#define translate_ex   (vc_cons[currcons].d->vc_translate_ex)
-+#define G0_charset_ex  (vc_cons[currcons].d->vc_G0_charset_ex)
-+#define G1_charset_ex  (vc_cons[currcons].d->vc_G1_charset_ex)
-+#define saved_G0_ex    (vc_cons[currcons].d->vc_saved_G0_ex)
-+#define saved_G1_ex    (vc_cons[currcons].d->vc_saved_G1_ex)
-+#define kanji_jis_mode (vc_cons[currcons].d->vc_kanji_jis_mode)
-+#define s_kanji_jis_mode (vc_cons[currcons].d->vc_s_kanji_jis_mode)
+diff -Nru linux-2.5.64-ac3/drivers/ide/ide-disk.c linux98-2.5.64-ac3/drivers/ide/ide-disk.c
+--- linux-2.5.64-ac3/drivers/ide/ide-disk.c	2003-03-08 12:13:46.000000000 +0900
++++ linux98-2.5.64-ac3/drivers/ide/ide-disk.c	2003-03-08 12:29:29.000000000 +0900
+@@ -1574,6 +1574,71 @@
  
- #define vcmode		(vt_cons[currcons]->vc_mode)
+ 	(void) probe_lba_addressing(drive, 1);
  
-diff -Nru linux/drivers/char/vt.c linux98/drivers/char/vt.c
---- linux/drivers/char/vt.c	2003-03-23 21:55:14.000000000 +0900
-+++ linux98/drivers/char/vt.c	2003-03-24 00:13:03.000000000 +0900
-@@ -155,6 +155,10 @@
- static void blank_screen(unsigned long dummy);
- static void gotoxy(int currcons, int new_x, int new_y);
- static void save_cur(int currcons);
-+#ifdef CONFIG_KANJI
-+static void save_cur_kanji(int currcons);
-+static void restore_cur_kanji(int currcons);
-+#endif
- static void reset_terminal(int currcons, int do_clear);
- static void con_flush_chars(struct tty_struct *tty);
- static void set_vesa_blanking(unsigned long arg);
-@@ -439,6 +443,25 @@
- 		do_update_region(currcons, (unsigned long) p, count);
- }
- 
-+#ifdef CONFIG_KANJI
-+/* can called form keyboard.c */
-+void do_change_kanji_mode(int currcons, unsigned long mode)
-+{
-+	switch (mode) {
-+	case 0:
-+		kanji_mode = EUC_CODE;
-+		break;
-+	case 1:
-+		kanji_mode = JIS_CODE;
-+		break;
-+	case 2:
-+		kanji_mode = SJIS_CODE;
-+		break;
++#ifdef CONFIG_X86_PC9800
++	/* XXX - need more checks */
++	if (!drive->nobios && !drive->scsi && !drive->removable) {
++		/* PC-9800's BIOS do pack drive numbers to be continuous,
++		   so extra work is needed here.  */
++
++		/* drive information passed from boot/setup.S */
++		struct drive_info_struct {
++			u16 cyl;
++			u8 sect, head;
++			u16 ssize;
++		} __attribute__ ((packed));
++		extern struct drive_info_struct drive_info[];
++
++		/* this pointer must be advanced only when *DRIVE is
++		   really hard disk. */
++		static struct drive_info_struct *info = drive_info;
++
++		if (info < &drive_info[4] && info->cyl) {
++			drive->cyl  = drive->bios_cyl  = info->cyl;
++			drive->head = drive->bios_head = info->head;
++			drive->sect = drive->bios_sect = info->sect;
++			++info;
++		}
 +	}
-+	kanji_char1 = 0;
-+}
-+#endif /* CONFIG_KANJI */
 +
- /* used by selection: complement pointer position */
- void complement_pos(int currcons, int offset)
- {
-@@ -1103,6 +1126,9 @@
- 				translate = set_translate(charset == 0
- 						? G0_charset
- 						: G1_charset,currcons);
-+#ifdef CONFIG_KANJI
-+				translate_ex = (charset == 0 ? G0_charset_ex : G1_charset_ex);
-+#endif
- 				disp_ctrl = 0;
- 				toggle_meta = 0;
- 				break;
-@@ -1111,6 +1137,9 @@
- 				  * chars < 32 be displayed as ROM chars.
- 				  */
- 				translate = set_translate(IBMPC_MAP,currcons);
-+#ifdef CONFIG_KANJI
-+				translate_ex = 0;
-+#endif
- 				disp_ctrl = 1;
- 				toggle_meta = 0;
- 				break;
-@@ -1119,6 +1148,9 @@
- 				  * high bit before displaying as ROM char.
- 				  */
- 				translate = set_translate(IBMPC_MAP,currcons);
-+#ifdef CONFIG_KANJI
-+				translate_ex = 0;
-+#endif
- 				disp_ctrl = 1;
- 				toggle_meta = 1;
- 				break;
-@@ -1332,6 +1364,22 @@
- 		case 14: /* set vesa powerdown interval */
- 			vesa_off_interval = ((par[1] < 60) ? par[1] : 60) * 60 * HZ;
- 			break;
-+#ifdef CONFIG_KANJI
-+		case 98:
-+			if (par[1] < 10) /* change kanji mode */
-+				do_change_kanji_mode(currcons, par[1]); /* 0208 */
-+			else if (par[1] == 10) { /* save restore kanji mode */
-+				switch (par[2]) {
-+				case 1:
-+					save_cur_kanji(currcons);
-+					break;
-+				case 2:
-+					restore_cur_kanji(currcons);
-+					break;
-+				}
-+			}
-+			break;
-+#endif /* CONFIG_KANJI */
++	/* =PC98 MEMO=
++	   physical capacity =< 65535*8*17 sect. : H/S=8/17 (fixed)
++	   physical capacity > 65535*8*17 sect. : use physical geometry
++	   (65535*8*17 = 8912760 sectors)
++	*/
++	printk("%s: CHS: physical %d/%d/%d, logical %d/%d/%d, BIOS %d/%d/%d\n",
++	       drive->name,
++	       id->cyls,	id->heads,	id->sectors,
++	       id->cur_cyls,	id->cur_heads,	id->cur_sectors,
++	       drive->bios_cyl,	drive->bios_head,drive->bios_sect);
++	if (!drive->cyl || !drive->head || !drive->sect) {
++		drive->cyl     = drive->bios_cyl  = id->cyls;
++		drive->head    = drive->bios_head = id->heads;
++		drive->sect    = drive->bios_sect = id->sectors;
++		printk("%s: not BIOS-supported device.\n",drive->name);
++	}
++	/* calculate drive capacity, and select LBA if possible */
++	init_idedisk_capacity(drive);
++
++	/*
++	 * if possible, give fdisk access to more of the drive,
++	 * by correcting bios_cyls:
++	 */
++	capacity = idedisk_capacity(drive);
++	if (capacity < 8912760 &&
++	   (drive->head != 8 || drive->sect != 17)) {
++		drive->head = drive->bios_head = 8;
++		drive->sect = drive->bios_sect = 17;
++		drive->cyl  = drive->bios_cyl  =
++			capacity / (drive->bios_head * drive->bios_sect);
++		printk("%s: Fixing Geometry :: CHS=%d/%d/%d to CHS=%d/%d/%d\n",
++			   drive->name,
++			   id->cur_cyls,id->cur_heads,id->cur_sectors,
++			   drive->bios_cyl,drive->bios_head,drive->bios_sect);
++		id->cur_cyls    = drive->bios_cyl;
++		id->cur_heads   = drive->bios_head;
++		id->cur_sectors = drive->bios_sect;
++	}
++#else /* !CONFIG_X86_PC9800 */
+ 	/* Extract geometry if we did not already have one for the drive */
+ 	if (!drive->cyl || !drive->head || !drive->sect) {
+ 		drive->cyl     = drive->bios_cyl  = id->cyls;
+@@ -1607,6 +1672,8 @@
+ 	if ((capacity >= (drive->bios_cyl * drive->bios_sect * drive->bios_head)) &&
+ 	    (!drive->forced_geom) && drive->bios_sect && drive->bios_head)
+ 		drive->bios_cyl = (capacity / drive->bios_sect) / drive->bios_head;
++#endif  /* CONFIG_X86_PC9800 */
++
+ 	printk (KERN_INFO "%s: %ld sectors", drive->name, capacity);
+ 
+ 	/* Give size in megabytes (MB), not mebibytes (MiB). */
+diff -Nru linux-2.5.65-ac2/drivers/ide/ide-probe.c linux98-2.5.65-ac2/drivers/ide/ide-probe.c
+--- linux-2.5.65-ac2/drivers/ide/ide-probe.c	2003-03-22 10:41:33.000000000 +0900
++++ linux98-2.5.65-ac2/drivers/ide/ide-probe.c	2003-03-22 20:12:09.000000000 +0900
+@@ -669,7 +669,7 @@
+ 
+ 	if (hwif->mmio == 2)
+ 		return 0;
+-	addr_errs  = hwif_check_region(hwif, hwif->io_ports[IDE_DATA_OFFSET], 1);
++	addr_errs  = hwif_check_region(hwif, hwif->io_ports[IDE_DATA_OFFSET], pc98 ? 2 : 1);
+ 	for (i = IDE_ERROR_OFFSET; i <= IDE_STATUS_OFFSET; i++)
+ 		addr_errs += hwif_check_region(hwif, hwif->io_ports[i], 1);
+ 	if (hwif->io_ports[IDE_CONTROL_OFFSET])
+@@ -718,7 +718,9 @@
  	}
+ 
+ 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++)
+-		hwif_request_region(hwif->io_ports[i], 1, hwif->name);
++		hwif_request_region(hwif->io_ports[i],
++					(pc98 && i == IDE_DATA_OFFSET) ? 2 : 1,
++					hwif->name);
  }
  
-@@ -1409,8 +1457,26 @@
- 	need_wrap = 0;
- }
- 
-+#ifdef CONFIG_KANJI
-+static void save_cur_kanji(int currcons)
-+{
-+        s_kanji_mode = kanji_mode;
-+        s_kanji_jis_mode = kanji_jis_mode;
-+}
-+
-+static void restore_cur_kanji(int currcons)
-+{
-+        kanji_mode = s_kanji_mode;
-+        kanji_jis_mode = s_kanji_jis_mode;
-+        kanji_char1 = 0;
-+}
+ //EXPORT_SYMBOL(hwif_register);
+@@ -806,6 +808,9 @@
+ #if CONFIG_BLK_DEV_PDC4030
+ 	    (hwif->chipset != ide_pdc4030 || hwif->channel == 0) &&
+ #endif /* CONFIG_BLK_DEV_PDC4030 */
++#if CONFIG_BLK_DEV_IDE_PC9800
++	    (hwif->chipset != ide_pc9800 || !hwif->mate->present) &&
 +#endif
-+
- enum { ESnormal, ESesc, ESsquare, ESgetpars, ESgotpars, ESfunckey,
- 	EShash, ESsetG0, ESsetG1, ESpercent, ESignore, ESnonstd,
-+#ifdef CONFIG_KANJI
-+	ESsetJIS, ESsetJIS2,
-+#endif
- 	ESpalette };
- 
- /* console_sem is held (except via vc_init()) */
-@@ -1420,9 +1486,18 @@
- 	bottom		= video_num_lines;
- 	vc_state	= ESnormal;
- 	ques		= 0;
-+#ifdef CONFIG_KANJI
-+	translate	= set_translate(JP_MAP, currcons);
-+	translate_ex    = 0;
-+	G0_charset      = JP_MAP;
-+	G0_charset_ex   = 0;
-+	G1_charset      = GRAF_MAP;
-+	G1_charset_ex   = 0;
-+#else
- 	translate	= set_translate(LAT1_MAP,currcons);
- 	G0_charset	= LAT1_MAP;
- 	G1_charset	= GRAF_MAP;
-+#endif
- 	charset		= 0;
- 	need_wrap	= 0;
- 	report_mouse	= 0;
-@@ -1464,6 +1539,12 @@
- 	bell_pitch = DEFAULT_BELL_PITCH;
- 	bell_duration = DEFAULT_BELL_DURATION;
- 
-+#ifdef CONFIG_KANJI
-+	kanji_mode = EUC_CODE;
-+	kanji_char1 = 0;
-+	kanji_jis_mode = JIS_CODE_ASCII;
-+#endif
-+
- 	gotoxy(currcons,0,0);
- 	save_cur(currcons);
- 	if (do_clear)
-@@ -1506,11 +1587,17 @@
- 	case 14:
- 		charset = 1;
- 		translate = set_translate(G1_charset,currcons);
-+#ifdef CONFIG_KANJI
-+		translate_ex = G1_charset_ex;
-+#endif
- 		disp_ctrl = 1;
- 		return;
- 	case 15:
- 		charset = 0;
- 		translate = set_translate(G0_charset,currcons);
-+#ifdef CONFIG_KANJI
-+		translate_ex = G0_charset_ex;
-+#endif
- 		disp_ctrl = 0;
- 		return;
- 	case 24: case 26:
-@@ -1567,6 +1654,11 @@
- 		case ')':
- 			vc_state = ESsetG1;
- 			return;
-+#ifdef CONFIG_KANJI
-+		case '$':
-+			vc_state = ESsetJIS;
-+			return;
-+#endif
- 		case '#':
- 			vc_state = EShash;
- 			return;
-@@ -1816,8 +1908,25 @@
- 			G0_charset = IBMPC_MAP;
- 		else if (c == 'K')
- 			G0_charset = USER_MAP;
--		if (charset == 0)
-+#ifdef CONFIG_KANJI
-+		G0_charset_ex = 0;
-+		if (c == 'J')
-+			G0_charset = JP_MAP;
-+		else if (c == 'I'){
-+			G0_charset = JP_MAP;
-+			G0_charset_ex = 1;
-+		}
-+#endif /* CONFIG_KANJI */
-+		if (charset == 0) {
- 			translate = set_translate(G0_charset,currcons);
-+#ifdef CONFIG_KANJI
-+			translate_ex = G0_charset_ex;
-+#endif
-+		}
-+#ifdef CONFIG_KANJI
-+		kanji_jis_mode = JIS_CODE_ASCII;
-+		kanji_char1 = 0;
-+#endif
- 		vc_state = ESnormal;
- 		return;
- 	case ESsetG1:
-@@ -1829,10 +1938,51 @@
- 			G1_charset = IBMPC_MAP;
- 		else if (c == 'K')
- 			G1_charset = USER_MAP;
--		if (charset == 1)
-+#ifdef CONFIG_KANJI
-+		G1_charset_ex = 0;
-+		if (c == 'J')
-+			G1_charset = JP_MAP;
-+		else if (c == 'I') {
-+			G1_charset = JP_MAP;
-+			G1_charset_ex = 1;
-+		}
-+#endif /* CONFIG_KANJI */
-+		if (charset == 1) {
- 			translate = set_translate(G1_charset,currcons);
-+#ifdef CONFIG_KANJI
-+			translate_ex = G1_charset_ex;
-+#endif
-+		}
-+#ifdef CONFIG_KANJI
-+		kanji_jis_mode = JIS_CODE_ASCII;
-+		kanji_char1 = 0;
-+#endif
-+		vc_state = ESnormal;
-+		return;
-+#ifdef CONFIG_KANJI
-+	case ESsetJIS:
-+		if (c == '@')
-+			kanji_jis_mode = JIS_CODE_78;
-+		else if (c == 'B')
-+			kanji_jis_mode = JIS_CODE_83;
-+		else if (c == '('){
-+			vc_state = ESsetJIS2;
-+			return;
-+		} else {
-+		vc_state = ESnormal;
-+		return;
-+		}
- 		vc_state = ESnormal;
-+		kanji_char1 = 0;
- 		return;
-+	case ESsetJIS2:
-+		if (c == 'D'){
-+			kanji_jis_mode = JIS_CODE_90;
-+			kanji_char1 = 0;
-+		}
-+		vc_state = ESnormal;
-+		return;
-+#endif /* CONIFG_KANJI */
- 	default:
- 		vc_state = ESnormal;
+ 	    (hwif_check_regions(hwif))) {
+ 		u16 msgout = 0;
+ 		for (unit = 0; unit < MAX_DRIVES; ++unit) {
+@@ -1172,7 +1177,7 @@
+ 		ide_init_drive(drive);
  	}
-@@ -1864,7 +2014,7 @@
+ 
+-#if !defined(__mc68000__) && !defined(CONFIG_APUS) && !defined(__sparc__)
++#if !defined(__mc68000__) && !defined(CONFIG_APUS) && !defined(__sparc__) && !defined(CONFIG_X86_PC9800)
+ 	printk("%s at 0x%03lx-0x%03lx,0x%03lx on irq %d", hwif->name,
+ 		hwif->io_ports[IDE_DATA_OFFSET],
+ 		hwif->io_ports[IDE_DATA_OFFSET]+7,
+@@ -1182,6 +1187,11 @@
+ 		hwif->io_ports[IDE_DATA_OFFSET],
+ 		hwif->io_ports[IDE_DATA_OFFSET]+7,
+ 		hwif->io_ports[IDE_CONTROL_OFFSET], __irq_itoa(hwif->irq));
++#elif defined(CONFIG_X86_PC9800)
++	printk("%s at 0x%03lx-0x%03lx,0x%03lx on irq %d", hwif->name,
++		hwif->io_ports[IDE_DATA_OFFSET],
++		hwif->io_ports[IDE_DATA_OFFSET]+15,
++		hwif->io_ports[IDE_CONTROL_OFFSET], hwif->irq);
+ #else
+ 	printk("%s at %x on irq 0x%08x", hwif->name,
+ 		hwif->io_ports[IDE_DATA_OFFSET], hwif->irq);
+diff -Nru linux-2.5.65-ac1/drivers/ide/ide.c linux98-2.5.65-ac1/drivers/ide/ide.c
+--- linux-2.5.65-ac1/drivers/ide/ide.c	2003-03-20 09:09:44.000000000 +0900
++++ linux98-2.5.65-ac4/drivers/ide/ide.c	2003-03-20 11:20:47.000000000 +0900
+@@ -550,7 +550,8 @@
  	}
- #endif
- 
--	int c, tc, ok, n = 0, draw_x = -1;
-+	int c, tc = 0, ok, n = 0, draw_x = -1;
- 	unsigned int currcons;
- 	unsigned long draw_from = 0, draw_to = 0;
- 	struct vt_struct *vt = (struct vt_struct *)tty->driver_data;
-@@ -1921,48 +2071,151 @@
- 		hide_cursor(currcons);
- 
- 	while (!tty->stopped && count) {
-+		int realkanji = 0;
-+		int kanjioverrun = 0;
- 		c = *buf;
- 		buf++;
- 		n++;
- 		count--;
- 
--		if (utf) {
--		    /* Combine UTF-8 into Unicode */
--		    /* Incomplete characters silently ignored */
--		    if(c > 0x7f) {
--			if (utf_count > 0 && (c & 0xc0) == 0x80) {
--				utf_char = (utf_char << 6) | (c & 0x3f);
--				utf_count--;
--				if (utf_count == 0)
--				    tc = c = utf_char;
--				else continue;
--			} else {
--				if ((c & 0xe0) == 0xc0) {
--				    utf_count = 1;
--				    utf_char = (c & 0x1f);
--				} else if ((c & 0xf0) == 0xe0) {
--				    utf_count = 2;
--				    utf_char = (c & 0x0f);
--				} else if ((c & 0xf8) == 0xf0) {
--				    utf_count = 3;
--				    utf_char = (c & 0x07);
--				} else if ((c & 0xfc) == 0xf8) {
--				    utf_count = 4;
--				    utf_char = (c & 0x03);
--				} else if ((c & 0xfe) == 0xfc) {
--				    utf_count = 5;
--				    utf_char = (c & 0x01);
--				} else
--				    utf_count = 0;
--				continue;
--			      }
--		    } else {
--		      tc = c;
--		      utf_count = 0;
--		    }
--		} else {	/* no utf */
--		  tc = translate[toggle_meta ? (c|0x80) : c];
--		}
-+#ifdef CONFIG_KANJI
-+		if (vc_state == ESnormal && !disp_ctrl) {
-+			switch (kanji_jis_mode) {
-+			case JIS_CODE_78:
-+			case JIS_CODE_83:
-+			case JIS_CODE_90:
-+				if (utf)
-+					break;
-+				if (c >= 127 || c <= 0x20) {
-+					kanji_char1 = 0;
-+					break;
-+				}
-+				if (kanji_char1) {
-+					tc = (((unsigned int)kanji_char1) << 8) |
-+                        (((unsigned int)c) & 0x007f);
-+					kanji_char1 = 0;
-+					realkanji = 1;
-+				} else {
-+					kanji_char1 = ((unsigned int)c) & 0x007f;
-+					continue;
-+				} 
-+				break;
-+			case JIS_CODE_ASCII:
-+			default:
-+				switch (kanji_mode) {
-+				case SJIS_CODE:
-+					if (kanji_char1) {
-+                        if ((0x40 <= c && c <= 0x7E) ||
-+                            (0x80 <= c && c <= 0xFC)) {
-+							realkanji = 1;
-+							/* SJIS to JIS */
-+							kanji_char1 <<= 1; /* 81H-9FH --> 22H-3EH */
-+							/* EOH-EFH --> C0H-DEH */
-+							c -= 0x1f;         /* 40H-7EH --> 21H-5FH */
-+							/* 80H-9EH --> 61H-7FH */
-+							/* 9FH-FCH --> 80H-DDH */
-+							if (!(c & 0x80)) {
-+								if (c < 0x61)
-+									c++;
-+								c += 0xde;
-+							}
-+							c &= 0xff;
-+							c += 0xa1;
-+							kanji_char1 += 0x1f;
-+							tc = (kanji_char1 << 8) + c;
-+							tc &= 0x7f7f;
-+							kanji_char1 = 0;
-+                        }
-+					} else {
-+                        if ((0x81 <= c && c <= 0x9f) ||
-+                            (0xE0 <= c && c <= 0xEF)) {
-+							realkanji = 1;
-+							kanji_char1 = c;
-+							continue;
-+                        } else if (0xA1 <= c && c <= 0xDF) {
-+							tc = (unsigned int)translations[JP_MAP][c];
-+							goto hankana_skip;
-+                        }
-+					}
-+					break;
-+				case EUC_CODE:
-+					if (utf)
-+                        break;
-+					if (c <= 0x7f) {
-+                        kanji_char1 = 0;
-+                        break;
-+					}
-+					if (kanji_char1) {
-+                        if (kanji_char1 == 0x8e) {  /* SS2 */
-+							/* realkanji ha tatenai */
-+							tc = (unsigned int)translations[JP_MAP][c];
-+							kanji_char1 = 0;
-+							goto hankana_skip;
-+                        } else {
-+							tc = (((unsigned int)kanji_char1) << 8) |
-+								(((unsigned int)c) & 0x007f);
-+							kanji_char1 = 0;
-+							realkanji = 1;
-+                        }
-+					} else {
-+                        kanji_char1 = (unsigned int)c;
-+                        continue;
-+					}
-+					break;
-+				case JIS_CODE:
-+					/* to be supported */
-+					break;
-+				} /* switch (kanji_mode) */
-+			} /* switch (kanji_jis_mode) */
-+		} /* if (vc_state == ESnormal) */
-+
-+#endif /* CONFIG_KANJI */
-+		if (!realkanji) {
-+			if (utf) {
-+			    /* Combine UTF-8 into Unicode */
-+			    /* Incomplete characters silently ignored */
-+			    if(c > 0x7f) {
-+				if (utf_count > 0 && (c & 0xc0) == 0x80) {
-+					utf_char = (utf_char << 6) | (c & 0x3f);
-+					utf_count--;
-+					if (utf_count == 0)
-+					    tc = c = utf_char;
-+					else continue;
-+				} else {
-+					if ((c & 0xe0) == 0xc0) {
-+					    utf_count = 1;
-+					    utf_char = (c & 0x1f);
-+					} else if ((c & 0xf0) == 0xe0) {
-+					    utf_count = 2;
-+					    utf_char = (c & 0x0f);
-+					} else if ((c & 0xf8) == 0xf0) {
-+					    utf_count = 3;
-+					    utf_char = (c & 0x07);
-+					} else if ((c & 0xfc) == 0xf8) {
-+					    utf_count = 4;
-+					    utf_char = (c & 0x03);
-+					} else if ((c & 0xfe) == 0xfc) {
-+					    utf_count = 5;
-+					    utf_char = (c & 0x01);
-+					} else
-+					    utf_count = 0;
-+					continue;
-+				      }
-+			    } else {
-+			      tc = c;
-+			      utf_count = 0;
-+			    }
-+			} else {	/* no utf */
-+#ifdef CONFIG_KANJI
-+			  tc = translate[(toggle_meta || translate_ex) ? (c | 0x80) : c];
-+#else
-+			  tc = translate[toggle_meta ? (c|0x80) : c];
-+#endif
-+			}
-+		} /* if (!realkanji) */
-+#ifdef CONFIG_KANJI
-+	hankana_skip:
-+#endif
- 
-                 /* If the original code was a control character we
-                  * only allow a glyph to be displayed if the code is
-@@ -1979,43 +2232,71 @@
-                                          : CTRL_ACTION) >> c) & 1)))
-                         && (c != 127 || disp_ctrl)
- 			&& (c != 128+27);
-+                ok |= realkanji;
- 
- 		if (vc_state == ESnormal && ok) {
--			/* Now try to find out how to display it */
--			tc = conv_uni_to_pc(vc_cons[currcons].d, tc);
--			if ( tc == -4 ) {
-+			if (!realkanji) {
-+				/* Now try to find out how to display it */
-+				tc = conv_uni_to_pc(vc_cons[currcons].d, tc);
-+				if ( tc == -4 ) {
-                                 /* If we got -4 (not found) then see if we have
-                                    defined a replacement character (U+FFFD) */
--                                tc = conv_uni_to_pc(vc_cons[currcons].d, 0xfffd);
-+       	                         tc = conv_uni_to_pc(vc_cons[currcons].d, 0xfffd);
- 
- 				/* One reason for the -4 can be that we just
- 				   did a clear_unimap();
- 				   try at least to show something. */
--				if (tc == -4)
--				     tc = c;
--                        } else if ( tc == -3 ) {
-+					if (tc == -4)
-+					     tc = c;
-+				} else if ( tc == -3 ) {
-                                 /* Bad hash table -- hope for the best */
--                                tc = c;
--                        }
--			if (tc & ~charmask)
--                                continue; /* Conversion failed */
-+					tc = c;
-+				}
-+				if (tc & ~charmask)
-+					continue; /* Conversion failed */
-+			} /* !realkanji */
- 
- 			if (need_wrap || decim)
- 				FLUSH
- 			if (need_wrap) {
- 				cr(currcons);
- 				lf(currcons);
-+				if (kanjioverrun) {
-+					x++;
-+					pos += 2;
-+					kanjioverrun = 0;
-+				}
- 			}
- 			if (decim)
- 				insert_char(currcons, 1);
-+#ifndef CONFIG_KANJI
- 			scr_writew(himask ?
- 				     ((attr << 8) & ~himask) + ((tc & 0x100) ? himask : 0) + (tc & 0xff) :
- 				     (attr << 8) + tc,
- 				   (u16 *) pos);
-+#else /* CONFIG_KANJI */
-+			if (realkanji) {
-+				tc = ((tc >> 8) & 0xff) | ((tc << 8) & 0xff00); 
-+				*((u16 *)pos) = (tc - 0x20) & 0xff7f;
-+				*(pc9800_attr_offset((u16 *)pos)) = attr;
-+				x ++;
-+				pos += 2;
-+				*((u16 *)pos) = (tc - 0x20) | 0x80;
-+				*(pc9800_attr_offset((u16 *)pos)) = attr;
-+			} else {
-+				*((u16 *)pos) = tc & 0x00ff;
-+				*(pc9800_attr_offset((u16 *)pos)) = attr;
-+			}
-+#endif /* !CONFIG_KANJI */
- 			if (DO_UPDATE && draw_x < 0) {
- 				draw_x = x;
- 				draw_from = pos;
-+				if (realkanji) {
-+					draw_x --;
-+					draw_from -= 2;
-+				}
- 			}
-+#ifndef CONFIG_KANJI
- 			if (x == video_num_columns - 1) {
- 				need_wrap = decawm;
- 				draw_to = pos+2;
-@@ -2023,6 +2304,16 @@
- 				x++;
- 				draw_to = (pos+=2);
- 			}
-+#else /* CONFIG_KANJI */
-+			if (x >= video_num_columns - 1) {
-+				need_wrap = decawm;
-+				kanjioverrun = x - video_num_columns + 1;
-+				draw_to = pos + 2;
-+			} else {
-+				x++;
-+				draw_to = (pos += 2);
-+			}
-+#endif /* !CONFIG_KANJI */
- 			continue;
+ 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
+ 		if (hwif->io_ports[i]) {
+-			hwif_release_region(hwif->io_ports[i], 1);
++			hwif_release_region(hwif->io_ports[i],
++					(pc98 && i == IDE_DATA_OFFSET) ? 2 : 1);
  		}
- 		FLUSH
-diff -Nru linux-2.5.65-bk4/drivers/video/console/Kconfig linux98-2.5.65-bk4/drivers/video/console/Kconfig
---- linux-2.5.65-bk4/drivers/video/console/Kconfig	2003-03-23 21:55:14.000000000 +0900
-+++ linux98-2.5.65-bk4/drivers/video/console/Kconfig	2003-03-24 00:18:45.000000000 +0900
-@@ -109,6 +109,10 @@
- 	bool "Enable 32-bit access to text video RAM"
- 	depends on GDC_CONSOLE
+ 	}
+ }
+@@ -2117,6 +2118,12 @@
+ 	}
+ #endif /* CONFIG_BLK_DEV_IDEPCI */
  
-+config KANJI
-+	bool "Japanese Kanji support"
-+	depends on X86_PC9800
++#ifdef CONFIG_BLK_DEV_IDE_PC9800
++	{
++		extern void ide_probe_for_pc9800(void);
++		ide_probe_for_pc9800();
++	}
++#endif
+ #ifdef CONFIG_ETRAX_IDE
+ 	{
+ 		extern void init_e100_ide(void);
+diff -Nru linux/include/linux/hdreg.h linux98/include/linux/hdreg.h
+--- linux/include/linux/hdreg.h	2003-02-15 08:51:42.000000000 +0900
++++ linux98/include/linux/hdreg.h	2003-02-20 10:18:37.000000000 +0900
+@@ -5,11 +5,29 @@
+  * This file contains some defines for the AT-hd-controller.
+  * Various sources.
+  */
++#include <linux/config.h>
+ 
+ /* ide.c has its own port definitions in "ide.h" */
+ 
+ #define HD_IRQ		14
+ 
++#ifdef CONFIG_X86_PC9800
++/* Hd controller regs. for NEC PC-9800 */
++#define HD_DATA		0x640	/* _CTL when writing */
++#define HD_ERROR	0x642	/* see err-bits */
++#define HD_NSECTOR	0x644	/* nr of sectors to read/write */
++#define HD_SECTOR	0x646	/* starting sector */
++#define HD_LCYL		0x648	/* starting cylinder */
++#define HD_HCYL		0x64a	/* high byte of starting cyl */
++#define HD_CURRENT	0x64c	/* 101dhhhh , d=drive, hhhh=head */
++#define HD_STATUS	0x64e	/* see status-bits */
++#define HD_FEATURE	HD_ERROR	/* same io address, read=error, write=feature */
++#define HD_PRECOMP	HD_FEATURE	/* obsolete use of this port - predates IDE */
++#define HD_COMMAND	HD_STATUS	/* same io address, read=status, write=cmd */
 +
- config DUMMY_CONSOLE
- 	bool
- 	depends on PROM_CONSOLE!=y || VGA_CONSOLE!=y || SGI_NEWPORT_CONSOLE!=y 
-diff -Nru linux/include/linux/console_struct.h linux98/include/linux/console_struct.h
---- linux/include/linux/console_struct.h	2003-03-23 22:22:05.000000000 +0900
-+++ linux98/include/linux/console_struct.h	2003-03-24 00:13:03.000000000 +0900
-@@ -94,6 +94,18 @@
- 	struct vc_data **vc_display_fg;		/* [!] Ptr to var holding fg console for this display */
- 	unsigned long	vc_uni_pagedir;
- 	unsigned long	*vc_uni_pagedir_loc;  /* [!] Location of uni_pagedir variable for this console */
-+#ifdef CONFIG_KANJI
-+	unsigned char   vc_kanji_char1;
-+	unsigned char   vc_kanji_mode;
-+	unsigned char   vc_kanji_jis_mode;
-+	unsigned char   vc_s_kanji_mode;
-+	unsigned char   vc_s_kanji_jis_mode;
-+	unsigned int    vc_translate_ex;
-+	unsigned char   vc_G0_charset_ex;
-+	unsigned char   vc_G1_charset_ex;
-+	unsigned char   vc_saved_G0_ex;
-+	unsigned char   vc_saved_G1_ex;
-+#endif /* CONFIG_KANJI */
- 	/* additional information is in vt_kern.h */
- };
++#define HD_CMD		0x74c	/* used for resets */
++#define HD_ALTSTATUS	0x74c	/* same as HD_STATUS but doesn't clear irq */
++#else /* !CONFIG_X86_PC9800 */
+ /* Hd controller regs. Ref: IBM AT Bios-listing */
+ #define HD_DATA		0x1f0		/* _CTL when writing */
+ #define HD_ERROR	0x1f1		/* see err-bits */
+@@ -25,6 +43,7 @@
  
-diff -Nru linux/include/linux/consolemap.h linux98/include/linux/consolemap.h
---- linux/include/linux/consolemap.h	Sat Oct 19 13:02:34 2002
-+++ linux98/include/linux/consolemap.h	Mon Oct 21 14:19:31 2002
-@@ -7,6 +7,7 @@
- #define GRAF_MAP 1
- #define IBMPC_MAP 2
- #define USER_MAP 3
-+#define JP_MAP 4
+ #define HD_CMD		0x3f6		/* used for resets */
+ #define HD_ALTSTATUS	0x3f6		/* same as HD_STATUS but doesn't clear irq */
++#endif /* CONFIG_X86_PC9800 */
  
- struct vc_data;
+ /* remainder is shared between hd.c, ide.c, ide-cd.c, and the hdparm utility */
  

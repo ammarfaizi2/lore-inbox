@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbQLKVoR>; Mon, 11 Dec 2000 16:44:17 -0500
+	id <S129614AbQLKVqr>; Mon, 11 Dec 2000 16:46:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129614AbQLKVoH>; Mon, 11 Dec 2000 16:44:07 -0500
-Received: from smtp-fwd.valinux.com ([198.186.202.196]:29197 "EHLO
-	mail.valinux.com") by vger.kernel.org with ESMTP id <S129387AbQLKVnz>;
-	Mon, 11 Dec 2000 16:43:55 -0500
-Date: Mon, 11 Dec 2000 13:14:54 -0800
-From: David Hinds <dhinds@valinux.com>
-To: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-Cc: Linus Torvalds <torvalds@transmeta.com>, rgooch@ras.ucalgary.ca,
-        jgarzik@mandrakesoft.mandrakesoft.com, linux-kernel@vger.kernel.org
-Subject: Re: Serial cardbus code.... for testing, please.....
-Message-ID: <20001211131454.B31098@valinux.com>
-In-Reply-To: <Pine.LNX.4.10.10012081319010.11626-100000@penguin.transmeta.com> <200012090541.AAA17863@tsx-prime.MIT.EDU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.6i
-In-Reply-To: <200012090541.AAA17863@tsx-prime.MIT.EDU>; from Theodore Y. Ts'o on Sat, Dec 09, 2000 at 12:41:24AM -0500
+	id <S130884AbQLKVq2>; Mon, 11 Dec 2000 16:46:28 -0500
+Received: from mta1.snfc21.pbi.net ([206.13.28.122]:49801 "EHLO
+	mta1.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S130883AbQLKVq0>; Mon, 11 Dec 2000 16:46:26 -0500
+Date: Mon, 11 Dec 2000 13:10:19 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: hotplug mopup
+To: Marcus.Meissner@caldera.de, linux-kernel@vger.kernel.org
+Message-id: <3A3542BB.F2D7FA0F@pacbell.net>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0-test11-pre5c i586)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 09, 2000 at 12:41:24AM -0500, Theodore Y. Ts'o wrote:
+> > - I don't think we can say that the kernel hotplug interface is 
+> >   complete until we have real, working, tested userspace tools. David, 
+> >   could you please summarise the state of play here? In particular, 
+> >   what still needs to be done? 
 > 
-> There was is usual with these sorts of things, multiple problems I was
-> dealing with.  The first was that I was trying to use cardmgr, and my
-> pcmcia config file was still trying to load epic_cb.  Oops.  David, you
-> might want to mention of this caveat in the README-2.4 file in the
-> pcmcia-cs package.
+> Well, for USB I would like to know which device major/minor entry a newly 
+> plugged device is associated with. 
+> 
+> Like if I insert a new USB camera, I want to easy find out it is char 81.1 
+> (/dev/video1). Or if I plugin a USB storage device I want to easy find out 
+> it is /dev/sda now. 
 
-I'm aware of the problem but I'm not actually sure what to present as
-the appropriate solution yet; in the new scheme, cardmgr should just
-ignore these cards and not load any module at all (as /sbin/hotplug 
-should do that).  But I haven't decided how cardmgr will deduce that.
+How might that relate to devfs integration?  It addresses similar
+problems, and devfsd can call to userspace when such drivers (ones
+that show up through major/minor device nodes) appear.  True, some
+folk who want to hotplug might want to not run devfs.
 
-By the way, in my hands, PCMCIA serial cards do work ok with the 2.4
-PCMCIA modules as of test12-pre7.  So I'm not sure what's going on in
-Ted's situation, if the non-kernel PCMCIA is working: there should
-not be much different for 16-bit cards.  I do seem to have some new
-problems with Cardbus cards that I wasn't having with earlier 2.4
-releases but I haven't made any attempt to figure that out yet.
-
--- Dave
-
+- Dave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

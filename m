@@ -1,37 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288612AbSAIAFT>; Tue, 8 Jan 2002 19:05:19 -0500
+	id <S288614AbSAIAE7>; Tue, 8 Jan 2002 19:04:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288610AbSAIAFJ>; Tue, 8 Jan 2002 19:05:09 -0500
-Received: from sweetums.bluetronic.net ([66.57.88.6]:443 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S288613AbSAIAE6>; Tue, 8 Jan 2002 19:04:58 -0500
-Date: Tue, 8 Jan 2002 19:04:55 -0500 (EST)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: "Henning P. Schmiedehausen" <hps@intermeta.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Two hdds on one channel - why so slow?
-In-Reply-To: <a16ppd$shs$1@forge.intermeta.de>
-Message-ID: <Pine.GSO.4.33.0201081901310.28783-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288612AbSAIAEt>; Tue, 8 Jan 2002 19:04:49 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:16885 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S288610AbSAIAEm>;
+	Tue, 8 Jan 2002 19:04:42 -0500
+Date: Wed, 9 Jan 2002 01:04:24 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Greg KH <greg@kroah.com>, jtv <jtv@xs4all.nl>,
+        Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: __FUNCTION__
+Message-ID: <20020109010424.U5235@khan.acc.umu.se>
+In-Reply-To: <3C3B664B.3060103@intel.com> <20020108220149.GA15816@kroah.com> <20020108235649.A26154@xs4all.nl> <20020108231147.GA16313@kroah.com>, <20020108231147.GA16313@kroah.com>; <20020109003901.T5235@khan.acc.umu.se> <3C3B85E6.9634B180@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3C3B85E6.9634B180@zip.com.au>; from akpm@zip.com.au on Tue, Jan 08, 2002 at 03:51:02PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Jan 2002, Henning P. Schmiedehausen wrote:
->The one argument that noone brought around here is (and it is the
->killer argument for me in IDE vs. SCSI): "external disk trays". Try
->that with IDE (current IDE please. No SerialATA. ;-) ) without lots of
->"out of spec" cables dangling out of your "enterprise computing
->solution".
+On Tue, Jan 08, 2002 at 03:51:02PM -0800, Andrew Morton wrote:
+> David Weinehall wrote:
+> > 
+> > ...
+> > > Since the C99 spec does not state anything about __FUNCTION__, changing
+> > > it from the current behavior does not seem like a wise thing to do.
+> > >
+> > > Any pointers to someone to complain to, or is there no chance for
+> > > reversal?
+> > 
+> > Because the want people to stop using a gcc-specific way and start
+> > using the C99-mandated way instead?! Very sane imho.
+> > 
+> 
+> They shouldn't take a GNU extension which has been offered
+> for ten years and suddenly revert it, or unoptionally spit a
+> warning.  But they keep on doing this.
 
-You don't have to be out-of-spec, but doing things within the spec becomes
-VERY expensive.  Those cheap-ass 30$ IDE drive trays are 110% shit.  Only
-when you get into the >100$ models do they work reliablly without setting
-the office on fire.  Even the 4500RPM drives get too hot in the cheapy's.
+Well, as the C standards evolve to incorporate things that gcc earlier
+had to create extensions to provide, it is reasonable that gcc, which
+after all _is_ a C-compiler (yeah, yeah, I know that gcc is GNU Compiler
+Collection or whatever, but disregard from that now, ok?!) should
+use those. Deprecating the use of the extension in one release and
+removing it from the next is something we do from time to time in the
+kernel too...
 
-And IDE drive with an SCA connector would be great.
+> I've had large codebases which compiled just fine five years ago.
+> But with a current compiler, same codebase produces an *enormous*
+> number of warnings.  There's no switch to turn them off and going
 
---Ricky
+So, you:
+
+a.) Coded with a lot of gcc specific code
+
+or
+
+b.) Had a lot of bugs in your code that gcc didn't warn about before
+
+In both cases I'd recommend fixing the code...
+
+> in and changing the code is clearly not an option.  The only options
+
+Huh? Most likely, your code is broken, rather than blaming the
+messenger, act properly upon the received message.
 
 
+Regards: David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbQLHPJk>; Fri, 8 Dec 2000 10:09:40 -0500
+	id <S129391AbQLHPPu>; Fri, 8 Dec 2000 10:15:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129391AbQLHPJa>; Fri, 8 Dec 2000 10:09:30 -0500
-Received: from mailhub2.shef.ac.uk ([143.167.2.154]:52717 "EHLO
-	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
-	id <S129387AbQLHPJR>; Fri, 8 Dec 2000 10:09:17 -0500
-Date: Fri, 8 Dec 2000 14:38:38 +0000 (GMT)
-From: Guennadi Liakhovetski <gvlyakh@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: BIOS / kernel vrt IDE DMA
-Message-ID: <Pine.GSO.4.21.0012081432340.9069-100000@acms23>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129741AbQLHPPl>; Fri, 8 Dec 2000 10:15:41 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:22289 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129391AbQLHPPb>;
+	Fri, 8 Dec 2000 10:15:31 -0500
+Date: Fri, 8 Dec 2000 15:45:16 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Miles Lane <miles@megapathdsl.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Bernd Kischnick <kisch@mindless.com>, "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: patch: test12-pre7 cd stuff
+Message-ID: <20001208154516.D303@suse.de>
+In-Reply-To: <20001207195539.P6832@suse.de> <3A30EC28.1090203@megapathdsl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3A30EC28.1090203@megapathdsl.net>; from miles@megapathdsl.net on Fri, Dec 08, 2000 at 06:11:52AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all
+On Fri, Dec 08 2000, Miles Lane wrote:
+> Hi Jens,
+> 
+> I have tested your latest stuff (cd-2) with the CD that was
+> causing problems before.  The problems still occur.
+> The CD plays fine, but I get the following errors in
+> my /var/log/messages:
+> 
+> Dec  8 06:05:29 agate kernel: hdc: packet command error: status=0x51 { 
+> DriveReady SeekComplete Error }
+> Dec  8 06:05:29 agate kernel: hdc: packet command error: error=0x50
+> Dec  8 06:05:29 agate kernel: ATAPI device hdc:
+> Dec  8 06:05:29 agate kernel:   Error: Illegal request -- (Sense key=0x05)
+> Dec  8 06:05:29 agate kernel:   Invalid field in command packet -- 
+> (asc=0x24, ascq=0x00)
+> Dec  8 06:05:29 agate kernel:   The failed "Play Audio MSF" packet 
+> command was:
+> Dec  8 06:05:29 agate kernel:   "47 00 00 00 02 00 3f 24 ff 00 00 00 "
+							   ^^
 
-I posted on this subject before, but this time I just would like to
-receive an answer to the question - BIOS or kernel - who rules?
+This should not happen, in fact it can't happen. That byte is the ending
+frame, which is always modulo 75 (number of frames in a second). So how
+this ends up 0xff is a mystery. I'll investigate...
 
-So, the question: is it either
-1) there ARE situations when BIOS's inability to support DMA for IDE
-cannot be fixed by the software or
-2) it IS always possible, so, something is wrong with the software
-(kernel / its configuration)
-
-For those of you unfamiliar with the situation - some details:
-I've been fighting with this problem for a few weeks now. The problem
-seems to be that my BIOS does not support DMA for IDE and the kernel
-cannot bypass it. The chipset is ok (Intel 430FX), the disk too, afaik I
-included all possible parameters in the kernel (2.2.17 + ide patch). But
-the BIOS is old (AMI 1.00.04.CA0 for Intel Morrison64 aka Advanced/MN mobo
-with a P-75 and onboard S3-Trio64) and no upgrades exist. 
-
-Also, I read somewhere, that one often can flash a 'non-native'
-BIOS... Does anybody know of identical mobos (430FX + S3-Trio64)? Note,
-that Morrison32's BIOS (S3-Trio32) does not suit.
-
-Thanks
-Guennadi
-___
-
-Dr. Guennadi V. Liakhovetski
-Department of Applied Mathematics
-University of Sheffield, U.K.
-email: G.Liakhovetski@sheffield.ac.uk
-
-
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

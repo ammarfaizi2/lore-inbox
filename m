@@ -1,33 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267845AbRGRJGq>; Wed, 18 Jul 2001 05:06:46 -0400
+	id <S267849AbRGRJGZ>; Wed, 18 Jul 2001 05:06:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267847AbRGRJGf>; Wed, 18 Jul 2001 05:06:35 -0400
-Received: from dnscache.cbr.au.asiaonline.net ([210.215.8.100]:36286 "EHLO
-	dnscache.cbr.au.asiaonline.net") by vger.kernel.org with ESMTP
-	id <S267845AbRGRJGU>; Wed, 18 Jul 2001 05:06:20 -0400
-Message-ID: <3B55517E.1733E2D5@acm.org>
-Date: Wed, 18 Jul 2001 19:06:06 +1000
-From: Gareth Hughes <gareth.hughes@acm.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S267847AbRGRJGP>; Wed, 18 Jul 2001 05:06:15 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:53260 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S267845AbRGRJGD>; Wed, 18 Jul 2001 05:06:03 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Jansen <tim@tjansen.de>
+To: John Levon <moz@compsoc.man.ac.uk>
+Subject: Re: Kernel Documentation
+Date: Wed, 18 Jul 2001 11:06:21 +0200
+X-Mailer: KMail [version 1.2.9]
+In-Reply-To: <200107172102.OAA19756@altair.dhs.org> <200107172125.OAA20013@altair.dhs.org> <20010718031917.A8164@compsoc.man.ac.uk>
+In-Reply-To: <20010718031917.A8164@compsoc.man.ac.uk>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 4.1.0 DRM (was Re: Linux 2.4.6-ac3)
-In-Reply-To: <E15Lnrk-00047x-00@the-village.bc.nu> <3B52438B.3CC6E1BC@acm.org> <m2itgs5dl5.fsf@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-ID: <15MnGE-26gM3UC@fmrl03.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juan Quintela wrote:
-> 
-> gareth>  You could argue that it's less important
-> gareth> when building many drivers into the kernel, but how many people do that?
-> 
-> All the people that use distributions.
+On Wednesday 18 July 2001 04:19, John Levon wrote:
+> one simple advantage is the docs are inline so have a slightly higher
+> chance of staying up to date.
 
-I would have thought the distros would build almost every driver as a
-module.  Perhaps I'm mistaken.
+BTW Is there any place where the exact format of the inline docs is explained?
 
--- Gareth
+bye...
+

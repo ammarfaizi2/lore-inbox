@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266529AbRGTEBc>; Fri, 20 Jul 2001 00:01:32 -0400
+	id <S266531AbRGTEJC>; Fri, 20 Jul 2001 00:09:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266531AbRGTEBV>; Fri, 20 Jul 2001 00:01:21 -0400
-Received: from smtp2.ihug.co.nz ([203.109.252.8]:34572 "EHLO smtp2.ihug.co.nz")
-	by vger.kernel.org with ESMTP id <S266529AbRGTEBH>;
-	Fri, 20 Jul 2001 00:01:07 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Matthew Gardiner <kiwiunix@ihug.co.nz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: MTD compiling error
-Date: Fri, 20 Jul 2001 15:59:34 +1200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01072012460800.09910@kiwiunix.ihug.co.nz> <3B5789F0.60605E80@resilience.com>
-In-Reply-To: <3B5789F0.60605E80@resilience.com>
+	id <S266536AbRGTEIw>; Fri, 20 Jul 2001 00:08:52 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:60336 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S266531AbRGTEIo>;
+	Fri, 20 Jul 2001 00:08:44 -0400
+Date: Fri, 20 Jul 2001 00:08:48 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] nfsroot uses bogus mountd version for NFSv2
+Message-ID: <Pine.GSO.4.21.0107192353170.10544-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Message-Id: <01072015593400.19180@kiwiunix.ihug.co.nz>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.6/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE   -c -o cfi_probe.o 
-cfi_probe.c
-In file included from cfi_probe.c:17:
-/usr/src/linux-2.4.6/include/linux/mtd/cfi.h: In function `cfi_spin_unlock':
-/usr/src/linux-2.4.6/include/linux/mtd/cfi.h:387: `do_softirq' undeclared 
-(first use in this function)
-/usr/src/linux-2.4.6/include/linux/mtd/cfi.h:387: (Each undeclared identifier 
-is reported only once
-/usr/src/linux-2.4.6/include/linux/mtd/cfi.h:387: for each function it 
-appears in.)
-make[3]: *** [cfi_probe.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4.6/drivers/mtd/chips'
-make[2]: *** [_modsubdir_chips] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.6/drivers/mtd'
-make[1]: *** [_modsubdir_mtd] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.6/drivers'
-make: *** [_mod_drivers] Error 2
-[root@kiwiunix linux]#
+	nfsroot uses bogus protocol version when it asks portmapper on
+server for mountd port. Fix is obvious:
 
-After adding #include <spinlock.h> in the CFI.h header file, the result was 
-that there is a undeclared identifier. Since I don't know C (Only java, BBC 
-Basic, and COBOL), I don't know how to correct the problem.
+--- linux/fs/nfs/nfsroot.c    Fri Feb 16 18:56:03 2001
++++ linux/fs/nfs/nfsroot.c.new      Thu Jul 19 23:55:09 2001
+@@ -418,7 +418,7 @@
+                        "as nfsd port\n", port);
+        }
+ 
+-       if ((port = root_nfs_getport(NFS_MNT_PROGRAM, nfsd_ver, proto)) < 0) {
++       if ((port = root_nfs_getport(NFS_MNT_PROGRAM, mountd_ver, proto)) < 0) {
+                printk(KERN_ERR "Root-NFS: Unable to get mountd port "
+                                "number from server, using default\n");
+                port = mountd_port;
 
-Matthew Gardiner
+Notice that for NFSv3 both nfsd and mountd are using version 3, so it both
+nfsd_ver == mountd_ver. However, for NFSv2 we end up asking for mountd
+version 2, which doesn't exist - mountd version for NFSv2 was 1.
 
--- 
-WARNING:
+Looks like this typo got into the tree in 2.3.99-4-pre3 when NFSv3 had
+been merged into the tree - until then we had (correctly) asked for
+version 1. Corresponding code in 2.2 is using mountd_ver, so it's also
+OK.
 
-This email was written on an OS using the viral 'GPL' as its license.
-
-Please check with Bill Gates before continuing to read this email/posting.

@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129688AbQKGN3S>; Tue, 7 Nov 2000 08:29:18 -0500
+	id <S129121AbQKGNcK>; Tue, 7 Nov 2000 08:32:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129121AbQKGN3J>; Tue, 7 Nov 2000 08:29:09 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:35844 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129688AbQKGN2w>; Tue, 7 Nov 2000 08:28:52 -0500
-Date: Tue, 7 Nov 2000 08:28:14 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
+	id <S130679AbQKGNb7>; Tue, 7 Nov 2000 08:31:59 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:46091 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S129121AbQKGNbp>; Tue, 7 Nov 2000 08:31:45 -0500
+Message-Id: <200011071330.eA7DUdw26230@pincoya.inf.utfsm.cl>
 To: Keith Owens <kaos@ocs.com.au>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: linux 2.4.0-test9 
-In-Reply-To: <9703.973566914@ocs3.ocs-net>
-Message-ID: <Pine.LNX.3.95.1001107082650.13989A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Persistent module storage - modutils design 
+In-Reply-To: Message from Horst von Brand <vonbrand@inf.utfsm.cl> 
+   of "Tue, 07 Nov 2000 09:45:42 -0300." <200011071245.eA7Cjhw20987@pincoya.inf.utfsm.cl> 
+Date: Tue, 07 Nov 2000 10:30:39 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2000, Keith Owens wrote:
+Horst von Brand <vonbrand@inf.utfsm.cl> said:
 
-> On Mon, 6 Nov 2000 16:31:23 -0500 (EST), 
-> "Richard B. Johnson" <root@chaos.analogic.com> wrote:
-> >However when running, the new kernel 2.4.0-test9, can't be used to
-> >make a usable initrd ram disk. The result being that 2.4.0-test9
-> >can't, itself, build an "initrd" bootable system.
-> >
-> >Before everybody screams that I don't know what I'm doing, let me
-> >assure you that I know that the two kernels put their modules in
-> >different directories and the new directory scheme seems to require
-> >the latest and greatest version of modutils.
+[Yes, I know this is bad taste...]
+
+> Keith Owens <kaos@ocs.com.au> said:
 > 
-> You also need the latest version of mkinitrd to handle the modules
-> directory structure.
+> [...]
 > 
-No. I have my own script(s) that have been appropriately modified
-for both test floppies and boot from the hard disk.
+> > I have not decided where to save the persistent module parameters.  It
+> > could be under /lib/modules/<version>/persist or it could be under
+> > /var/log or /var/run.  I am tending towards /var/run/module_persist, in
+> > any case it will be a modules.conf parameter.
+> 
+> /var/lib/persist/<version>/<wherever-the-module-is-in-/lib/modules/<version>/>
+> 
+> or some such. It has to match the kernel version somewhere (in case module
+> interfaces change), and it also should mirror the tree under
+> /lib/modules/<version> if for no other reason that there might show up
+> several modules named <foo>.
 
-I have found the problem. A patch will follow after I get some
-breakfast. It's an obviously-correct one too.
-
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+Note! This _has_ to be in the / filesystem so it works before mounting the
+rest of the stuff (if ever). This would rule out /var, and leave just
+/lib/modules/<version>. Makes me quite unhappy...
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

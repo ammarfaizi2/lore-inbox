@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262797AbUCOVdY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 16:33:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbUCOVdY
+	id S262759AbUCOVlS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 16:41:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbUCOVlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 16:33:24 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:28872 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262797AbUCOVdX (ORCPT
+	Mon, 15 Mar 2004 16:41:18 -0500
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:32011 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S262759AbUCOVlR convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 16:33:23 -0500
-Date: Mon, 15 Mar 2004 13:33:14 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: cieciwa@alpha.zarz.agh.edu.pl, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [SPARC64][PPC] strange error ..
-Message-Id: <20040315133314.08840781.davem@redhat.com>
-In-Reply-To: <20040315204346.GB13167@smtp.west.cox.net>
-References: <Pine.LNX.4.58L.0403151437360.16193@alpha.zarz.agh.edu.pl>
-	<Pine.LNX.4.58L.0403151939460.17732@alpha.zarz.agh.edu.pl>
-	<20040315190026.GG4342@smtp.west.cox.net>
-	<20040315123953.3b6b863f.davem@redhat.com>
-	<20040315204346.GB13167@smtp.west.cox.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Mar 2004 16:41:17 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: major number 115 changed ! Conflict ?
+Date: Mon, 15 Mar 2004 15:40:36 -0600
+Message-ID: <C50AB9511EE59B49B2A503CB7AE1ABD10661138E@cceexc19.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: major number 115 changed ! Conflict ?
+Thread-Index: AcQKqHGb00toIYVWQ/Kjgx8XDeEDmAALVSYA
+From: "Cagle, John (ISS-Houston)" <john.cagle@hp.com>
+To: "Romain Lievin" <romain@lievin.net>
+Cc: <greg@kroah.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 15 Mar 2004 21:41:16.0196 (UTC) FILETIME=[3E8D8E40:01C40AD6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Mar 2004 13:43:46 -0700
-Tom Rini <trini@kernel.crashing.org> wrote:
+Romain Liévin wrote:
+> I noticed that major 115 points on /dev/speaker. 
+> Nevertheless, this number has been officially (?) allocated 
+> to me for tipar.o and tiglusb.o modules in March 2002. These 
+> modules are within the 2.4 & 2.6 kernels.
+> 
+> Is there anyone who can tell me whether it's correct ? May a 
+> conflict be possible with the speaker device if tipar/tiglusb 
+> are loaded ?
 
-> Erm, if I read include/asm-sparc{,64}/linkage.h right, 'asmlinkage' ends
-> up being defined to ''.  So why not just remove 'asmlinkage' from the
-> offending line in unistd.h ?
+Character Major 115 is still allocated for your ti link cable
+devices.  To verify, just check www.lanana.org.
 
-So that the declarations look consistent across platforms?
+The devices.txt file hasn't been kept current in the bk trees,
+but I'm in the process of preparing a patch to update it and I
+hope it will be accepted.
+
+Regards,
+John Cagle
+
+device@lanana.org
+jcagle@kernel.org
+

@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285094AbRLRUhy>; Tue, 18 Dec 2001 15:37:54 -0500
+	id <S285117AbRLRUhy>; Tue, 18 Dec 2001 15:37:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285138AbRLRUhn>; Tue, 18 Dec 2001 15:37:43 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14857 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285117AbRLRUfk>; Tue, 18 Dec 2001 15:35:40 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Booting a modular kernel through a multiple streams file
-Date: 18 Dec 2001 12:35:31 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9vo9aj$j2e$1@cesium.transmeta.com>
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D804@orsmsx111.jf.intel.com>
+	id <S285126AbRLRUhs>; Tue, 18 Dec 2001 15:37:48 -0500
+Received: from mail.myrio.com ([63.109.146.2]:34041 "HELO smtp1.myrio.com")
+	by vger.kernel.org with SMTP id <S285132AbRLRUgd>;
+	Tue, 18 Dec 2001 15:36:33 -0500
+Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CB0A@mail0.myrio.com>
+From: Torrey Hoffman <torrey.hoffman@myrio.com>
+To: "'Grover, Andrew'" <andrew.grover@intel.com>,
+        "'Alexander Viro'" <viro@math.psu.edu>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>
+Subject: RE: Booting a modular kernel through a multiple streams file
+Date: Tue, 18 Dec 2001 12:35:40 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <59885C5E3098D511AD690002A5072D3C42D804@orsmsx111.jf.intel.com>
-By author:    "Grover, Andrew" <andrew.grover@intel.com>
-In newsgroup: linux.dev.kernel
-> 
-> Implicit in the use of initrd is that you have to *make a ramdisk image*,
-> and then tell your bootloader to load it. If you have a bootloader that can
-> load multiple images (i.e. the modules themselves) you can skip the first
-> step.
-> 
+Grover, Andrew wrote:
 
-initramfs will do this just fine.
+[...]
 
-> Again, even the new scheme will still involve the creation of an initrd. I'm
-> saying, as a user, it would be easier for me to not do this, and just modify
-> a .conf file to have the driver loaded early-on.
-
-See above.
-
-> I'm not arguing that the new initrd won't be better than the old initrd
-> (because obviously you are right) I'm arguing that no matter how whizzy
-> initrd is, it's still an unnecessary step, and it's one that other OSs (e.g.
+> I'm arguing that no matter 
+> how whizzy
+> initrd is, it's still an unnecessary step, and it's one that 
+> other OSs (e.g.
 > FreeBSD) omit in favor of the approach I'm advocating.
 
-Doing things in multiple steps is often appropriate.
+Well, I'm a linux user more than a developer but I disagree.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+It isn't hard to make an initrd, and initrd will always be 
+neccessary for some things.  Since we can't get rid of it 
+and don't want to (*), I like the approach of making it better.
+
+* I network boot (via pxelinux boot loader) a linux kernel and 
+initrd.gz, total size <2 MB, which then proceeds to:
+
+1 - load network drivers, do dhcp
+2 - partition and format the hard disk
+3 - mount the new filesystems
+4 - download (with retry/resume), unpack, cryptographically 
+    verify, and install a complete (~100 mb) embedded linux
+    system.  
+5 - while it does all the above, it shows pretty graphics and
+    "please wait while we setup your system" messages on the
+    attached television set via framebuffer support.
+
+You may be able to get grub to do the first step but the next
+four would be... challenging.  I agree that grub is cool, though.
+
+Torrey Hoffman

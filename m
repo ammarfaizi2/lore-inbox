@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267471AbTHERrF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 13:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267491AbTHERrE
+	id S267186AbTHERod (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 13:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267317AbTHERod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 13:47:04 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:58531 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S267471AbTHERrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 13:47:02 -0400
-Date: Tue, 5 Aug 2003 19:46:57 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Ducrot Bruno <poup@poupinou.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [TRIVIAL] sanitize power management config menus, take two
-Message-ID: <20030805174657.GA22909@louise.pinerecords.com>
-References: <20030805165117.GH18982@louise.pinerecords.com> <Pine.LNX.4.44.0308051006060.23977-100000@cherise>
+	Tue, 5 Aug 2003 13:44:33 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:27273
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S267186AbTHERoc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 13:44:32 -0400
+Date: Tue, 5 Aug 2003 13:44:30 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Randy Dunlap <rddunlap@osdl.org>, Leann Ogasawara <ogasawara@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] revert to static = {0}
+Message-ID: <20030805174429.GA26933@gtf.org>
+References: <Pine.LNX.4.44.0308051638040.1471-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308051006060.23977-100000@cherise>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0308051638040.1471-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [mochel@osdl.org]
+On Tue, Aug 05, 2003 at 04:48:02PM +0100, Hugh Dickins wrote:
+> Please revert to static zero initialization of a const: when thus
+> initialized it's linked into a readonly cacheline shared between cpus;
+> otherwise it's linked into bss, likely to be in a dirty cacheline
+> bouncing between cpus.
 > 
-> I can buy that. There are actually three levels of power management that 
-> we handle:
+> --- 2.6.0-test2-bk/mm/shmem.c	Tue Aug  5 15:57:31 2003
+> +++ linux/mm/shmem.c	Tue Aug  5 16:16:55 2003
+> @@ -296,7 +296,7 @@
+>  	struct shmem_sb_info *sbinfo = SHMEM_SB(inode->i_sb);
+>  	struct page *page = NULL;
+>  	swp_entry_t *entry;
+> -	static const swp_entry_t unswapped;
+> +	static const swp_entry_t unswapped = {0};
+>  
+>  	if (sgp != SGP_WRITE &&
+>  	    ((loff_t) index << PAGE_CACHE_SHIFT) >= i_size_read(inode))
 > 
-> - System Power Management (swsusp, CONFIG_ACPI_SLEEP)
-> - Device Power Management (kernel/pm.c, future driver model support)
-> - CPU Power Management (cpufreq)
-> 
-> SPM implies that DPM will be enabled, but both DPM and CPM can exist 
-> without SPM, and independently of each other. All of them would 
-> essentially fall under CONFIG_PM.. 
 
-Ok, that makes a lot of sense.
+If it's const, it shouldn't be linked into anything at all... right?
 
-> Would you willing to whip up a patch for the Kconfig entries? 
+	Jeff
 
-Sure, I'll try to put something together so we have a patch to start
-playing with.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+

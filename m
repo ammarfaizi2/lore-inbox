@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVCXXFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbVCXXGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbVCXXFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 18:05:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVCXXFQ
+	id S261218AbVCXXGA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 18:06:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVCXXGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 18:05:16 -0500
-Received: from fire.osdl.org ([65.172.181.4]:3734 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261198AbVCXXFJ (ORCPT
+	Thu, 24 Mar 2005 18:06:00 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:6281 "EHLO lirs02.phys.au.dk")
+	by vger.kernel.org with ESMTP id S261218AbVCXXFq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 18:05:09 -0500
-Date: Thu, 24 Mar 2005 15:04:50 -0800
-From: cliff white <cliffw@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: airlied@linux.ie, davej@redhat.com, linux-kernel@vger.kernel.org,
-       dri-devel@lists.sourceforge.net
-Subject: Re: drm bugs hopefully fixed but there might still be one..
-Message-ID: <20050324150450.01fbf17f@es175>
-In-Reply-To: <20050324142131.2646c4fd.akpm@osdl.org>
-References: <Pine.LNX.4.58.0503241015190.7647@skynet>
-	<20050324135851.388d1b4e@es175>
-	<20050324142131.2646c4fd.akpm@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 24 Mar 2005 18:05:46 -0500
+Date: Fri, 25 Mar 2005 00:05:31 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
+In-Reply-To: <20050324113912.GA20911@elte.hu>
+Message-Id: <Pine.OSF.4.05.10503242307330.25274-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DAIMI-Spam-Score: 0 () 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Mar 2005 14:21:31 -0800
-Andrew Morton <akpm@osdl.org> wrote:
+On Thu, 24 Mar 2005, Ingo Molnar wrote:
 
-> cliff white <cliffw@osdl.org> wrote:
-> >
-> > Okay, i have a iBook G4, with radeon, with 2.6.12-rc1-mm2, i'm getting the following OOPS
-> > on boot. 
 > 
-> Please try reverting agp-make-some-code-static.patch (Dunno why that would
-> fix an oops, but apparently it does).
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
-It does the same thing Brice's fix does. Need to put the 
-one extern struct definition back in agp_backend.h and that is the badness:
+> > Here we have more unnecessary schedules.  So the condition to grab a 
+> > lock should be:
+> > 
+> > 1. not owned.
+> > 2. partially owned, and the owner is not RT.
+> > 3. partially owned but the owner is RT and so is the grabber, and the
+> >     grabber's priority is >= the owner's priority.
+> 
+> there's another approach that could solve this problem: let the 
+> scheduler sort it all out. Esben Nielsen had this suggestion a couple of 
+> months ago - i didnt follow it because i thought that technique would 
+> create too many runnable tasks, but maybe that was a mistake. If we do 
+> the owning of the lock once the wakee hits the CPU we avoid the 'partial 
+> owner' problem, and we have the scheduler sort out priorities and 
+> policies.
+> 
+> but i think i like the 'partial owner' (or rather 'owner pending') 
+> technique a bit better, because it controls concurrency explicitly, and 
+> it would thus e.g. allow another trick: when a new owner 'steals' a lock 
+> from another in-flight task, then we could 'unwakeup' that in-flight 
+> thread which could thus avoid two more context-switches on e.g. SMP 
+> systems: hitting the CPU and immediately blocking on the lock. (But this 
+> is a second-phase optimization which needs some core scheduler magic as 
+> well, i guess i'll be the one to code it up.)
+> 
 
-diff -puN include/linux/agp_backend.h~agp-make-some-code-static include/linux/agp_backend.h
---- 25/include/linux/agp_backend.h~agp-make-some-code-static    2005-03-21 21:53:17.000000000 -0800
-+++ 25-akpm/include/linux/agp_backend.h 2005-03-21 21:53:17.000000000 -0800
-@@ -94,8 +94,6 @@ struct agp_memory {
- extern struct agp_bridge_data *agp_bridge;
- extern struct list_head agp_bridges;
+I checked the implementation of a mutex I send in last fall. The unlock
+operation does give ownership explicitly to the highest priority waiter,
+as Ingo's implementation does.
 
--extern struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *);
--
- extern void agp_free_memory(struct agp_memory *);
- extern struct agp_memory *agp_allocate_memory(struct agp_bridge_data *, size_t, u32);
- extern int agp_copy_info(struct agp_bridge_data *, struct agp_kern_info *);
-_
-----------
-cliffw
+Originally I planned for just having unlock to wake up the highest
+priority owner and set lock->owner = NULL. The lock operation would be
+something like
+ while(lock->owner!=NULL)
+   {
+      schedule();
+   } 
+ grap the lock.
 
--- 
-"Ive always gone through periods where I bolt upright at four in the morning; 
-now at least theres a reason." -Michael Feldman
+Then the first task, i.e. the one with highest priority on UP, will get it
+first. On SMP a low priority task on another CPU might get in and take it.
+
+I like the idea of having the scheduler take care of it - it is a very
+optimal coded queue-system after all. That will work on UP but not on SMP.
+Having the unlock operation to set the mutex in a "partially owned" state
+will work better. The only problem I see, relative to Ingo's
+implementation, is that then the awoken task have to go in and
+change the state of the mutex, i.e. it has to lock the wait_lock again.
+Will the extra schedulings being the problem happen offen enough in
+practise to have the extra overhead?
+
+
+> 	Ingo
+
+Esben
+

@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265683AbSKODgh>; Thu, 14 Nov 2002 22:36:37 -0500
+	id <S265711AbSKODmH>; Thu, 14 Nov 2002 22:42:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265689AbSKODgh>; Thu, 14 Nov 2002 22:36:37 -0500
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:35714 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S265683AbSKODgf>;
-	Thu, 14 Nov 2002 22:36:35 -0500
-Date: Thu, 14 Nov 2002 21:43:07 -0600 (CST)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: Andrew Morton <akpm@digeo.com>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-In-Reply-To: <3DD4614B.A57EE8C5@digeo.com>
-Message-ID: <Pine.LNX.4.44.0211142132500.2229-100000@dad.molina>
+	id <S265725AbSKODmH>; Thu, 14 Nov 2002 22:42:07 -0500
+Received: from excalibur.cc.purdue.edu ([128.210.189.22]:3851 "EHLO
+	ibm-ps850.purdueriots.com") by vger.kernel.org with ESMTP
+	id <S265711AbSKODmF>; Thu, 14 Nov 2002 22:42:05 -0500
+Date: Thu, 14 Nov 2002 22:51:48 -0500 (EST)
+From: Patrick Finnegan <pat@purdueriots.com>
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Moving from Linux 2.4.19 LVM to LVM2
+In-Reply-To: <20021114082030.GB1061@reti>
+Message-ID: <Pine.LNX.4.44.0211142247350.13759-100000@ibm-ps850.purdueriots.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Nov 2002, Andrew Morton wrote:
+On Thu, 14 Nov 2002, Joe Thornber wrote:
 
-> "Martin J. Bligh" wrote:
-> > 
-> > > While I have this on my mind I want to express this now since the
-> > > very first bug that hit my mailbox had this issue.
-> > >
-> > > I want to suggest that all reported bug in the database must be
-> > > reporducable with some release done by Linus or his BK sources.
-> > > And also that we can automatically close any BUG submissions that
-> > > have other patches applied.
-> > 
-> > Hmmm ... I'm not sure that being that restrictive is going to help.
-> > Whilst bugs against any randomly patched version of the kernel
-> > probably aren't that interesting, things in major trees like -mm,
-> > -ac, -dj etc are likely going to end up in mainline sooner or later
-> > anyway ... wouldn't you rather know of the breakage sooner rather
-> > than later?
-> 
-> So people will need to use their judgement as to whether the
-> problem is in 2.5.47, or in the -bk snapshot which was taken from
-> Linus, or in the -mm addons.
-> 
-> If in doubt, people should go for the mailing list first.   Because
-> 
-> a) the response time will be better
-> b) more people will see it
-> c) the owners of the add-on patches can screen it quickly.
+> On Wed, Nov 13, 2002 at 11:05:37PM -0500, Patrick Finnegan wrote:
+> > Is there an easy and plainless way to do this?  Are the LVM2 tools
+> > backwards-compatible with the old LVM?
+>
+> Yes
 
-Has my 2.5 Problem Report Status postings been useful?  If so, when I 
-discussed this with Martin one of the roles we agreed I would play was 
-taking bug reports from the list and adding them to bugzilla.  I'll also 
-be a "filter" for some of the issues discussed in this thread, sort of a 
-janitor if you will.  
+Actually, the answer is aparently "No."  LVM2's tools don't work with a
+2.4.x kernel.  However, I since I was smart enough to stuff a backup copy
+of the utilities into /root/lvm10.tar, 2.5.47 with the devicemapper patch
+(so that it compiles properly) booted up just fine, first try.  Of course,
+I needed to remember to load the "mousedev" module before X would work,
+but that's not a kernel issue.
 
-My question is how should compile failures figure into the bug database?  
-Most of the compile failures are typos or thinkos that get quickly fixed.  
-Should they get tracked, or dismissed quickly unless they linger on.  I 
-didn't track simple compile failures in my list.
+I'm fairly impressed with 2.5.x so far (once it compiled properly!).
+
+Pat
+--
+Purdue Universtiy ITAP/RCS
+Information Technology at Purdue
+Research Computing and Storage
+http://www-rcd.cc.purdue.edu
+
+
 

@@ -1,63 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264210AbTDWVpO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 17:45:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264230AbTDWVpO
+	id S264257AbTDWVqA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 17:46:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264258AbTDWVqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 17:45:14 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:50906 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S264210AbTDWVpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 17:45:13 -0400
-Message-ID: <D9223EB959A5D511A98F00508B68C20C17F1CB22@orsmsx108.jf.intel.com>
-From: "Fleischer, Julie N" <julie.n.fleischer@intel.com>
-To: "'Christoph Hellwig'" <hch@infradead.org>, Mika Kukkonen <mika@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, cgl_discussion@osdl.org
-Subject: Re: OSDL CGL-WG draft specs available for review
-Date: Wed, 23 Apr 2003 14:57:09 -0700
+	Wed, 23 Apr 2003 17:46:00 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:26356 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264257AbTDWVpz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 17:45:55 -0400
+Date: Wed, 23 Apr 2003 14:47:32 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.68-mm2
+Message-ID: <1565150000.1051134452@flay>
+In-Reply-To: <20030423144648.5ce68d11.akpm@digeo.com>
+References: <20030423012046.0535e4fd.akpm@digeo.com><18400000.1051109459@[10.10.2.4]> <20030423144648.5ce68d11.akpm@digeo.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 23, 2003 at 1:22 PM, Christoph Hellwig wrote:
-> On Wed, Apr 23, 2003 at 11:32:25AM -0700, Mika Kukkonen wrote:
-> > On Wed, 2003-04-23 at 09:49, Christoph Hellwig wrote:
-> > > Without really big kernel changes it's hard to get full 
-> POSIX thread
-> > > semantics. e.g. we still don't have credential sharing 
-> for tasks.  And
-> > > it doesn't lool like this makes 2.6.  I'd rather remove this one..
-> > 
-> > Ah, we are not aiming to get our features into a certain 
-> kernel version,
-> > and actually we do not expect or even want (because of 2.6
-> > stabilization) that our v2 spec kernel features get merged 
-> into 2.6 at
-> > this point of time (some of them might, though).
-> > 
-> > For us it is enough that the distros will pick most of the features
-> > after v2 specs get released and through that adaption some of
-> > those features will get merged into 2.7 or whatever is 
-> coming after 2.6.
-> > So we are not in hurry ;-)
+>> > . I got tired of the objrmap code going BUG under stress, so it is now in
+>> >   disgrace in the experimental/ directory.
+>> 
+>> Any chance of some more info on that? BUG at what point in the code,
+>> and with what test to reproduce?
 > 
-> Well, this is not doable ontop of any existing kernel without major
-> suregery (introducing a credential cache and passing it down to
-> every place that's doing uid/gid based access control).
-> 
-> So none of the CGL distros can really support that.
+> A bash-shared-mapping (from ext3 CVS) will quickly knock it over.  It gets
+> its PageAnon/page->mapping state tangled up.
 
->From the POSIX Test Suite perspective, we were planning on first focusing
-testing on the CGL 2.0 priority 1 POSIX features, which would mean the
-threads functions with the THR tag in IEEE1003.1-2001.  But, it would be
-great to know what gaps current implementations (like NPTL) have against
-this tag in the POSIX spec.  Is there a way we can get more details on the
-current gaps you mentioned?  I'm wondering how they will affect conformance
-to the THR tag functions.
+OK, will try to reproduce that.
+ 
+> - nasty, nasty problems with remap_file_pages().  I'd rather not have to
+>   nobble remap_file_pages() functionality for this reason.
 
-- Julie Fleischer
+I don't see having to predeclare the thing as non-linear as a serious 
+imposition .... I don't think memlocking them is necessary, AFAICS if
+we have that.
+ 
+> and what do we gain from it all?  The small fork/exec boost isn't very
+> significant.  What we gain is more lowmem space on
+> going-away-real-soon-now-we-sincerely-hope highmem boxes.
 
-**These views are not necessarily those of my employer.**
+They're not going away soon (unfortunately) - even if Intel stopped producing
+the chips today, the machines based on them are still in the marketplace for
+years.
+
+The performance improvement was about 25% of systime according to my 
+measurements - I don't call that insignificant.
+
+> Ingo-rmap seems a better solution to me.  It would be a fairly large change
+> though - we'd have to hold the four atomic kmaps across an entire pte page
+> in copy_page_range(), for example.  But it will then have good locality of
+> reference between adjacent pages and may well be quicker than pte_chains.
+
+If there was an existing implementation we could actually measure, I'd
+be more impressed. From what I can see currently, it'll just introduce
+masses of kmap thrashing crap with no obvious way to fix it. And it 
+triples the PTE overhead. Maybe it'd work better in conjunction with 
+shared pagetables.
+
+M.
+
+
+

@@ -1,82 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318872AbSG1A5h>; Sat, 27 Jul 2002 20:57:37 -0400
+	id <S318868AbSG1Ays>; Sat, 27 Jul 2002 20:54:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318875AbSG1A5h>; Sat, 27 Jul 2002 20:57:37 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19974 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S318872AbSG1A5f>; Sat, 27 Jul 2002 20:57:35 -0400
-Subject: PATCH: 2.5.29 Fix pnpbios
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Sun, 28 Jul 2002 01:47:30 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S318871AbSG1Ays>; Sat, 27 Jul 2002 20:54:48 -0400
+Received: from holomorphy.com ([66.224.33.161]:8869 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318868AbSG1Ays>;
+	Sat, 27 Jul 2002 20:54:48 -0400
+Date: Sat, 27 Jul 2002 17:57:22 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Russell Lewis <spamhole-2001-07-16@deming-os.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Looking for links: Why Linux Doesn't Page Kernel Memory?
+Message-ID: <20020728005722.GR25038@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Daniel Phillips <phillips@arcor.de>,
+	Russell Lewis <spamhole-2001-07-16@deming-os.org>,
+	linux-kernel@vger.kernel.org
+References: <3D418DFD.8000007@deming-os.org> <E17Yc6Q-0001yA-00@starship>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17YcDa-0002Mf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <E17Yc6Q-0001yA-00@starship>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This should do the trick for pnpbios - we load the initial gdt into each
-gdt, and we load the parameters into the gdt of the cpu making the call 
-relying on the spinlock to avoid bouncing cpu due to pre-empt
+On Sun, Jul 28, 2002 at 02:40:05AM +0200, Daniel Phillips wrote:
+> There are two elephants in the bathtub: the mem_map array, which holds a few 
+> bytes of state information for each physical page in the system, and page 
+> tables, neither of which are swapped or pruned in any way.  We are now 
+> beginning to suffer pretty badly because of this, on certain high end 
+> configurations.  The problem is, these structures have to keep track of much 
+> more than just the kernel memory.  The former has to have entries for all of 
+> the high memory pages (not addressable within the kernel's normal virtual 
+> address space) and the latter has to keep track of pages mapped into every 
+> task in the system, in other words, a virtually unlimited amount of memory 
+> (pun intended).  Solutions are being pursued.  Paging page tables to swap is 
+> one of the solutions being considered, though nobody has gone so far as to 
+> try it yet.  An easier solution is to place page tables in high memory, and a 
+> patch for this exists.  There is also work being done on page table sharing.
 
-diff -u --exclude-from /usr/src/exclude --new-file --recursive linux-2.5.29/drivers/pnp/pnpbios_core.c linux-2.5.29-ac1/drivers/pnp/pnpbios_core.c
---- linux-2.5.29/drivers/pnp/pnpbios_core.c	2002-07-20 20:11:06.000000000 +0100
-+++ linux-2.5.29-ac1/drivers/pnp/pnpbios_core.c	2002-07-28 00:35:17.000000000 +0100
-@@ -124,13 +124,13 @@
- 	".previous		\n"
- );
- 
--#define Q_SET_SEL(selname, address, size) \
--set_base (gdt [(selname) >> 3], __va((u32)(address))); \
--set_limit (gdt [(selname) >> 3], size)
--
--#define Q2_SET_SEL(selname, address, size) \
--set_base (gdt [(selname) >> 3], (u32)(address)); \
--set_limit (gdt [(selname) >> 3], size)
-+#define Q_SET_SEL(cpu, selname, address, size) \
-+set_base(cpu_gdt_table[cpu][(selname) >> 3], __va((u32)(address))); \
-+_set_limit(&cpu_gdt_table[cpu][(selname) >> 3], size)
-+
-+#define Q2_SET_SEL(cpu, selname, address, size) \
-+set_base(cpu_gdt_table[cpu][(selname) >> 3], (u32)(address)); \
-+_set_limit((char *)&cpu_gdt_table[cpu][(selname) >> 3], size)
- 
- /*
-  * At some point we want to use this stack frame pointer to unwind
-@@ -161,10 +161,11 @@
- 	/* On some boxes IRQ's during PnP BIOS calls are deadly.  */
- 	spin_lock_irqsave(&pnp_bios_lock, flags);
- 
-+	/* The lock prevents us bouncing CPU here */
- 	if (ts1_size)
--		Q2_SET_SEL(PNP_TS1, ts1_base, ts1_size);
-+		Q2_SET_SEL(smp_processor_id(), PNP_TS1, ts1_base, ts1_size);
- 	if (ts2_size)
--		Q2_SET_SEL(PNP_TS2, ts2_base, ts2_size);
-+		Q2_SET_SEL(smp_processor_id(), PNP_TS2, ts2_base, ts2_size);
- 
- 	__asm__ __volatile__(
- 	        "pushl %%ebp\n\t"
-@@ -1265,12 +1266,16 @@
-                        check->fields.version >> 4, check->fields.version & 15,
- 		       check->fields.pm16cseg, check->fields.pm16offset,
- 		       check->fields.pm16dseg);
--		Q2_SET_SEL(PNP_CS32, &pnp_bios_callfunc, 64 * 1024);
--		Q_SET_SEL(PNP_CS16, check->fields.pm16cseg, 64 * 1024);
--		Q_SET_SEL(PNP_DS, check->fields.pm16dseg, 64 * 1024);
- 		pnp_bios_callpoint.offset = check->fields.pm16offset;
- 		pnp_bios_callpoint.segment = PNP_CS16;
- 		pnp_bios_hdr = check;
-+
-+		for(i=0; i < NR_CPUS; i++)
-+		{
-+			Q2_SET_SEL(i, PNP_CS32, &pnp_bios_callfunc, 64 * 1024);
-+			Q_SET_SEL(i, PNP_CS16, check->fields.pm16cseg, 64 * 1024);
-+			Q_SET_SEL(i, PNP_DS, check->fields.pm16dseg, 64 * 1024);
-+		}
- 		break;
- 	}
- 	if (!pnp_bios_present())
+sizeof(mem_map) is a crippling issue for 32-bit machines. Something needs
+to be done and fast, but it looks like most of the programmer resources
+that would otherwise be there to attack the issue are tied up with even
+more severe problems preventing even smaller machines from working well.
+Hopefully those can be dealt with swiftly enough before Halloween.
+
+Cheers,
+Bill

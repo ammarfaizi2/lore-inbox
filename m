@@ -1,135 +1,275 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264569AbUGMFbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264265AbUGMFfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264569AbUGMFbP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 01:31:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264577AbUGMFbP
+	id S264265AbUGMFfY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 01:35:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264584AbUGMFfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 01:31:15 -0400
-Received: from ms-smtp-01-lbl.southeast.rr.com ([24.25.9.100]:18431 "EHLO
-	ms-smtp-01-eri0.southeast.rr.com") by vger.kernel.org with ESMTP
-	id S264569AbUGMFbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 01:31:07 -0400
-Message-ID: <40F37392.4040902@mbio.ncsu.edu>
-Date: Tue, 13 Jul 2004 01:30:58 -0400
-From: Will Beers <whbeers@mbio.ncsu.edu>
-User-Agent: Mozilla Thunderbird 0.7+ (X11/20040623)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] proper bios handoff in ehci-hcd
-References: <FD3BA83843210C4BA9E414B0C56A5E5C07DD91@ausx2kmpc104.aus.amer.dell.com> <40CF0049.2010307@pacbell.net>
-In-Reply-To: <40CF0049.2010307@pacbell.net>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms010405080007020309040900"
+	Tue, 13 Jul 2004 01:35:24 -0400
+Received: from mail003.syd.optusnet.com.au ([211.29.132.144]:34755 "EHLO
+	mail003.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264265AbUGMFe4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 01:34:56 -0400
+References: <200407121943.25196.devenyga@mcmaster.ca> <20040713024051.GQ21066@holomorphy.com> <200407122248.50377.devenyga@mcmaster.ca> <20040713025502.GR21066@holomorphy.com> <20040712210701.46e2cd40.akpm@osdl.org>
+Message-ID: <cone.1089696847.507419.12958.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: William Lee Irwin III <wli@holomorphy.com>, ck@vds.kolivas.org,
+       devenyga@mcmaster.ca, linux-kernel@vger.kernel.org
+Subject: Re: Preempt Threshold Measurements
+Date: Tue, 13 Jul 2004 15:34:07 +1000
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_pc.kolivas.org-1089696847-0000"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
---------------ms010405080007020309040900
-Content-Type: text/plain; charset=us-ascii; format=flowed
+--=_pc.kolivas.org-1089696847-0000
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 
-> Stuart Hayes here at Dell has identified this or/and mix-up in the
-> ehci-hcd driver.  Because of this, ehci-hcd is not properly released by
-> BIOSes supporting full 2.0 and port behavior can then become erratic.
+Andrew Morton writes:
 
-This change actually breaks USB altogether on an Asus P4P800, as I noticed when I updated to 2.6.8-rc1.
+> William Lee Irwin III <wli@holomorphy.com> wrote:
+>>
+>> On Mon, Jul 12, 2004 at 10:48:50PM -0400, Gabriel Devenyi wrote:
+>>  > Well I'm not particularly educated in kernel internals yet, here's some 
+>>  > reports from the system when its running.
+>>  > 6ms non-preemptible critical section violated 4 ms preempt threshold starting 
+>>  > at do_munmap+0xd2/0x140 and ending at do_munmap+0xeb/0x140
+>>  >  [<c014007b>] do_munmap+0xeb/0x140
+>>  >  [<c01163b0>] dec_preempt_count+0x110/0x120
+>>  >  [<c014007b>] do_munmap+0xeb/0x140
+>>  >  [<c014010f>] sys_munmap+0x3f/0x60
+>>  >  [<c0103ee1>] sysenter_past_esp+0x52/0x71
+>> 
+>>  Looks like ZAP_BLOCK_SIZE may be too large for you. Lowering that some
+>>  may "help" this. It's probably harmless, but try lowering that to half
+>>  of whatever it is now, or maybe 64*PAGE_SIZE. It may be worthwhile
+>>  to restructure how the preemption points are done in unmap_vmas() so
+>>  we don't end up in some kind of tuning nightmare.
+> 
+> Does that instrumentation patch have the cond_resched_lock() fixups?  If
+> not, this is a false positive.
+> 
+> The current setting of ZAP_BLOCK_SIZE is good for sub-500usec latencies on
+> a recentish CPU.
 
-I get the following messages at boot:
+Here's what the full patch against 2.6.8-rc1 currently looks like 
+(equivalent is in the snapshot used by Gabriel).
 
------
-Jul 12 23:34:06 willdesktop kernel: ehci_hcd 0000:00:1d.7: BIOS handoff failed (104, 1010001)
-Jul 12 23:34:06 willdesktop kernel: ehci_hcd 0000:00:1d.7: can't reset
-Jul 12 23:34:06 willdesktop kernel: ehci_hcd 0000:00:1d.7: init 0000:00:1d.7 fail, -95
-Jul 12 23:34:06 willdesktop kernel: ehci_hcd: probe of 0000:00:1d.7 failed with error -95
------
-
-I've seen a few other people with this problem, and reversing the change makes everything work perfectly again, maybe this was the cause of it all?  (sorry if I missed the fix before)
-
-(included patch reverses it)
-
--Will
-
------------------------------------------------------------------------------
+Cheers,
+Con
 
 
-diff -Nru a/drivers/usb/host/ehci-hcd.c b/drivers/usb/host/ehci-hcd.c
---- a/drivers/usb/host/ehci-hcd.c       2004-07-13 01:09:00.000000000 -0400
-+++ b/drivers/usb/host/ehci-hcd.c       2004-07-13 01:08:32.000000000 -0400
-@@ -293,7 +293,7 @@
-                struct pci_dev *pdev = to_pci_dev(ehci->hcd.self.controller);
+--=_pc.kolivas.org-1089696847-0000
+Content-Description: wli_preempttest2.1
+Content-Disposition: inline;
+  FILENAME="2.6.8-rc1_wli_preempttest2.1"
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+
+Index: linux-2.6.8-rc1/include/linux/preempt.h
+===================================================================
+--- linux-2.6.8-rc1.orig/include/linux/preempt.h	2004-07-13 15:29:53.619112346 +1000
++++ linux-2.6.8-rc1/include/linux/preempt.h	2004-07-13 15:30:21.398811516 +1000
+@@ -9,17 +9,17 @@
+ #include <linux/config.h>
+ #include <linux/linkage.h>
  
-                /* request handoff to OS */
--               cap |= 1 << 24;
-+               cap &= 1 << 24;
-                pci_write_config_dword(pdev, where, cap);
+-#define preempt_count()	(current_thread_info()->preempt_count)
+-
+-#define inc_preempt_count() \
+-do { \
+-	preempt_count()++; \
+-} while (0)
++#ifdef CONFIG_PREEMPT_TIMING
++void inc_preempt_count(void);
++void dec_preempt_count(void);
++void touch_preempt_timing(void);
++#else
++#define touch_preempt_timing()	do { } while (0)
++#define inc_preempt_count()	do { preempt_count()++; } while (0)
++#define dec_preempt_count()	do { preempt_count()--; } while (0)
++#endif
  
-                /* and wait a while for it to happen */
+-#define dec_preempt_count() \
+-do { \
+-	preempt_count()--; \
+-} while (0)
++#define preempt_count()	(current_thread_info()->preempt_count)
+ 
+ #ifdef CONFIG_PREEMPT
+ 
+@@ -51,9 +51,15 @@
+ 
+ #else
+ 
++#ifdef CONFIG_PREEMPT_TIMING
++#define preempt_disable()		inc_preempt_count()
++#define preempt_enable_no_resched()	dec_preempt_count()
++#define preempt_enable()		dec_preempt_count()
++#else
+ #define preempt_disable()		do { } while (0)
+ #define preempt_enable_no_resched()	do { } while (0)
+ #define preempt_enable()		do { } while (0)
++#endif
+ #define preempt_check_resched()		do { } while (0)
+ 
+ #endif
+Index: linux-2.6.8-rc1/include/linux/sched.h
+===================================================================
+--- linux-2.6.8-rc1.orig/include/linux/sched.h	2004-07-12 16:11:50.000000000 +1000
++++ linux-2.6.8-rc1/include/linux/sched.h	2004-07-13 15:31:00.547749905 +1000
+@@ -1021,6 +1021,7 @@
+ extern void __cond_resched(void);
+ static inline void cond_resched(void)
+ {
++	touch_preempt_timing();
+ 	if (need_resched())
+ 		__cond_resched();
+ }
+Index: linux-2.6.8-rc1/init/Kconfig
+===================================================================
+--- linux-2.6.8-rc1.orig/init/Kconfig	2004-07-12 16:11:50.000000000 +1000
++++ linux-2.6.8-rc1/init/Kconfig	2004-07-13 15:30:21.423807646 +1000
+@@ -279,6 +279,14 @@
+ 	  Disabling this option will cause the kernel to be built without
+ 	  support for epoll family of system calls.
+ 
++config PREEMPT_TIMING
++	bool "Non-preemptible critical section timing"
++	default n
++	help
++	  This option measures the time spent in non-preemptible critical
++	  sections and reports warnings when a boot-time configurable
++	  latency threshold is exceeded.
++
+ source "drivers/block/Kconfig.iosched"
+ 
+ config CC_OPTIMIZE_FOR_SIZE
+Index: linux-2.6.8-rc1/kernel/printk.c
+===================================================================
+--- linux-2.6.8-rc1.orig/kernel/printk.c	2004-07-12 16:11:50.000000000 +1000
++++ linux-2.6.8-rc1/kernel/printk.c	2004-07-13 15:31:00.549749595 +1000
+@@ -650,10 +650,8 @@
+  */
+ void console_conditional_schedule(void)
+ {
+-	if (console_may_schedule && need_resched()) {
+-		set_current_state(TASK_RUNNING);
+-		schedule();
+-	}
++	if (console_may_schedule)
++		cond_resched();
+ }
+ EXPORT_SYMBOL(console_conditional_schedule);
+ 
+Index: linux-2.6.8-rc1/kernel/sched.c
+===================================================================
+--- linux-2.6.8-rc1.orig/kernel/sched.c	2004-07-12 16:11:50.000000000 +1000
++++ linux-2.6.8-rc1/kernel/sched.c	2004-07-13 15:30:21.456802538 +1000
+@@ -4040,3 +4040,74 @@
+ 
+ EXPORT_SYMBOL(__preempt_write_lock);
+ #endif /* defined(CONFIG_SMP) && defined(CONFIG_PREEMPT) */
++
++#ifdef CONFIG_PREEMPT_TIMING
++#include <linux/kallsyms.h>
++
++static int preempt_thresh;
++static DEFINE_PER_CPU(u64, preempt_timings);
++static DEFINE_PER_CPU(unsigned long, preempt_entry);
++
++static int setup_preempt_thresh(char *s)
++{
++	int thresh;
++
++	get_option(&s, &thresh);
++	if (thresh > 0) {
++		preempt_thresh = thresh;
++		printk("Preemption threshold = %dms\n", preempt_thresh);
++	}
++	return 1;
++}
++__setup("preempt_thresh=", setup_preempt_thresh);
++
++static void __touch_preempt_timing(void *addr)
++{
++	__get_cpu_var(preempt_timings) = sched_clock();
++	__get_cpu_var(preempt_entry) = (unsigned long)addr;
++}
++
++void touch_preempt_timing(void)
++{
++	if (preempt_count() > 0 && system_state == SYSTEM_RUNNING &&
++						__get_cpu_var(preempt_entry))
++		__touch_preempt_timing(__builtin_return_address(0));
++}
++EXPORT_SYMBOL(touch_preempt_timing);
++
++void inc_preempt_count(void)
++{
++	preempt_count()++;
++	if (preempt_count() == 1 && system_state == SYSTEM_RUNNING)
++		__touch_preempt_timing(__builtin_return_address(0));
++}
++EXPORT_SYMBOL(inc_preempt_count);
++
++void dec_preempt_count(void)
++{
++	if (preempt_count() == 1 && system_state == SYSTEM_RUNNING &&
++					__get_cpu_var(preempt_entry)) {
++		u64 hold;
++		unsigned long preempt_exit
++				= (unsigned long)__builtin_return_address(0);
++		hold = sched_clock() - __get_cpu_var(preempt_timings) + 999999;
++		do_div(hold, 1000000);
++		if (preempt_thresh && hold > preempt_thresh &&
++							printk_ratelimit()) {
++			printk("%lums non-preemptible critical section "
++				"violated %d ms preempt threshold "
++				"starting at ",
++				(unsigned long)hold,
++				preempt_thresh);
++			print_symbol("%s", __get_cpu_var(preempt_entry));
++			printk(" and ending at ");
++			print_symbol("%s", preempt_exit);
++			printk("\n");
++			dump_stack();
++		}
++		__get_cpu_var(preempt_entry) = 0;
++	}
++	preempt_count()--;
++}
++EXPORT_SYMBOL(dec_preempt_count);
++#endif
+Index: linux-2.6.8-rc1/mm/memory.c
+===================================================================
+--- linux-2.6.8-rc1.orig/mm/memory.c	2004-07-12 16:11:50.000000000 +1000
++++ linux-2.6.8-rc1/mm/memory.c	2004-07-13 15:31:00.550749440 +1000
+@@ -567,14 +567,17 @@
+ 			zap_bytes -= block;
+ 			if ((long)zap_bytes > 0)
+ 				continue;
+-			if (!atomic && need_resched()) {
++			zap_bytes = ZAP_BLOCK_SIZE;
++			if (!atomic)
++				continue;
++			touch_preempt_timing();
++			if (need_resched()) {
+ 				int fullmm = tlb_is_full_mm(*tlbp);
+ 				tlb_finish_mmu(*tlbp, tlb_start, start);
+ 				cond_resched_lock(&mm->page_table_lock);
+ 				*tlbp = tlb_gather_mmu(mm, fullmm);
+ 				tlb_start_valid = 0;
+ 			}
+-			zap_bytes = ZAP_BLOCK_SIZE;
+ 		}
+ 	}
+ 	return ret;
 
---------------ms010405080007020309040900
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII+TCC
-AtcwggJAoAMCAQICAwylZTANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UE
-ChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNv
-bmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EwHhcNMDQwNzA4MDY1OTI1WhcNMDUwNzA4MDY1OTI1
-WjBHMR8wHQYDVQQDExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSQwIgYJKoZIhvcNAQkBFhV3
-aGJlZXJzQG1iaW8ubmNzdS5lZHUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCw
-5/G6HmtFPp9fK1kCwjNTyx4sN3E/AO9uPXDV48IxqXFi7CANR/BvQMaawTEMEa5XjHoGab6O
-HyvMGvr6csebsBAryt6LmCvTi3py0pNF5KLBaV98AfgFu4AyoJK+hxIM41XyF2BhS6Cfc/iD
-uZuWeWybiUQZLhYVdbU5j928u5ad1jeUqMRNeU7GIC7TOy8lulpugpA9CRocxtNoyibNE7J/
-pbSzZXEMVBrNqdwGlKPd7HEhvK941D5IZEId0xul1p0DjlXkugG8q59kapfDosWHfL987Kni
-FmUwLbOBPOQagsvDeqd3RQQ6UMYq4Qewz1aAjghhQs/xKpkQfr0NAgMBAAGjMjAwMCAGA1Ud
-EQQZMBeBFXdoYmVlcnNAbWJpby5uY3N1LmVkdTAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEB
-BAUAA4GBAEN+A34ZDoOVt4uP6MuH1SLoGsMyjrpdLS5McYTz4GAFafHL1YHSKu5vlofkadBs
-Hdln1Fe9QyMxA+Ycrp42pt3ZzzxqpF/Vfnp7yieXFjcg6Yg4m5pIfwmmKyU13BVbGfWDGasd
-aJ1GpWWvsSDEYLjlWymVz3clCcfAi+yVJl6CMIIC1zCCAkCgAwIBAgIDDKVlMA0GCSqGSIb3
-DQEBBAUAMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5
-KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTAe
-Fw0wNDA3MDgwNjU5MjVaFw0wNTA3MDgwNjU5MjVaMEcxHzAdBgNVBAMTFlRoYXd0ZSBGcmVl
-bWFpbCBNZW1iZXIxJDAiBgkqhkiG9w0BCQEWFXdoYmVlcnNAbWJpby5uY3N1LmVkdTCCASIw
-DQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALDn8boea0U+n18rWQLCM1PLHiw3cT8A7249
-cNXjwjGpcWLsIA1H8G9AxprBMQwRrleMegZpvo4fK8wa+vpyx5uwECvK3ouYK9OLenLSk0Xk
-osFpX3wB+AW7gDKgkr6HEgzjVfIXYGFLoJ9z+IO5m5Z5bJuJRBkuFhV1tTmP3by7lp3WN5So
-xE15TsYgLtM7LyW6Wm6CkD0JGhzG02jKJs0Tsn+ltLNlcQxUGs2p3AaUo93scSG8r3jUPkhk
-Qh3TG6XWnQOOVeS6Abyrn2Rql8OixYd8v3zsqeIWZTAts4E85BqCy8N6p3dFBDpQxirhB7DP
-VoCOCGFCz/EqmRB+vQ0CAwEAAaMyMDAwIAYDVR0RBBkwF4EVd2hiZWVyc0BtYmlvLm5jc3Uu
-ZWR1MAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQEEBQADgYEAQ34DfhkOg5W3i4/oy4fVIuga
-wzKOul0tLkxxhPPgYAVp8cvVgdIq7m+Wh+Rp0Gwd2WfUV71DIzED5hyunjam3dnPPGqkX9V+
-envKJ5cWNyDpiDibmkh/CaYrJTXcFVsZ9YMZqx1onUalZa+xIMRguOVbKZXPdyUJx8CL7JUm
-XoIwggM/MIICqKADAgECAgENMA0GCSqGSIb3DQEBBQUAMIHRMQswCQYDVQQGEwJaQTEVMBMG
-A1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xGjAYBgNVBAoTEVRoYXd0
-ZSBDb25zdWx0aW5nMSgwJgYDVQQLEx9DZXJ0aWZpY2F0aW9uIFNlcnZpY2VzIERpdmlzaW9u
-MSQwIgYDVQQDExtUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgQ0ExKzApBgkqhkiG9w0BCQEW
-HHBlcnNvbmFsLWZyZWVtYWlsQHRoYXd0ZS5jb20wHhcNMDMwNzE3MDAwMDAwWhcNMTMwNzE2
-MjM1OTU5WjBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0
-eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0Ew
-gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMSmPFVzVftOucqZWh5owHUEcJ3f6f+jHuy9
-zfVb8hp2vX8MOmHyv1HOAdTlUAow1wJjWiyJFXCO3cnwK4Vaqj9xVsuvPAsH5/EfkTYkKhPP
-K9Xzgnc9A74r/rsYPge/QIACZNenprufZdHFKlSFD0gEf6e20TxhBEAeZBlyYLf7AgMBAAGj
-gZQwgZEwEgYDVR0TAQH/BAgwBgEB/wIBADBDBgNVHR8EPDA6MDigNqA0hjJodHRwOi8vY3Js
-LnRoYXd0ZS5jb20vVGhhd3RlUGVyc29uYWxGcmVlbWFpbENBLmNybDALBgNVHQ8EBAMCAQYw
-KQYDVR0RBCIwIKQeMBwxGjAYBgNVBAMTEVByaXZhdGVMYWJlbDItMTM4MA0GCSqGSIb3DQEB
-BQUAA4GBAEiM0VCD6gsuzA2jZqxnD3+vrL7CF6FDlpSdf0whuPg2H6otnzYvwPQcUCCTcDz9
-reFhYsPZOhl+hLGZGwDFGguCdJ4lUJRix9sncVcljd2pnDmOjCBPZV+V2vf3h9bGCE6u9uo0
-5RAaWzVNd+NWIXiC3CEZNd4ksdMdRv9dX2VPMYIDOzCCAzcCAQEwaTBiMQswCQYDVQQGEwJa
-QTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhh
-d3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECAwylZTAJBgUrDgMCGgUAoIIBpzAY
-BgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0wNDA3MTMwNTMwNTha
-MCMGCSqGSIb3DQEJBDEWBBT2kznDYGat40hLyUx1xMlQfdhdZTBSBgkqhkiG9w0BCQ8xRTBD
-MAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzAN
-BggqhkiG9w0DAgIBKDB4BgkrBgEEAYI3EAQxazBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQK
-ExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29u
-YWwgRnJlZW1haWwgSXNzdWluZyBDQQIDDKVlMHoGCyqGSIb3DQEJEAILMWugaTBiMQswCQYD
-VQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UE
-AxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECAwylZTANBgkqhkiG9w0B
-AQEFAASCAQA0G1ljqkVvuRJcod7VPvWeFTw+o6jwDR0Qr8CLYuHbzvISo3ijyF6x+vBUvI8j
-oi0BDx1qdhm4TZ0g1CDFIG0+RfB964P0zH30YTGbKFVrcP7rSC4U0S5KZsRQ4GufwZmUz2Rx
-2A8uKnz6UZEDCQ0jfzpv3nKqybxhw9QS1fXdPAwjLLkyfMyCZ2cBhV2eJbdbmpFARZGDeSnM
-GQUVsajO+wTm9PG9TjzlOaPh5XCOcNehRCZ3zbM51PDfrwDTNGGZds0/YXaSg94cnpE3fzOa
-rzR8LIjgCkd8f+U+L6PHjGj5h+2nF6W49Cqdz+DwYrOP1UReBpzY221ahEb/d3JrAAAAAAAA
-
---------------ms010405080007020309040900--
+--=_pc.kolivas.org-1089696847-0000--

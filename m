@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318365AbSGRWlN>; Thu, 18 Jul 2002 18:41:13 -0400
+	id <S318360AbSGRW6O>; Thu, 18 Jul 2002 18:58:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318375AbSGRWlN>; Thu, 18 Jul 2002 18:41:13 -0400
-Received: from chello213047142196.15.vie.surfer.at ([213.47.142.196]:3712 "EHLO
-	aragorn.lain.at") by vger.kernel.org with ESMTP id <S318365AbSGRWlI>;
-	Thu, 18 Jul 2002 18:41:08 -0400
-Date: Fri, 19 Jul 2002 00:44:48 +0200
-From: Wolfgang <w.morandell@netway.at>
-To: Tobias Ringstrom <tori@ringstrom.mine.nu>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernel panic with linux-2.4.19-rc2-ac1
-Message-ID: <20020718224445.GA1065@aragorn.groundzero.at>
-References: <20020718215902.GU1096@holomorphy.com> <Pine.LNX.4.44.0207190002540.7956-100000@boris.prodako.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207190002540.7956-100000@boris.prodako.se>
-User-Agent: Mutt/1.4i
+	id <S318377AbSGRW6N>; Thu, 18 Jul 2002 18:58:13 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:9996 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S318360AbSGRW6K>; Thu, 18 Jul 2002 18:58:10 -0400
+Date: Thu, 18 Jul 2002 16:01:01 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+cc: willy@debian.org, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.26 broken on headless boxes
+In-Reply-To: <20020718221619.GA16292@vana.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.44.0207181546380.16453-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 19, 2002, Tobias Ringstrom wrote:
 
-> > On Thu, Jul 18, 2002 at 11:48:59PM +0200, Wolfgang wrote:
-> > > I have switched from linux-2.4.19-rc1-ac7 to linux-2.4.19-rc2-ac1 (both
-> > > with preemptive patch). I use the same config but now thw kernel won't
-> > > start and spits out the following. If someone could point out where the
-> > > error is, I would be most grateful.
-> > > Please Cc me.
-> > >     Wolfgang
-> > 
-> > Please run ksymoops on this and send its output.
-> 
-> Better try ac2 first, since ac1 has a know crash bug.
-> 
-> /Tobias
+> But I'll leave final decision at James, maybe he want to support
+> VT without underlying console, and testing almost same condition
+> on two places looks suspicious to me. Either we need blank timer
+> and console, or do not. But registering one half in vty_init,
+> and second half in con_init?
 
-ac2 fixed it.
+     This problem arises from the code being half way in between the final
+results. The idea was to register a console if we have a displayed.
+All we need for printk. When we detect a keyboard to attach to a display
+without a keyboard then we would register a tty device then. The idea was
+to allow for a setup like having one keyboard and one display as your
+normal tty and a extra display as printk display. The code will be
+changing lot over the next few weeks.
 
-Thank you
-
-    Wolfgang
 

@@ -1,90 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbULAQBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbULAQIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbULAQBV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 11:01:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbULAQBV
+	id S261287AbULAQIW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 11:08:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbULAQIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 11:01:21 -0500
-Received: from zamok.crans.org ([138.231.136.6]:37331 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S261290AbULAQBC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 11:01:02 -0500
-To: linux-os@analogic.com
-Cc: John Que <qwejohn@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: intird.img file missing - cannot boot.
-References: <BAY14-F2141AE33478CA464C1B3C7AFBF0@phx.gbl>
-	<Pine.LNX.4.61.0412011031460.4358@chaos.analogic.com>
-From: Mathieu Segaud <matt@minas-morgul.org>
-Date: Wed, 01 Dec 2004 17:01:12 +0100
-In-Reply-To: <Pine.LNX.4.61.0412011031460.4358@chaos.analogic.com>
-	(linux-os@chaos.analogic.com's message of "Wed, 1 Dec 2004 10:38:04
-	-0500 (EST)")
-Message-ID: <87vfbmvwhj.fsf@barad-dur.crans.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 1 Dec 2004 11:08:22 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:37544 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261287AbULAQHI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 11:07:08 -0500
+Date: Wed, 1 Dec 2004 17:06:32 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
+Message-ID: <20041201160632.GA3018@elte.hu>
+References: <20041129111634.GB10123@elte.hu> <41358.195.245.190.93.1101734020.squirrel@195.245.190.93> <20041129143316.GA3746@elte.hu> <20041129152344.GA9938@elte.hu> <48590.195.245.190.94.1101810584.squirrel@195.245.190.94> <20041130131956.GA23451@elte.hu> <17532.195.245.190.94.1101829198.squirrel@195.245.190.94> <20041201103251.GA18838@elte.hu> <32831.192.168.1.5.1101905229.squirrel@192.168.1.5> <20041201154046.GA15244@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041201154046.GA15244@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os <linux-os@chaos.analogic.com> disait dernièrement que :
 
-> On Wed, 1 Dec 2004, John Que wrote:
->
->> Hello,
->>
->> I had made some tests with mkinitrd , I deleted /boot/intird-2.6.7.img
->> and booted (without renaming the /boot/intird-2.6.7.img.old I have
->> to intird-2.6.7.img).
->>
->> I use this intird-2.6.7.img image in boot (ext3 is not part of the
->> kernel image).
->> (I am working with Fedora with 2.6.7 , and with grub).
->>
->> So when booting I get the mesages:
->> ....
->> /intrd/intird-2.6.7.img
->> error 15: File Mot Fount
->> ...
->>
->> what should I do ? can I use a Fedora boot diskette and then
->> mount the boot partition and rename the file ? (the
->> intird-2.6.7.img.old is , as
->> I said,under boot)
->> How can I do this mounting?
->> (If I remember well , a boot CD like KNPOIX does not have write permissions.)
->>
->> Regards,
->> John
->>
->
-> When you get to the blue boot screen, just select another boot image
-> and boot that.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-or if you know the name of the initrd you want to use in place of the regular,
-you can use 'e' key to edit the entry you want; just change the name of the
-initrd file to the right one. and boot it with 'b' key.
-Being able to change the boot configuration at boot time is the very one of my
-prefered features GRUB has and lilo does not.
->
-> If you have mucked with the original and have no others, boot
-> from the installation CD. Follow the "repair" prompts. Eventually
-> your partition will be mounted somewhere and you can fix it.
-> If you have a seperate /boot partition, just mount that and
-> rename the file back or edit grub.conf to show the right one
-> that goes with the right image.
+> this shows an interesting phenomenon: for whatever reason IRQ5's
+> thread didnt run until timestamp 1.946ms. There is lots of idle time
+> between timestamps 0.012ms and 1.946ms, so this must be some weird
+> condition. 
 
-if he knows where the real initrd is, no need to go thru the repair procedure,
-editing the boot entries at boot time is possible with the grub.
+ok, this could be ACPI CPU-sleep related. Could you disable all ACPI
+options in your .config (as a workaround), and re-check whether the
+xruns still occur?
 
--- 
-> Can you explain this behaviour?
-
-Yes
---
-Alan
-
-[Oh wait you want to know why...]
-
-	- Alan Cox on linux-kernel
-
+	Ingo

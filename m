@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129830AbRAaMzO>; Wed, 31 Jan 2001 07:55:14 -0500
+	id <S129789AbRAaM5o>; Wed, 31 Jan 2001 07:57:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129784AbRAaMzE>; Wed, 31 Jan 2001 07:55:04 -0500
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:60780 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S129830AbRAaMyw>; Wed, 31 Jan 2001 07:54:52 -0500
-Date: Wed, 31 Jan 2001 07:54:27 -0500 (EST)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-To: safemode <safemode@voicenet.com>
-cc: David Raufeisen <david@fortyoz.org>, Vojtech Pavlik <vojtech@suse.cz>,
-        linux-kernel@vger.kernel.org
-Subject: Re: VT82C686A corruption with 2.4.x
-In-Reply-To: <3A77DF79.2C1F5A7@voicenet.com>
-Message-ID: <Pine.LNX.4.10.10101310752060.155-100000@coffee.psychology.mcmaster.ca>
+	id <S129561AbRAaM5e>; Wed, 31 Jan 2001 07:57:34 -0500
+Received: from [64.22.49.66] ([64.22.49.66]:25106 "EHLO
+	phobos.illtel.denver.co.us") by vger.kernel.org with ESMTP
+	id <S129789AbRAaM5S>; Wed, 31 Jan 2001 07:57:18 -0500
+Date: Wed, 31 Jan 2001 04:55:15 -0800 (PST)
+From: Alex Belits <abelits@phobos.illtel.denver.co.us>
+To: "Michael B. Trausch" <fd0man@crosswinds.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PPP broken in Kernel 2.4.1?
+In-Reply-To: <Pine.LNX.4.21.0101292100520.460-100000@fd0man.accesstoledo.com>
+Message-ID: <Pine.LNX.4.20.0101310453400.18462-100000@phobos.illtel.denver.co.us>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From what I gather this chipset on 2.4.x is only stable if you cripple just about everything that makes
-> it worth having (udma, 2nd ide channel  etc etc)  ?    does it even work when all that's done now or is
-> it fully functional?
+On Mon, 29 Jan 2001, Michael B. Trausch wrote:
 
-it seems to be fully functional for some or most people,
-with two, apparently, reporting major problems.
+> I'm having a weird problem with 2.4.1, and I am *not* having this problem
+> with 2.4.0.  When I attempt to connect to the Internet using Kernel 2.4.1,
+> I get errors about PPP something-or-another, invalid argument.  I've tried
 
-my via (kt133) is flawless in 2.4.1 (a drive on each channel,
-udma enabled and in use) and has for all the 2.3's since I got it.
+  Upgrade ppp to 2.4.0b1 or later -- it's documented in 
+Documentation/Changes.
+
+-- 
+Alex
+
+----------------------------------------------------------------------
+ Excellent.. now give users the option to cut your hair you hippie!
+                                                  -- Anonymous Coward
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

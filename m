@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261768AbTCGUT7>; Fri, 7 Mar 2003 15:19:59 -0500
+	id <S261758AbTCGUJI>; Fri, 7 Mar 2003 15:09:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261766AbTCGUT7>; Fri, 7 Mar 2003 15:19:59 -0500
-Received: from packet.digeo.com ([12.110.80.53]:63127 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261764AbTCGUTx>;
-	Fri, 7 Mar 2003 15:19:53 -0500
-Date: Fri, 7 Mar 2003 12:30:29 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andries.Brouwer@cwi.nl, hch@infradead.org, linux-kernel@vger.kernel.org,
+	id <S261755AbTCGUJI>; Fri, 7 Mar 2003 15:09:08 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:18817 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S261731AbTCGUJD>;
+	Fri, 7 Mar 2003 15:09:03 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 7 Mar 2003 21:19:33 +0100 (MET)
+Message-Id: <UTC200303072019.h27KJXX12872.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, patmans@us.ibm.com
+Subject: Re: [PATCH] scsi_error fix
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
        torvalds@transmeta.com
-Subject: Re: [PATCH] register_blkdev
-Message-Id: <20030307123029.2bc91426.akpm@digeo.com>
-In-Reply-To: <20030307193644.A14196@infradead.org>
-References: <UTC200303071932.h27JW1o11962.aeb@smtp.cwi.nl>
-	<20030307193644.A14196@infradead.org>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Mar 2003 20:30:19.0773 (UTC) FILETIME=[5F0872D0:01C2E4E8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> On Fri, Mar 07, 2003 at 08:32:01PM +0100, Andries.Brouwer@cwi.nl wrote:
-> > > IMHO that's a bad change, (un)register_blkdev should just go away
-> > > completly.
-> > 
-> > Yes, it would be best if the kernel became perfect at once.
-> > But the patch is rather large. Better go in small steps.
-> > 
-> > Did you read the patch?
-> 
-> Yes, I did.  What I object to is the prototype changes you did which
-> make absolutely no sense to get into 2.5 now when the functions will
-> disappear before 2.6.  Feel free to change the actual implementation,
-> I couldn't care less on you wasting your time on that :)
+    From: Patrick Mansfield <patmans@us.ibm.com>
 
-32-bit dev_t is an important (and very late!) thing to get into the 2.5
-stream.  Can we put this ahead of cleanup stuff?
+    > [Further discussion and things I did not yet investigate:
+    > What was changed to make this fail first in 2.5.63?
+    > Experience shows that we get into a loop when something else
+    > than SUCCESS is returned here. Probably that is a bug elsewhere.
+    > Probably the commands that cause problems should never have been
+    > sent in the first place.]
 
+    The scsi error handler is also used to retrieve sense data for
+    adapters/drivers that do not auto retrieve it. In such cases, it should
+    not issue any aborts, resets etc.
+
+Indeed.
+
+    Your change effectively disables that support - we never hit the code in
+    scsi_eh_get_sense() to request sense. It would be very nice if we could
+    fix (or audit) all the scsi drivers, apply your change and remove
+    scsi_eh_get_sense, but AFAIK that has not and is not happening.
+
+No. What happened before was that we got into an infinite loop.
+The right action is to read the code, understand why it gets
+into a loop, and fix it. Once that has happened we may decide
+to undo my change. Or we may decide to ask for sense at that very spot.
+
+Today both James and Mike say that they can reproduce the loop,
+so probably they'll fix that part. If not, I'll have a look again.
+
+Andries

@@ -1,59 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbTHYMI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 08:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbTHYMI2
+	id S261230AbTHYMRI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 08:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbTHYMRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 08:08:28 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:57097 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261725AbTHYMIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 08:08:25 -0400
-Date: Mon, 25 Aug 2003 13:08:23 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       ballen@gravity.phys.uwm.edu
-Subject: Re: [2.6.0-test4] blocking access to mounted scsi devices
-Message-ID: <20030825130822.A4258@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Douglas Gilbert <dougg@torque.net>, linux-scsi@vger.kernel.org,
-	linux-kernel@vger.kernel.org, ballen@gravity.phys.uwm.edu
-References: <3F49B515.6010107@torque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F49B515.6010107@torque.net>; from dougg@torque.net on Mon, Aug 25, 2003 at 05:04:53PM +1000
+	Mon, 25 Aug 2003 08:17:08 -0400
+Received: from smtp1.att.ne.jp ([165.76.15.137]:54736 "EHLO smtp1.att.ne.jp")
+	by vger.kernel.org with ESMTP id S261230AbTHYMRC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 08:17:02 -0400
+Message-ID: <052a01c36b02$9de086f0$24ee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+To: "Jamie Lokier" <jamie@shareable.org>
+Cc: <linux-kernel@vger.kernel.org>
+References: <003701c36972$a980e1d0$78ee4ca5@DIAMONDLX60> <20030825042414.GC20529@mail.jlokier.co.uk>
+Subject: Re: Input issues - key down with no key up
+Date: Mon, 25 Aug 2003 21:15:40 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 25, 2003 at 05:04:53PM +1000, Douglas Gilbert wrote:
-> A recent test of smartmontools on lk 2.6.0-test4 failed
-> miserably on my main SCSI disk. It would seem that
-> attempts to use either the:
->     SCSI_IOCTL_SEND_COMMAND
->     SG_IO
-> ioctls on a mounted SCSI "block" device fail with EBUSY.
-> These ioctls work fine on devices that don't have mounted
-> file systems on then. If this is a new policy then it needs
-> to be reconsidered. smartmontools still works ok on ATA disks
-> in lk 2.6.0-test4.
+"Jamie Lokier" <jamie@shareable.org> replied to me:
 
-That's because both mount (or e.g. volume managers) claims
-devices for exclusive use, as does drivers/block/scsi_ioctl.c
+> > For Japanese versions of Windows 95 or 98 or NT4, of course the Japanese
+> > keys do produce input.  Of course the Japanese layout driver is
+> > involved.  I don't recall if the lower-level keyboard driver has a name
+> > that distinguishes it from the US-101 driver, but the binaries are
+> > almost certainly different.
 
-> Both the ioctls in question still work via the corresponding
-> scsi generic device.
+[And for Japanese versions of Windows 2000 and Windows XP, of course the
+Japanese keys do produce input.  Of course the Japanese layout driver is
+involved, but also the lower-level driver is named for the Japanese-106
+keyboard.]
 
-Well, we either want both to work or not work.  The current
-situation is inconsistant.
+> Do you know what the Japanese keys do under Linux?
 
-> Will scsi generic devices make a
-> re-appearance in sysfs (as indicated by Christoph when the
-> relevant code in sg was removed)?
+I don't recall them doing anything under Linux.  I think I've read some
+people say that the Japanese keys yield spaces for them, which would not be
+too bad because three of those keys are next to the space bar anyway.  But I
+think I get no input at all for them, which also isn't too bad (mostly -- 
+but see below).
 
-Yeah, I still need to come up with a way for class_interfaces
-like sg to have sysfs entries.  the TODO list is growing but
-I'll take a look at this, promised.
+Of course the problem which is too bad is getting no input for the keys
+yen-sign or-bar and backslash underscore.
+
+In 2.4, after the USB-to-emulated-PS/2 translation level in the driver was
+finally patched, I think that all of the Japanese keys were finally patched
+to yield the same as the PS/2 translations of the USB keys.  The patch was
+different from the one which I sent which was ignored, for which the
+difference is OK (the effect is the same) but it really bugged me that it
+was ignored for months.  Anyway, after the patch in 2.4, the potential of
+letting the Japanese keys do something in Linux depended only on the
+possibility of acting at the PS/2 layer or above.
+
+In 2.6, I have a feeling that there might be one or two levels of breakage,
+as there has been for the yen-sign or-bar and backslash underscore keys.
+Sorry I neglected to test them two days ago.  But for that matter, the test
+which I reported two days ago seems to have been ignored again.  I can only
+volunteer about one day a week, but some people get paid to do this as their
+job, and I wonder why my report has been ignored.
+
+Now, I think I've read that ATOK can run under Linux.  Monopolysoft's IME is
+based on ATOK's IME so a lot of people are used to it.  There are also other
+IMEs under development for Linux.  For me and at least one other Usenetter
+in Japan, it is a nuisance that Shift+Space turns on the X-11 IME, because
+we often type it when we just want a space (if our thumb is still on the
+Shift key from typing the previous character).  It really would be nice if
+we could configure the hankaku/zenkaku key to turn the IME on or off the way
+ATOK and Monopolysoft do, and then configure Shift+Space to just input a
+Space.  But this would depend on making the Japanese keys do something in
+Linux.  By the way the hankaku/zenkaku key is the one which isn't next to
+the space bar, it's in the position which yields ` and ~ on a US keyboard.
+
+(As for why the hankaku/zenkaku key turns the IME on and off instead of
+switching between hankaku and zenkaku, the reason is yet another compound of
+hacks, but people are used to it now.  Actually Alt+hankaku/zenkaku does
+still also turn the IME on and off as it always did.  Except under Linux of
+course.  I think it's still a no-op under Linux.)
 

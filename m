@@ -1,27 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317925AbSGPRi0>; Tue, 16 Jul 2002 13:38:26 -0400
+	id <S317924AbSGPRhw>; Tue, 16 Jul 2002 13:37:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317928AbSGPRiZ>; Tue, 16 Jul 2002 13:38:25 -0400
-Received: from imeil.udg.es ([130.206.45.97]:224 "EHLO imeil.udg.es")
-	by vger.kernel.org with ESMTP id <S317925AbSGPRiY>;
-	Tue, 16 Jul 2002 13:38:24 -0400
-Date: Tue, 16 Jul 2002 19:44:17 +0200 (CEST)
-From: David Gironella Casademont <giro@hades.udg.es>
+	id <S317925AbSGPRhv>; Tue, 16 Jul 2002 13:37:51 -0400
+Received: from [63.219.44.2] ([63.219.44.2]:18391 "EHLO mail.bscnet.com")
+	by vger.kernel.org with ESMTP id <S317924AbSGPRhv>;
+	Tue, 16 Jul 2002 13:37:51 -0400
+Message-ID: <063601c22cf0$3c65c170$412afea9@BOBATHOME>
+From: "Bobby Hitt" <bobhitt@bscnet.com>
 To: <linux-kernel@vger.kernel.org>
-Subject: Find patch
-Message-ID: <Pine.LNX.4.30.0207161942340.29148-100000@hades.udg.es>
+References: <000501c22cef$634e58c0$0100a8c0@mars>
+Subject: 
+Date: Tue, 16 Jul 2002 13:43:03 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-I know a problem with root=*ataraid* on 2.4.18, but i don't know where to
-find patch for it. I think that 2.4.18-bf don't have this problem but
-i don't find sources. I can use another kernel version?
-
-
-thk
-giro
+unsubscribe bobhitt@bscnet.com
 

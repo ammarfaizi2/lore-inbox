@@ -1,78 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263176AbTJUQlW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 12:41:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTJUQlW
+	id S263174AbTJUQ7h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 12:59:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbTJUQ7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 12:41:22 -0400
-Received: from astra.telenet-ops.be ([195.130.132.58]:62094 "EHLO
-	astra.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S263176AbTJUQlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 12:41:20 -0400
-Subject: Re: LVM on md0: raid0_make_request bug: can't convert block across
-	chunks or bigger than 64k
-From: Karl Vogel <karl.vogel@seagha.com>
-To: Kevin Corry <kevcorry@us.ibm.com>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, Joe Thornber <thornber@sistina.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1066753760.1161.4.camel@kvo.local.org>
-References: <1066682115.1799.15.camel@kvo.local.org>
-	 <1066686755.1146.6.camel@kvo.local.org>
-	 <16276.31028.9351.994009@notabene.cse.unsw.edu.au>
-	 <200310210841.45452.kevcorry@us.ibm.com>
-	 <1066753760.1161.4.camel@kvo.local.org>
-Content-Type: text/plain
-Message-Id: <1066754478.1205.2.camel@kvo.local.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2) 
-Date: Tue, 21 Oct 2003 18:41:19 +0200
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Oct 2003 12:59:37 -0400
+Received: from ncircle.nullnet.fi ([62.236.96.207]:18304 "EHLO
+	ncircle.nullnet.fi") by vger.kernel.org with ESMTP id S263174AbTJUQ7e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 12:59:34 -0400
+Message-ID: <32836.192.168.9.10.1066755572.squirrel@ncircle.nullnet.fi>
+In-Reply-To: <3F94FB1B.9000803@kmlinux.fjfi.cvut.cz>
+References: <3F94FB1B.9000803@kmlinux.fjfi.cvut.cz>
+Date: Tue, 21 Oct 2003 19:59:32 +0300 (EEST)
+Subject: Re: HighPoint 374
+From: "Tomi Orava" <Tomi.Orava@ncircle.nullnet.fi>
+To: "Jindrich Makovicka" <makovick@kmlinux.fjfi.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >  ----------- Diffstat output ------------
-> > >  ./drivers/md/dm-table.c |    5 +++++
-> > >  1 files changed, 5 insertions(+)
-> > >
-> > > diff ./drivers/md/dm-table.c~current~ ./drivers/md/dm-table.c
-> > > --- ./drivers/md/dm-table.c~current~	2003-10-21 10:05:29.000000000 +1000
-> > > +++ ./drivers/md/dm-table.c	2003-10-21 10:06:27.000000000 +1000
-> > > @@ -489,6 +489,11 @@ int dm_get_device(struct dm_target *ti,
-> > >  		rs->max_sectors =
-> > >  			min_not_zero(rs->max_sectors, q->max_sectors);
-> > >
-> > > +		if (q->merge_bvec_fn)
-> > > +			rs->max_sectors =
-> > > +				min_not_zero(rs->max_sectors, PAGE_SIZE>>9);
-> > > +
-> > > +
-> > >  		rs->max_phys_segments =
-> > >  			min_not_zero(rs->max_phys_segments,
-> > >  				     q->max_phys_segments);
-> > 
-> > This will probably work, as long as raid0 can split a one-page request that 
-> > spans a chunk boundary. I'll be interested to see if this solves Karl's 
-> > problem.
-> 
-> Good news... it solves the problem with my setup. I was able to copy
-> files off the logical volume (did an md5sum compare to make sure I got
-> the complete files.)
+> With my EPoX 8K9A3+, I had to hack the kernel to get the HPT374 running
+> at all, as it reported slightly higher PCI clock than 33MHz, although
+> the machine wasn't overclocked, but it seems to run fine. The current
+> driver supports only 33MHz clock, which is probably the reason HPT374
+> isn't even initialized in some cases.
 
-Forgot to mention that it generates a compiler warning:
+Hmm, it looks like my motherboard doesn't suffer from the same problem.
+I see that in my machine the correct frequency is selected:
 
-  CC      drivers/md/dm-table.o
-drivers/md/dm-table.c: In function `dm_get_device':
-drivers/md/dm-table.c:494: warning: comparison of distinct pointer types
-lacks a cast
+------------------------------------------------------------
+HPT374: IDE controller at PCI slot 00:0e.0
+HPT374: chipset revision 7
+HPT374: not 100% native mode: will probe irqs later
+HPT37X: using 33MHz PCI clock
+    ide2: BM-DMA at 0xb800-0xb807, BIOS settings: hde:DMA, hdf:pio
+    ide3: BM-DMA at 0xb808-0xb80f, BIOS settings: hdg:DMA, hdh:pio
+HPT37X: using 33MHz PCI clock
+    ide4: BM-DMA at 0xcc00-0xcc07, BIOS settings: hdi:DMA, hdj:pio
+    ide5: BM-DMA at 0xcc08-0xcc0f, BIOS settings: hdk:DMA, hdl:pio
+SiI680: IDE controller at PCI slot 00:09.0
+SiI680: chipset revision 1
+SiI680: not 100% native mode: will probe irqs later
+SiI680: BASE CLOCK == 133
+    ide6: MMIO-DMA , BIOS settings: hdm:pio, hdn:pio
+    ide7: MMIO-DMA , BIOS settings: hdo:pio, hdp:pio
+------------------------------------------------------------
 
-Using:
-$ gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/3.3.1/specs
-Configured with: ../configure --prefix=/usr --mandir=/usr/share/man
---infodir=/usr/share/info --enable-shared --enable-threads=posix
---disable-checking --with-system-zlib --enable-__cxa_atexit
---host=i386-redhat-linux
-Thread model: posix
-gcc version 3.3.1 20030930 (Red Hat Linux 3.3.1-6)
+However, with the latest 2.4.23-pre7 kernel I get the following error
+messages and I think the hdparm -i output looks wierd ...
+Perhaps the display is incorrect as I have disabled for testing
+purposes the CONFIG_IDEDMA_PCI_AUTO-option so that I'm able to
+boot up even if raid1 resync is started at boot without hang.
+(I use the hdparm -d1 to enabled dma-mode later)
 
+---------------------------------------------------------------
+hde: SAMSUNG SV8004H, ATA DISK drive
+hde: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+hde: set_drive_speed_status: error=0x04 { DriveStatusError }
+hdg: SAMSUNG SV8004H, ATA DISK drive
+hdg: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+hdg: set_drive_speed_status: error=0x04 { DriveStatusError }
+hdi: SAMSUNG SV1604N, ATA DISK drive
+hdi: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+hdi: set_drive_speed_status: error=0x04 { DriveStatusError }
+hdk: SAMSUNG SV1604N, ATA DISK drive
+hdk: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+hdk: set_drive_speed_status: error=0x04 { DriveStatusError }
+
+---> Drives connected to Sil680 don't complain below -------------
+hdm: MAXTOR 6L060J3, ATA DISK drive
+blk: queue c04992f8, I/O limit 4095Mb (mask 0xffffffff)
+hdo: MAXTOR 6L060J3, ATA DISK drive
+blk: queue c049974c, I/O limit 4095Mb (mask 0xffffffff)
+---------------------------------------------------------------
+
+The output of hdparm -i /dev/hde (first drive connected to HPT374,
+note the mode selection asterisk is missing as well as faster modes):
+
+/dev/hde:
+
+ Model=SAMSUNG SV8004H, FwRev=QR100-12, SerialNo=0357J1AT803561
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=38997, SectSize=619, ECCbytes=4
+ BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=156368016
+ IORDY=yes, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ UDMA modes: udma0 udma1 udma2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ AdvancedPM=no WriteCache=enabled
+ Drive conforms to: ATA/ATAPI-6 T13 1410D revision 1:
+
+ * signifies the current active mode
+
+
+Does this tell anything to the IDE-guys ?
+
+Regards,
+Tomi Orava
+
+PS. All the drives have been set with explicit hdparm -m 16 setting
+    in order to see if it changes anything regarding the interrupt
+    problem described previously.
+
+-- 
+Tomi.Orava@ncircle.nullnet.fi
 

@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261973AbSL2WIP>; Sun, 29 Dec 2002 17:08:15 -0500
+	id <S261908AbSL2WSo>; Sun, 29 Dec 2002 17:18:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261978AbSL2WIP>; Sun, 29 Dec 2002 17:08:15 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:52633 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S261973AbSL2WIO>; Sun, 29 Dec 2002 17:08:14 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Date: Mon, 30 Dec 2002 09:16:21 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15887.29749.799810.949032@notabene.cse.unsw.edu.au>
+	id <S261934AbSL2WSo>; Sun, 29 Dec 2002 17:18:44 -0500
+Received: from holomorphy.com ([66.224.33.161]:40933 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261908AbSL2WSm>;
+	Sun, 29 Dec 2002 17:18:42 -0500
+Date: Sun, 29 Dec 2002 14:25:38 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: zippel@linux-m68k.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID0 problems with 2.4.21-BK current
-In-Reply-To: message from Marc-Christian Petersen on Sunday December 29
-References: <200212292012.11556.m.c.p@wolk-project.de>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Subject: tabs on otherwise empty lines
+Message-ID: <20021229222538.GK29422@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday December 29, m.c.p@wolk-project.de wrote:
-> Hi Neil,
-> 
-> this:
-> 
-> http://linux.bkbits.net:8080/linux-2.4/patch@1.884.1.69?nav=index.html|ChangeSet@-2w|cset@1.884.1.69
-> 
-> patch breaks at least RAID 0 recognition at boottime (infinite loop) and also 
-> breaks mkraid /dev/md0. Never stops, State D.
+The <HELP> state is willing to consume config options as part of help
+texts AFAICT:
 
-Odd. It works for me.  
-Can you find out more about the 'D' state the it is stuck in?
-alt-sysrq-T
-should provide a stack trace which should get caught in some log
-file. 
+(1)	[ \t]+  {
+(2)	\n/[^ \t\n] {
+(3)	[ \t]*\n        {
+(4)	[^ \t\n].* {
+(5)	<<EOF>> {
 
- ps axgl
-could list something vaguely useful in the 'wchan' column.
+Now consider: "\tSome help text.\n\t\nconfig FOO\n\tdepends on BAR\n"
 
-NeilBrown
+"\tSome help text." is consumed by (1).
+"\n" is consumed by (3).
+"\t\n" is consumed by (3) again.
+"config FOO" is consumed by (4), which resets first_ts to last_ts,
+	which does not actually change the value of first_ts.
+"\tdepends on BAR\n" is consumed by (1), and does not zconf_endhelp()
+	as the indentation level is the same as for "\tSome help text."
+
+Better boundary detection logic is needed here.
+
+Thanks,
+Bill

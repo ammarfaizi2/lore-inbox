@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbUGWGBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267189AbUGWGbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbUGWGBS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 02:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267558AbUGWGBS
+	id S267189AbUGWGbv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 02:31:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267164AbUGWGbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 02:01:18 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:40712 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262356AbUGWGBR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 02:01:17 -0400
-Subject: RE: Jffs2 file system
-From: David Woodhouse <dwmw2@infradead.org>
-To: Lei Yang <leiyang@nec-labs.com>
-Cc: Josh Boyer <jdub@us.ibm.com>,
-       "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>,
-       "Kernelnewbies (E-mail)" <kernelnewbies@nl.linux.org>
-In-Reply-To: <951A499AA688EF47A898B45F25BD8EE80126D4D4@mailer.nec-labs.com>
-References: <951A499AA688EF47A898B45F25BD8EE80126D4D4@mailer.nec-labs.com>
-Content-Type: text/plain
-Date: Fri, 23 Jul 2004 02:00:44 -0400
-Message-Id: <1090562444.6568.1.camel@localhost.localdomain>
+	Fri, 23 Jul 2004 02:31:51 -0400
+Received: from herkules.viasys.com ([194.100.28.129]:54216 "HELO
+	mail.viasys.com") by vger.kernel.org with SMTP id S267189AbUGWGbe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 02:31:34 -0400
+Date: Fri, 23 Jul 2004 09:31:31 +0300
+From: Ville Herva <vherva@viasys.com>
+To: Tim Wright <timw@splhi.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Paul Jackson <pj@sgi.com>, akpm@osdl.org,
+       corbet@lwn.net, linux-kernel@vger.kernel.org
+Subject: Re: New dev model (was [PATCH] delete devfs)
+Message-ID: <20040723063131.GJ16073@viasys.com>
+Reply-To: vherva@viasys.com
+References: <40FEEEBC.7080104@quark.didntduck.org> <20040721231123.13423.qmail@lwn.net> <20040721235228.GZ14733@fs.tum.de> <20040722025539.5d35c4cb.akpm@osdl.org> <20040722193337.GE19329@fs.tum.de> <20040722152839.019a0ca0.pj@sgi.com> <20040722232540.GH19329@fs.tum.de> <1090549329.6113.21.camel@kryten.internal.splhi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.8 (1.5.8-3.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1090549329.6113.21.camel@kryten.internal.splhi.com>
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux herkules.viasys.com 2.4.25-rc2+mremap-unmap
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-21 at 17:15 -0400, Lei Yang wrote:
-> Thanks! I'll try that.
+On Thu, Jul 22, 2004 at 07:22:10PM -0700, you [Tim Wright] wrote:
+> > 
+> > How do such end users get security updates?
+> 
+> From the middleman. That's no different to users of any distros today.
+> The distros apply security fixes and make updated kernels available on a
+> regular basis.
 
-Please read http://www.infradead.org/~dwmw2/email.html first.
+One idea might be to fork off "stable" 2.6.x.y (2.6.15.1 for example)
+branches every now and them. Analogous to vendor kernels, but maintained by
+someone@kernel.org. Compared to the 2.6.x.0 in question, these would only
+get security fixes and important bug fixes. The maintainer would need to
+pick a suitable (stable) 2.6.x.0 as basis every once in an appropriate
+while.
 
-Your mail, to which I'm replying, violates the bit about top-posting,
-and the bit about having correct References: and/or In-Reply-To:
-headers.
+I don't know if that's feasible. Just an idea.
 
--- 
-dwmw2
+Anyway, as (one kind of) end user, I do welcome the new development model.
+I'll get the newest features in manageable manner, and if I don't fancy that
+I can resort to vendor (Fedora) kernels.
+
+
+-- v -- 
+
+v@iki.fi
 

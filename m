@@ -1,80 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270319AbRHHEx5>; Wed, 8 Aug 2001 00:53:57 -0400
+	id <S270321AbRHHFCH>; Wed, 8 Aug 2001 01:02:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270320AbRHHExr>; Wed, 8 Aug 2001 00:53:47 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:40464 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S270319AbRHHExe>; Wed, 8 Aug 2001 00:53:34 -0400
-Date: Wed, 8 Aug 2001 00:24:28 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [PATCH] total_free_shortage() using zone_free_shortage()
-In-Reply-To: <Pine.LNX.4.33.0108072053230.1355-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0108072342550.12561-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270320AbRHHFB5>; Wed, 8 Aug 2001 01:01:57 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:45073 "EHLO paip.net")
+	by vger.kernel.org with ESMTP id <S270321AbRHHFBn>;
+	Wed, 8 Aug 2001 01:01:43 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: summary Re: encrypted swap
+Date: 8 Aug 2001 04:58:42 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <9kqgu2$oi6$1@abraham.cs.berkeley.edu>
+In-Reply-To: <fa.g4fleqv.1mle133@ifi.uio.no> <Pine.GSO.4.31.0108071419300.2838-100000@cardinal0.Stanford.EDU> <9kq1v4$ku7$1@abraham.cs.berkeley.edu> <3B70B241.40908@kalifornia.com>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 997246722 25158 128.32.45.153 (8 Aug 2001 04:58:42 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 8 Aug 2001 04:58:42 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ben Ford  wrote:
+>David Wagner wrote:
+>>You missed some scenarios.  Suppose I run a server that uses crypto.
+>>If swap is unencrypted, all the session keys for the past year might
+>>be laying around on swap.  If swap is encrypted, only the session keys
+>>since the last boot are accessible, at most.  Therefore, using encrypted
+>>swap clearly reduces the impact of a compromise of your machine (whether
+>>through theft or through penetration).  This is a good property.
+>
+>Wiping swap on boot will achieve the same effect.
 
-
-On Tue, 7 Aug 2001, Linus Torvalds wrote:
-
-> 
-> On Mon, 6 Aug 2001, Marcelo Tosatti wrote:
-> >
-> > The following patch changes total_free_shortage() to use
-> > zone_free_shortage() to calculate the sum of perzone free shortages.
-> 
-> Marcelo, the patch looks ok per se, but I think the real _problem_ is that
-> you did the same mistake in do_page_launder() as you originally did in the
-> VM scanning.
-> 
-> The code should NOT use
-> 
-> 	if (zone && !zone_free_shortage(page->zone))
-> 		.. don't touch ..
-> 
-> because that is completely nonsensical anyway.
-> 
-> As with the VM scanning code, it should do
-> 
-> 	if (zone_free_plenty(page->zone))
-> 		.. don't touch ..
-> 
-> and you should make
-> 
-> 	zone_free_plenty(zone)
-> 	{
-> 		return zone->free_pages + zone->inactive_clean_pages > zone->max_free_pages;
-> 	}
-> 
-> and
-> 
-> 	zone_free_shortage(zone)
-> 	{
-> 		return zone->free_pages + zone->inactive_clean_pages < zone->low_free_pages;
-> 	}
-> 
-> Note the anti-hysteresis by using max_free_pages vs min_free_pages.
-> 
-> This will clean up the code (remove those silly "zone as a boolean"), and
-> I bet it will behave better too with less of a spike in behaviour around
-> "max_free_pages".
-
-I agree that not writing out pages for zones which are not under shortage
-does make sense in theory. If the solution for a constant free shortage is
-to clean dirty pages, we want to keep writing pages (to some extent) even
-if we have left the free shortage. It avoids spikes, as you mentioned.
-
-But there is a problem: In case we have a specific zone under critical
-shortage, we have to fix that shortage as fast as possible instead
-blocking on IO (IO for the page_launder case) for zones which are not
-under critical conditions.
-
-I'm thinking of a way to fix both (spikes on page writeout and zone
-critical shortages) problems, but IMO you're suggestion is going to
-hurt the latter.  
-
+No, it won't.  Or rather: Yes, it would, if you could erase data
+reliably, but it's not clear that you can.  Once again, please see
+Peter Gutmann's paper on the difficulty of erasing data reliably.

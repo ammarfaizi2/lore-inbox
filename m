@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263013AbTEBQuK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 12:50:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbTEBQuJ
+	id S263162AbTEBUo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 16:44:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263165AbTEBUo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 12:50:09 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:31403
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S263013AbTEBQuJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 12:50:09 -0400
-Message-ID: <3EB2A468.6050602@redhat.com>
-Date: Fri, 02 May 2003 10:01:28 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030501
-X-Accept-Language: en-us, en
+	Fri, 2 May 2003 16:44:59 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26638 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263163AbTEBUo6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 16:44:58 -0400
+Message-ID: <3EB2DB8C.70600@zytor.com>
+Date: Fri, 02 May 2003 13:56:44 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-To: Nat Ersoz <nat.ersoz@myrio.com>
+To: Andi Kleen <ak@suse.de>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: strsep() question/modification
-References: <1051890980.20514.32.camel@ersoz.et.myrio.com>
-In-Reply-To: <1051890980.20514.32.camel@ersoz.et.myrio.com>
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Subject: Re: [Announcement] "Exec Shield", new Linux security feature
+References: <Pine.LNX.4.44.0305021325130.6565-100000@devserv.devel.redhat.com.suse.lists.linux.kernel>	<200305021829.h42ITclA000178@81-2-122-30.bradfords.org.uk.suse.lists.linux.kernel>	<b8udjm$cgq$1@cesium.transmeta.com.suse.lists.linux.kernel> <p73n0i5138g.fsf@oldwotan.suse.de>
+In-Reply-To: <p73n0i5138g.fsf@oldwotan.suse.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Andi Kleen wrote:
+>>
+>>x86-64 definitely does, and it's the default on Linux/x86-64.
+> 
+> No we had to turn it off and now it's too late to turn it back on again.
+> There is also one bug left that prevents it.
+> 
 
-Nat Ersoz wrote:
+Why is that?  And, in particular, why is it "too late to turn it back
+on"?  It seems as long as it's clearly defined as the ABI that change
+can be made later, effectively as a bug fix.
 
-> strsep() looks a bit busted to to me.
+	-hpa
 
-It is not.  This is the expected behavior.
-
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+sqRo2ijCOnn/RHQRAsu8AJwNb8TS3uWcc7YZcEc61PNsMKjyFQCgr41w
-AROeQLbWcywNV78cgKJPOvw=
-=vk1s
------END PGP SIGNATURE-----
 

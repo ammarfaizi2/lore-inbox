@@ -1,97 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267696AbSLFUzo>; Fri, 6 Dec 2002 15:55:44 -0500
+	id <S267631AbSLFU5b>; Fri, 6 Dec 2002 15:57:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267702AbSLFUzo>; Fri, 6 Dec 2002 15:55:44 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:62476 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S267696AbSLFUzl>; Fri, 6 Dec 2002 15:55:41 -0500
-Subject: Re: [STATUS] fbdev api.
-From: Antonino Daplas <adaplas@pol.net>
-To: Tobias Rittweiler <inkognito.anonym@uni.de>
-Cc: James Simmons <jsimmons@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>
-In-Reply-To: <6723376646.20021206204207@uni.de>
-References: <6723376646.20021206204207@uni.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1039218931.989.24.camel@localhost.localdomain>
+	id <S267629AbSLFU5b>; Fri, 6 Dec 2002 15:57:31 -0500
+Received: from waste.org ([209.173.204.2]:51870 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S267632AbSLFU52>;
+	Fri, 6 Dec 2002 15:57:28 -0500
+Date: Fri, 6 Dec 2002 15:04:45 -0600
+From: Oliver Xymoron <oxymoron@waste.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: James.Bottomley@steeleye.com, adam@yggdrasil.com,
+       linux-kernel@vger.kernel.org, willy@debian.org
+Subject: Re: [RFC] generic device DMA implementation
+Message-ID: <20021206210445.GD5837@waste.org>
+References: <davem@redhat.com> <200212061840.gB6Ieo803212@localhost.localdomain> <20021206.104221.103230489.davem@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 07 Dec 2002 04:55:34 +0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021206.104221.103230489.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-12-07 at 00:42, Tobias Rittweiler wrote:
-> Hello James,
+On Fri, Dec 06, 2002 at 10:42:21AM -0800, David S. Miller wrote:
+>    From: James Bottomley <James.Bottomley@steeleye.com>
+>    Date: Fri, 06 Dec 2002 12:40:49 -0600
 > 
-> Monday, December 2, 2002, 10:07:33 PM, you wrote:
+>    Yes, we've discussed that too...but not come to a conclusion.  The problem is 
+>    really that if you call dma_alloc and pass in the DMA_CONFORMANCE_NON_CONSISTEN
+>    T flag, what you're saying is "This driver implements all the correct cache 
+>    flushes and can cope with inconsistent memory.  Please give me the type of 
+>    memory that's most efficient for the platform I'm running on.".  The driver 
+>    isn't asking give me a specific type of memory, it's telling the platform what 
+>    it's capabilities are.
+>    
+>    Any thoughts on naming would be most welcome.
 > 
-> JS> Hi!
+> How about just making a dma_alloc_$(NEWNAME)(), and consistent ports
+> can just alias that to dma_alloc_consistent()?
 > 
-> JS> I have a new patch avaiable. It is against 2.5.50. The patch is at
-> JS> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
-> 
-> Besides the hunks posted recently, I encountered three problems/bugs:
-> 
-> a) Although your patch fixes the FB oddness for me, it makes booting
->    without using framebuffer fail, IOW the kernel hangs:
-> 
->    Video mode to be used for restore is f00
->    BIOS-provided physical RAM map:
->     BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
-> 
-Do you have framebuffer console enabled but with no framebuffer device
-enabled at boot time?  This will always fail with James' current patch.
+> The only question is $(NEWNAME).  "inconsistent" might be ok, but it's
+> maybe too similar to "consistent" for my taste.
 
-The diff I submitted in one of my replies in this thread (fbcon.diff)
-might fix that (not sure).
+Can we do pci_alloc_consistent -> dma_alloc? Then regardless of what
+you name the other one, the consistent version will obviously be prefered.
 
-> b) After returning from blanking mode (via APM) to normal mode, no
->    character is drawn. Let's assume I'm using VIM when that happens:
->    After putting any character to return from blank mode, the screen stays
->    blanked apart from the cursor that _is_ shown. Now I'm able to move
->    the cursor, and when the cursor encounters a character, this char
->    is drawn (and keeps drawn). Though when I press Ctrl-L or when I go one line
->    above to the current top-line (i.e. by forcing a redrawn), the
->    whole screen is drawn properly.
-> 
-Can you try this?
-
-diff -Naur linux-2.5.50-js/drivers/video/console/fbcon.c linux/drivers/video/console/fbcon.c
---- linux-2.5.50-js/drivers/video/console/fbcon.c	2002-12-06 23:33:56.000000000 +0000
-+++ linux/drivers/video/console/fbcon.c	2002-12-06 23:33:18.000000000 +0000
-@@ -1986,6 +1986,8 @@
- 						 vc->vc_cols);
- 			vc->vc_video_erase_char = oldc;
- 		}
-+		else
-+			update_screen(vc->vc_num);
- 		return 0;
- 	} else {
- 		/* Tell console.c that it has to restore the screen itself */
-
-> c) instruction:          | produces:
->    ======================|==================
->    1. typing abc def     | $ abc def
->                          |          ^ (<- cursor)
->    2. going three chars  | $ abc def
->       ro the left        |       ^
->    3. pressing backspace | $ abcddef
->                          |      ^
->    4. pressing enter     | -bash: abcdef: command not found
->                          |
-
-I get this also. Seems to occur only with colored terms.  When I do 
-
-set TERM=vt100
-
-the problem disappears, so I thought this was an isolated case with my
-setup :-). Similar glitches happen also in emacs with syntax
-highlighting turned on.
-
-Tony
-
-
-
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

@@ -1,138 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268332AbTBNJhg>; Fri, 14 Feb 2003 04:37:36 -0500
+	id <S268360AbTBNJzV>; Fri, 14 Feb 2003 04:55:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268340AbTBNJ1y>; Fri, 14 Feb 2003 04:27:54 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:53843
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S268333AbTBNJ0E>; Fri, 14 Feb 2003 04:26:04 -0500
-Date: Fri, 14 Feb 2003 04:34:33 -0500 (EST)
-From: Zwane Mwaikambo <zwane@zwane.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, Matthew Wilcox <willy@debian.org>
-Subject: [PATCH][2.5][11/14] smp_call_function_on_cpu - PARISC
-Message-ID: <Pine.LNX.4.50.0302140400540.3518-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268367AbTBNJzV>; Fri, 14 Feb 2003 04:55:21 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:26632 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S268360AbTBNJzT>;
+	Fri, 14 Feb 2003 04:55:19 -0500
+Date: Fri, 14 Feb 2003 11:03:16 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Accessing the same disk via multiple channels
+Message-ID: <20030214100316.GA3422@marowsky-bree.de>
+References: <20030213194917.GA8479@quadpro.stupendous.org> <E18jS75-0007na-00@calista.inka.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <E18jS75-0007na-00@calista.inka.de>
+User-Agent: Mutt/1.4i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- smp.c |   63 ++++++++++++++++++++++++++++++++++++++++++---------------------
- 1 files changed, 42 insertions(+), 21 deletions(-)
+On 2003-02-13T23:45:51,
+   Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net> said:
 
-Index: linux-2.5.60/arch/parisc/kernel/smp.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.60/arch/parisc/kernel/smp.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 smp.c
---- linux-2.5.60/arch/parisc/kernel/smp.c	10 Feb 2003 22:15:32 -0000	1.1.1.1
-+++ linux-2.5.60/arch/parisc/kernel/smp.c	14 Feb 2003 06:21:59 -0000
-@@ -304,31 +304,40 @@
- void 
- smp_send_reschedule(int cpu) { send_IPI_single(cpu, IPI_RESCHEDULE); }
- 
--
--/**
-- * Run a function on all other CPUs.
-- *  <func>	The function to run. This must be fast and non-blocking.
-- *  <info>	An arbitrary pointer to pass to the function.
-- *  <retry>	If true, keep retrying until ready.
-- *  <wait>	If true, wait until function has completed on other CPUs.
-- *  [RETURNS]   0 on success, else a negative status code.
-+/*
-+ * smp_call_function_on_cpu - Runs func on all processors in the mask
-+ *
-+ * @func: The function to run. This must be fast and non-blocking.
-+ * @info: An arbitrary pointer to pass to the function.
-+ * @wait: If true, wait (atomically) until function has completed on other CPUs.
-+ * @mask: The bitmask of CPUs to call the function
-+ * 
-+ * Returns 0 on success, else a negative status code. Does not return until
-+ * remote CPUs are nearly ready to execute func or have executed it.
-  *
-- * Does not return until remote CPUs are nearly ready to execute <func>
-- * or have executed.
-  */
- 
- int
--smp_call_function (void (*func) (void *info), void *info, int retry, int wait)
-+smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
-+			  unsigned long mask)
- {
- 	struct smp_call_struct data;
- 	long timeout;
- 	static spinlock_t lock = SPIN_LOCK_UNLOCKED;
-+	int num_cpus, cpu, i, ret;
- 	
-+	cpu = get_cpu();
-+	mask &= ~(1UL << cpu);
-+	num_cpus = hweight64(mask);
-+	if (num_cpus == 0) {
-+		ret = -EINVAL;
-+		goto out;
-+	}
- 	data.func = func;
- 	data.info = info;
- 	data.wait = wait;
--	atomic_set(&data.unstarted_count, smp_num_cpus - 1);
--	atomic_set(&data.unfinished_count, smp_num_cpus - 1);
-+	atomic_set(&data.unstarted_count, num_cpus);
-+	atomic_set(&data.unfinished_count, num_cpus);
- 
- 	if (retry) {
- 		spin_lock (&lock);
-@@ -339,15 +348,19 @@
- 		spin_lock (&lock);
- 		if (smp_call_function_data) {
- 			spin_unlock (&lock);
--			return -EBUSY;
-+			ret = -EBUSY;
-+			goto out;
- 		}
- 	}
- 
- 	smp_call_function_data = &data;
- 	spin_unlock (&lock);
- 	
--	/*  Send a message to all other CPUs and wait for them to respond  */
--	send_IPI_allbutself(IPI_CALL_FUNC);
-+	/*  Send a message to the target CPUs and wait */
-+	for (i = 0; i < NR_CPUS; i++) {
-+		if (cpu_online(i) && (mask & (1UL << i)))
-+			send_IPI_single(i, IPI_CALL_FUNC);
-+	}
- 
- 	/*  Wait for response  */
- 	timeout = jiffies + HZ;
-@@ -361,17 +374,25 @@
- 	smp_call_function_data = NULL;
- 	if (atomic_read (&data.unstarted_count) > 0) {
- 		printk(KERN_CRIT "SMP CALL FUNCTION TIMED OUT! (cpu=%d)\n",
--		      smp_processor_id());
--		return -ETIMEDOUT;
-+		      cpu);
-+		ret = -ETIMEDOUT;
-+		goto out;
- 	}
- 
- 	while (wait && atomic_read (&data.unfinished_count) > 0)
- 			barrier ();
--
--	return 0;
-+	ret = 0;
-+out:
-+	put_cpu_no_resched();
-+	return ret;
- }
- 
--
-+int
-+smp_call_function (void (*func) (void *info), void *info, int nonatomic, int wait,
-+			  unsigned long mask)
-+{
-+	return smp_call_function_on_cpu(func, info, wait, cpu_online_map);
-+}
- 
- /*
-  *	Setup routine for controlling SMP activation
+> You can use the multipath option to md which can do that.
+> 
+> Basically there are two options, a failover and a load balancing option. The
+> problem with failover is, to detect the actual failure reliable, toe problem
+> with load balancing is, that not all san configurations allow this.
+> 
+> http://www-124.ibm.com/storageio/multipath/md-multipath/index.php
+> 
+> this is at least in 2.4.20-xfs
+
+That one? Ouch, it is a bit dated according to the webpage ;-) I don't recall
+that it was discussed on LKML, either.
+
+SuSE (Jens Axboe and myself) have also done work on the md multipathing,
+supporting failover and load balancing and in general giving the code a rinse;
+as well as extensions to mdadm to make them work.
+
+The patches currently live at http://lars.marowsky-bree.de/dl/md-mp/
+
+(And are included in SuSE's kernel release, of course ;-)
+
+Currently, for 2.5 / 2.6, I think I really like the SCSI midlayer stuff. In
+the past, I didn't, because it constrains everything to SCSI. But then,
+everything so far _has_ been SCSI, except for weird arch stuff like s390(x)
+DASDs ;-)
+
+Doing it in the SCSI layer has the advantage of not being constrained to block
+devices, but also working with tapes. Oh well, we'll see ;-)
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+Principal Squirrel 
+SuSE Labs - Research & Development, SuSE Linux AG
+  
+"If anything can go wrong, it will." "Chance favors the prepared (mind)."
+  -- Capt. Edward A. Murphy            -- Louis Pasteur

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131452AbRAFMhy>; Sat, 6 Jan 2001 07:37:54 -0500
+	id <S131090AbRAFNFa>; Sat, 6 Jan 2001 08:05:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130983AbRAFMhf>; Sat, 6 Jan 2001 07:37:35 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:64005 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131452AbRAFMhZ>;
-	Sat, 6 Jan 2001 07:37:25 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: f5ibh <f5ibh@db0bm.ampr.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: msg : cannot create ksymoops/nnnnn.ksyms 
-In-Reply-To: Your message of "Sat, 06 Jan 2001 12:43:24 BST."
-             <200101061143.MAA01733@db0bm.ampr.org> 
+	id <S130983AbRAFNFV>; Sat, 6 Jan 2001 08:05:21 -0500
+Received: from p3EE3CAC4.dip.t-dialin.net ([62.227.202.196]:17156 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S131627AbRAFNFR>; Sat, 6 Jan 2001 08:05:17 -0500
+Date: Sat, 6 Jan 2001 12:42:04 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Kernel devel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
+Message-ID: <20010106124204.E1334@emma1.emma.line.org>
+Mail-Followup-To: Kernel devel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10101041205020.2092-100000@master.linux-ide.org> <Pine.LNX.4.21.0101042231120.4090-100000@server.serve.me.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 06 Jan 2001 23:37:18 +1100
-Message-ID: <25047.978784638@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0101042231120.4090-100000@server.serve.me.nl>; from maillist@chello.nl on Thu, Jan 04, 2001 at 22:32:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Jan 2001 12:43:24 +0100, 
-f5ibh <f5ibh@db0bm.ampr.org> wrote:
->NET4: Unix domain sockets 1.0 for Linux NET4.0.
->insmod: /lib/modules/2.2.19pre6/misc/unix.o: cannot create /var/log/ksymoops/20010106112242.ksyms Read-only file system
+On Thu, 04 Jan 2001, Igmar Palsenberg wrote:
 
-man insmod, look for /var/log/ksymoops.  If you define this directory
-then it is expected to be writable when modules are loaded.  Logging
-module data for ksymoops is a user selectable option, you have to
-decide to use it, and you have done so.
+> Sven, how did you kill the clipping ??
+> Or in generic, how do I kill the clipping ?
 
->insmod:/lib/modules/2.4.0/kernel/net/unix/unix.o : insmod net-pf-1 failed.
+Go set the jumpers right. (anyhow, IBM drives are delivered unclipped,
+not sure why Maxtors seem to be)
 
-"alias net-pf-1 unix" is a built in alias.  Looks like you did not
-compile for Unix sockets and something in the kernel wants Unix
-sockets.  If you really do not want Unix sockets, "alias net-pf-1 off".
-
+-- 
+Matthias Andree
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

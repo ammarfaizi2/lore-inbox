@@ -1,43 +1,45 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <155235-219>; Sat, 12 Dec 1998 20:37:25 -0500
-Received: from draal.physics.wisc.edu ([128.104.223.134]:1968 "EHLO draal.physics.wisc.edu" ident: "mcelrath") by vger.rutgers.edu with ESMTP id <160255-219>; Sat, 12 Dec 1998 18:21:57 -0500
-Date: Sat, 12 Dec 1998 17:44:18 -0600 (EST)
-From: Bob McElrath <mcelrath@draal.physics.wisc.edu>
-To: Linux kernel mailing list <linux-kernel@vger.rutgers.edu>
-Subject: Re: Internationalizing Linux
-In-Reply-To: <Pine.LNX.4.02.9812110924020.8473-100000@zaphod.anachem.ruhr-uni-bochum.de>
-Message-ID: <Pine.LNX.4.04.9812121724570.3075-100000@draal.physics.wisc.edu>
+Received: by vger.rutgers.edu id <153881-219>; Sun, 13 Dec 1998 00:07:36 -0500
+Received: from mailhost.dircon.co.uk ([194.112.32.65]:1416 "EHLO mailhost.dircon.co.uk" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154957-219>; Sat, 12 Dec 1998 20:47:49 -0500
+Date: Sun, 13 Dec 1998 02:10:19 +0000 (GMT)
+From: Chris Butterworth <cdb@europa.dircon.co.uk>
+Reply-To: cdb@io.com
+To: Shane Wegner <shane@cm.nu>
+cc: linux-kernel@vger.rutgers.edu
+Subject: Re: problems with swapfiles under 2.0.x
+In-Reply-To: <Pine.LNX.4.05.9812111539370.27816-100000@continuum.cm.nu>
+Message-ID: <Pine.LNX.3.93.981213020451.430A-100000@sunrise.europa.dircon.co.uk>
+Reciept-Requested-To: cdb@io.com
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+On Fri, 11 Dec 1998, Shane Wegner wrote:
 
-Everyone on this list keeps talking about hash tables, message codes, and
-the like.  I don't know if any of you have seen IBM's methodology (used, for
-instance, in OS/2) of having message numbers that then must be looked up.
-Frankly, it's a massive pain in the ass.  If the message table is missing or
-corrupt, there's NO WAY to figure out what error code #6523 means.  And as
-someone mentioned, it's useful to check boot messages when no filesystem is
-available.
+> Hello all,
+> 
+> I am running into a problem with swap files under Linux 2.0.36.  If I run
+> mkswap swapfile  and swapon swapfile it works fine.  However, if swapfile
+> is on an nfs mounted directory, the swapon(2) call fails with "Invalid
+> argument."  It is necessary for me to use a swap file on a remote system
+> over the network.  Why isn't this possible over an nfs mount?  It should
+> just see it as a regular file and accept it.  Any ideas of how I could get
+> around this one?
 
-Whatever you do, keep english messages in the kernel.  Perhaps place a
-(secondary) error code that can be decoded if necessary (and if the
-resources are available).  It's better to have an english error message that
-you may have difficulty translating than an error code.  An error code would
-require another working computer, web browser, etc,etc...to decipher.  Much
-more difficult.  If you had these resources you could use
-babelfish.altavista.com to translate the english text anyway!
 
-I don't know if you guys have seen this (appeared on /. in November), but
-there's a project to create a "Universal Network Language" that may help
-greatly in this arena:
-	http://www.news.com/News/Item/Textonly/0,25,29199,00.html
+  Swapping via NFS is not supported... for some notes about this, and 
+  pointers to patches see 
 
-I wish I had further references on it...it looks very interesting...
+  http://www-math.math.rwth-aachen.de/~LBFM/claus/nfs-swap/nfs-swap.html
 
--- Bob
 
-Bob McElrath (mcelrath@draal.physics.wisc.edu) Univ. of Wisconsin at Madison
+
+
+-- 
+Old .sig lost in a filesystem 'accident'. 
+
+Write 100 lines:
+ Back up all filesystems before hacking the kernel.
 
 
 -

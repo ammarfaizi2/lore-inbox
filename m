@@ -1,64 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267687AbTACWJs>; Fri, 3 Jan 2003 17:09:48 -0500
+	id <S267692AbTACWQY>; Fri, 3 Jan 2003 17:16:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267690AbTACWJs>; Fri, 3 Jan 2003 17:09:48 -0500
-Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:64492 "EHLO
-	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S267687AbTACWJr>; Fri, 3 Jan 2003 17:09:47 -0500
-Date: Fri, 3 Jan 2003 20:17:52 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Richard Stallman <rms@gnu.org>
-cc: lm@bitmover.com, "" <mark@mark.mielke.cc>, "" <billh@gnuppy.monkey.org>,
-       "" <paul@clubi.ie>, "" <Hell.Surfers@cwctv.net>,
-       "" <linux-kernel@vger.kernel.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <E18UYT2-0004xV-00@fencepost.gnu.org>
-Message-ID: <Pine.LNX.4.50L.0301032014120.2429-100000@imladris.surriel.com>
-References: <20030102013736.GA2708@gnuppy.monkey.org>
- <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org>
- <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc>
- <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com>
- <E18UYT2-0004xV-00@fencepost.gnu.org>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S267694AbTACWQY>; Fri, 3 Jan 2003 17:16:24 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:50400 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S267692AbTACWQW>;
+	Fri, 3 Jan 2003 17:16:22 -0500
+Message-ID: <8A9A5F4E6576D511B98F00508B68C20A1508E435@orsmsx106.jf.intel.com>
+From: "Shureih, Tariq" <tariq.shureih@intel.com>
+To: "'Ranjeet Shetye'" <ranjeet.shetye@zultys.com>,
+       linux-kernel@vger.kernel.org
+Subject: RE: Nvidia and its choice to read the GPL "differently"
+Date: Fri, 3 Jan 2003 14:24:42 -0800 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Jan 2003, Richard Stallman wrote:
+The greatest enemy to knowledge is not ignorance; it's the illusion of
+knowledge.
 
-> The term "intellectual property" lumps together copyrights, patents,
-> trademarks and other more obscure areas of law, all of which are
-> totally different.  (See http://www.gnu.org/philosophy/words-to-avoid.html.)
-> Its main use is to obfuscate the difference between these areas and
-> discourage careful clear thinking.
+Shame on you!
 
-How about expanding the acronym IP to mean "intellectual patrimony" ?
+--
+Tariq Shureih
+Opinions are my own and don't represent my employer
 
-This reflects on both sides of the copyright deal and the patent
-system:
+-----Original Message-----
+From: Ranjeet Shetye [mailto:ranjeet.shetye@zultys.com] 
+Sent: Friday, January 03, 2003 2:10 PM
+To: linux-kernel@vger.kernel.org
+Subject: RE: Nvidia and its choice to read the GPL "differently"
 
-1) the work/invention was created by somebody, who should be
-   compensated as an encouragement to share the work/invention
-   with the rest of humankind
 
-2) ultimately the work/invention belongs to all of mankind and
-   not to the author/inventor ... after all, the work/invention
-   is based on thousands of years of cultural and technical
-   development, the vast majority of which is used without any
-   restrictions or royalties (eg. the wheel)
+Hi RMS,
 
-3) future generations should be able to use the new intellectual
-   patrimony without any restriction, just like we are able to
-   use old intellectual patrimony without any restrictions
+Saw you here and thought I'd remind you. I got under your skin quite a
+few years back cos I wrote this perl-based cscope which I released for
+free - with a modified BSD licence stating that no one in pakistan or no
+person of pakistani nationality could use it and that this licence could
+not be modified to allow pakis to use it. You might ask why I did that ?
+Well, I am an Indian and I thought I'd just needle some pakis cos they
+are such nincompoops. Anyways, 9/11 proved me right that pakis (+
+saudis) suck ass big time.
 
-kind regards,
+Getting back to open-licence software, if you hadn't been such a
+nitpicking ideologue, the free s/w world would have had a cscope at
+least 2 years earlier than it did. I gave you my version of a "free"
+licence, and you didn't like it one bit! That was the OTHER reason I did
+it. To prove a point to you, that EVEN in a Free software world, there
+might be some other price to be paid.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+A full-freedom software world might turn out to be a grey tasteless
+odourless flavourless communist world. Even free s/w needs competition
+to keep it on its toes, and money is the best damned motivation for
+normal people! While everyone, including me, appreciates what you've
+achieved in the past, your intransigence over your untenable extreme
+views on software freedom is the primary reason why you are losing
+ground everyday with your own supporters. Think about it.
+
+Ranjeet Shetye
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+> Christoph Hellwig
+> Sent: Friday, January 03, 2003 1:28 PM
+> To: Richard Stallman
+> Cc: efault@gmx.de; Hell.Surfers@cwctv.net; 
+> linux-kernel@vger.kernel.org
+> Subject: Re: Nvidia and its choice to read the GPL "differently"
+> 
+> 
+> On Fri, Jan 03, 2003 at 03:31:07PM -0500, Richard Stallman wrote:
+> > If you call the system "Linux", you are misinforming other people: 
+> > teaching them a false picture of the system's history.  
+> Some of them 
+> > may become so attached to the false picture that it distorts their 
+> > thinking.  If you call it "GNU/Linux", this won't happen.
+> 
+> The term Linux for the whole system might be inaccurate, but 
+> it's what is used and as long as the owner of the name Linux 
+> (Linus) doesn't complain that's fine.  Calling it GNU/Linux 
+> is 1984-style changing of history, though.
+> 
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

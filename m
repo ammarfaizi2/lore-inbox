@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270735AbTGNR73 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 13:59:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270736AbTGNR73
+	id S270659AbTGNSE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 14:04:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270680AbTGNSE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 13:59:29 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:2948 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S270735AbTGNR72 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 13:59:28 -0400
-Date: Mon, 14 Jul 2003 15:11:51 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: ajoshi@kernel.crashing.org
-Cc: lkml <linux-kernel@vger.kernel.org>, benh@kernel.crashing.org
-Subject: Re: radeonfb patch for 2.4.22...
-In-Reply-To: <Pine.LNX.4.10.10307141237001.27519-100000@gate.crashing.org>
-Message-ID: <Pine.LNX.4.55L.0307141506020.8994@freak.distro.conectiva>
-References: <Pine.LNX.4.10.10307141237001.27519-100000@gate.crashing.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 14 Jul 2003 14:04:28 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:56011 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S270659AbTGNSE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 14:04:26 -0400
+Date: Mon, 14 Jul 2003 20:19:05 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch balancing
+Message-ID: <20030714181904.GP12104@fs.tum.de>
+References: <D9B4591FDBACD411B01E00508BB33C1B01B1AEA8@mesadm.epl.prov-liege.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D9B4591FDBACD411B01E00508BB33C1B01B1AEA8@mesadm.epl.prov-liege.be>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 14, 2003 at 10:14:38AM +0200, Frederick, Fabian wrote:
 
+> Hi,
 
-On Mon, 14 Jul 2003 ajoshi@kernel.crashing.org wrote:
+Hi Fabian,
 
->
-> Hi Marcelo,
->
-> Is there any particular reason why you decided to merge Ben H.'s radeonfb
-> update instead of the one I sent you?
+> 	A simple question about patching : if I release a patch again vfs
+> for instance.Do I send it against 2.4 branch or 2.5 ?
+> Let's say it's get applied against 2.4 , when is it applied against 2.5 ?
 
-I've decided to CC lkml because I think there are other people interested
-in this discussion.
+You should send patches for both branches, if you don't send them at the 
+same time send the 2.6 patch first.
 
-I merged his version because he sent me your update (0.1.8) plus his code
-(which are useful fixes he has been working on).
+> PS: When we come to 2.6pre, does 2.4 branch continues or is it 2.5 sequel
+> only ?
 
-It seems things are broken now due to a missing header, but he also sent
-me that.
+The 2,4 branch will continue several years in bugfis-only mode similar 
+to the 2.2 branch that is still alive.
 
-Do you have any objections to his fixes ?
+> Regards,
+> Fabian
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

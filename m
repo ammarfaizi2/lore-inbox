@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318428AbSIFJaD>; Fri, 6 Sep 2002 05:30:03 -0400
+	id <S318290AbSIFJ0z>; Fri, 6 Sep 2002 05:26:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318432AbSIFJaD>; Fri, 6 Sep 2002 05:30:03 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:39441 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S318428AbSIFJaB>; Fri, 6 Sep 2002 05:30:01 -0400
-Message-ID: <3D7876DB.4C0BBF1@aitel.hist.no>
-Date: Fri, 06 Sep 2002 11:35:23 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.33 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: Chuck Lever <cel@citi.umich.edu>, trond.myklebust@fys.uio.no
-CC: linux-kernel@vger.kernel.org
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-References: <Pine.BSO.4.33.0209051439540.12826-100000@citi.umich.edu>
+	id <S318291AbSIFJ0z>; Fri, 6 Sep 2002 05:26:55 -0400
+Received: from sproxy.gmx.de ([213.165.64.20]:43298 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S318290AbSIFJ0y>;
+	Fri, 6 Sep 2002 05:26:54 -0400
+Date: Fri, 6 Sep 2002 12:28:29 +0300
+From: Dan Aloni <da-x@gmx.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: Re: [TRIVIAL PATCH] Remove list_t infection.
+Message-ID: <20020906092829.GA32379@callisto.yi.org>
+References: <20020902003318.7CB682C092@lists.samba.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020902003318.7CB682C092@lists.samba.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Lever wrote:
+On Mon, Sep 02, 2002 at 03:23:02PM +1000, Rusty Russell wrote:
+> This week, it spread to SCTP.
 > 
-> On Thu, 5 Sep 2002, Andrew Morton wrote:
+> "struct list_head" isn't a great name, but having two names for
+> everything is yet another bar to reading kernel source.
 > 
-> > That all assumes SMP/preempt.  If you're seeing these problems on
-> > uniproc/non-preempt then something fishy may be happening.
+[...]
 > 
-> sorry, forgot to mention:  the system is UP, non-preemptible, high mem.
+> D: This removes list_t, which is a gratuitous typedef for a "struct
+> D: list_head".  Unless there is good reason, the kernel doesn't usually
+> D: typedef, as typedefs cannot be predeclared unlike structs.
 > 
-> invalidate_inode_pages isn't freeing these pages because the page count is
-> two.  perhaps the page count semantics of one of the page cache helper
-> functions has changed slightly.  i'm still diagnosing.
-> 
-> fortunately the problem is deterministically reproducible.  basic test6,
-> the readdir test, of 2002 connectathon test suite, fails -- either a
-> duplicate file entry or a missing file entry appears after some standard
-> file creation and removal processing in that directory.  the incorrect
-> entries occur because the NFS client zaps the directory's page cache to
-> force the next reader to re-read the directory from the server.  but
-> invalidate_inode_pages decides to leave the pages in the cache, so the
-> next reader gets stale cached data instead.
 
-Perhaps this explains my nfs problem. (2.5.32/33 UP, preempt, no
-highmem)
-Soemtimes, when editing a file on nfs, the file disappears
-from the server.  The client believes it is there 
-until an umount+mount sequence.  It doesn't happen
-for all files, but it is 100% reproducible for those affected.
+Good, I see it was actually a *good* thing that I've done a 
+'s/struct list_head/list_t' in list.h, back when I was adding list_move_*(). 
 
-Editing changes the directory when the editor makes a backup
-copy, the old directory is kept around wrongly, and so the
-save into the existing file silently fails because
-wrong directory information from cache is used?
+Otherwise, we wouldn't have noticed much the appearance of list_t, and it 
+might have spread throughout the kernel by the time we reach 2.6.0.
 
-Helge Hafting
+task_t, anyone?
+
+-- 
+Dan Aloni
+da-x@gmx.net

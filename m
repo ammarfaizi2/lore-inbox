@@ -1,115 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132718AbRDUPt1>; Sat, 21 Apr 2001 11:49:27 -0400
+	id <S132710AbRDUPtr>; Sat, 21 Apr 2001 11:49:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132717AbRDUPtI>; Sat, 21 Apr 2001 11:49:08 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:55826 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S132710AbRDUPtC>;
-	Sat, 21 Apr 2001 11:49:02 -0400
-Date: Sat, 21 Apr 2001 11:49:42 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Request for comment -- a better attribution system
-Message-ID: <20010421114942.A26415@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S132717AbRDUPtb>; Sat, 21 Apr 2001 11:49:31 -0400
+Received: from www.wen-online.de ([212.223.88.39]:10502 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S132710AbRDUPtJ>;
+	Sat, 21 Apr 2001 11:49:09 -0400
+Date: Sat, 21 Apr 2001 17:48:52 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: try_to_swap_out() deactivating pages w. count > 2
+Message-ID: <Pine.LNX.4.33.0104211741020.346-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a proposal for an attribution metadata system in the Linux kernel 
-sources.  The goal of the system is to make it easy for people reading
-any given piece of code to identify the responsible maintainer.  The motivation
-for this proposal is that the present system, a single top-level MAINTAINERS
-file, doesn't seem to be scaling well.
+Hi,
 
-In this system, most files will contain a "map block".  A map block is a
-metadata section embedded in a comment near the beginning of the file.
-Here is an example map block for my kxref.py tool:
+A printk added to 2.4.4-pre5 try_to_swap_out()...
 
-# %Map
-# T: CONFIG_ namespace cross-reference generator/analyzer
-# P: Eric S. Raymond <esr@thyrsus.com>
-# M: esr@thyrsus.com
-# L: kbuild-devel@kbuild.sourceforge.net
-# W: http://www.tuxedo.org/~esr/cml2
-# D: Sat Apr 21 11:41:52 EDT 2001
-# S: Maintained
+drop_pte:
+		mm->rss--;
+{
+	int age = page->age;
+	int count = page_count(page);
+	int cache = PageSwapCache(page);
+	printk("[pid-%d] page:%p deact:%d cache:%d age:%d count:%d\n",
+			current->pid, page, !age, cache, age, count-1);
+}
 
-And here's what a map block should look like in general:
+make -j30 bzImage
 
-%Map:
-T: Description of this unit for map purposes
-P: Person
-M: Mail patches to
-L: Mailing list that is relevant to this area
-W: Web-page with status/info
-C: Controlling configuration symbol
-D: Date this meta-info was last updated
-S: Status, one of the following:
+29:17: klogd 1.3-3, log source = /proc/kmsg started.
+29:27: SysRq: Log level set to 0
+30:04: [pid-4] page:c10e225c deact:1 cache:0 age:0 count:2
+30:04: [pid-4] page:c10e33e0 deact:1 cache:0 age:0 count:2
+30:04: [pid-4] page:c10e3394 deact:1 cache:0 age:0 count:2
+30:04: [pid-4] page:c10e1cb8 deact:1 cache:0 age:0 count:2
+30:04: [pid-4] page:c10e1c20 deact:1 cache:0 age:0 count:2
+30:04: [pid-4] page:c10eb894 deact:1 cache:0 age:0 count:2
+30:04: [pid-4] page:c10eb7b0 deact:1 cache:0 age:0 count:2
+30:04: [pid-4] page:c10f0bb4 deact:0 cache:0 age:4 count:3
+30:04: [pid-4] page:c10f1320 deact:0 cache:1 age:2 count:1
+30:04: [pid-4] page:c10f136c deact:0 cache:1 age:2 count:1
+30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:29 count:164 [164? 1]
+30:04: [pid-4] page:c10599a8 deact:0 cache:0 age:26 count:164
+30:04: [pid-4] page:c105995c deact:0 cache:0 age:37 count:164
+30:04: [pid-4] page:c10598c4 deact:0 cache:0 age:34 count:164
+30:04: [pid-4] page:c1059878 deact:0 cache:0 age:34 count:164
+30:04: [pid-4] page:c105982c deact:0 cache:0 age:34 count:164
+30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:163
+30:04: [pid-4] page:c10599a8 deact:0 cache:0 age:26 count:163
+30:04: [pid-4] page:c10debbc deact:1 cache:0 age:0 count:2
+30:04: [pid-4] page:c10deb70 deact:1 cache:0 age:0 count:2
+30:04: [pid-4] page:c10deb24 deact:1 cache:0 age:0 count:2
+30:04: [pid-4] page:c10e1aa4 deact:1 cache:0 age:0 count:2
 
-	Supported:	Someone is actually paid to look after this.
-	Maintained:	Someone actually looks after it.
-	Odd Fixes:	It has a maintainer but they don't have time to do
-			much other than throw the odd patch in. See below..
-	Orphan:		No current maintainer [but maybe you could take the
-			role as you write your new code].
-	Obsolete:	Old code. Something tagged obsolete generally means
-			it has been replaced by a better system and you
-			should be using that.
+(snip 1000+ lines)
 
-There may be more than one P: field per map block.  There should be exactly one
-M: field.
+grep c10599f4 log
+30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:29 count:164
+30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:163
+30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:162
+30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:161
+30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:160
+30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:159
+30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:158
+30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:157
+30:05: [pid-4] page:c10599f4 deact:0 cache:0 age:16 count:155
+30:05: [pid-4] page:c10599f4 deact:0 cache:0 age:22 count:156
+30:05: [pid-4] page:c10599f4 deact:0 cache:0 age:22 count:155
+30:05: [pid-4] page:c10599f4 deact:0 cache:0 age:50 count:157
+30:05: [pid-4] page:c10599f4 deact:0 cache:0 age:16 count:157
+41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:59
+41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:58
+41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:57
+41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:56
+41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:55
+41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:54
+41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:53
+41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:52
+41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:51
+41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:50
+41:59: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:49
+41:59: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:48
+41:59: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:47
+41:59: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:46
+41:59: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:45
+41:59: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:44
 
-The D: field may have the special value `None' meaining that this map block
-was translated from old information which has not yet been confirmed with the
-responsible maintainer.
+(klogd only logged 1196 pages during the whole build)
 
-Note that this is the same set of conventions presently used in the
-MAINTAINERS file, with only the T:, D:, and C: fields being new.  The
-contents of the C: field, if present, should be the name of the
-CONFIG_ symbol that controls the inclusion of this unit in a kernel.
+grep deact:0 log|wc -l                 = 961
+grep count:[12] log|wc -l              = 875
 
-(Map blocks are terminated by a blank line.)
+grep deact:1 log|wc -l                 = 235
+grep deact:1 log|grep count:[12]|wc -l = 103
 
-Not every file need contain a map block.  To locate the responsible maintainer
-for a file, use the following algorithm:
+1.  what kind of page has 164 references?
+2.  why deactivate pages (lots) with count > 2?  PINGpong.
 
-1. Look for a map block in the file itself.
+	-Mike
 
-2. Look for a file named %Map in the enclosing directory.
-   Any map block in that file applies to the entire directory.
-
-3. Look for a map block in the enclosing directory's README.
-   Any map block in that file applies to the entire directory.
-
-4. If you are at the root of the source tree, give up.
-   Otherwise, move to the parent directory and goto step 2.
-
-If this proposal meets with approval, I am willing to do three things:
-
-1. Generate a patch to distribute the information presently in the
-   MAINTAINERS file into map blocks and %Map files.
-
-2. Write a tool for querying the map database.
-
-3. (Background task, with which I would expect help) Chase down more
-   map entries and verify information in old entries.
-
-Thanks to Andreas Dilger for suggesting the basic idea.
-
-Comments are solicited.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-The day will come when the mystical generation of Jesus by the Supreme
-Being as his father, in the womb of a virgin, will be classed with the
-fable of the generation of Minerva in the brain of Jupiter.
-	-- Thomas Jefferson, 1823

@@ -1,33 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267447AbUH1KRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUH1KVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267447AbUH1KRl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 06:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267464AbUH1KOV
+	id S264213AbUH1KVs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 06:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUH1KVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 06:14:21 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:55956 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267457AbUH1KOB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 06:14:01 -0400
-Message-ID: <41305AD1.30002@togami.com>
-Date: Sat, 28 Aug 2004 00:13:37 -1000
-From: Warren Togami <warren@togami.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
-CC: Christoph Hellwig <hch@infradead.org>, wtogami@redhat.com,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Merge I2O patches from -mm
-References: <4123E171.3070104@shadowconnect.com> <20040819002448.A3905@infradead.org> <4123E73F.7040409@shadowconnect.com> <20040819104829.A7705@infradead.org> <41247E0E.8030005@shadowconnect.com> <20040819110635.A7850@infradead.org> <4124950B.1090706@shadowconnect.com> <20040823185554.B19476@infradead.org> <412AF97A.6070700@shadowconnect.com> <20040824134519.A28587@infradead.org> <412B6628.1010506@shadowconnect.com>
-In-Reply-To: <412B6628.1010506@shadowconnect.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Aug 2004 06:21:47 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:23819 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266705AbUH1KVR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 06:21:17 -0400
+Date: Sat, 28 Aug 2004 11:21:13 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Takao Indoh <indou.takao@soft.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/4][diskdump] x86-64 support
+Message-ID: <20040828112113.A8000@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Takao Indoh <indou.takao@soft.fujitsu.com>,
+	linux-kernel@vger.kernel.org
+References: <89C48CE36A27FFindou.takao@soft.fujitsu.com> <8BC48CE3D11D2Bindou.takao@soft.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <8BC48CE3D11D2Bindou.takao@soft.fujitsu.com>; from indou.takao@soft.fujitsu.com on Sat, Aug 28, 2004 at 06:45:56PM +0900
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can the current I2O stuff finally be merged now?  There seems to be no 
-further objections for this round.
+On Sat, Aug 28, 2004 at 06:45:56PM +0900, Takao Indoh wrote:
+> This is a patch for scsi common layer.
 
-Warren Togami
-wtogami@redhat.com
+still broken.  files that are not part of scsi_mod _must_ not include
+scsi_priv.h.  You're still redefining SCSI_DATA_* instead of using the proper
+constants directly. scsi_dump_probe still makes too many assumptions, the
+selection must be entirely inside the scsi layer.
+

@@ -1,216 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261819AbUCBVKl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 16:10:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbUCBVKl
+	id S261187AbUCBVMv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 16:12:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbUCBVMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 16:10:41 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:37528 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261815AbUCBVIZ
+	Tue, 2 Mar 2004 16:12:40 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:45557 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261822AbUCBVKs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 16:08:25 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: linux-ide@vger.kernel.org
-Subject: [PATCH] IDE cleanups for 2.6.4-rc1 (3/3)
-Date: Tue, 2 Mar 2004 22:15:39 +0100
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
+	Tue, 2 Mar 2004 16:10:48 -0500
+Message-ID: <4044F84D.4030003@mvista.com>
+Date: Tue, 02 Mar 2004 13:10:37 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+CC: Andi Kleen <ak@suse.de>, akpm@osdl.org, pavel@ucw.cz,
+       linux-kernel@vger.kernel.org, piggy@timesys.com,
+       trini@kernel.crashing.org
+Subject: Re: kgdb support in vanilla 2.6.2
+References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel> <200402061914.38826.amitkale@emsyssoft.com> <403FDB37.2020704@mvista.com> <200403011508.23626.amitkale@emsyssoft.com>
+In-Reply-To: <200403011508.23626.amitkale@emsyssoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403022215.39560.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Amit S. Kale wrote:
+> On Saturday 28 Feb 2004 5:35 am, George Anzinger wrote:
+> 
+>>Amit S. Kale wrote:
+>>
+>>>On Friday 06 Feb 2004 6:54 pm, Andi Kleen wrote:
+>>>
+>>>>On Fri, 6 Feb 2004 18:35:16 +0530
+>>>>
+>>>>"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+>>>>
+>>>>>On Friday 06 Feb 2004 5:46 pm, Andi Kleen wrote:
+>>>>>
+>>>>>>On Fri, 6 Feb 2004 17:28:36 +0530
+>>>>>>
+>>>>>>"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+>>>>>>
+>>>>>>>On Friday 06 Feb 2004 7:50 am, Andi Kleen wrote:
+>>>>>>>
+>>>>>>>>On Thu, 5 Feb 2004 23:20:04 +0530
+>>>>>>>>
+>>>>>>>>"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+>>>>>>>>
+>>>>>>>>>On Thursday 05 Feb 2004 8:41 am, Andi Kleen wrote:
+>>>>>>>>>
+>>>>>>>>>>Andrew Morton <akpm@osdl.org> writes:
+>>>>>>>>>>
+>>>>>>>>>>>need to take a look at such things and really convice
+>>>>>>>>>>>ourselves that they're worthwhile.  Personally, I'd only be
+>>>>>>>>>>>interested in the basic stub.
+>>>>>>>>>>
+>>>>>>>>>>What I found always extremly ugly in the i386 stub was that it
+>>>>>>>>>>uses magic globals to talk to the page fault handler. For the
+>>>>>>>>>>x86-64 version I replaced that by just using __get/__put_user
+>>>>>>>>>>in the memory accesses, which is much cleaner. I would suggest
+>>>>>>>>>>doing that for i386 too.
+>>>>>>>>>
+>>>>>>>>>May be I am missing something obvious. When debugging a page
+>>>>>>>>>fault handler if kgdb accesses an swapped-out user page doesn't
+>>>>>>>>>it deadlock when trying to hold mm semaphore?
+>>>>>>>>
+>>>>>>>>Modern i386 kernels don't grab the mm semaphore when the access is
+>>>>>>>>
+>>>>>>>>
+>>>>>>>>>= TASK_SIZE and the access came from kernel space (actually I see
+>>>>>>>>
+>>>>>>>>x86-64 still does, but that's a bug, will fix). You could only see
+>>>>>>>>a deadlock when using user addresses and you already hold the mm
+>>>>>>>>semaphore for writing (normal read lock is ok). Just don't do that.
+>>>>>>>
+>>>>>>>OK. It don't deadlock when kgdb accesses kernel addresses.
+>>>>>>>
+>>>>>>>When a user space address is accessed through kgdb, won't the kernel
+>>>>>>>attempt to fault in the user page? We don't want that to happen
+>>>>>>>inside kgdb.
+>>>>>>
+>>>>>>Yes, it will. But I don't think it's a bad thing. If the users doesn't
+>>>>>>want that they should not follow user addresses. After all kgdb is for
+>>>>>>people who know what they are doing.
+>>>>>
+>>>>>Let kgdb refuse to access any addresses below TASK_SIZE. That's better
+>>>>>than accidentally typing something and getting lost.
+>>>>
+>>>>That's fine. But can you perhaps add a magic command that enables it
+>>>>again?
+>>>
+>>>Yes. This sounds good.
+>>
+>>This could be a flag in the kgdb_info structure.  See -mm kgdb.  Does not
+>>require any new commands as it is just a global the user can change.
+> 
+> 
+> Having all user modifiable variables in one place is definitely a good idea.  
+> Need to do this sometime.
 
-[IDE] remove IDE_*_OFFSET_HOB and IDE_*_REG_HOB defines
+I also put the discovered status of each cpu other than the current one here. 
+The structure is explained in the documentation part of the -mm patch.  Another 
+thing I put here and have found to be very useful is the address that the stub 
+was called from.  Often it is not clear just why we are in the stub, given that 
+we trap such things as kernel page faults, NMI watchdog, BUG macros and such.  I 
+have found, on occasion, that knowing this info has been key to understanding 
+what was wrong.
 
-They are identical to non _HOB versions (except IDE_CONTROL_OFFSET_HOB).
-
- linux-2.6.4-rc1-root/drivers/ide/ide-disk.c     |   34 ++++++++++++------------
- linux-2.6.4-rc1-root/drivers/ide/ide-io.c       |   14 ++++-----
- linux-2.6.4-rc1-root/drivers/ide/ide-taskfile.c |   16 +++++------
- linux-2.6.4-rc1-root/include/linux/ide.h        |   19 -------------
- 4 files changed, 32 insertions(+), 51 deletions(-)
-
-diff -puN drivers/ide/ide-disk.c~ide_HOB_cleanup drivers/ide/ide-disk.c
---- linux-2.6.4-rc1/drivers/ide/ide-disk.c~ide_HOB_cleanup	2004-03-02 22:11:08.500833952 +0100
-+++ linux-2.6.4-rc1-root/drivers/ide/ide-disk.c	2004-03-02 22:11:08.521830760 +0100
-@@ -706,11 +706,11 @@ static ide_startstop_t lba_48_rw_disk (i
- 	if (blk_rq_tagged(rq)) {
- 		args.tfRegister[IDE_FEATURE_OFFSET] = sectors;
- 		args.tfRegister[IDE_NSECTOR_OFFSET] = rq->tag << 3;
--		args.hobRegister[IDE_FEATURE_OFFSET_HOB] = sectors >> 8;
--		args.hobRegister[IDE_NSECTOR_OFFSET_HOB] = 0;
-+		args.hobRegister[IDE_FEATURE_OFFSET] = sectors >> 8;
-+		args.hobRegister[IDE_NSECTOR_OFFSET] = 0;
- 	} else {
- 		args.tfRegister[IDE_NSECTOR_OFFSET] = sectors;
--		args.hobRegister[IDE_NSECTOR_OFFSET_HOB] = sectors >> 8;
-+		args.hobRegister[IDE_NSECTOR_OFFSET] = sectors >> 8;
- 	}
- 
- 	args.tfRegister[IDE_SECTOR_OFFSET]	= block;	/* low lba */
-@@ -718,10 +718,10 @@ static ide_startstop_t lba_48_rw_disk (i
- 	args.tfRegister[IDE_HCYL_OFFSET]	= (block>>=8);	/* hi  lba */
- 	args.tfRegister[IDE_SELECT_OFFSET]	= drive->select.all;
- 	args.tfRegister[IDE_COMMAND_OFFSET]	= get_command(drive, rq_data_dir(rq), &args);
--	args.hobRegister[IDE_SECTOR_OFFSET_HOB]	= (block>>=8);	/* low lba */
--	args.hobRegister[IDE_LCYL_OFFSET_HOB]	= (block>>=8);	/* mid lba */
--	args.hobRegister[IDE_HCYL_OFFSET_HOB]	= (block>>=8);	/* hi  lba */
--	args.hobRegister[IDE_SELECT_OFFSET_HOB]	= drive->select.all;
-+	args.hobRegister[IDE_SECTOR_OFFSET]	= (block>>=8);	/* low lba */
-+	args.hobRegister[IDE_LCYL_OFFSET]	= (block>>=8);	/* mid lba */
-+	args.hobRegister[IDE_HCYL_OFFSET]	= (block>>=8);	/* hi  lba */
-+	args.hobRegister[IDE_SELECT_OFFSET]	= drive->select.all;
- 	args.hobRegister[IDE_CONTROL_OFFSET_HOB]= (drive->ctl|0x80);
- 	args.rq					= (struct request *) rq;
- 	rq->special				= (ide_task_t *)&args;
-@@ -963,9 +963,9 @@ static unsigned long long idedisk_read_n
- 
- 	/* if OK, compute maximum address value */
- 	if ((args.tfRegister[IDE_STATUS_OFFSET] & 0x01) == 0) {
--		u32 high = ((args.hobRegister[IDE_HCYL_OFFSET_HOB])<<16) |
--			   ((args.hobRegister[IDE_LCYL_OFFSET_HOB])<<8) |
--  			    (args.hobRegister[IDE_SECTOR_OFFSET_HOB]); 
-+		u32 high = (args.hobRegister[IDE_HCYL_OFFSET] << 16) |
-+			   (args.hobRegister[IDE_LCYL_OFFSET] <<  8) |
-+			    args.hobRegister[IDE_SECTOR_OFFSET];
- 		u32 low  = ((args.tfRegister[IDE_HCYL_OFFSET])<<16) |
- 			   ((args.tfRegister[IDE_LCYL_OFFSET])<<8) |
- 			    (args.tfRegister[IDE_SECTOR_OFFSET]);
-@@ -1021,10 +1021,10 @@ static unsigned long long idedisk_set_ma
- 	args.tfRegister[IDE_HCYL_OFFSET]	= ((addr_req >>= 8) & 0xff);
- 	args.tfRegister[IDE_SELECT_OFFSET]      = 0x40;
- 	args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_SET_MAX_EXT;
--	args.hobRegister[IDE_SECTOR_OFFSET_HOB]	= ((addr_req >>= 8) & 0xff);
--	args.hobRegister[IDE_LCYL_OFFSET_HOB]	= ((addr_req >>= 8) & 0xff);
--	args.hobRegister[IDE_HCYL_OFFSET_HOB]	= ((addr_req >>= 8) & 0xff);
--	args.hobRegister[IDE_SELECT_OFFSET_HOB]	= 0x40;
-+	args.hobRegister[IDE_SECTOR_OFFSET]	= (addr_req >>= 8) & 0xff;
-+	args.hobRegister[IDE_LCYL_OFFSET]	= (addr_req >>= 8) & 0xff;
-+	args.hobRegister[IDE_HCYL_OFFSET]	= (addr_req >>= 8) & 0xff;
-+	args.hobRegister[IDE_SELECT_OFFSET]	= 0x40;
- 	args.hobRegister[IDE_CONTROL_OFFSET_HOB]= (drive->ctl|0x80);
- 	args.command_type			= IDE_DRIVE_TASK_NO_DATA;
- 	args.handler				= &task_no_data_intr;
-@@ -1032,9 +1032,9 @@ static unsigned long long idedisk_set_ma
- 	ide_raw_taskfile(drive, &args, NULL);
- 	/* if OK, compute maximum address value */
- 	if ((args.tfRegister[IDE_STATUS_OFFSET] & 0x01) == 0) {
--		u32 high = ((args.hobRegister[IDE_HCYL_OFFSET_HOB])<<16) |
--			   ((args.hobRegister[IDE_LCYL_OFFSET_HOB])<<8) |
--			    (args.hobRegister[IDE_SECTOR_OFFSET_HOB]);
-+		u32 high = (args.hobRegister[IDE_HCYL_OFFSET] << 16) |
-+			   (args.hobRegister[IDE_LCYL_OFFSET] <<  8) |
-+			    args.hobRegister[IDE_SECTOR_OFFSET];
- 		u32 low  = ((args.tfRegister[IDE_HCYL_OFFSET])<<16) |
- 			   ((args.tfRegister[IDE_LCYL_OFFSET])<<8) |
- 			    (args.tfRegister[IDE_SECTOR_OFFSET]);
-diff -puN drivers/ide/ide-io.c~ide_HOB_cleanup drivers/ide/ide-io.c
---- linux-2.6.4-rc1/drivers/ide/ide-io.c~ide_HOB_cleanup	2004-03-02 22:11:08.503833496 +0100
-+++ linux-2.6.4-rc1-root/drivers/ide/ide-io.c	2004-03-02 22:11:08.522830608 +0100
-@@ -197,7 +197,7 @@ void ide_end_drive_cmd (ide_drive_t *dri
- 			if (args->tf_in_flags.b.data) {
- 				u16 data				= hwif->INW(IDE_DATA_REG);
- 				args->tfRegister[IDE_DATA_OFFSET]	= (data) & 0xFF;
--				args->hobRegister[IDE_DATA_OFFSET_HOB]	= (data >> 8) & 0xFF;
-+				args->hobRegister[IDE_DATA_OFFSET]	= (data >> 8) & 0xFF;
- 			}
- 			args->tfRegister[IDE_ERROR_OFFSET]   = err;
- 			args->tfRegister[IDE_NSECTOR_OFFSET] = hwif->INB(IDE_NSECTOR_REG);
-@@ -208,12 +208,12 @@ void ide_end_drive_cmd (ide_drive_t *dri
- 			args->tfRegister[IDE_STATUS_OFFSET]  = stat;
- 
- 			if (drive->addressing == 1) {
--				hwif->OUTB(drive->ctl|0x80, IDE_CONTROL_REG_HOB);
--				args->hobRegister[IDE_FEATURE_OFFSET_HOB] = hwif->INB(IDE_FEATURE_REG);
--				args->hobRegister[IDE_NSECTOR_OFFSET_HOB] = hwif->INB(IDE_NSECTOR_REG);
--				args->hobRegister[IDE_SECTOR_OFFSET_HOB]  = hwif->INB(IDE_SECTOR_REG);
--				args->hobRegister[IDE_LCYL_OFFSET_HOB]    = hwif->INB(IDE_LCYL_REG);
--				args->hobRegister[IDE_HCYL_OFFSET_HOB]    = hwif->INB(IDE_HCYL_REG);
-+				hwif->OUTB(drive->ctl|0x80, IDE_CONTROL_REG);
-+				args->hobRegister[IDE_FEATURE_OFFSET]	= hwif->INB(IDE_FEATURE_REG);
-+				args->hobRegister[IDE_NSECTOR_OFFSET]	= hwif->INB(IDE_NSECTOR_REG);
-+				args->hobRegister[IDE_SECTOR_OFFSET]	= hwif->INB(IDE_SECTOR_REG);
-+				args->hobRegister[IDE_LCYL_OFFSET]	= hwif->INB(IDE_LCYL_REG);
-+				args->hobRegister[IDE_HCYL_OFFSET]	= hwif->INB(IDE_HCYL_REG);
- 			}
- 		}
- 	} else if (blk_pm_request(rq)) {
-diff -puN drivers/ide/ide-taskfile.c~ide_HOB_cleanup drivers/ide/ide-taskfile.c
---- linux-2.6.4-rc1/drivers/ide/ide-taskfile.c~ide_HOB_cleanup	2004-03-02 22:11:08.513831976 +0100
-+++ linux-2.6.4-rc1-root/drivers/ide/ide-taskfile.c	2004-03-02 22:11:08.524830304 +0100
-@@ -121,13 +121,13 @@ void debug_taskfile (ide_drive_t *drive,
- 	printk("TF.6=x%02x ", args->tfRegister[IDE_SELECT_OFFSET]);
- 	printk("TF.7=x%02x\n", args->tfRegister[IDE_COMMAND_OFFSET]);
- 	printk(KERN_INFO "%s: ", drive->name);
--//	printk("HTF.0=x%02x ", args->hobRegister[IDE_DATA_OFFSET_HOB]);
--	printk("HTF.1=x%02x ", args->hobRegister[IDE_FEATURE_OFFSET_HOB]);
--	printk("HTF.2=x%02x ", args->hobRegister[IDE_NSECTOR_OFFSET_HOB]);
--	printk("HTF.3=x%02x ", args->hobRegister[IDE_SECTOR_OFFSET_HOB]);
--	printk("HTF.4=x%02x ", args->hobRegister[IDE_LCYL_OFFSET_HOB]);
--	printk("HTF.5=x%02x ", args->hobRegister[IDE_HCYL_OFFSET_HOB]);
--	printk("HTF.6=x%02x ", args->hobRegister[IDE_SELECT_OFFSET_HOB]);
-+//	printk("HTF.0=x%02x ", args->hobRegister[IDE_DATA_OFFSET]);
-+	printk("HTF.1=x%02x ", args->hobRegister[IDE_FEATURE_OFFSET]);
-+	printk("HTF.2=x%02x ", args->hobRegister[IDE_NSECTOR_OFFSET]);
-+	printk("HTF.3=x%02x ", args->hobRegister[IDE_SECTOR_OFFSET]);
-+	printk("HTF.4=x%02x ", args->hobRegister[IDE_LCYL_OFFSET]);
-+	printk("HTF.5=x%02x ", args->hobRegister[IDE_HCYL_OFFSET]);
-+	printk("HTF.6=x%02x ", args->hobRegister[IDE_SELECT_OFFSET]);
- 	printk("HTF.7=x%02x\n", args->hobRegister[IDE_CONTROL_OFFSET_HOB]);
- }
- #endif /* CONFIG_IDE_TASK_IOCTL_DEBUG */
-@@ -1018,7 +1018,7 @@ int ide_diag_taskfile (ide_drive_t *driv
- 	 */
- 	if (args->command_type != IDE_DRIVE_TASK_NO_DATA) {
- 		if (data_size == 0)
--			rq.nr_sectors = (args->hobRegister[IDE_NSECTOR_OFFSET_HOB] << 8) | args->tfRegister[IDE_NSECTOR_OFFSET];
-+			rq.nr_sectors = (args->hobRegister[IDE_NSECTOR_OFFSET] << 8) | args->tfRegister[IDE_NSECTOR_OFFSET];
- 		else
- 			rq.nr_sectors = data_size / SECTOR_SIZE;
- 
-diff -puN include/linux/ide.h~ide_HOB_cleanup include/linux/ide.h
---- linux-2.6.4-rc1/include/linux/ide.h~ide_HOB_cleanup	2004-03-02 22:11:08.517831368 +0100
-+++ linux-2.6.4-rc1-root/include/linux/ide.h	2004-03-02 22:11:08.526830000 +0100
-@@ -143,17 +143,8 @@ typedef unsigned char	byte;	/* used ever
- #define IDE_FEATURE_OFFSET	IDE_ERROR_OFFSET
- #define IDE_COMMAND_OFFSET	IDE_STATUS_OFFSET
- 
--#define IDE_DATA_OFFSET_HOB	(0)
--#define IDE_ERROR_OFFSET_HOB	(1)
--#define IDE_NSECTOR_OFFSET_HOB	(2)
--#define IDE_SECTOR_OFFSET_HOB	(3)
--#define IDE_LCYL_OFFSET_HOB	(4)
--#define IDE_HCYL_OFFSET_HOB	(5)
--#define IDE_SELECT_OFFSET_HOB	(6)
- #define IDE_CONTROL_OFFSET_HOB	(7)
- 
--#define IDE_FEATURE_OFFSET_HOB	IDE_ERROR_OFFSET_HOB
--
- #define IDE_DATA_REG		(HWIF(drive)->io_ports[IDE_DATA_OFFSET])
- #define IDE_ERROR_REG		(HWIF(drive)->io_ports[IDE_ERROR_OFFSET])
- #define IDE_NSECTOR_REG		(HWIF(drive)->io_ports[IDE_NSECTOR_OFFSET])
-@@ -165,16 +156,6 @@ typedef unsigned char	byte;	/* used ever
- #define IDE_CONTROL_REG		(HWIF(drive)->io_ports[IDE_CONTROL_OFFSET])
- #define IDE_IRQ_REG		(HWIF(drive)->io_ports[IDE_IRQ_OFFSET])
- 
--#define IDE_DATA_REG_HOB	(HWIF(drive)->io_ports[IDE_DATA_OFFSET])
--#define IDE_ERROR_REG_HOB	(HWIF(drive)->io_ports[IDE_ERROR_OFFSET])
--#define IDE_NSECTOR_REG_HOB	(HWIF(drive)->io_ports[IDE_NSECTOR_OFFSET])
--#define IDE_SECTOR_REG_HOB	(HWIF(drive)->io_ports[IDE_SECTOR_OFFSET])
--#define IDE_LCYL_REG_HOB	(HWIF(drive)->io_ports[IDE_LCYL_OFFSET])
--#define IDE_HCYL_REG_HOB	(HWIF(drive)->io_ports[IDE_HCYL_OFFSET])
--#define IDE_SELECT_REG_HOB	(HWIF(drive)->io_ports[IDE_SELECT_OFFSET])
--#define IDE_STATUS_REG_HOB	(HWIF(drive)->io_ports[IDE_STATUS_OFFSET])
--#define IDE_CONTROL_REG_HOB	(HWIF(drive)->io_ports[IDE_CONTROL_OFFSET])
--
- #define IDE_FEATURE_REG		IDE_ERROR_REG
- #define IDE_COMMAND_REG		IDE_STATUS_REG
- #define IDE_ALTSTATUS_REG	IDE_CONTROL_REG
-
-_
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbTENNGx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 09:06:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbTENNGw
+	id S262226AbTENNE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 09:04:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbTENNE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 09:06:52 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:61361 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S262090AbTENNGv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 09:06:51 -0400
-Message-ID: <3EC2426D.9060606@myrealbox.com>
-Date: Wed, 14 May 2003 06:19:41 -0700
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.4a) Gecko/20030415
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pau Aliagas <linuxnow@newtral.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: cannot boot 2.5.69
-References: <fa.jcpkvvc.1h32u9k@ifi.uio.no>
-In-Reply-To: <fa.jcpkvvc.1h32u9k@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 May 2003 09:04:58 -0400
+Received: from angband.namesys.com ([212.16.7.85]:46466 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S262226AbTENNE4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 09:04:56 -0400
+Date: Wed, 14 May 2003 17:17:43 +0400
+From: Oleg Drokin <green@namesys.com>
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: [PATCH] [2.4] export balance_dirty
+Message-ID: <20030514131743.GB1875@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pau Aliagas wrote:
-> I still find no way to boot a 2.5.69 kernel.
-> It reports: "no console found, specify init= option"
-> But the console is specified and the messages appear till this point:
-> 
-> This is the relevant part of my config:
+Hello!
 
+    We seem to need balance_dirty to be exported now with latest
+    reiserfs patches (so that reiserfs can be built as module).
+    Please apply (against latest 2.4 bk tree).
 
-I have CONFIG_VT=y at this spot in 'character devices'.
+    Thank you.
 
-> CONFIG_VT_CONSOLE=y
-> CONFIG_HW_CONSOLE=y
-> # CONFIG_LP_CONSOLE is not set
-> CONFIG_VGA_CONSOLE=y
-> # CONFIG_MDA_CONSOLE is not set
-> CONFIG_DUMMY_CONSOLE=y
+Bye,
+    Oleg
 
+===== fs/buffer.c 1.82 vs edited =====
+--- 1.82/fs/buffer.c	Mon Dec 16 09:22:07 2002
++++ edited/fs/buffer.c	Wed May 14 16:51:00 2003
+@@ -1026,6 +1026,7 @@
+ 		write_some_buffers(NODEV);
+ 	}
+ }
++EXPORT_SYMBOL(balance_dirty);
+ 
+ inline void __mark_dirty(struct buffer_head *bh)
+ {

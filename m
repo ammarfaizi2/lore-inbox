@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290739AbSBLCsi>; Mon, 11 Feb 2002 21:48:38 -0500
+	id <S290740AbSBLCxS>; Mon, 11 Feb 2002 21:53:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290741AbSBLCsY>; Mon, 11 Feb 2002 21:48:24 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:1796 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S290740AbSBLCsM>; Mon, 11 Feb 2002 21:48:12 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 11 Feb 2002 18:49:26 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: David Mosberger <davidm@hpl.hp.com>
-cc: "David S. Miller" <davem@redhat.com>, <anton@samba.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <zippel@linux-m68k.org>
+	id <S290743AbSBLCxI>; Mon, 11 Feb 2002 21:53:08 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:31367 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S290740AbSBLCwt>;
+	Mon, 11 Feb 2002 21:52:49 -0500
+Date: Mon, 11 Feb 2002 18:51:00 -0800 (PST)
+Message-Id: <20020211.185100.68039940.davem@redhat.com>
+To: davidm@hpl.hp.com
+Cc: anton@samba.org, linux-kernel@vger.kernel.org, zippel@linux-m68k.org
 Subject: Re: thread_info implementation
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <15464.33256.837784.657759@napali.hpl.hp.com>
 In-Reply-To: <15464.32354.452126.182563@napali.hpl.hp.com>
-Message-ID: <Pine.LNX.4.40.0202111845460.1567-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	<20020211.183603.111204707.davem@redhat.com>
+	<15464.33256.837784.657759@napali.hpl.hp.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Feb 2002, David Mosberger wrote:
+   From: David Mosberger <davidm@hpl.hp.com>
+   Date: Mon, 11 Feb 2002 18:46:00 -0800
+   
+   OK, so back to square one: why am I supposed to do all this work for
+   something that will likely slow things slightly down and, at best,
+   doesn't hurt performance?  The old set up works great and as far as
+   I'm concerned, is not broken.
 
-> >>>>> On Mon, 11 Feb 2002 18:22:08 -0800 (PST), "David S. Miller" <davem@redhat.com> said:
->
->   DavidM> I implemented the thread_info stuff, and I checked out the
->   DavidM> performance, have you?
->
-> So why don't you share the results?  Perhaps then I can see the light,
-> too.  With the exception of task coloring, the thread_info is strictly
-> more work and it's possible to do task coloring without thread_info.
+It keeps your platform the same, and it does help other platforms.
+It is the nature of any abstraction change we make in the kernel
+that platforms have to deal with.
 
-This one does task colouring and stack pointer jittering for x86 :
+So at least we're to the point where you could be convinced that
+there are no down sides to the change?  Let's go over your list:
 
-http://www.xmailserver.org/linux-patches/misc.html#TskStackCol
+1) massive locore assembly changes
 
-Also i think Manfred Spraul has something that does task colouring. It has
-been tested by a guy in fujitsu ( Japan ) on 8 way machines by giving pretty
-good results. The stack jittering part seemed not to give too much
-improvements though ...
+   ummm no, just put current_thread_info into your thread register
 
+2) pointer dereference causes performance problems
 
+   ummm no, not really, go test it for yourself if you don't
+   believe me
 
-
-- Davide
-
-
+This only leaves "I don't want to do the conversion because it has
+no benefit to ia64."  Well, it doesn't hurt your platform either,
+so just cope :-)

@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262739AbVAFFop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262741AbVAFFqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262739AbVAFFop (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 00:44:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbVAFFop
+	id S262741AbVAFFqy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 00:46:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbVAFFqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 00:44:45 -0500
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:21429 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262739AbVAFFon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 00:44:43 -0500
-Message-ID: <41DCD047.9050707@yahoo.com.au>
-Date: Thu, 06 Jan 2005 16:44:39 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, riel@redhat.com,
+	Thu, 6 Jan 2005 00:46:54 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:57159
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262741AbVAFFqs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 00:46:48 -0500
+Date: Thu, 6 Jan 2005 06:46:59 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, riel@redhat.com,
        marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH][5/?] count writeback pages in nr_scanned
-References: <20050105173624.5c3189b9.akpm@osdl.org> <Pine.LNX.4.61.0501052240250.11550@chimarrao.boston.redhat.com> <41DCB577.9000205@yahoo.com.au> <20050105202611.65eb82cf.akpm@osdl.org> <41DCC014.80007@yahoo.com.au> <20050105204706.0781d672.akpm@osdl.org> <20050106045932.GN4597@dualathlon.random> <20050105210539.19807337.akpm@osdl.org> <20050106051707.GP4597@dualathlon.random> <41DCCA68.3020100@yahoo.com.au> <20050106052507.GR4597@dualathlon.random> <41DCCE53.4000906@yahoo.com.au>
-In-Reply-To: <41DCCE53.4000906@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20050106054659.GS4597@dualathlon.random>
+References: <Pine.LNX.4.61.0501052240250.11550@chimarrao.boston.redhat.com> <41DCB577.9000205@yahoo.com.au> <20050105202611.65eb82cf.akpm@osdl.org> <41DCC014.80007@yahoo.com.au> <20050105204706.0781d672.akpm@osdl.org> <20050106045932.GN4597@dualathlon.random> <20050105210539.19807337.akpm@osdl.org> <20050106051707.GP4597@dualathlon.random> <41DCCA68.3020100@yahoo.com.au> <20050105213207.721b1aae.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050105213207.721b1aae.akpm@osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Andrea Arcangeli wrote:
+On Wed, Jan 05, 2005 at 09:32:07PM -0800, Andrew Morton wrote:
+> > > The slight improvement you suggested of waiting on _any_ random
+> > > PG_writeback to go away (instead of one particular one as I did in 2.4)
 > 
->> On Thu, Jan 06, 2005 at 04:19:36PM +1100, Nick Piggin wrote:
->>
->>> This is practically what blk_congestion_wait does when the queue
->>> isn't congested though, isn't it?
->>
->>
->>
->> The fundamental difference that makes it reliable is that:
->>
->> 1) only the I/O we're throttling against will be considered for the
->>    wakeup event, which means only clearing PG_writeback will be
->>    considered eligible for wakeup
->>    Currently _all_ unrelated write I/O was considered eligible
->>    for wakeup events and that could cause spurious oom kills.
-> 
-> 
-> I'm not entirely convinced. In Rik's case it didn't matter, because
-> all his writeout was in the same zone that reclaim was happening
-> against (ZONE_NORMAL), so in that case, PG_writeback throttling
-> will do exactly the same thing as blk_congestion_wait.
-> 
-> I do like your PG_writeback throttling idea for the other reason
-> that it should behave better on NUMA systems with lots of zones
-> and lots of disks.
-> 
+> It's a HUGE improvement.
 
-... or Andrew's described fix. I think both would result in pretty
-similar behaviour, but Andrew's is probably a bit nicer because it
-doesn't require the scanner to have initiated the write.
+I didn't want to question the improvement in wall clock time terms.
+
+> For the third time: "fixing" this involves delivering a wakeup to all zones
+> in the page's classzone in end_page_writeback(), and passing the zone* into
+> blk_congestion_wait().  Only deliver the wakeup on every Nth page to get a
+> bit of batching and to reduce CPU consumption.  Then demonstrating that the
+> change actually improves something.
+
+Since I cannot reproduce oom kills with writeback, I sure can't
+demonstrate it on bare hardware with unmodified kernel.
+
+But I dislike code that works by luck, and sure I could demonstrate it
+if I bothered to write an artificial testcase on simulated hardware.
+This is the only reason I mentioned this bug in the first place, not
+because I'm reproducing it.

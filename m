@@ -1,66 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274801AbRIUTs7>; Fri, 21 Sep 2001 15:48:59 -0400
+	id <S274804AbRIUT6M>; Fri, 21 Sep 2001 15:58:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274800AbRIUTst>; Fri, 21 Sep 2001 15:48:49 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:28670 "EHLO
-	VL-MS-MR001.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id <S274799AbRIUTsj>; Fri, 21 Sep 2001 15:48:39 -0400
-Date: Fri, 21 Sep 2001 15:49:03 -0400
-From: Greg Ward <gward@python.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: bugs@linux-ide.org, linux-kernel@vger.kernel.org
-Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
-Message-ID: <20010921154903.A621@gerg.ca>
-In-Reply-To: <20010921134402.A975@gerg.ca> <20010921205356.A1104@suse.cz> <20010921150806.A2453@gerg.ca>
+	id <S274805AbRIUT6B>; Fri, 21 Sep 2001 15:58:01 -0400
+Received: from mueller.uncooperative.org ([216.254.102.19]:55821 "EHLO
+	mueller.datastacks.com") by vger.kernel.org with ESMTP
+	id <S274804AbRIUT5q>; Fri, 21 Sep 2001 15:57:46 -0400
+Date: Fri, 21 Sep 2001 15:58:06 -0400
+From: Crutcher Dunnavant <crutcher@datastacks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Whats in the wings for 2.5 (when it opens)
+Message-ID: <20010921155806.B8188@mueller.datastacks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010918001826.7D118A0E5@oscar.casa.dyndns.org> <20010918214904.B29648@vdpas.hobby.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010921150806.A2453@gerg.ca>; from gward@python.net on Fri, Sep 21, 2001 at 03:08:06PM -0400
+In-Reply-To: <20010918214904.B29648@vdpas.hobby.nl>; from toon@vdpas.hobby.nl on Tue, Sep 18, 2001 at 09:49:04PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Vojtech Pavlik]
-> Do you have the VIA IDE support enabled?
-
-[my response]
-> I have tried it both ways, but I think only with 2.4.2.  I've only tried
-> one 2.4.9 build, and that was with CONFIG_BLK_DEV_VIA82CXXX=y.  I've
-> just done another build with slightly different config settings
-> (suggestion from Mark Hahn), but haven't tried it yet.  It still has
-> both the VIA and Promise (CONFIG_BLK_DEV_PDC202XX=y) support enabled.
+++ 18/09/01 21:49 +0200 - toon@vdpas.hobby.nl:
+> On Mon, Sep 17, 2001 at 08:18:25PM -0400, Ed Tomlinson wrote:
+> > Hi,
+> > 
+> > Seems like there is a lot of code "ready" for consideration in a 2.5 kernel.
+> > I can think of:
+> > 
+> > premptable kernel option
+> > user mode kernel 
+> > jfs
+> > xfs (maybe)
 > 
-> I'll report back when I've tried this kernel build.
+> ext3
+> 
+> > rc2
+> > reverse maping vm
+> > ide driver rewrite
+> > 32bit dma
+> > LTT (maybe)
+> > LVM update to 1.01
+> 
+> My opinion is that the LVM update to 1.01 should go into 2.4
+> as soon as possible.
+> 
+> > ELVM (maybe)
+> > module security stuff
+> > UP friendly SMP scheduler
+> > 
+> > What else?
+> > 
+> > TIA
+> > Ed Tomlinson
 
-Still no luck with this slightly tweaked kernel config.
+A cleaner handling of module parameters/cmd line options.
 
-Here are the relevant config variables ("grep '=y' .config", copy lines
-from CONFIG_IDE to CONFIG_SCSI):
-
-  CONFIG_IDE=y
-  CONFIG_BLK_DEV_IDE=y
-  CONFIG_BLK_DEV_IDEDISK=y
-  CONFIG_IDEDISK_MULTI_MODE=y
-  CONFIG_BLK_DEV_IDECD=y
-  CONFIG_BLK_DEV_IDEPCI=y
-  CONFIG_IDEPCI_SHARE_IRQ=y
-  CONFIG_BLK_DEV_IDEDMA_PCI=y
-  CONFIG_BLK_DEV_ADMA=y
-  CONFIG_IDEDMA_PCI_AUTO=y
-  CONFIG_BLK_DEV_IDEDMA=y
-  CONFIG_BLK_DEV_PDC202XX=y
-  CONFIG_PDC202XX_BURST=y
-  CONFIG_PDC202XX_FORCE=y
-  CONFIG_BLK_DEV_VIA82CXXX=y
-  CONFIG_IDEDMA_AUTO=y
-  CONFIG_BLK_DEV_IDE_MODES=y
-
-Is there any point in upgrading to a kernel beyond 2.4.9?  Or has the
-relevant code not been touched lately?
-
-        Greg
 -- 
-Greg Ward - Python bigot                                gward@python.net
-http://starship.python.net/~gward/
-Do radioactive cats have 18 half-lives?
+Crutcher        <crutcher@datastacks.com>
+GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
+    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$

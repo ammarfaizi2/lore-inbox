@@ -1,168 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317307AbSFGRmZ>; Fri, 7 Jun 2002 13:42:25 -0400
+	id <S317263AbSFGRox>; Fri, 7 Jun 2002 13:44:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317310AbSFGRmY>; Fri, 7 Jun 2002 13:42:24 -0400
-Received: from p50886B5E.dip.t-dialin.net ([80.136.107.94]:3721 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317307AbSFGRmV>; Fri, 7 Jun 2002 13:42:21 -0400
-Date: Fri, 7 Jun 2002 11:42:06 -0600 (MDT)
-From: Lightweight patch manager <patch@luckynet.dynu.com>
-X-X-Sender: patch@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Mikael Pettersson <mikpe@csd.uu.se>
-Subject: [PATCH][2.5] tulip: change device names
-Message-ID: <Pine.LNX.4.44.0206071140080.17181-100000@hawkeye.luckynet.adm>
+	id <S317310AbSFGRow>; Fri, 7 Jun 2002 13:44:52 -0400
+Received: from horus.webmotion.com ([209.87.243.246]:49898 "EHLO
+	horus.webmotion.ca") by vger.kernel.org with ESMTP
+	id <S317263AbSFGRov>; Fri, 7 Jun 2002 13:44:51 -0400
+Message-ID: <3D00F107.8070402@bonin.ca>
+Date: Fri, 07 Jun 2002 13:44:39 -0400
+From: Andre Bonin <kernel@bonin.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020516
+X-Accept-Language: en-us, fr-ca
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chris Fuller <cfuller@broadjump.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Tyan S2464 (K7 SMP) + EMU10K1 hardlocks
+In-Reply-To: <97B71B827DFB2B448A73EC00E5DA0EE605E04A@logos.inhouse.broadjump.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is supposed to fix the misidentified names from 
-drivers/net/tulip/media.c, which previously printk'd "eth%d".
+Chris Fuller wrote:
+> I've established by now that the problem is definitely not with the
+> Linux kernel, but there was a discussion here about this very issue last
+> August, and I haven't found a reference to it anywhere else, so please
+> help if you can. :)
+> 
+> I'm seeing hardlocks in various 2.4 kernels (10, 18, 19-pre8, all SMP):
+>   mobo=Tyan S2464 (K7 Thunderbird) SMP
+>   NVidia GeForce4 AGP
+>   SBLive! Platinum 5.1
+>   Two 40G IDE hard drives
 
---- linus-2.5/drivers/net/tulip/media.c	Wed Jun  5 10:02:45 2002
-+++ thunder-2.5.20/drivers/net/tulip/media.c	Fri Jun  7 11:39:06 2002
-@@ -182,9 +182,9 @@
- 		switch (mleaf->type) {
- 		case 0:					/* 21140 non-MII xcvr. */
- 			if (tulip_debug > 1)
--				printk(KERN_DEBUG "%s: Using a 21140 non-MII transceiver"
-+				printk(KERN_DEBUG "tulip%d: Using a 21140 non-MII transceiver"
- 					   " with control setting %2.2x.\n",
--					   dev->name, p[1]);
-+					   dev->ifindex, p[1]);
- 			dev->if_port = p[0];
- 			if (startup)
- 				outl(mtable->csr12dir | 0x100, ioaddr + CSR12);
-@@ -205,15 +205,15 @@
- 				struct medialeaf *rleaf = &mtable->mleaf[mtable->has_reset];
- 				unsigned char *rst = rleaf->leafdata;
- 				if (tulip_debug > 1)
--					printk(KERN_DEBUG "%s: Resetting the transceiver.\n",
--						   dev->name);
-+					printk(KERN_DEBUG "tulip%d: Resetting the transceiver.\n",
-+						   dev->ifindex);
- 				for (i = 0; i < rst[0]; i++)
- 					outl(get_u16(rst + 1 + (i<<1)) << 16, ioaddr + CSR15);
- 			}
- 			if (tulip_debug > 1)
--				printk(KERN_DEBUG "%s: 21143 non-MII %s transceiver control "
-+				printk(KERN_DEBUG "tulip%d: 21143 non-MII %s transceiver control "
- 					   "%4.4x/%4.4x.\n",
--					   dev->name, medianame[dev->if_port], setup[0], setup[1]);
-+					   dev->ifindex, medianame[dev->if_port], setup[0], setup[1]);
- 			if (p[0] & 0x40) {	/* SIA (CSR13-15) setup values are provided. */
- 				csr13val = setup[0];
- 				csr14val = setup[1];
-@@ -240,8 +240,8 @@
- 				if (startup) outl(csr13val, ioaddr + CSR13);
- 			}
- 			if (tulip_debug > 1)
--				printk(KERN_DEBUG "%s:  Setting CSR15 to %8.8x/%8.8x.\n",
--					   dev->name, csr15dir, csr15val);
-+				printk(KERN_DEBUG "tulip%d:  Setting CSR15 to %8.8x/%8.8x.\n",
-+					   dev->ifindex, csr15dir, csr15val);
- 			if (mleaf->type == 4)
- 				new_csr6 = 0x82020000 | ((setup[2] & 0x71) << 18);
- 			else
-@@ -285,8 +285,8 @@
- 				if (tp->mii_advertise == 0)
- 					tp->mii_advertise = tp->advertising[phy_num];
- 				if (tulip_debug > 1)
--					printk(KERN_DEBUG "%s:  Advertising %4.4x on MII %d.\n",
--					       dev->name, tp->mii_advertise, tp->phys[phy_num]);
-+					printk(KERN_DEBUG "tulip%d:  Advertising %4.4x on MII %d.\n",
-+					       dev->ifindex, tp->mii_advertise, tp->phys[phy_num]);
- 				tulip_mdio_write(dev, tp->phys[phy_num], 4, tp->mii_advertise);
- 			}
- 			break;
-@@ -303,8 +303,8 @@
- 				struct medialeaf *rleaf = &mtable->mleaf[mtable->has_reset];
- 				unsigned char *rst = rleaf->leafdata;
- 				if (tulip_debug > 1)
--					printk(KERN_DEBUG "%s: Resetting the transceiver.\n",
--						   dev->name);
-+					printk(KERN_DEBUG "tulip%d: Resetting the transceiver.\n",
-+						   dev->ifindex);
- 				for (i = 0; i < rst[0]; i++)
- 					outl(get_u16(rst + 1 + (i<<1)) << 16, ioaddr + CSR15);
- 			}
-@@ -312,20 +312,20 @@
- 			break;
- 		}
- 		default:
--			printk(KERN_DEBUG "%s:  Invalid media table selection %d.\n",
--					   dev->name, mleaf->type);
-+			printk(KERN_DEBUG "tulip%d:  Invalid media table selection %d.\n",
-+					   dev->ifindex, mleaf->type);
- 			new_csr6 = 0x020E0000;
- 		}
- 		if (tulip_debug > 1)
--			printk(KERN_DEBUG "%s: Using media type %s, CSR12 is %2.2x.\n",
--				   dev->name, medianame[dev->if_port],
-+			printk(KERN_DEBUG "tulip%d: Using media type %s, CSR12 is %2.2x.\n",
-+				   dev->ifindex, medianame[dev->if_port],
- 				   inl(ioaddr + CSR12) & 0xff);
- 	} else if (tp->chip_id == LC82C168) {
- 		if (startup && ! tp->medialock)
- 			dev->if_port = tp->mii_cnt ? 11 : 0;
- 		if (tulip_debug > 1)
--			printk(KERN_DEBUG "%s: PNIC PHY status is %3.3x, media %s.\n",
--				   dev->name, inl(ioaddr + 0xB8), medianame[dev->if_port]);
-+			printk(KERN_DEBUG "tulip%d: PNIC PHY status is %3.3x, media %s.\n",
-+				   dev->ifindex, inl(ioaddr + 0xB8), medianame[dev->if_port]);
- 		if (tp->mii_cnt) {
- 			new_csr6 = 0x810C0000;
- 			outl(0x0001, ioaddr + CSR15);
-@@ -356,9 +356,9 @@
- 		} else
- 			new_csr6 = 0x038600000;
- 		if (tulip_debug > 1)
--			printk(KERN_DEBUG "%s: No media description table, assuming "
-+			printk(KERN_DEBUG "tulip%d: No media description table, assuming "
- 				   "%s transceiver, CSR12 %2.2x.\n",
--				   dev->name, medianame[dev->if_port],
-+				   dev->ifindex, medianame[dev->if_port],
- 				   inl(ioaddr + CSR12));
- 	}
- 
-@@ -380,16 +380,16 @@
- 	bmsr = tulip_mdio_read(dev, tp->phys[0], MII_BMSR);
- 	lpa = tulip_mdio_read(dev, tp->phys[0], MII_LPA);
- 	if (tulip_debug > 1)
--		printk(KERN_INFO "%s: MII status %4.4x, Link partner report "
--			   "%4.4x.\n", dev->name, bmsr, lpa);
-+		printk(KERN_INFO "tulip%d: MII status %4.4x, Link partner report "
-+			   "%4.4x.\n", dev->ifindex, bmsr, lpa);
- 	if (bmsr == 0xffff)
- 		return -2;
- 	if ((bmsr & BMSR_LSTATUS) == 0) {
- 		int new_bmsr = tulip_mdio_read(dev, tp->phys[0], MII_BMSR);
- 		if ((new_bmsr & BMSR_LSTATUS) == 0) {
- 			if (tulip_debug  > 1)
--				printk(KERN_INFO "%s: No link beat on the MII interface,"
--					   " status %4.4x.\n", dev->name, new_bmsr);
-+				printk(KERN_INFO "tulip%d: No link beat on the MII interface,"
-+					   " status %4.4x.\n", dev->ifindex, new_bmsr);
- 			return -1;
- 		}
- 	}
-@@ -408,9 +408,9 @@
- 		tulip_restart_rxtx(tp);
- 
- 		if (tulip_debug > 0)
--			printk(KERN_INFO "%s: Setting %s-duplex based on MII"
-+			printk(KERN_INFO "tulip%d: Setting %s duplex based on MII"
- 				   "#%d link partner capability of %4.4x.\n",
--				   dev->name, tp->full_duplex ? "full" : "half",
-+				   dev->ifindex, tp->full_duplex ? "full" : "half",
- 				   tp->phys[0], lpa);
- 		return 1;
- 	}
+Creative Labs warns that it's sblive series of cards aren't compatible 
+with SMP systems.  Though i've had the S2460 motherboard and the only 
+trouble i have had was that EAX didn't work properly.  A friend of mine 
+has an sblive with a dual celeron and he also has had this problem of 
+deadlocks with the SBLive.  The audigy however is fully compatible.
 
--- 
-Lightweight patch manager using pine. If you have any objections, tell me.
+
+Also, make sure you have an adequate power supply.
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+
+
 

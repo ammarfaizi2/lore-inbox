@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263147AbTCSRB4>; Wed, 19 Mar 2003 12:01:56 -0500
+	id <S263145AbTCSRCI>; Wed, 19 Mar 2003 12:02:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263145AbTCSRB4>; Wed, 19 Mar 2003 12:01:56 -0500
-Received: from AGrenoble-101-1-1-106.abo.wanadoo.fr ([193.251.23.106]:3768
-	"EHLO awak") by vger.kernel.org with ESMTP id <S263147AbTCSRBy>;
-	Wed, 19 Mar 2003 12:01:54 -0500
-Subject: Re: Everything gone!
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Eli Carter <eli.carter@inet.com>
-Cc: Matthias Schniedermeyer <ms@citd.de>,
-       "Richard B. Johnson" <johnson@quark.analogic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E78A002.70004@inet.com>
-References: <Pine.LNX.4.53.0303191041370.27397@quark.analogic.com>
-	 <20030319160437.GA22939@citd.de>
-	 <1048091858.989.10.camel@bip.localdomain.fake>  <3E78A002.70004@inet.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Organization: 
-Message-Id: <1048093949.989.13.camel@bip.localdomain.fake>
+	id <S263149AbTCSRCI>; Wed, 19 Mar 2003 12:02:08 -0500
+Received: from mail-5.tiscali.it ([195.130.225.151]:41954 "EHLO
+	mail.tiscali.it") by vger.kernel.org with ESMTP id <S263145AbTCSRCG>;
+	Wed, 19 Mar 2003 12:02:06 -0500
+Date: Wed, 19 Mar 2003 18:11:47 +0100
+From: Mauro Chiarugi <maurochiarugi@tiscali.it>
+To: linux-kernel@vger.kernel.org
+Subject: Re: problem with pcmcia, pci and hard disk
+Message-Id: <20030319181147.21d2b1d2.maurochiarugi@tiscali.it>
+In-Reply-To: <1048097045.30751.64.camel@irongate.swansea.linux.org.uk>
+References: <20030319173523.745fb4a9.maurochiarugi@tiscali.it>
+	<20030319174705.37994a18.maurochiarugi@tiscali.it>
+	<1048097045.30751.64.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 19 Mar 2003 18:12:29 +0100
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mer 19/03/2003 à 17:51, Eli Carter a écrit :
-> Xavier Bestel wrote:
-> > Le mer 19/03/2003 à 17:04, Matthias Schniedermeyer a écrit :
-> > 
-> > 
-> >>rm -rf *
-> >>Should do the same(*) but with much better speed.
-> >>
-> >>Normaly the system should lockup at sometime while doing it.
-> >>
-> >>
-> >>
-> >>
-> >>*: OK. The version above will "break" in the middle after "/bin/rm" (or
-> >>"/lib/libc.so.6") got deleted.
-> > 
-> > 
-> > That would be surprising. Did you actually try it ? :)
-> 
-> The complex version that you snipped would break because it invokes rm 
-> for each file.  The simpler version he gave would not break at that 
-> point because it is already running.  Hence the footnote ton the word 
-> 'same'.
+Il 19 Mar 2003 18:04:06 +0000
+Alan Cox <alan@lxorguk.ukuu.org.uk> (aka Alan Cox) ha scritto:
 
-Aah, yes; I read a bit too fast. *hides*
+> It should never be failing, on 2.4.18 or 2.5.x with ext3. You should
+> get log playbacks on a crash and maybe an fsck every 27 if you set the
+> checking to run that way.
 
-	Xav
+If i do:
 
+/var/log# grep -ir fsck *
+
+i don't find anything :-(
+is it strange, don't you? 
+
+> My first guess is you have something corrupting data - bad memory, bad
+> disk, overclocking or of course a software bug that you happen to hit
+> and nobody else seems to.
+
+mmmm... my poor new laptop!!! :-/
+But there is something strange.. i tried to install debian woody, but
+when the installation program starts, my notebook freezes!! So i've
+tried knoppix.. and then i've installed it. I'm using it.
+
+> What drivers are you running
+
+I've tried with pcmcia 2.1.33 and now with 3.2.4
+
+thx
+
+--
+sracatus

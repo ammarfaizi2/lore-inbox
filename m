@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbTDOOTR (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 10:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbTDOOTR 
+	id S261572AbTDOOX5 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 10:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbTDOOX5 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 10:19:17 -0400
-Received: from sprocket.loran.com ([209.167.240.9]:16126 "EHLO
-	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
-	id S261521AbTDOOTQ (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 10:19:16 -0400
-Subject: OT: 3.3v PCI & 56K Modems
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	Tue, 15 Apr 2003 10:23:57 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:1717 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261572AbTDOOX4 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 10:23:56 -0400
+Date: Tue, 15 Apr 2003 07:35:44 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Duncan Sands <baldrick@wanadoo.fr>, Andrew Morton <akpm@digeo.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BUGed to death
+Message-ID: <69850000.1050417343@[10.10.2.4]>
+In-Reply-To: <200304151401.00704.baldrick@wanadoo.fr>
+References: <80690000.1050351598@flay>
+ <200304151401.00704.baldrick@wanadoo.fr>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 15 Apr 2003 10:31:08 -0400
-Message-Id: <1050417068.11822.157.camel@dlacoste.ottawa.loran.com>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I realise this is horribly OT, but I'm hoping that someone
-here has gone through this and found a solution.
+>> Seems all these bug checks are fairly expensive. I can get 1%
+>> back on system time for kernel compiles by changing BUG to
+>> "do {} while (0)" to make them all compile away. Profiles aren't
+>> very revealing though ... seems to be within experimental error ;-(
+> 
+> What happens if you just turn BUG_ON into "do {} while (0)"?
 
-I am trying to find a non-winmodem, controller based (so
-that it will work in linux without needing an HSF or HCF
-driver) PCI modem that will work in a 3.3v PCI slot like
-those of an IBM x335.
+I believe I already did that by turning BUG() into a null expression.
 
-Preferably a model that will work in Japan :)
+#define BUG_ON(condition) 
+	do { if (unlikely((condition)!=0)) BUG(); } while(0)
 
-Thanks (and sorry again for the OT post :)
+The compiler should be smart enough to optimise that away, methinks.
 
-Dana Lacoste
-Ottawa, Canada
-
+M.

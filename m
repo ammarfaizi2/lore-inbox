@@ -1,113 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315275AbSIDTo0>; Wed, 4 Sep 2002 15:44:26 -0400
+	id <S315279AbSIDT5O>; Wed, 4 Sep 2002 15:57:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315279AbSIDTo0>; Wed, 4 Sep 2002 15:44:26 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:63493
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S315275AbSIDToZ>; Wed, 4 Sep 2002 15:44:25 -0400
-Date: Wed, 4 Sep 2002 12:48:31 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "T. Ryan Halwachs" <halwachs@cats.ucsc.edu>
-cc: kernel mailing list <linux-kernel@vger.kernel.org>,
-       ataraid mailing list <ataraid-list@redhat.com>,
-       Jeff Nguyen <jeff@aslab.com>
-Subject: Re: 3 ultra100 controllers
-In-Reply-To: <1031163605.4320.41.camel@p700m700>
-Message-ID: <Pine.LNX.4.10.10209041245300.3440-100000@master.linux-ide.org>
+	id <S315337AbSIDT5O>; Wed, 4 Sep 2002 15:57:14 -0400
+Received: from m86.net195-132-236.noos.fr ([195.132.236.86]:41601 "EHLO
+	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S315279AbSIDT5N>;
+	Wed, 4 Sep 2002 15:57:13 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Craig Arsenault <penguin@wombat.ca>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Tom Rini <trini@kernel.crashing.org>, <linux-kernel@vger.kernel.org>,
+       <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: consequences of lowering "MAX_LOW_MEM"?
+Date: Wed, 4 Sep 2002 22:02:27 +0200
+Message-Id: <20020904200227.30104@192.168.4.1>
+In-Reply-To: <Pine.LNX.4.44L.0209041453060.8359-100000@tabmow.ca.nortel.com>
+References: <Pine.LNX.4.44L.0209041453060.8359-100000@tabmow.ca.nortel.com>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>
+>> >I think you'll find yourself with no virtual address space left to
+>> >do vmalloc / fixmap / kmap type stuff. Or at least you would on i386,
+>> >I presume it's the same for ppc. Sounds like you may have left
+>> >yourself enough space for fixmap & kmap, but any calls to vmalloc
+>> >will probably fail ?
+>>
+>> Yes, same problem on PPC, you'll run out of virtual space quite
+>> quickly for vmalloc and ioremap. Stuff a video board with lots
+>> of VRAM or any PCI card exposing large MMIO regions into your
+>> machines and it will probably not even boot.
+>>
+>> Ben.
+>>
+>
+>Ben,
+>  But doesn't using Matt's suggestion and moving both MAX_LOW_MEM and
+>changing KERNELBASE take care of this?  It's an embedded board with no
+>video, but it does have one PCI Mezzanine Card (PMC) on it.
 
-BAWHAHAHA,
+Yes, Matt's suggestion would work, though I never tried lowering
+KERNELBASE. I don't think the kernel supports lowering it below
+0x80000000 btw.
 
-5 have been done!
+Ben.
 
-Ask "Jeff Nguyen", all it means is that only two cards will be setup by
-their BIOS.  The remaining cards will be setup by the driver.
-IIRC, there was a special RIO version with 8 card or 32 drives.
-
-Cheers,
-
-
-On 4 Sep 2002, T. Ryan Halwachs wrote:
-
-> sent this to promise:
-> 
-> > -----Original Message-----
-> > From: T. Ryan Halwachs [mailto:halwachs@cats.ucsc.edu] 
-> > Sent: Monday, August 26, 2002 4:18 PM
-> > To: support@promise.com
-> > Subject: 3 ultra100 controllers
-> > 
-> > 
-> > hi,
-> >  i am trying to use three Promise technology controllers in one system.
-> > the promise bios only shows drives attached to the first 2 controllers.
-> > how can i use the drives attached to the third controller?
-> > 
-> > cheers,
-> > ryan
-> > 
-> > 
-> > 
-> 
-> got this in reply:
-> 
-> > From: support <support@promise.com>
-> > To: 'T. Ryan Halwachs' <halwachs@cats.ucsc.edu>
-> > Subject: RE: 3 ultra100 controllers
-> > Date: 28 Aug 2002 08:23:29 -0700
-> > 
-> > Hi Ryan
-> > 	Sorry you will not be able to used 3 ultra100 in single system.
-> > 2 is the most.
-> > 
-> > It's All About Your Data!
-> > 
-> > Kevin Huynh
-> > Reseller Technical Support.
-> > Promise Technology, Inc
-> > 1745 McCandless Dr.
-> > Milpitas Ca, 95035
-> > 408-228-6300
-> > 
-> > 
-> 
-> from pdc202xx.c in 2.4.19-ac4
-> 
-> /* 
-> *  linux/drivers/ide/pdc202xx.c	Version 0.35	Mar. 30, 2002 
-> * 
-> *  Copyright (C) 1998-2002		Andre Hedrick <andre@linux-ide.org> 
-> * 
-> *  Promise Ultra33 cards with BIOS v1.20 through 1.28 will need this 
-> *  compiled into the kernel if you have more than one card installed. 
-> *  Note that BIOS v1.29 is reported to fix the problem.  Since this is 
-> *  safe chipset tuning, including this support is harmless 
-> * 
-> *  Promise Ultra66 cards with BIOS v1.11 this 
-> *  compiled into the kernel if you have more than one card installed. 
-> * 
-> *  Promise Ultra100 cards. 
-> * 
-> *  The latest chipset code will support the following :: 
-> *  Three Ultra33 controllers and 12 drives. 
-> *  8 are UDMA supported and 4 are limited to DMA mode 2 multi-word. 
-> *  The 8/4 ratio is a BIOS code limit by promise. 
-> * 
-> *  UNLESS you enable "CONFIG_PDC202XX_BURST" 
-> * 
-> */
-> 
-> is it possible (using Linux) to run 3 (or more) PDC20267 based ultra100 cards in the same machine?
-> 
-> cheers,
-> ryan
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
 

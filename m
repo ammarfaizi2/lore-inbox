@@ -1,87 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277361AbRJJSs3>; Wed, 10 Oct 2001 14:48:29 -0400
+	id <S277362AbRJJSyS>; Wed, 10 Oct 2001 14:54:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277362AbRJJSsR>; Wed, 10 Oct 2001 14:48:17 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:43025 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S277361AbRJJSsG>;
-	Wed, 10 Oct 2001 14:48:06 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200110101848.WAA05322@ms2.inr.ac.ru>
-Subject: Re: RFC : Wireless Netlink events
-To: jt@hpl.hp.com
-Date: Wed, 10 Oct 2001 22:48:22 +0400 (MSK DST)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20011010111404.D17439@bougret.hpl.hp.com> from "Jean Tourrilhes" at Oct 10, 1 11:14:04 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S277363AbRJJSyI>; Wed, 10 Oct 2001 14:54:08 -0400
+Received: from [213.98.126.44] ([213.98.126.44]:20996 "HELO anano.mitica")
+	by vger.kernel.org with SMTP id <S277362AbRJJSxz>;
+	Wed, 10 Oct 2001 14:53:55 -0400
+To: Robert Szentmihalyi <robert.szentmihalyi@entracom.de>
+Cc: Chmouel Boudjnah <chmouel@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: APM on a HP Omnibook XE3
+In-Reply-To: <200108301443355.SM00167@there> <m2elobn7a3.fsf@anano.mitica>
+	<m3sncrh9u8.fsf@giants.mandrakesoft.com>
+	<200110101943880.SM00161@there>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <200110101943880.SM00161@there>
+Date: 10 Oct 2001 20:54:23 +0200
+Message-ID: <m2het7jpgg.fsf@anano.mitica>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+>>>>> "robert" == Robert Szentmihalyi <robert.szentmihalyi@entracom.de> writes:
 
-> 	That would not be the case of Wireless Events, the event would
-> just contain the type of change and the interface index. See reasons
-> for that below.
+>> > For me Fn+F12 works.
+robert> unfortunately not for me....
 
-See below. :-)
+You need to have a partition created with the recovery CD, it don't
+work if you create it with normal fdisk (and it will destroy your data
+in the disk, do a backup first).
 
-> > I am not sure that it is right and in right place. I would not create one
-> > more message type for such... mmm... special case.
-> > Probably, you could add a new attribute to RTM_*LINK sort of
-> > IFLA_MISC and to send ifinfo messages.
-> 
-> 	The problem is that I need to propagate the "command" field
-> (the ioctl number leading to the event), and there is no space for
-> that in the ifinfo structure. None of the flags in the ifinfo
-> structure would change when those ioctls are called.
-> 	I don't mind adding a new attribute to struct ifinfo, but that
-> will break existing netlink apps (unless I missed something).
+z>> > apm -s & apm -S fails.
+>> 
+>> works only if you have a suspend-on-disk partition.
+robert> I have created one with lphdisk and it works under Win2k...
 
-You missed.
+robert> The HP support people say the new omnibook BIOS is not APM 
+robert> compilant any more.
 
-All the rtnetlink messages contain a minimal fix part, followed
-by variable attributes. New attributes can be added any time
-not breaking anything.
+I have the omnibook lastest BIOS as end of July, it will work only
+with Fn+F12.  I don't remind the version, can check when rebooting.
 
+robert> ACPI only...
 
-> 	Hu ? Just query any of the Wireless IOCTLs,
+robert> Suspend-to-disk with API is not yet supported and I can't use 
+robert> software suspend because of reiserfs
 
-OK. I see.
+robert> I guess I have to wait for proper hibernation support with ACPI....
 
+I am also waiting for it, as I can not suspend to RAM, but suspend to
+disk is working nicely here (what is an advantage while waiting).
 
-> 	The whole Wireless configuration is in the order of 624 bytes
-> (including /proc/net/wireless, excluding iwspy/aplist and assuming
-> only one encryption key). You surely don't want me to push that with
-> every event ?
+Later, Juan.
 
-624? Not a big deal.
-
-
-> 	The idea is like select() + read(). Select gives you the basic
-> event, you need to use read to get the data.
-
-Sorry, I am inclined against issuing lots of sequences of ioctls to get
-information. This approach is fragile because you never
-get a self-consistent state when state is subject to change.
-
-Logic of rtnetlink is a bit different: you get atomic pieces of information,
-which are meaningfull itself.
-
-
-> 	It seems to me that what you are implying is that RTnetlink is
-> not the right place for me to propagate events.
-
-Not at all.
-
-But approach which you outlined really contradicts to logic of rtnetlink yet.
-It is not a select(), it is real read(). :-)
-
-
->						 Any idea of what
-> mechanism might be better to propagate those events ? Maybe I should
-> create my own event channel.
-
-Probably. There lots of unused channels. Well, choose the best approach.
-
-Alexey
+-- 
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

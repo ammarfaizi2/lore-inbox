@@ -1,74 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129714AbQKJKwa>; Fri, 10 Nov 2000 05:52:30 -0500
+	id <S129192AbQKJK7x>; Fri, 10 Nov 2000 05:59:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129192AbQKJKwU>; Fri, 10 Nov 2000 05:52:20 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:52232 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S130235AbQKJKwD>;
-	Fri, 10 Nov 2000 05:52:03 -0500
-Date: Fri, 10 Nov 2000 12:51:50 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Constantine Gavrilov <const-g@xpert.com>
-Cc: willy tarreau <wtarreau@yahoo.fr>, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
+	id <S129199AbQKJK7o>; Fri, 10 Nov 2000 05:59:44 -0500
+Received: from atlantis.hlfl.org ([213.41.91.231]:64264 "HELO
+	atlantis.hlfl.org") by vger.kernel.org with SMTP id <S129192AbQKJK71>;
+	Fri, 10 Nov 2000 05:59:27 -0500
+Date: Fri, 10 Nov 2000 11:59:25 +0100
+From: "Arnaud S . Launay" <asl@launay.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.2.18pre21
-Message-ID: <20001110125150.G13151@mea-ext.zmailer.org>
-In-Reply-To: <20001110092846.29847.qmail@web1102.mail.yahoo.com> <20001110114425.E13151@mea-ext.zmailer.org> <3A0BC699.791064BE@xpert.com> <20001110121402.F13151@mea-ext.zmailer.org> <3A0BCC4C.FCE21320@xpert.com>
+Message-ID: <20001110115925.A16777@profile4u.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E13u4XD-0001oe-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="ZGiS0Q5IWpPtfppv"
 Content-Disposition: inline
-In-Reply-To: <3A0BCC4C.FCE21320@xpert.com>; from const-g@xpert.com on Fri, Nov 10, 2000 at 12:22:04PM +0200
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E13u4XD-0001oe-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Nov 10, 2000 at 03:07:21AM +0000
+X-PGP-Key: http://launay.org/pgpkey.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2000 at 12:22:04PM +0200, Constantine Gavrilov wrote:
-> Gee, we do not call it EtherChannel, we say CISCO calls it
-> EtherChannel. Where is the infringment here? Are people that paranoid
-> or it is just me who is not getting it?
 
-	You missed my original point.
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-	I don't like to call it BONDING.
+Le Fri, Nov 10, 2000 at 03:07:21AM +0000, Alan Cox a écrit:
+> Anything which isnt a strict bug fix or previously agreed is now 2.2.19
+> material.
 
-	"Bonding" is something where two (or more) channels carry data
-	in between two participating systems.  Like Multilink-PPP, and
-	ISDN Channel Bonding.  Often indeed data goes out somehow inter-
-	leaved on the physical links.  (Like ISDN Channel Bonding supplies
-	a transparent 128 kbps link instead of two 64 kbps links to the
-	upper layers.)
+Compiling 2.2.18pre21 without sysctl gives an error at linkage:
+kernel/kernel.o(__ksymtab+0x608): undefined reference to `sysctl_jiffies'
 
-	EtherChannel does select the link (out of the group) by forming
-	XOR of source and destination MAC addresses (their lowest bytes),
-	and then doing MODULO number-of-links on the result.
+trivial patch included, not sure it's the right one.
 
-	So between systems A and B the flow goes via link 0, in between
-	A and C it goes via link 1.  Add there client system D, and it
-	may end up into either of the links.
+	Arnaud.
 
-	|-----------|                |------|
-	|    A      |-----link-0-----| SW   |---[B]
-	|           |-----link-1-----| with |---[C]
-	|-----------|                |EthChn|---[D]
-	                             |------|
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=diff-ksyms
 
+--- linux/kernel/ksyms.old	Fri Nov 10 11:58:20 2000
++++ linux/kernel/ksyms.c	Fri Nov 10 11:58:24 2000
+@@ -284,7 +284,6 @@
+ EXPORT_SYMBOL(register_sysctl_table);
+ EXPORT_SYMBOL(unregister_sysctl_table);
+ EXPORT_SYMBOL(sysctl_string);
+-EXPORT_SYMBOL(sysctl_jiffies);
+ EXPORT_SYMBOL(sysctl_intvec);
+ EXPORT_SYMBOL(proc_dostring);
+ EXPORT_SYMBOL(proc_dointvec);
 
-	This gives improved throughput on congested links in between
-	two switches, or major server and core switches, while preserving
-	data order over the links.
-
-	Blind bonding-type "throw packets on links 0 and 1" MAY end up
-	sending ethernet frames out of sequence, which for a few LAN
-	based protocols is a great source of upset.
-
-
-	Beowulf systems have "bonding" in use for parallel Ethernet
-	links in between two machines, however THAT is not EtherChannel
-	compatible thing!
-
-> -- 
-> Constantine Gavrilov
-
-/Matti Aarnio
+--ZGiS0Q5IWpPtfppv--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

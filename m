@@ -1,56 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313305AbSDETuy>; Fri, 5 Apr 2002 14:50:54 -0500
+	id <S313533AbSDEUrt>; Fri, 5 Apr 2002 15:47:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313314AbSDETuo>; Fri, 5 Apr 2002 14:50:44 -0500
-Received: from zero.tech9.net ([209.61.188.187]:27152 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S313305AbSDETu3>;
-	Fri, 5 Apr 2002 14:50:29 -0500
-Subject: [PATCH] 2.4-ac: config error
-From: Robert Love <rml@tech9.net>
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-9pu81t+2g1b3t9Kz9gbL"
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 05 Apr 2002 14:50:21 -0500
-Message-Id: <1018036222.29103.5.camel@phantasy>
-Mime-Version: 1.0
+	id <S313534AbSDEUrk>; Fri, 5 Apr 2002 15:47:40 -0500
+Received: from ip68-7-112-74.sd.sd.cox.net ([68.7.112.74]:2575 "EHLO
+	clpanic.kennet.coplanar.net") by vger.kernel.org with ESMTP
+	id <S313533AbSDEUr1>; Fri, 5 Apr 2002 15:47:27 -0500
+Message-ID: <00c501c1dce3$0ed806d0$7e0aa8c0@bridge>
+From: "Jeremy Jackson" <jerj@coplanar.net>
+To: "Martin J. Bligh" <fletch@aracnet.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <1650399759.1018005181@[10.10.2.3]>
+Subject: Re: Faster reboots (and a better way of taking crashdumps?)
+Date: Fri, 5 Apr 2002 12:47:08 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+for 2, the BIOS sets the hardware to a known state,
+or if you can trigger *the* hardware reset line,
+which will also do that, then you're going through
+the BIOS again.  Now if you made your own bios...
+see www.linuxbios.org.
 
---=-9pu81t+2g1b3t9Kz9gbL
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+there are patches where a kernel can load another
+kernel, also.
 
-Alan,
+As for taking crashdumps on the way up, I believe
+(SGI's ?) linux kernel crash dumps does *exactly*
+this.
 
-Apologies if this has been sent but drivers/pcmcia/Config.in has a lil
-buglet that prevents make xconfig and related from running.
+Jeremy
 
-Attached patch, against 2.4.19-pre5-ac2, fixes.
+----- Original Message -----
+From: "Martin J. Bligh" <fletch@aracnet.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Friday, April 05, 2002 11:13 AM
+Subject: Faster reboots (and a better way of taking crashdumps?)
 
-	Robert Love
 
---=-9pu81t+2g1b3t9Kz9gbL
-Content-Disposition: attachment; filename=config-error-rml-2.4.19-pre5-ac2-1.patch
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/x-patch; name=config-error-rml-2.4.19-pre5-ac2-1.patch;
-	charset=ISO-8859-1
-
-diff -urN linux-2.4.19-pre5-ac2/drivers/pcmcia/Config.in linux/drivers/pcmc=
-ia/Config.in
---- linux-2.4.19-pre5-ac2/drivers/pcmcia/Config.in	Fri Apr  5 14:32:26 2002
-+++ linux/drivers/pcmcia/Config.in	Fri Apr  5 14:46:09 2002
-@@ -24,7 +24,7 @@
-    dep_bool '  i82092 compatible bridge support' CONFIG_I82092 $CONFIG_PCI
-    bool '  i82365 compatible bridge support' CONFIG_I82365
-    if [ "$CONFIG_ARCH_SA1100" =3D "y" ]; then
--	dep_tristate '  SA1100 support' CONFIG_PCMCIA_SA1100
-+	dep_tristate '  SA1100 support' CONFIG_PCMCIA_SA1100 $CONFIG_PCI
-    fi
- fi
- endmenu
-
---=-9pu81t+2g1b3t9Kz9gbL--
+> My real motivation for this isn't actually faster reboots,
+> it's rebooting at all - I have some strange hardware that
+> won't do init 6 in traditional ways ... but it might mean
+> a faster reboot for others.
+>
+> What's to stop me rebooting by having machine_restart load
+> the first sector of the first disk (as the BIOS does), where
+> the LILO code should be, and just jumping to it?
+>
+> 1. Are there tables that are created by the BIOS that we
+> destroy during Linux runtime? mps tables spring to mind -
+> I can't see where we preserve them ...
+>
+> 2. Things that are reset by reboot that we don't reset during
+> normal kernel boot?
+>
+> As a side effect, this means we could potentially take
+> crashdumps on the way up, rather than the way down, so
+> the kernel is more likely to be in a working state (we'd
+> have to load a minimal kernel / crashdumper to take the
+> dump first ... this is similar to what we did with PTX).
+>
+> M.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

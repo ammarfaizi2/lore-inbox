@@ -1,132 +1,589 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264620AbSJTTIj>; Sun, 20 Oct 2002 15:08:39 -0400
+	id <S264636AbSJTTQx>; Sun, 20 Oct 2002 15:16:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264622AbSJTTIj>; Sun, 20 Oct 2002 15:08:39 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:48282 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S264620AbSJTTIh>; Sun, 20 Oct 2002 15:08:37 -0400
-Message-ID: <001301c2786e$1303b160$eef13ccc@kamalnara317>
-From: "Murali Therthala" <MuraliT@prodigy.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Compilation Error with a Dynamic Module
-Date: Sun, 20 Oct 2002 15:22:46 -0400
+	id <S264637AbSJTTQx>; Sun, 20 Oct 2002 15:16:53 -0400
+Received: from packet.digeo.com ([12.110.80.53]:30201 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264636AbSJTTQp>;
+	Sun, 20 Oct 2002 15:16:45 -0400
+Message-ID: <3DB30283.5CEEE032@digeo.com>
+Date: Sun, 20 Oct 2002 12:22:43 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: patch management scripts
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-OriginalArrivalTime: 20 Oct 2002 19:22:43.0334 (UTC) FILETIME=[10337A60:01C2786E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
 
-I am trying to compile a dynamic module shown below that creates a readable
-procs entry.
-I invoke gcc as follows.
+I finally got around to documenting the scripts which I use
+for managing kernel patches.  See
 
-gcc -Wall -o2 -DMODULE -D_KERNEL_ -DLINUX -I
-/lib/modules/`uname -r`\build/modules -c fMod3.c
+http://www.zip.com.au/~akpm/linux/patches/patch-scripts-0.1/
 
-and I get a whole bunch of errors with procfs.h.
+These scripts are designed for managing a "stack" of patches against
+a rapidly-changing base tree. Because that's what I use them for.
 
-/lib/modules/2.4.18-4GB/build/include/linux/proc_fs.h:47: parse error before
-`off_t'
-/lib/modules/2.4.18-4GB/build/include/linux/proc_fs.h:50: warning: `struct
-file' declared inside parameter list
-............................................................................
-............................................................
-............................................................................
-............................................................
+I've been using and evolving them over about six months.  They're
+pretty fast, and simple to use.  They can be used for non-kernel
+source trees.
 
-Could any of you offer me any hints to resolve this problem? I am using SUSE
-with Kernel 2.4.18-4GB.
-Thanks in advance for any feedback. Please see the source below.
+The implementation is pretty agricultural - I only know how to
+do three things in /bin/sh scripts and I'm not sure that I want
+to learn #4, but patches are accepted.
 
-Murali
-----------------------------------------------------------------------------
----------------------------------
+Hopefully these will be useful to some people.  I'd expect that the
+ramp-up time is half an hour or so.
 
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/init.h>
-#include <linux/proc_fs.h>
-#include <linux/sched.h>
-#include <asm/uaccess.h>
-#define MODULE_VERSION "1.0"
-#define MODULE_NAME "My_procfs_example"
-#define FOOBAR_LEN 8
+Here's the fine manual:
 
-struct fb_data_t
-{
-        char name[FOOBAR_LEN + 1];
-        char value[FOOBAR_LEN + 1];
-};
 
-static struct proc_dir_entry  *example_dir,*foo_file;
-struct fb_data_t   foo_data;
 
-static int proc_read_foo(char *page,char **start,off_t off,int count,int
-*eof,void *data)
-{
-        int len;
-        struct fb_data_t *fb_data = (struct fb_data_t *)data;
-        MOD_INC_USE_COUNT;
-        len = sprintf(page, "%s = '%s'\n",fb_data->name, fb_data->value);
-        MOD_DEC_USE_COUNT;
-        return len;
-}
 
-static int __init init_procfs_example(void)
-{
-        int rv = 0;
-        /* create directory */
-        example_dir = proc_mkdir(MODULE_NAME, NULL);
-        if(example_dir == NULL)
-         {
-                rv = -ENOMEM;
-                goto out;
-        }
 
-        example_dir->owner = THIS_MODULE;
+This is a description of a bunch of shell scripts which I use for
+managing kernel patches.  They are quite powerful.  They can be used on
+projects other than the linux kernel.  They are easy to use, and fast.
 
-        foo_file = create_proc_entry("foo", 0644, example_dir);
-        if(foo_file == NULL)
-        {
-                rv = -ENOMEM;
-                goto no_foo;
-        }
-        strcpy(foo_data.name, "foo");
-        strcpy(foo_data.value, "foo");
-        foo_file->data = &foo_data;
-        foo_file->read_proc = proc_read_foo;
-        foo_file->write_proc = NULL;
-        foo_file->owner = THIS_MODULE;
+You end up doing a ton of recompiling with these scripts, because
+you're pushing and popping all the time.  ccache takes away the pain of
+all that.  http://ccache.samba.org/ - be sure to put the cache
+directory on the same fs as where you're working so that ccache can use
+hardlinks.
 
-        printk(KERN_INFO "%s %s initialised\n",MODULE_NAME, MODULE_VERSION);
-        return 0;
+The key philosophical concept is that your primary output is patches. 
+Not ".c" files, not ".h" files.  But patches.  So patches are the
+first-class object here.
 
-no_foo:
-        remove_proc_entry("jiffies", example_dir);
-out:
-        return rv;
-}
 
-static void __exit cleanup_procfs_example(void)
-{
-        remove_proc_entry("foo", example_dir);
-        remove_proc_entry(MODULE_NAME, NULL);
-        printk(KERN_INFO "%s %s removed\n",MODULE_NAME, MODULE_VERSION);
-}
+Concepts
+========
 
-module_init(init_procfs_example);
-module_exit(cleanup_procfs_example);
+All work occurs with a single directory tree.  All commands are invoked
+within the root of that tree.  The scripts manage a "stack" of patches.
 
-MODULE_AUTHOR("XYZ");
-MODULE_DESCRIPTION("A procfs example");
+Each patch is a changeset against the base tree plus the preceding patches.
 
-EXPORT_NO_SYMBOLS;
+All patches are listed, in order, in the file ./series.  You manage the
+series file.
 
+Any currently-applied patches are described in the file
+./applied-patches.  The patch scripts manage this file.
+
+Each patch affects a number of files in the tree.  These files are
+listed in a "patch control" file.  These .pc files live in the
+directory ./pc/
+
+Patches are placed in the directory ./patches/
+
+Documentation for the patches is placed in ./txt/
+
+So for a particular patch "my-first-patch" the following will exist:
+
+- An entry "my-first-patch.patch" in ./series
+
+- An entry "my-first-patch" in ./applied-patches (if it's currently applied)
+
+- A file ./pc/my-first-patch.pc which contains the names of the
+  files which my-first-patch modifies, adds or removes
+
+- A file ./txt/my-first-patch.txt which contains the patch's
+  changelog.
+
+- A file ./patches/my-first-patch.patch, which is the output of the
+  patch scripts.
+
+Operation
+=========
+
+When a patch "my-patch" is applied with apatch, or with pushpatch
+(which calls apatch), all the affected files (from ./pc/my-patch.pc)
+are copied to files with ~my-patch appended.  So if ./pc/my-patch.pc
+contained
+
+	kernel/sched.c
+	fs/inode.c
+
+then apatch will copy those files into kernel/sched.c~my-patch and
+fs/inode.c~my-patch.  It will then apply the patch to kernel/sched.c
+and fs/inode.c
+
+When a diff is regenerated by refpatch (which calls mpatch), the diff
+is made between kernel/sched.c and kernel/sched.c~my-patch.  How do the
+scripts know to use "~my-patch"?  Because my-patch is the current
+topmost patch.  It's the last line in ./applied-patches.
+
+In this way, the whole thing is stackable.  If you have four patches
+applied, say "patch-1", "patch-2", "patch-3" and "patch-4", and if
+patch-2 and patch-4 both touch kernel/sched.c then you will have:
+
+	kernel/sched.c~patch-2		Original copy, before patch-2
+	kernel/sched.c~patch-4		Copy before patch-4.  Contains changes
+					from patch-2
+	kernel/sched.c			Current working copy.  Contains changes
+					from patch-4.
+
+This means that your diff headers contain "~patch-name" in them, which
+is convenient documentation.
+
+Walkthrough
+===========
+
+Let's start.
+
+Go into /usr/src/linux (or wherever)
+
+	mkdir pc patches txt
+
+Now let's generate a patch
+
+	fpatch my-patch kernel/sched.c
+
+OK, we've copied kernel/sched.c to kernel/sched.c~my-patch.  We've
+appended "my-patch" to ./applied-patches and we've put "kernel/sched.c"
+into the patch control file, pc/my-patch.pc.
+
+	Now edit kernel/sched.c a bit.
+
+Now we're ready to document the patch
+
+	Now write txt/my-patch.txt
+
+Now generate the patch
+
+	refpatch
+
+This will generate patches/my-patch.patch.  Take a look.
+
+Now remove the patch
+
+	poppatch
+
+applied-patches is now empty, and the patch is removed.
+
+Now let's add a file to my-patch and then generate my-second-patch:
+
+	Add "my-patch.patch" to ./series (no blank lines in that file please)
+
+	pushpatch
+
+OK, the patch is applied again.  Let's add another file
+
+	fpatch kernel/printk.c
+
+Note that here we gave fpatch a single argument.  So rather than
+opening a new patch, it adds kernel/printk.c to the existing topmost
+patch.  That's my-patch.
+
+	Edit kernel/printk.c
+
+Refresh my-patch (you end up running refpatch a lot)
+
+	refpatch
+
+Now start a second patch:
+
+	fpatch my-second-patch kernel/sched.c
+
+Now take a look at applied-patches.  Also do an `ls kernel/sched*'.
+
+	Edit kernel/sched.c, to make some changes for my-second-patch
+
+Generate my-second-patch:
+
+	refpatch
+
+Take a look in patches/my-second-patch.patch
+
+Don't forget to add "my-second-patch.patch" to the series file.
+
+And remove both patches:
+
+	poppatch
+	poppatch
+
+
+That's pretty much it, really.
+
+
+Command reference
+=================
+
+Generally, where any of these commands take a "patch-name", that can be
+of the form txt/patch-name.txt, patch-name.pc, just patch-name or
+whatever.  The scripts will strip off a leading "txt/", "patches/" or
+"pc/" and any trailing extension.  This is so you can do
+
+	apatch patches/a<tab>
+
+to conveniently use shell tabbing to select patch names.
+
+
+
+added-by-patch
+
+  Some internal thing.
+
+apatch [-f] patch-name
+
+  This is the low-level function which adds patches.  It does the
+  copying into ~-files and updates the applied-patches file.  It
+  applies the actual patch.
+
+  apatch will do a patch --dry-run first and will refuse to apply the
+  patch if the dryrun fails.
+
+  So when you are getting rejects you do this:
+
+	pushpatch		# This fails, due to rejects.  Drat.
+	apatch -f patch-name	# Force the patch
+
+  OK, you've now applied patch-name, but you have rejects.  Go fix
+  those up and do
+
+	refpatch
+
+  And you're ready to move on.
+
+cvs-take-patch
+
+  I forget.
+
+fpatch [patch-name] foo.c
+
+  If patch-name is given, fpatch will start a new patch which
+  modifies (or adds, or removes) the single file foo.c.  It updates
+  ./applied-patches and creates pc/patch-name.pc.  fpatch will copy
+  foo.c to foo.c~patch-name in preparation for edits of foo.c.
+
+  If patch-name is not given then fpatch will add foo.c to the
+  current topmost patch.  It will add "foo.c" to ./pc/$(toppatch).pc. 
+  It will copy foo.c to foo.c~$(toppatch).
+
+inpatch
+
+  List the names of ths files which are affected by the current
+  topmost patch.
+
+  This is basically
+
+	cat pc/$(toppatch).pc
+
+mpatch
+
+  A low-level thing to generate patches
+
+new-kernel
+
+  Some thing I use for importing a new kernel from kernel.org
+
+p0-2-p1
+
+  Internal thing to convert patch -p0 form into patch -p1
+
+patchdesc
+
+  Generates a single-line description of a patch.
+
+  The txt/my-patch.txt files have the following format:
+
+  <start of file>
+  DESC
+  some short description
+  EDESC
+
+  The long description
+  <end of file>
+
+  I use
+
+	patchdesc $(cat series)
+
+  to generate short-form summaries of the patch series.
+
+patchfns
+
+  Internal utilities
+
+pcpatch
+
+  Standalone tool to generate a .pc file from a patch.
+
+  Say someone sends you "his-patch.diff".  What you do is:
+
+	cp ~/his-patch.diff patches/his-patch.patch
+	pcpatch his-patch
+
+  This generates ./pc/his-patch.pc and you're all set.  Add
+  "his-patch.patch" to ./series in the right place and start pushing.
+
+p_diff
+
+  I forget
+
+poppatch
+
+  Remove one or more patches fro the current stack.  This command
+  does *not* use the series file.  It works purely against
+  applied-patches.
+
+  Usage:
+
+	poppatch
+		Remove the topmost patch
+	poppatch 10
+		Remove ten patches
+	poppatch some-patch-name[.patch]
+		Remove patches until "some-patch-name" is top patch
+
+ptkdiff
+
+  Two modes:
+
+	ptkdiff -
+
+               Run tkdiff against all the file affected
+               by $(toppatch).  The diff is only for the changes made
+               by the top patch! ie: it's between "filename" and
+               "filename~toppatch-name".
+
+	ptkdiff filename
+
+               Just run tkdiff against that file,
+               showing the changes which are due to toppatch.
+
+pushpatch
+
+  Apply the next patch, from the series file.
+
+  This consults ./applied-patches to find out the top patch, then
+  consults ./series to find the next patch.  And pushes it.
+
+    pushpatch
+
+      Apply the next patch
+
+    pushpatch 10
+ 
+      Apply the next ten patches
+
+    pushpatch some-patch-name
+
+      Keep pushing patches until "some-patch-name" is toppatch
+
+refpatch
+
+    regnerates the topmost patch.  Reads all the affected files
+    from pc/$(toppatch).pc and diffs them against their tilde-files.
+
+    Also pastes into the patch your patch documentation and
+    generates a diffstat summary.
+
+removed-by-patch
+
+  Some thing.
+
+rename-patch
+
+  CVS rename for patches.
+
+rolled-up-patch
+
+  Bit of a hack.  Is designed to generate a rolled-up diff of all
+  currently-applied patches.  But it requires a ../linux-2.x.y tree to
+  diff against.  Needs to be redone.
+
+rpatch
+
+  Internal command
+
+split-patch
+
+  Some thing someone write to split patches up.  I don't use it.
+
+toppatch
+
+  Print the name of the topmost patch.  From ./applied-patches
+
+touched-by-patch patch-filename
+
+  List the names of files which are affected by a diff.
+
+unitdiff.py
+
+  Rasmus Andersen's script to convert a diff into minimum-context
+  form.  This form has a better chance of applying if you're getting
+  nasty rejects.  But patch can and will make mistakes when fed
+  small-context input.
+
+
+Work Practices
+==============
+
+I keep the kernel tree, the ./pc/, ./patches/ and ./txt/ contents under
+CVS control.  This is important...
+
+I have several "series" files.  I keep these in ./pc/foo-series and use
+
+	ln -s pc/foo-series series
+
+when I'm working on foo.
+
+If someone sends me a patch I'll do:
+
+	cp ~/whatever patches/his-patch.patch
+	pcpatch his-patch
+	apatch his-patch
+
+  If apatch fails then run `apatch -f his-patch' and fix the rejects.
+
+	refpatch
+
+  to clean up any fuzz.
+
+	poppatch
+	cvs add pc/his-patch.pc patches/his-patch.patch
+	cvs commit pc patches
+
+  Now edit ./series and place "his-patch.patch" in the appropriate place.
+
+
+If you're working on a particular patch (say, "dud-patch") and you
+balls something up, just run:
+
+	refpatch	# Generate the crap patch
+	poppatch	# Remove it all
+	rm patches/dud-patch.patch
+	cvs up patches/dud-patch.patch
+
+and all is well.
+
+
+Getting updates from Linus
+==========================
+
+What I do is to grab the latest -bk diff from
+http://www.kernel.org/pub/linux/kernel/people/dwmw2/bk-2.5/
+and do:
+
+	gzip -d < cs<tab> > patches/linus.patch
+	pcpatch linus
+	apatch linus | grep diff
+
+               Now fix up all the files which got deleted,
+               because there's something wrong with bitkeeper diffs:
+
+	cvs up -ko <missing files from the above diff>
+
+	apatch linus
+	$EDITOR linus/linus.txt
+	
+		Add the changeset number to txt/linus.txt
+
+	refpatch
+	poppatch
+
+  Now add "linus.patch" as the first entry in your ./series file and
+  start pushing your other patches on top of that.
+
+BUGS
+====
+
+Tons and tons.  The scripts are fragile, the error handling is ungraceful and
+if you do something silly you can end up in a pickle.
+
+Generally the scripts are very careful to not wreck your files or your
+patches.  But they can get the ./applied-patches and ~-files into an
+awkward state.
+
+Usually you can sort it out by copying the ~-files back onto the originals
+and removing the last line from ./applied-patches.  Or do a "refpatch ;
+poppatch ; rm patches/troublesome-patch.patch ; cvs up patches".
+
+If it's really bad, just blow away the entire tree and do a new CVS checkout.
+
+
+Working on non-kernel projects
+==============================
+
+Well it's the same thing.  Say you've downloaded a copy of util-linux
+and you want to make a change:
+
+	cd /usr/src
+	tar xvfz ~/util-linux.tar.gz
+	cd util-linux
+	mkdir pc patches txt
+	fpatch my-patch sys-utils/rdev.c
+	fpatch sys-utils/ipcs.8
+	<edit, edit>
+	refpatch
+	<ship patches/my-patch.patch>
+
+How to balls things up
+======================
+
+Well here's one way.  Suppose you have 20 patches applied, and three of
+them (say, "p1", "p6" and "p11") all modify "foo.c".
+
+Now you go and change foo.c.
+
+Well, to which patch does that change belong?  You need to decide. 
+Let's say you decide "p6".
+
+If you run `refpatch' when "p11" is toppatch then you lose.  The diff
+went into p11.
+
+What you can do is:
+
+1:
+	poppatch p6
+	<edit>
+	refpatch
+	pushpatch p11
+	<test>
+
+  (See why ccache is looking good?)
+
+or
+
+2:
+	<edit>
+	<test>
+	poppatch p6	<hope like hell that the other patches remove cleanly>
+	refpatch
+
+
+Another good way of ballsing up is to cheat.  Say "oh I just want to make
+this one-line change".  And "oh, and this one".
+
+Now you're getting in a mess.  It's much, much better to just use the system:
+
+	fpatch junk file1
+	fpatch file2
+	<edit>
+	<play>
+	refpatch
+	poppatch
+	rm pc/junk.pc patches/junk.patch
+
+Merging with -mm kernels
+========================
+
+Haven't tried this, but it should work:
+
+- Grab all the patches from broken-out/, place them in your ./patches/
+
+- Copy my series file into ./series (or ./pc/akpm-series and symlink it)
+
+- pushpatch 99
+
+And you're off and running.  The nice thing about this is that you can
+send me incremental diffs to diffs which I already have.
+
+Or whatever.  I'm fairly handy with diffs nowadays.  Rejects are
+expected.  I just prefer to have "one concept per diff".

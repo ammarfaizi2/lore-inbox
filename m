@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281322AbRLGOEs>; Fri, 7 Dec 2001 09:04:48 -0500
+	id <S281458AbRLGODE>; Fri, 7 Dec 2001 09:03:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281483AbRLGOEg>; Fri, 7 Dec 2001 09:04:36 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:50693 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S281322AbRLGOED>; Fri, 7 Dec 2001 09:04:03 -0500
-Date: Fri, 7 Dec 2001 17:03:41 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Kurt Garloff <garloff@suse.de>,
-        Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: IDE DMA on AXP & barriers
-Message-ID: <20011207170341.A9959@jurassic.park.msu.ru>
-In-Reply-To: <20011206061315.J13427@garloff.etpnet.phys.tue.nl> <20011206125935.A3930@jurassic.park.msu.ru> <20011207132505.B4229@garloff.etpnet.phys.tue.nl>
+	id <S281473AbRLGOCy>; Fri, 7 Dec 2001 09:02:54 -0500
+Received: from uisge.3dlabs.com ([193.133.230.45]:49363 "EHLO uisge.3dlabs.com")
+	by vger.kernel.org with ESMTP id <S281458AbRLGOCl>;
+	Fri, 7 Dec 2001 09:02:41 -0500
+Date: Fri, 7 Dec 2001 14:01:29 +0000
+From: Paul Sargent <Paul.Sargent@3dlabs.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2GB process crashing on 2.4.14
+Message-ID: <20011207140128.F31161@3dlabs.com>
+In-Reply-To: <20011207132317.E31161@3dlabs.com> <E16CLM9-0005rf-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011207132505.B4229@garloff.etpnet.phys.tue.nl>; from garloff@suse.de on Fri, Dec 07, 2001 at 01:25:05PM +0100
+In-Reply-To: <E16CLM9-0005rf-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 07, 2001 at 01:25:05PM +0100, Kurt Garloff wrote:
-> So I  wonder where the bug actually is. Somewhere in hardware; but I wonder
-> whether the CMD646 or the 2117x (PYXIS/CIA) is to blame. The QLogicISP seems
-> to happily do BM-DMA, so I'd point to the CMD646.
+On Fri, Dec 07, 2001 at 01:48:00PM +0000, Alan Cox wrote:
+> > > Most probably the process is running out of address space to allocate from.
+> > > There is 3Gb of available space. 
+> > 
+> > That would be from 0x00000000 to 0xC0000000, Right?
+> 
+> Correct (0xBFFFFFFF)
+> 
+> > > binary, some your libraries.  Getting above 3Gb/process on x86 is very hairy
+> > > with a bad performance hit
+> > 
+> > So if I was hitting this limit then I should see no / very few gaps, in the
+> > /proc/<pid>/maps. Is that true?
+> 
+> Providing the memory allocator it is using is sufficiently smart
 
-Hmm, it seems to be a pyxis bug; the hardware workaround exists, but
-I guess that it might be not implemented properly on early miatas.
-This also explains why I don't have that problem on lx164 and sx164.
->From pyxis manual:
-"A.1 Read Page Problem
- PCI DMA reads that attempt to cross 8K page boundaries cause data corruption
- problems. A fix has been implemented with an Altera 7032 and two Pericom
- PI5C3400 bus switches and a diode."
+Where "it" is the app?
 
-> OTOH, the QLogic sits on
-> the 2nd PCI bus (32bit), which could make a difference as well.
+OK, well looking at the maps output, there seems to be three distinct
+sections:
 
-Certainly - the 2nd bus is behind PCI-PCI bridge.
+1) from 0x00000000 to 0x01c6a000 (30MB-ish) are mappings of the executable.
 
-Ivan.
+2) from 0xbca9a000 to 0xbfffffff (56MB-ish) are the libs, plus a few other
+   areas, which I've assumed are stack, and scratch areas for the libs.
+
+3) a single mapping, (was 1.1GB-ish in the map output I attached) which
+   starts at the end of section 1, and is continually growing, and which I
+   can see has no reason to stop until it gets to the start of section 2
+   (some 3GB - 86MB later).
+
+Now admittedly, it's possible that some of the other mappings may grow by a
+factor of 20 to suddenly eat up 1GB of address space, but I doubt it. So I'm
+not buying the address space idea at the moment. That said, I'm not going to
+discount it and will keep a log of what happens on the mappings while this
+process is running, just in case something really wacky like that happens.
+
+Paul
+-- 
+Paul Sargent
+mailto: Paul.Sargent@3Dlabs.com

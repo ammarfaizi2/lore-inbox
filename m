@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316878AbSH0Ty2>; Tue, 27 Aug 2002 15:54:28 -0400
+	id <S317017AbSH0T4G>; Tue, 27 Aug 2002 15:56:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316897AbSH0Ty2>; Tue, 27 Aug 2002 15:54:28 -0400
-Received: from ns.suse.de ([213.95.15.193]:2565 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316878AbSH0Ty1>;
-	Tue, 27 Aug 2002 15:54:27 -0400
-To: Dean Nelson <dcn@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: atomic64_t proposal
-References: <200208271937.OAA78345@cyan.americas.sgi.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 27 Aug 2002 21:58:45 +0200
-In-Reply-To: Dean Nelson's message of "27 Aug 2002 21:41:25 +0200"
-Message-ID: <p73sn102hvu.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S317022AbSH0T4G>; Tue, 27 Aug 2002 15:56:06 -0400
+Received: from tapu.f00f.org ([66.60.186.129]:38579 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S317017AbSH0T4F>;
+	Tue, 27 Aug 2002 15:56:05 -0400
+Date: Tue, 27 Aug 2002 13:00:25 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Thunder from the hill <thunder@lightweight.ods.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Zheng Jian-Ming <zjm@cis.nctu.edu.tw>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: problems with changing UID/GID
+Message-ID: <20020827200025.GA8985@tapu.f00f.org>
+References: <20020827181207.GA8578@tapu.f00f.org> <Pine.LNX.4.44.0208271304250.3234-100000@hawkeye.luckynet.adm>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208271304250.3234-100000@hawkeye.luckynet.adm>
+User-Agent: Mutt/1.4i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dean Nelson <dcn@sgi.com> writes:
+On Tue, Aug 27, 2002 at 01:08:04PM -0600, Thunder from the hill wrote:
 
-> I'm proposing the creation of an atomic64_t variable, which is a 64-bit
-> version of atomic_t, and the usage of the __typeof__ keyword in macro versions
-> of the atomic operations to enable them to operate on either type (atomic_t and
-> atomic64_t).
-> 
-> I submitted the following patch to David Mosberger to be considered for
-> inclusion in the IA-64 linux kernel. He suggested that I bring the topic up
-> on this list so that the other 64-bit platform maintainers can commment.
+    And how do you protect a caller from having to wait for the lock?
 
-Wouldn't it be much cleaner to just define atomic64_add/sub/read etc. ?
-That would make the macros much nicer.
+You don't.  If they have to wait, then they wait.
 
-On x86-64 it would be fine this way.
+    You'd need a lock count here, where you can only change the
+    credentials when the count is zero. But when will that ever be?
 
-Is it supposed to only work on 64bit or do you plan to supply it for 32
-bit too? If no, I don't see how drivers etc. should ever use it. linux 
-is supposed to have a common kernel api.
-If yes, the implementation on 32bit could be a problem. e.g. some 
-archs need space in there for spinlocks, so it would be needed to limit
-the usable range.
+It depends... for most non-threaded applications, immediately... for
+threaded applications with lots of (day) disk IO, it could be
+indefinite.
 
--Andi
+    And btw, the count bumping/downing does cost.
+
+Almost immeasurable.  [sg]et[eu]id doesn't get called that often.
+
+
+
+  --cw

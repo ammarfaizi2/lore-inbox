@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267666AbUHJVlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267740AbUHJVpe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267666AbUHJVlh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 17:41:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267753AbUHJVjJ
+	id S267740AbUHJVpe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 17:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267759AbUHJVpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 17:39:09 -0400
-Received: from jade.spiritone.com ([216.99.193.136]:27349 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S267740AbUHJVgV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 17:36:21 -0400
-Date: Sun, 08 Aug 2004 19:53:18 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>, Paul Jackson <pj@sgi.com>
-cc: alex.williamson@hp.com, haveblue@us.ibm.com,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] Re: [PATCH] cleanup ACPI numa warnings
-Message-ID: <2550950000.1092019997@[10.10.2.4]>
-In-Reply-To: <20040808143631.7c18cae9.rddunlap@osdl.org>
-References: <1091738798.22406.9.camel@tdi><1091739702.31490.245.camel@nighthawk><1091741142.22406.28.camel@tdi><249150000.1091763309@[10.10.2.4]><20040805205059.3fb67b71.rddunlap@osdl.org><20040807105729.6adea633.pj@sgi.com> <20040808143631.7c18cae9.rddunlap@osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Tue, 10 Aug 2004 17:45:24 -0400
+Received: from quechua.inka.de ([193.197.184.2]:13784 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S267740AbUHJVnJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 17:43:09 -0400
+From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Bug zapper?  :)
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <4118E78F.8070301@comcast.net>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.5-20040615 ("Gighay") (UNIX) (Linux/2.6.5 (i686))
+Message-Id: <E1BueOh-0006ij-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Tue, 10 Aug 2004 23:43:07 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---"Randy.Dunlap" <rddunlap@osdl.org> wrote (on Sunday, August 08, 2004 14:36:31 -0700):
+In article <4118E78F.8070301@comcast.net> you wrote:
+> I guess it should describe INPUT, OUTPUT, PROCESS, STATE CHANGE, and 
+> ERRORS :/
 
-> On Sat, 7 Aug 2004 10:57:29 -0700 Paul Jackson wrote:
-> 
->| > And there's nothing in CodingStyle that agrees with you that I could find.
->| 
->| > From the file Documentation/SubmittingPatches:
->| 
->|         3) 'static inline' is better than a macro
->| 
->|         Static inline functions are greatly preferred over macros.
->|         They provide type safety, have no length limitations, no formatting
->|         limitations, and under gcc they are as cheap as macros.
->| 
->|         Macros should only be used for cases where a static inline is clearly
->|         suboptimal [there a few, isolated cases of this in fast paths],
->|         or where it is impossible to use a static inline function [such as
->|         string-izing].
-> 
-> Oops.  Thanks, Paul.
-> 
-> I agree that the inline looks better than the macro (more readable,
-> possibly more maintainable), but not that the multi-line macro
-> is _evil_ (which is what Martin said).
+You do not need to describe behaviour if the pre-condition is not valid. 
+This is common asumption in "design by contract". However, this is not good
+robust programming, to not handle those pre-condition violations.
 
-It's not that this multi-line macro was particularly offensive ... it's
-that I've seen the most heinous crap in the past ... and the only sensible
-place I can find to draw a line is ... no multiline macros ;-)
+> Readable.  Don't guess what the code does.
 
-M.
+What else is the author of the comment doing? You cant describe all
+(important) aspects of a piece of code in a language that is less complex
+than the code itself (locking, concurrency, mm, ressouce consumption, ...).
+In fact you are very likely introducing errors. Thats why comments are only
+needed for navigating you and giving you the overall picture. They are also
+good to explain unusual statements (especially in optimized hot path).
 
+> Of course not.  The goal I was aiming for was to create an extremely 
+> structured documentation scheme in the hopes that it would provide a 
+> great deal of ease in understanding what a function does.  "if you don't 
+> understand what it does, don't fuck with my code"
+
+Well, actually it is good to describe a function at the high level, but dont
+go further than that.
+
+Greetings
+Bernd
+-- 
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

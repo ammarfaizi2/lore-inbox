@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264624AbRGPQtZ>; Mon, 16 Jul 2001 12:49:25 -0400
+	id <S265193AbRGPQzP>; Mon, 16 Jul 2001 12:55:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265449AbRGPQtP>; Mon, 16 Jul 2001 12:49:15 -0400
-Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:24269 "EHLO
-	nixpbe.pdb.sbs.de") by vger.kernel.org with ESMTP
-	id <S264624AbRGPQtK>; Mon, 16 Jul 2001 12:49:10 -0400
-Date: Mon, 16 Jul 2001 18:51:10 +0200 (CEST)
-From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-cc: Ben LaHaise <bcrl@redhat.com>, "David S. Miller" <davem@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@suse.de>,
-        Jes Sorensen <jes@sunsite.dk>
-Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit
- machine
-Message-ID: <Pine.LNX.4.30.0107161601480.23444-100000@biker.pdb.fsc.net>
+	id <S265449AbRGPQy4>; Mon, 16 Jul 2001 12:54:56 -0400
+Received: from runyon.cygnus.com ([205.180.230.5]:56051 "EHLO cygnus.com")
+	by vger.kernel.org with ESMTP id <S265193AbRGPQyr>;
+	Mon, 16 Jul 2001 12:54:47 -0400
+To: Rolf Fokkens <FokkensR@vertis.nl>
+Cc: "'alan@lxorguk.ukuu.org.uk'" <alan@lxorguk.ukuu.org.uk>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: /proc/sys/kernel/hz
+In-Reply-To: <938F7F15145BD311AECE00508B7152DB034C48DA@vts007.vertis.nl>
+Reply-To: drepper@cygnus.com (Ulrich Drepper)
+X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
+X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
+From: Ulrich Drepper <drepper@redhat.com>
+Date: 16 Jul 2001 09:50:35 -0700
+In-Reply-To: Rolf Fokkens's message of "Mon, 16 Jul 2001 18:11:14 +0200"
+Message-ID: <m38zhorf6s.fsf@otr.mynet>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rolf Fokkens <FokkensR@vertis.nl> writes:
 
-Hi,
+> Some software (like procps) needs the HZ constant in the kernel. It's
+> sometimes determined by counting jiffies during a second. The attached patch
+> just "publishes" the HZ constant in /proc/sys/kernel/hz.
 
-sorry to join in so late in this thread, but I think I should bring the
-following to your attention:
+And what is wrong with
 
-Someone (David, I think) said that IA64 was handling 32-bit controllers
-fine. To my experience, that depends strongly on the drivers.
-At least for aic7xxx, it is not the case (I have documented the
-related crashes on the linux-ia64 mailing lists during the last two
-months). The driver is simply eating up buffer space in such vast amounts
-that it freezes the software IO-memory management even at very moderate
-load (you can use the "old" driver instead, but this doesn't look like a
-long-term solution).
+  getconf CLK_TCK
 
-After some discussion, Justin Gibbs announced that he'll implement 39-bit
-DMA addressing in the aic7xxx driver, and it appeared that this was
-pretty much the only viable solution to make the "new" aic7xxx driver work on
-IA64. I haven't looked at his new code yet, but I assume he's using the
-IA64 approach.
+or programmatically
 
-It is likely that this will happen for other drivers as well, especially
-those that need a lot of buffer space for good performance. Thus the IA-64
-API will probably emerge as a matter-of-fact standard, and if something
-better is to replace it, I think it should be decided upon quickly, so
-that driver maintainers (and IA64) can adopt to it before everything has
-to be written (and debugged) twice.
+  hz = sysconf (_SC_CLK_TCK);
 
-Regards,
-Martin
+
+Update your libc and this info will come from the kernel.
+
 -- 
-Martin Wilck     <Martin.Wilck@fujitsu-siemens.com>
-FSC EP PS DS1, Paderborn      Tel. +49 5251 8 15113
-
-
-
+---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------

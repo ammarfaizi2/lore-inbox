@@ -1,129 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262165AbTFOMFf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 08:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbTFOMFf
+	id S262169AbTFOMOM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 08:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbTFOMOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 08:05:35 -0400
-Received: from mailc.telia.com ([194.22.190.4]:43508 "EHLO mailc.telia.com")
-	by vger.kernel.org with ESMTP id S262165AbTFOMFc (ORCPT
+	Sun, 15 Jun 2003 08:14:11 -0400
+Received: from [211.167.76.68] ([211.167.76.68]:2437 "HELO soulinfo")
+	by vger.kernel.org with SMTP id S262169AbTFOMOI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 08:05:32 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Joseph Fannin <jhf@rivenstone.net>,
-       Jens Taprogge <jens.taprogge@rwth-aachen.de>
-Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
-References: <m2smqhqk4k.fsf@p4.localdomain> <20030615001905.A27084@ucw.cz>
-From: Peter Osterlund <petero2@telia.com>
-Date: 15 Jun 2003 14:18:57 +0200
-In-Reply-To: <20030615001905.A27084@ucw.cz>
-Message-ID: <m2he6rv8i6.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 15 Jun 2003 08:14:08 -0400
+Date: Sun, 15 Jun 2003 20:28:03 +0800
+From: hugang <hugang@soulinfo.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: dahinds@users.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Pcmcia GPRS cards not works in linux.
+Message-Id: <20030615202803.51fcf72e.hugang@soulinfo.com>
+In-Reply-To: <20030615103456.B27533@flint.arm.linux.org.uk>
+References: <20030615104322.496279e1.hugang@soulinfo.com>
+	<20030615103456.B27533@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 8bit
+ =?ISO-8859-1?Q?=CA=D5=BC=FE=C8=CB=A3=BA:?= Russell King <rmk@arm.linux.org.uk>
+ =?ISO-8859-1?Q?=B3=AD=CB=CD=A3=BA:?= dahinds@users.sourceforge.net,linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz> writes:
+On Sun, 15 Jun 2003 10:34:56 +0100
+Russell King <rmk@arm.linux.org.uk> wrote:
 
-> On Wed, Jun 11, 2003 at 07:05:31AM +0200, Peter Osterlund wrote:
+>  Could you include the information below and the output of cardctl
+>  status please?
 > 
-> > [ I'm resending this because the previous message never showed up on
-> > the list. Maybe it was too big. ]
-> > 
-> > Hi!
-> > 
-> > Here is a driver for the Synaptics TouchPad for 2.5.70. It is largely
-> > based on the XFree86 driver. This driver operates the touchpad in
-> > absolute mode and emulates a three button mouse with two scroll
-> > wheels. Features include:
-> > 
-> > * Multi finger tapping.
-> > * Vertical and horizontal scrolling.
-> > * Edge scrolling during drag operations.
-> > * Palm detection.
-> > * Corner tapping.
-> 
-> ... you may want to put these nice features into the mousedev.c driver
-> for now, so that the touchpad works with standard XFree without the
-> event based driver.
+Thank you very much.
 
-No need. There is now a working XFree86 driver here:
+>  I think I can tell you what's happening.  Your card contains two
+>  configuration table entries (0x30 and 0x31).  The first, 0x30,
+>  tells us that the card supports 3.3V in this configuration.  The
+>  second indicates that the card supports 5V with this configuration.
+  Your are right. With this patch it works fine.
+--- cs.c.old    Sun Jun 15 19:46:26 2003
++++ cs.c        Sun Jun 15 19:52:51 2003
+@@ -1765,8 +1765,10 @@
+        return CS_CONFIGURATION_LOCKED;
+ 
+     /* Do power control.  We don't allow changes in Vcc. */
+-    if (s->socket.Vcc != req->Vcc)
+-       return CS_BAD_VCC;
++       printk("VCC: %d, %d\n", s->socket.Vcc, req->Vcc);
++    /*if (s->socket.Vcc != req->Vcc)
++       return CS_BAD_VCC;*/
++       printk("Vpp1: %d, %d\n", req->Vpp1, req->Vpp2);
+     if (req->Vpp1 != req->Vpp2)
+        return CS_BAD_VPP;
+     s->socket.Vpp = req->Vpp1;
 
-        http://w1.894.telia.com/~u89404340/touchpad/index.html
-
-It needs the following incremental kernel patch though.
-
-
-diff -u -r -N --exclude='.*' --exclude='*.o' --exclude='*.ko' --exclude='*~' ../../linus/main/linux/drivers/input/mouse/Kconfig linux/drivers/input/mouse/Kconfig
---- ../../linus/main/linux/drivers/input/mouse/Kconfig	Sun Jun 15 14:10:15 2003
-+++ linux/drivers/input/mouse/Kconfig	Sun Jun 15 13:53:38 2003
-@@ -37,7 +37,7 @@
- 	  This touchpad is found on many modern laptop computers.
- 	  Note that you also need a user space driver to interpret the data
- 	  generated by the kernel. A compatible driver for XFree86 is available
--	  from http://...
-+	  from http://w1.894.telia.com/~u89404340/touchpad/index.html
- 
- 	  If unsure, say Y.
- 
-diff -u -r -N --exclude='.*' --exclude='*.o' --exclude='*.ko' --exclude='*~' ../../linus/main/linux/drivers/input/mouse/synaptics.c linux/drivers/input/mouse/synaptics.c
---- ../../linus/main/linux/drivers/input/mouse/synaptics.c	Sun Jun 15 14:10:15 2003
-+++ linux/drivers/input/mouse/synaptics.c	Sun Jun 15 11:39:46 2003
-@@ -179,9 +179,9 @@
- static int query_hardware(struct psmouse *psmouse)
- {
- 	struct synaptics_data *priv = psmouse->private;
--	int retries = 3;
-+	int retries = 0;
- 
--	while ((retries++ <= 3) && synaptics_reset(psmouse))
-+	while ((retries++ < 3) && synaptics_reset(psmouse))
- 		printk(KERN_ERR "synaptics reset failed\n");
- 
- 	if (synaptics_identify(psmouse, &priv->identity))
-@@ -274,8 +274,7 @@
-  *	Functions to interpret the absolute mode packets
-  ****************************************************************************/
- 
--static void synaptics_parse_hw_state(struct synaptics_data *priv,
--				     struct synaptics_hw_state *hw)
-+static void synaptics_parse_hw_state(struct synaptics_data *priv, struct synaptics_hw_state *hw)
- {
- 	unsigned char *buf = priv->proto_buf;
- 
-@@ -347,10 +346,12 @@
- 	input_report_abs(dev, ABS_Y,        hw.y);
- 	input_report_abs(dev, ABS_PRESSURE, hw.z);
- 
--	if (hw.w != priv->old_w) {
--		input_event(dev, EV_MSC, MSC_GESTURE, hw.w);
--		priv->old_w = hw.w;
--	}
-+	/*
-+	 * This will generate an event even if w is unchanged, but that is
-+	 * exactly what we want, because user space drivers may depend on
-+	 * this for gesture decoding.
-+	 */
-+	input_event(dev, EV_MSC, MSC_GESTURE, hw.w);
- 
- 	input_report_key(dev, BTN_LEFT,    hw.left);
- 	input_report_key(dev, BTN_RIGHT,   hw.right);
-diff -u -r -N --exclude='.*' --exclude='*.o' --exclude='*.ko' --exclude='*~' ../../linus/main/linux/drivers/input/mouse/synaptics.h linux/drivers/input/mouse/synaptics.h
---- ../../linus/main/linux/drivers/input/mouse/synaptics.h	Sun Jun 15 14:10:15 2003
-+++ linux/drivers/input/mouse/synaptics.h	Sun Jun 15 11:40:14 2003
-@@ -83,8 +83,6 @@
- 	unsigned char last_byte;		/* last received byte */
- 	int inSync;				/* Packets in sync */
- 	int proto_buf_tail;
--
--	int old_w;				/* Previous w value */
- };
- 
- #endif /* _SYNAPTICS_H */
-
+---2.5.71-------without-hacker
+hugang:/home/hugang/download/module-init# uname -a
+Linux hugang 2.5.71 #4 ÈÕ 6ÔÂ 15 11:44:04 CST 2003 i686 unknown
+hugang:/home/hugang/download/module-init# cardctl config
+Socket 0:
+  Vcc 3.3V  Vpp1 3.3V  Vpp2 3.3V
+hugang:/home/hugang/download/module-init# cardctl status
+Socket 0:
+  3.3V 16-bit PC Card
+  function 0: [ready], [wp], [bat low]
+--with-hacker--
+VCC: 33, 50
+Vpp1: 0, 0
+ttyS0 at I/O 0x100 (irq = 3) is a 16550A
+hugang:~# cardctl status
+Socket 0:
+  3.3V 16-bit PC Card
+  function 0: [ready]
+hugang:~# cardctl config
+Socket 0:
+  Vcc 5.0V  Vpp1 0.0V  Vpp2 0.0V
+  interface type is "memory and I/O"
+  irq 3 [exclusive] [level]
+  speaker output is enabled
+  function 0:
+    config base 0x0400
+      option 0x70
+    io 0x0100-0x010f [8bit]
 -- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+Hu Gang / Steve
+Email        : huagng@soulinfo.com, steve@soulinfo.com
+GPG FinePrint: 4099 3F1D AE01 1817 68F7  D499 A6C2 C418 86C8 610E
+http://soulinfo.com/~hugang/HuGang.asc
+ICQ#         : 205800361
+Registered Linux User : 204016

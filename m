@@ -1,152 +1,268 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318261AbSHDXFG>; Sun, 4 Aug 2002 19:05:06 -0400
+	id <S318262AbSHDXFc>; Sun, 4 Aug 2002 19:05:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318262AbSHDXFG>; Sun, 4 Aug 2002 19:05:06 -0400
-Received: from babsi.intermeta.de ([212.34.181.3]:34057 "EHLO
-	mail.intermeta.de") by vger.kernel.org with ESMTP
-	id <S318261AbSHDXFF>; Sun, 4 Aug 2002 19:05:05 -0400
-Date: Mon, 5 Aug 2002 01:08:05 +0200
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: hps@intermeta.de, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-rc5-ac1 and Intel SCB2 (OSB5) trouble
-Message-ID: <20020805010805.B2727@forge.intermeta.de>
-Reply-To: hps@intermeta.de
-References: <aih3v2$11l$1@forge.intermeta.de> <1028402593.1760.16.camel@irongate.swansea.linux.org.uk>
+	id <S318263AbSHDXFc>; Sun, 4 Aug 2002 19:05:32 -0400
+Received: from mail1.qualcomm.com ([129.46.64.223]:16793 "EHLO
+	mail1.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S318262AbSHDXF1>; Sun, 4 Aug 2002 19:05:27 -0400
+Subject: [PATCH] 2.4.19 Bluetooth [4/5] HCI USB driver update
+From: "Maksim (Max) " Krasnyanskiy <maxk@qualcomm.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, bluez-devel@usw-pr-web.sourceforge.net
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1028459281.1003.54.camel@champ.qualcomm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1028402593.1760.16.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.19i
+X-Mailer: Ximian Evolution 1.0.5.99 
+Date: 04 Aug 2002 04:08:23 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan, LKM,
+HCI USB driver updates.
 
-just to let you know, that -ac2 fixed all the IDE problems with the
-OSB5 board. Onboard IDE works finde, pdcraid too (but I need
-CONFIG_PDC202XX_FORCE=y to enable the drives).
+- Module refcounting fixes
 
-lspci -vvx :
+- Firmware loading is now entirely in hotplug.
+  Remove usermod_helper calls.
 
---- cut ---
-00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller (rev 92) (prog-if 8f [Master SecP SecO PriP PriO])
-        Subsystem: Intel Corp.: Unknown device 3410
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64, cache line size 08
-        Region 0: I/O ports at 1418 [size=8]
-        Region 1: I/O ports at 1420 [size=4]
-        Region 2: I/O ports at 1428 [size=8]
-        Region 3: I/O ports at 1424 [size=4]
-        Region 4: I/O ports at 03a0 [size=16]
-        Region 5: I/O ports at 0410 [size=4]
-00: 66 11 12 02 05 01 00 02 92 8f 01 01 08 40 80 00
-10: 19 14 00 00 21 14 00 00 29 14 00 00 25 14 00 00
-20: a1 03 00 00 11 04 00 00 00 00 00 00 86 80 10 34
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
---- cut ---
+- Support for device id black list.
+  Don't claim devices without firmware. 
 
-IDE:
+ Documentation/Configure.help |   11 ----
+ drivers/bluetooth/Config.in  |    1 
+ drivers/bluetooth/hci_usb.c  |  109 ++++++++++---------------------------------
+ 3 files changed, 28 insertions(+), 93 deletions(-)
 
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PDC20267: IDE controller on PCI bus 00 dev 10
-PDC20267: chipset revision 2
-PDC20267: not 100% native mode: will probe irqs later
-PDC20267: ROM enabled at 0xfe8e0000
-PDC20267: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER Mode.
-    ide2: BM-DMA at 0x1440-0x1447, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0x1448-0x144f, BIOS settings: hdg:pio, hdh:pio
-SvrWks CSB5: IDE controller on PCI bus 00 dev 79
-SvrWks CSB5: chipset revision 146
-SvrWks CSB5: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0x03a0-0x03a7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0x03a8-0x03af, BIOS settings: hdc:pio, hdd:pio
-hde: IC35L040AVVA07-0, ATA DISK drive
-hdg: IC35L040AVVA07-0, ATA DISK drive
-ide4: ports already in use, skipping probe
-ide5: ports already in use, skipping probe
-ide2 at 0x1400-0x1407,0x140a on irq 19
-ide3 at 0x1410-0x1417,0x140e on irq 19
-hde: host protected area => 1
-hde: 80418240 sectors (41174 MB) w/1863KiB Cache, CHS=79780/16/63, UDMA(100)
-hdg: host protected area => 1
-hdg: 80418240 sectors (41174 MB) w/1863KiB Cache, CHS=79780/16/63, UDMA(100)
-ide-floppy driver 0.99.newide
-Partition check:
- hde: [PTBL] [5005/255/63] hde1
- hdg: [PTBL] [5005/255/63] hdg1
- ataraid/d0: ataraid/d0p1
-Drive 0 is 39266 Mb (33 / 0) 
-Drive 1 is 39266 Mb (34 / 0) 
-Raid1 array consists of 2 drives. 
-Promise Fasttrak(tm) Softwareraid driver for linux version 0.03beta
+http://bluez.sourceforge.net/patches/patch-2.4.19-bluetooth-hciusb.gz
+
+Please apply
+
+Max
+
+diff -urN linux.orig/drivers/bluetooth/Config.in linux/drivers/bluetooth/Config.in
+--- linux.orig/drivers/bluetooth/Config.in	Sat Aug  3 11:59:42 2002
++++ linux/drivers/bluetooth/Config.in	Sat Aug  3 17:27:56 2002
+@@ -3,7 +3,6 @@
+ 
+ dep_tristate 'HCI USB driver' CONFIG_BLUEZ_HCIUSB $CONFIG_BLUEZ $CONFIG_USB
+ if [ "$CONFIG_BLUEZ_HCIUSB" != "n" ]; then
+-   bool '  Firmware download support'  CONFIG_BLUEZ_USB_FW_LOAD
+    bool '  USB zero packet support'  CONFIG_BLUEZ_USB_ZERO_PACKET
+ fi
+ 
+diff -urN linux.orig/drivers/bluetooth/hci_usb.c linux/drivers/bluetooth/hci_usb.c
+--- linux.orig/drivers/bluetooth/hci_usb.c	Sat Aug  3 11:59:42 2002
++++ linux/drivers/bluetooth/hci_usb.c	Sat Aug  3 18:23:25 2002
+@@ -28,9 +28,9 @@
+  *    Copyright (c) 2000 Greg Kroah-Hartman        <greg@kroah.com>
+  *    Copyright (c) 2000 Mark Douglas Corner       <mcorner@umich.edu>
+  *
+- * $Id: hci_usb.c,v 1.6 2002/04/17 17:37:20 maxk Exp $    
++ * $Id: hci_usb.c,v 1.8 2002/07/18 17:23:09 maxk Exp $    
+  */
+-#define VERSION "2.0"
++#define VERSION "2.1"
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
+@@ -73,7 +73,7 @@
+ 
+ static struct usb_driver hci_usb_driver; 
+ 
+-static struct usb_device_id usb_bluetooth_ids [] = {
++static struct usb_device_id bluetooth_ids[] = {
+ 	/* Generic Bluetooth USB device */
+ 	{ USB_DEVICE_INFO(HCI_DEV_CLASS, HCI_DEV_SUBCLASS, HCI_DEV_PROTOCOL) },
+ 
+@@ -83,7 +83,14 @@
+ 	{ }	/* Terminating entry */
+ };
+ 
+-MODULE_DEVICE_TABLE (usb, usb_bluetooth_ids);
++MODULE_DEVICE_TABLE (usb, bluetooth_ids);
++
++static struct usb_device_id ignore_ids[] = {
++	/* Broadcom BCM2033 without firmware */
++	{ USB_DEVICE(0x0a5c, 0x2033) },
++
++	{ }	/* Terminating entry */
++};
+ 
+ static void hci_usb_interrupt(struct urb *urb);
+ static void hci_usb_rx_complete(struct urb *urb);
+@@ -201,15 +208,19 @@
+ 	if (test_and_set_bit(HCI_RUNNING, &hdev->flags))
+ 		return 0;
+ 
++	MOD_INC_USE_COUNT;
++
+ 	write_lock_irqsave(&husb->completion_lock, flags);
+ 
+ 	err = hci_usb_enable_intr(husb);
+ 	if (!err) {
+ 		for (i = 0; i < HCI_MAX_BULK_TX; i++)
+ 			hci_usb_rx_submit(husb, NULL);
+-	} else 
++	} else {
+ 		clear_bit(HCI_RUNNING, &hdev->flags);
+-		
++		MOD_DEC_USE_COUNT;
++	}
++
+ 	write_unlock_irqrestore(&husb->completion_lock, flags);
+ 	return err;
+ }
+@@ -261,6 +272,8 @@
+ 	hci_usb_flush(hdev);
+ 
+ 	write_unlock_irqrestore(&husb->completion_lock, flags);
++
++	MOD_DEC_USE_COUNT;
+ 	return 0;
+ }
+ 
+@@ -588,76 +601,9 @@
+ 
+ 	husb = (struct hci_usb *) hdev->driver_data;
+ 	kfree(husb);
+-
+-	MOD_DEC_USE_COUNT;
+ }
+ 
+-#ifdef CONFIG_BLUEZ_USB_FW_LOAD
+-
+-/* Support for user mode Bluetooth USB firmware loader */
+-
+-#define FW_LOADER "/sbin/bluefw"
+-static int errno;
+-
+-static int hci_usb_fw_exec(void *dev)
+-{
+-	char *envp[] = { "HOME=/", "TERM=linux", 
+-			 "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
+-	char *argv[] = { FW_LOADER, dev, NULL };
+-	int err;
+-
+-	err = exec_usermodehelper(FW_LOADER, argv, envp);
+-	if (err)
+-		BT_ERR("failed to exec %s %s", FW_LOADER, (char *)dev);
+-	return err;
+-}
+-
+-static int hci_usb_fw_load(struct usb_device *udev)
+-{
+-	sigset_t tmpsig;
+-	char dev[16];
+-	pid_t pid;
+-	int result;
+-
+-	/* Check if root fs is mounted */
+-	if (!current->fs->root) {
+-		BT_ERR("root fs not mounted");
+-		return -EPERM;
+-	}
+-
+-	sprintf(dev, "%3.3d/%3.3d", udev->bus->busnum, udev->devnum);
+-
+-	pid = kernel_thread(hci_usb_fw_exec, (void *)dev, 0);
+-	if (pid < 0) {
+-		BT_ERR("fork failed, errno %d\n", -pid);
+-		return pid;
+-	}
+-
+-	/* Block signals, everything but SIGKILL/SIGSTOP */
+-	spin_lock_irq(&current->sigmask_lock);
+-	tmpsig = current->blocked;
+-	siginitsetinv(&current->blocked, sigmask(SIGKILL) | sigmask(SIGSTOP));
+-	recalc_sigpending(current);
+-	spin_unlock_irq(&current->sigmask_lock);
+-
+-	result = waitpid(pid, NULL, __WCLONE);
+-
+-	/* Allow signals again */
+-	spin_lock_irq(&current->sigmask_lock);
+-	current->blocked = tmpsig;
+-	recalc_sigpending(current);
+-	spin_unlock_irq(&current->sigmask_lock);
+-
+-	if (result != pid) {
+-		BT_ERR("waitpid failed pid %d errno %d\n", pid, -result);
+-		return -result;
+-	}
+-	return 0;
+-}
+-
+-#endif /* CONFIG_BLUEZ_USB_FW_LOAD */
+-
+-static void * hci_usb_probe(struct usb_device *udev, unsigned int ifnum, const struct usb_device_id *id)
++static void *hci_usb_probe(struct usb_device *udev, unsigned int ifnum, const struct usb_device_id *id)
+ {
+ 	struct usb_endpoint_descriptor *bulk_out_ep[HCI_MAX_IFACE_NUM];
+ 	struct usb_endpoint_descriptor *isoc_out_ep[HCI_MAX_IFACE_NUM];
+@@ -673,16 +619,16 @@
+ 
+ 	BT_DBG("udev %p ifnum %d", udev, ifnum);
+ 
++	iface = &udev->actconfig->interface[0];
++
++	/* Check our black list */
++	if (usb_match_id(udev, iface, ignore_ids))
++		return NULL;
++
+ 	/* Check number of endpoints */
+ 	if (udev->actconfig->interface[ifnum].altsetting[0].bNumEndpoints < 3)
+ 		return NULL;
+ 
+-	MOD_INC_USE_COUNT;
+-
+-#ifdef CONFIG_BLUEZ_USB_FW_LOAD
+-	hci_usb_fw_load(udev);
+-#endif
+-
+ 	memset(bulk_out_ep, 0, sizeof(bulk_out_ep));
+ 	memset(isoc_out_ep, 0, sizeof(isoc_out_ep));
+ 	memset(bulk_in_ep,  0, sizeof(bulk_in_ep));
+@@ -801,7 +747,6 @@
+ 	kfree(husb);
+ 
+ done:
+-	MOD_DEC_USE_COUNT;
+ 	return NULL;
+ }
+ 
+@@ -828,7 +773,7 @@
+ 	name:           "hci_usb",
+ 	probe:          hci_usb_probe,
+ 	disconnect:     hci_usb_disconnect,
+-	id_table:       usb_bluetooth_ids,
++	id_table:       bluetooth_ids,
+ };
+ 
+ int hci_usb_init(void)
+diff -urN linux.orig/Documentation/Configure.help linux/Documentation/Configure.help
+--- linux.orig/Documentation/Configure.help	Sat Aug  3 11:59:38 2002
++++ linux/Documentation/Configure.help	Sat Aug  3 17:29:04 2002
+@@ -20464,18 +20464,9 @@
+   Say Y here to compile support for Bluetooth USB devices into the
+   kernel or say M to compile it as module (hci_usb.o).
+ 
+-HCI USB firmware download support
+-CONFIG_BLUEZ_USB_FW_LOAD
+-  Firmware download support for Bluetooth USB devices.
+-  This support is required for devices like Broadcom BCM2033.
+-
+-  HCI USB driver uses external firmware downloader program provided 
+-  in BlueFW package.
+-  For more information, see <http://bluez.sf.net/>.
+-
+ HCI USB zero packet support
+ CONFIG_BLUEZ_USB_ZERO_PACKET
+-  Support for USB zero packets. 
++  Support for USB zero packets.
+   This option is provided only as a work around for buggy Bluetooth USB 
+   devices. Do _not_ enable it unless you know for sure that your device 
+   requires zero packets.
 
 
-(this is 2.4.19-ac2 with the kernel-2.4.18-i686-smp.config from the RH
-2.4.18-5 RPM plus:
-
-CONFIG_IP_PNP=y
-CONFIG_IP_PNP_DHCP=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_ROOT_NFS=y
-CONFIG_EEPRO100=y
-
-CONFIG_PDC202XX_FORCE=y
-
-	Regards
-		Henning
-
-
-
-On Sat, Aug 03, 2002 at 08:23:13PM +0100, Alan Cox wrote:
-> On Sat, 2002-08-03 at 18:30, Henning P. Schmiedehausen wrote:
-> > I fetched 2.4.19-rc5-ac1 and did all my tests with this kernel.
-> > 
-> > The problem is: The board does contain the Promise RAID Driver
-> > BIOS. The customer wants to set up RAID1 with the BIOS and run the box
-> > under Linux.
-> 
-> Include the ataraid driver for striping on the Promise Fasttrak 100. If
-> you want to use their own driver boot with ide[n]=off
-> 
-> > 2.4.19 is also not able to set up the OSB5 chipset IDE controller in
-> > DMA mode. (Yes, I run latest BIOS from Intel)
-> 
-> > PCI: Device 00:0f.1 not available because of resource collisions
-> > SvrWks CSB5: (ide_setup_pci_device:) Could not enable device.
-> 
-> Linux found the OSB5 but found the BIOS had left colliding PCI
-> resources. At that point it let that deivce fall back to the generic PIO
-> legacy IDE driver instead. 2.4.19-ac1 handles this BIOS problem on the
-> i845 chipset boards, it ought to handle it on the non i845 ones
-> 
-> 
-> > 00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller (rev 92) (prog-if 8a [Master SecP PriP])
-> > 	Subsystem: Intel Corp.: Unknown device 3410
-> > 	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-> > 	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> > 	Latency: 64, cache line size 08
-> > 	Region 0: I/O ports at <unassigned> [size=8]
-> > 	Region 1: I/O ports at <unassigned> [size=4]
-> > 	Region 2: I/O ports at <unassigned> [size=8]
-> > 	Region 3: I/O ports at <unassigned> [size=4]
-> > 	Region 4: I/O ports at 03a0 [size=16]
-> > 	Region 5: I/O ports at 0410 [size=4]
-> 
-> I/O ports unassigned. Spank your vendor.
-> 
-> I am curious why the -ac PCI fixups didn't resolve this problem. Out of
-> interest edit pci-i386.c and remove the IDE test in
-> pcibios_assign_resources.
-> 
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,46 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317520AbSHCLlv>; Sat, 3 Aug 2002 07:41:51 -0400
+	id <S317536AbSHCLok>; Sat, 3 Aug 2002 07:44:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317536AbSHCLlv>; Sat, 3 Aug 2002 07:41:51 -0400
-Received: from kiruna.synopsys.com ([204.176.20.18]:1496 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S317520AbSHCLlu>; Sat, 3 Aug 2002 07:41:50 -0400
-Message-ID: <3D4BC243.90700@Synopsys.COM>
-Date: Sat, 03 Aug 2002 13:45:07 +0200
-From: Harald Dunkel <harri@synopsys.COM>
-Reply-To: harri@synopsys.COM
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.4.19
-References: <Pine.LNX.4.44.0208022113570.3863-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317537AbSHCLok>; Sat, 3 Aug 2002 07:44:40 -0400
+Received: from moutvdom.kundenserver.de ([195.20.224.149]:48866 "EHLO
+	moutvdomng2.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S317536AbSHCLoj>; Sat, 3 Aug 2002 07:44:39 -0400
+Subject: Trivial Orinico_plx Patch
+From: Ingo Rohlfs <irohlfs@irohlfs.de>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-zvcRcV6q5aMhJOJOp/Fv"
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 03 Aug 2002 15:48:29 +0200
+Message-Id: <1028382510.8087.21.camel@lapkurs3.sit.fhg.de>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
 
-I've got billions of undefined symbols during 'make modules_install'.
-
-:
-cd /lib/modules/2.4.19; \
-mkdir -p pcmcia; \
-find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.19; fi
-depmod: *** Unresolved symbols in /lib/modules/2.4.19/kernel/drivers/cdrom/cdrom.o
-depmod:         register_sysctl_table_Rab92f33e
-depmod:         kmalloc_R93d4cfe6
-depmod:         __generic_copy_to_user_Rd523fdd3
-depmod:         __generic_copy_from_user_R116166aa
-:
-
-Is this due to gcc 2.95.4? Can anybody reproduce this? I'm
-running Debian (Sid, i386).
+--=-zvcRcV6q5aMhJOJOp/Fv
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
 
-Regards
+Heres is an trivial orinoco patch thats adding support for 3Com
+AirConnect PCI
 
-Harri
+Greetings=20
+Ingo Rohlfs
+
+
+
+--- drivers/net/wireless/orinoco_plx.c	Sat Aug  3 15:15:05 2002
++++ drivers/net/wireless/orinoco_plx.c	Sat Aug  3 15:18:08 2002
+@@ -103,6 +103,8 @@
+ not have time for a while..
+=20
+ ---end of mail---
++
++08/03/2002 3COM AirConnect PCI Support added <ingo.rohlfs@sit.fraunhofer.d=
+e>
+ */
+=20
+ #include <linux/config.h>
+@@ -381,6 +383,7 @@
+ 	{0x1638, 0x1100, PCI_ANY_ID, PCI_ANY_ID,},	/* SMC EZConnect SMC2602W,
+ 							   Eumitcom PCI WL11000,
+ 							   Addtron AWA-100*/
++	{0x10b7, 0x7770, PCI_ANY_ID, PCI_ANY_ID,},	/* 3ComAirConnect */
+ 	{0x16ab, 0x1100, PCI_ANY_ID, PCI_ANY_ID,},	/* Global Sun Tech GL24110P */
+ 	{0x16ab, 0x1101, PCI_ANY_ID, PCI_ANY_ID,},	/* Reported working, but unkno=
+wn */
+ 	{0x16ab, 0x1102, PCI_ANY_ID, PCI_ANY_ID,},	/* Linksys WDT11 */
+
+
+
+--=-zvcRcV6q5aMhJOJOp/Fv
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9S98tG22x6f68wb8RAr6fAJ9fk3RfyWbaMgOEJ3pqyow3vsJrRQCfdvPP
+ePIUDAWWDvQUmsc6mlZ0HoY=
+=732l
+-----END PGP SIGNATURE-----
+
+--=-zvcRcV6q5aMhJOJOp/Fv--
 

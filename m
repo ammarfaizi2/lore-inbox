@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313116AbSDDIql>; Thu, 4 Apr 2002 03:46:41 -0500
+	id <S313118AbSDDI7m>; Thu, 4 Apr 2002 03:59:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313114AbSDDIqb>; Thu, 4 Apr 2002 03:46:31 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:5107 "HELO
+	id <S313117AbSDDI7c>; Thu, 4 Apr 2002 03:59:32 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:55794 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S313119AbSDDIqP>; Thu, 4 Apr 2002 03:46:15 -0500
-Date: Thu, 4 Apr 2002 10:44:38 +0200 (CEST)
+	id <S313114AbSDDI7R> convert rfc822-to-8bit; Thu, 4 Apr 2002 03:59:17 -0500
+Date: Thu, 4 Apr 2002 10:57:40 +0200 (CEST)
 From: Adrian Bunk <bunk@fs.tum.de>
 X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Kai Henningsen <kaih@khms.westfalen.de>
+To: Sandino Araico =?iso-8859-1?Q?S=E1nchez?= <sandino@sandino.net>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-In-Reply-To: <8MC61VRHw-B@khms.westfalen.de>
-Message-ID: <Pine.NEB.4.44.0204041037140.7845-100000@mimas.fachschaften.tu-muenchen.de>
+Subject: Re: 2.4.18 mount.smbfs oops
+In-Reply-To: <3CABA4FE.2835A5A8@sandino.net>
+Message-ID: <Pine.NEB.4.44.0204041054290.7845-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 Apr 2002, Kai Henningsen wrote:
+On Wed, 3 Apr 2002, Sandino Araico Sánchez wrote:
 
-> alan@lxorguk.ukuu.org.uk (Alan Cox)  wrote on 03.04.02 in <E16soms-0004Au-00@the-village.bc.nu>:
+> 1. mount -t smbfs -o uid=500,gid=500 //blue/shared-dir /mnt/smb
+>     The smbmount asked me for a password, I pressed enter
+> 2. df
+>     Nothing strange happens
+> 3. ls /mnt/smb
+>     The Oops happens.
 >
-> > >  EXPORT_SYMBOL(vfree);
-> > >  EXPORT_SYMBOL(__vmalloc);
-> > > -EXPORT_SYMBOL_GPL(vmalloc_to_page);
-> > > +EXPORT_SYMBOL(vmalloc_to_page);
-> >
-> > The authors of that code made it GPL. You have no right to change that. Its
-> > exactly the same as someone taking all your code and making it binary only.
-> >
-> > You are
-> > 	-	subverting a digital rights management system
-> > 			[5 years jail in the USA]
-> > 	-	breaking a license
-> >
-> > but worse than that you are ignoring the basic moral rights of the authors
-> > of that code.
->
-> Frankly, I believe that it is both illegal (by the GPL) and morally
-> bankrupt to add these "GPL only" symbols to the kernel *unless* you can
-> get agreement for them fro *all* kernel copyright holders.
->...
+> The Windows machine is Windows Xp, the ksymoops output attached.
 
-Which part of the GPL do you mean with your "illegal (by the GPL)"?
+This sounds like the nls bug. In this case a patch is at
+  http://www.hojdpunkten.ac.se/054/samba/00-smbfs-2.4.18-codepage.patch.gz
 
-Your statement sounds as if the GPL would require that you must be allowed
-to link proprietary code with GPLed code - and that's the opposite of the
-intention behind the GPL.
 
-> MfG Kai
+> Sandino Araico Sánchez
 
 cu
 Adrian
 
-
-BTW: After reading COPYING I'm puzzled why binary-only modules are allowed
-     at all? Could anyone enlighten me where the permission is hidden?
 
 

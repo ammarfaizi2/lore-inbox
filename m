@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262277AbRERIbE>; Fri, 18 May 2001 04:31:04 -0400
+	id <S262280AbRERIfy>; Fri, 18 May 2001 04:35:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262280AbRERIay>; Fri, 18 May 2001 04:30:54 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2827 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262279AbRERIap>; Fri, 18 May 2001 04:30:45 -0400
-Subject: Re: LANANA: To Pending Device Number Registrants
-To: tim@tjansen.de (Tim Jansen)
-Date: Fri, 18 May 2001 09:27:42 +0100 (BST)
-Cc: bdwheele@wombat.educ.indiana.edu (Brian Wheeler),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <01051810241601.00782@cookie> from "Tim Jansen" at May 18, 2001 10:24:16 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E150fbq-0006qZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S262281AbRERIfe>; Fri, 18 May 2001 04:35:34 -0400
+Received: from smtp-rt-14.wanadoo.fr ([193.252.19.224]:19135 "EHLO
+	adansonia.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S262280AbRERIfa>; Fri, 18 May 2001 04:35:30 -0400
+Subject: Re: Linux scalability?
+From: "reiser.angus" <reiser.angus@wanadoo.fr>
+To: Ronald Bultje <rbultje@ronald.bitfreak.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <990174686.12881.18.camel@tux.bitfreak.net>
+In-Reply-To: <Pine.LNX.4.33.0105180914560.29042-100000@iq.rulez.org> 
+	<990173560.6346.0.camel@adslgw>  <990174686.12881.18.camel@tux.bitfreak.net>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 18 May 2001 10:30:40 +0200
+Message-Id: <990174642.6347.1.camel@adslgw>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Consider an ID consisting of:
-> > 	* vendor
-> > 	* model
-> 
-> Vendor and model ids are available for PCI and USB devices, but I think you 
-> can not assume that all busses have them and you dont gain anything if you 
-> keep them separate (unless you want to interpret the fields of the device id).
-> In other words I would merge them into a single field.
+> I read an article about TUX in the dutch C'T a few months ago (nov/dec
+> 2000, I think) - the real difference (according to the article) was the
+> 2.2.x kernel used in TUX. Look at the stats of the website, they used
+> Redhat 7.0 as base, with kernel 2.2.16.
 
-Well you actually want vendor,model, subvendor, submodel to cover PCI, and
-you can add ISAPnP and PnPBIOS to your list of suitable devices
+TUX does not exist on 2.2 kernel
+They use a RedHat 7.0 with a 2.4 kernel patched by RedHat (with TUX,
+zerocopy, etc..)
 
+-David
 

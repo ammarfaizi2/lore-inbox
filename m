@@ -1,49 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbUCKQEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 11:04:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbUCKQEZ
+	id S261476AbUCKQFv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 11:05:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbUCKQEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 11:04:25 -0500
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:23315 "EHLO
-	pumpkin.fieldses.org") by vger.kernel.org with ESMTP
-	id S261519AbUCKQCu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 11:02:50 -0500
-Date: Thu, 11 Mar 2004 11:02:45 -0500
-To: Jesse Pollard <jesse@cats-chateau.net>
-Cc: Andreas Dilger <adilger@clusterfs.com>,
-       =?us-ascii?Q?=3D=3FCP?= 1252?q?S=F8ren=20Hansen?= <sh@warma.dk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: UID/GID mapping system
-Message-ID: <20040311160245.GB18466@fieldses.org>
-References: <1078775149.23059.25.camel@luke> <04031015412900.03270@tabby> <20040310234640.GO1144@schnapps.adilger.int> <04031108083100.05054@tabby>
+	Thu, 11 Mar 2004 11:04:47 -0500
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:55906 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S261451AbUCKQEX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 11:04:23 -0500
+Subject: [PATCH] 2.6.4 synclinkmp.c
+From: Paul Fulghum <paulkf@microgate.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1079021063.1950.10.camel@toshiba>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <04031108083100.05054@tabby>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 11 Mar 2004 10:04:24 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 11, 2004 at 08:08:31AM -0600, Jesse Pollard wrote:
-> On Wednesday 10 March 2004 17:46, Andreas Dilger wrote:
-> > If the client is trusted to mount NFS, then it is also trusted enough not
-> > to use the wrong UID.  There is no "more" or "less" safe in this regard.
-> 
-> It is only trusted to not misuse the uids that are mapped for that client. If
-> the client DOES misuse the uids, then only those mapped uids will be affected.
-> UIDS that are not mapped for that host will be protected.
-> 
-> It is to ISOLATE the penetration to the host that this is done. The server
-> will not and should not extend trust to any uid not authorized to that host. 
-> This is what the UID/GID maps on the server provide.
+Patch for synclinkmp.c against 2.6.4
 
-You're making an argument that uid mapping on the server could be used
-to provide additional security; I agree.
+* Track driver API changes
+* Remove cast (kernel janitor)
+* Replace page_free call with kfree (to match kmalloc allocation)
 
-I don't believe you can argue, however, that providing uid mapping on
-the client would *decrease* security, unless you believe that mapping
-uid's on the client precludes also mapping uid's on the server.
+Please apply.
 
---Bruce Fields
+-- 
+Paul Fulghum
+paulkf@microgate.com
+
+--- linux-2.6.4/drivers/char/synclinkmp.c	2004-03-11 08:37:38.000000000 -0600
++++ linux-2.6.4-mg1/drivers/char/synclinkmp.c	2004-03-11 08:46:21.000000000 -0600
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: synclinkmp.c,v 4.14 2003/09/05 15:26:03 paulkf Exp $
++ * $Id: synclinkmp.c,v 4.19 2004/03/08 15:29:23 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink Multiport
+  * high speed multiprotocol serial adapter.
+@@ -494,7 +494,7 @@
+ MODULE_PARM(dosyncppp,"1-" __MODULE_STRING(MAX_DEVICES) "i");
+ 
+ static char *driver_name = "SyncLink MultiPort driver";
+-static char *driver_version = "$Revision: 4.14 $";
++static char *driver_version = "$Revision: 4.19 $";
+ 
+ static int synclinkmp_init_one(struct pci_dev *dev,const struct pci_device_id *ent);
+ static void synclinkmp_remove_one(struct pci_dev *dev);
+@@ -1653,11 +1653,12 @@
+ 	info->if_ptr = &info->pppdev;
+ 	info->netdev = info->pppdev.dev = d;
+ 
+-	sppp_attach(&info->pppdev);
+-
+ 	d->irq = info->irq_level;
+ 	d->priv = info;
+ 
++	sppp_attach(&info->pppdev);
++	cb_setup(d);
++
+ 	if (register_netdev(d)) {
+ 		printk(KERN_WARNING "%s: register_netdev failed.\n", d->name);
+ 		sppp_detach(info->netdev);
+@@ -1828,7 +1829,7 @@
+ 
+ static int sppp_cb_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+ {
+-	SLMP_INFO *info = (SLMP_INFO *)dev->priv;
++	SLMP_INFO *info = dev->priv;
+ 	if (debug_level >= DEBUG_LEVEL_INFO)
+ 		printk("%s(%d):ioctl %s cmd=%08X\n", __FILE__,__LINE__,
+ 			info->netname, cmd );
+@@ -2604,7 +2605,7 @@
+ 	del_timer(&info->status_timer);
+ 
+ 	if (info->tx_buf) {
+-		free_page((unsigned long) info->tx_buf);
++		kfree(info->tx_buf);
+ 		info->tx_buf = 0;
+ 	}
+ 
+
+
+

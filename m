@@ -1,96 +1,180 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272976AbTHFAKt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 20:10:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272980AbTHFAKt
+	id S272975AbTHFARd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 20:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272974AbTHFARd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 20:10:49 -0400
-Received: from pc3-cmbg5-6-cust177.cmbg.cable.ntl.com ([81.104.203.177]:14071
-	"EHLO flat") by vger.kernel.org with ESMTP id S272976AbTHFAKo (ORCPT
+	Tue, 5 Aug 2003 20:17:33 -0400
+Received: from dp.samba.org ([66.70.73.150]:6062 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S273001AbTHFARX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 20:10:44 -0400
-Date: Wed, 6 Aug 2003 01:12:08 +0100
-From: charlie.baylis@fish.zetnet.co.uk
-To: Timothy Miller <miller@techsource.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O12.2int for interactivity
-Message-ID: <20030806001208.GA16287@fish.zetnet.co.uk>
-References: <20030804195058.GA8267@cray.fish.zetnet.co.uk> <3F303494.3030406@techsource.com>
-Mime-Version: 1.0
+	Tue, 5 Aug 2003 20:17:23 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F303494.3030406@techsource.com>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16176.18643.751075.223016@cargo.ozlabs.ibm.com>
+Date: Wed, 6 Aug 2003 10:16:19 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] make mm4 compile on ppc
+X-Mailer: VM 7.16 under Emacs 21.3.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 05, 2003 at 06:49:56PM -0400, Timothy Miller wrote:
-> The interactivity detection algorithm will always be inherently 
-> imperfect.  Given that it is not psychic, it cannot tell in advance 
-> whether or not a given process is supposed to be interactive, so it must 
-> GUESS based on its behavior.
-> 
-> Furthermore, for any given scheduler algorithm, it is ALWAYS possible to 
-> write a program which causes it to misbehave.
->
-> This "thud" program is Goedel's theorem for the interactivity scheduler 
-> (well, that's not exactly right, but you get the idea).  It breaks the 
-> system.  If you redesign the scheduler to make "thud" work, then someone 
-> will write "thud2" (which is what you have just done!) which breaks the 
-> scheduler.  Ad infinitum.  It will never end.  And in this case, 
-> optimizing for "thud" is likely also to make some other much more common 
-> situations WORSE.
+Andrew,
 
-No, you've got this backwards. The thud program is a short piece of code
-written to allow other kernel developers to reliably reproduce a specific
-problem with the scheduler - that is, when only a small number of maximally
-interactive tasks suddenly become CPU hogs they were able to starve most other
-processes for several seconds.  This is an entirely real world case (see my
-original posting to explain this), and it causes problems because, as you say,
-the scheduler is not psychic.
+This patch gets -mm4 to compile and boot for me.  I have only tried UP
+so far.  It's not completely happy though: I got several messages
+saying "INIT: /dev/initctl is not a fifo", and gdm failed to start.
+Not sure what is wrong.
 
-I say you've got it backwards because thud is a much simpler piece of code than
-Konqueror + XFree86, and it is simpler because uses 'reverse-engineered'
-knowledge about the scheduler to manipulate it's dynamic priority to the point
-where the scheduler problems I reported could be reproduced. As Con's changes
-have broken these assumptions, thud needs updating so that it can continue to
-behave equivalently on the newer schedulers. (The changes I gave will have no
-effect on the old versions of the scheduler)
+You'll notice I had to take out include/asm/asm_offsets.h from the
+dependencies for arch/$(ARCH)/vmlinux.lds.s, basically because ppc
+doesn't have an asm_offsets.h (we call it just offsets.h).  It's not
+clear to me why vmlinux.lds.s would ever depend on structure offsets,
+but if it does, surely this dependency should go in the arch-specific
+Makefile?
 
-> So, while it MAY be of value to write a few "thud" programs, don't let 
-> it go too far.  The scheduler should optimize for REAL loads -- things 
-> that people actually DO.  You will always be able to break it by 
-> reverse-engineering it and writing a program which violates its 
-> expectations.  
+Paul.
 
-I think you're confused between the thud test and the thud implementation.  The
-thud implementation is a hacked up bit of C. The thud test is seeing a
-maximally interactive task suddenly become a CPU hog. Once the implementation
-no longer performs the test it ceases to be interesting[1], and it must be
-updated, otherwise you aren't getting the test coverage you think you are
-getting. 
-
-Certainly, thud isn't the only program by which a scheduler should be measured.
-If you have a better, more realistic and reproducible test case, or even just a
-different one, which can help evaluate the performance of the interactivity
-estimator then I'd love to see it :) (Actually, if you/someone can write a
-simple program which can replace xmms skips as the standard "scheduler is
-good/bad" benchmark that would be great. It wants to do n milliseconds of work
-every m milliseconds and report the minimum/maximum/average time it took to do
-the sleep and the work. Or something like that)
-
-> Don't worry about it.  You will always be able to break it if you try hard
-> enough.
-
-The scheduler DOES have to cope with tasks which behave oddly, because it can
-make bad decisions, and it has to be able to recover quickly or these corner
-cases may be used to form a denial of service attack.
-
-> As Linus says, "Perfect" is the enemy of "Good".
-
-That doesn't preclude making things better. Otherwise, why ditch the "good" 2.4
-scheduler :) 
-
-Charlie
-
-[1] unless the new test it performs is interesting for some other reason.
+diff -urN mm4-orig/Makefile test25/Makefile
+--- mm4-orig/Makefile	2003-08-05 22:05:28.000000000 +1000
++++ test25/Makefile	2003-08-05 21:13:52.000000000 +1000
+@@ -458,7 +458,7 @@
+ 
+ AFLAGS_vmlinux.lds.o += -P -C -U$(ARCH)
+ 
+-arch/$(ARCH)/vmlinux.lds.s: %.s: %.S scripts include/asm-$(ARCH)/asm_offsets.h FORCE
++arch/$(ARCH)/vmlinux.lds.s: %.s: %.S scripts FORCE
+ 	$(call if_changed_dep,as_s_S)
+ 
+ targets += arch/$(ARCH)/vmlinux.lds.s
+diff -urN mm4-orig/arch/ppc/kernel/irq.c test25/arch/ppc/kernel/irq.c
+--- mm4-orig/arch/ppc/kernel/irq.c	2003-08-05 22:05:26.000000000 +1000
++++ test25/arch/ppc/kernel/irq.c	2003-08-05 20:54:44.000000000 +1000
+@@ -540,18 +540,6 @@
+ 	return 0;
+ }
+ 
+-void __init init_IRQ(void)
+-{
+-	static int once = 0;
+-
+-	if ( once )
+-		return;
+-	else
+-		once++;
+-	
+-	ppc_md.init_IRQ();
+-}
+-
+ #ifdef CONFIG_SMP
+ void synchronize_irq(unsigned int irq)
+ {
+@@ -570,8 +558,7 @@
+ #define DEFAULT_CPU_AFFINITY cpumask_of_cpu(0)
+ #endif
+ 
+-cpumask_t irq_affinity [NR_IRQS] =
+-	{ [0 ... NR_IRQS-1] = DEFAULT_CPU_AFFINITY };
++cpumask_t irq_affinity [NR_IRQS];
+ 
+ #define HEX_DIGITS (2*sizeof(cpumask_t))
+ 
+@@ -757,3 +744,13 @@
+ {
+ 	return IRQ_NONE;
+ }
++
++void __init init_IRQ(void)
++{
++	int i;
++
++	for (i = 0; i < NR_IRQS; ++i)
++		irq_affinity[i] = DEFAULT_CPU_AFFINITY;
++
++	ppc_md.init_IRQ();
++}
+diff -urN mm4-orig/arch/ppc/kernel/time.c test25/arch/ppc/kernel/time.c
+--- mm4-orig/arch/ppc/kernel/time.c	2003-07-15 21:54:42.000000000 +1000
++++ test25/arch/ppc/kernel/time.c	2003-08-05 21:54:18.000000000 +1000
+@@ -83,6 +83,7 @@
+ unsigned tb_ticks_per_jiffy;
+ unsigned tb_to_us;
+ unsigned tb_last_stamp;
++unsigned long tb_to_ns_scale;
+ 
+ extern unsigned long wall_jiffies;
+ 
+@@ -309,6 +310,7 @@
+ 		tb_to_us = 0x418937;
+         } else {
+                 ppc_md.calibrate_decr();
++		tb_to_ns_scale = mulhwu(tb_to_us, 1000 << 10);
+ 	}
+ 
+ 	/* Now that the decrementer is calibrated, it can be used in case the 
+@@ -432,3 +434,26 @@
+ 	return mlt;
+ }
+ 
++unsigned long long sched_clock(void)
++{
++	unsigned long lo, hi, hi2;
++	unsigned long long tb;
++
++	if (!__USE_RTC()) {
++		do {
++			hi = get_tbu();
++			lo = get_tbl();
++			hi2 = get_tbu();
++		} while (hi2 != hi);
++		tb = ((unsigned long long) hi << 32) | lo;
++		tb = (tb * tb_to_ns_scale) >> 10;
++	} else {
++		do {
++			hi = get_rtcu();
++			lo = get_rtcl();
++			hi2 = get_rtcu();
++		} while (hi2 != hi);
++		tb = ((unsigned long long) hi) * 1000000000 + lo;
++	}
++	return tb;
++}
+diff -urN mm4-orig/include/asm-ppc/time.h test25/include/asm-ppc/time.h
+--- mm4-orig/include/asm-ppc/time.h	2003-01-04 19:44:12.000000000 +1100
++++ test25/include/asm-ppc/time.h	2003-08-05 21:52:23.000000000 +1000
+@@ -97,6 +97,13 @@
+ 	return rtcl;
+ }
+ 
++extern __inline__ unsigned long get_rtcu(void)
++{
++	unsigned long rtcu;
++	asm volatile("mfrtcu %0" : "=r" (rtcu));
++	return rtcu;
++}
++
+ extern __inline__ unsigned get_native_tbl(void) {
+ 	if (__USE_RTC())
+ 		return get_rtcl();
+@@ -140,6 +147,7 @@
+ #endif
+ 
+ /* Use mulhwu to scale processor timebase to timeval */
++/* Specifically, this computes (x * y) / 2^32.  -- paulus */
+ #define mulhwu(x,y) \
+ ({unsigned z; asm ("mulhwu %0,%1,%2" : "=r" (z) : "r" (x), "r" (y)); z;})
+ 
+diff -urN mm4-orig/arch/ppc/boot/ld.script test25/arch/ppc/boot/ld.script
+--- mm4-orig/arch/ppc/boot/ld.script	2003-06-10 07:32:39.000000000 +1000
++++ test25/arch/ppc/boot/ld.script	2003-08-06 09:56:28.000000000 +1000
+@@ -82,6 +82,7 @@
+     *(__ksymtab)
+     *(__ksymtab_strings)
+     *(__bug_table)
++    *(__kcrctab)
+   }
+ 
+ }

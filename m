@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265470AbUAFX3W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 18:29:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266074AbUAFX3V
+	id S265471AbUAFXb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 18:31:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUAFXb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 18:29:21 -0500
-Received: from urtica.linuxnews.pl ([217.67.200.130]:28175 "EHLO
-	urtica.linuxnews.pl") by vger.kernel.org with ESMTP id S265470AbUAFX3T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 18:29:19 -0500
-Date: Wed, 7 Jan 2004 00:29:10 +0100 (CET)
-From: Pawel Kot <pkot@linuxnews.pl>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-cc: <linux-kernel@vger.kernel.org>,
-       <valgrind-developers@lists.sourceforge.net>
-Subject: Re: 2.4.24 asm/timex.h
-Message-ID: <Pine.LNX.4.33.0401070027540.13426-100000@urtica.linuxnews.pl>
+	Tue, 6 Jan 2004 18:31:56 -0500
+Received: from mail017.syd.optusnet.com.au ([211.29.132.168]:35991 "EHLO
+	mail017.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265471AbUAFXbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 18:31:55 -0500
+Message-ID: <3FFB454D.2000002@optushome.com.au>
+Date: Wed, 07 Jan 2004 09:31:25 +1000
+From: Rohan <rp.m@optushome.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: sumit_uconn@lycos.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Ethernet Card Intel Pro100
+References: <BEAEEFBEGJLPJJAA@mailcity.com>
+In-Reply-To: <BEAEEFBEGJLPJJAA@mailcity.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Jan 2004, Eyal Lebedinsky wrote:
+Sumit Narayan wrote:
+> Hi...
+> 
+> I have loaded the new kernel 2.6.0, but my Ethernet card is not working on it. Its Intel Ether Pro 100B. Could someone help me out with it. Its working perfectly fine with 2.4.21. Is there any special setting to be made for the new kernel? I have used module-init-tools-0.9.14 to install the modules.
+> 
+> Regrads,
+> Sumit
+> 
 
-> Building valgrind, it includes <linux/timex.h> and then tries
-> to use the adjtimex syscall. This ends up with an undefined
-> error for 'cpu_has_tsc'. This did not happen with earlier
-> kernels.
->
-> In file included from /usr/include/linux/timex.h:152,
->                  from vg_unsafe.h:66,
->                  from vg_syscalls.c:35:
-> /usr/include/asm/timex.h: In function `get_cycles':
-> /usr/include/asm/timex.h:44: `cpu_has_tsc' undeclared (first use in this
-> function)
+I had a similar problem; works fine on 2.4 but not 2.6.  Turned out the 
+module worked, but the kernel wasn't automatically loading it.  Try 
+doing 'lsmod' to see if it's loaded (eepro100 I think the module is 
+called?) and then 'insmod eepro100' if it's not.
 
-cpu_has_tsc is defined in cpufeature.h, so probably adding:
-#include <asm/cpufeature.h>
-to the include/asm-i386/timex.h would help.
-
-I don't have 2.4.25-pre handy, so I can't test it (nor send the patch) at
-the moment.
-
-pkot
-PS. Sorry for the duplicate, forgot to cc the lists.
--- 
-mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
-http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
-
-
-
-
-
+Rohan
 

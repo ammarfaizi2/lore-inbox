@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVAJJQS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbVAJJRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbVAJJQS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 04:16:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbVAJJQS
+	id S262170AbVAJJRd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 04:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbVAJJRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 04:16:18 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:53719 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262163AbVAJJQP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 04:16:15 -0500
-Date: Mon, 10 Jan 2005 10:15:59 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: tglx@linutronix.de
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.10-mm2] Fix preemption race [1/3] (Core)
-Message-ID: <20050110091559.GB25034@elte.hu>
-References: <20050110013508.1.patchmail@tglx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050110013508.1.patchmail@tglx>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 10 Jan 2005 04:17:33 -0500
+Received: from a26.t1.student.liu.se ([130.236.221.26]:24513 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S262164AbVAJJRV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 04:17:21 -0500
+Message-ID: <41E2480E.6040207@drzeus.cx>
+Date: Mon, 10 Jan 2005 10:17:02 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: drivers/mmc/wbsd.c
+References: <20050105194709.590f780c.akpm@osdl.org>
+In-Reply-To: <20050105194709.590f780c.akpm@osdl.org>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
-* tglx@linutronix.de <tglx@linutronix.de> wrote:
+>static inline void wbsd_kunmap_sg(struct wbsd_host* host)
+>{
+>	kunmap_atomic(host->cur_sg->page, KM_BIO_SRC_IRQ);
+>}
+>
+>Guys, kunmap_atomic() takes a kernel virtual address (the value which
+>kmap_atomic() returned).
+>
+>Passing it the address of a pageframe will have unpleasant results.
+>  
+>
+Thanks. kunmap_atomic() just messes with the preemption stuff (on x86 at 
+least) so it probably would have gone unnoticed for a while.
+I've fixed it now and it will be included in the next patch set.
 
-> The idle-thread-preemption-fix.patch introduced a race, which is not
-> critical, but might give us an extra turn through the scheduler. When
-> interrupts are reenabled in entry.c and an interrupt occures before we
-> reach the add_preempt_schedule() in preempt_schedule we get
-> rescheduled again in the return from interrupt path.
+Rgds
+Pierre
 
-i agree that there's a race. I solved this in the -RT patchset a couple
-of weeks ago, but in a different wasy. I introduced the
-preempt_schedule_irq() function and this solves the problem via keeping
-the whole IRQ-preemption path irqs-off. This has the advantage that if
-an IRQ signals preemption of a task and the kernel is immediately
-preemptable then we are able to hit that task atomically without
-re-enabling IRQs again. I'll split out this patch - can you see any
-problems with the preempt_schedule_irq() approach?
-
-	Ingo

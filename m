@@ -1,87 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317471AbSFRQO6>; Tue, 18 Jun 2002 12:14:58 -0400
+	id <S317475AbSFRQWN>; Tue, 18 Jun 2002 12:22:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317473AbSFRQO5>; Tue, 18 Jun 2002 12:14:57 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:52949 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S317471AbSFRQO4>; Tue, 18 Jun 2002 12:14:56 -0400
-Date: Tue, 18 Jun 2002 11:14:56 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Various kbuild problems in 2.5.22
-In-Reply-To: <200206181500.IAA00339@baldur.yggdrasil.com>
-Message-ID: <Pine.LNX.4.44.0206181056090.5695-100000@chaos.physics.uiowa.edu>
+	id <S317476AbSFRQWM>; Tue, 18 Jun 2002 12:22:12 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:57264 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S317475AbSFRQWL>; Tue, 18 Jun 2002 12:22:11 -0400
+Message-ID: <3D0F5DFE.5060301@antefacto.com>
+Date: Tue, 18 Jun 2002 17:21:18 +0100
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: DervishD <raul@pleyades.net>
+CC: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Shrinking ext3 directories
+References: <3D0F5AFC.mailGSE111D9L@viadomus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jun 2002, Adam J. Richter wrote:
-
-> 	No, "make -k" still will not build bzImage if a module
-> fails to compile.
+DervishD wrote:
+>     Hi all :))
 > 
-> 	Also, I do not understand why this is "intentional."  Normally,
-> if one does a "make" of a file in a source tree, build problems with
-> unneeded files do not effect it.
-
-Yes, but they are not unneeded files, otherwise we wouldn't even try to 
-build them. The point is, the semantics of bzImage changed: It now means 
-"build bzImage and modules". That's the common case. If you really only 
-want bzImage and no modules, you have to tell make by using
-"make KBUILD_MODULES= bzImage" (I could allow for phrasing the latter as
-"make bzImage nomodules", but that's only cosmetical)
-
-> >> 	3. make include/linux/modversios.h aborts if any .c file has
-> >> a #error or #include's a .h that is not present (for example, because
-> >> the .h is built by the process, as is the case with one scsi driver).
+>     All of you know that if you create a lot of files or directories
+> within a directory on ext2/3 and after that you remove them, the
+> blocks aren't freed (this is the reason behind the lost+found block
+> preallocation). If you want to 'shrink' the directory now that it
+> doesn't contain a lot of leafs, the only solution I know is creating
+> a new directory, move the remaining leafs to it, remove the
+> 'big-unshrinken' directory and after that renaming the new directory:
 > 
-> >The fact that it aborts is intentional.
-> 
-> 	We have adopted a convention of putting #error into lots
-> of device drivers to encourage people to port them.  Linus has
-> also recently integrated chagnes to support compiling with "all
-> modules" and "all yes" configurations.  This change makes that
-> facility useless.
+>     $ mkdir new-dir
+>     $ mv bigone/* new-dir/
+>     $ rmdir bigone
+>     $ mv new-dir bigone
+>     (Well, sort of)
 
-IMO these options (all yes/mod)  are there to find files which don't
-compile, be it for an explicit #error or other reasons - and they serve
-this purpose, they now flag those files already at "make dep" time if
-you're using modversions.
+The zipdir component of fslint does this (while maintaining permissions
+etc.).
 
-Of course I could go ahead if I get an error during module version
-generation, but then I'd get the exact same error later when compiling. So
-I don't see the point. Module versions used to be fragile, exactly for
-reasons like this. If this step goes wrong, just silently ignoring that
-fact will get you in trouble later.
+>     Any other way of doing the same without the mess?
 
-> 	I do not think it improves anyone's prioritization to
-> require everyone to either make custom kernel configurations or
-> give top priority to fixing random drivers ahead of whatever
-> else depends on their getting the new kernel to build.
+Not at present I think. Perhaps we'll get it for free with
+the new htree directory indexing?
 
-Well, normally people carry their .config along and adapt it as necessary. 
-If a driver stopped building, if you don't need it, disable it in your 
-.config, if you need it, just ignoring the failure won't help you either. 
-
-Apart from that, "make modules_install" never worked in the case of 
-failed builds, did it? - so it boils down to: you need a buildable .config 
-to build and test a kernel.
-
-> >That it doesn't build the .h in that case is a bug. Which driver is it?
-> 
-> 	53c700.  The generated header file is drivers/scsi/53c700_d.h.
-
-Okay, I fixed that here.
-
-> >> 	4. "make -k modules" will not build perfectly buildable modules
-> >> in a directory that has a subdirectory where a compile error occurs.
-
-Actually, I tried and don't see this happening.
-
---Kai
-
+Padraig.
 

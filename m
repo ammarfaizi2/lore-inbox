@@ -1,87 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262414AbUJ0M5C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbUJ0NBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262414AbUJ0M5C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 08:57:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUJ0M5B
+	id S262419AbUJ0NBd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 09:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbUJ0NBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 08:57:01 -0400
-Received: from pop.gmx.net ([213.165.64.20]:43755 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262414AbUJ0M45 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 08:56:57 -0400
-Date: Wed, 27 Oct 2004 14:56:56 +0200 (MEST)
-From: "Daniel Blueman" <daniel.blueman@gmx.net>
-To: "Yu, Luming" <luming.yu@intel.com>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-References: <3ACA40606221794F80A5670F0AF15F84041ABFE9@pdsmsx403>
-Subject: RE: [2.6.9] unhandled OHCI IRQs...
-X-Priority: 3 (Normal)
-X-Authenticated: #8973862
-Message-ID: <6799.1098881816@www37.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Wed, 27 Oct 2004 09:01:32 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:50909 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262419AbUJ0NAP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 09:00:15 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Wed, 27 Oct 2004 14:37:09 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
+Subject: [patch] v4l: config cleanups
+Message-ID: <20041027123709.GA24663@bytesex>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I forgot to stop the OHCI controllers being disabled with a 'setpci
-command=0' command on bootup. Now everything works perfectly!
+  Hi,
 
-> Please verify if APIC mode can help this case?
-> 
-> Thanks
-> Luming 
-> 
-> >-----Original Message-----
-> >From: linux-kernel-owner@vger.kernel.org 
-> >[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Daniel Blueman
-> >Sent: 2004Äê10ÔÂ25ÈÕ 4:20
-> >To: linux-usb-devel@lists.sourceforge.net; linux-kernel@vger.kernel.org
-> >Subject: [2.6.9] unhandled OHCI IRQs...
-> >
-> >When plugging in an Epson C62 USB 1.1 printer to my nForce 2 
-> >OHCI + EHCI USB
-> >controllers, the IRQ doesn't seem to get handled [1]. Tried both with
-> >acpi=noirq and without, printer support and full USB support 
-> >enabled. Kernel
-> >is 2.6.9.
-> >
-> >Any ideas?
-> >
-> >--- [1]
-> >
-> >irq 7: nobody cared!
-> > [<c01063d4>] __report_bad_irq+0x24/0x80
-> > [<c01064b1>] note_interrupt+0x61/0x90
-> > [<c010637b>] handle_IRQ_event+0x2b/0x60
-> > [<c010676a>] do_IRQ+0x11a/0x130
-> > [<c010479c>] common_interrupt+0x18/0x20
-> > [<c0119f30>] __do_softirq+0x30/0x90
-> > [<c0119fb6>] do_softirq+0x26/0x30
-> > [<c010674b>] do_IRQ+0xfb/0x130
-> > [<c010479c>] common_interrupt+0x18/0x20
-> > [<c0101df0>] default_idle+0x0/0x30
-> > [<c0101e13>] default_idle+0x23/0x30
-> > [<c0101e8a>] cpu_idle+0x3a/0x60
-> > [<c035c8e1>] start_kernel+0x141/0x160
-> > [<c035c530>] unknown_bootoption+0x0/0x160
-> >handlers:
-> >[<c022dcd0>] (usb_hcd_irq+0x0/0x60)
-> >Disabling IRQ #7
-> >spurious 8259A interrupt: IRQ7.
-> >
-> >--- [2]
-> >
-> ># grep hcd /proc/interrupts 
-> >  5:          0          XT-PIC  ohci_hcd
-> >  7:     164004          XT-PIC  ohci_hcd
-> > 12:          2          XT-PIC  ehci_hcd
+Cleanup the video4linux driver configuration by using "select"
+instead of "default if ...".
+
+Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
+---
+ drivers/media/Kconfig       |   12 ------------
+ drivers/media/video/Kconfig |   17 +++++++++++++++--
+ 2 files changed, 15 insertions(+), 14 deletions(-)
+
+--- x/drivers/media/video/Kconfig.o	2004-10-26 10:13:42.488798354 +0200
++++ y/drivers/media/video/Kconfig	2004-10-26 10:09:33.863670037 +0200
+@@ -9,8 +9,13 @@
+ 
+ config VIDEO_BT848
+ 	tristate "BT848 Video For Linux"
+-	depends on VIDEO_DEV && PCI && I2C && FW_LOADER
++	depends on VIDEO_DEV && PCI && I2C
+ 	select I2C_ALGOBIT
++	select FW_LOADER
++	select VIDEO_BTCX
++	select VIDEO_BUF
++	select VIDEO_IR
++	select VIDEO_TUNER
+ 	---help---
+ 	  Support for BT848 based frame grabber/overlay boards. This includes
+ 	  the Miro, Hauppauge and STB boards. Please read the material in
+@@ -230,6 +235,9 @@
+ config VIDEO_SAA7134
+ 	tristate "Philips SAA7134 support"
+ 	depends on VIDEO_DEV && PCI && I2C
++	select VIDEO_BUF
++	select VIDEO_IR
++	select VIDEO_TUNER
+ 	---help---
+ 	  This is a video4linux driver for Philips SAA7130/7134 based
+ 	  TV cards.
+@@ -241,6 +249,7 @@
+ 	tristate "Siemens-Nixdorf 'Multimedia eXtension Board'"
+ 	depends on VIDEO_DEV && PCI
+ 	select VIDEO_SAA7146_VV
++	select VIDEO_TUNER
+ 	---help---
+ 	  This is a video4linux driver for the 'Multimedia eXtension Board'
+ 	  TV card by Siemens-Nixdorf.
+@@ -287,7 +296,11 @@
+ 
+ config VIDEO_CX88
+ 	tristate "Conexant 2388x (bt878 successor) support"
+-	depends on VIDEO_DEV && PCI && I2C_ALGOBIT && EXPERIMENTAL
++	depends on VIDEO_DEV && PCI && EXPERIMENTAL
++	select I2C_ALGOBIT
++	select VIDEO_BTCX
++	select VIDEO_BUF
++	select VIDEO_TUNER
+ 	---help---
+ 	  This is a video4linux driver for Conexant 2388x based
+ 	  TV cards.
+--- x/drivers/media/Kconfig.o	2004-10-26 10:13:33.849426936 +0200
++++ y/drivers/media/Kconfig	2004-10-26 10:12:01.784782395 +0200
+@@ -34,27 +34,15 @@
+ 
+ config VIDEO_TUNER
+ 	tristate
+-	default y if VIDEO_BT848=y || VIDEO_SAA7134=y || VIDEO_MXB=y || VIDEO_CX88=y
+-	default m if VIDEO_BT848=m || VIDEO_SAA7134=m || VIDEO_MXB=m || VIDEO_CX88=m
+-	depends on VIDEO_DEV
+ 
+ config VIDEO_BUF
+ 	tristate
+-	default y if VIDEO_BT848=y || VIDEO_SAA7134=y || VIDEO_SAA7146=y || VIDEO_CX88=y
+-	default m if VIDEO_BT848=m || VIDEO_SAA7134=m || VIDEO_SAA7146=m || VIDEO_CX88=m
+-	depends on VIDEO_DEV
+ 
+ config VIDEO_BTCX
+ 	tristate
+-	default y if VIDEO_BT848=y || VIDEO_CX88=y
+-	default m if VIDEO_BT848=m || VIDEO_CX88=m
+-	depends on VIDEO_DEV
+ 
+ config VIDEO_IR
+ 	tristate
+-	default y if VIDEO_BT848=y || VIDEO_SAA7134=y
+-	default m if VIDEO_BT848=m || VIDEO_SAA7134=m
+-	depends on VIDEO_DEV
+ 
+ endmenu
+ 
 
 -- 
-Daniel J Blueman
-
-Geschenkt: 3 Monate GMX ProMail + 3 Ausgaben der TV Movie mit DVD
-++++ Jetzt anmelden und testen http://www.gmx.net/de/go/mail ++++
-
+#define printk(args...) fprintf(stderr, ## args)

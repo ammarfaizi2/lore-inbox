@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVACSas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbVACSbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbVACSas (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 13:30:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVACSaU
+	id S261765AbVACSbI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 13:31:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVACSbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 13:30:20 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:15630 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261668AbVACSYq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 13:24:46 -0500
-Subject: Re: pin files in memory after read
-From: Arjan van de Ven <arjan@infradead.org>
-To: Olaf Hering <olh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050103180718.GA22138@suse.de>
-References: <20050103180718.GA22138@suse.de>
+	Mon, 3 Jan 2005 13:31:05 -0500
+Received: from fmr16.intel.com ([192.55.52.70]:432 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261765AbVACRuA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 12:50:00 -0500
+Subject: Re: __iounmap: bad address c00f0000 (Re: 2.6.10-bk5)
+From: Len Brown <len.brown@intel.com>
+To: Michael Geithe <warpy@gmx.de>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1104773076.18173.64.camel@d845pe>
+References: <200501030114.55399.warpy@gmx.de>
+	 <1104773076.18173.64.camel@d845pe>
 Content-Type: text/plain
-Date: Mon, 03 Jan 2005 19:24:40 +0100
-Message-Id: <1104776680.4192.20.camel@laptopd505.fenrus.org>
+Organization: 
+Message-Id: <1104774583.18174.68.camel@d845pe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 03 Jan 2005 12:49:43 -0500
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-03 at 19:07 +0100, Olaf Hering wrote:
-> Is there a way to always keep a file (once read from disk) in memory, no
-> matter how much memory pressure exists?
-> There are always complains that updatedb and similar tools wipe out all
-> caches. So I guess there is no such thing yet.
+On Mon, 2005-01-03 at 12:24, Len Brown wrote:
+> On Sun, 2005-01-02 at 19:14, Michael Geithe wrote:
 > 
-> I simply want to avoid the spinup of my ibook harddisk when something
-> has been 'forgotten' and must be loaded again (like opening a new screen
-> window after a while).
+> > DMI 2.3 present.
+> > __iounmap: bad address c00f0000
+> > ACPI: RSDP (v000 AMI                                   ) @ 0x000fa380
 > 
-> The best I could do so far was a cramfs image. I copied it to tmpfs
-> during early boot, then mount -o bind every cramfs file over the real
-> binary on disk. Of course that will fail as soon as I want to update an
-> affected package because the binary is busy (readonly). So there must be
-> a better way to achieve this.
+> Not and ACPI issue:-)
 > 
-> How can one tell the kernel to pin a file in memory once it was read?
-> Maybe with an xattr or something?
-> Unfortunately I dont know about the block layer and other things
-> involved, so I cant attach a patch that does what I want.
+> Looks like the warning is provoked by Al Viro's update to dmi_iterate().
+> Perhaps there is a conflict between dmi_table()'s bt_iounmap(),
+> and dmi_iterate()'s new iounmap() on the same address?
+> 
+> -Len
+> 
 
-you could write a small userspace daemon that mmaps the file and mlock's
-it....
+
+Try this.
+
+Suggested-by: Al Viro
+Signed-off-by: Len Brown <len.brown@intel.com>
+
+
+===== arch/i386/kernel/dmi_scan.c 1.74 vs edited =====
+--- 1.74/arch/i386/kernel/dmi_scan.c	2004-12-28 14:07:48 -05:00
++++ edited/arch/i386/kernel/dmi_scan.c	2005-01-03 12:46:33 -05:00
+@@ -126,12 +126,12 @@
+ 			dmi_printk((KERN_INFO "DMI table at 0x%08X.\n",
+ 				base));
+ 			if(dmi_table(base,len, num, decode)==0) {
+-				iounmap(p);
++				/* too early to call iounmap(p); */
+ 				return 0;
+ 			}
+ 		}
+ 	}
+-	iounmap(p);
++	/* too early to call iounmap(p); */
+ 	return -1;
+ }
+ 
+
+
 

@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310549AbSCGVNY>; Thu, 7 Mar 2002 16:13:24 -0500
+	id <S310546AbSCGVPC>; Thu, 7 Mar 2002 16:15:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310547AbSCGVNN>; Thu, 7 Mar 2002 16:13:13 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:50445 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S310546AbSCGVM4>;
-	Thu, 7 Mar 2002 16:12:56 -0500
-Date: Thu, 7 Mar 2002 18:12:33 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Cort Dougan <cort@fsmlabs.com>
-Cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux
- Maintainers
-In-Reply-To: <20020307135043.K9231@host110.fsmlabs.com>
-Message-ID: <Pine.LNX.4.44L.0203071810460.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S310547AbSCGVOw>; Thu, 7 Mar 2002 16:14:52 -0500
+Received: from bzq-128-3.bezeqint.net ([212.179.127.3]:62986 "HELO arava.co.il")
+	by vger.kernel.org with SMTP id <S310546AbSCGVOk>;
+	Thu, 7 Mar 2002 16:14:40 -0500
+Date: Thu, 7 Mar 2002 23:15:10 +0200 (IST)
+From: Matan <matan@svgalib.org>
+To: Holger Lubitz <h.lubitz@internet-factory.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 160gb maxtor with promise ultra 100
+In-Reply-To: <3C87C6CB.F05C3B96@internet-factory.de>
+Message-ID: <Pine.LNX.4.21_heb2.09.0203072312010.1837-100000@matan.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Mar 2002, Cort Dougan wrote:
+On Thu, 7 Mar 2002, Holger Lubitz wrote:
 
-> We're here to discuss kernel development, right?  Not debate software
-> ideologies.
->
-> I move the PPC tree over to BitKeeper and it was worthwhile.
+> hi,
+> 
+> recently i installed two 160gb maxtor drives. using the latest ac-kernel
+> (.19-pre2-ac3), they were detected correctly. however, the promise ultra
+> 100 (detected as pdc 20267) hangs at the partition check. last thing it
+> prints is "hde:" and it's dead. however, if i connect the drives to the
+> onboard piix3 ide, they are detected correctly, survive the partition
+> check, and _do_ work as 160gb drives, but slow (piix3 only supports
+> mdma2, no udma). if i boot the latest non-ac-kernel available on the
+> machine (which is the not so recent 2.4.14) the drives are misdetected
+> as only 137gb (of course, no 48 bit support) but otherwise the machine
+> works, even with the drives connected to the promise.
 
-The development speed and code quality of -rmap have also gone
-up as a consequence of moving over to bitkeeper.
+I had something similar - with 2.4.17+ide patch and PDC20265. The kernel
+hanged at exactly the same position. I moved the disk to hdg (master on
+second channel, instead of first), and it works OK.
 
-Merging patches up to a new version of the kernel has gone from
-tiring (with patch and vi) to almost relaxing (with bitkeeper's
-automatic and graphical 2-way merge tools)...
 
-This in turn has allowed me to spend my time and energy on
-improving the code, without having to fear large patches and
-the maintenance those require.
-
-regards,
-
-Rik
 -- 
-<insert bitkeeper endorsement here>
+Matan Ziv-Av.                         matan@svgalib.org
 
-http://www.surriel.com/		http://distro.conectiva.com/
 

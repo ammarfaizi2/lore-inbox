@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262812AbSKACpP>; Thu, 31 Oct 2002 21:45:15 -0500
+	id <S265595AbSKACnR>; Thu, 31 Oct 2002 21:43:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265422AbSKACpP>; Thu, 31 Oct 2002 21:45:15 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:9988 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262812AbSKACpO>;
-	Thu, 31 Oct 2002 21:45:14 -0500
-Date: Thu, 31 Oct 2002 18:48:41 -0800
-From: Greg KH <greg@kroah.com>
-To: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: bare pci configuration access functions ?
-Message-ID: <20021101024841.GD13031@kroah.com>
-References: <72B3FD82E303D611BD0100508BB29735046DFF6C@orsmsx102.jf.intel.com>
+	id <S265616AbSKACnR>; Thu, 31 Oct 2002 21:43:17 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:55824 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S265595AbSKACnN>; Thu, 31 Oct 2002 21:43:13 -0500
+Date: Thu, 31 Oct 2002 23:49:31 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Xiafs inclusion in 2.5?
+Message-ID: <20021101024931.GH17128@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3DC18308.1040808@gmx.net> <Pine.LNX.4.44.0210311837060.2487-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <72B3FD82E303D611BD0100508BB29735046DFF6C@orsmsx102.jf.intel.com>
+In-Reply-To: <Pine.LNX.4.44.0210311837060.2487-100000@home.transmeta.com>
 User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 06:39:26PM -0800, Lee, Jung-Ik wrote:
-> 
-> Platform management, early console access, acpi, hotplug io-node w/ root,...
-> pci_bus based access is useless before pci driver is initialized.
-> All exceptions will be forced to use fake structs...
-> Sounds we need to be ready to live with all exceptions here too :)
-> Or just to make them all happy with that simple bare functions.
+Em Thu, Oct 31, 2002 at 06:39:03PM -0800, Linus Torvalds escreveu:
+> Yeah, I think xiafs has little to do with a feature freeze. It has little 
+> to do with sanity too, for that matter. I saw that Andries still has one 
+> xia floppy somewhere, and that probably puts him in a rather unique 
+> position. I can't imagine that very many people really care, but it's a 
+> ironic form of retrocomputing...
 
-Ok, let's make them happy with bare functions, _if_ we have to.  Places
-that do not have to will be gleefully pointed out and mocked :)
+LOL, wait for NetBEUI patches then ;-)
 
-> OK, if simple and pure pci config access is not possible in Linux land,
-> let pci driver fake itself, not everyone else :)
-> Just export the two APIs like pci_config_{read|write}(s,b,d,f,s,v),
-> or the ones in acpi driver. Hide the fake pci_bus manipulation in them. 
-> This way is way better than having everyone fake pci driver ;-)
-
-I agree.  But can we do this for all archs?  I don't know, and look
-forward to your patch proving this will work.  Without all arch support
-of this, I can't justify only exporting the functions for i386 and ia64.
-
-thanks,
-
-greg k-h
+- Arnaldo

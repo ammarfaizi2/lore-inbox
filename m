@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317385AbSGTGf4>; Sat, 20 Jul 2002 02:35:56 -0400
+	id <S317390AbSGTGp4>; Sat, 20 Jul 2002 02:45:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317387AbSGTGf4>; Sat, 20 Jul 2002 02:35:56 -0400
-Received: from loke.as.arizona.edu ([128.196.209.61]:7301 "EHLO
-	loke.as.arizona.edu") by vger.kernel.org with ESMTP
-	id <S317385AbSGTGfz>; Sat, 20 Jul 2002 02:35:55 -0400
-Date: Fri, 19 Jul 2002 23:36:40 -0700 (MST)
-From: Craig Kulesa <ckulesa@as.arizona.edu>
-To: linux-kernel@vger.kernel.org
-cc: linux-mm@kvack.org
-Subject: Re: [PATCH 6/6] Updated VM statistics patch
-In-Reply-To: <Pine.LNX.4.44.0207190154390.4647-100000@loke.as.arizona.edu>
-Message-ID: <Pine.LNX.4.44.0207192328330.5880-100000@loke.as.arizona.edu>
+	id <S317392AbSGTGp4>; Sat, 20 Jul 2002 02:45:56 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:21135 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S317390AbSGTGp4>;
+	Sat, 20 Jul 2002 02:45:56 -0400
+Date: Sun, 21 Jul 2002 08:47:58 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: anton wilson <anton.wilson@camotion.com>
+Cc: J Sloan <jjs@lexus.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 O(1) scheduler
+In-Reply-To: <200207192018.QAA19141@test-area.com>
+Message-ID: <Pine.LNX.4.44.0207210841310.5403-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Fri, 19 Jul 2002, anton wilson wrote:
 
-This latest version takes advantage of the list management macros in 
-mm_inline.h to handle all of the 'pgactivate' and 'pgdeactivate' 
-counter incrementing.  This simplifies the patch, and makes it easier to 
-keep accounting accurate.
+> I'm actually worried not about just the O(1) scheduler but if these
+> patches will be incorporating the O(1) bug fixes such as the serious one
+> in balance_load where curr->next was used instead of current->prev.
 
-	http://loke.as.arizona.edu/~ckulesa/kernel/rmap-vm/2.5.26/
-	[ 2.5.26-rmap-6-VMstats2 19-Jul-2002 23:27    10k ]
+It's a harmless bug, somewhat reducing the amount of balancing we can do
+on SMP, but the balancer was still pretty much intact (we'd have noticed
+it earlier if it wasnt). The bug was found by Scott Rhine and myself not
+because the scheduler behaved badly, but via code review, because the
+comments did not match the code :-)
 
-Craig Kulesa
-Steward Obs.
-Univ. of Arizona
+	Ingo
 

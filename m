@@ -1,29 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129820AbRBYEVZ>; Sat, 24 Feb 2001 23:21:25 -0500
+	id <S129833AbRBYFL3>; Sun, 25 Feb 2001 00:11:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129823AbRBYEVP>; Sat, 24 Feb 2001 23:21:15 -0500
-Received: from quechua.inka.de ([212.227.14.2]:27978 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S129820AbRBYEVK>;
-	Sat, 24 Feb 2001 23:21:10 -0500
-From: Bernd Eckenfels <W1012@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs: still problems with tail conversion
-In-Reply-To: <878610000.983061717@tiny>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.7-20001104 ("Paradise Regained") (UNIX) (Linux/2.0.36 (i686))
-Message-Id: <E14WsgH-00006l-00@sites.inka.de>
-Date: Sun, 25 Feb 2001 05:21:09 +0100
+	id <S129831AbRBYFLT>; Sun, 25 Feb 2001 00:11:19 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:48132
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129833AbRBYFLJ>; Sun, 25 Feb 2001 00:11:09 -0500
+Date: Sat, 24 Feb 2001 21:10:41 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: David Balazic <david.balazic@uni-mb.si>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: weird /proc/ide/hdx/settings
+In-Reply-To: <3A966D7D.550A631B@uni-mb.si>
+Message-ID: <Pine.LNX.4.10.10102242109550.24823-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <878610000.983061717@tiny> you wrote:
-> Exactly.  The tail conversion code depends heavily on the page up to date
-> bit being set right.  It is more than possible that I've screwed up
-> something there, and the code thinks a page is valid when it really isn't.
 
-I have seen null byte corruptions in syslog files with ext2 in various
-kernels. So perhaps it is a general VFS problem?
+Zero is a counting number. 0->255 == 1->256.
+On Fri, 23 Feb 2001, David Balazic wrote:
 
-Greetings
-Bernd
+> Running kernel 2.4.2 :
+> 
+> cat /proc/ide/hdc/settings
+> 
+> name                    value           min             max             mode
+> ----                    -----           ---             ---             ----
+> bios_cyl                89355           0               65535           rw
+> bios_head               16              0               255             rw
+> bios_sect               63              0               63              rw
+> breada_readahead        4               0               127             rw
+> bswap                   0               0               1               r
+> current_speed           69              0               69              rw
+> file_readahead          0               0               2097151         rw
+> ide_scsi                0               0               1               rw
+> init_speed              12              0               69              rw
+> io_32bit                1               0               3               rw
+> keepsettings            0               0               1               rw
+> lun                     0               0               7               rw
+> max_kb_per_request      128             1               127             rw
+> multcount               0               0               8               rw
+> nice1                   1               0               1               rw
+> nowerr                  0               0               1               rw
+> number                  2               0               3               rw
+> pio_mode                write-only      0               255             w
+> slow                    0               0               1               rw
+> unmaskirq               1               0               1               rw
+> using_dma      
+> --------------------%X---------------
+> 
+> max_kb_per_request  has value 128 , but max is 127 !?
+> 
+> max for multcount is 8 , but my drive supports 16 sectors. ( see hdparm output below )
+> If I set multcount to 8 sectors ( hdparm -m 8 /dev/hdc ) 
+> then /proc/ide/hdc/settings will show :
+> multcount               4               0               8               rw
+> 
+> The values are divided by 2. Why ?
+> 
+> 
+> hdparm -i /dev/hdc  :
+> 
+> /dev/hdc:
+> 
+>  Model=IBM-DTLA-307045, FwRev=TX6OA60A, SerialNo=YMEYMML9342
+>  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+>  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
+>  BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
+>  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=90069840
+>  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+>  PIO modes: pio0 pio1 pio2 pio3 pio4 
+>  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5 
+> 
+> IDE interface is VIA xxx686b ( ATA-100 )
+> IDE driver is VIA IDE v4.3
+> 
+> -- 
+> David Balazic
+> --------------
+> "Be excellent to each other." - Bill & Ted
+> - - - - - - - - - - - - - - - - - - - - - -
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
+

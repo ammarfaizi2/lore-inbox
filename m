@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261247AbRETBDa>; Sat, 19 May 2001 21:03:30 -0400
+	id <S261251AbRETBMA>; Sat, 19 May 2001 21:12:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261251AbRETBDU>; Sat, 19 May 2001 21:03:20 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:5549 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S261238AbRETBDQ>;
-	Sat, 19 May 2001 21:03:16 -0400
-Message-ID: <3B0717CE.57613D4A@mandrakesoft.com>
-Date: Sat, 19 May 2001 21:03:10 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@math.psu.edu>, Edgar Toernig <froese@gmx.de>,
-        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
- w/info-PATCH]device arguments from lookup)
-In-Reply-To: <Pine.LNX.4.21.0105191728140.15174-100000@penguin.transmeta.com>
+	id <S261252AbRETBLu>; Sat, 19 May 2001 21:11:50 -0400
+Received: from are.twiddle.net ([64.81.246.98]:26885 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S261251AbRETBLj>;
+	Sat, 19 May 2001 21:11:39 -0400
+Date: Sat, 19 May 2001 18:11:27 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: alpha iommu fixes
+Message-ID: <20010519181127.A14645@twiddle.net>
+Mail-Followup-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Fri, May 18, 2001 at 09:46:17PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a dumb question, and I apologize if I am questioning computer
-science dogma...
+On Fri, May 18, 2001 at 09:46:17PM +0400, Ivan Kokshaysky wrote:
+> -void
+> -cia_pci_tbi(struct pci_controller *hose, dma_addr_t start, dma_addr_t end)
+> -{
+> -	wmb();
+> -	*(vip)CIA_IOC_PCI_TBIA = 3;	/* Flush all locked and unlocked.  */
+> -	mb();
+> -	*(vip)CIA_IOC_PCI_TBIA;
+> -}
 
-Why are LVM and EVMS(competing LVM project) needed at all?
+I'd rather keep this around.  It should be possible to use on CIA2.
 
-Surely the same can be accomplished with
-* md
-* snapshot blkdev (attached in previous e-mail)
-* giving partitions and blkdevs the ability to grow and shrink
-* giving filesystems the ability to grow and shrink
+> +/* Even if the tbia works, we cannot use it. It effectively locks the
+> + * chip (as well as direct write to the tag registers) if there is a
+> + * SG DMA operation in progress. This is true at least for PYXIS rev. 1.
 
-On-line optimization (defrag, etc) shouldn't be hard once you have the
-ability to move blocks and files around, which would come with the
-ability to grow and shrink blkdevs and fs's.
+Uggg.  How did you discover this?
 
--- 
-Jeff Garzik      | "Do you have to make light of everything?!"
-Building 1024    | "I'm extremely serious about nailing your
-MandrakeSoft     |  step-daughter, but other than that, yes."
+> +/*	__save_and_cli(flags);	Don't need this -- we're called from
+> +				pci_unmap_xx() or iommu_arena_alloc()
+> +				with IPL_MAX after spin_lock_irqsave() */
+
+Just delete it, don't comment it out.  You might mention in the
+function header comment that we're called with interrupts disabled.
+
+>  	*(vip)CIA_IOC_CIA_CTRL = ctrl;
+>  	mb();
+> -	*(vip)CIA_IOC_CIA_CTRL;
+> -	mb();
+
+I'm pretty sure you don't want to do this.  You're risking a
+subsequent i/o being posted through the PCI bridge before this
+takes effect.  An "mb" is only effective inside the CPU.
+
+
+
+r~

@@ -1,66 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263012AbTHZXyj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 19:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbTHZXyj
+	id S262994AbTH0AtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 20:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbTH0AtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 19:54:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40592 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263012AbTHZXyh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 19:54:37 -0400
-Message-ID: <3F4BF331.4040706@pobox.com>
-Date: Tue, 26 Aug 2003 19:54:25 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Tue, 26 Aug 2003 20:49:16 -0400
+Received: from amdext2.amd.com ([163.181.251.1]:29412 "EHLO amdext2.amd.com")
+	by vger.kernel.org with ESMTP id S262994AbTH0AtN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 20:49:13 -0400
+Message-ID: <99F2150714F93F448942F9A9F112634C080EF034@txexmtae.amd.com>
+From: paul.devriendt@AMD.com
+To: linux@brodo.de, pavel@suse.cz
+cc: davej@redhat.com, linux-kernel@vger.kernel.org, aj@suse.de,
+       mark.langsdorf@AMD.com, richard.brunner@AMD.com,
+       cpufreq@www.linux.org.uk
+Subject: RE: Cpufreq for opteron
+Date: Tue, 26 Aug 2003 19:43:37 -0500
 MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] add a couple pci ids to pci_ids.h
-References: <Pine.GSO.4.21.0308221801120.13238-100000@waterleaf.sonytel.be>
-In-Reply-To: <Pine.GSO.4.21.0308221801120.13238-100000@waterleaf.sonytel.be>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 1355214E37433-01-01
+Content-Type: text/plain;
+ charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven wrote:
-> On Fri, 22 Aug 2003, Linux Kernel Mailing List wrote:
+> > +#define VERSION "version 1.00.06 - August 13, 2003"
 > 
->>ChangeSet 1.1104, 2003/08/22 08:53:10-03:00, jgarzik@pobox.com
->>
->>	[PATCH] add a couple pci ids to pci_ids.h
->>
->>diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
->>--- a/include/linux/pci_ids.h	Fri Aug 22 05:02:40 2003
->>+++ b/include/linux/pci_ids.h	Fri Aug 22 05:02:40 2003
->>@@ -1648,6 +1648,9 @@
->> #define PCI_DEVICE_ID_TIGON3_5703	0x1647
-> 
-> 
-> 0x1647 = 5703
-> 
-> 
->> #define PCI_DEVICE_ID_TIGON3_5704	0x1648
-> 
-> 
-> 0x1648 = 5704
-> 
-> 
->> #define PCI_DEVICE_ID_TIGON3_5702FE	0x164d
->>+#define PCI_DEVICE_ID_TIGON3_5705	0x1653
-> 
-> 
-> 0x1653 != 5705 -> *** BEEP ***
-> 0x1653 = 5715
+> If AMD wants it in, let's put it into the /* comment header 
+> at the top */ ?
 
+It gets written to the log file with printk ... if someone needs
+to send me a log file of an error, I find it helpful to know what
+version of the driver it came from.
 
-The card I have seems to say 5705 on the chip :)  I've never heard of a 
-5715, even.  Weird :)
+> > +static int onbattery = 1;	/* Set if running on battery, 
+> reset otherwise. */
+> > +			   /* Of no relevance unless 
+> batterypstates <     */
+> > +			   /* numpstates, as defined in the 
+> PSB/PST.      */
+> 
+> I dislike this interaction between ACPI and cpufreq -- it 
+> should be done
+> more generally. Let's discuss that seperately, though. And if 
+> the code is
+> dead code at the moment.
 
-	Jeff
+The dead code has been removed in 1.00.07 of the driver. I am
+happy to receive suggestions as to better ways of detecting battery
+versus mains power transitions.
 
+> > +static int
+> > +drv_verify(struct cpufreq_policy *pol)
+> > +{
+> <snip>
+> > +	dprintk(KERN_DEBUG PFX
+> > +		"ver: cpu%d, min %d, max %d, cur %d, pol %d 
+> (%s)\n", pol->cpu,
+> > +		pol->min, pol->max, pol->cur, pol->policy,
+> > +		pol->policy ==
+> > +		CPUFREQ_POLICY_POWERSAVE ? "psave" : pol->policy ==
+> > +		CPUFREQ_POLICY_PERFORMANCE ? "perf" : "unk");
+> > +
+> > +	if (pol->cpu != 0) {
+> > +		printk(KERN_ERR PFX "verify - cpu not 0\n");
+> > +		return -ENODEV;
+> > +	}
+> > +
+> > +	res = find_match(&targ, &min, &max,
+> > +			 pol->policy ==
+> > +			 CPUFREQ_POLICY_POWERSAVE ? SEARCH_DOWN 
+> : SEARCH_UP, 0,
+> > +			 0);
+> 
+> Why do you check for CPUFREQ_POLICY here??? In a ->target 
+> class cpufreq
+> driver[*] you must not worry about the policy, only about min and max
+> frequency.
+> 
+> [*] ->target class cpufreq drivers [cpufreq_driver->target is 
+> used] have
+> specific operating frequencies.
+>     ->setpolicy class cpufreq drivers have operating frequency ranges
+> [currently only available on Transmeta Crusoe processors]
 
+If the driver has to expand the range to find a matching frequency, it
+has to know whether to expand up or down. That comes from policy.
+
+> Also, it'd be great if this driver were converted to use the CPUfreq
+> freuqency table helpers -- check drivers/cpufreq/freq_table.c in
+> linux-2.6.0-test4. Using it makes the code much cleaner, easier to 
+> understand, and less prone to errors.
+
+I'll look into for the next rev.
+
+> 	Dominik
+
+Thanks. Paul.
 

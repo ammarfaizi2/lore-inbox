@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265649AbSKKHop>; Mon, 11 Nov 2002 02:44:45 -0500
+	id <S265657AbSKKHyb>; Mon, 11 Nov 2002 02:54:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265657AbSKKHop>; Mon, 11 Nov 2002 02:44:45 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:45440 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265649AbSKKHoo>;
-	Mon, 11 Nov 2002 02:44:44 -0500
-Date: Mon, 11 Nov 2002 13:35:49 +0530
-From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-To: Rusty Lynch <rusty@linux.co.intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Multiple kprobes per address
-Message-ID: <20021111133548.A16731@in.ibm.com>
-Reply-To: vamsi@in.ibm.com
-References: <200211082100.gA8L0Q515460@linux.intel.com>
+	id <S265660AbSKKHyb>; Mon, 11 Nov 2002 02:54:31 -0500
+Received: from holomorphy.com ([66.224.33.161]:3765 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S265657AbSKKHyb>;
+	Mon, 11 Nov 2002 02:54:31 -0500
+Date: Sun, 10 Nov 2002 23:58:49 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@conectiva.com.br>,
+       Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       marcelo@conectiva.com.br
+Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
+Message-ID: <20021111075849.GM23425@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Con Kolivas <conman@kolivas.net>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	marcelo@conectiva.com.br
+References: <3DCEC6F7.E5EC1147@digeo.com> <Pine.LNX.4.44L.0211101902390.8133-100000@imladris.surriel.com> <20021111015445.GB5343@x30.random> <3DCF2BF5.5DD165DD@digeo.com> <20021111040642.GA30193@dualathlon.random> <3DCF308E.166FAADF@digeo.com> <20021111043941.GB30193@dualathlon.random> <3DCF3BD1.4A95617D@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200211082100.gA8L0Q515460@linux.intel.com>; from rusty@linux.co.intel.com on Fri, Nov 08, 2002 at 01:00:26PM -0800
+In-Reply-To: <3DCF3BD1.4A95617D@digeo.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrea Arcangeli wrote:
+> 2.5 (and read-latency) sort-of solve these problems by creating a
+> massive seekstorm when there are competing reads and writes.  It's
+> a pretty sad solution really.
 
-On Fri, Nov 08, 2002 at 01:00:26PM -0800, Rusty Lynch wrote:
-> I noticed that kprobes is designed around the idea of only allowing
-> a single probe point per probe address.  Why not allow multiple probe
-> points for a given probe address?  Is it a way of limiting complexity?
-> 
-We didn't think it would be useful and conceptually, it is simpler to
-think of one probe at an address.
+On Sun, Nov 10, 2002 at 09:10:41PM -0800, Andrew Morton wrote:
+> Better would be to perform those reads and writes in nice big batches.
+> That's easy for the writes, but for reads we need to wait for the
+> application to submit another one.  That means actually deliberately
+> leaving the disk head idle for a few milliseconds in the anticipation
+> that the application will submit another nearby read.  This is called
+> "anticipatory scheduling" and has been shown to provide 20%-70%
+> performance boost in web serving workloads.   It just makes heaps of
+> sense to me and I'd love to see it in Linux...
+> See http://www.cs.ucsd.edu/sosp01/papers/iyer.pdf
 
-> It looks like it would be fairly straight forward to change get_kprobe(addr)
-> to be get_kprobes(addr) where it returns a list of probe points associated
-> with the address, and then tweak do_int3 to work through the entire list.
-> Would such a change be acceptable?
-> 
-It will be trivial to add this, but why? Is there a good reason
-for wanting to do this (multiple kprobes at same address) as opposed 
-to doing all you want done on a probe hit in a single handler?
+This smacks of "deceptive idleness". OTOH I prefer to keep out of those
+issues and focus on pure fault handling, TLB, and space consumption
+issues. I/O scheduling is far afield for me, and I prefer to keep it so.
 
-Regards,
-Vamsi.
--- 
-Vamsi Krishna S.
-Linux Technology Center,
-IBM Software Lab, Bangalore.
-Ph: +91 80 5044959
-Internet: vamsi@in.ibm.com
+
+Bill

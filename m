@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261742AbSKUBPI>; Wed, 20 Nov 2002 20:15:08 -0500
+	id <S261978AbSKUBUE>; Wed, 20 Nov 2002 20:20:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261721AbSKUBPI>; Wed, 20 Nov 2002 20:15:08 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:37135 "EHLO
+	id <S262430AbSKUBUE>; Wed, 20 Nov 2002 20:20:04 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:38927 "EHLO
 	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S261742AbSKUBPG>; Wed, 20 Nov 2002 20:15:06 -0500
-Date: Wed, 20 Nov 2002 23:22:05 -0200
+	id <S261978AbSKUBUC>; Wed, 20 Nov 2002 20:20:02 -0500
+Date: Wed, 20 Nov 2002 23:27:00 -0200
 From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] i20: fix up header cleanups: add include <linux/interrupt.h>
-Message-ID: <20021121012205.GG28717@conectiva.com.br>
+Subject: [PATCH] sound: fix up header cleanups: add include <linux/interrupt.h>
+Message-ID: <20021121012700.GI28717@conectiva.com.br>
 Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
 	Linus Torvalds <torvalds@transmeta.com>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
@@ -29,7 +29,7 @@ Linus,
 
 master.kernel.org:/home/acme/BK/includes-2.5
 
-	Now there are three outstanding changesets.
+	Now there are five outstanding changesets.
 
 - Arnaldo
 
@@ -39,58 +39,77 @@ You can import this changeset into BK by piping this whole message to:
 ===================================================================
 
 
-ChangeSet@1.924, 2002-11-20 23:15:34-02:00, acme@conectiva.com.br
-  i2o: fix up header cleanups: add include <linux/interrupt.h>
+ChangeSet@1.926, 2002-11-20 23:18:58-02:00, acme@conectiva.com.br
+  sound: fix up header cleanups: add include <linux/interrupt.h>
   
-  and also makes a var go to .bss...
+  also fix a bug in hammerfall driver, removing __exit from a function
+  that is called from a non __exit function.
 
 
- i2o_pci.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
+ isa/ad1816a/ad1816a_lib.c    |    6 ++++--
+ pci/rme9652/hammerfall_mem.c |    2 +-
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
 
-diff -Nru a/drivers/message/i2o/i2o_pci.c b/drivers/message/i2o/i2o_pci.c
---- a/drivers/message/i2o/i2o_pci.c	Wed Nov 20 23:19:32 2002
-+++ b/drivers/message/i2o/i2o_pci.c	Wed Nov 20 23:19:32 2002
-@@ -27,14 +27,16 @@
- #include <linux/i2o.h>
- #include <linux/errno.h>
+diff -Nru a/sound/isa/ad1816a/ad1816a_lib.c b/sound/isa/ad1816a/ad1816a_lib.c
+--- a/sound/isa/ad1816a/ad1816a_lib.c	Wed Nov 20 23:20:18 2002
++++ b/sound/isa/ad1816a/ad1816a_lib.c	Wed Nov 20 23:20:18 2002
+@@ -19,14 +19,16 @@
+ */
+ 
+ #include <sound/driver.h>
+-#include <asm/io.h>
+-#include <asm/dma.h>
+ #include <linux/delay.h>
  #include <linux/init.h>
 +#include <linux/interrupt.h>
  #include <linux/slab.h>
+ #include <linux/ioport.h>
+ #include <sound/core.h>
+ #include <sound/ad1816a.h>
 +
- #include <asm/io.h>
++#include <asm/io.h>
++#include <asm/dma.h>
  
- #ifdef CONFIG_MTRR
- #include <asm/mtrr.h>
- #endif // CONFIG_MTRR
+ MODULE_AUTHOR("Massimo Piccioni <dafastidio@libero.it>");
+ MODULE_DESCRIPTION("lowlevel code for Analog Devices AD1816A chip");
+diff -Nru a/sound/pci/rme9652/hammerfall_mem.c b/sound/pci/rme9652/hammerfall_mem.c
+--- a/sound/pci/rme9652/hammerfall_mem.c	Wed Nov 20 23:20:18 2002
++++ b/sound/pci/rme9652/hammerfall_mem.c	Wed Nov 20 23:20:18 2002
+@@ -178,7 +178,7 @@
+ 	printk ("Hammerfall memory allocator: unknown buffer address or PCI device ID");
+ }
  
--static int dpt = 0;
-+static int dpt;
+-static void __exit hammerfall_free_buffers (void)
++static void hammerfall_free_buffers (void)
  
- 
- /**
+ {
+ 	int i;
 
 ===================================================================
 
 
 This BitKeeper patch contains the following changesets:
-1.924
+1.926
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch4168
-M'XL(`*0TW#T``]6476O;,!2&KZ-?<:"7(\HY\E?B+25K.[;0P4I'[P9#D=78
-MU+:,)*<M^,=734<ZMI#NZV:6+(./='S.^S[X"*Z<MOE(JD:S(_A@G,]'RK1:
-M^6HCN3(-7]D0N#0F!":E:?3DY'Q2M:KN"^W&@B<LA"^D5R5LM'7YB'BT>^/O
-M.YV/+M^]O_KX]I*Q^1Q.2]FN]6?M83YGWMB-K`NWD+ZL3<N]E:UKM-]^>-AM
-M'02B"".A+,(D'2C%.!L4%40R)EV@B*=IS&[K:E&:VC3&=N7]GA1$@I`PCFD0
-M,<XB=@;$9R(&%!.BB4`044Y)'L5C%#DB/*JR^%$->$4P1G8"_[;Z4Z:@$B:'
-MZ^H.^@Y*+0MM0=5:MGWG<I!%`=]TAS=UU?9WP0:OK>T[S\OC<#Q,V18@:V>@
-MD3?:@82-M+`VH5;@*^<XY^P<A,A$RBZ>O6#CW[P80XGL^`4)"EL](C$);3W>
-M7SM5<?6='#'2=,`,LW10XII6@E(EQ"JEV?5^Z7<9&^V<7.L]F9\\IB2B(<(X
-MB;?0'3SV,HA_T0>3M6P7E37M6GK-W6W(JR7?VL>-7?/^YA>:PDPDE(@LF@XB
-MFU&Z!9?P)V[I,+<1C.E_YO;)T$\PMK?;&3B\..SM'X"]%#,@=G2HXF6$8<L7
-J=A9EX;G<KLY+7P4E6@]%YU\__Q15J=6-ZYOYC`BG68'L`7],P]AT!0``
+begin 664 bkpatch4244
+M'XL(`-(TW#T``^U66V_3,!1^KG_%D?8"@B:V$^<F.HUM"*8A,0WM#:ER'&>)
+M2.+*3DI!^?&XH6O+Z+H+\+;$BB6?XR_G\GV6#^#*2)V,N*@E.H`/RK3)2*A&
+MBK:<<T>HVDFU-5PJ90UNH6KI'I^[92.J+I-F3!V&K/F"MZ*`N=0F&1''6Z^T
+MWV<R&5V^>W_U\>TE0I,)G!2\N9:?90N3"6J5GO,J,T>\+2K5.*WFC:EE._RX
+M7[OV%&-J7T9"#[.@)P'VPUZ0C!#N$YEAZD>!CY8Y'-V._18*(91@0D(:])3B
+M*$"G0)R8!H"I2XA+,5`O(5'"HC&F"<:P$Q1>41AC=`S_-H$3),"HKLD2R,L%
+M=#,H),^D!E%)WG0SDP#/,E@5']Y49=,M;"]:J74W:YWBT`+8P2NC!@0.:7=M
+M_:'@=2UUSJL*,EW:/KT&+6LU+YMKF$[EHFPAUZJV&_*NL9FJQL*T!6^A-"#L
+M-IG=.#2J66]9^3KHW):->3&ZV/07C1_Y((0Y1H<PDUHNCH:O(W[T0T'<F2A=
+M7<LX8/1FGM:R=L2JM,0CL6?GWB,L8GTJJ)=EMK[<9P'+=W=Q!_2F3EOH*\Y$
+MC/4X#.F=,9:&NSPC$0G6\[0JTQTQLC`B/8T8SZ/`\_,TII%,]P:Y'WLK0AJ%
+MD3\H[9Z-2_W]CS16H*8S\J&8!&-"/1R0J*<!#KU!E']*DNV7I`]C^BS);4D.
+M5/@$8_UM&%9B%_>QX@FJ/:44*#JC#`@ZV%>(,QJ#A[YL.7%3NZ5:VGY?RVJ^
+M7-RP>)]&[R3RWYT9.WG\@+/""C'V`DQZ''FV_$LJ1X^E,H$Q>:;R%I6'8W<G
+MD_=UY"EDMEJP/#[[-9F6MZ6`N2JSK22GN99RFG9Y;N\[\&)I?;FY!(E"BJ^F
+2JR<ABX7PPA3]!!?P$L%D"0``
 `
 end

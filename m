@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263139AbRFGVBK>; Thu, 7 Jun 2001 17:01:10 -0400
+	id <S263147AbRFGVEa>; Thu, 7 Jun 2001 17:04:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263141AbRFGVBA>; Thu, 7 Jun 2001 17:01:00 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:64179 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S263139AbRFGVAy>;
-	Thu, 7 Jun 2001 17:00:54 -0400
-Message-ID: <3B1FEB7E.D06B10A2@mandrakesoft.com>
-Date: Thu, 07 Jun 2001 17:00:46 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1 i686)
-X-Accept-Language: en
+	id <S263145AbRFGVEU>; Thu, 7 Jun 2001 17:04:20 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:1555 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S263141AbRFGVEM>;
+	Thu, 7 Jun 2001 17:04:12 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106072102.f57L2gm377429@saturn.cs.uml.edu>
+Subject: Re: temperature standard - global config option?
+To: lk@Aniela.EU.ORG (L. K.)
+Date: Thu, 7 Jun 2001 17:02:42 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org),
+        unlisted-recipients:;;;@Aniela.EU.ORG; (no To-header on input)
+In-Reply-To: <Pine.LNX.4.21.0106071519120.3702-100000@ns1.Aniela.EU.ORG> from "L. K." at Jun 07, 2001 03:20:03 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: VM suggestion...
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While you guys are in there hacking, perhaps consider adding metrics
-which allows you to tell exactly when certain cases and conditions are
-hit.
-	page_aged_while_sleeping_in_page_lauder++
+L. K. writes:
 
-Statistics like this are cheap to use in runtime and should provide
-concrete information rather than guesses and estimations...
+> Why not make it in Celsius ? Is more easy to read it this way.
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+No, because then the software must handle negative numbers for
+cooled computers. CentiKelvin is fine. Do C=cK/100-273.15 if you
+really must... but you still have a number that is useless to
+a human. Humans need a seconds-to-destruction value or an alarm.
+
+Negative temperatures do not really exist.
+
+
+
+
+

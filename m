@@ -1,132 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbVCPCzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbVCPC4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262472AbVCPCzY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 21:55:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbVCPCzY
+	id S262482AbVCPC4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 21:56:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbVCPC4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 21:55:24 -0500
-Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:57002 "EHLO
-	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262472AbVCPCzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 21:55:07 -0500
+	Tue, 15 Mar 2005 21:56:25 -0500
+Received: from ns1.flexabit.net ([64.198.230.130]:31936 "EHLO ns1.flexabit.net")
+	by vger.kernel.org with ESMTP id S262482AbVCPC4P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 21:56:15 -0500
+From: Tom Felker <tfelker2@uiuc.edu>
+To: linux-os@analogic.com
+Subject: Re: Bogus buffer length check in linux-2.6.11  read()
+Date: Tue, 15 Mar 2005 20:56:16 -0600
+User-Agent: KMail/1.7.2
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0503151257450.12264@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0503151257450.12264@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16951.40964.44130.990674@wombat.chubb.wattle.id.au>
-Date: Wed, 16 Mar 2005 13:55:00 +1100
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: linux-kernel@vger.kernel.org, herbert@gondor.apana.org.au,
-       davidm@davemloft.net
-Subject: Can no longer build ipv6 built-in (2.6.11, today's BK head)
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+Message-Id: <200503152056.16287.tfelker2@uiuc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 15 March 2005 11:59 am, linux-os wrote:
+> The attached file shows that the kernel thinks it's doing
+> something helpful by checking the length of the input
+> buffer for a read(). It will return "Bad Address" until
+> the length is 1632 bytes.  Apparently the kernel thinks
+> 1632 is a good length!
+>
+> Did anybody consider the overhead necessary to do this
+> and the fact that the kernel has no way of knowing if
+> the pointer to the buffer is valid until it actually
+> does the write. What was wrong with copy_to_user()?
+> Why is there the additional bogus check?
 
+I don't think that's what's happening.  The kernel is perfectly happy to read 
+data into any virtual address range that your process can legally write to - 
+this includes any part of the heap and any part of the stack.  The kernel 
+can't check whether writing to the given address would clobber the stack or 
+heap - it's your memory, you manage it.  The kernel's notion of an "invalid 
+address" is very simple, and doesn't include every address that you would 
+consider invalid from a C perspective.
 
-Changeset 
-  herbert@gondor.apana.org.au|ChangeSet|20050310043957|06845
-added cleanup to ipv6_init(), which calls ip6_route_cleanup()
+So what's probably happening is that your stack is (1632+256) bytes tall, 
+including the buffer you allocated.  (Stack grows downward on i386.)  So 
+ideally you read less than 256 bytes.  If you read more than 256 but less 
+than 1888 bytes, the read would damage other elements on the stack, but it is 
+OK as far as the kernel is concerned.  But if you read more than that, you're 
+asking the kernel to write to an address that is higher than the highest 
+address of the stack (the address of the bottom element), and this address 
+isn't mapped into your process, so you get EINVAL.
 
-ip6_route_cleanup() is marked __exit so cannot be called from an
-__init section -- it's discarded by the linker from the image
-(although it'll be retained in a module).
-
-You get errors like this:
-ip6_route_cleanup: discarded in section `.exit.text' from
-net/built-in.o 
-xfrm6_fini: discarded in section `.exit.text' from net/built-in.o
-fib6_gc_cleanup: discarded in section `.exit.text' from net/built-in.o
-ipv6_packet_cleanup: discarded in section `.exit.text' from
-net/built-in.o
-
-
-A simple fix is to delete the __exit from the various functions now that
-they're called other than at module_exit.
-
-Signed-off-by: Peter Chubb <peterc@gelato.unsw.edu.au>
-
-Index: linux-2.5-import/net/ipv6/route.c
-===================================================================
---- linux-2.5-import.orig/net/ipv6/route.c	2005-03-16 10:12:44.742595387 +1100
-+++ linux-2.5-import/net/ipv6/route.c	2005-03-16 13:01:50.246678866 +1100
-@@ -2116,7 +2116,7 @@
- #endif
- }
- 
--void __exit ip6_route_cleanup(void)
-+void ip6_route_cleanup(void)
- {
- #ifdef CONFIG_PROC_FS
- 	proc_net_remove("ipv6_route");
-Index: linux-2.5-import/net/ipv6/ipv6_sockglue.c
-===================================================================
---- linux-2.5-import.orig/net/ipv6/ipv6_sockglue.c	2005-03-16 10:12:44.736736056 +1100
-+++ linux-2.5-import/net/ipv6/ipv6_sockglue.c	2005-03-16 13:24:19.095793200 +1100
-@@ -698,7 +698,7 @@
- 	dev_add_pack(&ipv6_packet_type);
- }
- 
--void __exit ipv6_packet_cleanup(void)
-+void ipv6_packet_cleanup(void)
- {
- 	dev_remove_pack(&ipv6_packet_type);
- }
-Index: linux-2.5-import/net/ipv6/ip6_fib.c
-===================================================================
---- linux-2.5-import.orig/net/ipv6/ip6_fib.c	2005-03-15 12:28:44.819748921 +1100
-+++ linux-2.5-import/net/ipv6/ip6_fib.c	2005-03-16 13:27:46.423351526 +1100
-@@ -1218,7 +1218,7 @@
- 		panic("cannot create fib6_nodes cache");
- }
- 
--void __exit fib6_gc_cleanup(void)
-+void fib6_gc_cleanup(void)
- {
- 	del_timer(&ip6_fib_timer);
- 	kmem_cache_destroy(fib6_node_kmem);
-Index: linux-2.5-import/net/ipv6/xfrm6_policy.c
-===================================================================
---- linux-2.5-import.orig/net/ipv6/xfrm6_policy.c	2005-03-15 12:28:44.853928319 +1100
-+++ linux-2.5-import/net/ipv6/xfrm6_policy.c	2005-03-16 13:53:28.890552848 +1100
-@@ -276,7 +276,7 @@
- 	xfrm_policy_register_afinfo(&xfrm6_policy_afinfo);
- }
- 
--static void __exit xfrm6_policy_fini(void)
-+static void xfrm6_policy_fini(void)
- {
- 	xfrm_policy_unregister_afinfo(&xfrm6_policy_afinfo);
- }
-@@ -287,7 +287,7 @@
- 	xfrm6_state_init();
- }
- 
--void __exit xfrm6_fini(void)
-+void xfrm6_fini(void)
- {
- 	//xfrm6_input_fini();
- 	xfrm6_policy_fini();
-Index: linux-2.5-import/net/ipv6/xfrm6_state.c
-===================================================================
---- linux-2.5-import.orig/net/ipv6/xfrm6_state.c	2005-03-15 12:28:44.854904874 +1100
-+++ linux-2.5-import/net/ipv6/xfrm6_state.c	2005-03-16 13:29:30.183337361 +1100
-@@ -129,7 +129,7 @@
- 	xfrm_state_register_afinfo(&xfrm6_state_afinfo);
- }
- 
--void __exit xfrm6_state_fini(void)
-+void xfrm6_state_fini(void)
- {
- 	xfrm_state_unregister_afinfo(&xfrm6_state_afinfo);
- }
-
-
+If you were to type more than 256 (but less than 1888) characters before 
+pressing enter, the read would silently overflow the buffer, thus clobbering 
+the stack, including the return address of main().  So when main tried to 
+return, you'd get a segfault.  Somebody with assembly skills could probably 
+craft a string which, when your program reads it, would take control of the 
+program.
 
 -- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+Tom Felker, <tcfelker@mtco.com>
+<http://vlevel.sourceforge.net> - Stop fiddling with the volume knob.
+
+No army can withstand the strength of an idea whose time has come.

@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267595AbUHaJrW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267620AbUHaJy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267595AbUHaJrW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 05:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267620AbUHaJrV
+	id S267620AbUHaJy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 05:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267678AbUHaJy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 05:47:21 -0400
-Received: from ozlabs.org ([203.10.76.45]:29131 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S267595AbUHaJrU (ORCPT
+	Tue, 31 Aug 2004 05:54:27 -0400
+Received: from gepard.lm.pl ([212.244.46.42]:55015 "EHLO gepard.lm.pl")
+	by vger.kernel.org with ESMTP id S267620AbUHaJyZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 05:47:20 -0400
-Date: Tue, 31 Aug 2004 19:43:48 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Christoph Hellwig <hch@infradead.org>, Roland McGrath <roland@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cleanup ptrace stops and remove notify_parent
-Message-ID: <20040831094348.GH26072@krispykreme>
-References: <20040830204332.24da5615.akpm@osdl.org> <200408310411.i7V4B8Vs027772@magilla.sf.frob.com> <20040831102902.A19619@infradead.org>
+	Tue, 31 Aug 2004 05:54:25 -0400
+Subject: Re: 2.6.9-rc1-mm1 kjournald: page allocation failure. order:1,
+	mode:0x20
+From: Krzysztof "Sierota (o2.pl/tlen.pl)" <Krzysztof.Sierota@firma.o2.pl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040830125742.18c38277.akpm@osdl.org>
+References: <1093794970.1751.10.camel@rakieeta>
+	 <20040829160257.3b881fef.akpm@osdl.org> <1093873432.1786.16.camel@rakieeta>
+	 <20040830125742.18c38277.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-2
+Organization: o2.pl Sp z o.o.
+Message-Id: <1093945972.1715.2.camel@rakieeta>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040831102902.A19619@infradead.org>
-User-Agent: Mutt/1.5.6+20040803i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 31 Aug 2004 11:52:53 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Just about every architecture hasa line
+W li¶cie z pon, 30-08-2004, godz. 21:57, Andrew Morton pisze: 
+> Krzysztof "Sierota (o2.pl/tlen.pl)" <Krzysztof.Sierota@firma.o2.pl> wrote:
+> >
+> > > There should have been a stack trace as well.  Please send it.
+> >  > 
+> > 
+> >  this time there is an attachement.
 > 
-> +	ptrace_notify(SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)  ? 0x80 : 0));
+> OK.  It's netfilter.  Trying to allocate two physically contiguous
+> pages with GFP_ATOMIC.  This is expected to fail, and networking will
+> recover OK.
 > 
-> you probably want a one-liner inline wrapper with a descriptive name
-> around this
+> The networking guys are cooking up a fix for this, I believe.
 
-Yep, and it looks like only some architectures got this recent change:
+ok, I gues I might try without a netfilter, I've also seen similiar
+messages about kjournald allocation, but next line would say stack
+pointer is garbage, not printing. Would it be some leftover after
+netfilter problems during the run or should I try to reproduce that
+behaviour and wait for some meaningful output ?
 
-        ptrace_notify(SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD) &&
-                                 !test_thread_flag(TIF_SINGLESTEP) ?  0x80 : 0));
+Krzysztof.
 
-Is there a reason this shouldnt be propogated to all architectures?
 
-Anton

@@ -1,40 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271308AbTHRHW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 03:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271310AbTHRHW3
+	id S271319AbTHRHgh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 03:36:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271313AbTHRHgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 03:22:29 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:30727 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S271308AbTHRHW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 03:22:28 -0400
-Date: Mon, 18 Aug 2003 03:10:36 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>,
-       Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: NMI appears to be stuck! (2.4.22-rc2 on dual Athlon)
-In-Reply-To: <20030818001616.GA4761@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.53.0308180300250.11674@montezuma.mastecende.com>
-References: <20030817212824.GA9025@www.13thfloor.at> <20030817221114.GA734@alpha.home.local>
- <20030817222843.GB10967@www.13thfloor.at> <Pine.LNX.4.53.0308171822391.9067@montezuma.mastecende.com>
- <20030818001616.GA4761@mail.jlokier.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 18 Aug 2003 03:36:37 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:48907 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S271310AbTHRHge
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 03:36:34 -0400
+Date: Mon, 18 Aug 2003 09:29:22 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Willy Tarreau <willy@w.ods.org>, alan@lxorguk.ukuu.org.uk,
+       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
+       bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+Message-ID: <20030818072922.GB15098@alpha.home.local>
+References: <200308171555280781.0067FB36@192.168.128.16> <1061134091.21886.40.camel@dhcp23.swansea.linux.org.uk> <200308171759540391.00AA8CAB@192.168.128.16> <1061137577.21885.50.camel@dhcp23.swansea.linux.org.uk> <200308171827130739.00C3905F@192.168.128.16> <1061141045.21885.74.camel@dhcp23.swansea.linux.org.uk> <20030817224849.GB734@alpha.home.local> <20030817222258.257694b9.davem@redhat.com> <20030818065652.GA15098@alpha.home.local> <20030818000139.6964cd04.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030818000139.6964cd04.davem@redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Aug 2003, Jamie Lokier wrote:
-
-> > nmi_watchdog=2 will work on the majority of i686+ (performance 
-> > counters with NMI delivery mode) boxes and you can check whether it's 
-> > enabled by doing cat /proc/interrupts and watching if the NMI line ticks 
-> > at a decent rate. nmi_watchdog=1 tends to be harder for hardware 
-> > manufacturers to get right (for some reason or other).
+On Mon, Aug 18, 2003 at 12:01:39AM -0700, David S. Miller wrote:
+> On Mon, 18 Aug 2003 08:56:52 +0200
+> Willy Tarreau <willy@w.ods.org> wrote:
 > 
-> Is it possible to try both at boot time and pick the one which works?
+> > But I'm willing to try arpfilter if you show me where to start from.
+> 
+> There are tools at:
+> 
+> 	http://ebtables.sourceforge.net/
 
-I believe we currently already do that if you do nmi_watchdog=2
+Thanks, I've downloaded them and will take a look at them. By the time, I did
+some random tests with 'ip arp', and found a simple way to solve the problem
+I reported initially. This can be of interest to others BTW :
+
+Trivial example below :
+
+   My host wants to use address 10.0.0.1 to talk to the world, but through
+   the gateway 11.0.0.2 reachable from 11.0.0.1 :
+
+   ip address add 10.0.0.1/24 dev eth0
+   ip address add 11.0.0.1/24 dev eth0
+   ip route   add default     via 11.0.0.2 src 10.0.0.1
+=> same as before till this
+   ip arp     append table output to 11.0.0.0/24 oif eth0 src 11.0.0.1
+=> now it will use 11.0.0.1 to find its gateway (11.0.0.2)
+
+So as a general rule of thumb, I would recommend people to systematically call
+"ip arp append table output to [network] oif [NIC] src [local_ip]" after an
+"ip address add [local_ip] dev [NIC]". And yes, I agree that these are standard
+tools, but I maintain that the default behaviour should be cleaner.
+
+I also found that I can filter incoming requests easily with "table input" :
+
+   ip arp append table input deny
+   ip arp add    table input allow from 11.0.0.0/24 to 11.0.0.0/24 iif eth0
+   ip arp add    table input allow from 10.0.0.0/24 to 10.0.0.0/24 iif eth0
+
+I don't understand how the forward table is used, BTW, but I'll search a bit
+more. If I finally understand how all this works, I may propose a simple how-to
+to put under Documentation/networking/arp.txt so solve most common problems.
+
+Cheers,
+Willy
+

@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265420AbTFWWQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 18:16:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265422AbTFWWQG
+	id S265394AbTFWWXx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 18:23:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265418AbTFWWXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 18:16:06 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:13268 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S265420AbTFWWPd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 18:15:33 -0400
-Date: Tue, 24 Jun 2003 00:29:36 +0200 (MEST)
-Message-Id: <200306232229.h5NMTaJU013801@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: torvalds@transmeta.com
-Subject: [PATCH][2.5.73] enable local APIC on P4
-Cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org
+	Mon, 23 Jun 2003 18:23:52 -0400
+Received: from leviathan.kumin.ne.jp ([211.9.65.12]:22417 "HELO
+	emerald.kumin.ne.jp") by vger.kernel.org with SMTP id S265394AbTFWWWX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 18:22:23 -0400
+Message-Id: <200306232236.AA00004@prism.kumin.ne.jp>
+From: Seiichi Nakashima <nakasima@kumin.ne.jp>
+Date: Tue, 24 Jun 2003 07:36:09 +0900
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.5.73 compile error
+In-Reply-To: <200211220246.AA00001@prism.kumin.ne.jp>
+References: <200211220246.AA00001@prism.kumin.ne.jp>
+MIME-Version: 1.0
+X-Mailer: AL-Mail32 Version 1.13
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current local APIC code refuses to enable the local APIC
-on a P4 if the BIOS booted us with the local APIC disabled.
-This patch removes this unnecessary restriction. Please apply.
+Hi.
 
-Most P4 machines do boot with the local APIC enabled, but
-Keith Owens reported that the P4 based Compaq Evo N800v
-disables the local APIC, even though the machine actually
-works if Linux enables it.
+I update to linux-2.5.73 from linux-2.5.72.
+compile error occured.
 
-It is possible that some P4 machines with broken BIOSen
-were saved by our refusal to enable the local APIC. We
-can handle them via the DMI blacklist rules instead.
+cddrivers/ide/ide-probe.c: In function `hwif_check_region':
+drivers/ide/ide-probe.c:644: warning: `check_region' is deprecated (declared at include/linux/ioport.h:116)
+drivers/pci/hotplug.c: In function `pci_remove_bus_device':
+drivers/pci/hotplug.c:262: warning: implicit declaration of function `pci_destroy_dev'
+include/linux/module.h: At top level:
+drivers/pci/hotplug.c:224: warning: `pci_free_resources' defined but not used
+net/ipv4/igmp.c: In function `igmp_rcv':
+net/ipv4/igmp.c:851: warning: `skb_linearize' is deprecated (declared at include/linux/skbuff.h:1129)
+drivers/built-in.o(.text+0x2f26): In function `pci_remove_bus_device':
+: undefined reference to `pci_destroy_dev'
+make: *** [vmlinux] Error 1
 
-/Mikael
-
---- linux-2.5.73/arch/i386/kernel/apic.c.~1~	2003-06-17 12:51:19.000000000 +0200
-+++ linux-2.5.73/arch/i386/kernel/apic.c	2003-06-23 23:00:20.000000000 +0200
-@@ -616,7 +616,7 @@
- 		goto no_apic;
- 	case X86_VENDOR_INTEL:
- 		if (boot_cpu_data.x86 == 6 ||
--		    (boot_cpu_data.x86 == 15 && cpu_has_apic) ||
-+		    boot_cpu_data.x86 == 15 ||
- 		    (boot_cpu_data.x86 == 5 && cpu_has_apic))
- 			break;
- 		goto no_apic;
+--------------------------------
+  Seiichi Nakashima
+  Email   nakasima@kumin.ne.jp
+--------------------------------

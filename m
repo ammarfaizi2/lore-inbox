@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262647AbUCORwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 12:52:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbUCORwQ
+	id S262147AbUCOR6T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 12:58:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262640AbUCOR6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 12:52:16 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:54489 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S262647AbUCORwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 12:52:13 -0500
-Date: Mon, 15 Mar 2004 17:51:10 +0000
-From: Dave Jones <davej@redhat.com>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Isaku Yamahata <yamahata@private.email.ne.jp>,
-       George Hansper <ghansper@apana.org.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA MIDI serial u16550 horribly broken in 2.6.4
-Message-ID: <20040315175110.GS28660@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jaroslav Kysela <perex@suse.cz>,
-	Isaku Yamahata <yamahata@private.email.ne.jp>,
-	George Hansper <ghansper@apana.org.au>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040315161047.GA19555@redhat.com> <Pine.LNX.4.58.0403151728380.13684@pnote.perex-int.cz>
+	Mon, 15 Mar 2004 12:58:19 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:30785 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262147AbUCOR6R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 12:58:17 -0500
+Date: Mon, 15 Mar 2004 18:58:52 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Kai Germaschewski <kai@germaschewski.name>,
+       Sam Ravnborg <sam@ravnborg.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] out-of-tree builds
+Message-ID: <20040315175850.GA8456@mars.ravnborg.org>
+Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Kai Germaschewski <kai@germaschewski.name>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.58.0403141353470.1231@waterleaf.sonytel.be> <Pine.GSO.4.58.0403151337120.14245@waterleaf.sonytel.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0403151728380.13684@pnote.perex-int.cz>
+In-Reply-To: <Pine.GSO.4.58.0403151337120.14245@waterleaf.sonytel.be>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 15, 2004 at 05:29:44PM +0100, Jaroslav Kysela wrote:
- > On Mon, 15 Mar 2004, Dave Jones wrote:
- > 
- > > poking io port 0x1 probably isn't going to do much good.
- > > Here's what happens after a 'modprobe snd_serial_u16550'
- > 
- > Thanks. I've fixed this problem in our CVS tree. The oops should
- > be fixed in the current Linus's tree, too.
+On Mon, Mar 15, 2004 at 01:41:02PM +0100, Geert Uytterhoeven wrote:
+> 
+> Unfortunately not everything works.
+> 
+> E.g. I need to build usr/ with a different (newer) binutils, so when the build
+> fails on assembling usr/initramfs_data.o, I used to do the following, which no
+> longer works:
+> 
+> | tux$ PATH=/usr/bin/:$PATH make usr/
+> | make: `usr/' is up to date.
+> | tux$
+> 
+> I guess I need a catch-all .PHONY rule, but don't know how to implement it...
 
-Hmm, I don't see it at http://cvs.sourceforge.net/viewcvs.py/alsa/alsa-kernel/drivers/serial-u16550.c
-Is there somewhere else I should look ?
+Try:
+.PHONY: $(MAKECMDGOALS)
 
-This was pretty close to top of tree already btw, (only missing
-the csets from a few hours ago). I'll test again shortly with top-of-tree.
+or eventually
+ifneq ($(MAKECMDGOALS),)
+.PHONY: $(MAKECMDGOALS)
+endif
 
-		Dave
+The latter if an empty .PHONY is not allowed.
+
+	Sam
 

@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266867AbUHZDOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266878AbUHZDRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266867AbUHZDOO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 23:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266878AbUHZDOO
+	id S266878AbUHZDRc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 23:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267388AbUHZDRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 23:14:14 -0400
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:16511 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266867AbUHZDOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 23:14:08 -0400
-Message-ID: <412D557B.1090500@triplehelix.org>
-Date: Wed, 25 Aug 2004 20:14:03 -0700
-From: Joshua Kwan <joshk@triplehelix.org>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040819)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-Cc: netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.9-rc1
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>	<412CDFEE.1010505@triplehelix.org>	<20040825203206.GS5824@sunbeam.de.gnumonks.org> <20040825164401.12259308.davem@redhat.com>
-In-Reply-To: <20040825164401.12259308.davem@redhat.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 25 Aug 2004 23:17:32 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:7629 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266878AbUHZDR2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 23:17:28 -0400
+Subject: Re: [patch] PPC/PPC64 port of voluntary preempt patch
+From: Lee Revell <rlrevell@joe-job.com>
+To: Scott Wood <scott@timesys.com>
+Cc: Ingo Molnar <mingo@elte.hu>, manas.saksena@timesys.com,
+       linux-kernel <linux-kernel@vger.kernel.org>, nando@ccrma.stanford.edu
+In-Reply-To: <20040824195122.GA9949@yoda.timesys>
+References: <20040823221816.GA31671@yoda.timesys>
+	 <20040824195122.GA9949@yoda.timesys>
+Content-Type: text/plain
+Message-Id: <1093490252.5678.56.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 25 Aug 2004 23:17:32 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 2004-08-24 at 15:51, Scott Wood wrote:
+> On Mon, Aug 23, 2004 at 06:18:16PM -0400, Scott Wood wrote:
+> > I have attached a port of the voluntary preempt patch to PPC and
+> > PPC64.  The patch is against P7, but it applies against P8 as well.
+> > 
+> > I've tested it on a dual G5 Mac, both in uniprocessor and SMP.
+> > 
+> > Some notes on changes to the generic part of the patch/existing
+> > generic code:
+> 
+> Another thing that I forgot to mention is that I have some doubts as
+> to the current generic_synchronize_irq() implementation.  Given that
+> IRQs are now preemptible, a higher priority RT thread calling
+> synchronize_irq can't just spin waiting for the IRQ to complete, as
+> it never will (and it wouldn't be a great idea for non-RT tasks
+> either).  I see that a do_hardirq() call was added, presumably to
+> hurry completion of the interrupt, but is that really safe?  It looks
+> like that could end up re-entering handlers, and you'd still have a
+> partially executed handler after synchronize_irq() finishes (causing
+> not only an extra end() call, but possibly code being executed after
+> it's been unloaded, and other synchronization violations).
+> 
+> If I'm missing something, please let me know, but I don't see a good
+> way to implement it without blocking for the IRQ thread's completion
+> (such as with the per-IRQ waitqueues in M5).
 
-David S. Miller wrote:
-| And adding an export of ip_nat_find_helper (ie. without the two underscore
-| prefix).  Why?
-|
-| If we need to export one, then we need to export both.
+I think Scott may be on to something.  There are several reports that P9
+does not work on SMP machines at all - it either doesn't boot, locks up
+the first time there is heavy IRQ activity (starting KDE), or locks up
+as soon as the first RT process is run.  This is exactly the behavior
+that would be expected if Scott is correct.  See this thread:
 
-Exporting both was the only way I could get it to compile. On the other
-hand, the fix seems to have worked without any further repercussions.
+http://ccrma-mail.stanford.edu/pipermail/planetccrma/2004-August/005899.html
 
-- --
-Joshua Kwan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Does anyone have P9 working on SMP?  Fernando, can you see if M5 works
+on SMP?  If this works it would seem that the preemptible IRQs are the
+problem.
 
-iQIVAwUBQS1Ve6OILr94RG8mAQLEIhAAqzFjNVxhFmCvj2nYwbMa8l3I7SJdzrFf
-ge1Rua8ktQMOemVebWuReQLsAYm70MCS/JJujAk25raZVTNHtzazNd/bJ03pbjnO
-xcUVt+JK1OzWJcoQYvzJRhDGzrY7GHn/93P0DK5+ROSYBAUVzBT6rO67cJBpsM7V
-t4PVpgMFVpw/sP53sR3uyUSotSPVIHrXnsplyiAvCxhz+y14zwRI9QEhKmRVzjhb
-PlJBooRMmB0rb6l1JATAp3EVpJsA6CBczMd0nsQV478r05OVZkkWcTHT5IlFv2Dr
-k3tDotHKK0FQuqDHULQeuqVWP9Sl35Zp/hEzZQNjywptC0LG7e3x21N/BahuqqaJ
-w+CkunMK4QkmizJNgMHC/CDeaJP1ZlhV9G0V7pTwojjatO4TmQFEtNbaVhaQziCv
-0wx2qeM4nASFyiXwcWR1WSZ4K37NRVYNPlpeAo9QKaW54HZ/tar44bqAMfuAtaqP
-yBNxAT58daPrOT2/ePnbzEMReueMiaWDBoJuzoHxhZ6thbubviYT0iitHKagckeU
-JKKZsKi9t4SJydDZ2pjbFx9bzO4EC6sgjB7YT/1N6ulubu8DFsZYNEfax3n8NgNX
-zmeaVYD/ezUjE5dKXU45PB0KhySDx396x2nh5kcbXPl0NcB8oRX5Hrh/KgOlEbEa
-allwXmgYrYA=
-=d+1T
------END PGP SIGNATURE-----
+Lee
+
+

@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316243AbSEQOfY>; Fri, 17 May 2002 10:35:24 -0400
+	id <S316244AbSEQOfl>; Fri, 17 May 2002 10:35:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316244AbSEQOfX>; Fri, 17 May 2002 10:35:23 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52489 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316243AbSEQOfW>;
-	Fri, 17 May 2002 10:35:22 -0400
-Message-ID: <3CE514B6.6070302@mandrakesoft.com>
-Date: Fri, 17 May 2002 10:33:26 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/00200203
-X-Accept-Language: en-us, en
+	id <S316245AbSEQOfk>; Fri, 17 May 2002 10:35:40 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:27791 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S316244AbSEQOfg>; Fri, 17 May 2002 10:35:36 -0400
+Date: Fri, 17 May 2002 09:35:31 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Adam Kropelin <akropel1@rochester.rr.com>
+cc: linux-kernel@vger.kernel.org, <davej@suse.de>
+Subject: Re: [RFC][PATCH] cpqarray-1: Convert to modern module_init mechanism
+In-Reply-To: <20020517005146.GA32719@www.kroptech.com>
+Message-ID: <Pine.LNX.4.44.0205170929350.26436-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: ink@jurassic.park.msu.ru, andrew.grover@intel.com, mochel@osdl.org,
-        Greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: pci segments/domains
-In-Reply-To: <3CE4098E.2070808@mandrakesoft.com>	<20020517144755.A16767@jurassic.park.msu.ru>	<3CE512A7.70202@mandrakesoft.com> <20020517.071633.67125480.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
 
->   From: Jeff Garzik <jgarzik@mandrakesoft.com>
->   Date: Fri, 17 May 2002 10:24:39 -0400
->
->   I know -- that's what I mean by being more explicit.  sysdata would 
->   become a pointer to struct pci_domain.
->   
->No thanks, I want to say what the layout is for
->this object.  What pci_domain will end up doing is
->making for one more dereference to "arch private"
->state and that stinks for performance :-)
->
+On Thu, 16 May 2002, Adam Kropelin wrote:
 
+> Below is a patch (against 2.5.15-dj1) to convert cpqarray over to the modern
+> module_init mechanism. This eliminates the need to call cpqarray_init() from
+> genhd.c and starts the process of simplifying the cpqarray init sequence.
+> It lays the groundwork for converting over to the "new" PCI registration
+> mechanism as well. Also included in the patch are some simple cleanups for
+> a few obvious formatting flaws.
+> 
+> Comments and critique are welcome. I'm also curious if this work is
+> considered worthwhile. If so, I'll continue on and do the PCI init conversion
+> (and any other fixups that may be warranted) as well.
 
-See my previous message from the other day... this would be defined in 
-each arch's asm/pci.h, which eliminates this problem you describe.  Each 
-arch maintainer would indeed decide how to define it, though over time 
-I'm sure it would grow commonly-named struct members.
+Patch looks basically good to me (I basically have the same thing sitting
+around here, as I was cleaning up drivers/block/genhd.c) If you want to I 
+can send you what I have, so you can base the further changes (e.g. PCI) 
+on it.
 
-My main want is cosmetic -- call a spade a spade, so to speak. 
- s/sysdata/pci_domain/  But doing so opens the door to increased 
-flexibility.  Later steps can add common members needed by pci-to-pci 
-IOMMU tricks which are common to most platforms.
+--Kai
 
-    Jeff
+>  /*
+>   *  This is it.  Find all the controllers and register them.  I really hate
+>   *  stealing all these major device numbers.
+> - *  returns the number of block devices registered.
+> + *  returns 0 on success, -EIO on failure
 
+I'd suggest to go ahead and make it return sensible values, i.e. -EBUSY if
+it can't get the major, -ENODEV if there's no hardware, -ENOMEM if the
+allocations fail.
+
+>  int __init cpqarray_init(void)
+
+This should be static now. Also, you need to remove the explicit call to 
+cpqarray_init() from drivers/block/genhd.c, otherwise it'll get called 
+twice. (That part's already in my patch).
+
+--Kai
 
 

@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265177AbTA1Ll6>; Tue, 28 Jan 2003 06:41:58 -0500
+	id <S265174AbTA1LjW>; Tue, 28 Jan 2003 06:39:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265197AbTA1Ll6>; Tue, 28 Jan 2003 06:41:58 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:18304
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id <S265177AbTA1Ll5>; Tue, 28 Jan 2003 06:41:57 -0500
-Subject: Re: Problem - See attached dmesg dump
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Enlight <enlight@bentonrea.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <000e01c2c5c5$fc3731a0$0101a8c0@localdomain>
-References: <000e01c2c5c5$fc3731a0$0101a8c0@localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1043754625.1328.23.camel@dhcp22.swansea.linux.org.uk>
+	id <S265177AbTA1LjW>; Tue, 28 Jan 2003 06:39:22 -0500
+Received: from home.wiggy.net ([213.84.101.140]:19387 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S265174AbTA1LjW>;
+	Tue, 28 Jan 2003 06:39:22 -0500
+Date: Tue, 28 Jan 2003 12:48:40 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Bootscreen
+Message-ID: <20030128114840.GV4868@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0301281113480.20283-100000@schubert.rdns.com> <200301281144.h0SBi0ld000233@darkstar.example.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 28 Jan 2003 11:50:26 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200301281144.h0SBi0ld000233@darkstar.example.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-01-27 at 05:36, Enlight wrote:
-> To who can help,
-> 
-> While running make to build xfce3.8.18 I get an internal gcc error
-> segmentation fault.  Also got similar error running rpmdrake.  Needless to
-> say I can't finish the build.
+Previously John Bradford wrote:
+> There are applications where it is not appropriate to have it, though,
+> what if you were using Linux in an embedded device such as a set top
+> box?
 
-Send reports about vendor kernels to the vendor concerned. Vendors add various
-custom changes to the base kernel, they also know a lot more about the patterns
-of problems their users see
+Kiosks and things like ATMs are another place where you do not want
+a bootscreen. You do not want to possibly confuse customers with
+stuff that they can't understand but show a nice friendly message saying
+'the system is currently unavailable'.
 
+Wichert.
+
+-- 
+Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
+A random hacker

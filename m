@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270214AbUJTBYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270265AbUJTBX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270214AbUJTBYn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 21:24:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270290AbUJTBYP
+	id S270265AbUJTBX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 21:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270253AbUJTBWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 21:24:15 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:39601 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S270214AbUJTBFd (ORCPT
+	Tue, 19 Oct 2004 21:22:51 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:5789 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S270265AbUJTBEf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 21:05:33 -0400
-Date: Tue, 19 Oct 2004 18:05:32 -0700
+	Tue, 19 Oct 2004 21:04:35 -0400
+Date: Tue, 19 Oct 2004 18:04:32 -0700
 To: "David S. Miller" <davem@davemloft.net>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] IrCOMM IAS object fix
-Message-ID: <20041020010532.GG12932@bougret.hpl.hp.com>
+Subject: [PATCH 2.6 IrDA] Adaptive discovery query timer
+Message-ID: <20041020010431.GF12932@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,325 +26,155 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir269_ircomm_ias_fix-1.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	o [CORRECT] Restore properly the IAS object when IrCOMM disconnect.
-	Allow "pppd passive persist" to work properly.
+ir269_adaptive_query_timer-2.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	o [FEATURE] Adapt to the rate of the peer discovery (passive discovery)
+	o [FEATURE] Add extra safety margin in passive discovery
+	Allow to interoperate properly with device performing slow discovery
 Signed-off-by: Jean Tourrilhes <jt@hpl.hp.com>
 
 
-diff -u -p linux/include/net/irda/ircomm_tty_attach.d0.h linux/include/net/irda/ircomm_tty_attach.h
---- linux/include/net/irda/ircomm_tty_attach.d0.h	Tue Sep 21 12:17:22 2004
-+++ linux/include/net/irda/ircomm_tty_attach.h	Tue Sep 21 12:17:35 2004
-@@ -72,7 +72,6 @@ extern char *ircomm_tty_state[];
+diff -u -p linux/include/net/irda/timer.d0.h linux/include/net/irda/timer.h
+--- linux/include/net/irda/timer.d0.h	Wed Sep 22 11:49:53 2004
++++ linux/include/net/irda/timer.h	Wed Sep 22 11:57:56 2004
+@@ -58,14 +58,16 @@ struct lap_cb;
+  *  Slot timer must never exceed 85 ms, and must always be at least 25 ms, 
+  *  suggested to  75-85 msec by IrDA lite. This doesn't work with a lot of
+  *  devices, and other stackes uses a lot more, so it's best we do it as well
++ *  (Note : this is the default value and sysctl overides it - Jean II)
+  */
+ #define SLOT_TIMEOUT            (90*HZ/1000)
  
- int ircomm_tty_do_event(struct ircomm_tty_cb *self, IRCOMM_TTY_EVENT event,
- 			struct sk_buff *skb, struct ircomm_tty_info *info);
--void ircomm_tty_next_state(struct ircomm_tty_cb *self, IRCOMM_TTY_STATE state);
+ /* 
+- *  We set the query timeout to 100 ms and then expect the value to be 
+- *  multiplied with the number of slots to product the actual timeout value
++ *  The latest discovery frame (XID) is longer due to the extra discovery
++ *  information (hints, device name...). This is its extra length.
++ *  We use that when setting the query timeout. Jean II
+  */
+-#define QUERY_TIMEOUT           (HZ/10)       
++#define XIDEXTRA_TIMEOUT        (34*HZ/1000)  /* 34 msec */
+ 
+ #define WATCHDOG_TIMEOUT        (20*HZ)       /* 20 sec */
+ 
+@@ -85,7 +87,7 @@ static inline void irda_start_timer(stru
  
  
- int  ircomm_tty_attach_cable(struct ircomm_tty_cb *self);
-diff -u -p linux/net/irda/ircomm/ircomm_tty_attach.d0.c linux/net/irda/ircomm/ircomm_tty_attach.c
---- linux/net/irda/ircomm/ircomm_tty_attach.d0.c	Tue Sep 21 11:13:31 2004
-+++ linux/net/irda/ircomm/ircomm_tty_attach.c	Tue Sep 21 14:39:11 2004
-@@ -143,12 +143,6 @@ int ircomm_tty_attach_cable(struct ircom
+ void irlap_start_slot_timer(struct irlap_cb *self, int timeout);
+-void irlap_start_query_timer(struct irlap_cb *self, int timeout);
++void irlap_start_query_timer(struct irlap_cb *self, int S, int s);
+ void irlap_start_final_timer(struct irlap_cb *self, int timeout);
+ void irlap_start_wd_timer(struct irlap_cb *self, int timeout);
+ void irlap_start_backoff_timer(struct irlap_cb *self, int timeout);
+diff -u -p linux/net/irda/timer.d0.c linux/net/irda/timer.c
+--- linux/net/irda/timer.d0.c	Wed Sep 22 11:50:06 2004
++++ linux/net/irda/timer.c	Wed Sep 22 12:02:20 2004
+@@ -34,6 +34,8 @@
+ #include <net/irda/irlap.h>
+ #include <net/irda/irlmp.h>
  
- 	ircomm_tty_ias_register(self);
- 
--	/* Check if somebody has already connected to us */
--	if (ircomm_is_connected(self->ircomm)) {
--		IRDA_DEBUG(0, "%s(), already connected!\n", __FUNCTION__ );
--		return 0;
--	}
--
- 	ircomm_tty_do_event(self, IRCOMM_TTY_ATTACH_CABLE, NULL, NULL);
- 
- 	return 0;
-@@ -169,9 +163,16 @@ void ircomm_tty_detach_cable(struct irco
- 
- 	del_timer(&self->watchdog_timer);
- 
-+	/* Remove discovery handler */
-+	if (self->ckey) {
-+		irlmp_unregister_client(self->ckey);
-+		self->ckey = NULL;
-+	}
- 	/* Remove IrCOMM hint bits */
--	irlmp_unregister_client(self->ckey);
--	irlmp_unregister_service(self->skey);
-+	if (self->skey) {
-+		irlmp_unregister_service(self->skey);
-+		self->skey = NULL;
-+	}
- 
- 	if (self->iriap) { 
- 		iriap_close(self->iriap);
-@@ -209,18 +210,30 @@ static void ircomm_tty_ias_register(stru
- 	ASSERT(self != NULL, return;);
- 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
- 	
-+	/* Compute hint bits based on service */
-+	hints = irlmp_service_to_hint(S_COMM);
-+	if (self->service_type & IRCOMM_3_WIRE_RAW)
-+		hints |= irlmp_service_to_hint(S_PRINTER);
++extern int  sysctl_slot_timeout;
 +
-+	/* Advertise IrCOMM hint bit in discovery */
-+	if (!self->skey)
-+		self->skey = irlmp_register_service(hints);
-+	/* Set up a discovery handler */
-+	if (!self->ckey)
-+		self->ckey = irlmp_register_client(hints,
-+						   ircomm_tty_discovery_indication,
-+						   NULL, (void *) self);
+ static void irlap_slot_timer_expired(void* data);
+ static void irlap_query_timer_expired(void* data);
+ static void irlap_final_timer_expired(void* data);
+@@ -47,8 +49,25 @@ void irlap_start_slot_timer(struct irlap
+ 			 irlap_slot_timer_expired);
+ }
+ 
+-void irlap_start_query_timer(struct irlap_cb *self, int timeout)
++void irlap_start_query_timer(struct irlap_cb *self, int S, int s)
+ {
++	int timeout;
 +
-+	/* If already done, no need to do it again */
-+	if (self->obj)
-+		return;
-+
- 	if (self->service_type & IRCOMM_3_WIRE_RAW) {
--		hints = irlmp_service_to_hint(S_PRINTER);
--		hints |= irlmp_service_to_hint(S_COMM);
--		
- 		/* Register IrLPT with LM-IAS */
- 		self->obj = irias_new_object("IrLPT", IAS_IRLPT_ID);
- 		irias_add_integer_attrib(self->obj, "IrDA:IrLMP:LsapSel", 
- 					 self->slsap_sel, IAS_KERNEL_ATTR);
--		irias_insert_object(self->obj);
- 	} else {
--		hints = irlmp_service_to_hint(S_COMM);
--
- 		/* Register IrCOMM with LM-IAS */
- 		self->obj = irias_new_object("IrDA:IrCOMM", IAS_IRCOMM_ID);
- 		irias_add_integer_attrib(self->obj, "IrDA:TinyTP:LsapSel", 
-@@ -234,12 +247,45 @@ static void ircomm_tty_ias_register(stru
- 		/* Register parameters with LM-IAS */
- 		irias_add_octseq_attrib(self->obj, "Parameters", oct_seq, 6,
- 					IAS_KERNEL_ATTR);
--		irias_insert_object(self->obj);
- 	}
--	self->skey = irlmp_register_service(hints);
--	self->ckey = irlmp_register_client(hints,
--					   ircomm_tty_discovery_indication,
--					   NULL, (void *) self);
-+	irias_insert_object(self->obj);
-+}
-+
-+/*
-+ * Function ircomm_tty_ias_unregister (self)
-+ *
-+ *    Remove our IAS object and client hook while connected.
-+ *
-+ */
-+static void ircomm_tty_ias_unregister(struct ircomm_tty_cb *self)
-+{
-+	/* Remove LM-IAS object now so it is not reused.
-+	 * IrCOMM deals very poorly with multiple incoming connections.
-+	 * It should looks a lot more like IrNET, and "dup" a server TSAP
-+	 * to the application TSAP (based on various rules).
-+	 * This is a cheap workaround allowing multiple clients to
-+	 * connect to us. It will not always work.
-+	 * Each IrCOMM socket has an IAS entry. Incoming connection will
-+	 * pick the first one found. So, when we are fully connected,
-+	 * we remove our IAS entries so that the next IAS entry is used.
-+	 * We do that for *both* client and server, because a server
-+	 * can also create client instances.
++	/* Calculate when the peer discovery should end. Normally, we
++	 * get the end-of-discovery frame, so this is just in case
++	 * we miss it.
++	 * Basically, we multiply the number of remaining slots by our
++	 * slot time, plus add some extra time to properly receive the last
++	 * discovery packet (which is longer due to extra discovery info),
++	 * to avoid messing with for incomming connections requests and
++	 * to accomodate devices that perform discovery slower than us.
 +	 * Jean II */
-+	if (self->obj) {
-+		irias_delete_object(self->obj);
-+		self->obj = NULL;
-+	}
++	timeout = ((sysctl_slot_timeout * HZ / 1000) * (S - s)
++		   + XIDEXTRA_TIMEOUT + SMALLBUSY_TIMEOUT);
 +
-+#if 0
-+	/* Remove discovery handler.
-+	 * While we are connected, we no longer need to receive
-+	 * discovery events. This would be the case if there is
-+	 * multiple IrLAP interfaces. Jean II */
-+	if (self->ckey) {
-+		irlmp_unregister_client(self->ckey);
-+		self->ckey = NULL;
-+	}
-+#endif
++	/* Set or re-set the timer. We reset the timer for each received
++	 * discovery query, which allow us to automatically adjust to
++	 * the speed of the peer discovery (faster or slower). Jean II */
+ 	irda_start_timer( &self->query_timer, timeout, (void *) self, 
+ 			  irlap_query_timer_expired);
  }
+diff -u -p linux/net/irda/irlap_event.d0.c linux/net/irda/irlap_event.c
+--- linux/net/irda/irlap_event.d0.c	Tue Sep 21 15:51:01 2004
++++ linux/net/irda/irlap_event.c	Wed Sep 22 12:00:41 2004
+@@ -433,10 +433,11 @@ static int irlap_state_ndm(struct irlap_
+ 				self->frame_sent = FALSE;
  
- /*
-@@ -333,7 +379,8 @@ static void ircomm_tty_discovery_indicat
- 	info.daddr = discovery->daddr;
- 	info.saddr = discovery->saddr;
- 
--	/* FIXME. We probably need to use hashbin_find_next(), but we first
-+	/* FIXME. We have a locking problem on the hashbin here.
-+	 * We probably need to use hashbin_find_next(), but we first
- 	 * need to ensure that "line" is unique. - Jean II */
- 	self = (struct ircomm_tty_cb *) hashbin_get_first(ircomm_tty);
- 	while (self != NULL) {
-@@ -519,23 +566,6 @@ void ircomm_tty_link_established(struct 
- 	
- 	del_timer(&self->watchdog_timer);
- 
--	/* Remove LM-IAS object now so it is not reused.
--	 * IrCOMM deals very poorly with multiple incoming connections.
--	 * It should looks a lot more like IrNET, and "dup" a server TSAP
--	 * to the application TSAP (based on various rules).
--	 * This is a cheap workaround allowing multiple clients to
--	 * connect to us. It will not always work.
--	 * Each IrCOMM socket has an IAS entry. Incoming connection will
--	 * pick the first one found. So, when we are fully connected,
--	 * we remove our IAS entries so that the next IAS entry is used.
--	 * We do that for *both* client and server, because a server
--	 * can also create client instances.
--	 * Jean II */
--	if (self->obj) {
--		irias_delete_object(self->obj);
--		self->obj = NULL;
--	}
--
- 	/* 
- 	 * IrCOMM link is now up, and if we are not using hardware
- 	 * flow-control, then declare the hardware as running. Otherwise we
-@@ -558,7 +588,7 @@ void ircomm_tty_link_established(struct 
- }
- 
- /*
-- * Function irlan_start_watchdog_timer (self, timeout)
-+ * Function ircomm_tty_start_watchdog_timer (self, timeout)
-  *
-  *    Start the watchdog timer. This timer is used to make sure that any 
-  *    connection attempt is successful, and if not, we will retry after 
-@@ -591,6 +621,43 @@ void ircomm_tty_watchdog_timer_expired(v
- 	ircomm_tty_do_event(self, IRCOMM_TTY_WD_TIMER_EXPIRED, NULL, NULL);
- }
- 
-+
-+/*
-+ * Function ircomm_tty_do_event (self, event, skb)
-+ *
-+ *    Process event
-+ *
-+ */
-+int ircomm_tty_do_event(struct ircomm_tty_cb *self, IRCOMM_TTY_EVENT event,
-+			struct sk_buff *skb, struct ircomm_tty_info *info) 
-+{
-+	ASSERT(self != NULL, return -1;);
-+	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
-+
-+	IRDA_DEBUG(2, "%s: state=%s, event=%s\n", __FUNCTION__ ,
-+		   ircomm_tty_state[self->state], ircomm_tty_event[event]);
-+	
-+	return (*state[self->state])(self, event, skb, info);
-+}
-+
-+/*
-+ * Function ircomm_tty_next_state (self, state)
-+ *
-+ *    Switch state
-+ *
-+ */
-+static inline void ircomm_tty_next_state(struct ircomm_tty_cb *self, IRCOMM_TTY_STATE state)
-+{
-+	/*
-+	ASSERT(self != NULL, return;);
-+	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
-+
-+	IRDA_DEBUG(2, "%s: next state=%s, service type=%d\n", __FUNCTION__ , 
-+		   ircomm_tty_state[self->state], self->service_type);
-+	*/
-+	self->state = state;
-+}
-+
- /*
-  * Function ircomm_tty_state_idle (self, event, skb, info)
-  *
-@@ -700,6 +767,7 @@ static int ircomm_tty_state_search(struc
- 		break;
- 	case IRCOMM_TTY_CONNECT_INDICATION:
- 		del_timer(&self->watchdog_timer);
-+		ircomm_tty_ias_unregister(self);
- 
- 		/* Accept connection */
- 		ircomm_connect_response(self->ircomm, NULL);
-@@ -765,6 +833,7 @@ static int ircomm_tty_state_query_parame
- 		break;
- 	case IRCOMM_TTY_CONNECT_INDICATION:
- 		del_timer(&self->watchdog_timer);
-+		ircomm_tty_ias_unregister(self);
- 
- 		/* Accept connection */
- 		ircomm_connect_response(self->ircomm, NULL);
-@@ -813,6 +882,7 @@ static int ircomm_tty_state_query_lsap_s
- 		break;
- 	case IRCOMM_TTY_CONNECT_INDICATION:
- 		del_timer(&self->watchdog_timer);
-+		ircomm_tty_ias_unregister(self);
- 
- 		/* Accept connection */
- 		ircomm_connect_response(self->ircomm, NULL);
-@@ -848,7 +918,7 @@ static int ircomm_tty_state_setup(struct
- 	switch (event) {
- 	case IRCOMM_TTY_CONNECT_CONFIRM:
- 		del_timer(&self->watchdog_timer);
--		ircomm_tty_next_state(self, IRCOMM_TTY_READY);
-+		ircomm_tty_ias_unregister(self);
- 		
- 		/* 
- 		 * Send initial parameters. This will also send out queued
-@@ -856,9 +926,11 @@ static int ircomm_tty_state_setup(struct
+ 			/*
+-			 * Remember to multiply the query timeout value with
+-			 * the number of slots used
++			 * Go to reply state until end of discovery to
++			 * inhibit our own transmissions. Set the timer
++			 * to not stay forever there... Jean II
+ 			 */
+-			irlap_start_query_timer(self, QUERY_TIMEOUT*info->S);
++			irlap_start_query_timer(self, info->S, info->s);
+ 			irlap_next_state(self, LAP_REPLY);
+ 		} else {
+ 		/* This is the final slot. How is it possible ?
+@@ -452,6 +453,9 @@ static int irlap_state_ndm(struct irlap_
+ 		 * Not much. It's too late to answer those discovery frames,
+ 		 * so we just pass the info to IrLMP who will put it in the
+ 		 * log (and post an event).
++		 * Another cause would be devices that do discovery much
++		 * slower than us, however the latest fixes should minimise
++		 * those cases...
+ 		 * Jean II
  		 */
- 		ircomm_tty_send_initial_parameters(self);
- 		ircomm_tty_link_established(self);
-+		ircomm_tty_next_state(self, IRCOMM_TTY_READY);
- 		break;
- 	case IRCOMM_TTY_CONNECT_INDICATION:
- 		del_timer(&self->watchdog_timer);
-+		ircomm_tty_ias_unregister(self);
- 		
- 		/* Accept connection */
- 		ircomm_connect_response(self->ircomm, NULL);
-@@ -903,6 +975,7 @@ static int ircomm_tty_state_ready(struct
- 		ircomm_tty_next_state(self, IRCOMM_TTY_IDLE);
- 		break;
- 	case IRCOMM_TTY_DISCONNECT_INDICATION:
-+		ircomm_tty_ias_register(self);
- 		ircomm_tty_next_state(self, IRCOMM_TTY_SEARCH);
- 		ircomm_tty_start_watchdog_timer(self, 3*HZ);
+ 			IRDA_DEBUG(1, "%s(), Receiving final discovery request, missed the discovery slots :-(\n", __FUNCTION__);
+@@ -691,7 +695,7 @@ static int irlap_state_reply(struct irla
  
-@@ -922,40 +995,5 @@ static int ircomm_tty_state_ready(struct
- 		ret = -EINVAL;
- 	}
- 	return ret;
--}
--
--/*
-- * Function ircomm_tty_do_event (self, event, skb)
-- *
-- *    Process event
-- *
-- */
--int ircomm_tty_do_event(struct ircomm_tty_cb *self, IRCOMM_TTY_EVENT event,
--			struct sk_buff *skb, struct ircomm_tty_info *info) 
--{
--	ASSERT(self != NULL, return -1;);
--	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
--
--	IRDA_DEBUG(2, "%s: state=%s, event=%s\n", __FUNCTION__ ,
--		   ircomm_tty_state[self->state], ircomm_tty_event[event]);
--	
--	return (*state[self->state])(self, event, skb, info);
--}
--
--/*
-- * Function ircomm_tty_next_state (self, state)
-- *
-- *    Switch state
-- *
-- */
--void ircomm_tty_next_state(struct ircomm_tty_cb *self, IRCOMM_TTY_STATE state)
--{
--	ASSERT(self != NULL, return;);
--	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
--
--	self->state = state;
--	
--	IRDA_DEBUG(2, "%s: next state=%s, service type=%d\n", __FUNCTION__ , 
--		   ircomm_tty_state[self->state], self->service_type);
- }
+ 	switch (event) {
+ 	case QUERY_TIMER_EXPIRED:
+-		IRDA_DEBUG(2, "%s(), QUERY_TIMER_EXPIRED <%ld>\n",
++		IRDA_DEBUG(0, "%s(), QUERY_TIMER_EXPIRED <%ld>\n",
+ 			   __FUNCTION__, jiffies);
+ 		irlap_next_state(self, LAP_NDM);
+ 		break;
+@@ -707,16 +711,26 @@ static int irlap_state_reply(struct irla
+ 			irlap_next_state(self, LAP_NDM);
  
+ 			irlap_discovery_indication(self, info->discovery);
+-		} else if ((info->s >= self->slot) && (!self->frame_sent)) {
+-			discovery_rsp = irlmp_get_discovery_response();
+-			discovery_rsp->data.daddr = info->daddr;
+-
+-			irlap_send_discovery_xid_frame(self, info->S,
+-						       self->slot, FALSE,
+-						       discovery_rsp);
++		} else {
++			/* If it's our slot, send our reply */
++			if ((info->s >= self->slot) && (!self->frame_sent)) {
++				discovery_rsp = irlmp_get_discovery_response();
++				discovery_rsp->data.daddr = info->daddr;
++
++				irlap_send_discovery_xid_frame(self, info->S,
++							       self->slot,
++							       FALSE,
++							       discovery_rsp);
++
++				self->frame_sent = TRUE;
++			}
++			/* Readjust our timer to accomodate devices
++			 * doing faster or slower discovery than us...
++			 * Jean II */
++			irlap_start_query_timer(self, info->S, info->s);
+ 
+-			self->frame_sent = TRUE;
+-			irlap_next_state(self, LAP_REPLY);
++			/* Keep state */
++			//irlap_next_state(self, LAP_REPLY);
+ 		}
+ 		break;
+ 	default:

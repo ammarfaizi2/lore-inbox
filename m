@@ -1,98 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129526AbRBGTnX>; Wed, 7 Feb 2001 14:43:23 -0500
+	id <S130015AbRBGTnn>; Wed, 7 Feb 2001 14:43:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130015AbRBGTnN>; Wed, 7 Feb 2001 14:43:13 -0500
-Received: from Cantor.suse.de ([213.95.15.193]:29968 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129526AbRBGTnF>;
-	Wed, 7 Feb 2001 14:43:05 -0500
-Date: Wed, 7 Feb 2001 20:43:04 +0100
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: changed proc permissions in 2.4
-Message-ID: <20010207204304.C457@suse.de>
+	id <S130407AbRBGTnX>; Wed, 7 Feb 2001 14:43:23 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:60420 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129652AbRBGTnM>; Wed, 7 Feb 2001 14:43:12 -0500
+Date: Wed, 7 Feb 2001 13:35:15 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: langus@timpanogas.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jakub Jelinek <jakub@redhat.com>, linux-kernel@vger.kernel.org,
+        jmerkey@timpanogas.org
+Subject: PCI-SCI Build Problems on RedHat 7.1
+Message-ID: <20010207133515.A28268@vger.timpanogas.org>
+In-Reply-To: <20010207131439.A28015@vger.timpanogas.org> <E14QaAX-00016d-00@the-village.bc.nu> <20010207132426.A28159@vger.timpanogas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010207132426.A28159@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Wed, Feb 07, 2001 at 01:24:26PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Feb 07, 2001 at 01:24:26PM -0700, Jeff V. Merkey wrote:
 
-there seems to be a bug in the /proc permissions handling. What I need
-is a proc mount in a build chroot. This build chroot should not change
-the settings on the build host, therefore its mounted read only. This
-was ok with 2.2 kernels.
-The 2.4 kernel has appearently only one "handler" for the proc
-permissions:
+Larry,  
 
-fig:~/lsof # cat /proc/mounts | grep proc
-proc /proc proc ro 0 0
-/proc/bus/usb /proc/bus/usb usbdevfs rw 0 0
+Please provide to Alan Cox the exact versions and revision levels of 
+the RedHat 7.1 build used for the SCI testing.  Please provide him 
+any other information he requests concerning the setup of this 
+system.
 
-fig:~/lsof # remount rw /proc/
-
-fig:~/lsof # cat /proc/mounts | grep proc
-proc /proc proc rw 0 0
-/proc/bus/usb /proc/bus/usb usbdevfs rw 0 0
-
-fig:~/lsof # mount -oro -n -tproc none proc 
-
-fig:~/lsof # cat /proc/mounts | grep proc
-proc /proc proc ro 0 0
-/proc/bus/usb /proc/bus/usb usbdevfs rw 0 0
-none /root/lsof/proc proc ro 0 0
-
-fig:~/lsof # remount rw /proc/
-
-fig:~/lsof # cat /proc/mounts | grep proc
-proc /proc proc rw 0 0
-/proc/bus/usb /proc/bus/usb usbdevfs rw 0 0
-none /root/lsof/proc proc rw 0 0
-
-fig:~/lsof # umount proc/
-
-fig:~/lsof # mount -oro -n -tproc proc proc 
-
-fig:~/lsof # cat /proc/mounts | grep proc
-proc /proc proc ro 0 0
-/proc/bus/usb /proc/bus/usb usbdevfs rw 0 0
-proc /root/lsof/proc proc ro 0 0
-
-fig:~/lsof # cat /proc/version 
-Linux version 2.4.1-olaf-loop-nohighmem (root@mandarine) (gcc version
-2.95.2 19991024 (release)) #1 Tue Feb 6 13:35:53 GMT 2001
-
-this is the 2.2 test:
-grapefruit:~ # mkdir blah
-grapefruit:~ # cd blah/
-grapefruit:~/blah # mkdir proc
-grapefruit:~/blah # cat /proc/mounts | grep proc
-proc /proc proc rw 0 0
-grapefruit:~/blah # mount -oro -n -tproc none proc
-grapefruit:~/blah # cat /proc/mounts | grep proc
-proc /proc proc rw 0 0
-none proc proc ro 0 0
-
-grapefruit:~/blah # cat /proc/version 
-Linux version 2.2.16 (root@PReP.suse.de) (gcc version 2.95.3 19991030
-(prerelease/franzo/20000625)) #1 Thu Sep 28 08:48:06 GMT 2000
+Jeff
 
 
-Is this the way it should be? 
-The real problem is X, it tries to open /proc/bus/pci/*/* rw, that
-fails, no devices detected. Its all on ppc, just in case that matters.
-
-
-
-Gruss Olaf
-
--- 
- $ man clone
-
-BUGS
-       Main feature not yet implemented...
+> On Wed, Feb 07, 2001 at 07:22:19PM +0000, Alan Cox wrote:
+> > > In file included from init.c:30:
+> > > ../../prolog.h:344:8: invalid #ident
+> > 
+> > It doesnt say #ident isnt supported it says your use of it is invalid. What
+> > precisely does that line read ?
+> 
+> JJ tried it and it worked on some version he was running, but fails on 
+> the 7.1 build.  Here is the code that produces the offending messages.
+> I got an "invalid keyword" (sorry, it was not "unknown" but "invalid", that was 
+> a different error message on gcc 2.96).
+> 
+> Jeff
+> 
+> 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

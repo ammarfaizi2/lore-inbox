@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263572AbUJ3BiK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263438AbUJ3BnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263572AbUJ3BiK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 21:38:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbUJ2Th5
+	id S263438AbUJ3BnO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 21:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263270AbUJ3Bij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 15:37:57 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:12168 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261300AbUJ2SuV
+	Fri, 29 Oct 2004 21:38:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8381 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263466AbUJ2Ti2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 14:50:21 -0400
-References: <1099044244.9566.0.camel@localhost>
-            <20041029131607.GU24336@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20041029131607.GU24336@parcelfarce.linux.theplanet.co.uk>
-From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: davem@davemloft.net, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+	Fri, 29 Oct 2004 15:38:28 -0400
+Date: Fri, 29 Oct 2004 20:38:27 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Pekka J Enberg <penberg@cs.helsinki.fi>, davem@davemloft.net,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
 Subject: Re: net: generic netdev_ioaddr
-Date: Fri, 29 Oct 2004 21:50:20 +0300
+Message-ID: <20041029193827.GV24336@parcelfarce.linux.theplanet.co.uk>
+References: <1099044244.9566.0.camel@localhost> <20041029131607.GU24336@parcelfarce.linux.theplanet.co.uk> <courier.418290EC.00002E85@courier.cs.helsinki.fi> <m3y8hpbaf9.fsf@defiant.pm.waw.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-ID: <courier.418290EC.00002E85@courier.cs.helsinki.fi>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3y8hpbaf9.fsf@defiant.pm.waw.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-
-Al Viro writes:
-> NAK.  ->base_addr casting is a Bad Idea(tm) and natsemi "solution" isn't
-> (thanks for spotting that crap in natsemi, though; will fix...) 
+On Fri, Oct 29, 2004 at 09:18:18PM +0200, Krzysztof Halasa wrote:
+> "Pekka J Enberg" <penberg@cs.helsinki.fi> writes:
 > 
-> Note that there is no such thing as "generic IO base address" - it _is_
-> private and in the best case current ->base_addr is a scratch register
-> probably used for something vaguely connected with some IO, but it's
-> really up to driver...
+> > Yup, I thought about that after I sent the patch. However, as it
+> > stands now, many network drivers use netdev->base_addr for just that.
+> > Perhaps it should be nuked completely instead?
+> 
+> I thinks so. With ifmap, SIOCSIFMAP, ifr_map, mem_end etc.,
+> irq, if_port, dma.
 
-Yup, I thought about that after I sent the patch. However, as it stands now, 
-many network drivers use netdev->base_addr for just that.  Perhaps it should 
-be nuked completely instead? 
+SIOCSIFMAP is unfortunate, but legitimate - it passes more or less
+opaque structure to driver and lets driver interpret it.
 
-            Pekka 
+SIOCGIFMAP, OTOH, is really bad - among other things, for many drivers
+it leaks ioremapped addresses to userland.  And *that* is a LARTable
+offense - it's an information that makes no sense whatsoever for userland
+code and should never be exposed, just as with any kernel pointers.
 
+What uses ->base_addr from the data returned by SIOCGIFMAP?

@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268236AbUIWDtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268239AbUIWDyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268236AbUIWDtn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 23:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268240AbUIWDtn
+	id S268239AbUIWDyF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 23:54:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268240AbUIWDyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 23:49:43 -0400
-Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:17375 "EHLO
-	smtp.bensa.ar") by vger.kernel.org with ESMTP id S268236AbUIWDtV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 23:49:21 -0400
-From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: FIXED?? (Is anyone using vmware 4.5 with 2.6.9-rc2-mm
-Date: Thu, 23 Sep 2004 00:49:10 -0300
-User-Agent: KMail/1.7
-Cc: Kyle Schlansker <kylesch@gmail.com>, linux-kernel@vger.kernel.org
-References: <4506E4E6490@vcnet.vc.cvut.cz> <200409222236.26323.norberto+linux-kernel@bensa.ath.cx> <19102930-0D04-11D9-B9FD-000D9352858E@linuxmail.org>
-In-Reply-To: <19102930-0D04-11D9-B9FD-000D9352858E@linuxmail.org>
+	Wed, 22 Sep 2004 23:54:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10180 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268239AbUIWDyB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 23:54:01 -0400
+Date: Wed, 22 Sep 2004 23:53:34 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>, <viro@parcelfarce.linux.theplanet.co.uk>
+cc: Stephen Smalley <sds@epoch.ncsc.mil>,
+       Christoph Hellwig <hch@infradead.org>,
+       Andreas Gruenbacher <agruen@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH 0/6] xattr consolidation v3
+Message-ID: <Xine.LNX.4.44.0409222342090.447-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409230049.10668.norberto+linux-kernel@bensa.ath.cx>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe Alfaro Solana wrote:
-> > I'll try a plain /tmp directory, but I'd like to know why I can't use
-> > tmpfs
-> > anymore with kernels >=2.6.9-rc2-mm1.
->
-> That's a question that requires far more knowledge than I have.
-> Maybe someone here... Andrew?
+The following patches are an update the previous set of xattr 
+consolidation patches (v2), posted 18/09.
 
-I think I fixed.
+Changes since then:
+- Address listxattr race using patch from Andreas Gruenbacher
+- Update ->list methods: ext3 & ext2 now only make one pass over the 
+  xattr handlers.
+- Add documentation (with minor modifications) by Will Dyson.
+- Changed coding style to match the rest of fs/xattr.c
+- Update LSM inode_listsecurity hook with length of list buffer.
+- Retested everything.
 
-It's not a problem of tmpfs. It's a permissions issue.
-
-This:
-tmpfs   /tmp   tmpfs     size=256m,noexec,nosuid,nodev      0 0
-
-...gives the "can't allocate memory" message.
-
-Doing:
-# mount -o remount,exec /tmp
-# /etc/init/vmware restart
-
-Gives a working vmware (I've tried 2.6.9-rc2-mm1-VP-S2)
-
-# mount | grep \ /tmp
-tmpfs on /tmp type tmpfs (rw,nosuid,nodev,size=256m)
-
-Now, why the hell does vmware want exec permission on /tmp, only vmware devs 
-know :(
+Please review and apply if ok.
 
 
-Thanks everyone,
-Norberto
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+
+
+
+

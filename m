@@ -1,31 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261941AbTITStg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 14:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTITStg
+	id S261943AbTITSzh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 14:55:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbTITSzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 14:49:36 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59850 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261938AbTITStf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 14:49:35 -0400
-Message-ID: <3F6CA12F.1080700@pobox.com>
-Date: Sat, 20 Sep 2003 14:49:19 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: timofeev@granch.ru, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] fix sbni.c compile with gcc 3.3
-References: <20030915135915.GF126@fs.tum.de>
-In-Reply-To: <20030915135915.GF126@fs.tum.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Sep 2003 14:55:37 -0400
+Received: from sullivan.realtime.net ([205.238.132.76]:51469 "EHLO
+	sullivan.realtime.net") by vger.kernel.org with ESMTP
+	id S261943AbTITSze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Sep 2003 14:55:34 -0400
+Date: Sat, 20 Sep 2003 13:55:17 -0500 (CDT)
+From: "Milton D. Miller II" <miltonm@realtime.net>
+Message-Id: <200309201855.h8KItHuf000466@sullivan.realtime.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Omen Wild <Omen.Wild@Dartmouth.EDU>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: call_usermodehelper does not report exit status?
+In-Reply-To: <20030919124213.7fc93067.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied to 2.6
+Andrew Morton <akpm@osdl.org> wrote:
+> Omen Wild <Omen.Wild@Dartmouth.EDU> wrote:
+> >
+> > I found the call_usermodehelper function and
+> > call it with the wait flag set, but I cannot get a non-zero return
+> > status of the program to propagate into the kernel.
+> 
+> This might fix it.
 
 
+I think you missed the why behind the comment just above your first change.
+
+ 		/* We don't have a SIGCHLD signal handler, so this
+ 		 * always returns -ECHILD, but the important thing is
+ 		 * that it blocks. */
+-		sys_wait4(pid, NULL, 0, NULL);
++		sys_wait4(pid, &sub_info->retval, 0, NULL);
+
+
+The exit code notices that there is no signal handler for SIGCHILD and
+does a fast exit, then we notice when woken up the child no longer exists.
+
+Rusty discovered this back in June when we were trying to fix a checker
+error on the wait call, and decided that at the time no one was using the
+return value, hence the simpler fix.  
+
+http://linux.bkbits.net:8080/linux-2.5/cset@1.1046.366.23?nav=index.html|src/|src/kernel|related/kernel/kmod.c
+
+
+milton

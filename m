@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbUKCA16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbUKCAcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbUKCA16 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 19:27:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbUKCAXo
+	id S261213AbUKCAcP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 19:32:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbUKCA17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 19:23:44 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39862 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262377AbUKBW5N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 17:57:13 -0500
-Date: Tue, 2 Nov 2004 15:01:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Serial updates
-Message-Id: <20041102150112.2ce4831f.akpm@osdl.org>
-In-Reply-To: <20041102224329.B10969@flint.arm.linux.org.uk>
-References: <20041031175114.B17342@flint.arm.linux.org.uk>
-	<1099368552.29693.434.camel@gaston>
-	<1099369226.29689.441.camel@gaston>
-	<20041102224329.B10969@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 2 Nov 2004 19:27:59 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:48882 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262440AbUKCA1V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 19:27:21 -0500
+Subject: Re: 2.6.8 Thinkpad T40, clock running too fast
+From: john stultz <johnstul@us.ibm.com>
+To: Shawn Willden <shawn-lkml@willden.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200411021703.43453.shawn-lkml@willden.org>
+References: <200411021551.53253.shawn-lkml@willden.org>
+	 <1099436816.9139.28.camel@cog.beaverton.ibm.com>
+	 <200411021703.43453.shawn-lkml@willden.org>
+Content-Type: text/plain
+Message-Id: <1099441631.9139.36.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 02 Nov 2004 16:27:11 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->
-> On Tue, Nov 02, 2004 at 03:20:26PM +1100, Benjamin Herrenschmidt wrote:
-> > And here's another one that also fixes a little bug in the
-> > default console selection code ...
+On Tue, 2004-11-02 at 16:03, Shawn Willden wrote:
+> On Tuesday 02 November 2004 04:06 pm, john stultz wrote:
+> > Does this go away if you disable cpufreq in your kernel config?
 > 
-> Thanks for testing Ben, applied.
-> 
-> akpm - do you want this set of serial changes to appear in one -mm
-> release before hitting Linus?
-> 
+> I'll try that next.
 
-Not really - there's plenty of time to shake out any problems.
+Thanks, do let me know if it helps or not.
+
+> > Also, looking at /proc/interrupts, does it look like you're getting more
+> > then ~1000 interrupts per second?
+> 
+> I don't think so.  I'm not sure how to tell.  Running the following:
+> 
+> prev=0
+> while true; do
+>     cur=`cat /proc/interrupts| grep timer|cut -d' ' -f 6`
+>     (( diff = $cur - $prev ))
+>     echo $diff; prev=$cur
+>     sleep 1
+> done 
+> 
+> gives interrupt count differences that are between 1003 and 1222 per (rough) 
+> second.  The mean is 1016 with a std deviation of 16.  Running the same thing 
+> on another machine -- one without clock problems -- yields similar values.
+> 
+> Is there a better way to measure this?
+
+Not really, the problem is that the sleep call returns after so many
+timer ticks, so even if the wrong amount of time has passed, you'll see
+the same number of interrupts. It would be best if you checked the time
+on your watch, waited 5 minutes and checked again, or better, did
+something similar w/ ntpdate.  I just wanted to eyeball it to make sure
+you weren't running away w/ way too many timer interrupts. 
+
+thanks
+-john
+
+PS: If you wouldn't mind, CC me next time.
+

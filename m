@@ -1,67 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311898AbSDTVCB>; Sat, 20 Apr 2002 17:02:01 -0400
+	id <S312354AbSDTVDv>; Sat, 20 Apr 2002 17:03:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312031AbSDTVCA>; Sat, 20 Apr 2002 17:02:00 -0400
-Received: from dsl-213-023-039-128.arcor-ip.net ([213.23.39.128]:57740 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S311898AbSDTVB7>;
-	Sat, 20 Apr 2002 17:01:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S312380AbSDTVDu>; Sat, 20 Apr 2002 17:03:50 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:53645 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S312354AbSDTVDt>;
+	Sat, 20 Apr 2002 17:03:49 -0400
+Date: Sat, 20 Apr 2002 17:03:48 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Date: Fri, 19 Apr 2002 23:02:04 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Anton Altaparmakov <aia21@cantab.net>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16yfW9-0000aZ-00@starship>
+Message-ID: <20020420170348.A14186@havoc.gtf.org>
+In-Reply-To: <E16ya3u-0000RG-00@starship> <20020420115233.A617@havoc.gtf.org> <3CC19470.ACE2EFA1@linux-m68k.org> <20020420122541.B2093@havoc.gtf.org> <3CC1A31B.AC03136D@linux-m68k.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 April 2002 19:51, Linus Torvalds wrote:
-> Any suggestions on how to make the process _appear_ less intimidating?
+On Sat, Apr 20, 2002 at 07:19:23PM +0200, Roman Zippel wrote:
+> Hi,
+> 
+> Jeff Garzik wrote:
+> 
+> > Daniel disagrees with the content of the speech in
+> > Documentation/BK-usage, based on his ideology.  And he attempted to
+> > restrict the dissemination of that speech.  What is the definition
+> > of censorship again?
+> 
+> Maybe I was to subtle, but your censorship argument is simply bullshit.
+> A link to the information is completely sufficient.
 
-I'm thinking about it.  It's still the best project on the planet, but even
-so, could it be better?
+What was Daniel's action?  Remove the text.  Nothing else.  Sure, he
+suggested other options, but he did attempt to implement them?  No.
+He just implied that people need to step up and do this work for him.
 
-> Note that one thing that I had hoped BK would do for me, but that hasn't
-> happened because I'm a lazy bastard and I'm bad at doing automated scripts
-> is to do dialy snapshots as patches (getting rid of the "-pre" kernels,
-> since they don't actually add any information except act as update
-> points), and also send out a changelog daily to the kernel mailing list.
+Daniel attempted to remove speech he disgreed with from wide
+distribution -- on distro CDs, kernel.org mirrors, etc.  I am hoping
+it is plainly obvious that removing a doc from one of the mostly
+widely distributed open source projects reduces the doc's distribution
+dramatically.  _That_ is a form of censorship, just like buying out
+printing presses, to silence them, in the old days.  It's still
+around... just progressively harder to obtain.
 
-Eeek.  That sounds like a lot of work.  Oh I see, this is 100% automated.
 
-> That would actually make the development process MORE open than it was
-> before BK, and might make even non-BK people appreciate BK more simply
-> because there is a real point to it.
+> The only question
+> is, whether the information is relevant for kernel development and most
+> of it is only bk documentation.
 
-Well, it would be more like working in a fishbowl anyway.  The part that's
-missing is the discussion.  Just looking at the recent traffic... there's
-Martin Dalecki's IDE patch, gosh, look at all the fun.  It's a non-BK
-patch, let's see if there's a pattern.  Hmm, the next bushy one is "[PATCH]
-zerocopy NFS updated", descending from a traditional patch set.  The next
-one, "[PATCH] IDE TCQ #4" is also a traditional patch.  Hmm, no bitkeeper
-patches showing up yet, I don't think I need to go on.
+And the answer is, it is BK documentation written for kernel developers
+by kernel developers, with the intention of being a SubmittingPatches
+document for BK users.  Very relevant to kernel devel.  This relevance
+was proved by its origin -- emails bouncing back and forth, generally
+originating by Linus, CC'ing me, asking me for the emails I had
+already sent to other hackers, describing kernel development under BK.
 
-There is a clear inverse relationship between the bk-ness of a patch and
-the extent to which it's discussed on lkml.  I don't know what to read into
-that, but it does seem to lend credence to the idea that the bitkeeper
-style of working is not compatible with the idea of community discussion.
+After the info had been separately requested multiple times, it
+got turned into a document -- the BK version of SubmittingPatches.
+After that doc was requested multiple times, it went to the same
+place where SubmittingPatches is stored.
 
-Perhaps there are really two kinds of patches, those that are mainly
-functional and don't need to be discussed, for which Bitkeeper is an
-entirely appropriate medium, and patches-needing-discussion, for which
-the Bitkeeper channel is entirely inappropriate.  Most of the volume is in
-the former, and hence, that is where most of the time savings are.  The
-corollary of that is, we will not lose a lot of productivity by *not*
-using Bitkeeper for the kind of patch that could or should be discussed.
+	Jeff
 
-> Comments? Anybody want to hack up a script to do this?
 
-Well, that's a nice thought, but it's not the crux of the problem.
 
--- 
-Daniel

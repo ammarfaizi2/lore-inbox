@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136392AbRAGS2s>; Sun, 7 Jan 2001 13:28:48 -0500
+	id <S136336AbRAGSaI>; Sun, 7 Jan 2001 13:30:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136376AbRAGS2i>; Sun, 7 Jan 2001 13:28:38 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4624 "EHLO
+	id <S136343AbRAGS36>; Sun, 7 Jan 2001 13:29:58 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5648 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136343AbRAGS2Y>; Sun, 7 Jan 2001 13:28:24 -0500
-Subject: Re: [PATCH] Cyrix III boot fix and bug report
-To: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
-Date: Sun, 7 Jan 2001 18:29:24 +0000 (GMT)
-Cc: hpa@zytor.com (H . Peter Anvin), davej@suse.de (Dave Jones),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010107201952.C10035@nightmaster.csn.tu-chemnitz.de> from "Ingo Oeser" at Jan 07, 2001 08:19:52 PM
+	id <S136336AbRAGS3s>; Sun, 7 Jan 2001 13:29:48 -0500
+Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
+To: greearb@candelatech.com (Ben Greear)
+Date: Sun, 7 Jan 2001 18:30:59 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davem@redhat.com (David S. Miller),
+        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+In-Reply-To: <3A58C3E8.FF5FF68E@candelatech.com> from "Ben Greear" at Jan 07, 2001 12:30:48 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14FKZL-000367-00@the-village.bc.nu>
+Message-Id: <E14FKat-00036O-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    3DNOW extensions for Cyrix III via rdmsr from 0x80000001. This
->    fails with an exception, that is not handled and thus we oops
->    on boot.
+> Thats what it already does, if I understand correctly.  Of course, if VLAN
+> is loaded as a module, then it will be in the hash before IP, right?
 
-Interesting. Ok.  We can set the bit unconditionally it seems.
-
-
+Thats fine. I think it'll be a different hash bucket anyway. The point of
+having vlan first is that if its not registered or the interface isnt doing
+vlan there is basically a zero overhead
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

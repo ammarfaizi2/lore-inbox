@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283938AbRLJWhj>; Mon, 10 Dec 2001 17:37:39 -0500
+	id <S284526AbRLJWvv>; Mon, 10 Dec 2001 17:51:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284516AbRLJWh2>; Mon, 10 Dec 2001 17:37:28 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:36760 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S283938AbRLJWhR>; Mon, 10 Dec 2001 17:37:17 -0500
-Date: Mon, 10 Dec 2001 17:37:11 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Ben Greear <greearb@candelatech.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Paul P Komkoff Jr <i@stingr.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] MTU vlan-related patch for tulip (2.4.x)
-Message-ID: <20011210173710.C3323@redhat.com>
-In-Reply-To: <20011210225759.B11450@stingr.net> <3C15146D.BA780B43@mandrakesoft.com> <3C1515E6.9C6EC26@mandrakesoft.com> <3C15197C.7050708@candelatech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C15197C.7050708@candelatech.com>; from greearb@candelatech.com on Mon, Dec 10, 2001 at 01:22:20PM -0700
+	id <S284529AbRLJWvl>; Mon, 10 Dec 2001 17:51:41 -0500
+Received: from waste.org ([209.173.204.2]:40678 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S284526AbRLJWv1>;
+	Mon, 10 Dec 2001 17:51:27 -0500
+Date: Mon, 10 Dec 2001 16:50:53 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.17-pre8
+In-Reply-To: <Pine.LNX.4.21.0112101807381.25397-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.40.0112101640000.10405-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 10, 2001 at 01:22:20PM -0700, Ben Greear wrote:
-> I think Becker once told me that there was no need to increase
-> the 1536 number (it is already plenty big, and has some extra space
-> in it already)...
+On Mon, 10 Dec 2001, Marcelo Tosatti wrote:
 
-You are correct: standard ethernet packet size is 1500 + 6 + 6 + 4 if 
-the crc is included.  Of course, some drivers use part of the memory 
-in the packet for the rx descriptor....
+> Here goes pre8: The next one is going to be -rc1 so please don't send me
+> any more updates and only bugfixes now.
 
-		-ben
+I'd like to suggest again having patches include change logs. The basic
+idea is for a patch to contain a file like patch.foo in the top-level that
+includes the changelog entry and the maintainer runs a release script that
+build a changelog by concatenating all the patch.* files and then
+either appending them to an actual ChangeLog (preferred) or deleting
+them. This would make it much easier for people to know the details of
+what got fixed without further burdening The Maintainer.
+
+One way to get this started would be to gather up all the existing
+change logs, add them to a ChangeLog file, and add a note about the file
+being auto-generated.
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

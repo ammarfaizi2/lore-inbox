@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274902AbTHPTHg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 15:07:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274903AbTHPTHg
+	id S274904AbTHPTQM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 15:16:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274908AbTHPTQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 15:07:36 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:19973 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S274902AbTHPTHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 15:07:35 -0400
-Subject: Re: 2.6.0-test3-mm2 kernel BUG at mm/filemap.c:1930
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Josh McKinney <forming@charter.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20030816180923.GA6332@charter.net>
-References: <20030816180923.GA6332@charter.net>
-Content-Type: text/plain
-Message-Id: <1061060852.581.0.camel@teapot.felipe-alfaro.com>
+	Sat, 16 Aug 2003 15:16:12 -0400
+Received: from mail.kroah.org ([65.200.24.183]:45762 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S274904AbTHPTQJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 15:16:09 -0400
+Date: Sat, 16 Aug 2003 12:16:31 -0700
+From: Greg KH <greg@kroah.com>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test3 current - firewire compile error
+Message-ID: <20030816191631.GB14960@kroah.com>
+References: <3F3E288B.3010105@cornell.edu> <20030816163553.GA9735@kroah.com> <87wuddzenr.fsf@devron.myhome.or.jp>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sat, 16 Aug 2003 21:07:32 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87wuddzenr.fsf@devron.myhome.or.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-08-16 at 20:09, Josh McKinney wrote:
-> Got this while trying to mount the rootfs.  It was ext3 if that makes
-> any diff.  
+On Sun, Aug 17, 2003 at 02:38:16AM +0900, OGAWA Hirofumi wrote:
+> Greg KH <greg@kroah.com> writes:
 > 
-> ksymoops 2.4.8 on i686 2.6.0-test3-mm1.  Options used
->      -V (default)
->      -k /proc/ksyms (default)
->      -l /proc/modules (default)
->      -o /lib/modules/2.6.0-test3-mm1/ (default)
->      -m /usr/src/2.5/linux-2.6.0-test2/System.map (specified)
+> > I removed struct device.name and forgot to change the firewire code :(
+> > 
+> > I'll work on a patch for this later this evening, unless someone beats
+> > me to it.
 > 
-> Error (regular_file): read_ksyms stat /proc/ksyms failed
-> No modules in ksyms, skipping objects
-> No ksyms, skipping lsmod
-> <4>kernel BUG at mm/filemap.c:1930!
+> Why wasn't DEVICE_NAME_SIZE/_HALF killed? Looks like these also should
+> define by drivers.
 
-Please, edit mm/filemap.c and remove the line #1390. It's a BUG_ON()
-macro that is complete harmless. Once you have removed that line,
-recompile the kernel.
+Some subsystems use that #define for their device name size.  Yeah, it
+probably could be gotten rid of too, just didn't really see the need.
 
+Patches are always welcome if you want to fix this up.  :)
+
+thanks,
+
+greg k-h

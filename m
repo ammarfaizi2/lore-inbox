@@ -1,77 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262762AbVAFHLV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262763AbVAFHvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262762AbVAFHLV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 02:11:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbVAFHLV
+	id S262763AbVAFHvi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 02:51:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbVAFHvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 02:11:21 -0500
-Received: from mail.coware.com ([63.236.49.244]:47234 "EHLO CoWare.com")
-	by vger.kernel.org with ESMTP id S262762AbVAFHLS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 02:11:18 -0500
-Message-ID: <41DCE48E.5010604@coware.com>
-Date: Thu, 06 Jan 2005 08:11:10 +0100
-From: Harald Dunkel <harald@CoWare.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.10: "[permanent]" modules?
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 6 Jan 2005 02:51:38 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:54474 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262763AbVAFHvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 02:51:35 -0500
+Subject: Re: [PATCH 0/4]Bind physical devices with ACPI devices - take 2
+From: Li Shaohua <shaohua.li@intel.com>
+To: Len Brown <len.brown@intel.com>
+Cc: ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Greg <greg@kroah.com>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Pavel Machek <pavel@suse.cz>, Adam Belay <ambx1@neo.rr.com>
+In-Reply-To: <1104984055.18173.239.camel@d845pe>
+References: <1104893444.5550.127.camel@sli10-desk.sh.intel.com>
+	 <1104984055.18173.239.camel@d845pe>
+Content-Type: text/plain
+Message-Id: <1104997834.22886.17.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 06 Jan 2005 15:50:34 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, 2005-01-06 at 12:00, Len Brown wrote:
+> I think we'll save some significant power when ACPI D-states
+> are invoked for the devices that supply them.  While many
+> PCI devices support PCI power management and thus don't need/use
+> ACPI D-states, I think it will be even more important to add
+> this functionality to the legacy devices which never have
+> PCI power management and thus always depend on ACPI for D-states.
+It's easy to link the PNP devices with the ACPI devices with the ACPIPNP
+driver. But the PNP driver core hasn't similar routines as
+'pnp_set_power_state'. Unclear if the PNP drivers support
+suspend/resume.
 
-Hi folks,
+> It looks like some device drivers scribble on dev->platform_data;
+> and we need to fix those drivers before deploying this patch.
+> Alternatively, we could add a new field to struct device,
+> but then we'd probably never get rid of it...
+Yep, this is a big problem. According to the comments in the source
+file, it's designed for firmware such as ACPI, but some drivers misused
+it. A search shows there are many such drivers. Fixing the drivers is a
+pain for me.
 
-Seems that for 2.6.10 I cannot unload ide modules.
-'lsmod | grep permanent" lists
+> I'm a little unformforable with platform_notify
+> and platform_notify_remove available as globals.
+> We should probably BUG_ON if we
+> find them set before ACPI writes on them.
+I will fix it.
 
-ide_generic             1152  0 [permanent]
-siimage                12480  0 [permanent]
-aec62xx                 7296  0 [permanent]
-trm290                  4228  0 [permanent]
-alim15x3               10572  0 [permanent]
-hpt34x                  5184  0 [permanent]
-hpt366                 20032  0 [permanent]
-cmd64x                 11996  0 [permanent]
-piix                   10052  0 [permanent]
-rz1000                  2496  0 [permanent]
-slc90e66                5568  0 [permanent]
-generic                 3968  0 [permanent]
-cs5530                  4672  0 [permanent]
-cs5520                  4672  0 [permanent]
-sc1200                  7168  0 [permanent]
-triflex                 3648  0 [permanent]
-atiixp                  6032  0 [permanent]
-pdc202xx_old           11264  0 [permanent]
-pdc202xx_new            9088  0 [permanent]
-opti621                 4420  0 [permanent]
-ns87415                 3720  0 [permanent]
-cy82c693                4416  0 [permanent]
-amd74xx                12508  0 [permanent]
-sis5513                14280  0 [permanent]
-via82cxxx              11996  0 [permanent]
-serverworks             7624  0 [permanent]
+> We'll need to update this patch to handle erroneous
+> but real platforms that don't have _BBN
+> by using _CRS to get PCI bus number.
+That's ok.
 
-Is this on purpose?
+> Unclear to me if/how this association of ACPI capability
+> should be reflected in the sysfs device tree.
+Possibly both the physical devices and ACPI devices have a link in sysfs
+to pointer partners.
 
-2bsure, module unloading is enabled in my .config
+Thanks,
+Shaohua
 
-
-Regards
-
-Harri
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB3OSOUTlbRTxpHjcRAkKXAKCPu+7E4L/XxNTE1skyTvy7NUUcdACbBSu9
-sAxceT0jHylMiEmL9KBkWXA=
-=t0JI
------END PGP SIGNATURE-----

@@ -1,46 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265308AbSKSMKX>; Tue, 19 Nov 2002 07:10:23 -0500
+	id <S265255AbSKSMJp>; Tue, 19 Nov 2002 07:09:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265306AbSKSMKW>; Tue, 19 Nov 2002 07:10:22 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:28390 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265236AbSKSMKS>;
-	Tue, 19 Nov 2002 07:10:18 -0500
-Date: Tue, 19 Nov 2002 12:15:41 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Mike Dresser <mdresser_l@windsormachine.com>,
-       list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: RTL8139D support for 2.4?
-Message-ID: <20021119121541.GA27292@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Mike Dresser <mdresser_l@windsormachine.com>,
-	list linux-kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33.0211181714340.1796-100000@router.windsormachine.com> <3DD9688F.8030202@pobox.com>
-Mime-Version: 1.0
+	id <S265236AbSKSMJo>; Tue, 19 Nov 2002 07:09:44 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:4100 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S265222AbSKSMJm>; Tue, 19 Nov 2002 07:09:42 -0500
+Date: Tue, 19 Nov 2002 04:16:35 -0800 (PST)
+From: Andre Hedrick <andre@pyxtechnologies.com>
+To: Douglas Gilbert <dougg@torque.net>
+cc: "J. E. J. Bottomley" <James.Bottomley@SteelEye.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.18-modified-scsi-h.patch
+In-Reply-To: <3DDA0E63.9050307@torque.net>
+Message-ID: <Pine.LNX.4.10.10211190350490.371-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DD9688F.8030202@pobox.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 18, 2002 at 05:24:15PM -0500, Jeff Garzik wrote:
- > this is a toughie...   basically that is an invalid PCI ID that should 
- > not occur.  the "00ec" should really be "10ec", but it sounds like there 
- > is a missing bit in the EEPROM where your card's PCI ID is stored.
+On Tue, 19 Nov 2002, Douglas Gilbert wrote:
 
-I had this happen to me last week on a brand new box (never had
-anything put into its PCI slots before), Pulled it out, gave the
-card contacts a wipe over (even though they didn't *look* dirty)
-plugged it back in, and it worked perfectly.
+> Andre Hedrick wrote:
+> > Greetings Doug et al.
+> > 
+> > Please consider the addition of this simple void ptr to the scsi_request
+> > struct.  The addition of this simple void pointer allows one to map any
+> > and all request execution caller the facility to search for a specific
+> > operation without having to run in circles.  Hunting for these details
+> > over the global device list of all HBA's is silly and one of the key
+> > reasons why there error recovery path is so painful.
+> > 
+> > 
+> > Scsi_Request    *req = sc_cmd->sc_request;
+> > blah_blah_t     *trace = NULL;
+> > 
+> > trace = (blah_blah_t *)req->trace_ptr;
+> > 
+> > 
+> > Therefore the specific transport invoking operations via the midlayer will
+> > have the ablity to track and trace any operation.
+> 
+> Andre,
+> No need to convince me: I have already put a similar pointer
+> in that structure in lk 2.5 (for either sd, st, sr or sg to use).
+> In sg case's it saved some ugly looping in (what was formerly
+> called) the bottom half handler. Sounds like your motivation is
+> similar.
+> 
+> Doug Gilbert
 
-Odd thing was, I googled for the PCI ID that showed up, and all
-it turned up was a Don Becker posting suggesting dirty contacts.
+Hey there!
 
-		Dave
+Well it needs to be in all kernels regardless, and if it is in the
+scsi_request it is transparent to any given personality device and the
+caller may reserve the option to include other key information.  Simple
+stats of what the queue depth of a given device is and a means to flush
+out the commands to force a failure in the case of calling a device reset.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Without being to obvious or rude about the driver model being top down and
+not the converse, hunting for given set of operation(s) will almost insure
+a driver/device deadlock when racing against the done function.
+
+I am pleased you and I are thinking in the same direction again!
+
+Cheers,
+
+Andre Hedrick, CTO & Founder 
+iSCSI Software Solutions Provider
+http://www.PyXTechnologies.com/
+
+

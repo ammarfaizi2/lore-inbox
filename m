@@ -1,50 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272457AbTHNP3N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 11:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272459AbTHNP3M
+	id S272395AbTHNPhp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 11:37:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272397AbTHNPhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 11:29:12 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:7881 "EHLO smtp.bitmover.com")
-	by vger.kernel.org with ESMTP id S272457AbTHNP3K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 11:29:10 -0400
-Date: Thu, 14 Aug 2003 08:28:36 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Eli Carter <eli.carter@inet.com>
-Cc: Larry McVoy <lm@bitmover.com>, Jeff Garzik <jgarzik@pobox.com>,
-       davej@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       dri-devel@lists.sourceforge.net
-Subject: Re: [PATCH] CodingStyle fixes for drm_agpsupport
-Message-ID: <20030814152836.GA25806@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Eli Carter <eli.carter@inet.com>, Larry McVoy <lm@bitmover.com>,
-	Jeff Garzik <jgarzik@pobox.com>, davej@redhat.com,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org,
-	dri-devel@lists.sourceforge.net
-References: <E19mF4Y-0005Eg-00@tetrachloride> <20030811164012.GB858@work.bitmover.com> <3F37CB44.5000307@pobox.com> <20030811170425.GA4418@work.bitmover.com> <3F3B9AF8.4060904@inet.com> <20030814144711.GA5926@work.bitmover.com> <3F3BA839.8020207@inet.com>
+	Thu, 14 Aug 2003 11:37:45 -0400
+Received: from router.emperor-sw2.exsbs.net ([208.254.201.37]:37029 "EHLO
+	quadxeon.emperorlinux.com") by vger.kernel.org with ESMTP
+	id S272395AbTHNPhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 11:37:43 -0400
+Subject: 2GB laptop has pcmcia_cs looking for _insane_ sockets
+From: Lincoln Durey <lincoln@EmperorLinux.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: EmperorLinux Research <research@EmperorLinux.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
+Date: 14 Aug 2003 11:37:07 -0400
+Message-Id: <1060875427.15508.2438.camel@tori>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F3BA839.8020207@inet.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >which can look through the formatting changes and give you the semantic
-> >knowledge that you want.  We'd love to see how it is done and then do
-> >it in BitKeeper :)
-> 
-> <troll>What?!  And _copy_ someone else's hard work?!</troll> *cough* 
 
-<sarcasm>
-Well, my eyes have been opened by all the thoughtful and insightful
-arguments put forth on this list about the ethics of reverse engineering.
-</sarcasm>
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+There can't be that many laptops with 2GB RAM, but surely this report
+indicates an error somewhere in the pcmcia_cs code (it is looking for
+socket number e9b91000 !!)  This bug is a feature of having 2GB ram in
+the system and has nothing to do with specific PC cards drop back to 1GB
+and all is well (linux 2.4.[19,20,21] and pcmcia_cs 3.2.[3,4]..):
+
+	booting with 2GB ram:
+
+kernel: Linux Kernel Card Services 3.1.22
+kernel:   options:  [pci] [cardbus] [pm]
+kernel: Yenta IRQ list 0000, PCI irq9
+kernel: Socket status: 080c2420
+kernel: Yenta IRQ list 0000, PCI irq11
+kernel: Socket status: 000dd9e2
+kernel: cs: socket e9b91000 timed out during reset.
+
+at a guess, I might say "socket->cap.irq_mask" is wrong, and
+I've never seen those Socket status numbers either.
+is socket_info_t getting filled incorrectly when there is 2GB ram? 
+
+	The "socket" number varies wildly from boot to boot:
+
+kernel: cs: socket f68d0000 timed out during reset.  Try increasing
+setup_delay.
+kernel: cs: socket f626c800 timed out during reset.  Try increasing
+setup_delay.
+
+	revert that laptop to 1GB ram, and you get a happy PCMCIA slot:
+
+kernel: Linux Kernel Card Services 3.1.22
+kernel:   options:  [pci] [cardbus] [pm]
+kernel: Yenta IRQ list 04f8, PCI irq9
+kernel: Socket status: 30000006
+kernel: Yenta IRQ list 04f8, PCI irq11
+kernel: Socket status: 30000006
+
+cardmgr[1374]: watching 2 sockets
+cardmgr[1375]: starting, version is 3.2.4
+cardmgr[1375]: socket 1: 3Com 589 Ethernet
+cardmgr[1375]: socket 0: Serial or Modem
+
+lspci: IBM T40
+02:00.0 CardBus bridge: Texas Instruments PCI1250 PC card Cardbus
+Controller (rev 01)
+02:00.1 CardBus bridge: Texas Instruments PCI1250 PC card Cardbus
+Controller (rev 01) 
+
+	Full logs are available: http://www.emperorlinux.com/research/lkml/
+
+
+ -- Lincoln @ EmperorLinux     http://www.EmperorLinux.com
+
+

@@ -1,82 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317931AbSHCWBG>; Sat, 3 Aug 2002 18:01:06 -0400
+	id <S318007AbSHCWFC>; Sat, 3 Aug 2002 18:05:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317935AbSHCWBG>; Sat, 3 Aug 2002 18:01:06 -0400
-Received: from dsl-213-023-022-101.arcor-ip.net ([213.23.22.101]:47805 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317931AbSHCWBB>;
-	Sat, 3 Aug 2002 18:01:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [PATCH] Rmap speedup
-Date: Sun, 4 Aug 2002 00:05:57 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <E17aiJv-0007cr-00@starship> <E17aptH-0008DR-00@starship> <3D4B692B.46817AD0@zip.com.au>
-In-Reply-To: <3D4B692B.46817AD0@zip.com.au>
+	id <S318013AbSHCWFC>; Sat, 3 Aug 2002 18:05:02 -0400
+Received: from pl204.dhcp.adsl.tpnet.pl ([217.98.31.204]:3712 "EHLO
+	bzzzt.slackware.pl") by vger.kernel.org with ESMTP
+	id <S318007AbSHCWFC>; Sat, 3 Aug 2002 18:05:02 -0400
+Date: Sun, 4 Aug 2002 00:10:45 +0200 (CEST)
+From: Pawel Kot <pkot@linuxnews.pl>
+X-X-Sender: <pkot@bzzzt.slackware.pl>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>, <trivial@rustcorp.com.au>
+Subject: [patch] remove the warning from include/linux/dcache.h
+Message-ID: <Pine.LNX.4.33.0208032346150.18950-100000@bzzzt.slackware.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17b725-00031K-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wait a second guys, the problem is with the script, look at those CPU
-numbers:
+Hi,
 
-> ./daniel.sh  39.78s user 71.72s system 368% cpu 30.260 total
-> quad:/home/akpm> time ./daniel.sh
-> ./daniel.sh  38.45s user 70.00s system 365% cpu 29.642 total
+The simple patch removes the warning when compiling files including
+<linux/dcache.h> and not <linux/kernel.h> (out_of_line_bug() declaration
+is missing). Anyway it's better to have the explicit include.
 
-They should be 399%!!  With my fancy script, the processes themselves are
-getting serialized somehow.
+diff -Nur linux-2.4.19/include/linux/dcache.h linux-2.4.19-pkot/include/linux/dcache.h
+--- linux-2.4.19/include/linux/dcache.h	Sat Aug  3 23:15:48 2002
++++ linux-2.4.19-pkot/include/linux/dcache.h	Sat Aug  3 22:39:21 2002
+@@ -5,6 +5,7 @@
 
-Lets back up and try this again with this pair of scripts, much closer to
-the original:
+ #include <asm/atomic.h>
+ #include <linux/mount.h>
++#include <linux/kernel.h>
 
-doitlots:
--------------------------------
-#!/bin/sh
+ /*
+  * linux/include/linux/dcache.h
 
-doit()
-{
-        ( cat $1 | wc -l )
-}
-        
-count=0
-        
-while [ $count != 500 ]
-do
-        doit doitlots > /dev/null
-
-        count=$(expr $count + 1)
-done
-echo done
--------------------------------
-
-
-forklots:
--------------------------------
-echo >foocount
-./doitlots >>foocount &
-./doitlots >>foocount &
-./doitlots >>foocount &
-./doitlots >>foocount &
-./doitlots >>foocount &
-./doitlots >>foocount &
-./doitlots >>foocount &
-./doitlots >>foocount &
-./doitlots >>foocount &
-
-count=0
-
-while [ $count != 10 ]
-do
-	count=$(wc foocount | cut -b -8)
-done
--------------------------------
-
-/me makes the sign of the beast at bash
-
+pkot
 -- 
-Daniel
+Pawel Kot <pkot@linuxnews.pl>
+http://www.gnokii.org/ :: http://www.slackware.pl/
+http://kt.linuxnews.pl/ -- Kernel Traffic po polsku
+

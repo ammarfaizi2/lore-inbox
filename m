@@ -1,59 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265374AbTFMMjp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 08:39:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265375AbTFMMjp
+	id S265375AbTFMMkc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 08:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265379AbTFMMkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 08:39:45 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:18168 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S265374AbTFMMjo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 08:39:44 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: I Am Falling I Am Fading <skuld@anime.net>,
-       Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: Via KT400 and AGP 8x Support
-Date: Fri, 13 Jun 2003 07:52:57 -0500
-X-Mailer: KMail [version 1.2]
-Cc: John Bradford <john@grabjohn.com>, <gregor.essers@web.de>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0306120633490.14263-100000@inconnu.isu.edu>
-In-Reply-To: <Pine.LNX.4.44.0306120633490.14263-100000@inconnu.isu.edu>
-MIME-Version: 1.0
-Message-Id: <03061307525700.13701@tabby>
-Content-Transfer-Encoding: 7BIT
+	Fri, 13 Jun 2003 08:40:32 -0400
+Received: from dspnet.fr.eu.org ([62.73.5.179]:53511 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S265375AbTFMMkb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 08:40:31 -0400
+Date: Fri, 13 Jun 2003 14:54:17 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] udev enhancements to use kernel event queue
+Message-ID: <20030613125417.GA90214@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	linux-kernel@vger.kernel.org
+References: <1055460564.662.339.camel@localhost> <Pine.LNX.4.44.0306121629590.11379-100000@cherise> <16105.3943.510055.309447@nanango.paulus.ozlabs.org> <1055461816.662.350.camel@localhost> <Pine.LNX.4.53.0306130823170.4004@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0306130823170.4004@chaos>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 June 2003 07:36, I Am Falling I Am Fading wrote:
-> On Thu, 12 Jun 2003, Dave Jones wrote:
-> >  > Tried it already... The pins are too small to get adequate purchase
-> >  > for the tape -- the friction just causes it to slide around in the
-> >  > slot and gets goo around.
-> >  >
-> >  > Superglue might be a better solution....
-> >  > ...but I think the solder method is better.
-> >
-> > So rather than experiment with backporting the 2.5 code to 2.4,
-> > you'd rather risk damaging your hardware ?
-> >
-> > I think this way is madness.
->
-> Unfortunately even a perfect backport seems to be only a partial solution
-> -- the ATI binary only drivers don't seem to know how to talk to the 2.5
-> AGP 3.0 stuff anyway (well, at least they didn't work at all when I tried
-> them under the 2.5 kernel :-/), and as they are lame binary-only drivers
-> there is no way to fix that.
->
-> There are also no other drivers for the R300-series Radeon GPUs. :-(
->
-> This absolutely sucks, but turning the card into an AGP 2.0 card seems to
-> be the only surefire way to get it to work properly under Linux. :-(
+On Fri, Jun 13, 2003 at 08:44:52AM -0400, Richard B. Johnson wrote:
+> FYI, all memory modify operations, not using an intermediate register,
+> in  32-bit mode, of a longword or less, on ix86 machines are atomic,
+> even without the lock prefix.
 
-I'm not sure this will help the hardware situation, but you could try a
-bus extender (it will make the board stick out of the slot a couple of 
-inches).
+Unless you're on SMP.  Of course 80386 SMP is not really what people
+want to do, but people may compile an "universal" 386 SMP kernel and
+run it on a later SMP box.
 
-It should allow you the option of either cutting the extender wire traces
-or pull jumpers to see if things do work.
+  OG.

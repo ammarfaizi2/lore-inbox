@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133086AbRDRLfP>; Wed, 18 Apr 2001 07:35:15 -0400
+	id <S133088AbRDRLl1>; Wed, 18 Apr 2001 07:41:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133087AbRDRLfG>; Wed, 18 Apr 2001 07:35:06 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:7950 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S133086AbRDRLew>; Wed, 18 Apr 2001 07:34:52 -0400
-Date: Wed, 18 Apr 2001 13:34:43 +0200 (CEST)
-From: axel <axel@rayfun.org>
-To: linux-kernel@vger.kernel.org
-Subject: NETDEV WATCHDOG eth transmit timed out
-Message-ID: <Pine.LNX.4.21.0104181319220.1226-100000@neon.rayfun.org>
+	id <S133089AbRDRLlR>; Wed, 18 Apr 2001 07:41:17 -0400
+Received: from inpbox.inp.nsk.su ([193.124.167.24]:62090 "EHLO
+	inpbox.inp.nsk.su") by vger.kernel.org with ESMTP
+	id <S133088AbRDRLlK>; Wed, 18 Apr 2001 07:41:10 -0400
+Date: Wed, 18 Apr 2001 18:15:48 +0700
+From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
+Reply-To: D.A.Fedorov@inp.nsk.su
+To: "Eric S. Raymond" <esr@snark.thyrsus.com>
+cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: Supplying missing entries for Configure.help, part 4
+In-Reply-To: <200104180526.f3I5Qmr14004@snark.thyrsus.com>
+Message-ID: <Pine.SGI.4.10.10104181809290.6767232-100000@Sky.inp.nsk.su>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
 
-on my router which is serving as a gateway for my lan, the adsl connection
-is irregularly killed due to the following:
-(eth1 is a RTL8139C, kernel 2.4.4pre3, incl. latest rtl8139 driver 0.9.16)
+> From: Eric S. Raymond <esr@snark.thyrsus.com>
+> To: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@transmeta.com,
+     axel@uni-paderborn.de, linux-kernel@vger.kernel.org,
+     kbuild-devel@lists.sourceforge.net
+> Date: Wed, 18 Apr 2001 01:26:48 -0400
+> Subject: Supplying missing entries for Configure.help, part 4
+> 
+> This patch supplies seventeen more missing entries for the
+> Configure.help file, for a total of 65 so far.  It also corrects some
+> places where I omitted a CONFIG_ prefix.  It should be applied after my
+> previous patches 1, 2, and 3 under the same title.
+> 
+> --- Configure.help	2001/04/18 03:04:27	1.4
+> +++ Configure.help	2001/04/18 05:23:14
+
+> +Windows CP1251 (Bulgarian, Belarussian)
+
+And Russian !!!
 
 
-Apr 18 12:11:09 bello kernel: eth1: Setting half-duplex based on
-auto-negotiated partner ability 0000.
-Apr 18 12:11:27 bello kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Apr 18 12:11:27 bello kernel: eth1: Tx queue start entry 69  dirty entry
-65.
-Apr 18 12:11:27 bello kernel: eth1:  Tx descriptor 0 is 00002000.
-Apr 18 12:11:27 bello kernel: eth1:  Tx descriptor 1 is 00002000. (queue
-head)
-Apr 18 12:11:27 bello kernel: eth1:  Tx descriptor 2 is 00002000.
-Apr 18 12:11:27 bello kernel: eth1:  Tx descriptor 3 is 00002000.
-Apr 18 12:11:27 bello kernel: eth1: Setting half-duplex based on
-auto-negotiated partner ability 0000.
-Apr 18 12:17:33 bello kernel: eth1: Setting half-duplex based on
-auto-negotiated partner ability 0000.
-Apr 18 12:17:51 bello kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Apr 18 12:17:51 bello kernel: eth1: Tx queue start entry 93  dirty entry
-89.
-Apr 18 12:17:51 bello kernel: eth1:  Tx descriptor 0 is 00002000.
-Apr 18 12:17:51 bello kernel: eth1:  Tx descriptor 1 is 00002000. (queue
-head)
-Apr 18 12:17:51 bello kernel: eth1:  Tx descriptor 2 is 00002000.
-Apr 18 12:17:51 bello kernel: eth1:  Tx descriptor 3 is 00002000.
-Apr 18 12:17:51 bello kernel: eth1: Setting half-duplex based on
-auto-negotiated
- partner ability 0000.
-Apr 18 12:19:14 bello pppd[26928]: No response to 5 echo-requests
-Apr 18 12:19:14 bello pppd[26928]: Serial link appears to be disconnected.
-Apr 18 12:19:14 bello ip-down: Restored original /etc/resolv.conf
-Apr 18 12:19:20 bello pppd[26928]: Connection terminated.
-Apr 18 12:19:20 bello pppd[26928]: Connect time 11.2 minutes.
-Apr 18 12:19:20 bello pppd[26928]: Sent 5627 bytes, received 59949 bytes.
-Apr 18 12:19:20 bello pppoe[26929]: read (asyncReadFromPPP): Input/output
-error
-Apr 18 12:19:20 bello pppoe[26929]: Sent PADT
-Apr 18 12:19:20 bello pppd[26928]: Exit.
-Apr 18 12:19:20 bello adsl-connect: ADSL connection lost; attempting
-re-connection.
-
-I have heard from some people who had this problem as well but there had
-been no real solution to that. Is there some way to debug this, get deeper
-to the origin of the problem?
-Any help would be FANTASTIC..
-
-Thank you very much,
-Axel Siebenwirth
+> +CONFIG_NLS_CODEPAGE_1251
+> +  The Microsoft FAT file system family can deal with filenames in
+> +  native language character sets. These character sets are stored in
+> +  so-called DOS codepages. You need to include the appropriate
+> +  codepage if you want to be able to read/write these filenames on
+> +  DOS/Windows partitions correctly. This does apply to the filenames
+> +  only, not to the file contents. You can include several codepages;
+> +  say Y here if you want to include the DOS codepage Bulgarian and
+> +  Belorussian.
 

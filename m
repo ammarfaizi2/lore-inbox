@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317182AbSHAWqu>; Thu, 1 Aug 2002 18:46:50 -0400
+	id <S317169AbSHAWmH>; Thu, 1 Aug 2002 18:42:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317258AbSHAWqu>; Thu, 1 Aug 2002 18:46:50 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:29430 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S317182AbSHAWqs>; Thu, 1 Aug 2002 18:46:48 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.33.0208011538220.1277-100000@penguin.transmeta.com> 
-References: <Pine.LNX.4.33.0208011538220.1277-100000@penguin.transmeta.com> 
+	id <S317191AbSHAWmH>; Thu, 1 Aug 2002 18:42:07 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:49912 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S317169AbSHAWmF>;
+	Thu, 1 Aug 2002 18:42:05 -0400
+Date: Thu, 1 Aug 2002 18:45:32 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, David Howells <dhowells@redhat.com>,
-       alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: manipulating sigmask from filesystems and drivers 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 01 Aug 2002 23:50:11 +0100
-Message-ID: <11617.1028242211@redhat.com>
+cc: Martin Dalecki <dalecki@cs.net.pl>, linux-kernel@vger.kernel.org
+Subject: Re: IDE from current bk tree, UDMA and two channels...
+In-Reply-To: <200208012219.g71MJV109133@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0208011840130.12627-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-torvalds@transmeta.com said:
->  It's not the kernel side that is not restartable. It's the _user_
-> side. 
 
-As I said, you can't allow it to be interrupted after you've started the 
-copy_to_user(). Show me how the userspace program can prove the signal 
-arrived _after_ the 'int 0x80' had trapped into the kernel rather then 
-beforehand, and I'll accept that you can't allow read() to be interrupted
-even before the copy_to_user() starts.
+On Thu, 1 Aug 2002, Linus Torvalds wrote:
 
-But I also agree that there are other, better, examples of why
-TASK_UNINTERRUPTIBLE has to be used sometimes. Page faults in 
-copy_{from,to}_user are probably one such.
+> You probably saw this. Looks like blocksize has been buggered somehow.
+> Apparently Petr has a 1kB blocksize optical device..
 
-It's just that it doesn't have to be scattered all over the place just
-because people are too lazy to do the cleanup code.
+Yeah - with partition boundaries set not on a physical sector boundary ;-/
 
-Yeah -- sometimes it's hard. So go shopping.
+He's actually lucky that beginning of partition was not in the middle of
+a physical sector...
 
---
-dwmw2
+Looks like we need
+	a) accurate hardsect_size for these beasts (which is a problem
+with current setup, since it's per-queue and not per-device; master and
+slave can have different hardsect sizes).
+	b) extra check in check_partitions() that would verify that
+partition doesn't end in the middle of a sector (and round it down
+if it does).
 
+Basically, old code worked by accident on that setup - Petr had half-Kb
+in the end of partition unaccessible and do_open() didn't notice that.
+Now it does and tries to give such access.  Disk is not happy...
 

@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286238AbSAALBx>; Tue, 1 Jan 2002 06:01:53 -0500
+	id <S284659AbSAALNX>; Tue, 1 Jan 2002 06:13:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287801AbSAALBp>; Tue, 1 Jan 2002 06:01:45 -0500
-Received: from ALyon-202-1-3-150.abo.wanadoo.fr ([217.128.237.150]:30118 "EHLO
-	alph") by vger.kernel.org with ESMTP id <S286238AbSAALBe>;
-	Tue, 1 Jan 2002 06:01:34 -0500
-Subject: Re: New tree started ;)
-From: Yoann Vandoorselaere <yoann@mandrakesoft.com>
-To: Roberto Nibali <ratz@drugphish.ch>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C318DCE.8020105@drugphish.ch>
-In-Reply-To: <1009835143.7667.0.camel@ohdarn.net> 
-	<3C318DCE.8020105@drugphish.ch>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-vwzG4//9fPCQ/+uV3jPp"
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 01 Jan 2002 12:01:49 +0100
-Message-Id: <1009882909.2559.76.camel@alph>
+	id <S287801AbSAALNN>; Tue, 1 Jan 2002 06:13:13 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:56592 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S284659AbSAALM5>;
+	Tue, 1 Jan 2002 06:12:57 -0500
+Date: Tue, 1 Jan 2002 22:08:38 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@zip.com.au>, Manfred Spraul <manfred@colorfullife.com>,
+        Dave Jones <davej@suse.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Prefetching file_read_actor()
+Message-ID: <20020101110838.GA11768@krispykreme>
+In-Reply-To: <3C30BC5F.227349E8@zip.com.au> <E16LMBW-0008Dk-00@the-village.bc.nu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16LMBW-0008Dk-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+> Please bury such things in arch/cpu specific routines. Most non intel
+> processor hardware isnt that broken.
 
---=-vwzG4//9fPCQ/+uV3jPp
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Exactly, for example ppc32 and ppc64 implement the prefetch macros so we
+cant put intel specific prefetch hacks in generic code. 
 
-On Tue, 2002-01-01 at 11:22, Roberto Nibali wrote:
-> Hello Michael,
->=20
-> Thanks for doing this. Could you tell me which criteria you have to
-> choose patches to go in? I see grsecurity in the to be merged queue
-> which is not likely to ever go into 2.4.x. It's more likely to be=20
-> converted to the LSM framework (parts of it if still needed) and then=20
-> integrated into 2.5.x.
+The correct place to do it is in the copy_*_user routines where you can
+make decisions based on length etc. Davem already does this for sparc64
+and Paulus is working on it for ppc32/64.
 
-AFAICT, the grsecurity patch include the Solar Designer non executable
-patch. And AFAICT, this one won't be included in the main kernel tree.
+I just grepped around for current prefetch usage and noticed we now
+use it in the list macros. Converting non struct list code (eg pagecache
+hash) to use for_each_list etc might give some benefits.
 
-My point is that this patch is against previously taken decision. So why
-would it be included in such a tree ?
+Perhaps for_each_task could benefit from the same prefetching.
 
-[...]
-
---=20
-Yoann Vandoorselaere
-http://www.prelude-ids.org
-
---=-vwzG4//9fPCQ/+uV3jPp
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8MZcc4tfUv0C+vv8RAo9oAKC/lNDHn5T/mKzuavcEHddXckoaMgCeMa4S
-vWmSQ12fRhpLDl+7bwAyn9k=
-=QErN
------END PGP SIGNATURE-----
-
---=-vwzG4//9fPCQ/+uV3jPp--
-
+Anton

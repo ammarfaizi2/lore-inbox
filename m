@@ -1,82 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316080AbSEJRZ2>; Fri, 10 May 2002 13:25:28 -0400
+	id <S316072AbSEJRgU>; Fri, 10 May 2002 13:36:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316081AbSEJRZ1>; Fri, 10 May 2002 13:25:27 -0400
-Received: from bitmover.com ([192.132.92.2]:64160 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S316080AbSEJRZ1>;
-	Fri, 10 May 2002 13:25:27 -0400
-From: Larry McVoy <lm@bitmover.com>
-Date: Fri, 10 May 2002 10:25:24 -0700
-Message-Id: <200205101725.g4AHPOH05574@work.bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: BK problem
+	id <S316074AbSEJRgU>; Fri, 10 May 2002 13:36:20 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:43927 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S316072AbSEJRgT>; Fri, 10 May 2002 13:36:19 -0400
+Date: Fri, 10 May 2002 10:36:16 -0700 (PDT)
+From: Nivedita Singhvi <niv@us.ibm.com>
+X-X-Sender: <nivedita@w-nivedita2.des.beaverton.ibm.com>
+To: <nharring@hostway.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Tcp/ip offload card driver
+Message-ID: <Pine.LNX.4.33.0205101035200.11164-100000@w-nivedita2.des.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, we've got a problem in one of Linus' trees and it has started to
-propagate around.  I need your help to track it down and fix it.
-Please run the following script on your Linux BK trees and contact
-me if it tells you to do so.  You can fix up the tree by doing the
-following (warning: takes lots and lots of CPU time so if you don't
-need the tree it may well be faster to reclone tomorrow after I finish
-fixing the trees on bkbits).
+> Obviously some form of driver is necessary to access the
+> device, whether or not we're pushing fully formed IP packets
+> or raw payload. Or is that a userland problem and I'm just
+> not understanding the flow from userspace through the kernel
+> and to the driver properly?
 
-cp SCCS/s.ChangeSet .		# save it just in case
-bk checksum -vf ChangeSet	# takes ~15 minutes on 1Ghz K7
+> Cheers,
+> Nicholas Harring
 
-The set of trees which I know are bad on bkbits are:
+Your initial premise seemed to include the offload of TCP
+as well. Doesn't that mean:
 
-    gkernel/main
-    linus/linux-2.5
-    linux-isdn/linux-2.5.export
-    linuxvm/linus-2.5
-    ppc/for-linus-ppc64
+application -> driver -> card [ creates full TCP/IP pkt ]
 
-Here's the script, the usage is
+TCP is stateful, feature rich and highly configurable.
+Do you expect that a fw/hw implementation will provide
+an equivalent implementation?  Support for tuning, options,
+network taps, diag, bug fixes, feature tweaks, ... ?
 
-	sh SH list of roots of the trees
+Very curious..
 
------------- cut here and store in SH ------------------
-#!/bin/sh
+thanks,
+Nivedita
 
-test -z "$1" && {
-	echo "Usage: $0 repo [repo repo...]"
-	exit 0
-}
-ID="torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864"
-HERE=`pwd`
-for tree in "$@"
-do	cd $HERE
-	test -f $tree/SCCS/s.ChangeSet || continue
-	cd $tree
-	test "`bk identity`" = "$ID" || {
-		# echo Skipping $tree because ID does not match
-		continue
-	}
-	for i in 20020507175820 20020507172730 20020507171942 \
-		20020507171816 20020507165445
-	do	bk findkey -t$i ChangeSet
-	done | bk prs -hnd:KEY: - | bk _keysort > /tmp/k$$
-	test -s /tmp/k$$ || {
-		echo $tree is OK, does not have the bad keys
-		rm /tmp/k$$
-		continue
-	}
-	cmp -s /tmp/k$$ - <<EOF
-greg@kroah.com|ChangeSet|20020507171816|03715
-greg@kroah.com|ChangeSet|20020507171942|33284
-greg@kroah.com|ChangeSet|20020507175820|37065
-ink@jurassic.park.msu.ru|ChangeSet|20020507165445|24759
-mochel@segfault.osdl.org|ChangeSet|20020507172730|37035
-EOF
-	test $? -eq 0 || {
-		echo =========================================================
-		echo $tree needs fixing, contact lm@bitmover.com
-		echo =========================================================
-		rm /tmp/k$$
-		continue
-	}
-	echo $tree is fine, it has the fixed keys
-	rm /tmp/k$$
-done

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbUE1V2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbUE1V2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261981AbUE1V2w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 17:28:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbUE1V1c
+	id S262065AbUE1V2s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 17:28:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUE1V2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 17:27:32 -0400
-Received: from mail.kroah.org ([65.200.24.183]:18349 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261867AbUE1V0m convert rfc822-to-8bit
+	Fri, 28 May 2004 17:28:33 -0400
+Received: from mail.kroah.org ([65.200.24.183]:20397 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261865AbUE1V0p convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 17:26:42 -0400
+	Fri, 28 May 2004 17:26:45 -0400
 X-Donotread: and you are reading this why?
-Subject: [PATCH] Driver Core fixes for 2.6.7-rc1
-In-Reply-To: <20040528212511.GA12470@kroah.com>
+Subject: Re: [PATCH] Driver Core fixes for 2.6.7-rc1
+In-Reply-To: <10857795544179@kroah.com>
 X-Patch: quite boring stuff, it's just source code...
-Date: Fri, 28 May 2004 14:25:54 -0700
-Message-Id: <10857795543986@kroah.com>
+Date: Fri, 28 May 2004 14:25:55 -0700
+Message-Id: <10857795543295@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,297 +23,352 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1717.7.1, 2004/05/17 10:32:30-07:00, maneesh@in.ibm.com
+ChangeSet 1.1717.7.3, 2004/05/27 15:48:10-07:00, greg@kroah.com
 
-[PATCH] fix-sysfs-symlinks.patch
+Remove the smbios driver as it is not needed.
 
-- Rediffed the patch for 2.6.6-mm3 to fix rejects in the latest changes
-  in sysfs code.
-
-o The symlinks code in sysfs doesnot point to the correct target kobject
-  whenever target kobject is renamed and suffers from dangling symlinks
-  if target kobject is removed.
-
-o The following patch implements ->readlink and ->follow_link operations
-  for sysfs instead of using the page_symlink_inode_operations.
-  The pointer to target kobject is saved in the link dentry's d_fsdata field.
-  The target path is generated everytime we do ->readlink and ->follow_link.
-  This results in generating the correct target path during readlink and
-  follow_link operations inspite of renamed target kobject.
-
-o This also pins the target kobject during link creation and the ref. is
-  released when the link is removed.
-
-o Apart from being correct this patch also saves some memory by not pinning
-  a whole page for saving the target information.
-
-o Used a rw_semaphor sysfs_rename_sem to avoid clashing with renaming of
-  ancestors while the target path is generated.
-
-o Used dcache_lock in fs/sysfs/sysfs.h:sysfs_get_kobject() because of using
-  d_drop() while removing dentries.
+You can do the same from userspace, and the author requests that the
+driver be deleted from the kernel tree before people start using it.
 
 
- fs/sysfs/dir.c     |   12 ++++
- fs/sysfs/inode.c   |    7 ++
- fs/sysfs/symlink.c |  135 ++++++++++++++++++++++++++++++++++++-----------------
- fs/sysfs/sysfs.h   |    7 +-
- 4 files changed, 116 insertions(+), 45 deletions(-)
+ drivers/firmware/smbios.c |  248 ----------------------------------------------
+ drivers/firmware/smbios.h |   53 ---------
+ drivers/firmware/Kconfig  |    8 -
+ drivers/firmware/Makefile |    1 
+ 4 files changed, 310 deletions(-)
 
 
-diff -Nru a/fs/sysfs/dir.c b/fs/sysfs/dir.c
---- a/fs/sysfs/dir.c	Fri May 28 14:18:34 2004
-+++ b/fs/sysfs/dir.c	Fri May 28 14:18:34 2004
-@@ -10,6 +10,8 @@
- #include <linux/kobject.h>
- #include "sysfs.h"
+diff -Nru a/drivers/firmware/Kconfig b/drivers/firmware/Kconfig
+--- a/drivers/firmware/Kconfig	Fri May 28 14:18:22 2004
++++ b/drivers/firmware/Kconfig	Fri May 28 14:18:22 2004
+@@ -34,12 +34,4 @@
+ 	  Subsequent efibootmgr releases may be found at:
+ 	  http://linux.dell.com/efibootmgr
  
-+DECLARE_RWSEM(sysfs_rename_sem);
-+
- static int init_dir(struct inode * inode)
- {
- 	inode->i_op = &simple_dir_inode_operations;
-@@ -134,8 +136,14 @@
- 			/**
- 			 * Unlink and unhash.
- 			 */
-+			__d_drop(d);
- 			spin_unlock(&dcache_lock);
--			d_delete(d);
-+			/* release the target kobject in case of 
-+			 * a symlink
-+			 */
-+			if (S_ISLNK(d->d_inode->i_mode))
-+				kobject_put(d->d_fsdata);
-+			
- 			simple_unlink(dentry->d_inode,d);
- 			dput(d);
- 			pr_debug(" done\n");
-@@ -165,6 +173,7 @@
- 	if (!kobj->parent)
- 		return -EINVAL;
- 
-+	down_write(&sysfs_rename_sem);
- 	parent = kobj->parent->dentry;
- 
- 	down(&parent->d_inode->i_sem);
-@@ -179,6 +188,7 @@
- 		dput(new_dentry);
- 	}
- 	up(&parent->d_inode->i_sem);	
-+	up_write(&sysfs_rename_sem);
- 
- 	return error;
- }
-diff -Nru a/fs/sysfs/inode.c b/fs/sysfs/inode.c
---- a/fs/sysfs/inode.c	Fri May 28 14:18:34 2004
-+++ b/fs/sysfs/inode.c	Fri May 28 14:18:34 2004
-@@ -96,7 +96,12 @@
- 			pr_debug("sysfs: Removing %s (%d)\n", victim->d_name.name,
- 				 atomic_read(&victim->d_count));
- 
--			d_delete(victim);
-+			d_drop(victim);
-+			/* release the target kobject in case of 
-+			 * a symlink
-+			 */
-+			if (S_ISLNK(victim->d_inode->i_mode))
-+				kobject_put(victim->d_fsdata);
- 			simple_unlink(dir->d_inode,victim);
- 		}
- 		/*
-diff -Nru a/fs/sysfs/symlink.c b/fs/sysfs/symlink.c
---- a/fs/sysfs/symlink.c	Fri May 28 14:18:34 2004
-+++ b/fs/sysfs/symlink.c	Fri May 28 14:18:34 2004
-@@ -8,27 +8,17 @@
- 
- #include "sysfs.h"
- 
-+static struct inode_operations sysfs_symlink_inode_operations = {
-+	.readlink = sysfs_readlink,
-+	.follow_link = sysfs_follow_link,
-+};
- 
- static int init_symlink(struct inode * inode)
- {
--	inode->i_op = &page_symlink_inode_operations;
-+	inode->i_op = &sysfs_symlink_inode_operations;
- 	return 0;
- }
- 
--static int sysfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
--{
--	int error;
+-config SMBIOS
+-	tristate "BIOS SMBIOS table access driver."
+-	help
+-	  Say Y or M here if you want to enable access to the SMBIOS table
+-	  via driverfs. It exposes /sys/firmware/smbios/ subdirectory tree
+-	  containing a binary dump of the SMBIOS table header as well as the SMBIOS
+-	  table.
 -
--	error = sysfs_create(dentry, S_IFLNK|S_IRWXUGO, init_symlink);
--	if (!error) {
--		int l = strlen(symname)+1;
--		error = page_symlink(dentry->d_inode, symname, l);
--		if (error)
--			iput(dentry->d_inode);
+ endmenu
+diff -Nru a/drivers/firmware/Makefile b/drivers/firmware/Makefile
+--- a/drivers/firmware/Makefile	Fri May 28 14:18:22 2004
++++ b/drivers/firmware/Makefile	Fri May 28 14:18:22 2004
+@@ -3,4 +3,3 @@
+ #
+ obj-$(CONFIG_EDD)             	+= edd.o
+ obj-$(CONFIG_EFI_VARS)		+= efivars.o
+-obj-$(CONFIG_SMBIOS)            += smbios.o
+diff -Nru a/drivers/firmware/smbios.c b/drivers/firmware/smbios.c
+--- a/drivers/firmware/smbios.c	Fri May 28 14:18:22 2004
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,248 +0,0 @@
+-/*
+- * linux/drivers/firmware/smbios.c
+- *  Copyright (C) 2004 Dell Inc.
+- *  by Michael Brown <Michael_E_Brown@dell.com>
+- *  vim:noet:ts=8:sw=8:filetype=c:textwidth=80:
+- *
+- * BIOS SMBIOS Table access
+- * conformant to DMTF SMBIOS definition
+- *   at http://www.dmtf.org/standards/smbios
+- *
+- * This code takes information provided by SMBIOS tables
+- * and presents it in sysfs as:
+- *    /sys/firmware/smbios
+- *			|--> /table_entry_point
+- *			|--> /table
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License v2.0 as published by
+- * the Free Software Foundation
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- */
+-
+-
+-#include <linux/module.h>
+-#include <linux/init.h>
+-#include <linux/device.h>
+-#include <asm/io.h>
+-#include <asm/uaccess.h>
+-#include "smbios.h"
+-
+-MODULE_AUTHOR("Michael Brown <Michael_E_Brown@Dell.com>");
+-MODULE_DESCRIPTION("sysfs interface to SMBIOS information");
+-MODULE_LICENSE("GPL");
+-
+-#define SMBIOS_VERSION "1.0 2004-04-19"
+-
+-struct smbios_device {
+-	struct smbios_table_entry_point table_eps;
+-	unsigned int smbios_table_real_length;
+-};
+-
+-/* there shall be only one */
+-static struct smbios_device the_smbios_device;
+-
+-#define to_smbios_device(obj) container_of(obj,struct smbios_device,kobj)
+-
+-/* don't currently have any "normal" attributes, so we don't need a way to
+- * show them. */
+-static struct sysfs_ops smbios_attr_ops = { };
+-
+-static __init int
+-checksum_eps(struct smbios_table_entry_point *table_eps)
+-{
+-	u8 *p = (u8 *)table_eps;
+-	u8 checksum = 0;
+-	int i=0;
+-	for (i=0; i < table_eps->eps_length && i < sizeof(*table_eps); ++i) {
+-		checksum += p[i];
 -	}
--	return error;
+-	return( checksum == 0 );
 -}
 -
- static int object_depth(struct kobject * kobj)
- {
- 	struct kobject * p = kobj;
-@@ -74,37 +64,20 @@
- 	struct dentry * dentry = kobj->dentry;
- 	struct dentry * d;
- 	int error = 0;
--	int size;
--	int depth;
--	char * path;
--	char * s;
+-static __init int
+-find_table_entry_point(struct smbios_device *sdev)
+-{
+-	struct smbios_table_entry_point *table_eps = &(sdev->table_eps);
+-	u32 fp = 0xF0000;
+-	while (fp < 0xFFFFF) {
+-		isa_memcpy_fromio(table_eps, fp, sizeof(*table_eps));
+-		if (memcmp(table_eps->anchor, "_SM_", 4)==0 &&
+-					checksum_eps(table_eps)) {
+-			return 0;
+-		}
+-		fp += 16;
+-	}
 -
--	depth = object_depth(kobj);
--	size = object_path_length(target) + depth * 3 - 1;
--	if (size > PATH_MAX)
--		return -ENAMETOOLONG;
--	pr_debug("%s: depth = %d, size = %d\n",__FUNCTION__,depth,size);
+-	printk(KERN_INFO "SMBIOS table entry point not found in "
+-			"0xF0000 - 0xFFFFF\n");
+-	return -ENODEV;
+-}
 -
--	path = kmalloc(size,GFP_KERNEL);
--	if (!path)
--		return -ENOMEM;
--	memset(path,0,size);
+-static __init int
+-find_table_max_address(struct smbios_device *sdev)
+-{
+-	/* break out on one of three conditions:
+-	 *   -- hit table_eps.table_length
+-	 *   -- hit number of items that table claims we have
+-	 *   -- hit structure type 127
+-	 */
 -
--	for (s = path; depth--; s += 3)
--		strcpy(s,"../");
+-	u8 *buf = ioremap(sdev->table_eps.table_address,
+-			sdev->table_eps.table_length);
+-	u8 *ptr = buf;
+-	int count = 0, keep_going = 1;
+-	int max_count = sdev->table_eps.table_num_structs;
+-	int max_length = sdev->table_eps.table_length;
+-	while(keep_going && ((ptr - buf) <= max_length) && count < max_count){
+-		if( ptr[0] == 0x7F )   /* ptr[0] is type */
+-			keep_going = 0;
 -
--	fill_object_path(target,path,size);
--	pr_debug("%s: path = '%s'\n",__FUNCTION__,path);
- 
- 	down(&dentry->d_inode->i_sem);
- 	d = sysfs_get_dentry(dentry,name);
--	if (!IS_ERR(d))
--		error = sysfs_symlink(dentry->d_inode,d,path);
--	else
-+	if (!IS_ERR(d)) {
-+		error = sysfs_create(d, S_IFLNK|S_IRWXUGO, init_symlink);
-+		if (!error)
-+			/* 
-+			 * associate the link dentry with the target kobject 
-+			 */
-+			d->d_fsdata = kobject_get(target);
-+		dput(d);
-+	} else 
- 		error = PTR_ERR(d);
--	dput(d);
- 	up(&dentry->d_inode->i_sem);
--	kfree(path);
- 	return error;
- }
- 
-@@ -120,6 +93,86 @@
- 	sysfs_hash_and_remove(kobj->dentry,name);
- }
- 
-+static int sysfs_get_target_path(struct kobject * kobj, struct kobject * target,
-+				   char *path)
-+{
-+	char * s;
-+	int depth, size;
-+
-+	depth = object_depth(kobj);
-+	size = object_path_length(target) + depth * 3 - 1;
-+	if (size > PATH_MAX)
-+		return -ENAMETOOLONG;
-+
-+	pr_debug("%s: depth = %d, size = %d\n", __FUNCTION__, depth, size);
-+
-+	for (s = path; depth--; s += 3)
-+		strcpy(s,"../");
-+
-+	fill_object_path(target, path, size);
-+	pr_debug("%s: path = '%s'\n", __FUNCTION__, path);
-+
-+	return 0;
-+}
-+
-+static int sysfs_getlink(struct dentry *dentry, char * path)
-+{
-+	struct kobject *kobj, *target_kobj;
-+	int error = 0;
-+
-+	kobj = sysfs_get_kobject(dentry->d_parent);
-+	if (!kobj)
-+		return -EINVAL;
-+
-+	target_kobj = sysfs_get_kobject(dentry);
-+	if (!target_kobj) {
-+		kobject_put(kobj);
-+		return -EINVAL;
-+	}
-+
-+	down_read(&sysfs_rename_sem);
-+	error = sysfs_get_target_path(kobj, target_kobj, path);
-+	up_read(&sysfs_rename_sem);
-+	
-+	kobject_put(kobj);
-+	kobject_put(target_kobj);
-+	return error;
-+
-+}
-+
-+int sysfs_readlink(struct dentry *dentry, char __user *buffer, int buflen)
-+{
-+	int error = 0;
-+	unsigned long page = get_zeroed_page(GFP_KERNEL);
-+
-+	if (!page)
-+		return -ENOMEM;
-+
-+	error = sysfs_getlink(dentry, (char *) page);
-+	if (!error)
-+	        error = vfs_readlink(dentry, buffer, buflen, (char *) page);
-+
-+	free_page(page);
-+
-+	return error;
-+}
-+
-+int sysfs_follow_link(struct dentry *dentry, struct nameidata *nd)
-+{
-+	int error = 0;
-+	unsigned long page = get_zeroed_page(GFP_KERNEL);
-+
-+	if (!page)
-+		return -ENOMEM;
-+
-+	error = sysfs_getlink(dentry, (char *) page); 
-+	if (!error)
-+	        error = vfs_follow_link(nd, (char *) page);
-+
-+	free_page(page);
-+
-+	return error;
-+}
- 
- EXPORT_SYMBOL(sysfs_create_link);
- EXPORT_SYMBOL(sysfs_remove_link);
-diff -Nru a/fs/sysfs/sysfs.h b/fs/sysfs/sysfs.h
---- a/fs/sysfs/sysfs.h	Fri May 28 14:18:34 2004
-+++ b/fs/sysfs/sysfs.h	Fri May 28 14:18:34 2004
-@@ -12,15 +12,18 @@
- extern int sysfs_create_subdir(struct kobject *, const char *, struct dentry **);
- extern void sysfs_remove_subdir(struct dentry *);
- 
-+extern int sysfs_readlink(struct dentry *, char __user *, int );
-+extern int sysfs_follow_link(struct dentry *, struct nameidata *);
-+extern struct rw_semaphore sysfs_rename_sem;
- 
- static inline struct kobject *sysfs_get_kobject(struct dentry *dentry)
- {
- 	struct kobject * kobj = NULL;
- 
--	spin_lock(&dentry->d_lock);
-+	spin_lock(&dcache_lock);
- 	if (!d_unhashed(dentry))
- 		kobj = kobject_get(dentry->d_fsdata);
--	spin_unlock(&dentry->d_lock);
-+	spin_unlock(&dcache_lock);
- 
- 	return kobj;
- }
+-		ptr += ptr[1]; /* ptr[1] is length, skip structure */
+-		/* skip strings at end of structure */
+-		while((ptr-buf) < max_length && (ptr[0] || ptr[1]))
+-			++ptr;
+-
+-		/* string area ends in double-null. skip it. */
+-		ptr += 2;
+-		++count;
+-	}
+-	sdev->smbios_table_real_length = (ptr - buf);
+-	iounmap(buf);
+-
+-	if( count != max_count )
+-		printk(KERN_INFO "Warning: SMBIOS table structure count"
+-				" does not match count specified in the"
+-				" table entry point.\n"
+-				" Table entry point count: %d\n"
+-				" Actual count: %d\n",
+-				max_count, count );
+-
+-	if(keep_going != 0)
+-		printk(KERN_INFO "Warning: SMBIOS table does not end with a"
+-				" structure type 127. This may indicate a"
+-				" truncated table.\n");
+-
+-	if(sdev->smbios_table_real_length != max_length)
+-		printk(KERN_INFO "Warning: BIOS specified SMBIOS table length"
+-				" does not match calculated length.\n"
+-				" BIOS specified: %d\n"
+-				" calculated length: %d\n",
+-				max_length, sdev->smbios_table_real_length);
+-
+-	return sdev->smbios_table_real_length;
+-}
+-
+-static ssize_t
+-smbios_read_table_entry_point(struct kobject *kobj, char *buffer,
+-				loff_t pos, size_t size)
+-{
+-	struct smbios_device *sdev = &the_smbios_device;
+-	const char *p = (const char *)&(sdev->table_eps);
+-	unsigned int count =
+-		size > sizeof(sdev->table_eps) ?
+-			sizeof(sdev->table_eps) : size;
+-	memcpy( buffer, p, count );
+-	return count;
+-}
+-
+-static ssize_t
+-smbios_read_table(struct kobject *kobj, char *buffer,
+-				loff_t pos, size_t size)
+-{
+-	struct smbios_device *sdev = &the_smbios_device;
+-	u8 *buf;
+-	unsigned int count = sdev->smbios_table_real_length - pos;
+-	int i = 0;
+-	count = count < size ? count : size;
+-
+-	if (pos > sdev->smbios_table_real_length)
+-		return 0;
+-
+-	buf = ioremap(sdev->table_eps.table_address, sdev->smbios_table_real_length);
+-	if (buf == NULL)
+-		return -ENXIO;
+-
+-	/* memcpy( buffer, buf+pos, count ); */
+-	for (i = 0; i < count; ++i) {
+-		buffer[i] = readb( buf+pos+i );
+-	}
+-
+-	iounmap(buf);
+-
+-	return count;
+-}
+-
+-static struct bin_attribute tep_attr = {
+-	.attr = {.name = "table_entry_point", .owner = THIS_MODULE, .mode = 0444},
+-	.size = sizeof(struct smbios_table_entry_point),
+-	.read = smbios_read_table_entry_point,
+-	/* not writeable */
+-};
+-
+-static struct bin_attribute table_attr = {
+-	.attr = { .name = "table", .owner = THIS_MODULE, .mode = 0444 },
+-	/* size set later, we don't know it here. */
+-	.read = smbios_read_table,
+-	/* not writeable */
+-};
+-
+-/* no default attributes yet. */
+-static struct attribute * def_attrs[] = { NULL, };
+-
+-static struct kobj_type ktype_smbios = {
+-	.sysfs_ops	= &smbios_attr_ops,
+-	.default_attrs	= def_attrs,
+-	/* statically allocated, no release method necessary */
+-};
+-
+-static decl_subsys(smbios,&ktype_smbios,NULL);
+-
+-static void smbios_device_unregister(void)
+-{
+-	sysfs_remove_bin_file(&smbios_subsys.kset.kobj, &tep_attr );
+-	sysfs_remove_bin_file(&smbios_subsys.kset.kobj, &table_attr );
+-}
+-
+-static void __init smbios_device_register(void)
+-{
+-	sysfs_create_bin_file(&smbios_subsys.kset.kobj, &tep_attr );
+-	sysfs_create_bin_file(&smbios_subsys.kset.kobj, &table_attr );
+-}
+-
+-static int __init
+-smbios_init(void)
+-{
+-	int rc=0;
+-
+-	printk(KERN_INFO "SMBIOS facility v%s\n", SMBIOS_VERSION );
+-
+-	rc = find_table_entry_point(&the_smbios_device);
+-	if (rc)
+-		return rc;
+-
+-	table_attr.size = find_table_max_address(&the_smbios_device);
+-
+-	rc = firmware_register(&smbios_subsys);
+-	if (rc)
+-		return rc;
+-
+-	smbios_device_register();
+-
+-	return rc;
+-}
+-
+-static void __exit
+-smbios_exit(void)
+-{
+-	smbios_device_unregister();
+-	firmware_unregister(&smbios_subsys);
+-}
+-
+-late_initcall(smbios_init);
+-module_exit(smbios_exit);
+diff -Nru a/drivers/firmware/smbios.h b/drivers/firmware/smbios.h
+--- a/drivers/firmware/smbios.h	Fri May 28 14:18:22 2004
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,53 +0,0 @@
+-/*
+- * linux/drivers/firmware/smbios.c
+- *  Copyright (C) 2002, 2003, 2004 Dell Inc.
+- *  by Michael Brown <Michael_E_Brown@dell.com>
+- *  vim:noet:ts=8:sw=8:filetype=c:textwidth=80:
+- *
+- * BIOS SMBIOS Table access 
+- * conformant to DMTF SMBIOS definition
+- *   at http://www.dmtf.org/standards/smbios
+- *
+- * This code takes information provided by SMBIOS tables
+- * and presents it in sysfs.
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License v2.0 as published by
+- * the Free Software Foundation
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- */
+-
+-#ifndef _LINUX_SMBIOS_H
+-#define _LINUX_SMBIOS_H
+-
+-#include <linux/types.h>
+-
+-struct smbios_table_entry_point {
+-	u8 anchor[4];
+-	u8 checksum;
+-	u8 eps_length;
+-	u8 major_ver;
+-	u8 minor_ver;
+-	u16 max_struct_size;
+-	u8 revision;
+-	u8 formatted_area[5];
+-	u8 dmi_anchor[5];
+-	u8 intermediate_checksum;
+-	u16 table_length;
+-	u32 table_address;
+-	u16 table_num_structs;
+-	u8 smbios_bcd_revision;
+-} __attribute__ ((packed));
+-
+-struct smbios_structure_header {
+-	u8 type;
+-	u8 length;
+-	u16 handle;
+-} __attribute__ ((packed));
+-
+-#endif				/* _LINUX_SMBIOS_H */
 

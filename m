@@ -1,59 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbUCEBAf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 20:00:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbUCEBAf
+	id S262141AbUCEBGI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 20:06:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbUCEBGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 20:00:35 -0500
-Received: from fe5-cox.cox-internet.com ([66.76.2.50]:37761 "EHLO
-	fe5.cox-internet.com") by vger.kernel.org with ESMTP
-	id S262131AbUCEBAd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 20:00:33 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Billy Rose <billyrose@cox-internet.com>
-To: krishnakumar@naturesoft.net, Tim Bird <tim.bird@am.sony.com>
-Subject: Re: kernel mode console
-Date: Thu, 4 Mar 2004 18:58:45 -0600
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-References: <200403022152.06950.billyrose@cox-internet.com> <40460C8E.4010100@am.sony.com> <200403040942.23176.krishnakumar@naturesoft.net>
-In-Reply-To: <200403040942.23176.krishnakumar@naturesoft.net>
+	Thu, 4 Mar 2004 20:06:08 -0500
+Received: from mail1.speakeasy.net ([216.254.0.201]:22473 "EHLO
+	mail1.speakeasy.net") by vger.kernel.org with ESMTP id S262141AbUCEBGC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 20:06:02 -0500
+Date: Thu, 4 Mar 2004 19:05:41 -0600 (CST)
+From: Matthew Strait <quadong@users.sourceforge.net>
+X-X-Sender: straitm@dsl093-017-216.msp1.dsl.speakeasy.net
+To: Patrick McHardy <kaber@trash.net>
+cc: netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] matching any helper in ipt_helper.c
+In-Reply-To: <4047A42E.6080307@trash.net>
+Message-ID: <Pine.LNX.4.60.0403041821010.21790@dsl093-017-216.msp1.dsl.speakeasy.net>
+References: <Pine.LNX.4.60.0403031947450.8957@dsl093-017-216.msp1.dsl.speakeasy.net>
+ <40469E10.7080100@trash.net> <Pine.LNX.4.60.0403032150000.8957@dsl093-017-216.msp1.dsl.speakeasy.net>
+ <4046BFB9.809@trash.net> <Pine.LNX.4.60.0403041500280.10634@dsl093-017-216.msp1.dsl.speakeasy.net>
+ <4047A42E.6080307@trash.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200403041858.45617.billyrose@cox-internet.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 March 2004 10:12 pm, Krishnakumar. R wrote:
-> Hi,
+> > It seems like I'd have to make significantly more invasive changes than
+> > are really called for to get it to accept an empty string.  What do you
+> > think?
 >
-> > set up a remote debug session just to poke around in the kernel.
-> > Remote debug setup is complex and often fragile.
+> You just need to remove the check for empty strings in ipt_helper.c:
 >
-> There is framework called "Kprobes" available, which may
-> be of use in the cases were remote debugging is a no-no.
->
-> After you have applied the kprobes patch, you can put probes
-> at different portions of the kernel and can dump registers
-> variables etc.
->
-> More details can be found at
-> http://www-124.ibm.com/linux/projects/kprobes.
->
->
-> Regards,
-> KK.
+>         /* verify that we actually should match anything */
+>         if ( strlen(info->name) == 0 )
+>                 return 0;
 
-i think perhaps i need to expound upon what i have a vision of. a kernel mode 
-console is just that: a console designed to run in kernel mode. it could have 
-built in commands to allow for quick and dirty examination of stuff (anything 
-really, like memory dumps) and a command processor for scripted stuff, but 
-the true power of it comes in when you issue a command that is not internal 
-to the console. it could run a special debugger, an application that installs 
-a probe, a memory monitor, etc., etc. in short it is not a debugger per-say, 
-but a "god mode" console for the linux kernel. that is what i had a vision 
-of. the executables it would run would necessarily be compiled for that. 
-again, i ask is that worth the time coding it?
--- 
-. ~billyrose/make
+Silly me, I assumed that the error was generated in user space.  Ok.  In
+that case, let's forget translating "any" to "", because that just makes
+the output of "iptables -L" confusing.  Sound good?
+
+Kernel patch:
+
+--- ipt_helper.c.old    2004-03-03 21:34:05.000000000 -0600
++++ ipt_helper.c        2004-03-04 18:38:32.234521176 -0600
+@@ -68,8 +68,11 @@
+        DEBUGP("master's name = %s , info->name = %s\n",
+                exp->expectant->helper->name, info->name);
+
+-       ret = !strncmp(exp->expectant->helper->name, info->name,
+-                      strlen(exp->expectant->helper->name)) ^ info->invert;
++       if(info->name[0] == '\0') /* special case meaning "any" */
++               ret = !info->invert;
++       else
++               ret = !strncmp(exp->expectant->helper->name, info->name,
++                              strlen(exp->expectant->helper->name)) ^ info->invert;
+ out_unlock:
+        READ_UNLOCK(&ip_conntrack_lock);
+        return ret;
+@@ -89,10 +92,6 @@
+        if (matchsize != IPT_ALIGN(sizeof(struct ipt_helper_info)))
+                return 0;
+
+-       /* verify that we actually should match anything */
+-       if ( strlen(info->name) == 0 )
+-               return 0;
+-
+        return 1;
+ }
+
+
+
+
+And documentational changes in iptables:
+
+--- libipt_helper.c.old 2004-03-03 21:39:07.000000000 -0600
++++ libipt_helper.c     2004-03-04 18:31:54.156038304 -0600
+@@ -15,6 +15,7 @@
+        printf(
+ "helper match v%s options:\n"
+ "[!] --helper string        Match helper identified by string\n"
++"                           (or any helper if string is \"\")"
+ "\n",
+ IPTABLES_VERSION);
+ }
+
+
+--- iptables.8.old      2004-03-04 18:35:11.994962216 -0600
++++ iptables.8  2004-03-04 18:34:38.263090240 -0600
+@@ -458,6 +458,8 @@
+ For other ports append -portnr to the value, ie. "ftp-2121".
+ .PP
+ Same rules apply for other conntrack-helpers.
++.PP
++If string is "", it will match any packet related to a conntrack-helper.
+ .RE
+ .SS icmp
+ This extension is loaded if `--protocol icmp' is specified.  It
+

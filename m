@@ -1,73 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263866AbTLJSIn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 13:08:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263876AbTLJSIn
+	id S263850AbTLJSG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 13:06:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbTLJSG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 13:08:43 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:13237 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S263866AbTLJSIg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 13:08:36 -0500
-Date: Wed, 10 Dec 2003 10:08:22 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Larry McVoy <lm@bitmover.com>, Andre Hedrick <andre@linux-ide.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
-       Kendall Bennett <KendallB@scitechsoft.com>,
-       linux-kernel@vger.kernel.org
+	Wed, 10 Dec 2003 13:06:58 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:31755
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S263850AbTLJSG4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 13:06:56 -0500
+Date: Wed, 10 Dec 2003 09:58:45 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jesse Pollard <jesse@cats-chateau.net>
+cc: Paul Zimmerman <zimmerman.paul@comcast.net>, linux-kernel@vger.kernel.org
 Subject: Re: Linux GPL and binary module exception clause?
-Message-ID: <20031210180822.GI6896@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
-	Andre Hedrick <andre@linux-ide.org>,
-	Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
-	Kendall Bennett <KendallB@scitechsoft.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10312100550500.3805-100000@master.linux-ide.org> <Pine.LNX.4.58.0312100714390.29676@home.osdl.org> <20031210153254.GC6896@work.bitmover.com> <Pine.LNX.4.58.0312100809150.29676@home.osdl.org> <20031210163425.GF6896@work.bitmover.com> <Pine.LNX.4.58.0312100852210.29676@home.osdl.org> <20031210175614.GH6896@work.bitmover.com> <Pine.LNX.4.58.0312100959180.29676@home.osdl.org>
-Mime-Version: 1.0
+In-Reply-To: <03121008171001.31567@tabby>
+Message-ID: <Pine.LNX.4.10.10312100636100.3805-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312100959180.29676@home.osdl.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 10:02:47AM -0800, Linus Torvalds wrote:
-> 
-> On Wed, 10 Dec 2003, Larry McVoy wrote:
+
+Jesse,
+
+Linking to become one with the vmlinux (zen thing) or not able to achieve
+a modular state, you are toast.  Loading a module is not linking.  Now
+people claim that /proc/kcore is where the dirty work happens.
+
+Is "/proc/kcore" real?
+
+What makes it real?  Who makes it real?
+
+If you, the user of the binary module, execute:
+
+	cat /proc/kcore > /kcore.file
+
+Who combined the works?
+
+It was not the author(s), it was the effective enduser.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Wed, 10 Dec 2003, Jesse Pollard wrote:
+
+> On Tuesday 09 December 2003 00:20, Paul Zimmerman wrote:
+> > [ Date:  Sometime in the near future. ]
 > >
-> > I see.  And your argument, had it prevailed 5 years ago, would have
-> > invalidated the following, would it not?  The following from one of the
-> > Microsoft lawsuits.
+> [snip]
+> >
+> > [ Cut to:  Bedroom of a comfortable house in the suburbs.  Nighttime. ]
+> >
+> > [ Linus - suddenly sits bolt upright in the bed, a horrified expression on
+> > his face: ]  "AAAAiiiiiiieeeeeeeeaaaaaaarrrrrrgggggghhhhhh!!!!"
+> >
+> > [ Wife - shaking Linus' shoulder: ]  "Honey, wake up, wake up!  I think
+> > you're having that horrible nightmare again!"
+> >
+> > And that is why binary drivers will always be allowed under Linux.
 > 
-> No it wouldn't.
+> If that were the problem, then the kernel would be LGPL, and not GPL. LGPL
+> permits linking (shared libraries), GPL doesn't. To me, it boils down to:
+> 
+> Link with GPL -> result is GPL.
+> Link with LGPL shared libraries -> result may be anything.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-And in the 4 minutes since I've posted that legal doc you have consulted
-a lawyer and the lawyer told you this, right?
-
-> Microsoft very much _has_ a binary API to their drivers, in a way that
-> Linux doesn't.
-
-Technicality.  Which, by your own reasoning, doesn't count.  Linux does
-indeed have a binary interface, many people download drivers from some
-website (I've done it a pile of times) and stuck them in and they worked.
-I did that with the modem on my thinkpad across more than 10 kernel
-versions in the 2.2 or 2.4 timeframe.
-
-> So there is no analogy to the Linux case. In Linux, no fixed binary API
-> exists, and the way normal drivers are distributed are as GPL'd source
-> code.
-
-Nonsense.  More distribution happens through ISO images than anything else
-and the ISO images people download don't contain the source.  They *could*
-download the source ones but they don't.  They download the binary image,
-burn it, and install it.  And pass it around.  
-
-If the *only* way you could get Linux was in source form and you had to 
-build your own kernel, then you'd have an argument.  But that's not true
-and there are plenty of examples of drivers being available for download
-for Linux in binary form.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

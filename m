@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318060AbSHPCgM>; Thu, 15 Aug 2002 22:36:12 -0400
+	id <S317434AbSHPCiB>; Thu, 15 Aug 2002 22:38:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318061AbSHPCgM>; Thu, 15 Aug 2002 22:36:12 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:22612 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S318060AbSHPCgL>; Thu, 15 Aug 2002 22:36:11 -0400
-Date: Fri, 16 Aug 2002 04:40:35 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Pavel Machek <pavel@elf.ucw.cz>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for 2.5.29)]
-Message-ID: <20020816024035.GL14394@dualathlon.random>
-References: <20020815220054.J29874@redhat.com> <Pine.LNX.4.44.0208151905500.1271-100000@home.transmeta.com> <20020815221647.M29874@redhat.com>
+	id <S318075AbSHPCiB>; Thu, 15 Aug 2002 22:38:01 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:64224 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S317434AbSHPCh7>; Thu, 15 Aug 2002 22:37:59 -0400
+Date: Thu, 15 Aug 2002 23:38:02 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: [patch] complain about unknown CLONE_* flags
+Message-ID: <20020815233802.A30018@kushida.apsleyroad.org>
+References: <Pine.LNX.4.44.0208130916280.7291-100000@home.transmeta.com> <Pine.LNX.4.44.0208132025530.6752-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020815221647.M29874@redhat.com>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0208132025530.6752-100000@localhost.localdomain>; from mingo@elte.hu on Tue, Aug 13, 2002 at 08:32:06PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 15, 2002 at 10:16:47PM -0400, Benjamin LaHaise wrote:
-> On Thu, Aug 15, 2002 at 07:08:30PM -0700, Linus Torvalds wrote:
-> > 
-> > On Thu, 15 Aug 2002, Benjamin LaHaise wrote:
-> > > 
-> > > A 4G/4G split flushes the TLB on every syscall.
-> > 
-> > This is just not going to happen. It will have to continue being a 3/1G 
-> > split, and we'll just either find a way to move stuff to highmem and 
-> > shrink the "struct page", or we'll just say "screw those 16GB+ machines on 
-> > x86". 
-> 
-> I wish life were that simple.  Unfortunately, struct page isn't the only 
-> problem with these abominations: the system can run out of kvm for 
-> vm_area_struct, task_struct, files...  Personally, I *never* want to see 
-> those data structures being kmap()'d as it would hurt kernel code quality 
-> whereas a 4G/4G split is well confined, albeit sickening.
+About new clone() flags...
 
-after the mem_map is gone, there's still the option of CONFIG_2G or even
-CONFIG_1G if kernel metadata is the problem. Of course it wouldn't be
-a generic kernel, but I guess a 4G/4G would probably be even less
-generic.  In short we can do little at runtime to be generic. I guess a
-16G with large softpagesize should be not too bad now that the
-pagetables are in highmem, most problematic is >16G. Not that the
-softpagesize is easy at all to implement (4G/4G is certainly simpler
-because self contained in the include/arch) but at least it can payoff
-for the lower mem setups too.
+One of the obvious things for a thread library is to:
 
-Andrea
+    (a) try clone() with lots of snazzy flags
+    (b) if that returns -EINVAL, we must be running on an older kernel;
+        try with fewer flags and more workarounds
+
+However, I don't see any code in sys_clone() that rejects a call that
+specifies unknown flags.  So, code that uses e.g. CLONE_SETTID will
+appear to run perfectly well on an old kernel... except that it will
+behave incorrectly.
+
+That leads to having to write some silly test for each feature prior to
+using it, instead of trying it and falling back.  E.g. I'd need to
+do the silly signal-blocking workaround when creating the second thread
+in a program, just to find out whether CLONE_SETTID actually worked.
+Either that, or check the kernel version.
+
+Ingo, how do you handle this sort of backward compatibility in your
+latest pthreads library, or don't you do backward compatibility?
+
+For future-proofing, here's a patch:
+
+diff -u linux-2.5/kernel/fork.c.orig linux-2.5/kernel/fork.c
+--- linux-2.5/kernel/fork.c
++++ linux-2.5/kernel/fork.c	Thu Aug 15 23:35:00 2002
+@@ -619,6 +619,11 @@
+ 	struct task_struct *p = NULL;
+ 	struct completion vfork;
+ 
++	if ((clone_flags & ~(0UL|CSIGNAL|CLONE_VM|CLONE_FS|CLONE_FILES
++			     |CLONE_SIGHAND|CLONE_PID|CLONE_PTRACE|CLONE_VFORK
++			     |CLONE_PARENT|CLONE_THREAD)))
++		return ERR_PTR (-EINVAL);
++
+ 	if ((clone_flags & (CLONE_NEWNS|CLONE_FS)) == (CLONE_NEWNS|CLONE_FS))
+ 		return ERR_PTR(-EINVAL);
+ 

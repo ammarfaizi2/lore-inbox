@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265286AbUEZRat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265742AbUEZRkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265286AbUEZRat (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 13:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265637AbUEZRat
+	id S265742AbUEZRkz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 13:40:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265739AbUEZRkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 13:30:49 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55530 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265286AbUEZRar
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 13:30:47 -0400
-Message-ID: <40B4D439.3080504@pobox.com>
-Date: Wed, 26 May 2004 13:30:33 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>,
-       Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, marcelo.tosatti@cyclades.com,
-       "Carbonari, Steven" <steven.carbonari@intel.com>,
-       "Seshadri, Harinarayanan" <harinarayanan.seshadri@intel.com>
-Subject: Re: [BK PATCH] PCI Express patches for 2.4.27-pre3
-References: <6B09584CC3D2124DB45C3B592414FA83021EB9E5@bgsmsx402.gar.corp.intel.com> <20040526170345.GB28578@kroah.com>
-In-Reply-To: <20040526170345.GB28578@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 26 May 2004 13:40:55 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:41913 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S265742AbUEZRkX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 13:40:23 -0400
+Subject: Re: 4k stacks in 2.6
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: mingo@elte.hu, arjanv@redhat.com
+Content-Type: text/plain
+Organization: 
+Message-Id: <1085584670.955.1034.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 26 May 2004 11:17:50 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, May 26, 2004 at 11:59:43AM +0530, Durairaj, Sundarapandian wrote:
-> 
->>I think its important that we have this patch for 2.4 kernel as well, as
->>it will enable the PCI express devices to access extended config space
->>(above 256 bytes), where all Advance feature of PCI Express config
->>registers resides.
-> 
-> 
-> Are there any drivers or devices on the market today that need access to
-> this extended config space?
+Ingo Molnar writes:
 
+> do you realize that the 4K stacks feature also adds
+> a separate softirq and a separate hardirq stack?
+> So the maximum footprint is 4K+4K+4K, with a clear
+> and sane limit for each type of context, while the
+> 2.4 kernel has 6.5K for all 3 contexts combined.
+> (Also, in 2.4 irq contexts pretty much assumed that
+> there's 2K of stack for them - leaving a de-facto 4K
+> stack for the process and softirq contexts.) So in fact
+> there is more space in 2.6 for all, and i dont really
+> understand your fears.
 
-"need"?  Not AFAIK.  Not yet, anyway.
+Is that 4K per IRQ (total 64K to 1024K) or 4K total?
+If it's total, then it's cheap to go with 32K.
 
-Most PCI-Ex devices I've seen are designed such that they work under 
-OS's and drivers that do not support the extended configuration area.
+The same goes for softirqs: 4K total, or per softirq?
 
-	Jeff
 
 

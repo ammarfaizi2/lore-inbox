@@ -1,77 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267146AbSLDXvk>; Wed, 4 Dec 2002 18:51:40 -0500
+	id <S267167AbSLDXxq>; Wed, 4 Dec 2002 18:53:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267157AbSLDXvk>; Wed, 4 Dec 2002 18:51:40 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:36304 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267146AbSLDXvj>;
-	Wed, 4 Dec 2002 18:51:39 -0500
-Message-ID: <3DEE959F.7080600@us.ibm.com>
-Date: Wed, 04 Dec 2002 15:54:07 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Trivial Patch Monkey <trivial@rustcorp.com.au>,
-       linux-kernel@vger.kernel.org
-Subject: [patch] fix broken topology functions
-Content-Type: multipart/mixed;
- boundary="------------080206050901010402080602"
+	id <S267169AbSLDXxq>; Wed, 4 Dec 2002 18:53:46 -0500
+Received: from willow.compass.com.ph ([202.70.96.38]:62226 "EHLO
+	willow.compass.com.ph") by vger.kernel.org with ESMTP
+	id <S267167AbSLDXxn>; Wed, 4 Dec 2002 18:53:43 -0500
+Subject: Re: [PATCH 1/3: FBDEV: VGA State Save/Restore module
+From: Antonino Daplas <adaplas@pol.net>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+In-Reply-To: <96665BC46B2@vcnet.vc.cvut.cz>
+References: <96665BC46B2@vcnet.vc.cvut.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1039056748.1032.22.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Dec 2002 07:53:16 +0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080206050901010402080602
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2002-12-05 at 03:33, Petr Vandrovec wrote:
+> On  5 Dec 02 at 6:05, Antonino Daplas wrote:
+> > On Wed, 2002-12-04 at 23:41, Petr Vandrovec wrote:
+> > > On  4 Dec 02 at 22:26, Antonino Daplas wrote:
+> > [...]
+> > > And if my VGA documentation is correct, you are saving random
+> > > data into vga_text: first 8192 chars interleaved with
+> > > 8192 bytes of garbage, plus attributes from chars 8192-16383 interleaved
+> > > with 8192 bytes of garbage. 
+> > >
+> > Right, I'm not sure about this part too.  The docs say that this is true
+> > for EGA compatible hardware.  How about non-compliant hardware?  
+> 
+> Like non-VGA? Like CGA/MDA? I thought that non-VGA/non-EGA adapters are 
+> out of scope of this document ;-)
+>   
+Okay :-), as I've said this is the part I'm not sure of.  I'll do it
+your way then, save 8K at offset 0 and save 8K at offset 16K.  That
+should be 16K used instead of 32K, right?
 
-Linus,
-	The register_(node|memblk)_driver functions are broken.  Pat Mochel 
-recently updated sysfs to make sure that when you register a driver that 
-it's associated devclass is already registered.  The way node/memblk 
-registration is done now is backwards and causes panic's on NUMA 
-systems.  Please apply this patch to fix it.
+> > > And if you are using standard hardware, then font data live only in
+> > > plane 2, plane 3 is unused on VGA hardware in text mode. I think that
+> > > you should either save whole 256KB of memory, without deeper understanding,
+> > > or you should just save FONT 0 (first 32*256 bytes from plane 2) if you
+> 
+> > Only if saving the first character map in plane 2.  Hardware can have as
+> > much as 8 character maps per plane, each 8K in size for 64K.  The same
+> > setup is true for plane 3 fonts.
+> 
+> How you select them? Mine doc says that font block 0 begins in plane 2
+> at offset 0, block 1 at offset 16KB, 2 at 32K, 3 at 48K, 4 at 8K, 5 at 24K,
+> 6 at 40K, and last, 7th, at 56KB, and sequencer has two threebit fields...
+> 
+Selection was not the problem, the code just saves the entire 64K for
+character maps 0-7.
 
-Cheers!
+> > > want to save memory and you know that console was driven by vgacon in
+> > > text mode.
+> > To save memory, apps can explicitly choose what to save, but I don't
+> > want to go finer than that, ie. save character maps 2,3,5  of plane 2
+> > and 1,2,3 of plane 3.  The current way of saving the text mode map may
+> > be a bit wasteful, but better than being bitten by hardware that's
+> > non-EGA compliant.  
+> 
+> Look at vgacon. Uses font block 0,2,3 from plane 2 when built
+> without BROKEN_GRAPHICS_PROGRAMS, or 0,1 when built with 
+> BROKEN_GRAPHICS_PROGRAMS. So if you want just restore vgacon environment,
+> save only these 4 blocks (4*8K = 32K). Or you want to save whole
+> VGA memory, and then save whole 256KB, without tricks while saving
+> planes 0 & 1.
 
--Matt
+Okay, then.  My approach was to be non-vgacon specific.  I'll do it to
+specifically target vgacon then.
 
+To summarize:
+plane 0/1 save 8K at offset 0 and 8K at offset 16K;
+plane 2   save 32K at offset 0 (covers blocks 0-3),
+plane 3   same for plane 2
 
---------------080206050901010402080602
-Content-Type: text/plain;
- name="topo_ordering-2.5.50.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="topo_ordering-2.5.50.patch"
+Drivers can set VGA_SAVE_TEXT | VGA_SAVE_FONT0 to save planes 0-2.  If
+there are no complaints, I'll  proceed doing it this way.
 
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.50-vanilla/drivers/base/memblk.c linux-2.5.50-topo_ordering/drivers/base/memblk.c
---- linux-2.5.50-vanilla/drivers/base/memblk.c	Wed Nov 27 14:36:23 2002
-+++ linux-2.5.50-topo_ordering/drivers/base/memblk.c	Wed Dec  4 15:50:52 2002
-@@ -49,7 +49,7 @@
- 
- static int __init register_memblk_type(void)
- {
--	driver_register(&memblk_driver);
--	return devclass_register(&memblk_devclass);
-+	devclass_register(&memblk_devclass);
-+	return driver_register(&memblk_driver);
- }
- postcore_initcall(register_memblk_type);
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.50-vanilla/drivers/base/node.c linux-2.5.50-topo_ordering/drivers/base/node.c
---- linux-2.5.50-vanilla/drivers/base/node.c	Wed Nov 27 14:35:50 2002
-+++ linux-2.5.50-topo_ordering/drivers/base/node.c	Wed Dec  4 15:50:52 2002
-@@ -93,7 +93,7 @@
- 
- static int __init register_node_type(void)
- {
--	driver_register(&node_driver);
--	return devclass_register(&node_devclass);
-+	devclass_register(&node_devclass);
-+	return driver_register(&node_driver);
- }
- postcore_initcall(register_node_type);
+Thanks for the input Petr.
 
---------------080206050901010402080602--
+Tony
+
 

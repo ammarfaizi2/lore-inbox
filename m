@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261300AbSKBQiF>; Sat, 2 Nov 2002 11:38:05 -0500
+	id <S261292AbSKBQhC>; Sat, 2 Nov 2002 11:37:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261311AbSKBQiF>; Sat, 2 Nov 2002 11:38:05 -0500
-Received: from fed1mtao01.cox.net ([68.6.19.244]:720 "EHLO fed1mtao01.cox.net")
-	by vger.kernel.org with ESMTP id <S261300AbSKBQiE>;
-	Sat, 2 Nov 2002 11:38:04 -0500
-Date: Sat, 2 Nov 2002 10:12:39 -0700
-From: Matt Porter <porter@cox.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       LKML <linux-kernel@vger.kernel.org>, hpa@zytor.com, viro@math.psu.edu
-Subject: Re: [BK PATCHES] initramfs merge, part 1 of N
-Message-ID: <20021102101239.A9442@home.com>
-References: <3DC38939.90001@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3DC38939.90001@pobox.com>; from jgarzik@pobox.com on Sat, Nov 02, 2002 at 03:13:45AM -0500
+	id <S261293AbSKBQhB>; Sat, 2 Nov 2002 11:37:01 -0500
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:14208 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S261292AbSKBQhB>;
+	Sat, 2 Nov 2002 11:37:01 -0500
+Date: Sat, 2 Nov 2002 10:42:45 -0600 (CST)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: Gerd Knorr <kraxel@bytesex.org>
+cc: Alexander Viro <viro@math.psu.edu>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: 2.5.45: initrd broken?
+In-Reply-To: <20021101224327.GA3303@bytesex.org>
+Message-ID: <Pine.LNX.4.44.0211021041040.1936-100000@dad.molina>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 02, 2002 at 03:13:45AM -0500, Jeff Garzik wrote:
-> #4 - move mounting root to userspace
+On Fri, 1 Nov 2002, Gerd Knorr wrote:
+
+> > Patch below fixes these.  It also changes order of blkdev_put()/del_gendisk()
+> > in initrd_release() - better safe than sorry.
+> > 
+> > It got initrd working on my boxen...
 > 
-> People probably breathed a sigh of relief at patch #3, they will heave a 
-> bigger sigh for this patch :)   This moves mounting of the root 
-> filesystem to early userspace, including getting rid of 
-> NFSroot/bootp/dhcp code in the kernel.
+> [ patch snipped ]
+> 
+> Initrd works now, thanks.
+> 
+> The box still doesn't boot through, the initrd fails to load the ext3
+> module due to unresolved symbols (mb_cache_*).  That issue looks like a
+> kbuild problem to me:  I have ACL's enabled (which builds the mbcache.o
+> module).  I also have the nfs server with v4 support enabled (which
+> doesn't build currently).  Running "make -k modules_install" does _not_
+> install the mbcache.o in /lib/modules/2.5.45.  I suspect this happens
+> due to the build error in the nfsd subdirectory.
 
-For those of us who only develop on nfsroot-based systems, does this
-step include adding userspace network interface configuration and
-bootp/dhcp client functionality to kinit?  I want to assume that
-"getting rid of NFSroot/bootp/dhcp" means moving that particular
-functionality as part of this step.  Just wondering what the
-short-term impact will be on the poor embedded guys. :)
+So do I mark my problem report for initrd broken as closed, or wait until 
+it appears in bk?
 
-Regards,
--- 
-Matt Porter
-porter@cox.net
-This is Linux Country. On a quiet night, you can hear Windows reboot.

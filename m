@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261848AbUCPXul (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 18:50:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbUCPXul
+	id S261854AbUCPX5C (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 18:57:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbUCPX5C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 18:50:41 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:9876 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S261848AbUCPXuk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 18:50:40 -0500
-Date: Tue, 16 Mar 2004 23:50:10 +0000
-From: Dave Jones <davej@redhat.com>
-To: David Erickson <david.erickson@intransa.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: EXT3 FS Assertion failure in journal_forget_R50b6d8df() at transaction.c:1259
-Message-ID: <20040316235010.GA26872@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	David Erickson <david.erickson@intransa.com>,
-	linux-kernel@vger.kernel.org
-References: <68C08EF22187944DAF11634CB353DB6804DD0C@E2K3-CLUS-01.intransa.com>
+	Tue, 16 Mar 2004 18:57:02 -0500
+Received: from colin2.muc.de ([193.149.48.15]:14 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261854AbUCPX5A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 18:57:00 -0500
+Date: 17 Mar 2004 00:56:58 +0100
+Date: Wed, 17 Mar 2004 00:56:58 +0100
+From: Andi Kleen <ak@muc.de>
+To: Peter Williams <peterw@aurema.com>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: finding out the value of HZ from userspace
+Message-ID: <20040316235658.GA70879@colin2.muc.de>
+References: <1zkOe-Uc-17@gated-at.bofh.it> <1zl7M-1eJ-43@gated-at.bofh.it> <1zn9p-3mW-5@gated-at.bofh.it> <1znj5-3wM-15@gated-at.bofh.it> <1AaWr-655-7@gated-at.bofh.it> <m3fzc9o7bc.fsf@averell.firstfloor.org> <40569655.2030802@aurema.com> <20040316061611.GA77627@colin2.muc.de> <40578A87.8030501@aurema.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <68C08EF22187944DAF11634CB353DB6804DD0C@E2K3-CLUS-01.intransa.com>
+In-Reply-To: <40578A87.8030501@aurema.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 16, 2004 at 03:41:10PM -0800, David Erickson wrote:
+> 
+> These programs could (and should) use sysconfig(_SC_CLK_TCK) to find out 
+> how many ticks there are in a second so this does not constitute a good 
+> reason for USER_HZ not being equal to HZ.
 
- > Running Redhat kernel 2.4.22-1.2115.nptl, I see the following for ext3
- > filesystems (iSCSI) on the initial mount after installing this kernel:
+These programs are usually shell scripts that initialise some sysctls.
+It's not easy to call sysconf from there. Also we tend to avoid breaking
+things that would fail silently instead of failing with an obvious error 
+message.  This would be such a case. Silent breakage is an extremly bad
+thing.
 
-1. Wrong place. Red Hat bugs go into http://bugzilla.redhat.com
-
-2. 2115 is ancient. Get the latest errata kernel.
-
-		Dave
-
+-Andi

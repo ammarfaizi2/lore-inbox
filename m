@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265145AbSJWS4y>; Wed, 23 Oct 2002 14:56:54 -0400
+	id <S265152AbSJWTDu>; Wed, 23 Oct 2002 15:03:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265151AbSJWS4x>; Wed, 23 Oct 2002 14:56:53 -0400
-Received: from [202.88.156.6] ([202.88.156.6]:29867 "EHLO
-	saraswati.hathway.com") by vger.kernel.org with ESMTP
-	id <S265145AbSJWS4x>; Wed, 23 Oct 2002 14:56:53 -0400
-Date: Thu, 24 Oct 2002 00:27:41 +0530
-From: Dipankar Sarma <dipankar@gamebox.net>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: linux-kernel@vger.kernel.org, John Levon <levon@movementarian.org>
-Subject: Re: [PATCH] NMI request/release, version 3
-Message-ID: <20021024002741.A27739@dikhow>
-Reply-To: dipankar@gamebox.net
-References: <20021022025346.GC41678@compsoc.man.ac.uk> <3DB54C53.9010603@mvista.com> <20021022232345.A25716@dikhow> <3DB59385.6050003@mvista.com> <20021022233853.B25716@dikhow> <3DB59923.9050002@mvista.com> <20021022190818.GA84745@compsoc.man.ac.uk> <3DB5C4F3.5030102@mvista.com> <20021023230327.A27020@dikhow> <3DB6E45F.5010402@mvista.com>
+	id <S265153AbSJWTDu>; Wed, 23 Oct 2002 15:03:50 -0400
+Received: from server.s8.com ([66.77.12.139]:15882 "EHLO server.s8.com")
+	by vger.kernel.org with ESMTP id <S265152AbSJWTDt>;
+	Wed, 23 Oct 2002 15:03:49 -0400
+Subject: Re: [patch] generic nonlinear mappings, 2.5.44-mm2-D0
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <Pine.LNX.4.44.0210222237180.22860-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0210222237180.22860-100000@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 23 Oct 2002 12:09:52 -0700
+Message-Id: <1035400192.13194.2.camel@plokta.s8.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DB6E45F.5010402@mvista.com>; from cminyard@mvista.com on Wed, Oct 23, 2002 at 01:03:11PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 01:03:11PM -0500, Corey Minyard wrote:
-> >
-> Yes, it's not correct, I will fix it.  I didn't realize there was an 
-> rcu-safe list.  That should make things simpler.
+On Tue, 2002-10-22 at 13:42, Ingo Molnar wrote:
 
-Yeah, RCU documentation needs some serious updating :(
+> I think ext2/ext3fs's current 2Tb/4Tb limit is a much
+> bigger problem, you cannot compile around that - are there any patches in
+> fact that lift that limit? (well, one solution is to use another
+> filesystem.)
 
-One other thing, it might be better to do all handler checks
-in request_nmi and release_nmi in the spinlock serialized
-critical section to minimize memory barrier issues unlike in the code
-snippet I mailed - things like the list_empty() check etc.
+Peter Chubb's sector_t changes effectively raise this to an 8TB limit in
+2.5.x.  The limit would be 16TB, but ext3 and jbd are rather cavalier
+with casting block offsets between int, long, and unsigned long. 
+Changes to fix that would be highly intrusive.
 
-That way you need to look at memory barrier issues with only
-one piece of lockfree code - call_nmi_handlers.
-
-Thanks
-Dipankar
+	<b
 

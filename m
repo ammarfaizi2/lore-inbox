@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264183AbTEaHKT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 03:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264184AbTEaHKT
+	id S264182AbTEaHIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 03:08:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264183AbTEaHIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 03:10:19 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:8832
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S264183AbTEaHKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 03:10:18 -0400
-Date: Sat, 31 May 2003 03:13:20 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: RFC Proposal to enable MSI support in Linux kernel
-In-Reply-To: <1054306504.7890.5.camel@ulysse.olympe.o2t>
-Message-ID: <Pine.LNX.4.50.0305310310530.31414-100000@montezuma.mastecende.com>
-References: <1054306504.7890.5.camel@ulysse.olympe.o2t>
+	Sat, 31 May 2003 03:08:25 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:24823 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id S264182AbTEaHIY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 03:08:24 -0400
+Date: Sat, 31 May 2003 08:24:00 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Jun Sun <jsun@mvista.com>, <linux-kernel@vger.kernel.org>,
+       Ralf Baechle <ralf@linux-mips.org>
+Subject: Re: Properly implement flush_dcache_page in 2.4?  (Or is it   
+ possible?)
+In-Reply-To: <20030531001458.H9419@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0305310822200.1461-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 May 2003, Nicolas Mailhot wrote:
-
-> Hi,
+On Sat, 31 May 2003, Russell King wrote:
 > 
-> 	Before you say all's well in linux 2.5 edge/level APIC processing take
-> a look at:
-> 
-> http://bugzilla.kernel.org/show_bug.cgi?id=10
-> 
-> (not that I know if it's actually closely related to this thread, but
-> for once there is an APIC guru gathering on linux-kernel...)
+> I don't see a reason to worry about privately mapped pages on the i_mmap
+> list since they are private, and therefore shouldn't be updated with
+> modifications to other mappings, which I'd have thought would include
+> writes to the file (although I'm not so sure atm.)
 
-It doesn't appear to be a edge/level trigger issue, i've posted a comment 
-regarding the possible cause (lack of an MADT causes ACPI to make wrong 
-decision with respect to interrupt controller type). There was a report a 
-couple of weeks back with what appears to be the same symptoms.
+Be not so sure.  vmas on the private i_mmap list can still contain
+shared pages, which should see writes to the file; but of course their
+already-COWed private pages won't see subsequent writes to the file.
 
-	Zwane
--- 
-function.linuxpower.ca
+Hugh
+
+

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318376AbSHPOIV>; Fri, 16 Aug 2002 10:08:21 -0400
+	id <S318458AbSHPOJt>; Fri, 16 Aug 2002 10:09:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318383AbSHPOIV>; Fri, 16 Aug 2002 10:08:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37644 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318376AbSHPOIU>;
-	Fri, 16 Aug 2002 10:08:20 -0400
-Message-ID: <3D5D0AB8.1A343AE@zip.com.au>
-Date: Fri, 16 Aug 2002 07:22:48 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Christoph Hellwig <hch@lst.de>, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org, "Stephen C. Tweedie" <sct@redhat.com>,
-       Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Subject: Re: [PATCH] simplify b_inode usage
-References: <20020813171024.A4365@lst.de> <3D5975B2.66B4B215@zip.com.au> <20020816133654.A17193@infradead.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S318460AbSHPOJt>; Fri, 16 Aug 2002 10:09:49 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:11002 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318458AbSHPOJs>; Fri, 16 Aug 2002 10:09:48 -0400
+Subject: [BUG] softirq.c:229 - LTP nightly bk testing
+From: Paul Larson <plars@austin.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>,
+       ltp-results <ltp-results@lists.sourceforge.net>,
+       lse-tech@lists.sourceforge.net
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 16 Aug 2002 09:06:31 -0500
+Message-Id: <1029506793.2582.88.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> 
-> ...
-> > Also, Joe Thornber needs to add another pointer to struct buffer_head
-> > for LVM2 reasons.  If we collapse b_inode into a b_flags bit then
-> > Joe gets his pointer for free (bh stays at 48 bytes on ia32).
-> 
-> We also need to make b_size an 32 bit quantity, otherwise 64k buffers
-> on architectures like ia64 will get us horrible overflows.  And yes,
-> people use that big pages - Nathan just added an ugly workaround to XFS,
-> for splitting 64k pages into multiple bh, because of that exactly that
-> limitation.
+In the nightly testing that Linux Test Project does on bitkeeper trees,
+I noticed that one of the two machines failed to reboot to run last
+nights test.  The UP box came up and worked fine, but the 2-way PIII-550
+had this panic on boot:
 
-OK.  We'd need to prevent that from taking bh beyond the current 96 bytes.
-The hashed wakeups, perhaps.
+kernel BUG at softirq.c:229!
+invalid operand: 0000
+CPU:    1
+EIP:    0060:[<c011cbad>]       Not tainted
+EFLAGS: 00010246
+eax: 00000000   ebx: c0454034   ecx: c265a000   edx: c03f20cc
+esi: c0453f80   edi: c265a000   ebp: c0436560   esp: c265bfb0
+ds: 0068   es: 0068   ss: 0068
+Process ksoftirqd_CPU1 (pid: 5, threadinfo=c265a000 task=c2658000)
+Stack: 00000001 c0432960 fffffffe 00000020 c011c8fa c0432960 c265a000
+00000020
+       c265a000 c0453b80 00000246 c011ce56
+10 50 8b 43 0c ff d0 83 c4 04
+ <0>Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
 
-> >
-> > So I'd suggest you just go ahead and do it that way.  (I had a patch
-> > for that but seem to have misplaced it).
-> 
-> As the patch is already large enough I'd be happy if Marcelo applies the
-> current patch, once it's in I'll move the indicator to b_flags, okay?
+Changesets between last test and this one were 1.519.3.1 through 1.558.
 
-Yup.

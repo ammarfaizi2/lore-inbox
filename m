@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264328AbTJOVAx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 17:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264329AbTJOVAx
+	id S264329AbTJOVA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 17:00:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264330AbTJOVA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 17:00:53 -0400
-Received: from 12-235-58-121.client.attbi.com ([12.235.58.121]:20236 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S264328AbTJOVAw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 17:00:52 -0400
-Date: Wed, 15 Oct 2003 14:00:09 -0700
-From: Christopher Li <lkml@chrisli.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Erik Mouw <erik@harddisk-recovery.com>, Josh Litherland <josh@temp123.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Transparent compression in the FS
-Message-ID: <20031015210009.GB1739@64m.dyndns.org>
-References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com>
+	Wed, 15 Oct 2003 17:00:59 -0400
+Received: from adsl-215-226.38-151.net24.it ([151.38.226.215]:61191 "EHLO
+	gateway.milesteg.arr") by vger.kernel.org with ESMTP
+	id S264329AbTJOVA5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 17:00:57 -0400
+Date: Wed, 15 Oct 2003 23:00:55 +0200
+From: Daniele Venzano <webvenza@libero.it>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test7 - Suspend to Disk success
+Message-ID: <20031015210054.GA1492@picchio.gall.it>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0310081235280.4017-100000@home.osdl.org> <20031015172742.GZ30375@earth.li>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F8D6417.8050409@pobox.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031015172742.GZ30375@earth.li>
+X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.22
+X-Copyright: Forwarding or publishing without permission is prohibited.
+X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
+X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 15, 2003 at 11:13:27AM -0400, Jeff Garzik wrote:
-> Josh and others should take a look at Plan9's venti file storage method 
-> -- archival storage is a series of unordered blocks, all of which are 
-> indexed by the sha1 hash of their contents.  This magically coalesces 
+On Wed, Oct 15, 2003 at 06:27:42PM +0100, Jonathan McDowell wrote:
+> Just a quick note to say that 2.6.0-test7 is the first kernel I've been
+> able to successfully suspend to disk with and then resume. Using
+> "echo -n disk > /sys/power/state" now works just fine and I haven't
+> needed to reboot my laptop (a Compaq Evo N200) since I started running
+> the kernel last week. Thanks!
 
-That is cool. I can image it will help versioning file system.
-I guess it still need to compare the whole block for possible hash collision.
-I should check it out.
+Same for me, using pmdisk.
+Only thing is that the shell used to issue the echo -n disk > /sys/power/state
+gets killed for an unhadled page request.
 
-Chris
+Good bargain for a working suspend, though ;-)
+For me it is actually a feature, since I use su to issue the suspend
+command, on resume I get back my user (not sudoed) shell...
+
+Thanks, bye.
+
+-- 
+----------------------------------------
+Daniele Venzano
+Web: http://digilander.iol.it/webvenza/
+

@@ -1,71 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbUB0BsE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 20:48:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbUB0BsD
+	id S261711AbUB0Bsf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 20:48:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbUB0Bsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 20:48:03 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:6031 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S261727AbUB0Bpw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 20:45:52 -0500
-Date: Thu, 26 Feb 2004 20:48:22 -0500
-From: Enrico Demarin <enricod@videotron.ca>
-Subject: Re: Ibm Serveraid Problem with 2.4.25
-In-reply-to: <1077839333.4823.5.camel@localhost.localdomain>
-To: Jo Christian Buvarp <jcb@svorka.no>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <1077846502.4454.2.camel@localhost.localdomain>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7)
-Content-type: text/plain; CHARSET=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <403DB882.9000401@svorka.no>
- <1077839333.4823.5.camel@localhost.localdomain>
+	Thu, 26 Feb 2004 20:48:35 -0500
+Received: from moraine.clusterfs.com ([66.246.132.190]:16071 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S261725AbUB0Bqw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 20:46:52 -0500
+Date: Thu, 26 Feb 2004 18:46:48 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jakub Jelinek <jakub@redhat.com>, linux-kernel@vger.kernel.org,
+       drepper@redhat.com
+Subject: Re: [PATCH] Add getdents32t syscall
+Message-ID: <20040227014648.GW1257@schnapps.adilger.int>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Jakub Jelinek <jakub@redhat.com>, linux-kernel@vger.kernel.org,
+	drepper@redhat.com
+References: <20040226193819.GA3501@sunsite.ms.mff.cuni.cz> <Pine.LNX.4.58.0402261411420.7830@ppc970.osdl.org> <Pine.LNX.4.58.0402261415590.7830@ppc970.osdl.org> <20040226223212.GA31589@devserv.devel.redhat.com> <Pine.LNX.4.58.0402261504230.7830@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402261504230.7830@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+On Thu, 26 Feb 2004, Jakub Jelinek wrote:
+> Userland struct dirent is:
+> (since 1997 or so), so with the extended getdents syscall glibc would need
+> to memmove every name by 1 byte.
 
-I just checked, same message on a IBM x235 , it uses the
+Actually, before you go through contortions trying to return this stuff to
+user space, you should fix the GNU tools to use the information properly.
 
-Fusion MPT SCSI Host driver 2.05.11.03
+For example, rm stats the file each time before trying to unlink it even
+if it has the file type information from getdents64().  It also tries to
+do silly things like unlink() on a directory instead of rmdir, even after
+the stat (RH9 coreutils 4.5.3-19 and 2.4.24):
 
-driver.
+    $ mkdir /tmp/foo
+    $ touch /tmp/foo/f{1,2,3,4,5}
+    $ strace rm -r /tmp/foo
+    :
+    :
+    lstat64("/tmp/foo", {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0
+    access("/tmp/foo", W_OK)                 = 0
+    unlink("/tmp/foo")                       = -1 EISDIR (Is a directory)
 
-Same message as you  ( except the offsets vary ) when I reboot.
+Um, hello - we just saw that it was a directory so why not try rmdir()?
+It does the same thing when the directory is empty too.
 
-- Enrico
+    open(".", O_RDONLY|O_LARGEFILE|O_DIRECTORY) = 3
+    lstat64("/tmp/foo", {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0
+    chdir("/tmp/foo")                        = 0
+    lstat64(".", {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0
+    open(".", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = 4
+    fstat64(4, {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0
+    fcntl64(4, F_SETFD, FD_CLOEXEC)         = 0
 
-On Thu, 2004-02-26 at 18:48, Enrico Demarin wrote:
-> I have the same here using the "partially opensource" drivers for a
-> Promise TX2... no message on 2.4.24.I wonder if it also means it's
-> corrupting the FS ? :(
-> 
-> 
-> - Enrico
-> 
-> On Thu, 2004-02-26 at 04:12, Jo Christian Buvarp wrote:
-> > Just upgraded my server with the 2.4.25 kernel and I noticed an error :/
-> > The server is an IBM 345 with a Serveraid 5I controller, when doing an
-> > dmesg i get this error:
-> > 
-> > attempt to access beyond end of device
-> > 08:05: rw=0, want=528036, limit=528034
-> > attempt to access beyond end of device
-> > 08:09: rw=0, want=65208120, limit=65208118
-> > 
-> > This error only shows up in 2.4.25, when rebooting to 2.4.24 everything
-> > looks fine :)
-> > I tried upgrading the serveraid bios to the newest version (6.11.07),
-> > but i still got the error.
-> > 
-> > So is this an bug in the kernel? Or do I have a problem on my server ?
-> > Is it safe to run 2.4.25 with this error ? Or should i go back to 2.4.24
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+    getdents64(4, /* 7 entries */, 4096)    = 168
+    lstat64("f1", {st_mode=S_IFREG|0664, st_size=0, ...}) = 0
+    access("f1", W_OK)                      = 0
+    unlink("f1")                            = 0
+    lstat64("f2", {st_mode=S_IFREG|0664, st_size=0, ...}) = 0
+    access("f2", W_OK)                      = 0
+    unlink("f2")                            = 0
+    :
+    :
+
+So, for each file, we just got the file type info from getdents64(),
+we still stat the file (not sure why), we check the permissions even
+though we just statted it (could check perms from stat info or just
+try to unlink and handle the error return code), and finally an unlink.
+
+    getdents64(4, /* 0 entries */, 4096)    = 0
+    close(4)                                = 0
+    fchdir(3)                               = 0
+    lstat64(".", {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0
+    lstat64("/tmp/foo", {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0
+    access("/tmp/foo", W_OK)                 = 0
+    rmdir("/tmp/foo")                        = 0
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

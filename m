@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264659AbSJTWqy>; Sun, 20 Oct 2002 18:46:54 -0400
+	id <S264657AbSJTWo5>; Sun, 20 Oct 2002 18:44:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264660AbSJTWqy>; Sun, 20 Oct 2002 18:46:54 -0400
-Received: from mail.consumerprivacyguide.org ([206.112.85.61]:53441 "EHLO
-	mail.cdt.org") by vger.kernel.org with ESMTP id <S264659AbSJTWqx> convert rfc822-to-8bit;
-	Sun, 20 Oct 2002 18:46:53 -0400
-Date: Sun, 20 Oct 2002 18:52:58 -0400
-Subject: Re: Bitkeeper outrage, old and new
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Mime-Version: 1.0 (Apple Message framework v548)
-Cc: Xavier Bestel <xavier.bestel@free.fr>, Ben Collins <bcollins@debian.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-To: Robert Love <rml@tech9.net>
-From: Daniel Berlin <dberlin@dberlin.org>
-In-Reply-To: <1035150671.16888.300.camel@phantasy>
-Message-Id: <ADAD8FB8-E47E-11D6-8E08-000393575BCC@dberlin.org>
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Apple Mail (2.548)
+	id <S264658AbSJTWo5>; Sun, 20 Oct 2002 18:44:57 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:54279 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S264657AbSJTWo4>; Sun, 20 Oct 2002 18:44:56 -0400
+Date: Sun, 20 Oct 2002 18:49:56 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Christian Borntraeger <linux@borntraeger.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
+In-Reply-To: <Pine.LNX.4.10.10210191451530.24031-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.3.96.1021020184545.1160A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 19 Oct 2002, Andre Hedrick wrote:
 
-On Sunday, October 20, 2002, at 05:51  PM, Robert Love wrote:
+> 
+> So could you ask the question a little more blunt?
+> 
+> "Gee, I am trying to break a US Law on content protection, would you be my
+> enabler?  Don't worry, it only effects the US, and we are in a public
+> forum.  Also, do you prefer gray or black in your future pin stripped
+> suit?"
 
-> On Sun, 2002-10-20 at 17:42, Xavier Bestel wrote:
->
->> You're plain wrong.
->>
->> You both have the copyright on your work.
->
-> It is called copyright _assignment_ for a reason.  How the hell are two
-> people supposed to simultaneously own a copyright on the same work?
->
-Joint authorship.
-"The authors of a joint work are co-owners of copyright in the work" 
-(17 USC §201(a)).
-IOW They each own a 100% copyright in the work.
-Leads to odd situations of course, since one author can do whatever 
-they like with the work without any permission from the other authors, 
-etc.
+Unless the rules have changed VERY recently, making a copy of legally
+owned music for personal use, such as in the car, MP3 player, etc, is
+called "fair use" and is totally legal.
 
---Dan
+I have no problem with copy protected CDs, as long as they are labeled
+clearly so you know they aren't in CDDA *book format.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

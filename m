@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264675AbRFQBWU>; Sat, 16 Jun 2001 21:22:20 -0400
+	id <S264676AbRFQBdK>; Sat, 16 Jun 2001 21:33:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264676AbRFQBWJ>; Sat, 16 Jun 2001 21:22:09 -0400
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:8144 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S264675AbRFQBWD>; Sat, 16 Jun 2001 21:22:03 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Newbie idiotic questions.
-From: Bill Pringlemeir <bpringle@sympatico.ca>
-Date: 16 Jun 2001 21:19:47 -0400
-Message-ID: <m2d78352do.fsf@sympatico.ca>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.4
+	id <S264677AbRFQBdA>; Sat, 16 Jun 2001 21:33:00 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:22491 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S264676AbRFQBcw>;
+	Sat, 16 Jun 2001 21:32:52 -0400
+Message-ID: <3B2C08C2.6CC5D144@mandrakesoft.com>
+Date: Sat, 16 Jun 2001 21:32:50 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Bill Pringlemeir <bpringle@sympatico.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Newbie idiotic questions.
+In-Reply-To: <m2d78352do.fsf@sympatico.ca>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bill Pringlemeir wrote:
+> [main.c, line 175]
+> 
+>         for (count = 0; count < sizeof(card->digmix) / sizeof(card->digmix[0]); count++) {
+> 
+> Isn't there some sort of `ALEN' macro available, or is this
+> considered to muddy things by using a macro?
 
-I have been looking at the emu10k1 driver and I had a few questions
-about general idioms used there.
+Yes, we have array size
 
-In a line like this,
+> [main.c, line 223]
+>         if ((card->mpuout = kmalloc(sizeof(struct emu10k1_mpuout), GFP_KERNEL))
+> 
+> Why is the struct type referenced for the allocation size?  Why not,
+> 
+>         if ((card->mpuout = kmalloc(sizeof(card->mpuout), GFP_KERNEL))
 
-[main.c, line 175]
-
-	for (count = 0; count < sizeof(card->digmix) / sizeof(card->digmix[0]); count++) {
-
-Isn't there some sort of `ALEN' macro available, or is this
-considered to muddy things by using a macro?
-
-[main.c, line 223]
-	if ((card->mpuout = kmalloc(sizeof(struct emu10k1_mpuout), GFP_KERNEL))
-
-Why is the struct type referenced for the allocation size?  Why not,
-
-	if ((card->mpuout = kmalloc(sizeof(card->mpuout), GFP_KERNEL))
-
-This seems to get the size for the actual object being allocated.
-
-[cardmi.c, line 42]
-
-static struct {
-	int (*Fn) (struct emu10k1_mpuin *, u8);
-} midistatefn[] = {
-...
-
-Why aren't all the gobs of constant data in this driver declared as
-constant?  Do it give a performance advantage by having the data in a
-different MMU section and better cache effects or something?
-
-Thanks for any helpful pointers.  I did read the FAQ.  I am just
-wonder if I would get screamed at for changing things like this and
-why... so I will probably get yelled at for suggesting them anyway,
-but at least I won't have went through the effort.  Now that I have
-pointed that out, the will probably irk people even more...
-
-regards,
-Bill Pringlemeir.
+because then you would be allocating the size of a pointer, not the size
+of a structure
 
 
+> Why aren't all the gobs of constant data in this driver declared as
+> constant?  Do it give a performance advantage by having the data in a
+> different MMU section and better cache effects or something?
+
+Marking data const is usually a good idea.
+
+	Jeff
+
+
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

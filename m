@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129771AbRAFF0C>; Sat, 6 Jan 2001 00:26:02 -0500
+	id <S129994AbRAFFbN>; Sat, 6 Jan 2001 00:31:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129994AbRAFFZv>; Sat, 6 Jan 2001 00:25:51 -0500
-Received: from lineo.ca ([207.245.32.39]:6163 "EHLO mail.lineo.ca")
-	by vger.kernel.org with ESMTP id <S129771AbRAFFZh>;
-	Sat, 6 Jan 2001 00:25:37 -0500
-Date: Sat, 6 Jan 2001 00:25:36 -0500 (EST)
-From: "D. Jeff Dionne" <jeff@lineo.ca>
+	id <S132133AbRAFFax>; Sat, 6 Jan 2001 00:30:53 -0500
+Received: from jelerak.scrye.com ([207.174.18.194]:19986 "HELO scrye.com")
+	by vger.kernel.org with SMTP id <S129994AbRAFFar>;
+	Sat, 6 Jan 2001 00:30:47 -0500
+Message-ID: <20010106053037.2778.qmail@scrye.com>
+Date: Fri, 5 Jan 2001 22:30:37 -0700 (MST)
+From: Kevin Fenzi <kevin@scrye.com>
 To: linux-kernel@vger.kernel.org
-Subject: uClinux 2.4.0.0pre0 released.
-Message-ID: <Pine.LNX.4.21.0101060009550.10613-100000@mail.lineo.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: X and 2.4.0 problem (video bios probing?) (SOLUTION!)
+In-Reply-To: <E14Ee3z-0008R6-00@the-village.bc.nu>
+In-Reply-To: <20010105210016.1778.qmail@scrye.com>
+	<E14Ee3z-0008R6-00@the-village.bc.nu>
+X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've put up a patch against linux-2.4.0 for uClinux 2.4.  The supported
-platforms are listed below, in the announcement which was sent to the
-uClinux-dev list.
 
-We would like to merge into the mainline Linux tree in 2.5, so we've taken
-an approach which touches as little as possible of the generic kernel :-) 
+Duh. 
 
-Cheers all,
-D. Jeff Dionne for the uClinux team.
+I figured out the problem. In 2.4.0-test13-pre3 is the introduction of
+the shmall sysctl. I had installed a package called powertweak a while
+back. It looks like powertweak sets any sysctl it doesn't know to 0. 
 
-        This is the release announcement for uClinux-2.4.0.0pre0
+So, the problem was that there was no shared memory for X. ;( 
 
-uClinux 2.4.0.0pre0 is out.  It is on www.uclinux.org and cvs.uclinux.org
-uClinux is a port of the linux kernel to CPUs without MMU.
+I set that up to a reasonable level and all is well. 
 
-This relase includes support for Motorola ColdFire MCF5307 and MC68328.
-The MCF5307 support targets Lineo NetTEL and the 68328 support targets
-XCoPilot.
+sorry for the wild goose chase. :(
 
-Status:
-  MCF5307 support is the most complete.  It includes networking and drivers
-  for the NetTEL.  There are a few memory leaks and there is a bug in
-  wait4().
-
-  MC68328 support has been carried forward from test11, and still has a little
-  breakage (the interrupt vector table stuff got broken along the way).  We'll
-  fix that in the next couple of days.
-
-  Use gcc-2.95.2 configured --target=m68k-elf to build these targets.
-
-Many thanks to David McCullough he did the heavy lifing moving this to release
-from my early work on test5, Michael Leslie who did the merge from Randy 
-Buchanan's 68328 work.  And of course Linus and the entire community that
-produced the Linux 2.4 release.
-
-Go get it!
-
-Cheers,
-D. Jeff Dionne
-
-
+kevin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

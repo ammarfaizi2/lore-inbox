@@ -1,37 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312762AbSCVRDK>; Fri, 22 Mar 2002 12:03:10 -0500
+	id <S312759AbSCVREU>; Fri, 22 Mar 2002 12:04:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312760AbSCVRDB>; Fri, 22 Mar 2002 12:03:01 -0500
-Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:56843 "EHLO
-	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S312759AbSCVRCs>;
-	Fri, 22 Mar 2002 12:02:48 -0500
-Mailbox-Line: From tmh@nothing-on.tv  Fri Mar 22 17:02:44 2002
-Mailbox-Line: From tmh@nothing-on.tv  Fri Mar 22 17:02:39 2002
-From: tmh@nothing-on.tv (Tony Hoyle)
-Subject: Re: Kernel Upgrade Hangs!
-Date: Fri, 22 Mar 2002 17:02:42 GMT
-Organization: cvsnt.org news server
-Message-ID: <3c9b634e.83969781@news.cvsnt.org>
-In-Reply-To: <91A7E7FABAF3D511824900B0D0F95D10136FA4@BHISHMA>
-X-Trace: sisko.my.home 1016816558 4428 193.37.229.181 (22 Mar 2002 17:02:38 GMT)
-X-Complaints-To: abuse@cvsnt.org
-X-Newsreader: Forte Free Agent 1.21/32.243
-To: linux-kernel@vger.kernel.org
+	id <S312760AbSCVREL>; Fri, 22 Mar 2002 12:04:11 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:56269 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S312759AbSCVRDu>; Fri, 22 Mar 2002 12:03:50 -0500
+Subject: [PATCH] 2.5.7-dj1, add 4 help texts to drivers/s390/Config.help
+From: Steven Cole <elenstev@mesatop.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 22 Mar 2002 10:01:02 -0700
+Message-Id: <1016816462.2266.56.camel@spc.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Mar 2002 16:22:32 +0000 (UTC), Abdij Bhat
-<Abdij.Bhat@kshema.com> wrote:
+This patch adds four help texts to drivers/s390/Config.help.
+The texts were obtained from ESR's v2.97 Configure.help.
 
->>
-> Now when i reboot and select the linux-Mine option the screen displays
->		Loading vmlinuz-2.4.7
->		Uncompressing Linux... Ok, booting the kernel
+Steven
 
-You aren't booting 2.4.17, so it's not the kernel that's the problem.
-There's probably a way on your distro to switch kernels (it used to be
-/etc/lilo.conf with all the modern GUI stuff it could be anywhere).
+--- linux-2.5.7-dj1/drivers/s390/Config.help.orig	Fri Mar 22 09:43:48 2002
++++ linux-2.5.7-dj1/drivers/s390/Config.help	Fri Mar 22 09:54:14 2002
+@@ -321,6 +321,18 @@
+ CONFIG_DASD_FBA
+   FBA devices are currently unsupported.
+ 
++CONFIG_DASD_AUTO_DIAG
++  Enable this option if you want your DIAG discipline module loaded
++  on DASD driver startup.
++
++CONFIG_DASD_AUTO_ECKD
++  Enable this option if you want your ECKD discipline module loaded
++  on DASD driver startup.
++
++CONFIG_DASD_AUTO_FBA
++  Enable this option if you want your FBA discipline module loaded
++  on DASD driver startup.
++
+ CONFIG_TN3215
+   Include support for IBM 3215 line-mode terminals.
+ 
+@@ -342,6 +354,15 @@
+ CONFIG_HWC_CONSOLE
+   Include support for using an IBM HWC line-mode terminal as the Linux
+   system console.
++
++CONFIG_HWC_CPI
++  This option enables the hardware console interface for system
++  identification This is commonly used for workload management and
++  gives you a nice name for the system on the service element.
++  Please select this option as a module since built-in operation is
++  completely untested. 
++  You should only select this option if you know what you are doing,
++  need this feature and intend to run your kernel in LPAR.
+ 
+ CONFIG_S390_TAPE
+   Select this option if you want to access channel-attached tape
 
-Tony
+
+
 

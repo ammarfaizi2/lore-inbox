@@ -1,151 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129115AbRBYMV3>; Sun, 25 Feb 2001 07:21:29 -0500
+	id <S129323AbRBYMXj>; Sun, 25 Feb 2001 07:23:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129243AbRBYMVU>; Sun, 25 Feb 2001 07:21:20 -0500
-Received: from gw.chygwyn.com ([62.172.158.50]:33801 "EHLO gw.chygwyn.com")
-	by vger.kernel.org with ESMTP id <S129115AbRBYMVC>;
-	Sun, 25 Feb 2001 07:21:02 -0500
-From: Steve Whitehouse <steve@gw.chygwyn.com>
-Message-Id: <200102251217.MAA19785@gw.chygwyn.com>
-Subject: NBD Hangs
-To: pavel@atrey.karlin.mff.cuni.cz, andrea@suse.de
-Date: Sun, 25 Feb 2001 12:17:25 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-Organization: ChyGywn Limited
-X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
-X-RegisteredNumber: 03887683
-Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129243AbRBYMX3>; Sun, 25 Feb 2001 07:23:29 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:40460 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S129323AbRBYMXR>;
+	Sun, 25 Feb 2001 07:23:17 -0500
+Date: Sun, 25 Feb 2001 13:22:49 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: netdev@oss.sgi.com,
+        Linux Knernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: New net features for added performance
+Message-ID: <20010225132249.J18271@almesberger.net>
+In-Reply-To: <3A9842DC.B42ECD7A@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3A9842DC.B42ECD7A@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Feb 24, 2001 at 06:25:16PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jeff Garzik wrote:
+> 1) Rx Skb recycling.
 
-I've been having some NBD hangs with the 2.4.2 kernel. It appears that
-block devices which don't use plugging will not have their request
-functions called when the request is queued. I propose the following
-patch to ll_rw_blk.c which seems to do the trick for me. Also I have
-done a small amount of tidying in nbd.c.
+Sounds like a potentially useful idea. To solve the most immediate memory
+pressure problems, maybe VM could provide some function that does a kfree
+in cases of memory shortage, and that does nothing otherwise, so the
+driver could offer to free the skb after netif_rx. You still need to go
+over the list in idle periods, though.
 
-Btw, do you know what the deadlock problem is when plugging is enabled
-on nbd ? I had a good look through the code and did some tests and there
-certainly are problems with deadlocks with plugging enabled but I couldn't
-quite pin down the source. I guessed it might have something to do with 
-blocking in the request function.
+> 2) Tx packet grouping.
 
-Thanks,
+Hmm, I think we need an estimate of how long a packet train you'd usually
+get. A flag looks reasonably inexpensive. Estimated numbers sound like
+over-engineering.
 
-Steve.
+> Disadvantages?  Can this sort of knowledge be obtained by a netdevice
+> right now, without any kernel modifications?
 
-------------------------------------------------------------------------------
+Question is what the hardware really needs. If you can change the
+interrupt point easily, it's probably cheapest to do all the work in
+hard_start_xmit.
 
-diff -u -r linux-2.4.2-zc1/drivers/block/ll_rw_blk.c linux/drivers/block/ll_rw_blk.c
---- linux-2.4.2-zc1/drivers/block/ll_rw_blk.c	Thu Feb 22 19:46:23 2001
-+++ linux/drivers/block/ll_rw_blk.c	Sun Feb 25 11:23:42 2001
-@@ -588,6 +588,9 @@
- 	 * inserted at elevator_merge time
- 	 */
- 	list_add(&req->queue, insert_here);
-+
-+	if (!q->plugged && insert_here == &q->queue_head)
-+		q->request_fn(q);
- }
- 
- void inline blk_refill_freelist(request_queue_t *q, int rw)
-diff -u -r linux-2.4.2-zc1/drivers/block/nbd.c linux/drivers/block/nbd.c
---- linux-2.4.2-zc1/drivers/block/nbd.c	Mon Oct 30 22:30:33 2000
-+++ linux/drivers/block/nbd.c	Sun Feb 25 11:23:45 2001
-@@ -29,7 +29,7 @@
- #include <linux/major.h>
- 
- #include <linux/module.h>
--
-+#include <linux/init.h>
- #include <linux/sched.h>
- #include <linux/fs.h>
- #include <linux/stat.h>
-@@ -149,12 +149,13 @@
- {
- 	int result;
- 	struct nbd_request request;
-+	unsigned long size = req->current_nr_sectors << 9;
- 
- 	DEBUG("NBD: sending control, ");
- 	request.magic = htonl(NBD_REQUEST_MAGIC);
- 	request.type = htonl(req->cmd);
- 	request.from = cpu_to_be64( (u64) req->sector << 9);
--	request.len = htonl(req->current_nr_sectors << 9);
-+	request.len = htonl(size);
- 	memcpy(request.handle, &req, sizeof(req));
- 
- 	result = nbd_xmit(1, sock, (char *) &request, sizeof(request));
-@@ -163,7 +164,7 @@
- 
- 	if (req->cmd == WRITE) {
- 		DEBUG("data, ");
--		result = nbd_xmit(1, sock, req->buffer, req->current_nr_sectors << 9);
-+		result = nbd_xmit(1, sock, req->buffer, size);
- 		if (result <= 0)
- 			FAIL("Send data failed.");
- 	}
-@@ -174,8 +175,11 @@
- }
- 
- #define HARDFAIL( s ) { printk( KERN_ERR "NBD: " s "(result %d)\n", result ); lo->harderror = result; return NULL; }
-+
-+/* 
-+ * NULL returned = something went wrong, inform userspace
-+ */ 
- struct request *nbd_read_stat(struct nbd_device *lo)
--		/* NULL returned = something went wrong, inform userspace       */ 
- {
- 	int result;
- 	struct nbd_reply reply;
-@@ -475,11 +479,7 @@
-  *  (Just smiley confuses emacs :-)
-  */
- 
--#ifdef MODULE
--#define nbd_init init_module
--#endif
--
--int nbd_init(void)
-+int __init nbd_init(void)
- {
- 	int i;
- 
-@@ -493,9 +493,7 @@
- 		       MAJOR_NR);
- 		return -EIO;
- 	}
--#ifdef MODULE
- 	printk("nbd: registered device at major %d\n", MAJOR_NR);
--#endif
- 	blksize_size[MAJOR_NR] = nbd_blksizes;
- 	blk_size[MAJOR_NR] = nbd_sizes;
- 	blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), do_nbd_request);
-@@ -526,8 +524,7 @@
- 	return 0;
- }
- 
--#ifdef MODULE
--void cleanup_module(void)
-+void __exit nbd_cleanup(void)
- {
- 	devfs_unregister (devfs_handle);
- 	blk_cleanup_queue(BLK_DEFAULT_QUEUE(MAJOR_NR));
-@@ -537,4 +534,9 @@
- 	else
- 		printk("nbd: module cleaned up.\n");
- }
--#endif
-+
-+module_init(nbd_init);
-+module_exit(nbd_cleanup);
-+
-+MODULE_DESCRIPTION("Network Block Device");
-+
+> 3) Slabbier packet allocation.
+
+Hmm, this may actually be worse during bursts: if you burst exceeds
+the preallocated size, you have to perform more expensive/slower
+operations (e.g. running a tasklet) to refill your cache.
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/

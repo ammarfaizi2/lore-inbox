@@ -1,65 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265080AbUFGVqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265077AbUFGVpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265080AbUFGVqT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 17:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUFGVqT
+	id S265077AbUFGVpz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 17:45:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265096AbUFGVpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 17:46:19 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:31162 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S265080AbUFGVqD convert rfc822-to-8bit (ORCPT
+	Mon, 7 Jun 2004 17:45:55 -0400
+Received: from mail.gmx.de ([213.165.64.20]:12163 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265077AbUFGVpU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 17:46:03 -0400
-From: "Thomas Gleixner" <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-Organization: linutronix
-To: David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [PATCH 2.4] jffs2 aligment problems
-Date: Mon, 7 Jun 2004 23:40:30 +0200
-User-Agent: KMail/1.5.4
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Greg Weeks <greg.weeks@timesys.com>, linux-kernel@vger.kernel.org
-References: <40C484F9.20504@timesys.com> <200406072256.46952.tglx@linutronix.de> <1086643763.29255.63.camel@localhost.localdomain>
-In-Reply-To: <1086643763.29255.63.camel@localhost.localdomain>
+	Mon, 7 Jun 2004 17:45:20 -0400
+X-Authenticated: #15156664
+Message-ID: <002e01c44cd8$b66f2240$8511050a@alexs>
+From: "Alexander Stohr" <alexander.stohr@gmx.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: Fw; [Linux-abi-users] -> seems to be alive, patch for Linux 2.6.6 kernel has popped up
+Date: Mon, 7 Jun 2004 23:45:03 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200406072340.30674.tglx@linutronix.de>
-X-Seen: false
-X-ID: SUFT--ZBZeOehcIgaAeQC+cRUD0FPfx890MoAaxnP43HLm2apFQlwp@t-dialin.net
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 June 2004 23:29, David Woodhouse wrote:
-> On Mon, 2004-06-07 at 22:56 +0200, Thomas Gleixner wrote:
-> > So we did not care if it took ms + x µs due to an alignement trap
->
-> Indeed. But since many machines I care about can't fix up unaligned
-> accesses I'm _more_ than happy to obey the original decree that I should
-> put back the get_unaligned() calls; just ignoring the stated reasons.
-> Let's not argue Linus out of it :)
+Hello,
 
-I do not argue. I just stated why nobody took care of it. 
-
-Cite from old mail's:
-> Yes.  Enable the alignment abort handler.  In later kernels, its a
-> fundamental requirement that the alignment abort handler is enabled
-> before you'll even get to see the jffs2 or MTD options.
-
->> Checking this before the unaligned access would be faster <SNIP>
-> It's handled by the alignment abort handler already.
-
--- 
-Thomas
-________________________________________________________________________
-Steve Ballmer quotes the statistic that IT pros spend 70 percent of their 
-time managing existing systems. That couldn’t have anything to do with 
-the fact that 99 percent of these systems run Windows, could it?
-________________________________________________________________________
-linutronix - competence in embedded & realtime linux
-http://www.linutronix.de
-mail: tglx@linutronix.de
-
+the Linux-ABI project for running alien Unix binaries upon Linux
+seems to be quite alive: there is a patch for latest Linux 2.6.6 release.
+ 
+ see quoted text below for a bit more details on what is availabel online.
+ 
+-Alex.
+ 
+> ----- Original Message ----- 
+> From: "Alexander Stohr" <alexander.stohr@gmx.de>
+> [...]
+> Sent: Monday, June 07, 2004 10:09 PM
+> Subject: Re: [Linux-abi-users] Eeek! Is this project as dead as it looks on sourceforge?
+> 
+> 
+> > Check back at the "patches" section of  Linux-Abi at sourceforge.
+> > I just had a look there mysevles and can confirm:
+> > There you will find exactly what you were looking for.
+> > 
+> > Hmm, since there were no announcement run on the list
+> > for that quite interesting piece of code, have to call out
+> >   *** ANNOUNCEMENT ***
+> > myselves now. Linux-ABI (formerly known as ibcs)
+> > is up to date with the very latest released Linux kernel.
+> > Ths means it supports version 2.6.6 - as can be seen
+> > in the description, there might be tons of bug, but so far 
+> > only a single problem with the proc file system entry
+> > seems to be worth a note.
+> > 
+> > I suppose feedback on your personal story of succes
+> > would be nice, mine so far is, that this patch does nicely 
+> > apply to the mentioned kernel and for the rest time will show.
+> > 
+> > -Alex.
+> > 
+> > ----- Original Message ----- 
+> > From: "Steve Bergman" <steve@rueb.com>
+> > To: "linux-abi-users" <linux-abi-users@lists.sourceforge.net>
+> > Sent: Monday, June 07, 2004 3:06 AM
+> > Subject: [Linux-abi-users] Eeek! Is this project as dead as it looks on sourceforge?
+> > 
+> > 
+> > > Hi Guys,
+> > > 
+> > > I just moved some users over to Fedora Core 2 and was getting ready to
+> > > compile up a 2.6.6-linux-abi kernel.  Is there such a patch for any
+> > > 2.6.x kernel?
+> > > 
+> > > Thanks,
+> > > Steve Bergman
+> > > 
+> > > 
+> > > 
+> > > -------------------------------------------------------
+> > > This SF.Net email is sponsored by the new InstallShield X.
+> > > From Windows to Linux, servers to mobile, InstallShield X is the one
+> > > installation-authoring solution that does it all. Learn more and
+> > > evaluate today! http://www.installshield.com/Dev2Dev/0504
+> > > _______________________________________________
+> > > Linux-abi-users mailing list
+> > > Linux-abi-users@lists.sourceforge.net
+> > > https://lists.sourceforge.net/lists/listinfo/linux-abi-users
+> > > 
+> > 
+> > 
+> > -------------------------------------------------------
+> > This SF.Net email is sponsored by: GNOME Foundation
+> > Hackers Unite!  GUADEC: The world's #1 Open Source Desktop Event.
+> > GNOME Users and Developers European Conference, 28-30th June in Norway
+> > http://2004/guadec.org
+> > _______________________________________________
+> > Linux-abi-users mailing list
+> > Linux-abi-users@lists.sourceforge.net
+> > https://lists.sourceforge.net/lists/listinfo/linux-abi-users
+> >

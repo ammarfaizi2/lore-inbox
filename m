@@ -1,84 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262077AbUDHRsi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 13:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUDHRsi
+	id S262078AbUDHRtm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 13:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUDHRtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 13:48:38 -0400
-Received: from 213-0-217-98.dialup.nuria.telefonica-data.net ([213.0.217.98]:41352
-	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
-	id S262077AbUDHRsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 13:48:35 -0400
-Date: Thu, 8 Apr 2004 19:48:23 +0200
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-To: linux-kernel@vger.kernel.org
-Cc: Nick.Holloway@pyrites.org.uk
-Subject: [PATCH 2.6] Add missing MODULE_PARAM to dummy.c (and MAINTAINERShip)
-Message-ID: <20040408174823.GA13335@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Nick.Holloway@pyrites.org.uk
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 8 Apr 2004 13:49:42 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:45022 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262078AbUDHRtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 13:49:36 -0400
+Date: Thu, 8 Apr 2004 18:49:32 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: rmap: page_mapping barrier
+In-Reply-To: <20040408151245.GA31667@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0404081805280.7404-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello:
+On Thu, 8 Apr 2004, Andrea Arcangeli wrote:
+> On Thu, Apr 08, 2004 at 02:22:29PM +0100, Hugh Dickins wrote:
+> > My page_mapping(page) says PageAnon(page)? NULL: page->mapping;
+> > I've just realized, looking again at sync_page but it goes way
+> > beyond it, that we need smp barriers of some kind somewhere,
+> > don't we?  That is, we cannot just write the address of one of
+> > our non-address_space structures into page->mapping, without
+> > being very careful that others will see the PageAnon and treat
+> > it as NULL.  There are places all over using page_mapping(page)
+> > while another cpu might be right in page_add_rmap.  I go very
+> > mushy when it comes to barriers, you understand them better
+> > than most, any idea what we need to do in page_mapping(page),
+> > and when setting and clearing PageAnon?
+> 
+> could you elaborate those many places that execute page_mapping while
+> the other cpu does page_add_rmap or page_remove_rmap?
 
-It seems the "dummy" network interface driver is missing some MODULE_*
-macros, needed with kernel 2.6.x and module-init-tools to show
-information about the module (parameters, author, description, etc).
+Good challenge.  I thought they were all over, but closer inspection
+shows almost all seem safe.  I can't quite bring myself to say
+"all are safe".  Most of them (e.g. in arch's flush_dcache_page)
+look like they're called when we know there's a real file mapping
+(might be truncated beneath us, but won't turn anon), and we could
+BUG_ON(PageAnon(page)) - but I don't feel quite sure enough to do
+that (nor to use straight page->mapping instead).
 
-A patch follows to (hopefully) correct this. Another patch includes an
-entry in the MAINTAINERS file for the "dummy" module. However, I suppose 
-the module author (Nick Holloway) will come up and say if he should
-still be considered as the module maintainer, so to add the correct
-information to the MAINTAINERS file.
+> If the VM does a page_mapping in the pagecache layer in my tree, that
+> means we already executed page_add_rmap long before calling
+> __add_to_page_cache, the __add_to_page_cache/__remove_from_page_cache
+> spinlocks are enough to serialize PageAnon. That covers sync_page and
+> the rest of the pagecache layer.
 
-Hope the patchs are correct, or at least useful to note the missing bits
-I was trying to "patch" and someone else does the "technical" work :-)
+I'd expected set_page_dirty to be a problem (it often has been),
+but failed to find a problematic instance: there's a nice habit
+of doing the set_page_dirty before lowering mapcount.
 
-Greetings.
+The one instance I am still a little worried about is sync_page:
+I didn't follow your argument above.  But I think I'm remembering
+a time long past when there was code which did lock_page on a page
+without holding a reference to that page (in which case it could
+turn into something else by the time lock acquired); but we don't
+do that now - find_lock_page is good, and you've put a good
+BUG_ON(PageAnon(page)) into it.
 
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.5)
+> There's just one place that I'm wondering about and it's page_mapping in
+> memory.c but it only changes a mark_page_accessed so I don't see any
+> trouble whatever happens there (mark_page_accessed can be run on any
+> random page anytime and it cannot do any harm). I believe we can live
+> with that race just fine, it's controlled by mark_page_accessed
+> internally by checking PageLru inside the zone->lru_lock.
 
+As you say, it wouldn't be a problem anyway; but that one is perfectly
+okay because it's before the page_remove_rmap, so it's either stably
+PageAnon there, or stably !PageAnon.
 
-diff -Nrup linux-2.6.5/drivers/net/dummy.c linux-2.6.5-new/drivers/net/dummy.c
---- linux-2.6.5/drivers/net/dummy.c	2004-04-04 17:45:54.000000000 +0200
-+++ linux-2.6.5-new/drivers/net/dummy.c	2004-04-08 19:23:23.000000000 +0200
-@@ -89,7 +89,8 @@ static struct net_device_stats *dummy_ge
- static struct net_device **dummies;
- 
- /* Number of dummy devices to be set up by this module. */
--module_param(numdummies, int, 0);
-+MODULE_PARM(numdummies, "i");
-+MODULE_PARM_DESC(numdummies, "Maximum number of dummy devices (defaults to one)");
- 
- static int __init dummy_init_one(int index)
- {
-@@ -144,3 +145,5 @@ static void __exit dummy_cleanup_module(
- module_init(dummy_init_module);
- module_exit(dummy_cleanup_module);
- MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Dummy network interface driver");
-+MODULE_AUTHOR("Nick Holloway <Nick.Holloway@pyrites.org.uk>");
+There's an (I think) unstable one in refill_inactive_zone, below
+the ancient FIXME, but again that's entirely safe because we don't
+dereference mapping, and it doesn't matter if we sometimes make a
+wrong decision.
 
-diff -Nrup linux-2.6.5/MAINTAINERS linux-2.6.5-new/MAINTAINERS
---- linux-2.6.5/MAINTAINERS	2004-04-04 17:49:26.000000000 +0200
-+++ linux-2.6.5-new/MAINTAINERS	2004-04-08 19:22:01.000000000 +0200
-@@ -707,6 +707,12 @@ M:	romieu@cogenit.fr
- M:	romieu@ensta.fr
- S:	Maintained
- 
-+DUMMY NETWORK INTERFACE DRIVER
-+P:	Nick Holloway
-+M:	Nick.Holloway@pyrites.org.uk
-+L:	linux-kernel@vger.kernel.org
-+S:	Supported
-+
- DVB SUBSYSTEM AND DRIVERS
- P:	LinuxTV.org Project
- M: 	linux-dvb-maintainer@linuxtv.org
+I think, ignore my PageAnon barrier concern; but allow me
+to say "I told you so" if we ever do find such a race.
+
+Hugh
+

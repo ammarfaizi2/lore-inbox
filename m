@@ -1,68 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbVBPPfq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVBPPl0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262044AbVBPPfq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 10:35:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbVBPPfp
+	id S262045AbVBPPl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 10:41:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVBPPlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 10:35:45 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:16140 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S262044AbVBPPff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 10:35:35 -0500
-Date: Wed, 16 Feb 2005 23:20:21 +0800 (WST)
-From: raven@themaw.net
-To: Jan Blunck <j.blunck@tu-harburg.de>
-cc: viro@parcelfarce.linux.theplanet.co.uk,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] dcache d_drop() bug fix / __d_drop() use fix
-In-Reply-To: <421355A4.6000305@tu-harburg.de>
-Message-ID: <Pine.LNX.4.61.0502162318240.8161@donald.themaw.net>
-References: <421355A4.6000305@tu-harburg.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-101.1, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, PATCH_UNIFIED_DIFF,
-	QUOTED_EMAIL_TEXT, RCVD_IN_ORBS, RCVD_IN_OSIRUSOFT_COM, REFERENCES,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE, USER_IN_WHITELIST)
+	Wed, 16 Feb 2005 10:41:25 -0500
+Received: from upco.es ([130.206.70.227]:32713 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S262052AbVBPPkJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 10:40:09 -0500
+Date: Wed, 16 Feb 2005 16:40:07 +0100
+From: Romano Giannetti <romanol@upco.es>
+To: Stelian Pop <stelian@popies.net>, Vojtech Pavlik <vojtech@suse.cz>,
+       Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: [PATCH, new ACPI driver] new sony_acpi driver
+Message-ID: <20050216154007.GA2142@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: Romano Giannetti <romanol@upco.es>,
+	Stelian Pop <stelian@popies.net>, Vojtech Pavlik <vojtech@suse.cz>,
+	Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+	linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+References: <20050210161809.GK3493@crusoe.alcove-fr> <E1D0dqo-00041G-00@chiark.greenend.org.uk> <20050214105837.GE3233@crusoe.alcove-fr> <20050214203211.GA8007@ucw.cz> <20050215161412.GC20951@pern.dea.icai.upco.es> <20050216144156.GA4372@crusoe.alcove-fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <20050216144156.GA4372@crusoe.alcove-fr>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Feb 2005, Jan Blunck wrote:
+On Wed, Feb 16, 2005 at 03:41:59PM +0100, Stelian Pop wrote:
+> On Tue, Feb 15, 2005 at 05:14:12PM +0100, Romano Giannetti wrote:
 
-> This is a re-submission of the patch I sent about a month ago.
->
-> While working on my code I realized that d_drop() might race against 
-> __d_lookup(). __d_drop() (which is called by d_drop() after acquiring the 
-> dcache_lock) is accessing dentry->d_flags to set the DCACHE_UNHASHED flag. 
-> This shouldn't be done without holding dentry->d_lock, like stated in 
-> dcache.h:
->
-> struct dentry {
-> ...
-> unsigned int d_flags;		/* protected by d_lock */
->        ...
-> };
->
-> Therefore d_drop() must acquire the dentry->d_lock. Likewise every use of 
-> __d_drop() must acquire that lock.
->
-> This patch fixes d_drop() and every grep'able __d_drop() use. This patch is 
-> against today's http://linux.bkbits.net/linux-2.5.
+> > http://bugme.osdl.org/show_bug.cgi?id=4124
+> 
+> Strange indeed.
+> 
+> First thing to test is to disable sonypi (either rebuild a kernel
+> without it or rename the module so it will not get loaded again),
+> then reboot and see if you still have problems.
 >
 
-For my part, in autofs4, I would prefer:
+I have it compiled in, but it is not loaded: on a freshly booted kernel, 
+dmesg | grep sonypi results in nothing, and if I try to load it manually:
 
---- linux-2.6.9/fs/autofs4/root.c.d_lock	2005-02-16 23:15:18.000000000 +0800
-+++ linux-2.6.9/fs/autofs4/root.c	2005-02-16 23:15:35.000000000 +0800
-@@ -621,7 +621,7 @@
-  		spin_unlock(&dcache_lock);
-  		return -ENOTEMPTY;
-  	}
--	__d_drop(dentry);
-+	d_drop(dentry);
-  	spin_unlock(&dcache_lock);
+# modprobe sonypi
+FATAL: Error inserting sonypi (/lib/modules/2.6.11-rc1/kernel/drivers/char/sonypi.ko): No such device
 
-  	dput(ino->dentry);
+and in syslog:
+
+sonypi: request_region failed
+
+which is correct, because this laptop doesn't have a sonypi devive, it is
+a PCG-FX701. I will nuke the module and try to reboot, but I do not think it
+will make any difference.
+
+> If you do, the problem is ACPI/input related.
+> 
+> If you don't, the strangeness comes from some interraction with
+> sonypi.
+
+It's happened between 2.6.7 and 2.6.9; the only differences I can see in the
+.config are the following: 
+
++CONFIG_ACPI_BLACKLIST_YEAR=0
++CONFIG_SERIO_RAW=m
+
+... but I do not think they could make any difference. I will compile a
+2.6.11-rc4 and try, but... 
+
+Anyway, I have put the dsdt from cat /proc/acpi/dsdt in
+
+http://www.dea.icai.upco.es/romano/linux/mydsdt.bin
+
+Thank you for the help. 
+
+          Romano
+          
+-- 
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

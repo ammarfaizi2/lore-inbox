@@ -1,83 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275818AbRJCEGI>; Wed, 3 Oct 2001 00:06:08 -0400
+	id <S275819AbRJCEKj>; Wed, 3 Oct 2001 00:10:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275819AbRJCEF6>; Wed, 3 Oct 2001 00:05:58 -0400
-Received: from rj.SGI.COM ([204.94.215.100]:10922 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S275818AbRJCEFj>;
-	Wed, 3 Oct 2001 00:05:39 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: fdavis@si.rr.com
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.10-ac3: fs/cramfs/Makefile 
-In-Reply-To: Your message of "Tue, 02 Oct 2001 18:14:38 -0400."
-             <3BBA3C4E.6020604@si.rr.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 03 Oct 2001 14:05:49 +1000
-Message-ID: <30965.1002081949@kao2.melbourne.sgi.com>
+	id <S276853AbRJCEK2>; Wed, 3 Oct 2001 00:10:28 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36106 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S275819AbRJCEKY>; Wed, 3 Oct 2001 00:10:24 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: 2.4.11-pre2 fs/buffer.c: invalidate: busy buffer
+Date: Wed, 3 Oct 2001 04:10:45 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9pe345$8ic$1@penguin.transmeta.com>
+In-Reply-To: <20011002190547.A3323@cm.nu>
+X-Trace: palladium.transmeta.com 1002082246 31750 127.0.0.1 (3 Oct 2001 04:10:46 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 3 Oct 2001 04:10:46 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 02 Oct 2001 18:14:38 -0400, 
-Frank Davis <fdavis@si.rr.com> wrote:
->    The attached patch against 2.4.10-ac3 addresses the following issue 
->since 2.4.9-ac17:
+In article <20011002190547.A3323@cm.nu>, Shane Wegner  <shane@cm.nu> wrote:
 >
->depmod: *** Unresolved symbols in 
->/lib/modules/2.4.9-ac17/kernel/fs/cramfs/cramfs/cramfs.o
->depmod:  zlib_fs_inflateInit_
->depmod:  zlib_fs_inflateEnd
->depmod:  zlib_fs_inflate_workspacesize
->depmod:  zlib_fs_inflate
->depmod:  zlib_fs_inflateReset
+>I am getting the following out of fs/buffer.c immediately
+>after bootup.  The kernel is 2.4.11-pre2 when the message
+>was added.
 >
->--- fs/cramfs/Makefile.old	Tue Oct  2 17:44:56 2001
->+++ fs/cramfs/Makefile	Tue Oct  2 17:46:51 2001
->@@ -4,7 +4,7 @@
-> 
-> O_TARGET := cramfs.o
-> 
->-obj-y  := inode.o uncompress.o
->+obj-y  := inode.o uncompress.o ../inflate_fs/inflate_fs.o
+>Oct  2 17:35:08 continuum kernel: invalidate: busy buffer
+>Oct  2 17:35:08 continuum last message repeated 7 times
+>
+>I assume this is an error though it doesn't seem to say so. 
 
-Double plus ungood!  The failing combinations are
-  CONFIG_CRAMFS=m
-  CONFIG_ISO9660_FS=y
-  CONFIG_ZISOFS=y
-cramfs.o has unresolved references, or
-  CONFIG_CRAMFS=y
-  CONFIG_ISO9660_FS=m
-  CONFIG_ZISOFS=y
-isofs.o has unresolved references.  Any mixture of built in and modular
-users of zlib results in zlib symbols not being available to modules.
-The correct fix is
+Well, it's an error, but it's an error in that LVM invalidates the block
+devices a bit too much, and the message really tells you that the code
+refused to invalidate stuff that must not be invalidated.
 
-Index: 10.30/fs/inflate_fs/inflate_syms.c
---- 10.30/fs/inflate_fs/inflate_syms.c Sat, 22 Sep 2001 14:41:20 +1000 kaos (linux-2.4/o/f/51_inflate_sy 1.1 644)
-+++ 10.30(w)/fs/inflate_fs/inflate_syms.c Wed, 03 Oct 2001 13:58:59 +1000 kaos (linux-2.4/o/f/51_inflate_sy 1.1 644)
-@@ -19,10 +19,3 @@ EXPORT_SYMBOL(zlib_fs_inflateSync);
- EXPORT_SYMBOL(zlib_fs_inflateReset);
- EXPORT_SYMBOL(zlib_fs_adler32);
- EXPORT_SYMBOL(zlib_fs_inflateSyncPoint);
--
--static int __init init_zlib_fs(void)
--{
--	return 0;
--}
--
--module_init(init_zlib_fs)
-Index: 10.30/fs/inflate_fs/Makefile
---- 10.30/fs/inflate_fs/Makefile Sat, 22 Sep 2001 14:41:20 +1000 kaos (linux-2.4/p/f/9_Makefile 1.1 644)
-+++ 10.30(w)/fs/inflate_fs/Makefile Wed, 03 Oct 2001 13:58:57 +1000 kaos (linux-2.4/p/f/9_Makefile 1.1 644)
-@@ -25,7 +25,7 @@ O_TARGET    := inflate_fs.o
- export_objs := inflate_syms.o
- 
- obj-y := adler32.o infblock.o infcodes.o inffast.o inflate.o \
--	 inftrees.o infutil.o
-+	 inftrees.o infutil.o inflate_syms.o
- obj-m := $(O_TARGET)
- 
- include $(TOPDIR)/Rules.make
+It's harmless, although I hope that the LVM people will become a bit
+less invalidation-happy as a result of the warning (it's always happened
+before, it just hasn't warned about it in earlier kernels).
 
+		Linus

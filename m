@@ -1,70 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267603AbSLNL5l>; Sat, 14 Dec 2002 06:57:41 -0500
+	id <S267602AbSLNL4K>; Sat, 14 Dec 2002 06:56:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267604AbSLNL5l>; Sat, 14 Dec 2002 06:57:41 -0500
-Received: from 205-158-62-132.outblaze.com ([205.158.62.132]:39103 "HELO
-	ws5-2.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S267603AbSLNL5k>; Sat, 14 Dec 2002 06:57:40 -0500
-Message-ID: <20021214120526.6020.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S267603AbSLNL4J>; Sat, 14 Dec 2002 06:56:09 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:61959 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S267602AbSLNL4J>; Sat, 14 Dec 2002 06:56:09 -0500
+Message-Id: <200212141157.gBEBvFs02981@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
+Date: Sat, 14 Dec 2002 16:46:41 +0000
+X-Mailer: KMail [version 1.3.2]
+Cc: Daniel Egger <degger@fhm.edu>, Dave Jones <davej@codemonkey.org.uk>,
+       Joseph <jospehchan@yahoo.com.tw>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <009f01c2a000$f38885d0$3716a8c0@taipei.via.com.tw> <200212110829.gBB8Tja05013@Port.imtp.ilyichevsk.odessa.ua> <20021212180957.GA184@elf.ucw.cz>
+In-Reply-To: <20021212180957.GA184@elf.ucw.cz>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: greg@ulima.unil.ch, rusty@rustcorp.com.au
-Cc: linux-kernel@vger.kernel.org
-Date: Sat, 14 Dec 2002 20:05:26 +0800
-Subject: Re: Not able to compile modutils-2.4.21-7.src.rpm
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws5-2.us4.outblaze.com
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Rusty Russell <rusty@rustcorp.com.au>
-[...]
-> > /usr/bin/ld: cannot find -lc
-> > collect2: ld returned 1 exit status
-> > make[1]: *** [insmod.static] Error 1
-> > make[1]: Leaving directory `/usr/src/RPM/BUILD/modutils-2.4.21/insmod'
-> > make: *** [all] Error 2
-> > error: Bad exit status from /var/tmp/rpm-tmp.76637 (%build)
+On 12 December 2002 18:09, Pavel Machek wrote:
+> Hi!
 >
->It looks like you don't have the ability to make static binaries.
->Does this fail for you, too?
+> > > > I believe someone (Jeff Garzik?) benchmarked gcc code
+> > > > generation, and the C3 executed code scheduled for a 486 faster
+> > > > than it did for -m586
+> > > > I'm not sure about the alignment flags. I've been meaning to
+> > > > look into that myself...
+> > >
+> > > Interesting. I have no clue about which C3 you're talking about
+> > > here but a VIA Ezra has all 686 instructions including cmov and
+> > > thus optimising for PPro works best for me.
+> > >
+> > > Prolly I would have to do more benchmarking to find out about
+> > > aligment advantages.
+> >
+> > I heard cmovs are microcoded in Centaurs.
+> >
+> > s...l...o...w...
 >
->	echo 'int main(){return 0;}' > /tmp/foo.c && gcc -static -o foo foo.c
->
->Perhaps there is some RH devel package you need to install to allow
->this to work?
+> It still might be faster then a branch... or not if centaurs are
+> really that simple.
+> 								Pavel
 
-Yes, you are correct and I am a stupid guy ;-)
-Gregoire told me what the package is,
-glibc-static-devel...
+I did not measure it myself, but rumors were they took tens of cycles.
 
-Ok, now rpm --rebuild --target i686 blabla.src.rpm
-works perfectly.
+Well, a IFcc prefix meaning 'execute next instruction if' would be
+way more cool that CMOVcc. Because I want CADDcc, CTESTcc, CBSWAPcc too ;)
 
-No problem with modules, thank you very much!
+But since all 1 byte opcodes are taken and
 
-             Paolo
+	Jcc	skip		# <- 2 byte opcode
+	opcode	op1,op2
+skip:
 
-From: Gregoire Favre <greg@ulima.unil.ch>
-[...]
-> > /usr/bin/ld: cannot find -lc
-> > collect2: ld returned 1 exit status
-> > make[1]: *** [insmod.static] Error 1
-> 
-> Just install glibc-static-devel...
-
-Ahh... you are correct! Now it compiles,
-sorry for the silly report and thank you!
-
-               Paolo
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with POP3/IMAP access for only US$19.95/yr
-
-Powered by Outblaze
+I think some CPU magic can detect such short jumps and handle'em just like
+they were such a prefix, saving potential branch (mis-)prediction.
+--
+vda

@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289281AbSA1R2y>; Mon, 28 Jan 2002 12:28:54 -0500
+	id <S289290AbSA1Rcg>; Mon, 28 Jan 2002 12:32:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289290AbSA1R2h>; Mon, 28 Jan 2002 12:28:37 -0500
-Received: from tux.rsn.bth.se ([194.47.143.135]:56706 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S289281AbSA1R2Z>;
-	Mon, 28 Jan 2002 12:28:25 -0500
-Date: Mon, 28 Jan 2002 18:28:17 +0100 (CET)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] [sched] yield speedup, 2.5.3-pre5
-In-Reply-To: <Pine.LNX.4.33.0201282020440.13846-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0201281827380.4882-100000@tux.rsn.bth.se>
-X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289287AbSA1RcZ>; Mon, 28 Jan 2002 12:32:25 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:46097 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S289290AbSA1RcK>;
+	Mon, 28 Jan 2002 12:32:10 -0500
+Date: Mon, 28 Jan 2002 18:31:48 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] sd-many for 2.4.18-pre7 (uses devfs)
+Message-ID: <20020128183148.B5588@suse.de>
+In-Reply-To: <200201280326.g0S3QTt27080@vindaloo.ras.ucalgary.ca> <20020128101035.B8894@suse.de> <200201281645.g0SGjZp02300@vindaloo.ras.ucalgary.ca> <20020128180142.A5588@suse.de> <200201281725.g0SHP6F03224@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200201281725.g0SHP6F03224@vindaloo.ras.ucalgary.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jan 2002, Ingo Molnar wrote:
+On Mon, Jan 28 2002, Richard Gooch wrote:
+> Jens Axboe writes:
+> > On Mon, Jan 28 2002, Richard Gooch wrote:
+> > > Jens Axboe writes:
+> > > > On Sun, Jan 27 2002, Richard Gooch wrote:
+> > > > >   Hi, all. Appended is my sd-many patch. It supports up to 2080
+> > > > > SD's. This patch is against 2.4.18-pre7, and is essentially the same
+> > > > > as earlier versions of this patch, just compensating for kernel drift.
+> > > > 
+> > > > Could you please at least try to follow the style in sd? To me, this
+> > > > alone is reason enough why the patch should not be applied.
+> > > 
+> > > ??? I *have* followed the style. Or at least I've tried to. Where did
+> > > I not?
+> > 
+> > Are you serious?! You use
 
-> > I'm not an spinlock expert but shouldn't you use spin_unlock_irq()
-> > when it was locked with spin_lock_irq() ?
-> 
-> normally yes, but in this case it's an optimization: schedule() will
-> disable interrupts within a few cycles, so there is no point in enabling
-> irqs for a short amount of time.
+> +#ifdef CONFIG_SD_MANY
+> +static inline int sd_devnum_to_index(int devnum)
+> +{
+> +	int i, major = MAJOR (devnum);
+> +
+> +	for (i = 0; i < sd_template.num_majors; ++i) {
+> +	    if (sd_template.majors[i] != major)
+> +		continue;
+> +	    return (i << 4) | (MINOR (devnum) >> 4);
+> +	}
+> +	return -ENODEV;
+> +}
+> +#endif
 
-Thanks for the explanation.
+Apart from this one hunk, yeah it looks consistent and much better now.
 
-/Martin
-
-Never argue with an idiot. They drag you down to their level, then beat you with experience.
+-- 
+Jens Axboe
 

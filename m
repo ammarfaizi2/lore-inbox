@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136381AbREDNdj>; Fri, 4 May 2001 09:33:39 -0400
+	id <S136384AbREDNjB>; Fri, 4 May 2001 09:39:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136384AbREDNda>; Fri, 4 May 2001 09:33:30 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:51637 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S136381AbREDNdU>; Fri, 4 May 2001 09:33:20 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Jacek Kopecky <jacek@idoox.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: tmpfs doesn't update free memory stats?
-In-Reply-To: <Pine.LNX.4.33.0105041159301.31964-100000@bimbo.in.idoox.com>
-Organisation: SAP LinuxLab
-Date: 04 May 2001 15:13:09 +0200
-In-Reply-To: <Pine.LNX.4.33.0105041159301.31964-100000@bimbo.in.idoox.com>
-Message-ID: <m3g0eltfyy.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
+	id <S136387AbREDNiu>; Fri, 4 May 2001 09:38:50 -0400
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:9056 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S136384AbREDNii>; Fri, 4 May 2001 09:38:38 -0400
+Subject: Re: Linux syscall speed -- was X15 rootin-tootin webserver
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <m14vUI0-001QM0C@mozart>
+In-Reply-To: <m14vUI0-001QM0C@mozart>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 04 May 2001 09:38:36 -0400
+Message-Id: <988983517.7746.0.camel@gromit>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jacek,
+There seems to be a contingent of people on the LKML who think that it
+is appropriate to flame people off-list, in order to bask in their own
+superiority, or prove that they are smarter by pointing out that someone
+is an idiot, etc. I would figure that most intelligent people would
+simply ignore posts they don't like, rather than investing time and
+bandwidth compounding the perceived offense. But I'm apparently too
+optimistic on that point; any group of people the size of the LKML will
+always contain some juviniles. A great many of us have suffered their
+attention.
 
-On Fri, 4 May 2001, Jacek Kopecky wrote:
->  I'm not in the list, please cc your replies to me.
->  After upgrading to 2.4.4 I started using tmpfs for /tmp and I
-> noticed a strange behavior:
+-M
+
+On 04 May 2001 11:21:48 +1000, Rusty Russell wrote:
+> In message <988856961.6355.1.camel@gromit> you write:
+> > According to tests performed at IBM:
+> > 
+> > http://www-106.ibm.com/developerworks/linux/library/l-rt1/
+> > 
+> > Linux's sycalls are a little more than twice as fast as those of Windows
 > 
->  dd if=/dev/zero of=blah bs=1024 count=102400
-> 	# increased my used swap space by approx. 100MiB (correct)
->  rm blah
-> 	# did not decrease it back
+> This post was pretty much a waste of space, wasn't it?
 > 
->  Multiple retries showed what looked like a random behavior of
-> the used swap stats. Is this a correct behavior? Should the swap
-> stats be dismissed as 'unreliable'? I expected that when creating
-> a 100MiB file in memory it should increase the swap (or memory)
-> usage by cca 100MiB and that removing a file from tmpfs means
-> freeing the memory.
-
-It will be adjusted under memory pressure. At this time there is no
-way to release swap cached pages without the potential of deadlocks.
-
-This is not nice but the only short term solution and should not
-affect anything besides stats.
-
-Greetings
-		Christoph
-
+> > 2000. 0.75usec vs 2.0msec.
+> 
+> That would be 2,666 times.
+> 
+> Rusty.
+> --
+> Premature optmztion is rt of all evl. --DK
 

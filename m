@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270082AbUJUENz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270296AbUJTWaD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270082AbUJUENz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 00:13:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270358AbUJUEKY
+	id S270296AbUJTWaD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 18:30:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269213AbUJTTtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 00:10:24 -0400
-Received: from mta13.adelphia.net ([68.168.78.44]:61838 "EHLO
-	mta13.adelphia.net") by vger.kernel.org with ESMTP id S270082AbUJUD5k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 23:57:40 -0400
-Message-ID: <4177339F.9010409@nodivisions.com>
-Date: Wed, 20 Oct 2004 23:57:19 -0400
-From: Anthony DiSante <orders@nodivisions.com>
-Reply-To: orders@nodivisions.com
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: oom killer on swapless music player
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Oct 2004 15:49:17 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:13836 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S266196AbUJTTej (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 15:34:39 -0400
+Date: Wed, 20 Oct 2004 14:29:54 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       ctindel@users.sourceforge.net, fubar@us.ibm.com
+Subject: [patch 2.6.9 10/11] bonding: Add MODULE_VERSION
+Message-ID: <20041020142954.M8775@tuxdriver.com>
+Mail-Followup-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+	jgarzik@pobox.com, ctindel@users.sourceforge.net, fubar@us.ibm.com
+References: <20041020141146.C8775@tuxdriver.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041020141146.C8775@tuxdriver.com>; from linville@tuxdriver.com on Wed, Oct 20, 2004 at 02:11:46PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I run a linux box in my car as an mp3 player.  It just has a perl script 
-that outputs to an LCD on the parallel port, and does a continuous loop 
-accepting keyboard/remote control input, and forks to play songs via madplay 
-or mpg321.  When the forked process finishes, it signals the parent script, 
-which then starts the next song in the playlist.
+Add MODULE_VERSION to bonding driver.
 
-The box has a 600MHz VIA CPU, 256MB of DDR RAM, and no swap space (the 
-partitions are all mounted read-only since it's in a car).
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
 
-This was running mostly fine on 2.4.25, but I recently upgraded to 2.6.8 to 
-switch to udev and for a few other reasons.  Now after playing for about 2 
-hours, the RAM is full, and the oom killer starts taking out the music 
-script and/or madplay.  Under 2.4.25, I ran a small "freeram" C program 
-whenever the memory usage was >70%, which just malloc()ed a bunch of memory 
-and then exited, clearing the disk cache out of RAM.  But now, under 2.6.8, 
-that doesn't work, because the buffer/cache is only 1 or 2 megs full; nearly 
-all the 256MB of RAM shows up in the "used" column when I run the "free" 
-program.  And after the oom killer has killed my music script, there's 
-almost nothing else running -- I boot directly to my script, bypassing 
-everything in /etc/init.d/ -- but the RAM is still full.
+ drivers/net/bonding/bond_main.c |    1 +
+ 1 files changed, 1 insertion(+)
 
-What has changed from 2.4 to 2.6 that makes this happen?  And... what 
-exactly is it that's happening?  Does some program (my script, madplay, alsa 
-drivers) have a severe memory leak that 2.4 somehow didn't care about?  Or 
-did I configure something incorrectly in my 2.6 kernel?
-
-Thanks,
-Anthony DiSante
-http://nodivisions.com/
+--- linux-2.6.9/drivers/net/bonding/bond_main.c.orig
++++ linux-2.6.9/drivers/net/bonding/bond_main.c
+@@ -4700,6 +4700,7 @@ static void __exit bonding_exit(void)
+ module_init(bonding_init);
+ module_exit(bonding_exit);
+ MODULE_LICENSE("GPL");
++MODULE_VERSION(DRV_VERSION);
+ MODULE_DESCRIPTION(DRV_DESCRIPTION ", v" DRV_VERSION);
+ MODULE_AUTHOR("Thomas Davis, tadavis@lbl.gov and many others");
+ MODULE_SUPPORTED_DEVICE("most ethernet devices");

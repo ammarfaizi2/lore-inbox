@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262161AbTCHTp3>; Sat, 8 Mar 2003 14:45:29 -0500
+	id <S262153AbTCHTll>; Sat, 8 Mar 2003 14:41:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262173AbTCHTp3>; Sat, 8 Mar 2003 14:45:29 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:64643
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S262161AbTCHTp2>; Sat, 8 Mar 2003 14:45:28 -0500
-Message-ID: <3E6A4B1E.1010205@redhat.com>
-Date: Sat, 08 Mar 2003 11:57:18 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030306
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc D Bumble <marc_bumble@cpinternet.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Plans for Posix sem_init() for pshared = 1 ?
-References: <m3smtxbr7r.fsf@cadence.glidepath.org>
-In-Reply-To: <m3smtxbr7r.fsf@cadence.glidepath.org>
-X-Enigmail-Version: 0.73.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	id <S262161AbTCHTlS>; Sat, 8 Mar 2003 14:41:18 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:20236 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262153AbTCHTjz>; Sat, 8 Mar 2003 14:39:55 -0500
+Date: Sat, 8 Mar 2003 19:50:28 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
+       Andries.Brouwer@cwi.nl,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] register_blkdev
+Message-ID: <20030308195028.A31394@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Andrew Morton <akpm@digeo.com>, Andries.Brouwer@cwi.nl,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <UTC200303071932.h27JW1o11962.aeb@smtp.cwi.nl> <20030307193644.A14196@infradead.org> <20030307123029.2bc91426.akpm@digeo.com> <20030307221217.GB21315@kroah.com> <20030307143319.2413d1df.akpm@digeo.com> <20030307234541.GG21315@kroah.com> <1047086062.24215.14.camel@irongate.swansea.linux.org.uk> <20030308005018.GE23071@kroah.com> <1047136302.25932.28.camel@irongate.swansea.linux.org.uk> <20030308193722.GD26374@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030308193722.GD26374@kroah.com>; from greg@kroah.com on Sat, Mar 08, 2003 at 11:37:22AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, Mar 08, 2003 at 11:37:22AM -0800, Greg KH wrote:
+> That's a good start, but why not change that to a simple,
+> HOW_MANY_MINORS_I_WANT, which will work the same way now, but allow us
+> to change to a pure dynamic major/minor allocation scheme in the future
+> by only modifying the register_chr_device() code.  Same thing for
+> register_blkdev().
 
-Marc D Bumble wrote:
-> Is anyone working on developing the Posix semaphores for Linux?
-
-Already implemented.
-
-http://people.redhat.com/drepper/posix-option-groups.html#THREAD_PROCESS_SHARED
-
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+akse2ijCOnn/RHQRAherAKC+iETyDpb9z86YvvkZf/0/9fYsGwCguC2d
-9Bbf1JhXJ5IvWUWDtARLTMg=
-=wTeU
------END PGP SIGNATURE-----
+register_blkdev() _IS_ totally meaningless in 2.5.  I said this about three
+times in this thread already, when will people actually take a look at
+the code they look at?
 

@@ -1,89 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129213AbQKQN4s>; Fri, 17 Nov 2000 08:56:48 -0500
+	id <S129094AbQKQOFC>; Fri, 17 Nov 2000 09:05:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129257AbQKQN4i>; Fri, 17 Nov 2000 08:56:38 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:32760 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129213AbQKQN41>; Fri, 17 Nov 2000 08:56:27 -0500
-Message-ID: <3A153200.63670F64@haque.net>
-Date: Fri, 17 Nov 2000 08:26:24 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jordan <ledzep37@home.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S129111AbQKQOEv>; Fri, 17 Nov 2000 09:04:51 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:31756 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129094AbQKQOEr>;
+	Fri, 17 Nov 2000 09:04:47 -0500
+Date: Fri, 17 Nov 2000 14:31:50 +0100
+From: Andi Kleen <ak@suse.de>
+To: Christoph Rohland <cr@sap.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Tigran Aivazian <tigran@veritas.com>,
+        Mikael Pettersson <mikpe@csd.uu.se>, Jordan <ledzep37@home.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Error in x86 CPU capabilities starting with test5/6
-In-Reply-To: <3A14FF48.E554BE1B@home.com>
+Message-ID: <20001117143150.A6832@gruyere.muc.suse.de>
+In-Reply-To: <E13wkLK-0000bP-00@the-village.bc.nu> <qwwpujuvk1s.fsf@sap.com> <3A152DC1.21B35324@mandrakesoft.com> <qwwlmuivio0.fsf@sap.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <qwwlmuivio0.fsf@sap.com>; from cr@sap.com on Fri, Nov 17, 2000 at 02:21:03PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It used to be..
-	flags           : fpu vme de pse tsc msr pae 
-
-but now called features
-
-It's a simple enough change. Contact me privately if you can't any
-avifile people to help.
-
-Jordan wrote:
+On Fri, Nov 17, 2000 at 02:21:03PM +0100, Christoph Rohland wrote:
+> Hi Jeff,
 > 
-> I have been running a plug in for xmms for some time that uses the
-> aviplay program and avifile library...then when upgrading to test5/6 I
-> start getting this error message when running xmms:
+> On Fri, 17 Nov 2000, Jeff Garzik wrote:
+> > IIRC, this came up a long time ago WRT Apache, which made a lot of
+> > gettimeofday() calls.  Someone (Linus?) proposed the solution of a
+> > 'magic page' which holds information like gettimeofday() stuff, but
+> > could be handled much more rapidly than a standard syscall.
 > 
-> ERROR: no time-stamp counter found! Quitting.
-> 
-> I finally trace it down to my avi plugin and  then from there to the
-> actual aviplay program.  I have played with a newer version that had
-> more specific error messages one of which told me I had a non-intel
-> compatible x86 with no time-stamp counter and to use ./configure
-> --disable-tsc to fix  the situation, this is all well and good if the
-> plugin didn't rely on an older version where even using the config
-> option will not work, here is my /proc/cpuinfo which shows tsc but
-> something has got to be wrong with it in recent versions.
-> 
-> contents of /proc/cpuinfo:
-> 
-> processor       : 0
-> vendor_id       : GenuineIntel
-> cpu family      : 6
-> model           : 8
-> model name      : Pentium III (Coppermine)
-> stepping        : 3
-> cpu MHz         : 733.000092
-> cache size      : 256 KB
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 2
-> wp              : yes
-> features        : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca
-> cmov pat pse36 mmx fxsr sse
-> bogomips        : 1461.45
-> 
-> Jordan Breeding
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+> Yes, I followed that thread closely and would love to see this as the
+> implementation for gettimeofday. This would make rdtsc for
+> applications superfluous.
 
--- 
+No it would not. Often you want cycle accurate couting for profiling
+purposes.
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,150 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265148AbUGGObn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265151AbUGGOeO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265148AbUGGObn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 10:31:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbUGGObm
+	id S265151AbUGGOeO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 10:34:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbUGGOeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 10:31:42 -0400
-Received: from gizmo04ps.bigpond.com ([144.140.71.14]:2461 "HELO
-	gizmo04ps.bigpond.com") by vger.kernel.org with SMTP
-	id S265148AbUGGObh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 10:31:37 -0400
-Message-ID: <40EBB472.8040303@bigpond.net.au>
-Date: Wed, 07 Jul 2004 18:29:38 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
-Subject: Re: [PATCH] CPU scheduler evaluation tool
-References: <40DFBCAD.7020403@bigpond.net.au> <40E519F1.1030200@bigpond.net.au>
-In-Reply-To: <40E519F1.1030200@bigpond.net.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jul 2004 10:34:13 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:38616 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S265151AbUGGOeJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 10:34:09 -0400
+Date: Wed, 7 Jul 2004 16:34:07 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Ray Lee <ray-lk@madrabbit.org>, tomstdenis@yahoo.com, eger@havoc.gtf.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 0xdeadbeef vs 0xdeadbeefL
+Message-ID: <20040707143407.GZ18841@lug-owl.de>
+Mail-Followup-To: Tomas Szepe <szepe@pinerecords.com>,
+	Ray Lee <ray-lk@madrabbit.org>, tomstdenis@yahoo.com,
+	eger@havoc.gtf.org, Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1089165901.4373.175.camel@orca.madrabbit.org> <20040707073059.GA20079@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eOZ5LUtYRk41oVSR"
+Content-Disposition: inline
+In-Reply-To: <20040707073059.GA20079@louise.pinerecords.com>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Peter Williams wrote:
-> 
->> To facilitate the comparative evaluation of alternative CPU schedulers 
->> a patch that allows the run time selection of CPU scheduler between 
->> version 7.7 of Con Kolivas's staircase scheduler ("sc") and the 
->> priority based scheduler with interactive and throughput bonuses 
->> ("pb") has been created.  This patch is available for download at:
->>
->> <http://prdownloads.sourceforge.net/cpuse/patch-2.6.7-spa_hydra_FULL-v1.2?download> 
->>
->>
->> The file /proc/sys/kernel/cpusched/mode has been added to those 
->> provided by the "pb" to control which of the schedulers is in 
->> control.  The string "sc" is used to select the staircase scheduler 
->> and "pb" to select the priority based scheduler described above.  The 
->> staircase scheduler control parameters "compute" and "interactive" 
->> have been moved into /proc/sys/kernel/cpusched along with the "pb" 
->> scheduler control parameters.  The scheduler starts in the "sc" mode. 
->> A primitive Glade/PyGTK GUI that provides the ability to switch 
->> between schedulers and to control scheduler parameters is available at:
->>
->> <http://prdownloads.sourceforge.net/cpuse/gcpuctl_hydra-1.0.tar.gz?download> 
->>
->>
->> This GUI should also work with a standard version of Con Kolivas's 
->> staircase scheduler as well as the version based on my single priority 
->> array patch:
->>
->> <http://prdownloads.sourceforge.net/cpuse/patch-2.6.7-spa_sc_FULL-v1.2?download> 
->>
->>
->> and the basic priority based scheduler:
->>
->> <http://prdownloads.sourceforge.net/cpuse/patch-2.6.7-spa_pb_FULL-v1.2?download> 
->>
->>
->> and, for those so inclined, these patches broken into smaller parts 
->> for easier digestion are available at:
->>
->> <https://sourceforge.net/projects/cpuse/>
->>
->> An entitlement based "eb" scheduler will be added to the selection 
->> available in the near future.
->>
->> Controls:
->>
->> base_promotion_interval -- (milliseconds) controls the interval 
->> between successive promotions (is multiplied by the number of active 
->> tasks on the CPU in question) NB no promotion occurs if there are less 
->> than 2 active tasks
->>
->> time_slice -- (milliseconds) the size of the time slice (i.e. how long 
->> it will be allowed to hold the CPU before it is kicked off to allow 
->> other tasks a chance to run) that is allocated to a task when it 
->> becomes active or finishes a time slice.  (min is 1 millisec and max 
->> is 1 second).
->>
->> max_ia_bonus -- (a value between 0 and 10) that determines the maximum 
->> interactive bonus that a task can acquire
->>
->> initial_ia_bonus -- (a value between 0 and 10) that determines the 
->> initial interactive bonus that a newly forked task will be given.  
->> This value will be capped by the max_ia_bonus.
->>
->> ia_threshold  -- (parts per thousand) is the sleep to (sleep + on_cpu) 
->> ratio above which a task will have its interactive bonus increased 
->> asymptotically towards the maximum
->>
->> cpu_hog_threshold  -- (parts per thousand) is the usage rate above 
->> which a task will be considered a CPU hog and start to lose 
->> interactive bonus points if it has any
->>
->> max_tpt_bonus -- (a value between 0 and 9) that determines the maximum 
->> throughput bonus that tasks may be awarded
->>
->> log_at_exit - (0 or 1) turns off/on the logging of tasks' scheduling 
->> statistics at exit.  This feature is useful for determining the 
->> scheduling characteristics of relatively short lived tasks that run as 
->> part of some larger job such as a kernel build where trying to get 
->> time series data is impractical.
->>
->> compute -- (0 or 1) turn on/off the staircase schedulers "compute" switch
->>
->> interactive -- (0 or 1) turn on/off the staircase schedulers 
->> "interactive" mode
-> 
-> 
-> Updated versions of this patch that include the staircase 7.8 updates 
-> and an entitlement based scheduler is available at:
-> 
-> <http://prdownloads.sourceforge.net/cpuse/patch-2.6.7-spa_hydra_FULL-v1.3?download> 
-> 
-> 
-> Because of a problem with VERY CPU bound tasks it has been necessary to 
-> change the way the control statistics for these type of tasks are 
-> calculated.  This has resulted in the introduction of another control 
-> parameter hog_sub_cycle_threshold which is an integer value and if a 
-> task uses more than this number of time slices without sleeping its 
-> average delay and cpu statistics will be calculated over the cpu:->runq 
-> sub cycle instead of the full scheduling cycle.  A modified version of 
-> the primitive GUI for manipulating parameters is available at:
-> 
-> <http://prdownloads.sourceforge.net/cpuse/gcpuctl_hydra-1.1.tar.gz?download> 
-> 
-> 
-> A stand alone version of the entitlement based scheduler will appear in 
-> due course.
-> 
 
-This is now available for download at:
+--eOZ5LUtYRk41oVSR
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-<https://sourceforge.net/projects/cpuse/>
+On Wed, 2004-07-07 09:30:59 +0200, Tomas Szepe <szepe@pinerecords.com>
+wrote in message <20040707073059.GA20079@louise.pinerecords.com>:
+> On Jul-06 2004, Tue, 19:05 -0700
+> Ray Lee <ray-lk@madrabbit.org> wrote:
+> > According to K&R, 2nd ed, section A2.5.1 (Integer Constants):
+> >
+> >         The type of an integer depends on its form, value and suffix.
+> >         [...] If it is unsuffixed octal or hexadecimal, it has the first
+> >         possible of these types ["in which its value can be represented"
+> >         -- from omitted]: int, unsigned int, long int, unsigned long
+> >         int.
+>=20
+> Is it safe to assume that C99 compilers append "..., long long int,
+> unsigned long long int" to the list?
 
-in the package spa-eb-linux along with version 1.5 (a bug fix version) 
-of the other schedulers.
+It is.
 
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+MfG, JBG
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
 
+--eOZ5LUtYRk41oVSR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA7AnfHb1edYOZ4bsRAm8DAJ9pLd7PXS08spQorjOsmBKy8TVllACeM0nG
+u38P7mxoBKkeNVAoEQBaV3s=
+=vGxk
+-----END PGP SIGNATURE-----
+
+--eOZ5LUtYRk41oVSR--

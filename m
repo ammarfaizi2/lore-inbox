@@ -1,90 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268034AbUIBWb6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269160AbUIBWfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268034AbUIBWb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 18:31:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269153AbUIBWb5
+	id S269160AbUIBWfP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 18:35:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269158AbUIBWfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 18:31:57 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:35296 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S268034AbUIBW2M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 18:28:12 -0400
-Subject: Re: [RFC] New Time of day proposal (updated 9/2/04)
-From: john stultz <johnstul@us.ibm.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.58.0409021458140.28532@schroedinger.engr.sgi.com>
-References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0409021458140.28532@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Message-Id: <1094163757.14662.339.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 02 Sep 2004 15:22:37 -0700
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Sep 2004 18:35:08 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:47225 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S269160AbUIBWdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 18:33:35 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: jakub@redhat.com, ecd@skynet.be, pavel@suse.cz, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fs/compat.c: rwsem instead of BKL around
+ ioctl32_hash_table
+X-Message-Flag: Warning: May contain useful information
+References: <20040901072245.GF13749@mellanox.co.il>
+	<524qmi2e1s.fsf@topspin.com> <20040902211448.GE16175@wotan.suse.de>
+From: Roland Dreier <roland@topspin.com>
+Date: Thu, 02 Sep 2004 15:26:49 -0700
+In-Reply-To: <20040902211448.GE16175@wotan.suse.de> (Andi Kleen's message of
+ "Thu, 2 Sep 2004 23:14:48 +0200")
+Message-ID: <52isawtihi.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 02 Sep 2004 22:26:49.0392 (UTC) FILETIME=[F04D6B00:01C4913B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 15:09, Christoph Lameter wrote:
-> > timeofday_hook()
-> > 	now = read();			/* read the timesource */
-> > 	ns = cyc2ns(now - offset_base); /* calc nsecs since last call */
-> > 	ntp_ns = ntp_scale(ns);		/* apply ntp scaling */
-> > 	system_time += ntp_ns;		/* add scaled value to system_time */
-> > 	ntp_advance(ns);		/* advance ntp state machine by ns */
-> > 	offset_base = now;		/* set new offset_base */
-> 
-> This would only work if the precision of the timer used is
-> <=1ns and if you are actually able to caculate the nanoseconds that have
-> passed. What do you do if the interval is lets say 100ns and the time the
-> timeofday hook is being called can be anytime within this 100ns interval
-> since the time source is not always precise?
+    Andi> It does not make much sense because the ioctl will take the
+    Andi> BKL anyways.
 
-Well, with the exception of the TSC, none of the current time sources
-have <=1ns resolution, but I'm not sure I understand the problem you're
-trying to point out. Could you clarify?
+True, but it seems pretty ugly to protect the ioctl32 hash with the
+BKL.  I think the greater good of reducing use of the BKL should be
+looked at.
 
-> I think its unavoidable to do some correction like provided by the time
-> interpolator if the clock source does not provide ns.
+    Andi> If you wanted to fix it properly better make it use RCU -
+    Andi> but it cannot work for the case of calling a compat handler.
 
-Could you point to the specific correction you describe? 
+I'm not sure I follow what you're saying.  When I looked at this, at
+first I thought RCU would be better for the hash lookup, but I didn't
+see a way to prevent a compat handler from being removed while it was
+running.  That's why I moved to a semaphore, which would hold off the
+removal until the handler was done running.  Is this what you mean?
+Do you see a way to use RCU here?
 
-> > o What is the cost of throwing around 64bit values for everything?
-> > 	- Do we need an arch specific time structure that varies size
-> > accordingly?
-> 
-> 64bit may be necessary at a minimum because with 4Ghz machine we may
-> have counters with the frequency >2^32 cycles per second.
-> 
-> I would think that 128bit may be necessary (at least
-> as an intermediate result during the scaling of the timesource to
-> nanoseconds) since we want to be accurate to the nanosecond.
-
-I worry 128bit math might be a bit too rich for the majority of systems
-at the moment. I am open to it, although I suspect we can use other
-tricks to get the same accuracy within a constrained bitspace.
-
-> > o Some arches (arm, for example) do not have high res  timing hardware
-> > 	- In this case we can have a "jiffies" timesource
-> > 		- cyc2ns(x) =  x*(NSEC_PER_SEC/HZ)
-> > 		- doesn't work for tickless systems
-> 
-> David M.s time interpolator logic is needed in those cases to insure that
-> the clock works properly and that nanoseconds offset can be calculated in
-> a consistent way although the exact timing of the increas / reading of the
-> counter may vary within a certain time period.
-
-Again, could you point me to the code (is this with your new patch, or
-the older code)? I've looked at the time interpolator code, but I'm not
-sure exactly what you mean. 
-
-Thanks for the feedback! I really appreciate it!
--john
+Thanks,
+  Roland
 

@@ -1,41 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261900AbTADXfx>; Sat, 4 Jan 2003 18:35:53 -0500
+	id <S261934AbTADXiG>; Sat, 4 Jan 2003 18:38:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbTADXfx>; Sat, 4 Jan 2003 18:35:53 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:34949 "EHLO
+	id <S261847AbTADXhd>; Sat, 4 Jan 2003 18:37:33 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:44677 "EHLO
 	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S261900AbTADXfw>; Sat, 4 Jan 2003 18:35:52 -0500
+	id <S261836AbTADXgP>; Sat, 4 Jan 2003 18:36:15 -0500
 From: Richard Stallman <rms@gnu.org>
-To: riel@conectiva.com.br
-CC: lm@bitmover.com, mark@mark.mielke.cc, billh@gnuppy.monkey.org,
-       paul@clubi.ie, Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
-In-reply-to: <Pine.LNX.4.50L.0301032014120.2429-100000@imladris.surriel.com>
-	(message from Rik van Riel on Fri, 3 Jan 2003 20:17:52 -0200 (BRST))
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+To: andrew@indranet.co.nz
+CC: andre@linux-ide.org, linux-kernel@vger.kernel.org
+In-reply-to: <15900000.1041638213@localhost.localdomain> (message from Andrew
+	McGregor on Sat, 04 Jan 2003 12:56:53 +1300)
+Subject: Re: Gauntlet Set NOW!
 Reply-to: rms@gnu.org
-References: <20030102013736.GA2708@gnuppy.monkey.org>
- <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org>
- <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc>
- <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com>
- <E18UYT2-0004xV-00@fencepost.gnu.org> <Pine.LNX.4.50L.0301032014120.2429-100000@imladris.surriel.com>
-Message-Id: <E18Uxxp-00045n-00@fencepost.gnu.org>
-Date: Sat, 04 Jan 2003 18:44:25 -0500
+References: <Pine.LNX.4.10.10301031425590.421-100000@master.linux-ide.org> <15900000.1041638213@localhost.localdomain>
+Message-Id: <E18UxyD-00048W-00@fencepost.gnu.org>
+Date: Sat, 04 Jan 2003 18:44:49 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    How about expanding the acronym IP to mean "intellectual patrimony" ?
+    But sometimes we can't make things free, either because it comes to close 
+    to core IP which we are legally bound to protect, or because it's a derived 
+    work of something we bought and don't ourselves have the right to 
+    redistribute.
 
-The term "intellectual patrimony" might be a good one for some
-purposes, but if you want people to know you are using it, I suggest
-you spell it out in full every time.  At present, when people see the
-abbreviation "IP", they will think "intellectual property".
+At this level of generality, I can only say that if the program is to
+be published as non-free software, it will not be available to people
+to use in freedom.  Its effect will be to tempt people to give up
+their freedom.  If I had a choice to develop that program or no
+program, I would develop no program.
 
-However, it is usually best to talk about "copyright", or about
-"patents", or about "trademarks", and avoid generalizations that would
-tend to blur the boundaries.  The widespread use of "intellectual
-property" leads people to suppose these laws (and the issues they
-raise) are mostly similar, but they are not.
+I would rather look for constructive alternatives than just criticize.
+In such a situation, I would look for a way to make the program free.
+This scenario is too general to get started on that.  (I explained in
+another message how the term "intellectual property" tends to obscure
+important distinctions; this is an example.)  In any specific case
+there is likely to be some way.
+
+If there is no easy way to make the same program free, there may be a
+harder way.  People who value freedom strongly sometimes choose the
+hard path to freedom rather than the easy path that extends
+non-freedom.  That is how we extend freedom.
+
+As an ultimate fallback, there is surely some other job you could do
+instead.
+
+    Linus has made it quite clear in the past that his position on binary 
+    modules is that they are explicitly allowed, but that the maintainers of 
+    such a thing 'get everything they deserve' in terms of maintenance hassle. 
+
+Linus has the right to permit this, with his code, and so do other
+contributors to Linux.  In the GNU Project we usually don't permit
+this, and the FSF believes the GPL does not in general permit it, but
+occasionally we make an exception when it seems best to do so.
+
+I have no opinion yet about what Andre said, because I cannot form a
+clear picture of what he plans to do; I don't know whether it would
+violate the GPL, or whether the issue would involve the FSF.  We do
+not enforce the GPL for Linux in any case; that is the responsibility
+of the copyright holders of Linux.
+
+
 
 
 

@@ -1,568 +1,260 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264659AbTE1PJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 11:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbTE1PJ4
+	id S264765AbTE1PQW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 11:16:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264766AbTE1PQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 11:09:56 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15634 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264659AbTE1PJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 11:09:45 -0400
-Date: Wed, 28 May 2003 16:22:57 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] PCMCIA updates
-Message-ID: <20030528162257.A12329@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	Wed, 28 May 2003 11:16:22 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:45191 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264765AbTE1PQL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 11:16:11 -0400
+Date: Wed, 28 May 2003 08:29:19 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 753] New: hisax needs unresolved symbol kstat__per_cpu 
+Message-ID: <16090000.1054135759@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's the patch for a set of PCMCIA updates which will shortly be heading
-Linus-ward.  As normal, if you want a bk tree to pull, just ask in personal
-mail.
+           Summary: hisax needs unresolved symbol kstat__per_cpu
+    Kernel Version: 2.5.70-bk1
+            Status: NEW
+          Severity: normal
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: wakko@start.no
 
-<proski@org.rmk.(none)> (03/05/28 1.1127.7.2)
-	[PATCH] Fix crash when unloading yenta_socket in Linux 2.5.69
-	
-	socket->base is unmapped in yenta_close(), which is called by
-	cardbus_remove().  The value of socket->base is not changed to
-	NULL, so it becomes invalid.
-	
-	Then cardbus_remove() calls class_device_unregister(), which calls
-	pcmcia_unregister_socket(), which it turn tries to access memory
-	space of the socket.
 
-<hch@de.rmk.(none)> (03/05/18 1.1127.7.1)
-	[PATCH] kill register_pccard_driver
-	
-	I tried to get as much in as possible through the maintainers but
-	didn't get much feedback.. (Except two batches included and Kai
-	ACKing the ISDN stuff).
-	
-	So here's a big patch to move the reamining users over to
-	pcmcia_register_driver and kill it off.
+Distribution: gentoo 
+Hardware Environment: dynalink isdn card "winbond", athlon xp
+Software Environment: gcc 3.2.3
+Problem Description: 
 
-diff -Nru a/drivers/char/pcmcia/synclink_cs.c b/drivers/char/pcmcia/synclink_cs.c
---- a/drivers/char/pcmcia/synclink_cs.c	Wed May 28 16:18:29 2003
-+++ b/drivers/char/pcmcia/synclink_cs.c	Wed May 28 16:18:30 2003
-@@ -3131,9 +3131,18 @@
- 	}
- }
- 
-+static struct pcmcia_driver mgslpc_driver = {
-+	.owner		= THIS_MODULE,
-+	.drv		= {
-+		.name	= "synclink_cs",
-+	},
-+	.attach		= mgslpc_attach,
-+	.detach		= mgslpc_detach,
-+};
-+
- static int __init synclink_cs_init(void)
- {
--    servinfo_t serv;
-+    int error;
- 
-     if (break_on_load) {
- 	    mgslpc_get_text_ptr();
-@@ -3142,13 +3151,9 @@
- 
-     printk("%s %s\n", driver_name, driver_version);
- 
--    CardServices(GetCardServicesInfo, &serv);
--    if (serv.Revision != CS_RELEASE_CODE) {
--	    printk(KERN_NOTICE "synclink_cs: Card Services release "
--		   "does not match!\n");
--	    return -1;
--    }
--    register_pccard_driver(&dev_info, &mgslpc_attach, &mgslpc_detach);
-+    error = pcmcia_register_driver(&mgslpc_driver);
-+    if (error)
-+	    return error;
- 
-     /* Initialize the tty_driver structure */
- 	
-@@ -3217,7 +3222,9 @@
- 		printk("%s(%d) failed to unregister tty driver err=%d\n",
- 		       __FILE__,__LINE__,rc);
- 
--	unregister_pccard_driver(&dev_info);
-+	pcmcia_unregister_driver(&mgslpc_driver);
-+
-+	/* XXX: this really needs to move into generic code.. */
- 	while (dev_list != NULL) {
- 		if (dev_list->state & DEV_CONFIG)
- 			mgslpc_release((u_long)dev_list);
-diff -Nru a/drivers/ide/legacy/ide-cs.c b/drivers/ide/legacy/ide-cs.c
---- a/drivers/ide/legacy/ide-cs.c	Wed May 28 16:18:30 2003
-+++ b/drivers/ide/legacy/ide-cs.c	Wed May 28 16:18:30 2003
-@@ -470,28 +470,25 @@
-     return 0;
- } /* ide_event */
- 
--/*====================================================================*/
-+static struct pcmcia_driver ide_cs_driver = {
-+	.owner		= THIS_MODULE,
-+	.drv		= {
-+		.name	= "ide_cs",
-+	},
-+	.attach		= ide_attach,
-+	.detach		= ide_detach,
-+};
- 
- static int __init init_ide_cs(void)
- {
--    servinfo_t serv;
--    DEBUG(0, "%s\n", version);
--    CardServices(GetCardServicesInfo, &serv);
--    if (serv.Revision != CS_RELEASE_CODE) {
--	printk(KERN_NOTICE "ide-cs: Card Services release "
--	       "does not match!\n");
--	return -EINVAL;
--    }
--    register_pccard_driver(&dev_info, &ide_attach, &ide_detach);
--    return 0;
-+	return pcmcia_register_driver(&ide_cs_driver);
- }
- 
- static void __exit exit_ide_cs(void)
- {
--    DEBUG(0, "ide-cs: unloading\n");
--    unregister_pccard_driver(&dev_info);
--    while (dev_list != NULL)
--	ide_detach(dev_list);
-+	pcmcia_unregister_driver(&ide_cs_driver);
-+	while (dev_list != NULL)
-+		ide_detach(dev_list);
- }
- 
- module_init(init_ide_cs);
-diff -Nru a/drivers/isdn/hardware/avm/avm_cs.c b/drivers/isdn/hardware/avm/avm_cs.c
---- a/drivers/isdn/hardware/avm/avm_cs.c	Wed May 28 16:18:29 2003
-+++ b/drivers/isdn/hardware/avm/avm_cs.c	Wed May 28 16:18:29 2003
-@@ -510,29 +510,30 @@
-     return 0;
- } /* avmcs_event */
- 
--/*====================================================================*/
-+static struct pcmcia_driver avmcs_driver = {
-+	.owner		= THIS_MODULE,
-+	.drv		= {
-+		.name	= "avmcs_cs",
-+	},
-+	.attach		= avmcs_attach,
-+	.detach		= avmcs_detach,
-+};
- 
- static int __init avmcs_init(void)
- {
--    servinfo_t serv;
--    CardServices(GetCardServicesInfo, &serv);
--    if (serv.Revision != CS_RELEASE_CODE) {
--	printk(KERN_NOTICE "avm_cs: Card Services release "
--	       "does not match!\n");
--	return -1;
--    }
--    register_pccard_driver(&dev_info, &avmcs_attach, &avmcs_detach);
--    return 0;
-+	return pcmcia_register_driver(&avmcs_driver);
- }
- 
- static void __exit avmcs_exit(void)
- {
--    unregister_pccard_driver(&dev_info);
--    while (dev_list != NULL) {
--	if (dev_list->state & DEV_CONFIG)
--	    avmcs_release((u_long)dev_list);
--	avmcs_detach(dev_list);
--    }
-+	pcmcia_unregister_driver(&avmcs_driver);
-+
-+	/* XXX: this really needs to move into generic code.. */
-+	while (dev_list != NULL) {
-+		if (dev_list->state & DEV_CONFIG)
-+			avmcs_release((u_long)dev_list);
-+		avmcs_detach(dev_list);
-+	}
- }
- 
- module_init(avmcs_init);
-diff -Nru a/drivers/isdn/hisax/avma1_cs.c b/drivers/isdn/hisax/avma1_cs.c
---- a/drivers/isdn/hisax/avma1_cs.c	Wed May 28 16:18:30 2003
-+++ b/drivers/isdn/hisax/avma1_cs.c	Wed May 28 16:18:30 2003
-@@ -515,30 +515,30 @@
-     return 0;
- } /* avma1cs_event */
- 
--/*====================================================================*/
-+static struct pcmcia_driver avma1cs_driver = {
-+	.owner		= THIS_MODULE,
-+	.drv		= {
-+		.name	= "avma1_cs",
-+	},
-+	.attach		= avma1cs_attach,
-+	.detach		= avma1cs_detach,
-+};
- 
- static int __init init_avma1_cs(void)
- {
--    servinfo_t serv;
--    DEBUG(0, "%s\n", version);
--    CardServices(GetCardServicesInfo, &serv);
--    if (serv.Revision != CS_RELEASE_CODE) {
--        printk(KERN_NOTICE "avma1_cs: Card Services release "
--               "does not match!\n");
--        return -1;
--    }
--    register_pccard_driver(&dev_info, &avma1cs_attach, &avma1cs_detach);
--    return 0;
-+	return pcmcia_register_driver(&avma1cs_driver);
- }
- 
- static void __exit exit_avma1_cs(void)
- {
--    DEBUG(0, "avma1_cs: unloading\n");
--    unregister_pccard_driver(&dev_info);
--    while (dev_list != NULL)
--	if (dev_list->state & DEV_CONFIG)
--	    avma1cs_release((u_long)dev_list);
--        avma1cs_detach(dev_list);
-+	pcmcia_unregister_driver(&avma1cs_driver);
-+
-+	/* XXX: this really needs to move into generic code.. */
-+	while (dev_list != NULL) {
-+		if (dev_list->state & DEV_CONFIG)
-+			avma1cs_release((u_long)dev_list);
-+		avma1cs_detach(dev_list);
-+	}
- }
- 
- module_init(init_avma1_cs);
-diff -Nru a/drivers/isdn/hisax/elsa_cs.c b/drivers/isdn/hisax/elsa_cs.c
---- a/drivers/isdn/hisax/elsa_cs.c	Wed May 28 16:18:30 2003
-+++ b/drivers/isdn/hisax/elsa_cs.c	Wed May 28 16:18:30 2003
-@@ -531,28 +531,27 @@
-     return 0;
- } /* elsa_cs_event */
- 
--/*====================================================================*/
-+static struct pcmcia_driver elsa_cs_driver = {
-+	.owner		= THIS_MODULE,
-+	.drv		= {
-+		.name	= "elsa_cs",
-+	},
-+	.attach		= elsa_cs_attach,
-+	.detach		= elsa_cs_detach,
-+};
- 
- static int __init init_elsa_cs(void)
- {
--    servinfo_t serv;
--    DEBUG(0, "%s\n", version);
--    CardServices(GetCardServicesInfo, &serv);
--    if (serv.Revision != CS_RELEASE_CODE) {
--        printk(KERN_NOTICE "elsa_cs: Card Services release "
--               "does not match!\n");
--        return -1;
--    }
--    register_pccard_driver(&dev_info, &elsa_cs_attach, &elsa_cs_detach);
--    return 0;
-+	return pcmcia_register_driver(&elsa_cs_driver);
- }
- 
- static void __exit exit_elsa_cs(void)
- {
--    DEBUG(0, "elsa_cs: unloading\n");
--    unregister_pccard_driver(&dev_info);
--    while (dev_list != NULL)
--        elsa_cs_detach(dev_list);
-+	pcmcia_unregister_driver(&elsa_cs_driver);
-+
-+	/* XXX: this really needs to move into generic code.. */
-+	while (dev_list != NULL)
-+		elsa_cs_detach(dev_list);
- }
- 
- module_init(init_elsa_cs);
-diff -Nru a/drivers/isdn/hisax/sedlbauer_cs.c b/drivers/isdn/hisax/sedlbauer_cs.c
---- a/drivers/isdn/hisax/sedlbauer_cs.c	Wed May 28 16:18:29 2003
-+++ b/drivers/isdn/hisax/sedlbauer_cs.c	Wed May 28 16:18:29 2003
-@@ -633,34 +633,32 @@
-     return 0;
- } /* sedlbauer_event */
- 
--/*====================================================================*/
-+static struct pcmcia_driver sedlbauer_driver = {
-+	.owner		= THIS_MODULE,
-+	.drv		= {
-+		.name	= "sedlbauer_cs",
-+	},
-+	.attach		= sedlbauer_attach,
-+	.detach		= sedlbauer_detach,
-+};
- 
- static int __init init_sedlbauer_cs(void)
- {
--    servinfo_t serv;
--    DEBUG(0, "%s\n", version);
--    CardServices(GetCardServicesInfo, &serv);
--    if (serv.Revision != CS_RELEASE_CODE) {
--	printk(KERN_NOTICE "sedlbauer_cs: Card Services release "
--	       "does not match!\n");
--	return -1;
--    }
--    register_pccard_driver(&dev_info, &sedlbauer_attach, &sedlbauer_detach);
--    return 0;
-+	return pcmcia_register_driver(&sedlbauer_driver);
- }
- 
- static void __exit exit_sedlbauer_cs(void)
- {
--    DEBUG(0, "sedlbauer_cs: unloading\n");
--    unregister_pccard_driver(&dev_info);
--    while (dev_list != NULL) {
--	del_timer(&dev_list->release);
--	if (dev_list->state & DEV_CONFIG)
--	    sedlbauer_release((u_long)dev_list);
--	sedlbauer_detach(dev_list);
--    }
-+	pcmcia_unregister_driver(&sedlbauer_driver);
-+
-+	/* XXX: this really needs to move into generic code.. */
-+	while (dev_list != NULL) {
-+		del_timer(&dev_list->release);
-+		if (dev_list->state & DEV_CONFIG)
-+			sedlbauer_release((u_long)dev_list);
-+		sedlbauer_detach(dev_list);
-+	}
- }
- 
- module_init(init_sedlbauer_cs);
- module_exit(exit_sedlbauer_cs);
--
-diff -Nru a/drivers/mtd/maps/pcmciamtd.c b/drivers/mtd/maps/pcmciamtd.c
---- a/drivers/mtd/maps/pcmciamtd.c	Wed May 28 16:18:29 2003
-+++ b/drivers/mtd/maps/pcmciamtd.c	Wed May 28 16:18:29 2003
-@@ -836,17 +836,18 @@
- 	return link;
- }
- 
-+static struct pcmcia_driver pcmciamtd_driver = {
-+	.owner		= THIS_MODULE,
-+	.drv		= {
-+		.name	= "pcmciamtd",
-+	},
-+	.attach		= pcmciamtd_attach,
-+	.detach		= pcmciamtd_detach,
-+};
- 
- static int __init init_pcmciamtd(void)
- {
--	servinfo_t serv;
--
- 	info(DRIVER_DESC " " DRIVER_VERSION);
--	CardServices(GetCardServicesInfo, &serv);
--	if (serv.Revision != CS_RELEASE_CODE) {
--		err("Card Services release does not match!");
--		return -1;
--	}
- 
- 	if(buswidth && buswidth != 1 && buswidth != 2) {
- 		info("bad buswidth (%d), using default", buswidth);
-@@ -860,8 +861,8 @@
- 		info("bad mem_type (%d), using default", mem_type);
- 		mem_type = 0;
- 	}
--	register_pccard_driver(&dev_info, &pcmciamtd_attach, &pcmciamtd_detach);
--	return 0;
-+
-+	return pcmcia_register_driver(&pcmciamtd_driver);
- }
- 
- 
-@@ -870,7 +871,10 @@
- 	struct list_head *temp1, *temp2;
- 
- 	DEBUG(1, DRIVER_DESC " unloading");
--	unregister_pccard_driver(&dev_info);
-+
-+	pcmcia_unregister_driver(&pcmciamtd_driver);
-+
-+	/* XXX: this really needs to move into generic code.. */
- 	list_for_each_safe(temp1, temp2, &dev_list) {
- 		dev_link_t *link = &list_entry(temp1, struct pcmciamtd_dev, list)->link;
- 		if (link && (link->state & DEV_CONFIG)) {
-diff -Nru a/drivers/net/pcmcia/pcnet_cs.c b/drivers/net/pcmcia/pcnet_cs.c
---- a/drivers/net/pcmcia/pcnet_cs.c	Wed May 28 16:18:30 2003
-+++ b/drivers/net/pcmcia/pcnet_cs.c	Wed May 28 16:18:30 2003
-@@ -1620,16 +1620,7 @@
- 
- static int __init init_pcnet_cs(void)
- {
--    servinfo_t serv;
--    DEBUG(0, "%s\n", version);
--    CardServices(GetCardServicesInfo, &serv);
--    if (serv.Revision != CS_RELEASE_CODE) {
--	printk(KERN_NOTICE "pcnet_cs: Card Services release "
--	       "does not match!\n");
--	return -EINVAL;
--    }
--    pcmcia_register_driver(&pcnet_driver);
--    return 0;
-+    return pcmcia_register_driver(&pcnet_driver);
- }
- 
- static void __exit exit_pcnet_cs(void)
-diff -Nru a/drivers/parport/parport_cs.c b/drivers/parport/parport_cs.c
---- a/drivers/parport/parport_cs.c	Wed May 28 16:18:31 2003
-+++ b/drivers/parport/parport_cs.c	Wed May 28 16:18:31 2003
-@@ -390,28 +390,27 @@
-     return 0;
- } /* parport_event */
- 
--/*====================================================================*/
-+static struct pcmcia_driver parport_cs_driver = {
-+	.owner		= THIS_MODULE,
-+	.drv		= {
-+		.name	= "parport_cs",
-+	},
-+	.attach		= parport_attach,
-+	.detach		= parport_detach,
-+};
- 
- static int __init init_parport_cs(void)
- {
--    servinfo_t serv;
--    DEBUG(0, "%s\n", version);
--    CardServices(GetCardServicesInfo, &serv);
--    if (serv.Revision != CS_RELEASE_CODE) {
--	printk(KERN_NOTICE "parport_cs: Card Services release "
--	       "does not match!\n");
--	return -EINVAL;
--    }
--    register_pccard_driver(&dev_info, &parport_attach, &parport_detach);
--    return 0;
-+	return pcmcia_register_driver(&parport_cs_driver);
- }
- 
- static void __exit exit_parport_cs(void)
- {
--    DEBUG(0, "parport_cs: unloading\n");
--    unregister_pccard_driver(&dev_info);
--    while (dev_list != NULL)
--	parport_detach(dev_list);
-+	pcmcia_unregister_driver(&parport_cs_driver);
-+
-+	/* XXX: this really needs to move into generic code.. */
-+	while (dev_list != NULL)
-+		parport_detach(dev_list);
- }
- 
- module_init(init_parport_cs);
-diff -Nru a/drivers/pcmcia/ds.c b/drivers/pcmcia/ds.c
---- a/drivers/pcmcia/ds.c	Wed May 28 16:18:30 2003
-+++ b/drivers/pcmcia/ds.c	Wed May 28 16:18:30 2003
-@@ -182,50 +182,6 @@
- }
- EXPORT_SYMBOL(pcmcia_unregister_driver);
- 
--
--int register_pccard_driver(dev_info_t *dev_info,
--			   dev_link_t *(*attach)(void),
--			   void (*detach)(dev_link_t *))
--{
--    struct pcmcia_driver *driver;
--
--    DEBUG(0, "ds: register_pccard_driver('%s')\n", (char *)dev_info);
--    driver = get_pcmcia_driver(dev_info);
--    if (driver)
--	    return -EBUSY;
--
--    driver = kmalloc(sizeof(struct pcmcia_driver), GFP_KERNEL);
--    if (!driver) return -ENOMEM;
--    memset(driver, 0, sizeof(struct pcmcia_driver));
--    driver->drv.name = (char *)dev_info;
--    pcmcia_register_driver(driver);
--
--    driver->attach = attach;
--    driver->detach = detach;
--
--    return 0;
--} /* register_pccard_driver */
--
--/*====================================================================*/
--
--int unregister_pccard_driver(dev_info_t *dev_info)
--{
--    struct pcmcia_driver *driver;
--
--    DEBUG(0, "ds: unregister_pccard_driver('%s')\n",
--	  (char *)dev_info);
--
--    driver = get_pcmcia_driver(dev_info);
--    if (!driver)
--	return -ENODEV;
--    
--    pcmcia_unregister_driver(driver);
--    kfree(driver);
--    return 0;
--} /* unregister_pccard_driver */
--
--/*====================================================================*/
--
- #ifdef CONFIG_PROC_FS
- static int proc_read_drivers_callback(struct device_driver *driver, void *d)
- {
-@@ -875,11 +831,6 @@
- 	.write		= ds_write,
- 	.poll		= ds_poll,
- };
--
--EXPORT_SYMBOL(register_pccard_driver);
--EXPORT_SYMBOL(unregister_pccard_driver);
--
--/*====================================================================*/
- 
- static int __devinit pcmcia_bus_add_socket(struct device *dev, unsigned int socket_nr)
- {
-diff -Nru a/drivers/pcmcia/pci_socket.c b/drivers/pcmcia/pci_socket.c
---- a/drivers/pcmcia/pci_socket.c	Wed May 28 16:18:31 2003
-+++ b/drivers/pcmcia/pci_socket.c	Wed May 28 16:18:31 2003
-@@ -196,9 +196,9 @@
- 	pci_socket_t *socket = pci_get_drvdata(dev);
- 
- 	/* note: we are already unregistered from the cs core */
-+	class_device_unregister(&socket->cls_d.class_dev);
- 	if (socket->op && socket->op->close)
- 		socket->op->close(socket);
--	class_device_unregister(&socket->cls_d.class_dev);
- 	pci_set_drvdata(dev, NULL);
- }
- 
-diff -Nru a/include/pcmcia/ds.h b/include/pcmcia/ds.h
---- a/include/pcmcia/ds.h	Wed May 28 16:18:29 2003
-+++ b/include/pcmcia/ds.h	Wed May 28 16:18:29 2003
-@@ -156,12 +156,6 @@
- int pcmcia_register_driver(struct pcmcia_driver *driver);
- void pcmcia_unregister_driver(struct pcmcia_driver *driver);
- 
--/* legacy driver registration interface.  don't use in new code */
--int register_pccard_driver(dev_info_t *dev_info,
--			   dev_link_t *(*attach)(void),
--			   void (*detach)(dev_link_t *));
--int unregister_pccard_driver(dev_info_t *dev_info);
--
- /* error reporting */
- void cs_error(client_handle_t handle, int func, int ret);
- 
+make modules gives:
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+  Starting the build. KBUILD_BUILTIN= KBUILD_MODULES=1
+  Building modules, stage 2.
+  MODPOST
+*** Warning: "mmu_cr4_features" [drivers/char/drm/radeon.ko] undefined!
+*** Warning: "group_send_sig_info" [drivers/isdn/i4l/isdn.ko] undefined!
+*** Warning: "kstat__per_cpu" [drivers/isdn/hisax/hisax.ko] undefined!
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+
+Steps to reproduce:
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MK7=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_PREEMPT=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_EDD=y
+CONFIG_NOHIGHMEM=y
+CONFIG_1GB=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_PCI_NAMES=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PNP=y
+CONFIG_PNP_NAMES=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_LBD=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=m
+CONFIG_PPP=y
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_DEFLATE=y
+CONFIG_PPP_BSDCOMP=y
+CONFIG_ISDN_BOOL=y
+CONFIG_ISDN=m
+CONFIG_ISDN_PPP=y
+CONFIG_ISDN_PPP_VJ=y
+CONFIG_ISDN_MPP=y
+CONFIG_ISDN_PPP_BSDCOMP=m
+CONFIG_ISDN_CAPI=m
+CONFIG_ISDN_CAPI_MIDDLEWARE=y
+CONFIG_ISDN_CAPI_CAPI20=m
+CONFIG_ISDN_CAPI_CAPIFS_BOOL=y
+CONFIG_ISDN_CAPI_CAPIFS=m
+CONFIG_ISDN_CAPI_CAPIDRV=m
+CONFIG_ISDN_DRV_HISAX=m
+CONFIG_HISAX_EURO=y
+CONFIG_HISAX_MAX_CARDS=8
+CONFIG_HISAX_W6692=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_HW_RANDOM=y
+
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+CONFIG_DRM_RADEON=m
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+CONFIG_FS_POSIX_ACL=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_NTFS_FS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_SMB_FS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_850=y
+CONFIG_NLS_CODEPAGE_865=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_UTF8=y
+CONFIG_FB=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_MONO=y
+CONFIG_LOGO_LINUX_VGA16=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_EMU10K1=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_BANDWIDTH=y
+CONFIG_USB_EHCI_HCD=y
+CONFIG_USB_UHCI_HCD=y
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+CONFIG_DEBUG_INFO=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+CONFIG_X86_BIOS_REBOOT=y
 

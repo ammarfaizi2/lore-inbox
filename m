@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261608AbTCaLti>; Mon, 31 Mar 2003 06:49:38 -0500
+	id <S261605AbTCaLoM>; Mon, 31 Mar 2003 06:44:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261609AbTCaLti>; Mon, 31 Mar 2003 06:49:38 -0500
-Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:6802 "EHLO
-	dexter.hensema.net") by vger.kernel.org with ESMTP
-	id <S261608AbTCaLth>; Mon, 31 Mar 2003 06:49:37 -0500
-From: Erik Hensema <erik@hensema.net>
-Subject: Re: Delaying writes to disk when there's no need
-Date: Mon, 31 Mar 2003 12:00:57 +0000 (UTC)
-Message-ID: <slrnb8gbfp.1d6.erik@bender.home.hensema.net>
-References: <slrnb843gi.2tt.usenet@bender.home.hensema.net> <20030328231248.GH5147@zaurus.ucw.cz>
-Reply-To: erik@hensema.net
-User-Agent: slrn/0.9.7.4 (Linux)
-To: linux-kernel@vger.kernel.org
+	id <S261607AbTCaLoM>; Mon, 31 Mar 2003 06:44:12 -0500
+Received: from [203.124.139.208] ([203.124.139.208]:37311 "EHLO
+	pcsbom.patni.com") by vger.kernel.org with ESMTP id <S261605AbTCaLoL>;
+	Mon, 31 Mar 2003 06:44:11 -0500
+Reply-To: <chandrasekhar.nagaraj@patni.com>
+From: "chandrasekhar.nagaraj" <chandrasekhar.nagaraj@patni.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problem created by Zoning on Linux
+Date: Mon, 31 Mar 2003 17:57:09 +0530
+Message-ID: <000001c2f780$da0265e0$e9bba5cc@patni.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek (pavel@suse.cz) wrote:
-> Hi!
-> 
->> In all kernels I've tested writes to disk are delayed a long time even when
->> there's no need to do so.
->> 
->> A very simple test shows this: on an otherwise idle system, create a tar of
->> a NFS-mounted filesystem to a local disk. The kernel starts writing out the
->> data after 30 seconds, while a slow and steady stream would be much nicer
->> to the system, I think.
->> 
-> 
-> Well, doing writeback sooner when disks
-> are idle might be good idea; detecting
-> if disk is idle might not be too easy, through.
+Hi,
+We are trying to create zoning (IO fencing) on our storage device.
+The zoning is to be done on the LUN basis, so that a particular HBA will
+accesses the only those LUNs which are assigned to it.
 
-Helge Hafting already pointed out that writing out the data earlier isn't
-desirable. The problem isn't in the waiting: the problem is in the writing.
-I think the current kernel tries to write too much data too fast when
-there's absolutely no reason to do so. It should probably gently write out
-small amounts of data until there is a more pressing need for memory.
+We have two HBA cards residing on different Hosts.
 
--- 
-Erik Hensema <erik@hensema.net>
+We have created 8 LUNs (from 0 to 7).
+Now we want to give access to only 4 LUNs from each HBA card.
+
+So we have given access to LUN 0 to 3 from HBA card 1.
+Also LUN 4 to 7 is to be accessed from HBA card 2.
+
+When we did the above, we observed that the Host, which has access to LUN 0
+to 3, is working fine. i.e. its /proc/scsi/scsi is showing entries
+corresponding to LUN 0 to 3. Also 4 scsi devices are created & can be viewed
+in /proc/partitions.
+
+But the second Host, which should have access to LUN 4 to 7, has some
+problem.
+The /proc/partitions does not show any scsi device file. Also
+/proc/scsi/scsi does not entries corresponding to LUN 4 to 7; but it have
+only one entry corresponding to LUN 0 (which should not be allowed).
+
+So, is there any restriction on Linux that the LUN number should start with
+0 only??
+If so, then what is the solution/workaround?
+
+Thanks and Regards
+Chandrasekhar
+
+

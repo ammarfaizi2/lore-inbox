@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVCVNwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVCVN5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbVCVNwg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 08:52:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVCVNwg
+	id S261228AbVCVN5G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 08:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVCVN5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 08:52:36 -0500
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:5010 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261230AbVCVNwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 08:52:33 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: Voodoo 3 2000 framebuffer problem
-To: DervishD <lkml@dervishd.net>, Linux-kernel <linux-kernel@vger.kernel.org>
-Reply-To: 7eggert@gmx.de
-Date: Tue, 22 Mar 2005 14:57:07 +0100
-References: <fa.cmkmtid.l6sdqh@ifi.uio.no>
-User-Agent: KNode/0.7.7
+	Tue, 22 Mar 2005 08:57:06 -0500
+Received: from spectre.fbab.net ([212.214.165.139]:49836 "HELO mail2.fbab.net")
+	by vger.kernel.org with SMTP id S261228AbVCVN5D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 08:57:03 -0500
+Message-ID: <42402428.8040506@fbab.net>
+Date: Tue, 22 Mar 2005 14:56:56 +0100
+From: "Magnus Naeslund(t)" <mag@fbab.net>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1DDjsg-0000rS-0e@be1.7eggert.dyndns.org>
+To: paulmck@us.ibm.com
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-01
+References: <20050319191658.GA5921@elte.hu> <20050320174508.GA3902@us.ibm.com> <20050321085332.GA7163@elte.hu> <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu> <423F5456.5010908@fbab.net> <20050322054025.GA1296@us.ibm.com>
+In-Reply-To: <20050322054025.GA1296@us.ibm.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DervishD <lkml@dervishd.net> wrote:
+Paul E. McKenney wrote:
+> 
+> Hello, Magnus,
+> 
+> I believe that my earlier patch might take care of this (included again
+> for convenience).
+> 
+> 						Thanx, Paul
+> 
 
->     Linux Kernel 2.4.29, in a do-it-yourself linux box, equipped with
-> an AGP Voodoo 3 2000 card, tdfx framebuffer support. I boot in vga
-> mode 0x0f05, with parameter 'video=tdfx:800x600-32@100' and I get
-> (correctly) 100x37 character grid. All of that is correct. What is
-> not correct is the characters attributes, namely the 'blink'
-> attribute.
+I just tested this patch, and it did not solve my problem.
+The dst cache still grows to the maximum and starts spitting errors via 
+printk.
 
-Blinking a whole screen of text is much more expensive than a block cursor.
-You'll want hardware support, e.g. some kind of double-buffering or using
-240 colors just for that purpose in a 256 color mode.
-(I would not implement that.)
+I'll do a make mrproper build too to make sure I didn't make any mistakes.
+
+Regards,
+Magnus

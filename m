@@ -1,90 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264744AbTFEQ0J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 12:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264755AbTFEQ0I
+	id S264776AbTFEQ1n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 12:27:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264774AbTFEQ1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 12:26:08 -0400
-Received: from uldns1.unil.ch ([130.223.8.20]:37262 "EHLO uldns1.unil.ch")
-	by vger.kernel.org with ESMTP id S264744AbTFEQ0D convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 12:26:03 -0400
-Date: Thu, 5 Jun 2003 18:39:32 +0200
-From: Gregoire Favre <greg@magma.unil.ch>
-To: linux-kernel@vger.kernel.org, linux-dvb@linuxtv.org
-Subject: Re: [linux-dvb] Can't boot since 2.4.21-rc2-ac3 with dvb-kernel
-Message-ID: <20030605163932.GA17573@magma.unil.ch>
-References: <20030602171613.GA1609@magma.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20030602171613.GA1609@magma.unil.ch>
-User-Agent: Mutt/1.4.1i
-Content-Transfer-Encoding: 8BIT
+	Thu, 5 Jun 2003 12:27:43 -0400
+Received: from ppp-62-245-208-76.mnet-online.de ([62.245.208.76]:1942 "EHLO
+	frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
+	id S264776AbTFEQ1k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 12:27:40 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/bus/pci
+From: Julien Oster <lkml@mf.frodoid.org>
+Organization: FRODOID.ORG
+X-Face: #C"_SRmka_V!KOD9IoD~=}8-P'ekRGm,8qOM6%?gaT(k:%{Y+\Cbt.$Zs<[X|e)<BNuB($kI"KIs)dw,YmS@vA_67nR]^AQC<w;6'Y2Uxo_DT.yGXKkr/s/n'Th!P-O"XDK4Et{`Di:l2e!d|rQoo+C6)96S#E)fNj=T/rGqUo$^vL_'wNY\V,:0$q@,i2E<w[_l{*VQPD8/h5Y^>?:O++jHKTA(
+Date: Thu, 05 Jun 2003 18:41:10 +0200
+In-Reply-To: <20030605160017$10e1@gated-at.bofh.it> (Linus Torvalds's
+ message of "Thu, 05 Jun 2003 18:00:17 +0200")
+Message-ID: <frodoid.frodo.873cioa34p.fsf@usenet.frodoid.org>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
+References: <20030605125013$41ac@gated-at.bofh.it>
+	<20030605160017$10e1@gated-at.bofh.it>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-as already repported with older ac and older CVS of dvb-kernel, same
-Oops with 2.4.21-rc7-ac1:
+Hello Linus,
 
-ksymoops -v /usr/src/linux/vmlinux -l /lib/modules/2.4.21-rc7-ac1 -m /usr/src/linux-2.4.21-rc7-ac1/System.map OOps 
-ksymoops 2.4.8 on i686 2.4.21-rc7-ac1.  Options used
-     -v /usr/src/linux/vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /lib/modules/2.4.21-rc7-ac1 (specified)
-     -o /lib/modules/2.4.21-rc7-ac1/ (default)
-     -m /usr/src/linux-2.4.21-rc7-ac1/System.map (specified)
+> What the _f*ck_ is wrong with just calling it "PCI domain". It's a fine 
+> word, and yes, "domain" is used commonly in computer language, but that's 
+> a _good_ thing. Everybody immediately understands what it is about.
 
-Error (regular_file): read_lsmod /lib/modules/2.4.21-rc7-ac1 is not a regular file, ignored
-Unable to handle kernel NULL pointer dereference at virtual address 00000001
-00000001
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<00000001>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010202
-eax: f6e03980   ebx: e2658dac   ecx: f1466b00   edx: f7302180
-esi: fab4b320   edi: fab4b300   ebp: 00000000   esp: d8c5fed8
-ds: 0018   es: 0018   ss: 0018
-Process v4l-conf (pid: 7132, stackpage=d8c5f000)
-Stack: fab4a2bb f6e03980 f1466b00 c0144dce ef295b00 ef295a80 d9d2200f c0145626 
-       ef295b00 d8c5ff10 00000000 00000001 c0168164 f6b81e00 f6e03980 f6e03980 
-       f1466b00 c0168d88 f6e03980 f1466b00 00000003 c0144c65 00000003 ffffffeb 
-Call Trace:    [<fab4a2bb>] [<c0144dce>] [<c0145626>] [<c0168164>] [<c0168d88>]
-  [<c0144c65>] [<c013a076>] [<c0139ebd>] [<c013a28e>] [<c01071b7>]
-Code:  Bad EIP value.
+Actually... I might have a problem with it. The really large Sun
+Enterprise Servers have "Dynamic System Domains", DNS is made of
+"domains", there are "SCSI domains", in NIS you set up a "domain",
+virtual hosts at ISPs are sometimes just referred to as "domains" (ok,
+it's silly sales talk, but it's there) and I sometimes put my code
+into the "public domain".
 
+The point is: Work into some place where there are Sun Enterprise
+Servers with Dynamic System Domains, SCSI, DNS, Webservers
+(incl. virtual hosts) on it and NSS is set up to NIS, get told by
+somebody that "a domain is experiencing problems" and start sighing.
 
->>EIP; 00000001 Before first symbol   <=====
+Even better: work on some foreign code that is using all various kind
+of domains and start getting crazy!
 
->>eax; f6e03980 <_end+36a19a00/3a7520e0>
->>ebx; e2658dac <_end+2226ee2c/3a7520e0>
->>ecx; f1466b00 <_end+3107cb80/3a7520e0>
->>edx; f7302180 <_end+36f18200/3a7520e0>
->>esi; fab4b320 <[videodev]video_fops+0/47>
->>edi; fab4b300 <[videodev]videodev_lock+0/0>
->>esp; d8c5fed8 <_end+18875f58/3a7520e0>
+"Ah, yes, this symbol is declared as 'struct l_d_domain *ldd1' - what
+f***ing kind of domain IS IT?"
 
-Trace; fab4a2bb <[videodev]video_open+182/1d2>
-Trace; c0144dce <cached_lookup+18/5b>
-Trace; c0145626 <link_path_walk+616/6b8>
-Trace; c0168164 <devfs_get_ops+82/b0>
-Trace; c0168d88 <devfs_open+147/1ca>
-Trace; c0144c65 <vfs_permission+8a/12b>
-Trace; c013a076 <dentry_open+1b4/1f3>
-Trace; c0139ebd <filp_open+5c/61>
-Trace; c013a28e <sys_open+53/a6>
-Trace; c01071b7 <system_call+33/38>
+Yes, there are common words with common meaning. For example, an
+interrupt is in most cases basically just an interrupt. Okay, there
+are different types of interrupts... hardware, software,
+edge-triggered, level-triggered, XT PIC, that new MSI kind you are
+currently talking about or even interrupts which have nothing to do
+with the processor but are just some software implementation on a
+larger application. But those are just subtypes of interrupts, they
+all share common, unambigious sense.
 
+With domains it's not that easy. A dynamic system domain is a set of
+ressources, a PCI domain is a set of PCI busses, but after those it's
+getting a little bit unsharp. What is a DNS domain? Simply a set of
+records? But DNS is also a hierarchical system with domains in a
+hierarchical organisation, which doesn't really apply to e.g. PCI. In
+PCI, you don't have domains below domains, you have busses below
+domains. With NIS it gets tricky: what is a NIS domain? "A set of
+users, groups and various other networkwide information"? What is an
+Win2k domain? "A set of... well, Active Directory stuff?"
 
-1 error issued.  Results may not be reliable.
-Exit 1
+If we start to introduce more and more domains, the time will come
+where our world is full of domains - and we long lost track of what
+domains belong to what.
 
-Is there anything I could do to make it works?
+> There is no goodness to acronyms where you have to be some "insider" to 
+> know what the hell it means. That "hose" thing has the same problem: I 
+> don't know about anybody else, but to me a "hose" is a logn narrow conduit 
+> for water, and a "PCI hose" doesn't much make sense to me.
 
-	Grégoire
-__________________________________________________________________
-http://www-ima.unil.ch/greg ICQ:16624071 mailto:greg@magma.unil.ch
+I agree there, "hose" just sounds strange and also doesn't make much
+sense to me. Is it pouring spashes data into my PCI cards or what does
+that word try to explain?
+
+> A "phb" just makes me go "Whaa?"
+
+But people doing computer stuff *love* abbrevations. Ask any
+non-kernel-developer (or non-kernel-interested) about ACPI, MSI, MSWR,
+MTRR, APIC, IO-APIC, TSC, PTE or XT-PIC-IRQ and he will not only go
+"Whaa?" but "WHAAAAHELP!" :-)
+
+Eliminate all strange sounding and unobvious abbrevation from the
+kernel source and the size will at least double ;-)
+
+Even (or even especially) the most cryptic abbrevation helps
+establishing some sort of unambiguousness. Those who need to know will
+know, those who don't won't care.
+
+I for my part would love to have "phb" instead of "domain" in the
+kernel. Since everytime I'll get a message from kernel that says
+something about "phb", I'm just gonna say "Aaah, it's PCI". If it just
+states something about a "domain", I'll just gonna yell "WHAT KIND OF
+DOMAIN, YOU **&%&/".
+
+Just my 0.02 eurocents - it's your kernel
+
+Regards,
+Julien

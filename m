@@ -1,31 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273994AbRISDtB>; Tue, 18 Sep 2001 23:49:01 -0400
+	id <S272983AbRISDsT>; Tue, 18 Sep 2001 23:48:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273996AbRISDst>; Tue, 18 Sep 2001 23:48:49 -0400
-Received: from tomts16.bellnexxia.net ([209.226.175.4]:40634 "EHLO
-	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S273994AbRISDsj>; Tue, 18 Sep 2001 23:48:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: the Gimp and pre11
-Date: Tue, 18 Sep 2001 23:44:11 -0400
-X-Mailer: KMail [version 1.3.1]
+	id <S273994AbRISDsJ>; Tue, 18 Sep 2001 23:48:09 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:60939 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S272983AbRISDsC>;
+	Tue, 18 Sep 2001 23:48:02 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200109190347.f8J3lgg266676@saturn.cs.uml.edu>
+Subject: Re: Athlon: Try this (was: Re: Athlon bug stomping #2)
+To: jan@gondor.com (Jan Niehusmann)
+Date: Tue, 18 Sep 2001 23:47:42 -0400 (EDT)
+Cc: sp@scali.no (Steffen Persvold), vandrove@vc.cvut.cz (Petr Vandrovec),
+        linux-kernel@vger.kernel.org, VDA@port.imtp.ilyichevsk.odessa.ua,
+        alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20010916100834.A590@gondor.com> from "Jan Niehusmann" at Sep 16, 2001 10:08:34 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010919034412.092EB9CF9@oscar.casa.dyndns.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jan Niehusmann writes:
 
-Is it just me or is the Gimp visibily slower with pre11 compared to pre10?
+> Sure. I did crash a computer running an old kernel (not 2.2 but 
+> 2.4.0-testX without the optimised fast_copy_page) from a non-privileged
+> user space program containing the same code as the optimised fast_copy_page.
 
-I am editing 6 Megapixel files (2800x2048) and things like rotations seem to 
-have delays that were not happening with previous kernels.  My box has 320M.
-Seems that pre11 does not swap out as much as pre10 so Gimp has less to work
-with.
-
-Ed Tomlinson
+Port this to Windows if you want to raise Hell. Call it something
+nasty (like "AMD/VIA bug exploit") to get attention.

@@ -1,163 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbTILMmL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 08:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbTILMmL
+	id S261542AbTILMo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 08:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbTILMo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 08:42:11 -0400
-Received: from switch-ats62.donpac.ru ([195.161.172.146]:23300 "EHLO
-	switch-ats62.donpac.ru") by vger.kernel.org with ESMTP
-	id S261455AbTILMmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 08:42:03 -0400
-Date: Fri, 12 Sep 2003 16:42:00 +0400
-To: Jes Sorensen <jes@trained-monkey.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: FWD: qla1280 SCSI driver crash on visws
-Message-ID: <20030912124200.GA734@pazke>
-Mail-Followup-To: Jes Sorensen <jes@trained-monkey.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="82I3+IH0IqGh5yIs"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: "Andrey Panin,,," <pazke@switch-ats62.donpac.ru>
+	Fri, 12 Sep 2003 08:44:57 -0400
+Received: from real-outmail.cc.huji.ac.il ([132.64.1.21]:19895 "EHLO
+	mail3.cc.huji.ac.il") by vger.kernel.org with ESMTP id S261542AbTILMoz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 08:44:55 -0400
+Message-ID: <3F61C062.1080700@mscc.huji.ac.il>
+Date: Fri, 12 Sep 2003 15:47:30 +0300
+From: Voicu Liviu <pacman@mscc.huji.ac.il>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030807
+X-Accept-Language: en-us, en, he
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: linux-2.6.0-test5-mm1
+X-Enigmail-Version: 0.76.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.14; VAE: 6.21.0.1; VDF: 6.21.0.39; host: mail3.cc.huji.ac.il)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This happens after I load alsa modules on boot..............
 
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+<from_dmesg>
 
-Hello Jes,
-
-qla1280 SCSI driver crashes in inetrrupt handler on visws
-
-Please take a look.
-
-Best regards.
-
------ Forwarded message from Paul Kaletta <paul@ewido.net> -----
-
-=46rom: Paul Kaletta <paul@ewido.net>
-To: linux-visws-devel@lists.sourceforge.net
-X-Mailer: Ximian Evolution 1.0.8=20
-Subject: [Linux-visws-devel] qla1280
-
-(I'm sorry if you get this twice, but I send it out two days ago,
-for some strange reason this message is not in the archives, which seem
-to work now, and I didn't recieve any reply).
-
-Hi,
-
-I managed to get the 2.6.0-test5 kernel to work (Andrey: the part with
-the VGA-Console still isn't right in test5! I had to apply your patch
-for test3 manualy to make a console appear).
-
-The qla1280 driver compiles now and recognizes my harddisk! Hurray *g*
-Still something is wrong - during start-up the driver displays the
-following stuff:
-
-########
-qla1280: QLA1080 found on PCI bus 1, dev 0
-scsi(0): Reading NVRAM
-scsi(0:0): Resetting SCSI BUS
-bad: scheduling while atomic!
-Call Trace:
- [<c0118255>] schedule+0x3e5/0x3f0
- [<c0123c63>] schedule_timeout+0x63/0xc0
- [<c0123bf0>] process_timeout+0x0/0x10
- [<c0214fd0>] qla1280_bus_reset+0xa0/0x110
- [<c0214367>] qla1280_init_rings+0xf7/0x100
- [<c0213c67>] qla1280_initialize_adapter+0x147/0x190
- [<c021288c>] qla1280_do_device_init+0x22c/0x260
- [<c0212a38>] qla1280_detect+0x178/0x200
- [<c0352e7b>] init_this_scsi_driver+0x5b/0x110
- [<c03407bb>] do_initcalls+0x2b/0xa0
- [<c012b3ef>] init_workqueues+0xf/0x30
- [<c01050a3>] init+0x33/0x190
- [<c0105070>] init+0x0/0x190
- [<c0107215>] kernel_thread_helper+0x5/0x10
-
-scsi0 : QLogic QLA1080 PCI to SCSI Host Adapter: bus 1 device 0 irq 16
-       Firmware version:  8.15.00, Driver version 3.23.35
-  Vendor: SEAGATE   Model: ST39103LW         Rev: 0002
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-scsi(0:0:0:0): Sync: period 10, offset 8, Wide, Tagged queuing: depth
-255
-SCSI device sda: 17783240 512-byte hdwr sectors (9105 MB)
-SCSI device sda: drive cache: write back
- /dev/scsi/host0/bus0/target0/lun0: p1 p2 p3
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-#########
-
-That looks pretty wrong to me. However I ignored it, created partitions
-on the my SCSI drive, and tried to migrate my stuff from my ide drive to
-the SCSI drive. The copying went pretty slow and halted frequently for
-some time. After maybe 130 mb it haltet completly. I rebooted and tried
-again. This time maybe after 400 megs I got this wonderful stack trace
-and kernel panic:
-
-#########
-EIP is at 0x0
-eax: df659074   ebx: 00000000   ecx: 00000004   edx: 00000003
-esi: df634000   edi: 00000001   ebp: c033fee8   esp: c033fecc
+Freeing unused kernel memory: 308k freed
+Adding 313228k swap on /dev/hda6.  Priority:-1 extents:1
+PCI: Found IRQ 5 for device 0000:00:09.0
+PCI: Sharing IRQ 5 with 0000:00:04.2
+Unable to handle kernel paging request at virtual address ffffffef
+  printing eip:
+c01df3c0
+*pde = 00001067
+*pte = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c01df3c0>]    Not tainted
+EFLAGS: 00010282
+EIP is at atomic_dec_and_lock+0x10/0x60
+eax: ffffffef   ebx: ffffffef   ecx: ffffffef   edx: 00000000
+esi: cffe5680   edi: c03312e4   ebp: d092fec8   esp: cf96feb0
 ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, threadinfo=3Dc033e000 task=3Dc02ecbe0)
-Stack: c011831a df659074 00000003 00000000 c033e000 00000286 00000000
-c033ff08
-       c011848e df5e1f3c 00000003 00000001 00000000 daee4c20 daee4d24
-df62fa2c
-       c02137e5 daee4c20 00008020 c0120000 000a0000 00000001 c033e000
-df62f1ac
+Process modprobe (pid: 2596, threadinfo=cf96e000 task=cf971940)
+Stack: ffffffef cffe5680 c0169b30 ffffffef c032c690 ffffffef cffe5680 
+c03312e4
+        c0187e45 ffffffef 000041ed c0187da0 d092fee0 00000000 c0187eb6 
+d092fee0
+        cffe5680 d092fee4 00000000 d092fee0 c01dc86f d092fee0 d092fee0 
+c0331348
 Call Trace:
- [<c011831a>] __wake_up_common+0x3a/0x60
- [<c011848e>] complete+0x3e/0x70
- [<c02137e5>] qla1280_done+0xa5/0x130
- [<c0120000>] __check_region+0x40/0x50
- [<c02132dc>] qla1280_intr_handler+0x8c/0xc0
- [<c010b749>] handle_IRQ_event+0x49/0x80
- [<c010bac7>] do_IRQ+0x97/0x140
- [<c0106ff0>] default_idle+0x0/0x40
- [<c0105000>] _stext+0x0/0x60
- [<c0109d68>] common_interrupt+0x18/0x20
- [<c0106ff0>] default_idle+0x0/0x40
- [<c0105000>] _stext+0x0/0x60
- [<c0107014>] default_idle+0x24/0x40
- [<c01070a0>] cpu_idle+0x30/0x40
- [<c034076c>] start_kernel+0x14c/0x160
- [<c03404b0>] unknown_bootoption+0x0/0x120
+  [<c0169b30>] dput+0x30/0x220
+  [<c0187e45>] create_dir+0x85/0x90
+  [<c0187da0>] init_dir+0x0/0x20
+  [<c0187eb6>] sysfs_create_dir+0x36/0x80
+  [<c01dc86f>] create_dir+0x1f/0x50
+  [<c01dca17>] kobject_add+0x97/0x110
+  [<c01dcab3>] kobject_register+0x23/0x60
+  [<c023c72a>] bus_add_driver+0x4a/0xa0
+  [<c023cbbf>] driver_register+0x2f/0x40
+  [<c01e5550>] pci_register_driver+0x60/0x90
+  [<d0915809>] alsa_card_ens137x_init+0x19/0x5b [snd_ens1370]
+  [<c013361c>] sys_init_module+0x12c/0x250
+  [<c010934b>] syscall_call+0x7/0xb
 
-Code:  Bad EIP value.
- <0>Kernel panic: Fatal exception in interrupt
-In interrupt handler - not syncing
-##########
-btw. this is typed in manually. *cough*. It might contain typos.
+Code: 8b 31 89 f2 4a 74 11 89 f0 f0 0f b1 11 31 db 39 f0 75 ed 89
+  blk: queue c13d8200, I/O limit 4095Mb (mask 0xffffffff)
+eth0: link up, 10Mbps, half-duplex, lpa 0x0000
+liviu@starshooter liviu $
 
-I this a visws-issue (messy interrupt handling stuff?) or is something
-in the qla1280 driver defunct?
+</from_dmesg>
 
-Ciao
-Paul Kaletta
+Liviu
 
------ End forwarded message -----
-
---=20
-Andrey Panin		| Linux and UNIX system administrator
-pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
-
---82I3+IH0IqGh5yIs
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/Yb8Yby9O0+A2ZecRAleGAJ941Qtp84tNXm3sC9oTVPTNp6b3vACdFcuz
-Mgwah4GcoJzIRkDbqCi1f6s=
-=w0jh
------END PGP SIGNATURE-----
-
---82I3+IH0IqGh5yIs--

@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVBGGro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVBGGxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbVBGGro (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 01:47:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVBGGre
+	id S261366AbVBGGxT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 01:53:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVBGGxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 01:47:34 -0500
-Received: from ozlabs.org ([203.10.76.45]:17555 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261365AbVBGGrb (ORCPT
+	Mon, 7 Feb 2005 01:53:19 -0500
+Received: from nabe.tequila.jp ([211.14.136.221]:2016 "HELO nabe.tequila.jp")
+	by vger.kernel.org with SMTP id S261366AbVBGGxN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 01:47:31 -0500
-Subject: Re: [linux-usb-devel] 2.6: USB disk unusable level of data
-	corruption
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <200502062115.07626.david-b@pacbell.net>
-References: <1107519382.1703.7.camel@localhost.localdomain>
-	 <200502041241.28029.david-b@pacbell.net>
-	 <1107744922.8689.6.camel@localhost.localdomain>
-	 <200502062115.07626.david-b@pacbell.net>
-Content-Type: text/plain
-Date: Mon, 07 Feb 2005 17:46:30 +1100
-Message-Id: <1107758790.8689.24.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Mon, 7 Feb 2005 01:53:13 -0500
+Message-ID: <4207104C.1000604@tequila.co.jp>
+Date: Mon, 07 Feb 2005 15:53:00 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041220 Thunderbird/1.0 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+CC: Pozsar Balazs <pozsy@uhulinux.hu>, Christoph Hellwig <hch@infradead.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       John Richard Moser <nigelenki@comcast.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: msdos/vfat defaults are annoying
+References: <4205AC37.3030301@comcast.net> <20050206070659.GA28596@infradead.org> <20050206232108.GA31813@ojjektum.uhulinux.hu> <20050207003610.GP8859@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20050207003610.GP8859@parcelfarce.linux.theplanet.co.uk>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-02-06 at 21:15 -0800, David Brownell wrote:
-> And I didn't see an "unusual_devs.h" entry for it, but it does
-> look to need the CONFIG_USB_STORAGE_HP8200e support, which I
-> see is labeled "experimental".  I don't know how solid the
-> support for that is.   But I see Greg's checked in a big patch
-> against the file with that driver, which should make the next
-> MM patchset against 2.6.11-rc3 ... mostly to support some
-> new hardware, but with that many changes I suspect there'll
-> be some bugfixes too.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-OK, I'll check once that comes through, thanks.
+On 02/07/2005 09:36 AM, Al Viro wrote:
+> On Mon, Feb 07, 2005 at 12:21:08AM +0100, Pozsar Balazs wrote:
+> 
+>>On Sun, Feb 06, 2005 at 07:06:59AM +0000, Christoph Hellwig wrote:
+>>
+>>>On Sun, Feb 06, 2005 at 12:33:43AM -0500, John Richard Moser wrote:
+>>>
+>>>>I dunno.  I can never understand the innards of the kernel devs' minds.
+>>>
+>>>filesystem detection isn't handled at the kerne level.
+>>
+>>Yeah, but the link order could be changed... Patch inlined.
+> 
+> 
+> And just what does the link order (or changes thereof) have to do with that?
 
-> This would be www.macpower.com.tw/produts/hdd2/daisycutter/dc_usb2
-> maybe?  The www.qbik.ch/usb/devices database has a report from one
-> user saying they had problems with a different MacPower adapter until
-> they fixed its jumpers.  Also worth a check.
+because some distributions (eg gentoo) make a symlink to /proc/filesystems
 
-Actually, it's
-http://www.macpower.com.tw/products/hdd2/clearlight/cl_400plus
+jupiter root # ls -l /etc/filesystems
+lrwxrwxrwx  1 root root 19 Oct 25 11:18 /etc/filesystems ->
+../proc/filesystems
 
-I didn't put the drive in myself, but I'll unscrew it and check the
-jumpers.
+and then its impossible to change the order. (unless you make a "hand
+made" file of course).
 
-A simple DIRECT_IO 4096-byte read-write on the block device does reveal
-corruption after an hour or so, so I should be able to track this down.
-Might move my home dir back off it for a while though 8)
+- --
+[ Clemens Schwaighofer                      -----=====:::::~ ]
+[ TBWA\ && TEQUILA\ Japan IT Group                           ]
+[                6-17-2 Ginza Chuo-ku, Tokyo 104-0061, JAPAN ]
+[ Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343 ]
+[ http://www.tequila.co.jp        http://www.tbwajapan.co.jp ]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Rusty.
--- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
-
+iD8DBQFCBxBLjBz/yQjBxz8RAsCXAKCHwURn6UJjrtEOhjaXHa0min94NQCdFlBa
+EgBrVpGuASFNepZigjV1p5E=
+=ol2B
+-----END PGP SIGNATURE-----

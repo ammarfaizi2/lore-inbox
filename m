@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318562AbSH1B44>; Tue, 27 Aug 2002 21:56:56 -0400
+	id <S318572AbSH1B6F>; Tue, 27 Aug 2002 21:58:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318572AbSH1B4z>; Tue, 27 Aug 2002 21:56:55 -0400
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:39690 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S318562AbSH1B4z>;
-	Tue, 27 Aug 2002 21:56:55 -0400
-Message-ID: <3D6C2EE6.4000906@acm.org>
-Date: Tue, 27 Aug 2002 21:01:10 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] IPMI driver for Linux
-References: <3D63B612.8020706@acm.org> <20020827145512.K35@toy.ucw.cz> <20020827151401.H23434@one-eyed-alien.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318591AbSH1B6E>; Tue, 27 Aug 2002 21:58:04 -0400
+Received: from dp.samba.org ([66.70.73.150]:1242 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S318572AbSH1B6D>;
+	Tue, 27 Aug 2002 21:58:03 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com, marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] list_for_each_entry
+Date: Wed, 28 Aug 2002 11:52:00 +1000
+Message-Id: <20020827210245.608912C069@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dharm wrote:
+List iteration pain removal patch.
 
->The "Intelligent Perhiperal Management Interface".  It's a managment system
->for communicating to intelligent or semi-intelligent devices on a separate
->communication channel from the 'typical' data paths.
->
->I think you can download the specs from the Intel web site.
->
-It's at http://www.intel.com/design/servers/ipmi/index.htm.  Note that 
-many people are doing things far beyond what the spec says in multi-card 
-chassis like CompactPCI and PICMG2.16.  Someone mentioned earlier that I 
-must have access to documentation they don't have, I just know stuff 
-lots of people are doing.
+Marcelo, Linus, please apply.
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
--Corey
+Name: list_for_each_entry patch
+Author: Rusty Russell
+Status: Trivial
 
+D: This adds list_for_each_entry, which is the equivalent of
+D: list_for_each and list_entry, except only one variable is needed.
 
-
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5652-linux-2.5.31/include/linux/list.h .5652-linux-2.5.31.updated/include/linux/list.h
+--- .5652-linux-2.5.31/include/linux/list.h	2002-08-02 11:15:10.000000000 +1000
++++ .5652-linux-2.5.31.updated/include/linux/list.h	2002-08-22 10:38:52.000000000 +1000
+@@ -211,6 +211,19 @@ static inline void list_splice_init(list
+ 	for (pos = (head)->next, n = pos->next; pos != (head); \
+ 		pos = n, n = pos->next)
+ 
++/**
++ * list_for_each_entry	-	iterate over list of given type
++ * @pos:	the type * to use as a loop counter.
++ * @head:	the head for your list.
++ * @member:	the name of the list_struct within the struct.
++ */
++#define list_for_each_entry(pos, head, member)				\
++	for (pos = list_entry((head)->next, typeof(*pos), member),	\
++		     prefetch(pos->member.next);			\
++	     &pos->member != (head); 					\
++	     pos = list_entry(pos->member.next, typeof(*pos), member),	\
++		     prefetch(pos->member.next))
++
+ #endif /* __KERNEL__ || _LVM_H_INCLUDE */
+ 
+ #endif

@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317832AbSFSJjb>; Wed, 19 Jun 2002 05:39:31 -0400
+	id <S317262AbSFSKQr>; Wed, 19 Jun 2002 06:16:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317833AbSFSJja>; Wed, 19 Jun 2002 05:39:30 -0400
-Received: from web21205.mail.yahoo.com ([216.136.131.248]:39350 "HELO
-	web21205.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317832AbSFSJj3>; Wed, 19 Jun 2002 05:39:29 -0400
-Message-ID: <20020619093930.69906.qmail@web21205.mail.yahoo.com>
-Date: Wed, 19 Jun 2002 02:39:30 -0700 (PDT)
-From: aryan aru <aryan222is@yahoo.com>
-Subject: PCI DMA : pci_map_single usage
-To: aryan222is@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C8464AB.3020404@bryanr.org>
+	id <S317830AbSFSKQq>; Wed, 19 Jun 2002 06:16:46 -0400
+Received: from apollo.sot.fi ([195.74.13.237]:18190 "EHLO vscan.sot.com")
+	by vger.kernel.org with ESMTP id <S317262AbSFSKQp>;
+	Wed, 19 Jun 2002 06:16:45 -0400
+Message-ID: <3D106994.6010006@sot.com>
+Date: Wed, 19 Jun 2002 13:23:00 +0200
+From: Yaroslav Popovitch <yp@sot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020314 Netscape6/6.2.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Kernel panic on v2.4.19-pre10
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I am new to this device driver area. I have a question
-on PCI DMA usage. Could you plz correct me.
-
-I have two processors, processor(pci device) pA,
-processor(pci device) pB. I want to use DMA pull
-mechanism for transfering the messages between them. I
-need to follow the mechanism for this.
-
-When pA wants to send a pkt to pB:
-
-pA places the address of the src_buff in one of the
-common registers. pB, by accessing that register, will
-come to know the location of the src_buffer. Now pB,
-using its DMA controller has to pull the message to
-its local buffer, say dest_loc_buff. For setting up
-the dma controller on pB, I need  the pci_addr of
-src_buuf and dest_loc_buff( DMA controller of
-MPC82xx). 
-
-How can I get pci_addr of src_buff?
-Can I get this by using pci_map_single?
-
->From my understating pci_map_single takes local buffer
-as the argument. 
-
-In this transfer, do both the DMA controllers (pA and
-pB) involve in message transfer or only pB pulls the
-pkt.
+CPU1: Machine Check Exception 000000..0004
+Bank 3: f20000000002010a
+Kernel panic: CPU context currupt
 
 
-Any driver example available in that net for this
-"pull" mechanism.
+-------------------------------------------------------------
+My Hardware:
+2 x Pentium III 600 Mhz
+MB Chaintech CT-6BDU (i440BX)
 
-Any help is highly appreciated.
+Cheers,YP
 
-thans and regards
-Aryan
+-- 
+Mr. Yaroslav Popovitch     			- tel. +372 6419975
+SOT Finnish Software Engineering Ltd.   	- fax  +372 6419876
+Kreutzwaldi 7-4, 10124  TALLINN         	- http://www.sot.com/
+ESTONIA                                 	- http://sotlinux.net/
 
 
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! - Official partner of 2002 FIFA World Cup
-http://fifaworldcup.yahoo.com

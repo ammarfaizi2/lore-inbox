@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbTD3TQf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 15:16:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbTD3TQf
+	id S262369AbTD3TSN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 15:18:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbTD3TSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 15:16:35 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:27151 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S262341AbTD3TQc
+	Wed, 30 Apr 2003 15:18:12 -0400
+Received: from bdsl.66.13.29.10.gte.net ([66.13.29.10]:18872 "EHLO
+	bluesong.NET") by vger.kernel.org with ESMTP id S262369AbTD3TSL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 15:16:32 -0400
-From: dth@ncc1701.cistron.net (Danny ter Haar)
-Subject: Re: 2.5.68-mm3
-Date: Wed, 30 Apr 2003 19:28:51 +0000 (UTC)
-Organization: Cistron
-Message-ID: <b8p85j$rq0$1@news.cistron.nl>
-References: <20030429235959.3064d579.akpm@digeo.com>
-X-Trace: ncc1701.cistron.net 1051730931 28480 62.216.30.38 (30 Apr 2003 19:28:51 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@ncc1701.cistron.net (Danny ter Haar)
-To: linux-kernel@vger.kernel.org
+	Wed, 30 Apr 2003 15:18:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: "Jack F. Vogel" <jfv@bluesong.net>
+Reply-To: jfv@bluesong.net
+To: "Wojciech Sobczak" <Wojciech.Sobczak@comarch.pl>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: IBM x440 problems on 2.4.20 to 2.4.20-rc1-ac3
+Date: Wed, 30 Apr 2003 11:36:24 -0700
+User-Agent: KMail/1.4.1
+References: <01d601c30f17$f3ffadf0$b312840a@nbsobczak> <3270000.1051712524@[10.10.2.4]> <021501c30f27$e02be4a0$b312840a@nbsobczak>
+In-Reply-To: <021501c30f27$e02be4a0$b312840a@nbsobczak>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304301136.24728.jfv@bluesong.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton  <akpm@digeo.com> wrote:
->ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.68/2.5.68-mm3/
+On Wednesday 30 April 2003 07:50 am, Wojciech Sobczak wrote:
+> Martin J. Bligh wrote:
+> > SuSE works well, at least the SLES edition does.
+>
+> but shoudn't it be platform independent? this is only kernel or meaby i
+> need new gcc... or meaby something else?....
 
-On my laptop it doesn't compile with bluetooth enabled:
+I has nothing to do with gcc, Alan mentioned the magic (or cursed is
+probably the better choice :) word, ACPI. The kernel in SLES 8 has
+the x440 blacklisted so ACPI gets turned off automagically :)
 
-/usr/bin/make -f scripts/Makefile.build obj=drivers/bluetooth
-  gcc -Wp,-MD,drivers/bluetooth/.hci_usb.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium3 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=hci_usb -DKBUILD_MODNAME=hci_usb -c -o drivers/bluetooth/.tmp_hci_usb.o drivers/bluetooth/hci_usb.c
-drivers/bluetooth/hci_usb.c: In function `hci_usb_send_bulk':
-drivers/bluetooth/hci_usb.c:461: `USB_ZERO_PACKET' undeclared (first use in this function)
-drivers/bluetooth/hci_usb.c:461: (Each undeclared identifier is reported only once
-drivers/bluetooth/hci_usb.c:461: for each function it appears in.)
-make[3]: *** [drivers/bluetooth/hci_usb.o] Error 1
-make[2]: *** [drivers/bluetooth] Error 2
-make[1]: *** [drivers] Error 2
-make[1]: Leaving directory `/extra/usr.src/linux-2.5.68-mm3'
+As John mentioned, you can use a generic kernel provided its 
+recent enough AND you configure it properly for the box.
 
-I found another thread regarding hci_usb and am not sure
-if this is related/same.
+Cheers,
 
-Danny
 -- 
-Miguel   | "I can't tell if I have worked all my life or if
-de Icaza |  I have never worked a single day of my life,"
-
+Jack F. Vogel		IBM Linux Technology Center
+jfv@us.ibm.com (work)  ||  jfv@bluesong.net (home)

@@ -1,51 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261274AbUCEWNL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 17:13:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbUCEWNL
+	id S261226AbUCEWMp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 17:12:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbUCEWMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 17:13:11 -0500
-Received: from smtp3.poczta.onet.pl ([213.180.130.29]:12479 "EHLO
-	smtp3.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id S261274AbUCEWNG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 17:13:06 -0500
-Message-ID: <4048EB33.7030900@poczta.onet.pl>
-Date: Fri, 05 Mar 2004 22:03:47 +0100
-From: Marcin Garski <garski@poczta.onet.pl>
-Reply-To: garski@poczta.onet.pl
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.4.1) Gecko/20031010
-X-Accept-Language: pl, en, en-us
+	Fri, 5 Mar 2004 17:12:44 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:16258 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S261226AbUCEWMl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 17:12:41 -0500
+To: Mariusz Mazur <mmazur@kernel.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.3.0
+References: <200402291942.45392.mmazur@kernel.pl>
+	<200403031829.41394.mmazur@kernel.pl>
+	<m3brnc8zun.fsf@defiant.pm.waw.pl>
+	<200403042149.36604.mmazur@kernel.pl>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Fri, 05 Mar 2004 18:02:25 +0100
+In-Reply-To: <200403042149.36604.mmazur@kernel.pl> (Mariusz Mazur's message
+ of "Thu, 4 Mar 2004 21:49:36 +0100")
+Message-ID: <m3brnb8bxa.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Data corruption during read on VIA vt8235
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Please CC me on replies, I am not subscribed to the list, thanks]
-Hi,
+Mariusz Mazur <mmazur@kernel.pl> writes:
 
-I've Soltek SL-75FRV mainboard (VIA KT400 and vt8235 chipsets).
-Also i've two IDE disk both runing on UDMA(100) (DMA enabled).
-I'm using 2.4.22 kernel from Fedora Core 1 + patch for XFS suppport.
+> I never said kernel should require glibc - it shouldn't (mind you I don't do 
+> kernelland headers). But kernel does duplicate each and every structure 
+> provided by glibc. It has to.
 
-Several checking md5 sum of big file (650MB) give different results
-(e.g: first, second and third* *file check give good md5 sum, but fourth 
-check give bad sum).
-Also if i copy big file through network (ethernet), file have bits 
-difference, the same
-thing happen during file copy (also big file) betwen two disks.
-Usually there are from 1 to 3 differneces in file, each difference is 
-one bit  (e.g good file - 4B, bad file - 4A).
+No, there is no such requirement. Glibc doesn't need to duplicate kernel
+defs either.
 
-That is not a memory problem because memtest86 shows no errors.
+Do you really want duplicated code (definitions etc)?
 
-I found some old message:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0111.0/0914.html
-where author had similar problem to mine.
+> The Bad Thing (tm) is that all (well... allmost 
+> all - lots of linux headers don't parse correctly in userspace)
 
-Could you give me some hints how to more deeply diagnose this problem.
+That's bad, for sure.
+
+> of those 
+> structures get exported to userland. And programmers use them. They don't 
+> include <sys/resource.h>, but <linux/resource.h>. And that causes conflicts 
+> (and is bad practice).
+
+So the kernel headers are buggy (and should be fixed) and the glibc
+headers contain unneeded code (and they should be fixed as well).
+
+>> IMHO all the defines should be in the kernel tree. Glibc can and should
+>> use them, as it uses the ABI.
+>
+> Parts of abi that are standardized 
+> (http://www.opengroup.org/onlinepubs/007904975/ - this thing; check the 
+> headers section), should be imho provided by C libs.
+
+The C library alone obviously provide some functionality such as string.h
+functions and such API should be defined in glibc headers.
+However, a part of the glibc (or any libc) functionality is provided by
+the kernel itself. It is still correct to say that those are provided
+by libc, and that this is libc providing the headers. It doesn't mean
+the syscalls can't go straight to the kernel and that the libc
+headers can't just include/be the kernel ones.
+
+> These things do not 
+> change (they can't or everything would blow up) and I see no reason why glibc 
+> should rely on having additional headers available, just to do what it's 
+> supposed to.
+
+Because glibc has to rely on underlying kernel services while the user
+space programs are executed.
+
+You know, Linux can be run on different architectures. Do you want to
+keep different sets of header files for each arch? Yes, the APIs differs.
+
+BTW: the user space programs don't necessarily need glibc. They may need
+the kernel API headers, of course.
+You may even want to use another C library. Would you copy the headers
+in such case again?
+
+> Userland headers should be kept in /usr/include/{asm,linux}.
+
+Because?
+
+> As to linux-common linux-kernelonly and linux-userland headers (linux-common 
+> used by both) - I just find it weird for userland to require kernel sources. 
+> Linux is supposed to have stable abi.
+
+No, it isn't. It's supposed to have a backward-compatible ABI.
+You don't want to block progress, do you?
+
+However, this isn't only about progress. A functionality can be removed,
+too.
+
+>> Examples?
+>> If they are part of kernel API/ABI, then of course they are still used
+>> by 2.6 kernel and they need to be there. If they aren't used by the
+>> kernel (old #define names for instance) they should go to glibc headers
+>> (#ifndef xxx #define xxx etc.).
+>
+> Additionall defines mostly. Probably some extra structures.
+
+I'd go with the above, then.
 -- 
-Best Regards
-Marcin Garski
+Krzysztof Halasa, B*FH

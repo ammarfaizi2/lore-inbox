@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbTJRFmV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 01:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTJRFmV
+	id S261346AbTJRGFq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 02:05:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbTJRGFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 01:42:21 -0400
-Received: from mtiwmhc11.worldnet.att.net ([204.127.131.115]:44458 "EHLO
-	mtiwmhc11.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S261321AbTJRFmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 01:42:20 -0400
-Message-ID: <XFMail.20031018014148.f.duncan.m.haldane@worldnet.att.net>
-X-Mailer: XFMail 1.5.4 on Linux
-X-Priority: 3 (Normal)
+	Sat, 18 Oct 2003 02:05:46 -0400
+Received: from codepoet.org ([166.70.99.138]:36760 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S261346AbTJRGFp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 02:05:45 -0400
+Date: Sat, 18 Oct 2003 00:05:48 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Rob Landley <rob@landley.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Where's the bzip2 compressed linux-kernel patch?
+Message-ID: <20031018060547.GA3557@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org
+References: <200310180018.21818.rob@landley.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <20031018052609.GH25291@holomorphy.com>
-Date: Sat, 18 Oct 2003 01:41:48 -0400 (EDT)
-From: Duncan Haldane <f.duncan.m.haldane@worldnet.att.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test8: broken  /fs/proc/array.c  compilation
-Cc: William Lee Irwin III <wli@holomorphy.com>
+Content-Disposition: inline
+In-Reply-To: <200310180018.21818.rob@landley.net>
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 18-Oct-2003 William Lee Irwin III wrote:
-> On Sat, Oct 18, 2003 at 01:18:26AM -0400, Duncan Haldane wrote:
->> fs/proc/array.c: In function `proc_pid_stat':
->> fs/proc/array.c:398: Unrecognizable insn:
->> (insn/i 1332 1672 1666 (parallel[
->>             (set (reg:SI 0 eax)
->>                 (asm_operands ("") ("=a") 0[
->>                         (reg:DI 1 edx)
->>                     ]
+On Sat Oct 18, 2003 at 12:18:21AM -0500, Rob Landley wrote:
+> I just rewrote bunzip2 for busybox in about 500 lines of C (and a good chunk 
+> of that's comments), which comiles to a bit under 7k, and I was thinking of 
+> redoing the bunzip-the-kernel patch with my new bunzip code, but I can't find 
+> the patch.  Anybody got a URL to it?
 > 
-> Compiler bogon, not kernel.
+> The most recent one I could find was kerneltrap's 404-error link to 
+> http://chrissicool.piranho.com/patch-2.4.x-bzip2-i386
 
-OK, This is the Red Hat 7.3 version of "gcc-2.96-113", which
-is "special" (RedHat-patched).  It's reacting to the changes in 2.6.0-test8. 
-Does this mean that this compiler has now become unusable for 2.6.0 > test7
-with /proc support?
+http://shepard.kicks-ass.net/~cc/
 
-Duncan
+ -Erik
 
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

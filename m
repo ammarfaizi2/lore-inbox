@@ -1,68 +1,363 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261949AbTC1DHt>; Thu, 27 Mar 2003 22:07:49 -0500
+	id <S261952AbTC1DJN>; Thu, 27 Mar 2003 22:09:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261952AbTC1DHt>; Thu, 27 Mar 2003 22:07:49 -0500
-Received: from ns0.usq.edu.au ([139.86.2.5]:57353 "EHLO ns0.usq.edu.au")
-	by vger.kernel.org with ESMTP id <S261949AbTC1DHs>;
-	Thu, 27 Mar 2003 22:07:48 -0500
-Message-ID: <3E83BFC8.70901@usq.edu.au>
-Date: Fri, 28 Mar 2003 13:21:44 +1000
-From: Ron House <house@usq.edu.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S261981AbTC1DJN>; Thu, 27 Mar 2003 22:09:13 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:7174 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S261952AbTC1DJE>; Thu, 27 Mar 2003 22:09:04 -0500
+Date: Thu, 27 Mar 2003 19:16:55 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Suparna Bhattacharya <suparna@in.ibm.com>, Jens Axboe <axboe@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] new IDE PIO handlers 1/4
+In-Reply-To: <Pine.SOL.4.30.0303280054270.6453-100000@mion.elka.pw.edu.pl>
+Message-ID: <Pine.LNX.4.10.10303271841210.25072-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: hdparm and removable IDE?
-References: <Pine.LNX.3.96.1030326130640.8110B-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> On 26 Mar 2003, Alan Cox wrote:
+
+I wondered when you would publish the BIO traversing code!
+Now if we can make it generic for block then it will fix all the broken
+scsi hba's that were lost in the transition, iirc.
+
+Cheers,
+
+On Fri, 28 Mar 2003, Bartlomiej Zolnierkiewicz wrote:
+
+> 
+> # Rewritten PIO handlers, both single and multiple sector sizes.
+> #
+> # They make use of new bio travelsing code and are supposed to be
+> # correct in respect to ATA state machine.
+> #
+> # Patch 1/4 - Implement them, do not activate yet.
+> #	      Fix do_rw_taskfile() and flagged_taskfile() for correct
+> #	      handling of new prehandlers.
+> #
+> # Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+> 
+> diff -uNr linux-2.5.66/drivers/ide/ide-taskfile.c linux/drivers/ide/ide-taskfile.c
+> --- linux-2.5.66/drivers/ide/ide-taskfile.c	Tue Mar 25 22:53:09 2003
+> +++ linux/drivers/ide/ide-taskfile.c	Wed Mar 26 22:49:34 2003
+> @@ -5,6 +5,7 @@
+>   *  Copyright (C) 2000-2002	Andre Hedrick <andre@linux-ide.org>
+>   *  Copyright (C) 2001-2002	Klaus Smolin
+>   *					IBM Storage Technology Division
+> + *  Copyright (C) 2003		Bartlomiej Zolnierkiewicz
+>   *
+>   *  The big the bad and the ugly.
+>   *
+> @@ -176,9 +177,12 @@
+> 
+>  	hwif->OUTB((taskfile->device_head & HIHI) | drive->select.all, IDE_SELECT_REG);
+>  	if (task->handler != NULL) {
+> -		ide_execute_command(drive, taskfile->command, task->handler, WAIT_WORSTCASE, NULL);
+> -		if (task->prehandler != NULL)
+> +		if (task->prehandler != NULL) {
+> +			hwif->OUTBSYNC(drive, taskfile->command, IDE_COMMAND_REG);
+> +			ndelay(400);	/* FIXME */
+>  			return task->prehandler(drive, task->rq);
+> +		}
+> +		ide_execute_command(drive, taskfile->command, task->handler, WAIT_WORSTCASE, NULL);
+>  		return ide_started;
+>  	}
+> 
+> @@ -535,6 +539,262 @@
+> 
+>  EXPORT_SYMBOL(task_no_data_intr);
+> 
+> +#define PIO_IN	0
+> +#define PIO_OUT	1
+> +
+> +static inline void task_sectors(ide_drive_t *drive, struct request *rq,
+> +				unsigned nsect, int rw)
+> +{
+> +	unsigned long flags;
+> +	char *buf;
+> +
+> +	buf = task_map_rq(rq, &flags);
+> +
+> +	/*
+> +	 * IRQ can happen instantly after reading/writing
+> +	 * last sector of the datablock.
+> +	 */
+> +	process_that_request_first(rq, nsect);
+> +
+> +	if (rw == PIO_OUT)
+> +		taskfile_output_data(drive, buf, nsect * SECTOR_WORDS);
+> +	else
+> +		taskfile_input_data(drive, buf, nsect * SECTOR_WORDS);
+> +
+> +	task_unmap_rq(rq, buf, &flags);
+> +}
+> +
+> +/*
+> + * Handler for command with PIO data-in phase (Read).
+> + */
+> +ide_startstop_t task_in_intr (ide_drive_t *drive)
+> +{
+> +	struct request *rq = HWGROUP(drive)->rq;
+> +	u8 stat, good_stat;
+> +
+> +	good_stat = DATA_READY;
+> +check_status:
+> +	stat = HWIF(drive)->INB(IDE_STATUS_REG);
+> +	if (!OK_STAT(stat, good_stat, BAD_R_STAT)) {
+> +		if (stat & (ERR_STAT|DRQ_STAT))
+> +			return DRIVER(drive)->error(drive, __FUNCTION__, stat);
+> +		/* No data yet, so wait for another IRQ. */
+> +		ide_set_handler(drive, &task_in_intr, WAIT_WORSTCASE, NULL);
+> +		return ide_started;
+> +	}
+> +
+> +	/*
+> +	 * Complete previously submitted bios (if any).
+> +	 * Status was already verifyied.
+> +	 */
+> +	while (rq->hard_bio != rq->bio)
+> +		if (!DRIVER(drive)->end_request(drive, 1, bio_sectors(rq->hard_bio)))
+> +			return ide_stopped;
+> +
+> +	rq->errors = 0;
+> +	task_sectors(drive, rq, 1, PIO_IN);
+> +
+> +	/* If it was the last datablock check status and finish transfer. */
+> +	if (!rq->nr_sectors) {
+> +		good_stat = 0;
+> +		goto check_status;
+> +	}
+> +
+> +	/* Still data left to transfer. */
+> +	ide_set_handler(drive, &task_in_intr, WAIT_WORSTCASE, NULL);
+> +
+> +	return ide_started;
+> +}
+> +
+> +EXPORT_SYMBOL(task_in_intr);
+> +
+> +/*
+> + * Handler for command with PIO data-in phase (Read Multiple).
+> + */
+> +ide_startstop_t task_mulin_intr (ide_drive_t *drive)
+> +{
+> +	struct request *rq = HWGROUP(drive)->rq;
+> +	unsigned int msect = drive->mult_count;
+> +	unsigned int nsect;
+> +	u8 stat, good_stat;
+> +
+> +	good_stat = DATA_READY;
+> +check_status:
+> +	stat = HWIF(drive)->INB(IDE_STATUS_REG);
+> +	if (!OK_STAT(stat, good_stat, BAD_R_STAT)) {
+> +		if (stat & (ERR_STAT|DRQ_STAT))
+> +			return DRIVER(drive)->error(drive, __FUNCTION__, stat);
+> +		/* No data yet, so wait for another IRQ. */
+> +		ide_set_handler(drive, &task_mulin_intr, WAIT_WORSTCASE, NULL);
+> +		return ide_started;
+> +	}
+> +
+> +	/*
+> +	 * Complete previously submitted bios (if any).
+> +	 * Status was already verifyied.
+> +	 */
+> +	while (rq->hard_bio != rq->bio)
+> +		if (!DRIVER(drive)->end_request(drive, 1, bio_sectors(rq->hard_bio)))
+> +			return ide_stopped;
+> +
+> +	rq->errors = 0;
+> +	do {
+> +		nsect = rq->current_nr_sectors;
+> +		if (nsect > msect)
+> +			nsect = msect;
+> +
+> +		task_sectors(drive, rq, nsect, PIO_IN);
+> +
+> +		if (!rq->nr_sectors)
+> +			msect = 0;
+> +		else
+> +			msect -= nsect;
+> +	} while (msect);
+> +
+> +	/* If it was the last datablock check status and finish transfer. */
+> +	if (!rq->nr_sectors) {
+> +		good_stat = 0;
+> +		goto check_status;
+> +	}
+> +
+> +	/* Still data left to transfer. */
+> +	ide_set_handler(drive, &task_mulin_intr, WAIT_WORSTCASE, NULL);
+> +
+> +	return ide_started;
+> +}
+> +
+> +EXPORT_SYMBOL(task_mulin_intr);
+> +
+> +/*
+> + * Handler for command with PIO data-out phase (Write).
+> + */
+> +ide_startstop_t task_out_intr (ide_drive_t *drive)
+> +{
+> +	struct request *rq = HWGROUP(drive)->rq;
+> +	u8 stat;
+> +	int ok_stat;
+> +
+> +	stat = HWIF(drive)->INB(IDE_STATUS_REG);
+> +	ok_stat = OK_STAT(stat, DRIVE_READY, drive->bad_wstat);
+> +
+> +	if (!ok_stat || !rq->nr_sectors) {
+> +		if (stat & (ERR_STAT|DRQ_STAT))
+> +			return DRIVER(drive)->error(drive, __FUNCTION__, stat);
+> +		if (stat & BUSY_STAT) {
+> +			/* Not ready yet, so wait for another IRQ. */
+> +			ide_set_handler(drive, &task_out_intr, WAIT_WORSTCASE, NULL);
+> +			return ide_started;
+> +		}
+> +	}
+> +
+> +	/*
+> +	 * Complete previously submitted bios (if any).
+> +	 * Status was already verifyied.
+> +	 */
+> +	while (rq->hard_bio != rq->bio)
+> +		if (!DRIVER(drive)->end_request(drive, 1, bio_sectors(rq->hard_bio)))
+> +			return ide_stopped;
+> +
+> +	/* Still data left to transfer. */
+> +	ide_set_handler(drive, &task_out_intr, WAIT_WORSTCASE, NULL);
+> +
+> +	rq->errors = 0;
+> +	task_sectors(drive, rq, 1, PIO_OUT);
+> +
+> +	return ide_started;
+> +}
+> +
+> +EXPORT_SYMBOL(task_out_intr);
+> +
+> +ide_startstop_t pre_task_out_intr (ide_drive_t *drive, struct request *rq)
+> +{
+> +	ide_startstop_t startstop;
+> +
+> +	if (ide_wait_stat(&startstop, drive, DATA_READY,
+> +			  drive->bad_wstat, WAIT_DRQ)) {
+> +		printk(KERN_ERR "%s: no DRQ after issuing WRITE%s\n",
+> +				drive->name, drive->addressing ? "_EXT" : "");
+> +		return startstop;
+> +	}
+> +
+> +	return task_out_intr(drive);
+> +}
+> +
+> +EXPORT_SYMBOL(pre_task_out_intr);
+> +
+> +/*
+> + * Handler for command with PIO data-out phase (Write Multiple).
+> + */
+> +ide_startstop_t task_mulout_intr (ide_drive_t *drive)
+> +{
+> +	struct request *rq = HWGROUP(drive)->rq;
+> +	unsigned int msect = drive->mult_count;
+> +	unsigned int nsect;
+> +	u8 stat;
+> +	int ok_stat;
+> +
+> +	stat = HWIF(drive)->INB(IDE_STATUS_REG);
+> +	ok_stat = OK_STAT(stat, DRIVE_READY, drive->bad_wstat);
+> +
+> +	if (!ok_stat || !rq->nr_sectors) {
+> +		if (stat & (ERR_STAT|DRQ_STAT))
+> +			return DRIVER(drive)->error(drive, __FUNCTION__, stat);
+> +		if (stat & BUSY_STAT) {
+> +			/* Not ready yet, so wait for another IRQ. */
+> +			ide_set_handler(drive, &task_mulout_intr, WAIT_WORSTCASE, NULL);
+> +			return ide_started;
+> +		}
+> +	}
+> +
+> +	/*
+> +	 * Complete previously submitted bios (if any).
+> +	 * Status was already verifyied.
+> +	 */
+> +	while (rq->hard_bio != rq->bio)
+> +		if (!DRIVER(drive)->end_request(drive, 1, bio_sectors(rq->hard_bio)))
+> +			return ide_stopped;
+> +
+> +	/* Still data left to transfer. */
+> +	ide_set_handler(drive, &task_mulout_intr, WAIT_WORSTCASE, NULL);
+> +
+> +	rq->errors = 0;
+> +	do {
+> +		nsect = rq->current_nr_sectors;
+> +		if (nsect > msect)
+> +			nsect = msect;
+> +
+> +		task_sectors(drive, rq, nsect, PIO_OUT);
+> +
+> +		if (!rq->nr_sectors)
+> +			msect = 0;
+> +		else
+> +			msect -= nsect;
+> +
+> +	} while (msect);
+> +
+> +	return ide_started;
+> +}
+> +
+> +EXPORT_SYMBOL(task_mulout_intr);
+> +
+> +ide_startstop_t pre_task_mulout_intr (ide_drive_t *drive, struct request *rq)
+> +{
+> +	ide_startstop_t startstop;
+> +
+> +	if (ide_wait_stat(&startstop, drive, DATA_READY,
+> +			  drive->bad_wstat, WAIT_DRQ)) {
+> +		printk(KERN_ERR "%s: no DRQ after issuing MULTWRITE%s\n",
+> +				drive->name, drive->addressing ? "_EXT" : "");
+> +		return startstop;
+> +	}
+> +
+> +	return task_mulout_intr(drive);
+> +}
+> +
+> +EXPORT_SYMBOL(pre_task_mulout_intr);
+> +
+> +
+> +#if 0
+>  /*
+>   * Handler for command with PIO data-in phase, READ
+>   */
+> @@ -932,6 +1192,7 @@
+>  }
+> 
+>  EXPORT_SYMBOL(task_mulout_intr);
+> +#endif	/* 0 */
+> 
+>  /* Called by internal to feature out type of command being called */
+>  //ide_pre_handler_t * ide_pre_handler_parser (task_struct_t *taskfile, hob_struct_t *hobfile)
+> @@ -1873,10 +2134,14 @@
+>   			if (task->handler == NULL)
+>  				return ide_stopped;
+> 
+> +			if (task->prehandler != NULL) {
+> +				hwif->OUTBSYNC(drive, taskfile->command, IDE_COMMAND_REG);
+> +				ndelay(400);	/* FIXME */
+> +				return task->prehandler(drive, HWGROUP(drive)->rq);
+> +			}
+> +
+>  			/* Issue the command */
+>  			ide_execute_command(drive, taskfile->command, task->handler, WAIT_WORSTCASE, NULL);
+> -			if (task->prehandler != NULL)
+> -				return task->prehandler(drive, HWGROUP(drive)->rq);
+>  	}
+> 
+>  	return ide_started;
 > 
 > 
->>IDE hotswap at drive level is not supported by Linux. It might work ok. 
->>Providing you shut the drive down fully and flush the cache before you
->>unregister/unplug and replug before registering the new interface
-> 
-> 
-> There was a bunch of discussion of this, possibly on this list, and I
-> believe that the whole cable has to be unregistered or some such. I've
-> done it with only one drive on a cable, and it seemed to work. On the
-> other hand I was only playing.
 
-Thanks Bill, I have read everything I can find in the archives, but am 
-still confused as to what exactly is going on. My current understanding is:
-
-On boot, Linux examines the ide drive for physical parameters. Then, 
-mounting causes filesystem details to be loaded.
-
-Now clearly, unmounting should undo mounting (or does the kernel keep 
-something even here in memory for 'efficiency?). So is hdparm -U enough 
-to undo the loading of physical parameters, and will hdparm -R reload them?
-
-> I've seen some note regarding using ide-floppy for the whole drive instead
-> of the media, but I have never had the urge to try that.
-> 
-> WARNING: removable and hot swapable bays are not the same, had a client
-> prove that to herself the hard way.
-
-This device is claimed to be 'hot-swappable'. It has circuitry on board, 
-which I presume does the necessary isolation and power down as claimed 
-in the blurb.
-
-As an aside, I am puzzled by statements that Linux `doesn't support' 
-this. As far as I can see (and I acknowledge my relative ignorance, 
-which is why I have appealed for help here), whatever is done at boot 
-time can be done again later if conditions change, and it should be just 
-a matter of my ascertaining exactly what must be done to achieve this. 
-Or have I missed something very important (highly possible!)?
-
--- 
-Ron House     house@usq.edu.au
-               http://www.sci.usq.edu.au/staff/house
+Andre Hedrick
+LAD Storage Consulting Group
 

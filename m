@@ -1,95 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263663AbUFDOBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265785AbUFDOJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263663AbUFDOBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 10:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265787AbUFDOBZ
+	id S265785AbUFDOJw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 10:09:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUFDOJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 10:01:25 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:4224 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263663AbUFDOBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 10:01:19 -0400
-Date: Fri, 4 Jun 2004 15:09:03 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200406041409.i54E93hx000153@81-2-122-30.bradfords.org.uk>
-To: Rick Jansen <rick@rockingstone.nl>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040604095409.GL18885@web1.rockingstone.nl>
-References: <20040604075448.GK18885@web1.rockingstone.nl>
- <200406040943.i549h2aG000175@81-2-122-30.bradfords.org.uk>
- <20040604095409.GL18885@web1.rockingstone.nl>
-Subject: Re: DriveReady SeekComplete Error
+	Fri, 4 Jun 2004 10:09:52 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:28047 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S265785AbUFDOJu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 10:09:50 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: msync() oops in 2.6.7-rc2-bk1
+Date: Fri, 4 Jun 2004 14:09:49 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <c9pvrd$v39$1@news.cistron.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1086358189 31849 62.216.29.200 (4 Jun 2004 14:09:49 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please don't trim the CC list.
+I'm running a news server. The innd process uses mmap()s for several
+files and uses msync() to force synchronization to disk every so
+often. Suddenly, an msync() causes an oops (and innd SEGVs). This
+is after the box has been up and running for 3 days:
 
-Quote from Rick Jansen <rick@rockingstone.nl>:
-> On Fri, Jun 04, 2004 at 10:43:02AM +0100, John Bradford wrote:
-> > Please post more information.  First, what size is the disk?
-> > 
-> > The LBAsect number suggests an access around 108 Gb.  If the disk is smaller
-> > than this, then it would appear that a request was made for a non-existant
-> > sector.
-> > 
-> > Is the LBAsect number the same in each error?  What is the machine doing
-> > when the errors occur?
-> > 
-> > John.
-> 
-> Here's some more information about the disk from the boot log.
-> I also found some StatusErrors in there.
-> 
-> May 10 11:14:07 web3 kernel: hda: Maxtor 6Y120P0, ATA DISK drive
-> May 10 11:14:07 web3 kernel: hda: max request size: 128KiB
-> May 10 11:14:07 web3 kernel: hda: 240121728 sectors (122942 MB)
-> w/7936KiB Cache, CHS=65535/16/63, UDMA(133)
-> May 10 11:14:07 web3 kernel:  hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
-> May 10 11:14:07 web3 kernel: hda: task_no_data_intr: status=0x51 {
-> DriveReady SeekComplete Error }
-> May 10 11:14:07 web3 kernel: hda: task_no_data_intr: error=0x04 {
-> DriveStatusError }
-> May 10 11:14:07 web3 kernel: hda: Write Cache FAILED Flushing!
-> 
-> Thats a different error then what it gives me occasionaly. Googling this
-> error lead me to believe this is a bug in the ide driver, that my disk
-> doesnt support some flush command.
-> 
-> After parsing the log with simple script, these sectors seem to give the
-> errors:
-> 
-> 227270012
-> 227270483
-> 236708724
-> 237757036
-> 237757472
-> 238018530
-> 238020393
-> 238279554
-> 238804853
-> 239066426
-> 239328347
-> 239590823
-> 240116567
-> 240121662
-> 58619113
-> 58619120
-> 58619127
-> 58619447
-> 58619448
-> 58619519
-> 58620045
-> 58620048
-> 58620331
+# uname -a
+Linux enterprise 2.6.7-rc2-bk1 #1 Mon May 31 15:03:52 CEST 2004 i686 GNU/Linux
 
-The lower ones are definitely within the capacity of the drive.  I suspect
-it _may_ genuinuely be faulty after all.
+ <1>Unable to handle kernel NULL pointer dereference at virtual address 00000000 printing eip:
+c0149120
+*pde = 00000000
+Oops: 0002 [#5]
+Modules linked in: e100 mii
+CPU:    0
+EIP:    0060:[<c0149120>]    Not tainted
+EFLAGS: 00010213   (2.6.7-rc2-bk1)
+EIP is at __set_page_dirty_buffers+0x20/0xb0
+eax: 00000000   ebx: f77a1e7c   ecx: c15706e0   edx: eba5a83c
+esi: 5ccfb000   edi: 00000000   ebp: 5d000000   esp: f44b5efc
+ds: 007b   es: 007b   ss: 0068
+Process innd (pid: 10936, threadinfo=f44b5000 task=d0eb2c70)
+Stack: f77a1de4 00000004 00000000 c4af23ec c013143e c15706e0 c013da1c 5ccfb000
+       c4af23f0 c013db0f c4af23ec f7101900 5ccfb000 00000001 5cc00000 ce8b25d0
+       00000000 5d000000 c013dbc3 ce8b25cc 5cc00000 5d000000 f7101900 00000001
+Call Trace:
+ [<c013143e>] set_page_dirty+0x3e/0x50
+ [<c013da1c>] filemap_sync_pte+0x5c/0x80
+ [<c013db0f>] filemap_sync_pte_range+0xcf/0xf0
+ [<c013dbc3>] filemap_sync+0x93/0x100
+ [<c013dc96>] msync_interval+0x66/0xf0
+ [<c013de37>] sys_msync+0x117/0x123
+ [<c0103c7b>] syscall_call+0x7/0xb
 
-Back up your data.
+Code: 0f ba 28 01 8b 40 08 39 d0 75 f5 0f ba 29 04 19 c0 85 c0 75
 
-If practical, try overwriting the whole disk, with something like:
+Mike.
 
-dd if=/dev/zero of=/dev/hda
-
-and see if it makes the errors go away.
-
-John.

@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319358AbSH2U61>; Thu, 29 Aug 2002 16:58:27 -0400
+	id <S319346AbSH2U5A>; Thu, 29 Aug 2002 16:57:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319363AbSH2U61>; Thu, 29 Aug 2002 16:58:27 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:17678 "EHLO
+	id <S319352AbSH2U5A>; Thu, 29 Aug 2002 16:57:00 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:1806 "EHLO
 	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S319358AbSH2U60>; Thu, 29 Aug 2002 16:58:26 -0400
-Message-ID: <3D6E8B7F.8D5D20D8@zip.com.au>
-Date: Thu, 29 Aug 2002 14:00:47 -0700
+	id <S319346AbSH2U46>; Thu, 29 Aug 2002 16:56:58 -0400
+Message-ID: <3D6E8B25.425263D5@zip.com.au>
+Date: Thu, 29 Aug 2002 13:59:17 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
 X-Accept-Language: en
@@ -37,4 +37,4 @@ will allow other CPUs to get on with stuff, and will provide efficiency
 increases.  (It's a pretty lame way of doing that though).
 
 But I don't recall seeing nasty page_table_lock spintimes on
-anyone's lockmeter reports, so we can leave it as-is for now.
+anyone's lockmeter reports, so...

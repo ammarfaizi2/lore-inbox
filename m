@@ -1,52 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265655AbUAGWYL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 17:24:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265656AbUAGWYL
+	id S265660AbUAGW1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 17:27:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265661AbUAGW1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 17:24:11 -0500
-Received: from ida.rowland.org ([192.131.102.52]:28164 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S265655AbUAGWYI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 17:24:08 -0500
-Date: Wed, 7 Jan 2004 17:24:08 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Greg KH <greg@kroah.com>
-cc: Kernel development list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: Inconsistency in sysfs behavior?
-In-Reply-To: <20040107215624.GC1083@kroah.com>
-Message-ID: <Pine.LNX.4.44L0.0401071712550.1589-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Jan 2004 17:27:23 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:27660 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265660AbUAGW1R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 17:27:17 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [NEW FEATURE]Partitions on loop device for 2.6
+Date: 7 Jan 2004 22:15:12 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bti0dg$7b4$1@gatekeeper.tmr.com>
+References: <200312241341.23523.blaisorblade_spam@yahoo.it> <3FF5DCE8.4020008@tmr.com> <200401031905.42584.blaisorblade_spam@yahoo.it>
+X-Trace: gatekeeper.tmr.com 1073513712 7524 192.168.12.62 (7 Jan 2004 22:15:12 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Jan 2004, Greg KH wrote:
+In article <200401031905.42584.blaisorblade_spam@yahoo.it>,
+BlaisorBlade  <blaisorblade_spam@yahoo.it> wrote:
+| Alle 22:04, venerdì 2 gennaio 2004, Bill Davidsen ha scritto:
+| > BlaisorBlade wrote:
+| > > NEED:
+| > > I have the need to loop mount files containing not plain filesystems, but
+| > > whole disk images.
+| > >
+| > > This is especially needed when using User-mode-linux, since to run any
+| > > distro installer you must partition the virtual disks(and on the host,
+| > > the backing file of the disk contains a partition table).
+| > >
+| > > Currently this could be done by specifying a positive offset, but letting
+| > > the kernel partition code handle this is better, isn't it? Would you ever
+| > > accept this feature into stock kernel?
+| >
+| > UML is on my list of things to learn (as opposed to "try casually and
+| > ignore")
+| It is something a bit like VMWare. But instead of emulating hardware and 
+| running an OS inside that, you run a patched Linux kernel that runs as an 
+| userspace process on the host and provides a virtual machine, which must 
+| access a virtual disk, which is stored on a file.
+| See http://user-mode-linux.sourceforge.net/ for more info.
 
-> On Wed, Jan 07, 2004 at 04:50:24PM -0500, Alan Stern wrote:
-> > 
-> > I had in mind approaching this the opposite way.  Instead of trying to 
-> > make open directories also pin a kobject, why not make open attribute 
-> > files not pin them?
-> > 
-> > It shouldn't be hard to avoid any errors; in fact I had a patch from some
-> > time ago that would do the trick (although in a hacked-up kind of way).  
-> > The main idea is to return -ENXIO instead of calling the show()/store()
-> > routines once the attribute has been removed.
-> 
-> And you can do this without adding another lock, race free?
+As noted, I tried it casually, got a kernel to boot and run, and decided
+it wasn't a solution to problems I had at the time.
 
-I used dentry->d_inode->i_sem.  While I'm not very familiar with the ins
-and outs of the filesystem code, that ought to be safe enough.
+| > but have you considered using NBD?
+| I didn't really know what it was, nor it seems useful for this "as is" (I've 
+| not really checked). Maybe that sentence means that the server program could 
+| do the partition parsing?
 
-The real problem was finding a way to indicate that the file was
-disconnected from its kobject.  I did that by setting
-dentry->d_inode->i_mode to 0.  (I didn't want to erase dentry->d_fsdata
-for fear that it might be needed somewhere else.)  That's definitely not a
-good way; it was intended only for my proof-of-principle.  No doubt
-someone else could do a much better job.
+NBD = network block device
 
-Alan Stern
+This allows a user-space program to publish a file which a kernel with
+nbd enabled can mount as a device. So you should be able to run fdisk
+and partition it, load stuff on it, and generally treat it like a drive.
 
+Take a look at Documentation/nbd.txt, it may be exactly what you want to
+provide a "block device" which can be on the same system using the
+loopback interface.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,47 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVDCTxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbVDCT6C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbVDCTxp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 15:53:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVDCTxp
+	id S261882AbVDCT6C (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 15:58:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVDCT6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 15:53:45 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:15033 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S261328AbVDCTxo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 15:53:44 -0400
-Subject: Re: [PATCH 4/4] psmouse: dynamic protocol switching via sysfs
-From: Kenan Esau <kenan.esau@conan.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: harald.hoyer@redhat.de, linux-input@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <200503220217.47624.dtor_core@ameritech.net>
-References: <20050217194217.GA2458@ucw.cz>
-	 <200503220215.34198.dtor_core@ameritech.net>
-	 <200503220216.38756.dtor_core@ameritech.net>
-	 <200503220217.47624.dtor_core@ameritech.net>
-Content-Type: text/plain
-Date: Sun, 03 Apr 2005 21:49:25 +0200
-Message-Id: <1112557765.3625.9.camel@localhost>
+	Sun, 3 Apr 2005 15:58:02 -0400
+Received: from agminet03.oracle.com ([141.146.126.230]:40149 "EHLO
+	agminet03.oracle.com") by vger.kernel.org with ESMTP
+	id S261882AbVDCT5y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 15:57:54 -0400
+Date: Sun, 3 Apr 2005 12:57:28 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, Patrick Mochel <mochel@digitalimplant.org>
+Subject: [PATCH] configfs, a filesystem for userspace-driven kernel object configuration
+Message-ID: <20050403195728.GH31163@ca-server1.us.oracle.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+	Greg KH <greg@kroah.com>,
+	Patrick Mochel <mochel@digitalimplant.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patches 1-3 are fine.
+Folks,
+	I humbly submit configfs.  With configfs, a configfs
+config_item is created via an explicit userspace operation: mkdir(2).
+It is destroyed via rmdir(2).  The attributes appear at mkdir(2) time,
+and can be read or modified via read(2) and write(2).  readdir(3)
+queries the list of items and/or attributes.
+	The lifetime of the filesystem representation is completely
+driven by userspace.  The lifetime of the objects themselves are managed
+by a kref, but at rmdir(2) time they disappear from the filesystem.
+	configfs is not intended to replace sysfs or procfs, merely to
+coexist with them.
+	An interface in /proc where the API is: 
 
-Protocol switching via sysfs works too but if I switch from LBPS/2 to
-PS/2 the device name changes from "/dev/event1" to "/dev/event2" -- is
-this intended?
+	# echo "create foo 1 3 0x00013" > /proc/mythingy
 
-If I do "echo -n 50 > resolution" "0xe8 0x01" is sent. I don't know if
-this is correct for "usual" PS/2-devices but for the lifebook it's
-wrong.
+or an ioctl(2) interface where the API is:
 
-For the lifebook the parameters are as following:
+	struct mythingy_create {
+		char *name;
+		int index;
+		int count;
+		unsigned long address;
+	}
 
-50cpi  <=> 0x00
-100cpi <=> 0x01
-200cpi <=> 0x02
-400cpi <=> 0x03
+	do_create {
+		mythingy_create = {"foo", 1, 3, 0x0013};
+		return ioctl(fd, MYTHINGY_CREATE, &mythingy_create);
+	}
 
+becomes this in configfs:
+
+	# cd /config/mythingy
+	# mkdir foo
+	# echo 1 > foo/index
+	# echo 3 > foo/count
+	# echo 0x00013 > foo/address
+
+	Instead of a binary blob that's passed around or a cryptic
+string that has to be formatted just so, configfs provides an interface
+that's completely scriptable and navigable.
+	Patch is against 2.6.12-rc1-bk3.
+
+http://oss.oracle.com/~jlbec/files/configfs/2.6.12-rc1-bk3/configfs-2.6.12-rc1-bk3-1.patch
+
+Joel
+
+-- 
+
+"Not everything that can be counted counts, and not everything
+ that counts can be counted."
+        - Albert Einstein 
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

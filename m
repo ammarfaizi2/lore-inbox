@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261247AbRELNp6>; Sat, 12 May 2001 09:45:58 -0400
+	id <S261246AbRELNoi>; Sat, 12 May 2001 09:44:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261250AbRELNps>; Sat, 12 May 2001 09:45:48 -0400
-Received: from www.wen-online.de ([212.223.88.39]:31240 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S261248AbRELNpm>;
-	Sat, 12 May 2001 09:45:42 -0400
-Date: Sat, 12 May 2001 15:45:17 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Vincent Stemen <linuxkernel@AdvancedResearch.org>,
-        Jacky Liu <jq419@my-deja.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4 kernel freeze for unknown reason
-In-Reply-To: <E14yXPt-00044K-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0105121504560.365-100000@mikeg.weiden.de>
+	id <S261248AbRELNo2>; Sat, 12 May 2001 09:44:28 -0400
+Received: from m2ep.pp.htv.fi ([212.90.64.98]:38162 "EHLO m2.pp.htv.fi")
+	by vger.kernel.org with ESMTP id <S261247AbRELNoV>;
+	Sat, 12 May 2001 09:44:21 -0400
+Message-ID: <3AFD3E71.924FBD82@tyrell.hu>
+Date: Sat, 12 May 2001 16:45:21 +0300
+From: Akos Maroy <darkeye@tyrell.hu>
+Organization: Tyrell Corp.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Process accessing a Sony DSC-F505V camera through USB as a 
+ storage device hangs.
+In-Reply-To: <3AFD2E41.213CFB47@tyrell.hu> <20010512151803.C8826@arthur.ubicom.tudelft.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 May 2001, Alan Cox wrote:
-
-> > > > If I turn swap off all together or turn it off and back on
-> > > > periodically to clear the swap before it gets full, I do not seem to
-> > > > experience the lockups.
+Erik Mouw wrote:
+> 
+> On Sat, May 12, 2001 at 03:36:17PM +0300, Akos Maroy wrote:
+> > [1.] One line summary of the problem:
 > >
-> > Why do I not see this behavior with a heavy swap throughput test load?
-> > It seems decidedly odd to me that swapspace should remain allocated on
-> > other folks lightly loaded boxen given that my heavily loaded box does
-> > release swapspace quite regularly.  What am I missing?
->
-> If you swap really hard it seems much happier. If you vaguely swap stuff out
-> over time then I too see the description above only I have Rik's dont deadlock
-> on oom tweak so I see apps die.
+> > Process accessing a Sony DSC-F505V camera through USB as a storage
+> > device hangs.
+> 
+> [snip]
+> 
+> > [7.3.] Module information (from /proc/modules):
+> >
+> > NVdriver              629488  12 (autoclean)
+> > usb-storage            48928   1
+> > uhci                   23680   0 (unused)
+> > usbcore                53008   0 [usb-storage uhci]
+> > nls_iso8859-1           2864   4 (autoclean)
+> > nls_cp437               4384   4 (autoclean)
+> > vfat                    9328   4 (autoclean)
+> > fat                    32160   0 (autoclean) [vfat]
+> 
+> You're using the binary only NVdriver. Boot the system without that
+> driver and try to recreate the problem. If not, you'll have to contact
+> nvidia.
 
-Does any swap write/release if you hit such a box with heavy duty IO?
-(pages on dirty list, swapspace allocated but writeout defered?)
+I tried, and the same problem persists.
 
-If not, I'd be interested in seeing sysrq-m of a box in such a state..
-particularly so if the total pages on active, dirty and clean lists is
-only a small fraction of total pages.  (information leak?)
 
-	-Mike
-
+Akos

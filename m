@@ -1,234 +1,457 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278095AbRJ1J6i>; Sun, 28 Oct 2001 04:58:38 -0500
+	id <S278098AbRJ1KCS>; Sun, 28 Oct 2001 05:02:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278098AbRJ1J63>; Sun, 28 Oct 2001 04:58:29 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:54798 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S278095AbRJ1J6N>;
-	Sun, 28 Oct 2001 04:58:13 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
+	id <S278099AbRJ1KCK>; Sun, 28 Oct 2001 05:02:10 -0500
+Received: from colorfullife.com ([216.156.138.34]:50952 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S278098AbRJ1KCD>;
+	Sun, 28 Oct 2001 05:02:03 -0500
+Message-ID: <3BDBD7BB.F7BE06D0@colorfullife.com>
+Date: Sun, 28 Oct 2001 11:02:35 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.14-pre3 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.13 errors and warnings
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 28 Oct 2001 20:58:36 +1100
-Message-ID: <27909.1004263116@ocs3.intra.ocs.com.au>
+Subject: sysenter support
+Content-Type: multipart/mixed;
+ boundary="------------8D12764D26DB149EAF708B0A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doing kbuild 2.5 full build for SMP on 2.4.13 got lots of warnings and
-a couple of errors.  The .config had everything built in except for:
+This is a multi-part message in MIME format.
+--------------8D12764D26DB149EAF708B0A
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-  # I don't have the required input files to build the sound firmware.
-  # If anybody has them and can test, go for it.
-  CONFIG_PSS_HAVE_BOOT=n
-  CONFIG_MAUI_HAVE_BOOT=n
-  CONFIG_TRIX_HAVE_BOOT=n
+I've added sysenter/sysexit support for all syscalls with up to 4
+parameters.
+The syscalls with 5 or 6 parameters must continue to use int $0x80, I
+need 2 registers to pass the user space stack and instruction pointer
+values. The sysenter instruction destroys them.
 
-  # _SOUND_MSNDCLAS=y and _SOUND_MSNDPIN=y insist on having firmware that
-  # I don't have.
-  CONFIG_SOUND_MSNDCLAS=m
-  CONFIG_SOUND_MSNDPIN=m
+sysenter is supported by AMD K7 and Intel Pentium II and later.
+Result: simple syscall (getpid()) more than 35% faster.
 
-  # Broken code, missing ioctls
-  CONFIG_SCSI_CPQFCTS=n
+before: 295 cpu ticks
+now: 186 cpu ticks.
 
-  # Broken code, missing #include <module.h>
-  CONFIG_SCSI_U14_34F=n
+patch attached, sample code on
+http://colorfullife.com/~manfred/sysenter
 
-  # Broken code, SCSI_ABORT_PENDING undefined
-  CONFIG_USB_HPUSBSCSI=n
+syscall support for K6/2 is not planned :-(
 
-The last three options give compile errors when they are turned on.  I
-have not checked if they are fixed in 2.4.14-pre3.
+--
+	Manfred
+--------------8D12764D26DB149EAF708B0A
+Content-Type: text/plain; charset=us-ascii;
+ name="patch-sysenter"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-sysenter"
 
-The link of vmlinux had a lot of duplicate objects:
+// $Header$
+// Kernel Version:
+//  VERSION = 2
+//  PATCHLEVEL = 4
+//  SUBLEVEL = 14
+//  EXTRAVERSION =-pre3
+diff -urN 2.4/include/asm-i386/msr.h build-2.4/include/asm-i386/msr.h
+--- 2.4/include/asm-i386/msr.h	Sun Sep 30 16:25:49 2001
++++ build-2.4/include/asm-i386/msr.h	Sat Oct 27 22:30:06 2001
+@@ -53,6 +53,10 @@
+ 
+ #define MSR_IA32_BBL_CR_CTL		0x119
+ 
++#define MSR_IA32_SYSENTER_CS		0x174
++#define MSR_IA32_SYSENTER_ESP		0x175
++#define MSR_IA32_SYSENTER_EIP		0x176
++
+ #define MSR_IA32_MCG_CAP		0x179
+ #define MSR_IA32_MCG_STATUS		0x17a
+ #define MSR_IA32_MCG_CTL		0x17b
+diff -urN 2.4/include/asm-i386/processor.h build-2.4/include/asm-i386/processor.h
+--- 2.4/include/asm-i386/processor.h	Sun Oct 28 02:12:45 2001
++++ build-2.4/include/asm-i386/processor.h	Sat Oct 27 22:27:46 2001
+@@ -90,6 +90,7 @@
+ #define cpu_has_xmm	(test_bit(X86_FEATURE_XMM,  boot_cpu_data.x86_capability))
+ #define cpu_has_fpu	(test_bit(X86_FEATURE_FPU,  boot_cpu_data.x86_capability))
+ #define cpu_has_apic	(test_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability))
++#define cpu_has_sep	(test_bit(X86_FEATURE_SEP,  boot_cpu_data.x86_capability))
+ 
+ extern char ignore_irq13;
+ 
+diff -urN 2.4/include/asm-i386/syscall.h build-2.4/include/asm-i386/syscall.h
+--- 2.4/include/asm-i386/syscall.h	Thu Jan  1 01:00:00 1970
++++ build-2.4/include/asm-i386/syscall.h	Sun Oct 28 10:14:35 2001
+@@ -0,0 +1,128 @@
++#ifndef __ASM_SYSCALL_H
++#define __ASM_SYSCALL_H
++#ifdef __KERNEL__
++/*
++ * Helper structures for fast system call instructions.
++ *
++ * Intel support sysenter/sysexit since Pentium II.
++ * 	AMD supports sysenter/sysexit since K7.
++ * AMD supports syscall and sysret since K6 (/2?)
++ *
++ * Copyright (C) 2001 Manfred Spraul
++ *
++ * A) SYSENTER/SYSEXIT
++ * Interrupts are disabled after sysenter until the normal
++ * stack layout is built.
++ *
++ * sysenter only switches EIP and ESP, and then
++ * entry.S must find current.
++ */
++union sysenter_struct {
++	struct {
++		/* small emergency stack to handle trap flag
++		 * debug exceptions. Only 4 dwords are needed.
++		 */
++		unsigned long TF_stack[8];
++		/* esp points to cur_tsk after sysenter */
++		void * cur_tsk;
++	} u;
++	unsigned char fill[SMP_CACHE_BYTES];
++};
++extern union sysenter_struct sysenter_data[NR_CPUS];
++/*
++ * B) SYSCALL/SYSRET
++ *
++ * Not yet implemented. I can't find a clean way to
++ * implement SMP support and trap flag clearing.
++ */
++#endif
++
++/* Alternate syscall macros for sysenter and syscall */
++/* A) sysenter
++ *	- only up to 4 parametesr
++ */
++
++/* XXX - _foo needs to be __foo, while __NR_bar could be _NR_bar. */
++#define _syscallSEP0(type,name) \
++type name(void) \
++{ \
++long __res; \
++__asm__ __volatile__( \
++		"mov $1f, %%edi\n\t" \
++		"push %%ebp\n\t" \
++		"mov %%esp, %%ebp\n\t" \
++		"sysenter\n\t" \
++		"1:pop %%ebp\n\t" \
++		: "=a" (__res) \
++		: "0" (__NR_##name) \
++		: "ecx", "edx", "edi", "flags"); \
++__syscall_return(type,__res); \
++}
++
++#define _syscallSEP1(type,name,type1,arg1) \
++type name(type1 arg1) \
++{ \
++long __res; \
++__asm__ __volatile__( \
++		"mov $1f, %%edi\n\t" \
++		"push %%ebp\n\t" \
++		"mov %%esp, %%ebp\n\t" \
++		"sysenter\n\t" \
++		"1:pop %%ebp\n\t" \
++		: "=a" (__res) \
++		: "0" (__NR_##name), "b" ((long)(arg1)) \
++		: "ecx", "edx", "edi", "flags"); \
++__syscall_return(type,__res); \
++}
++
++#define _syscallSEP2(type,name,type1,arg1,type2,arg2) \
++type name(type1 arg1,type2 arg2) \
++{ \
++long __res; \
++__asm__ __volatile__( \
++		"mov $1f, %%edi\n\t" \
++		"push %%ebp\n\t" \
++		"mov %%esp, %%ebp\n\t" \
++		"sysenter\n\t" \
++		"1:pop %%ebp\n\t" \
++		: "=a" (__res) \
++		: "0" (__NR_##name), "b" ((long)(arg1)), "c" ((long)(arg2)) \
++		: "edx", "edi", "flags"); \
++__syscall_return(type,__res); \
++}
++
++#define _syscallSEP3(type,name,type1,arg1,type2,arg2,type3,arg3) \
++type name(type1 arg1,type2 arg2,type3 arg3) \
++{ \
++long __res; \
++__asm__ __volatile__( \
++		"mov $1f, %%edi\n\t" \
++		"push %%ebp\n\t" \
++		"mov %%esp, %%ebp\n\t" \
++		"sysenter\n\t" \
++		"1:pop %%ebp\n\t" \
++		: "=a" (__res) \
++		: "0" (__NR_##name), "b" ((long)(arg1)), "c" ((long)(arg2)) \
++			"d" ((long)(arg3)) \
++		: "edi", "flags"); \
++__syscall_return(type,__res); \
++}
++
++#define _syscallSEP4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) \
++type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4) \
++{ \
++long __res; \
++__asm__ __volatile__( \
++		"mov $1f, %%edi\n\t" \
++		"push %%ebp\n\t" \
++		"mov %%esp, %%ebp\n\t" \
++		"sysenter\n\t" \
++		"1:pop %%ebp\n\t" \
++		: "=a" (__res) \
++		: "0" (__NR_##name), "b" ((long)(arg1)), "c" ((long)(arg2)) \
++	  		"d" ((long)(arg3)),"S" ((long)(arg4)) \
++		: "edi", "flags"); \
++__syscall_return(type,__res); \
++} 
++
++#endif
+--- 2.4/arch/i386/kernel/setup.c	Sun Oct 28 10:07:01 2001
++++ build-2.4/arch/i386/kernel/setup.c	Sun Oct 28 00:42:50 2001
+@@ -108,6 +108,7 @@
+ #include <asm/dma.h>
+ #include <asm/mpspec.h>
+ #include <asm/mmu_context.h>
++#include <asm/syscall.h>
+ /*
+  * Machine setup..
+  */
+@@ -2771,6 +2772,7 @@
+  * and IDT. We reload them nevertheless, this function acts as a
+  * 'CPU state barrier', nothing should get across.
+  */
++extern void system_call_SYSENTER(void);
+ void __init cpu_init (void)
+ {
+ 	int nr = smp_processor_id();
+@@ -2832,6 +2834,12 @@
+ 	current->flags &= ~PF_USEDFPU;
+ 	current->used_math = 0;
+ 	stts();
++
++	if (cpu_has_sep) {
++		wrmsr(MSR_IA32_SYSENTER_CS, 0x10, 0);
++		wrmsr(MSR_IA32_SYSENTER_ESP, &sysenter_data[nr].u.cur_tsk, 0);
++		wrmsr(MSR_IA32_SYSENTER_EIP, system_call_SYSENTER, 0);
++	}	
+ }
+ 
+ /*
+--- 2.4/arch/i386/kernel/process.c	Thu Oct 11 15:19:41 2001
++++ build-2.4/arch/i386/kernel/process.c	Sun Oct 28 00:16:22 2001
+@@ -43,6 +43,7 @@
+ #include <asm/i387.h>
+ #include <asm/desc.h>
+ #include <asm/mmu_context.h>
++#include <asm/syscall.h>
+ #ifdef CONFIG_MATH_EMULATION
+ #include <asm/math_emu.h>
+ #endif
+@@ -650,6 +651,8 @@
+ 			: /* no output */ \
+ 			:"r" (thread->debugreg[register]))
+ 
++union sysenter_struct sysenter_data[NR_CPUS];
++
+ /*
+  *	switch_to(x,yn) should switch tasks from x to y.
+  *
+@@ -679,6 +682,7 @@
+ 				 *next = &next_p->thread;
+ 	struct tss_struct *tss = init_tss + smp_processor_id();
+ 
++	sysenter_data[smp_processor_id()].u.cur_tsk = current;
+ 	unlazy_fpu(prev_p);
+ 
+ 	/*
+--- 2.4/arch/i386/kernel/traps.c	Sun Oct 28 02:12:43 2001
++++ build-2.4/arch/i386/kernel/traps.c	Sat Oct 27 22:57:07 2001
+@@ -921,7 +921,7 @@
+ #endif
+ 
+ 	set_trap_gate(0,&divide_error);
+-	set_trap_gate(1,&debug);
++	set_intr_gate(1,&debug);
+ 	set_intr_gate(2,&nmi);
+ 	set_system_gate(3,&int3);	/* int3-5 can be called from all */
+ 	set_system_gate(4,&overflow);
+--- 2.4/arch/i386/kernel/entry.S	Sun Oct 28 02:12:43 2001
++++ build-2.4/arch/i386/kernel/entry.S	Sun Oct 28 09:48:25 2001
+@@ -45,6 +45,7 @@
+ #include <linux/linkage.h>
+ #include <asm/segment.h>
+ #include <asm/smp.h>
++#include <asm/unistd.h>
+ 
+ EBX		= 0x00
+ ECX		= 0x04
+@@ -97,7 +98,7 @@
+ 	movl %edx,%ds; \
+ 	movl %edx,%es;
+ 
+-#define RESTORE_ALL	\
++#define RESTORE_NORET	\
+ 	popl %ebx;	\
+ 	popl %ecx;	\
+ 	popl %edx;	\
+@@ -107,14 +108,22 @@
+ 	popl %eax;	\
+ 1:	popl %ds;	\
+ 2:	popl %es;	\
+-	addl $4,%esp;	\
+-3:	iret;		\
+ .section .fixup,"ax";	\
+-4:	movl $0,(%esp);	\
++3:	movl $0,(%esp);	\
+ 	jmp 1b;		\
+-5:	movl $0,(%esp);	\
++4:	movl $0,(%esp);	\
+ 	jmp 2b;		\
+-6:	pushl %ss;	\
++.previous;		\
++.section __ex_table,"a";\
++	.align 4;	\
++	.long 1b,3b;	\
++	.long 2b,4b;	\
++.previous
++
++#define DO_IRET		\
++1:	iret;		\
++.section .fixup,"ax";	\
++2:	pushl %ss;	\
+ 	popl %ds;	\
+ 	pushl %ss;	\
+ 	popl %es;	\
+@@ -122,12 +131,15 @@
+ 	call do_exit;	\
+ .previous;		\
+ .section __ex_table,"a";\
+-	.align 4;	\
+-	.long 1b,4b;	\
+-	.long 2b,5b;	\
+-	.long 3b,6b;	\
++	.long 1b,2b;	\
+ .previous
+ 
++
++#define RESTORE_ALL	\
++	RESTORE_NORET	\
++	addl $4,%esp;	\
++	DO_IRET
++
+ #define GET_CURRENT(reg) \
+ 	movl $-8192, reg; \
+ 	andl %esp, reg
+@@ -259,6 +271,92 @@
+ 	call SYMBOL_NAME(schedule)    # test
+ 	jmp ret_from_sys_call
+ 
++/*
++ * SYSENTER entry point
++ * ptrace must work without changes, thus the code pushes everything
++ * identical to int 0x80
++ */
++
++ENTRY(system_call_SYSENTER)
++	movl (%esp), %esp # load current
++	addl $0x2000, %esp # and go to the stack
++	sti
++	pushl $0x2b	# user ss
++	pushl %ebp	# user esp
++	pushfl
++	pushl $0x23	# user cs
++	pushl %edi	# user eip
++
++	pushl %eax	# orig_eax	
++
++	SAVE_ALL
++	GET_CURRENT(%ebx)
++	cmpl $(NR_syscalls),%eax
++	jae badsys
++	testb $0x02,tsk_ptrace(%ebx)	# PT_TRACESYS
++	jne tracesys
++	call *SYMBOL_NAME(sys_call_table)(,%eax,4)
++	movl %eax,EAX(%esp)		# save the return value
++	cli				# need_resched and signals atomic test
++	cmpl $0,need_resched(%ebx)
++	jne reschedule
++	cmpl $0,sigpending(%ebx)
++	jne signal_return
++	#
++	# for return from execve and sigreturn, we must use iretd,
++	# since we must not clobber %ecx and %edx in these cases.
++	#
++	# FIXME: ak says that iopl is special, too.
++	RESTORE_NORET
++	cmpl $__NR_execve, (%esp)
++	je sysexit_iretd
++	cmpl $__NR_sigreturn, (%esp)
++	je sysexit_iretd
++	popl %edx		# discard orig_eax
++	popl %edx		# user eip
++	popl %ecx		# discard user cs
++
++	movl 4(%esp),%ecx	# user esp
++	# popfl reenables interrupts.
++	# To guarantee an atomic enable & return,
++	# that must be the last instruction before sysexit
++	# FIXME: check docu. hpa says ok.
++	popfl
++	# Alternative:
++	# andl $0xfffffdff, (%esp)
++	# popfl
++	# sti
++	sysexit
++	# user esp was already loaded
++	# ignore user ss
++sysexit_iretd:
++	DO_IRET
++
++
++sysenter_trap_fixup:
++	# Sysenter was called single stepping is on.
++	# We must transparently switch from sysenter to int $0x80.
++	# Sysexit does not support enabling the trap flag.
++	# Stack layout:
++	pushl %eax
++	movl %esp, %eax
++	# 0(%eax): true eax
++	# 4(%eax): EIP (==system_call_SYSENTER)
++	# 8(%eax): CS (==KERNEL_CS)
++	# 12(%eax): flags
++	# 16(%eax): current
++	movl 16(%esp), %esp
++	addl $0x2000, %esp
++	sti
++	pushl $0x2b	# user ss
++	pushl %ebp	# user esp
++	orl $0x200, 12(%eax) # enable interrupts, sysenter disabled them
++	pushl 12(%eax)	# flags
++	pushl $0x23	# user cs
++	pushl %edi	# user eip
++	movl (%eax), %eax	
++	jmp system_call
++
+ ENTRY(divide_error)
+ 	pushl $0		# no error code
+ 	pushl $ SYMBOL_NAME(do_divide_error)
+@@ -317,6 +415,9 @@
+ 	jmp ret_from_exception
+ 
+ ENTRY(debug)
++	cmpl $system_call_SYSENTER, (%esp)
++	je sysenter_trap_fixup
++	sti
+ 	pushl $0
+ 	pushl $ SYMBOL_NAME(do_debug)
+ 	jmp error_code
 
-drivers/net/ppp_deflate.o(.data+0x0): multiple definition of `deflate_copyright'
-fs/jffs2/jffs2.o(.data+0x20): first defined here
-drivers/net/ppp_deflate.o: In function `deflateInit_':
-drivers/net/ppp_deflate.o(.text+0x0): multiple definition of `deflateInit_'
-fs/jffs2/jffs2.o(.text+0xc90): first defined here
-drivers/net/ppp_deflate.o: In function `deflateInit2_':
-... lots more zlib conflicts ...
-drivers/isdn/tpam/tpam.o: In function `hdlc_decode':
-drivers/isdn/tpam/tpam.o(.text+0x3f20): multiple definition of `hdlc_decode'
-drivers/isdn/hisax/hisax_st5481.o(.text+0x30b0): first defined here
-ld: Warning: size of symbol `hdlc_decode' changed from 832 to 603 in drivers/isdn/tpam/tpam.o
-drivers/isdn/tpam/tpam.o: In function `hdlc_encode':
-drivers/isdn/tpam/tpam.o(.text+0x3d00): multiple definition of `hdlc_encode'
-drivers/isdn/hisax/hisax_st5481.o(.text+0x33f0): first defined here
-ld: Warning: size of symbol `hdlc_encode' changed from 1345 to 529 in drivers/isdn/tpam/tpam.o
-drivers/mtd/chips/jedec_probe.o: In function `jedec_probe_init':
-drivers/mtd/chips/jedec_probe.o(.text.init+0x0): multiple definition of `jedec_probe_init'
-drivers/mtd/chips/jedec.o(.text.init+0x0): first defined here
-
-The warnings, using gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-81):
-
-arch/i386/kernel/dmi_scan.c:194: warning: `disable_ide_dma' defined but not used
-
-drivers/atm/ambassador.c:301:10: warning: pasting "." and "start" does not give a valid preprocessing token
-drivers/atm/ambassador.c:305:10: warning: pasting "." and "regions" does not give a valid preprocessing token
-drivers/atm/ambassador.c:310:10: warning: pasting "." and "data" does not give a valid preprocessing token
-drivers/atm/atmtcp.c:176: warning: `out_vcc' might be used uninitialized in this function
-drivers/atm/atmtcp.c: In function `atmtcp_v_send':
-
-drivers/char/applicom.c:257:2: warning: #warning "LEAK"
-drivers/char/applicom.c:521:2: warning: #warning "Je suis stupide. DW. - copy*user in cli"
-drivers/char/ip2/i2ellis.c:107: warning: `iiEllisCleanup' defined but not used
-drivers/char/random.c:1248: warning: comparison of distinct pointer types lacks a cast
-drivers/char/random.c: In function `xfer_secondary_pool':
-
-drivers/i2c/i2c-core.c:1333: warning: implicit declaration of function `i2c_bitlp_init'
-drivers/i2c/i2c-core.c: In function `i2c_init_all':
-
-drivers/ide/pdc202xx.c:529: warning: `drive_pci' might be used uninitialized in this function
-drivers/ide/pdc202xx.c: In function `config_chipset_for_dma':
-drivers/ide/pdcraid.c:284: warning: label `outerr' defined but not used
-drivers/ide/pdcraid.c:550: warning: unused variable `q'
-drivers/ide/pdcraid.c:588: warning: unused variable `i'
-drivers/ide/pdcraid.c:99: warning: unused variable `larg'
-drivers/ide/pdcraid.c: In function `pdcraid0_make_request':
-drivers/ide/pdcraid.c: In function `pdcraid_init':
-drivers/ide/pdcraid.c: In function `pdcraid_init_one':
-drivers/ide/pdcraid.c: In function `pdcraid_ioctl':
-
-drivers/ieee1394/pcilynx.c:775: warning: `aux_ops' defined but not used
-
-drivers/isdn/avmb1/b1pci.c:33: warning: `b1pci_pci_tbl' defined but not used
-drivers/isdn/avmb1/c4.c:41: warning: `c4_pci_tbl' defined but not used
-drivers/isdn/avmb1/t1pci.c:36: warning: `t1pci_pci_tbl' defined but not used
-drivers/isdn/hisax/config.c:2079: warning: `hisax_pci_tbl' defined but not used
-
-drivers/media/radio/radio-cadet.c:638: warning: `id_table' defined but not used
-drivers/media/video/cpia.c:1305: warning: `proc_cpia_destroy' defined but not used
-drivers/media/video/cpia.c:3290: warning: its scope is only this definition or declaration, which is probably not what you want.
-drivers/media/video/cpia.c:3290: warning: `struct video_init' declared inside parameter list
-drivers/media/video/msp3400.c:1233: warning: `rev2' might be used uninitialized in this function
-drivers/media/video/msp3400.c: In function `msp_attach':
-drivers/media/video/w9966.c:634: warning: `w9966_rReg_i2c' defined but not used
-
-drivers/mtd/devices/doc1000.c:87:2: warning: #warning This is definitely not SMP safe. Lock the paging mechanism.
-
-drivers/net/acenic.c:124: warning: `acenic_pci_tbl' defined but not used
-drivers/net/acenic.c:1365: warning: right shift count >= width of type
-drivers/net/acenic.c: In function `ace_init':
-drivers/net/aironet4500_card.c:63: warning: `aironet4500_card_pci_tbl' defined but not used
-drivers/net/arlan.c:1124: warning: `arlan_find_devices' defined but not used
-drivers/net/arlan.c:22: warning: `probe' defined but not used
-drivers/net/dgrs.c:124: warning: `dgrs_pci_tbl' defined but not used
-drivers/net/fc/iph5526.c:114: warning: `iph5526_pci_tbl' defined but not used
-drivers/net/fc/iph5526.c:227: warning: `driver_template' defined but not used
-drivers/net/hamradio/6pack.c:703: warning: `msg_invparm' defined but not used
-drivers/net/hp100.c:289: warning: `hp100_pci_tbl' defined but not used
-drivers/net/irda/ali-ircc.c:467: warning: `ali_ircc_probe_43' defined but not used
-drivers/net/irda/w83977af_ir.c:276: warning: `w83977af_close' defined but not used
-drivers/net/pcmcia/xirc2ps_cs.c:2086:18: warning: extra tokens at end of #undef directive
-drivers/net/rrunner.c:121: warning: `rrunner_pci_tbl' defined but not used
-drivers/net/rrunner.c:1241: warning: comparison of distinct pointer types lacks a cast
-drivers/net/rrunner.c:1252: warning: comparison of distinct pointer types lacks a cast
-drivers/net/rrunner.c: In function `rr_dump':
-drivers/net/sb1000.c:140: warning: `id_table' defined but not used
-drivers/net/sk98lin/skvpd.c:245: warning: `VpdWriteDWord' defined but not used
-drivers/net/skfp/skfddi.c:185: warning: `skfddi_pci_tbl' defined but not used
-drivers/net/tokenring/olympic.c:1725:22: warning: no newline at end of file
-drivers/net/tokenring/tmsisa.c:44: warning: `portlist' defined but not used
-drivers/net/tulip/tulip_core.c:1326: warning: label `early_out' defined but not used
-drivers/net/tulip/tulip_core.c: In function `tulip_mwi_config':
-drivers/net/via-rhine.c:1590: warning: unused variable `np'
-drivers/net/via-rhine.c: In function `via_rhine_remove_one':
-drivers/net/wan/comx-hw-mixcom.c:570: warning: label `err_restore_flags' defined but not used
-drivers/net/wan/comx-hw-mixcom.c: In function `MIXCOM_open':
-drivers/net/wan/sdladrv.c:216: warning: `sdladrv_pci_tbl' defined but not used
-drivers/net/winbond-840.c:146: warning: `version' defined but not used
-
-drivers/parport/parport_cs.c:109: warning: `parport_cs_ops' defined but not used
-
-drivers/scsi/advansys.c:5555: warning: `req_cnt' might be used uninitialized in this function
-drivers/scsi/advansys.c: In function `advansys_detect':
-drivers/scsi/dpt_i2o.c:115: warning: `DebugFlags' defined but not used
-drivers/scsi/eata_dma.c:1070: warning: `hd' might be used uninitialized in this function
-drivers/scsi/eata_dma.c: In function `register_HBA':
-drivers/scsi/g_NCR5380.c:963: warning: `id_table' defined but not used
-drivers/scsi/NCR5380.c:795: warning: `NCR5380_print_options' defined but not used
-drivers/scsi/osst.c:1385: warning: `expected' might be used uninitialized in this function
-drivers/scsi/osst.c: In function `osst_reposition_and_retry':
-drivers/scsi/qla1280.c:1615: warning: `qla1280_do_dpc' defined but not used
-drivers/scsi/scsi_debug.c:656: warning: unused variable `size'
-drivers/scsi/scsi_debug.c: In function `scsi_debug_biosparam':
-drivers/scsi/scsi.h:402:27: scsi_obsolete.h: No such file or directory
-drivers/scsi/sym53c416.c:613: warning: `id_table' defined but not used
-drivers/scsi/tmscsim.c:280: warning: `tmscsim_pci_tbl' defined but not used
-drivers/scsi/u14-34f.c:1759: parse error before string constant
-drivers/scsi/u14-34f.c:1759: warning: data definition has no type or storage class
-drivers/scsi/u14-34f.c:1759: warning: function declaration isn't a prototype
-drivers/scsi/u14-34f.c:1759: warning: type defaults to `int' in declaration of `MODULE_LICENSE'
-
-drivers/sound/ad1848.c:2870: warning: `id_table' defined but not used
-drivers/sound/cmpci.c:1457: warning: unused variable `s'
-drivers/sound/cmpci.c: In function `cm_release_mixdev':
-drivers/sound/cs4281/cs4281m.c:4478: warning: initialization from incompatible pointer type
-drivers/sound/cs4281/cs4281m.c:4479: warning: initialization from incompatible pointer type
-drivers/sound/rme96xx.c:1218: warning: unused variable `hwp'
-drivers/sound/rme96xx.c: In function `rme96xx_release':
-drivers/sound/sb_card.c:531: warning: `id_table' defined but not used
-drivers/sound/trident.c:3937: warning: unused variable `mask'
-drivers/sound/trident.c: In function `trident_probe':
-
-drivers/telephony/ixj.h:41: warning: `ixj_h_rcsid' defined but not used
-
-drivers/usb/hpusbscsi.c:351: (Each undeclared identifier is reported only once
-drivers/usb/hpusbscsi.c:351: for each function it appears in.)
-drivers/usb/hpusbscsi.c:351: `SCSI_ABORT_PENDING' undeclared (first use in this function)
-drivers/usb/hpusbscsi.c:352: warning: control reaches end of non-void function
-drivers/usb/hpusbscsi.c: In function `hpusbscsi_scsi_abort':
-
-drivers/usb/serial/belkin_sa.c:106: warning: `id_table_combined' defined but not used
-drivers/usb/serial/digi_acceleport.c:480: warning: `id_table_combined' defined but not used
-drivers/usb/serial/ftdi_sio.c:137: warning: `id_table_combined' defined but not used
-drivers/usb/serial/io_tables.h:33: warning: `id_table_combined' defined but not used
-drivers/usb/serial/keyspan.h:349: warning: `keyspan_ids_combined' defined but not used
-drivers/usb/serial/keyspan_pda.c:146: warning: `id_table_combined' defined but not used
-drivers/usb/serial/mct_u232.c:129: warning: `id_table_combined' defined but not used
-drivers/usb/serial/visor.c:171: warning: `id_table' defined but not used
-drivers/usb/serial/whiteheat.c:116: warning: `id_table_combined' defined but not used
-
-drivers/video/aty128fb.c:1616: warning: suggest parentheses around assignment used as truth value
-drivers/video/aty128fb.c:216: warning: `font' defined but not used
-drivers/video/aty128fb.c:217: warning: `mode' defined but not used
-drivers/video/aty128fb.c:218: warning: `nomtrr' defined but not used
-drivers/video/aty128fb.c: In function `aty128fb_setup':
-drivers/video/aty/atyfb_base.c:2524: warning: suggest parentheses around assignment used as truth value
-drivers/video/aty/atyfb_base.c: In function `atyfb_setup':
-drivers/video/aty/mach64_accel.c:341:1: warning: pasting "fbcon_aty8" and "=" does not give a valid preprocessing token
-drivers/video/aty/mach64_accel.c:344:1: warning: pasting "fbcon_aty16" and "=" does not give a valid preprocessing token
-drivers/video/aty/mach64_accel.c:347:1: warning: pasting "fbcon_aty24" and "=" does not give a valid preprocessing token
-drivers/video/aty/mach64_accel.c:350:1: warning: pasting "fbcon_aty32" and "=" does not give a valid preprocessing token
-drivers/video/hgafb.c:798: warning: suggest parentheses around assignment used as truth value
-drivers/video/hgafb.c: In function `hgafb_setup':
-drivers/video/matrox/matroxfb_base.c:2358: warning: suggest parentheses around assignment used as truth value
-drivers/video/matrox/matroxfb_base.c: In function `matroxfb_setup':
-drivers/video/matrox/matroxfb_g450.c:7: warning: `matroxfb_g450_get_reg' defined but not used
-drivers/video/radeonfb.c:1873: warning: `fbcon_radeon_clear' defined but not used
-drivers/video/radeonfb.c:540: warning: suggest parentheses around assignment used as truth value
-drivers/video/radeonfb.c: In function `radeonfb_setup':
-drivers/video/riva/fbdev.c:2048: warning: suggest parentheses around assignment used as truth value
-drivers/video/riva/fbdev.c: In function `rivafb_setup':
-drivers/video/sis/sis_main.c:1729: warning: suggest parentheses around assignment used as truth value
-drivers/video/sis/sis_main.c: In function `sisfb_setup':
-drivers/video/sstfb.c:1700: warning: suggest parentheses around assignment used as truth value
-drivers/video/sstfb.c: In function `sstfb_setup':
-drivers/video/tdfxfb.c:2089: warning: suggest parentheses around assignment used as truth value
-drivers/video/tdfxfb.c: In function `tdfxfb_setup':
-drivers/video/vesafb.c:460: warning: suggest parentheses around assignment used as truth value
-drivers/video/vesafb.c: In function `vesafb_setup':
-drivers/video/vfb.c:385: warning: suggest parentheses around assignment used as truth value
-drivers/video/vfb.c: In function `vfb_setup':
-drivers/video/vga16fb.c:695: warning: suggest parentheses around assignment used as truth value
-drivers/video/vga16fb.c: In function `vga16fb_setup':
-
-fs/affs/super.c:273:2: warning: #warning
-
-fs/ncpfs/ncplib_kernel.c:56: warning: `ncp_add_mem_fromfs' defined but not used
+--------------8D12764D26DB149EAF708B0A--
 

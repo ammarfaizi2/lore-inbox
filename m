@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273519AbRIUQjL>; Fri, 21 Sep 2001 12:39:11 -0400
+	id <S273529AbRIUQol>; Fri, 21 Sep 2001 12:44:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273509AbRIUQjB>; Fri, 21 Sep 2001 12:39:01 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:25614 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S273499AbRIUQis>;
-	Fri, 21 Sep 2001 12:38:48 -0400
-Date: Fri, 21 Sep 2001 18:39:05 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: spurious interrupt with ac kernel but not with vanilla 2.4.9
-In-Reply-To: <E15kSvj-0000Mb-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0109211828390.31425-100000@Expansa.sns.it>
+	id <S273525AbRIUQoe>; Fri, 21 Sep 2001 12:44:34 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:39436 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S273529AbRIUQoU>;
+	Fri, 21 Sep 2001 12:44:20 -0400
+Message-ID: <XFMail.20010921094813.davidel@xmailserver.org>
+X-Mailer: XFMail 1.5.0 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <9oekvr$fs$1@post.home.lunix>
+Date: Fri, 21 Sep 2001 09:48:13 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: <linux-kernel@ton.iguana.be (Ton Hospel)>
+Subject: Re: [PATCH] /dev/epoll update ...
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI,
 
-I noticed that on the abit kt7A MBs that i have, with via KT133A chipset,
-after i installed the kernel 2.4.9-ac10 (ac11 and 12 as well),
-at boot i get this message,
+On 21-Sep-2001 Ton Hospel wrote:
+> In article <XFMail.20010919151147.davidel@xmailserver.org>,
+>       Davide Libenzi <davidel@xmailserver.org> writes:
+>> On 19-Sep-2001 Christopher K. St. John wrote:
+>>> Davide Libenzi wrote:
+>> Again :
+>> 
+>> 1)      select()/poll();
+>> 2)      recv()/send();
+>> 
+>> vs :
+>> 
+>> 1)      if (recv()/send() == FAIL)
+>> 2)              ioctl(EP_POLL);
+>> 
+> 
+> mm, I don't really get the second one. What if the scenario is:
+> In the place you are in your program, you now decide that a
+> read is in order.  You try read, nothing there yet,
+> the syscall returns, the data event happens and THEN you go into
+> the ioctl ?
+> 
+> Possibilities seem:
+> 1) You hang, having missed the only event that will happen
+> 2) Just having data triggers the ioctl (maybe only the first time),
+>    why not leaving out the initial read then and just do it afterwards
+>    like select ?
+> 3) It generates a fake event the first time you notify interest, but then
+>    the startup case leads to doing the read uselessly twice.
+> 
+> Or is there a fourth way I'm missing this really works ?
 
-Sep 21 11:52:11 DarkStar kernel: ice 00:0b.0
-Sep 21 11:52:11 DarkStar kernel: spurious 8259A interrupt: IRQ7.
- immediatelly before scsi adaptec detection and inizzializzation.
+That was a simplified function :
 
-doing a cat /proc/interrupt I can read
+        while (recv()/send() == FAIL)
+                ioctl(EP_POLL);
 
-ERR:	1
-
-As many people I have parport on irq 7, and the parport simply works
-anyway (tested with a printer).
-
-I was thinking to an HW problem, but with vanilla 2.4.9 kernel I do not
-get this message, and the code in arch/i386/kernel/i8259.c that should
-detect this spurious interrup is just the same on those two kernels.
-Changes are related to X86_IO_APIC, and I think this is the reason why
-this spurious interrupt is detected, but I would like to know if i should
-think I have some HW problem going on that stardard kernels do not detect.
-
-bests
-Luigi
+this is the right code.
+If an event happens between the recv() and the ioctl() this is cached by the
+driver and it'll be returned from ioctl().
 
 
+
+
+- Davide
 

@@ -1,86 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbUKVDsW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbUKVEGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbUKVDsW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 22:48:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbUKVDsW
+	id S261915AbUKVEGn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 23:06:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbUKVEGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 22:48:22 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:4779 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S261913AbUKVDpg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 22:45:36 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-Message-Id: <5.1.0.14.2.20041122144144.04e3d9f0@171.71.163.14>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 22 Nov 2004 14:44:59 +1100
-To: "Jeff V. Merkey" <jmerkey@devicelogics.com>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: Linux 2.6.9 pktgen module causes INIT process respawning
-  and sickness
-Cc: "Jeff V. Merkey" <jmerkey@devicelogics.com>, linux-kernel@vger.kernel.org,
-       jmerkey@drdos.com
-In-Reply-To: <419E6E5D.2000709@devicelogics.com>
-References: <419E6B44.8050505@devicelogics.com>
- <419E6B44.8050505@devicelogics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Sun, 21 Nov 2004 23:06:43 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:32696 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261915AbUKVEGj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 23:06:39 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 21 Nov 2004 20:06:35 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andreas Schwab <schwab@suse.de>, Daniel Jacobowitz <dan@debian.org>,
+       Eric Pouech <pouech-eric@wanadoo.fr>,
+       Roland McGrath <roland@redhat.com>, Mike Hearn <mh@codeweavers.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
+Subject: Re: ptrace single-stepping change breaks Wine
+In-Reply-To: <Pine.LNX.4.58.0411211703160.20993@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0411211947200.11274@bigblue.dev.mdolabs.com>
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
+ <419E42B3.8070901@wanadoo.fr> <Pine.LNX.4.58.0411191119320.2222@ppc970.osdl.org>
+ <419E4A76.8020909@wanadoo.fr> <Pine.LNX.4.58.0411191148480.2222@ppc970.osdl.org>
+ <419E5A88.1050701@wanadoo.fr> <20041119212327.GA8121@nevyn.them.org>
+ <Pine.LNX.4.58.0411191330210.2222@ppc970.osdl.org> <20041120214915.GA6100@tesore.ph.cox.net>
+ <Pine.LNX.4.58.0411211326350.11274@bigblue.dev.mdolabs.com>
+ <Pine.LNX.4.58.0411211414460.20993@ppc970.osdl.org> <je7joe91wz.fsf@sykes.suse.de>
+ <Pine.LNX.4.58.0411211703160.20993@ppc970.osdl.org>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff,
+On Sun, 21 Nov 2004, Linus Torvalds wrote:
 
-you're using commodity x86 hardware.  what do you expect?
+> On Mon, 22 Nov 2004, Andreas Schwab wrote:
+> >
+> > Linus Torvalds <torvalds@osdl.org> writes:
+> > 
+> > > Now, try to "strace" it, or debug it with gdb, and see if you can repeat 
+> > > the behaviour.
+> > 
+> > You'll always have hard time repeating that under strace or gdb, since a
+> > debugger uses SIGTRAP for it's own purpose and does not pass it to the
+> > program.
+> 
+> Sure. But "hard time" and "impossible" are two different things. 
+> 
+> It _should_ be perfectly easy to debug this, by using
+> 
+> 	signal SIGTRAP
+> 
+> instead of "continue" when you get a SIGTRAP that wasn't due to anything 
+> you did.
+> 
+> But try it. It doesn't work. Why? Because the kernel will have cleared TF 
+> on the signal stack, so even when you do a "signal SIGTRAP", it will only 
+> run the trap handler _once_, even though it should run it three times 
+> (once for each instruction in between the "popfl"s.
+> 
+> I do think this is actually a bug, although whether it's the bug that 
+> causes problems for Wine is not clear at all. I'mm too lazy to build 
+> and boot an older kernel, but I bet that on an older kernel you _can_ do 
+> "signal SIGTRAP" three times, and it will work correctly. That would 
+> indeed make this a regression.
 
-while the speed of PCs has increased significantly, there are still 
-significant bottlenecks when it comes to PCI bandwidth, PCI arbitration 
-efficiency & # of interrupts/second.
-linux ain't bad -- but there are other OSes which still do slightly better 
-given equivalent hardware.
-
-with a PC comes flexibility.
-that won't match the speed of the FPGAs in a Spirent Smartbits, Agilent 
-RouterTester, IXIA et al ...
+Hmmm ..., this is 2.4.27:
 
 
-cheers,
+[davide@bigblue davide]$ gcc -g -o zzzzzzzz zzzzzzzz.c 
+[davide@bigblue davide]$ ./zzzzzzzz 
+Copy protected: ok
+[davide@bigblue davide]$ gdb ./zzzzzzzz
+GNU gdb Red Hat Linux (5.3.90-0.20030710.41rh)
+Copyright 2003 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i386-redhat-linux-gnu"...Using host libthread_db
+library "/lib/libthread_db.so.1".
 
-lincoln.
+(gdb) r
+Starting program: /home/davide/zzzzzzzz 
 
-At 09:06 AM 20/11/2004, Jeff V. Merkey wrote:
+Program received signal SIGTRAP, Trace/breakpoint trap.
+0x08048454 in main (argc=1, argv=0xbffff9c4) at zzzzzzzz.c:26
+26              asm volatile("pushfl ; andl %0,(%%esp) ; popfl"
+(gdb) signal SIGTRAP
+Continuing with signal SIGTRAP.
 
->Additionally, when packets sizes 64, 128, and 256 are selected, pktgen is 
->unable to achieve > 500,000 pps (349,000 only on my system).
->A Smartbits generator can achieve over 1 million pps with 64 byte packets 
->on gigabit.  This is one performance
->issue for this app.  However, at 1500 and 1048 sizes, gigabit saturation 
->is achievable.
->Jeff
->
->Jeff V. Merkey wrote:
->
->>
->>With pktgen.o configured to send 123MB/S on a gigabit on a system using 
->>pktgen set to the following parms:
->>
->>pgset "odev eth1"
->>pgset "pkt_size 1500"
->>pgset "count 0"
->>pgset "ipg 5000"
->>pgset "src_min 10.0.0.1"
->>pgset "src_max 10.0.0.254"
->>pgset "dst_min 192.168.0.1"
->>pgset "dst_max 192.168.0.254"
->>
->>After 37 hours of continual packet generation into a gigabit regeneration 
->>tap device,
->>the server system console will start to respawn the INIT process about 
->>every 10-12
->>hours of continuous packet generation.
->>
->>As a side note, this module in Linux is extremely useful and the "USE 
->>WITH CAUTION" warnings
->>are certainly will stated.  The performance of this tool is excellent.
->>
->>Jeff
+Program received signal SIGSEGV, Segmentation fault.
+0x00000003 in ?? ()
+(gdb) bt
+#0  0x00000003 in ?? ()
+#1  0x0804846b in smc () at zzzzzzzz.c:32
+#2  0x46649b7f in __libc_start_main () from /lib/i686/libc.so.6
+#3  0x08048359 in _start ()
+
+
+So it seems it did not work even before, the gdb-SIGTRAP stepping. In 
+2.6.8 I get a straight segfault just for running it.
+
+
+
+- Davide
 

@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267589AbSLFTos>; Fri, 6 Dec 2002 14:44:48 -0500
+	id <S265713AbSLFTmc>; Fri, 6 Dec 2002 14:42:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267590AbSLFTos>; Fri, 6 Dec 2002 14:44:48 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58116 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267589AbSLFTor>;
-	Fri, 6 Dec 2002 14:44:47 -0500
-Message-ID: <3DF0FFDA.7040102@pobox.com>
-Date: Fri, 06 Dec 2002 14:51:54 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	id <S265725AbSLFTmc>; Fri, 6 Dec 2002 14:42:32 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:50442 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S265713AbSLFTmb>; Fri, 6 Dec 2002 14:42:31 -0500
+Date: Fri, 6 Dec 2002 19:50:07 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       andre@linux-ide.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: ali15x3 on alpha dies in 2.4.21-BK
-References: <3DF00951.1070104@pobox.com> <20021206134434.A2626@jurassic.park.msu.ru>
-In-Reply-To: <20021206134434.A2626@jurassic.park.msu.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+       Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: [STATUS] fbdev api.
+Message-ID: <20021206195007.A12702@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	James Simmons <jsimmons@infradead.org>,
+	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux console project <linuxconsole-dev@lists.sourceforge.net>
+References: <Pine.LNX.4.44.0212022051320.20834-100000@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0212022051320.20834-100000@phoenix.infradead.org>; from jsimmons@infradead.org on Mon, Dec 02, 2002 at 09:07:33PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan, et al.,
+On Mon, Dec 02, 2002 at 09:07:33PM +0000, James Simmons wrote:
+> 
+> Hi!
+> 
+>   I have a new patch avaiable. It is against 2.5.50. The patch is at 
 
-Ivan's patch does indeed fix alim15x3 IDE here, for 2.4.21-BK.
-
-(you of course still need the include/asm-alpha/system.h patch I posted, 
-too)
+Any chance you could sync with linus again?  fb in mainline is pretty
+rotten..
 

@@ -1,71 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312269AbSDCRcA>; Wed, 3 Apr 2002 12:32:00 -0500
+	id <S312302AbSDCRzw>; Wed, 3 Apr 2002 12:55:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312277AbSDCRbu>; Wed, 3 Apr 2002 12:31:50 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:16136 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S312269AbSDCRbl>;
-	Wed, 3 Apr 2002 12:31:41 -0500
-Date: Wed, 3 Apr 2002 09:29:28 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Sridhar N <srin@symonds.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Stepping through entry.S
-In-Reply-To: <02040307072600.03031@srin.homelinux.net>
-Message-ID: <Pine.LNX.4.33L2.0204030858010.22448-100000@dragon.pdx.osdl.net>
+	id <S312315AbSDCRzn>; Wed, 3 Apr 2002 12:55:43 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49204 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S312302AbSDCRzb>; Wed, 3 Apr 2002 12:55:31 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: [RFC][PATCH] kexec aka linux booting linux
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 03 Apr 2002 10:49:05 -0700
+Message-ID: <m1bsd0smem.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Apr 2002, Sridhar N wrote:
+I am in the final stages of polishing up my kexec patches before submitting them
+for inclusion in the kernel.  I have come to one last design question.
+Currently I am reusing the sys_reboot with a different magic number.
+Is this appropriate or do I want to modify the code so it uses it's
+own syscall number?
 
-| Hello (recycled)
+The user space prototype is:
+struct kexec_segment {
+       void *buf;
+       size_t bufsz;
+       void *mem;
+       size_t memsz;
+};
 
-| 	I was trying to trace the handling of the system calls, and to step through
-| the entry.S on i386 machine.  I basically used this:
-|
-| 	srin_entryS_debug_mesg: 		#My addition
-| 		.asciz "some relevant message\n"
-| 		ALIGN
-| 	tracesys:			#haven't changed anything here..
-| 		.
-| 		.
-| 		.
-| 		jae tracesys_exit
-| 		pushl $srin_entryS_debug_mesg		#just this
-| 		call SYMBOL_NAME(printk)	# and this
-| 		call *SYMBOL_NAME(sys_call_table)(,%eax,4)
-| 		movl %eax,EAX(%esp)		# save the return value
-| 	tracesys_exit:
-|
-| Shouldn't this call printk everytime a system call is made or atleast crash
-| the kernel if something is dead wrong ? ( It isn't .. everything seems normal
-| as though the printk isn't there )  Also,  how can  i know the values in the
-| specific registers in that file ? Specifically, whenever a system call is
-| made, what registers store what values ? I'm using kernel 2.4.7 on a K6-2.
+int sys_kexec(void *start, int nr_segments, struct kexec_segment *segments);
 
-The tracesys: label (code) is only used if ptrace is enabled for
-the task.  Is it enabled?  If not, you aren't executing this code
-at all.
+For x86 the code places you in 32bit protected mode with paging
+disabled.  Giving trivial access to the first 4GB of memory.  All of
+the registers are initially zeroed except stack pointer which is
+pointed to a location which is good for a few bytes of storage.  The
+segment registers are all loaded with flat 32bit segments with a
+base address of 0.
 
-	testb $0x02,tsk_ptrace(%ebx)	# PT_TRACESYS
-	jne tracesys
+For other architectures a similar interface is possible.
 
-For the register interface, AFAIK, see the gcc docs, such as
-Extensions to the C Language Family:
-  http://gcc.gnu.org/onlinedocs/gcc-2.95.3/gcc_4.html
-and search for /regparm/ .
-<quote>
-regparm (number)
- On the Intel 386, the regparm attribute causes the compiler to pass up
- to number integer arguments in registers EAX, EDX, and ECX instead of
- on the stack. Functions that take a variable number of arguments will
- continue to be passed all of their arguments on the stack.
-</quote>
-Someone please correct or add to this.  :)
+After so many changes and so much time I need to clean up and retest
+my alpha port.  This is the next step.  That and cleaning up my user
+space tools that make use of this.
 
--- 
-~Randy
+ftp://download.lnxi.com/pub/src/linux-kernel-patches/kexec/
+ftp://download.lnxi.com/pub/src/linux-kernel-patches/kexec/linux-2.5.7.kexec.diff
+ftp://download.lnxi.com/pub/src/linux-kernel-patches/kexec/linux-2.5.7.kexec.long
+http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.7.kexec.diff
+http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.7.kexec.log
 
+Eric

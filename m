@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136471AbREJNPd>; Thu, 10 May 2001 09:15:33 -0400
+	id <S136493AbREJNiX>; Thu, 10 May 2001 09:38:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136478AbREJNPX>; Thu, 10 May 2001 09:15:23 -0400
-Received: from gadget.lut.ac.uk ([158.125.96.50]:52235 "EHLO gadget.lut.ac.uk")
-	by vger.kernel.org with ESMTP id <S136471AbREJNPG>;
-	Thu, 10 May 2001 09:15:06 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: john slee <indigoid@higherplane.net>
-Cc: Mart?n Marqu?s <martin@bugs.unl.edu.ar>, linux-kernel@vger.kernel.org
-Subject: Re: reiserfs, xfs, ext2, ext3 
-In-Reply-To: Message from john slee <indigoid@higherplane.net> 
-   of "Thu, 10 May 2001 00:49:59 +1000." <20010510004959.B7653@higherplane.net> 
-Date: Thu, 10 May 2001 14:14:27 +0100
-From: Martin Hamilton <martin@net.lut.ac.uk>
-Message-Id: <E14xqGx-0006Y6-00@gadget.lut.ac.uk>
+	id <S136505AbREJNiO>; Thu, 10 May 2001 09:38:14 -0400
+Received: from mg03.austin.ibm.com ([192.35.232.20]:12426 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S136493AbREJNiE>; Thu, 10 May 2001 09:38:04 -0400
+Message-ID: <3AFA99C5.1920AA2D@austin.ibm.com>
+Date: Thu, 10 May 2001 08:38:13 -0500
+From: "Andrew M. Theurer" <atheurer@austin.ibm.com>
+X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Bruce Allan <bruce.allan@us.ibm.com>
+CC: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        samba-technical@samba.org
+Subject: Re: Linux 2.4 Scalability, Samba, and Netbench
+In-Reply-To: <OF59641CC4.CEBD69DC-ON88256A47.007BCFFD@LocalDomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Bruce Allan wrote:
+> 
+> Andrew Theurer wrote:
+> > I do have kernprof ACG and lockmeter for a 4P run.  We saw no
+> > significant problems with lockmeter.  csum_partial_copy_generic was the
+> > highest % in profile, at 4.34%.  I'll see if we can get some space on
+> > http://lse.sourceforge.net to post the test data.
+> 
+> The Netfinity system that you are using has two different supported GigE
+> adapters.  I assume you are using one of these types - Netfinity Gigabit
+> Ethernet Adapter (19K4401) and the Netfinity Gigabit Ethernet SX Server
+> Adapter (06P3701); using the acenic.c and e1000.c drivers, respectively.
+> >From what I understand after initial perusal of the two drivers, the former
+> has receive checksumming support on the adapter itself while the latter,
+> the one you are using, does not support hardware checksumming (at least, it
+> is not enabled by the driver).
 
-Content-Type: text/plain; charset=us-ascii
+Bruce,
 
-Just to pick up on this thread, to operate the JANET Web Cache Service
-(proxy caching thingy used by a lot of ac.uk folk) we currently run
-Squid on top of 2.2.18 + Linux Virtual Server 1.0.5 + ReiserFS 3.5.31
-and the Magic-SysRq-over-serial-console patch.
+According to Intel's driver for Pro/1000, it supports checksum on Rx via
+module option "XsunRX=1".  I have not tried this yet because we are
+waiting on our Gbps switch hardware.  
+> Are you able to re-run your tests with GigE adapters that support
+> checksumming on the hardware instead of doing it in the kernel?  If not, I
+> will be running similar tests in a very similar configuration (with the
+> 19K4401 adapters) in the near future and can share results if you'd like.
 
-In almost a year of operation (admittedly covering a couple of earlier
-kernel/ReiserFS/... combos, and gradually migrated to our 40-odd cache
-servers) we've only ever had a couple of wibbles which directly
-implicated ReiserFS - and these on servers which later turned out to
-have hardware problems. Lockups on the older 3c905 and eepro100
-drivers have caused us some problems historically, though.
+Yes, hopefully we will be running the new setup (64 clients, many Gbps
+adapters) in about 2-3 weeks.  At that point I'd like to get some
+results for 8-way as well.  It would definitely be a good idea to
+compare results.
 
-As the JANET backbone has migrated to 2.5Gbit/s we've seen our daily
-transaction rate rise to over 100m URLs, with one peak of 120m. Moving
-our cache filesystems from ext2 to ReiserFS almost tripled the number
-of requests we could process per second before a cache box became
-overloaded, and our fastest machines (6 x 10,000 RPM Ultra160 SCSI
-cache disks) are now shipping some 230 requests/s with around 50ms
-latency for a cache hit.
-
-FWIW, we're currently using Squid 2.2.STABLE5-hno.20000202 and using
-ReiserFS as a regular filesystem rather than raw, so there ought to be
-quite a bit of scope for improvement.  Commercial caching systems have
-demonstrated thoughput of thousands of requests/s with similar
-hardware, but I suspect Tux-ification of Squid will be necessary to
-catch up with them.  This (in the form of our old chum the proprietary
-loadable kernel module :-) seems to be the direction the commercial
-vendors are going in to get maximal performance out of their Linux
-ports...
-
-Cheers,
-
-Martin
-
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999 + martin
-
-iD8DBQE6+pQyVw+hz3xBJfQRApYsAKCuy1yPe/KarPluSeTB6OKgmfQ+8wCfYPi2
-li9nQT05bhlj7Us3fXf3+l8=
-=biJi
------END PGP SIGNATURE-----
-
+Andrew Theurer

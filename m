@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268803AbRG0Jqu>; Fri, 27 Jul 2001 05:46:50 -0400
+	id <S268807AbRG0Jva>; Fri, 27 Jul 2001 05:51:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268804AbRG0Jqk>; Fri, 27 Jul 2001 05:46:40 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57605 "EHLO
+	id <S268808AbRG0JvK>; Fri, 27 Jul 2001 05:51:10 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:59909 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268803AbRG0JqZ>; Fri, 27 Jul 2001 05:46:25 -0400
-Subject: Re: Validating Pointers
-To: tpepper@vato.org
-Date: Fri, 27 Jul 2001 10:47:16 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010726201909.A19877@cb.vato.org> from "tpepper@vato.org" at Jul 26, 2001 08:19:09 PM
+	id <S268807AbRG0JvI>; Fri, 27 Jul 2001 05:51:08 -0400
+Subject: Re: Hard disk problem:
+To: mharris@opensourceadvocate.org (Mike A. Harris)
+Date: Fri, 27 Jul 2001 10:51:54 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel mailing list)
+In-Reply-To: <Pine.LNX.4.33.0107270005210.25463-100000@asdf.capslock.lan> from "Mike A. Harris" at Jul 27, 2001 12:30:32 AM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15Q4DE-0005KT-00@the-village.bc.nu>
+Message-Id: <E15Q4Hi-0005LE-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> 	copy_to_user(user_addr, kernel_addr, size);
-> 		and
-> 	copy_from_user(kernel_addr, user_addr, size);
+> Is this a hardware or software problem, or could it be either?
 > 
-> Are you saying that static and dynamically allocated kernel variables end up
-> in different segments (kernel_ds and user_ds) and the copy is only expected to
-> succeed if the to and from addresses are in the same segment?
+> Jul 26 23:51:59 asdf kernel: hda: dma_intr: status=0x51
+> { DriveReady SeekComplete Error }
+> Jul 26 23:51:59 asdf kernel: hda: dma_intr: error=0x40
+> { UncorrectableError }, LBAsect=8545004, sector=62608
+> Jul 26 23:51:59 asdf kernel: end_request: I/O error, dev 03:05
+> (hda), sector 62608
 
-user and kernel address spaces are seperate. On S/390 and M68K for example
-they occupy the same values for both. Long long ago this was done via
-segments on x86 (we dont use segments now) and thus the functions to do 
-what you want are still called set_fs/get_fs/get_ds
+The uncorrectable error came from the drive itself. The sector number is in
+range so I suspect its a real disk error.
+
+Alan

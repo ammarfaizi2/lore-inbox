@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268319AbUHFWa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268204AbUHFWeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268319AbUHFWa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 18:30:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268318AbUHFWa0
+	id S268204AbUHFWeL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 18:34:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268310AbUHFWeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 18:30:26 -0400
-Received: from 209-128-98-078.BAYAREA.NET ([209.128.98.78]:15265 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S268316AbUHFWaN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 18:30:13 -0400
-Message-ID: <41140643.70704@zytor.com>
-Date: Fri, 06 Aug 2004 15:29:23 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tim Bird <tim.bird@am.sony.com>
-CC: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Is extern inline -> static inline OK?
-References: <4112D32B.4060900@am.sony.com> <ceul43$sbv$1@terminus.zytor.com> <41140654.3060609@am.sony.com>
-In-Reply-To: <41140654.3060609@am.sony.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Aug 2004 18:34:11 -0400
+Received: from hera.kernel.org ([63.209.29.2]:1703 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S268204AbUHFWeI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 18:34:08 -0400
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: [PATCH] x86 bitops.h commentary on instruction reordering
+Date: Fri, 6 Aug 2004 22:33:07 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <cf10v3$h9l$1@terminus.zytor.com>
+References: <20040805200622.GA17324@logos.cnet> <20040806155328.GA21546@logos.cnet> <4113B752.7050808@vlnb.net> <20040806170931.GA21683@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1091831587 17718 127.0.0.1 (6 Aug 2004 22:33:07 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Fri, 6 Aug 2004 22:33:07 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Bird wrote:
+Followup to:  <20040806170931.GA21683@logos.cnet>
+By author:    Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In newsgroup: linux.dev.kernel
+> > >
+> > >Yes correct. *mb() usually imply barrier(). 
+> > >
+> > >About the flush, each architecture defines its own instruction for doing 
+> > >so,
+> > > PowerPC has  "sync" and "isync" instructions (to flush the whole cache 
+> > > and instruction cache respectively), MIPS has "sync" and so on..
+> > 
+> > So, there is no platform independent way for doing that in the kernel?
 > 
-> Thanks!
-> 
->  From what I have read, for either 'extern inline' or 'static inline'
-> the compiler is free to not inline the code. Is this wrong?
-> 
-> It is my understanding that...
-> In the 'static inline' case the compiler may create a function in the
-> local compilation unit. But in the 'extern inline' case an extern
-> non-inline function must exist. If the compiler decides not to inline
-> the function, and a non-inline function does not exist, you get a linker
-> error.  Are you saying that, therefore, 'extern inline' functions are
-> used (without definition of extern non-inline functions to back them)
-> in order to guarantee that NO non-inline version of the function exists?
+> Not really. x86 doesnt have such an instruction.
 > 
 
-Yes; the final link will fail with an undefined symbol if "extern inline" 
-fails to inline.
+Actually it does (sfence, lfence, mfence); they only apply to SSE
+loads and stores since all other x86 operations are guaranteed to be
+strictly ordered.
 
-	-=hpa
+	-hpa
+
+

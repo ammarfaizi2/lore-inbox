@@ -1,27 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136009AbRDVKDj>; Sun, 22 Apr 2001 06:03:39 -0400
+	id <S136008AbRDVKDj>; Sun, 22 Apr 2001 06:03:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136004AbRDVKDU>; Sun, 22 Apr 2001 06:03:20 -0400
-Received: from quechua.inka.de ([212.227.14.2]:29756 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S136009AbRDVKDJ>;
+	id <S136010AbRDVKDT>; Sun, 22 Apr 2001 06:03:19 -0400
+Received: from quechua.inka.de ([212.227.14.2]:29244 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S136004AbRDVKDJ>;
 	Sun, 22 Apr 2001 06:03:09 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: fd allocation [was: light weight user level semaphores]
-In-Reply-To: <E14qHRp-0007Yc-00@the-village.bc.nu> <Pine.LNX.4.31.0104190944090.4074-100000@penguin.transmeta.com> <E14qXEU-0005xo-00@g212.hadiko.de> <9bqgvi$63q$1@penguin.transmeta.com> <3AE10741.FA4E40BD@gmx.de>
+Subject: Re: Request for comment -- a better attribution system
+In-Reply-To: <20010421114942.A26415@thyrsus.com> <200104212023.f3LKN7P188973@saturn.cs.uml.edu>
 Organization: private Linux site, southern Germany
-Date: Sun, 22 Apr 2001 11:48:52 +0200
+Date: Sun, 22 Apr 2001 11:33:17 +0200
 From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E14rGU8-0003zk-00@g212.hadiko.de>
+Message-Id: <E14rGF3-0003wH-00@g212.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So, IMHO as long as some library does not mess with fds 0, 1, and 2
-> it should be ok [1].  Yes, it would be against the standard but I
->...
-> [1] Unintentionally setting the controlling tty may be a problem.
+> It is nice to have a single file for grep. With the proposed
+> changes one would sometimes need to grep every file.
 
-The controlling tty is not what is first opened to fd 0 but what is
-first opened, so this problem can occur at any time.
+With the proposed changes it's nearly trivial to build the traditional
+MAINTAINERS file with a Makefile rule, so you've lost nothing. Plus
+you get the additional info (which the collecting script, two lines of
+sed in my estimate, would duly include[1]) which _file_ actually is
+maintained by whom.
+
+Which makes e.g. coordinating patches and bug reporting much easier.
 
 Olaf
+
+[1] Although Eric would probably rather want to use a database
+querying tool at this point :-)

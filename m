@@ -1,43 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131976AbQLRP4h>; Mon, 18 Dec 2000 10:56:37 -0500
+	id <S131863AbQLRP61>; Mon, 18 Dec 2000 10:58:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131974AbQLRP4W>; Mon, 18 Dec 2000 10:56:22 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:18829 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S131909AbQLRP4J>; Mon, 18 Dec 2000 10:56:09 -0500
-From: Christoph Rohland <cr@sap.com>
-To: Rolf Fokkens <FokkensR@vertis.nl>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: problem with shmat () and > 1GB memory in kernel 2.2.17
-In-Reply-To: <938F7F15145BD311AECE00508B7152DB034C3A27@vts007.vertis.nl>
-Organisation: SAP LinuxLab
-Date: 18 Dec 2000 16:25:05 +0100
-In-Reply-To: Rolf Fokkens's message of "Wed, 8 Nov 2000 22:38:47 +0100"
-Message-ID: <qwwn1dtda5q.fsf@sap.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+	id <S131891AbQLRP6R>; Mon, 18 Dec 2000 10:58:17 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:60663 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S131863AbQLRP6C>; Mon, 18 Dec 2000 10:58:02 -0500
+Message-ID: <3A3E2E0D.648B04E0@uow.edu.au>
+Date: Tue, 19 Dec 2000 02:32:29 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: "shuu@wondernetworkresources.com" <shuu@wondernetworkresources.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: [patch] 8139too.c
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rolf,
 
-On Wed, 8 Nov 2000, Rolf Fokkens wrote:
->> Recently we installed extra memory in our Oracle-on-Linux database
->> server, it now has 1.25 GB. I installed a 2.2.17 kernel with the
->> 2GB option enabled. I rebooted the machine (a Compaq Proliant 5500
->> dual PII 450MHz) and noticed that one of the databases wasn't able
->> to start. After installing a 2.2.17 kernel without the 2GB option
->> averything worked fine.
+- Clear current->blocked in the kernel thread.  We shouldn't
+  be inheriting this from the process which opens the interface.
 
-You should not use the 2GB option. Use the bigmem patch and you will
-have 3GB userspace with 4GB main memory instead of 2GB user space with
-2GB memory.
+- Fixed a few printk warnings which are coming out
+  when RTL8139_DEBUG is defined.
 
-Greetings
-		Christoph
+- Killed the undefined and unused module parm `debug' (finally!)
 
+- Fixed a potential buffer overrun when setting current->comm[].
+
+  Currently, if the user renames "eth0" to "my-nifty-realtek-nic"
+  with SIOCSIFNAME and then tries to open it, the kernel thread
+  will scrog its own task_struct.
+
+  The kernel thread is now simply called "[eth0]".
+
+
+I think it would be better to use boring old waitqueues for this
+stuff, rather than signals....
+
+
+
+
+--- linux-2.4.0-test13-pre3/drivers/net/8139too.c	Tue Dec 12 19:24:18 2000
++++ linux-akpm/drivers/net/8139too.c	Tue Dec 19 02:15:23 2000
+@@ -74,6 +74,9 @@
+ 		
+ 		Tobias Ringström - Rx interrupt status checking suggestion
+ 
++		Andrew Morton - (v0.9.13): clear blocked signals, avoid
++		buffer overrun setting current->comm.
++
+ 	Submitting bug reports:
+ 
+ 		"rtl8139-diag -mmmaaavvveefN" output
+@@ -147,7 +150,7 @@
+ #include <asm/io.h>
+ 
+ 
+-#define RTL8139_VERSION "0.9.12"
++#define RTL8139_VERSION "0.9.13"
+ #define MODNAME "8139too"
+ #define RTL8139_DRIVER_NAME   MODNAME " Fast Ethernet driver " RTL8139_VERSION
+ #define PFX MODNAME ": "
+@@ -536,7 +539,6 @@
+ MODULE_DESCRIPTION ("RealTek RTL-8139 Fast Ethernet driver");
+ MODULE_PARM (multicast_filter_limit, "i");
+ MODULE_PARM (max_interrupt_work, "i");
+-MODULE_PARM (debug, "i");
+ MODULE_PARM (media, "1-" __MODULE_STRING(8) "i");
+ 
+ static int read_eeprom (void *ioaddr, int location, int addr_len);
+@@ -1461,7 +1463,7 @@
+ 	DPRINTK ("%s: Media selection tick, Link partner %4.4x.\n",
+ 		 dev->name, RTL_R16 (NWayLPAR));
+ 	DPRINTK ("%s:  Other registers are IntMask %4.4x IntStatus %4.4x"
+-		 " RxStatus %4.4x.\n", dev->name,
++		 " RxStatus %4.4lx.\n", dev->name,
+ 		 RTL_R16 (IntrMask),
+ 		 RTL_R16 (IntrStatus),
+ 		 RTL_R32 (RxEarlyStatus));
+@@ -1478,7 +1480,13 @@
+ 	unsigned long timeout;
+ 
+ 	daemonize ();
+-	sprintf (current->comm, "k8139d-%s", dev->name);
++	spin_lock_irq(&current->sigmask_lock);
++	sigemptyset(&current->blocked);
++	recalc_sigpending(current);
++	spin_unlock_irq(&current->sigmask_lock);
++
++	strncpy (current->comm, dev->name, sizeof(current->comm) - 1);
++	current->comm[sizeof(current->comm) - 1] = '\0';
+ 
+ 	while (1) {
+ 		timeout = next_tick;
+@@ -2136,7 +2144,7 @@
+ 
+ 	DPRINTK ("ENTER\n");
+ 
+-	DPRINTK ("%s:   rtl8139_set_rx_mode(%4.4x) done -- Rx config %8.8x.\n",
++	DPRINTK ("%s:   rtl8139_set_rx_mode(%4.4x) done -- Rx config %8.8lx.\n",
+ 			dev->name, dev->flags, RTL_R32 (RxConfig));
+ 
+ 	/* Note: do not reorder, GCC is clever about common statements. */
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

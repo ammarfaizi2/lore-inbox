@@ -1,83 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265750AbSKFQFw>; Wed, 6 Nov 2002 11:05:52 -0500
+	id <S265747AbSKFQEc>; Wed, 6 Nov 2002 11:04:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265757AbSKFQFv>; Wed, 6 Nov 2002 11:05:51 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42764 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265750AbSKFQFt>; Wed, 6 Nov 2002 11:05:49 -0500
-Date: Wed, 6 Nov 2002 08:12:30 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Voyager subarchitecture for 2.5.46
-In-Reply-To: <1036599549.9803.49.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0211060758440.2545-100000@home.transmeta.com>
+	id <S265750AbSKFQEb>; Wed, 6 Nov 2002 11:04:31 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:43025 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S265747AbSKFQEY>; Wed, 6 Nov 2002 11:04:24 -0500
+Message-Id: <200211061605.gA6G5xp14090@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: linux-kernel@vger.kernel.org
+Subject: dmesg of 2.5.45 boot on NFS client
+Date: Wed, 6 Nov 2002 18:57:45 -0200
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Registering system device cpu0
+adding '' to cpu class interfaces
+      ^^^^
 
-On 6 Nov 2002, Alan Cox wrote:
->
-> On Wed, 2002-11-06 at 15:45, Linus Torvalds wrote:
-> > It's clearly stupid in the long run to depend on the TSC synchronization.
-> > We should consider different CPU's to be different clock-domains, and just
-> > synchronize them using the primitives we already have (hey, people can use
-> > ntp to synchronize over networks quite well, and that's without the kind
-> > of synchronization primitives that we have within the same box).
-> 
-> NTP synchronization assumes the clock runs at approximately the same
-> speed and that you can 'bend' ticklength to avoid backward steps. Thats
-> a really cool idea for the x440 but I wonder how practical it is when we
-> have CPU's that keep changing speeds and not always notifying us about
-> it either.
+;) What's this?
 
-Note that you have a _lot_ more flexibility than NTP thanks to the strong 
-synchronization that we actually do have between CPU's in the end.
 
-The synchronization just isn't strong enough to allow us to believe that 
-the TSC is exactly the _same_. But it is certainly string enough that we 
-should be able to do a really good job.
+Serial: 8250/16550 driver $Revision: 1.90 $ IRQ sharing disabled
+tts/%d0 at I/O 0x3f8 (irq = 4) is a 16550A
+    ^^
 
-Of course, if the TSC changes speed without telling us, we have problems. 
+;) 
 
-But that has nothing to do witht he synchronization protocol itself: we 
-have problems with that even on a single CPU on laptops right now. Does it 
-mean that gettimeofday() gets confused? Sure as hell. But it doesn't get 
-any _worse_ from being done separately on multiple CPU's.
+register interface 'mouse' with class 'input
 
-(And it _does_ get slightly better. On multiple CPU's with per-CPU time
-structures at least you _can_ handle the case where one CPU runs at a
-different speed, so at least you could handle the case where one CPU is
-slowed down explicitly much better than we can right now).
+there's no closing '
 
-As an example of something that is simpler in the MP/NUMA world than in 
-NTP: we see the processes migrating, and we can fairly trivially do things 
-like
+TCP: Hash tables configured (established 4096 bind 5461)
+Sending DHCP requests .fix old protocol handler ic_bootp_recv+0x0/0x3a0!
+.fix old protocol handler ic_bootp_recv+0x0/0x3a0!
+,fix old protocol handler ic_bootp_recv+0x0/0x3a0!
+ OK
 
- - every gettimeofday() will always save the value we return, along with a 
-   sequence number (which is mainly read-only, so it's ok to share among 
-   CPU's)
+Aha... todo for me...
 
- - every "settimeofday()" will increase the sequence number
+IP-Config: Got DHCP answer from 255.255.255.255, my address is 172.16.42.177
+IP-Config: Complete:
+      device=eth0, addr=172.16.42.177, mask=255.255.255.0, gw=172.16.42.98,
+     host=(none), domain=, nis-domain=(none),
+     bootserver=255.255.255.255, rootserver=172.16.42.75, rootpath=
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+Looking up port of RPC 100003/2 on 172.16.42.75
+Looking up port of RPC 100005/1 on 172.16.42.75
+VFS: Mounted root (nfs filesystem).
+Mounted devfs on /dev
+Freeing unused kernel memory: 604k freed
 
- - when the next gettimeofday happens, we can check the sequence number 
-   and the old gettimeofday, and verify that we get monotonic behaviour in 
-   the absense of explicit date setting. This allows us to handle small 
-   problems gracefully ("return the old time + 1 ns" to make it 
-   monotonic even when we screw up), _and_ it will also act as a big clue
-   for us that we should try to synchronize - so that we basically never 
-   need to worry about "should I check the clocks" (where "basically 
-   never" may be "we check the clocks every minute or so if nothing else 
-   happens")
+~30 seconds of no apparent activity
+I pressed SysRq-P couple of times, they all looked the same:
 
-Basically, I think NTP itself would be _way_ overkill between CPU's, I 
-wasn't really suggesting we use NTP as the main mechanism at that level. I 
-just suspect that a lot of the data structures and info that we already 
-have to have for NTP might be used as help.
+SysRq : Show Regs
 
-		Linus
+Pid: 0, comm:              swapper
+EIP: 0060:[<c01071aa>] CPU: 0
+EIP is at default_idle+0x2a/0x50
+ EFLAGS: 00000246    Not tainted
+EAX: 00000000 EBX: c0466000 ECX: c0447800 EDX: c0466000
+ESI: c0107180 EDI: c0466000 EBP: 0008e000 DS: 0068 ES: 0068
+CR0: 8005003b CR2: 40001000 CR3: 07d54000 CR4: 000006d0
+Call Trace:
+ [<c010725a>] cpu_idle+0x3a/0x50
+ [<c0105000>] stext+0x0/0x70
 
+No need for ksymoops. Wow.
+
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 93M
+agpgart: agpgart: Detected an Intel i815 Chipset.
+agpgart: AGP aperture is 64M @ 0xf0000000

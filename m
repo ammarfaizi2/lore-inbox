@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316852AbSHASok>; Thu, 1 Aug 2002 14:44:40 -0400
+	id <S316853AbSHASov>; Thu, 1 Aug 2002 14:44:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316853AbSHASoj>; Thu, 1 Aug 2002 14:44:39 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:30990 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316852AbSHASoi>; Thu, 1 Aug 2002 14:44:38 -0400
-Date: Thu, 1 Aug 2002 14:41:46 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: David Schwartz <davids@webmaster.com>
-cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Funding GPL projects or funding the GPL?
-In-Reply-To: <20020801093211.AAA7559@shell.webmaster.com@whenever>
-Message-ID: <Pine.LNX.3.96.1020801142558.15133C-100000@gatekeeper.tmr.com>
+	id <S316855AbSHASov>; Thu, 1 Aug 2002 14:44:51 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15884 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316853AbSHASou>;
+	Thu, 1 Aug 2002 14:44:50 -0400
+Message-ID: <3D498495.6F8E4DDA@zip.com.au>
+Date: Thu, 01 Aug 2002 11:57:25 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steven Cole <elenstev@mesatop.com>
+CC: Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, Steven Cole <scole@lanl.gov>
+Subject: Re: Linux v2.4.19-rc5
+References: <3D48F915.3FADA08F@zip.com.au> <1028213120.3085.88.camel@spc9.esa.lanl.gov>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Aug 2002, David Schwartz wrote:
-
+Steven Cole wrote:
 > 
+> ...
+> I've never seen this on 2.4.19-rc3 and I've been beating on it pretty
+> hard, running dbench 128 many times.  However, 2.5 is another story.
 > 
-> On Wed, 31 Jul 2002 16:03:59 -0400 (EDT), Bill Davidsen wrote:
+> This might not be the best thread to report this, but since the subject
+> came up, I'm getting the following message with recent 2.5.x kernels
+> whenever I run relatively large numbers of dbench clients.
 > 
-> >This is totally unrelated to the ecconomic model, we have many proofs that
-> >code quality is unrelated to financial compensation. People write crap
-> >code for both fun and profit. So what you say is totally true, but has
-> >zero to do with why the author wrote the code. You have to QA any code
-> >before using it, why the developer wrote it is irrelevant.
+> Buffer I/O error on device sd(8,8), logical block XXXXXXX
 > 
-> 	No matter how many proofs you have or how good they are, I won't believe it 
-> because this fails the giggle test. Here's a simple counter-proof. I want to 
-> write an SQL server from scratch. I create two teams, one with $50,000 and 
-> one with $5,000,000. You can honestly tell me that it's equally like that 
-> either team will produce a higher quality SQL server?
+> where logical block repeats 0-6 times.  This behavior is repeatable, but
+> only occurs under fairly high load.  I ran dbench with increasing numbers
+> of clients, with the following results:
+> 
+> dbench clients  Buffer I/O error messages
+> >=48            0
+> 52              1
+> 56              0
+> 64              0
+> 80              11
+> 96              9
+> 112             7
+> 128             4
 
-First, we were talking about written for free vs. written to make money.
-Second, the quality of the output depends on the quality of the process,
-not how much you pay for it. Equally likely isn't what I said, either.
+Yup.  The printk is bogus - I thought I'd removed it a couple of
+kernels ago.
 
-One last time: commercial software is not a guaranty of quality nor is
-being free an indication of being shoddy. Clearly if you underpay people
-for any work you are likely to get poor work, but that doesn't apply to
-someone who is being paid in satisfaction and recognition, and who has a
-real motivation to do it to the best of her/his ability. 
- 
-> 	This reminds me of the proofs that supposedly showed that locking up 
-> convicted criminals for longer didn't lower the crime rate. Are we honestly 
-> supposed to believe that otherwise honest people commit more crimes to make 
-> up the difference?
+It's a bit sad that an abandoned readahead attempt is indistinguishable
+from a dead disk.
 
-Glad it reminds you, I sure as hell don't see the point... and I never saw
-any such thing. Studies show that locking people up longer doesn't make
-*that person* less likely to commit a crime, which is not at all the same
-thing as the crime rate in crimes per unit time by all persons.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+-

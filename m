@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268598AbTBZPlU>; Wed, 26 Feb 2003 10:41:20 -0500
+	id <S268782AbTBZPqS>; Wed, 26 Feb 2003 10:46:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268666AbTBZPlU>; Wed, 26 Feb 2003 10:41:20 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:10895 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S268598AbTBZPlT>; Wed, 26 Feb 2003 10:41:19 -0500
-Date: Wed, 26 Feb 2003 10:51:21 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
-Message-Id: <200302261551.h1QFpLYa004976@locutus.cmf.nrl.navy.mil>
-To: jgarzik@pobox.com
-Subject: [PATCH][ATM] suni_init shouldnt be __init and remove mod inc/dec
-Cc: linux-kernel@vger.kernel.org
+	id <S268784AbTBZPqS>; Wed, 26 Feb 2003 10:46:18 -0500
+Received: from lucidpixels.com ([66.45.37.187]:43537 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id <S268782AbTBZPqQ>;
+	Wed, 26 Feb 2003 10:46:16 -0500
+Message-ID: <3E5CE3AF.8030601@lucidpixels.com>
+Date: Wed, 26 Feb 2003 10:56:31 -0500
+From: jpiszcz <jpiszcz@lucidpixels.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, vishwas@india.hp.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Questio about DMA and cd burning.
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-exporting a symbol declared as __init is bogus.  additonally, suni
-doesnt need to modify its ref counts, to quote:
 
-Q: My code use "MOD_INC_USE_COUNT".  Do I still need to adjust my
-   module count when someone calls one of my functions?
-A: No ...
-           ... It could be another module using one of your
-   EXPORT_SYMBOL'ed functions, in which case you cannot be removed
-   since they would have to be removed first. ...
+Alan Cox wrote:
 
-this is certainly the case for suni which is used by the various
-atm drivers.
+>On Wed, 2003-02-26 at 05:21, jpiszcz wrote:
+>  
+>
+>>Can anyone offer any suggestions why others can burn CD's in DMA mode, 
+>>yet the kernel keeps disabling DMA for my burners?
+>>    
+>>
+>
+>It depends on the options your kernel was compiled with
+>
+>
+>
+>  
+>
+http://installkernel.tripod.com/config-2.4.20.txt
 
-Index: linux/drivers/atm/suni.c
-===================================================================
-RCS file: /home/chas/CVSROOT/linux/drivers/atm/suni.c,v
-retrieving revision 1.1
-retrieving revision 1.3
-diff -u -r1.1 -r1.3
---- linux/drivers/atm/suni.c	20 Feb 2003 13:45:03 -0000	1.1
-+++ linux/drivers/atm/suni.c	26 Feb 2003 15:43:30 -0000	1.3
-@@ -233,8 +233,6 @@
- 	if (!(PRIV(dev) = kmalloc(sizeof(struct suni_priv),GFP_KERNEL)))
- 		return -ENOMEM;
- 
--	MOD_INC_USE_COUNT;
--
- 	PRIV(dev)->dev = dev;
- 	spin_lock_irqsave(&sunis_lock,flags);
- 	first = !sunis;
-@@ -280,7 +278,6 @@
- 	spin_unlock_irqrestore(&sunis_lock,flags);
- 	kfree(PRIV(dev));
- 
--	MOD_DEC_USE_COUNT;
- 	return 0;
- }
- 
-@@ -293,7 +290,7 @@
- };
- 
- 
--int __init suni_init(struct atm_dev *dev)
-+int suni_init(struct atm_dev *dev)
- {
- 	unsigned char mri;
- 
+
+

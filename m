@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131123AbQKACYK>; Tue, 31 Oct 2000 21:24:10 -0500
+	id <S131131AbQKACbV>; Tue, 31 Oct 2000 21:31:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131153AbQKACYA>; Tue, 31 Oct 2000 21:24:00 -0500
-Received: from atol.icm.edu.pl ([212.87.0.35]:46092 "EHLO atol.icm.edu.pl")
-	by vger.kernel.org with ESMTP id <S131134AbQKACXt>;
-	Tue, 31 Oct 2000 21:23:49 -0500
-Date: Wed, 1 Nov 2000 03:23:41 +0100
-From: Rafal Maszkowski <rzm@icm.edu.pl>
-To: "David S. Miller" <davem@redhat.com>
-Cc: rzm@icm.edu.pl, linux-kernel@vger.kernel.org
-Subject: Re: test10-pre7 on Sparc
-Message-ID: <20001101032341.A10273@burza.icm.edu.pl>
-In-Reply-To: <20001031191123.A9831@burza.icm.edu.pl> <200010312032.MAA09369@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.1i
-In-Reply-To: <200010312032.MAA09369@pizda.ninka.net>; from davem@redhat.com on Tue, Oct 31, 2000 at 12:32:02PM -0800
+	id <S131141AbQKACbM>; Tue, 31 Oct 2000 21:31:12 -0500
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:59917 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S131131AbQKACaz>;
+	Tue, 31 Oct 2000 21:30:55 -0500
+Message-Id: <200011010231.eA12UqR13473@sleipnir.valparaiso.cl>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18Pre Lan Performance Rocks! 
+In-Reply-To: Message from "Jeff V. Merkey" <jmerkey@timpanogas.org> 
+   of "Tue, 31 Oct 2000 15:45:45 PDT." <39FF4B99.1746E06E@timpanogas.org> 
+Date: Tue, 31 Oct 2000 23:30:52 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2000 at 12:32:02PM -0800, David S. Miller wrote:
->    From: Rafal Maszkowski <rzm@icm.edu.pl>
->    I am trying to run 2.4 kernel to have up to date ATM on SPARCstation 10,
->    possibly with 2 CPUs. Did not succeed to boot neither Linus nor CVS version
->    recently.  Compilation of 2.4.0.10.7:
-> Current CVS has both of these errors fixed, and such patches
-> were sent to Linus (included below):
+"Jeff V. Merkey" <jmerkey@timpanogas.org> said:
+> One more optimization it has.  NetWare never "calls" functions in the
+> kernel.  There's a template of register assignments in between kernel
+> modules that's very strict (esi contains a WTD head, edi has the target
+> thread, etc.) and all function calls are jumps in a linear space. 
+> layout of all functions are 16 bytes aligned for speed, and all
+> arguments in kernel are passed via registers.  It's a level of
+> optimization no C compiler does -- all of it was done by hand, and most
+> function s in fast paths are layed out in 512 byte chunks to increases
+> speed.  Stack memory activity in the NetWare kernel is almost
+> non-existent in almost all of the "fast paths"
 
-Thanks! It looks like Linus included them in 2.4.0.10. But the kernel still
-does not boot.  It says 'Watchdog' but other recent versions were giving just
-some nonsense-messages so I guess it jumps into some random place after
-decompressing. 2.2 kernels work on this machine.
+Nice! Now run that (i386 optimized?) beast on a machine that works
+different (latest K7s perhaps?), and many optimizations break.
 
-boot: 10
-Uncompressing image...
-PROMLIB: obio_ranges 5
-bootmem_init: Scan sp_banks,  init_bootmem(spfn[1f5],bpfn[1f5],mlpfn[c000])
-free_bootmem: base[0] size[1000000]
-free_bootmem: base[4000000] size[1000000]
-free_bootmem: base[8000000] size[1000000]
-reserve_bootmem: base[0] size[1f5000]
-reserve_bootmem: base[1f5000] size[1800]
-Booting Linux...
+When you got that fixed, would you please port it to Alpha?
 
-Watchdog Reset
-Type  help  for more information
-ok
-
-R.
+Sure, using C (with a not-overly-bright compiler) has a non-negligible
+cost. But huge benefits too. The whole of software (including OS) design is
+an excercise in delicate juggling among conflicting goals. Had Linus gone
+down the "all-assembler, bummed to its limits" route, Linux would have been
+dead by 0.03 or so, depending on the stubborness of its creator to be sure.
 -- 
-W iskier krzesaniu ¿ywem/Materia³ to rzecz g³ówna
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

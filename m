@@ -1,38 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317778AbSHCVB4>; Sat, 3 Aug 2002 17:01:56 -0400
+	id <S317791AbSHCVE2>; Sat, 3 Aug 2002 17:04:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317779AbSHCVB4>; Sat, 3 Aug 2002 17:01:56 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:9205 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317778AbSHCVBz>; Sat, 3 Aug 2002 17:01:55 -0400
-Subject: Re: Linux v2.4.19
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ged Haywood <ged@www2.jubileegroup.co.uk>
-Cc: "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0208032156330.29654-100000@www2.jubileegroup.co.uk>
-References: <Pine.LNX.4.21.0208032156330.29654-100000@www2.jubileegroup.co.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 03 Aug 2002 23:23:25 +0100
-Message-Id: <1028413405.1761.38.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317815AbSHCVE1>; Sat, 3 Aug 2002 17:04:27 -0400
+Received: from postfix1-2.free.fr ([213.228.0.130]:47805 "EHLO
+	postfix1-2.free.fr") by vger.kernel.org with ESMTP
+	id <S317791AbSHCVEY>; Sat, 3 Aug 2002 17:04:24 -0400
+From: Marc Lefranc <lefranc.m@free.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with AHA152X driver in 2.4.19
+Date: 03 Aug 2002 19:02:50 +0200
+Message-ID: <p6r65yrlvt1.fsf@free.fr>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-08-03 at 22:00, Ged Haywood wrote:
-> Hi there,
-> 
-> On Sat, 3 Aug 2002, Mr. James W. Laferriere wrote:
-> 
-> > Haven't the tarballs usuaully been archived as 'linux/' instead of
-> > 'linux-2.4.19/' ?
-> 
-> Absolutely not.  Many systems have a symlink 'linux' to the current
-> kernel tree, which is a directory e.g. 'linux-2.2.16'.  If the tarball
 
-Kernels until recently did always unpack into linux/. Linus changed and
-I'm happy Marcelo has followed suit, its much more sensible the new way
+Hi all,
+
+I just built 2.4.19 and checked that the problem that had been
+introduced in the aha152x driver between 2.4.19-pre8 and pre10 (bad
+initialization due to lost interrupt) had been corrected. However, I
+have experienced another problem related to blocking factor.
+
+Using tar without specifying a blocking factor works fine but as soon
+as I specify one, tar exits with a segmentation violation immediately
+after trying to write to the tape. There is a also a message about a
+NULL pointer dereference written to /var/log/messages (see below).
+
+The exact command I used is (taken from a shell script):
+
+tar --create --blocking-factor 96 --file=/dev/st0 --listed-incremental=$JOURNAL --verbose --preserve --one-file-system --atime-preserve $1
+
+The very same script worked flawlessly with 2.4.19-pre8 and before. If
+I remove the blocking-factor option, everything is back to normal.
+
+Marc
+
+
+----------------------------------------------------------------------
+Aug  3 17:44:55 socrate kernel: Unable to handle kernel NULL pointer dereference
+ at virtual address 0000001b
+Aug  3 17:44:55 socrate kernel:  printing eip:
+Aug  3 17:44:55 socrate kernel: c68a21d9
+Aug  3 17:44:55 socrate kernel: *pde = 00000000
+Aug  3 17:44:55 socrate kernel: Oops: 0000
+Aug  3 17:44:55 socrate kernel: CPU:    0
+Aug  3 17:44:55 socrate kernel: EIP:    0010:[<c68a21d9>]    Not tainted
+Aug  3 17:44:55 socrate kernel: EFLAGS: 00010002
+Aug  3 17:44:55 socrate kernel: eax: 00000000   ebx: c2575000   ecx: c26e9e30   
+edx: c1d9a240
+Aug  3 17:44:55 socrate kernel: esi: c251c000   edi: 0000000c   ebp: c251c000   
+esp: c2691e4c
+Aug  3 17:44:55 socrate kernel: ds: 0018   es: 0018   ss: 0018
+Aug  3 17:44:55 socrate kernel: Process tar (pid: 1141, stackpage=c2691000)
+Aug  3 17:44:55 socrate kernel: Stack: 00000297 c116fdb4 c2575000 c68a22e3 c2575
+000 00000000 00000000 00000000 
+Aug  3 17:44:55 socrate kernel:        c687fab0 c687f517 c2575000 c687fab0 00000
+000 c2575000 c116fdb4 c25750b8 
+Aug  3 17:44:55 socrate kernel:        c116fdb4 c688662f c2575000 c2575000 00000
+000 c251c000 c5995c00 c116fd60 
+Aug  3 17:44:55 socrate kernel: Call Trace:    [<c68a22e3>] [<c687fab0>] [<c687f
+517>] [<c687fab0>] [<c688662f>]
+Aug  3 17:44:55 socrate kernel:   [<c6885a5f>] [<c6885ab9>] [<c68984cc>] [<c6898
+300>] [<c6899ce6>] [<c0132bc8>]
+Aug  3 17:44:55 socrate kernel:   [<c013266f>] [<c01088b3>]
+Aug  3 17:44:55 socrate kernel: 
+Aug  3 17:44:55 socrate kernel: Code: 0f b6 50 1b 8b 14 95 dc 24 27 c0 2b 82 a0 
+00 00 00 69 c0 a3 
 

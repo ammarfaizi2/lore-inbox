@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293617AbSBZWGx>; Tue, 26 Feb 2002 17:06:53 -0500
+	id <S292694AbSBZWQY>; Tue, 26 Feb 2002 17:16:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293618AbSBZWGp>; Tue, 26 Feb 2002 17:06:45 -0500
-Received: from mx.nlm.nih.gov ([130.14.22.48]:23287 "EHLO mx.nlm.nih.gov")
-	by vger.kernel.org with ESMTP id <S293615AbSBZWGi>;
-	Tue, 26 Feb 2002 17:06:38 -0500
-Message-ID: <3C7C06E5.907F536E@ncbi.nlm.nih.gov>
-Date: Tue, 26 Feb 2002 17:06:29 -0500
-From: Anton Lavrentiev <lavr@ncbi.nlm.nih.gov>
-Organization: NCBI NIH
-X-Mailer: Mozilla 4.79 [en] (X11; U; SunOS 5.7 sun4u)
-X-Accept-Language: en, ru
-MIME-Version: 1.0
+	id <S293609AbSBZWQF>; Tue, 26 Feb 2002 17:16:05 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:63754 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S292694AbSBZWQD>;
+	Tue, 26 Feb 2002 17:16:03 -0500
+Date: Tue, 26 Feb 2002 14:09:40 -0800
+From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Subject: sys_sysinfo()'s bug in reporting the number of processes
+Subject: [PATCH] PCI Hotplug driver updates for 2.4.19-pre1
+Message-ID: <20020226220940.GG1665@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Tue, 29 Jan 2002 19:52:28 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Linux Developers:
+Hi all,
 
-I've noticed discrepancy in the number of processes
-returned by sysinfo() syscall versus the number of processes
-listed by 'ps'. The problem traced down to the following line
-of code in kernel/info.c:
+I just sent off a bunch of PCI Hotplug patches for 2.4.19-pre1 and
+thought I would post a pointer to them here (the patches are too large
+for this mailing list.)
 
-val.proc = nr_task-1;
+ - Clean up the pcihpfs filesystem code and add support for updating the
+   timestamp of the device attribute files when the information has
+   changed.
+	kernel.org/pub/linux/kernel/people/gregkh/hotplug/2.4/pci_hp-core-2.4.19-pre1.patch
 
-as if the idle task is taken into account in 'nr_tasks',
-However, since kernel 2.2 the comment to (and the usage of)
-'nr_task' explicitly states that the idle task is not anymore
-counted in this variable. From kernel/fork.c:
+ - Add the PCI Hotplug API to the kernel-api documentation build
+	kernel.org/pub/linux/kernel/people/gregkh/hotplug/2.4/pci_hp-docs-2.4.19-pre1.patch
 
-/* The idle tasks do not count.. */
-int nr_tasks = 0;
+ - Some small Compaq PCI Hotplug driver fixes
+	kernel.org/pub/linux/kernel/people/gregkh/hotplug/2.4/pci_hp-cpqphp-2.4.19-pre1.patch
 
-As a matter of fact, prior to kernel 2.2 the initial value of
-'nr_tasks' was 1, and the idle task 0 was counted, so the
-correction by -1 was really necessary. But it was forgotten
-to undo this subtraction when the 'nr_tasks' had changed its
-meaning since then.
+ - Add support for an IBM PCI Hotplug driver.  This was written by Irene
+   Zubarev, Tong Yu, Jyoti Shah, and Chuck Cole, with a bit of help from
+   me.
+	kernel.org/pub/linux/kernel/people/gregkh/hotplug/2.4/pci_hp-ibmphp-2.4.19-pre1.patch
 
-Best regards,
+ - Add support for an ACPI PCI hotplug driver.  This was written by
+   Hiroshi Aono and Takayoshi Kochi, with a bit of help from me.
+	kernel.org/pub/linux/kernel/people/gregkh/hotplug/2.4/pci_hp-acpi-2.4.19-pre1.patch
 
-Anton Lavrentiev
-NCBI/NLM/NIH
+ - Add the ACPI and IBM PCI Hotplug drivers to the build
+	kernel.org/pub/linux/kernel/people/gregkh/hotplug/2.4/pci_hp-build-2.4.19-pre1.patch
+
+
+thanks,
+
+greg k-h

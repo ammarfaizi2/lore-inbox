@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264978AbTK3RkE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 12:40:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264979AbTK3RkD
+	id S264957AbTK3RtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 12:49:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264959AbTK3RtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 12:40:03 -0500
-Received: from play.smurf.noris.de ([192.109.102.42]:14824 "EHLO
-	play.smurf.noris.de") by vger.kernel.org with ESMTP id S264978AbTK3Rj5
+	Sun, 30 Nov 2003 12:49:09 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11188 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264957AbTK3RtF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 12:39:57 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: question about preempt_disable()
-Date: Sun, 30 Nov 2003 18:39:48 +0100
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2003.11.30.17.39.47.71027@smurf.noris.de>
-References: <000d01c3b6dd$30ab34a0$8a04a943@bananacabana>
-NNTP-Posting-Host: linux.smurf.noris.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Trace: play.smurf.noris.de 1070213988 17254 192.109.102.39 (30 Nov 2003 17:39:48 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Sun, 30 Nov 2003 17:39:48 +0000 (UTC)
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+	Sun, 30 Nov 2003 12:49:05 -0500
+Message-ID: <3FCA2D82.3040606@pobox.com>
+Date: Sun, 30 Nov 2003 12:48:50 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Prakash K. Cheemplavam" <prakashkc@gmx.de>, marcush@onlinehome.de,
+       linux-kernel@vger.kernel.org, eric_mudama@Maxtor.com
+Subject: Re: Silicon Image 3112A SATA trouble
+References: <3FC36057.40108@gmx.de> <3FCA1DD3.70004@pobox.com> <20031130165146.GY10679@suse.de> <200311301758.53885.bzolnier@elka.pw.edu.pl> <3FCA2380.1050902@pobox.com> <20031130171006.GA10679@suse.de> <3FCA275B.1080904@pobox.com> <20031130173127.GB6454@suse.de>
+In-Reply-To: <20031130173127.GB6454@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Chris Peterson wrote:
+Jens Axboe wrote:
+> On Sun, Nov 30 2003, Jeff Garzik wrote:
+> 
+>>Jens Axboe wrote:
+>>
+>>>>Well, the constraint we must satisfy is
+>>>>
+>>>>	sector_count % 15 != 1
+>>>
+>>>
+>>>	(sector_count % 15 != 1) && (sector_count != 1)
+>>>
+>>>to be more precise :)
+>>
+>>
+>>Thanks for the clarification, I did not know that.
+>>
+>>Avoiding sector_count==1 requires additional code :(  Valid requests 
+>>might be a single sector.  With page-based blkdevs requests smaller than 
+>>a page would certainly be infrequent, but are still possible, with bsg 
+>>for example...
+> 
+> 
+> You misread it... sector_count == 1 is fine, sector_count % 15 == 1 is
+> ok when sector_count is 1 (it would have to be, or sector_count == 1
+> would not be ok :)
 
-> My question is: if the code is already SMP-safe and holding the necessary
-> spinlocks, why is the preempt count necessary? Why must preemption be
-> disabled and re-enabled as spinlocks are acquired and released?
 
-You need to prevent deadlocks. Imagine process A grabbing a spinlock, then
-getting preempted. Process B now sits there and waits on the spinlock.
-Forward progress may or may not happen when the scheduler preempts B and
-restarts A, some indeterminate time later.
+Ahh, duh.  Thanks again.  Yeah, it makes sense since the bug arises from 
+too-large Serial ATA data transactions on the SATA bus...
 
-Scheduling when waiting for a spinlock doesn't make sense because usually
-the spinlock is held for just a few cycles (that's why it's a spin lock
-and not a semaphore / wait queue / whatever), and rescheduling would take
-more time than just waiting.
+	Jeff
 
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-You will have many recoverable tape errors.
+
 

@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136232AbRDVRjh>; Sun, 22 Apr 2001 13:39:37 -0400
+	id <S136233AbRDVRo5>; Sun, 22 Apr 2001 13:44:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136236AbRDVRj2>; Sun, 22 Apr 2001 13:39:28 -0400
-Received: from mta6.srv.hcvlny.cv.net ([167.206.5.17]:58617 "EHLO
-	mta6.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S136233AbRDVRjW>; Sun, 22 Apr 2001 13:39:22 -0400
-Date: Sun, 22 Apr 2001 13:39:43 -0400
-From: Alexander Valys <avalys@optonline.net>
-Subject: ATA66 on a Via Chipset
-To: linux-kernel@vger.kernel.org
-Message-id: <01042213394300.23387@athena>
-Organization: Valys Technology Solutions
-MIME-version: 1.0
-X-Mailer: KMail [version 1.2]
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
+	id <S136234AbRDVRor>; Sun, 22 Apr 2001 13:44:47 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:24332 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S136233AbRDVRok>;
+	Sun, 22 Apr 2001 13:44:40 -0400
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac12
+In-Reply-To: <E14rJw2-0005r5-00@the-village.bc.nu> <d366fw29sv.fsf@lxplus015.cern.ch> <3AE31470.A6F82F52@linux-m68k.org>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 22 Apr 2001 19:43:57 +0200
+In-Reply-To: Roman Zippel's message of "Sun, 22 Apr 2001 19:27:12 +0200"
+Message-ID: <d31yqk25k2.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recently, I decided to try out Debian 2.2.  I downloaded the iso, installed 
-it, and went to compile kernel 2.4.3.  I used the same .config file I've used 
-before, containing all the appropriate support (ATA66, notably) for my Via 
-Apollo Pro133A-based motherboard, installed it, and rebooted.  To make sure 
-everything worked correctly, I ran hdparm -t /dev/hda, and was amazed to see 
-transfer rates of 22 megs/second.  In redhat, the most I can get is 15.  So, 
-I immediately reinstalled redhat, and (using the same .config file), compiled 
-the kernel again.  After rebooting, my transfer rates were still 15 
-megs/second.  So, my question is - why were they so much faster in debian, 
-and how can I replicate that in redhat?
-					--A. Valys
+>>>>> "Roman" == Roman Zippel <zippel@linux-m68k.org> writes:
+
+Roman> Hi, Jes Sorensen wrote:
+
+>> In principle you just need 2.7.2.3 for m68k, but someone decided to
+>> raise the bar for all architectures by putting a check in a common
+>> header file.
+
+Roman> IIRC 2.7.2.3 has problems with labeled initializers for
+Roman> structures, which makes 2.7.2.3 unusable for all archs under
+Roman> 2.4.
+
+True, so our bar is egcs-1.1.2, but thats still a bit from 2.96+
+
+Jes

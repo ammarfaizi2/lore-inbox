@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318409AbSGYLJl>; Thu, 25 Jul 2002 07:09:41 -0400
+	id <S318410AbSGYLNI>; Thu, 25 Jul 2002 07:13:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318411AbSGYLJl>; Thu, 25 Jul 2002 07:09:41 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:57729 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S318409AbSGYLJl>; Thu, 25 Jul 2002 07:09:41 -0400
-Date: Thu, 25 Jul 2002 07:14:13 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Kareem Dana <kareemy@earthlink.net>, Andrew Rodland <arodland@noln.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: loop.o device busy after umount
-In-Reply-To: <20020724212521.GA13196@win.tue.nl>
-Message-ID: <Pine.LNX.3.95.1020725070956.11258A-100000@chaos.analogic.com>
+	id <S318411AbSGYLNI>; Thu, 25 Jul 2002 07:13:08 -0400
+Received: from mailf.telia.com ([194.22.194.25]:51437 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id <S318410AbSGYLNH>;
+	Thu, 25 Jul 2002 07:13:07 -0400
+X-Original-Recipient: <linux-kernel@vger.kernel.org>
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Safety of IRQ during i/o
+Date: Thu, 25 Jul 2002 13:15:30 +0200
+User-Agent: KMail/1.4.5
+References: <Pine.SOL.4.30.0207250041400.15959-100000@mion.elka.pw.edu.pl> <1027592784.9489.11.camel@irongate.swansea.linux.org.uk> <3D3FC625.1020202@evision.ag>
+In-Reply-To: <3D3FC625.1020202@evision.ag>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200207251315.30566.roger.larsson@skelleftea.mail.telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jul 2002, Andries Brouwer wrote:
-
-> On Wed, Jul 24, 2002 at 04:03:29PM -0400, Richard B. Johnson wrote:
+On Thursday 25 July 2002 11.34, Marcin Dalecki wrote:
+> Alan Cox wrote:
+> > For old ISA/VLB controllers its safer left as is, and nobody running a
+> > machine like that can realistically expect good performance without hand
+> > tuning stuff anyway
 > 
-> > > Read mount(8), the places where losetup is mentioned.
-> > 
-> > It works in my system and `umount` is version 2.10o
-> > It works because (strace output), umount does the LOOP_CLR_FD ioctl().
+> Sounds fairly well and is easy to implement...just adding
 > 
-> Why do you repeat an imprecise answer? Read mount(8).
+> if (ch->pci_dev != NULL && ch->umask)
+> 
+> at the corresponding plase in ata_irq_request will do the trick.
+> 
 
-Hardly imprecise. "Read mount(8)..." From what distribution? I gave
-the precise reason why umount 2.10o works, not some wise-guy retort
-that presumes that everybody has some specific distribution with
-your version of man pages.
+Yea, but I lake to be able to see that it is enabled with hdparm
+(and to be able to disable it as well...)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+/RogerL
+
+-- 
+Roger Larsson
+Skellefteå
+Sweden
 

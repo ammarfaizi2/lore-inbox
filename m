@@ -1,47 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVATWED@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbVATWFR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262083AbVATWED (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 17:04:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbVATWEC
+	id S262106AbVATWFR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 17:05:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVATWEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 17:04:02 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:54227 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262083AbVATWC4 (ORCPT
+	Thu, 20 Jan 2005 17:04:54 -0500
+Received: from imap.gmx.net ([213.165.64.20]:64459 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262106AbVATWCW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 17:02:56 -0500
-Date: Thu, 20 Jan 2005 22:02:52 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: Norbert van Nobelen <Norbert@edusupport.nl>
-Cc: "Trever L. Adams" <tadams-lists@myrealbox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: LVM2
-Message-ID: <20050120220252.GA14097@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Norbert van Nobelen <Norbert@edusupport.nl>,
-	"Trever L. Adams" <tadams-lists@myrealbox.com>,
-	linux-kernel@vger.kernel.org
-References: <1106250687.3413.6.camel@localhost.localdomain> <200501202240.02951.Norbert@edusupport.nl>
+	Thu, 20 Jan 2005 17:02:22 -0500
+X-Authenticated: #1425685
+Date: Thu, 20 Jan 2005 22:57:48 +0100
+From: Sebastian <Ostdeutschland@gmx.de>
+To: acpi-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.11-rc1 problem with battery state (AE_ALREADY_EXISTS)
+Message-Id: <20050120225748.2d1a7cfc.Ostdeutschland@gmx.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501202240.02951.Norbert@edusupport.nl>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 20, 2005 at 10:40:02PM +0100, Norbert van Nobelen wrote:
-> A logical volume in LVM will not handle more than 2TB. You can tie together 
-> the LVs in a volume group, thus going over the 2TB limit. 
+hi,
 
-Confused over terminology?
-Tie PVs together to form a VG, then divide VG up into LVs.
+i reported this error some time ago, without any reply...
+i'm running 2.6.11-rc1 now on an acer travelmate 291lci laptop.
 
-Size limit depends on metadata format and the kernel: old LVM1 format has 
-lower size limits - see the vgcreate man page.
+[admin@laptop]$ while [ 1 ]; do cat /proc/acpi/battery/BAT1/state &&
+sleep 1; done
+present:                 yes     
+capacity state:          ok      
+charging state:          charged 
+present rate:            0 mA    
+remaining capacity:      4000 mAh
+present voltage:         16647 mV
+present:                 yes     
+capacity state:          ok      
+charging state:          charged 
+present rate:            0 mA    
+remaining capacity:      4000 mAh
+present voltage:         16645 mV
+present:                 yes     
+capacity state:          ok      
+charging state:          charged 
+present rate:            0 mA    
+remaining capacity:      4000 mAh
+present voltage:         16645 mV
+ dswload-0294: *** Error: Looking up [PBST] in namespace,
+AE_ALREADY_EXISTS
+ psparse-0601 [915] ps_parse_loop         : During name lookup/catalog,
+AE_ALREADY_EXISTS
+ psparse-1138: *** Error: Method execution failed
+[\_SB_.PCI0.LPC0.BAT1._BST] (Node defc21e8), AE_ALREADY_EXISTS
+acpi_battery-0208 [908] acpi_battery_get_statu: Error evaluating _BST
+present:                 yes     
+ERROR: Unable to read battery status
+present:                 yes     
+capacity state:          ok      
+charging state:          charged 
+present rate:            0 mA    
+remaining capacity:      4000 mAh
+present voltage:         16647 mV
+     osl-0958 [992] os_wait_semaphore     : Failed to acquire
+semaphore[c172c5a0|1|0], AE_TIME 
+present:                 yes     
+capacity state:          ok      
+charging state:          charged 
+present rate:            0 mA    
+remaining capacity:      4000 mAh
+present voltage:         16647 mV
 
-New LVM2 metadata format relaxes those limits and lets you have LVs > 2TB
-with a 2.6 kernel.
 
-Alasdair
--- 
-agk@redhat.com
+
+thanks, sebastian

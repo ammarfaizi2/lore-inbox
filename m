@@ -1,54 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261543AbREOVN2>; Tue, 15 May 2001 17:13:28 -0400
+	id <S261553AbREOVSI>; Tue, 15 May 2001 17:18:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261541AbREOVNS>; Tue, 15 May 2001 17:13:18 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:56585 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261540AbREOVNJ>; Tue, 15 May 2001 17:13:09 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Getting FS access events
-Date: 15 May 2001 14:12:44 -0700
-Organization: A poorly-installed InterNetNews site
-Message-ID: <9ds64c$2k0$1@penguin.transmeta.com>
-In-Reply-To: <3B0190F6.9D08D9CE@transmeta.com> <Pine.GSO.4.21.0105151628340.21081-100000@weyl.math.psu.edu>
+	id <S261552AbREOVR6>; Tue, 15 May 2001 17:17:58 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:55052 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S261551AbREOVRm>; Tue, 15 May 2001 17:17:42 -0400
+Message-ID: <3B019CB7.78A2C5EB@evision-ventures.com>
+Date: Tue, 15 May 2001 23:16:39 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alexander Viro <viro@math.psu.edu>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: Getting out of hand?
+In-Reply-To: <Pine.LNX.4.21.0105142114310.23663-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.GSO.4.21.0105151628340.21081-100000@weyl.math.psu.edu>,
-Alexander Viro  <viro@math.psu.edu> wrote:
->> 
->> How would you know what datatype it is?  A union?  Making "struct
->> block_device *" a "struct inode *" in a nonmounted filesystem?  In a
->> devfs?  (Seriously.  Being able to do these kinds of data-structural
->> equivalence is IMO the nice thing about devfs & co...)
->
->void *.
+Linus Torvalds wrote:
+> 
+> On Mon, 14 May 2001, Alan Cox wrote:
+> >
+> > Except that Linus wont hand out major numbers, which means I can't even boot
+> > simply off such a device. I bet the vendors in question dont think the sun
+> > shines out of linus backside any more.
+> 
+> Actually, it does. It's just that some people have gotten so blinded by my
+> a** that they can no longer see it any more ;)
+> 
+> The problem I have is that there are lots of _good_ solutions, but they
+> all imply a bit more work than the bad ones.
+> 
+> What does that result in? Everybody continues to use the simple old setup,
+> which required no thought at all, but that is a pain to maintain.
+> 
+> For example, the only thing you need in order to boot is to have a nice
+> clean "disk" major number. That's it. Nothing fancy, nothing more.
+> 
+> Look at what we have now:
+> 
+>  - ramdisk: major 1. Fair enough - ramdisk is special, in that it doesn't
+>    have any "real hardware". No problem.
+>  - SCSI disks:
+>         major 8, 65-71,
+>  - Compaq smart2:
+>         major 72-79
+>  - Compaq CISS:
+>         major 104-111
+>  - DASD;
+>         major 94
+>  - IDE:
+>         major 3, 22, 33-34, 56-57, 88-91
+> 
+> and then the small random ones.
+> 
+> NONE of these major numbers have _any_ redeeming qualities except for the
+> ramdisk. They should all be _one_ major number, namely "disk". There are
+> absolutely NO advantages to having separate devices for soem strange
+> compaq controllers and IDE disks. There is _no_ point in having some SCSI
+> disks show up at major 8, while others (who just happen to be attached to
+> a scsi bus that is not driven by the generic SCSI layer) show up at major
+> 104 or whatever.
 
-No. It used to be that way, and it was a horrible mess.
+And then the IDE stuff is stiuoid to use the same major numbers for
+in fact entierly different devices like CD-ROM and IDE disk drivers on
+the same major... This makes it VERY uncomfortable to guarantee that
+for example the sector size and driver read ahead are properties
+tighted to the major number alone... In fact Linux is bundling 
+read ahead with the major number only, in esp. inside the RAID drivers
+which is entierly wrong! (see blksize_size array and read_ahead array).
 
-We _need_ to know that it's an inode, because the generic mapping
-functions basically need to do things like
-
-	mark_inode_dirty_pages(mapping->host);
-
-which in turn needs the host to be an inode (otherwise you don't know
-how and where to write the dang things back again).
-
-There's no question that you can avoid it being an inode by virtualizing
-more of it, and adding more virtual functions to the mapping operations
-(right now the only one you'd HAVE to add is the "mark_page_dirty()"
-operation), but the fact is that code gets really ugly by doing things
-like that.
-
-It was an absolute pleasure to remove all the casts of "mapping->host".
-With "void *" it needed to be cast to the right type (and you had to be
-able to _prove_ that you knew what the right type was). With "inode *",
-the type is statically known, and you don't actually lose anything (at
-worst, you'd have a virtual inode and then do an extra layer of
-indirection there).
-
-I really don't think we want to go back to "void *". 
-
-		Linus
+And yes the RAID drivers are in particular *VERY* stiupid in
+terms of major/minor number usage.

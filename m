@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131464AbRCXABH>; Fri, 23 Mar 2001 19:01:07 -0500
+	id <S131410AbRCXAER>; Fri, 23 Mar 2001 19:04:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131410AbRCXAA7>; Fri, 23 Mar 2001 19:00:59 -0500
-Received: from ip167-165.fli-ykh.psinet.ne.jp ([210.129.167.165]:23747 "EHLO
-	standard.erephon") by vger.kernel.org with ESMTP id <S131419AbRCXAAk>;
-	Fri, 23 Mar 2001 19:00:40 -0500
-Message-ID: <3ABBE36F.89847A3C@yk.rim.or.jp>
-Date: Sat, 24 Mar 2001 08:59:43 +0900
-From: Ishikawa <ishikawa@yk.rim.or.jp>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: ja, en
-MIME-Version: 1.0
-To: Kurt Garloff <garloff@suse.de>,
-        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Interesting post from the MC project to linux-kernel. :block while 
- spinlock held...
-In-Reply-To: <3AB8E3E8.F3204180@yk.rim.or.jp> <20010322180528.B6264@garloff.casa-etp.nl>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+	id <S131524AbRCXAEH>; Fri, 23 Mar 2001 19:04:07 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:3411 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S131410AbRCXADw>;
+	Fri, 23 Mar 2001 19:03:52 -0500
+Message-ID: <20010324010306.A6702@win.tue.nl>
+Date: Sat, 24 Mar 2001 01:03:06 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: "James A. Sutherland" <jas88@cam.ac.uk>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
+        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <20010322124727.A5115@win.tue.nl> <Pine.LNX.4.30.0103231721480.4103-100000@dax.joh.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.LNX.4.30.0103231721480.4103-100000@dax.joh.cam.ac.uk>; from James A. Sutherland on Fri, Mar 23, 2001 at 05:26:22PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Garloff-san,
+On Fri, Mar 23, 2001 at 05:26:22PM +0000, James A. Sutherland wrote:
 
-Actually, a good question.
+> > Clearly, Linux cannot be reliable if any process can be killed
+> > at any moment.
+> 
+> What on earth did you expect to happen when the process exceeded the
+> machine's capabilities? Using more than all the resources fails. There
+> isn't an alternative.
 
-I have been trying to find the details of the verification tool from stanford
-
-but to no avail.
-Maybe we should ask the posters from the Stanford directly.
-
-(Oops. I thought I posted this to linux-scsi, but did I post
-linux-kernel instead? Apologies.)
-
-Kurt Garloff wrote:
-
-> On Thu, Mar 22, 2001 at 02:24:56AM +0900, Chiaki Ishikawa wrote:
-> > --- begin quote ---
-> > > enclosed are 163 potential bugs in 2.4.1 where blocking functions are
-> > > called with either interrupts disabled or a spin lock held. The
-> > > checker works by:
-> >
-> > Here's the file manifest. Apologies.
-> >
-> > drivers/atm/idt77105.c
-> > drivers/atm/iphase.c
-> > drivers/atm/uPD98402.c
-> > drivers/block/cciss.c
-> > drivers/block/cpqarray.c
-> > drivers/char/applicom.c
-> >     ...
-> > drivers/scsi/aha1542.c            <--- some scsi files
-> > drivers/scsi/atp870u.c             <----
-> > drivers/scsi/psi240i.c               <----
-> > drivers/scsi/sym53c416.c        <----
-> > drivers/scsi/tmscsim.c              <----
->   ^^^^^^^^^^^^^^^^^^^^^^
->
-> How do I fond about about details?
->
-> R
+That is the wrong way to phrase these things.
+Large processes usually do not have a definite set of needed resources.
+They can use lots of memory for buffers and cache and hash and be a bit
+faster, or use much less and be a bit slower.
+Linux first promises a lot of memory, but then fails to deliver,
+without returning any error to the program.
 

@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262924AbUBZTNx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 14:13:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262939AbUBZTNP
+	id S262948AbUBZTRk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 14:17:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262962AbUBZTQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 14:13:15 -0500
-Received: from [65.248.111.151] ([65.248.111.151]:5128 "EHLO
-	ns1.brianandsara.net") by vger.kernel.org with ESMTP
-	id S262924AbUBZTNA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 14:13:00 -0500
-From: Brian Jackson <brian@brianandsara.net>
-Organization: brianandsara.net
-To: Ben Collins <bcollins@debian.org>
-Subject: Re: only ieee1394 from 2.4.20 works for me
-Date: Thu, 26 Feb 2004 13:13:38 -0600
-User-Agent: KMail/1.6.50
-References: <4038BDC3.9030304@kuix.de> <200402260012.25098.brian@brianandsara.net> <20040226131445.GF651@phunnypharm.org>
-In-Reply-To: <20040226131445.GF651@phunnypharm.org>
-Cc: linux-kernel@vger.kernel.org, kai.engert@gmx.de
+	Thu, 26 Feb 2004 14:16:47 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:65030 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S262927AbUBZTO7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 14:14:59 -0500
+Message-ID: <403E481E.7060609@techsource.com>
+Date: Thu, 26 Feb 2004 14:25:18 -0500
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: root@chaos.analogic.com
+CC: Chris Wedgwood <cw@f00f.org>, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       richard.brunner@amd.com, linux-kernel@vger.kernel.org
+Subject: Re: Intel vs AMD64
+References: <7F740D512C7C1046AB53446D37200173EA28A5@scsmsx402.sc.intel.com> <20040226133959.GA19254@dingdong.cryptoapps.com> <Pine.LNX.4.53.0402260913300.32691@chaos>
+In-Reply-To: <Pine.LNX.4.53.0402260913300.32691@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402261313.38565.brian@brianandsara.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 February 2004 07:14, Ben Collins wrote:
-> > I however don't have the same problems you describe. Newer versions just
-> > simply fail to see anything attached to the ieee1394 bus. I'm using a via
-> > epia M10000. I saw a report similar to mine on the 1394 list, but it went
-> > unanswered.
->
-> Did you cat /proc/bus/ieee1394/devices?
 
-I tried a bunch of stuff, don't remember exactly about this, let me check real 
-quick...
-Empty.
 
-> Did you try using the rescan-scsi-bus.sh script?
+Richard B. Johnson wrote:
 
-Yeah, ran and reran this, the sbp2 driver never registers itself with the scsi 
-subsystem.
+> Whether or not the CPU traps this invalid instruction is moot. No
+> compiler would emit junk like this and anybody horsing around with
+> an assembler deserves whatever they get, although you shouldn't
+> be able to smoke the CPU on a multi-user multitasking system because
+> it can be used as a DOS attack.
 
---Brian Jackson
 
--- 
-http://www.brianandsara.net
+If this is junk that's invalid, why was it mentioned in the first place?
+

@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264980AbUHJMyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264937AbUHJMv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264980AbUHJMyx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 08:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265002AbUHJMyT
+	id S264937AbUHJMv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 08:51:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264665AbUHJMuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 08:54:19 -0400
-Received: from holomorphy.com ([207.189.100.168]:7145 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264980AbUHJMv7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 08:51:59 -0400
-Date: Tue, 10 Aug 2004 05:51:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: V13 <v13@priest.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: 2.6.8-rc3-mm2
-Message-ID: <20040810125140.GU11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	V13 <v13@priest.com>, Ingo Molnar <mingo@elte.hu>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
-References: <200408091217.50786.jbarnes@engr.sgi.com> <20040810100234.GN11200@holomorphy.com> <20040810115307.GR11200@holomorphy.com> <200408101552.22501.v13@priest.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408101552.22501.v13@priest.com>
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 10 Aug 2004 08:50:08 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:28639 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S265029AbUHJMr3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 08:47:29 -0400
+Date: Tue, 10 Aug 2004 14:46:29 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200408101246.i7ACkTbm014030@burner.fokus.fraunhofer.de>
+To: mj@ucw.cz, schilling@fokus.fraunhofer.de
+Cc: James.Bottomley@steeleye.com, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 August 2004 14:53, William Lee Irwin III wrote:
->> Okay, these also failed as replacements for printk():
->> (c) local_irq_enable();
->> (d) local_irq_enable(); set_current_state(TASK_RUNNING);
->> 	schedule(); mdelay(1000);
->> (e) local_irq_enable(); set_current_state(TASK_RUNNING);
->> 	for (i = 0; i < 1000; ++i) mdelay(1);
->> 	set_current_state(TASK_RUNNING); schedule();
+>From: Martin Mares <mj@ucw.cz>
 
-On Tue, Aug 10, 2004 at 03:52:20PM +0300, V13 wrote:
-> Why don't you create a copy of printk() and start commenting out lines in 
-> there?
+>I think that it is very reasonable to expect that a program honors the locale
+>settings or uses only ASCII characters.
 
-This is a very good idea.
+>(In this matter, I share your feelings, because I also have non-ASCII
+>characters in my name, but if I decide to print my name in its full
+>glory, I respect the locales and don't assume that all the world uses
+>iso-8859-2 as I do.)
 
-Thanks.
+Your statements are correct for programs that include locale support.
 
 
--- wli
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

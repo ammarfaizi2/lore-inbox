@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317339AbSFCJpL>; Mon, 3 Jun 2002 05:45:11 -0400
+	id <S317341AbSFCJwE>; Mon, 3 Jun 2002 05:52:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317341AbSFCJpK>; Mon, 3 Jun 2002 05:45:10 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:33299 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S317339AbSFCJpJ>; Mon, 3 Jun 2002 05:45:09 -0400
-Message-ID: <3CFB3B87.74C7E9DF@zip.com.au>
-Date: Mon, 03 Jun 2002 02:48:55 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cantab.net>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.20-BUG] 3c59x + highmem + acpi + nfs -> kernel panic
-In-Reply-To: <1023096034.19717.62.camel@storm.christs.cam.ac.uk>
+	id <S317342AbSFCJwD>; Mon, 3 Jun 2002 05:52:03 -0400
+Received: from codepoet.org ([166.70.14.212]:41959 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S317341AbSFCJwC>;
+	Mon, 3 Jun 2002 05:52:02 -0400
+Date: Mon, 3 Jun 2002 03:52:03 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        Philippe Gerum <rpm@idealx.com>
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+Message-ID: <20020603095202.GA16392@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Karim Yaghmour <karim@opersys.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Philippe Gerum <rpm@idealx.com>
+In-Reply-To: <3CFB2A38.60242CBA@opersys.com> <20020603084606.GA15986@codepoet.org> <3CFB3378.5EB7420@opersys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
+On Mon Jun 03, 2002 at 05:14:32AM -0400, Karim Yaghmour wrote:
+> >  What is the
+> > software patent outlook for this approach look like?
 > 
-> Hi,
-> 
-> Just got this (reproducible) kernel panic (BUG in
-> asm-i386/highmem.h::kmap_atomic(), the if (!pte_none(*(kmap_pte-idx)))
-> BUG(); triggers). It happens every time I boot and on an NFS mount do a
-> ./configure.
+> Alessandro's answer is to the point. Basically, grab the papers,
+> the code and the patent and have a look for yourself, you will see
+> that we're clear. Apart from having the kernels side-by-side,
+> Adeos is based on classic early '90s nanokernel work. No secrets
+> there.
 
-Dunno about this one.  I'm seeing some (totally different) NFS funnies
-at present - pagecache data on the client is coming up zeroes under
-memory pressure.  Trond mentioned that NFS recently went to kmap_atomic,
-so there is a common thread there.
+So will we soon be seeing a port of RTAI to a linux kernel module
+which is implemented as a separate Adeos domain, allowing RTAI
+apps to bypass US patent 5995745?  A quick glance over that
+patent leaves me uncertain whether this indeed bypasses the
+fundamental "invention" of a "process for running a general
+purpose computer operating system using a real time operating
+system".   It still looks to me like a real time operating system
+(Adeos) running real time and non-real time tasks with a general
+purpose operating system as one of the non-real time tasks...
+Could you summarize (for non-lawyers such as myself) how this
+bypasses the claims in the patent?  
 
-> I am now seeing this error during boot as well. Don't know if it is
-> related:
-> 
-> ---snip---
-> 3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-> 00:09.0: 3Com PCI 3c590 Vortex 10Mbps at 0xe800. Vers LK1.1.17
-> 00:09.0: Overriding PCI latency timer (CFLT) setting of 32, new value is
-> 248.
->  ***INVALID CHECKSUM 002f*** phy=0, phyx=24, mii_status=0x782d
-> ---snip---
-> 
-> Note that on previous kernels it says:
-> 
-> ---snip---
-> PCI: Assigned IRQ 11 for device 00:09.0
-> 3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-> 00:09.0: 3Com PCI 3c905C Tornado at 0xe800. Vers LK1.1.17
-> phy=0, phyx=24, mii_status=0x782d
-> ---snip---
+Hopeful is,
 
-It misidentified the device.  How bizarre.  3c590 is 0x10B7, 0x5900
-and 3c905C is 0x10B7, 0x9200.  lspci saw the 905C OK.  Possibly the
-PCI device table walking got broken or miscompiled.  Works OK here,
-as does NFS client on SMP+highmem.
+ -Erik
 
--
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

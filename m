@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264811AbSJ3TL1>; Wed, 30 Oct 2002 14:11:27 -0500
+	id <S264880AbSJ3TTb>; Wed, 30 Oct 2002 14:19:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264861AbSJ3TL0>; Wed, 30 Oct 2002 14:11:26 -0500
-Received: from pullyou.nist.gov ([129.6.16.93]:23969 "EHLO postmark.nist.gov")
-	by vger.kernel.org with ESMTP id <S264811AbSJ3TLX>;
-	Wed, 30 Oct 2002 14:11:23 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: post-halloween 0.2
-References: <Pine.LNX.4.44.0210301111130.983-100000@cherise.pdx.osdl.net>
-From: Ian Soboroff <ian.soboroff@nist.gov>
-Date: 30 Oct 2002 14:17:37 -0500
-In-Reply-To: <Pine.LNX.4.44.0210301111130.983-100000@cherise.pdx.osdl.net>
-Message-ID: <9cffzunspm6.fsf@rogue.ncsl.nist.gov>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264881AbSJ3TTb>; Wed, 30 Oct 2002 14:19:31 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:26499 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264879AbSJ3TT1>; Wed, 30 Oct 2002 14:19:27 -0500
+Subject: Re: [PATCH] SCSI and FibreChannel Hotswap for linux 2.5.44-bk2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Steven Dake <sdake@mvista.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+In-Reply-To: <3DC02AF7.6020209@mvista.com>
+References: <3DC02AF7.6020209@mvista.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 30 Oct 2002 19:45:28 +0000
+Message-Id: <1036007128.5141.119.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel <mochel@osdl.org> writes:
+On Wed, 2002-10-30 at 18:54, Steven Dake wrote:
+> This patch has been reviewed by Alan Cox, Greg KH, Christoph Hellwig, 
+> Patrick Mansfield, Rob Landly, Jeff Garzik, Scott Murray, James 
 
-> > Kind of like fixing /proc.  <ducks>
-> 
-> Recall also that (Feature Freeze != Code Freeze). There will be a lot of 
-> cleanup and conversion happening the next few months, from old school 
-> driver models to the new driver models, and the population of a sane sysfs 
-> layout. 
-> 
-> driverfs will hopefully die today. Stay tuned..
+Glanced at briefly once, not reviewed.
 
-Also, I meant to say, no insult was intended, it was just a joke.
-ian
 

@@ -1,75 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267656AbTBVFdD>; Sat, 22 Feb 2003 00:33:03 -0500
+	id <S267812AbTBVGA5>; Sat, 22 Feb 2003 01:00:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267740AbTBVFdD>; Sat, 22 Feb 2003 00:33:03 -0500
-Received: from ns.suse.de ([213.95.15.193]:50704 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267656AbTBVFdC>;
-	Sat, 22 Feb 2003 00:33:02 -0500
-Date: Sat, 22 Feb 2003 06:43:07 +0100
-From: Andi Kleen <ak@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@digeo.com, andrea@suse.de
-Subject: [ak@suse.de: Re: iosched: impact of streaming read on read-many-files]
-Message-ID: <20030222054307.GA22074@wotan.suse.de>
+	id <S267813AbTBVGA5>; Sat, 22 Feb 2003 01:00:57 -0500
+Received: from crack.them.org ([65.125.64.184]:17543 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S267812AbTBVGA4>;
+	Sat, 22 Feb 2003 01:00:56 -0500
+Date: Sat, 22 Feb 2003 01:10:57 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Dave Pifke <dave@pifke.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CLONE_THREAD with old (glibc 2.2.5) linuxthreads
+Message-ID: <20030222061057.GA16475@nevyn.them.org>
+Mail-Followup-To: Dave Pifke <dave@pifke.org>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.50.0302211649300.19257-100000@burn.victim.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0302211649300.19257-100000@burn.victim.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry typoed the linux kernel address on the first try.
-
------ Forwarded message from Andi Kleen <ak@suse.de> -----
-
-To: Andrew Morton <akpm@digeo.com>
-Cc: andrea@suse.de, linux-kerel@vger.kernel.org
-Subject: Re: iosched: impact of streaming read on read-many-files
-From: Andi Kleen <ak@suse.de>
-Date: 22 Feb 2003 06:40:41 +0100
-In-Reply-To: Andrew Morton's message of "21 Feb 2003 22:21:19 +0100"
-
-Andrew Morton <akpm@digeo.com> writes:
+On Fri, Feb 21, 2003 at 05:05:40PM -0800, Dave Pifke wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
 > 
-> The correct way to design such an application is to use an RT thread to
-> perform the display/audio device I/O and a non-RT thread to perform the disk
-> I/O.  The disk IO thread keeps the shared 8 megabyte buffer full.  The RT
-> thread mlocks that buffer.
+> I'm attempting to add ps-like code to an application, and am running into
+> a problem calculating the memory usage of multithreaded processes.  The
+> memory usage numbers in /proc/PID/statm don't give any indication as to
+> whether or not the process shares its VM with another, thus a
+> multithreaded application appears to be using (actual usage * number of
+> threads).
+> 
+> It looks like this could be easilly solved by looking at Tgid in
+> /proc/PID/status and calculating memory usage per-thread-group instead of
+> per-process.  The problem, however, is that glibc 2.2.5 does not set
+> CLONE_THREAD and so Tgid == Pid in every case.
+> 
+> Would it break anything if I patch my glibc to set this flag?  Is
+> task_struct->tgid just informational in 2.4, or does it modify the
+> behavior of the task somehow?
 
-This requires making xmms suid root. Do you really want to do that?
+Don't even try it.  CLONE_THREAD changs the semantics for signal
+delivery.
 
-Also who takes care about all the security holes that would cause?
+> Or, is there perhaps another way to see if CLONE_VM was set when the
+> process was cloned?  (Thus avoiding the need to change anything in glibc.)
 
-If you require applications doing such things to work around VM/scheduler
-breakage you would first need to make RT and mlock available in a controlled
-way to non-root applications (and no capabilities are not enough - 
-linux capabilities are designed in a way that when you have one
-capability you can usually get all soon). 
+There's no good way.  Once you have the process tree you can make
+pretty good guesses though; the hierarchy of LinuxThreads is quite
+distinctive (first -> manager -> all children).  It might be nice to
+export the clone flags in proc.
 
-I thought a long time  about making some limited mlock available to 
-user processes, e.g. subject to ulimit. bash seems to already have
-an ulimit setting for mlock memory, but the kernel doesn't support it.
-Of course it would need to be per user id, not per process, but the
-kernel already keeps a per user id structure, so that won't be a big
-issue. This would be useful for cryptographic applications like gpg
-who don't want their secret key data to hit swap space.
-
-Still mlock'ing 8MB in a controlled way would be still too nasty.
-
-For RT it is more difficult. One way I can think of to make 
-it available controlled is to define subgroups of threads or processes
-(perhaps per user id again) and have RT properties inside these groups.
-Another possible way would be to define RT with minimum CPU time, 
-so e.g. that users' A processes with local rt priority could take upto
-5% of the cpu time of the box or similar. Still mating that with latency
-guarantees would be rather hard (such fair schedulers tend to be good
-at evening out CPU time shares over a longer time, but not good at guaranteeing
-short latencies after a given event). And xmms just cares about
-latencies, not not long term CPU share.
-
-But both is quite a bit of work, especially the later and may impact
-other loads. Fixing the IO scheduler for them is probably easier.
-
--Andi 
-
------ End forwarded message -----
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

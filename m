@@ -1,58 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267771AbTBMCye>; Wed, 12 Feb 2003 21:54:34 -0500
+	id <S267741AbTBMCwg>; Wed, 12 Feb 2003 21:52:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267765AbTBMCyW>; Wed, 12 Feb 2003 21:54:22 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:41421 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S267744AbTBMCyJ>;
-	Wed, 12 Feb 2003 21:54:09 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 13 Feb 2003 04:03:52 +0100 (MET)
-Message-Id: <UTC200302130303.h1D33qj27852.aeb@smtp.cwi.nl>
-To: torvalds@transmeta.com
-Subject: [PATCH] remove the last trace of B_FREE
+	id <S267740AbTBMCwg>; Wed, 12 Feb 2003 21:52:36 -0500
+Received: from covert.black-ring.iadfw.net ([209.196.123.142]:10502 "EHLO
+	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
+	id <S267731AbTBMCwd>; Wed, 12 Feb 2003 21:52:33 -0500
+Date: Wed, 12 Feb 2003 20:10:22 -0600
+From: Art Haas <ahaas@airmail.net>
+To: linux-net@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] C99 initializers for net/sunrpc/sysctl.c
+Message-ID: <20030213021022.GC23898@debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/video/pm3fb.c b/drivers/video/pm3fb.c
---- a/drivers/video/pm3fb.c	Tue Dec 10 18:42:38 2002
-+++ b/drivers/video/pm3fb.c	Thu Feb 13 03:17:31 2003
-@@ -1603,7 +1603,7 @@
- 	disp[l_fb_info->board_num].scrollmode = 0;	/* SCROLL_YNOMOVE; *//* 0 means "let fbcon choose" */
- 	l_fb_info->gen.parsize = sizeof(struct pm3fb_par);
- 	l_fb_info->gen.info.changevar = NULL;
--	l_fb_info->gen.info.node = B_FREE;
-+	l_fb_info->gen.info.node = NODEV;
- 	l_fb_info->gen.info.fbops = &pm3fb_ops;
- 	l_fb_info->gen.info.disp = &(disp[l_fb_info->board_num]);
- 	if (fontn[l_fb_info->board_num][0])
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/video/pm3fb.h b/drivers/video/pm3fb.h
---- a/drivers/video/pm3fb.h	Fri Nov 22 22:40:58 2002
-+++ b/drivers/video/pm3fb.h	Thu Feb 13 03:18:30 2003
-@@ -1147,11 +1147,6 @@
- #define MUST_BYTESWAP
- #endif
+Hi.
+
+This patch converts the file to use C99 initializers to improve
+readability and remove warnings if '-W' is used.
+
+Art Haas
+
+===== net/sunrpc/sysctl.c 1.2 vs edited =====
+--- 1.2/net/sunrpc/sysctl.c	Tue Feb  5 01:39:25 2002
++++ edited/net/sunrpc/sysctl.c	Wed Feb 12 18:50:37 2003
+@@ -116,23 +116,51 @@
+ 	return 0;
+ }
  
--/* for compatibility between 2.5, 2.4 and 2.2 */
--#ifndef B_FREE
--#define B_FREE   -1
--#endif
+-#define DIRENTRY(nam1, nam2, child)	\
+-	{CTL_##nam1, #nam2, NULL, 0, 0555, child }
+-#define DBGENTRY(nam1, nam2)	\
+-	{CTL_##nam1##DEBUG, #nam2 "_debug", &nam2##_debug, sizeof(int),\
+-	 0644, NULL, &proc_dodebug}
 -
- /* permedia3 -specific definitions */
- #define PM3_SCALE_TO_CLOCK(pr, fe, po) ((2 * PM3_REF_CLOCK * fe) / (pr * (1 << (po))))
+-static ctl_table		debug_table[] = {
+-	DBGENTRY(RPC,  rpc),
+-	DBGENTRY(NFS,  nfs),
+-	DBGENTRY(NFSD, nfsd),
+-	DBGENTRY(NLM,  nlm),
+-	{0}
++static ctl_table debug_table[] = {
++	{
++		.ctl_name	= CTL_RPCDEBUG,
++		.procname	= "rpc_debug",
++		.data		= &rpc_debug,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dodebug
++	}, 
++	{
++		.ctl_name	= CTL_NFSDEBUG,
++		.procname	= "nfs_debug",
++		.data		= &nfs_debug,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dodebug
++	}, 
++	{
++		.ctl_name	= CTL_NFSDDEBUG,
++		.procname	= "nfsd_debug",
++		.data		= &nfsd_debug,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dodebug
++	}, 
++	{
++		.ctl_name	= CTL_NLMDEBUG,
++		.procname	= "nlm_debug",
++		.data		= &nlm_debug,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dodebug
++	}, 
++	{ .ctl_name = 0 }
+ };
  
-diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/kdev_t.h b/include/linux/kdev_t.h
---- a/include/linux/kdev_t.h	Fri Nov 22 22:40:57 2002
-+++ b/include/linux/kdev_t.h	Thu Feb 13 03:19:02 2003
-@@ -99,7 +99,6 @@
+-static ctl_table		sunrpc_table[] = {
+-	DIRENTRY(SUNRPC, sunrpc, debug_table),
+-	{0}
++static ctl_table sunrpc_table[] = {
++	{
++		.ctl_name	= CTL_SUNRPC,
++		.procname	= "sunrpc",
++		.maxlen		= 0,
++		.mode		= 0555,
++		.child		= debug_table
++	},
++	{ .ctl_name = 0 }
+ };
  
- #define HASHDEV(dev)	(kdev_val(dev))
- #define NODEV		(mk_kdev(0,0))
--#define B_FREE		(mk_kdev(0xff,0xff))
- 
- extern const char * kdevname(kdev_t);	/* note: returns pointer to static data! */
- 
-
-Andries
-
+ #endif
+-- 
+They that can give up essential liberty to obtain a little temporary safety
+deserve neither liberty nor safety.
+ -- Benjamin Franklin, Historical Review of Pennsylvania, 1759

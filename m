@@ -1,59 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266074AbTLIPw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 10:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266077AbTLIPwz
+	id S266129AbTLIQWr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 11:22:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266139AbTLIQWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 10:52:55 -0500
-Received: from maximus.kcore.de ([213.133.102.235]:46484 "EHLO
-	maximus.kcore.de") by vger.kernel.org with ESMTP id S266074AbTLIPwy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 10:52:54 -0500
-From: Oliver Feiler <kiza@gmx.net>
-To: David Jez <dave.jez@seznam.cz>, hanasaki <hanasaki@hanaden.com>
-Subject: Re: VT82C686  - no sound
-Date: Tue, 9 Dec 2003 16:51:27 +0100
-User-Agent: KMail/1.5
+	Tue, 9 Dec 2003 11:22:47 -0500
+Received: from mail2-116.ewetel.de ([212.6.122.116]:4481 "EHLO mail2.ewetel.de")
+	by vger.kernel.org with ESMTP id S266129AbTLIQWq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 11:22:46 -0500
+To: Holger Schurig <h.schurig@mn-logistik.de>
 Cc: linux-kernel@vger.kernel.org
-References: <3FD54817.9050402@hanaden.com> <20031209101808.GA18309@stud.fit.vutbr.cz>
-In-Reply-To: <20031209101808.GA18309@stud.fit.vutbr.cz>
-X-PGP-Key-Fingerprint: E9DD 32F1 FA8A 0945 6A74  07DE 3A98 9F65 561D 4FD2
-X-PGP-Key: http://kiza.kcore.de/pgpkey
-X-Species: Snow Leopard
-X-Operating-System: Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312091651.27677.kiza@gmx.net>
+Subject: Re: State of devfs in 2.6?
+In-Reply-To: <10N8i-7bE-1@gated-at.bofh.it>
+References: <10vOq-7mK-11@gated-at.bofh.it> <10vON-7mK-29@gated-at.bofh.it> <10CGd-1SM-39@gated-at.bofh.it> <10DiJ-2Qj-17@gated-at.bofh.it> <10Kas-8kr-3@gated-at.bofh.it> <10Kka-dD-11@gated-at.bofh.it> <10LJg-3zb-9@gated-at.bofh.it> <10LT5-3Wo-13@gated-at.bofh.it> <10N8i-7bE-1@gated-at.bofh.it>
+Date: Tue, 9 Dec 2003 17:22:36 +0100
+Message-Id: <E1ATkdA-0000LB-00@neptune.local>
+From: Pascal Schmidt <der.eremit@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 December 2003 11:18, David Jez wrote:
+On Tue, 09 Dec 2003 11:20:06 +0100, you wrote in linux.kernel:
 
-> > == /etc/modules ==
-> > snd_via82xx
-> > snd_ac97_codec
-> > snd_pcm_oss
-> > snd_page_alloc
-> > snd_pcm
-> > snd_timer
-> > snd_mixer_oss
-> > snd_pcm_oss
-> > snd_mpu401_uart
->
->   This is not ALSA modules. If you have configured system for use with
-> ALSA, you don't have to use OSS modules. Use ALSA with OSS emulaton
-> instead. It should works.
+> # find /dev | wc -l
+>     326
 
-But this _is_ ALSA with the OSS emulation modules loaded (snd_mixer_oss and 
-snd_pcm_oss). :)
-The OSS driver module is called via82cxxx_audio afaik.
-
-Bye,
-Oliver
+40k on ext2 (128 byte inodes). I'm betting devfs is more than 40k of code.
+Plus devfs uses more memory than a filesystem-backed /dev, don't you think?
 
 -- 
-Oliver Feiler  <kiza@(kcore.de|lionking.org|gmx[pro].net)>
-
+Ciao,
+Pascal

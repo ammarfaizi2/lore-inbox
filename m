@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270831AbUJUUhw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268778AbUJUUsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270831AbUJUUhw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 16:37:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270897AbUJUUdJ
+	id S268778AbUJUUsg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 16:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268317AbUJUUs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 16:33:09 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:40838 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S270939AbUJUU0v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 16:26:51 -0400
-Message-ID: <41781B13.3030803@rtr.ca>
-Date: Thu, 21 Oct 2004 16:24:51 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, en-us
+	Thu, 21 Oct 2004 16:48:28 -0400
+Received: from [69.4.201.55] ([69.4.201.55]:56704 "EHLO bitworks.com")
+	by vger.kernel.org with ESMTP id S268778AbUJUUry (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 16:47:54 -0400
+Message-ID: <41782070.4070303@bitworks.com>
+Date: Thu, 21 Oct 2004 15:47:44 -0500
+From: Richard Smith <rsmith@bitworks.com>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: [PATCH 2.4.28-pre4-bk6] delkin_cb: new driver for Cardbus IDE
- CF adaptor
-References: <41780393.3000606@rtr.ca> <58cb370e041021121317083a3a@mail.gmail.com>
-In-Reply-To: <58cb370e041021121317083a3a@mail.gmail.com>
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video
+ card BOOT?
+References: <41764FB3.29782.1B9A13F4@localhost> <4177AD6B.23151.20F0292D@localhost>
+In-Reply-To: <4177AD6B.23151.20F0292D@localhost>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, patch withdrawn.
+Kendall Bennett wrote:
 
-I'll just apply it to my own kernels for my own use.
+>>One more question: Does 0xc0000 POST method work even on
+>>notebooks? On regular machines, PCI card must have normal bios and
+>>stuff is easy. On notebooks there was talk about "integrated bios"
+>>where it really has no video bios at all and system bios POSTs the
+>>card. Have you seen that? 
 
-Whatever happended to the days when Linux *wanted* more
-drivers and such?
+With all the video chips I've worked with the mfg gives me a binary 
+formatted up as an option ROM and I'm responsible for getting it called.
 
-Oh well..
+> We have never had a need to POST a notebook Video BIOS so I don't know 
+> what would happen. It is an interesting question, and if this is to be 
+> used for resume operations something that should be investigated.
+> 
+
+What I've seen is that they simply place a copy of the video bios at the 
+shadowed legacy vbios range usually 0xc0000 but it can be anywhere in 
+the 0xc0000-0x0e0000 range.  Or physically locate the vbios in the 
+onboard ROM such that it will show up in that range.
+
+Then when the system bios goes through its scan of the legacy ranges 
+looking for option roms it hits the video bios and runs it.
+
 -- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+Richard A. Smith
 
-Bartlomiej Zolnierkiewicz wrote:
-> please also cc: linux-ide@vger.kernel.org
-> 
-> 
->>An equivalent patch for 2.6.xx is being worked on.
-> 
-> 
-> generally it should be like that: 2.6.x first, 2.4.x later
-> 
-> 
->>+ *  This is slightly peculiar, in that it is a PCI driver,
->>+ *  but is NOT an IDE PCI driver -- the IDE layer does not directly
->>+ *  support hot insertion/removal of PCI interfaces, so this driver
->>+ *  is unable to use the IDE PCI interfaces.  Instead, it uses the
->>+ *  same interfaces as the ide-cs (PCMCIA) driver uses.
->>+ *  On the plus side, the driver is also smaller/simpler this way.
-> 
-> 
-> IDE layer doesn't support hot insertion/removal of _any_ interfaces
-> 
-> ide_unregister() calls are not allowed unless somebody fixes locking
-> (Alan fixed many issues but some more work is still needed)
-> 
-> Bartlomiej
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 

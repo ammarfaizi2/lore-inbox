@@ -1,87 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263255AbVCKJzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263240AbVCKJ7S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263255AbVCKJzv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 04:55:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263248AbVCKJzu
+	id S263240AbVCKJ7S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 04:59:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbVCKJ7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 04:55:50 -0500
-Received: from rproxy.gmail.com ([64.233.170.205]:64122 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263240AbVCKJz1 (ORCPT
+	Fri, 11 Mar 2005 04:59:17 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:31958 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263244AbVCKJ6D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 04:55:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=gnJoX7soplCLa4SZ13Zocx4N2Umvjr8JRGFolortVAxE12us9YhcNVNeZ9h60OIWGTmp+CfKn93E59ZG0L/GSdJX7xuJpc4IlHEda5Hd10sRV2DsCQNNro9tPy47FTM1qdDCIVA/+1XWHs0sYjRBwrHfUuTXz823FdAzq5oC4Pc=
-Message-ID: <5a2cf1f6050311015525194792@mail.gmail.com>
-Date: Fri, 11 Mar 2005 10:55:24 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-Reply-To: jerome lacoste <jerome.lacoste@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: oops / 2.6.11 / run_timer_softirq (mountvirtfs)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050310205943.794b8efd.akpm@osdl.org>
+	Fri, 11 Mar 2005 04:58:03 -0500
+Date: Fri, 11 Mar 2005 10:57:47 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
+Message-ID: <20050311095747.GA21820@elte.hu>
+References: <20050204100347.GA13186@elte.hu> <1108789704.8411.9.camel@krustophenia.net> <Pine.LNX.4.58.0503100323370.14016@localhost.localdomain> <Pine.LNX.4.58.0503100447150.14016@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <5a2cf1f6050310161085f2da6@mail.gmail.com>
-	 <20050310205943.794b8efd.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503100447150.14016@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Mar 2005 20:59:43 -0800, Andrew Morton <akpm@osdl.org> wrote:
-> jerome lacoste <jerome.lacoste@gmail.com> wrote:
-> >
-> > On an VIA EPIA board, I got this single oops at boot. Wasn't stored on
-> > file so I had to take a screenshot with a digital camera. Basicallly
-> > goes along those lines:
-> >
-> > Process: S36mountvirtfs
-> >
-> > Call trace:
-> >      run_timer_softirq+0x16f/0x200
-> >      __do_softirq
-> >      do_softirq
-> >      irq_exit
-> >      do_IRQ
-> >      common_interrupt
-> >
-> > Process is found here on my system:
-> >
-> > lrwxr-xr-x  1 root root 21 Mar  1 00:29 /etc/rcS.d/S36mountvirtfs ->
-> > ../init.d/mountvirtfs
-> >
-> > The exact screenshot (500k) can be found here:
-> >
-> > http://coffeebreaks.dyndns.org/~jerome/static/images/linux/oops_2.6.11_run_timer_softirq_boot.jpg
-> >
+
+* Steven Rostedt <rostedt@goodmis.org> wrote:
+
+> > The short term fix is probably to put back the preempt_disables, the long
+> > term is to get rid of these stupid bit_spin_lock busy loops.
 > 
-> An oops in cascade() is tricky.  Normally it means that some piece of code
-> has done something bad with a kernel timer.  Later, a clock tick happens
-> and the kernel falls over.  We're left with no hints as to which part of
-> the kernel misbehaved.
-> 
-> Please try enabling CONFIG_DEBUG_SLAB and CONFIG_DEBUG_PAGEALLOC and see if
-> that reveals any additional info.
+> Doing a quick search on the kernel, it looks like only kjournald uses
+> the bit_spin_locks. I'll start converting them to spinlocks. The use
+> seems to be more of a hack, since it is using bits in the state field
+> for locking, and these bits aren't used for anything else.
 
-Question; the thing happened once at boot time (out of hundreds) so it
-will probably be hard to reproduce.
+yeah. bit-spinlocks are really a hack.
 
-I you may have seen on the pictures, the screen was completely filled
-up with the oops information. How will the new CONFIG_ options help if
-I don't have more information on the screen when it oopses?
-
-> Apart from that, you have a lot of modules configured there.  Please try
-> disabling them all, see if the oops goes away.  If it does then try
-> re-enabling them, see if you can narrow it down to the one which is causing
-> the timer list corruption.
-
-If the problem reappears I will see what I can do.
-
-Jerome
-
-> Thanks.
-
-Pareillement
-
-J
+	Ingo

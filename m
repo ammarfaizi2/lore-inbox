@@ -1,89 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262962AbTHVASn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 20:18:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262967AbTHVASn
+	id S262947AbTHVAJg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 20:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbTHVAJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 20:18:43 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:42115 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id S262962AbTHVASl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 20:18:41 -0400
-Subject: PCMCIA problem
-From: Stian Jordet <liste@jordet.nu>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1061511537.903.2.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 22 Aug 2003 02:18:58 +0200
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Aug 2003 20:09:35 -0400
+Received: from webmail6.rediffmail.com ([202.54.124.151]:22676 "HELO
+	rediffmail.com") by vger.kernel.org with SMTP id S262947AbTHVAJd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 20:09:33 -0400
+Date: 22 Aug 2003 00:09:26 -0000
+Message-ID: <20030822000926.17486.qmail@webmail6.rediffmail.com>
+MIME-Version: 1.0
+From: "vijayan prabhakaran" <pvijayan@rediffmail.com>
+Reply-To: "vijayan prabhakaran" <pvijayan@rediffmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Read in ext3
+Content-type: text/plain;
+	format=flowed
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 Hi,
 
-I don't really know wether this is kernel problem, pcmcia-cs problem or
-a hardware problem. I have a very, very cheap mmc/sc card -> pcmcia
-converter. When I insert it, I get these messages:
+I have a doubt on how ext3 handles read in this specific case.
 
-cs: IO port probe 0x0c00-0x0cff: clean.
-cs: IO port probe 0x0800-0x08ff: clean.
-cs: IO port probe 0x0100-0x04ff: excluding 0x170-0x177 0x370-0x37f
-0x3c0-0x3df 0x4d0-0x4d7
-cs: IO port probe 0x0a00-0x0aff: clean.
-hde: PCMCIA/SD ADAPTER, CFA DISK drive
-hdf: probing with STATUS(0x50) instead of ALTSTATUS(0x0a)
-hdf: PCMCIA/SD ADAPTER, CFA DISK drive
-ide2 at 0x100-0x107,0x10e on irq 18
-hde: max request size: 128KiB
-hde: 125440 sectors (64 MB) w/1KiB Cache, CHS=490/8/32
- hde: hde1
-hdf: max request size: 128KiB
-hdf: 125440 sectors (64 MB) w/1KiB Cache, CHS=490/8/32
- hdf:hdf: status error: status=0x78 { DriveReady DeviceFault
-SeekComplete DataRequest }
- 
-hdf: drive not ready for command
-ide2: reset: success
-hdf: status error: status=0x79 { DriveReady DeviceFault SeekComplete
-DataRequest Error }
-hdf: status error: error=0x79 { UncorrectableError SectorIdNotFound
-AddrMarkNotFound }, LBAsect=7991417, sector=0
-hdf: drive not ready for command
-ide2: reset: success
-hdf: status error: status=0x79 { DriveReady DeviceFault SeekComplete
-DataRequest Error }
-hdf: status error: error=0x79 { UncorrectableError SectorIdNotFound
-AddrMarkNotFound }, LBAsect=7991417, sector=0
-end_request: I/O error, dev hdf, sector 0
-Buffer I/O error on device hdf, logical block 0
-hdf: drive not ready for command
-hdf: status timeout: status=0xe1 { Busy }
- 
-hdf: drive not ready for command
-ide2: reset: success
-hdf: status error: status=0x79 { DriveReady DeviceFault SeekComplete
-DataRequest Error }
-hdf: status error: error=0x79 { UncorrectableError SectorIdNotFound
-AddrMarkNotFound }, LBAsect=7991417, sector=0
-hdf: drive not ready for command
-ide2: reset: success
-hdf: status error: status=0x79 { DriveReady DeviceFault SeekComplete
-DataRequest Error }
-hdf: status error: error=0x79 { UncorrectableError SectorIdNotFound
-AddrMarkNotFound }, LBAsect=7991417, sector=0
-end_request: I/O error, dev hdf, sector 0
-Buffer I/O error on device hdf, logical block 0
-hdf: drive not ready for command
- unable to read partition table
-ide-cs: hde: Vcc = 3.3, Vpp = 0.0
- hde: hde1
+Assume that a page is written to the journal but not yet updated
+to its actual location and before updating the actual copy the 
+page
+gets invalidated. Now if a read comes to the same
+data, which block will be read: the journal copy or the actual
+copy ?
 
-It seems to work perfect, but why on earth does it seem to try hdf for
-anything? There is no card in the other slot? Anyone knows? It's the
-same with 2.4.22-rc2 and 2.6.0-test3-latest-bk.
+First of all, will this situation ever occur ? The page will be
+marked dirty until it is written to its actual location so it 
+may
+never get invalidated until it is written to the actual
+location!
 
-Best regards,
-Stian
+I appreciate your help.
+
+Since I'm not subscribed to this list, could you please CC your 
+answers to my personal mailid.
+
+Thanks.
+Vijayan
+
+
+
+___________________________________________________
+Meet your old school or college friends from
+1 Million + database...
+Click here to reunite www.batchmates.com/rediff.asp
+
 

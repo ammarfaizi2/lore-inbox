@@ -1,67 +1,174 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318291AbSHKMRG>; Sun, 11 Aug 2002 08:17:06 -0400
+	id <S318289AbSHKMPu>; Sun, 11 Aug 2002 08:15:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318292AbSHKMRG>; Sun, 11 Aug 2002 08:17:06 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24021 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318291AbSHKMRF>; Sun, 11 Aug 2002 08:17:05 -0400
-Date: Sun, 11 Aug 2002 14:20:48 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Julien BLACHE <jb@technologeek.org>, <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] tiglusb.c must include version.h
-Message-ID: <Pine.NEB.4.44.0208111416110.3636-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S318291AbSHKMPu>; Sun, 11 Aug 2002 08:15:50 -0400
+Received: from romulus.cs.ut.ee ([193.40.5.125]:47305 "EHLO romulus.cs.ut.ee")
+	by vger.kernel.org with ESMTP id <S318289AbSHKMPt>;
+	Sun, 11 Aug 2002 08:15:49 -0400
+Date: Sun, 11 Aug 2002 15:19:17 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: Linux TCP problem while talking to hostme.bkbits.net ?
+Message-ID: <Pine.GSO.4.43.0208111511320.22083-101000@romulus.cs.ut.ee>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1804928587-1029068357=:22083"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Compile error in 2.5.31:
+---559023410-1804928587-1029068357=:22083
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-<--  snip  -->
+Linux 2.4.19 (+i2c/lm_sensors), x86 (Duron 600). I'm trying to do
+'bk pull' for linux-2.4 tree from linux.bkbits.net. This has worked
+before (even with the same kernel) but has failed for several days now.
+The symptoms are that my linux sends 2 packets of data, hostme ack's
+them, hostme sends 2 packets of data (seen from linux tcpdump output),
+my linux acks only the secound with sack. Now every now and then hostme
+tries to push its first packet through but linux ignores it. Broken
+checksum or smth worse?
 
-...
-  gcc -Wp,-MD,./.tiglusb.o.d -D__KERNEL__
--I/home/bunk/linux/kernel-2.5/linux-2.5.31-full/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=k6 -nostdinc -iwithprefix include    -DKBUILD_BASENAME=tiglusb   -c
--o tiglusb.o tiglusb.c
-tiglusb.c:44: parse error
-make[3]: *** [tiglusb.o] Error 1
-make[3]: Leaving directory
-`/home/bunk/linux/kernel-2.5/linux-2.5.31-full/drivers/usb/misc'
+tcpdump -s 1500 -w pkts.bk from my linux box is attached, here it is in
+text form:
 
-<--  snip  -->
+15:04:00.102445 pc170.trtcab10a.comtrade.ee.35279 > hostme.bkbits.net.www: S 3220370823:3220370823(0) win 5840 <mss 1460,sackOK,timestamp 26461830 0,nop,wscale 0> (DF)
+15:04:00.517063 hostme.bkbits.net.www > pc170.trtcab10a.comtrade.ee.35279: S 3214011989:3214011989(0) ack 3220370824 win 5792 <mss 1460,sackOK,timestamp 454537726 26461830,nop,wscale 0> (DF)
+15:04:00.517162 pc170.trtcab10a.comtrade.ee.35279 > hostme.bkbits.net.www: . ack 1 win 5840 <nop,nop,timestamp 26461872 454537726> (DF)
+15:04:00.518138 pc170.trtcab10a.comtrade.ee.35279 > hostme.bkbits.net.www: P 1:184(183) ack 1 win 5840 <nop,nop,timestamp 26461872 454537726> (DF)
+15:04:00.945486 hostme.bkbits.net.www > pc170.trtcab10a.comtrade.ee.35279: . ack 184 win 6432 <nop,nop,timestamp 454537769 26461872> (DF)
+15:04:00.945589 pc170.trtcab10a.comtrade.ee.35279 > hostme.bkbits.net.www: P 184:500(316) ack 1 win 5840 <nop,nop,timestamp 26461915 454537769> (DF)
+15:04:01.349910 hostme.bkbits.net.www > pc170.trtcab10a.comtrade.ee.35279: . ack 500 win 7504 <nop,nop,timestamp 454537810 26461915> (DF)
+15:04:01.350952 hostme.bkbits.net.www > pc170.trtcab10a.comtrade.ee.35279: P 1:205(204) ack 500 win 7504 <nop,nop,timestamp 454537810 26461915> (DF)
+15:04:01.353252 hostme.bkbits.net.www > pc170.trtcab10a.comtrade.ee.35279: P 205:219(14) ack 500 win 7504 <nop,nop,timestamp 454537810 26461915> (DF)
+15:04:01.353296 pc170.trtcab10a.comtrade.ee.35279 > hostme.bkbits.net.www: . ack 1 win 5840 <nop,nop,timestamp 26461955 454537810,nop,nop,sack sack 1 {205:219} > (DF)
+15:04:01.412649 hostme.bkbits.net.www > pc170.trtcab10a.comtrade.ee.35279: FP 219:1386(1167) ack 500 win 7504 <nop,nop,timestamp 454537816 26461915> (DF)
+15:04:03.467400 hostme.bkbits.net.www > pc170.trtcab10a.comtrade.ee.35279: P 1:205(204) ack 500 win 7504 <nop,nop,timestamp 454538025 26461955> (DF)
+15:04:07.796399 hostme.bkbits.net.www > pc170.trtcab10a.comtrade.ee.35279: P 1:205(204) ack 500 win 7504 <nop,nop,timestamp 454538455 26461955> (DF)
+15:04:16.390267 hostme.bkbits.net.www > pc170.trtcab10a.comtrade.ee.35279: P 1:205(204) ack 500 win 7504 <nop,nop,timestamp 454539315 26461955> (DF)
+15:04:33.597306 hostme.bkbits.net.www > pc170.trtcab10a.comtrade.ee.35279: P 1:205(204) ack 500 win 7504 <nop,nop,timestamp 454541035 26461955> (DF)
+15:05:07.978241 hostme.bkbits.net.www > pc170.trtcab10a.comtrade.ee.35279: P 1:205(204) ack 500 win 7504 <nop,nop,timestamp 454544475 26461955> (DF)
+15:06:16.805594 hostme.bkbits.net.www > pc170.trtcab10a.comtrade.ee.35279: P 1:205(204) ack 500 win 7504 <nop,nop,timestamp 454551355 26461955> (DF)
 
-line 44 is:
-  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-
-
-The fix is simple:
-
---- drivers/usb/misc/tiglusb.c~	2002-08-11 03:41:17.000000000 +0200
-+++ drivers/usb/misc/tiglusb.c	2002-08-11 14:17:13.000000000 +0200
-@@ -37,6 +37,7 @@
- #include <linux/usb.h>
- #include <linux/smp_lock.h>
- #include <linux/devfs_fs_kernel.h>
-+#include <linux/version.h>
-
- #include <linux/ticable.h>
- #include "tiglusb.h"
-
-
-cu
-Adrian
+And so on.
 
 -- 
+Meelis Roos (mroos@linux.ee)
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+---559023410-1804928587-1029068357=:22083
+Content-Type: APPLICATION/octet-stream; name="pkts.bk"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.43.0208111519170.22083@romulus.cs.ut.ee>
+Content-Description: 
+Content-Disposition: attachment; filename="pkts.bk"
 
-
+1MOyoQIABAAAAAAAAAAAANwFAAABAAAAsFJWPS2QAQBKAAAASgAAAAAFXnBZ
+HADA3wR/mwgARQAAPDMBQABABksJPoBhqsCEXAOJzwBQv/L1hwAAAACgAhbQ
+bNEAAAIEBbQEAggKAZPGhgAAAAABAwMAsFJWPcfjBwBKAAAASgAAAADA3wR/
+mwAFXnBZHAgARQAAPAAAQAA5BoUKwIRcAz6AYaoAUInPv5HuVb/y9YigEhag
+8fIAAAIEBbQEAggKGxex/gGTxoYBAwMAsFJWPSrkBwBCAAAAQgAAAAAFXnBZ
+HADA3wR/mwgARQAANDMCQABABksQPoBhqsCEXAOJzwBQv/L1iL+R7laAEBbQ
+IF4AAAEBCAoBk8awGxex/rBSVj365wcA+QAAAPkAAAAABV5wWRwAwN8Ef5sI
+AEUAAOszA0AAQAZKWD6AYarAhFwDic8AUL/y9Yi/ke5WgBgW0KL1AAABAQgK
+AZPGsBsXsf5QT1NUIGh0dHA6Ly9saW51eC5ia2JpdHMubmV0OjgwL2NnaS1i
+aW4vd2ViX2JrZCBIVFRQLzEuMApVc2VyLUFnZW50OiBCaXRLZWVwZXIKQWNj
+ZXB0OiB0ZXh0L2h0bWwKSG9zdDogbGludXguYmtiaXRzLm5ldDo4MApDb250
+ZW50LXR5cGU6IGFwcGxpY2F0aW9uL29jdGV0LXN0cmVhbQpDb250ZW50LWxl
+bmd0aDogMzE2CgqwUlY9Tm0OAEIAAABCAAAAAMDfBH+bAAVecFkcCABFAAA0
+XH9AADkGKJPAhFwDPoBhqgBQic+/ke5Wv/L2P4AQGSAdLAAAAQEIChsXsikB
+k8awsFJWPbVtDgB+AQAAfgEAAAAFXnBZHADA3wR/mwgARQABcDMEQABABknS
+PoBhqsCEXAOJzwBQv/L2P7+R7laAGBbQ64cAAAEBCAoBk8bbGxeyKXB1dGVu
+diBCS19WSE9TVD1saW51eC5ia2JpdHMubmV0CnB1dGVudiBCS19SRU1PVEVf
+UFJPVE9DT0w9MS4zCnB1dGVudiBCS19WRVJTSU9OPWJrLTIuMS42LXByZTUK
+cHV0ZW52IEJLX1VUQz0yMDAyMDMzMDA3NTUyOQpwdXRlbnYgQktfVElNRV9U
+PTEwMTc0NzQ5MjkKcHV0ZW52IEJLX1VTRVI9bXJvb3MKcHV0ZW52IF9CS19V
+U0VSPW1yb29zCnB1dGVudiBfQktfSE9TVD12YWFyaWthcy5ob21lCnB1dGVu
+diBCS19MRVZFTD0xCnB1dGVudiBCS19ST09UPS9ob21lL21yb29zL2NvbXBp
+bGUvbGludXgtMi40CmNkIGxpbnV4LTIuNApwdWxsX3BhcnQxIC16NgqxUlY9
+1lYFAEIAAABCAAAAAMDfBH+bAAVecFkcCABFAAA0XIBAADkGKJLAhFwDPoBh
+qgBQic+/ke5Wv/L3e4AQHVAXbAAAAQEIChsXslIBk8bbsVJWPehaBQAOAQAA
+DgEAAADA3wR/mwAFXnBZHAgARQABAFyBQAA5BifFwIRcAz6AYaoAUInPv5Hu
+Vr/y93uAGB1QJAcAAAEBCAobF7JSAZPG20hUVFAvMS4xIDIwMCBPSw0KRGF0
+ZTogU3VuLCAxMSBBdWcgMjAwMiAxMjowMzo1OCBHTVQNClNlcnZlcjogQXBh
+Y2hlLzEuMy45IChVbml4KSBEZWJpYW4vR05VDQpDYWNoZS1Db250cm9sOiBu
+by1jYWNoZQ0KUHJhZ21hOiBuby1jYWNoZQ0KQ29ubmVjdGlvbjogY2xvc2UN
+CkNvbnRlbnQtVHlwZTogdGV4dC9wbGFpbjsgY2hhcnNldD1pc28tODg1OS0x
+DQoNCrFSVj3kYwUAUAAAAFAAAAAAwN8Ef5sABV5wWRwIAEUAAEJcgkAAOQYo
+gsCEXAM+gGGqAFCJz7+R7yK/8vd7gBgdUBjXAAABAQgKGxeyUgGTxttAU0VS
+VkVSIElORk9ACrFSVj0QZAUATgAAAE4AAAAABV5wWRwAwN8Ef5sIAEUAAEAz
+BUAAQAZLAT6AYarAhFwDic8AUL/y93u/ke5WsBAW0Io1AAABAQgKAZPHAxsX
+slIBAQUKv5HvIr+R7zCxUlY96UsGANEEAADRBAAAAMDfBH+bAAVecFkcCABF
+AATDXINAADkGJADAhFwDPoBhqgBQic+/ke8wv/L3e4AZHVDPIgAAAQEIChsX
+slgBk8bbUFJPVE9DT0w9MS4zClZFUlNJT049MjAwMjA1MTcyMjExMjUKVVRD
+PTIwMDIwNTE3MjIxMTI1ClRJTUVfVD0xMDIxNjczNDg1CkxFVkVMPTEKUk9P
+VD0vdWEvcmVwb3MvbC9saW51eC9saW51eC0yLjQKVVNFUj1tcm9vcwpIT1NU
+PWhvc3RtZS5iaXRrZWVwZXIuY29tCkBFTkRACkBPS0AKQExPRCBQUk9CRUAK
+YWtwbUB6aXAuY29tLmF1fENoYW5nZVNldHwyMDAyMDgxMDAzNDMxOHw0ODc5
+NAprcmF4ZWxAYnl0ZXNleC5vcmd8Q2hhbmdlU2V0fDIwMDIwODEwMDI0NjE2
+fDQ4OTg4CmtyYXhlbEBieXRlc2V4Lm9yZ3xDaGFuZ2VTZXR8MjAwMjA4MTAw
+MjQ1Mzl8NjIzMjAKcnVzdHlAcnVzdGNvcnAuY29tLmF1fENoYW5nZVNldHwy
+MDAyMDgxMDAyMjE0OXwwMzIxMwpydXN0eUBydXN0Y29ycC5jb20uYXV8Q2hh
+bmdlU2V0fDIwMDIwODEwMDIxMTAwfDA2MjA1CnJ1c3R5QHJ1c3Rjb3JwLmNv
+bS5hdXxDaGFuZ2VTZXR8MjAwMjA4MTAwMTQ0MDh8MDgzOTMKS2FpLk1ha2lz
+YXJhQGtvbHVtYnVzLmZpfENoYW5nZVNldHwyMDAyMDgwNTIyMTUwMHw1NzU1
+OQpkYXZlbUByZWRoYXQuY29tfENoYW5nZVNldHwyMDAyMDYyNDE4MTEzMnww
+Mzc5NQphZGFtQG5tdC5lZHV8Q2hhbmdlU2V0fDIwMDIwMzI3MDYzODUwfDU5
+MjYxCnRvcnZhbGRzQGF0aGxvbi50cmFuc21ldGEuY29tfENoYW5nZVNldHwy
+MDAyMDIwNTE3MzA1NnwxNjA0N3xjMWQxMWE0MWVkMDI0ODY0CkBUQUcgUFJP
+QkVACm1hcmNlbG9AcGx1Y2t5LmRpc3Ryby5jb25lY3RpdmF8Q2hhbmdlU2V0
+fDIwMDIwODA1MjMyNjI4fDAwMDAwCm1hcmNlbG9AcGx1Y2t5LmRpc3Ryby5j
+b25lY3RpdmF8Q2hhbmdlU2V0fDIwMDIwODA1MjI1MTMwfDAwMDAwCm1hcmNl
+bG9AcGx1Y2t5LmRpc3Ryby5jb25lY3RpdmF8Q2hhbmdlU2V0fDIwMDIwNzMx
+MjEzODE0fDAwMDAwCm1hcmNlbG9AcGx1Y2t5LmRpc3Ryby5jb25lY3RpdmF8
+Q2hhbmdlU2V0fDIwMDIwNDE2MDQyODE0fDAwMDAwCm1hcmNlbG9AcGx1Y2t5
+LmRpc3Ryby5jb25lY3RpdmF8Q2hhbmdlU2V0fDIwMDIwMzEzMDI0MDA1fDAw
+MDAwCnRvcnZhbGRzQGF0aGxvbi50cmFuc21ldGEuY29tfENoYW5nZVNldHwy
+MDAyMDIwNTIwMzgwMHwwMDAwMAp0b3J2YWxkc0BhdGhsb24udHJhbnNtZXRh
+LmNvbXxDaGFuZ2VTZXR8MjAwMjAyMDUxNzQwNDB8MTk2NjcKQEVORCBQUk9C
+RUAKs1JWPcghBwAOAQAADgEAAADA3wR/mwAFXnBZHAgARQABAFyEQAA5BifC
+wIRcAz6AYaoAUInPv5HuVr/y93uAGB1QIwgAAAEBCAobF7MpAZPHA0hUVFAv
+MS4xIDIwMCBPSw0KRGF0ZTogU3VuLCAxMSBBdWcgMjAwMiAxMjowMzo1OCBH
+TVQNClNlcnZlcjogQXBhY2hlLzEuMy45IChVbml4KSBEZWJpYW4vR05VDQpD
+YWNoZS1Db250cm9sOiBuby1jYWNoZQ0KUHJhZ21hOiBuby1jYWNoZQ0KQ29u
+bmVjdGlvbjogY2xvc2UNCkNvbnRlbnQtVHlwZTogdGV4dC9wbGFpbjsgY2hh
+cnNldD1pc28tODg1OS0xDQoNCrdSVj3vJgwADgEAAA4BAAAAwN8Ef5sABV5w
+WRwIAEUAAQBchUAAOQYnwcCEXAM+gGGqAFCJz7+R7la/8vd7gBgdUCFaAAAB
+AQgKGxe01wGTxwNIVFRQLzEuMSAyMDAgT0sNCkRhdGU6IFN1biwgMTEgQXVn
+IDIwMDIgMTI6MDM6NTggR01UDQpTZXJ2ZXI6IEFwYWNoZS8xLjMuOSAoVW5p
+eCkgRGViaWFuL0dOVQ0KQ2FjaGUtQ29udHJvbDogbm8tY2FjaGUNClByYWdt
+YTogbm8tY2FjaGUNCkNvbm5lY3Rpb246IGNsb3NlDQpDb250ZW50LVR5cGU6
+IHRleHQvcGxhaW47IGNoYXJzZXQ9aXNvLTg4NTktMQ0KDQrAUlY9e/QFAA4B
+AAAOAQAAAMDfBH+bAAVecFkcCABFAAEAXIZAADkGJ8DAhFwDPoBhqgBQic+/
+ke5Wv/L3e4AYHVAd/gAAAQEIChsXuDMBk8cDSFRUUC8xLjEgMjAwIE9LDQpE
+YXRlOiBTdW4sIDExIEF1ZyAyMDAyIDEyOjAzOjU4IEdNVA0KU2VydmVyOiBB
+cGFjaGUvMS4zLjkgKFVuaXgpIERlYmlhbi9HTlUNCkNhY2hlLUNvbnRyb2w6
+IG5vLWNhY2hlDQpQcmFnbWE6IG5vLWNhY2hlDQpDb25uZWN0aW9uOiBjbG9z
+ZQ0KQ29udGVudC1UeXBlOiB0ZXh0L3BsYWluOyBjaGFyc2V0PWlzby04ODU5
+LTENCg0K0VJWPTodCQAOAQAADgEAAADA3wR/mwAFXnBZHAgARQABAFyHQAA5
+Bie/wIRcAz6AYaoAUInPv5HuVr/y93uAGB1QF0YAAAEBCAobF77rAZPHA0hU
+VFAvMS4xIDIwMCBPSw0KRGF0ZTogU3VuLCAxMSBBdWcgMjAwMiAxMjowMzo1
+OCBHTVQNClNlcnZlcjogQXBhY2hlLzEuMy45IChVbml4KSBEZWJpYW4vR05V
+DQpDYWNoZS1Db250cm9sOiBuby1jYWNoZQ0KUHJhZ21hOiBuby1jYWNoZQ0K
+Q29ubmVjdGlvbjogY2xvc2UNCkNvbnRlbnQtVHlwZTogdGV4dC9wbGFpbjsg
+Y2hhcnNldD1pc28tODg1OS0xDQoNCvNSVj1B7Q4ADgEAAA4BAAAAwN8Ef5sA
+BV5wWRwIAEUAAQBciEAAOQYnvsCEXAM+gGGqAFCJz7+R7la/8vd7gBgdUAnW
+AAABAQgKGxfMWwGTxwNIVFRQLzEuMSAyMDAgT0sNCkRhdGU6IFN1biwgMTEg
+QXVnIDIwMDIgMTI6MDM6NTggR01UDQpTZXJ2ZXI6IEFwYWNoZS8xLjMuOSAo
+VW5peCkgRGViaWFuL0dOVQ0KQ2FjaGUtQ29udHJvbDogbm8tY2FjaGUNClBy
+YWdtYTogbm8tY2FjaGUNCkNvbm5lY3Rpb246IGNsb3NlDQpDb250ZW50LVR5
+cGU6IHRleHQvcGxhaW47IGNoYXJzZXQ9aXNvLTg4NTktMQ0KDQo4U1Y92koM
+AA4BAAAOAQAAAMDfBH+bAAVecFkcCABFAAEAXIlAADkGJ73AhFwDPoBhqgBQ
+ic+/ke5Wv/L3e4AYHVDu9QAAAQEIChsX5zsBk8cDSFRUUC8xLjEgMjAwIE9L
+DQpEYXRlOiBTdW4sIDExIEF1ZyAyMDAyIDEyOjAzOjU4IEdNVA0KU2VydmVy
+OiBBcGFjaGUvMS4zLjkgKFVuaXgpIERlYmlhbi9HTlUNCkNhY2hlLUNvbnRy
+b2w6IG5vLWNhY2hlDQpQcmFnbWE6IG5vLWNhY2hlDQpDb25uZWN0aW9uOiBj
+bG9zZQ0KQ29udGVudC1UeXBlOiB0ZXh0L3BsYWluOyBjaGFyc2V0PWlzby04
+ODU5LTENCg0KkFNWPdHOAgBOAAAATgAAAAAFXnBZHADA3wR/mwgARQAAQDMG
+QABABksAPoBhqsCEXAOJzwBQv/L3e7+R7lawERbQMyoAAAEBCAoBlB4NGxey
+UgEBBQq/ke8iv5HvMJBTVj2hzwgAQgAAAEIAAAAAwN8Ef5sABV5wWRwIAEUA
+ADRcikAAOQYoiMCEXAM+gGGqAFCJz7+R88C/8vd8gBAdUGOdAAABAQgKGxgJ
+gwGUHg0=
+---559023410-1804928587-1029068357=:22083--

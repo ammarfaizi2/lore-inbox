@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316217AbSHBP4h>; Fri, 2 Aug 2002 11:56:37 -0400
+	id <S316047AbSHBPxb>; Fri, 2 Aug 2002 11:53:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316223AbSHBP4h>; Fri, 2 Aug 2002 11:56:37 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24850 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316217AbSHBP4f>; Fri, 2 Aug 2002 11:56:35 -0400
-Date: Fri, 2 Aug 2002 08:56:19 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Pavel Machek <pavel@suse.cz>, Chris Friesen <cfriesen@nortelnetworks.com>,
-       Benjamin LaHaise <bcrl@redhat.com>, Pavel Machek <pavel@elf.ucw.cz>,
-       Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>,
-       <linux-aio@kvack.org>
-Subject: Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for
- 2.5.29)
-In-Reply-To: <1028289587.18317.6.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0208020850550.18265-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316135AbSHBPxa>; Fri, 2 Aug 2002 11:53:30 -0400
+Received: from ns.suse.de ([213.95.15.193]:35602 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316047AbSHBPwk>;
+	Fri, 2 Aug 2002 11:52:40 -0400
+Date: Fri, 2 Aug 2002 17:56:09 +0200
+From: Dave Jones <davej@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: davidm@hpl.hp.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com
+Subject: Re: adjust prefetch in free_one_pgd()
+Message-ID: <20020802175608.O25761@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linus Torvalds <torvalds@transmeta.com>, davidm@hpl.hp.com,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+	davidm@napali.hpl.hp.com
+References: <15690.42924.410428.28956@napali.hpl.hp.com> <Pine.LNX.4.44.0208020844000.18265-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0208020844000.18265-100000@home.transmeta.com>; from torvalds@transmeta.com on Fri, Aug 02, 2002 at 08:46:38AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 02, 2002 at 08:46:38AM -0700, Linus Torvalds wrote:
 
+ > Personally, I would just say that we should disable prefetch on such
+ > clearly broken hardware, but since it's Alans favourite machine (some
+ > early AMD Athlon if I remember correctly), I think Alan will disagree ;)
 
-On 2 Aug 2002, Alan Cox wrote:
->
-> 2% is way too much for a lot of applications. Thats 28 minutes a day
+I think I now understand why you silently dropped the 'disable broken hw
+prefetch on early stepping P4' patch I sent you. 8-)
 
-Note that _most_ PC clocks are a hell of a lot better than 2% a day, so
-that was really meant as the worst case for fairly broken hardware. But it
-apparently does happen.
+        Dave
 
-A more realistic schenario is less than 0.1%, but with the caveat that if
-the machine goes to sleep, the error goes up to infinity..
-
-(Think of the current "jiffies" update and gettimeofday() _without_ any
-ntp or /etc/adjtime. For most people it is good enough to use as a wall
-clock. But some people literally lose or gain a minute every hour.
-That's the kind of drift I'm talking about).
-
-			Linus
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

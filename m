@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262528AbULOXWH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbULOXXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262528AbULOXWH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 18:22:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbULOXWH
+	id S262533AbULOXXj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 18:23:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbULOXXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 18:22:07 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:3753 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262528AbULOXWD (ORCPT
+	Wed, 15 Dec 2004 18:23:39 -0500
+Received: from pop.gmx.net ([213.165.64.20]:12503 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262533AbULOXXZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 18:22:03 -0500
-Date: Wed, 15 Dec 2004 15:19:24 -0800
-From: Greg KH <greg@kroah.com>
-To: Dave Airlie <airlied@gmail.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at mm/rmap.c:480 in 2.6.10-rc3-bk7
-Message-ID: <20041215231924.GC15867@kroah.com>
-References: <20041215175805.GA9207@kroah.com> <Pine.LNX.4.44.0412151830270.3267-100000@localhost.localdomain> <21d7e9970412151433443c746b@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <21d7e9970412151433443c746b@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 15 Dec 2004 18:23:25 -0500
+X-Authenticated: #20450766
+Date: Thu, 16 Dec 2004 00:22:34 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Dimitris Lampridis <labis@mhl.tuc.gr>
+cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PCI interrupt lost
+In-Reply-To: <Pine.LNX.4.60.0412160010190.3266@poirot.grange>
+Message-ID: <Pine.LNX.4.60.0412160020140.3266@poirot.grange>
+References: <1102941933.3415.14.camel@naousa.mhl.tuc.gr> 
+ <Pine.LNX.4.61.0412130755290.22212@montezuma.fsmlabs.com>
+ <1103108082.3565.5.camel@naousa.mhl.tuc.gr> <Pine.LNX.4.60.0412160010190.3266@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 09:33:46AM +1100, Dave Airlie wrote:
-> > > > Which would suggest some kind of refcounting bug in drivers/char/drm/,
-> > > > such that the reserved pages get unreserved and freed before their
-> > > > last unmap.  I've started looking for that, but drivers/char/drm/ is
-> > > > unfamiliar territory to me, so I'd be glad for someone to beat me to it.
-> > ...
+On Thu, 16 Dec 2004, Guennadi Liakhovetski wrote:
+
+> On Wed, 15 Dec 2004, Dimitris Lampridis wrote:
 > 
-> What's the chip? 
+> > On Mon, 2004-12-13 at 07:59 -0700, Zwane Mwaikambo wrote:
+> > > 
+> > > Ps. Isn't there already a driver for that controller?
+> > 
+> > Yep, and not only one I might add... But none of them is showing the
+> > correct behaviour that a good driver should (in my humble opinion), and
+> > the best efforts are for kernels 2.4
+> 
+> Have you had a look at the recent work of Lothar Wassmann (and others) on 
 
-lspci gives me:
-	ATI Technologies Inc Radeon Mobility M6 LY
+Too early stroke "enter" - saw your discussion with Lothar after that. So, 
+if you need 1160 specifically - good luck... You'll need it. Or better yet 
+switch to 1362:-)
 
-> Radeon IGP by any chance, as these are shared memory
-> chips I wonder have we missed something in the drm...
+Regards
+Guennadi
+---
+Guennadi Liakhovetski
 
-> also what X release....
-
-My /var/log/Xorg.0.log says:
-
-X Window System Version 6.8.0
-Release Date: 8 September 2004
-X Protocol Version 11, Revision 0, Release 6.8
-Build Operating System: Linux 2.6.10-rc2 i686 [ELF] 
-Current Operating System: Linux echidna 2.6.10-rc3-bk8 #213 Wed Dec 15 09:28:14 PST 2004 i686
-Build Date: 17 November 2004
-
-thanks,
-
-greg k-h

@@ -1,100 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318749AbSHSMfk>; Mon, 19 Aug 2002 08:35:40 -0400
+	id <S318813AbSHSMf6>; Mon, 19 Aug 2002 08:35:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318768AbSHSMfk>; Mon, 19 Aug 2002 08:35:40 -0400
-Received: from waste.org ([209.173.204.2]:28902 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S318749AbSHSMfi>;
-	Mon, 19 Aug 2002 08:35:38 -0400
-Date: Mon, 19 Aug 2002 07:39:37 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: "Theodore Ts'o" <tytso@mit.edu>, Linus Torvalds <torvalds@transmeta.com>,
-       Robert Love <rml@tech9.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (0/4) Entropy accounting fixes
-Message-ID: <20020819123937.GA14427@waste.org>
-References: <1029642713.863.2.camel@phantasy> <Pine.LNX.4.44.0208172058200.1640-100000@home.transmeta.com> <20020818053859.GM21643@waste.org> <20020819042141.GA26519@think.thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020819042141.GA26519@think.thunk.org>
-User-Agent: Mutt/1.3.28i
+	id <S318830AbSHSMf6>; Mon, 19 Aug 2002 08:35:58 -0400
+Received: from radio-112-20.poa.terraempresas.com.br ([200.176.112.20]:57356
+	"EHLO rush.interage.com.br") by vger.kernel.org with ESMTP
+	id <S318813AbSHSMf4>; Mon, 19 Aug 2002 08:35:56 -0400
+Message-ID: <3D60E729.2090209@interage.com.br>
+Date: Mon, 19 Aug 2002 09:40:09 -0300
+From: Mauricio Pretto <pretto@interage.com.br>
+Organization: Interage Integradora
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us, pt-br
+MIME-Version: 1.0
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-pre3 boot hang
+References: <20020818153145.GA3184@df1tlpc.local.here> <3D60D2DB.3050202@interage.com.br> <20020819113849.GA352@hendrix>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 19, 2002 at 12:21:41AM -0400, Theodore Ts'o wrote:
-> On Sun, Aug 18, 2002 at 12:38:59AM -0500, Oliver Xymoron wrote:
-> > On Sat, Aug 17, 2002 at 09:01:20PM -0700, Linus Torvalds wrote:
-> > > 
-> > > On 17 Aug 2002, Robert Love wrote:
-> > > > 
-> > > > [1] this is why I wrote my netdev-random patches.  some machines just
-> > > >     have to take the entropy from the network card... there is nothing
-> > > >     else.
-> > > 
-> > > I suspect that Oliver is 100% correct in that the current code is just
-> > > _too_ trusting. And parts of his patches seem to be in the "obviously
-> > > good" category (ie the xor'ing of the buffers instead of overwriting).
-> > 
-> > Make sure you don't miss this bit, I should have sent it
-> > separately. This is a longstanding bug that manufactures about a
-> > thousand bits out of thin air when the pool runs dry.
+Ok It worked Here, Boots Ok.
+Thanks
+
+
+Skidley wrote:
+
+> On Mon, Aug 19, 2002 at 08:13:31AM -0300, Mauricio Pretto wrote:
 > 
-> There's a reason why I did what I did here, and it has to do with an
-> attack which Bruce Schneier describes in his Yarrow paper:
+>>Same Problem Here, athlon 1.1 , Right after Rt netlink socket it hangs.
+>>My .config goes attach.
+>>
+>>
+>>Klaus Dittrich wrote:
+>>
+>>
+>>>SMP, P-III, Intel-BX
+>>>
+>>>booting Linux 2.4.20-pre3 stops after 
+>>>
+>>>Linux NET4.0 for Linux 2.4 
+>>>Based upon Swansea University Computer Society NET3.039 
+>>>Initializing RT netlink socket 
+>>>
+>>>
+>>>
+>>
+>>-- 
+>>Mauricio Pretto
+>>Gerente de Produtos
+>>Interage Integradora
+>>http://www.interage.com.br
+>>
+>>T?cnico Certificado Conectiva Linux
+>>
 > 
-> 	http://www.counterpane.com/yarrow-notes.html
+> This patch was posted to lkml earlier, it fixed the same problem for me:
 > 
-> called the "iterative guessing attack".  Assume that the adversary has
-> somehow knows the current state of the pool.
-
-Yes, I understand the catastrophic reseeding, I've read that and a
-few other of his papers on PRNGs.
-
-> I tried to take a bit more of a moderate position between relying
-> solely on crypgraphic randomness and a pure absolute randomness model.
-> So we use large pools for mixing, and a catastrophic reseeding policy.
 > 
-> >From a pure theory point of view, I can see where this might be quite
-> bothersome.  On the other hand, practically, I think what we're doing
-> is justifiable, and not really a secucity problem.
+> diff -urN linux-2.4/kernel/sched.c pmac/kernel/sched.c
+> --- linux-2.4/kernel/sched.c	Wed Aug  7 18:10:01 2002
+> +++ pmac/kernel/sched.c	Mon Aug 19 10:39:39 2002
+> @@ -1081,6 +1081,7 @@
+>  {
+>  	set_current_state(TASK_RUNNING);
+>  	sys_sched_yield();
+> +	schedule();
+>  }
+>  
+>  void __cond_resched(void)
+> 
+> 
 
-That's certainly a reasonable approach (to the extent that all the
-attacks we know of are purely theoretical), but a) it's not the
-impression one gets from the docs and b) I think we can easily do better.
- 
-> That being said, if you really want to use your patch, please do it
-> differently.  In order to avoid the iterative guessing attack
-> described by Bruce Schneier, it is imperative that you extract
-> r->poolinfo.poolwirds - r->entropy_count/32 words of randomness from
-> the primary pool, and mix it into the secondary.
-
-Ah, I thought we were relying on the extract_count clause of the xfer
-function to handle this, the first clause just seemed buggy. I'm not
-quite convinced that this isn't sufficient. Do you see a theoretical
-problem with that?
-
-It certainly doesn't hurt to transfer a larger chunk of data from the
-primary pool (and I'll update my patch to reflect this), but if it
-says there are only 8 bits of entropy there, we should only tally 8
-bits of credit in the secondary pool. With the current behavior, you
-can do 'cat /dev/random | hexdump', wait for it to block, hit a key or
-two, and have it spew out another K of data. I think this goes against
-everyone's expectations of how this should work.
-
-> P.S.  /dev/urandom should probably also be changed to use an entirely
-> separate pool, which then periodically pulls a small amount of entropy
-> from the priamry pool as necessary.  That would make /dev/urandom
-> slightly more dependent on the strength of SHA, while causing it to
-> not draw down as heavily on the entropy stored in /dev/random, which
-> would be a good thing.
-
-Indeed - I intend to take advantage of the multiple pool flexibility
-in the current code. I'll have a third pool that's allowed to draw
-from the primary whenever it's more than half full. Assuming input
-entropy rate > output entropy rate, this will make it exactly as
-strong as /dev/random, while not starving /dev/random when there's a
-shortage.
 
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+Mauricio Pretto
+Gerente de Produtos
+Interage Integradora
+http://www.interage.com.br
+
+Técnico Certificado Conectiva Linux
+

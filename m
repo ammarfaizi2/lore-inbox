@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbUBDL0L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 06:26:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbUBDL0L
+	id S266347AbUBDLkB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 06:40:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266343AbUBDLiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 06:26:11 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:61139 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262050AbUBDL0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 06:26:07 -0500
-Date: Wed, 04 Feb 2004 20:26:02 +0900 (JST)
-Message-Id: <20040204.202602.70222883.marc@labs.fujitsu.com>
-To: woody@jf.intel.com, sean.hefty@intel.com, hozer@hozed.org,
-       infiniband-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in the
- linux kernel
-From: Masanori ITOH <marc@labs.fujitsu.com>
-In-Reply-To: <F595A0622682C44DBBE0BBA91E56A5ED1C3664@orsmsx410.jf.intel.com>
-References: <F595A0622682C44DBBE0BBA91E56A5ED1C3664@orsmsx410.jf.intel.com>
-X-Mailer: Mew version 3.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
+	Wed, 4 Feb 2004 06:38:46 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:60326 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S266340AbUBDLhh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 06:37:37 -0500
+Subject: Re: delete file function!
+From: Vladimir Saveliev <vs@namesys.com>
+To: Alexandr Chernyy <nikalex@hotbox.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4020D667.7070708@hotbox.ru>
+References: <4020D667.7070708@hotbox.ru>
+Content-Type: text/plain
+Message-Id: <1075894655.1829.125.camel@tribesman.namesys.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 04 Feb 2004 14:37:35 +0300
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Robert, Sean,
-
-Message-ID: <F595A0622682C44DBBE0BBA91E56A5ED1C3664@orsmsx410.jf.intel.com>
-> Hi Masonori, 
+On Wed, 2004-02-04 at 14:24, Alexandr Chernyy wrote:
+> Hello All! I have some question! Where in kernel files i can find a 
+> deleting file  function ???
 > 
-> I think that Sean has already pushed the code changes for 2.6 for 
-> complib, IBAL, and SDP.  As I stated before, we have yet to test it on
-> 2.6,
-> but it should now compile. Let us know if you have any issues.
+linux/fs/inode.c:generic_delete_inode()
 
-Currently, it doesn't seem to be available for 'bk pull', but
-I will check it out as soon as it becomes public.
-
-http://infiniband.bkbits.net:8080/iba/ChangeSet@-7d?nav=index.html
-----
-|Linux InfiniBand(tm) Project 
-|-----------------------------------------------------------------------------
-|ChangeSet Summaries 
-|Age      Author   Rev   Comments 
-|35 hours ardavis  1.221 878599 SDP fix for faster rejected connect requests.  
-|6 days   jlcoffma 1.220 Fix for SourceForge bug number 880274 for build on the Linux 2.6kernel base. 
-
-Thanks and stay tuned, :)
-Masanori
-
----
-Masanori ITOH  Grid Computing & Bioinformatics Lab., Fujitsu Labs. LTD.
-               e-mail: marc@labs.fujitsu.com
-               phone: +81-44-754-2628 (extension: 7112-6227)
-               FingerPrint: 55AF C562 E415 FB1A 8A3A  35D1 AB40 8A9D B8B1 99F8
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

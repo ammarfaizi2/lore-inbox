@@ -1,55 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264910AbTBJKaP>; Mon, 10 Feb 2003 05:30:15 -0500
+	id <S264915AbTBJKbc>; Mon, 10 Feb 2003 05:31:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264915AbTBJKaP>; Mon, 10 Feb 2003 05:30:15 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:50116 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S264910AbTBJKaO>; Mon, 10 Feb 2003 05:30:14 -0500
-Message-ID: <3E47817A.2000504@namesys.com>
-Date: Mon, 10 Feb 2003 13:39:54 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
+	id <S264919AbTBJKbc>; Mon, 10 Feb 2003 05:31:32 -0500
+Received: from dial-ctb04112.webone.com.au ([210.9.244.112]:54022 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id <S264915AbTBJKba>;
+	Mon, 10 Feb 2003 05:31:30 -0500
+Message-ID: <3E4781A2.8070608@cyberone.com.au>
+Date: Mon, 10 Feb 2003 21:40:34 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: andrea@suse.de, piggin@cyberone.com.au, jakob@unthought.net,
-       david.lang@digitalinsight.com, riel@conectiva.com.br,
-       ckolivas@yahoo.com.au, linux-kernel@vger.kernel.org, axboe@suse.de,
-       vs@namesys.com
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@digeo.com>,
+       jakob@unthought.net, david.lang@digitalinsight.com,
+       riel@conectiva.com.br, ckolivas@yahoo.com.au,
+       linux-kernel@vger.kernel.org, axboe@suse.de
 Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3
  / aa / rmap with contest]
-References: <Pine.LNX.4.50L.0302100211570.12742-100000@imladris.surriel.com>	<Pine.LNX.4.44.0302092018180.15944-100000@dlang.diginsite.com>	<20030209203343.06608eb3.akpm@digeo.com>	<20030210045107.GD1109@unthought.net>	<3E473172.3060407@cyberone.com.au>	<20030210073614.GJ31401@dualathlon.random>	<3E47579A.4000700@cyberone.com.au>	<20030210080858.GM31401@dualathlon.random>	<20030210001921.3a0a5247.akpm@digeo.com>	<3E477802.8070008@namesys.com> <20030210020602.0ff7d3f5.akpm@digeo.com>
-In-Reply-To: <20030210020602.0ff7d3f5.akpm@digeo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <20030209203343.06608eb3.akpm@digeo.com> <20030210045107.GD1109@unthought.net> <3E473172.3060407@cyberone.com.au> <20030210073614.GJ31401@dualathlon.random> <3E47579A.4000700@cyberone.com.au> <20030210080858.GM31401@dualathlon.random> <20030210001921.3a0a5247.akpm@digeo.com> <20030210085649.GO31401@dualathlon.random> <20030210010937.57607249.akpm@digeo.com> <3E4779DD.7080402@namesys.com> <20030210101539.GS31401@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Andrea Arcangeli wrote:
 
->Hans Reiser <reiser@namesys.com> wrote:
->  
+>On Mon, Feb 10, 2003 at 01:07:25PM +0300, Hans Reiser wrote:
 >
->>reiser4 does directory readahead.  It gets a lot of gain from it. 
->>    
+>>Andrew Morton wrote:
+>>
+>>
+>>>Large directories tend to be spread all around the disk anyway.  And I've
+>>>never explicitly tested for any problems which the loss of readahead might
+>>>have caused ext2.  Nor have I tested inode table readahead.  Guess I 
+>>>should.
+>>>
+>>>
+>>>-
+>>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>>the body of a message to majordomo@vger.kernel.org
+>>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>Please read the FAQ at  http://www.tux.org/lkml/
+>>>
+>>>
+>>>
+>>>
+>>>
+>>readahead seems to be less effective for non-sequential objects.  Or at 
 >>
 >
->What is "a lot"?
+>yes, this is why I said readahead matters mostly to generate the bigdma
+>commands, so if the object is sequential it will be served by the
+>lowlevel with a single dma using SG. this is also why when I moved the
+>high dma limit of scsi to 512k (from 128k IIRC) I got such a relevant
+>throughput improvement. Also watch the read speed in my tree compared to
+>2.4 and 2.5 in bigbox.html from Randy (bonnie shows it well).
 >
->
->  
->
-Vladimir Saveliev had the numbers ready at hand after all, and said:
+...AND readahead matters mostly to disk head scheduling when there
+is other IO competing with the streaming read...
 
-The most noticeable gain is found in the folowing test (not sure that it 
-can be considered as effective readahead though): ls -l over directory 
-containing 30000 files (named numerically) created in random order :
-4.87 with no readahead
-2.99 with readahead (which is limited by 25% of ram or by directory and 
-all its stat data)
+A big throughput improvement would have seen would be all to do with
+better disk head scheduling due to the larger request sizes, yeah?
+And this would probably be to do with the elevator accounting being
+based on requests and/or seeks. You shouldn't notice much difference
+with the elevator stuff in Andrew's mm patches.
 
--- 
-Hans
+I don't know too much about SCSI stuff, but if driver / wire / device
+overheads were that much higher at 128K compared to 512K I would
+think something is broken or maybe optimised badly.
+
+Nick
 
 

@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265460AbTFMS0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 14:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265475AbTFMS0Y
+	id S265469AbTFMS1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 14:27:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265475AbTFMS1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 14:26:24 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:10226 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S265460AbTFMS0X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 14:26:23 -0400
-Subject: Re: [PATCH] Make gcc3.3 Eliminate Unused Static Functions
-From: Robert Love <rml@tech9.net>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Bernd Eckenfels <ecki-lkm@lina.inka.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030613181516.GT828@ip68-0-152-218.tc.ph.cox.net>
-References: <E19Qeoz-0004CM-00@calista.inka.de>
-	 <3EE9DA08.2020707@nortelnetworks.com>
-	 <20030613160335.GO828@ip68-0-152-218.tc.ph.cox.net>
-	 <1055527639.662.364.camel@localhost>
-	 <20030613181516.GT828@ip68-0-152-218.tc.ph.cox.net>
-Content-Type: text/plain
-Message-Id: <1055529716.1123.1.camel@localhost>
+	Fri, 13 Jun 2003 14:27:16 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:2743 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265469AbTFMS1L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 14:27:11 -0400
+Date: Fri, 13 Jun 2003 11:40:37 -0700
+From: Greg KH <greg@kroah.com>
+To: Stacy Woods <stacyw@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: Bugs sitting in the RESOLVED state for more than 28 days
+Message-ID: <20030613184037.GB6492@kroah.com>
+References: <3EEA1716.9000903@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 13 Jun 2003 18:41:56 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EEA1716.9000903@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-06-13 at 18:15, Tom Rini wrote:
+On Fri, Jun 13, 2003 at 02:25:26PM -0400, Stacy Woods wrote:
+> 412  Drivers    USB        dbrownell@users.sourceforge.net
+> [EHCI] report of first interrupt transfer is delayed
+> 
+> 418  Drivers    USB        greg@kroah.com
+> Bad use of GFP_DMA
 
-> But how much have you rebuilt, heavily tested, etc?  I know that
-> currently Debian/sid is building XFree86 4.1 at -O on all arches due to
-> gcc-3.3 issues (some xdm auth problem on ppc and x86, other things
-> elsewhere).
+I just closed both of these.
 
-I believe Red Hat Rawhide (what I am running) is built with gcc 3.3.
+thanks,
 
-Anyhow, my point was we _don't_ know if its ready so we cannot start
-doing things which are detrimental to users of earlier kernels. I was
-just adding that it does seem to compile the kernel fine for me, at
-least.
-
-	Robert Love
-
+greg k-h

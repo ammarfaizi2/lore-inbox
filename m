@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272900AbTG3OTx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 10:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272893AbTG3OTx
+	id S272886AbTG3OUX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 10:20:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272883AbTG3OUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 10:19:53 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:3821 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S272924AbTG3OTj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 10:19:39 -0400
-Date: Wed, 30 Jul 2003 16:18:11 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: TSCs are a no-no on i386
-In-Reply-To: <20030730135623.GA1873@lug-owl.de>
-Message-ID: <Pine.GSO.3.96.1030730161309.911E-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Jul 2003 10:20:07 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:33809 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S272913AbTG3OSS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 10:18:18 -0400
+Date: Wed, 30 Jul 2003 16:18:16 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Pilaszy Istvan <pila@inf.bme.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bug in loopback device (Linux version 2.6.0-test2)
+Message-ID: <20030730141816.GB2507@win.tue.nl>
+References: <Pine.GSO.4.00.10307301313200.21959-100000@kempelen.iit.bme.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.00.10307301313200.21959-100000@kempelen.iit.bme.hu>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jul 2003, Jan-Benedict Glaw wrote:
+On Wed, Jul 30, 2003 at 01:23:17PM +0200, Pilaszy Istvan wrote:
 
-> This small patch fixes a long-standing problem for bare i386 CPUs. These
-> don't have TSCs and so, a recent 2.4.x kernel will simply halt the
+> I found a bug in the loopback device.
 
- Actually i486 processors and some Pentium-like clones have none, too.
+Not really.
 
-> machine leaving a text like "This CPU has no TSC feature (ie was
-> compiled for Pentium+) but I do depend on it".
-
- That only happens if you change existing .config -- it may happen for all
-options that are unset instead of being set to "n" -- and it can be worked
-around by running `make oldconfig' twice. 
-
-> Please apply. Worst to say, even Debian seems to start using i486+
-> features (ie. libstdc++5 is SIGILLed on Am386 because there's no
-> "lock" insn available)...
-
- You need the change for CONFIG_M486 and CONFIG_M586 as well.
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+If you setup a loop device on a file or other device,
+then the block device involved is the loop device.
+Any access to that same file or device not via the
+loop device will give undesired results.
 

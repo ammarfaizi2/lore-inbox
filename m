@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbUAFKxR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 05:53:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbUAFKxR
+	id S261837AbUAFKsM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 05:48:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbUAFKsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 05:53:17 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:473 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S261885AbUAFKxQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 05:53:16 -0500
-Subject: Re: loopback device + crypto = crash on 2.6.0-test7 ?
-From: Matthias Hentges <mailinglisten@hentges.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1073385390.1110.2.camel@kahlua>
-References: <1067411342.1574.11.camel@localhost>
-	 <20031109131018.GA18342@deneb.enyo.de> <bop47i$7eg$1@gatekeeper.tmr.com>
-	 <6.0.0.22.2.20031111101721.01bde418@caffeine.cc.com.au>
-	 <1073385390.1110.2.camel@kahlua>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1073386393.2888.4.camel@mhcln02>
+	Tue, 6 Jan 2004 05:48:12 -0500
+Received: from colin2.muc.de ([193.149.48.15]:271 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261837AbUAFKsL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 05:48:11 -0500
+Date: 6 Jan 2004 11:49:04 +0100
+Date: Tue, 6 Jan 2004 11:49:04 +0100
+From: Andi Kleen <ak@colin2.muc.de>
+To: Mika Penttil? <mika.penttila@kolumbus.fi>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@muc.de>,
+       David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
+Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
+Message-ID: <20040106104904.GA87428@colin2.muc.de>
+References: <1aJdi-7TH-25@gated-at.bofh.it> <m37k054uqu.fsf@averell.firstfloor.org> <Pine.LNX.4.58.0401051937510.2653@home.osdl.org> <20040106040546.GA77287@colin2.muc.de> <Pine.LNX.4.58.0401052100380.2653@home.osdl.org> <20040106081203.GA44540@colin2.muc.de> <3FFA7BB9.1030803@kolumbus.fi> <20040106094442.GB44540@colin2.muc.de> <3FFA8AEE.5090007@kolumbus.fi>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 06 Jan 2004 11:53:14 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FFA8AEE.5090007@kolumbus.fi>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Die, 2004-01-06 um 11.36 schrieb Peter Lieverdink:
-> On Tue, 2003-11-11 at 10:27, Peter Lieverdink wrote:
-> > At 09:41 11/11/2003, you wrote:
+On Tue, Jan 06, 2004 at 12:16:14PM +0200, Mika Penttil? wrote:
+> But AGP aperture is controlled with the standard APBASE pci base 
+> register, so you always know where it is, can relocate it and reserve 
+> address space for it. Of course there may exist other uncontrollable hw, 
+> which may cause problems.
 
-[...]
+Actually not. There are quite a lot of chipsets that require special
+programming for the AGP aperture (why do you think drivers/char/agp/*.c
+is so big?). And not even everything AGPv2 compliant. 
 
-> > My solution has been to not use cryptofs, it crashes with whatever 
-> > algorithm I choose :-(
-> 
-> I've been using 'highmem=off' until now, which provided a workaround.
-> Just built 2.6.1-rc1-mm2 and cryptloop+highmem works as it should now.
+And as Linus points out you would likely need to do some Northbridge
+specific magic to make that area usable for PCI then.
 
-FYI, cryptoloop works as expected in 2.6.0-mm2 both with and without
-highmem support.
+Also you would need to put it over RAM because again there is no 
+reliable way to find a hole.
 
-A vanilla 2.6.0 ist unusable due to oopses / data corruption (don't fsck
-a cryptoloop device!) (again, with and without highmem).
-
-I hope the -mm loop fixes will be included in 2.6.1.
-
-HAND
--- 
-
-Matthias Hentges 
-Cologne / Germany
-
-[www.hentges.net] -> PGP welcome, HTML tolerated
-ICQ: 97 26 97 4   -> No files, no URL's
-
-My OS: Debian Woody. Geek by Nature, Linux by Choice
+-Andi
 

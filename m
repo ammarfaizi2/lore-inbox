@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVCaPg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVCaPkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbVCaPg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 10:36:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVCaPg3
+	id S261442AbVCaPkR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 10:40:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVCaPkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 10:36:29 -0500
-Received: from graphe.net ([209.204.138.32]:11532 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261414AbVCaPgX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 10:36:23 -0500
-Date: Thu, 31 Mar 2005 07:36:07 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@server.graphe.net
-To: Matthew Wilcox <matthew@wil.cx>
-cc: Christoph Hellwig <hch@infradead.org>,
-       shobhit dayal <shobhit@calsoftinc.com>, manfred@colorfullife.com,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       linux-mm@kvack.org, Shai Fultheim <shai@scalex86.org>
-Subject: Re: Fwd: [PATCH] Pageset Localization V2
-In-Reply-To: <20050331144740.GB21986@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0503310735150.6034@server.graphe.net>
-References: <Pine.LNX.4.58.0503292147200.32571@server.graphe.net>
- <20050330111439.GA13110@infradead.org> <bab4333005033003295f487e3d@mail.gmail.com>
- <1112187977.9773.15.camel@kuber> <20050331143235.GA18058@infradead.org>
- <20050331144740.GB21986@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Thu, 31 Mar 2005 10:40:17 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:40125 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261442AbVCaPkK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 10:40:10 -0500
+Date: Thu, 31 Mar 2005 17:40:39 +0200
+From: DervishD <lkml@dervishd.net>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Mariusz Mazur <mmazur@kernel.pl>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: linux-libc-headers scsi headers vs libc scsi headers
+Message-ID: <20050331154039.GB6468@DervishD>
+Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>,
+	Mariusz Mazur <mmazur@kernel.pl>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20050330162114.GA1028@DervishD> <200503302240.08200.mmazur@kernel.pl> <20050331074526.GA8614@DervishD> <200503311426.48435.mmazur@kernel.pl> <20050331141726.GA654@DervishD> <Pine.LNX.4.62.0503311659040.7825@jjulnx.backbone.dif.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.62.0503311659040.7825@jjulnx.backbone.dif.dk>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Mar 2005, Matthew Wilcox wrote:
+    Hi Jesper :)
 
-> On Thu, Mar 31, 2005 at 03:32:35PM +0100, Christoph Hellwig wrote:
-> > Which would be much nicer done using INIT_LIST_HEAD on the new head
-> > always and then calling list_replace (of which currently only a _rcu variant
-> > exists).
->
-> INIT_LIST_HEAD followed by list_splice() should do the trick, I think.
-> BTW, is it a problem that the list head which the list was copied from
-> still points into the list?
+ * Jesper Juhl <juhl-lkml@dif.dk> dixit:
+> > > And I don't see any point in LFS suggesting using raw kernel
+> > > headers to compile glibc
+> >     I don't know their reasons because I haven't read any rationale
+> > (if any exists at all). Anyway, I've used LLH (including the scsi
+> http://uwsg.iu.edu/hypermail/linux/kernel/0007.3/0587.html seems to have a 
+> bearing on what you are discussing - just FYI.
 
-The code runs during startup and the section containing the old pointers
-is discarded at the end of the boot process.
+    Not exactly. My doubt is not about whether use symlinks to linux
+and asm in the linux kernel or not, is about using what glibc people
+prefer or seem to prefer (raw kernel headers) or using llh. I know
+that I don't have to use the current kernel headers in /usr/include,
+but the ones used when compiling my libc or (better) llh.
+
+    Thanks anyway :)
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.dervishd.net & http://www.pleyades.net/
+It's my PC and I'll cry if I want to...

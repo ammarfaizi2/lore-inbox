@@ -1,70 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290972AbSAaG2Y>; Thu, 31 Jan 2002 01:28:24 -0500
+	id <S290973AbSAaGde>; Thu, 31 Jan 2002 01:33:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290971AbSAaG2E>; Thu, 31 Jan 2002 01:28:04 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:1255 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S290970AbSAaG15>;
-	Thu, 31 Jan 2002 01:27:57 -0500
-Date: Thu, 31 Jan 2002 01:27:55 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Rob Landley <landley@trommello.org>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        World Domination Now! <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020131012755.A31861@havoc.gtf.org>
-In-Reply-To: <200201302239.QAA39272@tomcat.admin.navo.hpc.mil> <20020131032832.KJVO14927.femail22.sdc1.sfba.home.com@there> <E16W85P-0000Kc-00@starship.berlin> <20020131053131.NGIN1833.femail28.sdc1.sfba.home.com@there>
+	id <S290974AbSAaGdY>; Thu, 31 Jan 2002 01:33:24 -0500
+Received: from rj.SGI.COM ([204.94.215.100]:12454 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S290973AbSAaGdN>;
+	Thu, 31 Jan 2002 01:33:13 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Rob Landley <landley@trommello.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin 
+In-Reply-To: Your message of "Wed, 30 Jan 2002 22:07:20 -0800."
+             <20020130220720.I18381@work.bitmover.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020131053131.NGIN1833.femail28.sdc1.sfba.home.com@there>; from landley@trommello.org on Thu, Jan 31, 2002 at 12:32:40AM -0500
+Date: Thu, 31 Jan 2002 17:33:04 +1100
+Message-ID: <10220.1012458784@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 12:32:40AM -0500, Rob Landley wrote:
-> On Wednesday 30 January 2002 10:40 pm, Daniel Phillips wrote:
-> > > I expect it will all get worked out eventually.  Now that the secret of
-> > > the difference between maintainers and lieutenants is out.
+On Wed, 30 Jan 2002 22:07:20 -0800, 
+Larry McVoy <lm@bitmover.com> wrote:
+>On Thu, Jan 31, 2002 at 05:03:11PM +1100, Keith Owens wrote:
+>> My point is that full replication of history may be
+>> too much detail for anybody except the original developer.  If bk can
+>> consolidate a series of patchsets into one big patchset (not patch)
+>> which becomes the unit of distribution then the problem of too much
+>> history can be solved.
+>
+>If all you mean is that you don't want to have to tell it what to send,
+>yes, it does that automatically.  If you start with 100 changes, 
+>I clone your tree, you add 200 more, all I do to get them is say
+>
+>	bk pull
+>
+>it will send them all, quickly (works very nicely over a modem or 
+>a long latency link like a satellite).
 
-> > By the way, that never was a secret to anybody in active development.
-> 
-> I.E. the people who knew it knew it, and hence never noticed the problem...
-> 
-> There are, however, some people writing largeish bits of code that did not in 
-> fact seem to know it.  Andre Hedrick's IDE work, Eric Raymond with the help 
-> files and CML2, Kieth Owens' new build process...
+AFAICT this is the heart of Rob's problem.  He (and I) do not want you
+to see all 200 changes.  Some changes are dead ends, some are temporary
+bug fixes that I know will be replaced later, IOW they are my jottings,
+not for public release.  Replicating the lot to everybody is just
+polluting the other trees.
 
-ESR was told things repeatedly and they didn't sink in.
-(And I note you have been told this repeatedly, too.)
-Did you miss Alan's comment as well?  Apparently so...
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0201.3/1567.html
+OTOH if I can tell bk :-
 
-Andre knows his shit ten ways to Sunday, but one must speak ATA
-not English with him.  Definite communications problem, despite the
-fact that he writes solid low level driver code and tests it pretty
-thoroughly.  It was clear at the beginning of 2.5.x that Jens' bio
-stuff was going in and Andre's stuff would conflict with it.  Didn't
-make Andre happy, but it was a good decision.  And now Andre's basic
-taskfile stuff has been merged, so life is good.  I'm looking forward
-to all the doors that taskfile has opened to the Linux kernel.
+* Take all the changes in the direct line from 17.1 to 17.37.
+* Ignore any extraneous branches off that line.
+* Ignore other changes that were applied in the same time period but
+  are not on the direct line, I am also making changes to 2.4.18-pre6
+  at the same time.
+* Generate a consolidated patchset which is visible to the outside
+  world.
+* Hide anything not explicitly marked as visible.
+* When the consolidated patchset comes back from the master tree,
+  recognise that it is equivalent to 17.1 through 17.37 on my tree,
+  even though nobody else has the individual changes.
 
-I dunno how Keith became one of your examples.  Maybe I missed it,
-but I have not seen an announcement and review proving that kbuild
-was ready for merging into 2.5.x.  With all due respect to the kbuild
-list, I have seen a couple times "...but this was discussed and decided
-upon on the kbuild list" and it turns to be an issue that definitely
-requires further discussion and thought.
-
-There is no secret.  Only willful ignorance.
-
-If people writing largish pieces of code in isolation and expect them to
-be applied without being cognizent of other development and feedback, I
--expect- their work to be dropped.  That is an example of a WORKING not
-broken system.
-
-The Linux kernel way is really evolution not revolution.
-
-	Jeff
-
+Then I can choose to make kdb v2.1 2.4.17 common-2 visible as an
+entity (17.1 to 17.37), without telling everybody else what other
+changes are going on in my tree.  bk pull only sees the consolidated
+changes I want to make visible.
 

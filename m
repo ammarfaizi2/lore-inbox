@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262012AbTEFVyH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 17:54:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbTEFVyH
+	id S261906AbTEFWF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 18:05:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbTEFWF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 17:54:07 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:61626 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262012AbTEFVyF (ORCPT
+	Tue, 6 May 2003 18:05:58 -0400
+Received: from holomorphy.com ([66.224.33.161]:31371 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261906AbTEFWF4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 17:54:05 -0400
-Subject: tg3 - irq #: nobody cared!
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052258580.4495.12.camel@w-jstultz2.beaverton.ibm.com>
+	Tue, 6 May 2003 18:05:56 -0400
+Date: Tue, 6 May 2003 15:18:24 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Timothy Miller <miller@techsource.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Another question about thrashing
+Message-ID: <20030506221824.GU8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Timothy Miller <miller@techsource.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3EB7C490.5040803@techsource.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 06 May 2003 15:03:00 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EB7C490.5040803@techsource.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
-	Not sure if this is the proper fix, but it stops the kernel from
-complaining. I saw Andrew suggest something similar for a sound driver.
+On Tue, May 06, 2003 at 10:20:00AM -0400, Timothy Miller wrote:
+> There didn't seem to be much interest in my earlier post about kernel 
+> behavior when swap thrashing.
+> So my question is, are we not concerned about system behavior when one 
+> process uses so much memory that it grinds everything else to a halt?
+> It appears that a thrashing process is being given more preferential 
+> treatment than it should.
 
-thanks
--john
-
-
---- 1.68/drivers/net/tg3.c	Wed Apr 23 20:02:11 2003
-+++ edited/drivers/net/tg3.c	Mon May  5 11:39:08 2003
-@@ -2191,7 +2191,7 @@
- 
- 	spin_unlock_irqrestore(&tp->lock, flags);
- 
--	return IRQ_RETVAL(handled);
-+	return IRQ_HANDLED;
- }
- 
- static void tg3_init_rings(struct tg3 *);
+Design characteristic of global page replacement algorithms. It's not
+getting touched for 2.5/2.6
 
 
-
+-- wli

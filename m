@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265053AbUASPA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 10:00:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265149AbUASPA5
+	id S265113AbUASOyh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 09:54:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265139AbUASOyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 10:00:57 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:48536 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265053AbUASPA4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 10:00:56 -0500
-Date: Mon, 19 Jan 2004 14:59:55 +0000
-From: Dave Jones <davej@redhat.com>
-To: Ryan Reich <ryanr@uchicago.edu>
+	Mon, 19 Jan 2004 09:54:37 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:58360 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S265113AbUASOyf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 09:54:35 -0500
+Date: Mon, 19 Jan 2004 06:54:30 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Oliver Kiddle <okiddle@yahoo.co.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Overlapping MTRRs in 2.6.1
-Message-ID: <20040119145955.GA22265@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Ryan Reich <ryanr@uchicago.edu>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0401181458080.2194@ryanr.aptchi.homelinux.org> <20040119095003.GB8621@redhat.com> <Pine.LNX.4.58.0401190818450.1003@ryanr.aptchi.homelinux.org>
+Subject: Re: page allocation failure
+Message-ID: <20040119145430.GI1748@srv-lnx2600.matchmail.com>
+Mail-Followup-To: Oliver Kiddle <okiddle@yahoo.co.uk>,
+	linux-kernel@vger.kernel.org
+References: <7641.1074512162@gmcs3.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0401190818450.1003@ryanr.aptchi.homelinux.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <7641.1074512162@gmcs3.local>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 19, 2004 at 08:19:49AM -0600, Ryan Reich wrote:
+On Mon, Jan 19, 2004 at 12:36:02PM +0100, Oliver Kiddle wrote:
+> If anyone can suggest any /proc variables I might change to reduce the
+> risk of it doing this again, I would appreciate it. I tried increasing
+> /proc/sys/vm/min_free_kbytes after the first time this happened. Not
+> that I understand what that does: I searched the archives and it was
+> mentioned in a vaguely relevant looking post.
 
- > > Make sure you're loading both the agpgart module, *AND* the
- > > relevant chipset driver for your board, ie via-agp, intel-agp or the like.
- > 
- > Thanks, that's what I was doing.  I didn't notice that the system had changed
- > from 2.4.
+Try running "vmstat 1" and output that to a file, and post your /proc/meminfo.
 
-It's mentioned in the http://www.codemonkey.org.uk/docs/post-halloween-2.6.txt
-document I wrote, which is 'must read' material if you're coming from 2.4 with
-no idea of what changed from a user point of view.
-
-		Dave
-
+Do you start getting the error before a couple of days, or you just can't
+login after that amount of time?

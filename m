@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265446AbSLCSgT>; Tue, 3 Dec 2002 13:36:19 -0500
+	id <S265424AbSLCSmk>; Tue, 3 Dec 2002 13:42:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265469AbSLCSgT>; Tue, 3 Dec 2002 13:36:19 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:22716 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S265446AbSLCSgQ> convert rfc822-to-8bit; Tue, 3 Dec 2002 13:36:16 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: Exaggerated swap usage
-Date: Tue, 3 Dec 2002 19:43:37 +0100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org, Andrew Clayton <andrew@sol-1.demon.co.uk>,
-       Javier Marcet <jmarcet@pobox.com>
-References: <200212030059.32018.m.c.p@wolk-project.de> <200212031112.14635.m.c.p@wolk-project.de> <20021203135905.GK1205@dualathlon.random>
-In-Reply-To: <20021203135905.GK1205@dualathlon.random>
+	id <S265469AbSLCSmk>; Tue, 3 Dec 2002 13:42:40 -0500
+Received: from uranus.lan-ks.de ([194.45.71.1]:32012 "EHLO uranus.lan-ks.de")
+	by vger.kernel.org with ESMTP id <S265424AbSLCSmj> convert rfc822-to-8bit;
+	Tue, 3 Dec 2002 13:42:39 -0500
+To: EricAltendorf@orst.edu
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.50, ACPI] link error
+References: <E18Ix71-0003ik-00@gswi1164.jochen.org>
+	<200212031007.01782.EricAltendorf@orst.edu>
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+X-No-Archive: yes
+From: Jochen Hein <jochen@jochen.org>
+Date: Tue, 03 Dec 2002 19:35:05 +0100
+In-Reply-To: <200212031007.01782.EricAltendorf@orst.edu> (Eric Altendorf's
+ message of "Tue, 03 Dec 2002 19:10:09 +0100")
+Message-ID: <87znrn3q92.fsf@gswi1164.jochen.org>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
+ (i386-debian-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212031939.43384.m.c.p@wolk-project.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 December 2002 14:59, Andrea Arcangeli wrote:
+Eric Altendorf <EricAltendorf@orst.edu> writes:
 
-Hi Andrea,
+> On Monday 02 December 2002 12:24, Jochen Hein wrote:
+>> When compiling 2.5.50 with CONFIG_ACPI_SLEEP=y
+>> I get:
+>>
+>> arch/i386/kernel/built-in.o(.data+0x1304): In function 
+> `do_suspend_lowlevel':
+>> : undefined reference to `save_processor_state'
+>>
+>> arch/i386/kernel/built-in.o(.data+0x130a): In function 
+> `do_suspend_lowlevel':
+>> : undefined reference to `saved_context_esp'
+>>
+> Try turning on software suspend in the kernel hacking section.  
 
-> > I run e2fsck -fy every time after a crash. Fortunately it doesn't happen
-> > so often :-)
-> ok ;) I asked just in case.
-:-) np.
+It is off (and has been all the time, AFAIR).
 
-> > seems it's a problem in the umount-against-unused-dirty-inodes-race fix
-> > or if the fix "is the right way" the problem is located somewhere else
-> > what triggers the problem of your patch.
-> can you reproduce in 2.4.20aa1 too?
-I'll give it a try later this evening.
+Jochen
 
-ciao, Marc
+-- 
+Wenn Du nicht weiﬂt was Du tust, tu's mit Eleganz.

@@ -1,39 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293386AbSCJX4K>; Sun, 10 Mar 2002 18:56:10 -0500
+	id <S310570AbSCGWnI>; Thu, 7 Mar 2002 17:43:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293390AbSCJX4A>; Sun, 10 Mar 2002 18:56:00 -0500
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:23812
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S293386AbSCJXzv>; Sun, 10 Mar 2002 18:55:51 -0500
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <197603031558.G23FwZY05020@www.hockin.org>
-Subject: Re: [PATCH] syscall interface for cpu affinity
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Wed, 3 Mar 1976 07:58:35 -0800 (PST)
-Cc: rml@tech9.net (Robert Love), aj@suse.de (Andreas Jaeger),
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3C8BF015.606BCCDA@mandrakesoft.com> from "Jeff Garzik" at Mar 10, 2002 06:45:25 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S310568AbSCGWmt>; Thu, 7 Mar 2002 17:42:49 -0500
+Received: from [208.29.163.248] ([208.29.163.248]:12278 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S310566AbSCGWmn>; Thu, 7 Mar 2002 17:42:43 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Date: Thu, 7 Mar 2002 14:42:21 -0800 (PST)
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+In-Reply-To: <Pine.LNX.4.44L.0203071926340.2181-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.44.0203071441180.22863-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Anon!  But there is something uber-ugly about constantly jamming more
-> and more stuff into procfs without thinking or planning long term...  I
-> vote for the non-procfs approach :)
+in addition by rducing the amount of readahead you do for each file you
+can stabilize into a mode where you are doing _some_ readahead and not
+thrashing so this will reduce your seeks.
 
-At some point I had done a port of SGI's pset/sysmp interface to linux 2.2.
-As far as I know, lots of people are still using it.  I haven't ported it
-to 2.4 for various reasons, but I have to say - IT IS A MUCH BETTER
-INTERFACE than all these ad-hoc cpus_allowed bits.
+David Lang
 
-If I thought that it had a chance of inclusion, maybe I'd port it up, but
-last I heard none of the "core" people wanted it.
 
-If we are going to pick an affinity system, please, let's consider sysmp().
 
-Tim
+On Thu, 7 Mar 2002, Rik van Riel wrote:
 
+> Date: Thu, 7 Mar 2002 19:27:49 -0300 (BRT)
+> From: Rik van Riel <riel@conectiva.com.br>
+> To: Andrew Morton <akpm@zip.com.au>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: [RFC] Arch option to touch newly allocated pages
+>
+> On Thu, 7 Mar 2002, Andrew Morton wrote:
+>
+> > > use-once reduces the VM to FIFO order, which suffers from
+> > > belady's anomaly so it doesn't matter much how much memory
+> > > you throw at it
+> > >
+> > > drop-behind will suffer the same problem once the readahead
+> > > memory is too large to keep in the system, but at least the
+> > > already-used pages won't kick out readahead pages
+> >
+> > err..  Was there a fix in there somewhere, or are we stuck?
+>
+> Imagine how TCP backoff would work if it kept old packets
+> around and would drop random packets because of too many
+> old packets in the buffers.
+>
+> I suspect that the readahead window resizing might work
+> when we throw away the already-used streaming IO pages
+> before we start throwing away any pages we're about to
+> use.
+>
+> regards,
+>
+> Rik
+> --
+> <insert bitkeeper endorsement here>
+>
+> http://www.surriel.com/		http://distro.conectiva.com/
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

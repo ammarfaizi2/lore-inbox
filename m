@@ -1,88 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265258AbUFRQib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265351AbUFRQjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265258AbUFRQib (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 12:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265371AbUFRQib
+	id S265351AbUFRQjq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 12:39:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265371AbUFRQjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 12:38:31 -0400
-Received: from macvin.cri2000.ens-lyon.fr ([140.77.13.55]:50828 "EHLO
-	macvin.cri2000.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S265258AbUFRQiG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 12:38:06 -0400
-Date: Fri, 18 Jun 2004 18:37:59 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.7 Samba OOPS (in smb_readdir)
-Message-ID: <20040618163759.GN1146@ens-lyon.fr>
-References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
-X-Operating-System: Linux 2.6.7 i686
-Organization: Ecole Normale Superieure de Lyon
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 18 Jun 2004 12:39:45 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:62081 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S265351AbUFRQje
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 12:39:34 -0400
+Message-ID: <40D31ADA.3080204@blue-labs.org>
+Date: Fri, 18 Jun 2004 12:39:54 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Walrond <andrew@walrond.org>
+CC: netfilter@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: Iptables-1.2.9/10 compile failure with linux 2.6.7 headers
+References: <200406181611.37890.andrew@walrond.org> <40D313DC.7000202@blue-labs.org> <200406181721.47968.andrew@walrond.org>
+In-Reply-To: <200406181721.47968.andrew@walrond.org>
+Content-Type: multipart/mixed;
+ boundary="------------080805040507060109060808"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+This is a multi-part message in MIME format.
+--------------080805040507060109060808
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I am using Samba on my Compaq Evo N600c with an uptodate Debian
-Testing and a 2.6.7 (.config attached).
+The current linux libc headers package is much more frequently updated 
+and closely matches released kernels.  LLH is a sanitized linux headers 
+package and is currently based on 2.6.6 headers.
 
-When listing a samba mount point just after mounting it, 
-I get this oops. I don't know why nautilus is used here, I
-just called 'ls'.
+Yes you can build iptables on 2.6.6 for a 2.6.7 kernel.  I have built 
+iptables once or twice a year and built kernels once or twice a week.  
+Iptables continues to work fine.
 
-I get the same oops with 2.6.7-rc3 (can't try previous releases).
+David
 
-Regards.
+Andrew Walrond wrote:
 
-Brice Goglin
+>Hi David,
+>
+>On Friday 18 Jun 2004 17:10, David Ford wrote:
+>  
+>
+>>Iptables should be using linux-libc-headers headers instead of kernel
+>>headers.
+>>    
+>>
+>
+>Is this acquired knowledge, or new Netfilter policy?
+>How dependant are the iptables tools on the specifc kernel running?
+>
+>Ie
+>Can I build iptables for use on 2.6.7 kernel with 2.6.6 linux-libc-headers? 
+>(probably)
+>
+>But could I build iptables for 2.6.7 kernel with 2.4.20 linux-libc-headers? 
+>(probably not?)
+>
+>The INSTALL file states specifically to use 
+>KERNEL_DIR=<<where-you-built-your-kernel>>
+>
+>Andrew
+>  
+>
+
+--------------080805040507060109060808
+Content-Type: text/x-vcard; charset=utf-8;
+ name="david+challenge-response.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="david+challenge-response.vcf"
+
+begin:vcard
+fn:David Ford
+n:Ford;David
+email;internet:david@blue-labs.org
+title:Industrial Geek
+tel;home:Ask please
+tel;cell:(203) 650-3611
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
 
 
-
-smb_lookup: find //.Trash-bgoglin failed, error=-5
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-00000000
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT 
-Modules linked in: dm_mod
-CPU:    0
-EIP:    0060:[<00000000>]    Not tainted
-EFLAGS: 00010246   (2.6.7) 
-EIP is at 0x0
-eax: dfc21ccc   ebx: e160cf30   ecx: c01684c0   edx: e7fa4bd8
-esi: e160cfa0   edi: c13f0780   ebp: df839740   esp: e160cefc
-ds: 007b   es: 007b   ss: 0068
-Process nautilus (pid: 2649, threadinfo=e160c000 task=e101f3d0)
-Stack: c01f1536 df839740 e160cfa0 c01684c0 e160cf30 00000000 00000002 00000004 
-       df7faeb0 00000000 df83c000 e7fa4bd8 df8acbe0 00000000 fffd18ab 00000000 
-       00000000 00000000 df83c000 00000002 00000000 00000000 00000001 00000004 
-Call Trace:
-[<c01f1536>] smb_readdir+0x3e6/0x580
-[<c01684c0>] filldir64+0x0/0x100
-[<c01681b9>] vfs_readdir+0x89/0xa0
-[<c01684c0>] filldir64+0x0/0x100
-[<c016862e>] sys_getdents64+0x6e/0xaa
-[<c01684c0>] filldir64+0x0/0x100
-[<c010510b>] syscall_call+0x7/0xb
-       
-  Code:  Bad EIP value.
-       
-
-
-On 16/06/2004-08:00, Linus Torvalds wrote:
-
-> 
-> Ok, it's out there. The most notable change may be the one-liner that 
-> should fix the embarrassing FP exception problem. Other than that, we've 
-> had a random collection of fixes and updates since rc3. cifs, ntfs, 
-> cpufreq. ide, sparc, s390.
-> 
-> Full 2.6.6->2.6.7 changelog available at the same places the release is.
-> 
-> 		Linus
+--------------080805040507060109060808--

@@ -1,194 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263823AbTFDSuw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 14:50:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263837AbTFDSuw
+	id S261959AbTFDSqX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 14:46:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTFDSqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 14:50:52 -0400
-Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:59399 "EHLO
-	krusty.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S263823AbTFDSur convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 14:50:47 -0400
+	Wed, 4 Jun 2003 14:46:23 -0400
+Received: from ishtar.tlinx.org ([64.81.58.33]:51383 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S261959AbTFDSqV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 14:46:21 -0400
+From: "linda w." <lkml@tlinx.org>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: reading links in proc - permission denied
+Date: Wed, 4 Jun 2003 11:59:47 -0700
+Message-ID: <000301c32acb$783a7310$1403a8c0@sc.tlinx.org>
 MIME-Version: 1.0
-To: torvalds@transmeta.com
-Subject: BK-kernel-tools/shortlog update
-Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
-From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Wed_Jun__4_19_04_14_UTC_2003_0@merlin.emma.line.org>
-Content-type: text/plain; charset=iso-8859-1
-Content-Description: An object packed by metasend
+Content-Type: text/plain;
+	charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
-Message-Id: <20030604190414.9B6FE89AEA@merlin.emma.line.org>
-Date: Wed,  4 Jun 2003 21:04:14 +0200 (CEST)
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus,
+I'm misunderstanding something about links in proc. 
 
-you can either use bk receive to patch this mail, you can pull from
-bk://krusty.dt.e-technik.uni-dortmund.de  (NOTE: no trailing slash)
-or you can apply the patch below.
+I thought 'ps', 'top' et al used /proc to display processes, command lines, etc.
 
-Patch description:
-10 new shiny address -> name mappings. No code changes. Please pull.
+Since neither ps nor top are suid root, they are running with my permissions.
 
-Matthias
-##### DIFFSTAT #####
-# shortlog |   24 +++++++++++++++++++++++-
-# 1 files changed, 23 insertions(+), 1 deletion(-)
+However, if I try to do an ls -l on /proc/<number>/exe, I get a
 
-##### GNUPATCH #####
-# This is a BitKeeper generated patch for the following project:
-# Project Name: BK kernel tools
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.53    -> 1.54   
-#	            shortlog	1.27    -> 1.28   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/06/04	matthias.andree@gmx.de	1.54
-# Ten new address -> name mappings.
-# (Upstream update from 0.120 to 0.124)
-# --------------------------------------------
-#
-diff -Nru a/shortlog b/shortlog
---- a/shortlog	Wed Jun  4 21:04:14 2003
-+++ b/shortlog	Wed Jun  4 21:04:14 2003
-@@ -8,7 +8,7 @@
- #			Tomas Szepe <szepe@pinerecords.com>
- #			Vitezslav Samel <samel@mail.cz>
- #
--# $Id: lk-changelog.pl,v 0.120 2003/05/29 11:11:22 vita Exp $
-+# $Id: lk-changelog.pl,v 0.124 2003/06/04 10:31:18 vita Exp $
- # ----------------------------------------------------------------------
- # Distribution of this script is permitted under the terms of the
- # GNU General Public License (GNU GPL) v2.
-@@ -208,6 +208,7 @@
- 'bde:nwlink.com' => 'Bruce D. Elliott',
- 'bdschuym:pandora.be' => 'Bart De Schuymer',
- 'beattie:beattie-home.net' => 'Brian Beattie', # from david.nelson
-+'bellucda:tiscali.it' => 'Daniele Bellucci',
- 'benh:kernel.crashing.org' => 'Benjamin Herrenschmidt',
- 'benh:zion.wanadoo.fr' => 'Benjamin Herrenschmidt',
- 'bergner:brule.rchland.ibm.com' => 'Peter Bergner',
-@@ -331,6 +332,7 @@
- 'davidm:tiger.hpl.hp.com' => 'David Mosberger',
- 'davidm:wailua.hpl.hp.com' => 'David Mosberger',
- 'davids:youknow.youwant.to' => 'David Schwartz', # google
-+'davidvh:cox.net' => 'David van Hoose',
- 'dbrownell:users.sourceforge.net' => 'David Brownell',
- 'ddstreet:ieee.org' => 'Dan Streetman',
- 'ddstreet:us.ibm.com' => 'Dan Streetman',
-@@ -461,6 +463,7 @@
- 'hannal:us.ibm.com' => 'Hanna V. Linder',
- 'harald:gnumonks.org' => 'Harald Welte',
- 'haveblue:us.ibm.com' => 'Dave Hansen',
-+'hawkes:oss.sgi.com' => 'John Hawkes',
- 'hch:caldera.de' => 'Christoph Hellwig',
- 'hch:com.rmk.(none)' => 'Christoph Hellwig',
- 'hch:de.rmk.(none)' => 'Christoph Hellwig',
-@@ -485,6 +488,7 @@
- 'hpa:zytor.com' => 'H. Peter Anvin',
- 'hugh:veritas.com' => 'Hugh Dickins',
- 'hunold:convergence.de' => 'Michael Hunold',
-+'hwahl:hwahl.de' => 'Hartmut Wahl',
- 'ica2_ts:csv.ica.uni-stuttgart.de' => 'Thiemo Seufer', # google
- 'info:usblcd.de' => 'Adams IT Services',
- 'ink:jurassic.park.msu.ru' => 'Ivan Kokshaysky',
-@@ -554,9 +558,11 @@
- 'jh:sgi.com' => 'John Hesterberg',
- 'jhammer:us.ibm.com' => 'Jack Hammer',
- 'jhartmann:addoes.com' => 'Jeff Hartmann',
-+'jim.houston:attbi.com' => 'Jim Houston',
- 'jkenisto:us.ibm.com' => 'James Keniston',
- 'jkt:helius.com' => 'Jack Thomasson',
- 'jmcmullan:linuxcare.com' => 'Jason McMullan',
-+'jmm:informatik.uni-bremen.de' => 'Moritz Mühlenhoff',
- 'jmorris:intercode.com.au' => 'James Morris',
- 'jmorros:intercode.com.au' => 'James Morris',	# it's typo IMHO
- 'jo-lkml:suckfuell.net' => 'Jochen Suckfuell',
-@@ -652,6 +658,7 @@
- 'lee:compucrew.com' => 'Lee Nash', # lbdb
- 'legoll:free.fr' => 'Vincent Legoll', # correction sent by himself
- 'leigh:solinno.co.uk' => 'Leigh Brown', # lbdb
-+'lethal:linux-sh.org' => 'Paul Mundt',
- 'levon:movementarian.org' => 'John Levon',
- 'lfo:polyad.org' => 'Luis F. Ortiz',
- 'linux:brodo.de' => 'Dominik Brodowski',
-@@ -799,6 +806,7 @@
- 'oliver:neukum.name' => 'Oliver Neukum',
- 'oliver:neukum.org' => 'Oliver Neukum',
- 'oliver:oenone.homelinux.org' => 'Oliver Neukum',
-+'oliver:vermuden.neukum.org' => 'Oliver Neukum',
- 'olof:austin.ibm.com' => 'Olof Johansson',
- 'orjan.friberg:axis.com' => 'Orjan Friberg',
- 'os:emlix.com' => 'Oskar Schirmer', # sent by himself
-@@ -882,6 +890,7 @@
- 'rct:gherkin.frus.com' => 'Bob Tracy',
- 'rddunlap:osdl.org' => 'Randy Dunlap',
- 'reality:delusion.de' => 'Udo A. Steinberg',
-+'reeja.john:amd.com' => 'Reeja John',
- 'reiser:namesys.com' => 'Hans Reiser',
- 'rem:osdl.org' => 'Bob Miller',
- 'rgcrettol@datacomm.ch' => 'Roger Crettol',
-@@ -945,6 +954,7 @@
- 'sawa:yamamoto.gr.jp' => 'sawa',
- 'scameron:quandary.cca.cpqcorp.net' => 'Steve Cameron',
- 'schlicht:uni-mannheim.de' => 'Thomas Schlichter',
-+'schlicht:uni-mannheimn.de' => 'Thomas Schlichter',	# it's typo IMHO
- 'shmulik.hen:intel.com' => 'Shmulik Hen',
- 'schoenfr:gaaertner.de' => 'Erik Schoenfelder',
- 'schwab:suse.de' => 'Andreas Schwab',
-@@ -1700,6 +1710,18 @@
- __END__
- # --------------------------------------------------------------------
- # $Log: lk-changelog.pl,v $
-+# Revision 0.124  2003/06/04 10:31:18  vita
-+# added 3 names for new addresses
-+#
-+# Revision 0.123  2003/06/03 05:49:53  vita
-+# added 2 names for new addresses
-+#
-+# Revision 0.122  2003/06/02 09:11:21  emma
-+# Fix umlaut in Moritz Mühlenhoff's name.
-+#
-+# Revision 0.121  2003/06/02 08:56:16  vita
-+# added 5 names for new addresses
-+#
- # Revision 0.120  2003/05/29 11:11:22  vita
- # added 2 names for new addresses
- #
+"ls: cannot read symbolic link /proc/16714/exe: Permission denied"
 
-##### BKPATCH #####
-This BitKeeper patch contains the following changesets:
-1.54
-## Wrapped with gzip_uu ##
+message.
 
+Now the process is owned by 'named', but the entries in diriectory are 
+owned by root (is that right?), thus:
 
-begin 600 bkpatch9001
-M'XL(`*Y"WCX``\U576_;-A1]CG[%!5S`&QHI)"79%@$'79IVR;HL0=I@SXQT
-M;3$624.D'+?P3]_#*#IUXK3=]\-LF;"H<\^]]_!0',"-Q98?*.%<+85-A*Y:
-MQ&@`9\8Z?C!7ZZ3J;Z^-\;='MK-XM,!68W-T\LY?\?8F=L8T-O+`*^'*&E;8
-M6GY`DW0WXSXND1]<O_GQYN<?KJ-H.H77M=!S?(\.IM/(F78EFLJ^6J*>=U(G
-MKA7:*G0B*8W:[+`;1@CS7\I2,LJ+#2M&>;Y!AGE>9E3<CB=C+%GTK)]7VS[V
-M:5*2LX)2EN5DD^=TPJ)3H$F>`4F/R.B(9,`H)RDGY"5A?H2OD\)+"C&)3N`_
-M;N%U5,('U*#Q'D3E$UH+\3%HH=!7LEQ*/;>)QWQWL[2N1:&@6U;"(<Q:HX`D
-ME!%?4OB3?1^]@[[%-+IZE#V*_^8GBH@@T?%CH[51^*Q+6YO6-6:^;=*G).-L
-M3">;E(Z+?#/#0LS*,2D$P4K<5M^0=(_%BT0R6A#FI4I)-LZ">3XC]KSSK^OY
-MEF_VZWFP3>;KR4B6!]NPR;YM&,^+/[$-2R&F_W_?;#6_A+B]7_=7O/8F^BS(
-M/_#0*:5`H_,P#N#%><6A6<1EZ-(S)LOF<+7-#KW:#YI2PE/*Z016T@EXLU["
-MB^B<4>))AK?8-%U9">ZD+44C$^F&,#V&X:G0$AN$DP`HY?`P.D_3M(^IQ$I6
-MJYJ79IUHW.'])*R$]F\_8[&'9Z,`K\7]`BTWUB9V+OMUV4;\9&H/#@\#>C(.
-MZ'M1-SR,?J6WR#/1.M4Y^-5/]M`\'_70.ZF2VG36&<V]3VZ?<DOEZPB/M@%%
-M"%"*2STSK;>57"2=EO%MBPKU+M.%::7[!!>_U0WJVLQF??3(O]=\=(.N%@UO
-MI.[6L:T3T\ZW05>B:^"BTY7KT1/2K\[0--*_R+G_J:[R&31VBTX]!EV&Y_!+
-MF`YQDY#%N_Q.)'=>&RY4]=C1=3\/O68]N,B"6+:L&UG6CO>M**%UC5(]=O/!
-M;VIAX?T#"MOAX<$`_`K;_D@Q<'YQ=NG=-"8,*.L/*EQ)*XU^L-!7/11,Y+%^
-M>V`%:=@;%KRF3S<-VFCPG"]]PI<"R7E6\#Q]QL?^.A][PL>`%)Q2SB@`*M7S
-MO95KZ%0CO&VDAB_7U89,R9>\=)]WPO,1IZ-G=>9_4.?NV"YK+!>V4U/B%<[*
-,:A;]#OC..68S"```
-`
-end
+# ll /proc/16714 
+total 0
+dr-xr-xr-x    3 named    named           0 Jun  4 11:39 ./
+dr-xr-xr-x   95 root     root            0 May 30 15:38 ../
+-r--r--r--    1 root     root            0 Jun  4 11:39 cmdline
+-r--r--r--    1 root     root            0 Jun  4 11:39 cpu
+lrwxrwxrwx    1 root     root            0 Jun  4 11:39 cwd -> /var/named/
+-r--------    1 root     root            0 Jun  4 11:39 environ
+lrwxrwxrwx    1 root     root            0 Jun  4 11:39 exe -> /usr/sbin/named*
+dr-x------    2 root     root            0 Jun  4 11:39 fd/
+-r--r--r--    1 root     root            0 Jun  4 11:39 maps
+-rw-------    1 root     root            0 Jun  4 11:39 mem
+-r--r--r--    1 root     root            0 Jun  4 11:39 mounts
+lrwxrwxrwx    1 root     root            0 Jun  4 11:39 root -> //
+-r--r--r--    1 root     root            0 Jun  4 11:39 stat
+-r--r--r--    1 root     root            0 Jun  4 11:39 statm
+-r--r--r--    1 root     root            0 Jun  4 11:39 status
+---
+	Purely from a 'cleanliness' standpoint, is the environment owned by
+the user-id, or is it a common piece of public, kernel (root) owned data?
+
+	From observation of other /proc entries, it appears that 'named' has
+some unique features in that it is started as root, but then reverts to uid/gid named sometime after startup.  Should some (or all) of the UID's
+in proc change ownership to the new UID or are they still considered to
+be owned by the old UID?  (Would seem a bit inconsistent -- I wonder if
+it could be security exploitable?)
+
+	Now, here's the part that is bugging me.  Running as user 'foo',
+I can't read that link -- yet the permissions say rxw for group and other.
+So why am I getting the permission error?  The binary it is pointing to
+/usr/sbin/named is also publicly readable, so that can't be the problem.
+
+	So why can't I follow the link of 'exe' to see what image the process
+is executing while programs like 'ps' and 'top' seem to not have this
+difficulty?
+
+	I'm sure it's some silly misconfiguration on my part, but I guess I want
+to know how I got here.  This isn't my beautiful kernel, it's not my beautiful /proc...(etc...).
+
+	I'm running a xfs-patched kernel, V2.4.20/SMP.
+
+Thanks for any insights...I'm trying to write a simple script looking for
+a running process (by looking at what 'exe' is pointing to).  I would 
+find it kludgey to achieve the objective by running 'ps' and doing 
+appropriate filtering. 
+
+-linda
+     
 

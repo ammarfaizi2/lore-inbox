@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262576AbVAPUUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262578AbVAPUXe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262576AbVAPUUT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 15:20:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbVAPUUT
+	id S262578AbVAPUXe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 15:23:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbVAPUXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 15:20:19 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:49091 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S262576AbVAPUUF (ORCPT
+	Sun, 16 Jan 2005 15:23:33 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:50627 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S262578AbVAPUWy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 15:20:05 -0500
+	Sun, 16 Jan 2005 15:22:54 -0500
 X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
 From: Keith Owens <kaos@ocs.com.au>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>, akpm.osdl.org@ocs.com.au
 Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: conglomerate objects in reference*.pl 
-In-reply-to: Your message of "Sun, 16 Jan 2005 11:45:33 -0800."
-             <41EAC45D.30207@osdl.org> 
+Subject: [patch] scripts/reference*.pl - treat built-in.o as conglomerate
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 17 Jan 2005 06:47:43 +1100
-Message-ID: <15456.1105904863@ocs3.ocs.com.au>
+Date: Mon, 17 Jan 2005 06:50:34 +1100
+Message-ID: <15580.1105905034@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Jan 2005 11:45:33 -0800, 
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
->Keith Owens wrote:
->> On Sat, 15 Jan 2005 20:49:33 -0800, 
->> "Randy.Dunlap" <rddunlap@osdl.org> wrote:
->>>I'm seeing some drivers/*/built-in.o that should be ignored AFAIK,
->>>but they are not ignored.  Any ideas?
+scripts/reference*.pl - treat built-in.o as conglomerate.  Ignore
+references from altinstructions to init text/data.
 
-   ld -m elf_i386  -r -o drivers/ide/legacy/built-in.o drivers/ide/legacy/hd.o
-   ld -m elf_i386  -r -o drivers/ide/built-in.o drivers/ide/legacy/built-in.o
+Signed-off-by: Keith Owens <kaos@ocs.com.au>
 
-drivers/ide/legacy/built-in.o and drivers/ide/built-in.o consist of
-exactly one object in your build.  From scripts/reference*.pl:
+Index: 2.6.10/scripts/reference_discarded.pl
+===================================================================
+--- 2.6.10.orig/scripts/reference_discarded.pl	2004-10-19 07:54:07.000000000 +1000
++++ 2.6.10/scripts/reference_discarded.pl	2005-01-16 17:13:03.997955187 +1100
+@@ -62,7 +62,7 @@ foreach $object (keys(%object)) {
+ 		$l = read(OBJECT, $comment, $size);
+ 		die "read $size bytes from $object .comment failed" if ($l != $size);
+ 		close(OBJECT);
+-		if ($comment =~ /GCC\:.*GCC\:/m) {
++		if ($comment =~ /GCC\:.*GCC\:/m || $object =~ /built-in.\o/) {
+ 			++$ignore;
+ 			delete($object{$object});
+ 		}
+Index: 2.6.10/scripts/reference_init.pl
+===================================================================
+--- 2.6.10.orig/scripts/reference_init.pl	2004-12-25 10:26:19.000000000 +1100
++++ 2.6.10/scripts/reference_init.pl	2005-01-16 17:12:50.449024044 +1100
+@@ -70,7 +70,7 @@ foreach $object (keys(%object)) {
+ 		$l = read(OBJECT, $comment, $size);
+ 		die "read $size bytes from $object .comment failed" if ($l != $size);
+ 		close(OBJECT);
+-		if ($comment =~ /GCC\:.*GCC\:/m) {
++		if ($comment =~ /GCC\:.*GCC\:/m || $object =~ /built-in\.o/) {
+ 			++$ignore;
+ 			delete($object{$object});
+ 		}
+@@ -96,6 +96,7 @@ foreach $object (sort(keys(%object))) {
+ 		     $from !~ /\.pci_fixup_header$/ &&
+ 		     $from !~ /\.pci_fixup_final$/ &&
+ 		     $from !~ /\__param$/ &&
++		     $from !~ /\.altinstructions/ &&
+ 		     $from !~ /\.debug_/)) {
+ 			printf("Error: %s %s refers to %s\n", $object, $from, $line);
+ 		}
 
-# Ignore conglomerate objects, they have been built from multiple objects and we
-# only care about the individual objects.  If an object has more than one GCC:
-# string in the comment section then it is conglomerate.  This does not filter
-# out conglomerates that consist of exactly one object, can't be helped.
-
-built-in.o added to the conglomerate list to help a bit.
 

@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271135AbRHYUxQ>; Sat, 25 Aug 2001 16:53:16 -0400
+	id <S271132AbRHYUrF>; Sat, 25 Aug 2001 16:47:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271147AbRHYUw4>; Sat, 25 Aug 2001 16:52:56 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:25861 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271135AbRHYUwx>;
-	Sat, 25 Aug 2001 16:52:53 -0400
-Date: Sat, 25 Aug 2001 17:52:47 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: "Marc A. Lehmann" <pcg@goof.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-In-Reply-To: <20010825213536.D18523@cerebro.laendle>
-Message-ID: <Pine.LNX.4.33L.0108251752010.5646-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271135AbRHYUq4>; Sat, 25 Aug 2001 16:46:56 -0400
+Received: from mx5.port.ru ([194.67.57.15]:3342 "EHLO mx5.port.ru")
+	by vger.kernel.org with ESMTP id <S271132AbRHYUqv>;
+	Sat, 25 Aug 2001 16:46:51 -0400
+From: "Samium Gromoff" <_deepfire@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: unrelated 2.4.x (x=0-9) sound
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [195.34.27.212]
+Date: Sat, 25 Aug 2001 20:47:02 +0000 (GMT)
+Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15akKc-0007KZ-00@f8.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Aug 2001, Marc A. Lehmann wrote:
-> On Sat, Aug 25, 2001 at 08:15:44PM +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > How much disk and bandwidth can you afford. With vsftpd its certainly over
-> > 1000 parallal downloads on a decent PII box
->
-> exactly this is a point: my disk can do 5mb/s with almost random
-> seeks, and linux indeed reads 5mb/s from it. but the userpsace process
-> doing read() only ever sees 2mb/s because the kernel throes away all
-> the nice pages.
+     hello guys...
+    this time it is not a crash, just a misfeature... ;)
+    i`m used to have the following issue:
+  sound clicks and flakiness while scrolling console
+  text in mc. 
 
-The trick here is for the kernel to throw away the pages
-the processes have already used and keep in memory the
-data we have not yet used.
+    less is also hit by this issue, but this is some
+  strange: if in mc case _each_ keypress produce
+  clicks, in less case only the first scrollup
+  after switching to less` console does...
 
-regards,
+    important detail: it clicks *much* more when
+  scrolling up (when scrolling down, clicks are quite
+  hard to realize).
 
-Rik
--- 
-IA64: a worthy successor to i860.
+    one more important detail: for me it is quite
+  _annoyingly_ reproducible... ;)
 
-http://www.surriel.com/		http://distro.conectiva.com/
+    this behaviour is seen by me on two boxes:
+  p166/24M/Zida 2dvx/s3V+/sb16_genuine
+  5x86-150/12M/Asus SP4G/trident 512/es688
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+    also the load _while_ playing mp3 _and_ scrolling
+  is ~60% on p166 (not 100% i mean).
 
+    this doesnt depend on the nature of sound, ie
+  if sound source is plain wav, which doesnt use cpu,
+  these clicks are here, not more, not less...
+
+    something makes me think/remember that this is not
+  the case on 2.2.x, but i`m far not sure...
+
+---
+
+
+cheers,
+
+
+   Samium Gromoff

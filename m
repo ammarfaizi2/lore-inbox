@@ -1,110 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132396AbRAQQIX>; Wed, 17 Jan 2001 11:08:23 -0500
+	id <S135298AbRAQQId>; Wed, 17 Jan 2001 11:08:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135311AbRAQQIN>; Wed, 17 Jan 2001 11:08:13 -0500
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:3593 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S132396AbRAQQH7>; Wed, 17 Jan 2001 11:07:59 -0500
-From: bsuparna@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: linux-kernel@vger.kernel.org
-Message-ID: <CA2569D7.00584D99.00@d73mta05.au.ibm.com>
-Date: Wed, 17 Jan 2001 21:04:43 +0530
-Subject: Common Abstraction of Notification & Completion Handling
-	 Mechanisms - observations and potential RFC
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S135311AbRAQQIY>; Wed, 17 Jan 2001 11:08:24 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:16138 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S135298AbRAQQIG>;
+	Wed, 17 Jan 2001 11:08:06 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Urban Widmark <urban@teststation.com>
+Date: Wed, 17 Jan 2001 17:07:08 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Killing process with SIGKILL and ncpfs
+CC: <linux-kernel@vger.kernel.org>, <marteen.deboer@iua.upf.es>
+X-mailer: Pegasus Mail v3.40
+Message-ID: <12D8176C233E@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 17 Jan 01 at 13:41, Urban Widmark wrote:
+> SIGKILL or SIGSTOP can be already pending, or perhaps received while
+> waiting in socket->ops->recvmsg(). recvmsg will then return -ERESTARTSYS
+> because signal_pending() is true and the smbfs code treats that as a
+> network problem (causing unnecessary reconnects and sometimes complete
+> failures requiring umount/mount).
 
-I have been looking at various notification and operation completion
-processing mechanisms that we currently have in the kernel. (The
-"operation" is typically I/O, but could be something else too).
+Yes. I was going to rewrite this code sometime around 2.3.40, when
+I wrote independent NCP socket layer for some other project. Unfortunately,
+I found that returning -ERESTARTSYS from some procedures (read_inode)
+is converted to bad_inode, instead of just dropping/reverting all
+changes which were done :-( So I left it as is.
 
-This comes about as a result of observing  similar patterns in async i/o
-handling aspects in filter filesystems and then in layered block drivers
-like lvm and evms with kiobuf, and  recalling a suggestion that Ben LaHaise
-had made about extending the wait queue interface to support callbacks.
-Coming to think of it, we might observe similar patterns elsewhere wherever
-there is a need for some processing that needs to be done on the completion
-of an operation or in a more general sense, on the triggering of an event.
+> Running strace on a multithreaded program causes problems for smbfs.
+> Someone was nice enough to post a small testprogram for this (you may want
+> to try it on ncpfs, if you want it I'll find it for you).
+> 
+> These problems go away if all signals are blocked. Of course the smbfs
+> code would need to be changed to not block on recv, else you may end up
+> with a program waiting for network input that can't be killed ... (?)
 
-The pattern is something like this:
+I'm going to use:
 
-1. Post process data : Invoke callbacks for layers above (reverse order) :
-(layer1 is the highest level - layer n lowest)
-    i.e.  callbackn(argn) -> ....  -> callback2(arg2) -> callback1(arg1)
-    - the sequence may get aborted temporarily at any level if required
-(e.g for error correction)
-2. Mark data as ready for use ( e.g unlock buffer/page, mark as up-to-date
-etc)
-    (We could perhaps think of this as a level0 callback)
-3. Notify registered consumers
-- wakeup synchronous waiters   (typically wait_queue based)
-- signal async consumers (SIGIO)
-(hereafter any further processing happens in the context of the consumer)
+if (current->flags & PF_EXITING)
+  mask = 0;
+else
+  mask = sigmask(SIGKILL);
 
-We have all the separate mechanisms that are needed to achieve this (I
-wonder if we have too many; and if we have some duplication of logic / data
-structure patterns in certain cases, just to handle slight distinctions in
-flavour ).
+It causes following:
+(1) you can still kill bad task locked in ncpfs with SIGKILL
+(2) except when connectivity problem happens during exit(). In that
+    case timeout should take a care. No way around, except more
+    complicated code:
+    
+       if (current->flags & PF_EXITING) {
+         lock(...)
+         rm_sig_from_queue(SIGKILL, &current->pending);
+         unlock(...)
+       }
+       mask = sigmask(SIGKILL);
+       
+    which allows you to 'kill -9' exiting task again...
+    But I cannot convice myself that SIGKILL is correctly delivered
+    to PF_EXITING tasks... And rm_sig_from_queue is signal.c internal
+    function.
+(3) attaching/detaching debugger causes no longer problems, as SIGSTOP 
+    is ignored by ncpfs - I have no idea why original code included
+    SIGSTOP... Now it just stops task after NCP request is done, so
+    only problem is that you cannot immediately stop program which
+    waits for server reply. But I think that waiting few milliseconds
+    is better than killing connection for whole server
+(4) so you can happilly debug programs from ncpfs volumes
 
-Here are some of them:
-1. io completion callback routines + private data embedded in specific i/o
-structures
-    -- in bh, kiobuf (for example) ( sock structure too ?)
-2. task queues that can be used for triggering a list of callbacks perhaps
-?
-3. wait queues for registering synchronous waiters
-4. fasync helper routines for registering async waiters to be signalled
-(SIGIO)
-
-Other places where we have a callback, arg pattern:
-- timer callback + arg (specially for timer events)
-- softirq handlers ?
-
-So, if we wanted to have a generic abstraction for the mentioned pattern,
-it could be done using a collection of the following:
-     - something like a task queue for queueing up multiple callbacks to be
-invoked in LIFO order; add some extra functionality to break in case a
-callback returns a failure.
-     - a wait queue for synchronous waiters
-     - an fasync pointer for asynchronous notification requesters
-     - a status field (to check on completion status)
-     - a private data pointer (to help store persistent state; such state
-may also be required for operation
-        cancellation)
-     - A zeroth level callback registered in the  queue during
-initialization to mark the status as completed
-     and then notify synchronous and asynchronous waiters
-     - Now, if there are multiple related event structures - like compound
-events (compound i/os - e.g multiple bh's componded to a page or kiobuf,
-sub-kiobufs compounded to a compound kiobuf etc), then there is a
-requirement of triggering a similar sequence on that compound event. Have
-still not decided at what stage this should happen and how.
-     - Another item to think about is the operation cancellation path
-
-One question is whether an extension to the wait queue is indeed
-appropriate for the above. Or should it be a different abstraction in
-itself ?
-
-I know this needs further thinking through, and definitely some more
-detailing, but I'd like to hear some feedback on how it sounds. Besides, I
-don't know if anyone is already working on something like this. Does it
-even make sense to attempt this ?
-
-Regards
-Suparna
-
-  Suparna Bhattacharya
-  Systems Software Group, IBM Global Services, India
-  E-mail : bsuparna@in.ibm.com
-  Phone : 91-80-5267117, Extn : 2525
-
-
+If it will not cause too much troubles for you, can you find multithreaded
+test program for me? Current solution, which uses only SIGKILL, and only
+when task does not exit, looks good for me, and works for my testcases.
+There are some corner cases, such as when SIGKILL is already pending when 
+ncpfs is entered, but I'm not sure whether it is worth of adding check 
+of signal_pending() before call to do_ncp_*rpc_call(), as it is not four 
+line patch then.
+                                        Best regards,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

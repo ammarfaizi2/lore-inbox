@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261960AbSI1PhH>; Sat, 28 Sep 2002 11:37:07 -0400
+	id <S261979AbSI1Pm6>; Sat, 28 Sep 2002 11:42:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262011AbSI1PhH>; Sat, 28 Sep 2002 11:37:07 -0400
-Received: from 62-190-217-152.pdu.pipex.net ([62.190.217.152]:60678 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S261960AbSI1PhG>; Sat, 28 Sep 2002 11:37:06 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209281550.g8SFoeXx001215@darkstar.example.net>
-Subject: Re: Framebuffer still "EXPERIMENTAL"?
-To: ken@kenmoffat.uklinux.net (Ken Moffat)
-Date: Sat, 28 Sep 2002 16:50:40 +0100 (BST)
-Cc: pommnitz@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0209281558290.3427-100000@ppg_penguin.linux.bogus> from "Ken Moffat" at Sep 28, 2002 04:02:05 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S262013AbSI1Pm5>; Sat, 28 Sep 2002 11:42:57 -0400
+Received: from as2-4-3.an.g.bonet.se ([194.236.34.191]:2432 "EHLO zigo.dhs.org")
+	by vger.kernel.org with ESMTP id <S261979AbSI1Pm4>;
+	Sat, 28 Sep 2002 11:42:56 -0400
+Date: Sat, 28 Sep 2002 17:48:15 +0200 (CEST)
+From: =?ISO-8859-1?Q?Dennis_Bj=F6rklund?= <db@zigo.dhs.org>
+To: Daniel Egger <degger@fhm.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: detect udma66 cable (vt82c686a)
+In-Reply-To: <1033221318.26190.20.camel@sonja.de.interearth.com>
+Message-ID: <Pine.LNX.4.44.0209281736430.1349-100000@zigo.dhs.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Hello Listees,
-> > > yesterday I compiled 2.5.38 for the first time and noticed that the
-> > > framebuffer option is still marked "EXPERIMENTAL". Well, I know for sure
-> > > that I used the VESA-FB 3 years ago to get X running on a strange laptop
-> > > graphic chip, so it is at least that long available (actually I think it
-> > > got introduced for the Sparc port somewhen in 1995??). 
-> > > 
-> > > I think it's about time to promote the framebuffer code to a full fledged
-> > > kernel feature. Comments?
-> > 
-> > I've noticed a bug with it, but haven't had time to investigate more fully,
-> > infact it might not be a kernel bug, but I suspect that it is.  I don't
-> > usually use the framebuffer, (I prefer the standard text mode).
-> > 
-> > On a standard Slackware 8.1 install, (kernel 2.4.18), on a machine with an
-> > ATI graphics card, and with the framebuffer enabled, if you type clear, then
-> > fill the screen with text so that it scrolls, (e.g. do a find /), the top
-> > four lines where the penguin used to be do not scroll, they just keep the
-> > text that is originally put there.  If you press shift-pageup, and then
-> > shift-pagedown, it fixes it.
-> > 
-> > If anybody has got the time to look in to this, I'll post more details.
-> > 
-> > John.
+On 28 Sep 2002, Daniel Egger wrote:
+
+> > As seen from /proc/ide/via below it thinks my cable is a 40w (on id0 I
+> > do have a 40w so that is correct, but in ide1 there is a 80w). The
+> > computer is a redhat 7.3 with kernel 2.4.18-4
 > 
-> Normal operation. Either switch to a different tty, or set a font.
+> Same southbridgem, same kernel, same problem. I sent all sorts of
+> messages for this one to Alan but so far there're no news on this
+> matter.
 
-Hmmm, if that's normal operation, surely it's a bug?
+I swapped my 80w cable and drive to the primary ide channel and it started
+to work. I removed the other drive all together so I don't know what would
+happend if I connected that to the second channel.
 
-Infact, why not use the wasted space to the right of the penguin for something useful - I.E. a status line, like on old terminals, showing disk and serial port activity!?
+What I do know is that it is the same cable, same disk with same 
+jumper settings as before.
 
-> There does seem to be a bug in your mailer, though (excessive line
-> length) :->
+-- 
+/Dennis
 
-I guess maybe it's time for me to move away from using 'mail' from the command line for my day to day E-Mail needs :-(.  Already, I have to use elm when I need the quoting capabilities so lacking from my favourite mailer :-).
-
-John.

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbVAPCDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262397AbVAPCIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262389AbVAPCDo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 21:03:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbVAPCC0
+	id S262397AbVAPCIK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 21:08:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbVAPCGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 21:02:26 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:22542 "HELO
+	Sat, 15 Jan 2005 21:06:54 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:27150 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262388AbVAPCBZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 21:01:25 -0500
-Date: Sun, 16 Jan 2005 03:01:22 +0100
+	id S262392AbVAPCBu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 21:01:50 -0500
+Date: Sun, 16 Jan 2005 03:01:46 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] i386 semaphore.c: make 4 functions static (fwd)
-Message-ID: <20050116020122.GH4274@stusta.de>
+Subject: [2.6 patch] hpet: make some code static (fwd)
+Message-ID: <20050116020146.GK4274@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -30,71 +30,109 @@ Please apply.
 
 ----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Date:	Sat, 11 Dec 2004 23:03:55 +0100
+Date:	Sun, 12 Dec 2004 03:11:03 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] i386 semaphore.c: make 4 functions static
+Subject: [2.6 patch] hpet: make some code static
 
-The patch below makes four needlessly global functions static.
+The patch below makes some needlessly global code static.
 
 
 diffstat output:
- arch/i386/kernel/semaphore.c |    8 ++++----
- include/asm-i386/semaphore.h |    5 -----
- 2 files changed, 4 insertions(+), 9 deletions(-)
+ arch/i386/kernel/time.c              |    2 +-
+ arch/i386/kernel/time_hpet.c         |   10 +++++-----
+ arch/i386/kernel/timers/timer_hpet.c |    2 +-
+ arch/x86_64/kernel/time.c            |    2 +-
+ include/asm-i386/hpet.h              |    2 --
+ 5 files changed, 8 insertions(+), 10 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc2-mm4-full/include/asm-i386/semaphore.h.old	2004-12-11 20:49:58.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/include/asm-i386/semaphore.h	2004-12-11 20:50:12.000000000 +0100
-@@ -92,11 +92,6 @@
- fastcall int  __down_failed_trylock(void  /* params in registers */);
- fastcall void __up_wakeup(void /* special register calling convention */);
- 
--fastcall void __down(struct semaphore * sem);
--fastcall int  __down_interruptible(struct semaphore * sem);
--fastcall int  __down_trylock(struct semaphore * sem);
--fastcall void __up(struct semaphore * sem);
--
- /*
-  * This is ugly, but we want the default case to fall through.
-  * "__down_failed" is a special asm handler that calls the C
---- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/semaphore.c.old	2004-12-07 02:30:44.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/semaphore.c	2004-12-11 21:47:26.000000000 +0100
-@@ -49,12 +49,12 @@
-  *    we cannot lose wakeup events.
+--- linux-2.6.10-rc2-mm4-full/include/asm-i386/hpet.h.old	2004-12-11 23:47:52.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/include/asm-i386/hpet.h	2004-12-11 23:49:41.000000000 +0100
+@@ -90,7 +90,6 @@
   */
+ #define HPET_MIN_PERIOD (100000UL)
  
--fastcall void __up(struct semaphore *sem)
-+static fastcall void __attribute_used__  __up(struct semaphore *sem)
- {
- 	wake_up(&sem->wait);
+-extern unsigned long hpet_period;	/* fsecs / HPET clock */
+ extern unsigned long hpet_tick;  	/* hpet clks count per tick */
+ extern unsigned long hpet_address;	/* hpet memory map physical address */
+ 
+@@ -100,7 +99,6 @@
+ extern int is_hpet_enabled(void);
+ extern int is_hpet_capable(void);
+ extern int hpet_readl(unsigned long a);
+-extern void hpet_writel(unsigned long d, unsigned long a);
+ 
+ #ifdef CONFIG_HPET_EMULATE_RTC
+ extern int hpet_mask_rtc_irq_bit(unsigned long bit_mask);
+--- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/time_hpet.c.old	2004-12-11 23:48:14.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/time_hpet.c	2004-12-11 23:50:22.000000000 +0100
+@@ -23,9 +23,9 @@
+ #include <asm/hpet.h>
+ #include <linux/hpet.h>
+ 
+-unsigned long hpet_period;	/* fsecs / HPET clock */
+-unsigned long hpet_tick;	/* hpet clks count per tick */
+-unsigned long hpet_address;	/* hpet memory map physical address */
++static unsigned long hpet_period;	/* fsecs / HPET clock */
++unsigned long hpet_tick;		/* hpet clks count per tick */
++unsigned long hpet_address;		/* hpet memory map physical address */
+ 
+ static int use_hpet; 		/* can be used for runtime check of hpet */
+ static int boot_hpet_disable; 	/* boottime override for HPET timer */
+@@ -38,7 +38,7 @@
+ 	return readl(hpet_virt_address + a);
  }
  
--fastcall void __sched __down(struct semaphore * sem)
-+static fastcall void __attribute_used__ __sched __down(struct semaphore * sem)
+-void hpet_writel(unsigned long d, unsigned long a)
++static void hpet_writel(unsigned long d, unsigned long a)
  {
- 	struct task_struct *tsk = current;
- 	DECLARE_WAITQUEUE(wait, tsk);
-@@ -91,7 +91,7 @@
- 	tsk->state = TASK_RUNNING;
+ 	writel(d, hpet_virt_address + a);
+ }
+@@ -49,7 +49,7 @@
+  * comparator value and continue. Next tick can be caught by checking
+  * for a change in the comparator value. Used in apic.c.
+  */
+-void __init wait_hpet_tick(void)
++static void __init wait_hpet_tick(void)
+ {
+ 	unsigned int start_cmp_val, end_cmp_val;
+ 
+--- linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/time.c.old	2004-12-11 23:49:04.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/time.c	2004-12-11 23:49:14.000000000 +0100
+@@ -58,7 +58,7 @@
+ #undef HPET_HACK_ENABLE_DANGEROUS
+ 
+ unsigned int cpu_khz;					/* TSC clocks / usec, not used here */
+-unsigned long hpet_period;				/* fsecs / HPET clock */
++static unsigned long hpet_period;			/* fsecs / HPET clock */
+ unsigned long hpet_tick;				/* HPET clocks / interrupt */
+ unsigned long vxtime_hz = PIT_TICK_RATE;
+ int report_lost_ticks;				/* command line option */
+--- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/timers/timer_hpet.c.old	2004-12-11 23:50:57.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/timers/timer_hpet.c	2004-12-11 23:51:07.000000000 +0100
+@@ -118,7 +118,7 @@
+ 	write_sequnlock(&monotonic_lock);
  }
  
--fastcall int __sched __down_interruptible(struct semaphore * sem)
-+static fastcall int __attribute_used__ __sched __down_interruptible(struct semaphore * sem)
+-void delay_hpet(unsigned long loops)
++static void delay_hpet(unsigned long loops)
  {
- 	int retval = 0;
- 	struct task_struct *tsk = current;
-@@ -154,7 +154,7 @@
-  * single "cmpxchg" without failure cases,
-  * but then it wouldn't work on a 386.
-  */
--fastcall int __down_trylock(struct semaphore * sem)
-+static fastcall int __attribute_used__ __down_trylock(struct semaphore * sem)
+ 	unsigned long hpet_start, hpet_end;
+ 	unsigned long eax;
+--- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/time.c.old	2004-12-11 23:46:37.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/time.c	2004-12-11 23:47:02.000000000 +0100
+@@ -379,7 +379,7 @@
+ #ifdef CONFIG_HPET_TIMER
+ extern void (*late_time_init)(void);
+ /* Duplicate of time_init() below, with hpet_enable part added */
+-void __init hpet_time_init(void)
++static void __init hpet_time_init(void)
  {
- 	int sleepers;
- 	unsigned long flags;
+ 	xtime.tv_sec = get_cmos_time();
+ 	wall_to_monotonic.tv_sec = -xtime.tv_sec;
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

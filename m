@@ -1,75 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131764AbQLHUrt>; Fri, 8 Dec 2000 15:47:49 -0500
+	id <S132104AbQLHUs3>; Fri, 8 Dec 2000 15:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132104AbQLHUrj>; Fri, 8 Dec 2000 15:47:39 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:49517
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S131764AbQLHUrX>; Fri, 8 Dec 2000 15:47:23 -0500
-Date: Fri, 8 Dec 2000 21:16:51 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove warnings from drivers/net/eepro.c (240-test12-pre7)
-Message-ID: <20001208211651.C599@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+	id <S132739AbQLHUsT>; Fri, 8 Dec 2000 15:48:19 -0500
+Received: from [212.137.214.171] ([212.137.214.171]:5648 "EHLO
+	Consulate.UFP.CX") by vger.kernel.org with ESMTP id <S132104AbQLHUsO>;
+	Fri, 8 Dec 2000 15:48:14 -0500
+Date: Fri, 8 Dec 2000 10:33:18 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.cx>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: That horrible hack from hell called A20
+In-Reply-To: <3A2D91F0.D8FE8BBC@transmeta.com>
+Message-ID: <Pine.LNX.4.21.0012081022410.16041-100000@Consulate.MemAlpha.cx>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(I sent the following to aris@conectiva.com.br, but forgot to cc linux-kernel).
+Hi Peter.
 
-Hi.
+On Tue, 5 Dec 2000, H. Peter Anvin wrote:
 
-The following patch removes some 'defined but not used' warnings when
-compiling drivers/net/eepro.c (240t12p7) without modular support.
+> Linus Torvalds wrote:
 
+>> Actually, I bet I know what's up.
+>>
+>> Want to bet $5 USD that suspend/resume saves the keyboard A20 state,
+>> but does NOT save the fast-A20 gate information?
+>>
+>> So anything that enables A20 with only the fast A20 gate will find
+>> that A20 is disabled again on resume.
+>>
+>> Which would make Linux _really_ unhappy, needless to say. Instant
+>> death in the form of a triple fault (all of the Linux kernel code is
+>> in the 1-2MB area, which would be invisible), resulting in an
+>> instant reboot.
+>>
+>> Peter, we definitely need to do the keyboard A20, even if fast-A20
+>> works fine.
 
---- linux-240-t12-pre7-clean/drivers/net/eepro.c	Fri Dec  8 00:44:58 2000
-+++ linux/drivers/net/eepro.c	Fri Dec  8 21:02:50 2000
-@@ -1727,6 +1727,8 @@
- 		eepro_complete_selreset(ioaddr);
- }
- 
-+#ifdef MODULE
-+
- #define MAX_EEPRO 8
- static struct net_device dev_eepro[MAX_EEPRO];
- 
-@@ -1737,7 +1739,7 @@
- };
- static int autodetect;
- 
--static int n_eepro = 0;
-+static int n_eepro;
- /* For linux 2.1.xx */
- 
- MODULE_AUTHOR("Pascal Dupuis <dupuis@lei.ucl.ac.be> for the 2.1 stuff (locking,...)");
-@@ -1746,8 +1748,6 @@
- MODULE_PARM(irq, "1-" __MODULE_STRING(MAX_EEPRO) "i");
- MODULE_PARM(mem, "1-" __MODULE_STRING(MAX_EEPRO) "i");
- MODULE_PARM(autodetect, "1-" __MODULE_STRING(1) "i");
--
--#ifdef MODULE
- 
- int 
- init_module(void)
+> Yup.  It's a BIOS bug, oh what a shocker... (that never happens,
+> right)?
 
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
+One alternative would presumably be to reserve a block in the 0-1M
+region for a routine to be called on resume that makes sure everything
+is set up correctly.  However, from the various comments, I gather that
+such is not viable as it's already been excluded for other reasons, but
+nobody seems to say precicely what the problems with this idea are?
 
-I've always found profanity to be refuge of the inarticulate motherfucker.
-  --Anonymous
+I would presume such a routine would be set up such that when it's time
+to suspend, a call is made to that routine at its 0-1M address, so when
+the resume kicks in, it sees an IP in the 0-1M region to resume to.
 
------ End forwarded message -----
+As part of the kernel start-up, the kernel would reserve the page in
+question, then copy the suspend/resume code to it, and only then would
+it enable the suspend/resume facility.
 
--- 
-        Rasmus(rasmus@jaquet.dk)
+Best wishes from Riley.
 
-Without censorship, things can get terribly confused in the
-public mind. -General William Westmoreland, during the war in Viet Nam
+---
+ * Why didn't Linus Torvalds write the resume specification,
+ * rather than those idiots at MacroHard !!!
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

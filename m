@@ -1,143 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278829AbRKDVDS>; Sun, 4 Nov 2001 16:03:18 -0500
+	id <S278839AbRKDVIT>; Sun, 4 Nov 2001 16:08:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278839AbRKDVDJ>; Sun, 4 Nov 2001 16:03:09 -0500
-Received: from unthought.net ([212.97.129.24]:1497 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S278829AbRKDVC7>;
-	Sun, 4 Nov 2001 16:02:59 -0500
-Date: Sun, 4 Nov 2001 22:02:58 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: Tim Jansen <tim@tjansen.de>, linux-kernel@vger.kernel.org
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <20011104220258.X14001@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-	Tim Jansen <tim@tjansen.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011104211153.V14001@unthought.net> <625740430.1004906873@[195.224.237.69]>
+	id <S278841AbRKDVII>; Sun, 4 Nov 2001 16:08:08 -0500
+Received: from lilly.ping.de ([62.72.90.2]:34564 "HELO lilly.ping.de")
+	by vger.kernel.org with SMTP id <S278839AbRKDVHz>;
+	Sun, 4 Nov 2001 16:07:55 -0500
+Date: 4 Nov 2001 22:06:41 +0100
+Message-ID: <20011104220641.A788@planetzork.spacenet>
+From: jogi@planetzork.ping.de
+To: "Linus Torvalds" <torvalds@transmeta.com>
+Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.14-pre8..
+In-Reply-To: <20011104192725.A847@planetzork.spacenet> <Pine.LNX.4.33.0111041047230.6919-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <625740430.1004906873@[195.224.237.69]>; from linux-kernel@alex.org.uk on Sun, Nov 04, 2001 at 08:47:53PM -0000
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.33.0111041047230.6919-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sun, Nov 04, 2001 at 10:53:43AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 04, 2001 at 08:47:53PM -0000, Alex Bligh - linux-kernel wrote:
-> >> Using a ioctl that returns the type.
-> >
-> > But that's not pretty   :)
-> >
-> > Can't we think of something else ?
+On Sun, Nov 04, 2001 at 10:53:43AM -0800, Linus Torvalds wrote:
+
+Hello,
+
+with the complete patch (s.b.) the kernel did kill processes while running
+make -j100. So I tried only the second part of the patch (the SetPage-part)
+and here are the results (this time only the make -j100 part:
+
+2.4.14-pre8vmscan2:   6:12.06
+2.4.14-pre8vmscan2:   6:41.43
+2.4.14-pre8vmscan2:   6:53.22
+2.4.14-pre8vmscan2:   7:12.03
+2.4.14-pre8vmscan2:   5:49.82
+
+I will run the whole test tonight and I will keep you posted. If you
+want me to try a different patch, just let me know.
+
+> (The first chunk just says that we _can_ unmap active pages: it's up to
+> refill_inactive to perhaps de-activate them and free them on demand. The
+> second chunk says that when refill_inactive() moves a page to the inactive
+> list, it's already been "touched once", so another access will activate it
+> again).
 > 
-> Well this sure isn't perfect, but to
-> illustrate it can be done with a text
-> interface (and the only restriction
-> is strings can't contain \n):
-
-Such limitations are not acceptable.
-
+> 		Linus
 > 
-> cat /proc/widget
-> # Format: '%l'
-> # Params: Number_of_Widgets
-> 37
+> ----
+> diff -u --recursive pre8/linux/mm/vmscan.c linux/mm/vmscan.c
+> --- pre8/linux/mm/vmscan.c	Sun Nov  4 09:41:04 2001
+> +++ linux/mm/vmscan.c	Sun Nov  4 10:41:59 2001
+> @@ -54,9 +54,11 @@
+>  		return 0;
+>  	}
 > 
-> echo '38' > /proc/widget
+> +#if 0
+>  	/* Don't bother unmapping pages that are active */
+>  	if (PageActive(page))
+>  		return 0;
+> +#endif
 > 
-> cat /proc/widget
-> # Format: '%l'
-> # Params: Number_of_Widgets
-> 38
-
-Good point with the parsing  :)
-
+>  	/* Don't bother replenishing zones not under pressure.. */
+>  	if (!memclass(page->zone, classzone))
+> @@ -541,6 +543,7 @@
 > 
-> cat /proc/widget | egrep -v '^#'
-> 38
+>  		del_page_from_active_list(page);
+>  		add_page_to_inactive_list(page);
+> +		SetPageReferenced(page);
+>  	}
+>  	spin_unlock(&pagemap_lru_lock);
+>  }
 > 
-> cat /proc/sprocket
-> # Format: '%l' '%s'
-> # Params: Number_of_Sprockets Master_Sprocket_Name
-> 21
-> Foo Bar Baz
-
-Not one value per file ?
-
-> 
-> echo '22' > /proc/sprocket
-> # writes first value if no \n character written before
-> # close - all writes done simultaneously on close
-> 
-> cat /proc/sprocket | egrep -v '^#'
-> 22
-> Foo Bar Baz
-> 
-> echo 'Master_Sprocket_Name\nBaz Foo Bar' > /proc/sprocket
-> 
-> cat /proc/sprocket | egrep -v '^#'
-> 22
-> Baz Foo Bar
-> 
-> echo 'Master_Sprocket_Name\nFoo Foo Foo\nNumber_of_Sprockets\n111' > 
-> /proc/sprocket
-> # Simultaneous commit if /proc driver needs it
-> # i.e. it has get_lock() and release_lock()
-> # entries
-> cat /proc/sprocket | egrep -v '^#'
-> 111
-> Foo Foo Foo
-> 
-> & nice user tools look at the '# Params:' line to find
-> what number param they want to read / alter.
-
-How about:
-
-We keep old proc files.
-
-For each file, we make a .directory.
-
-For example - for /proc/meminfo, we make a /proc/.meminfo/ directory
-that contains the files
- MemTotal
- MemFree
- MemShared
- etc.
-
-cat /proc/.meminfo/MemTotal gives you
-"u32:KB:513276"
-
-The kernel code for printing this is something like
- sprintf(..., "%s:%s:%u", DPI_T_U32, DPI_U_KB, i.memtotal);
-
-The types and the units are necessary. But furthermore we do not
-want various developers to be using different ways of writing the
-types and units (KB vs. kB, vs. KiB).  Defines will ensure that
-(if they are used - but they lend themselves to being used), and
-once a new define is introduced it is fairly easy to document and
-export to userland.
-
-Not only does this format tell us exactly what's in the file (and
-therefore how we should parse it), it also defines what we can write
-to it (assuming we write the same types as we read - but that's a
-reasonable assumption I suppose).
-
-Problem:  Could it be made simpler to parse from scripting languages,
-without making it less elegant to parse in plain C ?
-
-If the values is a string, the string will begin after the second
-semicolon (safe, since no type or unit can contain a colon and won't
-have to, ever), and ends at the end of the file.  Voila, any character can be
-in the string value.
-
-And Al gets his #%^# text files   ;)
 
 -- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+
+Well, yeah ... I suppose there's no point in getting greedy, is there?
+
+    << Calvin & Hobbes >>

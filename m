@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315214AbSHXBWl>; Fri, 23 Aug 2002 21:22:41 -0400
+	id <S315265AbSHXB6j>; Fri, 23 Aug 2002 21:58:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315260AbSHXBWl>; Fri, 23 Aug 2002 21:22:41 -0400
-Received: from pell.portland.or.us ([199.245.177.1]:40454 "EHLO
-	pell.portland.or.us") by vger.kernel.org with ESMTP
-	id <S315214AbSHXBWl>; Fri, 23 Aug 2002 21:22:41 -0400
-From: david parsons <orc@pell.portland.or.us>
-Message-Id: <200208240126.SAA07349@pell.portland.or.us>
-Subject: Re: [Bitkeeper-announce] RFC: BK license change
-To: lm@work.bitmover.com (Larry McVoy)
-Date: Fri, 23 Aug 2002 18:26:45 -0700 (PDT)
-Cc: linux-kernel@vger.kernel.org, bitkeeper-announce@work.bitmover.com
-In-Reply-To: <200208240039.g7O0dZf12300@work.bitmover.com> from "Larry McVoy" at Aug 23, 2002 05:39:35 PM
-X-Mailer: ELM [version 2.5 PL0b2]
+	id <S315275AbSHXB6j>; Fri, 23 Aug 2002 21:58:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52242 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315265AbSHXB6i>;
+	Fri, 23 Aug 2002 21:58:38 -0400
+Message-ID: <3D66E944.9080507@mandrakesoft.com>
+Date: Fri, 23 Aug 2002 22:02:44 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Andre Hedrick <andre@linux-ide.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
+       "'Padraig Brady'" <padraig.brady@corvil.com>,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: IDE-flash device and hard disk on same controller
+References: <Pine.LNX.4.10.10208222014450.13077-100000@master.linux-ide.org> <20020823114433.10784@192.168.4.1>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
+Benjamin Herrenschmidt wrote:
+> Well... x86 PCs with ordinary BIOSes did. Other firmwares,
+> embedded devices, whatever.... may not, or eventually the firmware
+> will have reset everything prior to booting the kernel (go figure
+> why, but that happens).
 > 
-> No, we're not GPLing it but we are making a few adjustments and wanted to
-> make sure that it was an improvement, not a regression, in the eyes of
-> the free users.  Sorry for the intrusion, I'll be as brief as possible.
-> 
+> It's not difficult nor harmful to wait for that dawn busy bit to
+> go away, so why not do it ?
 
-> 3(c) Maintaining Open Source.  Our intent was that the free use of
->      BitKeeper was for the purpose of helping the open source community;
->      it was not to provide commercial users a free product.  We have had
->      a number of cases where managers up to VPs have told their engineers
->      "just don't put anything useful in the checkin comments and then we
->      can use it for free".  Not what we had in mind.  So we're adding
->      a clause which says that we reserve the right to insist that you
->      make your repositories available on a public port within 15 days
->      of the request.
 
-    This addendum is somewhat [1] annoying, because I switched over to
-    BK for _everything_ a couple of years ago and now I've got a
-    moderately large body of stuff that is NOT open source (my resume,
-    my dns, little proofs of concept projects that I did for people.
-    I've not made one red penny off any of this [particularly since the
-    economy has gone south and put me out of work for the past year.
-    But I'm still not opensourcing my resume.]) that's under bitkeeper.
-    If I upgrade to a bk that uses the new license, then I get to play
-    the exciting game of ``break the new license and defraud my former
-    employers'' [2], which is about as appealing as Linus's alternative
-    approach to resolving software patent issues.
+Basically think about the consequences of trying to handle a completely 
+unknown state -- if you are going to attempt to handle this you would 
+need to check for data, not just the BSY bit.  And read the data into a 
+throwaway buffer, if there is data to be read, or write the data it's 
+expecting.
 
-                  ____
-    david parsons \bi/ [1: pronounced ``extremely'']
-                   \/  [2: or, alternatively, buy it, but this involves
-			   bitmover actually telling me how much it would
-			   cost AND having a job[3] so I could buy it.]
-		       [3: The Oregon economy really sucks, so this is
-			   filed under the category of ``sick jokes'' ]
+So it's not just the busy bit :)
+

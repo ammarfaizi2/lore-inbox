@@ -1,77 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136073AbREBXEb>; Wed, 2 May 2001 19:04:31 -0400
+	id <S136087AbREBXEb>; Wed, 2 May 2001 19:04:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136058AbREBXEV>; Wed, 2 May 2001 19:04:21 -0400
-Received: from oboe.it.uc3m.es ([163.117.139.101]:4102 "EHLO oboe.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S136069AbREBXEG>;
+	id <S136073AbREBXEV>; Wed, 2 May 2001 19:04:21 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:12039 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S136058AbREBXEG>;
 	Wed, 2 May 2001 19:04:06 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200105022303.f42N36825429@oboe.it.uc3m.es>
-Subject: Re: [OT] Interrupting select.
-In-Reply-To: <E14v4zq-0004Sy-00@the-village.bc.nu> from "Alan Cox" at "May 2,
- 2001 11:21:19 pm"
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Date: Thu, 3 May 2001 01:03:06 +0200 (MET DST)
-CC: ptb@it.uc3m.es, lar@cs.york.ac.uk,
-        "Linux Kernel" <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UNKNOWN-8BIT
-Content-Transfer-Encoding: 8bit
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Paul J Albrecht <pjalbrecht@home.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Debuggers, KDB or KGDB? 
+In-Reply-To: Your message of "Wed, 02 May 2001 16:06:15 EST."
+             <01050216532701.00700@CB57534-A> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 03 May 2001 09:03:55 +1000
+Message-ID: <5003.988844635@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Alan Cox wrote:"
-> > What IS the magic combination that makes select interruptible
-> > by honest-to-goodness non-blocked signals!
-> man
-> 
-> [seriously man sigaction]
+On Wed, 2 May 2001 16:06:15 -0500, 
+Paul J Albrecht <pjalbrecht@home.com> wrote:
+>I'd like to know more about your plans to enhance KDB with source level debug
+>capability.
 
-Equally seriously .. all signals are unblocked in my code and always
-have been. The processes receive signals vurrrrry happily. Except when
-they are in a select-with-timeout loop, when they keep going round the
-loop poking their head out of the select every 5s, and taking no notice
-of the murderous hail of die die die die die stuff being slammed at
-them.
+Use a combination of gdb and kdb.  kdb to support kernel internals, gdb
+to take the kdb output and add source level data.  It needs two
+machines, one that is running to support gdb, the second machine is
+being debugged, with a serial console between them.
 
-You can see stuff such as the following early on in my code:
+The problem will be stopping gdb from making assumptions about the
+machine being debugged.  Instead of changing gdb code, use a gdb
+wrapper program to intercept user commands and gdb serial protocol and
+convert them to kdb commands.
 
-           // handle every s¡ngle signal in one "sighandler"
-           for (k = 1; k < 30; k++) {
-             struct sigaction sa = { {sighandler}, {{0}}, SA_RESTART, NULL };
-             sigfillset(& sa.sa_mask);
-             sigaction(k, & sa, NULL);
-           }
-                                                     
-But does select come out of this loop?
+>Would you have to boot an unstripped kernel executable whenever you
+>wanted to debug?
 
-             while (1) {
-                 int res = select(n,rfds,wfds,efds,&timeout);
-                 if (res > 0)
-                    return res;    // data or error is expected
-                 if (res == 0) {
-                    return -ETIME; // timeo in select
-                 }
-             }
+Boot, no.  But the machine running gdb will need an copy of the
+unstripped vmlinux and module objects to get the debug information.
 
-A resounding "no". kill -9 hurts it but it's invulnerable to everything
-else.
-
-Looking at the kernel code in select.c. I see it's implemented by poll
-(I knew that). sys_select calls do_select and I can't for the life of
-me see where anyone sets a signal mask. OTOH if all signals are
-masked by default when syscalls are made (I don't know, but it seems
-possible) then I can't see where interrupts are allowed again.
-
-The man page for select says nothing about it being interruptible, or
-not. 
-
-This has been in the back of my mind for months. I'm glad somebody
-asked about it!
-
-
-Peter

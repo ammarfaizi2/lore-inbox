@@ -1,36 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271106AbTG3LTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 07:19:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272005AbTG3LTJ
+	id S272819AbTG3LX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 07:23:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272822AbTG3LX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 07:19:09 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:13460 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S271106AbTG3LTH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 07:19:07 -0400
-Date: Wed, 30 Jul 2003 13:19:05 +0200 (MEST)
-Message-Id: <200307301119.h6UBJ5hU002233@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: core@enodev.com, linux-kernel@vger.kernel.org
-Subject: Re: APIC error on CPU0: 02(02)
+	Wed, 30 Jul 2003 07:23:29 -0400
+Received: from kempelen.iit.bme.hu ([152.66.241.120]:62099 "EHLO
+	kempelen.iit.bme.hu") by vger.kernel.org with ESMTP id S272819AbTG3LXT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 07:23:19 -0400
+Date: Wed, 30 Jul 2003 13:23:17 +0200 (MET DST)
+From: Pilaszy Istvan <pila@inf.bme.hu>
+To: linux-kernel@vger.kernel.org
+Subject: bug in loopback device (Linux version 2.6.0-test2)
+Message-ID: <Pine.GSO.4.00.10307301313200.21959-100000@kempelen.iit.bme.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Jul 2003 20:23:22 -0500, Shawn <core@enodev.com> wrote:
->I just bought a shiny new Athlon 2400+ and popped it in my biostar M7VIB
->with an up to date bios.
->
->I'm running 2.6.0-test1-mm2, and I get tons of "APIC error on CPU0:
->02(02)" messages. Can someone tell me what is going on?
+Hi!
 
-02 = Receive checksum error. Your APIC bus is corrupting messages
-sent to the CPU. This is a serious hardware problem, indicating
-that the board hasn't been properly designed for APIC usage.
+I found a bug in the loopback device.
+See this two different results (the difference: in the second case I use
+`-o loop' mount option for mounting /dev/hda3 to /hda3_copy
 
-First try to avoid using the APIC bus: disable SMP and UP_IOAPIC.
-If your BIOS allows it, set interrupt mode to PIC not APIC.
-If you still get these errors (but you shouldn't unless the HW
-is _really_ broken), also disable UP_APIC.
+First case:
+mount -t reiserfs /dev/hda3 /hda3
+mount -t reiserfs /dev/hda3 /hda3_copy
+rm -f /hda3/* /hda3_copy/*
+ls -l /hda3/ /hda3_copy/
+touch /hda3/xxx /hda3_copy/yyy
+echo
+ls -l /hda3 /hda3_copy
+umount /hda3
+umount /hda3_copy
 
-Or replace the board with something better.
+The result is:
+/hda3/:
+total 0
+
+/hda3_copy/:
+total 0
+
+/hda3:
+total 0
+-rw-r--r--    1 root     root            0 Jul 30 13:15 xxx
+-rw-r--r--    1 root     root            0 Jul 30 13:15 yyy
+
+/hda3_copy:
+total 0
+-rw-r--r--    1 root     root            0 Jul 30 13:15 xxx
+-rw-r--r--    1 root     root            0 Jul 30 13:15 yyy
+
+Everything is OK.
+-----------------------------------------------------------------------
+Second case:
+
+mount -t reiserfs /dev/hda3 /hda3
+mount -o loop -t reiserfs /dev/hda3 /hda3_copy
+rm -f /hda3/* /hda3_copy/*
+ls -l /hda3/ /hda3_copy/
+touch /hda3/xxx /hda3_copy/yyy
+echo
+ls -l /hda3 /hda3_copy
+umount /hda3
+umount /hda3_copy
+
+And the result:
+/hda3/:
+total 0
+
+/hda3_copy/:
+total 0
+
+/hda3:
+total 0
+-rw-r--r--    1 root     root            0 Jul 30 13:17 xxx
+
+/hda3_copy:
+total 0
+-rw-r--r--    1 root     root            0 Jul 30 13:17 yyy
+---------------------------------------------------------------------------
+Its quite interesting :-) Why to store to copy of the directory in the
+memory? It causes inconsistency, and wastes memory.
+
+Bye,
+Istvan
+
+

@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbTEQHyV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 03:54:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTEQHyV
+	id S261301AbTEQIER (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 04:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbTEQIER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 03:54:21 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:33980 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261292AbTEQHyU (ORCPT
+	Sat, 17 May 2003 04:04:17 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:1182 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261301AbTEQIEO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 03:54:20 -0400
-Date: Sat, 17 May 2003 10:05:30 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6 must-fix, v4
-Message-ID: <20030517080529.GJ6985@marowsky-bree.de>
-References: <20030516161717.1e629364.akpm@digeo.com> <20030516161753.08470617.akpm@digeo.com>
+	Sat, 17 May 2003 04:04:14 -0400
+Date: Sat, 17 May 2003 10:16:58 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] laptop mode, #2
+Message-ID: <20030517081658.GU812@suse.de>
+References: <20030516113309.GY812@suse.de> <20030516195535.GC372@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030516161753.08470617.akpm@digeo.com>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+In-Reply-To: <20030516195535.GC372@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003-05-16T16:17:53,
-   Andrew Morton <akpm@digeo.com> said:
+On Fri, May 16 2003, Pavel Machek wrote:
+> Hi!
+> 
+> > Made a few tweaks and adjustments:
+> > 
+> > - If block_dump is set, also dump who is marking a page/buffer as dirty.
+> >   akpm recommended this.
+> > 
+> > - Don't touch default bdflush parameters (see script)
+> > 
+> > That's about it. I've gotten several mails who really like the patch and
+> > that it really adds a non-significant amount of extra battery
+> > time. I
+> 
+> Non-significant? Like it adds no time at all?
 
-> drivers/block/
-> --------------
+Woops, that was reversed :)
 
-Last time I looked at the multipath code (2.5.50 or so) it also looked
-pretty broken; I plan to port forward the changes we did on 2.4 before
-KS.
+> > consider the patch final at this point.
+> > 
+> > Patch is against 2.4.21-rc2 (ish)
+> 
+> It looks nice, but without Documentation/laptop_mode, I can't say much
+> more ;-)))).
 
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+The attached script basically explained everything, but yes I will add a
+laptop_mode file as well.
 
 -- 
-SuSE Labs - Research & Development, SuSE Linux AG
-  
-"If anything can go wrong, it will." "Chance favors the prepared (mind)."
-  -- Capt. Edward A. Murphy            -- Louis Pasteur
+Jens Axboe
+

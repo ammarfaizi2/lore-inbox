@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274844AbRIVAgT>; Fri, 21 Sep 2001 20:36:19 -0400
+	id <S274881AbRIVAxY>; Fri, 21 Sep 2001 20:53:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274869AbRIVAgJ>; Fri, 21 Sep 2001 20:36:09 -0400
-Received: from marine.sonic.net ([208.201.224.37]:7028 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S274844AbRIVAgH>;
-	Fri, 21 Sep 2001 20:36:07 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Fri, 21 Sep 2001 17:36:27 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: NFS daemons in D state for 2 minutes at shutdown
-Message-ID: <20010921173627.C9110@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15275.51188.271719.562445@charged.uio.no>
-User-Agent: Mutt/1.3.18i
+	id <S274883AbRIVAxP>; Fri, 21 Sep 2001 20:53:15 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:474 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S274881AbRIVAxC>;
+	Fri, 21 Sep 2001 20:53:02 -0400
+Date: Fri, 21 Sep 2001 20:53:22 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: swapoff() behaviour
+In-Reply-To: <Pine.GSO.4.21.0109212033470.9760-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0109212046570.9760-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 22, 2001 at 01:06:28AM +0200, Trond Myklebust wrote:
-> Use a combination of 'ps' and 'kill -9' or even 'killall'. Anything
-> that actually selects the nfsd daemons and *NOT* the portmapper.
 
 
-Personally I'd suggest NOT getting into the habit of using killall.  It
-performs like killall5 does on SysV machines.  So if you forget which
-machine you're on....
+On Fri, 21 Sep 2001, Alexander Viro wrote:
 
-My personal favorite for years was /bin/kill <process name>.  However, it
-depends on which package your system actually uses for /bin/kill (the kill
-from util-linux can kill by name, the procps one can not).
+> 	Guys, do we want
+> 
+> swapon /dev/sda6
+> cp -a /dev/sda6 /tmp
+> swapoff /tmp/sda6
+> 
+> to work?  Code in sys_swapoff() looks like an attempt to make it work.
+> However, it doesn't -
+>                 if ((p->flags & SWP_WRITEOK) == SWP_WRITEOK) {
+>                         if (p->swap_file) {
+>                                 if (p->swap_file == nd.dentry)
+>                                   break;
+>                         } else {
+>                                 if (S_ISBLK(nd.dentry->d_inode->i_mode)
+>                                     && (p->swap_device == nd.dentry->d_inode->i_
+> rdev))
+>                                   break;
+>                         }
+> 		}
+> 
+> _never_ hits the second break since we have ->swap_file set for all
+> active swap components, be they swap files or swap partitions.
+> 
+> Comments?  The same goes for 2.2, BTW.
 
-Lately I've been trying to train myself into using skill (from procps).
+After a look through the CVS, it seems that prior to 2.1.45 we actually
+had that behaviour - for swap partitions swapoff() cared only about
+major:minor.  Since 2.1.45 we really need the same dentry - not even
+the same inode (i.e.
+swapon /dev/sda6 && ln /dev/sda6 /dev/foo && swapoff /dev/foo
+is guaranteed to fail; prior to 2.1.45 it used to work).
 
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+In other words, during the last 4 years quite a few pieces of mm/swapfile.c
+had been a dead code.  Looks like we either need to restore old behaviour
+or perform the amputation.  Snippet above is not the only place of that
+kind.
+
+Linus, it's your call.
+

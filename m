@@ -1,88 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268184AbUJDP0K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268189AbUJDP03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268184AbUJDP0K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 11:26:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268189AbUJDP0K
+	id S268189AbUJDP03 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 11:26:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268200AbUJDP02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 11:26:10 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:34533 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268184AbUJDP0E (ORCPT
+	Mon, 4 Oct 2004 11:26:28 -0400
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:46249 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S268189AbUJDP0X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 11:26:04 -0400
-Date: Mon, 4 Oct 2004 08:23:51 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Erich Focht <efocht@hpce.nec.com>
-Cc: frankeh@watson.ibm.com, akpm@osdl.org, nagar@watson.ibm.com,
-       ckrm-tech@lists.sourceforge.net, mbligh@aracnet.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
-       ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20041004082351.5c111aa2.pj@sgi.com>
-In-Reply-To: <200410041615.24384.efocht@hpce.nec.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	<200410032221.26683.efocht@hpce.nec.com>
-	<416156E8.7060708@watson.ibm.com>
-	<200410041615.24384.efocht@hpce.nec.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 4 Oct 2004 11:26:23 -0400
+Date: Mon, 4 Oct 2004 17:26:21 +0200
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: linux-kernel@vger.kernel.org
+Subject: net_device: set_multicast_list called from interrupt?
+Message-ID: <20041004172621.3dd8945f@phoebee>
+X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
+ CPU 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Organization: Technotrend AG
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Mon__4_Oct_2004_17_26_21_+0200_RngOxgLxDrSTrfN5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erich, responding to Hubertus:
-> > (a) is it a guarantee/property that cpusets at with the same
-> >      parent cpuset do not overlap ?
-> 
-> Right now it isn't AFAIK. Paul, if all cpusets on the same level are
-> disjunct this certainly simplifies life. Would this be a too strong
-> limitation for you? We could live with it.
+--Signature=_Mon__4_Oct_2004_17_26_21_+0200_RngOxgLxDrSTrfN5
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Correct, Erich, it is not a guarantee that sibling cpusets don't
-overlap, unless, as Simon noted, they are all marked exclusive.
+Hi there!
 
-Yes, it would be a stronger limitation than I would agree to, but that's
-ok, because in my humble opinion, CKRM doesn't need it to operate within
-cpusets.
+I don't know if this is the right place, but I hope so.
 
-I think what's needed for CKRM to operate within cpusets is clear
-ownership.
+I wrote a network-driver years ago for the 2.4er kernel's.
 
-Each instance of CKRM needs (tell me if I'm wrong here):
- 1) to have a clear and unambiguous answer to the question of
-    which CPUs, which Memory Nodes, and which Tasks it is
-    controlling,
- 2) no overlap of these sets with another instance of CKRM,
- 3) the CPUs and Memory Nodes on which any of these Tasks are
-    allowed to run must be a subset of those controlled by
-    this instance of CKRM, and
- 4) all Tasks allowed to run on any of the CPUs and Memory
-    Nodes controlled by this CKRM instance are in the list
-    of Tasks this CKRM knows it controls.
+Now I ported it to the 2.6er kernel but I get some problems because
+set_multicast_list is called from an interrupt and my driver want's to
+free/allocate some memory.
 
-In short - each CKRM instance needs clear, unambiguous, non-overlapping
-ownership of all it surveys.
+Why did the driver work under 2.4, and now stops running on 2.6?
 
-Requesting that all cpusets be marked exclusive for both CPU and Memory
-is an overzealous precondition for the above.
+I had a look at http://lwn.net/Articles/30107/:
+Driver porting: Network drivers
 
-Another way to obtain the above requirements would be to assign each
-CKRM instance to a separate cpuset subtree, where the root of the
-subtree is marked exclusive for cpu and memory, where that CKRM instance
-controls all CPUs and Memory owned by that subtree and all Tasks
-attached to any cpuset in that subtree, and where any tasks attached to
-ancestors of the root are either (1) not allowed to use any of the CPUs
-and Memory assigned to the subtree, or (2) are both [2a] allowed to use
-only some subset of the CPUs and Memory assigned to the subtree and [2b]
-are included in the list of tasks to be managed by that CKRM instance.
+but there was nothing about newly implemented soft-interrupts.
 
-(The last 4.5 lines above are the special case required to handle the
-indigenous per-cpu tasks, such as the migration threads - sorry.)
+Thanks,
+Martin
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+MyExcuse:
+The cord jumped over and hit the power switch.
+
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
+
+TechnoTrend AG <http://www.technotrend.de>
+
+--Signature=_Mon__4_Oct_2004_17_26_21_+0200_RngOxgLxDrSTrfN5
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBYWuemjLYGS7fcG0RAq/tAKCogTAwniurUg2LkOQngYZ+fiwY4QCfYcWv
+tyE5IhJ6uyklwdXBvv0ixfE=
+=u1wU
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__4_Oct_2004_17_26_21_+0200_RngOxgLxDrSTrfN5--

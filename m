@@ -1,123 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbUKDC2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262054AbUKDC2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbUKDC2o (ORCPT <rfc822;willy@w.ods.org>);
+	id S262054AbUKDC2o (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 3 Nov 2004 21:28:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbUKDCO1
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbUKDC2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 21:14:27 -0500
-Received: from fmr12.intel.com ([134.134.136.15]:36779 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262091AbUKDCH6 convert rfc822-to-8bit (ORCPT
+	Wed, 3 Nov 2004 21:28:34 -0500
+Received: from ozlabs.org ([203.10.76.45]:54486 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262086AbUKDC0t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 21:07:58 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: problems with ACPI on 2.4.28-rc1
-Date: Thu, 4 Nov 2004 10:07:42 +0800
-Message-ID: <9DE394C12A921946AEECE1F71944ECD581CEF9@pdsmsx404>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: problems with ACPI on 2.4.28-rc1
-Thread-Index: AcTB+upj46z7dztMQbiM2Mj/mhBQVAAGAftQ
-From: "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>
-To: <mike.miller@hp.com>, <mikem@beardog.cca.cpqcorp.net>
-Cc: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
-X-OriginalArrivalTime: 04 Nov 2004 02:07:44.0126 (UTC) FILETIME=[1259D1E0:01C4C213]
+	Wed, 3 Nov 2004 21:26:49 -0500
+Date: Thu, 4 Nov 2004 13:12:28 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jgarzik@mandrakesoft.com, orinoco-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Cosmetic updates for orinoco driver
+Message-ID: <20041104021228.GA3949@zax>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	jgarzik@mandrakesoft.com, orinoco-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <20041103022444.GA14267@zax> <20041103154407.4d9833ca.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041103154407.4d9833ca.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mike.miller@hp.com wrote:
-> Hello,
-> Can anyone assist with this problem? I'm seeing a hang very early in
-> boot under both 2.4.27 & 2.4.28-rc1. 
-> When the kernel begins to execute the system hangs with ERROR:
-> Invalid Checksum. This seems to be ACPI related. The HW is HP
-> DL360G4. Any help is appreciated. Here is the console output:  
+On Wed, Nov 03, 2004 at 03:44:07PM -0800, Andrew Morton wrote:
+> David Gibson <david@gibson.dropbear.id.au> wrote:
+> >
+> > This patch reformats printk()s and some other cosmetic strings in the
+> > orinoco driver.  Also moves, removes, and adds ratelimiting in some
+> > places.  Behavioural changes are trivial/cosmetic only.  This reduces
+> > the cosmetic/trivial differences between the current kernel version,
+> > and the CVS version of the driver; one small step towards full merge.
+> 
+> This produces a ghastly reject storm against Jeff's bk-netdev tree.
+> 
+> I dunno how Jeff wants to handle that.  I stuck a copy of his current patch
+> (against 2.6.10-rc1) at
+> http://www.zip.com.au/~akpm/linux/patches/stuff/bk-netdev.patch and shall
+> now run away.
 
-Pls take a look at http://bugme.osdl.org/show_bug.cgi?id=3297
-A Acer Tablet there have error checksum, but in fact has another right
-RSDP.
-Pls try my last patch, which put checksum early for any possible tag.
+Ah, looks like Al Viro did the ioread/iowrite conversion while I
+wasn't looking.  Ok, with that netdev patch I should be able to fix
+things up (and merge the iowrite conversion back into CVS).
 
--zhen
-> 
-> GRUB Loading stage2...
->   Booting command-list
-> 
-> root (hd0,0)
->  Filesystem type is ext2fs, partition type 0x83
-> kernel /vmlinuz-2427 ro root=LABEL=/ console=ttyS0,115200 console=tty1
->    [Linux-bzImage, setup=0x1400, size=0x10b8d4]
-> initrd /initrd-2427
->    [Linux-initrd @ 0x37f45000, 0xaaafb bytes]
-> 
-> ok
-> Bootdata ok (command line is ro root=LABEL=/ console=ttyS0,115200
-> console=tty1) 
-> Linux version 2.4.27 (root@orange-rh3u4) (gcc version 3.2.3 20030502
-> (Red Hat Linux 3.2.3-46)) #1 SMP Wed Nov 3 14:40:24 CST 2004 
-> BIOS-provided physical RAM map:
->  BIOS-e820: 0000000000000000 - 000000000009f400 (usable)
->  BIOS-e820: 000000000009f400 - 00000000000a0000 (reserved)
->  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
->  BIOS-e820: 0000000000100000 - 000000003fff3000 (usable)
->  BIOS-e820: 000000003fff3000 - 000000003fffb000 (ACPI data)
->  BIOS-e820: 000000003fffb000 - 0000000040000000 (reserved)
->  BIOS-e820: 00000000fec00000 - 00000000fed00000 (reserved)
->  BIOS-e820: 00000000fee00000 - 00000000fee10000 (reserved)
->  BIOS-e820: 00000000ffc00000 - 0000000100000000 (reserved)
-> kernel direct mapping tables upto 10100000000 @ 8000-c000
-> No NUMA configuration found
-> Faking a node at 0000000000000000-000000003fff3000
-> Bootmem setup node 0 0000000000000000-000000003fff3000
-> Scan SMP from 0000010000000000 for 1024 bytes.
-> Scan SMP from 000001000009fc00 for 1024 bytes.
-> Scan SMP from 00000100000f0000 for 65536 bytes.
-> found SMP MP-table at 00000000000f4fa0
-> hm, page 000f4000 reserved twice.
-> hm, page 000f5000 reserved twice.
-> hm, page 000f2000 reserved twice.
-> hm, page 000f3000 reserved twice.
-> setting up node 0 0-3fff3
-> On node 0 totalpages: 262131
-> zone(0): 4096 pages.
-> zone(1): 258035 pages.
-> zone(2): 0 pages.
-> ACPI: RSDP (v002 HP                                        ) @
->   0x00000000000f4f20 >>> ERROR: Invalid checksum
-> Intel MultiProcessor Specification v1.4
->     Virtual Wire compatibility mode.
-> OEM ID: HP       Product ID: PROLIANT     APIC at: 0xFEE00000
-> Processor #0 15:3 APIC version 20
-> I/O APIC #8 Version 17 at 0xFEC00000.
-> I/O APIC #9 Version 17 at 0xFEC10000.
-> Processors: 1
-> Checking aperture...
-> Kernel command line: ro root=LABEL=/ console=ttyS0,115200 console=tty1
-> Initializing CPU#0
-> time.c: Detected 1.193182 MHz PIT timer.
-> time.c: Detected 3000.220 MHz TSC timer.
-> Console: colour VGA+ 80x25
-> Calibrating delay loop... 5989.99 BogoMIPS
-> Memory: 1021296k/1048524k available (1612k kernel code, 0k reserved,
-> 703k data, 152k init) 
-> Dentry cache hash table entries: 131072 (order: 9, 2097152 bytes)
-> Inode cache hash table entries: 65536 (order: 8, 1048576 bytes)
-> Mount cache hash table entries: 256 (order: 0, 4096 bytes)
-> 
-> I've tried several different things including disabling ACPI in the
-> kernel, erasing NVRAM, etc. No luck. 
-> 
-> Thanks,
-> mikem
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in 
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

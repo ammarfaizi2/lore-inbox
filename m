@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVATC6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVATDBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbVATC6P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 21:58:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVATC6P
+	id S261961AbVATDBl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 22:01:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVATDBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 21:58:15 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:57524 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261953AbVATC5E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 21:57:04 -0500
-Message-ID: <41EF1DFB.6090103@yahoo.co.uk>
-Date: Thu, 20 Jan 2005 02:56:59 +0000
-From: Paul Marrons <pmarrons@yahoo.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: mj@ucw.cz, linux-kernel@vger.kernel.org
-CC: torvalds@transmeta.com
-Subject: Backport of pci cardbus number enumeration from 2.6 to 2.4.29
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 19 Jan 2005 22:01:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:22450 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261956AbVATDBh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 22:01:37 -0500
+Date: Wed, 19 Jan 2005 19:01:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       peterc@gelato.unsw.edu.au, tony.luck@intel.com, dsw@gelato.unsw.edu.au,
+       torvalds@osdl.org, benh@kernel.crashing.org, linux-ia64@vger.kernel.org,
+       hch@infradead.org, wli@holomorphy.com, jbarnes@sgi.com
+Subject: Re: [PATCH RFC] 'spinlock/rwlock fixes' V3 [1/1]
+Message-Id: <20050119190104.71f0a76f.akpm@osdl.org>
+In-Reply-To: <20050120023445.GA3475@taniwha.stupidest.org>
+References: <20050117055044.GA3514@taniwha.stupidest.org>
+	<20050116230922.7274f9a2.akpm@osdl.org>
+	<20050117143301.GA10341@elte.hu>
+	<20050118014752.GA14709@cse.unsw.EDU.AU>
+	<16877.42598.336096.561224@wombat.chubb.wattle.id.au>
+	<20050119080403.GB29037@elte.hu>
+	<16878.9678.73202.771962@wombat.chubb.wattle.id.au>
+	<20050119092013.GA2045@elte.hu>
+	<16878.54402.344079.528038@cargo.ozlabs.ibm.com>
+	<20050120023445.GA3475@taniwha.stupidest.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Martin,
 
-To overcome a problem with my laptop cardbus not being assigned the 
-correct bus number in 2.4.29 (I originally did this change for 2.4.27) I 
-backported a portion of the code in the 2.6 kernel drivers/pci/pci.c 
-file. I did this because I noticed that only 2.6 assigned the correct 
-bus number and I specifically need to run 2.4.X because of a driver I 
-need that is not 2.6 compatible. Basically without this change on my 
-laptop (Thinkpad 240) both the main PCI bus and cardbus bridge both get 
-assigned bus#0 and as a result any cardbus devices present are not 
-correctly detected and allocated any resources, in addition the 
-/proc/bus/pci contains two '0' entries and tools such as lspci fail to 
-work.
+Given the general confusion and the difficulty of defining and
+understanding the semantics of these predicates.  And given that the
+foo_is_locked() predicates have a history of being used to implement
+ghastly kludges, how about we simply nuke this statement:
 
-I am aware of people overcoming this problem (with my model of laptop) 
-by setting defining pcibios_assign_all_busses() as 1. But this backport 
-is a superior solution to the problem.
+Chris Wedgwood <cw@f00f.org> wrote:
+>
+>  	if (!spin_is_locked(&p->sighand->siglock) &&
+>  -				!rwlock_is_locked(&tasklist_lock))
+>  +				!rwlock_write_locked(&tasklist_lock))
 
-The few small changes are isolated to pci_add_new_bus and 
-pci_scan_bridge. I hope you will be able to incorporate them into the 
-next 2.4 kernel release.
+and be done with the whole thing?
 
-If there is anything else I need to do please let me know.
+I mean, do we really want these things in the kernel anyway?  We've never
+needed them before.
 
-Regards,
+If we reeeealy need the debug check, just do
 
-Paul Marrons.
+	BUG_ON(read_trylock(...))
 

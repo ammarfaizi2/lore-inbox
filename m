@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267099AbTA0DRC>; Sun, 26 Jan 2003 22:17:02 -0500
+	id <S267117AbTA0DgG>; Sun, 26 Jan 2003 22:36:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267112AbTA0DRC>; Sun, 26 Jan 2003 22:17:02 -0500
-Received: from mta08bw.bigpond.com ([144.135.24.137]:54489 "EHLO
-	mta08bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S267099AbTA0DRB> convert rfc822-to-8bit; Sun, 26 Jan 2003 22:17:01 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Srihari Vijayaraghavan <harisri@bigpond.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Solved 2.4.21-pre3aa1 and RAID-0 issue (was: Re: 2.4.21-pre3aa1 and RAID0 issue]
-Date: Mon, 27 Jan 2003 14:41:11 +1100
-User-Agent: KMail/1.4.3
-References: <200212270856.13419.harisri@bigpond.com> <200301222007.48055.harisri@bigpond.com> <200301230102.25399.harisri@bigpond.com>
-In-Reply-To: <200301230102.25399.harisri@bigpond.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Cc: lkml <linux-kernel@vger.kernel.org>
-Message-Id: <200301271441.11112.harisri@bigpond.com>
+	id <S267120AbTA0DgF>; Sun, 26 Jan 2003 22:36:05 -0500
+Received: from spiderman.spectsoft.com ([216.126.222.67]:57866 "EHLO
+	trashbin1.spectsoft.com") by vger.kernel.org with ESMTP
+	id <S267117AbTA0DgF>; Sun, 26 Jan 2003 22:36:05 -0500
+Subject: kiovec/kiobuf replacement
+From: Jason Howard <lists@spectsoft.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: SpectSoft, LLC
+Message-Id: <1043639121.1447.21.camel@bmagic.spectsoft.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 26 Jan 2003 19:45:21 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrea,
+Hello All,
 
-On Thursday 23 January 2003 01:02, Srihari Vijayaraghavan wrote:
-> ...
-> Ok. I did some more testing, and this is what happens:
-> /sbin/raidstart /dev/md0 executes and exits fine under 2.4.21-pre3. Where
-> as under 2.4.21-pre3aa1 it starts executing but _never_ exits (I waited for
-> few minutes). I had to kill it using alt + sysrq + k.
-> ...
+What is the correct change in code/mindset needed to replace the
+kiovec/kiobuf routines?  I am currently using there routines to do a
+scatter gather DMA from a user space buffer to/from a PCI video frame
+buffer device.  Should I approach this problem differently?  The user
+space buffer can be up to 8MB in size.
 
-The 9985_blk-atomic-aa5 patch is causing this regression. Backing this patch 
-out of 2.4.21-pre3aa1 makes it to work nicely with Software RAID-0.
+Thanks,
+Jason
 
-Thanks.
 -- 
-Hari
-harisri@bigpond.com
+ Jason Howard
+
+Professional:
+  SpectSoft, LLC
+  http://www.spectsoft.com  jason@spectsoft.com      
+  Phone: +1.209.847.7812    Fax: +1.209.847.7859
+Personal:
+  http://www.psinux.org     jason@psinux.org
+  Cell: +1.209.968.1289
+  Text Message: jasonsphone@psinux.org
+
 

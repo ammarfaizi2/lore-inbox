@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268850AbRHBHwV>; Thu, 2 Aug 2001 03:52:21 -0400
+	id <S268851AbRHBIQZ>; Thu, 2 Aug 2001 04:16:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268849AbRHBHwM>; Thu, 2 Aug 2001 03:52:12 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:25083 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S268847AbRHBHwA>; Thu, 2 Aug 2001 03:52:00 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200108020751.f727pnMf010874@webber.adilger.int>
-Subject: Re: [RFT] #2 Support for ~2144 SCSI discs
-In-Reply-To: <200108020642.f726g0L15715@mobilix.ras.ucalgary.ca>
- "from Richard Gooch at Aug 2, 2001 00:42:00 am"
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Date: Thu, 2 Aug 2001 01:51:48 -0600 (MDT)
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-        devfs-announce-list@mobilix.ras.ucalgary.ca
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S268852AbRHBIQQ>; Thu, 2 Aug 2001 04:16:16 -0400
+Received: from radiuslog.rad.net.id ([202.154.1.12]:11142 "EHLO
+	smtp.rad.net.id") by vger.kernel.org with ESMTP id <S268851AbRHBIP4>;
+	Thu, 2 Aug 2001 04:15:56 -0400
+Message-ID: <3B690A63.5068B279@theOffice.net>
+Date: Thu, 02 Aug 2001 15:08:03 +0700
+From: Agus Budy Wuysang <supes@theOffice.net>
+Organization: PT Fajar Surya Wisesa Tbk
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-xfs i686)
+X-Accept-Language: id, en
 MIME-Version: 1.0
+To: "Nadav Har'El" <nyh@math.technion.ac.il>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SMP possible with AMD CPUs?
+In-Reply-To: <20010801230441.A19396@leeor.math.technion.ac.il>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard writes:
->   Hi, all. Below is my second cut of a patch that adds support for
-> large numbers of SCSI discs (approximately 2144). I'd like people to
-> try this out. I've fixed a couple of "minor" typos that happened to
-> disable sd detection. I've also tested this patch: it works fine on my
-> 3 drive system. In addition, I've switched to using vmalloc() for key
-> data structures, so the kmalloc() limitations shouldn't hit us. I've
-> added an in_interrupt() test to sd_init() just in case.
+Nadav Har'El wrote:
+> 
+> A Linux user in a local Linux club asked me whether Linux support SMP with
+> AMD (rather than Intel Pentium) CPUs. She said that a year ago she was told
+> Linux 2.2 couldn't, and that she was wondering whether the new Linux 2.4 can.
+> I didn't know the answer, so I started digging.
+> 
+> I tried looking with various search search engines, but found nothing about
+> this subject. Looking through the source code, it appears that SMP with AMDs
+> *might* be supported, but I couldn't find any comment confirming that. The
+> relevant FAQs, READMEs, and so on that I found are all from the 2.2 kernel
+> era.
+> 
+> So, does Linux support SMP on AMD CPUs?
 
-The real question is whether this code is limited to adding only SCSI
-major numbers, or if it could be used to assign major numbers to
-other subsystems (sorry I haven't looked at the code yet)?
+http://heroinewarrior.com/athlon.php3
 
- From our discussion last week, it _should_ be able to assign major
-numbers to other systems like EVMS, which you would probably want to
-use on top of those 2144 SCSI disks anyways.  However, since you are
-billing this as the "2144 SCSI disk patch", I thought I would confirm.
+>From their /proc/cpuinfo output I say it is kernel 2.4.x...
 
-Cheers, Andreas
+They got large pictures & some timing comparison 
+against dual Alpha & dual PIII.
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
++-R-| Netscape Communicator 4.x |-H-| Powered by Linux 2.4.x |-7-+
+|/v\ Agus Budy Wuysang                   MIS Department          |
+| |  Phone:  +62-21-344-1316 ext 317     GSM: +62-816-1972-051   |
++--------| http://www.rad.net.id/users/personal/s/supes |--------+

@@ -1,83 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318107AbSHQSGU>; Sat, 17 Aug 2002 14:06:20 -0400
+	id <S318062AbSHQSM1>; Sat, 17 Aug 2002 14:12:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318113AbSHQSGU>; Sat, 17 Aug 2002 14:06:20 -0400
-Received: from ausadmmsps307.aus.amer.dell.com ([143.166.224.102]:18951 "HELO
-	AUSADMMSPS307.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S318107AbSHQSGT>; Sat, 17 Aug 2002 14:06:19 -0400
-X-Server-Uuid: 82a6c0aa-b49f-4ad3-8d2c-07dae6b04e32
-Message-ID: <20BF5713E14D5B48AA289F72BD372D6821CB74@AUSXMPC122.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: torvalds@transmeta.com, davej@suse.de
-cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH 2.5.x] move asm-ia64/efi.h to linux/efi.h
-Date: Sat, 17 Aug 2002 13:10:06 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 11404E0C1476875-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+	id <S318064AbSHQSM0>; Sat, 17 Aug 2002 14:12:26 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:5643 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S318062AbSHQSM0>;
+	Sat, 17 Aug 2002 14:12:26 -0400
+Date: Sat, 17 Aug 2002 20:16:24 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IDE?
+Message-ID: <20020817181624.GM10730@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.GSO.4.21.0208162057550.14493-100000@weyl.math.psu.edu> <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Z/kiM2A+9acXa48/"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux mail 2.4.18 
+x-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+x-gpg-key: wwwkeys.de.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply
-http://domsch.com/linux/patches/ia64/linux-2.5-efihmove.cset
-a BK patch against Linus' current BK tree, which also applies cleanly
-against the IA64 port 2.5.30 test patch posted last Monday.  This moves all
-instances of #include <asm{"",-ia64}/efi.h> to <linux/efi.h>.
 
-ChangeSet@1.504, 2002-08-13 22:24:31-05:00, Matt_Domsch@dell.com
-  Move include/asm-ia64/efi.h to include/linux/efi.h
-  This is required now that non-ia64 architectures are using EFI code,
-  particularly the EFI GUID Partition Table (GPT) scheme for large disks.
+--Z/kiM2A+9acXa48/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Fri, 2002-08-16 18:35:29 -0700, Linus Torvalds <torvalds@transmeta.com>
+wrote in message <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.co=
+m>:
+> On Fri, 16 Aug 2002, Alexander Viro wrote:
 
- b/arch/ia64/hp/common/sba_iommu.c |    2 
- b/arch/ia64/hp/zx1/hpzx1_misc.c   |    2 
- b/arch/ia64/kernel/acpi.c         |    2 
- b/arch/ia64/kernel/efi.c          |    2 
- b/arch/ia64/kernel/efivars.c      |    2 
- b/arch/ia64/kernel/fw-emu.c       |    2 
- b/arch/ia64/kernel/palinfo.c      |    2 
- b/arch/ia64/kernel/process.c      |    2 
- b/arch/ia64/kernel/setup.c        |    2 
- b/arch/ia64/kernel/smp.c          |    2 
- b/arch/ia64/kernel/smpboot.c      |    2 
- b/arch/ia64/kernel/time.c         |    2 
- b/arch/ia64/mm/init.c             |    2 
- b/arch/ia64/sn/fakeprom/fpmem.c   |    2 
- b/arch/ia64/sn/fakeprom/fw-emu.c  |    2 
- b/arch/ia64/sn/io/efi-rtc.c       |    2 
- b/arch/ia64/sn/kernel/llsc4.c     |    2 
- b/drivers/acpi/osl.c              |    2 
- b/drivers/char/efirtc.c           |    2 
- b/fs/partitions/efi.h             |    6 
- b/include/asm-ia64/sal.h          |    2 
- b/include/linux/efi.h             |  284
-++++++++++++++++++++++++++++++++++++++
- include/asm-ia64/efi.h            |  284
---------------------------------------
- 23 files changed, 305 insertions, 309 deletions
+>     - in particular, it would only bother with PCI (or better)=20
+>       controllers, and with UDMA-only setups.
+[...]
+> And then in five years, in Linux-3.2, we might finally just drop support=
+=20
+> for the old IDE code with PIO etc. Inevitably some people will still use=
+=20
 
+That's bad. Then, you're nailed to use old kernels without having
+possibilities of recent kernels only because you're working with eg. old
+Alphas, PCMCIA-IDE things or so? Bad, bad, badhorribly bad. Even it's
+sloooow, there'll always some need for PIO-only controller support...
 
-And please apply
-http://domsch.com/linux/patches/ia64/linux-2.5-efihmove2.cset
-which changes the #ifdef _ASM_IA64_EFI_H to _LINUX_EFI_H test.
+MfG, JBG
 
- efi.h |    6 +++---
- 1 files changed, 3 insertions, 3 deletions
+--=20
+Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
+	 -- New APT-Proxy written in shell script --
+	   http://lug-owl.de/~jbglaw/software/ap2/
 
+--Z/kiM2A+9acXa48/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-Thanks,
-Matt
+iD8DBQE9XpL4Hb1edYOZ4bsRApB7AJ4pKacBxhIZpFCSdYh4fjNf6oOLXgCghRXE
+Q4XBWDNzhvGo59BI4Z6mElc=
+=Bp71
+-----END PGP SIGNATURE-----
 
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
-
+--Z/kiM2A+9acXa48/--

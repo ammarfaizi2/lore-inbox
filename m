@@ -1,118 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265445AbUBBGdw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 01:33:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265643AbUBBGdw
+	id S265632AbUBBGZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 01:25:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265633AbUBBGZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 01:33:52 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:41387 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S265445AbUBBGds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 01:33:48 -0500
-Date: Sun, 01 Feb 2004 22:32:28 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: thomas@koeller.dyndns.org
-Subject: [Bug 1996] New: Bluetooth stack crashes kernel 
-Message-ID: <67350000.1075703548@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 2 Feb 2004 01:25:26 -0500
+Received: from fw.osdl.org ([65.172.181.6]:14011 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265632AbUBBGZP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 01:25:15 -0500
+Date: Sun, 1 Feb 2004 22:22:54 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: akpm <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] add syscalls.h
+Message-Id: <20040201222254.39bc5b39.rddunlap@osdl.org>
+In-Reply-To: <20040130163547.2285457b.rddunlap@osdl.org>
+References: <20040130163547.2285457b.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1996
+| Date: Tue, 27 Jan 2004 16:46:15 -0800
+| From: Andrew Morton <akpm@osdl.org>
+| Subject: Re: NGROUPS 2.6.2rc2
+| 
+| 
+[snip]
+| rant.  We have soooo many syscalls declared in .c files.  We had a bug due
+| to this a while back.  Problem is, we have no anointed header in which to
+| place them.  include/linux/syscalls.h would suit.  And unistd.h for
+| arch-specific syscalls.  But that's not appropriate to this patch.
 
-           Summary: Bluetooth stack crashes kernel
-    Kernel Version: 2.6.1
-            Status: NEW
-          Severity: normal
-             Owner: other_modules@kernel-bugs.osdl.org
-         Submitter: thomas@koeller.dyndns.org
+
+I am working on this.  Is anyone else?
+
+I have parts 2.6.1-non-arch* ready for testing, I believe,
+except that it will likely require more changes/additions.
+
+I have begun on 2.6.1-arch* but still have a ways to go.
+
+Caveats:
+I have only patched 2.6.1.  I will update patches for 2.6.2-rc-current.
+I have only tested by building allmodconfig on P4.
+Have not test-booted yet.
+
+Patch files for 2.6.1 are here:
 
 
-Distribution: - 
-Hardware Environment: x86 PC 
-Software Environment: 
-Linux sarkovy.koeller.dyndns.org 2.6.1 #1 Sat Jan 10 01:54:59 CET 2004 i686 
-unknown 
- 
-Gnu C                  3.3.2 
-Gnu make               3.80 
-util-linux             2.11z 
-mount                  2.11z 
-module-init-tools      0.9.15-pre2 
-e2fsprogs              1.33 
-nfs-utils              1.0.3 
-awk: cmd. line:2: (FILENAME=- FNR=1) fatal: attempt to access field -1 
-Dynamic linker (ldd)   2.3.2 
-Procps                 3.1.9 
-Net-tools              1.52 
-Kbd                    1.10 
-Sh-utils               2.0 
-Modules Loaded         snd_dummy snd_via82xx snd_pcm snd_timer snd_ac97_codec 
-snd_page_alloc snd_mpu401_uart snd_rawmidi snd_seq_device snd hci_usb bluetooth 
-uhci_hcd usbcore cls_fw sch_htb ipt_tos ipt_mark ipt_MARK ipt_TOS 
-iptable_mangle ipt_MASQUERADE iptable_nat ipt_TCPMSS ipt_pkttype ipt_length 
-ipt_multiport ipt_REJECT ipt_LOG ipt_limit ipt_state iptable_filter ip_tables 
-ip_conntrack_ftp ip_conntrack pppoe pppox af_packet ppp_generic slhc epic100 
-mii crc32 
- 
-Problem Description: 
-I am using a bluetooth adapter connected via USB. When uploading data from a 
-bluetooth device the kernel frequently crashes, like so (please note that I 
-wrote this down from the screen and typed it in again, so there may be errors): 
- 
-kernel BUG at include/linux/module.h:296! 
-invalid operand: 0000 [#1] 
-CPU:    0 
-EIP:    0060:[<c8944753>]    Not tainted 
-EFLAGS: 00010246 
-EIP is at l2cap_sock_alloc+0xc3/0xe0 [l2cap] 
-eax: 00000000   ebx: c261c080   ecx: 00000000   edx: c261c080 
-esi: 00000000   edi: c3a85980   ebp: c3a85980   esp: c02ddce0 
-ds: 007b   es: 007b   ss: 0068 
-Process swapper (pid: 0, threadinfo=c02dc000 task=c027fb20) 
-Stack: c894a280 00000000 00000024 00000020 c02dc000 c3f359d4 c89466b8 00000000 
-       00000000 00000020 c8859b4c c3b00028 c3a85200 c88912d5 c3a85200 00000014 
-       c02ddd3c 00000014 c261cbc0 00100030 0000008a 00000000 00000004 c118a81c 
-Call Trace: 
-[<c89466b8>] l2cap_recv_frame+0x518/0xe00 [l2cap] 
-[<c88912d5>] tcp_match+0x75/0x170 [ip_tables] 
-[<c88a206b>] match+0x6b/0xd0 [ip_multiport] 
-[<c889e017>] match+0x17/0x50 [ipt_state] 
-[<c888f292>] ipt_do_table+0x262/0x340 [ipt_tables] 
-[<c021c9c0>] ip_local_deliver_finish+0x0/0x150 
-[<c01ccbd8>] get_device+0x18/0x30 
-[<c88edcf7>] uhci_submit_common+0x1f7/0x2b0 [uhci_hcd] 
-[<c8904d8a>] hcd_submit_urb+0xfa/0x170 [usbcore] 
-[<c8905811>] usb_submit_urb+0x1d1/0x250 [usbcore] 
-[<c88e1255>] hci_usb_rx_complete+0x1a5/0x6e0 [hci_usb] 
-[<c89474e1>] l2cap_recv_acldata+0x181/0x340 [l2cap] 
-[<c892f117>] hci_rx_task+0x1a7/0x340 [bluetooth] 
-[<c011fcb6>] tasklet_action+0x46/0x70 
-[<c011fad0>] do_softirq+0x90/0xa0 
-[<c010b56d>] do_IRQ+0xfd/0x130 
-[<c0105000>] _stext+0x0/0x60 
-[<c01098a4>] common_interrupt+0x18/0x20 
-[<c0105000>] _stext+0x0/0x60 
-[<c0106c13>] default_idle+0x23/0x30 
-[<c0106c7c>] cpu_idle+0x2c/0x40 
-[<c02de707>] start_kernel+0x147/0x160 
-[<c02de480>] unknown_bootoption+0x0/0x100 
- 
-Code: 0f 0b 28 01 6f 79 94 c8 eb 95 0f 0b cb 01 86 79 94 c8 e9 69 
- <0>Kernel panic: Fatal exception in interrupt 
-In interrupt handler - not syncing 
- 
-Steps to reproduce: 
-/home/thomas $ hcid 
-/home/thomas $ sdpd 
-/home/thomas $ sdptool add --channel=10 OPUSH 
-OBEX Object Push service registered 
- 
-At this point I start uploading images taken with a cellphone camera. The crash 
-usually occurs after uploading 4..5 images.
+http://developer.osdl.org/rddunlap/syscalls/2.6.1-arch-syscalls.diff
+ drivers/macintosh/via-pmu.c |    2
+ fs/compat.c                 |   14 ---
+ include/linux/syscalls.h    |  173 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/sysctl.h      |    1
+ init/do_mounts.h            |   15 ---
+ init/do_mounts_devfs.c      |    6 -
+ init/initramfs.c            |   12 ---
+ kernel/compat.c             |   31 -------
+ kernel/power/disk.c         |    3
+ kernel/power/swsusp.c       |    3
+ kernel/sysctl.c             |    2
+ kernel/uid16.c              |   13 ---
+ net/compat.c                |   23 -----
+ 13 files changed, 184 insertions(+), 114 deletions(-)
 
+
+http://developer.osdl.org/rddunlap/syscalls/2.6.1-non-arch-syscalls.diff
+ arch/alpha/kernel/osf_sys.c         |    3 --
+ arch/ia64/ia32/ia32_ioctl.c         |    3 --
+ arch/ia64/ia32/sys_ia32.c           |   26 ---------------------
+ arch/mips/kernel/ioctl32.c          |    3 --
+ arch/mips/kernel/irixioctl.c        |    4 ---
+ arch/mips/kernel/linux32.c          |   13 ----------
+ arch/mips/kernel/sysirix.c          |   15 ------------
+ arch/parisc/hpux/ioctl.c            |    3 --
+ arch/parisc/kernel/sys_parisc.c     |   14 -----------
+ arch/parisc/kernel/sys_parisc32.c   |    7 -----
+ arch/ppc64/kernel/ppc_ksyms.c       |    2 -
+ arch/ppc64/kernel/sys_ppc32.c       |   44 +-----------------------------------
+ arch/s390/kernel/compat_ioctl.c     |    3 --
+ arch/s390/kernel/compat_linux.c     |   28 ----------------------
+ arch/s390/kernel/sys_s390.c         |    3 --
+ arch/sparc/kernel/sunos_ioctl.c     |    2 -
+ arch/sparc/kernel/sys_sunos.c       |    5 ----
+ arch/sparc64/kernel/sparc64_ksyms.c |    2 -
+ arch/sparc64/kernel/sunos_ioctl32.c |    3 --
+ arch/sparc64/kernel/sys_sparc.c     |    3 --
+ arch/sparc64/kernel/sys_sparc32.c   |   25 --------------------
+ arch/sparc64/kernel/sys_sunos32.c   |    3 --
+ arch/sparc64/solaris/ioctl.c        |    3 --
+ arch/sparc64/solaris/socksys.c      |    3 --
+ arch/sparc64/solaris/timod.c        |    2 -
+ arch/x86_64/ia32/ia32_ioctl.c       |    3 --
+ arch/x86_64/ia32/sys_ia32.c         |   27 ----------------------
+ arch/x86_64/kernel/x8664_ksyms.c    |    3 --
+ include/asm-ia64/unistd.h           |    5 ++++
+ include/asm-mips/unistd.h           |    5 ++++
+ include/asm-parisc/unistd.h         |    4 +++
+ include/asm-ppc/unistd.h            |    4 +++
+ include/asm-ppc64/unistd.h          |    4 +++
+ include/asm-sparc/unistd.h          |    5 ++++
+ include/asm-sparc64/unistd.h        |    5 ++++
+ include/asm-v850/unistd.h           |    4 +++
+ include/asm-x86_64/unistd.h         |    4 +++
+ 37 files changed, 67 insertions(+), 228 deletions(-)
+
+
+Do these look OK, as far as they go?  or am I way off?
+
+--
+~Randy
+
+
+Haven't addressed these yet:
+
+sys_brk
+sys_wait*
+sys_setuid/gid etc.
+sys_init/delete_module
+sys_ni_syscall
+sys_get/setpriority
+signal-related syscalls
+rt-related syscalls
+sys_execve
+sys_ptrace
+sys_newuname
+schedule-related syscalls
+sys_fadvise64_64
+sys_nfsservctl
+sys_kill
+sys_setgroups
+sys_sethost/domainname
+sys_umask
+sys_modify_ldt

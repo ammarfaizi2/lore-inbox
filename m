@@ -1,61 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264389AbRFUBUU>; Wed, 20 Jun 2001 21:20:20 -0400
+	id <S264427AbRFUBcg>; Wed, 20 Jun 2001 21:32:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264425AbRFUBUK>; Wed, 20 Jun 2001 21:20:10 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:62086 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S264389AbRFUBUC>; Wed, 20 Jun 2001 21:20:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: "D. Stimits" <stimits@idcomm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Date: Wed, 20 Jun 2001 16:18:55 -0400
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <200106202120.f5KLKO5320707@saturn.cs.uml.edu> <0106201412240B.00776@localhost.localdomain> <3B3142DB.F4658CA4@idcomm.com>
-In-Reply-To: <3B3142DB.F4658CA4@idcomm.com>
+	id <S264510AbRFUBcZ>; Wed, 20 Jun 2001 21:32:25 -0400
+Received: from shell.ca.us.webchat.org ([216.152.64.152]:44000 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S264427AbRFUBcN>; Wed, 20 Jun 2001 21:32:13 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Davide Libenzi" <davidel@xmailserver.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Why use threads ( was: Alan Cox quote?)
+Date: Wed, 20 Jun 2001 18:32:10 -0700
+Message-ID: <NCBBLIEPOCNJOAEKBEAKMEOLPPAA.davids@webmaster.com>
 MIME-Version: 1.0
-Message-Id: <0106201618550H.00776@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+In-Reply-To: <XFMail.20010620175613.davidel@xmailserver.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 June 2001 20:42, D. Stimits wrote:
-> Rob Landley wrote:
-> ...snip...
+
+> > Who said anything about 'select'? If you want to learn
+> > how to write
+> > efficient multi-threaded servers, take a course or read a book.
+> > Heck, you
+> > can even ask me questions on marginally appropriate lists or
+> > even by private
+> > email. But don't put words in my mouth.
+
+> I was just thinking about having a course on how to write mt applications,
+> are You currently keeping such courses ?
+
+	I've been preparing one for several years, but due to the constantly
+changing state of the art and the other limitations on my time, it just
+keeps getting further behind.
+
+> Is still this Your address :
 >
-> > The patches-linus-actuall-applies mailing list idea is based on how Linus
-> > says he works: he appends patches he likes to a file and then calls patch
-> > -p1 < thatfile after a mail reading session.  It wouldn't be too much
-> > work for somebody to write a toy he could use that lets him work about
-> > the same way but forwards the messages to another folder where they can
-> > go out on an otherwise read-only list.  (No extra work for Linus.  This
-> > is EXTREMELY important, 'cause otherwise he'll never touch it.)
->
-> What if the file doing patches from is actually visible on a web page?
-> Or better yet, if the patch command itself was modified such that at the
-> same time it applies a patch, the source and the results were added to a
-> MySQL server which in turn shows as a web page?
+> David Schwartz
+> 16000 NW Modesty Dr
 
-His patch file already has a bunch of patches glorped together.  In theory 
-they could be separated again by parsing the mail headers.  I suppose that 
-would be less work for Linus...
+	That was never my address, though I lived at 16000 NW 1st street a long
+time ago.
 
-The point is, the difference between the patches WE get and the patches LINUS 
-gets is the granularity.  He's constantly extorting other people to watch the 
-granularity of what they send him (small patches, each doing one thing, with 
-good documentation as to what they do and why, in seperate messages), but 
-what WE get is a great big diff about once a week.
+> How do you handle an average of 1600 sessions over a single
+> process without
+> using select()/poll(), I'm just curious ?
 
-So what I'm trying to figure out is if we can impose on Linus to cc: a 
-mailing list on the stream of individual patch messages he's applying to his 
-tree, so we can follow it better.  And he IS willing to do a LITTLE work for 
-us.  He's issuing changelogs now.  This would be significantly less effort 
-than that...
+	Well, with 1,600 connections, things are pretty easy. This is so far below
+the limit of modern machines that efficiency only matters if your server is
+just one of many things the machine does. I would just use two threads in
+poll loops, each working on half the descriptors. Some would have these
+threads actually do the I/O, others would have it queue I/O jobs to another
+pool of I/O threads that do the actual read/write operations.
 
-MySQL is overkill, and since these things started as mail messages why should 
-they be converted into a foriegn format?  There's threaded archivers for 
-mailing lists and newsgroups and stuff already, why reinvent the wheel?
+	My (WebMaster's) library does even better than this, converting the 'poll'
+threads into 'do the I/O' threads dynamically. That way if the 'poll' only
+hits on one file descriptor, you don't have to do a context switch to
+service the I/O, but you also can get back to 'poll' pretty quickly even if
+the I/O manages to block when it's not supposed to.
 
-Rob
+	But 1,600 is easy, so there's no reason to sweat about it.
+
+	Things get more difficult at 16,000 connections. At this level, I recommend
+a tiered approach. Separate the file descriptors into the 80% that are 20%
+of the activity and find the 10% that are 90% of the activity. Have separate
+threads poll on each of these groups. The advantage of this is that the more
+expensive poll calls (the ones on the greatest number of file descriptors)
+are called very rarely (because those file descriptors aren't very active.
+Tracking code can move file descriptors dynamically from group to group.
+
+	No matter what anyone tells you, 'poll' scales *better* than O(n) (in other
+words, the more connections you have, the less CPU time you need per
+connection to discover which sockets need work), and since your I/O can't
+possibly scale better than O(n), poll is as scalable as it needs to be. If
+you double the number of sockets, you double the cost of 'poll' but you also
+double the amount of information you get per poll call (actually, you more
+than double it, but that's a long story).
+
+	The problem with 'poll' is efficiency at *low* load. Since I write mostly
+servers designed to operate at high load, I don't worry too much about
+efficiency at low load. The hard case for 'poll' is large numbers of file
+descriptors at very low load (so you're unlikely to find more than one
+'active' fd at a time). Fortunately these cases don't need much efficiency.
+The operating systems max out at around 65,536 descriptors anyway, and
+keeping these inactive enough to allow such low discovery rates means a
+server with most of its CPU to spare.
+
+	Not that I have anything against the more efficient I/O discovery
+techniques under discussion and development. There's nothing wrong with a
+more efficient approach, especially one that's more efficient at every
+combination of loads and socket counts. But as far as ultimate scalability
+goes, socket discovery is not the limiting factor -- far from it.
+
+	DS
+

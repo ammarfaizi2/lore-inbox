@@ -1,136 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbUCEVqr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 16:46:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbUCEVqr
+	id S261223AbUCEVou (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 16:44:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbUCEVou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 16:46:47 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:36149 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261291AbUCEVqV
+	Fri, 5 Mar 2004 16:44:50 -0500
+Received: from mail.shareable.org ([81.29.64.88]:43911 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261223AbUCEVoq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 16:46:21 -0500
-Date: Fri, 5 Mar 2004 22:48:42 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] kbuild: clean on steroids
-Message-ID: <20040305214842.GA14410@mars.ravnborg.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
+	Fri, 5 Mar 2004 16:44:46 -0500
+Date: Fri, 5 Mar 2004 21:44:34 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, peter@mysql.com, riel@redhat.com,
+       mbligh@aracnet.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
+Message-ID: <20040305214434.GD7254@mail.shareable.org>
+References: <Pine.LNX.4.44.0402280950500.1747-100000@chimarrao.boston.redhat.com> <20040229014357.GW8834@dualathlon.random> <1078370073.3403.759.camel@abyss.local> <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040303200704.17d81bda.akpm@osdl.org> <20040304045212.GG4922@dualathlon.random> <20040303211042.33cd15ce.akpm@osdl.org> <20040305201954.GB7254@mail.shareable.org> <20040305203340.GU4922@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20040305203340.GU4922@dualathlon.random>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew - please apply if you agree on the more effective version
+Andrea Arcangeli wrote:
+> > Can you use a read-write lock, so that userspace copies only need to
+> > take the lock for reading?  That doesn't eliminate cacheline bouncing
+> > but does eliminate the serialisation.
+> 
+> normally the bouncing would be the only overhead, but here I also think
+> the serialization is a significant factor of the contention because the
+> critical section is taking lots of time. So I would expect some
+> improvement by using a read/write lock.
 
-Make the difference between 'make clean' and 'make distclean/mrproper'
-more explicit.
-make clean now removes all generated files except .config* and .version.
-The result is much easier to understand now.
+For something as significant as user<->kernel data transfers, it might
+be worth eliminating the bouncing as well - by using per-CPU * per-mm
+spinlocks.
 
-make clean deletes all generated files (except .config* and .version).
-make mrproper deletes configuration and all temporary files left by
-patch, editors and the like.
+User<->kernel data transfers would take the appropriate per-CPU lock
+for the current mm, and not take page_table_lock.  Everything that
+normally takes page_table_lock would, and also take all of the per-CPU locks.
 
-Example output:
-> make mrproper
-  CLEAN   init
-  CLEAN   usr
-  CLEAN   scripts/kconfig
-  CLEAN   scripts
-  CLEAN   .tmp_versions include/config
-  CLEAN   include/asm-i386/asm_offsets.h include/linux/autoconf.h include/linux/version.h include/asm .tmp_versions
-  CLEAN   .version .config
+That does require a set of per-CPU spinlocks to be allocated whenever
+a new mm is allocated (although the sets could be cached so it needn't
+be slow).
 
-Form the list of files/directories deleted during make clean, removed all
-references that is no longer relevant for the current kernel.
-
-	Sam
-
-
-kbuild-more-cleaning.patch
-===== Makefile 1.461 vs edited =====
---- 1.461/Makefile	Thu Mar  4 07:08:06 2004
-+++ edited/Makefile	Fri Mar  5 22:29:38 2004
-@@ -757,26 +757,15 @@
- #                Any core files spread around are deleted as well
- # make distclean Remove editor backup files, patch leftover files and the like
- 
--# Files removed with 'make clean'
--CLEAN_FILES += vmlinux System.map MC*
-+# Directories & files removed with 'make clean'
-+CLEAN_DIRS  += $(MODVERDIR) include/config include2
-+CLEAN_FILES +=	vmlinux System.map \
-+		include/linux/autoconf.h include/linux/version.h \
-+		include/asm include/linux/modversions.h \
-+		kernel.spec .tmp*
- 
- # Files removed with 'make mrproper'
--MRPROPER_FILES += \
--	include/linux/autoconf.h include/linux/version.h \
--	.version .config .config.old config.in config.old \
--	.menuconfig.log \
--	include/asm \
--	.hdepend include/linux/modversions.h \
--	tags TAGS cscope* kernel.spec \
--	.tmp*
--
--# Directories removed with 'make mrproper'
--MRPROPER_DIRS += \
--	$(MODVERDIR) \
--	.tmp_export-objs \
--	include/config \
--	include/linux/modules \
--	include2
-+MRPROPER_FILES += .version .config .config.old tags TAGS cscope*
- 
- # clean - Delete all intermediate files
- #
-@@ -785,28 +774,36 @@
- $(clean-dirs):
- 	$(Q)$(MAKE) $(clean)=$(patsubst _clean_%,%,$@)
- 
--quiet_cmd_rmclean = RM  $$(CLEAN_FILES)
--cmd_rmclean	  = rm -f $(CLEAN_FILES)
-+clean:		rm-dirs  := $(wildcard $(CLEAN_DIRS))
-+mrproper:	rm-dirs  := $(wildcard $(MRPROPER_DIRS))
-+quiet_cmd_rmdirs = $(if $(rm-dirs),CLEAN   $(rm-dirs))
-+      cmd_rmdirs = rm -rf $(rm-dirs)
-+
-+clean:		rm-files := $(wildcard $(CLEAN_FILES))
-+mrproper:	rm-files := $(wildcard $(MRPROPER_FILES))
-+quiet_cmd_rmfiles = $(if $(rm-files),CLEAN   $(rm-files))
-+      cmd_rmfiles = rm -rf $(rm-files)
-+
- clean: archclean $(clean-dirs)
--	$(call cmd,rmclean)
-+	$(call cmd,rmdirs)
-+	$(call cmd,rmfiles)
- 	@find . $(RCS_FIND_IGNORE) \
- 	 	\( -name '*.[oas]' -o -name '*.ko' -o -name '.*.cmd' \
- 		-o -name '.*.d' -o -name '.*.tmp' -o -name '*.mod.c' \) \
- 		-type f -print | xargs rm -f
- 
--# mrproper - delete configuration + modules + core files
-+# mrproper
- #
--quiet_cmd_mrproper = RM  $$(MRPROPER_DIRS) + $$(MRPROPER_FILES)
--cmd_mrproper = rm -rf $(MRPROPER_DIRS) && rm -f $(MRPROPER_FILES)
--mrproper distclean: clean archmrproper
--	@echo '  Making $@ in the srctree'
-+distclean: mrproper
-+mrproper: clean archmrproper
-+	$(call cmd,rmdirs)
-+	$(call cmd,rmfiles)
- 	@find . $(RCS_FIND_IGNORE) \
- 	 	\( -name '*.orig' -o -name '*.rej' -o -name '*~' \
- 		-o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
- 	 	-o -name '.*.rej' -o -size 0 \
- 		-o -name '*%' -o -name '.*.cmd' -o -name 'core' \) \
- 		-type f -print | xargs rm -f
--	$(call cmd,mrproper)
- 
- # Generate tags for editors
- # ---------------------------------------------------------------------------
+-- Jamie

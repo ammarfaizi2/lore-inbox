@@ -1,35 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267631AbUHJSVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267493AbUHJQgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267631AbUHJSVU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 14:21:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267549AbUHJR44
+	id S267493AbUHJQgG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 12:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267516AbUHJQfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 13:56:56 -0400
-Received: from zero.aec.at ([193.170.194.10]:3845 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S267487AbUHJRzF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 13:55:05 -0400
-To: Jeff Mahoney <jeffm@suse.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: File sizes > 2 GB on isofs?
-References: <2rIVi-16U-45@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 10 Aug 2004 19:55:01 +0200
-In-Reply-To: <2rIVi-16U-45@gated-at.bofh.it> (Jeff Mahoney's message of
- "Tue, 10 Aug 2004 19:50:16 +0200")
-Message-ID: <m33c2u6fpm.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 10 Aug 2004 12:35:52 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:35260 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S267534AbUHJQSW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 12:18:22 -0400
+Date: Tue, 10 Aug 2004 18:18:13 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, dsaxena@plexity.net, greg@kroah.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] Remove spaces from PCI IDE pci_driver.name field
+Message-ID: <20040810161813.GC21534@louise.pinerecords.com>
+References: <20040810001316.GA7292@plexity.net> <1092096699.14934.4.camel@localhost.localdomain> <20040810021209.GA10495@plexity.net> <1092138774.16979.13.camel@localhost.localdomain> <20040810155701.GB21534@louise.pinerecords.com> <1092154407.10794.14.camel@mindpipe>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092154407.10794.14.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Mahoney <jeffm@suse.com> writes:
+On Aug-10 2004, Tue, 12:13 -0400
+Lee Revell <rlrevell@joe-job.com> wrote:
 
-> With DVDs becoming widely popular for personal data storage, this 2 GB
-> limit will probably become more and more of an issue.
+> > Sure, but while with a GUI you can click on almost anything, on the
+> > command line spaces in filenames have always been a real pain in
+> > the ass, so let's not pretend otherwise.
+> Ever heard of tab completion?  Think of it as click for the command line.
 
-That is what UDF was for created, wasn't it?
+Most completing algorithms are not (cannot be) smart enough to know
+context, so the escaping they choose is not necessarily appropriate.
 
--Andi
+> Seriously, do you really *prefer* filenames like
+> Foo_Bar-Baa_Baaz_Quux.mp3?
 
+Yes, and I don't think I'm alone.
+
+-- 
+Tomas Szepe <szepe@pinerecords.com>

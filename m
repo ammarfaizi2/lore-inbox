@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263880AbUBEKqG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 05:46:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264553AbUBEKqF
+	id S261606AbUBEKh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 05:37:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263937AbUBEKh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 05:46:05 -0500
-Received: from catv-5062a04e.szolcatv.broadband.hu ([80.98.160.78]:53126 "EHLO
-	catv-5062a04e.szolcatv.broadband.hu") by vger.kernel.org with ESMTP
-	id S263880AbUBEKqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 05:46:02 -0500
-Message-ID: <40221EE7.6010904@freemail.hu>
-Date: Thu, 05 Feb 2004 11:45:59 +0100
-From: Boszormenyi Zoltan <zboszor@freemail.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu; rv:1.6) Gecko/20040115
-X-Accept-Language: hu, en
+	Thu, 5 Feb 2004 05:37:29 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54197 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261606AbUBEKh2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 05:37:28 -0500
+Message-ID: <40221CDA.5040008@pobox.com>
+Date: Thu, 05 Feb 2004 05:37:14 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Frank Fiene <ff@veka.com>
-Subject: Re: USB mouse doesn't work since 2.6.2-rc3
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
+References: <20040205014405.5a2cf529.akpm@osdl.org> <20040205100004.A5426@flint.arm.linux.org.uk>
+In-Reply-To: <20040205100004.A5426@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I had the same problem, then I realized that at the same time
-the machine's BogoMIPS fell like an apoplectic hawk.
-(Bored of the Rings(TM))
-
-Disable PM timer in the kernel config or use the
-"clock=tsc" command line for the kernel. Or use a
-later -mm kernel that has a fix in the pmtmr code
-and use tsc for short delays. This can cause timing
-inaccuracy on variable clocked CPUs.
-
-> I have a Logitech Optical Trackman and it worked fine with versions < 
-> 2.6.2-rc3.
+Russell King wrote:
+> On Thu, Feb 05, 2004 at 01:44:05AM -0800, Andrew Morton wrote:
 > 
-> The command "lsusb" shows me only the hubs but no connected USB gadget.
-> Must i upgrade tools, libs, ... for the latest kernel?
-> My system is a Thinkpad A31p with SuSE 9 and following usb rpms:
-> usbutils-0.11-124
-> libusb-0.1.8beta-35
+>> bk-netdev.patch
 > 
-> I've tried 2.6.2-rc3 and 2.6.2-vanilla.
 > 
-> Please help.
-> Regards, Frank.
-> -- 
+> Does this include the changes to all those PCMCIA net drivers which
+> Jeff has had for a while from me?
 
--- 
-Best regards,
-Zoltán Böszörményi
+Yes
 
----------------------
-What did Hussein say about his knife?
-One in Bush worth two in the hand.
+
+> I'd like to get those patches into mainline so I can close bugme bug
+> 1711, but I think Jeff's waiting for responses from the individual
+> net driver maintainers first. ;(
+
+Nope, was just waiting for 2.6.2 to be released.  The first post-262 
+batch has been merged, am now sending the second batch.  Yours is in the 
+third batch :)
+
+	Jeff
+
+
+

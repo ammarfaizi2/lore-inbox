@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318762AbSIEWoY>; Thu, 5 Sep 2002 18:44:24 -0400
+	id <S318766AbSIEWqF>; Thu, 5 Sep 2002 18:46:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318764AbSIEWoY>; Thu, 5 Sep 2002 18:44:24 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:13789 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318762AbSIEWoX>;
-	Thu, 5 Sep 2002 18:44:23 -0400
-Message-ID: <1031266115.3d77df4344463@imap.linux.ibm.com>
-Date: Thu,  5 Sep 2002 15:48:35 -0700
-From: Nivedita Singhvi <niv@us.ibm.com>
-To: jamal <hadi@cyberus.ca>
-Cc: Troy Wilson <tcw@tempest.prismnet.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-References: <Pine.GSO.4.30.0209051648020.17973-100000@shell.cyberus.ca>
-In-Reply-To: <Pine.GSO.4.30.0209051648020.17973-100000@shell.cyberus.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.0
-X-Originating-IP: 9.65.20.67
+	id <S318767AbSIEWqF>; Thu, 5 Sep 2002 18:46:05 -0400
+Received: from crack.them.org ([65.125.64.184]:11525 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S318766AbSIEWqE>;
+	Thu, 5 Sep 2002 18:46:04 -0400
+Date: Thu, 5 Sep 2002 18:50:38 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] ptrace-fix-2.5.33-A1
+Message-ID: <20020905225038.GA14295@nevyn.them.org>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <20020905222947.GA13667@nevyn.them.org> <Pine.LNX.4.44.0209060036100.17495-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0209060036100.17495-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting jamal <hadi@cyberus.ca>:
+On Fri, Sep 06, 2002 at 12:39:02AM +0200, Ingo Molnar wrote:
+> 
+> On Thu, 5 Sep 2002, Daniel Jacobowitz wrote:
+> 
+> > If we want to do this then we'd need to fix up every ptrace
+> > implementation in every architecture to call the appropriate function;
+> > it's a separate problem.
+> 
+> which code relies on having debugged children only in the ->children list
+> and not in the ->ptrace_children list?
 
-> So if i understood correctly (looking at the intel site) the main
-> value add of this feature is probably in having the CPU avoid
-> reassembling and retransmitting. I am willing to bet that the real
+Every implementation of PTRACE_TRACEME leaves them in the ->children
+list.  They are never added to ptrace_children.  Whether this is
+_right_ is another question.
 
-Er, even just assembling and transmitting? I'm thinking of the
-reduction in things like separate memory allocation calls and looking
-up the route, etc..??
+> > > i'm not sure about this either. What happens if an (untraced) parent has
+> > > traced and untraced children, and does a wait4. Would it confuse the
+> > > debugger if the parent could get one of the traced tasks as a result in
+> > > wait4? And how does the debugger solve this problem?
+> > 
+> > Well, it seems to me that when a traced task has an event, it should be
+> > reported first to the debugger - for signals this happens in do_signal -
+> > and then possibly to the normal parent.  But I'm not sure if this
+> > actually happens right now or not.  Worth investigating some more.
+> 
+> it just cannot happen. There are only two kinds of events passed via
+> wait4: tracing related and exit related. An exiting task is not traced
+> anymore. And two tasks cannot trace the same task - so it can never happen
+> that wait4 wants to look at ->ptrace_children for events.
 
-> value in your results is in saving on retransmits; I would think
-> shoving the data down the NIC and avoid the fragmentation shouldnt
-> give you that much significant CPU savings. Do you have any stats
+Oh.  You are, of course, right.
 
-Why do say that? Wouldnt the fact that youre now reducing the
-number of calls down the stack by a significant number provide
-a significant saving? 
-
-> from the hardware that could show retransmits etc; have you tested
-> this with zero copy as well (sendfile) again, if i am right you
-> shouldnt see much benefit from that either?
-
-thanks,
-Nivedita
-
-
-
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263625AbUASWth (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 17:49:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUASWth
+	id S264359AbUASWt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 17:49:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264434AbUASWt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 17:49:37 -0500
-Received: from gprs214-67.eurotel.cz ([160.218.214.67]:11137 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263625AbUASWtg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 17:49:36 -0500
-Date: Mon, 19 Jan 2004 21:40:05 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Hugang <hugang@soulinfo.com>, ncunningham@clear.net.nz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       debian-powerpc@lists.debian.org
-Subject: Re: Help port swsusp to ppc.
-Message-ID: <20040119204005.GA380@elf.ucw.cz>
-References: <20040119105237.62a43f65@localhost> <1074483354.10595.5.camel@gaston> <1074489645.2111.8.camel@laptop-linux>
+	Mon, 19 Jan 2004 17:49:58 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:55823 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264359AbUASWtz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 17:49:55 -0500
+Date: Mon, 19 Jan 2004 22:49:53 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, anton@samba.org
+Subject: Re: [PATCH] ppc64: VIO support, from Dave Boutcher, Hollis Blanchard and Santiago Leon
+Message-ID: <20040119224953.A7395@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	anton@samba.org
+References: <200401192200.i0JM0dtb006058@hera.kernel.org> <20040119223230.GA4885@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1074489645.2111.8.camel@laptop-linux>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040119223230.GA4885@kroah.com>; from greg@kroah.com on Mon, Jan 19, 2004 at 02:32:30PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Jan 19, 2004 at 02:32:30PM -0800, Greg KH wrote:
+> Ick ick ick.  I thought you all were not going to add this function, but
+> just use vio_register_driver() on it's own?  Loading a driver should not
+> depend on CONFIG_HOTPLUG, as we now have different ways we can bind
+> drivers to devices after they are loaded (see the new_id stuff for pci
+> devices as an example.)
 
-> I can answer a couple of the questions:
-> 
-> > What is this file ? It's absolutely horrible....
-> 
-> It should contain the .S equivalent to the swsusp2.c file. It would be
-> best if swsusp2.c could simply be compiled, but it appears that it can't
-> at the moment on x86 (I need to learn x86 assembly so I can understand
-> why).
+I wonder why this code got merged at all.  Half of it could easily be
+scrapped by using the driver model properly.
 
-You need to check resulting assembly for stack accesses. So yes, you
-can compile it from .c file, _but you have to read it_.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbTEHPeh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 11:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbTEHPeg
+	id S261823AbTEHPmA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 11:42:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbTEHPmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 11:34:36 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:48562 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S261785AbTEHPef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 11:34:35 -0400
-Date: Thu, 8 May 2003 11:16:43 -0400
-From: Ben Collins <bcollins@debian.org>
+	Thu, 8 May 2003 11:42:00 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:4743
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261823AbTEHPl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 11:41:59 -0400
+Subject: Re: The magical mystical changing ethernet interface order
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: "David S. Miller" <davem@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Pavel Machek <pavel@ucw.cz>,
-       Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
-Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
-Message-ID: <20030508151643.GO679@phunnypharm.org>
-References: <20030507104008$12ba@gated-at.bofh.it> <200305071154.h47BsbsD027038@post.webmailer.de> <20030507124113.GA412@elf.ucw.cz> <20030507135600.A22642@infradead.org> <1052318339.9817.8.camel@rth.ninka.net>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       Russell King <rmk@arm.linux.org.uk>, rddunlap@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1052395526.23259.0.camel@rth.ninka.net>
+References: <20030507141458.B30005@flint.arm.linux.org.uk>
+	 <20030507082416.0996c3df.rddunlap@osdl.org>
+	 <20030507181410.A19615@flint.arm.linux.org.uk>
+	 <20030507150414.1eaeae75.akpm@digeo.com>  <3EB98878.5060607@us.ibm.com>
+	 <1052395526.23259.0.camel@rth.ninka.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052405730.10038.51.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1052318339.9817.8.camel@rth.ninka.net>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 May 2003 15:55:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 07, 2003 at 07:39:00AM -0700, David S. Miller wrote:
-> On Wed, 2003-05-07 at 05:56, Christoph Hellwig wrote:
-> > Btw, if you really want to move all the 32bit ioctl compat code to the
-> > drivers a ->ioctl32 file operation might be the better choice..
+On Iau, 2003-05-08 at 13:05, David S. Miller wrote:
+> This is absolutely not guarenteed.  The linker is at liberty to
+> reorder objects in any order it so desires, for performance reasons
+> etc.
 > 
-> I can't believe I never thought of that. :-)
+> Any reliance on link ordering is broken and needs to be fixed.
 
-How would the driver differentiate between .compat_ioctl == NULL being a
-case where it should fail because there is no translation, or a case
-where it should use the compatible .ioctl? Maybe there should be an
-extra flag like use_compat_ioctl. So:
+That ahould keep you amused for a year or two. Unfortunately for the ISA
+driver code we *have* to rely on link order or rip out the __init stuff
+and use Space.c type hacks.
 
-	.use_compat_ioctl	= 1;
-	.ioctl			= my_ioctl;
-	.compat_ioctl		= my_compat_ioctl;
 
-Means use my_compat_ioctl() for translation. And just:
-
-	.use_compat_ioctl	= 1;
-	.ioctl			= my_ioctl;
-
-Means that our standard my_ioctl is 32/64 compatible.
-
-This would also solve the current problem where a module that is
-compiled with compat ioctl's using register_ioctl32_conversion() is not
-usable on a kernel compiled without CONFIG_COMPAT, even though it very
-well should be.
-
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/

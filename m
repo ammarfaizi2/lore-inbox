@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316491AbSE0CVA>; Sun, 26 May 2002 22:21:00 -0400
+	id <S316492AbSE0Ccu>; Sun, 26 May 2002 22:32:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316486AbSE0CU7>; Sun, 26 May 2002 22:20:59 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:57752 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S316491AbSE0CU4>; Sun, 26 May 2002 22:20:56 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Trivial: check_region cleanup from drivers/char/ip2main.c
-Date: Mon, 27 May 2002 12:24:47 +1000
-Message-Id: <E17CABj-0001GY-00@wagner.rustcorp.com.au>
+	id <S316495AbSE0Cct>; Sun, 26 May 2002 22:32:49 -0400
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:35600 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S316492AbSE0Cct>;
+	Sun, 26 May 2002 22:32:49 -0400
+Date: Sun, 26 May 2002 22:14:58 -0400 (EDT)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: <fdavis@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+cc: <fdavis@si.rr.com>, <torvalds@transmeta.com>
+Subject: [PATCH] 2.5.18: net/ipv4/ipconfig.c minor fix
+Message-ID: <Pine.LNX.4.33.0205262210050.18267-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-johnpol@2ka.mipt.ru: 40) request_region check, 31-40:
-  You say, i'm frezy :)
-  
-  Please test and apply.
-  
-  	Evgeniy Polyakov ( s0mbre )
-  
+Hello all,
+    The following patch fixes two compile warnings 'defined but not used'. 
+Since the label and int are only used for IPCONFIG_DYNAMIC, appropriate 
+fixes were made to remove the warnings.
 
---- trivial-2.5.18/drivers/char/ip2main.c.orig	Mon May 27 12:07:37 2002
-+++ trivial-2.5.18/drivers/char/ip2main.c	Mon May 27 12:07:37 2002
-@@ -1002,12 +1002,10 @@
- 	printk(KERN_INFO "IP2: Board %d: addr=0x%x irq=%d\n", boardnum + 1,
- 	       ip2config.addr[boardnum], ip2config.irq[boardnum] );
- 
--	if (0 != ( rc = check_region( ip2config.addr[boardnum], 8))) {
--		printk(KERN_ERR "IP2: bad addr=0x%x rc = %d\n",
--				ip2config.addr[boardnum], rc );
-+	if (!request_region( ip2config.addr[boardnum], 8, pcName )) {
-+		printk(KERN_ERR "IP2: bad addr=0x%x\n", ip2config.addr[boardnum]);
- 		goto err_initialize;
- 	}
--	request_region( ip2config.addr[boardnum], 8, pcName );
- 
- 	if ( iiDownloadAll ( pB, (loadHdrStrPtr)Fip_firmware, 1, Fip_firmware_size )
- 	    != II_DOWN_GOOD ) {
+Regards,
+Frank
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+--- net/ipv4/ipconfig.c.old	Sun May 26 21:39:52 2002
++++ net/ipv4/ipconfig.c	Sun May 26 21:40:01 2002
+@@ -1110,7 +1110,6 @@
+ 
+ static int __init ip_auto_config(void)
+ {
+-	int retries = CONF_OPEN_RETRIES;
+ 	unsigned long jiff;
+ 
+ #ifdef CONFIG_PROC_FS
+@@ -1121,8 +1120,9 @@
+ 		return 0;
+ 
+ 	DBG(("IP-Config: Entered.\n"));
+-
++#ifdef IPCONFIG_DYNAMIC
+  try_try_again:
++#endif
+ 	/* Give hardware a chance to settle */
+ 	jiff = jiffies + CONF_PRE_OPEN;
+ 	while (time_before(jiffies, jiff))
+@@ -1151,6 +1151,8 @@
+ #endif
+ 	    ic_first_dev->next) {
+ #ifdef IPCONFIG_DYNAMIC
++	
++		int retries = CONF_OPEN_RETRIES;
+ 
+ 		if (ic_dynamic() < 0) {
+ 			ic_close_devs();
+

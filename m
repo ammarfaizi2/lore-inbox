@@ -1,25 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132374AbRCZHeL>; Mon, 26 Mar 2001 02:34:11 -0500
+	id <S132381AbRCZHov>; Mon, 26 Mar 2001 02:44:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132376AbRCZHeB>; Mon, 26 Mar 2001 02:34:01 -0500
-Received: from runyon.cygnus.com ([205.180.230.5]:34756 "EHLO cygnus.com")
-	by vger.kernel.org with ESMTP id <S132374AbRCZHdv>;
-	Mon, 26 Mar 2001 02:33:51 -0500
-From: Michael Elizabeth Chastain <chastain@cygnus.com>
-Date: Sun, 25 Mar 2001 23:33:08 -0800
-Message-Id: <200103260733.XAA19072@bosch.cygnus.com>
-To: esr@thyrsus.com
+	id <S132382AbRCZHoc>; Mon, 26 Mar 2001 02:44:32 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:56296 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S132381AbRCZHoX>;
+	Mon, 26 Mar 2001 02:44:23 -0500
+Message-ID: <3ABEF32E.B8142334@mandrakesoft.com>
+Date: Mon, 26 Mar 2001 02:43:42 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+Cc: esr@thyrsus.com, "Eric S. Raymond" <esr@snark.thyrsus.com>,
+        Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
 Subject: Re: [kbuild-devel] Re: CML1 cleanup patch
-Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <23860.985591724@ocs3.ocs-net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Raymond writes:
-> (1) 19 of the 39 changes fix things that are outright bugs even in CML1.
->     These should not be allowed to persist in the stable branch.
+Keith Owens wrote:
+> That just leaves the 17 names of the form CONFIG_[0-9]*.  Only the 8139
+> is likely to affect outside the kernel and the argument that renaming
+> config options might affect external packages does not hold.  The
+> recent aic7xxx change broke pcmcia on 2.2 kernels but we can work round
+> it.
 
-I think that things that are bugs in CML1, on its own terms, are
-worth fixing in 2.4.
+There is no good reason to restrict the CML2 identifier namespace.
 
-Michael
+This is a policy change not a cleanup.
+
+-- 
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full moon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.

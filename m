@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131333AbRCHMBN>; Thu, 8 Mar 2001 07:01:13 -0500
+	id <S131336AbRCHMEW>; Thu, 8 Mar 2001 07:04:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131335AbRCHMBC>; Thu, 8 Mar 2001 07:01:02 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:59147 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131333AbRCHMA5>; Thu, 8 Mar 2001 07:00:57 -0500
-Subject: Re: aic7xxx funcs without return values
-To: gibbs@scsiguy.com (Justin T. Gibbs)
-Date: Thu, 8 Mar 2001 11:56:32 +0000 (GMT)
-Cc: jamagallon@able.es (J . A . Magallon),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <200103080053.f280rpO33821@aslan.scsiguy.com> from "Justin T. Gibbs" at Mar 07, 2001 05:53:51 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131337AbRCHMEM>; Thu, 8 Mar 2001 07:04:12 -0500
+Received: from sv.moemoe.gr.jp ([211.10.15.35]:22541 "HELO mail.moemoe.gr.jp")
+	by vger.kernel.org with SMTP id <S131336AbRCHMEG>;
+	Thu, 8 Mar 2001 07:04:06 -0500
+Date: Thu, 08 Mar 2001 21:03:38 +0900
+From: Keitaro Yosimura <ramsy@10art-ni.co.jp>
+To: mvw@planets.elm.net
+Subject: quota on 32bit-uid patch
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20010308205016.C2F4.RAMSY@10art-ni.co.jp>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14az23-0002ot-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Becky! ver. 2.00.03
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> They don't return a value because doing so is meaningless.  You aren't
-> going to get past the panic.  The compiler should know that assuming
-> panic is properly tagged as a function that cannot return.
-> 
-> You may also want to check up on your C since having a break after
-> a return is, well, kinda silly.  In all the usage of this inline, the
-> width is constant, so gcc should completely optimize away the switch
-> and surrounding code.
+Hi Marco van Wieringen, Linus, and any hackers.
 
-Yep.
+I've ported my quota patches for 2.4.2.
 
-The bigger problem with that driver for pedants is that it contains globals with
-names like 'hard_error' which are asking for clashes . Bizarrely all
-the static functions are carefully named ahc_* and the globals are called
-things like 'restart_squencer'
+based on 
+ ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/v2.4/quota-fix-2.4.0-test12-1.diff.gz
+ ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/v2.4/quota-patch-2.4.0-test12-1.diff.gz
 
-The EISA probe code is also horrible, but thats not Justin's fault. Someone
-needs to put some eisa_* bus functions into the kernel for that and some
-of the other drivers.
+You can download the patches from
+http://www.moemoe.gr.jp/~ramsy/Files/Linux/quota/patch-2.4.2-ky2.patch.bz2
 
+RedHat 7.0.X's quota are not ready for 32bit-uid.
+You can download the patched rpm from...
+http://www.moemoe.gr.jp/~ramsy/Files/Linux/quota/quota-2.00-3ky3.src.rpm
+http://www.moemoe.gr.jp/~ramsy/Files/Linux/quota/quota-2.00-3ky3.i386.rpm
+(this rpm build on RedHat-7.0.1J. please rebuild src.rpm.)
 
+please merge the kernel&tool patchs:)
+
+Thanks.
+
+<|> YOSHIMURA 'ramsy' Keitaro / Japan Linux Association
+<|> mailto:ramsy@linux.or.jp
+<|> http://jla.linux.or.jp/index.html
 

@@ -1,32 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262716AbTJNSUW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 14:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbTJNSTu
+	id S262721AbTJNSZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 14:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbTJNSZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 14:19:50 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26564 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262738AbTJNSSt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 14:18:49 -0400
-Message-ID: <3F8C3DFD.1050706@pobox.com>
-Date: Tue, 14 Oct 2003 14:18:37 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Tue, 14 Oct 2003 14:25:57 -0400
+Received: from math.ut.ee ([193.40.5.125]:44495 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S262721AbTJNSZz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 14:25:55 -0400
+Date: Tue, 14 Oct 2003 21:25:44 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PPC & 2.6.0-test3: wrong mem size & hang on ifconfig
+In-Reply-To: <20031013160222.GG3634@ip68-0-152-218.tc.ph.cox.net>
+Message-ID: <Pine.GSO.4.44.0310131904210.4802-100000@math.ut.ee>
 MIME-Version: 1.0
-To: Felipe W Damasio <felipewd@terra.com.br>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH]  finer-grained locking in wan/lmc driver
-References: <3F81B086.9050905@terra.com.br>
-In-Reply-To: <3F81B086.9050905@terra.com.br>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-conflicts with a just-applied patch... can you wait a few days, then 
-resend against the latest -bk snapshot?
+> > init.c:47:22: mmu_decl.h: No such file or directory
+>
+> That's not right.  Did you do a 'bk -r get -q' or equivalent?  Or is
+> this the rsync version?
+
+bk -r co -q
+
+> > Here is my .config for linuxppc-2.4-devel:
+>
+> Works for me.
+
+Now it works for me too and I could test it.
+
+linuxppc-2.4-devel too finds only 32M of RAM. 2.4.23-pre7 finds 64M (in
+BAT2).
+
+Additionally, I can't seem to interrupt a running program or switch to
+another virtual console in -devel. Normal keys work but ^C and Alt-F*
+are just ignored.
+
+-- 
+Meelis Roos (mroos@linux.ee)
 
 

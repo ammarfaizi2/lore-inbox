@@ -1,78 +1,189 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbTJFPdM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 11:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbTJFPdM
+	id S262236AbTJFPZu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 11:25:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbTJFPZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 11:33:12 -0400
-Received: from ltgp.iram.es ([150.214.224.138]:24972 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S262282AbTJFPdJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 11:33:09 -0400
-From: Gabriel Paubert <paubert@iram.es>
-Date: Mon, 6 Oct 2003 17:26:32 +0200
-To: Hans-Georg Thien <1682-600@onlinehome.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: getting timestamp of last interrupt?
-Message-ID: <20031006152632.GA3419@iram.es>
-References: <fa.fj0euih.s2sbop@ifi.uio.no> <fa.ch95hks.10kepak@ifi.uio.no> <3F7E46EE.1020201@onlinehome.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F7E46EE.1020201@onlinehome.de>
-User-Agent: Mutt/1.5.4i
+	Mon, 6 Oct 2003 11:25:50 -0400
+Received: from [193.138.115.2] ([193.138.115.2]:15630 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S262236AbTJFPZp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 11:25:45 -0400
+Date: Mon, 6 Oct 2003 17:24:48 +0200 (CEST)
+From: Jesper Juhl <jju@dif.dk>
+To: Matthias Andree <matthias.andree@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 71MB compressed for COMPILED(!!!) 2.6.0-test6
+In-Reply-To: <20031006102415.GB7598@merlin.emma.line.org>
+Message-ID: <Pine.LNX.4.56.0310061655070.26687@jju_lnx.backbone.dif.dk>
+References: <20031006082340.GA1135@matchmail.com> <1065428996.5033.5.camel@laptop.fenrus.com>
+ <20031006083803.GB1135@matchmail.com> <20031006102415.GB7598@merlin.emma.line.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 04, 2003 at 06:05:02AM +0200, Hans-Georg Thien wrote:
-> Karim Yaghmour wrote:
-> 
-> >
-> >Hans-Georg Thien wrote:
-> >
-> >>I am looking for a possibility to read out the last timestamp when an 
-> >>interrupt has occured.
-> >>
-> >>e.g.: the user presses a key on the keyboard. Where can I read out the 
-> >>timestamp of this event?
-> >>
-> >>To be more precise, I 'm looking for
-> >>
-> >>( )a function call
-> >>( ) a callback where I can register to be notified when an event occurs
-> >>( ) a global accessible variable
-> >>( ) a /proc entry
-> >>
-> >>or something like that.
-> >>
-> >>Any ideas ?
-> >
-> >
-> >Have a look at the Linux Trace Toolkit:
-> >http://www.opersys.com/LTT/
-> >It records micro-second time-stamps for quite a few events, including
-> >interrupts.
-> >
-> thanke a lot for reply Karim,
-> 
-> but I think that LTT does not fit to my needs. It needs to modify the
-> kernel - and that is what I want to avoid.
-> 
-> I'm looking for a already existing built-in capability.
-> 
-> Maybe signal SIGIO is a solution, if it  does not
-> 
-> (x) give me *every* IO event
-> (x) has to much overhead - I have to respond to keyboard/mouse events, *not*
 
-Doesn't the input layer add a timestamp to every event? 
+On Mon, 6 Oct 2003, Matthias Andree wrote:
 
-At least that's the impression I have from xxd /dev/input/eventN: the
-first eight bytes of each 16 bytes packet look so furiously close to
-a struct timeval that they can't be anything else :-)
+> On Mon, 06 Oct 2003, Mike Fedyk wrote:
+>
+> > config DEBUG_INFO
+> > 	bool "Compile the kernel with debug info"
+> > 	depends on DEBUG_KERNEL
+> > 	help
+> >           If you say Y here the resulting kernel image will include
+> > 	  debugging info resulting in a larger kernel image.
+> > 	  Say Y here only if you plan to use gdb to debug the kernel.
+> > 	  If you don't debug the kernel, you can say N.
+> >
+> > "Larger kernel image" yeah, NO SHIT! ;)
+> >
+> > Maybe something that says it may enlarge your kernel by 5-10 times would be
+> > nice...
+>
+> Send a patch...
+>
 
-Just that I don't know how the devices and N are associated, it seems to be
-order of discovery/registering at boot.
+How about this one?  :
 
-	Regards,
-	Gabriel
+
+diff -ur linux-2.6.0-test6-orig/arch/alpha/Kconfig linux-2.6.0-test6/arch/alpha/Kconfig
+--- linux-2.6.0-test6-orig/arch/alpha/Kconfig	2003-09-28 02:50:39.000000000 +0200
++++ linux-2.6.0-test6/arch/alpha/Kconfig	2003-10-06 17:10:32.000000000 +0200
+@@ -769,6 +769,8 @@
+ 	help
+           If you say Y here the resulting kernel image will include
+ 	  debugging info resulting in a larger kernel image.
++	  This will substantially increase the size of the kernel image.
++	  Size increases of 5 to 10 times normal size is to be expected.
+ 	  Say Y here only if you plan to use gdb to debug the kernel.
+ 	  If you don't debug the kernel, you can say N.
+
+diff -ur linux-2.6.0-test6-orig/arch/arm26/Kconfig linux-2.6.0-test6/arch/arm26/Kconfig
+--- linux-2.6.0-test6-orig/arch/arm26/Kconfig	2003-09-28 02:50:29.000000000 +0200
++++ linux-2.6.0-test6/arch/arm26/Kconfig	2003-10-06 17:08:55.000000000 +0200
+@@ -336,6 +336,8 @@
+ 	help
+           If you say Y here the resulting kernel image will include
+ 	  debugging info resulting in a larger kernel image.
++	  This will substantially increase the size of the kernel image.
++	  Size increases of 5 to 10 times normal size is to be expected.
+ 	  Say Y here only if you plan to use gdb to debug the kernel.
+ 	  If you don't debug the kernel, you can say N.
+
+diff -ur linux-2.6.0-test6-orig/arch/i386/Kconfig linux-2.6.0-test6/arch/i386/Kconfig
+--- linux-2.6.0-test6-orig/arch/i386/Kconfig	2003-09-28 02:50:10.000000000 +0200
++++ linux-2.6.0-test6/arch/i386/Kconfig	2003-10-06 17:05:38.000000000 +0200
+@@ -1244,6 +1244,8 @@
+ 	help
+           If you say Y here the resulting kernel image will include
+ 	  debugging info resulting in a larger kernel image.
++	  This will substantially increase the size of the kernel image.
++	  Size increases of 5 to 10 times normal size is to be expected.
+ 	  Say Y here only if you plan to use gdb to debug the kernel.
+ 	  If you don't debug the kernel, you can say N.
+
+diff -ur linux-2.6.0-test6-orig/arch/ia64/Kconfig linux-2.6.0-test6/arch/ia64/Kconfig
+--- linux-2.6.0-test6-orig/arch/ia64/Kconfig	2003-09-28 02:51:04.000000000 +0200
++++ linux-2.6.0-test6/arch/ia64/Kconfig	2003-10-06 17:10:08.000000000 +0200
+@@ -683,6 +683,8 @@
+ 	help
+           If you say Y here the resulting kernel image will include
+ 	  debugging info resulting in a larger kernel image.
++	  This will substantially increase the size of the kernel image.
++	  Size increases of 5 to 10 times normal size is to be expected.
+ 	  Say Y here only if you plan to use gdb to debug the kernel.
+ 	  If you don't debug the kernel, you can say N.
+
+diff -ur linux-2.6.0-test6-orig/arch/m68k/Kconfig linux-2.6.0-test6/arch/m68k/Kconfig
+--- linux-2.6.0-test6-orig/arch/m68k/Kconfig	2003-09-28 02:50:29.000000000 +0200
++++ linux-2.6.0-test6/arch/m68k/Kconfig	2003-10-06 17:09:33.000000000 +0200
+@@ -1166,6 +1166,8 @@
+ 	help
+           If you say Y here the resulting kernel image will include
+ 	  debugging info resulting in a larger kernel image.
++	  This will substantially increase the size of the kernel image.
++	  Size increases of 5 to 10 times normal size is to be expected.
+ 	  Say Y here only if you plan to use gdb to debug the kernel.
+ 	  If you don't debug the kernel, you can say N.
+
+diff -ur linux-2.6.0-test6-orig/arch/parisc/Kconfig linux-2.6.0-test6/arch/parisc/Kconfig
+--- linux-2.6.0-test6-orig/arch/parisc/Kconfig	2003-09-28 02:50:29.000000000 +0200
++++ linux-2.6.0-test6/arch/parisc/Kconfig	2003-10-06 17:12:14.000000000 +0200
+@@ -257,6 +257,8 @@
+ 	help
+           If you say Y here the resulting kernel image will include
+ 	  debugging info resulting in a larger kernel image.
++	  This will substantially increase the size of the kernel image.
++	  Size increases of 5 to 10 times normal size is to be expected.
+ 	  Say Y here only if you plan to use gdb to debug the kernel.
+ 	  If you don't debug the kernel, you can say N.
+
+diff -ur linux-2.6.0-test6-orig/arch/ppc/Kconfig linux-2.6.0-test6/arch/ppc/Kconfig
+--- linux-2.6.0-test6-orig/arch/ppc/Kconfig	2003-09-28 02:51:12.000000000 +0200
++++ linux-2.6.0-test6/arch/ppc/Kconfig	2003-10-06 17:06:47.000000000 +0200
+@@ -1390,6 +1390,8 @@
+ 	help
+           If you say Y here the resulting kernel image will include
+ 	  debugging info resulting in a larger kernel image.
++	  This will substantially increase the size of the kernel image.
++	  Size increases of 5 to 10 times normal size is to be expected.
+ 	  Say Y here only if you plan to use some sort of debugger to
+ 	  debug the kernel.
+ 	  If you don't debug the kernel, you can say N.
+diff -ur linux-2.6.0-test6-orig/arch/ppc64/Kconfig linux-2.6.0-test6/arch/ppc64/Kconfig
+--- linux-2.6.0-test6-orig/arch/ppc64/Kconfig	2003-09-28 02:50:25.000000000 +0200
++++ linux-2.6.0-test6/arch/ppc64/Kconfig	2003-10-06 17:11:00.000000000 +0200
+@@ -374,6 +374,8 @@
+ 	help
+           If you say Y here the resulting kernel image will include
+ 	  debugging info resulting in a larger kernel image.
++	  This will substantially increase the size of the kernel image.
++	  Size increases of 5 to 10 times normal size is to be expected.
+ 	  Say Y here only if you plan to use gdb to debug the kernel.
+ 	  If you don't debug the kernel, you can say N.
+
+diff -ur linux-2.6.0-test6-orig/arch/s390/Kconfig linux-2.6.0-test6/arch/s390/Kconfig
+--- linux-2.6.0-test6-orig/arch/s390/Kconfig	2003-09-28 02:50:16.000000000 +0200
++++ linux-2.6.0-test6/arch/s390/Kconfig	2003-10-06 17:13:03.000000000 +0200
+@@ -309,6 +309,8 @@
+ 	help
+           If you say Y here the resulting kernel image will include
+ 	  debugging info resulting in a larger kernel image.
++	  This will substantially increase the size of the kernel image.
++	  Size increases of 5 to 10 times normal size is to be expected.
+ 	  Say Y here only if you plan to use gdb to debug the kernel.
+ 	  If you don't debug the kernel, you can say N.
+
+diff -ur linux-2.6.0-test6-orig/arch/sparc64/Kconfig linux-2.6.0-test6/arch/sparc64/Kconfig
+--- linux-2.6.0-test6-orig/arch/sparc64/Kconfig	2003-09-28 02:50:53.000000000 +0200
++++ linux-2.6.0-test6/arch/sparc64/Kconfig	2003-10-06 17:07:22.000000000 +0200
+@@ -819,6 +819,8 @@
+ 	help
+           If you say Y here the resulting kernel image will include
+ 	  debugging info resulting in a larger kernel image.
++	  This will substantially increase the size of the kernel image.
++	  Size increases of 5 to 10 times normal size is to be expected.
+ 	  Say Y here only if you plan to use gdb to debug the kernel.
+ 	  If you don't debug the kernel, you can say N.
+
+diff -ur linux-2.6.0-test6-orig/arch/x86_64/Kconfig linux-2.6.0-test6/arch/x86_64/Kconfig
+--- linux-2.6.0-test6-orig/arch/x86_64/Kconfig	2003-09-28 02:50:40.000000000 +0200
++++ linux-2.6.0-test6/arch/x86_64/Kconfig	2003-10-06 17:12:39.000000000 +0200
+@@ -495,6 +495,8 @@
+ 	help
+           If you say Y here the resulting kernel image will include
+ 	  debugging info resulting in a larger kernel image.
++	  This will substantially increase the size of the kernel image.
++	  Size increases of 5 to 10 times normal size is to be expected.
+ 	  Say Y here only if you plan to use gdb to debug the kernel.
+ 	  If you don't debug the kernel, you can say N.
+
+
+
+
+Kind regards,
+
+Jesper Juhl <jju@dif.dk>
+

@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267475AbUBSSeh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 13:34:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbUBSSeg
+	id S267469AbUBSSim (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 13:38:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267466AbUBSSil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 13:34:36 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:56961 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S267475AbUBSSeU (ORCPT
+	Thu, 19 Feb 2004 13:38:41 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:38847 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267469AbUBSSi2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 13:34:20 -0500
-Date: Thu, 19 Feb 2004 19:34:16 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Kieran <kieran@ihateaol.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: proc_pid_stat crashes in 2.6.2 (was 2.6.0-test11: Crash in ps axH)
-Message-ID: <20040219183416.GA12962@vana.vc.cvut.cz>
-References: <20040219182329.GA10868@vana.vc.cvut.cz> <403500DA.3060906@ihateaol.co.uk>
+	Thu, 19 Feb 2004 13:38:28 -0500
+Date: Thu, 19 Feb 2004 19:38:22 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-ID: <20040219183821.GA1935@devserv.devel.redhat.com>
+References: <20040218140021.GB1269@us.ibm.com> <20040218211035.A13866@infradead.org> <20040218150607.GE1269@us.ibm.com> <20040218222138.A14585@infradead.org> <20040218145132.460214b5.akpm@osdl.org> <20040218230055.A14889@infradead.org> <20040218162858.2a230401.akpm@osdl.org> <20040219123110.A22406@infradead.org> <20040219091129.GD1269@us.ibm.com> <20040219183210.GX14000@marowsky-bree.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
 Content-Disposition: inline
-In-Reply-To: <403500DA.3060906@ihateaol.co.uk>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040219183210.GX14000@marowsky-bree.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 06:30:50PM +0000, Kieran wrote:
-> >Hi,
-> >  I already reported this crash twice on 2.6.0-test11, and now I
-> >reproduced it on something more fresh - on 2.6.2-bk-something like it
-> >was actual on Feb 4. It is really annoying, as any user can do 'ps axH'
-> >and crash system after some uptime :-( Crash is identical to one
-> >I got with 2.6.0-test11, so it looks like that I'll have to go back
-> >to 2.4.x on publicly accessible machines. After about 14 days uptime. 
-> >
-> >  I've got no replies to previous reports.
-> >  						Thanks,
-> >							Petr Vandrovec
-> >							vandrove@vc.cvut.cz
+
+--5vNYLRcllDrimb99
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+On Thu, Feb 19, 2004 at 07:32:10PM +0100, Lars Marowsky-Bree wrote:
 > 
-> what version of procps?
+> A rule of thumb might be whether any code in the tree uses a given
+> export, and if not, prune it. Anything which even we don't use or export
+> across the user-land boundary certainly qualifies as a kernel interna.
 
-Not that it should matter, as walking through /proc/* could do same,
-but... 3.1.15-3. I have no idea what procps were installed at the
-beginning of February or in the December. Until crash 'ps ax' does not
-cause problem. Only 'axH', which descends to /task/ subdirectories,
-crashes.
+political issues aside, this sounds like a decent rule-of-thumb in general;
+if NO module uses it, it is most likely the wrong API (for example obsoleted API left
+around) or something really internal.
+--5vNYLRcllDrimb99
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-usermap:~# dpkg -l procps
-Desired=Unknown/Install/Remove/Purge/Hold
-| Status=Not/Installed/Config-files/Unpacked/Failed-config/Half-installed
-|/ Err?=(none)/Hold/Reinst-required/X=both-problems (Status,Err: uppercase=bad)
-||/ Name                       Version                    Description
-+++-==========================-==========================-====================================================================
-ii  procps                     3.1.15-3                   The /proc file system utilities
-usermap:~#
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-							Petr Vandrovec
+iD8DBQFANQKcxULwo51rQBIRAmFZAJ4+fydVzl9fr0cFnGo6mf8/JMdp5QCgoAsw
+x42ySutl48VR3Yo8m6bljlg=
+=ylm8
+-----END PGP SIGNATURE-----
 
+--5vNYLRcllDrimb99--

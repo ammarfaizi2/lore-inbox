@@ -1,73 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267919AbTBELVQ>; Wed, 5 Feb 2003 06:21:16 -0500
+	id <S267923AbTBELcg>; Wed, 5 Feb 2003 06:32:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267920AbTBELVQ>; Wed, 5 Feb 2003 06:21:16 -0500
-Received: from daimi.au.dk ([130.225.16.1]:5049 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S267919AbTBELVP>;
-	Wed, 5 Feb 2003 06:21:15 -0500
-Message-ID: <3E40F5DC.275FFE9D@daimi.au.dk>
-Date: Wed, 05 Feb 2003 12:30:36 +0100
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-19.7.xsmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: isofs hardlink bug (inode numbers different)
-References: <20030126235556.GA5560@paradise.net.nz> <b1nd5m$rhp$1@cesium.transmeta.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S267924AbTBELcf>; Wed, 5 Feb 2003 06:32:35 -0500
+Received: from angband.namesys.com ([212.16.7.85]:53412 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S267923AbTBELce>; Wed, 5 Feb 2003 06:32:34 -0500
+Date: Wed, 5 Feb 2003 14:42:06 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, torvalds@transmeta.com,
+       jdike@karaya.com
+Subject: use 64 bit jiffies broke HZ=100 case (and fix)
+Message-ID: <20030205144206.A25320@namesys.com>
+References: <Pine.LNX.4.33.0302022347440.24857-100000@gans.physik3.uni-rostock.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0302022347440.24857-100000@gans.physik3.uni-rostock.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" wrote:
-> 
-> There are inode numbers stored in RockRidge attributes, but using them
-> comes with some humongous caveats:
-> 
-> First: You have absolutely no guarantee that they are actually
-> unique.  Broken software could easily have written them with all
-> zeroes.
+Hello!
 
-Maybe we can detect some of the cases with broken software, and
-at least provide an option to turn the RockRidge inode numbers
-off.
+On Sun, Feb 02, 2003 at 11:55:40PM +0100, Tim Schmielau wrote:
+> Just a note that I have rediffed for 2.5.55 the patches that use the 64
+> bit jiffies value to avoid uptime and process start time wrap after
+> 49.5 days. I will push them Linus-wards when he's back.
+> They can be retrieved from
+>   http://www.physik3.uni-rostock.de/tim/kernel/2.5/jiffies64-33a.patch.gz
+>     (1/3: infrastructure)
+>   http://www.physik3.uni-rostock.de/tim/kernel/2.5/jiffies64-33b.patch.gz
+>     (2/3: fix uptime wrap)
+>   http://www.physik3.uni-rostock.de/tim/kernel/2.5/jiffies64-33c.patch.gz
+>     (3/3: 64 bit process start time)
 
-> 
-> Second: If there are files on the CD-ROM *without* RockRidge
-> attributes, you can get collisions with the synthesized inode numbers
-> for non-RR files.
+Unfortunatelly your changes in fs/proc/proc_misc.c broke every arch that
+still uses HZ=100 (e.g. UML), because there is no "times" field in task
+struct.
+See this part:
 
-That can easily be solved. RockRidge inode numbers are multiplied
-by two, and synthesized inode numbers are all odd. Of course if
-the multiplication overflows a fallback to synthesized inode
-numbers would be necesarry. Does any software produce inode
-numbers large enough to make this a problem?
++       {
++               unsigned long idle = init_task.times.tms_utime
++                                    + init_task.times.tms_stime;
 
-> 
-> Third: If you actually rely on inode numbers to be able to find your
-> files, like most versions of Unix including old (but not current)
-> versions of Linux, then they are completely meaningless.
+In order to get UML to compile again (and pretty much any other HZ=100 arch)
+I need to apply this patch below:
 
-Agreed.
+===== fs/proc/proc_misc.c 1.63 vs edited =====
+--- 1.63/fs/proc/proc_misc.c	Tue Nov 12 12:37:55 2002
++++ edited/fs/proc/proc_misc.c	Wed Feb  5 14:28:50 2003
+@@ -121,8 +121,7 @@
+ 	}
+ #else
+ 	{
+-		unsigned long idle = init_task.times.tms_utime
+-		                     + init_task.times.tms_stime;
++		unsigned long idle = init_task.utime + init_task.stime;
+ 
+ 		len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
+ 			(unsigned long) uptime,
 
-> 
-> There is another way to generate consistent inodes for hard links,
-> which is to use the data block pointer as the "inode number."  This,
-> however, has the problem that *ALL* zero-lenght files become "hard
-> links" to each other.
-
-That problem can easily be solved. Simply use different methods
-for zero-length files and all other files. But there might be
-other problems with such an approach:
-
-1) Could two different files have same data block pointer?
-   (different sizes perhaps?)
-2) Do we need a way to find metadata from the inode number?
-
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:aaarep@daimi.au.dk
-for(_=52;_;(_%5)||(_/=5),(_%5)&&(_-=2))putchar(_);
+Bye,
+    Oleg

@@ -1,53 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315463AbSFCULf>; Mon, 3 Jun 2002 16:11:35 -0400
+	id <S315479AbSFCUNQ>; Mon, 3 Jun 2002 16:13:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315476AbSFCULe>; Mon, 3 Jun 2002 16:11:34 -0400
-Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:7628 "EHLO
-	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
-	id <S315463AbSFCULe>; Mon, 3 Jun 2002 16:11:34 -0400
-Date: Mon, 3 Jun 2002 22:11:33 +0200 (MET DST)
-From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
-To: Pavel Machek <pavel@suse.cz>
-cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: do_mmap
-In-Reply-To: <20020603121943.A37@toy.ucw.cz>
-Message-ID: <Pine.GSO.4.05.10206032153260.7433-100000@mausmaki.cosy.sbg.ac.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315480AbSFCUNP>; Mon, 3 Jun 2002 16:13:15 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:63428 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S315476AbSFCUNN>; Mon, 3 Jun 2002 16:13:13 -0400
+Date: Mon, 3 Jun 2002 22:12:33 +0200
+From: Andi Kleen <ak@muc.de>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
+        icollinson@imerge.co.uk, andrea@suse.de
+Subject: Re: realtime scheduling problems with 2.4 linux kernel >= 2.4.10
+Message-ID: <20020603221233.A9629@averell>
+In-Reply-To: <C0D45ABB3F45D5118BBC00508BC292DB09C992@imgserv04> <20020531112847.B1529@w-mikek2.des.beaverton.ibm.com> <m37kljkjys.fsf@averell.firstfloor.org> <20020603090328.A1581@w-mikek2.des.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pavel,
+> Is this something we should 'fix'?  I would envision a 'solution'
+> for each console implementation.  OR we could remove the above
+> from the man page. :)
 
---snip/snip
+There is only a single console implementation AFAIK.
+I think it should be fixed, probably by the way I outlined in my previous
+mail (but no feedback yet so it seems the problem isn't that important for
+anybody ;)
 
-> While you are at it... fs/binfmt_elf does mmaps but does not check for errors.
-> And errors actually do happen there :-(
-
-ok, had a second look.
-it does check for errors, using BAD_ADDR which is: if (addr > TASK_SIZE)
-and TASK_SIZE on the other hand is PAGE_OFFSET == 0xC0000000 (for x86)
-
-hmm, which means even if we correctly map an area > PAGE_OFFSET, we will 
-never free the area (well another question is, if we ever try to map
-an area > PAGE_OFFSET) - but nevertheless, the check should be before
-trying to mmap, and checking for IS_ERR after mmap.
-
-nyone explain what to do if we cannot map the page for MMAP_PAGE_ZERO?
-- we just ignore it for now ...
-
-also another instance: if (addr != req_address) - which means if we have
-	some alignment with mmap - load_elf_library just bails out.
-	guess we need to munmap also (if no error occured during mmap)
-
-do_brk() is _never_ checked for return (at least in binfm_elf) ... oh
-well ...
-
-any comments?
-
-	tm
-
--- 
-in some way i do, and in some way i don't.
-
+-Andi

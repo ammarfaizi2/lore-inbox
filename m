@@ -1,86 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264368AbTDPNft (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 09:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264369AbTDPNft 
+	id S264372AbTDPNmE (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 09:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbTDPNmD 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 09:35:49 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:12440 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S264368AbTDPNfr 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 09:35:47 -0400
-Date: Wed, 16 Apr 2003 06:47:34 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 592] New: BUG at kernel/softirq.c:105
-Message-ID: <86310000.1050500854@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 16 Apr 2003 09:42:03 -0400
+Received: from mail.compaq.com ([161.114.1.205]:2321 "EHLO
+	ztxmail01.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S264372AbTDPNmC (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 16 Apr 2003 09:42:02 -0400
+Date: Wed, 16 Apr 2003 08:00:59 +0600
+From: Stephen Cameron <steve.cameron@hp.com>
+To: linux-kernel@vger.kernel.org
+Subject: How to identify contents of /lib/modules/*
+Message-ID: <20030416020059.GA27314@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=592
 
-           Summary: BUG at kernel/softirq.c:105
-    Kernel Version: 2.5.67
-            Status: NEW
-          Severity: normal
-             Owner: rmk@arm.linux.org.uk
-         Submitter: kees.bakker@xs4all.nl
+Hi, here's a problem I'm having, perhaps someone has some smart idea...
 
+A certain major linux distribution distributes a number of binary 
+kernels, errata kernels, which all report the exact same thing 
+via "uname -r".  These kernels may differ by only a little
+(only the .config file is different in some small way) or by 
+a lot (binary drivers for one don't work (panic) on another).
 
-Problem Description:
-At shutdown, when pppd gets killed this BUG shows up. Here is the syslog:
-Apr 14 22:10:28 iris kernel: kernel BUG at kernel/softirq.c:105!
-Apr 14 22:10:28 iris kernel: invalid operand: 0000 [#1]
-Apr 14 22:10:28 iris kernel: CPU:    0
-Apr 14 22:10:28 iris kernel: EIP:    0060:[<c011f8a3>]    Not tainted
-Apr 14 22:10:28 iris kernel: EFLAGS: 00010002
-Apr 14 22:10:28 iris kernel: EIP is at local_bh_enable+0x43/0x50
-Apr 14 22:10:28 iris kernel: eax: 00000001   ebx: de840e00   ecx: 00000000  
-edx: de840eb2
-Apr 14 22:10:28 iris kernel: esi: 00000000   edi: 00000000   ebp: 00000000  
-esp: de599e28
-Apr 14 22:10:28 iris kernel: ds: 007b   es: 007b   ss: 0068
-Apr 14 22:10:28 iris kernel: Process pptp (pid: 388, threadinfo=de598000
-task=de90e740)
-Apr 14 22:10:28 iris kernel: Stack: c0237910 dfddaf40 c01a95db dfddaf40
-00000001 de8b8000 dede74c0 de8b8000 
-Apr 14 22:10:28 iris kernel:        de840e00 de8b89e4 00000000 c0237231
-de840e00 de8b8000 deca3000 c01fd15f 
-Apr 14 22:10:28 iris kernel:        de8b8000 deca3000 de8b8000 c01f9db3
-deca3000 c01f9e33 deca3000 deca3000 
-Apr 14 22:10:28 iris kernel: Call Trace:
-Apr 14 22:10:28 iris kernel:  [<c0237910>] ppp_async_push+0x90/0x170
-Apr 14 22:10:28 iris kernel:  [<c01a95db>] _devfs_unregister+0x5b/0xa0
-Apr 14 22:10:28 iris kernel:  [<c0237231>] ppp_asynctty_wakeup+0x31/0x70
-Apr 14 22:10:28 iris kernel:  [<c01fd15f>] pty_unthrottle+0x5f/0x70
-Apr 14 22:10:28 iris kernel:  [<c01f9db3>] check_unthrottle+0x33/0x40
-Apr 14 22:10:28 iris kernel:  [<c01f9e33>] n_tty_flush_buffer+0x13/0x60
-Apr 14 22:10:28 iris kernel:  [<c01fd53c>] pty_flush_buffer+0x6c/0x70
-Apr 14 22:10:28 iris kernel:  [<c01f70fe>] do_tty_hangup+0x2fe/0x340
-Apr 14 22:10:28 iris kernel:  [<c01f83b7>] release_dev+0x637/0x680
-Apr 14 22:10:28 iris kernel:  [<c0138239>] slab_destroy+0xa9/0xd0
-Apr 14 22:10:28 iris kernel:  [<c013cf63>] unmap_page_range+0x43/0x70
-Apr 14 22:10:28 iris kernel:  [<c0138e73>] cache_flusharray+0xe3/0x100
-Apr 14 22:10:28 iris kernel:  [<c01f87df>] tty_release+0xf/0x20
-Apr 14 22:10:28 iris kernel:  [<c014bad1>] __fput+0xc1/0xd0
-Apr 14 22:10:28 iris kernel:  [<c014a31d>] filp_close+0x4d/0x80
-Apr 14 22:10:28 iris kernel:  [<c011d577>] put_files_struct+0x57/0xc0
-Apr 14 22:10:28 iris kernel:  [<c011e012>] do_exit+0x102/0x300
-Apr 14 22:10:28 iris kernel:  [<c014a31d>] filp_close+0x4d/0x80
-Apr 14 22:10:28 iris kernel:  [<c011e2c2>] do_group_exit+0x52/0x80
-Apr 14 22:10:28 iris kernel:  [<c010b14b>] syscall_call+0x7/0xb
-Apr 14 22:10:28 iris kernel: 
-Apr 14 22:10:28 iris kernel: Code: 0f 0b 69 00 e9 d7 32 c0 eb d3 8d 76 00
-53 89 c1 9c 5b fa b8 
+I seem to be in the business of distributing binary drivers to customers,
+like it or not.  Since there already exist multiple incompatible
+errata kernels that all share the same uname -r and hence the same
+directory for modules, and since all these errata kernels *might*
+be found on a single machine in /boot.... (only one of which is likely
+to be viable, since there is only one /lib/modules directory for
+them all)...
 
+The task for the binary driver distributor becomes to figure out which
+of these multiple errata kernels found in /boot corresponds to the 
+/lib/modules directory, so we can drop the binary driver that was
+made for that errata kernel in there, and not a driver made for the
+wrong kernel.
 
-Steps to reproduce:
-Start pppd
-Shutdown the system (I haven't tried to do a killall pppd)
+So far, the best idea I have come up with is to construct a database
+of checksums of all the *.o files in the various /lib/modules directories
+that come with the various errata kernels, then compare that database
+against what is actually found in /lib/modules.  (note, the results will
+likely never match _exactly_, since binary driver distributors like myself
+can drop .o files in /lib/modules, and alos, this distribution doesn't use
+the symbol name checksums, so identical *.o files appear occasionally in
+/lib/modules for different errata kernels.)  Then count which errata kernel 
+matches the most *.o files, and assume that must be the one (and probably
+should have some minimum numver to match, lest the user have only kernels
+we know nothing about)
 
+This seems like a lot of contortions to go through and I'm wondering
+if there's a simpler way to identify the contents of /lib/modules, 
+aside from the 'uname -r' type string, and I just missed it.
+
+Also note, I can't just figure out which is the _running_ kernel
+(by checksumming /boot/vmlinuz, cross-checked against /etc/lilo.conf
+or grub conf file, because in certain situations the running kernel
+is only there to install another kernel.  And we want to provide
+the option to install the driver for all the kernels on the system
+that we can (reliably) find.)
+
+Also, rpm -qf to try to id the RPM from which some /lib/modules file
+or vmlinuz won't necessarily work, as rpm can report they belong to 
+multiple RPMs in certain cases.
+
+Thanks for any other ideas.
+
+-- steve
 

@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275341AbTHNSi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 14:38:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275345AbTHNSi4
+	id S271742AbTHNSiU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 14:38:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275341AbTHNSiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 14:38:56 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:61312 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S275341AbTHNSi1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 14:38:27 -0400
-Date: Thu, 14 Aug 2003 19:38:06 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Matt Wilson <msw@redhat.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@redhat.com>, Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] revert zap_other_threads breakage, disallow CLONE_THREAD without CLONE_DETACHED
-Message-ID: <20030814183806.GA11703@mail.jlokier.co.uk>
-References: <20030814182757.GA11623@mail.jlokier.co.uk> <Pine.LNX.4.44.0308141130300.1692-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308141130300.1692-100000@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 14 Aug 2003 14:38:19 -0400
+Received: from chromatix.demon.co.uk ([80.177.102.173]:16570 "EHLO
+	lithium.chromatix.org.uk") by vger.kernel.org with ESMTP
+	id S271742AbTHNSiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 14:38:18 -0400
+Date: Thu, 14 Aug 2003 19:38:15 +0100
+Mime-Version: 1.0 (Apple Message framework v552)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Subject: agpgart failure on KT400
+From: Jonathan Morton <chromi@chromatix.demon.co.uk>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Message-Id: <779ACC8A-CE86-11D7-A88B-003065664B7C@chromatix.demon.co.uk>
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> I've pushed the change to the BK trees, and if you're not a BK user you
-> can just test the attached patch directly to see if it affects you..
+I recently upgraded to a m/board using the KT400 chipset - specifically 
+an Abit KD7-G - and now find that I can't load agpgart.  The relevant 
+kernel messages:
 
-That's cool, I am not affected.
+agpgart: Maximum main memory to use for agp memory: 941M
+agpgart: Detected Via Apollo Pro KT400 chipset
+agpgart: unable to determine aperture size.
 
-Simply the documentation you mentioned, I felt someone who writes code
-using CLONE_THREAD in future should be aware that if they just use
-CLONE_THREAD by itself, their code won't work as expected with the
-later 2.5 kernels.  The EINVAL ensures that perfectly.  So, :)
+This results in my inability to load XFree86, using the proprietary ATI 
+drivers, which appear to require AGP support.  Note that the same 
+problem appears using ATI's "internal agpgart module", just to show I 
+know the difference.  The regular XFree86 drivers probably work without 
+AGP - I haven't bothered trying yet.
 
--- Jamie
+NB: I tried sending this to Jeff Hartmann, but his address at 
+precisioninsight.com is dead.  Please CC me, I'm not subscribed to the 
+list.  Better still, refer me to someone who actually knows what to do 
+about it.
+
+The BIOS is set up for either a 256MB or 64MB AGP aperture - whichever 
+of the two settings makes no difference.  The video card is a Radeon 
+9700 Pro, 128MB.  The kernel configuration includes ACPI and 
+HIGHMEM-4GB support, if that is at all relevant.
+
+This problem is identically present in 2.4.21 and 2.4.22-rc2.
+
+I can provide extra information as needed, just ask.  I have a feeling 
+someone's going to ask me for lspci output, but I'll leave that until 
+someone who knows what they're doing asks me.
+
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@chromatix.demon.co.uk
+website:  http://www.chromatix.uklinux.net/
+tagline:  The key to knowledge is not to rely on people to teach you it.
+

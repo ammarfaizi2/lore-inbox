@@ -1,41 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290805AbSAYU4L>; Fri, 25 Jan 2002 15:56:11 -0500
+	id <S290807AbSAYVAl>; Fri, 25 Jan 2002 16:00:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290806AbSAYU4B>; Fri, 25 Jan 2002 15:56:01 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28680 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S290805AbSAYUzy>; Fri, 25 Jan 2002 15:55:54 -0500
-Date: Fri, 25 Jan 2002 12:40:48 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-        Richard Gooch <rgooch@atnf.csiro.au>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH]: Fix MTRR handling on HT CPUs (improved)
-In-Reply-To: <E16UBUl-0003J9-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0201251237470.1871-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290809AbSAYVAb>; Fri, 25 Jan 2002 16:00:31 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:33542 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S290807AbSAYVAI>; Fri, 25 Jan 2002 16:00:08 -0500
+Date: Fri, 25 Jan 2002 21:58:16 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Dieter =?iso-8859-2?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: Ed Sweetman <ed.sweetman@wmich.edu>,
+        Daniel Nofftz <nofftz@castor.uni-trier.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        preining@logic.at, ttonino@users.sourceforge.net,
+        moffe@amagerkollegiet.dk, timothy.covell@ashavan.org,
+        nitrax@giron.wox.org, mpet@bigfoot.de, lkml@sigkill.net, pavel@suse.cz,
+        vandrove@vc.cvut.cz, hpj@urpla.net, whitney@math.berkeley.edu
+Subject: Re: acpi-rouble/amd disconnect patch
+Message-ID: <20020125205816.GB6945@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.40.0201251248090.30265-100000@hades.uni-trier.de> <1011968738.22709.29.camel@psuedomode> <20020125203207.3D16059D360@kerberos.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020125203207.3D16059D360@kerberos.suse.cz>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Fri, 25 Jan 2002, Alan Cox wrote:
-> As Dave pointed out I was mixing them
->
-> > just not do it on the right CPU (you're _not_ supposed to read to see if
-> > you are writing the same value: MTRR's can at least in theory have
-> > side-effects, so it's not the same check as for the microcode update).
->
-> So why not just set it twice - surely that is harmless ? Why add complex
-> code ?
+> > It sounds like you'll have to make the patch work just for Athlon XP's
+> > ...  unless of course you're not expecting it to be included in the
+> > kernel ever.
+> 
+> Nonsense!
+> 
+> I had seen more than 2500 Athlon/Duron system since 26. August 1999.
+> Most system can handle it.
+> 
+> Best case today, again. Even better than ever.
+> 
+> 1.2 GHz Athlon TB (133 FSB, 9.0 multiplier)
+> MSI MS-6330 v3.0 (K7T Turbo-R, KT133A, 686B)
+> 
+> open case
+> Win98SE with full VCool 1.7.2 active
+> 
+> BIOS CPU max. 84°C!!!
+> Then starting Winbloze
+> drop from 74°C to 23°C CPU, 23°C system temperature
+> even the cooler was "cool"
+> 
+> During DVD playback
+> ~56°C than down to 23°C, again
+> 
+> And did you forget?
+> It _is_ an option. --- You can try it and disable it when it fails for you.
 
-At the _least_ you have to serialize the thing, which is most of what the
-patch actually does. Writing the MTRR's in parallel from two different
-cores at the same time is just obviously bogus, the same way it is
-obviously bogus to try to update the microcode at the same time.
-
-		Linus
-
+Option having random strange consequences...? Maybe okay, but you
+should think twice.
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132517AbRDNSp3>; Sat, 14 Apr 2001 14:45:29 -0400
+	id <S132520AbRDNSw3>; Sat, 14 Apr 2001 14:52:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132519AbRDNSpK>; Sat, 14 Apr 2001 14:45:10 -0400
-Received: from a-pr9-44.tin.it ([212.216.147.171]:5248 "EHLO
-	eris.discordia.loc") by vger.kernel.org with ESMTP
-	id <S132517AbRDNSpB>; Sat, 14 Apr 2001 14:45:01 -0400
-Date: Sat, 14 Apr 2001 20:45:25 +0200 (CEST)
-From: Lorenzo Marcantonio <lomarcan@tin.it>
-To: Nate Eldredge <neldredge@hmc.edu>
-cc: <linux-kernel@vger.kernel.org>, <lomarcan@tin.it>
-Subject: Re: SCSI Tape Corruption - update 2
-In-Reply-To: <15063.8582.293619.762113@mercury.st.hmc.edu>
-Message-ID: <Pine.LNX.4.31.0104142043340.1271-100000@eris.discordia.loc>
+	id <S132521AbRDNSwU>; Sat, 14 Apr 2001 14:52:20 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32274 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132520AbRDNSwN>; Sat, 14 Apr 2001 14:52:13 -0400
+Subject: Re: [PATCH] Re: 8139too: defunct threads
+To: manfred@colorfullife.com (Manfred Spraul)
+Date: Sat, 14 Apr 2001 19:53:28 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, stewart@dystopia.lab43.org (Rod Stewart),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3AD88A00.DF54EC12@colorfullife.com> from "Manfred Spraul" at Apr 14, 2001 07:33:52 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14oVAp-0005Nj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Apr 2001, Nate Eldredge wrote:
+> Rod's init version (from RH 7.0) doesn't reap children that died before
+> it was started. Is that an init bug or should the kernel reap them
+> before the execve?
 
-> (32 bytes is the size of a cache line.)  A memory tester might be
-> something to try (I wrote a simple program that seemed to show the
-> error better than memtest86; can send it if desired.)
+I would say thats an init bug
 
-Already tried that... this system has passed some 20 hours running
-memtest86...
+> The attached patch reaps all zombies before the execve("/sbin/init").
 
-Also I've got NO OTHER memory failure symptom (and the tape fails only on
-writing)
-
-				-- Lorenzo Marcantonio
+That has an implicit race, a zombie can always appear as we are execing init.
+I think init wants fixing
 

@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135255AbRAGAgK>; Sat, 6 Jan 2001 19:36:10 -0500
+	id <S135254AbRAGAkB>; Sat, 6 Jan 2001 19:40:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135287AbRAGAgB>; Sat, 6 Jan 2001 19:36:01 -0500
-Received: from colorfullife.com ([216.156.138.34]:53516 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S135255AbRAGAfy>;
-	Sat, 6 Jan 2001 19:35:54 -0500
-Message-ID: <3A57BA06.DE2EA489@colorfullife.com>
-Date: Sun, 07 Jan 2001 01:36:22 +0100
-From: Manfred <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] single copy pipe rewrite
-In-Reply-To: <3A57A95C.A1411221@colorfullife.com> <200101062322.PAA13439@pizda.ninka.net>
+	id <S135287AbRAGAjw>; Sat, 6 Jan 2001 19:39:52 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:62204 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S135254AbRAGAji>; Sat, 6 Jan 2001 19:39:38 -0500
+Date: Sat, 6 Jan 2001 22:39:30 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] atarilance using freed skb
+Message-ID: <20010106223930.T736@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010106213508.R736@conectiva.com.br>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010106213508.R736@conectiva.com.br>; from acme@conectiva.com.br on Sat, Jan 06, 2001 at 09:35:08PM -0200
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+Em Sat, Jan 06, 2001 at 09:35:08PM -0200, Arnaldo Carvalho de Melo escreveu:
+> Alan,
 > 
-> A couple months ago David posted a revised version of his patch which
-> fixed both these and some other problems.  Most of the fixes were done
-> by Alexey Kuznetsov.
-> 
+> 	Paul Gortmaker found a similar one for lance, so I'm looking at
+> some other drivers to see if this happens, bagetlance has it as well,
+> here is the patch.
 
-Do you still have that patch?
+Another one:
 
-Stephen Tweedie included the original, unrevied version in his
-kiobuf.2.3.99.pre9-2.tar.gz from May, and I couldn't find a newer
-version.
-
-Was it posted to linux-kernel?
+--- linux-2.4.0-ac2/drivers/net/atarilance.c	Mon Jan  1 14:42:28 2001
++++ linux-2.4.0-ac2.acme/drivers/net/atarilance.c	Sat Jan  6 22:36:23 2001
+@@ -820,9 +820,9 @@
+ 	head->misc = 0;
+ 	lp->memcpy_f( PKTBUF_ADDR(head), (void *)skb->data, skb->len );
+ 	head->flag = TMD1_OWN_CHIP | TMD1_ENP | TMD1_STP;
++	lp->stats.tx_bytes += skb->len;
+ 	dev_kfree_skb( skb );
+ 	lp->cur_tx++;
+-	lp->stats.tx_bytes += skb->len;
+ 	while( lp->cur_tx >= TX_RING_SIZE && lp->dirty_tx >= TX_RING_SIZE ) {
+ 		lp->cur_tx -= TX_RING_SIZE;
+ 		lp->dirty_tx -= TX_RING_SIZE;
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

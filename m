@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbTFTAGd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 20:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbTFTAG1
+	id S262037AbTFTADf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 20:03:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbTFTADe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 20:06:27 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54742 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262063AbTFTAGV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 20:06:21 -0400
-Date: Fri, 20 Jun 2003 02:20:19 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Mike Phillips <mikep@linuxtr.net>
-Cc: linux-kernel@vger.kernel.org, linux-tr@linuxtr.net,
-       linux-net@vger.kernel.org
-Subject: [2.5 patch] 3c359.c: remove comparison that is always true
-Message-ID: <20030620002019.GJ29247@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 19 Jun 2003 20:03:34 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30986 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262029AbTFTADa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 20:03:30 -0400
+Date: Thu, 19 Jun 2003 17:16:55 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Nuno Silva <nuno.silva@vgertech.com>
+cc: Samphan Raruenrom <samphan@thai.com>, Vojtech Pavlik <vojtech@suse.cz>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Crusoe's persistent translation on linux?
+In-Reply-To: <3EF24F1A.1040009@vgertech.com>
+Message-ID: <Pine.LNX.4.44.0306191707000.1987-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below removes a comparison that is always true.
 
-i is defined as u16, IOW it obviously can't be > 0xffff.
+On Fri, 20 Jun 2003, Nuno Silva wrote:
+> 
+> This raises a new question. How about a port of Linux to the "VLIW" so 
+> that we can skip x86 "code morphing" interelly?
 
-I don't know whether this patch is correct. The correct fix might be 
-different but the current code is definitely broken.
+The native crusoe code - even if it was documented and available - is not 
+very conductive to general-purpose OS stuff. It has no notion of memory 
+protection, and there's no MMU for code accesses, so things like kernel 
+modules simply wouldn't work.
 
-cu
-Adrian
+> I'm sure that 1GHz would benefit from it. Is it possible, Linus?
 
+The translations are usually _better_ than statically compiled native 
+code (because the whole CPU is designed for speculation, and the static 
+compilers don't know how to do that), and thus going to native mode is not 
+necessarily a performance improvement.
 
---- linux-2.5.72-mm2/drivers/net/tokenring/3c359.c.old	2003-06-20 02:12:45.000000000 +0200
-+++ linux-2.5.72-mm2/drivers/net/tokenring/3c359.c	2003-06-20 02:15:36.000000000 +0200
-@@ -464,7 +464,7 @@
- 		
- 		printk(KERN_INFO "3C359: Uploading Microcode: "); 
- 		
--		for (i = start,j=0; (j < mc_size && i <= 0xffff) ; i++,j++) { 
-+		for (i = start,j=0; j < mc_size; i++,j++) { 
- 			writel(MEM_BYTE_WRITE | 0XD0000 | i, xl_mmio + MMIO_MAC_ACCESS_CMD) ; 
- 			writeb(microcode[j],xl_mmio + MMIO_MACDATA) ; 
- 			if (j % 1024 == 0)
+So no, it wouldn't really benefit from it, not to mention that it's not
+even an option since Transmeta has never released enough details to do it
+anyway. Largely for simple security concerns - if you start giving
+interfaces for mucking around with the "microcode", you could do some
+really nasty things. 
+
+Process startup is slightly slower due to the translation overhead, but
+that doesn't matter for the kernel anyway (so a native kernel wouldn't
+much help). And we do cache translations in memory, even across
+invocations. I suspect the reason large builds are slower are due to slow
+memory and/or occasionally overflowing the translation cache.
+
+			Linus
+

@@ -1,25 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132007AbRCVNQh>; Thu, 22 Mar 2001 08:16:37 -0500
+	id <S132012AbRCVNWh>; Thu, 22 Mar 2001 08:22:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132017AbRCVNQ2>; Thu, 22 Mar 2001 08:16:28 -0500
-Received: from adglinux1.hns.com ([139.85.108.152]:58315 "EHLO
-	adglinux1.hns.com") by vger.kernel.org with ESMTP
-	id <S132007AbRCVNQQ>; Thu, 22 Mar 2001 08:16:16 -0500
+	id <S132013AbRCVNW2>; Thu, 22 Mar 2001 08:22:28 -0500
+Received: from darkstar.internet-factory.de ([195.122.142.9]:28551 "EHLO
+	darkstar.internet-factory.de") by vger.kernel.org with ESMTP
+	id <S132012AbRCVNWM>; Thu, 22 Mar 2001 08:22:12 -0500
 To: linux-kernel@vger.kernel.org
-Subject: regression testing
-Content-Type: text/plain; charset=US-ASCII
-From: nbecker@fred.net
-Date: 22 Mar 2001 08:15:31 -0500
-Message-ID: <x88zoeeeyh8.fsf@adglinux1.hns.com>
-MIME-Version: 1.0
+Path: not-for-mail
+From: Holger Lubitz <h.lubitz@internet-factory.de>
+Newsgroups: lists.linux.kernel
+Subject: Re: UDMA 100 / PIIX4 question
+Date: Thu, 22 Mar 2001 14:21:29 +0100
+Organization: Internet Factory AG
+Message-ID: <3AB9FC59.92C97ACE@internet-factory.de>
+In-Reply-To: <20010321095533Z131410-407+1932@vger.kernel.org> <Pine.LNX.4.10.10103211000370.29537-100000@master.linux-ide.org>
+NNTP-Posting-Host: bastille.internet-factory.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Trace: darkstar.internet-factory.de 985267289 10267 195.122.142.158 (22 Mar 2001 13:21:29 GMT)
+X-Complaints-To: usenet@internet-factory.de
+NNTP-Posting-Date: 22 Mar 2001 13:21:29 GMT
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac20 i686)
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  I was wondering if there has been any discussion of kernel
-regression testing.  Wouldn't it be great if we didn't have to depend
-on human testers to verify every change didn't break something?
+Andre Hedrick wrote:
 
-OK, I'll admit I haven't given this a lot of thought.  What I'm
-wondering is whether the user-mode linux could help here (allow a way
-to simulate controlled activity).
+> You may get a burst because of caching prefetch or predictive readahead,
+> but that is artifical; however, in your case the root directory begins 25%
+> in the drive.
+
+But still it gives faster transfers than /dev/hda. The question is why.
+I do not think that factor 2 can be explained by prefetch or readahead
+alone.
+
+> First you have the faster portion of the drive using a lame OS, so do not
+> expect Linux to perform if you put it on the slowest portions of the
+> device.
+
+:-) But putting it at the beginning at least leaves the linux partitions
+together.
+Having the root fs in the outermost partition might give slightly faster
+transfers, but slightly longer seeks to get there.
+
+> [root@via DiskPerf-1.0.3]# ./DiskPerf /dev/hda
+
+Is that an unreleased version? kernel.org still has 1.0.1.
+
+Holger

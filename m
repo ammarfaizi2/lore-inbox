@@ -1,82 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262624AbUKXLou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262623AbUKXMDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262624AbUKXLou (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 06:44:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbUKXLou
+	id S262623AbUKXMDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 07:03:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbUKXMDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 06:44:50 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:16015 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262624AbUKXLor
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 06:44:47 -0500
-Date: Wed, 24 Nov 2004 17:15:23 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: Andi Kleen <ak@suse.de>, akpm@osdl.org
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, Jesper Juhl <juhl-lkml@dif.dk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: x86_64 GPF handler (was: [PATCH] remove errornous semicolon)
-Message-ID: <20041124114523.GA2336@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-References: <200411240026_MC3-1-8F47-CE27@compuserve.com> <20041124104338.GC10495@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041124104338.GC10495@wotan.suse.de>
-User-Agent: Mutt/1.4i
+	Wed, 24 Nov 2004 07:03:09 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:44047 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S262623AbUKXMDG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 07:03:06 -0500
+Message-ID: <41A46110.1060903@hist.no>
+Date: Wed, 24 Nov 2004 11:23:12 +0100
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel thoughts of a Linux user
+References: <200411181859.27722.gjwucherpfennig@gmx.net> <419CFF73.3010407@dbservice.com> <41A19E44.9080005@hist.no> <Pine.LNX.4.53.0411220938170.21333@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.53.0411220938170.21333@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > x86_64 never checks the result of notify_die() and unconditionally does a die().
-> > I don't know if this is a bug or not...
-> > 
-> > Andi, if this is not a bug could you explain why not?
-> 
-> It depends on what the debugger (or kprobes) wants. These checks
-> are added based on their needs. Perhaps he didn't consider it 
-> necessary on x86-64. But why don't you ask Prasanna directly?  (cc'ed)
-> 
+Jan Engelhardt wrote:
 
-I agree with Andi that it depends on the specific debugger. On handling
-the general protection fault notification, kprobe handler returns NOTIFY_STOP.
-This check missed out in x86_64 kprobes patch. Below patch should fix this,
-please let me know if you have any issues.
+>>Yes, you can do that.   The limit seems to be how many monitors you can
+>>connect - there seems to be no practical limit to how many USB keyboards
+>>& mice you can use.  The lengt of wires might also be a problem
+>>with more than four.
+>>    
+>>
+>
+>Well wait until we get USB monitors.
+>  
+>
+You can make a USB terminal if you wish, but I don't
+think USB has enough bandwith for a serious monitor.
+I think I heard of a VGA over USB product, but running
+X or even 3D on that cannot be fun.  And VGA is too
+low resolution these days.
 
-Thanks
-Prasanna
-
-
-This patch adds the return value check for the exception notifiers at
-do_general_protection as pointed out by Chuck Ebbert.
-
-Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-
-
----
-
- linux-2.6.10-rc2-prasanna/arch/x86_64/kernel/traps.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
-
-diff -puN arch/x86_64/kernel/traps.c~notifier-fix arch/x86_64/kernel/traps.c
---- linux-2.6.10-rc2/arch/x86_64/kernel/traps.c~notifier-fix	2004-11-24 17:06:41.000000000 +0530
-+++ linux-2.6.10-rc2-prasanna/arch/x86_64/kernel/traps.c	2004-11-24 17:08:18.000000000 +0530
-@@ -556,8 +556,9 @@ asmlinkage void do_general_protection(st
- 			regs->rip = fixup->fixup;
- 			return;
- 		}
--		notify_die(DIE_GPF, "general protection fault", regs, error_code,
--			   13, SIGSEGV); 
-+		if (notify_die(DIE_GPF, "general protection fault", regs,
-+					error_code, 13, SIGSEGV) == NOTIFY_STOP)
-+			return;
- 		die("general protection fault", regs, error_code);
- 	}
- }
-
-_
--- 
-
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
+Helge Hafting

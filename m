@@ -1,47 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267746AbUIAD5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S266243AbUHFDZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267746AbUIAD5u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 23:57:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268995AbUIAD5u
+	id S266243AbUHFDZw (ORCPT <rfc822;akpm@zip.com.au>);
+	Thu, 5 Aug 2004 23:25:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266257AbUHFDZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 23:57:50 -0400
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:30833 "EHLO linux.local")
-	by vger.kernel.org with ESMTP id S267746AbUIAD5t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 23:57:49 -0400
-Date: Tue, 31 Aug 2004 20:53:50 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Jim Houston <jim.houston@comcast.net>
-Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jack Steiner <steiner@sgi.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       rusty@rustcorp.com.au
-Subject: Re: [RFC&PATCH] Alternative RCU implementation
-Message-ID: <20040901035350.GH1241@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <m3brgwgi30.fsf@new.localdomain> <20040830004322.GA2060@us.ibm.com> <1093886020.984.238.camel@new.localdomain> <20040830185223.GF1243@us.ibm.com> <1093922569.1003.159.camel@new.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093922569.1003.159.camel@new.localdomain>
-User-Agent: Mutt/1.4.1i
+	Thu, 5 Aug 2004 23:25:51 -0400
+Received: from ns2.globaltt.com ([217.30.16.2]:31673 "EHLO mx2.globaltt.com")
+	by vger.kernel.org with ESMTP id S266243AbUHFDZc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 23:25:32 -0400
+From: <news@globaltt.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: =?iso-8859-1?Q?Internet_High-speed_connection_by_satellite__//_connexion_?=
+	=?iso-8859-1?Q?haut-d=E9bit_par_satellite?=
+Date: Fri, 6 Aug 2004 05:24:56 +0200
+Message-ID: <d44c01c47b64$f2064620$0542a8c0@GTTNT.local>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft CDO for Windows 2000
+Thread-Index: AcR7ZPIGt/FghM27RN6sLA9vH1g7DQ==
+Content-Class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 11:22:49PM -0400, Jim Houston wrote:
-> On Mon, 2004-08-30 at 14:52, Paul E. McKenney wrote: 
-> > How does the rest of the kernel work with all interrupts to
-> > a particular CPU shut off?  For example, how do you timeslice?
-> 
-> It's a balancing act.  In some cases we just document the
-> missing functionality.  If the local timer is disabled on a cpu,
-> all processes are SCHED_FIFO.  In the case of Posix timers, we
-> move timers to honor the procesor shielding an the process affinity.
+Dear Mr.,
 
-I have to ask...  When you say that you move the timers, you mean that
-non-realtime CPU 1 managers timers for realtime CPU 0, so that CPU 1
-is (effectively) taking CPU 0's timer interrupts?
+>From now, you can get anywhere in Africa, a broadband shared high-speed satellite access :
+	- 24h/24
+	- From 99 Euro by month (without equipment)
+	- 1 to 13 users/PC can share the same connection or the same subscription.
+	- Speed from 64Kbps to 2Mbps
 
-							Thanx, Paul
+For more information I invite you on our web site on the following address:
+http://www.globaltt.com
+
+The GT&T team an myself are free to be in touch with you for any information.
+Yours faithfully,
+
+Sales account manager
+news@globaltt.com
+
+----------------------------------------------------------------------------------
+
+Cher Monsieur,
+
+Il est désormais possible, partout en Afrique, d'avoir un accès Internet par satellite :
+	- A haut-débit (type adsl) 
+	- 24h/24
+	- A partir de 99 euro par mois (hors équipement)
+	- 1 à 13 utilisateurs/PC peuvent partager la même connexion et le même abonnement.
+	- vitesse de 64 Kbps à 2 Mbps
+
+Pour plus d'informations, je vous invite à visiter notre site à l'adresse suivante :
+http://www.globaltt.com
+
+Mon équipe et moi-même sommes à votre disposition pour toutes informations.
+Je vous prie de croire, Cher Monsieur, en l'expression de mes sentiments distingués,
+
+Responsable client.
+news@globaltt.com
+
+
+
+*Si cet e-mail ne devait par répondre à vos besoins vous pouvez renvoyer ce mail avec le sujet "no needs"
+*If this email doesn't match with your need you can return this mail with the subject "no needs"
+

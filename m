@@ -1,36 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271793AbRHUSfk>; Tue, 21 Aug 2001 14:35:40 -0400
+	id <S271791AbRHUShU>; Tue, 21 Aug 2001 14:37:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271790AbRHUSfb>; Tue, 21 Aug 2001 14:35:31 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:45699 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S271793AbRHUSfX>; Tue, 21 Aug 2001 14:35:23 -0400
-Date: Tue, 21 Aug 2001 14:35:34 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@touchme.toronto.redhat.com>
-To: James Simmons <jsimmons@transvirtual.com>
-cc: Stephen Satchell <satch@fluent-access.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: FYI  PS/2 Mouse problems -- userland issue
-In-Reply-To: <Pine.LNX.4.10.10108211126380.20205-100000@transvirtual.com>
-Message-ID: <Pine.LNX.4.33.0108211432530.14374-100000@touchme.toronto.redhat.com>
+	id <S271811AbRHUShE>; Tue, 21 Aug 2001 14:37:04 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17157 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271807AbRHUSgk>; Tue, 21 Aug 2001 14:36:40 -0400
+Subject: Re: i810 audio doesn't work with 2.4.9
+To: pavenis@latnet.lv (Andris Pavenis)
+Date: Tue, 21 Aug 2001 19:39:25 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "Andris Pavenis" at Aug 21, 2001 08:33:50 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15ZGQv-0008Qb-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Aug 2001, James Simmons wrote:
+> seems that i810_audio.c  from 2.4.7 and 2.4.8 works, but both from 2.4.9 and
+> 2.4.8-ac8 does not ("suceeded" not to copy right version of this file when
+> testing previous time, so had one from 2.4.7 twice)
 
-> Their already is a replacement driver using the input api avaliable that I
-> was planning to intergrate into 2.5. It fixed alot of the issues people
-> are having now.
-
-Whether it uses the input api or the existing scheme doesn't matter to me.
-What's important is that the interrupt disables and udelay()'s are
-removed, so I'll gladly merge my work with whatever else people have
-prepared.  I would've done it sooner, but changing the keyboard driver is
-an area of compatibility with sufficiently many hazzards that it's not
-reasonable for 2.4.
-
-		-ben
-
+Ok I'll take a glance at that. An strace of artsd failing would be useful

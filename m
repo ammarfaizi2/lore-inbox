@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbUAUB7M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 20:59:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265812AbUAUB7M
+	id S265812AbUAUCBt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 21:01:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265842AbUAUCBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 20:59:12 -0500
-Received: from mxfep01.bredband.com ([195.54.107.70]:26024 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S261522AbUAUB7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 20:59:09 -0500
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] Driver Core update for 2.6.1
-References: <20040120011036.GA6162@kroah.com> <yw1xsmibovwp.fsf@ford.guide>
-	<20040120171435.GE18566@kroah.com> <yw1x8yk2o6il.fsf@ford.guide>
-	<20040121001009.GM4923@kroah.com>
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Wed, 21 Jan 2004 02:59:07 +0100
-In-Reply-To: <20040121001009.GM4923@kroah.com> (Greg KH's message of "Tue,
- 20: 10:09 -0800")
-Message-ID: <yw1xhdyqm590.fsf@ford.guide>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 20 Jan 2004 21:01:49 -0500
+Received: from uni01du.unity.ncsu.edu ([152.1.13.101]:42378 "EHLO
+	uni01du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S265812AbUAUCBs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 21:01:48 -0500
+From: jlnance@unity.ncsu.edu
+Date: Tue, 20 Jan 2004 21:01:34 -0500
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Chris.Petersen@synopsys.com, jlnance@unity.ncsu.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: Awful NFS performance with attached test program
+Message-ID: <20040121020134.GA4577@ncsu.edu>
+References: <20040119211649.GA20200@ncsu.edu> <1074549226.1560.59.camel@nidelv.trondhjem.org> <20040120132803.GA2830@ncsu.edu> <1074607946.1871.37.camel@nidelv.trondhjem.org> <400D897C.A5439DFE@synopsys.com> <1074635444.5368.286.camel@nidelv.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1074635444.5368.286.camel@nidelv.trondhjem.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> writes:
+On Tue, Jan 20, 2004 at 04:50:44PM -0500, Trond Myklebust wrote:
 
-> On Tue, Jan 20, 2004 at 06:48:50PM +0100, Måns Rullgård wrote:
->> Greg KH <greg@kroah.com> writes:
->> 
->> > On Tue, Jan 20, 2004 at 09:40:22AM +0100, Måns Rullgård wrote:
->> >> Greg KH <greg@kroah.com> writes:
->> >> 
->> >> >   o ALSA: add sysfs class support for ALSA sound devices
->> >> 
->> >> This is still only completed for the intel8x0 driver, right?
->> >
->> > The "device" and "driver" symlink will only show up for that driver,
->> > yes.  But the class support will work for all alsa devices.  Now we can
->> > add 1 line patches for all of the alsa drivers to enable those
->> > symlinks...
->> 
->> I see.
->> 
->> BTW, I still don't get a snd/controlC0 in /udev.  All the other ALSA
->> devices are there.
->
-> Is there for me :)
->
-> What does /sys/class/sound show for you?
+> Surprise! Linux and Solaris show exactly the same behaviour.
+> 
+> As I said before in 2.4.x we have a hard limit of 256 outstanding
+> requests before we have to wait on requests to complete. Remove that
+> limit, and all is well...
 
-$ ls /sys/class/sound
-pcmC0D0c  pcmC0D0p  pcmC0D1c  timer
+Nice job with the 2.6 performance!  Im looking forward to the day when
+distributors start shipping it.
 
-FWIW, I've updated my kernel to ALSA 1.0.1 and merged your patches.
+Thanks,
 
--- 
-Måns Rullgård
-mru@kth.se
+Jim

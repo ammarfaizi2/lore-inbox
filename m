@@ -1,62 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265661AbSKAIV2>; Fri, 1 Nov 2002 03:21:28 -0500
+	id <S265662AbSKAIWu>; Fri, 1 Nov 2002 03:22:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265662AbSKAIV2>; Fri, 1 Nov 2002 03:21:28 -0500
-Received: from dp.samba.org ([66.70.73.150]:10724 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265661AbSKAIVZ>;
-	Fri, 1 Nov 2002 03:21:25 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: [RELEASE] More modules fun!
-Date: Fri, 01 Nov 2002 19:06:57 +1100
-Message-Id: <20021101082753.D3D922C0CD@lists.samba.org>
+	id <S265664AbSKAIWt>; Fri, 1 Nov 2002 03:22:49 -0500
+Received: from cih-gw.cih.com ([204.69.206.1]:29643 "HELO cih.com")
+	by vger.kernel.org with SMTP id <S265662AbSKAIWS>;
+	Fri, 1 Nov 2002 03:22:18 -0500
+Date: Fri, 1 Nov 2002 00:23:28 -0800 (PST)
+From: "Craig I. Hagan" <hagan@cih.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Bill Davidsen <davidsen@tmr.com>, "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
+       <lkcd-general@lists.sourceforge.net>,
+       <lkcd-devel@lists.sourceforge.net>
+Subject: Re: What's left over.
+In-Reply-To: <Pine.LNX.4.44.0210312233190.5595-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0211010013490.3873-100000@svr.cih.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, the basic patch has been running stress_modules.sh for hours on my
-dual box.  This is the newer, friendlier more-backwards-compatible
-module rewrite.
+> Talk is cheap.
+> 
+> I've not seen a _single_ bug-report with a fix that attributed the
+> existing LKCD patches. I might be more impressed if I had. 
+> 
+> The basic issue is that we don't put patches in in the hope that they will
+> prove themselves later. Your argument is fundamentally flawed.
 
-You'll want the replacement modutils as well (don't worry, moves the
-old ones to .old and calls them if you're running an older kernel, so
-you can leave them installed):
-	http://www.kernel.org/pub/linux/kernel/people/rusty/module-init-tools-0.6.tar.gz
+comment from userspace:
 
-Minimal: (x86 only, no param support, v. well tested on .45):
-	http://www.kernel.org/pub/linux/kernel/people/rusty/patches/module-x86-31-10-2002.2.5.45.diff.gz
+I'm going to have to side with Linus here despite my desire to see LKCD merged.
+However, we need to show him the money. This means:
 
-Supreme: (other archs untested, param support etc, untested on .45):
-	http://www.kernel.org/pub/linux/kernel/people/rusty/patches/module-all-31-10-2002.2.5.45.diff.gz
+	* making sure that the patches are kept up to date
 
-Breakdown of patches is on my www.kernel.org page:
-	"x86" is just core and x86 support patches,
-	"all" is all patches up to and including the "documentation" patch,
+	* keep the LKCD patches in the list/community spotlight in a positive
+		manner ("please test this!", or  "please use this when
+		looking for help debugging a system problem"). Perhaps
+		a 2.5.x-lkcd bk tree or something like that.
 
-Bug reports welcome,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+	* make documentation/HOWTO's available for folks so that
+		they'll know how to generate a crashdump
+		and run a some utilities against it to generate
+		a synopsis which can be submitted for debugging
 
->From the main patch documentation:
+	* most important: squash a whole lot of bugs with
+		said dumps!
 
-D: This is an implementation of the in-kernel module loader extending
-D: the try_inc_mod_count() primitive and making its use compulsory.
-D: This has the benifit of simplicity, and similarity to the existing
-D: scheme.  To reduce the cost of the constant increments and
-D: decrements, reference counters are lockless and per-cpu.
-D:
-D: Eliminated (coming in following patches):
-D: o Modversions
-D: o Module parameters
-D: o kallsyms
-D: o EXPORT_SYMBOL_GPL and MODULE_LICENCE checks
-D: o DEVICE_TABLE support.
-D:
-D: New features:
-D: o Typesafe symbol_get/symbol_put
-D: o Single "insert this module" syscall interface allows trivial userspace.
-D: o Raceless loading and unloading
-D:
-D: You will need the trivial replacement module utilities from:
-D: http://www.kernel.org/pub/linux/people/rusty/module-init-tools-0.6.tar.gz
+If it becomes apparent through empirical data that crash dumps are a useful
+tool, I'm sure that Linus will become far more amenable. Until then, lets let
+him handle all of his other work which needs to get done.
+
+-- craig
+
+
+
+	  .-    ... . -.-. .-. . -    -- . ... ... .- --. .
+
+			    Craig I. Hagan
+			   hagan(at)cih.com
+
+
+

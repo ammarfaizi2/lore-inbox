@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbUKNNiK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbUKNNqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbUKNNiK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 08:38:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbUKNNiK
+	id S261300AbUKNNqD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 08:46:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbUKNNqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 08:38:10 -0500
-Received: from pop.gmx.de ([213.165.64.20]:45697 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261299AbUKNNfC (ORCPT
+	Sun, 14 Nov 2004 08:46:03 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:3208 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261300AbUKNNp6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 08:35:02 -0500
-X-Authenticated: #4399952
-Date: Sun, 14 Nov 2004 14:35:36 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+	Sun, 14 Nov 2004 08:45:58 -0500
+Date: Sun, 14 Nov 2004 13:51:59 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Shane Shrybman <shrybman@aei.ca>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
        Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
        Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
        Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
        Karsten Wiese <annabellesgarden@yahoo.de>,
        Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+       Amit Shah <amit.shah@codito.com>
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-1
-Message-ID: <20041114143536.398dc41f@mango.fruits.de>
-In-Reply-To: <41975D16.3050402@cybsft.com>
-References: <20041022155048.GA16240@elte.hu>
-	<20041022175633.GA1864@elte.hu>
-	<20041025104023.GA1960@elte.hu>
-	<20041027001542.GA29295@elte.hu>
-	<20041103105840.GA3992@elte.hu>
-	<20041106155720.GA14950@elte.hu>
-	<20041108091619.GA9897@elte.hu>
-	<20041108165718.GA7741@elte.hu>
-	<20041109160544.GA28242@elte.hu>
-	<20041111144414.GA8881@elte.hu>
-	<20041111215122.GA5885@elte.hu>
-	<20041114135656.7aa3b95b@mango.fruits.de>
-	<41975D16.3050402@cybsft.com>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Message-ID: <20041114125159.GC11042@elte.hu>
+References: <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <1100269881.10971.6.camel@mars> <20041112201334.GA14785@elte.hu> <1100303094.4880.6.camel@mars>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1100303094.4880.6.camel@mars>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Nov 2004 07:26:46 -0600
-"K.R. Foley" <kr@cybsft.com> wrote:
 
-> > `IRQ 8` [14] is being piggy. need_resched=0, cpu=0
-> > 
-> > and the machine locked. will build with debugging and try to reproduce.
-> > 
-> > flo
-> > 
-> 
-> Did you get any other messages in the log? This message is harmless as 
-> far as the machine locking. This gets printed from rtc when a read of 
-> /dev/rtc is missed before another interrupt arrives.
+* Shane Shrybman <shrybman@aei.ca> wrote:
 
-I see. I have rebuilt and run the kernel with debugging, but it seems the
-console dump is pretty useless when an ncurses app is running on the active
-console (1 line at the bottom showed that there was more output, but i
-couldn't see it). Will rerun and try to reproduce again without any ncurses
-stuff running :)
+> -#define IOAPIC_POSTFLUSH
+> +//#define IOAPIC_POSTFLUSH
 
-flo
+> -#if defined(CONFIG_PREEMPT_HARDIRQS) && defined(CONFIG_SMP)
+> +#if defined(CONFIG_PREEMPT_HARDIRQS)
+
+unfortunately the POST-flush is still needed. Without it i can see lots
+of spurious interrupts on SMP systems. (most likely caused by the ACK
+reaching the IO-APIC _before_ the mask-the-irq PCI-space write [which
+gets delayed in the chipset due to write optimizations], so the IO-APIC
+still thinks that the IRQ is enabled and for level-triggered IRQs this
+means that another interrupt is sent to the CPU.)
+
+	Ingo

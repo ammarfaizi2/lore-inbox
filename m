@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129784AbQLMSSc>; Wed, 13 Dec 2000 13:18:32 -0500
+	id <S129998AbQLMSZM>; Wed, 13 Dec 2000 13:25:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130431AbQLMSSW>; Wed, 13 Dec 2000 13:18:22 -0500
-Received: from host156.207-175-42.redhat.com ([207.175.42.156]:1551 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129784AbQLMSSQ>; Wed, 13 Dec 2000 13:18:16 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200012131747.eBDHlmx18061@devserv.devel.redhat.com>
-Subject: Re: linux 2.2.18  inconsistencies/problems (minor)
-To: mikesw@whiterose.net (M Sweger)
-Date: Wed, 13 Dec 2000 12:47:48 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0012131159540.23922-100000@whiterose.net> from "M Sweger" at Dec 13, 2000 12:08:15 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S130154AbQLMSZD>; Wed, 13 Dec 2000 13:25:03 -0500
+Received: from rmx194-mta.mail.com ([165.251.48.41]:29139 "EHLO
+	rmx194-mta.mail.com") by vger.kernel.org with ESMTP
+	id <S129998AbQLMSYt>; Wed, 13 Dec 2000 13:24:49 -0500
+Message-ID: <385246622.976730040933.JavaMail.root@web628-mc>
+Date: Wed, 13 Dec 2000 12:54:00 -0500 (EST)
+From: Damien BENOIST <damien.benoist@mail.com>
+To: linux-kernel@vger.kernel.org, mj@atrey.karlin.mff.cuni.cz,
+        linux-video@atrey.karlin.mff.cuni.cz
+Subject: kernel 2.2.17 vgaconsole patch
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Mailer: mail.com
+X-Originating-IP: 193.56.46.14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A). Problem with the "%d" in usb-serial. Note: I don't have
->     any devices connected to any USB port, but the controllers
+I had already mailed to mj@atrey.karlin.mff.cuni.cz but got
+no answer, so i remail as described in the
+"How to Get Your Change Into the Linux Kernel or The Unofficial
+Linus HOWTO"
+Please give me some feed back (damien.benoist@epita.fr) thanks.
 
-Real bug - thanks. I'll squash that in 19pre1
+kernel: 2.2.17
 
-> B). Need to update the devices.txt document in the Documentation
->     sub-directory. I checked the maintainers site and it is the same
->     one as delivered with this kernel version. However, it is out-of-date
->     since there are quite a few devices missing, i.e. cpuid  major #
->     203  and others.  I've emailed the author of the document around 
->     October 2000, but haven't seen this document updated for the
->     linux v2.2.x kernels. I assume the v2.4 devices.txt document is
->     the same. If so, then the document would need to clarify what
->     what devices are valid for each kernel (2.0, 2.2, 2.4)
->     so that devices that don't exist in these older kernel versions
->     aren't created. 
+pb: // 0 does not work with ega/vga adapter and mono display
 
-I've been talking to HPA already about that
+how to duplicate the pb:
+compile the kernel with the following options (module or not):
+- vga console
+- parallel port
+use the following hardware:
+- monochrome display
+- ega/vga adapter
+- a // port at 0x3bc
 
->  C).  Problem cat'g the proc pci bus files.
-> 
-> cat /proc/bus/pci/00/00.0
-> 
-> Get non-printable characters
+changes:
+- region size for ega/vga adapter with mono display (12bytes
+instead of 16).
 
-Not a bug. That is the raw pci configuration data
+--- drivers/video/vgacon.c	Fri Oct 13 21:05:36 2000
++++ drivers/video/vgacon.c.old	Thu Oct 12 16:12:17 2000
+@@ -27,9 +27,6 @@
+*	flashing on RHS of screen during heavy console scrolling .
+*	Oct 1996, Paul Gortmaker.
+*
+- *	For monochrome display with ega adapter the requested port region was
+- *	too large, going over the // port 0 region. //0 was then inaccessible.
+- *	Oct 2000, <damien.benoist@epita.fr>
+*
+*  This file is subject to the terms and conditions of the GNU General
+Public
+*  License.  See the file COPYING in the main directory of this archive for
+@@ -183,7 +180,7 @@
+vga_video_type = VIDEO_TYPE_EGAM;
+vga_vram_end = 0xb8000;
+display_desc = "EGA+";
+-			request_region(0x3b0,12,"ega");
++			request_region(0x3b0,16,"ega");
+}
+else
+{
 
-> 	   When the ACPI option is disabled, then hitting the 
->            power switch will turn the PC off without going into 
->            standby.
 
-We dont support ACPI in 2.2 just 2.4test
-
-> 	b). The BIOS option to power-on the PC via the LAN is disabled
->             in the PC setup screens.
-
-Probably your ethernet card doesnt support it.
-
-Can you report the APM problem to the APM maintainer ?
-
+______________________________________________
+FREE Personalized Email at Mail.com
+Sign up at http://www.mail.com/?sr=signup
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

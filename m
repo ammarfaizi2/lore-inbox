@@ -1,67 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265144AbTFMF31 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 01:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265145AbTFMF31
+	id S265145AbTFMFdc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 01:33:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbTFMFdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 01:29:27 -0400
-Received: from smtp-out.comcast.net ([24.153.64.109]:14219 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S265144AbTFMF3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 01:29:25 -0400
-Date: Thu, 12 Jun 2003 22:42:28 -0700
-From: "H. J. Lu" <hjl@lucon.org>
-Subject: PATCH: 2.5.70: Export set_fs_root and set_fs_pwd
-To: linux kernel <linux-kernel@vger.kernel.org>
-Message-id: <20030613054228.GA27470@lucon.org>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_uFYAekaFXHMWJy/fGOELLA)"
-User-Agent: Mutt/1.4.1i
+	Fri, 13 Jun 2003 01:33:32 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:59564 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265145AbTFMFda (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 01:33:30 -0400
+Date: Fri, 13 Jun 2003 11:20:01 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: John M Flinchbaugh <glynis@butterfly.hjsoft.com>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+       Maneesh Soni <maneesh@in.ibm.com>
+Subject: Re: 2.5.70-bk16: nfs crash
+Message-ID: <20030613055001.GA1331@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20030612125630.GA19842@butterfly.hjsoft.com> <20030612135254.GA2482@in.ibm.com> <16104.40370.828325.379995@charged.uio.no> <20030612155345.GB1438@in.ibm.com> <16104.43445.918001.683257@charged.uio.no> <20030612195302.GH1438@in.ibm.com> <16105.24576.901270.856844@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16105.24576.901270.856844@charged.uio.no>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 12, 2003 at 10:24:16PM -0700, Trond Myklebust wrote:
+> Wrong. Look at the VFS code. In all cases the test is of the form.
+> 
+>     spin_lock(&dcache_lock);
+>     /* Are we the sole users of this dentry */
+>     if (atomic_read(&dentry->d_count) == 1) {
+>        /* Yes - do some operation */
+>     }
+> 
+> 
+> Knowing that d_lookup() can *increase* d_count is not a plus here. The
+> whole idea is to have a test for sole use.
 
---Boundary_(ID_uFYAekaFXHMWJy/fGOELLA)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
+Well, d_lookup() isn't the only place that does a dget() without
+holding dcache_lock. There are *many* places where dget() is
+done without holding dcache_lock. That didn't seem to be a
+requirement in the pre-RCU dcache model.
 
-In 2.5.70, intermezzo fs can be configured as module. But intermezzo
-references set_fs_root and set_fs_pwd:
+> 
+> In most cases, the "do some operation" above is
+> 
+> 	d_drop(dentry);
+> 
 
-# find -name *.[ch] | xargs grep set_fs_root
-./include/linux/fs_struct.h:extern void set_fs_root(struct fs_struct *, struct
-vfsmount *, struct dentry *);
-./fs/intermezzo/intermezzo_fs.h:                set_fs_root(current->fs,
-new->rootmnt, new->root);
-./fs/intermezzo/intermezzo_fs.h:                set_fs_root(current->fs,
-saved->rootmnt, saved->root);
-./fs/open.c:    set_fs_root(current->fs, nd.mnt, nd.dentry);
-./fs/namespace.c:void set_fs_root(struct fs_struct *fs, struct vfsmount *mnt,
-./fs/namespace.c:                               set_fs_root(fs, new_nd->mnt,
-new_nd->dentry);
-./fs/namespace.c:       set_fs_root(current->fs, namespace->root,
-namespace->root->mnt_root);
+I don't think that would work in pre or post-RCU dcache.
 
-They should be exported.
+> in order (for instance) to ensure that nobody else can look up this
+> dentry while we're working on it (e.g. rename or unlink,...).
 
+rename, unlink etc. hold the per-dentry lock, so they are protected
+against lockfree d_lookup().
 
-H.J.
+> 
+> Your d_lookup() screws the above example of code which you can find in
+> any number of VFS functions. dput(), d_delete(), d_invalidate(),
+> d_prune_aliases(), prune_dcache(), shrink_dcache_sb() are but a few
+> functions that rely on the above code snippet working to keep
+> d_lookup() from intruding.
 
+Those routines hold the per-dentry lock as required and that protects
+them from intruding lockfree d_lookup().
 
---Boundary_(ID_uFYAekaFXHMWJy/fGOELLA)
-Content-type: text/plain; charset=us-ascii; NAME=fs.patch
-Content-transfer-encoding: 7BIT
-Content-disposition: attachment; filename=fs.patch
-
---- linux/fs/namespace.c.fs	Thu Jun 12 09:13:28 2003
-+++ linux/fs/namespace.c	Thu Jun 12 15:13:03 2003
-@@ -1138,3 +1138,6 @@ void __init mnt_init(unsigned long mempa
- 	init_rootfs();
- 	init_mount_tree();
- }
-+
-+EXPORT_SYMBOL(set_fs_root);
-+EXPORT_SYMBOL(set_fs_pwd);
-
---Boundary_(ID_uFYAekaFXHMWJy/fGOELLA)--
+Thanks
+Dipankar

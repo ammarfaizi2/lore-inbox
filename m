@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261643AbSJHV2M>; Tue, 8 Oct 2002 17:28:12 -0400
+	id <S263199AbSJHVaS>; Tue, 8 Oct 2002 17:30:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261665AbSJHV2M>; Tue, 8 Oct 2002 17:28:12 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:25097 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261643AbSJHV2L>;
-	Tue, 8 Oct 2002 17:28:11 -0400
-Date: Tue, 8 Oct 2002 14:30:08 -0700
-From: Greg KH <greg@kroah.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Patrick Mochel <mochel@osdl.org>, Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, andre@linux-ide.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] embedded struct device Re: [patch] IDE driver model update
-Message-ID: <20021008213007.GA10193@kroah.com>
-References: <Pine.LNX.4.44.0210081005320.16276-100000@cherise.pdx.osdl.net> <Pine.GSO.4.21.0210081616120.5897-100000@weyl.math.psu.edu>
+	id <S263206AbSJHVaR>; Tue, 8 Oct 2002 17:30:17 -0400
+Received: from AGrenoble-101-1-4-14.abo.wanadoo.fr ([217.128.202.14]:47058
+	"EHLO awak") by vger.kernel.org with ESMTP id <S263199AbSJHVaP> convert rfc822-to-8bit;
+	Tue, 8 Oct 2002 17:30:15 -0400
+Subject: Re: [patch] IDE driver model update
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Ketil Froyn <ketil-kernel@froyn.net>
+Cc: "jbradford@dial.pipex.com" <jbradford@dial.pipex.com>,
+       Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "mochel@osdl.org" <mochel@osdl.org>,
+       "torvalds@transmeta.com" <torvalds@transmeta.com>,
+       "andre@linux-ide.org" <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40L0.0210081627480.1519-100000@ketil.np>
+References: <Pine.LNX.4.40L0.0210081627480.1519-100000@ketil.np>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 08 Oct 2002 23:34:46 +0200
+Message-Id: <1034112887.4607.14.camel@bip>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0210081616120.5897-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 08, 2002 at 04:47:49PM -0400, Alexander Viro wrote:
-> > 
-> > The only timing issue is when the device structures are reused. And, it 
-> > seems that that is inherently racy anyway with hotpluggable devices. 
+Le mar 08/10/2002 à 16:31, Ketil Froyn a écrit :
+> On Tue, 8 Oct 2002, jbradford@dial.pipex.com wrote:
 > 
-> BS.  Neither SCSI, nor USB nor PCI are reusing the structures in question.
-> They are, however, freeing them.
+> > This raises the interesting possibility of being able to refer to
+> > things like removable media directly, instead of the device the media
+> > is inserted in.
+> >
+> > The Amiga was doing this years ago.  You could access floppy drives
+> > as, E.G. df0:, df1:, etc, but if you formatted a volume and called it
+> > foobar, you could access foobar: no matter which floppy drive you put
+> > it in to.
 > 
-> Again, USB disconnect when you are holding a reference to struct device
-> will leave you with pointer to kfree'd area.
+> Isn't this possible in /etc/fstab already? Standard redhat-installs seem
+> to put in the labels of the volume instead of referring to the device.
 
-This is a USB (and PCI) bug.  I'll fix them, they should be using the
-release() callback that Pat has provided.  With that callback, which
-gets called when the device really wants to be cleaned up, I don't see
-any races in the USB code (well theoretical races, there's still some
-bugs in the current implementation that I'm trying to track down...)
+No comparison possible. The amiga dos would stall all read/write
+requests when a device came offline (e.g. a floppy disk ejected) and
+would cancel them all if the user or something else decided the medium
+wouldn't be available anymore, and resumed everything when the medium
+was online again (even if in a different device/drive).
+That was a pretty sophisticated volume management if you ask me, one I
+can only dream of happening one day in linux.
 
-thanks,
 
-greg k-h

@@ -1,82 +1,173 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270519AbTGXOx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 10:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271156AbTGXOxz
+	id S271414AbTGXPEO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 11:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271687AbTGXPEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 10:53:55 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:55741 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S270519AbTGXOxy
+	Thu, 24 Jul 2003 11:04:14 -0400
+Received: from mailrelay3.lanl.gov ([128.165.4.104]:9169 "EHLO
+	mailrelay3.lanl.gov") by vger.kernel.org with ESMTP id S271414AbTGXPEI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 10:53:54 -0400
-Date: Thu, 24 Jul 2003 08:08:41 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Diego Calleja Garc?a <diegocg@teleline.es>,
-       Michael Bernstein <michael@seven-angels.net>, gmicsko@szintezis.hu,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: SCO offers UnixWare licenses for Linux
-Message-ID: <20030724150841.GA12647@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	Diego Calleja Garc?a <diegocg@teleline.es>,
-	Michael Bernstein <michael@seven-angels.net>, gmicsko@szintezis.hu,
-	LKML <linux-kernel@vger.kernel.org>
-References: <1058807414.513.4.camel@sunshine> <141DFFFA-BBA4-11D7-A61F-000A95773C00@seven-angels.net> <20030721205940.7190f845.diegocg@teleline.es> <1059058329.957.11.camel@teapot.felipe-alfaro.com>
+	Thu, 24 Jul 2003 11:04:08 -0400
+Subject: Re: Posting format
+From: Steven Cole <elenstev@mesatop.com>
+To: bill davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org, Tomas Szepe <szepe@pinerecords.com>
+In-Reply-To: <bfn5v6$m20$1@gatekeeper.tmr.com>
+References: <20030723201801.GB32585@rdlg.net>
+	 <20030723212224.A527@infradead.org> <20030723220037.GC32585@rdlg.net>
+	 <20030723225333.GC16244@louise.pinerecords.com>
+	 <bfn5v6$m20$1@gatekeeper.tmr.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1059059667.1672.202.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1059058329.957.11.camel@teapot.felipe-alfaro.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 24 Jul 2003 09:14:28 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 24, 2003 at 04:52:09PM +0200, Felipe Alfaro Solana wrote:
-> On Mon, 2003-07-21 at 20:59, Diego Calleja Garc?a wrote:
-> > El Mon, 21 Jul 2003 13:52:21 -0400 Michael Bernstein <michael@seven-angels.net> escribi?:
-> > 
-> > > To put it simply, just because they "may,"  - and I say may here simply 
-> > > because we have no evidence to prove their claims but cannot flatly 
-> > > deny them - own the rights to Sys V, does NOT mean they own the right 
-> > 
-> > So they want to sell us something that still hasn't proved....cool.
+On Wed, 2003-07-23 at 17:32, bill davidsen wrote:
+> A one or two line summary at the top of an article often saves the
+> reader from reading the entire thing.
 > 
-> And can be rewritten from scratch if necessary... They're crazy!
+> In article <20030723225333.GC16244@louise.pinerecords.com>,
+> Tomas Szepe  <szepe@pinerecords.com> wrote:
+[snipped]
+> | 
+> | Would you people please stop replying above the original messages?
+> | 
+> | One could say this evil (pioneered by certain silly mail clients btw)
+> | has been spreading like plague around here lately.
+> | 
+> | Quoting the lkml FAQ ->
+> | (REG) And please reply after the quoted text, not before it (as per RFC
+> | 1855).  It's very confusing to see a reply before the quoted context.
+> 
+[snipped]
+> 
+> |                                                                   And
+> | it's embarrassing: it makes you look like a newbie.  Change your mailer if
+> | necessary, if the one you have makes it hard to do reply-after-quoting.
+> | I know some people like to quote the entire message they are replying to,
+> | so they put their reply right at the top so people won't give up after the
+> | first page of quoted material.  Don't do it.  It's annoying.  Just learn to
+> | stop quoting everything.  No-one wants to see it all anyway (list archives
+> | allow people to see everything if they missed it).  You're not helping
+> | yourself anyway, as you're more likely to be ignored if you
+> | reply-before-quoting.
+> 
+> Seriously, you have a point, but his two liner did not require the
+> context of the bulk of the post. There have been some far worse choices
+> of top posting, and the main reason for not top posting is because it's
+> hard to read *when context is needed*.
+> 
+> Your point is good, I think you could have picked a number of better
+> examples to make it.
 
-There seems to be a prevailing opinion that if there is stolen code in
-Linux that came from SCO owned code that all that needs to be done is
-to remove it and everything is fine.  I don't think it works that way.
-If code was stolen and the fact that it is in Linux helped destroy
-SCO's business then SCO has the right to try and get damages.  I.e.,
-Linux damaged SCO by using the code.
+More exposition regarding top vs bottom posting: Replying at the bottom
+results in an easily parseable tree. Consider the following conversation
+where everyone replies at the bottom.
 
-It's also not a simple case of rewriting.  _Assuming_ that there was
-something significant in Linux which came from SCO, i.e., they can make
-the case that the Linux community wouldn't have thought of it on their
-own, then you don't get to rewrite it because now you know how whatever
-"it" is works and you didn't before.
+-------------------------------
+To: hackerlist@webe.hackers.org
+From: Delta <delta@cando.com>
+Subj: foo.c does not compile, what to do?
 
-The business world takes their IP seriously.  If, and it is a big if,
-there is code in Linux from SCO, that's going to be a nasty mess to
-clean up and we had better all pray that IBM just buys them and puts
-Unix into the public domain.  Otherwise I think SCO could force Linux
-backwards to whereever it was before the tainted code came in.  If that
-happens, I (and I suspect a lot of you) will work to make sure that 
-things which couldn't possibly be tainted (like drivers) do make it 
-forward.
+Charlie wrote:
+> Able wrote:
+> > Baker wrote:
+> > > Able wrote:
+> > > > Baker wrote:
+> > > > > Able wrote:
+> > > > > > My driver foo.c does not compile. What can I do?
+> > > > > > 
+> > > > > > Able
+> > > > > > 
+> > > > > It hasn't been ported yet.  
+> > > > > 
+> > > > > Baker
+> > > > > 
+> > > > I really really need this.
+> > > > 
+> > > > Able
+> > > > 
+> > > Well then, either fix it yourself or find someone who can.
+> > > 
+> > > Baker
+> > > 
+> > But I can't fix it myself.  I don't know how.
+> > 
+> > Able
+> > 
+> I think Delta worked on this last year.  Delta, can you help?
+> 
+> Charlie
+> 
+Yeah I looked at that thing and ran away screaming.  Good luck.
 
-If SCO prevails it won't be the end of the world.  A lot of that scalability
-stuff is just a waste of time, IMO.  32 processor systems are dinosaurs that
-are going away and I'm not the only one who thinks so, Dell and IDC agree:
+Delta
+-------------
 
-	http://news.com.com/2100-1010_3-1027556.html
+Now, look at the same conversation where Able replies at the top.
 
-Don't get me wrong, there are some cool things in 2.5 that we all want but
-if SCO puts a dent in the works Linux will recover and maybe be better.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+-------------------------------
+To: hackerlist@webe.hackers.org
+From: Delta <delta@cando.com>
+Subj: foo.c does not compile, what to do?
+
+Charlie wrote:
+> Able wrote:
+> > But I can't fix it myself.  I don't know how.
+> >
+> > Able
+> >
+> > Baker wrote:
+> > > Able wrote:
+> > > > I really really need this.
+> > > >
+> > > > Able
+> > > >
+> > > > Baker wrote:
+> > > > > Able wrote:
+> > > > > > My driver foo.c does not compile. What can I do?
+> > > > > > 
+> > > > > > Able
+> > > > > > 
+> > > > > It hasn't been ported yet.
+> > > > > 
+> > > > > Baker
+> > > > > 
+> > > > 
+> > > Well then, either fix it yourself or find someone who can.
+> > > 
+> > > Baker
+> > > 
+> > 
+> I think Delta worked on this last year.  Delta, can you help?
+> 
+> Charlie
+> 
+Yeah I looked at that thing and ran away screaming.  Good luck.
+
+Delta
+-------------
+
+The result is a tangled mess.  Untangling that mess wastes time.
+
+Replying at the top wastes people's time trying to understand the
+conversation.
+
+For a theoretical discussion of why mixing top and bottom agglutination
+is wrong, Steven Pinker's "The Language Instinct" has a chapter on how
+differing languages build up trees.  Some add from the left, some from
+the right, but arbitrarily mixing the two in the same sentence either
+results in an ambiguity or what he calls "fruit salad".
+
+Please reply at the bottom.
+
+Steven
+
+
+

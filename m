@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbVCBSf1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262242AbVCBSlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262189AbVCBSf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 13:35:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbVCBSf1
+	id S262242AbVCBSlw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 13:41:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVCBSlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 13:35:27 -0500
-Received: from smtp12.wanadoo.fr ([193.252.22.20]:53305 "EHLO
-	smtp12.wanadoo.fr") by vger.kernel.org with ESMTP id S262189AbVCBSfS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 13:35:18 -0500
-X-ME-UUID: 20050302183517979.EF2C41C000B7@mwinf1204.wanadoo.fr
-Date: Wed, 2 Mar 2005 19:35:11 +0100
-From: Christophe Lucas <clucas@rotomalug.org>
-To: Kristian =?iso-8859-1?Q?S=F8rensen?= <ks@cs.aau.dk>
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <20050302183511.GA20545@rhum.iomeda.fr>
-References: <200503021236.26561.ks@cs.aau.dk> <200503021459.39846.ks@cs.aau.dk> <200503021842.j22IgIBY012680@ccure.user-mode-linux.org> <200503021809.59747.ks@cs.aau.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 2 Mar 2005 13:41:52 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:12163 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262224AbVCBSln (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 13:41:43 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
+Date: Wed, 2 Mar 2005 10:41:06 -0800
+User-Agent: KMail/1.7.2
+Cc: Linas Vepstas <linas@austin.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Luck, Tony" <tony.luck@intel.com>
+References: <422428EC.3090905@jp.fujitsu.com> <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org> <20050302182205.GI1220@austin.ibm.com>
+In-Reply-To: <20050302182205.GI1220@austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200503021809.59747.ks@cs.aau.dk>
-X-Operating-System: Debian GNU/Linux / 2.6.9 (i686)
-X-Homepage: http://odie.mcom.fr/~clucas/
-X-Crypto: GnuPG/1.2.4 http://www.gnupg.org
-X-GPG-Key: http://odie.mcom.fr/~clucas/downloads/clucas-public-key.txt
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: 192.168.0.24
-X-SA-Exim-Mail-From: clucas@rotomalug.org
-Subject: Re: UserMode bug in 2.6.11-rc5? autolearn=disabled version=3.0.2
-X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
-X-SA-Exim-Scanned: Yes (on vodka.iomeda.fr)
+Message-Id: <200503021041.07090.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristian Sørensen (ks@cs.aau.dk) wrote:
-> On Wednesday 02 March 2005 19:42, Jeff Dike wrote:
-> > ks@cs.aau.dk said:
-> > > Hey! Thanks - that fixed the problem! :-D
-> >
-> > Didn't you say this this setup worked with 2.6.10?  That's why I didn't
-> > suggest staring at /etc/inittab.
-> Yes - it works fine with 2.6.10. Does anyone of you know why/where the change 
-> was?
+On Wednesday, March 2, 2005 10:22 am, Linas Vepstas wrote:
+> On Tue, Mar 01, 2005 at 08:49:45AM -0800, Linus Torvalds was heard to 
+remark:
+> > The new API is what _allows_ a driver to care. It doesn't handle DMA, but
+> > I think that's because nobody knows how to handle it (ie it's probably
+> > hw-dependent and all existign implementations would thus be
+> > driver-specific anyway).
+>
+> ?
+> We could add a call
+>
+> int pci_was_there_an_error_during_dma (struct pci_dev);
+>
+> right?  And it could return true/false, right?  I can certainly
+> do that today with ppc64.  I just can't tell you which dma triggered
+> the problem.
 
-For my part, I have made this changes on a 2.6.9 kernel to make it work
-about this problem.
+One issue with that is how to notify drivers that they need to make this call.  
+In may cases, DMA completion will be signalled by an interrupt, but if the 
+DMA failed, that interrupt may never happen, which means the call to 
+pci_unmap or the above function from the interrupt handler may never occur.
 
-	~Christophe
+Some I/O errors are by nature asynchronous and unpredictable, so I think we 
+need a separate thread and callback interface to deal with errors where the 
+beginning of the transaction and the end of the transaction occur in 
+different contexts, in addition to the PIO transaction interface already 
+proposed.
 
+Jesse

@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263630AbREYIS3>; Fri, 25 May 2001 04:18:29 -0400
+	id <S263631AbREYIWT>; Fri, 25 May 2001 04:22:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263637AbREYIST>; Fri, 25 May 2001 04:18:19 -0400
-Received: from ns.suse.de ([213.95.15.193]:10257 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S263630AbREYISI>;
-	Fri, 25 May 2001 04:18:08 -0400
-Date: Fri, 25 May 2001 10:17:07 +0200
-From: Andi Kleen <ak@suse.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Andi Kleen <ak@suse.de>, Andreas Dilger <adilger@turbolinux.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and 2.4.4-ac8
-Message-ID: <20010525101707.B26038@gruyere.muc.suse.de>
-In-Reply-To: <20010525013303.A21810@gruyere.muc.suse.de> <23182.990768020@kao2.melbourne.sgi.com>
+	id <S263635AbREYIWM>; Fri, 25 May 2001 04:22:12 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:3076 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263631AbREYIWF>;
+	Fri, 25 May 2001 04:22:05 -0400
+Message-ID: <20010525005458.A16774@bug.ucw.cz>
+Date: Fri, 25 May 2001 00:54:58 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: jffs on non-mtd device (small bug)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <23182.990768020@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Fri, May 25, 2001 at 03:20:20PM +1000
+X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 25, 2001 at 03:20:20PM +1000, Keith Owens wrote:
-> ftp://ftp.ocs.com.au/pub/kernel.stack.gz.  ix86 specific, probably gcc
-> specific and it only picks up code that you compile.  The Stanford
-> checker is much better.
+Hi!
 
-I have no complete understanding of the stanford checker, but I was assuming
-that it was a hacked version of gcc. If yes it has to use the preprocessor
-and also will only catch stuff you compile. I don't see how you can do 
-meaningfull lint like checks without a preprocessor ;)
+BTW the printk probably should be KERN_ERR, because this "warning" is
+fatal.
 
--Andi
+								Pavel
+
+inode-v23.c-    if (MAJOR(dev) != MTD_BLOCK_MAJOR) {
+inode-v23.c-            printk(KERN_WARNING "JFFS: Trying to mount a "
+inode-v23.c:                   "non-mtd device.\n");
+inode-v23.c-            return 0;
+inode-v23.c-    }
+
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

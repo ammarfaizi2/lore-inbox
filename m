@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbRERScL>; Fri, 18 May 2001 14:32:11 -0400
+	id <S261434AbRERSfL>; Fri, 18 May 2001 14:35:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261430AbRERScB>; Fri, 18 May 2001 14:32:01 -0400
-Received: from 202-123-209-152.outblaze.com ([202.123.209.152]:438 "EHLO
-	mg.hk5.outblaze.com") by vger.kernel.org with ESMTP
-	id <S261427AbRERSbu>; Fri, 18 May 2001 14:31:50 -0400
-Message-ID: <20010518183141.7601.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S261430AbRERSfB>; Fri, 18 May 2001 14:35:01 -0400
+Received: from jalon.able.es ([212.97.163.2]:50093 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S261434AbRERSe7>;
+	Fri, 18 May 2001 14:34:59 -0400
+Date: Fri, 18 May 2001 20:34:46 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Bill Pringlemeir <bpringle@sympatico.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: APIC, AMD-K6/2 -mcpu=586...
+Message-ID: <20010518203446.A1066@werewolf.able.es>
+In-Reply-To: <m2u22ibww6.fsf@sympatico.ca> <m2d796twqe.fsf@sympatico.ca>
 Mime-Version: 1.0
-X-Mailer: MIME-tools 4.104 (Entity 4.117)
-From: "Joshua Corbin" <jcorbin@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Sat, 19 May 2001 02:31:40 +0800
-Subject: Re: FIC AD11(AMD 761/VIA 686B) AGP port not supported [fixed]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <m2d796twqe.fsf@sympatico.ca>; from bpringle@sympatico.ca on Fri, May 18, 2001 at 19:04:09 +0200
+X-Mailer: Balsa 1.1.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, so appending agp_try_unsupported at boot gets the agp working (at least tolerably).  The problem now appears to be with the DRI part of X/Radeon driver, because after adding the line:
-Option "noaccel" "true"
-to my XF86Config, all is well.
 
-Without it all that shows up on the screen is a bunch of boxes, from which you are then forced to C-A-Backspace, and C-A-Del, since the terminal is screwed.  So as long as I don't need 3D-accel, I'm once again Winblows free.  Thank-you all for the attention :-)
+On 05.18 Bill Pringlemeir wrote:
+> 
+> Why don't the build scripts run a dummy file to determine where the 
+> floating point registers should be placed?
+> 
+> ...
+> const int value = offsetof(struct task_struct, thread.i387.fxsave) & 15;
+> ...
+> 
 
-Josh
+That is not the problem. The problem is that the registers have to lay
+in a defined way, transcribed to a C struct, and that pgcc lays badly that
+struct.
 
 -- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Linux Mandrake release 8.1 (Cooker) for i586
+Linux werewolf 2.4.4-ac11 #2 SMP Fri May 18 12:27:06 CEST 2001 i686
 
-Get your free email from www.linuxmail.org 
-
-
-Powered by Outblaze

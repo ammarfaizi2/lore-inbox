@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129092AbQKLX3r>; Sun, 12 Nov 2000 18:29:47 -0500
+	id <S129116AbQKLXcI>; Sun, 12 Nov 2000 18:32:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129116AbQKLX3h>; Sun, 12 Nov 2000 18:29:37 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:10504 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129092AbQKLX3b>;
-	Sun, 12 Nov 2000 18:29:31 -0500
-Message-ID: <3A0F27B6.3B4CF1AC@mandrakesoft.com>
-Date: Sun, 12 Nov 2000 18:28:54 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S129361AbQKLXbs>; Sun, 12 Nov 2000 18:31:48 -0500
+Received: from harrier.prod.itd.earthlink.net ([207.217.121.12]:25296 "EHLO
+	harrier.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S129116AbQKLXbj>; Sun, 12 Nov 2000 18:31:39 -0500
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: latest 2.2.18-X patch?
+In-Reply-To: <3A0F244B.7C9FA9FE@holly-springs.nc.us>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 12 Nov 2000 15:31:26 -0800
+In-Reply-To: <3A0F244B.7C9FA9FE@holly-springs.nc.us>
+Message-ID: <m3vgtssr75.fsf@matrix.mandrakesoft.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu,
-        Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.4.0.11.3: sysctl.h fixes
-In-Reply-To: <200011121430.JAA22978@havoc.gtf.org> <14863.8573.827836.127665@notabene.cse.unsw.edu.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> The declaration of:
-> 
->   struct file;
-> 
-> in sysctl.h is a bit counter intuitive isn't it?
+Michael Rothwell <rothwell@holly-springs.nc.us> writes:
 
-Nope.  It's a useful technique that I was reminded of recently by DaveM.
+> Where's the best place to get the latest 2.2.18 kernel? 
 
-Have you ever looked at the -nasty- include nesting that occurs because
-key kernel headers include other key kernel headers all the time?  Its
-way past time to reverse that trend.  Using "struct foo;" at the
-beginning of the header simply passes on the task of including the
-definiton for 'struct foo' down the line, avoiding another level of
-include nesting.
+ftp://ftp.us.kernel.org/pub/linux/kernel/people/ala/2.2.18pre/
 
+where * is your country (us, fr, de, etc..)
 
-But... that said.  Provided no other kernel code is similarly broken,
-your fix to md.c, Neil, is definitely superior to adding includes and
-'struct file;' to sysctl.h.
+> And does it include the USB backport?  
 
-	Jeff
-
+yes
 
 -- 
-Jeff Garzik             |
-Building 1024           | Would you like a Twinkie?
-MandrakeSoft            |
+MandrakeSoft Inc                     http://www.chmouel.org
+                      --Chmouel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

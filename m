@@ -1,84 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292289AbSCRTOw>; Mon, 18 Mar 2002 14:14:52 -0500
+	id <S292130AbSCRTPc>; Mon, 18 Mar 2002 14:15:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292231AbSCRTOn>; Mon, 18 Mar 2002 14:14:43 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:19471 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S292130AbSCRTO0>;
-	Mon, 18 Mar 2002 14:14:26 -0500
-Date: Mon, 18 Mar 2002 20:13:52 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jari Ruusu <jari.ruusu@pp.inet.fi>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Herbert Valerio Riedel <hvr@hvrlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre3aa2
-Message-ID: <20020318191352.GF28487@suse.de>
-In-Reply-To: <20020314032801.C1273@dualathlon.random> <3C912ACF.AF3EE6F0@pp.inet.fi> <20020315105621.GA22169@suse.de> <3C9230C6.4119CB4C@pp.inet.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S292231AbSCRTPX>; Mon, 18 Mar 2002 14:15:23 -0500
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:4270 "EHLO
+	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S292130AbSCRTPM>; Mon, 18 Mar 2002 14:15:12 -0500
+Reply-To: <robertp@ustri.com>
+From: "Robert Pfister" <robertp@ustri.com>
+To: <prade@cs.sunysb.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Trapping all Incoming Network Packets 
+Date: Mon, 18 Mar 2002 12:15:07 -0700
+Message-ID: <003901c1ceb1$37268890$1e00a8c0@nomaam>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.GSO.4.33.0203181330530.5841-100000@compserv3>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 15 2002, Jari Ruusu wrote:
-> Jens Axboe wrote:
-> > On Fri, Mar 15 2002, Jari Ruusu wrote:
-> > > - No more illegal sleeping in generic_make_request().
-> > 
-> > I've told you this before -- sleeping in make_request is not illegal,
-> > heck it happens _all the time_. Safely sleeping requires a reserved pool
-> > of the units you wish to allocate, of course. In fact I think that would
-> > be much nicer than the path you are following here by delaying
-> > allocations to the loop thread (and still not using a reserved pool).
-> 
-> Yes, I know you have told me that before, but I'm being overcareful. See:
-> 
-> <quote> from device drivers book by Alessandro Rubini, chapter 12, page 331
-> The request function has one very important constraint: it must be atomic.
-> request is not usually called in direct response to user requests, and it is
-> not running in the context of any particular process. It can be called at
-> interrupt time, from tasklets, or from any number of other places. Thus, it
-> must not sleep while carrying out its tasks.
-> </quote>
+prade@cs.sunysb.edu writes:
 
-That's talking about the request_fn funtion, not related to
-make_request_fn that I rewrote loop to use. So that's not a valid point.
+>To do it in user space, you have to use the raw socket interface. This
+>by-passes the entire TCP/IP stack. I want to sniff the packets, and make a
+>decision based on certain characteristics of each packet. So I need to
+>have a filter between the IP and link-layer. Also, I do not want the
+>filter to slow down traffic. Hence I believe implementing inside kernel
+>will be more efficient.
 
-> > -       if(!bh) return((struct buffer_head *)0);
-> > 
-> > eww!
-> > 
-> > - Also, please adher to the style. VaRiAbLe names can hurt the eyes, and
-> > stuff like
-> > 
-> >         if (something) break;
-> > 
-> >         return(val);
-> > 
-> > etc don't belong too. Could you fix that up?
-> > 
-> > That said, thanks for fixing it!
-> 
-> If there is any chance of being merged to mainline kernel, I will fix these
-> "hurt the eyes" formatting issues.
+I've looked at an implementation of something similar. The approach was as
+follows:
 
-I think there is. At least I can safely say there's no chance it will be
-merged if these things aren't fixed. So take your pick :-)
+* insert a "hook" into the netif_rx that would act as a filter
+* use a module that:
+	* activates hook
+	* apply filtering
+	* sends back packets to netif_rx for normal processing
+* when module is unloaded, deactivate the "hook"
 
-> > BTW, it looks like you are killing LO_FLAGS_BH_REMAP?! Why? This is a
-> > very worthwhile optimization.
-> 
-> Removing it simplified the code a lot. Doing remap direcly from
-> loop_make_request() would probably be more effective. Just remap and return
-
-LOTS more effective. Please don't kill this functionality. I don't buy
-the simplification argument.
-
-> 1 from loop_make_request() like LVM code does.
-
-And like loop currently does...
-
--- 
-Jens Axboe
 

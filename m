@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291599AbSBMLoI>; Wed, 13 Feb 2002 06:44:08 -0500
+	id <S291353AbSBMMCY>; Wed, 13 Feb 2002 07:02:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291603AbSBMLn6>; Wed, 13 Feb 2002 06:43:58 -0500
-Received: from B54de.pppool.de ([213.7.84.222]:38418 "HELO Nicole.fhm.edu")
-	by vger.kernel.org with SMTP id <S291599AbSBMLnp>;
-	Wed, 13 Feb 2002 06:43:45 -0500
-Subject: Re: another IDE cleanup: kill duplicated code
-From: Daniel Egger <degger@fhm.edu>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10202122151530.32729-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10202122151530.32729-100000@master.linux-ide.org>
-Content-Type: text/plain
+	id <S291372AbSBMMCO>; Wed, 13 Feb 2002 07:02:14 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34567 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291353AbSBMMCK>; Wed, 13 Feb 2002 07:02:10 -0500
+Subject: Re: SMT, again (was: Re: [PATCH]: Fix MTRR handling on HT CPUs)
+To: Martin.Wilck@fujitsu-siemens.com (Martin Wilck)
+Date: Wed, 13 Feb 2002 12:15:52 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        Martin.Wilck@fujitsu-siemens.com (Martin Wilck),
+        linux-kernel@vger.kernel.org (Linux Kernel mailing list),
+        marcelo@conectiva.com.br (Marcelo Tosatti)
+In-Reply-To: <Pine.LNX.4.33.0202131228290.11012-100000@biker.pdb.fsc.net> from "Martin Wilck" at Feb 13, 2002 12:42:03 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 13 Feb 2002 12:03:24 +0100
-Message-Id: <1013598204.6846.9.camel@sonja>
-Mime-Version: 1.0
+Message-Id: <E16ayKH-00057F-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mit, 2002-02-13 um 06.52 schrieb Andre Hedrick:
+> I just found out that Intel specifies that on SMT-enabled
+> ("Jackson") systems the BIOS MP tables list only the physical CPUs.
+> Logical CPUs will only be available through the ACPI tables.
 
-> HELL NO!
+Yep. Thats why the miniacpi scanning stuff is in the current kernel
 
-Maybe I'm dreaming something up here but why can't you either
-- show your version of the code
-or
-- tell exactly why a microchange is bad and what you need the
-  particular structure for
-?
+> All my attempts to get ACPI running on our SMT-enabled system have failed
+> so far (I'm working on a bug report on that for linux-acpi).
 
-It would definitely make more sense to share your IDE experience
-sourcecodewise than to bitch about things you claim other people
-cannot know. 
+You don't need ACPI itself. See arch/i386/kernel/acpitable.c. Intel contributed
+patches to handle this stuff already.
 
--- 
-Servus,
-       Daniel
-
+Alan

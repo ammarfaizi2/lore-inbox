@@ -1,278 +1,620 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269932AbUJVHPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269796AbUJVHNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269932AbUJVHPp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 03:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269853AbUJVHOh
+	id S269796AbUJVHNF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 03:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269807AbUJSQuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 03:14:37 -0400
-Received: from ozlabs.org ([203.10.76.45]:9118 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S269952AbUJVHJT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 03:09:19 -0400
-Subject: [PATCH] Eliminate init_module and cleanup_module from Documentation
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1098428960.12103.75.camel@localhost.localdomain>
+	Tue, 19 Oct 2004 12:50:37 -0400
+Received: from mail.kroah.org ([69.55.234.183]:57028 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269798AbUJSQit convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 12:38:49 -0400
+X-Donotread: and you are reading this why?
+Subject: Re: [PATCH] Driver Core patches for 2.6.9
+In-Reply-To: <1098203769206@kroah.com>
+X-Patch: quite boring stuff, it's just source code...
+Date: Tue, 19 Oct 2004 09:36:11 -0700
+Message-Id: <10982037712438@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 22 Oct 2004 17:09:20 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Name: Eliminate Obsolete init_module and cleanup_module From Documentation
-Status: Untested
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+ChangeSet 1.1832.55.10, 2004/09/10 16:45:35-07:00, greg@kroah.com
 
-In 2.2, you used to just be able to call functions "init_module" and
-"cleanup_module" and they'd be magically called.  Th
+Kobject Userspace Event Notification
+  
+Implemetation of userspace events through a netlink socket. The kernel events
+layer provides the functionality to raise an event from a given kobject
+represented by its sysfs-path and a signal string to describe the type of
+event.
+  
+Currently, kobject additions and removals are signalized to userspace by forking
+the /sbin/hotplug helper. This patch moves this special case of userspace-event
+out of the kobject core to the new kobject_uevent implementation. This makes it
+possible to send all hotplug messages also through the new netlink transport.
+  
+Possible new users of the kernel userspace functionality are filesystem
+mount events (block device claim/release) or simple device state transitions
+(cpu overheating).
+  
+To send an event, the user needs to pass the kobject, a optional
+sysfs-attribute and the signal string to the following function:
+  
+  kobject_uevent(const char *signal,
+                 struct kobject *kobj,
+                 struct attribute *attr)
+  
+  Example:
+  kobject_uevent("overheating", &cpu->kobj, NULL);
+  
+The message itself is sent over multicast netlink socket, which makes
+it possible for userspace to listen with multiple applications for the same
+messages.
+  
+Signed-off-by: Robert Love <rml@novell.com>
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-These days you should use module_init(myinit)/module_exit(myexit) and
-avoid #ifdef MODULE.
 
-diff -urp --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff linux-2.6.9-bk6/Documentation/DocBook/mousedrivers.tmpl working-2.6.9-bk6-obsolete-init_module/Documentation/DocBook/mousedrivers.tmpl
---- linux-2.6.9-bk6/Documentation/DocBook/mousedrivers.tmpl	2004-10-19 14:33:48.000000000 +1000
-+++ working-2.6.9-bk6-obsolete-init_module/Documentation/DocBook/mousedrivers.tmpl	2004-10-22 14:02:00.000000000 +1000
-@@ -200,38 +200,33 @@ __init ourmouse_init(void)
-   </para>
-   <para>
-     Next, in order to be able to use and test our code we need to add some 
--    module code to support it. This too is fairly simple:
-+    startup and shutdown code to support it. This too is fairly simple:
-   </para>
-   <programlisting>
--#ifdef MODULE
+ include/linux/kobject.h |   32 +++++
+ include/linux/netlink.h |    1 
+ init/Kconfig            |   19 +++
+ lib/Makefile            |    2 
+ lib/kobject.c           |  133 ------------------------
+ lib/kobject_uevent.c    |  264 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 319 insertions(+), 132 deletions(-)
+
+
+diff -Nru a/include/linux/kobject.h b/include/linux/kobject.h
+--- a/include/linux/kobject.h	2004-10-19 09:23:05 -07:00
++++ b/include/linux/kobject.h	2004-10-19 09:23:05 -07:00
+@@ -62,9 +62,7 @@
+ extern struct kobject * kobject_get(struct kobject *);
+ extern void kobject_put(struct kobject *);
+ 
+-extern void kobject_hotplug(const char *action, struct kobject *);
 -
--int init_module(void)
-+static int init(void)
- {
-         if(ourmouse_init()&lt;0)
-                 return -ENODEV:
-         return 0;
- }
+-extern char * kobject_get_path(struct kset *, struct kobject *, int);
++extern char * kobject_get_path(struct kobject *, int);
  
--void cleanup_module(void)
-+static void cleanup(void)
- {
-         misc_deregister(&amp;our_mouse);
-         free_region(OURMOUSE_BASE, 3);
- }
--
--
--#endif
-+module_init(init);
-+module_exit(cleanup);
-   </programlisting>
+ struct kobj_type {
+ 	void (*release)(struct kobject *);
+@@ -236,6 +234,34 @@
  
-   <para>
--    The module code provides the normal two functions. The 
--    <function>init_module</function> function is called when the module is 
--    loaded. In our case it simply calls the initialising function we wrote 
-+    The <function>module_init</function> macro sets the function to call when the module is inserted (or at boot if the module were built into the kernel).  In our case it is <function>init</function>, which simply calls the initialising function we wrote 
-     and returns an error if this fails. This ensures the module will only 
-     be loaded if it was successfully set up.
-   </para>
-   <para>
--    The <function>cleanup_module</function> function is called when the 
--    module is unloaded. We give the miscellaneous device entry back, and 
-+    The <function>module_exit</function> macro sets the function to call when the 
-+    module is unloaded: if this is not set, the module cannot be unloaded. We give the miscellaneous device entry back, and 
-     then free our I/O resources. If we didn't free the I/O resources then 
-     the next time the module loaded it would think someone else had its I/O 
-     space.
-diff -urp --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff linux-2.6.9-bk6/Documentation/DocBook/videobook.tmpl working-2.6.9-bk6-obsolete-init_module/Documentation/DocBook/videobook.tmpl
---- linux-2.6.9-bk6/Documentation/DocBook/videobook.tmpl	2004-06-17 08:47:50.000000000 +1000
-+++ working-2.6.9-bk6-obsolete-init_module/Documentation/DocBook/videobook.tmpl	2004-10-22 14:02:00.000000000 +1000
-@@ -731,13 +731,14 @@ static int io = 0x300;
- 
- static int io = -1;
- 
+ extern int subsys_create_file(struct subsystem * , struct subsys_attribute *);
+ extern void subsys_remove_file(struct subsystem * , struct subsys_attribute *);
++
++
++#ifdef CONFIG_HOTPLUG
++extern void kobject_hotplug(const char *action, struct kobject *kobj);
++#else
++static inline void kobject_hotplug(const char *action, struct kobject *kobj) { }
++#endif
++
++
++#ifdef CONFIG_KOBJECT_UEVENT
++extern int kobject_uevent(const char *signal, struct kobject *kobj,
++			  struct attribute *attr);
++
++extern int kobject_uevent_atomic(const char *signal, struct kobject *kobj,
++				 struct attribute *attr);
++#else
++static inline int kobject_uevent(const char *signal, struct kobject *kobj,
++				 struct attribute *attr)
++{
++	return 0;
++}
++
++static inline int kobject_uevent_atomic(const char *signal, struct kobject *kobj,
++					struct attribute *attr)
++{
++	return 0;
++}
 +#endif
  
- MODULE_AUTHOR("Alan Cox");
- MODULE_DESCRIPTION("A driver for an imaginary radio card.");
--MODULE_PARM(io, "i");
-+module_param(io, int, 0444);
- MODULE_PARM_DESC(io, "I/O address of the card.");
+ #endif /* __KERNEL__ */
+ #endif /* _KOBJECT_H_ */
+diff -Nru a/include/linux/netlink.h b/include/linux/netlink.h
+--- a/include/linux/netlink.h	2004-10-19 09:23:05 -07:00
++++ b/include/linux/netlink.h	2004-10-19 09:23:05 -07:00
+@@ -17,6 +17,7 @@
+ #define NETLINK_ROUTE6		11	/* af_inet6 route comm channel */
+ #define NETLINK_IP6_FW		13
+ #define NETLINK_DNRTMSG		14	/* DECnet routing messages */
++#define NETLINK_KOBJECT_UEVENT	15	/* Kernel messages to userspace */
+ #define NETLINK_TAPBASE		16	/* 16 to 31 are ethertap */
  
--int init_module(void)
-+static int __init init(void)
- {
-         if(io==-1)
-         {
-@@ -748,25 +749,26 @@ int init_module(void)
-         return myradio_init(NULL);
- }
+ #define MAX_LINKS 32		
+diff -Nru a/init/Kconfig b/init/Kconfig
+--- a/init/Kconfig	2004-10-19 09:23:05 -07:00
++++ b/init/Kconfig	2004-10-19 09:23:05 -07:00
+@@ -195,6 +195,25 @@
+ 	  agent" (/sbin/hotplug) to load modules and set up software needed
+ 	  to use devices as you hotplug them.
  
--void cleanup_module(void)
-+static void __exit cleanup(void)
- {
-         video_unregister_device(&amp;my_radio);
-         release_region(io, MY_IO_SIZE);
- }
- 
--#endif
-+module_init(init);
-+module_exit(cleanup);
- 
-   </programlisting>
-   <para>
-         In this example we set the IO base by default if the driver is compiled into
--        the kernel where you cannot pass a parameter. For the module we require the
-+        the kernel: you can still set it using "my_radio.irq" if this file is called <filename>my_radio.c</filename>. For the module we require the
-         user sets the parameter. We set io to a nonsense port (-1) so that we can
-         tell if the user supplied an io parameter or not.
-   </para>
-   <para>
-         We use MODULE_ defines to give an author for the card driver and a
-         description. We also use them to declare that io is an integer and it is the
--        address of the card.
-+        address of the card, and can be read by anyone from sysfs.
-   </para>
-   <para>
-         The clean-up routine unregisters the video_device we registered, and frees
-diff -urp --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff linux-2.6.9-bk6/Documentation/i2c/writing-clients working-2.6.9-bk6-obsolete-init_module/Documentation/i2c/writing-clients
---- linux-2.6.9-bk6/Documentation/i2c/writing-clients	2004-10-22 07:56:43.000000000 +1000
-+++ working-2.6.9-bk6-obsolete-init_module/Documentation/i2c/writing-clients	2004-10-22 14:04:04.000000000 +1000
-@@ -571,7 +571,7 @@ the driver module is usually enough.
-      have to be cleaned up! */
-   static int __initdata foo_initialized = 0;
- 
--  int __init foo_init(void)
-+  static int __init foo_init(void)
-   {
-     int res;
-     printk("foo version %s (%s)\n",FOO_VERSION,FOO_DATE);
-@@ -585,41 +585,27 @@ the driver module is usually enough.
-     return 0;
-   }
- 
--  int __init foo_cleanup(void)
-+  void foo_cleanup(void)
-   {
--    int res;
-     if (foo_initialized == 1) {
-       if ((res = i2c_del_driver(&foo_driver))) {
-         printk("foo: Driver registration failed, module not removed.\n");
--        return res;
-+        return;
-       }
-       foo_initialized --;
-     }
--    return 0;
-   }
- 
--  #ifdef MODULE
--
-   /* Substitute your own name and email address */
-   MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl>"
-   MODULE_DESCRIPTION("Driver for Barf Inc. Foo I2C devices");
- 
--  int init_module(void)
--  {
--    return foo_init();
--  }
--
--  int cleanup_module(void)
--  {
--    return foo_cleanup();
--  }
--
--  #endif /* def MODULE */
-+  module_init(foo_init);
-+  module_exit(foo_cleanup);
- 
- Note that some functions are marked by `__init', and some data structures
--by `__init_data'. If this driver is compiled as part of the kernel (instead
--of as a module), those functions and structures can be removed after
--kernel booting is completed.
-+by `__init_data'.  Hose functions and structures can be removed after
-+kernel booting (or module loading) is completed.
- 
- Command function
- ================
-diff -urp --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff linux-2.6.9-bk6/Documentation/s390/s390dbf.txt working-2.6.9-bk6-obsolete-init_module/Documentation/s390/s390dbf.txt
---- linux-2.6.9-bk6/Documentation/s390/s390dbf.txt	2004-05-10 15:12:43.000000000 +1000
-+++ working-2.6.9-bk6-obsolete-init_module/Documentation/s390/s390dbf.txt	2004-10-22 14:02:00.000000000 +1000
-@@ -271,12 +271,12 @@ Examples
-  * hex_ascii- + raw-view Example
-  */
- 
--#include <linux/module.h>
-+#include <linux/init.h>
- #include <asm/debug.h>
- 
- static debug_info_t* debug_info;
- 
--int init_module(void)
-+static int init(void)
- {
-     /* register 4 debug areas with one page each and 4 byte data field */
- 
-@@ -291,23 +291,26 @@ int init_module(void)
-     return 0;
- }
- 
--void cleanup_module(void)
-+static void cleanup(void)
- {
-     debug_unregister (debug_info);
- }
- 
-+module_init(init);
-+module_exit(cleanup);
++config KOBJECT_UEVENT
++	bool "Kernel Userspace Events"
++	depends on NET
++	default y
++	help
++	  This option enables the kernel userspace event layer, which is a
++	  simple mechanism for kernel-to-user communication over a netlink
++	  socket.
++	  The goal of the kernel userspace events layer is to provide a simple
++	  and efficient events system, that notifies userspace about kobject
++	  state changes. This will enable applications to just listen for
++	  events instead of polling system devices and files.
++	  Hotplug events (kobject addition and removal) are also available on
++	  the netlink socket in addition to the execution of /sbin/hotplug if
++	  CONFIG_HOTPLUG is enabled.
 +
- ---------------------------------------------------------------------------
- 
- /*
-  * sprintf-view Example
-  */
- 
--#include <linux/module.h>
-+#include <linux/init.h>
- #include <asm/debug.h>
- 
- static debug_info_t* debug_info;
- 
--int init_module(void)
-+static int init(void)
- {
-     /* register 4 debug areas with one page each and data field for */
-     /* format string pointer + 2 varargs (= 3 * sizeof(long))       */
-@@ -321,11 +324,14 @@ int init_module(void)
-     return 0;
- }
- 
--void cleanup_module(void)
-+static void cleanup(void)
- {
-     debug_unregister (debug_info);
- }
- 
-+module_init(init);
-+module_exit(cleanup);
++	  Say Y, unless you are building a system requiring minimal memory
++	  consumption.
 +
+ config IKCONFIG
+ 	bool "Kernel .config support"
+ 	---help---
+diff -Nru a/lib/Makefile b/lib/Makefile
+--- a/lib/Makefile	2004-10-19 09:23:05 -07:00
++++ b/lib/Makefile	2004-10-19 09:23:05 -07:00
+@@ -6,7 +6,7 @@
+ lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
+ 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
+ 	 kobject.o kref.o idr.o div64.o parser.o int_sqrt.o \
+-	 bitmap.o extable.o
++	 bitmap.o extable.o kobject_uevent.o
  
+ lib-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += rwsem-spinlock.o
+ lib-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
+diff -Nru a/lib/kobject.c b/lib/kobject.c
+--- a/lib/kobject.c	2004-10-19 09:23:05 -07:00
++++ b/lib/kobject.c	2004-10-19 09:23:05 -07:00
+@@ -63,7 +63,7 @@
+ 	return container_of(entry,struct kobject,entry);
+ }
  
- ProcFS Interface
-diff -urp --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff linux-2.6.9-bk6/Documentation/sound/oss/README.modules working-2.6.9-bk6-obsolete-init_module/Documentation/sound/oss/README.modules
---- linux-2.6.9-bk6/Documentation/sound/oss/README.modules	2004-03-12 07:56:35.000000000 +1100
-+++ working-2.6.9-bk6-obsolete-init_module/Documentation/sound/oss/README.modules	2004-10-22 14:02:00.000000000 +1000
-@@ -59,8 +59,9 @@ sound.o # The sound driver
- uart401.o # Used by sb, maybe other cards
+-static int get_kobj_path_length(struct kset *kset, struct kobject *kobj)
++static int get_kobj_path_length(struct kobject *kobj)
+ {
+ 	int length = 1;
+ 	struct kobject * parent = kobj;
+@@ -79,7 +79,7 @@
+ 	return length;
+ }
  
-  Whichever card you have, try feeding it the options that would be the
--default if you were making the driver wired, not as modules. You can look
--at the init_module() code for the card to see what args are expected.
-+default if you were making the driver wired, not as modules. You can
-+look at function referred to by module_init() for the card to see what
-+args are expected.
+-static void fill_kobj_path(struct kset *kset, struct kobject *kobj, char *path, int length)
++static void fill_kobj_path(struct kobject *kobj, char *path, int length)
+ {
+ 	struct kobject * parent;
  
-  Note that at present there is no way to configure the io, irq and other
- parameters for the modular drivers as one does for the wired drivers.. One
-
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+@@ -99,146 +99,24 @@
+  * kobject_get_path - generate and return the path associated with a given kobj
+  * and kset pair.  The result must be freed by the caller with kfree().
+  *
+- * @kset:	kset in question, with which to build the path
+  * @kobj:	kobject in question, with which to build the path
+  * @gfp_mask:	the allocation type used to allocate the path
+  */
+-char * kobject_get_path(struct kset *kset, struct kobject *kobj, int gfp_mask)
++char *kobject_get_path(struct kobject *kobj, int gfp_mask)
+ {
+ 	char *path;
+ 	int len;
+ 
+-	len = get_kobj_path_length(kset, kobj);
++	len = get_kobj_path_length(kobj);
+ 	path = kmalloc(len, gfp_mask);
+ 	if (!path)
+ 		return NULL;
+ 	memset(path, 0x00, len);
+-	fill_kobj_path(kset, kobj, path, len);
++	fill_kobj_path(kobj, path, len);
+ 
+ 	return path;
+ }
+ 
+-#ifdef CONFIG_HOTPLUG
+-
+-u64 hotplug_seqnum;
+-#define BUFFER_SIZE	1024	/* should be enough memory for the env */
+-#define NUM_ENVP	32	/* number of env pointers */
+-static spinlock_t sequence_lock = SPIN_LOCK_UNLOCKED;
+-
+-static void kset_hotplug(const char *action, struct kset *kset,
+-			 struct kobject *kobj)
+-{
+-	char *argv [3];
+-	char **envp = NULL;
+-	char *buffer = NULL;
+-	char *scratch;
+-	int i = 0;
+-	int retval;
+-	char *kobj_path = NULL;
+-	char *name = NULL;
+-	unsigned long seq;
+-
+-	/* If the kset has a filter operation, call it. If it returns
+-	   failure, no hotplug event is required. */
+-	if (kset->hotplug_ops->filter) {
+-		if (!kset->hotplug_ops->filter(kset, kobj))
+-			return;
+-	}
+-
+-	pr_debug ("%s\n", __FUNCTION__);
+-
+-	if (!hotplug_path[0])
+-		return;
+-
+-	envp = kmalloc(NUM_ENVP * sizeof (char *), GFP_KERNEL);
+-	if (!envp)
+-		return;
+-	memset (envp, 0x00, NUM_ENVP * sizeof (char *));
+-
+-	buffer = kmalloc(BUFFER_SIZE, GFP_KERNEL);
+-	if (!buffer)
+-		goto exit;
+-
+-	if (kset->hotplug_ops->name)
+-		name = kset->hotplug_ops->name(kset, kobj);
+-	if (name == NULL)
+-		name = kset->kobj.name;
+-
+-	argv [0] = hotplug_path;
+-	argv [1] = name;
+-	argv [2] = NULL;
+-
+-	/* minimal command environment */
+-	envp [i++] = "HOME=/";
+-	envp [i++] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
+-
+-	scratch = buffer;
+-
+-	envp [i++] = scratch;
+-	scratch += sprintf(scratch, "ACTION=%s", action) + 1;
+-
+-	spin_lock(&sequence_lock);
+-	seq = ++hotplug_seqnum;
+-	spin_unlock(&sequence_lock);
+-
+-	envp [i++] = scratch;
+-	scratch += sprintf(scratch, "SEQNUM=%ld", seq) + 1;
+-
+-	kobj_path = kobject_get_path(kset, kobj, GFP_KERNEL);
+-	if (!kobj_path)
+-		goto exit;
+-
+-	envp [i++] = scratch;
+-	scratch += sprintf (scratch, "DEVPATH=%s", kobj_path) + 1;
+-
+-	if (kset->hotplug_ops->hotplug) {
+-		/* have the kset specific function add its stuff */
+-		retval = kset->hotplug_ops->hotplug (kset, kobj,
+-				  &envp[i], NUM_ENVP - i, scratch,
+-				  BUFFER_SIZE - (scratch - buffer));
+-		if (retval) {
+-			pr_debug ("%s - hotplug() returned %d\n",
+-				  __FUNCTION__, retval);
+-			goto exit;
+-		}
+-	}
+-
+-	pr_debug ("%s: %s %s %s %s %s %s %s\n", __FUNCTION__, argv[0], argv[1],
+-		  envp[0], envp[1], envp[2], envp[3], envp[4]);
+-	retval = call_usermodehelper (argv[0], argv, envp, 0);
+-	if (retval)
+-		pr_debug ("%s - call_usermodehelper returned %d\n",
+-			  __FUNCTION__, retval);
+-
+-exit:
+-	kfree(kobj_path);
+-	kfree(buffer);
+-	kfree(envp);
+-	return;
+-}
+-
+-void kobject_hotplug(const char *action, struct kobject *kobj)
+-{
+-	struct kobject * top_kobj = kobj;
+-
+-	/* If this kobj does not belong to a kset,
+-	   try to find a parent that does. */
+-	if (!top_kobj->kset && top_kobj->parent) {
+-		do {
+-			top_kobj = top_kobj->parent;
+-		} while (!top_kobj->kset && top_kobj->parent);
+-	}
+-
+-	if (top_kobj->kset && top_kobj->kset->hotplug_ops)
+-		kset_hotplug(action, top_kobj->kset, kobj);
+-}
+-#else
+-void kobject_hotplug(const char *action, struct kobject *kobj)
+-{
+-	return;
+-}
+-#endif	/* CONFIG_HOTPLUG */
+-
+ /**
+  *	kobject_init - initialize object.
+  *	@kobj:	object in question.
+@@ -654,7 +532,6 @@
+ EXPORT_SYMBOL(kobject_add);
+ EXPORT_SYMBOL(kobject_del);
+ EXPORT_SYMBOL(kobject_rename);
+-EXPORT_SYMBOL(kobject_hotplug);
+ 
+ EXPORT_SYMBOL(kset_register);
+ EXPORT_SYMBOL(kset_unregister);
+diff -Nru a/lib/kobject_uevent.c b/lib/kobject_uevent.c
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/lib/kobject_uevent.c	2004-10-19 09:23:05 -07:00
+@@ -0,0 +1,264 @@
++/*
++ * kernel userspace event delivery
++ *
++ * Copyright (C) 2004 Red Hat, Inc.  All rights reserved.
++ * Copyright (C) 2004 Novell, Inc.  All rights reserved.
++ * Copyright (C) 2004 IBM, Inc. All rights reserved.
++ *
++ * Licensed under the GNU GPL v2.
++ *
++ * Authors:
++ *	Robert Love		<rml@novell.com>
++ *	Kay Sievers		<kay.sievers@vrfy.org>
++ *	Arjan van de Ven	<arjanv@redhat.com>
++ *	Greg Kroah-Hartman	<greg@kroah.com>
++ */
++
++#include <linux/spinlock.h>
++#include <linux/socket.h>
++#include <linux/skbuff.h>
++#include <linux/netlink.h>
++#include <linux/string.h>
++#include <linux/kobject.h>
++#include <net/sock.h>
++
++#ifdef CONFIG_KOBJECT_UEVENT
++static struct sock *uevent_sock;
++
++/**
++ * send_uevent - notify userspace by sending event trough netlink socket
++ *
++ * @signal: signal name
++ * @obj: object path (kobject)
++ * @buf: buffer used to pass auxiliary data like the hotplug environment
++ * @buflen:
++ * gfp_mask:
++ */
++static int send_uevent(const char *signal, const char *obj, const void *buf,
++			int buflen, int gfp_mask)
++{
++	struct sk_buff *skb;
++	char *pos;
++	int len;
++
++	if (!uevent_sock)
++		return -EIO;
++
++	len = strlen(signal) + 1;
++	len += strlen(obj) + 1;
++	len += buflen;
++
++	skb = alloc_skb(len, gfp_mask);
++	if (!skb)
++		return -ENOMEM;
++
++	pos = skb_put(skb, len);
++
++	pos += sprintf(pos, "%s@%s", signal, obj) + 1;
++	memcpy(pos, buf, buflen);
++
++	return netlink_broadcast(uevent_sock, skb, 0, 1, gfp_mask);
++}
++
++static int do_kobject_uevent(const char *signal, struct kobject *kobj,
++			     struct attribute *attr, int gfp_mask)
++{
++	char *path;
++	char *attrpath;
++	int len;
++	int rc = -ENOMEM;
++
++	path = kobject_get_path(kobj, gfp_mask);
++	if (!path)
++		return -ENOMEM;
++
++	if (attr) {
++		len = strlen(path);
++		len += strlen(attr->name) + 2;
++		attrpath = kmalloc(len, gfp_mask);
++		if (!attrpath)
++			goto exit;
++		sprintf(attrpath, "%s/%s", path, attr->name);
++		rc = send_uevent(signal, attrpath, NULL, 0, gfp_mask);
++		kfree(attrpath);
++	} else {
++		rc = send_uevent(signal, path, NULL, 0, gfp_mask);
++	}
++
++exit:
++	kfree(path);
++	return rc;
++}
++
++/**
++ * kobject_uevent - notify userspace by sending event through netlink socket
++ * 
++ * @signal: signal name
++ * @kobj: struct kobject that the event is happening to
++ * @attr: optional struct attribute the event belongs to
++ */
++int kobject_uevent(const char *signal, struct kobject *kobj,
++		   struct attribute *attr)
++{
++	return do_kobject_uevent(signal, kobj, attr, GFP_KERNEL);
++}
++EXPORT_SYMBOL_GPL(kobject_uevent);
++
++int kobject_uevent_atomic(const char *signal, struct kobject *kobj,
++			  struct attribute *attr)
++{
++	return do_kobject_uevent(signal, kobj, attr, GFP_ATOMIC);
++}
++
++EXPORT_SYMBOL_GPL(kobject_uevent_atomic);
++
++static int __init kobject_uevent_init(void)
++{
++	uevent_sock = netlink_kernel_create(NETLINK_KOBJECT_UEVENT, NULL);
++
++	if (!uevent_sock) {
++		printk(KERN_ERR
++		       "kobject_uevent: unable to create netlink socket!\n");
++		return -ENODEV;
++	}
++
++	return 0;
++}
++
++core_initcall(kobject_uevent_init);
++
++#else
++static inline int send_uevent(const char *signal, const char *obj,
++			      const void *buf, int buflen, int gfp_mask)
++{
++	return 0;
++}
++
++#endif /* CONFIG_KOBJECT_UEVENT */
++
++
++#ifdef CONFIG_HOTPLUG
++u64 hotplug_seqnum;
++static spinlock_t sequence_lock = SPIN_LOCK_UNLOCKED;
++
++#define BUFFER_SIZE	1024	/* should be enough memory for the env */
++#define NUM_ENVP	32	/* number of env pointers */
++/**
++ * kobject_hotplug - notify userspace by executing /sbin/hotplug
++ *
++ * @action: action that is happening (usually "ADD" or "REMOVE")
++ * @kobj: struct kobject that the action is happening to
++ */
++void kobject_hotplug(const char *action, struct kobject *kobj)
++{
++	char *argv [3];
++	char **envp = NULL;
++	char *buffer = NULL;
++	char *scratch;
++	int i = 0;
++	int retval;
++	char *kobj_path = NULL;
++	char *name = NULL;
++	u64 seq;
++	struct kobject *top_kobj = kobj;
++	struct kset *kset;
++
++	if (!top_kobj->kset && top_kobj->parent) {
++		do {
++			top_kobj = top_kobj->parent;
++		} while (!top_kobj->kset && top_kobj->parent);
++	}
++
++	if (top_kobj->kset && top_kobj->kset->hotplug_ops)
++		kset = top_kobj->kset;
++	else
++		return;
++
++	/* If the kset has a filter operation, call it.
++	   Skip the event, if the filter returns zero. */
++	if (kset->hotplug_ops->filter) {
++		if (!kset->hotplug_ops->filter(kset, kobj))
++			return;
++	}
++
++	pr_debug ("%s\n", __FUNCTION__);
++
++	envp = kmalloc(NUM_ENVP * sizeof (char *), GFP_KERNEL);
++	if (!envp)
++		return;
++	memset (envp, 0x00, NUM_ENVP * sizeof (char *));
++
++	buffer = kmalloc(BUFFER_SIZE, GFP_KERNEL);
++	if (!buffer)
++		goto exit;
++
++	if (kset->hotplug_ops->name)
++		name = kset->hotplug_ops->name(kset, kobj);
++	if (name == NULL)
++		name = kset->kobj.name;
++
++	argv [0] = hotplug_path;
++	argv [1] = name;
++	argv [2] = NULL;
++
++	/* minimal command environment */
++	envp [i++] = "HOME=/";
++	envp [i++] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
++
++	scratch = buffer;
++
++	envp [i++] = scratch;
++	scratch += sprintf(scratch, "ACTION=%s", action) + 1;
++
++	kobj_path = kobject_get_path(kobj, GFP_KERNEL);
++	if (!kobj_path)
++		goto exit;
++
++	envp [i++] = scratch;
++	scratch += sprintf (scratch, "DEVPATH=%s", kobj_path) + 1;
++
++	spin_lock(&sequence_lock);
++	seq = ++hotplug_seqnum;
++	spin_unlock(&sequence_lock);
++
++	envp [i++] = scratch;
++	scratch += sprintf(scratch, "SEQNUM=%lld", seq) + 1;
++
++	envp [i++] = scratch;
++	scratch += sprintf(scratch, "SUBSYSTEM=%s", name) + 1;
++
++	if (kset->hotplug_ops->hotplug) {
++		/* have the kset specific function add its stuff */
++		retval = kset->hotplug_ops->hotplug (kset, kobj,
++				  &envp[i], NUM_ENVP - i, scratch,
++				  BUFFER_SIZE - (scratch - buffer));
++		if (retval) {
++			pr_debug ("%s - hotplug() returned %d\n",
++				  __FUNCTION__, retval);
++			goto exit;
++		}
++	}
++
++	pr_debug ("%s: %s %s %s %s %s %s %s\n", __FUNCTION__, argv[0], argv[1],
++		  envp[0], envp[1], envp[2], envp[3], envp[4]);
++
++	send_uevent(action, kobj_path, buffer, scratch - buffer, GFP_KERNEL);
++
++	if (!hotplug_path[0])
++		goto exit;
++
++	retval = call_usermodehelper (argv[0], argv, envp, 0);
++	if (retval)
++		pr_debug ("%s - call_usermodehelper returned %d\n",
++			  __FUNCTION__, retval);
++
++exit:
++	kfree(kobj_path);
++	kfree(buffer);
++	kfree(envp);
++	return;
++}
++EXPORT_SYMBOL(kobject_hotplug);
++#endif /* CONFIG_HOTPLUG */
++
++
 

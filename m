@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284704AbRLXLDW>; Mon, 24 Dec 2001 06:03:22 -0500
+	id <S284717AbRLXLJW>; Mon, 24 Dec 2001 06:09:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284711AbRLXLDM>; Mon, 24 Dec 2001 06:03:12 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:5138 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S284704AbRLXLC6>;
-	Mon, 24 Dec 2001 06:02:58 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-        "H . J . Lu" <hjl@lucon.org>
-Subject: Re: How to fix false positives on references to discarded text/data? 
-In-Reply-To: Your message of "Mon, 24 Dec 2001 11:05:00 BST."
-             <Pine.LNX.4.33.0112241055380.1676-100000@vaio> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 24 Dec 2001 22:02:45 +1100
-Message-ID: <29350.1009191765@ocs3.intra.ocs.com.au>
+	id <S284727AbRLXLJM>; Mon, 24 Dec 2001 06:09:12 -0500
+Received: from hal.grips.com ([62.144.214.40]:39913 "EHLO hal.grips.com")
+	by vger.kernel.org with ESMTP id <S284717AbRLXLJC>;
+	Mon, 24 Dec 2001 06:09:02 -0500
+Message-Id: <200112241108.fBOB8oi28275@hal.grips.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Gerold Jury <gjury@hal.grips.com>
+To: <mingo@elte.hu>
+Subject: Re: aio
+Date: Mon, 24 Dec 2001 12:08:49 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0112211446370.5098-100000@localhost.localdomain> <200112211527.fBLFR6X07357@hal.grips.com>
+In-Reply-To: <200112211527.fBLFR6X07357@hal.grips.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Dec 2001 11:05:00 +0100 (CET), 
-Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> wrote:
->According to my reading of the docs and also to my testing, .subsection 0 
->and .previous should be equivalent here. But .subsection 0 may be cleaner.
+> On Friday 21 December 2001 14:48, Ingo Molnar wrote:
+> > is this a fundamental limitation expressed in the interface, or just an
+> > implementational limitation? On sockets this is indeed a big problem,
+> > HTTP pipelining wants completely separate receive/send queues.
+> >
+> > 	Ingo
+>
 
-As I read the gas info text, .subsection changes the current entry on
-top of stack, it does not stack a new section/subsection pair.
-.previous swaps the top of stack with the previous top of stack.  I
-suspect that you would get different results if there was more than one
-section on the stack.  In any case, .subsection 0 is "obviously correct".
+I got the _POSIX_SYNCHRONIZED_IO completely wrong.
+It has nothing to do with the ordering of the aio read/write requests.
+
+Aio_read and aio_write work with absolute positions inside the file size.
+The order of requests is unspecified in SUSV V2.
+SUSV V2 does neither prevent nor force the desired behaviour.
+
+It seems like it is up to the implementation how to deal with the request 
+order.
+As mentioned earlier, SGI-kaio does the right thing with the same interface.
+
+I want to add, that a combination of sigwaitinfo / sigtimedwait and aio is a 
+very efficient way to deal with sockets. The accept may be handled with real 
+time signals as well by using fcntl F_SETSIG and F_SETFL FASYNC.
+
+
+Gerold
 

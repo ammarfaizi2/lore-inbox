@@ -1,36 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275610AbRIZVZH>; Wed, 26 Sep 2001 17:25:07 -0400
+	id <S275616AbRIZVZh>; Wed, 26 Sep 2001 17:25:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275614AbRIZVY6>; Wed, 26 Sep 2001 17:24:58 -0400
-Received: from pixar.pixar.com ([138.72.10.20]:18370 "EHLO pixar.pixar.com")
-	by vger.kernel.org with ESMTP id <S275610AbRIZVYq>;
-	Wed, 26 Sep 2001 17:24:46 -0400
-Date: Wed, 26 Sep 2001 14:25:05 -0700 (PDT)
-From: Kiril Vidimce <vkire@pixar.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: max arguments for exec
-Message-ID: <Pine.LNX.4.21.0109261417110.24013-100000@nevena>
+	id <S275615AbRIZVZ2>; Wed, 26 Sep 2001 17:25:28 -0400
+Received: from femail41.sdc1.sfba.home.com ([24.254.60.35]:26052 "EHLO
+	femail41.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S275614AbRIZVZU>; Wed, 26 Sep 2001 17:25:20 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Steve Snyder <swsnyder@home.com>
+Reply-To: swsnyder@home.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Specifying PCI bus speed?
+Date: Wed, 26 Sep 2001 16:25:39 -0500
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01092616253900.03354@mercury.snydernet.lan>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Is it possible to specify the speed of a PCI bus?  I've got a Dell notebook
+machine that drives the bus at 60MHz (rather than the typical 66MHz). 
 
-Is there any way to reconfigure the kernel at runtime to change the
-limit for arguments passed during an exec? I guess I am looking for
-something similar to systune ncargs under IRIX. I found this thread
-in the archives:
+I know one can specify the speed of the IDE bus and I'm wondering of there 
+is something analogous for PCI.  Is there?
 
-http://uwsg.iu.edu/hypermail/linux/kernel/0003.0/0160.html
-
-The only suggestion was to patch and recompile the kernel. I looked
-into sysctl and I couldn't find an appropriate argument to tweak.
-
-Thanks for any info,
-KV
---
-  ___________________________________________________________________
-  Studio Tools                                        vkire@pixar.com
-  Pixar Animation Studios                        http://www.pixar.com/
-
+Thanks.

@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264893AbTGHQ7u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 12:59:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbTGHQ7u
+	id S264898AbTGHRH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 13:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbTGHRH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 12:59:50 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:52356 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264893AbTGHQ7t
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 12:59:49 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 8 Jul 2003 10:06:46 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Eric Varsanyi <e0216@foo21.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: epoll vs stdin/stdout
-In-Reply-To: <20030708160206.GP9328@srv.foo21.com>
-Message-ID: <Pine.LNX.4.55.0307081005500.4792@bigblue.dev.mcafeelabs.com>
-References: <20030707154823.GA8696@srv.foo21.com>
- <Pine.LNX.4.55.0307071153270.4704@bigblue.dev.mcafeelabs.com>
- <20030707194736.GF9328@srv.foo21.com> <Pine.LNX.4.55.0307071511550.4704@bigblue.dev.mcafeelabs.com>
- <Pine.LNX.4.55.0307071624550.4704@bigblue.dev.mcafeelabs.com>
- <20030708154636.GM9328@srv.foo21.com> <Pine.LNX.4.55.0307080840400.4544@bigblue.dev.mcafeelabs.com>
- <20030708160206.GP9328@srv.foo21.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 8 Jul 2003 13:07:58 -0400
+Received: from dnsc6804027.pnl.gov ([198.128.64.39]:43649 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S264898AbTGHRH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 13:07:57 -0400
+Date: Tue, 8 Jul 2003 10:22:25 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Andi Kleen <ak@suse.de>
+Cc: bzzz@tmi.comex.ru, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] parallel directory operations
+Message-ID: <20030708102225.D4482@schatzie.adilger.int>
+Mail-Followup-To: Andi Kleen <ak@suse.de>, bzzz@tmi.comex.ru,
+	linux-kernel@vger.kernel.org
+References: <87wuetukpa.fsf@gw.home.net.suse.lists.linux.kernel> <p73brw5qmxk.fsf@oldwotan.suse.de> <87of05ujfo.fsf@gw.home.net> <20030708134601.7992e64a.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030708134601.7992e64a.ak@suse.de>; from ak@suse.de on Tue, Jul 08, 2003 at 01:46:01PM +0200
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jul 2003, Eric Varsanyi wrote:
+On Jul 08, 2003  13:46 +0200, Andi Kleen wrote:
+> On Tue, 08 Jul 2003 15:28:27 +0000 bzzz@tmi.comex.ru wrote:
+> > dynlocks implements 'lock namespace', so you can lock A for namepace N1 and
+> > lock B for namespace N1 and so on. we need this because we want to take lock
+> > on _part_ of directory.
+> 
+> Ok, a mini database lock manager. Wouldn't it be better to use a small hash 
+> table and lock escalation on overflow for this?  Otherwise you could
+> have quite a lot of entries queued up in the list if the server is slow.
 
-> On Tue, Jul 08, 2003 at 08:42:29AM -0700, Davide Libenzi wrote:
-> > It is not that events are delivered per-fd. If 3 and 4 refer to the same
-> > file* and you register both 3 and 4 with EPOLLIN, you'll get two events if
-> > an EPOLLIN happen. One for 3 and one for 4.
->
-> Agreed 100%, this is roughly what would happen with select() as well which
-> IMO is good (not surprising behaviour) for event loop writers: it would
-> return with both bits set. The EEXIST we were getting before this patch
-> would be analogous to select() returning an error if you set 2 bits that
-> where for fd's sharing an object (even across read/write bit vectors).
->
-> One could argue at the logic of having 2 fd's get read events on a
-> shared underlying object, but one read and the other write certainly
-> makes sense as discussed earlier.
+That was my initial thought also, but the number of locks that are in
+existence at one time are very small (i.e. number of threads active in
+a directory at one time).  Having a "more scalable" locking setup will,
+I think, hurt performance for the common case.
 
-I did not have the time to test the patch in your scenario, but if you can
-confirm me it is working fine I'll push it.
-
-
-- Davide
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

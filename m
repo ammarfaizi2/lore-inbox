@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275264AbTHSAk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 20:40:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275274AbTHSAkZ
+	id S275287AbTHSA5x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 20:57:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275292AbTHSA5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 20:40:25 -0400
-Received: from smtp3.cwidc.net ([154.33.63.113]:40627 "EHLO smtp3.cwidc.net")
-	by vger.kernel.org with ESMTP id S275264AbTHSAkR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 20:40:17 -0400
-Message-ID: <3F4171DB.7040604@tequila.co.jp>
-Date: Tue, 19 Aug 2003 09:39:55 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030718
-X-Accept-Language: en-us, en, ja
+	Mon, 18 Aug 2003 20:57:52 -0400
+Received: from smtp807.mail.sc5.yahoo.com ([66.163.168.186]:31353 "HELO
+	smtp807.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S275287AbTHSA5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 20:57:52 -0400
+Message-ID: <3F41761F.9050806@sbcglobal.net>
+Date: Mon, 18 Aug 2003 19:58:07 -0500
+From: Wes Janzen <superchkn@sbcglobal.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Clemens Schwaighofer <gullevek@gullevek.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test3-cvs: still a small oops afer boot
-References: <200308121010.11139.gullevek@gullevek.org> <20030813235104.GC7863@kroah.com>
-In-Reply-To: <20030813235104.GC7863@kroah.com>
-X-Enigmail-Version: 0.76.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+CC: wli@holomorphy.com
+Subject: Re: [RFC] Re: Blender profiling-1 O16.2int
+References: <20030817003128.04855aed.voluspa@comhem.se> <200308171142.33131.kernel@kolivas.org> <20030817073859.51021571.voluspa@comhem.se> <200308172336.42593.kernel@kolivas.org> <3F416BD4.3040302@sbcglobal.net>
+In-Reply-To: <3F416BD4.3040302@sbcglobal.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Those benchmarks/tests I'm referring to are at:
 
-Greg KH wrote:
+I had to correct some things to get them to compile, but it was very 
+simple.  I think one of the versions actually checks to see if it has 
+been woken up more than once.
 
-> Try the patch at:
-> 	http://bugme.osdl.org/show_bug.cgi?id=923
->
-> It should fix it.
+cspipe2a.cpp/csfast5.cpp:
+-->Article with links to source:
+    http://www-106.ibm.com/developerworks/linux/library/l-rt9/
 
-Yep, fixed it :)
+csfast5a.cpp/fract5.cpp:
+-->Original site (doesn't have the source, but explains the program):
+     
+http://www-106.ibm.com/developerworks/linux/library/l-rt10/?t=gr,lnxw01=ConSwiP2
+-->Google search found me this site which has the source linked:
+     
+http://www-900.ibm.com/developerWorks/cn/linux/sdk/rt/part10/index.shtml#resources
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE/QXHajBz/yQjBxz8RAu0UAJ4jtuzRdE2vXH32iparfYcSj8a4XACfQfd0
-4qxLMLaTNeH7iO3RHPGEBSk=
-=jYqm
------END PGP SIGNATURE-----
+Wes
 

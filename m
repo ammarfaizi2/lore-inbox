@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130219AbRBVAo7>; Wed, 21 Feb 2001 19:44:59 -0500
+	id <S130336AbRBVAsj>; Wed, 21 Feb 2001 19:48:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130462AbRBVAot>; Wed, 21 Feb 2001 19:44:49 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:20776 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S130219AbRBVAon>; Wed, 21 Feb 2001 19:44:43 -0500
-Date: Thu, 22 Feb 2001 01:46:06 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Javi Roman <javiroman@wanadoo.es>, linux-kernel@vger.kernel.org
-Subject: Re: mke2fs + 8MB + 2.2.5 = hangs
-Message-ID: <20010222014606.A3504@athlon.random>
-In-Reply-To: <3A944C92.60A1E514@wanadoo.es> <E14Vigc-00030Q-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S130663AbRBVAsV>; Wed, 21 Feb 2001 19:48:21 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34574 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130462AbRBVAsO>; Wed, 21 Feb 2001 19:48:14 -0500
+Subject: Re: PROBLEM: ext2 superblock issue on 2.4.1-ac20
+To: psubash@turbolinux.com (Prasanna P Subash)
+Date: Thu, 22 Feb 2001 00:50:52 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010221163514.A671@turbolinux.com> from "Prasanna P Subash" at Feb 21, 2001 04:35:14 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E14Vigc-00030Q-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Feb 21, 2001 at 11:28:39PM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14VjyB-000391-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 21, 2001 at 11:28:39PM +0000, Alan Cox wrote:
-> [..] only when creating _very_ large file
-> systems with little memory, where the write throttling may still need a bit
-> of work.
+> 	I just oldconfiged linux kernel with my 2.4.1 .config. When I boot the new
+> 2.4.1-ac20 kernel, I get a message saying that my ext2 superblock is corrup=
+> ted.
+> I get a message asking me to run e2fsck -b 8193 <...hdd dev..>
+> My 2.4.0-ac4 that I've been running for more than 2-3 weeks now has no prob=
+> lems
+> booting though.
+> 
+> 	What am I doing wrong ? I would be glad to give more info.
 
-I posted here a few days ago a little patch that is meant to address that. I
-didn't got any feedback on it from the people experiencing those troubles but I
-am optimistic it will help ;).
+Sounds like a driver change broke the handling for your disks or re-ordered
+them. 
 
-Andrea
+What hardware

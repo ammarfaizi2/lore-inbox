@@ -1,87 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263861AbTICRZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 13:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263860AbTICRZ4
+	id S263839AbTICRgD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 13:36:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263710AbTICReu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 13:25:56 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:60032 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263861AbTICRZg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 13:25:36 -0400
-Date: Wed, 3 Sep 2003 13:28:05 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Alberto Manuel =?ISO-8859-1?Q?Brand=E3o_Sim=F5es?= 
-	<albie@alfarrabio.di.uminho.pt>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems compiling kernel 2.4.22
-In-Reply-To: <1062609049.860.4.camel@eremita.di.uminho.pt>
-Message-ID: <Pine.LNX.4.53.0309031320190.29263@chaos>
-References: <1062606509.623.20.camel@eremita.di.uminho.pt> 
- <1062607884.623.23.camel@eremita.di.uminho.pt>  <Pine.LNX.4.53.0309031257410.28170@chaos>
- <1062609049.860.4.camel@eremita.di.uminho.pt>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+	Wed, 3 Sep 2003 13:34:50 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14796 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263842AbTICReb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 13:34:31 -0400
+Date: Wed, 3 Sep 2003 19:34:17 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-net@vger.kernel.org
+Subject: [2.6 patch] COSA is no longer BROKEN
+Message-ID: <20030903173417.GC18025@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Sep 2003, Alberto Manuel [ISO-8859-1] Brandão Simões wrote:
+Hi Linus,
 
-> On Wed, 2003-09-03 at 17:58, Richard B. Johnson wrote:
-> > On Wed, 3 Sep 2003, Alberto Manuel [ISO-8859-1] Brandão Simões wrote:
-> > > On Wed, 2003-09-03 at 17:28, Alberto Manuel Brandão Simões wrote:
-> > > > [1.] One line summary of the problem:
-> > > >  modules symbols broken references
-> > > >
-> > > > [2.] Full description of the problem/report:
-> > > >  when I make 'make modules_install' I get:
-> > > >  depmod: *** Unresolved symbols in /lib/modules/2.4.22/kernel/net/ipv4/ipip.o
-> > > >  depmod:         ip_send_check
-> > > >  depmod:         register_netdevice
-> > > >  ..
-> > > >
-> > > > and so on, and not only for these modules: vfat, smbfs, msdos, etc
-> > > >
-> > > > By the way, when I tried to ssh to paste more information, I got in the
-> > > > console:
-> >
-> > [SNIPPED...]
-> >
-> > BYW. Did you try booting the new system, THEN, executing `depmod -a` ?
-> ok. In this case, it does not give any broken reference.
-> But, then, why does make modules_install run depmod if we know (almost
-> certain) that it will give broken references?
->
+the compilation of cosa.c was already fixed in your BK tree, the
+following patch removes the dependency on BROKEN:
 
-`make modules_install` executes depmod to create some entries in the
-new /lib/modules/$(VERSION)/modules.dep. It probably should have
-it's error output redirected to /dev/null because the kernel you
-are going to use the modules with, may not require the exported
-symbols found missing.
-
-> But, I need some more help. I can't load any ACPI modules, getting a No
-> such device as answer. I don't have also a /proc/acpi directory.
->
-
-This is a different problem and has nothing to do with:
- *** Unresolved symbols in /lib/modules/2.4.22/kernel/net/ipv4/ipip.o
-
-You need to review your configuration and see what else needs
-to be turned ON to get ACPI to work.
-
-`grep ACPI .config`... Bet it's "CONFIG_ACPI is not set"
-
-> Thanks for any help.
-> Alberto
-> >
+--- linux-2.6.0-test4-not-full/drivers/net/wan/Kconfig	2003-09-02 17:24:53.000000000 +0200
++++ linux-2.6.0-test4-not-full/drivers/net/wan/Kconfig	2003-09-02 17:24:53.000000000 +0200
+@@ -35,7 +35,7 @@
+ # The COSA/SRP driver has not been tested as non-modular yet.
+ config COSA
+ 	tristate "COSA/SRP sync serial boards support"
+-	depends on WAN && ISA && m && BROKEN
++	depends on WAN && ISA && m
+ 	---help---
+ 	  This is a driver for COSA and SRP synchronous serial boards. These
+ 	  boards allow to connect synchronous serial devices (for example
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
-            Note 96.31% of all statistics are fiction.
+Please apply
+Adrian
 
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

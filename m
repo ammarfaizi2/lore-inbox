@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbTLNQB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 11:01:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbTLNQB2
+	id S262111AbTLNQPj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 11:15:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTLNQPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 11:01:28 -0500
-Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:43450 "HELO
-	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262110AbTLNQB0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 11:01:26 -0500
-Message-ID: <3FDC8957.4000602@yahoo.es>
-Date: Sun, 14 Dec 2003 11:01:27 -0500
-From: Roberto Sanchez <rcsanchez97@yahoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 vs 2.6
-References: <20031201062052.GA2022@frodo> <Pine.LNX.4.44.0312011202330.13692-100000@logos.cnet> <m2r7z8xl2o.fsf_-_@tnuctip.rychter.com> <3FDC0BAC.8020909@mscc.huji.ac.il>
-In-Reply-To: <3FDC0BAC.8020909@mscc.huji.ac.il>
-X-Enigmail-Version: 0.81.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig96E8AF532C1A687C92A215CF"
+	Sun, 14 Dec 2003 11:15:39 -0500
+Received: from gprs151-130.eurotel.cz ([160.218.151.130]:51074 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262111AbTLNQPi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 11:15:38 -0500
+Date: Sun, 14 Dec 2003 17:15:49 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Matt Mackall <mpm@selenic.com>
+Cc: inaky.perez-gonzalez@intel.com, linux-kernel@vger.kernel.org,
+       robustmutexes@lists.osdl.org
+Subject: Re: [RFC/PATCH] FUSYN 5/10: kernel fuqueues
+Message-ID: <20031214161549.GA22488@elf.ucw.cz>
+References: <0312030051..akdxcwbwbHdYdmdSaFbbcycyc3a~bzd25502@intel.com> <0312030051.paLaLbTdPdUbed6dXcEbXdDajbVdUd6c25502@intel.com> <20031211233031.GD23787@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031211233031.GD23787@waste.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig96E8AF532C1A687C92A215CF
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi!
 
-Voicu Liviu wrote:
-> My specs:
-> Cpu:Athlon XP 2500+ BARTON {10x190}
-> Mobo:EPOX 8RDA3 + NFORCE 2
-> Ram:Corsair TWINX 512 3200LL{dual channel/11-3-2-2.0}
-> Fan:Cooler Master +7
-> Video:Hercules 3D Prophet 9600 PRO Radeon 128MB
+> >  include/linux/fuqueue.h |  451 ++++++++++++++++++++++++++++++++++++++++++++++++
+> >  include/linux/plist.h   |  197 ++++++++++++++++++++
+> >  kernel/fuqueue.c        |  220 +++++++++++++++++++++++
+> >  3 files changed, 868 insertions(+)
+> > 
+> > +++ linux/include/linux/fuqueue.h	Wed Nov 19 16:42:50 2003
 > 
-> My Hercules 3D Prophet 9600 PRO Radeon simply freezes my comp. with
-> ati-drivers from ati.com so I need to press reset!(so I only can run
-> console)
-> My sound (nvidia on board) works very shitty and I have no control on
-> it (level sound I mean).
-> I was running 2.4.23 vanilla + lvm1 so I moved to 2.6 vanilla+lvm2 and
-> now I can not move back
-> 
-> These are my biggest problems with 2.6.
+> I don't suppose you've run this feature name past anyone in marketting
+> or PR?
 
-
-Have you treid the in kernel DRI drivers?  They work with my Radeon
-9000 on an nForce2.
-
-Also, why can't you go back to 2.4.23?
-
--Roberto
-
---------------enig96E8AF532C1A687C92A215CF
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQE/3IlXTfhoonTOp2oRAv3HAJ4r9/dlo+BqCd+6T9qOzGdGgS7ENgCeJ7kG
-YywzWUVu2cFNEA3f7mSxHo8=
-=X1Io
------END PGP SIGNATURE-----
-
---------------enig96E8AF532C1A687C92A215CF--
-
+Hehe, reminds me of podfuk (now called uservfs) project :-).
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

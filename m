@@ -1,193 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265756AbUBQNQl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 08:16:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbUBQNQl
+	id S265276AbUBQNQO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 08:16:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265756AbUBQNQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 08:16:41 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:1152 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265756AbUBQNQb
+	Tue, 17 Feb 2004 08:16:13 -0500
+Received: from mail.shareable.org ([81.29.64.88]:49284 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S265276AbUBQNQK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 08:16:31 -0500
-Date: Tue, 17 Feb 2004 08:16:21 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Nicholas Berry <nikberry@med.umich.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: change kernel name
-In-Reply-To: <s021eb13.042@med-gwia-02a.med.umich.edu>
-Message-ID: <Pine.LNX.4.53.0402170814140.631@chaos>
-References: <s021eb13.042@med-gwia-02a.med.umich.edu>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1678434306-1825045734-1077023781=:631"
+	Tue, 17 Feb 2004 08:16:10 -0500
+Date: Tue, 17 Feb 2004 13:15:59 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Marc Lehmann <pcg@schmorp.de>, viro@parcelfarce.linux.theplanet.co.uk,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re: JFS default behavior)
+Message-ID: <20040217131559.GA21842@mail.shareable.org>
+References: <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk> <200402150107.26277.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <20040216183616.GA16491@schmorp.de> <Pine.LNX.4.58.0402161040310.30742@home.osdl.org> <20040216200321.GB17015@schmorp.de> <Pine.LNX.4.58.0402161205120.30742@home.osdl.org> <20040216222618.GF18853@mail.shareable.org> <Pine.LNX.4.58.0402161431260.30742@home.osdl.org> <Pine.LNX.4.58.0402161447450.30742@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0402161447450.30742@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Linus Torvalds wrote:
+> So I claim (and yes, people are free to disagree with me) that a
+> well-written UTF-8 program won't even have any real extra code to handle
+> the "broken UTF-8" code. It's just another set of bytes that needs
+> escaping, and they need escaping for _exactly_ the same reason some 
+> regular utf-8 characters need escaping: because they can't be printed.
 
---1678434306-1825045734-1077023781=:631
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Even XML suffers from these sorts of problems: some Unicode characters
+aren't allowed in XML, even as numeric references, so in theory XML
+applications have to reject or escape some strings.
 
-On Thu, 5 Feb 2004, Nicholas Berry wrote:
+> So it's all the same thing - it's just the reasons for "unprintability"  
+> that are slightly different.
 
-> Note the words 'after the compilation'.
->
-> Nik
+My difficulty with directories containing non-UTF-8 filenames shows up
+with web pages in Perl, and not the printability part.  Please excuse
+the Perl-oriented examples; Perl has good support for UTF-8 while also
+working with arbitrary byte strings, so it's a fine language to
+illustrate current problems.
 
-I read the first nasty-gram weeks ago. The attached code
-will allow the kernel name to be changed (and other
-`uname` stuff) even when the kernel is running.
+What do you put in a URL composed from filenames in a directory
+listing page?  The obvious thing is to %-escape each byte of the
+names, in fact that's what everybody does.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+In a language like Perl, where strings are labelled according to their
+encoding, that means when you unscape the URL you get a string
+labelled as "byte string".  You shouldn't tell Perl it's a "UTF-8
+string" because some of them won't be (they are strings from
+directories).
 
+That's fine if you don't do anything except use those strings
+unchanged, but as soon as you want to do something else like prepend a
+character with code >= 256 or apply a regex where the pattern has
+Unicode characters, Perl transcodes "byte string" to "UTF-8 string"
+assuming it was latin1.  That, of course, mangles the string when it's
+come from a source which is "nominally UTF-8 but might not be".
 
---1678434306-1825045734-1077023781=:631
-Content-Type: APPLICATION/octet-stream; name="uname.tar.gz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.53.0402170816210.631@chaos>
-Content-Description: 
-Content-Disposition: attachment; filename="uname.tar.gz"
+Your recommendation to simply pass around bytes all the time doesn't
+work well, because to maintain basic properties of strings such as
+length(a) + length(b) = length(a+b), that implies you either (1)
+always do indexing, lengths, splitting etc. on strings as bytes not
+characters, or (2) every operation that operates on a string must be
+able to accept non-UTF-8 bytes and treat them the same way.  (2) is
+particularly nasty because then your program's logic can't depend on
+the nice properties of UTF-8 strings.
 
-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
-vwQ19KQAeAAA
+That's why this line of Perl fails:
 
---1678434306-1825045734-1077023781=:631--
+    for (glob "*") { rename $_, "ņi-".$_ or die "rename: $!\n"; }
+
+(The source file, by the way, is assumed to be UTF-8-encoded text).
+
+Perl reads each file name, and declares it to be of type "byte
+string".  Then "ņi-" is prepended, which contains a character code >=
+256, so the result must be UTF-8 encoded according to Perl.  The
+original file name is transcoded from what was assumed to be
+iso-8859-1 to UTF-8, "ņi-" is prepended, and that becomes the target
+file name for rename().
+
+This mangles the names; both UTF-8 and non-UTF-8 filenames are mangled
+equally badly.
+
+Your suggestion means that Perl should do bytewise concatenation of
+the the "ņi-" (in UTF-8) and the filename (no encoding assumed).
+
+It's a good one; it's exactly the right thing to do, and it works.
+
+To do that in Perl, when you take a random byte string (such as from
+readdir()) you must tell Perl it's a UTF-8 string, so shouldn't be
+transcoded when it's combined with another UTF-8 string.  You can do
+it, breaking documented rules of course (which say only do this when
+you know it's valid UTF-8), with Encode::_utf8_on().
+
+Guess what?  That actually works.  It does the filename operations
+properly given any arbitrary filenames.
+
+But remember I said "every operation that operates on a string must be
+able to accept non-UTF-8 bytes and treat them the same way" earlier,
+and how this is bad because it's nice to depend on UTF-8 properties?
+
+You've just told Perl to treat an arbitrary byte sequence as UTF-8,
+when sometimes it isn't.  Among other things, simple operators like
+length() and substr() don't work as expected on those weird strings.
+
+When I say don't work as expected, I mean if you had a file named
+"müeller" in latin1, Perl will think it's length() is 2.  If you have
+a file named "müller", Perl will not only report a length() of 1,
+it'll spew a horrible error message when it calculates it.
+
+These aren't Perl problems.  These are problems that any program will
+have if it follows your suggestion of "keep everything in bytes" but
+wants to combine filenames with other text or do pattern matching on
+filenames.
+
+It's not a problem if you can pass around a flag with each byte
+sequence, carefully keeping readdir() results separate from text until
+the point where your prepared to have a policy saying what to do with
+non-UTF-8 readdir() results.
+
+But it is a problem when you want to stuff readdir() results in a
+general purpose "string" which is also used for text.
+
+That's technically the wrong thing to do, in all programs.  In
+practice, that's what programs do anyway because it's a lot easier
+than having different string types for different data sources.
+
+Most times it works out ok, but for the corners:
+
+> It's just _hard_ to think of all the special cases, and most
+> programs have bugs because somebody forgot something.
+
+Exactly.
+
+-- Jamie

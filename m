@@ -1,74 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVAMVac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVAMVaa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261709AbVAMVac (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 16:30:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbVAMV2n
+	id S261705AbVAMVaa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 16:30:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVAMV3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 16:28:43 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:45232 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261709AbVAMVZK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 16:25:10 -0500
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: "Jack O'Quin" <joq@io.com>, Chris Wright <chrisw@osdl.org>,
-       Paul Davis <paul@linuxaudiosystems.com>, Matt Mackall <mpm@selenic.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       mingo@elte.hu, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       Con Kolivas <kernel@kolivas.org>
-In-Reply-To: <20050113210750.GA22208@devserv.devel.redhat.com>
-References: <20050111214152.GA17943@devserv.devel.redhat.com>
-	 <200501112251.j0BMp9iZ006964@localhost.localdomain>
-	 <20050111150556.S10567@build.pdx.osdl.net> <87y8ezzake.fsf@sulphur.joq.us>
-	 <20050112074906.GB5735@devserv.devel.redhat.com>
-	 <87oefuma3c.fsf@sulphur.joq.us>
-	 <20050113072802.GB13195@devserv.devel.redhat.com>
-	 <878y6x9h2d.fsf@sulphur.joq.us>
-	 <20050113210750.GA22208@devserv.devel.redhat.com>
-Content-Type: text/plain
-Date: Thu, 13 Jan 2005 16:25:08 -0500
-Message-Id: <1105651508.3457.31.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jan 2005 16:29:16 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48013 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261705AbVAMVXP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 16:23:15 -0500
+Date: Thu, 13 Jan 2005 13:22:28 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, grendel@caudium.net,
+       Chris Wright <chrisw@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Greg KH <greg@kroah.com>, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+In-Reply-To: <1105649837.6031.54.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.58.0501131307430.2310@ppc970.osdl.org>
+References: <20050112094807.K24171@build.pdx.osdl.net> 
+ <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>  <20050112185133.GA10687@kroah.com>
+  <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>  <20050112161227.GF32024@logos.cnet>
+  <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>  <20050112174203.GA691@logos.cnet>
+  <1105627541.4624.24.camel@localhost.localdomain>  <20050113194246.GC24970@beowulf.thanes.org>
+  <20050113115004.Z24171@build.pdx.osdl.net>  <20050113202905.GD24970@beowulf.thanes.org>
+  <1105645267.4644.112.camel@localhost.localdomain>
+ <1105649837.6031.54.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-13 at 22:07 +0100, Arjan van de Ven wrote:
-> On Thu, Jan 13, 2005 at 03:04:26PM -0600, Jack O'Quin wrote:
-> > 
-> > (Probably, this simplistic analysis misses some other, more subtle,
-> > factors.)
+
+
+On Thu, 13 Jan 2005, Arjan van de Ven wrote:
+>
+> On Thu, 2005-01-13 at 19:41 +0000, Alan Cox wrote:
 > 
-> I think you can do nasty things to the locks held by those threads too
+> > So the non-disclosure argument is perhaps put as "equality of access at
+> > the point of discovery means everyone gets rooted.". And if you want a
+> > lot more detail on this read papers on the models of security economics
+> > - its a well studied field.
 > 
-> > 
-> > RT threads should not do FS writes of their own.  But, a badly broken
-> > or malicious one could, I suppose.  So, that might provide a mechanism
-> > for losing more data than usual.  Is that what you had in mind?
-> 
-> basically yes.
-> note that "FS writes" can come from various things, including library calls
-> made and such. But I think you got my point; even though it might seem a bit
-> theoretical it sure is unpleasant.
-> 
+> or in other words: you can write an exploit faster than y ou can write
+> the fix, so the thing needs delaying until a fix is available to make it
+> more equal.
 
-I added Con to the cc: because this thread is starting to converge with
-an email discussion we've been having.
+That's a bogus argument, and anybody who looks at MS practices and 
+is at all honest with himself should see it as a bogus argument.
 
-The basic issue is that the current semantics of SCHED_FIFO seem make
-the deadlock/data corruption due to runaway RT thread issue difficult.
-The obvious solution is a new scheduling class equivalent to SCHED_FIFO
-but with a mechanism for the kernel to demote the offending thread to
-SCHED_OTHER in an emergency.  The problem can be solved in userspace
-with a SCHED_FIFO watchdog thread that runs at a higher RT priority than
-all other RT processes.
+I think MS _still_ to this day will stand up and say that they have had no
+zero-day exploits. Exactly because they count "zero-day" as the day things
+get publically released. Never mind that exploits where (and are)  
+privately available on cracking networks for months before. They just
+haven't been publically released BECAUSE EVERYBODY IS PARTICIPATING IN THE
+GAME.
 
-This all seems to imply that introducing an rlimit for MAX_RT_PRIO is an
-excellent solution.  The RT watchdog thread could run as root, and the
-rlimit would be used to ensure than even nonroot users in the RT group
-could never preempt the watchdog thread.
+The written rule in this community is "no honest person will report a bug
+before its time is through". Which automatically means that you get 
+branded as being "bad" if you ever rock the boat. That's a piece of 
+bullshit, and anybody who doesn't admit it is being totally dishonest with 
+himself.
 
-Lee 
+Me, I consider that to be dirty.
 
+Does Linux have a better track record than MS? Damn right it does. We've 
+had fewer problems, and I think there are more people out there standing 
+up for what's right anyway. Less PR people deathly afraid of rockign the 
+boat. Better technology, and fewer horrid design mistakes.
+
+But that doesn't mean that all the same things aren't true for vendor-sec 
+that are true for MS. They are just bad to a (much, I hope) smaller 
+degree.
+
+So instead, let's look at FACTS:
+
+ - fixing a security bug is almost always much easier than writing an 
+   exploit.  Arjan, your argument simply isn't true except for the worst 
+   possible fundamental design issues. You should know that. In the case 
+   of "uselib()", it was literally four lines of obvious code - all the 
+   rest was just to make sure that there weren't any other cases like that
+   lurking around.
+
+ - There are more white-hats around than black-hats, but they are often 
+   less "driven" and motivated. Now _that_, I would argue, is the real 
+   problem with early disclosure - motivation.  The people really 
+   motivated to find the bugs are the people who are also motivated to
+   mis-use them. However, vendor-sec and "the game" just makes it more 
+   worth-while for security firms to participate in it - it gives them the 
+   "good PR" thing. And how much can you trust the "gray hats"?
+
+And this is why I believe vendor-sec is part of the problem. If you don't
+see that, then you're blinding yourself to the downsides, and trying to
+only look at the upsides.
+
+Are there advantages and upsides? Yes. Are there disadvantages?  
+Indubitably. And anybody who disregards the disadvantages as "inevitable"
+is not really interested in fixing the game.
+
+			Linus

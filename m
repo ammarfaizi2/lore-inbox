@@ -1,94 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263997AbTDJHwE (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 03:52:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263999AbTDJHwE (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 03:52:04 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:62215
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263997AbTDJHwC (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 03:52:02 -0400
-Date: Thu, 10 Apr 2003 01:02:56 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Michael Frank <mflt1@micrologica.com.hk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre7, 2.5.66, IDE Errors during boot - just a nuisance
- ?
-In-Reply-To: <200304101552.25091.mflt1@micrologica.com.hk>
-Message-ID: <Pine.LNX.4.10.10304100102180.12558-100000@master.linux-ide.org>
+	id S263999AbTDJH4k (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 03:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbTDJH4j (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 03:56:39 -0400
+Received: from [195.60.21.2] ([195.60.21.2]:14551 "EHLO pluto.fastfreenet.com")
+	by vger.kernel.org with ESMTP id S263999AbTDJH43 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 03:56:29 -0400
+Message-ID: <01bc01c2ff9d$0dc1aca0$230110ac@kaws>
+From: "Keith Ansell" <keitha@edp.fastfreenet.com>
+To: "Andrew Morton" <akpm@digeo.com>, "Andre Hedrick" <andre@linux-ide.org>
+Cc: <linux-kernel@vger.kernel.org>, <axboe@suse.de>
+References: <007601c2fecd$12209070$230110ac@kaws><Pine.LNX.4.10.10304090209440.12558-100000@master.linux-ide.org> <20030409022726.1ec93a0f.akpm@digeo.com>
+Subject: Re: bdflush flushing memory mapped pages.
+Date: Thu, 10 Apr 2003 21:09:05 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thank you for your prompt replies.
 
-All it is an aborted command.
-just a nuisanse and noise maker!
+I realise that Linux conforms to the letter of the specification, but maybe
+not the spirit of the it.
 
-On Thu, 10 Apr 2003, Michael Frank wrote:
+I am porting a Database solution to Linux from Unix SVR4, Sco OpenServer and
+AIX, where all write required memory mapped files are flushed to disk with
+the system flusher, my users have large systems (some in excess of 600
+concurrent connections) flushing memory mapped files is a big part of are
+systems performance.  This ensures that in the event of a catastrophic
+system failure the customers vitual business data has been written to disk .
 
-> Noticed this for some time in 2.5.64 and up, and now also in 2.4.21-pre6 and pre7. It was OK 2.4.20. No functional problems were encountered  with 2.4.21, 2.5.6x so far.
-> 
-> Its a  P1, lspci follows
-> 
-> 00:00.0 Host bridge: Intel Corp. 430HX - 82439HX TXC [Triton II] (rev 03)
-> 00:07.0 ISA bridge: Intel Corp. 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
-> 00:07.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]
-> 00:09.0 VGA compatible controller: S3 Inc. ViRGE/DX or /GX (rev 01)
-> 00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-> 00:0b.0 SCSI storage controller: Adaptec AHA-7850 (rev 01)
-> 
-> 
-> Apr 10 15:17:30 mhfl1 kernel: Linux version 2.4.21-pre7-mhf18-np (mhf@mhfl3) (gcc version 2.95.3 20010315 (release)) #2 
-> 
-> Apr 10 15:12:42 mhfl1 kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00beta-2.4
-> Apr 10 15:12:42 mhfl1 kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> Apr 10 15:12:42 mhfl1 kernel: PIIX3: IDE controller at PCI slot 00:07.1
-> Apr 10 15:12:42 mhfl1 kernel: PIIX3: chipset revision 0
-> Apr 10 15:12:42 mhfl1 kernel: PIIX3: not 100%% native mode: will probe irqs later
-> Apr 10 15:12:42 mhfl1 kernel:     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
-> Apr 10 15:12:42 mhfl1 kernel:     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
-> Apr 10 15:12:42 mhfl1 kernel: hda: QUANTUM BIGFOOT2550A, ATA DISK drive
-> Apr 10 15:12:42 mhfl1 kernel: blk: queue c0347ae0, I/O limit 4095Mb (mask 0xffffffff)
-> Apr 10 15:12:42 mhfl1 kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> Apr 10 15:12:43 mhfl1 kernel: hda: attached ide-disk driver.
-> 
-> ------------------------------\/
-> Apr 10 15:12:43 mhfl1 kernel: hda: task_no_data_intr: status=0x53 { DriveReady SeekComplete Index Error }
-> Apr 10 15:12:43 mhfl1 kernel: hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> 
-> Apr 10 15:12:43 mhfl1 kernel: hda: 5033952 sectors (2577 MB) w/87KiB Cache, CHS=624/128/63, DMA
-> Apr 10 15:12:43 mhfl1 kernel: Partition check:
-> Apr 10 15:12:43 mhfl1 kernel:  hda: hda1 hda2 hda3
-> 
-> ----------
-> Mar 30 15:46:51 mhfl1 kernel: Linux version 2.5.66-mhf2 (mhf@mhfl2) (gcc version 2.95.3 20010315 (release)) #12 Sat Mar 29 
-> 
-> Mar 30 15:47:05 mhfl1 kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> Mar 30 15:47:05 mhfl1 kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> Mar 30 15:47:05 mhfl1 kernel: PIIX3: IDE controller at PCI slot 00:07.1
-> Mar 30 15:47:05 mhfl1 kernel: PIIX3: chipset revision 0
-> Mar 30 15:47:05 mhfl1 kernel: PIIX3: not 100%% native mode: will probe irqs later
-> Mar 30 15:47:05 mhfl1 kernel:     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
-> Mar 30 15:47:05 mhfl1 kernel:     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
-> Mar 30 15:47:05 mhfl1 kernel: hda: QUANTUM BIGFOOT2550A, ATA DISK drive
-> Mar 30 15:47:05 mhfl1 kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> 
-> ------------------------------\/
-> Mar 30 15:47:05 mhfl1 kernel: hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> Mar 30 15:47:05 mhfl1 kernel: hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> 
-> Mar 30 15:47:05 mhfl1 kernel: hda: 5033952 sectors (2577 MB) w/87KiB Cache, CHS=4994/16/63, DMA
-> Mar 30 15:47:05 mhfl1 kernel:  hda: hda1 hda2 hda3
-> 
-> Regards
-> Michael
-> 
+Keith Ansell
+
+
+
+
+
+
+----- Original Message -----
+From: "Andrew Morton" <akpm@digeo.com>
+To: "Andre Hedrick" <andre@linux-ide.org>
+Cc: <keitha@edp.fastfreenet.com>; <linux-kernel@vger.kernel.org>;
+<axboe@suse.de>
+Sent: Wednesday, April 09, 2003 10:27 AM
+Subject: Re: bdflush flushing memory mapped pages.
+
+
+> Andre Hedrick <andre@linux-ide.org> wrote:
+> >
+> >
+> > Funny you mention this point!
+> >
+> > I just spent 30-45 minutes on the phone talking to Jens about this very
+> > issue.  Jens states he can map the model in to 2.5. and will give it a
+> > fling in a bit.  This issue is a must; however, I had given up on the
+idea
+> > until 2.7.  However, the issues he and I addressed, in combination to
+your
+> > request jive in sync.
+>
+> noooo.....   This isn't going to happen.  There are many reasons.
+>
+> Firstly, how can bdflush even know what pages to write?  The dirtiness of
+> these pages is recorded *only* in some processor's hardware pte cache
+and/or
+> the software pagetables.  Someone needs to go tell all the CPUs to
+writeback
+> their pte caches into the pagetables and then someone needs to walk the
+> pagetables propagating the pte dirty bit into the pageframes before we can
+> even start the I/O.
+>
+> That's what msync does, in filemap_sync().
+>
+>
+> And even if bdflush did this automagically, it's the wrong thing to do
+> because the application could very well be repeatedly dirtying the pages.
+> Very probably.  So we've just gone and done a ton of pointless I/O, over
+and
+> over.
+>
+> You can view MAP_SHARED as an IPC mechanism which uses the filesystem
+> namespace for naming.  No way do these people want bdflush pointlessly
+> hammering the disk.
+>
+> You can also view MAP_SHARED as a (strange) way of writing files out.  If
+you
+> want to do that then fine, but you need to tell the kernel when you've
+> finished, just like write() does.   You do that with msync.
+>
+>
+>
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
+>
 

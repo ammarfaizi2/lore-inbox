@@ -1,51 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263899AbSLZVV3>; Thu, 26 Dec 2002 16:21:29 -0500
+	id <S264610AbSLZV11>; Thu, 26 Dec 2002 16:27:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263977AbSLZVV3>; Thu, 26 Dec 2002 16:21:29 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57871 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263899AbSLZVV2>; Thu, 26 Dec 2002 16:21:28 -0500
-Date: Thu, 26 Dec 2002 13:23:19 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: manfred@colorfullife.com, <anton@samba.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5 fast poll on ppc64
-In-Reply-To: <200212262055.VAA28874@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.44.0212261314001.17782-100000@home.transmeta.com>
+	id <S264614AbSLZV11>; Thu, 26 Dec 2002 16:27:27 -0500
+Received: from user-24-214-12-221.knology.net ([24.214.12.221]:41404 "EHLO
+	localdomain") by vger.kernel.org with ESMTP id <S264610AbSLZV10> convert rfc822-to-8bit;
+	Thu, 26 Dec 2002 16:27:26 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Ro0tSiEgE <lkml@ro0tsiege.org>
+To: linux-kernel@vger.kernel.org
+Subject: Debian boot-flopppies and 2.5.53 dont mix
+Date: Thu, 26 Dec 2002 15:38:59 -0600
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212261538.59540.lkml@ro0tsiege.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've tried 5 different IRC channels and no one will give me any answers. I 
+created a Debian (woody) install cd for my laptop (no floppy) and the kernel 
+2.5.53 (2.4 and below have VERY weird issues with my pavilion notebook and 
+the ALi chipset, which still no one can give an answer as to how to fix 
+THAT), and it panics saying Unable to mount root "" or 01:00. Some people 
+said try root=/dev/ide/[etc..] but that doesn't work, I want to boot the 
+initrd for the install, not a partition on the hard drive. Please, how can I 
+accomplish this?? Sorry if I'm being cranky but everyone has been driving me 
+nuts and treating me like dirt in the channels.
 
-On Thu, 26 Dec 2002, Mikael Pettersson wrote:
-> 
-> Technically speaking, the kernel code which uses 'entries[0]' is
-> non-compliant since the proper syntax is 'entries[]', but the empty
-> array size syntax isn't implemented in gcc 2.95.3.
 
-The two things have two totally different semantics:
-
- - array[0] is a zero-sized array, and is a long-time gcc extension that 
-   has nothing to do with the modern "flexible array". The kernel uses 
-   zero-sized arrays, because flexible arrays simply aren't historically
-   supported by gcc at all.
-
- - array[] is the standard "flexible array" thing, and has different rules 
-   than array[0]. For example, sizeof() is undefined on flexible arrays, 
-   but is well-defined on zero-sized ones (at zero). Also, the alignment 
-   constraints are potentially quite different.
-
-The gcc people want to make the two behave fairly similarly to ease 
-implementation issues, but they are definitely not the same.
-
-> My mistake. The old code is Ok for C99, but broken for ANSI-C.
-
-The old code is ugly and arguably always broken, I agree 100% with making 
-the usage code use "pp->entries". Whether the allocators use "sizeof" or 
-"offsetof" is secondary, at worst it ends up being conservative.
-
-		Linus
 

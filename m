@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132176AbRBKLik>; Sun, 11 Feb 2001 06:38:40 -0500
+	id <S129101AbRBKMDT>; Sun, 11 Feb 2001 07:03:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130392AbRBKLib>; Sun, 11 Feb 2001 06:38:31 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:63912 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129992AbRBKLi0>; Sun, 11 Feb 2001 06:38:26 -0500
-Message-ID: <3A867BDD.54C0FF49@uow.edu.au>
-Date: Sun, 11 Feb 2001 22:47:41 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Hacksaw <hacksaw@hacksaw.org>,
-        Tom Eastep <teastep@seattlefirewall.dyndns.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OT] Major Clock Drift
-In-Reply-To: <Pine.LNX.4.30.0102040908320.877-100000@wookie.seattlefirewall.dyndns.org> <200102041804.f14I4br22433@habitrail.home.fools-errant.com> <3A7EA9B3.3507DC8D@uow.edu.au>, <3A7EA9B3.3507DC8D@uow.edu.au>; <20010210225851.G7877@bug.ucw.cz> <3A8671FF.C390FDCC@uow.edu.au>,
-		<3A8671FF.C390FDCC@uow.edu.au>; from andrewm@uow.edu.au on Sun, Feb 11, 2001 at 10:05:35PM +1100 <20010211120614.E23048@atrey.karlin.mff.cuni.cz>
+	id <S129124AbRBKMDJ>; Sun, 11 Feb 2001 07:03:09 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:42347 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S129101AbRBKMC4>;
+	Sun, 11 Feb 2001 07:02:56 -0500
+Message-ID: <20010211130252.A27559@win.tue.nl>
+Date: Sun, 11 Feb 2001 13:02:52 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: Marcel Silva e Sousa <marcel@netmaxi.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: OOPS: CRITICAL BUG IN KERNEL 2.4.0 and 2.4.1
+In-Reply-To: <01021105333500.02394@john>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <01021105333500.02394@john>; from Marcel Silva e Sousa on Sun, Feb 11, 2001 at 05:33:35AM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+On Sun, Feb 11, 2001 at 05:33:35AM -0200, Marcel Silva e Sousa wrote:
+> Hi all, i see a critical bug in kernel version 2.4.0 and 2.4.1, look it:
 > 
-> > > Vesafb is happy to block interrupts for half a second.
-> >
-> > And has this been observed to cause clock drift?
+> My Hard Disk:
+> hda: IBM-DPTA-372730, ATA DISK drive
+> hda: 53464320 sectors (27374 MB) w/1961KiB Cache, CHS=3328/255/63, UDMA(33)
 > 
-> YEs. I've seen time running 3 times slower. Just do cat /etc/termcap
-> with loaded PCI bus. Yesterday I lost 20 minutes during 2 hours -- I
-> have been using USB (load PCI) and framebuffer.
+> [root@john /]:: df -h
+> Filesystem            Size  Used Avail Use% Mounted on
+> /dev/hda1             5.4G  3.7G  1.5G  71% /
+> /dev/hda2             143G  136G  6.8G  95% /mnt/hda2
+> [root@john /]:: 
+> 
+> When i had kernel 2.2.18 i did not have this problem....
 
-That's not good.  Very not good.
+Hmm. df is not the kernel.
 
-James Simmons has been looking into using something other
-than spin_lock_irq(console_lock) to provide the
-serialisation which these drivers need.  Apparently
-it got messy.  I'm interested in getting involved
-with this problem as well.  Sounds like it may not be
-2.4 stuff though.
+But df does a statfs system call, and something might be broken,
+especially if you have an unusual filesystem type.
+You might report on (i) what filesystem type lives on /dev/hda2?
+(ii) what does "strace -e statfs df" say? What df outputs in the
+"Size" column is the value of f_blocks.
 
--
+Of course, if you write garbage to the size field of some superblock,
+then the kernel will happily report it - there need not be a bug.
+But now that you say "2.2.18 did not have this problem":
+what is the 2.2.18 df output?
+What is the "dmesg | grep hda" on both 2.4 and 2.2?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

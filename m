@@ -1,55 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbUJ3XSC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbUJ3XSD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbUJ3XSC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 19:18:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbUJ3XQf
+	id S261387AbUJ3XSD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 19:18:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUJ3XQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 19:16:35 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:7565 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261404AbUJ3WtJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 18:49:09 -0400
-Date: Sun, 31 Oct 2004 02:49:53 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Jim Nelson <james4765@verizon.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: More patches to arch/sparc/Kconfig [2 of 5]
-Message-ID: <20041031004953.GK9592@mars.ravnborg.org>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jim Nelson <james4765@verizon.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <41738FD4.5020008@verizon.net> <20041018102738.GF5607@holomorphy.com> <41744695.4020406@verizon.net> <20041018224429.GH5607@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 30 Oct 2004 19:16:16 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:14605 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261387AbUJ3XOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 19:14:17 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Tim Hockin <thockin@hockin.org>
+Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
+Date: Sun, 31 Oct 2004 02:13:37 +0300
+User-Agent: KMail/1.5.4
+Cc: Lee Revell <rlrevell@joe-job.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel> <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua> <20041030222720.GA22753@hockin.org>
+In-Reply-To: <20041030222720.GA22753@hockin.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041018224429.GH5607@holomorphy.com>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200410310213.37712.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 18, 2004 at 03:44:29PM -0700, William Lee Irwin III wrote:
-> On Mon, Oct 18, 2004 at 06:41:25PM -0400, Jim Nelson wrote:
-> > You may be right about openpromfs.  How's this instead:
-> > diff -u  arch/sparc/Kconfig.orig arch/sparc/Kconfig
-> > --- arch/sparc/Kconfig.orig	2004-10-16 09:53:49.626021592 -0400
-> > +++ arch/sparc/Kconfig	2004-10-18 18:38:05.125374024 -0400
-> > @@ -248,7 +248,10 @@
-> >  	  -t openpromfs none /proc/openprom".
-> >  
-> >  	  To compile the /proc/openprom support as a module, choose M here: the
-> > -	  module will be called openpromfs.  If unsure, choose M.
-> > +	  module will be called openpromfs.
-> > +
-> > +	  Only choose N if you know in advance that you will not need to modify
-> > +	  OpenPROM settings on the running system.
-> >  
-> >  source "fs/Kconfig.binfmt"
+On Sunday 31 October 2004 01:27, Tim Hockin wrote:
+> On Sun, Oct 31, 2004 at 01:11:07AM +0300, Denis Vlasenko wrote:
+> > I am not a code genius, but want to help.
+> > 
+> > Hmm probably some bloat-detection tools would be helpful,
+> > like "show me source_lines/object_size ratios of fonctions in
+> > this ELF object file". Those with low ratio are suspects of
+> > excessive inlining etc.
 > 
-> This looks fine to me.
+> The problem with apps of this sort is the multiple layers of abstraction.
+> 
+> Xlib, GLib, GTK, GNOME, Pango, XML, etc.
 
-I took these five aptches in via my tree.
-Next time I prefer _all_ patches to be inlined as plain text and
-generated so they uses patch -p1 when being applied.
+I think it makes sense to start from lower layers first:
 
-	Sam
+Kernel team is reasonably aware of the bloat danger.
+
+glibc is worse, but thanks to heroic actions of Eric Andersen
+we have mostly feature complete uclibc, 4 times (!)
+smaller than glibc.
+
+Xlib, GLib.... - didn't look into them apart from cases
+when they do not build or in bug hunting sessions.
+Quick data point: glib-1.2.10 is 1/2 of uclibc in size.
+glib-2.2.2 is 2 times uclibc. x4 growth :(
+
+> No one wants to duplicate effort (rightly so).  Each of these libs tries
+> to do EVERY POSSIBLE thing.  They all end up bloated.  Then you have to
+> link them all in.  You end up bloated.  Then it is very easy to rely on
+> those libs for EVERYTHING, rather thank actually thinking.
+> 
+> So you end up with the mindset of, for example, "if it's text it's XML".
+> You have to parse everything as XML, when simple parsers would be tons
+> faster and simpler and smaller.
+> 
+> Bloat is cause by feature creep at every layer, not just the app.
+
+I actually tried to convince maintainers of one package
+that their code is needlessly complex. I did send patches
+to remedy that a bit while fixing real bugs. Rejected.
+Bugs were planned to be fixed by adding more code.
+I've lost all hope on that case.
+
+I guess this is a reason why bloat problem tend to be solved
+by rewrite from scratch. I could name quite a few cases:
+
+glibc -> dietlibc,uclibc
+coreutils -> busybox
+named -> djbdns
+inetd -> daemontools+ucspi-tcp
+sendmail -> qmail
+syslogd -> socklog (http://smarden.org/socklog/)
+
+It's sort of frightening that someone will need to
+rewrite Xlib or, say, OpenOffice :(
+--
+vda
+

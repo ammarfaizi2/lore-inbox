@@ -1,50 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVBFLBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVBFLPh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbVBFLBp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 06:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVBFLBp
+	id S261182AbVBFLPh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 06:15:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVBFLPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 06:01:45 -0500
-Received: from pop.gmx.net ([213.165.64.20]:18061 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261162AbVBFLBg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 06:01:36 -0500
-X-Authenticated: #14776911
-From: Stefan =?iso-8859-1?q?D=F6singer?= <stefandoesinger@gmx.at>
-To: acpi-devel@lists.sourceforge.net, Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [ACPI] Re: [RFC] Reliable video POSTing on resume
-Date: Sun, 6 Feb 2005 12:05:13 +0100
-User-Agent: KMail/1.7.2
-Cc: Ondrej Zary <linux@rainbow-software.org>,
-       Matthew Garrett <mjg59@srcf.ucam.org>, Pavel Machek <pavel@ucw.cz>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ncunningham@linuxmail.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050122134205.GA9354@wsc-gmbh.de> <200502051748.43547.stefandoesinger@gmx.at> <9e47339105020509382adbbf39@mail.gmail.com>
-In-Reply-To: <9e47339105020509382adbbf39@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Sun, 6 Feb 2005 06:15:37 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:3297 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S261179AbVBFLPU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 06:15:20 -0500
+Date: Sun, 6 Feb 2005 12:15:16 +0100
+From: Michelle Konzack <linux4michelle@freenet.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: msdos/vfat defaults are annoying
+Message-ID: <20050206111516.GS16853@freenet.de>
+References: <4205AC37.3030301@comcast.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cPMp7S/WMqx7uRDV"
 Content-Disposition: inline
-Message-Id: <200502061205.14131.stefandoesinger@gmx.at>
-X-Y-GMX-Trusted: 0
+In-Reply-To: <4205AC37.3030301@comcast.net>
+X-Message-Flag: Improper configuration of Outlook is a breeding ground for viruses. Please take care your Client is configured correctly. Greetings Michelle.
+X-Disclaimer-DE: Eine weitere Verwendung oder die Veroeffentlichung dieser Mail oder dieser Mailadresse ist nur mit der Einwilligung des Autors gestattet.
+Organisation: Michelle's Selbstgebrautes
+X-Operating-System: Linux samba3.private 2.4.27-1-386
+X-Uptime: 12:11:27 up 6 days, 19:48,  5 users,  load average: 0.22, 0.28, 0.26
+X-Homepage: http://www.debian.tamay-dogan.homelinux.net/
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 5. Februar 2005 18:38 schrieb Jon Smirl:
-> On Sat, 5 Feb 2005 17:48:43 +0100, Stefan Dösinger
->
-> <stefandoesinger@gmx.at> wrote:
-> > The reset code of radeon card seems to be easy to reverse engineer. I
-> > have started an attempt and I have 50-60% of my radeon M9 reset code
-> > implemented in a 32 bit C program. I had to stop due to school reasons.
->
-> The problem with the radeon reset code is that there are many, many
-> variations of the radeon chips, including different steppings of the
-> same part. The ROM is matched to the paticular bugs of the chip. From
-> what I know ATI doesn't even have a universal radeon reset program.
-I don't think they differ a lot. Does anybody know how the Win32 driver resets 
-the card? If it calls 0xc000:3 it will also have the problem with overwritten 
-reset code, and if it has it's own reset routine the cards can't differ a 
-lot.
+
+--cPMp7S/WMqx7uRDV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hello John,
+
+Am 2005-02-06 00:33:43, schrieb John Richard Moser:
+
+> So I've noticed, again, much annoyed, that if I rely on -t auto,
+> horrible horrible things happen.
+
+Maybe you add the file
+
+  __( '/etc/filesystems' )______________________________________________
+ /
+|       ext3
+|       ext2
+|       minix
+|       vfat
+|       msdos
+|       iso9660
+|       hfsplus
+|       hfs
+| nodev	proc
+ \______________________________________________________________________
+
+and if you use 'mount -t auto ...' it
+will try the filesystems in this order.
+
+Greetings
+Michelle
+
+--=20
+Linux-User #280138 with the Linux Counter, http://counter.li.org/=20
+Michelle Konzack   Apt. 917                  ICQ #328449886
+                   50, rue de Soultz         MSM LinuxMichi
+0033/3/88452356    67100 Strasbourg/France   IRC #Debian (irc.icq.com)
+
+--cPMp7S/WMqx7uRDV
+Content-Type: application/pgp-signature; name="signature.pgp"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCBfxEC0FPBMSS+BIRAnOcAJ46W9jWAR5Oq5n8Zm1vDqYWsHsGHgCghDFk
+HQR0hNTdd905R4MoaU5vhx4=
+=jx1o
+-----END PGP SIGNATURE-----
+
+--cPMp7S/WMqx7uRDV--

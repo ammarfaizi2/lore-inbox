@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262219AbSIZHKD>; Thu, 26 Sep 2002 03:10:03 -0400
+	id <S262234AbSIZH2f>; Thu, 26 Sep 2002 03:28:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262220AbSIZHKD>; Thu, 26 Sep 2002 03:10:03 -0400
-Received: from holomorphy.com ([66.224.33.161]:164 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262219AbSIZHKC>;
-	Thu, 26 Sep 2002 03:10:02 -0400
-Date: Thu, 26 Sep 2002 00:14:47 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, patman@us.ibm.com,
-       andmike@us.ibm.com
+	id <S262235AbSIZH2e>; Thu, 26 Sep 2002 03:28:34 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45330 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262234AbSIZH2e>;
+	Thu, 26 Sep 2002 03:28:34 -0400
+Message-ID: <3D92B83E.3080405@pobox.com>
+Date: Thu, 26 Sep 2002 03:33:18 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: wli@holomorphy.com, axboe@suse.de, akpm@digeo.com,
+       linux-kernel@vger.kernel.org, patman@us.ibm.com, andmike@us.ibm.com
 Subject: Re: [PATCH] deadline io scheduler
-Message-ID: <20020926071447.GJ3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jeff Garzik <jgarzik@pobox.com>, Jens Axboe <axboe@suse.de>,
-	Andrew Morton <akpm@digeo.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, patman@us.ibm.com,
-	andmike@us.ibm.com
-References: <20020925172024.GH15479@suse.de> <3D92A61E.40BFF2D0@digeo.com> <20020926064455.GC12862@suse.de> <20020926065951.GD12862@suse.de> <20020926070615.GX22942@holomorphy.com> <3D92B323.4090504@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D92B323.4090504@pobox.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+References: <20020926070615.GX22942@holomorphy.com>	<20020926.000620.27781675.davem@redhat.com>	<3D92B450.2090805@pobox.com> <20020926.001343.57159108.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 03:11:31AM -0400, Jeff Garzik wrote:
-> I use this driver on my ancient ev56 Alpha, if you need me to do some 
-> testing.
-> Unfortunately it is fragile and known to have obscure bugs...   Compaq 
-> was beating up on this driver for quite a while, but I never saw 
-> anything but bandaids [and they fully admitted their fixes were bandaids].
-> There is an out-of-tree qlogic driver that is reported to be far better 
-> -- but not necessarily close to Linux kernel coding style.
-> /me wonders if people are encouraged or scared off, at this point...
-
-I've got no idea what's going on with it. It just happens to explode when
-parallel mkfs's are done. It looks like there's a bug where it can walk
-off the end of an array when it gets an unexpected message but fixing
-that doesn't help.
+David S. Miller wrote:
+> I think it'll be less work to toss his stuff into the tree
+> and have some janitor whack on it than try to get someone
+> to maintain what we have now.
 
 
-Thanks,
-Bill
+Does that mean you're volunteering to throw it into the tree? ;-)
+
+Just dug up the URL, in case anybody is interested:
+http://www.feral.com/isp.html
+

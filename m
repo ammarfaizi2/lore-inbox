@@ -1,44 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316788AbSHXVda>; Sat, 24 Aug 2002 17:33:30 -0400
+	id <S316792AbSHXVjY>; Sat, 24 Aug 2002 17:39:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316792AbSHXVda>; Sat, 24 Aug 2002 17:33:30 -0400
-Received: from p50887F28.dip.t-dialin.net ([80.136.127.40]:64421 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316788AbSHXVda>; Sat, 24 Aug 2002 17:33:30 -0400
-Date: Sat, 24 Aug 2002 15:32:37 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] make localconfig
-In-Reply-To: <Pine.LNX.4.44.0208240759120.3234-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44.0208241529550.3234-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam-Babelsberg; Germany
+	id <S316795AbSHXVjY>; Sat, 24 Aug 2002 17:39:24 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:34826
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S316792AbSHXVjW>; Sat, 24 Aug 2002 17:39:22 -0400
+Date: Sat, 24 Aug 2002 14:42:18 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Luca Giuzzi <giuzzi@dmf.unicatt.it>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: ide-scsi (or ide-via?) with 2.4.20-pre*-ac*
+In-Reply-To: <20020824233311.A6181@dmf.unicatt.it>
+Message-ID: <Pine.LNX.4.10.10208241441250.20423-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sat, 24 Aug 2002, Thunder from the hill wrote:
-> 	This is supposed to be a first step into a new direction where 
-> 	we no longer copy vendor kernels from the vendor CD to the system 
-> 	in the first position, but rather configure a new kernel for each 
-> 	system, hoping that somewhen the boxes will be fast enough to 
-> 	handle it in no time.
+verified self introduced bug and have unwound the change w/ stubs.
+sending patches soon with other changes
 
-Let me be clear on this. I'm not for an "Aunt T*ll*e compiling a kernel", 
-but I'm rather thinking about following the comments on non-binary 
-distribution of programs. (Remember the talks when somebody suggested that 
-programs might be distributed more flexible if they're configured and 
-compiled on install?)
 
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
+On Sat, 24 Aug 2002, Luca Giuzzi wrote:
+
+> I have some weird problems when trying to write
+> a CD under a 2.4.20-pre*-ac* kernel [everything
+> works fine on the same computer with a
+> 2.4.19-rc-ac1]. The CD writer is an LG-8080B
+> connected as slave to the secondary channel of a VIA
+> vt82c586b (rev. 47) controller.
+> 
+> Cdrecord, when I try to write an image at full speed
+> (that is, speed=8), aborts after the first 4 Mb with
+> the following error:
+> 
+> cdrecord: Input/output error. write_g1: scsi sendcmd: no error
+> CDB:  2A 00 00 00 08 99 00 00 1F 00
+> status: 0x2 (CHECK CONDITION)
+> Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 00
+> Sense Key: 0x5 Illegal Request, Segment 0
+> Sense Code: 0x24 Qual 0x00 (invalid field in cdb) Fru 0x0
+> Sense flags: Blk 0 (not valid)
+> 
+> The weird thing is that, according to the "current writing
+> speed indication" (I have tried several versions of cdrecord
+> as well, and right now I'm doing my tests with 1.11a30 which
+> should print the actual transfer rate --- it was just the same
+> error with 1.10, though), the computer claims it
+> was recording at "20.3x" at the time of the failure: something
+> seems to be very wrong indeed. 
+> If I re-run cdrecord forcing the speed to be "4x", then it
+> succeeds, even if the actual reported (and timed) speed is
+> "7.5x".
+> 
+> Further information:
+>  dma is turned off for the drive and toggling unmask-irq
+>  does not seem to change anything. The host adapter emulation
+>  is seen as the second SCSI controller, the first being an
+>  aic7850.
+> 
+> Is there any further test I can do?
+> 
+> kind regards,
+>  lg
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
 

@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129093AbQKDUUb>; Sat, 4 Nov 2000 15:20:31 -0500
+	id <S129103AbQKDU0n>; Sat, 4 Nov 2000 15:26:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129103AbQKDUUV>; Sat, 4 Nov 2000 15:20:21 -0500
-Received: from tetsuo.zabbo.net ([204.138.55.44]:18699 "HELO tetsuo.zabbo.net")
-	by vger.kernel.org with SMTP id <S129093AbQKDUUN>;
-	Sat, 4 Nov 2000 15:20:13 -0500
-Date: Sat, 4 Nov 2000 15:20:12 -0500
-From: Zach Brown <zab@zabbo.net>
-To: linux-kernel@vger.kernel.org
-Subject: maestro3 2.2 oss driver snapshot
-Message-ID: <20001104152012.G25712@tetsuo.zabbo.net>
+	id <S129262AbQKDU0d>; Sat, 4 Nov 2000 15:26:33 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:39694 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129103AbQKDU0Z>; Sat, 4 Nov 2000 15:26:25 -0500
+Date: Sat, 4 Nov 2000 14:26:20 -0600
+To: Taco Witte <mail@tcwitte.myweb.nl>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: modular kernel
+Message-ID: <20001104142620.N1041@wire.cadcamlab.org>
+In-Reply-To: <m13s4Pi-000leyC@green.nl.gxn.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m13s4Pi-000leyC@green.nl.gxn.net>; from mail@tcwitte.myweb.nl on Sat, Nov 04, 2000 at 03:38:15PM +0100
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://www.zabbo.net/maestro3/
 
-contains a driver for the maestro3 and allegro chipsets that I'm fairly
-happy with.
+[yes I feed trolls sometimes, it's fun]
 
-its 2.2 only for now, play with 2.4 at your own risk.  for now it
-includes its own ac97_codec.c that is backported from 2.2.
+[Taco Witte]
+> Some days ago, I read about the idea of a completely modular kernel.
+> I think it's a very good idea, because it would make it easier to get
+> more people work at the same moment, development would go faster.
 
-I expect playback to work as well as ac97 mixing.  apm support works pretty
-darn well, you can suspend during pcm playback and it should start
-playing again on resume.  mmap() should work, but is untested.
+I contend that the barrier to entry is already quite low, as proven by
+the fact that *I* contribute to kernel development, albeit rather
+little.  What evidence do you have to the contrary?
 
-record does not work at all.
 
-if you test it, please let me know how it goes and tell me all about
-your hardware.  I'll have a polished version later that will be submitted
-into the kernel proper.
+> It would be possible to make groups for a certain part of the kernel
+> (for example sound, or filesystems, or main) with own group pages
+> with status info and todo's and own mailinglists (it would divide
+> this enourmous flow of mail into smaller parts).
 
--- 
- zach
+Run the following command in the Linux source directory:
+
+  grep '^[LW]:' MAINTAINERS | sort -u | more
+
+Then come back with your hot new ideas about having different mailing
+lists and web pages for each subsystem.
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

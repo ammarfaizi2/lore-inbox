@@ -1,58 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269621AbUJGBak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269617AbUJGBdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269621AbUJGBak (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 21:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269617AbUJGBaj
+	id S269617AbUJGBdd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 21:33:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269603AbUJGBdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 21:30:39 -0400
-Received: from inetc.connecttech.com ([64.7.140.42]:54799 "EHLO
-	inetc.connecttech.com") by vger.kernel.org with ESMTP
-	id S269603AbUJGBa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 21:30:28 -0400
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'Samuel Thibault'" <samuel.thibault@ens-lyon.org>
-Cc: "=?iso-8859-1?Q?'S=E9bastien_Hinderer'?=" 
-	<Sebastien.Hinderer@libertysurf.fr>,
-       <rmk@arm.linux.org.uk>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: [Patch] new serial flow control
-Date: Wed, 6 Oct 2004 21:30:04 -0400
-Organization: Connect Tech Inc.
-Message-ID: <043c01c4ac0d$2c8bac80$294b82ce@stuartm>
+	Wed, 6 Oct 2004 21:33:33 -0400
+Received: from smtp.tierzero.net ([66.6.216.67]:31127 "HELO smtp.tierzero.net")
+	by vger.kernel.org with SMTP id S269617AbUJGBd1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 21:33:27 -0400
+Message-ID: <41649CE6.6010405@vinyltribe.com>
+Date: Wed, 06 Oct 2004 18:33:26 -0700
+From: Emiliano Garcia <emi@vinyltribe.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: RE: [BUG: multiple kernels] data corruption while reading from an
+ USB2 connected HD
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-In-Reply-To: <1097069353.29251.4.camel@localhost.localdomain>
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Alan Cox
-> On Mer, 2004-10-06 at 08:38, Samuel Thibault wrote:
-> > No: CRTSCTS is a one-signal-for-each-way flow control: each
-> > side of the link tells whether it can receive data. CTVB is a
-> > two-signals-for-only-one-way flow control: the device tells when it
-> > wants to send data, the PC acknowledges that, and then one frame of
-> > data can pass.
-> 
-> This sounds a lot like RS485 and some other related stuff. I need to
-> poke my pet async guru and find out if they are the same thing. If so
-> that would be useful.
+Hello Everyone,
+  
+     I can confirm I am also experiencing problems with usb-storage on 
+usb 2.0 devices. I have two separate usb 2.0 drives, one with the oxford 
+911 usb/firewire chipset and another with a gensys chip. Anyhow, I tar 
+up my servers once a week and copy the bzipped tar to my usb hard drive. 
+I have found now that I cannot extract the tar.bz2 files due to crc 
+errors. When I run bzip2 -tvv on the original archive on the server, it 
+passes without failure. When I run the test (bzip2 -tvv) on the copy of 
+the archive on the usb 2.0 disks, it says they have crc errors. dmesg 
+does not show anything exciting besides the mounting/detection of the 
+drives. Please help!
 
-RS485 is a driver-transparent electrical interface. Unfortunately the
-half-duplex and master-slave(s) arrangements require some sort of
-token passing to know when they can successfully transmit. This is
-usually handled by the apps in some manner, although it's often wanted
-to be handled by the serial driver. This could be one method of
-signalling, but isn't sufficient to show RS485 operation.
+Thanks to all of you for you hard work.
 
-I haven't seen this style of flow control before. What uses it?
+Emiliano Garcia
 
-..Stu
+
+    * /To/: linux-kernel@vger.kernel.org
+      <mailto:linux-kernel%40vger.kernel.org>
+    * /Subject/: [BUG: multiple kernels] data corruption while reading
+      from an USB2 connected HD
+    * /From/: Hajo Simons <simons@dc-systeme.de
+      <mailto:simons%40dc-systeme.de>>
+    * /Date/: Mon, 27 Sep 2004 11:06:06 +0200
+    * /Cc/: hsimons@gmx.de <mailto:hsimons%40gmx.de>
+    * /Organization/: dc-Systeme
+    * /Sender/: linux-kernel-owner@vger.kernel.org
+      <mailto:linux-kernel-owner%40vger.kernel.org>
+    * /User-agent/: KMail/1.7
+
+------------------------------------------------------------------------
+
+usb-storage sporadically loses data while reading
+
+In a data stream of 20M about 10 bytes get lost averagely while reading from a 
+HD connected via USB 2.0 which practically means that most files stored on 
+that HD show different md5 fingerprints if the IO read buffer was flushed 
+meanwhile.
+
+keywords:
+ usb-storage, external Disk, USB 2.0, data corruption while reading
+
+data get lost while reading on:
+ 2.4.27
+ 2.6.8.1
+ 2.6.8-gentoo-r3
+ 2.6.8-gentoo-r4 preemptive/non-preemptive
+ 2.6.9-rc1
+
+whereas no faults are seen on: 
+ Windows XP SP1 (without specific drivers for that USB2 disk device) 
+
+system:
+ Barton 3.2 200
+ Asus A7N8XX (nforce2) FSB at 192MHz, CPU at FSB*11.5
+ (A7N8* or CPU (don't know) cannot run stable for over a week at 200MHz FSB)
+ 1G 400MHz DDR RAM (tested) runnung at FSB Speed
+ 2 IDE disks connected to the onboard nforce2 IDE controller
+ 1 IDE disk USB2ish connected to ALi (ID 0402:5621 ALi Corp.) via onboard 
+nforce2 USB controller
+
+test: 
+ (UAHD: usb attached HD)
+ create a big file on a UAHD, say 20M
+ md5sum it
+ umount UAHD
+ remount it
+ md5sum that file again
+ chances are 50/50, that you get a different number
+ if md5sums are equal, repeat the procedure
+
+ ( did the same test on that mentioned WinXP: everything ok;
+   and yes, I did unplug the device between the reads )
+
+note:
+ system behaves rock-solid besides that issue
+ tried blk_queue_max_sectors(sdev->request_queue, 1) in 
+scsiglue.c:slave_configure() to no avail
+ tried PREEMPTIVE on/off, same
+
+
+details:
+
+
+....
+snip
 

@@ -1,49 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129449AbRB0PWM>; Tue, 27 Feb 2001 10:22:12 -0500
+	id <S129444AbRB0QFX>; Tue, 27 Feb 2001 11:05:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129506AbRB0PWD>; Tue, 27 Feb 2001 10:22:03 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:57101 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S129449AbRB0PVv>; Tue, 27 Feb 2001 10:21:51 -0500
-Date: Tue, 27 Feb 2001 16:17:27 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: imel96@trustix.co.id
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] linux class diagrams
-Message-ID: <20010227161727.M25658@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.LNX.4.30.0102272145340.9867-100000@asmuni.trustix.co.id>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0102272145340.9867-100000@asmuni.trustix.co.id>; from imel96@trustix.co.id on Tue, Feb 27, 2001 at 09:54:54PM +0700
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S129534AbRB0QFN>; Tue, 27 Feb 2001 11:05:13 -0500
+Received: from colorfullife.com ([216.156.138.34]:2321 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129444AbRB0QFF>;
+	Tue, 27 Feb 2001 11:05:05 -0500
+Message-ID: <3A9BCFE8.D3FB1AAE@colorfullife.com>
+Date: Tue, 27 Feb 2001 17:03:52 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2-ac4 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] minor bug in ipc/sem.c
+Content-Type: multipart/mixed;
+ boundary="------------AF9806053F3951D164FEDB4A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 27, 2001 at 09:54:54PM +0700, imel96@trustix.co.id wrote:
-> i put some gifs describing linux. they're in uml.
-> linux doesn't have class, so i tried to capture every
-> struct (struct is kinda class in c++) related to task_struct.
-> 
-> why? it's a school project. but it turned out to be a help to
-> understand the kernel. maybe the kernel could use more object
-> oriented design, like the inode?
-> 
-> anyway, i need some pointers and comments.
+This is a multi-part message in MIME format.
+--------------AF9806053F3951D164FEDB4A
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Well, http://www.kernelnewbies.org/ is a good starting point for
-information, but we are always open for better/more information. Just
-drop by on the #kernelnewbies IRC channel.
+try_atomic_semop() corrupts the process id associated with a semaphore
+if a semaphore operation with semval==0 (i.e. wait until the semaphore
+value becomes zero) blocks.
+
+I've attached a patch against 2.4.2-ac4, it also applies to 2.4.2
+
+--
+	Manfred
+--------------AF9806053F3951D164FEDB4A
+Content-Type: text/plain; charset=us-ascii;
+ name="patch-sem"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-sem"
+
+--- 2.4/ipc/sem.c	Mon Feb 26 21:10:44 2001
++++ build-2.4/ipc/sem.c	Mon Feb 26 21:16:00 2001
+@@ -248,27 +248,31 @@
+ 	for (sop = sops; sop < sops + nsops; sop++) {
+ 		curr = sma->sem_base + sop->sem_num;
+ 		sem_op = sop->sem_op;
++		result = curr->semval;
+ 
+-		if (!sem_op && curr->semval)
++		if (!sem_op && result)
+ 			goto would_block;
+ 
+-		curr->sempid = (curr->sempid << 16) | pid;
+-		curr->semval += sem_op;
+-		if (sop->sem_flg & SEM_UNDO)
+-			un->semadj[sop->sem_num] -= sem_op;
+-
+-		if (curr->semval < 0)
++		result += sem_op;
++		if (result < 0)
+ 			goto would_block;
+-		if (curr->semval > SEMVMX)
++		if (result > SEMVMX)
+ 			goto out_of_range;
++		curr->semval = result;
+ 	}
+ 
+ 	if (do_undo)
+ 	{
+-		sop--;
+ 		result = 0;
+ 		goto undo;
+ 	}
++	sop--;
++	while (sop >= sops) {
++		sma->sem_base[sop->sem_num].sempid = pid;
++		if (sop->sem_flg & SEM_UNDO)
++			un->semadj[sop->sem_num] -= sop->sem_op;
++		sop--;
++	}
+ 
+ 	sma->sem_otime = CURRENT_TIME;
+ 	return 0;
+@@ -284,13 +288,9 @@
+ 		result = 1;
+ 
+ undo:
++	sop--;
+ 	while (sop >= sops) {
+-		curr = sma->sem_base + sop->sem_num;
+-		curr->semval -= sop->sem_op;
+-		curr->sempid >>= 16;
+-
+-		if (sop->sem_flg & SEM_UNDO)
+-			un->semadj[sop->sem_num] += sop->sem_op;
++		sma->sem_base[sop->sem_num].semval -= sop->sem_op;
+ 		sop--;
+ 	}
+ 
+@@ -610,7 +610,7 @@
+ 		err = curr->semval;
+ 		goto out_unlock;
+ 	case GETPID:
+-		err = curr->sempid & 0xffff;
++		err = curr->sempid;
+ 		goto out_unlock;
+ 	case GETNCNT:
+ 		err = count_semncnt(sma,semnum);
 
 
-Erik
+--------------AF9806053F3951D164FEDB4A--
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+

@@ -1,107 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269730AbUIRXjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269676AbUIRXhc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269730AbUIRXjD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 19:39:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269687AbUIRXiF
+	id S269676AbUIRXhc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 19:37:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269683AbUIRXdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 19:38:05 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:11684 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S269684AbUIRXcA (ORCPT
+	Sat, 18 Sep 2004 19:33:18 -0400
+Received: from cantor.suse.de ([195.135.220.2]:34467 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269682AbUIRXai (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 19:32:00 -0400
-Date: Sat, 18 Sep 2004 16:31:29 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: akpm@osdl.org
-cc: "David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
-       wli@holomorphy.com, davem@redhat.com, raybry@sgi.com, ak@muc.de,
-       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, vrajesh@umich.edu, hugh@veritas.com
-Subject: page fault scalability patch V8: [7/7] atomic pte operations for
- s390
-In-Reply-To: <B6E8046E1E28D34EB815A11AC8CA312902CD3243@mtv-atc-605e--n.corp.sgi.com>
-Message-ID: <Pine.LNX.4.58.0409181630480.24054@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com>
- <20040816143903.GY11200@holomorphy.com>
- <B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com>
- <B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com>
- <B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com>
- <Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com>
- <1094012689.6538.330.camel@gaston> <Pine.LNX.4.58.0409010938200.9907@schroedinger.engr.sgi.com>
- <1094080164.4025.17.camel@gaston> <Pine.LNX.4.58.0409012140440.23186@schroedinger.engr.sgi.com>
- <20040901215741.3538bbf4.davem@davemloft.net>
- <Pine.LNX.4.58.0409020920570.26893@schroedinger.engr.sgi.com>
- <20040902131057.0341e337.davem@davemloft.net>
- <Pine.LNX.4.58.0409021358540.28182@schroedinger.engr.sgi.com>
- <20040902140759.5f1003d5.davem@davemloft.net>
- <B6E8046E1E28D34EB815A11AC8CA312902CD3243@mtv-atc-605e--n.corp.sgi.com>
+	Sat, 18 Sep 2004 19:30:38 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SUSE Labs
+To: James Morris <jmorris@redhat.com>
+Subject: Re: [PATCH 1/6] xattr consolidation v2 - generic xattr API
+Date: Sun, 19 Sep 2004 01:31:01 +0200
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, <viro@parcelfarce.linux.theplanet.co.uk>,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       Christoph Hellwig <hch@infradead.org>, <linux-kernel@vger.kernel.org>
+References: <Xine.LNX.4.44.0409180305300.10905-100000@thoron.boston.redhat.com>
+In-Reply-To: <Xine.LNX.4.44.0409180305300.10905-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409190131.01625.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changelog
-	* Provide atomic pte operations for s390
+Hello,
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+the patches look good except for a theoretical race in generic_listxattr:
 
-Index: linus/include/asm-s390/pgtable.h
+> +ssize_t generic_listxattr(struct dentry *dentry, char *buffer, size_t
+> buffer_size) +{
+> +	struct inode *inode = dentry->d_inode;
+> +	struct xattr_handler *handler, **handlers = inode->i_sb->s_xattr;
+> +	unsigned int size = 0;
+> +	char *buf;
+> +
+> +	for_each_xattr_handler(handlers, handler)
+> +		size += handler->list(inode, NULL, NULL, 0);
+
+We might setxattr here and the name list might change between the two passes.
+
+> [...]
+> +	for_each_xattr_handler(handlers, handler)
+> +		buf += handler->list(inode, buf, NULL, 0);
+> +
+> +	return size;
+> +}
+
+This currently is only relevant for the security attribute. Selinux always 
+returns the same attribute name so it can't trigger this problem, but other 
+LSMs might do something different.
+
+We can add a list_size parameter to xattr_handler->list to get this fixed. We 
+should change the name_len parameter of xattr_handler->list from int to 
+size_t:
+
+Index: linux-2.6.9-rc1/include/linux/xattr.h
 ===================================================================
---- linus.orig/include/asm-s390/pgtable.h	2004-09-18 14:25:23.000000000 -0700
-+++ linus/include/asm-s390/pgtable.h	2004-09-18 14:47:30.000000000 -0700
-@@ -783,6 +783,19 @@
-
- #define kern_addr_valid(addr)   (1)
-
-+/* Atomic PTE operations */
-+#define __HAVE_ARCH_ATOMIC_TABLE_OPS
-+
-+static inline pte_t ptep_xchg(struct mm_struct *mm, unsigned long address, pte_t *ptep, pte_t pteval)
-+{
-+	return __pte(xchg(ptep, pte_val(pteval)));
-+}
-+
-+static inline int ptep_cmpxchg (struct mm_struct *mm, unsigned long address, pte_t *ptep, pte_t oldval, pte_t newval)
-+{
-+	return cmpxchg(ptep, pte_val(oldval), pte_val(newval)) == pte_val(oldval);
-+}
-+
- /*
-  * No page table caches to initialise
-  */
-Index: linus/include/asm-s390/pgalloc.h
+--- linux-2.6.9-rc1.orig/include/linux/xattr.h
++++ linux-2.6.9-rc1/include/linux/xattr.h
+@@ -17,8 +17,8 @@
+ 
+ struct xattr_handler {
+ 	char *prefix;
+-	size_t (*list)(struct inode *inode, char *list, const char *name,
+-		       int name_len);
++	size_t (*list)(struct inode *inode, char *list, size_t list_size,
++		       const char *name, size_t name_len);
+ 	int (*get)(struct inode *inode, const char *name, void *buffer,
+ 		   size_t size);
+ 	int (*set)(struct inode *inode, const char *name, const void *buffer,
+Index: linux-2.6.9-rc1/fs/xattr.c
 ===================================================================
---- linus.orig/include/asm-s390/pgalloc.h	2004-09-18 14:25:23.000000000 -0700
-+++ linus/include/asm-s390/pgalloc.h	2004-09-18 14:47:30.000000000 -0700
-@@ -97,6 +97,10 @@
- 	pgd_val(*pgd) = _PGD_ENTRY | __pa(pmd);
+--- linux-2.6.9-rc1.orig/fs/xattr.c
++++ linux-2.6.9-rc1/fs/xattr.c
+@@ -397,23 +397,22 @@ ssize_t generic_listxattr(struct dentry 
+ 	struct inode *inode = dentry->d_inode;
+ 	struct xattr_handler *handler, **handlers = inode->i_sb->s_xattr;
+ 	unsigned int size = 0;
+-	char *buf;
+-
+-	for_each_xattr_handler(handlers, handler)
+-		size += handler->list(inode, NULL, NULL, 0);
+-
+-	if (!buffer)
+-		return size;
+-		
+-	if (size > buffer_size)
+-		return -ERANGE;
+-
+-	buf = buffer;
+-	handlers = inode->i_sb->s_xattr;
+-	
+-	for_each_xattr_handler(handlers, handler)
+-		buf += handler->list(inode, buf, NULL, 0);
+ 
++	if (!buffer) {
++		for_each_xattr_handler(handlers, handler)
++			size += handler->list(inode, NULL, 0, NULL, 0);
++	} else {
++		char *buf = buffer;
++
++		for_each_xattr_handler(handlers, handler) {
++			size = handler->list(inode, buf, buffer_size, NULL, 0);
++			if (size > buffer_size)
++				return -ERANGE;
++			buf += size;
++			buffer_size -= size;
++		}
++		size = buf - buffer;
++	}
+ 	return size;
  }
 
-+static inline int pgd_test_and_populate(struct mm_struct *mm, pdg_t *pgd, pmd_t *pmd)
-+{
-+	return cmpxchg(pgd, _PAGE_TABLE_INV, _PGD_ENTRY | __pa(pmd)) == _PAGE_TABLE_INV;
-+}
- #endif /* __s390x__ */
+The current users can easily be converted. As a side effect, the 
+ext2_xattr_list() and ext3_xattr_list() functions could also be changed to do 
+a single iteration only.
 
- static inline void
-@@ -119,6 +123,18 @@
- 	pmd_populate_kernel(mm, pmd, (pte_t *)((page-mem_map) << PAGE_SHIFT));
- }
+I also noticed that your additions to fs/xattr.c use a slightly different 
+coding style than the rest of the file. You might want to change that as 
+well.
 
-+static inline int
-+pmd_test_and_populate(struct mm_struct *mm, pmd_t *pmd, struct page *page)
-+{
-+	int rc;
-+	spin_lock(&mm->page_table_lock);
-+
-+	rc=pte_same(*pmd, _PAGE_INVALID_EMPTY);
-+	if (rc) pmd_populate(mm, pmd, page);
-+	spin_unlock(&mm->page_table_lock);
-+	return rc;
-+}
-+
- /*
-  * page table entry allocation/free routines.
-  */
-
+Cheers,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG

@@ -1,51 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262553AbTCMVWS>; Thu, 13 Mar 2003 16:22:18 -0500
+	id <S262547AbTCMVUe>; Thu, 13 Mar 2003 16:20:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262554AbTCMVWS>; Thu, 13 Mar 2003 16:22:18 -0500
-Received: from 12-249-212-150.client.attbi.com ([12.249.212.150]:32943 "EHLO
-	rekl.yi.org") by vger.kernel.org with ESMTP id <S262553AbTCMVWR>;
-	Thu, 13 Mar 2003 16:22:17 -0500
-Date: Thu, 13 Mar 2003 15:32:58 -0600 (CST)
-From: Rob Ekl <lkhelp@rekl.yi.org>
+	id <S262549AbTCMVUe>; Thu, 13 Mar 2003 16:20:34 -0500
+Received: from adsl-63-195-13-70.dsl.chic01.pacbell.net ([63.195.13.70]:58510
+	"EHLO mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id <S262547AbTCMVUd>; Thu, 13 Mar 2003 16:20:33 -0500
+From: "Kendall Bennett" <KendallB@scitechsoft.com>
+Organization: SciTech Software, Inc.
 To: linux-kernel@vger.kernel.org
-Subject: Sendfile, loopback, and TCP header checksum
-Message-ID: <Pine.LNX.4.53.0303131510060.10653@rekl.yi.org>
+Date: Thu, 13 Mar 2003 13:31:01 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: VESA FBconsole driver?
+Message-ID: <3E708815.23768.38089C@localhost>
+In-reply-to: <3E6F14F6.7063.2D30924F@localhost>
+References: <20030312110748.A9773@devserv.devel.redhat.com>
+X-mailer: Pegasus Mail for Windows (v4.02)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  I'm working on a program that uses sendfile() to copy a file to a TCP
-socket.  I did some testing where the server and client processes were on
-the same machine.  While watching ethereal's packet dumps, I noticed the
-packets that sendfile() creates are reported to have incorrect checksums.  
-Other packets from the same program (ie created by write() or writev() )
-have the correct checksum.
+I wrote:
 
-I tried another program that doesn't use sendfile(), but write() from a 
-mmap()'ed file.  The checksums are reported to be correct for that 
-program's packets.
+> A long time ago I remember there was a guy working on a VESA
+> FBconsole driver for Linux. Then driver he was working on was
+> structured as a user land daemon that the kernel console driver
+> would call back into once the system was up, allowing the userland
+> VESA driver to use the vm86() service to change modes, program the
+> palette and other useful things that can't be done by the basic
+> driver that uses a mode set previously by LILO or GRUB. 
 
-I also tried executing my program across a LAN with only an ethernet
-switch between the two machines.  The checksums were reported correct for 
-this situation as well.
+No-one has responded to this email, so either no-one remembers this is 
+people think someone else responded to my email ;-)
 
-This leads me to the conclusion that using sendfile() on a loopback
-interface over a TCP connection generates packets with incorrect checksums
-in the TCP headers.
+Does anyone remember this project. I checked the Linux kernel and it 
+presently does not seem to have any support for this. Can anyone point me 
 
-I do not know if ethereal is falsely reporting that the checksums are 
-incorrect, but it's a very limited scope of the source of packets with 
-incorrect checksums (only sendfile-generated to loopback).
+at references that will help me figure out how the kernel can make 
+callbacks into a user land daemon?
 
-Is this something that even needs to be addressed, since the receiver
-would discard the packet if the checksum is incorrect, but since it's over
-loopback, there's no chance of receiving data corrupted by the transport
-medium and loopback ignores the checksum?
+> My second question is, is it possible to execute vm86() services
+> from *within* the kernel as opposed to from user land? I got the
+> impression at the time that the userland daemon was used because
+> vm86() could only be called from userland code and could not be
+> called from within the kernel to execute real mode VESA BIOS
+> services. Is that correct? If not, can vm86() services now be
+> called from other kernel modules inside the kernel? 
 
-System information:  2.4.20 on both machines, ia32 CPUs, ethereal 0.9.10 
-with libpcap 0.7.
+I checked into this some more and it is clear that vm86() is only useable 
 
-Please reply directly, as I am not subscribed to the list.  Thanks.
+from userland code on Linux. However recently the FreeBSD kernels were 
+modified to support vm86() from within the kernel, and in fact the latest 
+
+FreeBSD VESA console driver uses the vm86() services so that it can do 
+everything using the BIOS where necessary.
+
+Is there any reason why the vm86() services in the Linux kernel cannot be 
+
+used by other kernel code? Has anyone made an attempt to update the 
+vm86() services to support this? 
+
+Thanks!
+
+---
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
+
+~ SciTech SNAP - The future of device driver technology! ~
 

@@ -1,75 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263448AbTDXUHS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 16:07:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263833AbTDXUHR
+	id S264111AbTDXUMo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 16:12:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264142AbTDXUMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 16:07:17 -0400
-Received: from watch.techsource.com ([209.208.48.130]:16019 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S263448AbTDXUHQ
+	Thu, 24 Apr 2003 16:12:44 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:35079 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264111AbTDXUMm convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 16:07:16 -0400
-Message-ID: <3EA84AAA.2060407@techsource.com>
-Date: Thu, 24 Apr 2003 16:35:54 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Thu, 24 Apr 2003 16:12:42 -0400
+Date: Thu, 24 Apr 2003 16:19:42 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Kevin P. Fleming" <kpfleming@cox.net>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+cc: LKML <linux-kernel@vger.kernel.org>,
+       =?iso-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>,
+       Dave Mehler <dmehler26@woh.rr.com>
+Subject: Re: 2.5.68 kernel no initrd
+In-Reply-To: <1051134842.652.6.camel@teapot.felipe-alfaro.com>
+Message-ID: <Pine.LNX.3.96.1030424161618.11351B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Daniel Phillips <phillips@arcor.de>, John Bradford <john@grabjohn.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flame Linus to a crisp!
-References: <Pine.LNX.4.44.0304241219550.22144-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 23 Apr 2003, Kevin P. Fleming wrote:
 
+> Valdis.Kletnieks@vt.edu wrote:
+> 
+> > On Wed, 23 Apr 2003 15:49:54 +0200, =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= said:
+> > 
+> >>initrd gives much more flexibility.
+> >>I can make one kernel and use it on _all_ of my mashines, just change 
+> >>initrd. quick, nice and flexible with proper initrd tools set.
+> > 
+> > 
+> > Amen.  initrd isn't just for modules - I'd not need an initrd at all if I could
+> > figure out how to start up an LVM volume group from kernelspace - I suspect
+> > people with / on a RAID disk have similar issues...
+> > 
+> 
+> Well, even though I'm working on a solution to that, it still involves 
+> early userspace, just not the heavyweight "fake root" userspace that an 
+> initrd represents. This is what the initramfs technology in 2.5.X is 
+> for, so eventually (soon, hopefully) you'll be able to start md devices, 
+> LVM volume groups, etc. from early userspace and not have to have any 
+> autostart logic in the kernel nor will you have build and maintain an 
+> initrd separate from the kernel.
 
-Linus Torvalds wrote:
+It isn't too important where the setup resides in terms of flexibility,
+the benefit comes from avoiding building one kernel for each
+configuration.
 
->On Thu, 24 Apr 2003, Timothy Miller wrote:
->  
->
->>For their smaller devices, Xilinx has a free "WebPack" which is a 
->>complete Verilog synthesizer (I don't know if it does VHDL), as well as 
->>place & route, of course.  I think it'll do up to Virtex II 250.  It 
->>also tends use fewer gates for a given design than the version of 
->>Leonardo Spectrum we have.  It just doesn't have a simulator, which is 
->>vital to any good development process.  Also, the Web Pack only runs 
->>under Windows.  Maybe it'll work with WINE?
->>    
->>
->
->It does work with wine - but it's sad how horrible the command line tools
->are (they were apparently first done under UNIX, and then ported to 
->Windows, and they got the Windows command line interface and trying to use 
->them in a sane way with Wine is not exactly much fun).
->
->But yes, with Wine and a few scripts you can actually make the tools 
->usable under Linux - I tried them out and had a small silly "pong" game 
->running on one of those things (a 100k device on one of the cheap 
->development boards).
->
->I have to admit that I would hate to actually use those tools for any real 
->work, though. 
->
->  
->
-Where I work we have used the Web Pack (5.1, I believe) for "real work", 
-although you can't trust its static timing.  Beyond a certain 
-utilization, it completely lies to you, and we can't get it to work 
-right, no matter how much we over-constrain a design.  All we can do is 
-synthesize and then thoroughly test in real hardware (which isn't hard 
-to do when all you're doing is a simple pixel-processing pipeline -- 
-either it works, or you get obvious sprinkless all over the monitor 
-screen).  If that doesn't work, we get really clever to reduce area, or 
-we go to a bigger device.  What can you do with free but closed-source 
-software?  :)  Designing for FPGA's is a real pain.  Although the ASIC I 
-did was a lot more complex, the process was a lot more straight-forward 
-and the tools didn't lie to you.
+On 23 Apr 2003, Felipe Alfaro Solana wrote:
 
+> On Wed, 2003-04-23 at 15:49, Pawe³ Go³aszewski wrote:
+> > initrd gives much more flexibility.
+> > I can make one kernel and use it on _all_ of my mashines, just change 
+> > initrd. quick, nice and flexible with proper initrd tools set.
+> 
+> I don't have any doubts that initrd is a very flexible solution and
+> provides for a generic kernel. However, in the end (I'm talking about my
+> experiences), initrd has caused me more troubles than problems it
+> solved. I always keep all "config" file for every kernel I use on my
+> machines.
+
+Other than needing to build and maintain all those kernels, what does it
+gain you over installing the  modules you need and having a single kernel?
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

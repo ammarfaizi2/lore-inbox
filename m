@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310288AbSCLEdH>; Mon, 11 Mar 2002 23:33:07 -0500
+	id <S310325AbSCLEli>; Mon, 11 Mar 2002 23:41:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310280AbSCLEc5>; Mon, 11 Mar 2002 23:32:57 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47879 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310201AbSCLEck>; Mon, 11 Mar 2002 23:32:40 -0500
-Date: Mon, 11 Mar 2002 20:31:28 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S310357AbSCLElU>; Mon, 11 Mar 2002 23:41:20 -0500
+Received: from codepoet.org ([166.70.14.212]:32686 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S310325AbSCLElK>;
+	Mon, 11 Mar 2002 23:41:10 -0500
+Date: Mon, 11 Mar 2002 21:41:12 -0700
+From: Erik Andersen <andersen@codepoet.org>
 To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: LKML <linux-kernel@vger.kernel.org>
+Cc: "J. Dow" <jdow@earthlink.net>, Linus Torvalds <torvalds@transmeta.com>,
+        LKML <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] My AMD IDE driver, v2.7
-In-Reply-To: <Pine.LNX.4.33.0203111944090.18649-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0203112023410.18739-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020312044112.GA18857@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	"J. Dow" <jdow@earthlink.net>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0203111741310.8121-100000@home.transmeta.com> <3C8D667F.5040208@mandrakesoft.com> <01a401c1c970$aeb74110$1125a8c0@wednesday> <3C8D71AC.3080305@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C8D71AC.3080305@mandrakesoft.com>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.4.18-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon Mar 11, 2002 at 10:10:36PM -0500, Jeff Garzik wrote:
+> 1) There should be a raw device command interface (not ATA or SCSI specific)
 
-On Mon, 11 Mar 2002, Linus Torvalds wrote:
-> 
->  - attach to one or more request queue(s). Notice that you should not have
->    _one_ module that handles all request queues, because the filter module
->    obviously has to be different for an ATA disk than for a SCSI disk, and
->    in fact it might be different for an IBM ATA disk than for a Maxtor ATA
->    disk, for example.
+Hmm.  If such a generic low-level raw device layer were to be
+implemented (presumably as the foundation for the block layer), I
+expect the interface would be somthing like the cdrom layer, and
+would abstract out all the normal things that raw mass-storage
+devices can do.
 
-Btw, to tie this back to the other IDE thread, namely the suspend/resume 
-thing, I think things like that should also just push commands down the 
-request list. In particular, instead of waiting until the handler is NULL, 
-it should do something like
+But the minute such a layer is in place, people will begin going
+straight to the sub-low-level raw device layers so they can use
+all the exciting new extended features of their XP370000 quantum
+storage array which needs the special frob-electrons command to
+make it work...
 
- - create a "sync" request
- - do the equivalent of
+ -Erik
 
-	DECLARE_COMPLETION(wait);
-	rq->waiting = &wait;
-	q->elevator.elevator_add_req_fn(q, rq, queue_head);
-	wait_for_completion(&wait);
-
-which automatically synchronizes with any outstanding requests (simply 
-by virtue of the elevator knowing not to re-order/merge special requests, 
-so when the sync command in finished, we know all other commands have 
-finished too).
-
-Note that this should be the same code as for a shutdown as well - we
-should finish with a flush buffers request and wait for it to have
-completed.
-
-I'd like a _lot_ of stuff to stop using "do_xxx_command()", and move toa 
-higher layer so that more code can be shared between different subsystems 
-(all of these "sync" issues are really completely generic, and should 
-_not_ be duplicated across drivers or subsystems).
-
-		Linus
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,116 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293580AbSCEDlg>; Mon, 4 Mar 2002 22:41:36 -0500
+	id <S293581AbSCEDmq>; Mon, 4 Mar 2002 22:42:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293566AbSCEDl3>; Mon, 4 Mar 2002 22:41:29 -0500
-Received: from office.mandrakesoft.com ([195.68.114.34]:5619 "EHLO
-	office.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S293563AbSCEDlU>; Mon, 4 Mar 2002 22:41:20 -0500
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: davej@suse.de, torvalds@transmeta.com, viro@math.psu.edu,
-        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] [PATCH] 2.5.5-dj2 - Fast Walk Dcache to Decrease Cacheline Bouncing
-In-Reply-To: <33110000.1015293677@w-hlinder.des>
-X-Url: http://www.lfcia.org/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <33110000.1015293677@w-hlinder.des>
-Date: 05 Mar 2002 04:30:00 +0100
-Message-ID: <m2sn7f8zev.fsf@localhost.mandrakesoft.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S293563AbSCEDm3>; Mon, 4 Mar 2002 22:42:29 -0500
+Received: from [202.135.142.196] ([202.135.142.196]:49931 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S293583AbSCEDmN>; Mon, 4 Mar 2002 22:42:13 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Robert Love <rml@tech9.net>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fast Userspace Mutexes III. 
+In-Reply-To: Your message of "04 Mar 2002 20:50:06 CDT."
+             <1015293007.882.87.camel@phantasy> 
+Date: Tue, 05 Mar 2002 14:45:31 +1100
+Message-Id: <E16i5tL-0006NV-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "hanna" == Hanna Linder <hannal@us.ibm.com> writes:
+In message <1015293007.882.87.camel@phantasy> you write:
+> On Mon, 2002-03-04 at 17:15, Davide Libenzi wrote:
+> 
+> > That's great. What if the process holding the mutex dies while there're
+> > sleeping tasks waiting for it ?
+> 
+> I can't find an answer in the code (meaning the lock is lost...) and no
+> one has yet answered.  Davide, have you noticed anything?
+> 
+> I think this needs a proper solution..
 
-Hi
-hanna> --- linux-2.5.5-dj2/fs/dcache.c	Mon Mar  4 15:56:20 2002
-hanna> +++ linux-2.5.5-fastwalk/fs/dcache.c	Fri Mar  1 16:21:40 2002
-hanna> @@ -705,13 +705,23 @@
-  
-hanna> struct dentry * d_lookup(struct dentry * parent, struct qstr * name)
-hanna> {
-hanna> +	struct dentry *dentry = NULL;
+No.  From my previous post:
 
-Not needed.
+Date: Mon, 4 Mar 2002 17:13:46 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: frankeh@watson.ibm.com, martin.wirth@dlr.de, rusty@rustycorp.com.au, linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: [PATCH] Lightweight userspace semaphores...
+Message-Id: <20020304171346.04c9cac6.rusty@rustcorp.com.au>
+In-Reply-To: <Pine.SGI.4.21.0203031410310.623951-100000@sam.engr.sgi.com>
+In-Reply-To: <20020302090856.A1332@elinux01.watson.ibm.com>
+	<Pine.SGI.4.21.0203031410310.623951-100000@sam.engr.sgi.com>
 
+On Sun, 3 Mar 2002 14:13:45 -0800
+Paul Jackson <pj@engr.sgi.com> wrote:
 
-hanna> +int path_lookup(const char *name, unsigned int flags, struct nameidata *nd)
-hanna> +{
-hanna> +	nd->last_type = LAST_ROOT; /* if there are only slashes... */
-hanna> +	nd->flags = flags;
-hanna> +	if (*name=='/'){
-hanna> +		read_lock(&current->fs->lock);
-hanna> +		if (current->fs->altroot && !(nd->flags & LOOKUP_NOALT)) {
-hanna> +			nd->mnt = mntget(current->fs->altrootmnt);
-hanna> +			nd->dentry = dget(current->fs->altroot);
-hanna> +			read_unlock(&current->fs->lock);
-hanna> +			if (__emul_lookup_dentry(name,nd))
-hanna> +				return 0;
-hanna> +			read_lock(&current->fs->lock);
-hanna> +		}
-hanna> +		spin_lock(&dcache_lock); /*to avoid cacheline bouncing with d_count*/
-hanna> +		nd->mnt = current->fs->rootmnt;
-hanna> +		nd->dentry = current->fs->root;
-hanna> +		read_unlock(&current->fs->lock);
-hanna> +	}
-hanna> +	else{
-hanna> +		read_lock(&current->fs->lock);
-hanna> +		spin_lock(&dcache_lock);
-hanna> +		nd->mnt = current->fs->pwdmnt;
-hanna> +		nd->dentry = current->fs->pwd;
-hanna> +		read_unlock(&current->fs->lock);
-hanna> +	}
-hanna> +	nd->flags |= LOOKUP_LOCKED;
-hanna> +	return (path_walk(name, nd));
-hanna> +}
-hanna> +
+> On Sat, 2 Mar 2002, Hubertus Franke wrote:
+> > But more conceptually, if you process dies while holding a lock ... 
+> > your app is toast at that point.
+> 
+> Without application specific knowledge, certainly.
+> 
+> Is there someway one could support a hook, to enable
+> an application to register a handler that could clean
+> up, for those apps that found that worthwhile?
 
-Would you mean retest if the speed is the same using lik the old code
+If you want this, use fcntl locks (see TDB).  If you don't tell the kernel
+what you are doing (which is the reason these locks are fast), it cannot
+clean up for you.
 
-(already static inline)
-/* SMP-safe */
-static inline int
-walk_init_root(const char *name, struct nameidata *nd)
-{
-	read_lock(&current->fs->lock);
-	if (current->fs->altroot && !(nd->flags & LOOKUP_NOALT)) {
-		nd->mnt = mntget(current->fs->altrootmnt);
-		nd->dentry = dget(current->fs->altroot);
-		read_unlock(&current->fs->lock);
-		if (__emul_lookup_dentry(name,nd))
-			return 0;
-		read_lock(&current->fs->lock);
-	}
-	nd->mnt = mntget(current->fs->rootmnt);
-	nd->dentry = dget(current->fs->root);
-	read_unlock(&current->fs->lock);
-	return 1;
-}
+One could conceive of a solution where a process told the kernel
+"here is where I keep my lock states: if I die, clean up".  Of course,
+there's a race there too.
 
-/* SMP-safe */
-int path_lookup(const char *name, unsigned int flags, struct nameidata *nd)
-{
-	nd->last_type = LAST_ROOT; /* if there are only slashes... */
-	nd->flags = flags;
-	if (*name=='/')
-		walk_init_root(name,nd);
-        else {
-        	read_lock(&current->fs->lock);
-                nd->mnt = mntget(current->fs->pwdmnt);
-                nd->dentry = dget(current->fs->pwd);
-                read_unlock(&current->fs->lock);
-        }
-	nd->flags |= LOOKUP_LOCKED;
-	return (path_walk(name, nd));
-}
+IMHO, given that the lock is protecting something which is left in an
+unknown state, this is something which would require serious testing
+to be proven worthwhile.
 
-I think that it should not made difference, and code is IMHO, more
-readadble (and you don't duplicate walk_init_root).
-
-Later, Juan.
-
+Hope that helps,
+Rusty.
 -- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268947AbUIXQpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268982AbUIXQo7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268947AbUIXQpA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 12:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268944AbUIXQml
+	id S268982AbUIXQo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 12:44:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268950AbUIXQm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 12:42:41 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:3986 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S268950AbUIXQdS (ORCPT
+	Fri, 24 Sep 2004 12:42:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:29643 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268896AbUIXQkF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 12:33:18 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Andre Eisenbach <int2str@gmail.com>
-Subject: Re: USB (OHCI) not working without pci=routeirq
-Date: Fri, 24 Sep 2004 10:33:09 -0600
-User-Agent: KMail/1.7
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <7f800d9f040923102315e8d400@mail.gmail.com>
-In-Reply-To: <7f800d9f040923102315e8d400@mail.gmail.com>
+	Fri, 24 Sep 2004 12:40:05 -0400
+Date: Fri, 24 Sep 2004 12:39:23 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andreas Gruenbacher <agruen@suse.de>
+cc: Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       Christoph Hellwig <hch@infradead.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/6] xattr consolidation v3
+In-Reply-To: <1095945983.27603.9.camel@winden.suse.de>
+Message-ID: <Xine.LNX.4.44.0409241237560.8101-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409241033.09289.bjorn.helgaas@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 September 2004 11:23 am, Andre Eisenbach wrote:
-> when booting with a recent kernel (2.6.9-rc2-mm2), usb_ohci fails to
-> initialize the USB bus and no USB device will work at that point.
-> Adding pci=routeirq fixed the problem.
+On Thu, 23 Sep 2004, Andreas Gruenbacher wrote:
 
-Can you try this whitespace-damaged patch to see whether you're
-seeing the same issue I was?  If this patch fixes it, please post
-the "lspci -n" output for your USB controller, so we can add a
-quirk for it.
+> There is one minor issue in the ext[23]_xattr_list changes: The xattr
+> block gets inserted into the cache even if it later turns out to be
+> corrupted. The attached patch reintroduces the sanity check, and has a
+> few other cosmetical-only changes.
+> 
+> Andrew, do you want to add this to -mm?
 
---- 2.6.9-rc2-mm2/drivers/usb/host/ohci-hcd.c.orig 2004-09-24 10:28:16.383160107 -0600
-+++ 2.6.9-rc2-mm2/drivers/usb/host/ohci-hcd.c 2004-09-24 10:28:23.089214712 -0600
-@@ -564,7 +564,7 @@
-   * (SiS, OPTi ...), so reset again instead.  SiS doesn't need
-   * this if we write fmInterval after we're OPERATIONAL.
-   */
-- if (ohci->flags & OHCI_QUIRK_INITRESET) {
-+ if (1 || ohci->flags & OHCI_QUIRK_INITRESET) {
-   writel (ohci->hc_control, &ohci->regs->control);
-   // flush those writes
-   (void) ohci_readl (&ohci->regs->control);
+These 'cosmetical-only' changes break listxattr on ext3 and ext2.  Andrew, 
+please drop this patch.
+
+Moving the mb cache insertion point can be done separately.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
 

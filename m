@@ -1,73 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290843AbSAaCqX>; Wed, 30 Jan 2002 21:46:23 -0500
+	id <S290840AbSAaCp3>; Wed, 30 Jan 2002 21:45:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290845AbSAaCqK>; Wed, 30 Jan 2002 21:46:10 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46900 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S290843AbSAaCpy>; Wed, 30 Jan 2002 21:45:54 -0500
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Werner Almesberger <wa@almesberger.net>,
-        "Erik A. Hendriks" <hendriks@lanl.gov>
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org>
-	<3C586355.A396525B@zip.com.au>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 30 Jan 2002 19:42:14 -0700
-In-Reply-To: <3C586355.A396525B@zip.com.au>
-Message-ID: <m1zo2vb5rt.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S290843AbSAaCpU>; Wed, 30 Jan 2002 21:45:20 -0500
+Received: from dsl-213-023-038-145.arcor-ip.net ([213.23.38.145]:44696 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S290840AbSAaCpM>;
+	Wed, 30 Jan 2002 21:45:12 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Bill Davidsen <davidsen@tmr.com>, jacob@chaos2.org
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Thu, 31 Jan 2002 03:45:56 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Russell King <rmk@arm.linux.org.uk>, lkml <linux-kernel@vger.kernel.org>,
+        patchbot-devel@killeri.net
+In-Reply-To: <Pine.LNX.3.96.1020130164627.5584A-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020130164627.5584A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16W7Ea-0000KI-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@zip.com.au> writes:
-
-> On uniprocessor, you can type `sudo monte /boot/bzImage'
-> and get to `decompressing linux' in two seconds flat. (Having
-> journalling filesystems rather helps with this trick). It's
-> lovely.
-
-Hmm.  That sounds a little slow to me.  That is about what I get
-with LinuxBIOS from when I flip the power switch, and network boot..
-But that is enough enjoyment of speed.
-
-> > The biggest issue I have had is
-> > with the kernel not properly shutting down devices.
+On January 30, 2002 10:56 pm, Bill Davidsen wrote:
+> On Wed, 30 Jan 2002, Jacob Luna Lundberg wrote:
+> > On Wed, 30 Jan 2002, Russell King wrote:
+> > > There's one problem with that though - if someone maintains many files,
+> > > and his email address changes, you end up with a large patch changing all
+> > > those email addresses in every file.
+> > 
+> > Why not have real fun and give out e-mail@vger.kernel.org (or @kernel.org) 
+> > to people who make it into MAINTAINERS then?  Of course, someone would
+> > have to maintain the accounts...  ;)
 > 
-> Monte just disables all busmastering on the PCI devices...
+> Just as a talking point, it should be possible to have a daemon scan mail
+> the lkml for [PATCH] and read the filenames from the patch itself, and do
+> a file to maintainer lookup followed by a mail. Obviously it would have to
+> have a human for some cases, but that's not all that bad, at least the
+> patch program could assign a number and post a list of patches to lkml on
+> a regular basis.
+> 
+> The hard part is the file to maintainer map, so the program can pick the
+> best maintainer, and possibly on a regular (daily) basis a single list of
+> patches to other maintainers: "this patch was sent to XXX bacause most of
+> the files are hers,but some are yours so you might want to check." And of
+> course XXX would be told that the patch changed other's files as well.
+> 
+> All patches would be given a number for discussion, after eyeball of the
+> first 20 patches I saw, I guess that 60-80% could unambiguously go to the
+> correct maintainer.
+> 
+> I realize this is less complex and wonderful than the schemes proposed,
 
-That might be a useful addition, as it will probably work for most
-devices.  However it doesn't handle non-PCI devices.  And it doesn't
-handle strange devices that need a different shutdown.  
+Is that bad?
 
-With module_exit() I am quiet certain the linux driver can find the
-device and set it up again, because otherwise you couldn't insert,
-remove, and reinsert the code as a module.
+> therefore it might easily actually happen... and it takes no effort except
+> reading the mail, if the maintainer doesn't care to use the notification
+> s/he can ignore it, at least the submitter can be sure it was remailed and
+> to whom.
 
-> module_exit() routines for statically-linked drivers often
-> don't exist - they're in .text.exit.  I guess you can just
-> move .text.exit out of the /DISCARD/ section in vmlinux.lds.
-> Also, take a look at user-mode-linux's do_exitcalls()
-> implementation - there's no clear reason why that shouldn't
-> be mainstreamed.
+One (and only one) step ahead of you.  Please have a look at what we're
+doing here:
 
-I like the other suggestion of extending the Hot-plug infrastructure.
-In that case I just need to figure out how to logically Hot-unplug all
-the devices in the system.  That may be better than a
-do_exitcalls()...  As it automatically gets the discrimination right. 
+   http://killeri.net/cgi-bin/alias/ezmlm-cgi
 
-> It would be convenient to be able to directly boot a bzImage,
-> but I guess elf is workable.
+And yes, we're already thinking about Russell's concerns with spam.  I
+think that issue is under control.
 
-Well that is directly booting vmlinux, and it doesn't lock you into
-booting the linux kernel which is very important to me. 
-
-> Great work, and thanks!  I look forward to 2-second SMP
-> reboots.
-
-I'll love to hear how it goes.
-
-Eric
+-- 
+Daniel

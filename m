@@ -1,72 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbUL0UIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbUL0UJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261961AbUL0UIa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 15:08:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbUL0UI2
+	id S261965AbUL0UJU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 15:09:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbUL0UJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 15:08:28 -0500
-Received: from stingr.net ([212.193.32.15]:21175 "EHLO stingr.net")
-	by vger.kernel.org with ESMTP id S261961AbUL0UFO (ORCPT
+	Mon, 27 Dec 2004 15:09:19 -0500
+Received: from manson.clss.net ([65.211.158.2]:36050 "HELO manson.clss.net")
+	by vger.kernel.org with SMTP id S261965AbUL0UJF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 15:05:14 -0500
-Date: Mon, 27 Dec 2004 23:05:09 +0300
-From: Paul P Komkoff Jr <i@stingr.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       davidel@xmailserver.org
-Subject: How to implement multithreaded event loop ?
-Message-ID: <20041227200509.GD1035@stingr.sgu.ru>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	davidel@xmailserver.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Agent Darien Fawkes
-X-Mailer: Intel Ultra ATA Storage Driver
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
+	Mon, 27 Dec 2004 15:09:05 -0500
+Message-ID: <20041227200901.23134.qmail@manson.clss.net>
+From: "Alan Curry" <pacman-kernel@manson.clss.net>
+Subject: Re: Module Names - Hyphen Converted to Underscore
+To: linux-kernel@vger.kernel.org
+Date: Mon, 27 Dec 2004 15:09:01 -0500 (EST)
+In-Reply-To: <1104177282.5683.2.camel@localhost.localdomain> from "Tomasz Torcz" at Dec 27, 2004 08:54:42 PM
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Tomasz Torcz writes the following:
+>
+> modprobe intelligently adds or removes a module from the Linux kernel:
+>note  that  for  convenience,there  is  no  difference  between  _  and
+>- in module names. 
 
-I am trying to implement a multithreaded event loop using epoll. So, I
-have 2 kind of events. First, there are conditions on fds I have
-(listener sockets, client connections, my connections to other
-clients). Second, I need to have some kind of priority queue into
-which I can push forthcoming timed events.
+What definition of convenience led to this?
 
-In case of single-threaded server, this is fairly trivial. I just need
-to make heap queue and add its 1st (i.e. minimal) element as timeout
-to each next epoll_wait call. When some condition breaks the wait, I
-can always do find_min and wait again with new timeout.
+In that spirit, should fs now interpret backslash as a directory separator?
+Having to remember the difference is SO inconvenient.
 
-Things become complicated when I need to scale. So, without this
-timeout cruft, I can just add proper locking around my data structures
-but main epoll_wait loop is multithread-aware, e.g. it will retrieve
-different events for different waiting threads (to be absolutely fair
-with you, I did not implemented this part yet, but I assume that some
-combination of edge triggered + one shot epoll will do the trick).
-But, if using heap priority queue to manage timed events, I need to
-wake up each waiting thread when any event was added to the heap
-before one that was minimal.
-
->From all I've read about it, waking up all waiting thread isn't
-trivial.
-
-Another solution proposed by my poor brain is - to have alive thread
-which will handle this priority queue, and have one fifo fd in my
-epoll set dedicated to this purpose. Priority queue management thread
-will write single char to that fd when some timed event needs to be
-processed.
-
-Doing some google search, I've found this message:
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0210.3/2416.html
-Things can be much easier if there was timer kernel object (or its
-equivalent). Can anyone give me some advice - how I should solve this
-problem?
-
-Thanks in advance.
-
--- 
-Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
- This message represents the official view of the voices in my head

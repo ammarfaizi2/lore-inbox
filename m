@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbTK1KaW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 05:30:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbTK1KaW
+	id S262118AbTK1Kdy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 05:33:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbTK1Kdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 05:30:22 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:65152 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S262041AbTK1KaT (ORCPT
+	Fri, 28 Nov 2003 05:33:54 -0500
+Received: from ns.suse.de ([195.135.220.2]:20696 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262118AbTK1Kdw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 05:30:19 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 28 Nov 2003 11:29:57 +0100 (MET)
-Message-Id: <UTC200311281029.hASATvD16681.aeb@smtp.cwi.nl>
-To: szepe@pinerecords.com, torvalds@osdl.org
-Subject: Re: BUG (non-kernel), can hurt developers.
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
-       root@chaos.analogic.com
+	Fri, 28 Nov 2003 05:33:52 -0500
+To: Raj <raju@mailandnews.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange behavior observed w.r.t 'su' command
+References: <3FC707B6.1070704@mailandnews.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I'm pretending I'm pulling in a TROUT!  Am I doing it correctly??
+Date: Fri, 28 Nov 2003 11:33:48 +0100
+In-Reply-To: <3FC707B6.1070704@mailandnews.com> (Raj's message of "Fri, 28
+ Nov 2003 14:00:46 +0530")
+Message-ID: <jeoeuw7pf7.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I believe it would be very useful to have this information included
-> in the standard Linux signal(2) manpage.
+Raj <raju@mailandnews.com> writes:
 
-OK. You might have included a patch. I made it say
+> hi, i am not sure if this is a kernel problem or an 'su' related issue,
+> but this is what  i have observed. Tried on 2.4.20-8 ( RH 9.0 kernel ) and
+> latest 2.6.0-test11.
+>
+> - log in as any normal user. ( on Console.).
+> - su - root
+> - from root prompt, run 'ps' and check the pid of 'su'.
+> - kill -9 <pid of su>
+> After the kill command, strangely my keyboard switches to unbuffered mode
+> ( a key press is processed immediately ). Also, i alternate between the
+> root prompt and the normal user prompt.
+> Every key press switches from root prompt to normal user prompt and vice
+> versa. Typing 'whoami' at the respective prompts displays 'normal user'
+> and 'root' for the respective prompts.
 
-       The  effects  of this call in a multi-threaded process are
-       unspecified.
+Nothing unusual, you just have two shells competing with each other on the
+terminal.  Don't use kill -9 unless you know what you are doing.
 
-       The routine handler must be very careful, since processing
-       elsewhere  was  interrupted at some arbitrary point. POSIX
-       has the concept of "safe function".  If  a  signal  inter­
-       rupts  an  unsafe  function,  and  handler calls an unsafe
-       function, then the behavior is undefined.  Safe  functions
-       are listed explicitly in the various standards.  The POSIX
-       1003.1-2003 list is
+Andreas.
 
-       _Exit()  _exit()  abort()  accept()  access()  aio_error()
-       aio_return()  aio_suspend()  alarm()  bind() cfgetispeed()
-       cfgetospeed() cfsetispeed() cfsetospeed() chdir()  chmod()
-       chown()  clock_gettime()  close()  connect() creat() dup()
-       dup2() execle() execve() fchmod() fchown() fcntl()  fdata­
-       sync()  fork()  fpathconf()  fstat()  fsync()  ftruncate()
-       getegid()  geteuid()  getgid()  getgroups()  getpeername()
-       getpgrp()  getpid()  getppid()  getsockname() getsockopt()
-       getuid() kill() link() listen()  lseek()  lstat()  mkdir()
-       mkfifo()   open()   pathconf()   pause()   pipe()   poll()
-       posix_trace_event() pselect()  raise()  read()  readlink()
-       recv()  recvfrom()  recvmsg()  rename()  rmdir()  select()
-       sem_post() send() sendmsg()  sendto()  setgid()  setpgid()
-       setsid()   setsockopt()  setuid()  shutdown()  sigaction()
-       sigaddset() sigdelset() sigemptyset() sigfillset()  sigis­
-       member() sleep() signal() sigpause() sigpending() sigproc­
-       mask() sigqueue() sigset() sigsuspend()  socket()  socket­
-       pair()   stat()  symlink()  sysconf()  tcdrain()  tcflow()
-       tcflush()  tcgetattr()  tcgetpgrp()  tcsendbreak()   tcse­
-       tattr()  tcsetpgrp()  time() timer_getoverrun() timer_get­
-       time() timer_settime() times()  umask()  uname()  unlink()
-       utime() wait() waitpid() write().
-
-Andries
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

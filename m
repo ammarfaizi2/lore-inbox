@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270858AbUJVEKS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270911AbUJVEKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270858AbUJVEKS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 00:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270948AbUJVEHJ
+	id S270911AbUJVEKx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 00:10:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270948AbUJVEKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 00:07:09 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:56287 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270899AbUJUUbJ (ORCPT
+	Fri, 22 Oct 2004 00:10:35 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:13471 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S270911AbUJVEHy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 16:31:09 -0400
-Date: Thu, 21 Oct 2004 22:30:38 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Rate of change
-Message-ID: <20041021203037.GJ32465@suse.de>
-References: <41758410.2020200@pobox.com> <20041019213758.GE22334@redhat.com> <20041019213932.GA7383@havoc.gtf.org>
+	Fri, 22 Oct 2004 00:07:54 -0400
+Subject: Re: [PATCH] I/O space write barrier
+From: Greg Banks <gnb@melbourne.sgi.com>
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: Grant Grundler <iod00d@hp.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org
+In-Reply-To: <200410212205.51672.jbarnes@sgi.com>
+References: <200410211613.19601.jbarnes@engr.sgi.com>
+	 <20041022010150.GH3878@cup.hp.com>  <200410212205.51672.jbarnes@sgi.com>
+Content-Type: text/plain
+Organization: Silicon Graphics Inc, Australian Software Group.
+Message-Id: <1098419164.21421.58.camel@hole.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041019213932.GA7383@havoc.gtf.org>
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 22 Oct 2004 14:26:05 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 19 2004, Jeff Garzik wrote:
-> On Tue, Oct 19, 2004 at 05:37:59PM -0400, Dave Jones wrote:
-> > On Tue, Oct 19, 2004 at 05:16:00PM -0400, Jeff Garzik wrote:
-> >  > 
-> >  > 850 changesets and 3383 revisions since 2.6.9 was released,
-> >  > a little over 24 hours ago.
-> >  > 
-> >  > That's pretty impressive.
-> > 
-> > Given a lot of these are backlogs from folks being
-> > conservative whilst we were in -rc, perhaps this is an
-> > indication we need shorter -rc periods ?
-> 
-> 
-> Actually, we need longer non-rc periods :)
+On Fri, 2004-10-22 at 13:05, Jesse Barnes wrote:
+>  I think Greg had some ideas about other 
+> things to cover as well.  Greg?
 
-Agree. The rate of change is truly impressive (thank you Andrew and
-BK!), but personally I'd like to see things settle down a lot more
-quickly. Instead of having 2-3 weeks of continual patch flood, a week or
-submitting the stuff that was already done by 2.6.9 by Andrews inclusion
-criteria (which I completely agree with) results in -rc1, followed by
-2-3 weeks of of truly stabilizing bug fixing. Since by virtue of this
-inclusion criteria development for a particular feature/change is
-already done by 2.6.9 release, this should be easy [1].
+You've done most of the stuff I wanted, but it would be nice to see:
 
-[1] Yeah right, but at least we can try.
+*  a mention of the read-to-flush-writes technique and why mmiowb
+   is better
 
+*  an example of how and where to use read_relaxed and a description
+   of why its better than read
+
+Greg.
 -- 
-Jens Axboe
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.
+
 

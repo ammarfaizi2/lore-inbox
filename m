@@ -1,44 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVAWWAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVAWWMk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbVAWWAb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 17:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVAWWAa
+	id S261365AbVAWWMk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 17:12:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVAWWMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 17:00:30 -0500
-Received: from main.gmane.org ([80.91.229.2]:55241 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261363AbVAWWA0 (ORCPT
+	Sun, 23 Jan 2005 17:12:40 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48547 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261365AbVAWWMi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 17:00:26 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Anssi Hannula <anssi.hannula@mbnet.fi>
-Subject: Re: System beeper - no sound from mobo's own speaker
-Date: Sun, 23 Jan 2005 23:58:04 +0200
-Message-ID: <ct16l6$jra$1@sea.gmane.org>
-References: <200501231937.53099.stephen@g6dzj.demon.co.uk> <20050123225010.0172a6e0.vsu@altlinux.ru> <200501232007.21027.stephen@g6dzj.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 23 Jan 2005 17:12:38 -0500
+From: Andrew Tridgell <tridge@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dsl-tregw3mdf.dial.inet.fi
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041216)
-X-Accept-Language: en-us, en
-In-Reply-To: <200501232007.21027.stephen@g6dzj.demon.co.uk>
+Message-ID: <16884.8352.76012.779869@samba.org>
+Date: Mon, 24 Jan 2005 09:09:36 +1100
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       Andreas Dilger <adilger@clusterfs.com>, Alex Tomas <alex@clusterfs.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ea-in-inode 0/5] Further fixes
+In-Reply-To: <1106351172.19651.102.camel@winden.suse.de>
+References: <20050120020124.110155000@suse.de>
+	<1106348336.1989.484.camel@sisko.sctweedie.blueyonder.co.uk>
+	<1106351172.19651.102.camel@winden.suse.de>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+Reply-To: tridge@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Kitchener wrote:
-> On Sunday 23 Jan 2005 19:50, Sergey Vlasov wrote:
->>Does "modprobe pcspkr" help?  In 2.6.x kernels the PC speaker support
->>can be built as a loadable module; probably the startup scripts do not
->>load it automatically.
-> 
-> You know - I've just found that and yes it does help on one system, so I'm 50% 
-> better off - just need to find out where to put the command so that it loads 
-> it on startup...modules.conf would be it I guess.
+Andreas,
 
-Put it on /etc/modprobe.preload
+ > Tridge, can you beat the code some more?
+ > 
+ > Andrew has the five fixes in 2.6.11-rc1-mm2.
 
--- 
-Anssi Hannula
+It seemed to pass dbench runs OK, but then I started simultaneously
+running dbench and nbench on two different disks (I have a new test
+machine with more disks available). I am getting failures like this:
 
+Jan 23 06:54:38 dev4-003 kernel: journal_bmap: journal block not found at offset 1036 on sdc1
+Jan 23 06:54:38 dev4-003 kernel: Aborting journal on device sdc1.
+
+
+Jan 23 13:19:43 dev4-003 kernel: journal_bmap: journal block not found at offset 1036 on sdd1
+Jan 23 13:19:43 dev4-003 kernel: Aborting journal on device sdd1.
+Jan 23 13:19:43 dev4-003 kernel: EXT3-fs error (device sdd1) in start_transaction: Readonly filesystem
+
+
+The first failure was on the disk I am using for nbench (sdc). The
+second is during a later run on the disk I am using the dbench
+(sdd). I rebooted between the runs. It's interesting that its failing
+at exactly the same offset both times. Is there anything magic about
+offset 1036?
+
+The new test machine is a 4 way PIII, with 4G ram, and 4 36G SCSI
+disks. The test machine I have been using previously was a 2 way
+(+hyperthreaded) Xeon.
+
+I'll see if I can reproduce the problem with just dbench or just
+nbench.
+
+Cheers, Tridge

@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316135AbSGLMlZ>; Fri, 12 Jul 2002 08:41:25 -0400
+	id <S315921AbSGLMsg>; Fri, 12 Jul 2002 08:48:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316158AbSGLMlY>; Fri, 12 Jul 2002 08:41:24 -0400
-Received: from pD9E235D3.dip.t-dialin.net ([217.226.53.211]:20611 "EHLO
+	id <S316167AbSGLMsf>; Fri, 12 Jul 2002 08:48:35 -0400
+Received: from pD9E235D3.dip.t-dialin.net ([217.226.53.211]:24195 "EHLO
 	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316135AbSGLMlY> convert rfc822-to-8bit; Fri, 12 Jul 2002 08:41:24 -0400
-Date: Fri, 12 Jul 2002 06:44:04 -0600 (MDT)
+	id <S315921AbSGLMsf>; Fri, 12 Jul 2002 08:48:35 -0400
+Date: Fri, 12 Jul 2002 06:51:17 -0600 (MDT)
 From: Thunder from the hill <thunder@ngforever.de>
 X-X-Sender: thunder@hawkeye.luckynet.adm
-To: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
-cc: Kelledin <kelledin+LKML@skarpsey.dyndns.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Missing files in 2.4.19-rc1
-In-Reply-To: <Pine.OSF.4.44.0207121216580.264794-100000@tao.natur.cuni.cz>
-Message-ID: <Pine.LNX.4.44.0207120643190.3421-100000@hawkeye.luckynet.adm>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>,
+       <torvalds@transmeta.com>
+Subject: Re: IDE/ATAPI in 2.5
+In-Reply-To: <3D2EC778.7000203@evision-ventures.com>
+Message-ID: <Pine.LNX.4.44.0207120649180.3421-100000@hawkeye.luckynet.adm>
 X-Location: Potsdam; Germany
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Fri, 12 Jul 2002, [iso-8859-2] Martin MOKREJ© wrote:
-> So, what to do now? ;)
+On Fri, 12 Jul 2002, Martin Dalecki wrote:
+> Against:
+> 
+> 1. Bartlomiej Zolnierkiewcz.
 
-Try:
-
-make mrproper
-cp ../.config .
-make oldconfig
+What's your reason to vote against him? Something personal?
 
 							Regards,
 							Thunder

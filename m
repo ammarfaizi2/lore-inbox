@@ -1,68 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbULBX6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbULCAC0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbULBX6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 18:58:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbULBX6X
+	id S261809AbULCAC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 19:02:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbULCAC0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 18:58:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19133 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261807AbULBX4t (ORCPT
+	Thu, 2 Dec 2004 19:02:26 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:22464 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261809AbULCACJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 18:56:49 -0500
-Date: Thu, 2 Dec 2004 15:56:39 -0800
-Message-Id: <200412022356.iB2Nudl2001302@magilla.sf.frob.com>
+	Thu, 2 Dec 2004 19:02:09 -0500
+Date: Thu, 2 Dec 2004 16:01:59 -0800
+Message-Id: <200412030001.iB301xXh001328@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 From: Roland McGrath <roland@redhat.com>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/2] fix stop signal race
 X-Fcc: ~/Mail/linus
-X-Zippy-Says: Is this the line for the latest whimsical YUGOSLAVIAN drama which
-   also makes you want to CRY and reconsider the VIETNAM WAR?
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2/2] move group_exit flag into signal_struct.flags word
+X-Shopping-List: (1) Deviant malignant salmon skis
+   (2) Eloquent birds
+   (3) Simultaneous parasitic exclamations
+   (4) Runcible laser horsie
+   (5) Tremulous inhibition pistons
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The `sig_avoid_stop_race' checks fail to catch a related race scenario that
-can happen.  I don't think this has been seen in nature, but it could
-happen in the same sorts of situations where the observed problems come up
-that those checks work around.  This patch takes a different approach to
-catching this race condition.  The new approach plugs the hole, and I think
-is also cleaner.
-
-The issue is a race between one CPU processing a stop signal while another
-CPU processes a SIGCONT or SIGKILL.  There is a window in stop-signal
-processing where the siglock must be released.  If a SIGCONT or SIGKILL
-comes along here on another CPU, then the stop signal in the midst of being
-processed needs to be discarded rather than having the stop take place
-after the SIGCONT or SIGKILL has been generated.  The existing workaround
-checks for this case explicitly by looking for a pending SIGCONT or SIGKILL
-after reacquiring the lock.
-
-However, there is another problem related to the same race issue.  In the
-window where the processing of the stop signal has released the siglock,
-the stop signal is not represented in the pending set any more, but it is
-still "pending" and not "delivered" in POSIX terms.  The SIGCONT coming in
-this window is required to clear all pending stop signals.  But, if a stop
-signal has been dequeued but not yet processed, the SIGCONT generation will
-fail to clear it (in handle_stop_signal).  Likewise, a SIGKILL coming here
-should prevent the stop processing and make the thread die immediately
-instead.  The `sig_avoid_stop_race' code checks for this by examining the
-pending set to see if SIGCONT or SIGKILL is in it.  But this fails to
-handle the case where another CPU running another thread in the same
-process has already dequeued the signal (so it no longer can be found in
-the pending set).  We must catch this as well, so that the same problems do
-not arise when another thread on another CPU acted real fast.
-
-I've fixed this dumping the `sig_avoid_stop_race' kludge in favor of a
-little explicit bookkeeping.  Now, dequeuing any stop signal sets a flag
-saying that a pending stop signal has been taken on by some CPU since the
-last time all pending stop signals were cleared due to SIGCONT/SIGKILL.
-The processing of stop signals checks the flag after the window where it
-released the lock, and abandons the signal the flag has been cleared.  The
-code that clears pending stop signals on SIGCONT generation also clears
-this flag.  The various places that are trying to ensure the process dies
-quickly (SIGKILL or other unhandled signals) also clear the flag.  
-I've made this a general flags word in signal_struct, and replaced the
-stop_state field with flag bits in this word.
+After my last change, there are plenty of unused bits available in the new
+flags word in signal_struct.  This patch moves the `group_exit' flag into
+one of those bits, saving a word in signal_struct.
 
 
 Thanks,
@@ -71,303 +38,158 @@ Roland
 
 Signed-off-by: Roland McGrath <roland@redhat.com>
 
---- linux-2.6/include/linux/sched.h
-+++ linux-2.6/include/linux/sched.h
-@@ -288,8 +288,7 @@ struct signal_struct {
+--- linux-2.6/include/linux/sched.h 17 Nov 2004 23:33:04 -0000
++++ linux-2.6/include/linux/sched.h 17 Nov 2004 23:44:51 -0000
+@@ -276,7 +276,6 @@
+ 	struct sigpending	shared_pending;
  
- 	/* thread group stop support, overloads group_exit_code too */
- 	int			group_stop_count;
--	/* 1 if group stopped since last SIGCONT, -1 if SIGCONT since report */
--  	int			stop_state;
-+	unsigned int		flags; /* see SIGNAL_* flags below */
+ 	/* thread group exit support */
+-	int			group_exit;
+ 	int			group_exit_code;
+ 	/* overloaded:
+ 	 * - notify group_exit_task when ->count is equal to notify_count
+@@ -330,6 +329,7 @@
+ #define SIGNAL_STOP_STOPPED	0x00000001 /* job control stop in effect */
+ #define SIGNAL_STOP_DEQUEUED	0x00000002 /* stop signal dequeued */
+ #define SIGNAL_STOP_CONTINUED	0x00000004 /* SIGCONT since WCONTINUED reap */
++#define SIGNAL_GROUP_EXIT	0x00000008 /* group exit in progress */
  
- 	/* POSIX.1b Interval Timers */
- 	struct list_head posix_timers;
-@@ -326,6 +325,14 @@ struct signal_struct {
- };
  
  /*
-+ * Bits in flags field of signal_struct.
-+ */
-+#define SIGNAL_STOP_STOPPED	0x00000001 /* job control stop in effect */
-+#define SIGNAL_STOP_DEQUEUED	0x00000002 /* stop signal dequeued */
-+#define SIGNAL_STOP_CONTINUED	0x00000004 /* SIGCONT since WCONTINUED reap */
-+
-+
-+/*
-  * Priority of a process goes from 0..MAX_PRIO-1, valid RT
-  * priority is 0..MAX_RT_PRIO-1, and SCHED_NORMAL tasks are
-  * in the range MAX_RT_PRIO..MAX_PRIO-1. Priority values
---- linux-2.6/kernel/exit.c
-+++ linux-2.6/kernel/exit.c
-@@ -1260,16 +1260,17 @@ static int wait_task_continued(task_t *p
- 	if (unlikely(!p->signal))
- 		return 0;
+--- linux-2.6/kernel/exit.c 17 Nov 2004 23:33:04 -0000
++++ linux-2.6/kernel/exit.c 17 Nov 2004 23:44:51 -0000
+@@ -658,7 +658,7 @@
+ 	struct task_struct *t;
+ 	struct list_head ptrace_dead, *_p, *_n;
  
--	if (p->signal->stop_state >= 0)
-+	if (!(p->signal->flags & SIGNAL_STOP_CONTINUED))
- 		return 0;
+-	if (signal_pending(tsk) && !tsk->signal->group_exit
++	if (signal_pending(tsk) && !(tsk->signal->flags & SIGNAL_GROUP_EXIT)
+ 	    && !thread_group_empty(tsk)) {
+ 		/*
+ 		 * This occurs when there was a race between our exit
+@@ -879,18 +879,18 @@
+ {
+ 	BUG_ON(exit_code & 0x80); /* core dumps don't get here */
  
- 	spin_lock_irq(&p->sighand->siglock);
--	if (p->signal->stop_state >= 0) { /* Re-check with the lock held.  */
-+	/* Re-check with the lock held.  */
-+	if (!(p->signal->flags & SIGNAL_STOP_CONTINUED)) {
- 		spin_unlock_irq(&p->sighand->siglock);
- 		return 0;
- 	}
- 	if (!noreap)
--		p->signal->stop_state = 0;
-+		p->signal->flags &= ~SIGNAL_STOP_CONTINUED;
- 	spin_unlock_irq(&p->sighand->siglock);
+-	if (current->signal->group_exit)
++	if (current->signal->flags & SIGNAL_GROUP_EXIT)
+ 		exit_code = current->signal->group_exit_code;
+ 	else if (!thread_group_empty(current)) {
+ 		struct signal_struct *const sig = current->signal;
+ 		struct sighand_struct *const sighand = current->sighand;
+ 		read_lock(&tasklist_lock);
+ 		spin_lock_irq(&sighand->siglock);
+-		if (sig->group_exit)
++		if (sig->flags & SIGNAL_GROUP_EXIT)
+ 			/* Another thread got here before we took the lock.  */
+ 			exit_code = sig->group_exit_code;
+ 		else {
+-			sig->group_exit = 1;
++			sig->flags = SIGNAL_GROUP_EXIT;
+ 			sig->group_exit_code = exit_code;
+ 			zap_other_threads(current);
+ 		}
+@@ -1070,7 +1070,7 @@
+ 	read_unlock(&tasklist_lock);
  
- 	pid = p->pid;
---- linux-2.6/kernel/fork.c
-+++ linux-2.6/kernel/fork.c
-@@ -729,6 +729,7 @@ static inline int copy_signal(unsigned l
- 		return -ENOMEM;
+ 	retval = ru ? getrusage(p, RUSAGE_BOTH, ru) : 0;
+-	status = p->signal->group_exit
++	status = (p->signal->flags & SIGNAL_GROUP_EXIT)
+ 		? p->signal->group_exit_code : p->exit_code;
+ 	if (!retval && stat_addr)
+ 		retval = put_user(status, stat_addr);
+--- linux-2.6/kernel/fork.c 17 Nov 2004 23:34:45 -0000
++++ linux-2.6/kernel/fork.c 17 Nov 2004 23:44:51 -0000
+@@ -730,7 +730,6 @@
  	atomic_set(&sig->count, 1);
  	atomic_set(&sig->live, 1);
-+	sig->flags = 0;
- 	sig->group_exit = 0;
+ 	sig->flags = 0;
+-	sig->group_exit = 0;
  	sig->group_exit_code = 0;
  	sig->group_exit_task = NULL;
---- linux-2.6/kernel/signal.c
-+++ linux-2.6/kernel/signal.c
-@@ -153,11 +153,6 @@ static kmem_cache_t *sigqueue_cachep;
- 	(!T(signr, SIG_KERNEL_IGNORE_MASK|SIG_KERNEL_STOP_MASK) && \
- 	 (t)->sighand->action[(signr)-1].sa.sa_handler == SIG_DFL)
- 
--#define sig_avoid_stop_race() \
--	(sigtestsetmask(&current->pending.signal, M(SIGCONT) | M(SIGKILL)) || \
--	 sigtestsetmask(&current->signal->shared_pending.signal, \
--						  M(SIGCONT) | M(SIGKILL)))
--
- static int sig_ignored(struct task_struct *t, int sig)
+ 	sig->group_stop_count = 0;
+@@ -985,7 +984,7 @@
+ 		 * do not create this new thread - the whole thread
+ 		 * group is supposed to exit anyway.
+ 		 */
+-		if (current->signal->group_exit) {
++		if (current->signal->flags & SIGNAL_GROUP_EXIT) {
+ 			spin_unlock(&current->sighand->siglock);
+ 			write_unlock_irq(&tasklist_lock);
+ 			retval = -EAGAIN;
+--- linux-2.6/kernel/signal.c 17 Nov 2004 23:42:16 -0000
++++ linux-2.6/kernel/signal.c 17 Nov 2004 23:44:51 -0000
+@@ -669,6 +669,12 @@
  {
- 	void __user * handler;
-@@ -551,6 +546,21 @@ int dequeue_signal(struct task_struct *t
- 	if (!signr)
- 		signr = __dequeue_signal(&tsk->signal->shared_pending,
- 					 mask, info);
-+ 	if (signr && unlikely(sig_kernel_stop(signr))) {
-+ 		/*
-+ 		 * Set a marker that we have dequeued a stop signal.  Our
-+ 		 * caller might release the siglock and then the pending
-+ 		 * stop signal it is about to process is no longer in the
-+ 		 * pending bitmasks, but must still be cleared by a SIGCONT
-+ 		 * (and overruled by a SIGKILL).  So those cases clear this
-+ 		 * shared flag after we've set it.  Note that this flag may
-+ 		 * remain set after the signal we return is ignored or
-+ 		 * handled.  That doesn't matter because its only purpose
-+ 		 * is to alert stop-signal processing code when another
-+ 		 * processor has come along and cleared the flag.
-+ 		 */
-+ 		tsk->signal->flags |= SIGNAL_STOP_DEQUEUED;
-+ 	}
- 	if ( signr &&
- 	     ((info->si_code & __SI_MASK) == __SI_TIMER) &&
- 	     info->si_sys_private){
-@@ -680,7 +690,7 @@ static void handle_stop_signal(int sig, 
- 			 * the SIGCHLD was pending on entry to this kill.
- 			 */
- 			p->signal->group_stop_count = 0;
--			p->signal->stop_state = 1;
-+			p->signal->flags = SIGNAL_STOP_CONTINUED;
- 			spin_unlock(&p->sighand->siglock);
- 			if (p->ptrace & PT_PTRACED)
- 				do_notify_parent_cldstop(p, p->parent,
-@@ -722,12 +732,12 @@ static void handle_stop_signal(int sig, 
- 			t = next_thread(t);
- 		} while (t != p);
+ 	struct task_struct *t;
  
--		if (p->signal->stop_state > 0) {
-+		if (p->signal->flags & SIGNAL_STOP_STOPPED) {
- 			/*
- 			 * We were in fact stopped, and are now continued.
- 			 * Notify the parent with CLD_CONTINUED.
- 			 */
--			p->signal->stop_state = -1;
-+			p->signal->flags = SIGNAL_STOP_CONTINUED;
- 			p->signal->group_exit_code = 0;
- 			spin_unlock(&p->sighand->siglock);
- 			if (p->ptrace & PT_PTRACED)
-@@ -739,7 +749,20 @@ static void handle_stop_signal(int sig, 
- 					p->group_leader->real_parent,
- 							 CLD_CONTINUED);
- 			spin_lock(&p->sighand->siglock);
-+		} else {
-+			/*
-+			 * We are not stopped, but there could be a stop
-+			 * signal in the middle of being processed after
-+			 * being removed from the queue.  Clear that too.
-+			 */
-+			p->signal->flags = 0;
- 		}
-+	} else if (sig == SIGKILL) {
++	if (p->flags & SIGNAL_GROUP_EXIT)
 +		/*
-+		 * Make sure that any pending stop signal already dequeued
-+		 * is undone by the wakeup for SIGKILL.
++		 * The process is in the middle of dying already.
 +		 */
-+		p->signal->flags = 0;
- 	}
- }
- 
-@@ -969,6 +992,7 @@ __group_complete_signal(int sig, struct 
- 			p->signal->group_exit = 1;
++		return;
++
+ 	if (sig_kernel_stop(sig)) {
+ 		/*
+ 		 * This is a stop signal.  Remove SIGCONT from all queues.
+@@ -984,7 +990,7 @@
+ 	 * Found a killable thread.  If the signal will be fatal,
+ 	 * then start taking the whole group down immediately.
+ 	 */
+-	if (sig_fatal(p, sig) && !p->signal->group_exit &&
++	if (sig_fatal(p, sig) && !(p->signal->flags & SIGNAL_GROUP_EXIT) &&
+ 	    !sigismember(&t->real_blocked, sig) &&
+ 	    (sig == SIGKILL || !(t->ptrace & PT_PTRACED))) {
+ 		/*
+@@ -997,10 +1003,9 @@
+ 			 * running and doing things after a slower
+ 			 * thread has the fatal signal pending.
+ 			 */
+-			p->signal->group_exit = 1;
++			p->signal->flags = SIGNAL_GROUP_EXIT;
  			p->signal->group_exit_code = sig;
  			p->signal->group_stop_count = 0;
-+			p->signal->flags = 0;
+-			p->signal->flags = 0;
  			t = p;
  			do {
  				sigaddset(&t->pending.signal, SIGKILL);
-@@ -1056,6 +1080,7 @@ void zap_other_threads(struct task_struc
+@@ -1087,8 +1092,8 @@
+ {
  	struct task_struct *t;
  
++	p->signal->flags = SIGNAL_GROUP_EXIT;
  	p->signal->group_stop_count = 0;
-+	p->signal->flags = 0;
+-	p->signal->flags = 0;
  
  	if (thread_group_empty(p))
  		return;
-@@ -1641,15 +1666,18 @@ finish_stop(int stop_count)
- /*
-  * This performs the stopping for SIGSTOP and other stop signals.
-  * We have to stop all threads in the thread group.
-+ * Returns nonzero if we've actually stopped and released the siglock.
-+ * Returns zero if we didn't stop and still hold the siglock.
-  */
--static void
-+static int
- do_signal_stop(int signr)
- {
- 	struct signal_struct *sig = current->signal;
- 	struct sighand_struct *sighand = current->sighand;
- 	int stop_count = -1;
+@@ -1793,7 +1798,7 @@
+ 		return 0;
+ 	}
  
--	/* spin_lock_irq(&sighand->siglock) is now done in caller */
-+	if (!likely(sig->flags & SIGNAL_STOP_DEQUEUED))
-+		return 0;
- 
- 	if (sig->group_stop_count > 0) {
+-	if (current->signal->group_exit)
++	if (current->signal->flags & SIGNAL_GROUP_EXIT)
  		/*
-@@ -1661,7 +1689,7 @@ do_signal_stop(int signr)
- 		current->exit_code = signr;
- 		set_current_state(TASK_STOPPED);
- 		if (stop_count == 0)
--			sig->stop_state = 1;
-+			sig->flags = SIGNAL_STOP_STOPPED;
- 		spin_unlock_irq(&sighand->siglock);
+ 		 * Group stop is so another thread can do a core dump,
+ 		 * or else we are racing against a death signal.
+--- linux-2.6/fs/exec.c 17 Nov 2004 01:38:48 -0000 1.150
++++ linux-2.6/fs/exec.c 17 Nov 2004 23:46:57 -0000
+@@ -596,3 +596,3 @@
+ 	spin_lock_irq(lock);
+-	if (sig->group_exit) {
++	if (sig->flags & SIGNAL_GROUP_EXIT) {
+ 		/*
+@@ -606,3 +606,2 @@
  	}
- 	else if (thread_group_empty(current)) {
-@@ -1670,7 +1698,7 @@ do_signal_stop(int signr)
- 		 */
- 		current->exit_code = current->signal->group_exit_code = signr;
- 		set_current_state(TASK_STOPPED);
--		sig->stop_state = 1;
-+		sig->flags = SIGNAL_STOP_STOPPED;
- 		spin_unlock_irq(&sighand->siglock);
- 	}
- 	else {
-@@ -1691,25 +1719,16 @@ do_signal_stop(int signr)
- 		read_lock(&tasklist_lock);
- 		spin_lock_irq(&sighand->siglock);
- 
--		if (unlikely(sig->group_exit)) {
-+		if (!likely(sig->flags & SIGNAL_STOP_DEQUEUED)) {
- 			/*
--			 * There is a group exit in progress now.
--			 * We'll just ignore the stop and process the
--			 * associated fatal signal.
-+			 * Another stop or continue happened while we
-+			 * didn't have the lock.  We can just swallow this
-+			 * signal now.  If we raced with a SIGCONT, that
-+			 * should have just cleared it now.  If we raced
-+			 * with another processor delivering a stop signal,
-+			 * then the SIGCONT that wakes us up should clear it.
- 			 */
--			spin_unlock_irq(&sighand->siglock);
--			read_unlock(&tasklist_lock);
--			return;
--		}
--
--		if (unlikely(sig_avoid_stop_race())) {
--			/*
--			 * Either a SIGCONT or a SIGKILL signal was
--			 * posted in the siglock-not-held window.
--			 */
--			spin_unlock_irq(&sighand->siglock);
--			read_unlock(&tasklist_lock);
--			return;
-+			return 0;
- 		}
- 
- 		if (sig->group_stop_count == 0) {
-@@ -1737,13 +1756,14 @@ do_signal_stop(int signr)
- 		current->exit_code = signr;
- 		set_current_state(TASK_STOPPED);
- 		if (stop_count == 0)
--			sig->stop_state = 1;
-+			sig->flags = SIGNAL_STOP_STOPPED;
- 
- 		spin_unlock_irq(&sighand->siglock);
- 		read_unlock(&tasklist_lock);
- 	}
- 
- 	finish_stop(stop_count);
-+	return 1;
- }
- 
- /*
-@@ -1779,7 +1799,7 @@ static inline int handle_group_stop(void
+-	sig->group_exit = 1;
+ 	zap_other_threads(current);
+@@ -704,3 +703,3 @@
  	 */
- 	stop_count = --current->signal->group_stop_count;
- 	if (stop_count == 0)
--		current->signal->stop_state = 1;
-+		current->signal->flags = SIGNAL_STOP_STOPPED;
- 	current->exit_code = current->signal->group_exit_code;
- 	set_current_state(TASK_STOPPED);
- 	spin_unlock_irq(&current->sighand->siglock);
-@@ -1873,28 +1893,27 @@ relock:
- 			 * This allows an intervening SIGCONT to be posted.
- 			 * We need to check for that and bail out if necessary.
- 			 */
--			if (signr == SIGSTOP) {
--				do_signal_stop(signr); /* releases siglock */
--				goto relock;
--			}
--			spin_unlock_irq(&current->sighand->siglock);
-+			if (signr != SIGSTOP) {
-+				spin_unlock_irq(&current->sighand->siglock);
+-	sig->group_exit = 0;
++	sig->flags = 0;
  
--			/* signals can be posted during this window */
-+				/* signals can be posted during this window */
- 
--			if (is_orphaned_pgrp(process_group(current)))
--				goto relock;
-+				if (is_orphaned_pgrp(process_group(current)))
-+					goto relock;
- 
--			spin_lock_irq(&current->sighand->siglock);
--			if (unlikely(sig_avoid_stop_race())) {
--				/*
--				 * Either a SIGCONT or a SIGKILL signal was
--				 * posted in the siglock-not-held window.
--				 */
--				continue;
-+				spin_lock_irq(&current->sighand->siglock);
- 			}
- 
--			do_signal_stop(signr); /* releases siglock */
--			goto relock;
-+			if (likely(do_signal_stop(signr))) {
-+				/* It released the siglock.  */
-+				goto relock;
-+			}
-+
-+			/*
-+			 * We didn't actually stop, due to a race
-+			 * with SIGCONT or something like that.
-+			 */
-+			continue;
- 		}
- 
- 		spin_unlock_irq(&current->sighand->siglock);
+@@ -1387,3 +1386,3 @@
+ 	init_completion(&mm->core_done);
+-	current->signal->group_exit = 1;
++	current->signal->flags = SIGNAL_GROUP_EXIT;
+ 	current->signal->group_exit_code = exit_code;

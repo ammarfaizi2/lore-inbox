@@ -1,101 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318677AbSG0CD1>; Fri, 26 Jul 2002 22:03:27 -0400
+	id <S318678AbSG0CL1>; Fri, 26 Jul 2002 22:11:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318678AbSG0CD1>; Fri, 26 Jul 2002 22:03:27 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:21766 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S318677AbSG0CD0>;
-	Fri, 26 Jul 2002 22:03:26 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200207270205.g6R253P35635@saturn.cs.uml.edu>
-Subject: Re: [PATCH -ac] Panicking in morse code
-To: j.schmidt@paradise.net.nz (Jens Schmidt)
-Date: Fri, 26 Jul 2002 22:05:03 -0400 (EDT)
-Cc: root@chaos.analogic.com, davidsen@tmr.com (Bill Davidsen),
-       phillips@arcor.de (Daniel Phillips), arodland@noln.com (Andrew Rodland),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <3D41DA4E.B243E55E@paradise.net.nz> from "Jens Schmidt" at Jul 27, 2002 11:25:02 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S318679AbSG0CL1>; Fri, 26 Jul 2002 22:11:27 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:9622 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S318678AbSG0CL0>;
+	Fri, 26 Jul 2002 22:11:26 -0400
+From: cort@fsmlabs.com
+Date: Fri, 26 Jul 2002 20:15:10 -0600
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Keith Owens <kaos@ocs.com.au>, Lars Marowsky-Bree <lmb@suse.de>
+Subject: Re: module oops tracking [Re: [PATCH] cheap lookup of symbol names on oops()]
+Message-ID: <20020726201510.A6370@cort.fsmlabs.com>
+References: <20020725150525.Q2276@host110.fsmlabs.com> <20020725220643.GT1180@dualathlon.random> <20020725160559.X2276@host110.fsmlabs.com> <20020725225613.GW1180@dualathlon.random> <20020725170113.F5326@host110.fsmlabs.com> <20020726223750.GA1151@dualathlon.random> <20020726165535.R13656@host110.fsmlabs.com> <20020726232834.GA1168@dualathlon.random> <20020726173127.S13656@host110.fsmlabs.com> <20020727001032.GA1177@dualathlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020727001032.GA1177@dualathlon.random>; from andrea@suse.de on Sat, Jul 27, 2002 at 02:10:32AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Schmidt writes:
+All I need is the nearest symbol name and that's it.  The patch was pretty
+simple so it could be easily merged.  It added only a few 100's of bytes on
+x86 and below 1k on PPC.  It would be handy to have this in a kernel rather
+than require some user utility that requires I make it work in a
+cross-build environment, copy the 'insmod -m' map output to my host
+machine, run the user program on the system.map and the user utilities for
+every boot, crash, debug cycle.
 
-> I am not a "morse" guy myself, but appreciate this idea.
+The patch is tiny and simple and I hoped to keep it that way.  If I want to
+dig into the system and seriously debug rather than follow a known problem
+I can use xmon on PPC, kgdb or more often than not a real JTAG debugger.
 
-Yeah, same here. I have to wonder if morse is the
-best encoding, since many people don't know it.
-The vast majority of us would need a microphone and
-translator program anyway, so a computer-friendly
-encoding makes more sense. Modems don't do morse.
+How about this - we print the module beginning _and_ the EIP symbol if we
+can find one.  You get what you want and I get what I want (I won't even
+add a line of output to get what I want).
 
->    (less common)
->    Brackets (parentheses) -.--.-
+To solve the ksyms mystery can you send me what versions of modutils, what
+architecture, what distribution and anything else you think might be
+useful?  I'd like to know what cases this fails in.
 
-Left/right just assumed?
-
->    Procedure codes
->    Commence transmission  -.-.-   (CT)
->    Wait                   .-...   (AS)
->    End of message         .-.-.   (AR)
->    End of work            ...-.-  (SK)
->    The procedure codes are sent as a single character
-
-If morse fans actually know these, then an interpretation
-for correct usage in an oops would need to be determined.
-
->   If the duration of a dot is taken to be one unit then
->   that of a dash is three units.
->   The space between the components of one character is one
->   unit, between characters is three units and between
->   words seven units.
-
-The ARRL doesn't do this below 18 WPM. They use an
-alternate timing (Farnsworth) that sends characters
-at 18 WPM and adds extra space to slow down the result.
-
-http://www.arrl.org/files/infoserv/tech/code-std.txt
-
-The latest patch was doing 12 WPM. At that speed,
-the ARRL would use Farnsworth timing.
-
->>>>>>> +static const char * morse[] = {
->>>>>>> +     ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", /* A-H */
-
-Packing into bytes while still being readable:
-
-#define o 0  // dot
-#define _ 1  // dash
-#define PACK(a,b,c,d,e,f,g,h) (((((((a*2+b)*2+c)*2+d)*2+e)*2+f)*2+g)*2+h)
-#define M7(a,b,c,d,e,f,g) PACK(1,a,b,c,d,e,f,g)
-#define M6(b,c,d,e,f,g)   PACK(0,1,b,c,d,e,f,g)
-#define M5(c,d,e,f,g)     PACK(0,0,1,c,d,e,f,g)
-#define M4(d,e,f,g)       PACK(0,0,0,1,d,e,f,g)
-#define M3(e,f,g)         PACK(0,0,0,0,1,e,f,g)
-#define M2(f,g)           PACK(0,0,0,0,0,1,f,g)
-#define M1(g)             PACK(0,0,0,0,0,0,1,g)
-
-static const u8 morse[] = {
-  M2(o,_), M4(_,o,o,o), M4(_,o,_,o), M3(_,o,o),   // A B C D
-  M1(o), M4(o,o,_,o), M3(_,_,o), M4(o,o,o,o),     // E F G H
-
-I suspect it's false economy to not encode all of ASCII.
-If you have all of ASCII, then the ugly switch() goes away
-and all you need is a foo&0x7f to ensure things don't go
-from bad to worse.
-
->> The '.' (also called full-stop) is 6 elements long. The ',' is also
->> 6 elements long. For a correct implimentation, i.e., one that sounds
->> correct, you need to encode a 'pause' element into each symbol. This
->> is because the pause between Morse characters is sometimes ahead
->> of a character and sometimes behind a character (the pause is ahead
->> of characters starting with a dot and after characters ending with a
->> dot, including characters of all dots -- except for numbers, which
->> have pauses after them). In a previously life, I had to develop
->> the correct "fist" to pass the Socond Class Radio Telegraph License.
-
-If this is desirable, which I doubt, then it's best generated
-by looking at the characters.
+} You follow it. The reason I'm dropping functionality is that I want the
+} functionality in userspace, not because your patch in-kernel was wasting
+} any resources, but because from userspace the functionality will do the
+} *right* thing always without me having to check if the symbol happened
+} to be right because it was exported (and still no idea why you've more
+} symbols than me in ksyms for modules). Also rarely I can get away with
+} just the EIP.  So in short the symbol isn't going to help because I'd
+} need to recheck with ksymoops anyways and I need the stack trace too
+} potentially part of other modules, so I prefer to provide via the oops
+} only the numeric information, but *all* of it :) to also reduce the oops
+} size.  If your main object is to skip the ksymoops step, then I think
+} even in such case you want to go to a full complete kksymoops instead of
+} the halfway approch. I think ksymoops + module oops tracking patch is
+} more than enough for the bugreports (modulo dprobes/lkcd etc...). For
+} developement using a true debugger to get stack traces and inspect ram
+} (i.e. uml or kgdb or kdb ) is probably superior to any other oops
+} functionalty anyways (so if your object is to avoid the ksymoops step
+} during developement I would suggest a real debugger that will save even
+} more time).
+} 
+} I like the strict module oops tracking in particular for pre-compiled
+} kernels where we don't even need to ask the user the system.map/vmlinux
+} in order to debug it, and so where it would be a total loss of global
+} ram resources to load in kernel ram of every machine all the symbols of
+} the whole kernel and modules. Furthmore this adds a critical needed
+} feature to have a chance to debug module oopses, so it's a must-have.
+} 
+} Nevertheless adding your ksym lookup for the EIP wouldn't hurt and it
+} wouldn't waste lines (columns doesn't matter near the EIP), so we could
+} merge the two things together, but as said above I don't feel the need
+} of it as far as ksymoops learns about resolving the eip through the
+} module information now included in the oops.
+} 
+} I updated the patch to reduce the number of lines of the oops, this is
+} incremental with the previous patch.
+} 
+} --- 2.4.19rc3aa2/kernel/module.c.~1~	Sat Jul 27 00:48:38 2002
+} +++ 2.4.19rc3aa2/kernel/module.c	Sat Jul 27 03:44:16 2002
+} @@ -1271,26 +1271,29 @@ static void __module_oops_tracking_print
+}  
+}  	for (mod = module_list; mod != &kernel_module; mod = mod->next) {
+}  		if (!nr--)
+} -			printk("	[(%s:<%p>:<%p>)]\n",
+} +			printk(" [(%s:<%p>:<%p>)]",
+}  			       mod->name,
+}  			       (char *) mod + mod->size_of_struct,
+}  			       (char *) mod + mod->size);
+}  	}
+} -	
+}  }
+}  
+}  void module_oops_tracking_print(void)
+}  {
+}  	int nr;
+} +	int i = 0;
+}  
+} -	printk("Module Oops Tracking:\n");
+} +	printk("Modules:");
+}  	nr = find_first_bit(module_oops_tracking, MODULE_OOPS_TRACKING_NR_BITS);
+}  	for (;;) {
+}  		if (nr == MODULE_OOPS_TRACKING_NR_BITS)
+} -			return;
+} +			break;
+} +		if (i && !(i++ % 2))
+} +			printk("\n        ");
+}  		__module_oops_tracking_print(nr);
+}  		nr = find_next_bit(module_oops_tracking, MODULE_OOPS_TRACKING_NR_BITS, nr+1);
+}  	}
+} +	printk("\n");
+}  }
+}  
+}  #else		/* CONFIG_MODULES */
+} 
+} 
+} Andrea

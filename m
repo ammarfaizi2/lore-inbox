@@ -1,69 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbTILVMH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 17:12:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbTILVMH
+	id S261890AbTILVQN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 17:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbTILVQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 17:12:07 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62366 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261883AbTILVME
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 17:12:04 -0400
-Message-ID: <3F623696.1080703@pobox.com>
-Date: Fri, 12 Sep 2003 17:11:50 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Fri, 12 Sep 2003 17:16:13 -0400
+Received: from [203.97.122.100] ([203.97.122.100]:897 "HELO skieu.myftp.org")
+	by vger.kernel.org with SMTP id S261890AbTILVQH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 17:16:07 -0400
+Date: Sat, 13 Sep 2003 09:14:56 +0000 (UTC)
+From: haiquy@yahoo.com
+X-X-Sender: sk@darkstar.example.net
+Reply-To: caoquy@free.net.nz
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test5 compile error
+Message-ID: <Pine.LNX.4.58.0309130913590.10446@darkstar.example.net>
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       "David S. Miller" <davem@redhat.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix ifdown/ifup bug
-Content-Type: multipart/mixed;
- boundary="------------090302040002090106050308"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090302040002090106050308
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Marcelo,
+Sorry if this has been reported.
 
-If you haven't gotten this patch from somebody else, please make sure 
-this is applied.  It fixes a bug I introduced in -pre3 when moving some 
-helpers from tg3 to netdevice.h.
+drivers/built-in.o(.text+0x5f34f): In function `atkbd_interrupt':
+: undefined reference to `serio_rescan'
+drivers/built-in.o(.text+0x5f92e): In function `atkbd_disconnect':
+: undefined reference to `serio_close'
+drivers/built-in.o(.text+0x5fa52): In function `atkbd_connect':
+: undefined reference to `serio_open'
+drivers/built-in.o(.text+0x5fa90): In function `atkbd_connect':
+: undefined reference to `serio_close'
+drivers/built-in.o(.init.text+0x5d4a): In function `atkbd_init':
+: undefined reference to `serio_register_device'
+drivers/built-in.o(.exit.text+0x3a6): In function `atkbd_exit':
+: undefined reference to `serio_unregister_device'
+make: *** [.tmp_vmlinux1] Error 1
 
-	Jeff
+Build with gcc-2.95.3  . With gcc-3.3.1 it failled right the starting point and I forgot to remember :-)
 
 
 
---------------090302040002090106050308
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
+Steve Kieu
 
-diff -Nru a/net/core/dev.c b/net/core/dev.c
---- a/net/core/dev.c	Fri Sep 12 17:10:03 2003
-+++ b/net/core/dev.c	Fri Sep 12 17:10:03 2003
-@@ -851,7 +851,11 @@
- 	 * engine, but this requires more changes in devices. */
- 
- 	smp_mb__after_clear_bit(); /* Commit netif_running(). */
--	netif_poll_disable(dev);
-+	while (test_bit(__LINK_STATE_RX_SCHED, &dev->state)) {
-+		/* No hurry. */
-+		current->state = TASK_INTERRUPTIBLE;
-+		schedule_timeout(1);
-+	}
- 
- 	/*
- 	 *	Call the device specific close. This cannot fail.
-
---------------090302040002090106050308--
+PGP Key http://skieu.myftp.org/pub/steve-pub.key
 

@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265310AbRF0Jmc>; Wed, 27 Jun 2001 05:42:32 -0400
+	id <S265229AbRF0JlW>; Wed, 27 Jun 2001 05:41:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265312AbRF0JmW>; Wed, 27 Jun 2001 05:42:22 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:23584 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S265310AbRF0JmN>; Wed, 27 Jun 2001 05:42:13 -0400
-Date: Wed, 27 Jun 2001 11:41:55 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-        "ZINKEVICIUS,MATT (HP-Loveland,ex1)" <matt_zinkevicius@hp.com>
-Subject: Re: patch: highmem zero-bounce
-Message-ID: <20010627114155.A31910@athlon.random>
-In-Reply-To: <20010626182215.C14460@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010626182215.C14460@suse.de>; from axboe@suse.de on Tue, Jun 26, 2001 at 06:22:15PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S265310AbRF0JlM>; Wed, 27 Jun 2001 05:41:12 -0400
+Received: from ip-33-237-104-152.anlai.com ([152.104.237.33]:52495 "EHLO
+	exchsh01.viatech.com.cn") by vger.kernel.org with ESMTP
+	id <S265229AbRF0JlA>; Wed, 27 Jun 2001 05:41:00 -0400
+Message-ID: <61F2703C314FD5118C0300010250D52E0580BC@exchsh01.viatech.com.cn>
+From: "Frank Zhu (Shanghai)" <FrankZhu@viatech.com.cn>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "'neilb@cse.unsw.edu.au'" <neilb@cse.unsw.edu.au>,
+        "'nfs-devel@linux.kernel.org'" <nfs-devel@linux.kernel.org>,
+        "'nfs@lists.sourceforge.net'" <nfs@lists.sourceforge.net>
+Subject: PROBLEM:Illegal instruction when mount nfs file systems using cyr
+	ixIII
+Date: Wed, 27 Jun 2001 17:42:01 +0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="gb2312"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 26, 2001 at 06:22:15PM +0200, Jens Axboe wrote:
-> Hi,
-> 
-> I updated the patches to 2.4.6-pre5, and removed the zone-dma32
-> addition. This means that machines with > 4GB of RAM will need to go all
+hi:
+I use a PIII machine as the server and cyrixIII machine as the client.The
+kernel is 2.4.5.The distribute is red hat 7.1
+when i mount the nfs file system at the client it failed.The core file is
+created.using the gdb it report  :
+Program terminated with signal 4(SIGILL),Illegal instruction
+#0  0x40003e28 in ??()
 
-good, we can relax the ZONE_NORMAL later, that's a separate problem with
-skipping the bounces.
+If i change the cpu (CyrixIII) to PIII all is ok.
 
-I can see one mm corruption race condition in the patch, you missed
-nested irq in the for kmap_irq_bh (PIO).  You must _always_
-__cli/__save_flags before accessing the KMAP_IRQ_BH slot, in case the
-remapping is required (so _only_ when the page is in the highmem zone).
-Otherwise memory corruption will happen when the race triggers (for
-example two ide disks in PIO mode doing I/O at the same time connected
-to different irq sources).
+help
 
-Andrea
+frank
+

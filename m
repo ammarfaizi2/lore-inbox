@@ -1,100 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136627AbREAOz5>; Tue, 1 May 2001 10:55:57 -0400
+	id <S136621AbREAPBh>; Tue, 1 May 2001 11:01:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136622AbREAOzr>; Tue, 1 May 2001 10:55:47 -0400
-Received: from web5201.mail.yahoo.com ([216.115.106.95]:30214 "HELO
-	web5201.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S136619AbREAOze>; Tue, 1 May 2001 10:55:34 -0400
-Message-ID: <20010501145533.21382.qmail@web5201.mail.yahoo.com>
-Date: Tue, 1 May 2001 07:55:33 -0700 (PDT)
-From: Rob Landley <telomerase@yahoo.com>
-Subject: Re: New rtl8139 driver prevents ssh from exiting.
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3AEEC189.5D953AC3@uow.edu.au>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-2119570063-988728933=:21059"
+	id <S136622AbREAPB1>; Tue, 1 May 2001 11:01:27 -0400
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:58736 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S136621AbREAPBQ>; Tue, 1 May 2001 11:01:16 -0400
+Date: Tue, 1 May 2001 14:00:03 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "J . A . Magallon" <jamagallon@able.es>,
+        Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        Wakko Warner <wakko@animx.eu.org>,
+        Xavier Bestel <xavier.bestel@free.fr>,
+        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
+        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
+        linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
+Subject: Re: 2.4 and 2GB swap partition limit
+Message-ID: <20010501140003.A28747@redhat.com>
+In-Reply-To: <20010428162803.C1062@werewolf.able.es> <E14uI9f-0008Kt-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <E14uI9f-0008Kt-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Apr 30, 2001 at 07:12:12PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-2119570063-988728933=:21059
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi,
 
---- Andrew Morton <andrewm@uow.edu.au> wrote:
-> ack.  You never said 2.2.19 :(
+On Mon, Apr 30, 2001 at 07:12:12PM +0100, Alan Cox wrote:
+> > paging in just released 2.4.4, but in previuos kernel, a page that was
+> > paged-out, reserves its place in swap even if it is paged-in again, so
+> > once you have paged-out all your ram at least once, you can't get any
+> > more memory, even if swap is 'empty'.
 > 
-> It won't apply...
+> This is a bug in the 2.4 VM, nothing more or less. It and the horrible bounce
+> buffer bugs are forcing large machines to remain on 2.2. So it has to get 
+> fixed
 
-No, but this one did.  (Never underestimate the power
-of somebody with source code, a text editor, and the
-willingness to totally hose their system.)
+Umm, 2.2 can behave in the same way.  The only difference in the 2.4
+behaviour is that 2.4 can maintain the swap cache effect for dirty
+pages as well as clean ones.  An application which creates a large
+in-core data set and then does not modify it will show exactly the
+same behaviour on 2.2.
 
-And it fixed the problem.  Thank you.
+To call it a "bug" is to imply that "fixing it" is the right thing to
+do.  It might be in some cases, but discarding the swap entry has a
+cost --- you fragment swap, and if the page in memory is clean, you
+end up increasing the amount of swap IO.  
 
-Rob
+The right fix is to reclaim such pages only when we need to.  To
+disable swap caching when we still have enough swap free would hurt
+users who have the spare swap to cope with it.
 
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - buy the things you want at great prices
-http://auctions.yahoo.com/
---0-2119570063-988728933=:21059
-Content-Type: application/x-unknown; name="patch-2.2.19"
-Content-Transfer-Encoding: base64
-Content-Description: patch-2.2.19
-Content-Disposition: attachment; filename="patch-2.2.19"
-
-LS0tIHNjaGVkLmJhawlNb24gQXByIDMwIDE2OjE0OjE2IDIwMDEKKysrIHNj
-aGVkLmMJTW9uIEFwciAzMCAxNjo0MTo0OCAyMDAxCkBAIC04Niw2ICs4Niw3
-IEBACiB1bnNpZ25lZCBsb25nIHByb2Zfc2hpZnQgPSAwOwogCiBleHRlcm4g
-dm9pZCBtZW1fdXNlKHZvaWQpOworZXh0ZXJuIHN0cnVjdCB0YXNrX3N0cnVj
-dCAqY2hpbGRfcmVhcGVyOwogCiB1bnNpZ25lZCBsb25nIHZvbGF0aWxlIGpp
-ZmZpZXM9MDsKIApAQCAtMjA1OCwzMSArMjA1OSw1NSBAQAogfQogCiAvKgot
-ICogICAgICBQdXQgYWxsIHRoZSBndW5nZSByZXF1aXJlZCB0byBiZWNvbWUg
-YSBrZXJuZWwgdGhyZWFkIHdpdGhvdXQKLSAqICAgICAgYXR0YWNoZWQgdXNl
-ciByZXNvdXJjZXMgaW4gb25lIHBsYWNlIHdoZXJlIGl0IGJlbG9uZ3MuCisg
-KglQdXQgYWxsIHRoZSBndW5nZSByZXF1aXJlZCB0byBiZWNvbWUgYSBrZXJu
-ZWwgdGhyZWFkIHdpdGhvdXQKKyAqCWF0dGFjaGVkIHVzZXIgcmVzb3VyY2Vz
-IGluIG9uZSBwbGFjZSB3aGVyZSBpdCBiZWxvbmdzLgorICoJCisgKglLZXJu
-ZWwgMi40LjQtcHJlMywgYW5kcmV3bSN1b3cuZWR1LmF1OiByZXBhcmVudCB0
-aGUgY2FsbGVyCisgKgl0byBpbml0IGFuZCBzZXQgdGhlIGV4aXQgc2lnbmFs
-IHRvIFNJR0NITEQgc28gdGhlIHRocmVhZAorICoJd2lsbCBiZSBwcm9wZXJs
-eSByZWFwZWQgaWYgaXQgZXhpc3QuCiAgKi8KLQorICAKIHZvaWQgZGFlbW9u
-aXplKHZvaWQpCiB7CiAJc3RydWN0IGZzX3N0cnVjdCAqZnM7CisJc3RydWN0
-IHRhc2tfc3RydWN0ICp0aGlzX3Rhc2sgPSBjdXJyZW50OwogCiAJLyoKLQkg
-KiBJZiB3ZSB3ZXJlIHN0YXJ0ZWQgYXMgcmVzdWx0IG9mIGxvYWRpbmcgYSBt
-b2R1bGUsIGNsb3NlIGFsbCBvZiB0aGUKLQkgKiB1c2VyIHNwYWNlIHBhZ2Vz
-LiAgV2UgZG9uJ3QgbmVlZCB0aGVtLCBhbmQgaWYgd2UgZGlkbid0IGNsb3Nl
-IHRoZW0KLQkgKiB0aGV5IHdvdWxkIGJlIGxvY2tlZCBpbnRvIG1lbW9yeS4K
-LQkgKi8KLQlleGl0X21tKGN1cnJlbnQpOworCSogSWYgd2Ugd2VyZSBzdGFy
-dGVkIGFzIHJlc3VsdCBvZiBsb2FkaW5nIGEgbW9kdWxlLCBjbG9zZSBhbGwg
-b2YgdGhlCisJKiB1c2VyIHNwYWNlIHBhZ2VzLiAgV2UgZG9uJ3QgbmVlZCB0
-aGVtLCBhbmQgaWYgd2UgZGlkbid0IGNsb3NlIHRoZW0KKwkqIHRoZXkgd291
-bGQgYmUgbG9ja2VkIGludG8gbWVtb3J5LgorCSovCisJZXhpdF9tbSh0aGlz
-X3Rhc2spOwogCi0JY3VycmVudC0+c2Vzc2lvbiA9IDE7Ci0JY3VycmVudC0+
-cGdycCA9IDE7CisJdGhpc190YXNrLT5zZXNzaW9uID0gMTsKKwl0aGlzX3Rh
-c2stPnBncnAgPSAxOwogCiAJLyogQmVjb21lIGFzIG9uZSB3aXRoIHRoZSBp
-bml0IHRhc2sgKi8KIAotCWV4aXRfZnMoY3VycmVudCk7CS8qIGN1cnJlbnQt
-PmZzLT5jb3VudC0tOyAqLworCWV4aXRfZnModGhpc190YXNrKTsJCS8qIHRo
-aXNfdGFzay0+ZnMtPmNvdW50LS07ICovCiAJZnMgPSBpbml0X3Rhc2suZnM7
-Ci0JY3VycmVudC0+ZnMgPSBmczsKKwl0aGlzX3Rhc2stPmZzID0gZnM7CiAJ
-YXRvbWljX2luYygmZnMtPmNvdW50KTsKKwlleGl0X2ZpbGVzKHRoaXNfdGFz
-ayk7CQkvKiB0aGlzX3Rhc2stPmZpbGVzLT5jb3VudC0tICovCisJdGhpc190
-YXNrLT5maWxlcyA9IGluaXRfdGFzay5maWxlczsKKwlhdG9taWNfaW5jKCZ0
-aGlzX3Rhc2stPmZpbGVzLT5jb3VudCk7CisKKwl3cml0ZV9sb2NrX2lycSgm
-dGFza2xpc3RfbG9jayk7CisKKwkvKiBSZXBhcmVudCB0byBpbml0ICovCisJ
-UkVNT1ZFX0xJTktTKHRoaXNfdGFzayk7CisJdGhpc190YXNrLT5wX3BwdHIg
-PSBjaGlsZF9yZWFwZXI7CisJdGhpc190YXNrLT5wX29wcHRyID0gY2hpbGRf
-cmVhcGVyOworCVNFVF9MSU5LUyh0aGlzX3Rhc2spOworCisJLyogU2V0IHRo
-ZSBleGl0IHNpZ25hbCB0byBTSUdDSExEIHNvIHdlIHNpZ25hbCBpbml0IG9u
-IGV4aXQgKi8KKwlpZiAodGhpc190YXNrLT5leGl0X3NpZ25hbCAhPSAwKSB7
-CisJCXByaW50ayhLRVJOX0VSUiAidGFzayBgJXMnIGV4aXRfc2lnbmFsICVk
-IGluIGRhZW1vbml6ZSgpXG4iLAorCQkJdGhpc190YXNrLT5jb21tLCB0aGlz
-X3Rhc2stPmV4aXRfc2lnbmFsKTsKKwl9CisJdGhpc190YXNrLT5leGl0X3Np
-Z25hbCA9IFNJR0NITEQ7CiAKKwl3cml0ZV91bmxvY2tfaXJxKCZ0YXNrbGlz
-dF9sb2NrKTsKIH0KIAogdm9pZCBfX2luaXQgaW5pdF9pZGxlKHZvaWQpCg==
-
-
---0-2119570063-988728933=:21059--
+--Stephen

@@ -1,37 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135680AbRDXPny>; Tue, 24 Apr 2001 11:43:54 -0400
+	id <S135676AbRDXPiy>; Tue, 24 Apr 2001 11:38:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135684AbRDXPno>; Tue, 24 Apr 2001 11:43:44 -0400
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:45640 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S135680AbRDXPnj>; Tue, 24 Apr 2001 11:43:39 -0400
-Message-ID: <3AE59E80.810D922@redhat.com>
-Date: Tue, 24 Apr 2001 11:40:48 -0400
-From: Doug Ledford <dledford@redhat.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Eugene Kuznetsov <divx@euro.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem with i810_audio driver
-In-Reply-To: <921508308.20010421012021@euro.ru> <3AE4EAEB.254B2A48@redhat.com> <92987369.20010424060258@euro.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S135680AbRDXPip>; Tue, 24 Apr 2001 11:38:45 -0400
+Received: from [202.54.26.202] ([202.54.26.202]:998 "EHLO hindon.hss.co.in")
+	by vger.kernel.org with ESMTP id <S135676AbRDXPik>;
+	Tue, 24 Apr 2001 11:38:40 -0400
+X-Lotus-FromDomain: HSS
+From: alad@hss.hns.com
+To: JColgan@safestory.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <65256A38.00545705.00@sandesh.hss.hns.com>
+Date: Tue, 24 Apr 2001 19:49:57 +0530
+Subject: Re: Greetings!
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eugene Kuznetsov wrote:
 
->  The whole thing sounds to my mind as having some kind of resource,
-> register, etc. which is supposed to be initialized during loading of
-> drivers, but it's not done by i810_audio driver.
 
-Sounds that way to me too.  I didn't write that portion of the code, so it
-will take me a little bit to figure out where it is screwing up at.
+well... the book sounds good...
+but... I am still thinking... what it has to do with linux kernel ??
 
--- 
 
- Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-      Please check my web site for aic7xxx updates/answers before
-                      e-mailing me about problems
+
+
+JColgan@safestory.com on 04/24/2001 04:27:56 PM
+
+To:   linux-kernel@vger.kernel.org
+cc:    (bcc: Amol Lad/HSS)
+
+Subject:  Greetings!
+
+
+
+
+
+1 in 6 children are victimized before the age of 16.
+
+Hello, my name is Jason Colgan and I am writing to you about my father's unique
+book on child safety.
+
+I hope you don't mind me emailing you, but I found your email address on a
+website that was related to children, so I figured you would definitely be
+interested in this.
+
+My father, a retired police Captain, authored a children's book using his unique
+experience with child safety.  My father has investigated, arrested and taken
+confessions from child molesters, kidnappers, murderers and some of the most
+dangerous people in the world.  He often spoke and interacted with them before
+they had the chance to speak with lawyers or others, so he was able to gain an
+honest understanding of the way they think and the manner in which they
+victimize children.
+
+My father put his 23 years of experience to work for a good cause and developed
+a children's book, written in a storybook fashion starring a small family of
+bunnies.  The book has already caused quite a stir and has been featured in
+local newspapers and even the news.  Even more important, the people who have
+purchased the book love it and so do their children.  It truly presents a
+simplified way to educate your child on matters that are difficult for parents,
+grandparents, or guardians to discuss.
+
+I would like you to learn more about my father's book by visiting
+www.SafeStory.com
+
+If you are curious to see what others think, there is a link on that web site
+which has some customer opinions and even shows you the write-ups the book has
+received on Amazon.com.
+
+Thank you so much for your time and if you have any questions at all, please
+email me or call and I would love to answer them!
+
+My sincerest thanks,
+Jason
+
+
+http://www.SafeStory.com
+
+
+P.S. Please email me at jason@jmc1.com or call me anytime. My home phone number
+is 401-463-2856.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+

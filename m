@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264066AbTE0R4X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 13:56:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264071AbTE0R4X
+	id S263979AbTE0R5h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 13:57:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264072AbTE0R4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 13:56:23 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:27654 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S264066AbTE0R4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 13:56:06 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: manish <manish@storadinc.com>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Date: Tue, 27 May 2003 20:04:49 +0200
-User-Agent: KMail/1.5.2
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
-       Christian Klose <christian.klose@freenet.de>,
-       William Lee Irwin III <wli@holomorphy.com>
-References: <3ED2DE86.2070406@storadinc.com> <3ED3A2AB.3030907@gmx.net> <3ED3A55E.8080807@storadinc.com>
-In-Reply-To: <3ED3A55E.8080807@storadinc.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200305271954.11635.m.c.p@wolk-project.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 27 May 2003 13:56:37 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:6407 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S264060AbTE0Rz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 13:55:56 -0400
+Subject: Re: [BK PATCHES] add ata scsi driver
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: torvalds@transmeta.com, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030527171605.GL845@suse.de>
+References: <1053972773.2298.177.camel@mulgrave>
+	<20030526181852.GL845@suse.de> <1053974830.1768.190.camel@mulgrave>
+	<20030526190707.GM845@suse.de> <1053976644.2298.194.camel@mulgrave>
+	<20030526193327.GN845@suse.de> <20030527123901.GJ845@suse.de>
+	<1054045594.1769.24.camel@mulgrave>  <20030527171605.GL845@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 27 May 2003 14:09:05 -0400
+Message-Id: <1054058946.1769.223.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 May 2003 19:50, manish wrote:
+On Tue, 2003-05-27 at 13:16, Jens Axboe wrote:
+> If you increase it again, the maps are resized. Is that a problem? Seems
+> ok to me.
 
-Hi Manish,
+What I mean is that you allocate memory whenever the depth increases. 
+Even if you have an array large enough to accommodate the increase
+(because you don't release when you decrease the tag depth).
 
-> It is not a system hang but the processes hang showing the same stack
-> trace. This is certainly not a pause since the bonnie processes that
-> were hung (or deadlocked) never completed after several hrs. The stack
-> trace  was the same.
-then you are hitting a different bug or a bug related to the issues Christian 
-Klose and me and $tons of others were complaining.
+On further examination, there's also an invalid tag race:  If a device
+is throttling, it might want to do a big decrease followed fairly
+quickly by a small increase.  When it does the increase, you potentially
+still have outstanding tags above the new depth, which will now run off
+the end of your newly allocated tag array.
 
-The bug you are hitting might be the problem with "process stuck in D state" 
-Andrea Arcangeli fixed, let me guess, over half a year ago or so.
+James
 
-In case you have a good mind to try to address your issue, you might want to 
-try out the patch you can find here:
-
-http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21rc2aa1/9980_fix-pausing-2
-
-ALL: Anyone who has this kind of pauses/stops/mouse is dead/keyboard is dead/:
-     speak _NOW_ please, doesn't matter who you are!
-
-I've added Andrea into CC.
-
-ciao, Marc
 
 

@@ -1,83 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265665AbSJXUmt>; Thu, 24 Oct 2002 16:42:49 -0400
+	id <S265651AbSJXUiG>; Thu, 24 Oct 2002 16:38:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265668AbSJXUmt>; Thu, 24 Oct 2002 16:42:49 -0400
-Received: from [202.89.69.154] ([202.89.69.154]:65244 "EHLO manage.24online")
-	by vger.kernel.org with ESMTP id <S265665AbSJXUmr>;
-	Thu, 24 Oct 2002 16:42:47 -0400
-Subject: Re: [vortex-bug] 3Com Cardbus 3CXFE575CT IRQ Problems
-From: Dionysius Wilson Almeida <dwilson@yenveedu.com>
-To: Donald Becker <becker@scyld.com>
-Cc: vortex-bug@scyld.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0210241633550.1190-100000@beohost.scyld.com>
-References: <Pine.LNX.4.44.0210241633550.1190-100000@beohost.scyld.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 25 Oct 2002 02:19:14 +0530
-Message-Id: <1035492554.1407.2.camel@debianlap>
+	id <S265653AbSJXUiG>; Thu, 24 Oct 2002 16:38:06 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:51721 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id <S265651AbSJXUiC>;
+	Thu, 24 Oct 2002 16:38:02 -0400
+Date: Thu, 24 Oct 2002 22:44:04 +0200
+From: Willy TARREAU <willy@w.ods.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
+Subject: Re: [CFT] faster athlon/duron memory copy implementation
+Message-ID: <20021024204404.GA486@pcw.home.local>
+References: <3DB82ABF.8030706@colorfullife.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DB82ABF.8030706@colorfullife.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-10-25 at 02:11, Donald Becker wrote:
-> On 24 Oct 2002, Dionysius Wilson Almeida wrote:
+On Thu, Oct 24, 2002 at 07:15:43PM +0200, Manfred Spraul wrote:
+> AMD recommends to perform memory copies with backward read operations 
+> instead of prefetch.
 > 
-> > I'm running Debian Woody with kernel 2.4.19 with cardbus and hotplug
-> > support.  I've a 3Com 3CXFE575CT pcmcia card and I'm trying to get it to
-> > work on my system. It seems that the card is unable to find a usable
-> > IRQ.
+> http://208.15.46.63/events/gdc2002.htm
 > 
-> As you likely already know, this is a kernel / BIOS issue, not a 3Com
-> driver issue.  This problem will exist with any CardBus card that uses
-> interrupts (almost every device).
+> Attached is a test app that compares several memory copy implementations.
+> Could you run it and report the results to me, together with cpu, 
+> chipset and memory type?
 > 
-> > I've disabled Plug-n-Play in the BIOS of my Sony VAIO PCG-FX140
-> > Laptop but still the card is not able to get any usable IRQs. I also
-> > booted with pci=biosirq but still no progress.
-> 
-> You can also try "noapic", although that's almost never a issue on a
-> laptop.  (It's more likely to be an issue on a desktop with a
-> PCI-CardBus adapter.) 
-I will try this "noapic" and see if that helps.
+> Please run 2 or 3 times.
 
-> > 00:00.0 Host bridge: Intel Corp. 82815 815 Chipset Host Bridge and
-> > Memory Controller Hub (rev 11)
-> > 	Subsystem: Sony Corporation: Unknown device 80df
-> ...
-> > 00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 03)
-> > (prog-if 00 [Normal decode])
-> > 	Flags: bus master, fast devsel, latency 0
-> > 	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
-> ...
-> > 01:00.0 FireWire (IEEE 1394): Texas Instruments TSB43AA22 IEEE-1394
-> 
-> Does the FireWire work properly?  It's sitting on the same secondary PCI
-> bus as the CardBus.
-> 
-Yeah the firewire disk works fine when Plug-n-Play in the BIOS is
-disabled.
+Dual Athlon XP 1800+ on ASUS A7M266-D (760MPX), 512 MB of PC2100 in two identical banks.
+I observed a noticeable slowdown several minutes later (after typing this mail),
+see below.
 
-> > 01:02.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
-> > 	Subsystem: Sony Corporation: Unknown device 80df
-> ...
-> > 	Bus: primary=01, secondary=02, subordinate=05, sec-latency=176
-> > 01:02.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
-> > 	Subsystem: Sony Corporation: Unknown device 80df
-> ..
-> > 01:08.0 Ethernet controller: Intel Corp. 82801BA/BAM/CA/CAM Ethernet
-> > Controller (rev 03)
-> > 	Subsystem: Intel Corp.: Unknown device 3013
-> > 	Flags: bus master, medium devsel, latency 66, IRQ 9
-> 
-> Presumably this is work fine as well.
-Yeah the in-built ethernet controller works fine too.
+willy@pcw:c$ ./athlon
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
 
-thanks for your inputs...
+copy_page() tests
+copy_page function 'warm up run'         took 16402 cycles per page
+copy_page function '2.4 non MMX'         took 17886 cycles per page
+copy_page function '2.4 MMX fallback'    took 17956 cycles per page
+copy_page function '2.4 MMX version'     took 16382 cycles per page
+copy_page function 'faster_copy'         took 9807 cycles per page
+copy_page function 'even_faster'         took 10205 cycles per page
+copy_page function 'no_prefetch'         took 8457 cycles per page
+willy@pcw:c$ ./athlon
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
 
-regards,
+copy_page() tests
+copy_page function 'warm up run'         took 16552 cycles per page
+copy_page function '2.4 non MMX'         took 17744 cycles per page
+copy_page function '2.4 MMX fallback'    took 17713 cycles per page
+copy_page function '2.4 MMX version'     took 16427 cycles per page
+copy_page function 'faster_copy'         took 9823 cycles per page
+copy_page function 'even_faster'         took 10266 cycles per page
+copy_page function 'no_prefetch'         took 8451 cycles per page
+willy@pcw:c$ ./athlon
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
 
--Wilson
+copy_page() tests
+copy_page function 'warm up run'         took 16409 cycles per page
+copy_page function '2.4 non MMX'         took 17547 cycles per page
+copy_page function '2.4 MMX fallback'    took 17516 cycles per page
+copy_page function '2.4 MMX version'     took 16354 cycles per page
+copy_page function 'faster_copy'         took 9807 cycles per page
+copy_page function 'even_faster'         took 10219 cycles per page
+copy_page function 'no_prefetch'         took 8442 cycles per page
 
+--- several minutes later ---
+
+willy@pcw:c$ ./athlon
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
+
+copy_page() tests
+copy_page function 'warm up run'         took 18140 cycles per page
+copy_page function '2.4 non MMX'         took 20370 cycles per page
+copy_page function '2.4 MMX fallback'    took 20361 cycles per page
+copy_page function '2.4 MMX version'     took 18086 cycles per page
+copy_page function 'faster_copy'         took 10231 cycles per page
+copy_page function 'even_faster'         took 10457 cycles per page
+copy_page function 'no_prefetch'         took 8456 cycles per page
+
+=> it seems that the memory areas have changed and that it is a bit
+slower now. But as you can see, no_prefetch is stable. Only "common"
+functions get slower.
+
+So I tried to allocate hundreds of MB of RAM to swap a bit, then free it.
+The results look better again :
+
+willy@pcw:c$ ./athlon
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
+
+copy_page() tests
+copy_page function 'warm up run'         took 16135 cycles per page
+copy_page function '2.4 non MMX'         took 17863 cycles per page
+copy_page function '2.4 MMX fallback'    took 17866 cycles per page
+copy_page function '2.4 MMX version'     took 16057 cycles per page
+copy_page function 'faster_copy'         took 9669 cycles per page
+copy_page function 'even_faster'         took 10176 cycles per page
+copy_page function 'no_prefetch'         took 8433 cycles per page
+
+=> "common" implementations seem to really suffer from physical location.
+
+Other data :
+------------
+
+willy@pcw:c$ cat /proc/pci
+  Bus  0, device   0, function  0:
+    Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System Controller (rev 17).
+      Master Capable.  Latency=32.
+      Prefetchable 32 bit memory at 0xfc000000 [0xfdffffff].
+      Prefetchable 32 bit memory at 0xfb800000 [0xfb800fff].
+      I/O at 0xe800 [0xe803].
+
+willy@pcw:c$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 6
+model name      : AMD Athlon(TM) MP 1800+
+stepping        : 2
+cpu MHz         : 1546.000
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+bogomips        : 3080.19
+
+processor       : 1
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 6
+model name      : AMD Athlon(TM) MP 1800+
+stepping        : 2
+cpu MHz         : 1546.000
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+bogomips        : 3086.74
+
+
+Cheers,
+Willy
 

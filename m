@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278911AbRKSN6R>; Mon, 19 Nov 2001 08:58:17 -0500
+	id <S279105AbRKSOAR>; Mon, 19 Nov 2001 09:00:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278959AbRKSN6I>; Mon, 19 Nov 2001 08:58:08 -0500
-Received: from mta.sara.nl ([145.100.16.144]:51875 "EHLO mta.sara.nl")
-	by vger.kernel.org with ESMTP id <S278911AbRKSN5x>;
-	Mon, 19 Nov 2001 08:57:53 -0500
-Message-Id: <200111191357.OAA04801@zhadum.sara.nl>
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Remco Post <r.post@sara.nl>
-To: James A Sutherland <jas88@cam.ac.uk>
-cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-Subject: Re: swap? 
-In-Reply-To: Message from James A Sutherland <jas88@cam.ac.uk> 
-   of "Mon, 19 Nov 2001 13:42:54 GMT." <E165ohF-0006WW-00@mauve.csi.cam.ac.uk> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 19 Nov 2001 14:57:46 +0100
+	id <S279103AbRKSOAH>; Mon, 19 Nov 2001 09:00:07 -0500
+Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:34086 "EHLO
+	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S279105AbRKSN74>;
+	Mon, 19 Nov 2001 08:59:56 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
+To: linux-kernel@vger.kernel.org
+Subject: Hp 8xxx Cd writer
+Date: Mon, 19 Nov 2001 14:00:34 +0000
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <EXCH01SMTP01CJiLyNf000018e2@smtp.netcabo.pt>
+X-OriginalArrivalTime: 19 Nov 2001 13:59:37.0359 (UTC) FILETIME=[6CE031F0:01C17102]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Monday 19 November 2001 12:46 am, Roy Sigurd Karlsbakk wrote:
-> > What about a tux-only system?
-> >
-> > should I disable swap?
-> 
-> No, probably not. Having some swapspace (or, to keep the .nl pedant happy, 
-> "pagespace") available will allow the kernel to migrate unused pages to disk, 
-> making more room available for caching of your WWW site's content. Being part 
-> of the kernel, Tux's code will all be locked in memory anyway; the rest of 
-> free RAM will be used for caching content.
-> 
-> 
-> James.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Hi, I am crrently runnig linux red hat 7.2 with a 2.4.7 kernel ( i havent 
+upgraded cause i am a newbie and haven't had he guts to do so ).
 
-On a tux only system, you'll have very little data that is not on a 
-filesystem. Since all other applications running (you'll wind up with at least 
-20 or so processes like syslogd...) are very small, and those will use very 
-little data-pages, you'll probably see no benefit from having a swappartition. 
-Having enough RAM to be used as a buffer-cache seems more usefull. Unused 
-code-pages of userland apps will be discarded anyway. Leaving you with more 
-memory to be used as a buffer-cache.
+However i am trying to configure the kernel 2.4.14 which i actually have even 
+acomplished to compile.
 
--- 
-Met vriendelijke groeten,
+I have a doubt though! I have an externel cd-writer ( hp 8200 ) which is 
+supported by the kernel, but in the make xconfig menu, that options appears 
+in gray ( u can't select it ). As a lot of kernel options need some kind of 
+pre-selected items, i am asking anyone who  knows what do i have to 
+pre-select so i can choose the module for hp..... support in my usb kernel 
+configuration menu.
 
-Remco Post
+If i didn't provide enough information plz tell me so!
 
-SARA - Stichting Academisch Rekencentrum Amsterdam
-High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
+Crying for help: 
 
-"I really didn't foresee the Internet. But then, neither did the computer
-industry. Not that that tells us very much of course - the computer industry
-didn't even foresee that the century was going to end." -- Douglas Adams
-
-
+Astinus.

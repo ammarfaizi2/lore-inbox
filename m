@@ -1,52 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132769AbRASBwy>; Thu, 18 Jan 2001 20:52:54 -0500
+	id <S136120AbRASBxo>; Thu, 18 Jan 2001 20:53:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132710AbRASBwo>; Thu, 18 Jan 2001 20:52:44 -0500
-Received: from node10084.a2000.nl ([24.132.0.132]:11024 "EHLO caliban.org")
-	by vger.kernel.org with ESMTP id <S132911AbRASBsg>;
-	Thu, 18 Jan 2001 20:48:36 -0500
-Date: Fri, 19 Jan 2001 02:48:35 +0100
-From: Ian Macdonald <ian@caliban.org>
+	id <S135802AbRASBwy>; Thu, 18 Jan 2001 20:52:54 -0500
+Received: from ozob.net ([216.131.4.130]:22168 "EHLO ozob.net")
+	by vger.kernel.org with ESMTP id <S132656AbRASBwq>;
+	Thu, 18 Jan 2001 20:52:46 -0500
+Date: Thu, 18 Jan 2001 19:52:40 -0600 (CST)
+From: ebi4 <ebi4@ozob.net>
 To: linux-kernel@vger.kernel.org
-Subject: Hang when booting 2.4.0/2.4.1-pre8 on Compaq 1850R with SMART 3200
-Message-ID: <20010119024835.A3655@caliban.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-PGP-Fingerprint: 5549 8FFB CE82 CF71 B0D7  14E0 BB98 B98B BFBA F0E8
-X-Operating-System: Linux 2.2.17 i686
+Subject: 2.4.1-pre8 video/ohci1394 compile problem
+In-Reply-To: <200101182112.f0ILCmZ113705@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.3.96.1010118195113.2374C-100000@ozob.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm currently experiencing difficulty booting Linux 2.4.0 on a Compaq
-1850R server with a SMART 3200 controller on board.
+video1394.o(.data+0x0): multiple definition of `ohci_csr_rom'
+ohci1394.o(.data+0x0): first defined here
+make[3]: *** [ieee1394drv.o] Error 1
 
-When the SMART array is detected and the cpqarray driver is loaded,
-the system hangs at the following point:
+Compilation fails here.
 
-Compaq SMART2 Driver (v 2.4.1)
-Found 1 controller(s)
-cpqarray ida/c0d0: blksz=512 nr_blks=17764320
-Partition check:
- ida/c0d0:_
+::::: Gene Imes			     http://www.ozob.net :::::
 
-The partition check never starts.
-
-I get the same results when booting 2.4.1-pre8. The system works fine
-with the 2.2.x kernel series, but I need some of the functionality in
-the newer 2.4.x series.
-
-Any ideas?
-
-Ian
--- 
-Ian Macdonald               | Inspite of all evidence to the contrary,   
-Senior System Administrator | the entire universe is composed of only two
-Linuxcare, Inc.             | basic substances: magic and bullshit.      
-Support for the Revolution  |                                            
-                            |                                            
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130201AbRBDKdx>; Sun, 4 Feb 2001 05:33:53 -0500
+	id <S129480AbRBDLBt>; Sun, 4 Feb 2001 06:01:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130259AbRBDKdn>; Sun, 4 Feb 2001 05:33:43 -0500
-Received: from pop.gmx.net ([194.221.183.20]:12991 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S130201AbRBDKdh>;
-	Sun, 4 Feb 2001 05:33:37 -0500
-Reply-To: <frlind@frlind.de>
-From: "Friedrich Lindenberg" <frlind@gmx.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: AW: ATAPI CDRW which doesn't work -> devfs problems
-Date: Sun, 4 Feb 2001 11:35:39 +0100
-Message-ID: <MABBKGIEPCIBHBENODFDGELBCBAA.frlind@gmx.net>
+	id <S130277AbRBDLBj>; Sun, 4 Feb 2001 06:01:39 -0500
+Received: from shell.ca.us.webchat.org ([216.152.64.152]:30382 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S129480AbRBDLB0>; Sun, 4 Feb 2001 06:01:26 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: <mathieu_dube@videotron.ca>, <linux-kernel@vger.kernel.org>
+Subject: RE: accept
+Date: Sun, 4 Feb 2001 03:01:24 -0800
+Message-ID: <NCBBLIEPOCNJOAEKBEAKGEICNHAA.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <Pine.LNX.4.21.0102041112120.20715-100000@campari.convergence.de>
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <01020319433406.00125@grndctrl>
 Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
- Hi
- I was trying to burn cds under linux-2.4.1 with 
- devFS enabled. But x-cd-roast (and also cdrecord)
- do not find any scsi drives. I guess they have been
- renamed or something like that, I cannot find them 
- in /dev, nor anywhere in /dev/scsi ...
- Oh, and could anybody tell me, how I stop RH7
- creating /dev/lp* every time I boot ? I don't 
- use devices attached to lp* ....
+> What does it typically mean when accept returns 0
+> and that the perror outputs "Interupted system call"??
 
-   thanks & greetings,
-    Friedrich 
+	Since 'accept' returning zero is not an error, the results of 'perror' are
+meaningless. Please read the manual page for 'accept' and notice that it
+says, "The call returns -1 on error". Continue reading to understand what a
+return value of zero means. Remember that zero is a non-negative integer.
 
- 
+	DS
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

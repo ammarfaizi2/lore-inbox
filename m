@@ -1,148 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263449AbTECWA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 18:00:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263451AbTECWA1
+	id S263452AbTECWWX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 18:22:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263458AbTECWWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 18:00:27 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:29639 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S263447AbTECWAC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 18:00:02 -0400
-Message-ID: <3EB43EC8.60309@namesys.com>
-Date: Sun, 04 May 2003 02:12:24 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
+	Sat, 3 May 2003 18:22:23 -0400
+Received: from 015.atlasinternet.net ([212.9.93.15]:3029 "EHLO
+	antoli.gallimedina.net") by vger.kernel.org with ESMTP
+	id S263452AbTECWWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 18:22:22 -0400
+From: Ricardo Galli <gallir@uib.es>
+Organization: UIB
+To: linux-kernel@vger.kernel.org
+Subject: BUG: 2.4.21-rc-ac3 [drm:i830_wait_ring] *ERROR*
+Date: Sun, 4 May 2003 00:34:46 +0200
+User-Agent: KMail/1.5.1
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [BK] [2.4] reiserfs: iget4() race fix]
-Content-Type: multipart/mixed;
- boundary="------------060600010308090106070203"
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305040034.46878.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060600010308090106070203
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi Alan,
+	I've got the following error from the i830 drm modules. I attach the 
+relevant lines, including when X/drm was started. The X server (4.3) was 
+killed after the kernel gave the errors. 
 
+It happened when I changed from X to a console via Ctrl-Alt-F8. I checked 
+the sources:
+
+if(time_before(end, jiffies))
+                    ^^^^^^^
+	DRM_ERROR("space: %d wanted %d\n", ring->space, n);
+	DRM_ERROR("lockup\n");
+
+Just in case, I had running my own program 
+(http://mnm.uib.es/~gallir/cpudyn/) to change the frequency of the cpu 
+dinamically according to the load. 
+
+I tried to repeat it with _and_ without that daemon running (i.e. at 
+constantfrequency) without success yet.
+
+
+Regards,
+
+PS: the laptop is a Dell X200, AGP is integrated in the kernel,
+
+-----------------
+memory : d63256e0
+memory : d6325720
+memory : d6325760
+memory : d63257a0
+[drm] AGP 0.99 on Intel i810 @ 0xe8000000 128MB
+[drm] Initialized i830 1.3.2 20021108 on minor 0
+mtrr: base(0xe8000000) is not aligned on a size(0x180000) boundary
+memory : d6325820
+memory : d6325860
+memory : d63258a0
+memory : d63258e0
+memory : d6325920
+PCI: Found IRQ 10 for device 00:02.0
+PCI: Sharing IRQ 10 with 00:1d.0
+PCI: Sharing IRQ 10 with 02:03.0
+[drm:i830_wait_ring] *ERROR* space: 131048 wanted 131064
+[drm:i830_wait_ring] *ERROR* lockup
+[drm:i830_wait_ring] *ERROR* space: 131040 wanted 131064
+[drm:i830_wait_ring] *ERROR* lockup
+[drm:i830_wait_ring] *ERROR* space: 131032 wanted 131064
+[drm:i830_wait_ring] *ERROR* lockup
+[drm:i830_wait_ring] *ERROR* space: 131024 wanted 131064
+[drm:i830_wait_ring] *ERROR* lockup
+[drm:i830_wait_ring] *ERROR* space: 131016 wanted 131064
+[drm:i830_wait_ring] *ERROR* lockup
+[drm:i830_wait_ring] *ERROR* space: 131008 wanted 131064
+[drm:i830_wait_ring] *ERROR* lockup
+[drm:i830_wait_ring] *ERROR* space: 131000 wanted 131064
+[drm:i830_wait_ring] *ERROR* lockup
+[drm:i830_wait_ring] *ERROR* space: 130992 wanted 131064
+[drm:i830_wait_ring] *ERROR* lockup
+[drm:i830_wait_ring] *ERROR* space: 130984 wanted 131064
+[drm:i830_wait_ring] *ERROR* lockup
+[drm:i830_wait_ring] *ERROR* space: 130976 wanted 131064
+[drm:i830_wait_ring] *ERROR* lockup
+[drm:i830_wait_ring] *ERROR* space: 130968 wanted 131064
+[drm:i830_wait_ring] *ERROR* lockup
+[drm:i830_wait_ring] *ERROR* space: 130960 wanted 131064
+[drm:i830_wait_ring] *ERROR* lockup
 
 -- 
-Hans
-
-
---------------060600010308090106070203
-Content-Type: message/rfc822;
- name="[2.4] reiserfs: iget4() race fix"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="[2.4] reiserfs: iget4() race fix"
-
-Return-Path: <green@angband.namesys.com>
-Delivered-To: reiser@namesys.com
-Received: (qmail 24464 invoked from network); 3 May 2003 12:47:40 -0000
-Received: from angband.namesys.com (postfix@212.16.7.85)
-  by thebsh.namesys.com with SMTP; 3 May 2003 12:47:40 -0000
-Received: by angband.namesys.com (Postfix, from userid 521)
-	id 563BF56AA3C; Sat,  3 May 2003 16:47:40 +0400 (MSD)
-Date: Sat, 3 May 2003 16:47:40 +0400
-From: Oleg Drokin <green@namesys.com>
-To: reiser@namesys.com
-Subject: [2.4] reiserfs: iget4() race fix
-Message-ID: <20030503124740.GD21210@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-
-Hello!
-
-    This changeset implements a fix for iget4() race possible on reiserfs filesystems.
-    This is minimalistic fix that is intended to be replaced with iget5_locked()
-    implementation later on. The iget5_locked patch is too much of a change for
-    2.4.21-rc2, I afraid. The race itself may lead to pretty much disasters, we've already
-    seen it may lead to direntries pointing to nowhere, incorrect nlink counts,
-    NFS problems.
-
-    Please pull from bk://namesys.com/bk/reiser3-linux-2.4-race-fix
-
-Diffstat:
- inode.c |   26 ++++++++++++++++++++++++--
- 1 files changed, 24 insertions(+), 2 deletions(-)
-
-Plain text patch:
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.988   -> 1.989  
-#	 fs/reiserfs/inode.c	1.42    -> 1.43   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/05/03	green@angband.namesys.com	1.989
-# reiserfs: iget4() race fix
-# --------------------------------------------
-#
-diff -Nru a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
---- a/fs/reiserfs/inode.c	Sat May  3 16:38:17 2003
-+++ b/fs/reiserfs/inode.c	Sat May  3 16:38:17 2003
-@@ -20,6 +20,10 @@
- static int reiserfs_get_block (struct inode * inode, long block,
- 			       struct buffer_head * bh_result, int create);
- 
-+/* This spinlock guards inode pkey in private part of inode
-+   against race between find_actor() vs reiserfs_read_inode2 */
-+static spinlock_t keycopy_lock = SPIN_LOCK_UNLOCKED;
-+
- void reiserfs_delete_inode (struct inode * inode)
- {
-     int jbegin_count = JOURNAL_PER_BALANCE_CNT * 2; 
-@@ -898,8 +902,9 @@
-     bh = PATH_PLAST_BUFFER (path);
-     ih = PATH_PITEM_HEAD (path);
- 
--
-+    spin_lock(&keycopy_lock);
-     copy_key (INODE_PKEY (inode), &(ih->ih_key));
-+    spin_unlock(&keycopy_lock);
-     inode->i_blksize = PAGE_SIZE;
- 
-     INIT_LIST_HEAD(&inode->u.reiserfs_i.i_prealloc_list) ;
-@@ -1220,10 +1225,27 @@
- 				unsigned long inode_no, void *opaque )
- {
-     struct reiserfs_iget4_args *args;
-+    int retval;
- 
-     args = opaque;
-+    /* We protect against possible parallel init_inode() on another CPU here. */
-+    spin_lock(&keycopy_lock);
-     /* args is already in CPU order */
--    return le32_to_cpu(INODE_PKEY(inode)->k_dir_id) == args -> objectid;
-+    if (le32_to_cpu(INODE_PKEY(inode)->k_dir_id) == args -> objectid)
-+	retval = 1;
-+    else
-+	/* If The key does not match, lets see if we are racing
-+	   with another iget4, that already progressed so far
-+	   to reiserfs_read_inode2() and was preempted in
-+	   call to search_by_key(). The signs of that are:
-+	     Inode is locked
-+	     dirid and object id are zero (not yet initialized)*/
-+	retval = (inode->i_state & I_LOCK) &&
-+		 !INODE_PKEY(inode)->k_dir_id &&
-+		 !INODE_PKEY(inode)->k_objectid;
-+
-+    spin_unlock(&keycopy_lock);
-+    return retval;
- }
- 
- struct inode * reiserfs_iget (struct super_block * s, const struct cpu_key * key)
-
-
-
---------------060600010308090106070203--
-
+  ricardo galli       GPG id C8114D34

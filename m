@@ -1,74 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262245AbRENQT7>; Mon, 14 May 2001 12:19:59 -0400
+	id <S262263AbRENQwG>; Mon, 14 May 2001 12:52:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262259AbRENQTj>; Mon, 14 May 2001 12:19:39 -0400
-Received: from sunmail.canal-plus.fr ([194.2.208.66]:54673 "EHLO
-	sunmail.canal-plus.fr") by vger.kernel.org with ESMTP
-	id <S262245AbRENQTe>; Mon, 14 May 2001 12:19:34 -0400
-Date: Mon, 14 May 2001 18:19:26 +0200
-From: tdanis@canal-plus.fr
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux TCP impotency
-Message-ID: <20010514181926.A31101@canal-plus.fr>
-In-Reply-To: <20010513213853.A5700@ghost.btnet.cz> <20010513225415.A4950@home.ds9a.nl>
+	id <S262260AbRENQv5>; Mon, 14 May 2001 12:51:57 -0400
+Received: from t2.redhat.com ([199.183.24.243]:14326 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262263AbRENQvo>; Mon, 14 May 2001 12:51:44 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <m1k83kj7dj.fsf@frodo.biederman.org> 
+In-Reply-To: <m1k83kj7dj.fsf@frodo.biederman.org>  <m1y9s1jbml.fsf@frodo.biederman.org> <20010511162412.A11896@lucon.org> <15100.30085.5209.499946@pizda.ninka.net> <20010511165339.A12289@lucon.org> <m13da9ky7s.fsf@frodo.biederman.org> <20010513110707.A11055@lucon.org> <16874.989832587@redhat.com> 
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: "H . J . Lu" <hjl@lucon.org>, "David S. Miller" <davem@redhat.com>,
+        alan@lxorguk.ukuu.org.uk, linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Enable IP PNP for 2.4.4-ac8 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010513225415.A4950@home.ds9a.nl>; from ahu@ds9a.nl on Sun, May 13, 2001 at 10:54:15PM +0200
+Date: Mon, 14 May 2001 17:51:19 +0100
+Message-ID: <8717.989859079@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 13, 2001 at 10:54:15PM +0200, ahu@ds9a.nl wrote:
-> On Sun, May 13, 2001 at 09:38:53PM +0200, clock@ghost.btnet.cz wrote:
-> > Using 2.2.19 I discovered that running two simultaneous scp's (uses up whole
-> > capacity in TCP traffic) on a 115200bps full duplex serial port nullmodem cable
-> > causes the earlier started one to survive and the later to starve. Running bcp
-> > instead of the second (which uses UDP) at 11000 bytes per second caused the
-> > utilization in both directions to go up nearly to 100%.
-> > 
-> > Is this a normal TCP stack behaviour?
-> 
-> Might very well be. Read about different forms of (class based) queuing
-> which try (and succeed) to improve IP in this respect. TCP is not fair and
-> IP has no intrinsic features to help you. http://ds9a.nl/2.4Routing contains
-> some explanations and links.
-> 
-> SFQ sounds like it might fit your bill.
-> 
-> Regards,
-> 
-> bert
-> 
-> -- 
-> http://www.PowerDNS.com      Versatile DNS Services  
-> Trilab                       The Technology People   
-> 'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
-> -
 
-	I was about to report the same 'od' behaviour : I have 3
-	machines, connected via a HUB at 100 Mb/s half duplex.
+ebiederm@xmission.com said:
+>  There wasn't even DHCP support before so yes you did.   As you can't
+> get the nfs mount point from bootp. 
 
-	From machine A : rsh B dd if=/dev/zero bs=8192 | dd of=/dev/null
+Wasn't there a default? The Indy behind me seems to try to mount
+/tftpboot/172.16.18.195, so I put a filesystem there just to make it happy.
 
-	=> transfert around 10/11 MB/s (B => A)
+It's a 2.4.3 kernel.
 
-	Now, I start a second transfert from machine C :
+>  Well I think in the CONFIG_BLK_DEV=n case it might wind up being a
+> ramfs or tmpfs image.  Something like a simplified version of tar. 
 
-	rsh B dd if=/dev/zero bs=8192 | dd of=/dev/null
+Well, if it stops working and stays broken, I suppose I'll just have to 
+hack up a built-in command line option. ISTR ARM already has such an option.
 
-	=> transfert around 10/11 MB/s between B and C, almost nothing
-	between A and B (ie, the connexion is stalled between A and B).
+I'd rather it didn't break, though.
 
-	If I stop the second transfert, I takes many seconds for
-	the transfert to restart between A and B.
 
-	On a highly saturated network, I have already seen such a
-	behavior.
+--
+dwmw2
 
-	Is that related to the IP adresses, the lowest being served
-	first ?
 
-A+,
--- 
-	Thierry Danis

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132456AbQLQLP5>; Sun, 17 Dec 2000 06:15:57 -0500
+	id <S131880AbQLQLSR>; Sun, 17 Dec 2000 06:18:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132493AbQLQLPj>; Sun, 17 Dec 2000 06:15:39 -0500
-Received: from ws-han1.win-ip.dfn.de ([193.174.75.150]:64335 "EHLO
-	ws-han1.win-ip.dfn.de") by vger.kernel.org with ESMTP
-	id <S132456AbQLQLPf>; Sun, 17 Dec 2000 06:15:35 -0500
-Date: Sun, 17 Dec 2000 11:46:38 +0100
-Message-ID: <vines.sxdD+Ca7DuA@SZKOM.BFS.DE>
-X-Priority: 3 (Normal)
-To: <linux-kernel@vger.kernel.org>
-From: <WHarms@bfs.de> (Walter Harms)
-Reply-To: <WHarms@bfs.de>
-Subject: tasknames
-X-Incognito-SN: 3029
-X-Incognito-Version: 5.1.0.84
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S132471AbQLQLSH>; Sun, 17 Dec 2000 06:18:07 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:63759 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S131880AbQLQLR4>; Sun, 17 Dec 2000 06:17:56 -0500
+Date: Sun, 17 Dec 2000 04:47:29 -0600
+To: Kernel Developer List <linux-kernel@vger.kernel.org>
+Subject: Re: Anyone having trouble compiling test13-pre1?
+Message-ID: <20001217044729.T3199@cadcamlab.org>
+In-Reply-To: <20001214224403.B25589@one-eyed-alien.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001214224403.B25589@one-eyed-alien.net>; from mdharm-kernel@one-eyed-alien.net on Thu, Dec 14, 2000 at 10:44:03PM -0800
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-hi list,
+[Matthew Dharm]
+> I'm having some problems with unresolved symbols in my modules with
+> test13-pre1.  This worked just fine before, and the symbols are all
+> stuff that I'm sure it there.
+> 
+> It looks like the modules were compiled for non-versioned symbols,
+> while my kernel uses versioned symbols.  The modules are looking for
+> things like daemonize, kmalloc, try_inc_mod_count, and other things
+> I'd fully expect to be there.  /proc/ksyms shows them as
+> __VERSIONED_SYMBOL(daemonize), so I'm not sure what to expect.
 
-lately i wrote a programm to find a PID(-list) for a given name. I found it confusing that the tasks are not having a propper form of name registration.
-The field int task_struct the field comm is restricted to 16 chars. Longer names can only be identified with the 'cmdline' entry from the procfs. But not every task set it e.g. kflushd and friends.
+There are several MODVERSIONS fixes in test13-pre2.  The "old Makefiles
+must die" project is still a WIP but getting there.
 
-I would call to force all programm to fill the 'cmdline' entry.
-Does any programm use the comm entry ? ( i dont talk about ps, print is not a use in this sense). if not the 'cmdline' could replace the comm field. It would be more flexable.
-(and its already there in mm_struct)
-
-
-walter
-
-ps: i am not a memeber of this list
-
-
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

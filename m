@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272124AbTGYOYg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 10:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272125AbTGYOYg
+	id S272126AbTGYO1v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 10:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272127AbTGYO1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 10:24:36 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:21890 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272124AbTGYOYe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 10:24:34 -0400
-Date: Fri, 25 Jul 2003 07:39:33 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Ga?l Le Mignot <kilobug@freesurf.fr>
-Cc: Larry McVoy <lm@bitmover.com>,
-       Leandro Guimar?es Faria Corsetti Dutra 
-	<lgcdutra@terra.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Switching to the OSL License, in a dual way.
-Message-ID: <20030725143933.GA13840@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Ga?l Le Mignot <kilobug@freesurf.fr>, Larry McVoy <lm@bitmover.com>,
-	Leandro Guimar?es Faria Corsetti Dutra <lgcdutra@terra.com.br>,
-	linux-kernel@vger.kernel.org
-References: <pan.2003.07.24.18.06.06.546220@terra.com.br> <Pine.LNX.4.10.10307241256360.16098-100000@master.linux-ide.org> <pan.2003.07.24.21.05.40.969654@terra.com.br> <20030724215744.GA7777@work.bitmover.com> <plopm3wue72alp.fsf@drizzt.kilobug.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 25 Jul 2003 10:27:51 -0400
+Received: from smtp4.wanadoo.fr ([193.252.22.26]:38466 "EHLO
+	mwinf0502.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S272126AbTGYO1n convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 10:27:43 -0400
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: [2.4.22-pre7] speedtouch.o unresolved symbols
+Date: Fri, 25 Jul 2003 16:43:31 +0200
+User-Agent: KMail/1.5.2
+Cc: koraq@xs4all.nl, linux-kernel@vger.kernel.org
+References: <20030724202048.GA16411@spearhead> <200307250855.24218.baldrick@wanadoo.fr> <200307251426.h6PEQs9g003992@turing-police.cc.vt.edu>
+In-Reply-To: <200307251426.h6PEQs9g003992@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <plopm3wue72alp.fsf@drizzt.kilobug.org>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+Message-Id: <200307251643.32003.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 25, 2003 at 11:56:34AM +0200, Ga?l Le Mignot wrote:
-> 
->  >   BK  already   provides   more   than  enough   in   the  way   of
->  > interoperability,  both on  the way  in and on  the way  out.  It's
->  > trivial to get your data out  of BK as well as your metadata.  It's
->  > a small perl  script to get all the info out  and plop it into some
->  >  other  system, we're  much  better about  that  than  any free  or
->  > commercial system.
-> 
-> And MS  Word allows to  export data in  plain text or html.
+On Friday 25 July 2003 16:26, Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 25 Jul 2003 08:55:24 +0200, Duncan Sands <baldrick@wanadoo.fr>  said:
+> > On Thursday 24 July 2003 22:20, koraq@xs4all.nl wrote:
+> > > /lib/modules/2.4.22-pre7/kernel/drivers/usb/speedtch.o depmod:
+> > > shutdown_atm_dev_R0b9b1467
+> > > depmod:         atm_charge_Rf874f17b
+> > > depmod:         atm_dev_register_Rc23701a4
+> > > make: *** [_modinst_post] Error 1
+> >
+> > You need to enable ATM support (CONFIG_ATM).  To do this, you
+> > need to enable support for experimental code (CONFIG_EXPERIMENTAL).
+>
+> Also, the Speedtouch driver appears to be missing a #ifdef CONFIG_ATM or
+> two?
 
-Which is a lossy export.  Of course reverse engineering of Word is allowed,
-you didn't get all your data.  You can get *all* of your data out of BK,
-by definition.  BK can start with the data it exports and rebuild the 
-revision history.  So can you.  So you are needlessly arguing.
+>From drivers/usb/Config.in
 
-> This is  exactly the  same. As  long as there  is a  data format  or a
-> protocol involved,  European laws allow users to  reverse engineer it,
-> to  be  able to  create  another program  using  the  same format  and
-> protocols. 
+   if [ "$CONFIG_ATM" = "y" -o "$CONFIG_ATM" = "m" ]; then
+      dep_tristate '  Alcatel Speedtouch USB support' CONFIG_USB_SPEEDTOUCH $CONFIG_ATM $CONFIG_USB
+   fi
 
-Really?  Show me that law please.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Now the question is: why is this not enough?
+
+Duncan.

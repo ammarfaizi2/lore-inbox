@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263614AbTEDOcj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 10:32:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263617AbTEDOcj
+	id S263617AbTEDOk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 10:40:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263619AbTEDOk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 10:32:39 -0400
-Received: from smtp-out.comcast.net ([24.153.64.115]:43251 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S263614AbTEDOci (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 10:32:38 -0400
-Date: Sun, 04 May 2003 10:47:01 -0400
-From: Chris Heath <chris@heathens.co.nz>
-Subject: [PATCH][2.5] keyboard.c Fix CONFIG_MAGIC_SYSRQ+PrintScreen
+	Sun, 4 May 2003 10:40:29 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:11161 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S263617AbTEDOk1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 10:40:27 -0400
+Message-ID: <20030504145234.83566.qmail@mail.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: nmala@mail.com
 To: linux-kernel@vger.kernel.org
-Message-id: <20030504103511.16C2.CHRIS@heathens.co.nz>
-MIME-version: 1.0
-X-Mailer: Becky! ver. 2.05.10
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-X-Antirelay: Good relay from local net2 68.61.224.73/32
+Cc: linux-scsi@vger.kernel.org
+Date: Sun, 04 May 2003 09:52:34 -0500
+Subject: Regarding Umount
+X-Originating-Ip: 133.145.164.4
+X-Originating-Server: ws1-8.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the PrintScreen key when CONFIG_MAGIC_SYSRQ is enabled.
-It allows you to use that key normally when Alt is not being pressed.
-Patch is against kernel 2.5.68.
+Hi,
 
-Chris
+What exactly does umount write?? Every time I umount my pseudo driver there are two calls to request with readwrite flag set to 1. Haven't been able to find a corresponding write in the trace of umount.
 
-
-
---- a/drivers/char/keyboard.c	2003-04-19 12:52:01.000000000 -0400
-+++ b/drivers/char/keyboard.c	2003-04-19 12:57:10.000000000 -0400
-@@ -1047,8 +1047,8 @@
- 				printk(KERN_WARNING "keyboard.c: can't emulate rawmode for keycode %d\n", keycode);
- 
- #ifdef CONFIG_MAGIC_SYSRQ	       /* Handle the SysRq Hack */
--	if (keycode == KEY_SYSRQ && !rep) {
--		sysrq_down = sysrq_alt && down;
-+	if (keycode == KEY_SYSRQ && (sysrq_down || (down == 1 && sysrq_alt))) {
-+		sysrq_down = down;
- 		return;
- 	}
- 	if (sysrq_down && down && !rep) {
+Regards,
+Mala
+-- 
+__________________________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
 

@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265065AbTA1KcF>; Tue, 28 Jan 2003 05:32:05 -0500
+	id <S265130AbTA1KhK>; Tue, 28 Jan 2003 05:37:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265066AbTA1KcF>; Tue, 28 Jan 2003 05:32:05 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:52750 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S265065AbTA1KcE>; Tue, 28 Jan 2003 05:32:04 -0500
-Date: Tue, 28 Jan 2003 13:40:49 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Martin Mares <mj@ucw.cz>, Richard Henderson <rth@twiddle.net>,
-       "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2.5] VGA IO on systems with multiple PCI IO domains
-Message-ID: <20030128134049.B9195@jurassic.park.msu.ru>
-References: <20030128132406.A9195@jurassic.park.msu.ru> <Pine.GSO.4.21.0301281126390.9269-100000@vervain.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0301281126390.9269-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Tue, Jan 28, 2003 at 11:27:21AM +0100
+	id <S265132AbTA1KhJ>; Tue, 28 Jan 2003 05:37:09 -0500
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:22990 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S265130AbTA1KhH>; Tue, 28 Jan 2003 05:37:07 -0500
+Date: Tue, 28 Jan 2003 10:46:26 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cantab.net>
+To: Pavel Machek <pavel@ucw.cz>
+cc: linux-ntfs-dev@lists.sf.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANN] ntfsprogs (formerly Linux-NTFS) 1.7.0beta released
+In-Reply-To: <20030123230137.GC906@zaurus>
+Message-ID: <Pine.SOL.3.96.1030128104050.26720A-100000@libra.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 28, 2003 at 11:27:21AM +0100, Geert Uytterhoeven wrote:
-> > This can be overridden in <asm/pci.h>.
+On Fri, 24 Jan 2003, Pavel Machek wrote:
+> > This is a massive update featuring an almost complete rewrite of the ntfs
+> > library (the API should hopefully remain stable from now on) as well as
+> > several new utilities: ntfslabel, ntfsresize, and ntfsundelete.
 > 
-> Although legacy resources exist on non-PCI as well.
+> So you can resize ntfs but not (safely) write to it?
 
-Sure, but it's ok to include <linux/pci.h> and use stub PCI
-interfaces even if CONFIG_PCI is not set.
+The library can write to ntfs quite safely indeed as can the new kernel
+driver (present in 2.5.x and available as patch for 2.4.x from
+http://linux-ntfs.sf.net/download.html.  But the only thing that is
+implemented in both is file overwrite, no change of file size is possible
+at present. Also it is not possible to create/delete files/hard links/sym
+links. Please note this is not due to a lack of knowledge, its just a
+matter of having the time to implement it all... I am currently working on
+adding truncate support to the library (the code will be later ported to
+the kernel of course) and I have my new ntfstruncate utility working for
+certain types of inodes and certain cases of truncation. But it is going
+to take a while to have it completed. A lot of support code needs to be
+written to cope with all cases... E.g. need to be able to allocate/free
+clusters and inodes for a start (clusters are pretty much done, inode
+freeing is done, too), resize attribute records, work with attribute list
+attributes, ... Ntfs is complicated unfortunately...
 
-Ivan.
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

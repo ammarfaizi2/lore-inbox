@@ -1,67 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269248AbRGaKp6>; Tue, 31 Jul 2001 06:45:58 -0400
+	id <S269249AbRGaLAJ>; Tue, 31 Jul 2001 07:00:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269247AbRGaKps>; Tue, 31 Jul 2001 06:45:48 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:38813 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S269246AbRGaKpl>;
-	Tue, 31 Jul 2001 06:45:41 -0400
-Date: Tue, 31 Jul 2001 12:45:44 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200107311045.MAA20562@harpo.it.uu.se>
-To: tigran@veritas.com
-Subject: Re: booting SMP P6 kernel on P4 hangs.
-Cc: linux-kernel@vger.kernel.org
+	id <S269250AbRGaK77>; Tue, 31 Jul 2001 06:59:59 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:1028 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S269249AbRGaK7m>; Tue, 31 Jul 2001 06:59:42 -0400
+Message-ID: <3B668FA2.5E76BE1E@namesys.com>
+Date: Tue, 31 Jul 2001 14:59:46 +0400
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
+MIME-Version: 1.0
+To: Chris Wedgwood <cw@f00f.org>
+CC: Rik van Riel <riel@conectiva.com.br>, Christoph Hellwig <hch@caldera.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <Pine.LNX.4.33L.0107301904060.5582-100000@duckman.distro.conectiva> <3B65E177.D77ACA45@namesys.com> <20010731223203.B7257@weta.f00f.org>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 31 Jul 2001 07:10:34 +0100 (BST), Tigran Aivazian wrote:
+Chris Wedgwood wrote:
+> 
+> On Tue, Jul 31, 2001 at 02:36:39AM +0400, Hans Reiser wrote:
+> 
+>     If you could halve linux memory manager performance and check as
+>     many things as reiserfs checks, would you do it.  I think not, or
+>     else you would have.  You made the right choice.  Now, if you add
+>     a #define, you can check as many things as ReiserFS checks, and
+>     still go just as fast....
+> 
+> The memory manager is stress much more often that reiserfs, EVERYBODY
+> has it.
+> 
+> The MM system does have various sanity checks, things might be
+> slightly faster without them, but having the sanity checks is still
+> very important.
+> 
+> If the memory manager does something bad, chances are your system will
+> go boom --- upon reboot all is happy.  If as fs goes bad, that
+> corruption might still be there when you reboot, even if to another
+> kernel!  This is a major difference.
+> 
+> Anyhow, I use resierfs with debugging/checking on in lots of places.
+> The speed difference is negligible, so I think this whole thread is
+> pointless.
+> 
+> FWIW, if the mainline kernels remove the debugging option, I will hack
+> it back in --- I for one am happy with the performance and am pleased
+> there is additional sanity checking.
+> 
+>   --cw
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
->Isn't SMP P6 kernel supposed to boot fine on a P4? Btw, booting with
->"nosmp" works but booting with "noapic" hangs just the same.
->
->Here is where it hangs:
->
->> CPU0: Intel(R) Pentium(R) 4 CPU 1300 Mhz stepping 0a
->> per-CPU timeslice cutoff: 731.49 usecs
->> weird, boot CPU (#0) not listed by the BIOS
->> Getting VERSION: f000acde
->> Getting VERSION: f0ffac21
->> leaving PIC mode, enabling symmetric IO mode.
->> enabled ExtINT on CPU#0
->> ESR value before enabling vector: 00000000
->> ESR value after enabling vector: 00000000
->> CPU present map: 1
->> Before bogomips.
->> Error: only one processor found.
->> Boot done.
->> ENABLING IO-APIC IRQs
->> Synchronizing Arb IDs.
->> ..TIMER: vector=31 pin1=2 pin2=0
->> activating NMI Watchdog...done
->> CPU#0 NMI appears to be stuck
->> testing the IO APIC.............
->> ..........................done
->> calibrating APIC timer...
->> .....CPU clock speed is 1285.2614 Mhz
->> ....host bus clock speed is 0.0000 Mhz
->> cpu:0, clocks:0, slice:0
 
-Which kernel version?
-I actually wouldn't expect the current local APIC or SMP code to
-work perfectly on a P4, since there are many differences to P6/K7.
-I scribbled some of them down a while ago (based on reading
-the first rev of Intel's IA32 Vol3 for P4 manual):
-- FEE000090 Arbitration Priority not supported in P4
-- broadcast is 0xFF in P4
-- flat cluster model is not supported in P4
-- focus processor concept doesn't exist in P4
-- "all excluding self" destination shorthand == "all including self"
-  in P4 if lowest-priority delivery mode is used (not recommended)
-- SPIV bit 9 (focus) should be 0 on P4
-- version is 0x14 and maxlvt is 5 on P4
+Last I ran benchmarks the performance cost was 30-40%, but this was some time
+ago.  I think that the coders have been quietly culling some checks out of the
+FS, and so it does not cost as much anymore.  I would prefer that the "excesive"
+checks had stayed in.
 
-2.4.7 apic.c enables the SPIV focus bit, maybe that's the problem.
+Sigh, I see I cannot persuade in this argument.  It seems Linus is right, and
+debugging checks don't belong in debugged code even if they would make it easier
+for persons hacking on the code to debug their latest hacks.
 
-/Mikael
+Hans

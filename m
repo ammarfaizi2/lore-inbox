@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136457AbRD3HCo>; Mon, 30 Apr 2001 03:02:44 -0400
+	id <S136465AbRD3HHP>; Mon, 30 Apr 2001 03:07:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136462AbRD3HCg>; Mon, 30 Apr 2001 03:02:36 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:57749 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S136457AbRD3HC3>;
-	Mon, 30 Apr 2001 03:02:29 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S136464AbRD3HHE>; Mon, 30 Apr 2001 03:07:04 -0400
+Received: from mail1.bna.bellsouth.net ([205.152.150.13]:11166 "EHLO
+	mail1.bna.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S136463AbRD3HGv>; Mon, 30 Apr 2001 03:06:51 -0400
+From: volodya@mindspring.com
+Date: Mon, 30 Apr 2001 03:05:05 -0400 (EDT)
+Reply-To: volodya@mindspring.com
+To: Alexander Viro <viro@math.psu.edu>
+cc: "Eric S. Raymond" <esr@thyrsus.com>, Anton Altaparmakov <aia21@cam.ac.uk>,
+        John Stoffel <stoffel@casc.com>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 1.3.1, aka "I stick my neck out a mile..."
+In-Reply-To: <Pine.GSO.4.21.0104292204040.2210-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.20.0104300303530.4671-100000@node2.localnet.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15085.3587.865614.360094@pizda.ninka.net>
-Date: Mon, 30 Apr 2001 00:02:27 -0700 (PDT)
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, "H. Peter Anvin" <hpa@zytor.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
-In-Reply-To: <Pine.LNX.4.33.0104290914260.14261-100000@twinlark.arctic.org>
-In-Reply-To: <3AEBF782.1911EDD2@mandrakesoft.com>
-	<Pine.LNX.4.33.0104290914260.14261-100000@twinlark.arctic.org>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> Eric, it's getting tiresome.  Kindly learn what the fsck McQ is, OK?
 
-dean gaudet writes:
- > i was kind of solving a different problem with the code page though -- the
- > ability to use rdtsc on SMP boxes with processors of varying speeds and
- > synchronizations.
+ Just out of curiousity - what is McQ ?
 
-A better way to solve that problem is the way UltraSPARC-III do and
-future ia64 systems will, by way of a "system tick" register which
-increments at a constant rate regardless of how the cpus are clocked.
+                              Vladimir Dergachev
 
-The "system tick" pulse goes into the processor, so it's still a local
-cpu register being accessed.  Think of it as a system bus clock cycle
-counter.
+PS And no, I am very sure there is no such thing in Star Trek.
 
-Granted, you probably couldn't make changes to the hardware you were
-working on at the time :-)
-
-Later,
-David S. Miller
-davem@redhat.com
+> 
+> /me abstains from attaching Kibo's .sig - 1Mb of PDF is unfortunately
+> over the top for l-k...
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

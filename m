@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264644AbTCFE4q>; Wed, 5 Mar 2003 23:56:46 -0500
+	id <S267577AbTCFE5D>; Wed, 5 Mar 2003 23:57:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267577AbTCFE4q>; Wed, 5 Mar 2003 23:56:46 -0500
-Received: from blackbird.intercode.com.au ([203.32.101.10]:2565 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S264644AbTCFE4p>; Wed, 5 Mar 2003 23:56:45 -0500
-Date: Thu, 6 Mar 2003 16:06:46 +1100 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Niels den Otter <otter@surfnet.nl>
-cc: Brian Litzinger <brian@top.worldcontrol.com>,
-       "David S. Miller" <davem@redhat.com>, <kuznet@ms2.inr.ac.ru>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Re: Booting 2.5.63 vs 2.4.20 I can't read multicast data
-In-Reply-To: <20030304223953.GA3114@pangsit>
-Message-ID: <Pine.LNX.4.44.0303061605001.27962-100000@blackbird.intercode.com.au>
+	id <S267687AbTCFE5D>; Wed, 5 Mar 2003 23:57:03 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:62970 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S267577AbTCFE5C>;
+	Wed, 5 Mar 2003 23:57:02 -0500
+Message-ID: <3E66D77D.4050800@mvista.com>
+Date: Wed, 05 Mar 2003 21:07:09 -0800
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Making it easy to add system calls
+References: <Pine.LNX.4.44.0303051926180.10651-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0303051926180.10651-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Mar 2003, Niels den Otter wrote:
+Linus Torvalds wrote:
+> 
+> On Wed, 5 Mar 2003, george anzinger wrote:
+> 
+>>SYS_CALL(clock_nanosleep) \
+>>
+>>This will put "sys_clock_nanosleep" in the call table in entry.S and 
+>>define the "__NR_clock_nanosleep" for unistd.  The last entry of the 
+>>enum is NR_syscalls, thus defineing and keeping this symbol current.
+> 
+> 
+> Me no likee.
 
-> You appear to be strugling with the same problem I have. What I find is
-> that the multicast application binds to the loopback instead of ethernet
-> interface (also no IGMP joins are send out on the ethernet interface).
-
-Please try the patch below.
+Cool.  It was just a thought that I could not put down with out doing 
+the code :)
 
 
-- James
 -- 
-James Morris
-<jmorris@intercode.com.au>
-
-
-diff -urN -X dontdiff linux-2.5.64.orig/net/ipv4/igmp.c linux-2.5.64.w1/net/ipv4/igmp.c
---- linux-2.5.64.orig/net/ipv4/igmp.c	Tue Feb 25 15:03:26 2003
-+++ linux-2.5.64.w1/net/ipv4/igmp.c	Thu Mar  6 15:55:37 2003
-@@ -606,7 +606,7 @@
- static struct in_device * ip_mc_find_dev(struct ip_mreqn *imr)
- {
- 	struct flowi fl = { .nl_u = { .ip4_u =
--				      { .daddr = imr->imr_address.s_addr } } };
-+				      { .daddr = imr->imr_multiaddr.s_addr } } };
- 	struct rtable *rt;
- 	struct net_device *dev = NULL;
- 	struct in_device *idev = NULL;
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

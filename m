@@ -1,91 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVAXRe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVAXRmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbVAXRe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 12:34:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVAXRe5
+	id S261532AbVAXRmz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 12:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVAXRmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 12:34:57 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:15754 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261492AbVAXRen (ORCPT
+	Mon, 24 Jan 2005 12:42:55 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:28826 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261532AbVAXRmu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 12:34:43 -0500
-Date: Mon, 24 Jan 2005 18:34:27 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Kasper Sandberg <lkml@metanurb.dk>
-Cc: Tim Fairchild <tim@bcs4me.com>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Volker Armin Hemmann <volker.armin.hemmann@tu-clausthal.de>,
-       LKML Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: DVD burning still have problems
-Message-ID: <20050124173426.GP2707@suse.de>
-References: <200501232126.55191.volker.armin.hemmann@tu-clausthal.de> <5a4c581d050123125967a65cd7@mail.gmail.com> <200501241146.32427.tim@bcs4me.com> <1106587560.13336.9.camel@localhost>
-Mime-Version: 1.0
+	Mon, 24 Jan 2005 12:42:50 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1106587560.13336.9.camel@localhost>
+Content-Transfer-Encoding: 7bit
+Message-ID: <16885.13185.849070.479328@alkaid.it.uu.se>
+Date: Mon, 24 Jan 2005 18:42:25 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: BUG: 2.6.11-rc2 and -rc1 hang during boot on PowerMacs
+In-Reply-To: <1106529935.5587.9.camel@gaston>
+References: <200501221723.j0MHN6eD000684@harpo.it.uu.se>
+	<1106441036.5387.41.camel@gaston>
+	<1106529935.5587.9.camel@gaston>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24 2005, Kasper Sandberg wrote:
-> On Mon, 2005-01-24 at 11:46 +1000, Tim Fairchild wrote:
-> > On Monday 24 Jan 2005 06:59, Alessandro Suardi wrote:
-> > > On Sun, 23 Jan 2005 21:26:55 +0100, Volker Armin Hemmann
-> > >
-> > > <volker.armin.hemmann@tu-clausthal.de> wrote:
-> > > > Hi,
-> > > >
-> > > > have you checked, that cdrecord is not suid root, and
-> > > > growisofs/dvd+rw-tools is?
-> > > >
-> > > > I had some probs, solved with a simple chmod +s growisofs :)
-> > >
-> > > Lucky you. Burning as root here, cdrecord not suid. Tried also
-> > >  burning with a +s growisofs, but...
-> > 
-> > You can test if it's the kernel/growisofs clashing by hacking the
-> > drivers/block/scsi_ioctl.c  code
-> > 
-> > It's around line 193 in 2.6.9, and line 196 in 2.6.10
-> > not sure about 2.6.11
-> at line 196
-> > 
-> > find the code:
-> > 
-> >         /* Write-safe commands just require a writable open.. */
-> >         if (type & CMD_WRITE_SAFE) {
-> >                 if (file->f_mode & FMODE_WRITE)
-> >                         return 0;
-> >         }
-> > 
-> > edit it to something like:
-> > 
-> >         /* Write-safe commands just require a writable open.. */
-> >         if (type & CMD_WRITE_SAFE) {
-> >                 printk ("Write safe command in ");
-> >                 if (file->f_mode & FMODE_WRITE)
-> >                         printk ("write mode.\n");
-> >                 else
-> >                         printk ("read mode.\n");
-> >                 return 0;
-> >         }
-> > 
-> > Compile the kernel with that and that may make it work and burn dvd and let 
-> > you know if it's growisofs sending incorrect commands. You'll get messages in 
-> > dmesg like
-> > 
-> > Write safe command in read mode.
-> > 
-> > which means growisofs is still not right. Maybe later version fixed this?
-> i got the latest version, and i just did this, nothing of this appeared
-> in dmesg, but also, i dont see what scsi_ioctl has to do with anything?
-> i dont use scsi emulation
+Benjamin Herrenschmidt writes:
+ > On Sun, 2005-01-23 at 11:43 +1100, Benjamin Herrenschmidt wrote:
+ > 
+ > > I know about this problem, I'm working on a proper fix. Thanks for your
+ > > report.
+ > 
+ > Can you send me the PVR value for both of these CPUs
+ > (cat /proc/cpuinfo) ? I can't find right now why they would lock up
+ > unless the default idle loop is _not_ run properly, that is for some
+ > reason, NAP or DOZE mode end up not beeing enabled. Can you send me
+ > your .config as well ?
 
-it doesn't have anything to do with ide-scsi scsi emulation,
-direct-to-device SG_IO uses drivers/block/scsi_ioctl.c (note the block/
-directory, not scsi/).
+=== cpuinfo.emac ===
+processor	: 0
+cpu		: 7447/7457, altivec supported
+clock		: 1249MHz
+revision	: 1.1 (pvr 8002 0101)
+bogomips	: 830.66
+machine		: PowerMac6,4
+motherboard	: PowerMac6,4 MacRISC3 Power Macintosh 
+detected as	: 287 (Unknown Intrepid-based)
+pmac flags	: 00000000
+L2 cache	: 512K unified
+memory		: 256MB
+pmac-generation	: NewWorld
 
-strange that it doesn't catch anything...
+=== cpuinfo.beige-g3 ===
+processor	: 0
+cpu		: 7455, altivec supported (a Sonnet G4 upgrade processor)
+clock		: 66MHz <-- bogus, is 1.0GHz in reality
+revision	: 2.1 (pvr 8001 0201)
+bogomips	: 999.42
+machine		: Power Macintosh
+motherboard	: AAPL,Gossamer MacRISC
+detected as	: 48 (PowerMac G3 (Gossamer))
+pmac flags	: 00000000
+memory		: 768MB
+pmac-generation	: OldWorld
 
--- 
-Jens Axboe
+The .config files are a bit big, I'm sending them off-list.
 
+ > Finally, try that patch and tell me if it makes a difference. It makes
+ > sure we re-enable interrupts in cpu_idle, and thus should only be a
+ > workaround. I found _one_ actual code path where we fail to re-enable
+ > them, and this is when neither DOZE nor NAP mode is enabled, which
+ > should not happen on any G3 (they should all support DOZE mode), and
+ > might happe non some G4s if the chipset doesn't support NAP or
+ > powersave_nap is set to 0 in proc, but that shouldn't be the case of an
+ > eMac neither...
+ > 
+ > --- linux-work.orig/arch/ppc/kernel/idle.c	2005-01-24 11:42:35.000000000 +1100
+ > +++ linux-work/arch/ppc/kernel/idle.c	2005-01-24 12:19:41.114353760 +1100
+ > @@ -39,17 +39,15 @@
+ >  	powersave = ppc_md.power_save;
+ >  
+ >  	if (!need_resched()) {
+ > +		local_irq_enable();
+ >  		if (powersave != NULL)
+ >  			powersave();
+ >  		else {
+ >  #ifdef CONFIG_SMP
+ >  			set_thread_flag(TIF_POLLING_NRFLAG);
+ > -			local_irq_enable();
+ >  			while (!need_resched())
+ >  				barrier();
+ >  			clear_thread_flag(TIF_POLLING_NRFLAG);
+ > -#else
+ > -			local_irq_enable();
+ >  #endif
+ >  		}
+ >  	}
+
+Yes, this patch made the eMac boot Ok -- I can't test the Beige G3 until Friday.
+
+/Mikael

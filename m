@@ -1,40 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266287AbUIEGem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266244AbUIEGo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266287AbUIEGem (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 02:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUIEGem
+	id S266244AbUIEGo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 02:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUIEGo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 02:34:42 -0400
-Received: from host-63-144-52-41.concordhotels.com ([63.144.52.41]:22024 "EHLO
-	080relay.CIS.CIS.com") by vger.kernel.org with ESMTP
-	id S266287AbUIEGel convert rfc822-to-8bit (ORCPT
+	Sun, 5 Sep 2004 02:44:58 -0400
+Received: from hermes.iil.intel.com ([192.198.152.99]:17893 "EHLO
+	hermes.iil.intel.com") by vger.kernel.org with ESMTP
+	id S266244AbUIEGo4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 02:34:41 -0400
-Subject: Re: [BUG] r200 dri driver deadlocks
-From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-To: Patrick McFarland <diablod3@gmail.com>
-Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org, wli@holomorphy.com
-In-Reply-To: <d577e56904090413365f5e223d@mail.gmail.com>
-References: <d577e569040904021631344d2e@mail.gmail.com>
-	 <1094321696.31459.103.camel@admin.tel.thor.asgaard.local>
-	 <d577e56904090413365f5e223d@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+	Sun, 5 Sep 2004 02:44:56 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Date: Sun, 05 Sep 2004 02:34:59 -0400
-Message-Id: <1094366099.31457.112.camel@admin.tel.thor.asgaard.local>
-Mime-Version: 1.0
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: force_sig_info
+Date: Sun, 5 Sep 2004 08:44:44 +0200
+Message-ID: <2C83850C013A2540861D03054B478C06048FFA9D@hasmsx403.ger.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: force_sig_info
+Thread-Index: AcSR4a9Fc0ZGQtD3THa7beEVkXJ5NwBLw3rg
+From: "Zach, Yoav" <yoav.zach@intel.com>
+To: "Linus Torvalds" <torvalds@osdl.org>, "Yoav Zach" <yoav_zach@yahoo.com>
+Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 05 Sep 2004 06:44:46.0200 (UTC) FILETIME=[D5180780:01C49313]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-04 at 16:36 -0400, Patrick McFarland wrote:
-> On Sat, 04 Sep 2004 14:14:55 -0400, Michel Dänzer <michel@daenzer.net> wrote:
-> > What version of the DRI driver?
-> 
-> Where do I look for that?
+ 
 
-Where did you get r200_dri.so from?
+>-----Original Message-----
+>From: Linus Torvalds [mailto:torvalds@osdl.org] 
+>Sent: Friday, September 03, 2004 21:12
+>To: Yoav Zach
+>Cc: akpm@osdl.org; linux-kernel@vger.kernel.org; Zach, Yoav
+>Subject: Re: force_sig_info
+>
+>
 
+>
+>Why are you blocking signals that you want to get? Sounds like 
+>a bug in 
+>your program.
+>
+>		Linus
+>
 
--- 
-Earthling Michel Dänzer      |     Debian (powerpc), X and DRI developer
-Libre software enthusiast    |   http://svcs.affero.net/rm.php?r=daenzer
+It's a translator - it emulates the behavior of the translated
+'process', which is the one that sets the signal mask. On the
+other hand, it has its own logic, which requires handling of
+certain HW exceptions. In 2.4, signals that were raised due to
+HW exceptions could be handled by the translator regardless of
+the mask that was set by the translated process. We lost this
+ability in 2.6. It will be very good for our product, and I
+believe any similar product where a native process emulates 
+behavior of another process, if we could have this ability
+back.
+
+Thanks,
+Yoav.
+

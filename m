@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288971AbSBKNFo>; Mon, 11 Feb 2002 08:05:44 -0500
+	id <S288967AbSBKNEo>; Mon, 11 Feb 2002 08:04:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288981AbSBKNFe>; Mon, 11 Feb 2002 08:05:34 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:51121 "EHLO
-	sparsus.humilis.net") by vger.kernel.org with ESMTP
-	id <S288971AbSBKNFW>; Mon, 11 Feb 2002 08:05:22 -0500
-Date: Mon, 11 Feb 2002 14:05:20 +0100
-From: Ookhoi <ookhoi@humilis.net>
-To: linux@3ware.com
+	id <S288971AbSBKNEf>; Mon, 11 Feb 2002 08:04:35 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:5248 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S288967AbSBKNEO>;
+	Mon, 11 Feb 2002 08:04:14 -0500
+Date: Mon, 11 Feb 2002 05:02:33 -0800 (PST)
+Message-Id: <20020211.050233.41629715.davem@redhat.com>
+To: green@namesys.com
 Cc: linux-kernel@vger.kernel.org
-Subject: 3ware: SCSI device sda: 1562951681 512-byte hdwr sectors (-299279 MB)
-Message-ID: <20020211140519.B10896@humilis>
-Reply-To: ookhoi@humilis.net
+Subject: Re: unix sockets problems in 2.5.4-pre6?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020211115919.A963@namesys.com>
+In-Reply-To: <20020211111904.A955@namesys.com>
+	<20020211.004953.74751936.davem@redhat.com>
+	<20020211115919.A963@namesys.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.19i
-X-Uptime: 20:31:32 up 21 days,  6:31, 19 users,  load average: 0.08, 0.05, 0.07
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+   From: Oleg Drokin <green@namesys.com>
+   Date: Mon, 11 Feb 2002 11:59:19 +0300
 
-Not sure if this is a 3ware driver 'bug'. This is a 3ware 7810 with 8
-100GB disks, configured hw raid0.
+   Ok. I do not know how to find who is holding teh lock, so here is
+   full list of processes: 
 
-part of dmesg:
-
-SCSI subsystem driver Revision: 1.00
-3ware Storage Controller device driver for Linux v1.02.00.010.
-scsi0 : Found a 3ware Storage Controller at 0x1090, IRQ: 5, P-chip: 1.3
-scsi0 : 3ware Storage Controller
-  Vendor: 3ware     Model: 3w-xxxx           Rev: 1.0
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-SCSI device sda: 1562951681 512-byte hdwr sectors (-299279 MB)
- sda: unknown partition table
-
-
-It should say something like 800GB, but says -299279 MB.
-
-This is with the xfs 2.4.17 kernel. The raid works fine, it seemes just
-cosmetic, but thought I'd better report it anyway.
-
-        Ookhoi
+Looks like memory corruption.

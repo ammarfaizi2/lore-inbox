@@ -1,43 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270228AbTG2Kz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 06:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271240AbTG2Kz4
+	id S271396AbTG2LMG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 07:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271391AbTG2LJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 06:55:56 -0400
-Received: from dialpool-210-214-91-87.maa.sify.net ([210.214.91.87]:48259 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S270228AbTG2Kzz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 06:55:55 -0400
-Date: Tue, 29 Jul 2003 16:27:06 +0530
-From: Balram Adlakha <b_adlakha@softhome.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1 NFS file transfer
-Message-ID: <20030729105706.GA2761@localhost.localdomain>
-References: <20030728225947.GA1694@localhost.localdomain> <20030729014822.6488539d.akpm@osdl.org>
+	Tue, 29 Jul 2003 07:09:35 -0400
+Received: from [24.241.190.29] ([24.241.190.29]:392 "EHLO wally.rdlg.net")
+	by vger.kernel.org with ESMTP id S271401AbTG2LHS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 07:07:18 -0400
+Date: Tue, 29 Jul 2003 07:07:16 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: NFS Server running 2.6.0-test2
+Message-ID: <20030729110716.GC786@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HG+GLK89HZ1zG0kk"
 Content-Disposition: inline
-In-Reply-To: <20030729014822.6488539d.akpm@osdl.org>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 29, 2003 at 01:48:22AM -0700, Andrew Morton wrote:
-> Balram Adlakha <b_adlakha@softhome.net> wrote:
-> >
-> > I cannot transfer files larger than 914 mb from an NFS mounted
-> > filesystem to a local filesystem. A larger file than that is
-> > simply cut of at 914 MB. This is using 2.6.0-test1, 2.4.20 
-> > works fine. Can it be the version of mount I'm using? Its the
-> > one that comes with util-linux-2.11y.
-> 
-> Works OK here, with `cp'.  How are you "transferring" the file?
-> 
-> You're sure there is sufficient disk space on the receiving end? (sorry)
-> 
-> Can you strace the copy operation, see why it terminates?
 
-Very strange, It was a 4.9 GB raw mpeg-ps file and I couldn't copy more than 914 mb of it using -test2, even playing the file from the server using mplayer didn't work (and I wasn't smart enough to use strace) then I rebooted with 2.4.20 and the whole file was copied. Now I tried copying a 990 mb wav file and it worked(using -test2). The orginal 4.9 GB file is not on the server now so I'll have to put it there first and then copy it again. It'll take some time on my slow NIC (and the server being a 300 Mhz laptop). I'll email you again, sorry.
-And yes I have enough disk space on my system :>
+--HG+GLK89HZ1zG0kk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+
+Just converted my nfs server to 2.6.0-test2 last night.  This morning I
+found this on my console:
+
+{0}:/>
+Message from syslogd@camel at Tue Jul 29 00:02:30 2003 ...
+camel kernel: journal commit I/O error
+
+
+{0}:/>mount
+=2E
+=2E
+/dev/md/0 on /mnt/data1 type ext3 (rw)
+
+{0}:/>find /mnt/data1/backups/www/tarballs -name www-\*tgz -mtime +7 -exec =
+rm {} \;
+rm: cannot remove `/mnt/data1/backups/www/tarballs/www-20030721.tgz':
+Read-only file system
+
+{0}:/>mount -o remount,rw /dev/md0
+mount: block device /dev/md/0 is write-protected, mounting read-only
+
+
+I have NFS Version 3 enabled but TCP disabled (was very laggy).
+
+
+Robert
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu=20
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Diagnosis: witzelsucht  =09
+
+IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
+IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
+
+--HG+GLK89HZ1zG0kk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/JlVk8+1vMONE2jsRAmxnAJ4jNGYThgRDYuCON+3zyYDAY2qc9gCgrx/f
+NzL2Wj96SoWkdJvMhsGXm3I=
+=GxTk
+-----END PGP SIGNATURE-----
+
+--HG+GLK89HZ1zG0kk--

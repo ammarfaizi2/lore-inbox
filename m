@@ -1,72 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316837AbSG1O3x>; Sun, 28 Jul 2002 10:29:53 -0400
+	id <S316852AbSG1PDi>; Sun, 28 Jul 2002 11:03:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316831AbSG1O3x>; Sun, 28 Jul 2002 10:29:53 -0400
-Received: from [210.78.134.243] ([210.78.134.243]:16144 "EHLO 210.78.134.243")
-	by vger.kernel.org with ESMTP id <S316797AbSG1O3w>;
-	Sun, 28 Jul 2002 10:29:52 -0400
-Date: Sun, 28 Jul 2002 22:35:19 +0800
-From: zhengchuanbo <zhengcb@netpower.com.cn>
-To: Zhang Fuxin <fxzhang@ict.ac.cn>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Re: problem with eepro100 NAPI driver
-X-mailer: FoxMail 3.11 Release [cn]
-Mime-Version: 1.0
-Content-Type: text/plain; charset="GB2312"
+	id <S316853AbSG1PDh>; Sun, 28 Jul 2002 11:03:37 -0400
+Received: from dns1.arrancar.com ([209.92.187.33]:36518 "EHLO
+	core.arrancar.com") by vger.kernel.org with ESMTP
+	id <S316852AbSG1PDg>; Sun, 28 Jul 2002 11:03:36 -0400
+Subject: Re: Funding GPL projects or funding the GPL?
+From: Federico Ferreres <fferreres@ojf.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0207280601260.27010-100000@weyl.math.psu.edu>
+References: <Pine.GSO.4.21.0207280601260.27010-100000@weyl.math.psu.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <200207282238830.SM00792@zhengcb>
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 28 Jul 2002 12:02:55 -0300
+Message-Id: <1027868584.4087.76.camel@fede>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i applied the patch0708, but i still met the problem. 
-when i tested the 64bytes frame with smartbits, in the beginning both the RX and TX of the system are OK. but after a while,the network card would not receive and transmit packets any more.
-i checked the proc/ params, and found that when soft_reset_count increased one, the system would stop to receive packets for a while.  
-the code after patched is as follows. at what condition will soft_reset_count increase? and  is there something  incorrect when dealing with that?  maybe the sp->cur_rx should be dealt?
+On Sun, 2002-07-28 at 07:35, Alexander Viro wrote:
+> You don't get it.  So far the only guy who had been charitable was Larry, who
+> felt that problem was real but had serious doubts about viability of your
+> idea. 
 
-      if (!(status & RxComplete)) {
-         int intr_status;
-         unsigned long ioaddr = dev->base_addr;
-         unsigned long flags;
+Actually, this is what Larry said:
 
-         spin_lock_irqsave(&sp->lock,flags);
-         intr_status = inw(ioaddr + SCBStatus);
-         /* We check receiver state here because if
-          * we have to do soft reset,sp->cur_rx should
-          * point to an empty entry or something
-          * unexpected will happen
-          */
-         if ((intr_status & 0x3c) != 0x10) {
-            if (speedo_debug > 4)
-               printk("No resource,reset\n");
-            speedo_rx_soft_reset(dev);
-            sp->soft_reset_count++;
-         }
-         spin_unlock_irqrestore(&sp->lock,flags);
-         break;
-      }
+| One problem I see is that you'd be talking a huge amount of money,
+| potentially money on Microsoft scale.  Managing that money, making
+| it go to the right places, without it sticking to the fingers of
+| management, isn't likely to happen.
 
+This is not a problem of fundraising, but a problem of fund management
+and policy. You get the funds, how you use them is another concern. 
 
+| Another problem is that GPLed software is essentially software in the
+| public domain. 
 
->  I don't know which version you get.The ealier versions do have
->serious problems. The latest one(6.19) on NAPI website works
->well for me,but someone report problem of it too.Since i get no
->environment and time to investigate it,the problem is pending now.
->I will send you the latest patch in case you can't find it in other mail.
->
->zhengchuanbo wrote:
->
->>i tried ehe eepro100 NAPI driver on linux2.4.19. the kernel was compiled successfully. but when i tested the throughput of the system,i met some problem.
->>i tested the system with smartbits. when the frame size is 64bytes, in the beginning the system can receive and transmit packets. but after a while, the network card would not receive and transmit packets any more. 
->>then with frame size bigger than 128bytes, it worked well. the throughput was improved. (but sometimes it also has some problem just like 64bytes frames).
->>so what's the problem? is there something wrong with the driver?
->>please cc. thanks.
->>
->>
->>zhengchuanbo  
->>
->>
->>
+But we don't want less people using (for example), the Linux kernel. We
+don't even want people who can't pay to pay. As long as a large enough
+group pays, you're really better off.
 
+And here is what Rik said:
+
+| In the areas where open source software is doing well, there
+| already is funding by interested parties (companies, government,
+| universities, ...).
+
+Meaning the kernel and some other OSS areas are already well funded.
+
+| Some other areas won't ever get the funding through donations,
+| simply because people will freeload whenever they can and try
+| funding development as much as they can.  We've seen that with
+| BitKeeper and you had to "tighten up" the license a bit in order
+| to make sure development stayed funded.
+
+Here he seems to be suggesting that certain areas of OSS that can't get
+enough funds should either relicense, drop the towel or do it for the
+love as a part time job. I am suggesting they could all relicense to a
+single license that leverages each others work and centrally manages
+fundraising (but not fundspendings). 
+
+| In short, I believe the voluntary donations aren't needed in
+| most areas people would donate to and won't make enough of an
+| impact in the areas where they are needed.
+
+Now he is poining out something that I had stated in my first message: 
+
+On Fri, Jul 26, 2002 at 01:09:32PM -0300, Federico Ferreres wrote:
++ The Kernel may well be nicely funded ...
++ Why post it here then? Because for it to work it must be supported 
++ by at least some of the grand developements of OSS
+
+... and has nothing to do with the ability to raise the funds. The
+Kernel may not need the money but that it could help in a lot of areas
+of OSS where a kickstart is needed (after which I am sure they will be
+able to contribute funds back to the pool). 
+
+Regarding your opinion on the pyramid nature of the system well that can
+be forgiven :)
+
+The real facts that I am aware are:
+
+- the kernel doesn't need the money
+- the idea of _enforcing_ payment may not be an option or what is wanted
+- there are doubt's about how many people would end up paying
+- it will not be easy to manage the funds and could have side effects
+- it may be nearly imposible to relicense the kernel due to the large
+number of people involved even if they wanted
+
+But the last fact invalidates all others:
+
+"The idea is discarded, nobody likes it"
+
+Which is fine! And I certainly am at the wrong place, poluting a
+developement list and wasting your time. So I'll stop replying to your
+flames (even though I find them funny and creative :-)
+
+Regards!
+
+Federico
 
 

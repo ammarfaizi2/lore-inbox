@@ -1,54 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270449AbTGZPsO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 11:48:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272555AbTGZPsJ
+	id S269709AbTGZPvi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 11:51:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272557AbTGZPsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 11:48:09 -0400
-Received: from netrider.rowland.org ([192.131.102.5]:60682 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP id S270449AbTGZPrV
+	Sat, 26 Jul 2003 11:48:43 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:50654 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S270158AbTGZPoy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 11:47:21 -0400
-Date: Sat, 26 Jul 2003 12:02:33 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: David Brownell <david-b@pacbell.net>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Dominik Brugger <ml.dominik83@gmx.net>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: OHCI problems with suspend/resume
-In-Reply-To: <3F21B3BF.1030104@pacbell.net>
-Message-ID: <Pine.LNX.4.44L0.0307261157080.29083-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 26 Jul 2003 11:44:54 -0400
+Date: Sat, 26 Jul 2003 17:59:52 +0200
+From: Manuel Estrada Sainz <ranty@debian.org>
+To: Michael Hunold <hunold@convergence.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       John Alvord <jalvo@mbay.net>
+Subject: Re: [PATCH] request_firmware() private workqueue (was: Re: Using firmware_class with recent 2.6 kernels)
+Message-ID: <20030726155952.GA23335@ranty.pantax.net>
+Reply-To: ranty@debian.org
+References: <3F1BD157.4090509@convergence.de> <20030726101818.GA25104@ranty.pantax.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="nFreZHaLTZJo0R7j"
+Content-Disposition: inline
+In-Reply-To: <20030726101818.GA25104@ranty.pantax.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Jul 2003, David Brownell wrote:
 
-> Benjamin Herrenschmidt wrote, responding to Alan Stern:
-> >>I think the hub driver's power management code may be at fault.  It needs
-> >>to cancel the status interrupt URB when suspending and resubmit it when
-> >>waking up; right now it probably does neither one.
-> >>
-> >>Or maybe I'm wrong about that.  Perhaps it's okay to leave the URB active.  
-> >>If that's the case, then the root hub power management code needs to be 
-> >>changed to restart the status URB timer after a wakeup.
-> 
-> I thought that patch got merged already ...
-> 
-> 
-> >>I'm not sure how the design is intended to work, but either way something 
-> >>needs to be fixed.
-> 
-> Yes, it seems like all the HCDs (and the hub driver) need attention.
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-So far as I can see, there's no USB power management code at all apart 
-from the HC drivers.  That includes the hub driver.
+On Sat, Jul 26, 2003 at 12:18:18PM +0200, Manuel Estrada Sainz wrote:
+> On Mon, Jul 21, 2003 at 01:41:11PM +0200, Michael Hunold wrote:
+[snip]
+>  About the attached patch:
+>  
+>  	- use a private workqueue so we can sleep without interfering
+> 	  with other subsystems.
 
-And I know that the UHCI suspend routine could use a little work.  There's 
-a 10-Hz polling timer that it doesn't turn off.
+ Oops, as usuall I forgot to attach the patch, It is attached now.
 
-Alan Stern
+ Sorry
 
+ 	Manuel
+
+-- 
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.
+
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="request_firmware_own-workqueue.diff"
+
+Index: firmware_class.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/drivers/base/firmware_class.c,v
+retrieving revision 1.3
+diff -u -r1.3 firmware_class.c
+--- firmware_class.c	4 Jul 2003 02:21:18 -0000	1.3
++++ firmware_class.c	26 Jul 2003 08:38:07 -0000
+@@ -22,6 +22,8 @@
+ MODULE_LICENSE("GPL");
+ 
+ static int loading_timeout = 10;	/* In seconds */
++static struct workqueue_struct *firmware_wq;
++
+ 
+ struct firmware_priv {
+ 	char fw_id[FIRMWARE_NAME_MAX];
+@@ -467,7 +469,7 @@
+ 	};
+ 	INIT_WORK(&fw_work->work, request_firmware_work_func, fw_work);
+ 
+-	schedule_work(&fw_work->work);
++	queue_work(firmware_wq, &fw_work->work);
+ 	return 0;
+ }
+ 
+@@ -485,12 +487,20 @@
+ 		       __FUNCTION__);
+ 		class_unregister(&firmware_class);
+ 	}
++	firmware_wq = create_workqueue("firmware");
++	if (!firmware_wq) {
++		printk(KERN_ERR "%s: create_workqueue failed\n", __FUNCTION__);
++		class_remove_file(&firmware_class, &class_attr_timeout);
++		class_unregister(&firmware_class);
++		error = -EIO;
++	}
+ 	return error;
+ 
+ }
+ static void __exit
+ firmware_class_exit(void)
+ {
++	destroy_workqueue(firmware_wq);
+ 	class_remove_file(&firmware_class, &class_attr_timeout);
+ 	class_unregister(&firmware_class);
+ }
+
+--nFreZHaLTZJo0R7j--

@@ -1,110 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269630AbUJGMa4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269640AbUJGMbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269630AbUJGMa4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 08:30:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267367AbUJGMaz
+	id S269640AbUJGMbO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 08:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267367AbUJGMbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 08:30:55 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:19946 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S269809AbUJGMRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 08:17:11 -0400
-Date: Thu, 07 Oct 2004 21:22:41 +0900
-From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: [PATCH]  no buddy bitmap patch : intro and includes [0/2]
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Cc: linux-mm <linux-mm@kvack.org>, LHMS <lhms-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Dave Hansen <haveblue@us.ibm.com>,
-       Hirokazu Takahashi <taka@valinux.co.jp>
-Message-id: <41653511.60905@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
- Gecko/20040113
+	Thu, 7 Oct 2004 08:31:13 -0400
+Received: from smtp3.netcabo.pt ([212.113.174.30]:54598 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S269811AbUJGMRh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 08:17:37 -0400
+Message-ID: <44510.195.245.190.93.1097151376.squirrel@195.245.190.93>
+Date: Thu, 7 Oct 2004 13:16:16 +0100 (WEST)
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
+       "K.R. Foley" <kr@cybsft.com>, "Florian Schmidt" <mista.tapas@gmx.net>,
+       mark_h_johnson@raytheon.com,
+       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+References: <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> 
+      <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu>   
+    <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu>   
+    <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu>   
+    <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu>   
+    <20041007105230.GA17411@elte.hu>
+In-Reply-To: <20041007105230.GA17411@elte.hu>
+X-OriginalArrivalTime: 07 Oct 2004 12:17:35.0078 (UTC) FILETIME=[A0B10060:01C4AC67]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Ingo,
+>
+> i've released the -T3 VP patch:
+>
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
+>
 
-Followings are patches for removing bitmaps from buddy allocator, against 2.6.9-rc3.
-I think this version is much clearer than ones I posted a month ago.
-
-The problem I was worried about was how to deal with memmap's holes in a zone.
-and I decided to use pfn_valid() simply. Now, there is no messy codes :)
-
-pfn_valid() is used when macro "HOLES_IN_ZONE" is defined.
-It is defined only in ia64 now.
-
-Here is kernbench result on my tiger4 (Itanium2 1.3GHz x2, 8 Gbytes memory)
-
-Average Optimal -j 8 Load Run (Perfroming 5 run of make -j 8 on linux-2.6.8 source tree):
-
-                Elapsed Time  User Time  System Time Percent CPU  Context Switches   Sleeps
-2.6.9-rc3         699.906      1322.01     39.336       194            64390         74416.8
-no-bitmap         698.334      1321.79     38.58        194.2          64435.4       74622.2
-
-If there is unclear point, please tell me.
-
-Thanks.
-Kame <kamezawa.hiroyu@jp.fujitsu.com>
-
-=== patch for include files ===
-
-This patch removes bitmap from zone->free_area[] in include/linux/mmzone.h,
-and adds some comments on page->private field in include/linux/mm.h.
-
-non-atomic ops for changing PG_private bit is added in include/page-flags.h.
-zone->lock is always acquired when PG_private of "a free page" is changed.
-
-Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-
+Didn't try this yet on my desktop (where those USB troubles roared), but
+on my laptop there's already a showstopper with while trying to start
+beloved jackd -R:
 
 ---
+Unable to handle kernel paging request at virtual address 00010024
+ printing eip:
+c011995f
+*pde = 00000000
+Oops: 0002 [#1]
+PREEMPT
+Modules linked in: realtime commoncap snd_seq_oss snd_seq_midi_event
+snd_seq snd_pcm_oss snd_mixer_oss snd_usb_usx2y snd_usb_lib snd_rawmidi
+snd_seq_device snd_hwdep snd_ali5451 snd_ac97_codec snd_pcm snd_timer
+snd_page_alloc snd soundcore prism2_cs p80211 ds yenta_socket pcmcia_core
+natsemi crc32 ohci1394 ieee1394 loop subfs evdev ohci_hcd usbcore thermal
+processor fan button battery ac
+CPU:    0
+EIP:    0060:[<c011995f>]    Not tainted VLI
+EFLAGS: 00010086   (2.6.9-rc3-mm3-T3.0)
+EIP is at profile_hit+0x2f/0x33
+eax: 00010024   ebx: de1f8510   ecx: 00000000   edx: 00000000
+esi: 00000001   edi: ffffffea   ebp: db32ef88   esp: db32ef88
+ds: 007b   es: 007b   ss: 0068   preempt: 00000003
+Process jackd (pid: 6519, threadinfo=db32e000 task=dec4fa00)
+Stack: db32efbc c0115431 00000002 c0104231 00000004 c0398460 c0102d2f
+007d0f00
+       00000046 0000001e 00001979 b75a1bb0 b7fa5a4c db32e000 c0104231
+00001979
+       00000001 b75a1dac b75a1bb0 b7fa5a4c bfffb9b8 0000009c 0000007b
+0000007b
+Call Trace:
+ [<c0115431>] setscheduler+0xc4/0x254
+ [<c0104231>] sysenter_past_esp+0x52/0x71
+ [<c0102d2f>] sys_clone+0x40/0x42
+ [<c0104231>] sysenter_past_esp+0x52/0x71
+Code: b8 60 ff ff 8b 0d ec 16 3a c0 8b 15 e8 16 3a c0 8b 45 0c 83 ea 01 2d
+28 02 10 c0 d3 e8 39 c2 0f 46 c2 8b 15 e4 16 3a c0 8d 04 82 <ff> 00 5d c3
+55 89 e5 e8 85 60 ff ff b8 da ff ff ff 5d c3 55 89
+ <6>note: jackd[6519] exited with preempt_count 2
+Debug: sleeping function called from invalid context jackd(6519) at
+kernel/fork.c:421
+in_atomic():1, irqs_disabled():0
+ [<c0116385>] __might_sleep+0xb5/0xc5
+ [<c011921c>] vprintk+0x135/0x182
+ [<c0116927>] mm_release+0x72/0xcf
+ [<c01190e5>] printk+0x1d/0x1f
+ [<c011b3a6>] do_exit+0x85/0x506
+ [<c0112f0e>] do_page_fault+0x0/0x67e
+ [<c0105539>] do_divide_error+0x0/0x13a
+ [<c0112f0e>] do_page_fault+0x0/0x67e
+ [<c01190e5>] printk+0x1d/0x1f
+ [<c01133a7>] do_page_fault+0x499/0x67e
+ [<c01c54dd>] __copy_from_user_ll+0x11/0x76
+ [<c012efbc>] check_preempt_timing+0x18f/0x1fb
+ [<c012f1ce>] sub_preempt_count+0x5c/0x8b
+ [<c0117869>] copy_process+0x610/0xcfe
+ [<c010eca6>] sched_clock+0x14/0x8d
+ [<c012f1ce>] sub_preempt_count+0x5c/0x8b
+ [<c01146c3>] wake_up_new_task+0x142/0x190
+ [<c012efbc>] check_preempt_timing+0x18f/0x1fb
+ [<c012f1ce>] sub_preempt_count+0x5c/0x8b
+ [<c01146c3>] wake_up_new_task+0x142/0x190
+ [<c0117869>] copy_process+0x610/0xcfe
+ [<c0117869>] copy_process+0x610/0xcfe
+ [<c01146c3>] wake_up_new_task+0x142/0x190
+ [<c01146c3>] wake_up_new_task+0x142/0x190
+ [<c0112f0e>] do_page_fault+0x0/0x67e
+ [<c0104c8d>] error_code+0x2d/0x38
+ [<c011995f>] profile_hit+0x2f/0x33
+ [<c0115431>] setscheduler+0xc4/0x254
+ [<c0104231>] sysenter_past_esp+0x52/0x71
+ [<c0102d2f>] sys_clone+0x40/0x42
+ [<c0104231>] sysenter_past_esp+0x52/0x71
+scheduling while atomic: jackd/0x04000002/6519
+ [<c02d21cc>] schedule+0x554/0x5f5
+ [<c02d27f4>] cond_resched+0x5f/0x7f
+ [<c011692c>] mm_release+0x77/0xcf
+ [<c01190e5>] printk+0x1d/0x1f
+ [<c011b3a6>] do_exit+0x85/0x506
+ [<c0112f0e>] do_page_fault+0x0/0x67e
+ [<c0105539>] do_divide_error+0x0/0x13a
+ [<c0112f0e>] do_page_fault+0x0/0x67e
+ [<c01190e5>] printk+0x1d/0x1f
+ [<c01133a7>] do_page_fault+0x499/0x67e
+ [<c01c54dd>] __copy_from_user_ll+0x11/0x76
+ [<c012efbc>] check_preempt_timing+0x18f/0x1fb
+ [<c012f1ce>] sub_preempt_count+0x5c/0x8b
+ [<c0117869>] copy_process+0x610/0xcfe
+ [<c010eca6>] sched_clock+0x14/0x8d
+ [<c012f1ce>] sub_preempt_count+0x5c/0x8b
+ [<c01146c3>] wake_up_new_task+0x142/0x190
+ [<c012efbc>] check_preempt_timing+0x18f/0x1fb
+ [<c012f1ce>] sub_preempt_count+0x5c/0x8b
+ [<c01146c3>] wake_up_new_task+0x142/0x190
+ [<c0117869>] copy_process+0x610/0xcfe
+ [<c0117869>] copy_process+0x610/0xcfe
+ [<c01146c3>] wake_up_new_task+0x142/0x190
+ [<c01146c3>] wake_up_new_task+0x142/0x190
+ [<c0112f0e>] do_page_fault+0x0/0x67e
+ [<c0104c8d>] error_code+0x2d/0x38
+ [<c011995f>] profile_hit+0x2f/0x33
+ [<c0115431>] setscheduler+0xc4/0x254
+ [<c0104231>] sysenter_past_esp+0x52/0x71
+ [<c0102d2f>] sys_clone+0x40/0x42
+ [<c0104231>] sysenter_past_esp+0x52/0x71
+---
 
- test-kernel-kamezawa/include/linux/mm.h         |    2 ++
- test-kernel-kamezawa/include/linux/mmzone.h     |    1 -
- test-kernel-kamezawa/include/linux/page-flags.h |    2 ++
- 3 files changed, 4 insertions(+), 1 deletion(-)
+This jackd crash seems to show up due to CONFIG_DEBUG_PREEMPT being set
+on, but not sure yet.
 
-diff -puN include/linux/mm.h~eliminate-bitmap-includes include/linux/mm.h
---- test-kernel/include/linux/mm.h~eliminate-bitmap-includes	2004-10-07 17:18:34.062982800 +0900
-+++ test-kernel-kamezawa/include/linux/mm.h	2004-10-07 17:18:34.070981584 +0900
-@@ -209,6 +209,8 @@ struct page {
- 					 * usually used for buffer_heads
- 					 * if PagePrivate set; used for
- 					 * swp_entry_t if PageSwapCache
-+					 * When page is free, this indicates
-+					 * order in the buddy system.
- 					 */
- 	struct address_space *mapping;	/* If low bit clear, points to
- 					 * inode address_space, or NULL.
-diff -puN include/linux/mmzone.h~eliminate-bitmap-includes include/linux/mmzone.h
---- test-kernel/include/linux/mmzone.h~eliminate-bitmap-includes	2004-10-07 17:18:34.065982344 +0900
-+++ test-kernel-kamezawa/include/linux/mmzone.h	2004-10-07 17:18:34.071981432 +0900
-@@ -22,7 +22,6 @@
+CU
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
 
- struct free_area {
- 	struct list_head	free_list;
--	unsigned long		*map;
- };
 
- struct pglist_data;
-diff -puN include/linux/page-flags.h~eliminate-bitmap-includes include/linux/page-flags.h
---- test-kernel/include/linux/page-flags.h~eliminate-bitmap-includes	2004-10-07 17:18:34.067982040 +0900
-+++ test-kernel-kamezawa/include/linux/page-flags.h	2004-10-07 17:18:34.071981432 +0900
-@@ -238,6 +238,8 @@ extern unsigned long __read_page_state(u
- #define SetPagePrivate(page)	set_bit(PG_private, &(page)->flags)
- #define ClearPagePrivate(page)	clear_bit(PG_private, &(page)->flags)
- #define PagePrivate(page)	test_bit(PG_private, &(page)->flags)
-+#define __SetPagePrivate(page)  __set_bit(PG_private, &(page)->flags)
-+#define __ClearPagePrivate(page) __clear_bit(PG_private, &(page)->flags)
 
- #define PageWriteback(page)	test_bit(PG_writeback, &(page)->flags)
- #define SetPageWriteback(page)						\
-
-_
 

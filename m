@@ -1,223 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbVAUXRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262569AbVAUXSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262583AbVAUXRI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 18:17:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbVAUXRH
+	id S262569AbVAUXSt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 18:18:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbVAUXR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 18:17:07 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:32449 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262583AbVAUXDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 18:03:50 -0500
-Message-ID: <41F18A52.9040703@acm.org>
-Date: Fri, 21 Jan 2005 17:03:46 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Fri, 21 Jan 2005 18:17:28 -0500
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:7085 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S262573AbVAUXJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 18:09:23 -0500
+Date: Sat, 22 Jan 2005 00:04:03 +0100 (CET)
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: linux-kernel@vger.kernel.org
+Subject: [ide-dev 2/5] fix drive->ready_stat for ATAPI
+Message-ID: <Pine.GSO.4.58.0501220002500.23959@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Patch to fix race between the NMI code and the CMOS clock
-Content-Type: multipart/mixed;
- boundary="------------040903020902050207090505"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040903020902050207090505
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
+ATAPI devices ignore DRDY bit so drive->ready_stat must be set to zero.
+It is currently done by device drivers (including ide-default fake driver)
+but for PMAC driver it is too late as wait_for_ready() may be called during
+probe: probe_hwif()->pmac_ide_dma_check()->pmac_ide_{mdma,udma}_enable()->
+->pmac_ide_do_setfeature()->wait_for_ready().
 
+Fixup drive->ready_stat just after detecting ATAPI device.
 
---------------040903020902050207090505
-Content-Type: text/plain;
- name="nmicmos_race.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nmicmos_race.diff"
+diff -Nru a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
+--- a/drivers/ide/ide-cd.c	2005-01-21 23:53:20 +01:00
++++ b/drivers/ide/ide-cd.c	2005-01-21 23:53:20 +01:00
+@@ -3088,7 +3088,6 @@
+ 		drive->queue->unplug_delay = 1;
 
-This patch fixes a race between the CMOS clock setting and the NMI
-code.  The NMI code indiscriminatly sets index registers and values
-in the same place the CMOS clock is set.  If you are setting the
-CMOS clock and an NMI occurs, Bad values could be written to or
-read from the CMOS RAM, or the NMI operation might not occur
-correctly.
+ 	drive->special.all	= 0;
+-	drive->ready_stat	= 0;
 
-Fixing this requires creating a special lock so the NMI code can
-know its CPU owns the lock an "do the right thing" in that case.
+ 	CDROM_STATE_FLAGS(drive)->media_changed = 1;
+ 	CDROM_STATE_FLAGS(drive)->toc_valid     = 0;
+diff -Nru a/drivers/ide/ide-default.c b/drivers/ide/ide-default.c
+--- a/drivers/ide/ide-default.c	2005-01-21 23:53:20 +01:00
++++ b/drivers/ide/ide-default.c	2005-01-21 23:53:20 +01:00
+@@ -57,13 +57,6 @@
+ 			"driver with ide.c\n", drive->name);
+ 		return 1;
+ 	}
+-
+-	/* For the sake of the request layer, we must make sure we have a
+-	 * correct ready_stat value, that is 0 for ATAPI devices or we will
+-	 * fail any request like Power Management
+-	 */
+-	if (drive->media != ide_disk)
+-		drive->ready_stat = 0;
 
-This was discovered and the fix has been tested by a very demanding
-customer who tests the heck of out the software we deliver.
-
-Signed-off-by: Corey Minyard <minyard@acm.org>
-
-Index: linux-2.6.11-rc1/arch/i386/kernel/time.c
-===================================================================
---- linux-2.6.11-rc1.orig/arch/i386/kernel/time.c	2005-01-19 09:53:59.000000000 -0600
-+++ linux-2.6.11-rc1/arch/i386/kernel/time.c	2005-01-21 09:42:09.000000000 -0600
-@@ -83,6 +83,14 @@
- 
- spinlock_t rtc_lock = SPIN_LOCK_UNLOCKED;
- 
-+/*
-+ * This is a special lock that is owned by the CPU and holds the index
-+ * register we are working with.  It is required for NMI access to the
-+ * CMOS/RTC registers.  See include/asm-i386/mc146818rtc.h for details.
-+ */
-+volatile unsigned long cmos_lock = 0;
-+EXPORT_SYMBOL(cmos_lock);
-+
- spinlock_t i8253_lock = SPIN_LOCK_UNLOCKED;
- EXPORT_SYMBOL(i8253_lock);
- 
-Index: linux-2.6.11-rc1/include/asm-i386/mach-default/mach_traps.h
-===================================================================
---- linux-2.6.11-rc1.orig/include/asm-i386/mach-default/mach_traps.h	2004-12-24 15:34:58.000000000 -0600
-+++ linux-2.6.11-rc1/include/asm-i386/mach-default/mach_traps.h	2005-01-21 09:42:09.000000000 -0600
-@@ -7,6 +7,8 @@
- #ifndef _MACH_TRAPS_H
- #define _MACH_TRAPS_H
- 
-+#include <asm/mc146818rtc.h>
-+
- static inline void clear_mem_error(unsigned char reason)
- {
- 	reason = (reason & 0xf) | 4;
-@@ -20,10 +22,20 @@
- 
- static inline void reassert_nmi(void)
- {
-+	int old_reg = -1;
-+
-+	if (do_i_have_lock_cmos())
-+		old_reg = current_lock_cmos_reg();
-+	else
-+		lock_cmos(0); /* register doesn't matter here */
- 	outb(0x8f, 0x70);
- 	inb(0x71);		/* dummy */
- 	outb(0x0f, 0x70);
- 	inb(0x71);		/* dummy */
-+	if (old_reg >= 0)
-+		outb(old_reg, 0x70);
-+	else
-+		unlock_cmos();
+ 	return 0;
  }
- 
- #endif /* !_MACH_TRAPS_H */
-Index: linux-2.6.11-rc1/include/asm-i386/mc146818rtc.h
-===================================================================
---- linux-2.6.11-rc1.orig/include/asm-i386/mc146818rtc.h	2004-12-24 15:35:23.000000000 -0600
-+++ linux-2.6.11-rc1/include/asm-i386/mc146818rtc.h	2005-01-21 09:42:10.000000000 -0600
-@@ -5,24 +5,102 @@
- #define _ASM_MC146818RTC_H
- 
- #include <asm/io.h>
-+#include <asm/system.h>
-+#include <linux/mc146818rtc.h>
- 
- #ifndef RTC_PORT
- #define RTC_PORT(x)	(0x70 + (x))
- #define RTC_ALWAYS_BCD	1	/* RTC operates in binary mode */
- #endif
- 
-+#ifdef __HAVE_ARCH_CMPXCHG
-+/*
-+ * This lock provides nmi access to the CMOS/RTC registers.  It has some
-+ * special properties.  It is owned by a CPU and stores the index register
-+ * currently being accessed (if owned).  The idea here is that it works
-+ * like a normal lock (normally).  However, in an NMI, the NMI code will
-+ * first check to see if it's CPU owns the lock, meaning that the NMI
-+ * interrupted during the read/write of the device.  If it does, it goes ahead
-+ * and performs the access and then restores the index register.  If it does
-+ * not, it locks normally.
-+ *
-+ * Note that since we are working with NMIs, we need this lock even in
-+ * a non-SMP machine just to mark that the lock is owned.
-+ *
-+ * This only works with compare-and-swap.  There is no other way to
-+ * atomically claim the lock and set the owner.
-+ */
-+extern volatile unsigned long cmos_lock;
-+
-+/*
-+ * All of these below must be called with interrupts off, preempt
-+ * disabled, etc.
-+ */
-+
-+static inline void lock_cmos(unsigned char reg)
-+{
-+	unsigned long new;
-+	new = ((smp_processor_id()+1) << 8) | reg;
-+	for (;;) {
-+		if (cmos_lock)
-+			continue;
-+		if (__cmpxchg(&cmos_lock, 0, new, sizeof(cmos_lock)) == 0)
-+			return;
-+	}
-+}
-+
-+static inline void unlock_cmos(void)
-+{
-+	cmos_lock = 0;
-+}
-+static inline int do_i_have_lock_cmos(void)
-+{
-+	return (cmos_lock >> 8) == (smp_processor_id()+1);
-+}
-+static inline unsigned char current_lock_cmos_reg(void)
-+{
-+	return cmos_lock & 0xff;
-+}
-+#define lock_cmos_prefix(reg) \
-+	do {					\
-+		unsigned long cmos_flags;	\
-+		local_irq_save(cmos_flags);	\
-+		lock_cmos(reg)
-+#define lock_cmos_suffix(reg) \
-+		unlock_cmos();			\
-+		local_irq_restore(cmos_flags);	\
-+	} while (0)
-+#else
-+#define lock_cmos_prefix(reg) do {} while (0)
-+#define lock_cmos_suffix(reg) do {} while (0)
-+#define lock_cmos(reg)
-+#define unlock_cmos()
-+#define do_i_have_lock_cmos() 0
-+#define current_lock_cmos_reg() 0
-+#endif
-+
- /*
-  * The yet supported machines all access the RTC index register via
-  * an ISA port access but the way to access the date register differs ...
-+ * Note that these are functions, not defines, to keep the locking
-+ * semantics correct even if you do CMOS_WRITE(CMOS_READ(x) | v, x).
-  */
--#define CMOS_READ(addr) ({ \
--outb_p((addr),RTC_PORT(0)); \
--inb_p(RTC_PORT(1)); \
--})
--#define CMOS_WRITE(val, addr) ({ \
--outb_p((addr),RTC_PORT(0)); \
--outb_p((val),RTC_PORT(1)); \
--})
-+static inline unsigned char CMOS_READ(unsigned char addr)
-+{
-+	unsigned char val;
-+	lock_cmos_prefix(addr);
-+	outb_p(addr, RTC_PORT(0));
-+	val = inb_p(RTC_PORT(1));
-+	lock_cmos_suffix(addr);
-+	return val;
-+}
-+static inline void CMOS_WRITE(unsigned char val, unsigned char addr)
-+{
-+	lock_cmos_prefix(addr);
-+	outb_p(addr, RTC_PORT(0));
-+	outb_p(val, RTC_PORT(1));
-+	lock_cmos_suffix(addr);
-+}
- 
- #define RTC_IRQ 8
- 
+diff -Nru a/drivers/ide/ide-floppy.c b/drivers/ide/ide-floppy.c
+--- a/drivers/ide/ide-floppy.c	2005-01-21 23:53:20 +01:00
++++ b/drivers/ide/ide-floppy.c	2005-01-21 23:53:20 +01:00
+@@ -1793,7 +1793,6 @@
 
---------------040903020902050207090505--
+ 	*((u16 *) &gcw) = drive->id->config;
+ 	drive->driver_data = floppy;
+-	drive->ready_stat = 0;
+ 	memset(floppy, 0, sizeof(idefloppy_floppy_t));
+ 	floppy->drive = drive;
+ 	floppy->pc = floppy->pc_stack;
+diff -Nru a/drivers/ide/ide-probe.c b/drivers/ide/ide-probe.c
+--- a/drivers/ide/ide-probe.c	2005-01-21 23:53:20 +01:00
++++ b/drivers/ide/ide-probe.c	2005-01-21 23:53:20 +01:00
+@@ -221,6 +221,8 @@
+ 		}
+ 		printk (" drive\n");
+ 		drive->media = type;
++		/* an ATAPI device ignores DRDY */
++		drive->ready_stat = 0;
+ 		return;
+ 	}
+
+diff -Nru a/drivers/ide/ide-tape.c b/drivers/ide/ide-tape.c
+--- a/drivers/ide/ide-tape.c	2005-01-21 23:53:20 +01:00
++++ b/drivers/ide/ide-tape.c	2005-01-21 23:53:20 +01:00
+@@ -4530,8 +4530,6 @@
+ 	memset(tape, 0, sizeof (idetape_tape_t));
+ 	spin_lock_init(&tape->spinlock);
+ 	drive->driver_data = tape;
+-	/* An ATAPI device ignores DRDY */
+-	drive->ready_stat = 0;
+ 	drive->dsc_overlap = 1;
+ #ifdef CONFIG_BLK_DEV_IDEPCI
+ 	if (HWIF(drive)->pci_dev != NULL) {
+diff -Nru a/drivers/ide/ide.c b/drivers/ide/ide.c
+--- a/drivers/ide/ide.c	2005-01-21 23:53:20 +01:00
++++ b/drivers/ide/ide.c	2005-01-21 23:53:20 +01:00
+@@ -1747,6 +1747,8 @@
+ 			case -4: /* "cdrom" */
+ 				drive->present = 1;
+ 				drive->media = ide_cdrom;
++				/* an ATAPI device ignores DRDY */
++				drive->ready_stat = 0;
+ 				hwif->noprobe = 0;
+ 				goto done;
+ 			case -5: /* "serialize" */
+diff -Nru a/drivers/scsi/ide-scsi.c b/drivers/scsi/ide-scsi.c
+--- a/drivers/scsi/ide-scsi.c	2005-01-21 23:53:20 +01:00
++++ b/drivers/scsi/ide-scsi.c	2005-01-21 23:53:20 +01:00
+@@ -679,7 +679,6 @@
+ static void idescsi_setup (ide_drive_t *drive, idescsi_scsi_t *scsi)
+ {
+ 	DRIVER(drive)->busy++;
+-	drive->ready_stat = 0;
+ 	if (drive->id && (drive->id->config & 0x0060) == 0x20)
+ 		set_bit (IDESCSI_DRQ_INTERRUPT, &scsi->flags);
+ 	set_bit(IDESCSI_TRANSFORM, &scsi->transform);

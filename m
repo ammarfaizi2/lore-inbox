@@ -1,66 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262609AbUKQVdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262651AbUKQVmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262609AbUKQVdh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 16:33:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbUKQVbz
+	id S262651AbUKQVmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 16:42:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbUKQVlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 16:31:55 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27600 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262553AbUKQV2b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 16:28:31 -0500
-Date: Wed, 17 Nov 2004 15:19:52 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oops on boot when initializing CDROM
-Message-ID: <20041117171952.GA22554@logos.cnet>
-References: <Pine.LNX.4.58.0411162336510.24144@artax.karlin.mff.cuni.cz> <419BA1C0.3040601@osdl.org>
+	Wed, 17 Nov 2004 16:41:25 -0500
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:484 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262403AbUKQVeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 16:34:00 -0500
+Date: Wed, 17 Nov 2004 13:33:49 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Joerg Sommrey <jo@sommrey.de>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: local-/io-apic nmi watchdog failing on S2466
+Message-ID: <20041117213349.GA12329@taniwha.stupidest.org>
+References: <20041117173118.GA5211@sommrey.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <419BA1C0.3040601@osdl.org>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20041117173118.GA5211@sommrey.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 17, 2004 at 11:08:48AM -0800, Randy.Dunlap wrote:
-> Mikulas Patocka wrote:
-> >When booting kernel 2.4.27 on notebook with cd-rw dvd-ro drive, I get oops
-> >on cdrom_sysctl_register+2a trying to dereference address 20.
-> >Call stack: register_cdrom+235
-> >
-> >gcc-3.2.3
-> 
-> Thanks for the .config file.
-> 
-> with: CONFIG_SYSCTL=y, CONFIG_PROC_FS=n
-> 
-> Am I confused here, or is the 2.4 (and 2.6) source code confused?
+On Wed, Nov 17, 2004 at 06:31:18PM +0100, Joerg Sommrey wrote:
 
-It seems the source is confused, ouch. 
+> Maybe it's the board's failure, but as there *are* counted NMIs I
+> still hope there is a software solution to this problem.
 
-Applied, thanks Randy.
-
-> diffstat:=
->  drivers/cdrom/cdrom.c |    2 --
->  1 files changed, 2 deletions(-)
-> 
-> Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-> -- 
-
-> diff -Naurp ./drivers/cdrom/cdrom.c~cdrom_sysctl ./drivers/cdrom/cdrom.c
-> --- ./drivers/cdrom/cdrom.c~cdrom_sysctl	2003-11-28 10:26:20.000000000 -0800
-> +++ ./drivers/cdrom/cdrom.c	2004-11-17 10:45:45.666804288 -0800
-> @@ -2598,9 +2598,7 @@ ctl_table cdrom_cdrom_table[] = {
->  
->  /* Make sure that /proc/sys/dev is there */
->  ctl_table cdrom_root_table[] = {
-> -#ifdef CONFIG_PROC_FS
->  	{CTL_DEV, "dev", NULL, 0, 0555, cdrom_cdrom_table},
-> -#endif /* CONFIG_PROC_FS */
->  	{0}
->  	};
->  static struct ctl_table_header *cdrom_sysctl_header;
+All 2466 boards seem to do be broken like this, maybe you can contact
+Tyan about it and see if they have any comment?
 

@@ -1,35 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284537AbRLXJgv>; Mon, 24 Dec 2001 04:36:51 -0500
+	id <S284538AbRLXJun>; Mon, 24 Dec 2001 04:50:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284538AbRLXJgc>; Mon, 24 Dec 2001 04:36:32 -0500
-Received: from mail.cs.tu-berlin.de ([130.149.17.13]:60113 "EHLO
-	mail.cs.tu-berlin.de") by vger.kernel.org with ESMTP
-	id <S284537AbRLXJgX>; Mon, 24 Dec 2001 04:36:23 -0500
-Message-ID: <3C26F5D4.2070805@suhr.home.cs.tu-berlin.de>
-Date: Mon, 24 Dec 2001 10:31:00 +0100
-From: Gregor Suhr <linuxkernel@suhr.home.cs.tu-berlin.de>
-Reply-To: gregor@suhr.home.cs.tu-berlin.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, de-de
+	id <S284540AbRLXJud>; Mon, 24 Dec 2001 04:50:33 -0500
+Received: from www.automatix.de ([212.4.161.35]:37643 "EHLO mail.automatix.de")
+	by vger.kernel.org with ESMTP id <S284538AbRLXJuS>;
+	Mon, 24 Dec 2001 04:50:18 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Juergen Sauer <jojo@automatix.de>
+Organization: AutomatiX GmbH
+To: linux-usb-users@lists.sourceforge.net
+Subject: VIA Chipsets + USB + SMP == UGLY TRASH
+Date: Mon, 24 Dec 2001 10:32:49 +0100
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: "steve j. kondik" <shade@chemlab.org>
-CC: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: oops on boot w/ lvm root & xfs
-In-Reply-To: <20011223220547.GA16992@chemlab.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <E16IRTQ-0003oN-00@s.automatix.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
+Merry X-Mas everywhere !
 
-it looks  like the same problem that i had, maybe take a look at the 
-"OOPS  at boot in 2.4.17-rc[12]  (kernel BUG at slab.c:815) maybe devfs" 
-thread.
+So, my USB tryout is over. 
+This is the expierience report:
+You should not try to use VIA Chipsets + SMP + USB, that's
+the worst thinkable idea. It's junk (usb-Part).
 
-Best regards,
+That's why:
+1. not solved USB Irq errors in APIC mode, causes:
+	Error -110, device does not accept ID
+	USB Host is recognized fine, no device is attaced
 
-Gregor Suhr
+This is an error somewhere in the Kernel APIC Irq routing, which may 
+worked around with "append noapic pirq="your irq" but using such a cutdown
+USB System is not a good idea, no relly working bulk-transfers (forget 
+any devices which depend from it: scanners, camera, sound, isdn, 
+harddisks, zip etc.)
 
+State: unusable.
+Timeframe to be fixed: Unkonwn, Error Reports open open since 1 year
 
+So now I shutdown an connect the scanner (HP 6350) with a 2nd scsi card.
+
+Ciao
+Jürgen Sauer
+	
+-- 
+Jürgen Sauer - AutomatiX GmbH, +49-4209-4699, jojo@automatix.de **
+** Das Linux Systemhaus - Service - Support - Server - Lösungen **
+http://www.automatix.de to Mail me: remove: -not-for-spawm-     **

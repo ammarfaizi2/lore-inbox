@@ -1,66 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264984AbTCCNjD>; Mon, 3 Mar 2003 08:39:03 -0500
+	id <S265063AbTCCNr5>; Mon, 3 Mar 2003 08:47:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265039AbTCCNjD>; Mon, 3 Mar 2003 08:39:03 -0500
-Received: from buitenpost.surfnet.nl ([192.87.108.12]:25237 "EHLO
-	buitenpost.surfnet.nl") by vger.kernel.org with ESMTP
-	id <S264984AbTCCNjC>; Mon, 3 Mar 2003 08:39:02 -0500
-Date: Mon, 3 Mar 2003 14:49:04 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: IGMP problem with 2.5 kernels
-Message-ID: <20030303134904.GA19636@pangsit>
-References: <20030210113210.GA4827@pangsit> <20030212215757.GA1393@pangsit>
-Mime-Version: 1.0
+	id <S265065AbTCCNr5>; Mon, 3 Mar 2003 08:47:57 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:27396 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S265063AbTCCNrz>; Mon, 3 Mar 2003 08:47:55 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200303031357.h23DvxsQ000608@81-2-122-30.bradfords.org.uk>
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Mon, 3 Mar 2003 13:57:59 +0000 (GMT)
+Cc: hch@infradead.org, pavel@janik.cz, pavel@ucw.cz,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1046700774.5889.26.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Mar 03, 2003 02:12:55 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030212215757.GA1393@pangsit>
-X-Mailer: Mutt on Debian GNU/Linux sid
-X-Editor: vim
-X-Organisation: SURFnet bv
-X-Address: Radboudburcht, P.O. Box 19035, 3501 DA Utrecht, NL
-X-Phone: +31 302 305 305
-X-Telefax: +31 302 305 329
-User-Agent: Mutt/1.5.3i
-From: Niels den Otter <otter@surfnet.nl>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 12 February 2003, Niels den Otter wrote:
-> On Monday, 10 February 2003, Niels den Otter wrote:
-> > I have tried to run several IP Multicast applications (SDR, Vat,...)
-> > with on 2.5 kernels (now running 2.5.59bk3) without succes. Same
-> > applications appear to work on 2.4 kernels.
-> > 
-> > What seems to be happening is that the application binds to the lo
-> > interface instead of eth0 so that no IGMP queries are send out on
-> > the ethernet interface. I have a small application that tries to
-> > listen to address 233.4.5.9 and here is /proc/net/igmp with and
-> > without the app  running:
+> > I haven't seen a single post to the list saying, "If we were designing
+> > a version control system dedicated to the Linux kernel, what would you
+> > like to see in it?".  Before I started work on my bug database, I
+> > spent a week or so discussing it on the list with people.
 > 
-> Did more debugging and disabled my loopback interface to ensure the
-> mcast apps don't bind to this interface. strace shows all applications
-> go wrong with the same error. Is this kernel related?
+> Larry spent a lot of time talking to people directly about such things.
 
-In the meantime I have had verious discussion on this subject with
-Antonio Querubin and others and I don't know any solution yet.
+I meant in relation to Bit Bucket.
 
-Is anyone able to use multicast applications on recent 2.5 kernels and
-make it send out IGMP joins on an ethernet device?
+If the need for Bit Keeper to make a profit for Bit Mover excludes
+Linux developers from using it, the most logical thing to do in my
+opinion is to start from scratch and write a version control system
+dedicated to furthering Linux kernel development.
 
-RFC 1112 says
- If the upper-layer protocol chooses not to identify an outgoing
- interface, a default interface should be used, preferably under the
- control of system management.
+Compatibility with Bit Keeper should not be a goal of that project.
 
-In Linux 2.4 kernels this seems to work with adding a route for
-224.0.0.0/4 on the desired ethernet interface. This doesn't work in 2.5
-kernels however.
-
-
-Anyone who knows what the problem is and how it can be solved?
-
-
-Thanks,
-
-Niels
+John.

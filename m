@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265262AbTBOV60>; Sat, 15 Feb 2003 16:58:26 -0500
+	id <S265333AbTBOWEA>; Sat, 15 Feb 2003 17:04:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265270AbTBOV60>; Sat, 15 Feb 2003 16:58:26 -0500
-Received: from smtp.terra.es ([213.4.129.129]:46394 "EHLO tsmtp1.mail.isp")
-	by vger.kernel.org with ESMTP id <S265262AbTBOV6Z> convert rfc822-to-8bit;
-	Sat, 15 Feb 2003 16:58:25 -0500
-Date: Sat, 15 Feb 2003 23:08:38 +0100
-From: Arador <diegocg@teleline.es>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5: system time goes up to 100%
-Message-Id: <20030215230838.64c7c98d.diegocg@teleline.es>
-In-Reply-To: <20030215134320.39bafc6e.akpm@digeo.com>
-References: <20030215222229.10b56e5f.diegocg@teleline.es>
-	<20030215134320.39bafc6e.akpm@digeo.com>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	id <S265351AbTBOWEA>; Sat, 15 Feb 2003 17:04:00 -0500
+Received: from www.indiadirect.com ([139.142.153.40]:41479 "EHLO
+	silverpencil.com") by vger.kernel.org with ESMTP id <S265333AbTBOWD7>;
+	Sat, 15 Feb 2003 17:03:59 -0500
+From: "Sumankar Shankar" <sumankar@silverpencil.com>
+To: linux-kernel@vger.kernel.org
+Date: Sun, 16 Feb 2003 03:40:43 +0530
+Subject: [PATCH] isofs, 2.4.20
+CC: marcelo@conectiva.com.br
+Message-ID: <3E4F083B.22610.1AB6DD@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El día Sat, 15 Feb 2003 13:43:20 -0800
-Andrew Morton <akpm@digeo.com> escribió...
+There is this annoying bug in isofs in 2.4.19 and 2.4.20
+that makes it impossible to read most udf written discs
+that have been closed as iso9660. Its not a problem in
+2.2.x but dont know when in 2.4 it came about. Dunno
+if its fixed in 2.4.21-prewhatever but I didnt see any activity
+about it in lkml, so the patch is here:
 
-> Try grabbing the latest vmstat from procps.sourceforge.net
+--- linux/fs/isofs/inode.c	Sun Feb 16 03:06:39 2003
++++ linux/fs/isofs-mankar/inode.c	Sun Feb 16 03:08:34 2003
+@@ -939,7 +939,7 @@
+ 				if (!ninode)
+ 					goto abort;
+ 				firstext  = ninode->u.isofs_i.i_first_extent;
+-				sect_size = ninode->u.isofs_i.i_section_size;
++				sect_size = ninode->u.isofs_i.i_section_size >> ISOFS_BUFFER_BITS(inode);
+ 				nextino   = ninode->u.isofs_i.i_next_section_ino;
+ 				iput(ninode);
 
-Thanks, i'll try
-btw, this is procps version 3.1.5 (debian sid environment)
+[The patch is for 2.4.19 but Im quite sure it works
+with 2.4.20 too.  The error is because iso9660 level 3 
+support for handling files with more than 2 extents is 
+badly handled.]
 
-I still think something is happening...usually sylpheed
-opens that carpet in a few seconds (say < 5 seconds),
-
-but when this happens (it doesn't happen always), it takes
-like 10, 15, 20 seconds, those shown in the log.....
-perhaps it's a sylpheed bug.
-
-
-Thanks anyway, i'll look at the latest procps release.
-
-Diego Calleja
+-Mankar

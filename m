@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbUJaUxr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbUJaVEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbUJaUxr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 15:53:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbUJaUxq
+	id S261368AbUJaVEq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 16:04:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbUJaVEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 15:53:46 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:6884 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261365AbUJaUxp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 15:53:45 -0500
-Date: Sun, 31 Oct 2004 12:53:31 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Larry McVoy <lm@bitmover.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Andrea Arcangeli <andrea@novell.com>, Joe Perches <joe@perches.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-Message-ID: <20041031205331.GD27728@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Pavel Machek <pavel@suse.cz>, Roman Zippel <zippel@linux-m68k.org>,
-	Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@osdl.org>,
-	Andrea Arcangeli <andrea@novell.com>, Joe Perches <joe@perches.com>,
-	Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-References: <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random> <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org> <Pine.LNX.4.61.0410252350240.17266@scrub.home> <20041026010141.GA15919@work.bitmover.com> <Pine.LNX.4.61.0410270338310.877@scrub.home> <20041027035412.GA8493@work.bitmover.com> <Pine.LNX.4.61.0410272214580.877@scrub.home> <20041028005412.GA8065@work.bitmover.com> <20041031204717.GF5578@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041031204717.GF5578@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Sun, 31 Oct 2004 16:04:45 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:46079 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261368AbUJaVEa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 16:04:30 -0500
+Message-ID: <41855483.2090906@comcast.net>
+Date: Sun, 31 Oct 2004 13:09:23 -0800
+From: Z Smith <plinius@comcast.net>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
+References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel> <200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua> <1099170891.1424.1.camel@krustophenia.net> <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua> <20041030222720.GA22753@hockin.org> <Pine.LNX.4.53.0410310744210.3581@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.53.0410310744210.3581@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 31, 2004 at 09:47:17PM +0100, Pavel Machek wrote:
-> How many terabytes would need to be transfered in order to do complete
-> import of linux-kernel into another system?
-> 								Pavel
+Jan Engelhardt wrote:
 
-Not as much as it would take to do the same thing from a remote CVS server.
-CVS is dramatically worse than diff and patch.
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+> FBUI does not have 3d acceleration?
+
+The problem is 3d non-acceleration i.e. VESA and VGA
+would still have to be supported. I'm no 3d expert but
+I think there must be some software-based 3d function
+would require using floating point, which isn't allowed
+in the kernel.
+
+Also, might not software 3d open the kernel up to
+patent issues?
+
+Zachary Smith

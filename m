@@ -1,25 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262222AbTEADzR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 23:55:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbTEADzR
+	id S262225AbTEAD6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 23:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbTEAD6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 23:55:17 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:22492 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262222AbTEADzQ
+	Wed, 30 Apr 2003 23:58:16 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:23264 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S262225AbTEAD6P
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 23:55:16 -0400
-Date: Wed, 30 Apr 2003 21:07:07 -0700
+	Wed, 30 Apr 2003 23:58:15 -0400
+Date: Wed, 30 Apr 2003 21:10:05 -0700
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>, Keith Mannthey <kmannth@us.ibm.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>, rmoser <mlmoser@comcast.net>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] clustered apic irq affinity fix for i386
-Message-ID: <8940000.1051762026@[10.10.2.4]>
-In-Reply-To: <20030430192205.13491d61.akpm@digeo.com>
-References: <1051744032.16886.80.camel@dyn9-47-17-180.beaverton.ibm.com>
- <20030430163637.04f06ba6.akpm@digeo.com>
- <1051751157.16886.91.camel@dyn9-47-17-180.beaverton.ibm.com>
- <20030430192205.13491d61.akpm@digeo.com>
+Subject: Re: Kernel source tree splitting
+Message-ID: <9930000.1051762204@[10.10.2.4]>
+In-Reply-To: <20030430172102.69e13ce9.rddunlap@osdl.org>
+References: <200304301946130000.01139CC8@smtp.comcast.net>
+ <20030430172102.69e13ce9.rddunlap@osdl.org>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,42 +26,23 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> This should be better. Thanks for the comments. 
+> I'm probably misreading this...but,
 > 
-> Remind me again what the patch actually does?  It seems to be purely
-> adding debug checks?
+> Have you tried this yet?  Does it modify/customize all Kconfig
+> and Makefiles for the selected tree splits?
 > 
-> Won't it just go BUG if someone boots the kernel and then tries to
-> manually set affinity?
+> A few days ago, in one tree, I rm-ed arch/{all that I don't need}
+> and drivers/{all that I don't need}.
+> After that I couldn't run "make *config" because it wants all of
+> those files, even if I don't want them.
+> 
+> So there are many edits that needed to be done in lots of
+> Kconfig and Makefiles if one selectively pulls or omits certain
+> sub-directories.
 
-Just ignoring the idiot caller would seem better, IMHO. BUG is a little
-extreme ;-) Personally I'm happy for clustered apic mode machines with
-irqbalance *disabled* to just fail the call. With it enabled, they can just
-fraggle the affinity for irqbalance, and be happy.
-
-> Seems a bit racy too. setup_ioapic_dest() does:
-> 
->                         pending_irq_balance_apicid[irq] = mask;
->         ==> window here
->                         set_ioapic_affinity(irq, mask);
-> 
-> ioapic_lock is not held, so there is a window where
-> pending_irq_balance_apicid[irq] can be set to some other value and
-> io_apic_write_affinity() will accidentally go BUG.
-> 
-> 
-> Is it not possible to fix set_ioapic_affinity() for real for clustered
-> APIC mode?  What is involved in that?
-
-The hardware doesn't support arbitrary cpumasks. However, as long as
-we're running irqbalance, it doesn't matter  - we only do one cpu at a time
-anyway.
-
-The existing code in the mainline kernel is wrong for platforms other than
-clustered apic mode too. irqbalance is happily rotating us one cpu at a
-time, and then we go along and put our big masky foot in the thing, and
-splat it across multiple CPUs. If irqbalance is on, all we need to do is
-set up the irqbalance mask, then force a rebalance immediately.
+Indeed, I ran across the same thing a while back. Would be *really* nice to
+fix, if only so some poor sod over a modem can download a smaller tarball,
+or save some diskspace.
 
 M.
 

@@ -1,81 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263188AbUFTWlU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263059AbUFTWs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263188AbUFTWlU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 18:41:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUFTWlT
+	id S263059AbUFTWs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 18:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUFTWs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 18:41:19 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24020 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263188AbUFTWlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 18:41:17 -0400
-Date: Mon, 21 Jun 2004 00:41:09 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: jgarzik@pobox.com, Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.4 patch] add SATA Configure.help texts
-Message-ID: <20040620224109.GE27822@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Sun, 20 Jun 2004 18:48:56 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:36292 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S263059AbUFTWsu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 18:48:50 -0400
+Date: Sun, 20 Jun 2004 18:50:56 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Urban Widmark <urban@teststation.com>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH][2.6] Fix smbfs readdir oops
+Message-ID: <Pine.LNX.4.58.0406201834390.3273@montezuma.fsmlabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below adds the missing SATA Configure.help texts
-(stolen from 2.6.7).
+This has been reported a couple of times and is consistently causing some
+folks grief, so Urban, would you mind terribly if i send this patch to at
+least clear current bug reports. If there is additional stuff you want
+ontop of this let me know and i can send a follow up patch.
 
-Please apply
-Adrian
+The bug is that at times we haven't completed setting up the smb_ops so we
+have a temporary 'null' ops in place until the connection is completely
+up. With this setup it's possible to hit ->readdir() whilst the null
+ops are still in place, so we put the process to sleep until the
+connection setup is complete and then call the real ->readdir().
 
---- linux-2.4.27-rc1-full/Documentation/Configure.help.old	2004-06-21 00:01:56.000000000 +0200
-+++ linux-2.4.27-rc1-full/Documentation/Configure.help	2004-06-21 00:38:19.000000000 +0200
-@@ -9265,6 +9265,48 @@
-   say M here and read <file:Documentation/modules.txt>.  The module
-   will be called megaraid2.o.
- 
-+CONFIG_SCSI_SATA
-+  This driver family supports Serial ATA host controllers
-+  and devices.
+This patch addresses the bugzilla report at
+http://bugzilla.kernel.org/show_bug.cgi?id=1671
+
+ fs/smbfs/inode.c          |    1 +
+ fs/smbfs/proc.c           |   44 ++++++++++++++++++++++++++++++++++++++++++--
+ include/linux/smb_fs_sb.h |    3 ++-
+ 3 files changed, 45 insertions(+), 3 deletions(-)
+
+Signed-off-by: Zwane Mwaikambo <zwane@linuxpower.ca>
+
+Index: linux-2.6.7/include/linux/smb_fs_sb.h
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.7/include/linux/smb_fs_sb.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 smb_fs_sb.h
+--- linux-2.6.7/include/linux/smb_fs_sb.h	16 Jun 2004 16:49:26 -0000	1.1.1.1
++++ linux-2.6.7/include/linux/smb_fs_sb.h	20 Jun 2004 00:06:45 -0000
+@@ -57,7 +57,8 @@ struct smb_sb_info {
+ 	unsigned int generation;
+ 	pid_t conn_pid;
+ 	struct smb_conn_opt opt;
+-
++	wait_queue_head_t conn_wq;
++	int conn_complete;
+ 	struct semaphore sem;
+
+         unsigned short     rcls; /* The error codes we received */
+Index: linux-2.6.7/fs/smbfs/inode.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.7/fs/smbfs/inode.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 inode.c
+--- linux-2.6.7/fs/smbfs/inode.c	16 Jun 2004 16:49:47 -0000	1.1.1.1
++++ linux-2.6.7/fs/smbfs/inode.c	19 Jun 2004 21:19:04 -0000
+@@ -521,6 +521,7 @@ int smb_fill_super(struct super_block *s
+ 	server->super_block = sb;
+ 	server->mnt = NULL;
+ 	server->sock_file = NULL;
++	init_waitqueue_head(&server->conn_wq);
+ 	init_MUTEX(&server->sem);
+ 	INIT_LIST_HEAD(&server->entry);
+ 	INIT_LIST_HEAD(&server->xmitq);
+Index: linux-2.6.7/fs/smbfs/proc.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.7/fs/smbfs/proc.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 proc.c
+--- linux-2.6.7/fs/smbfs/proc.c	16 Jun 2004 16:49:47 -0000	1.1.1.1
++++ linux-2.6.7/fs/smbfs/proc.c	20 Jun 2004 00:26:57 -0000
+@@ -56,6 +56,7 @@ static struct smb_ops smb_ops_os2;
+ static struct smb_ops smb_ops_win95;
+ static struct smb_ops smb_ops_winNT;
+ static struct smb_ops smb_ops_unix;
++static struct smb_ops smb_ops_null;
+
+ static void
+ smb_init_dirent(struct smb_sb_info *server, struct smb_fattr *fattr);
+@@ -981,6 +982,9 @@ smb_newconn(struct smb_sb_info *server,
+ 	smbiod_wake_up();
+ 	if (server->opt.capabilities & SMB_CAP_UNIX)
+ 		smb_proc_query_cifsunix(server);
 +
-+  If unsure, say N.
++	server->conn_complete++;
++	wake_up_interruptible_all(&server->conn_wq);
+ 	return error;
+
+ out:
+@@ -2794,10 +2798,45 @@ out:
+ }
+
+ static int
++smb_proc_ops_wait(struct smb_sb_info *server)
++{
++	int result;
 +
-+CONFIG_SCSI_SATA_SVW
-+  This option enables support for Broadcom/Serverworks/Apple K2
-+  SATA support.
++	result = wait_event_interruptible_timeout(server->conn_wq,
++				server->conn_complete, 30*HZ);
 +
-+  If unsure, say N.
++	if (!result || signal_pending(current))
++		return -EIO;
 +
-+CONFIG_SCSI_SATA_PROMISE
-+  This option enables support for Promise Serial ATA TX2/TX4.
++	return 0;
++}
 +
-+  If unsure, say N.
++static int
+ smb_proc_getattr_null(struct smb_sb_info *server, struct dentry *dir,
+-		      struct smb_fattr *attr)
++			  struct smb_fattr *fattr)
+ {
+-	return -EIO;
++	int result;
 +
-+CONFIG_SCSI_SATA_SX4
-+  This option enables support for Promise Serial ATA SX4.
++	if (smb_proc_ops_wait(server) < 0)
++		return -EIO;
 +
-+  If unsure, say N.
++	smb_init_dirent(server, fattr);
++	result = server->ops->getattr(server, dir, fattr);
++	smb_finish_dirent(server, fattr);
 +
-+CONFIG_SCSI_SATA_SIL
-+  This option enables support for Silicon Image Serial ATA.
++	return result;
++}
 +
-+  If unsure, say N.
++static int
++smb_proc_readdir_null(struct file *filp, void *dirent, filldir_t filldir,
++		      struct smb_cache_control *ctl)
++{
++	struct smb_sb_info *server = server_from_dentry(filp->f_dentry);
 +
-+CONFIG_SCSI_SATA_SIS
-+  This option enables support for SiS Serial ATA 964/180.
++	if (smb_proc_ops_wait(server) < 0)
++		return -EIO;
 +
-+  If unsure, say N.
-+
-+CONFIG_SCSI_SATA_VIA
-+  This option enables support for VIA Serial ATA.
-+
-+  If unsure, say N.
-+
-+CONFIG_SCSI_SATA_VITESSE
-+  This option enables support for Vitesse VSC7174 Serial ATA.
-+
-+  If unsure, say N.
-+
- Intel/ICP (former GDT SCSI Disk Array) RAID Controller support
- CONFIG_SCSI_GDTH
-   Formerly called GDT SCSI Disk Array Controller Support.
++	return server->ops->readdir(filp, dirent, filldir, ctl);
+ }
+
+ int
+@@ -3431,6 +3470,7 @@ static struct smb_ops smb_ops_unix =
+ /* Place holder until real ops are in place */
+ static struct smb_ops smb_ops_null =
+ {
++	.readdir	= smb_proc_readdir_null,
+ 	.getattr	= smb_proc_getattr_null,
+ };
+

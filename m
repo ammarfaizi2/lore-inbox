@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262918AbTFDF4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 01:56:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbTFDF4Q
+	id S262931AbTFDF7W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 01:59:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTFDF7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 01:56:16 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:57331 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S262918AbTFDF4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 01:56:15 -0400
-Subject: Re: [RFC PATCH] Re: [OOPS] w83781d during rmmod (2.5.69-bk17)
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Philip Pokorny <ppokorny@penguincomputing.com>
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
-       Sensors <sensors@Stimpy.netroedge.com>
-In-Reply-To: <3EDCFA7B.4030906@penguincomputing.com>
-References: <20030524183748.GA3097@earth.solarsys.private>
-	 <3ED8067E.1050503@paradyne.com>
-	 <20030601143808.GA30177@earth.solarsys.private>
-	 <20030602172040.GC4992@kroah.com>
-	 <1054617753.5269.44.camel@workshop.saharacpt.lan>
-	 <3EDCFA7B.4030906@penguincomputing.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054706250.5268.79.camel@workshop.saharacpt.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 04 Jun 2003 07:57:31 +0200
+	Wed, 4 Jun 2003 01:59:22 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:63414 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S262931AbTFDF7U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 01:59:20 -0400
+Date: Tue, 03 Jun 2003 23:11:44 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       William Voorsluys <william@icmc.usp.br>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: NPTL/SMP/NUMA
+Message-ID: <227280000.1054707103@[10.10.2.4]>
+In-Reply-To: <1054679535.9233.87.camel@dhcp22.swansea.linux.org.uk>
+References: <Pine.GSO.4.05.10306031914120.1819-100000@ceci> <1054679535.9233.87.camel@dhcp22.swansea.linux.org.uk>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-06-03 at 21:43, Philip Pokorny wrote:
-> Martin Schlemmer wrote:
-> > On Mon, 2003-06-02 at 19:20, Greg KH wrote:
-> > 
-> > Hiya Greg
-> > 
-> > While sorda on the topic ... since I did the w83781d driver some time
-> > ago, I changed boards for a P4C800 (Intel 875 chipset), that have a
-> > ICH5 southbridge, and not a ICH4 one ....  I tried to add the ID's
-> > to the i810 driver, and although it does load (even without the
-> > ID's added), the I2C bus/sensor does not show in /sys.  The w83781d
-> > driver also load fine btw.
+>> thinking on SMP machines, and which have been made to other purposes?
+>> Is there any feature on the library/kernel that make it possible to
+>> exploit the benefits of NUMA systems?
 > 
-> My system (SuperMicro) with an '875 and ICH5 reports the ICH5 as an 
-> '801EB' which means you should be using the i2c-i801 driver not i2c-i810...
-> 
+> NUMA systems don't have any benefits (well other than engineering 
+> considerations like practicality of construction). 
 
-Right ... at work, so could not verify.
+Personally, I'd say that's pretty important ;-) But I get your point ...
 
-> I'm also betting that you need to set 'isich4' to true in the case of 
-> the ich5 as well...
-> 
-> Try the attached patch...  NOTE: I have *not* consulted the Intel DOC's 
-> on the ICH4 and ICH5 to see if the register interface has changed in 
-> other interesting ways...
-> 
+On the other hand, you could look at it as "better local latency" rather
+than "worse remote latency". Particularly if you stand on a big Sun
+server when you look, where everything sucks equally for memory access 
+latencies ;-)
 
-Will let you know, thanks.
+> From a software perspective NUMA is simply a question of making the 
+> loss as little as possible.
 
+ 
+> There are patches to do more NUMA aware scheduling which help a bit
+> as well as to do things like replicate the kernel code to each node.
 
-Regards,
+The NUMA scheduling code isn't very bright about threads right now,
+but we will fix that soon enough ;-)
 
--- 
-Martin Schlemmer
-
+M.
 

@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbTEBIk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 04:40:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTEBIk0
+	id S261960AbTEBIly (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 04:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbTEBIlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 04:40:26 -0400
-Received: from siaag1ab.compuserve.com ([149.174.40.4]:57473 "EHLO
-	siaag1ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S261957AbTEBIkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 04:40:24 -0400
-Date: Fri, 2 May 2003 04:50:49 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: kernel zeroing memory (was Re: Why DRM exists)
-To: Scott McDermott <vaxerdec@frontiernet.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200305020452_MC3-1-3708-DBF0@compuserve.com>
-MIME-Version: 1.0
+	Fri, 2 May 2003 04:41:52 -0400
+Received: from [196.41.29.142] ([196.41.29.142]:5374 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S261960AbTEBIlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 04:41:00 -0400
+Subject: Re: OSS support for ICH5 sound
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: KML <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <3EB1F886.3000106@pobox.com>
+References: <1051823687.11068.11.camel@nosferatu.lan>
+	 <3EB1F886.3000106@pobox.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1051865298.5677.44.camel@workshop.saharact.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 02 May 2003 10:48:18 +0200
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scott McDermott wrote:
+On Fri, 2003-05-02 at 06:48, Jeff Garzik wrote:
 
-> I would have thought that the kernel would itself zero
-> memory in the case of sensitive memory contents, before
-> allowing it to be used as user memory.
+> Unfortunately this doesn't work on all ICH5s out there.  At the very 
+> minimum, for now, it would be nice to match up ich5 and codec pairs, as 
+> codec differentiation seems to be what stops this patch from working on 
+> all ICH5.
+> 
 
- There is no way to tell whether anything is sensitive or not, so it
-all gets cleared.
+Hmm, right.
 
-> That's interesting...why doesn't it do that? In many cases
-> the information is not sensitive.  Why incur this speed
-> penalty of having to zero any memory given to user?
+Anybody working on getting support for the 875 Chipset into 2.5?
+Can I send a 'lspci -vv' to help ?  I have a Asus P4C800 here (Intel
+875p), so I can do some testing if need be.
 
- That's what the 'designers' of The Beast's mainstream OS of that
-era thought, and look what happened...
 
- And rather than admit that their bread-and-butter OS at that time
-had fatal security flaws, they had the nerve to patch their apps
-and release a bulletin about it!
+Regards,
 
-------
- Chuck
+-- 
+Martin Schlemmer
+
+

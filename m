@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289124AbSA1ObF>; Mon, 28 Jan 2002 09:31:05 -0500
+	id <S289171AbSA1Oi0>; Mon, 28 Jan 2002 09:38:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289171AbSA1Oa4>; Mon, 28 Jan 2002 09:30:56 -0500
-Received: from web9205.mail.yahoo.com ([216.136.129.38]:45329 "HELO
-	web9205.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S289124AbSA1Oao>; Mon, 28 Jan 2002 09:30:44 -0500
-Message-ID: <20020128143044.8871.qmail@web9205.mail.yahoo.com>
-Date: Mon, 28 Jan 2002 06:30:44 -0800 (PST)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: I've stopped the 'Spurious interrupts on IRQ7'
-To: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
-In-Reply-To: <200201280846.g0S8k1E22015@Port.imtp.ilyichevsk.odessa.ua>
+	id <S289185AbSA1OiR>; Mon, 28 Jan 2002 09:38:17 -0500
+Received: from iwd_mail.intware.com ([216.94.87.36]:58897 "EHLO
+	iwd_mail.intware.com") by vger.kernel.org with ESMTP
+	id <S289171AbSA1OiH>; Mon, 28 Jan 2002 09:38:07 -0500
+Message-ID: <F7EB06D3ED62D311A15600104B6D909F442073@IWD_MAIL>
+From: Dimitrie Paun <dimi@intelliware.ca>
+To: "'Stelian Pop'" <stelian.pop@fr.alcove.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH 2.4.18-pre7] sonypi driver update
+Date: Mon, 28 Jan 2002 09:16:19 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> From: Stelian Pop [mailto:stelian.pop@fr.alcove.com]
 
---- Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
-> On 28 January 2002 06:37, Alex Davis wrote:
-> > I added the following line to /etc/lilo.conf
-> >
-> > append = "parport=0x378,7"
-> >
-> > and re-ran lilo. I also noticed that the 'ERR' field in
-> > /proc/interrupts stays at 0, whereas before the mod it
-> > was increasing.
-> 
-> Do you have a printer?
-Yes.
-> Try to boot while it is powered off.
-Spurious ints. occur whether the printer is on of off.
+Hi Stelian :)
 
+> This new version of the driver is also capable to turn on/off
+> this laptop's bluetooth subsystem (using new ioctls, you will
+> need the updated user mode tools - spicctrl - from 
+> http://www.alcove-labs.org/en/software/sonypi/).
 
-__________________________________________________
-Do You Yahoo!?
-Send your FREE holiday greetings online!
-http://greetings.yahoo.com
+Why do we keep proliferating ioctls, instead of nice ctrl files?
+
+--
+Dimi.

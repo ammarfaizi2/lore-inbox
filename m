@@ -1,112 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVCUXLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVCUX3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262201AbVCUXLw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 18:11:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVCUXIr
+	id S262193AbVCUX3c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 18:29:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVCUX3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 18:08:47 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:64195
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262185AbVCUXD1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 18:03:27 -0500
-Date: Mon, 21 Mar 2005 15:02:05 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: hugh@veritas.com, akpm@osdl.org, nickpiggin@yahoo.com.au,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
-Message-Id: <20050321150205.4af39064.davem@davemloft.net>
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F03210DD4@scsmsx401.amr.corp.intel.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F03210DD4@scsmsx401.amr.corp.intel.com>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 21 Mar 2005 18:29:20 -0500
+Received: from fire.osdl.org ([65.172.181.4]:26842 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262180AbVCUX12 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 18:27:28 -0500
+Date: Mon, 21 Mar 2005 15:27:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Holger Kiehl <Holger.Kiehl@dwd.de>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       "Moore, Eric Dean" <emoore@lsil.com>
+Subject: Re: Fusion-MPT much faster as module
+Message-Id: <20050321152723.4b86dc3a.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0503081327560.28812@praktifix.dwd.de>
+References: <Pine.LNX.4.61.0503081327560.28812@praktifix.dwd.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Mar 2005 14:31:36 -0800
-"Luck, Tony" <tony.luck@intel.com> wrote:
-
-> Builds clean and boots on ia64.
+Holger Kiehl <Holger.Kiehl@dwd.de> wrote:
+>
+> Hello
 > 
-> I haven't tried any hugetlb operations on it though.
+> On a four CPU Opteron compiling the Fusion-MPT as module gives much better
+> performance when compiling it in, here some bonnie++ results:
+> 
+> Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
+>                      -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+> Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+> compiled in  15872M 38366 71  65602  22 18348   4 53276 84  57947   7 905.4   2
+> module       15872M 51246 96 204914  70 57236  14 59779 96 264171  33 923.0   2
+> 
+> This happens with 2.6.10, 2.6.11 and 2.6.11-bk2. Controller is a
+> Symbios Logic 53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI.
+> 
+> Why is there such a large difference?
+> 
 
-It works on ia64 because it doesn't actually do anything
-in flush_tlb_pgtables(), I bet.
+Holger, this problem remains unresolved, does it not?  Have you done any
+more experimentation?
 
-Hugh, I know the exact trigger case, it's unmapping a VMA
-right before the stack segment.  So the free_pgtables() call
-happens with this state:
+I must say that something funny seems to be happening here.  I have two
+MPT-based Dell machines, neither of which is using a modular driver:
 
-prev->vm_end    == 0x70186000
-next->vm_start  == 0xefab8000
-vma->vm_start   == 0x70186000
-vma->vm_end     == 0x70188000
 
-(so we're doing munmap(0x70186000, PAGE_SIZE), the sparc64
- stack segment for 32-bit tasks grows down from 0xf0000000,
- the bottom of it is at 0xefab8000 at this point in time)
+akpm:/usr/src/25> 0 hdparm -t /dev/sda
 
-So the free_pgtables() call will be with:
+/dev/sda:
+ Timing buffered disk reads:  64 MB in  5.00 seconds = 12.80 MB/sec
 
-floor   == 0x70186000
-ceiling == 0xefab8000
+That's a bit disappointing.  Running 2.6.9-rc2-mm2(!) with a
 
-This should be fairly simple, so let's analyze exactly what
-happens:
+ SCSI storage controller: LSI Logic / Symbios Logic 53c1030 (rev 07)
 
-1) vma == the munmap() call's VMA
-   next == stack segment VMA, which sits right after "vma"
-   addr == 0x70186000 (base of munmap() area)
+controller on disks which shudl hit 50MB/sec.
 
-2) VMA optimization loop runs:
-      next->vm_start is 0xefab8000 
-      vma->vm_end is 0x70188000
-      on sparc64 PMD_SIZE is 1UL << 23 or 0x800000
-      therefore vma->vm_end + (2 * PMD_SIZE) is 0x71188000
-      this is much less than 0xefab8000 so the loop terminates
-      immediately
 
-    Therefore, next is unchanged.
 
-3) free_pgd_range() is invoked with:
-    addr    == 0x70186000
-    end     == 0x70188000
-    floor   == 0x70186000
-    ceiling == 0xefab8000
 
-4) We mask addr with PMD_MASK (which is 0xffffffffff800000)
-   This sets addr to 0x70000000, which makes it less
-   than floor, therefore addr has PMD_SIZE added to it.
-   Now, addr is 0x70800000, this is the source of the
-   problems as this value determines the "start" argument
-   passed to flush_tlb_pgtables().  Note how it is larger
-   than "end".
+And
 
-5) We also mask ceiling with PMD_MASK.
-   This sets ceiling to 0xef800000.
-   Now addr is less than or equal to ceiling - 1 so
-   we continue.
+bix:/home/akpm# hdparm -t /dev/sda
 
-6) start is set to addr, which as stated is 0x70800000,
-   the free_pud_range() loop is executed
+/dev/sda:
+ Timing buffered disk reads:  114 MB in  3.03 seconds =  37.57 MB/sec
 
-7) start is 0x70800000 and end is 0x70188000
-   and here we have the problem that start > end,
-   flush_tlb_pgtables() is called with the arguments
-   like this and we trigger the aforementioned BUG().
+with 2.6.11-rc4-mm1 using
 
-This adjustment of addr relative to floor is very
-strange, it can advance "addr" (and thus "start")
-past the end of the VMA we are unmapping.
+Fusion MPT SCSI Host driver 3.01.16
+scsi0 : ioc0: LSI53C1030, FwRev=01030600h, Ports=1, MaxQ=222, IRQ=25
+scsi1 : ioc1: LSI53C1030, FwRev=01030600h, Ports=1, MaxQ=222, IRQ=26
+Vendor: SEAGATE   Model: ST3146807LW       Rev: DS09
+Type:   Direct-Access                      ANSI SCSI revision: 03
 
-In fact, it is miraculious that this free_pud_range()
-calling loop terminates properly!  Actually, it is
-no mystery, since the next PGD address is the same
-for both the original and adjusted value of "addr".
-So the loop terminates after the first iteration.
-
-Anyways, there's the full analysis, what do you make
-of this Hugh? :-)
+Better, but again I'd expect >50MB/sec.

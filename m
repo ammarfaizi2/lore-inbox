@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVBNXpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVBNXqt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbVBNXpe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 18:45:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVBNXpe
+	id S261334AbVBNXqt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 18:46:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVBNXqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 18:45:34 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:51609 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261191AbVBNXpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 18:45:22 -0500
-Subject: [OT] speeding boot process (was Re: [ANNOUNCE] hotplug-ng 001
-	release)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: Prakash Punnoor <prakashp@arcor.de>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>, Greg KH <gregkh@suse.de>,
-       Patrick McFarland <pmcfarland@downeast.net>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <524qge20e2.fsf@topspin.com>
-References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net>
-	 <20050211011609.GA27176@suse.de>
-	 <1108354011.25912.43.camel@krustophenia.net>
-	 <4d8e3fd305021400323fa01fff@mail.gmail.com> <42106685.40307@arcor.de>
-	 <1108422240.28902.11.camel@krustophenia.net>  <524qge20e2.fsf@topspin.com>
-Content-Type: text/plain
-Date: Mon, 14 Feb 2005 18:45:20 -0500
-Message-Id: <1108424720.32293.8.camel@krustophenia.net>
+	Mon, 14 Feb 2005 18:46:49 -0500
+Received: from gprs215-140.eurotel.cz ([160.218.215.140]:6802 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261290AbVBNXqg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 18:46:36 -0500
+Date: Tue, 15 Feb 2005 00:41:52 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Andrew Morton <akpm@osdl.org>, Bernard Blackham <bernard@blackham.com.au>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Address lots of pending pm_message_t changes
+Message-ID: <20050214234151.GA2134@elf.ucw.cz>
+References: <1108359808.12611.37.camel@desktop.cunningham.myip.net.au> <20050214213400.GF12235@elf.ucw.cz> <20050214134658.324076c9.akpm@osdl.org> <1108418226.12611.75.camel@desktop.cunningham.myip.net.au> <20050214220459.GM12235@elf.ucw.cz> <1108418990.12611.86.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1108418990.12611.86.camel@desktop.cunningham.myip.net.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-14 at 15:21 -0800, Roland Dreier wrote:
->     Lee> I don't see why so much effort goes into improving boot time
->     Lee> on the kernel side when the most obvious user space problem
->     Lee> is ignored.
+Hi!
+
+> > > > > Andrew, if you get one big patch doing only type-safety (u32 ->
+> > > > >  pm_message_t, no code changes), would you still take it this late? I
+> > > > >  promise it is not going to break anything... It would help merge after
+> > > > >  2.6.11 quite a lot...
+> > > > 
+> > > > Problem is, such a megapatch causes grief for all those people who maintain
+> > > > their own trees.  It would be best, please, to split it into 10-20 bits and
+> > > > send the USB parts to Greg and the SCSI bits to James, etc.
+> > > 
+> > > Okay; I can do that if everyone is happy with the thing as a whole.
+> > > Andrew, can I get your answer on Pavel's question - shall I just include
+> > > the u32->pm_message_t part?
+> > 
+> > Yes, I believe it is too late to do anything than u32->pm_message_t
+> > conversion that changes no code...
 > 
-> How much of a win is it to run init scripts in parallel?  I seem to
-> recall seeing tests that show that it doesn't make much difference and
-> may even slow things down by causing more disk seeks as various things
-> start up at the same time and cause reads of different files to get
-> interleaved.
-> 
+> I guess I'm wrong then - I thought the other changes avoided compilation
+> errors.
 
-This is why Windows XP reserves sapce at the beginning of the disk for
-the files read during the boot process and caches copies of them there.
+Well, yes, if you switch pm_message_t into struct. But we are not yet
+ready to do that... it is going to be typedefed to u32 for 2.6.11...
 
-But, I was referring more to things like GDM not being started until all
-the other init scripts are done.  Why not start it first, and let the
-network initialize while the user is logging in?
-
-> On the other hand, hotplug is an area that real profiling of real
-> systems booting has identified as something that can be improved, and
-> Greg's hotplug-ng seems to be a step towards a measurable improvement.
-
-Agreed.
-
-Lee
-
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289684AbSAJVPr>; Thu, 10 Jan 2002 16:15:47 -0500
+	id <S289405AbSAJVZX>; Thu, 10 Jan 2002 16:25:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289687AbSAJVPe>; Thu, 10 Jan 2002 16:15:34 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:1244 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S289684AbSAJVPZ>;
-	Thu, 10 Jan 2002 16:15:25 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200201102115.g0ALF1e28859@eng2.beaverton.ibm.com>
-Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Thu, 10 Jan 2002 13:15:01 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16OlMo-0005NV-00@the-village.bc.nu> from "Alan Cox" at Jan 10, 2002 07:00:02 PM PST
-X-Mailer: ELM [version 2.5 PL3]
+	id <S289687AbSAJVZO>; Thu, 10 Jan 2002 16:25:14 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:4813 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S289405AbSAJVY5>;
+	Thu, 10 Jan 2002 16:24:57 -0500
+Date: Fri, 11 Jan 2002 00:22:18 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>, Mike Kravetz <kravetz@us.ibm.com>,
+        Anton Blanchard <anton@samba.org>, george anzinger <george@mvista.com>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
+In-Reply-To: <Pine.LNX.4.33.0201101017380.2723-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0201110021080.10305-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> > Does this address everyones concerns ? I am willing to work with the
-> > drivers I tested/reviewed/verified to make the change to set the flag.
-> > As driver owners verify their drivers, could set the flag (in future).
-> 
-> Im just trying to work out how this deals with the 2.4 scsi case
-> 
 
-Alan,
+On Thu, 10 Jan 2002, Linus Torvalds wrote:
 
-The issue with my (mostly) PAGE_SIZE RAW IO patch is, it could generate
-buffer heads with different b_size in a single IO request. Jens & Ben
-have concerns about some of the low level drivers not able to handle
-these. (it would be hard to analyse all the drivers to verify this).
+> > First it cleans up the load balancer's interaction with the timer tick.
+> > There are now two functions called from the timer tick: busy_cpu_tick()
+> > and idle_cpu_tick(). It's completely up to the scheduler to use them
+> > appropriately.
+>
+> This is _wrong_. The timer doesn't even know whether something is an idle
+> task or not.
 
-So, Andrea suggested we add a flag in "blk_dev" structure. Only the
-drivers which support variable size buffer heads in a single IO will
-set it. My RAW VARY patch will use this flag to see if I can do 
-RAW VARY or not. Makes sense ?
+yes - thought of this after writing the mail.
 
-Let me know, what you think about this approach.
+> Proof: kapmd (right now the scheduler doesn't know this either, but at
+> least we could teach it to know).
 
-Regards,
-Badari
+yes - pid == 0 is not the right information. I've fixed this in my tree.
+
+	Ingo
+

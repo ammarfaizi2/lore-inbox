@@ -1,51 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261997AbVADDMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbVADDcm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261997AbVADDMR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 22:12:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbVADDMR
+	id S262007AbVADDcm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 22:32:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbVADDcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 22:12:17 -0500
-Received: from eth0-0.arisu.projectdream.org ([194.158.4.191]:44192 "EHLO
-	b.mx.projectdream.org") by vger.kernel.org with ESMTP
-	id S261997AbVADDMM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 22:12:12 -0500
-Date: Tue, 4 Jan 2005 04:12:29 +0100
-From: Thomas Graf <tgraf@suug.ch>
-To: "Theodore Ts'o" <tytso@mit.edu>, Bill Davidsen <davidsen@tmr.com>,
-       Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
-       Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, aebr@win.tue.nl,
-       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
+	Mon, 3 Jan 2005 22:32:41 -0500
+Received: from out006pub.verizon.net ([206.46.170.106]:17332 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP id S262007AbVADDci
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 22:32:38 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
 Subject: Re: starting with 2.7
-Message-ID: <20050104031229.GE26856@postel.suug.ch>
-References: <20050103134727.GA2980@stusta.de> <Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com> <20050103183621.GA2885@thunk.org> <20050103185927.C3442@flint.arm.linux.org.uk> <20050104002452.GA8045@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Mon, 3 Jan 2005 22:32:36 -0500
+User-Agent: KMail/1.7
+Cc: Bill Davidsen <davidsen@tmr.com>, Jesper Juhl <juhl-lkml@dif.dk>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       "Theodore Ts'o" <tytso@mit.edu>, Adrian Bunk <bunk@stusta.de>,
+       Diego Calleja <diegocg@teleline.es>, Willy Tarreau <willy@w.ods.org>,
+       wli@holomorphy.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv
+References: <Pine.LNX.3.96.1050103190042.30038F-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1050103190042.30038F-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050104002452.GA8045@thunk.org>
+Message-Id: <200501032232.36606.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.52.185] at Mon, 3 Jan 2005 21:32:37 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Theodore Ts'o <20050104002452.GA8045@thunk.org> 2005-01-03 19:24
-> On Mon, Jan 03, 2005 at 06:59:27PM +0000, Russell King wrote:
-> > It is also the model we used until OLS this year - there was a 2.6
-> > release about once a month prior to OLS.  Post OLS, it's now once
-> > every three months or there abouts, which, IMO is far too long.
-> 
-> I was thinking more about every week or two (ok, two releases in a day
-> like we used to do in the 2.3 days was probably too freequent :-), but
-> sure, even going to a once-a-month release cycle would be better than
-> the current 3 months between 2.6.x releases.
+On Monday 03 January 2005 19:02, Bill Davidsen wrote:
 
-It definitely satifies many of the impatients but it doesn't solve the
-stability problem. Many bugs do not show up on developer machines until
-just right after the release (as you pointed out already). rc releases
-don't work out as expected due to various reasons, i think one of them
-is that rc releases don't get announced on the newstickers, extra work
-is required to patch the kernel etc. What about doing a test release
-just before releasing the final version. I'm not talking about yet
-another 2 weeks period but rather just 2-3 days and at most 2 bk
-releases in between. Full tarball must be available to make it as
-easy as possible. I'm quite sure there are a lot of willing testers
-simply too lazy to take a shot at every single rc release. If things
-get really worse and huge fixes are required the final release could
-be defered in favour of another rc cycle.
+[...]
+
+>Somewhere there is a pawn shop with only one big brass ball, and I
+> know where the other two are...
+
+Yeah, well, one does get used to carrying them around after a while 
+Bill.  Not quite in this context, but I have been asked how in hell I 
+can sit so comfortably by witnesses, after just having torn some $10k 
+piece of broadcast gear down, and then put it back together again, 
+and it works when I'm done, something it didn't do whan I started...
+
+And thats what it does take sometimes, big (brass?) balls.  And thats 
+what keeps me lurking here and playing with new kernels all the time 
+at age 70.  Currently running 2.6.10-ac2.
+
+But, I have to agree with the general tone of this thread, we do not 
+IMO have, as 2005 opens up, a kernel code base that runs on 
+everything its supposed to run on, not by a long shot. And to apply 
+the 'stable' label to this is stretching the point like a used car 
+salesman selling a 49 nash.  Don't get me wrong either, I choose to 
+do this and generally speaking I'm having a lot of fun trying to keep 
+up with the various new kernels.  And if something doesn't work, you 
+all hear from me fairly quick, and thats how stability is achieved, 
+by folks like me taking the chance and getting burnt.  I may not know 
+how to fix it cause this ain't an amiga anymore, but I can be the 
+remote hands to furnish the clues those of you who do code in your 
+sleep can fix.
+
+Its moving way too fast in terms of new features to ever get to a 
+'stable' point, and I think it is now time to fork things off into a 
+2.7 tree, while 2.6 continues on till the individual distros don't 
+have the huge menu of patches they are now applying to their own 
+kernels, as everything worth doing in 2.6 has made it to the 
+kernel.org downloadable code by the time it gets to 2.6.20 or so.  
+And thats what I'd call stable, stable like the 
+2.4.20-sthg-or-other-ck6 I've been running on my firewall box for 
+years.  It 'just works' in between hardware glitches...
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.31% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

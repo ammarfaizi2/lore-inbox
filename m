@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVC0Wlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVC0WqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbVC0Wlp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 17:41:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVC0Wlp
+	id S261612AbVC0WqS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 17:46:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVC0WqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 17:41:45 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:1902 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261611AbVC0Wln (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 17:41:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=RzJ43FAlArF1ZoUhZGUc0gNnxPVq0Y29+Pve/gxn73m28ouZgoTp1peTY+D86EgIEoIiaaKZSSO92lXSS9HBPDsOhvzjGWjFK8zvgXs3DLRQVvyxW5A+5kBRPDKYhMEG7IAiEIQOBgvqrcXXhG22OID0R2kvMeSqYLkRnhlFlJ8=
-Message-ID: <21d7e99705032714417148217f@mail.gmail.com>
-Date: Mon, 28 Mar 2005 08:41:43 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-Cc: Greg KH <greg@kroah.com>, Lee Revell <rlrevell@joe-job.com>,
-       Mark Fortescue <mark@mtfhpc.demon.co.uk>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1111948631.27594.14.camel@localhost.localdomain>
+	Sun, 27 Mar 2005 17:46:18 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58894 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261612AbVC0WqO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 17:46:14 -0500
+Date: Sun, 27 Mar 2005 23:45:58 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: Do not misuse Coverity please (Was: sound/oss/cs46xx.c: fix a check after use)
+Message-ID: <20050327234557.B17496@flint.arm.linux.org.uk>
+Mail-Followup-To: Jean Delvare <khali@linux-fr.org>,
+	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+References: <20050327205014.GD4285@stusta.de> <20050327232158.46146243.khali@linux-fr.org> <20050327214323.GH4285@stusta.de> <20050328003401.7b3cf380.khali@linux-fr.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk>
-	 <20050326182828.GA8540@kroah.com> <1111869274.32641.0.camel@mindpipe>
-	 <20050327004801.GA610@kroah.com> <1111885480.1312.9.camel@mindpipe>
-	 <20050327032059.GA31389@kroah.com> <1111894220.1312.29.camel@mindpipe>
-	 <20050327181056.GA14502@kroah.com>
-	 <1111948631.27594.14.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050328003401.7b3cf380.khali@linux-fr.org>; from khali@linux-fr.org on Mon, Mar 28, 2005 at 12:34:01AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > How about the fact that when you load a kernel module, it is linked into
-> > the main kernel image?  The GPL explicitly states what needs to be done
-> > for code linked in.
-> >
-> I've always wondered about dynamically loaded modules (and libraries for
-> that matter).  The standard IANAL, but I've talked to many to try to
-> understand what is really legal, and I usually come up with the
-> conclusion, it's just an interpretation of the law by the judge.
-> 
-> If the user is loading the module (or library) and the distributer
-> doesn't, then is the the user breaking the license and not the
-> distributer?
+On Mon, Mar 28, 2005 at 12:34:01AM +0200, Jean Delvare wrote:
+> I think that you'd be better just telling the
+> maintainers about the problem without providing an arbitrary patch, so
+> that they will actually look into the problem with their advanced
+> knowledge of the driver
 
-I think this is probably what the lawyers are telling the graphics
-card companies at the moment, the GPL is broken by the act of linking
-and at what stage is the link considered to have happened, so if I
-distribute a GPL or BSD licensed stub layer in source form, a big
-binary blob that doesn't use any kernel interfaces except my stub
-layer ones, and never distribute any of it with a kernel or linked
-into anything, am I breaking the GPL on the kernel? all I'm doing is
-releasing some source code and some binary image files, the user is
-doing the linking by loading my code into their running kernel  and
-I'm not distributing my code with the kernel...
+FWIW, I agree with Jean.
 
-It'll be an interesting day in court... and maybe then derived work
-will become nicely defined at least for one country....
+Applying these patches without adequate review is like applying __iomem
+or __user fixes where they've been generated with the aim of shutting up
+sparse, rather than considering whether the warning is actually valid.
+Once the warning is gone, the real problem is lost and never gets looked
+at.
 
-Dave.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,62 +1,93 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315797AbSENQUz>; Tue, 14 May 2002 12:20:55 -0400
+	id <S315805AbSENQXS>; Tue, 14 May 2002 12:23:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315800AbSENQUy>; Tue, 14 May 2002 12:20:54 -0400
-Received: from gateway.ukaea.org.uk ([194.128.63.73]:1323 "EHLO
-	fuspcnjc.culham.ukaea.org.uk") by vger.kernel.org with ESMTP
-	id <S315797AbSENQUw>; Tue, 14 May 2002 12:20:52 -0400
-Message-ID: <3CE13943.FBD5B1D6@ukaea.org.uk>
-Date: Tue, 14 May 2002 17:20:19 +0100
-From: Neil Conway <nconway.list@ukaea.org.uk>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-31 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Dalecki <dalecki@evision-ventures.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.15 IDE 61
-In-Reply-To: <E177dYp-00083c-00@the-village.bc.nu> <3CE11F90.5070701@evision-ventures.com>
+	id <S315807AbSENQXR>; Tue, 14 May 2002 12:23:17 -0400
+Received: from mail.eskimo.com ([204.122.16.4]:7943 "EHLO mail.eskimo.com")
+	by vger.kernel.org with ESMTP id <S315805AbSENQXP>;
+	Tue, 14 May 2002 12:23:15 -0400
+Date: Tue, 14 May 2002 09:22:54 -0700
+To: Christoph Hellwig <hch@infradead.org>, Elladan <elladan@eskimo.com>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] ext2 and ext3 block reservations can be bypassed
+Message-ID: <20020514092254.A2581@eskimo.com>
+In-Reply-To: <elladan@eskimo.com> <200205131709.g4DH9Fjv006328@pincoya.inf.utfsm.cl> <20020513105250.A30395@eskimo.com> <20020513185723.A2657@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+From: Elladan <elladan@eskimo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki wrote:
+I went to google and attempted to find information about the root
+reserve space for ext2, as a user wondering about the feature would.  I
+couldn't find any documentation that states it's purely a fragmentation
+and convenience feature.  I did, however, find documents stating
+otherwise.  Note how even Documentation/filesystems/ext2.txt states that
+it's a security feature?
+
+If this is not a security feature, Documentation/filesystems/ext2.txt
+needs to be changed.  Eg., 
+
+"In ext2, there is a mechanism for reserving a certain number of blocks
+for a particular user (normally the super-user).  This is intended to
+keep the filesystem from filling up entirely, which helps combat
+fragmentation.  The super-user may still use this space.  Note that this
+is not a security feature, and is only provided for convenience -
+various methods exist where a user may circumvent this reservation and
+use the space if they so wish.  Quotas or separate filesystems should be
+used if reliable space limits are needed."
+
+
+
+1. http://web.mit.edu/tytso/www/linux/ext2intro.html
+
+Design and Implementation of the Second Extended Filesystem
+
+[....] Ext2fs reserves some blocks for the super user (root). Normally,
+5% of the blocks are reserved. This allows the administrator to recover
+easily from situations where user processes fill up filesystems.
+
+
+2. Documentation/filesystems/ext2.txt
+
+Reserved Space
+--------------
+
+In ext2, there is a mechanism for reserving a certain number of blocks
+for a particular user (normally the super-user).  This is intended to
+allow for the system to continue functioning even if non-priveleged
+users fill up all the space available to them (this is independent of
+filesystem quotas).  It also keeps the filesystem from filling up
+entirely which helps combat fragmentation.
+
+
+3. Note what mke2fs prints:
+
+3275 blocks (5.00%) reserved for the super user
+
+It does not say "reserved to combat fragmentation"
+
+
+-J
+
+
+On Mon, May 13, 2002 at 06:57:23PM +0100, Christoph Hellwig wrote:
+> On Mon, May 13, 2002 at 10:52:50AM -0700, Elladan wrote:
+> > > It is _not_ a security feature, it is meant to keep the filesystem from
+> > > fragmenting too badly. root can use that space, since root can do whatever
+> > > she wants anyway.
+> > 
+> > But it *appears* to be a security feature.  Thus, someone might
+> > incorrectly depend on it, unless it's clearly documented as otherwise.
 > 
-> Uz.ytkownik Alan Cox napisa?:
-> >>From an abstract hardware point of view each ide controller is a queue not
-> > each device. Not following that is I think the cause of much of the existing
-> > pain and suffering.
+> So what.  People rely on chroot() as security feature all the time and
+> we don't "fix" it either.  If you need security nothing but gaining
+> knowledge about all details helps.
 > 
-> Yes thinking about it longer and longer I tend to the same conclusion,
-> that we just shouldn't have per device queue but per channel queues instead.
-> The only problem here is the fact that some device properties
-> are attached to the queue right now. Like for example sector size and friends.
-
-OK..
-
-> I didn't have a too deep look in to the generic blk layer. But I would
-> rather expect that since the lower layers are allowed to pass
-> an spin lock up to the queue intialization, sharing a spin lock
-> between two request queues should just serialize them with respect to
-> each other. And this is precisely what 63 does.
-
-(You're planning to have two queues per channel but sharing the same
-lock?)
-
-On the serialisation issue: what does serialisation of the queues with
-respect to each other mean to you?  I understand it to mean that we
-won't ever call the request_fn of both queues at the same time - because
-that's all the actual spinlock buys you.  It does not IIUC mean that you
-can't get a call to request_fn of one queue while the other queue has
-lots of requests in it (which are potentially being serviced by DMA). 
-Or does it?  Does the block layer track which requests are "active"
-somehow?
-
-My main question could be posed thus: am I right in thinking that we
-MUST track the busy-ness of the channel at all times?  (and for broken
-chipsets, track the logical OR of both channels' busy-ness)
-
-Neil
-PS: I'm hoping someone will either say "here's why you're wrong" or
-"you're right" RSN...
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132940AbRDEPzl>; Thu, 5 Apr 2001 11:55:41 -0400
+	id <S132946AbRDEP5c>; Thu, 5 Apr 2001 11:57:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132941AbRDEPzc>; Thu, 5 Apr 2001 11:55:32 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:50700 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S132940AbRDEPzV>;
-	Thu, 5 Apr 2001 11:55:21 -0400
-Date: Thu, 5 Apr 2001 17:54:30 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Heinz J. Mauelshagen" <Mauelshagen@Sistina.com>
-Cc: Herbert Valerio Riedel <hvr@hvrlab.org>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-lvm-patch@EZ-Darmstadt.Telekom.de
-Subject: Re: /dev/loop0 over lvm... leading to d-state :-(
-Message-ID: <20010405175430.E5187@suse.de>
-In-Reply-To: <Pine.LNX.4.30.0104042152490.1183-100000@janus.txd.hvrlab.org> <20010405071313.A418@suse.de> <20010405163818.M418@suse.de> <20010405164942.N418@suse.de> <20010405163239.F6981@sistina.com> <20010405173731.C5187@suse.de> <20010405165211.H6981@sistina.com>
-Mime-Version: 1.0
+	id <S132945AbRDEP5W>; Thu, 5 Apr 2001 11:57:22 -0400
+Received: from m97-mp1-cvx1a.col.ntl.com ([213.104.68.97]:18692 "EHLO
+	[213.104.68.97]") by vger.kernel.org with ESMTP id <S132943AbRDEP5P>;
+	Thu, 5 Apr 2001 11:57:15 -0400
+To: <root@chaos.analogic.com>
+Cc: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: how to let all others run
+In-Reply-To: <Pine.LNX.3.95.1010404165539.4737A-100000@chaos.analogic.com>
+From: John Fremlin <chief@bandits.org>
+Date: 05 Apr 2001 16:55:50 +0100
+In-Reply-To: "Richard B. Johnson"'s message of "Wed, 4 Apr 2001 17:00:32 -0400 (EDT)"
+Message-ID: <m2itkjwdbt.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010405165211.H6981@sistina.com>; from Mauelshagen@Sistina.com on Thu, Apr 05, 2001 at 04:52:11PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 05 2001, Heinz J. Mauelshagen wrote:
-> > Where? Calling buffer_IO_error would be ok, but there are no such calls
-> > in 2.4.3. I just stated elsewhere that submit_bh should probably be
-> > clearing the dirty bit, not ll_rw_block, in which case the b_end_io
-> > is fine. But buffer_IO_error is probably more clear. I trust you'll
-> > take care of that part then.
+"Richard B. Johnson" <root@chaos.analogic.com> writes:
+
+> On 4 Apr 2001, John Fremlin wrote:
+> > 
+> > Hi Oliver!
+> > 
+> >  Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de> writes:
+> > 
+> > > is there a way to let all other runable tasks run until they block
+> > > or return to user space, before the task wishing to do so is run
+> > > again ?
+> > 
+> > Are you trying to do this in kernel or something? From userspace you
+> > can use nice(2) then sched_yield(2), though I don't know if the linux
+> > implementations will guarrantee anything.
+> > 
 > 
-> Sorry, didn't mention that you need to patch the driver with the recent
-> LVM software in order to get it.
+> I recommend using usleep(0) instead of sched_yield(). Last time I
+> checked, sched_yield() seemed to spin and eat CPU cycles, usleep(0)
+> always gives up the CPU.
 
-Ah ok, so the b_dev/b_blocknr is all then. Good.
+What is wrong with this? sched_yield only yields to processes with
+lower priority (hence suggestion to use nice(2)). Does sched_yield()
+fail to yield in cases when a higher priority process wants to run? 
+usleep() wastes time if no other such process is waiting, surely?
 
-> I've send the patch a while ago to Linus to get it into 2.4.3
-> but he obviously didn't include it (likely because he thought it was too
-> large ;-)
-
-Maybe you're hanging on to fixes and submitting huge chunks of them?
-
-> He didn't comment back to me at all though :-(
-> Maybe this will help.
-
-Two things that usually help -- submit small and often, then resubmit,
-resubmit, resubmit until he takes it or complains loudly :-)
+[...]
 
 -- 
-Jens Axboe
 
+	http://www.penguinpowered.com/~vii

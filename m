@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283357AbRK2SKH>; Thu, 29 Nov 2001 13:10:07 -0500
+	id <S283377AbRK2SQ4>; Thu, 29 Nov 2001 13:16:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283361AbRK2SJ4>; Thu, 29 Nov 2001 13:09:56 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:60129 "EHLO
-	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S283357AbRK2SJq>; Thu, 29 Nov 2001 13:09:46 -0500
-Date: Thu, 29 Nov 2001 19:09:23 +0100 (CET)
-From: Oktay Akbal <oktay.akbal@s-tec.de>
-X-X-Sender: oktay@omega.hbh.net
-To: "Nathan G. Grennan" <ngrennan@okcforum.org>
-cc: linux-kernel@vger.kernel.org
+	id <S283373AbRK2SQp>; Thu, 29 Nov 2001 13:16:45 -0500
+Received: from okcforum.org ([207.43.150.207]:54021 "EHLO okcforum.org")
+	by vger.kernel.org with ESMTP id <S283375AbRK2SQc>;
+	Thu, 29 Nov 2001 13:16:32 -0500
 Subject: Re: Unresponiveness of 2.4.16 revisited
-In-Reply-To: <1007052513.1470.5.camel@cygnusx-1.okcforum.org>
-Message-ID: <Pine.LNX.4.42.0111291904190.2184-100000@omega.hbh.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: OK (checked by AntiVir Version 6.10.0.33)
+From: "Nathan G. Grennan" <ngrennan@okcforum.org>
+To: Oktay Akbal <oktay.akbal@s-tec.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.42.0111291904190.2184-100000@omega.hbh.net>
+In-Reply-To: <Pine.LNX.4.42.0111291904190.2184-100000@omega.hbh.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 29 Nov 2001 12:16:07 -0600
+Message-Id: <1007057769.1528.7.camel@cygnusx-1.okcforum.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > ok, I doubled checked things. It seems mounting an ext3 filesystem as
-> > > ext2 is somewhat a myth. If the kernel supports ext3 it still mounts it
-> > > as ext3 even if /etc/fstab says ext2. 
-> > 
-> > really on other partitions than root-fs ?
-> > 
-> > -- 
-> > Oktay Akbal
+On Thu, 2001-11-29 at 12:09, Oktay Akbal wrote:
+> Why do you think that fstab matters for root-fs ? root-fs needs to be 
+> mounted to read fstab. So autodetection must be done for root-fs.
+> And if the fs has a journal it is ext3. If you do not want that  behaviour
+> you might use a option to lilo, but I don't know of any option to specify
+> the root-fs-tyoe. Or you need to use an initrd to mount explicit as ext2
+> and pivot-root it to / ?
 > 
-> I am not positive about mounting non-root filesystems. I would suspect
-> it is just a problem with root filesystems.
+> -- 
+> Oktay Akbal
 
-Why do you think that fstab matters for root-fs ? root-fs needs to be 
-mounted to read fstab. So autodetection must be done for root-fs.
-And if the fs has a journal it is ext3. If you do not want that  behaviour
-you might use a option to lilo, but I don't know of any option to specify
-the root-fs-tyoe. Or you need to use an initrd to mount explicit as ext2
-and pivot-root it to / ?
-
--- 
-Oktay Akbal
+Actually, I think it should respect fstab. It does mount it, then fsck
+it while mounted read-only, then remounts(key point) read-write. IMHO it
+should remount it with whatever fstab says. I realize this could be a
+little tricky, but I bet doable.
 

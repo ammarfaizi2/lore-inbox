@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318153AbSIITmE>; Mon, 9 Sep 2002 15:42:04 -0400
+	id <S318155AbSIITiP>; Mon, 9 Sep 2002 15:38:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318795AbSIITmD>; Mon, 9 Sep 2002 15:42:03 -0400
-Received: from smtpout.mac.com ([204.179.120.89]:28664 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S318153AbSIITmD>;
-	Mon, 9 Sep 2002 15:42:03 -0400
-Date: Mon, 9 Sep 2002 21:47:21 +0200
-Subject: Re: [PATCH] 10/10 sound/oss/dmasound/dmasound_q40.c
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v482)
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-From: pwaechtler@mac.com
-In-Reply-To: <Pine.LNX.4.44.0209090841400.1641-100000@home.transmeta.com>
-Message-Id: <F4CF9300-C42C-11D6-939E-00039387C942@mac.com>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.482)
+	id <S318739AbSIITiP>; Mon, 9 Sep 2002 15:38:15 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:5862 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S318155AbSIITiN>; Mon, 9 Sep 2002 15:38:13 -0400
+Date: Mon, 9 Sep 2002 22:05:26 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@mwaikambo.name>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Robert Love <rml@tech9.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] per isr in_progress markers
+In-Reply-To: <Pine.LNX.4.44.0209092122030.4648-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0209092204380.1096-100000@linux-box.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag den, 9. September 2002, um 18:07, schrieb Linus Torvalds:
+On Mon, 9 Sep 2002, Ingo Molnar wrote:
 
-> The reasons your emails seem to be considered spammish by spamassassing
-> is:
->
+> this is something i have a 0.5 MB patch for that touches a few hundred
+> drivers. I can dust it off if there's demand - it will break almost
+> nothing because i've done the hard work of adding the default 'no work was
+> done' bit to every driver's IRQ handler.
 
-> ...
-> Your mailer seems to be
->
-> 	X-Mailer: Apple Mail (2.482)
->
-> which is apparently a total piece of cr*p software.
+Could you upload and post a URL?
 
-No, I am the crap - I used a self written script to generate the former 
-41
-OSS fixes - but was too lazy this time and edited the mbox file for
-sending these 10 patches :-(
+Thanks,
+	Zwane
 
-Now, I will add my full name without &auml; (which btw, is not an
-&aelig;) - I guess you fetched the patch via an lkml archive, or do I
-have to resent 5/10?
+-- 
+function.linuxpower.ca
 

@@ -1,39 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267655AbTBLV2j>; Wed, 12 Feb 2003 16:28:39 -0500
+	id <S267683AbTBLVbs>; Wed, 12 Feb 2003 16:31:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267656AbTBLV2j>; Wed, 12 Feb 2003 16:28:39 -0500
-Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:60600 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S267655AbTBLV2i>; Wed, 12 Feb 2003 16:28:38 -0500
-Message-ID: <20030212213653.94090.qmail@mail.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Vijayan Prabhakaran" <pvijayan@engineer.com>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 12 Feb 2003 16:36:53 -0500
-Subject: Ordering in FAT filesystem
-X-Originating-Ip: 128.105.167.48
-X-Originating-Server: ws1-2.us4.outblaze.com
+	id <S267692AbTBLVbs>; Wed, 12 Feb 2003 16:31:48 -0500
+Received: from ams-msg-core-1.cisco.com ([144.254.74.60]:32491 "EHLO
+	ams-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
+	id <S267683AbTBLVbq>; Wed, 12 Feb 2003 16:31:46 -0500
+Date: Wed, 12 Feb 2003 21:41:29 +0000
+From: Derek Fawcus <dfawcus@cisco.com>
+To: David Schwartz <davids@webmaster.com>
+Cc: Valdis.Kletnieks@vt.edu,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Monta Vista software license terms
+Message-ID: <20030212214129.C14019@edinburgh.cisco.com>
+References: <200302122046.h1CKkXpk009417@turing-police.cc.vt.edu> <20030212213022.AAA17490@shell.webmaster.com@whenever>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20030212213022.AAA17490@shell.webmaster.com@whenever>; from davids@webmaster.com on Wed, Feb 12, 2003 at 01:30:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
- 
-I'm working on linux FAT filesystem. I'm trying to find the order in which the FAT blocks and the data blocks are written into the disk.
- 
-At the level of device driver, I'm seeing that the FAT blocks are written always before the corresponding data blocks. Is this just a coincidence or is the ordering between FAT and data blocks enforced ?
- 
-The workload I ran creates a 10MB file by writing progressively 1 MB chunks at random intervals and then truncates the file.
- 
-Help appreciated.
+On Wed, Feb 12, 2003 at 01:30:21PM -0800, David Schwartz wrote:
+> On Wed, 12 Feb 2003 15:46:33 -0500, Valdis.Kletnieks@vt.edu wrote:
+> >On Wed, 12 Feb 2003 12:18:39 PST, David Schwartz said:
+> 
+> [snip]
+> 
+> >So you don't even get the right to *CREATE* a derivative work unless
+> >it's
+> >explicitly given to you.  So you're back to the GPL (clause 2) -
+> 
+> 	I already addressed this. There is no way to use source code other 
+> than to create derivative works.
 
-Vijayan
--- 
-__________________________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
+  [ ... ]
 
+> 	As I already explained, you don't need this clause to give you the 
+> right to distribute modified works because this right is the simple 
+> sum of rights you already have.
+> 
+> 	You already have the right to produce derivative works. You already 
+> have the right to distribute the original work. You already have the 
+> right to distribute the modifications. Your recipient already has the 
+> right to use and possess the original. There is no additional right 
+> to the original work for this section to give you. The right it seeks 
+> to give you is the simple sum of rights you already have.
+
+and I gave you (off list) details of why this fails wrt UK law.
+
+16(1)(a) reserves copying,  16(1)(b) reserves redistribution,
+and 16(1)(e) reserves adaption,  together with copying and
+redistributing adaptions.
+
+So taken together they have removed all of the above,  and require that
+one has a licence to do so.
+
+Then 50C gives back some limited rights wrt computer programs.  Namely
+that one can make such copies and adaptations as one needs in order to
+use the program.  However,  importantly it does _not_ give back any
+redistribution rights,  so they still require a licence.
+
+This should meet your requirement for a jurisdiction who's law limits
+what your are suggesting.
+
+Hence to redistribute a program with patches applied needs a licence.
+
+DF

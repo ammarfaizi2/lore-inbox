@@ -1,47 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267425AbTBISwK>; Sun, 9 Feb 2003 13:52:10 -0500
+	id <S267430AbTBIS7P>; Sun, 9 Feb 2003 13:59:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267430AbTBISwJ>; Sun, 9 Feb 2003 13:52:09 -0500
-Received: from uswest-dsl-142-38.cortland.com ([209.162.142.38]:56839 "HELO
-	warez.scriptkiddie.org") by vger.kernel.org with SMTP
-	id <S267425AbTBISwI>; Sun, 9 Feb 2003 13:52:08 -0500
-Date: Sun, 9 Feb 2003 11:01:51 -0800 (PST)
-From: Lamont Granquist <lamont@scriptkiddie.org>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Stephen Clark <sclark46@earthlink.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: NAT counting
-In-Reply-To: <20030206231044.GA8704@hh.idb.hist.no>
-Message-ID: <20030209105503.M4561-100000@coredump.scriptkiddie.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267431AbTBIS7P>; Sun, 9 Feb 2003 13:59:15 -0500
+Received: from tibau-e1.pop-rio.com.br ([200.239.194.250]:36003 "EHLO
+	tibau.pop-rio.com.br") by vger.kernel.org with ESMTP
+	id <S267430AbTBIS7N>; Sun, 9 Feb 2003 13:59:13 -0500
+Date: Sun, 9 Feb 2003 17:06:24 -0200
+From: Andre Costa <acosta@ar.microlink.com.br>
+To: Linux kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.4.x + via-based kt266 mobo = IDE cdroms probls
+ (revisited)
+Message-Id: <20030209170624.2e6e981f.acosta@ar.microlink.com.br>
+In-Reply-To: <20030207170001.3d8bc96a.acosta@ar.microlink.com.br>
+References: <20030207170001.3d8bc96a.acosta@ar.microlink.com.br>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Microlink Internet Provider Anti-Virus, Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ok, replying to my own msg just to post some updates:
+
+it has been confirmed by me and others that downgrading AMI BIOS on our
+specific mobo (MSI KT266Pro2) to v3.3 fixes the "lost interrupt" errors
+with cd audio ripping. Latest BIOS is 3.7:
+
+[http://www.msi.com.tw/program/support/bios/bos/spt_bos_detail.php?UID=28&NAME=MS-6380]
+
+Any suggestion on how we could pressure AMI or MSI to fix this probl on
+BIOS versions higher than 3.3? (or, maybe, to provide you guys some docs
+explaining the changes so that Linux kernel can catch up, considering
+that the probl doesn't happen on Win2k/XP?)
+
+Best,
+
+Andre
+
+On Fri, 7 Feb 2003 17:00:01 -0200
+Andre Costa <acosta@ar.microlink.com.br> wrote:
+
+> Hi all,
+> 
+> owners of VIA KT266-based mobos with IDE cdroms are unable to rip
+> audio tracks using both SCSI emulation and native IDE mode (kernel
+> 2.4.x). Symptoms are "lost interrupts" such as:
+> 
+> Jan 8 21:04:28 candy kernel: scsi : aborting command due to timeout :
+> pid 13448, scsi0, channel 0, id 0, lun 0 UNKNOWN(0xbe) 00 00 00 00 00
+> 00 00 07 f8 00 00 Jan 8 21:04:28 candy kernel: hdc: lost interrupt 
+> Jan 8 21:05:28 candy kernel: scsi : aborting command due to timeout :
+> pid 13458, scsi0, channel 0, id 0, lun 0 UNKNOWN(0xbe) 00 00 00 00 7c
+> 00 00 0d f8 00 00 Jan 8 21:05:28 candy kernel: hdc: lost interrupt 
+> Jan 8 21:06:30 candy kernel: scsi : aborting command due to timeout :
+> pid 13493, scsi0, channel 0, id 0, lun 0 UNKNOWN(0xbe) 00 00 00 00 fc
+> 00 00 0d f8 00 00 Jan 8 21:06:30 candy kernel: hdc: lost interrupt 
+> 
+> This probl has been briefly discussed here a while ago:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=103382933709162&w=2
+> 
+> Since then, it has also been discussed more thoroughly on other places
+> as well:
+> 
+> Linuxhardware.org
+> http://www.linuxhardware.org/article.pl?sid=02/12/22/1732217
+> 
+> MSI forums
+> http://www.msi.com.tw/program/e_service/forum/viewthread.php?threadid=7790&boardid=13
+> 
+> VIA Arena Linux Forum
+> http://forums.viaarena.com/messageview.cfm?catid=28&threadid=28308&STARTPAGE=1
+> 
+> Some guy reported success after downgrading his BIOS to an earlier
+> version (unfortunately we could not contact him again after this
+> report). So, there is a chance that BIOS might be the culprit.
+> 
+> HOWEVER, *every* machine that shows this probl with Linux is perfectly
+> capable of ripping audio tracks while running Win2k/XP, so there's got
+> to be a solution.
+> 
+> So, my question is: are you guys aware of such probl? Any solution in
+> the horizon? Any help we could offer (aside from coding)? Me and other
+> guys experiencing this same probl have joined together, we even have
+> an e-group dedicated to it. We're eager to help in finding a solution,
+> but unfortunately we won't be able to help directly with code...
+> 
+> TIA
+> 
+> Andre
+> 
+> -- 
+> Andre Oliveira da Costa
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
-On Fri, 7 Feb 2003, Helge Hafting wrote:
-> On Thu, Feb 06, 2003 at 09:46:44AM -0500, Stephen Clark wrote:
-> > Hi all,
-> >
-> > Is Linux being fixed to prevent this?
-> >
-> >
-> > "how to remotely count the number of machines hiding behind a NAT box"
-> > <http://www.research.att.com/%7Esmb/papers/fnat.pdf> /
-> >
-> Not a problem.  The purpose of NAT isn't to "hide" stuff, but
-> to share an ipv4 address.  If you need more than that, let a
-> firewall mangle your packets in interesting ways.
-> You can probably do that with linux if you really want to...
-
-NAT should work correctly though.  It'd be nice if it didn't violate RFC
-1323 by having non-monotonically increasing TCP timestamps for machines
-that it is NAT'ing.  The RFC 1323 violations are proably just as useful as
-the IPid field for this "NAT counting" *and* they can break things in
-certain situations (e.g. receiving a SYN to a TIME_WAIT socket with a
-smaller TCP timestamp).  I wouldn't mind at all if someone tried to fix
-iptables so that it would do all the proper header munging to hide the
-fact that there were multiple machines behind it (obviously this would be
-slower, so it'd need to be an option that wasn't on by default...)
-
+-- 
+Andre Oliveira da Costa

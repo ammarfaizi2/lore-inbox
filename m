@@ -1,61 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265671AbSIRGqN>; Wed, 18 Sep 2002 02:46:13 -0400
+	id <S265680AbSIRGst>; Wed, 18 Sep 2002 02:48:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265675AbSIRGqN>; Wed, 18 Sep 2002 02:46:13 -0400
-Received: from mailhost.uni-koblenz.de ([141.26.64.1]:50656 "EHLO
-	mailhost.uni-koblenz.de") by vger.kernel.org with ESMTP
-	id <S265671AbSIRGqL>; Wed, 18 Sep 2002 02:46:11 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rainer Krienke <krienke@uni-koblenz.de>
-Organization: Uni Koblenz
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.18: Re-read table failed with error 16: Device or resource busy - error
-Date: Wed, 18 Sep 2002 08:51:10 +0200
-User-Agent: KMail/1.4.3
+	id <S265683AbSIRGst>; Wed, 18 Sep 2002 02:48:49 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:64657 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S265680AbSIRGsr>;
+	Wed, 18 Sep 2002 02:48:47 -0400
+Message-ID: <3D8822F4.6060201@candelatech.com>
+Date: Tue, 17 Sep 2002 23:53:40 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209180851.10297.krienke@uni-koblenz.de>
+To: Ben Greear <greearb@candelatech.com>
+CC: "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]  Networking:  send-to-self
+References: <3D88217A.6070702@candelatech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Ben Greear wrote:
+> This patch allows one to use the SO_BINDTODEVICE and a new ioctl against
+> net_device objects to send and receive regular routed traffic between two
 
-Hello,
+Gack, sorry for the last patch..it seems I screwed up the
+patch process somehow.  Plz don't apply it as is!
 
-I am Ruinning a (SuSE patched) 2.4.18 kernel and encountered the fdisk 
-repartition problem mentioned above. I know that I could solve the problem by 
-rebooting but I am interested if this is really needed since in my case a 
-data recovery job was finally killed after 12 hours because there was not 
-enough RAM or SWAP. I saw already very early that there could be a problem 
-with swap and there was enough unpartitioned disk space to add swap, but the 
-kernel would not let me. 
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
-What I did was to add a partition on a disk that has other mounted (e.g. root) 
-partitions on it. I did not change the numbering or positions of any of the 
-partitions in use.The new partition was simply added after all existing 
-partitions.
- 
-So the question is why does the kernel deny to reread the partiton table and 
-force me to reboot instaed of simply doing the reread? Are there any good 
-reasons for this "bad" behaviour?
-
-Thanks
-Rainer
-- -- 
-- ---------------------------------------------------------------------------
-Rainer Krienke, Universitaet Koblenz, Rechenzentrum
-Universitaetsstrasse 1, 56070 Koblenz, Tel: +49 261287 -1312, Fax: -1001312
-Mail: krienke@uni-koblenz.de, Web: http://www.uni-koblenz.de/~krienke
-Get my public PGP key: http://www.uni-koblenz.de/~krienke/mypgp.html
-- ---------------------------------------------------------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9iCJealdtjc/KDEoRAii2AKDDEW2YUuGlqx3ZWPIElmoHBQh7kwCfYKnE
-y8TYZIHmPozemlq6Y5B2mtE=
-=cAEO
------END PGP SIGNATURE-----
 

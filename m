@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265615AbUAHWBS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 17:01:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266180AbUAHWBS
+	id S266305AbUAHWHI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 17:07:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266323AbUAHWHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 17:01:18 -0500
-Received: from lightning.hereintown.net ([141.157.132.3]:18859 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id S265615AbUAHWBR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 17:01:17 -0500
-Subject: RE: [PATCH] LSI Logic MegaRAID3 PCI ID [Was: MegaRAID on AMD64und
-	er 2.6.1]
-From: Chris Meadors <clubneon@hereintown.net>
-To: "Mukker, Atul" <Atulm@lsil.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57033BC2A5@exa-atlanta.se.lsil.com>
-References: <0E3FA95632D6D047BA649F95DAB60E57033BC2A5@exa-atlanta.se.lsil.com>
-Content-Type: text/plain
-Message-Id: <1073599275.9027.63.camel@clubneon.priv.hereintown.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 08 Jan 2004 17:01:15 -0500
+	Thu, 8 Jan 2004 17:07:06 -0500
+Received: from mail5.bluewin.ch ([195.186.1.207]:30346 "EHLO mail5.bluewin.ch")
+	by vger.kernel.org with ESMTP id S266305AbUAHWFn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 17:05:43 -0500
+Message-ID: <3FFDD435.3080808@bluewin.ch>
+Date: Thu, 08 Jan 2004 23:05:41 +0100
+From: Mario Vanoni <vanonim@bluewin.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, it, fr-fr, de-de
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: 2.6.1-rc2-mm1: 4xOK, 1xUNUSABLE
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1AeiDL-0000eC-LF*aQ/DBP6lJwI*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-01-08 at 16:38, Mukker, Atul wrote:
-> I have not followed this thread completly yet but both
-> PCI_DEVICE_ID_MEGARAID and PCI_DEVICE_ID_MEGARAID3 are valid and both should
-> be present. Look for their definitions in the header file or pci_ids.h
+OK: UP's Celeron-1G & P3-550, dual SMP's P3-550 & P3-1266
 
-Yes, both of those are valid device IDs (which is probably why the
-dropped 3 didn't get noticed right away, it still compiled).  But are
-there any cards out there that bear LSI Logic's vendor ID (1000) and the
-MegaRAID version 1 device ID (9010)?  I'm thinking not.
+UNUSABLE: P4-3066HT with 1GB mem
 
-Since LSI just started making MegaRAID cards at version 3.  That is what
-I ment was invalid, the full line, LSI + MEGARAID.  All cards with
-LSI_LOGIC as the vendor will be MEGARAID3 (1960).
+Compiling the kernel under 2.6.1-rc1-mm1, gcc-3.3.2,
 
-The older version of megaraid.c didn't include an LSI + MEGARAID, but
-did have an LSI + MEGARAID3.  The new version was the other way around,
-and didn't detect my card any longer.  In my first patch, I just added a
-new ID.  But after a little thinking and back tracking, I figured it was
-probably a copy and paste error, and the '3' was dropped from the device
-ID.  A new defination wasn't needed, just a correction to the mis-copied
-one.
+arch/i386/boot/setup.S: Assembler messages:
+arch/i386/boot/setup.S:165: Warning: value 0x37ffffff truncated to 0x37ffffff
 
--- 
-Chris
+each values 6 (six) f (truncated, what ???)
+
+but compiles.
+
+Rebooting with this kernel the first time OK,
+then trying to recompile the kernel,
+the machine freezed, no messages.
+
+Rebooting with the same kernel, fsck, same problem.
+
+Rebooting with 2.6.1-rc1-mm1 _no_ _problems_!
+Kernel recompiles with the same error messages.
+
+Mario, _not_ in lkml (cc if needed).
 

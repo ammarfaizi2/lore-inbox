@@ -1,52 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262077AbVATIJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVATIIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262077AbVATIJH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 03:09:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVATIJG
+	id S262073AbVATIIt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 03:08:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbVATIIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 03:09:06 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:31980 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262077AbVATIIM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 03:08:12 -0500
-Date: Thu, 20 Jan 2005 09:07:20 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Matt Mackall <mpm@selenic.com>
-Cc: "Jack O'Quin" <joq@io.com>, Chris Wright <chrisw@osdl.org>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Lee Revell <rlrevell@joe-job.com>, arjanv@redhat.com,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050120080720.GB12665@elte.hu>
-References: <20050116231307.GC24610@elte.hu> <87vf9xdj18.fsf@sulphur.joq.us> <20050117100633.GA3311@elte.hu> <87llaruy6m.fsf@sulphur.joq.us> <20050118080218.GB615@elte.hu> <87pt02pt0r.fsf@sulphur.joq.us> <20050119082433.GE29037@elte.hu> <20050119143927.GA11950@elte.hu> <87651tmhwv.fsf@sulphur.joq.us> <20050119183202.GM12076@waste.org>
+	Thu, 20 Jan 2005 03:08:48 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:63496 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262075AbVATIHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 03:07:32 -0500
+Subject: Re: patch to fix set_itimer() behaviour in boundary cases
+From: Arjan van de Ven <arjan@infradead.org>
+To: george@mvista.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       matthias@corelatus.se,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41EEF284.2010600@mvista.com>
+References: <16872.55357.771948.196757@antilipe.corelatus.se>
+	 <20050115013013.1b3af366.akpm@osdl.org>
+	 <1105830384.16028.11.camel@localhost.localdomain>
+	 <1105877497.8462.0.camel@laptopd505.fenrus.org>
+	 <41EEF284.2010600@mvista.com>
+Content-Type: text/plain
+Date: Thu, 20 Jan 2005 09:07:12 +0100
+Message-Id: <1106208433.4192.0.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050119183202.GM12076@waste.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Matt Mackall <mpm@selenic.com> wrote:
-
-> > Or, should that be?
+On Wed, 2005-01-19 at 15:51 -0800, George Anzinger wrote:
+> Arjan van de Ven wrote:
+> > On Sun, 2005-01-16 at 00:58 +0000, Alan Cox wrote:
 > > 
-> > 	if (prio > 0 && prio <= 20 && policy != SCHED_NORMAL) {
+> >>On Sad, 2005-01-15 at 09:30, Andrew Morton wrote:
+> >>
+> >>>Matthias Lang <matthias@corelatus.se> wrote:
+> >>>These are things we probably cannot change now.  All three are arguably
+> >>>sensible behaviour and do satisfy the principle of least surprise.  So
+> >>>there may be apps out there which will break if we "fix" these things.
+> >>>
+> >>>If the kernel version was 2.7.0 then well maybe...
+> >>
+> >>These are things we should fix. They are bugs. Since there is no 2.7
+> >>plan pick a date to fix it. We should certainly error the overflow case
+> >>*now* because the behaviour is undefined/broken. The other cases I'm not
+> >>clear about. setitimer() is a library interface and it can do the basic
+> >>checking and error if it wants to be strictly posixly compliant.
+> > 
+> > 
+> > why error?
+> > I'm pretty sure we can make a loop in the setitimer code that detects
+> > we're at the end of jiffies but haven't upsurped the entire interval the
+> > user requested yet, so that the code should just do another round of
+> > sleeping...
+> > 
+> That would work for sleep (but glibc uses nanosleep for that) but an itimer 
+> delivers a signal.  Rather hard to trap that in glibc.
 > 
-> Or you can just drop the 'prio == 1 &&' part for this test. Ingo was
-> trying to be clever to allow some RT bits, but that's not really
-> necessary.
+This one I meant to fix in the kernel fwiw; we can put that loop inside
+the kernel easily I'm sure
 
-actually, there may be some kernel threads that may run at RT priority
-99. But i agree, dropping the test for prio==1 should work just as fine.
-
-	Ingo

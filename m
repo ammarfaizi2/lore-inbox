@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbUL3CPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbUL3CXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbUL3CPz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 21:15:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbUL3CPM
+	id S261521AbUL3CXb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 21:23:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbUL3CXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 21:15:12 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:50354 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261516AbUL3COP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 21:14:15 -0500
-Message-ID: <41D3646F.5050408@drzeus.cx>
-Date: Thu, 30 Dec 2004 03:14:07 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+	Wed, 29 Dec 2004 21:23:31 -0500
+Received: from mail.tmr.com ([216.238.38.203]:52166 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S261521AbUL3CX0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 21:23:26 -0500
+Message-ID: <41D368F7.8090502@tmr.com>
+Date: Wed, 29 Dec 2004 21:33:27 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
 X-Accept-Language: en-us, en
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hades.drzeus.cx-11483-1104372920-0001-2"
-To: LKML <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [PATCH] MMC block removable flag
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+MIME-Version: 1.0
+To: Diego <foxdemon@gmail.com>
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+Subject: Re: About NFS4 in kernel 2.6.9
+References: <Pine.LNX.4.61.0412272045020.9354@yvahk01.tjqt.qr><d5a95e6d04122711183596d0c8@mail.gmail.com> <d5a95e6d04122712148459507@mail.gmail.com>
+In-Reply-To: <d5a95e6d04122712148459507@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+Diego wrote:
+> Thanks for your help,
+> I´ve checked what Jan said, and in .config is NFS_FS=y. When i do
+> modprobe sunrpc shows me:
+> 
+> [root@laca01 ~]# modprobe sunrpc
+> FATAL: Module sunrpc not found.
+> FATAL: Error running install command for sunrpc
+> 
+> It´s really annoyng :)
+> 
+> On Mon, 27 Dec 2004 20:46:38 +0100 (MET), Jan Engelhardt
+> <jengelh@linux01.gwdg.de> wrote:
+> 
+>>>First sorry about my poor english. I read in internet that it´s best
+>>>if i recompile NFS4 as module, so i did it. But i have this error
+>>>message. I dont know wht to do. when i do make xconfig, in filesystem,
+>>>i have checked all that have NFS and RPC, but it insist in not work.
+>>
+>>Really? I have this in fs/Kconfig (2.6.8+2.6.9-rc2):
+>>
+>>menu "Network File Systems"
+>>       depends on NET
+>>
+>>config NFS_FS
+>>       tristate "NFS file system support"
+>>       depends on INET
+>>       select LOCKD
+>>       select SUNRPC
+>>       select NFS_ACL_SUPPORT if NFS_ACL
+>>
+>>So SUNRPC should always be selected whenever you say yes/module to "NFS file
+>>system support".
+>>Check the .config if NFS_FS=y or =m, that'd be my guess.
 
---=_hades.drzeus.cx-11483-1104372920-0001-2
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+By any chance was sunrpc compiled in instead of module? What is the 
+setting in your .config file?
 
-A MMC card is a highly removable device. This patch makes the block 
-layer part of the MMC layer set the removable flag.
-
---
-Pierre
-
---=_hades.drzeus.cx-11483-1104372920-0001-2
-Content-Type: text/x-patch; name="mmc-removable.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mmc-removable.patch"
-
-Index: linux-wbsd/drivers/mmc/mmc_block.c
-===================================================================
---- linux-wbsd/drivers/mmc/mmc_block.c	(revision 99)
-+++ linux-wbsd/drivers/mmc/mmc_block.c	(revision 100)
-@@ -384,6 +384,7 @@
- 		md->disk->private_data = md;
- 		md->disk->queue = md->queue.queue;
- 		md->disk->driverfs_dev = &card->dev;
-+		md->disk->flags |= GENHD_FL_REMOVABLE;
- 
- 		sprintf(md->disk->disk_name, "mmcblk%d", devidx);
- 		sprintf(md->disk->devfs_name, "mmc/blk%d", devidx);
-
---=_hades.drzeus.cx-11483-1104372920-0001-2--
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

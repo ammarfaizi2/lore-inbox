@@ -1,99 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbUK2LGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbUK2LIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbUK2LGl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 06:06:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUK2LGl
+	id S261662AbUK2LIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 06:08:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUK2LG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 06:06:41 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:52438 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261666AbUK2LFo (ORCPT
+	Mon, 29 Nov 2004 06:06:59 -0500
+Received: from cantor.suse.de ([195.135.220.2]:9372 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261656AbUK2LEh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 06:05:44 -0500
-Date: Mon, 29 Nov 2004 12:05:07 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
-Message-ID: <20041129110507.GA10123@elte.hu>
-References: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
-	UPPERCASE_50_75 0.00
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 29 Nov 2004 06:04:37 -0500
+Message-ID: <41AAED32.2010703@suse.de>
+Date: Mon, 29 Nov 2004 10:34:42 +0100
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041104)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: ncunningham@linuxmail.org
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hugang@soulinfo.com, Andrew Morton <akpm@zip.com.au>,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: Suspend 2 merge
+References: <1101292194.5805.180.camel@desktop.cunninghams>	 <20041124132839.GA13145@infradead.org>	 <1101329104.3425.40.camel@desktop.cunninghams>	 <20041125192016.GA1302@elf.ucw.cz>	 <1101422088.27250.93.camel@desktop.cunninghams>	 <20041125232200.GG2711@elf.ucw.cz> <1101426416.27250.147.camel@desktop.cunninghams>
+In-Reply-To: <1101426416.27250.147.camel@desktop.cunninghams>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nigel Cunningham wrote:
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+> The cryptoapi provides support for both compression and encryption. I'd
+> happily make use of that, but we still need a way for the user to choose
+> what compression/encryption they want and configure it. I'm not at all
 
->   config-2.6.10-rc2-mm3-RT-V0.7.31-7.gz
->      - kernel configuration as of my laptop, taken from /proc/config.gz
+And encryption is in fact much more needed than compression. Remember,
+you are writing everything in memory (including maybe ssh passphrases or
+gpg keys) to swap in clear text. Not nice. And i agree that compression
+is nice to have, too.
 
-Here are some .config suggestion to reduce tracing costs. Here's the
-relevant portion of your .config:
+>>>:> But not everyone who uses 2.6.9 uses swsusp. :>
 
- CONFIG_DEBUG_KERNEL=y
- CONFIG_MAGIC_SYSRQ=y
- # CONFIG_SCHEDSTATS is not set
- # CONFIG_DEBUG_SLAB is not set
- CONFIG_DEBUG_PREEMPT=y
- CONFIG_WAKEUP_TIMING=y
- CONFIG_PREEMPT_TRACE=y
- CONFIG_CRITICAL_PREEMPT_TIMING=y
- CONFIG_CRITICAL_IRQSOFF_TIMING=y
- CONFIG_CRITICAL_TIMING=y
- CONFIG_LATENCY_TIMING=y
- CONFIG_LATENCY_TRACE=y
- CONFIG_MCOUNT=y
- CONFIG_RT_DEADLOCK_DETECT=y
- # CONFIG_DEBUG_KOBJECT is not set
- CONFIG_DEBUG_BUGVERBOSE=y
- # CONFIG_DEBUG_INFO is not set
- CONFIG_FRAME_POINTER=y
- CONFIG_EARLY_PRINTK=y
- CONFIG_DEBUG_STACKOVERFLOW=y
+and not everyone who downloads suspend2 uses it ;-)
 
-i'd suggest to use the following one:
+> change a parameter or forcing them to do an ls in /dev with obscure
+> parameters (to get the major and minor numbers) when they already know
+> they want /dev/sda1 isn't user friendly. Obviously user friendliness is 
 
- CONFIG_DEBUG_KERNEL=y
- CONFIG_MAGIC_SYSRQ=y
- # CONFIG_SCHEDSTATS is not set
- # CONFIG_DEBUG_SLAB is not set
- # CONFIG_DEBUG_PREEMPT is not set
- # CONFIG_DEBUG_SPINLOCK_SLEEP is not set
- CONFIG_WAKEUP_TIMING=y
- # CONFIG_CRITICAL_PREEMPT_TIMING is not set
- # CONFIG_CRITICAL_IRQSOFF_TIMING is not set
- CONFIG_LATENCY_TIMING=y
- CONFIG_LATENCY_TRACE=y
- CONFIG_MCOUNT=y
- # CONFIG_RT_DEADLOCK_DETECT is not set
- # CONFIG_DEBUG_KOBJECT is not set
- CONFIG_DEBUG_BUGVERBOSE=y
- # CONFIG_DEBUG_INFO is not set
- CONFIG_FRAME_POINTER=y
- CONFIG_EARLY_PRINTK=y
- # CONFIG_DEBUG_STACKOVERFLOW is not set
+This can easily be done by a userspace helper. You do use the
+(userspace) X server to display your GUI, don't you?
+Putting only the absolutely necessary things into the kernel (the same
+is true for the interactive resume thing - if someone wants interactive
+startup at a failing resume, he has to use an initrd, i don't see a
+problem with that) will probably increase the acceptance a bit :-)
 
-especially PREEMPT_TIMING, IRQSOFF_TIMING and RT_DEADLOCK_DETECT are
-quite expensive options.
+Best regards,
 
-	Ingo
+   Stefan
+

@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264692AbTIDDsE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 23:48:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264694AbTIDDsD
+	id S264696AbTIDDtG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 23:49:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264699AbTIDDtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 23:48:03 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:32683 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264692AbTIDDsA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 23:48:00 -0400
-To: Larry McVoy <lm@bitmover.com>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, "Brown, Len" <len.brown@intel.com>,
-       Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: Scaling noise 
-In-reply-to: Your message of Wed, 03 Sep 2003 20:02:27 PDT.
-             <20030904030227.GJ5227@work.bitmover.com> 
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <9252.1062647164.1@us.ibm.com>
-Date: Wed, 03 Sep 2003 20:46:04 -0700
-Message-Id: <E19ul4O-0002PI-00@w-gerrit2>
+	Wed, 3 Sep 2003 23:49:05 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:49422
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S264696AbTIDDtC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 23:49:02 -0400
+Date: Wed, 3 Sep 2003 20:49:17 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Larry McVoy <lm@work.bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
+       Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scaling noise
+Message-ID: <20030904034917.GP16361@matchmail.com>
+Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Larry McVoy <lm@work.bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Brown, Len" <len.brown@intel.com>,
+	Giuliano Pochini <pochini@shiny.it>, Larry McVoy <lm@bitmover.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <105370000.1062622139@flay> <20030903212119.GX4306@holomorphy.com> <115070000.1062624541@flay> <20030903215135.GY4306@holomorphy.com> <116940000.1062625566@flay> <20030904010653.GD5227@work.bitmover.com> <20030904013253.GB4306@holomorphy.com> <7420000.1062642672@[10.10.2.4]> <20030904024051.GO16361@matchmail.com> <9320000.1062643806@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9320000.1062643806@[10.10.2.4]>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 03 Sep 2003 20:02:27 PDT, Larry McVoy wrote:
- 
-> The problem with the old school approach of low/middle/high is that
-> everyone knows that they are shouldering far more than the material
-> costs plus a little profit when buying high end.  They are paying for
-> the R&D.  The market for those machines is very small and the volumes
-> never approach the level where the R&D is lost in the noise, that's a
-> significant fraction of the purchase price.  That's OK as long as there
-> is no alternative but with all the household name companies like Google,
-> Amazon, Yahoo, etc demonstrating that racks of 1U boxes is a far better
-> answer the market for the big boxes is shrinking.  Which is exactly what
-> Dell was saying.  I dunno, maybe I'm completely confused but I see his
-> point.  I don't see yours.
+On Wed, Sep 03, 2003 at 07:50:07PM -0700, Martin J. Bligh wrote:
+> >From all accounts, OpenSSI sounds more promising, but I need to spend some
+> more time looking at it.
 
-Hmm.  Did you check your data with respect to Amazon, Yahoo, etc.?  Not
-saying I know anything different, but I think you didn't check before
-you made that statement.
+No kidding.
 
-gerrit
+Taking a look at the web site it does look pretty impressive.  And it is
+using other code that was integrated recently (linux virtual server), as
+well as lustre, opengfs, etc.  This looks like they're making a lot of
+progress, and doing it in a generic way.
+
+I hope the code is as good as their documentation, and marketing...

@@ -1,78 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129858AbRCAUXG>; Thu, 1 Mar 2001 15:23:06 -0500
+	id <S129878AbRCAUYg>; Thu, 1 Mar 2001 15:24:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129865AbRCAUWz>; Thu, 1 Mar 2001 15:22:55 -0500
-Received: from bacchus.veritas.com ([204.177.156.37]:59610 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S129858AbRCAUWi>; Thu, 1 Mar 2001 15:22:38 -0500
-Date: Thu, 1 Mar 2001 20:28:35 +0000 (GMT)
-From: Mark Hemment <markhe@veritas.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Q: explicit alignment control for the slab allocator
-In-Reply-To: <3A9EA940.CB82665C@colorfullife.com>
-Message-ID: <Pine.LNX.4.21.0103012011160.11260-100000@alloc>
+	id <S129876AbRCAUYQ>; Thu, 1 Mar 2001 15:24:16 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:5512 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129865AbRCAUYL>;
+	Thu, 1 Mar 2001 15:24:11 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15006.44863.375642.847562@pizda.ninka.net>
+Date: Thu, 1 Mar 2001 12:21:19 -0800 (PST)
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: The IO problem on multiple PCI busses
+In-Reply-To: <19350124132125.27547@smtp.wanadoo.fr>
+In-Reply-To: <15006.40524.929644.25622@pizda.ninka.net>
+	<19350124132125.27547@smtp.wanadoo.fr>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Mar 2001, Manfred Spraul wrote:
 
-> Mark Hemment wrote:
-> > 
-> >   The original idea behind offset was for objects with a "hot" area
-> > greater than a single L1 cache line.  By using offset correctly (and to my
-> > knowledge it has never been used anywhere in the Linux kernel), a SLAB
-> > cache creator (caller of kmem_cache_create()) could ask the SLAB for more
-> > than one colour (space/L1 cache lines) offset between objects.
-> >
-> 
-> What's the difference between this definition of 'offset' and alignment?
+Benjamin Herrenschmidt writes:
+ > Also, the problem of finding where the legacy ISA IOs of a given PCI bus
+ > are is a bit different that simply mmap'ing a BAR. Some video cards
+ > require some access to their VGA IOs without having a BAR covering them,
+ > in some case it's necessary to switch the chip from VGA to MMIO mode.
 
-  The positioning of the first object within a slab (at least that is how
-it is suppose to work).
+Many platforms, sparc64 included, do not have an ISA IO space nor do
+they provide VGA accesses at all.
 
-  The distance between all objects within a slab is constant, so the
-colouring of objects depends upon the cache line (offset) the first object
-is placed on.
-  The alignment is the boundary objects fall upon within a slab.  This may
-require 'padding' between the objects so they fall on the correct
-boundaries (ie. they aren't a 'natural' size).
-  For kmem_cache_create(), a zero offset means the offset is the same as
-the alignment.
+If things such as XFree86 are coded for such platforms to not require
+VGA accesses (the 'ati' driver is already like this when certain
+build time defines are set), this could become a non-issue in this
+case.
 
-  Take the case of offset being 64, and alignment being 32.
-  Here, the allocator attempts to place the first object on a 64byte
-boundary (say, at offset 0), and all subsequent objects (within the same
-cache) on a 32byte boundary.
-  Now, when it comes to construct the next slab, it tries to place the
-first object 64bytes offset from the first object in the previous
-slab (say, at offset 64).  The distance between the objects is still the
-same - ie. they fall on 32byte boundaries.
+ > So what would be a preferred way ? Create that fake ISA bus number and
+ > provide functions for looking them up, getting their IO and mem bases,
+ > and eventually mapping PCI busses to ISA busses ? Or does someone have a
+ > better idea ? The goal is to try not to change the semantics of inb/outb
+ > and friends so that most legacy drivers can still work using the
+ > "default" IO bus if they are not upgraded to the new scheme.
 
-  See the difference?
+There is no 'fake' ISA bus number you need.  There is a 'real' one,
+the one on which the PCI-->ISA bridge lives, why not use that one
+:-)
 
-> alignment means that (addr%alignment==0)
-> offset means that (addr1-addr2 == n*offset)
-> 
-> Isn't the only difference the alignment of the first object in a slab?
+Then you could find such an ISA bridge, open that PCI device, then
+finally perform the PCI_IOCTL_GETIOBASE thingy on it, but I don't like
+this get-iobase idea at all, see my next email in this thread for why.
 
-  Yes (as explained above).  It is important.
- 
-> Some hardware drivers use HW_CACHEALIGN and assume certain byte
-> alignments, and arm needs 1024 byte aligned blocks.
-
-  I should have put a big comment in the allocator, saying aligment/offset
-are only hints to the allocator and not guarantees.
-  Unfortunately, the allocator was always returning L1 aligned objects
-with HW_CACHEALIGN, so folks started to depend on it.  Too late to break
-that now.
-  It sounds as if HW_CACHEALIGN has been broken by a config option, and
-this needs to be fixed.
-  But leave 'offset' alone?!  If it isn't working as described above, then
-it needs fixing, but don't change its definition.
-
-Mark
-
+Later,
+David S. Miller
+davem@redhat.com

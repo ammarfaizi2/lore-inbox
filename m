@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131420AbQKCTeL>; Fri, 3 Nov 2000 14:34:11 -0500
+	id <S131201AbQKCTgV>; Fri, 3 Nov 2000 14:36:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131443AbQKCTeB>; Fri, 3 Nov 2000 14:34:01 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:36882 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131420AbQKCTdl>; Fri, 3 Nov 2000 14:33:41 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: ext3 vs. JFS file locations...
-Date: 3 Nov 2000 11:33:10 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8tv3tm$iqg$1@cesium.transmeta.com>
-In-Reply-To: <3A02D150.E7E87398@usa.net> <200011031725.eA3HPwP12932@webber.adilger.net>
+	id <S131394AbQKCTgL>; Fri, 3 Nov 2000 14:36:11 -0500
+Received: from exchange-1.cadmus.com ([207.78.64.6]:22790 "EHLO
+	exchange-1.cadmus.com") by vger.kernel.org with ESMTP
+	id <S131201AbQKCTgC>; Fri, 3 Nov 2000 14:36:02 -0500
+Message-ID: <3A032175.C2DDFFFA@cadmus.com>
+Date: Fri, 03 Nov 2000 15:35:01 -0500
+From: "Ethan C. Baldridge" <BaldridgeE@cadmus.com>
+Organization: Cadmus Journal Services
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-3 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+To: linux-kernel@vger.kernel.org
+Subject: hardware lock-up with 2.4.0-test10
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200011031725.eA3HPwP12932@webber.adilger.net>
-By author:    Andreas Dilger <adilger@turbolinux.com>
-In newsgroup: linux.dev.kernel
->
-> Michael Boman writes:
-> > It seems like both IBM's JFS and ext3 wants to use fs/jfs .. IMHO that
-> > is like asking for problem.. A more logic location for ext3 should be
-> > fs/ext3, no?
-> 
-> Actually, if you would look in linux/fs, you will see that ext3 IS in
-> linux/fs/ext3.  However, there is a second component to ext3, which is
-> a generic block journalling layer which is called jfs.  This journal
-> layer is designed so that it isn't ext3 specific, so it would be
-> _possible_ for other journalling filesystems to use it.  Whether non-ext3
-> filesystems will actually use it is another question (actually the
-> InterMezzo distributed filesystem uses the ext3-jfs functionality to
-> do compound transactions on disk to ensure cluster coherency).
-> 
-> I think that Stephen at one time said he would change the name, but I
-> guess he has not done so yet.
-> 
+on my box at work, which is a Pentium 200 with 64 megs of ram.
 
-How about naming it something that doesn't end in -fs, such as
-"journal" or "jfsl" (Journaling Filesystem Layer?)
+no strange messages in /var/log/messages, no commonality I've found
+between the lockups.  This doesn't happen if I go back to 2.2.16 (which
+I'm in right now).
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Twice the lock-up occurred while initscripts were running on boot-up (at
+different places in the initscripts).  Twice now it has happened while
+I've been away from my computer for a while, both times apparently after
+the screensaver has come on (black screen).
+
+I'm running with DevFS and devfsd, IDE hard drive (Intel 82371SB PIIX3
+controller), 3com 3C905 ethernet card, Intel 82439HX Triton II chipset
+motherboard, Pentium with F00F bug.
+
+Has anyone else seen this, and can you give me any suggestions?
+
+Thanks,
+Ethan Baldridge
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316598AbSEUVKx>; Tue, 21 May 2002 17:10:53 -0400
+	id <S316600AbSEUVLK>; Tue, 21 May 2002 17:11:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316600AbSEUVKw>; Tue, 21 May 2002 17:10:52 -0400
-Received: from numenor.qualcomm.com ([129.46.51.58]:36326 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S316598AbSEUVKw>; Tue, 21 May 2002 17:10:52 -0400
-Message-Id: <5.1.0.14.2.20020521134410.06934b70@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 21 May 2002 14:09:15 -0700
-To: Johannes Erdfelt <johannes@erdfelt.com>
-From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Subject: Re: [linux-usb-devel] RE: What to do with all of the USB UHCI
-  drivers in the kernel ?
-Cc: greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-        linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <20020521160012.D2645@sventech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S316603AbSEUVLJ>; Tue, 21 May 2002 17:11:09 -0400
+Received: from ool-182d4c76.dyn.optonline.net ([24.45.76.118]:52228 "EHLO
+	physics.dyndns.org") by vger.kernel.org with ESMTP
+	id <S316600AbSEUVLI>; Tue, 21 May 2002 17:11:08 -0400
+Date: Tue, 21 May 2002 18:10:16 -0400 (EDT)
+From: "Nicholas L. D'Imperio" <dimperio@physics.dyndns.org>
+To: Ion Badulescu <ionut@cs.columbia.edu>
+cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Asus a7m266d stability issues
+In-Reply-To: <200205212044.g4LKi1i21931@buggy.badula.org>
+Message-ID: <Pine.LNX.4.33.0205211807030.1087-100000@physics.dyndns.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 21 May 2002, Ion Badulescu wrote:
 
->Please test the latest version of the drivers. Both uhci and usb-uhci
->have had various bug fixes. I'm sure the performance problems you've had
->with uhci have been fixed for a little while now.
-Yep. I did a quick test with Intel, Ericsson and Broadcom devices.
-Both HCDs have the same performance in 2.4.19-pre8.
+> On Tue, 21 May 2002 16:07:24 -0400 (EDT), Nicholas L. D'Imperio <dimperio@physics.dyndns.org> wrote:
+> 
+> >> > I'm getting kernel panics using the A7m266d smp motherboard and kernel 
+> >> > 2.4.18 as soon as the system is put under load.
+> > 
+> > I have 1800+MP processors and my PSU is 400W.  Of course I also have the 
+> > little four prong connector plugged in as well.
+> 
+> This points very strongly towards an overheating problem. The 1800+ and 
+> higher CPU's run very hot. Any imperfection in the cooling setup, be 
+> it lack of thermal paste, undersized heatsink/fan combination, 
+> improperly seated heatsink, and even insufficient airflow around the
+> CPU's and inside the chassis, can and will cause crashes under load.
+> 
+> I had this exact problem a few weeks ago with a dual Athlon 1U setup. It
+> turned out that the aluminum heatsinks I had previously used for the
+> 1.2GHz Athlons weren't good enough for the 1900+, and also that the
+> chassis fans were circulating enough air. Switching to copper heatsinks
+> got rid of 95% of the crashes, and adding a chassis fan got rid of the
+> remaining 5%.
+> 
+> Ion
+> 
+> 
 
->Also, feedback about the -hcd variants would useful too since one of
->those will be the only ones left for 2.5.
-Will do.
+Overheating is certainly a concern but is not the problem here I think.  
 
-Max
+1 processor is rock solid.
+
+I also switched it with a dual TigerMP board and that runs fine.
+
+
+Nick
 

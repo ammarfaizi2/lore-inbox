@@ -1,53 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280457AbRKJE65>; Fri, 9 Nov 2001 23:58:57 -0500
+	id <S280479AbRKJFQS>; Sat, 10 Nov 2001 00:16:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280460AbRKJE6r>; Fri, 9 Nov 2001 23:58:47 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:16147 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S280457AbRKJE6h>;
-	Fri, 9 Nov 2001 23:58:37 -0500
-Date: Sat, 10 Nov 2001 15:56:03 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Andi Kleen <ak@suse.de>
-Cc: "David S. Miller" <davem@redhat.com>, mingo@elte.hu,
-        linux-kernel@vger.kernel.org
-Subject: Re: speed difference between using hard-linked and modular drives?
-Message-ID: <20011110155603.B767@krispykreme>
-In-Reply-To: <p731yj8kgvw.fsf@amdsim2.suse.de> <20011109110532.B6822@krispykreme> <20011109064540.A13498@wotan.suse.de> <20011108.220444.95062095.davem@redhat.com> <20011109073946.A19373@wotan.suse.de>
+	id <S280494AbRKJFQJ>; Sat, 10 Nov 2001 00:16:09 -0500
+Received: from panacea.canonical.org ([209.115.72.61]:55819 "HELO
+	panacea.canonical.org") by vger.kernel.org with SMTP
+	id <S280479AbRKJFQH>; Sat, 10 Nov 2001 00:16:07 -0500
+Date: Sat, 10 Nov 2001 00:16:06 -0500
+From: Jason Cook <jasonc@reinit.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: bonding driver - linux kernel
+Message-ID: <20011110001606.A18715@panacea.canonical.org>
+Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1005299191.5985.32.camel@praetorian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
 Content-Disposition: inline
-In-Reply-To: <20011109073946.A19373@wotan.suse.de>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1005299191.5985.32.camel@praetorian>; from aafes@psu.edu on Fri, Nov 09, 2001 at 04:46:31AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi,
 
-> I'm assuming that walking on average 5-10 pages on a lookup is not too big a 
-> deal, especially when you use prefetch for the list walk. It is a tradeoff
-> between a big hash table thrashing your cache and a smaller hash table that
-> can be cached but has on average >1 entries/buckets. At some point the the 
-> smaller hash table wins, assuming the hash function is evenly distributed.
-> 
-> It would only get bad if the average chain length would become much bigger.
-> 
-> Before jumping to real conclusions it would be interesting to gather
-> some statistics on Anton's machine, but I suspect he just has an very
-> unevenly populated table.
+--G4iJoqBmSsgzjUCe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You can find the raw data here:
+* Phil Sorber (aafes@psu.edu) wrote:
+> hello,
+>=20
+> i have an HP Procurve 4000M and a linux box with an Intel Pro/100 Dual
+> Port Server Adapter (eepro.c). we have the switch set to do cicso
+> etherchannel, which the procurve supports. but it seems not to work in
+> this mode. we have to back down to trunking mode, giving us 200Mbit
+> upstream, but only 100Mbit down stream.
+>=20
+> I was curious if it had been tested with any HP switches, or any non
+> cisco switches for that matter that support cisco etherchannel. i was
+> also wondering if this is not the case if anyone has written a patch, or
+> is planning to write one to correct this.
+>=20
+> if not, me and my colleague and i are willing to take a crack at it.
+> however we have limited experience at something like this, but are eager
+> to get into it.
+>=20
+> any help or direction is apreciated. thanx.
+>=20
+> --=20
+> Phil Sorber
+> AIM: PSUdaemon
+> IRC: irc.openprojects.net #psulug PSUdaemon
+> GnuPG: keyserver - pgp.mit.edu
 
-http://samba.org/~anton/linux/pagecache/pagecache_data_gfp.gz
-http://samba.org/~anton/linux/pagecache/pagecache_data_vmalloc.gz
+I thought only the 8000M could do etherchannel.
 
-You can see the average depth of the get_free_page hash is way too deep.
-I agree there are a lot of pagecache pages (17GB in the gfp test and 21GB
-in the vmalloc test), but we have to make use of the 32GB of RAM :)
+--=20
+Jason Cook                 |  GnuPG Fingerprint: D531 F4F4 BDBF 41D1 514D
+GNU/Linux Technical Lead   |                     F930 FD03 262E 5120 BEDD
+evolServ Technology        |  Home page: http://reinit.org
 
-I did some experimentation with prefetch and I dont think it will gain
-you anything here. We need to issue the prefetch many cycles before
-using the data which we cannot do when walking the chain.
+Um, it's like, uh ... did anyone see the movie =14ron'?
+	-- Homer Simpson
 
-Anton
+--G4iJoqBmSsgzjUCe
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjvsuBYACgkQ/QMmLlEgvt13VgCfWsvY1UqsWn2OHtZiUGeDRc20
+81YAn2EZamfSdmnSImShfYcw7XZisIUD
+=oPVj
+-----END PGP SIGNATURE-----
+
+--G4iJoqBmSsgzjUCe--

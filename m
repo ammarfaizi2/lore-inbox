@@ -1,71 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVAYP1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVAYPe4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbVAYP1u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 10:27:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbVAYP1s
+	id S261983AbVAYPe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 10:34:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVAYPe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 10:27:48 -0500
-Received: from ns1.coraid.com ([65.14.39.133]:58825 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S261979AbVAYP1j (ORCPT
+	Tue, 25 Jan 2005 10:34:56 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:15587 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261983AbVAYPew (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 10:27:39 -0500
-To: Greg K-H <greg@kroah.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH  block-2.6] aoe: fail IO on disk errors
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Tue, 25 Jan 2005 10:11:43 -0500
-Message-ID: <87d5vt4k7k.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	Tue, 25 Jan 2005 10:34:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=KoR03hc2ooKqG5BtczUwtjyEW979QuVLIED5FnbSsGajKu1k9lofggAoEsCT7GAzGdgB6w+tjvucYCF7tZWOIeDtVRYTUgufFezrDN88teCM/W87GxdHj2KUDxn0a2FYqhn4DOqK4D36DYj3AnC+kLODHE4rf5H45adixR/8EjM=
+Message-ID: <58cb370e050125073464befe4@mail.gmail.com>
+Date: Tue, 25 Jan 2005 16:34:52 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: johnpol@2ka.mipt.ru
+Subject: Re: 2.6.11-rc2-mm1
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       greg@kroah.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1106666690.5257.97.camel@uganda>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050124021516.5d1ee686.akpm@osdl.org>
+	 <20050125125323.GA19055@infradead.org>
+	 <1106662284.5257.53.camel@uganda>
+	 <20050125142356.GA20206@infradead.org>
+	 <1106666690.5257.97.camel@uganda>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Tue, 25 Jan 2005 18:24:50 +0300, Evgeniy Polyakov
+<johnpol@2ka.mipt.ru> wrote:
+> On Tue, 2005-01-25 at 14:23 +0000, Christoph Hellwig wrote:
+> > > > Also your locking is broken.  sdev_lock sometimes nests outside
+> > > > sdev->lock and sometimes inside.  Similarly dev->chain_lock nests
+> > > > inside dev->lock sometimes and sometimes outside.  You really need
+> > > > a locking hiearchy document and the lockign should probably be
+> > > > simplified a lot.
+> > >
+> > > It is almost the same like after hand waving say that there is a wind.
+> > >
+> > > Each lock protect it's own data, sometimes it happens when other data is
+> > > locked,
+> > > sometimes not. Yes, probably interrupt handling can race, it requires
+> > > more review,
+> > > I will take a look.
+> >
+> > The thing I mention is called lock order reversal, which means a deadlock
+> > in most cases.  I don't have the time to actual walk through all codepathes
+> > to tell you whether it can really happen and where, but it's a really
+> > big warning sign.
+> 
+> No, it is not called lock order reversal.
+> 
+> There are no places like
+> lock a
+> lock b
+> unlock a
+> unlock b
+> 
+> and if they are, then I'm completely wrong.
+> 
+> What you see is only following:
+> 
+> place 1:
+> lock a
+> lock b
+> unlock b
+> lock c
+> unlock c
+> unlock a
+> 
+> place 2:
+> lock b
+> lock a
+> unlock a
+> lock c
+> unlock c
+> unlock b
 
-This patch makes disk errors fail the IO instead of getting logged and
-ignored.
+Ugh, now think about that:
 
-
-Fail IO on disk errors
-Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
-
-
---=-=-=
-Content-Disposition: inline; filename=diff-91-block
-
-diff -uprN block-2.6-aa/drivers/block/aoe/aoecmd.c block-2.6-bb/drivers/block/aoe/aoecmd.c
---- block-2.6-aa/drivers/block/aoe/aoecmd.c	2005-01-25 08:07:33.000000000 -0500
-+++ block-2.6-bb/drivers/block/aoe/aoecmd.c	2005-01-25 10:00:45.000000000 -0500
-@@ -416,7 +416,9 @@ aoecmd_ata_rsp(struct sk_buff *skb)
- 
- 	if (ahin->cmdstat & 0xa9) {	/* these bits cleared on success */
- 		printk(KERN_CRIT "aoe: aoecmd_ata_rsp: ata error cmd=%2.2Xh "
--			"stat=%2.2Xh\n", ahout->cmdstat, ahin->cmdstat);
-+			"stat=%2.2Xh from e%ld.%ld\n", 
-+			ahout->cmdstat, ahin->cmdstat,
-+			d->aoemajor, d->aoeminor);
- 		if (buf)
- 			buf->flags |= BUFFL_FAIL;
- 	} else {
-@@ -458,8 +460,8 @@ aoecmd_ata_rsp(struct sk_buff *skb)
- 	if (buf) {
- 		buf->nframesout -= 1;
- 		if (buf->nframesout == 0 && buf->resid == 0) {
--			n = !(buf->flags & BUFFL_FAIL);
--			bio_endio(buf->bio, buf->bio->bi_size, 0);
-+			n = (buf->flags & BUFFL_FAIL) ? -EIO : 0;
-+			bio_endio(buf->bio, buf->bio->bi_size, n);
- 			mempool_free(buf, d->bufpool);
- 		}
- 	}
-
---=-=-=
-
-
-
--- 
-  Ed L Cashin <ecashin@coraid.com>
-
---=-=-=--
-
+CPU0     CPU1
+place1:   place2:
+lock a      lock b
+< guess what happens here :-) >
+lock b      lock a
+...             ...

@@ -1,36 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266999AbVBFHHL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269178AbVBFHLd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266999AbVBFHHL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 02:07:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269087AbVBFHHL
+	id S269178AbVBFHLd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 02:11:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267690AbVBFHJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 02:07:11 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:26279 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S268978AbVBFHHE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 02:07:04 -0500
-Date: Sun, 6 Feb 2005 07:06:59 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: msdos/vfat defaults are annoying
-Message-ID: <20050206070659.GA28596@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	John Richard Moser <nigelenki@comcast.net>,
-	linux-kernel@vger.kernel.org
-References: <4205AC37.3030301@comcast.net>
-Mime-Version: 1.0
+	Sun, 6 Feb 2005 02:09:25 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54456 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S272869AbVBFHI7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 02:08:59 -0500
+Message-ID: <4205C27D.7070303@pobox.com>
+Date: Sun, 06 Feb 2005 02:08:45 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peer.Chen@uli.com.tw
+CC: Clear.Zhang@uli.com.tw, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, Emily.Jiang@uli.com.tw, Eric.Lo@uli.com.tw
+Subject: Re: [patch] scsi/libata: correct bug for ULi M5281
+References: <OF934C846F.FCC47C36-ON48256FA0.0024A886@uli.com.tw>
+In-Reply-To: <OF934C846F.FCC47C36-ON48256FA0.0024A886@uli.com.tw>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4205AC37.3030301@comcast.net>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 06, 2005 at 12:33:43AM -0500, John Richard Moser wrote:
-> I dunno.  I can never understand the innards of the kernel devs' minds.
+Peer.Chen@uli.com.tw wrote:
+> Hi,Jeff:
+> We didn't add the ULi-specific code to libata-core,just export some
+> functions of it,is it ok?
+> The problem is ULi-specific,so the reset procedures must be in sata_uli.c.
 
-filesystem detection isn't handled at the kerne level.
+OK, thanks for explaining.
+
+We still have the problem that code is duplicated from libata-scsi.c,
+unless I am missing the latest patch from ULi?
+
+	Jeff
+
+
 

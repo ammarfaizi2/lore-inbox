@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261475AbSIWXC7>; Mon, 23 Sep 2002 19:02:59 -0400
+	id <S261438AbSIWXIs>; Mon, 23 Sep 2002 19:08:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261477AbSIWXC7>; Mon, 23 Sep 2002 19:02:59 -0400
-Received: from u212-239-128-15.dialup.planetinternet.be ([212.239.128.15]:10244
-	"EHLO jebril.pi.be") by vger.kernel.org with ESMTP
-	id <S261475AbSIWXC6>; Mon, 23 Sep 2002 19:02:58 -0400
-Message-Id: <200209232306.g8NN6efH009834@jebril.pi.be>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.38 
-In-Reply-To: Your message of "Sun, 22 Sep 2002 19:27:18 PDT."
-             <Pine.LNX.4.44.0209221924210.1208-100000@home.transmeta.com> 
-Date: Tue, 24 Sep 2002 01:06:40 +0200
-From: "Michel Eyckmans (MCE)" <mce@pi.be>
+	id <S261443AbSIWXIs>; Mon, 23 Sep 2002 19:08:48 -0400
+Received: from netrealtor.ca ([216.209.85.42]:54790 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S261438AbSIWXIr>;
+	Mon, 23 Sep 2002 19:08:47 -0400
+Date: Mon, 23 Sep 2002 19:11:32 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Bill Huey <billh@gnuppy.monkey.org>
+Cc: Peter W?chtler <pwaechtler@mac.com>, Ingo Molnar <mingo@elte.hu>,
+       Larry McVoy <lm@bitmover.com>, Bill Davidsen <davidsen@tmr.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+Message-ID: <20020923191132.D26887@mark.mielke.cc>
+References: <Pine.LNX.4.44.0209232233250.2343-100000@localhost.localdomain> <3D8F82E5.90A64E8@mac.com> <20020923184423.B26887@mark.mielke.cc> <20020923230122.GA3642@gnuppy.monkey.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020923230122.GA3642@gnuppy.monkey.org>; from billh@gnuppy.monkey.org on Mon, Sep 23, 2002 at 04:01:22PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 23, 2002 at 04:01:22PM -0700, Bill Huey wrote:
+> On Mon, Sep 23, 2002 at 06:44:23PM -0400, Mark Mielke wrote:
+> > Certainly the above descriptions are not fully accurate, or complete,
+> > and it is possible that the M:N threading would make a fair compromise
+> > between OS thread sand user-space threads, however, if user-space threads
+> > requires all this extra work, and M:N threads requires some extra work,
+> > some less work, and extra book keeping and system calls, why couldn't
+> > OS threads by themselves be more efficient?
+> Crazy synchronization by non-web-server like applications. Who knows. I
+> personally can't think up really clear example at this time since I don't
+> do that kind of programming, but I'm sure concurrency experts can...
+> I'm just not one of those people.
 
-> That may just be due to the new mouse driver and/or input layer, which 
-> went in some weeks ago. What kind of mouse 
+I do not find it to be profitable to discourage the people working on
+this project. If they fail, nobody loses. If they succeed, they can
+re-invent the math behind threading, and Linux ends up on the forefront
+of operating systems offering the technology.
 
-Yep, I've suspected this to be input related from the start.That would
-fit the timing perfectly.
+As for 'crazy synchronization', solutions such as the FUTEX have no
+real negative aspects. It wasn't long ago that the FUTEX did not
+exist. Why couldn't innovation make 'crazy synchronization by
+non-web-server like applications' more efficient using kernel threads?
 
-It's a plain old serial mouse, no PS/2. It works fine with gpm, only
-X locks up. Or to be entirely accurate: X consistently locks up almost 
-immediately, whereas gpm survived all testing until now.
+Concurrency experts would welcome the change. Concurrent 'experts'
+would not welcome the change, as it would force them to have to
+re-learn everything they know, effectively obsoleting their 'expert'
+status. (note the difference between the unquoted, and the quoted...)
 
-MCE
+Cheers, and good luck...
+mark
+
 -- 
-========================================================================
-M. Eyckmans (MCE)          Code of the Geeks v3.1       mce-at-pi-dot-be
-GCS d+ s+:- a37 C+++$ UHLUASO+++$ P+ L+++ E--- W++ N+++ !o K w--- !O M--
- V-- PS+ PE+ Y+ PGP- t--- !5 !X R- tv- b+ DI++ D-- G++ e+++ h+(*) !r y?
-========================================================================
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

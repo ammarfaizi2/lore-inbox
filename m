@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264953AbSJPICi>; Wed, 16 Oct 2002 04:02:38 -0400
+	id <S264963AbSJPIOa>; Wed, 16 Oct 2002 04:14:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264955AbSJPICd>; Wed, 16 Oct 2002 04:02:33 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:21151 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S264953AbSJPICb>; Wed, 16 Oct 2002 04:02:31 -0400
-Date: Wed, 16 Oct 2002 04:07:54 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@digeo.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] mmap-speedup-2.5.42-C3
-Message-ID: <20021016040754.C5659@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <m3bs5vl79h.fsf@averell.firstfloor.org> <Pine.LNX.4.44.0210160957150.4018-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S264965AbSJPIO3>; Wed, 16 Oct 2002 04:14:29 -0400
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:27599 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S264963AbSJPIO3>; Wed, 16 Oct 2002 04:14:29 -0400
+To: jw schultz <jw@pegasys.ws>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mapping 36 bit physical addresses into 32 bit virtual
+References: <20021015165947.50642.qmail@web13801.mail.yahoo.com>
+	<aoi6bb$309$1@cesium.transmeta.com> <20021016072345.GE7844@pegasys.ws>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 16 Oct 2002 17:20:15 +0900
+In-Reply-To: <20021016072345.GE7844@pegasys.ws>
+Message-ID: <buo4rbmvlq8.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210160957150.4018-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Oct 16, 2002 at 10:03:52AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 16, 2002 at 10:03:52AM +0200, Ingo Molnar wrote:
-> 
-> On 15 Oct 2002, Andi Kleen wrote:
-> 
-> > When you oprofile KDE startup you notice that a lot of time is spent in
-> > get_unmapped_area too. The reason is that every KDE process links with
-> > 10-20 libraries and ends up with a 40-50 entry /proc/<pid>/maps.
-> 
-> actually, library mappings alone should not cause a slowdown, since we
-> start the search at MAP_UNMAPPED_BASE and most library mappings are below
-> 1GB. But if those libraries use mmap()-ed anonymous RAM that has different
-> protections then the anonymous areas do not get merged and the scanning
-> overhead goes up.
+jw schultz <jw@pegasys.ws> writes:
+> i distinctly remember the working with the newest R400x in 1993 which
+> was still 32bit.  I know MIPS went to 64bit sometime not too long
+> after that (mid 90's?) but by then Alpha and Sparc had beaten them to
+> the punch.
 
-Libraries mapped by dynamic linker are mapped without MAP_FIXED and unless
-you use prelinking, with 0 virtual address, ie. they all end up above 1GB.
-And 99% of libraries uses different protections, for the read-only and
-read-write segment.
+You're wrong -- the R4000 was absolutely 64-bit, and was released in
+1991.  The 64-bit sparc was circa '93, and alpha I dunno, but I think
+'91-'92.
 
-	Jakub
+[note that I'm talking about chips, not software; I believe it was quite
+a while before the OS stuff caught up with the 64-bit mips processors]
+
+-Miles
+-- 
+Ich bin ein Virus. Mach' mit und kopiere mich in Deine .signature.

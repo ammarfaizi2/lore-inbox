@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263580AbTHWSeS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 14:34:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263685AbTHWSeS
+	id S265580AbTHWS3t (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 14:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263599AbTHWS3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 14:34:18 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:36104 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S264280AbTHWSeB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 14:34:01 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test3-bk8: sensor chips write value problem
-Date: Sat, 23 Aug 2003 22:34:05 +0400
-User-Agent: KMail/1.5
-MIME-Version: 1.0
+	Sat, 23 Aug 2003 14:29:48 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:33408
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S265580AbTHWS0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 14:26:53 -0400
+Date: Fri, 22 Aug 2003 18:25:46 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Stephan von Krawczynski <skraw@ithnet.com>, manfred@colorfullife.com,
+       linux-kernel@vger.kernel.org, zwane@linuxpower.ca
+Cc: TeJun Huh <tejun@aratech.co.kr>
+Subject: Re: Possible race condition in i386 global_irq_lock handling.
+Message-ID: <20030822162546.GQ29612@dualathlon.random>
+References: <3F44FAF3.8020707@colorfullife.com> <20030821172721.GI29612@dualathlon.random> <20030821234824.37497c08.skraw@ithnet.com> <20030822011840.GA14540@atj.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308232232.39261.arvidjaar@mail.ru>
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20030822011840.GA14540@atj.dyndns.org>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using ASUS as99127f chip, attempt to write any value in in_minN or in_maxN 
-results in funny value set:
+thanks TeJun,
 
-{pts/1}% cat /sys/bus/i2c/devices/0-002d/in_*2
-3472
-3632
-2976
-{pts/1}% sudo zsh -c 'echo 3000 > /sys/bus/i2c/devices/0-002d/in_min2'
-{pts/1}% cat /sys/bus/i2c/devices/0-002d/in_*2
-3472
-3632
-400
+just one comment
 
-{pts/1}% cat /sys/bus/i2c/devices/0-002d/name
-as99127f
-{pts/1}% cat /sys/class/i2c-adapter/i2c-0/device/name
-SMBus I801 adapter at e800
+On Fri, Aug 22, 2003 at 10:18:40AM +0900, TeJun Huh wrote:
+>  3. remove irqs_running() test from synchronize_irq()
 
-the same runs just fine under 2.4 (with libsensors).
+I'm not convinced this one is needed. An irq can still run on another
+cpu but the cli();sti() may execute while it's here:
 
-also, setting temp_{min.max}N works just fine under 2.6
+	irq running		synchronize_irq()
+	--------------		-----------------
+	do_IRQ
+	handle_IRQ_event
+				cli()
+				sti()
 
--andrey
+	irq_enter -> way too late
+
+in short, doing irqs_running() doesn't seem to weaken the semantics of
+synchronize_irq() to me.
+
+I think it should be changed this way instead:
+
+void synchronize_irq(void)
+{
+	smp_mb();
+	if (irqs_running()) {
+		/* Stupid approach */
+		cli();
+		sti();
+	}
+}
+
+to be sure to read the local irq area after the previous code (the
+test_and_set_bit of the global_irq_lock of a cli() in your version would
+achieve the same implicit smp_mb too, so maybe your only point for doing
+cli()/sti() was to execute the smp_mb before the irqs_running?).  the
+above version is more finegrined and it looks equivalent to yours.
+
+Andrea

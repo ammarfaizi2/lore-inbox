@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267510AbUIATtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267474AbUIATtl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267510AbUIATtj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 15:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267447AbUIATrt
+	id S267474AbUIATtl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 15:49:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267464AbUIATrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 15:47:49 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:7052 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267435AbUIATpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 15:45:34 -0400
-Subject: Re: [PATCH] Configure IDE probe delays
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Mark Lord <lkml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>,
-       bzolnier@milosz.na.pl, Greg Stark <gsstark@mit.edu>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Todd Poynor <tpoynor@mvista.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       tim.bird@am.sony.com, dsingleton@mvista.com
-In-Reply-To: <1094067412.1970.48.camel@krustophenia.net>
-References: <20040730191100.GA22201@slurryseal.ddns.mvista.com>
-	 <200408272005.08407.bzolnier@elka.pw.edu.pl>
-	 <1093630121.837.39.camel@krustophenia.net>
-	 <200408272059.51779.bzolnier@elka.pw.edu.pl> <4135CC9E.5060905@rtr.ca>
-	 <4135E017.1000901@pobox.com>  <4135EC84.6070407@rtr.ca>
-	 <1094067412.1970.48.camel@krustophenia.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094064126.3100.1.camel@localhost.localdomain>
+	Wed, 1 Sep 2004 15:47:37 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:58759 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267445AbUIAToe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 15:44:34 -0400
+Date: Wed, 1 Sep 2004 12:43:25 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: Christoph Hellwig <hch@infradead.org>, lkml@lpbproductions.com,
+       Timothy Miller <miller@techsource.com>, Jens Axboe <axboe@suse.de>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: 3ware queue depth [was: Re: HIGHMEM4G config for 1GB RAM on desktop?]
+Message-ID: <20040901194325.GA11762@beaverton.ibm.com>
+References: <200408021602.34320.swsnyder@insightbb.com> <1094030083l.3189l.2l@traveler> <1094030194l.3189l.3l@traveler> <200409010233.31643.lkml@lpbproductions.com> <1094032735l.3189l.7l@traveler> <20040901110944.A10160@infradead.org> <1094036919l.3189l.11l@traveler>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 01 Sep 2004 19:42:09 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094036919l.3189l.11l@traveler>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-01 at 20:36, Lee Revell wrote:
-> The effect can be measured using a recent version of the voluntary
-> preemption patches, and disabling hardirq preemption.  In this situation
-> the IDE I/O completion is by far the longest non-preemptible code path,
-> so can be easily profiled from the latency traces.
+On Wed, Sep 01, 2004 at 11:08:39AM +0000, Miquel van Smoorenburg wrote:
 
-A lot of IDE controllers hold off the CPU for long times when you do I/O
-cycles. The other factor is PIO which defaults to IRQ masking for safety
-on old controllers. For PCI we should probably default the other way.
+> +	/* make sure blockdev queue depth is at least 2 * scsi depth */
+> +	if (SDptr->request_queue->nr_requests < 2 * max_cmds)
+> +		SDptr->request_queue->nr_requests = 2 * max_cmds;
 
+Why would you want nr_requests different (and larger) only for this
+driver?
+
+Is modifying nr_requests allowed?
+
+-- Patrick Mansfield

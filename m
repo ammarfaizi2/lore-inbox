@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264333AbTLVHh6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 02:37:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbTLVHh6
+	id S264340AbTLVHzg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 02:55:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264341AbTLVHzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 02:37:58 -0500
-Received: from imr1.ericy.com ([198.24.6.9]:9949 "EHLO imr1.ericy.com")
-	by vger.kernel.org with ESMTP id S264333AbTLVHh5 (ORCPT
+	Mon, 22 Dec 2003 02:55:36 -0500
+Received: from chnmfw01.eth.net ([202.9.145.21]:56840 "EHLO ETH.NET")
+	by vger.kernel.org with ESMTP id S264340AbTLVHzf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 02:37:57 -0500
-From: Frederic Rossi <frederic.rossi@ericsson.com>
+	Mon, 22 Dec 2003 02:55:35 -0500
+From: k_nema@eth.net
+Reply-to: k_nema@eth.net
+To: linux-kernel@vger.kernel.org
+Date: Mon, 22 Dec 2003 13:16:37 +0550
+Subject: How to read IDE status registers
+X-Mailer: DMailWeb Web to Mail Gateway 2.8d, http://netwinsite.com/top_mail.htm
+Message-id: <3fe6a15d.1d4.0@eth.net>
+X-User-Info: 202.9.130.77
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16358.40543.878289.421591@localhost.localdomain>
-Date: Mon, 22 Dec 2003 02:33:51 -0500
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Frederic Rossi <frederic.rossi@ericsson.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] AEM v0.5.3 on kernel 2.6.0
-In-Reply-To: <3FE2203A.7090608@pobox.com>
-References: <16354.4831.508501.934390@localhost.localdomain>
-	<3FE2203A.7090608@pobox.com>
-X-Mailer: VM 7.07 under Emacs 21.1.1
+X-OriginalArrivalTime: 22 Dec 2003 07:53:42.0687 (UTC) FILETIME=[B80E5AF0:01C3C860]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi,
+I wanted to read the IDE status registers, as i want to write to disk with
+all the interuppts disabled. Please, tell me a way to do this. I was
+wondering if i cud make use of the ACPI code, as it too reads the status
+registers. But i dont know how exactly it is done.
 
-Jeff Garzik wrote:
-> Frederic Rossi wrote:
-> > 
-> > AEM (Asynchronous Event Mechanism) is an extension providing a native 
-> > support for asynchronous events in the Linux kernel. 
-> 
-> 
-> The kernel already supports this, 
+Also, i wanted to know, how to issue IDE commands directly to the IDE disk.
+i cannot find the kernel code where this is done.
 
-this? you mean crossing the kernel to user space right?
-
-> via netlink.
-> 
-
-I can imagine many ways to solve "this", netlink, write data
-to the file system, /proc or whatever system calls (read ()?)
-
-For this specific part AEM is using a memory based scheme.
-Unless you have something very specific in mind, I don't see
-how netlink could be of any help to solve the problem efficiently.
-
-> 	Jeff
-
-Frederic
+thanx,
+Kanika
+http://www.ddsl.net

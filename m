@@ -1,80 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291251AbSCMAJS>; Tue, 12 Mar 2002 19:09:18 -0500
+	id <S291258AbSCMALh>; Tue, 12 Mar 2002 19:11:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291258AbSCMAJI>; Tue, 12 Mar 2002 19:09:08 -0500
-Received: from [217.79.102.244] ([217.79.102.244]:34045 "EHLO
-	monkey.beezly.org.uk") by vger.kernel.org with ESMTP
-	id <S291251AbSCMAIv>; Tue, 12 Mar 2002 19:08:51 -0500
-Subject: Re: Dropped packets on SUN GEM
-From: Beezly <beezly@beezly.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020312.155238.21594857.davem@redhat.com>
-In-Reply-To: <1015974664.2652.10.camel@monkey>
-	<20020312.151443.03370128.davem@redhat.com>
-	<1015976181.2652.30.camel@monkey> 
-	<20020312.155238.21594857.davem@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-n0MPvocuG7b+HpWnWxTo"
-X-Mailer: Evolution/1.0.2 
-Date: 13 Mar 2002 00:08:47 +0000
-Message-Id: <1015978127.2653.49.camel@monkey>
-Mime-Version: 1.0
+	id <S291279AbSCMAL2>; Tue, 12 Mar 2002 19:11:28 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5642 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291272AbSCMALS>;
+	Tue, 12 Mar 2002 19:11:18 -0500
+Message-ID: <3C8E98B2.159FA546@zip.com.au>
+Date: Tue, 12 Mar 2002 16:09:22 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: wli@holomorphy.com
+CC: Andrea Arcangeli <andrea@suse.de>, wli@parcelfarce.linux.theplanet.co.uk,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
+        phillips@bonn-fries.net
+Subject: Re: 2.4.19pre2aa1
+In-Reply-To: <20020312041958.C687@holomorphy.com> <20020312070645.X10413@dualathlon.random> <20020312112900.A14628@holomorphy.com> <20020312135605.P25226@dualathlon.random> <20020312141439.C14628@holomorphy.com> <20020312160430.W25226@dualathlon.random>,
+		<20020312160430.W25226@dualathlon.random>; from andrea@suse.de on Tue, Mar 12, 2002 at 04:04:30PM +0100 <20020312233117.E14628@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+wli@holomorphy.com wrote:
+> 
+> Also, these changes to the hashing scheme were not separated out
+> from the rest of the VM patch, so the usual "break this up
+> into a separate patch please" applies.
 
---=-n0MPvocuG7b+HpWnWxTo
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+FYI, I am doing that at present.  It look like Andrea's 10_vm-30
+patch will end up as twenty or thirty separate patches.  I won't
+be testing every darn patch individually - I'll batch them up into
+maybe four groups for testing and merging.
 
-On Tue, 2002-03-12 at 23:52, David S. Miller wrote:
-> Thinking... I guess my gem_rxmac_reset() does not reset the
-> receive FIFO so until it is filled up and reset none of the
-> packets received actually make it past the card.
->=20
-> How does it behave with the patch below added to what you are running
-> right now?
->=20
+Andrea introduced some subtly changed buffer locking rules, and
+this causes ext3 to deadlock under heavy load.  Until we sort
+this out, I'm afraid that the -aa VM is not suitable for production
+use with ext3.
 
-The problem appears to get worse;
+ext2 is OK and I *assume* it's OK with reiserfs.  The problem occurs
+when a filesystem performs:
 
-$ ping -s 1472 -i 0.1 10.0.0.3=20
-<snip>
-1480 bytes from 10.0.0.3: icmp_seq=3D4487 ttl=3D255 time=3D4.13 ms
-1480 bytes from 10.0.0.3: icmp_seq=3D4488 ttl=3D255 time=3D4.13 ms
-1480 bytes from 10.0.0.3: icmp_seq=3D4489 ttl=3D255 time=3D4.13 ms
-1480 bytes from 10.0.0.3: icmp_seq=3D4490 ttl=3D255 time=3D4.13 ms
-1480 bytes from 10.0.0.3: icmp_seq=3D4491 ttl=3D255 time=3D4.14 ms
-1480 bytes from 10.0.0.3: icmp_seq=3D4517 ttl=3D255 time=3D4.18 ms
-1480 bytes from 10.0.0.3: icmp_seq=3D4518 ttl=3D255 time=3D4.13 ms
-1480 bytes from 10.0.0.3: icmp_seq=3D4519 ttl=3D255 time=3D4.12 ms
-1480 bytes from 10.0.0.3: icmp_seq=3D4520 ttl=3D255 time=3D4.13 ms
+	lock_buffer(dirty_bh);
+	allocate_something(GFP_NOFS);
 
-25 lost packets :(
+without having locked the buffer's page.  sync_page_buffers()
+can perform a wait_on_buffer() against dirty_bh.  (I think.
+I'm not quite up-to-speed with the new buffer state bits yet).
 
-Also, just to clarify (i wasn't clear earlier), this host is connected
-via 1000Mbps full-duplex fibre to the switch.
 
-The other machines on the switch are connected either by 100Mbps copper
-or 10Mpbs copper. I'm guessing the other machines shouldn't be able to
-flood the RX on this host even if they all transmitted at the same time?
-(there are only three of them)
-
-Beezly
-
---=-n0MPvocuG7b+HpWnWxTo
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8jpiPXu4ZFsMQjPgRApbeAKDLvQIbgXTEpFAu/+xezPajENUvBQCeObeW
-uqvK3OXRRrKGeE+sDJr5HtM=
-=q9rE
------END PGP SIGNATURE-----
-
---=-n0MPvocuG7b+HpWnWxTo--
+-

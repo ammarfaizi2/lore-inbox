@@ -1,26 +1,29 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S263456AbUJ2S04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S263546AbUJ2Unj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263456AbUJ2S04 (ORCPT <rfc822;akpm@zip.com.au>);
-	Fri, 29 Oct 2004 14:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263458AbUJ2SXB
+	id S263546AbUJ2Unj (ORCPT <rfc822;akpm@zip.com.au>);
+	Fri, 29 Oct 2004 16:43:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263443AbUJ2Uiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 14:23:01 -0400
-Received: from ipcop.bitmover.com ([192.132.92.15]:9386 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S263466AbUJ2SVA
+	Fri, 29 Oct 2004 16:38:46 -0400
+Received: from relay.snowman.net ([66.92.160.56]:24328 "EHLO relay.snowman.net")
+	by vger.kernel.org with ESMTP id S263522AbUJ2Udu convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 14:21:00 -0400
-Date: Fri, 29 Oct 2004 11:20:09 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Ram?n Rey Vicente <ramon.rey@hispalinux.es>, Larry McVoy <lm@bitmover.com>,
-        Xavier Bestel <xavier.bestel@free.fr>,
+	Fri, 29 Oct 2004 16:33:50 -0400
+Date: Fri, 29 Oct 2004 16:33:01 -0400
+From: Stephen Frost <sfrost@snowman.net>
+To: Larry McVoy <lm@work.bitmover.com>,
+        Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
+        Scott Lockwood <lkml@www.lrsehosting.com>,
+        Larry McVoy <lm@bitmover.com>, Xavier Bestel <xavier.bestel@free.fr>,
         James Bruce <bruce@andrew.cmu.edu>, Linus Torvalds <torvalds@osdl.org>,
         Roman Zippel <zippel@linux-m68k.org>,
         Andrea Arcangeli <andrea@novell.com>,
         Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: BK kernel workflow
-Message-ID: <20041029182009.GB5318@work.bitmover.com>
+Message-ID: <20041029203301.GC12780@ns.snowman.net>
 Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
 	Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
+	Scott Lockwood <lkml@www.lrsehosting.com>,
 	Larry McVoy <lm@bitmover.com>,
 	Xavier Bestel <xavier.bestel@free.fr>,
 	James Bruce <bruce@andrew.cmu.edu>,
@@ -28,58 +31,59 @@ Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
 	Roman Zippel <zippel@linux-m68k.org>,
 	Andrea Arcangeli <andrea@novell.com>,
 	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org> <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org> <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com> <20041029180625.GB12780@ns.snowman.net>
+References: <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com> <41828707.3050803@hispalinux.es> <57875.65.208.227.246.1099074830.squirrel@www.lrsehosting.com> <4182923D.5040500@hispalinux.es> <20041029193924.GA10216@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041029180625.GB12780@ns.snowman.net>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20041029193924.GA10216@work.bitmover.com>
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.snowman.net
+X-Operating-System: Linux/2.4.24ns.3.0 (i686)
+X-Uptime: 16:21:02 up 272 days, 15:20, 17 users,  load average: 0.07, 0.14, 0.16
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 02:06:25PM -0400, Stephen Frost wrote:
-> * Larry McVoy (lm@bitmover.com) wrote:
-> > On Fri, Oct 29, 2004 at 07:19:05PM +0200, Ram?n Rey Vicente wrote:
-> > > In Spain, reverse engineering is allowed for interoperability.
-> [...]
-> > Given that BK isn't hiding anything, the "reverse engineering for
-> > interoperability" does not apply.  Hello?  Anyone listening?  Didn't
-> > think so.  Sigh.
-> 
-> (Not actually following the conversation, but this caught my eye)
-> 
-> If I had a license to run BK and was using it and later that license was
-> revoked such that I could no longer run BK, is there sufficient
-> documentation provided that I could write code to read my
-> data/metadata/etc off of the disk w/o using BK?
+* Larry McVoy (lm@bitmover.com) wrote:
+> This is not getting us anywhere.  You're not citing case law, you're
+> citing vague statements that don't apply here.  And even if they do
+> apply, the law is a moving target, new case law changes the rules all
+> the time.  Who's to say that we don't have a lawsuit in Spain and 
+> and get new case law put in place that says you don't have such and
+> such a right unless you pay for the product?  Who's to say someone 
+> else doesn't do that?  It's a moving target.  
 
-We can't reach out and revoke your license arbitrarily.  Even if we put
-into the license that we could do that, it's not enforceable.  That's more
-or less blackmail "gimme all your money or I'll revoke your license".
+Just to put it out there- there are places in the world where the legal
+system isn't based on case law.  Don't know if Spain is that way or not.
 
-While the BK haters love to spread FUD about us having that ability
-that's just nonsense, it would never stand up in any court.
+> On the other hand, if you have a program that does not lock up the data,
+> does not impede your ability to get your work done, is it reasonable for
+> you to go digging around in that product for the purposes of creating
+> a clone?  Maybe, if the license doesn't prohibit that.  Is it reasonable
+> for a license to prohibit that?  I think so and so does BitMover's
+> legal counsel and so does outside counsel who are experts in contract
+> and copyright law.  Are we right?  Dunno.  Maybe we go to court and
+> find out.  Maybe we go to court and make new case law.
 
-So it's a moot point.  We aren't going to revoke your license, you get
-to revoke your license by violating the terms.
+An interesting parallel are 'no-compete' clauses which employers use to
+try and keep employees from being able to move from one company to a
+competeing one.  These clauses are actually not enforcable in some
+jurisdictions because the lawmakers there felt it was unreasonable.
+This, really, is the light under which I'd think the BK license would be
+seen.  Of course, IANAL, nor do I actually use (or have ever used) BK 
+anyway.
 
-As for the on disk format, sure, you can dig it out.  It's loosely
-derived from the SCCS format, we used to be compatible with SCCS but we
-dropped that because it was too restrictive.  But you could go get CSSC
-and tweak it enough to get your data out.
+> The side that will win will be the side which is both reasonable and
+> has enough money to present that case.  We think that's us.
 
-If you are worried about this, the easiest way to make sure that you are
-safe is park a clone of your tree on bkbits.net.  There is no license
-required to get at the data over the web and all the data and metadata
-is right there.  If you are worried that we'd drop bkbits.net you could
-hire a neutral third party, get them to run their own BK server, park
-your data there, and you have the same thing.
+That's an unfortunate reality (the money bit).
 
-We don't do lockins.  Period.  You can get out of BK if that's what you
-want to do.  This is a good time to note that we have a >99% renewal 
-rate w/ our commercial customers.  But the ones that wanted to get
-out, I think there have been 2 or 3, got all their data out and all 
-their history out.
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+[...]
+> is I wouldn't do that if I were you.  It doesn't look reasonable to me
+> and I'll bet you long odds that it won't look reasonable to a jury.
+
+It's unlikely that a jury would be involved in such a case since it's
+unlikely the facts themselves would be in dispute.
+
+	Stephen

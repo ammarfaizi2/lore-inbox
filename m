@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262209AbSJAS6z>; Tue, 1 Oct 2002 14:58:55 -0400
+	id <S262908AbSJATKK>; Tue, 1 Oct 2002 15:10:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262211AbSJAS6z>; Tue, 1 Oct 2002 14:58:55 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:23948 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S262209AbSJAS6p>;
-	Tue, 1 Oct 2002 14:58:45 -0400
-Date: Tue, 1 Oct 2002 20:06:48 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Garrett Kajmowicz <gkajmowi@tbaytel.net>
-Cc: linux-kernel@vger.kernel.org, will@cs.earlham.edu
-Subject: Re: [PATCH, TRIVIAL] 2.4.20-pre8 BeFS Config.in modification
-Message-ID: <20021001190648.GA24193@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Garrett Kajmowicz <gkajmowi@tbaytel.net>,
-	linux-kernel@vger.kernel.org, will@cs.earlham.edu
-References: <200210011448.06125.gkajmowi@tbaytel.net>
-Mime-Version: 1.0
+	id <S262909AbSJATKK>; Tue, 1 Oct 2002 15:10:10 -0400
+Received: from packet.digeo.com ([12.110.80.53]:21477 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262908AbSJATKI>;
+	Tue, 1 Oct 2002 15:10:08 -0400
+Message-ID: <3D99F44F.E82EBC36@digeo.com>
+Date: Tue, 01 Oct 2002 12:15:27 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.38 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: Shared memory shmat/dt not working well in
+References: <35FD2132190@vcnet.vc.cvut.cz> <Pine.LNX.4.44.0210011804001.1783-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210011448.06125.gkajmowi@tbaytel.net>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Oct 2002 19:15:28.0075 (UTC) FILETIME=[E6EAF9B0:01C2697E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 02:48:06PM -0400, Garrett Kajmowicz wrote:
- > I am planning on making an effort to move the relevent code for the Config.in 
- > files into the appropriate directory.  Attached is a simple patch which will 
- > do this for the BeFS.
- > 
- > Questions:
- > Is this appropriate for this list?
- > Are there any reasons not to do this?
+Hugh Dickins wrote:
+> 
+> ...
+> --- 2.5.40/mm/mprotect.c        Fri Sep 27 23:56:45 2002
+> +++ linux/mm/mprotect.c Tue Oct  1 18:00:31 2002
+> @@ -186,8 +186,10 @@
+>                 /*
+>                  * Try to merge with the previous vma.
+>                  */
+> -               if (mprotect_attempt_merge(vma, *pprev, end, newflags))
+> +               if (mprotect_attempt_merge(vma, *pprev, end, newflags)) {
+> +                       vma = *pprev;
+>                         goto success;
+> +               }
+>         } else {
+>                 error = split_vma(mm, vma, start, 1);
+>                 if (error)
 
-If those filesystems had a dozen options each, it'd be worthwhile
-perhaps. Saving 1-2 lines per-fs for the whole fs/Config.in
-makes this seem not-so-worthwhile imo, but others may think otherwise..
+Got that, thanks.
 
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+I think that's enough "cleanups" for 2.5, guys.  Let's concentrate
+on missing must-have functionality, bugs and tuning from now.

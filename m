@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267189AbRGPFRD>; Mon, 16 Jul 2001 01:17:03 -0400
+	id <S267199AbRGPFf5>; Mon, 16 Jul 2001 01:35:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267194AbRGPFQw>; Mon, 16 Jul 2001 01:16:52 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:55050 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S267189AbRGPFQj>;
-	Mon, 16 Jul 2001 01:16:39 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200107160516.f6G5Gew324783@saturn.cs.uml.edu>
-Subject: Re: Duplicate '..' in /lib
-To: adam@eax.com (Adam)
-Date: Mon, 16 Jul 2001 01:16:40 -0400 (EDT)
-Cc: alex.buell@tahallah.demon.co.uk (Alex Buell),
-        linux-kernel@vger.kernel.org (Mailing List - Linux Kernel)
-In-Reply-To: <Pine.LNX.4.33.0107160009260.25850-100000@eax.student.umd.edu> from "Adam" at Jul 16, 2001 12:11:39 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S267200AbRGPFfr>; Mon, 16 Jul 2001 01:35:47 -0400
+Received: from tahallah.demon.co.uk ([158.152.175.193]:27396 "EHLO
+	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S267199AbRGPFfd>; Mon, 16 Jul 2001 01:35:33 -0400
+Date: Mon, 16 Jul 2001 06:32:47 +0100 (BST)
+From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+X-X-Sender: <alex@tahallah.demon.co.uk>
+Reply-To: <alex.buell@tahallah.demon.co.uk>
+To: Adam <adam@eax.com>
+cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Duplicate '..' in /lib 
+In-Reply-To: <Pine.LNX.4.33.0107160009260.25850-100000@eax.student.umd.edu>
+Message-ID: <Pine.LNX.4.33.0107160628430.3954-100000@tahallah.demon.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam writes:
+On Mon, 16 Jul 2001, Adam wrote:
 
->> /lib
->>    4 drwxr-xr-x   19 root     root         4096 Jun  9 16:06 ..
->>    4 -rw-rw-r--    1 root     root           27 Jun  9 15:55 ..
->>
->> How can I get rid of this? I'm on kernel 2.2.19, running on sparc-linux.
+> so use 'od' to see what the filename is composed of:
 >
-> first it is not a pair directories, but a directory and a file.
-> 
-> second, are you sure both of the mare just ".." for example
+> 	eax /tmp % ls -la | grep "\.\." | od -a
+> 	 .   .  sp  nl
 
-I don't think so! Look at the "4" on the left. If that is the
-inode number from "ls -lia /lib", his disk is seriously messed up.
-The inode number for "/lib/.." should be 2, and an inode may not
-be shared between a file and a directory.
+Managed to get at the contents of the miscreant file:
+
+[alex@tahallah]/lib > od ..*
+od: ..: Is a directory
+0000000 054501 033560 033122 021564 022552 067571 023157 005057
+0000020 031501 075110 033157 045067 021561 005000
+0000033
+
+Looks like:
+
+YA7p6R#t%joy&o
+/3AzH6oJ7#q
+
+Anyone recognize this?
+
+Anyway I've nuked the file now and seems to be OK now. I think this
+probably happened whilst I was installing when the power went out.
+
+Thanks for all your help, and I'll force a fsck on reboot now.
+
+-- 
+Hey, they *are* out to get you, but it's nothing personal.
+
+http://www.tahallah.demon.co.uk
 

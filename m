@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314829AbSEaEZ2>; Fri, 31 May 2002 00:25:28 -0400
+	id <S314811AbSEaES6>; Fri, 31 May 2002 00:18:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314835AbSEaEZ1>; Fri, 31 May 2002 00:25:27 -0400
-Received: from [203.199.54.8] ([203.199.54.8]:59661 "EHLO
-	ltitlout.lntinfotech.com") by vger.kernel.org with ESMTP
-	id <S314829AbSEaEZ0>; Fri, 31 May 2002 00:25:26 -0400
-Subject: 
+	id <S314829AbSEaES5>; Fri, 31 May 2002 00:18:57 -0400
+Received: from [210.19.28.11] ([210.19.28.11]:62118 "EHLO
+	dZuRa.int.Vault-ID.com") by vger.kernel.org with ESMTP
+	id <S314811AbSEaES4> convert rfc822-to-8bit; Fri, 31 May 2002 00:18:56 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Corporal Pisang <corporal_pisang@counter-strike.com.my>
+Organization: Counter-Strike.com.my
 To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OFBE6D9C45.358C5649-ON65256BCA.0017F7B8@lntinfotech.com>
-From: Shifani.bose@lntinfotech.com
-Date: Fri, 31 May 2002 09:52:30 +0530
+Subject: 2.5.19 compile error (undefined reference to `idescsi_init')
+Date: Fri, 31 May 2002 12:25:22 +0800
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-X-MIMETrack: Serialize by Router on BANGALORE/LNTINFOTECH(Release 5.0.8 |June 18, 2001) at
- 05/31/2002 09:52:31 AM,
-	Itemize by SMTP Server on LTITLOUT/LNTINFOTECH(Release 5.0.8 |June 18, 2001) at
- 05/31/2002 10:11:56 AM,
-	Serialize by Router on LTITLOUT/LNTINFOTECH(Release 5.0.8 |June 18, 2001) at
- 05/31/2002 10:12:02 AM,
-	Serialize complete at 05/31/2002 10:12:02 AM
-Content-type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200205311225.22336.corporal_pisang@counter-strike.com.my>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Hi,
 
-i tried a example code for character device driver.
-the code got compiled but while loading the driver using insmod iam getting
+I get this error while trying to compile 2.5.19.
 
-unresolved symbol for register_chrdev_Rfxxxxxxx
+make[1]: Leaving directory `/usr/src/linux/arch/i386/pci'
+Generating build number
+make[1]: Entering directory `/usr/src/linux/init'
+Generating ../include/linux/compile.h
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=athlon     
+-DKBUILD_BASENAME=version  -c -o version.o version.c
+ ld -m elf_i386  -r -o init.o main.o version.o do_mounts.o
+make[1]: Leaving directory `/usr/src/linux/init'
+ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext 
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/init.o 
+--start-group arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o 
+mm/mm.o fs/fs.o ipc/ipc.o /usr/src/linux/arch/i386/lib/lib.a 
+/usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a 
+drivers/built-in.o arch/i386/pci/pci.o net/network.o --end-group -o vmlinux
+drivers/built-in.o: In function `ata_module_init':
+drivers/built-in.o(.text.init+0x5666): undefined reference to `idescsi_init'
+make: *** [vmlinux] Error 1
 
-i checked the /proc/ksyms
-it contains a entry by name register_chrdev_R1xxxxxxx
 
-and /usr/src/linux-2.4/kernel/ksyms.c
-contains EXPORT_SYMBOL(register_chrdev)
-
-how can this error be avoided or where is the error it likely .
-
-thanks and warm regards
-
-Shifani
-
-
+Regards.
+-- 
+-Ubaida-
+ 

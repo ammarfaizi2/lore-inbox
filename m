@@ -1,56 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261613AbSKTRDl>; Wed, 20 Nov 2002 12:03:41 -0500
+	id <S261624AbSKTRKz>; Wed, 20 Nov 2002 12:10:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261627AbSKTRDl>; Wed, 20 Nov 2002 12:03:41 -0500
-Received: from paiol.terra.com.br ([200.176.3.18]:30661 "EHLO
-	paiol.terra.com.br") by vger.kernel.org with ESMTP
-	id <S261613AbSKTRDi>; Wed, 20 Nov 2002 12:03:38 -0500
-Date: Wed, 20 Nov 2002 15:10:39 -0200
-From: Lucio Maciel <abslucio@terra.com.br>
-To: Rus Foster <rghf@fsck.me.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patching 2.5.xx
-Message-Id: <20021120151039.2c308e56.abslucio@terra.com.br>
-In-Reply-To: <20021120170131.D63367-100000@freebsd.rf0.com>
-References: <20021120170131.D63367-100000@freebsd.rf0.com>
-Organization: absoluta
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S261627AbSKTRKz>; Wed, 20 Nov 2002 12:10:55 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:28129 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261624AbSKTRKy>;
+	Wed, 20 Nov 2002 12:10:54 -0500
+Subject: [ANNOUNCE]  Journaled File System (JFS)  release 1.1.0
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF0A870FDA.DB5EE301-ON85256C77.005EBF18@pok.ibm.com>
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Wed, 20 Nov 2002 11:17:45 -0600
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
+ and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 11/20/2002 12:17:53 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Release 1.1.0 of JFS was made available today.
 
-just go into your kernel source dir and patch -p1
+Drop 63 on November 20, 2002 (jfs-2.4-1.1.0.tar.gz
+and jfsutils-1.1.0.tar.gz) includes fixes to the file
+system and utilities. Extended attributes and ACLs patches
+have been updated also.
 
-bash-2.05a$ cd linux
-bash-2.05a$ zcat ../patch-2.5.48.gz |patch -p1
+Utilities changes
 
-On Wed, 20 Nov 2002 17:03:30 +0000 (GMT)
-Rus Foster <rghf@fsck.me.uk> wrote:
+- rename jfs utilities as follows:
+    fsck.jfs -> jfs_fsck, is hard linked to fsck.jfs upon install
+    mkfs.jfs -> jfs_mkfs, is hard linked to mkfs.jfs upon install
+    jfs_tune remains the same
+    logdump -> jfs_logdump
+    xchklog, xchkdmp combined -> jfs_fscklog
+    xpeek -> jfs_debugfs
+    logredo removed, function added to jfs_fsck via
+    --replay_journal_only option
+- update man pages appropriately for name changes
+- change jfs_fsck option -o to --omit_journal_replay
+- fix log replay errors
+- fix off-by-one error, minor formatting error in jfs_fsck
+- keep jfs_fsck from complaining during specific tree restructuring
+- fix jfs_debugfs to recognize all inode types
+- code cleanup
 
-> Hi All,
-> I've decided to start trying out the 2.5 kernels and I've got the 2.5.47
-> tarball and the 2.5.48 patch. However looking at the diff file its trying
-> to create an a and b directory. Is there a special significance for this
-> and how do I go about applying the patch?
-> 
-> Rgds
-> 
-> Rus Foster
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+File System changes
+
+- Fix off-by-one error when symbolic link length == 256 (bug 1513)
+- jfs_clear_inode should skip bad inodes instead of choking on them
+  (bug 1445)
+- Make txForce actually force the metadata to disk
+- Fix hang on umount after stress test(#21357) ACL problem
+- Fix byte-swapping problem in getting ealist->size (bug 21085) EA
+  problem
+
+For more details about JFS, please see the patch instructions or
+readme files.
 
 
--- 
-::: Lucio F. Maciel
-::: abslucio@terra.com.br
-::: icq 93065464
-::: Absoluta.net
+Steve
+JFS for Linux http://oss.software.ibm.com/jfs
+
+
+
+

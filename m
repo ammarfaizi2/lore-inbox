@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129904AbRAaEyg>; Tue, 30 Jan 2001 23:54:36 -0500
+	id <S129982AbRAaFNx>; Wed, 31 Jan 2001 00:13:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130098AbRAaEy0>; Tue, 30 Jan 2001 23:54:26 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:9220 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129904AbRAaEyP>; Tue, 30 Jan 2001 23:54:15 -0500
-Date: Wed, 31 Jan 2001 01:05:02 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: lkml <linux-kernel@vger.kernel.org>
-cc: linux-mm@kvack.org
-Subject: [PATCH] vma limited swapin readahead 
-Message-ID: <Pine.LNX.4.21.0101310037540.16187-100000@freak.distro.conectiva>
+	id <S130235AbRAaFNn>; Wed, 31 Jan 2001 00:13:43 -0500
+Received: from [64.160.188.242] ([64.160.188.242]:46085 "HELO
+	mail.hislinuxbox.com") by vger.kernel.org with SMTP
+	id <S129982AbRAaFNf>; Wed, 31 Jan 2001 00:13:35 -0500
+Date: Tue, 30 Jan 2001 21:12:48 -0800 (PST)
+From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+To: Byron Stanoszek <gandalf@winds.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA VT82C686X
+In-Reply-To: <Pine.LNX.4.21.0101302204570.19724-100000@winds.org>
+Message-ID: <Pine.LNX.4.21.0101302105170.4439-100000@ns-01.hislinuxbox.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi, 
+On Tue, 30 Jan 2001, Byron Stanoszek wrote:
 
-The current swapin readahead code reads a number of pages (1 >>
-page_cluster)  which are physically contiguous on disk with reference to
-the page which needs to be faulted in.
+> (unless you're overclocking). Setting it to 66 will cause the VIA driver to
+> believe your PCI bus is running at 66MHz and will program the IDE controller to
+> run at half the speed to maintain 33MHz. In reality, your controller now runs
+> at 16.
 
-However, the pages which are contiguous on swap are not necessarily
-contiguous in the virtual memory area where the fault happened. That means
-the swapin readahead code may read pages which are not related to the
-process which suffered a page fault.
+I removed the ide and ata setting. System is running stably as in no
+kernel crashes, but I am getting daemon and shell crashes. With this
+current kernel I've had 1 kernel crash in about 3 hours as compared to 1
+every 10 or 15 minutes. Crash, reboot, 10 minutes or so crash, reboot. ect
+ect.
 
-I've changed the swapin code to not readahead pages if they are not
-virtually contiguous on the vma which is being faulted to avoid
-the problem described above.
+I'm wanting to test something else out. I'm wondering if there isn't some
+hardware issue with the RAM. This particular board will do 1GB of PC133,
+or 2.5GB of PC100. I'm wondering if there isn't something wrong with how
+it reads the speed and the appropriate limitation. It's running stably if
+I only run 768MB of PC133 RAM. But if I run a solid 1GB of PC133 I get
+segfaults and sig11 crashes constantly. All the RAM has been
+professionally tested and certified.
 
-Testers are very welcome since I'm unable to test this in various
-workloads.
+Any clues would be appreciated. 
 
-The patch is available at
-http://bazar.conectiva.com.br/~marcelo/patches/v2.4/2.4.1pre10/swapin_readahead.patch
+David
 
 
 -

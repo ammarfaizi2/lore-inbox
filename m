@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263203AbTDGCra (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 22:47:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263204AbTDGCra (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 22:47:30 -0400
-Received: from flrtn-2-m1-133.vnnyca.adelphia.net ([24.55.67.133]:32918 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id S263203AbTDGCr1 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 22:47:27 -0400
-Message-ID: <3E90E976.6020006@tmsusa.com>
-Date: Sun, 06 Apr 2003 19:59:02 -0700
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id S263208AbTDGDAI (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263209AbTDGDAI (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:00:08 -0400
+Received: from as6-4-8.rny.s.bonet.se ([217.215.27.171]:30212 "EHLO
+	pc2.dolda2000.com") by vger.kernel.org with ESMTP id S263208AbTDGDAH convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 23:00:07 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Fredrik Tolf <fredrik@dolda2000.cjb.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.66-bk12 causes "rpm" errors
-References: <Pine.LNX.4.44.0304062117150.1198-100000@localhost.localdomain>	 <20030406183234.1e8abd7f.akpm@digeo.com>	 <1049679689.753.170.camel@localhost> <1049680140.753.175.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Sockets and open()
+Date: Mon, 7 Apr 2003 05:11:39 +0200
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200304070511.39715.fredrik@dolda2000.cjb.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I loaded 2.5.66-mm3 on my new shrike box
-and was disappointed to see that rpm was broken,
-and I had to boot back to 2.4.20-8 (RH) to upgrade
-anything -
+Hi everyone!
+This is an issue that I can hardly believe that I haven't found any references 
+for outside of here; it should be fundemental enough. I have searched far and 
+wide, without being able to find anything at all. If you know of any 
+references, please point me to them, so that I know where they have been 
+hiding from me all this time.
+Anyway, here it comes: How comes you can't use an ordinary open() call to 
+connect to a UNIX domain socket? Although I haven't been able to afford the 
+POSIX standard, that would seem like the natural behaviour to me. If memory 
+serves me, the manpage for open on OpenBSD even suggests such a behaviour 
+(although it is "currently not supported"), right? Nontheless, it apparently 
+returns ENXIO under Linux. Is this _really_ the correct behaviour? It seems 
+so strange to me, although I can't believe that it hasn't been implemented 
+because it's too hard or something like that.
+It would be so immensely practical to be able to open() UNIX sockets. Is it 
+some kind of security consideration that I fail to see?
 
-I'll try the
-
-    LD_ASSUME_KERNEL=2.2.5 rpm <...>
-
-routine and see if that does the trick -
-
-Joe
-
-Robert Love wrote:
-
->On Sun, 2003-04-06 at 21:41, Robert Love wrote:
->
->  
->
->>This has been happening since 2.5.60-ish.
->>    
->>
->
->2.5.60-mm-ish I should say... which is a big difference if this bug just
->cropped up in Linus's 2.5 tree.
->
->	Robert Love
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-
+Thank you in advance,
+Fredrik Tolf
 

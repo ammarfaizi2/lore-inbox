@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267497AbSLSBzg>; Wed, 18 Dec 2002 20:55:36 -0500
+	id <S267512AbSLSB4B>; Wed, 18 Dec 2002 20:56:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267505AbSLSBzg>; Wed, 18 Dec 2002 20:55:36 -0500
-Received: from holomorphy.com ([66.224.33.161]:29119 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267497AbSLSBzf>;
-	Wed, 18 Dec 2002 20:55:35 -0500
-Date: Wed, 18 Dec 2002 18:01:47 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       "'Till Immanuel Patzschke'" <tip@inw.de>,
-       lse-tech <lse-tech@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 15000+ processes -- poor performance ?!
-Message-ID: <20021219020147.GN31800@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-	'Till Immanuel Patzschke' <tip@inw.de>,
-	lse-tech <lse-tech@lists.sourceforge.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <A46BBDB345A7D5118EC90002A5072C7806CACA2C@orsmsx116.jf.intel.com> <1040265088.27221.7.camel@irongate.swansea.linux.org.uk>
+	id <S267517AbSLSB4B>; Wed, 18 Dec 2002 20:56:01 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:23304
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S267512AbSLSBz6>; Wed, 18 Dec 2002 20:55:58 -0500
+Subject: RE: [PATCH 2.5.52] Use __set_current_state() instead of current->
+	state = (take 1)
+From: Robert Love <rml@tech9.net>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C7806CACA2D@orsmsx116.jf.intel.com>
+References: <A46BBDB345A7D5118EC90002A5072C7806CACA2D@orsmsx116.jf.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1040263444.854.118.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1040265088.27221.7.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 18 Dec 2002 21:04:04 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-19 at 01:04, Perez-Gonzalez, Inaky wrote:
->> If it has it ... well, I have no idea - maybe Robert Love would know.
+On Wed, 2002-12-18 at 20:53, Perez-Gonzalez, Inaky wrote:
 
-On Thu, Dec 19, 2002 at 02:31:28AM +0000, Alan Cox wrote:
-> He's running the -aa kernel, which has all the right bits for this too.
-> In fact in some ways for very large memory boxes its probably the better
-> variant
+> - any setting before a return should be barriered unless we 
+>   return to a place[s] known to be harmless
 
-In my experience the most critical issues running 16K processes are:
-(1) the highmem footprint of the pte's is significant
-(2) the lowmem footprint of pmd's
+Not sure.
 
-and most of the rest is in the noise. It's probably a bad idea to run
-top(1) or perhaps even mount /proc/ at all until top itself,
-proc_pid_readdir(), and the tasklist_lock are all fixed.
+> - any setting to TASK_RUNNING should be kind of safe
 
-Pretty much all he needs to "stay alive" is highpte of some flavor or
-another. Performance etc. is addressed somewhat more by 2.5.x than -aa,
-at least in the context of not degrading with this kind of multitasking.
-i.e. shpte and pidhash. I've been randomly shooting down do_each_thread()
-and for_each_process() loops in -wli, which is why I recommended it.
+Yes, I agree.  It may race, but with what?
 
-Bill
+> - exec.c:de_thread(), 
+> 
+>  	while (atomic_read(&oldsig->count) > count) {
+>  		oldsig->group_exit_task = current;
+> -		current->state = TASK_UNINTERRUPTIBLE;
+> +		__set_current_state(TASK_UNINTERRUPTIBLE);
+>  		spin_unlock_irq(&oldsig->siglock);
+> 
+>   Should be safe, as spin_unlock_irq() will do memory clobber
+>   on sti() [undependant from UP/SMP].
+
+The memory clobber only acts as a compiler barrier and insures the
+compiler does not reorder the statements from the order in the C code.
+
+What we need is a memory barrier to ensure the processor does not
+reorder statements.  In other words, the processor can completely
+rearrange loads and stores as they are issued to it, as long as it does
+not break obvious data dependencies.  On a weakly ordered processor,
+sans memory barrier, there is no telling when and where a store will
+actually reach memory.  This is regardless of the order of the C code or
+anything else.
+
+That said, I do not know if the above example is a problem or not.  On a
+very quick glance, the only issue I saw is the one I pointed out
+earlier, and you fixed it.
+
+	Robert Love
+

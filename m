@@ -1,58 +1,182 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264929AbTLKM6i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 07:58:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264930AbTLKM6i
+	id S264940AbTLKNDS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 08:03:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264941AbTLKNDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 07:58:38 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:12751 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S264929AbTLKM6c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 07:58:32 -0500
-Subject: Re: Linux GPL and binary module exception clause?
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
-       Erik Andersen <andersen@codepoet.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10312110439550.3805-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10312110439550.3805-100000@master.linux-ide.org>
-Content-Type: text/plain
-Message-Id: <1071147505.5712.597.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.1) 
-Date: Thu, 11 Dec 2003 12:58:25 +0000
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Thu, 11 Dec 2003 08:03:18 -0500
+Received: from secure.comcen.com.au ([203.23.236.73]:24850 "EHLO
+	xavier.etalk.net.au") by vger.kernel.org with ESMTP id S264940AbTLKNDD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 08:03:03 -0500
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: Ian Kumlien <pomac@vapor.com>
+Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
+Date: Thu, 11 Dec 2003 19:12:27 +1000
+User-Agent: KMail/1.5.1
+Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, linux-kernel@vger.kernel.org,
+       AMartin@nvidia.com, kernel@kolivas.org
+References: <200312072312.01013.ross@datscreative.com.au> <200312111655.25456.ross@datscreative.com.au> <1071143274.2272.4.camel@big.pomac.com>
+In-Reply-To: <1071143274.2272.4.camel@big.pomac.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200312111912.27811.ross@datscreative.com.au>
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-12-11 at 04:42 -0800, Andre Hedrick wrote:
-> Would you be kind enough to list "some circumstances" ?
+On Thursday 11 December 2003 21:47, Ian Kumlien wrote:
+> On Thu, 2003-12-11 at 07:55, Ross Dickson wrote:
+> > albatron:/usr/src/mptable-2.0.15a # ./mptable -verbose
+> > 
+> > ===============================================================================
+> > 
+> > MPTable, version 2.0.15 Linux
+> > 
+> >  looking for EBDA pointer @ 0x040e, found, searching EBDA @ 0x0009fc00
+> >  searching CMOS 'top of mem' @ 0x0009f800 (638K)
+> >  searching default 'top of mem' @ 0x0009fc00 (639K)
+> >  searching BIOS @ 0x000f0000
+> > 
+> >  MP FPS found in BIOS @ physical addr: 0x000f50b0
+> > 
+> > -------------------------------------------------------------------------------
+> > 
+> > MP Floating Pointer Structure:
+> > 
+> >   location:                     BIOS
+> >   physical address:             0x000f50b0
+> >   signature:                    '_MP_'
+> >   length:                       16 bytes
+> >   version:                      1.1
+> >   checksum:                     0x00
+> >   mode:                         Virtual Wire
+> > 
+> > -------------------------------------------------------------------------------
+> > 
+> > MP Config Table Header:
+> > 
+> >   physical address:             0x0xf0c00
+> >   signature:                    '$ml$'
+> >   base table length:            0
+> >   version:                      1.6
+> >   checksum:                     0x00
+> >   OEM ID:                       'Ä
+> >                                   ¸§'
+> > °öProduct ID:                   '(
+> > m'P
+> >   OEM table pointer:            0x12d90e22
+> >   OEM table size:               7964
+> >   entry count:                  7964
+> >   local APIC address:           0x1f1c1f1c
+> >   extended table length:        65284
+> >   extended table checksum:      255
+> > 
+> > -------------------------------------------------------------------------------
+> > 
+> > MP Config Base Table Entries:
+> > 
+> > --
+> > MPTABLE HOSED! record type = 55
+> > albatron:/usr/src/mptable-2.0.15a #
+> > 
+> 
+> > Perhaps someone else could get mptable to run on their machine and send you
+> > the result.
+> 
+> mptable dosn't seem to accept it's own options, anyways, heres the
+> output.
+> 
+> mptable -extra -verbose -pirq
+>  
+> ===============================================================================
+>  
+> MPTable, version 2.0.15 Linux
+>  
+>  looking for EBDA pointer @ 0x040e, found, searching EBDA @ 0x0009fc00
+>  searching CMOS 'top of mem' @ 0x0009f800 (638K)
+>  searching default 'top of mem' @ 0x0009fc00 (639K)
+>  searching BIOS @ 0x000f0000
+>  
+>  MP FPS found in BIOS @ physical addr: 0x000f5ce0
+>  
+> -------------------------------------------------------------------------------
+>  
+> MP Floating Pointer Structure:
+>  
+>   location:                     BIOS
+>   physical address:             0x000f5ce0
+>   signature:                    '_MP_'
+>   length:                       16 bytes
+>   version:                      1.1
+>   checksum:                     0x00
+>   mode:                         Virtual Wire
+>  
+> -------------------------------------------------------------------------------
+>  
+> MP Config Table Header:
+>  
+>   physical address:             0x0xf0c00
+>   signature:                    ''
+>   base table length:            1280
+>   version:                      1.7
+>   checksum:                     0x00
+>   OEM ID:                       ''
+>   Product ID:                   ''
+>   OEM table pointer:            0x0000ffff
+>   OEM table size:               0
+>   entry count:                  65535
+>   local APIC address:           0x000000c4
+>   extended table length:        1
+>   extended table checksum:      0
+>  
+> -------------------------------------------------------------------------------
+>  
+> MP Config Base Table Entries:
+>  
+> --
+> Processors:     APIC ID Version State           Family  Model   Step    Flags
+>                  0       0x 7    BSP, usable     15      15      15      0x1a00c035
+>                  0       0x 0    AP, unusable    0       0       10      0x78ffff0a
+> --
+> MPTABLE HOSED! record type = 15
+> 
+> I couldn't find the source so i used a old RedHat rpm...
+> (Asus A7N8X-X bios 1007)
+>  
+> -- 
+> Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+> 
 
-You have a work which is not derived and can reasonably be considered an
-independent and separate work in itself, but instead of distributing it
-as a separate work you distribute it as part of a whole which is a work
-based on a GPL'd Program.
+Thanks Ian
 
-The precise meaning of 'as separate works' and 'part of a whole which is
-a work based on the Program' isn't entirely unambiguous. 
+Also many thanks for pointing out the relevant section to look in with the AMD
+cpu link that you sent - Credit where credit is due (assuming we are both on the
+right track).
 
-The GPL tries to clarify it by ruling out 'mere aggregation...on a
-volume of a storage or distribution medium' but stating its intent to
-control 'collective works'. There's still a little scope for
-interpretation though.
+I had a read and refined your surmisings. I think the 
+problem appears synchronous with the apic timer because of two reasons.
+1) any apic irq can cause re-connection of the system bus after disconnect.
+2) the apic timer irq in my examinations has the shortest path to an ack.
 
-My point, however, was that a copyright licence _can_ make such
-requirements. It _can_ require you to bathe daily in creosote too, and
-if you don't like that you have the option of not using the software
-which is licensed that way.
+I also had a look back through the athlon cooler and power management 
+postings and web site articles. I was blissfully ignorant of these issues when I
+started and now I wonder what I have stepped into... Yuk
 
-> Also the authoritative (sp) reference supporting the list.
+I submitted a support request to AMD, apologies for not cc'ing you, I kept
+the cc's down to just nvidia and the mailing list. If you have not seen it yet
+then it is here
 
-Section 2 of the GPL, which I quoted only moments ago.
+http://lkml.org/lkml/2003/12/11/17
 
--- 
-dwmw2
+We hope....
+
+Regards
+Ross
 

@@ -1,90 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130180AbQLOOnB>; Fri, 15 Dec 2000 09:43:01 -0500
+	id <S130346AbQLOOux>; Fri, 15 Dec 2000 09:50:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130606AbQLOOmm>; Fri, 15 Dec 2000 09:42:42 -0500
-Received: from smtp3.vol.cz ([195.250.128.83]:14600 "EHLO smtp3.vol.cz")
-	by vger.kernel.org with ESMTP id <S130180AbQLOOmb>;
-	Fri, 15 Dec 2000 09:42:31 -0500
-Date: Fri, 15 Dec 2000 12:31:33 +0100
-From: Stanislav Brabec <utx@penguin.cz>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: ATAPI: audio CD still stops on >> (fast forward, 2.4.0-test12)
-Message-ID: <20001215123132.A790@utx.cz>
-In-Reply-To: <20001103235437.B5574@utx.cz> <20001104151845.E12610@suse.de>
+	id <S130606AbQLOOuo>; Fri, 15 Dec 2000 09:50:44 -0500
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:21187 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S130346AbQLOOuc>; Fri, 15 Dec 2000 09:50:32 -0500
+Date: Fri, 15 Dec 2000 16:19:26 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Joseph Cheek <joseph@cheek.com>
+Cc: linux-kernel@vger.kernel.org, Donald Becker <becker@scyld.com>
+Subject: Re: test12: eth0 trasmit timed out after one hour uptime
+Message-ID: <20001215161926.D829@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <3A37FFC9.19F05305@cheek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001104151845.E12610@suse.de>; from axboe@suse.de on Sat, Nov 04, 2000 at 03:18:45PM +0100
-X-Accept-Language: cs, sk, en
+User-Agent: Mutt/1.2i
+In-Reply-To: <3A37FFC9.19F05305@cheek.com>; from joseph@cheek.com on Wed, Dec 13, 2000 at 03:01:29PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote, Sat Nov  4, 2000, 15:18:45 GMT):
-> On Fri, Nov 03 2000, Stanislav Brabec wrote:
-> > Description:
-> > On 2.4.0-pre9 and 2.4.0-pre10:
-> > Playing of some audio CD's stops in nearly regular places. Also pressing
-> > >> in CD software panel in nearly all cases ends by stop.
-> 
-> Known problem, patch not submitted yet.
-> 
+On Wed, Dec 13, 2000 at 03:01:29PM -0800, Joseph Cheek wrote:
+> Dec 13 14:51:46 sanfrancisco kernel: NETDEV WATCHDOG: eth0: transmit
+> timed out
+> Dec 13 14:51:46 sanfrancisco kernel: eth0: transmit timed out, tx_status
+> 00 status e680.
+> Dec 13 14:51:46 sanfrancisco kernel:   Flags; bus-master 1, full 1;
+> dirty 3306(10) current 3322(10).
+> Dec 13 14:51:46 sanfrancisco kernel:   Transmit list 00000000 vs.
+> c7c732a0.
+> Dec 13 14:51:46 sanfrancisco kernel:   0: @c7c73200  length 8000002a
+> status 0001002a
+> Dec 13 14:51:46 sanfrancisco kernel:   1: @c7c73210  length 8000002a
+> status 0001002a
+> Dec 13 14:51:46 sanfrancisco kernel:   2: @c7c73220  length 8000002a
+> status 0001002a
+> Dec 13 14:51:46 sanfrancisco kernel:   3: @c7c73230  length 8000002a
+> status 0001002a
+> Dec 13 14:51:46 sanfrancisco kernel:   4: @c7c73240  length 8000002a
+> status 0001002a
+> Dec 13 14:51:46 sanfrancisco kernel:   5: @c7c73250  length 8000002a
+> status 0001002a
+> Dec 13 14:51:46 sanfrancisco kernel:   6: @c7c73260  length 8000002a
+> status 0001002a
+> Dec 13 14:51:46 sanfrancisco kernel:   7: @c7c73270  length 8000002a
+> status 0001002a
+> Dec 13 14:51:46 sanfrancisco kernel:   8: @c7c73280  length 8000002a
+> status 8001002a
+> Dec 13 14:51:46 sanfrancisco kernel:   9: @c7c73290  length 8000002a
+> status 8001002a
+> Dec 13 14:51:46 sanfrancisco kernel:   10: @c7c732a0  length 8000004b
+> status 0001004b
+> Dec 13 14:51:46 sanfrancisco kernel:   11: @c7c732b0  length 8000004b
+> status 0001004b
+> Dec 13 14:51:46 sanfrancisco kernel:   12: @c7c732c0  length 8000002a
+> status 0001002a
+> Dec 13 14:51:46 sanfrancisco kernel:   13: @c7c732d0  length 8000002a
+> status 0001002a
+> Dec 13 14:51:46 sanfrancisco kernel:   14: @c7c732e0  length 8000002a
+> status 0001002a
+> Dec 13 14:51:46 sanfrancisco kernel:   15: @c7c732f0  length 8000002a
+> status 0001002a
+ 
+I have this too since testX-Kernels are released.
 
-- play CD audio correctly, don't stop after 12 minutes.
+I use a "3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 24)"
+(actually two of them ;-)).
 
-Patch in 2.4.0-test12 really fixes this problem.
+> after reboot it works fine again [i'll give it an hour...]  test12-pre8
+> and before worked fine.  any ideas?
 
-But problem with >> (fast forward playng of short samples) still remains
-on some audio CD's.
+This seems to be code to debug these timeouts.
 
-HW:
-ATAPI CD-ROM Mitsumi FX400E (4x speed)
-Cyrix686MX200
+It didn't cause any harm AFICS, but I CC'ed the Author of this
+code anyway.
 
-SW:
-tcd/gtcd
+Regards
 
-Dec 15 12:17:25 utx kernel: hdb: packet command error: status=0x51 { DriveReady SeekComplete Error } 
-Dec 15 12:17:25 utx kernel: hdb: packet command error: error=0x50 
-Dec 15 12:17:25 utx kernel: ATAPI device hdb: 
-Dec 15 12:17:25 utx kernel:   Error: Illegal request -- (Sense key=0x05) 
-Dec 15 12:17:25 utx kernel:   Invalid field in command packet -- (asc=0x24, ascq=0x00) 
-Dec 15 12:17:25 utx kernel:   The failed "Play Audio MSF" packet command was:  
-Dec 15 12:17:25 utx kernel:   "47 00 00 00 02 00 3c 3a ff 00 00 00 " 
-Dec 15 12:17:41 utx kernel: hdb: packet command error: status=0x51 { DriveReady SeekComplete Error } 
-Dec 15 12:17:41 utx kernel: hdb: packet command error: error=0x50 
-Dec 15 12:17:41 utx kernel: ATAPI device hdb: 
-Dec 15 12:17:41 utx kernel:   Error: Illegal request -- (Sense key=0x05) 
-Dec 15 12:17:41 utx kernel:   Invalid field in command packet -- (asc=0x24, ascq=0x00) 
-Dec 15 12:17:41 utx kernel:   The failed "Play Audio MSF" packet command was:  
-Dec 15 12:17:41 utx kernel:   "47 00 00 00 1b 00 3c 3a ff 00 00 00 " 
-Dec 15 12:17:44 utx kernel: hdb: packet command error: status=0x51 { DriveReady SeekComplete Error } 
-Dec 15 12:17:44 utx kernel: hdb: packet command error: error=0xb0 
-Dec 15 12:17:44 utx kernel: ATAPI device hdb: 
-Dec 15 12:17:44 utx kernel:   Error: Aborted command -- (Sense key=0x0b) 
-Dec 15 12:17:44 utx kernel:   Play operation aborted -- (asc=0xb9, ascq=0x00) 
-Dec 15 12:17:44 utx kernel:   The failed "Pause/Resume" packet command was:  
-Dec 15 12:17:44 utx kernel:   "4b 00 00 00 00 00 00 00 00 00 00 00 " 
-Dec 15 12:17:45 utx kernel: hdb: packet command error: status=0x51 { DriveReady SeekComplete Error } 
-Dec 15 12:17:45 utx kernel: hdb: packet command error: error=0x50 
-Dec 15 12:17:45 utx kernel: ATAPI device hdb: 
-Dec 15 12:17:45 utx kernel:   Error: Illegal request -- (Sense key=0x05) 
-Dec 15 12:17:45 utx kernel:   Invalid field in command packet -- (asc=0x24, ascq=0x00) 
-Dec 15 12:17:45 utx kernel:   The failed "Play Audio MSF" packet command was:  
-Dec 15 12:17:45 utx kernel:   "47 00 00 00 22 00 3c 3a ff 00 00 00 " 
-Dec 15 12:17:46 utx kernel: hdb: packet command error: status=0x51 { DriveReady SeekComplete Error } 
-Dec 15 12:17:46 utx kernel: hdb: packet command error: error=0x50 
-Dec 15 12:17:46 utx kernel: ATAPI device hdb: 
-Dec 15 12:17:46 utx kernel:   Error: Illegal request -- (Sense key=0x05) 
-Dec 15 12:17:46 utx kernel:   Invalid field in command packet -- (asc=0x24, ascq=0x00) 
-Dec 15 12:17:46 utx kernel:   The failed "Play Audio MSF" packet command was:  
-Dec 15 12:17:46 utx kernel:   "47 00 00 00 02 00 3c 3a ff 00 00 00 " 
-
+Ingo Oeser
 -- 
-Stanislav Brabec
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312850AbSDTRiL>; Sat, 20 Apr 2002 13:38:11 -0400
+	id <S314676AbSDTRjr>; Sat, 20 Apr 2002 13:39:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314664AbSDTRiK>; Sat, 20 Apr 2002 13:38:10 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:41037 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S312850AbSDTRiJ>; Sat, 20 Apr 2002 13:38:09 -0400
-Message-ID: <3CC1A77F.1030401@ngforever.de>
-Date: Sat, 20 Apr 2002 11:38:07 -0600
-From: Thunder from the hill <thunder@ngforever.de>
-Organization: The LuckyNet Administration
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.9+) Gecko/20020405
-X-Accept-Language: en-us, en
+	id <S312915AbSDTRjp>; Sat, 20 Apr 2002 13:39:45 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27921 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S314676AbSDTRjc>; Sat, 20 Apr 2002 13:39:32 -0400
+Date: Sat, 20 Apr 2002 10:38:59 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Brian Gerst <bgerst@didntduck.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        <ak@suse.de>, <linux-kernel@vger.kernel.org>, <jh@suse.cz>
+Subject: Re: [PATCH] Re: SSE related security hole
+In-Reply-To: <20020420192729.I1291@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0204201036400.19512-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <Pine.LNX.4.33.0204200942480.11450-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-> Quite frankly, I don't _want_ people using Linux for ideological reasons.  
-> I think ideology sucks. This world would be a much better place if people
-> had less ideology, and a whole lot more "I do this because it's FUN and
-> because others might find it useful, not because I got religion".
 
-Several guys (mis-)use Linux as war against Windows, which is really
-childish. But it seems they're an important amount, on both sides (There
-are even users who use Windows as a protest against Linux). That does,
-however, not help you to get an non-propietary tool.
+On Sat, 20 Apr 2002, Andrea Arcangeli wrote:
+>
+> Then the thing is different, I expected SSE3 not to mess the xmm layout.
+> If you just know SSE3 would break with the xorps the fxrestor way is
+> better. Anyways the problems I have about the implementation remains
+> (memset and duplicate efforts with ptrace in creating the empty fpu
+> state).
 
-As long as there is nothing I could use instead, it's a good idea to use 
-BitKeeper instead, and as long as there is a way to use it, users will 
-actually look it up in the Documentation dir. If users don't find an 
-answer there, they'll certainly massively bother the LKML.
+Hey, send a clean patch and it will definitely get fixed.. I don't
+disagree with that part, although actual numbers are always good to have.
 
-Documentation also contains information on how to use existing tools 
-with Linux Kernel. If we exclude BitKeeper just because it's propietary 
-tool, we'll get into trouble.
+> If they tell you the xmm registers won't change with SSE3 instead I
+> still prefer the xorps, that's 3bytes x 8 registers = 24 bytes of
+> icachce, compared to throwing away 512bytes/32 = 16 dcache cachelines so
+> it should be significantly faster.
 
-BTW, why then do we include processor support into the kernel tree? I 
-can't find any way to download them from the Internet!
+Oh, if they promise to not add registers we have an easy time, I agree.
 
-Regards,
-Thunder
--- 
-                                                   Thunder from the hill.
-Not a citizen of any town.                   Not a citizen of any state.
-Not a citizen of any country.               Not a citizen of any planet.
-                          Citizen of our universe.
+		Linus
 

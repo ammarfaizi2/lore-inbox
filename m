@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265480AbSK1NUO>; Thu, 28 Nov 2002 08:20:14 -0500
+	id <S265484AbSK1NUj>; Thu, 28 Nov 2002 08:20:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265484AbSK1NUO>; Thu, 28 Nov 2002 08:20:14 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:269 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265480AbSK1NUN>; Thu, 28 Nov 2002 08:20:13 -0500
-Date: Thu, 28 Nov 2002 08:26:16 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@redhat.com>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-rc4-ac1 SiS IDE driver troubles
-In-Reply-To: <r1_200211271152.gARBqXI09379@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.3.96.1021128082420.9795C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265506AbSK1NUi>; Thu, 28 Nov 2002 08:20:38 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:22514 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S265484AbSK1NUh>; Thu, 28 Nov 2002 08:20:37 -0500
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+To: rmk@arm.linux.org.uk
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: [PATCH] Literacy watch 2.5.49
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 28 Nov 2002 13:27:47 +0000
+Message-ID: <7718.1038490067@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Nov 2002, Alan Cox wrote:
+If we're going on a spell-checking mission, let's fix this too. I can't be 
+bothered to fix all incorrect usage of the word 'errata' where the author 
+actually meant 'erratum' but was clueless -- but the existence of 'erratas' 
+definitely deserves to die...
 
-> > After booting and initscripts I get some kind of error like a BUG() but
-> > I can't see what it is because it scrolls off with repeated "unable to
-> > handle kernel paging request" messages. The first error shows a stack trace
-> > (briefly) but all the rest just show the offsets without the text.
-> 
-> Stick a while(1); at the end of the stack dump code and you should get
-> jus tthe first oops you can read
+--- arch/arm/mach-sa1100/cpu-sa1110.c.illiterate	2002-11-28 13:24:37.000000000 +0000
++++ arch/arm/mach-sa1100/cpu-sa1110.c	2002-11-28 13:25:08.000000000 +0000
+@@ -9,7 +9,7 @@
+  * it under the terms of the GNU General Public License version 2 as
+  * published by the Free Software Foundation.
+  *
+- * Note: there are two erratas that apply to the SA1110 here:
++ * Note: there are two errata that apply to the SA1110 here:
+  *  7 - SDRAM auto-power-up failure (rev A0)
+  * 13 - Corruption of internal register reads/writes following
+  *      SDRAM reads (rev A0, B0, B1)
+@@ -139,7 +139,7 @@
+ 	 * run SDCLK at half speed.
+ 	 *
+ 	 * CPU steppings prior to B2 must either run the memory at
+-	 * half speed or use delayed read latching (errata 13).
++	 * half speed or use delayed read latching (erratum 13).
+ 	 */
+ 	if ((ns_to_cycles(sdram->tck, sd_khz) > 1) ||
+ 	    (CPU_REVISION < CPU_SA1110_B2 && sd_khz < 62000))
 
-You may want to block interrupts as well, I've used this trick (given by
-akpm) before, and sometimes whatever is wrong will generate a double panic
-on interrupt shortly after the first OOPS output.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+--
+dwmw2
+
 

@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286231AbRL0KI5>; Thu, 27 Dec 2001 05:08:57 -0500
+	id <S286232AbRL0KAQ>; Thu, 27 Dec 2001 05:00:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286233AbRL0KIs>; Thu, 27 Dec 2001 05:08:48 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:4811
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S286231AbRL0KIe>; Thu, 27 Dec 2001 05:08:34 -0500
-Date: Thu, 27 Dec 2001 04:54:06 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] CML2-1.9.15
-Message-ID: <20011227045406.A14332@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20011227044942.A14267@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011227044942.A14267@thyrsus.com>; from esr@thyrsus.com on Thu, Dec 27, 2001 at 04:49:42AM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S286233AbRL0KAF>; Thu, 27 Dec 2001 05:00:05 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:29958 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S286232AbRL0J77>; Thu, 27 Dec 2001 04:59:59 -0500
+Message-ID: <3C2AEE8B.9040507@evision-ventures.com>
+Date: Thu, 27 Dec 2001 10:48:59 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011212
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: rbector@andiamo.com
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: supporting more than 4K output via /proc
+In-Reply-To: <GIEMIEJKPLDGHDJKJELAEEALDIAA.rbector@andiamo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric S. Raymond <esr@thyrsus.com>:
-> We have an entire new front end in this release, code based on a tree width
-                                                                   ^^^^^^^^^^
-> that shows a nice folder view of the configuration menus.  Install and try 
-> out `make treeconfig' to see it.
+Rajeev Bector wrote:
 
-Should have been `tree widget'.  That's what I get for trying to type after 
-4AM in the morning...
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+>Hi
+> Could somebody point me to some code which implements
+>outputting more than 4K data via /proc interface. Is there
+>a nice and clean way to do it ?
+>
 
-Society in every state is a blessing, but government even in its best
-state is but a necessary evil; in its worst state an intolerable one;
-for when we suffer, or are exposed to the same miseries *by a
-government*, which we might expect in a country *without government*,
-our calamities is heightened by reflecting that we furnish the means
-by which we suffer."		-- Thomas Paine
+Yes there is: ioctrl().
+
+

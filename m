@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVBFTB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVBFTEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbVBFTB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 14:01:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbVBFTB6
+	id S261268AbVBFTEX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 14:04:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVBFTEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 14:01:58 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:50704 "HELO
+	Sun, 6 Feb 2005 14:04:22 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:49936 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261282AbVBFSou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S261280AbVBFSou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 6 Feb 2005 13:44:50 -0500
-Date: Sun, 6 Feb 2005 19:44:43 +0100
+Date: Sun, 6 Feb 2005 19:44:38 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: neilb@cse.unsw.edu.au, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/nfsd/: possible cleanups
-Message-ID: <20050206184443.GV3129@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fs/nfs/: make some code static
+Message-ID: <20050206184438.GU3129@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,587 +22,298 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below contains the following possible cleanups:
-- make some needlessly global code static
-- #if 0 the following EXPORT_SYMBOL'ed but unused function:
-  - nfs4acl.c: nfs4_acl_permission
-- remove the following unused global function:
-  - nfs4state.c: set_no_grace
+This patch makes some needlessly global code static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
-This patch was already sent om:
+This patch was already sent on:
 - 8 Jan 2005
 
- fs/nfsd/export.c           |   22 +++++-----
- fs/nfsd/lockd.c            |    2 
- fs/nfsd/nfs4acl.c          |    9 ++--
- fs/nfsd/nfs4callback.c     |    7 +--
- fs/nfsd/nfs4idmap.c        |   12 ++---
- fs/nfsd/nfs4state.c        |   75 ++++++++++++++++---------------------
- fs/nfsd/nfs4xdr.c          |    4 -
- fs/nfsd/nfsfh.c            |   11 ++---
- fs/nfsd/nfssvc.c           |    2 
- fs/nfsd/vfs.c              |    8 +--
- include/linux/nfs4_acl.h   |    2 
- include/linux/nfsd/state.h |    1 
- 12 files changed, 75 insertions(+), 80 deletions(-)
+ fs/nfs/inode.c          |    8 +++++---
+ fs/nfs/mount_clnt.c     |    4 ++--
+ fs/nfs/nfs4proc.c       |    9 +++++----
+ fs/nfs/nfsroot.c        |    4 ++--
+ fs/nfs/read.c           |    2 +-
+ fs/nfs/write.c          |   29 +++++++++++++++++++++++------
+ include/linux/nfs_fs.h  |   24 ------------------------
+ include/linux/nfs_xdr.h |    2 --
+ 8 files changed, 38 insertions(+), 44 deletions(-)
 
---- linux-2.6.10-mm2-full/fs/nfsd/export.c.old	2005-01-08 16:50:29.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/nfsd/export.c	2005-01-08 16:52:01.000000000 +0100
-@@ -79,9 +79,9 @@
- 	}
- }
+--- linux-2.6.10-mm2-full/include/linux/nfs_xdr.h.old	2005-01-08 16:36:56.000000000 +0100
++++ linux-2.6.10-mm2-full/include/linux/nfs_xdr.h	2005-01-08 16:37:13.000000000 +0100
+@@ -731,7 +731,5 @@
+ extern struct rpc_version	nfs_version2;
+ extern struct rpc_version	nfs_version3;
+ extern struct rpc_version	nfs_version4;
+-extern struct rpc_program	nfs_program;
+-extern struct rpc_stat		nfs_rpcstat;
  
--void expkey_request(struct cache_detail *cd,
--		    struct cache_head *h,
--		    char **bpp, int *blen)
-+static void expkey_request(struct cache_detail *cd,
-+			   struct cache_head *h,
-+			   char **bpp, int *blen)
- {
- 	/* client fsidtype \xfsid */
- 	struct svc_expkey *ek = container_of(h, struct svc_expkey, h);
-@@ -95,7 +95,7 @@
- }
+ #endif
+--- linux-2.6.10-mm2-full/fs/nfs/inode.c.old	2005-01-08 16:35:25.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/nfs/inode.c	2005-01-08 16:38:33.000000000 +0100
+@@ -64,6 +64,8 @@
+ static int  nfs_statfs(struct super_block *, struct kstatfs *);
+ static int  nfs_show_options(struct seq_file *, struct vfsmount *);
  
- static struct svc_expkey *svc_expkey_lookup(struct svc_expkey *, int);
--int expkey_parse(struct cache_detail *cd, char *mesg, int mlen)
-+static int expkey_parse(struct cache_detail *cd, char *mesg, int mlen)
- {
- 	/* client fsidtype fsid [path] */
- 	char *buf;
-@@ -284,9 +284,9 @@
- 	}
- }
- 
--void svc_export_request(struct cache_detail *cd,
--			struct cache_head *h,
--			char **bpp, int *blen)
-+static void svc_export_request(struct cache_detail *cd,
-+			       struct cache_head *h,
-+			       char **bpp, int *blen)
- {
- 	/*  client path */
- 	struct svc_export *exp = container_of(h, struct svc_export, h);
-@@ -345,7 +345,7 @@
- 
- }
- 
--int svc_export_parse(struct cache_detail *cd, char *mesg, int mlen)
-+static int svc_export_parse(struct cache_detail *cd, char *mesg, int mlen)
- {
- 	/* client path expiry [flags anonuid anongid fsid] */
- 	char *buf;
-@@ -515,8 +515,8 @@
- 	return ek;
- }
- 
--int exp_set_key(svc_client *clp, int fsid_type, u32 *fsidv, 
--		struct svc_export *exp)
-+static int exp_set_key(svc_client *clp, int fsid_type, u32 *fsidv, 
-+		       struct svc_export *exp)
- {
- 	struct svc_expkey key, *ek;
- 
-@@ -1004,7 +1004,7 @@
- 	exp_readunlock();
- }
- 
--struct flags {
-+static struct flags {
- 	int flag;
- 	char *name[2];
- } expflags[] = {
---- linux-2.6.10-mm2-full/fs/nfsd/lockd.c.old	2005-01-08 16:52:18.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/nfsd/lockd.c	2005-01-08 16:52:30.000000000 +0100
-@@ -60,7 +60,7 @@
- 	fput(filp);
- }
- 
--struct nlmsvc_binding		nfsd_nlm_ops = {
-+static struct nlmsvc_binding	nfsd_nlm_ops = {
- 	.fopen		= nlm_fopen,		/* open file for locking */
- 	.fclose		= nlm_fclose,		/* close file */
- };
---- linux-2.6.10-mm2-full/include/linux/nfs4_acl.h.old	2005-01-08 16:53:13.000000000 +0100
-+++ linux-2.6.10-mm2-full/include/linux/nfs4_acl.h	2005-01-08 16:54:37.000000000 +0100
-@@ -44,8 +44,10 @@
- int nfs4_acl_add_ace(struct nfs4_acl *, u32, u32, u32, int, uid_t);
- int nfs4_acl_get_whotype(char *, u32);
- int nfs4_acl_write_who(int who, char *p);
-+#if 0
- int nfs4_acl_permission(struct nfs4_acl *acl, uid_t owner, gid_t group,
- 		                        uid_t who, u32 mask);
-+#endif
- 
- #define NFS4_ACL_TYPE_DEFAULT	0x01
- #define NFS4_ACL_DIR		0x02
---- linux-2.6.10-mm2-full/fs/nfsd/nfs4acl.c.old	2005-01-08 16:53:33.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/nfsd/nfs4acl.c	2005-01-08 16:54:32.000000000 +0100
-@@ -117,8 +117,7 @@
- static short ace2type(struct nfs4_ace *);
- static int _posix_to_nfsv4_one(struct posix_acl *, struct nfs4_acl *, unsigned int);
- static struct posix_acl *_nfsv4_to_posix_one(struct nfs4_acl *, unsigned int);
--int nfs4_acl_add_ace(struct nfs4_acl *, u32, u32, u32, int, uid_t);
--int nfs4_acl_split(struct nfs4_acl *, struct nfs4_acl *);
-+static int nfs4_acl_split(struct nfs4_acl *, struct nfs4_acl *);
- 
- struct nfs4_acl *
- nfs4_acl_posix_to_nfsv4(struct posix_acl *pacl, struct posix_acl *dpacl,
-@@ -768,7 +767,7 @@
- 	return pacl;
- }
- 
--int
-+static int
- nfs4_acl_split(struct nfs4_acl *acl, struct nfs4_acl *dacl)
- {
- 	struct list_head *h, *n;
-@@ -940,6 +939,7 @@
- 	}
- }
- 
-+#if 0
- /* 0 = granted, -EACCES = denied; mask is an nfsv4 mask, not mode bits */
- int
- nfs4_acl_permission(struct nfs4_acl *acl, uid_t owner, gid_t group,
-@@ -965,10 +965,11 @@
- 	}
- 	return -EACCES;
- }
-+EXPORT_SYMBOL(nfs4_acl_permission);
-+#endif  /*  0  */
- 
- EXPORT_SYMBOL(nfs4_acl_new);
- EXPORT_SYMBOL(nfs4_acl_free);
- EXPORT_SYMBOL(nfs4_acl_add_ace);
- EXPORT_SYMBOL(nfs4_acl_get_whotype);
- EXPORT_SYMBOL(nfs4_acl_write_who);
--EXPORT_SYMBOL(nfs4_acl_permission);
---- linux-2.6.10-mm2-full/fs/nfsd/nfs4callback.c.old	2005-01-08 16:54:57.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/nfsd/nfs4callback.c	2005-01-08 17:03:54.000000000 +0100
-@@ -53,7 +53,6 @@
- 
- /* declarations */
- static void nfs4_cb_null(struct rpc_task *task);
--extern spinlock_t recall_lock;
- 
- /* Index of predefined Linux callback client operations */
- 
-@@ -327,12 +326,12 @@
-         .p_bufsiz = MAX(NFS4_##argtype##_sz,NFS4_##restype##_sz) << 2,  \
- }
- 
--struct rpc_procinfo     nfs4_cb_procedures[] = {
-+static struct rpc_procinfo	nfs4_cb_procedures[] = {
-     PROC(CB_NULL,      NULL,     enc_cb_null,     dec_cb_null),
-     PROC(CB_RECALL,    COMPOUND,   enc_cb_recall,      dec_cb_recall),
- };
- 
--struct rpc_version              nfs_cb_version4 = {
-+static struct rpc_version	nfs_cb_version4 = {
-         .number                 = 1,
-         .nrprocs                = sizeof(nfs4_cb_procedures)/sizeof(nfs4_cb_procedures[0]),
-         .procs                  = nfs4_cb_procedures
-@@ -346,7 +345,7 @@
++static struct rpc_program	nfs_program;
++
+ static struct super_operations nfs_sops = { 
+ 	.alloc_inode	= nfs_alloc_inode,
+ 	.destroy_inode	= nfs_destroy_inode,
+@@ -78,7 +80,7 @@
  /*
-  * Use the SETCLIENTID credential
+  * RPC cruft for NFS
   */
--struct rpc_cred *
-+static struct rpc_cred *
- nfsd4_lookupcred(struct nfs4_client *clp, int taskflags)
- {
-         struct auth_cred acred;
---- linux-2.6.10-mm2-full/fs/nfsd/nfs4idmap.c.old	2005-01-08 16:56:02.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/nfsd/nfs4idmap.c	2005-01-08 16:57:07.000000000 +0100
-@@ -104,7 +104,7 @@
- 	ent_init(new, itm);
- }
- 
--void
-+static void
- ent_put(struct cache_head *ch, struct cache_detail *cd)
- {
- 	if (cache_put(ch, cd)) {
-@@ -186,7 +186,7 @@
- static int         idtoname_parse(struct cache_detail *, char *, int);
- static struct ent *idtoname_lookup(struct ent *, int);
- 
--struct cache_detail idtoname_cache = {
-+static struct cache_detail idtoname_cache = {
- 	.hash_size	= ENT_HASHMAX,
- 	.hash_table	= idtoname_table,
- 	.name		= "nfs4.idtoname",
-@@ -277,7 +277,7 @@
- 	return hash_str(ent->name, ENT_HASHBITS);
- }
- 
--void
-+static void
- nametoid_request(struct cache_detail *cd, struct cache_head *ch, char **bpp,
-     int *blen)
- {
-@@ -317,9 +317,9 @@
- }
- 
- static struct ent *nametoid_lookup(struct ent *, int);
--int                nametoid_parse(struct cache_detail *, char *, int);
-+static int nametoid_parse(struct cache_detail *, char *, int);
- 
--struct cache_detail nametoid_cache = {
-+static struct cache_detail nametoid_cache = {
- 	.hash_size	= ENT_HASHMAX,
- 	.hash_table	= nametoid_table,
- 	.name		= "nfs4.nametoid",
-@@ -330,7 +330,7 @@
- 	.warn_no_listener = warn_no_idmapd,
+-struct rpc_stat			nfs_rpcstat = {
++static struct rpc_stat		nfs_rpcstat = {
+ 	.program		= &nfs_program
+ };
+ static struct rpc_version *	nfs_version[] = {
+@@ -95,7 +97,7 @@
+ #endif
  };
  
--int
-+static int
- nametoid_parse(struct cache_detail *cd, char *buf, int buflen)
- {
- 	struct ent ent, *res;
---- linux-2.6.10-mm2-full/include/linux/nfsd/state.h.old	2005-01-08 17:02:31.000000000 +0100
-+++ linux-2.6.10-mm2-full/include/linux/nfsd/state.h	2005-01-08 17:02:35.000000000 +0100
-@@ -279,7 +279,6 @@
- 	((err) != nfserr_stale_stateid) &&      \
- 	((err) != nfserr_bad_stateid))
- 
--extern time_t nfs4_laundromat(void);
- extern int nfsd4_renew(clientid_t *clid);
- extern int nfs4_preprocess_stateid_op(struct svc_fh *current_fh, 
- 		stateid_t *stateid, int flags);
---- linux-2.6.10-mm2-full/fs/nfsd/nfs4state.c.old	2005-01-08 16:57:21.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/nfsd/nfs4state.c	2005-01-08 17:10:54.000000000 +0100
-@@ -55,7 +55,7 @@
- static time_t lease_time = 90;     /* default lease time */
- static time_t old_lease_time = 90; /* past incarnation lease time */
- static u32 nfs4_reclaim_init = 0;
--time_t boot_time;
-+static time_t boot_time;
- static time_t grace_end = 0;
- static u32 current_clientid = 1;
- static u32 current_ownerid = 1;
-@@ -66,22 +66,22 @@
- stateid_t onestateid;              /* bits all 1 */
- 
- /* debug counters */
--u32 list_add_perfile = 0; 
--u32 list_del_perfile = 0;
--u32 add_perclient = 0;
--u32 del_perclient = 0;
--u32 alloc_file = 0;
--u32 free_file = 0;
--u32 alloc_sowner = 0;
--u32 free_sowner = 0;
--u32 vfsopen = 0;
--u32 vfsclose = 0;
--u32 alloc_lsowner= 0;
--u32 alloc_delegation= 0;
--u32 free_delegation= 0;
-+static u32 list_add_perfile = 0; 
-+static u32 list_del_perfile = 0;
-+static u32 add_perclient = 0;
-+static u32 del_perclient = 0;
-+static u32 alloc_file = 0;
-+static u32 free_file = 0;
-+static u32 alloc_sowner = 0;
-+static u32 free_sowner = 0;
-+static u32 vfsopen = 0;
-+static u32 vfsclose = 0;
-+static u32 alloc_lsowner= 0;
-+static u32 alloc_delegation= 0;
-+static u32 free_delegation= 0;
- 
- /* forward declarations */
--struct nfs4_stateid * find_stateid(stateid_t *stid, int flags);
-+static struct nfs4_stateid * find_stateid(stateid_t *stid, int flags);
- static struct nfs4_delegation * find_delegation_stateid(struct inode *ino, stateid_t *stid);
- static void release_delegation(struct nfs4_delegation *dp);
- static void release_stateid_lockowner(struct nfs4_stateid *open_stp);
-@@ -129,7 +129,7 @@
-  */
- 
- /* recall_lock protects the del_recall_lru */
--spinlock_t recall_lock;
-+static spinlock_t recall_lock;
- static struct list_head del_recall_lru;
- 
- static struct nfs4_delegation *
-@@ -461,7 +461,7 @@
- 	return 1;
- }
- 
--void
-+static void
- add_to_unconfirmed(struct nfs4_client *clp, unsigned int strhashval)
- {
- 	unsigned int idhashval;
-@@ -473,7 +473,7 @@
- 	clp->cl_time = get_seconds();
- }
- 
--void
-+static void
- move_to_confirmed(struct nfs4_client *clp, unsigned int idhashval)
- {
- 	unsigned int strhashval;
-@@ -523,7 +523,7 @@
- }
- 
- /* parse and set the setclientid ipv4 callback address */
--int
-+static int
- parse_ipv4(unsigned int addr_len, char *addr_val, unsigned int *cbaddrp, unsigned short *cbportp)
- {
- 	int temp = 0;
-@@ -559,7 +559,7 @@
- 	return 1;
- }
- 
--void
-+static void
- gen_callback(struct nfs4_client *clp, struct nfsd4_setclientid *se)
- {
- 	struct nfs4_callback *cb = &clp->cl_callback;
-@@ -1156,7 +1156,7 @@
- 	kfree(fp);
- }	
- 
--void
-+static void
- move_to_close_lru(struct nfs4_stateowner *sop)
- {
- 	dprintk("NFSD: move_to_close_lru nfs4_stateowner %p\n", sop);
-@@ -1166,7 +1166,7 @@
- 	sop->so_time = get_seconds();
- }
- 
--void
-+static void
- release_state_owner(struct nfs4_stateid *stp, struct nfs4_stateowner **sopp,
- 		int flag)
- {
-@@ -1243,7 +1243,7 @@
- #define TEST_ACCESS(x) ((x > 0 || x < 4)?1:0)
- #define TEST_DENY(x) ((x >= 0 || x < 5)?1:0)
- 
--void
-+static void
- set_access(unsigned int *access, unsigned long bmap) {
- 	int i;
- 
-@@ -1254,7 +1254,7 @@
- 	}
- }
- 
--void
-+static void
- set_deny(unsigned int *deny, unsigned long bmap) {
- 	int i;
- 
-@@ -1399,7 +1399,7 @@
- 	dp->dl_flock = new;
- }
- 
--struct lock_manager_operations nfsd_lease_mng_ops = {
-+static struct lock_manager_operations nfsd_lease_mng_ops = {
-         .fl_break = nfsd_break_deleg_cb,
-         .fl_release_private = nfsd_release_deleg_cb,
-         .fl_copy_lock = nfsd_copy_lock_deleg_cb,
-@@ -1838,7 +1838,7 @@
- 	return status;
- }
- 
--time_t
-+static time_t
- nfs4_laundromat(void)
- {
- 	struct nfs4_client *clp;
-@@ -1914,7 +1914,7 @@
- /* search ownerid_hashtbl[] and close_lru for stateid owner
-  * (stateid->si_stateownerid)
-  */
--struct nfs4_stateowner *
-+static struct nfs4_stateowner *
- find_openstateowner_id(u32 st_id, int flags) {
- 	struct nfs4_stateowner *local = NULL;
- 
-@@ -2060,7 +2060,7 @@
- /* 
-  * Checks for sequence id mutating operations. 
+-struct rpc_program		nfs_program = {
++static struct rpc_program	nfs_program = {
+ 	.name			= "nfs",
+ 	.number			= NFS_PROGRAM,
+ 	.nrvers			= sizeof(nfs_version) / sizeof(nfs_version[0]),
+@@ -792,7 +794,7 @@
+  * Wait for the inode to get unlocked.
+  * (Used for NFS_INO_LOCKED and NFS_INO_REVALIDATING).
   */
 -int
 +static int
- nfs4_preprocess_seqid_op(struct svc_fh *current_fh, u32 seqid, stateid_t *stateid, int flags, struct nfs4_stateowner **sopp, struct nfs4_stateid **stpp, clientid_t *lockclid)
+ nfs_wait_on_inode(struct inode *inode, int flag)
  {
- 	int status;
-@@ -2192,7 +2192,7 @@
-  * eventually, this will perform an upcall to the 'state daemon' as well as
-  * set the cl_first_state field.
+ 	struct rpc_clnt	*clnt = NFS_CLIENT(inode);
+--- linux-2.6.10-mm2-full/fs/nfs/mount_clnt.c.old	2005-01-08 16:38:47.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/nfs/mount_clnt.c	2005-01-08 16:39:04.000000000 +0100
+@@ -31,7 +31,7 @@
+ 
+ static struct rpc_clnt *	mnt_create(char *, struct sockaddr_in *,
+ 								int, int);
+-struct rpc_program		mnt_program;
++static struct rpc_program	mnt_program;
+ 
+ struct mnt_fhstatus {
+ 	unsigned int		status;
+@@ -174,7 +174,7 @@
+ 
+ static struct rpc_stat		mnt_stats;
+ 
+-struct rpc_program	mnt_program = {
++static struct rpc_program	mnt_program = {
+ 	.name		= "mount",
+ 	.number		= NFS_MNT_PROGRAM,
+ 	.nrvers		= sizeof(mnt_version)/sizeof(mnt_version[0]),
+--- linux-2.6.10-mm2-full/include/linux/nfs_fs.h.old	2005-01-08 16:41:00.000000000 +0100
++++ linux-2.6.10-mm2-full/include/linux/nfs_fs.h	2005-01-08 16:47:58.000000000 +0100
+@@ -385,11 +385,8 @@
+  * return value!)
   */
--void
-+static void
- first_state(struct nfs4_client *clp)
- {
- 	if (!clp->cl_first_state)
-@@ -2383,7 +2383,7 @@
- static struct list_head	lock_ownerstr_hashtbl[LOCK_HASH_SIZE];
- static struct list_head lockstateid_hashtbl[STATEID_HASH_SIZE];
+ extern int  nfs_sync_inode(struct inode *, unsigned long, unsigned int, int);
+-extern int  nfs_flush_inode(struct inode *, unsigned long, unsigned int, int);
+-extern int  nfs_flush_list(struct list_head *, int, int);
+ #if defined(CONFIG_NFS_V3) || defined(CONFIG_NFS_V4)
+ extern int  nfs_commit_inode(struct inode *, unsigned long, unsigned int, int);
+-extern int  nfs_commit_list(struct list_head *, int);
+ #else
+ static inline int
+ nfs_commit_inode(struct inode *inode, unsigned long idx_start, unsigned int npages, int how)
+@@ -430,7 +427,6 @@
+  * Allocate and free nfs_write_data structures
+  */
+ extern mempool_t *nfs_wdata_mempool;
+-extern mempool_t *nfs_commit_mempool;
  
--struct nfs4_stateid *
-+static struct nfs4_stateid *
- find_stateid(stateid_t *stid, int flags)
+ static inline struct nfs_write_data *nfs_writedata_alloc(void)
  {
- 	struct nfs4_stateid *local = NULL;
-@@ -2456,7 +2456,7 @@
- 		lock->fl_end = OFFSET_MAX;
+@@ -447,23 +443,6 @@
+ 	mempool_free(p, nfs_wdata_mempool);
  }
  
--int
-+static int
- nfs4_verify_lock_stateowner(struct nfs4_stateowner *sop, unsigned int hashval)
- {
- 	struct nfs4_stateowner *local = NULL;
-@@ -2569,7 +2569,7 @@
- 	return sop;
- }
- 
--struct nfs4_stateid *
-+static struct nfs4_stateid *
- alloc_init_lock_stateid(struct nfs4_stateowner *sop, struct nfs4_file *fp, struct nfs4_stateid *open_stp)
- {
- 	struct nfs4_stateid *stp;
-@@ -2601,7 +2601,7 @@
- 	return stp;
- }
- 
--int
-+static int
- check_lock_length(u64 offset, u64 length)
- {
- 	return ((length == 0)  || ((length != ~(u64)0) &&
-@@ -3079,7 +3079,7 @@
- 
- /*
-  * called from OPEN, CLAIM_PREVIOUS with a new clientid. */
--struct nfs4_client_reclaim *
-+static struct nfs4_client_reclaim *
- nfs4_find_reclaim_client(clientid_t *clid)
- {
- 	unsigned int idhashval = clientid_hashval(clid->cl_id);
-@@ -3189,13 +3189,6 @@
- 	return get_seconds() < grace_end;
- }
- 
--void
--set_no_grace(void)
+-extern void  nfs_writedata_release(struct rpc_task *task);
+-
+-static inline struct nfs_write_data *nfs_commit_alloc(void)
 -{
--	printk("NFSD: ERROR in reboot recovery.  State reclaims will fail.\n");
--	grace_end = get_seconds();
+-	struct nfs_write_data *p = mempool_alloc(nfs_commit_mempool, SLAB_NOFS);
+-	if (p) {
+-		memset(p, 0, sizeof(*p));
+-		INIT_LIST_HEAD(&p->pages);
+-	}
+-	return p;
 -}
 -
- time_t
- nfs4_lease_time(void)
- {
---- linux-2.6.10-mm2-full/fs/nfsd/nfs4xdr.c.old	2005-01-08 17:06:41.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/nfsd/nfs4xdr.c	2005-01-08 17:07:27.000000000 +0100
-@@ -251,7 +251,7 @@
- 	}					\
- } while (0)
+-static inline void nfs_commit_free(struct nfs_write_data *p)
+-{
+-	mempool_free(p, nfs_commit_mempool);
+-}
+-
+ /* Hack for future NFS swap support */
+ #ifndef IS_SWAPFILE
+ # define IS_SWAPFILE(inode)	(0)
+@@ -475,7 +454,6 @@
+ extern int  nfs_readpage(struct file *, struct page *);
+ extern int  nfs_readpages(struct file *, struct address_space *,
+ 		struct list_head *, unsigned);
+-extern int  nfs_pagein_list(struct list_head *, int);
+ extern void nfs_readpage_result(struct rpc_task *);
  
--u32 *read_buf(struct nfsd4_compoundargs *argp, int nbytes)
-+static u32 *read_buf(struct nfsd4_compoundargs *argp, int nbytes)
+ /*
+@@ -712,10 +690,8 @@
+ extern int nfs4_proc_async_renew(struct nfs4_client *);
+ extern int nfs4_proc_renew(struct nfs4_client *);
+ extern int nfs4_do_close(struct inode *inode, struct nfs4_state *state, mode_t mode);
+-extern int nfs4_wait_clnt_recover(struct rpc_clnt *, struct nfs4_client *);
+ extern struct inode *nfs4_atomic_open(struct inode *, struct dentry *, struct nameidata *);
+ extern int nfs4_open_revalidate(struct inode *, struct dentry *, int);
+-extern int nfs4_handle_exception(struct nfs_server *, int, struct nfs4_exception *);
+ extern int nfs4_lock_reclaim(struct nfs4_state *state, struct file_lock *request);
+ 
+ /* nfs4renewd.c */
+--- linux-2.6.10-mm2-full/fs/nfs/nfs4proc.c.old	2005-01-08 16:39:18.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/nfs/nfs4proc.c	2005-01-08 16:41:23.000000000 +0100
+@@ -57,6 +57,7 @@
+ static int nfs4_do_fsinfo(struct nfs_server *, struct nfs_fh *, struct nfs_fsinfo *);
+ static int nfs4_async_handle_error(struct rpc_task *, struct nfs_server *);
+ static int _nfs4_proc_access(struct inode *inode, struct nfs_access_entry *entry);
++static int nfs4_handle_exception(struct nfs_server *server, int errorcode, struct nfs4_exception *exception);
+ extern u32 *nfs4_decode_dirent(u32 *p, struct nfs_entry *entry, int plus);
+ extern struct rpc_procinfo nfs4_procedures[];
+ 
+@@ -381,7 +382,7 @@
+ /*
+  * Returns an nfs4_state + an extra reference to the inode
+  */
+-int _nfs4_open_delegated(struct inode *inode, int flags, struct rpc_cred *cred, struct nfs4_state **res)
++static int _nfs4_open_delegated(struct inode *inode, int flags, struct rpc_cred *cred, struct nfs4_state **res)
  {
- 	/* We want more bytes than seem to be available.
- 	 * Maybe we need a new page, maybe we have just run out
-@@ -305,7 +305,7 @@
+ 	struct nfs_delegation *delegation;
+ 	struct nfs_server *server = NFS_SERVER(inode);
+@@ -581,7 +582,7 @@
+ }
+ 
+ 
+-struct nfs4_state *nfs4_do_open(struct inode *dir, struct dentry *dentry, int flags, struct iattr *sattr, struct rpc_cred *cred)
++static struct nfs4_state *nfs4_do_open(struct inode *dir, struct dentry *dentry, int flags, struct iattr *sattr, struct rpc_cred *cred)
+ {
+ 	struct nfs4_exception exception = { };
+ 	struct nfs4_state *res;
+@@ -645,7 +646,7 @@
+ 	return rpc_call_sync(server->client, &msg, 0);
+ }
+ 
+-int nfs4_do_setattr(struct nfs_server *server, struct nfs_fattr *fattr,
++static int nfs4_do_setattr(struct nfs_server *server, struct nfs_fattr *fattr,
+                 struct nfs_fh *fhandle, struct iattr *sattr,
+                 struct nfs4_state *state)
+ {
+@@ -2067,7 +2068,7 @@
  	return 0;
  }
  
--char *savemem(struct nfsd4_compoundargs *argp, u32 *p, int nbytes)
-+static char *savemem(struct nfsd4_compoundargs *argp, u32 *p, int nbytes)
+-int nfs4_wait_clnt_recover(struct rpc_clnt *clnt, struct nfs4_client *clp)
++static int nfs4_wait_clnt_recover(struct rpc_clnt *clnt, struct nfs4_client *clp)
  {
- 	void *new = NULL;
- 	if (p == argp->tmp) {
---- linux-2.6.10-mm2-full/fs/nfsd/nfsfh.c.old	2005-01-08 17:07:44.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/nfsd/nfsfh.c	2005-01-08 17:08:25.000000000 +0100
-@@ -41,7 +41,7 @@
-  * if not, require that we can walk up to exp->ex_dentry
-  * doing some checks on the 'x' bits
-  */
--int nfsd_acceptable(void *expv, struct dentry *dentry)
-+static int nfsd_acceptable(void *expv, struct dentry *dentry)
- {
- 	struct svc_export *exp = expv;
- 	int rv;
-@@ -280,8 +280,8 @@
-  * an inode.  In this case a call to fh_update should be made
-  * before the fh goes out on the wire ...
-  */
--inline int _fh_update(struct dentry *dentry, struct svc_export *exp,
--		      __u32 *datap, int *maxsize)
-+static inline int _fh_update(struct dentry *dentry, struct svc_export *exp,
-+			     __u32 *datap, int *maxsize)
- {
- 	struct export_operations *nop = exp->ex_mnt->mnt_sb->s_export_op;
- 	
-@@ -297,8 +297,9 @@
- /*
-  * for composing old style file handles
-  */
--inline void _fh_update_old(struct dentry *dentry, struct svc_export *exp,
--			   struct knfsd_fh *fh)
-+static inline void _fh_update_old(struct dentry *dentry,
-+				  struct svc_export *exp,
-+				  struct knfsd_fh *fh)
- {
- 	fh->ofh_ino = ino_t_to_u32(dentry->d_inode->i_ino);
- 	fh->ofh_generation = dentry->d_inode->i_generation;
---- linux-2.6.10-mm2-full/fs/nfsd/nfssvc.c.old	2005-01-08 17:08:55.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/nfsd/nfssvc.c	2005-01-08 17:09:07.000000000 +0100
-@@ -60,7 +60,7 @@
- 	struct list_head 	list;
- 	struct task_struct	*task;
- };
--struct list_head nfsd_list = LIST_HEAD_INIT(nfsd_list);
-+static struct list_head nfsd_list = LIST_HEAD_INIT(nfsd_list);
+ 	DEFINE_WAIT(wait);
+ 	sigset_t oldset;
+--- linux-2.6.10-mm2-full/fs/nfs/nfsroot.c.old	2005-01-08 16:41:37.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/nfs/nfsroot.c	2005-01-08 16:41:59.000000000 +0100
+@@ -351,7 +351,7 @@
+ #endif
  
- /*
-  * Maximum number of nfsd processes
---- linux-2.6.10-mm2-full/fs/nfsd/vfs.c.old	2005-01-08 17:09:19.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/nfsd/vfs.c	2005-01-08 17:09:58.000000000 +0100
-@@ -704,8 +704,8 @@
-  * As this calls fsync (not fdatasync) there is no need for a write_inode
-  * after it.
-  */
--inline void nfsd_dosync(struct file *filp, struct dentry *dp, 
--			struct file_operations *fop)
-+static inline void nfsd_dosync(struct file *filp, struct dentry *dp, 
-+			       struct file_operations *fop)
- {
- 	struct inode *inode = dp->d_inode;
- 	int (*fsync) (struct file *, struct dentry *, int);
-@@ -717,7 +717,7 @@
- }
- 	
  
--void
-+static void
- nfsd_sync(struct file *filp)
+-int __init root_nfs_init(void)
++static int __init root_nfs_init(void)
  {
- 	struct inode *inode = filp->f_dentry->d_inode;
-@@ -727,7 +727,7 @@
- 	up(&inode->i_sem);
+ #ifdef NFSROOT_DEBUG
+ 	nfs_debug |= NFSDBG_ROOT;
+@@ -379,7 +379,7 @@
+  *  Parse NFS server and directory information passed on the kernel
+  *  command line.
+  */
+-int __init nfs_root_setup(char *line)
++static int __init nfs_root_setup(char *line)
+ {
+ 	ROOT_DEV = Root_NFS;
+ 	if (line[0] == '/' || line[0] == ',' || (line[0] >= '0' && line[0] <= '9')) {
+--- linux-2.6.10-mm2-full/fs/nfs/read.c.old	2005-01-08 16:42:34.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/nfs/read.c	2005-01-08 16:42:40.000000000 +0100
+@@ -370,7 +370,7 @@
+ 	return -ENOMEM;
  }
  
--void
-+static void
- nfsd_sync_dir(struct dentry *dp)
+-int
++static int
+ nfs_pagein_list(struct list_head *head, int rpages)
  {
- 	nfsd_dosync(NULL, dp, dp->d_inode->i_fop);
+ 	LIST_HEAD(one_request);
+--- linux-2.6.10-mm2-full/fs/nfs/write.c.old	2005-01-08 16:43:33.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/nfs/write.c	2005-01-08 16:48:03.000000000 +0100
+@@ -80,14 +80,31 @@
+ static void nfs_writeback_done_full(struct nfs_write_data *, int);
+ static int nfs_wait_on_write_congestion(struct address_space *, int);
+ static int nfs_wait_on_requests(struct inode *, unsigned long, unsigned int);
++static int nfs_flush_inode(struct inode *inode, unsigned long idx_start,
++			   unsigned int npages, int how);
+ 
+ static kmem_cache_t *nfs_wdata_cachep;
+ mempool_t *nfs_wdata_mempool;
+-mempool_t *nfs_commit_mempool;
++static mempool_t *nfs_commit_mempool;
+ 
+ static DECLARE_WAIT_QUEUE_HEAD(nfs_write_congestion);
+ 
+-void nfs_writedata_release(struct rpc_task *task)
++static inline struct nfs_write_data *nfs_commit_alloc(void)
++{
++	struct nfs_write_data *p = mempool_alloc(nfs_commit_mempool, SLAB_NOFS);
++	if (p) {
++		memset(p, 0, sizeof(*p));
++		INIT_LIST_HEAD(&p->pages);
++	}
++	return p;
++}
++
++static inline void nfs_commit_free(struct nfs_write_data *p)
++{
++	mempool_free(p, nfs_commit_mempool);
++}
++
++static void nfs_writedata_release(struct rpc_task *task)
+ {
+ 	struct nfs_write_data	*wdata = (struct nfs_write_data *)task->tk_calldata;
+ 	nfs_writedata_free(wdata);
+@@ -990,7 +1007,7 @@
+ 	return -ENOMEM;
+ }
+ 
+-int
++static int
+ nfs_flush_list(struct list_head *head, int wpages, int how)
+ {
+ 	LIST_HEAD(one_request);
+@@ -1240,7 +1257,7 @@
+ /*
+  * Commit dirty pages
+  */
+-int
++static int
+ nfs_commit_list(struct list_head *head, int how)
+ {
+ 	struct nfs_write_data	*data;
+@@ -1314,8 +1331,8 @@
+ }
+ #endif
+ 
+-int nfs_flush_inode(struct inode *inode, unsigned long idx_start,
+-		   unsigned int npages, int how)
++static int nfs_flush_inode(struct inode *inode, unsigned long idx_start,
++			   unsigned int npages, int how)
+ {
+ 	struct nfs_inode *nfsi = NFS_I(inode);
+ 	LIST_HEAD(head);
 

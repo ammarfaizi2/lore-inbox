@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289729AbSAJWE2>; Thu, 10 Jan 2002 17:04:28 -0500
+	id <S289723AbSAJWNJ>; Thu, 10 Jan 2002 17:13:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289721AbSAJWEL>; Thu, 10 Jan 2002 17:04:11 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:55757 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289733AbSAJWD6>;
-	Thu, 10 Jan 2002 17:03:58 -0500
-Date: Fri, 11 Jan 2002 01:01:22 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>, Mike Kravetz <kravetz@us.ibm.com>,
-        Anton Blanchard <anton@samba.org>, george anzinger <george@mvista.com>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
-In-Reply-To: <Pine.LNX.4.33.0201101017380.2723-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0201110034190.10579-100000@localhost.localdomain>
+	id <S289728AbSAJWM7>; Thu, 10 Jan 2002 17:12:59 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:48543
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289721AbSAJWMs>; Thu, 10 Jan 2002 17:12:48 -0500
+Message-Id: <200201102155.g0ALtkA22362@snark.thyrsus.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Tom Rini <trini@kernel.crashing.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
+        Greg KH <greg@kroah.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+Date: Thu, 10 Jan 2002 09:09:01 -0500
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk> <20020110013856.A26151@devcon.net> <20020110024240.GW13931@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <20020110024240.GW13931@cpe-24-221-152-185.az.sprintbbd.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 09 January 2002 09:42 pm, Tom Rini wrote:
+> On Thu, Jan 10, 2002 at 01:38:56AM +0100, Andreas Ferber wrote:
+> > On Wed, Jan 09, 2002 at 05:25:07PM -0700, Tom Rini wrote:
+> > > > This could be done anyway: just replace the initramfs image built by
+> > > > the kernel build with anotherone built from another source tree. It
+> > > > would be helpful though if the tools were distributed both standalone
+> > > > and included into the kernel tree.
+> > >
+> > > If the kernel is going to build an initramfs option, it also needs a
+> > > way to be given one.  The issue I'm thinking of is I know of a few
+> > > platforms where the initramfs archive will have to be part of the
+> > > 'zImage' file (much like they do for ramdisks now).
+> >
+> > Append it to the zImage and let the kernel look for it there. Plus add
+> > a tool to util-linux (or maybe an option to rdev?) to let you replace
+> > the embedded initramfs in a {,b}zImage with a customized one.
+>
+> Er, 'rdev' is an x86-only program, so lets not add common functionality
+> to that.  And I'd rather not throw something onto the end of the
+> 'zImage' since I just got done removing annoying/broken things like
+> that.
 
-On Thu, 10 Jan 2002, Linus Torvalds wrote:
+You want it to be an ELF section then?
 
-> Don't try to make the timer code know stuff that the timer code should
-> not and does not know about. Just call the scheduler on each tick, and
-> let the scheduler make its decision.
-
-agreed, the -H4 patch implements this cleanup:
-
-    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-pre11-H4.patch
-
-the timer code calls the scheduler_tick() function once per local timer
-interrupt. This function then decides whether the current task is idle or
-not. (this should also fix the timeslice-expiration bug of any possibly
-pid 0 process.)
-
-(there is one small ugliness left, the function also has to be prepared
-for a not yet complete scheduler state, rq->idle == NULL and rq->curr ==
-NULL. I'll fix this later, it's a detail.)
-
-(-H4 has been sanity-compiled & booted on SMP.)
-
-other changes since -H1:
-
- - removed dead code from wakeup.
-
-	Ingo
-
+Rob

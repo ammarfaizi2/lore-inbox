@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288611AbSAXQFd>; Thu, 24 Jan 2002 11:05:33 -0500
+	id <S288639AbSAXQGx>; Thu, 24 Jan 2002 11:06:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288422AbSAXQFY>; Thu, 24 Jan 2002 11:05:24 -0500
-Received: from p3EE02ABD.dip.t-dialin.net ([62.224.42.189]:2052 "EHLO
-	srv.sistina.com") by vger.kernel.org with ESMTP id <S288624AbSAXQFK>;
-	Thu, 24 Jan 2002 11:05:10 -0500
-Date: Thu, 24 Jan 2002 17:01:28 +0100
-From: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
-To: linux-kernel@vger.kernel.org
-Subject: *** ANNOUNCEMENT *** LVM 1.0.2 available at www.sistina.com
-Message-ID: <20020124170128.A9435@sistina.com>
-Reply-To: mauelshagen@sistina.com
+	id <S288645AbSAXQGl>; Thu, 24 Jan 2002 11:06:41 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:25988
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S288639AbSAXQGQ>; Thu, 24 Jan 2002 11:06:16 -0500
+Date: Thu, 24 Jan 2002 09:05:40 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>, Robert Love <rml@tech9.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] preemptive kernel
+Message-ID: <20020124160540.GO1816@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <20020124155557.GM1816@cpe-24-221-152-185.az.sprintbbd.net> <Pine.LNX.4.33.0201241857100.2050-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0201241857100.2050-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.26i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 24, 2002 at 06:57:27PM +0100, Ingo Molnar wrote:
+> 
+> On Thu, 24 Jan 2002, Tom Rini wrote:
+> 
+> > > can you please redo for O(1)-J6 (2.4.18-pre7) or is nothing changed?
+> >
+> > Or -J6 there was a small reject, it looks like -J6 sets p->cpu =
+> > smp_processor_id(); in kernel/sched.c, which the preempt patch wants to
+> > do as well.
+> 
+> it's the same fix - you can safely disregard the reject.
 
-*** ANNOUNCEMENT *** LVM 1.0.2 available at www.sistina.com
+If you apply -J6 after.  preempt adds preempt_enable() in the same
+section.
 
-Hi all,
-
-LVM 1.0.2 supports both version 1 and 2 of the metadata.
-
-There's *no* need to run any metadata update tools.
-
-A tarball is available now at
-
-   <http://www.sistina.com/>
-
-for download (Follow the "LVM 1.0" link).
-
-
-This release contains minor changes to LVM 1.0.1 including:
-
-o Linux 2.4.17 support
-o sparc 64 fixes (tests needed!)
-o persistent LV device minors to support client recovery after
-  a NFS server reboot/failover
-o ataraid device support
-o support loop devices (they do not show up in /proc/partitions) 
-
-
-See the CHANGELOG file contained in the tarball for further information.
-
-Feed back LVM related information to <linux-lvm@sistina.com>.
-
-Thanks a lot for your support of LVM.
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,83 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280430AbRKST6T>; Mon, 19 Nov 2001 14:58:19 -0500
+	id <S280676AbRKSUEs>; Mon, 19 Nov 2001 15:04:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280666AbRKST57>; Mon, 19 Nov 2001 14:57:59 -0500
-Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:12321 "EHLO
-	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S280430AbRKST5u>;
-	Mon, 19 Nov 2001 14:57:50 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
-To: linux-kernel@vger.kernel.org
-Subject: Fwd: Hp 8xxx Cd writer
-Date: Mon, 19 Nov 2001 19:58:33 +0000
-X-Mailer: KMail [version 1.3.1]
+	id <S280678AbRKSUEi>; Mon, 19 Nov 2001 15:04:38 -0500
+Received: from mirza.iland.net ([204.87.167.69]:53133 "HELO paco2.iland.net")
+	by vger.kernel.org with SMTP id <S280676AbRKSUE0>;
+	Mon, 19 Nov 2001 15:04:26 -0500
+Date: 19 Nov 2001 14:04:25 -0600
+Date: Mon, 19 Nov 2001 14:04:25 -0600
+From: Chris Kennedy <ckennedy-kernel@iland.net>
+To: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <EXCH01SMTP01aJ6pkNz0000350b@smtp.netcabo.pt>
-X-OriginalArrivalTime: 19 Nov 2001 19:57:29.0000 (UTC) FILETIME=[6AF89A80:01C17134]
+Subject: Re: Hp 8xxx Cd writer
+Message-ID: <20011119140425.A9262@iland.net>
+In-Reply-To: <EXCH01SMTP01CJiLyNf000018e2@smtp.netcabo.pt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <EXCH01SMTP01CJiLyNf000018e2@smtp.netcabo.pt>; from Astinus@netcabo.pt on Mon, Nov 19, 2001 at 02:00:34PM +0000
+X-Chris-Kennedy: Use Linux and prosper :)
+X-URL: http://www.groovy.org/
+X-Disclaimer: My opinions do not necessarily represent the opinions of my employer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys u have been great for answering me but........
+It needs to have the SCSI emulation enabled, and then the SCSI 
+generic device (sg) and also the SCSI/USB mass storage support
+plus scsi CDROM support.  It treats it as scsi cdrom basically,
+which is why all the scsi stuff is needed.
 
-Lets see, almost all of u tell to look in my current configuration, so i can 
-load it when i am going to recompile the kernel right?
+Chris Kennedy
+On Mon, Nov 19, 2001 at 02:00:34PM +0000, Miguel Maria Godinho de Matos wrote:
+> Hi, I am crrently runnig linux red hat 7.2 with a 2.4.7 kernel ( i havent 
+> upgraded cause i am a newbie and haven't had he guts to do so ).
+> 
+> However i am trying to configure the kernel 2.4.14 which i actually have even 
+> acomplished to compile.
+> 
+> I have a doubt though! I have an externel cd-writer ( hp 8200 ) which is 
+> supported by the kernel, but in the make xconfig menu, that options appears 
+> in gray ( u can't select it ). As a lot of kernel options need some kind of 
+> pre-selected items, i am asking anyone who  knows what do i have to 
+> pre-select so i can choose the module for hp..... support in my usb kernel 
+> configuration menu.
+> 
+> If i didn't provide enough information plz tell me so!
+> 
+> Crying for help: 
+> 
+> Astinus.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Well the major problem is that in my current configuration, red hat doesn't 
-also have the suppor for hp cd writer 8200!
-
-So even if i do so, which i did, it doesn't solve my problem as those modules 
-aren't loaded in my current kernel!
-
-John, u say i probably have to say yes to experimental drivers right?, in 
-which menu can i state that, cause i am looking the xconfig menus as i am 
-typing and i don't seem able to find that option. Also u may be right, but ho 
-8200 has been supported since the firs 2.4 kernel, so they may not be 
-experimental in the 2.4.14 ( i am probably wrong as i don't understand much 
-of the subject ).
-
-Plz guys, can one of u try do make xconfig or make menuconfig as if u were to 
-compile the kernel so u can look at the usb menu and check which my problem 
-is and how to solve it?
-
-Once again tks for your cooperation.
-
-Gratefull Astinus.
-
-
-
-----------  Forwarded Message  ----------
-
-Subject: Hp 8xxx Cd writer
-Date: Mon, 19 Nov 2001 14:00:34 +0000
-From: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
-To: linux-kernel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-
-Hi, I am crrently runnig linux red hat 7.2 with a 2.4.7 kernel ( i havent
-upgraded cause i am a newbie and haven't had he guts to do so ).
-
-However i am trying to configure the kernel 2.4.14 which i actually have even
-acomplished to compile.
-
-I have a doubt though! I have an externel cd-writer ( hp 8200 ) which is
-supported by the kernel, but in the make xconfig menu, that options appears
-in gray ( u can't select it ). As a lot of kernel options need some kind of
-pre-selected items, i am asking anyone who  knows what do i have to
-pre-select so i can choose the module for hp..... support in my usb kernel
-configuration menu.
-
-If i didn't provide enough information plz tell me so!
-
-Crying for help:
-
-Astinus.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
--------------------------------------------------------
+-- 
+Chris Kennedy / ckennedy@iland.net / (660) 829-4638x117
+I-Land Internet Services / Network Operations Center
+     \|/ ____ \|/
+     "@'/ .. \`@"   
+     /_| \__/ |_\
+        \__U_/ -Linux SPARC Kernel Oops

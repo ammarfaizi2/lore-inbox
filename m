@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318143AbSHLPvN>; Mon, 12 Aug 2002 11:51:13 -0400
+	id <S318736AbSHLP5y>; Mon, 12 Aug 2002 11:57:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318734AbSHLPvM>; Mon, 12 Aug 2002 11:51:12 -0400
-Received: from ppp-217-133-217-5.dialup.tiscali.it ([217.133.217.5]:5800 "EHLO
-	home.ldb.ods.org") by vger.kernel.org with ESMTP id <S318733AbSHLPvC>;
-	Mon, 12 Aug 2002 11:51:02 -0400
-Subject: Re: [patch] tls-2.5.31-D5
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Jakub Jelinek <jakub@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       Alexandre Julliard <julliard@winehq.com>
-In-Reply-To: <Pine.LNX.4.44.0208121939260.22188-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0208121939260.22188-100000@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-YMDRLls9mN9QXPaR13Qt"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 12 Aug 2002 17:54:44 +0200
-Message-Id: <1029167684.4531.88.camel@ldb>
-Mime-Version: 1.0
+	id <S318741AbSHLP5y>; Mon, 12 Aug 2002 11:57:54 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:26762 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S318736AbSHLP5x>; Mon, 12 Aug 2002 11:57:53 -0400
+Date: Mon, 12 Aug 2002 12:04:05 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: daniel sheltraw <l5gibson@hotmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel to user-space communication
+In-Reply-To: <F137zkftciAlUNLFAYp000015b2@hotmail.com>
+Message-ID: <Pine.LNX.3.95.1020812120306.16590A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 12 Aug 2002, daniel sheltraw wrote:
 
---=-YMDRLls9mN9QXPaR13Qt
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> Hello Kernel
+> 
+> Is there a way to comminicate to a user-space program that an
+> interrupt has occurred in a kernel module?
+> 
+> Thanks,
+> Daniel Sheltraw
 
-> well, i think i have to agree ... if it wasnt for Wine's 0x40 descriptor.  
-> But it certainly does not come free. We could have 3 TLS entries (0x40
-> will be the last entry), and the copying cost is 9 cycles. (compared to 6
-> cycles in the 2 entries case.) Good enough?
-Or we could leave 0x40 fixed to 0x400 and use only 2.
-
-This loses flexibility but anyway the only 2 apps that could use it are
-dosemu and wine and I think that they already need to have it mapped at
-0x400 for vm86 (no one uses 16-bit DLLs anymore).
-
-Of course this is only valid if Win32 doesn't use it because otherwise
-we would lose the ability to do null-pointer checking in programs using
-Win32 DLLs (e.g. mplayer).
+Yes, poll() or select(). Look at some character drivers in the kernel.
 
 
---=-YMDRLls9mN9QXPaR13Qt
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9V9pEdjkty3ft5+cRAhtUAKDh/rFbCm/egDWR4OPDLG9Fmnje7gCgpaPw
-HRLMk6HrR5e+Gow2fUKeYZU=
-=z12f
------END PGP SIGNATURE-----
-
---=-YMDRLls9mN9QXPaR13Qt--

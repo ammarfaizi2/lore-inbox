@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263714AbUG1VBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263865AbUG1VD6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263714AbUG1VBp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 17:01:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbUG1VBp
+	id S263865AbUG1VD6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 17:03:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263847AbUG1VD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 17:01:45 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:42906 "EHLO
+	Wed, 28 Jul 2004 17:03:58 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:45210 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263714AbUG1VA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 17:00:58 -0400
+	id S263775AbUG1VCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 17:02:40 -0400
 Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, suparna@in.ibm.com,
+       fastboot@osdl.org, mbligh@aracnet.com,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       fastboot@osdl.org
-In-Reply-To: <35250000.1091043768@flay>
+       jbarnes@engr.sgi.com
+In-Reply-To: <20040728133337.06eb0fca.akpm@osdl.org>
 References: <16734.1090513167@ocs3.ocs.com.au>
-	 <200407280903.37860.jbarnes@engr.sgi.com>
-	 <m1bri06mgw.fsf@ebiederm.dsl.xmission.com>
-	 <200407281106.17626.jbarnes@engr.sgi.com>  <35250000.1091043768@flay>
+	 <20040725235705.57b804cc.akpm@osdl.org>
+	 <m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com>
+	 <200407280903.37860.jbarnes@engr.sgi.com> <25870000.1091042619@flay>
+	 <m14qnr7u7b.fsf@ebiederm.dsl.xmission.com>
+	 <20040728133337.06eb0fca.akpm@osdl.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1091044597.31700.0.camel@localhost.localdomain>
+Message-Id: <1091044742.31698.3.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 28 Jul 2004 20:56:38 +0100
+Date: Wed, 28 Jul 2004 20:59:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-07-28 at 20:42, Martin J. Bligh wrote:
-> > We'll have to do something about incoming dma traffic and other stuff that the 
-> > devices might be doing.  Maybe a arch specific callout to do some chipset 
-> > stuff?
-> 
-> I vote for sleeping for 5 seconds ;-) Should kill off most of it ...
+On Mer, 2004-07-28 at 21:33, Andrew Morton wrote:
+> We really don't want to be calling driver shutdown functions from a crashed
+> kernel.
 
-Wake up smell the coffee.
+Then at the very least you need to disable bus mastering and have
+specialist recovery functions for problematic devices. The bus
+mastering one is essential otherwise bus masters will continue to
+DMA random data into your new universe.
 
-- Bus masters that run forever
-- Devices that need to flush before reset is asserted (eg IDE disk)
-
-...
+Other stuff like graphics cards and IDE may need care too.
 

@@ -1,30 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276208AbRJCNT6>; Wed, 3 Oct 2001 09:19:58 -0400
+	id <S276215AbRJCNTi>; Wed, 3 Oct 2001 09:19:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276211AbRJCNTs>; Wed, 3 Oct 2001 09:19:48 -0400
-Received: from mgw-x2.nokia.com ([131.228.20.22]:13019 "EHLO mgw-x2.nokia.com")
-	by vger.kernel.org with ESMTP id <S276208AbRJCNTa>;
-	Wed, 3 Oct 2001 09:19:30 -0400
-Message-ID: <9524EA4E18D6D2119FEA0008C7C5A006B9AE52@lneis01nok>
-From: hong.fan@nokia.com
+	id <S276211AbRJCNTS>; Wed, 3 Oct 2001 09:19:18 -0400
+Received: from traal.softpixel.com ([65.203.88.42]:10248 "HELO softpixel.com")
+	by vger.kernel.org with SMTP id <S276208AbRJCNTR>;
+	Wed, 3 Oct 2001 09:19:17 -0400
+Message-ID: <30402.205.188.199.21.1002115377@webmail.softpixel.com>
+Date: Wed, 3 Oct 2001 09:22:57 -0400 (EDT)
+Subject: Re: kswapd kernel 2.4.9
+From: <cwright@softpixel.com>
 To: linux-kernel@vger.kernel.org
-Subject: Can not install modutils-2.4.10-1.i386.rpm
-Date: Wed, 3 Oct 2001 16:19:54 +0300 
+X-Mailer: SquirrelMail (version 0.4)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2652.78)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> I\'m running kernel 2.4.9 under a DELL 8450 with 8xP-III  and 10GB RAM. 
+> Yesterday a run a BIG   I/O, and when this process run, my cached goes to 
+9GB 
+> and the kswapd is using 100% of one cpu after that.
 
-I downloaded modutils-2.4.10-1.i386.rpm but RPM complains it can not be
-installed. I have rpm version 3.0.5. There is no problem for me to install
-modutils-2.4.9-1.i386.rpm. I think there is a problem in the latest rpm
-file.
+did it stay at 100%, or did it ease up slightly afterward?
 
-Best regards,
+I have noticed a similar problem with ancient kernels (2.0.0) and not quite 
+as ancient one (2.2.19) where certain applications cause all your physical 
+ram to be used, then all the cache.  after its all used (for some mystery 
+purpose?) it goes back to normal.  maybe my boxes are just flukes though
 
-Hong Fan
+        chris
+

@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314277AbSE1MTL>; Tue, 28 May 2002 08:19:11 -0400
+	id <S314325AbSE1MVV>; Tue, 28 May 2002 08:21:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314325AbSE1MTK>; Tue, 28 May 2002 08:19:10 -0400
-Received: from buffy.commerce.uk.net ([213.219.35.201]:62955 "EHLO
-	buffy.commerce.uk.net") by vger.kernel.org with ESMTP
-	id <S314277AbSE1MTK>; Tue, 28 May 2002 08:19:10 -0400
-Date: Tue, 28 May 2002 13:19:08 +0100 (BST)
-From: Corin Hartland-Swann <cdhs@commerce.uk.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: bluesmoke, machine check exception, reboot
-Message-ID: <Pine.LNX.4.33L2.0205281301440.27799-100000@buffy.commerce.uk.net>
-Organization: Commerce Internet Ltd
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314340AbSE1MVU>; Tue, 28 May 2002 08:21:20 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:62468 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S314325AbSE1MVT>; Tue, 28 May 2002 08:21:19 -0400
+Date: Tue, 28 May 2002 14:21:20 +0200
+From: Jan Kara <jack@suse.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jan Kara <jack@suse.cz>, dalecki@evision-ventures.com,
+        Nathan Scott <nathans@wobbly.melbourne.sgi.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 1/2 Quota changes
+Message-ID: <20020528122120.GF20235@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020527130413.GA17926@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.44.0205271122390.3172-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Mon, 27 May 2002, Jan Kara wrote:
+> >
+> >   here I'm sending a bit altered (finally I decided to add 'version'
+> > field) Martin's patch which moves quota info from proc to sysctl...
+> > Please apply.
+> 
+> Well, Martin's patch is already in 2.5.18.
+> 
+> Also, I really don't like version numbers - that only shows that the
+> author _designed_ for crap. I would suggest either:
+> 
+>  - no version number, and just confidence that you won't need any more
+>    statistics.
+> 
+>  - no version number, and a file layout that is inherently expandable (or
+>    rather: multiple files with clear names, one value per file).
+  I choose multiple files with clear names :). I have a patch here but
+it's against 2.5.17 so I'll rediff it against 2.5.18 and send it to you.
+BTW have you applied the complatibility patch (I'm not sure whether
+there wasn't some rejects against 2.5.18).
 
-Hi there,
+								Honza
 
-I have a Dual PIII-1000 running 2.4.18, and am occasionally getting the
-following error:
-
-> CPU 1: Machine Check Exception: 000000000000000004
-> Bank 1: f200000000000115
-> Kernel panic: CPU context corrupt
-
-This results in a hard lock (unable to use magic SysRQ key to sync or
-reboot, etc). I located these errors in arch/i386/kernel/bluesmoke.c in
-the function intel_machine_check(). From what I have read on lkml it is
-probably a result of the processor overheating and causing errors.
-
-I intend to add another fan to stop this from happening, but in the
-meantime is there anything I can do to get the machine to reboot after the
-panic? After the last time that this happened, I set
-/proc/sys/kernel/panic to 10, but it hasn't happened since then so I can't
-tell whether it will work. The error listed above is the entire error
-before the machine fails - there is no register dump or anything after
-that.
-
-Do you think it will manage to reboot with a hopelessly confused
-processor?
-
-Thanks,
-
-Corin
-
-/------------------------+-------------------------------------\
-| Corin Hartland-Swann   |    Tel: +44 (0) 20 7491 2000        |
-| Commerce Internet Ltd  |    Fax: +44 (0) 20 7491 2010        |
-| 22 Cavendish Buildings | Mobile: +44 (0) 79 5854 0027        |
-| Gilbert Street         |                                     |
-| Mayfair                |    Web: http://www.commerce.uk.net/ |
-| London W1K 5HJ         | E-Mail: cdhs@commerce.uk.net        |
-\------------------------+-------------------------------------/
-
-
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

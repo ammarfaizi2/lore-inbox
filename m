@@ -1,63 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265051AbSLBVvr>; Mon, 2 Dec 2002 16:51:47 -0500
+	id <S265065AbSLBWED>; Mon, 2 Dec 2002 17:04:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265058AbSLBVvr>; Mon, 2 Dec 2002 16:51:47 -0500
-Received: from snow.ball.teaser.net ([213.91.6.13]:7173 "EHLO
-	snow.ball.reliam.net") by vger.kernel.org with ESMTP
-	id <S265051AbSLBVvq>; Mon, 2 Dec 2002 16:51:46 -0500
-Date: Mon, 2 Dec 2002 22:57:28 +0100
-From: Tobias Rittweiler <inkognito.anonym@uni.de>
-X-Mailer: The Bat! (v1.60q)
-Reply-To: Tobias Rittweiler <inkognito.anonym@uni.de>
-X-Priority: 3 (Normal)
-Message-ID: <9814769328.20021202225728@uni.de>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: [STATUS] fbdev api.
-In-Reply-To: <Pine.LNX.4.44.0212022051320.20834-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0212022051320.20834-100000@phoenix.infradead.org>
+	id <S265066AbSLBWED>; Mon, 2 Dec 2002 17:04:03 -0500
+Received: from packet.digeo.com ([12.110.80.53]:46490 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265065AbSLBWEC>;
+	Mon, 2 Dec 2002 17:04:02 -0500
+Message-ID: <3DEBDA8D.CBB4B6D0@digeo.com>
+Date: Mon, 02 Dec 2002 14:11:25 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] deprecate use of bdflush()
+References: <1038864066.1221.43.camel@phantasy>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Dec 2002 22:11:25.0034 (UTC) FILETIME=[C0F794A0:01C29A4F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello James,
+Robert Love wrote:
+> 
+> We can never get rid of it if we do not deprecate it - so do so and
+> print a stern warning to those who still run bdflush daemons.
+> 
 
-Monday, December 2, 2002, 10:07:33 PM, you wrote:
+Ho-hum.  I was going to do this months ago but general exhaustion
+and sluggishness won out.
+
+We should tell the user which process called sys_bdflush() to aid
+their expunging efforts.
 
 
-JS> Hi!
+--- 25/fs/buffer.c~deprecate-bdflush	Mon Dec  2 13:40:44 2002
++++ 25-akpm/fs/buffer.c	Mon Dec  2 13:45:11 2002
+@@ -2755,11 +2755,25 @@ int block_sync_page(struct page *page)
+ /*
+  * There are no bdflush tunables left.  But distributions are
+  * still running obsolete flush daemons, so we terminate them here.
++ *
++ * Use of bdflush() is deprecated and will be removed in a future kernel.
++ * The `pdflush' kernel threads fully replace bdflush daemons and this call.
+  */
+ asmlinkage long sys_bdflush(int func, long data)
+ {
++	static int msg_count;
++
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
++
++	if (msg_count < 5) {
++		msg_count++;
++		printk(KERN_INFO
++			"warning: process `%s' used the obsolete bdflush"
++			" system call\nFix your initscripts?\n",
++			current->comm);
++	}
++
+ 	if (func == 1)
+ 		do_exit(0);
+ 	return 0;
 
-JS> I have a new patch avaiable. It is against 2.5.50. The patch is at
-JS> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
-
-JS> [...]
-JS> The diffstat is:
-
-JS>  CREDITS                                |   10 
-
-Hunk #1 succeeded at 2836 (offset -6 lines).
-
-JS>  [...]
-JS>  arch/i386/vmlinux.lds.s                |  114
-               ^^^^^^^^^^^^^^
-really intended?
-
-JS>  [...]
-JS>  drivers/char/tty_io.c                  |    7
-
-Hunk #1 succeeded at 1503 (offset -6 lines).
-
-JS>  [...]
-JS>  drivers/video/Kconfig                  |  411 --
-
-Hunk #19 succeeded at 864 with fuzz 1 (offset -7 lines).
-
-(of course against 2.5.50 vanilla)
---
-cheers,
- Tobias
-
+_

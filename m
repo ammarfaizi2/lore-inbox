@@ -1,87 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVCCLIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVCCLN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbVCCLIc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 06:08:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVCCLIY
+	id S261589AbVCCLN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 06:13:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVCCLN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 06:08:24 -0500
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:2996 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S262511AbVCCKlo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 05:41:44 -0500
-Date: Thu, 3 Mar 2005 11:41:30 +0100
-Message-Id: <200503031041.j23AfUkf020695@faui31y.informatik.uni-erlangen.de>
-From: Martin Waitz <tali@admingilde.org>
-To: tali@admingilde.org
-Cc: linux-kernel@vger.kernel.org
-References: <20050303102852.GG8617@admingilde.org>
-Subject: [PATCH 3/16] DocBook: update function parameter description in network code
+	Thu, 3 Mar 2005 06:13:29 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:37546
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261589AbVCCLBp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 06:01:45 -0500
+Subject: Re: RFD: Kernel release numbering
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, greg@kroah.com,
+       Linus Torvalds <torvalds@osdl.org>, rmk+lkml@arm.linux.org.uk,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050303021506.137ce222.akpm@osdl.org>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+	 <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com>
+	 <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org>
+	 <20050303002047.GA10434@kroah.com>
+	 <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org>
+	 <20050303081958.GA29524@kroah.com> <4226CCFE.2090506@pobox.com>
+	 <20050303090106.GC29955@kroah.com> <4226D655.2040902@pobox.com>
+	 <20050303021506.137ce222.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 03 Mar 2005 12:01:42 +0100
+Message-Id: <1109847703.4370.38.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DocBook: update function parameter description in network code
-Signed-off-by: Martin Waitz <tali@admingilde.org>
+On Thu, 2005-03-03 at 02:15 -0800, Andrew Morton wrote:
+> If we were to get serious with maintenance of 2.6.x.y streams then that is
+> a 100% productisation activity.  It's a very useful activity, and there is
+> demand for it.
+
+Correct. That's what -ac and -as kernels try to achieve. Moving those
+activities into 2.6.x.y would be easier to understand for users.
+
+> But it is a very different activity.  And a lot of this
+> discussion has been getting these two activities confused.
+
+Ack.
+
+> Many people on this mailing list want a super-stable kernel as their first
+> (and sometimes only) priority (the product group).  But others have other
+> requirements: to make their code avaialble, or to get their hardware
+> supported, or to fix that scalability problem (the technology group).  The
+> product group's interests are in conflict with the technology group's. 
+> 
+> There will be no solution to this problem which is completely satisfactory
+> to either party.
+
+Right, but moving to the even/odd scheme is worse. Even versions will be
+ignored within no time like the -rc versions are now. The result will be
+that the "stable" odd releases will be less frequent and the -rc phase
+of those will be as hard to sell to testers as the current ones. We will
+end up with 2.6.ODD in the same shape as we do now with 2.6.x releases.
+
+Moving to a -preX / rcX scheme might help to convince users to give the
+-rc versions a try and help to stabilze for the real release.
+
+What about:
+2.6-mm	
+2.6-devel
+2.6.x-stable
+
+-mm 	bleeding edge
+-devel	stabilized from -mm and subsystems
+-stable stabilized from devel and real bugfixes
+
+In this case the current -rc scheme could work in a real "release
+candidate" scheme. 
+
+The devel tree would not be bound to release cycles and would just
+contain ongoing development, so the held back pile of changes is not
+growing up in the way it does now.
+
+tglx
 
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.2027  -> 1.2028 
-#	  drivers/net/8390.c	1.27    -> 1.28   
-#	   net/core/skbuff.c	1.41    -> 1.42   
-#	include/linux/skbuff.h	1.59    -> 1.60   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 05/01/26	tali@admingilde.org	1.2028
-# DocBook: update function parameter description in network code
-# 
-# Signed-off-by: Martin Waitz <tali@admingilde.org>
-# --------------------------------------------
-#
-diff -Nru a/drivers/net/8390.c b/drivers/net/8390.c
---- a/drivers/net/8390.c	Thu Mar  3 11:41:34 2005
-+++ b/drivers/net/8390.c	Thu Mar  3 11:41:34 2005
-@@ -999,6 +999,7 @@
- 
- /**
-  * alloc_ei_netdev - alloc_etherdev counterpart for 8390
-+ * @size: extra bytes to allocate
-  *
-  * Allocate 8390-specific net_device.
-  */
-diff -Nru a/include/linux/skbuff.h b/include/linux/skbuff.h
---- a/include/linux/skbuff.h	Thu Mar  3 11:41:34 2005
-+++ b/include/linux/skbuff.h	Thu Mar  3 11:41:34 2005
-@@ -187,6 +187,8 @@
-  *	@nf_bridge: Saved data about a bridged frame - see br_netfilter.c
-  *      @private: Data which is private to the HIPPI implementation
-  *	@tc_index: Traffic control index
-+ *	@tc_verd: traffic control verdict
-+ *	@tc_classid: traffic control classid
-  */
- 
- struct sk_buff {
-diff -Nru a/net/core/skbuff.c b/net/core/skbuff.c
---- a/net/core/skbuff.c	Thu Mar  3 11:41:34 2005
-+++ b/net/core/skbuff.c	Thu Mar  3 11:41:34 2005
-@@ -1444,7 +1444,7 @@
- 
- 			if (pos < len) {
- 				/* Split frag.
--				 * We have to variants in this case:
-+				 * We have two variants in this case:
- 				 * 1. Move all the frag to the second
- 				 *    part, if it is possible. F.e.
- 				 *    this approach is mandatory for TUX,
-@@ -1467,6 +1467,9 @@
- 
- /**
-  * skb_split - Split fragmented skb to two parts at length len.
-+ * @skb: the buffer to split
-+ * @skb1: the buffer to receive the second part
-+ * @len: new length for skb
-  */
- void skb_split(struct sk_buff *skb, struct sk_buff *skb1, const u32 len)
- {

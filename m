@@ -1,62 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265693AbSIRHRu>; Wed, 18 Sep 2002 03:17:50 -0400
+	id <S265711AbSIRH1c>; Wed, 18 Sep 2002 03:27:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265706AbSIRHRu>; Wed, 18 Sep 2002 03:17:50 -0400
-Received: from mta01bw.bigpond.com ([139.134.6.78]:27590 "EHLO
-	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S265693AbSIRHRt>; Wed, 18 Sep 2002 03:17:49 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Greg KH <greg@kroah.com>, Duncan Sands <duncan.sands@wanadoo.fr>
-Subject: Re: [linux-usb-devel] Re: 2.5.26 hotplug failure
-Date: Wed, 18 Sep 2002 17:15:50 +1000
-User-Agent: KMail/1.4.5
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-References: <200207180950.42312.duncan.sands@wanadoo.fr> <200209152353.41285.duncan.sands@wanadoo.fr> <20020918065225.GB6840@kroah.com>
-In-Reply-To: <20020918065225.GB6840@kroah.com>
+	id <S265829AbSIRH1c>; Wed, 18 Sep 2002 03:27:32 -0400
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:18378 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S265711AbSIRH1c>; Wed, 18 Sep 2002 03:27:32 -0400
+Message-ID: <3D88DC86.234B0346@toughguy.net>
+Date: Wed, 18 Sep 2002 13:05:26 -0700
+From: Bourne <bourne@toughguy.net>
+X-Mailer: Mozilla 4.75 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200209181715.51314.bhards@bigpond.net.au>
+To: linux-kernel@vger.kernel.org
+Subject: identifying tasks with opened sockets
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hello All,
 
-On Wed, 18 Sep 2002 16:52, Greg KH wrote:
-> On Sun, Sep 15, 2002 at 11:53:41PM +0200, Duncan Sands wrote:
-> > A simple fix is to change the test to [ $COUNT -lt 2 ];
->
-> Good catch, yes the drivers file disappeared, and until now, almost no
-> one noticed it :)
-I assume that /proc/bus/usb/drivers went to driverfs. Everyone likes the new 
-guy :)
+Is there any way/means of realibly knowing that the 'current' task has
+opened sockets for network communication ? I need to capture this info
+in kernel space.
 
-I'd like the file back. We have a lot of debugging advice that asks people to 
-send that particular file to us, and it is very useful. Even if you update 
-the few places that you can find, then you will still have a lot of confusion 
-(well, if you have 2.4, then send this, and if you have 2.6, send this, and 
-if that doesn't exist, and you're on 2.4, mount this filesystem, else mount 
-this filesystem). Ugly, and increases the support workload.
+Pls help.
 
-A symlink will do, assuming both filesystems are mounted. If we only have 
-usbfs, I still want the data.
-
-Please fix this before 2.6.
-
-Brad
-
-- -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9iCgnW6pHgIdAuOMRAgRcAJ9+i0ksw2S4qS8wvA+SD5prjA4IEwCcCulE
-APZsrWY1WlNoY42cG8pXUTI=
-=GNYM
------END PGP SIGNATURE-----
-
+-- 
+The art of life is drawing sufficient conclusions from insufficient
+premises

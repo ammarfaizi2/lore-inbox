@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262353AbVCIXFO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262550AbVCIXFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbVCIXFO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 18:05:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbVCIXCs
+	id S262550AbVCIXFE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 18:05:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262508AbVCIXCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 18:02:48 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:8925 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S262506AbVCIWYN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 17:24:13 -0500
-Date: Wed, 9 Mar 2005 17:23:08 -0500
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Support for GEODE CPUs
-Message-ID: <20050309222308.GB24873@csclub.uwaterloo.ca>
-References: <200503081935.j28JZ433020124@hera.kernel.org> <1110387668.28860.205.camel@localhost.localdomain> <20050309173344.GD17865@csclub.uwaterloo.ca> <1110405563.3072.250.camel@localhost.localdomain>
+	Wed, 9 Mar 2005 18:02:33 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:46048 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S262093AbVCIWVE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 17:21:04 -0500
+Date: Wed, 9 Mar 2005 23:21:14 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Alex Aizman <itn780@yahoo.com>, Matt Mackall <mpm@selenic.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE 0/6] Open-iSCSI High-Performance Initiator for Linux
+Message-ID: <20050309222114.GF4105@marowsky-bree.de>
+References: <422BFCB2.6080309@yahoo.com> <20050309050434.GT3163@waste.org> <422E8EEB.7090209@yahoo.com> <20050309060544.GW3120@waste.org> <422E96D9.6090202@yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1110405563.3072.250.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <422E96D9.6090202@yahoo.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 09:59:26PM +0000, Alan Cox wrote:
-> If you build 486 it will still use the TSC because it is available (The
-> PIT is buggy but the kernel knows about that anyway and handles it). 
+On 2005-03-08T22:25:29, Alex Aizman <itn780@yahoo.com> wrote:
 
-Hmm, I thought that was the whole point of the different cpu type
-choices in the kernel.  Then again the MTRR is still available with a
-386 kernel on a newer cpu as far as I remember, so I guess I will try a
-486 optimized kernel next.
+> There's (or at least was up until today) an ongoing discussion on our 
+> mailing list at http://groups-beta.google.com/group/open-iscsi. The 
+> short and long of it: the problem can be solved, and it will. Couple 
+> simple things we already do: mlockall() to keep the daemon un-swapped, 
+> and also looking into potential dependency created by syslog (there's 
+> one for 2.4 kernel, not sure if this is an issue for 2.6).
 
-> There are a few Geode tricks to know for performance
-> 
-> - Turn off the video
+BTW, to get around the very same issues, heartbeat does much the same:
+lock itself into memory, reserve a couple of pages more to spare on
+stack & heap, run at soft-realtime priority.
 
-That is the plan long term, although the BIOS's serial console doesn't
-seem to work well with grub at least on minicom.  I think switching to
-lilo may help that.
+syslog(), however, sucks.
 
-> - If you can't turn it off use solid areas of colour to speed the system
-> up (The hardware uses RLE encoding to reduce ram fetch bandwidth)
-> - Remember the cache is only 16K (12K when running X11 as 4K is borrowed
-> for the blitter)
+We went down the path of using our non-blocking IPC library to have all
+our various components log to ha_logd, which then logs to syslog() or
+writes to disk or wherever.
 
-Even more reason to keep the video off (I think it steals some system
-ram when on as well).
+That works well in our current development series, and if you want to
+share code, you can either rip it off (Open Source, we love ya ;) or we
+can spin off these parts into a sub-package for you to depend on...
 
-> - The onboard audio is a software SB emulation on older GX. It burns
-> CPU.
+> The sfnet is a learning experience; it is by no means a proof that it 
+> cannot be done.
 
-I have audio disabled since I have no need for it.
+I'd also argue that it MUST be done, because the current way of "Oh,
+it's somehow related to block stuff, must be in kernel" leads down to
+hell. We better figure out good ways around it ;-)
 
-> Also avoid touching various legacy registers as much as possible, many
-> cause BIOS traps in SMM emulation code. The list I have is NDA but you
-> can use rdtsc/inb or outb/rdtsc to work out which 8)
 
-Only PCI and LPC devices in use, so I don't think I will be poking any
-legacy registers directly, although I have no idea if the kernel would
-be poking any of them as part of running the drivers.  Hopefully not.
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
-Thanks for the information.
+-- 
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business
 
-Len Sorensen

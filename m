@@ -1,85 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315971AbSFVPlR>; Sat, 22 Jun 2002 11:41:17 -0400
+	id <S314459AbSFVPxn>; Sat, 22 Jun 2002 11:53:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316106AbSFVPlQ>; Sat, 22 Jun 2002 11:41:16 -0400
-Received: from pop.gmx.net ([213.165.64.20]:16241 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S315971AbSFVPlP>;
-	Sat, 22 Jun 2002 11:41:15 -0400
-Message-ID: <3D149A8E.E714A1B4@gmx.net>
-Date: Sat, 22 Jun 2002 17:41:02 +0200
-From: Richard Ems <r.ems.home@gmx.net>
-Reply-To: r.ems@gmx.net
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en,de,es
-MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Hubert Mantel <mantel@suse.de>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: kernel OOPS: 2.4.18, nscd, nfsd
-References: <3D104DF4.A8053F67@gmx.net> <15634.50708.164289.246414@notabene.cse.unsw.edu.au>
+	id <S316106AbSFVPxm>; Sat, 22 Jun 2002 11:53:42 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:60433 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S314459AbSFVPxm>; Sat, 22 Jun 2002 11:53:42 -0400
+Message-Id: <200206221553.g5MFrZF03680@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Cc: davej@suse.de, James.Bottomley@HansenPartnership.com
+Subject: [PATCH 2.5.24] i386 arch subdivision into machine types
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sat, 22 Jun 2002 11:53:35 -0400
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This code rearranges the arch/i386 directory structure to allow for sliding 
+additional non-pc hardware in here in an easily separable (and thus easily 
+maintainable) fashion.  The idea is that all the code for the particular 
+problem hardware should be able to go in a separate directory with only 
+additional build options in config.in.
 
-Neil Brown wrote:
+The current patch really only pulls out the visws code from the core and 
+places it into a separate directory (sort of a simple example case).  It also 
+creates a generic directory (for standard x86 PCs) with all of the hooks 
+documented.
 
-> On Wednesday June 19, r.ems.home@gmx.net wrote:
-> > Hi all!
-> >
-> > Two kernel Oopses in short time (22:35:59 and 22:50:00). But the computer was still alive until 00:00:00, where the daily cron jobs are started and then ... kernel panic, LED's where blinking   :(
-> >
-> > kernel is 2.4.18, from SuSE's k_deflt-2.4.18-174 package (2.4.19-pre10aa2)
-> >
-> > Please CC to r.ems@gmx.net, I'm not on the linux-kernel mailing
-> > list.
->
-> Would I be right is surmising that you are exporting an ISO filesystem
-> over NFS??  That would be the second Oops in as many days with that
-> scenario.
->
-> If that is the case, then I'm afraid that I cannot point you to any
-> fix, though exporting with "no_subtree_check" may reduce the incidence.
->
-> NeilBrown
+The current patch moves mpparse.c back into arch/i386/kernel with it's own 
+subordinate config option and upports to 2.5.24.
 
-No, no ISO fs exported.
+http://www.hansenpartnership.com/voyager/files/arch-split-2.5.24.diff
 
-My /etc/exports:
+There's also a bitkeeper repository with all this in at
 
-# cat /etc/exports
-/home \
- diablo(rw,no_root_squash) @linux(rw,root_squash) @unix(rw,root_squash) mtgvaio1(ro,root_squash) @cluster01_hosts(rw,root_squash)
-/tmp \
- diablo(rw,no_root_squash) @linux(rw,root_squash) @unix(ro,root_squash) mtgvaio1(ro,root_squash) @cluster01_hosts(rw,root_squash)
-/usr/local \
- diablo(ro,no_root_squash) @linux(ro,root_squash) @unix(ro,root_squash) mtgvaio1(ro,root_squash) @cluster01_hosts(ro,root_squash)
+http://linux-voyager.bkbits.net/arch-split-2.5
 
-and
-
-# egrep " /home | /tmp | /usr " /proc/mounts
-/dev/vg01/home /home ext3 rw 0 0
-/dev/vg01/tmp /tmp ext3 rw 0 0
-/dev/vg01/usr /usr ext3 rw 0 0
-
-all exported filesystems are ext3 over LVM.
-
-(I stopped a while ago exporting ISO fs's over nfs, I'm now copying the distro DVD (SuSE) on a HD ... Any "good" solution for exporting ISO fs's over NFS ? the problem is always when you need the
-cdrom/dvd drive and want to umount the NFS exported cdrom/dvd, then ...)
-
-What about the first Oops ?
-
-Thanks, Richard
-
-
-
---
-Richard Ems
-... e-mail: r.ems@gmx.net
-... Computer Science, University of Hamburg
-
-Unix IS user friendly. It's just selective about who its friends are.
+James Bottomley
 
 

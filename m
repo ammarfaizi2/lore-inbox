@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262909AbRE1CPl>; Sun, 27 May 2001 22:15:41 -0400
+	id <S262911AbRE1CYc>; Sun, 27 May 2001 22:24:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262910AbRE1CPb>; Sun, 27 May 2001 22:15:31 -0400
-Received: from hongkong.com ([202.84.12.153]:35830 "HELO hongkong.com")
-	by vger.kernel.org with SMTP id <S262909AbRE1CPY>;
-	Sun, 27 May 2001 22:15:24 -0400
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-Message-ID: <09989471898799.08184@mail1.hongkong.com>
-Date: Mon, 28 May 2001 10:12:00 +0800 (CST)
-From: antonpoon@hongkong.com
-To: linux-kernel@vger.kernel.org
-Subject: Problems Configurating NFS
-X-Priority: 3
+	id <S262912AbRE1CYW>; Sun, 27 May 2001 22:24:22 -0400
+Received: from lpce020.lss.emc.com ([168.159.62.20]:772 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262911AbRE1CYF>; Sun, 27 May 2001 22:24:05 -0400
+Date: Sun, 27 May 2001 09:21:50 -0400
+Message-Id: <200105271321.f4RDLoM00342@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: "Akash Jain" <aki.jain@stanford.edu>
+Cc: <torvalds@transmeta.com>, <alan@lxorguk.ukuu.org.uk>,
+        <linux-kernel@vger.kernel.org>, <su.class.cs99q@nntp.stanford.edu>
+Subject: Re: [PATCH] fs/devfs/base.c
+In-Reply-To: <GLEPIDKFGKPCBDLKDHEAAELGDDAA.aki.jain@stanford.edu>
+In-Reply-To: <GLEPIDKFGKPCBDLKDHEAAELGDDAA.aki.jain@stanford.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to config my RedHat7.0 computer to run NFS server, I have edited the exports file, and turned on portmap and NFS, but there were some problems as follows, how can I fix it?
+Akash Jain writes:
+> hello,
+> 
+> in fs/devfs/base.c,
+> the struct devfsd_notify_struct is approx 1056 bytes, allocating it
+> on a stack of 8k seems unreasonable.  here we simply move it to the
+> heap, i don't think it is a _must_ be on stack type thing
 
-Starting system logger: [ OK ]
-Starting kernel logger: [ OK ]
-Starting portmapper: [ OK ]
-Starting NFS file locking services:
-Starting NFS lockd: portmap: server localhost not responding, timed out
-portmap: server localhost not responding, timed out
-lockd_up: makesock failed, error=-5
-portmap: server localhost not responding, timed out
-lockdsvc: Input/output error
-[FAILED]
-Starting NFS statd: [ OK ]
-Starting up APM daemon: [ OK ]
-Initializing random number generator: [ OK ]
-Mounting NFS filesystems: mount: can't get address for server
-[FAILED]
-Mounting other filesystems: [MS-DOS FS Rel. 12,FAT 16,check=n,conv=b,uid=0,gid=0,umask=022,bmap]
-[me=0x7e,cs=756,#f=16,fs=62548,fl=193668,ds=3292308,de=4734,data=3292608,se=5246,ts=2116189728,ls=3198,rc=0,fc=4294967295]
-Transaction block size = 512
-VFS: Can't find a valid MSDOS filesystem on dev 03:05.
-mount: wrong fs type, bad option, bad superblock on /dev/hda5,
+I absolutely don't want this patch applied. It's bogus. It is entirely
+safe to alloc 1 kB on the stack in this code, since it has a short and
+well-controlled code path from syscall entry to the function. This is
+not some function that can be called from some random place in the
+kernel and thus has a random call path.
 
+Using the stack is much faster than calling kmalloc() and it also
+doesn't add to system memory pressure. That's why I did it this way in
+the first place. Further, it's much safer to use the stack, since the
+memory is freed automatically. Thus, there's less scope for
+introducing errors.
 
-I wish to be personally CC'ed the answers/comments posted to the list in response to my posting. Thank you.
+Please fix your checker to deal with this class of functions which
+have a well-defined call path. I'd suggest looking at the total stack
+allocations from syscall entry point all the way to the end function.
+Ideally, you'd trace the call path to every function, but of course
+that may be computationally infeasible. Hopefully it's feasible to do
+this for any function which has a stack allocation which exceeds some
+threshold.
 
-Thanks,
-Anton
-----------------------------------------------
- 歡迎使用HongKong.com郵件系統
- Thank you for using hongkong.com Email system
+				Regards,
 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

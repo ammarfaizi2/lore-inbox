@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbUKRVFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbUKRVIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbUKRVFV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 16:05:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbUKRVAj
+	id S261171AbUKRVIs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 16:08:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbUKRVIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 16:00:39 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:5596 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261165AbUKRVAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 16:00:00 -0500
-Subject: Re: [PATCH] SCSI_QLOGIC_1280_1040 depends on SCSI_QLOGIC_1280
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0411182143150.6824@anakin>
-References: <Pine.LNX.4.61.0411182143150.6824@anakin>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 18 Nov 2004 14:59:42 -0600
-Message-Id: <1100811588.2904.20.camel@mulgrave>
+	Thu, 18 Nov 2004 16:08:20 -0500
+Received: from fw.osdl.org ([65.172.181.6]:42692 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261201AbUKRVGS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 16:06:18 -0500
+Date: Thu, 18 Nov 2004 13:06:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: torvalds@osdl.org, hbryan@us.ibm.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, pavel@ucw.cz
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+Message-Id: <20041118130601.6ee8bd97.akpm@osdl.org>
+In-Reply-To: <E1CUrS0-0004Hi-00@dorka.pomaz.szeredi.hu>
+References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com>
+	<E1CUq57-00043P-00@dorka.pomaz.szeredi.hu>
+	<Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org>
+	<E1CUquZ-0004Az-00@dorka.pomaz.szeredi.hu>
+	<Pine.LNX.4.58.0411181027070.2222@ppc970.osdl.org>
+	<E1CUrS0-0004Hi-00@dorka.pomaz.szeredi.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-18 at 14:43, Geert Uytterhoeven wrote:
-> SCSI_QLOGIC_1280_1040 depends on SCSI_QLOGIC_1280
+Miklos Szeredi <miklos@szeredi.hu> wrote:
+>
+> Maybe someone can help me.  Anybody who writes a program that
+>  deadlocks Linux with a FUSE filesystem
 
-A more comprehensive version of this is queued in the scsi-rc-fixes
-tree:
+Grab http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz and
+learn to drive run-bash-shared-mappings.sh.
 
-http://linux-scsi.bkbits.net:8080/scsi-rc-fixes-2.6/cset@419a3a90hX7p5fl5hVBaLOHatSXnqA
+> gets a medal
 
-James
-
-
+My emedals.com account awaits your contribution ;)

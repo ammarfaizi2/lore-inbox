@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132668AbRA0KUf>; Sat, 27 Jan 2001 05:20:35 -0500
+	id <S129400AbRA0KdG>; Sat, 27 Jan 2001 05:33:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132726AbRA0KUZ>; Sat, 27 Jan 2001 05:20:25 -0500
-Received: from 13dyn73.delft.casema.net ([212.64.76.73]:32777 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S132668AbRA0KUM>; Sat, 27 Jan 2001 05:20:12 -0500
-Message-Id: <200101271020.LAA22568@cave.bitwizard.nl>
-Subject: Re: Linux Post codes during runtime, possibly OT
-In-Reply-To: <94q96s$9b2$1@cesium.transmeta.com> from "H. Peter Anvin" at "Jan
- 25, 2001 02:26:36 pm"
-To: "H. Peter Anvin" <hpa@zytor.com>
-Date: Sat, 27 Jan 2001 11:20:04 +0100 (MET)
-CC: linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S129444AbRA0Kc4>; Sat, 27 Jan 2001 05:32:56 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:53470 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129400AbRA0Kcn>; Sat, 27 Jan 2001 05:32:43 -0500
+Message-ID: <3A72A578.28D27AED@uow.edu.au>
+Date: Sat, 27 Jan 2001 21:39:52 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+CC: lkml <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
+In-Reply-To: <3A726087.764CC02E@uow.edu.au> <200101271005.f0RA5DX04357@moisil.dev.hydraweb.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Followup to:  <3A709E99.25ADE5F6@echostar.com>
-> By author:    "Ian S. Nelson" <ian.nelson@echostar.com>
-> In newsgroup: linux.dev.kernel
-> >
-> > I'm curious.  Why does Linux make that friendly 98/9a/88 looking
-> > postcode pattern when it's running?  DOS and DOS95 don't do that.
-> > 
-> > I'm begining to feel like I can tell the system health by observing it,
-> > kind of like "seeing the matrix."
- 
-> It output garbage to the 80h port in order to enforce I/O delays.
-> It's one of the safe ports to issue outs to.
+Ion Badulescu wrote:
+> 
+> 2.4.1-pre10+zerocopy, using read()/write():     18.3%-29.6% CPU         * why so much variance?
 
-Yes, because it is reserved for POST codes. You can get "POST
-debugging cards" that simply have a BIN -> 7segement encoder and two 7
-segment displays on them. They decode 0x80. That's what it's for. 
+The variance is presumably because of the naive read/write
+implementation.  It sucks in 16 megs and writes out out again.
+With a 100 megabyte file you'll get aliasing effects between
+the sampling interval and the client's activity.
 
-Roger. 
+You will get more repeatable results using smaller files.  I'm
+just sending /usr/local/bin/* ten times, with
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+./zcc -s otherhost -c /usr/local/bin/* -n10 -N2 -S
+
+Maybe that 16 meg buffer should be shorter...  Yes, making it
+smaller smooths things out.
+
+Heh, look at this.  It's a simple read-some, send-some loop.
+Plot CPU utilisation against the transfer size:
+
+Size           %CPU
+
+
+256             31
+512             25
+1024            22
+2048            18
+4096            17
+8192            16
+16384           18
+32768           19
+65536           21
+128k            22
+256k            22.5
+
+8192 bytes is best.
+
+I've added the `-b' option to zcc to set the transfer size.  Same
+URL.
+
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

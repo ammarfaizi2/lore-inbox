@@ -1,78 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262420AbSI2IgW>; Sun, 29 Sep 2002 04:36:22 -0400
+	id <S262418AbSI2If2>; Sun, 29 Sep 2002 04:35:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262421AbSI2IgV>; Sun, 29 Sep 2002 04:36:21 -0400
-Received: from netcore.fi ([193.94.160.1]:18698 "EHLO netcore.fi")
-	by vger.kernel.org with ESMTP id <S262420AbSI2IgT>;
-	Sun, 29 Sep 2002 04:36:19 -0400
-Date: Sun, 29 Sep 2002 11:41:23 +0300 (EEST)
-From: Pekka Savola <pekkas@netcore.fi>
-To: kuznet@ms2.inr.ac.ru
-cc: davem@redhat.com, <yoshfuji@linux-ipv6.org>,
-       <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-       <usagi@linux-ipv6.org>
-Subject: Re: [PATCH] IPv6: Improvement of Source Address Selection
-In-Reply-To: <200209280537.JAA03046@sex.inr.ac.ru>
-Message-ID: <Pine.LNX.4.44.0209291135210.27427-100000@netcore.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262420AbSI2If2>; Sun, 29 Sep 2002 04:35:28 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:32238 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S262418AbSI2If1>; Sun, 29 Sep 2002 04:35:27 -0400
+Date: Sun, 29 Sep 2002 10:38:08 +0200
+From: Dominik Brodowski <linux@brodo.de>
+To: Toon van der Pas <toon@vanvergehaald.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: [2.5.39] (3/5) CPUfreq i386 drivers
+Message-ID: <20020929103807.A1250@brodo.de>
+References: <20020928112503.E1217@brodo.de> <20020928134457.A14784@brodo.de> <20020929000332.A16506@vdpas.hobby.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <20020929000332.A16506@vdpas.hobby.nl>; from toon@vanvergehaald.nl on Sun, Sep 29, 2002 at 12:03:32AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Sep 2002 kuznet@ms2.inr.ac.ru wrote:
-> > Or would you have an already-sorted list of possible candidate addresses 
-> > for each route in the order of preference?
-> 
-> I am not mad yet. :-)
-> 
-> What preference? You must select _one_ address, you do not need lost
-> candidates.
-
-In the case the first entry goes away, having a list could help being able 
-to the next one to use very easily.  But this probably just an 
-implementation detail.
-
-> > And recalculate always when address changes?
-> 
-> What address? Interface address? Routing tables used to be synchronized
-> to this.
-
-Any address.
-
-One notable case is that the outgoing interface has only link/site-local 
-addresses and the destination is global.  There are other cases too.
-
-> > This is IMO a wrong approach from user's perspective.  Perhaps not if the 
-> > algorithm was run and e.g. additional, temporary "address selection" 
-> > routes were created by kernel.
-> >  
-> > > > (stuff that's network prefix -independent
-> > > 
-> > > I am sorry, I feel I do not understand what you mean.
+On Sun, Sep 29, 2002 at 12:03:32AM +0200, Toon van der Pas wrote:
+> On Sat, Sep 28, 2002 at 01:44:57PM +0200, Dominik Brodowski wrote:
 > > 
-> > Hmm.. this depends on the interpretation of the concept above.  If the
-> > list is refreshed always when addresses change or change state, this could
-> > perhaps work..
+> > This add-on patch is needed to abort on Dell Inspiron 8000 / 8100
+> > which would lock up during speedstep.c and to resolve an oops
+> > (thanks to Hu Gang for reporting this)
+> > 
+> > 	Dominik
 > 
-> I am afraid I do not understand what "address", "state", "temporary" routes
-> etc you mean. It remained in your brains. :-)
-> 
-> Pekka, are you not going to sleep? (I am.) I bet when you reread this tomorrow,
-> you will not blame that my brains eventually falled to "parse error" loop. :-)
+> Wait a minute...
+> Do I understand you and your patch right?
+> Dell sells a machine with a Pentium III Mobile CPU with Speedstep
+> technology, and now you tell us that it won't work?  Ever?
+> Does this mean that a lot of people (including me) bought a very
+> advanced and expensive piece of trash?  Then it's about time that
+> I contact Dell, because they screwed me.
+I've been contacted by two Dell Inspiron 8100 users who reported deadlocks
+when using any cpufreq version on their systems. The reason is that Dell
+doesn't use the (documented) interface in the ICH2-M southbridge, but
+(proabably) the ISSCL (Intel SpeedStep Control Logic)-Interface also used on
+440?X chipsets. Unfortunately, this interface is not documented - Intel
+even _removes_ parts of documentation avaialable to the public that could 
+lead to reverse-engineering of the ISSCL-Interface (440 MX Platform Design
+Guide). So, a "legacy" speedstep driver for 440?X chipsets or Dell Inspiron 
+8000/8100s is unlikely, at least for the moment.
 
-I had already woken up :-).
+However, you might have another chance: by using ACPI. The latest ACPI
+releases for 2.4. as well as the 2.5. tree offers "P-State" support. So if
+your BIOS' ACPI-tables make these P-States available, you _can_ use
+speedstep on this notebook. For details on ACPI P-States, please take a look
+at http://www.brodo.de/english/pub/acpi/proc/processor.html
 
-At least BSD and I think Linux create ad-hoc, "cloned" routes e.g. in Path
-MTU discovery process to hold some different values.  I don't remember the 
-details.  I was wondering if this would be done the same or not.
+> Does Speedstep work on this machine with Windows/XP?
+> (I never checked, removed it first thing after unpacking the machine.)
+AFAICT, it does work on the 8100  but not on the 8000.
 
-change state = move to deprecated, move to non-deprecated.
+BTW, just to set things clear: The only computer I own only uses the 440?X /
+ISSCL-Interface, so I sit in the same boat as you. By developing the
+ICH2-M/ICH3-M driver I had hoped to find ways to reverse-engineer the "old"
+speedstep interface; so far I have been unsuccessful, though.
 
-Hope this clarifies.
-
--- 
-Pekka Savola                 "Tell me of difficulties surmounted,
-Netcore Oy                   not those you stumble over and fall"
-Systems. Networks. Security.  -- Robert Jordan: A Crown of Swords
-
+	Dominik

@@ -1,565 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279178AbRJWBZo>; Mon, 22 Oct 2001 21:25:44 -0400
+	id <S279184AbRJWBk0>; Mon, 22 Oct 2001 21:40:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279180AbRJWBZg>; Mon, 22 Oct 2001 21:25:36 -0400
-Received: from gull.mail.pas.earthlink.net ([207.217.121.85]:6616 "EHLO
-	gull.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S279178AbRJWBZ1>; Mon, 22 Oct 2001 21:25:27 -0400
-From: rwhron@earthlink.net
-Date: Mon, 22 Oct 2001 21:27:21 -0400
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org,
-        ltp-list@lists.sourceforge.nnet
-Subject: Re: Knob turning on mtest01 for 2.4.13-pre5aa1
-Message-ID: <20011022212721.A9881@earthlink.net>
-In-Reply-To: <20011021234805.A2824@earthlink.net> <20011022141923.K26029@athlon.random>
+	id <S279185AbRJWBkR>; Mon, 22 Oct 2001 21:40:17 -0400
+Received: from [209.250.58.249] ([209.250.58.249]:50950 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S279184AbRJWBkA>; Mon, 22 Oct 2001 21:40:00 -0400
+Date: Mon, 22 Oct 2001 20:35:08 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: Jeff Golds <jgolds@resilience.com>
+Subject: Re: Linux 2.2.20pre10
+Message-ID: <20011022203508.E29445@hapablap.dyn.dhs.org>
+In-Reply-To: <20011022122722.A369@top.worldcontrol.com> <E15vlmG-0003Ff-00@the-village.bc.nu> <20011022174502.B29445@hapablap.dyn.dhs.org> <p05100305b7fa574fb379@[10.128.7.49]> <20011022184738.D29445@hapablap.dyn.dhs.org> <3BD4C14E.299C13F7@resilience.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011022141923.K26029@athlon.random>; from andrea@suse.de on Mon, Oct 22, 2001 at 02:19:23PM +0200
+In-Reply-To: <3BD4C14E.299C13F7@resilience.com>; from jgolds@resilience.com on Mon, Oct 22, 2001 at 06:01:02PM -0700
+X-Uptime: 5:12pm  up 6 days, 22:21,  1 user,  load average: 1.77, 1.18, 0.98
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 22, 2001 at 02:19:23PM +0200, Andrea Arcangeli wrote:
-> On Sun, Oct 21, 2001 at 11:48:05PM -0400, rwhron@earthlink.net wrote:
-> > Kernel	2.4.13-pre5aa1
+On Mon, Oct 22, 2001 at 06:01:02PM -0700, Jeff Golds wrote:
+> > > >>  > >    "Until they become conscious they will never rebel, and until after
+> > > >>  > >     they have rebelled they cannot become conscious."
+> > > >>  >
+> > > >>  > While I've been generally saddened by Alan Cox's and others
+> > > >>  > anti-America attitude,  I am somewhat surprised to find that
+> > > >>  > Alan believes the US bombing of Afghanistan is justified and so
+> > > >>  > is the collateral damage as they call it.
+> > > >>
+> > > >>  That quote is rather older than the US bombing of Afghanistan. You read
+> > > >>  totally inappropriate things into it.
+> > > >
+> > > >Certainly, it is not.  This statement applies to Afghanistan, in that
+> > > >the fact that they have not rebelled means they imply consent to
+> > > >everything their government does, and therefore are just as guilty as
+> > > >the Taliban.  Therefore, killing civilians (collateral damage) is no
+> > > >worse than killing terrorists or Taliban officials.  This is a stance I
+> > > >can easily subscribe to, not just with Afghanistan but with any people,
+> > > >nation, state, or country.
+> > >
+> > > That seems like a willful misreading of the original. Where did you
+> > > get "consent"? Alan suggests that non-rebellion implies lack of
+> > > consciousness, which doesn't imply consent.
 > > 
-> > Goal:	Measure the affect of changing new vm parameters.
-> > 
-> > 105 seconds on mtest01 vm_balance_ratio = 16   vm_mapped_ratio = 1   vm_scan_ratio = 16
+> > Seems like, but isn't.  It's every citizen's responsibility to be aware
+> > of the matters concerning the State.  If they aren't, then again it is
+> > their own fault.
 > 
-> Cool. this just proofs the vm_mapped_ratio logic is not worthwhile (I
-> had similar results here so this just confirms).  So I'm killing it
-> enterely (Linus was completly right that it wans't worthwhile). I'm also
-> changing a bit the semantics of vm_balance_ratio (similar to pre3aa1)
-> and I'm lowering it down due the slight change of semantics, plus I'm
-> including the PG_launder (that resembles the PG_wait_for_IO logic in
-> pre3aa1) and slightly modified BH_wait_IO logic from Linus. Hopefully
-> the end result will be positive.
-> 
-> Andrea
+> That might be true in a democracy, but what do you do when you don't
+> live in such a place?  What if your government was not democractic but
+> "whoever has the most guns".  Are you saying that people who don't rebel
+> against people with guns are consenting?
 
-These are timings of mmap001 writing to 100000 pages 5 times.  Nothing else happening
-on the machine, no mp3 playing, no feedback on latency, etc.  
+Of course.  It's naturally understandable that they don't rebel, but
+that's the case, at least.  Democratic society did not spring overnight.
+It was hard won through centuries of standing up against 'the people
+with guns,' even if the people with guns had swords, bows and arrows,
+cannons, rifles, etc., instead.
 
-135 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 10  vm_scan_ratio = 10
-136 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 10  vm_scan_ratio = 16
-136 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 10  vm_scan_ratio = 24
-136 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 10  vm_scan_ratio = 4 
-136 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 10  vm_scan_ratio = 6 
-136 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 10  vm_scan_ratio = 8 
-136 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 12  vm_scan_ratio = 14
-136 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 12  vm_scan_ratio = 16
-136 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 12  vm_scan_ratio = 20
-136 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 12  vm_scan_ratio = 4 
-136 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 12  vm_scan_ratio = 6 
-136 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 14  vm_scan_ratio = 20
-137 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 1   vm_scan_ratio = 16
-137 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 1   vm_scan_ratio = 2 
-137 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 1   vm_scan_ratio = 20
-137 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 1   vm_scan_ratio = 6 
-137 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 1   vm_scan_ratio = 8 
-137 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 12  vm_scan_ratio = 20
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 10  vm_scan_ratio = 12
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 10  vm_scan_ratio = 14
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 10  vm_scan_ratio = 2 
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 10  vm_scan_ratio = 20
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 10  vm_scan_ratio = 32
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 12  vm_scan_ratio = 10
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 12  vm_scan_ratio = 12
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 12  vm_scan_ratio = 2 
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 12  vm_scan_ratio = 24
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 12  vm_scan_ratio = 8 
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 14  vm_scan_ratio = 12
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 14  vm_scan_ratio = 14
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 14  vm_scan_ratio = 2 
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 14  vm_scan_ratio = 32
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 14  vm_scan_ratio = 4 
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 14  vm_scan_ratio = 6 
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 16  vm_scan_ratio = 12
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 16  vm_scan_ratio = 14
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 16  vm_scan_ratio = 16
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 16  vm_scan_ratio = 2 
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 16  vm_scan_ratio = 32
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 4   vm_scan_ratio = 20
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 8   vm_scan_ratio = 10
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 8   vm_scan_ratio = 12
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 8   vm_scan_ratio = 14
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 8   vm_scan_ratio = 16
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 8   vm_scan_ratio = 32
-137 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 8   vm_scan_ratio = 8 
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 1   vm_scan_ratio = 10
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 1   vm_scan_ratio = 12
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 1   vm_scan_ratio = 14
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 1   vm_scan_ratio = 24
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 1   vm_scan_ratio = 32
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 1   vm_scan_ratio = 4 
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 10  vm_scan_ratio = 24
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 12  vm_scan_ratio = 12
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 16  vm_scan_ratio = 4 
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 2   vm_scan_ratio = 12
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 2   vm_scan_ratio = 20
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 2   vm_scan_ratio = 4 
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 2   vm_scan_ratio = 6 
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 4   vm_scan_ratio = 4 
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 4   vm_scan_ratio = 6 
-138 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 8   vm_scan_ratio = 10
-138 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 1   vm_scan_ratio = 16
-138 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 1   vm_scan_ratio = 2 
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 12  vm_scan_ratio = 32
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 14  vm_scan_ratio = 10
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 14  vm_scan_ratio = 16
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 14  vm_scan_ratio = 24
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 14  vm_scan_ratio = 8 
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 16  vm_scan_ratio = 10
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 16  vm_scan_ratio = 20
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 16  vm_scan_ratio = 24
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 16  vm_scan_ratio = 4 
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 16  vm_scan_ratio = 6 
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 16  vm_scan_ratio = 8 
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 4   vm_scan_ratio = 10
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 4   vm_scan_ratio = 32
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 8   vm_scan_ratio = 2 
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 8   vm_scan_ratio = 20
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 8   vm_scan_ratio = 24
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 8   vm_scan_ratio = 4 
-138 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 8   vm_scan_ratio = 6 
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 10  vm_scan_ratio = 12
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 10  vm_scan_ratio = 14
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 10  vm_scan_ratio = 16
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 10  vm_scan_ratio = 32
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 10  vm_scan_ratio = 4 
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 10  vm_scan_ratio = 6 
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 12  vm_scan_ratio = 16
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 12  vm_scan_ratio = 2 
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 12  vm_scan_ratio = 24
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 12  vm_scan_ratio = 32
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 12  vm_scan_ratio = 4 
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 12  vm_scan_ratio = 8 
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 14  vm_scan_ratio = 2 
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 14  vm_scan_ratio = 20
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 14  vm_scan_ratio = 24
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 14  vm_scan_ratio = 4 
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 16  vm_scan_ratio = 14
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 16  vm_scan_ratio = 24
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 16  vm_scan_ratio = 6 
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 2   vm_scan_ratio = 10
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 2   vm_scan_ratio = 14
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 2   vm_scan_ratio = 16
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 2   vm_scan_ratio = 2 
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 2   vm_scan_ratio = 24
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 2   vm_scan_ratio = 8 
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 4   vm_scan_ratio = 10
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 4   vm_scan_ratio = 2 
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 4   vm_scan_ratio = 32
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 4   vm_scan_ratio = 8 
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 8   vm_scan_ratio = 14
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 8   vm_scan_ratio = 24
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 8   vm_scan_ratio = 4 
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 8   vm_scan_ratio = 6 
-139 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 8   vm_scan_ratio = 8 
-139 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 1   vm_scan_ratio = 10
-139 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 1   vm_scan_ratio = 14
-139 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 1   vm_scan_ratio = 20
-139 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 1   vm_scan_ratio = 4 
-139 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 1   vm_scan_ratio = 6 
-139 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 10  vm_scan_ratio = 12
-139 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 12  vm_scan_ratio = 6 
-139 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 14  vm_scan_ratio = 4 
-139 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 2   vm_scan_ratio = 4 
-139 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 4   vm_scan_ratio = 12
-139 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 4   vm_scan_ratio = 20
-139 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 4   vm_scan_ratio = 4 
-139 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 8   vm_scan_ratio = 24
-139 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 1   vm_scan_ratio = 12
-139 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 1   vm_scan_ratio = 10
-139 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 1   vm_scan_ratio = 20
-139 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 1   vm_scan_ratio = 24
-139 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 1   vm_scan_ratio = 6 
-139 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 2   vm_scan_ratio = 12
-139 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 2   vm_scan_ratio = 6 
-139 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 4   vm_scan_ratio = 12
-139 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 4   vm_scan_ratio = 14
-139 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 4   vm_scan_ratio = 16
-139 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 4   vm_scan_ratio = 24
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 10  vm_scan_ratio = 10
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 10  vm_scan_ratio = 2 
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 10  vm_scan_ratio = 20
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 10  vm_scan_ratio = 8 
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 12  vm_scan_ratio = 10
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 12  vm_scan_ratio = 14
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 12  vm_scan_ratio = 6 
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 14  vm_scan_ratio = 10
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 14  vm_scan_ratio = 12
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 14  vm_scan_ratio = 14
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 14  vm_scan_ratio = 16
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 14  vm_scan_ratio = 32
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 14  vm_scan_ratio = 6 
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 14  vm_scan_ratio = 8 
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 16  vm_scan_ratio = 10
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 16  vm_scan_ratio = 12
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 16  vm_scan_ratio = 16
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 16  vm_scan_ratio = 2 
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 16  vm_scan_ratio = 20
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 16  vm_scan_ratio = 32
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 16  vm_scan_ratio = 8 
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 2   vm_scan_ratio = 32
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 4   vm_scan_ratio = 12
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 4   vm_scan_ratio = 14
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 4   vm_scan_ratio = 16
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 4   vm_scan_ratio = 20
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 4   vm_scan_ratio = 24
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 8   vm_scan_ratio = 12
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 8   vm_scan_ratio = 2 
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 8   vm_scan_ratio = 20
-140 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 8   vm_scan_ratio = 32
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 1   vm_scan_ratio = 12
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 1   vm_scan_ratio = 32
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 1   vm_scan_ratio = 8 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 10  vm_scan_ratio = 10
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 10  vm_scan_ratio = 16
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 10  vm_scan_ratio = 2 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 10  vm_scan_ratio = 20
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 10  vm_scan_ratio = 32
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 10  vm_scan_ratio = 4 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 10  vm_scan_ratio = 6 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 10  vm_scan_ratio = 8 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 12  vm_scan_ratio = 10
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 12  vm_scan_ratio = 12
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 12  vm_scan_ratio = 14
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 12  vm_scan_ratio = 16
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 12  vm_scan_ratio = 2 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 12  vm_scan_ratio = 20
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 12  vm_scan_ratio = 24
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 12  vm_scan_ratio = 32
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 12  vm_scan_ratio = 4 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 12  vm_scan_ratio = 8 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 14  vm_scan_ratio = 16
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 16  vm_scan_ratio = 10
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 16  vm_scan_ratio = 12
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 16  vm_scan_ratio = 24
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 16  vm_scan_ratio = 8 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 2   vm_scan_ratio = 10
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 2   vm_scan_ratio = 12
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 2   vm_scan_ratio = 14
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 2   vm_scan_ratio = 16
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 2   vm_scan_ratio = 2 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 2   vm_scan_ratio = 20
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 2   vm_scan_ratio = 24
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 2   vm_scan_ratio = 8 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 4   vm_scan_ratio = 16
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 4   vm_scan_ratio = 2 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 4   vm_scan_ratio = 8 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 8   vm_scan_ratio = 12
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 8   vm_scan_ratio = 16
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 8   vm_scan_ratio = 2 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 8   vm_scan_ratio = 32
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 8   vm_scan_ratio = 4 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 8   vm_scan_ratio = 6 
-140 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 8   vm_scan_ratio = 8 
-140 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 1   vm_scan_ratio = 16
-140 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 1   vm_scan_ratio = 2 
-140 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 1   vm_scan_ratio = 8 
-140 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 14  vm_scan_ratio = 20
-140 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 14  vm_scan_ratio = 24
-140 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 16  vm_scan_ratio = 20
-140 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 16  vm_scan_ratio = 24
-140 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 1   vm_scan_ratio = 12
-140 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 1   vm_scan_ratio = 14
-140 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 1   vm_scan_ratio = 16
-140 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 1   vm_scan_ratio = 32
-140 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 1   vm_scan_ratio = 4 
-140 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 2   vm_scan_ratio = 10
-140 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 2   vm_scan_ratio = 14
-140 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 2   vm_scan_ratio = 20
-140 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 2   vm_scan_ratio = 24
-140 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 2   vm_scan_ratio = 32
-140 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 2   vm_scan_ratio = 8 
-140 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 4   vm_scan_ratio = 4 
-140 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 4   vm_scan_ratio = 6 
-140 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 4   vm_scan_ratio = 8 
-141 seconds mmap001 vm_balance_ratio = 12   vm_mapped_ratio = 8   vm_scan_ratio = 16
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 1   vm_scan_ratio = 24
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 10  vm_scan_ratio = 14
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 10  vm_scan_ratio = 24
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 14  vm_scan_ratio = 10
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 14  vm_scan_ratio = 12
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 14  vm_scan_ratio = 14
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 14  vm_scan_ratio = 2 
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 14  vm_scan_ratio = 20
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 14  vm_scan_ratio = 32
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 14  vm_scan_ratio = 6 
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 14  vm_scan_ratio = 8 
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 16  vm_scan_ratio = 14
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 16  vm_scan_ratio = 16
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 16  vm_scan_ratio = 2 
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 16  vm_scan_ratio = 32
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 16  vm_scan_ratio = 4 
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 16  vm_scan_ratio = 6 
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 2   vm_scan_ratio = 32
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 2   vm_scan_ratio = 6 
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 4   vm_scan_ratio = 10
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 4   vm_scan_ratio = 14
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 4   vm_scan_ratio = 32
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 4   vm_scan_ratio = 6 
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 8   vm_scan_ratio = 10
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 8   vm_scan_ratio = 14
-141 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 8   vm_scan_ratio = 20
-141 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 1   vm_scan_ratio = 10
-141 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 1   vm_scan_ratio = 14
-141 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 1   vm_scan_ratio = 24
-141 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 1   vm_scan_ratio = 4 
-141 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 1   vm_scan_ratio = 6 
-141 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 12  vm_scan_ratio = 4 
-141 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 14  vm_scan_ratio = 12
-141 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 14  vm_scan_ratio = 14
-141 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 14  vm_scan_ratio = 16
-141 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 14  vm_scan_ratio = 2 
-141 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 14  vm_scan_ratio = 32
-141 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 16  vm_scan_ratio = 10
-141 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 16  vm_scan_ratio = 2 
-141 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 16  vm_scan_ratio = 32
-141 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 16  vm_scan_ratio = 6 
-141 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 1   vm_scan_ratio = 2 
-141 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 1   vm_scan_ratio = 8 
-141 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 2   vm_scan_ratio = 16
-141 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 2   vm_scan_ratio = 2 
-141 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 2   vm_scan_ratio = 4 
-141 seconds mmap001 vm_balance_ratio = 8    vm_mapped_ratio = 4   vm_scan_ratio = 2 
-142 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 14  vm_scan_ratio = 24
-142 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 16  vm_scan_ratio = 20
-142 seconds mmap001 vm_balance_ratio = 16   vm_mapped_ratio = 4   vm_scan_ratio = 24
-142 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 1   vm_scan_ratio = 20
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 10  vm_scan_ratio = 32
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 12  vm_scan_ratio = 12
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 12  vm_scan_ratio = 16
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 12  vm_scan_ratio = 2 
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 12  vm_scan_ratio = 20
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 12  vm_scan_ratio = 24
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 12  vm_scan_ratio = 6 
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 12  vm_scan_ratio = 8 
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 14  vm_scan_ratio = 10
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 14  vm_scan_ratio = 4 
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 14  vm_scan_ratio = 6 
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 14  vm_scan_ratio = 8 
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 16  vm_scan_ratio = 12
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 16  vm_scan_ratio = 14
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 16  vm_scan_ratio = 16
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 16  vm_scan_ratio = 4 
-142 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 16  vm_scan_ratio = 8 
-143 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 12  vm_scan_ratio = 14
-143 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 12  vm_scan_ratio = 32
-144 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 10  vm_scan_ratio = 20
-144 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 12  vm_scan_ratio = 10
-145 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 10  vm_scan_ratio = 14
-145 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 10  vm_scan_ratio = 24
-146 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 10  vm_scan_ratio = 12
-147 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 1   vm_scan_ratio = 32
-148 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 10  vm_scan_ratio = 10
-148 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 10  vm_scan_ratio = 16
-148 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 10  vm_scan_ratio = 6 
-150 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 10  vm_scan_ratio = 8 
-151 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 10  vm_scan_ratio = 4 
-153 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 8   vm_scan_ratio = 32
-154 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 12  vm_scan_ratio = 2 
-154 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 12  vm_scan_ratio = 4 
-154 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 14  vm_scan_ratio = 12
-154 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 14  vm_scan_ratio = 16
-154 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 14  vm_scan_ratio = 6 
-154 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 10  vm_scan_ratio = 12
-154 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 10  vm_scan_ratio = 14
-154 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 10  vm_scan_ratio = 8 
-154 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 12  vm_scan_ratio = 10
-154 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 12  vm_scan_ratio = 14
-154 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 12  vm_scan_ratio = 32
-154 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 12  vm_scan_ratio = 4 
-154 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 12  vm_scan_ratio = 6 
-154 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 14  vm_scan_ratio = 16
-154 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 14  vm_scan_ratio = 8 
-154 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 10  vm_scan_ratio = 2 
-154 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 8   vm_scan_ratio = 24
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 10  vm_scan_ratio = 12
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 10  vm_scan_ratio = 14
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 10  vm_scan_ratio = 16
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 10  vm_scan_ratio = 20
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 10  vm_scan_ratio = 24
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 10  vm_scan_ratio = 32
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 12  vm_scan_ratio = 12
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 12  vm_scan_ratio = 16
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 12  vm_scan_ratio = 20
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 12  vm_scan_ratio = 6 
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 12  vm_scan_ratio = 8 
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 14  vm_scan_ratio = 10
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 14  vm_scan_ratio = 4 
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 14  vm_scan_ratio = 8 
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 2   vm_scan_ratio = 24
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 2   vm_scan_ratio = 32
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 4   vm_scan_ratio = 10
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 4   vm_scan_ratio = 16
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 4   vm_scan_ratio = 4 
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 4   vm_scan_ratio = 6 
-155 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 4   vm_scan_ratio = 8 
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 10  vm_scan_ratio = 10
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 10  vm_scan_ratio = 16
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 10  vm_scan_ratio = 2 
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 10  vm_scan_ratio = 20
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 10  vm_scan_ratio = 24
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 10  vm_scan_ratio = 32
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 10  vm_scan_ratio = 6 
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 12  vm_scan_ratio = 12
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 12  vm_scan_ratio = 16
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 12  vm_scan_ratio = 2 
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 12  vm_scan_ratio = 8 
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 14  vm_scan_ratio = 10
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 14  vm_scan_ratio = 12
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 14  vm_scan_ratio = 20
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 14  vm_scan_ratio = 24
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 14  vm_scan_ratio = 4 
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 14  vm_scan_ratio = 6 
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 16  vm_scan_ratio = 16
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 16  vm_scan_ratio = 4 
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 16  vm_scan_ratio = 8 
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 8   vm_scan_ratio = 12
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 8   vm_scan_ratio = 20
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 8   vm_scan_ratio = 24
-155 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 8   vm_scan_ratio = 32
-156 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 10  vm_scan_ratio = 2 
-156 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 10  vm_scan_ratio = 4 
-156 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 10  vm_scan_ratio = 8 
-156 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 12  vm_scan_ratio = 10
-156 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 12  vm_scan_ratio = 24
-156 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 12  vm_scan_ratio = 32
-156 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 14  vm_scan_ratio = 2 
-156 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 2   vm_scan_ratio = 10
-156 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 2   vm_scan_ratio = 12
-156 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 2   vm_scan_ratio = 14
-156 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 2   vm_scan_ratio = 20
-156 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 4   vm_scan_ratio = 12
-156 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 4   vm_scan_ratio = 2 
-156 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 8   vm_scan_ratio = 32
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 10  vm_scan_ratio = 4 
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 12  vm_scan_ratio = 20
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 12  vm_scan_ratio = 24
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 14  vm_scan_ratio = 14
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 14  vm_scan_ratio = 2 
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 14  vm_scan_ratio = 32
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 16  vm_scan_ratio = 2 
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 16  vm_scan_ratio = 20
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 16  vm_scan_ratio = 32
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 16  vm_scan_ratio = 6 
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 4   vm_scan_ratio = 12
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 4   vm_scan_ratio = 14
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 4   vm_scan_ratio = 20
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 8   vm_scan_ratio = 10
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 8   vm_scan_ratio = 14
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 8   vm_scan_ratio = 16
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 8   vm_scan_ratio = 2 
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 8   vm_scan_ratio = 4 
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 8   vm_scan_ratio = 6 
-156 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 8   vm_scan_ratio = 8 
-156 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 1   vm_scan_ratio = 2 
-156 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 1   vm_scan_ratio = 20
-156 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 2   vm_scan_ratio = 2 
-156 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 2   vm_scan_ratio = 4 
-156 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 2   vm_scan_ratio = 6 
-156 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 8   vm_scan_ratio = 12
-156 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 8   vm_scan_ratio = 14
-156 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 8   vm_scan_ratio = 20
-157 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 10  vm_scan_ratio = 6 
-157 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 12  vm_scan_ratio = 14
-157 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 2   vm_scan_ratio = 16
-157 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 2   vm_scan_ratio = 4 
-157 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 2   vm_scan_ratio = 6 
-157 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 2   vm_scan_ratio = 8 
-157 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 8   vm_scan_ratio = 10
-157 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 8   vm_scan_ratio = 6 
-157 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 1   vm_scan_ratio = 10
-157 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 16  vm_scan_ratio = 10
-157 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 16  vm_scan_ratio = 12
-157 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 16  vm_scan_ratio = 14
-157 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 16  vm_scan_ratio = 24
-157 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 2   vm_scan_ratio = 12
-157 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 2   vm_scan_ratio = 6 
-157 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 4   vm_scan_ratio = 10
-157 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 4   vm_scan_ratio = 16
-157 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 4   vm_scan_ratio = 24
-157 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 4   vm_scan_ratio = 32
-157 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 4   vm_scan_ratio = 6 
-157 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 1   vm_scan_ratio = 10
-157 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 1   vm_scan_ratio = 12
-157 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 1   vm_scan_ratio = 14
-157 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 1   vm_scan_ratio = 32
-157 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 1   vm_scan_ratio = 4 
-157 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 1   vm_scan_ratio = 6 
-157 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 1   vm_scan_ratio = 8 
-157 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 2   vm_scan_ratio = 16
-157 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 2   vm_scan_ratio = 20
-157 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 2   vm_scan_ratio = 24
-157 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 4   vm_scan_ratio = 2 
-157 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 4   vm_scan_ratio = 20
-157 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 4   vm_scan_ratio = 4 
-157 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 4   vm_scan_ratio = 6 
-157 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 8   vm_scan_ratio = 10
-158 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 10  vm_scan_ratio = 10
-158 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 2   vm_scan_ratio = 2 
-158 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 4   vm_scan_ratio = 14
-158 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 4   vm_scan_ratio = 24
-158 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 4   vm_scan_ratio = 32
-158 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 8   vm_scan_ratio = 12
-158 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 8   vm_scan_ratio = 14
-158 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 8   vm_scan_ratio = 16
-158 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 8   vm_scan_ratio = 2 
-158 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 8   vm_scan_ratio = 20
-158 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 8   vm_scan_ratio = 24
-158 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 8   vm_scan_ratio = 4 
-158 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 8   vm_scan_ratio = 8 
-158 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 1   vm_scan_ratio = 12
-158 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 1   vm_scan_ratio = 16
-158 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 1   vm_scan_ratio = 2 
-158 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 1   vm_scan_ratio = 4 
-158 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 2   vm_scan_ratio = 10
-158 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 2   vm_scan_ratio = 14
-158 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 2   vm_scan_ratio = 20
-158 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 2   vm_scan_ratio = 24
-158 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 2   vm_scan_ratio = 4 
-158 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 2   vm_scan_ratio = 8 
-158 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 4   vm_scan_ratio = 2 
-158 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 4   vm_scan_ratio = 4 
-158 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 4   vm_scan_ratio = 8 
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 1   vm_scan_ratio = 16
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 1   vm_scan_ratio = 24
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 2   vm_scan_ratio = 10
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 2   vm_scan_ratio = 12
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 2   vm_scan_ratio = 14
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 2   vm_scan_ratio = 32
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 2   vm_scan_ratio = 8 
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 4   vm_scan_ratio = 10
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 4   vm_scan_ratio = 12
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 4   vm_scan_ratio = 14
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 4   vm_scan_ratio = 16
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 4   vm_scan_ratio = 24
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 4   vm_scan_ratio = 32
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 4   vm_scan_ratio = 8 
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 8   vm_scan_ratio = 16
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 8   vm_scan_ratio = 2 
-158 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 8   vm_scan_ratio = 6 
-159 seconds mmap001 vm_balance_ratio = 20   vm_mapped_ratio = 4   vm_scan_ratio = 20
-159 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 1   vm_scan_ratio = 14
-159 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 1   vm_scan_ratio = 20
-159 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 1   vm_scan_ratio = 24
-159 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 1   vm_scan_ratio = 32
-159 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 1   vm_scan_ratio = 6 
-159 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 1   vm_scan_ratio = 8 
-159 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 2   vm_scan_ratio = 16
-159 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 2   vm_scan_ratio = 2 
-159 seconds mmap001 vm_balance_ratio = 3    vm_mapped_ratio = 2   vm_scan_ratio = 32
-159 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 8   vm_scan_ratio = 4 
-159 seconds mmap001 vm_balance_ratio = 4    vm_mapped_ratio = 8   vm_scan_ratio = 8 
+> Also, how can "every citizen be aware of the matters concerning the
+> State" when you live in a society where the State controls the media?
 
-Looking forward to the next kernel :)
+Again, see above.  Others have managed it.  No one is saying its easy,
+only possible.
 
+And again, I don't hold the fact that the unarmed Afghans don't rebel
+against them.  As I said it's completely understandable.  I don't think
+they deserve to be killed.  I'm only saying that a good argument can be
+made that they are completely responsible for their government, directly
+or indirectly.
 -- 
-Randy Hron
-
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell
+Freedom is slavery. Ignorance is strength. War is peace.
+			-- George Orwell
+Those that would give up a necessary freedom for temporary safety
+deserver neither freedom nor safety.
+			-- Ben Franklin

@@ -1,47 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129489AbRBQU35>; Sat, 17 Feb 2001 15:29:57 -0500
+	id <S131262AbRBQUbQ>; Sat, 17 Feb 2001 15:31:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131420AbRBQU3q>; Sat, 17 Feb 2001 15:29:46 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:47117 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129489AbRBQU3c>;
-	Sat, 17 Feb 2001 15:29:32 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102172029.XAA28904@ms2.inr.ac.ru>
-Subject: Re: SO_SNDTIMEO: 2.4 kernel bugs
-To: chris@scary.beasts.org (Chris Evans)
-Date: Sat, 17 Feb 2001 23:29:14 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-In-Reply-To: <Pine.LNX.4.30.0102170126130.21158-100000@ferret.lmh.ox.ac.uk> from "Chris Evans" at Feb 17, 1 01:35:15 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S131420AbRBQUbG>; Sat, 17 Feb 2001 15:31:06 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24840 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131262AbRBQUbA>; Sat, 17 Feb 2001 15:31:00 -0500
+Subject: Re: 2.4.1ac17 hang on mounting loopback fs
+To: neldredge@hmc.edu (Nate Eldredge)
+Date: Sat, 17 Feb 2001 20:31:22 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <14990.18933.849551.526672@mercury.st.hmc.edu> from "Nate Eldredge" at Feb 17, 2001 01:52:53 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14UE0r-00071Q-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> # mount -t ext2 -o loop /spare/i486-linuxaout.img /spare/mnt
+> loop: enabling 8 loop devices
 
-> Unfortunately, it seems to be very buggy. Here are two buggy scenarios.
+Loop does not currently work in 2.4. It might partly work by luck but thats it.
+This will change as and when the new loop patches go in. Until then if you need
+loop use 2.2
 
-
---- ../vger3-010210/linux/net/ipv4/tcp.c	Sat Feb 10 23:16:51 2001
-+++ linux/net/ipv4/tcp.c	Sat Feb 17 23:27:43 2001
-@@ -691,6 +691,8 @@
- 
- 		set_current_state(TASK_INTERRUPTIBLE);
- 
-+		if (!timeo)
-+			break;
- 		if (signal_pending(current))
- 			break;
- 		if (tcp_memory_free(sk) && !vm_wait)
---- ../vger3-010210/linux/net/core/sock.c	Tue Jan 30 21:20:16 2001
-+++ linux/net/core/sock.c	Sat Feb 17 23:27:44 2001
-@@ -727,6 +727,8 @@
- 	clear_bit(SOCK_ASYNC_NOSPACE, &sk->socket->flags);
- 	add_wait_queue(sk->sleep, &wait);
- 	for (;;) {
-+		if (!timeo)
-+			break;
- 		if (signal_pending(current))
- 			break;
- 		set_bit(SOCK_NOSPACE, &sk->socket->flags);

@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288639AbSANCOe>; Sun, 13 Jan 2002 21:14:34 -0500
+	id <S288660AbSANCRo>; Sun, 13 Jan 2002 21:17:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288660AbSANCOZ>; Sun, 13 Jan 2002 21:14:25 -0500
-Received: from paloma15.e0k.nbg-hannover.de ([62.181.130.15]:58832 "HELO
-	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S288639AbSANCOL>; Sun, 13 Jan 2002 21:14:11 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Mon, 14 Jan 2002 03:12:57 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@zip.com.au>
+	id <S288662AbSANCQi>; Sun, 13 Jan 2002 21:16:38 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:54289 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S288660AbSANCQR>; Sun, 13 Jan 2002 21:16:17 -0500
+Message-ID: <3C423E13.8A164D72@zip.com.au>
+Date: Sun, 13 Jan 2002 18:10:27 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020114021417Z288639-13997+4537@vger.kernel.org>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18pre3-ac1-aia21 (IDE patches)
+In-Reply-To: <5.1.0.14.2.20020113232757.04f34ec0@pop.cus.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Or just doing a large write while doing lots of reads... my personal
-> nemesis is "mkisofs" for backups, which reads lots of small files and
-> builds a CD image, which suddenly gets discovered by the kernel and
-> written, seemingly in a monolythic chunk. I MAY be able to improve this
-> with tuning the bdflush parameters, and I tried some tentative patches
-> which didn't make a huge gain.
->
-> I don't know if the solution lies in forcing write to start when a certain
-> size of buffers are queued regardless of percentages, or in better
-> scheduling of reads ahead of writes, or whatever.
+Anton Altaparmakov wrote:
+> 
+> Alan's -ac series is back! To celebrate this I added in the IDE patches and
+> an NTFS update which dramatically reduces the number of vmalloc()s and have
+> posted the resulting (tested) patch (to be applied on top of
+> 2.4.18pre3-ac1) at below URL.
+> 
 
-Have you observed it with -rmap or -aa, too?
-I bet, you have.
+Is that the NTFS code which produces eighty five quintillion warnings
+with the recommended gcc versions? :-)
 
-Try Andrew's read-latency.patch then.
-I use it on top of O(1) and preempt all the time.
-It should be one of the next 2.4.18-preX/2.4.19-preX patches.
-
-Regards,
-	Dieter
-
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel@hamburg.de
+-

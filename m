@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbUCZXLs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 18:11:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbUCZXLs
+	id S261416AbUCZXUO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 18:20:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbUCZXUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 18:11:48 -0500
-Received: from smtp-out1.blueyonder.co.uk ([195.188.213.4]:47701 "EHLO
-	smtp-out1.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261419AbUCZXLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 18:11:46 -0500
-Message-ID: <4064B8B1.6050501@blueyonder.co.uk>
-Date: Fri, 26 Mar 2004 23:11:45 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-mm4
-References: <4062E015.2000608@blueyonder.co.uk> <40633278.9060503@blueyonder.co.uk>
-In-Reply-To: <40633278.9060503@blueyonder.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Mar 2004 23:11:46.0100 (UTC) FILETIME=[B5926740:01C41387]
+	Fri, 26 Mar 2004 18:20:14 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:25353 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261422AbUCZXUK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 18:20:10 -0500
+Date: Sat, 27 Mar 2004 10:19:58 +1100
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [EXT3/JBD] Periodic journal flush not enough?
+Message-ID: <20040326231958.GA484@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Same as for -mm3.
-SuSE 9.0 x86_64, gcc-3.3.1.
-Regards
-Sid.
+Hi:
 
-Sid Boyce wrote:
+I've encountered a problem with the journal flush timer.  The problem
+is that when a filesystem is short on space, relying on a timer-based
+flushing mechanism is no longer adequate.  For example, on my P4 2GHz
+I can trigger an ENOSPC error by doing
 
-> This doesn't appear to have gotten through to the list. As it builds 
-> but doesn't boot fully on the Athlon XP2200+, I started with fresh 
-> sources and applied the patches, results the same.
-> Regards
-> Sid.
->
-> Sid Boyce wrote:
->
->>  HOSTCC  usr/gen_init_cpio
->>  CPIO    usr/initramfs_data.cpio
->>  GZIP    usr/initramfs_data.cpio.gz
->>  AS      usr/initramfs_data.o
->>  LD      usr/built-in.o
->>  CC      arch/x86_64/kernel/process.o
->>  CC      arch/x86_64/kernel/semaphore.o
->>  CC      arch/x86_64/kernel/signal.o
->> arch/x86_64/kernel/signal.c: In function `do_signal':
->> arch/x86_64/kernel/signal.c:426: warning: passing arg 2 of 
->> `get_signal_to_deliver' from incompatible poi
->> nter type
->> arch/x86_64/kernel/signal.c:426: error: too few arguments to function 
->> `get_signal_to_deliver'
->> make[1]: *** [arch/x86_64/kernel/signal.o] Error 1
->> make: *** [arch/x86_64/kernel] Error 2
->> Regards
->> Sid.
->>
->
->
+while :; do echo test > a; [ -s a ] || break; rm a; done; echo Out of space
 
+on an ext3 file system with 12Mb of free space using the usual 5s
+journal flush timer.
 
+Of course, when you extend the flushing period as you do with laptop-mode,
+this problem becomes a lot worse.
+
+So would it be possible to have the flushing activated on demand?
+
+Thanks,
 -- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
-
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

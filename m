@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131271AbRAGV3X>; Sun, 7 Jan 2001 16:29:23 -0500
+	id <S129992AbRAGVhd>; Sun, 7 Jan 2001 16:37:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132533AbRAGV3N>; Sun, 7 Jan 2001 16:29:13 -0500
-Received: from 209.102.21.2 ([209.102.21.2]:50955 "EHLO dragnet.seagull.net")
-	by vger.kernel.org with ESMTP id <S131271AbRAGV25>;
-	Sun, 7 Jan 2001 16:28:57 -0500
-Message-ID: <3A58AF28.8359C3A7@goingware.com>
-Date: Sun, 07 Jan 2001 18:02:16 +0000
-From: "Michael D. Crawford" <crawford@goingware.com>
-Organization: GoingWare Inc. - Expert Software Development and Consulting
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0-ac2 i686)
-X-Accept-Language: en
+	id <S130214AbRAGVhY>; Sun, 7 Jan 2001 16:37:24 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:60661 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129992AbRAGVhP>; Sun, 7 Jan 2001 16:37:15 -0500
+Date: Sun, 7 Jan 2001 19:37:06 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Zlatko Calusic <zlatko@iskon.hr>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Subtle MM bug
+In-Reply-To: <87k8879iyu.fsf@atlas.iskon.hr>
+Message-ID: <Pine.LNX.4.21.0101071919120.21675-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, newbie@xfree86.org
-CC: jhartmann@valinux.com, srwalter@yahoo.com
-Subject: ReL DRI doesn't work on 2.4.0 but does on prerelease-ac5
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get, with XFree86 4.0.1 and an ATI Rage Millenium card:
+On 7 Jan 2001, Zlatko Calusic wrote:
 
-> (EE) r128(0): R128DRIScreenInit failed (DRM version = 2.1.2, expected 1.0.x). 
-> Disabling DRI. 
+> Things go berzerk if you have one big process whose working set
+> is around your physical memory size.
 
-Jeff Hartmann (jhartmann@valinux.com) says:
+"go berzerk" in what way?  Does the system cause lots of extra
+swap IO and does it make the system thrash where 2.2 didn't
+even touch the disk ?
 
-> XFree 4.0.2 will fix this
+> Final effect is that physical memory gets extremely flooded with
+> the swap cache pages and at the same time the system absorbs
+> ridiculous amount of the swap space.
 
-OK, so I'll give a try at building 4.0.2 the Slackware way.  While unfortunately
-the Slackware packages for 4.0.2 are not yet available, the diffs to the 4.0.1
-sources (mostly the Imake files and site.def) used to build their version (with
-its different directory layout) are in:
+This is mostly because Linux 2.4 keeps dirty pages in the
+swap cache. Under Linux 2.2 a page would be deleted from the
+swap cache when a program writes to it, but in Linux 2.4 it
+can stay in the swap cache.
 
-ftp://ftp.slackware.com/pub/slackware/slackware-current/contrib/contrib-sources/XFree86-4.0.1/
+Oh, and don't forget that pages in the swap cache can also
+be resident in the process, so it's not like the swap cache
+is "eating into" the process' RSS ;)
 
-Steven Walter (srwalter@yahoo.com) suggested that the incompatibility would be
-fixed by using a -ac version since 2.4.0.  I built 2.4.0, but it didn't fix it,
-so given what Jeff said I guess this is a feature not a bug.
+> For instance on my 192MB configuration, firing up the hogmem
+> program which allocates let's say 170MB of memory and dirties it
+> leads to 215MB of swap used.
 
-Mike
--- 
-Michael D. Crawford
-GoingWare Inc. - Expert Software Development and Consulting
-http://www.goingware.com/
-crawford@goingware.com
+So that's 170MB of swap space for hogmem and 45MB for
+the other things in the system (daemons, X, ...).
 
-   Tilting at Windmills for a Better Tomorrow.
+Sounds pretty ok, except maybe for the fact that now
+Linux allocates (not uses!) a lot more swap space then
+before and some people may need to add some swap space
+to their system ...
+
+
+Now if 2.4 has worse _performance_ than 2.2 due to one
+reason or another, that I'd like to hear about ;)
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

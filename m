@@ -1,833 +1,882 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265267AbUATBHU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 20:07:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265314AbUATBGD
+	id S263523AbUATAd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 19:33:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265243AbUATA1B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 20:06:03 -0500
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:55192 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S265267AbUATBAX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 20:00:23 -0500
-From: Rusty Russell <rusty@au1.ibm.com>
-To: Mike Anderson <andmike@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Brian King <brking@us.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>, greg@kroah.com,
-       kai@germaschewski.name, sam@ravnborg.org, akpm@osdl.org
-Subject: Re: Question on MODULE_VERSION macro 
-In-reply-to: Your message of "Mon, 19 Jan 2004 13:42:34 -0800."
-             <20040119214233.GF967@beaverton.ibm.com> 
-Date: Tue, 20 Jan 2004 11:57:38 +1100
-Message-Id: <20040120005915.2A54A17DD8@ozlabs.au.ibm.com>
+	Mon, 19 Jan 2004 19:27:01 -0500
+Received: from dodge.jordet.nu ([217.13.8.142]:16512 "EHLO dodge.jordet.nu")
+	by vger.kernel.org with ESMTP id S265167AbUATAAZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 19:00:25 -0500
+Subject: Re: Ooops, linux 2.6.1
+From: Stian Jordet <liste@jordet.nu>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040119235640.GX1748@srv-lnx2600.matchmail.com>
+References: <1074555938.18661.2.camel@chevrolet.hybel>
+	 <20040119235640.GX1748@srv-lnx2600.matchmail.com>
+Content-Type: multipart/mixed; boundary="=-0jqGYv/9UZsWh/UeV3Xi"
+Message-Id: <1074556812.18661.5.camel@chevrolet.hybel>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 20 Jan 2004 01:00:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040119214233.GF967@beaverton.ibm.com> you write:
-> Rusty,
-> 	Christoph mentioned that a MODULE_VERSION macro may be pending.
 
-Hey, thanks Christoph for the reminder.  I stopped when we were
-frozen.
+--=-0jqGYv/9UZsWh/UeV3Xi
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-This still seems to apply.  Do people think this is huge overkill, or
-a work of obvious beauty and genius?
+tir, 20.01.2004 kl. 00.56 skrev Mike Fedyk:
+> On Tue, Jan 20, 2004 at 12:45:38AM +0100, Stian Jordet wrote:
+> > I don't know if anyone gets anything out of this. I tried running it
+> > through ksymoops, but got just weird results.
+> > 
+> 
+> No need, you have kallsyms turned on which does it for you.
 
-Doesn't put things in sysfs, but Greg was working on that for module
-parameters... Greg?
+Ok.
 
-Cheers,
-Rusty.
+> > Hope someone sees what's going on here.
+> > 
+> > Best regards,
+> > Stian
+> 
+> What were you running at the time, and post your .config
 
-Name: Add a MODULE_VERSION macro
-Author: Rusty Russell
-Status: Tested on 2.6.0-test5
+Nothing special. It's a production server (ok, not _that_ important,
+then I wouldn't run 2.6 on it) which runs bind9, sendmail, apache
+mostly. It wasn't doing anything special at the time of the oops. No
+cron job, nothing. 
 
-D: At the kernel summit, various people asked for a MODULE_VERSION
-D: macro to store module strings (for later access through sysfs).
-D: A simple md4 is needed to identify changes in modules which,
-D: inevitably, do not update the version.  It skips whitespace and
-D: comments, and includes #includes which are in the same dir.
-D: 
-D: The module versions should be set according to this definition,
-D: based on the RPM one, or CVS Revision tags.  Violators will be shot.
-D: 
-D:  [<epoch>`:']<version>[`-'<extraversion>]
-D:  <epoch>: A (small) unsigned integer which allows you to start versions
-D:           anew. If not mentioned, it's zero.  eg. "2:1.0" is after
-D:	     "1:2.0".
-D:  <version>: The <version> may contain only alphanumerics.
-D:  <extraversion>: Like <version>, but inserted for local
-D:           customizations, eg "rh3" or "rusty1".
-D: 
-D: Comparison of two versions (assuming same epoch):
-D: 
-D: Split each into all-digit and all-alphabetical parts.  Compare each
-D: one one at a time: digit parts numerically, alphabetical in ASCII
-D: order.  So 0.10 comes after 0.9.
+Best regards,
+Stian
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25664-linux-2.6.0-test6-bk6/include/linux/module.h .25664-linux-2.6.0-test6-bk6.updated/include/linux/module.h
---- .25664-linux-2.6.0-test6-bk6/include/linux/module.h	2003-09-22 10:26:13.000000000 +1000
-+++ .25664-linux-2.6.0-test6-bk6.updated/include/linux/module.h	2003-10-05 16:45:10.000000000 +1000
-@@ -123,6 +123,24 @@ extern const struct gtype##_id __mod_##g
- #define MODULE_DEVICE_TABLE(type,name)		\
-   MODULE_GENERIC_TABLE(type##_device,name)
- 
-+/* Version of form [<epoch>:]<version>[-<extra-version>].
-+   Or for CVS/RCS ID version, everything but the number is stripped.
-+  <epoch>: A (small) unsigned integer which allows you to start versions
-+           anew. If not mentioned, it's zero.  eg. "2:1.0" is after
-+	   "1:2.0".
-+  <version>: The <version> may contain only alphanumerics and the
-+           character `.'.  Ordered by numeric sort for numeric parts,
-+	   ascii sort for ascii parts (as per RPM or DEB algorithm).
-+  <extraversion>: Like <version>, but inserted for local
-+           customizations, eg "rh3" or "rusty1".
-+
-+  Using this automatically adds a checksum of the .c files and the
-+  local headers to the end.  Use MODULE_VERSION("") if you want just
-+  this.  Macro includes room for this.
-+*/
-+#define MODULE_VERSION(_version) \
-+  MODULE_INFO(version, _version "\0xxxxxxxxxxxxxxxxxxxxxxxx")
-+
- /* Given an address, look for it in the exception tables */
- const struct exception_table_entry *search_exception_tables(unsigned long add);
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25664-linux-2.6.0-test6-bk6/scripts/Makefile .25664-linux-2.6.0-test6-bk6.updated/scripts/Makefile
---- .25664-linux-2.6.0-test6-bk6/scripts/Makefile	2003-09-29 10:26:16.000000000 +1000
-+++ .25664-linux-2.6.0-test6-bk6.updated/scripts/Makefile	2003-10-05 16:45:10.000000000 +1000
-@@ -12,7 +12,7 @@ host-progs	:= fixdep split-include conma
- 		   mk_elfconfig pnmtologo bin2c
- always		:= $(host-progs) empty.o
- 
--modpost-objs	:= modpost.o file2alias.o
-+modpost-objs	:= modpost.o file2alias.o sumversion.o
- 
- subdir-$(CONFIG_MODVERSIONS)	+= genksyms
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25664-linux-2.6.0-test6-bk6/scripts/Makefile.build .25664-linux-2.6.0-test6-bk6.updated/scripts/Makefile.build
---- .25664-linux-2.6.0-test6-bk6/scripts/Makefile.build	2003-09-29 10:26:16.000000000 +1000
-+++ .25664-linux-2.6.0-test6-bk6.updated/scripts/Makefile.build	2003-10-05 16:45:10.000000000 +1000
-@@ -64,8 +64,6 @@ endif
- 
- # We keep a list of all modules in $(MODVERDIR)
- 
--touch-module = @echo $(@:.o=.ko) > $(MODVERDIR)/$(@F:.o=.mod)
--
- __build: $(if $(KBUILD_BUILTIN),$(builtin-target) $(lib-target) $(extra-y)) \
- 	 $(if $(KBUILD_MODULES),$(obj-m)) \
- 	 $(subdir-ym) $(always)
-@@ -178,7 +176,7 @@ endef
- 
- $(single-used-m): %.o: %.c FORCE
- 	$(call if_changed_rule,cc_o_c)
--	$(touch-module)
-+	@{ echo $(@:.o=.ko); echo $<; } > $(MODVERDIR)/$(@F:.o=.mod)
- 
- quiet_cmd_cc_lst_c = MKLST   $@
-       cmd_cc_lst_c = $(CC) $(c_flags) -g -c -o $*.o $< && \
-@@ -273,7 +271,7 @@ $(multi-used-y) : %.o: $(multi-objs-y) F
- 
- $(multi-used-m) : %.o: $(multi-objs-m) FORCE
- 	$(call if_changed,link_multi-m)
--	$(touch-module)
-+	@{ echo $(@:.o=.ko); echo $(link_multi_deps:.o=.c); } > $(MODVERDIR)/$(@F:.o=.mod)
- 
- targets += $(multi-used-y) $(multi-used-m)
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25664-linux-2.6.0-test6-bk6/scripts/Makefile.modpost .25664-linux-2.6.0-test6-bk6.updated/scripts/Makefile.modpost
---- .25664-linux-2.6.0-test6-bk6/scripts/Makefile.modpost	2003-09-29 10:26:16.000000000 +1000
-+++ .25664-linux-2.6.0-test6-bk6.updated/scripts/Makefile.modpost	2003-10-05 16:45:10.000000000 +1000
-@@ -10,10 +10,11 @@ include scripts/Makefile.lib
- 
- #
- 
--__modules := $(shell cat /dev/null $(wildcard $(MODVERDIR)/*.mod))
-+__modules := $(shell head -q -n1 /dev/null $(wildcard $(MODVERDIR)/*.mod))
- modules := $(patsubst %.o,%.ko,$(wildcard $(__modules:.ko=.o)))
- 
- ifneq ($(filter-out $(modules),$(__modules)),)
-+  $(warning Trouble: $(__modules) )
-   $(warning *** Uh-oh, you have stale module entries. You messed with SUBDIRS,)
-   $(warning     do not complain if something goes wrong.)
- endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25664-linux-2.6.0-test6-bk6/scripts/modpost.c .25664-linux-2.6.0-test6-bk6.updated/scripts/modpost.c
---- .25664-linux-2.6.0-test6-bk6/scripts/modpost.c	2003-09-29 10:26:16.000000000 +1000
-+++ .25664-linux-2.6.0-test6-bk6.updated/scripts/modpost.c	2003-10-05 16:46:49.000000000 +1000
-@@ -65,15 +65,15 @@ new_module(char *modname)
- 	struct module *mod;
- 	char *p;
- 	
-+	mod = NOFAIL(malloc(sizeof(*mod)));
-+	memset(mod, 0, sizeof(*mod));
-+	mod->name = NOFAIL(strdup(modname));
-+
- 	/* strip trailing .o */
--	p = strstr(modname, ".o");
-+	p = strstr(mod->name, ".o");
- 	if (p)
- 		*p = 0;
- 
--	mod = NOFAIL(malloc(sizeof(*mod)));
--	memset(mod, 0, sizeof(*mod));
--	mod->name = modname;
--
- 	/* add to list */
- 	mod->next = modules;
- 	modules = mod;
-@@ -182,26 +182,25 @@ grab_file(const char *filename, unsigned
- 	int fd;
- 
- 	fd = open(filename, O_RDONLY);
--	if (fd < 0) {
--		perror(filename);
--		abort();
--	}
--	if (fstat(fd, &st) != 0) {
--		perror(filename);
--		abort();
--	}
-+	if (fstat(fd, &st) != 0)
-+		return NULL;
- 
- 	*size = st.st_size;
- 	map = mmap(NULL, *size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
--	if (map == MAP_FAILED) {
--		perror(filename);
--		abort();
--	}
- 	close(fd);
-+
-+	if (map == MAP_FAILED)
-+		return NULL;
- 	return map;
- }
- 
- void
-+release_file(void *file, unsigned long size)
-+{
-+	munmap(file, size);
-+}
-+
-+void
- parse_elf(struct elf_info *info, const char *filename)
- {
- 	unsigned int i;
-@@ -210,6 +209,10 @@ parse_elf(struct elf_info *info, const c
- 	Elf_Sym  *sym;
- 
- 	hdr = grab_file(filename, &info->size);
-+	if (!hdr) {
-+		perror(filename);
-+		abort();
-+	}
- 	info->hdr = hdr;
- 	if (info->size < sizeof(*hdr))
- 		goto truncated;
-@@ -227,11 +230,19 @@ parse_elf(struct elf_info *info, const c
- 		sechdrs[i].sh_offset = TO_NATIVE(sechdrs[i].sh_offset);
- 		sechdrs[i].sh_size   = TO_NATIVE(sechdrs[i].sh_size);
- 		sechdrs[i].sh_link   = TO_NATIVE(sechdrs[i].sh_link);
-+		sechdrs[i].sh_name   = TO_NATIVE(sechdrs[i].sh_name);
- 	}
- 	/* Find symbol table. */
- 	for (i = 1; i < hdr->e_shnum; i++) {
-+		const char *secstrings
-+			= (void *)hdr + sechdrs[hdr->e_shstrndx].sh_offset;
-+
- 		if (sechdrs[i].sh_offset > info->size)
- 			goto truncated;
-+		if (strcmp(secstrings+sechdrs[i].sh_name, ".modinfo") == 0) {
-+			info->modinfo = (void *)hdr + sechdrs[i].sh_offset;
-+			info->modinfo_len = sechdrs[i].sh_size;
-+		}
- 		if (sechdrs[i].sh_type != SHT_SYMTAB)
- 			continue;
- 
-@@ -262,7 +273,7 @@ parse_elf(struct elf_info *info, const c
- void
- parse_elf_finish(struct elf_info *info)
- {
--	munmap(info->hdr, info->size);
-+	release_file(info->hdr, info->size);
- }
- 
- #define CRC_PFX     MODULE_SYMBOL_PREFIX "__crc_"
-@@ -348,6 +359,8 @@ read_symbols(char *modname)
- 		handle_modversions(mod, &info, sym, symname);
- 		handle_moddevtable(mod, &info, sym, symname);
- 	}
-+	maybe_frob_version(modname, info.modinfo, info.modinfo_len,
-+			   (void *)info.modinfo - (void *)info.hdr);
- 	parse_elf_finish(&info);
- 
- 	/* Our trick to get versioning for struct_module - it's
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25664-linux-2.6.0-test6-bk6/scripts/modpost.h .25664-linux-2.6.0-test6-bk6.updated/scripts/modpost.h
---- .25664-linux-2.6.0-test6-bk6/scripts/modpost.h	2003-09-22 10:06:44.000000000 +1000
-+++ .25664-linux-2.6.0-test6-bk6.updated/scripts/modpost.h	2003-10-05 16:45:10.000000000 +1000
-@@ -80,9 +80,19 @@ struct elf_info {
- 	Elf_Sym      *symtab_start;
- 	Elf_Sym      *symtab_stop;
- 	const char   *strtab;
-+	char	     *modinfo;
-+	unsigned int modinfo_len;
- };
- 
- void handle_moddevtable(struct module *mod, struct elf_info *info,
- 			Elf_Sym *sym, const char *symname);
- 
- void add_moddevtable(struct buffer *buf, struct module *mod);
-+
-+void maybe_frob_version(const char *modfilename,
-+			void *modinfo,
-+			unsigned long modinfo_len,
-+			unsigned long modinfo_offset);
-+
-+void *grab_file(const char *filename, unsigned long *size);
-+void release_file(void *file, unsigned long size);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25664-linux-2.6.0-test6-bk6/scripts/sumversion.c .25664-linux-2.6.0-test6-bk6.updated/scripts/sumversion.c
---- .25664-linux-2.6.0-test6-bk6/scripts/sumversion.c	1970-01-01 10:00:00.000000000 +1000
-+++ .25664-linux-2.6.0-test6-bk6.updated/scripts/sumversion.c	2003-10-05 16:45:10.000000000 +1000
-@@ -0,0 +1,540 @@
-+#include <netinet/in.h>
-+#include <stdint.h>
-+#include <ctype.h>
-+#include <errno.h>
-+#include <string.h>
-+#include "modpost.h"
-+
-+/* Parse tag=value strings from .modinfo section */
-+static char *next_string(char *string, unsigned long *secsize)
-+{
-+	/* Skip non-zero chars */
-+	while (string[0]) {
-+		string++;
-+		if ((*secsize)-- <= 1)
-+			return NULL;
-+	}
-+
-+	/* Skip any zero padding. */
-+	while (!string[0]) {
-+		string++;
-+		if ((*secsize)-- <= 1)
-+			return NULL;
-+	}
-+	return string;
-+}
-+
-+static char *get_modinfo(void *modinfo, unsigned long modinfo_len,
-+			 const char *tag)
-+{
-+	char *p;
-+	unsigned int taglen = strlen(tag);
-+	unsigned long size = modinfo_len;
-+
-+	for (p = modinfo; p; p = next_string(p, &size)) {
-+		if (strncmp(p, tag, taglen) == 0 && p[taglen] == '=')
-+			return p + taglen + 1;
-+	}
-+	return NULL;
-+}
-+
-+/* 
-+ * Stolen form Cryptographic API.
-+ *
-+ * MD4 Message Digest Algorithm (RFC1320).
-+ *
-+ * Implementation derived from Andrew Tridgell and Steve French's
-+ * CIFS MD4 implementation, and the cryptoapi implementation
-+ * originally based on the public domain implementation written
-+ * by Colin Plumb in 1993.
-+ *
-+ * Copyright (c) Andrew Tridgell 1997-1998.
-+ * Modified by Steve French (sfrench@us.ibm.com) 2002
-+ * Copyright (c) Cryptoapi developers.
-+ * Copyright (c) 2002 David S. Miller (davem@redhat.com)
-+ * Copyright (c) 2002 James Morris <jmorris@intercode.com.au>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+#define MD4_DIGEST_SIZE		16
-+#define MD4_HMAC_BLOCK_SIZE	64
-+#define MD4_BLOCK_WORDS		16
-+#define MD4_HASH_WORDS		4
-+
-+struct md4_ctx {
-+	uint32_t hash[MD4_HASH_WORDS];
-+	uint32_t block[MD4_BLOCK_WORDS];
-+	uint64_t byte_count;
-+};
-+
-+static inline uint32_t lshift(uint32_t x, unsigned int s)
-+{
-+	x &= 0xFFFFFFFF;
-+	return ((x << s) & 0xFFFFFFFF) | (x >> (32 - s));
-+}
-+
-+static inline uint32_t F(uint32_t x, uint32_t y, uint32_t z)
-+{
-+	return (x & y) | ((~x) & z);
-+}
-+
-+static inline uint32_t G(uint32_t x, uint32_t y, uint32_t z)
-+{
-+	return (x & y) | (x & z) | (y & z);
-+}
-+
-+static inline uint32_t H(uint32_t x, uint32_t y, uint32_t z)
-+{
-+	return x ^ y ^ z;
-+}
-+                        
-+#define ROUND1(a,b,c,d,k,s) (a = lshift(a + F(b,c,d) + k, s))
-+#define ROUND2(a,b,c,d,k,s) (a = lshift(a + G(b,c,d) + k + (uint32_t)0x5A827999,s))
-+#define ROUND3(a,b,c,d,k,s) (a = lshift(a + H(b,c,d) + k + (uint32_t)0x6ED9EBA1,s))
-+
-+/* XXX: this stuff can be optimized */
-+static inline void le32_to_cpu_array(uint32_t *buf, unsigned int words)
-+{
-+	while (words--) {
-+		*buf = ntohl(*buf);
-+		buf++;
-+	}
-+}
-+
-+static inline void cpu_to_le32_array(uint32_t *buf, unsigned int words)
-+{
-+	while (words--) {
-+		*buf = htonl(*buf);
-+		buf++;
-+	}
-+}
-+
-+static void md4_transform(uint32_t *hash, uint32_t const *in)
-+{
-+	uint32_t a, b, c, d;
-+
-+	a = hash[0];
-+	b = hash[1];
-+	c = hash[2];
-+	d = hash[3];
-+
-+	ROUND1(a, b, c, d, in[0], 3);
-+	ROUND1(d, a, b, c, in[1], 7);
-+	ROUND1(c, d, a, b, in[2], 11);
-+	ROUND1(b, c, d, a, in[3], 19);
-+	ROUND1(a, b, c, d, in[4], 3);
-+	ROUND1(d, a, b, c, in[5], 7);
-+	ROUND1(c, d, a, b, in[6], 11);
-+	ROUND1(b, c, d, a, in[7], 19);
-+	ROUND1(a, b, c, d, in[8], 3);
-+	ROUND1(d, a, b, c, in[9], 7);
-+	ROUND1(c, d, a, b, in[10], 11);
-+	ROUND1(b, c, d, a, in[11], 19);
-+	ROUND1(a, b, c, d, in[12], 3);
-+	ROUND1(d, a, b, c, in[13], 7);
-+	ROUND1(c, d, a, b, in[14], 11);
-+	ROUND1(b, c, d, a, in[15], 19);
-+
-+	ROUND2(a, b, c, d,in[ 0], 3);
-+	ROUND2(d, a, b, c, in[4], 5);
-+	ROUND2(c, d, a, b, in[8], 9);
-+	ROUND2(b, c, d, a, in[12], 13);
-+	ROUND2(a, b, c, d, in[1], 3);
-+	ROUND2(d, a, b, c, in[5], 5);
-+	ROUND2(c, d, a, b, in[9], 9);
-+	ROUND2(b, c, d, a, in[13], 13);
-+	ROUND2(a, b, c, d, in[2], 3);
-+	ROUND2(d, a, b, c, in[6], 5);
-+	ROUND2(c, d, a, b, in[10], 9);
-+	ROUND2(b, c, d, a, in[14], 13);
-+	ROUND2(a, b, c, d, in[3], 3);
-+	ROUND2(d, a, b, c, in[7], 5);
-+	ROUND2(c, d, a, b, in[11], 9);
-+	ROUND2(b, c, d, a, in[15], 13);
-+
-+	ROUND3(a, b, c, d,in[ 0], 3);
-+	ROUND3(d, a, b, c, in[8], 9);
-+	ROUND3(c, d, a, b, in[4], 11);
-+	ROUND3(b, c, d, a, in[12], 15);
-+	ROUND3(a, b, c, d, in[2], 3);
-+	ROUND3(d, a, b, c, in[10], 9);
-+	ROUND3(c, d, a, b, in[6], 11);
-+	ROUND3(b, c, d, a, in[14], 15);
-+	ROUND3(a, b, c, d, in[1], 3);
-+	ROUND3(d, a, b, c, in[9], 9);
-+	ROUND3(c, d, a, b, in[5], 11);
-+	ROUND3(b, c, d, a, in[13], 15);
-+	ROUND3(a, b, c, d, in[3], 3);
-+	ROUND3(d, a, b, c, in[11], 9);
-+	ROUND3(c, d, a, b, in[7], 11);
-+	ROUND3(b, c, d, a, in[15], 15);
-+
-+	hash[0] += a;
-+	hash[1] += b;
-+	hash[2] += c;
-+	hash[3] += d;
-+}
-+
-+static inline void md4_transform_helper(struct md4_ctx *ctx)
-+{
-+	le32_to_cpu_array(ctx->block, sizeof(ctx->block) / sizeof(uint32_t));
-+	md4_transform(ctx->hash, ctx->block);
-+}
-+
-+static void md4_init(struct md4_ctx *mctx)
-+{
-+	mctx->hash[0] = 0x67452301;
-+	mctx->hash[1] = 0xefcdab89;
-+	mctx->hash[2] = 0x98badcfe;
-+	mctx->hash[3] = 0x10325476;
-+	mctx->byte_count = 0;
-+}
-+
-+static void md4_update(struct md4_ctx *mctx,
-+		       const unsigned char *data, unsigned int len)
-+{
-+	const uint32_t avail = sizeof(mctx->block) - (mctx->byte_count & 0x3f);
-+
-+	mctx->byte_count += len;
-+
-+	if (avail > len) {
-+		memcpy((char *)mctx->block + (sizeof(mctx->block) - avail),
-+		       data, len);
-+		return;
-+	}
-+
-+	memcpy((char *)mctx->block + (sizeof(mctx->block) - avail),
-+	       data, avail);
-+
-+	md4_transform_helper(mctx);
-+	data += avail;
-+	len -= avail;
-+
-+	while (len >= sizeof(mctx->block)) {
-+		memcpy(mctx->block, data, sizeof(mctx->block));
-+		md4_transform_helper(mctx);
-+		data += sizeof(mctx->block);
-+		len -= sizeof(mctx->block);
-+	}
-+
-+	memcpy(mctx->block, data, len);
-+}
-+
-+static void md4_final_ascii(struct md4_ctx *mctx, char *out, unsigned int len)
-+{
-+	const unsigned int offset = mctx->byte_count & 0x3f;
-+	char *p = (char *)mctx->block + offset;
-+	int padding = 56 - (offset + 1);
-+
-+	*p++ = 0x80;
-+	if (padding < 0) {
-+		memset(p, 0x00, padding + sizeof (uint64_t));
-+		md4_transform_helper(mctx);
-+		p = (char *)mctx->block;
-+		padding = 56;
-+	}
-+
-+	memset(p, 0, padding);
-+	mctx->block[14] = mctx->byte_count << 3;
-+	mctx->block[15] = mctx->byte_count >> 29;
-+	le32_to_cpu_array(mctx->block, (sizeof(mctx->block) -
-+	                  sizeof(uint64_t)) / sizeof(uint32_t));
-+	md4_transform(mctx->hash, mctx->block);
-+	cpu_to_le32_array(mctx->hash, sizeof(mctx->hash) / sizeof(uint32_t));
-+	
-+	snprintf(out, len, "%08X%08X%08X%08X",
-+		 mctx->hash[0], mctx->hash[1], mctx->hash[2], mctx->hash[3]);
-+}
-+
-+static int parse_file(const char *fname, struct md4_ctx *md);
-+
-+/* Local include files, if in current dir. */
-+static void include_file(const char *line, int maxlen, const char *base,
-+			 struct md4_ctx *md)
-+{
-+	unsigned int i;
-+
-+	for (i = 0; line[i] != '"'; i++) {
-+		if (i == maxlen) {
-+			fprintf(stderr,
-+				"sumversion: badly formed #include in %s\n",
-+				base);
-+			return;
-+		}
-+	}
-+
-+	{
-+		const char *dirend;
-+		char fname[i + strlen(base)];
-+
-+		dirend = strrchr(base, '/');
-+		if (!dirend)
-+			dirend = base;
-+		else
-+			dirend++;
-+		memcpy(fname, base, dirend - base);
-+		memcpy(fname + (dirend - base), line, i);
-+		fname[(dirend - base) + i] = '\0';
-+
-+		parse_file(fname, md);
-+	}
-+}
-+
-+static inline void add_char(unsigned char c, struct md4_ctx *md)
-+{
-+	md4_update(md, &c, 1);
-+}
-+
-+static int parse_string(const char *file, unsigned long len,
-+			struct md4_ctx *md)
-+{
-+	unsigned long i;
-+
-+	add_char(file[0], md);
-+	for (i = 1; i < len; i++) {
-+		add_char(file[i], md);
-+		if (file[i] == '"' && file[i-1] != '\\')
-+			break;
-+	}
-+	return i;
-+}
-+
-+static int parse_comment(const char *file, unsigned long len)
-+{
-+	unsigned long i;
-+
-+	for (i = 2; i < len; i++) {
-+		if (file[i-1] == '*' && file[i] == '/')
-+			break;
-+	}
-+	return i;
-+}
-+
-+static int skip_whitespace(const char *file, unsigned long len)
-+{
-+	unsigned long i;
-+
-+	for (i = 0; i < len; i++) {
-+		if (file[i] != ' ' && file[i] != '\t')
-+			break;
-+	}
-+	return i;
-+}
-+
-+#define strneq(str, literal) (strncmp((str), (literal), strlen(literal)) == 0)
-+
-+/* Just in case it does a (local) include. */
-+static int parse_cpp_line(const char *file, unsigned long len,
-+			  const char *base, struct md4_ctx *md)
-+{
-+	unsigned long i = 0;
-+
-+	add_char(file[i++], md);
-+	i += skip_whitespace(file+i, len - i);
-+	if (i + strlen("include") >= len)
-+		return i;
-+	if (!strneq(file + i, "include"))
-+		return i;
-+	md4_update(md, (unsigned char *)"include", strlen("include"));	
-+	i += strlen("include");
-+	i += skip_whitespace(file+i, len - i);
-+	if (i >= len)
-+		return i;
-+	if (file[i] != '"')
-+		return i-1;
-+	include_file(file+i+1, len - i - 1, base, md);
-+	return i-1;
-+}
-+
-+static int parse_file(const char *fname, struct md4_ctx *md)
-+{
-+	char *file;
-+	unsigned long i, len;
-+	int start_of_line = 1;
-+
-+	file = grab_file(fname, &len);
-+	if (!file)
-+		return 0;
-+
-+	for (i = 0; i < len; i++) {
-+		/* Collapse and ignore \ and CR. */
-+		if (file[i] == '\\' && (i+1 < len) && file[i+1] == '\n') {
-+			i += 2;
-+			continue;
-+		}
-+
-+		if (file[i] == '\n')
-+			start_of_line = 1;
-+
-+		/* Ignore whitespace */
-+		if (isspace(file[i]))
-+			continue;
-+
-+		/* Handle strings as whole units */
-+		if (file[i] == '"') {
-+			i += parse_string(file+i, len - i, md);
-+			start_of_line = 0;
-+			continue;
-+		}
-+
-+		/* Comments: ignore */
-+		if (file[i] == '/' && file[i+1] == '*') {
-+			i += parse_comment(file+i, len - i);
-+			start_of_line = 0;
-+			continue;
-+		}
-+
-+		/* Potential #include files */
-+		if (file[i] == '#' && start_of_line) {
-+			i += parse_cpp_line(file+i, len - i, fname, md);
-+			start_of_line = 0;
-+			continue;
-+		}
-+
-+		start_of_line = 0;
-+		add_char(file[i], md);
-+	}
-+	return 1;
-+}
-+
-+static void get_version(const char *modname, char sum[])
-+{
-+	void *file;
-+	unsigned long len;
-+	struct md4_ctx md;
-+	char *sources, *end, *fname;
-+	const char *basename;
-+	char filelist[sizeof(".tmp_versions/%s.mod") + strlen(modname)];
-+
-+	/* Source files for module are in .tmp_versions/modname.mod,
-+	   after the first line. */
-+	if (strrchr(modname, '/'))
-+		basename = strrchr(modname, '/') + 1;
-+	else
-+		basename = modname;
-+	sprintf(filelist, ".tmp_versions/%s", basename);
-+	/* Truncate .o, add .mod */
-+	strcpy(filelist + strlen(filelist)-2, ".mod");
-+
-+	file = grab_file(filelist, &len);
-+	if (!file) {
-+		fprintf(stderr, "Warning: could not find versions for %s\n",
-+			filelist);
-+		return;
-+	}
-+
-+	sources = strchr(file, '\n');
-+	if (!sources) {
-+		fprintf(stderr, "Warning: malformed versions file for %s\n",
-+			modname);
-+		goto release;
-+	}
-+
-+	sources++;
-+	end = strchr(sources, '\n');
-+	if (!end) {
-+		fprintf(stderr, "Warning: bad ending versions file for %s\n",
-+			modname);
-+		goto release;
-+	}
-+	*end = '\0';
-+
-+	md4_init(&md);
-+	for (fname = strtok(sources, " "); fname; fname = strtok(NULL, " "))
-+		if (!parse_file(fname, &md)) {
-+			fprintf(stderr, "Warning: could not open %s: %s\n",
-+				fname, strerror(errno));
-+			goto release;
-+		}
-+
-+	/* sum is of form \0<padding>. */ 
-+	md4_final_ascii(&md, sum, 1 + strlen(sum+1));
-+release:
-+	release_file(file, len);
-+}
-+
-+static void write_version(const char *filename, const char *sum,
-+			  unsigned long offset)
-+{
-+	int fd;
-+
-+	fd = open(filename, O_RDWR);
-+	if (fd < 0) {
-+		fprintf(stderr, "Warning: changing sum in %s failed: %s\n",
-+			filename, strerror(errno));
-+		return;
-+	}
-+
-+	if (lseek(fd, offset, SEEK_SET) == (off_t)-1) {
-+		fprintf(stderr, "Warning: changing sum in %s:%lu failed: %s\n",
-+			filename, offset, strerror(errno));
-+		goto out;
-+	}
-+
-+	if (write(fd, sum, strlen(sum)+1) != strlen(sum)+1) {
-+		fprintf(stderr, "Warning: writing sum in %s failed: %s\n",
-+			filename, strerror(errno));
-+		goto out;
-+	}
-+out:
-+	close(fd);
-+}
-+
-+void strip_rcs_crap(char *version)
-+{
-+	unsigned int len, full_len;
-+
-+	if (strncmp(version, "$Revision", strlen("$Revision")) != 0)
-+		return;
-+
-+	/* Space for version string follows. */
-+	full_len = strlen(version) + strlen(version + strlen(version) + 1) + 2;
-+
-+	/* Move string to start with version number: prefix will be
-+	 * $Revision$ or $Revision: */
-+	len = strlen("$Revision");
-+	if (version[len] == ':' || version[len] == '$')
-+		len++;
-+	while (isspace(version[len])) 
-+		len++;
-+	memmove(version, version+len, full_len-len);
-+	full_len -= len;
-+
-+	/* Preserve up to next whitespace. */
-+	len = 0;
-+	while (version[len] && !isspace(version[len]))
-+		len++;
-+	memmove(version + len, version + strlen(version),
-+		full_len - strlen(version));
-+}
-+
-+/* If the modinfo contains a "version" value, then set this. */
-+void maybe_frob_version(const char *modfilename,
-+			void *modinfo,
-+			unsigned long modinfo_len,
-+			unsigned long modinfo_offset)
-+{
-+	char *version, *csum;
-+
-+	version = get_modinfo(modinfo, modinfo_len, "version");
-+	if (!version)
-+		return;
-+
-+	/* RCS $Revision gets stripped out. */
-+	strip_rcs_crap(version);
-+
-+	/* Check against double sumversion */
-+	if (strchr(version, ' '))
-+		return;
-+
-+	/* Version contains embedded NUL: second half has space for checksum */
-+	csum = version + strlen(version);
-+	*(csum++) = ' ';
-+	get_version(modfilename, csum);
-+	write_version(modfilename, version,
-+		      modinfo_offset + (version - (char *)modinfo));
-+}
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+--=-0jqGYv/9UZsWh/UeV3Xi
+Content-Disposition: attachment; filename=config-2.6.1
+Content-Type: text/plain; name=config-2.6.1; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+
+#
+# Automatically generated make config: don't edit
+#
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+
+#
+# Code maturity level options
+#
+# CONFIG_EXPERIMENTAL is not set
+CONFIG_CLEAN_COMPILE=y
+CONFIG_STANDALONE=y
+CONFIG_BROKEN_ON_SMP=y
+
+#
+# General setup
+#
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+# CONFIG_EMBEDDED is not set
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+
+#
+# Processor type and features
+#
+CONFIG_X86_PC=y
+# CONFIG_X86_VOYAGER is not set
+# CONFIG_X86_NUMAQ is not set
+# CONFIG_X86_SUMMIT is not set
+# CONFIG_X86_BIGSMP is not set
+# CONFIG_X86_VISWS is not set
+# CONFIG_X86_GENERICARCH is not set
+# CONFIG_X86_ES7000 is not set
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+CONFIG_M686=y
+# CONFIG_MPENTIUMII is not set
+# CONFIG_MPENTIUMIII is not set
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MK8 is not set
+# CONFIG_MELAN is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+# CONFIG_MVIAC3_2 is not set
+# CONFIG_X86_GENERIC is not set
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+# CONFIG_HPET_TIMER is not set
+# CONFIG_HPET_EMULATE_RTC is not set
+# CONFIG_SMP is not set
+# CONFIG_PREEMPT is not set
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+# CONFIG_X86_MCE_NONFATAL is not set
+# CONFIG_X86_MCE_P4THERMAL is not set
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+# CONFIG_X86_CPUID is not set
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+
+#
+# Power management options (ACPI, APM)
+#
+# CONFIG_PM is not set
+
+#
+# ACPI (Advanced Configuration and Power Interface) Support
+#
+# CONFIG_ACPI is not set
+
+#
+# CPU Frequency scaling
+#
+# CONFIG_CPU_FREQ is not set
+
+#
+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+#
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+# CONFIG_PCI_USE_VECTOR is not set
+# CONFIG_PCI_LEGACY_PROC is not set
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_EISA=y
+# CONFIG_EISA_VLB_PRIMING is not set
+CONFIG_EISA_PCI_EISA=y
+CONFIG_EISA_VIRTUAL_ROOT=y
+CONFIG_EISA_NAMES=y
+# CONFIG_MCA is not set
+# CONFIG_SCx200 is not set
+# CONFIG_HOTPLUG is not set
+
+#
+# Executable file formats
+#
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_MISC=y
+
+#
+# Device Drivers
+#
+
+#
+# Generic Driver Options
+#
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+# CONFIG_PARPORT_SERIAL is not set
+# CONFIG_PARPORT_OTHER is not set
+CONFIG_PARPORT_1284=y
+
+#
+# Plug and Play support
+#
+CONFIG_PNP=y
+# CONFIG_PNP_DEBUG is not set
+
+#
+# Protocols
+#
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_LOOP is not set
+# CONFIG_BLK_DEV_NBD is not set
+# CONFIG_BLK_DEV_RAM is not set
+# CONFIG_BLK_DEV_INITRD is not set
+# CONFIG_LBD is not set
+
+#
+# ATA/ATAPI/MFM/RLL support
+#
+# CONFIG_IDE is not set
+
+#
+# SCSI device support
+#
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+
+#
+# SCSI support type (disk, tape, CD-ROM)
+#
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=y
+# CONFIG_CHR_DEV_OSST is not set
+CONFIG_BLK_DEV_SR=y
+# CONFIG_BLK_DEV_SR_VENDOR is not set
+# CONFIG_CHR_DEV_SG is not set
+
+#
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+#
+CONFIG_SCSI_MULTI_LUN=y
+# CONFIG_SCSI_REPORT_LUNS is not set
+# CONFIG_SCSI_CONSTANTS is not set
+# CONFIG_SCSI_LOGGING is not set
+
+#
+# SCSI low-level drivers
+#
+# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
+# CONFIG_SCSI_7000FASST is not set
+# CONFIG_SCSI_ACARD is not set
+# CONFIG_SCSI_AHA152X is not set
+# CONFIG_SCSI_AHA1542 is not set
+# CONFIG_SCSI_AHA1740 is not set
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+CONFIG_AIC7XXX_PROBE_EISA_VL=y
+# CONFIG_AIC7XXX_BUILD_FIRMWARE is not set
+# CONFIG_AIC7XXX_DEBUG_ENABLE is not set
+CONFIG_AIC7XXX_DEBUG_MASK=0
+# CONFIG_AIC7XXX_REG_PRETTY_PRINT is not set
+# CONFIG_SCSI_AIC7XXX_OLD is not set
+# CONFIG_SCSI_AIC79XX is not set
+# CONFIG_SCSI_ADVANSYS is not set
+# CONFIG_SCSI_IN2000 is not set
+CONFIG_SCSI_MEGARAID=y
+# CONFIG_SCSI_BUSLOGIC is not set
+# CONFIG_SCSI_CPQFCTS is not set
+# CONFIG_SCSI_DMX3191D is not set
+# CONFIG_SCSI_DTC3280 is not set
+# CONFIG_SCSI_EATA is not set
+# CONFIG_SCSI_EATA_PIO is not set
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+# CONFIG_SCSI_GDTH is not set
+# CONFIG_SCSI_GENERIC_NCR5380 is not set
+# CONFIG_SCSI_GENERIC_NCR5380_MMIO is not set
+# CONFIG_SCSI_IPS is not set
+# CONFIG_SCSI_INIA100 is not set
+# CONFIG_SCSI_PPA is not set
+# CONFIG_SCSI_IMM is not set
+# CONFIG_SCSI_NCR53C406A is not set
+# CONFIG_SCSI_SYM53C8XX_2 is not set
+# CONFIG_SCSI_PAS16 is not set
+# CONFIG_SCSI_PSI240I is not set
+# CONFIG_SCSI_QLOGIC_FAS is not set
+# CONFIG_SCSI_QLOGIC_ISP is not set
+# CONFIG_SCSI_QLOGIC_FC is not set
+# CONFIG_SCSI_QLOGIC_1280 is not set
+# CONFIG_SCSI_SIM710 is not set
+# CONFIG_SCSI_SYM53C416 is not set
+# CONFIG_SCSI_DC390T is not set
+# CONFIG_SCSI_T128 is not set
+# CONFIG_SCSI_U14_34F is not set
+# CONFIG_SCSI_ULTRASTOR is not set
+# CONFIG_SCSI_NSP32 is not set
+# CONFIG_SCSI_DEBUG is not set
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+
+#
+# Fusion MPT device support
+#
+# CONFIG_FUSION is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+
+#
+# Networking support
+#
+CONFIG_NET=y
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+# CONFIG_PACKET_MMAP is not set
+# CONFIG_NETLINK_DEV is not set
+CONFIG_UNIX=y
+# CONFIG_NET_KEY is not set
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+# CONFIG_IP_ADVANCED_ROUTER is not set
+# CONFIG_IP_PNP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_IP_MROUTE is not set
+# CONFIG_INET_ECN is not set
+# CONFIG_SYN_COOKIES is not set
+# CONFIG_INET_AH is not set
+# CONFIG_INET_ESP is not set
+# CONFIG_INET_IPCOMP is not set
+
+#
+# IP: Virtual Server Configuration
+#
+# CONFIG_IP_VS is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+
+#
+# IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_TFTP=m
+CONFIG_IP_NF_AMANDA=m
+CONFIG_IP_NF_QUEUE=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_IPRANGE=y
+CONFIG_IP_NF_MATCH_MAC=y
+CONFIG_IP_NF_MATCH_PKTTYPE=y
+CONFIG_IP_NF_MATCH_MARK=y
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+CONFIG_IP_NF_MATCH_TOS=y
+CONFIG_IP_NF_MATCH_RECENT=y
+CONFIG_IP_NF_MATCH_ECN=y
+CONFIG_IP_NF_MATCH_DSCP=y
+CONFIG_IP_NF_MATCH_AH_ESP=y
+CONFIG_IP_NF_MATCH_LENGTH=y
+CONFIG_IP_NF_MATCH_TTL=y
+CONFIG_IP_NF_MATCH_TCPMSS=y
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_OWNER=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_TARGET_NETMAP=m
+CONFIG_IP_NF_TARGET_SAME=m
+CONFIG_IP_NF_NAT_LOCAL=y
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_NAT_TFTP=m
+CONFIG_IP_NF_NAT_AMANDA=m
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_TOS=y
+CONFIG_IP_NF_TARGET_ECN=y
+CONFIG_IP_NF_TARGET_DSCP=y
+CONFIG_IP_NF_TARGET_MARK=y
+CONFIG_IP_NF_TARGET_CLASSIFY=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_ULOG=y
+CONFIG_IP_NF_TARGET_TCPMSS=y
+# CONFIG_IP_NF_ARPTABLES is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_LLC2 is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Network testing
+#
+# CONFIG_NET_PKTGEN is not set
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+# CONFIG_DUMMY is not set
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+# CONFIG_NET_SB1000 is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_MII is not set
+# CONFIG_HAPPYMEAL is not set
+# CONFIG_SUNGEM is not set
+CONFIG_NET_VENDOR_3COM=y
+# CONFIG_EL1 is not set
+# CONFIG_EL2 is not set
+# CONFIG_ELPLUS is not set
+CONFIG_EL3=y
+# CONFIG_3C515 is not set
+# CONFIG_VORTEX is not set
+# CONFIG_TYPHOON is not set
+# CONFIG_LANCE is not set
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+
+#
+# Tulip family network device support
+#
+CONFIG_NET_TULIP=y
+CONFIG_TULIP=y
+CONFIG_TULIP_MMIO=y
+# CONFIG_DE4X5 is not set
+# CONFIG_WINBOND_840 is not set
+# CONFIG_DM9102 is not set
+# CONFIG_DEPCA is not set
+# CONFIG_HP100 is not set
+# CONFIG_NET_ISA is not set
+# CONFIG_NET_PCI is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_DL2K is not set
+# CONFIG_E1000 is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_R8169 is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_TIGON3 is not set
+
+#
+# Ethernet (10000 Mbit)
+#
+# CONFIG_IXGB is not set
+# CONFIG_FDDI is not set
+# CONFIG_PLIP is not set
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+# CONFIG_NET_FC is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# Bluetooth support
+#
+# CONFIG_BT is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN_BOOL is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+
+#
+# Input device support
+#
+CONFIG_INPUT=y
+
+#
+# Userland interfaces
+#
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+# CONFIG_INPUT_EVDEV is not set
+# CONFIG_INPUT_EVBUG is not set
+
+#
+# Input I/O drivers
+#
+# CONFIG_GAMEPORT is not set
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+# CONFIG_SERIO_CT82C710 is not set
+# CONFIG_SERIO_PARKBD is not set
+# CONFIG_SERIO_PCIPS2 is not set
+
+#
+# Input Device Drivers
+#
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+# CONFIG_INPUT_MOUSE is not set
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+CONFIG_INPUT_MISC=y
+# CONFIG_INPUT_PCSPKR is not set
+# CONFIG_INPUT_UINPUT is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+# CONFIG_SERIAL_NONSTANDARD is not set
+
+#
+# Serial drivers
+#
+CONFIG_SERIAL_8250=y
+# CONFIG_SERIAL_8250_CONSOLE is not set
+CONFIG_SERIAL_8250_NR_UARTS=4
+# CONFIG_SERIAL_8250_EXTENDED is not set
+
+#
+# Non-8250 serial port support
+#
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+# CONFIG_PRINTER is not set
+# CONFIG_PPDEV is not set
+# CONFIG_TIPAR is not set
+
+#
+# I2C support
+#
+# CONFIG_I2C is not set
+
+#
+# I2C Algorithms
+#
+
+#
+# I2C Hardware Bus support
+#
+
+#
+# I2C Hardware Sensors Chip support
+#
+# CONFIG_I2C_SENSOR is not set
+
+#
+# Mice
+#
+# CONFIG_BUSMOUSE is not set
+# CONFIG_QIC02_TAPE is not set
+
+#
+# IPMI
+#
+# CONFIG_IPMI_HANDLER is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+# CONFIG_HW_RANDOM is not set
+# CONFIG_NVRAM is not set
+CONFIG_RTC=y
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+# CONFIG_AGP is not set
+# CONFIG_DRM is not set
+# CONFIG_MWAVE is not set
+# CONFIG_RAW_DRIVER is not set
+# CONFIG_HANGCHECK_TIMER is not set
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# Digital Video Broadcasting Devices
+#
+# CONFIG_DVB is not set
+
+#
+# Graphics support
+#
+# CONFIG_FB is not set
+CONFIG_VIDEO_SELECT=y
+
+#
+# Console display driver support
+#
+CONFIG_VGA_CONSOLE=y
+# CONFIG_MDA_CONSOLE is not set
+CONFIG_DUMMY_CONSOLE=y
+
+#
+# Sound
+#
+# CONFIG_SOUND is not set
+
+#
+# USB support
+#
+# CONFIG_USB is not set
+
+#
+# File systems
+#
+CONFIG_EXT2_FS=y
+# CONFIG_EXT2_FS_XATTR is not set
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+# CONFIG_EXT3_FS_POSIX_ACL is not set
+# CONFIG_EXT3_FS_SECURITY is not set
+CONFIG_JBD=y
+# CONFIG_JBD_DEBUG is not set
+CONFIG_FS_MBCACHE=y
+# CONFIG_REISERFS_FS is not set
+# CONFIG_JFS_FS is not set
+CONFIG_XFS_FS=y
+CONFIG_XFS_QUOTA=y
+CONFIG_XFS_POSIX_ACL=y
+# CONFIG_MINIX_FS is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_QUOTA=y
+CONFIG_QFMT_V1=y
+CONFIG_QFMT_V2=y
+CONFIG_QUOTACTL=y
+# CONFIG_AUTOFS_FS is not set
+# CONFIG_AUTOFS4_FS is not set
+
+#
+# CD-ROM/DVD Filesystems
+#
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=y
+# CONFIG_UDF_FS is not set
+
+#
+# DOS/FAT/NT Filesystems
+#
+# CONFIG_FAT_FS is not set
+# CONFIG_NTFS_FS is not set
+
+#
+# Pseudo filesystems
+#
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_DEVPTS_FS=y
+# CONFIG_DEVPTS_FS_XATTR is not set
+# CONFIG_TMPFS is not set
+# CONFIG_HUGETLBFS is not set
+# CONFIG_HUGETLB_PAGE is not set
+CONFIG_RAMFS=y
+
+#
+# Miscellaneous filesystems
+#
+# CONFIG_CRAMFS is not set
+# CONFIG_VXFS_FS is not set
+# CONFIG_HPFS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+
+#
+# Network File Systems
+#
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+# CONFIG_SMB_FS is not set
+# CONFIG_CIFS is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_CODA_FS is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-15"
+# CONFIG_NLS_CODEPAGE_437 is not set
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+CONFIG_NLS_CODEPAGE_850=y
+# CONFIG_NLS_CODEPAGE_852 is not set
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+CONFIG_NLS_CODEPAGE_865=y
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_CODEPAGE_1250 is not set
+# CONFIG_NLS_CODEPAGE_1251 is not set
+# CONFIG_NLS_ISO8859_1 is not set
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_13 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+CONFIG_NLS_ISO8859_15=y
+# CONFIG_NLS_KOI8_R is not set
+# CONFIG_NLS_KOI8_U is not set
+CONFIG_NLS_UTF8=y
+
+#
+# Kernel hacking
+#
+# CONFIG_DEBUG_KERNEL is not set
+# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+# CONFIG_FRAME_POINTER is not set
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+
+#
+# Security options
+#
+# CONFIG_SECURITY is not set
+
+#
+# Cryptographic options
+#
+# CONFIG_CRYPTO is not set
+
+#
+# Library routines
+#
+CONFIG_CRC32=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_PC=y
+
+--=-0jqGYv/9UZsWh/UeV3Xi--
+

@@ -1,134 +1,134 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285130AbSAAV06>; Tue, 1 Jan 2002 16:26:58 -0500
+	id <S285589AbSAAVjX>; Tue, 1 Jan 2002 16:39:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285589AbSAAV0t>; Tue, 1 Jan 2002 16:26:49 -0500
-Received: from [64.169.83.2] ([64.169.83.2]:17156 "EHLO mail.get2chip.com")
-	by vger.kernel.org with ESMTP id <S285130AbSAAV03>;
-	Tue, 1 Jan 2002 16:26:29 -0500
-Message-ID: <3C322981.22DB1336@get2chip.com>
-Date: Tue, 01 Jan 2002 13:26:25 -0800
-From: ccroswhite@get2chip.com
-Reply-To: ccroswhite@get2chip.com
-MIME-Version: 1.0
+	id <S285574AbSAAVjO>; Tue, 1 Jan 2002 16:39:14 -0500
+Received: from mercury.ccmr.cornell.edu ([128.84.231.97]:34578 "EHLO
+	mercury.ccmr.cornell.edu") by vger.kernel.org with ESMTP
+	id <S285135AbSAAVjA>; Tue, 1 Jan 2002 16:39:00 -0500
+From: Daniel Freedman <freedman@ccmr.cornell.edu>
+Date: Tue, 1 Jan 2002 16:38:55 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [Fwd: (forw) [gilbertd@treblig.org: Re: Dual athlon XP 1800 problems]]
-Content-Type: multipart/mixed;
- boundary="------------5EC81ADBB0F20EB5CE3BB17C"
+Subject: Re: ATHLON HELP ME ON THIS PLZ!!!!
+Message-ID: <20020101163855.F27565@ccmr.cornell.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <000901c192fc$66df2b00$d500a8c0@mshome.net> <200201012107.QAA10138@mah21awu.cas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <200201012107.QAA10138@mah21awu.cas.org>; from mharrold@cas.org on Tue, Jan 01, 2002 at 04:07:52PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------5EC81ADBB0F20EB5CE3BB17C
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+
+Hi Mike and Astinus,
+
+On Tue, Jan 01, 2002, Mike Harrold wrote:
+> > 
+> > I know i have been posting too many questions on this subject and i also
+> > know that these athlon issues were deeply discussed some week ago.
+> > So i went back and READ ALL the posts concerning dual athlon machines and
+> > even chipsets! But my dought remains.
+> > 
+> > I am about to buy a dual athlon pc, a tyan's thunder k7 S2462 ( 760mp ) and
+> > two 1800 or 1700 ahtlon MP processors.
+> > I will buy the registered DDram supported or advised by tyan's manufacturer
+> > as well as a good power supply and some major cooling.
+> > 
+> > My main question is:    Am i going to have any kind of problems when trying
+> > to run a SMP kernel???
+> 
+> Actually, I'm interested in this as well. The only thing stopping me from
+> buying a dual Athlon MP is the problems I keep reading about here on lkml.
+> I don't want to spend the money only to have problems.
+> 
+> So, if anyone is running dual Athlon MPs *flawlessly*, I'd appreciate a
+> hardware listing (MB, Bios version, RAM type & manufacturer, etc.).
+
+As I've mentioned before, I'm running ten dual Athlon systems with
+perfect stability for the past few months, and reboots only for kernel
+upgrades or power supply failures that exceeded our UPS backup supply.a
+
+The hardware of relevance:
+
+Tyan S2460 motherboard (though you may want to wait for Tyan S2466
+(release time unknown: a month? two?) which has the 760MPX with 66MHz
+64-bit PCI, the S2460 only has 64-bit 33MHz PCI)
+
+Dual Athlon MP 1800+'s processors on some nodes and Dual Athlon MP 1.2
+GHz on others (clearly never mixing the two on the same machine)
+
+2GB of Corsair ECC/Reg. DDR2100 Ram per node (4 512MB sticks) (one
+machine has 4GB of Corsair memory and works perfectly except for the
+inability of the board's BIOS to address the last 400MB or so (some
+type of AGP Video offset or the like.  grr...))
+
+BIOS version is Tyan's 1.03, but I never had problems with the initial
+1.02 other than the fact that it didn't POST with headless nodes (no
+video cards) which was annoying...
+
+Can't see how much else matters, but if you're interested:
+
+Non-diskless machines are used as workstations and also have IBM 60GXP
+(40GB) drive and ATI xPERT 2000 video cards.
+
+Power supplies in workstations are Antec 400 watt supplies bundled
+with the Antec sx1040.  PSU's in the nodes are Zippy Emacs
+P2U-6300P's.
+
+NIC's are Intel EEPro 100+ management adapters (PILA8460B).
 
 
 
---------------5EC81ADBB0F20EB5CE3BB17C
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Message-ID: <3C322663.88C901B1@get2chip.com>
-Date: Tue, 01 Jan 2002 13:13:07 -0800
-From: ccroswhite@get2chip.com
-Reply-To: ccroswhite@get2chip.com
-MIME-Version: 1.0
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-CC: linuix-kernel@vger.kernel.org
-Subject: Re: (forw) [gilbertd@treblig.org: Re: Dual athlon XP 1800 problems]
-In-Reply-To: <20020101152452.GC12799@gallifrey>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-A point of clarification,  the computer will boot if the memory is less than or equal
-to 512M RAM.    With this in mind, are there any other clues as to what could be
-happening?
-
-TIA,
-Chris Croswhite
-
-"Dr. David Alan Gilbert" wrote:
-
-> Hi,
->   I sent this to the linux-kernel list, but forgot to CC you on it - so
-> here it is.
->
-> Dave
-> ----- Forwarded message from "Dr. David Alan Gilbert" <gilbertd@treblig.org> -----
->
-> Date: Tue, 1 Jan 2002 15:21:56 +0000
-> To: linux-kernel@vger.kernel.org
-> User-Agent: Mutt/1.3.24i
-> From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-> Subject: Re: Dual athlon XP 1800 problems
->
-> On Mon, Dec 31, 2001 at 06:12:16PM -0800, ccroswhite@get2chip.com wrote:
->
-> > I am having problems with dual athlons and more than 512M RAM.  I have
-> > compiled several kernels with either ATHLON, 1386, i686 support with the
-> > same affect, I get a kernel that will fail to boot properly.  Sometimes
-> > I get a kernel panic that outs to kdb, sometimes I get a freeze, and
-> > sometimes I get failed to mount root partition, but never has this
-> > kernel successfully come up.  I am quite certain it is not the memory or
-> > the system ( I can get windblows 2k to run successfully with upto 3.5G
-> > RAM).
-> >
-> > Here is the configuration:
-> >
-> > Tyan S2460
-> > Dual Athlon XP 1800
-> > 512M DDR DIMMS (also used 128, 256, and 1G)
-> > Western Digital 20G Drive
->
-> I have a similar system running fine.  It has a Tyan S2460, a pair of
-> Athlon MP 1800s, 512M (2x256) and a pair of IBM 60G drives.
->
-> I haven't seen any signs of kernel instability. However:
->
->   1) When I first got it I had the BIOS do some very odd things; at one
->   point the CMOS got cleared and then everything worked from there on
->   in.  So a good CMOS clean could be in order. I had to use the Debian
->   safe boot set prior to this.
->
->   2) Are you saying the problem only affects greater than 512M ? I only
->   have the 512M so don't know - but it is probably worth booting with
->   mem=512M as an option with more RAM in and see if it is stable.
->
->   3) The guys who put the machine together had lots of problems getting
->   it stable; the type of RAM they used was critical; it was stable
->   enough for them to boot NT and get it through a lot of tests before
->   they hit problems.
->
->   4) COOL IT - these things generate tons of heat (mine run at 75degC
->   normal operation). I have it in a big Supermicro 760 case with damn
->   big fans on.
->
->   5) I bought Athlon MPs because I didn't want the hastle of knowing
->   whether XPs would work or not.  Now sure, it could be AMD just trying
->   to squeeze some more money out of us; but it is entirely possible that
->    a) the chips could be different,  b) that the critical timing path in
->   the device could be in the cache snooping/consistency stuff (that
->   stuff is probably pretty hairy!).  I mean there must be a reason why
->   it took them a month and a half longer to release the Athlon MP 1.9GHz
->   than the XP 1.9GHz.
->
->   6) I'm currently on 2.4.17 and have used most of the later 2.4.1x's on
->   it.
->
-> Dave
->  ---------------- Have a happy GNU millennium! ----------------------
-> / Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \
-> \ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
->  \ _________________________|_____ http://www.treblig.org   |_______/
->
-> ----- End forwarded message -----
->  ---------------- Have a happy GNU millennium! ----------------------
-> / Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \
-> \ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
->  \ _________________________|_____ http://www.treblig.org   |_______/
+These machines get their memory and FPU systems beat on quite hard,
+from my point of view, as they run intensive physics calculations
+(specifically, DFT electronic structure calculations) 24/7.  So my
+claims to their stability are not based upon non-activity of the
+machines.  Obviously, YMMV...
 
 
---------------5EC81ADBB0F20EB5CE3BB17C--
 
+
+Separately...
+
+On Tue, Jan 01, 2002, Astinus wrote:
+> Can anyone explian me why almost every body, even quite big servers bought
+> athlon xps instead of the mp ones^??
+> This is an issue that concerns me too!! You see,  ~why would a big server
+> risk to buy a processor that may not work when the other one (mp) is suppose
+> to work?? Is it for the extraa dollars u have to spend on the hardware???
+
+I would be VERY suprised if any significant portion of those running
+"big servers" bought XP's instead of MP's for dual use.  I mainly
+think it's an enthusiast thing, which is fine...  You have to make
+your own tradeoffs between cost/assurances for your specific use.
+
+> Am I w~rong?? Are the MPs and the XPs so similar that the problems u have
+> with one will be the same with the other???
+>
+> I would like some opinions on this.
+
+IMHO, I would NOT buy XP to use in a dual configuration, but that's
+only because I value the assurance of proper SMP operation to be worth
+the extra ~$100 per CPU ($200 per machine), and not because there are
+not reports of dual XP's working (but working how? what about at
+higher loads? with more memory?  etc...)
+
+> I never had an AMD machine but with the current performance of  this
+> manufacturer's material  i was willing to change intel for AMD.
+> What i don't want is to spend my cash ~in a machine that i will hate for the
+> rest of  its life :P.
+
+I think you'll enjoy the Athon MP platform very much (maybe even more
+with new 760MPX chipset).
+
+
+HTH and take care,
+
+Daniel
+
+-- 
+Daniel A. Freedman
+Laboratory for Atomic and Solid State Physics
+Department of Physics
+Cornell University

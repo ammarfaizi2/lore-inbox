@@ -1,163 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265626AbUBFVgE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 16:36:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUBFVgE
+	id S266723AbUBFVtl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 16:49:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266898AbUBFVtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 16:36:04 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:35327 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S265626AbUBFVfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 16:35:52 -0500
-From: Michael Frank <mhf@linuxmail.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: [PATCH] 2.4.25-rc1: Shutdown kernel on zone-alignment failure
-Date: Sat, 7 Feb 2004 05:34:46 +0800
+	Fri, 6 Feb 2004 16:49:40 -0500
+Received: from fep06-svc.mail.telepac.pt ([194.65.5.211]:50591 "EHLO
+	fep06-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
+	id S266723AbUBFVte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 16:49:34 -0500
+From: Claudio Martins <ctpm@rnl.ist.utl.pt>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: psmouse.c, throwing 3 bytes away
+Date: Fri, 6 Feb 2004 21:49:31 +0000
 User-Agent: KMail/1.5.4
-Cc: axboe@suse.de, "Randy.Dunlap" <rddunlap@osdl.org>, riel@redhat.com,
-       linux-kernel@vger.kernel.org
-X-OS: KDE 3 on GNU/Linux
+References: <4022BC15.4090502@wanadoo.es> <200402060702.15930.ctpm@rnl.ist.utl.pt> <200402062112.32212.chakkerz@optusnet.com.au>
+In-Reply-To: <200402062112.32212.chakkerz@optusnet.com.au>
+Cc: chakkerz@optusnet.com.au
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200402070534.46123.mhf@linuxmail.org>
+Message-Id: <200402062149.31011.ctpm@rnl.ist.utl.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
 
-The following is applicable to all architectures using zones.
+On Friday 06 February 2004 10:12, Christian Unger wrote:
+> >   Hi, I think that's not really the problem. I'm not using KDE 3.2 and I
+> > still have the problem. I'm running Debian unstable with XFree86 4.2.1
+> > and KDE 3.1.5.
+>
+> Could be that there was a change in KDE that is present in both 3.1.5 and
+> 3.2.0 ... they are only 3 weeks appart.
+>
 
-When zone alignment goes wrong, a message is printed:
-	BUG: wrong zone alignment, it will crash 
+  Ok, but the fact is I didn't have those problems with the other kernel, they 
+started right after I booted with 2.6.2. So the problem _must_ be related to 
+2.6.2 which was the only thing that changed on this system.
 
-_BUT_ kernel runs until it dies of the alignment problems - it took me 
-hours until I found the message after looking elsewhere ;)
+  Anyway other people are reporting this with different window managers and 
+even with raw X so I believe that supports the case that this is 2.6.2 
+related...
 
-This patch: 
+regards
 
-- Should zone alignment fail, it will force a BUG() once the BUG handler inits
+Claudio
 
-- Improves the messages of zone init to help debug zone alignment problems
-
-Please apply.
-
-The highmem autoalignment patch will follow after more testing.
-
-Regards
-Michael
-
-
-diff -uN -r -X /home/mhf/sys/dont/dontdiff linux-2.4.25-rc1-Vanilla/include/linux/kernel.h linux-2.4.25-rc1-mhf176/include/linux/kernel.h
---- linux-2.4.25-rc1-Vanilla/include/linux/kernel.h	2004-02-06 17:09:26.000000000 +0800
-+++ linux-2.4.25-rc1-mhf176/include/linux/kernel.h	2004-02-07 04:43:49.000000000 +0800
-@@ -45,7 +45,7 @@
- #define minimum_console_loglevel (console_printk[2])
- #define default_console_loglevel (console_printk[3])
- 
--# define NORET_TYPE    /**/
-+# define NORET_TYPE   
- # define ATTRIB_NORET  __attribute__((noreturn))
- # define NORET_AND     noreturn,
- 
-@@ -104,7 +104,7 @@
- 
- extern void bust_spinlocks(int yes);
- extern int oops_in_progress;		/* If set, an oops, panic(), BUG() or die() is in progress */
--
-+extern int force_bug;           /* If set, BUG() will be forced when handler initialized */
- extern int tainted;
- extern const char *print_tainted(void);
- 
-diff -uN -r -X /home/mhf/sys/dont/dontdiff linux-2.4.25-rc1-Vanilla/init/main.c linux-2.4.25-rc1-mhf176/init/main.c
---- linux-2.4.25-rc1-Vanilla/init/main.c	2004-02-06 17:06:58.000000000 +0800
-+++ linux-2.4.25-rc1-mhf176/init/main.c	2004-02-07 05:11:07.000000000 +0800
-@@ -121,6 +121,7 @@
- extern void time_init(void);
- extern void softirq_init(void);
- 
-+int force_bug;
- int rows, cols;
- 
- char *execute_command;
-@@ -422,6 +423,14 @@
- 	ccwcache_init();
- #endif
- 	signals_init();
-+
-+	/*
-+	 * Something went badly wrong during the early initialisation process,
-+	 * so lets die before doing any damage or wasting people's time 
-+	 * running a half dead kernel.
-+	 */
-+	if (force_bug)
-+		BUG();
- #ifdef CONFIG_PROC_FS
- 	proc_root_init();
- #endif
-diff -uN -r -X /home/mhf/sys/dont/dontdiff linux-2.4.25-rc1-Vanilla/mm/page_alloc.c linux-2.4.25-rc1-mhf176/mm/page_alloc.c
---- linux-2.4.25-rc1-Vanilla/mm/page_alloc.c	2004-02-06 17:06:58.000000000 +0800
-+++ linux-2.4.25-rc1-mhf176/mm/page_alloc.c	2004-02-07 04:48:30.000000000 +0800
-@@ -726,8 +726,8 @@
- 	unsigned long i, j;
- 	unsigned long map_size;
- 	unsigned long totalpages, offset, realtotalpages;
--	const unsigned long zone_required_alignment = 1UL << (MAX_ORDER-1);
--
-+	const unsigned long zone_required_alignment = 1UL << (PAGE_SHIFT + MAX_ORDER-1);
-+        unsigned long zone_bad_alignment;
- 	if (zone_start_paddr & ~PAGE_MASK)
- 		BUG();
- 
-@@ -741,7 +741,8 @@
- 		for (i = 0; i < MAX_NR_ZONES; i++)
- 			realtotalpages -= zholes_size[i];
- 			
--	printk("On node %d totalpages: %lu\n", nid, realtotalpages);
-+	printk("On node %d totalpages: %lu, zones aligned at 0x%lx\n",
-+	       nid, realtotalpages,zone_required_alignment);
- 
- 	/*
- 	 * Some architectures (with lots of mem and discontinous memory
-@@ -774,7 +775,20 @@
- 		if (zholes_size)
- 			realsize -= zholes_size[j];
- 
--		printk("zone(%lu): %lu pages.\n", j, size);
-+		printk("zone(%lu): %lu pages, physical start address at 0x%lx\n",
-+		       j, size,zone_start_paddr);
-+
-+		/*
-+		 * Here the alignment of a zone is checked. Should alignment
-+		 * be wrong, all that can be done is to print an error message
-+                 * and defer the the BUG handler as it is not yet initialized.
-+		 */
-+		if ((zone_bad_alignment = (zone_start_paddr & (zone_required_alignment-1)))) {
-+			printk("zone(%lu): FATAL ERROR: wrong zone alignment 0x%lx"
-+			       " - will force kernel BUG\n",
-+			       j,zone_bad_alignment);
-+			force_bug = 1;
-+		}
- 		zone->size = size;
- 		zone->realsize = realsize;
- 		zone->name = zone_names[j];
-@@ -784,7 +798,6 @@
- 		zone->need_balance = 0;
- 		 zone->nr_active_pages = zone->nr_inactive_pages = 0;
- 
--
- 		if (!size)
- 			continue;
- 
-@@ -837,8 +850,6 @@
- 		zone->zone_start_mapnr = offset;
- 		zone->zone_start_paddr = zone_start_paddr;
- 
--		if ((zone_start_paddr >> PAGE_SHIFT) & (zone_required_alignment-1))
--			printk("BUG: wrong zone alignment, it will crash\n");
- 
- 		/*
- 		 * Initially all pages are reserved - free ones are freed
 

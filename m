@@ -1,72 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261840AbSIXXeO>; Tue, 24 Sep 2002 19:34:14 -0400
+	id <S261832AbSIXXDT>; Tue, 24 Sep 2002 19:03:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261847AbSIXXeO>; Tue, 24 Sep 2002 19:34:14 -0400
-Received: from patan.Sun.COM ([192.18.98.43]:55783 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S261840AbSIXXeN>;
-	Tue, 24 Sep 2002 19:34:13 -0400
-Message-ID: <3D90F78E.1060405@sun.com>
-Date: Tue, 24 Sep 2002 16:38:54 -0700
-From: Tim Hockin <thockin@sun.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Brad Hards <bhards@bigpond.net.au>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       cgl_discussion mailing list <cgl_discussion@osdl.org>,
-       evlog mailing list <evlog-developers@lists.sourceforge.net>,
-       "ipslinux (Keith Mitchell)" <ipslinux@us.ibm.com>,
-       Linus Torvalds <torvalds@home.transmeta.com>,
-       Hien Nguyen <hien@us.ibm.com>, James Keniston <kenistoj@us.ibm.com>,
-       Mike Sullivan <sullivam@us.ibm.com>
-Subject: Re: alternate event logging proposal
-References: <20020924073051.363D92C1A7@lists.samba.org> <3D90C4FE.3070909@pobox.com> <3D90D0FB.1070805@sun.com> <200209250832.35068.bhards@bigpond.net.au> <3D90F5D3.4070504@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261836AbSIXXDT>; Tue, 24 Sep 2002 19:03:19 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:54022 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261832AbSIXXDS>;
+	Tue, 24 Sep 2002 19:03:18 -0400
+Date: Tue, 24 Sep 2002 16:07:25 -0700
+From: Greg KH <greg@kroah.com>
+To: "Rhoads, Rob" <rob.rhoads@intel.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Linux Hardened Device Drivers Project
+Message-ID: <20020924230724.GB27041@kroah.com>
+References: <D9223EB959A5D511A98F00508B68C20C0A5389D8@orsmsx108.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D9223EB959A5D511A98F00508B68C20C0A5389D8@orsmsx108.jf.intel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Brad Hards wrote:
+On Tue, Sep 24, 2002 at 02:46:35PM -0700, Rhoads, Rob wrote:
 > 
->> I liked the /sbin/hotplug arrangement (aka call_usermode_helper). In 
->> fact, my plan was to add the call_usermode_helper call to the 
->> netif_carrier_[on,off] functions. Unfortuantely, I've been to too many 
->> of Rusty's talks, and know that calling a function that is only safe 
->> in user context is unlikely to be a good idea in 
->> netif_carrier_[on,off], which are more than likely running in 
->> interrupt context.
+> First throw away any idea of a spec. That was a bad idea. :)
 > 
+> Next, turn the first section, "Stability & Reliability" of our 
+> original doc into a "Driver Hardening HOWTO". It would be a 
+> list of characteristics that all good drivers should have, 
+> packed with examples to back it up. 
+
+Sounds very good.  I recommend that it be written in DocBook and added
+to the Documentation/DocBook directory of the kernel tree.
+
+> BTW, by no means did I or anyone involved on this project, ever 
+> mean to imply that the current drivers in the kernel are "bad". 
+> Rather, I'd like to capture a list of the best practices and 
+> document them. In any event our current list needs to be 
+> strengthened with concrete examples. My thinking is that we 
+> should work with the Kernel Janitor project. This is where 
+> Intel can probably really help out.
+
+Great, the janitor project can really use extra people to help out.  I
+suggest that you read over their TODO list again and pick up the pieces
+from there that are missing from your "Driver Hardening HOWTO".
+
+> The section on Instrumentation should be broken up and each piece 
+> dealt with separately as separate project. Most likely killed outright 
+> or as part of existing efforts. I see this section as not having
+> anything to do with driver hardening and more to do with driver RAS.
+
+Agreed.
+
+> POSIX Event Logging-- is a dead issue. The mailing list feedback 
+> is making that point very clear, many thanks. The current
+> thread on an alternative, seems like there is some sort of need
+> for event logging. Whatever the final decision that the Linux 
+> community decides, we'll do.
+
+Thanks for listening.
+
+> There seems to be a desire to have some sort of driver diagnostics.
+> We can work on that with the existing linux-diag project.
+
+Sounds good.  I know those people are actively working to get their code
+into the 2.5 kernel, using the driver model.  This is a good thing.
+
+> Statistics needs to be debated on its own merits. There are some 
+> arguments for keeping it, but I think that stats could be better 
+> handled in user-space and NOT kernel space. IMHO it's not driver 
+> hardening, therefore it's a separate project. 
+
+Agreed, it should be done in userspace.
+
+> Third, the most of the section on High Availability should just 
+> be axed. The big exception being "fault injection testing". 
 > 
-> 
-> You really want something where a userspace app can sleep on an fd, to 
-> be awakened when link changes (or some other interesting event occurs)
+> I see value in keeping FI testing. I think that getting FI 
+> tools into the hands of developers would be worthwhile. Why? 
+> Because letting people do more complicated testing, produces 
+> better code. I think there is room for us to work on a set of 
+> FI tools.
 
-I tend to agree - I like either of the models:
+It would be wonderful if there were some good FI tools that were
+available for our use.  It can only help to make better drivers.
 
-a bunch of little single-value files that can be polled and read
+Thank you for your response, and for listening to the community.
 
-  or
-
-a single device_event file that a daemon reads and dispatches events (I 
-like this one because the daemon is already written, just poorly named - 
-acpid)
-
-For things like netif_carrier, poll() is probably best - the DHCP client 
-can be fully self contained, and not need an eventd to alert it to a 
-signal change.  Of course, acpid does support UNIX socket connections 
-from apps like DHCP....
-
-
-
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Linux Kernel Engineering
-thockin@sun.com
-
+greg k-h

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129563AbQLJGe4>; Sun, 10 Dec 2000 01:34:56 -0500
+	id <S129572AbQLJHGa>; Sun, 10 Dec 2000 02:06:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129572AbQLJGeq>; Sun, 10 Dec 2000 01:34:46 -0500
-Received: from pm3-3-35.apex.net ([209.250.40.195]:38411 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S129563AbQLJGec>; Sun, 10 Dec 2000 01:34:32 -0500
-Date: Sun, 10 Dec 2000 00:04:32 -0600
-From: Steven Walter <srwalter@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Subject: Freeze and reboot with 2.4.0-test12-pre5
-Message-ID: <20001210000432.A7770@hapablap.dyn.dhs.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S129697AbQLJHGU>; Sun, 10 Dec 2000 02:06:20 -0500
+Received: from durham-ar1-228-164.dsl.gte.net ([4.35.228.164]:20237 "EHLO
+	smtp.gte.net") by vger.kernel.org with ESMTP id <S129572AbQLJHGH>;
+	Sun, 10 Dec 2000 02:06:07 -0500
+From: "Victor J. Orlikowski" <v.j.orlikowski@gte.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-ID: <14899.9262.948012.985914@critterling.garfield.home>
+Date: Sun, 10 Dec 2000 01:35:26 -0500
+To: Steven Walter <srwalter@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Freeze and reboot with 2.4.0-test12-pre5
+In-Reply-To: <20001210000432.A7770@hapablap.dyn.dhs.org>
+In-Reply-To: <20001210000432.A7770@hapablap.dyn.dhs.org>
+X-Mailer: VM 6.87 under Emacs 20.7.1
+Reply-To: v.j.orlikowski@gte.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Several times now, at seemingly random intervals, my computer has frozen
-solid.  The computer was not under high load--XMMS playing and my typing
-an email in mutt.  X was frozen, the soundcard played the same sound
-repeatedly, and ctrl+alt+del did nothing.  SysRq, however, caused the
-computer to reboot.  Not just SysRq+b, but also SysRq+s.  This has
-happened at least 3 times.  The system is a AMD-K6/2 500MHz Model 8,
-Steeping 12, kernel 2.4.0-test12-pre5+reiserfs, running XFree86 4.0.1
+Steven,
 
-No other useful debug information could be obtained.
+	One question:
+	Do you have MTRR enabled?
+	If so, a temporary workaround is to re-compile the kernel with
+it disabled.
+
+	This is getting to be something of an epidemic.
+	As I said, AMD's docs state that the write-combining was
+altered in the model and stepping stated. However, I would not
+consider myself *nearly* experienced enough in x86 assembler to start
+playing around with trying to work up a patch.
+
+Victor
 -- 
--Steven
-"Voters decide nothing.  Vote counters decide everything."
-				-Joseph Stalin
+Victor J. Orlikowski
+======================
+v.j.orlikowski@gte.net
+vjo@raleigh.ibm.com
+vjo@us.ibm.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

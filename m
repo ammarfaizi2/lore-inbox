@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317078AbSFFTXY>; Thu, 6 Jun 2002 15:23:24 -0400
+	id <S317110AbSFFTYo>; Thu, 6 Jun 2002 15:24:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317102AbSFFTXX>; Thu, 6 Jun 2002 15:23:23 -0400
-Received: from host.greatconnect.com ([209.239.40.135]:15623 "EHLO
-	host.greatconnect.com") by vger.kernel.org with ESMTP
-	id <S317078AbSFFTXW>; Thu, 6 Jun 2002 15:23:22 -0400
-Subject: Re: PDC20267 + RAID can't find raid device
-From: Samuel Flory <sflory@rackable.com>
-To: William Thompson <wt@electro-mechanical.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020606111918.F7291@coredump.electro-mechanical.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 06 Jun 2002 12:18:14 -0700
-Message-Id: <1023391095.3423.112.camel@flory.corp.rackablelabs.com>
+	id <S317112AbSFFTYn>; Thu, 6 Jun 2002 15:24:43 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:21000 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S317110AbSFFTYl>; Thu, 6 Jun 2002 15:24:41 -0400
+Date: Thu, 6 Jun 2002 21:24:44 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: David Brownell <david-b@pacbell.net>
+Cc: Patrick Mochel <mochel@osdl.org>, Pavel Machek <pavel@suse.cz>,
+        Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
+        linux-kernel@vger.kernel.org,
+        linux-hotplug-devel@lists.sourceforge.net,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: device model documentation 2/3
+Message-ID: <20020606192443.GB10129@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200206051253.g55Crs331876@fachschaft.cup.uni-muenchen.de> <Pine.LNX.4.33.0206051205150.654-100000@geena.pdx.osdl.net> <20020602044907.A121@toy.ucw.cz> <3CFFB4CA.3020508@pacbell.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  It works for me once I got the right options.  Did you enable the
-"fasttrak feature"
+Hi!
 
-I'm using the following options in my .config:
-CONFIG_BLK_DEV_PDC202XX=y
-CONFIG_PDC202XX_BURST=y
-CONFIG_PDC202XX_FORCE=y
-CONFIG_BLK_DEV_ATARAID_PDC=y
+> What did seem to be missing was anything saying whether
+> those device methods would be called in_interrupt() or
+> whether instead they could sleep.  I'd hope all of them
+> would be specified to allow blocking as needed, like their
+> current analogues in PCI and USB.
 
-  One major issue for me is that you can use, and mount both the
-/dev/ataraid/d0 devices, and the /dev/hd devices.  This makes for lots
-of fun in the Red Hat installer, and Cerberus.   
+Look better, it was there.
 
+> Also, there was some mention not that long ago about
+> desirability of some kind of device abort() call.  That
+> would differ from the current remove() call because an
+> abort() would pass the explicit knowledge that hardware
+> was gone ... unplugged before driver shutdown, for one
+> example.  That could also be achieved using some kind
+> of mode parameter to remove() -- perhaps three values,
+> saying whether the hardware was present, removed, or
+> in some indeterminate state.
 
-On Thu, 2002-06-06 at 08:19, William Thompson wrote:
-> After trying 2.4.19-pre10-ac2 I can finally use the PDC20267 controller,
-> however, it doesn't find any raid devices.
-> 
-> I have 2 quantum fireballlct10 05 on the controller (hde and hdg) and
-> created a stripe between these 2 disks in the controller's bios.
-> 
-> I can see both disks w/o problems.
-> 
-> I'd rather not use the linux software raid since you can't partition it.
-> 
-> IDE, PDC20267, FastTrak, and the raid driver are all compiled into the
-> kernel.
-> 
-> More info is available at request.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I'd prefer parameter to remove...
 
-
+Your hardware may die physically, and driver should try to be able to
+remove() even if hardware dies.
+							Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,50 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVAaQyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVAaRDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVAaQyF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 11:54:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVAaQyF
+	id S261251AbVAaRDw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 12:03:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVAaRDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 11:54:05 -0500
-Received: from waste.org ([216.27.176.166]:62934 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261262AbVAaQx7 (ORCPT
+	Mon, 31 Jan 2005 12:03:52 -0500
+Received: from waste.org ([216.27.176.166]:59608 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261251AbVAaRDs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 11:53:59 -0500
-Date: Mon, 31 Jan 2005 08:53:55 -0800
+	Mon, 31 Jan 2005 12:03:48 -0500
+Date: Mon, 31 Jan 2005 09:03:44 -0800
 From: Matt Mackall <mpm@selenic.com>
-To: Alexey Dobriyan <adobriyan@mail.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/8] lib/sort: Heapsort implementation of sort()
-Message-ID: <20050131165355.GO2891@waste.org>
-References: <200501311352.57234.adobriyan@mail.ru>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 9/8] lib/sort: turn off self-test
+Message-ID: <20050131170344.GP2891@waste.org>
+References: <20050131074400.GL2891@waste.org> <20050131035742.1434944c.pj@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501311352.57234.adobriyan@mail.ru>
+In-Reply-To: <20050131035742.1434944c.pj@sgi.com>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 31, 2005 at 01:52:57PM +0200, Alexey Dobriyan wrote:
-> On Mon, 31 Jan 2005 01:34:59 -0600, Matt Mackall wrote:
+On Mon, Jan 31, 2005 at 03:57:42AM -0800, Paul Jackson wrote:
+> How about just removing the self test, not "#if 0"'ing it out.
 > 
-> > This patch adds a generic array sorting library routine. This is meant
-> > to replace qsort, which has two problem areas for kernel use.
+> Better to keep the kernel source code clean of development
+> scaffolding.
 > 
-> > --- /dev/null
-> > +++ mm2/include/linux/sort.h
-> > @@ -0,0 +1,8 @@
-> 
-> > +void sort(void *base, size_t num, size_t size,
-> > +	  int (*cmp)(const void *, const void *),
-> > +	  void (*swap)(void *, void *, int));
-> 
-> extern void sort(...) ?
+> Though your patch 1/8 hasn't arrived in my email inbox yet,
+> so I don't actually know what 'self test' code it is that
+> I am speaking of ;).
 
-Extern is 100% redundant on function declarations.
+It's a nice self-contained unit test. It's here because I ran into a
+strange regparm-related bug when developing the code in userspace and
+I wanted to be sure that it was easy to diagnose in the field if a
+similar bug appeared in the future. I actually think that more code
+ought to have such tests, so long as they don't obscure the code in
+question.
 
-> P. S.: Andrew's email ends with ".org".
+Here it is for purposes of discussion:
 
-I should not mail off patches just before going to sleep.
++#if 1
++/* a simple boot-time regression test */
++
++int cmpint(const void *a, const void *b)
++{
++	return *(int *)a - *(int *)b;
++}
++
++static int sort_test(void)
++{
++	int *a, i, r = 0;
++
++	a = kmalloc(1000 * sizeof(int), GFP_KERNEL);
++	BUG_ON(!a);
++
++	printk("testing sort()\n");
++
++	for (i = 0; i < 1000; i++) {
++		r = (r * 725861) % 6599;
++		a[i] = r;
++	}
++
++	sort(a, 1000, sizeof(int), cmpint, 0);
++
++	for (i = 0; i < 999; i++)
++		if (a[i] > a[i+1]) {
++			printk("sort() failed!\n");
++			break;
++		}
++
++	kfree(a);
++
++	return 0;
++}
++
++module_init(sort_test);
++#endif
 
 -- 
 Mathematics is the supreme nostalgia of our time.

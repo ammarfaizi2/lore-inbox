@@ -1,94 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbUD3V1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbUD3Vdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbUD3V1t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 17:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUD3V1t
+	id S261179AbUD3Vdj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 17:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbUD3Vdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 17:27:49 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:38038 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261184AbUD3V1h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 17:27:37 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Patrick Wildi <patrick@wildi.com>
-Subject: Re: [RFC][PATCH] 2.4 IDE Serverworks OSB4 DMA patch
-Date: Fri, 30 Apr 2004 23:27:56 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <Pine.LNX.4.58.0404291130420.19527@bern.wildisoft.net> <200404300037.10054.bzolnier@elka.pw.edu.pl> <Pine.LNX.4.58.0404300940490.23611@bern.wildisoft.net>
-In-Reply-To: <Pine.LNX.4.58.0404300940490.23611@bern.wildisoft.net>
+	Fri, 30 Apr 2004 17:33:38 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:32275 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S261179AbUD3Vdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 17:33:36 -0400
+Message-ID: <4092C751.9060603@techsource.com>
+Date: Fri, 30 Apr 2004 17:38:25 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Marc Boucher <marc@linuxant.com>
+CC: "'Sean Estabrooks'" <seanlkml@rogers.com>,
+       "'Paul Wagland'" <paul@wagland.net>, "'Rik van Riel'" <riel@redhat.com>,
+       "'Bartlomiej Zolnierkiewicz'" <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "'Peter Williams'" <peterw@aurema.com>, Hua Zhong <hzhong@cisco.com>,
+       "'lkml - Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       koke@sindominio.net, "'Rusty Russell'" <rusty@rustcorp.com.au>,
+       Linus Torvalds <torvalds@osdl.org>,
+       "'David Gibson'" <david@gibson.dropbear.id.au>
+Subject: Re: A compromise that could have been reached.  Re: [PATCH] Blacklist
+ binary-only modules lying about their license
+References: <009701c42edf$25e47390$ca41cb3f@amer.cisco.com> <Pine.LNX.4.58.0404301212070.18014@ppc970.osdl.org> <90DD8A88-9AE2-11D8-B83D-000A95BCAC26@linuxant.com> <4092BB75.7050400@techsource.com> <58E313D6-9AEA-11D8-B83D-000A95BCAC26@linuxant.com>
+In-Reply-To: <58E313D6-9AEA-11D8-B83D-000A95BCAC26@linuxant.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404302327.56681.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 of April 2004 18:44, Patrick Wildi wrote:
-> On Fri, 30 Apr 2004, Bartlomiej Zolnierkiewicz wrote:
-> > On Friday 30 of April 2004 00:09, Patrick Wildi wrote:
-> > > On Thu, 29 Apr 2004, Bartlomiej Zolnierkiewicz wrote:
-> > > > On Thursday 29 of April 2004 21:04, Patrick Wildi wrote:
-> > > > > I have been using a OSB4 chipset based system with a CompactFlash
-> > > > > that supports PIO only and a laptop IBM/Hitachi Travelstar HDD
-> > > > > that supports UDMA.
-> > > > > For both drives, the serverworks code misconfigures the drives:
-> > > > >
-> > > > > - for the CF (hooked up as /dev/hda),
-> > > > > svwks_config_drive_xfer_rate() will not match any tests
-> > > > > (drive->autodma = 0, id->capability = 2, id->field_valid = 1), but
-> > > > > the function will then call
-> > > > >   hwif->ide_dma_on(drive), which it should not do for this drive.
-> > > > >   This patch moves the enabling of DMA up into the DMA section of
-> > > > >   the code.
-> > > >
-> > > > Yep, known bug, it is fixed in 2.6.
-> > > >
-> > > > It is present in many other drivers, my 2.6 patch needs to be
-> > > > backported.
-> > >
-> > > Are you the maintainer for 2.4 or to whom should I send the changes?
-> >
-> > Send them to me.
-> >
-> > > > > - for the Travelstart HDD, the settings coming into
-> > > > >   svwks_config_drive_xfer_rate() are: drive->autodma = 32,
-> > > > >   id->capability = 15, id->field_valid = 7, id->dma_ultra = 0x43f.
-> > > > >   But as this is an OSB4, the hwif->ultra_mask is set to not
-> > > > > support UDMA. Unfortunately in that case
-> > > > > svwks_config_drive_xfer_rate() falls through to the end of the
-> > > > > function, instead of trying other DMA modes.
-> > > >
-> > > > Good catch.
-> > > >
-> > > > It seems the same bug can be present in other drivers too (hint,
-> > > > hint). ;)
-> > >
-> > > I noticed that the piix driver uses the exact same logic. I could
-> > > replicate this part of the patch for other 2.4 drivers. I have no
-> > > way of testing them.
-> > > I can send you a combined patch for 2.4. I am not yet using 2.6.
-> >
-> > No problem. :)
->
-> Below is the 2.4 patch. I believe I updated all drivers that use
-> similar code.
 
-This is not needed.  I've just checked all drivers:
 
-- no IORDY fix is not necessary for alim15x3.c
+Marc Boucher wrote:
+> 
+> Indeed. The driver in question contains 8 interdependent modules. What 
+> we were thinking of doing to settle the issue short-term in a fair way 
+> for both our users and kernel developers, is removing the \0 from the 
+> central one (hsfengine), causing the kernel to be properly tainted and 
+> one instance of the messages to be automatically printed when the driver 
+> is used.
+> 
+> Hopefully the community will view this as an acceptable compromise. Once 
+> patches have propagated onto people's computers, we will be happy to 
+> remove all \0's completely.
+> 
 
-- hwif->ultra_mask fix is only needed for OSB4
+At this point, you're not going to get any slack.  If this is what you'd 
+done to start with, you might have gotten away with it.  As it stands, 
+you appear to be unwilling to comply with the rules, except as a last 
+resort when you've been flamed for days.
 
-[ I discovered another bug in the process - some drivers are using
-  hwif->ultra_mask == 0x80 to indicate that UDMA is unsupported
-  but bit 0x80 means UDMA7 (UDMA150) now, oh well. ]
+I think what you need to do right now is do a lot of begging.  I agree 
+that in principle, it's only technically necessary to have one of the 
+modules taint the kernel.  But it's still "bad" to lie about the module 
+license and should only be done after much scrutiny and discussion.
 
-Therefore I will send Marcelo backport of 2.6 patch for no IORDY support
-+ your OSB4 fix and Linus will get only your OSB4 fix.  Thanks!
-
-Cheers,
-Bartlomiej
+So if everyone who has a stake in this agrees to let you do it, then go 
+ahead.  Otherwise, sorry Charley, but you're SOL.
 

@@ -1,139 +1,185 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVCZEqe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbVCZErx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261999AbVCZEqe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 23:46:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVCZEqe
+	id S261998AbVCZErx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 23:47:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbVCZErx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 23:46:34 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:36358 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261996AbVCZEpn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 23:45:43 -0500
-Date: Sat, 26 Mar 2005 15:44:22 +1100
-To: "Artem B. Bityuckiy" <dedekind@infradead.org>
-Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org
-Subject: Re: [RFC] CryptoAPI & Compression
-Message-ID: <20050326044421.GA24358@gondor.apana.org.au>
-References: <1111766900.4566.20.camel@sauron.oktetlabs.ru>
+	Fri, 25 Mar 2005 23:47:53 -0500
+Received: from mail.kroah.org ([69.55.234.183]:38547 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261998AbVCZEr1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 23:47:27 -0500
+Date: Fri, 25 Mar 2005 20:47:21 -0800
+From: Greg KH <gregkh@suse.de>
+To: Patrick Mochel <mochel@digitalimplant.org>, linux-kernel@vger.kernel.org,
+       tom.l.nguyen@intel.com
+Subject: Re: [0/12] More Driver Model Locking Changes
+Message-ID: <20050326044721.GA19140@kroah.com>
+References: <Pine.LNX.4.50.0503242145200.29800-100000@monsoon.he.net> <20050325192024.GA14290@kroah.com> <20050325233952.GA16355@kroah.com> <20050326000309.GB16602@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="VbJkn9YxBvnuCH5J"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1111766900.4566.20.camel@sauron.oktetlabs.ru>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <20050326000309.GB16602@kroah.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---VbJkn9YxBvnuCH5J
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi Artem:
-
-On Fri, Mar 25, 2005 at 04:08:20PM +0000, Artem B. Bityuckiy wrote:
+On Fri, Mar 25, 2005 at 04:03:09PM -0800, Greg KH wrote:
 > 
-> I'm working on cleaning-up the JFFS3 compression stuff. JFFS3 contains a
-> number of compressors which actually shouldn't be there as they are
-> platform-independent and generic. So we want to move them to the generic
-> part of the Linux kernel instead of storing them in fs/jffs2/. And we
-> were going to use CryptoAPI to access the compressors.
+> Oh, looks like pci express now has problems too, I'll go hit that one
+> next...
 
-Sounds good.
- 
-> In JFFS2 we need something more flexible. Te following is what we want:
-> 
-> int crypto_compress_ext(struct crypto_tfm *tfm,
->                     const u8 *src, unsigned int *slen,
->                     u8 *dst, unsigned int *dlen);
+Here's a fix for pci express.  For some reason I don't think they are
+using the driver model properly here, but I could be wrong...
 
-Compressing part of the input could be significantly different from
-compressing all of the input depending on the algorithm.  In particular
-it could be most costly to do so and/or result in worse compression.
+thanks,
 
-So while I'm happy to add such an interface I think we should keep
-crypto_comp_compress as well for full compression.
+greg k-h
 
-I've whipped up something quick and called it crypto_comp_pcompress.
-How does this interface look to you?
+[pcie] use device_for_each_child() to properly access child devices.
+  
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---VbJkn9YxBvnuCH5J
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=pcompress-1
-
-===== crypto/compress.c 1.7 vs edited =====
---- 1.7/crypto/compress.c	2003-03-29 22:16:58 +11:00
-+++ edited/crypto/compress.c	2005-03-26 15:33:19 +11:00
-@@ -18,6 +18,17 @@
- #include <linux/string.h>
- #include "internal.h"
- 
-+static int crypto_pcompress(struct crypto_tfm *tfm,
-+			    const u8 *src, unsigned int *slen,
-+			    u8 *dst, unsigned int *dlen)
-+{
-+	if (!tfm->__crt_alg->cra_compress.coa_pcompress)
-+		return -ENOSYS;
-+	return tfm->__crt_alg->cra_compress.coa_pcompress(crypto_tfm_ctx(tfm),
-+							  src, slen, dst,
-+							  dlen);
-+}
-+
- static int crypto_compress(struct crypto_tfm *tfm,
-                             const u8 *src, unsigned int slen,
-                             u8 *dst, unsigned int *dlen)
-@@ -50,6 +61,7 @@
- 	if (ret)
- 		goto out;
- 
-+	ops->cot_pcompress = crypto_pcompress;
- 	ops->cot_compress = crypto_compress;
- 	ops->cot_decompress = crypto_decompress;
- 	
-===== include/linux/crypto.h 1.32 vs edited =====
---- 1.32/include/linux/crypto.h	2005-01-26 16:53:19 +11:00
-+++ edited/include/linux/crypto.h	2005-03-26 15:25:39 +11:00
-@@ -87,6 +87,8 @@
- struct compress_alg {
- 	int (*coa_init)(void *ctx);
- 	void (*coa_exit)(void *ctx);
-+	int (*coa_pcompress)(void *ctx, const u8 *src, unsigned int *slen,
-+			     u8 *dst, unsigned int *dlen);
- 	int (*coa_compress)(void *ctx, const u8 *src, unsigned int slen,
- 	                    u8 *dst, unsigned int *dlen);
- 	int (*coa_decompress)(void *ctx, const u8 *src, unsigned int slen,
-@@ -178,6 +180,9 @@
- };
- 
- struct compress_tfm {
-+	int (*cot_pcompress)(struct crypto_tfm *tfm,
-+			     const u8 *src, unsigned int *slen,
-+			     u8 *dst, unsigned int *dlen);
- 	int (*cot_compress)(struct crypto_tfm *tfm,
- 	                    const u8 *src, unsigned int slen,
- 	                    u8 *dst, unsigned int *dlen);
-@@ -363,6 +368,14 @@
- {
- 	BUG_ON(crypto_tfm_alg_type(tfm) != CRYPTO_ALG_TYPE_CIPHER);
- 	memcpy(dst, tfm->crt_cipher.cit_iv, len);
-+}
-+
-+static inline int crypto_comp_pcompress(struct crypto_tfm *tfm,
-+					const u8 *src, unsigned int *slen,
-+					u8 *dst, unsigned int *dlen)
-+{
-+	BUG_ON(crypto_tfm_alg_type(tfm) != CRYPTO_ALG_TYPE_COMPRESS);
-+	return tfm->crt_compress.cot_pcompress(tfm, src, slen, dst, dlen);
+diff -Nru a/drivers/pci/pcie/portdrv_core.c b/drivers/pci/pcie/portdrv_core.c
+--- a/drivers/pci/pcie/portdrv_core.c	2005-03-25 20:44:04 -08:00
++++ b/drivers/pci/pcie/portdrv_core.c	2005-03-25 20:44:04 -08:00
+@@ -232,9 +232,6 @@
+ 	/* Initialize generic device interface */
+ 	device = &dev->device;
+ 	memset(device, 0, sizeof(struct device));
+-	INIT_LIST_HEAD(&device->node);
+-	INIT_LIST_HEAD(&device->children);
+-	INIT_LIST_HEAD(&device->bus_list);
+ 	device->bus = &pcie_port_bus_type;
+ 	device->driver = NULL;
+ 	device->driver_data = NULL; 
+@@ -317,84 +314,71 @@
  }
  
- static inline int crypto_comp_compress(struct crypto_tfm *tfm,
-
---VbJkn9YxBvnuCH5J--
+ #ifdef CONFIG_PM
+-int pcie_port_device_suspend(struct pci_dev *dev, u32 state)
++
++static int suspend_iter(struct device *dev, void *data)
+ {
+-	struct list_head 		*head, *tmp;
+-	struct device 			*parent, *child;
+-	struct device_driver 		*driver;
+ 	struct pcie_port_service_driver *service_driver;
++	u32 state = (u32)data;
+ 
+-	parent = &dev->dev;
+-	head = &parent->children;
+-	tmp = head->next;
+-	while (head != tmp) {
+-		child = container_of(tmp, struct device, node);
+-		tmp = tmp->next;
+-		if (child->bus != &pcie_port_bus_type)
+-			continue;
+-		driver = child->driver;
+-		if (!driver)
+-			continue;
+-		service_driver = to_service_driver(driver);
+-		if (service_driver->suspend)  
+-			service_driver->suspend(to_pcie_device(child), state);
++	if ((dev->bus == &pcie_port_bus_type) && 
++	    (dev->driver)) {
++		service_driver = to_service_driver(dev->driver);
++		if (service_driver->suspend)
++			service_driver->suspend(to_pcie_device(dev), state);
+ 	}
++	return 0;
++}
++
++int pcie_port_device_suspend(struct pci_dev *dev, u32 state)
++{
++	device_for_each_child(&dev->dev, (void *)state, suspend_iter);
+ 	return 0; 
+ }
+ 
+-int pcie_port_device_resume(struct pci_dev *dev) 
+-{ 
+-	struct list_head 		*head, *tmp;
+-	struct device 			*parent, *child;
+-	struct device_driver 		*driver;
++static int resume_iter(struct device *dev, void *data)
++{
+ 	struct pcie_port_service_driver *service_driver;
+ 
+-	parent = &dev->dev;
+-	head = &parent->children;
+-	tmp = head->next;
+-	while (head != tmp) {
+-		child = container_of(tmp, struct device, node);
+-		tmp = tmp->next;
+-		if (child->bus != &pcie_port_bus_type)
+-			continue;
+-		driver = child->driver;
+-		if (!driver)
+-			continue;
+-		service_driver = to_service_driver(driver);
+-		if (service_driver->resume)  
+-			service_driver->resume(to_pcie_device(child));
++	if ((dev->bus == &pcie_port_bus_type) && 
++	    (dev->driver)) {
++		service_driver = to_service_driver(dev->driver);
++		if (service_driver->resume)
++			service_driver->resume(to_pcie_device(dev));
+ 	}
+-	return 0; 
++	return 0;
++}
+ 
++int pcie_port_device_resume(struct pci_dev *dev) 
++{ 
++	device_for_each_child(&dev->dev, NULL, resume_iter);
++	return 0; 
+ }
+ #endif
+ 
+-void pcie_port_device_remove(struct pci_dev *dev)
++static int remove_iter(struct device *dev, void *data)
+ {
+-	struct list_head 		*head, *tmp;
+-	struct device 			*parent, *child;
+-	struct device_driver 		*driver;
+ 	struct pcie_port_service_driver *service_driver;
+-	int interrupt_mode = PCIE_PORT_INTx_MODE;
++	int *interrupt_mode = data;
+ 
+-	parent = &dev->dev;
+-	head = &parent->children;
+-	tmp = head->next;
+-	while (head != tmp) {
+-		child = container_of(tmp, struct device, node);
+-		tmp = tmp->next;
+-		if (child->bus != &pcie_port_bus_type)
+-			continue;
+-		driver = child->driver;
+-		if (driver) { 
+-			service_driver = to_service_driver(driver);
++	if (dev->bus == &pcie_port_bus_type) {
++		if (dev->driver) {
++			service_driver = to_service_driver(dev->driver);
+ 			if (service_driver->remove)  
+-				service_driver->remove(to_pcie_device(child));
++				service_driver->remove(to_pcie_device(dev));
+ 		}
+-		interrupt_mode = (to_pcie_device(child))->interrupt_mode;
+-		put_device(child);
+-		device_unregister(child);
++		*interrupt_mode = (to_pcie_device(dev))->interrupt_mode;
++		put_device(dev);
++		device_unregister(dev);
+ 	}
++	return 0;
++}
++
++void pcie_port_device_remove(struct pci_dev *dev)
++{
++	int interrupt_mode = PCIE_PORT_INTx_MODE;
++
++	device_for_each_child(&dev->dev, &interrupt_mode, remove_iter);
++
+ 	/* Switch to INTx by default if MSI enabled */
+ 	if (interrupt_mode == PCIE_PORT_MSIX_MODE)
+ 		pci_disable_msix(dev);

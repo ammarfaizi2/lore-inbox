@@ -1,162 +1,228 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264215AbUD0RaS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264240AbUD0Rde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264215AbUD0RaS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 13:30:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbUD0RaS
+	id S264240AbUD0Rde (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 13:33:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264237AbUD0Rdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 13:30:18 -0400
-Received: from sinfonix.rz.tu-clausthal.de ([139.174.2.33]:24450 "EHLO
-	sinfonix.rz.tu-clausthal.de") by vger.kernel.org with ESMTP
-	id S264215AbUD0R33 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 13:29:29 -0400
-From: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
-To: "Heilmann, Oliver" <Oliver.Heilmann@drkw.com>
-Subject: Re: [PATCH] SIS AGP vs 2.6.6-rc2
-Date: Tue, 27 Apr 2004 19:29:16 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, davej@redhat.com,
-       oschoett@t-online.de
-References: <20040426082159.90513.qmail@web10102.mail.yahoo.com> <1082971956.24569.2.camel@pandora> <1083063853.24569.88.camel@pandora>
-In-Reply-To: <1083063853.24569.88.camel@pandora>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_shpjAOsZJTJuBdX"
-Message-Id: <200404271929.16786.volker.hemmann@heim9.tu-clausthal.de>
+	Tue, 27 Apr 2004 13:33:31 -0400
+Received: from ns.suse.de ([195.135.220.2]:23741 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264213AbUD0RdF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 13:33:05 -0400
+Subject: Re: [PATCH 11/11] nfs-acl
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1083013819.15282.56.camel@lade.trondhjem.org>
+References: <1082975215.3295.81.camel@winden.suse.de>
+	 <1083013819.15282.56.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Organization: SUSE Labs, SUSE LINUX AG
+Message-Id: <1083087180.19655.263.camel@winden.suse.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 27 Apr 2004 19:33:03 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-04-26 at 23:10, Trond Myklebust wrote:
+> On Mon, 2004-04-26 at 06:28, Andreas Gruenbacher wrote:
+> > Client nfsacl support
+> > 
+> > Add support for the nfsacl protocol extension to nfs.
+> > 
+> 
+> Why do we have to allocate an extra socket here? Can't we always assume
+> that the NFSACL server will listen on port 2049 (the same as the NFS
+> server)?
+> 
+> If so, we can simply clone the NFS rpc_client in order to share the
+> socket/security flavours/...
 
---Boundary-00=_shpjAOsZJTJuBdX
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+We can share the same socket, but the code gets slightly messier. How
+about sharing the whole struct rpc_xprt (incremental patch)?
 
-Hi,
-I tried your patch and is has rejects again:
-energy linux # patch -p1 < sis.agp.patch
-patching file drivers/char/agp/sis-agp.c
-Hunk #1 succeeded at 13 with fuzz 2.
-Hunk #2 succeeded at 69 with fuzz 2.
-Hunk #3 FAILED at 96.
-Hunk #4 FAILED at 224.
-2 out of 5 hunks FAILED -- saving rejects to file=20
-drivers/char/agp/sis-agp.c.rej
+nfsacl-one-socket
+-------------------------- 8< --------------------------
+Index: linux-2.6.6-rc2/fs/nfs/inode.c
+===================================================================
+--- linux-2.6.6-rc2.orig/fs/nfs/inode.c	2004-04-27 17:43:30.000000000 +0200
++++ linux-2.6.6-rc2/fs/nfs/inode.c	2004-04-27 19:30:57.867697752 +0200
+@@ -370,32 +370,38 @@
+  * Create an RPC client handle.
+  */
+ static struct rpc_clnt *
+-__nfs_create_client(struct nfs_server *server,
+-		    const struct nfs_mount_data *data,
+-		    struct rpc_program *program)
++nfs_create_client(struct nfs_server *server,
++		  const struct nfs_mount_data *data,
++		  struct rpc_program *program,
++		  struct rpc_xprt *xprt)
+ {
+-	struct rpc_timeout	timeparms;
+-	struct rpc_xprt		*xprt = NULL;
+ 	struct rpc_clnt		*clnt = NULL;
+-	int			tcp   = (data->flags & NFS_MOUNT_TCP);
+ 
+-	/* Initialize timeout values */
+-	timeparms.to_initval = data->timeo * HZ / 10;
+-	timeparms.to_retries = data->retrans;
+-	timeparms.to_maxval  = tcp ? RPC_MAX_TCP_TIMEOUT : RPC_MAX_UDP_TIMEOUT;
+-	timeparms.to_exponential = 1;
++	if (xprt)
++		xprt = xprt_get_handle(xprt);
++	else {
++		struct rpc_timeout	timeparms;
++		int			tcp   = (data->flags & NFS_MOUNT_TCP);
++
++		/* Initialize timeout values */
++		timeparms.to_initval = data->timeo * HZ / 10;
++		timeparms.to_retries = data->retrans;
++		timeparms.to_maxval  = tcp ? RPC_MAX_TCP_TIMEOUT :
++					     RPC_MAX_UDP_TIMEOUT;
++		timeparms.to_exponential = 1;
+ 
+-	if (!timeparms.to_initval)
+-		timeparms.to_initval = (tcp ? 600 : 11) * HZ / 10;
+-	if (!timeparms.to_retries)
+-		timeparms.to_retries = 5;
+-
+-	/* create transport and client */
+-	xprt = xprt_create_proto(tcp ? IPPROTO_TCP : IPPROTO_UDP,
+-				 &server->addr, &timeparms);
+-	if (IS_ERR(xprt)) {
+-		printk(KERN_WARNING "NFS: cannot create RPC transport.\n");
+-		return (struct rpc_clnt *)xprt;
++		if (!timeparms.to_initval)
++			timeparms.to_initval = (tcp ? 600 : 11) * HZ / 10;
++		if (!timeparms.to_retries)
++			timeparms.to_retries = 5;
++
++		/* create transport */
++		xprt = xprt_create_proto(tcp ? IPPROTO_TCP : IPPROTO_UDP,
++					 &server->addr, &timeparms);
++		if (IS_ERR(xprt)) {
++			printk(KERN_WARNING "NFS: cannot create RPC transport.\n");
++			return (struct rpc_clnt *)xprt;
++		}
+ 	}
+ 	clnt = rpc_create_client(xprt, server->hostname, program,
+ 				 server->rpc_ops->version, data->pseudoflavor);
+@@ -416,12 +422,6 @@
+ 	return clnt;
+ }
+ 
+-static struct rpc_clnt *
+-nfs_create_client(struct nfs_server *server, const struct nfs_mount_data *data)
+-{
+-	return __nfs_create_client(server, data, &nfs_program);
+-}
+-
+ /*
+  * The way this works is that the mount process passes a structure
+  * in the data argument which contains the server's IP address
+@@ -482,13 +482,13 @@
+ 	/* XXX maybe we want to add a server->pseudoflavor field */
+ 
+ 	/* Create RPC client handles */
+-	server->client = nfs_create_client(server, data);
++	server->client = nfs_create_client(server, data, &nfs_program, NULL);
+ 	if (server->client == NULL)
+ 		goto out_fail;
+ #ifdef CONFIG_NFS_ACL
+ 	if (server->flags & NFS_MOUNT_VER3) {
+-		server->acl_client = __nfs_create_client(server, data,
+-							 &nfsacl_program);
++		server->acl_client = nfs_create_client(server, data,
++			&nfsacl_program, server->client->cl_xprt);
+ 		if (server->acl_client == NULL)
+ 			goto out_shutdown;
+ 		/* Initially assume the nfsacl program is supported */
+Index: linux-2.6.6-rc2/include/linux/sunrpc/xprt.h
+===================================================================
+--- linux-2.6.6-rc2.orig/include/linux/sunrpc/xprt.h	2004-04-20 23:29:45.000000000 +0200
++++ linux-2.6.6-rc2/include/linux/sunrpc/xprt.h	2004-04-27 17:44:51.000000000 +0200
+@@ -194,12 +194,14 @@
+ 	void			(*old_write_space)(struct sock *);
+ 
+ 	wait_queue_head_t	cong_wait;
++	int			used;
+ };
+ 
+ #ifdef __KERNEL__
+ 
+ struct rpc_xprt *	xprt_create_proto(int proto, struct sockaddr_in *addr,
+ 					struct rpc_timeout *toparms);
++struct rpc_xprt *	xprt_get_handle(struct rpc_xprt *);
+ int			xprt_destroy(struct rpc_xprt *);
+ void			xprt_shutdown(struct rpc_xprt *);
+ void			xprt_default_timeout(struct rpc_timeout *, int);
+Index: linux-2.6.6-rc2/net/sunrpc/xprt.c
+===================================================================
+--- linux-2.6.6-rc2.orig/net/sunrpc/xprt.c	2004-04-27 17:42:38.000000000 +0200
++++ linux-2.6.6-rc2/net/sunrpc/xprt.c	2004-04-27 17:44:51.000000000 +0200
+@@ -1430,6 +1430,7 @@
+ 	if ((xprt = kmalloc(sizeof(struct rpc_xprt), GFP_KERNEL)) == NULL)
+ 		return ERR_PTR(-ENOMEM);
+ 	memset(xprt, 0, sizeof(*xprt)); /* Nnnngh! */
++	xprt->used = 1;
+ 	xprt->max_reqs = entries;
+ 	slot_table_size = entries * sizeof(xprt->slot[0]);
+ 	xprt->slot = kmalloc(slot_table_size, GFP_KERNEL);
+@@ -1645,17 +1646,30 @@
+ }
+ 
+ /*
++ * Get another reference to an RPC transport.
++ */
++struct rpc_xprt *
++xprt_get_handle(struct rpc_xprt *xprt)
++{
++	xprt->used++;
++	return xprt;
++}
++
++/*
+  * Destroy an RPC transport, killing off all requests.
+  */
+ int
+ xprt_destroy(struct rpc_xprt *xprt)
+ {
+-	dprintk("RPC:      destroying transport %p\n", xprt);
+-	xprt_shutdown(xprt);
+-	xprt_disconnect(xprt);
+-	xprt_close(xprt);
+-	kfree(xprt->slot);
+-	kfree(xprt);
++	xprt->used--;
++	if (!xprt->used) {
++		dprintk("RPC:      destroying transport %p\n", xprt);
++		xprt_shutdown(xprt);
++		xprt_disconnect(xprt);
++		xprt_close(xprt);
++		kfree(xprt->slot);
++		kfree(xprt);
++	}
+ 
+ 	return 0;
+ }
+-------------------------- 8< --------------------------
 
-Attached is the .rej file.=20
 
-Gl=FCck Auf
-Volker
+> BTW: why does the client side NFS_ACL select QSORT? Can't userland do
+> all that for us?
 
-=2D-=20
-Conclusions
- In a straight-up fight, the Empire squashes the Federation like a bug. Eve=
-n=20
-with its numerical advantage removed, the Empire would still squash the=20
-=46ederation like a bug. Accept it. -Michael Wong
+The server and client code both are using fs/nfsacl.c:nfsacl_decode()
+for converting from the xdr_buf to the internal representation. We could
+skip the qsort in the client case, but then the resulting struct
+posix_acl * would not work in all possible contexts anymore, and who
+knows where we will pass around acls in the future?
 
---Boundary-00=_shpjAOsZJTJuBdX
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="sis-agp.c.rej"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="sis-agp.c.rej"
 
-***************
-*** 94,106 ****
-                 pci_write_config_dword(device, agp + PCI_AGP_COMMAND, command);
-  
-                 /*
--                 * Weird: on 648(fx) and 746(fx) chipsets any rate change in the target
-                  * command register triggers a 5ms screwup during which the master
-                  * cannot be configured          
-                  */
--                if (device->device == PCI_DEVICE_ID_SI_648 ||
--                    device->device == PCI_DEVICE_ID_SI_746) {
--                        printk(KERN_INFO PFX "SiS chipset with AGP problems detected. Giving bridge time to recover.\n");
-                         set_current_state(TASK_UNINTERRUPTIBLE);
-                         schedule_timeout (1+(HZ*10)/1000);
-                 }
---- 96,107 ----
-                 pci_write_config_dword(device, agp + PCI_AGP_COMMAND, command);
-  
-                 /*
-+                 * Weird: on some sis chipsets any rate change in the target
-                  * command register triggers a 5ms screwup during which the master
-                  * cannot be configured          
-                  */
-+                if (device->device == agp_bridge->dev->device) {
-+                        printk(KERN_INFO PFX "SiS delay workaround: giving bridge time to recover.\n");
-                         set_current_state(TASK_UNINTERRUPTIBLE);
-                         schedule_timeout (1+(HZ*10)/1000);
-                 }
-***************
-*** 223,250 ****
-  };
-  
-  
-  static void __devinit sis_get_driver(struct agp_bridge_data *bridge)
-  {
--        if (bridge->dev->device == PCI_DEVICE_ID_SI_648) { 
--                sis_driver.agp_enable=sis_648_enable;
--                if (agp_bridge->major_version == 3) {
--                        sis_driver.aperture_sizes = agp3_generic_sizes;
--                        sis_driver.size_type = U16_APER_SIZE;
--                        sis_driver.num_aperture_sizes = AGP_GENERIC_SIZES_ENTRIES;
--                        sis_driver.configure = agp3_generic_configure;
--                        sis_driver.fetch_size = agp3_generic_fetch_size;
--                        sis_driver.cleanup = agp3_generic_cleanup;
--                        sis_driver.tlb_flush = agp3_generic_tlbflush;
--                }
--        }
-  
--        if (bridge->dev->device == PCI_DEVICE_ID_SI_746) {
--                /*
--                 * We don't know enough about the 746 to enable it properly.
--                 * Though we do know that it needs the 'delay' hack to settle
--                 * after changing modes.
--                 */
--                sis_driver.agp_enable=sis_648_enable;
-         }
-  }
-  
---- 224,258 ----
-  };
-  
-  
-+ // chipsets that require the 'delay hack'
-+ static int sis_broken_chipsets[] __devinitdata = {
-+        PCI_DEVICE_ID_SI_648,
-+        PCI_DEVICE_ID_SI_746,
-+        0 // terminator
-+ };
-+ 
-  static void __devinit sis_get_driver(struct agp_bridge_data *bridge)
-  {
-+        int i;
-  
-+        for(i=0; sis_broken_chipsets[i]!=0; ++i)
-+                if(bridge->dev->device==sis_broken_chipsets[i])
-+                        break;
-+        
-+        if(sis_broken_chipsets[i] || agp_sis_force_delay)
-+                sis_driver.agp_enable=sis_delayed_enable;
-+ 
-+        // sis chipsets that indicate less than agp3.5
-+        // are not actually fully agp3 compliant
-+        if ((agp_bridge->major_version == 3 && agp_bridge->minor_version >= 5
-+             && agp_sis_agp_spec!=0) || agp_sis_agp_spec==1) {
-+                sis_driver.aperture_sizes = agp3_generic_sizes;
-+                sis_driver.size_type = U16_APER_SIZE;
-+                sis_driver.num_aperture_sizes = AGP_GENERIC_SIZES_ENTRIES;
-+                sis_driver.configure = agp3_generic_configure;
-+                sis_driver.fetch_size = agp3_generic_fetch_size;
-+                sis_driver.cleanup = agp3_generic_cleanup;
-+                sis_driver.tlb_flush = agp3_generic_tlbflush;
-         }
-  }
-  
+Thanks,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG
 
---Boundary-00=_shpjAOsZJTJuBdX--

@@ -1,74 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286215AbRLTIVa>; Thu, 20 Dec 2001 03:21:30 -0500
+	id <S286212AbRLTITK>; Thu, 20 Dec 2001 03:19:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286211AbRLTIVK>; Thu, 20 Dec 2001 03:21:10 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:30365 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S286210AbRLTIVH>;
-	Thu, 20 Dec 2001 03:21:07 -0500
-Date: Thu, 20 Dec 2001 11:18:25 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "David S. Miller" <davem@redhat.com>, <bcrl@redhat.com>, <cs@zip.com.au>,
-        <billh@tierra.ucsd.edu>, <linux-kernel@vger.kernel.org>,
-        <linux-aio@kvack.org>
-Subject: Re: aio
-In-Reply-To: <Pine.LNX.4.33.0112192218020.19433-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0112201101580.2464-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286211AbRLTITB>; Thu, 20 Dec 2001 03:19:01 -0500
+Received: from [210.176.202.14] ([210.176.202.14]:44716 "EHLO
+	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
+	id <S286209AbRLTISw> convert rfc822-to-8bit; Thu, 20 Dec 2001 03:18:52 -0500
+Subject: Re: nfsroot dead slow with redhat 7.2
+From: David Chow <davidchow@rcn.com.hk>
+To: trond.myklebust@fys.uio.no
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <15393.20331.862567.47007@charged.uio.no>
+In-Reply-To: <3C2131FC.6040209@rcn.com.hk> <shs6672n25h.fsf@charged.uio.no>
+	<1008812943.16827.1.camel@star9.planet.rcn.com.hk> 
+	<15393.20331.862567.47007@charged.uio.no>
+Content-Type: text/plain; charset=Big5
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 20 Dec 2001 16:18:42 +0800
+Message-Id: <1008836323.972.6.camel@star7.planet.rcn.com.hk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+¦b ¶g¥|, 2001-12-20 10:39, Trond Myklebust ¼g¹D¡G
+> >>>>> " " == David Chow <davidchow@rcn.com.hk> writes:
+> 
+>      > The network is fine. It is so slow that an ls -l at the rootfs
+>      > takes more than 2 minutes. The readdir() seems alright because
+>      > the ls immediate counts the number of records says "total
+>      > blahbalh" but when doing individual lookup calls, it seems slow
+>      > like hell. We have other production i686smp servers 2.4.14
+> 
+> As I said: 'tcpdump' ought to show you what is going on
+> 
+>      > serving diskless i686 clients using
+>      > 2.4.13 kernels works great. Is there any difference in nfsroot
+>      >        with
+>      > normal nfsmounts? And can we configure the nfsroot use a v3
+> 
+> Nope: no differences. NFSroot uses the exact same code as standard
+> NFS.
+> 
+>      > mount?  becaus now it defaults to v2 always.
+> 
+> As I said in my previous mail: use the mount option 'v3' on the kernel
+> boot line if you want NFSv3.
+> 
+>  e.g. nfsroot="10.0.0.1:/bar,v3"
+> 
+> Cheers,
+>    Trond
+Just find out... it is a problem of some settings in /etc directory 
+it is not related to the FSes . I replaced the /etc directory with the
+one we are using on the production machines... by the way. What can be
+wrong? When it starts init , and execute the /etc/rc.d/rc.sysinit , it
+is hell slow. We have tried replace /sbin/init with bash and we got out
+a shell but "ls -l" takes more than 2 minutes... do you know what sort
+of settings in the /etc will affect use space "bash" or "glibc" on
+nfsroot behaves different ? This is so strange.
 
-On Wed, 19 Dec 2001, Linus Torvalds wrote:
+Thanks
 
-> I think the question you _should_ be lobbying at Ben and the other aio
-> people is how the aio stuff could do zero-copy from disk cache to the
-> network, ie do the things that Tux does internally where it does
-> nonblocking reads from disk ad then sends them out non-blocking to the
-> network without havign to copy the data _or_ have to use extremely
-> expensive TLB mapping tricks to get at it..
-
-months ago i already offered Ben to port TUX to the aio interfaces once
-they are available in the kernel. Unfortunately right now i cant afford
-maintaining two separate TUX trees - so it's a chicken and egg thing in
-this context.
-
-But once aio is available, i *will* do it, because one of Ben's goals
-fully state-machine-driven async block IO, which i'd like to use (and
-test, and finetune, and improve) very much. (right now TUX does async
-block IO via helper kernel threads. Async net-io is fully IRQ-driven.)
-I'd also like to prove that our aio interfaces are capable.
-
-there are two possibilities i can think of:
-
-1) lets get Ben's patch in but do *not* export the syscalls, yet.
-
-2) find some nice way of doing 'experimental syscalls', which are not
-   guaranteed to stay that way. (Perhaps this is a naive proposition,
-   often there is nothing more permanent than temporary solutions.)
-   Something like reserving 'temporary' syscalls at the end of the syscall
-   space, which would be frequently moved/removed/renamed just to keep
-   folks from relying on it. No interface is guaranteed. Perhaps some
-   technical solution can be find to make these syscalls truly temporary.
-
-i'm sure people will get excited about (ie. use) aio once it's in the
-kernel. Ben is very good at coding, perhaps not as good at PR, but should
-such level of PR really be a natural part of Linux development?
-
-> Ie tie the "sendfile" and "aio" threads together, and ask Ben if we
-> can do aio-sendfile and have thousands of asynchronous sendfiles going
-> on at the same time, like Tux can do. And if not, then why not?
-> Missing or bad interfaces?
-
-i'd love to find out. *If* it's guaranteed that some sort of sane aio will
-always be available from the point on it's introduced into the kernel then
-i'll switch TUX to it. (it will change TUX upside down, this is why i
-cannot maintain two separate TUX trees.) TUX doesnt need stable
-interfaces. While TUX might not be as important, usage-wise, it's
-certainly a good playing ground for such things.
-
-	Ingo
+David
 

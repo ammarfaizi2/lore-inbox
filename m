@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVB0NLB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVB0NRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbVB0NLB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 08:11:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVB0NLB
+	id S261385AbVB0NRz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 08:17:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVB0NRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 08:11:01 -0500
-Received: from edu.joroinen.fi ([194.89.68.130]:40387 "EHLO edu.joroinen.fi")
-	by vger.kernel.org with ESMTP id S261383AbVB0NK3 (ORCPT
+	Sun, 27 Feb 2005 08:17:55 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:3508 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261385AbVB0NRx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 08:10:29 -0500
-Date: Sun, 27 Feb 2005 15:10:27 +0200
-From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Cc: David Hoffman <dhoffman_98@yahoo.com>
-Subject: Re: [RFT] Preliminary w83627ehf hardware monitoring driver
-Message-ID: <20050227131027.GM25818@edu.joroinen.fi>
-References: <20050226191142.6288b2ef.khali@linux-fr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 27 Feb 2005 08:17:53 -0500
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Matt Mackall <mpm@selenic.com>
+Subject: Re: [PATCH 1/8] lib/sort: Heapsort implementation of sort()
+Date: Sun, 27 Feb 2005 14:17:51 +0100
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <2.416337461@selenic.com>
+In-Reply-To: <2.416337461@selenic.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050226191142.6288b2ef.khali@linux-fr.org>
-User-Agent: Mutt/1.5.6+20040523i
+Message-Id: <200502271417.51654.agruen@suse.de>
+X-Length: 1138
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 26, 2005 at 07:11:42PM +0100, Jean Delvare wrote:
-> Hi all,
-> 
-> I have been working on a w83627ehf hardware monitoring driver. The
-> W83627EHF is a Super-I/O chip made by Winbond. Like other chips of the
-> family (W83627HF, W83697HF, W83627THF...), it integrates hardware
-> monitoring functions. Of these, my preliminary driver only handles
-> temperature and fan inputs at the moment. I lack time and do not have
-> hardware to test it, so I will not improve it significantly in a near
-> future.
-> 
+Matt,
 
-Hi!
+On Monday 31 January 2005 08:34, Matt Mackall wrote:
+> This patch adds a generic array sorting library routine. This is meant
+> to replace qsort, which has two problem areas for kernel use.
 
-Do you know about driver for W83627THF watchdog? I'm using Supermicro P8SCI
-motherboard, and I haven't found working driver for it..
+the sort function is broken. When sorting the integer array {1, 2, 3, 4, 5}, 
+I'm getting {2, 3, 4, 5, 1} as a result. Can you please have a look?
 
-Thanks!
+Thanks,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX PRODUCTS GMBH
 
--- Pasi Kärkkäinen
-       
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.

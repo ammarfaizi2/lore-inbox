@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129720AbQKQJFr>; Fri, 17 Nov 2000 04:05:47 -0500
+	id <S130026AbQKQJHg>; Fri, 17 Nov 2000 04:07:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130139AbQKQJFh>; Fri, 17 Nov 2000 04:05:37 -0500
-Received: from marks-43.caltech.edu ([131.215.92.43]:1541 "EHLO
-	velius.chaos2.org") by vger.kernel.org with ESMTP
-	id <S129720AbQKQJFW>; Fri, 17 Nov 2000 04:05:22 -0500
-Date: Fri, 17 Nov 2000 00:35:03 -0800 (PST)
-From: Jacob Luna Lundberg <jacob@velius.chaos2.org>
-To: Dan Aloni <karrde@callisto.yi.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH (2.4)] atomic use count for proc_dir_entry
-In-Reply-To: <Pine.LNX.4.21.0011170905030.19287-100000@callisto.yi.org>
-Message-ID: <Pine.LNX.4.21.0011170026130.10109-100000@velius.chaos2.org>
+	id <S130113AbQKQJH0>; Fri, 17 Nov 2000 04:07:26 -0500
+Received: from coorong.anu.edu.au ([150.203.141.5]:53161 "EHLO
+	coorong.anu.edu.au") by vger.kernel.org with ESMTP
+	id <S130026AbQKQJHO>; Fri, 17 Nov 2000 04:07:14 -0500
+Message-ID: <3A14EE30.C1E65B84@tltsu.anu.edu.au>
+Date: Fri, 17 Nov 2000 19:37:04 +1100
+From: Robert Cohen <robert@coorong.anu.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.7 sun4u)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Linux and 802.IQ
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have been looking into VLANS on some switches. Apparently on these
+switches, a host can only be a member of two vlans if it is 802.IQ
+compliant (or have 2 NIC's, one into each vlan). Its not clear from the
+docs whether the OS has to be 802.IQ compliant or if its an attribute of
+the NIC.
 
-On Fri, 17 Nov 2000, Dan Aloni wrote:
-> If you are right, I guess put_files_struct() of kernel/exit.c would
-> have cleaned files_struct everytime someones called it. 
-> Everywhere in the kernel, objects are freed when
-> atomic_dec_and_test() returns true.
+Anyway is Linux 802.IQ compliant? Is Linux 2.2 or just 2.4.
+ How long has 802.IQ been around and how widespread is it. Is Solaris
+compliant. How about NT/ Win 2000.
 
-Indeed, after studying the asm in question I think I see how it ticks.
-What is the reasoning behind reversing the result of the test instead of
-returning the new value of the counter?
-
-(Thanks for taking time to set me straight on this.  :)
-
--Jacob
-
--- 
-
-Why you say you no bunny rabbit when you have little powder-puff tail?
-                -- The Tasmanian Devil
-
+Robert Cohen
+TLTSU, Australian National University.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,71 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274283AbRISXtl>; Wed, 19 Sep 2001 19:49:41 -0400
+	id <S272636AbRISX57>; Wed, 19 Sep 2001 19:57:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274281AbRISXta>; Wed, 19 Sep 2001 19:49:30 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:40635 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S274277AbRISXtU>; Wed, 19 Sep 2001 19:49:20 -0400
-Date: Thu, 20 Sep 2001 00:51:06 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: pre12 VM doubts and patch
-In-Reply-To: <20010919232818.T720@athlon.random>
-Message-ID: <Pine.LNX.4.21.0109200022360.1221-100000@localhost.localdomain>
+	id <S272721AbRISX5u>; Wed, 19 Sep 2001 19:57:50 -0400
+Received: from [24.254.60.25] ([24.254.60.25]:57737 "EHLO
+	femail35.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S272636AbRISX5i>; Wed, 19 Sep 2001 19:57:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>, brian@worldcontrol.com
+Subject: Re: Re[2]: Athlon: Try this (was: Re: Athlon bug stomping #2)
+Date: Wed, 19 Sep 2001 16:56:49 -0700
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0109140430540.2204-100000@jacui> <20010918183017.A6079@top.worldcontrol.com> <1663026712.20010919161037@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <1663026712.20010919161037@port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01091916564902.00579@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Sep 2001, Andrea Arcangeli wrote:
-> On Wed, Sep 19, 2001 at 08:42:39PM +0100, Hugh Dickins wrote:
-> > --- 2.4.10-pre12/mm/swap_state.c	Wed Sep 19 14:05:54 2001
-> > +++ linux/mm/swap_state.c	Mon Sep 17 06:30:26 2001
-> > @@ -23,6 +23,17 @@
-> >   */
-> >  static int swap_writepage(struct page *page)
-> >  {
-> > +	/* One for the page cache, one for this user, one for page->buffers */
-> > +	if (page_count(page) > 2 + !!page->buffers)
-> 
-> this is racy, you have to spin_lock(&pagecache_lock) before you can
-> expect the page_count() stays constant. then after you checked the page
-> has count == 1, you must atomically drop it from the pagecache so it's
-> not visible anymore to the swapin lookups.
+On Wednesday 19 September 2001 06:10 am, VDA wrote:
+> Hello brian,
+> Wednesday, September 19, 2001, 4:30:17 AM, you wrote:
+> bwc> I just tried the 'Athlon Bug stomper #2 bit 7 patch version 1' on
+> a 2nd bwc> matchine, 900 MHz Duron system with an Epox 8KTA3+ MB, and
+> it too bwc> is now running fine with an Athlon optimized kernel, when
+> before it bwc> would oops to death on boot.
+> bwc> Shall I keep posting success reports or are people convinced this
+> bwc> fix works?
+>
+> It is pleasant to hear success stories.
+> However, now we are pretty sure fix is ok,
+> so only failure reports to lkml please.
 
-Locking on pagecache_lock is no way to stabilize page count, but this
-doesn't need it stabilized: it's just checking there's nothing but us
-which can be interested in the page.  Okay, we now know that
-read_swap_cache_async can get "interested" in surprising pages (when
-the swap entry it asks for has meanwhile been replaced), but I don't
-see how that endangers the logic here - it could briefly bump count
-too high to pass the "don't write" test, but that errs on the safe side.
-
-If you think this racy, how come you still allow "exclusive_swap_page"
-use elsewhere?  Actually, I think these tests would be better replaced
-by use of "exclusive_swap_page", wouldn't they?  But perhaps I'll find
-I'm off-by-one when I try it tomorrow.
-
-> Another way to fix the race is to change lookup_swap_cache to do
-> find_lock_page instead of find_get_page, and then check the page is
-> still a swapcachepage after you got it locked (that was the old way,
-> somebody changed it and introduced the race, I like lookup_swap_cache to
-> use find_get_page so I dropped such check to fix it, it was a minor
-> optimization but yes probably worthwhile to reintroduce after addressing
-> this race in one of the two ways described).
-
-Well, I certainly agree the system can survive without this optimization,
-and I wouldn't want to restore it if it were buggy.  I just don't see
-the scenario you're afraid of, and nobody had questioned it before.
-
-> It is also buggy, if something it should be "page_count(page) != 1" (not
-> != 2).
-
-I don't think so: as the comment says, one for the page cache,
-one for the caller of writepage, one (perhaps) for page->buffers.
-
-Hugh
-
+Reports of loss of performance due to this patch would be good too.

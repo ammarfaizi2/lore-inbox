@@ -1,66 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317282AbSHPWTR>; Fri, 16 Aug 2002 18:19:17 -0400
+	id <S317864AbSHPV5Y>; Fri, 16 Aug 2002 17:57:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317308AbSHPWTR>; Fri, 16 Aug 2002 18:19:17 -0400
-Received: from host.greatconnect.com ([209.239.40.135]:40711 "EHLO
-	host.greatconnect.com") by vger.kernel.org with ESMTP
-	id <S317282AbSHPWTQ>; Fri, 16 Aug 2002 18:19:16 -0400
-Subject: Re: proc/sys/fs file-nr?
-From: Samuel Flory <sflory@rackable.com>
-To: John Coppens <jcoppens@usa.net>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020816183312.728a970a.jcoppens@usa.net>
-References: <20020816183312.728a970a.jcoppens@usa.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 16 Aug 2002 15:22:27 -0700
-Message-Id: <1029536548.6469.185.camel@flory.corp.rackablelabs.com>
+	id <S318174AbSHPV5Y>; Fri, 16 Aug 2002 17:57:24 -0400
+Received: from p024.as-l031.contactel.cz ([212.65.234.216]:3456 "EHLO
+	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S317864AbSHPV5X>;
+	Fri, 16 Aug 2002 17:57:23 -0400
+Date: Fri, 16 Aug 2002 23:59:04 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: torvalds@transmeta.com, jsimmons@users.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] oops from console subsystem: dereferencing wild pointer
+Message-ID: <20020816215904.GA13358@ppc.vc.cvut.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-16 at 14:33, John Coppens wrote:
-> Hi.
-> 
-> The last few days I had a problem with an image viewer, and thought I'd investigate
-> a little. The program makes thumbnails, and after a while, complains about
-> 'too many files open'. I found a reference to the proc/sys/fs/file-max and
-> wanted to check file-nr first. /usr/src/linux/Documentation states:
-> 
-> "The three  values  in file-nr denote the number of allocated file handles, the
-> number of  used file handles, and the maximum number of file handles."
-> 
-> I'm confused now. Each time I open a new directory with images, the second number
-> _decreases_! It _increases_ when I close the viewer program. Is this normal?
-> 
-> Finally, the viewer (gThumb) gives up at: 
-> 
-> 1961    50      8192
-> 
-> with the 'too many...' error. Shouldn't the number increase till 8192? This is
-> the number in file-max? (Kernel 2.4.18)
+Hi Linus, hi James,
+  recently I found that my (2.5.31) system sometime oopses when I hit a key 
+while looking for results of tasks I started in single-user mode by using
+xxx > /dev/ttyXX. Stack trace reveals that oops happens in handle_scancode 
+in drivers/char/keyboard.c. It does:
 
-Check inode-nr in addition to file-max.  What is your ulimit set to.  I
-think the default is 1024.
+        tty = vc->vc_tty;
 
-[root@flory sflory]# ulimit -a
-core file size        (blocks, -c) 0
-data seg size         (kbytes, -d) unlimited
-file size             (blocks, -f) unlimited
-max locked memory     (kbytes, -l) unlimited
-max memory size       (kbytes, -m) unlimited
-open files                    (-n) 1024
-pipe size          (512 bytes, -p) 8
-stack size            (kbytes, -s) 8192
-cpu time             (seconds, -t) unlimited
-max user processes            (-u) 4086
-virtual memory        (kbytes, -v) unlimited
-[root@flory sflory]# ulimit -n 2048
-[root@flory sflory]# ulimit -n
-2048
+        if (tty && (!tty->driver_data)) {
+                /*
+                 * We touch the tty structure via the ttytab array
+                 * without knowing whether or not tty is open, which
+                 * is inherently dangerous.  We currently rely on that
+                 * fact that console_open sets tty->driver_data when
+                 * it opens it, and clears it when it closes it.
+                 */
+                tty = NULL;
+        }
+
+but unfortunately this worked only before we started doing kfree()
+on tty structures, when they were statically allocated in console code. 
+Now, when we release tty, vc->vc_tty points to random memory, and sooner 
+or later tty memory will be used for something else, and kernel will oops 
+(in my case L_ECHO(tty) will fail because of tty->termios cannot be 
+dereferenced).
+
+Patch below fixes problem for me, and I also believe that after patch 
+below we can remove if () shown above from the keyboard.c.
+
+I have no idea how VT code synchronizes, so I did not added any locking
+around setting vc_tty (maybe con_close should call 
+acquire_console_sem/release_console_sem around code which touches 
+tty->driver_data and clears vc_tty so that other CPUs can stop using 
+tty struct before pointer will become wild, but it should be already 
+ensured by checking tty->count != 1). I'm sure that patch below does not 
+make locking situation worse than it is before applying patch: any 
+potentially not synchronized code could use wild pointer before, and 
+it will use NULL pointer now.
+
+You can reproduce oopses without patch below by booting with 'init=/bin/bash',
+then do 'echo xxx > /dev/tty2', then start filling all computer memory with 
+something (dd if=/dev/hda of=/dev/null works for me), switch to VT 2, and
+hit key from time to time. Sooner or later oopses appears. If you have
+enabled filling kfreed memory with 0x5A, you can skip dd step.
+
+					Thanks,
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
 
 
-
-
+diff -urdN linux/drivers/char/console.c linux/drivers/char/console.c
+--- linux/drivers/char/console.c	2002-08-16 20:17:03.000000000 +0200
++++ linux/drivers/char/console.c	2002-08-16 23:08:50.000000000 +0200
+@@ -2395,10 +2395,16 @@
+ 
+ static void con_close(struct tty_struct *tty, struct file * filp)
+ {
++	struct vt_struct *vt;
++	
+ 	if (!tty)
+ 		return;
+ 	if (tty->count != 1) return;
+ 	vcs_make_devfs (minor(tty->device) - tty->driver.minor_start, 1);
++	vt = (struct vt_struct*)tty->driver_data;
++	if (vt) {
++		vc_cons[vt->vc_num].d->vc_tty = NULL;
++	}
+ 	tty->driver_data = 0;
+ }
+ 

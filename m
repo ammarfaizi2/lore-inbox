@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbVC2LjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262227AbVC2Lko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262217AbVC2LjB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 06:39:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbVC2LjB
+	id S262227AbVC2Lko (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 06:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVC2Lkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 06:39:01 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17629 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262217AbVC2LiT (ORCPT
+	Tue, 29 Mar 2005 06:40:43 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:19945 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262227AbVC2Ljj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 06:38:19 -0500
-Date: Tue, 29 Mar 2005 13:38:08 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Shawn Starr <shawn.starr@rogers.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.12-rc1] suspend to Disk success - T42 laptop
-Message-ID: <20050329113808.GA6797@elf.ucw.cz>
-References: <200501110235.37039.shawn.starr@rogers.com> <20050112225011.GQ1408@elf.ucw.cz> <200501121931.27976.shawn.starr@rogers.com> <200503280251.04046.shawn.starr@rogers.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503280251.04046.shawn.starr@rogers.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 29 Mar 2005 06:39:39 -0500
+Date: Tue, 29 Mar 2005 13:38:53 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Lee Revell <rlrevell@joe-job.com>, Arun Srinivas <getarunsri@hotmail.com>,
+       nickpiggin@yahoo.com.au, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: sched_setscheduler() and usage issues ....please help
+In-Reply-To: <1112096147.3691.35.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0503291338160.19483@yvahk01.tjqt.qr>
+References: <BAY10-F472EE1F6A6F80FEA2F5568D9450@phx.gbl> 
+ <1112071215.3691.27.camel@localhost.localdomain>  <1112071867.19014.30.camel@mindpipe>
+  <Pine.LNX.4.61.0503290802170.25114@yvahk01.tjqt.qr>
+ <1112096147.3691.35.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>OK, I'm a little embarrassed. I never saw this tool. I use debian
 
-> Hello Pavel, I can now suspend to disk on the laptop with 2.6.12-rc1. There is 
-> no failures anymore. It resumes perfectly.
+You don't need to be. Before I got to know of this tool, I also wrote my own.
+Look for "schedutils".
 
-No video hacks needed? Good.
-									Pavel
+>unstable, but didn't have the package loaded.  I did a apropos on
+>sched_setscheduler, and it didn't come up with any tools, so I just
+>wrote my own!
+
+
+
+Jan Engelhardt
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+No TOFU for me, please.

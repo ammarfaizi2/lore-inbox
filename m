@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262515AbUCCQIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 11:08:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262516AbUCCQIJ
+	id S262503AbUCCQNi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 11:13:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262504AbUCCQNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 11:08:09 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:5133 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262515AbUCCQIG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 11:08:06 -0500
-Date: Wed, 3 Mar 2004 16:08:02 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+	Wed, 3 Mar 2004 11:13:37 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:48907
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262503AbUCCQNh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 11:13:37 -0500
+Date: Wed, 3 Mar 2004 17:14:15 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Dave McCracken <dmccr@us.ibm.com>
 Subject: Re: 230-objrmap fixes for 2.6.3-mjb2
-Message-ID: <20040303160802.A30084@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dave McCracken <dmccr@us.ibm.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel@vger.kernel.org
-References: <20040303070933.GB4922@dualathlon.random> <20040303025820.2cf6078a.akpm@osdl.org> <7440000.1078328791@[10.10.2.4]> <7710000.1078329523@[10.1.1.4]>
+Message-ID: <20040303161415.GG4922@dualathlon.random>
+References: <20040303070933.GB4922@dualathlon.random> <8030000.1078329278@[10.10.2.4]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <7710000.1078329523@[10.1.1.4]>; from dmccr@us.ibm.com on Wed, Mar 03, 2004 at 09:58:44AM -0600
+In-Reply-To: <8030000.1078329278@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 03, 2004 at 09:58:44AM -0600, Dave McCracken wrote:
-> It'd mean the page struct would have to have a count of the number of
-> mlock()ed regions it belongs to, and we'd have to update all the pages each
-> time we call it.
+On Wed, Mar 03, 2004 at 07:54:39AM -0800, Martin J. Bligh wrote:
+> Makes sense. But why would you want 4:4 on opteron? I'm not sure we care
+> about the perf for anyone nutty enough to run a 32 bit kernel there ;-)
 
-That would add another atomic_t to struct pages..
-
-But if we did it it would help some xfs fixes I'm doing currently a whole lot
-
+it would be purerly a theorical benchmark, to see if the current state
+of the art technology is hurted more or less by 4:4. If it's hurted less
+it's reasonable to assume newer cpus will be hurted less too. However
+we'll probably deal with only with a few more generation of 32bit cpus
+and it will be only from intel so I agree with you the xeon test is the
+most interesting for this.

@@ -1,80 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131910AbRCYAos>; Sat, 24 Mar 2001 19:44:48 -0500
+	id <S131912AbRCYB3H>; Sat, 24 Mar 2001 20:29:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131912AbRCYAoj>; Sat, 24 Mar 2001 19:44:39 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:46273 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131910AbRCYAo2>;
-	Sat, 24 Mar 2001 19:44:28 -0500
-Date: Sun, 25 Mar 2001 00:40:13 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <aviro@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: [PATCH] 2.4.2-ac24 buffer.c oops on highmem
-Message-ID: <20010325004013.E11686@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="EeQfGwPcQSOJBaQU"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S131913AbRCYB24>; Sat, 24 Mar 2001 20:28:56 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:42504 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131912AbRCYB2o>; Sat, 24 Mar 2001 20:28:44 -0500
+Date: Sat, 24 Mar 2001 22:05:18 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ben LaHaise <bcrl@redhat.com>, Christoph Rohland <cr@sap.com>
+Subject: Re: [PATCH] Fix races in 2.4.2-ac22 SysV shared memory
+In-Reply-To: <20010325001338.C11686@redhat.com>
+Message-ID: <Pine.LNX.4.21.0103242203290.1863-100000@imladris.rielhome.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 25 Mar 2001, Stephen C. Tweedie wrote:
 
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Rik, do you think it is really necessary to take the page lock and
+> release it inside lookup_swap_cache?  I may be overlooking something,
+> but I can't see the benefit of it ---
 
-Hi,
+I don't think we need to do this, except to protect us from
+using a page which isn't up-to-date yet and locked because
+of disk IO.
 
-We've just seen a buffer.c oops in:
+Reclaim_page() takes the pagecache_lock before trying to
+free anything, so there's no reason to lock against that.
 
->>EIP; c013ae4b <__block_prepare_write+2bb/300>   <=====
-Trace; c013b732 <block_prepare_write+22/70>
-Trace; c015dbba <ext2_get_block+a/4e0>
-Trace; c012a67e <generic_file_write+3ee/710>
-Trace; c015dbba <ext2_get_block+a/4e0>
-Trace; c01281c0 <file_read_actor+0/f0>
-Trace; c01384a6 <sys_write+96/d0>
-Trace; c010910b <system_call+33/38>
+regards,
 
-__block_prepare_write()'s "out:" error handler tries to do a
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-			memset(bh->b_data, 0, bh->b_size);
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
-even if the buffer's page has already been kmapped for highmem.
-Highmem pages will obviously have b_data being NULL.  Patch below.
-
-I had a quick look through the rest of buffer.c and apart from the
-initialisation of bh->b_data in set_bh_page(), there are no other
-references left to b_data once we fix this.
-
-Cheers,
- Stephen
-
-
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="2.4.2-ac24.blockwrite.diff"
-
---- fs/buffer.c.~1~	Sat Mar 24 17:30:13 2001
-+++ fs/buffer.c	Sat Mar 24 18:16:55 2001
-@@ -1629,12 +1629,14 @@
- 	return 0;
- out:
- 	bh = head;
-+	block_start = 0;
- 	do {
- 		if (buffer_new(bh) && !buffer_uptodate(bh)) {
--			memset(bh->b_data, 0, bh->b_size);
-+			memset(kaddr+block_start, 0, bh->b_size);
- 			set_bit(BH_Uptodate, &bh->b_state);
- 			mark_buffer_dirty(bh);
- 		}
-+		block_start += bh->b_size;
- 		bh = bh->b_this_page;
- 	} while (bh != head);
- 	return err;
-
---EeQfGwPcQSOJBaQU--

@@ -1,103 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267957AbUHRWgy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267381AbUHRW70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267957AbUHRWgy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 18:36:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268662AbUHRWgy
+	id S267381AbUHRW70 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 18:59:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267600AbUHRW70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 18:36:54 -0400
-Received: from [213.146.107.164] ([213.146.107.164]:1540 "EHLO
-	mail.thorsten-knabe.de") by vger.kernel.org with ESMTP
-	id S267957AbUHRWgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 18:36:50 -0400
-Date: Thu, 19 Aug 2004 00:36:51 +0200 (CEST)
-From: Thorsten Knabe <linux@thorsten-knabe.de>
-X-X-Sender: tek@tek01.teknet
-To: =?ISO-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: ad1816 sound driver web page and email address
-In-Reply-To: <412350AE.9030007@hispalinux.es>
-Message-ID: <Pine.LNX.4.61.0408190021080.11560@tek01.teknet>
-References: <412350AE.9030007@hispalinux.es>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="655617-1811777982-1092868611=:11560"
+	Wed, 18 Aug 2004 18:59:26 -0400
+Received: from holomorphy.com ([207.189.100.168]:40634 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267381AbUHRW7Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 18:59:25 -0400
+Date: Wed, 18 Aug 2004 15:59:15 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "David S. Miller" <davem@redhat.com>, pj@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Does io_remap_page_range() take 5 or 6 args?
+Message-ID: <20040818225915.GQ11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"David S. Miller" <davem@redhat.com>, pj@sgi.com,
+	linux-kernel@vger.kernel.org
+References: <20040818133348.7e319e0e.pj@sgi.com> <20040818205338.GF11200@holomorphy.com> <20040818135638.4326ca02.davem@redhat.com> <20040818210503.GG11200@holomorphy.com> <20040818143029.23db8740.davem@redhat.com> <20040818214026.GL11200@holomorphy.com> <20040818220001.GN11200@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040818220001.GN11200@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Wed, Aug 18, 2004 at 03:00:01PM -0700, William Lee Irwin III wrote:
+> Or, if not pgoff_t, introduce a pfn_t for this purpose, an unsigned
+> arithmetic type of architecture-dependent width (such systems may not
+> want 64-bit page indices and the like for various reasons). But
+> exhibiting a system with the need for such is yet to be done, and in
+> fact, even with a 32B struct page, 16TB RAM (the minimum required to
+> trigger more physical address bits >= BITS_PER_LONG + PAGE_SHIFT) has
+> a 128GB mem_map[] with 4KB pages, an 8GB mem_map[] with 64KB pages,
+> and so will have far, far deeper support issues than pfn overflows.
+> Even supposing a kernel could be made to boot and the like, the massive
+> internal fragmentation from using a large enough emulated PAGE_SIZE to
+> get mem_map[] to fit within virtualspace will surely render such a
+> machine completely useless, likely to the point of being unable to run
+> userspace, or panicking much earlier from boot-time allocation failures.
 
---655617-1811777982-1092868611=:11560
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-
-On Wed, 18 Aug 2004, Ram=F3n Rey Vicente wrote:
-
-> Hello.
->
-> Whats up with ad1816 sound driver web pages? There is two web pages in
-> the MAINTAINERS file and both are not correct. And email address is
-> missing.
->
-> AD1816 SOUND DRIVER
-> P:      Thorsten Knabe
-> W:
-> http://www.student.informatik.tu-darmstadt.de/~tek/projects/linux.html
-> W:      http://www.tu-darmstadt.de/~tek01/projects/linux.html
-> S:      Maintained
-
-Hello.
-
-I'm still alive and maintainig the driver. However, email address and web=
-=20
-page have changed. Updated maintainer records for 2.4.27 and 2.6.8.1=20
-below.
-
-Regards,
-Thorsten
-
---- linux-2.4.27/MAINTAINERS.orig=092004-08-19 00:11:02.000000000 +0200
-+++ linux-2.4.27/MAINTAINERS=092004-08-19 00:12:25.000000000 +0200
-@@ -177,10 +177,8 @@
-
-  AD1816 SOUND DRIVER
-  P:=09Thorsten Knabe
--M:=09Thorsten Knabe <tek@rbg.informatik.tu-darmstadt.de>
--M:=09Thorsten Knabe <tek01@hrzpub.tu-darmstadt.de>
--W:=09http://www.student.informatik.tu-darmstadt.de/~tek/projects/linux.htm=
-l
--W:=09http://www.tu-darmstadt.de/~tek01/projects/linux.html
-+M:=09Thorsten Knabe <linux@thorsten-knabe.de>
-+W:=09http://linux.thorsten-knabe.de
-  S:=09Maintained
-
-  ADVANSYS SCSI DRIVER
+Given this, will a pfn suffice?
 
 
-
-
-
---- MAINTAINERS.orig=092004-08-19 00:17:22.000000000 +0200
-+++ MAINTAINERS=092004-08-19 00:18:21.000000000 +0200
-@@ -195,8 +195,8 @@
-
-  AD1816 SOUND DRIVER
-  P:=09Thorsten Knabe
--W:=09http://www.student.informatik.tu-darmstadt.de/~tek/projects/linux.htm=
-l
--W:=09http://www.tu-darmstadt.de/~tek01/projects/linux.html
-+M:=09Thorsten Knabe <linux@thorsten-knabe.de>
-+W:=09http://linux.thorsten-knabe.de
-  S:=09Maintained
-
-  ADT746X FAN DRIVER
-
-
---=20
-               E-Mail: linux@thorsten-knabe.de
-___              WWW: http://linux.thorsten-knabe.de
-  |        | /
-  |horsten |/\nabe
-
-
-
---655617-1811777982-1092868611=:11560--
+-- wli

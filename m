@@ -1,75 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVARG0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVARG0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbVARG0q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 01:26:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVARG0q
+	id S261241AbVARG0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 01:26:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVARG0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 01:26:46 -0500
-Received: from zasran.com ([198.144.206.234]:46747 "EHLO jojda.zasran.com")
-	by vger.kernel.org with ESMTP id S261248AbVARG0k (ORCPT
+	Tue, 18 Jan 2005 01:26:25 -0500
+Received: from ozlabs.org ([203.10.76.45]:29394 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261241AbVARG0S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 01:26:40 -0500
-Message-ID: <41ECAC1E.9010003@bigfoot.com>
-Date: Mon, 17 Jan 2005 22:26:38 -0800
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Eric Mudama <edmudama@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SATA disk dead? ATA: abnormal status 0x59 on port 0xE407
-References: <1105830698.15835.16.camel@localhost.localdomain>	 <41EB3F80.5050400@tmr.com> <41EB5ECC.1020105@bigfoot.com>	 <200501170914.46344.m.watts@eris.qinetiq.com> <311601c9050117170161e65147@mail.gmail.com>
-In-Reply-To: <311601c9050117170161e65147@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 18 Jan 2005 01:26:18 -0500
+Subject: [PATCH] Remove nonsensical list function list_for_each_safe_rcu
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Paul McKenney <Paul.McKenney@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 18 Jan 2005 17:26:05 +1100
+Message-Id: <1106029565.30801.45.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Mudama wrote:
-> we don't use security torx screws, we use normal ones on our boards.
-> 
-> I wouldn't recommend swapping boards, since the code stored on the
-> physical media, the opti tables, and the asic on the board were all
-> processed together at one point and are specific to each other.  The
-> new board may not work properly with the heads in the other drive, and
-> could even cause damage, if both drives were several sigma to opposite
-> sides of each other in the spectrum of passing drives, or had a
-> different head vendor, etc.
-> 
-> If the data already appears lost and you've run out of other options,
-> it may prove useful to attempt writing to the entire device without
-> attempting reads.  If the drive then reads normally after that, the
-> damage was probably incurred in some transient fashion (excessive
-> vibration or heat, etc) and the replacement data may eliminate the
-> failures.
-> 
-> Either way, however, I would probably recommend just RMA'ing the
-> drives.  We should be able to get you a replacement in a few days from
-> the time you fill out the form.
+Name: Remove nonsensical list function
+Status: Trivial
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-   it's DiamondMax 9 (manufactured june 13 2003), those had only one 
-year warranty so unfortunately I can't return it (just checked it on 
-maxtor.com).
+The correct use of list_for_each_safe_rcu is a coding puzzle which
+minor minds such mine are not capable of solving.  Please remove this
+obstacle on my path to enlightenment.
 
-   trying to write to it (cat /dev/hdb6 > /dev/sda) but getting exactly 
-same messages (ATA: abnormal status 0x59 on port 0xE407). Looks like the 
-drive does not respond to anything at all (I tried to turn off computer 
-completely, even disconnecting it (while powered off)).
+Index: linux-2.6.11-rc1-bk5-Misc/Documentation/RCU/checklist.txt
+===================================================================
+--- linux-2.6.11-rc1-bk5-Misc.orig/Documentation/RCU/checklist.txt	2005-01-18 17:20:56.484344256 +1100
++++ linux-2.6.11-rc1-bk5-Misc/Documentation/RCU/checklist.txt	2005-01-18 17:21:12.846856776 +1100
+@@ -132,11 +132,11 @@
+ 
+ 9.	All RCU list-traversal primitives, which include
+ 	list_for_each_rcu(), list_for_each_entry_rcu(),
+-	list_for_each_continue_rcu(), and list_for_each_safe_rcu(),
+-	must be within an RCU read-side critical section.  RCU
+-	read-side critical sections are delimited by rcu_read_lock()
+-	and rcu_read_unlock(), or by similar primitives such as
+-	rcu_read_lock_bh() and rcu_read_unlock_bh().
++	and list_for_each_continue_rcu(), must be within an RCU
++	read-side critical section.  RCU read-side critical sections
++	are delimited by rcu_read_lock() and rcu_read_unlock(), or by
++	similar primitives such as rcu_read_lock_bh()
++	and rcu_read_unlock_bh().
+ 
+ 	Use of the _rcu() list-traversal primitives outside of an
+ 	RCU read-side critical section causes no harm other than
+Index: linux-2.6.11-rc1-bk5-Misc/include/linux/list.h
+===================================================================
+--- linux-2.6.11-rc1-bk5-Misc.orig/include/linux/list.h	2005-01-18 17:18:39.394185128 +1100
++++ linux-2.6.11-rc1-bk5-Misc/include/linux/list.h	2005-01-18 17:19:47.098892448 +1100
+@@ -436,21 +436,6 @@
+         	pos = rcu_dereference(pos->next))
+ 
+ /**
+- * list_for_each_safe_rcu	-	iterate over an rcu-protected list safe
+- *					against removal of list entry
+- * @pos:	the &struct list_head to use as a loop counter.
+- * @n:		another &struct list_head to use as temporary storage
+- * @head:	the head for your list.
+- *
+- * This list-traversal primitive may safely run concurrently with
+- * the _rcu list-mutation primitives such as list_add_rcu()
+- * as long as the traversal is guarded by rcu_read_lock().
+- */
+-#define list_for_each_safe_rcu(pos, n, head) \
+-	for (pos = (head)->next, n = pos->next; pos != (head); \
+-		pos = rcu_dereference(n), n = pos->next)
+-
+-/**
+  * list_for_each_entry_rcu	-	iterate over rcu list of given type
+  * @pos:	the type * to use as a loop counter.
+  * @head:	the head for your list.
 
-here's the full set of messages (the same set repeats every 30s or so):
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 
-Jan 17 22:22:48 jojda kernel: ata2: command 0x35 timeout, stat 0x59 
-host_stat 0x21
-Jan 17 22:22:48 jojda kernel: ata2: status=0x59 { DriveReady 
-SeekComplete DataRequest Error }
-Jan 17 22:22:48 jojda kernel: ata2: error=0x40 { UncorrectableError }
-Jan 17 22:22:48 jojda kernel: scsi1: ERROR on channel 0, id 0, lun 0, 
-CDB: Write (10) 00 00 00 00 15 00 03 eb 00
-Jan 17 22:22:48 jojda kernel: Current sda: sense key Medium Error
-Jan 17 22:22:48 jojda kernel: Additional sense: Unrecovered read error - 
-auto reallocate failed
-Jan 17 22:22:48 jojda kernel: end_request: I/O error, dev sda, sector 21
-Jan 17 22:22:48 jojda kernel: ATA: abnormal status 0x59 on port 0xE407
-Jan 17 22:22:48 jojda last message repeated 2 times
-
-	erik

@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314907AbSD2InC>; Mon, 29 Apr 2002 04:43:02 -0400
+	id <S314913AbSD2Iov>; Mon, 29 Apr 2002 04:44:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314908AbSD2InB>; Mon, 29 Apr 2002 04:43:01 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:5616 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S314907AbSD2InB>; Mon, 29 Apr 2002 04:43:01 -0400
-Date: Mon, 29 Apr 2002 01:42:37 -0700
-From: Chris Wright <chris@wirex.com>
-To: Soeren Sonnenburg <sonnenburg@informatik.hu-berlin.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: getting a programs ENV via ptrace ?
-Message-ID: <20020429014237.C8654@figure1.int.wirex.com>
-Mail-Followup-To: Soeren Sonnenburg <sonnenburg@informatik.hu-berlin.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <1020068756.5050.7.camel@sun>
+	id <S314911AbSD2Iou>; Mon, 29 Apr 2002 04:44:50 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:55689 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S314908AbSD2Iot> convert rfc822-to-8bit; Mon, 29 Apr 2002 04:44:49 -0400
+From: David Schwartz <davids@webmaster.com>
+To: <terje.eggestad@scali.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.61 (1025) - Licensed Version
+Date: Mon, 29 Apr 2002 01:44:47 -0700
+In-Reply-To: <1020067604.22026.3.camel@pc-16.office.scali.no>
+Subject: Re: Possible bug with UDP and SO_REUSEADDR.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <20020429084448.AAA25009@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Soeren Sonnenburg (sonnenburg@informatik.hu-berlin.de) wrote:
-> Hi...
-> 
-> I am looking for a way of getting the environment variables of a running
-> process.
-> 
-> Is this possible by using the ptrace interface somehow ?
-> 
-> Thanks for any suggestions / pointers are welcome !
 
-What about just using /proc/[pid]/environ?
+>>    1) The two instances are cooperating closely together and should be
+>>sharing
+>>a socket (not each opening one), or
+>>
+>>    2) The two instances are not cooperating closely together and each own
+>>their
+>>own socket. For all the kernel knows, they don't even know about each
+>>other.
+>>
+>>    In the first case, it's logical for whichever one happens to try to 
+read
+>>first to get the/a datagram. In the second case, it's logical for the
+>>kernel
+>>to pick one and give it all the data.
+>>
+>>    DS
 
-cheers,
--chris
+>IMHO, in the second case it's logical for the kernel NOT to allow the
+>second to bind to the port at all. Which it actually does, it's the
+>normal case. When you set the SO_REUSEADDR flag on the socket you're
+>telling the kernel that we're in case 1).
+>
+>TJ  
+
+	NO. When you set the SO_REUSEADDR, you are telling the kernel that you 
+intend to share your port with *someone*, but not who. The kernel has no way 
+to know that two processes that bind to the same UDP port with SO_REUSEADDR 
+are the two that were intended to cooperate with each other. For all it 
+knows, one is a foo intended to cooperate with other foo's and the other is a 
+bar intended to cooperate with other bar's.
+
+	That's why if you mean to share, you should share the actual socket 
+descriptor rather than trying to reference the same transport endpoint with 
+two different sockets.
+
+	Of course, in this case you don't even need SO_REUSEADDR/SO_REUSEPORT since 
+you only actually open the endpoint once.
+
+	DS
+
+

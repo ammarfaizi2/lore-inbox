@@ -1,96 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265057AbUFRJCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265098AbUFRJV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265057AbUFRJCf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 05:02:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbUFRJB6
+	id S265098AbUFRJV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 05:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265091AbUFRJV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 05:01:58 -0400
-Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:46421 "HELO
-	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265057AbUFRIpC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 04:45:02 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 10/11] serio manual bind
-Date: Fri, 18 Jun 2004 03:43:11 -0500
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       vojtech@ucw.cz
-References: <200406180335.52843.dtor_core@ameritech.net> <200406180342.11056.dtor_core@ameritech.net> <200406180342.41100.dtor_core@ameritech.net>
-In-Reply-To: <200406180342.41100.dtor_core@ameritech.net>
-MIME-Version: 1.0
+	Fri, 18 Jun 2004 05:21:27 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:4284 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S265084AbUFRJU0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 05:20:26 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Fri, 18 Jun 2004 11:06:02 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
+Subject: [patch] v4l: v4l2 API updates
+Message-ID: <20040618090602.GA23444@bytesex.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406180343.13077.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Hi,
 
-===================================================================
+This patch has some minor updates to v4l2 API:
 
+  * A new pixel format (V4L2_PIX_FMT_SBGGR8).
+  * Adds some #defines for tv norms for convenience.
+  * Allow to specify the video source to capture from on a
+    per-frame basis.
 
-ChangeSet@1.1799, 2004-06-18 02:59:36-05:00, dtor_core@ameritech.net
-  Input: allow marking some drivers (that don't do HW autodetection)
-         as manual bind only. Such drivers will only be bound to a
-         serio port if user requests it by echoing driver name into
-         port's sysfs driver attribute.
-  
-  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+please apply,
 
+  Gerd
 
- drivers/input/serio/serio.c |    9 +++++++--
- include/linux/serio.h       |    2 ++
- 2 files changed, 9 insertions(+), 2 deletions(-)
-
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
---- a/drivers/input/serio/serio.c	2004-06-18 03:18:00 -05:00
-+++ b/drivers/input/serio/serio.c	2004-06-18 03:18:00 -05:00
-@@ -92,8 +92,9 @@
- 	struct serio_driver *drv;
+diff -up linux-2.6.7/include/linux/videodev2.h linux/include/linux/videodev2.h
+--- linux-2.6.7/include/linux/videodev2.h	2004-06-17 10:29:54.000000000 +0200
++++ linux/include/linux/videodev2.h	2004-06-17 13:47:58.649486167 +0200
+@@ -207,6 +207,9 @@ struct v4l2_pix_format
+ #define V4L2_PIX_FMT_YYUV    v4l2_fourcc('Y','Y','U','V') /* 16  YUV 4:2:2     */
+ #define V4L2_PIX_FMT_HI240   v4l2_fourcc('H','I','2','4') /*  8  8-bit color   */
  
- 	list_for_each_entry(drv, &serio_driver_list, node)
--		if (serio_bind_driver(serio, drv))
--			break;
-+		if (!drv->manual_bind)
-+			if (serio_bind_driver(serio, drv))
-+				break;
- }
++/* see http://www.siliconimaging.com/RGB%20Bayer.htm */
++#define V4L2_PIX_FMT_SBGGR8  v4l2_fourcc('B','A','8','1') /*  8  BGBG.. GRGR.. */
++
+ /* compressed formats */
+ #define V4L2_PIX_FMT_MJPEG    v4l2_fourcc('M','J','P','G') /* Motion-JPEG   */
+ #define V4L2_PIX_FMT_JPEG     v4l2_fourcc('J','P','E','G') /* JFIF JPEG     */
+@@ -383,8 +386,8 @@ struct v4l2_buffer
+ 		unsigned long   userptr;
+ 	} m;
+ 	__u32			length;
+-
+-	__u32			reserved[2];
++	__u32			input;
++	__u32			reserved;
+ };
+ 
+ /*  Flags for 'flags' field */
+@@ -395,6 +398,7 @@ struct v4l2_buffer
+ #define V4L2_BUF_FLAG_PFRAME	0x0010	/* Image is a P-frame */
+ #define V4L2_BUF_FLAG_BFRAME	0x0020	/* Image is a B-frame */
+ #define V4L2_BUF_FLAG_TIMECODE	0x0100	/* timecode field is valid */
++#define V4L2_BUF_FLAG_INPUT     0x0200  /* input field is valid */
  
  /*
-@@ -498,6 +499,9 @@
- 	driver_register(&drv->driver);
- 	driver_create_file(&drv->driver, &driver_attr_description);
+  *	O V E R L A Y   P R E V I E W
+@@ -526,12 +530,13 @@ typedef __u64 v4l2_std_id;
+ 				 V4L2_STD_PAL_I)
+ #define V4L2_STD_NTSC           (V4L2_STD_NTSC_M	|\
+ 				 V4L2_STD_NTSC_M_JP)
++#define V4L2_STD_SECAM_DK      	(V4L2_STD_SECAM_D	|\
++				 V4L2_STD_SECAM_K	|\
++				 V4L2_STD_SECAM_K1)
+ #define V4L2_STD_SECAM		(V4L2_STD_SECAM_B	|\
+-				 V4L2_STD_SECAM_D	|\
+ 				 V4L2_STD_SECAM_G	|\
+ 				 V4L2_STD_SECAM_H	|\
+-				 V4L2_STD_SECAM_K	|\
+-				 V4L2_STD_SECAM_K1	|\
++				 V4L2_STD_SECAM_DK	|\
+ 				 V4L2_STD_SECAM_L)
  
-+	if (drv->manual_bind)
-+		goto out;
-+
- start_over:
- 	list_for_each_entry(serio, &serio_list, node) {
- 		if (!serio->drv) {
-@@ -511,6 +515,7 @@
- 		}
- 	}
+ #define V4L2_STD_525_60		(V4L2_STD_PAL_M		|\
+@@ -541,6 +546,8 @@ typedef __u64 v4l2_std_id;
+ 				 V4L2_STD_PAL_N		|\
+ 				 V4L2_STD_PAL_Nc	|\
+ 				 V4L2_STD_SECAM)
++#define V4L2_STD_ATSC           (V4L2_STD_ATSC_8_VSB    |\
++		                 V4L2_STD_ATSC_16_VSB)
  
-+out:
- 	up(&serio_sem);
- }
- 
-diff -Nru a/include/linux/serio.h b/include/linux/serio.h
---- a/include/linux/serio.h	2004-06-18 03:18:00 -05:00
-+++ b/include/linux/serio.h	2004-06-18 03:18:00 -05:00
-@@ -55,6 +55,8 @@
- 	void *private;
- 	char *description;
- 
-+	int manual_bind;
-+
- 	void (*write_wakeup)(struct serio *);
- 	irqreturn_t (*interrupt)(struct serio *, unsigned char,
- 			unsigned int, struct pt_regs *);
+ #define V4L2_STD_UNKNOWN        0
+ #define V4L2_STD_ALL            (V4L2_STD_525_60	|\
+
+-- 
+Smoking Crack Organization

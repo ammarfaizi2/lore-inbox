@@ -1,95 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbVCALw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVCAMDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbVCALw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 06:52:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbVCALww
+	id S261884AbVCAMDK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 07:03:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbVCAMDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 06:52:52 -0500
-Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:35522 "EHLO
-	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261882AbVCALwi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 06:52:38 -0500
-Message-Id: <200503012252.34807.kernel@kolivas.org>
-Date: Tue, 1 Mar 2005 22:52:30 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050223)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: ck kernel <ck@vds.kolivas.org>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.10-ck7
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-X-Length: 2380
-Content-Type: multipart/signed;
-  boundary="nextPart1125445.0lXeL1ozGd";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Mar 2005 07:03:10 -0500
+Received: from cantor.suse.de ([195.135.220.2]:18826 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261884AbVCAMC1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 07:02:27 -0500
+Date: Tue, 1 Mar 2005 13:02:21 +0100
+From: Olaf Hering <olh@suse.de>
+To: adaplas@pol.net
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-nvidia@lists.surfsouth.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: 2.6.11-rc5, rivafb i2c oops, bogus error handling
+Message-ID: <20050301120221.GA10091@suse.de>
+References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org> <20050227203214.GA15572@suse.de> <200502282241.55815.adaplas@hotpop.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <200502282241.55815.adaplas@hotpop.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1125445.0lXeL1ozGd
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+ On Mon, Feb 28, Antonino A. Daplas wrote:
 
-These are patches designed to improve system responsiveness. It is=20
-configurable to any workload but the default ck* patch is aimed at the=20
-desktop and ck*-server is available with more emphasis on serverspace.
+> On Monday 28 February 2005 04:32, Olaf Hering wrote:
+> >  On Wed, Feb 23, Linus Torvalds wrote:
+> > > This time it's really supposed to be a quickie, so people who can, please
+> > > check it out, and we'll make the real 2.6.11 asap.
+> >
+> > Here is another one, probably not new.
+> > Is riva_get_EDID_i2c a bit too optimistic by not having a $i2cadapter_ok
+> > member in riva_par->riva_i2c_chan? It calls riva_probe_i2c_connector
+> > even if riva_create_i2c_busses fails to register all 3 busses.
+> >
+> 
+> Thanks,
+> 
+> Can you try this?
+> 
+> Fixed error handling in rivafb-i2c.c if bus registration fails.
 
-This is a maintenance release and is identical to 2.6.10-ck6 apart from=20
-using 2.6.10-as6 with it's updated security and bugfixes for 2.6.10=20
-(thanks to Andres Salomon for maintaining this).
-
-http://ck.kolivas.org/patches/2.6/2.6.10/2.6.10-ck7/
-
-
-=46ull patchlist:
-patch-2.6.10-as6
-2.6.10_to_staircase9.2.diff
-schedrange.diff
-schedbatch2.6.diff
-schediso2.8.diff
-mwII.diff
-1g_lowmem1_i386.diff
-defaultcfq.diff
-2.6.10-mingoll.diff
-cddvd-cmdfilter-drop.patch
-vm-pageout-throttling.patch
-nvidia_6111-6629_compat2.diff
-fix-ll-resume.diff
-s9.2_s9.3.diff
-i2.8_i2.9.diff
-s9.3_s9.4.diff
-i2.9_i2.10.diff
-b2.6_b2.7.diff
-s9.4_s10.diff
-s10_test1.diff
-s10_s10.1.diff
-s10.1_s10.2.diff
-s10.2_s10.3.diff
-1504_vmscan-writeback-pages.patch
-s10.3_s10.4.diff
-s10.4_s10.5.diff
-2610ck7-version.diff
-
-and available separately:
-supermount-ng208-10ck5.diff
-
-Cheers,
-Con
-
---nextPart1125445.0lXeL1ozGd
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBCJFeCZUg7+tp6mRURAkUKAJ9rQQO6jY6SATokJLhgVSNL3Y1SxgCgjBYH
-ZN3y4cmphJOAjWnBTxUBu6g=
-=5x29
------END PGP SIGNATURE-----
-
---nextPart1125445.0lXeL1ozGd--
+I havent heard back from the reporter, yet.

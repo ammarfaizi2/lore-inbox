@@ -1,115 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVAMSZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVAMSZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbVAMSZF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 13:25:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVAMSXM
+	id S261373AbVAMSZE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 13:25:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVAMSXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 13:23:12 -0500
-Received: from cc15144-a.groni1.gr.home.nl ([217.120.147.78]:13208 "HELO
-	boetes.org") by vger.kernel.org with SMTP id S261402AbVAMSRa (ORCPT
+	Thu, 13 Jan 2005 13:23:25 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:59341 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261394AbVAMSRS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 13:17:30 -0500
-Date: Thu, 13 Jan 2005 19:17:23 +0100
-From: Han Boetes <han@mijncomputer.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: propolice support for linux
-Message-ID: <20050113181744.GD14127@boetes.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050113134620.GA14127@boetes.org> <20050113140446.GA22381@infradead.org> <20050113163733.GB14127@boetes.org> <Pine.LNX.4.61.0501131057350.24811@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501131057350.24811@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 13 Jan 2005 13:17:18 -0500
+Date: Thu, 13 Jan 2005 10:16:58 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andi Kleen <ak@muc.de>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, hugh@veritas.com, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org
+Subject: Re: page table lock patch V15 [0/7]: overview
+In-Reply-To: <20050113180205.GA17600@muc.de>
+Message-ID: <Pine.LNX.4.58.0501131005280.19097@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0501120833060.10380@schroedinger.engr.sgi.com>
+ <20050112104326.69b99298.akpm@osdl.org> <41E5AFE6.6000509@yahoo.com.au>
+ <20050112153033.6e2e4c6e.akpm@osdl.org> <41E5B7AD.40304@yahoo.com.au>
+ <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
+ <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
+ <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
+ <20050113180205.GA17600@muc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> On Thu, 13 Jan 2005, Han Boetes wrote:
-> > Now all I wonder about is what the _NOVERS should become, since
-> > Arjen pointed it it `was dead,' since I don't really understand
-> > what he means with that.
->
-> Just use the normal EXPORT_SYMBOL it has the same effect.
+On Thu, 13 Jan 2005, Andi Kleen wrote:
 
-Thank you, much appreciated.
+> The rule in i386/x86-64 is that you cannot set the PTE in a non atomic way
+> when its present bit is set (because the hardware could asynchronously
+> change bits in the PTE that would get lost). Atomic way means clearing
+> first and then replacing in an atomic operation.
 
-Here is the latest version of the patch:
+Hmm. I replaced that portion in the swapper with an xchg operation
+and inspect the result later. Clearing a pte and then setting it to
+something would open a window for the page fault handler to set up a new
+pte there since it does not take the page_table_lock. That xchg must be
+atomic for PAE mode to work then.
 
---- linux-2.6.9/lib/propolice.c.orig	2005-01-13 17:08:49.920963760 +0100
-+++ linux-2.6.9/lib/propolice.c	2005-01-13 16:46:48.939783424 +0100
-@@ -0,0 +1,24 @@
-+/*
-+ * Copyright 2005, Han Boetes <han@boetes.org>
-+ *
-+ * This code adds support for the propolice stacksmashing
-+ * extension for gcc.
-+ * http://www.research.ibm.com/trl/projects/security/ssp/
-+ *
-+ * This source code is licensed under the GNU General Public
-+ * License, Version 2. See the file COPYING for more details.
-+ *
-+ */
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+
-+int __guard = '\0\0\n\377';
-+EXPORT_SYMBOL(__guard);
-+
-+static const char message[] = "propolice detects %x at function %s.\n";
-+
-+void __stack_smash_handler(int damaged, char func[])
-+{
-+    panic(message, damaged, func);
-+}
-+EXPORT_SYMBOL(__stack_smash_handler);
---- linux-2.6.9/lib/Makefile.orig	2005-01-13 16:47:58.564198904 +0100
-+++ linux-2.6.9/lib/Makefile	2005-01-13 17:06:29.124368096 +0100
-@@ -23,6 +23,8 @@ obj-$(CONFIG_GENERIC_IOMAP) += iomap.o
- obj-$(CONFIG_ZLIB_INFLATE) += zlib_inflate/
- obj-$(CONFIG_ZLIB_DEFLATE) += zlib_deflate/
- 
-+obj-$(CONFIG_PROPOLICE) += propolice.o
-+
- hostprogs-y	:= gen_crc32table
- clean-files	:= crc32table.h
- 
---- linux-2.6.9/security/Kconfig.orig	2004-10-18 23:54:39.000000000 +0200
-+++ linux-2.6.9/security/Kconfig	2005-01-13 16:57:23.130371800 +0100
-@@ -44,6 +44,18 @@ config SECURITY_ROOTPLUG
- 	  
- 	  If you are unsure how to answer this question, answer N.
- 
-+config PROPOLICE
-+       bool 'GCC ProPolice SSP build support'
-+       help
-+         This enables kernel building with stack-smashing protection
-+         via the -fstack-protector GCC flag, if you have GCC build with
-+	 propolice.
-+
-+	 See <http://www.research.ibm.com/trl/projects/security/ssp/> for
-+	 more information about this compiler-extension.
-+
-+	 If you are unsure how to answer this question, answer N.
-+
- source security/selinux/Kconfig
- 
- endmenu
---- linux-2.6.9/Makefile.orig	2005-01-13 16:38:39.479192744 +0100
-+++ linux-2.6.9/Makefile	2005-01-13 16:40:45.139089536 +0100
-@@ -490,6 +490,10 @@ ifndef CONFIG_FRAME_POINTER
- CFLAGS		+= -fomit-frame-pointer
- endif
- 
-+ifdef CONFIG_PROPOLICE
-+CFLAGS		+= -fstack-protector
-+endif
-+
- ifdef CONFIG_DEBUG_INFO
- CFLAGS		+= -g
- endif
+> This helps you because you shouldn't be looking at the pte anyways
+> when pte_present is false. When it is not false it is always updated
+> atomically.
 
+so pmd_present, pud_none and pgd_none could be considered atomic even if
+the pm/u/gd_t is a multi-word entity? In that case the current approach
+would work for higher level entities and in particular S/390 would be in
+the clear.
 
-
-
-# Han
+But then the issues of replacing multi-word ptes on i386 PAE remain. If no
+write lock is held on mmap_sem then all writes to pte's must be atomic in
+order for the get_pte_atomic operation to work reliably.

@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135823AbRDYHAG>; Wed, 25 Apr 2001 03:00:06 -0400
+	id <S135824AbRDYHFg>; Wed, 25 Apr 2001 03:05:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135824AbRDYG7z>; Wed, 25 Apr 2001 02:59:55 -0400
-Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:30472 "EHLO
-	tellus.mine.nu") by vger.kernel.org with ESMTP id <S135823AbRDYG7r>;
-	Wed, 25 Apr 2001 02:59:47 -0400
-Date: Wed, 25 Apr 2001 08:59:44 +0200 (CEST)
-From: Tobias Ringstrom <tori@tellus.mine.nu>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Weird problem with 2.4.4-pre6
-Message-ID: <Pine.LNX.4.30.0104250842420.13663-100000@svea.tellus>
+	id <S135826AbRDYHF0>; Wed, 25 Apr 2001 03:05:26 -0400
+Received: from [24.70.141.118] ([24.70.141.118]:14843 "EHLO asdf.capslock.lan")
+	by vger.kernel.org with ESMTP id <S135824AbRDYHFO>;
+	Wed, 25 Apr 2001 03:05:14 -0400
+Date: Wed, 25 Apr 2001 03:04:48 -0400 (EDT)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Aaron Lehmann <aaronl@vitelus.com>
+cc: <imel96@trustix.co.id>, Daniel Stone <daniel@kabuki.openfridge.net>,
+        Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Single user linux
+In-Reply-To: <20010424170118.F19171@vitelus.com>
+Message-ID: <Pine.LNX.4.33.0104250304210.21785-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+X-Spam-To: uce@ftc.gov
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yesterday, I was running tcpdump, paging the output with less.  All of a
-sudden, less started to dump core (SIGSEGV).  I could not even start less
-by itself:
+On Tue, 24 Apr 2001, Aaron Lehmann wrote:
 
-    > less
+>Date: Tue, 24 Apr 2001 17:01:18 -0700
+>From: Aaron Lehmann <aaronl@vitelus.com>
+>To: imel96@trustix.co.id, Daniel Stone <daniel@kabuki.openfridge.net>,
+>     Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+>Content-Type: text/plain; charset=us-ascii
+>Subject: Re: [PATCH] Single user linux
+>
+>On Tue, Apr 24, 2001 at 11:38:01PM +1000, Daniel Stone wrote:
+>> And UNIX on a phone is pure overkill.
+>
+>Quit being a naysayer. UNIX on a PDA is a wet dream.
 
-without it getting a SIGSEGV, and in fact no user could run less without
-getting a SIGSEGV, but it did work perfectly a few minutes earlier.  This
-morning, I tried to run less again, and now it was working!  No core
-dumps!
+No, actually, it is a reality:
 
-How can this happen?  Something overwriting the page/buffer cache?
-Unfortunately, I don't know how to reproduce it.  I'm writing this because
-it was so strange that I felt I had to share it.  There are no messages in
-the (dmesg) log.
-
-/Tobias, a little bit worried
+http://www.agendacomputing.com
 
 
-Semi-random info:
-
-00:00.0 Host bridge: Intel Corporation 440FX - 82441FX PMC [Natoma] (rev 02)
-00:07.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
-00:07.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]
-00:07.2 USB Controller: Intel Corporation 82371SB PIIX3 USB [Natoma/Triton II] (rev 01)
-00:0b.0 VGA compatible controller: ATI Technologies Inc 210888GX [Mach64 GX] (rev 01)
-00:0f.0 Ethernet controller: Davicom Semiconductor, Inc. Ethernet 100/10 MBit (rev 31)
-00:11.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink] (rev 74)
-
-hda is running with DMA enabled in mdma2 mode.
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Free Software advocate
+          This message is copyright 2001, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+"If it isn't source, it isn't software."  -- NASA
 

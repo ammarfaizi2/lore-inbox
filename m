@@ -1,25 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278088AbRJKEWz>; Thu, 11 Oct 2001 00:22:55 -0400
+	id <S278091AbRJKEZz>; Thu, 11 Oct 2001 00:25:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278089AbRJKEWf>; Thu, 11 Oct 2001 00:22:35 -0400
-Received: from dialup-65-169-128-25.olp.net ([65.169.128.25]:60034 "EHLO
-	dialup-65-169-128-25.olp.net") by vger.kernel.org with ESMTP
-	id <S278088AbRJKEWe>; Thu, 11 Oct 2001 00:22:34 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: arvest@orphansonfire.com
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.11 loses sda9
-Date: Wed, 10 Oct 2001 23:22:59 -0500
-X-Mailer: KMail [version 1.2]
-X-identity: qwertyatorphansonfire
-MIME-Version: 1.0
-Message-Id: <01101023225900.03884@lithium>
-Content-Transfer-Encoding: 7BIT
+	id <S278090AbRJKEZp>; Thu, 11 Oct 2001 00:25:45 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:8856 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S278089AbRJKEZh>; Thu, 11 Oct 2001 00:25:37 -0400
+Date: Wed, 10 Oct 2001 22:25:54 -0600
+Message-Id: <200110110425.f9B4PsG29656@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Chris Mason <mason@suse.com>
+Cc: Andreas Dilger <adilger@turbolabs.com>, Doug McNaught <doug@wireboard.com>,
+        Lew Wolfgang <wolfgang@sweet-haven.com>, linux-kernel@vger.kernel.org
+Subject: Re: Dump corrupts ext2?
+In-Reply-To: <1160370000.1002764921@tiny>
+In-Reply-To: <Pine.LNX.4.33.0110101558210.7049-100000@train.sweet-haven.com>
+	<m3elob3xao.fsf@belphigor.mcnaught.org>
+	<20011010173449.Q10443@turbolinux.com>
+	<200110110133.f9B1XtN28012@vindaloo.ras.ucalgary.ca>
+	<1160370000.1002764921@tiny>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Mason writes:
+> 
+> 
+> On Wednesday, October 10, 2001 07:33:55 PM -0600 Richard Gooch <rgooch@ras.ucalgary.ca> wrote:
+> 
+> > Andreas Dilger writes:
+> 
+> >> In Linus kernels 2.4.11+ the block devices and filesystems all use
+> >> the page cache, so no more coherency issues.
+> > 
+> > Um, I thought that there wasn't going to be coherency? For example, if
+> > you open /dev/sda and /dev/sda1, they each have a separate cache. I
+> > remember some debate about this, and Linus pointed out how hard it was
+> > to make things coherent.
+> 
+> They all use the page cache, but they still use different address
+> spaces.
 
-  I recompiled (I used the same .10 conf) and rebooted, but my reboot halted 
-because /dev/sda9 didnt exist.  I checked this in fdisk, and it didnt see it. 
- I rebooted to the 2.4.10 kernel, and sda9 was there.  What happened?
+OK, different "address spaces". I didn't recall the precise
+terminology :-)
+
+> The block device and getblk share the same address space, so the metadata
+> and the block device are on the same cache, except for ext2 directories,
+> which act like files do.  Each file has its own address space, so that
+> isn't coherent with the block device.
+> 
+> In other words, block device reads with the FS mounted will probably
+> never give consistent results.
+
+Indeed.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

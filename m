@@ -1,91 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261790AbVATTDP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbVATTEJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261790AbVATTDP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 14:03:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVATS7s
+	id S261711AbVATTEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 14:04:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVATTD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 13:59:48 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:29713 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261383AbVATS5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 13:57:00 -0500
-Message-Id: <200501201856.j0KIuiif016865@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Tridgell <tridge@osdl.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       Andreas Dilger <adilger@clusterfs.com>, Alex Tomas <alex@clusterfs.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fix ea-in-inode default ACL creation 
-In-Reply-To: Your message of "Thu, 20 Jan 2005 19:22:25 +0100."
-             <1106245344.15959.13.camel@winden.suse.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <1106245344.15959.13.camel@winden.suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1106247403_12559P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 20 Jan 2005 13:56:43 -0500
+	Thu, 20 Jan 2005 14:03:58 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:31683 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261711AbVATTBu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 14:01:50 -0500
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] Re: [PATCH 0/29] overview
+References: <20050120102223.B14297@almesberger.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 20 Jan 2005 12:00:08 -0700
+In-Reply-To: <20050120102223.B14297@almesberger.net>
+Message-ID: <m1vf9s3ozr.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1106247403_12559P
-Content-Type: text/plain; charset=us-ascii
+Werner Almesberger <wa@almesberger.net> writes:
 
-On Thu, 20 Jan 2005 19:22:25 +0100, Andreas Gruenbacher said:
-
-> When a new inode is created, ext3_new_inode sets the EXT3_STATE_NEW
-> flag, which tells ext3_do_update_inode to zero out the inode before
-> filling in the inode's data. When a file is created in a directory with
-> a default acl, the new inode inherits the directory's default acl; this
-> generates attributes. The attributes are created before
-> ext3_do_update_inode is called to write out the inode. In case of
-> in-inode attributes, the new inode's attributes are written, and then
-> zeroed out again by ext3_do_update_inode. Bad thing.
+> [ Re-sent - seems that one of my MTAs got confused and garbled most
+>   of the addresses. ]
 > 
-> Fix this by recognizing the EXT3_STATE_NEW case in
-> ext3_xattr_set_handle, and zeroing out the inode there already when
-> necessary.
+> Eric W. Biederman wrote:
+> > - This code needs to sit in a development tree for a little while 
+> >   to shake out whatever bugs still linger from my massive refactoring.
 > 
-> Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+> I think there will be plenty of driver issues to address. However,
+> pretty much all alternatives to kexec-based crash dumps (minus the
+> firmware-based ones that reset everything but memory, of course)
+> will suffer from the same problems - they may just be a little
+> better at not noticing them.
+
+Doubtless.  So far I only have 1 e1000 driver issue.  The IBM guys
+were tracking an issue with one of the aic7xxx cards.  But those kinds
+of issues seem to be fairly rare right now :) 
+ 
+> > In the interests of full disclosure my main interesting is using the
+> > kernel as a bootloader for other kernels
 > 
-> Index: linux-2.6.11-latest/fs/ext3/xattr.c
-> ===================================================================
-> --- linux-2.6.11-latest.orig/fs/ext3/xattr.c
-> +++ linux-2.6.11-latest/fs/ext3/xattr.c
-> @@ -954,6 +954,13 @@ ext3_xattr_set_handle(handle_t *handle, 
->  	error = ext3_get_inode_loc(inode, &is.iloc);
->  	if (error)
->  		goto cleanup;
-> +
-> +	if (EXT3_I(inode)->i_state & EXT3_STATE_NEW) {
-> +		struct ext3_inode *raw_inode = ext3_raw_inode(&is.iloc);
-> +		memset(raw_inode, 0, EXT3_SB(inode->i_sb)->s_inode_size);
-> +		EXT3_I(inode)->i_state &= ~EXT3_STATE_NEW;
-> +	}
-> +
->  	error = ext3_xattr_ibody_find(inode, &i, &is);
->  	if (error)
->  		goto cleanup;
+> Me too :-) I'm a bit concerned that kexec has been hovering outside
+> the mainline kernel for so long. This keeps the threshold for new
+> work on the boot process high, delaying experiments and, ultimately,
+> progress. 
 
-Maybe I'm a total idiot, but I'm failing to see how adding *another* zero
-operation (although quite likely needed at that point) is going to help the
-fact that we zero something out after we've stored data we want to keep in it.
-Is there a missing hunk that *removes* the too-late memset-to-zero in
-ext3_do_update_inode?
+To some extent.  It is worth noting that the first 13 of my patches
+are not core functionality they are bug fixes or feature enhancements
+of code that simply have come to be associated with the work on kexec.
 
+Which is why I put them first in the list of things so it is clear
+they don't depend on the core kexec code.  So some work in that
+area seems to be happening and from what I have heard about ppc64
+kexec support has been a motivating reason to clean up their boot
+process some more.
 
---==_Exmh_1106247403_12559P
-Content-Type: application/pgp-signature
+The nice thing at this point I think one more cycle through the
+development process and we should have a fairly well defined and
+working mechanism for taking crash dumps.  With the remaining work
+left simply to porting it.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFB7/7rcC3lWbTT17ARAqB2AJ9gHWMcp6DkX+sINTBdmR2Unu8wjwCfS/Sn
-sM7CpPe0wtbNmblXwVE97Ok=
-=Xyv2
------END PGP SIGNATURE-----
-
---==_Exmh_1106247403_12559P--
+Eric

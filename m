@@ -1,97 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276717AbRJBVuR>; Tue, 2 Oct 2001 17:50:17 -0400
+	id <S276718AbRJBVyT>; Tue, 2 Oct 2001 17:54:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276718AbRJBVuI>; Tue, 2 Oct 2001 17:50:08 -0400
-Received: from ausxc07.us.dell.com ([143.166.99.215]:22502 "EHLO
-	ausxc07.us.dell.com") by vger.kernel.org with ESMTP
-	id <S276717AbRJBVtx>; Tue, 2 Oct 2001 17:49:53 -0400
-Message-ID: <71714C04806CD51193520090272892178BD678@ausxmrr502.us.dell.com>
-From: Matt_Domsch@Dell.com
-To: viro@math.psu.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH] cleanup of partition code
-Date: Tue, 2 Oct 2001 16:49:48 -0500 
+	id <S276719AbRJBVyI>; Tue, 2 Oct 2001 17:54:08 -0400
+Received: from ns02.newbridge.com ([192.75.23.75]:6044 "HELO
+	ns02.newbridge.com") by vger.kernel.org with SMTP
+	id <S276718AbRJBVxy>; Tue, 2 Oct 2001 17:53:54 -0400
+From: Jerome Cornet <jerome.cornet@alcatel.com>
+Organization: Alcatel Networks
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] SB driver, kernel 2.4.10
+Date: Tue, 2 Oct 2001 17:52:05 -0400
+X-Mailer: KMail [version 1.3.2]
+Cc: Takashi Iwai <iwai@ww.uni-erlangen.de>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_T2ML9KNKSYTJU0TGLL85"
+Message-Id: <iss.5826.3bba3705.d9786.1@kanata-mh1.ca.newbridge.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander:
 
-In the IA-64 port lives the EFI GUID Partition Table (GPT) partitioning
-code.  It's not yet merged into the mainline kernel tree.  I've made a
-first-stab at a patch to make the GPT code use the page cache, and I'd
-appreciate you taking a look.
+--------------Boundary-00=_T2ML9KNKSYTJU0TGLL85
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Start with 2.4.10
-apply 2.4.11-pre1
-apply your latest partition patch (partition-d-S11-pre1 I think)
-apply latest ia64 patch
- (there's one rejection in include/linux/genhd.h that's easy to fix)
-apply http://domsch.com/linux/patches/linux-2.4.10-gpt-20011001.patch
-apply
-http://domsch.com/linux/patches/linux-2.4.10-gpt-pagecache-20011001.patch
+    Hi there,
 
-The GPT code is in fs/partition/efi.[ch].  I'm concerned about reading a
-page or partial page at the end of a disk, particularly an odd-sized disk.
-In the pagecache patch I remove the set_blocksize() stuff, as it's not clear
-if it's still needed, or if a disk with sectors % PAGE_CACHE_SIZE != 0 can
-even read those last sectors.
+The PnP initialisation of my brand old SB AWE64 PnP was not supported by the 
+current (2.4.10) kernel driver (I could initialise it by using isapnptools, 
+but not directly by the pnp driver).
 
-Reading even the first few sectors fails with these patches, where if I
-remove your partition patch and my pagecache patch, it works fine.  I'm
-certain it's a bug in my read_lba() code, which could use to be optimized
-also.
+I patched sb_card.c so that the device ID of my board is known by the SB 
+driver, thus allowing the isapnp initialisation by the driver directly.
 
-static size_t
-read_lba(struct gendisk *hd, struct block_device *bdev, u64 lba, u8 *buffer,
-size_t count)
-{
+I tested it on my computer, and I don't expect the patch to break anything 
+(it's a no brainer fix)
 
-        size_t totalreadcount = 0, bytesread;
-        int i, blockstoread, blocksize;
-        Sect sect;
-        unsigned char *data=NULL;
+Maybe you can consider applying it to the next release ?
 
-        if (!hd || !buffer || !count) return 0;
+Thank you,
+ /Jerome
 
-        blocksize = get_hardsect_size(to_kdev_t(bdev->bd_dev));
-        blockstoread = count / blocksize;
-        if (count % blocksize) blockstoread += 1;
-        for (i=0; i<blockstoread; i++) {
-                data = read_dev_sector(bdev, lba, &sect);
-                if (!data) {
-                        put_dev_sector(sect);
-                        return totalreadcount;
-                }
+PS: please CC: me for the replies, I'm not subscribed to linux-kernel
 
-                bytesread = (count > 512 ? 512 : count);
-                memcpy(buffer, data, bytesread);
-                put_dev_sector(sect);
+--------------Boundary-00=_T2ML9KNKSYTJU0TGLL85
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="README"
+Content-Transfer-Encoding: base64
+Content-Description: The readme file
+Content-Disposition: attachment; filename="README"
 
-                buffer += bytesread;         /* Advance the buffer pointer
-*/
-                totalreadcount += bytesread; /* Advance the total read count
-*/
-                count -= bytesread;         /* Subtract bytesread from count
-*/
-        }
+SmVyb21lIENvcm5ldCA8amNvcm5ldEBmcmVlLmZyPjogQWRkIGEgbmV3IGZsYXZvciBvZiBBV0U2
+NCBQblAgdG8gdGhlIHNiIGRyaXZlcgo=
 
-        return totalreadcount;
-}
+--------------Boundary-00=_T2ML9KNKSYTJU0TGLL85
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="linux-2.4.10-awe64.patch"
+Content-Transfer-Encoding: base64
+Content-Description: the patch itself
+Content-Disposition: attachment; filename="linux-2.4.10-awe64.patch"
 
-I'd appreciate your pointers.
+LS0tIGtlcm5lbC1zb3VyY2UtMi40LjEwL2RyaXZlcnMvc291bmQvc2JfY2FyZC5jCVR1ZSBTZXAg
+MTggMTc6MTA6NDMgMjAwMQorKysgbGludXgvZHJpdmVycy9zb3VuZC9zYl9jYXJkLmMJVHVlIE9j
+dCAgMiAxNzozNTowNiAyMDAxCkBAIC01Myw2ICs1Myw5IEBACiAgKgogICogMjgtMTAtMjAwMCBB
+ZGRlZCBwbnBsZWdhY3kgc3VwcG9ydAogICogCURhbmllbCBDaHVyY2ggPGRjaHVyY2hAbWJocy5l
+ZHU+CisgKgorICogMDEtMTAtMjAwMSBBZGRlZCBhIG5ldyBmbGF2b3Igb2YgQ3JlYXRpdmUgU0Ig
+QVdFNjQgUG5QIChDVEwwMEU5KS4KKyAqICAgICAgSmVyb21lIENvcm5ldCA8amNvcm5ldEBmcmVl
+LmZyPgogICovCiAKICNpbmNsdWRlIDxsaW51eC9jb25maWcuaD4KQEAgLTQzNSw2ICs0MzgsMTEg
+QEAKIAkJMCwxLDEsLTF9LAogCXsiU291bmQgQmxhc3RlciBBV0UgNjQiLAogCQlJU0FQTlBfVkVO
+RE9SKCdDJywnVCcsJ0wnKSwgSVNBUE5QX0RFVklDRSgweDAwRTQpLCAKKwkJSVNBUE5QX1ZFTkRP
+UignQycsJ1QnLCdMJyksIElTQVBOUF9GVU5DVElPTigweDAwNDUpLAorCQkwLDAsMCwwLAorCQkw
+LDEsMSwtMX0sCisJeyJTb3VuZCBCbGFzdGVyIEFXRSA2NCIsCisJCUlTQVBOUF9WRU5ET1IoJ0Mn
+LCdUJywnTCcpLCBJU0FQTlBfREVWSUNFKDB4MDBFOSksIAogCQlJU0FQTlBfVkVORE9SKCdDJywn
+VCcsJ0wnKSwgSVNBUE5QX0ZVTkNUSU9OKDB4MDA0NSksCiAJCTAsMCwwLDAsCiAJCTAsMSwxLC0x
+fSwK
 
-Thanks,
-Matt
-
---
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions
-www.dell.com/linux
-#2 Linux Server provider with 17% in the US and 14% Worldwide (IDC)!
-#3 Unix provider with 18% in the US (Dataquest)!
+--------------Boundary-00=_T2ML9KNKSYTJU0TGLL85--

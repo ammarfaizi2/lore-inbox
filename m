@@ -1,110 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262364AbSKFJDn>; Wed, 6 Nov 2002 04:03:43 -0500
+	id <S261375AbSKFJPO>; Wed, 6 Nov 2002 04:15:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262862AbSKFJDn>; Wed, 6 Nov 2002 04:03:43 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:1191 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262364AbSKFJDk>;
-	Wed, 6 Nov 2002 04:03:40 -0500
-Date: Wed, 6 Nov 2002 14:41:47 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Werner Almesberger <wa@almesberger.net>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-Subject: Re: [lkcd-devel] Re: What's left over.
-Message-ID: <20021106144147.A2432@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <Pine.LNX.4.44.0211052203150.1416-100000@home.transmeta.com> <m1znsndtpn.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m1znsndtpn.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Wed, Nov 06, 2002 at 12:48:36AM -0700
+	id <S261433AbSKFJPO>; Wed, 6 Nov 2002 04:15:14 -0500
+Received: from redrock.inria.fr ([138.96.248.51]:9694 "HELO redrock.inria.fr")
+	by vger.kernel.org with SMTP id <S261375AbSKFJPL>;
+	Wed, 6 Nov 2002 04:15:11 -0500
+SCF: #mh/Mailbox/outboxDate: Wed, 6 Nov 2002 09:53:28 +0100
+From: Manuel Serrano <Manuel.Serrano@sophia.inria.fr>
+To: Stelian Pop <stelian.pop@fr.alcove.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-pre10-ac2, Sony PCG-C1MHP and Sonypi
+Message-Id: <20021106095328.1052afb0.Manuel.Serrano@sophia.inria.fr>
+References: <20021105104620.7c1282fa.Manuel.Serrano@sophia.inria.fr>
+	<20021105151540.GB12610@tahoe.alcove-fr>
+	<20021105155836.GE12610@tahoe.alcove-fr>
+Organization: Inria
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Date: 06 Nov 2002 10:15:51 +0100
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 06, 2002 at 12:48:36AM -0700, Eric W. Biederman wrote:
-> Linus Torvalds <torvalds@transmeta.com> writes:
+> On Tue, Nov 05, 2002 at 04:15:40PM +0100, Stelian Pop wrote:
 > 
-> > On 5 Nov 2002, Eric W. Biederman wrote:
+> > > Incompatibility between USB and SONYPI.
 > > > 
-> > > In replying to another post by Al Viro I managed to think this through.
-> > > kexec needs:
+> > > [2.] Full description of the problem/report:
+> > > ============================================
+> > > 
+> > > Sonypi and USB modules seems to be incompatible. That is, if I don't load
+> > > any USB kernel modules, using Sonypi works perfectly (I mostly use it
+> > > to access the LCD brightness). 
 > > 
-> > Note that kexec doesn't bother me at all, and I might find myself using it 
-> > myself.
+> > Does this mean that you can use it to get jogdial or Fn keys events too ?
+> > 
+> > > If I load USB modules, then Sonypi reports
+> > > errors:
+> > 
+> > Please send me (off list)  a copy of your dissassambled ACPI bios(*)
+> > and I'll take a look at it.
 > 
-> Good.  Just before I saw this message I sent you my patch ported to 2.5.46,
-> and from the feed back on this one it looks like people would
-> appreciate a tweak or two.
->  
+> After seing your ACPI bios I cannot find out the reason why it 
+> interferes with the USB subsystem.
 > 
-> That sounds reasonable to me.  Especially as that lines up a little more
-> with what the mcore people want as well.  Until today I hadn't realized
-> they were using a spare current to process oopses.  For just booting
-> another kernel all of the staging can currently be done by reading the
-> new kernel into your process before calling the user-level shutdown code.
+> The failed commands happen when sonypi tries to access the 0x62
+> and 0x66 ports, which are (wrongly) reserved by the keyboard 
+> (this is why sonypi cannot reserve them). These registers are
+> also used by ACPI 'Embedded Controller'.
 > 
-> > Right now the kexec() stuff seems to mix up the loading and rebooting, but
-> > I didn't take a very deep look, maybe I'm wrong.
+> But I still cannot understand what the USB does in this area.
 > 
-> It currently happens all in one step because I had never gotten
-> feedback that people wanted it in two steps.   
-
-I'd mentioned it a few times in the context of mcore, but probably 
-didn't explain myself clearly enough then. 
-
+> You didn't say if you compiled in the ACPI susbystem. Does it
+> change something if you do not compile it (in case you did
+> previously) or if you do compile it (in case you didn't) ?
 > 
-> > Note that the two-phase boot means that you can load the new kernel early, 
-> > which allows you to later on use it for oops handling (it's a bit late to 
-> > try to set up the kernel to be loaded at that time ;)
-> 
-> Given that it is definitely a good idea to split the patch up into two
-> pieces.  And a kernel for oops handling should work once all of other
-> problems are resolved.
+> Stelian.
+> -- 
+> Stelian Pop <stelian.pop@fr.alcove.com>
+> Alcove - http://www.alcove.com
+Well,
 
-Yes, this fits the model we need.
+first of all this things is driving me nuts ;-) I have compiled and
+tested at least 10 variations around the kernel and ACPI and I have
+noticed about 10 different behaviors. Basically at the one end I have tried
+to compile all the ACPI support inside the kernel. At the other end, 
+I have tried to compile the whole ACPI support as modules. In the middle
+I have tried several variation on compiling some part in the kernel, some
+others parts in modules.
 
-> 
-> The question is how much of that do we need.
-> 
-> Thinking out loud, and hopefully answering your question.
-> - We need a working stack when the new kernel is jumped to so PIC code
->   can exist at the entry point.
-> 
-> - An oops processing kernel needs to load at an address other than 1MB,
->   or at the very least it's boot sequence needs to squirrel away the
->   old contents of the kernel text and data segments, which reside at
->   1MB, before it moves down to 1MB.
+My intuition (which may be totally erroneous) is that there is something
+broken in the ospm_ec support. I explain this:
 
-Yes, that bit of memory save logic exists in the mcore mechanism. These
-pages are saved away in compressed form in memory and written out
-later after dump.  
+1. When I have compiled the whole ACPI in the kernel everything was fine.
+The problem of spurious characters (probably caused by erroneous keyboard
+events) disappear. However, the problem is that for a reason I'm not able
+to understand, in this configuration, the ACPI driver does not see the
+thermal and the battery information! On the other hand, the ac_adapter 
+information is correct. (Note that it is not possible to compile the
+support for battery and thermal information unless the ospm_ec part is
+compiled in the kernel too.)
 
-Now to avoid these pages from being used by the new kernel until
-the dump is safetly written out to disk, mcore patches some of
-the initialization code to mark these pages (containing saved
-dump) as reserved. 
+2. When I compile some parts as modules I have the following problem:
+Until I load ospm_ec, I see information about the line status, the
+battery, and the processor temperature. As soon as I load this last
+module, I'm unable to access these two last information. For instance,
+when I attempt to read the battery, I see:
 
-> O.k.  In the next couple of days I will split the loading, and
-> executing phase of my kexec code into parts, and resubmit the code.
+-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
+> cat /proc/acpi/battery/0/status
+Present:                 yes
+Error reading battery status (_BST)
+-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
 
-Great !
+The situation can be even worth depending on the order I load the modules.
+I have even add a configuration where the command:
 
-> The we can dig in on what it takes to make kexec run stably.
-> 
+-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
+cat /proc/scsi/scsi 
+-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
 
-Regards
-Suparna
+Was crashing with a bus error! The kernel was logging messages such as:
+
+-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
+Nov  6 00:19:25 owens kernel: Unable to handle kernel paging request at virtual address 000a0a0c
+Nov  6 00:19:25 owens kernel:  printing eip:
+Nov  6 00:19:25 owens kernel: c01f5e3a
+Nov  6 00:19:25 owens kernel: *pde = 00000000
+Nov  6 00:19:25 owens kernel: Oops: 0000
+Nov  6 00:19:25 owens kernel: CPU:    0
+Nov  6 00:19:25 owens kernel: EIP:    0010:[<c01f5e3a>]    Not tainted
+Nov  6 00:19:25 owens kernel: EFLAGS: 00010297
+Nov  6 00:19:25 owens kernel: eax: 000a0a0c   ebx: c89c7079   ecx: 000a0a0c   edx: fffffffe
+Nov  6 00:19:25 owens kernel: esi: c89cbf28   edi: ffffffff   ebp: 000a0a0c   esp: c89cbed0
+Nov  6 00:19:25 owens kernel: ds: 0018   es: 0018   ss: 0018
+Nov  6 00:19:25 owens kernel: Process less (pid: 854, stackpage=c89cb000)
+Nov  6 00:19:25 owens kernel: Stack: c89c7013 0000005c 00000004 cd2fdcf2 cd2fdcf2 ffffffff ffffffff 00000000 
+Nov  6 00:19:25 owens kernel:        ffffffff c01f603d c89c706f 37638f91 cf880a2d c89cbf24 c01f6055 c89c706f 
+Nov  6 00:19:25 owens kernel:        cf880a22 c89cbf24 cf873772 c89c706f cf880a22 000a0a0c cd2fdc00 00000013 
+Nov  6 00:19:25 owens kernel: Call Trace:    [<c01f603d>] [<cf880a2d>] [<c01f6055>] [<cf880a22>] [<cf873772>]
+Nov  6 00:19:25 owens kernel:   [<cf880a22>] [<cf8704ae>] [<c0149aae>] [<c01309a2>] [<c0106a4f>]
+Nov  6 00:19:25 owens kernel: 
+Nov  6 00:19:25 owens kernel: Code: 80 38 00 74 07 40 4a 83 fa ff 75 f4 29 c8 89 44 24 10 8b 44 
+-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
+
+(I'm sorry because I imagine that this bare information is not very
+useful but I'm currently unable to reproduce the crash).
+
+Sorry for being so confused with all this.
 
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
-
+Manuel

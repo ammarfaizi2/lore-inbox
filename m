@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268003AbTB1Psg>; Fri, 28 Feb 2003 10:48:36 -0500
+	id <S267988AbTB1PxZ>; Fri, 28 Feb 2003 10:53:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268004AbTB1Psg>; Fri, 28 Feb 2003 10:48:36 -0500
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:56028 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S268003AbTB1Psd>; Fri, 28 Feb 2003 10:48:33 -0500
-Message-ID: <3E5F8985.60606@kegel.com>
-Date: Fri, 28 Feb 2003 08:08:37 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Protecting processes from the OOM killer
-References: <3E5EB9A8.3010807@kegel.com> <1046439618.16599.22.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1046439618.16599.22.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267991AbTB1PxZ>; Fri, 28 Feb 2003 10:53:25 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39946 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267988AbTB1PxY>; Fri, 28 Feb 2003 10:53:24 -0500
+Date: Fri, 28 Feb 2003 16:03:37 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Eli Carter <eli.carter@inet.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Matthew Wilcox <willy@debian.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Proposal: Eliminate GFP_DMA
+Message-ID: <20030228160337.A31251@flint.arm.linux.org.uk>
+Mail-Followup-To: Eli Carter <eli.carter@inet.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Jeff Garzik <jgarzik@pobox.com>, Andi Kleen <ak@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Matthew Wilcox <willy@debian.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030228064631.G23865@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73heao7ph2.fsf@amdsimf.suse.de> <20030228141234.H23865@parcelfarce.linux.theplanet.co.uk> <1046445897.16599.60.camel@irongate.swansea.linux.org.uk> <20030228143405.I23865@parcelfarce.linux.theplanet.co.uk> <1046447737.16599.83.camel@irongate.swansea.linux.org.uk> <20030228145614.GA27798@wotan.suse.de> <20030228152502.GA32449@gtf.org> <10490000.1046446480@[10.10.2.4]> <3E5F84FE.1050409@inet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3E5F84FE.1050409@inet.com>; from eli.carter@inet.com on Fri, Feb 28, 2003 at 09:49:18AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Fri, 2003-02-28 at 01:21, Dan Kegel wrote:
-> 
->>For a while now, I've been trying to figure out how
->>to make the oom killer not kill important processes.
-> 
-> 
-> How about by not allowing your system to excessively overcommit.
+On Fri, Feb 28, 2003 at 09:49:18AM -0600, Eli Carter wrote:
+> To do it properly, I think you'd need to give a range, not just an upper 
+> bound.  On some ARM / XScale systems, you can specify a window of your 
+> RAM that is visible on the PCI bus.  That may be a case too odd to care 
+> about, but I'm going to have to at some point in the future....
 
-(I'm using 2.4.18; is
-http://www.kernel.org/pub/linux/kernel/people/rml/vm/strict-overcommit/v2.4/vm-strict-overcommit-rml-2.4.18-1.patch
-still the approprate patch for that?)
+Which may not start at address zero either.
 
-> Everything else is armwaving "works half the time" stuff. By the time
-> the OOM kicks in the game is already over.
+There are even ARM systems where it'd be useful to be able to say "only
+allocate memory in region N where N = first 1MB of every 2MB region.
+(Yes, I know, this broken hardware should die, but it just isn't going
+away thanks to the marketing powers of large IC manufacturers.)
 
-Even with overcommit disallowed, the OOM killer is going to run
-when my users try to run too big a job, so I would still like
-the OOM killer to behave "well".
-
-> The rlimit one doesnt deal
-> with things like fork explosions where you have lots of processes
-> all under 1/4 of the rlimit range who cumulatively overcommit. In
-> fact you now pick harder on other tasks...
-
-We do not see fork explosions in our workload, but if we did,
-we could abuse the RSS limit for now by setting it to zero except for
-the processes we wanted to protect from the OOM killer.
-If that works in practice the same idea could be done without the abuse;
-the RSS limit is just a handy knob.
-- Dan
+Maybe the generic solution could be something like the resource allocation
+functions which are passed an alignment function?  /me hides.
 
 -- 
-Dan Kegel
-http://www.kegel.com
-http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

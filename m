@@ -1,86 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262775AbUJ1EyW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262759AbUJ1FMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262775AbUJ1EyW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 00:54:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262777AbUJ1EyW
+	id S262759AbUJ1FMY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 01:12:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262778AbUJ1FMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 00:54:22 -0400
-Received: from mx13.sac.fedex.com ([199.81.197.53]:61445 "EHLO
-	mx13.sac.fedex.com") by vger.kernel.org with ESMTP id S262775AbUJ1EyQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 00:54:16 -0400
-Date: Thu, 28 Oct 2004 12:52:20 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: jchua@silk.corp.fedex.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Mathieu Segaud <matt@minas-morgul.org>, axboe@suse.de,
-       jfannin1@columbus.rr.com, agk@redhat.com, christophe@saout.de,
-       Linux Kernel <linux-kernel@vger.kernel.org>, bzolnier@gmail.com
-Subject: Re: 2.6.9-mm1: LVM stopped working (dio-handle-eof.patch)
-In-Reply-To: <20041027132422.760d5f5e.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0410281245240.31882@silk.corp.fedex.com>
-References: <87oeitdogw.fsf@barad-dur.crans.org> <1098731002.14877.3.camel@leto.cs.pocnet.net>
- <20041026123651.GA2987@zion.rivenstone.net> <20041026135955.GA9937@agk.surrey.redhat.com>
- <20041026213703.GA6174@rivenstone.net> <20041026151559.041088f1.akpm@osdl.org>
- <87hdogvku7.fsf@barad-dur.crans.org> <20041026222650.596eddd8.akpm@osdl.org>
- <20041027054741.GB15910@suse.de> <20041027064146.GG15910@suse.de>
- <877jpcgolt.fsf@barad-dur.crans.org> <20041027132422.760d5f5e.akpm@osdl.org>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/28/2004
- 12:54:09 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/28/2004
- 12:54:12 PM,
-	Serialize complete at 10/28/2004 12:54:12 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 28 Oct 2004 01:12:24 -0400
+Received: from mxc.rambler.ru ([81.19.66.31]:20491 "EHLO mxc.rambler.ru")
+	by vger.kernel.org with ESMTP id S262759AbUJ1FMM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 01:12:12 -0400
+Date: Thu, 28 Oct 2004 09:09:19 +0400
+From: Pavel Fedin <sonic_amiga@rambler.ru>
+To: linux-kernel@vger.kernel.org
+Cc: luther@debian.org
+Subject: [PATCH] VIA8231 support for parallel port driver, rewritten
+Message-Id: <20041028090919.714357ae.sonic_amiga@rambler.ru>
+In-Reply-To: <417F4528.9030408@pobox.com>
+References: <20041027093529.15ff1a31.sonic_amiga@rambler.ru>
+	<417F4528.9030408@pobox.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Thu__28_Oct_2004_09_09_19_+0400_61EG1zv4f1VAabVQ"
+X-Auth-User: sonic_amiga, whoson: (null)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-On Wed, 27 Oct 2004, Andrew Morton wrote:
-> Could someone pleeeeze send out a simple recipe for repeating this problem?
+--Multipart=_Thu__28_Oct_2004_09_09_19_+0400_61EG1zv4f1VAabVQ
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-I'm using 2.6.10-rc1 and got the following error ...
+On Wed, 27 Oct 2004 02:50:16 -0400
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
-# vgscan
-   Reading all physical volumes.  This may take a while...
-   Found volume group "vg01" using metadata type lvm2
+> Can you consolidate it with the via 686 code?
+> 
+> Can you replace the magic numbers (0x3f0) with named constants?
 
-# vgchange -a y
-   0 logical volume(s) in volume group "vg01" now active
+ Here is the rewritten code. I've tested it on my Pegasos, it works. It also should work on 686a in the same manner, but i have no such an equipment.
+ Functionality a little changed: you need to specify init_mode=ecp dma=auto arguments to enable DMA support because driver defaults to dma=none. All other things are the same as in previous version.
 
-# lvcreate -L 100M -n lv01 vg01
-   device-mapper ioctl cmd 0 failed: Inappropriate ioctl for device
-   striped: Required device-mapper target(s) not detected in your kernel
-   lvcreate: Create a logical volume
+-- 
+Best regards,
+Pavel Fedin,									mailto:sonic_amiga@rambler.ru
 
+--Multipart=_Thu__28_Oct_2004_09_09_19_+0400_61EG1zv4f1VAabVQ
+Content-Type: application/x-gzip;
+ name="parport_pc-via8231.diff.gz"
+Content-Disposition: attachment;
+ filename="parport_pc-via8231.diff.gz"
+Content-Transfer-Encoding: base64
 
-Can't create logical volume (lvcreate) using 2.6.10-rc1.
+H4sICJ98gEEAA3BhcnBvcnRfcGMtdmlhODIzMS5kaWZmAL1be3PTSBL/2/kUTbaWtWM5keRXcBIK
+kzic70KSSwLLFUepZHns6LAlryQDOeA++3X3jGTJkh9ZuEsZS5Zm+jXdv+55UKvVYBi4n0QQHszs
+YOYHUXy1Zs6+s+8H7rhk6nqjZug1sw1Gs9Ood5qH+3r8B1W9oes71Wp1LaUlInWjYxg5Ii9eQK1l
+ai2o4ncbXrzYgR34xfWcyXwo4HjievMvMdX9++cr3xFHfF1dfv3JtZe62eE0QxDfDcXI9QRcd2+u
+r27urOtT63X3nUX3t8lDfMLCmvVWHQWt4rWRCHywB/27HoTzGZGFqe16Ef4TQxg8wI3r3MOFO4fj
+AO8m7vzFzPeDqe2hqcfPYe9gB8LIjlwHsBdY1lB8cj03gtD1LTcS1uFh27RmgT8QUA6jYO5EMHNc
+agZ7M/zWuJ89j3w3+EPbqZXoL3k2nNqVnWrumQYxqcR+FtrKGtqRDXt4V9mBrztQCu9JIVLHsofD
+4H3rA5zAV9C/mF1do8upvJjy0uCL0dPh+xH1ljwCEfrzwBGwN7BDYeHPI2nLRqultQ00ZqPV1oyW
+weYsBSKaBx7oSOE7WreG1n3r2ius+1cxGsErO/i3+xGO/zXmGzTwwP+y7/hTNm9tpXlJ49Zhy/5R
+85KE/S4cmnUjERNlu7Y/iQmci6HrwXHoe65j2VN3bL8I7OlgIoL9YI4uCwBkliH4HlMhgRIqjo8+
+u52a1YyapCMPZjzA9MCaErkTMm2VpT6jFiM/gOizDx89/7MUwbl3Z2Ga5hpnSWzIvxL78i90FfQ9
+/UvT0ORVl9fDprzqprz21PVcve+1dqroQFtyJ7Ov495Q3BqNrBS6+n0ec++qq+K+ZNFlx9neZ/5s
++NVK80OIpjOURd1p9GVqJMNo7jkazGaO70WBP6FwIwZMHLkeUW8vdMcUJ8TC0PiCne/RLS0xmwlH
+Ui5qlXkRd0g8pzQLkNfH8t96N5fWWe/lm1ewu9CkE7tx94AjYigi4URi+E9vt4JiYvfwsxs59+Wc
+axJS0Zg5GA9gdPAOgwM2MAtFFLneGG6vr4GISDayq7ITCo4iWedvLk/v+leXVgzq2CVumRhSKckP
+B4GwPx7FApmPFOj69sD8SRJR27jJy/5Z/6ZYwvojJew93mS9RwqY8h2jWOjGY4U+fbzQpz9i1ebj
+rVr9Hwr5Lf0EO6VGZK2xMQ5H9nwSbakNwRtp48yDQHiUibyRO54HiIi+t41aN1cvezkhvuMPRKqD
+PYQn2IO5N/Gdj5TtRADugZ/lopFJgdKFZXB7zOUlAlqkNrRkU2vwECEKS9TlzAJPESMrhH94hW8n
+UDbg+BgMfkS9PwdUVq3sHvfGD2ZIKectC9g/uFoW0PWG4gtDJpycQH2k32sg027yyLgnI2zSFY3C
+CXetfpgYas8592AjJoS5SLULxDhRvRqrvq4DiXmkGK40yUaOiiHSQWO9dKMQjJrewdInsCcTrH6u
+yQ6vqew4gJ5nY9kj1fTn0QDKMXlnNLbIiaRRyY9Ory7P+6+s/uVZ712i0QnaG3ul3p9177r8WnLH
+WE3CTzC3Ixjg43ZHovHAHbqBYDb2RI6RWCtUHBEqHlfLZq4Tzh1hnRCHSVGcxIkvG0+k8tNisDjr
+33ZfXvSKAIOE4VDDf2ISCiJNUSdbMs0T+M82VJUTKYHip48euUUnrmCKDKS4mSxaeRvIy3ZDKVOV
+0Co5txvMjLhmsbw4L1H4QMWrtY3L15R3cbWL3ernegJSynXooRF7c5YcQc9LSkZdnIWJMNTIrUN4
+VjM3eS7NLVZoygXfKr8lzDSPpJ7kv2XpjVg21yvkxPKGilRVDYJMJf3L86ulahAnb1QNUrErVeLA
+G7oh2WaI7OFl/+pW5hQkt5j/VbOkC7LUqcpOWdKkcwcl/PUdEtVYzSQOy0pr0qD+8rQCT58meTMd
+hmTRxxo06UdD2T6E58/BrKz2+E3KXeeUwpmZ7Y3RZpEPzCKdiOPh5Bc0ct8VLsv8szb7VH969qFI
+/n+mn7UYm8W3Ck8MN7ptfzuPrWY99nspjQ2tZVxYH8gpkGilQSITqRImVHxinbJIve1aA/l513CD
+ZKh4o6n9Ev+bvz9ypJNZWvDH0jDjE5QpRgayOFJHR7+7ubogm3cvLnoXFYqCxiMGCfE9HYexbvWa
+uUm3s9ddqRtHw2P1w5nzkn5EBp8u6YhcCnU0K0tZV0mPOlM54vlxrTHUWFI3zD6zw3A+pUUtfzwP
+4Tdk/Bt8sidzsdBJCpN48+uudXl12UvKrwuslqN7AfMQY7yM5lEVf1iBMBL4DOnan+0HGAX+lJYj
+RBDMZ2hb2xsujEdjpJYuaIxibji0zE0GD0kjh3/5/dEmWdlEMRNulW9W2agwqEUEkHhe4dVKnq5h
+eAxo/kLLGIyG7YFzFM9AFm3ah5k2iJi5Nma2TSvTJplNbU6Avws3GGbS4ALQKUnhNGLs+UhjTOlq
+C2hSBPubaUGpVIrzH6SBirIDxDB1rlu5wjkLR+d6Go5SK0gUHGlUeqqmW83KYhIl51DrZ3rORNjB
+D871uHj8U5O9lJivhAQSigkCS46V69N+7TkmDxx+dzgW9FspAAgZLkZXEMZSx0Zt6tY2mCXxeJOu
+TT2laxqTGHjiumwxbaU1V2v7dLCRvZFin4Z9xnbJ/pwNSXN7GLkTtIhCMmTBa8mLiEUC6XjtyM2A
+ZqOhmSZUzVa9qRm63AsoJfGWuOtPwVNZ0z5JOXKFAnkV3qhB/RkAW8sA7JMsgHbf3F2ponoVuq6T
+Eo1Uy0Drk2wzJr9eTzV+OD2ePGgw9FlfudSNo3cvLRiCP1BbMDywxDK1ks3NLcalcnbpmZbD5RL1
+5ZuLi4r0gjza8S7LFnOIDrj+CaHeruQgq/zlrst1XFEvlIKUKBgSmY4YR5WYu6zHya9DebPoXWBx
+2Vv6d+uQNw5bjbbaOEzw2FAOTsGbMcbv3ZvL/uXStOA2CmgSgJhpe79FanA2GCgWma2PV5Vo/iyz
+lSYt5AMqBy3Gn22W2eeTJmq3NOMZ2ajZ1ExD7a4Kbz5Nb5TQBkz0MEMv5B3K1D4epWmtpPYL394d
+mqdskqmPThwMfBuT5mIlj4uduDdtVGildFfaykPYvI8hn6J5jNlKJDSuFKql9mlJ14kdRiTjDu+B
+8uawsBH2xERMaaoqV6AmD3LtEMkxWLCSE8wkCFwD/5NI7wvn94rUVIiRgnZ9yns8MJVttqMye5dc
+xv8Agc0bWcRhQxtygALtLNcb+e8/FOzq1UpfC/ZvNfiuJa+yO+f8qprqpZ4+zexerm2V7DJmWi2z
+IVjjBnLwa3nvJcM66Imx92KuNWaWoX9BzWLX0eI3Jr/RZHS0jQYdlDDbz5oKQJb8Qw6Z6wjLHS6z
+jAaT97x3LxGeXbiGLux7Mi6SLV8o0fa+Yeg8AdXROBqVO1b38h9W/yx7r/MnE4HKNgsKHFlbUuCo
+I+MhBWr1tnd5dnWDDa3+XU92POu97Z/21KMk5mALBvFQMQNp0cNmkyH5WX0BySVaHXS9ueDgLS3n
+toxvusPac3kEhj3jwz57AWcvVTolMRMHnFp7WPVe25oVxZbKn4Sk1Sqnoe+cSEi5ut4wNMTSumHW
+NTPRjqdVuRSlLT05759fVdT5i/y5gvyZAitELJ+V0XRhRGtUAeyhU7KuGxfx9inLYAXmjlzBbmtP
+BVWPOSYnv4aUTsjdU8sJT/Cng5UoAZcGu+FstluJp495EsZRcbdZaK7rZq7oJtZzq6/q5qzt1ljd
+bQPDJvVcFBVVWgGEX9wR1qnw+urszUUvAY30WKEHvi86/fThqLA5+umq5tUi6rF4HFFSDFo6eY2+
+cHtaRriDXV4So6xsy2UxKNN2Ps6twgofGkj1kh2M2i56o3p8e3eDhUu5SKYK7LpEQYZE81AzTIoJ
+upExkZPnE5UKobDUBijyuvDHhI9RDfXB/D2n2TWQVq6NGZsnsDkh81RYDPhFeEN3tFPNmyG2Ejbt
+x7QFbyLzvI1qLlWXyMoaPR3r1xCrakF3NBfHZtJH2GjVjNFS5EN5DgMKA5tkjmOTYjEsf/LdoToO
+lhwJoT5ufOYE5wTyXAeX0OnDHKVVSLFoJRdzSMOyy2cvwIXj4rN4T59imfne/YBNqlWFfRl4ZunR
+mamOx3aUue1JpRJjpIoKdgWjbVAyrZtUcjbZEwjs0BAsIFb5iuoJzRIUA35VUYendqqwB13HEbOI
+10sS5Ao79Ipf5yP0PQ7bNxy1bzhK33CwvskB+0DND4iwEiDhn+q7q60wpzSici1Zcu5ekzGCXaw/
+sNTA8ldOe2s1UCchD/LnJwvPfjY79Xbh2c/VdJZPftY7Tb3w5GejTmOA32Zd5qdsoYjFJ34fqVqq
+urqK3Kl+lSugtERDCx60rBGoRY94gQYMWfLPD2HF0vZRlghN2APxB053ozyxVaTUKrIidRM3pwUA
+ufgQ+fECG9dg/aUjBWCjR4Vhjn5+8+NobYN4eyWu9ZBPvE27UAJL00FWl/R2ruqe3QOJ95k30Fja
+al3e01ysWcZ4X2TY5V23I3UuLwYuAi30PmFZQBiV9gy57EdGKOd8SoMExjhBKXBTaZLrk3gzoiBg
++ESxjBTjWVuv6QZ+QK93dB0/GTevF0YKE1gKEfyY+SijENE1/GXQwhgGCB3ZfO2GjphMbE/48xD4
+6LJLoxUmWYJLeRGFfLRUbZDidHMuz5ji3eBh7cFtBUQ0F5aLPUQ450QhzmedpWNB2VGMz1WvOujG
+lShOMfQNTWm1TzU1NjVdUDU3NFV7gbxwuqopHc2AxZ/+5fycsJWrVXsCU3uMXpiE9UBIG7seH9vV
+eDlSPid3jIRHadPn8VnYmDe3yMLZOOO8v6VxsycjQH9n6sUN+DAF6XGoxyNM/lLIJcyxSW93y82A
+wve0xQ383lBMXtvhxwIVCaR58xOrgQ3IXckJU7DTyBsZ6xgSoOcYMsovMcyzK9j0I885ZYA48505
+Le2wAQ8+isATk9qiHNiPvkSFqbXVMYpT6xYEl2g1mx39WSGA0GoBJlm6GK1kFljKQHEINtYHdpgU
+d7Tqqxr6wRBHAH8/cKMwman53Aq9ZzrF7KZaExzTDM0O2KC8ZKywRd9HYKfZYK6u4Qnx+7/8rl1f
+330onSp3LFhmxGjakYepfUQjO6JVuVgih0NmH+7u3RDcULXzBGVTO3ggca/F2A79kESezcmvPlNd
+pFqO3GD6mTS8t2kjAfzZAlXjk53zmWpcEKuU4Ql1wU2JicXefgqCI5ItQVA6bx/LyWsnRIILfEbw
+fX51Tv9VJOrAyrqRFilmdmieSBNe3d5+4LGIOx67/nPtGCsc/MbiRH4bLbyGA4vf0ZVf441sIW+w
+0c5/AS0PEaEvNAAA
 
-No problem with 2.6.9 and 2.4.28-rc1.
-
-Lvm tools is LVM2.2.00.25.
-
-Here's my partial .config (same as 2.6.9 which is working with lvm).
-
-#
-# Multi-device support (RAID and LVM)
-#
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=m
-# CONFIG_MD_LINEAR is not set
-# CONFIG_MD_RAID0 is not set
-# CONFIG_MD_RAID1 is not set
-# CONFIG_MD_RAID10 is not set
-# CONFIG_MD_RAID5 is not set
-# CONFIG_MD_RAID6 is not set
-# CONFIG_MD_MULTIPATH is not set
-CONFIG_BLK_DEV_DM=y
-# CONFIG_DM_CRYPT is not set
-# CONFIG_DM_SNAPSHOT is not set
-# CONFIG_DM_MIRROR is not set
-# CONFIG_DM_ZERO is not set
-
-
-Thanks,
-Jeff.
-
+--Multipart=_Thu__28_Oct_2004_09_09_19_+0400_61EG1zv4f1VAabVQ--

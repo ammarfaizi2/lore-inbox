@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286237AbRLTNgE>; Thu, 20 Dec 2001 08:36:04 -0500
+	id <S286250AbRLTNeo>; Thu, 20 Dec 2001 08:34:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286246AbRLTNfy>; Thu, 20 Dec 2001 08:35:54 -0500
-Received: from pat.uio.no ([129.240.130.16]:43198 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S286237AbRLTNfk>;
-	Thu, 20 Dec 2001 08:35:40 -0500
-To: Samuel Maftoul <maftoul@esrf.fr>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: NFS > 2Gb
-In-Reply-To: <20011220134414.A19648@pcmaftoul.esrf.fr>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 20 Dec 2001 14:35:32 +0100
-In-Reply-To: <20011220134414.A19648@pcmaftoul.esrf.fr>
-Message-ID: <shs3d26f1zv.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S286251AbRLTNee>; Thu, 20 Dec 2001 08:34:34 -0500
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:19917
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S286250AbRLTNeS>; Thu, 20 Dec 2001 08:34:18 -0500
+Date: Thu, 20 Dec 2001 08:29:26 -0500
+From: Chris Mason <mason@suse.de>
+To: Andrew Morton <akpm@zip.com.au>, Andrea Arcangeli <andrea@suse.de>
+cc: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
+Subject: Re: Lockups with 2.4.14 and 2.4.16
+Message-ID: <1266972704.1008854966@tiny>
+In-Reply-To: <3C1A4BB4.EA8C4B45@zip.com.au>
+In-Reply-To: <000a01c1829f$75daf7a0$050010ac@FUTURE>
+ <000a01c1829f$75daf7a0$050010ac@FUTURE> <3825380000.1008348567@tiny>
+ <3C1A3652.52B989E4@zip.com.au>
+ <3845670000.1008352380@tiny>,	<3845670000.1008352380@tiny>; from
+ mason@suse.com on Fri, Dec 14, 2001 at 12:53:00PM -0500
+ <20011214193217.H2431@athlon.random> <3C1A4BB4.EA8C4B45@zip.com.au>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Samuel Maftoul <maftoul@esrf.fr> writes:
 
-     > Hello, I didn't find anywhere a clear explication on the
-     > question: Does linux support large file over NFS v3 ?  Does it
+Ok, there is another deadlock possible where kswapd goes into a transaction:
 
-Clear explanation:
+shrink_dcache_memory->prune_dcache->dput->iput->delete_inode()
 
-2.2.x
-  No
+So, I'm changing my new kinoded to run shrink_dcache_memory as well.
 
-2.4.x
-  Yes *if* the server supports large files, and *if* the exported
-filesystem supports large files.
+ick.
 
-     > works with a solaris server and linux client ?
+-chris
 
-See above.
-
-Cheers,
-  Trond

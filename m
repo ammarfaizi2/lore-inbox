@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264323AbUD0UDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264331AbUD0UUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264323AbUD0UDn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 16:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264310AbUD0UDm
+	id S264331AbUD0UUU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 16:20:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbUD0UUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 16:03:42 -0400
-Received: from fed1rmmtao12.cox.net ([68.230.241.27]:36480 "EHLO
-	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
-	id S264323AbUD0UDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 16:03:31 -0400
-Date: Tue, 27 Apr 2004 13:03:29 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix thinkos in #if -> #ifdef conversions
-Message-ID: <20040427200329.GE1655@smtp.west.cox.net>
-References: <20040427192408.GC1655@smtp.west.cox.net>
+	Tue, 27 Apr 2004 16:20:20 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:33672 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S264331AbUD0UUQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 16:20:16 -0400
+Date: Wed, 28 Apr 2004 00:20:18 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Marc Giger <gigerstyle@gmx.ch>
+Cc: Dru <andru@treshna.com>, linux-xfs@oss.sgi.com,
+       =?koi8-r?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: status of Linux on Alpha?
+Message-ID: <20040428002018.A827@den.park.msu.ru>
+References: <yw1xr7vcn1z2.fsf@ford.guide> <20040329205233.5b7905aa@vaio.gigerstyle.ch> <20040404121032.7bb42b35@vaio.gigerstyle.ch> <20040409134534.67805dfd@vaio.gigerstyle.ch> <20040409134828.0e2984e5@vaio.gigerstyle.ch> <20040409230651.A727@den.park.msu.ru> <20040413194907.7ce8ceb7@vaio.gigerstyle.ch> <20040427185124.134073cd@vaio.gigerstyle.ch> <20040427215514.A651@den.park.msu.ru> <20040427200830.3f485a54@vaio.gigerstyle.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040427192408.GC1655@smtp.west.cox.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040427200830.3f485a54@vaio.gigerstyle.ch>; from gigerstyle@gmx.ch on Tue, Apr 27, 2004 at 08:08:30PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 27, 2004 at 12:24:09PM -0700, Tom Rini wrote:
+On Tue, Apr 27, 2004 at 08:08:30PM +0200, Marc Giger wrote:
+> I wonder why it happens only with the XFS code. What I saw
+> rw_sem is used all over the place in the kernel.
 
-> <donning brown paper bag>
+Dru says it happens with ext3 as well. XFS folks used their own
+locking code (which hasn't suffered from that bug) until 2.6.4,
+that's why you noticed the difference...
+In either case, you need _really_ heavy write IO activity to
+trigger the bug.
 
-<crawling into a hole to hide>
-
-And when trying to catch up on old patches, I forgot this hunk:
-===== arch/ppc/platforms/prep_setup.c 1.44 vs edited =====
---- 1.44/arch/ppc/platforms/prep_setup.c	Wed Apr  7 16:02:57 2004
-+++ edited/arch/ppc/platforms/prep_setup.c	Tue Apr 27 13:01:57 2004
-@@ -134,6 +134,7 @@
- #define PREP_IBM_CAROLINA_IDE_0	0xf0
- #define PREP_IBM_CAROLINA_IDE_1	0xf1
- #define PREP_IBM_CAROLINA_IDE_2	0xf2
-+#define PREP_IBM_CAROLINA_IDE_3	0xf3
- /* 7248-43P */
- #define PREP_IBM_CAROLINA_SCSI_0	0xf4
- #define PREP_IBM_CAROLINA_SCSI_1	0xf5
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Ivan.

@@ -1,78 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267935AbUIAVgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268175AbUIAWVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267935AbUIAVgv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 17:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268074AbUIAVHT
+	id S268175AbUIAWVc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 18:21:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267708AbUIAWUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 17:07:19 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:16345 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267953AbUIAU42
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 16:56:28 -0400
-Subject: [patch 09/25]  drivers/char/rocket.c MIN/MAX removal
+	Wed, 1 Sep 2004 18:20:07 -0400
+Received: from mail.zelnet.ru ([80.92.97.13]:20437 "HELO zelnet.ru")
+	by vger.kernel.org with SMTP id S267968AbUIAWRX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 18:17:23 -0400
+Message-Id: <200001310023.e0V0N1dP022186@altair.deep.net>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@digeo.com, janitor@sternwelten.at
-From: janitor@sternwelten.at
-Date: Wed, 01 Sep 2004 22:56:27 +0200
-Message-ID: <E1C2c9c-0007LZ-6R@sputnik>
+cc: viro@parcelfarce.theplanet.co.uk
+Subject: Re: silent semantic changes with reiser4
+X-Mailer: MH-E 7.4.3; nmh 1.1; GNU Emacs 21.3.1
+Date: Mon, 31 Jan 2000 01:23:01 +0100
+From: Samium Gromoff <deepfire@zelnet.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Viro wrote:
+> Arguments about O_NOFOLLOW on the intermediate stages are bullshit, IMNSHO -
+> if they want to make some parts of tree inaccessible, they should simply
+> mkdir /tmp/FOAD; chmod 0 /tmp/FOAD; mount --bind /tmp/FOAD <blocked path>
+> in the namespace their daemon is running in.  And forget all that crap
+> about filtering pathnames and blocking symlinks on intermediate stages
+> the latter is obviously worthless without the former since one can simply
+> substitute the symlink body in the pathname).
 
+This made me wonder -- why not have a dedicated /dev/noaccess special node
+for exactly such patterns of usage?
 
-Patch (against 2.6.7) removes unnecessary min/max macros and changes
-calls to use kernel.h macros instead.
+Yes that`ll made it Linux-specific and such... but hey -- if it saves
+someone for for literally (?) no cost why not?
 
-Feedback is always welcome
-Michael
-
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-
-
-
----
-
- linux-2.6.9-rc1-bk7-max/drivers/char/rocket.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
-
-diff -puN drivers/char/rocket.c~min-max-char_rocket drivers/char/rocket.c
---- linux-2.6.9-rc1-bk7/drivers/char/rocket.c~min-max-char_rocket	2004-09-01 19:34:09.000000000 +0200
-+++ linux-2.6.9-rc1-bk7-max/drivers/char/rocket.c	2004-09-01 19:34:09.000000000 +0200
-@@ -389,7 +389,7 @@ static void rp_do_transmit(struct r_port
- 	while (1) {
- 		if (tty->stopped || tty->hw_stopped)
- 			break;
--		c = MIN(info->xmit_fifo_room, MIN(info->xmit_cnt, XMIT_BUF_SIZE - info->xmit_tail));
-+		c = min(info->xmit_fifo_room, min(info->xmit_cnt, XMIT_BUF_SIZE - info->xmit_tail));
- 		if (c <= 0 || info->xmit_fifo_room <= 0)
- 			break;
- 		sOutStrW(sGetTxRxDataIO(cp), (unsigned short *) (info->xmit_buf + info->xmit_tail), c / 2);
-@@ -1658,7 +1658,7 @@ static int rp_write(struct tty_struct *t
- 	 *  into FIFO.  Use the write queue for temp storage.
-          */
- 	if (!tty->stopped && !tty->hw_stopped && info->xmit_cnt == 0 && info->xmit_fifo_room > 0) {
--		c = MIN(count, info->xmit_fifo_room);
-+		c = min(count, info->xmit_fifo_room);
- 		b = buf;
- 		if (from_user) {
- 			if (copy_from_user(info->xmit_buf, buf, c)) {
-@@ -1668,7 +1668,7 @@ static int rp_write(struct tty_struct *t
- 			if (info->tty == 0)
- 				goto end;
- 			b = info->xmit_buf;
--			c = MIN(c, info->xmit_fifo_room);
-+			c = min(c, info->xmit_fifo_room);
- 		}
- 
- 		/*  Push data into FIFO, 2 bytes at a time */
-@@ -1696,7 +1696,7 @@ static int rp_write(struct tty_struct *t
- 		if (info->tty == 0)	/*   Seemingly obligatory check... */
- 			goto end;
- 
--		c = MIN(count, MIN(XMIT_BUF_SIZE - info->xmit_cnt - 1, XMIT_BUF_SIZE - info->xmit_head));
-+		c = min(count, min(XMIT_BUF_SIZE - info->xmit_cnt - 1, XMIT_BUF_SIZE - info->xmit_head));
- 		if (c <= 0)
- 			break;
- 
-
-_
+regards, Samium Gromoff

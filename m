@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267241AbSLKRtW>; Wed, 11 Dec 2002 12:49:22 -0500
+	id <S267247AbSLKSAN>; Wed, 11 Dec 2002 13:00:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267242AbSLKRtW>; Wed, 11 Dec 2002 12:49:22 -0500
-Received: from [217.167.51.129] ([217.167.51.129]:24002 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S267241AbSLKRtV>;
-	Wed, 11 Dec 2002 12:49:21 -0500
-Subject: Re: patch for aty128fb.c
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0212110635110.2617-100000@maxwell.earthlink.net>
-References: <Pine.LNX.4.33.0212110635110.2617-100000@maxwell.earthlink.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 11 Dec 2002 19:01:56 +0100
-Message-Id: <1039629716.3539.51.camel@zion>
+	id <S267248AbSLKSAN>; Wed, 11 Dec 2002 13:00:13 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:16001 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267247AbSLKSAM>;
+	Wed, 11 Dec 2002 13:00:12 -0500
+Date: Wed, 11 Dec 2002 18:07:53 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 Changes doc update.
+Message-ID: <20021211180753.GC10008@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20021211172559.GA8613@suse.de> <20021211175404.GA1352@k3.hellgate.ch>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021211175404.GA1352@k3.hellgate.ch>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-11 at 15:42, James Simmons wrote:
-> 
-> > Currently it can only put one rage 128 chip to sleep, but that is ok
-> > for now since I've never seen a laptop with two rage 128 chips yet. :)
-> > The generic device model will ultimately give us a better way to
-> > handle sleep/wakeup.
-> 
-> Actually I started to looking into doing that. I noticed struct
-> pci_driver having a resume and suspend function. Is this related? I just
-> started to looking into the new PM code.
+On Wed, Dec 11, 2002 at 06:54:04PM +0100, Roger Luethi wrote:
+ > On Wed, 11 Dec 2002 17:25:59 +0000, Dave Jones wrote:
+ > > - A backwards compatable set of module utilities is available
+ > >   including v0.7 of the new-style utils in source RPM format from
+ > >   http://www.kernel.org/pub/linux/kernel/people/rusty/modules/modutils-2.4.21-5.src.rpm
+ > 
+ > That release was not backwards compatible. This one is:
+ > http://www.kernel.org/pub/linux/kernel/people/rusty/modules/modutils-2.4.21-7.src.rpm
 
-It's +/- related, but pls don't play with that now, I need to dig into
-it in much details myself, I don't think I'll use the pci callbacks
-anyway.
+ Thanks, noted.
 
-Ben.
+		Dave
 
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

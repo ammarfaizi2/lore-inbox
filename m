@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290371AbSAXWFm>; Thu, 24 Jan 2002 17:05:42 -0500
+	id <S290379AbSAXWHC>; Thu, 24 Jan 2002 17:07:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290379AbSAXWFc>; Thu, 24 Jan 2002 17:05:32 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7432 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S290371AbSAXWFT>; Thu, 24 Jan 2002 17:05:19 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: RFC: booleans and the kernel
-Date: 24 Jan 2002 14:05:01 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a2q0ed$vqt$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0201241433110.2839-100000@waste.org> <Pine.LNX.3.95.1020124165419.1859A-100000@chaos.analogic.com>
+	id <S290380AbSAXWGx>; Thu, 24 Jan 2002 17:06:53 -0500
+Received: from ucrwcu.rwc.uc.edu ([129.137.3.94]:4536 "EHLO ucrwcu.rwc.uc.edu")
+	by vger.kernel.org with ESMTP id <S290379AbSAXWGk>;
+	Thu, 24 Jan 2002 17:06:40 -0500
+Message-ID: <3C508600.25AF021@ucrwcu.rwc.uc.edu>
+Date: Thu, 24 Jan 2002 17:09:04 -0500
+From: ken <koehlekr@ucrwcu.rwc.uc.edu>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17 multiple Oops and file corruption on I845 MB
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.3.95.1020124165419.1859A-100000@chaos.analogic.com>
-By author:    "Richard B. Johnson" <root@chaos.analogic.com>
-In newsgroup: linux.dev.kernel
-> 
-> Don't you wish!
-> 
-> 	cmpl $0,8(%ebp)      <-------------- Compare against zero.
+Hi Folks,
 
-That's the fastest way in x86 to compare a memory variable against
-zero.  andl %reg,%reg only works if the value is already in a
-register.
+Well, I guess I'm not the only one who has ever had egg on his face
+after posting a bug report.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Before posting the report, I had run memtest86 v2.5.1 for more than one
+complete pass of the std tests and had concluded the memory was OK.  On
+a hunch, after a reply from Mark Hahn, I let it run all night; after 17
+hours running all tests over 3+ passes, it recorded about 4000 errors.
+These were clustered around 64MB and 135MB (64K and 4K holes,
+respectively), and I think that adequately accounts for the problems I
+was having on large file copies.  The guy who sold me the hardware took
+it all back and refunded my money rather than having to learn something
+about linux, so I guess he didn't deserve the sale after all.
+
+Thanks again to all who read and responded. Now I know to run multiple
+passes on memtest before deciding things are OK....
+
+Ken

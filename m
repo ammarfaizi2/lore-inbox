@@ -1,109 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131437AbQLVOmM>; Fri, 22 Dec 2000 09:42:12 -0500
+	id <S131520AbQLVPCm>; Fri, 22 Dec 2000 10:02:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131516AbQLVOmD>; Fri, 22 Dec 2000 09:42:03 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:30336 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S131437AbQLVOlt>; Fri, 22 Dec 2000 09:41:49 -0500
-Date: Fri, 22 Dec 2000 09:11:07 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Referencing PHYSICAL (what you see on the bus) memory?
-Message-ID: <Pine.LNX.3.95.1001222090540.9114A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131480AbQLVPCd>; Fri, 22 Dec 2000 10:02:33 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:35592 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S131450AbQLVPCX>; Fri, 22 Dec 2000 10:02:23 -0500
+Date: Fri, 22 Dec 2000 15:31:45 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: unlisted-recipients: no To-header on input <;@pop.zip.com.au>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test13-pre4
+Message-ID: <20001222153145.A15733@athlon.random>
+In-Reply-To: <Pine.LNX.4.10.10012211726060.968-100000@penguin.transmeta.com> <3A43506B.6CEF84BB@eyal.emu.id.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3A43506B.6CEF84BB@eyal.emu.id.au>; from eyal@eyal.emu.id.au on Sat, Dec 23, 2000 at 12:00:27AM +1100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Dec 23, 2000 at 12:00:27AM +1100, Eyal Lebedinsky wrote:
+> Linus Torvalds wrote:
+> >  - pre4:
+> >    - Andrea Arkangeli: update to LVM-0.9
+> 
+> gcc -D__KERNEL__ -I/usr/local/src/linux/include -Wall
+> -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+> -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE
+> -DMODVERSIONS -include
+> /usr/local/src/linux/include/linux/modversions.h   -c -o lvm.o lvm.c
+> lvm.c: In function `lvm_do_vg_extend':
+> lvm.c:2024: warning: implicit declaration of function
+> `lvm_do_create_proc_entry_of_pv'
+> lvm.c: In function `lvm_do_create_proc_entry_of_lv':
+> lvm.c:3016: `pde' undeclared (first use in this function)
+> lvm.c:3016: (Each undeclared identifier is reported only once
+> lvm.c:3016: for each function it appears in.)
+> lvm.c: At top level:
+> lvm.c:3044: warning: type mismatch with previous implicit declaration
+> lvm.c:2024: warning: previous implicit declaration of
+> `lvm_do_create_proc_entry_of_pv'
+> lvm.c:3044: warning: `lvm_do_create_proc_entry_of_pv' was previously
+> implicitly declared to return `int'
+> lvm.c: In function `lvm_do_create_proc_entry_of_pv':
+> lvm.c:3050: `pde' undeclared (first use in this function)
+> lvm.c: At top level:
+> lvm.c:147: warning: `lvm_short_version' defined but not used
+> make[2]: *** [lvm.o] Error 1
+> make[2]: Leaving directory `/data2/usr/local/src/linux-2.4/drivers/md'
 
-I am finishing up a memory-test program. I want to get the
-true linear address of some failing memory. I have obtained
-the virtual (user-space) address.
+Strange, test13-pre3 plus the 0.9 lvm patch compiled and worked fine
+for me. I'll try to compile test13-pre4 now and I'll let you know.
 
-Since going through all the PTEs seems to be a bitch, I thought
-it would be easier to do the following:
-
-(1)	Mark the bad RAM with magic (0xdeadface).
-(2) 	mmap() some low physical RAM where there is a 1:1 virt/phy
-	translation.
-(2)	Make an ioctl() to a module that copies some code to
-	the mmap()ed RAM.
-(3)	Call a procedure in that code living below 1 megabyte
-	from the module in kernel space.
-	So far this all ** works **. The code functions and
-	returns, when executed in the mmaped (.data) area.
-	The physical address chosen was 0x90000.
-
-(4)	The procedure is supposed to do:
-
-	Make a long-jump to its physical address so it's
-	CS:EIP is referencing the physical address.
-
-	Disable paging. You need 1:1 phys/virt before you do this.
-
-	Do a linear scan of all memory, looking for magic.
-	I need paging off so I can look at flat-model physical RAM.
-
-	Re-enable paging.
-
-	Make a long-jump to its virtual address.
-	Return to caller.
-
-
-(5)	So far, the code looks like:
-
-LOAD_ADDRESS = 0x90000
-
-	pushl	%registers_destroyed.
-	movl	%cr0,%ebx		# Save original.
-	ljmp	$(__KERNEL_DS,$1f - PAGE_OFFSET + LOAD_ADDRESS
-					# Should now be 1:1
-1:	movl	%ebx,%eax
-	andl	$~0x80000000,%eax	# Mask paging bit
-	movl	%eax,%cr0		# Turn off paging
-
-	do_memory_scan
-
-	movl	%ebx,%cr0		# Turn back on paging
-	ljmp	$(__KERNEL_CS),%1f + PAGE_OFFSET + LOAD_ADDRESS 
-					# Back to virtual address
-1:
-	popl	%registers_destroyed
-
-
-(6)	This obviously fails. It fails at the first 'ljmp'. This
-	seems to be because __KERNEL_DS doesn't reference the 1:1
-	stuff. Note, the code is executing out of allocated
-	(mmaped()) .data. I have played with __KERNEL_CS. This
-	produces an 'access violation', i.e., I wasn't even allowed
-	to try to execute something there.
-
-	Using __KERNEL_DS, the errors were related to executing
-	junk since I didn't jump to where I thought I should have
-	gone.
-
-(7)	So the question is: What executable segment will reference,
-	with a 1:1 virtual:physical relationship, stuff that has
-	already successfully been copied to low memory? 
-
-	I can 'prove' that the code I want executed does actually
-	live at 0x90000, and if I don't do anything exciting,
-	I can call it (via pointer), it executes, and properly
-	returns to my module.
-
- 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265130AbUFRM3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265112AbUFRMc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265130AbUFRM3l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 08:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265131AbUFRM3l
+	id S265112AbUFRMc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 08:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265131AbUFRMc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 08:29:41 -0400
-Received: from linux2.isphuset.no ([213.236.237.186]:21226 "EHLO
-	gtw.mailserveren.com") by vger.kernel.org with ESMTP
-	id S265130AbUFRM3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 08:29:38 -0400
-Subject: Re: ACPI / cpu temperature problem
-From: Hans Kristian Rosbach <hans.kristian@isphuset.no>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1086783539.14784.24.camel@linux.local>
-References: <1086783539.14784.24.camel@linux.local>
-Content-Type: text/plain
-Organization: ISPHuset Nordic AS
-Message-Id: <1087561770.8257.6.camel@linux.local>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 18 Jun 2004 14:29:31 +0200
-Content-Transfer-Encoding: 7bit
-X-Declude-Sender: hans.kristian@isphuset.no [195.159.151.115]
-X-Note: This E-mail was scanned by Declude JunkMail (www.declude.com) for spam.
+	Fri, 18 Jun 2004 08:32:59 -0400
+Received: from mail.dif.dk ([193.138.115.101]:21705 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S265112AbUFRMc5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 08:32:57 -0400
+Date: Fri, 18 Jun 2004 14:32:03 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] save kernel version in .config file
+In-Reply-To: <20040617220651.0ceafa91.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.56.0406181430580.16649@jjulnx.backbone.dif.dk>
+References: <20040617220651.0ceafa91.rddunlap@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Now, the problem with all these supermicro servers is that the
-> temperature seems to be stuck at 27 C. No matter what load or
-> temperature in the room. Something is clearly wrong.
-> What can be done to fix this? We tried setting polling_frequency
-> to '10', but that made no difference.
+On Thu, 17 Jun 2004, Randy.Dunlap wrote:
 
-I reported this to the kernel bug tracker, but there seems to be
-no forward movement at all. So I'll try here again in the hope that
-someone that know this code atleast has a comment to it.
+>
+> Is this interesting to anyone besides me?
+>
+>
+>
+> Save kernel version info when writing .config file.
 
-http://bugme.osdl.org/show_bug.cgi?id=2855
+I certainly find that to be a nice and useful enhancement - good idea.
 
-Sincerly
-   Hans K. Rosbach
 
+--
+Jesper Juhl <juhl-lkml@dif.dk>
 

@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268534AbUIGUYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268590AbUIGU1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268534AbUIGUYo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 16:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268039AbUIGUXM
+	id S268590AbUIGU1m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 16:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268582AbUIGU1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 16:23:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:57798 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268588AbUIGUGo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 16:06:44 -0400
-Subject: Re: The Serial Layer
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
+	Tue, 7 Sep 2004 16:27:12 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13831 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S268650AbUIGUQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 16:16:39 -0400
+Date: Tue, 7 Sep 2004 21:16:34 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1094582980.9750.12.camel@localhost.localdomain>
+Subject: Re: The Serial Layer
+Message-ID: <20040907211634.D15295@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 References: <1094582980.9750.12.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-UPW7Nri5gFMOrE+t3b5M"
-Organization: Red Hat UK
-Message-Id: <1094587598.2801.24.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 07 Sep 2004 22:06:38 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1094582980.9750.12.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Tue, Sep 07, 2004 at 07:49:42PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-UPW7Nri5gFMOrE+t3b5M
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 2004-09-07 at 20:49, Alan Cox wrote:
+On Tue, Sep 07, 2004 at 07:49:42PM +0100, Alan Cox wrote:
 > Is anyone currently looking at fixing this before I start applying
 > extreme violence ? In particular to start trying to do something about
 > the races in TIOCSTI, line discipline setting, hangup v receive, drivers
 > abusing the API and calling ldisc.receive_buf direct ?
 
-don't you mean the TTY layer instead of the serial layer ?
+I'm certainly not delving into the TTY layers itself - there's far
+too many drivers which would break horribly if I were to do that.
 
---=-UPW7Nri5gFMOrE+t3b5M
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBPhTOxULwo51rQBIRAkKRAJ430MSjap0khoFPvIKbTMU0tCVgMACgpKjF
-oD+q4X3r3fOnViK8rNmW+x8=
-=I6rH
------END PGP SIGNATURE-----
-
---=-UPW7Nri5gFMOrE+t3b5M--
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,74 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267951AbTB1SMS>; Fri, 28 Feb 2003 13:12:18 -0500
+	id <S268044AbTB1SRM>; Fri, 28 Feb 2003 13:17:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267968AbTB1SMS>; Fri, 28 Feb 2003 13:12:18 -0500
-Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:25902 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S267951AbTB1SMR>;
-	Fri, 28 Feb 2003 13:12:17 -0500
-Message-ID: <3E5FA8EC.7030607@acm.org>
-Date: Fri, 28 Feb 2003 12:22:36 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ACPI request/release generic address
-References: <3E5F8DA5.9050804@acm.org> <20030228163253.GB6351@gtf.org>
-In-Reply-To: <20030228163253.GB6351@gtf.org>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268045AbTB1SRL>; Fri, 28 Feb 2003 13:17:11 -0500
+Received: from fw-az.mvista.com ([65.200.49.158]:7151 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id <S268044AbTB1SRK>; Fri, 28 Feb 2003 13:17:10 -0500
+Date: Fri, 28 Feb 2003 11:27:19 -0700
+From: Deepak Saxena <dsaxena@mvista.com>
+To: Deepak Saxena <dsaxena@mvista.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Proposal: Eliminate GFP_DMA
+Message-ID: <20030228182719.GA15093@xanadu.az.mvista.com>
+Reply-To: dsaxena@mvista.com
+References: <1046445897.16599.60.camel@irongate.swansea.linux.org.uk> <Pine.SGI.4.10.10302282138180.244855-100000@Sky.inp.nsk.su> <20030228155841.GA4678@gtf.org> <20030228181729.GA8366@xanadu.az.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030228181729.GA8366@xanadu.az.mvista.com>
+User-Agent: Mutt/1.4i
+Organization: MontaVista Software, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-It an acpi_generic_address structure defined in include/acpi/actbl2.h.
-It's an address that can be in memory, I/O, or PCI configuration space.
+I would like to add/clarify that I'm not suggesting this only for the
+mapping functions, but for the whole DMA API. So for example, 
+dma_alloc_coherent would again return a dma_handle that is valid on
+the bus that dev->bus points to.
 
-The definition is at http://www.microsoft.com/hwdev/tech/onnow/LF-ACPI.asp
+~Deepak
 
-- -Corey
 
-Jeff Garzik wrote:
-
-|On Fri, Feb 28, 2003 at 10:26:13AM -0600, Corey Minyard wrote:
-|
-|>-----BEGIN PGP SIGNED MESSAGE-----
-|>Hash: SHA1
-|>
-|>Is there a way in the ACPI code to do a request/release of I/O or memory
-|>with an acpi_generic_address?  Does it even make sense to do this?
-|>There are generic I/O routines for using a generic address, and I'm
-|>working with an ACPI table that has a generic address, so it would seem
-|>to make sense to have memory reservation routines through this, too.
-|
-|
-|Can you define a generic address?
-|
-|IIRC, ACPI needs some work in this area.
-|
-|If the "generic address" is host RAM, that's easy.
-|If the generic address is PIO address, that's mostly easy.
-|If the generic address is MMIO address, that takes a bit of care with
-|mapping, and I'm not sure ACPI gets it right in these cases.
-|
-|    Jeff
-|
-|
-|
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE+X6jqIXnXXONXERcRAtghAKCpyo6enCR91Affkq9lwDRIRQleTwCeIC1t
-TlYA0vFQIvYWCKf7IknAG90=
-=BG4s
------END PGP SIGNATURE-----
-
+-- 
+Deepak Saxena, Code Monkey - Ph:480.517.0372 Fax:480.517.0262 
+MontaVista Software - Powering the Embedded Revolution - www.mvista.com
 

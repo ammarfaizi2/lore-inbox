@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287114AbRL2EJs>; Fri, 28 Dec 2001 23:09:48 -0500
+	id <S287120AbRL2EWk>; Fri, 28 Dec 2001 23:22:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287119AbRL2EJi>; Fri, 28 Dec 2001 23:09:38 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:28863 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S287114AbRL2EJZ>;
-	Fri, 28 Dec 2001 23:09:25 -0500
-Date: Fri, 28 Dec 2001 23:09:24 -0500
-From: Legacy Fishtank <garzik@havoc.gtf.org>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
-        linux-kernel@vger.kernel.org
+	id <S287121AbRL2EWa>; Fri, 28 Dec 2001 23:22:30 -0500
+Received: from marine.sonic.net ([208.201.224.37]:13170 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S287120AbRL2EWS>;
+	Fri, 28 Dec 2001 23:22:18 -0500
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Fri, 28 Dec 2001 20:21:39 -0800
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: State of the new config & build system
-Message-ID: <20011228230924.C7801@havoc.gtf.org>
-In-Reply-To: <E16K0yL-0001Ad-00@the-village.bc.nu> <7974.1009590240@ocs3.intra.ocs.com.au>
+Message-ID: <20011229042139.GC14067@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011228161603.B5397@havoc.gtf.org> <7850.1009589209@ocs3.intra.ocs.com.au> <20011228225803.A7801@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <7974.1009590240@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Sat, Dec 29, 2001 at 12:44:00PM +1100
+In-Reply-To: <20011228225803.A7801@havoc.gtf.org>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 29, 2001 at 12:44:00PM +1100, Keith Owens wrote:
-> For people who know what they are doing, not for the larger population
-> that are struggling with the kernel build process.  kbuild 2.5 is
-> designed to work accurately and automatically for everyone, from the
-> high druids of the kernel down to the lowliest newbie.
+On Fri, Dec 28, 2001 at 10:58:03PM -0500, Legacy Fishtank wrote:
+> s/break/update dependencies/
+> 
+> I assumed this was blindingly obvious, but I guess not.
 
-Kernel building is not for newbies.
+To YOU and other kernel hackers, yes.
 
-I'm all for lowering the barrier of entry until it affects the
-productivity of people actually hacking on the code.
+But not to everyone.
 
-	Jeff
+Plus, as I understand it, it will be faster to:
 
+apply a patch and rebuild with kbuild 2.5
 
+than to:
+
+apply a patch, make dep && make bzImage.
+
+Correct?
+
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

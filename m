@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269940AbUJTK0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269289AbUJTKaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269940AbUJTK0v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 06:26:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269941AbUJSWTh
+	id S269289AbUJTKaq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 06:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270027AbUJTK1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 18:19:37 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:51685 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269946AbUJSWK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:10:58 -0400
-Subject: Re: tun.c patch to fix "smp_processor_id() in preemptible code"
-From: Lee Revell <rlrevell@joe-job.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua,
-       Linux Network Development <netdev@oss.sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, maxk@qualcomm.com,
-       irda-users@lists.sourceforge.net
-In-Reply-To: <20041019215401.GA16427@gondor.apana.org.au>
-References: <E1CK1e6-0004F3-00@gondolin.me.apana.org.au>
-	 <1098222676.23367.18.camel@krustophenia.net>
-	 <20041019215401.GA16427@gondor.apana.org.au>
-Content-Type: text/plain
-Message-Id: <1098223857.23367.35.camel@krustophenia.net>
+	Wed, 20 Oct 2004 06:27:14 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:54524 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S270055AbUJTKYJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 06:24:09 -0400
+Date: Wed, 20 Oct 2004 03:23:43 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH (updated)] Avoid annoying build warning on 32-bit platforms
+Message-ID: <20041020102343.GA6901@taniwha.stupidest.org>
+References: <200410200956.i9K9ujOu026178@harpo.it.uu.se>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 19 Oct 2004 18:10:58 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410200956.i9K9ujOu026178@harpo.it.uu.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-19 at 17:54, Herbert Xu wrote:
-> On Tue, Oct 19, 2004 at 05:51:17PM -0400, Lee Revell wrote:
-> > 
-> > Ok, here is the correct patch.  If this is really just a matter of
-> > performance, and not required for correctness, disabling preemption is
-> > broken, right?
-> 
-> No if you're doing this then you should get rid of netif_rx_ni()
-> altogether.  But before you do that please ask all the people who
-> call it.
+On Wed, Oct 20, 2004 at 11:56:45AM +0200, Mikael Pettersson wrote:
 
-There are not a lot of them:
+> There's a coding idiom for doing this: just break up
+> the ">> 32" in two steps, like: ((time >> 31) >> 1).
 
-drivers/s390/net/ctcmain.c
-drivers/s390/net/netiucv.c
-drivers/net/irda/vlsi_ir.c
-drivers/net/tun.c
+i assumed gcc would complain there too but it doesn't and it does
+optimize this away (i checked)
 
->From netiuvc.c:
+> Definitely preferable over #ifdef:s.
 
-  /*
-   * Since receiving is always initiated from a tasklet (in iucv.c),
-   * we must use netif_rx_ni() instead of netif_rx()
-   */
+indeed
 
-This implies that the author thought it was a matter of correctness to
-use netif_rx_ni vs. netif_rx.  But it looks like the only difference is
-that the former sacrifices preempt-safety for performance.
 
-I could not find maintainers for the two s390 drivers, or a specific
-maintainer for vlsi_ir.
 
-Lee
+Avoid annoying gcc warning on 32-bit platforms.
 
+Signed-off-by: cw@f00f.org
+
+===== drivers/char/random.c 1.57 vs edited =====
+--- 1.57/drivers/char/random.c	2004-10-05 14:21:53 -07:00
++++ edited/drivers/char/random.c	2004-10-20 03:19:17 -07:00
+@@ -818,12 +818,10 @@ static void add_timer_randomness(struct 
+ 	 * jiffies.
+ 	 */
+ 	time = get_cycles();
+-	if (time != 0) {
+-		if (sizeof(time) > 4)
+-			num ^= (u32)(time >> 32);
+-	} else {
++	if (time)
++		num ^= (u32)((time >> 32) >> 1);
++	else
+ 		time = jiffies;
+-	}
+ 
+ 	/*
+ 	 * Calculate number of bits of randomness we probably added.

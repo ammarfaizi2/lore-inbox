@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262582AbVCJAtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbVCJAsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262582AbVCJAtw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 19:49:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbVCJAt2
+	id S262583AbVCJAsk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 19:48:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262582AbVCJAsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 19:49:28 -0500
-Received: from mail.kroah.org ([69.55.234.183]:58271 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262630AbVCJAmd convert rfc822-to-8bit
+	Wed, 9 Mar 2005 19:48:11 -0500
+Received: from mail.kroah.org ([69.55.234.183]:56991 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262631AbVCJAmd convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 9 Mar 2005 19:42:33 -0500
 Cc: gregkh@suse.de
-Subject: [PATCH] sysdev: fix the name of the list of drivers to be a sane name
-In-Reply-To: <11104148863225@kroah.com>
+Subject: [PATCH] kref: make kref_put return if this was the last put call.
+In-Reply-To: <11104148853742@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 9 Mar 2005 16:34:46 -0800
-Message-Id: <1110414886525@kroah.com>
+Date: Wed, 9 Mar 2005 16:34:45 -0800
+Message-Id: <11104148851950@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,92 +24,57 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2053, 2005/03/09 15:35:31-08:00, gregkh@suse.de
+ChangeSet 1.2050, 2005/03/09 10:00:20-08:00, gregkh@suse.de
 
-[PATCH] sysdev: fix the name of the list of drivers to be a sane name
+[PATCH] kref: make kref_put return if this was the last put call.
 
-Heh, "global_drivers" as a static...
+This is needed for the upcoming klist code from Pat.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
- drivers/base/sys.c |   16 ++++++++--------
- 1 files changed, 8 insertions(+), 8 deletions(-)
+ include/linux/kref.h |    2 +-
+ lib/kref.c           |   11 +++++++++--
+ 2 files changed, 10 insertions(+), 3 deletions(-)
 
 
-diff -Nru a/drivers/base/sys.c b/drivers/base/sys.c
---- a/drivers/base/sys.c	2005-03-09 16:28:17 -08:00
-+++ b/drivers/base/sys.c	2005-03-09 16:28:17 -08:00
-@@ -102,7 +102,7 @@
- EXPORT_SYMBOL_GPL(sysdev_class_unregister);
+diff -Nru a/include/linux/kref.h b/include/linux/kref.h
+--- a/include/linux/kref.h	2005-03-09 16:28:38 -08:00
++++ b/include/linux/kref.h	2005-03-09 16:28:38 -08:00
+@@ -26,7 +26,7 @@
  
+ void kref_init(struct kref *kref);
+ void kref_get(struct kref *kref);
+-void kref_put(struct kref *kref, void (*release) (struct kref *kref));
++int kref_put(struct kref *kref, void (*release) (struct kref *kref));
  
--static LIST_HEAD(global_drivers);
-+static LIST_HEAD(sysdev_drivers);
- 
- /**
-  *	sysdev_driver_register - Register auxillary driver
-@@ -112,7 +112,7 @@
-  *	If @cls is valid, then @drv is inserted into @cls->drivers to be
-  *	called on each operation on devices of that class. The refcount
-  *	of @cls is incremented.
-- *	Otherwise, @drv is inserted into global_drivers, and called for
-+ *	Otherwise, @drv is inserted into sysdev_drivers, and called for
-  *	each device.
+ #endif /* __KERNEL__ */
+ #endif /* _KREF_H_ */
+diff -Nru a/lib/kref.c b/lib/kref.c
+--- a/lib/kref.c	2005-03-09 16:28:38 -08:00
++++ b/lib/kref.c	2005-03-09 16:28:38 -08:00
+@@ -42,14 +42,21 @@
+  *	     in as this function.
+  *
+  * Decrement the refcount, and if 0, call release().
++ * Return 1 if the object was removed, otherwise return 0.  Beware, if this
++ * function returns 0, you still can not count on the kref from remaining in
++ * memory.  Only use the return value if you want to see if the kref is now
++ * gone, not present.
   */
+-void kref_put(struct kref *kref, void (*release) (struct kref *kref))
++int kref_put(struct kref *kref, void (*release)(struct kref *kref))
+ {
+ 	WARN_ON(release == NULL);
+ 	WARN_ON(release == (void (*)(struct kref *))kfree);
  
-@@ -130,7 +130,7 @@
- 				drv->add(dev);
- 		}
- 	} else
--		list_add_tail(&drv->entry, &global_drivers);
-+		list_add_tail(&drv->entry, &sysdev_drivers);
- 	up_write(&system_subsys.rwsem);
- 	return 0;
+-	if (atomic_dec_and_test(&kref->refcount))
++	if (atomic_dec_and_test(&kref->refcount)) {
+ 		release(kref);
++		return 1;
++	}
++	return 0;
  }
-@@ -199,7 +199,7 @@
- 		 */
  
- 		/* Notify global drivers */
--		list_for_each_entry(drv, &global_drivers, entry) {
-+		list_for_each_entry(drv, &sysdev_drivers, entry) {
- 			if (drv->add)
- 				drv->add(sysdev);
- 		}
-@@ -219,7 +219,7 @@
- 	struct sysdev_driver * drv;
- 
- 	down_write(&system_subsys.rwsem);
--	list_for_each_entry(drv, &global_drivers, entry) {
-+	list_for_each_entry(drv, &sysdev_drivers, entry) {
- 		if (drv->remove)
- 			drv->remove(sysdev);
- 	}
-@@ -268,7 +268,7 @@
- 			pr_debug(" %s\n", kobject_name(&sysdev->kobj));
- 
- 			/* Call global drivers first. */
--			list_for_each_entry(drv, &global_drivers, entry) {
-+			list_for_each_entry(drv, &sysdev_drivers, entry) {
- 				if (drv->shutdown)
- 					drv->shutdown(sysdev);
- 			}
-@@ -319,7 +319,7 @@
- 			pr_debug(" %s\n", kobject_name(&sysdev->kobj));
- 
- 			/* Call global drivers first. */
--			list_for_each_entry(drv, &global_drivers, entry) {
-+			list_for_each_entry(drv, &sysdev_drivers, entry) {
- 				if (drv->suspend)
- 					drv->suspend(sysdev, state);
- 			}
-@@ -375,7 +375,7 @@
- 			}
- 
- 			/* Call global drivers. */
--			list_for_each_entry(drv, &global_drivers, entry) {
-+			list_for_each_entry(drv, &sysdev_drivers, entry) {
- 				if (drv->resume)
- 					drv->resume(sysdev);
- 			}
+ EXPORT_SYMBOL(kref_init);
 

@@ -1,35 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284669AbRLZSEP>; Wed, 26 Dec 2001 13:04:15 -0500
+	id <S284755AbRLZSLE>; Wed, 26 Dec 2001 13:11:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284676AbRLZSEE>; Wed, 26 Dec 2001 13:04:04 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:37643 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S284669AbRLZSD4>;
-	Wed, 26 Dec 2001 13:03:56 -0500
-Date: Wed, 26 Dec 2001 10:03:53 -0800
-From: Greg KH <greg@kroah.com>
-To: Guido Guenther <agx@sigxcpu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17]: oops in usbcore during suspend
-Message-ID: <20011226100353.D3460@kroah.com>
-In-Reply-To: <20011223230723.GA1483@bogon.ms20.nix> <20011223184243.D5941@kroah.com> <20011226180021.A30644@galadriel.physik.uni-konstanz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011226180021.A30644@galadriel.physik.uni-konstanz.de>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 28 Nov 2001 15:10:28 -0800
+	id <S284736AbRLZSKz>; Wed, 26 Dec 2001 13:10:55 -0500
+Received: from mail3.svr.pol.co.uk ([195.92.193.19]:34685 "EHLO
+	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S284731AbRLZSKj>; Wed, 26 Dec 2001 13:10:39 -0500
+Posted-Date: Wed, 26 Dec 2001 17:44:37 GMT
+Date: Wed, 26 Dec 2001 17:44:36 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: Rik van Riel <riel@conectiva.com.br>, Cameron Simpson <cs@zip.com.au>,
+        David Garfield <garfield@irving.iisd.sra.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help editorial policy
+In-Reply-To: <20011223174608.A25335@thyrsus.com>
+Message-ID: <Pine.LNX.4.21.0112261718150.32161-100000@Consulate.UFP.CX>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 26, 2001 at 06:00:21PM +0100, Guido Guenther wrote:
-> Call Trace: [usbcore:usb_devfs_handle_Re9c5f87f+174345/197882743] [usbcore:usb_devfs_handle_Re9c5f87f+174855/197882233] [pci_pm_suspend_device+32/36] [pci_pm_suspend_bus+82/104] [pci_pm_suspend+35/68] 
+Hi Eric, Rik.
 
-These aren't valid symbols :)
-It looks like something is messing with your oops output before you run
-it through ksymoops.  Can you take the raw values from 'dmesg'?
+>> I take it this is your way of volunteering to always keep all
+>> kernel documentation accurate as well as answer questions from
+>> newbies who've never seen 'KiB' before ? ;)
 
-thanks,
+> One of the arguments for the KiB declaration, despite the ugliness
+> of "kibibytes", is that a newbie seeing "32KiB" is quite likely to
+> deduce what's meant from context.  Let's not exaggerate the
+> difficulties here.
 
-greg k-h
+Alternatively, deal with this problem the same way the "This may also be
+built as a module..." comment is - either include it several thousand
+times in Configure.help or (better still) have the configuration tools
+spit it out automatically every time the need for it crops up. The
+following ruleset could easily be implemented even in the `make config`
+and `make menuconfig` parsers, and should be just as easy in CML2.
+Applying rule (1) will result in a considerable reduction in the size of
+the file Documentation/Configure.help as it currently stands.
+
+Comments, anybody?
+
+Best wishes from Riley.
+
+===============8<=============== CUT ===============>8===============
+
+RULE 1: If a particular symbol is defined using a command that
+	allows it to be selected as "Modular", then tack the
+	following to the end of the help description for that
+	symbol when a user requests help:
+
+		This driver is also available as a module( = code
+		which can be inserted in and removed from the
+		running kernel whenever you want). If you want to
+		compile it as a module, say M here and read
+		Documentation/modules.txt in the kernel source.
+
+RULE 2: If the help text for a particular symbol includes a word
+	matching either of the egrep patterns '[KkMmGgTt][Bb]' or
+	'[KkMmGgTt]i[Bb]' then tack the following to the end of
+	the help description for that symbol when a user requests
+	help:
+
+		Differing standards are used for the numeric
+		designators in the computing and engineering
+		worlds. For the purposes of this document, the
+		following designators are used with the stated
+		values:
+
+			Symbol	Designation	  Number of Bytes
+			~~~~~~	~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~
+			KiB	Decimal Kilobyte  1,000
+			KB	Binary Kilobyte   1,024
+
+			MiB	Decimal Megabyte  1,000,000
+			MB	Binary Megabyte   1,048,576
+
+			GiB	Decimal Gigabyte  1,000,000,000
+			GB	Binary Gigabyte   1,073,741,824
+
+			TiB	Decimal Terabyte  1,000,000,000,000
+			TB	Binary Terabyte   1,099,511,627,776
+
+		This difference has arisen as a direct consequence of
+		the fact that computers naturally talk in a binary
+		(base 2) number system rather than the decimal (base
+		10) system preferred by mere mortals.
+
+RULE 3: If more than one of the above rules apply, all configuration
+	systems shall agree on a common order in which to apply them.
+

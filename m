@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263752AbTHONLi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 09:11:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263894AbTHONLh
+	id S275935AbTHONPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 09:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275938AbTHONPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 09:11:37 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:43148 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263752AbTHONLg (ORCPT
+	Fri, 15 Aug 2003 09:15:09 -0400
+Received: from cimice4.lam.cz ([212.71.168.94]:44276 "EHLO beton.cybernet.src")
+	by vger.kernel.org with ESMTP id S275935AbTHONPF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 09:11:36 -0400
-Date: Fri, 15 Aug 2003 15:10:40 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Vojtech Pavlik <vojtech@suse.cz>,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-Message-ID: <20030815131040.GA15706@ucw.cz>
-References: <16188.27810.50931.158166@gargle.gargle.HOWL> <20030815094604.B2784@pclin040.win.tue.nl> <20030815105802.GA14836@ucw.cz> <20030815123641.GA7204@win.tue.nl> <20030815130450.GF15911@mail.jlokier.co.uk>
+	Fri, 15 Aug 2003 09:15:05 -0400
+Date: Fri, 15 Aug 2003 17:15:21 +0200
+From: Clock <clock@twibright.com>
+To: kenton.groombridge@us.army.mil
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nforce2 lockups
+Message-ID: <20030815171521.A683@beton.cybernet.src>
+References: <df962fdf9006.df9006df962f@us.army.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030815130450.GF15911@mail.jlokier.co.uk>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <df962fdf9006.df9006df962f@us.army.mil>; from kenton.groombridge@us.army.mil on Fri, Aug 15, 2003 at 09:12:17PM +0900
+X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 02:04:50PM +0100, Jamie Lokier wrote:
-> Andries Brouwer wrote:
-> > Yes, it would still be considered down. But that does not imply
-> > that pressing it doesnt do anything. It is up to the driver
-> > to discard key presses, and I think it shouldnt.
-> > (Unless of course the user asks for that behaviour - it may be required
-> > on some broken laptops.)
+On Fri, Aug 15, 2003 at 09:12:17PM +0900, kenton.groombridge@us.army.mil wrote:
+> Hi,
 > 
-> It should discard multiple presses of the same key in very rapid
-> succession, when that is immediately after the first press of that
-> key.  (After a time has passed, rapid successive presses are due to
-> auto-repeat, which is ok).
+> I found your post looking for a solution to my lockups.  I bet if you do a dmesg, you will find that your nforce2 chipset revision is 162.
+
+Yeah! Look:
+
+NFORCE2: chipset revision 162
+
+:)
+
 > 
-> Several laptops seem to send a key down event 3, 5 or very many times
-> in response to a single press.
+> I have found tons of people with this exact problem.  My Abit board will run
+> Windows 2000 flawlessly, but lockup in a minute under Linux.
 
-One way this could be handled fairly nicely (although the method is
-maybe too clever to be good) would be to leave the autorepeat up to the
-sw, ignore any successive presses without a release and watch whether
-the keyboard will start autorepeating the key after 250 msec. If it does
-not, then force the key to be released even if we got no release
-scancode.
+> 
+> Currently I have a reward of $20 posted on two lists looking for a solution.  Currently looking to up the ante to $40.
+> 
+> http://www.nvnews.net/vbulletin/showthread.php?s=&threadid=16264
+> 
+> http://www.nforcershq.com/forum/viewtopic.php?t=27003
+> 
+> I don't think the problem is the the IDE.  I have used a promise controller
+> and disabled the onboard IDE and still had lockups.  If you find a solution,
+> please let me know.  If I find one, I will do likewise.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+It looks like the problem is in APIC. When you disable it, it vanishes.
+And, when you enable NMI watchdog, which is handled by APIC,
+it doesn't work - it couts up to 15 in /proc/interrupts and then stops!
+
+Cl<

@@ -1,29 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129675AbRCAP7z>; Thu, 1 Mar 2001 10:59:55 -0500
+	id <S129669AbRCAQBP>; Thu, 1 Mar 2001 11:01:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129674AbRCAP7f>; Thu, 1 Mar 2001 10:59:35 -0500
-Received: from cninexchsrv01.crane.navy.mil ([164.227.4.52]:40459 "EHLO
-	cninexchsrv01.crane.navy.mil") by vger.kernel.org with ESMTP
-	id <S129669AbRCAP71>; Thu, 1 Mar 2001 10:59:27 -0500
-Message-ID: <AF6E1CA59D6AD1119C3A00A0C9893C9A04F570EC@cninexchsrv01.crane.navy.mil>
-From: Friedrich Steven E CONT CNIN <friedrich_s@crane.navy.mil>
-To: "Linux Kernel List (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Looking for best resource for device driver programmers
-Date: Thu, 1 Mar 2001 10:59:25 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S129674AbRCAQBF>; Thu, 1 Mar 2001 11:01:05 -0500
+Received: from rm05-24-167-188-86.ce.mediaone.net ([24.167.188.86]:54954 "EHLO
+	calvin.localdomain") by vger.kernel.org with ESMTP
+	id <S129669AbRCAQAz>; Thu, 1 Mar 2001 11:00:55 -0500
+Date: Thu, 1 Mar 2001 10:00:41 -0600
+From: Tim Walberg <tewalberg@mediaone.net>
+To: linux-kernel@vger.kernel.org
+Subject: smartmedia adapter support??
+Message-ID: <20010301100041.A22824@mediaone.net>
+Reply-To: Tim Walberg <tewalberg@mediaone.net>
+Mail-Followup-To: Tim Walberg <tewalberg@mediaone.net>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cWoXeonUoKmBZSoM"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-PGP-RSA-Key: 0x0C8BA2FD at www.pgp.com (pgp.ai.mit.edu)
+X-PGP-RSA-Fingerprint: FC08 4026 8A62 C72F 90A9 FA33 6EEA 542D
+X-PGP-DSS-Key: 0x6DAB2566 at www.pgp.com (pgp.ai.mit.edu)
+X-PGP-DSS-Fingerprint: 4E1B CD33 46D0 F383 1579  1CCA C3E5 9C8F 6DAB 2566
+X-URL: http://www.concentric.net/~twalberg
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm a real-time developer new to the Linux platform.  I'm currently trying
-to write my first linux kernel device driver.
 
-Anyone know the best web site or mailing list to ask questions about linux
-device driver and kernel issues for a programmer like me?
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Just wondering whether anyone has successfully gotten
+either a PCMCIA SmartMedia Adapter (specifically the
+Viking Components one) or a FlashPath floppy SmartMedia
+adapter working under 2.4.x. I've got both, and haven't
+gotten either working under either 2.2.x or 2.4.x, but
+I haven't had the time to work real hard at it either,
+so I'm hoping someone can give me some pointers...
 
 
+			TIA,
+				tw
 
-Steven Friedrich
+
+--=20
++--------------------------+------------------------------+
+| Tim Walberg              | tewalberg@mediaone.net       |
+| 828 Marshall Ct.         | www.concentric.net/~twalberg |
+| Palatine, IL 60074       |                              |
++--------------------------+------------------------------+
+
+--cWoXeonUoKmBZSoM
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.1i
+
+iQA/AwUBOp5yJ8PlnI9tqyVmEQJEEgCg1ewObygvrKaZdM/L2Fwq89tatVQAoLwK
+5wrxmVDvWM00wzOsrXlvA5it
+=YYrT
+-----END PGP SIGNATURE-----
+
+--cWoXeonUoKmBZSoM--

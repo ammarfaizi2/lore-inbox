@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318962AbSHMHhz>; Tue, 13 Aug 2002 03:37:55 -0400
+	id <S316182AbSHMHtH>; Tue, 13 Aug 2002 03:49:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318963AbSHMHhz>; Tue, 13 Aug 2002 03:37:55 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:37650 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S318962AbSHMHhy>; Tue, 13 Aug 2002 03:37:54 -0400
-Message-ID: <3D58B89E.1C9F8AEF@aitel.hist.no>
-Date: Tue, 13 Aug 2002 09:43:26 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.31 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Daniel Phillips <phillips@arcor.de>,
-       Bernd Eckenfels <ecki-news2002-08@lina.inka.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] VM Regress - A VM regression and test tool
-References: <Pine.LNX.4.44L.0208121101090.23404-100000@imladris.surriel.com>
+	id <S318964AbSHMHtH>; Tue, 13 Aug 2002 03:49:07 -0400
+Received: from codepoet.org ([166.70.99.138]:25506 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S316182AbSHMHtG>;
+	Tue, 13 Aug 2002 03:49:06 -0400
+Date: Tue, 13 Aug 2002 01:52:56 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: Re: klibc and logging
+Message-ID: <20020813075256.GA26384@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+	viro@math.psu.edu
+References: <3D58B14A.5080500@zytor.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3D58B14A.5080500@zytor.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+On Tue Aug 13, 2002 at 12:12:10AM -0700, H. Peter Anvin wrote:
+> Okay... I think klibc is starting to get pretty much to the point where 
+> it will need to be, although I'm sure there will be plenty of bugs once 
+> we start using it heavily -- and it still needs RPC support code for 
+> mounting NFS :(
 
-> The thing is that developers need some benchmarking thing
-> they can script to run overnight.  Watching vmstat for
-> hours on end is not a useful way of spending development
-> time.
-> 
-> On the other hand, if somebody could code up some scriptable
-> benchmarks that approximate real workloads better than the
-> current benchmarks do, I'd certainly appreciate it.
-> 
-> For web serving, for example, I wouldn't mind a benchmark that:
-> 
-> 1) simulates a number of users, that:
->     1a) load a page with 10 to 20 associated images
->     1b) sleep for a random time between 3 and 60 seconds,
->         "reading the page"
->     1c) follow a link and grab another page with N images
-> 2) varies the number of users from 1 to N
-> 3) measures
->     3a) the server's response time until it starts
->         answering the request
->     3b) the time it takes to download each full page
-> 
-> Then we can plot both kinds of response time against the number
-> of users and we have an idea of the web serving performance of
-> a particular system ... without focussing on, or even measuring,
-> the unrealistic "servers N pages per minute" number.
-> 
-Don't forget to count the total amount of
-swap & block io.  (i.e. vmstat 1 > logfile & sum it up)
+May I suggest that the poor souls that wish to use NFS mounts
+should be statically linking their NFS mount app vs glibc, uClibc
+or whatever.  I see little need for you to recreate that whole
+evil pile of mush...  What happens next week when someone wants
+to get their NFS mount password from LDAP or NIS?  Will you add
+klibc nss support?  Or when someone just needs to have wordexp()
+and regcomp() and....  I think you are on a very slippery slope.
+Keep it simple.  If people want to do stuff that is complex, they
+can pay the price for the added baggage.  Even if people need to
+statically link one app vs uClibc or dietlibc, they are still
+going to get a very small binary.  And they can still include all
+their nasty closed source binary only playtoys in the initrootfs
+linked vs klibc.
 
-Good strategies for page replacement may result in
-less io for the same job, which means a lot for
-performance whenever you get disk-bound.  Many
-a web server serves more than fits in cache, and of
-course there are file servers too...
+> However, I'm wondering what to do about logging.  Kernel log messages 
+> get stored away until klogd gets started, but early userspace may need 
+> some way to log messages -- and syslog is obviously not running.  The 
 
-Helge Hafting
+Umm.  Why not just write to /dev/console.  If someone is unable
+to read from that (VGA, serial, network console, whatever) while 
+trying to set up an NFS-root, they get to keep both pieces.
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

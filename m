@@ -1,63 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129453AbQLGWPT>; Thu, 7 Dec 2000 17:15:19 -0500
+	id <S129260AbQLGWVA>; Thu, 7 Dec 2000 17:21:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129260AbQLGWPJ>; Thu, 7 Dec 2000 17:15:09 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:8832 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129453AbQLGWOw>; Thu, 7 Dec 2000 17:14:52 -0500
-Date: Thu, 7 Dec 2000 16:44:23 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: richardj_moore@uk.ibm.com
-cc: Andi Kleen <ak@suse.de>, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Why is double_fault serviced by a trap gate?
-In-Reply-To: <802569AE.00747B7E.00@d06mta06.portsmouth.uk.ibm.com>
-Message-ID: <Pine.LNX.3.95.1001207163133.3136A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129428AbQLGWUv>; Thu, 7 Dec 2000 17:20:51 -0500
+Received: from rmx614-mta.mail.com ([165.251.48.52]:52146 "EHLO
+	rmx614-mta.mail.com") by vger.kernel.org with ESMTP
+	id <S129260AbQLGWUg>; Thu, 7 Dec 2000 17:20:36 -0500
+Message-ID: <380814282.976225806017.JavaMail.root@web176-ec>
+Date: Thu, 7 Dec 2000 16:50:03 -0500 (EST)
+From: Vivek Dasgupta <vivek_dasgupta@email.com>
+To: linux-kernel@vger.kernel.org
+Subject: RE: Ramdisk root filesystem strangeness
+CC: carlson@sibyte.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Mailer: mail.com
+X-Originating-IP: 64.1.233.187
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2000 richardj_moore@uk.ibm.com wrote:
+Hi
 
-> 
-> 
-> Which surely we can on today's x86 systems. Even back in the days of OS/2
-> 2.0 running on a 386 with 4Mb RAM we used a taskgate for both NMI and
-> Double Fault. You need only a minimal stack - 1K, sufficient to save state
-> and restore ESP to a known point before switching back to the main TSS to
-> allow normal exception handling to occur.
-> 
-> There no architectural restriction that some folks have hinted at - as long
-> as the DPL for the task gates is 3.
-> 
-[SNIPPED...]
+I m sorry if this question doesn't belong to this list. But I couldn't
+access the linux-admin list.
 
-Please refer to page 6-16, Inter486 Microprocessor Family Programmer's
-Reference Manual.
+Is there support for using RAMDISK as the final root file system
+in 2.2.x versions, or is it there in the 2.4.x versions.
 
-The specifc text is: "The TSS does not have a stack pointer for a
-privilege level 3 stack, because the procedure cannot be called by a less
-privileged procedure. The stack for privilege level 3 is preserved by the
-contents of SS and EIP registers which have been saved on the stack
-of the privilege level called from level 3".
+I am trying to bring up linux on a diskless server which initially mounts
+root FS thru NFS. Then I want to load HDD image to a RAMDISK and use it as
+the final root filesystem.
 
-What this means is that a stack-fault in level 3 will kill you no
-matter how cute you try to be. And, putting a task gate as call
-procedure entry from a trap or fault is just trying to be cute.
-It's extra code that will result in the same processor reset.
+I am not sure whether it is a ready supported or any kernel change will be
+required for this?
+
+Any pointers would be helpful.
+
+thanks
+
+vivek
+
+-----Original Message-----
+From: Justin Carlson [mailto:carlson@sibyte.com]
+Sent: Thursday, December 07, 2000 11:52 AM
+To: linux-kernel@vger.kernel.org
+Subject: Ramdisk root filesystem strangeness
 
 
-Cheers,
-Dick Johnson
+Am in the midst of bringing up the kernel on a new MIPS variant, and I'm
+tryingthe mount a statically linked ramdisk as the root filesystem.
 
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+Note, this is NOT using initrd support, I really want to use a ramdisk as my
+final filesystem, not as an intermediate step in booting the system.
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+In blkdev_get(), called from mount_root(), there's some code that grabs
+an empty inode, sets up i_rdev, and calls open() for the root device
+with the caveat that open() must not examine anything except i_rdev.
+
+in rd_open, though, there's this code snippet:
+
+/*
+* Immunize device against invalidate_buffers() and prune_icache().
+*/
+if (rd_inode[DEVICE_NR(inode->i_rdev)] == NULL) {
+if (!inode->i_bdev)
+return -ENXIO;
+
+I'm hitting the -ENXIO return, which is based on an uninitialized field of
+the
+inode structure.
+
+Being relatively new to the code base, I'm not sure what this code is trying
+to
+do, nor how to fix it.  Any suggestions?
+
+The code involved is from the MIPS CVS repository at oss.sgi.com, which was
+synced in the past couple days from 2.4.0test11
+
+-Justin
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+Please read the FAQ at http://www.tux.org/lkml/
+
+
+-----------------------------------------------
+FREE! The World's Best Email Address @email.com
+Reserve your name now at http://www.email.com
 
 
 -

@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbTJANxY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 09:53:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbTJANxY
+	id S262109AbTJAOJq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 10:09:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbTJAOJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 09:53:24 -0400
-Received: from calvin.stupendous.org ([213.84.70.4]:27405 "HELO
-	quadpro.stupendous.org") by vger.kernel.org with SMTP
-	id S262110AbTJANxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 09:53:23 -0400
-Date: Wed, 1 Oct 2003 15:53:22 +0200
-From: Jurjen Oskam <jurjen@stupendous.org>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: File Permissions are incorrect. Security flaw in Linux
-Message-ID: <20031001135322.GA16692@quadpro.stupendous.org>
-Mail-Followup-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1065012013.4078.2.camel@lisaserver>
+	Wed, 1 Oct 2003 10:09:46 -0400
+Received: from main.gmane.org ([80.91.224.249]:8102 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262109AbTJAOId (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 10:08:33 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?ISO-8859-15?Q?Sven_K=F6hler?= <skoehler@upb.de>
+Subject: [ACPI] p2b-ds blacklisted?
+Date: Wed, 01 Oct 2003 16:07:36 +0200
+Message-ID: <blen4v$a42$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1065012013.4078.2.camel@lisaserver>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: de, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 01, 2003 at 06:40:13AM -0600, Lisa R. Nelson wrote:
+Hi,
 
-> [1.] One line summary of the problem:    
-> A low level user can delete a file owned by root and belonging to group
-> root even if the files permissions are 744.  This is not in agreement
-> with Unix, and is a major security issue.
+my P2B-DS is blacklisted and the kernel forced acpi=ht. i wonder why 
+because P2B-D is not blacklisted.
 
-This *is* in agreement with Unix. It works exactly the same on AIX, for
-example.
+There is no comment or any other hint for a reason in dmi_scan.c :-(
 
--- 
-Jurjen Oskam
+I would like to try what happens if i remove the board from the 
+blacklist. What can i test to see if it works properly? And what is the 
+worse case of what could happen?
 
-PGP Key available at http://www.stupendous.org/
+Do i have to edit dmi_scan.c for my test or is there something like 
+acpi=force?
+
+

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269107AbTGJJWx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 05:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269117AbTGJJWx
+	id S269133AbTGJJ31 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 05:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269134AbTGJJ31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 05:22:53 -0400
-Received: from ns.suse.de ([213.95.15.193]:30738 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269107AbTGJJWw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 05:22:52 -0400
-Date: Thu, 10 Jul 2003 11:37:31 +0200
-From: Andi Kleen <ak@suse.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-       ak@suse.de
-Subject: Re: per_cpu fixes
-Message-ID: <20030710093731.GC17798@wotan.suse.de>
-References: <200307092120.h69LKTBH002759@napali.hpl.hp.com> <20030710015208.1E7A22C44B@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Jul 2003 05:29:27 -0400
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:53222 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S269133AbTGJJ3Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 05:29:24 -0400
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.5.74-mm3 - apm_save_cpus() Macro still bombs out
+Date: Thu, 10 Jul 2003 11:42:35 +0200
+User-Agent: KMail/1.5.9
+Cc: Piet Delaney <piet@www.piet.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20030708223548.791247f5.akpm@osdl.org> <200307101122.59138.schlicht@uni-mannheim.de> <20030710092720.GT15452@holomorphy.com>
+In-Reply-To: <20030710092720.GT15452@holomorphy.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20030710015208.1E7A22C44B@lists.samba.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200307101142.37137.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When I implemented this, I imagined archs putting their per-cpu offset
-> inside a register, so they could get to their vars in one instruction,
-> but not the IA64 remapping thing.  We are now suffering because of my
-> limited imagination (which David has commented on before 8).
+On Thursday 10 July 2003 11:27, William Lee Irwin III wrote:
+> On Thu, Jul 10, 2003 at 11:22:56AM +0200, Thomas Schlichter wrote:
+> > Well, I didn't try the CPU_MASK_NONE fix. I am using my fix attached to
+> > my first mail, but Andrew ment it was too complex (your quoting from
+> > above). So he proposed the simpler fix, wich simply looked good to me...
+>
+> Could you try the following?
 
-x86-64 has similar problems. While the virtual addresses are different
-the direct access using the segment register doesn't yield an address
-(there is no LEA instruction to read from segment registers). It can be
-worked around, but you have to follow an indirect pointer.
-For most efficient access you can't take the address.
+OK, I tried it. For me it compiles!
 
-[currently the code doesn't use the Segment access for per_cpu data,
-but I plan to readd this eventually]
+But the size of the resulting objectfile's text section is about 64bytes 
+larger than with my patch. So it seems that gcc3.3 wasn't able to optimize 
+away all the unneeded stuff...
 
--Andi
+And I don't think my patch is that ugly, but hey, it's your decision...
+
+Best regards
+   Thomas Schlichter

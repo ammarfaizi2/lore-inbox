@@ -1,73 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318469AbSHEOCe>; Mon, 5 Aug 2002 10:02:34 -0400
+	id <S318468AbSHEODv>; Mon, 5 Aug 2002 10:03:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318487AbSHEOCe>; Mon, 5 Aug 2002 10:02:34 -0400
-Received: from mta03bw.bigpond.com ([139.134.6.86]:24276 "EHLO
-	mta03bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S318469AbSHEOCd>; Mon, 5 Aug 2002 10:02:33 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Tyler Longren <tyler@captainjack.com>, kiza@gmx.net
-Subject: Re: 2.4.19, USB_HID only works compiled in, not as module
-Date: Tue, 6 Aug 2002 00:00:55 +1000
-User-Agent: KMail/1.4.5
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <20020805003427.7e7fc9f4.tyler@captainjack.com> <200208052114.15020.bhards@bigpond.net.au>
-In-Reply-To: <200208052114.15020.bhards@bigpond.net.au>
+	id <S318470AbSHEODv>; Mon, 5 Aug 2002 10:03:51 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:43282 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S318468AbSHEODt>;
+	Mon, 5 Aug 2002 10:03:49 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Marcin Dalecki <dalecki@evision.ag>
+Date: Mon, 5 Aug 2002 16:07:02 +0200
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200208060001.07546.bhards@bigpond.net.au>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [PATCH] IDE udma_status = 0x76 and 2.5.30...
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <1264DE104D6@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On  5 Aug 02 at 12:28, Marcin Dalecki wrote:
+> Uz.ytkownik Petr Vandrovec napisa?:
+> > On  5 Aug 02 at 11:33, Marcin Dalecki wrote:
+> > 
+> >>Uz.ytkownik Petr Vandrovec napisa?:
+> >>
+> >>>   BTW, are there any TRM290 owners using 2.5.30? Old code set length to
+> >>>((length >> 2) - 1) << 16, while new code does not have special handling
+> >>>for TRM290. Or do I miss something?
+> >>
+> >>The new code is overwriting those values in the host controller driver
+> >>itself.
+> > 
+> > 
+> > Really? I'm not able to locate such overwrite in trm290.c. Are they hidden
+> > somewhere else?
+> 
+> This should handle it:
+> 
+>     hwif->seg_boundary_mask = 0xffffffff;
 
-On Mon, 5 Aug 2002 21:14, Brad Hards wrote:
-> On Mon, 5 Aug 2002 15:34, Tyler Longren wrote:
-> > Just to let you know, this problem isn't just happening to you.
-> >
-> > I compiled 2.4.19 using the same config file I used for 2.4.18 (yes, I
-> > also turned on CONFIG_USB_HIDINPUT).  Needless to say, the mouse didn't
-> > work on reboot.  I saw your post and compiled everything into the
-> > kernel, and everything worked great on reboot.  So, I think this is
-> > probably a real 2.4.19 problem.  Not something specific to you.
->
-> I'm taking a look now.
-I can't duplicate this problem yet.
+Nope. This is another problem. TRM290 code did:
 
-> Could you (and anyone else with the same problem), mail me the
-> lines from .config that matches CONFIG_USB for a configuration
-> that fails to work. Off list would be best.
-One issue that did come up was the handling of the no-HIDDEV case.
+xcount = bcount & 0xffff;
+if (is_trm290_chipset)
+  xcount = ((xcount >> 2) - 1) << 16;
+...
+*table++ = cpu_to_le32(xcount);
 
-Greg: I think this was one of your patches, associated with the 
-HIDINPUT patch. It looks like the return value is wrong. See 
-below.
+Current code does not do xcount modification for trm290 - while
+other hosts want byte count in lower 16bit word of length,
+trm290 apparently wants dword count (less 1) in upper 16bit word of length.
 
-- --- include/linux/hiddev.h.orig Mon Aug  5 23:19:54 2002
-+++ include/linux/hiddev.h      Mon Aug  5 23:56:34 2002
-@@ -183,7 +183,7 @@
- int __init hiddev_init(void);
- void __exit hiddev_exit(void);
- #else
-- -static inline void *hiddev_connect(struct hid_device *hid) { return NULL; }
-+static inline void *hiddev_connect(struct hid_device *hid) { return -1; }
- static inline void hiddev_disconnect(struct hid_device *hid) { }
- static inline void hiddev_hid_event(struct hid_device *hid, unsigned int usage, int value) { }
- static inline int hiddev_init(void) { return 0; }
+> > 
+> > Also BUG_ON() in udma_new_table is bogus. Change code:
+> > 
+> > - u32 cur_len = sg_dma_len(sg) & 0xffff;
+> > + u32 cur_len = sg_dma_len(sg);
+> > 
+> >   /* Delete this ... */
+> >   BUG_ON(cur_len > ch->max_segment_size);
+> >   
+> >   *table++ = cpu_to_le32(cur_addr);
+> > - *table++ = cpu_to_le32(cur_len);
+> > + *table++ = cpu_to_le32(cur_len & 0xffff);
+> > 
+> > Without first change BUG_ON will not trigger on any transfer: values
+> > up to 0xFE00 are legal, and values over 0x10000 get cut down to
+> > 0x0xxxx...
+> > 
+> > Second change is needed only if we have some driver setting 
+> > max_segment_size to value > 0xffff: currently we do not have such driver,
+> > default is 0xfe00, and value set by cs5530 is 0xfe00 too.
+> 
+> Well trm390 *does* set ->seg_boundary_mask.
 
-- -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+But max_segment_size is what we are testing here. If you want test
+crossing 64K boundary, you want
 
-iD8DBQE9ToUbW6pHgIdAuOMRAvrRAJwOdrWv4FEHyW7cwMiC+CrMM/kXrgCbBHGR
-Kq110ZnHc98yN4YPJJAuCIU=
-=ck4u
------END PGP SIGNATURE-----
+BUG_ON((cur_addr & ch->seg_boundary_mask) + cur_len - 1 > ch->seg_boundary_mask),
 
+as even 2 sector transfer can cross 64K boundary which IDE specs
+forbids (even 1 sector can do that, but I believe that bio layer
+sends properly aligned sectors to us).
+
+> 
+> >>Hmm... It is very well possible that the Toshiba doesn't like the
+> >>fact that the intel chipsets cheat and do something like UDMA88 instead 
+> >>of UDMA100. Could you verify this by checking whatever forcing them to 
+> >>UDMA66 helps please? Vojtech?
+> > 
+> > 
+> > It happens with UDMA0 too (and I tried slowest possible timming at
+> > i845, and it still happens).
+> 
+> I'm more and more amanzed, why my system works at all...
+
+PDC20265 works correctly without setting stop-bit in last descriptor
+for reads, as IDE drive signals no more data, and we stop udma engine
+manually in such case. But for writes PDC20265 prefetches beyond last 
+pointer, finds garbage here (probably descriptor crossing 64KB, or
+odd length or ...), and aborts whole transfer in the middle (about 
+4 bytes before end of real write, when it tries to prefetch beginning 
+of next sector).
+                                                        Petr Vandrovec
+                                                        vandrove@vc.cvut.cz
+                                                        

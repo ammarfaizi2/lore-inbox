@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265696AbUFUBzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265724AbUFUB4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265696AbUFUBzm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 21:55:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265992AbUFUBzm
+	id S265724AbUFUB4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 21:56:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265992AbUFUB4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 21:55:42 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:17353 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265696AbUFUBzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 21:55:41 -0400
-Date: Mon, 21 Jun 2004 03:55:38 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.6.7-mm1: drivers/scsi/hosts.h -> scsi/scsi_host.h
-Message-ID: <20040621015537.GK27822@fs.tum.de>
-References: <20040620174632.74e08e09.akpm@osdl.org>
+	Sun, 20 Jun 2004 21:56:24 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30378 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265724AbUFUB4V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 21:56:21 -0400
+Date: Sun, 20 Jun 2004 22:49:10 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org,
+       Ryan Underwood <nemesis-lists@icequake.net>,
+       Willy Tarreau <willy@w.ods.org>, twaugh@redhat.com, akpm@osdl.org
+Subject: Netmos 9835 in 2.6.x was Request: Netmos support in parport_serial for 2.4.27 
+Message-ID: <20040621014910.GC9359@logos.cnet>
+References: <20040613111949.GB6564@dbz.icequake.net> <20040613123950.GA3332@logos.cnet> <Pine.LNX.4.56.0406132225020.5930@jjulnx.backbone.dif.dk> <20040613220727.GB4771@logos.cnet> <20040614045104.GE27622@dbz.icequake.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040620174632.74e08e09.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040614045104.GE27622@dbz.icequake.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 20, 2004 at 05:46:32PM -0700, Andrew Morton wrote:
->...
-> All 226 patches:
->...
-> bk-libata.patch
->...
+On Sun, Jun 13, 2004 at 11:51:04PM -0500, Ryan Underwood wrote:
+> On Sun, Jun 13, 2004 at 07:07:27PM -0300, Marcelo Tosatti wrote:
+> > 
+> > Jesper, 
+> > 
+> > Two more things.
+> > 
+> > It seems v2.6 also lacks support for this boards:
+> > 
+> > grep PCI_DEVICE_ID_NETMOS_ *
+> > pci_ids.h:#define PCI_DEVICE_ID_NETMOS_9735     0x9735
+> > pci_ids.h:#define PCI_DEVICE_ID_NETMOS_9835     0x9835
+> > [marcelo@localhost linux]$
+> > 
+> > Care to prepare a v2.6 version?
+> 
+> Seems like someone already did, but I guess it did not get applied for
+> some reasons:
+> http://seclists.org/lists/linux-kernel/2003/Dec/0654.html
 
-drivers/scsi/hosts.h is obsolete, use scsi/scsi_host.h.
+Andrew, the patch in the URL looks fine to me, it adds support for 
+Netmos 9835 based cards. Tim Waugh ACKed the 2.4 version of the patch. 
 
-Please apply
-Adrian
+Christopher Lameter updated the patch for v2.6, and it looks 
+alright to me. Please check the URL.
 
---- linux-2.6.7-mm1-full/drivers/scsi/sata_nv.c.old	2004-06-21 03:50:36.000000000 +0200
-+++ linux-2.6.7-mm1-full/drivers/scsi/sata_nv.c	2004-06-21 03:51:17.000000000 +0200
-@@ -31,7 +31,7 @@
- #include <linux/delay.h>
- #include <linux/interrupt.h>
- #include "scsi.h"
--#include "hosts.h"
-+#include <scsi/scsi_host.h>
- #include <linux/libata.h>
- 
- #define DRV_NAME			"sata_nv"
+Quoting him:
+
+"Attached a patch to support a variety of PCI based serial and parallel
+port I/O ports (typically labeled 222N-2 or 9835). The patch was
+
+I just fixed it up and made it work for 2.6.0-test10/10.
+
+I think this should go into 2.6.0 since it has been out there for a long
+time and is just some additional driver support that somehow fell through
+the cracks in 2.4.X. Tim Waugh submitted it in the 2.4.X series."
+
+I'm sure the fellows in this thread who posses the cards 
+can give it a test.
+

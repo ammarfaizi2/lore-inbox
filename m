@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbQLFQFu>; Wed, 6 Dec 2000 11:05:50 -0500
+	id <S129801AbQLFQHJ>; Wed, 6 Dec 2000 11:07:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129507AbQLFQFj>; Wed, 6 Dec 2000 11:05:39 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:31475 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129406AbQLFQFa>; Wed, 6 Dec 2000 11:05:30 -0500
-Date: Wed, 6 Dec 2000 10:35:01 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Skip Collins <bernard.collins@jhuapl.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: system hang and corrupt ext2 filesystem with test12-pre5
-In-Reply-To: <3A2E51B0.76C65771@jhuapl.edu>
-Message-ID: <Pine.LNX.4.30.0012061032210.19876-100000@viper.haque.net>
+	id <S129805AbQLFQG7>; Wed, 6 Dec 2000 11:06:59 -0500
+Received: from code.and.org ([63.113.167.33]:26385 "EHLO mail.and.org")
+	by vger.kernel.org with ESMTP id <S129801AbQLFQGl>;
+	Wed, 6 Dec 2000 11:06:41 -0500
+To: Olaf Kirch <okir@caldera.de>
+Cc: linux-kernel@vger.kernel.org, security-audit@ferret.lmh.ox.ac.uk
+Subject: Re: Traceroute without s bit
+In-Reply-To: <20001206135019.L9533@monad.caldera.de>
+From: James Antill <james@and.org>
+Content-Type: text/plain; charset=US-ASCII
+Date: 06 Dec 2000 10:35:14 -0500
+In-Reply-To: Olaf Kirch's message of "Wed, 6 Dec 2000 13:50:19 +0100"
+Message-ID: <nnitoxh8b1.fsf@code.and.org>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd be more inclined to think its the combination of drive/controller
-more than an ext2fs problem. If it was a fs corruption issue, you should
-still see it on the slower bus.
+Olaf Kirch <okir@caldera.de> writes:
 
-On Wed, 6 Dec 2000, Skip Collins wrote:
-> I have a 900MHz Athlon/Asus A7V mobo system with an onboard ata100
-> promise controller. I have only had problems when my ata100/udma5
-> harddrive is connected to the promise controller. Using the ATA66 ide
-> bus eliminates the problem. I typically see the corruption when copying
-> large (~1GB) files such as vmware virtual disks. It also happens
-> frequently inside vmware when doing heavy disk access things like
-> installing software or defragging a win2000 virtual disk.
->
-> For now I am going to fall back to the slower ide bus. But I wanted to
-> let people know that there still may be problems with ext2 corruption in
-> the latest test kernel.
->
+>  3.	There seems to be a bug somewhere in the handling of poll().
+> 	If you observe the traceroute process with strace, you'll
+> 	notice that it starts spinning madly after receiving the
+> 	first bunch of packets (those with ttl 1).
+> 
+> 	13:43:02 poll([{fd=4, events=POLLERR}], 1, 5) = 0
+> 	13:43:02 poll([{fd=4, events=POLLERR}], 1, 5) = 0
+> 	13:43:02 poll([{fd=4, events=POLLERR}], 1, 5) = 0
+> 	13:43:02 poll([{fd=4, events=POLLERR}], 1, 5) = 0
+> 	...
+> 
+> 	I.e. the poll call returns as if it had timed out, but it
+> 	hasn't.
+
+ I've just looked at it, but I'm pretty sure this is a bug in your
+code. This should fix it...
+
+--- traceroute.c.orig	Wed Dec  6 10:33:48 2000
++++ traceroute.c	Wed Dec  6 10:34:06 2000
+@@ -193,7 +193,7 @@
+ 				timeout = hop->nextsend;
+ 		}
+ 
+-		poll(pfd, m, timeout - now);
++		poll(pfd, m, (timeout - now) * 1000);
+ 
+ 		/* Receive any pending ICMP errors */
+ 		for (n = 0; n < m; n++) {
+
 
 -- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
-
+# James Antill -- james@and.org
+:0:
+* ^From: .*james@and.org
+/dev/null
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

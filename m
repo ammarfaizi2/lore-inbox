@@ -1,98 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263704AbVCEEfs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263137AbVCDXII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263704AbVCEEfs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 23:35:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263379AbVCDXUc
+	id S263137AbVCDXII (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 18:08:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263206AbVCDWQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 18:20:32 -0500
-Received: from fire.osdl.org ([65.172.181.4]:49818 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263233AbVCDVRT (ORCPT
+	Fri, 4 Mar 2005 17:16:32 -0500
+Received: from rproxy.gmail.com ([64.233.170.207]:35125 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263100AbVCDUsV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 16:17:19 -0500
-Message-Id: <200503042117.j24LHGrx017967@shell0.pdx.osdl.net>
-Subject: [patch 2/5] setup_per_zone_lowmem_reserve() oops fix
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-From: akpm@osdl.org
-Date: Fri, 04 Mar 2005 13:16:55 -0800
+	Fri, 4 Mar 2005 15:48:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=lm7MiK6fg4Md0smt23JHHj0jf9ZB4KEfCP+l62BOifo3HX4M8Wrw1hf6qb+wKe54yWX6wVYA90ZBw+zo2Ew1J8WxTpvTW1gQRJ8mN+2UJASlHRg5ukikrZuSe8ccmIjvg6uJqGemzRsLYatA7uf0ErQw7ejJ2DKwBM/hesSEMWs=
+Message-ID: <5a4c581d05030412482a596ee5@mail.gmail.com>
+Date: Fri, 4 Mar 2005 21:48:18 +0100
+From: Alessandro Suardi <alessandro.suardi@gmail.com>
+Reply-To: Alessandro Suardi <alessandro.suardi@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: non-fatal oops with EIP at skb_release_data, available for debugging
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is my K7-800, 256MB RAM machine running as
+ ed2k/bittorrent 24/7 box... metacity died, but the
+ windows are still alive (and working) so if someone
+ wants to get more info about it, just ping me...
 
+[root@donkey ~]# cat /proc/version
+Linux version 2.6.11-rc3-bk8 (asuardi@donkey) (gcc version 3.4.2
+20041017 (Red Hat 3.4.2-6.fc3)) #1 Sat Feb 12 00:01:28 CET 2005
+[root@donkey ~]# lsmod
+Module                  Size  Used by
+loop                   15368  -
+nls_iso8859_1           3840  -
+parport_pc             29444  -
+parport                24704  -
+8139too                24896  -
+floppy                 57392  -
 
-If you do 'echo 0 0 > /proc/sys/vm/lowmem_reserve_ratio' the kernel gets a
-divide-by-zero.
+>From the dmesg ring:
 
-Prevent that, and fiddle with some whitespace too.
+kernel BUG at include/linux/mm.h:343!
+invalid operand: 0000 [#1]
+PREEMPT
+Modules linked in: loop nls_iso8859_1 parport_pc parport 8139too floppy
+CPU:    0
+EIP:    0060:[<c02da6a2>]    Not tainted VLI
+EFLAGS: 00210256   (2.6.11-rc3-bk8)
+EIP is at skb_release_data+0x92/0xa0
+eax: 00000000   ebx: 00000000   ecx: cca36f80   edx: c11a97c0
+esi: c4205f20   edi: c4205f20   ebp: cd149dcc   esp: cd149dc4
+ds: 007b   es: 007b   ss: 0068
+Process metacity (pid: 2109, threadinfo=cd148000 task=ce8935d0)
+Stack: c4205f20 00000000 cd149dd8 c02da6bb c6e9a0c0 cd149df8 c02da737 c5134250
+       00000000 c4205f20 c5134250 c4205f20 c5134250 cd149e4c c02feba6 00000000
+       00000040 cc68c454 00000000 00000001 cc68c444 cd148000 00000001 00000000
+Call Trace:
+ [<c0102b2a>] show_stack+0x7a/0x90
+ [<c0102cad>] show_registers+0x14d/0x1c0
+ [<c0102ea4>] die+0xe4/0x180
+ [<c01032e3>] do_invalid_op+0xa3/0xb0
+ [<c01027a7>] error_code+0x2b/0x30
+ [<c02da6bb>] kfree_skbmem+0xb/0x20
+ [<c02da737>] __kfree_skb+0x67/0xf0
+ [<c02feba6>] tcp_recvmsg+0x5f6/0x710
+ [<c02da1e6>] sock_common_recvmsg+0x46/0x60
+ [<c02d6bbe>] sock_aio_read+0xee/0x100
+ [<c014e427>] do_sync_read+0x97/0xf0
+ [<c014e511>] vfs_read+0x91/0x120
+ [<c014e7ed>] sys_read+0x3d/0x70
+ [<c01025a9>] sysenter_past_esp+0x52/0x75
+Code: c9 e9 03 e5 e5 ff 8d 76 00 5b 5e c9 c3 89 d0 e8 c5 f2 e5 ff eb
+cf 89 f0 e8 0c ff ff ff 5b 8b 86 98 00 00 00 5e c9 e9 de e4 e5 ff <0f>
+0b 57 01 ab c5 35 c0 eb a5 8d 74 26 00 55 89 e5 53 89 c3 e8
 
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/mm/page_alloc.c |   21 +++++++++++++++------
- 1 files changed, 15 insertions(+), 6 deletions(-)
-
-diff -puN mm/page_alloc.c~setup_per_zone_lowmem_reserve-oops-fix mm/page_alloc.c
---- 25/mm/page_alloc.c~setup_per_zone_lowmem_reserve-oops-fix	2005-03-04 13:16:10.000000000 -0800
-+++ 25-akpm/mm/page_alloc.c	2005-03-04 13:16:10.000000000 -0800
-@@ -37,13 +37,17 @@
- #include <asm/tlbflush.h>
- #include "internal.h"
+Thanks,
  
--/* MCD - HACK: Find somewhere to initialize this EARLY, or make this initializer cleaner */
-+/*
-+ * MCD - HACK: Find somewhere to initialize this EARLY, or make this
-+ * initializer cleaner
-+ */
- nodemask_t node_online_map = { { [0] = 1UL } };
- nodemask_t node_possible_map = NODE_MASK_ALL;
- struct pglist_data *pgdat_list;
- unsigned long totalram_pages;
- unsigned long totalhigh_pages;
- long nr_swap_pages;
-+
- /*
-  * results with 256, 32 in the lowmem_reserve sysctl:
-  *	1G machine -> (16M dma, 800M-16M normal, 1G-800M high)
-@@ -1924,15 +1928,20 @@ static void setup_per_zone_lowmem_reserv
- 
- 	for_each_pgdat(pgdat) {
- 		for (j = 0; j < MAX_NR_ZONES; j++) {
--			struct zone * zone = pgdat->node_zones + j;
-+			struct zone *zone = pgdat->node_zones + j;
- 			unsigned long present_pages = zone->present_pages;
- 
- 			zone->lowmem_reserve[j] = 0;
- 
- 			for (idx = j-1; idx >= 0; idx--) {
--				struct zone * lower_zone = pgdat->node_zones + idx;
-+				struct zone *lower_zone;
-+
-+				if (sysctl_lowmem_reserve_ratio[idx] < 1)
-+					sysctl_lowmem_reserve_ratio[idx] = 1;
- 
--				lower_zone->lowmem_reserve[j] = present_pages / sysctl_lowmem_reserve_ratio[idx];
-+				lower_zone = pgdat->node_zones + idx;
-+				lower_zone->lowmem_reserve[j] = present_pages /
-+					sysctl_lowmem_reserve_ratio[idx];
- 				present_pages += lower_zone->present_pages;
- 			}
- 		}
-@@ -2039,7 +2048,7 @@ module_init(init_per_zone_pages_min)
-  *	changes.
-  */
- int min_free_kbytes_sysctl_handler(ctl_table *table, int write, 
--		struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
-+	struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
- {
- 	proc_dointvec(table, write, file, buffer, length, ppos);
- 	setup_per_zone_pages_min();
-@@ -2056,7 +2065,7 @@ int min_free_kbytes_sysctl_handler(ctl_t
-  * if in function of the boot time zone sizes.
-  */
- int lowmem_reserve_ratio_sysctl_handler(ctl_table *table, int write,
--		 struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
-+	struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
- {
- 	proc_dointvec_minmax(table, write, file, buffer, length, ppos);
- 	setup_per_zone_lowmem_reserve();
-_
+--alessandro
+
+  "There is no distance that I don't see
+  I do have a will - No limit to my reach"
+  
+    (Wallflowers, "Empire In My Mind")

@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262373AbSI2CiI>; Sat, 28 Sep 2002 22:38:08 -0400
+	id <S262375AbSI2Cjr>; Sat, 28 Sep 2002 22:39:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262374AbSI2CiI>; Sat, 28 Sep 2002 22:38:08 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:2764 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S262373AbSI2CiH>;
-	Sat, 28 Sep 2002 22:38:07 -0400
-Message-ID: <1033267407.3d9668cf555f2@kolivas.net>
-Date: Sun, 29 Sep 2002 12:43:27 +1000
-From: Con Kolivas <conman@kolivas.net>
+	id <S262376AbSI2Cjq>; Sat, 28 Sep 2002 22:39:46 -0400
+Received: from h66-38-216-165.gtconnect.net ([66.38.216.165]:23560 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S262375AbSI2Cjp>;
+	Sat, 28 Sep 2002 22:39:45 -0400
+Date: Sat, 28 Sep 2002 22:45:04 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
 To: linux-kernel@vger.kernel.org
-Subject: [BENCHMARK] Preempt effect on 2.5.39 with contest 0.41
+Subject: compile fails at aty128fb.c 
+Message-ID: <Pine.LNX.4.44.0209282241580.19242-100000@innerfire.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've performed some benchmarks with the latest contest v0.41
-(http://contest.kolivas.net) to determine what effect preemptible has on these
-benchmarks and whether contest has the ability to show any effect.
+Got this when trying to compile with gcc 2.95.4
 
-Here are the benchmarks:
+aty128fb.c:419: unknown field `fb_get_fix' specified in initializer
+aty128fb.c:419: warning: initialization from incompatible pointer type
+aty128fb.c:420: unknown field `fb_get_var' specified in initializer
+aty128fb.c:420: warning: initialization from incompatible pointer type
+aty128fb.c: In function `aty128fb_set_var':
+aty128fb.c:1379: structure has no member named `visual'
+aty128fb.c:1380: structure has no member named `type'
+aty128fb.c:1381: structure has no member named `type_aux'
+aty128fb.c:1382: structure has no member named `ypanstep'
+aty128fb.c:1383: structure has no member named `ywrapstep'
+aty128fb.c:1384: structure has no member named `line_length'
+make[2]: *** [aty128fb.o] Error 1
+make[2]: Leaving directory `/root/linux-2.5.39/drivers/video'
+make[1]: *** [video] Error 2
+make[1]: Leaving directory `/root/linux-2.5.39/drivers'
+make: *** [drivers] Error 2
 
-noload:
-Kernel                  Time            CPU             Ratio
-2.5.39                  73.17           93%             1.08
-2.5.39-pe               73.03           94%             1.08
+--
+Gerhard Mack
 
-process_load:
-Kernel                  Time            CPU             Ratio
-2.5.39                  91.0            76%             1.31*
-2.5.39-pe               83.6            82%             1.23
+gmack@innerfire.net
 
-io_load:
-Kernel                  Time            CPU             Ratio
-2.5.39                  226             37%             3.20
-2.5.39-pe               234             34%             3.43
+<>< As a computer I find your faith in technology amusing.
 
-mem_load:
-Kernel                  Time            CPU             Ratio
-2.5.39                  103.72          72%             1.53
-2.5.39-pe               103.95          73%             1.54
-
-The only statistically significant difference was in process_load where enabling
-preempt made it faster. Well duh, what else what you expect? At least we can see
-it is having the desired effect and not detrimental to any other area, and that
-contest is able to show this effect.
-
-Average of 5 runs when difference was noted, simplified for clarity.
-
-Con.

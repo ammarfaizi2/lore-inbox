@@ -1,88 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268175AbRG2VTX>; Sun, 29 Jul 2001 17:19:23 -0400
+	id <S268174AbRG2VXn>; Sun, 29 Jul 2001 17:23:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268174AbRG2VTN>; Sun, 29 Jul 2001 17:19:13 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:37023 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S268165AbRG2VTA>; Sun, 29 Jul 2001 17:19:00 -0400
-Date: Sun, 29 Jul 2001 22:20:16 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] hold cow while breaking
-In-Reply-To: <Pine.LNX.4.33.0107291350540.937-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0107292212330.1139-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268184AbRG2VXd>; Sun, 29 Jul 2001 17:23:33 -0400
+Received: from sundiver.zdv.Uni-Mainz.DE ([134.93.174.136]:19182 "HELO
+	duron.intern.kubla.de") by vger.kernel.org with SMTP
+	id <S268174AbRG2VX0>; Sun, 29 Jul 2001 17:23:26 -0400
+Date: Sun, 29 Jul 2001 23:23:22 +0200
+From: Dominik Kubla <kubla@sciobyte.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        Debian-Devel List <debian-devel@lists.debian.org>,
+        Jean Charles Delepine <delepine@u-picardie.fr>,
+        Herbert Xu <herbert@debian.org>,
+        Manoj Srivastava <srivasta@debian.org>
+Subject: Re: make rpm
+Message-ID: <20010729232322.F873@intern.kubla.de>
+In-Reply-To: <20010730004916.A2359@broken.wedontsleep.org> <20010729172630.A22503@wiggy.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010729172630.A22503@wiggy.net>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: yes
+Restrict: no-external-archive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sun, 29 Jul 2001, Linus Torvalds wrote:
-> On Sun, 29 Jul 2001, Hugh Dickins wrote:
-> >
-> > Sorry for being dense, but I still don't get it.  I thought the
-> > down_read on mmap_sem is permitting concurrent faults by other users
-> > of the address space (but excluding structural changes to the address
-> > space)?  and we haven't locked the page itself, and we've temporarily
-> > dropped the page_table_lock.  I just don't see what lock prevents the
-> > page from being refaulted in.
+On Sun, Jul 29, 2001 at 05:26:30PM +0200, Wichert Akkerman wrote:
+> Previously Steve Kowalik wrote:
+> > make-kpkg --revision=${KERNELRELEASE} kernel_image",surely?
 > 
-> Ehh, you're right. But you're still wrong, I think.
+> No, the package revision is completely seperate from the kernel
+> release version.
 > 
-> Because we hold the mm semaphore, nobody can change the mapping on us.
-> 
-> Which means that even if we first page somthing out and page something
-> else in to the same page, that "something else" has to be the same thing.
-> See?
+> Wichert.
 
-Sure, I agree with you on that, but it doesn't let us off the hook.
-This isn't necessarily the first reuse of that page: after paging it
-out and freeing it, it may have got allocated to some other purpose
-and freed again, and then reassigned to the original use.  And while
-it held the data from that intermediate use, we may have done the
-copy_cow_page from old_page to new_page, and now we come along and
-substitute this corrupt new_page for the good old_page.
+Perhaps one should use:
+	make-kpkg --revision=$(shell cat .version) kernel_image
 
-Hugh
+Like the "Build" number used by a certain software from Redmond, WA.
 
---- linux-2.4.8-pre2/mm/memory.c	Sun Jul 29 08:10:42 2001
-+++ linux/mm/memory.c	Sun Jul 29 13:12:20 2001
-@@ -862,8 +862,8 @@
- /*
-  * We hold the mm semaphore for reading and vma->vm_mm->page_table_lock
-  */
--static inline void break_cow(struct vm_area_struct * vma, struct page *	old_page, struct page * new_page, unsigned long address, 
--		pte_t *page_table)
-+static inline void break_cow(struct vm_area_struct * vma, struct page * new_page,
-+			     unsigned long address, pte_t *page_table)
- {
- 	flush_page_to_ram(new_page);
- 	flush_cache_page(vma, address);
-@@ -935,12 +935,15 @@
- 	/*
- 	 * Ok, we need to copy. Oh, well..
- 	 */
-+	if (!PageReserved(old_page))
-+		page_cache_get(old_page);
- 	spin_unlock(&mm->page_table_lock);
- 
- 	new_page = alloc_page(GFP_HIGHUSER);
- 	if (!new_page)
- 		goto no_mem;
- 	copy_cow_page(old_page,new_page,address);
-+	page_cache_release(old_page);
- 
- 	/*
- 	 * Re-check the pte - we dropped the lock
-@@ -949,7 +952,7 @@
- 	if (pte_same(*page_table, pte)) {
- 		if (PageReserved(old_page))
- 			++mm->rss;
--		break_cow(vma, old_page, new_page, address, page_table);
-+		break_cow(vma, new_page, address, page_table);
- 
- 		/* Free the old page.. */
- 		new_page = old_page;
+Dominik
+-- 
+ScioByte GmbH, Zum Schiersteiner Grund 2, 55127 Mainz (Germany)
+Phone: +49 6131 550 117  Fax: +49 6131 610 99 16
 
+GnuPG: 717F16BB / A384 F5F1 F566 5716 5485  27EF 3B00 C007 717F 16BB

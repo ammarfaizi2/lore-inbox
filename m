@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262776AbTLDJy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 04:54:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263244AbTLDJy2
+	id S262101AbTLDKR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 05:17:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbTLDKR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 04:54:28 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:47287 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262776AbTLDJy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 04:54:27 -0500
-Date: Thu, 4 Dec 2003 10:54:26 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: Yasunori Goto <ygoto@fsw.fujitsu.com>, Pavel Machek <pavel@suse.cz>,
-       linux-kernel@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>,
-       IWAMOTO Toshihiro <iwamoto@valinux.co.jp>,
-       Hirokazu Takahashi <taka@valinux.co.jp>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>
-Subject: Re: [Lhms-devel] RE: memory hotremove prototype, take 3
-Message-ID: <20031204095426.GB6911@atrey.karlin.mff.cuni.cz>
-References: <A20D5638D741DD4DBAAB80A95012C0AE0125DD50@orsmsx409.jf.intel.com>
-Mime-Version: 1.0
+	Thu, 4 Dec 2003 05:17:57 -0500
+Received: from mail.compaq.com ([161.114.1.206]:42505 "EHLO
+	ztxmail02.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S262101AbTLDKRz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 05:17:55 -0500
+Message-ID: <3FCF0A95.3090302@mailandnews.com>
+Date: Thu, 04 Dec 2003 15:51:09 +0530
+From: Raj <raju@mailandnews.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: fengxj <fengxiangjun@neusoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: system() return different value under 2.4.23 and 2.6.0-test11
+References: <00b801c3ba23$a3115670$1801010a@fengxj>
+In-Reply-To: <00b801c3ba23$a3115670$1801010a@fengxj>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <A20D5638D741DD4DBAAB80A95012C0AE0125DD50@orsmsx409.jf.intel.com>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+fengxj wrote:
 
-> > > > IMHO, To hot-remove memory, memory attribute should be divided
-> > > > into Hotpluggable and no-Hotpluggable, and each attribute memory
-> > > > should be allocated each unit(ex. node).
-> > >
-> > > Why? I still don't get that -- we should be able to use the virtual
-> > > addressing mechanism of any CPU to swap under the rug any virtual
-> > > address without needing to do anything more than allocate a page frame
-> > > for the new physical location
-> > 
-> > My understanding is that the kernel and device drivers sometimes
-> > assume physical memory address is not changed.
-> > For example, IA32 kernel often uses __PAGE_OFFSET.
-> > I suppose that there are many case which the kernel and device drivers
-> > assume physical address is not changed like this.
-> > Even if we use Mr. Iwamoto's method use, some memories will remain.
-> 
-> Grrrr ... my concern is that Murphy's Law says that we'll need to hotplug
-> the memory that we cannot in most of the cases (pray not). I guess I will
-> need to research some more to think how to do it.
-> 
-> I still think we could use the CPU's virtualization mechanism--of course,
-> and as you and Tony Luck mention, we'd had to track down and modify the
-> parts that assume physical memory et al. That they use large pages
-> or
+>-----------------------------
+>#include <stdio.h>
+>#include <stdlib.h>
+>#include <signal.h>
+>
+>int main(void)
+>{
+>        int ret;
+>
+>        signal(SIGCHLD, SIG_IGN);
+>
+>        ret = system("/bin/date 1>/dev/null");
+>        printf("%d\n", ret);
+>
+>        return 0;
+>}
+>----------------------------
+>
+>runs under 2.4.23 with ret = 0,
+>but under 2.6.0-test11, ret = -1.
+>
+>Why?
+>
+>And when i remove 
+>    signal(...)
+>it returns the same value 0. 
+>  
+>
 
-...which means basically auditing whole kernel, and rewriting half of
-drivers. Good luck with _that_.
-								Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+It's happening because of the return values of wait4(). wait4() is
+returning -1 in test11 whene SIGCHLD is SIG_IGN'ed.
+/Raj
+

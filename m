@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272198AbRHWDPE>; Wed, 22 Aug 2001 23:15:04 -0400
+	id <S272199AbRHWDMY>; Wed, 22 Aug 2001 23:12:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272200AbRHWDOo>; Wed, 22 Aug 2001 23:14:44 -0400
-Received: from ns.suse.de ([213.95.15.193]:43538 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S272198AbRHWDOm>;
-	Wed, 22 Aug 2001 23:14:42 -0400
-To: "Jens Hoffrichter" <HOFFRICH@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Allocation of sk_buffs in the kernel
-In-Reply-To: <OF55D2E221.5E62CB41-ONC1256AB0.0052D2D3@de.ibm.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 23 Aug 2001 05:14:56 +0200
-In-Reply-To: "Jens Hoffrichter"'s message of "22 Aug 2001 17:15:19 +0200"
-Message-ID: <oupd75no4b3.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S272198AbRHWDMO>; Wed, 22 Aug 2001 23:12:14 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:13331 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S272199AbRHWDMD>; Wed, 22 Aug 2001 23:12:03 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Brad Chapman <kakadu_croc@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9 VM/VMA subsystem works much better
+Date: Thu, 23 Aug 2001 05:18:29 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20010822195810.75425.qmail@web10902.mail.yahoo.com>
+In-Reply-To: <20010822195810.75425.qmail@web10902.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010823031202Z16066-32383+935@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jens Hoffrichter" <HOFFRICH@de.ibm.com> writes:
-
-> I'm currently writing a kernel patch where it is essential to get known
-> when a sk_buff is allocated. Or better said I have to get known when a
-> sk_buff is effectively a new packet in the kernel-
-
-I don't want to guess why you need that...
-
+On August 22, 2001 09:58 pm, Brad Chapman wrote:
+> Everyone,
 > 
-> I currently identified 3 functions in the kernel where sk_buffs are
-> allocated: alloc_skb (of course), skb_linearize and pskb_expand_head. Or at
-> least there new data is defined for the sk_buffs.
+> 	Just a note: the VMA sanity patch which went in to 2.4.9
+> has improved Mozilla's performance considerably. I did a rough
+> calculation based on startup time and found that Mozilla started
+> approximately 10%-12% faster on 2.4.9 then 2.4.8. Plus, I've
+> found that swapping is actually starting to work again, although
+> it still tends to stick at certain times.
 > 
-> Now I monitor a TCP session, a FTP download better said, and on the
-> interface arrives around 30000 packets for 50 MB of data. But in my kernel
-> patch only 2000 packets are allocated, or at least I see only the
-> allocation of 2000 packets.
-> 
-> Can anyone help me where I can find my missing packets? ;)) I need them
-> badly! *GG*
+> 	Great job everyone.
 
-There should be no skbuff allocation outside net/core/skbuff.c and all
-normal[1] networking drivers also don't use private pools. Perhaps
-you forgot to instrument a case there.
+Make sure you have my SetPageReferenced patch in, swap is borked without 
+it.
 
--Andi
-
-[1] There may be a few unnormal ones that do; e.g. vendor driver
-writers seem to frequently try to reuse skbuffs privately because they're
-used to that from other OS. It is discouraged and somewhat tricky, but
-possible.
-
-
+--
+Daniel

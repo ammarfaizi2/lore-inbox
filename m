@@ -1,90 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262765AbUBZMxI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 07:53:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262779AbUBZMxI
+	id S262711AbUBZNDt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 08:03:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbUBZNDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 07:53:08 -0500
-Received: from fw.osdl.org ([65.172.181.6]:57311 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262765AbUBZMxC (ORCPT
+	Thu, 26 Feb 2004 08:03:49 -0500
+Received: from unthought.net ([212.97.129.88]:6611 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S262711AbUBZNDr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 07:53:02 -0500
-Date: Thu, 26 Feb 2004 04:53:31 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Cc: linux-kernel@vger.kernel.org, gluk@php4.ru, anton@megashop.ru,
-       mfedyk@matchmail.com
-Subject: Re: 2.6.1 IO lockup on SMP systems
-Message-Id: <20040226045331.060c07d3.akpm@osdl.org>
-In-Reply-To: <200402261519.35506.rathamahata@php4.ru>
-References: <200401311940.28078.rathamahata@php4.ru>
-	<20040223142626.48938d7c.akpm@osdl.org>
-	<200402241454.08210.rathamahata@php4.ru>
-	<200402261519.35506.rathamahata@php4.ru>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 26 Feb 2004 08:03:47 -0500
+Date: Thu, 26 Feb 2004 14:03:45 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.25 - large inode_cache
+Message-ID: <20040226130344.GP29776@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	linux-kernel@vger.kernel.org
+References: <20040226013313.GN29776@unthought.net> <20040226111912.GB4554@core.home> <Pine.LNX.4.58L.0402261004310.5003@logos.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58L.0402261004310.5003@logos.cnet>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Sergey S. Kostyliov" <rathamahata@php4.ru> wrote:
->
-> Yet another lockup has just occurred. I could be wrong but from the
-> /proc/meminfo content it doesn't looks like memory leak (neither kernel
-> nor userspace), doesn't it?
+On Thu, Feb 26, 2004 at 10:08:23AM -0300, Marcelo Tosatti wrote:
+...
+> >
+> > free output is this:
+> >              total       used       free     shared    buffers  cached
+> > Mem:        515980     506464       9516          0    2272      19204
+> > -/+ buffers/cache:     484988      30992
+> > Swap:      1951856       7992    1943864
+> 
+> This should be normal behaviour -- the i/d caches grew because of file
+> system activitity. This memory will be reclaimed in case theres pressure.
 
-I think it's a kernel leak.
+But how is "pressure" defined?
 
-> Thu Feb 26 05:00:15 MSK 2004
-> MemTotal:      2073868 kB
-> MemFree:          2528 kB
-> Buffers:          2180 kB
-> Cached:          34216 kB
-> SwapCached:     643808 kB
-> Active:         999316 kB
-> Inactive:        12088 kB
-> HighTotal:     1179648 kB
-> HighFree:          576 kB
-> LowTotal:       894220 kB
-> LowFree:          1952 kB
-> SwapTotal:     3583968 kB
-> SwapFree:      2559796 kB
-> Dirty:               0 kB
-> Writeback:        3052 kB
-> Mapped:        1001208 kB
-> Slab:            23932 kB
-> Committed_AS:  1979784 kB
-> PageTables:       4840 kB
-> VmallocTotal:   114680 kB
-> VmallocUsed:      7448 kB
-> VmallocChunk:   107232 kB
+Will a heap of busy knfsd processes doing reads or writes exert
+pressure?   Or is it only local userspace that can pressurize the VM (by
+either anonymously backed memory or file I/O).
 
-A gig of mapped memory, most of it in swapcache.  That's probably all
-highmem.  Only a gig of memory on the page LRU.  Where is the rest?  Lost.
+This server happily serves large home directories over NFS, at really
+poor speeds.  It will happily serve tens or hundreds of gigabytes, read
+and write, over the course of a day, and *still* only cache about 100MB
+NFS to/from the server is slow. It's common to see 10 knfsd processes in
+D state while vmstat tells me the array works with about 4-6MB/sec
+sustained throughput (where hdparm -t would give me more than 70MB/sec
+on the md device).
 
-Almost no pagecache at all, slab is small.
+The files read and written are commonly in the 20-60 MB range, so it's
+not just because I'm loading the server with small seeks. Many files are
+read multiple times within a few minutes, so the cache usage of 100MB is
+completely bogus the way that I see it - but maybe there's just
+something I don't know about the caching?   :)
 
-> 3) sysrq-T:
-> ===========
-> http://sysadminday.org.ru/2.6.3-lockup/20040226/sysrq-T
+> 
+> Is the behaviour different from previous 2.4 or 2.6 kernels?
 
-hm, you have 34 instances of crond running.   How odd.
+I never investigated the slabinfo on earlier 2.4. But the performance on
+this server has been "under expectations" for as long as I can remember.
+So, from the performance experience on this server I would say that
+2.4.25 is not any worse than older kernels.
 
-> 3) `vmstat 30':
-> ===============
-> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
->  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
->  0 19 1255096   1952   1996  19920  426 1763   505  1778 1068   172  0  1  0 99
->  0 24 1260156   1944   2028  19816  374 1650   463  1670 1067   165  0  1  0 99
+Since this is a production system I have been reluctant to jump on the
+2.6 wagon - but my other experiences with 2.6.X have been good, so I'm
+probably going to soften up and give it a try in a not too distant
+future.
 
-Again, all your memory has vanished.
+However, if this dcache/icache problem is well known and is (or at least
+should be) solved in 2.6, then I can do the test this weekend.
 
-I'd say that we've leaked everything in lowmem and everyone is stuck trying
-to reclaim some lowmem memory.  Not sure why the oom-killer didn't do
-anything.  I haven't tested it in a year - maybe it broke.
+Any enlightenment or suggestions are greatly appreciated :)
 
-So.  What are you using which is different from everyone else?  DAC960 I
-see.  What about firewall setups, NIC drivers, RAID/MD/etc?  Anything in
-there which isn't a mainstream thing?
+Thanks,
+
+ / jakob
+
 

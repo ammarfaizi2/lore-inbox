@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265200AbUGOBZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264966AbUGOBZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265200AbUGOBZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 21:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266005AbUGOBYU
+	id S264966AbUGOBZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 21:25:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUGOBYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 21:24:20 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:3231 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S265200AbUGOBQ1 (ORCPT
+	Wed, 14 Jul 2004 21:24:06 -0400
+Received: from ozlabs.org ([203.10.76.45]:33466 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S264966AbUGOBJ0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 21:16:27 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Wed, 14 Jul 2004 21:09:26 -0400
+Date: Thu, 15 Jul 2004 11:01:37 +1000
+From: David Gibson <hermes@gibson.dropbear.id.au>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Francois Romieu <romieu@fr.zoreil.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>, jt@hpl.hp.com,
+       Dan Williams <dcbw@redhat.com>, Pavel Roskin <proski@gnu.org>
+Subject: Re: [PATCH] Slowly update in-kernel orinoco drivers to upstream current CVS
+Message-ID: <20040715010137.GB3697@zax>
+Mail-Followup-To: David Gibson <hermes@gibson.dropbear.id.au>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Francois Romieu <romieu@fr.zoreil.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	jt@hpl.hp.com, Dan Williams <dcbw@redhat.com>,
+	Pavel Roskin <proski@gnu.org>
+References: <20040712213349.A2540@electric-eye.fr.zoreil.com> <40F57D78.9080609@pobox.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16629.56037.120532.779793@napali.hpl.hp.com>
-Date: Wed, 14 Jul 2004 18:16:21 -0700
-To: john stultz <johnstul@us.ibm.com>
-Cc: Christoph Lameter <clameter@sgi.com>, george anzinger <george@mvista.com>,
-       lkml <linux-kernel@vger.kernel.org>, ia64 <linux-ia64@vger.kernel.org>
-Subject: Re: gettimeofday nanoseconds patch (makes it possible for the
-	posix-timer functions to return higher accuracy)
-In-Reply-To: <1089852486.1388.256.camel@cog.beaverton.ibm.com>
-References: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
-	<1089835776.1388.216.camel@cog.beaverton.ibm.com>
-	<Pine.LNX.4.58.0407141323530.15874@schroedinger.engr.sgi.com>
-	<1089839740.1388.230.camel@cog.beaverton.ibm.com>
-	<Pine.LNX.4.58.0407141703360.17055@schroedinger.engr.sgi.com>
-	<1089852486.1388.256.camel@cog.beaverton.ibm.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <40F57D78.9080609@pobox.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 14 Jul 2004 17:48:06 -0700, john stultz <johnstul@us.ibm.com> said:
+On Wed, Jul 14, 2004 at 02:37:44PM -0400, Jeff Garzik wrote:
+> Francois Romieu wrote:
+> >A serie of patches is available for at:
+> >http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.7-mm7
+> >
+> >It contains 12 patches and applies against 2.6.7-mm7. The patches are
+> >commented. The comments are partly taken from the cvs log by Pavel Roskin.
+> >
+> >Tarball available at:
+> >http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.7-mm7/orinoco.tar.bz2
+> >
+> >Please review/comment/suggest a target to patch-bomb.
+> 
+> Feel free to patchbomb me in private.
+> 
+> Ideally the obvious, simple-to-review changes come first?
 
-  John> Although you still have the issue w/ NTP adjustments being
-  John> ignored, but last time I looked at the time_interpolator code,
-  John> it seemed it was being ignored there too, so at least your not
-  John> doing worse then the ia64 do_gettimeofday(). [If I'm doing the
-  John> time_interpolator code a great injustice with the above,
-  John> someone please correct me]
+I've started to have a look at the patches.  Unfortunately, they're
+still not really as logically separated as they should be.  Which I
+guess means I wasn't sufficiently disciplined putting them into CVS in
+the first place.
 
-The existing time-interpolator code for ia64 never lets time go
-backwards (in the absence of a settimeofday(), of course).  There is
-no need to special-case NTP.
+I've started working on my own series of logical patches, starting
+with, as you say the "content free" ones first.  Initial set with
+series file at
+       http://www.ozlabs.org/people/dgibson/orinoco-patches
 
-With Christoph's changes, NTP is an issue again, however.
+Nothing there so far that should cause any functional change.
 
-	--david
+-- 
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

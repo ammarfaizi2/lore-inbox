@@ -1,165 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbVBDWLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264836AbVBDWXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbVBDWLR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 17:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266620AbVBDWJ2
+	id S264836AbVBDWXj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 17:23:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266756AbVBDWTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 17:09:28 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:29075 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266666AbVBDVjL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 16:39:11 -0500
-Date: Fri, 4 Feb 2005 21:39:09 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>,
-       karim@opersys.com
-Subject: Re: [PATCH] relayfs redux, part 3
-Message-ID: <20050204213909.GA26241@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Tom Zanussi <zanussi@us.ibm.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-	Andi Kleen <ak@muc.de>, Roman Zippel <zippel@linux-m68k.org>,
-	Robert Wisniewski <bob@watson.ibm.com>,
-	Tim Bird <tim.bird@AM.SONY.COM>, karim@opersys.com
-References: <16899.55393.651042.627079@tut.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16899.55393.651042.627079@tut.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 4 Feb 2005 17:19:12 -0500
+Received: from gizmo05ps.bigpond.com ([144.140.71.40]:27522 "HELO
+	gizmo05ps.bigpond.com") by vger.kernel.org with SMTP
+	id S266645AbVBDViu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 16:38:50 -0500
+Message-ID: <4203EB61.3010603@bigpond.net.au>
+Date: Sat, 05 Feb 2005 08:38:41 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Jack O'Quin" <joq@io.com>
+CC: Paul Davis <paul@linuxaudiosystems.com>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+References: <200502031420.j13EKwFx005545@localhost.localdomain> <42029C23.1000300@bigpond.net.au> <87u0oscm6s.fsf@sulphur.joq.us>
+In-Reply-To: <87u0oscm6s.fsf@sulphur.joq.us>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-in the filesystem path especially relayfs_create_entry and the functions
-called by it seem overly complex, probably because copying from ramfs
-which allows namespace operations from userland.  See the totally untested
-code below for how it could be done more cleanly.
+Jack O'Quin wrote:
+> Peter Williams <pwil3058@bigpond.net.au> writes:
+> 
+> 
+>>Paul Davis wrote:
+>>
+>>>There are several kernel-side attributes that would make JACK better
+>>>from my perspective:
+>>>	* better ways to acquire and release RT scheduling
+>>
+>>I'm no expert on the topic but it would seem to me that the mechanisms
+>>associated with the capable() function are intended to provide a
+>>consistent and extensible interface to the control of privileged
+>>operations with possible finer grained control than "root 'yes' and
+>>everybody else 'no'".  Maybe the way to solve this problem is to
+>>modify the interpretation of capable(CAP_SYS_NICE) so that it returns
+>>true when invoked by a task setuid to a nominated uid in addition to
+>>zero?
+> 
+> 
+> That is essentially what the RT-LSM does.  At exec() time RT-LSM turns
+> on CAP_SYS_NICE for appropriate process images.
+> 
+> In the current implementation this is only done per-group not
+> per-user.  Adding UID as well as GID granularity should be easy.  We
+> didn't do it because we didn't really need it.  If there's a use for
+> it, I have no objection to adding it.  It could even compatibly be
+> added later.
 
-What I really dislike is the code for automatically creating complex
-hiearchies.  What kinds of hierachies does LTT use?  It shouldn't be
-more than subsystem/{stream1, stream2, ..., streamN}, right?  In that
-case I think we could leave it to the user to take of that himself.
+If what you have is adequate I wouldn't suggest changing it.  My use of 
+uid in my rant was just to illustrate a general idea.
 
+> 
+> Many distributions require users to join group `audio' anyway to gain
+> access to the sound card.  We found it convenient to piggy-back on
+> that mechanism.
+> 
+> I believe Paul considers this adequate for his requirements.  :-)
 
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-static struct inode *relayfs_get_inode(struct super_block *sb, int mode)
-{
-	struct inode * inode = new_inode(sb);
-
-	if (!inode)
-		return NULL;
-
-	inode->i_mode = mode;
-	inode->i_uid = 0;
-	inode->i_gid = 0;
-	inode->i_blksize = PAGE_CACHE_SIZE;
-	inode->i_blocks = 0;
-	inode->i_mapping->backing_dev_info = &relayfs_backing_dev_info;
-	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-
-	switch (mode & S_IFMT) {
-	case S_IFREG:
-		inode->i_fop = &relayfs_file_operations;
-		break;
-	case S_IFDIR:
-		inode->i_op = &simple_dir_inode_operations;
-		inode->i_fop = &simple_dir_operations;
-		/*
-		 * directory inodes start off with i_nlink == 2 (for "." entry)
-		 */
-		inode->i_nlink++;
-		break;
-	default:
-		break;
-	}
-
-	return inode;
-}
-
-/**
- *	relayfs_create_entry - create a relayfs directory or file
- *	@name: the name of the file to create
- *	@parent: parent directory
- *	@dentry: result dentry
- *	@mode: mode
- *	@data: data to associate with the file
- *
- *	Creates a file or directory with the specifed permissions.
- */
-static int relayfs_create_entry(const char *name, struct dentry *parent,
-				struct dentry **dentry, int mode, void *data)
-{
-	struct qstr qname;
-	struct dentry *d;
-	struct inode *inode;
-	int error = 0;
-
-	BUG_ON(!S_ISREG(mode) || !S_ISDIR(mode));
-
-	error = simple_pin_fs("relayfs", &relayfs_mount, &relayfs_mount_count);
-	if (error) {
-		printk(KERN_ERR "Couldn't mount relayfs: errcode %d\n", error);
-		return error;
-	}
-
-	qname.name = name;
-	qname.len = strlen(name);
-	qname.hash = full_name_hash(name, qname.len);
-
-	if (parent == NULL)
-		if (relayfs_mount && relayfs_mount->mnt_sb)
-			parent = relayfs_mount->mnt_sb->s_root;
-
-	if (parent == NULL) {
-		simple_release_fs(&relayfs_mount, &relayfs_mount_count);
- 		return -EINVAL;
-	}
-
-	parent = dget(parent);
-	down(&parent->d_inode->i_sem);
-	d = lookup_hash(&qname, parent);
-	if (IS_ERR(d)) {
-		error = PTR_ERR(d);
-		goto release_mount;
-	}
-
-	if (d->d_inode) {
-		error = -EEXIST;
-		goto release_mount;
-	}
-
-	inode = relayfs_get_inode(parent->d_inode->i_sb, mode);
-	if (!inode) {
-		error = -ENOSPC;
-		goto release_mount;
-	}
-
-	d_instantiate(d, inode);
-	dget(d);	/* Extra count - pin the dentry in core */
-
-	if (mode & S_IFREG)
-		d->d_inode->u.generic_ip = data;
-	else
-		parent->d_inode->i_nlink++;
-
-	error = 0;
-	goto exit;
-	
-release_mount:		
-	simple_release_fs(&relayfs_mount, &relayfs_mount_count);
-
-exit:
-	*dentry = d;
-	up(&parent->d_inode->i_sem);
-	dput(parent);
-
-	return error;
-}
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285398AbRLGEMl>; Thu, 6 Dec 2001 23:12:41 -0500
+	id <S285401AbRLGESW>; Thu, 6 Dec 2001 23:18:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285399AbRLGEMb>; Thu, 6 Dec 2001 23:12:31 -0500
-Received: from mercury.ccmr.cornell.edu ([128.84.231.97]:62478 "EHLO
-	mercury.ccmr.cornell.edu") by vger.kernel.org with ESMTP
-	id <S285398AbRLGEMZ>; Thu, 6 Dec 2001 23:12:25 -0500
-From: Daniel Freedman <freedman@ccmr.cornell.edu>
-Date: Thu, 6 Dec 2001 23:12:25 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: TCP performance eepro100
-Message-ID: <20011206231225.A32585@ccmr.cornell.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <054401c17ed2$3b03a0d0$0f00a8c0@minniemouse>
+	id <S285402AbRLGESM>; Thu, 6 Dec 2001 23:18:12 -0500
+Received: from zok.sgi.com ([204.94.215.101]:22432 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S285401AbRLGESF>;
+	Thu, 6 Dec 2001 23:18:05 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: kbuild-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <054401c17ed2$3b03a0d0$0f00a8c0@minniemouse>; from marsaro@interearth.com on Thu, Dec 06, 2001 at 07:49:53PM -0800
+Date: Fri, 07 Dec 2001 15:17:53 +1100
+Message-ID: <24493.1007698673@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 06, 2001, Jon wrote:
-> Has anyone done testing on eepro100 and seen really poor performance? I am
-> seeing that the eepro100 in SuSE 2.4.7 and above is 50% slower than than
-> 2.4.2 in RH 7.1 I am doing a simple test with ttcp against another RH server
-> and then SuSE vs SuSE or vs the RH system. In all cases the eepro100at best
-> shows 39mbs. In modules.conf I am setting options="0x30" that forces 100mbps
-> Full Duplex, this is also reflected in dmesg. With the new intel e100 it is
-> possible to get 60mbps on SuSE. Is there something in the Kernel build or
-> Driver build that is multi-casting or filtering that may cause this? Any
-> ideas at this point would help. BTW, I am using SMP Kernels on all the
-> systems.
+Linus, the time has come to convert the 2.5 kernel to kbuild 2.5.  I
+want to do this in separate steps to make it easier for architectures
+that have not been converted yet.
 
-Jon,
+2.5.1           Semi-stable kernel, after bio is working.
 
-No great thoughts other than to report that I did netpipe-tcp (from
-Debian woody) testing of my eepro100's using a custom SMP 2.4.9
-kernel, and easily saw 90 megabits per second.  Sorry I couldn't help
-more.
+2.5.2-pre1      Add the kbuild 2.5 and CML2 code, still using
+                Makefile-2.5, supporting both CML1 and CML2.
+                i386, sparc, sparc64 can use either kbuild 2.4 or 2.5,
+                2.5 is recommended.
+                ia64 can only use kbuild 2.5.
+                Other architectures continue to use kbuild 2.4.
+                Wait 24 hours for any major problems then -
 
-Take care,
-Daniel
+2.5.2-pre2      Remove kbuild 2.4 code, rename Makefile-2.5 to Makefile.
+		Still supporting both CML1 and CML2.
+                i386, ia64, sparc, sparc64 can compile using kbuild 2.5.
+                Other architectures cannot compile until they convert
+                to kbuild 2.5.  The kbuild group can help with the
+                conversion but without access to a machine we cannot
+                test other architectures.  Until the other archs have
+                been converted, they can stay on 2.5.2-pre1.
+                Wait 24 hours for any major problems then -
 
-> Regards,
-> 
-> Jon
-> 
+2.5.2-pre3      Remove CML1 support.
 
--- 
-Daniel A. Freedman
-Laboratory for Atomic and Solid State Physics
-Department of Physics
-Cornell University
+Doing the change in steps provides a platform where both kbuild 2.4 and
+2.5 work and both CML1 and CML2 are available.  This allows other
+architectures to parallel test the old and new kbuild and CML during
+their conversion, I found that ability was very useful during
+conversion.
+
+Linus, is this acceptable?  When do you want the kbuild 2.5 and CML2
+patches?
+

@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293381AbSCJXp2>; Sun, 10 Mar 2002 18:45:28 -0500
+	id <S293390AbSCJX4u>; Sun, 10 Mar 2002 18:56:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293385AbSCJXpR>; Sun, 10 Mar 2002 18:45:17 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13582 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293381AbSCJXpJ>;
-	Sun, 10 Mar 2002 18:45:09 -0500
-Message-ID: <3C8BF015.606BCCDA@mandrakesoft.com>
-Date: Sun, 10 Mar 2002 18:45:25 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: Andreas Jaeger <aj@suse.de>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
+	id <S293393AbSCJX4l>; Sun, 10 Mar 2002 18:56:41 -0500
+Received: from taifun.devconsult.de ([212.15.193.29]:13073 "EHLO
+	taifun.devconsult.de") by vger.kernel.org with ESMTP
+	id <S293390AbSCJX4V>; Sun, 10 Mar 2002 18:56:21 -0500
+Date: Mon, 11 Mar 2002 00:56:19 +0100
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: Andreas Jaeger <aj@suse.de>
+Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] syscall interface for cpu affinity
-In-Reply-To: <1015784104.1261.8.camel@phantasy>  <u8zo1g9nf8.fsf@gromit.moeb> <1015793618.928.17.camel@phantasy>
+Message-ID: <20020311005619.A1481@devcon.net>
+Mail-Followup-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+	Andreas Jaeger <aj@suse.de>, Robert Love <rml@tech9.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <1015784104.1261.8.camel@phantasy> <u8zo1g9nf8.fsf@gromit.moeb> <1015793618.928.17.camel@phantasy> <u8bsdw9lvd.fsf@gromit.moeb>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <u8bsdw9lvd.fsf@gromit.moeb>; from aj@suse.de on Sun, Mar 10, 2002 at 10:03:02PM +0100
+Organization: dev/consulting GmbH
+X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On Sun, Mar 10, 2002 at 10:03:02PM +0100, Andreas Jaeger wrote:
+> >
+> > Note you can use the syscall interface with existing programs, too. 
+> > Just write a program to take in a pid and mask and call
+> > sched_set_affinity.
+> What I need at the moment is a wrapper - and you can do it two ways:
 > 
-> On Sun, 2002-03-10 at 15:29, Andreas Jaeger wrote:
+> $ run_with_affinity 1 program arguments...
+> $ (cat 1 > /proc/self/affinity; program arguments...)
 > 
-> > Please add the procinterface also!  I've found it today (for 2.4.18)
-> > and it's much easier to use with existing programs.
-> 
-> I agree and I really like the proc-interface.  There is something uber
-> cool about:
-> 
->         cat 1 > /proc/pid/affinity
-> 
-> I have a patch for 2.5.6 for proc-based affinity interface here:
-> 
->         http://www.kernel.org/pub/linux/kernel/people/rml/cpu-affinity/v2.5/cpu-affinity-proc-rml-2.5.6-1.patch
+> The second one is much easier coded ;-)
 
+$ (set_affinity 1; program arguments...)
 
-Anon!  But there is something uber-ugly about constantly jamming more
-and more stuff into procfs without thinking or planning long term...  I
-vote for the non-procfs approach :)
+set_affinity just calls sched_set_affinity(getppid()), and everything
+is fine (and even shorter to type) :-)
 
+Andreas
 -- 
-Jeff Garzik      | Usenet Rule #2 (John Gilmore): "The Net interprets
-Building 1024    | censorship as damage and routes around it."
-MandrakeSoft     |
+       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
+     ---------------------------------------------------------
+         +49 521 1365800 - af@devcon.net - www.devcon.net

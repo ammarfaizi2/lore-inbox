@@ -1,63 +1,153 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317257AbSFGJ4x>; Fri, 7 Jun 2002 05:56:53 -0400
+	id <S316775AbSFGJzY>; Fri, 7 Jun 2002 05:55:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317258AbSFGJ4w>; Fri, 7 Jun 2002 05:56:52 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:44955 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317257AbSFGJ4v>;
-	Fri, 7 Jun 2002 05:56:51 -0400
-Date: Fri, 07 Jun 2002 02:53:19 -0700 (PDT)
-Message-Id: <20020607.025319.111425384.davem@redhat.com>
-To: gianni@ecsc.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: mmap packet socket information leak (trivial)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1022673535.31102.17.camel@lemsip>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S317257AbSFGJzX>; Fri, 7 Jun 2002 05:55:23 -0400
+Received: from slip-202-135-75-168.ca.au.prserv.net ([202.135.75.168]:4737
+	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S316775AbSFGJzV>; Fri, 7 Jun 2002 05:55:21 -0400
+Date: Fri, 7 Jun 2002 19:06:50 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, frankeh@watson.ibm.com,
+        alan@lxorguk.ukuu.org.uk, viro@math.psu.edu
+Subject: Re: [PATCH] Futex Asynchronous Interface
+Message-Id: <20020607190650.57f25467.rusty@rustcorp.com.au>
+In-Reply-To: <Pine.LNX.4.44.0206060930240.5920-100000@home.transmeta.com>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Gianni Tedesco <gianni@ecsc.co.uk>
-   Date: 29 May 2002 12:58:55 +0100
+On Thu, 6 Jun 2002 09:36:23 -0700 (PDT)
+Linus Torvalds <torvalds@transmeta.com> wrote:
+> You already have to have a system call to bind the particular fd to the
+> futex _anyway_, so do the only sane thing, and allocate the fd _there_,
 
-   Here is a quick patch which blanks the mmap() packet socket buffer areas
-   before using them. Previously you would get uninitialised data inbetween
-   the data structures where they are TPACKET_ALIGNED().
-   
- ...
-   
-   diff -urN linux.orig/net/packet/af_packet.c linux/net/packet/af_packet.c
-   --- linux.orig/net/packet/af_packet.c	Wed May 29 12:30:10 2002
-   +++ linux/net/packet/af_packet.c	Wed May 29 12:29:10 2002
+But Ma, I don't *want* to write a filesystem!
 
-The following seems simpler and is what I checked into my
-tree.
+Linus, Al, is there an easier way to do this?  I stole this from sockfs,
+but I balked at another 50 lines for a proper inode creation, so I just use
+the same dentry and inode over and over.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.539   -> 1.540  
-#	net/packet/af_packet.c	1.9     -> 1.10   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/06/07	davem@nuts.ninka.net	1.540
-# AF_PACKET: Clear out packet-mmap pages.
-# --------------------------------------------
-#
-diff -Nru a/net/packet/af_packet.c b/net/packet/af_packet.c
---- a/net/packet/af_packet.c	Fri Jun  7 02:53:22 2002
-+++ b/net/packet/af_packet.c	Fri Jun  7 02:53:22 2002
-@@ -1662,7 +1662,7 @@
- 			pg_vec[i] = __get_free_pages(GFP_KERNEL, order);
- 			if (!pg_vec[i])
- 				goto out_free_pgvec;
--
-+			memset((void *)(pg_vec[i]), 0, PAGE_SIZE << order);
- 			pend = virt_to_page(pg_vec[i] + (PAGE_SIZE << order) - 1);
- 			for (page = virt_to_page(pg_vec[i]); page <= pend; page++)
- 				SetPageReserved(page);
+It's still an awful lot of irrelevant code: what can I cut?
+
+/* Everyone needs a dentry and inode */
+static struct dentry *futex_dentry;
+
+/* Signal allows caller to avoid the race which would occur if they
+   set the sigio stuff up afterwards. */
+static int futex_fd(struct list_head *head,
+		    struct page *page,
+		    int offset,
+		    int signal)
+{
+	int fd;
+	struct futex_q *q;
+	struct file *filp;
+
+	if (signal < 0 || signal > _NSIG)
+		return -EINVAL;
+
+	fd = get_unused_fd();
+	if (fd < 0)
+		return fd;
+	filp = get_empty_filp();
+	if (!filp) {
+		put_unused_fd(fd);
+		return -ENFILE;
+	}
+	filp->f_op = &futex_fops;
+	filp->f_dentry = dget(futex_dentry);
+
+	if (signal) {
+		filp->f_owner.pid = current->pid;
+		filp->f_owner.uid = current->uid;
+		filp->f_owner.euid = current->euid;
+		filp->f_owner.signum = signal;
+	}
+
+	q = kmalloc(sizeof(*q), GFP_KERNEL);
+	if (!q) {
+		put_unused_fd(fd);
+		put_filp(filp);
+		return -ENOMEM;
+	}
+
+	/* Initialize queue structure */
+	init_waitqueue_head(&q->waiters);
+	filp->private_data = q;
+
+	/* Go for it... */
+	queue_me(head, q, page, offset, fd, filp);
+
+	/* Now we map fd to filp, so userspace can access it */
+	fd_install(fd, filp);
+	return 0;
+}
+
+/* Oh yeah, makes sense to write a filesystem... */
+static struct super_operations futexfs_ops = {
+	statfs:		simple_statfs,
+};
+
+static int futexfs_fill_super(struct super_block *sb, void *data, int silent)
+{
+	struct inode *root;
+	sb->s_blocksize = 1024;
+	sb->s_blocksize_bits = 10;
+	sb->s_magic = 0xFBAD1DEA;
+	sb->s_op = &futexfs_ops;
+	root = new_inode(sb);
+	if (!root)
+		return -ENOMEM;
+	root->i_mode = S_IFDIR | S_IRUSR | S_IWUSR;
+	root->i_uid = root->i_gid = 0;
+	root->i_atime = root->i_mtime = root->i_ctime = CURRENT_TIME;
+	sb->s_root = d_alloc(NULL, &(const struct qstr) { "futex", 5, 0 });
+	if (!sb->s_root) {
+		iput(root);
+		return -ENOMEM;
+	}
+	sb->s_root->d_sb = sb;
+	sb->s_root->d_parent = sb->s_root;
+	d_instantiate(sb->s_root, root);
+	return 0;
+}
+
+static struct super_block *
+futexfs_get_sb(struct file_system_type *fs_type,
+	       int flags, char *dev_name, void *data)
+{
+	return get_sb_nodev(fs_type, flags, data, futexfs_fill_super);
+}
+
+static struct file_system_type futex_fs_type = {
+	name:		"futexfs",
+	get_sb:		futexfs_get_sb,
+	kill_sb:	kill_anon_super,
+	fs_flags:	FS_NOMOUNT,
+};
+
+static int __init init(void)
+{
+	unsigned int i;
+	struct qstr name = { .name = "futex", .len = 5, .hash = 0 };
+	struct vfsmount *futex_mnt;
+
+	register_filesystem(&futex_fs_type);
+	futex_mnt = kern_mount(&futex_fs_type);
+	futex_dentry = d_alloc(NULL, &name);
+	futex_dentry->d_inode = new_inode(futex_mnt->mnt_sb);
+
+	for (i = 0; i < ARRAY_SIZE(futex_queues); i++)
+		INIT_LIST_HEAD(&futex_queues[i]);
+	return 0;
+}
+__initcall(init);
+
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

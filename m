@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263685AbUFIM7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265763AbUFINBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263685AbUFIM7a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 08:59:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265729AbUFIM73
+	id S265763AbUFINBG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 09:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265729AbUFINBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 08:59:29 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:7830 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263685AbUFIM72 (ORCPT
+	Wed, 9 Jun 2004 09:01:06 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:22026 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S265763AbUFINAz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 08:59:28 -0400
-Date: Wed, 9 Jun 2004 14:59:12 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: chase.maupin@hp.com, iss_storagedev@hp.com, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [STACK] >4k call path in hp/compaq fibre channel driver
-Message-ID: <20040609125912.GK21168@wohnheim.fh-wedel.de>
-References: <20040609124302.GI21168@wohnheim.fh-wedel.de> <1086785454.2810.13.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1086785454.2810.13.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.3.28i
+	Wed, 9 Jun 2004 09:00:55 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Julian Anastasov <ja@ssi.bg>
+Subject: Re: UDP sockets bound to ANY send answers with wrong src ip address
+Date: Wed, 9 Jun 2004 15:45:23 +0300
+X-Mailer: KMail [version 1.4]
+Cc: netdev@oss.sgi.com, <linux-net@vger.kernel.org>, <davem@redhat.com>,
+       <yoshfuji@linux-ipv6.org>, <pekkas@netcore.fi>, <jmorris@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0406091511350.6279-100000@l>
+In-Reply-To: <Pine.LNX.4.44.0406091511350.6279-100000@l>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200406091545.23674.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 June 2004 14:50:54 +0200, Arjan van de Ven wrote:
-> On Wed, 2004-06-09 at 14:43, Jörn Engel wrote:
-> > Chase, I guess this code won't live long with 4k stacks.  Can you
-> > please fix CpqTsProcessIMQEntry() and PeekIMQEntry()?
-> > 
-> > Linus, Andrew, how about marking CONFIG_SCSI_CPQFCTS as broken for the
-> > time being?
-> 
-> isn't it already? I thought it never got adjusted to the 2.6 scsi layer
-> already (or the 2.4 one for that matter)
+On Wednesday 09 June 2004 15:18, Julian Anastasov wrote:
+> Hello,
+>
+> On Wed, 9 Jun 2004, Denis Vlasenko wrote:
+> > I observe that UDP sockets listening on ANY
+> > send response packets with ip addr derived from
+> > ip address of interface which is used to send 'em
+> > instead of using dst ip address of client's packet.
+> >
+> > I was bitten by this with DNS and NTP.
+>
+> 	The problem is in the apps. You have some options:
+>
+> - use sockets listening on ANY and using sendmsg with IP_PKTINFO
+> and providing the desired src IP in ipi_spec_dst
+>
+> - you can also create many listener sockets listening on
+> particular src IP and to reply using the socket where the
+> request is received, because the kernel does not know any
+> association between request and reply packets if the listener
+> is bound to ANY.
 
-Doesn't look like it.
+Aha! That's why ntpd is so eager to bind to everything imaginable!
+(Which does not help BTW with non-permanent interfaces like
+ppp, tun etc).
 
-But that's a good point.  I could use allnonbrokenconfig for stack
-tests the next time.
-
-config SCSI_CPQFCTS
-	tristate "Compaq Fibre Channel 64-bit/66Mhz HBA support"
-	depends on PCI && SCSI
-	help
-	  Say Y here to compile in support for the Compaq StorageWorks Fibre
-	  Channel 64-bit/66Mhz Host Bus Adapter.
-
-Jörn
-
--- 
-Happiness isn't having what you want, it's wanting what you have.
--- unknown
+/me googling for that IP_PKTINFO thing...
+--
+vda

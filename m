@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292593AbSCOOZc>; Fri, 15 Mar 2002 09:25:32 -0500
+	id <S292588AbSCOO3C>; Fri, 15 Mar 2002 09:29:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292555AbSCOOZX>; Fri, 15 Mar 2002 09:25:23 -0500
-Received: from zero.tech9.net ([209.61.188.187]:49425 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S292574AbSCOOZL>;
-	Fri, 15 Mar 2002 09:25:11 -0500
-Subject: Re: 2.4.18 Preempt Freezeups
-From: Robert Love <rml@tech9.net>
-To: Ian Duggan <ian@ianduggan.net>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C91B2A1.48C74B82@ianduggan.net>
-In-Reply-To: <3C9153A7.292C320@ianduggan.net>
-	<1016157250.4599.62.camel@phantasy>  <3C91B2A1.48C74B82@ianduggan.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
-Date: 15 Mar 2002 09:25:09 -0500
-Message-Id: <1016202310.908.1.camel@phantasy>
-Mime-Version: 1.0
+	id <S292594AbSCOO2w>; Fri, 15 Mar 2002 09:28:52 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:2062 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S292588AbSCOO2l>; Fri, 15 Mar 2002 09:28:41 -0500
+Message-Id: <200203151425.g2FEPIq21588@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Alexander Viro <viro@math.psu.edu>
+Subject: Re: [PATCH] struct super_block cleanup - msdos/vfat
+Date: Fri, 15 Mar 2002 16:24:49 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Brian Gerst <bgerst@didntduck.org>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0203150619390.2253-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0203150619390.2253-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-03-15 at 03:36, Ian Duggan wrote:
+On 15 March 2002 09:27, Alexander Viro wrote:
+> On Fri, 15 Mar 2002, Denis Vlasenko wrote:
+> > Does this mean umsdos can be layered atop of wider range of filesystems
+> > than just msdos? That would be cool.
+>
+> Yes, but what's cool about it?  If not for the fact that there are weird
+> setups that actually use umsdos (i.e. compatibility reasons), the best
+> way to deal with it would be rm -rf...  If underlying filesystem has
+> normal semantics - you don't need anything, if it doesn't...  I'd suggest
+> to use combination of tar(1) and ramfs.  At least that way you get full
+> Unix semantics - no mess with rename breaking links, etc.
 
-> I'm not asking for help fixing it, because of the binary module issue.
-> I'm just looking for ways to narrow down where the problem might be,
-> given that the machine completely locks up.
+Well, I initially come here from DOS/Win world and in fact actually used 
+umsdos for some time (heck, it's still installed on one abandoned box).
+But I presume there are other worlds (maybe Mac?) with filesystems unsuited 
+for Linux root fs (like fat), why invent u[fs] for them too?
 
-Chances are the binary win4lin module just needs to be recompiled
-against a preemptive kernel.
-
-Of course, it could need some specific preempt-safe work but more than
-likely it just needs to be recompiled.  Binary modules most be
-specifically preempt-kernel aware, like they need be SMP-kernel aware.
-
-	Robert Love
-
+OTOH it means extra effort in umsdos rewrite, and since I don't do that 
+effort, I'd better shut up now.
+--
+vda

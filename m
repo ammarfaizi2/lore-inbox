@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263129AbUDTPLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262873AbUDTPTY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263129AbUDTPLw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 11:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbUDTPLw
+	id S262873AbUDTPTY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 11:19:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUDTPTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 11:11:52 -0400
-Received: from [144.51.25.10] ([144.51.25.10]:51872 "EHLO epoch.ncsc.mil")
-	by vger.kernel.org with ESMTP id S263129AbUDTPLt (ORCPT
+	Tue, 20 Apr 2004 11:19:23 -0400
+Received: from ida.rowland.org ([192.131.102.52]:15364 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S262873AbUDTPTN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 11:11:49 -0400
-Subject: [PATCH][SELINUX] Change context_to_sid handling for no-policy case
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       lkml <linux-kernel@vger.kernel.org>, selinux@tycho.nsa.gov
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1082473877.7481.37.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 20 Apr 2004 11:11:17 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Apr 2004 11:19:13 -0400
+Date: Tue, 20 Apr 2004 11:19:12 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: "Roberts-Thomson, James" <James.Roberts-Thomson@NBNZ.CO.NZ>
+cc: linux-usb-devel@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] USB mass storage device has SCSI i/o errors,
+ kernel > 2.6.3
+In-Reply-To: <DDF9139AA996D511BBDE00508BB927450A208BF0@nbhexch1.nbnz.co.nz>
+Message-ID: <Pine.LNX.4.44L0.0404201117080.1056-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch against 2.6.6-rc1-mm1 changes the behavior of
-security_context_to_sid in the no-policy case so that it simply accepts
-all contexts and maps them to the kernel SID rather than rejecting
-anything other than an initial SID.  The change avoids error conditions
-when using SELinux in permissive/no-policy mode, so that any file
-contexts left on disk from prior use of SELinux with a policy will not
-cause an error when they are looked up and userspace attempts to set
-contexts can succeed.  Please apply.
+On Tue, 20 Apr 2004, Roberts-Thomson, James wrote:
 
- security/selinux/ss/services.c |    4 +---
- 1 files changed, 1 insertion(+), 3 deletions(-)
+> Hi,
+> 
+> I have noticed an issue with writing to a USB mass storage device, which is
+> a flash-rom-based mp3 player.
+> 
+> I first noticed this issue with kernel 2.6.5 and the -mm6 patchset.  I have
+> verified that this issue still occurs with 2.6.6-rc1-bk4, as requested by
+> Andrew Morton.  This error was never noticed in any kernel v2.6.3 or less;
+> including v2.4.x kernels; both stock and with -wolk and -mm patchsets.
 
-diff -X /home/sds/dontdiff -ru linux-2.6.old/security/selinux/ss/services.c linux-2.6/security/selinux/ss/services.c
---- linux-2.6.old/security/selinux/ss/services.c	2004-04-20 09:37:45.000000000 -0400
-+++ linux-2.6/security/selinux/ss/services.c	2004-04-20 09:53:02.834624857 -0400
-@@ -456,9 +456,7 @@
- 				goto out;
- 			}
- 		}
--		printk(KERN_ERR "security_context_to_sid: called before "
--		       "initial load_policy on unknown context %s\n", scontext);
--		rc = -EINVAL;
-+		*sid = SECINITSID_KERNEL;
- 		goto out;
- 	}
- 	*sid = SECSID_NULL;
+It's possible that this is caused by a recently-introduced bug in the UHCI
+driver.  A patch was posted yesterday:
 
+http://marc.theaimsgroup.com/?l=linux-usb-devel&m=108238832020721&q=raw
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Alan Stern
+
 

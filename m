@@ -1,82 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278958AbRKDVU2>; Sun, 4 Nov 2001 16:20:28 -0500
+	id <S279003AbRKDVXS>; Sun, 4 Nov 2001 16:23:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279105AbRKDVUV>; Sun, 4 Nov 2001 16:20:21 -0500
-Received: from unthought.net ([212.97.129.24]:4057 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S278958AbRKDVUK>;
-	Sun, 4 Nov 2001 16:20:10 -0500
-Date: Sun, 4 Nov 2001 22:20:09 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+	id <S279024AbRKDVXI>; Sun, 4 Nov 2001 16:23:08 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:676 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S279003AbRKDVWv>;
+	Sun, 4 Nov 2001 16:22:51 -0500
+Date: Sun, 04 Nov 2001 21:22:47 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        =?ISO-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
 Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
         Alexander Viro <viro@math.psu.edu>, John Levon <moz@compsoc.man.ac.uk>,
         linux-kernel@vger.kernel.org,
         Daniel Phillips <phillips@bonn-fries.net>, Tim Jansen <tim@tjansen.de>
 Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <20011104222009.Y14001@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-	Alexander Viro <viro@math.psu.edu>,
-	John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Tim Jansen <tim@tjansen.de>
-In-Reply-To: <20011104204502.O14001@unthought.net> <200111042112.fA4LCNR241720@saturn.cs.uml.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <627833590.1004908966@[195.224.237.69]>
+In-Reply-To: <200111042112.fA4LCNR241720@saturn.cs.uml.edu>
+In-Reply-To: <200111042112.fA4LCNR241720@saturn.cs.uml.edu>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <200111042112.fA4LCNR241720@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Sun, Nov 04, 2001 at 04:12:23PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 04, 2001 at 04:12:23PM -0500, Albert D. Cahalan wrote:
-> =?iso-8859-1?Q?Jak writes:
-> 
-> > Please tell me,  is "1610612736" a 32-bit integer, a 64-bit integer, is
-> > it signed or unsigned   ?
-> > 
-> > I could even live with parsing ASCII, as long as there'd just be type
-> > information to go with the values.
-> 
-> You are looking for something called the registry. It's something
-> that was introduced with Windows 95. It's basically a filesystem
-> with typed files: char, int, string, string array, etc.
 
-Nope   :)
 
-It does not have "char, int, string, string array, etc." it has "String, binary
-and DWORD".
+--On Sunday, 04 November, 2001 4:12 PM -0500 "Albert D. Cahalan" 
+<acahalan@cs.uml.edu> wrote:
 
-Having read out 64 bit values, floating point data etc. from the registry, I'm
-old enough to know that it is *NOT* what I'm looking for   :)
+>> Now you are proposing to dink with the format. See above comments.
 
-...
-> Funny you should mention that one. I wrote the code used by procps
-> to read this file. I love that file! The parentheses issue is just
-> a beauty wart. People rarely feel the urge to screw with raw numbers.
-> In all the other files, idiots like to: add headers, change the
-> spelling of field names, change the order, add spaces and random
-> punctuation, etc. Nothing is as stable and easy to use as the
-> /proc/self/stat file.
+Attribution error: that was me, disagreeing with Jakob - the point was
+if you want to dink with the format to achieve the objectives
+he seemed to be after (which I thought were to do at least
+in part with consistency etc.), it is theoretically possible
+to do such dinking with minimal change & certainly retain
+text format (and note I said retain original /proc files too). Whether
+it's worth it as a practical exercize, with all the inherent
+disruption it would no doubt cause, and questionable net benefit
+is a completely different question. I was just saying that
+binary format wasn't necessary to achieve what I think
+Jakob wanted to achieve. The full thought
+experiment was in a later email. I suspect you don't disagree
+given your previous post.
 
-Imagine every field in a file by itself, with well-defined type
-information and unit informaiton.
+>>> 3. Try and rearrange all the /proc entries this way, which
+>>>    means sysctl can be implemented by a straight ASCII
+>>>    write - nice and easy to parse files.
+>
+> This is exactly what the sysctl command does.
 
-...
-> Linus clearly doesn't give a fuck about /proc performance.
-> That's his right, and you are welcome to patch your kernel to
-> have something better: http://lwn.net/2000/0420/a/atomicps.html
+Sorry, I meant 'this way a consistent interface cf
+sysctl could be used for more of what's currently
+done through /proc'. Last time I looked there was
+stuff you could read/write to through /proc which
+couldn't be done through sysctl.
 
-Performance is one thing.  Not being able to know whether numbers are i32, u32,
-u64, or measured in Kilobytes or carrots is another ting.
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+--
+Alex Bligh

@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262683AbVBEWow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271407AbVBEWqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262683AbVBEWow (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 17:44:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264036AbVBEWow
+	id S271407AbVBEWqO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 17:46:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271456AbVBEWqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 17:44:52 -0500
-Received: from gate.crashing.org ([63.228.1.57]:1664 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262573AbVBEWon (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 17:44:43 -0500
-Subject: Re: [ACPI] Re: Legacy IO spaces (was Re: [RFC] Reliable video
-	POSTing on resume)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Pavel Machek <pavel@ucw.cz>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ncunningham@linuxmail.org, ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Garrett <mjg59@srcf.ucam.org>
-In-Reply-To: <9e47339105020416486cf19738@mail.gmail.com>
-References: <20050122134205.GA9354@wsc-gmbh.de>
-	 <200502041010.13220.jbarnes@engr.sgi.com>
-	 <9e4733910502041459500ae8d3@mail.gmail.com>
-	 <200502041534.03004.jbarnes@engr.sgi.com>
-	 <9e47339105020416486cf19738@mail.gmail.com>
-Content-Type: text/plain
-Date: Sun, 06 Feb 2005 09:42:32 +1100
-Message-Id: <1107643352.30270.26.camel@gaston>
+	Sat, 5 Feb 2005 17:46:14 -0500
+Received: from smtpout3.uol.com.br ([200.221.4.194]:35989 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S271407AbVBEWqA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 17:46:00 -0500
+Date: Sat, 5 Feb 2005 20:45:58 -0200
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: irq 10: nobody cared! (was: Re: 2.6.11-rc3-mm1)
+Message-ID: <20050205224558.GB3815@ime.usp.br>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+	B.Zolnierkiewicz@elka.pw.edu.pl
+References: <20050204103350.241a907a.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050204103350.241a907a.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear developers,
 
-> If they all point to the same space, I can't tell whether I have three
-> legacy spaces or one. I need to know how many legacy spaces there are
-> in order to know how many VGA cards can simultaneously be enabled.
+For some kernel versions (say, since 2.6.10 proper, all the 2.6.11-rc's,
+some -mm trees and also -ac) I have been getting the message "irq 10:
+nobody cared!".
 
-You don't need to care about this, at least in userland. All you need
-is proper primitives for locking/unlocking access to a given device.
-Wether you have another one to arbitrate with on the same PCI bus or not
-is almost irrelevant. That is, it is the job of the kernel driver that
-ultimately will do this arbitration (we really need that), and we can
-prefectly well survive a long time with a very simple implementation
-taht always disable all other VGA devies in the system, not caring about
-"simultaneous" access. That implementation can be then improved on
-later.
+The message says that I should pass the irqpoll option to the kernel and
+even if I do, I still get the stack trace and the "irq 10: nobody cared!"
+message. :-(
 
-My point is what we really need to define is the in-kernel and userland
-API to do this basic VGA access arbitration in the first place. I though
-you did something like that a while ago Jon, didn't you ?
+The message seems to be related to the Promise PDC20265 driver and it
+appeared right after I moved my HDs from my motherboard's VIA controllers
+to the Promise controllers. I have an Asus A7V board, with 2 VIA 686a
+controllers and 2 Promise PDC20265 controllers.
 
-I think it could be as simple as an additional sysfs entry
-"legacy_enabled" added to all "VGA" devices in the system at the PCI
-layer level. Toggling it triggers the "untoggling" of all others,
-including VGA forwarding on bridges, and enables the path to that
-device. For in-kernel users, a pci_* API would work.
+I already tried enabling and disabling ACPI, but it seems that the problem
+just doesn't go away. :-(
 
-The problem I see though is that it should all be synchronous &
-spinlocked since the vgacon could want to grab at interrupt time (unless
-it's locked by userland, in which case, vgacon should cache & trigger an
-update later).
-
-Ben.
+I am including the dmesg log of my system with this message. I am CC'ing
+the linux-ide list, but I'm only subscribed to linux-kernel. I would
+appreciate CC's, if possible.
 
 
+Thank you very much for any help, Rogério.
+
+P.S.: I am, right now, re-compiling 2.6.11-rc3-mm1 with the extra pass of
+kallsyms to see if the problem persists with this release.
+-- 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

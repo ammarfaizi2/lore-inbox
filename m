@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262263AbSIZJSE>; Thu, 26 Sep 2002 05:18:04 -0400
+	id <S262260AbSIZJQJ>; Thu, 26 Sep 2002 05:16:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262264AbSIZJSE>; Thu, 26 Sep 2002 05:18:04 -0400
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:65259 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S262263AbSIZJSD>; Thu, 26 Sep 2002 05:18:03 -0400
-Message-ID: <3D92D243.6060808@drugphish.ch>
-Date: Thu, 26 Sep 2002 11:24:19 +0200
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S262262AbSIZJQJ>; Thu, 26 Sep 2002 05:16:09 -0400
+Received: from [217.167.51.129] ([217.167.51.129]:49405 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S262260AbSIZJQI>;
+	Thu, 26 Sep 2002 05:16:08 -0400
+From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
+To: "Pete Zaitcev" <zaitcev@redhat.com>
+Cc: <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>, <axboe@suse.de>,
+       <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] fix ide-iops for big endian archs
+Date: Thu, 26 Sep 2002 00:48:39 +0200
+Message-Id: <20020925224839.24517@192.168.4.1>
+In-Reply-To: <20020925141946.A14230@devserv.devel.redhat.com>
+References: <20020925141946.A14230@devserv.devel.redhat.com>
+X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-Cc: ak@suse.de, niv@us.ibm.com, linux-kernel@vger.kernel.org, hadi@cyberus.ca
-Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
-References: <p73n0q5sib2.fsf@oldwotan.suse.de>	<20020925.172931.115908839.davem@redhat.com>	<3D92CCC5.5000206@drugphish.ch> <20020926.020602.75761707.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm not talking about cpu second level cache, I'm talking about
-> a second level lookup table that backs up a front end routing
-> hash.  A software data structure.
+>> Curently in 2.5 (afaik in -ac too), the ide-iops "s" routines used
+>> to transfer datas in/out the data port are incorrect for big endian
+>> machines. They are implemented with a loop of inw/outw which are
+>> byteswapping, but a fifo transfer like that mustn't be swapped.
+>
+>Dunno about ppc, but sparc works just fine as it is in 2.4.
+>When was the last time you examined include/asm-sparc/ide.h?
 
-Doh! Sorry for my confusion, I guess I wasn't reading your posting too 
-carefully. I understand the software architecture part now. Nevertheless 
-one day or another you will need to face the caching issue too unless 
-your data structure will always fit entirely into the cache or am I 
-completely off track again?
+I'm talking about 2.4-ac with the new IDE code, not Marcelo
+2.4.
 
-> You are talking about a lot of independant things, but I'm going
-> to defer my contributions until we have actual code people can
-> start plugging netfilter into if they want.
+>IDE uses ide_insw instead of plain insw specifically to
+>resolve this kind of issue, and you are trying to defeat
+>the mechanism designed to help you. I smell a fish here.
 
-Fair enough. I'm looking forward to seeing this framework. Any release 
-schedules or rough plans?
+Again, I'm talking about the new layer. In this, the iops
+functions are no longer macros defined by include/asm*/ide.h,
+but are now function pointers inside the hwif structure
+(so we can now deal with real MMIO or CPU register based IDE
+without playing macro tricks in asm*/ide.h).
 
-> About using syslog to record messages, that is doomed to failure,
-> implement log messages via netlink and use that to log the events
-> instead.
+The problem resides in the default implementation of those
+iops in the new ide-iops.c file, which currently re-implements
+insw as a loop of IN_WORD, which usually translates to inw,
+and thus would cause incorrect endianness.
 
-Yes, we're doing tests in this field now (as with evlog) but as it seems 
-from preliminary testing netlink transportation of binary data is not 
-100% reliable either. However, I will refrain from further posting 
-assumptions until we've done our tests and until we can post useful 
-results and facts in this field.
+My patch fixes that. Ultimately, we want to completely get
+rid of the uppercase {IN,OUT}{BYTE,WORD,LONG} macros though.
 
-Thanks and cheers,
-Roberto Nibali, ratz
--- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
+The principle is that ide-iops.c will provide reasonable
+"default" ops for PIO (and MMIO if my next patch gets in),
+any "different" interface can provide it's own ops, and you
+keep the ability to mix different kind of interfaces on the
+same machine (like an embeded CPU-register based interface
+_and_ a PCI based interface using different iops).
+
+Ben.
 

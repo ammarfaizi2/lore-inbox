@@ -1,106 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317165AbSGHVVY>; Mon, 8 Jul 2002 17:21:24 -0400
+	id <S316988AbSGHVkk>; Mon, 8 Jul 2002 17:40:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317169AbSGHVVX>; Mon, 8 Jul 2002 17:21:23 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:36623 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S317165AbSGHVVW>; Mon, 8 Jul 2002 17:21:22 -0400
-Date: Mon, 8 Jul 2002 14:23:52 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fbdev updates.
-Message-ID: <Pine.LNX.4.44.0207081420020.7699-100000@www.transvirtual.com>
+	id <S317169AbSGHVkj>; Mon, 8 Jul 2002 17:40:39 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:65029
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S316988AbSGHVki> convert rfc822-to-8bit; Mon, 8 Jul 2002 17:40:38 -0400
+Date: Mon, 8 Jul 2002 14:41:07 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Paul Bristow <paul@paulbristow.net>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.22] simple ide-tape.c and ide-floppy.c cleanup
+In-Reply-To: <3D29F70D.6020001@paulbristow.net>
+Message-ID: <Pine.LNX.4.10.10207081438090.9331-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Here is the updates to the fbdev layer. I removed a few driver
-modification for the authors that requested. Please note I removed th eold
-fbgen code. It will break some drivers. They are responsible for updating
-the drivers. Here are changes against the latest Linus BK tree.
+Paul,
 
-Updates to several drivers form the m68k platform and removal of the PPC
-VT excess code.
+You have to remember that all that is good is SCSI, that is why the
+hardare is dying and going away for the most part.  We all know that
+ATA/IDE is a thing of the past as is anything with a parallel ribbon.
 
- Documentation/fb/README-sstfb.txt        |   87 +
- arch/i386/boot/compressed/vmlinux.bin.gz |binary
- arch/ppc/Config.help                     |    6
- arch/ppc/config.in                       |    3
- drivers/char/vt.c                        |   66 -
- drivers/video/Config.help                |   22
- drivers/video/Config.in                  |   80 -
- drivers/video/Makefile                   |   15
- drivers/video/S3triofb.c                 |   19
- drivers/video/amifb.c                    |   81 -
- drivers/video/atafb.c                    |  376 ++++----
- drivers/video/aty/atyfb.h                |   18
- drivers/video/aty/atyfb_base.c           |  348 ++-----
- drivers/video/aty/mach64.h               | 1158 -------------------------
- drivers/video/aty/mach64_accel.c         |    2
- drivers/video/aty/mach64_ct.c            |    4
- drivers/video/aty/mach64_cursor.c        |   12
- drivers/video/aty/mach64_gx.c            |    2
- drivers/video/aty128.h                   |  352 -------
- drivers/video/aty128fb.c                 |   32
- drivers/video/chipsfb.c                  |   29
- drivers/video/controlfb.c                |   21
- drivers/video/dnfb.c                     |   19
- drivers/video/fbcon-mac.c                |  483 ----------
- drivers/video/fbcon-vga.c                |  213 ----
- drivers/video/fbgen.c                    |  347 -------
- drivers/video/fbmem.c                    |    2
- drivers/video/fm2fb.c                    |    3
- drivers/video/fonts.c                    |    4
- drivers/video/hpfb.c                     |    3
- drivers/video/imsttfb.c                  |   56 -
- drivers/video/macfb.c                    |  463 ++--------
- drivers/video/macmodes.c                 |  171 ---
- drivers/video/matrox/matroxfb_base.c     |   27
- drivers/video/matrox/matroxfb_base.h     |    6
- drivers/video/modedb.c                   |    4
- drivers/video/neofb.c                    |    7
- drivers/video/offb.c                     | 1130 +++++++++---------------
- drivers/video/platinumfb.c               |   26
- drivers/video/q40fb.c                    |    8
- drivers/video/retz3fb.c                  |    4
- drivers/video/sgivwfb.c                  | 1432 +++++++++++++------------------
- drivers/video/sgivwfb.h                  |  660 --------------
- drivers/video/sstfb.c                    |  958 +++++++++++---------
- drivers/video/sstfb.h                    |   73 +
- drivers/video/tdfxfb.c                   |   55 -
- drivers/video/tx3912fb.c                 |    2
- drivers/video/valkyriefb.c               |   26
- drivers/video/vesafb.c                   |   12
- drivers/video/vfb.c                      |    4
- include/asm-ppc/vc_ioctl.h               |   46
- include/asm-ppc64/vc_ioctl.h             |   50 -
- include/linux/pci_ids.h                  |    1
- include/linux/tty.h                      |    3
- include/video/aty128.h                   |  419 +++++++++
- include/video/mach64.h                   | 1158 +++++++++++++++++++++++++
- include/video/sgivw.h                    |  660 ++++++++++++++
- 58 files changed, 4571 insertions(+), 6697 deletions(-)
+Just let them go about their merry way as there is something else on the
+horizon where your talents would be used if you were willing.
 
-BK:
-   http://fbdev-2.5.bkbits.net/fbdev-2.5
+Cheers,
 
-diff:
+Andre Hedrick
+LAD Storage Consulting Group
 
-   http://www.transvirtual.com/~jsimmons/fbdev.diff.gz
+On Mon, 8 Jul 2002, Paul Bristow wrote:
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'\_   _/`\
- \___)=(___/
-
-
-
+> OK.  I kept quiet while the IDE re-write went on so that when it was 
+> over I could fix up ide-floppy and start adding some of the requested 
+> features that were only really possible with the taskfile capabilities. 
+>  But I have to jump in with the latest statements from Martin...  
+> 
+> Martin Dalecki wrote:
+> 
+> >U¿ytkownik Eduard Bloch napisa³:
+> >  
+> >
+> >>Why not another way round? Just make the ide-scsi driver be prefered,
+> >>and hack ide-scsi a bit to simulate the cdrom and adv.floppy devices
+> >>that are expected as /dev/hd* by some user's configuration?
+> >>    
+> >>
+> >
+> >This is the intention.
+> >
+> Since when?  I thought Jens was in the process of getting rid of the 
+> ide-scsi kludge with his moves to support cd/dvd writing directly in 
+> ide-cd?
+> 
+> >>to be honest - why keep ide-[cd,floppy,tape] when they can be almost
+> >>completely replaced with ide-scsi? I know about only few cdrom devices
+> >>that are broken (== not ATAPI compliant) but can be used with
+> >>workarounds in the current ide-cd driver. OTOH many users do already
+> >>need ide-scsi to access cd recorders and similar hardware, so they would
+> >>benefit much more from having ide-scsi as default than few users of
+> >>broken "atapi" drives.
+> >>    
+> >>
+> OK.  I would prefer though to take Linus's comment on board about 
+> unifying the removeable media  interfaces. Be they IDE, SCSI, Firewire, 
+> USB, whatever.  Let's try to make it something comprehensible for 
+> "normal humans", and don't say "let config scripts sort it out - I deal 
+> with many user help requests from broken configs.
+> 
+> Please don't forget that
+>   a) some of the broken ide devices will still need fixes even if 
+> handled via ide-scsi (and yes, devices on the market today are still 
+> broken today)
+>   b) some features still need IDE commands (not ATAPI) which I hoped we 
+> would have done via taskfile - I guess this is tricky via ide-scsi
+>   c) getting ide-scsi working for PCMCIA devices is an absolute f*****g 
+> nightmare - for this reason alone I would keep ide-floppy
+>   d) many of these devices (LS120/LS240/Zip 100/250 etc) can and need to 
+> boot.  I don't even know how to start doing this under ide-scsi in it's 
+> present form.
+> 
+> The current system may be ugly, but if we have to break it in the name 
+> of progress we have at least to make the new, improved version work as 
+> well (and hopefully better) than the old one.
+> 
+> >>Other operating systems did switch to constitent (scsi-based) way of
+> >>accessing all kinds of removable media drivers. Why does Linux have to
+> >>keep a kludge, written years ago without having a good concept?
+> >>
+> >>    
+> >>
+> If we can address all these issues I will be extremely happy to helping 
+> create a sensible removeable media subsystem.
+> 
+> 
+> -- 
+> 
+> Paul
+> 
+> Linux ide-floppy maintainer
+> Email:	paul@paulbristow.net
+> Web:	http://paulbristow.net
+> ICQ:	11965223
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

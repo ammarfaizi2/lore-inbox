@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318787AbSIPDwx>; Sun, 15 Sep 2002 23:52:53 -0400
+	id <S318792AbSIPD4j>; Sun, 15 Sep 2002 23:56:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318789AbSIPDwx>; Sun, 15 Sep 2002 23:52:53 -0400
-Received: from mnh-1-28.mv.com ([207.22.10.60]:2310 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S318787AbSIPDwx>;
-	Sun, 15 Sep 2002 23:52:53 -0400
-Message-Id: <200209160455.XAA04265@ccure.karaya.com>
+	id <S318790AbSIPD4j>; Sun, 15 Sep 2002 23:56:39 -0400
+Received: from mnh-1-28.mv.com ([207.22.10.60]:5638 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S318792AbSIPD4j>;
+	Sun, 15 Sep 2002 23:56:39 -0400
+Message-Id: <200209160459.XAA04288@ccure.karaya.com>
 X-Mailer: exmh version 2.0.2
-To: Daniel Jacobowitz <dan@debian.org>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Daniel Phillips <phillips@arcor.de>,
+To: Daniel Phillips <phillips@arcor.de>
+cc: Daniel Jacobowitz <dan@debian.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        David Brownell <david-b@pacbell.net>,
        Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
        Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
 Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34 
-In-Reply-To: Your message of "Sun, 15 Sep 2002 15:32:23 -0400."
-             <20020915193223.GA22800@nevyn.them.org> 
+In-Reply-To: Your message of "Sun, 15 Sep 2002 21:48:51 +0200."
+             <E17qfNz-00008n-00@starship> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 15 Sep 2002 23:55:54 -0500
+Date: Sun, 15 Sep 2002 23:59:12 -0500
 From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dan@debian.org said:
-> I run into problems fairly often that I can't reproduce in UML -
-> timing sensitive, 
+phillips@arcor.de said:
+> Oh, and there is another big suckage in UML in the area of modules,
+> you have to load the symbols by hand, which is just enough pain to
+> make it not worth compiling things as modules in UML.
 
-Timing works both ways.  Maybe you run into a bug on native i386 that UML
-won't reproduce.  Maybe UML will reproduce bugs you won't see on hardware.
-That doesn't help you track down a particular bug you're seeing on hardware,
-but as far as overall bug smashing goes, it looks like a wash to me.
+There is a nice expect script available with automates that for you.  See
+http://user-mode-linux.sf.net/debugging.html, towards the bottom.
 
-> hardware sensitive, etc.  
-
-That's potentially fixable.  UML has SCSI support now, with a USB driver
-in the works.  Other hardware access is possible, too.
-
-> UML
-> also doesn't use a lot of the code under arch/i386/ (or didn't at
-> least) which makes debugging that code under UML a bit futile.
-
-Then we need to push code out from arch into the generic kernel.  That's
-happening slowly, but there's a bunch more to go.
+That's from Chandan Kudige, who followed that up by making UML sort of work
+on Windows :-)
 
 				Jeff
 

@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133111AbRDRMmo>; Wed, 18 Apr 2001 08:42:44 -0400
+	id <S133109AbRDRMnE>; Wed, 18 Apr 2001 08:43:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133110AbRDRMme>; Wed, 18 Apr 2001 08:42:34 -0400
-Received: from mail.intrex.net ([209.42.192.246]:59144 "EHLO intrex.net")
-	by vger.kernel.org with ESMTP id <S133109AbRDRMmO>;
-	Wed, 18 Apr 2001 08:42:14 -0400
-Date: Wed, 18 Apr 2001 08:44:20 -0400
-From: James Lewis Nance <jlnance@intrex.net>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][CFT] ext2 directories in pagecache
-Message-ID: <20010418084420.A857@bessie.dyndns.org>
-In-Reply-To: <Pine.GSO.4.21.0104121217580.19944-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
+	id <S133110AbRDRMmy>; Wed, 18 Apr 2001 08:42:54 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:49669 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S133109AbRDRMml>; Wed, 18 Apr 2001 08:42:41 -0400
+Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please get better  audio.
+To: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 18 Apr 2001 13:44:32 +0100 (BST)
+Cc: miles@megapathdsl.net (Miles Lane), linux-kernel@vger.kernel.org
+In-Reply-To: <m1lmoys7wt.fsf@frodo.biederman.org> from "Eric W. Biederman" at Apr 18, 2001 06:34:58 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0104121217580.19944-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Apr 12, 2001 at 12:33:42PM -0400
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14prJy-0004eW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 12, 2001 at 12:33:42PM -0400, Alexander Viro wrote:
-> 	Folks, IMO ext2-dir-patch got to the stable stage. Currently
-> it's against 2.4.4-pre2, but it should apply to anything starting with
-> 2.4.2 or so.
+> So my question is, what would it take to get some automatic software
+> volume correction going.  This looks like it would be the easiest fix
+> of all.
 
-Have you had any feedback about this patch?  I applied it last night to
-2.4.3.  It seemed to work.  When I booted my computer this morning fsck
-complained about problems with the directory on one of my ext2 file systems.
-Since fsck does not run on every boot I dont really have a way of knowing if
-this has anything to do with your patch or not.  I'm running the patched
-kernel again right now.  Ill shutdown and force an fsck later today to see
-if anything shows up.
+Unfortunately its encoded in a proprietary format otherwise it would have
+been perhaps half an hours work to write an AGC filter for the data.
 
-Thanks,
+Alan
 
-Jim

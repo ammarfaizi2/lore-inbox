@@ -1,63 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262559AbVAETRs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262565AbVAETXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262559AbVAETRs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 14:17:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbVAETRr
+	id S262565AbVAETXj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 14:23:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbVAETXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 14:17:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19881 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262559AbVAETRh (ORCPT
+	Wed, 5 Jan 2005 14:23:38 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:33761 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262565AbVAETVr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 14:17:37 -0500
-Message-ID: <41DC3BD6.3020303@osdl.org>
-Date: Wed, 05 Jan 2005 11:11:18 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+	Wed, 5 Jan 2005 14:21:47 -0500
+Message-ID: <41DC3E96.4020807@sgi.com>
+Date: Wed, 05 Jan 2005 13:23:02 -0600
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Konrad Wojas <wojas@vvtp.tudelft.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9 oops in poll()?
-References: <20050103161556.GD31250@vvtp.tudelft.nl> <41DB1C92.7060501@osdl.org> <20050105040841.GI31250@vvtp.tudelft.nl> <41DC30C9.5050402@osdl.org> <20050105185733.GJ31250@vvtp.tudelft.nl>
-In-Reply-To: <20050105185733.GJ31250@vvtp.tudelft.nl>
+To: Steve Longerbeam <stevel@mvista.com>
+CC: Andi Kleen <ak@muc.de>, Hirokazu Takahashi <taka@valinux.co.jp>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Marcello Tosatti <marcelo.tosatti@cyclades.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, andrew morton <akpm@osdl.org>
+Subject: Re: page migration patchset
+References: <41DB35B8.1090803@sgi.com> <m1wtusd3y0.fsf@muc.de> <41DB5CE9.6090505@sgi.com> <41DC34EF.7010507@mvista.com>
+In-Reply-To: <41DC34EF.7010507@mvista.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Konrad Wojas wrote:
-> On Wed, Jan 05, 2005 at 10:24:09AM -0800, Randy.Dunlap wrote:
+Hi Steve!
+
+Steve Longerbeam wrote:
+
 > 
->>This probably needed to use /proc/kallsyms from the dying kernel,
->>which you most likely don't have....
+> well, I need to study the page migration patch more (this is the
+> first time I've heard of it). But it sounds as if my patch and the
+> page migration patch are complementary.
+> 
+
+Did you get the url from the last email?
+
+http://sr71.net/patches/2.6.10/2.6.10-mm1-mhp-test7/page_migration/
+
 >>
->>I'm having trouble seeing what sock_poll() called (i.e., where EIP
->>register points to).  In the /boot/System.map-2.6.9-1-686 file,
->>is anything near address 0xc02b5513 listed?
->>(or just send me that file privately)
+>> On the other hand, there is some work to be done wrt memory policies
+>> and page migration.  For the project I am working on, we need to be able
+>> to move all of the pages used by a process on one set of nodes to another
+>> set of nodes.  At some point during this process we will need to update
+>> the memory policy for that process.  For Steve's patch, we will
+>> similarly need to update the policy associated with files associated with
+>> the process, I would think, elsewise new pages will get allocated on the
+>> old set of nodes, which is something we don't want.  Sounds like some
+>> new interfaces will have to be developed here.  Does that make sense
+>> to you, Andi and Steve?
+> 
+> yes.
+> 
+>>
+>> My personal preference would be to keep as much of this as possible
+>> under user space control; that is, rather than having a big autonomous
+>> system call that migrates pages and then updates policy information,
+>> I'd prefer to split the work into several smaller system calls that
+>> are issued by a user space program responsible for coordinating the
+>> process migration as a series of steps, e. g.:
+>>
+>> (1)  suspend the process via SIGSTOP
+>> (2)  update the mempolicy information
+>> (3)  migrate the process's pages
+>> (4)  migrate the process to the new cpu via set_schedaffinity()
+>> (5)  resume the process via SIGCONT
+>>
+> 
+> steps 2 and 3 can be accomplished by a call to mbind() and
+> specifying MPOL_MF_MOVE. And since mbind() takes an
+> address range, you could probably migrate pages and change
+> the policies for all of the process' mappings in a single mbind()
+> call.
+> 
+
+Interesting, I hadn't tbought of that.  I'll look at that.
+
+> Note that Andrew had to drop my patch from 2.6.10, because
+> the 4-level page tables feature was re-implemented using a
+> different interface, which broke my patch. So Andrew asked me
+> to re-do the patch for inclusion in 2.6.11. That gives us ~2 months
+> to work on integrating the page migration and NUMA mempolicy
+> filemap patches.
+
+Sounds like a plan.
+
+> 
+> Ray, btw it is beneficial that I can work with you on this, because I have
+> no access to true NUMA machines. My testing of the filemap mempolicy
+> patch has only been on a UP discontiguous memory system. I assume
+> you've got access to Altix machines at SGI to do testing and benchmarking
+> of my filemap patch and your migration patches.
+> 
+> Steve
 > 
 > 
-> Also doesn't look very helpfull to me..
 
-True.  Have you tested this problem on 2.6.10 yet?
+Oh yeah, I have access to a >>few<< Altix systems.  :-)
 
-Back to 2.6.9:  do you normally run 2.6.9 with all of those same
-modules loaded?  If so, please send me the /proc/modules
-and /proc/kallsyms files.
+I'd be happy to test your patches on Altix.  I have another project sitting
+on the back burner to get page cache allocated (by default) in round-robin
+memory for Altix; I need to see how to integrate this with your work (which
+is how this was all left a few months back when I got pulled off to work on
+the latest release for Altix.)  So that is another area for collaboration.
 
-Anyone know what all of those __func__'s are?
-
-> c02a592a r __func__.1
-> c02a593b r __func__.0
-> c02a594c r __func__.8
-> c02a5960 r llc_oui
-> c02a59a8 r __func__.4
-> c02c6bc8 d __pci_fixup_PCI_VENDOR_ID_S3PCI_DEVICE_ID_S3_868quirk_s3_64M
-> c02c6bc8 D __start_pci_fixups_header
-> c02c6bd0 d __pci_fixup_PCI_VENDOR_ID_S3PCI_DEVICE_ID_S3_968quirk_s3_64M
-> c02c6bd8 d __pci_fixup_PCI_VENDOR_ID_ALPCI_DEVICE_ID_AL_M7101quirk_ali7101_acpi
-> c02c6be0 d __pci_fixup_PCI_VENDOR_ID_INTELPCI_DEVICE_ID_INTEL_82371AB_3quirk_piix4_acpi
+Is the latest version of your patch the one from lkml dated 11/02/2004?
 
 
 -- 
-~Randy
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------

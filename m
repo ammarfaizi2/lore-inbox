@@ -1,85 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267636AbTALXLF>; Sun, 12 Jan 2003 18:11:05 -0500
+	id <S267640AbTALXP4>; Sun, 12 Jan 2003 18:15:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267638AbTALXJM>; Sun, 12 Jan 2003 18:09:12 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:40872 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S267634AbTALXHL>; Sun, 12 Jan 2003 18:07:11 -0500
-Date: Sun, 12 Jan 2003 15:22:57 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: 2.5.56 won't boot (but 2.5.53 will)
-To: linux-kernel@vger.kernel.org
-Message-id: <3E21F8D1.6080709@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <3E207EA3.2090504@pacbell.net>
+	id <S267641AbTALXP4>; Sun, 12 Jan 2003 18:15:56 -0500
+Received: from ophelia.ess.nec.de ([193.141.139.8]:59827 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S267642AbTALXPn> convert rfc822-to-8bit; Sun, 12 Jan 2003 18:15:43 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [Lse-tech] Minature NUMA scheduler
+Date: Mon, 13 Jan 2003 00:24:48 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+References: <Pine.LNX.3.96.1030111094032.8637A-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1030111094032.8637A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301130024.48571.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Given all the flamage about GOTO, I thought maybe someone might
-prefer to actually help resolve a problem ... so, I'm resending!
+On Saturday 11 January 2003 15:43, Bill Davidsen wrote:
+> Agreed, but honestly just this explanation would make it easier to
+> understand! I'm not sure you have the "balance of nodes" trigger defined
+> quite right, but I'm assuming if this gets implemented as described that
+> some long term umbalance detector mechanism will be run occasionally.
 
+Yes, the current plan is to extend the miniature NUMA scheduler by a
+inter-node balancer which is called less frequently.
 
-> Symptom:  system hangs during boot, right where it's shown in the
-> annotated log below.  On 2.5.56 I also tried after disabling SMP
-> and all the local APIC stuff in the build, but it didn't matter.
-> These are otherwise the same .config setups, modulo whatever
-> magic "make oldconfig" did.
-> 
-> In case it matters, this is kt333-based with a vt8235 south bridge.
-> It's never shown this type of boot problem before.
-> 
-> Suggestions, or patches?
-> 
-> - Dave
-> 
-> 
-> Linux version 2.5.53 (root@helium) (gcc version 2.96 20000731 (Red Hat 
-> Linux 7.3 2.96-110)) #10 SMP Fri Jan 3 11:47:10 PST 2003
-> Video mode to be used for restore is f00
-> BIOS-provided physical RAM map:
->  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
->  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
->  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
->  BIOS-e820: 0000000000100000 - 0000000020000000 (usable)
->  BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
->  BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
->  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-> 512MB LOWMEM available.
-> found SMP MP-table at 000f50e0
-> hm, page 000f5000 reserved twice.
-> hm, page 000f6000 reserved twice.
-> hm, page 000f1000 reserved twice.
-> hm, page 000f2000 reserved twice.
->     
->     right here is where 2.5.56 (and 2.5.54) stops booting:
->     before messages about zone allocations.  Alt-SysRQ-B works.
-> 
-> On node 0 totalpages: 131072
->   DMA zone: 4096 pages, LIFO batch:1
->   Normal zone: 126976 pages, LIFO batch:16
->   HighMem zone: 0 pages, LIFO batch:1
-> Intel MultiProcessor Specification v1.4
->     Virtual Wire compatibility mode.
-> OEM ID: OEM00000 Product ID: PROD00000000 APIC at: 0xFEE00000
-> Processor #0 6:6 APIC version 17
-> I/O APIC #2 Version 17 at 0xFEC00000.
-> Enabling APIC mode:  Flat.  Using 1 I/O APICs
-> Processors: 1
-> Building zonelist for node : 0
-> Kernel command line: ro root=/dev/hda9 nmi_watchdog=1
-> Initializing CPU#0
-> Detected 1532.634 MHz processor.
-> Console: colour VGA+ 80x25
-> Calibrating delay loop... 3014.65 BogoMIPS
-> Memory: 515688k/524288k available (1508k kernel code, 7864k reserved, 
-> 725k data, 112k init, 0k highmem)
-> 
-> 
-
+Regards,
+Erich
 
 

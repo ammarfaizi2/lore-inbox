@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261346AbTADTzm>; Sat, 4 Jan 2003 14:55:42 -0500
+	id <S261353AbTADT4L>; Sat, 4 Jan 2003 14:56:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261356AbTADTzm>; Sat, 4 Jan 2003 14:55:42 -0500
-Received: from web13708.mail.yahoo.com ([216.136.175.141]:21397 "HELO
-	web13708.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261346AbTADTzm>; Sat, 4 Jan 2003 14:55:42 -0500
-Message-ID: <20030104200415.7387.qmail@web13708.mail.yahoo.com>
-Date: Sat, 4 Jan 2003 12:04:15 -0800 (PST)
-From: Mad Hatter <slokus@yahoo.com>
-Subject: 2.5.54 Makefile question: set -e
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261356AbTADT4L>; Sat, 4 Jan 2003 14:56:11 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63872
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261353AbTADT4K>; Sat, 4 Jan 2003 14:56:10 -0500
+Subject: Re: [PATCH] Make ide-probe more robust to non-ready devices
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1041672876.1346.23.camel@zion.wanadoo.fr>
+References: <1041672876.1346.23.camel@zion.wanadoo.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1041713307.2036.10.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 04 Jan 2003 20:48:27 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 2003-01-04 at 09:34, Benjamin Herrenschmidt wrote:
+> I don't expect this patch to break any existing working configuration,
+> so please send to Linus for 2.5. If you accept it, I'll then send a 2.4
+> version to Marcelo as well. This have been around for some time and,
+> imho, should really get in now.
 
-The toplevel Makefile in 2.5.54 has near line 313:
+There is a ton of stuff pending for 2.5 IDE. Unfortunately 2.5 isn't in
+a state I can do any usable testing so it will have to wait. The Marcelo
+2.4 tree is current and I'm doing the work in 2.4 first now.
 
-----------------------------
-#	set -e makes the rule exit immediately on error
-#...
-attribute if uninitialized.
-
-define rule_vmlinux__
-	set -e
-...
-endef
--------------------------
-
-However, the "set -e" does nothing since each line is
-processed by a different shell according to the make
-manual.
+Rusty seems to have a lot of the module stuff in hand so hopefully I'll
+get back onto 2.5 after LCA
 
 
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com
+Alan
+

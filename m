@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312204AbSCRGEc>; Mon, 18 Mar 2002 01:04:32 -0500
+	id <S312205AbSCRGLz>; Mon, 18 Mar 2002 01:11:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312205AbSCRGEY>; Mon, 18 Mar 2002 01:04:24 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31498 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312204AbSCRGEP>;
-	Mon, 18 Mar 2002 01:04:15 -0500
-Message-ID: <3C958332.4050508@mandrakesoft.com>
-Date: Mon, 18 Mar 2002 01:03:30 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: rusty@rustcorp.com.au, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, rgooch@ras.ucalgary.ca
-Subject: Re: bit ops on unsigned long?
-In-Reply-To: <Pine.LNX.4.33.0203151656320.1379-100000@home.transmeta.com>	<E16m4YD-0004af-00@wagner.rustcorp.com.au> <20020317.200828.64296429.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S312206AbSCRGLq>; Mon, 18 Mar 2002 01:11:46 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:4574 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S312205AbSCRGL3>; Mon, 18 Mar 2002 01:11:29 -0500
+Date: Sun, 17 Mar 2002 23:11:24 -0700
+Message-Id: <200203180611.g2I6BOk13021@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Another entry for the MCE-hang list
+In-Reply-To: <3C9582F0.7090102@mandrakesoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+Jeff Garzik writes:
+> Richard Gooch wrote:
+> 
+> >  Hi, all. I just booted 2.4.19-pre3, and it hung right after the MCE
+> >message. This is an Asus P2B-D with two Intel 450 MHz PIII's. Output
+> >of /proc/cpuinfo appended.
+> >
+> 
+> My ASUS P2B-D with dual P-II 400's is strange...
+> 
+> I -was- getting the hang, but then I recompiled on a different host, 
+> with possibly a different compiler, and the hang went away.  Sorry I 
+> cannot be more specific than this :(
+> 
+> The "running ok" case, which came -after- the hang case, was 
+> 2.4.19-pre3-BK-latest with gcc 3.0.4-MDK.
 
->   From: Rusty Russell <rusty@rustcorp.com.au>
->   Date: Sat, 16 Mar 2002 14:08:08 +1100
->
->   +#ifdef CONFIG_PREEMPT
->    	/* Set the preempt count _outside_ the spinlocks! */
->    	idle->thread_info->preempt_count = (idle->lock_depth >= 0);
->   +#endif
->
->This part of your patch has to go.  Every port must
->provide the preempt_count member of thread_info regardless
->of the CONFIG_PREEMPT setting.
->
-
-Even if the port doesn't support CONFIG_PREEMPT at all?
-
-    Jeff
-
-
-
+I'm using egcs-1.1.2. I've bailed out of gcc-2.95.3 because it's
+buggy. 
 
 
+				Regards,
 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

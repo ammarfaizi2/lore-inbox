@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268704AbUHTXFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267223AbUHTXL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268704AbUHTXFg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 19:05:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268792AbUHTXFf
+	id S267223AbUHTXL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 19:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268793AbUHTXL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 19:05:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47597 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268704AbUHTXF2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 19:05:28 -0400
-Date: Fri, 20 Aug 2004 19:05:21 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, <reiserfs-dev@namesys.com>
-Subject: Re: 2.6.8.1-mm2 - reiser4
-In-Reply-To: <Pine.LNX.4.44.0408201753250.4192-100000@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.44.0408201852140.4192-100000@chimarrao.boston.redhat.com>
+	Fri, 20 Aug 2004 19:11:57 -0400
+Received: from czf-prosek6.supernetwork.cz ([81.31.22.46]:3968 "EHLO
+	noodles.netw") by vger.kernel.org with ESMTP id S267223AbUHTXLz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 19:11:55 -0400
+From: Jan Spitalnik <jan@spitalnik.net>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Subject: Re: 2.6.8.1 slews system clock
+Date: Sat, 21 Aug 2004 01:11:53 +0200
+User-Agent: KMail/1.7
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200408201527.07126.jan@spitalnik.net> <Pine.LNX.4.53.0408201601200.12519@gockel.physik3.uni-rostock.de> <200408201702.01287.jan@spitalnik.net>
+In-Reply-To: <200408201702.01287.jan@spitalnik.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200408210111.53538.jan@spitalnik.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Aug 2004, Rik van Riel wrote:
-> On Thu, 19 Aug 2004, Andrew Morton wrote:
-> 
-> > - Added the reiser4 filesystem.
+Dne pá 20. srpna 2004 17:02 Jan Spitalnik napsal(a):
+> > Which was the last kernel that worked?
+>
+> 2.6.7 didn't exhibit this problem. I will test 2.6.8-rc's to find which one
+> caused this regression.
 
-Oh, and another one.  The reiser 4 system call
-sys_reiserfs seems to need an additional patch,
-which is craftily hidden inside reiser4-only.patch
+Hi,
 
-That patch creates fs/reiser4/linux-5_reiser4_syscall.patch,
-which I can only assume reiser 4 users should apply...
-
-Kind of ugly.
-
-Looking further, the horrors only increase.  It looks like
-sys_reiser4() is an interface to load programs into the
-kernel, with reiserfs4 containing an interpreter.
-
-I'll leave aside the issues of having a scripting language
-inside the kernel, since I'm sure other people will comment
-on it.
-
-However, I am absolutely flabbergasted that Hans Reiser
-is using a syscall here, instead of a filesystem interface.
-
-Furthermore, why do the parsing in the kernel, instead of
-compiling the human-readable strings in userspace and
-loading something easy to use into the kernel, like the
-selinux subsystem does?
-
-Since this code is bound to be horribly controversial, it
-may be an idea to remove this from the reiserfs4 core patch.
-That way the battles over the filesystem, and its interactions
-with the rest of the kernel can be fought first, without having
-the whole reiserfs4 filesystem strand in the quicksand of 
-"why do we need an interpreted language with completely new 
-filesystem semantics in the kernel?"
-
+I've did further testing and I've found out that fortunately it's not a kernel 
+problem (sorry for the buzz :-/ ). adjtimex was the culprit. 
+adjtimexconfigure said that the CMOS clock is faster by 970secs a day to 
+system clock. When I disabled adjtimex and rebooted, the system clock is now 
+rock solid and doesn't slew. Now I wonder what's wrong with adjtimex or my 
+system. I've tried on several other systems and the it was all the same.
+Thanks,
+  jan
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Jan Spitalnik
+jan@spitalnik.net
 

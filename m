@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267345AbUIJJhr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267346AbUIJJit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267345AbUIJJhr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 05:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267364AbUIJJhp
+	id S267346AbUIJJit (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 05:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267343AbUIJJis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 05:37:45 -0400
-Received: from [213.91.207.82] ([213.91.207.82]:13441 "EHLO adsl.nucleusys.com")
-	by vger.kernel.org with ESMTP id S267345AbUIJJfI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 05:35:08 -0400
-Date: Fri, 10 Sep 2004 12:34:54 +0300 (EEST)
-From: Petko Manolov <petkan@nucleusys.com>
-To: Greg KH <greg@kroah.com>
-cc: Andrew Morton <akpm@osdl.org>, eric.valette@free.fr,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm4 badness in rtl8150.c ethernet driver : fixed
-In-Reply-To: <20040909223605.GA17655@kroah.com>
-Message-ID: <Pine.LNX.4.61.0409101212420.22115@bender.nucleusys.com>
-References: <413DB68C.7030508@free.fr> <4140256C.5090803@free.fr>
- <20040909152454.14f7ebc9.akpm@osdl.org> <20040909223605.GA17655@kroah.com>
+	Fri, 10 Sep 2004 05:38:48 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:62727 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S267353AbUIJJhl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 05:37:41 -0400
+Message-ID: <414176F2.3030301@hist.no>
+Date: Fri, 10 Sep 2004 11:42:10 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: "Theodore Ts'o" <tytso@mit.edu>
+CC: Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
+       William Stearns <wstearns@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: silent semantic changes in reiser4 (brief attempt to document
+ the idea ofwhat reiser4 wants to do with metafiles and why
+References: <41323AD8.7040103@namesys.com> <413E170F.9000204@namesys.com> <Pine.LNX.4.58.0409071658120.2985@sparrow> <200409080009.52683.robin.rosenberg.lists@dewire.com> <20040909090342.GA30303@thunk.org>
+In-Reply-To: <20040909090342.GA30303@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Theodore Ts'o wrote:
 
-
-On Thu, 9 Sep 2004, Greg KH wrote:
-
-> On Thu, Sep 09, 2004 at 03:24:54PM -0700, Andrew Morton wrote:
->> Eric Valette <eric.valette@free.fr> wrote:
->>>
->>> Here is a small patch that makes the card functionnal again. I've
->>> forwarded the patch to driver author also.
->>>
->>> --- linux/drivers/usb/net/rtl8150.c-2.6.9-rc1-mm4.orig	2004-09-09 11:15:11.000000000 +0200
->>> +++ linux/drivers/usb/net/rtl8150.c	2004-09-09 11:15:46.000000000 +0200
->>> @@ -341,7 +341,7 @@
->>>
->>>  static int rtl8150_reset(rtl8150_t * dev)
->>>  {
->>> -	u8 data = 0x11;
->>> +	u8 data = 0x10;
->>
->> hm, OK.  Presumably the change (which comes in via the bk-usb tree) was
->> made for a reason.  So I suspect both versions are wrong ;)
->>
->> But it might be risky for Greg to merge this patch up at present.
+>On Wed, Sep 08, 2004 at 12:09:52AM +0200, Robin Rosenberg wrote:
+>  
 >
-> As all your patch does is revert the patch in my tree (it was a one line
-> change), mainline should work just fine for you, right?
+>>Maybe file/./attribute then. /. on a file is currently meaningless. That does 
+>>not avoid the unpleasant fact that has been brought up by others (only to be 
+>>ignored), that the directory syntax does not allow metadata on directories.
+>>    
+>>
 >
-> I'll defer to Petkan as to what to do about this, as he sent me that
-> patch for a good reason I imagine :)
+>*Not* that I am endorsing the idea of being able to access metadata
+>via a standard pathname --- I continue to believe that named streams
+>are a bad idea that will be an attractive nuisance to application
+>developers, and if we must do them, then Solaris's openat(2) API is
+>the best way to proceed --- HOWEVER, if people are insistent on being
+>able to do this via standard pathnames, and not introducing a new
+>system call, I would suggest /|/ as the separator as the third least
+>worst option.  Why?
+>  
+>
+What's wrong with using / as the separator?  It is already
+used to separate components of pathnames.  Named streams
+are very much like files in a subdirectory.
 
-Steven Hein <ssh@sgi.com> sent me a patch that supposedly fix device 
-registers misinitialization when it is being frequently reseted.
+This scheme makes for very little change to existing tools,
+users may then do a "gimp somefile/icon.jpg"  for example.
+Or "ls somefile/*" to see all the named streams/forks.
 
-RTL8150 is quite flaky piece of HW so i first tested the new value and it 
-did work for me.  That's why i decided to send it to Greg.
-
-I would say lets wait for some time and see if we'll break someone else's
-heart and then reverse the patch.  Another solution is to restore the 
-original value and add new module parameter, so whoever thinks
-anything != 0x10 work better for him will be free to change it.
-
-
- 		Petko
+Helge Hafting

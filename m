@@ -1,97 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267373AbTACESX>; Thu, 2 Jan 2003 23:18:23 -0500
+	id <S267375AbTACEbU>; Thu, 2 Jan 2003 23:31:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267376AbTACESX>; Thu, 2 Jan 2003 23:18:23 -0500
-Received: from dp.samba.org ([66.70.73.150]:36238 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267373AbTACEST>;
-	Thu, 2 Jan 2003 23:18:19 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Wang, Stanley" <stanley.wang@intel.com>
-Cc: "Zhuang, Louis" <louis.zhuang@intel.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: Re: Kernel module version support. 
-In-reply-to: Your message of "Thu, 02 Jan 2003 22:25:31 +0800."
-             <957BD1C2BF3CD411B6C500A0C944CA2602AFADC0@pdsmsx32.pd.intel.com> 
-Date: Fri, 03 Jan 2003 11:00:08 +1100
-Message-Id: <20030103042650.6DDD82C0B1@lists.samba.org>
+	id <S267377AbTACEbU>; Thu, 2 Jan 2003 23:31:20 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:38150
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267375AbTACEbS>; Thu, 2 Jan 2003 23:31:18 -0500
+Date: Thu, 2 Jan 2003 20:38:12 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Richard Stallman <rms@gnu.org>
+cc: mark@mark.mielke.cc, billh@gnuppy.monkey.org, paul@clubi.ie,
+       riel@conectiva.com.br, Hell.Surfers@cwctv.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+In-Reply-To: <E18UIZS-0006Cr-00@fencepost.gnu.org>
+Message-ID: <Pine.LNX.4.10.10301021953430.421-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <957BD1C2BF3CD411B6C500A0C944CA2602AFADC0@pdsmsx32.pd.intel.com> you
- write:
-> Hi, Rusty
-> I am interested in your module version support implementation. I've read
-> your description about it.
+On Thu, 2 Jan 2003, Richard Stallman wrote:
 
-Cool.  That reminds me.
+>     I regularly use several kernel modules that provide a GPL component that
+>     interfaces the module to the kernel, and a closed source object file that
+>     is dynamically loaded as a kernel module at run time.
+> 
+>     If I did not have these modules, I would not be able to use Linux as my
+>     host operating system.
+> 
+> Many enthusiasts the "Linux" operating system take the popularity of
+> the system (or of the kernel, Linux) as the supreme goal; but why
+> should the popularity of any one operating system or program be so
+> important?  That isn't what really matters.
 
-> 1. How do you plan to store the version information of a kernel module that
-> will export some symbols?
-> (In the version table of "bzImage"? In a specified section in this kernel
-> module? In other place? Or don't
-> store?)
+You forget a key aspect, the "GNU system Suite" needs a frame work to
+function.
 
-Currently I don't do this.  I discussed solutions briefly with Kai
-some time ago, but I'll have to revisit it.  Getting the core kernel
-symbols versioned covers 90% of the problem though, and shows the
-validity of the approach.
+> We developed the GNU system for the sake of freedom, and freedom is
+> what really matters.  The GNU/Linux system today is important because
+> it offers a road to freedom.  But it doesn't guarantee you will arrive
 
-> 2. You mentioned that "modules which want to export symbols place
-> their full path name in the .needmodversion section. Just before the
-> kernel is linked, these names are extracted, and genksyms scans
-> those files to create a version table. This table is then linked
-> into the kernel".  And I think we must recalculate all version
-> informaiton every time when we re built the kernel in this way.  Why
-> don't we place all the module version information in some files just
-> like old days.
+Let people travel the road of choice, and not dictate they have to ride
+a bobsled straight to HELL^W(your definition of freedom) with you pushing 
+all the way down.
 
-That's a build system detail: it can use that list to generate the
-versions on demand of course.
+> there.  If you use non-free drivers, you go just part way along the
+> road and never arrive at freedom.  That defeats the purpose.  To
+> achieve freedom, we need to insist on free drivers (and free
+> applications).
 
-> 3. You mentioned that "these symbol versions are then checked on
-> insmod". I wanna whether it means you would like to restore the
-> "/proc/ksyms" file or QUERY_MODULE SYSCALL to export the kernel
-> version table to the user space application.
+Your definition of FREEDOM STINKS!
 
-The language is a little loose.  The kernel does the actual checking:
+FREEDOM == CHOICE !
 
-#ifdef CONFIG_MODVERSIONING
-static inline int check_version(const char *name,
-				const char *symname,
-				const struct modversion_info *versions,
-				unsigned int num)
-{
-	unsigned int i, k;
+If people want to use "non-free drivers", they choose to execute the
+freedom to do so.  Now, what is clearly stated in your text is, FREEDOM
+means the vendor of the "non-free drivers" has NONE!
 
-	/* First search kernel (unversioned symbols not listed). */
-	for (k = 0; !streq(modversions[k].symbol, symname); k++)
-		if (!modversions[k].symbol[0])
-			return 0;
+If people want to have "free drivers" then contribute them.
+What I see is a lot of people wait for new technology to be supported,
+yet do nothing to enable the ones who have access and are willing to take
+the risks of dealing with the vendors who are paranoid.
 
-	/* Now see if module has matching symbol. */
-	for (i = 0; i < num; i++) {
-		if (streq(versions[i].symbol, symname)) {
-			if (versions[i].checksum == modversions[k].checksum)
-				return 0;
-			printk("%s: disagrees about version of symbol %s\n",
-			       name, symname);
-			DEBUGP("Kernel checksum %lX vs module %lX\n",
-			       modversions[k].checksum, versions[i].checksum);
-			return -ESRCH;
-		}
-	}
+> If NVidia cooperates with us this much, we should certainly pick up
 
-	/* Not in module's version table.  OK, but that taints the kernel. */
-	printk("%s: no version for %s found: kernel tainted.\n",
-	       name, symname);
-	tainted |= TAINT_FORCED_MODULE;
-	return 0;
-}
+What if they decide to thumb the nose at you?
+What if they decide to withdraw their drivers?
 
-Hope that clarifies,
-Rusty.
-PS.  I'll update the patch soon, I promise...
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Is your ego of "my way or no way" or "it is my license, I dictate its use"
+or .... fill in the blank, sigh ... never mind.
+
+You bang a drum of fair use for everything else which does not have GPL
+stamped and pounded into it.  Maybe you should allow a little fair use in
+your world of the license.  Oh, I am dreaming and so now to the rant!
+
+> the ball from there, and I am sure we will manage to go the rest of
+> the way.  But don't bet on 2 weeks.  Softare always takes twice as
+> long as you expect ;-).  If it takes a whole month month to be able to
+> use NVidia hardware in freedom, I won't complain about the delay.
+
+<RANT RANT DOUBLE_RANT>
+
+Execise your CHOICE and FREEDOM is yours.
+
+FREEDOM to pick and use hardware which is not natively supported.
+FREEDOM to use protocols which are not support.
+FREEDOM to use drivers which do the task you desire.
+
+or enjoy your CAPTIVITY with a loss of CHOICE.
+
+CAPTIVITY, well there is the FREEDOM to use what is supported open.
+CAPTIVITY, well this is not supported, no options available.
+CAPTIVITY, no drivers capable, we suffer down time to wait for a
+	sucker^Whacker^Wcodepoet^Wwhatever will slave for us.
+
+</RANT /RANT /DOUBLE_RANT>
+
+> But we could make do with even less cooperation than that.  If they
+> just provide the necessary specs to a person who wants to extend the
+> free drivers that exist, that would be sufficient.  It might take more
+> than 4 weeks to write the code, but surely not more than a few months.
+
+Gee, it has taken 12 years to get to where we are now.
+Is everything today which is in the kernel "fully functional" ?
+
+Come on Richard, this is not your "printer".
+It is something of beauty wrappered with a tarbaby in front of a briar
+patch.  Ease up with the sticky fingered tarbaby, the briar patch is
+enough of a boundary.
+
+Next go pick and use words out of BLACK's LAW.
+You risk it all with out drawing crisp clear lines.
+All it takes is for one loss in court and the fear of legal action is
+history.  The court battle may not fall in a circuit which is friendly to
+your choice of words in the license.
+
+
+Regards,
+
+Andre Hedrick
+LAD Storage Consulting Group
+

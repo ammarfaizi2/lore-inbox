@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbVCUUTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbVCUUUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbVCUUTI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 15:19:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVCUUTI
+	id S261859AbVCUUUz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 15:20:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVCUUUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 15:19:08 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46604 "EHLO
+	Mon, 21 Mar 2005 15:20:54 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47372 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261856AbVCUUS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 15:18:56 -0500
-Date: Mon, 21 Mar 2005 20:18:47 +0000
+	id S261858AbVCUUU0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 15:20:26 -0500
+Date: Mon, 21 Mar 2005 20:20:22 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jacques Goldberg <Jacques.Goldberg@cern.ch>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Need break driver<-->pci-device automatic association
-Message-ID: <20050321201847.A16069@flint.arm.linux.org.uk>
-Mail-Followup-To: Jacques Goldberg <Jacques.Goldberg@cern.ch>,
-	Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58_heb2.09.0503181042470.8660@localhost.localdomain> <20050318165124.GC14952@kroah.com> <Pine.LNX.4.58_heb2.09.0503192021431.11358@localhost.localdomain> <20050321081638.GC2703@pazke> <20050321082228.A22099@flint.arm.linux.org.uk> <Pine.LNX.4.58_heb2.09.0503211336090.6491@localhost.localdomain>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc1-mm1
+Message-ID: <20050321202022.B16069@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20050321025159.1cabd62e.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58_heb2.09.0503211336090.6491@localhost.localdomain>; from goldberg@phep2.technion.ac.il on Mon, Mar 21, 2005 at 01:39:30PM +0200
+In-Reply-To: <20050321025159.1cabd62e.akpm@osdl.org>; from akpm@osdl.org on Mon, Mar 21, 2005 at 02:51:59AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 21, 2005 at 01:39:30PM +0200, Jacques Goldberg wrote:
->         Here is a modem which cannot be used because it is grabbed by the
-> serial driver:
-> 
-> 00:0f.0 Modem: ALi Corporation SmartLink SmartPCI561 56K Modem (prog-if 00
-> [Generic])
+On Mon, Mar 21, 2005 at 02:51:59AM -0800, Andrew Morton wrote:
+> - Linus is away this week.  Not a lot more should be going into 2.6.12 now
+>   and I have a list of ~140 bugs, many of which are post-2.6.10 regressions. 
+>   We should fix these.
 
-Ok, this is what I wanted to know.
-
-There seems to be growing evidence that 8250_pci should not claim the
-"modem" class, but should match any such cards which do look like
-serial ports by vendor/device IDs.  The problem is that dropping the
-modem class id match could leave a fair number of people in the lurch,
-but I'm game to try it and see.
+Is this your own personal bug list, or is it accessible anywhere?
 
 -- 
 Russell King

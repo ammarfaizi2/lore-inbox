@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135640AbRAHKmk>; Mon, 8 Jan 2001 05:42:40 -0500
+	id <S132794AbRAHKrW>; Mon, 8 Jan 2001 05:47:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136499AbRAHKma>; Mon, 8 Jan 2001 05:42:30 -0500
-Received: from frontier.axistangent.net ([63.101.14.200]:24309 "EHLO
-	foozle.turbogeek.org") by vger.kernel.org with ESMTP
-	id <S135640AbRAHKmS>; Mon, 8 Jan 2001 05:42:18 -0500
-Date: Mon, 8 Jan 2001 04:42:18 -0600
-From: "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>
-To: linux-kernel@vger.kernel.org
-Subject: Extraneous whitespace removal?
-Message-ID: <20010108044218.A9610@foozle.turbogeek.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S135621AbRAHKrK>; Mon, 8 Jan 2001 05:47:10 -0500
+Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:53070 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id <S132794AbRAHKrG>; Mon, 8 Jan 2001 05:47:06 -0500
+Date: Mon, 8 Jan 2001 11:46:05 +0100 (CET)
+From: Nils Philippsen <nils@fht-esslingen.de>
+Reply-To: <nils@fht-esslingen.de>
+To: Narancs 1 <narancs1@externet.hu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: postgres/shm problem
+In-Reply-To: <Pine.LNX.4.02.10101081110001.1837-100000@prins.externet.hu>
+Message-ID: <Pine.LNX.4.30.0101081142090.8952-100000@rhlx01.fht-esslingen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I'll let the number speak:
+Hi,
 
-$ cp -R linux-2.4.0 linux-2.4.0-trimed
-$ find linux-2.4.0-trimed -type f | xargs perl -wi -pe 's/\s+$/\n/'
-$ du -s linux-2.4.0 linux-2.4.0-trimed
-119360  linux-2.4.0              # NOTE: 4k blocks, just an estimate
-119160  linux-2.4.0-trimed
+On Mon, 8 Jan 2001, Narancs 1 wrote:
 
-$ diff -ru linux-2.4.0 linux-2.4.0-trimed > trimed.diff
-$ ls -l trimed.diff*
--rw-r--r--   1 jmd      users    19131225 Jan  8 01:49 trimed.diff
--rw-r--r--   1 jmd      users     4732306 Jan  8 01:50 trimed.diff.gz
--rw-r--r--   1 jmd      users     3819235 Jan  8 01:52 trimed.diff.bz2
+> Lots of things may have changed in 2.4.0-prer., because nor cdrecord
+> neither postgressql do not run because of system v ipc / shm problem.
+> After recompiling cdrecord with the new header files, started working.
+> I'm just recompiling postgres too.
+>
+> /var/log/postgresql.log:
+>
+> 010102.10:45:09.448   [627] IpcMemoryCreate: shmget failed (No space left
+> on device) key=5432010, size=144, permission=700
+> This type of error is usually caused by an improper
+> shared memory or System V IPC semaphore configuration.
 
-Pluses:
- - clean up messy whitespace
- - cut precious picoseconds off compile time
- - cut kernel tree by 200k (+/- alot)
+I had the same problem on my machine and it stemmed from accidentally setting
+/proc/sys/kernel/shmall to "0" (that is the maximum number of SHM segments).
+In my cas I used some /psoc/sys tweaking utility at a time where this value
+was unknown (other kernel) and that utility then set kernel.shmall in
+/etc/sysctl.conf to 0. You might check that.
 
-Minuses:
- - adds 3.8M bzip2 or 4.7M gzip to next diff
-
-Notes:
- - Don't actually use the above perl s// command. Instead, use
-   [<tab><space>] in place of the \s. The problem with \s is it
-   includes page breaks. I only included this one since the one with
-   tab isn't cut&paste-able.
- - I'm not yet positive there are no other places in the tree that
-   aren't safe to s/[<tab><space>]+$//. C can, if formated poorly
-   enough, be affected by it (multiline strings not ending with \).
-   Can anyone very familiar with Makefile/DocBook/TeX/asm syntax
-   comment if they could also be potentially affected?
- - Another place to save space is extraneous \n's before EOF. I think
-   that saves an aditional 15k or so, based on rough estimates with
-   grep.
- - Yes, I am pretty pedantic to propose a 19M patch that doesn't *DO*
-   anything.
- 
+Nils
 -- 
-Jeremy M. Dolan <jmd@turbogeek.org>
-OpenPGP key = http://turbogeek.org/openpgp-key
-OpenPGP fingerprint = 494C 7A6E 19FB 026A 1F52  E0D5 5C5D 6228 DC43 3DEE
+ Nils Philippsen / Berliner Straﬂe 39 / D-71229 Leonberg // +49.7152.209647
+nils@wombat.dialup.fht-esslingen.de / nils@fht-esslingen.de / nils@redhat.de
+   The use of COBOL cripples the mind; its teaching should, therefore, be
+   regarded as a criminal offence.                  -- Edsger W. Dijkstra
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

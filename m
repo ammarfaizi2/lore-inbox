@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131665AbQLPOXf>; Sat, 16 Dec 2000 09:23:35 -0500
+	id <S131935AbQLPOap>; Sat, 16 Dec 2000 09:30:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131935AbQLPOX0>; Sat, 16 Dec 2000 09:23:26 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:50490 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131665AbQLPOXL>; Sat, 16 Dec 2000 09:23:11 -0500
-Date: Sat, 16 Dec 2000 14:52:42 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-Cc: Ulrich Drepper <drepper@cygnus.com>,
-        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.18 signal.h
-Message-ID: <20001216145242.C25150@inspiron.random>
-In-Reply-To: <20001215205721.I17781@inspiron.random> <Pine.LNX.4.21.0012161337220.1433-100000@bee.lk>
+	id <S131930AbQLPOaf>; Sat, 16 Dec 2000 09:30:35 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:34578 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S131962AbQLPOaW>;
+	Sat, 16 Dec 2000 09:30:22 -0500
+Date: Sat, 16 Dec 2000 14:59:40 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Stanislav Brabec <utx@penguin.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ATAPI: audio CD still stops on >> (fast forward, 2.4.0-test12)
+Message-ID: <20001216145940.C471@suse.de>
+In-Reply-To: <20001103235437.B5574@utx.cz> <20001104151845.E12610@suse.de> <20001215123132.A790@utx.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0012161337220.1433-100000@bee.lk>; from anuradha@gnu.org on Sat, Dec 16, 2000 at 01:53:50PM +0600
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <20001215123132.A790@utx.cz>; from utx@penguin.cz on Fri, Dec 15, 2000 at 12:31:33PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 16, 2000 at 01:53:50PM +0600, Anuradha Ratnaweera wrote:
-> GCC will complain the absence of a statement after `out1:out2:`, but not
-> two complains for `out1' and `out2', because they form a single entity.
+On Fri, Dec 15 2000, Stanislav Brabec wrote:
+> - play CD audio correctly, don't stop after 12 minutes.
+> 
+> Patch in 2.4.0-test12 really fixes this problem.
 
-I understand the formal specs (the email from Michael is very clear). What I'm
-saying is that as the `dummy' statement is redoundant information but you're
-requiring us to put it to build a labeled-statement, you could been even more
-lazy and not define the labeled-statement as a statement so requiring us to put
-a dummy statement after every label. That would been the same kind of issue
-we're facing right now (but of course defining a labeled-statement as a
-statement and allowing recursion makes the formal specs even simpler so that
-probably wouldn't happen that easily).
+Good
 
-Andrea
+> But problem with >> (fast forward playng of short samples) still remains
+> on some audio CD's.
+> Dec 15 12:17:25 utx kernel:   "47 00 00 00 02 00 3c 3a ff 00 00 00 " 
+							 ^^
+
+This is the same case that Miles reported, it's very odd how that 8th
+byte gets screwed somehow... But I know about this, I just haven't tracked
+this down yet.
+
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

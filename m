@@ -1,65 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267254AbUIOSFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267235AbUIOSDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267254AbUIOSFR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 14:05:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267319AbUIOSEA
+	id S267235AbUIOSDl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 14:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267304AbUIOSCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 14:04:00 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:47861 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S267254AbUIOSDO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 14:03:14 -0400
-Message-ID: <41488346.1020101@mvista.com>
-Date: Wed, 15 Sep 2004 11:00:38 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+	Wed, 15 Sep 2004 14:02:08 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:64907 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S267235AbUIOSAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 14:00:51 -0400
+Message-ID: <41487B6D.1080202@drdos.com>
+Date: Wed, 15 Sep 2004 11:27:09 -0600
+From: "Jeff V. Merkey" <jmerkey@drdos.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: john stultz <johnstul@us.ibm.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>  <41381C2D.7080207@mvista.com>  <1094239673.14662.510.camel@cog.beaverton.ibm.com>  <4138EBE5.2080205@mvista.com>  <1094254342.29408.64.camel@cog.beaverton.ibm.com>  <41390622.2010602@mvista.com>  <1094666844.29408.67.camel@cog.beaverton.ibm.com>  <413F9F17.5010904@mvista.com>  <1094691118.29408.102.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.58.0409082005370.28366@schroedinger.engr.sgi.com>  <1094700768.29408.124.camel@cog.beaverton.ibm.com>  <413FDC9F.1030409@mvista.com>  <1094756870.29408.157.camel@cog.beaverton.ibm.com>  <4140C1ED.4040505@mvista.com>  <Pine.LNX.4.58.0409131420500.490@schroedinger.engr.sgi.com> <1095114307.29408.285.camel@cog.beaverton.ibm.com> <Pine.LNX.4.58.0409141045370.6963@schroedinger.engr.sgi.com> <41479369.6020506@mvista.com> <Pine.LNX.4.58.0409142024270.10739@schroedinger.engr.sgi.com> <4147F774.6000800@mvista.com> <Pine.LNX.4.58.0409150843270.14721@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0409150843270.14721@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: jmerkey@galt.devicelogics.com, linux-kernel@vger.kernel.org,
+       jmerkey@comcast.net
+Subject: Re: 2.6.8.1 mempool subsystem sickness
+References: <091420042058.15928.41475B8000002BA100003E382200763704970A059D0A0306@comcast.net> <4147555C.7010809@drdos.com> <414777EA.5080406@yahoo.com.au> <20040914223122.GA3325@galt.devicelogics.com> <41478419.3020606@yahoo.com.au>
+In-Reply-To: <41478419.3020606@yahoo.com.au>
+Content-Type: multipart/mixed;
+ boundary="------------050902090704030608090904"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-~
+This is a multi-part message in MIME format.
+--------------050902090704030608090904
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
->>>One could do this but we want to have a tickless system. The tick is only
->>>necessary if the time needs to be adjusted.
+Nick Piggin wrote:
+
+> jmerkey@galt.devicelogics.com wrote:
+>
+>> You bet.  Send them to me.  For some reason I am not able to post to 
+>> LKML again.
 >>
->>I really think a tickless system, for other than UML systems, is a loosing
->>thing.  The accounting overhead on context switch (which increases as the number
->>of switchs per second) will cause more overhead than a periodic accounting tick
->>once a respectable load appears.  The periodic accounting tick has a flat
->>overhead that does not depend on load.
-> 
-> 
-> I am not following you here. Why does the context switch overhead
-> increase? Because there are multiple interrupts for different tasks done
-> in the tick?
-> 
-Each task has several timers, i.e. time slice, time limit, and possibly itimer 
-profile.  Granted only one of these needs to be sent to the timer code, but that 
-takes a bit of time, not much, but enough to increase the context switch 
-overhead such that a system with a modest amount of context switching will incur 
-more timer management overhead than the periodic tick generates.
+>> Jeff
+>>
+> OK, this is against 2.6.9-rc2. Let me know how you go. Thanks
+>
+>  
+>
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Nick,
 
+The problem is corrected with this patch.  I am running with 3GB of 
+kernel memory
+and 1GB user space with the userspace splitting patch with very heavy 
+swapping
+and user space app activity and no failed allocations.  This patch 
+should be rolled
+into 2.6.9-rc2 since it fixes the problem.  With standard 3GB User/1GB 
+kernel
+address space, it also fixes the problems with X server running out of 
+memory
+and the apps crashing.
+
+Jeff
+
+Here's the stats from the test of the patch against 2.6.8-rc2 with the 
+patch applied
+
+
+
+--------------050902090704030608090904
+Content-Type: text/plain;
+ name="proc.meminfo"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="proc.meminfo"
+
+
+--------------050902090704030608090904
+Content-Type: text/plain;
+ name="proc.vmstat"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="proc.vmstat"
+
+
+--------------050902090704030608090904
+Content-Type: text/plain;
+ name="proc.slabinfo"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="proc.slabinfo"
+
+
+--------------050902090704030608090904--

@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbUELW3S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbUELW3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbUELW3S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 18:29:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbUELW3S
+	id S261981AbUELW3u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 18:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbUELW3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 18:29:18 -0400
-Received: from smtpq1.home.nl ([213.51.128.196]:19656 "EHLO smtpq1.home.nl")
-	by vger.kernel.org with ESMTP id S261551AbUELW3Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 18:29:16 -0400
-Message-ID: <40A2A4D8.8080806@keyaccess.nl>
-Date: Thu, 13 May 2004 00:27:36 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
+	Wed, 12 May 2004 18:29:50 -0400
+Received: from 209-128-98-078.BAYAREA.NET ([209.128.98.78]:46813 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261981AbUELW3r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 18:29:47 -0400
+Message-ID: <40A2A534.9080004@zytor.com>
+Date: Wed, 12 May 2004 15:29:08 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040312
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-       Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Alan Cox <alan@redhat.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
-References: <fa.jr282gn.1ni2t37@ifi.uio.no> <008201c437e7$b1a35160$6601a8c0@northbrook> <20040512185224.GA2658@bounceswoosh.org> <200405122305.47874.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200405122305.47874.bzolnier@elka.pw.edu.pl>
+To: Gabriel Paubert <paubert@iram.es>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.6-BK] x86_64 has buggy ffs() implementation
+References: <1084369416.16624.53.camel@imp.csi.cam.ac.uk> <c7u1js$1h2$1@terminus.zytor.com> <20040512211124.GA6005@iram.es>
+In-Reply-To: <20040512211124.GA6005@iram.es>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
+Gabriel Paubert wrote:
+> 
+> Either I'm asleep or you are emulating bsrl, not bsfl. It
+> should rather be:
+> 
+> 	if ( y & 0x00000001) return 1;
+> 	if ( y & 0x00000002) return 2;
+> 	if ( y & 0x00000004) return 3;
+> 	...
+> 	if ( y & 0x80000000) return 32;
+> 	return 0;
+> 
+> No need for the else clauses either because of the return.
+> But maybe even __builtin_ffs(y) would work in this case.
+> 
 
-> The other part of the story is a nasty bug in ide-disk.c driver:
-> 
-> write_cache() is called with (drive->id->cfs_enable_2 & 0x300) as argument
-> 'arg' of type 'int' and then this value is assigned to the 'drive->wcache'
-> of type 'unsigned char' so drive->wcache == 0 because 0x3000 gets truncated.
-> 
-> This bug has been present since introduction of drive->wcache (2.5.3),
-> therefore we have never handled cache flush correctly before and never
-> hit '& 0x2400' problem before.
-> 
-> Linus & Alan, you were almost right after all, drive->wcache was almost
-> always zero for normal disks before 2.6.6.  It could be forced by user but
-> only for disks having ATA-6 cache flush bits and was auto-set but only for
-> removable disks (after Alan's fixes in 2.6.65).  You lucky b*st*rds.  ;-)
-> 
-> Rene, that's why wcache is 0 in /proc/ide/hdX/settings for older kernels
-> or with my 'bandaid' fixes for 2.6.6.  'hdparm -W1' should work but only on
-> quite recent drives (having ATA-6 bits).  However I don't know why you get
-> regression in tiobench, we still need to explain this.
+If __builtin_ffs() works *AND HAS THE RIGHT SEMANTICS* it's probably the 
+best thing to use.
 
-I'm afraid I can explain it. Even though hdparm -W0/-W1 didn't show up 
-in the settings, they certainly do take effect (on this drive). The bad 
-results I posted appear to have been with -W0. By default, and after 
--W1, it's back up to normal again. Sorry if I confused the issue.
+Otherwise, yes, generic_ffs() can clearly be used inside the 
+__builtin_constant_p() clause.
 
-Rene.
+	-hpa

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264455AbUAFQ2h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 11:28:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264442AbUAFQ2g
+	id S261660AbUAFQ0P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 11:26:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbUAFQ0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 11:28:36 -0500
-Received: from lists.us.dell.com ([143.166.224.162]:28038 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S264455AbUAFQ2c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 11:28:32 -0500
-Date: Tue, 6 Jan 2004 10:28:19 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Jan Kokoska <kokoska.jan@globe.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.25-pre4
-Message-ID: <20040106102819.A12626@lists.us.dell.com>
-References: <Pine.LNX.4.58L.0401061159090.1207@logos.cnet> <1073405784.880.410.camel@marigold>
+	Tue, 6 Jan 2004 11:26:15 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:62608 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261660AbUAFQ0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 11:26:14 -0500
+Subject: Re: [PATCH] fix get_jiffies_64 to work on voyager
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: johnstul@us.ibm.com, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040106081947.3d51a1d5.akpm@osdl.org>
+References: <1073405053.2047.28.camel@mulgrave> 
+	<20040106081947.3d51a1d5.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 06 Jan 2004 10:26:08 -0600
+Message-Id: <1073406369.2047.33.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1073405784.880.410.camel@marigold>; from kokoska.jan@globe.cz on Tue, Jan 06, 2004 at 05:16:24PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Trying to compile $subj with following config (these options seem to
-> cause the problem, full config attached):
-> 
-> CONFIG_SCSI_MEGARAID=y
-> CONFIG_SCSI_MEGARAID2=y
->
-> Is this a known issue and megaraids can't live together, or am I
-> supposed to be able to compile both drivers in and this is a bug?
+On Tue, 2004-01-06 at 10:19, Andrew Morton wrote:
+> Hm, OK.  I hit the same deadlock when running with the "don't require TSCs
+> to be synchronised in sched_clock()" patch from -mm.  The fix for that is
+> below.  I shall accelerate it.
 
-yes, this is known and expected.  You can build both as modules, but
-they're not intended to both be loaded simultaneously (either built-in
-or as modules).  They're mutually exclusive.
+Actually, I think we need to know why this is happening, since the use
+of these sequence locks is growing.  On voyager I just put it down to HZ
+== 1000 being a bit much for my old pentium 66MHz processors, but if
+you've seen it on a much faster processor, that would tend to indicate
+there's some other problem at work here.
 
-Thanks,
-Matt
+James
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+

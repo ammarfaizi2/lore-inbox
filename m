@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264402AbTEJPgK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 11:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264403AbTEJPgK
+	id S264403AbTEJPgY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 11:36:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264404AbTEJPgY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 11:36:10 -0400
-Received: from pop.gmx.de ([213.165.65.60]:60707 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264402AbTEJPgJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 11:36:09 -0400
-Date: Sat, 10 May 2003 17:46:31 +0200
-From: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
-To: Ahmed Masud <masud@googgun.com>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
-In-Reply-To: <Pine.LNX.4.33.0305101138110.24188-100000@marauder.googgun.com>
-References: <S264373AbTEJPSN/20030510151813Z+1648@vger.kernel.org>
-	<Pine.LNX.4.33.0305101138110.24188-100000@marauder.googgun.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 10 May 2003 11:36:24 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:21648
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264403AbTEJPgW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 11:36:22 -0400
+Subject: Re: [PATCH] Use correct x86 reboot vector
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: CaT <cat@zip.com.au>
+Cc: Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030510033504.GA1789@zip.com.au>
+References: <20030510025634.GA31713@averell>
+	 <20030510033504.GA1789@zip.com.au>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <S264402AbTEJPgJ/20030510153609Z+7028@vger.kernel.org>
+Organization: 
+Message-Id: <1052578182.16166.6.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 10 May 2003 15:49:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 May 2003 11:39:12 -0400 (EDT)
-Ahmed Masud <masud@googgun.com> wrote:
+On Sad, 2003-05-10 at 04:35, CaT wrote:
+> On Sat, May 10, 2003 at 04:56:34AM +0200, Andi Kleen wrote:
+> > Extensive discussion by various experts on the discuss@x86-64.org
+> > mailing list concluded that the correct vector to restart an 286+ 
+> > CPU is f000:fff0, not ffff:0000. Both seem to work on current systems, 
+> > but the first is correct.
+> 
+> Could this bug, by any chance, cause a system to shutdown instead of
+> rebooting? This is what happens to me at the moment but not each and
+> every time.
 
-> 
-> 
-> On Sat, 10 May 2003, Tuncer M zayamut Ayaz wrote:
-> 
-> > On Sat, 10 May 2003 17:07:51 +0200
-> > Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de> wrote:
-> >
-> > > On 10 May 2003 14:59:31 +0100
-> > > Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > >
-> > > > On Sad, 2003-05-10 at 14:57, Tuncer M zayamut Ayaz wrote:
-> > > > > description of the strange sound:
-> > > > >   - high tone
-> > > > >   - permanent
-> > > > >   - happens before loading ALSA modules
-> 
-> Is this high tone comming out of external speakers or is it from
-> internal speaker?
+Unlikely. But try it and see 8)
 
-definitely not external speaker.
-can't say whether there is an internal speaker it could come
-from. source of sound is right beneath the keyboard,
-and creating load aka moving an x11 window around produces
-funny patterns --> no high tone, it almost disappears,
-but just low-volume sound reacting to when I move the
-window around.
-for a non-hardware-expert this is strange stuff.
+At least some SMP boxes freak if you do a poweroff request on CPU != 0
+

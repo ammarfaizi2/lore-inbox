@@ -1,72 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272505AbTHKUIv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 16:08:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272910AbTHKUIv
+	id S269559AbTHKUBB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 16:01:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272844AbTHKUBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 16:08:51 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:44684 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S272505AbTHKUIt (ORCPT
+	Mon, 11 Aug 2003 16:01:00 -0400
+Received: from smtp3.libero.it ([193.70.192.127]:41725 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id S269559AbTHKUAv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 16:08:49 -0400
-Date: Mon, 11 Aug 2003 13:12:27 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 1084] New: Kernel panic while initializing HP Smart Array (cciss)
-Message-ID: <866870000.1060632747@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 11 Aug 2003 16:00:51 -0400
+Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
+From: Flameeyes <dgp85@users.sourceforge.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Christoph Bartelmus <columbus@hit.handshake.de>,
+       LIRC list <lirc-list@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+In-Reply-To: <20030811185259.GH2627@elf.ucw.cz>
+References: <1059820741.3116.24.camel@laurelin>
+	 <20030807214311.GC211@elf.ucw.cz>
+	 <1060334463.5037.13.camel@defiant.flameeyes>
+	 <20030808231733.GF389@elf.ucw.cz>
+	 <8rZ2nqa1z9B@hit-columbus.hit.handshake.de>
+	 <20030811124744.GB1733@elf.ucw.cz>
+	 <1060607466.5035.8.camel@defiant.flameeyes>
+	 <20030811153821.GC2627@elf.ucw.cz>
+	 <1060616931.8472.22.camel@defiant.flameeyes>
+	 <20030811185259.GH2627@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1060631734.1940.17.camel@defiant.flameeyes>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 11 Aug 2003 22:01:24 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1084
+On Mon, 2003-08-11 at 20:52, Pavel Machek wrote:
+> I actually want to "Take a new tv card, plug it into machine, start
+> up, use xine", without configuring remote ;-).
+Flexibility or easy to use?
+We can make a compromise: add some "default" configurations to the
+software, so after it's installed, we can probably use our remote
+correctly, but permit to anyone to change them.
+Building them directly into the kernel deny you to do the thing you
+said, I know that some cards with the same name of mine uses another
+remote, if we check in the kernel the remote to use for this card, half
+of these are unusable.
+We must be able to change the method they use...
+For example I use 1...9 buttons of my remote in xine as dvd-menu
+selectors up/down left/right...
 
-           Summary: Kernel panic while initializing HP Smart Array (cciss)
-    Kernel Version: 2.6.0-test3
-            Status: NEW
-          Severity: blocking
-             Owner: andmike@us.ibm.com
-         Submitter: tetsuo@geekbunker.org
+> I think the right way is for application to just use buttons it knows
+> about. We already have some multimedia buttons on keyboard and some
+> more on remote...
+This make the rely to the hardware, and I think an userspace application
+(say: a radio card software) that rely on multimedia keyboards need to
+know every button of these.
+Also, my ps2 keyboard has some extra buttons, but they're broken in the
+2.5/2.6 kernel series.
+
+> I believe we should be able to make it work without lircd, but input
+> events with received codes is still better than current situation.
+sincerely, I think about this after my first try to port lirc to 2.5,
+because I wasn't able to compile lircd daemon, but I didn't [don't] know
+the kernel as well as it's needed to change this.
 
 
-Distribution: Red Hat 7.3
-Hardware Environment: HP DL380 G3, dual P4 2.4Ghz (hyperthreading), 512Mb, 2 x 
-36G discs in RAID 1, HP Smart Array 5i (v. 2.36)
-Software Environment: No external packages, just using RH 7.3 .rpm.
-GCC version 2.96 (rpm release 110)
-
-Problem Description:
-During the boot process, the kernel will panic just after it initializes 
-the "Compaq CISS Drive (v.2.5.0)":
-
-Unable to handle kernel NULL pointer dereference at virtual address 0000019a
- printing eip:
-c0216249
-*pde = 00000000
-Oops: 0002 [#1]
-CPU:    0
-EIP:    0060:[<c0216249>]    Not tainted
-EFLAGS: 00010202
-EIP is at blk_queue_hardsect_size+0x9/0x20
-eax: 00000020 ebx: df79e050 ecx: 00000000 edx: 00000000
-esi: 00000000 edi: df7b0002 ebp: 00000000 esp: dff7bee8
-ds: 007b es: 007b ss: 0068
-Process swapper (pid:1, threadinfo=dff7a000 task=c1527000)
-Stack: (lots of hexas)
-Call: Trace:
- [<c0387944>] cciss_init_one+0x4d4/0x510
- [<c018b40c>] sysfs_create+0x5c/0x80
- [<c01f6dcc>] pci_device_probe_static+0x2c/0x50
-(..)
- <0>Kernel panic: Attempted to kill init!
-
-I have the whole message as a screenshot, which i can send to anyone interested.
-
-Steps to reproduce:
-Compile the kernel with Compaq Smart Array 5xxx suport and boot.
-Using the same .config file i was able to compile a 2.6.0-test2 which worked 
-fine.
+Please also note that right now a lot of applications uses lirc_client
+library, or have plugins for lirc (installed on my system, for example,
+xmms, xine, xawdecode, zapping), lost this compatibility is a big
+problem.
+-- 
+Flameeyes <dgp85@users.sf.net>
 

@@ -1,110 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262657AbTFGJHK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 05:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262824AbTFGJHK
+	id S262820AbTFGJFw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 05:05:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbTFGJFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 05:07:10 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:41613 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262657AbTFGJHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 05:07:03 -0400
-Date: Sat, 7 Jun 2003 11:20:27 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [Patch] 2.5.70-bk11 zlib merge #4 pure magic
-Message-ID: <20030607092027.GA24694@wohnheim.fh-wedel.de>
-References: <20030606201306.GJ10487@wohnheim.fh-wedel.de> <Pine.SOL.4.30.0306062228140.13809-100000@mion.elka.pw.edu.pl>
+	Sat, 7 Jun 2003 05:05:52 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22547 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262820AbTFGJFQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 05:05:16 -0400
+Date: Sat, 7 Jun 2003 10:18:48 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Anton Blanchard <anton@samba.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: irq consolidation
+Message-ID: <20030607101848.A22665@flint.arm.linux.org.uk>
+Mail-Followup-To: Anton Blanchard <anton@samba.org>,
+	linux-kernel@vger.kernel.org
+References: <20030607040515.GB28914@krispykreme> <20030607044803.GE28914@krispykreme>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.SOL.4.30.0306062228140.13809-100000@mion.elka.pw.edu.pl>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030607044803.GE28914@krispykreme>; from anton@samba.org on Sat, Jun 07, 2003 at 02:48:03PM +1000
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 June 2003 22:36:07 +0200, Bartlomiej Zolnierkiewicz wrote:
-> On Fri, 6 Jun 2003, [iso-8859-1] Jörn Engel wrote:
-> 
-> > This one is pure magic, really.  No comment and inspection of the code
-> > doesn't show much either.  But judging from the other changes, this
-> > should also fix a real problem, at least a theoretical one.
-> 
-> Eee, no magic here :-).
-> 
-> from 1.1.4 ChangeLog:
-> "- force windowBits > 8 to avoid a bug in the encoder for a window size
->    of 256 bytes. (A complete fix will be available in 1.1.5)."
+On Sat, Jun 07, 2003 at 02:48:03PM +1000, Anton Blanchard wrote:
+> We are hoping to kill irq_desc[NR_IRQS] completely and instead allocate
+> them on demand with some sort of hash to map an interrupt number to an
+> irq_desc.
 
-So there IS a ChangeLog.  :)
+The same thought has crossed my mind as well for ARM; the hardware
+interrupt controllers are becoming more inteligent, and there is
+the possibility that system designers will mix inteligent interrupt
+controllers with standard types.
 
-> I guess complete fix is here:
-> http://www.cs.toronto.edu/~cosmin/pngtech/zlib-256win-bug.html
+Also on ARM, we're currently defining NR_IRQS on a per-platform class
+and even a per-platform basis.
 
-> --- deflate.c	Thu Jul 09 18:06:12 1998
-> +++ deflate.c.fixed	Thu Apr 12 04:02:36 2001
-> @@ -242,7 +242,7 @@
->          windowBits = -windowBits;
->      }
->      if (memLevel < 1 || memLevel > MAX_MEM_LEVEL || method !=
-> Z_DEFLATED ||
-> -        windowBits < 8 || windowBits > 15 || level < 0 || level > 9 ||
-> +        windowBits > 15 || level < 0 || level > 9 ||
->  	strategy < 0 || strategy > Z_HUFFMAN_ONLY) {
->          return Z_STREAM_ERROR;
->      }
+I've been wondering whether we even need to think about passing some
+alternative identifier of an IRQ line around, instead of a number.
 
-Completely removes the check.
+> Im working on top of Andrey Panin's irq consolidation patches
+> in the hope that it goes in first and other architectures can benefit 
+> from these changes (I think SGI's ia64 boxes have similar issues as
+> well as large x86)
 
-> @@ -252,7 +252,11 @@
->      s->strm = strm;
-> 
->      s->noheader = noheader;
-> -    s->w_bits = windowBits;
-> +#if MIN_LOOKAHEAD < 256
-> +    s->w_bits = (windowBits >= 8) ? windowBits : 8;
-> +#else
-> +    s->w_bits = (windowBits >= 9) ? windowBits : 9;
-> +#endif
->      s->w_size = 1 << s->w_bits;
->      s->w_mask = s->w_size - 1;
+I believe Andrey's IRQ consolidation provides a single flat IRQ
+structure.  Unfortunately, this doesn't reflect the reality that we
+have on many ARM platforms - it remains the case that we need to
+decode IRQs on a multi-level basis.
 
-Now we don't check and inform the user anymore, instead we change the
-value internally.  So now overly smart users can set the windowBits to
-a stupid value and we correct their mistake instead of telling them.
-Not my preferred style.
-
-> @@ -460,7 +464,12 @@
->      /* Write the zlib header */
->      if (s->status == INIT_STATE) {
-> 
-> +#if MIN_LOOKAHEAD < 256
->          uInt header = (Z_DEFLATED + ((s->w_bits-8)<<4)) << 8;
-> +#else
-> +        uInt optimized_cinfo = (s->w_bits > 9) ? s->w_bits - 8 : 0;
-> +        uInt header = (Z_DEFLATED + (optimized_cinfo<<4)) << 8;
-> +#endif
->          uInt level_flags = (s->level-1) >> 1;
-> 
->          if (level_flags > 3) level_flags = 3;
-
-This changes one corner case where windowBits == 9.  Even if the fix
-is correct (too lazy to check), it costs us four new conditionals, of
-which two were moved into the preprocessor.  And the gain over patch
-#4 is zero, since we waste the memory anyway, where windowBits is
-too small for decent compression or not.  Rejected.
-
-
-Still, thanks for the two pointers, Bartlomiej!  Not quite as magic
-anymore. :)
-
-Jörn
+Given the rate which ARM has progressed and evolved during the existing
+2.4 lifespan, it doesn't make much difference to us whether these
+changes happen now or later.  If it happens later, it will be during
+the 2.6 series of kernels, so "now" is preferable.  Reality is such
+that ARM hardware moves a hell of a lot faster than x86 hardware.
 
 -- 
-With a PC, I always felt limited by the software available. On Unix, 
-I am limited only by my knowledge.
--- Peter J. Schoenster
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

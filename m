@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274075AbRISO12>; Wed, 19 Sep 2001 10:27:28 -0400
+	id <S274074AbRISObi>; Wed, 19 Sep 2001 10:31:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274076AbRISO1T>; Wed, 19 Sep 2001 10:27:19 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:7128 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S274075AbRISO1L>;
-	Wed, 19 Sep 2001 10:27:11 -0400
-Date: Wed, 19 Sep 2001 10:27:32 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Stephan von Krawczynski <skraw@ithnet.com>,
-        Andreas Dilger <adilger@turbolabs.com>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.10-pre11
-In-Reply-To: <Pine.LNX.4.33L.0109191040370.4279-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.GSO.4.21.0109190956240.28824-100000@weyl.math.psu.edu>
+	id <S274076AbRISObS>; Wed, 19 Sep 2001 10:31:18 -0400
+Received: from skiathos.physics.auth.gr ([155.207.123.3]:8363 "EHLO
+	skiathos.physics.auth.gr") by vger.kernel.org with ESMTP
+	id <S274074AbRISObN>; Wed, 19 Sep 2001 10:31:13 -0400
+Date: Wed, 19 Sep 2001 17:31:36 +0300 (EET DST)
+From: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Re[2]: [PATCH] Athlon bug stomper. Pls apply.
+In-Reply-To: <20010919154701.A7381@stud.ntnu.no>
+Message-ID: <Pine.GSO.4.21.0109191707260.23205-100000@skiathos.physics.auth.gr>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Think again.
 
-On Wed, 19 Sep 2001, Rik van Riel wrote:
+It seems to fix the stability problem. We don;t know why, but
+experimetation shows that those _with_ the problem are relieved. This is
+fine! We are happy with it.
 
-> Just look at how he's now trying to force Al Viro into
-> implementing his ideas yesterday because he broke stuff
-> again...
+We write to a register marked as "don't write" by Via. This is potentialy 
+dangerous in ways we don't know yet.
 
-Rik, in case you've missed that, I can and do speak for myself.  I had
-spent ten years dodging the draft; when I decide to get enlisted into
-something it will happen on _my_ decision and _my_ conditions.  When I
-decide that I'm being forced into something I do not accept - you'll know
-it from posting with URL of forked tree.
 
-FWIW, I'm less than thrilled by the Andrea's patch, but it is salvagable.
-I'm also less than thrilled by the whole situation with VM - all sides of
-it.  I seriously suspect that we need a limited multi-way fork in that
-area, so that you guys would stop stepping on each others' toes.  I'm taking
-no part in your merry 5-way clusterfuck - sort that mess out between
-yourselves.
+> If this should be an optional fix, it should be default enabled, and then
+> all those who don't want to use the fix, should disable it. But I guess, as
+> long as it's an option, someone is _bound_ to come naging with their
+> problems...
 
-Again, when I decide that situation is unacceptable for me - I'll simply
-fork the tree.  I do _not_ appreciate being enlisted into anyone's holy
-wars, so unless you really want to go _way_ up in my personal shitlist
-(several positions below .ru DoD) - don't play politics in my vicinity.
+How can you know you need it if it is enabled by default. I see many more
+ppl just not being bothered enough to check. 
+
+And then, would you prefer having somebody naging about, say, his
+northbirdge melting down after 10mins with K7 optimizations enabled?
+
+-K.
+
 

@@ -1,55 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265041AbUG2TWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265134AbUG2T0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265041AbUG2TWS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 15:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264973AbUG2TV4
+	id S265134AbUG2T0y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 15:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUG2TTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 15:21:56 -0400
-Received: from embeddededge.com ([209.113.146.155]:24589 "EHLO
-	penguin.netx4.com") by vger.kernel.org with ESMTP id S265041AbUG2TVZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 15:21:25 -0400
-In-Reply-To: <85C49799-E168-11D8-B0AC-000393DBC2E8@freescale.com>
-References: <4108F845.7080305@timesys.com> <85C49799-E168-11D8-B0AC-000393DBC2E8@freescale.com>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <A46787F8-E194-11D8-B8DB-003065F9B7DC@embeddededge.com>
+	Thu, 29 Jul 2004 15:19:09 -0400
+Received: from scrye.com ([216.17.180.1]:9119 "EHLO mail.scrye.com")
+	by vger.kernel.org with ESMTP id S264542AbUG2TRd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 15:17:33 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Cc: LKML <linux-kernel@vger.kernel.org>, Greg Weeks <greg.weeks@timesys.com>,
-       LinuxPPC-dev Development <linuxppc-dev@lists.linuxppc.org>
-From: Dan Malek <dan@embeddededge.com>
-Subject: Re: [BUG] PPC math-emu multiply problem
-Date: Thu, 29 Jul 2004 15:22:33 -0400
-To: Kumar Gala <kumar.gala@freescale.com>
-X-Mailer: Apple Mail (2.618)
+Date: Thu, 29 Jul 2004 13:17:23 -0600
+From: Kevin Fenzi <kevin-kernel@scrye.com>
+To: linux-kernel@vger.kernel.org
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Subject: Re: [PATCH] reduce swsusp casting
+X-Draft-From: ("scrye.linux.kernel" 52985)
+References: <1091043436.2871.320.camel@nighthawk>
+	<Pine.LNX.4.50.0407281405090.31994-100000@monsoon.he.net>
+	<1091049624.2871.464.camel@nighthawk>
+	<1091125918.2871.1874.camel@nighthawk>
+Message-Id: <20040729191726.5669BBE886@voldemort.scrye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Jul 29, 2004, at 10:06 AM, Kumar Gala wrote:
+>>>>> "Dave" == Dave Hansen <haveblue@us.ibm.com> writes:
 
->
-> On Jul 29, 2004, at 8:14 AM, Greg Weeks wrote:
->
->> I'm seeing what appears to be a bug in the ppc kernel trap math
->> emulator. An extreme case for multiplies isn't working the way gcc
->> soft-float or hardware floating point is.
+Dave> On Wed, 2004-07-28 at 14:20, Dave Hansen wrote:
+>> On Wed, 2004-07-28 at 14:07, Patrick Mochel wrote: > I don't
+>> understand - have you really tested it or just compile-tested it?
+>> > If not, please do try it out for real. There is no reason to be
+>> scared of > swsusp, and the more people that use it, the more
+>> stable it will get.
+>> 
+>> I'm not scared, just lazy :) I'll give it a shot.
 
-I'm not surprised.  I lifted this code from Sparc, glibc, and adapted
-it as best I could for PPC years ago for the 8xx.  I was happy when
-it appeared to work for the general cases. :-)
+Dave> Well, I tried with both 2.6.8-rc2-mm1 with and without my patch
+Dave> and got the exact same results:
 
-Due to its overhead, I never expected it to be _the_ solution for
-processors that don't have floating point hardware.  Recompiling
-the libraries with soft-float and using that option when compiling
-is the way to go.
+Dave> # echo disk > /sys/power/state Stopping tasks: =
 
-Remember, don't mix soft-float compilation with libraries compiled
-with HW floating point, and trap emulations.  They are not
-compatible and will return erroneous results.
+Dave> Then it freezes.
 
-Thanks.
+Does it work if you do: 
 
+echo "shutdown" > /sys/power/disk
+echo "disk" > /sys/power/state
 
-	-- Dan
+?
 
+You might also try using the hibernate script to handle unloading
+modules, etc: 
+
+http://developer.berlios.de/project/showfiles.php?group_id=1412
+
+(It can handle softwaresuspend2 or the pmdisk /sys/power/state)
+
+kevin
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
+
+iD8DBQFBCU1G3imCezTjY0ERAmDXAJ9i1uGiL4IatUh+Y+0BQwFeUtQ5oQCffrXM
+Q09L8TP9siOomsR5aWWqMsw=
+=IRfk
+-----END PGP SIGNATURE-----

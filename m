@@ -1,40 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbVAaO1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVAaO3d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261218AbVAaO1N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 09:27:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVAaO1M
+	id S261223AbVAaO3d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 09:29:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVAaO3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 09:27:12 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:40134 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261215AbVAaO02 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 09:26:28 -0500
-Date: Mon, 31 Jan 2005 15:26:34 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: inter-module-* removal.. small next step
-Message-ID: <20050131142634.GC6694@wohnheim.fh-wedel.de>
-References: <20050130180016.GA12987@infradead.org> <1107132112.783.219.camel@baythorne.infradead.org> <1107159869.4221.53.camel@laptopd505.fenrus.org> <20050131135631.GA6694@wohnheim.fh-wedel.de> <20050131140104.GK18316@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+	Mon, 31 Jan 2005 09:29:33 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:62902 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261220AbVAaO2j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 09:28:39 -0500
+Message-ID: <41FE4096.6030103@suse.de>
+Date: Mon, 31 Jan 2005 15:28:38 +0100
+From: Hannes Reinecke <hare@suse.de>
+Organization: SuSE Linux AG
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040906
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andreas Schwab <schwab@suse.de>
+Cc: Pavel Machek <pavel@suse.cz>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       mjg59@srcf.ucam.org
+Subject: Re: [PATCH] Resume from initramfs
+References: <41FE24F5.5070906@suse.de> <20050131125110.GD6279@elf.ucw.cz>	<41FE3C34.4000200@suse.de> <jehdkxhdz7.fsf@sykes.suse.de>
+In-Reply-To: <jehdkxhdz7.fsf@sykes.suse.de>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050131140104.GK18316@stusta.de>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 January 2005 15:01:04 +0100, Adrian Bunk wrote:
+Andreas Schwab wrote:
+> Hannes Reinecke <hare@suse.de> writes:
 > 
-> Your patch doesn't add a Kconfig entry for INTER_MODULE_CRAP.
+> 
+>>--- linux-2.6.10/kernel/power/disk.c.orig	2005-01-31
+>>    13:54:17.000000000 +0100
+>>+++ linux-2.6.10/kernel/power/disk.c	2005-01-31 14:55:14.000000000 +0100
+>>@@ -9,6 +9,8 @@
+>>   *
+>>   */
+>>
+>>+#define DEBUG
+>>+
+>>  #include <linux/suspend.h>
+>>  #include <linux/syscalls.h>
+>>  #include <linux/reboot.h>
+>>--- linux-2.6.10/kernel/power/swsusp.c.orig	2005-01-31
+>>    13:54:17.000000000 +0100
+>>+++ linux-2.6.10/kernel/power/swsusp.c	2005-01-31 14:53:36.000000000 +0100
+>>@@ -36,6 +36,8 @@
+>>   * For TODOs,FIXMEs also look in Documentation/power/swsusp.txt
+>>   */
+>>
+>>+#define DEBUG
+>>+
+>>  #include <linux/module.h>
+>>  #include <linux/mm.h>
+>>  #include <linux/suspend.h>
+> 
+> 
+> Another leftovers?
+> 
+> Andreas.
+> 
+Yes. I'll clean that up once someone (ie Pavel) gives his thumbs-up.
 
-True.  But where to add it?  arch/*/Kconfig is pretty ugly.
-drivers/mtd/Kconfig?
+Doesn't do any harm, really. swsusp in itself is chatty enough, two 
+additional lines don't really matter.
 
-Jörn
+Cheers,
 
+Hannes
 -- 
-When in doubt, use brute force.
--- Ken Thompson
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux AG				S390 & zSeries
+Maxfeldstraße 5				+49 911 74053 688
+90409 Nürnberg				http://www.suse.de

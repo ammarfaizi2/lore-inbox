@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288090AbSANIFF>; Mon, 14 Jan 2002 03:05:05 -0500
+	id <S288102AbSANIHF>; Mon, 14 Jan 2002 03:07:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288102AbSANIEz>; Mon, 14 Jan 2002 03:04:55 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:61071 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S288090AbSANIEu>; Mon, 14 Jan 2002 03:04:50 -0500
-Date: Mon, 14 Jan 2002 10:03:34 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ISA hardware discovery -- the elegant solution
-Message-ID: <Pine.LNX.4.33.0201141003190.28735-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288339AbSANIGz>; Mon, 14 Jan 2002 03:06:55 -0500
+Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:56078 "EHLO
+	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S288102AbSANIGp> convert rfc822-to-8bit; Mon, 14 Jan 2002 03:06:45 -0500
+X-Envelope-From: martin.macok@underground.cz
+Date: Mon, 14 Jan 2002 09:06:44 +0100
+From: =?iso-8859-2?Q?Martin_Ma=E8ok?= <martin.macok@underground.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: low latency versus sched O(1) - and versus preempt
+Message-ID: <20020114090644.A1332@sarah.kolej.mff.cuni.cz>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020111131252.A1366@sarah.kolej.mff.cuni.cz> <20020114010134.D1399@sarah.kolej.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020114010134.D1399@sarah.kolej.mff.cuni.cz>; from martin.macok@underground.cz on Mon, Jan 14, 2002 at 01:01:34AM +0100
+X-Echelon: GRU NSA GCHQ CIA Pentagon nuclear conspiration war teror anthrax
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You haven't taken into consideration that not many distributions have
-drivers in kernel, and in particular ISA device drivers. Namely because
-ISA probes are ugly and require frobbing of memory in the vague hopes of
-finding said device there. These probes may put ye old ISA device in a bad
-state sometimes even hard locking your box, so chances are if the ISA
-probe is in dmesg, the user explicitely decided to load the device. In
-which case they already know what they have...
+On Mon, Jan 14, 2002 at 01:01:34AM +0100, Martin Maèok wrote:
+> If I get enough free time, I will test O1+preempt versus O1+mini-ll.
 
-As an aside, i try not to use ISA and elegant in the same sentence ;)
+O1+mini-ll feels better and smoother when playing tuxracer during
+kernel compilation (both nice +19 and +0 cases). (but I haven't tested
+O1+preempt+lockbreak)
 
-Regards,
-	Zwane Mwaikambo
+However, comparing full_ll versus O(1)+mini_ll when there's no
+load, I get 10% higher framerate of XMMS/Jess audio/visual plugin.
+When there is some real load, O(1)+mini_ll performs ~30% higher
+framerate then just full_ll.
 
+(So the winner for my desktop is still vanilla+full_ll+largenice while
+explicitely running non-interactive highload tasks with nice +19 (ie,
+compilations, cronjobs, mailserver...) the only "audio skipping" task
+is mkisofs)
 
-
+-- 
+         Martin Maèok                 http://underground.cz/
+   martin.macok@underground.cz        http://Xtrmntr.org/ORBman/

@@ -1,56 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbUKWTSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbUKWTSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbUKWTSW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 14:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUKWTQF
+	id S261437AbUKWTSV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 14:18:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbUKWTSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 14:16:05 -0500
-Received: from farley.sventech.com ([69.36.241.87]:28106 "EHLO
-	farley.sventech.com") by vger.kernel.org with ESMTP id S261446AbUKWTNj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 14:13:39 -0500
-Date: Tue, 23 Nov 2004 11:13:37 -0800
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [openib-general] Re: [PATCH][RFC/v1][4/12] Add InfiniBand SA (Subnet Administration) query support
-Message-ID: <20041123191337.GJ27658@sventech.com>
-References: <20041122713.SDrx8l5Z4XR5FsjB@topspin.com> <20041122713.g6bh6aqdXIN4RJYR@topspin.com> <20041122222507.GB15634@kroah.com> <527jodbgqo.fsf@topspin.com> <20041123064120.GB22493@kroah.com> <52hdnh83jy.fsf@topspin.com> <20041123072944.GA22786@kroah.com> <20041123175246.GD4217@sventech.com> <20041123183813.GA31068@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041123183813.GA31068@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 23 Nov 2004 14:18:11 -0500
+Received: from brown.brainfood.com ([146.82.138.61]:4736 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S261437AbUKWTRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 14:17:12 -0500
+Date: Tue, 23 Nov 2004 13:17:06 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0, and
+ 30-9
+In-Reply-To: <Pine.LNX.4.58.0411231206240.2146@gradall.private.brainfood.com>
+Message-ID: <Pine.LNX.4.58.0411231316300.2242@gradall.private.brainfood.com>
+References: <OF73D7316A.42DF9BE5-ON86256F54.0057B6DC@raytheon.com>
+ <Pine.LNX.4.58.0411222237130.2287@gradall.private.brainfood.com>
+ <20041123115201.GA26714@elte.hu> <Pine.LNX.4.58.0411231206240.2146@gradall.private.brainfood.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004, Greg KH <greg@kroah.com> wrote:
-> On Tue, Nov 23, 2004 at 09:52:46AM -0800, Johannes Erdfelt wrote:
-> > On Mon, Nov 22, 2004, Greg KH <greg@kroah.com> wrote:
-> > > To be straightforward, either drop the RCU code completely, or change
-> > > the license of your code.  
-> > 
-> > Or compile against non-GPL RCU code, right?
-> 
-> No.  RCU is covered by a patent that only allows for it to be
-> implemented in GPL licensed code.  If you want to use RCU in non-GPL
-> code, you need to sign a license agreement with the holder of the RCU
-> patent.
-> 
-> This was all covered a few years ago when the RCU code first went into
-> the kernel tree.  See the lkml archives for details.
-> 
-> So the very usage of RCU in the code is the issue here, not the fact
-> that it is being linked against a GPL licensed header file.
-> 
-> This isn't a GPL interpretation here, but a patent license agreement
-> issue.  Sorry for not being clearer the first time around, I thought
-> everyone was aware of this issue by now.
+On Tue, 23 Nov 2004, Adam Heath wrote:
 
-Ahh, I missed that and it wasn't mentioned anywhere in the header file
-atleast.
+> 2.6.10-rc1-mm3 doesn't have the same problem.  Didn't have a more recent mm
+> kernel available last night.  Will compile one, and always keep it available.
 
-Thanks for clearing that up.
-
-JE
-
+Running 30-9.  I'll report any issues that come up.

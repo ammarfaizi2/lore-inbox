@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272471AbRH3VQG>; Thu, 30 Aug 2001 17:16:06 -0400
+	id <S272476AbRH3VQ4>; Thu, 30 Aug 2001 17:16:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272477AbRH3VPv>; Thu, 30 Aug 2001 17:15:51 -0400
-Received: from t2.redhat.com ([199.183.24.243]:56822 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S272471AbRH3VPQ>; Thu, 30 Aug 2001 17:15:16 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200108302106.f7UL6t917787@oboe.it.uc3m.es> 
-In-Reply-To: <200108302106.f7UL6t917787@oboe.it.uc3m.es> 
-To: ptb@it.uc3m.es
-Cc: "Herbert Rosmanith" <herp@wildsau.idv-edu.uni-linz.ac.at>,
-        linux-kernel@vger.kernel.org, dhowells@cambridge.redhat.com
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war 
-Mime-Version: 1.0
+	id <S272474AbRH3VQs>; Thu, 30 Aug 2001 17:16:48 -0400
+Received: from barnowl.demon.co.uk ([158.152.23.247]:34180 "EHLO
+	barnowl.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S272475AbRH3VQd>; Thu, 30 Aug 2001 17:16:33 -0400
+Mail-Copies-To: nobody
+To: linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <Pine.LNX.4.33.0108292018380.1062-100000@penguin.transmeta.com>
+	<20010830165447Z16272-32385+540@humbolt.nl.linux.org>
+From: Graham Murray <graham@barnowl.demon.co.uk>
+Date: Thu, 30 Aug 2001 21:16:47 +0000
+In-Reply-To: <20010830165447Z16272-32385+540@humbolt.nl.linux.org> (Daniel
+ Phillips's message of "Thu, 30 Aug 2001 19:01:25 +0200")
+Message-ID: <m266b51c5c.fsf@barnowl.demon.co.uk>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 30 Aug 2001 22:14:56 +0100
-Message-ID: <10868.999206096@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips <phillips@bonn-fries.net> writes:
 
-ptb@it.uc3m.es said:
->  And I was hoping that somebody could produce some gcc magic
-> replacement for BUG() that means "don't compile me". Perhaps a bit of
-> illegal assembler code with a line reference in? Surely gcc must have
-> something like __builtin_wont_compile()? It just needs to be a leaf of
-> the RTL that evokes a compile error.
+> More than anything, it shows that education is needed, not macro patch-ups.
+> We have exactly the same issues with < and >, should we introduce 
+> three-argument macros to replace them?
 
-It's done. I believe it was called __builtin_ct_assertion(). I don't think 
-it got merged (yet?).
+Would it not have been much more "obvious" if the rules for
+unsigned/signed integer comparisons (irrespective of the widths
+involved) were
 
+1) If the signed element is negative then it is always less than the
+   unsigned element.
 
---
-dwmw2
+2) If the unsigned element is greater than then maximum positive value
+   expressible by the signed one then it is always greater.
 
-
+3) Only if both values are positive and within the range of the
+   smaller element are the actual values compared. 

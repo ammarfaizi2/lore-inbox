@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261755AbTJHTQk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 15:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTJHTQk
+	id S261772AbTJHTMr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 15:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbTJHTMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 15:16:40 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:47561 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261755AbTJHTQi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 15:16:38 -0400
-Subject: Re: [PATCH] Time precision, adjtime(x) vs. gettimeofday
-From: john stultz <johnstul@us.ibm.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031008112510.06ae1ebd.shemminger@osdl.org>
-References: <1065619951.25818.15.camel@gaston>
-	 <20031008112510.06ae1ebd.shemminger@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1065640261.1033.90.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 08 Oct 2003 12:11:02 -0700
+	Wed, 8 Oct 2003 15:12:47 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:54960
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S261772AbTJHTMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 15:12:45 -0400
+Message-ID: <3F846183.9010205@redhat.com>
+Date: Wed, 08 Oct 2003 12:12:03 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: bert hubert <ahu@ds9a.nl>
+CC: "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAwtz+A6aJAkeufXSGK2GIiwEAAAAA@casabyte.com> <Pine.LNX.4.44.0310071743370.32358-100000@home.osdl.org> <20031008104726.GA4655@outpost.ds9a.nl>
+In-Reply-To: <20031008104726.GA4655@outpost.ds9a.nl>
+X-Enigmail-Version: 0.81.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-10-08 at 11:25, Stephen Hemminger wrote:
-> On Wed, 08 Oct 2003 15:32:31 +0200
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> > 
-> > That means that if, for example, adjtimex was called with a factor
-> > that is trying to slow you down a bit, and you call gettimeofday
-> > right before the end of a jiffy period, you may calculate an offset
-> > based on the HW timer that is actually higher than what will be
-> > really added to xtime on the next interrupt.
-[snip]
-> The following will prevent adjtime from causing time regression.
-> It delays starting the adjtime mechanism for one tick, and 
-> keeps gettimeofday inside the window.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hmm. Looks good to me. If we're losing ticks, it would make time
-stair-step somewhat, but it doesn't seem to affect the actual time
-accumulation. 
+bert hubert wrote:
 
-thanks
--john
+> I may be missing something, I'm all for the ability to have threads with
+> their own fd namespace, but will NPTL/Linux retain the capability to pass
+> fd's to other threads?
 
 
+Grr, somebody should have killed this thread before these pointless,
+irritating, and simply wrong arguments were made by the White fella.
+Exactly because it's irritating many readers as can be witnessed above.
+
+
+The kernel thread functionality is not used 1-to-1 in the userlevel
+interfaces of the pthread library.  One very specific combination of all
+the CLONE_* flags is used in libpthread.  Other users of the kernel
+might use other combinations and they won't implement pthreads.  That
+is perfectly fine and if it fits your bill, do it.  But none of this
+ever has any influence on the pthread interface.  The properties like
+sharing of file descriptors are guaranteed.
+
+If somebody insists in future to discuss kernel "thread" related issues,
+use the term "clone" instead of "thread".  This will keep the irritation
+level down.
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/hGGD2ijCOnn/RHQRAv54AJ0XYGVQ1Iawhwm237eULPP4lFeK9ACfSrc2
+A8XJuJGBecVfACkEAVPmYrA=
+=EGWH
+-----END PGP SIGNATURE-----
 

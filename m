@@ -1,99 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265946AbUAFAdt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 19:33:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265972AbUAFAdt
+	id S266021AbUAFAjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 19:39:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265990AbUAFAhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 19:33:49 -0500
-Received: from 202.46.136.55.interact.com.au ([202.46.136.55]:2929 "EHLO
-	gaston") by vger.kernel.org with ESMTP id S265946AbUAFAdm (ORCPT
+	Mon, 5 Jan 2004 19:37:02 -0500
+Received: from mail.kroah.org ([65.200.24.183]:32435 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266021AbUAFAge (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 19:33:42 -0500
-Subject: Get console sem on fbdev ioctls
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Reply-To: benh@kernel.crashing.org
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1073349137.9497.170.camel@gaston>
+	Mon, 5 Jan 2004 19:36:34 -0500
+Date: Mon, 5 Jan 2004 16:36:14 -0800
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@osdl.org>,
+       linux-hotplug-devel@lists.sourceforge.net
+Cc: Andries Brouwer <aebr@win.tue.nl>, Daniel Jacobowitz <dan@debian.org>,
+       Rob Love <rml@ximian.com>, rob@landley.net,
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
+Subject: Silly udev script [was Re: udev and devfs - The final word]
+Message-ID: <20040106003614.GA1043@kroah.com>
+References: <20040104034934.A3669@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031856130.2162@home.osdl.org> <20040104142111.A11279@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105132756.A975@pclin040.win.tue.nl> <Pine.LNX.4.58.0401050749490.21265@home.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 06 Jan 2004 11:32:18 +1100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0401050749490.21265@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 05, 2004 at 08:13:26AM -0800, Linus Torvalds wrote:
+> 
+> For example, if you wanted to, you could make udev do a cddb lookup on the
+> CD-ROM, and use that as the pathname, so that when you insert your
+> favorite audio disk, it will always show up in the same place, regardless 
+> of whether you put it in the DVD slot or the CD-RW drive. 
+> 
+> [ Yeah, that sounds like a singularly silly thing to do, but it's a good 
+>   example of something where there is no actual serial number, but you can 
+>   "identify" it automatically through its contents, and name it stably 
+>   according to that. ]
 
-Along with my VT race fixes I sent earlier, this is a patch (that may
-need to be applied manually, I hacked the patch file a bit since my
-tree is so different from yours at this point). It takes the console
-semaphore on userland initiated mode change, pan display, ... ioctls.
+That was such a silly thing to do, here's a script that does it, along
+with the udev rule to add to udev.rules for it.  It names your cdrom
+Artist_Title, and creates a symlink called cdrom that points to it, just
+to be a tiny bit sane :)
 
-Maybe more are required... This is the basics for at least fbset operations
-to be "safe" (vs. printk/blanking and vs. the console resize code).
+I had been saying for a long time that you could have udev make a query
+across the network to get a device name, this provides the perfect
+example of just that...
 
-Note that with that and the VT fixes, I can properly now call vc_resize
-instead of fbcon_resize in fbcon when getting a mode changed callback,
-and that works really better.
+thanks,
 
-I basically do that if cols and rows are seen to have changed:
-
-	vc_resize(vc->vc_num, cols, rows);
-	if (CON_IS_VISIBLE(vc)) {
-		accel_clear_margins(vc, info, 0);
-		update_screen(vc->vc_num);
-	}
-
-Though for stty to work fine, I also had to do proper mode selection/validation
-for which I added this FB_ACTIVATE_FIND option (see my other email on the subject)
-along with proper support in radeonfb.
+greg k-h
 
 
-diff -urN linux-2.5/drivers/video/fbmem.c linuxppc-2.5-benh/drivers/video/fbmem.c
---- linux-2.5/drivers/video/fbmem.c	2004-01-06 10:05:18.708660576 +1100
-+++ linuxppc-2.5-benh/drivers/video/fbmem.c	2003-12-31 12:38:25.000000000 +1100
-@@ -27,6 +27,7 @@
- #include <linux/init.h>
- #include <linux/linux_logo.h>
- #include <linux/proc_fs.h>
-+#include <linux/console.h>
- #ifdef CONFIG_KMOD
- #include <linux/kmod.h>
- #endif
-@@ -984,7 +995,9 @@
- 	case FBIOPUT_VSCREENINFO:
- 		if (copy_from_user(&var, (void *) arg, sizeof(var)))
- 			return -EFAULT;
-+		acquire_console_sem();
- 		i = fb_set_var(info, &var);
-+		release_console_sem();
- 		if (i) return i;
- 		if (copy_to_user((void *) arg, &var, sizeof(var)))
- 			return -EFAULT;
-@@ -1003,7 +1016,10 @@
- 	case FBIOPAN_DISPLAY:
- 		if (copy_from_user(&var, (void *) arg, sizeof(var)))
- 			return -EFAULT;
--		if ((i = fb_pan_display(info, &var)))
-+		acquire_console_sem();
-+		i = fb_pan_display(info, &var);
-+		release_console_sem();
-+		if (i)
- 			return i;
- 		if (copy_to_user((void *) arg, &var, sizeof(var)))
- 			return -EFAULT;
-@@ -1039,7 +1055,10 @@
- 		return 0;
- #endif	/* CONFIG_FRAMEBUFFER_CONSOLE */
- 	case FBIOBLANK:
--		return fb_blank(info, arg);
-+		acquire_console_sem();
-+		i = fb_blank(info, arg);
-+		release_console_sem();
-+		return i;
- 	default:
- 		if (fb->fb_ioctl == NULL)
- 			return -EINVAL;
+#!/usr/bin/perl
 
+# a horribly funny script that shows how flexible udev can really be
+# This is to be executed by udev with the following rules:
+# CALLOUT, BUS="ide", PROGRAM="name_cdrom.pl %M %m", ID="good*", NAME="%1c", SYMLINK="cdrom" 
+# CALLOUT, BUS="scsi", PROGRAM="name_cdrom.pl %M %m", ID="good*", NAME="%1c", SYMLINK="cdrom" 
+#
+# The scsi rule catches USB cdroms and ide-scsi devices.
+#
+
+use CDDB_get qw( get_cddb );
+
+my %config;
+
+$dev_node = "/tmp/cd_foo";
+
+# following variables just need to be declared if different from defaults
+$config{CDDB_HOST}="freedb.freedb.org";        # set cddb host
+$config{CDDB_PORT}=8880;                       # set cddb port
+$config{CDDB_MODE}="cddb";			# set cddb mode: cddb or http
+$config{CD_DEVICE}="$dev_node";			# set cd device
+
+# No user interaction, this is a automated script!
+$config{input}=0;
+
+$major = $ARGV[0];
+$minor = $ARGV[1];
+
+# create our temp device node to read the cd info from
+if (system("mknod $dev_node b $major $minor")) {
+       die "bad mknod failed";
+       }
+
+# get it on
+my %cd=get_cddb(\%config);
+
+# remove the dev node we just created
+unlink($dev_node);
+
+# print out our cd name if we have found it
+unless(defined $cd{title}) {
+	print"bad unknown cdrom\n";
+} else {
+	print "good $cd{artist}_$cd{title}\n";
+}

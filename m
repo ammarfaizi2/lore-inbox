@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265590AbUFIGhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265649AbUFIGuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265590AbUFIGhX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 02:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265594AbUFIGhX
+	id S265649AbUFIGuo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 02:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265650AbUFIGuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 02:37:23 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:61635 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265590AbUFIGhW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 02:37:22 -0400
-Date: Wed, 9 Jun 2004 08:37:17 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: sk98lin (was: Re: Linux 2.6.7-rc2)
-In-Reply-To: <ca4r6t$p16$1@gatekeeper.tmr.com>
-Message-ID: <Pine.GSO.4.58.0406090833080.24779@waterleaf.sonytel.be>
-References: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org>
- <1086187044.6179.8.camel@hostmaster.org> <200406041706.27716.vda@port.imtp.ilyichevsk.odessa.ua>
- <ca4r6t$p16$1@gatekeeper.tmr.com>
+	Wed, 9 Jun 2004 02:50:44 -0400
+Received: from web52205.mail.yahoo.com ([206.190.39.87]:29285 "HELO
+	web52205.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265649AbUFIGul (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 02:50:41 -0400
+Message-ID: <20040609065040.5847.qmail@web52205.mail.yahoo.com>
+Date: Tue, 8 Jun 2004 23:50:40 -0700 (PDT)
+From: linux lover <linux_lover2004@yahoo.com>
+Subject: tcp_sendmsg working
+To: linuxkernel <linux-kernel@vger.kernel.org>
+Cc: linuxnet <linux-net@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jun 2004, Bill Davidsen wrote:
-> The solution may be an external table, program, or whatever, since the
-> situation changes as drivers are modified to support new models,
-> chipsets move to new vendors, etc. But it would be *really nice* to find
-> the 3c940 with 3COM drivers, instead of grepping driver source and
-> looking at spec sheets to find out that the driver is called something
-> like sk98lin, it's in an unobvious place and has a name unrelated to 3COM.
 
-Another problem with the sk98lin driver is that it hasn't yet been converted to
-the new driver model. Even when booting Knoppix, you have to manually modprobe
-sk98lin to use the 3c940. Took me a while to find out...
+hello,
+how tcp_sendmsg add message from application layer to
+socket buffer skb? 
 
-Gr{oetje,eeting}s,
+i am unable to find message field in msghdr help me.
+struct msghdr {
+        void    *       msg_name;       /* Socket name
+                 
+*/
+        int             msg_namelen;    /* Length of
+name               
+*/
+        struct iovec *  msg_iov;        /* Data blocks
+                 
+*/
+        __kernel_size_t msg_iovlen;     /* Number of
+blocks             
+*/
+        void    *       msg_control;    /* Per
+protocol magic (eg BSD 
+file descriptor passing) */
+        __kernel_size_t msg_controllen; /* Length of
+cmsg list */
+        unsigned        msg_flags;
+};
+also what is use of struct iovec? is that store actual
+data? if yes then how that is included in socket
+buffer?
 
-						Geert
+regards,
+linux_lover
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

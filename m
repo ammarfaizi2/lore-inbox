@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261746AbREVObn>; Tue, 22 May 2001 10:31:43 -0400
+	id <S261782AbREVOdn>; Tue, 22 May 2001 10:33:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261771AbREVObd>; Tue, 22 May 2001 10:31:33 -0400
-Received: from elektra.higherplane.net ([203.37.52.137]:56027 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S261746AbREVObY>; Tue, 22 May 2001 10:31:24 -0400
-Date: Wed, 23 May 2001 00:42:57 +1000
-From: john slee <indigoid@higherplane.net>
-To: Urban Widmark <urban@teststation.com>
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, Wayne.Brown@altec.com,
-        David Woodhouse <dwmw2@infradead.org>,
-        Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Background to the argument about CML2 design philosophy
-Message-ID: <20010523004257.C5779@higherplane.net>
-In-Reply-To: <20010521135857.B11361@thyrsus.com> <Pine.LNX.4.30.0105212052290.13267-100000@cola.teststation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.30.0105212052290.13267-100000@cola.teststation.com>; from urban@teststation.com on Mon, May 21, 2001 at 10:00:07PM +0200
+	id <S261803AbREVOde>; Tue, 22 May 2001 10:33:34 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:4619 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S261793AbREVOdU>; Tue, 22 May 2001 10:33:20 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code in userspace
+Date: Tue, 22 May 2001 11:07:32 +0200
+X-Mailer: KMail [version 1.2]
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Ben LaHaise <bcrl@redhat.com>,
+        torvalds@transmeta.com, viro@math.psu.edu,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0105190138150.6079-100000@toomuch.toronto.redhat.com> <01051916254708.00491@starship> <20010521101451.F555@marowsky-bree.de>
+In-Reply-To: <20010521101451.F555@marowsky-bree.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <01052211073203.06233@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 21, 2001 at 10:00:07PM +0200, Urban Widmark wrote:
-> On Mon, 21 May 2001, Eric S. Raymond wrote:
-> 
-> > the NEW tag).  That phase ended almost a month ago.  Nobody who has
-> > actually tried the CML2 tools more recently has reported that the UI
-> > changes present any difficulty.
-> 
-> What happened with the discussion on configurable colors in make
-> menuconfig? Darkblue on black as frozen options get isn't exactly optimal
-> ... at least not for my eyes. Being next to a bold, white text doesn't
-> help either.
+On Monday 21 May 2001 10:14, Lars Marowsky-Bree wrote:
+> On 2001-05-19T16:25:47,
+>
+>    Daniel Phillips <phillips@bonn-fries.net> said:
+> > How about:
+> >
+> >   # mkpart /dev/sda /dev/mypartition -o size=1024k,type=swap
+> >   # ls /dev/mypartition
+> >   base	size	device	type
+> >   # cat /dev/mypartition/size
+> >   1048576
+> >   # cat /dev/mypartition/device
+> >   /dev/sda
+> >   # mke2fs /dev/mypartition
+>
+> Ek. You want to run mke2fs on a _directory_ ?
 
-if you don't like dark blue on black, change your terminal colours.
-then you won't find it hard to read in other applications either.
+Could you be specific about what is wrong with that?  Assuming that
+this device directory lives on a special purpose filesystem?
 
-it's also far less effort this way...
+> If anything, /dev/mypartition/realdev
 
-j.
+Then every fstab in the world has to change, not to mention adding
+verbosity to interactive commands.
 
--- 
-"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson
+--
+Daniel
+

@@ -1,48 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263886AbTLOTYR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 14:24:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263909AbTLOTYR
+	id S263571AbTLOTTP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 14:19:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263742AbTLOTTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 14:24:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:41661 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263886AbTLOTYQ (ORCPT
+	Mon, 15 Dec 2003 14:19:15 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:59070 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263571AbTLOTTN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 14:24:16 -0500
-Date: Mon, 15 Dec 2003 14:23:37 -0500
-From: Alan Cox <alan@redhat.com>
-To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-Cc: arjanv@redhat.com, Gabriel Paubert <paubert@iram.es>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Martin Mares <mj@ucw.cz>, zaitcev@redhat.com, hch@infradead.org
-Subject: Re: PCI Express support for 2.4 kernel
-Message-ID: <20031215192337.GA18811@devserv.devel.redhat.com>
-References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com> <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es> <3FDDACA9.1050600@intel.com> <1071494155.5223.3.camel@laptop.fenrus.com> <3FDDBDFE.5020707@intel.com>
+	Mon, 15 Dec 2003 14:19:13 -0500
+Date: Mon, 15 Dec 2003 20:13:35 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Toad <toad@amphibian.dyndns.org>, linux-kernel@vger.kernel.org
+Subject: Re: 'bad: scheduling while atomic!', preempt kernel, 2.6.1-test11, reading an apparently duff DVD-R
+Message-ID: <20031215191335.GG2267@suse.de>
+References: <20031215135802.GA4332@amphibian.dyndns.org> <Pine.LNX.4.58.0312151043480.1631@home.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FDDBDFE.5020707@intel.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.58.0312151043480.1631@home.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It looks confusing. On my test system (don't ask details, I am not 
-> alowed to share this info), I see
-> video controller with 256Mb BAR. Does it mean this controller will not 
-> work as well?
+On Mon, Dec 15 2003, Linus Torvalds wrote:
+> 
+> 
+> On Mon, 15 Dec 2003, Toad wrote:
+> >
+> > ide-scsi: reset called for 133
+> 
+> Ok, I can't trigger an IDE reset even with a bad CDROM, so I'm kind of out
+> of luck on testing this. Can you try out the following silly patch, and
+> report what it says?
+> 
+> The old ide-scsi reset function is just terminally broken, there's no way
+> it can work. This patch _might_ make it work, but is more likely to just
+> print out what it's trying to do.
 
-The 256Mb BAR turns up in a variety of graphic cards, and 512Mb in a few.
-The kernel maps just enough memory for the frame buffer + cache. There isn't
-enough space to map it all. User space apps may well have the 512Mb mapped 
-into their address space, but that isnt the kernel one
+abort doesn't work well either, and ide-scsi needs to be ported to do
+proper new error handling. It's internal buffering stinks. In short, it
+really needs to be almost rewritten if it is serve some useful purpose.
+If it wasn't for the principle of it, it really should not be a big job.
 
-> There is alternative solution, for each transaction to ioremap/unmap 
-> corresponded page.
-> I don't like it, it involves huge overhead.
+> -	printk (KERN_ERR "ide-scsi: reset called for %lu\n", cmd->serial_number);
+> -	/* first null the handler for the drive and let any process
+> -	 * doing IO (on another CPU) run to (partial) completion
+> -	 * the lock prevents processing new requests */
+> -	spin_lock_irqsave(&ide_lock, flags);
+> -	while (HWGROUP(drive)->handler) {
+> -		HWGROUP(drive)->handler = NULL;
+> -		schedule_timeout(1);
+> -	}
 
-ioremap means you can't use pci_exp_* from an interrupt so kmap is probably
-needed. It is overhead but the design of the 386 left us with that problem on
-x86 platforms and it isnt going to go away. On ia64/x86_64 etc its a non issue
+It's incredible how anything like that ever got merged, looks like it
+was introduced with scsi_sleep() change.
 
+> -	/* now nuke the drive queue */
+> -	while ((req = elv_next_request(drive->queue))) {
+> -		blkdev_dequeue_request(req);
+> -		end_that_request_last(req);
+
+Broken, will introduced infinite stalls.
+
+> -	}
+> -	/* FIXME - this will probably leak memory */
+> -	HWGROUP(drive)->rq = NULL;
+> -	if (drive_to_idescsi(drive))
+> -		drive_to_idescsi(drive)->pc = NULL;
+> -	spin_unlock_irqrestore(&ide_lock, flags);
+> -	/* finally, reset the drive (and its partner on the bus...) */
+> -	ide_do_reset (drive);
+
+-- 
+Jens Axboe
 

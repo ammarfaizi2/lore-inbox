@@ -1,82 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272280AbRJEV0e>; Fri, 5 Oct 2001 17:26:34 -0400
+	id <S272244AbRJEVZY>; Fri, 5 Oct 2001 17:25:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273524AbRJEV0Z>; Fri, 5 Oct 2001 17:26:25 -0400
-Received: from web21108.mail.yahoo.com ([216.136.227.110]:31714 "HELO
-	web21108.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S272540AbRJEV0J>; Fri, 5 Oct 2001 17:26:09 -0400
-Message-ID: <20011005212638.92806.qmail@web21108.mail.yahoo.com>
-Date: Fri, 5 Oct 2001 22:26:38 +0100 (BST)
-From: =?iso-8859-1?q?Steven=20Newbury?= <s_j_newbury@yahoo.co.uk>
-Subject: Re: [patch] Re: AMD viper chipset and UDMA100
-To: linux-kernel@vger.kernel.org
-Cc: vojtech@suse.cz
+	id <S271712AbRJEVZO>; Fri, 5 Oct 2001 17:25:14 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:28546 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S272244AbRJEVZA>; Fri, 5 Oct 2001 17:25:00 -0400
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200110052124.WAA20832@mauve.demon.co.uk>
+Subject: Re: Odd keyboard related crashes.
+To: nikberry@med.umich.edu (Nicholas Berry)
+Date: Fri, 5 Oct 2001 22:24:11 +0100 (BST)
+Cc: root@mauve.demon.co.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <sbbd8e9c.095@mail-02.med.umich.edu> from "Nicholas Berry" at Oct 05, 2001 10:42:16 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 28, 2001 at 10:21:14, Vojetch Pavlik wrote:
->
-> On Thu, Sep 27, 2001 at 04:37:50PM -0700, Sean
-Swallow wrote:
+> >>> Ian Stirling <root@mauve.demon.co.uk> 10/05/01 05:01AM >>>
+> >I'm running 2.4.10, and the ps/2 keyboard came out of it's socket.
 > 
-> > Vojtech,
-> > I would be interested in trying out your code.
->
-> Ok. It should make your ViperPlus work with UDMA100.
-> The patch is
-> against 2.4.10, but will probably work with any
-similar kernel. It
-> completely replaces Andre's driver with mine. Find
-it > attached.
-> 
-> Good luck. 
-[patch snipped]
-I have a Tyan K7 Thunder and I have tried this patch
-and the patch from Andre, synced with 2.4.10 by Jacob
-Luna and have had the same problem with both.  Without
-the patch I can only do UDMA33 but the hw supports
-UDMA100.  I have a Quantum FireballPlus AS40 on my
-primary IDE channel which I have tested on an MSI
-K7Master and works fine in UDMA100.
+> >On plugging back in, all worked fine, until 10 seconds later there was a
+> >crash. (the keyboard worked after being plugged in)
+> >No oops, just a reboot.
+<snip>
+> When the keyboard is powered up (or plugged in), it goes through a self =
+> test, and reports the status back to the PC. Normally, a start up dialogue =
+> takes place between the PC and the keyboard at this point.
+> That's fine when you boot your PC, but if you unplug then re-plug the =
+> keyboard, the PC will be sent data it's really not expecting, and the BIOS =
+> will be very confused.
 
-When I reboot with the driver enabled, as soon as hda
-is detected the kernel locks up with a DIVIDE (0)
-error.  I will try it again and take notes of more
-details if it helps.
+I should have said.
+Both times this happened, the keyboard was working fine after being
+plugged in, correctly recognising 30 or so keypresses before the crash.
 
-Without the driver, using the generic code I am able
-to use the drive, in I think UDMA100 by letting the
-BIOS set the drive to UDMA100 then manually setting
-DMA mode on with hdparm.  However if I try to set the
-modes manually with hdparm I can not select above
-UDMA66.
+It happened ~10 seconds after the keyboard was plugged in, with the
+system and keyboard remaining functional, with no keyboard related messages
+sysloged (remote syslog, so I'm sure), which is why I suspect it may
+not be hardware.
 
-I have tried this with kernel 2.4.10 and 2.4.11pre1.
-My system is a Dual K7, SMP kernel, 512MB RAM.
-
-My root filesystem is on a RAID0 array across 4
-Quantum AtlasV 9GB U160 SCSI disks, two on each
-channel of the onboard Adaptec.
-
-I have tried to use the Fireball in the array as well
-but for some reason performance reduced!  110MB/s with
-hdparm -t compared to 70MB/s. Could this be because of
-the lack of chipset driver?
-
-One other thing is I am running with the preemt patch,
-though I tested it without as well as I remember.
-
-Please CC any replys to steven.newbury1@ntlworld.com
-as  I am not on the list.
---
-Steven Newbury
-
-
-____________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.co.uk address at http://mail.yahoo.co.uk
-or your free @yahoo.ie address at http://mail.yahoo.ie

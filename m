@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129361AbQLDRwq>; Mon, 4 Dec 2000 12:52:46 -0500
+	id <S129429AbQLDSBu>; Mon, 4 Dec 2000 13:01:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129429AbQLDRwg>; Mon, 4 Dec 2000 12:52:36 -0500
-Received: from mx5.port.ru ([194.67.23.40]:48654 "EHLO mx5.port.ru")
-	by vger.kernel.org with ESMTP id <S129361AbQLDRwd>;
-	Mon, 4 Dec 2000 12:52:33 -0500
-From: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
-To: linux-kernel@vger.kernel.org
-Cc: "Mike Dresser" <mdresser@windsormachine.com>
-Subject: Re[2]: DMA !NOT ONLY! for triton again...
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: 143.167.4.62 via proxy [143.167.1.16]
-In-Reply-To: <3A2BABC7.98725631@windsormachine.com>
-Reply-To: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E142zJP-000Mbh-00@f3.mail.ru>
-Date: Mon, 04 Dec 2000 20:21:59 +0300
+	id <S129465AbQLDSBk>; Mon, 4 Dec 2000 13:01:40 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:29191
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129429AbQLDSBX>; Mon, 4 Dec 2000 13:01:23 -0500
+Date: Mon, 4 Dec 2000 09:30:20 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Guennadi Liakhovetski <gvlyakh@mail.ru>
+cc: linux-kernel@vger.kernel.org, Mike Dresser <mdresser@windsormachine.com>
+Subject: Re: Re[2]: DMA !NOT ONLY! for triton again...
+In-Reply-To: <E142zJP-000Mbh-00@f3.mail.ru>
+Message-ID: <Pine.LNX.4.10.10012040927490.13699-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, yes, I thought they could not have known:-)) I'm absolutely stuck. If disk is fine, chipset is fine and supported by the kernel, then BIOS doesn't (or shouldn't) make a difference... Then WHAT ON THE EARTH??? Mike, have you been able to recall what BIOS option turned DMA on? Shall I write to Andre Hedrick directly? Or is there a mailing-list smth. like linux-ide?
 
-> Now, the question is, can we trust a hard drive manufacturer
-> support tech to know what they're talking about, with evidence to
-> the contrary? :)
+Guennadi,
 
-Thanks
-Guennadi
+I have watched this and even if UDMA is not supported cleanly by the
+drive, the classic ATA-2 Multi-wrod DMA should be.  There was a time in
+the past where WDC had some problems, but they have fixed most if not all
+with "modern" drives.  I will be at WDC in two weeks, and I can raise the
+issues with them.  Please spell them out completely.
+
+Regards,
+
+On Mon, 4 Dec 2000, Guennadi Liakhovetski wrote:
+
+> Well, yes, I thought they could not have known:-)) I'm absolutely stuck. If disk is fine, chipset is fine and supported by the kernel, then BIOS doesn't (or shouldn't) make a difference... Then WHAT ON THE EARTH??? Mike, have you been able to recall what BIOS option turned DMA on? Shall I write to Andre Hedrick directly? Or is there a mailing-list smth. like linux-ide?
+> 
+> > Now, the question is, can we trust a hard drive manufacturer
+> > support tech to know what they're talking about, with evidence to
+> > the contrary? :)
+> 
+> Thanks
+> Guennadi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

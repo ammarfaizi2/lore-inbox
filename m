@@ -1,52 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135346AbRDWP0E>; Mon, 23 Apr 2001 11:26:04 -0400
+	id <S135310AbRDWP3X>; Mon, 23 Apr 2001 11:29:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135293AbRDWPZw>; Mon, 23 Apr 2001 11:25:52 -0400
-Received: from leng.mclure.org ([64.81.48.142]:64776 "EHLO
-	leng.internal.mclure.org") by vger.kernel.org with ESMTP
-	id <S135310AbRDWPYZ>; Mon, 23 Apr 2001 11:24:25 -0400
-Date: Mon, 23 Apr 2001 08:24:05 -0700
-From: Manuel McLure <manuel@mclure.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S135353AbRDWP3D>; Mon, 23 Apr 2001 11:29:03 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48645 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135310AbRDWP0A>; Mon, 23 Apr 2001 11:26:00 -0400
+Subject: Re: Can't compile 2.4.3 with agcc
+To: papadako@csd.uoc.gr (mythos)
+Date: Mon, 23 Apr 2001 16:27:44 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel hang on multi-threaded X process crash
-Message-ID: <20010423082405.C979@ulthar.internal.mclure.org>
-In-Reply-To: <20010422230014.A979@ulthar.internal.mclure.org> <E14rcnO-0007fb-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <E14rcnO-0007fb-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Apr 23, 2001 at 02:38:11 -0700
-X-Mailer: Balsa 1.1.4
+In-Reply-To: <Pine.GSO.4.33.0104231611090.15682-100000@iridanos.csd.uch.gr> from "mythos" at Apr 23, 2001 04:13:47 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14riFe-0008Ev-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 2001.04.23 02:38 Alan Cox wrote:
-> Strange trace but it looks like a bug in the -ac experimental
-> multithreaded
-> core dump patches. I've got a couple of other reports consistent with
-> them
-> being broken somewhere 
+> Using gcc version pgcc-2.95.3 19991024 (AthlonGCC-0.0.3ex3.1)
+> I can't compile 2.4.3.I get the follow message:
 > 
-> Does it have to be something like mozilla (xmms also probably breaks it)
-> that
-> does this. If so I suspect its specific to multithreaded apps and its a
-> bug
-> in the core dump changes.
+> init/main.o: In function `check_fpu':
+> init/main.o(.text.init+0x65): undefined reference to
+> `__buggy_fxsr_alignment'
+> make: *** [vmlinux] Error 1
 > 
-> If so I guess I revert them
+> Can anyone help me?
 
-Both mozilla and aviplay (which are both multithreaded) trigger this - I
-haven't tried with xmms. Simpler programs like xclock or cat don't trigger
-it.
-
-To answer the question in your other email, I don't have DRI enabled (since
-tdfx.o won't load for me due to rwsem fixes - see other thread).
-
-Thanks for your help.
--- 
-Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
-<manuel@mclure.org>     | and significant law, no man may kill a cat.
-<http://www.mclure.org> |             -- H.P. Lovecraft
+Thats either a compiler bug or a funny triggering a compiler bug check
 

@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268849AbUJPUaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268851AbUJPUhx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268849AbUJPUaY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 16:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268856AbUJPUaX
+	id S268851AbUJPUhx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 16:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268854AbUJPUhx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 16:30:23 -0400
-Received: from cantor.suse.de ([195.135.220.2]:47291 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268849AbUJPUaD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 16:30:03 -0400
-Date: Sat, 16 Oct 2004 22:29:59 +0200
-From: Olaf Hering <olh@suse.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [PATCH] kconfig: OVERRIDE: save kernel version in .config file
-Message-ID: <20041016202959.GA26035@suse.de>
-References: <20040917154346.GA15156@suse.de> <20040917102024.50188756.rddunlap@osdl.org> <20040917104334.1b7d7d19.rddunlap@osdl.org> <20041016212859.GC8765@mars.ravnborg.org> <Pine.LNX.4.61.0410162206560.7182@scrub.home>
+	Sat, 16 Oct 2004 16:37:53 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:4510 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268851AbUJPUhw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 16:37:52 -0400
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
+From: Lee Revell <rlrevell@joe-job.com>
+To: Dominik Karall <dominik.karall@gmx.net>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Daniel Walker <dwalker@mvista.com>,
+       Bill Huey <bhuey@lnxw.com>, Andrew Morton <akpm@osdl.org>,
+       Adam Heath <doogie@debian.org>,
+       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
+       Andrew Rodland <arodland@entermail.net>
+In-Reply-To: <200410162230.14363.dominik.karall@gmx.net>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
+	 <200410161621.34657.dominik.karall@gmx.net>
+	 <20041016152427.GA16334@elte.hu>
+	 <200410162230.14363.dominik.karall@gmx.net>
+Content-Type: text/plain
+Message-Id: <1097958703.2148.27.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.61.0410162206560.7182@scrub.home>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 16 Oct 2004 16:31:43 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sat, Oct 16, Roman Zippel wrote:
-
-> Hi,
+On Sat, 2004-10-16 at 16:30, Dominik Karall wrote:
+> sorry, i tried to reproduce this bug, but can't. i even don't know _when_ this 
+> bug occurred, as i just wanted to take a look in the dmesg output after 
+> loading sg module. but it does not depend on sg, as i unloaded it and tried 
+> again to load.
 > 
-> On Sat, 16 Oct 2004, Sam Ravnborg wrote:
-> 
-> > Applied - but I named it KCONFIG_TIMESTAMP so people would not
-> > think that kbuild suddenly stopped checking timestamps.
-> 
-> That reminds me, I'm not really happy with this patch, it's a hack not a 
-> real solution, either we save the timestamp always or not at all, making 
-> it dependent on an environment variable is IMO ugly.
 
-The point is: avoid conflicts when 2 people change different parts of
-the .config.
-Just drop the whole thing, I doubt the timestamp matters much.
+The trace looks like mplayer reading from a FAT filesystem.  Can you
+reproduce the problem if you do whatever you were doing with mplayer 
+again?
 
--- 
-USB is for mice, FireWire is for men!
+Lee
 
-sUse lINUX ag, nÜRNBERG

@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261590AbSKLP2m>; Tue, 12 Nov 2002 10:28:42 -0500
+	id <S261740AbSKLPbJ>; Tue, 12 Nov 2002 10:31:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261605AbSKLP2m>; Tue, 12 Nov 2002 10:28:42 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:35750 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261590AbSKLP2m>; Tue, 12 Nov 2002 10:28:42 -0500
-Subject: Re: [PATCH] [RFC] increase MAX_ADDR_LEN
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roland Dreier <roland@topspin.com>
-Cc: "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <521y5qn7l5.fsf@topspin.com>
-References: <Pine.LNX.4.44.0211111808240.1236-100000@localhost.localdomain>
-	<20021111.151929.31543489.davem@redhat.com> <52r8drn0jk.fsf_-_@topspin.com>
-	<20021111.153845.69968013.davem@redhat.com>
-	<1037060322.2887.76.camel@irongate.swansea.linux.org.uk>
-	<52isz3mza0.fsf@topspin.com>
-	<1037111029.8321.12.camel@irongate.swansea.linux.org.uk> 
-	<521y5qn7l5.fsf@topspin.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Nov 2002 16:00:36 +0000
-Message-Id: <1037116836.8500.55.camel@irongate.swansea.linux.org.uk>
+	id <S261742AbSKLPbJ>; Tue, 12 Nov 2002 10:31:09 -0500
+Received: from server0027.freedom2surf.net ([194.106.33.36]:4764 "EHLO
+	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
+	id <S261740AbSKLPbI>; Tue, 12 Nov 2002 10:31:08 -0500
+Date: Tue, 12 Nov 2002 15:37:42 +0000
+From: Ian Molton <spyro@f2s.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: davej@codemonkey.org.uk, viro@math.psu.edu, xavier.bestel@free.fr,
+       linux-kernel@vger.kernel.org
+Subject: Re: devfs
+Message-Id: <20021112153742.7677c05b.spyro@f2s.com>
+In-Reply-To: <1037112818.8313.32.camel@irongate.swansea.linux.org.uk>
+References: <1037094221.16831.21.camel@bip>
+	<Pine.GSO.4.21.0211120445570.29617-100000@steklov.math.psu.edu>
+	<20021112102535.1f94f50d.spyro@f2s.com>
+	<20021112104650.GA322@suse.de>
+	<1037112818.8313.32.camel@irongate.swansea.linux.org.uk>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-12 at 15:14, Roland Dreier wrote:
-> Hmm... the problem I would like to solve is that IP-over-InfiniBand
-> has 20 byte hardware addresses.  One can implement a driver that lies
-> about its HW address len (you have an internal ARP cache and only
-> expose a hash value/cookie to the rest of the world).  In fact I've
-> done just that for IPoIB.
+On 12 Nov 2002 14:53:38 +0000
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-Our ARP code handles AX.25 fine, and that can include long addresses, so
-either we have a live bug or it works 8). The multicast layer does have
-problems with addresses over 8 bytes (MAX_ADDR_LEN).
+> >  Since it would a *feature* to move it out of kernel space.
+> >  To reiterate : _FEATURE_ _FREEZE_. Nothing[1] new[2]
+> >  should be going into mainline at this point.
+> 
+> Who cares. You can do most of it already with hotplug and the
+> remaining bits are very much "oops should tell hotplug" bug fixes
+> nothing more.
 
-> It works but it's ugly and overly complex.  I would like to find a
-> clean solution for 2.5/2.6, but it looks like it will require changes
-> to the net core.  I'd like to do those now so the IPoIB driver can
-> just drop in cleanly later.  (I want to be able to just add
-> drivers/infiniband during 2.6 without and invasive changes required)
+The more I think about this userspace devfs, the more I like it. simple,
+clean, AND doesnt affect the kernel.
 
-I think you need to do two things.
-
-1. Increase MAX_ADDR_LEN
-2. Add some new address setting ioctls, and ensure the old ones keep the
-old address length limit. That is needed because the old caller wont
-have allocated enough address space for a 20 byte address return.
-
-You have to solve both though, and the first patch should probably be
-the one to add more sensible address set/get functions.
-
+Pure coding beauty.

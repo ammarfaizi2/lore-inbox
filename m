@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265210AbTLRPaF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 10:30:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbTLRPaF
+	id S265225AbTLRPeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 10:34:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbTLRPeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 10:30:05 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:9606 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S265210AbTLRPaB (ORCPT
+	Thu, 18 Dec 2003 10:34:09 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:27627 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265225AbTLRPeG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 10:30:01 -0500
-Message-ID: <3FE1C973.2070600@pacbell.net>
-Date: Thu, 18 Dec 2003 07:36:19 -0800
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
+	Thu, 18 Dec 2003 10:34:06 -0500
+From: Andrew Theurer <habanero@us.ibm.com>
+Reply-To: habanero@us.ibm.com
+To: Joe Pranevich <jpranevich@kniggit.net>
+Subject: Re: Wonderful World of Linux 2.6 - Final
+Date: Thu, 18 Dec 2003 09:35:35 -0600
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <1071724386.2820.12.camel@localhost.localdomain> <200312180929.46723.habanero@us.ibm.com>
+In-Reply-To: <200312180929.46723.habanero@us.ibm.com>
 MIME-Version: 1.0
-To: Richard Curnow <Richard.Curnow@superh.com>
-CC: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Handling of bounce buffers by rh_call_control
-References: <20031217114125.GA20057@malvern.uk.w2k.superh.com> <3FE08470.5040801@pacbell.net> <20031218143236.GB20057@malvern.uk.w2k.superh.com>
-In-Reply-To: <20031218143236.GB20057@malvern.uk.w2k.superh.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312180935.35338.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Curnow wrote:
-> 
-> IIRC, if I plug a USB2 device into a USB2 card but don't have the EHCI
-> driver active, the device is just ignored, rather than falling back to
-> using USB1.1 through OHCI?  We certainly have some USB2 devices we'd
-> like to use, even if the USB2 bandwidth might be throttled back by the
-> bounce buffering overhead.
+On Thursday 18 December 2003 09:29, Andrew Theurer wrote:
+> On Wednesday 17 December 2003 23:13, Joe Pranevich wrote:
+> > Hello,
+> >
+> > I haven't even seen the email yet from linux-kernel about the v2.6
+> > release, but if Slashdot says it's so, it *must* be true. I have just
+> > put the finishing touches on my document describing many of the changes
+> > in the new kernel release. If you're interested, please check it out. It
+> > should be pretty accurate.
+> >
+> > Check it out:
+> >
+> > HTML - http://kniggit.net/wwol26.html
+> > TEXT - http://kniggit.net/wwol26.txt
+>
+> Hyperthreading:
 
-Yes, high speed USB transfers need the EHCI driver.
-If that driver isn't running, then OHCI (or UHCI)
-should kick in.  (Assuming that driver is running!)
+Damn, I should really read all the emails first...  I'll blame it on the email 
+client, yeah, that's it :)  
 
-Most high speed storage seems to work with the current
-EHCI code, although some hardware acts unhappy when
-Linux talks to it faster than Windows does.  That's
-more of an issue on 2.6 than on 2.4 though.
-
-- Dave
-
-
-
+Anyway, looks like Nick already caught this, so I guess consider the benchmark 
+results in the previous email as proof...

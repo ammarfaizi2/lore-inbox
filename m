@@ -1,80 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270626AbUJUCkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269213AbUJTW7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270626AbUJUCkR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 22:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270629AbUJUC3N
+	id S269213AbUJTW7z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 18:59:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267619AbUJTWdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 22:29:13 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:1189 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S270608AbUJUC0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 22:26:45 -0400
-Date: Wed, 20 Oct 2004 19:26:30 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: LKML <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: [RFC] add struct hw_interrupt_type->release
-Message-ID: <20041021022630.GA320@taniwha.stupidest.org>
-References: <20041020023156.GA8597@taniwha.stupidest.org> <20041020130715.GA20287@infradead.org> <20041020023156.GA8597@taniwha.stupidest.org>
+	Wed, 20 Oct 2004 18:33:31 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:31468 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S269097AbUJTWIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 18:08:53 -0400
+Subject: Re: [SoftwareSuspend-devel] Re: Announce: Software Suspend 2.1 for
+	2.6.9.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Paul Ionescu <i_p_a_u_l@yahoo.com>
+Cc: SoftwareSuspend-Devel <softwaresuspend-devel@lists.berlios.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <pan.2004.10.20.10.14.30.549235@yahoo.com>
+References: <1098237615.7738.13.camel@desktop.cunninghams>
+	 <pan.2004.10.20.10.14.30.549235@yahoo.com>
+Content-Type: text/plain
+Message-Id: <1098309930.4989.55.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041020130715.GA20287@infradead.org> <20041020023156.GA8597@taniwha.stupidest.org>
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 21 Oct 2004 08:05:30 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 19, 2004 at 07:31:56PM -0700, Chris Wedgwood wrote:
+Hi Paul.
 
-> +++ b/kernel/irq/manage.c	2004-10-19 17:47:40 -07:00
-> @@ -260,6 +260,7 @@
->  				else
->  					desc->handler->disable(irq);
->  			}
-                       ^^^
-> +			platform_free_irq_notify(irq, dev_id);
->  			spin_unlock_irqrestore(&desc->lock,flags);
->  			unregister_handler_proc(irq, action);
->  
+On Wed, 2004-10-20 at 20:14, Paul Ionescu wrote:
+> Hi Nigel,
+> 
+> I tried this new version, and it still won't suspend with 4G himem support
+> compiled in (still hangs at "copying pageset 1").
+> Have you had the time to look in the kernel .config file and serial dump
+> I've sent you (on your e-mail, not on the list)? 
+> Maybe I compiled some wrong options in the kernel.
 
-On Wed, Oct 20, 2004 at 02:07:15PM +0100, Christoph Hellwig wrote:
+Sorry; it went clean out of my head. I'll take a look asap.
 
-> This looks rather bogus to me.  What prevents UML from doing it's
-> work at the struct hw_interrupt_type level?
+Regards,
 
-the ^^^ marked part reads something like if (!desc->action) { ... }
-presumably meaning the shutdown/disable is only done when the very
-last user of an interrupt source is removed
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-UML needs to be notified when *any* user is removed so either need
-some way to tell the generic code this or perhaps we could introduce
-another op to hw_interrupt_type along the lines of ->release like
-this:
-
-
-===== include/linux/irq.h 1.12 vs edited =====
---- 1.12/include/linux/irq.h	2004-10-18 22:26:45 -07:00
-+++ edited/include/linux/irq.h	2004-10-20 19:13:01 -07:00
-@@ -47,6 +47,7 @@ struct hw_interrupt_type {
- 	void (*ack)(unsigned int irq);
- 	void (*end)(unsigned int irq);
- 	void (*set_affinity)(unsigned int irq, cpumask_t dest);
-+	void (*release)(unsigned int irq, void *dev_id);
- };
- 
- typedef struct hw_interrupt_type  hw_irq_controller;
-===== kernel/irq/manage.c 1.1 vs edited =====
---- 1.1/kernel/irq/manage.c	2004-10-18 22:26:39 -07:00
-+++ edited/kernel/irq/manage.c	2004-10-20 18:55:05 -07:00
-@@ -253,6 +253,10 @@ void free_irq(unsigned int irq, void *de
- 
- 			/* Found it - now remove it from the list of entries */
- 			*pp = action->next;
-+
-+			if (desc->handler->release)
-+				desc->handler->release(irq, dev_id);
-+
- 			if (!desc->action) {
- 				desc->status |= IRQ_DISABLED;
- 				if (desc->handler->shutdown)
-
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
 

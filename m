@@ -1,42 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265659AbUATTUl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 14:20:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265663AbUATTUl
+	id S265664AbUATTXU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 14:23:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265673AbUATTWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 14:20:41 -0500
-Received: from main.gmane.org ([80.91.224.249]:51152 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265659AbUATTUM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 14:20:12 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ben Pfaff <blp@cs.stanford.edu>
-Subject: Re: [PATCH] fix for ide-scsi crash
-Date: Tue, 20 Jan 2004 10:46:30 -0800
-Message-ID: <87k73m5ugp.fsf@pfaff.stanford.edu>
-References: <UTC200401200944.i0K9iRE25868.aeb@smtp.cwi.nl>
-Reply-To: blp@cs.stanford.edu
+	Tue, 20 Jan 2004 14:22:49 -0500
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:43566 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S265664AbUATTWU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 14:22:20 -0500
+Date: Tue, 20 Jan 2004 20:22:16 +0100
+From: Haakon Riiser <haakon.riiser@fys.uio.no>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Busy-wait delay in qmail 1.03 after upgrading to Linux 2.6
+Message-ID: <20040120192216.GA7685@s.chello.no>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040120021353.39e9155e.akpm@osdl.org> <400D746D.7030409@colorfullife.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:Ya4A9f7XQa1TttfqDN+xgeQwHrk=
+Content-Disposition: inline
+In-Reply-To: <400D746D.7030409@colorfullife.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl writes:
+[Manfred Spraul]
 
-> Yes, it seems we presently have no good mechanism / policy here.
-> Patches are noise. If some kernel version works and another doesnt,
-> one has to look at the diffs. Whitespace-only diffs are bad,
-> I would never submit them. They also needlessly invalidate existing patches.
+> What drains the fifo?
+> As far as I can see the fifo is filled by the write syscalls, and 
+> drained by chance if both the reader and the writer have closed their 
+> handles.
 
-When one version of a source file works and another doesn't,
-`diff -b' or `diff -w' usually does a good job of ignoring
-whitespace changes.
+That's correct, and that was my intention since this is apparently
+how it works in Qmail.  Every time the listener's select() returns,
+the FIFO is immediately close()d and the first thing the writer
+does after writing it's single trigger byte is also to close() its
+end of the FIFO.
+
+>>      for (;;) {
+>>               while ((fd = open("test.fifo", O_WRONLY | O_NONBLOCK)) < 0)
+>>                       ;
+>>               gettimeofday(&tv1, NULL);
+>>               if (write(fd, &fd, 1) == 1) {
+>>
+> xxx now a thread switch
+> 
+>>                       gettimeofday(&tv2, NULL);
+>>                       fprintf(stderr, "dt = %f ms\n",
+>>                               (tv2.tv_sec - tv1.tv_sec) * 1000.0 +
+>>                               (tv2.tv_usec - tv1.tv_usec) / 1000.0);
+>>               }
+>>               if (close(fd) < 0) {
+>>                       perror("close");
+>> 
+>>
+> If a thread switch happens in the indicated line, then the reader will 
+> loop, until it's timeslice expires - one full timeslice delay between 
+> the two gettimeofday() calls.
+
+Exactly.  But on 2.6, the delay between the two gettimeofday()
+calls are sometimes up to 300 ms, which is 300 timeslices in
+2.6, right?  I have never observed more than _one_ timeslice
+delay in 2.4.
+
+> Running the reader with nice -20 resulted in delays of 200-1000 ms for 
+> each write call, nice 20 resulted in no slow calls. In both cases 100% 
+> cpu load.
+
+But when the listener and the writer have the same nice value,
+how is it possible to have a delay of 300 ms?  Both the writer
+and the listener are ready to run, so wouldn't a 300 ms delay
+mean that the listener was given the CPU 300 times in a row?
+
 -- 
-<blp@cs.stanford.edu> <pfaffben@msu.edu> <pfaffben@debian.org> <blp@gnu.org>
- Stanford Ph.D. Candidate - MSU Alumnus - Debian Maintainer - GNU Developer
-                              www.benpfaff.org
-
+ Haakon

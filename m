@@ -1,48 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132413AbRANSIs>; Sun, 14 Jan 2001 13:08:48 -0500
+	id <S132777AbRANSVX>; Sun, 14 Jan 2001 13:21:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132777AbRANSIi>; Sun, 14 Jan 2001 13:08:38 -0500
-Received: from kamov.deltanet.ro ([193.226.175.3]:3076 "HELO kamov.deltanet.ro")
-	by vger.kernel.org with SMTP id <S132413AbRANSI0>;
-	Sun, 14 Jan 2001 13:08:26 -0500
-Date: Sun, 14 Jan 2001 20:08:09 +0200
-From: Petru Paler <ppetru@ppetru.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-pre3+zerocopy: weird messages
-Message-ID: <20010114200809.P1394@ppetru.net>
-In-Reply-To: <20010114121105.B1394@ppetru.net> <14945.32886.671619.99921@pizda.ninka.net> <20010114124549.D1394@ppetru.net> <14945.34414.185794.396720@pizda.ninka.net> <20010114132845.F1394@ppetru.net> <14945.36440.59585.376942@pizda.ninka.net> <20010114141003.G1394@ppetru.net> <20010114151257.J1394@ppetru.net> <14945.42973.905573.579075@pizda.ninka.net>
-Mime-Version: 1.0
+	id <S132872AbRANSVO>; Sun, 14 Jan 2001 13:21:14 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:14048 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S132777AbRANSVH>; Sun, 14 Jan 2001 13:21:07 -0500
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: SetPageDirty in shmem_nopage
+From: Christoph Rohland <cr@sap.com>
+Message-ID: <m3zoguf115.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.13i
-In-Reply-To: <14945.42973.905573.579075@pizda.ninka.net>; from davem@redhat.com on Sun, Jan 14, 2001 at 05:21:33AM -0800
+Date: 14 Jan 2001 19:25:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14, 2001 at 05:21:33AM -0800, David S. Miller wrote:
-> Petru Paler writes:
->  > Got more "udp v4 hw csum failure" messages but still no "UDP packet
->  > with bad csum was fragmented".
-> 
-> OK, last experiment :-)  Add this patch, and watch to see if
-> the UDP "InErrors" field in /proc/net/snmp has a non-zero value after
-> letting it run for a while.  Thanks.
+Hi Linus,
 
-Ok, will do.
+While playing with the shmem read/write support I realised that the
+accounting for shmem is broken:
 
-In the mean time, the box locked up hard. The last message in syslog
-was:
+Since we do not mark the page dirty at allocation time the vm can drop
+it at any time as long as it is not written to. But shmem never
+adjusts its accounting to that and will happily increase the use
+counter for both the inode and the fs.
 
-Jan 14 10:14:45 grey kernel: Undo loss 194.67.160.18/3103 c2 l0 ss2/65535 p0              
+The appended patch fixes this by recalculating the inodes size in
+nopage and writepage. With this change i_blocks is still an upper
+bound of the real usage, but should be near the real value in normal
+cases. At least it does not grow any more beyond the inodes size.
 
-I'm not sure when it died, and I also could not check the console (the
-server is on the other side of the planet for me :).
+Any idea to handle this better? Else I think this should be applied.
 
---
-Petru Paler, mailto:ppetru@ppetru.net
-http://www.ppetru.net - ICQ: 41817235
+Greetings
+                Christoph
+
+diff -uNr 2.4.0-nosymlink/mm/shmem.c 2.4.0-nosymlink-calc/mm/shmem.c
+--- 2.4.0-nosymlink/mm/shmem.c	Sat Jan 13 14:18:26 2001
++++ 2.4.0-nosymlink-calc/mm/shmem.c	Sun Jan 14 18:42:04 2001
+@@ -117,11 +117,43 @@
+ 	return 0;
+ }
+ 
++/*
++ * shmem_recalc_inode - recalculate the size of an inode
++ *
++ * @inode: inode to recalc
++ *
++ * We have to calculate the free blocks since the mm can drop pages
++ * behind our back
++ *
++ * But we know that normally
++ * inodes->i_blocks == inode->i_mapping->nrpages + info->swapped
++ *
++ * So the mm freed 
++ * inodes->i_blocks - (inode->i_mapping->nrpages + info->swapped)
++ *
++ * It has to be called with the spinlock held.
++ */
++
++static void shmem_recalc_inode(struct inode * inode)
++{
++	unsigned long freed;
++
++	freed = inode->i_blocks -
++		(inode->i_mapping->nrpages + inode->u.shmem_i.swapped);
++	if (freed){
++		struct shmem_sb_info * info = &inode->i_sb->u.shmem_sb;
++		inode->i_blocks -= freed;
++		spin_lock (&info->stat_lock);
++		info->free_blocks += freed;
++		spin_unlock (&info->stat_lock);
++	}
++}
++
+ static void shmem_truncate (struct inode * inode)
+ {
+ 	int clear_base;
+ 	unsigned long start;
+-	unsigned long mmfreed, freed = 0;
++	unsigned long freed = 0;
+ 	swp_entry_t **base, **ptr;
+ 	struct shmem_inode_info * info = &inode->u.shmem_i;
+ 
+@@ -154,26 +186,9 @@
+ 	info->i_indirect = 0;
+ 
+ out:
+-
+-	/*
+-	 * We have to calculate the free blocks since we do not know
+-	 * how many pages the mm discarded
+-	 *
+-	 * But we know that normally
+-	 * inodes->i_blocks == inode->i_mapping->nrpages + info->swapped
+-	 *
+-	 * So the mm freed 
+-	 * inodes->i_blocks - (inode->i_mapping->nrpages + info->swapped)
+-	 */
+-
+-	mmfreed = inode->i_blocks - (inode->i_mapping->nrpages + info->swapped);
+ 	info->swapped -= freed;
+-	inode->i_blocks -= freed + mmfreed;
++	shmem_recalc_inode(inode);
+ 	spin_unlock (&info->lock);
+-
+-	spin_lock (&inode->i_sb->u.shmem_sb.stat_lock);
+-	inode->i_sb->u.shmem_sb.free_blocks += freed + mmfreed;
+-	spin_unlock (&inode->i_sb->u.shmem_sb.stat_lock);
+ }
+ 
+ static void shmem_delete_inode(struct inode * inode)
+@@ -208,6 +223,7 @@
+ 		return 1;
+ 
+ 	spin_lock(&info->lock);
++	shmem_recalc_inode(page->mapping->host);
+ 	entry = shmem_swp_entry (info, page->index);
+ 	if (!entry)	/* this had been allocted on page allocation */
+ 		BUG();
+@@ -269,6 +285,9 @@
+ 	entry = shmem_swp_entry (info, idx);
+ 	if (!entry)
+ 		goto oom;
++	spin_lock (&info->lock);
++	shmem_recalc_inode(inode);
++	spin_unlock (&info->lock);
+ 	if (entry->val) {
+ 		unsigned long flags;
+ 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

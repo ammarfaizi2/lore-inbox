@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262905AbSJWIKf>; Wed, 23 Oct 2002 04:10:35 -0400
+	id <S263016AbSJWIhw>; Wed, 23 Oct 2002 04:37:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262906AbSJWIKf>; Wed, 23 Oct 2002 04:10:35 -0400
-Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:47787 "EHLO
-	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
-	id <S262905AbSJWIKf>; Wed, 23 Oct 2002 04:10:35 -0400
-Subject: Re: 2.4 Ready list - Kernel Hooks
-To: Greg KH <greg@kroah.com>
-Cc: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       S Vamsikrishna <vamsi_krishna@in.ibm.com>,
-       Werner Almesberger <wa@almesberger.net>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF8955D2C4.965253CB-ON80256C5B.002C9AA3@portsmouth.uk.ibm.com>
-From: "Richard J Moore" <richardj_moore@uk.ibm.com>
-Date: Wed, 23 Oct 2002 09:10:13 +0100
-X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
- 23/10/2002 09:16:36
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S263026AbSJWIhw>; Wed, 23 Oct 2002 04:37:52 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:12714 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S263016AbSJWIhp>;
+	Wed, 23 Oct 2002 04:37:45 -0400
+Date: Wed, 23 Oct 2002 14:27:01 +0530
+From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
+To: Rob Landley <landley@trommello.org>
+Cc: linux-kernel@vger.kernel.org,
+       Guillaume Boissiere <boissiere@adiglobal.com>,
+       richard <richardj_moore@uk.ibm.com>
+Subject: Re: Crunch Time, in 3D!  (2.5 final merge candidate list, v 1.4)
+Message-ID: <20021023142701.A28657@in.ibm.com>
+Reply-To: vamsi@in.ibm.com
+References: <200210221719.41868.landley@trommello.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200210221719.41868.landley@trommello.org>; from landley@trommello.org on Wed, Oct 23, 2002 at 03:22:26AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 23, 2002 at 03:22:26AM +0000, Rob Landley wrote:
+> Sigh, silly me.  All the kernel hooks patches
+> (http://www-124.ibm.com/linux/projects/kernelhooks/releases/)
+> Are against 2.4, not 2.5.  I can't find ANY patch against
+> 2.5.  So that's dropped.
+> 
+Kernel patches for 2.5.44 are on the way to the website. They should 
+appear by the end of the day at:
+http://www-124.ibm.com/linux/patches/?patch_id=595
 
->On Wed, Oct 23, 2002 at 12:09:38AM +0100, Richard J Moore wrote:
->> We created
->> kernel hooks for exactly the same reasons that LSM needs hooks - to
-allow
->> ancillary function to exist outside the kernel, to avoid kernel bloat,
-to
->> allow more than one function to be called from a given call-back (think
-of
->> kdb and kprobes - both need to be called from do_debug).
->
->No, that is NOT the same reason LSM needs hooks!  LSM hooks are there to
->mediate access to various kernel objects, from within the kernel itself.
->Please do not confuse LSM with any of the above projects.
->
->thanks,
->
->greg k-h
+Untill then, you can refer to this link for the patch:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103364774926440&w=2
 
-I would have to understand what you meant by "mediate between various
-kernel objects" to know whether LSM's need for hooks is radically different
-to RAS needs. Can you explain further?
+Project website:
+http://www-124.ibm.com/linux/projects/kernelhooks/
 
+Please keep this on the list. 
 
-Richard
-
+Thanks,
+-- 
+Vamsi Krishna S.
+Linux Technology Center,
+IBM Software Lab, Bangalore.
+Ph: +91 80 5044959
+Internet: vamsi@in.ibm.com

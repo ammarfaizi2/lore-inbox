@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277013AbRJCWot>; Wed, 3 Oct 2001 18:44:49 -0400
+	id <S277016AbRJCWvJ>; Wed, 3 Oct 2001 18:51:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277016AbRJCWoj>; Wed, 3 Oct 2001 18:44:39 -0400
-Received: from adsl-64-109-89-110.chicago.il.ameritech.net ([64.109.89.110]:33873
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S277013AbRJCWo2>; Wed, 3 Oct 2001 18:44:28 -0400
-Message-Id: <200110032244.f93MiI103485@localhost.localdomain>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Jes Sorensen <jes@sunsite.dk>
-cc: Linux Bigot <linuxopinion@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: how to get virtual address from dma address
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 03 Oct 2001 17:44:18 -0500
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+	id <S277019AbRJCWu7>; Wed, 3 Oct 2001 18:50:59 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:63362 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S277016AbRJCWuu>;
+	Wed, 3 Oct 2001 18:50:50 -0400
+Date: Wed, 3 Oct 2001 18:51:13 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Christoph Hellwig <hch@ns.caldera.de>
+cc: "Vladimir V. Saveliev" <vs@namesys.com>, linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Re: bug? in using generic read/write functions to
+ read/write block devices  in 2.4.11-pre2
+In-Reply-To: <200110032156.f93LuJb01378@ns.caldera.de>
+Message-ID: <Pine.GSO.4.21.0110031841180.23558-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linux> All programmers I am relatively new to linux kernel. Please
-> Linux> advise what is the safe way to get the original virtaul address
-> Linux> from dma address e.g.,
 
-> You have to store the address you pass to pci_map_single() somewhere
-> in your data structures together with the dma address.
 
-Yes, but speaking as someone who had to use a large hammer to convert his 
-driver from bus_to_virt et al.,  it does seem rather hard not to have the 
-equivalent for the new pci_dma paradigm.  It does present an obstacle 
-persuading people to convert drivers, particularly if the hardware is going to 
-present a linked list of addresses (as SCSI hardware often does).
+On Wed, 3 Oct 2001, Christoph Hellwig wrote:
 
-After all, whatever device maps between the io bus and the memory bus, it must 
-always map a given dma_addr_t to a known physical address.  It can't be that 
-hard to provide an an API in the kernel which can compute this relationship 
-(although I can see it may be expensive to walk iommu page tables).  I'm only 
-really asking for a dma_addr_t to virtual address by the way.  I see that 
-mapping the other way would be problematic.
+> Hi Al,
+> 
+> In article <Pine.GSO.4.21.0110031643130.23558-100000@weyl.math.psu.edu> you wrote:
+> > Moreover, ->release() for block_device also doesn't care for the junk
+> > we pass - it only uses inode->i_rdev.  In all cases.  And I'd rather
+> > see it them as
+> > 	int (*open)(struct block_device *bdev, int flags, int mode);
+> > 	int (*release)(struct block_device *bdev);
+> > 	int (*check_media_change)(struct block_device *bdev);
+> > 	int (*revalidate)(struct block_device *bdev);
+> > - that would make more sense than the current variant.  They are block_device
+> > methods, not file or inode ones, after all.
+> 
+> How about starting 2.5 with that patch ones 2.4.11 is done?  Linus?
 
-James Bottomley
-
+I don't think that it's a good idea.  Such patch is trivial - it can be
+done at any point in 2.5.  Moreover, while it does clean some of the
+mess up, I don't see a lot of other stuff that would depend on it.
 

@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266488AbRHFQ0I>; Mon, 6 Aug 2001 12:26:08 -0400
+	id <S266251AbRHFQ3I>; Mon, 6 Aug 2001 12:29:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268859AbRHFQZ7>; Mon, 6 Aug 2001 12:25:59 -0400
-Received: from cloud.city-map.de ([195.94.94.16]:2860 "EHLO cloud.city-map.de")
-	by vger.kernel.org with ESMTP id <S268767AbRHFQZs> convert rfc822-to-8bit;
-	Mon, 6 Aug 2001 12:25:48 -0400
-Message-ID: <3B6EC51F.1A1200CC@topconcepts.com>
-Date: Mon, 06 Aug 2001 18:26:07 +0200
-From: =?iso-8859-1?Q?S=F6nke?= Ruempler <ruempler@topconcepts.com>
-Reply-To: ruempler@topconcepts.com
-Organization: top concepts Internetmarketing GmbH
-X-Mailer: Mozilla 4.7 [de] (WinNT; I)
-X-Accept-Language: de
+	id <S268565AbRHFQ26>; Mon, 6 Aug 2001 12:28:58 -0400
+Received: from baltazar.tecnoera.com ([200.29.128.1]:62985 "EHLO
+	baltazar.tecnoera.com") by vger.kernel.org with ESMTP
+	id <S267657AbRHFQ2m>; Mon, 6 Aug 2001 12:28:42 -0400
+Date: Mon, 6 Aug 2001 12:28:41 -0400 (CLT)
+From: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
+To: Ivan Lotina <lotke@lotke.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Adaptec 2100S support
+In-Reply-To: <Pine.LNX.4.33.0108061204180.3988-100000@baltazar.tecnoera.com>
+Message-ID: <Pine.LNX.4.33.0108061224220.3988-100000@baltazar.tecnoera.com>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: mdacon
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+
+I left the patches available through a web site to avoid the problem of
+the busy ftp site.
+
+http://adaptec2100s.tecnoera.com/
 
 
-two questions fpr the mdacon driver:
+ps: does anyone know when these patches will be distributed into the
+kernel itself?
 
-1) Can I use 2 mdacon cards with the mdacon driver ?
-2) mdacon doesnt work in 2.4 - if i echo something to /dev/tty14 -
-system halts.
--- 
+Regards,
+JP
 
+On Mon, 6 Aug 2001, Juan Pablo Abuyeres wrote:
 
-Mit freundlichem Gruß
-Sönke Ruempler
+>
+> and now we have the patch for 2.4.6 :)
+>
+> ftp://ftp.tecnoera.com/Linux/2100S
+>
+>
+>
+> On Sun, 5 Aug 2001, Ivan Lotina wrote:
+>
+> > Hello,
+> > Anyone had success with this scsi raid and linux kernel's > 2.4.3 ?
+> >
+> > Ivan
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-top concepts Internetmarketing GmbH
-------------------------------------------------------
-http://www.topconcepts.com      Tel. +49 4141 9912 30
-mail: ruempler@topconcepts.com  Fax. +49 4141 9912 33
-------------------------------------------------------
-24h-Support Hotline: +49 1908 34697 (€ 1.86/Min,CNS24)
-------------------------------------------------------

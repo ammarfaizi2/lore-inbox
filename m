@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261401AbSJMCjD>; Sat, 12 Oct 2002 22:39:03 -0400
+	id <S261407AbSJMDD0>; Sat, 12 Oct 2002 23:03:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261403AbSJMCjD>; Sat, 12 Oct 2002 22:39:03 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:38055 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261401AbSJMCjC>; Sat, 12 Oct 2002 22:39:02 -0400
-Date: Sat, 12 Oct 2002 23:44:37 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Hell.Surfers@cwctv.net
-cc: jw@pegasys.ws, <linux-kernel@vger.kernel.org>
-Subject: RE:Re: OT (Re: Re: The end of embedded Linux?)
-In-Reply-To: <01bfc2922210ca2DTVMAIL10@smtp.cwctv.net>
-Message-ID: <Pine.LNX.4.44L.0210122343580.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S261409AbSJMDDZ>; Sat, 12 Oct 2002 23:03:25 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:17350 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261407AbSJMDDZ>;
+	Sat, 12 Oct 2002 23:03:25 -0400
+Date: Sat, 12 Oct 2002 20:07:30 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] configurable corename
+In-Reply-To: <200210130209.g9D29it02709@hera.kernel.org>
+Message-ID: <Pine.LNX.4.33L2.0210122002480.11896-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.44L.0210122343582.22735@imladris.surriel.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Oct 2002 Hell.Surfers@cwctv.net wrote:
+On Sun, 13 Oct 2002, Linux Kernel Mailing List wrote:
 
-> brilliantly this summerises every problem, theres no enter.. am i really
-> replying by attachment...?
+| ChangeSet 1.824, 2002/10/12 17:19:08-07:00, alan@lxorguk.ukuu.org.uk
+|
+| 	[PATCH] configurable corename
+|
+| 	To my suprise a lot of big site/beowulf type people all really want this
+| 	diff, which I'd otherwise filed as 'interesting but not important'
+|
+|
+| # This patch includes the following deltas:
+| #	           ChangeSet	1.823   -> 1.824
+| #	include/linux/sysctl.h	1.30    -> 1.31
+| #	     kernel/sysctl.c	1.31    -> 1.32
+| #	           fs/exec.c	1.49    -> 1.50
 
-Yes.  The output of your mail program is so bad that I'm
-seriously pondering killfiling all of cwctv.net, preferably
-at the SMTP level.
+a additional patch to linux/Documentation/{core|dump}.txt (e.g.)
+or Documentation/sysctl/kernel.txt sure would be nice.  :)
 
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+~Randy
+  "In general, avoiding problems is better than solving them."
+  -- from "#ifdef Considered Harmful", Spencer & Collyer, USENIX 1992.
 

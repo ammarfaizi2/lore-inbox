@@ -1,23 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280719AbRKBQPG>; Fri, 2 Nov 2001 11:15:06 -0500
+	id <S280722AbRKBQ1N>; Fri, 2 Nov 2001 11:27:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280722AbRKBQOm>; Fri, 2 Nov 2001 11:14:42 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33030 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280719AbRKBQOb>; Fri, 2 Nov 2001 11:14:31 -0500
-Subject: Re: Via onboard audio
-To: smiddle@twp.ypsilanti.mi.us (Sean Middleditch)
-Date: Fri, 2 Nov 2001 16:21:27 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1004716867.4883.8.camel@smiddle> from "Sean Middleditch" at Nov 02, 2001 11:01:07 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S280726AbRKBQ1E>; Fri, 2 Nov 2001 11:27:04 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:45830 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S280722AbRKBQ05>;
+	Fri, 2 Nov 2001 11:26:57 -0500
+Message-ID: <3BE2C7A5.51F06394@osdl.org>
+Date: Fri, 02 Nov 2001 08:19:49 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "Yan, Noah" <noah.yan@intel.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Get hands on starting in this world.
+In-Reply-To: <A9B0C3C90A46D411951400A0C9F4F67103BA56E1@pdsmsx33.pd.intel.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15zh4S-0002oT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try the current 2.4.13-ac ones - there are some via audio updates there
+No, I don't have that info for Linux 2.2.x kernels.
+They are vaguely similar, but many details won't be the same. :)
+
+Why are you focusing on 2.2?
+
+~Randy
+
+"Yan, Noah" wrote:
+> 
+> It is a good stuff. Is there much difference between 2.2.x and 2.4.x in the kernel initialization. You know, I am now starting on 2.2.x. Or do you have it for 2.2.x.
+> 
+> Thanks
+> Noah
+> 
+> -----Original Message-----
+> From: Randy.Dunlap [mailto:rddunlap@osdl.org]
+> Sent: 2001?11?2? 0:48
+> To: Yan, Noah
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: Get hands on starting in this world.
+> 
+> "Yan, Noah" wrote:
+> >
+> > I am a new comer to the Linux world. It is really a hard start for me when I dig into those OS code although I have a strong theoretic background in OS and computer architecture. I am now being blocking at the start_kernel and caliberate_delay function of Kernel 2.2.x. Also, everyday, I got hundreds of mail from Linux-kernel list but I cannot enjoy it.
+> >
+> > So could some experienced guys give some advice on how to start, which document/material can be recommended on this.
+> >
+> > My keen interest in this filed make me free to any suggestions on that. Please lend your hands
+> 
+> Hi-
+> 
+> As long as you don't mind an x86-leaning view of Linux boot/init,
+> you could begin by looking over this:  http://home.att.net/~rddunlap/
+> (or at:  http://www.linuxdoc.org/HOWTO/Linux-Init-HOWTO.html).
+> 
+> And there's lots of intro material at:  http://kernelnewbies.org/
+> 
+> ~Randy
+> -

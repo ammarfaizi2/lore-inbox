@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261373AbTCTQpZ>; Thu, 20 Mar 2003 11:45:25 -0500
+	id <S261389AbTCTQvh>; Thu, 20 Mar 2003 11:51:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261357AbTCTQpZ>; Thu, 20 Mar 2003 11:45:25 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:43474 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S261352AbTCTQpX>;
-	Thu, 20 Mar 2003 11:45:23 -0500
-Date: Thu, 20 Mar 2003 11:56:18 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Shmulik Hen <hshmulik@intel.com>
-Cc: Bonding Developement list <bonding-devel@lists.sourceforge.net>,
-       Bonding Announce list <bonding-announce@lists.sourceforge.net>,
-       Linux Net Mailing list <linux-net@vger.kernel.org>,
-       Linux Kernel Mailing list <linux-kernel@vger.kernel.org>,
-       Oss SGI Netdev list <netdev@oss.sgi.com>
-Subject: Re: [patch] (0/8) Adding 802.3ad support to bonding
-Message-ID: <20030320165618.GB8256@gtf.org>
-References: <Pine.LNX.4.44.0303201553540.10351-100000@jrslxjul4.npdj.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303201553540.10351-100000@jrslxjul4.npdj.intel.com>
-User-Agent: Mutt/1.3.28i
+	id <S261460AbTCTQvh>; Thu, 20 Mar 2003 11:51:37 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:61425 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S261389AbTCTQva>; Thu, 20 Mar 2003 11:51:30 -0500
+Message-ID: <3E79F405.9030705@nortelnetworks.com>
+Date: Thu, 20 Mar 2003 12:01:57 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Cc: Stuart MacDonald <stuartm@connecttech.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Non-__init functions calling __init functions
+References: <200303201632.h2KGW8Vu002620@green.mif.pg.gda.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrzej Krzysztofowicz wrote:
 
-I (and many others) will be going over these patches.  I also see that
-somebody (davem?) applied your divide-by-zero patch to the mainline
-kernel.
+> Not always possible.
+> 
+> __init A() {
+> ...
+> }
+> 
+> __exit B() {
+> ...
+> }
+> 
+> C() {
+> ...
+> A();
+> ...
+> #ifdef MODULE
+> B();
+> #endif
+> ...
+> }
+> 
+> C cannot be marked __init for #define MODULE case. Even if it is called only
+> by some __init code. I can imagine other similar situations.
 
-My initial comment is that we will want to work to eliminate these
-ifdefs.  Other comments will follow.
+I thought that in the case of modules, __init is a noop?  At least, that's what 
+this page says
 
-Thanks to Intel for these efforts!
+http://www.netfilter.org/unreliable-guides/kernel-hacking/routines-init.html
 
-	Jeff
+So if MODULE is defined, it doesn't matter if C is labelled as __init or not, 
+and if it is not defined, it *should* be labelled as __init since it is itself 
+calling __init code.
+
+Chris
 
 
-
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

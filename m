@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279032AbRJVWrN>; Mon, 22 Oct 2001 18:47:13 -0400
+	id <S279036AbRJVWrU>; Mon, 22 Oct 2001 18:47:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279029AbRJVWpd>; Mon, 22 Oct 2001 18:45:33 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12305 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279034AbRJVWpA>; Mon, 22 Oct 2001 18:45:00 -0400
-Subject: Re: hfs cdrom broken in 2.4.13pre
-To: hollis-lists@austin.rr.com (Hollis Blanchard)
-Date: Mon, 22 Oct 2001 23:51:51 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        pochini@denise.shiny.it (Giuliano Pochini),
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-In-Reply-To: <B7FA0929.12F5%hollis-lists@austin.rr.com> from "Hollis Blanchard" at Oct 22, 2001 05:34:33 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S279035AbRJVWrQ>; Mon, 22 Oct 2001 18:47:16 -0400
+Received: from deepthought.blinkenlights.nl ([62.58.162.228]:4868 "EHLO
+	mail.blinkenlights.nl") by vger.kernel.org with ESMTP
+	id <S279034AbRJVWpe>; Mon, 22 Oct 2001 18:45:34 -0400
+Date: Tue, 23 Oct 2001 01:00:54 +0200 (CEST)
+From: Sten <sten@blinkenlights.nl>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: INIT_MMAP on sparc64
+In-Reply-To: <20011022.153947.48529984.davem@redhat.com>
+Message-ID: <Pine.LNX.4.40-blink.0110230056450.20416-100000@deepthought.blinkenlights.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15vnvD-0003jl-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> on 22/10/01 4:44 PM, Alan Cox at alan@lxorguk.ukuu.org.uk wrote:
-> > 
-> >> Kernel 2.4.13pre1 on powerpc. I can no longer mount HFS-formatted cdroms.
-> >> The last kernel I'm sure it worked fine is 2.4.7
-> > 
-> > Mount it over loopback device.
-> 
-> Why has that become necessary?
+On Mon, 22 Oct 2001, David S. Miller wrote:
 
-Primarily because the glue in the middle isnt covering up for your CD-ROM
-any more.
+>    From: Sten <sten@blinkenlights.nl>
+>    Date: Tue, 23 Oct 2001 00:50:42 +0200 (CEST)
+>
+>    Well the thing is that I like todo evil things,
+>    like connecting sgi flatpanels to creator3d's, using
+>    non sun blessed ( aka sub 1000$ ) ethernet cards or
+>    sticking in wierd raid cards.
+>
+>    Which is why I like linux ;)
+>
+>    Having source is great because I can break it,
+>    and maybe learn something in the process.
+>
+> All of this is irrelevant to going over the 3.5MB mark,
+> I contend that your machine simply does not need it no matter
+> what obscure stuff you stick into it :-)
 
-Alan
+I wonder if pci to isa adaptors exist ;)
+
+> Turn off the PCI device names, that is usually what eats up a
+> lot of space and lspci provides the same info anyways...
+
+jup, that's what I came up with as well.
+
+Off to bed now, many more boxen to upgrade tomorrow,
+gotta love ptrace. Especially when they annouce the hole
+on friday 16:30 just when you prepare for going home.
+
+--
+
+Sten Spans
+

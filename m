@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284258AbRL1XGS>; Fri, 28 Dec 2001 18:06:18 -0500
+	id <S284305AbRL1XNI>; Fri, 28 Dec 2001 18:13:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284285AbRL1XGI>; Fri, 28 Dec 2001 18:06:08 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:42098 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S284258AbRL1XGD>; Fri, 28 Dec 2001 18:06:03 -0500
-Date: Fri, 28 Dec 2001 18:05:57 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Eric S. Raymond" <esr@thyrsus.com>,
-        Legacy Fishtank <garzik@havoc.gtf.org>, Dave Jones <davej@suse.de>,
-        "Eric S. Raymond" <esr@snark.thyrsus.com>,
+	id <S284289AbRL1XM7>; Fri, 28 Dec 2001 18:12:59 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22287 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284305AbRL1XMs>; Fri, 28 Dec 2001 18:12:48 -0500
+Date: Fri, 28 Dec 2001 15:10:26 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <esr@thyrsus.com>, Legacy Fishtank <garzik@havoc.gtf.org>,
+        Dave Jones <davej@suse.de>, "Eric S. Raymond" <esr@snark.thyrsus.com>,
         Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+        <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
 Subject: Re: State of the new config & build system
-Message-ID: <20011228180557.B8216@redhat.com>
-In-Reply-To: <20011228161223.A19069@thyrsus.com> <Pine.LNX.4.33.0112281417410.23445-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0112281417410.23445-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Dec 28, 2001 at 02:27:37PM -0800
+In-Reply-To: <E16K6BQ-00029u-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0112281504210.23482-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 28, 2001 at 02:27:37PM -0800, Linus Torvalds wrote:
-> and it's readable and probably trivially parseable into both the existing
-> format (ie some "find . -name '*.conf'" plus sed-scripts) and into cml2 or
-> whatever.
 
-It's even doable within the .c file (and preferable for small drivers).  
-Something like:
+On Fri, 28 Dec 2001, Alan Cox wrote:
+>
+> It would certainly fit nicely with the existing metadata. We already rip out
+> code comments via kernel-doc, and extending it to rip out
+>
+> 	-	Help text
+> 	-	Web site
+...
 
-	/* mydriver.c .... header blah blah */
-	config_requires(CONFIG_INET);
-	config_option(CONFIG_MY_FAST_CHIP, "Help info for this");
+No no no.
 
-which gets picked out of the .c files during depend phase, and nullified 
-during compile by means of -Iconfig_system.h would even let us get rid of 
-Makefiles for drivers.  Wouldn't being able to just drop a .c file (or a 
-bunch of .c files) into the tree in the right place be great?  Eliminating 
-makefiles means eliminating more conflicts, which might mean more time to 
-respond to other issues...
+The comments can at least be helpful to programmers, whether ripped out or
+not.
 
-		-ben
--- 
-Fish.
+Extra stuff is not helpful to anybody, and is just really irritating. I
+personally despise source trees that start out with one page of copyright
+statement crap, it just detracts from the real _point_ of the .c file,
+which is to contain C code. Making it a comment requirement is
+
+ - stupid:
+	we have a filesystem, guys
+
+ - slow:
+	we don't need to parse every C file we encounter when we can just
+	open another file based on filename
+
+ - nonsensical:
+	many config options are _not_ limited to one C file
+
+ - hard to parse and read:
+	why limit ourself to C comments, when just keeping the thing
+	logically separated means that we don't have to.
+
+Having per-function comment blocks, in contrast, makes sense to have
+inline:
+
+ - you read the comment when you read the function
+
+ - you might even update the comment when you update the function
+
+ - you have a reasonable 1:1 relationship.
+
+_None_ of those are sensible for config file entries.
+
+		Linus
+

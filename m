@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316857AbSGHMXn>; Mon, 8 Jul 2002 08:23:43 -0400
+	id <S316878AbSGHM2p>; Mon, 8 Jul 2002 08:28:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316860AbSGHMXm>; Mon, 8 Jul 2002 08:23:42 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:31107 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316857AbSGHMXl>; Mon, 8 Jul 2002 08:23:41 -0400
-Date: Mon, 8 Jul 2002 08:27:56 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Xinwen - Fu <xinwenfu@cs.tamu.edu>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: timer queue is still influenced by network load
-In-Reply-To: <Pine.SOL.4.10.10207031839020.4769-100000@dogbert>
-Message-ID: <Pine.LNX.3.95.1020708082244.19138B-100000@chaos.analogic.com>
+	id <S316880AbSGHM2p>; Mon, 8 Jul 2002 08:28:45 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:40206 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S316878AbSGHM2n>;
+	Mon, 8 Jul 2002 08:28:43 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Tomas Szepe <szepe@pinerecords.com>
+Date: Mon, 8 Jul 2002 14:30:59 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: spurious 8259A interrupt: IRQ7
+CC: linux-kernel@vger.kernel.org, pat@cs.curtin.edu.au
+X-mailer: Pegasus Mail v3.50
+Message-ID: <A4F8F3A725D@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jul 2002, Xinwen - Fu wrote:
-
-> Richard,
-> 	I did a few experiments using the example (jiq, I changed jiffies 
-> to do_gettimeofday() ) from Linux Device
-> Driver, 2nd version (p196). 
+On  8 Jul 02 at 12:05, Tomas Szepe wrote:
+> > I have read through quite a few mailing lists and other sources but
+> > can't find an adequate solution. One solution I found was to turn off
+> > Local APIC support and IO-APIC support in the kernel, which I tried and
+> > it worked, but I'd rather not do this. I realise the error isn't of a
+> > huge concern but it's still annoying having it appear everytime the
+> > machine boots up.
 > 
-> 	I have two machines m1 and m2. On m1, I run a timer queue (jiq)
-> module. Then I download a big file from m1 to m2. The timings are
-> different between before ftp and during ftp.
+> Your fix is to just realize that this is a mere warning -- Nothing's
+> wrong with your setup.
 > 
+> If you dig out a thread that came through here abt. two months ago,
+> you'll find a comprehensive explanation of what the message means.
 
-> 
-> 
-> It shows that
-> timer queue is still not accurate. So
-> the conclusion of " you're guaranteed that the queue will run at the next
-> clock tick, thus eliminating latency caused by system load" is WRONG!!!
-> 
-> 	What is your opinion?
-
-Well you are guaranteed that it will run. You just don't know how fast
-it will run. The bottom-half code run off the timer-queue is run with
-the interrupts enabled. It can get interrupted and it may be interrupted
-by network driver code that loops in ISRs, taking a large percentage
-of the CPU cycles.
-
-So, I don't think you are measuring what you think you are measuring.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+Fortunately... since kernel HZ changed to 1000Hz, I have about two these
+spurious interrupts delivered to the CPU on my A7V each second. Fortunately 
+they are always really spurious, not misdelivered other interrupts, but 
+seeing values like 10000 in ERR field in /proc/interrupts is something new 
+to me ;-) Maybe VIA or AMD should really clarify what's the problem.
+                                                            Petr Vandrovec
+                                                            

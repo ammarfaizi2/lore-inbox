@@ -1,72 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317845AbSHFHRc>; Tue, 6 Aug 2002 03:17:32 -0400
+	id <S318963AbSHFBxQ>; Mon, 5 Aug 2002 21:53:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318175AbSHFHRc>; Tue, 6 Aug 2002 03:17:32 -0400
-Received: from 217-13-24-22.dd.nextgentel.com ([217.13.24.22]:40630 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id <S317845AbSHFHRb>;
-	Tue, 6 Aug 2002 03:17:31 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: venom@sns.it, Thomas Munck Steenholdt <tmus@get2net.dk>,
+	id <S318964AbSHFBxQ>; Mon, 5 Aug 2002 21:53:16 -0400
+Received: from mnh-1-09.mv.com ([207.22.10.41]:40966 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S318963AbSHFBxP>;
+	Mon, 5 Aug 2002 21:53:15 -0400
+Message-Id: <200208060255.VAA04809@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+Cc: rz@linux-m68k.org, alan@redhat.com, mingo@elte.hu,
        linux-kernel@vger.kernel.org
-Subject: Re: i810 sound broken...
-References: <Pine.LNX.4.43.0208051546120.8463-100000@cibs9.sns.it>
-	<1028561325.18478.55.camel@irongate.swansea.linux.org.uk>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 05 Aug 2002 23:38:10 +0200
-In-Reply-To: <1028561325.18478.55.camel@irongate.swansea.linux.org.uk>
-Message-ID: <m31y9dt29p.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode 
+In-Reply-To: Your message of "Tue, 06 Aug 2002 02:16:07 +0200."
+             <20020806021607.28a75a3d.us15@os.inf.tu-dresden.de> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Mon, 05 Aug 2002 21:55:05 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+us15@os.inf.tu-dresden.de said:
+> If my understanding of UML is right, you implement interrupts with
+> socket pairs where the interrupt handler writes a byte into one end
+> and the other end receives an async notification (SIGIO). 
 
-Different thing about 810, brand spanking new Compaq
-Game^H^H^H^Hlaptop and it gives good sound, but shows this on boot:
+It sounds like you're confusing two mechanisms.  Device interrupts are 
+implemented with something that supports SIGIO (socketpair, tty) with one
+end outside UML and one end inside UML generating the SIGIOs.
 
-i810: Intel ICH3 found at IO 0x4400 and 0x4000, IRQ 5
-i810_audio: Audio Controller supports 6 channels.
-ac97_codec: AC97 Audio codec, id: 0x4144:0x5363 (Unknown)
-i810_audio: AC'97 codec 0 Unable to map surround DAC's (or DAC's \
-not present), total channels = 2
+I use socketpairs in the way you describe to implement context switching.
+Out-of-context processes are sleeping in a read on their socket, and are
+woken up by an soon-to-be-out-of-context process writing a byte down it.
+There's no SIGIO there at all.
 
-lspci -vvv shows this:
+I also use socketpairs with SIGIO to implement IPIs on SMP UML.
 
-00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio (rev 02)
-	Subsystem: Compaq Computer Corporation: Unknown device 004a
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-	Interrupt: pin B routed to IRQ 5
-	Region 0: I/O ports at 4000 [size=256]
-	Region 1: I/O ports at 4400 [size=64]
+> In order to
+> stop the right task with a SIGIO, you change the socket owner on each
+> context switch using fcntl. 
 
-Under Windows XP it likes to call itself a SoundMAX device.
+Yup.  More precisely, in order to ensure that the correct process receives
+SIGIO when input comes in from the outside, I F_SETOWN the descriptors to
+the incoming process during a context switch.
 
-Hope its of help?
+> If you have one process per task and a kernel process, the kernel
+> process cannot change socket ownership over to the next task's
+> process, because it's not allowed to.
 
-ttfn,
-A
+Why not?  I see nothing at all in the implementation of F_SETOWN that requires
+that it be called by the current owner:
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+		case F_SETOWN:
+			lock_kernel();
+			filp->f_owner.pid = arg;
+			filp->f_owner.uid = current->uid;
+			filp->f_owner.euid = current->euid;
+			...
 
-> On Mon, 2002-08-05 at 14:47, venom@sns.it wrote:
-> > Still OSS modules for i810 does not work with 2.5 kernels, actually 2.4
-> > is fine. No time to switch to alsa (and not interested for now too).
-> 
-> OSS for 2.5 is someone elses problem. I have no plan to do any work on
-> the old OSS drivers for the 2.5 tree or even to submit 2.4 updates into
-> 2.5 for it. 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+There are no general checks earlier in do_fcntl or sys_fcntl either.
 
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+				Jeff
+

@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317211AbSHHBEM>; Wed, 7 Aug 2002 21:04:12 -0400
+	id <S317217AbSHHBYF>; Wed, 7 Aug 2002 21:24:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317217AbSHHBEM>; Wed, 7 Aug 2002 21:04:12 -0400
-Received: from surf.cadcamlab.org ([156.26.20.182]:60544 "EHLO
-	surf.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S317211AbSHHBEL>; Wed, 7 Aug 2002 21:04:11 -0400
-Date: Wed, 7 Aug 2002 20:07:51 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: ethtool documentation
-Message-ID: <20020808010751.GB380@cadcamlab.org>
+	id <S317230AbSHHBYF>; Wed, 7 Aug 2002 21:24:05 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:44952 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S317217AbSHHBYF>; Wed, 7 Aug 2002 21:24:05 -0400
+Date: Thu, 8 Aug 2002 03:27:04 +0200
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Jeff Dike <jdike@karaya.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode
+Message-Id: <20020808032704.73d7fdda.us15@os.inf.tu-dresden.de>
+In-Reply-To: <200208061742.g76HgIg31452@karaya.com>
+References: <20020806180202.66f1865a.us15@os.inf.tu-dresden.de>
+	<200208061742.g76HgIg31452@karaya.com>
+Organization: Disorganized
+X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; )
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1028720820.18130.260.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 06 Aug 2002 13:42:18 -0400
+Jeff Dike <jdike@karaya.com> wrote:
+> 
+> The kernel process can examine the signal pending mask of the process after
+> it has transferred SIGIO to itself.  This can be done either through 
+> /proc/<pid>/status or a ptrace extension, since we're happily postulating 
+> new things for it to do anyway.  If there is a SIGIO pending, it calls
+> sigio_handler.
+> 
+> Any other possibilities that you see?
 
-  [Jonathan Lundell]
-> > Ha! Just wait until the jack-booted IEEE enforcers kick down
-> > *your* door in the middle of the night to nab you for MAC-address
-> > trespass.
+Another possibility could be the kernel process and the task processes sharing
+a pending signal queue, either for one particular signal or all signals. The
+kernel process would block SIGIO while the task runs and when the task enters
+kernel mode with a SIGIO still trapped in the task process, SIGIO would get
+delivered in the kernel and cleared from the shared pending queue, which is
+just what we want.
 
-[AC]
-> Just don't use it to go around proprietary software license
-> managers, because if so the fbi might just do that...
+Someone actually already tried implementing it with a clone extension, see
+http://www.rhdv.cistron.nl/sigqueue.html
 
-Very useful ability, that.  Especially when the vendor tool reports
-the wrong license number so the license you legally obtained doesn't
-work.  Changing the software MAC address makes everything better.  The
-one time I had to do this, it was fun to tell people "In order to do
-my job today I had to break Federal law."  Alas I think everyone
-assumed I was just being melodramatic.
+-Udo.

@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbVCITLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262414AbVCITQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbVCITLu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 14:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbVCITLr
+	id S262414AbVCITQo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 14:16:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVCIS7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 14:11:47 -0500
-Received: from pastinakel.tue.nl ([131.155.2.7]:9234 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S262338AbVCITJc (ORCPT
+	Wed, 9 Mar 2005 13:59:34 -0500
+Received: from mail.kroah.org ([69.55.234.183]:19658 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262172AbVCIS7U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 14:09:32 -0500
-Date: Wed, 9 Mar 2005 20:09:20 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-Subject: Re: [PATCH] remove dead cyrix/centaur mtrr init code
-Message-ID: <20050309190920.GA4044@pclin040.win.tue.nl>
-References: <200503081937.j28Jb4Vd020597@hera.kernel.org> <1110387326.28860.199.camel@localhost.localdomain>
+	Wed, 9 Mar 2005 13:59:20 -0500
+Date: Wed, 9 Mar 2005 10:58:40 -0800
+From: Greg KH <greg@kroah.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, yuasa@hh.iij4u.or.jp
+Subject: Re: [patch 4/5] audit mips fix
+Message-ID: <20050309185840.GC27268@kroah.com>
+References: <200503042117.j24LHI7l017973@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1110387326.28860.199.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : 
+In-Reply-To: <200503042117.j24LHI7l017973@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 04:55:27PM +0000, Alan Cox wrote:
-
-> > 	[PATCH] remove dead cyrix/centaur mtrr init code
+On Fri, Mar 04, 2005 at 01:16:57PM -0800, akpm@osdl.org wrote:
 > 
-> This patch was discussed previously and declared incorrect. The ->init
-> method call is missing in the base mtrr code.
+> From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
 > 
-> Should be reverted and/or fixed properly.
+>   CC      arch/mips/kernel/ptrace.o
+> arch/mips/kernel/ptrace.c: In function 'do_syscall_trace':
+> arch/mips/kernel/ptrace.c:310: warning: implicit declaration of function 'audit_syscall_entry'
+> arch/mips/kernel/ptrace.c:310: error: 'struct pt_regs' has no member named 'orig_eax'
+> arch/mips/kernel/ptrace.c:314: warning: implicit declaration of function 'audit_syscall_exit'
+> 
+> Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
 
-Hi Alan - a surprising reaction.
+Added to the -stable queue, thanks.
 
-The patch is an improvement - it #ifdef's out some dead code.
-I sent you a follow-up patch that activates the dead code,
-since you said
+greg k-h
 
-  I have one here running 2.4 still. I can test a 2.6 fix
-  for the mtrr init happily enough.
-
-But so far you have not replied.
-The moment you report that the follow-up patch is fine, we can
-remove the #if 0 and insert the initcalls instead.
-
-So, all is well today, and we are waiting for your report.
-
-Andries

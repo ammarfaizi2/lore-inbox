@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262446AbSJQXHt>; Thu, 17 Oct 2002 19:07:49 -0400
+	id <S262523AbSJQXJd>; Thu, 17 Oct 2002 19:09:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262468AbSJQXHt>; Thu, 17 Oct 2002 19:07:49 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:51447 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S262446AbSJQXHq>; Thu, 17 Oct 2002 19:07:46 -0400
-Date: Thu, 17 Oct 2002 16:04:36 -0700
-From: Chris Wright <chris@wirex.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: daw@mozart.cs.berkeley.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove sys_security
-Message-ID: <20021017160436.D26442@figure1.int.wirex.com>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	daw@mozart.cs.berkeley.edu, linux-kernel@vger.kernel.org
-References: <20021017185352.GA32537@kroah.com> <20021017.131830.27803403.davem@redhat.com> <aonbj9$pun$1@abraham.cs.berkeley.edu> <20021017.153627.132905359.davem@redhat.com>
+	id <S262506AbSJQXJc>; Thu, 17 Oct 2002 19:09:32 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:12303 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262523AbSJQXJX>;
+	Thu, 17 Oct 2002 19:09:23 -0400
+Date: Thu, 17 Oct 2002 16:15:01 -0700
+From: Greg KH <greg@kroah.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bug tracking in the run up from 2.5 to 2.6
+Message-ID: <20021017231501.GH1682@kroah.com>
+References: <205680000.1034895125@flay>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021017.153627.132905359.davem@redhat.com>; from davem@redhat.com on Thu, Oct 17, 2002 at 03:36:27PM -0700
+In-Reply-To: <205680000.1034895125@flay>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* David S. Miller (davem@redhat.com) wrote:
+On Thu, Oct 17, 2002 at 03:52:05PM -0700, Martin J. Bligh wrote:
 > 
-> But as far as raw seats are concerned, the majority will not use
-> LSM.  They simply have no need for it on their workstation.
+> So ... are the maintainers interested in working with this kind of system?
 
-I agree, the average desktop user isn't even aware of the issues.  But I
-think the photographer would like it if the mp3 player can't remove files
-in ~/photos/ when it plays a malicious .mp3 file.  So even the desktop
-user could benefit from better security infrastructure.  But your point
-on security uptake is well-taken.
+If there are people to do the categorizing and "cleaning" of the
+reported bugs, I would love to use this.  By "cleaning" I mean the
+following at the minimum:
+	- marking bugs as duplicates of existing bugs
+	- throwing away useless bug reports
 
 thanks,
--chris
+
+greg k-h

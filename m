@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262828AbSKJAne>; Sat, 9 Nov 2002 19:43:34 -0500
+	id <S262838AbSKJArq>; Sat, 9 Nov 2002 19:47:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262838AbSKJAne>; Sat, 9 Nov 2002 19:43:34 -0500
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:32271 "EHLO
-	ns.higherplane.net") by vger.kernel.org with ESMTP
-	id <S262828AbSKJAnd>; Sat, 9 Nov 2002 19:43:33 -0500
-Date: Sun, 10 Nov 2002 11:48:47 +1100
-From: john slee <indigoid@higherplane.net>
-To: Shlomi Fish <shlomif@vipe.stud.technion.ac.il>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: An Analysis of BitKeeper and BitMover's Strategy
-Message-ID: <20021110004847.GB17478@higherplane.net>
-References: <Pine.LNX.4.33L2.0211091206500.30597-100000@vipe.technion.ac.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L2.0211091206500.30597-100000@vipe.technion.ac.il>
-User-Agent: Mutt/1.3.25i
+	id <S262859AbSKJArq>; Sat, 9 Nov 2002 19:47:46 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:56794 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S262838AbSKJArp>; Sat, 9 Nov 2002 19:47:45 -0500
+Message-ID: <A46BBDB345A7D5118EC90002A5072C7807B7E080@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: Dominik Brodowski <linux@brodo.de>, torvalds@transmeta.com
+Cc: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: RE: [2.5. PATCH] cpufreq: correct initialization on Intel Copperm
+	ines
+Date: Sat, 9 Nov 2002 16:54:27 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 09, 2002 at 12:18:24PM +0200, Shlomi Fish wrote:
-> As part of the "Better SCM" site (that is still under construction), I
-> wrote a few essays about BitKeeper:
 
-please do not spam the list with this crap
 
-j.
+> [2.5. PATCH] cpufreq: Intel Coppermines -- the saga continues.
+> 
+> The detection process for speedstep-enabled Pentium III Coppermines is
+> considered proprietary by Intel. The attempt to detect this
+> capability using MSRs failed. So, users need to pass the option
+> "speedstep_coppermine=1" to the kernel (boot option or parameter) if
+> they own a SpeedStep capable PIII Coppermine processor. Tualatins work
+> as before.
 
--- 
-toyota power: http://indigoid.net/
+Cannot you use ACPI to detect that? AFAIK, if the machine supports it, it is
+doable.
+
+Cheers, 
+
+Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
+fault]

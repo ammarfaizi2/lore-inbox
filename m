@@ -1,38 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbTDCUQh 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 15:16:37 -0500
+	id S263550AbTDCUYX 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 15:24:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S263369AbTDCUQf 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 15:16:35 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:52358
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263510AbTDCUPT 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 15:15:19 -0500
-Subject: Re: RAID 5 performance problems
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Stephan van Hienen <raid@a2000.nu>
-Cc: "Peter L. Ashford" <ashford@sdsc.edu>,
-       Jonathan Vardy <jonathan@explainerdc.com>, linux-raid@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.53.0304032104070.3085@ddx.a2000.nu>
-References: <Pine.GSO.4.30.0304030858080.20118-100000@multivac.sdsc.edu>
-	 <Pine.LNX.4.53.0304032104070.3085@ddx.a2000.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049398084.11742.88.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 03 Apr 2003 20:28:04 +0100
+	id S263561AbTDCUYX 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 15:24:23 -0500
+Received: from main.gmane.org ([80.91.224.249]:13996 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263550AbTDCUYW 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Apr 2003 15:24:22 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Dennis Cook" <cook@sandgate.com>
+Subject: Re: Deactivating TCP checksumming
+Date: Thu, 3 Apr 2003 15:34:59 -0500
+Organization: Sandgate Technologies
+Message-ID: <b6i5t1$h0t$1@main.gmane.org>
+References: <F91mkXMUIhAumscmKC00000f517@hotmail.com> <20030401122824.GY29167@mea-ext.zmailer.org> <b6fda2$oec$1@main.gmane.org> <20030402203653.GA2503@gtf.org> <b6fi8m$j4g$1@main.gmane.org> <20030402205855.GA4125@gtf.org>
+X-Complaints-To: usenet@main.gmane.org
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Cc: kernelnewbies@nl.linux.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-04-03 at 20:20, Stephan van Hienen wrote:
-> > 2.  I/O bandwidth (multiple PCI buses)
-> sure this helps, but he is not even getting near the pci bus
-> limitations...
+Based on various feedback, on my RH Linux 2.4.18 kernel I tried the
+following:
 
-With mirrored software raid you are writing twice the data over
-the PCI bus.
+Set "features" bit NETIF_F_IP_CSUM set (the only feature bit set).
+In my network driver start-transmit check for "CHECKSUM_HW" in ip_summed.
+Using a small test program, use "sendfile" to copy a file to a network
+socket FD.
+Result is none of the packets presented to my network adapter driver have
+ip_summed set to CHECKSUM_HW, so the SW IP stack has already
+computed checksums.
+
+Is this mechanism possibly broken on kernel 2.4?
+
+
+"Jeff Garzik" <jgarzik@pobox.com> wrote in message
+news:20030402205855.GA4125@gtf.org...
+> On Wed, Apr 02, 2003 at 03:47:35PM -0500, Dennis Cook wrote:
+> > What I was looking for is a general capability to keep the SW transport
+> > stack from
+> > computing outgoing TCP/UDP/IP checksums so that the HW can be allowed to
+do
+> > it,
+> > similar to Windows checksum offload capability.
+>
+> If you are not using sendfile(2), it is _more expensive_ to offload
+> checksums, because we already checksum and copy at the same time.
+>
+> Hardware checksum offload is only a win when a copy is eliminated.
+>
+> Therefore, _always_ offloading checksum is actually slower in some
+> cases, because of the unneeded additional HW csum setup that would be
+> performed.
+>
+> Jeff
+>
+>
+
+
 

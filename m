@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272032AbRHVPrw>; Wed, 22 Aug 2001 11:47:52 -0400
+	id <S272035AbRHVPvW>; Wed, 22 Aug 2001 11:51:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272035AbRHVPrc>; Wed, 22 Aug 2001 11:47:32 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:38380 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S272032AbRHVPrb>;
-	Wed, 22 Aug 2001 11:47:31 -0400
-Date: Wed, 22 Aug 2001 16:47:29 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Chris Friesen <cfriesen@nortelnetworks.com>, Andi Kleen <ak@suse.de>
-Cc: "Friesen, Christopher [CAR:VS16:EXCH]" <cfriesen@americasm01.nt.com>,
-        linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: why no call to add_interrupt_randomness() on PPC?
-Message-ID: <2428022792.998498849@[10.132.112.53]>
-In-Reply-To: <3B83D1BA.1D8E507@nortelnetworks.com>
-In-Reply-To: <3B83D1BA.1D8E507@nortelnetworks.com>
-X-Mailer: Mulberry/2.1.0b3 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S272034AbRHVPvC>; Wed, 22 Aug 2001 11:51:02 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:50112 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S272035AbRHVPuw>; Wed, 22 Aug 2001 11:50:52 -0400
+Date: Wed, 22 Aug 2001 16:51:06 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Travis Shirk <travis@pobox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Locking Up
+Message-ID: <20010822165106.Q8763@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0108220938390.1152-100000@puddy.travisshirk.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="wg9FEZT+WCTrEXgJ"
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0108220938390.1152-100000@puddy.travisshirk.net>; from travis@pobox.com on Wed, Aug 22, 2001 at 09:46:14AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I was looking at turning on SA_SAMPLE_RANDOM in
-> our network driver, but then I realized that it would have no effect
-> because it isn't even supported on PPC.
 
-adding a call to add_interrupt_randomness() sounds like a good
-idea if only for consistency and certainly does no harm (especially
-if no net drivers use it), except that the timing is very coarsely
-grained (jiffies) on PPC. It would be even better if you added
-some cycle clock reading code to random.c for the PPC (in addition
-to the i386 specific stuff) or better abstracted it all out into
-arch directories.
+--wg9FEZT+WCTrEXgJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Adding SA_SAMPLE_RANDOM to net devices: well, see other thread
-ad-nauseam & make up your own mind :-)
+On Wed, Aug 22, 2001 at 09:46:14AM -0600, Travis Shirk wrote:
 
---
-Alex Bligh
+> Ever since I upgraded to the 2.4.x (currently running 2.4.8)
+> kernels, my machine has been locking up every other day
+> or so.  Does anyone have any hints/tips for figuring out
+> what is going on.
+
+Stick a serial/parallel console on it.
+
+Tim.
+*/
+
+--wg9FEZT+WCTrEXgJ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7g9TqONXnILZ4yVIRAk2MAJ9fMEFXwn5lQLG4UlGEaVk2HzAhbgCeNQHq
+pT2jWNnoSrAHnj590+9XBw0=
+=kSsm
+-----END PGP SIGNATURE-----
+
+--wg9FEZT+WCTrEXgJ--

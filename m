@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281916AbRKUPtH>; Wed, 21 Nov 2001 10:49:07 -0500
+	id <S281909AbRKUQSz>; Wed, 21 Nov 2001 11:18:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281915AbRKUPsy>; Wed, 21 Nov 2001 10:48:54 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:30480 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S281905AbRKUPsU>; Wed, 21 Nov 2001 10:48:20 -0500
-Date: Wed, 21 Nov 2001 16:46:20 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Adam Feuer <adamf@pobox.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Swsusp mailing list <swsusp@lister.fornax.hu>,
-        ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        Gabor Kuti <seasons@falcon.sch.bme.hu>
-Subject: Re: [swsusp] Re: swsusp for 2.4.14
-Message-ID: <20011121164620.D31379@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20011121001858.B183@elf.ucw.cz> <E166M8H-0003QH-00@the-village.bc.nu> <20011120180715.N11355@sunflower.zipcon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011120180715.N11355@sunflower.zipcon.net>
-User-Agent: Mutt/1.3.20i
+	id <S281905AbRKUQSp>; Wed, 21 Nov 2001 11:18:45 -0500
+Received: from demai05.mw.mediaone.net ([24.131.1.56]:18128 "EHLO
+	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
+	id <S281395AbRKUQSk>; Wed, 21 Nov 2001 11:18:40 -0500
+Message-Id: <200111211618.fALGIXE06714@demai05.mw.mediaone.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Brian <hiryuu@envisiongames.net>
+To: Stefan Smietanowski <stesmi@stesmi.com>
+Subject: Re: Mixing 32- and 64-bit cards
+Date: Wed, 21 Nov 2001 11:18:21 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200111210600.fAL60kE11763@demai05.mw.mediaone.net> <3BFB625B.3000709@stesmi.com>
+In-Reply-To: <3BFB625B.3000709@stesmi.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I was not aware of the causes, but that's actually kind of the problem.
 
-> > Has anyone tried porting swsusp to user mode linux. That way you could
-> > actually "suspend" a copy, resume it in parallel with the original and
-> > compare the two memory images ?
-> 
-> Alan,
->   I got swsusp-2.4.13 (from Florent) to compile on User Mode Linux
-> 2.4.13, with a couple of changes... it seems to suspend, but will not
-> resume afterwards... just boots normally. Suspending doesn't seem to
-> write the swsusp signature to the swap partition... 
->   I haven't gone any farther than that yet. I can provide a diff
-> against uml-2.4.13 if anyone is interested in helping. :-)
+Our main supplier says the 7000 series will be in 'soon' but the 6000 
+series is available now.  We're at 95+% on the current setup, so now is 
+better than soon :)
 
-Yep, I'd like to see it. [The way uml is setup with one uml kernel
-running in *many* real processes, saving/restoring cpu state is not
-going to be easy.]
-							Pavel
+If worst comes to worst, we'll replace the 6800 when we add a second card. 
+ I'm hoping Linux can handle it a little more gradefully than that, though.
 
--- 
-Casualities in World Trade Center: 6453 dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+	-- Brian
+
+On Wednesday 21 November 2001 03:14 am, Stefan Smietanowski wrote:
+> > At the moment, we plan to get a 6800 (32-bit PCI).  If we add 7800's
+> > (64-bit PCI) or some other 3ware card later, will the driver correctly
+> > configure them all?  IOW, if I have
+>
+> Sorry, I'm not answering your question but I do have a comment.
+>
+> A month or so back 3ware discontinued _ALL_ their 3ware Escalades, the
+> 6xxx and the 7xxx, they have since then recieved so many mails that
+> they've restarted development, support and production of them.
+>
+> With one 'minor' issue, they're discontinuing their 6xxx (32bit) series
+> of cards. So I would recommend getting the 64bit 7xxx series directly
+> instead.

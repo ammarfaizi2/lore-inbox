@@ -1,106 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264108AbTLJUxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 15:53:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264110AbTLJUxQ
+	id S264110AbTLJUyg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 15:54:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbTLJUyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 15:53:16 -0500
-Received: from mx2.it.wmich.edu ([141.218.1.94]:14031 "EHLO mx2.it.wmich.edu")
-	by vger.kernel.org with ESMTP id S264108AbTLJUxE (ORCPT
+	Wed, 10 Dec 2003 15:54:35 -0500
+Received: from mail.kroah.org ([65.200.24.183]:51428 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264110AbTLJUyZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 15:53:04 -0500
-Message-ID: <3FD787AF.8080902@wmich.edu>
-Date: Wed, 10 Dec 2003 15:53:03 -0500
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-CC: Witukind <witukind@nsbm.kicks-ass.org>,
-       =?ISO-8859-1?Q?M=E5ns_Rullg?= =?ISO-8859-1?Q?=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
-References: <200312081536.26022.andrew@walrond.org>	<20031208154256.GV19856@holomorphy.com>	<3FD4CC7B.8050107@nishanet.com>	<20031208233755.GC31370@kroah.com>	<20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org>	<20031209075619.GA1698@kroah.com>	<1070960433.869.77.camel@nomade>	<20031209090815.GA2681@kroah.com>	<buoiskqfivq.fsf@mcspd15.ucom.lsi.nec.co.jp>	<yw1xd6ayib3f.fsf@kth.se>	<20031210202354.7a3c429a.witukind@nsbm.kicks-ass.org>	<yw1xd6aw4ge3.fsf@kth.se> <20031210212209.7fce7dae.witukind@nsbm.kicks-ass.org> <3FD78645.9090300@wmich.edu>
-In-Reply-To: <3FD78645.9090300@wmich.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 10 Dec 2003 15:54:25 -0500
+Date: Wed, 10 Dec 2003 12:53:20 -0800
+From: Greg KH <greg@kroah.com>
+To: Duncan Sands <baldrick@free.fr>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       David Brownell <david-b@pacbell.net>, Vince <fuzzy77@free.fr>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, mfedyk@matchmail.com,
+       zwane@holomorphy.com, linux-kernel@vger.kernel.org,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
+Message-ID: <20031210205320.GA8621@kroah.com>
+References: <3FD64BD9.1010803@pacbell.net> <Pine.LNX.4.44L0.0312092233340.6615-100000@netrider.rowland.org> <20031210153056.GA7087@kroah.com> <200312101702.16455.baldrick@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312101702.16455.baldrick@free.fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Sweetman wrote:
-> Witukind wrote:
+On Wed, Dec 10, 2003 at 05:02:16PM +0100, Duncan Sands wrote:
+> > That's what my proposal 1 paragraph up would do.  If I get the chance
+> > this afternoon, I'll try to implement it if no one beats me to it...
 > 
->> On Wed, 10 Dec 2003 20:33:24 +0100
->> mru@kth.se (Måns Rullgård) wrote:
->>
->>
->>> Witukind <witukind@nsbm.kicks-ass.org> writes:
->>>
->>>
->>>> On Tue, 09 Dec 2003 10:39:32 +0100 mru@kth.se (Måns Rullgård) wrote:
->>>>
->>>>
->>>>>> Is there a specific case for which people want this feature?
->>>>>> Offhand it seems like a slightly odd thing to ask for...
->>>>>
->>>>>
->>>>> I believe the original motivation for module autoloading was to
->>>>
->>>>
->>>> save> memory by unloading modules when their devices were unused. 
->>>> Loading> them automatically on demand made for less trouble for
->>>> users, who> didn't have to run modprobe manually to use the sound
->>>> card, or> whatever.  This could still be a good thing in embedded
->>>> systems.>
-> 
-> the biggest advantage from modules is the ability to enable/disable 
-> devices with different initialization configurations without rebooting, 
-> including the use of devices that aren't present during boot or may be 
-> added to a system that cant be put down to reboot. Embedded systems 
-> usually do not change, that's just part of being embedded, modules dont 
-> really make sense there unless things like filesystems and non-device 
-> modules never get used at the same time and memory is limited such that 
-> 100KB actually matters.
-> 
-> 
->>>> I don't see why it wouldn't be a good thing for regular systems
->>>> also. Saving memory is usually a good idea.
-> 
-> 
-> True, but how about we start being good memory users where it counts the 
-> most, like gui's/userspace land and then worry about the sub 1MB usage 
-> that kernels exist in.
-> 
->>> The biggest modules are about 100k.  Saving 100k of 1 GB doesn't
->>> really seem worth any effort.
->>
->>
->>
->> I don't have 1 Gb of memory. On my laptop with 16 mb RAM saving 100k 
->> is worth
->> the effort.
-> 
+> Hi Greg, so this means that rmmod will sleep in an unkillable state until
+> all references are dropped?
 
-Blah, scratch this.
-> Then why do you use a sylpheed, which is gtk instead of something in a 
-> terminal that uses much less memory (doesn't require xfree86, which 
-> you're probably also using instead of tinyX) and toolkits, pixmaps etc. 
->   Obviously, 100k is not worth _your_ effort.
+Yes, that is what would happen.
 
-And of course that's all assuming you're using your laptop to write and 
-send email.  Which you probably wouldn't be doing on a 16MB 
-laptop...probably wouldn't be doing anything on a 16MB laptop.  But 
-anyway, the rest of what i was talking about is ok.
+Now you could get into a deadlock by trying something pathilogical like:
+	rmmod usb-hcd < /sys/devices/pci0000:00/0000:00:1d.7/usb1/idVendor
 
+but hey, if you do that, you deserve the deadlock :)
 
+(and yes, I know you can do this for network devices, but they have
+their own thread/timer/something to prevent this deadlock from
+happening...)
 
-> 
-> I'm not saying module use is more memory efficient than not or vice 
-> versa, but if memory usage in the 100K range is going to be the only 
-> argument for autoloading/unloading of modules then it's really _not_ 
-> worth the effort unless someone can give that kind of support without 
-> trying.  Your fight for memory efficiency should start where the 
-> inefficiency is the largest, and work it's way down, not the other way 
-> around.
->
+> I don't know if you've been following this thread or not, but the oops
+> occurred when I modified usbfs to hold a reference to the usb_device
+> until no-one was using a given usbfs file.
 
+That's a good thing to do.  It should work.
+
+> I guess this means that I should change my patch so that the reference
+> to the usb_device is dropped as soon as possible, right?
+
+No, the bug should be fixed.  I've seen this bug happen if someone has a
+usb-serial device open and then unload the host controller driver.  In
+fact, I think there's a bugzilla entry just for that...
+
+Yeah, here it is:
+	http://bugme.osdl.org/show_bug.cgi?id=1191
+
+The very same oops you are seeing.
+
+So no, it's not your fault.  We need to fix the real problem.
+
+> Thanks for looking into this,
+
+No problem, thanks for reminding me about this.
+
+thanks,
+
+greg k-h

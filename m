@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135970AbRDTQlH>; Fri, 20 Apr 2001 12:41:07 -0400
+	id <S135971AbRDTQlH>; Fri, 20 Apr 2001 12:41:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135967AbRDTQk6>; Fri, 20 Apr 2001 12:40:58 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:47632 "EHLO
+	id <S135966AbRDTQk6>; Fri, 20 Apr 2001 12:40:58 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:46864 "EHLO
 	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S135970AbRDTQkn>; Fri, 20 Apr 2001 12:40:43 -0400
-Date: Fri, 20 Apr 2001 13:37:22 -0300
+	id <S135967AbRDTQkn>; Fri, 20 Apr 2001 12:40:43 -0400
+Date: Fri, 20 Apr 2001 13:21:38 -0300
 From: Harald Welte <laforge@gnumonks.org>
-To: Jonathan Lundell <jlundell@pobox.com>
+To: Olaf Titz <olaf@bigred.inka.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Documentation of module parameters.
-Message-ID: <20010420133722.D2461@tatooine.laforge.distro.conectiva>
-In-Reply-To: <3ADBB8C9.CC7FD941@nc.rr.com> <p05100b07b7017fc83c2e@[207.213.214.34]>
+Subject: Counters [Re: IP Acounting Idea for 2.5]
+Message-ID: <20010420132138.B2461@tatooine.laforge.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.33.0104152039130.1616-100000@asdf.capslock.lan> <01041708461209.00352@workshop> <20010416020732.30431.qmail@logi.cc> <20010416104310.A29075@flint.arm.linux.org.uk> <E14pSji-0000Ng-00@hunte.bigred.inka.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.14i
-In-Reply-To: <p05100b07b7017fc83c2e@[207.213.214.34]>; from jlundell@pobox.com on Mon, Apr 16, 2001 at 10:07:56PM -0700
+In-Reply-To: <E14pSji-0000Ng-00@hunte.bigred.inka.de>; from olaf@bigred.inka.de on Tue, Apr 17, 2001 at 12:29:30PM +0200
 X-Operating-System: Linux tatooine.laforge.distro.conectiva 2.4.2-ac20
 X-Date: Today is Setting Orange, the 37th day of Discord in the YOLD 3167
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 16, 2001 at 10:07:56PM -0700, Jonathan Lundell wrote:
-> At 11:30 PM -0400 2001-04-16, Chris Kloiber wrote:
-> >I was recently looking for a single location where all the possible
-> >module parameters for the linux kernel was located.
+On Tue, Apr 17, 2001 at 12:29:30PM +0200, Olaf Titz wrote:
+> > Umm, no.  Counters can be resetable - you just specify that accounting
+> > programs should not reset them, ever.
+> >
+> > The ability to reset counters is extremely useful if you're a human
+> > looking at the output of iptables -L -v.  (I thus far know of no one
+> > who can memorise the counter values for around 40 rules).
 > 
-> Hear him. A DocBook document would be a dandy place for this to get pulled
-> together, too.
+> You'll get bogus accounting results unless you stop/restart the
+> accounting programs every time you manually deal with the counters.
+> This sounds dangerously easy to make mistakes to me.
 
-good idea. One could just grab all the MODULE_PARM_DESC out of all sourcefiles,
-look to which module the particular sourcefile belongs (looking into
-Makefile?), and create a Documentation/DocBook/... document out of it.
+mmh. But isn't that obvious? Every time you mess with anything (counters
+or rules) of the chains/tables, your accounting program will get into
+trouble, if it relies on those counters.
 
-Sounds like something doable, only somebody needs to get around doing
-it. Any volunteers?
+I don't think that it makes sense to do iptables-based accounting if you have
+changes to the ruleset (counters and/or rules) at runtime. You'd have 
+to be very cautious what you are doing.
 
-> -- 
-> /Jonathan Lundell.
+> Olaf
 
 -- 
 Live long and prosper

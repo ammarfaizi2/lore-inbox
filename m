@@ -1,53 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbUJ0FYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbUJ0F1C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261647AbUJ0FYG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 01:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUJ0FYG
+	id S261650AbUJ0F1C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 01:27:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUJ0F1C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 01:24:06 -0400
-Received: from holomorphy.com ([207.189.100.168]:58603 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261647AbUJ0FYD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 01:24:03 -0400
-Date: Tue, 26 Oct 2004 22:23:21 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Rik van Riel <riel@redhat.com>,
-       "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
-       Ed Tomlinson <edt@aei.ca>, Massimo Cetra <mcetra@navynet.it>,
+	Wed, 27 Oct 2004 01:27:02 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:53147 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261650AbUJ0FZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 01:25:50 -0400
+Message-ID: <417F315A.9060906@comcast.net>
+Date: Wed, 27 Oct 2004 01:25:46 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+CC: Ed Tomlinson <edt@aei.ca>, Massimo Cetra <mcetra@navynet.it>,
        "'Chuck Ebbert'" <76306.1226@compuserve.com>,
        "'Bill Davidsen'" <davidsen@tmr.com>,
+       "'William Lee Irwin III'" <wli@holomorphy.com>,
        "'linux-kernel'" <linux-kernel@vger.kernel.org>
 Subject: Re: My thoughts on the "new development model"
-Message-ID: <20041027052321.GT15367@holomorphy.com>
-References: <Pine.LNX.4.61.0410270402340.20284@student.dei.uc.pt> <Pine.LNX.4.44.0410270027110.21548-100000@chimarrao.boston.redhat.com> <20041027051342.GK19761@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041027051342.GK19761@alpha.home.local>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+References: <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin> <200410261719.56474.edt@aei.ca> <Pine.LNX.4.61.0410270402340.20284@student.dei.uc.pt>
+In-Reply-To: <Pine.LNX.4.61.0410270402340.20284@student.dei.uc.pt>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 12:29:10AM -0400, Rik van Riel wrote:
->> While a 2.7 series might provide developers with an "outlet"
->> for their creativity, it does not give users the availability
->> of the features they need.
-
-On Wed, Oct 27, 2004 at 07:13:42AM +0200, Willy Tarreau wrote:
-> Rik, "new features" are what causes the kernel to be in permanent development
-> mode. It happened to all of us that a new feature broke compatability with a
-> patch or even caused a side effect. Users don't "need" new features, they
-> *want* them. This is what makes them upgrade to the new release in a fast
-> release model. If 2.4 had been released sooner, USB would never have made
-> it in 2.2, and 2.2 users would have switched faster. I know people who still
-> use 2.2 only on their dev systems because they don't need any upgrade.
-
-The new features you're complaining about are astoundingly not the
-causes of any of the bugs cited as critical issues in this thread.
-
-It also appears that you have forgotten early 2.4 at the very least...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
--- wli
+
+Marcos D. Marado Torres wrote:
+| On Tue, 26 Oct 2004, Ed Tomlinson wrote:
+|
+|>>> 2.4 tree is still the best solution for production.
+|>>> 2.6 tree is great for gentoo users who like gcc consuming all CPU
+|>>> (maxumum respect to gentoo but I prefer debian)
+|>>
+|>>
+|>> The issue is that Linus _has_ changed the development model.  What we
+|>> have
+|>> now is more flexable and much more responsive to changes.  This does
+|>> lead to stable releases that are not quite a stable as some of the
+|>> previous
+|>> stable series...  This is why I suggest a fix/security branch.  The
+|>> idea being
+|>> that after a month or so of fixes etc it will be a very stable kernel
+|>> and it will
+|>> not have slowed down development.
+|
+|
+| The sole existence of this discussion prooves that there's already the
+| need of
+| a new step. But why trying to re-invent the wheel? Yes, relating to 2.6
+| we need
+| already a "very stable kernel" and a "not-slowed down development
+| kernel". When
+| it happened in 2.4 2.5 was created. Isn't all this just the indication
+| that we
+| need a 2.6 development like 2.4 is, and we need 2.7 to be created?
+|
+
+Another shameless plug for me:
+http://lkml.org/lkml/2004/10/26/171
+
+Short version to save you reading of my spam:
+Let's make 2.7 what 2.6 is now (a relatively stable kernel that gets
+relatively stable feature enhancements continuously), rather than what
+2.5 was (a hell of a lot of patches and then a hell of a lot of
+debugging), and make 2.6 more restrictive than 2.4 in that it should be
+strictly bugfixes (including security bugs) and no backported drivers or
+features.
+
+I read a page about open source software development once, I don't
+remember if it was an article or a book or what; but it said something
+I've held to heart for a while:  Open source projects tend to follow the
+poorly designed development model of alternating between a "stable" and
+an "unstable" branch, when it's possible to simply perpetually add
+stablized, debugged features straight to mainline after they've been
+developed independently on the side.
+
+It is apparent that what we have here is exactly what the author
+suggested in place of the stable/unstable cycle; it is also apparent
+that this is a naiive model not because it becomes difficult to avoid
+bugs, but because it becomes difficult to actually develope on the side
+with all of the changes happening to mainline.  By combining both
+models, a balance is met.
+
+This same model can be implemented as a meta-model (or something) if the
+external projects chose on their own which versions to freeze at.  This
+creates a problem, however, as patches for these projects become
+distributed across ranges of versions.  Consider having a development
+driver for 2.6.7 for an ADSL card; a development driver for 2.6.5 for a
+network card; and a development DRM driver for 2.6.10 for a particular
+video card.  The unfortunate soul having all three of these pieces of
+hardware is quite SOL.
+
+On the other hand, there are those who simply get fed up chasing the
+volatile codebase of mainline, ad simply wait for it to stabalize.
+Unless you throw them their bone, they won't get any work done; this is
+not only their problem, but their users' as well.
+
+
+| Mind Booster Noori
+|
+| -- /* *************************************************************** */
+|    Marcos Daniel Marado Torres         AKA    Mind Booster Noori
+|    http://student.dei.uc.pt/~marado   -      marado@student.dei.uc.pt
+|    () Join the ASCII ribbon campaign against html email, Microsoft
+|    /\ attachments and Software patents.   They endanger the World.
+|    Sign a petition against patents:  http://petition.eurolinux.org
+| /* *************************************************************** */
+
+- -
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBfzFZhDd4aOud5P8RAiTmAJ9obM88F5YW29Rcke3oKrWngs/rRACaAxqZ
+BBoLsEO2QdBIJfZlBvGpZHk=
+=hMNm
+-----END PGP SIGNATURE-----

@@ -1,173 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269572AbUINRCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269571AbUINRCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269572AbUINRCt (ORCPT <rfc822;willy@w.ods.org>);
+	id S269571AbUINRCt (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 14 Sep 2004 13:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269567AbUINQ4i
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269574AbUINQ5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 12:56:38 -0400
-Received: from host-81-191-110-70.bluecom.no ([81.191.110.70]:30092 "EHLO
-	mail.blenning.no") by vger.kernel.org with ESMTP id S269606AbUINQeq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 12:34:46 -0400
-Subject: /proc/config reducing kernel image size
-From: Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-ReC/VeQMtSHK8r7oM38J"
-Message-Id: <1095179606.11939.22.camel@host-81-191-110-70.bluecom.no>
+	Tue, 14 Sep 2004 12:57:00 -0400
+Received: from moraine.clusterfs.com ([66.246.132.190]:64949 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S269595AbUINQds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 12:33:48 -0400
+Date: Tue, 14 Sep 2004 10:33:47 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>,
+       netdev@oss.sgi.com
+Subject: Re: Kernel stack overflow on 2.6.9-rc2
+Message-ID: <20040914163347.GE3197@schnapps.adilger.int>
+Mail-Followup-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org,
+	Trond Myklebust <trond.myklebust@fys.uio.no>, netdev@oss.sgi.com
+References: <200409141723.35009.vda@port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 14 Sep 2004 18:33:26 +0200
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gDGSpKKIBgtShtf+"
+Content-Disposition: inline
+In-Reply-To: <200409141723.35009.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-ReC/VeQMtSHK8r7oM38J
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+--gDGSpKKIBgtShtf+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I've written a small patch that reduces the size of /proc/config.
+On Sep 14, 2004  17:23 +0300, Denis Vlasenko wrote:
+> I am putting to use an ancient box. Pentium 66.
+> It gives me stack overflow errors on 2.6.9-rc2:
+>=20
+> To save you filtering out functions with less than 100
+> bytes of stack:
+>=20
+> udp_sendmsg+0x35e/0x61a [220]
+> sock_sendmsg+0x88/0xa3 [208]
+> __nfs_revalidate_inode+0xc7/0x308 [152]
+> nfs_lookup_revalidate+0x257/0x4ed [312]
+> load_elf_binary+0xc4f/0xcc8 [268]
+> load_script+0x1ea/0x220 [136]
+> do_execve+0x153/0x1b9 [336]
 
-There is no point in storing all the comments and unused options in the
-kernel image. This typically reduces the config size to about 1/5th
-before compressing, and to about 1/4th after compressing.
+do_execve() can be trivially fixed to allocate bprm (328 bytes) instead=20
+putting it on the stack.  Given the frequency of exec and the odd size
+it should probably be in its own slab (and fix the goofy prototype
+indenting while you're there too ;-).
 
-I've also added the configuration option of how you want to compress it.
+load_elf_binary() on the other hand is a big mess, 132 bytes of int/long
+variables.
 
-In order to do the comment stripping I was forced to add a small script
-to the scripts, section, this has to be made executable. However if it
-is possible, the script should be skipped altogether, but I can't figure
-out how to do the proper escaping of the special characters in the
-kernel/Makefile. So if anyone could help me with that, I would be
-grateful.
+nfs_lookup_revalidate() has 2 large structs on the stack, fhandle and fattr.
 
-I'm interessted in comments on the concept.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
 
-Sincerely
--- 
-BFG
 
---=-ReC/VeQMtSHK8r7oM38J
-Content-Disposition: attachment; filename=linux-2.6.8.1-config-compress-patch.diff
-Content-Type: text/x-patch; name=linux-2.6.8.1-config-compress-patch.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
+--gDGSpKKIBgtShtf+
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-ZGlmZiAtcnVOIC91c3Ivc3JjL2xpbnV4LTIuNi44LjEvaW5pdC9LY29uZmlnIC4vaW5pdC9LY29u
-ZmlnDQotLS0gL3Vzci9zcmMvbGludXgtMi42LjguMS9pbml0L0tjb25maWcJMjAwNC0wOC0zMSAx
-MzoxMTo0NS4wMDAwMDAwMDAgKzAyMDANCisrKyAuL2luaXQvS2NvbmZpZwkyMDA0LTA5LTEyIDE5
-OjUxOjA2LjAwMDAwMDAwMCArMDIwMA0KQEAgLTE5Nyw2ICsxOTcsOCBAQA0KIAkgIGFnZW50IiAo
-L3NiaW4vaG90cGx1ZykgdG8gbG9hZCBtb2R1bGVzIGFuZCBzZXQgdXAgc29mdHdhcmUgbmVlZGVk
-DQogCSAgdG8gdXNlIGRldmljZXMgYXMgeW91IGhvdHBsdWcgdGhlbS4NCiANCittZW51ICJLZXJu
-ZWwgLmNvbmZpZyBzdXBwb3J0Ig0KKw0KIGNvbmZpZyBJS0NPTkZJRw0KIAlib29sICJLZXJuZWwg
-LmNvbmZpZyBzdXBwb3J0Ig0KIAktLS1oZWxwLS0tDQpAQCAtMjA5LDEzICsyMTEsNzEgQEANCiAJ
-ICBJdCBjYW4gYWxzbyBiZSBleHRyYWN0ZWQgZnJvbSBhIHJ1bm5pbmcga2VybmVsIGJ5IHJlYWRp
-bmcNCiAJICAvcHJvYy9jb25maWcuZ3ogaWYgZW5hYmxlZCAoYmVsb3cpLg0KIA0KLWNvbmZpZyBJ
-S0NPTkZJR19QUk9DDQotCWJvb2wgIkVuYWJsZSBhY2Nlc3MgdG8gLmNvbmZpZyB0aHJvdWdoIC9w
-cm9jL2NvbmZpZy5neiINCi0JZGVwZW5kcyBvbiBJS0NPTkZJRyAmJiBQUk9DX0ZTDQorY29uZmln
-IElLQ09ORklHX1NUUklQDQorCWJvb2wgIlN0cmlwIGNvbW1lbnRzIGFuZCB1bnVzZWQgb3B0aW9u
-cyINCisJZGVwZW5kcyBvbiBJS0NPTkZJRw0KKwktLS1oZWxwLS0tDQorCSAgVGhpcyBvcHRpb24g
-c3RyaXBzIGFsbCBjb21tZW50cyBhbmQgb3B0aW9ucyB0aGF0IGluY3JlYXNlcyANCisgICAgICAg
-ICAgaHVtYW4gcmVhZGFiaWxpdHksIGJ1dCBhcmUgdW5uZWNlc3NhcnkgZm9yIHRoZSBwYXJzaW5n
-IA0KKyAgICAgICAgICBwcm9jZXNzLg0KKw0KK2Nob2ljZQ0KKyAgICAgICAgcHJvbXB0ICJDb25m
-aWcgY29tcHJlc3Npb24gbWV0aG9kIg0KKwlkZXBlbmRzIG9uIElLQ09ORklHDQorICAgICAgICBk
-ZWZhdWx0IElLQ09ORklHX0NPTVBSRVNTX05PTkUNCisJLS0taGVscC0tLQ0KKwkgIENob29zZSB3
-aGljaCBraW5kIG9mIGNvbXByZXNzaW9uIHRoYXQgd2lsbCBiZSB1c2VkIGZvciB0aGUgDQorICAg
-ICAgICAgIGtlcm5lbCBjb3B5IG9mIHRoZSBjb25maWcgZmlsZS4NCisNCitjb25maWcgSUtDT05G
-SUdfQ09NUFJFU1NfTk9ORQ0KKwlib29sICJOb25lIg0KKwktLS1oZWxwLS0tDQorCSAgVGhpcyBv
-cHRpb24gZGlzYWJsZXMgY29uZmlnIGZpbGUgY29tcHJlc3Npb24uDQorDQorDQorY29uZmlnIElL
-Q09ORklHX0NPTVBSRVNTX0daSVANCisJYm9vbCAiR3ppcCINCisJLS0taGVscC0tLQ0KKwkgIFRo
-aXMgb3B0aW9uIGVuYWJsZXMgZ3ppcCBjb25maWcgZmlsZSBjb21wcmVzc2lvbi4NCisNCisgICAg
-ICAgICAgR3ppcCBpcyB0aGUgc3RhbmRhcmQgY29tcHJlc3Npb24gdXRpbGl0eSB0aGF0IGNhbiBi
-ZSBmb3VuZCBvbiANCisgICAgICAgICAgYW55IFVOSVggbWFjaGluZS4NCisNCitjb25maWcgSUtD
-T05GSUdfQ09NUFJFU1NfQlpJUDINCisJYm9vbCAiQnppcDIgKFJFQ09NTUVOREVEKSINCiAJLS0t
-aGVscC0tLQ0KLQkgIFRoaXMgb3B0aW9uIGVuYWJsZXMgYWNjZXNzIHRvIHRoZSBrZXJuZWwgY29u
-ZmlndXJhdGlvbiBmaWxlDQotCSAgdGhyb3VnaCAvcHJvYy9jb25maWcuZ3ouDQorCSAgVGhpcyBv
-cHRpb24gZW5hYmxlcyBiemlwMiBjb25maWcgZmlsZSBjb21wcmVzc2lvbi4NCisNCisgICAgICAg
-ICAgQnppcDIgaXMgZGVzaWduZWQgZm9yIHRleHQgY29tcHJlc3Npb24sIGFuZCBpcyBzbGlnaHRs
-eSBiZXR0ZXIgDQorICAgICAgICAgIHRoYW4gZ3ppcCBmb3IgdGhpcyBwdXJwb3NlLg0KIA0KK2Vu
-ZGNob2ljZQ0KKw0KK2NvbmZpZyBJS0NPTkZJR19QUk9DDQorICAgICAgICBib29sICJFbmFibGUg
-YWNjZXNzIHRvIC5jb25maWcgdGhyb3VnaCAvcHJvYy9jb25maWciDQorICAgICAgICBkZXBlbmRz
-IG9uIElLQ09ORklHX0NPTVBSRVNTX05PTkUgJiYgUFJPQ19GUw0KKyAgICAgICAgLS0taGVscC0t
-LQ0KKyAgICAgICAgICBUaGlzIG9wdGlvbiBlbmFibGVzIGFjY2VzcyB0byB0aGUga2VybmVsIGNv
-bmZpZ3VyYXRpb24gZmlsZQ0KKyAgICAgICAgICB0aHJvdWdoIC9wcm9jL2NvbmZpZy4NCisNCisN
-Citjb25maWcgSUtDT05GSUdfUFJPQw0KKyAgICAgICAgYm9vbCAiRW5hYmxlIGFjY2VzcyB0byAu
-Y29uZmlnIHRocm91Z2ggL3Byb2MvY29uZmlnLmd6Ig0KKyAgICAgICAgZGVwZW5kcyBvbiBJS0NP
-TkZJR19DT01QUkVTU19HWklQICYmIFBST0NfRlMNCisgICAgICAgIC0tLWhlbHAtLS0NCisgICAg
-ICAgICAgVGhpcyBvcHRpb24gZW5hYmxlcyBhY2Nlc3MgdG8gdGhlIGtlcm5lbCBjb25maWd1cmF0
-aW9uIGZpbGUNCisgICAgICAgICAgdGhyb3VnaCAvcHJvYy9jb25maWcuZ3ouDQorDQorDQorY29u
-ZmlnIElLQ09ORklHX1BST0MNCisgICAgICAgIGJvb2wgIkVuYWJsZSBhY2Nlc3MgdG8gLmNvbmZp
-ZyB0aHJvdWdoIC9wcm9jL2NvbmZpZy5iejIiDQorICAgICAgICBkZXBlbmRzIG9uIElLQ09ORklH
-X0NPTVBSRVNTX0JaSVAyICYmIFBST0NfRlMNCisgICAgICAgIC0tLWhlbHAtLS0NCisgICAgICAg
-ICAgVGhpcyBvcHRpb24gZW5hYmxlcyBhY2Nlc3MgdG8gdGhlIGtlcm5lbCBjb25maWd1cmF0aW9u
-IGZpbGUNCisgICAgICAgICAgdGhyb3VnaCAvcHJvYy9jb25maWcuYnoyLg0KKw0KKw0KK2VuZG1l
-bnUNCiANCiBtZW51Y29uZmlnIEVNQkVEREVEDQogCWJvb2wgIkNvbmZpZ3VyZSBzdGFuZGFyZCBr
-ZXJuZWwgZmVhdHVyZXMgKGZvciBzbWFsbCBzeXN0ZW1zKSINCmRpZmYgLXJ1TiAvdXNyL3NyYy9s
-aW51eC0yLjYuOC4xL2tlcm5lbC9NYWtlZmlsZSAuL2tlcm5lbC9NYWtlZmlsZQ0KLS0tIC91c3Iv
-c3JjL2xpbnV4LTIuNi44LjEva2VybmVsL01ha2VmaWxlCTIwMDQtMDgtMzEgMTM6MTE6NDUuMDAw
-MDAwMDAwICswMjAwDQorKysgLi9rZXJuZWwvTWFrZWZpbGUJMjAwNC0wOS0xMiAyMDowODowMi4w
-MDAwMDAwMDAgKzAyMDANCkBAIC0xOSw2ICsxOSw4IEBADQogb2JqLSQoQ09ORklHX0JTRF9QUk9D
-RVNTX0FDQ1QpICs9IGFjY3Qubw0KIG9iai0kKENPTkZJR19DT01QQVQpICs9IGNvbXBhdC5vDQog
-b2JqLSQoQ09ORklHX0lLQ09ORklHKSArPSBjb25maWdzLm8NCisjSXMgdGhpcyBzdHJpY3RseSBu
-ZWVkZWQ/IENPTkZJR19JS0NPTkZJR19QUk9DIHNob3VsZCBvbmx5IGJlIGRlZmluZWQgDQorIyBp
-ZiBDT05GSUdfSUtDT05GSUcgaXMgZGVmaW5lZC4NCiBvYmotJChDT05GSUdfSUtDT05GSUdfUFJP
-QykgKz0gY29uZmlncy5vDQogb2JqLSQoQ09ORklHX1NUT1BfTUFDSElORSkgKz0gc3RvcF9tYWNo
-aW5lLm8NCiBvYmotJChDT05GSUdfQVVESVQpICs9IGF1ZGl0Lm8NCkBAIC0zNSwxNCArMzcsNDgg
-QEANCiANCiAkKG9iaikvY29uZmlncy5vOiAkKG9iaikvY29uZmlnX2RhdGEuaA0KIA0KLSMgY29u
-ZmlnX2RhdGEuaCBjb250YWlucyB0aGUgc2FtZSBpbmZvcm1hdGlvbiBhcyBpa2NvbmZpZy5oIGJ1
-dCBnemlwcGVkLg0KLSMgSW5mbyBmcm9tIGNvbmZpZ19kYXRhIGNhbiBiZSBleHRyYWN0ZWQgZnJv
-bSAvcHJvYy9jb25maWcqDQotdGFyZ2V0cyArPSBjb25maWdfZGF0YS5neg0KLSQob2JqKS9jb25m
-aWdfZGF0YS5nejogLmNvbmZpZyBGT1JDRQ0KLQkkKGNhbGwgaWZfY2hhbmdlZCxnemlwKQ0KIA0K
-LXF1aWV0X2NtZF9pa2NvbmZpZ2d6ID0gSUtDRkcgICAkQA0KLSAgICAgIGNtZF9pa2NvbmZpZ2d6
-ID0gKGVjaG8gImNvbnN0IGNoYXIga2VybmVsX2NvbmZpZ19kYXRhW10gPSBNQUdJQ19TVEFSVCI7
-IGNhdCAkPCB8IHNjcmlwdHMvYmluMmM7IGVjaG8gIk1BR0lDX0VORDsiKSA+ICRADQorI2RlZmlu
-ZSB0aGUgc3RyaXBwaW5nIGNvbW1hbmQsIGJhc2ljYWxseSBzdHJpcCBvciBjb3B5DQoraWZkZWYg
-Q09ORklHX0lLQ09ORklHX1NUUklQDQorcXVpZXRfY21kX2lrY29uZmlnX3N0cmlwID0gU1RSSVAg
-ICAkQA0KKwljbWRfaWtjb25maWdfc3RyaXAgPSBzY3JpcHRzL3N0cmlwQ29tbUJsYW5rLnNoIDwg
-JDwgPiAkQA0KK2Vsc2UNCitxdWlldF9jbWRfaWtjb25maWdfc3RyaXAgPSBDT1BZICAgICRADQor
-CWNtZF9pa2NvbmZpZ19zdHJpcCA9IGNwICQ8ICRADQorZW5kaWYNCisNCisjIGNvbmZpZ19kYXRh
-X2luIGNvbnRhaW5zIHRoZSAoc3RyaXBwZWQ/KSBjb25maWcgZmlsZQ0KK3RhcmdldHMgKz0gY29u
-ZmlnX2RhdGFfaW4NCiskKG9iaikvY29uZmlnX2RhdGFfaW46IC5jb25maWcgRk9SQ0UNCisJJChj
-YWxsIGlmX2NoYW5nZWQsaWtjb25maWdfc3RyaXApDQorDQorDQorI2RlZmluZSB0aGUgY29tcHJl
-c3Npb24gY29tbWFuZCwgbm9uZSxnemlwIG9yIGJ6aXAyDQoraWZkZWYgQ09ORklHX0lLQ09ORklH
-X0NPTVBSRVNTX05PTkUNCitxdWlldF9jbWRfaWtjb25maWdfY29tcHJlc3MgPSBDT1BZICAgICRA
-DQorCWNtZF9pa2NvbmZpZ19jb21wcmVzcyA9IGNwICQ8ICRADQorZW5kaWYNCisNCitpZmRlZiBD
-T05GSUdfSUtDT05GSUdfQ09NUFJFU1NfR1pJUA0KK3F1aWV0X2NtZF9pa2NvbmZpZ19jb21wcmVz
-cyA9IEdaSVAgICAgJEANCisJY21kX2lrY29uZmlnX2NvbXByZXNzID0gZ3ppcCAtLWJlc3QgPCAk
-PCA+ICRADQorZW5kaWYNCisNCitpZmRlZiBDT05GSUdfSUtDT05GSUdfQ09NUFJFU1NfQlpJUDIN
-CitxdWlldF9jbWRfaWtjb25maWdfY29tcHJlc3MgPSBCWklQMiAgICRADQorCWNtZF9pa2NvbmZp
-Z19jb21wcmVzcyA9IGJ6aXAyIC0tYmVzdCA8ICQ8ID4gJEANCitlbmRpZg0KKw0KKw0KKyMgY29u
-ZmlnX2RhdGFfY29tcHJlc3NlZCBjb250YWlucyB0aGUgKGNvbXByZXNzZWQ/KSBjb25maWcgZmls
-ZQ0KK3RhcmdldHMgKz0gY29uZmlnX2RhdGFfY29tcHJlc3NlZA0KKyQob2JqKS9jb25maWdfZGF0
-YV9jb21wcmVzc2VkOiAkKG9iaikvY29uZmlnX2RhdGFfaW4gRk9SQ0UNCisJJChjYWxsIGlmX2No
-YW5nZWQsaWtjb25maWdfY29tcHJlc3MpDQorDQorcXVpZXRfY21kX2lrY29uZmlnID0gSUtDRkcg
-ICAkQA0KKyAgICAgIGNtZF9pa2NvbmZpZyA9IChlY2hvICJjb25zdCBjaGFyIGtlcm5lbF9jb25m
-aWdfZGF0YVtdID0gTUFHSUNfU1RBUlQiOyBjYXQgJDwgfCBzY3JpcHRzL2JpbjJjOyBlY2hvICJN
-QUdJQ19FTkQ7IikgPiAkQA0KKw0KKyMgSW5mbyBmcm9tIGNvbmZpZ19kYXRhIGNhbiBiZSBleHRy
-YWN0ZWQgZnJvbSAvcHJvYy9jb25maWcqDQogdGFyZ2V0cyArPSBjb25maWdfZGF0YS5oDQotJChv
-YmopL2NvbmZpZ19kYXRhLmg6ICQob2JqKS9jb25maWdfZGF0YS5neiBGT1JDRQ0KLQkkKGNhbGwg
-aWZfY2hhbmdlZCxpa2NvbmZpZ2d6KQ0KKyQob2JqKS9jb25maWdfZGF0YS5oOiAkKG9iaikvY29u
-ZmlnX2RhdGFfY29tcHJlc3NlZCBGT1JDRQ0KKwkkKGNhbGwgaWZfY2hhbmdlZCxpa2NvbmZpZykN
-CmRpZmYgLXJ1TiAvdXNyL3NyYy9saW51eC0yLjYuOC4xL2tlcm5lbC9jb25maWdzLmMgLi9rZXJu
-ZWwvY29uZmlncy5jDQotLS0gL3Vzci9zcmMvbGludXgtMi42LjguMS9rZXJuZWwvY29uZmlncy5j
-CTIwMDQtMDgtMzEgMTM6MTE6NDUuMDAwMDAwMDAwICswMjAwDQorKysgLi9rZXJuZWwvY29uZmln
-cy5jCTIwMDQtMDktMTIgMTk6NTE6MDYuMDAwMDAwMDAwICswMjAwDQpAQCAtNTUsNiArNTUsMTYg
-QEANCiANCiAjaWZkZWYgQ09ORklHX0lLQ09ORklHX1BST0MNCiANCisjaWZkZWYgQ09ORklHX0lL
-Q09ORklHX0NPTVBSRVNTX05PTkUNCisjZGVmaW5lIFBST0NfQ09ORklHX0ZJTEVOQU1FICJjb25m
-aWciDQorI2VsaWYgQ09ORklHX0lLQ09ORklHX0NPTVBSRVNTX0daSVANCisjZGVmaW5lIFBST0Nf
-Q09ORklHX0ZJTEVOQU1FICJjb25maWcuZ3oiDQorI2VsaWYgQ09ORklHX0lLQ09ORklHX0NPTVBS
-RVNTX0JaSVAyDQorI2RlZmluZSBQUk9DX0NPTkZJR19GSUxFTkFNRSAiY29uZmlnLmJ6MiINCisj
-ZWxzZQ0KKyNlcnJvciBQcm9jIGNvbmZpZyBmaWxlbmFtZSBjb3VsZCBub3QgYmUgZGVmaW5lZA0K
-KyNlbmRpZg0KKw0KIC8qKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKi8NCiAvKiBnbG9iYWxzIGFuZCB1c2VmdWwgY29uc3RhbnRzICAgICAgICAgICAgICAg
-ICAgICovDQogDQpAQCAtODksNyArOTksNyBAQA0KIAlzdHJ1Y3QgcHJvY19kaXJfZW50cnkgKmVu
-dHJ5Ow0KIA0KIAkvKiBjcmVhdGUgdGhlIGN1cnJlbnQgY29uZmlnIGZpbGUgKi8NCi0JZW50cnkg
-PSBjcmVhdGVfcHJvY19lbnRyeSgiY29uZmlnLmd6IiwgU19JRlJFRyB8IFNfSVJVR08sDQorCWVu
-dHJ5ID0gY3JlYXRlX3Byb2NfZW50cnkoUFJPQ19DT05GSUdfRklMRU5BTUUsIFNfSUZSRUcgfCBT
-X0lSVUdPLA0KIAkJCQkgICZwcm9jX3Jvb3QpOw0KIAlpZiAoIWVudHJ5KQ0KIAkJcmV0dXJuIC1F
-Tk9NRU07DQpkaWZmIC1ydU4gL3Vzci9zcmMvbGludXgtMi42LjguMS9zY3JpcHRzL3N0cmlwQ29t
-bUJsYW5rLnNoIC4vc2NyaXB0cy9zdHJpcENvbW1CbGFuay5zaA0KLS0tIC91c3Ivc3JjL2xpbnV4
-LTIuNi44LjEvc2NyaXB0cy9zdHJpcENvbW1CbGFuay5zaAkxOTcwLTAxLTAxIDAxOjAwOjAwLjAw
-MDAwMDAwMCArMDEwMA0KKysrIC4vc2NyaXB0cy9zdHJpcENvbW1CbGFuay5zaAkyMDA0LTA5LTEy
-IDE5OjUxOjA2LjAwMDAwMDAwMCArMDIwMA0KQEAgLTAsMCArMSwyIEBADQorIyEvYmluL3NoDQor
-ZWdyZXAgLXYgJ14jfF5bOnNwYWNlOl0qJCcNCg==
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
---=-ReC/VeQMtSHK8r7oM38J--
+iD8DBQFBRx1qpIg59Q01vtYRAlyQAKCsBAF7suX4kERQPLicYhoDRWplLACfW2ZZ
+f1CYZH/pNdU19NpgsQO9aaw=
+=pk5q
+-----END PGP SIGNATURE-----
+
+--gDGSpKKIBgtShtf+--

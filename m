@@ -1,32 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290519AbSBKVm0>; Mon, 11 Feb 2002 16:42:26 -0500
+	id <S290496AbSBKVs0>; Mon, 11 Feb 2002 16:48:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290500AbSBKVmQ>; Mon, 11 Feb 2002 16:42:16 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37124 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290496AbSBKVmG>; Mon, 11 Feb 2002 16:42:06 -0500
-Subject: Re: A7M266-D works?
-To: gandalf@wlug.westbo.se (Martin Josefsson)
-Date: Mon, 11 Feb 2002 21:55:40 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jussi.laako@kolumbus.fi (Jussi Laako),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0202112132040.16582-100000@tux.rsn.bth.se> from "Martin Josefsson" at Feb 11, 2002 09:40:34 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S290520AbSBKVsQ>; Mon, 11 Feb 2002 16:48:16 -0500
+Received: from pc-62-31-132-34-mo.blueyonder.co.uk ([62.31.132.34]:43939 "HELO
+	gate.mcdee.net") by vger.kernel.org with SMTP id <S290496AbSBKVsI>;
+	Mon, 11 Feb 2002 16:48:08 -0500
+Subject: Re: "All of your loopback devices are in use!" reported by mkinitrd
+From: Jim McDonald <Jim@mcdee.net>
+To: amoote@ivhs.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1013461497.806.501.camel@phantasy>
+In-Reply-To: <200202111559320446.2581AD39@notes.fpelectronics.com> 
+	<1013461497.806.501.camel@phantasy>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16aOQG-00082f-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/1.0.2 
+Date: 11 Feb 2002 21:44:46 +0000
+Message-Id: <1013463886.1669.239.camel@lapcat>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Could you give some examples of which drivers/cards you've seen problems
-> with. We've been thinking of getting a few of these boards but if there's
-> this much problems with the BIOS we might have to look at another board :(
+On Mon, 2002-02-11 at 21:04, Robert Love wrote:
+> On Mon, 2002-02-11 at 15:59, Al Moote wrote:
+> > Hey all.  I am not-so new to Linux, but I haven't had to recompile my kernel before.  We are taking the leap into Samba Fileserving an thus, I need to add ACL functionality to my kernel.  I have opted to go with 2.4.17 and have had some success so far.  I am, however, stuck at one point.
+> > 
+> > I am trying to make my .img file to support my RAID devices.  When I run:
+> > 
+> > /sbin/mkinitrd /boot/initrd-2.4.17-021102.img 2.4.17-021102
+> > 
+> > I get the message:
+> > 
+> > All of your loopback devices are in use!
+> > 
+> > I don't really understand why this is preventing me from creatingthe .img file.  But then again, I have little experience in this area.  I was hoping somebody on this list could len a hand.  Thanks alot guys (and the occasional gal).
+> 
+> You need loopback support in your kernel, and you probably don't?
+> 
+> Enable CONFIG_BLK_DEV_LOOP (see Block Devices in configure).
 
-I2O fails for one. With the little patch I added I2O seems to work again.
-Im just waiting a final AMD confirmation that the docs not the bios are
-correct.
+Either that or you've compiled loopback devices directly in to the
+kernel this time around, they were modules last time around, and you
+have kept the same kernel name.  If you do this the make modules_install
+blasts the module from the /lib/modules/2.4.xx and a subsequent mkinitrd
+can't load the loopback module.  Check out dmesg to see if this is the
+problem.
 
-Alan
+> 	Robert Love
+
+Cheers,
+Jim.
+-- 
+Jim McDonald - Jim@mcdee.net
+

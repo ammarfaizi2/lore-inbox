@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264619AbTHVQDn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 12:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbTHVQDn
+	id S263412AbTHVQOx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 12:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbTHVQOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 12:03:43 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:19372 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264619AbTHVQDk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 12:03:40 -0400
-Date: Fri, 22 Aug 2003 18:03:25 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] add a couple pci ids to pci_ids.h
-In-Reply-To: <200308221202.h7MC2dW0028913@hera.kernel.org>
-Message-ID: <Pine.GSO.4.21.0308221801120.13238-100000@waterleaf.sonytel.be>
+	Fri, 22 Aug 2003 12:14:53 -0400
+Received: from evrtwa1-ar2-4-33-045-084.evrtwa1.dsl-verizon.net ([4.33.45.84]:54218
+	"EHLO grok.yi.org") by vger.kernel.org with ESMTP id S263412AbTHVQOv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 12:14:51 -0400
+Message-ID: <3F464177.1020709@candelatech.com>
+Date: Fri, 22 Aug 2003 09:14:47 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Patrick Sodre Carlos <klist@i-a-i.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Reinjecting IP Packets
+References: <1061563295.824.4.camel@iai68>
+In-Reply-To: <1061563295.824.4.camel@iai68>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Aug 2003, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1104, 2003/08/22 08:53:10-03:00, jgarzik@pobox.com
-> 
-> 	[PATCH] add a couple pci ids to pci_ids.h
-> 
-> diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-> --- a/include/linux/pci_ids.h	Fri Aug 22 05:02:40 2003
-> +++ b/include/linux/pci_ids.h	Fri Aug 22 05:02:40 2003
-> @@ -1648,6 +1648,9 @@
->  #define PCI_DEVICE_ID_TIGON3_5703	0x1647
+Patrick Sodre Carlos wrote:
+> Hi Guys,
+>    I'm trying to figure out what is the best way to reinject IP packets
+> into the stack. Does anyone have good/right/left ideas on this?
 
-0x1647 = 5703
+Maybe netif_rx() in net/core/dev.c ?
 
->  #define PCI_DEVICE_ID_TIGON3_5704	0x1648
+Ben
 
-0x1648 = 5704
 
->  #define PCI_DEVICE_ID_TIGON3_5702FE	0x164d
-> +#define PCI_DEVICE_ID_TIGON3_5705	0x1653
 
-0x1653 != 5705 -> *** BEEP ***
-0x1653 = 5715
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 
-> +#define PCI_DEVICE_ID_TIGON3_5705M	0x165d
-> +#define PCI_DEVICE_ID_TIGON3_5782	0x1696
-
-0x1696 = 5782
-
-Or am I too paranoid?
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 

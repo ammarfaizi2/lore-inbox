@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317295AbSFGOyC>; Fri, 7 Jun 2002 10:54:02 -0400
+	id <S317296AbSFGPBo>; Fri, 7 Jun 2002 11:01:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317296AbSFGOyC>; Fri, 7 Jun 2002 10:54:02 -0400
-Received: from [212.176.239.134] ([212.176.239.134]:42625 "EHLO
-	vzhik.octet.spb.ru") by vger.kernel.org with ESMTP
-	id <S317295AbSFGOyB>; Fri, 7 Jun 2002 10:54:01 -0400
-Message-ID: <000701c20e33$1eb14450$baefb0d4@nick>
-Reply-To: "Nick Evgeniev" <nick@octet.spb.ru>
-From: "Nick Evgeniev" <nick@octet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.19-pre10-ac2  PDC20265 IDE BUGS.
-Date: Fri, 7 Jun 2002 18:53:43 +0400
-Organization: Octet Corp.
+	id <S317297AbSFGPBn>; Fri, 7 Jun 2002 11:01:43 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51288 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S317296AbSFGPBm>; Fri, 7 Jun 2002 11:01:42 -0400
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, ralf@gnu.org, rhw@memalpha.cx,
+        mingo@redhat.com, paulus@samba.org, anton@samba.org,
+        schwidefsky@de.ibm.com, bh@sgi.com, davem@redhat.com, ak@suse.de,
+        torvalds@transmeta.com
+Subject: Re: Hotplug CPU Boot Changes: BEWARE
+In-Reply-To: <E17GHB3-0000gD-00@wagner.rustcorp.com.au>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 07 Jun 2002 08:51:32 -0600
+Message-ID: <m1elfjw39n.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-Scanner: exiscan *17GL7j-0000Nu-00*BIDtRFvcGFo* http://duncanthrax.net/exiscan/
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Rusty Russell <rusty@rustcorp.com.au> writes:
 
-2.4.19-pre10-ac2 still has bugs in its promise 20265 ide controller driver.
-I've got ide lost interrupt messages on console just in a few hours after
-reboot. (BTW could someone explain me what does it means for drives in
-UDMA100 mode?)
-Below is a kernel.log messages:
+> Hi all (esp port maintainers),
+> 
+> 	In writing the hotplug CPU stuff, Linus asked me to alter the
+> boot sequence to "plug in" CPUs.  I am shortly going to be sending
+> these patches to him now I have got my x86 box to boot with the
+> changes.
 
->----------------------------
-Jun  7 17:43:16 vzhik kernel: hdg: status timeout: status=0xd0 { Busy }
-Jun  7 17:43:16 vzhik kernel:
-Jun  7 17:43:16 vzhik kernel: hdg: drive not ready for command
-Jun  7 17:43:16 vzhik kernel: hdg: status timeout: status=0xd0 { Busy }
-Jun  7 17:43:16 vzhik kernel:
-Jun  7 17:43:16 vzhik kernel: hdg: DMA disabled
-Jun  7 17:43:17 vzhik kernel: ide3: reset: success
-Jun  7 17:43:18 vzhik kernel: PDC202XX: Secondary channel reset.
-Jun  7 17:43:18 vzhik kernel: hdg: drive not ready for command
-Jun  7 17:43:38 vzhik kernel: hde: timeout waiting for DMA
-Jun  7 17:44:03 vzhik kernel: PDC202XX: Primary channel reset.
-Jun  7 17:44:03 vzhik kernel: ide_dmaproc: chipset supported ide_dma_timeout
-func only: 16
-Jun  7 17:44:03 vzhik kernel: hde: timeout waiting for DMA
-Jun  7 17:44:03 vzhik kernel: PDC202XX: Primary channel reset.
-Jun  7 17:44:03 vzhik kernel: ide_dmaproc: chipset supported ide_dma_timeout
-func only: 16
-Jun  7 17:44:03 vzhik kernel: hde: status timeout: status=0xd1 { Busy }
-Jun  7 17:44:03 vzhik kernel:
-Jun  7 17:44:03 vzhik kernel: PDC202XX: Primary channel reset.
-Jun  7 17:44:03 vzhik kernel: hde: drive not ready for command
-Jun  7 17:44:03 vzhik kernel: ide2: reset: success
-Jun  7 17:49:21 vzhik kernel: hdg: status error: status=0x58 { DriveReady
-SeekComplete DataRequest }
-Jun  7 17:49:21 vzhik kernel:
-Jun  7 17:49:21 vzhik kernel: hdg: drive not ready for command
-Jun  7 17:49:21 vzhik kernel: hdg: status timeout: status=0xd0 { Busy }
+If to the general SMP case is added the ability to dynamically enable
+and disable cpus at runtime, this infrastructure work appears to have
+general applicability now.  Allowing for example dynamic
+enable/disable of HT on P4-Xeons at runtime for example.
 
+
+> There are two ways to transition: one is to do the minimal hacks so
+> that the new boot code works (as per my x86 patch).  The other is to
+> take into account that the next stage (optional by arch) is to
+> actually bring cpus up and down on the fly, and hence actually write
+> code that will work after boot as well (as per my ppc patch).
+
+Thinking in terms of physically hot-plugging cpus has me doubt the
+actual utility of this code.  Instead thinking of dynamically enabling
+and disabling processors for debugging sounds very reasonable.
+
+But for the latter something just a little more than minimal hacks
+must be implemented.  But dynamic cpu enable/disable is definitely
+worth it.
+
+Eric
 

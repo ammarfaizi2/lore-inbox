@@ -1,186 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316217AbSFPNvz>; Sun, 16 Jun 2002 09:51:55 -0400
+	id <S314707AbSFQQRR>; Mon, 17 Jun 2002 12:17:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316221AbSFPNvy>; Sun, 16 Jun 2002 09:51:54 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:51416 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S316217AbSFPNvx>; Sun, 16 Jun 2002 09:51:53 -0400
-Date: Sun, 16 Jun 2002 15:51:41 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: linux-kernel@vger.kernel.org
-Cc: alan@redhat.com, marcelo@conectiva.com.br
-Subject: [PATCH] SB16 sound breakage: user mode DoS, 2.4.18
-Message-ID: <20020616135141.GA1292@andi.hausnetz>
-Reply-To: andi@rhlx01.fht-esslingen.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S314748AbSFQQRQ>; Mon, 17 Jun 2002 12:17:16 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:38055 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S314707AbSFQQRP>;
+	Mon, 17 Jun 2002 12:17:15 -0400
+Date: Mon, 17 Jun 2002 18:15:22 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Robert Love <rml@tech9.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sti() preemption fix, 2.5.22
+In-Reply-To: <Pine.LNX.4.44.0206171651480.15554-100000@e2>
+Message-ID: <Pine.LNX.4.44.0206171811170.18282-100000@e2>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-when I ran a program on Wine, suddenly my 2.4.18 froze completely.
-This has been caused by the program submitting an odd number of output
-bytes to the soundcard in 16bit output mode, thus causing the sound
-driver to loop endlessly on the last remaining byte.
-When digging deeper, I found that this odd number of output bytes had
-been caused by the SoundBlaster 16 driver always returning one half of
-the output bytes that it could take (in the SNDCTL_DSP_GETOSPACE ioctl
-result), thus always cutting the remaining free buffer in half, thus
-hitting an odd number after some time (1988 bytes -> 994 -> 497).
-The SB16 driver is doing an internal 16bit -> 8bit conversion in case
-it's running in fullduplex mode, and it simply returned the remaining
-free bytes in the DMA buffer, which should have been twice that number
-due to the 16bit -> 8bit conversion in fullduplex mode.
-Also, it's doing 8bit -> 16bit conversion in the 8bit output case,
-which SNDCTL_DSP_GETOSPACE ioctl didn't account for either.
+Zoltan Szalontai noticed that my patch doesnt match the bugfix described
+:-)
 
-In short: When using SB16 in fullduplex mode, the SNDCTL_DSP_GETOSPACE
-ioctl didn't account for the 16/8bit format conversions that the SB16
-does in this case, thus leading to an odd-numbered input count freezing
-the box due to a second "odd remainder" endless loop bug.
+correct patch attached.
 
-Thus this patch does:
-- add two flags DMA_CONV_16_8, DMA_CONV_8_16 to struct dma_buffparms
-  to check for format conversion in dma_ioctl()/SNDCTL_DSP_GETOSPACE
-  and thus fix SNDCTL_DSP_GETOSPACE result to account for format
-  conversion
-- prevent endless looping (lockup) on single remaining byte by
-  discarding odd remainders of odd output counts in case of 16bit format
+	Ingo
 
-I know of 3 people in total so far that had this SB16 fullduplex problem, BTW
-(on a rather limited area as the #WineHQ IRC channel, and within three
-weeks of meeting people), and this patch fixed it.
-Given the number of people involved and a complete lockup resulting
-from these driver bugs (caused by any user having access to the sound device),
-I'd think that this problem deserves more attention than it got in the past
-(only 1 guy replied to my LKML postings).
-
-I'm not in the least experienced with sound card programming,
-so please review and let me know the result, if possible.
-
-CC'd to Alan, the sound maintainer (2.2.x only, though ?)
-and Marcelo Tosatti, 2.4.x maintainer.
-
-Thanks !
-
-Patch, diffed against 2.4.18:
-
-diff -urN linux-2.4.18/drivers/sound/audio.c linux/drivers/sound/audio.c
---- linux-2.4.18/drivers/sound/audio.c	Sat Jun  1 16:42:43 2002
-+++ linux/drivers/sound/audio.c	Sat Jun  1 17:11:05 2002
-@@ -281,6 +281,11 @@
- 			if(copy_from_user(dma_buf, &(buf)[p], l))
- 				return -EFAULT;
- 		} 
-+		/* Warning: make sure the hardware driver's copy_user accepts
-+		 * remainders resulting from odd data byte count input properly,
-+		 * i.e. it doesn't leave us looping here e.g. with a constantly
-+		 * rejected lone byte that it considers insufficient
-+		 * for 16bit output (which needs 2 bytes/sample)... */
- 		else audio_devs[dev]->d->copy_user (dev,
- 						dma_buf, 0,
- 						buf, p,
-@@ -814,7 +819,22 @@
- 				info.fragments = dmap->nbufs;
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.510   -> 1.511  
+#	arch/i386/kernel/irq.c	1.10    -> 1.11   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/06/17	mingo@elte.hu	1.511
+# - sti() preemption fix. for real.
+# --------------------------------------------
+#
+diff -Nru a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c
+--- a/arch/i386/kernel/irq.c	Mon Jun 17 18:15:00 2002
++++ b/arch/i386/kernel/irq.c	Mon Jun 17 18:15:00 2002
+@@ -366,11 +366,15 @@
  
- 			info.fragsize = dmap->fragment_size;
--			info.bytes = info.fragments * dmap->fragment_size;
-+			info.bytes = info.fragments * info.fragsize;
+ void __global_sti(void)
+ {
+-	int cpu = smp_processor_id();
++	int cpu;
 +
-+			if (dmap->flags & (DMA_CONV_16_8|DMA_CONV_8_16))
-+			{ /* attention, sound card does 8/16bit conversion ! */
-+			    if (dmap->flags & DMA_CONV_16_8)
-+			    { /* 2 bytes input result in 1 byte in DMA only:
-+			         need to receive *twice* the internal amount */
-+				info.fragsize <<= 1;
-+				info.bytes <<= 1;
-+			    }
-+			    else
-+			    { /* 1 byte input -> 2 bytes DMA */
-+				info.fragsize >>= 1;
-+				info.bytes >>= 1;
-+			    }
-+			}
++	preempt_disable();
++	cpu = smp_processor_id();
  
- 			if (cmd == SNDCTL_DSP_GETISPACE && dmap->qlen)
- 				info.bytes -= dmap->counts[dmap->qhead];
-diff -urN linux-2.4.18/drivers/sound/dev_table.h linux/drivers/sound/dev_table.h
---- linux-2.4.18/drivers/sound/dev_table.h	Sat Jun  1 16:44:20 2002
-+++ linux/drivers/sound/dev_table.h	Sat Jun  1 15:41:44 2002
-@@ -101,6 +101,8 @@
- #define DMA_POST	0x00000100
- #define DMA_NODMA	0x00000200
- #define DMA_NOTIMEOUT	0x00000400
-+#define DMA_CONV_16_8	0x00000800 /* SB16: 16bit -> 8bit conversion */
-+#define DMA_CONV_8_16	0x00001000 /* SB16: 8bit -> 16bit conversion */
+ 	if (!local_irq_count(cpu))
+ 		release_irqlock(cpu);
+ 	__sti();
++	preempt_enable();
+ }
  
- 	int      open_mode;
- 
-diff -urN linux-2.4.18/drivers/sound/sb_audio.c linux/drivers/sound/sb_audio.c
---- linux-2.4.18/drivers/sound/sb_audio.c	Sat Jun  1 16:46:55 2002
-+++ linux/drivers/sound/sb_audio.c	Sat Jun  1 17:12:11 2002
-@@ -20,6 +20,15 @@
-  *                       Maybe other 16 bit cards in this code could behave
-  *                       the same.
-  * Chris Rankin:         Use spinlocks instead of CLI/STI
-+ *
-+ * SB16 comment, mostly by -aa:
-+ * Since sb cards don't have two dma16 channels, when you playback data at 16
-+ * bit the driver will convert data to 8bit and will play it with the dma8,
-+ * allowing you to use the dma16 for recording at the same time. The patch
-+ * isn't smart because it hardlock dma8 for playback of 16bit data and
-+ * dma16 for playback of 8bit data, so with this patch applied, the sb
-+ * driver will convert all 16bit data to 8bit even if dma16 isn't used
-+ * for recording.
-  */
- 
- #include <linux/spinlock.h>
-@@ -623,6 +632,15 @@
- 			devc->bits = bits;
- 		else
- 			devc->bits = AFMT_U8;
-+		if (devc->fullduplex)
-+		{ /* set 8bit vs. 16bit conversion flags */
-+			struct dma_buffparms *dmap = audio_devs[dev]->dmap_out;
-+			dmap->flags &= ~(DMA_CONV_16_8|DMA_CONV_8_16);
-+			if (devc->bits == AFMT_S16_LE)
-+			    dmap->flags |= DMA_CONV_16_8;
-+			else
-+			    dmap->flags |= DMA_CONV_8_16;
-+		}
- 	}
- 
- 	return devc->bits;
-@@ -858,9 +876,9 @@
- 		/* 16 -> 8 */
- 		/* max_in >> 1, max number of samples in ( 16 bits ) */
- 		/* max_out, max number of samples out ( 8 bits ) */
--		/* len, number of samples that will be taken ( 16 bits )*/
--		/* c, count of samples remaining in buffer ( 16 bits )*/
--		/* p, count of samples already processed ( 16 bits )*/
-+		/* len, number of samples that will be taken ( 16 bits ) */
-+		/* c, count of samples remaining in buffer ( 16 bits ) */
-+		/* p, count of samples already processed ( 16 bits ) */
- 		len = ( (max_in >> 1) > max_out) ? max_out : (max_in >> 1);
- 		c = len;
- 		p = 0;
-@@ -880,6 +898,12 @@
- 		}
- 		/* used = ( samples * 16 bits size ) */
- 		*used = len << 1;
-+		/* make sure to discard any remaining odd incoming byte count */
-+		if (max_in & 1)
-+		{
-+			printk(KERN_ERR "got odd byte count for 16bit audio, discarding remainder\n");
-+			(*used)++;
-+		}
- 		/* returned = ( samples * 8 bits size ) */
- 		*returned = len;
- 	}
+ /*
 
--- 
-Andreas Mohr                        Stauferstr. 6, D-71272 Renningen, Germany

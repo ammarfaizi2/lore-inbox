@@ -1,42 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314078AbSGBXK7>; Tue, 2 Jul 2002 19:10:59 -0400
+	id <S314138AbSGBXLv>; Tue, 2 Jul 2002 19:11:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314096AbSGBXK6>; Tue, 2 Jul 2002 19:10:58 -0400
-Received: from are.twiddle.net ([64.81.246.98]:44778 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S314078AbSGBXK6>;
-	Tue, 2 Jul 2002 19:10:58 -0400
-Date: Tue, 2 Jul 2002 16:13:22 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
-       jlnance@intrex.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-rc1 broke OSF binaries on alpha
-Message-ID: <20020702161322.A7642@twiddle.net>
-Mail-Followup-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
-	jlnance@intrex.net, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0206281730160.12542-100000@freak.distro.conectiva> <E17O7yk-0007w5-00@the-village.bc.nu> <20020630035058.A884@localhost.park.msu.ru> <20020701090353.B1957@tricia.dyndns.org> <20020701180252.A15288@jurassic.park.msu.ru> <yw1xvg7z1bjz.fsf@gladiusit.e.kth.se> <20020702190544.A23788@jurassic.park.msu.ru>
+	id <S314096AbSGBXLu>; Tue, 2 Jul 2002 19:11:50 -0400
+Received: from irc.sh.nu ([216.239.132.110]:48311 "EHLO fungus.sh.nu")
+	by vger.kernel.org with ESMTP id <S314277AbSGBXLs>;
+	Tue, 2 Jul 2002 19:11:48 -0400
+Date: Tue, 2 Jul 2002 16:14:17 -0700
+From: crimsun@fungus.sh.nu
+To: Rob Landley <landley@trommello.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: O(1) scheduler vs 2.4.19-rc1 (question).
+Message-ID: <20020702161417.A14646@fungus.sh.nu>
+References: <20020702210905.687588B4@merlin.webofficenow.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020702190544.A23788@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Tue, Jul 02, 2002 at 07:05:44PM +0400
+In-Reply-To: <20020702210905.687588B4@merlin.webofficenow.com>; from landley@trommello.org on Tue, Jul 02, 2002 at 11:33:36AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 02, 2002 at 07:05:44PM +0400, Ivan Kokshaysky wrote:
-> Unfortunately the libraries _officially_ available for linux are
-> from v4. If HP would release something more up to date, the alpha
-> iov_len hack would go away.
+On Tue, Jul 02, 2002 at 11:33:36AM -0400, Rob Landley wrote:
+> I'm finally getting around to playing with the O(1) scheduler (well I found a 
+> way to break something that this might help), and I'm a bit confused as to 
+> what to apply to get the newest version running on 2.4.19-rc1:
 
-Do we have any way of recognizing v4 vs v5 binaries?  I don't think
-we do.  I'd be willing to call any ECOFF binary an OSF binary, and
-ignore the fact that Linux used them in the distant past.
+The last one you list below is the latest.
 
-The minimum correct solution is to add a PER_OSF4 to personality.h
-and put an osf_readv and osf_writev that, if PER_OSF4, read and frob
-the data into kernel buffers and pass that on to the regular syscalls.
+> http://people.redhat.com/mingo/O(1)-scheduler/sched-O1-2.4.18-pre8-K3.patch
+> http://people.redhat.com/mingo/O(1)-scheduler/sched-2.4.19-pre10-ac2-A4
+> http://people.redhat.com/mingo/O(1)-scheduler/sched-2.4.19-pre10-ac2-B3
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+> 1) The 2.4.18-pre8 patch is from February 7th.  Is that really the latest one 
+> for straight 2.4?  If nobody's found even a typo in the thing for almost five 
+> months, can we expect it in 2.4.20-pre1?
 
-r~
+While it's certainly nice, I think Ingo and Robert both stated best that
+it's best not to change this in vanilla 2.4 where accountable behavior
+should remain for a stable-branch kernel.
+
+> 2) Do the -ac patches bring the 2.4-mt O(1) up to the level that's in the -ac 
+> tree, or are they against the -ac tree itself?  I'd happily run the -ac tree 
+> except it doesn't HAVE stable releases, it has "it compiled" releases which 
+> do tend to be fairly stable but don't have nice clustering points where 
+> enough people are running that particular variant that they can tell you what 
+> the inevitable bugs actually are...
+
+Against the -ac tree itself as stated in the patch name. For the record,
+2.4.19-pre10-ac2 has been solid here in various incarnations for nearly
+a month.
+
+> 3) Is any of the stuff in ingo's directory actually the latest version?  I 
+> know he wrote it, but I've watched about five other people patch it (Robert 
+> Love, etc.), and I didn't keep close track at the time but I'm fairly certain 
+> it was more recent than February.
+
+See above (and below). :)
+
+> 4) What's with the version numbers?  I don't THINK the "B3" patch backlevels 
+> K3 in a more recent -ac version, especially since "B3" is dated july and "K3" 
+> is dated february...  I seem to have missed a curve somewhere...
+
+Ingo's mail dated 01 July 11:49:39 +0200 (CEST) has
+sched-2.4.19-pre10-ac2-B3 as the latest.
+
+-- 
+Dan Chen                crimsun@fungus.sh.nu
+GPG key:   www.sh.nu/~crimsun/pubkey.gpg.asc

@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317463AbSHCAIm>; Fri, 2 Aug 2002 20:08:42 -0400
+	id <S317471AbSHCAMA>; Fri, 2 Aug 2002 20:12:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317458AbSHCAIm>; Fri, 2 Aug 2002 20:08:42 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58379 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317457AbSHCAIl>; Fri, 2 Aug 2002 20:08:41 -0400
-Date: Sat, 3 Aug 2002 01:12:10 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: tytso@mit.edu, linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
-       axel@hh59.org
-Subject: Re: Linux 2.5.30: [SERIAL] build fails at 8250.c
-Message-ID: <20020803011210.A19722@flint.arm.linux.org.uk>
-References: <20020802154924.A5505@baldur.yggdrasil.com> <20020803005626.D16963@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020803005626.D16963@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Sat, Aug 03, 2002 at 12:56:26AM +0100
+	id <S317472AbSHCAMA>; Fri, 2 Aug 2002 20:12:00 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:54281 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317471AbSHCAL7>; Fri, 2 Aug 2002 20:11:59 -0400
+Date: Fri, 2 Aug 2002 21:14:52 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@zip.com.au>
+cc: Daniel Phillips <phillips@arcor.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Rmap speedup
+In-Reply-To: <3D4AE995.DFD862EF@zip.com.au>
+Message-ID: <Pine.LNX.4.44L.0208022113440.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 03, 2002 at 12:56:26AM +0100, Russell King wrote:
-> 	# Look for usages.
-> 	next unless m/LINUX_VERSION_CODE/o;
+On Fri, 2 Aug 2002, Andrew Morton wrote:
+> Daniel Phillips wrote:
+> >
+> > This patch eliminates about 35% of the raw rmap setup/teardown overhead by
+> > adopting a new locking interface that allows the add_rmaps to be batched in
+> > copy_page_range.
+>
+> Well that's fairly straightforward, thanks.  Butt-ugly though ;)
 
-It should probably look for the other two macros in linux/version.h as
-well btw, so it could be generating false negatives.
+It'd be nice if the code would be a bit more beautiful and the
+reverse mapping scheme more modular.
 
+Remember that we're planning to go to an object-based scheme
+later on, turning the code into a big monolithic mesh really
+makes long-term maintenance a pain...
+
+regards,
+
+Rik
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266078AbUA1PqB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 10:46:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266052AbUA1Pol
+	id S266055AbUA1Pk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 10:40:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266053AbUA1PkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 10:44:41 -0500
-Received: from albireo.ucw.cz ([81.27.194.19]:37763 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S266056AbUA1PlO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 10:41:14 -0500
-Date: Wed, 28 Jan 2004 16:41:12 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Jake Moilanen <moilanen@austin.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.6] PCI Scan all functions
-Message-ID: <20040128154112.GA6108@ucw.cz>
-References: <1075222501.1030.45.camel@magik>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1075222501.1030.45.camel@magik>
-User-Agent: Mutt/1.3.28i
+	Wed, 28 Jan 2004 10:40:19 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:2571 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S266052AbUA1Pjv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 10:39:51 -0500
+Date: Wed, 28 Jan 2004 23:38:56 +0800 (WST)
+From: raven@themaw.net
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Jeremy Fitzhardinge <jeremy@goop.org>, Maneesh Soni <maneesh@in.ibm.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Andrew Morton <akpm@osdl.org>,
+       Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: [PATCH 2/8] autofs4-2.6 - to support autofs 4.1.x
+Message-ID: <Pine.LNX.4.58.0401282314050.17471@raven.themaw.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.3, required 8,
+	NO_REAL_NAME, PATCH_UNIFIED_DIFF, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> There are some arch, like PPC64, that need to be able to scan all the
-> PCI functions.  The problem comes in on a logically partitioned system
-> where function 0 on a PCI-PCI bridge is assigned to one partition and
-> say function 2 is assiged to another partition.  On the second
-> partition, it would appear that function 0 does not exist, but function
-> 2 does.  If all the functions are not scanned, everything under function
-> 2 would not be detected.
+Patch:
 
-Enabling scan of all functions globally is probably going to cause troubles,
-because there are single-function devices which respond to all function
-numbers. You need to enable this quirk selectively.
+2-autofs4-2.6.0-test9-fill_super.patch
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-"God doesn't play dice."    -- Albert Einstein
+Fix memory leak in autofs4_fill_super function.
+
+diff -Nur linux-2.6.0-0.test9.expire/fs/autofs4/inode.c linux-2.6.0-0.test9.fill_super/fs/autofs4/inode.c
+--- linux-2.6.0-0.test9.expire/fs/autofs4/inode.c	2003-10-26 02:44:12.000000000 +0800
++++ linux-2.6.0-0.test9.fill_super/fs/autofs4/inode.c	2003-11-15 09:26:41.000000000 +0800
+@@ -187,6 +187,7 @@
+ 	struct file * pipe;
+ 	int pipefd;
+ 	struct autofs_sb_info *sbi;
++	struct autofs_info *ino;
+ 	int minproto, maxproto;
+ 
+ 	sbi = (struct autofs_sb_info *) kmalloc(sizeof(*sbi), GFP_KERNEL);
+@@ -212,7 +213,9 @@
+ 	/*
+ 	 * Get the root inode and dentry, but defer checking for errors.
+ 	 */
+-	root_inode = autofs4_get_inode(s, autofs4_mkroot(sbi));
++	ino = autofs4_mkroot(sbi);
++	root_inode = autofs4_get_inode(s, ino);
++	kfree(ino);
+ 	root_inode->i_op = &autofs4_root_inode_operations;
+ 	root_inode->i_fop = &autofs4_root_operations;
+ 	root = d_alloc_root(root_inode);
+

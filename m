@@ -1,144 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265759AbSKBG1f>; Sat, 2 Nov 2002 01:27:35 -0500
+	id <S265882AbSKBGag>; Sat, 2 Nov 2002 01:30:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265882AbSKBG1f>; Sat, 2 Nov 2002 01:27:35 -0500
-Received: from dp.samba.org ([66.70.73.150]:12262 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265759AbSKBG1d>;
-	Sat, 2 Nov 2002 01:27:33 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: karim@opersys.com, torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Rusty's Remarkably Unreliable List of Pending 2.6 Features 
-In-reply-to: Your message of "Fri, 01 Nov 2002 11:19:08 CDT."
-             <3DC2A97C.D50C02E4@opersys.com> 
-Date: Sat, 02 Nov 2002 17:32:54 +1100
-Message-Id: <20021102063403.5F0E52C0C3@lists.samba.org>
+	id <S265886AbSKBGaf>; Sat, 2 Nov 2002 01:30:35 -0500
+Received: from NEUROSIS.MIT.EDU ([18.243.0.82]:28646 "EHLO neurosis.mit.edu")
+	by vger.kernel.org with ESMTP id <S265882AbSKBGae>;
+	Sat, 2 Nov 2002 01:30:34 -0500
+Date: Sat, 2 Nov 2002 01:37:04 -0500
+From: Jim Paris <jim@jtan.com>
+To: linux-kernel@vger.kernel.org
+Subject: time() glitch on 2.4.18 at 177 days uptime?
+Message-ID: <20021102013704.A24684@neurosis.mit.edu>
+Reply-To: linux-kernel@vger.kernel.org, jim@jtan.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3DC2A97C.D50C02E4@opersys.com> you write:
-> 
-> Rusty Russell wrote:
-> > Removed ("vendor-driven" == "no", for purposes of the freeze)
-> >         Linux Trace Toolkit: "no"
-> 
-> I'm not sure exactly why this got a "no" this time around.
+I'm running Linux 2.4.18 on an Athlon (i386).
 
-"I don't know what this buys us" == "no" AFAICT.
+My uptime is 182 days.  About five days ago, I started noticing
+strange date effects.  It may be hardware related, but I'm also
+suspecting that it may be due to the long uptime, and so I'm hesitant
+to reboot, in case there is a bug here that needs to get fixed.
 
-You might surprise me, but it looks like Linus wants more trusted
-developers to come running to him going "LTT is really cool, we need
-it for XXX".  Of *course* you think it's great, otherwise you wouldn't
-work on it.
+The problem is with time().  Every second, for approximately 1.1ms,
+time() reports a value that is about 2^32 microseconds (4295 seconds,
+or about an hour and a quarter) in the future.  The glitches always
+occur between a change of seconds.  Look at this:
 
-> For one thing, LTT is certainly not "vendor-driven", I'm not getting
-> paid a penny for the work I'm putting in it ;)
-
-You misunderstand.  When Linus says "vendor-driven" he means what
-usually happens is that vendors pick it up then the users come back
-and convince Linus that it's worth including.
-
-> That's not really the case here. In fact, it's the complete inverse that
-> is happening with LTT: Because I'm spending so much time having to deal
-> with patch updates, I have much less time to work on the user-space
-> analysis tools.
-
-Hey, I feel your pain.  Really: the module rewrite has the same issue,
-except I doubt a vendor would pick it up since it breaks compatibility
-with standard userspace, and they have enough to worry about.
-
-I've put your patch back in, but I expect Linus will say "Rusty you
-fucking idiot, I already said "no" once."
-
-Cheers,
-Rusty.
+$ while true; do paste <( cat /proc/uptime ) <( date ) ; done | grep -A 1 -B 1 ' 02:' | head -11
+15765463.31 15455589.84	Sat Nov  2 00:59:16 EST 2002
+15765463.32 15455589.84	Sat Nov  2 02:10:51 EST 2002
+15765463.33 15455589.84	Sat Nov  2 00:59:17 EST 2002
 --
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+15765465.31 15455589.84	Sat Nov  2 00:59:18 EST 2002
+15765465.32 15455589.84	Sat Nov  2 02:10:53 EST 2002
+15765465.34 15455589.84	Sat Nov  2 00:59:19 EST 2002
+--
+15765466.30 15455589.84	Sat Nov  2 00:59:19 EST 2002
+15765466.32 15455589.84	Sat Nov  2 02:10:54 EST 2002
+15765466.33 15455589.84	Sat Nov  2 00:59:20 EST 2002
 
-Key:
-A: Author
-M: lkml posting describing patch
-D: Download URL
-S: Size of patch, number of files altered (source/config), number of new files.
-X: Impact summary (only parts of patch which alter existing source files, not config/make files)
-T: Diffstat of whole patch
-N: Random notes
+The first two values on each line are from /proc/uptime, and the rest
+is of course from "date".  This bash script runs a bit slow, which is
+why it missed the glitch between :17 and :18, but by watching time()s
+more frequently, I can definitely see that they're there.  I don't
+know for certain whether this happens at all times during the day, but
+I believe it does.  I can do some more logging to figure that out if
+necessary.
 
-In rough order of invasiveness (number of altered source files):
+I've been running ntpdate (and therefore calling do_adjtime()) every
+half hour since the system booted, in case that might affect
+something.
 
-In-kernel Module Loader and Unified parameter support
-A: Rusty Russell
-D: http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Module/
-S: 859 kbytes, 296/44 files altered, 24 new
-T: Diffstat
-X: Summary patch (609k)
-N: Requires new modutils
+This glitch does _not_ occur on a 2.2.? system on some x86 processor
+with about 256 days uptime (I unfortunately don't know any more
+details than that; I only have very limited access to that machine).
+I also don't have access to any other 2.4 systems with an uptime of
+greater than about 80 days.
 
-Nanosecond Time Patch
-A: Andi Kleen
-M: http://www.ussg.iu.edu/hypermail/linux/kernel/0210.3/0793.html
-D: ftp://ftp.firstfloor.org/pub/ak/v2.5/nsec-2.5.44-2.bz2
-S: 194 kbytes, 158/0 files altered, 0 new
-T: Diffstat
-X: Summary patch (181k)
-N: The core is tiny: putting nanoseconds into filesystems is the bulk of this patch.
+This is not a glibc bug; the erroneous values are being returned by
+the kernel.  Perhaps someone can help me track this down.  I've put my
+kernel config and relevant info from /proc at
 
-Fbdev Rewrite
-A: James Simmons
-M: http://www.uwsg.iu.edu/hypermail/linux/kernel/0111.3/1267.html
-D: http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
-S: 2320 kbytes, 131/20 files altered, 40 new
-T: Diffstat
-X: Summary patch (401k)
+    http://neurosis.mit.edu/~jim/time-glitch/
 
-Linux Trace Toolkit (LTT)
-A: Karim Yaghmour
-M: http://www.uwsg.iu.edu/hypermail/linux/kernel/0204.1/0832.html
-M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103491640202541&w=2
-M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103423004321305&w=2
-M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103247532007850&w=2
-D: http://opersys.com/ftp/pub/LTT/ExtraPatches/patch-ltt-linux-2.5.45-vanilla-021030-2.2.bz2
-S: 257 kbytes, 68/3 files altered, 9 new
-T: Diffstat
-X: Summary patch (92k)
+(and would appreciate a CC of any replies)
 
-statfs64
-A: Peter Chubb
-M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103610918825614&w=2
-D: http://marc.theaimsgroup.com/?l=linux-kernel&m=103610918825614&w=2
-S: 48 kbytes, 53/0 files altered, 2 new
-T: Diffstat
-X: Summary patch (32k)
-
-POSIX Timer API
-A: George Anzinger
-M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103553654329827&w=2
-D: http://unc.dl.sourceforge.net/sourceforge/high-res-timers/hrtimers-posix-2.5.45-1.0.patch
-S: 66 kbytes, 18/1 files altered, 4 new
-T: Diffstat
-X: Summary patch (21k)
-
-Hotplug CPU Removal Support
-A: Rusty Russell
-D: http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Hotcpu/hotcpu-cpudown.patch.gz
-S: 32 kbytes, 16/0 files altered, 0 new
-T: Diffstat
-X: Summary patch (29k)
-
-initramfs
-A: Al Viro / Jeff Garzik
-M: http://www.cs.helsinki.fi/linux/linux-kernel/2001-30/0110.html
-D: ftp://ftp.math.psu.edu/pub/viro/N0-initramfs-C21
-S: 16 kbytes, 5/1 files altered, 2 new
-T: Diffstat
-X: Summary patch (5k)
-N: Linus says he wants it.
-
-Kernel Probes
-A: Vamsi Krishna S
-M: lists.insecure.org/linux-kernel/2002/Aug/1299.html
-D: http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Misc/kprobes.patch.gz
-S: 18 kbytes, 3/3 files altered, 4 new
-T: Diffstat
-X: Summary patch (5k)
+-jim

@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316295AbSELCNm>; Sat, 11 May 2002 22:13:42 -0400
+	id <S315282AbSELC0a>; Sat, 11 May 2002 22:26:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316297AbSELCNl>; Sat, 11 May 2002 22:13:41 -0400
-Received: from mail.libertysurf.net ([213.36.80.91]:50466 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S316295AbSELCNj>; Sat, 11 May 2002 22:13:39 -0400
-Date: Sun, 12 May 2002 04:13:00 +0200 (CEST)
-From: Rui Sousa <rui.sousa@laposte.net>
-X-X-Sender: rsousa@localhost.localdomain
-To: Urban Widmark <urban@teststation.com>
-cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: Via-rhine problems (2.4.19-pre8)
-In-Reply-To: <Pine.LNX.4.33.0205111911360.18398-100000@cola.enlightnet.local>
-Message-ID: <Pine.LNX.4.44.0205120405010.1365-100000@localhost.localdomain>
+	id <S315287AbSELC03>; Sat, 11 May 2002 22:26:29 -0400
+Received: from pD9E2404B.dip.t-dialin.net ([217.226.64.75]:60998 "EHLO
+	extern.linux-systeme.org") by vger.kernel.org with ESMTP
+	id <S315282AbSELC03>; Sat, 11 May 2002 22:26:29 -0400
+Date: Sun, 12 May 2002 04:26:13 +0200 (MET DST)
+From: mcp@linux-systeme.de
+Reply-To: mcp@linux-systeme.de
+To: Pawel Kot <pkot@ziew.org>
+cc: mcp@linux-systeme.de, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] NTFS 2.0.7a for Linux 2.4.18
+Message-ID: <Pine.LNX.3.96.1020512040757.27097A-100000@fps>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 May 2002, Urban Widmark wrote:
+Hi Pawel,
 
-> On Sat, 11 May 2002, Rui Sousa wrote:
-> 
-> > kernel: eth0: reset did not complete in 10 ms.
-> > kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> > kernel: eth0: Transmit timed out, status 0000, PHY status 782d, 
-> > resetting...
-> > 
-> > Removing the ethernet cable, unloading/loading the module doesn't change a
-> > thing, only a cold reboot fixes the problem (until next time).
-> > 
-> > Is this a known problem? Any fixes?
-> 
-> The effect (the timeout) can be caused by lots of things. Here it sounds
-> like the chip has locked up (more or less) since you need a cold boot to
-> recover.
+>Backported NTFS 2.0.7 from 2.5.x to 2.4.18 is available from linux-ntfs
+>project page:
+i've tried this, have a look:
 
-Yep. The normal soft reset stops working.
+cc  -D__KERNEL__ -I/usr/src/linux-2.4.18/include  -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -Wno-unused -pipe
+-mpreferred-stack-boundary=2 -march=i686 -DMODULE
+-DNTFS_VERSION=\"2.0.7a\" -DDEBUG -DKBUILD_BASENAME=debug  -c -o debug.o
+debug.c
+debug.c: In function `__ntfs_warning':
+debug.c:58: `current' undeclared (first use in this function)
+debug.c:58: (Each undeclared identifier is reported only once
+debug.c:58: for each function it appears in.)
+debug.c:68: warning: implicit declaration of function `preempt_schedule'
+debug.c: In function `__ntfs_error':
+debug.c:98: `current' undeclared (first use in this function)
+debug.c: In function `__ntfs_debug':
+debug.c:126: `current' undeclared (first use in this function)
+make[2]: *** [debug.o] Error 1
+make[2]: Leaving directory
+`/usr/src/linux-2.4.18/fs/ntfs'
+make[1]: *** [_modsubdir_ntfs] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.18/fs'
+make: *** [_mod_fs] Error 2
 
-> Why? Well ...
-> 
-> "Ivan G" has posted recently on via-rhine problems. For him it is only
-> that the driver stalls but not the need for a full reboot (IIRC).
-> 
-> Simple things you could try is to test some other variants of the driver:
->  + Donald Becker's original
->    http://www.scyld.com/network/via-rhine.html
->  + VIAs modified version
->    http://www.viaarena.com/?PageID=71#lan
-> 
-> If either works better then the next step would be to find out why (and 
-> copy those bits).
-> 
-> The diff between the VIA version and the other is large. I started looking
-> at merging what they have done to the in-kernel driver.
-> 
-> /Urban
-> 
+Yes, 2.4.18 + preempt and some other additional stuff.
+NTFS is a Module, happs with/without selecting debug feature in kernel
+config.
 
-Jeff sent me is latest version and I'm already trying it out. I loaded it
-with full debug on to see if something interesting happens before the 
-transmit/reset timeout errors. Now I just need to wait a couple of 
-days...
+Kind regards,
+	Marc
 
-I will keep you two informed on any developments,
-
-Rui
 

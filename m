@@ -1,57 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267882AbUJLVx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267903AbUJLV60@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267882AbUJLVx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 17:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUJLVwl
+	id S267903AbUJLV60 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 17:58:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267926AbUJLV60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 17:52:41 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:50191 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S267882AbUJLVur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 17:50:47 -0400
-Subject: Re: [PATCH] Support ia32 exec domains without CONFIG_IA32_SUPPORT
-From: David Woodhouse <dwmw2@infradead.org>
-To: Arun Sharma <arun.sharma@intel.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-In-Reply-To: <416AF599.2060801@intel.com>
-References: <41643EC0.1010505@intel.com>
-	 <20041007142710.A12688@infradead.org> <4165D4C9.2040804@intel.com>
-	 <mailman.1097223239.25078@unix-os.sc.intel.com>
-	 <41671696.1060706@intel.com>
-	 <mailman.1097403036.11924@unix-os.sc.intel.com>
-	 <416AF599.2060801@intel.com>
-Content-Type: text/plain
-Date: Tue, 12 Oct 2004 22:50:24 +0100
-Message-Id: <1097617824.5178.20.camel@localhost.localdomain>
+	Tue, 12 Oct 2004 17:58:26 -0400
+Received: from waste.org ([209.173.204.2]:2788 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S267903AbUJLV6C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 17:58:02 -0400
+Date: Tue, 12 Oct 2004 16:57:32 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: netdev@oss.sgi.com,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       davem@redhat.com, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] netconsole support for b44
+Message-ID: <20041012215732.GV31237@waste.org>
+References: <416BC26B.6090603@kolivas.org> <20041012180949.GW5414@waste.org> <416C5122.9040001@kolivas.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 (2.0.1-4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <416C5122.9040001@kolivas.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-11 at 14:05 -0700, Arun Sharma wrote:
-> I've prototyped a generic userland solution that covers just open and
-> stat system calls (for completeness, all path walk related syscalls
-> need to be covered) using the LD_PRELOAD approach.
+On Wed, Oct 13, 2004 at 07:48:18AM +1000, Con Kolivas wrote:
+> Matt Mackall wrote:
+> >On Tue, Oct 12, 2004 at 09:39:23PM +1000, Con Kolivas wrote:
+> >
+> >>This patch adds poll support to the b44 driver to allow netconsole 
+> >>support. Style lifted straight from 8139too.c
+> >>
+> >>here is the dmesg output with it in place:
+> >>
+> >>netconsole: device eth0 not up yet, forcing it
+> >>netconsole: carrier detect appears flaky, waiting 10 seconds
+> >>b44: eth0: Link is down.
+> >>b44: eth0: Link is up at 100 Mbps, full duplex.
+> >>b44: eth0: Flow control is on for TX and on for RX.
+> >>netconsole: network logging started
+> >>
+> >>output confirmed by netcat on other system.
+> >>
+> >>Signed-off-by: Con Kolivas <kernel@kolivas.org>
+> >
+> >
+> >+       disable_irq(dev->irq);
+> >+       b44_interrupt (dev->irq, dev, NULL);
+> >+       enable_irq(dev->irq);
+> >
+> >Aside from this bizarre whitespace convention and neglecting to cc:
+> >me, looks good.
+> >
 > 
-> I saw a 16% degradation in system time on this benchmark:
+> sorry,sorry,thanks.
 > 
-> find /usr/src/linux -name '*.[chS]' | xargs grep fsck
-> 
-> mainly due to the doubling of the number of calls to open. Also, there
-> was a slight increase in user time as well, due to malloc/free
-> overhead.
+> Can you explain where I went wrong in the whitespace so I don't make the 
+> same mistake again? It looked pretty standard to me.
 
-The patch is entirely bogus. This isn't at all ia64-specific, and
-doesn't live in arch/ia64. It's just as applicable on _all_ systems
-where we may want to do CPU or OS emulation.
+Stray space between b44_interrupt and args. 
 
-If you make it generic so that qemu can use it for emulating i386 even
-on machines like ppc64, perhaps it would be saner.
+> Should I nudge akpm with this or will it go via another route?
+
+Jeff Garzik usually picks up net driver stuff, I think he got this one.
 
 -- 
-dwmw2
-
+Mathematics is the supreme nostalgia of our time.

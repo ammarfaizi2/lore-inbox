@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130836AbQLLNzq>; Tue, 12 Dec 2000 08:55:46 -0500
+	id <S131155AbQLLOAR>; Tue, 12 Dec 2000 09:00:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131619AbQLLNzg>; Tue, 12 Dec 2000 08:55:36 -0500
-Received: from nas1-102.kmp.club-internet.fr ([213.44.17.102]:2042 "EHLO
-	microsoft.com") by vger.kernel.org with ESMTP id <S130836AbQLLNz1>;
-	Tue, 12 Dec 2000 08:55:27 -0500
-Message-Id: <200012121319.OAA10288@microsoft.com>
+	id <S130231AbQLLOAI>; Tue, 12 Dec 2000 09:00:08 -0500
+Received: from 213-123-74-239.btconnect.com ([213.123.74.239]:13573 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S131155AbQLLN7t>;
+	Tue, 12 Dec 2000 08:59:49 -0500
+Date: Tue, 12 Dec 2000 13:31:26 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: "Mohammad A. Haque" <mhaque@haque.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: how to capture long oops w/o having second machine
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Mohammad "A. Haque" <mhaque@haque.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3A3623C6.B2499D4D@haque.net>
-Content-Type: text/plain
-X-Mailer: Evolution 0.6 (Developer Preview)
-Date: 12 Dec 2000 12:19:47 -0100
-Mime-Version: 1.0
+In-Reply-To: <200012121319.OAA10288@microsoft.com>
+Message-ID: <Pine.LNX.4.21.0012121329120.1345-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What's the best way to capture (manually or otherwise) a rather long
-> oops that scrolls off my console without having a second machine?
+On 12 Dec 2000, Xavier Bestel wrote:
+
+> > What's the best way to capture (manually or otherwise) a rather long
+> > oops that scrolls off my console without having a second machine?
+> > 
+> > I'm gonna try to compile in a framebuffer and use a high resolution and
+> > see if that'll hold it all when I get back later today.
 > 
-> I'm gonna try to compile in a framebuffer and use a high resolution and
-> see if that'll hold it all when I get back later today.
+> shift+pageup ?
 
-shift+pageup ?
+the problem with Shift-PgUP is that all the framebuffer drivers I tried
+(matrox, ati, vesa) corrupt the screen when it is used. The only way to
+use Shift-PgUp reliably I have ever seen was on vgacon. These bugs seemed
+to be there for years so I didn't even bother reporting them - I just got
+used to the idea "using fb? forget the Shift-PgUP then".
 
-Xav
+Regards,
+Tigran
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318269AbSIBM0e>; Mon, 2 Sep 2002 08:26:34 -0400
+	id <S318211AbSIBMYo>; Mon, 2 Sep 2002 08:24:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318282AbSIBM0e>; Mon, 2 Sep 2002 08:26:34 -0400
-Received: from pc-80-195-6-65-ed.blueyonder.co.uk ([80.195.6.65]:55937 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S318269AbSIBM0b>; Mon, 2 Sep 2002 08:26:31 -0400
-Date: Mon, 2 Sep 2002 13:30:26 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Jani Monoses <jani@iv.ro>, linux-kernel@vger.kernel.org,
-       Stephen Tweedie <sct@redhat.com>
-Subject: Re: [PATCH] 2.5.32 : u.ext3_sb -> generic_sbp
-Message-ID: <20020902133026.A4105@redhat.com>
-References: <Pine.LNX.4.21.0001010429580.1200-100000@localhost.localdomain> <3D6FC178.CC3E89CD@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D6FC178.CC3E89CD@zip.com.au>; from akpm@zip.com.au on Fri, Aug 30, 2002 at 12:03:20PM -0700
+	id <S318219AbSIBMYo>; Mon, 2 Sep 2002 08:24:44 -0400
+Received: from alpham.uni-mb.si ([164.8.1.101]:3823 "EHLO alpham.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S318211AbSIBMYn>;
+	Mon, 2 Sep 2002 08:24:43 -0400
+Date: Mon, 02 Sep 2002 14:23:10 +0200
+From: CAMTP guest <camtp.guest@uni-mb.si>
+Subject: aic7xxx sets CDR offline, how to reset?
+To: linux-kernel@vger.kernel.org
+Message-id: <15731.22574.493121.798425@proizd.camtp.uni-mb.si>
+MIME-version: 1.0
+X-Mailer: VM 6.97 under Emacs 20.7.2
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I'm running 2.4.19, using AIC7XXX 6.2.8.
+SCSI devices are 0:0:0 hard disk and 0:6:0 CDR.
+During CD burning, errors sometimes occur and aic7xxx driver
+sets the CDR offline. Is there a way to reset the device and
+set it online again _without_rebooting_ ?
 
-On Fri, Aug 30, 2002 at 12:03:20PM -0700, Andrew Morton wrote:
+I tried different utilities from "scsitools" and "sg3-utils"
+packages (also sg_reset) without any luck. Any suggestion?
 
-> > This turns the remaining parts of ext3 to EXT3_SB and turns the latter
-> > from a macro to inline function which returns the generic_sbp field of u.
- 
-> It's not going to make the merge of all Stephen's 2.4 changes
-> any more fun though ;)
+Boot:
 
-For the major new changes in ext3, I think I'll end up bringing back a
-lot of the 2.5 changes into a 2.4 branch.  Beyond a certain point,
-though, I'll probably have to start basing new ext3 work on 2.5 ---
-the BKL mitigation, in particular, is going to depend on the locking
-regime which is substantially different in 2.5.  
+Aug 31 22:48:51 jerolim kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.8
+Aug 31 22:48:51 jerolim kernel:         <Adaptec aic7896/97 Ultra2 SCSI adapter>
+Aug 31 22:48:51 jerolim kernel:         aic7896/97: Ultra2 Wide Channel A, SCSI Id=7, 32/253 SCBs
+Aug 31 22:48:51 jerolim kernel:   Vendor: IBM       Model: DNES-309170W      Rev: SA30
+Aug 31 22:48:51 jerolim kernel:   Type:   Direct-Access                      ANSI SCSI revision: 03
+Aug 31 22:48:51 jerolim kernel:   Vendor: SONY      Model: CD-R   CDU948S    Rev: 1.0j
+Aug 31 22:48:51 jerolim kernel:   Type:   CD-ROM                             ANSI SCSI revision: 02
+Aug 31 22:48:51 jerolim kernel: scsi0:A:0:0: Tagged Queuing enabled.  Depth 8
 
-My current codebase should help BKL in both 2.4 and 2.5 simply because
-it substantially reduces the amount of work we're doing in the core,
-without actually changing the locking, but eliminating BKL entirely in
-larger chunks of the code will have to be the next stage.
+SCSI abort, CDR offline:
 
---Stephen
+Sep  2 11:26:26 jerolim kernel: DevQ(0:0:0): 0 waiting
+Sep  2 11:26:26 jerolim kernel: DevQ(0:6:0): 0 waiting
+Sep  2 11:26:26 jerolim kernel: (scsi0:A:6:0): Queuing a recovery SCB
+Sep  2 11:26:26 jerolim kernel: scsi0:0:6:0: Device is disconnected, re-queuing SCB
+Sep  2 11:26:26 jerolim kernel: Recovery code sleeping
+Sep  2 11:26:26 jerolim kernel: (scsi0:A:6:0): Abort Message Sent
+Sep  2 11:26:26 jerolim kernel: Recovery code awake
+Sep  2 11:26:26 jerolim kernel: Timer Expired
+Sep  2 11:26:26 jerolim kernel: aic7xxx_abort returns 0x2003
+Sep  2 11:26:26 jerolim kernel: scsi0:0:6:0: Attempting to queue a TARGET RESET message
+Sep  2 11:26:26 jerolim kernel: aic7xxx_dev_reset returns 0x2003
+Sep  2 11:26:26 jerolim kernel: Recovery SCB completes
+Sep  2 11:26:26 jerolim kernel: scsi: device set offline - not ready or command retry failed after bus reset: host 0 channel 0 id 6 lun 0
+Sep  2 11:26:26 jerolim kernel: SCSI cdrom error : host 0 channel 0 id 6 lun 0 return code = 10000
+
+-Igor Mozetic

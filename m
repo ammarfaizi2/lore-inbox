@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268089AbUH1Vnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268117AbUH1Vqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268089AbUH1Vnb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 17:43:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268052AbUH1VmK
+	id S268117AbUH1Vqo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 17:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268052AbUH1Vpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 17:42:10 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:51599 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S268089AbUH1VlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 17:41:11 -0400
-Message-ID: <4130FBF8.8070005@namesys.com>
-Date: Sat, 28 Aug 2004 14:41:12 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Christoph Hellwig <hch@lst.de>, flx@msu.ru,
-       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: reiser4 plugins
-References: <20040826014542.4bfe7cc3.akpm@osdl.org> <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de> <20040828105929.GB6746@alias> <Pine.LNX.4.58.0408281011280.2295@ppc970.osdl.org> <20040828190350.GA14152@alias> <20040828190901.GA18083@lst.de>
-In-Reply-To: <20040828190901.GA18083@lst.de>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Aug 2004 17:45:54 -0400
+Received: from waste.org ([209.173.204.2]:43406 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S268113AbUH1VoK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 17:44:10 -0400
+Date: Sat, 28 Aug 2004 16:43:57 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Adrian Bunk <bunk@fs.tum.de>, mrmacman_g4@mac.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch][1/3] ipc/ BUG -> BUG_ON conversions
+Message-ID: <20040828214357.GN5414@waste.org>
+References: <20040828151137.GA12772@fs.tum.de> <20040828151544.GB12772@fs.tum.de> <098EB4E1-F90C-11D8-A7C9-000393ACC76E@mac.com> <20040828162633.GG12772@fs.tum.de> <20040828125816.206ef7fa.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040828125816.206ef7fa.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think it is reasonable to make the -nopseudos (turns off the metafiles 
-) mount option mandatory, until the bugs are resolved.
+On Sat, Aug 28, 2004 at 12:58:16PM -0700, Andrew Morton wrote:
+> Adrian Bunk <bunk@fs.tum.de> wrote:
+> >
+> >  > Anything you put in BUG_ON() must *NOT* have side effects.
+> >  >...
+> > 
+> >  I'd have said exactly the same some time ago, but I was convinced by 
+> >  Arjan that if done correctly, a BUG_ON() with side effects is possible  
+> >  with no extra cost even if you want to make BUG configurably do nothing.
+> 
+> Nevertheless, I think I'd prefer that we not move code which has
+> side-effects into BUG_ONs.  For some reason it seems neater that way.
+> 
+> Plus one would like to be able to do
+> 
+> 	BUG_ON(strlen(str) > 22);
+> 
+> and have strlen() not be evaluated if BUG_ON is disabled.
 
-Our testing did not find these metafile/VFS bugs because of the reason 
-for all our bugs, we screwed up. 
+Well, strlen doesn't actually have a side effect, so it could be
+marked pure and then be optimized away.
 
-There is a distinct difference between some persons and I, which is that 
-some think all of reiser4 should be excluded until metafiles are 
-implemented by VFS some long time from now, and I, in that I merely 
-think buggy optional features should be turned off until they are 
-fixed.  I, being renowned for my paranoia and asininity as I am, think 
-these persons find it convenient as an excuse to keep us from competing, 
-and I think that if we were slower there would be less hassle every time 
-we try to get into the kernel. 
+I'll push configurable BUG_ON support from -tiny to you shortly so
+this will stop being theoretical.
 
-While reiser4 has some significant roughnesses remaining in its 
-performance, I think the average user would find it performs better than 
-other filesystems, and is stable enough for, say, a laptop, and I 
-predict that by the time we have it stable enough for mission critical 
-servers, all the roughness in various important corner cases will be 
-gone.  
-
-Persons benchmarking it with tarballs, please be sure to use tarballs 
-created on reiser4, not ext2 tarballs, readdir order matters a lot for 
-sorted directory filesystems.
-
-Hans
+-- 
+Mathematics is the supreme nostalgia of our time.

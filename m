@@ -1,44 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316849AbSGLUgU>; Fri, 12 Jul 2002 16:36:20 -0400
+	id <S317788AbSGLUi5>; Fri, 12 Jul 2002 16:38:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317007AbSGLUgT>; Fri, 12 Jul 2002 16:36:19 -0400
-Received: from pD9E235D3.dip.t-dialin.net ([217.226.53.211]:43654 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316849AbSGLUgS>; Fri, 12 Jul 2002 16:36:18 -0400
-Date: Fri, 12 Jul 2002 14:38:09 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Thunder from the hill <thunder@ngforever.de>
-cc: Joerg Schilling <schilling@fokus.gmd.de>, <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <Pine.LNX.4.44.0207121356130.3421-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44.0207121436420.3421-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam; Germany
+	id <S317959AbSGLUi4>; Fri, 12 Jul 2002 16:38:56 -0400
+Received: from waste.org ([209.173.204.2]:20868 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S317788AbSGLUiu>;
+	Fri, 12 Jul 2002 16:38:50 -0400
+Date: Fri, 12 Jul 2002 15:41:23 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Daniel Phillips <phillips@arcor.de>
+cc: Dave Jones <davej@suse.de>, Jesse Barnes <jbarnes@sgi.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: spinlock assertion macros
+In-Reply-To: <E17Szx2-0002es-00@starship>
+Message-ID: <Pine.LNX.4.44.0207121533590.15441-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 12 Jul 2002, Daniel Phillips wrote:
 
-BTW, a famous quote about this issue (accessing IDE devices over a SCSI 
-layer):
+> On Friday 12 July 2002 14:07, Dave Jones wrote:
+> > On Thu, Jul 11, 2002 at 09:17:44PM +0200, Daniel Phillips wrote:
+> >  > On Thursday 11 July 2002 20:03, Jesse Barnes wrote:
+> >  > > How about this?
+> >  >
+> >  > It looks good, the obvious thing we don't get is what the actual lock
+> >  > count is, and actually, we don't care because we know what it is in
+> >  > this case.
+> >
+> > Something I've been meaning to hack up for a while is some spinlock
+> > debugging code that adds a FUNCTION_SLEEPS() to (ta-da) functions that
+> > may sleep.
+>
+> Yesss.  May I suggest simply SLEEPS()?  (Chances are, we know it's a
+> function.)
+>
+> > This macro then checks whether we're currently holding any
+> > locks, and if so printk's the names of locks held, and where they were taken.
+>
+> And then oopes?
+>
+> > When I came up with the idea[1] I envisioned some linked-lists frobbing,
+> > but in more recent times, we can now check the preempt_count for a
+> > quick-n-dirty implementation (without the additional info of which locks
+> > we hold, lock-taker, etc).
+>
+> Spin_lock just has to store the address/location of the lock in a
+> per-cpu vector, and the assert prints that out when it oopses.  Such
+> bugs won't live too long under those conditions.
 
-> Hardware is different.
-> You can paint a goose yellow and call it a duck, but it is still a goose.
-> The electrical/electronic interface will kill you!
-						-- Andre Hedrick
+Store it in the task struct, and store a pointer to the previous (outer
+lock) in that lock, then you've got a linked list of locks per task - very
+useful. You'll need a helper function - current() is hard to get at from
+spinlock.h due to tangled dependencies. As I mentioned before, it can also
+be very handy to stash the address of the code that took the lock in the
+lock itself.
 
-							Regards,
-							Thunder
+> Any idea how one might implement NEVER_SLEEPS()?  Maybe as:
+>
+>    NEVER_ [code goes here] _SLEEPS
+>
+> which inc/dec the preeempt count, triggering a BUG in schedule().
+
+NEVER_SLEEPS will only trigger on the rare events that blow up anyway,
+while the MAY_SLEEP version catches _potential_ problems even when the
+fatal sleep doesn't happen.
+
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290063AbSAYCh7>; Thu, 24 Jan 2002 21:37:59 -0500
+	id <S290518AbSAYCpT>; Thu, 24 Jan 2002 21:45:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290509AbSAYCht>; Thu, 24 Jan 2002 21:37:49 -0500
-Received: from [216.70.178.182] ([216.70.178.182]:7042 "EHLO mail.xinetd.com")
-	by vger.kernel.org with ESMTP id <S290063AbSAYChd>;
-	Thu, 24 Jan 2002 21:37:33 -0500
-Date: Thu, 24 Jan 2002 18:37:31 -0800 (PST)
-From: Glendon Gross <gross@xinetd.com>
-To: linux-kernel@vger.kernel.org
-Subject: Swap problems with 2.5.2B
-Message-ID: <Pine.LNX.4.21.0201241835590.5104-100000@mail.xinetd.com>
+	id <S290516AbSAYCpJ>; Thu, 24 Jan 2002 21:45:09 -0500
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:56074 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S290521AbSAYCo6>;
+	Thu, 24 Jan 2002 21:44:58 -0500
+Date: Thu, 24 Jan 2002 21:15:45 -0500 (EST)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: <fdavis@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+cc: <fdavis@si.rr.com>, <torvalds@transmeta.com>
+Subject: [PATCH] 2.5.3-pre5: drivers/ieee1394/video1394.c
+Message-ID: <Pine.LNX.4.33.0201242111570.7307-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all,
+  This patch below updates video1394.c with the updated remap_page_range() 
+function. Please review for inclusion. It's against 2.5.3-pre5
+Regards,
+Frank
+
+--- drivers/ieee1394/video1394.c.old	Thu Jan 24 20:42:11 2002
++++ drivers/ieee1394/video1394.c	Thu Jan 24 21:07:04 2002
+@@ -844,7 +844,7 @@
+ 	reg_write(ohci, OHCI1394_IsoXmitIntMaskSet, 1<<d->ctx);
+ }
  
-I've been running 2.5.2 for a couple of days, with the low-latency patch.
-Is there a patch available to fix the problem with swap?  See below:
-
-Script started on Thu Jan 24 18:35:22 2002
-root@mail:~ > uname -a
-Linux mail 2.5.2 #18 SMP Wed Jan 23 22:05:39 PST 2002 i686 unknown
-root@mail:~ > free
-             total       used       free     shared    buffers     cached
-Mem:        189752     184540       5212          0      19224     100060
--/+ buffers/cache:      65256     124496
-Swap:            0          0          0
-root@mail:~ > fdisk /dev/hdb
-
-The number of cylinders for this disk is set to 1247.
-There is nothing wrong with that, but this is larger than 1024,
-and could in certain setups cause problems with:
-1) software that runs at boot time (e.g., LILO)
-2) booting and partitioning software from other OSs
-   (e.g., DOS FDISK, OS/2 FDISK)
-
-Command (m for help): p
-
-Disk /dev/hdb: 255 heads, 63 sectors, 1247 cylinders
-Units = cylinders of 16065 * 512 bytes
-
-   Device Boot    Start       End    Blocks   Id  System
-/dev/hdb1             1         3     24066   83  Linux
-/dev/hdb2             4        20    136552+  82  Linux swap
-/dev/hdb3            21      1247   9855877+  83  Linux
-
-Command (m for help): q
-
-root@mail:~ > swapon /dev/hdb2
-swapon: /dev/hdb2: No such file or directory
-root@mail:~ > exit
-
-Script done on Thu Jan 24 18:35:41 2002
+-static int do_iso_mmap(struct ti_ohci *ohci, struct dma_iso_ctx *d, 
++static int do_iso_mmap(struct vm_area_struct *vma, struct ti_ohci *ohci, struct dma_iso_ctx *d, 
+ 		       const char *adr, unsigned long size)
+ {
+         unsigned long start=(unsigned long) adr;
+@@ -865,7 +865,7 @@
+         pos=(unsigned long) d->buf;
+         while (size > 0) {
+                 page = kvirt_to_pa(pos);
+-                if (remap_page_range(start, page, PAGE_SIZE, PAGE_SHARED))
++                if (remap_page_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
+                         return -EAGAIN;
+                 start+=PAGE_SIZE;
+                 pos+=PAGE_SIZE;
+ 
 

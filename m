@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262909AbVAKWm4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262923AbVAKWo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262909AbVAKWm4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 17:42:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbVAKWm4
+	id S262923AbVAKWo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 17:44:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbVAKWn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 17:42:56 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:41153 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262909AbVAKWhF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 17:37:05 -0500
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-From: utz lehmann <lkml@s2y4n2c.de>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Matt Mackall <mpm@selenic.com>, Lee Revell <rlrevell@joe-job.com>,
-       "Jack O'Quin" <joq@io.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, paul@linuxaudiosystems.com,
-       arjanv@redhat.com, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
+	Tue, 11 Jan 2005 17:43:28 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:38634 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262923AbVAKWmo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 17:42:44 -0500
+Date: Tue, 11 Jan 2005 14:41:30 -0800
+From: Greg KH <greg@kroah.com>
+To: Jonas Munsin <jmunsin@iki.fi>, Jean Delvare <khali@linux-fr.org>,
+       pioppo@ferrara.linux.it, sensors@Stimpy.netroedge.com, djg@pdp8.net,
        LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050111142142.Q10567@build.pdx.osdl.net>
-References: <20050110212019.GG2995@waste.org>
-	 <87d5wc9gx1.fsf@sulphur.joq.us> <20050111195010.GU2940@waste.org>
-	 <871xcr3fjc.fsf@sulphur.joq.us> <20050111200549.GW2940@waste.org>
-	 <1105475349.4295.21.camel@krustophenia.net>
-	 <20050111124707.J10567@build.pdx.osdl.net>
-	 <20050111212823.GX2940@waste.org>
-	 <20050111134251.O10567@build.pdx.osdl.net>
-	 <20050111221618.GA2940@waste.org>
-	 <20050111142142.Q10567@build.pdx.osdl.net>
-Content-Type: text/plain
-Date: Tue, 11 Jan 2005 23:36:51 +0100
-Message-Id: <1105483011.4692.55.camel@segv.aura.of.mankind>
+Subject: Re: 2.6.10-mm2: it87 sensor driver stops CPU fan
+Message-ID: <20050111224130.GA19173@kroah.com>
+References: <200501102341.44949.pioppo@ferrara.linux.it> <YN0o4rkI.1105435582.0805630.khali@localhost> <20050111202437.GA2914@nemo.sby.abo.fi>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a3828f1c4d839cf12e8a3b808f7ed34
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050111202437.GA2914@nemo.sby.abo.fi>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-11 at 14:21 -0800, Chris Wright wrote:
-> * Matt Mackall (mpm@selenic.com) wrote:
-> > On Tue, Jan 11, 2005 at 01:42:51PM -0800, Chris Wright wrote:
-
-> > Also, tying to UIDs rather than (UID, executable) is worrisome as
-> > random_game_with_audio in Gnome might decide it needs RT, much to the
-> > admin's surprise.
+On Tue, Jan 11, 2005 at 10:24:38PM +0200, Jonas Munsin wrote:
+> On Tue, Jan 11, 2005 at 10:26:22AM +0100, Jean Delvare wrote:
+> > 1* Jonas, please send a modified version of your original patch to Greg.
+> > The only difference would be that you wouldn't force on/off mode to be
+> > on at driver load time. Instead, disabling PWM for one fan control
+> > output (echo 0 > pwmN_enable) would both set on/off mode to on for that
+> > output (new) and turn that output to on/off mode (same as before).
 > 
-> Hmm, well, the pam_limit approach has that problem.
+> Ok, thanks for doing the thinking ;), here is the modified patch
+> (it87.c_2.6.10-jm3-corrected_manual_pwm_20050111.diff). In addition to
+> the above change, it also refreshes fan_main_ctrl in the update routine,
+> as suggested by Jean on IRC.
+> 
+>  - adds manual PWM
+>  - removes buggy "reset" module parameter
+>  - fixes some whitespaces
 
-selinux?
+Applied, thanks.
 
-
+greg k-h

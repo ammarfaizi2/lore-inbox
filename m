@@ -1,38 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316674AbSHXUVx>; Sat, 24 Aug 2002 16:21:53 -0400
+	id <S316683AbSHXU0W>; Sat, 24 Aug 2002 16:26:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316675AbSHXUVw>; Sat, 24 Aug 2002 16:21:52 -0400
-Received: from keen.esi.ac.at ([193.170.117.2]:37898 "EHLO keen.esi.ac.at")
-	by vger.kernel.org with ESMTP id <S316674AbSHXUVw>;
-	Sat, 24 Aug 2002 16:21:52 -0400
-Date: Sat, 24 Aug 2002 22:26:04 +0200 (CEST)
-From: Gerald Teschl <gerald@esi.ac.at>
-To: linux-kernel@vger.kernel.org
-Subject: ad1848 causes infinite loop in 2.4.19 
-Message-ID: <Pine.LNX.4.44.0208242219360.28661-100000@keen.esi.ac.at>
+	id <S316684AbSHXU0W>; Sat, 24 Aug 2002 16:26:22 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:28426
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S316683AbSHXU0V>; Sat, 24 Aug 2002 16:26:21 -0400
+Date: Sat, 24 Aug 2002 13:28:57 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: IDE-flash device and hard disk on same controller
+In-Reply-To: <20020824094125.A30109@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10208241325220.20141-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I have an opl3sa4 sound card which requires the opl2sa2 and
-ad1848 modules.
+Please respect the wish of those other two guys who asked to be removed
+from the thread.
 
-When I try to lood this module it fails to auto-configure the sound card 
-(which is a known problem and for which I have submitted patches). But 
-then it runs trough the init setup in an infinite loop blocking the 
-kernel. In particular it prints
+Russell look at what T13 did.  It gave CFA/PCMCIA there own set of opcodes
+and rules.  Meaning they can do it different.  What is so hard to see that
+they do it different and they have the resouces to do so.
 
-ad1848: OPL3-SA2 WSS mode ad1848 config failed (out of resources?)[-2]
+It means, gee we need to go resolve the pcmcia issues in native calls.
 
-over and over on the console. This did not happen with 2.4.18.
+On Sat, 24 Aug 2002, Russell King wrote:
 
-Gerald
+> I notice everyone decided to miss replying to my mail about PCMCIA
+> IDE devices, which will trip you up here.  Could it be because I've
+> identified a real problem here?
+> 
+> - You plug the IDE device in.
+> - Power gets applied.
+> - cardmgr loads ide_cs.
+> - cardmgr binds ide_cs, which registers with the IDE layer.
+> 
+> The above happens in 10s of milliseconds, well before the hard drive
+> platters have been spun up.  Meanwhile, as defined by the T13 specs,
+> the BSY bit can be set for up to 31 seconds.
+> 
+> You're saying "completely unknown state".  I say "T13 defines this
+> state extremely well, and defines what happens from the drives point
+> of view at the end of the power on reset sequence extremely well."
+> 
+> I also say that your implementation above is, in andrespeak, a "bad
+> host" because it doesn't follow the T13 power on reset sequence
+> properly.
+> 
+> And yes, people _do_ use PCMCIA IDE drives with Linux.
+> 
+> -- 
+> Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+>              http://www.arm.linux.org.uk/personal/aboutme.html
+> 
 
-PS: My fix for the isapnp activation of the opl3sa4 card did not
-show up in the 2.4.19 kernel (with my patch the above problem
-will not occure). How do I find out the current status of my
-patches. Should I resubmit them? 
+Andre Hedrick
+LAD Storage Consulting Group
 

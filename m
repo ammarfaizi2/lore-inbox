@@ -1,89 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263354AbUJ2PnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263401AbUJ2QOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263354AbUJ2PnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 11:43:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbUJ2PkV
+	id S263401AbUJ2QOM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 12:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263409AbUJ2QMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 11:40:21 -0400
-Received: from dsl254-100-205.nyc1.dsl.speakeasy.net ([216.254.100.205]:28144
-	"EHLO memeplex.com") by vger.kernel.org with ESMTP id S263358AbUJ2PWP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 11:22:15 -0400
-From: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RESEND: Consistent lock up 2.6.8-1.521 (and 2.6.8.1 w/ high-res-timers/skas/sysemu)
-Date: Fri, 29 Oct 2004 11:22:01 -0400
-Message-ID: <NFBBICMEBHKIKEFBPLMCKEEDJGAA.aathan-linux-kernel-1542@cloakmail.com>
+	Fri, 29 Oct 2004 12:12:05 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:12299 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S263440AbUJ2QGY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 12:06:24 -0400
+Message-ID: <41826A7E.6020801@domdv.de>
+Date: Fri, 29 Oct 2004 18:06:22 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040918
+X-Accept-Language: en-us, en, de
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Linus Torvalds <torvalds@osdl.org>
+CC: linux-os@analogic.com, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Richard Henderson <rth@redhat.com>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>, Jan Hubicka <jh@suse.cz>
+Subject: Re: Semaphore assembly-code bug
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>  <417550FB.8020404@drdos.com>  <1098218286.8675.82.camel@mentorng.gurulabs.com>  <41757478.4090402@drdos.com>  <20041020034524.GD10638@michonline.com>  <1098245904.23628.84.camel@krustophenia.net> <1098247307.23628.91.camel@krustophenia.net> <Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com> <Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com> <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <200410051317.48071.jstubbs@work-at.co.jp>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is being resent because it was never forwarded by majordomo, it is superceded by "RE: Consistent lock up 2.6.10-rc1-bk7
-(mutex/SCHED_RR bug)" sent minutes ago, which *was* forwarded by majordomo.  I have shortened the message considerably by including
-links for, rather than quoting the sysrq-t output (didn't realize the original was 552k!)
+Linus Torvalds wrote:
+> 
+> On Fri, 29 Oct 2004, linux-os wrote:
+> 
+>>Linus, please check this out.
+> 
+> 
+> Yes, I concur. However, I'd suggest changing the "addl $4,%esp" into a 
+> "popl %ecx", which is smaller and apparently faster on some CPU's (ecx 
+> obviously gets immediately overwritten by the next popl).
 
------
-Caveat:  This may be an infinite loop in a SCHED_RR process.  See very bottom of email for sysrq-t sysrq-p output.
+Hmm, I didn't check the instruction length but modern CPUs usually work 
+best with the following:
 
+leal 4(%esp),%esp
 
-
-I have in the past posted emails with the subject "Consistent kernel hang during heavy TCP connection handling load"  I then
-recently saw a linux-kernel thread "PROBLEM: Consistent lock up on >=2.6.8" that seemed to be related to the problem I am
-experiencing, but I am not sure of it (thus the cc:).
-
-I have, however, now managed to formulate a series of steps which reproduce my particular lock up consistently.  When I trigger the
-hang, all virtual consoles become unresponsive, and the application cannot be signaled from the keyboard.  Sysrq seems to work.
-
-The application in question is called "tt1".  It runs several threads in SCHED_RR and uses select(), sleep() and/or nanosleep()
-extensively.  I suspect there's a good chance the application calls select() with nfds=0 at some point.
-
-Due to the SCHED_RR usage in tt1, before executing the tt1 hang, I have tried to log into a virtual console on the host and run
-"nice -20 bash" as root.  THe nice'd shell is hung just like everything else.
-
-Did I do it right?  I was trying to make sure this hang is not simply an infinite loop in a SCHED_RR high priority process (tt1).
-
-I initially had a lot of trouble trying to capture sysrq output, but then I checked my netlog host and found (lo and behold) that it
-had captured it!  Of course, that was before I went through the trouble of taking pictures of my monitor! I've included the netlog
-sysrq output from two runs below.  They are at the very bottom of this email, separated by lines of '*'s  These runs are probably
-DIFFERENT than the runs from which I produced the below screenshots.
-
-So, here are those screenshots, I still welcome any comments you might have about easier ways to capture sysrq output than using
-netdump!
-
-I modified /etc/syslog.conf to say kern.* /var/log/kernel, however, output of sysrq-t and sysrq-p while in the locked up state never
-ends up in the file (though, it does, when not locked up).
-
-
-sysrq-t --> http://www.memeplex.com/lock1.gif, http://www.memeplex.com/lock2.gif
-
-sysrq-p --> http://www.memeplex.com/lock3.gif
-
-Kernel symbols for above are at  http://www.memeplex.com/System.map-2.6.8-1.521.gz
-
-sysrq-t --> http://www.memeplex.com/lock4.gif
-
-sysrq-p --> http://www.memeplex.com/lock5.gif
-
-Kernel symbols for above are at http://www.memeplex.com/System.map-2.6.8-1.521.gz and
-
-A.
-
-***********************************************************
-
-http://www.memeplex.com/sysrq1.txt.gz
-
-
-***************************************************************************************
-
-http://www.memeplex.com/sysrq2.txt.gz
-
-
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

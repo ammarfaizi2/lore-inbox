@@ -1,164 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261441AbUBYUfi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 15:35:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbUBYUfi
+	id S261431AbUBYUj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 15:39:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbUBYUj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 15:35:38 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:10337 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261441AbUBYUfE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 15:35:04 -0500
-Date: Wed, 25 Feb 2004 22:36:59 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Brian King <brking@us.ibm.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Question on MODULE_VERSION macro
-Message-ID: <20040225213659.GA9985@mars.ravnborg.org>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	Sam Ravnborg <sam@ravnborg.org>, Brian King <brking@us.ibm.com>,
-	akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <20040223211718.GA7610@mars.ravnborg.org> <20040224110724.0FA0D2C0CE@lists.samba.org>
+	Wed, 25 Feb 2004 15:39:56 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:15315 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S261431AbUBYUjx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 15:39:53 -0500
+Date: Wed, 25 Feb 2004 21:39:32 +0100
+From: Christophe Saout <christophe@saout.de>
+To: Jean-Luc Cooke <jlcooke@certainkey.com>
+Cc: Andrew Morton <akpm@osdl.org>, jmorris@intercode.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: cryptoapi highmem bug
+Message-ID: <20040225203920.GA1816@leto.cs.pocnet.net>
+References: <1077655754.14858.0.camel@leto.cs.pocnet.net> <20040224223425.GA32286@certainkey.com> <1077663682.6493.1.camel@leto.cs.pocnet.net> <20040225043209.GA1179@certainkey.com> <20040224220030.13160197.akpm@osdl.org> <20040225153126.GA7395@leto.cs.pocnet.net> <20040225155121.GA7148@leto.cs.pocnet.net> <20040225154453.GB4218@certainkey.com> <20040225181540.GB8983@leto.cs.pocnet.net> <20040225201216.GA6799@certainkey.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040224110724.0FA0D2C0CE@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040225201216.GA6799@certainkey.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rusty.
+On Wed, Feb 25, 2004 at 03:12:16PM -0500, Jean-Luc Cooke wrote:
 
-I have not yet fully understood why you want to parse every source file.
-I can see in the implemntation that you only calculate the sum of
-code-lines, and not comments.
-But why do we want to add this complexity - compared to just
-calculating the sum of the whole file?
-If the calculated sum is being presented as based on the source code
-I assume people can understand that the sum does not match even after
-updating a comment.
+> Here is the scatterlist+"Le Patch de Christophe":
+>   http://jlcooke.ca/lkml/cryptowalk_christophe_25feb2004.patch
 
-The current implementation fails to locate include files in the local
-directory when compiled using "make O=...".
-This is due to the fact that some files are present in the _deps
-file with full path, others with relative path.
+Andrew hat another idea that would be even shorter. I don't know if
+it's much cleaner though. Trying to implement it.
 
-Example:
-  /home/sam/bk/v2.6/drivers/scsi/aic7xxx/aiclib.h \
-  /home/sam/bk/v2.6/drivers/scsi/aic7xxx/aic7xxx.h \
-    $(wildcard include/config/used.h) \
-  drivers/scsi/aic7xxx/aic7xxx_reg.h \
-  /home/sam/bk/v2.6/drivers/scsi/aic7xxx/aic7xxx_inline.h \
+> Reguarding dm-crypt:
+>  I didn't get a response back when suggesting we store IV and MAC info for
+>  each block.
 
+Yes, sorry, it's on my todo list (but I kept pushing it back because
+explaining the problems in detail would have taken a lot of time). ;)
 
-I took a quick look and cannot explain why gcc spits out include files
-with different paths.
+>  Can we do this?
 
-My next question. Since we only parse a subset of the headers, is it
-really needed to parse any of them?
-My thinking is that we should either:
-a) parse all header files (except those marked with $(wildcard))
-b) parse no header files.
+It's very non-trivial. Think about journalling filesystems, write
+ordering and atomicity. If the system crashes between two write
+operations we must be able to still correctly read the data. And
+write to these "crypto info blocks" should be done in a ways that
+doesn't kill performance. Do you have a proposal?
 
-See also a few specific comments below.
+It would make dm-crypt *a lot more* complicated. We need caches
+for the info blocks, etc...
 
-	Sam
+>  Can I do this?  Where's the source, in
+>  2.3.6-main?
 
-> +/* We have dir/file.o.  Open dir/.file.o.cmd, look for deps_ line to
-> + * figure out source file. */
-> +static int parse_source_files(const char *objfile, struct md4_ctx *md)
-> +{
-> +	char *cmd, *file, *p, *end;
-> +	const char *base;
-> +	unsigned long flen;
-> +	int dirlen, ret = 0;
-> +
-> +	cmd = malloc(strlen(objfile) + sizeof("..cmd"));
-
-You miss a "+ 1" to count for trailing '\0'.
-
-> +
-> +	base = strrchr(objfile, '/');
-> +	if (base) {
-> +		base++;
-> +		dirlen = base - objfile;
-> +		sprintf(cmd, "%.*s.%s.cmd", dirlen, objfile, base);
-> +	} else {
-> +		dirlen = 0;
-> +		sprintf(cmd, ".%s.cmd", objfile);
-> +	}
-> +
-> +	file = grab_file(cmd, &flen);
-> +	if (!file) {
-> +		fprintf(stderr, "Warning: could not find %s for %s\n",
-> +			cmd, objfile);
-> +		goto out;
-> +	}
-> +
-> +	/* There will be a line like so:
-> +		deps_drivers/net/dummy.o := \
-> +		  drivers/net/dummy.c \
-> +		    $(wildcard include/config/net/fastroute.h) \
-> +		  include/linux/config.h \
-> +		    $(wildcard include/config/h.h) \
-> +		  include/linux/module.h \
-> +
-> +	   Sum all files in the same dir or subdirs.
-> +	*/
-> +	/* Strictly illegal: file is not nul terminated. */
-> +	p = strstr(file, "\ndeps_");
-> +	if (!p) {
-> +		fprintf(stderr, "Warning: could not find deps_ line in %s\n",
-> +			cmd);
-> +		goto out_file;
-> +	}
-> +	p = strstr(p, ":=");
-> +	if (!p) {
-> +		fprintf(stderr, "Warning: could not find := line in %s\n",
-> +			cmd);
-> +		goto out_file;
-> +	}
-> +	p += strlen(":=");
-> +	p += strspn(p, " \\\n");
-> +
-> +	end = strstr(p, "\n\n");
-> +	if (!end) {
-> +		fprintf(stderr, "Warning: could not find end line in %s\n",
-> +			cmd);
-> +		goto out_file;
-> +	}
-> +
-> +	while (p < end) {
-> +		unsigned int len;
-> +
-> +		len = strcspn(p, " \\\n");
-> +		if (memcmp(objfile, p, dirlen) == 0) {
-> +			char source[len + 1];
-gcc extension, you do not want to use malloc here?
-
-> +
-> +			memcpy(source, p, len);
-> +			source[len] = '\0';
-> +			printf("parsing %s\n", source);
-Debug printf - to be deleted.
-
-> +			if (!parse_file(source, md)) {
-> +				fprintf(stderr,
-> +					"Warning: could not open %s: %s\n",
-> +					source, strerror(errno));
-> +				goto out_file;
-> +			}
-> +		}
-> +		p += len;
-> +		p += strspn(p, " \\\n");
-> +	}
-> +
-> +	/* Everyone parsed OK */
-> +	ret = 1;
-> +out_file:
-> +	release_file(file, flen);
-> +out:
-> +	free(cmd);
-> +	return ret;
-> +}
+Which source? dm-crypt? In 2.6.3-bk and 2.6.3-mm*. Andrew's latest
+tree also has my first "more secure IV proposal" patch in it and I
+posted a (broken, racy) hmac IV patch in the other thread.

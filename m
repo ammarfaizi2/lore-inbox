@@ -1,75 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbULVQOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbULVQQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262007AbULVQOM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 11:14:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbULVQOM
+	id S262009AbULVQQi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 11:16:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbULVQQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 11:14:12 -0500
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:49284 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262007AbULVQOF
+	Wed, 22 Dec 2004 11:16:37 -0500
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:63881 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262011AbULVQQb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 11:14:05 -0500
+	Wed, 22 Dec 2004 11:16:31 -0500
 From: David Brownell <david-b@pacbell.net>
-To: Jeff Garzik <jgarzik@pobox.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [PATCH] USB: fix Scheduling while atomic warning when resuming.
-Date: Wed, 22 Dec 2004 08:14:17 -0800
+Date: Wed, 22 Dec 2004 08:16:42 -0800
 User-Agent: KMail/1.7.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg Kroah-Hartman <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>
-References: <200412220103.iBM13wS0002158@hera.kernel.org> <200412212059.15426.david-b@pacbell.net> <41C905C0.9000705@pobox.com>
-In-Reply-To: <41C905C0.9000705@pobox.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>
+References: <200412220103.iBM13wS0002158@hera.kernel.org> <41C905C0.9000705@pobox.com> <1103716768.28670.61.camel@gaston>
+In-Reply-To: <1103716768.28670.61.camel@gaston>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200412220814.17414.david-b@pacbell.net>
+Message-Id: <200412220816.42350.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 December 2004 9:27 pm, Jeff Garzik wrote:
-> > There's no guarantee that suspend() and resume() methods
-> > are only called during system-wide suspend and resume.
+On Wednesday 22 December 2004 3:59 am, Benjamin Herrenschmidt wrote:
 > 
-> That is precisely the reason why I am concerned.  If it was only during 
-> system-wide resume, the impact of the very-long mdelay() would be more 
-> difficult to notice.
+> > Similarly, If the USB layer is calling into your driver while you are 
+> > resuming, something is broken and it ain't your locking.
 > 
-> You also ignored my question :)
+> Actually, the later isn't broken, something may well call into the
+> higher level USB drivers while resuming, but indeed, those shouldn't
+> send any URB down the stack when the bus is suspended, and the EHCI
+> driver should drop incoming URBs as well until fully resumed.
 
-I didn't ignore it; I answered it with a question!  If you had
-answered mine, you'd have had the answer to yours ... :)
+Well, not "drop" like the network layer might, but report an error;
+if the bus is suspended, so are all its devices and drivers.  When
+a USB device is suspended, all its endpoint queues should be empty.
+(And devices can be suspended without the bus being suspended...)
 
-One way another task can be active during resume is with sysfs:
-"echo -n 0 > /sys/devices/.../power/state", after similar selective
-suspend of the device.  That's uncommon for now, primarily useful
-for unit-testing driver suspend/resume.  Plus, its design is
-currently borked; the pm core code doesn't bother to suspend
-children of the device first.  But I do expect that selective
-suspend/resume should work in Linux; it's not reasonable to design
-the pm framework otherwise.
-
-But in any case, while it'd be difficult to notice that mdelay()
-in current systems (since selective suspend/resume is still rare)
-it'd clearly be wrong to assume that resume() methods don't need
-to have mutual exclusion during their critical sections.
+Such checks should be part of usbcore, not just one HCD, but we're
+still working towards better interfaces there.  It's excessively
+painful to write HCDs.
 
 
-> If the PCI layer is calling the resume method for a PCI device while 
-> simultaneously calling the suspend method, that's a PCI layer problem.
+> I think the lock here is only needed to protect the HCD state
+> transitions David, no ?
 
-I never suggested such a scenario.  Though that would be another
-case where such critical sections matter, like the remove() method.
+State transitions and access to hardware.  There are a few other
+code paths that can trigger state transitions then, like rmmod.
+And Alan's pointed out that we'll be wanting autoresume mechanisms,
+so that parent hubs implicitly wake up as needed.
+
+One thing we don't have right now is a per-HCD spinlock that
+usbcore has access to.  Periodically I wonder whether such a
+lock might help sort some of these issues out.
 
 
-> Similarly, If the USB layer is calling into your driver while you are 
-> resuming, something is broken and it ain't your locking.
+> All we need is make sure that we don't let 
+> things get queued (or call into EHCI code path that will end up
+> touch the HW) while suspended.
 
-Which gets back to the question I asked you:  if not the lock in
-question, what's ensuring that everything behaves right?
-
-As I said originally, I don't much like long udelays, but
-at least it's clearly correct in terms of mutual exclusion.
-You've not shown any solution that's equivalently correct.
+That lock protects all HCD code paths that touch HW,
+As well as the state transitions.  I don't recall that
+any other state transitions require such a long delay,
+except maybe initialization (which happens before the
+upper levels of the USB stack see the controller).
 
 - Dave

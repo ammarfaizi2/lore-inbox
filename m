@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266576AbUAWPJK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 10:09:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266577AbUAWPJJ
+	id S266560AbUAWPQE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 10:16:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266577AbUAWPQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 10:09:09 -0500
-Received: from gw-nl4.philips.com ([212.153.190.6]:61056 "EHLO
-	gw-nl4.philips.com") by vger.kernel.org with ESMTP id S266576AbUAWPJC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 10:09:02 -0500
-Message-ID: <401139B2.2090301@basmevissen.nl>
-Date: Fri, 23 Jan 2004 16:11:46 +0100
-From: Bas Mevissen <ml@basmevissen.nl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Karel_Kulhav=FD?= <clock@twibright.com>
+	Fri, 23 Jan 2004 10:16:04 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:58632 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S266560AbUAWPPS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 10:15:18 -0500
+Date: Fri, 23 Jan 2004 16:20:06 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: make in 2.6.x
+Message-ID: <20040123152006.GA2142@mars.ravnborg.org>
+Mail-Followup-To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>,
+	linux-kernel@vger.kernel.org
 References: <20040123145048.B1082@beton.cybernet.src>
-In-Reply-To: <20040123145048.B1082@beton.cybernet.src>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040123145048.B1082@beton.cybernet.src>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karel Kulhavý wrote:
+On Fri, Jan 23, 2004 at 02:50:48PM +0000, Karel Kulhavý wrote:
 > Hello
 > 
 > Is it correct to issue "make bzImage modules modules_install"
 > or do I have to do make bzImage; make modules modules_install?
 
-# make all modules_install install
+It is today supported that you specify all targets in one line.
+The preferred way to do this is to use:
 
-Builds image and modules and installs them both. At least on Redhat, 
-also an initial ram disk is created and grub is adapted.
+make all modules_install
+
+'all' will build bot default target and modules - and works across
+all architectures.
 
 > Is there any documentation where I can read answer to this question?
-> 
 
-# make help
+No, the top-level README could have included this, but does not so today.
 
-and read the top-level Makefile itself. It is a quite readable file format.
-
-Regards,
-
-Bas.
-
+	Sam

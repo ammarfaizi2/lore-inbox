@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261645AbSJVWub>; Tue, 22 Oct 2002 18:50:31 -0400
+	id <S262062AbSJVWys>; Tue, 22 Oct 2002 18:54:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261840AbSJVWub>; Tue, 22 Oct 2002 18:50:31 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:7185 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S261645AbSJVWua>;
-	Tue, 22 Oct 2002 18:50:30 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: Piet Delaney <piet@www.piet.net>
-Cc: Christoph Hellwig <hch@sgi.com>, "Matt D. Robinson" <yakker@aparity.com>,
-       linux-kernel@vger.kernel.org, steiner@sgi.com, jeremy@sgi.com
-Subject: Re: [PATCH] 2.5.44: lkcd (9/9): dump driver and build files 
-In-reply-to: Your message of "22 Oct 2002 15:21:02 MST."
-             <1035325262.6847.23.camel@www.piet.net> 
+	id <S262145AbSJVWyr>; Tue, 22 Oct 2002 18:54:47 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:31163 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262062AbSJVWyr>; Tue, 22 Oct 2002 18:54:47 -0400
+Subject: Re: [PATCH] use 1ULL instead of 1UL in kernel/signal.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mingo@redhat.com
+In-Reply-To: <20021022224853.I27461@parcelfarce.linux.theplanet.co.uk>
+References: <20021022222719.H27461@parcelfarce.linux.theplanet.co.uk>
+	<1035323879.329.185.camel@irongate.swansea.linux.org.uk> 
+	<20021022224853.I27461@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 23 Oct 2002 00:17:12 +0100
+Message-Id: <1035328632.329.187.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 23 Oct 2002 08:56:18 +1000
-Message-ID: <15606.1035327378@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Oct 2002 15:21:02 -0700, 
-Piet Delaney <piet@www.piet.net> wrote:
->Looks like your right, for parisc even these functions are using a
->spinlock. Is it really necessary for parisc to use spinlocks? Even
->Solaris doesn't use spinlocks for atomic set and reads of atomic
->variables.
+On Tue, 2002-10-22 at 22:48, Matthew Wilcox wrote:
+> On Tue, Oct 22, 2002 at 10:57:59PM +0100, Alan Cox wrote:
+> > On Tue, 2002-10-22 at 22:27, Matthew Wilcox wrote:
+> > > 
+> > > On PA-RISC we have 36 signals defined for hpux compatibility.  So M()
+> > > and T() in kernel/signal.c try to do (1UL << 33) which is garbage on 32-bit
+> > > architectures.  How do people feel about this patch?
+> > 
+> > How does the compiler output look ?
+> 
+> uhh.. 200 bytes extra on x86 ;-(
+> 
+> -rw-r--r--    1 willy    users       17956 Oct 22 14:44 kernel/signal.o
+> -rw-r--r--    1 willy    users       17748 Oct 22 06:50 kernel/signal.o_orig
 
-Hardware restriction.  Somebody read that "all locks can be implemented
-in terms of a single hardware primitive" and believed it :(.  The only
-atomic operation on parisc is load and clear word.  According to the
-comments in asm-parisc/atomic.h, atomic_set should not require a lock,
-but it is coded to use one.  Atomic add/sub obviously needs a lock.
+Care to move the define into include/asm-foo then ?
 

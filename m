@@ -1,69 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbUFEUpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbUFEUvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbUFEUpq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 16:45:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUFEUpq
+	id S261976AbUFEUvX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 16:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUFEUvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 16:45:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:53670 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261925AbUFEUpo (ORCPT
+	Sat, 5 Jun 2004 16:51:23 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:42679 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S261984AbUFEUvT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 16:45:44 -0400
-Date: Sat, 5 Jun 2004 13:45:33 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell Leighton <russ@elegant-software.com>,
-       Arjan van de Ven <arjanv@redhat.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: clone() <-> getpid() bug in 2.6?
-In-Reply-To: <40C1E6A9.3010307@elegant-software.com>
-Message-ID: <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>
-References: <40C1E6A9.3010307@elegant-software.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 5 Jun 2004 16:51:19 -0400
+Date: Sat, 5 Jun 2004 22:51:17 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] Spinlock-timeout
+Message-ID: <20040605205117.GD20632@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <1086467486.20906.59.camel@dhcp-client215.upt.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ReGtrnFZPvtbUCOi"
+Content-Disposition: inline
+In-Reply-To: <1086467486.20906.59.camel@dhcp-client215.upt.austin.ibm.com>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--ReGtrnFZPvtbUCOi
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, 5 Jun 2004, Russell Leighton wrote:
-> 
-> I have a test program (see attached) that shows what looks like a bug in 
-> 2.6.5-1.358 (FedoraCore2)...and breaks my program :(
-> 
-> In summary, I am doing:
-> 
->  clone(run_thread, stack + sizeof(stack) -1,
->             CLONE_FS|CLONE_FILES|CLONE_VM|SIGCHLD, NULL))
-> 
-> According to the man page the child process should have its own pid as 
-> returned by getpid()...much like fork().
-> 
-> In 2.6 the child receives the parent's pid from getpid(), while 2.4 
-> works as documented:
-> 
-> In 2.4 the test program does:
->  parent pid: 26647
->  clone returned pid: 26648
->  thread reported pid: 26648
-> 
-> In 2.6 the test program does:
->  parent pid: 16665
->  thread reported pid: 16665
->  clone returned pid: 16666
+On Sat, 2004-06-05 15:31:26 -0500, Jake Moilanen <moilanen@austin.ibm.com>
+wrote in message <1086467486.20906.59.camel@dhcp-client215.upt.austin.ibm.c=
+om>:
+> Here's a patch that will BUG() when a spinlock is held for longer then X
+> seconds.  It is useful for catching deadlocks since not all archs have a
+> NMI watchdog. =20
 
-Hmm.. The above is the correct behaviour if you use CLONE_THREAD 
-("getpid()" will then return the _thread_ ID), but it shouldn't happen 
-without that. And clearly you don't have it set.
+I like the idea. However, I don't like touching all arch's Kconfig
+files. I think it's better to either put this into ./lib/Kconfig (well,
+doesn't really fit there), ot (even better:) put it into the Debug
+Kconfig file.
 
-And indeed, it doesn't happen for me on my system:
+> diff -Nru a/include/linux/spinlock.h b/include/linux/spinlock.h
+> --- a/include/linux/spinlock.h	Sat Jun  5 14:25:51 2004
+> +++ b/include/linux/spinlock.h	Sat Jun  5 14:25:51 2004
+> @@ -38,6 +38,16 @@
+>  #ifdef CONFIG_SMP
+>  #include <asm/spinlock.h>
+> =20
+> +#if defined(CONFIG_SPINLOCK_TIMEOUT)
+> +
+> +#include <asm/param.h>
+> +
+> +#define SPINLOCK_TIMEOUT CONFIG_SPINLOCK_TIMEOUT_TIME
+> +extern unsigned long volatile jiffies;
+> +
+> +#endif /* CONFIG_SPINLOCK_TIMEOUT */
+> +
+> +
+>  #else
+> =20
+>  #define _raw_spin_lock_flags(lock, flags) _raw_spin_lock(lock)
 
-	parent pid: 13552
-	thread reported pid: 13553
-	clone returned pid: 13553
+I'd say just include <linux/jiffies.h> and drop the whole #ifdef/#endif
+block.
 
-so I wonder if either the Fedora libc always adds that CLONE_THREAD thing
-to the clone() calls, or whether the FC2 kernel is buggy.
+> @@ -218,11 +228,27 @@
+>  } while (0)
+> =20
+>  #else
+> +#if defined(CONFIG_SPINLOCK_TIMEOUT)
+> +
+> +static inline void spin_lock(spinlock_t * lock) {
+> +	unsigned long jiffy_timeout =3D jiffies + (SPINLOCK_TIMEOUT * HZ);=20
+> +
+> +	preempt_disable();=20
+> +	do {=20
+> +		if (jiffies >=3D jiffy_timeout)=20
+> +		        BUG();
+> +	} while (!_raw_spin_trylock(lock));=20
+> +}
+> +
+> +#else /* CONFIG_SPINLOCK_TIMEOUT */
+> +
+>  #define spin_lock(lock)	\
+>  do { \
+>  	preempt_disable(); \
+>  	_raw_spin_lock(lock); \
+>  } while(0)
+> +
+> +#endif /* CONFIG_SPINLOCK_TIMEOUT */
+> =20
+>  #define write_lock(lock) \
+>  do { \
 
-Arjan?
+Also, printing out ->module, ->owner and ->oline might help additionally
+to just BUG()ing. So you see the (former) owner of the lock.
 
-		Linus
+> @@ -3967,6 +3971,10 @@
+>  		while (spin_is_locked(lock))
+>  			cpu_relax();
+>  		preempt_disable();
+> +#if defined(CONFIG_SPINLOCK_TIMEOUT)
+> +		if (jiffies > =3D jiffy_timeout)
+> +			BUG();
+> +#endif
+>  	} while (!_raw_spin_trylock(lock));
+>  }
+> =20
+
+Dito.
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--ReGtrnFZPvtbUCOi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAwjJFHb1edYOZ4bsRAgTBAJ9uAuJbWTked2ztV/zfIzDjd1DkuwCZAQxO
+L95/5S5mw3x+xVrvV56z7yQ=
+=tqFs
+-----END PGP SIGNATURE-----
+
+--ReGtrnFZPvtbUCOi--

@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261981AbUBZPal (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 10:30:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbUBZPak
+	id S262126AbUBZPbk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 10:31:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbUBZPbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 10:30:40 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:2715 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S261981AbUBZPai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 10:30:38 -0500
-Subject: Re: [PATCH] fix small highmem bio bounce bvec handling glitch
-From: Christophe Saout <christophe@saout.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20040226151026.GQ7580@suse.de>
-References: <1077807966.10397.2.camel@leto.cs.pocnet.net>
-	 <20040226151026.GQ7580@suse.de>
-Content-Type: text/plain
-Message-Id: <1077809433.10397.11.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 26 Feb 2004 16:30:33 +0100
+	Thu, 26 Feb 2004 10:31:40 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:6339 "EHLO dns.toxicfilms.tv")
+	by vger.kernel.org with ESMTP id S262126AbUBZPbe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 10:31:34 -0500
+Message-ID: <001b01c3fc7d$9e265650$0e25fe96@pysiak>
+From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
+To: <linux-kernel@vger.kernel.org>
+Subject: How to use cipher algorithms in the kernel?
+Date: Thu, 26 Feb 2004 16:31:34 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Spam-Rating: 0 1.6.2 0/1000/N
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Do, den 26.02.2004 schrieb Jens Axboe um 16:10:
+Hi,
 
-> > --- linux.orig/mm/highmem.c	2004-01-21 19:08:45.000000000 +0100
-> > +++ linux/mm/highmem.c	2004-02-26 15:47:14.574722576 +0100
-> > @@ -294,7 +294,12 @@
-> >  		if (tovec->bv_page == fromvec->bv_page)
-> >  			continue;
-> >  
-> > -		vfrom = page_address(fromvec->bv_page) + fromvec->bv_offset;
-> > +		/*
-> > +		 * fromvec->bv_offset and fromvec->bv_len might have been
-> > +		 * modified by the block layer, so use the original copy,
-> > +		 * bounce_copy_vec already uses tovec->bv_len
-> > +		 */
-> > +		vfrom = page_address(fromvec->bv_page) + tovec->bv_offset;
-> >  
-> >  		bounce_copy_vec(tovec, vfrom);
-> 
-> Irk yes, that's is pretty nasty, I really wish we could avoid screwing
-> with vec entries
+are the cipher algorithms in the kernel to be used by any userspace
+aplication?
+eg. I were to write a program that would need to cipher a message, would
+it be a good way to try to use something like CONFIG_CRYPTO_CAST5 ?
 
-What about a bio->bi_bvec_done field?
+If so, is there an api explained somewhere?
 
-> (it's pretty obscure for bio clones, too)...
-
-Yes, I noticed that dm-crypt also does the same mistake for reads. I'm
-going to change it too (easily accomplished).
-
+Regards,
+Maciej
 

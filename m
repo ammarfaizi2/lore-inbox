@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262335AbVBCA5U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVBCBA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262335AbVBCA5U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 19:57:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262541AbVBCAam
+	id S262611AbVBCBA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 20:00:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262638AbVBCBAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 19:30:42 -0500
-Received: from fire.osdl.org ([65.172.181.4]:30604 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262718AbVBCA0b (ORCPT
+	Wed, 2 Feb 2005 20:00:50 -0500
+Received: from waste.org ([216.27.176.166]:23997 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262611AbVBCBAV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 19:26:31 -0500
-Message-ID: <42016B55.4000804@osdl.org>
-Date: Wed, 02 Feb 2005 16:07:49 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vivek Goyal <vgoyal@in.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       fastboot <fastboot@lists.osdl.org>
-Subject: Re: [Fastboot] [PATCH] Minor Kexec bug fix (2.6.11-rc2-mm2)
-References: <1107352593.11609.146.camel@2fwv946.in.ibm.com>
-In-Reply-To: <1107352593.11609.146.camel@2fwv946.in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Feb 2005 20:00:21 -0500
+Date: Wed, 2 Feb 2005 17:00:01 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       Christophe Saout <christophe@saout.de>,
+       Clemens Fruhwirth <clemens@endorphin.org>, dm-crypt@saout.de
+Subject: Re: dm-crypt crypt_status reports key?
+Message-ID: <20050203010001.GM2493@waste.org>
+References: <20050202211916.GJ2493@waste.org> <20050202235002.GD14097@agk.surrey.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050202235002.GD14097@agk.surrey.redhat.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal wrote:
-> Hi Andrew,
-> 
-> This patch has been generated against 2.6.11-rc2-mm2. This fixes a very
-> minor bug in kexec.
-
-Have you run sparse on a kexec-patched kernel tree?
-I have, but not lately.  It needed some s/0/NULL/ in several places,
-but that was before the latest big changes...
-
-> diff -puN include/linux/kexec.h~kexec_minor_bug_fix include/linux/kexec.h
-> --- linux-2.6.11-rc2-mm2-kdump/include/linux/kexec.h~kexec_minor_bug_fix	2005-02-02 16:28:18.000000000 +0530
-> +++ linux-2.6.11-rc2-mm2-kdump-vivek/include/linux/kexec.h	2005-02-02 16:29:01.000000000 +0530
-> @@ -79,7 +79,7 @@ struct kimage {
->  	unsigned long control_page;
+On Wed, Feb 02, 2005 at 11:50:02PM +0000, Alasdair G Kergon wrote:
+> On Wed, Feb 02, 2005 at 01:19:16PM -0800, Matt Mackall wrote:
+> > # dmsetup table /dev/mapper/volume1
+> > 0 2000000 crypt aes-plain 0123456789abcdef0123456789abcdef 0 7:0 0
 >  
->  	/* Flags to indicate special processing */
-> -	int type : 1;
-> +	unsigned int type : 1;
+> > Obviously, root can in principle recover this password from the
+> > running kernel but it seems silly to make it so easy.
+>  
+> There seemed little point obfuscating it - someone will only
+> write a trivial utility that recovers it.
+
+So instead let's do the work for them? We could perhaps put it in the
+root prompt. Pray tell, what is the value to the user of exposing the
+whole password, ever?
+
+> Consider instead *why* you're worried about the password being
+> held in RAM and look for better solutions to *your*
+> perceived threats.
+
+My perceived threat, as I've already stated, is that automated suite
+of utilities like LVM or EVMS or even initscripts will silently store
+this information in the clear on disk in an effort to make life
+easier, oblivious to the fact that it might contain security-sensitive
+information.
+
+What drives this perception is that the output of "dmsetup tables"
+invites it: it appears tailor-made to be fed into a future "dmsetup
+create". Thus someone clever (but unaware of dm_crypt) _will_
+eventually try this if it's not already happening. Further, there is
+nothing in the dmsetup manpage to suggest that its output should be
+guarded, etc. See "principle of least surprise."
+
+Given the potential risk of naive use of dmsetup tables, what's the
+upside again?
 
 -- 
-~Randy
+Mathematics is the supreme nostalgia of our time.

@@ -1,178 +1,218 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbULABSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbULABVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbULABSj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 20:18:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbULABSd
+	id S261197AbULABVb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 20:21:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbULABUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 20:18:33 -0500
-Received: from kotol.kotelna.sk ([212.89.232.170]:50191 "EHLO kotol.kotelna.sk")
-	by vger.kernel.org with ESMTP id S261227AbULABQ7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 20:16:59 -0500
-Date: Wed, 1 Dec 2004 02:16:12 +0100
-From: Martin Lucina <mato@kotelna.sk>
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: PROBLEM: OOPS in Linux 2.6.9, fib_release_info
-Message-ID: <20041201011612.GA3423@kotelna.sk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 Nov 2004 20:20:06 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:20645 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261247AbULABR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 20:17:56 -0500
+Message-ID: <41AD1B52.7040008@comcast.net>
+Date: Tue, 30 Nov 2004 20:16:02 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041119)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Helge Hafting <helge.hafting@hist.no>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Designing Another File System
+References: <41ABF7C5.5070609@comcast.net> <41AC7086.1030005@hist.no>
+In-Reply-To: <41AC7086.1030005@hist.no>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
-
-I have found a reproducible OOPS in fib_release_info, in the 2.6.9 kernel.
-Tested on two different systems, one UP, one SMP, both i386, both w/
-CONFIG_PREEMPT=y, both Debian sarge, both w/ iproute2 version 20010824-13.1
-(Debian).
-
-Steps to reproduce:
-
-# ip route add unreachable 1.2.3.4/32
-# ip route del 1.2.3.4/32
-Memory fault
-#
-
-Sample OOPS:
-
-ksymoops 2.4.9 on i686 2.6.9+t7220cte.  Options used
-     -V (default)
-     -K (specified)
-     -l /proc/modules (default)
-     -o /lib/modules/2.6.9+t7220cte/ (default)
-     -m /boot/System.map-2.6.9+t7220cte (specified)
-
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-c02bd6c0
-*pde = 00000000
-Oops: 0002 [#1]
-CPU:    0
-EIP:    0060:[<c02bd6c0>]    Not tainted VLI
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246   (2.6.9+t7220cte) 
-eax: 00000000   ebx: d1ddb280   ecx: 00000000   edx: d1ddb220
-esi: d1ddb284   edi: d3a34380   ebp: d037dbf8   esp: d037dbec
-ds: 007b   es: 007b   ss: 0068
-Stack: 00000000 00000001 d3a34388 d037dc40 c02bfb8c d1ddb220 d3a34380 d3277310 
-       00000020 000000fe d3fa24e0 c13b3378 d3277310 00000fcc d06ea2c0 00000020 
-       d3a34380 04030201 d3fa24f0 d3fa24e0 c12fc1a0 d037dc68 c02bce93 d3fa6d00 
-Call Trace:
- [<c0104a6f>] show_stack+0x7f/0xa0
- [<c0104c16>] show_registers+0x156/0x1c0
- [<c0104e2a>] die+0xea/0x180
- [<c01120e6>] do_page_fault+0x256/0x609
- [<c0104645>] error_code+0x2d/0x38
- [<c02bfb8c>] fn_hash_delete+0x1dc/0x2a0
- [<c02bce93>] inet_rtm_delroute+0x63/0x80
- [<c027d2b0>] rtnetlink_rcv+0x2f0/0x3c0
- [<c028759e>] netlink_data_ready+0x5e/0x70
- [<c0286acc>] netlink_sendskb+0x9c/0xa0
- [<c0287219>] netlink_sendmsg+0x1f9/0x2f0
- [<c026a85b>] sock_sendmsg+0xbb/0xe0
- [<c026c362>] sys_sendmsg+0x1c2/0x240
- [<c026c808>] sys_socketcall+0x228/0x250
- [<c0104449>] sysenter_past_esp+0x52/0x71
-Code: 8d 5a 08 8b 4b 04 85 c0 89 01 74 03 89 48 04 c7 42 08 00 01 10 00 c7 43 04 00 02 20 00 8d 5a 60 8b 43 04 8d 72 64 8b 4e 04 85 c0 <89> 01 74 03 89 48 04 c7 43 04 00 01 10 00 c7 46 04 00 02 20 00 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
->>EIP; c02bd6c0 <fib_release_info+80/f0>   <=====
 
->>ebx; d1ddb280 <pg0+11a24280/3fc47400>
->>edx; d1ddb220 <pg0+11a24220/3fc47400>
->>esi; d1ddb284 <pg0+11a24284/3fc47400>
->>edi; d3a34380 <pg0+1367d380/3fc47400>
->>ebp; d037dbf8 <pg0+ffc6bf8/3fc47400>
->>esp; d037dbec <pg0+ffc6bec/3fc47400>
+Helge Hafting wrote:
+| John Richard Moser wrote:
+|
+|> -----BEGIN PGP SIGNED MESSAGE-----
+|> Hash: SHA1
+|>
+|> Greetings.
+|>
+|> I've been interested in file system design for a while, and I think I
+|> may be able to design one.  Being poor, I would like to patent/sell it
+|> when done;
+|
+|
+| Well, if you want to make money - you get to do the work.  Including
+| the initial research into filesystem design.
+|
 
-Trace; c0104a6f <show_stack+7f/a0>
-Trace; c0104c16 <show_registers+156/1c0>
-Trace; c0104e2a <die+ea/180>
-Trace; c01120e6 <do_page_fault+256/609>
-Trace; c0104645 <error_code+2d/38>
-Trace; c02bfb8c <fn_hash_delete+1dc/2a0>
-Trace; c02bce93 <inet_rtm_delroute+63/80>
-Trace; c027d2b0 <rtnetlink_rcv+2f0/3c0>
-Trace; c028759e <netlink_data_ready+5e/70>
-Trace; c0286acc <netlink_sendskb+9c/a0>
-Trace; c0287219 <netlink_sendmsg+1f9/2f0>
-Trace; c026a85b <sock_sendmsg+bb/e0>
-Trace; c026c362 <sys_sendmsg+1c2/240>
-Trace; c026c808 <sys_socketcall+228/250>
-Trace; c0104449 <sysenter_past_esp+52/71>
+Eh, you're probably right; but I thought all idealistic open source
+advocates considered the fruits of the work to be proper return to the
+community >:P
 
-This architecture has variable length instructions, decoding before eip
-is unreliable, take these instructions with a pinch of salt.
+Anyway, I dunno how I'd go about any of that anyway.  The thoughts have
+crossed my mind though, as they should yours when you're poor and living
+in your parents' house.
 
-Code;  c02bd695 <fib_release_info+55/f0>
-00000000 <_EIP>:
-Code;  c02bd695 <fib_release_info+55/f0>
-   0:   8d 5a 08                  lea    0x8(%edx),%ebx
-Code;  c02bd698 <fib_release_info+58/f0>
-   3:   8b 4b 04                  mov    0x4(%ebx),%ecx
-Code;  c02bd69b <fib_release_info+5b/f0>
-   6:   85 c0                     test   %eax,%eax
-Code;  c02bd69d <fib_release_info+5d/f0>
-   8:   89 01                     mov    %eax,(%ecx)
-Code;  c02bd69f <fib_release_info+5f/f0>
-   a:   74 03                     je     f <_EIP+0xf>
-Code;  c02bd6a1 <fib_release_info+61/f0>
-   c:   89 48 04                  mov    %ecx,0x4(%eax)
-Code;  c02bd6a4 <fib_release_info+64/f0>
-   f:   c7 42 08 00 01 10 00      movl   $0x100100,0x8(%edx)
-Code;  c02bd6ab <fib_release_info+6b/f0>
-  16:   c7 43 04 00 02 20 00      movl   $0x200200,0x4(%ebx)
-Code;  c02bd6b2 <fib_release_info+72/f0>
-  1d:   8d 5a 60                  lea    0x60(%edx),%ebx
-Code;  c02bd6b5 <fib_release_info+75/f0>
-  20:   8b 43 04                  mov    0x4(%ebx),%eax
-Code;  c02bd6b8 <fib_release_info+78/f0>
-  23:   8d 72 64                  lea    0x64(%edx),%esi
-Code;  c02bd6bb <fib_release_info+7b/f0>
-  26:   8b 4e 04                  mov    0x4(%esi),%ecx
-Code;  c02bd6be <fib_release_info+7e/f0>
-  29:   85 c0                     test   %eax,%eax
+I'll definitely code it myself if I decide to sell licenses to use the
+code in closed source products; I can't sell other peoples' work, it
+doesn't work that way.
 
-This decode from eip onwards should be reliable
+|> however, whatever the result, I'd assuredly give a free
+|> license to implement the resulting file system in GPL2 licensed code (if
+|> you're not making money off it, I'm not making money off it).  This is
+|> similar in principle to how Hans Reiser sells his file system I think.
+|
+|
+| GPL means no restrictions, you can't prevent, say, redhat from
+| selling distro CDs with your GPL'ed fs.  As for _patenting_ it, well,
+| people here generally dislike software patents for good reasons.
+| You don't need a patent for this either - a copyright is probably
+| what you're after.
+|
 
-Code;  c02bd6c0 <fib_release_info+80/f0>
-00000000 <_EIP>:
-Code;  c02bd6c0 <fib_release_info+80/f0>   <=====
-   0:   89 01                     mov    %eax,(%ecx)   <=====
-Code;  c02bd6c2 <fib_release_info+82/f0>
-   2:   74 03                     je     7 <_EIP+0x7>
-Code;  c02bd6c4 <fib_release_info+84/f0>
-   4:   89 48 04                  mov    %ecx,0x4(%eax)
-Code;  c02bd6c7 <fib_release_info+87/f0>
-   7:   c7 43 04 00 01 10 00      movl   $0x100100,0x4(%ebx)
-Code;  c02bd6ce <fib_release_info+8e/f0>
-   e:   c7 46 04 00 02 20 00      movl   $0x200200,0x4(%esi)
+MySQL, Dan's Guardian.  They cost for business use.
 
- [<c0104aae>] dump_stack+0x1e/0x30
- [<c02cd38c>] schedule+0x4ec/0x500
- [<c013f056>] unmap_vmas+0x1a6/0x1c0
- [<c014359d>] exit_mmap+0x7d/0x160
- [<c0115236>] mmput+0x66/0xb0
- [<c01197b8>] do_exit+0x148/0x420
- [<c0104ebd>] die+0x17d/0x180
- [<c01120e6>] do_page_fault+0x256/0x609
- [<c0104645>] error_code+0x2d/0x38
- [<c02bfb8c>] fn_hash_delete+0x1dc/0x2a0
- [<c02bce93>] inet_rtm_delroute+0x63/0x80
- [<c027d2b0>] rtnetlink_rcv+0x2f0/0x3c0
- [<c028759e>] netlink_data_ready+0x5e/0x70
- [<c0286acc>] netlink_sendskb+0x9c/0xa0
- [<c0287219>] netlink_sendmsg+0x1f9/0x2f0
- [<c026a85b>] sock_sendmsg+0xbb/0xe0
- [<c026c362>] sys_sendmsg+0x1c2/0x240
- [<c026c808>] sys_socketcall+0x228/0x250
- [<c0104449>] sysenter_past_esp+0x52/0x71
+As for "no restrictions," remember that GPL means you can't just
+incorporate the code into your closed source product.  A few GPL
+projects have been known to sell separate licenses (reiserfs I thought
+did this) to allow such an incorporation of their work.  If i.e. Apple
+wants *me* to write them a driver for the FS, fine, they can pay me
+royaltees too.
 
-Will send other relevant information on request.
+|>
+|> 2)  Are there any other security concerns aside from information leaking
+|> (deleted data being left over on disk, which may pop up in incompletely
+|> written files)?
+|
+|
+| Have you considered what kind of data loss you'll get if power fails
+| before stuff is written to disk, or while it is being written?  That sort
+| of thing is important to users, because it really happens a lot.  Can you
+| design so a good fsck for your fs is possible?
+|
 
--mato
+Data loss can't really be helped.  Either the data makes it to disk or
+it doesn't; data goes after allocation, but even a full journal won't
+save me data loss.  A rollback journal "might," if the entire change to
+the file from fopen() to fclose() is exactly one transaction; else, no.
+
+As for a good fsck, call Sally.  :)
+
+Actually a fsck shouldn't be too hard; inode blocks and fragment blocks
+will be self-identifying and indexing, so even if the bitmap is lost,
+the whole thing can be rebuilt *if* you know the exact offset of the
+data area, the FS version, and the block size.
+
+|> 6)  How do I lay out a time field for atime/dtime/ctime/mtime?
+|>
+| Any way you like, as long as you actually store the information
+| in a retrieveable way.
+|
+
+What information is that?
+
+|>
+|> A few more specifics, as Block size grows, the file system does not lose
+|> efficiency.  Fragment Blocks should skillfully subdivide huge Blocks
+|> with a third level index, increasing seek time O(+1) for the information
+|> stored in the Fragment Block:
+|>
+|>
+|> - -Inode
+|> |-Meta-data
+|> ||-Data Block
+|> |||-Data (2 seeks)
+|> ||-Fragment Block
+|> |||-Fragment
+|> ||||-Data (3 seeks)
+|>
+|>
+|> Fragment Blocks can store anything but Inodes, so it would be advisable
+|> to avoid huge Blocks; if a Block is 25% of the disk, for example, one
+|> Block must be dedicated to serving up Inode information.  Also, with
+|> 64KiB blocks, a 256TiB file system can be created.  Larger Blocks will
+|> allow larger file systems; a larger file system will predictably house
+|> more files (unless it houses one gargantuan relational data base-- the
+|> only plausible situation where my design would require more, smaller
+|> blocks to be more efficient).
+|>
+|> Directories will have to be some sort of on disk BsomethingTree. . . B*,
+|> B+, something.  I have no idea how to implement this :D  I'll assume I
+|
+|
+| Then you have a lot to learn about fs design - before you can
+| design anything _sellable_.  Take a look at the details of
+| existing linux fs'es - and be happy that you can do that at all because
+| they aren't patented or otherwise restricted.
+
+I still think patents are a good thing, if the patent owners have half a
+brain.  For example, Judy Arrays ( http://judy.sf.net/ ) are patented by
+HP; their design is LGPL though.  "Patented" doesn't equivilate to "Out
+of reach" by nature, just by controller.
+
+|
+|> treat the directory data as a logically contiguous file (yes I'm gonna
+|> store directory data just like file data).  I could use a string hash of
+|> the Directory Entry name with disambiguation at the end, except my
+|> options here seem limited:
+|>
+|>
+|> - - Use a 32 bit string hash, 4 levels, 8 bits per level.  256 entries of
+|> 32 bit {offset} for the next level per level, 1024B per level on unique
+|> paths.  Worst case 1 path per file, 65536 files in the worst case
+|> measure 1 root (1KiB) + 256 L2 (256KiB) + 65536 L3 (64M) + 65536 L4
+|> (64M), total 128MiB, collision rate is probably low.  Ouch.
+|>
+|> - - Use a 16 bit string hash, 2 levels, 8 bits per level.  256 entries of
+|> 32 bit {offset) for the next level per level, 1024B per level on unique
+|> path.  Worst case 1 path per file, 65536 files in the worst case measure
+|> 1 root (1KiB) + 256 L2 (256KiB), no disambiguation, though collision
+|> rate is probably higher than that.  Beyond 65536 creates collisions.
+|> Hitting a disambiguation situation is going to be fairly common.
+|>
+|>
+|> I guess the second would be better?  I can't locate any directories on
+|> my drive with >2000 entries *shrug*.  The end key is just the entry
+|> {name,inode} pair.
+|
+|
+| If you want this fs to be generically used, expect some people to show
+| up with millions of files in a directory or tens of millions. They will
+| not be amused if the lookup isn't O(1). . .
+|
+| There are still fs'es around that don't look up names in O(1)
+| time, but some O(1) fs'es exist.  So, to _sell_ you need to be among the
+| better ones.
+|
+|> Any ideas?
+|>
+| Write a serious free fs, and get help here.  Or go commercial - sell
+| your fs and pay your developers and helpers.
+|
+
+Well, I'm not Hans Reiser, so I guess DARPA isn't going to give me $13M;
+selling this thing (even if I can outrank everyone in the world by leaps
+and bounds) isn't going to make me instantly rich.  Even if it would,
+nobody's gonna help me with it like that; and I don't have the skill to
+do this myself.
+
+Ah why not.
+
+| Helge Hafting
+|
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBrRtPhDd4aOud5P8RAkhgAJ95lOJFvG+cHpOrWyDGn1/VZlFhzQCdGP/p
+T8b0J6idnUgZY/uS35FVRZc=
+=Vr0i
+-----END PGP SIGNATURE-----

@@ -1,32 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265725AbTBKBJl>; Mon, 10 Feb 2003 20:09:41 -0500
+	id <S265567AbTBKBNS>; Mon, 10 Feb 2003 20:13:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265736AbTBKBJl>; Mon, 10 Feb 2003 20:09:41 -0500
-Received: from clem.clem-digital.net ([68.16.168.10]:11537 "EHLO
-	clem.clem-digital.net") by vger.kernel.org with ESMTP
-	id <S265725AbTBKBJl>; Mon, 10 Feb 2003 20:09:41 -0500
-From: Pete Clements <clem@clem.clem-digital.net>
-Message-Id: <200302110119.UAA23883@clem.clem-digital.net>
-Subject: 2.5.60 fails compile -- net/Space.c -- 3c509
-To: linux-kernel@vger.kernel.org (linux-kernel)
-Date: Mon, 10 Feb 2003 20:18:11 -0500 (EST)
-X-Mailer: ELM [version 2.4ME+ PL48 (25)]
+	id <S265578AbTBKBNS>; Mon, 10 Feb 2003 20:13:18 -0500
+Received: from 64-60-75-69.cust.telepacific.net ([64.60.75.69]:28421 "EHLO
+	racerx.ixiacom.com") by vger.kernel.org with ESMTP
+	id <S265567AbTBKBNR>; Mon, 10 Feb 2003 20:13:17 -0500
+Message-ID: <3E484EA8.4000104@ixiacom.com>
+Date: Mon, 10 Feb 2003 17:15:20 -0800
+From: Dan Kegel <dkegel@ixiacom.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: /proc/profile in 2.4 for ppc?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI:
+Anyone know offhand if the 2.4 kernel supports kernel profiling
+via /proc/profile for ppc?
 
-make -f scripts/Makefile.build obj=drivers/net
-  gcc -Wp,-MD,drivers/net/.Space.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=Space -DKBUILD_MODNAME=Space -c -o drivers/net/Space.o drivers/net/Space.c
-drivers/net/Space.c:228: `el3_probe' undeclared here (not in a function)
-drivers/net/Space.c:228: initializer element is not constant
-drivers/net/Space.c:228: (near initialization for `isa_probes[0].probe')
-make[2]: *** [drivers/net/Space.o] Error 1
+(Support for this for the 2.2 kernel was posted on 18 Aug 2000; see
+http://members.xoom.com/greyhams/linux/patches/2.2/profile.patch
+http://marc.theaimsgroup.com/?l=linux-kernel&m=96684695930338&w=2
+Unfortunately the patch in question is offline so it's hard
+to just download it and check to see if it's in the source...)
 
--- 
-Pete Clements 
-clem@clem.clem-digital.net
+Thanks,
+Dan
+
+

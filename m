@@ -1,95 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263320AbTD1LYg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 07:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbTD1LYg
+	id S263354AbTD1LZM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 07:25:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263385AbTD1LZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 07:24:36 -0400
-Received: from dsl-213-023-025-021.arcor-ip.net ([213.23.25.21]:2944 "EHLO
-	spot.lan") by vger.kernel.org with ESMTP id S263320AbTD1LYf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 07:24:35 -0400
-From: Oliver Feiler <kiza@gmx.net>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Subject: Re: Mailinglist problems?
-Date: Mon, 28 Apr 2003 13:35:48 +0200
-User-Agent: KMail/1.5
+	Mon, 28 Apr 2003 07:25:12 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:57328 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263354AbTD1LZK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 07:25:10 -0400
+Subject: Re: Where to download kernel-headers-2.4.18-18.8.0
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Stephen Liu <satimis@icare.com.hk>
 Cc: linux-kernel@vger.kernel.org
-References: <200304281223.53020.kiza@gmx.net> <20030428112434.GH24892@mea-ext.zmailer.org>
-In-Reply-To: <20030428112434.GH24892@mea-ext.zmailer.org>
-X-PGP-Key-Fingerprint: E9DD 32F1 FA8A 0945 6A74  07DE 3A98 9F65 561D 4FD2
-X-PGP-Key: http://kiza.kcore.de/pgpkey.shtml
-X-Species: Snow Leopard
-X-Operating-System: Linux i686
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_aIRr+rURAIC+wcI";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200304281335.54932.kiza@gmx.net>
+In-Reply-To: <1051529351.2573.16.camel@localhost.localdomain>
+References: <1051529351.2573.16.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YC4RJ88i8nr2jQhoshe2"
+Organization: Red Hat, Inc.
+Message-Id: <1051529838.1388.1.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 28 Apr 2003 13:37:19 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-02=_aIRr+rURAIC+wcI
-Content-Type: text/plain;
-  charset="iso-8859-1"
+--=-YC4RJ88i8nr2jQhoshe2
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
 
-Hi,
+On Mon, 2003-04-28 at 13:29, Stephen Liu wrote:
+> Hi all folks,
+>=20
+> Just join this list.
+>=20
+> I have
+>=20
+> kernel-2.4.18-18.8.0
+> kernel-source-2.4.18-18.8.0
+>=20
+> running in my system and I need "kernel-headers
+> -2.4.18-18.8.0" working
+> with them.  Google.com could not find it.
 
-On Monday 28 April 2003 13:24, Matti Aarnio wrote:
-
->   For some reason (while I was away from network),  GMX.NET  servers
->   have decided that  vger.kernel.org  is mail-bombing recipients.
-
-Ugh, not good. Ok, I switched of that mail-bombing filter. Let's see if it=
-=20
-makes a difference.
+why would you need glibc headers ????
 
 
->   I forwarded to you, and all other GMX.NET domain subscribers the letter
->   I have already sent to   postmaster@gmx.net  -- but you (as their
->   customers) may have more weight that an external nobody, like myself...
->
->   Most common troubles that users have are:
->     - "Relaying denied"  (in its many forms
-> 	  -->   http://vger.kernel.org/mxverify.html )
->     - "Mailbox full"  (these lists are of HIGH VOLUME!)
->     - DNS-lookup/connection timed out for 4+ days
->
->   Then come various weird things, like overzealous reg-expr message
->   content filters, broken MTA configurations  (don't people ever
->   test that their changes do work ?),  etc...
-
-Ok, I'll try contacting their support about this. That filter never was a=20
-problem earlier, maybe they changed something that f*cked it up. Hey, I hav=
-e=20
-a paid account there, maybe they listen to me. ;)
-
-Thanks for the quick reply.
-
-=2D-=20
-Oliver Feiler  <kiza@(kcore.de|lionking.org|gmx[pro].net)>
-http://kiza.kcore.de/    <--    homepage
-PGP-key      -->    /pgpkey.shtml
-http://kiza.kcore.de/journal/
-
---Boundary-02=_aIRr+rURAIC+wcI
-Content-Type: application/pgp-signature
-Content-Description: signature
+--=-YC4RJ88i8nr2jQhoshe2
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQA+rRIaOpifZVYdT9IRAmLcAJ9I/PzHtJsVipHoxZfEUG8lVyczKgCfavJD
-7dBBv+3fCrNn732XLsvy80c=
-=jobw
+iD8DBQA+rRJuxULwo51rQBIRAr22AKCS1ffUJZwzKmz0IanrBkUD0WItHACeOiCP
+UGSIvBCa0AK+r7wFhnDdsFo=
+=HLWi
 -----END PGP SIGNATURE-----
 
---Boundary-02=_aIRr+rURAIC+wcI--
-
+--=-YC4RJ88i8nr2jQhoshe2--

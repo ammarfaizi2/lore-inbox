@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270965AbTGPSoc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 14:44:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271053AbTGPSnQ
+	id S271053AbTGPSqr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 14:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271033AbTGPSqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 14:43:16 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:16787 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S270965AbTGPSll (ORCPT
+	Wed, 16 Jul 2003 14:46:45 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:21651 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S271053AbTGPSp3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 14:41:41 -0400
-Date: Wed, 16 Jul 2003 20:56:19 +0200
+	Wed, 16 Jul 2003 14:45:29 -0400
+Date: Wed, 16 Jul 2003 21:00:18 +0200
 From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jens Axboe <axboe@suse.de>, Dave Jones <davej@codemonkey.org.uk>,
-       vojtech@suse.cz,
+To: Dave Jones <davej@codemonkey.org.uk>, Jens Axboe <axboe@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, vojtech@suse.cz,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: PS2 mouse going nuts during cdparanoia session.
-Message-ID: <20030716185619.GD20241@ucw.cz>
-References: <20030716165701.GA21896@suse.de> <20030716170352.GJ833@suse.de> <1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <20030716190018.GE20241@ucw.cz>
+References: <20030716165701.GA21896@suse.de> <20030716170352.GJ833@suse.de> <1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk> <20030716171607.GM833@suse.de> <20030716172331.GD21896@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <20030716172331.GD21896@suse.de>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 06:10:33PM +0100, Alan Cox wrote:
-> On Mer, 2003-07-16 at 18:03, Jens Axboe wrote:
-> > > The IDE CD drive is using DMA, and interrupts are unmasked.
-> > > according to the logs, its happened 32 times since I last
+On Wed, Jul 16, 2003 at 06:23:31PM +0100, Dave Jones wrote:
+> On Wed, Jul 16, 2003 at 07:16:07PM +0200, Jens Axboe wrote:
 > 
-> > Yes. You can try and make the situation a little better by unmasking
-> > interrupts with -u1. Or you can try and use a ripper that actually uses
+>  > > > SG_IO, that way you can use dma (and zero copy) for the rips. That will
+>  > > > be lots more smooth.
+>  > > So why isnt this occuring on 2.4 .. thats the important question here is
+>  > > this a logging thing, a new input layer bug, an ide bug or what ?
+>  > Dave, have you tried 2.4 newest?
 > 
-> He already is 
+> I've not booted a 2.4 kernel since 2.4.20..
 > 
-> > SG_IO, that way you can use dma (and zero copy) for the rips. That will
-> > be lots more smooth.
+>  > Some of the newer IDE stuff kept
+>  > interrupts off for ages, maybe it's on 2.4 also.
 > 
-> So why isnt this occuring on 2.4 .. thats the important question here is
-> this a logging thing, a new input layer bug, an ide bug or what ?
+> I can try sometime if you want to know.. (I've got plenty more
+> CDs that need encoding, so I'll have plenty of opportunity to
+> see this bug if its there 8-)
 
-This is basically because the check for lost bytes wasn't present in
-2.4. Now that it is there, it works well with real lost bytes, but will
-fire also in case when the mouse interrupt was delayed for more than
-half a second, or if indeed a mouse interrupt gets lost. The 2.5 kernel
-by default programs the mouse to high speed reporting (up to 200 updates
-per second). This may, possibly make the problem show up easier. There
-might be real lost bytes on some machines, too. This can be checked by
-defining DEBUG in i8042.c
+Dave, can you please enable the DEBUG in i8042.c so that I can see
+whether the bytes really get lost or if the unsync check is just
+triggering by mistake?
+
+>  > Also Dave, can you try
+>  > and do a vmstat 1 while ripping and PS2 dropping out?
+> 
+> Ok, I just fired that up in another window.
+> When it happens next, I'll mail off a snapshot..
+> 
+> 		Dave
+> 
 
 -- 
 Vojtech Pavlik

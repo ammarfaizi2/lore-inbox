@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318088AbSG2Urn>; Mon, 29 Jul 2002 16:47:43 -0400
+	id <S318073AbSG2Ung>; Mon, 29 Jul 2002 16:43:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318092AbSG2Urn>; Mon, 29 Jul 2002 16:47:43 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:59516 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S318088AbSG2Urm>; Mon, 29 Jul 2002 16:47:42 -0400
-Date: Mon, 29 Jul 2002 22:52:11 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of PAGE_{CACHE_,}{MASK,ALIGN}
-Message-ID: <20020729205211.GB1201@dualathlon.random>
-References: <5.1.0.14.2.20020728193528.04336a80@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0207281622350.8208-100000@home.transmeta.com> <3D448808.CF8D18BA@zip.com.au> <20020729004942.GL1201@dualathlon.random> <3D44A2DF.F751B564@zip.com.au>
+	id <S318080AbSG2Ung>; Mon, 29 Jul 2002 16:43:36 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22803 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318073AbSG2Une>;
+	Mon, 29 Jul 2002 16:43:34 -0400
+Date: Mon, 29 Jul 2002 21:46:56 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-ia64@linuxia64.org'" <linux-ia64@linuxia64.org>,
+       "'hpl@cs.utk.edu'" <hpl@cs.utk.edu>
+Subject: Re: [Linux-ia64] Linux kernel deadlock caused by spinlock bug
+Message-ID: <20020729214656.B3317@parcelfarce.linux.theplanet.co.uk>
+References: <3FAD1088D4556046AEC48D80B47B478C0101F3AD@usslc-exch-4.slc.unisys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D44A2DF.F751B564@zip.com.au>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C0101F3AD@usslc-exch-4.slc.unisys.com>; from kevin.vanmaren@unisys.com on Mon, Jul 29, 2002 at 03:37:17PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 28, 2002 at 07:05:19PM -0700, Andrew Morton wrote:
-> But yes, all of this is a straight speed/space tradeoff.  Probably
-> some of it should be ifdeffed.
+On Mon, Jul 29, 2002 at 03:37:17PM -0500, Van Maren, Kevin wrote:
+> I changed the code to allow the writer bit to remain set even if
+> there is a reader.  By only allowing a single processor to set
+> the writer bit, I don't have to worry about pending writers starving
+> out readers.  The potential writer that was able to set the writer bit
+> gains ownership of the lock when the current readers finish.  Since
+> the retry for read_lock does not keep trying to increment the reader
+> count, there are no other required changes.
 
-I would say so. recalculating page_address in cpu core with no cacheline
-access is one thing, deriving the index is a different thing.
+however, this is broken.  linux relies on being able to do
 
-> The cost of the tree walk doesn't worry me much - generally we
-> walk the tree with good locality of reference, so most everything is
-> in cache anyway.
+read_lock(x);
+func()
+  -> func()
+       -> func()
+            -> read_lock(x);
 
-well, the rbtree showedup heavily when it started growing more than a
-few steps, it has less locality of reference though.
+if a writer comes between those two read locks, you're toast.
 
->    Good luck setting up a testcase which does this ;)
+i suspect the right answer for the contention you're seeing is an improved
+get_timeofday which is lockless.
 
-a gigabit will trigger it in a millisecond. of course nobody tested it
-either I guess (I guess not many people tested the 800Gbyte offset
-either in the first place).
-
-> Then again, Andi says that sizeof(struct page) is a problem for
-> x86-64.
-
-not true.
-
-> No recursion needed, no allocations needed.
-
-the 28 bytes if they're on the stack they're like recursion, just using
-an interactive algorithm.
-
-you're done with 28 bytes with a max 7/8 level tree, so 7*4 = 28 (4 size
-of pointer/long). On a 32bit arch the max index supported is
-2^32, on a 64bit arch the max index supported is
-2^(64-PAGE_CACHE_SHFIT), plus each pointer is 8 bytes. You may want to
-do the math to verify if you've enough stack to walk the tree in order,
-it's not obvious.
-
-> But I don't see any showstoppers here.
-
-on a 32bit arch with 32bit index it seems ok to me too, on 64bit
-somebody has to do the math and it's not really obvious to me that's
-feasible.
-
-Andrea
+-- 
+Revolutions do not require corporate support.

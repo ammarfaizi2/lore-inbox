@@ -1,43 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286243AbRLTNQE>; Thu, 20 Dec 2001 08:16:04 -0500
+	id <S286238AbRLTNXo>; Thu, 20 Dec 2001 08:23:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286237AbRLTNPz>; Thu, 20 Dec 2001 08:15:55 -0500
-Received: from relay-2m.club-internet.fr ([195.36.216.171]:64460 "HELO
-	relay-2m.club-internet.fr") by vger.kernel.org with SMTP
-	id <S286242AbRLTNPk>; Thu, 20 Dec 2001 08:15:40 -0500
-Message-ID: <3C21E47A.6060001@freesurf.fr>
-Date: Thu, 20 Dec 2001 14:15:38 +0100
-From: Kilobug <kilobug@freesurf.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011219
-X-Accept-Language: fr-fr, fr, en
+	id <S286241AbRLTNXh>; Thu, 20 Dec 2001 08:23:37 -0500
+Received: from oe27.law9.hotmail.com ([64.4.8.84]:64776 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S286238AbRLTNXT>;
+	Thu, 20 Dec 2001 08:23:19 -0500
+X-Originating-IP: [66.108.21.174]
+From: "T. A." <tkhoadfdsaf@hotmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Consistant complete deadlock with kernel 2.4.16 on an Abit VP6 with dual 1 Gig CPUs and an ICP GDT RAID card
+Date: Wed, 19 Dec 2001 16:22:47 -0500
 MIME-Version: 1.0
-To: lkm <linux-kernel@vger.kernel.org>
-Subject: init 0 freeze with kernel 2.5.1
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <OE272TUSzbAUfKRfcjc00005359@hotmail.com>
+X-OriginalArrivalTime: 20 Dec 2001 13:23:13.0317 (UTC) FILETIME=[79E41550:01C18959]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-	On my Debian Sid system, when I type 'halt' or 'init 0' using kernel 
-2.5.1, the systems blocks on "Init: sending KILL signal to all 
-processes..." (console switching and magic sysrq still works). This 
-doesn't happen with 2.4.* (2.4.15, 2.4.17-rc1, 2.4.17-rc2), and it 
-didn't with 2.5.1-pre5.
-	On all those kernels I've applied the preemptive patch and some patches 
-from Netfiler's patch-o-matic. On 2.5.1 and 2.5.1-pre5, I've enabled 
-devfs, not on 2.4.17-rc2.
-	If you need additional infos, or if you additionals tests (like building 
-the 2.5.1 without devfs or preempt) I can do it, but I go to holidays 
-Saturday.
+Hi all,
 
-Thanx to you all !
--- 
-** Gael Le Mignot "Kilobug", Ing3 EPITA - http://kilobug.free.fr **
-Home Mail   : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
-GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
-Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
+    I recently setup my spiffy new SMP system.  The System consists of:
 
-"Software is like sex it's better when it's free.", Linus Torvalds
+Abit VP6 motherboard
+Dual ! Gig Pentium III CPUs
+128MB memory (for now)
+EIDE boot drive on the VIA EIDE port for most of the system
+RAID 5 setup using an Ultra2 ICP RAID controller (gdth driver)
 
+    After setting up the new raid I decided to run a burn in test on it with
+the following script:
+
+while [ "" = "" ]
+do
+    rm -rv linux-2.4.16.old
+    mv -v linux-2.4.16 linux-2.4.16.old
+    cp -av linux-2.4.16.old linux-2.4.16
+done
+
+    It didn't take very long.  After a 15 minutes or so the entire system
+deadlocked.  And very badly at that.  Not even the magic sysrq key
+combinations worked anymore.  I've spent the past few days trying to debug
+the problem and this is what I've found so far.
+
+The freezing appears to only happen when running my burn-in test on the raid
+drive.  (may have been one instant of it happening on the ide drive while
+compiling a kernel too, however I did a file operation on the raid drive
+shortly before the freeze so can't say for sure.  Though the EIDE burn-in
+test can run for quite a long while)
+
+The freezing only happens on an SMP kernel on dual CPUs.  (I tried out a
+non-SMP kernel.  No lockup.)
+It doesn't appear filesystem related.  (Tried both ext3 and ext2)
+It doesn't appear like a hardware issue.  Ran a burn-in test with FreeBSD.
+(Worked beautify)
+Also tried switching the RAID controller to different PCI slots and
+disabling the built-in Highpoint HPT370 EIDE pseudo raid controller so that
+the card didn't share an irq.
+Tried different BIOS settings, no change.
+Tried passing "noapic" to the kernel.  Deadlock still remained.
+Upgraded the BIOS. (deadlock on 2 different BIOSes)
+
+    Best I can tell there appears to be a problem with the ICP raid
+controller driver (gdth) in an SMP system, or at least in an SMP system
+running on this motherboard.  Does anybody else have an ICP RAID controller
+with a RAID 5 setup running successfully in an SMP system?  If so are you on
+an Abit VP6?  Anyone know of any 2.4.16 kernel bug that could be doing this?
+If so, is there a fix or a workaround?
+
+    Anyone know how I could debug the cause of this problem?  Machine
+deadlocks.  Not even an Ooops so I'm short on ideas on how to track the
+problem down.  Please help.  8-(  My new SMP system sucks on Linux.  8-(

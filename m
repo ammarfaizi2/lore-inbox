@@ -1,66 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbUBHGAR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 01:00:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbUBHGAQ
+	id S262360AbUBHGSj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 01:18:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbUBHGSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 01:00:16 -0500
-Received: from dslb138.fsr.net ([12.7.7.138]:56555 "EHLO sandall.us")
-	by vger.kernel.org with ESMTP id S262353AbUBHGAK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 01:00:10 -0500
-Message-ID: <1076220154.4025d0fa71a19@horde.sandall.us>
-Date: Sat,  7 Feb 2004 22:02:34 -0800
-From: Eric Sandall <eric@sandall.us>
-To: Steve Lee <steve@tuxsoft.com>
-Cc: gene.heskett@verizon.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: aRTS vs 2.6.3-rc1, aRTS loses
-References: <026201c3edf3$73ed8e50$e501a8c0@saturn>
-In-Reply-To: <026201c3edf3$73ed8e50$e501a8c0@saturn>
+	Sun, 8 Feb 2004 01:18:39 -0500
+Received: from bgp01038448bgs.sothwt01.mi.comcast.net ([68.43.98.24]:9386 "EHLO
+	fire-eyes.dynup.net") by vger.kernel.org with ESMTP id S262360AbUBHGSh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 01:18:37 -0500
+Message-ID: <4025D4BF.7010309@fire-eyes.dynup.net>
+Date: Sun, 08 Feb 2004 01:18:39 -0500
+From: fire-eyes <sgtphou@fire-eyes.dynup.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 192.168.0.2
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.2: psmouse.c: .... Mouse at isa0060/serio1/input0 lost synchronization,
+ throwing 3 bytes away.
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Steve Lee <steve@tuxsoft.com>:
-> I'm having the same problem you described in your original message.  I
-> built 2.6.3-rc1 as you described here, ".config + a make oldconfig" but
-> arts dies with a message saying, "Sound server error, CPU overload".  I
-> click OK, but about 30 seconds later it says the same thing again.  This
-> is with KDE 3.2 all compiled from sources with GCC 3.3.2.  I boot under
-> 2.6.2 and everything works well again.  I did notice that the sound
-> config file saved by doing "alsactl store" under 2.6.2 is not compatible
-> with that of the 2.6.3-rc1 kernel or versus.  If anyone else has any
-> ideas, I'm interested.  I was really hoping this kernel would solve some
-> issues I was seeing with 2.6.2.
-> 
-> Thanks,
-> Steve
+  Please CC: me, as I am not subscribed to this list.
 
-I can verify that this happens with 2.6.2-mm1 as well. KDE 3.2.0, gcc 3.3.2,
-glibc 2.3.2+NPTL, all compiled from source (athlon-mp).
 
--sandalle
+I am using kernel 2.6.2 with SMP support on an Asus A7M-266D 
+motherboard. I am using a Logitech M-BJ69 ps/2 mouse.
 
--- 
-PGP Key Fingerprint:  FCFF 26A1 BE21 08F4 BB91  FAED 1D7B 7D74 A8EF DD61
-http://search.keyserver.net:11371/pks/lookup?op=get&search=0xA8EFDD61
+While in xfree, twice today I had the following happen:
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCS/E/IT$ d-- s++:+>: a-- C++(+++) BL++++VIS>$ P+(++) L+++ E-(---) W++ N+@ o?
-K? w++++>-- O M-@ V-- PS+(+++) PE(-) Y++(+) PGP++(+) t+() 5++ X(+) R+(++)
-tv(--)b++(+++) DI+@ D++(+++) G>+++ e>+++ h---(++) r++ y+
-------END GEEK CODE BLOCK------
+While using the mouse, the pointer suddenly jumped wildly all over the 
+place, I heard exactly two PC speaker beeps, then I got control back. 
+This took about a quarter second in total. After that, no mouse button 
+worked, including wheels.
 
-Eric Sandall                     |  Source Mage GNU/Linux Developer
-eric@sandall.us                  |  http://www.sourcemage.org/
-http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
-http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
+I ctl-alt-backspace out of xfree. I check my load and it is high. I'm 
+using xfce 4.0.3 window manager, and xfwm4 is taking up 99.9% of cpu. I 
+need to kill -9 it. Not sure if xfce4 is actually a problem, I don't see 
+how it would affect the mouse.
 
-----------------------------------------------------------------
-This message was sent using IMP, the Internet Messaging Program.
+Both times I got the following error in logs:
+
+kernel: psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost 
+synchronization, throwing 3 bytes away.
+
+Here is some more info on my system:
+
+Gentoo Linux
+glibc-2.3.3_pre20040117
+gcc (GCC) 3.2.3 20030422 (Gentoo Linux 1.4 3.2.3-r1, propolice)
+xfree 4.3.99.902
+
+Now what stands out there is the xfree version. I never had this error 
+in 4.3.0.
+
+Starting xfree and xfce4, I get the following in logs. And yes it really 
+is this many times:
+
+atkbd.c: Unknown key released (translated set 2, code 0x7a on 
+isa0060/serio0).
+atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
+atkbd.c: Unknown key released (translated set 2, code 0x7a on 
+isa0060/serio0).
+atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
+atkbd.c: Unknown key released (translated set 2, code 0x7a on 
+isa0060/serio0).
+atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
+atkbd.c: Unknown key released (translated set 2, code 0x7a on 
+isa0060/serio0).
+atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
+
+
+Is there any further info I can provide to help solve a possible problem?
+
+Thanks!

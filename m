@@ -1,83 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262024AbUCEHW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 02:22:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbUCEHW6
+	id S262044AbUCEHpq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 02:45:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbUCEHpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 02:22:58 -0500
-Received: from dsl-082-083-136-020.arcor-ip.net ([82.83.136.20]:60290 "EHLO
-	server1.intern.kubla.de") by vger.kernel.org with ESMTP
-	id S262024AbUCEHW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 02:22:56 -0500
-Message-ID: <40482ACC.3070504@kubla.de>
-Date: Fri, 05 Mar 2004 08:22:52 +0100
-From: Dominik Kubla <dominik@kubla.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: de, en
+	Fri, 5 Mar 2004 02:45:46 -0500
+Received: from neon.tcs.hut.fi ([130.233.215.20]:29203 "EHLO neon.tcs.hut.fi")
+	by vger.kernel.org with ESMTP id S262044AbUCEHpn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 02:45:43 -0500
+Date: Fri, 5 Mar 2004 09:45:41 +0200 (EET)
+From: Ville Nuorvala <vnuorval@tcs.hut.fi>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.4-rc2]: define __attribute_const__ for userspace includes
+Message-ID: <Pine.LNX.4.58.0403050855200.18470@rhea.tcs.hut.fi>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: [ANNOUNCE] udev 021 release
-References: <20040303000957.GA11755@kroah.com> <4046CE91.50701@kubla.de> <20040304184442.GH13907@kroah.com>
-In-Reply-To: <20040304184442.GH13907@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Thu, Mar 04, 2004 at 07:37:05AM +0100, Dominik Kubla wrote:
-> 
->>On Tue, Mar 02, 2004 at 04:09:57PM -0800, Greg KH wrote:
->>
->>>I've released the 021 version of udev.  It can be found at:
->>>	kernel.org/pub/linux/utils/kernel/hotplug/udev-021.tar.gz
->>
->>Nice work, but  I ran into a problem  on my Debian system and  i did use
->>the udev-019 permissions file for  Debian. What's the story here anyway?
-> 
-> 
-> Debian has a "official" package.  I recommend you use that if you have a
-> Debian system.
+Hi,
 
-Hmm. Yes, i just tried it, but i am not impressed.  Somebody tried very 
-hard to make the resulting /dev look like devfs instead of following 
-devices.txt... Especially unconditionally using tmpfs for /dev is a
-bad idea if the user wants/needs to use ACLs.
+since at least the __attribute_const__ macro leaks into userspace via
+include/linux/if_tunnel.h, it causes a syntax error unless it is defined
+outside the #ifdef __KERNEL__ block in include/linux/compiler.h.
 
-So i'll continue to work from your sources.
+The patch below fixes this (and possibly other similar cases).
 
-> 
->>I seem to be unable to assign group "cdrom" to my ATAPI DVD/CD-RW drive.
->>It appears to me that the permissions syntax is missing a possibility to
->>overide the owner/group based upon the class of the device.
-> 
-> 
-> Permissions are based on the name of the device.
-> 
+Thanks,
+Ville
 
-Oh, i realized that. But my point is: shouldn't they be based on the 
-CLASS of the device rather than the name? After all the names are 
-changeable, but the class is not...
+===== include/linux/compiler.h 1.23 vs edited =====
+--- 1.23/include/linux/compiler.h	Thu Feb 19 08:54:05 2004
++++ edited/include/linux/compiler.h	Fri Mar  5 09:22:08 2004
+@@ -39,6 +39,20 @@
+ #define likely(x)	__builtin_expect(!!(x), 1)
+ #define unlikely(x)	__builtin_expect(!!(x), 0)
 
-I checked the hotplug-devel archives and saw that somebody has already
-posted a patch doing that. So i guess the question boils down to:
-Will you accept it or not?
++/* Optimization barrier */
++#ifndef barrier
++# define barrier() __memory_barrier()
++#endif
++
++#ifndef RELOC_HIDE
++# define RELOC_HIDE(ptr, off)					\
++  ({ unsigned long __ptr;					\
++     __ptr = (unsigned long) (ptr);				\
++    (typeof(ptr)) (__ptr + (off)); })
++#endif
++
++#endif /* __KERNEL__ */
++
+ /*
+  * Allow us to mark functions as 'deprecated' and have gcc emit a nice
+  * warning for each use, in hopes of speeding the functions removal.
+@@ -99,19 +113,5 @@
+ #ifndef noinline
+ #define noinline
+ #endif
+-
+-/* Optimization barrier */
+-#ifndef barrier
+-# define barrier() __memory_barrier()
+-#endif
+-
+-#ifndef RELOC_HIDE
+-# define RELOC_HIDE(ptr, off)					\
+-  ({ unsigned long __ptr;					\
+-     __ptr = (unsigned long) (ptr);				\
+-    (typeof(ptr)) (__ptr + (off)); })
+-#endif
+-
+-#endif /* __KERNEL__ */
 
->>Is there a way to distinguish between CD-ROM, DVD-ROM and writers? It is
->>not unusual  these days to  have at least a  DVD-ROM and CD-Writer  in a
->>desktop system. If you look at the  latest offers from Dell you will see
->>that they tend to include a DVD-ROM  and a DVD+RW drive in at least some
->>configurations. So  it would  be nice  if udev would  be able  to create
->>links like "cdwriter", "dvd" and "dvdwriter" out of the box. (And assign
->>the appropriate group to the device nodes...)
-> 
-> 
-> You can do that, just name them differently based on the type of device.
-> Also, try providing a symlink to "cdrom" to not break what users are
-> expecting.
+ #endif /* __LINUX_COMPILER_H */
 
-Would you care to explain how to do it?
-
-TIA,
-   Dominik
+--
+Ville Nuorvala
+Research Assistant, Institute of Digital Communications,
+Helsinki University of Technology
+email: vnuorval@tcs.hut.fi, phone: +358 (0)9 451 5257

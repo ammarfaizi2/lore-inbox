@@ -1,82 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbUFBLnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbUFBLow@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbUFBLnS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 07:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbUFBLnS
+	id S262008AbUFBLow (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 07:44:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbUFBLow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 07:43:18 -0400
-Received: from mail017.syd.optusnet.com.au ([211.29.132.168]:28068 "EHLO
-	mail017.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261998AbUFBLnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 07:43:15 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: FabF <fabian.frederick@skynet.be>
-Subject: Re: why swap at all?
-Date: Wed, 2 Jun 2004 21:42:52 +1000
-User-Agent: KMail/1.6.1
-Cc: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       linux-kernel@vger.kernel.org
-References: <E1BVIVG-0003wL-00@calista.eckenfels.6bone.ka-ip.net> <1086154721.2275.2.camel@localhost.localdomain>
-In-Reply-To: <1086154721.2275.2.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406022142.52854.kernel@kolivas.org>
+	Wed, 2 Jun 2004 07:44:52 -0400
+Received: from mivlgu.ru ([81.18.140.87]:5851 "EHLO mail.mivlgu.ru")
+	by vger.kernel.org with ESMTP id S262008AbUFBLoT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 07:44:19 -0400
+Date: Wed, 2 Jun 2004 15:44:11 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Paul Serice <paul@serice.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] iso9660 Inodes Anywhere and NFS
+Message-Id: <20040602154411.0032d0f5.vsu@altlinux.ru>
+In-Reply-To: <40BD2841.2050509@serice.net>
+References: <40BD2841.2050509@serice.net>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Wed__2_Jun_2004_15_44_11_+0400_DIbJYKCOWmft=oC2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jun 2004 15:38, FabF wrote:
-> On Wed, 2004-06-02 at 01:17, Bernd Eckenfels wrote:
-> > In article <200406012000.i51K0vor019011@turing-police.cc.vt.edu> you 
-wrote:
-> > > out (unlike some, I don't mind if Mozilla or OpenOffice end up out on
-> > > disk after extended inactivity - but if my window manager gets swapped
-> > > out, I get peeved when focus-follows-mouse doesn't and my typing goes
-> > > into the wrong window or some such... ;)
-> >
-> > Yes but: your wm is so  often used/activated it will not get swaped  out.
-> > But if your mouse passes over mozilla and tries to focus it, then you
-> > will feel the pain of a swapped-out x program.
->
-> Exactly !
-> Does autoregulated VM swap. patch could help here ?
+--Signature=_Wed__2_Jun_2004_15_44_11_+0400_DIbJYKCOWmft=oC2
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Unless you are pushing the limits of your available ram by your usage pattern 
-then yes the autoregulated swappiness patch should help.
+On Tue, 01 Jun 2004 20:07:13 -0500 Paul Serice wrote:
 
-available here:
-http://ck.kolivas.org/patches/2.6/2.6.7-rc2/patch-2.6.7-rc2-am11
+> This is my fourth attempt to patch the isofs code.  It is similar to
+> the last posting except this one implements the NFS get_parent()
+> method which has always been missing.
+> 
+> The original problem I set out to addresses is that the current
+> iso9660 file system cannot reach inodes located beyond the 4GB
+> barrier.  This is caused by using the inode number as the byte offset
+> of the inode data.  Being 32-bits wide, the inode number is unable to
+> reach inode data that does not reside on the first 4GB of the file
+> system.
+> 
+> This causes real problems with "growisofs"
+> 
+>      http://fy.chalmers.se/~appro/linux/DVD+RW/#isofs4gb
+> 
+> and my pet project "shunt"
+> 
+>      http://www.serice.net/shunt/
+> 
+> This patch switches the isofs code from iget() to iget5_locked() which
+> allows extra data to be passed into isofs_read_inode() so that inode
+> data anywhere on the disk can be reached.
+> 
+> The inode number scheme was also changed.  Continuing to use the byte
+> offset would have resulted in non-unique inodes in many common
+> situations, but because the inode number no longer plays any role in
+> reading the meta-data off the disk, I was free to set the inode number
+> to some unique characteristic of the file.  I have chosen to use the
+> block offset which is also 32-bits wide.
+> 
+> Lastly, the pre-patch code uses the default export_operations to
+> handle accessing the file system through NFS.  The problem with this
+> is that the default NFS operations assume that iget() works which is
+> no longer the case because of the necessity of switching to
+> iget5_locked().  So, I had to implement the NFS operations too.  As a
+> bonus, I went ahead and implemented the NFS get_parent() method which
+> has always been missing.
+> 
+> Thanks,
+> Paul Serice
 
-Just a brief word that might clarify things for people. It seems this huge 
-swap discussion centres around 2 different arguments. Akpm has said that the 
-correct way for the vm to behave is that of swappiness=100. Desktop users 
-note they have less swap out of the programs they use with swappiness 0 or 
-their swap turned off. When your swappiness is set high, the current vm 
-decisions are the fastest they can be, but when you go back to your 
-applications they will take longer to restart. When your swappiness is set 
-low your applications will restart rapidly, but the current vm will be doing 
-more work and be slower. Most benchmarks will show the latter, but most 
-desktop users will feel the former and not really notice the latter.
+> diff -uprN -X dontdiff linux-2.6.7-rc2/fs/isofs/export.c linux-2.6.7-rc2-isofs.3/fs/isofs/export.c
+> --- linux-2.6.7-rc2/fs/isofs/export.c	1969-12-31 18:00:00.000000000 -0600
+> +++ linux-2.6.7-rc2-isofs.3/fs/isofs/export.c	2004-06-01 15:42:51.000000000 -0500
+...
+> +/* The .get_parent method should be added, but .get_parent has never
+> + * been implemented in the isofs code.  So, its absence will not be
+> + * sorely missed. */
 
-Try the little experiment to see: Boot with mem=128M and try to compile a 2.6 
-kernel with all the debugging symbols option enabled - do this with 
-swappiness set to 0 and then at 100. You'll see it compile much faster at 
-100. Yet you know that if you set your swappiness to 0 mozilla will load 
-faster next time you use it on your desktop during your normal usage pattern 
-(of course you'd probably be using mozilla on a system with a bit more than 
-128M ram but this helps demonstrate the point). 
+Obviously this comment is stale.
 
-Does this explain in coarse examples to the desktop users why ideal systems 
-shouldn't be swap disabled or swappiness=0 ?
+> diff -uprN -X dontdiff linux-2.6.7-rc2/fs/isofs/inode.c linux-2.6.7-rc2-isofs.3/fs/isofs/inode.c
+> --- linux-2.6.7-rc2/fs/isofs/inode.c	2004-05-31 03:53:07.000000000 -0500
+> +++ linux-2.6.7-rc2-isofs.3/fs/isofs/inode.c	2004-06-01 16:39:10.000000000 -0500
+> @@ -740,17 +728,14 @@ root_found:
+>  	   
+>  	/* RDE: data zone now byte offset! */
 
-The autoregulated swappiness patch tries to get some sort of common ground, 
-where it sacrifices performance slightly currently to improve what happens 
-the next time you use your machine substantially. Because it changes with the 
-amount of application pages in ram, it will not increasingly sacrifice 
-performance when your memory is full with application pages. What it will not 
-do is improve the swap thrash situation when you have grossly overloaded your 
-ram.
+This comment is now wrong too.
 
-Con
+> -	first_data_zone = ((isonum_733 (rootp->extent) +
+> -			  isonum_711 (rootp->ext_attr_length))
+> -			 << sbi->s_log_zone_size);
+> +	first_data_zone = isonum_733 (rootp->extent) +
+> +			  isonum_711 (rootp->ext_attr_length);
+>  	sbi->s_firstdatazone = first_data_zone;
+
+--Signature=_Wed__2_Jun_2004_15_44_11_+0400_DIbJYKCOWmft=oC2
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAvb2OW82GfkQfsqIRAi9+AJ9/zzIX/009KubylLbHW0ddfbWr9wCffNYI
+s9ihlkJnECCAoeEPa2QSFKM=
+=kyTp
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__2_Jun_2004_15_44_11_+0400_DIbJYKCOWmft=oC2--

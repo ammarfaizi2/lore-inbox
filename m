@@ -1,63 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267083AbTBCWkN>; Mon, 3 Feb 2003 17:40:13 -0500
+	id <S266965AbTBCWiE>; Mon, 3 Feb 2003 17:38:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266964AbTBCWkF>; Mon, 3 Feb 2003 17:40:05 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:12759 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S267033AbTBCWiJ>; Mon, 3 Feb 2003 17:38:09 -0500
-Message-ID: <F760B14C9561B941B89469F59BA3A84725A14B@orsmsx401.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Valdis.Kletnieks@vt.edu, John Bradford <john@grabjohn.com>,
-       Seamus <assembly@gofree.indigo.ie>, linux-kernel@vger.kernel.org
-Subject: RE: CPU throttling??
-Date: Mon, 3 Feb 2003 13:51:13 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S267049AbTBCWh4>; Mon, 3 Feb 2003 17:37:56 -0500
+Received: from pppoe-66-112-25-82.rb.spt.centurytel.net ([66.112.25.82]:18816
+	"EHLO pioneer") by vger.kernel.org with ESMTP id <S267068AbTBCWhp>;
+	Mon, 3 Feb 2003 17:37:45 -0500
+Date: Mon, 3 Feb 2003 16:47:13 -0600
+From: James Curbo <phoenix@sandwich.net>
+To: linux-kernel@vger.kernel.org
+Subject: [2.5.59] nforce2 IDE support for the amd74xx driver
+Message-ID: <20030203224713.GA2625@carthage>
+Reply-To: James Curbo <phoenix@sandwich.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ew6BAiZeqk4r7MaW"
+Content-Disposition: inline
+X-Operating-System: Debian GNU/Linux
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Dave Jones [mailto:davej@codemonkey.org.uk] 
->  > Throttling offers a linear power/perf tradeoff if your 
-> system doesn't
->  > have C state support (or if you aren't using it) but really it is
->  > preferable to keep the CPU at its nominal speed, get the work done
->  > sooner, and start sleeping right away. The quote above 
-> makes it sound
->  > like the voltage is scaled when throttling, and that isn't 
-> accurate -
->  > voltage is scaled when sleeping (to counteract leakage current), at
->  > least on modern Intel mobile processors.
-> 
-> Most (all?[1]) other modern x86 mobile processors behave the 
-> way I mentioned.
-> AMD Powernow (K6 and K7), VIA longhaul/powersaver all have 
-> optimal voltages
-> they can be run at when clocked to different speeds. By way 
-> of example, a table from
-> my mobile athlon..
-> 
->     FID: 0x12 (4.0x [532MHz])   VID: 0x13 (1.200V)
->     FID: 0x4 (5.0x [665MHz])    VID: 0x13 (1.200V)
->     FID: 0x6 (6.0x [798MHz])    VID: 0x13 (1.200V)
->     FID: 0xa (8.0x [1064MHz])   VID: 0xd (1.350V)
->     FID: 0xf (10.5x [1396MHz])  VID: 0x9 (1.550V)
-> 
-> Sure I *could* run that at 523MHz and still pump 1.550V into it,
-> but why would I want to do that ?
 
-Voltage scaling. Yes, it's widespread. I was referring to an additional
-capability to lower voltage while the CPU is sleeping. But I digress.
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-But this whole thread didn't start as a discussion of voltage scaling,
-it started as a discussion of throttling - e.g. keeping your system at
-1400MHz 1.550V and simulating a slower processor by toggling the STPCLK#
-pin. And you're exactly right that no you *wouldn't* want to do that.
+The amd74xx IDE driver in 2.5.59 has support for the nforce IDE
+controller, but not explicitly for the nforce2 IDE controller (which has
+a different PCI ID, which is in the kernel already). I'm not sure if the
+nforce and nforce2 controllers are identical, but I made a small patch
+that made the amd74xx driver recognize the nforce2 IDE, and it boots for
+me, seems to work fine, as my drives were tuned to their highest
+transfer rate automatically (udma5). 
 
-I think we are in agreement. ;-)
+I don't know if this patch is proper or correct, but it Works for 
+Me [tm]. Patch is attached.
 
-Regards -- Andy
+-- 
+James Curbo <hannibal@adtrw.org> <phoenix@sandwich.net>
+
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="nforce2.patch"
+
+diff -u linux-2.5.59-orig/drivers/ide/pci/amd74xx.c linux-2.5.59/drivers/ide/pci/amd74xx.c
+--- linux-2.5.59-orig/drivers/ide/pci/amd74xx.c	2003-01-16 20:22:59.000000000 -0600
++++ linux-2.5.59/drivers/ide/pci/amd74xx.c	2003-02-03 15:39:25.000000000 -0600
+@@ -60,6 +60,8 @@
+ 	{ PCI_DEVICE_ID_AMD_OPUS_7441, 0x00, 0x40, AMD_UDMA_100 },			/* AMD-768 Opus */
+ 	{ PCI_DEVICE_ID_AMD_8111_IDE,  0x00, 0x40, AMD_UDMA_100 },			/* AMD-8111 */
+         { PCI_DEVICE_ID_NVIDIA_NFORCE_IDE, 0x00, 0x50, AMD_UDMA_100 },                  /* nVidia nForce */
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE, 0x00, 0x50, AMD_UDMA_100 },
++	/* nVidia nForce 2 */
+ 
+ 	{ 0 }
+ };
+@@ -446,6 +448,7 @@
+ 	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_OPUS_7441,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 3},
+ 	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8111_IDE, 	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4},
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_IDE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 5},
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 6},
+ 	{ 0, },
+ };
+ 
+diff -u linux-2.5.59-orig/drivers/ide/pci/amd74xx.h linux-2.5.59/drivers/ide/pci/amd74xx.h
+--- linux-2.5.59-orig/drivers/ide/pci/amd74xx.h	2003-01-16 20:21:37.000000000 -0600
++++ linux-2.5.59/drivers/ide/pci/amd74xx.h	2003-02-03 15:36:02.000000000 -0600
+@@ -110,6 +110,20 @@
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0,
+ 	},
++	{	/* 6 */
++		.vendor		= PCI_VENDOR_ID_NVIDIA,
++		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE,
++		.name		= "NFORCE2",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_iops	= NULL,
++		.init_hwif	= init_hwif_amd74xx,
++		.init_dma	= init_dma_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x50,0x01,0x01}, {0x50,0x02,0x02}},
++		.bootable	= ON_BOARD,
++		.extra		= 0,
++	},
+ 	{
+ 		.vendor		= 0,
+ 		.device		= 0,
+
+--ew6BAiZeqk4r7MaW--

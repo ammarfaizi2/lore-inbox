@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271883AbTHDQPG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 12:15:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271890AbTHDQPG
+	id S271848AbTHDQLz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 12:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271849AbTHDQLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 12:15:06 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:30146 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S271883AbTHDQPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 12:15:02 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Mon, 4 Aug 2003 18:15:00 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Jeff Muizelaar <muizelaar@rogers.com>
-Cc: linux-kernel@vger.kernel.org, mru@users.sourceforge.net,
-       Neil Brown <neilb@cse.unsw.edu.au>
+	Mon, 4 Aug 2003 12:11:55 -0400
+Received: from pat.ukc.ac.uk ([129.12.21.15]:11253 "EHLO pat.kent.ac.uk")
+	by vger.kernel.org with ESMTP id S271848AbTHDQLx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 12:11:53 -0400
+To: linux-kernel@vger.kernel.org
 Subject: Re: FS: hardlinks on directories
-Message-Id: <20030804181500.074aec51.skraw@ithnet.com>
-In-Reply-To: <3F2E7C63.2000203@rogers.com>
 References: <20030804141548.5060b9db.skraw@ithnet.com>
-	<yw1xsmohioah.fsf@users.sourceforge.net>
-	<20030804152226.60204b61.skraw@ithnet.com>
-	<3F2E7C63.2000203@rogers.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	<20030804134415.GA4454@win.tue.nl>
+	<20030804155604.2cdb96e7.skraw@ithnet.com>
+	<03080409334500.03650@tabby>
+	<20030804170506.11426617.skraw@ithnet.com>
+From: Adam Sampson <azz@us-lot.org>
+Organization: Don't wake me, 'cos I'm dreaming, and I might just stay inside
+ again today.
+Date: Mon, 04 Aug 2003 17:11:17 +0100
+In-Reply-To: <20030804170506.11426617.skraw@ithnet.com> (Stephan von
+ Krawczynski's message of "Mon, 4 Aug 2003 17:05:06 +0200")
+Message-ID: <y2aznips8re.fsf@cartman.at.fivegeeks.net>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-UKC-Mail-System: No virus detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 04 Aug 2003 11:31:47 -0400
-Jeff Muizelaar <muizelaar@rogers.com> wrote:
+Stephan von Krawczynski <skraw@ithnet.com> writes:
 
-> Stephan von Krawczynski wrote:
-> 
-> >
-> >I guess this is not really an option if talking about hundreds or thousands
-> >of"links", is it?
-> >  
-> >
-> actually hundreds or thounds still should be ok. See...
+> All that can handle symlinks already have the same problem
+> nowadays. Where is the difference?
 
-Hm, and I just found out that re-exporting "mount --bind" volumes does not work
-over nfs...
+lstat() will tell you if a file is a symlink; if you only walk into
+directories, then you're guaranteed not to get into a loop. If you've
+got two hardlinks to a directory, how do you make that available in
+stat() output, and how does a tree-walking program know which to walk
+into? You could do the rsync trick of keeping track of every
+device-inode pair you've seen to detect hardlinks, but that's horribly
+non-space-efficient on large directories -- particularly bad for
+backups.
 
-Is this correct, Neil?
+I could imagine this functionality maybe being useful for system
+administrators, but with normal Unixish userspace, it doesn't strike
+me as a good idea to give users the ability to create hardlinks to
+directories.
 
-Regards,
-Stephan
-
+-- 
+Adam Sampson <azz@us-lot.org>                        <http://offog.org/>

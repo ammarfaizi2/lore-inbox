@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263725AbUHJJV3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbUHJJWi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263725AbUHJJV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 05:21:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUHJJV3
+	id S262574AbUHJJWi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 05:22:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUHJJWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 05:21:29 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:3078 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S263725AbUHJJUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 05:20:44 -0400
-Message-ID: <41189443.3040504@hist.no>
-Date: Tue, 10 Aug 2004 11:24:19 +0200
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-CC: alan@lxorguk.ukuu.org.uk, axboe@suse.de, linux-kernel@vger.kernel.org,
-       vonbrand@inf.utfsm.cl
-Subject: Re: Linux Kernel bug report (includes fix)
-References: <200408091420.i79EKBEu010574@burner.fokus.fraunhofer.de>
-In-Reply-To: <200408091420.i79EKBEu010574@burner.fokus.fraunhofer.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Aug 2004 05:22:38 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:47570 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262574AbUHJJWa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 05:22:30 -0400
+Date: Tue, 10 Aug 2004 11:22:49 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O4
+Message-ID: <20040810092249.GA29875@elte.hu>
+References: <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu> <20040809130558.GA17725@elte.hu> <20040809190201.64dab6ea@mango.fruits.de> <1092103522.761.2.camel@mindpipe> <20040810085849.GC26081@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040810085849.GC26081@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
 
->
->>Linux kernel include files are not meant to be used by user
->>applications. He's perfectly correct. Glibc has its own exported set.
->>This is intentional to seperate internals from user space.
->>    
->>
->
->You should know that GLIBc is unrelated to the Linux kernel interfaces we are 
->talking about. Start using serious arguments please.
->  
->
-The kernel headers are _still_ not meant to be used by userspace,
-so don't try that.  If you don't want to use glibc headers - you get to 
-write
-your own headers.  You can extract info from the kernel headers, but they
-cannot be used directly from userspace programs.  They are not designed to
-be used that way.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-Helge Hafting
+> another idea: you are running this on a C3, using CONFIG_MCYRIXIII,
+> correct? That is one of the rare configs that triggers X86_USE_3DNOW
+> and MMX ops. If 3dnow is in any way handicapped in that CPU then that
+> could cause trouble. Could you compile for e.g. CONFIG_M586TSC? [that
+> option should be fully compatible with a C3.] - this will exclude the
+> MMX page clearing ops.
+
+another (more remote) possibility is that the timestamp counter gets
+somehow messed up during MMX ops. Does the ALSA detector use the
+timestamp counter, or does it only use jiffies? (if it only used jiffies
+that would give us some robustness since it's an independent
+time-source.) I suspect 'music indeed skips' isnt a good enough test for
+this case, given that jackd starts up ...
+
+	Ingo

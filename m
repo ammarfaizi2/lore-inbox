@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314575AbSDTHs2>; Sat, 20 Apr 2002 03:48:28 -0400
+	id <S314578AbSDTHzT>; Sat, 20 Apr 2002 03:55:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314576AbSDTHs1>; Sat, 20 Apr 2002 03:48:27 -0400
-Received: from sv1.valinux.co.jp ([202.221.173.100]:45577 "HELO
-	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S314575AbSDTHs1>;
-	Sat, 20 Apr 2002 03:48:27 -0400
-Date: Sat, 20 Apr 2002 16:47:22 +0900 (JST)
-Message-Id: <20020420.164722.90116338.taka@valinux.co.jp>
-To: trond.myklebust@fys.uio.no
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zerocopy NFS updated
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <E16yUXe-0004qj-00@charged.uio.no>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S314579AbSDTHzS>; Sat, 20 Apr 2002 03:55:18 -0400
+Received: from mail.getnet.net ([63.137.32.10]:64472 "HELO mail.getnet.net")
+	by vger.kernel.org with SMTP id <S314578AbSDTHzS>;
+	Sat, 20 Apr 2002 03:55:18 -0400
+Message-ID: <3CC11EE4.10504@westek-systems.com>
+Date: Sat, 20 Apr 2002 00:55:16 -0700
+From: Art Wagner <awagner@westek-systems.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre7-ac2
+In-Reply-To: <200204200038.g3K0c5110782@devserv.devel.redhat.com> <3CC0E2E9.3090600@westek-systems.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-> > And it seems to be more important on UDP sendfile().
-> > processes or threads sharing the same UDP socket would affect each other,
-> > while processes or threads on TCP sockets don't care about it as TCP
-> > connection is peer to peer.
-> 
-> No. It is not the lack of peer-to-peer connections that gives rise to the 
-> bottleneck, but the idea of several threads multiplexing sendfile() through a 
-> single socket. Given a bad program design, it can be done over TCP too.
-> 
-> The conclusion is that the programmer really ought to choose a different 
-> design. For multimedia streaming, for instance, it makes sense to use 1 UDP 
-> socket per thread rather than to multiplex the output through one socket.
 
-You mean, create UDP sockets which have the same port number? 
-Yes we can if we use setsockopt(SO_REUSEADDR).
-And it could lead less contention between CPUs.
-Sounds good!
+Art Wagner wrote:
+Oooops;
+please disregard my previous post. I was compiling with my head up my a__.
+Forgot to do "make xconfig" before "make bzImage".
+Excuse me.
 
-Thank you,
-Hirokazu Takahashi.
+Art
+
+> Hi;
+> There seems to be a problem with compiling 2.4.19-pre7-ac2. My Redhat 
+> (Skipjack Beta 2)
+> system fails make bzImage with the following messages;
+> gcc -Wall -Wstrict-prototypes =O2 -fomit-frame-pointer -o 
+> scripts/split-include script-include.c
+> make:  *** No rule to make targtet 'include/linux/autoconfig.h', 
+> needed by 'include/config/MARKER'  Stop
+> make:  *** Waiting for unfinished jobs........
+> Art Wagner
+>
+
+

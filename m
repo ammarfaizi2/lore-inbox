@@ -1,54 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262580AbTAEEMc>; Sat, 4 Jan 2003 23:12:32 -0500
+	id <S262789AbTAEEXQ>; Sat, 4 Jan 2003 23:23:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262602AbTAEEMc>; Sat, 4 Jan 2003 23:12:32 -0500
-Received: from mgr2.xmission.com ([198.60.22.202]:47082 "EHLO
-	mgr2.xmission.com") by vger.kernel.org with ESMTP
-	id <S262580AbTAEEMc>; Sat, 4 Jan 2003 23:12:32 -0500
-Message-ID: <3E17B253.8000700@xmission.com>
-Date: Sat, 04 Jan 2003 21:19:31 -0700
-From: Frank Jacobberger <f1j1@xmission.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021218
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: ehci-hcd.o still a problem kernels > 2.4.20?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262806AbTAEEXQ>; Sat, 4 Jan 2003 23:23:16 -0500
+Received: from f58.sea2.hotmail.com ([207.68.165.58]:39690 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S262789AbTAEEXP>;
+	Sat, 4 Jan 2003 23:23:15 -0500
+X-Originating-IP: [218.75.193.47]
+From: "fretre lewis" <fretre3618@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: more question, please help me understand this  line code about pci
+Date: Sun, 05 Jan 2003 04:31:37 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F58f8BylrQa7kaHvHJ100011ed9@hotmail.com>
+X-OriginalArrivalTime: 05 Jan 2003 04:31:40.0424 (UTC) FILETIME=[57A19080:01C2B473]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm noticing the following in kernels > 2.4.20:
 
-I'm getting an odd error when kernel boots that the ehci-hcd.o.gz can't 
-load..
 
-or if doing an insmod ehci-hcd I get:
+  thank Alan Cox and John Bradford , very nice.
 
-insmod ehci-hcd
-Using /lib/modules/2.4.20-2.5/kernel/drivers/usb/hcd/ehci-hcd.o.gz
-/lib/modules/2.4.20-2.5/kernel/drivers/usb/hcd/ehci-hcd.o.gz: 
-init_module: No such device
+  however, I am afraid I haven't make my idea quite clear because of my pool 
+english, permit me saying again:
 
-Dmesg and everything else points to it loading:
+  I am learning code about pci, and I can't understand some lines in
+pci_check_direct(), at arch/i386/kernel/pci-pc.c
 
-hcd.c: ehci-hcd @ 00:1d.7, Intel Corp. 82801DB USB EHCI Controller
+the PCI spec v2.0 say: ( page32)
 
-and:
+"Anytime a host bridge sees a full DWORD I/O write from the host to
+CONFIG_ADDRESS, the bridge must latch the data into its CONFIG_ADDRESS
+register. On full DWORD I/O reads to CONFIG_ADDRESS,the bridge must return 
+the
+data in CONFIG_ADDRESS. Any other types of accesses to this 
+address(non-DWORD)
+have no effect on CONFIG_ADDRESS and are excuted as normal I/O transaction 
+on PCI bus......"
 
-Doing an lspci bears this out:
+CONFIG_ADDRESS = 0xcf8
+CONFIG_data = 0xcfc
 
-00:1d.7 USB Controller: Intel Corp. 82801DB USB EHCI Controller (rev 02)
+so I think "outb (0x01, 0xCFB);" just is a normal write to a device at port 
+address 0xCFB (maybe wrong, fixed me), then my questions are:
 
-No idea why the kernel is balking at boot and not logging this to kernel 
-messages!
+1. which device is at port address 0xCFB?
 
-Any more ideas on a good fix for this?
+2. what is meaning of the writing operation "outb (0x01, 0xCFB);" for THIS 
+device?, it'seem that PCI spec v2.0 not say anything about it?
 
-Anyone interested can chime in on RH bugzilla #79210
+3. why need "outb (0x01, 0xCFB);" before configuration operation "outl 
+(0x80000000, 0xCF8);" if check configuration type 1? and why need "outb 
+(0x00, 0xCFB);" before "outb (0x00, 0xCF8);" if check configuration type 2?
 
-Thanks,
+please help me, thanks a lot.
 
-Frank
+406 static struct pci_ops * __devinit pci_check_direct(void)
+407 {
+408         unsigned int tmp;
+409         unsigned long flags;
+410
+411         __save_flags(flags); __cli();
+412
+413         /*
+414          * Check if configuration type 1 works.
+415          */
+416         if (pci_probe & PCI_PROBE_CONF1) {
+417                 outb (0x01, 0xCFB);  <<<=========
+418                 tmp = inl (0xCF8);
+419                 outl (0x80000000, 0xCF8);
+420                 if (inl (0xCF8) == 0x80000000 &&
+421                     pci_sanity_check(&pci_direct_conf1)) {
+422                         outl (tmp, 0xCF8);
+423                         __restore_flags(flags);
+424                         printk(KERN_INFO "PCI: Using configuration type 
+1\n");
+425                         request_region(0xCF8, 8, "PCI conf1");
+426                         return &pci_direct_conf1;
+427                 }
+428                 outl (tmp, 0xCF8);
+429         }
+430
+431         /*
+432          * Check if configuration type 2 works.
+433          */
+434         if (pci_probe & PCI_PROBE_CONF2) {
+435                 outb (0x00, 0xCFB);   <<<=========
+436                 outb (0x00, 0xCF8);
+437                 outb (0x00, 0xCFA);
+438                 if (inb (0xCF8) == 0x00 && inb (0xCFA) == 0x00 &&
+439                     pci_sanity_check(&pci_direct_conf2)) {
+440                         __restore_flags(flags);
+441                         printk(KERN_INFO "PCI: Using configuration type 
+2\n");
+442                         request_region(0xCF8, 4, "PCI conf2");
+443                         return &pci_direct_conf2;
+444                 }
+445         }
+446
+447         __restore_flags(flags);
+448         return NULL;
+449 }
+450
+451 #endif
+
+
+
+
+
+_________________________________________________________________
+MSN 8 with e-mail virus protection service: 2 months FREE* 
+http://join.msn.com/?page=features/virus
 

@@ -1,85 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132557AbRDCTml>; Tue, 3 Apr 2001 15:42:41 -0400
+	id <S132582AbRDCTnV>; Tue, 3 Apr 2001 15:43:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132582AbRDCTmb>; Tue, 3 Apr 2001 15:42:31 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:24338 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S132557AbRDCTmU>;
-	Tue, 3 Apr 2001 15:42:20 -0400
-To: <linux-kernel@vger.kernel.org>
-Cc: Francois Romieu <romieu@cogenit.fr>
-Subject: Re: RFC: configuring net interfaces
-In-Reply-To: <Pine.LNX.3.96.1010401165413.28121X-100000@mandrakesoft.mandrakesoft.com>
-	<m31yrbce2m.fsf@intrepid.pm.waw.pl>
-	<20010403102734.A27344@se1.cogenit.fr>
-Content-Type: text/plain; charset=US-ASCII
-From: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
-In-Reply-To: Francois Romieu's message of "Tue, 3 Apr 2001 10:27:34 +0200"
-Date: 03 Apr 2001 15:07:01 +0200
-Message-ID: <m3g0fq9loq.fsf@intrepid.pm.waw.pl>
+	id <S132612AbRDCTnM>; Tue, 3 Apr 2001 15:43:12 -0400
+Received: from mail.occamnetworks.com ([216.64.159.194]:63239 "EHLO
+	occamnetworks.com") by vger.kernel.org with ESMTP
+	id <S132582AbRDCTnH>; Tue, 3 Apr 2001 15:43:07 -0400
+Message-ID: <3ACA2761.16F4B63D@occamnetworks.com>
+Date: Tue, 03 Apr 2001 12:41:21 -0700
+From: Koral Ilgun <koral@occamnetworks.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Ivan Passos <lists@cyclades.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Linux PPP List <linux-ppp@vger.kernel.org>
+Subject: Re: MLPPP in kernels 2.2.x w/ PPP v2.4.1
+In-Reply-To: <Pine.LNX.4.30.0104031042540.25537-100000@intra.cyclades.com> <3ACA2697.ACC4EDD7@occamnetworks.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@cogenit.fr> writes:
 
-> > I think we should separate two things there:
-> > - the place (files) where SIOCxxx values are defined
-> > - the way we use ioctl call.
+Oops, I forgot to add the most important part from README.linux:
+
+...
+The 2.2 series kernels contain an older version of the kernel PPP
+driver, one which doesn't support multilink.  If you want multilink,
+you need to run the latest 2.4 series kernel.  The kernel PPP driver
+was completely rewritten for the 2.4 series kernels to support
+multilink and to allow it to operate over diverse kinds of
+communication medium (the 2.2 driver only operates over serial ports
+and devices which look like serial ports, such as pseudo-ttys).
+...
+
+
+Koral
+
+
+Koral Ilgun wrote:
 > 
-> (1) and (2) may be related: 
-> no sub-ioctl (2) + scattered files (1) = *ouch*
-
-Sure.
-
-> Variant:
-> 	struct sub_req sub;
+> These are excerpts from ppp 2.4.1 README.linux file:
 > 
-> 	sub.fr_protocol.t391 = 20;
-> 	sub.fr_protocol.n293 = 5;
-> 	sub.sub_ioctl = SIOC_SET_FR_PROTO_PARAMETERS;
-> 	ifreq.name = "qwe0";
-> 	ifreq.data = &sub;
-> 	ioctl(s, SIOC_FR_PROTO, &ifreq);
+> ...
+> 
+> The Linux PPP implementation includes both kernel and user-level
+> parts.  This package contains the user-level part, which consists of
+> the PPP daemon (pppd) and associated utilities.  In the past this
+> package has contained updated kernel drivers.  This is no longer
+> necessary, as the current 2.2 and 2.4 kernel sources contain
+> up-to-date drivers.
+> 
+> ...
+> 
+> 2.1 Kernel driver
+> 
+> Assuming you are running a recent 2.2 or 2.4 (or later) series kernel,
+> the kernel source code will contain an up-to-date kernel PPP driver.
+> If the PPP driver was included in your kernel configuration when your
+> kernel was built, then you only need to install the user-level
+> programs.  Otherwise you will need to get the source tree for your
+> kernel version, configure it with PPP included, and recompile.  Most
+> Linux distribution vendors ship kernels with PPP included in the
+> configuration.
+> 
+> ...
+> 
+> Hope this helps,
+> 
+> Koral
+> 
+> Ivan Passos wrote:
+> >
+> > Hello, everyone,
+> >
+> > The quick question: if I install PPP 2.4.1 in a Linux box w/ kernel 2.2.x,
+> > will I have support to MLPPP??
+> >
+> > Now, the explanation for my doubt. I've seen several (actually 3)
+> > different MLPPP implementations for older versions of PPP/pppd (namely
+> > 2.3.5 and 2.3.11). I'd like to know if once I install PPP 2.4.1 in a
+> > system w/ kernel 2.2.x, I kill my need for these kind of patches in order
+> > to support MLPPP. Or would I still need some kind of patch, even for PPP
+> > 2.4.1, to have MLPPP support in kernels 2.2.x??
+> >
+> > I know that for kernels 2.4.x these patches are not needed.
+> >
+> > Thanks in advance for your help!
+> >
+> > Later,
+> > Ivan
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-ppp" in
+> > the body of a message to majordomo@vger.kernel.org
+> 
+> --
+> Koral Ilgun
+> Software Engineer
+> Occam Networks, Inc.
 
-Yes, it's a little nicer than my second variant. But it's still more
-complicated than the first one and I'm not sure if doing that is worth it
-
-> struc sub_req {
-> 	int sub_ioctl;
-
-... as we lose 4 bytes here (currently the union of structs in ifreq
-is limited to 16 bytes)
-
-> 	union {
-> 		struct fr_protocol fr_prot;
-> 		...
-> 		struct xx_protocol xx_prot;
-> 	}
-> }
-
-What might be actually better than my first variant, is a variable-length
-data:
-
-struct ifreq {
-        char name[16];
-        union {
-                ...
-                struct {
-                        int sub_command;
-                        int data_length;
-                        void *data;
-                }
-        }ifru;
-}
-
-... while "data" would be fr_protocol, eth_physical etc.
-
-It's (of course) more complicated, but there is a gain:
-- we can have different size requests (from 0 bytes to, say, 100KB)
-- we split SIOC namespace into domains
-- the core ioctl handler can still "verify" data area for the underlying
-  driver
 -- 
-Krzysztof Halasa
-Network Administrator
+Koral Ilgun
+Software Engineer
+Occam Networks, Inc.

@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVCVRNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVCVRNx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261457AbVCVRNm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 12:13:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVCVRNm
+	id S261444AbVCVRNx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 12:13:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVCVRNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 22 Mar 2005 12:13:52 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:48392 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261444AbVCVRNm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 22 Mar 2005 12:13:42 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:15060 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261457AbVCVRN1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 12:13:27 -0500
-Date: Tue, 22 Mar 2005 18:13:17 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Ralf Baechle <ralf@linux-mips.org>
-cc: Jeff Garzik <jgarzik@pobox.com>, Linux/m68k <linux-m68k@vger.kernel.org>,
-       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Jazzsonic driver updates
-In-Reply-To: <200503070210.j272ARii023023@hera.kernel.org>
-Message-ID: <Pine.LNX.4.62.0503221807160.20753@numbat.sonytel.be>
-References: <200503070210.j272ARii023023@hera.kernel.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Tue, 22 Mar 2005 18:13:40 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: 2.6.12-rc1-mm1: REISER4_FS <-> 4KSTACKS
+Message-ID: <20050322171340.GE1948@stusta.de>
+References: <20050321025159.1cabd62e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050321025159.1cabd62e.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Jan 2005, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1986, 2005/01/28 00:12:28-05:00, ralf@linux-mips.org
-> 
-> 	[PATCH] Jazzsonic driver updates
-> 	
-> 	 o Resurrect the Jazz SONIC driver after years of it not having been tested
-> 	 o Convert from Space.c initialization to module_init / platform device.
-> 	
-> 	Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+Hi Hans,
 
-> --- a/drivers/net/sonic.c	2005-03-06 18:10:39 -08:00
-> +++ b/drivers/net/sonic.c	2005-03-06 18:10:39 -08:00
-> @@ -116,7 +116,7 @@
->  	/*
->  	 * Map the packet data into the logical DMA address space
->  	 */
-> -	if ((laddr = vdma_alloc(PHYSADDR(skb->data), skb->len)) == ~0UL) {
-> +	if ((laddr = vdma_alloc(CPHYSADDR(skb->data), skb->len)) == ~0UL) {
-                                ^^^^^^^^^
-This part broke compilation for Mac/m68k.
+REISER4_FS is the only option with a dependency on !4KSTACKS which is 
+bad since 8 kB stacks on i386 won't stay forever.
 
->  		printk("%s: no VDMA entry for transmit available.\n",
->  		       dev->name);
->  		dev_kfree_skb(skb);
+Could fix the problems with 4 kB stacks?
 
-Gr{oetje,eeting}s,
+Running
 
-						Geert
+  make checkstacks | grep reiser4
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+inside te kernel sources after compiling gives you hints where problems 
+might come from.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
+TIA
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

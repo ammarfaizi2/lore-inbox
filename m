@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbUKWTIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbUKWVOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbUKWTIL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 14:08:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbUKWTHy
+	id S261401AbUKWVOu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 16:14:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbUKWTJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 14:07:54 -0500
-Received: from mail3.utc.com ([192.249.46.192]:12712 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S261432AbUKWSBw (ORCPT
+	Tue, 23 Nov 2004 14:09:18 -0500
+Received: from mail.kroah.org ([69.55.234.183]:64484 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261420AbUKWTBq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 13:01:52 -0500
-Message-ID: <41A37AE8.9060601@cybsft.com>
-Date: Tue, 23 Nov 2004 12:01:12 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-9
-References: <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu>
-In-Reply-To: <20041123175823.GA8803@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Nov 2004 14:01:46 -0500
+Date: Tue, 23 Nov 2004 11:01:28 -0800
+From: Greg KH <greg@kroah.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: Johannes Erdfelt <johannes@erdfelt.com>, linux-kernel@vger.kernel.org
+Subject: Re: [openib-general] Re: [PATCH][RFC/v1][4/12] Add InfiniBand SA (Subnet Administration) query support
+Message-ID: <20041123190128.GA31391@kroah.com>
+References: <20041122713.SDrx8l5Z4XR5FsjB@topspin.com> <20041122713.g6bh6aqdXIN4RJYR@topspin.com> <20041122222507.GB15634@kroah.com> <527jodbgqo.fsf@topspin.com> <20041123064120.GB22493@kroah.com> <52hdnh83jy.fsf@topspin.com> <20041123072944.GA22786@kroah.com> <20041123175246.GD4217@sventech.com> <20041123183813.GA31068@kroah.com> <52pt244cop.fsf@topspin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52pt244cop.fsf@topspin.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> i have released the -V0.7.30-9 Real-Time Preemption patch, which can be
-> downloaded from the usual place:
+On Tue, Nov 23, 2004 at 10:56:06AM -0800, Roland Dreier wrote:
+>     Greg> No.  RCU is covered by a patent that only allows for it to
+>     Greg> be implemented in GPL licensed code.  If you want to use RCU
+>     Greg> in non-GPL code, you need to sign a license agreement with
+>     Greg> the holder of the RCU patent.
 > 
+> Surely IBM can implement RCU in non-GPLed AIX code or license the
+> patent to whoever they like, with whatever terms they like?
 
-A couple of observations that I would like to share:
+As holders of the patent, they can.  If you wish to do this, please
+contact IBM's IP Licensing group :)
 
+thanks,
 
-One other thing regarding my last email. The numbers were generated 
-using -V0.7.30-3, not -9. Sorry.
-
-kr
+greg k-h

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129031AbRBGRNz>; Wed, 7 Feb 2001 12:13:55 -0500
+	id <S129460AbRBGRPq>; Wed, 7 Feb 2001 12:15:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129107AbRBGRNp>; Wed, 7 Feb 2001 12:13:45 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:10756 "EHLO
+	id <S129489AbRBGRPg>; Wed, 7 Feb 2001 12:15:36 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:12292 "EHLO
 	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129031AbRBGRNi>; Wed, 7 Feb 2001 12:13:38 -0500
-Date: Wed, 7 Feb 2001 11:08:52 -0700
+	id <S129107AbRBGRPY>; Wed, 7 Feb 2001 12:15:24 -0500
+Date: Wed, 7 Feb 2001 11:10:34 -0700
 From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Gregory Maxwell <greg@linuxpower.cx>
+To: David Howells <dhowells@cambridge.redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: PCI-SCI Drivers v1.1-7 released
-Message-ID: <20010207110852.A27089@vger.timpanogas.org>
-In-Reply-To: <20010206182501.A23454@vger.timpanogas.org> <20010206190624.C23960@vger.timpanogas.org> <20010206210731.E1110@xi.linuxpower.cx>
+Subject: Re: PCI-SCI Drivers v1.1-7 released
+Message-ID: <20010207111034.C27089@vger.timpanogas.org>
+In-Reply-To: <20010206190624.C23960@vger.timpanogas.org> <22678.981536509@warthog.cambridge.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010206210731.E1110@xi.linuxpower.cx>; from greg@linuxpower.cx on Tue, Feb 06, 2001 at 09:07:31PM -0500
+In-Reply-To: <22678.981536509@warthog.cambridge.redhat.com>; from dhowells@cambridge.redhat.com on Wed, Feb 07, 2001 at 09:01:49AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 06, 2001 at 09:07:31PM -0500, Gregory Maxwell wrote:
-
-> So.. It's likely that calling your performance issues 'gcc bugs' is about
-> the same as saying that SGI cc is buggy because it can't compile the kernel.
+On Wed, Feb 07, 2001 at 09:01:49AM +0000, David Howells wrote:
 > 
-> At least you managed to avoid calling RedHat names. :)
+> > More to add on the gcc 2.96 problems.  After compiling a Linux 2.4.1 
+> > kernel on gcc 2.91, running SCI benchmarks, then compiling on RedHat 
+> > 7.1 (Fischer) with gcc 2.96, the 2.96 build DROPPED 30% in throughput
+> > from the gcc 2.91 compiled version on the identical SAME 2.4.1 
+> > source tree. 
+> 
+> Out of interest, could you run your benchmark test against a "latest snapshot
+> build" of gcc?
+> 
+> 	http://www.codesourcery.com/gcc-snapshots/
+> 
+> Cheers,
+> David
 
-I really have no idea why gcc 2.96 is so troublesome, but for a 
-commercial release I was somewhat surprised to see the problems 
-I did.  I have heard about some of these problems for quite a 
-while, but got a chance to see them upclose with the 7.1 
-release.  Hopefully, RedHat will eventually get the issues 
-smoothed out.  
 
-Not supporting #ident for CVS managed code bases would see to 
-me, at first glance, to be a show stopper to shipping a release 
-of anything, since many folks need CVS support.
-
-:-)
+Sure.
 
 Jeff
 

@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263268AbTEIQna (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 12:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTEIQna
+	id S263310AbTEIQdg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 12:33:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263307AbTEIQdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 12:43:30 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:26865 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263268AbTEIQn2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 12:43:28 -0400
-Subject: Re: #include error (userland)
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: David Ford <david+powerix@blue-labs.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EBBDA0A.2010709@blue-labs.org>
-References: <3EBBDA0A.2010709@blue-labs.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-EkykMZMmzGYxovGHOesD"
-Organization: Red Hat, Inc.
-Message-Id: <1052499359.1529.8.camel@laptop.fenrus.com>
+	Fri, 9 May 2003 12:33:35 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:63383 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263310AbTEIQde (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 12:33:34 -0400
+Date: Fri, 9 May 2003 01:08:08 -0700
+From: Greg KH <greg@kroah.com>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The disappearing sys_call_table export.
+Message-ID: <20030509080808.GA6254@kroah.com>
+References: <200305071507_MC3-1-37CF-FE32@compuserve.com> <1052387912.4849.43.camel@pc-16.office.scali.no> <20030508095943.B22255@devserv.devel.redhat.com> <1052398474.4849.57.camel@pc-16.office.scali.no> <20030508135839.A6698@infradead.org> <3EBAAB9D.5000508@shemesh.biz> <20030508201509.A19496@infradead.org> <20030509074208.GA14991@actcom.co.il>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 09 May 2003 18:56:00 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030509074208.GA14991@actcom.co.il>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 09, 2003 at 10:42:08AM +0300, Muli Ben-Yehuda wrote:
+> 
+> For example, a rogue process is calling settimeofday() on your router
+> once a month(!). How are you going to find it? There's no LSM hook for
+> settimeofday()
 
---=-EkykMZMmzGYxovGHOesD
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yes there is.  Check the capable hook for CAP_SYS_TIME.  LSM modules can
+get that info quite easily.
 
-On Fri, 2003-05-09 at 18:40, David Ford wrote:
-> In file included from /usr/include/netinet/igmp.h:26,
->                  from /usr/include/libnet.h:69,
->                  from killtcp.c:6:
-> /usr/include/linux/igmp.h:74:2: #error "Please fix <asm/byteorder.h>"
-> make[1]: *** [killtcp.o] Error 1
->=20
->=20
-> What needs to be fixed?
+thanks,
 
-probably should have been #error "Dont include kernel headers in
-userspace" :)
-
---=-EkykMZMmzGYxovGHOesD
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+u92fxULwo51rQBIRAtd/AJ0TJ3OGkCdEMz6ASu/A/C4BfWhIyQCgpaY8
-FyK0Woq1w+Qz8oDB6V0LiFw=
-=iDke
------END PGP SIGNATURE-----
-
---=-EkykMZMmzGYxovGHOesD--
+greg k-h

@@ -1,69 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVBHW5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVBHXCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbVBHW5T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 17:57:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbVBHW5T
+	id S261678AbVBHXCY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 18:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVBHXCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 17:57:19 -0500
-Received: from fire.osdl.org ([65.172.181.4]:25578 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261664AbVBHW5O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 17:57:14 -0500
-Date: Tue, 8 Feb 2005 14:57:07 -0800
-From: cliff white <cliffw@osdl.org>
-To: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: 2.6.10-ac12 + kernbench ==  oom-killer: (OSDL)
-Message-ID: <20050208145707.1ebbd468@es175>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 0.9.13 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Tue, 8 Feb 2005 18:02:23 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:21122 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261678AbVBHXCQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 18:02:16 -0500
+Date: Wed, 9 Feb 2005 00:02:00 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption and UML?
+In-Reply-To: <20050208214411.GA22960@elte.hu>
+Message-Id: <Pine.OSF.4.05.10502082314000.23457-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Running 2.6.10-ac10 on the STP 1-CPU machines, we don't seem to be able to complete
-a kernbench run without hitting the OOM-killer. ( kernbench is multiple kernel compiles,
-of course ) Machine is 800 mhz PIII with 1GB memory. We reduce memory for some of the runs.
+On Tue, 8 Feb 2005, Ingo Molnar wrote:
 
-Typical results:
+> 
+> * Esben Nielsen <simlo@phys.au.dk> wrote:
+> 
+> > Now I don't really know who I am responding to. But both up()s now
+> > changed to complete()s are in something looking very much like an
+> > interrupt handler. But again, as I said, I didn't analyze the code in
+> > detail, I just made it compile and checked that it worked in bare
+> > 2.6.11-rc2 UML - which I am not too sure how to set up and use to
+> > begin with!
+> 
+> btw., UML is really easy to begin with: after you've compiled you get a
+> 'linux' binary in the toplevel directory - just execute it via './linux'
+> and you'll see a Linux kernel booting - that's all you need!
+> 
+> Add a filesystem image via a root= parameter to that command and the UML
+> kernel will start booting that filesystem image. (if you are adventurous
+> you can even boot a real partition, but for the first user this is
+> strongly discouraged.) There are a number of UML-ready filesystem images
+> downloadable from the net.
+> 
+Thanks, I managed to get that far after googling a bit. I have had some 
+problems with the filesystem though. Fixed now (I forgot to compile ext3
+in *blush*.) But you might still be interessted in this trace (2.6.11-rc2
+with or without my changes):
 
-stp1-001 login: oom-killer: gfp_mask=0xd2
-DMA per-cpu:
-cpu 0 hot: low 2, high 6, batch 1
-cpu 0 cold: low 0, high 2, batch 1
-Normal per-cpu:
-cpu 0 hot: low 32, high 96, batch 16
-cpu 0 cold: low 0, high 32, batch 16
-HighMem per-cpu: empty
+line_ioctl: tty0: ioctl KDSIGACCEPT called
+Debug: sleeping function called from invalid context at
+include/asm/arch/semaphore.h:107
+in_atomic():0, irqs_disabled():1
+Call Trace: 
+a08639e0:  [<a003071b>] __might_sleep+0x9b/0xb8
+a0863a10:  [<a001d364>] uml_console_write+0x20/0x54
+a0863a30:  [<a00348cc>] __call_console_drivers+0x50/0x58
+a0863a60:  [<a00349c1>] call_console_drivers+0x7d/0x124
+a0863a90:  [<a0034f97>] release_console_sem+0xa3/0x25c
+a0863aa0:  [<a0034fb0>] release_console_sem+0xbc/0x25c
+a0863ac0:  [<a0034d3b>] vprintk+0x193/0x2d0
+a0863ae0:  [<a0034ba6>] printk+0x12/0x14
+a0863b00:  [<a001e996>] line_ioctl+0x8e/0x94
+a0863b24:  [<a001e908>] line_ioctl+0x0/0x94
+a0863b30:  [<a012e031>] tty_ioctl+0xfd/0x680
+a0863b80:  [<a00a253b>] do_ioctl+0x3f/0x64
+a0863bb0:  [<a00a2b7d>] sys_ioctl+0x13d/0x350
+a0863bd0:  [<a008971b>] sys_open+0x5b/0x74
+a0863be0:  [<a008970c>] sys_open+0x4c/0x74
+a0863c00:  [<a0018e8d>] execute_syscall_tt+0xa1/0xe0
+a0863c1c:  [<a01a9357>] sigemptyset+0x17/0x30
+a0863c70:  [<a0014eb2>] record_syscall_start+0x4e/0x58
+a0863c90:  [<a0018f0b>] syscall_handler_tt+0x3f/0x74
+a0863cc0:  [<a001a170>] sig_handler_common_tt+0x90/0x108
+a0863cd0:  [<a001a1d1>] sig_handler_common_tt+0xf1/0x108
+a0863d00:  [<a0028c13>] sig_handler+0x1f/0x38
+a0863d20:  [<a01a9058>] __restore+0x0/0x8
 
-Free pages:       14084kB (0kB HighMem)
-Active:95617 inactive:4153 dirty:0 writeback:78 unstable:0 free:3521 slab:10320 
-mapped:99590 pagetables:12514
-DMA free:1860kB min:88kB low:108kB high:132kB active:3512kB inactive:3428kB pres
-ent:16384kB pages_scanned:3318 all_unreclaimable? no
-protections[]: 0 0 0
-Normal free:12224kB min:2800kB low:3500kB high:4200kB active:378956kB inactive:1
-3184kB present:506880kB pages_scanned:10146 all_unreclaimable? no
-protections[]: 0 0 0
-HighMem free:0kB min:128kB low:160kB high:192kB active:0kB inactive:0kB present:
-0kB pages_scanned:0 all_unreclaimable? no
-protections[]: 0 0 0
-DMA: 375*4kB 33*8kB 2*16kB 0*32kB 1*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048
-kB 0*4096kB = 1860kB
-Normal: 2194*4kB 107*8kB 24*16kB 1*32kB 0*64kB 1*128kB 0*256kB 0*512kB 0*1024kB 
-1*2048kB 0*4096kB = 12224kB
-HighMem: empty
-Swap cache: add 14113357, delete 14112531, find 151467/1660782, race 427+1738
-Out of Memory: Killed process 14970 (cc1).
--------------------------
-It looks like some oom-related stuff went into -ac10, will try retest with 
--ac9 and -ac10, see what happens. Lemme know if we can do more
-
-cliffw
+It could look like a semaphore which should be replaced by a spinlock
+(which will become a mutex in preempt-realtime :-)
 
 
--- 
-"Ive always gone through periods where I bolt upright at four in the morning; 
-now at least theres a reason." -Michael Feldman
+Esben
+
+> 	Ingo
+

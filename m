@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129381AbRBNPoa>; Wed, 14 Feb 2001 10:44:30 -0500
+	id <S129055AbRBNPpK>; Wed, 14 Feb 2001 10:45:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129091AbRBNPoU>; Wed, 14 Feb 2001 10:44:20 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:34696 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S129055AbRBNPoJ>;
-	Wed, 14 Feb 2001 10:44:09 -0500
-Date: Wed, 14 Feb 2001 16:43:59 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200102141543.QAA79054.aeb@vlet.cwi.nl>
-To: michael_e_brown@dell.com
-Subject: Re: block ioctl to read/write last sector
-Cc: Matt_Domsch@exchange.dell.com, linux-kernel@vger.kernel.org
+	id <S129887AbRBNPpA>; Wed, 14 Feb 2001 10:45:00 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:11269 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129055AbRBNPo0>;
+	Wed, 14 Feb 2001 10:44:26 -0500
+To: wichert@cistron.nl (Wichert Akkerman)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dropcopyright script
+In-Reply-To: <200102140647.BAA24740@smarty.smart.net> <96du0j$ssn$1@picard.cistron.nl>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 14 Feb 2001 16:44:18 +0100
+In-Reply-To: wichert@cistron.nl's message of "14 Feb 2001 13:34:27 +0100"
+Message-ID: <d3itmd5kx9.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My patch has nothing to do with partitioning.
+>>>>> "Wichert" == Wichert Akkerman <wichert@cistron.nl> writes:
 
-Yes, you already said that, and I understand you very well.
-My suggestion, and I have not checked the code to make sure,
-but off-hand it seems to me that it should work,
-is to use a partition.
+Wichert> In article <200102140647.BAA24740@smarty.smart.net>, Rick
+Wichert> Hohensee <humbubba@smarty.smart.net> wrote:
+>> .......................................................................
+>> ## drop copyright notices to the bottoms of C files in current dir
+>> and # subs.
 
-> Disk with 1001 blocks. Hardware 512-byte sector size.
-> The block layer uses 1024-byte soft blocksize.
-> This means that, at the _end_ of the disk there is a single sector
-> that represents half of a software sector.
+Wichert> Why would anyone want to do this?
 
-Maybe. I think that you'll find that these blocks are
-relative to the start of the partition, not relative
-to the start of the disk.
+Probably because it's a completely stupid idea that serves no purpose
+whatsoever.
 
-So if you add a 1-block partition that contains the last
-sector of the disk, all should be fine.
-
-Andries
-
-
+Jes

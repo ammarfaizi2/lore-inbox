@@ -1,42 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268693AbUI2Q7v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268720AbUI2RAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268693AbUI2Q7v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 12:59:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268667AbUI2Q7v
+	id S268720AbUI2RAU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 13:00:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268667AbUI2RAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 12:59:51 -0400
-Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:8073 "EHLO
-	smtp.bensa.ar") by vger.kernel.org with ESMTP id S268719AbUI2Qzj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 12:55:39 -0400
-From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-To: linux-kernel@vger.kernel.org, sboyce@blueyonder.co.uk
-Subject: Re: 2.6.9-rc2-mm4 and nvidia 1.0-6111
-Date: Wed, 29 Sep 2004 13:55:20 -0300
-User-Agent: KMail/1.7
-References: <415A6EE6.1090404@blueyonder.co.uk>
-In-Reply-To: <415A6EE6.1090404@blueyonder.co.uk>
+	Wed, 29 Sep 2004 13:00:19 -0400
+Received: from camus.xss.co.at ([194.152.162.19]:16915 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id S268710AbUI2RAF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 13:00:05 -0400
+Message-ID: <415AE9CF.40008@xss.co.at>
+Date: Wed, 29 Sep 2004 18:58:55 +0200
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: arjanv@redhat.com
+CC: "Miller, Mike (OS Dev)" <mike.miller@hp.com>,
+       Christoph Hellwig <hch@infradead.org>, mikem@beardog.cca.cpqcorp.net,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org,
+       "Baker, Brian (ISS - Houston)" <brian.b@hp.com>
+Subject: Re: patch so cciss stats are collected in /proc/stat
+References: <D4CFB69C345C394284E4B78B876C1CF107DBFE0B@cceexc23.americas.cpqcorp.net> <1096476186.2786.45.camel@laptop.fenrus.com>
+In-Reply-To: <1096476186.2786.45.camel@laptop.fenrus.com>
+X-Enigmail-Version: 0.74.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409291355.20281.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sid Boyce wrote:
-> Any help appreciated, also posted to nvidia forum.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I did revert these patches:
+Arjan van de Ven wrote:
+> On Wed, 2004-09-29 at 18:29, Miller, Mike (OS Dev) wrote:
+>
+>
+>>>This patch has been reject about half a million times, why are people
+>>>submitting it again and again?
+>>
+>>As I said in my mail, it's a customer driven issue. As long as customers rely on /proc/stat we'll keep trying. You can't tell a customer how he/she should be doing things on their systems.
+>
+>
+> I doubt you have many customers using 2.4.28.... I suspect that by now
+> the majority of people is either using an (ancient) 2.4 vendor kernel or
+> a 2.6 kernel. The very low number of reports on lkml about 2.4 seems to
+> confirm that ...
 
-convert-references-to-remap_page_range-under-arch-and-documentation-to-remap_pfn_range.patch
-convert-users-of-remap_page_range-under-drivers-and-net-to-use-remap_pfn_range.patch
-convert-users-of-remap_page_range-under-include-asm--to-use-remap_pfn_range.patch
-convert-users-of-remap_page_range-under-sound-to-use-remap_pfn_range.patch
-for-mm-only-remove-remap_page_range-completely.patch
-introduce-remap_pfn_range-to-replace-remap_page_range.patch
+"25% of accidents are caused by drunken drivers. That means
+75% of accidents are caused by drivers which did not drink.
+So why keep people complaining about alcohol and driving?"
 
+Is that what you mean? You must be kidding!
 
-HTH,
-Norberto
+The majority of _our_ customers are using 2.4.x kernels
+(x beeing in the range from 19 to 28pre3) and it looks like
+it will stay that for quite a while...
+
+- - andreas
+
+PS: I know this is somewhat off topic, but I just want to raise
+my voice if I get the impression kernel developers forget about
+the "real world outside". I will shut up in a moment! Thank you!
+
+- --
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFBWum9xJmyeGcXPhERArzMAKCYhHvVvwpFObCzrPby2qY9u9MURQCgrelJ
+BpeZ2tG8zw0po/5ByYKFuZk=
+=RlQc
+-----END PGP SIGNATURE-----
+

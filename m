@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbUBYTF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 14:05:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbUBYS40
+	id S261732AbUBYTHv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 14:07:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbUBYTGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 13:56:26 -0500
-Received: from smtpout1.uol.com.br ([200.221.11.54]:37761 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261540AbUBYSvR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 13:51:17 -0500
-Message-ID: <026a01c3fbd0$e6874560$0301a8c0@jose>
-From: "AuReside Informa" <aureside@uol.com.br>
-To: <linux-kernel@vger.kernel.org>
-References: <20040225183951.1DE16CE15@storm11.uol.com.br>
-Subject: Re: read it immediately
-Date: Wed, 25 Feb 2004 15:54:27 -0300
+	Wed, 25 Feb 2004 14:06:39 -0500
+Received: from fw.osdl.org ([65.172.181.6]:33718 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261763AbUBYTEx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 14:04:53 -0500
+Date: Wed, 25 Feb 2004 11:05:15 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Timothy Miller <miller@techsource.com>, Rik van Riel <riel@redhat.com>,
+       Matti Aarnio <matti.aarnio@zmailer.org>, Greg KH <greg@kroah.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       "Woodruff, Robert J" <woody@co.intel.com>, linux-kernel@vger.kernel.org,
+       "Hefty, Sean" <sean.hefty@intel.com>,
+       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
+       "Davis, Arlin R" <arlin.r.davis@intel.com>,
+       marcelo.tosatti@cyclades.com
+Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
+In-Reply-To: <20040225195515.GA2712@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.58.0402251103500.2461@ppc970.osdl.org>
+References: <Pine.LNX.4.44.0402242238020.15091-100000@chimarrao.boston.redhat.com>
+ <403CCC77.6030405@techsource.com> <20040225185553.GA2474@mars.ravnborg.org>
+ <Pine.LNX.4.58.0402251003440.2461@ppc970.osdl.org> <20040225195515.GA2712@mars.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-identify yourself !
-
------ Original Message ----- 
-From: <linux-kernel@vger.kernel.org>
-To: <aureside@uol.com.br>
-Sent: Wednesday, February 25, 2004 3:39 PM
-Subject: read it immediately
 
 
-> i wait for a reply!
+On Wed, 25 Feb 2004, Sam Ravnborg wrote:
+> > 
+> > And why should we take the vendor perspective?
 > 
+> The people developing Inifiband support ask for a review.
+
+Oh, I agree that _reviewing_ code is good, together with feedback on what
+would improve its chances of getting accepted later on. But it should be
+clear that regardless, we don't add features that nobody can sanely test
+and where hardware isn't available.
+
+		Linus

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317516AbSFMI1B>; Thu, 13 Jun 2002 04:27:01 -0400
+	id <S317494AbSFMIbI>; Thu, 13 Jun 2002 04:31:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317513AbSFMI1A>; Thu, 13 Jun 2002 04:27:00 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:15020 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S317492AbSFMI07> convert rfc822-to-8bit; Thu, 13 Jun 2002 04:26:59 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <kernel@tekno-soft.it>, <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.61 (1025) - Licensed Version
-Date: Thu, 13 Jun 2002 01:26:58 -0700
-In-Reply-To: <5.1.1.6.0.20020613095304.00a6fc60@mail.tekno-soft.it>
-Subject: Re: Developing multi-threading applications
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20020613082659.AAA17584@shell.webmaster.com@whenever>
+	id <S317495AbSFMIbH>; Thu, 13 Jun 2002 04:31:07 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:18438 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S317494AbSFMIbG>; Thu, 13 Jun 2002 04:31:06 -0400
+Message-ID: <3D08583F.B40A4AFD@aitel.hist.no>
+Date: Thu, 13 Jun 2002 10:30:55 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.20-dj3 i686)
+X-Accept-Language: no, en, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
+In-Reply-To: <Pine.GSO.4.21.0206122016140.16357-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Viro wrote:
+> 
+> On Wed, 12 Jun 2002, Benjamin LaHaise wrote:
+> 
+> > On Wed, Jun 12, 2002 at 06:26:55PM -0400, Alexander Viro wrote:
+> > > Not realistic - we have a recursion through the ->follow_link(), and
+> > > a lot of stuff can be called from ->follow_link().  We _do_ have a
+> > > limit on depth of recursion here, but it won't be fun to deal with.
+> >
+> > Perfection isn't what I'm looking for, rather just an approximation.
+> > Any tool would have to give up on non-trivial recursion, or have
+> 
+> ... in which case it will be useless - anything callable from path_walk()
+> will be out of its scope and that's a fairly large part of VFS, filesystems,
+> VM and upper halves of block devices.
 
-On Thu, 13 Jun 2002 10:13:35 +0200, Roberto Fichera wrote:
+The automated checker may use hard-coded limits for recursions with
+limited depth.  If follow_link stops after n iterations, tell
+the checker about it and it will use that in its computations.
 
->I'm designing a multithreding application with many threads,
->from ~100 to 300/400. I need to take some decisions about
->which threading library use, and which patch I need for the
->kernel to improve the scheduler performances. The machines
->will be a SMP Xeon with 4/8 processors with 4Gb RAM.
->All threads are almost computational intensive and the library
->need a fast interprocess comunication and syncronization
->because there are many sync & async threads time
->dependent and/or critical. I'm planning, in the future, to distribuite
->all the threads in a pool of SMP box.
-
-	With 4/8 processors, you don't want to create 100-400 threads doing 
-computation intensive tasks. So redesign things so that the number of threads 
-you create is more in line with the number of CPUs you have available. That 
-is, use a 'thread per CPU' (or slightly more threads than their are CPUs per 
-node) approach and you'll perform a lot better. Distribute the available work 
-over the available threads.
-
-	DS
-
-
+Helge Hafting

@@ -1,76 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266890AbUG1MIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266891AbUG1MRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266890AbUG1MIz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 08:08:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266891AbUG1MIz
+	id S266891AbUG1MRa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 08:17:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266892AbUG1MR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 08:08:55 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:4304 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S266890AbUG1MIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 08:08:53 -0400
-Date: Wed, 28 Jul 2004 14:08:52 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Avi Kivity <avi@exanet.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Deadlock during heavy write activity to userspace NFS
- server on local NFS mount
-In-Reply-To: <20040727203438.GB2149@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.58.0407281402020.26456@artax.karlin.mff.cuni.cz>
-References: <41050300.90800@exanet.com> <20040726210229.GC21889@openzaurus.ucw.cz>
- <4106B992.8000703@exanet.com> <20040727203438.GB2149@elf.ucw.cz>
+	Wed, 28 Jul 2004 08:17:29 -0400
+Received: from guardian.hermes.si ([193.77.5.150]:47882 "EHLO
+	guardian.hermes.si") by vger.kernel.org with ESMTP id S266891AbUG1MRV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 08:17:21 -0400
+Message-ID: <B1ECE240295BB146BAF3A94E00F2DBFF0901F6@piramida.hermes.si>
+From: David Balazic <david.balazic@hermes.si>
+To: David Balazic <david.balazic@hermes.si>,
+       "'Matt Domsch'" <Matt_Domsch@dell.com>
+Cc: Dave Jones <davej@redhat.com>, Andries Brouwer <aebr@win.tue.nl>,
+       Jeff Garzik <jgarzik@pobox.com>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: RE: Weird:  30 sec delay during early boot
+Date: Wed, 28 Jul 2004 14:16:19 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi!
->
-> > >>On heavy write activity, allocators wait synchronously for kswapd to
-> > >>free some memory. But if kswapd is freeing memory via a userspace NFS
-> > >>server, that server could be waiting for kswapd, and the system seizes
-> > >>instantly.
-> > >>
-> > >>This patch (against RHEL 2.4.21-15EL, but should apply either
-> > >>literally
-> > >>or conceptually to other kernels) allows a process to declare itself
-> > >>as
-> > >>kswapd's little helper, and thus will not have to wait on kswapd.
-> > >>
-> > >>
-> > >
-> > >Ok, but what if its memory runs out, anyway?
-> > >
-> > >
-> > >
-> > Tough. What if kswapd's memory runs out?
->
-> I'd hope that kswapd was carefully to make sure that it always has
-> enough pages...
->
-> ...it is harder to do the same auditing with userland program.
->
-> > A more complete solution would be to assign memory reserve levels below
-> > which a process starts allocating synchronously. For example, normal
-> > processes must have >20MB to make forward progress, kswapd wants >15MB
-> > and the NFS server needs >10MB. Some way would be needed to express the
-> > dependencies.
->
-> Yes, something like that would be neccessary. I believe it would be
-> slightly more complicated, like
->
-> "NFS server needs > 10MB *and working kswapd*", so you'd need 25MB in
-> fact... and this info should be stored in some readable form so that
-> it can be checked.
+The same delay as before.
 
-Hi!
+I built 2.6.8-rc1 first, then patched and issued a "make bzImage";
+maybe it did not copile all the new stuff ?
 
-And if the NFS server is waiting for some lock that is held by another
-process that is wating for kswapd...? It won't help.
 
-The solution would be a limit for dirty pages on NFS --- if you say that
-less than 1/8 of memory might be dirty NFS pages, than you can keep system
-stable even if NFS writes starve. If you export NFS filesystem via NFSD
-again, even this woudn't help, but there's no fix for this case.
-
-Mikulas
+> ----------
+> From: 	Matt Domsch[SMTP:Matt_Domsch@dell.com]
+> Sent: 	14. julij 2004 0:16
+> To: 	David Balazic
+> Cc: 	Dave Jones; Andries Brouwer; Jeff Garzik; Pavel Machek; Linux
+> Kernel; Andi Kleen; Andrew Morton
+> Subject: 	Re: Weird:  30 sec delay during early boot
+> 
+> David, Jeff, would you mind trying the patch below on your systems
+> which exhibit the long delays in the EDD real-mode code?
+> 
+> This does a few things:
+> 1) it uses an int13 fn15 "Get Disk Type" command prior to doing the
+> fn02 "Read Sectors" command, to try to determine if there is a disk
+> present or not before reading its signature.
+> 
+> 2) A few registers are more fully zeroed out, in case the BIOS cared
+> about things it shouldn't have.
+> 
+> Crossing my fingers that the delays are gone...
+> -Matt
+> 
+> -- 
+> Matt Domsch
+> Sr. Software Engineer, Lead Engineer
+> Dell Linux Solutions linux.dell.com & www.dell.com/linux
+> Linux on Dell mailing lists @ http://lists.us.dell.com
+> 
+> ===== arch/i386/boot/edd.S 1.2 vs edited =====
+> --- 1.2/arch/i386/boot/edd.S	2004-06-29 09:44:48 -05:00
+> +++ edited/arch/i386/boot/edd.S	2004-07-13 16:48:50 -05:00
+> @@ -12,13 +12,31 @@
+>  #include <linux/edd.h>
+>  
+>  #if defined(CONFIG_EDD) || defined(CONFIG_EDD_MODULE)
+> -# Read the first sector of each BIOS disk device and store the 4-byte
+> signature
+>  edd_mbr_sig_start:
+> +	xor	%ebx, %ebx
+> +	xor	%edx, %edx
+>  	movb	$0, (EDD_MBR_SIG_NR_BUF)	# zero value at
+> EDD_MBR_SIG_NR_BUF
+> +       	movw	$EDD_MBR_SIG_BUF, %bx		# store buffer ptr
+> in bx
+>  	movb	$0x80, %dl			# from device 80
+> -	movw	$EDD_MBR_SIG_BUF, %bx		# store buffer ptr in bx
+> +
+>  edd_mbr_sig_read:
+> -	movl	$0xFFFFFFFF, %eax
+> +# Do int13 fn15 first, as BIOS should know if a disk is present or not.
+> +# This avoids long (>30s) delays waiting for the READ_SECTORS to a
+> non-present disk.
+> +	xor	%eax, %eax
+> +	xor	%ecx, %ecx
+> +       	movb	$GETDISKTYPE, %ah		# Function 15
+> +	pushw	%dx				# which stomps on dx
+> +	stc					# work around buggy BIOSes
+> +    	int	$0x13				# make the call
+> +	sti					# work around buggy BIOSes
+> +	popw	%dx				# so get back dx
+> +	jc	edd_mbr_sig_done		# no more BIOS devices
+> +	cmpb	$HARDDRIVEPRESENT, %ah		# is hard drive present?
+> +	jne	edd_mbr_sig_done		# no more BIOS devices
+> +
+> +# Read the first sector of each BIOS disk device and store the 4-byte
+> signature
+> +	xor	%ecx, %ecx
+> +    	movl	$0xFFFFFFFF, %eax
+>  	movl	%eax, (%bx)			# assume failure
+>  	pushw	%bx
+>  	movb	$READ_SECTORS, %ah
+> ===== include/linux/edd.h 1.11 vs edited =====
+> --- 1.11/include/linux/edd.h	2004-06-29 09:44:48 -05:00
+> +++ edited/include/linux/edd.h	2004-07-13 16:05:14 -05:00
+> @@ -49,6 +49,9 @@
+>  #define EDD_MBR_SIG_MAX 16        /* max number of signatures to store */
+>  #define EDD_MBR_SIG_NR_BUF 0x1ea  /* addr of number of MBR signtaures at
+> EDD_MBR_SIG_BUF
+>  				     in boot_params - treat this as 1 byte
+> */
+> +#define GETDISKTYPE 0x15          /* int13 AH=0x15 is Get Disk Type
+> command */
+> +#define HARDDRIVEPRESENT 0x03     /* int13 AH=15 return code in AH */
+> +
+>  #ifndef __ASSEMBLY__
+>  
+>  #define EDD_EXT_FIXED_DISK_ACCESS           (1 << 0)
+> 

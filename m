@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265494AbRF1DJW>; Wed, 27 Jun 2001 23:09:22 -0400
+	id <S265496AbRF1DQQ>; Wed, 27 Jun 2001 23:16:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265496AbRF1DJM>; Wed, 27 Jun 2001 23:09:12 -0400
-Received: from [32.97.182.101] ([32.97.182.101]:47514 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265494AbRF1DJF>;
-	Wed, 27 Jun 2001 23:09:05 -0400
-Message-ID: <3B3A2ABC.B9B4CEB6@vnet.ibm.com>
-Date: Wed, 27 Jun 2001 13:49:33 -0500
-From: Tom Gall <tom_gall@vnet.ibm.com>
-X-Mailer: Mozilla 4.7 [en] (Win98; I)
-X-Accept-Language: en
+	id <S265500AbRF1DQF>; Wed, 27 Jun 2001 23:16:05 -0400
+Received: from mail.mesatop.com ([208.164.122.9]:3845 "EHLO thor.mesatop.com")
+	by vger.kernel.org with ESMTP id <S265496AbRF1DP7>;
+	Wed, 27 Jun 2001 23:15:59 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.6-pre6 fix drivers/net/Config.in error
+Date: Wed, 27 Jun 2001 21:09:03 -0600
+X-Mailer: KMail [version 1.2]
+Cc: torvalds@transmeta.com
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Changes for PCI
-In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com>
-		<3B3A5B00.9FF387C9@mandrakesoft.com>
-		<20010628091704.B23627@krispykreme> <15162.33445.396761.71174@pizda.ninka.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01062721090303.01154@localhost.localdomain>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I got this error for 2.4.6-pre6 for make xconfig
 
+drivers/net/Config.in: 145: can't handle dep_bool/dep_mbool/dep_tristate condition
+make[1]: *** [kconfig.tk] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.4.6-pre6/scripts'
+make: *** [xconfig] Error 2
 
-"David S. Miller" wrote:
+This may be the proper fix.
+Steven
 
-> Looks, ppc64 is really still experimental right?
-
-Heck no.
-
-> Which means it is
-> 2.5.x material, and 2.5.x has been quoted as being a week or two away.
-
-I sure hope that ppc64 is NOT considered 2.5.x material.
-
-> So we can solve this problem for real, with system bus domains, and
-> get ppc64 working all within the framework of 2.5.x which is just
-> around the corner.
-
-A real solution would be nice. And if the real solution can ONLY be in 2.5, then
-is it such a bad idea moving the bus number type to unsigned int for 2.4.x?
-
-> For now, I am rather sure your systems for testing have < 256 physical
-> PCI busses and you can for 2.4.x use the remapping scheme sparc64 uses.
-
-Wellll, remember that post about more than 256 PCI buses? I meant it.
-
-Regards,
-
-Tom
---
-Tom Gall - PPC64 Maintainer      "Where's the ka-boom? There was
-Linux Technology Center           supposed to be an earth
-(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
-(w) 507-253-4558                 -- Marvin Martian
-(h) tgall@rochcivictheatre.org
-http://www.ibm.com/linux/ltc/projects/ppc
-
-
+--- linux/drivers/net/Config.in.original	Wed Jun 27 20:39:50 2001
++++ linux/drivers/net/Config.in	Wed Jun 27 20:41:28 2001
+@@ -142,7 +142,7 @@
+       tristate '  NE/2 (ne2000 MCA version) support' CONFIG_NE2_MCA
+       tristate '  IBM LAN Adapter/A support' CONFIG_IBMLANA
+    fi
+-   dep_bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
++   dep_bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI $CONFIG_PCI
+    if [ "$CONFIG_NET_PCI" = "y" ]; then
+       dep_tristate '    AMD PCnet32 PCI support' CONFIG_PCNET32 $CONFIG_PCI
+       dep_tristate '    Adaptec Starfire support (EXPERIMENTAL)' CONFIG_ADAPTEC_STARFIRE $CONFIG_PCI $CONFIG_EXPERIMENTAL

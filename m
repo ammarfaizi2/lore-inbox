@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264799AbTCCO60>; Mon, 3 Mar 2003 09:58:26 -0500
+	id <S265065AbTCCPBJ>; Mon, 3 Mar 2003 10:01:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265065AbTCCO60>; Mon, 3 Mar 2003 09:58:26 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:43012 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S264799AbTCCO6Z>; Mon, 3 Mar 2003 09:58:25 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303031508.h23F8FEI000787@81-2-122-30.bradfords.org.uk>
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-To: root@chaos.analogic.com
-Date: Mon, 3 Mar 2003 15:08:15 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, hch@infradead.org, pavel@janik.cz, pavel@ucw.cz,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1030303091452.22417B-100000@chaos> from "Richard B. Johnson" at Mar 03, 2003 09:22:14 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S265132AbTCCPBJ>; Mon, 3 Mar 2003 10:01:09 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:48586 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S265065AbTCCPBI>;
+	Mon, 3 Mar 2003 10:01:08 -0500
+Date: Mon, 3 Mar 2003 16:11:35 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Nigel Cunningham <ncunningham@clear.net.nz>, Roger Luethi <rl@hellgate.ch>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Re: S4bios support for 2.5.63
+Message-ID: <20030303151135.GA24815@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Pavel Machek <pavel@suse.cz>,
+	Nigel Cunningham <ncunningham@clear.net.nz>,
+	Roger Luethi <rl@hellgate.ch>,
+	ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030226211347.GA14903@elf.ucw.cz> <20030302133138.GA27031@outpost.ds9a.nl> <1046630641.3610.13.camel@laptop-linux.cunninghams> <20030302202118.GA2201@outpost.ds9a.nl> <20030303003940.GA13036@k3.hellgate.ch> <1046657290.8668.33.camel@laptop-linux.cunninghams> <20030303113153.GA18563@outpost.ds9a.nl> <20030303122325.GA20929@atrey.karlin.mff.cuni.cz> <20030303123551.GA19859@outpost.ds9a.nl> <20030303124133.GH20929@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030303124133.GH20929@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > I haven't seen a single post to the list saying, "If we were designing
-> > > > a version control system dedicated to the Linux kernel, what would you
-> > > > like to see in it?".  Before I started work on my bug database, I
-> > > > spent a week or so discussing it on the list with people.
-> > > 
-> > > Larry spent a lot of time talking to people directly about such things.
-> > 
-> > I meant in relation to Bit Bucket.
-> > 
-> > If the need for Bit Keeper to make a profit for Bit Mover excludes
-> > Linux developers from using it, the most logical thing to do in my
-> > opinion is to start from scratch and write a version control system
-> > dedicated to furthering Linux kernel development.
-> > 
-> > Compatibility with Bit Keeper should not be a goal of that project.
->                                 ^^^^^^^^^^^^^^^^^^^^
-> Hmmm. Compatibility with existing things is always one of the
-> considerations of any new product (or project).
+On Mon, Mar 03, 2003 at 01:41:33PM +0100, Pavel Machek wrote:
 
-I did consider it, I just don't think it's a good idea.
+> Start adding printks to see whats going on. Try going ext2. Try
+> killing sys_sync() from kernel/suspend.c.
 
-> If compatibility can be achieved without a significant trade-off in
-> performance, then it should become one of the goals.
+I've tried:
+	hdparm -u1 /dev/hda
+	killing sys_sync()
+	doing both
 
-Agreed, but in a project to develop the best possible version control
-system for the Linux kernel [1], I don't see how compatibility with
-any other version control system is of any interest at all.
+To no avail. I'm investigating how I can go ext2 on this machine as I read
+elsewhere that the kernel will silently mount an ext3 partition with a
+journal as ext3 even when asked to mount as ext2.
 
-It's only if you want to use several version control systems in
-parallel that it might be an issue, but if a single, free, version
-control system is in use, I don't see why that would be necessary.
+Regards,
 
-Getting the data out of Bit Keeper and in to a different version
-control system is a one-time job, and as far as I am aware there is
-no difficulty getting data out of a Bit Keeper repository, (using Bit
-Keeper itself), in a suitable format.
+bert
 
-[1] As distinct from projects to develop the best possible version
-control system in general or to develop a GPLed project to complete
-with Bit Keeper.
-
-John.
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+http://netherlabs.nl                         Consulting

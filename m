@@ -1,84 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbTDNPHF (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 11:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263426AbTDNPHF (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 11:07:05 -0400
-Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:25585 "HELO
-	cocodriloo.com") by vger.kernel.org with SMTP id S263424AbTDNPHD (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 11:07:03 -0400
-Date: Mon, 14 Apr 2003 17:29:47 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Timothy Miller <tmiller10@cfl.rr.com>, linux-kernel@vger.kernel.org,
-       nicoya@apia.dhs.org
-Subject: Re: Quick question about hyper-threading (also some NUMA stuff)
-Message-ID: <20030414152947.GB14552@wind.cocodriloo.com>
-References: <001301c3028a$25374f30$6801a8c0@epimetheus> <10760000.1050332136@[10.10.2.4]>
+	id S263426AbTDNPMt (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 11:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263428AbTDNPMt (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 11:12:49 -0400
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:44673 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S263426AbTDNPMs (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 11:12:48 -0400
+Date: Mon, 14 Apr 2003 16:24:35 +0100
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: Michael Buesch <fsdeveloper@yahoo.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: using devfs on 2.4
+Message-ID: <20030414152435.GB6820@carfax.org.uk>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Michael Buesch <fsdeveloper@yahoo.de>, linux-kernel@vger.kernel.org
+References: <200304141657.26983.fsdeveloper@yahoo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rJwd6BRFiFCcLxzm"
 Content-Disposition: inline
-In-Reply-To: <10760000.1050332136@[10.10.2.4]>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <200304141657.26983.fsdeveloper@yahoo.de>
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
+X-Parrot: It is no more. It has joined the choir eternal.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 14, 2003 at 07:55:37AM -0700, Martin J. Bligh wrote:
-> > This sounds like the most sensible approach.  I like considering the
-> > extremes of performance, but sometimes, the time for math required for some
-> > optimization can be worse than any benefit you get out of it.  Your
-> > suggestion is simple.  It increases the likelihood (10% better for little
-> > extra effort is better than 10% worse) of related processes being run on the
-> > same node, while not impacting the system's ability to balance load.  This,
-> > as you say, is also very important for NUMA.
-> 
-> See my earlier email - rebalance_node() does this, and it's very cheap, as 
-> we just SMP balance *within* the node -  the cross node rebalancer is a
-> separate tunable background process.
-> 
-> > Does the NUMA support migrate pages to the node which is running a process?
-> > Or would processes jump nodes often enough to make that not worth the
-> > effort?
-> 
-> No, we don't do page migration as yet. Andi is playing with a homenode 
-> concept that makes pages allocate from a predefined "home node" always, 
-> instead of their current node. Last time I benchmarked that concept it 
-> sucked, but the advent of the per-cpu, per-zone hot/cold page cache, and 
-> the fact that he's using hardware with totally different NUMA characteristics 
-> may well change that conclusion.
-> 
-> We don't normally migrate stuff around much on the higher-ration NUMA 
-> machines. With AMD Hammer or whatever, that may change.
-> 
-> > In order for page migration to be worth it, node affinity would have to be
-> > fairly strong.  It's particularly important when a process maps pages which
-> > belong to another node.  Is there any logic there to duplicate pages in
-> > cases where there is enough free memory for it?  We'd have to tag the pages
-> > as duplicates so the VM could reclaim them.
-> 
-> Right - we're looking at read only text replication, first for the kernel
-> (which ia64 has already), then for shared libs and program text. It's a 
-> good concept, provided you have plenty of RAM (which big NUMA boxes tend
-> to). Probably needs hooking into the address space structure, and to be
-> thrown away just like anything else that's unused under memory pressure
-> from the per-node LRU lists. Though it'd be nice to mark them as particularly
-> cheap to retrieve, and had a reference count (a node bitmap?) and to 
-> retrieve them from another node, not from disk.
 
-Perhaps it would be good to un-COW pages:
+--rJwd6BRFiFCcLxzm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-1. fork process
-2. if current node is not loaded, continue as usual
-3. if current node is loaded:
-3a. pick unloaded node
-4b. don't do COW for data pages, but simply copy them to node-local memory
+On Mon, Apr 14, 2003 at 04:57:26PM +0200, Michael Buesch wrote:
+> Is it save and well supported to run devfs on 2.4.21-preX ?
 
-This way, read-write sharings would be replicated for each node.
+   I think asking if devfs is safe round here is probably a bad
+idea. You might get an answer. At length. :)
 
-Also, keeping an per-node active-page-list and then forcefully copying
-the page to a node-local page-frame when accesing a page which is
-active on another node could be good.
+   However, it works for me (2.4.21-pre5-ac3), and has worked for many
+previous versions of 2.4.
 
-Hmm, the un-COW system could be implemented in terms of the second one,
-isn't it?
+> Do all drivers support devfs?
 
-Greets, Antonio.
+   I've not met one which doesn't, but then I don't have lots of
+hardware to test on.
+
+> Or should I wait for 2.6?
+
+   The udev stuff in 2.6 looks like it might become very nice indeed,
+but you don't have to wait for that to use devfs.
+
+   Hugo.
+
+-- 
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+   --- Hey, Virtual Memory! Now I can have a *really big* ramdisk! ---   
+
+--rJwd6BRFiFCcLxzm
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+mtKzssJ7whwzWGARAppVAJ0btikx1dx7IFpX2cR6ea0odToOCwCeJDE/
+O9IfAGe8fxomAIm4KS8tEoE=
+=6F16
+-----END PGP SIGNATURE-----
+
+--rJwd6BRFiFCcLxzm--

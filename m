@@ -1,40 +1,52 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <153887-27243>; Fri, 28 Aug 1998 17:53:31 -0400
-Received: from dm.cobaltmicro.com ([209.133.34.35]:1235 "EHLO dm.cobaltmicro.com" ident: "IDENT-NONSENSE") by vger.rutgers.edu with ESMTP id <157339-27243>; Fri, 28 Aug 1998 15:37:00 -0400
-Date: Fri, 28 Aug 1998 14:06:33 -0700
-Message-Id: <199808282106.OAA06177@dm.cobaltmicro.com>
-From: "David S. Miller" <davem@dm.cobaltmicro.com>
-To: patha@ida.liu.se
-CC: linux-kernel@vger.rutgers.edu
-In-reply-to: <199808280906.LAA13808@portofix.ida.liu.se> (message from Patrik Hagglund on Fri, 28 Aug 1998 11:06:33 +0200)
-Subject: Re: "fuzzy hashing" = skiplists in a different shape
-References: <199808280906.LAA13808@portofix.ida.liu.se>
+Received: by vger.rutgers.edu id <154637-17700>; Sun, 30 Aug 1998 14:40:07 -0400
+Received: from bamboo.verinet.com ([204.144.246.3]:14991 "EHLO bamboo.verinet.com" ident: "rdm") by vger.rutgers.edu with ESMTP id <155256-15447>; Sun, 30 Aug 1998 11:50:30 -0400
+From: Richard McRoberts <rdm@bamboo.verinet.com>
+Message-Id: <199808301747.LAA00714@bamboo.verinet.com>
+Subject: Re: Fuzzy hash stuff.. (was Re: 2.1.xxx makes Electric Fence 22x slower)
+To: saw@msu.ru, linux-kernel@vger.rutgers.edu
+Date: Sun, 30 Aug 1998 11:47:35 -0600 (MDT)
+Cc: davem@dm.cobaltmicro.com, sct@redhat.com, torvalds@transmeta.com, mingo@valerie.inf.elte.hu, number6@the-village.bc.nu, haible@ma2s2.mathematik.uni-karlsruhe.de
+Content-Type: text
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-   Date: Fri, 28 Aug 1998 11:06:33 +0200
-   From: Patrik Hagglund <patha@ida.liu.se>
 
-   ? What is this common case. I can't see how your implementation would
-   be faster than a good implementation of a balanced search tree.
+Andrey V. Savochkin <saw@msu.ru> wrote, 
 
-You said the answer, I don't have to balance anything, so
-insert/delete don't cost so much like trees requiring balancing do.
+> I've managed a draft version of the fuzzy hash VMA lookup stuff to work.
+> Right now it works only on i386.
 
-I would suggest that people run through some examples, ie. take
-/proc/{pid}/maps for some large process with many attachments, like
-emacs or something, have a little test program setup the data
-structures as if vma_insert was called in sequence for each vma, and
-then pick arbitrary addresses and see what find_vma() does and how
-quickly it finds the answer.
+> It would be nice to know the speed of ElectricFence programs
+> with the patch applied.
 
-Or just print little ascii visualiziations from your test program and
-try to figure out for yourself with the picture it outputs why it is
-so impressive an algorithm and why it kicks the shit out of any tree
-based solution for this class of problems.
+> [deletia]
 
-Later,
-David S. Miller
-davem@dm.cobaltmicro.com
+Thanks to Andrey V. Savochkin for his patch for my problem with
+Electric Fence that I posted on August 20 for 2.1.xxx.
+
+Though still slower than 2.0.xx, the patch looks like a big
+improvement for 2.1.xxx, running my Electric Fence example over
+10 times faster.  The patch didn't apply against 2.1.116-2.1.119,
+so the new results below are for the patch applied to 2.1.111 (the
+only earlier 2.1.xxx that I still have).
+
+
+Elapsed time in seconds     2.0.34      2.1.117     2.1.111-patched
+-----------------------     ------      -------     ---------------
+
+Without Electric Fence       3.82          3.72          3.76
+
+With Electric Fence         14.61        325.85         29.73
+
+
+The improvement is very much appreciated.
+
+Thanks,
+
+Richard D. McRoberts
+Loveland, Colorado USA
+rdm@verinet.com
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

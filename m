@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273810AbRI3WD1>; Sun, 30 Sep 2001 18:03:27 -0400
+	id <S274233AbRI3Wbu>; Sun, 30 Sep 2001 18:31:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272677AbRI3WDR>; Sun, 30 Sep 2001 18:03:17 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:23018 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S271769AbRI3WDC>;
-	Sun, 30 Sep 2001 18:03:02 -0400
-Date: Sun, 30 Sep 2001 18:03:27 -0400 (EDT)
+	id <S274237AbRI3Wbk>; Sun, 30 Sep 2001 18:31:40 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:9876 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S274233AbRI3Wb3>;
+	Sun, 30 Sep 2001 18:31:29 -0400
+Date: Sun, 30 Sep 2001 18:31:55 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
-To: "M. Edward Borasky" <znmeb@aracnet.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
- in prison
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBIENPDNAA.znmeb@aracnet.com>
-Message-ID: <Pine.GSO.4.21.0109301744350.12896-100000@weyl.math.psu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: [CFT][PATCH] cleanup of partition code
+Message-ID: <Pine.GSO.4.21.0109301819220.12896-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Folks, _please_ help to test this one.  It switches most of
+the fs/partitions/* to use of pagecache, cleans it up and fixes quite
+a few holes in that area.
 
+	It should work in all cases when vanilla tree does.  Please,
+try it on different partitioning schemes.
 
-On Sun, 30 Sep 2001, M. Edward Borasky wrote:
+	Things to look for:
 
-> 1. The losses to businesses from just these two virus attacks are
-> *significant*, and people are angry about the fact. They're looking for
-> someone to blame, someone to propose a solution and tools to prevent future
-> attacks. I personally think stiff fines and long prison sentences for
-> releasing attack software into the world's business network should have been
-> instituted a long time ago. Life without parole seems to me quite reasonable
-> under the circumstances.
+* Odd IDE disks - victims of EZ-Disk, OnCrack, etc.
+* Minix, Solaris, Unixware partitions.  Changes were completely
+  straightforward, but it needs testing.
+* BSD disklabels.  Should work, but more testing is needed.
+* non-x86 variants - Sun disklables, SGI, etc.  Need testing.
 
-Let's start with conslutants who kept pushing crap into said network.
-And continue with those who had bred tons of worthless "certified"
-wankers pretending to be sysadmins, driving the wages down and replacing
-clued people with illiterate trash.  Getting rid of script kiddies is
-nice, but fsckwits who are directly responsible for current situation
-should be first against the wall.
- 
-> 2. The Linux community should *not* believe that we are less vulnerable than
-> Microsoft! We are less vulnerable *now* only because Linux is not as
-> widespread as Windows. Were Linux, say, half of the market, the
-> vulnerability would be equal. The difference is strictly the number of
+	One thing that doesn't work yet is support of Acorn partitions -
+I'm switching it to pagecache right now.
 
-Like, say it, in case of apache?  It's _more_ widespread than target of
-Code Red and Nimda.
+	If there's no bug reports it will go into the tree, so _please_
+test it now, not after it's in 2.4.11
+
+	Patch is on ftp.math.psu.edu/pub/viro/partition-a-S11-pre1.  It's
+against 2.4.11-pre1.  Again, any help with testing is very welcome.
 

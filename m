@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278807AbRJZSav>; Fri, 26 Oct 2001 14:30:51 -0400
+	id <S278823AbRJZSfl>; Fri, 26 Oct 2001 14:35:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278823AbRJZSal>; Fri, 26 Oct 2001 14:30:41 -0400
-Received: from taifun.devconsult.de ([212.15.193.29]:42770 "EHLO
-	taifun.devconsult.de") by vger.kernel.org with ESMTP
-	id <S278807AbRJZSaf>; Fri, 26 Oct 2001 14:30:35 -0400
-Date: Fri, 26 Oct 2001 20:31:09 +0200
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: linux-kernel@vger.kernel.org
-Cc: Alex Larsson <alexl@redhat.com>
-Subject: Re: dnotify semantics
-Message-ID: <20011026203109.A32245@devcon.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Alex Larsson <alexl@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0110261139190.10309-100000@mjc.meridian.redhat.com> <20011026121628.O23590@turbolinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011026121628.O23590@turbolinux.com>; from adilger@turbolabs.com on Fri, Oct 26, 2001 at 12:16:28PM -0600
-Organization: dev/consulting GmbH
-X-NCC-RegID: de.devcon
+	id <S278828AbRJZSfb>; Fri, 26 Oct 2001 14:35:31 -0400
+Received: from [207.188.182.104] ([207.188.182.104]:25964 "EHLO infomesa.com")
+	by vger.kernel.org with ESMTP id <S278823AbRJZSfS>;
+	Fri, 26 Oct 2001 14:35:18 -0400
+Date: Fri, 26 Oct 2001 12:35:43 -0600
+Message-Id: <200110261835.MAA14684@infomesa.com>
+To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+From: MikeW@rren.org (Mike Warren)
+Subject: [PATCH] sparc64 fix for 2.4.13-ac2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 26, 2001 at 12:16:28PM -0600, Andreas Dilger wrote:
+sparc64 compiles of recent ac kernels are failing due to a missing
+#define of INIT_MMAP.  This code was removed in patch-2.4.10, but was
+also erroneously removed from the ac branch where it is still required.
 
-> So, monitor the parent of the directory in question for attribute changes.
+Mike
 
-... which is a little bit difficult if you want to monitor the root
-directory.
-
-Andreas
--- 
-       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
-     ---------------------------------------------------------
-         +49 521 1365800 - af@devcon.net - www.devcon.net
+*** linux-2.4.13-ac2/include/asm-sparc64/processor.h	Thu Oct 11 06:42:47 2001
+--- linux/include/asm-sparc64/processor.h	Fri Oct 26 18:16:14 2001
+***************
+*** 88,93 ****
+--- 88,96 ----
+  #define FAULT_CODE_ITLB		0x04	/* Miss happened in I-TLB		*/
+  #define FAULT_CODE_WINFIXUP	0x08	/* Miss happened during spill/fill	*/
+  
++ #define INIT_MMAP { &init_mm, 0xfffff80000000000, 0xfffff80001000000, \
++ 		    NULL, PAGE_SHARED , VM_READ | VM_WRITE | VM_EXEC, 1, NULL, NULL }
++ 
+  #define INIT_THREAD  {					\
+  /* ksp, wstate, cwp, flags, current_ds, */ 		\
+     0,   0,      0,   0,     KERNEL_DS,			\

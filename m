@@ -1,60 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261932AbSI1PR5>; Sat, 28 Sep 2002 11:17:57 -0400
+	id <S261868AbSI1PSj>; Sat, 28 Sep 2002 11:18:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261960AbSI1PR4>; Sat, 28 Sep 2002 11:17:56 -0400
-Received: from mail.uklinux.net ([80.84.72.21]:10000 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S261932AbSI1PRz>;
-	Sat, 28 Sep 2002 11:17:55 -0400
-Envelope-To: linux-kernel@vger.kernel.org
-Date: Sat, 28 Sep 2002 16:02:05 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: jbradford@dial.pipex.com
-cc: Joerg Pommnitz <pommnitz@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Framebuffer still "EXPERIMENTAL"?
-In-Reply-To: <200209271106.g8RB6PDg000759@darkstar.example.net>
-Message-ID: <Pine.LNX.4.21.0209281558290.3427-100000@ppg_penguin.linux.bogus>
+	id <S261869AbSI1PSj>; Sat, 28 Sep 2002 11:18:39 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:47596 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S261868AbSI1PSd>; Sat, 28 Sep 2002 11:18:33 -0400
+Message-ID: <20020928151726.18496.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Cc: conman@kolivas.net
+Date: Sat, 28 Sep 2002 23:17:26 +0800
+Subject: Re: [BENCHMARK] 2.5.39 with contest 0.41
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Sep 2002 jbradford@dial.pipex.com wrote:
+HP Omnibook 6000 (laptop), 256 MiB of RAM, PIII@800.
+Test against 2.4.19, 2.5.38-mm2, 2.5.39
 
-> > Hello Listees,
-> > yesterday I compiled 2.5.38 for the first time and noticed that the
-> > framebuffer option is still marked "EXPERIMENTAL". Well, I know for sure
-> > that I used the VESA-FB 3 years ago to get X running on a strange laptop
-> > graphic chip, so it is at least that long available (actually I think it
-> > got introduced for the Sparc port somewhen in 1995??). 
-> > 
-> > I think it's about time to promote the framebuffer code to a full fledged
-> > kernel feature. Comments?
-> 
-> I've noticed a bug with it, but haven't had time to investigate more fully, infact it might not be a kernel bug, but I suspect that it is.  I don't usually use the framebuffer, (I prefer the standard text mode).
-> 
-> On a standard Slackware 8.1 install, (kernel 2.4.18), on a machine with an ATI graphics card, and with the framebuffer enabled, if you type clear, then fill the screen with text so that it scrolls, (e.g. do a find /), the top four lines where the penguin used to be do not scroll, they just keep the text that is originally put there.  If you press shift-pageup, and then shift-pagedown, it fixes it.
-> 
-> If anybody has got the time to look in to this, I'll post more details.
-> 
-> John.
+What I did:
+$ rebootin "kernel" apm=off single
+$ contest -n 3
 
- Normal operation. Either switch to a different tty, or set a font.
+Results:
+Administrator@OIVT444P /cygdrive/log
+$ cat results.log
 
-There does seem to be a bug in your mailer, though (excessive line
-length) :->
+noload:
+Kernel                  Time            CPU             Ratio
+2.4.19                  133.07          98%             1.00
+2.4.19                  133.16          98%             1.00
+2.4.19                  135.43          97%             1.02
+2.5.38-mm2              138.19          97%             1.04
+2.5.38-mm2              138.47          96%             1.04
+2.5.38-mm2              139.54          96%             1.05
+2.5.39                  138.30          96%             1.04
+2.5.39                  138.63          96%             1.04
+2.5.39                  139.99          96%             1.05
 
-Ken
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+process_load:
+Kernel                  Time            CPU             Ratio
+2.4.19                  200.43          60%             1.51
+2.4.19                  203.11          60%             1.53
+2.4.19                  203.97          59%             1.53
+2.5.38-mm2              194.42          69%             1.46
+2.5.38-mm2              195.19          69%             1.47
+2.5.38-mm2              207.36          64%             1.56
+2.5.39                  190.44          70%             1.43
+2.5.39                  191.37          70%             1.44
+2.5.39                  193.60          69%             1.45
+
+io_load:
+Kernel                  Time            CPU             Ratio
+2.4.19                  486.58          27%             3.66
+2.4.19                  593.72          22%             4.46
+2.4.19                  637.61          21%             4.79
+2.5.38-mm2              232.35          61%             1.75
+2.5.38-mm2              237.83          57%             1.79
+2.5.38-mm2              274.39          50%             2.06
+2.5.39                  242.98          57%             1.83
+2.5.39                  294.52          50%             2.21
+2.5.39                  328.01          42%             2.46
+
+mem_load:
+Kernel                  Time            CPU             Ratio
+2.4.19                  172.24          78%             1.29
+2.4.19                  174.74          77%             1.31
+2.4.19                  174.87          77%             1.31
+2.5.38-mm2              165.53          82%             1.24
+2.5.38-mm2              170.00          80%             1.28
+2.5.38-mm2              171.96          79%             1.29
+2.5.39                  167.92          81%             1.26
+2.5.39                  170.80          80%             1.28
+2.5.39                  172.68          79%             1.30
+
+Ciao,
+          Paolo
 
 -- 
- Out of the darkness a voice spake unto me, saying "smile, things could be
-worse". So I smiled, and lo, things became worse.
+Get your free email from www.linuxmail.org 
 
 
-
+Powered by Outblaze

@@ -1,44 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282395AbRLCIvd>; Mon, 3 Dec 2001 03:51:33 -0500
+	id <S282932AbRLCJKy>; Mon, 3 Dec 2001 04:10:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284515AbRLCIu5>; Mon, 3 Dec 2001 03:50:57 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:29411 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S284631AbRLCCDn>;
-	Sun, 2 Dec 2001 21:03:43 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: esr@thyrsus.com
-Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5 
-In-Reply-To: Your message of "Sun, 02 Dec 2001 20:19:46 CDT."
-             <20011202201946.A7662@thyrsus.com> 
+	id <S282083AbRLCJKI>; Mon, 3 Dec 2001 04:10:08 -0500
+Received: from ns.etm.at ([212.88.180.5]:48139 "EHLO etm.at")
+	by vger.kernel.org with ESMTP id <S281862AbRLCJIO>;
+	Mon, 3 Dec 2001 04:08:14 -0500
+Message-Id: <01Dec3.100854cet.117132@fwetm.etm.at>
+From: "Stanislav Meduna" <stano@meduna.org>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <200112030244.fB32iMx4024126@sleipnir.valparaiso.cl>
+Subject: Re: Coding style - a non-issue 
+Date: Mon, 3 Dec 2001 10:07:59 +0100
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 03 Dec 2001 13:03:32 +1100
-Message-ID: <2313.1007345012@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-Msmail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-Mimeole: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Dec 2001 20:19:46 -0500, 
-"Eric S. Raymond" <esr@thyrsus.com> wrote:
->Keith Owens <kaos@ocs.com.au>:
->> The CML1 to CML2 conversion comes later, either in 2.5.3 or 2.5.4.
->
->The schedule I heard from Linus at the kernel summit was that both changes 
->were to go in between 2.5.1 and 2.5.2.   I would prefer sooner than later 
->because I'm *really* *tired* of maintaining a parallel rulebase.
+Horst von Brand wrote:
 
-I have not got CML2 support working in kbuild 2.5 so I left a bit of
-room between kbuild 2.5 going in and cutting over to CML2.  _If_ I can
-get CML2 support working before 2.5.1 comes out then we go
+> Have you got any idea how QA is done in closed environments?
 
-  2.5.2-pre1 Add kbuild 2.5 with both CML1 and CML2 support.
-  2.5.2-pre2 Remove kbuild 2.4.
-  2.5.2-pre3 Remove CML1.
-  2.5.2
+Yes I do. I write commercial sofware for 10 years and have
+experience with QA systems in two companies, one of them
+major. I think I have seen the full range of QA in various projects -
+from a complete negation to a silly buerocratic inefficient one.
 
-I would prefer that sequence myself, but I don't want to promise a
-timetable that I cannot deliver.
+> Complex software *has* bugs, bugs which aren't apparent
+> except under unsusual circumstances are rarely found in the
+> first round of bug chasing.
+
+Sure. But we now have 2.4.16, not 2.4.0 and guess what? -
+there is a big thread about fs corruption going right now
+in the l-k  :-( This should _not_ happen in the stab{le,ilizing}
+series and if it happened, the cause should be identified
+and measures taken.
+
+I for one think that the kernel has overgrown its current
+development model and that some _incremental_ steps
+in the direction of both more formal control and delegation
+of responsibilities are needed. I think that the most active
+kernel developers should discuss the future of the development
+model, as they are the only ones that can really come up
+with a solution.
+
+It is of course only my opinion - if I am alone having it, forget it.
+
+> > As a user of the vendor's kernel I have no idea what to do
+> > with a bug.
+> 
+> Report it to the vendor, through the documented channels?
+
+Did this. It is two months, I did some cornering of the problem
+and augmented the report several times. The issue is still NEW,
+without any response asking to try a patch, supply more details
+or such. Yes, this speaks more of the vendor than of the Linux.
+But what impression do you think the average user gets from
+such experience?
+
+Regards
+-- 
+                                                       Stano
+
 

@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291272AbSBVCO2>; Thu, 21 Feb 2002 21:14:28 -0500
+	id <S291269AbSBVCL2>; Thu, 21 Feb 2002 21:11:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291297AbSBVCOS>; Thu, 21 Feb 2002 21:14:18 -0500
-Received: from ginsberg.uol.com.br ([200.231.206.26]:61126 "EHLO
-	ginsberg.uol.com.br") by vger.kernel.org with ESMTP
-	id <S291272AbSBVCOM>; Thu, 21 Feb 2002 21:14:12 -0500
-Date: Thu, 21 Feb 2002 23:14:11 -0300 (BRT)
-From: Cesar Suga <sartre@linuxbr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: HPT366: DMA errors?
-Message-ID: <Pine.LNX.4.40.0202212304240.438-100000@sartre.linuxbr.com>
+	id <S291272AbSBVCLJ>; Thu, 21 Feb 2002 21:11:09 -0500
+Received: from mail.myrio.com ([63.109.146.2]:12785 "HELO mail.myrio.com")
+	by vger.kernel.org with SMTP id <S291269AbSBVCLH> convert rfc822-to-8bit;
+	Thu, 21 Feb 2002 21:11:07 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: boot messeage
+Date: Thu, 21 Feb 2002 18:09:32 -0800
+Message-ID: <A015F722AB845E4B8458CBABDFFE63420FE3B2@mail0.myrio.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: boot messeage
+Thread-Index: AcG7QuIpFt6qR7loRnm4bfxSAMFlcwAAdsmA
+From: "Torrey Hoffman" <Torrey.Hoffman@myrio.com>
+To: "Mike Fedyk" <mfedyk@matchmail.com>
+Cc: "Pozsar Balazs" <pozsy@sch.bme.hu>,
+        "hanhbkernel" <hanhbkernel@yahoo.com.cn>,
+        <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 22 Feb 2002 02:10:27.0203 (UTC) FILETIME=[183FE530:01C1BB46]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello, all.
+> On Thu, Feb 21, 2002 at 05:34:00PM -0800, Torrey Hoffman wrote:
+> > Then use append="console=/dev/tty2 CONSOLE=/dev/tty2", and you won't
+> 
+> Why do you use both console and CONSOLE?
 
-	I am using an ABIT BP6 board (SMP, 2 Celerons at 366MHz, none
-overclocked, *very* stable) which uses the HPT366 controller. I am getting
-through these messages when using the *original* ATA cable (never touched
-before) or a replacement one:
+hmmm.  I can't really remember, but I'm pretty sure it was necessary 
+when I started doing this 18 months ago, I wouldn't have added it 
+otherwise.
 
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+IIRC, "CONSOLE=/dev/tty2" becomes an environment variable for init, and 
+with the right intelligence in your startup scripts you get all your rc 
+script output on tty2 as well.  On the other hand, my current startup 
+scripts don't seem to use it or need it...   so I guess I don't know.
 
-	(when the drive first fscks from a dirty reboot)
+cargo-cult system management :-(   ("but I've always done it that way")
 
-	And, in kernel messages, whilst doing hdparm -tT /dev/hde3:
+Torrey
 
-->	invalidate: busy buffer
-	(from fs/buffer.c)
 
-	(yes, it is wrong to use hde3, but when I use hde, but whatever;
-using hda3 or hda did not matter when I used this *same* HDD with normal
-IDE cable (not using HPT366))
-
-	I am not using *any* special features (untuned HDD), drive was set
-to DMA mode 4 at the HPT BIOS.
-
-	Any clues on this? I am using kernel 2.4.17, libc 2.2.4, hdparm
-4.1.
-
-	PS: For now, I'll use this HDD with the normal cables, as I fear
-corruption. (yes, the drive runs *perfectly* with the normal cables and
-not connected to the HPT366 IDE. It is a Seagate ST310211A HDD.)
-
-	Thanks,
-	Cesar Suga <sartre@linuxbr.com>
 

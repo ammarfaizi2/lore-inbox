@@ -1,99 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318710AbSHLEy5>; Mon, 12 Aug 2002 00:54:57 -0400
+	id <S318712AbSHLE6a>; Mon, 12 Aug 2002 00:58:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318711AbSHLEy5>; Mon, 12 Aug 2002 00:54:57 -0400
-Received: from amsfep12-int.chello.nl ([213.46.243.17]:43291 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S318710AbSHLEy4>; Mon, 12 Aug 2002 00:54:56 -0400
-Message-ID: <001401c241bc$e6eaf490$0200010a@jennifer>
-Reply-To: "Dhr N. Van Alphen" <mastex@servicez.org>
-From: "Dhr N. Van Alphen" <mastex@servicez.org>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: <linux-kernel@vger.kernel.org>
-References: <20020811175252.GB755@gallifrey>
-Subject: Re: 2.4.19 eat my disc (contents)
-Date: Mon, 12 Aug 2002 06:58:26 +0200
-Organization: Genetics BV
+	id <S318715AbSHLE6a>; Mon, 12 Aug 2002 00:58:30 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:38707 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S318712AbSHLE62>;
+	Mon, 12 Aug 2002 00:58:28 -0400
+From: <Hell.Surfers@cwctv.net>
+To: riel@conectiva.com.br, jroland@roland.net, linux-kernel@vger.kernel.org
+Date: Mon, 12 Aug 2002 06:01:53 +0100
+Subject: RE:Re: The spam problem.
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1029128513960"
+Message-ID: <081130402050c82DTVMAIL3@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-go install again and boot after each little step wich might been the
-problem,
-then u should know what caused it, and post the real bug here.
-There are too many possibilities now.
 
-Niek van alphen.
-MasteX@servicez.org
+--1029128513960
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-
------ Original Message -----
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: <linux-kernel@vger.kernel.org>
-Cc: <axp-list@redhat.com>; <debian-alpha@lists.debian.org>
-Sent: Sunday, August 11, 2002 7:52 PM
-Subject: 2.4.19 eat my disc (contents)
+what about just asking them to confirm that would cut out mass spam
 
 
-> Hi,
->   I've just lost the contents of my disc on my Alpha to 2.4.19 - be
-> careful! (luckily there wasn't anything important on it...or at least if
-> there was I can't remember what....)
->
-> Some details:
-> 2.4.19 straight
-> Alpha 21164A on LX164 board
-> Compiled for LX164 architecture
-> Hard drive is an IBM 34GB Deathstar connected to the on board CMD646
-> controller.
->
-> It has been running Linux/Debian happily for ages; booted into 2.4.17,
-> compiled 2.4.19, booted into that and saw two problems;
->   1) RTL8139 network card was identified but would not connect.  I got
-> giant packet errors - it spitted out a 32 bit identifier which looked
-> like it might have got some ASCII where some value should have lived.
-> (It is an RTL8139 prior to the -c)
->
-> 2) I tried to go into the directory which I'd built the kernel in and
-> found it didn't actually agree that it was a directory; but thought it
-> was a file of many GB with odd permissions.  I unmounted the partition
-> and fsck'd - lots of errors; most complaining of invalid blocks.
-> debugfs seemed to indicate that lots of things in the inode had been
-> cleared to -1 (size, uid, gid, pretty much everything).
->
-> 3) I hit reset and the AlphaBIOS came to the conclusion there was no
-> OS and it looks like the partition table has gone to the great block
-> in the sky.
->
-> All tools were from Debian/unstable; updated immediatly prior to the
-> kernel build.
->
-> I'd give you a log and .config if it weren't for the fact that it has
-> just wiped itself from the disc. hdparm looked OK from the brief look;
-> I think it got the drive size right.  I had seen some DMA negotiation
-> alike errors go past during the boot.
->
-> Oh well - time to try the Debian/Woody install process on Alpha....
->
-> Dave
->
->  ---------------- Have a happy GNU millennium! ----------------------
-> / Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \
-> \ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
->  \ _________________________|_____ http://www.treblig.org   |_______/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+
+On 	Mon, 12 Aug 2002 01:50:12 -0300 (BRT) 	Rik van Riel <riel@conectiva.com.br> wrote:
+
+--1029128513960
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Received: from garrincha.netbank.com.br ([200.203.199.88]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Mon, 12 Aug 2002 05:49:24 +0100
+Received: (qmail 28679 invoked by uid 84); 12 Aug 2002 04:50:55 -0000
+Received: from riel@conectiva.com.br by garrincha.netbank.com.br with qmail-scanner-1.01 (. Clean. Processed in 0.219702 secs); 12 Aug 2002 04:50:55 -0000
+Received: from 3-195.ctame701-1.telepar.net.br (ftryeh@200.193.161.195)
+  by garrincha.netbank.com.br with SMTP; 12 Aug 2002 04:50:55 -0000
+Received: from localhost ([IPv6:::ffff:127.0.0.1]:12775 "EHLO localhost")
+	by imladris.surriel.com with ESMTP id <S80101AbSHLEuO>;
+	Mon, 12 Aug 2002 01:50:14 -0300
+Date: Mon, 12 Aug 2002 01:50:12 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Jim Roland <jroland@roland.net>
+cc: Hell.Surfers@cwctv.net, <linux-kernel@vger.kernel.org>
+Subject: Re: The spam problem.
+In-Reply-To: <003701c241ba$94f8a1c0$2102a8c0@gespl2k1>
+Message-ID: <Pine.LNX.4.44L.0208120147400.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-Path: riel@conectiva.com.br
+
+On Sun, 11 Aug 2002, Jim Roland wrote:
+
+> I want to suggest to the listserver admin (again) that this list and
+> others on vger.kernel.org be restricted so that you can only post to the
+> list if you are a member.
+
+That's a sure way to cut down on the number of bug reports ;)
+
+Not to mention that it makes cross-posts between various lists
+pretty much impossible.
+
+Also, considering the amount of spam I've received "from myself"
+and "from" linux-kernel regulars it's pretty obvious that restricting
+the posting to list members just isn't going to work any more to
+prevent spam.  It might still work for the next few months, but
+the trend of spammers harvesting from/to address _pairs_ to get
+around people's spam filters is definately getting explosively
+more popular...
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+--1029128513960--
 
 

@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315079AbSDWGGm>; Tue, 23 Apr 2002 02:06:42 -0400
+	id <S315080AbSDWGIO>; Tue, 23 Apr 2002 02:08:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315080AbSDWGGl>; Tue, 23 Apr 2002 02:06:41 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:9344 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S315079AbSDWGGk>; Tue, 23 Apr 2002 02:06:40 -0400
-Date: Tue, 23 Apr 2002 07:04:17 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Jeff Garzik <garzik@havoc.gtf.org>, Rasmus Andersen <rasmus@jaquet.dk>,
-        CaT <cat@zip.com.au>, Larry McVoy <lm@bitmover.com>,
-        Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
-Subject: Re: Suggestion re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020423070417.A19987@kushida.apsleyroad.org>
-In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <E16yzWX-0000lZ-00@starship> <20020421143038.H8142@havoc.gtf.org> <E16z06w-0000mM-00@starship>
-Mime-Version: 1.0
+	id <S315081AbSDWGIL>; Tue, 23 Apr 2002 02:08:11 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:43532
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S315080AbSDWGIE>; Tue, 23 Apr 2002 02:08:04 -0400
+Date: Mon, 22 Apr 2002 23:06:01 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+cc: "J.A. Magallon" <jamagallon@able.es>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam5
+In-Reply-To: <1019539515.970.3.camel@psuedomode>
+Message-ID: <Pine.LNX.4.10.10204222302220.32212-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> In fact, the basic premise is that people mail to the patchbot, not the
-> maintainer.  The patchbot knows who the maintainer is and forwards the patch
-> to the maintainer, using the maintainer's format of choice, or as now
-> proposed, just drops it into the BK repository and forwards a notification,
-> both to the maintainer and the linux-patches list.
 
-Oh, now that _is_ a good idea.  So individuals like me can register and
-say "notify me if anyone posts something for net/packet/* or
-include/linux/if_packet.h".  Whether I'm a maintainer or not?
+bottom of ide-pci.c
 
-That would be pretty useful.
+there is a failed test to isolate multi-function chips which carry a real
+host inside.
 
-An uber-feature would be "notify me if the VFS interface or locking
-rules change", for version 2 perhaps ;-)
+ide_scan_pcidev()
 
--- Jamie
+else if (d->order_fix)
+	d->order_fix(dev, d);
+--
+--
+--
+
+delete the three lines after d->order_fix(dev, d);
+
+
+Cheers and Apology,
+
+
+On 23 Apr 2002, Ed Sweetman wrote:
+
+> Seems that ide-6 disables Promise ide controllers. Jam2 worked and there
+> are quite extensive changes to the pdc driver and general ide drivers so
+> I was unable to eye out what is going wrong.  It doesn't even show up in
+> lspci.    
+> 
+> 
+> Can anyone else verify that this is a general Promise bug in ide-6.  If
+> not i'll reboot and give an exact list of my card and see if maybe it's
+> falling through the cracks.  
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
+

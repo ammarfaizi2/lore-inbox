@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262886AbUCRTKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 14:10:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbUCRTKQ
+	id S262888AbUCRTQr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 14:16:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbUCRTQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 14:10:16 -0500
-Received: from ns.suse.de ([195.135.220.2]:61601 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262886AbUCRTKG (ORCPT
+	Thu, 18 Mar 2004 14:16:47 -0500
+Received: from ns.suse.de ([195.135.220.2]:8101 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262888AbUCRTQo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 14:10:06 -0500
-Date: Thu, 18 Mar 2004 20:08:59 +0100
-Message-ID: <s5hd67ac6r8.wl@alsa2.suse.de>
+	Thu, 18 Mar 2004 14:16:44 -0500
+Date: Thu, 18 Mar 2004 20:16:42 +0100
+Message-ID: <s5hbrmuc6ed.wl@alsa2.suse.de>
 From: Takashi Iwai <tiwai@suse.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: andrea@suse.de, mjy@geizhals.at, linux-kernel@vger.kernel.org
@@ -29,41 +29,58 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 At Thu, 18 Mar 2004 11:01:59 -0800,
 Andrew Morton wrote:
 > 
-> btw, several months ago we discussed the idea of adding a sysctl to the
-> ALSA drivers which would cause a dump_stack() to be triggered if the audio
-> ISR detected a sound underrun.
+> Takashi Iwai <tiwai@suse.de> wrote:
+> >
+> > for ext3, these two spots are relevant.
+> > 
+> > --- linux-2.6.4-8/fs/jbd/commit.c-dist	2004-03-16 23:00:40.000000000 +0100
+> > +++ linux-2.6.4-8/fs/jbd/commit.c	2004-03-18 02:42:41.043448624 +0100
+> > @@ -290,6 +290,9 @@ write_out_data_locked:
+> >  			commit_transaction->t_sync_datalist = jh;
+> >  			break;
+> >  		}
+> > +
+> > +		if (need_resched())
+> > +			break;
+> >  	} while (jh != last_jh);
+> >  
+> >  	if (bufs || need_resched()) {
 > 
-> This would be a very useful feature, because it increases the number of
-> low-latency developers from O(2) to O(lots).  If some user is complaining
-> of underruns we can just ask them to turn on the sysctl and we get a trace
-> pointing at the culprit code.
-> 
-> And believe me, we need the coverage.  There are all sorts of weird code
-> paths which were found during the development of the 2.4 low-latency patch.
-> i2c drivers, fbdev drivers, all sorts of things which you and I don't
-> test.
-> 
-> I know it's a matter of
-> 
-> 	if (sysctl_is_set)
-> 		dump_stack();
-> 
-> in snd_pcm_update_hw_ptr_post() somewhere, but my brain burst when working
-> out the ALSA sysctl architecture.
-> 
-> Is this something you could add please?
+> This one I need to think about.  Perhaps we can remove the yield point a
+> few lines above.
 
-oh, sorry, maybe i forgot to tell you that it has been already there
-:)
+yes, i'm afraid that it's also overkill to check this at every time.
+perhaps we can optimize it a bit better.  the fact that it imporives
+the latency means that there are so many locked buffers or non-dirty
+buffers in the list?
 
-	# echo 1 > /proc/asound/card0/pcm0p/xrun_debug
+> One needs to be really careful with the lock-dropping trick - there are
+> weird situations in which the kernel fails to make any forward progress. 
+> I've been meaning to do another round of latency tuneups for ages, so I'll
+> check this one out, thanks.
+> 
+> There's also the SMP problem: this CPU could be spinning on a lock with
+> need_resched() true, but the other CPU is hanging on the lock for ages
+> because its need_resched() is false.
 
-this will show the stacktrace when a buffer overrun/underrun is
-detected in the irq handler.  it's not perfect, though.
+yep, i see a similar problem also in reiserfs's do_journal_end().
+it's in lock_kernel().
 
-we can add stacktracing in other nasty places, e.g. when the
-unexpected h/w pointer is returned (this is usually because of sloppy
-irq handling).
+>  In the 2.4 ll patch I solved that via
+> the scary hack of broadcasting a reschedule instruction to all CPUs if an
+> rt-prio task just became runnable.  In 2.6-preempt we use
+> preempt_spin_lock().
+> 
+> But in 2.6 non-preempt we have no solution to this, so worst-case
+> scheduling latencies on 2.6 SMP CONFIG_PREEMPT=n are high.
+
+hmm, it's bad...
+
+> Last time I looked the worst-case latency is in fact over in the ext3
+> checkpoint code.  It's under spinlock and tricky to fix.
+
+BTW, i had the worst latency in sis900's timer handler.
+it takes 3ms, and hard to fix, too :-<
 
 
 Takashi

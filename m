@@ -1,36 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269831AbRHIPG5>; Thu, 9 Aug 2001 11:06:57 -0400
+	id <S269832AbRHIPJ4>; Thu, 9 Aug 2001 11:09:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269832AbRHIPGr>; Thu, 9 Aug 2001 11:06:47 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:60420 "EHLO
+	id <S269833AbRHIPJr>; Thu, 9 Aug 2001 11:09:47 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63492 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269831AbRHIPGd>; Thu, 9 Aug 2001 11:06:33 -0400
-Subject: Re: 2.4.4: thread dumping core
-To: Ulrich.Windl@rz.uni-regensburg.de (Ulrich Windl)
-Date: Thu, 9 Aug 2001 16:08:19 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B72C08E.3800.1F80245@localhost> from "Ulrich Windl" at Aug 09, 2001 04:55:46 PM
+	id <S269832AbRHIPJd>; Thu, 9 Aug 2001 11:09:33 -0400
+Subject: Re: Memory Problems - CTCS/memtst
+To: cdhs@commerce.uk.net (Corin Hartland-Swann)
+Date: Thu, 9 Aug 2001 16:10:44 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jcollins@valinux.com (Jason Collins),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0108091529070.18150-100000@willow.commerce.uk.net> from "Corin Hartland-Swann" at Aug 09, 2001 03:45:22 PM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15UrQ3-0007Qq-00@the-village.bc.nu>
+Message-Id: <E15UrSO-0007RH-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I wonder whether the kernel does the right thing if a thread causes a 
-> segmentation violation: Currently it seems the other LWPs just 
-> continue. However in practice this means that the application does not 
+> What is the status of the new serverworks driver in 2.4.7-ac9 - is it due
+> to go into the main kernel soon?
 
-This is a feature in most cases
-
-> I suggest to terminate all LWPs if one receives a fatal signal.
-
-So write some signal handlers. 
-
-In all cases the other threads will continue for some time, so you gain
-nothing by pretending they dont. 
-
-Alan
+Its certainly ready to. Andre is the man to ask about the actual submission
+schedule

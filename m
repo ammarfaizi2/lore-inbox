@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130472AbQKTAMk>; Sun, 19 Nov 2000 19:12:40 -0500
+	id <S130452AbQKTAbw>; Sun, 19 Nov 2000 19:31:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130320AbQKTAMa>; Sun, 19 Nov 2000 19:12:30 -0500
-Received: from [213.8.184.104] ([213.8.184.104]:43270 "EHLO callisto.yi.org")
-	by vger.kernel.org with ESMTP id <S130472AbQKTAMW>;
-	Sun, 19 Nov 2000 19:12:22 -0500
-Date: Mon, 20 Nov 2000 01:38:53 +0200 (IST)
-From: Dan Aloni <karrde@callisto.yi.org>
-To: Taisuke Yamada <tai@imasy.or.jp>
-cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
+	id <S130522AbQKTAbd>; Sun, 19 Nov 2000 19:31:33 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:36617
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S130452AbQKTAb2>; Sun, 19 Nov 2000 19:31:28 -0500
+Date: Sun, 19 Nov 2000 16:01:05 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Dan Aloni <karrde@callisto.yi.org>
+cc: Taisuke Yamada <tai@imasy.or.jp>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Large "clipped" IDE disk support for 2.4 when using old
  BIOS
-In-Reply-To: <200011192311.eAJNBUj02708@research.imasy.or.jp>
-Message-ID: <Pine.LNX.4.21.0011200112300.991-100000@callisto.yi.org>
+In-Reply-To: <Pine.LNX.4.21.0011200112300.991-100000@callisto.yi.org>
+Message-ID: <Pine.LNX.4.10.10011191553360.21359-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Nov 2000, Taisuke Yamada wrote:
+On Mon, 20 Nov 2000, Dan Aloni wrote:
 
-> 
-> > > > This patch is not good...[snip]
-> > >
-> > > Please retest with hdc=...
-> >
-> > Ok, I've booted without the parameter, and without the jumper on
-> > clipping mode (I'll do it tommorow, it's 1AM now) got something
-> > similiar to what you've written, and everything looks ok.
-> 
-> Great, so it worked.
-> 
-> # Since it worked, please discard my message I sent you to wait.
-> 
-> > Now it reports 90069839 - one sector less. Any damage risk to
-> > my filesystems?
-> 
-> Hmm, that will be trouble if you access that last sector. I'll
-> take a look at it after I came back from my work (It's 8AM now
-> and got to go to work :-).
+> Well, I could patch it so it adds that one sector ;-) But that's not the
+> right way. The true number of sectors is 90069840, since 90069839 doesn't
+> divide by the number of *real* heads (6) and the number of recording zones
+> (15). So it needs fixing.
 
-Well, I could patch it so it adds that one sector ;-) But that's not the
-right way. The true number of sectors is 90069840, since 90069839 doesn't
-divide by the number of *real* heads (6) and the number of recording zones
-(15). So it needs fixing.
+15 == 16 if 0 == 1 in realm of counting numbers.
 
--- 
-Dan Aloni 
-dax@karrde.org
+Also geometry is a lie to begin with, so what is one more lie on top of
+another?
+
+Cheers,
+
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

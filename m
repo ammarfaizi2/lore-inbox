@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319097AbSHGS3M>; Wed, 7 Aug 2002 14:29:12 -0400
+	id <S319204AbSHGTCE>; Wed, 7 Aug 2002 15:02:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319105AbSHGS3M>; Wed, 7 Aug 2002 14:29:12 -0400
-Received: from pg-fw.paradigmgeo.com ([192.117.235.33]:11889 "EHLO
-	ntserver2.geodepth.com") by vger.kernel.org with ESMTP
-	id <S319097AbSHGS3K>; Wed, 7 Aug 2002 14:29:10 -0400
-Message-ID: <EE83E551E08D1D43AD52D50B9F511092E114E4@ntserver2>
-From: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
-To: "'Jesse Pollard'" <pollard@tomcat.admin.navo.hpc.mil>,
-       "'trond.myklebust@fys.uio.no'" <trond.myklebust@fys.uio.no>
-Cc: "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: RE: O_SYNC option doesn't work (2.4.18-3)
-Date: Wed, 7 Aug 2002 21:30:04 +0200 
+	id <S319205AbSHGTCE>; Wed, 7 Aug 2002 15:02:04 -0400
+Received: from ausadmmsps306.aus.amer.dell.com ([143.166.224.101]:1032 "HELO
+	AUSADMMSPS306.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S319204AbSHGTCC>; Wed, 7 Aug 2002 15:02:02 -0400
+X-Server-Uuid: c21c953d-96eb-4242-880f-19bdb46bc876
+Message-ID: <20BF5713E14D5B48AA289F72BD372D6821CAC5@AUSXMPC122.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: landley@trommello.org
+cc: austin@digitalroadkill.net, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: RE: [2.6] The List, pass #2
+Date: Wed, 7 Aug 2002 12:11:44 -0500
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 114F8B5B83597-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Only file level locking is permitted. You can only open the 
->file IF you get
->the lock. And be sure to close the file before releasing the 
->lock. Make sure
->that all accesses to the file use the SAME lock technique.
-You need a file descriptor to lock the file, don't you? That's assuming that
-you intend to use lockd locking.
+> 2) Dell gave people refunds on the few itanium machines they 
+> actually managed to sell.
+> There would appear to be a distinct trend here, but you know 
+> rumors... :)
 
->We just don't mix multiple client access to the same file, unless everybody
+In this case, rumors are completely untrue. :-)  Standard Operating
+Procedure is to give refunds for systems returned within 30 days if the
+customer chooses to do that.  We didn't do anything akin to a recall.  In
+fact, we're still selling 4P Itanium servers (PowerEdge 7150).
 
->is only reading that file.
-When the writer closes the file, how do you make the readers see the latest
-changes (assuming that you always open/close files per transaction type).
+Thanks,
+Matt
 
-Thanks a lot.
-Giga
+--
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
+

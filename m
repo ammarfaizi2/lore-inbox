@@ -1,173 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317981AbSHDQeH>; Sun, 4 Aug 2002 12:34:07 -0400
+	id <S317999AbSHDQhk>; Sun, 4 Aug 2002 12:37:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317984AbSHDQeH>; Sun, 4 Aug 2002 12:34:07 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:57251 "EHLO
+	id <S318135AbSHDQhk>; Sun, 4 Aug 2002 12:37:40 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:50603 "EHLO
 	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S317981AbSHDQeF>; Sun, 4 Aug 2002 12:34:05 -0400
-Message-ID: <3D4D5726.4040904@quark.didntduck.org>
-Date: Sun, 04 Aug 2002 12:32:38 -0400
+	id <S317999AbSHDQhi>; Sun, 4 Aug 2002 12:37:38 -0400
+Message-ID: <3D4D57FB.1070208@quark.didntduck.org>
+Date: Sun, 04 Aug 2002 12:36:11 -0400
 From: Brian Gerst <bgerst@quark.didntduck.org>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] i386 boot pagetables cleanup part 2
+Subject: [PATCH] fix x86 page table init
 Content-Type: multipart/mixed;
- boundary="------------070708010204080401030108"
+ boundary="------------090002090708030806050502"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------070708010204080401030108
+--------------090002090708030806050502
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Reorganize i386/kernel/head.S to eliminate the .org directives.
-- boot_pgtables move to .data.init so they can be reclaimed after the 
-final pagetables are set up.
-- empty_zero_page and swapper_pg_dir move to .data.page_aligned
-- the IDT and GDT descriptors are moved to .data
-
-The end effect is that we can now fully use the first page of head.S 
-saving about half a page of memory.
+The recent changes to the x86 page table init reintroduced a bug with
+the 4k pagetables.  The page table must be filled with entries before it
+is inserted into the pmd or else you risk a tlb miss on a kernel code
+page causing an oops.  This is the third iteration of the patch and it 
+goes back to the 2.4 method, which is compatabile with the boot 
+pagetable changes I just sent in.
 
 --
 				Brian Gerst
 
---------------070708010204080401030108
+
+--------------090002090708030806050502
 Content-Type: text/plain;
- name="boot_pte2-1"
+ name="pte_init-3"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="boot_pte2-1"
+ filename="pte_init-3"
 
-diff -urN linux-bg1/arch/i386/kernel/head.S linux/arch/i386/kernel/head.S
---- linux-bg1/arch/i386/kernel/head.S	Sun Aug  4 11:01:52 2002
-+++ linux/arch/i386/kernel/head.S	Sun Aug  4 11:58:40 2002
-@@ -339,6 +339,19 @@
- 	iret
+diff -urN linux-bg1/arch/i386/mm/init.c linux/arch/i386/mm/init.c
+--- linux-bg1/arch/i386/mm/init.c	Fri Aug  2 10:15:28 2002
++++ linux/arch/i386/mm/init.c	Sun Aug  4 12:14:42 2002
+@@ -126,7 +126,7 @@
+ 	unsigned long pfn;
+ 	pgd_t *pgd;
+ 	pmd_t *pmd;
+-	pte_t *pte;
++	pte_t *pte, *pte_base;
+ 	int pgd_ofs, pmd_ofs, pte_ofs;
  
- /*
-+ * Real beginning of normal "text" segment
-+ */
-+ENTRY(stext)
-+ENTRY(_stext)
+ 	pgd_ofs = __pgd_offset(PAGE_OFFSET);
+@@ -141,10 +141,19 @@
+ 				set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE));
+ 				pfn += PTRS_PER_PTE;
+ 			} else {
+-				pte = one_page_table_init(pmd);
++				/*
++				 * We cannot set the pmd until the page is full, since we are
++				 * changing the pte under running code and a tlb miss will
++				 * cause an oops.
++				 */
++				pte_base = pte = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+ 
+ 				for (pte_ofs = 0; pte_ofs < PTRS_PER_PTE && pfn < max_low_pfn; pte++, pfn++, pte_ofs++)
+ 					set_pte(pte, pfn_pte(pfn, PAGE_KERNEL));
 +
-+/*
-+ * This starts the data section. Note that the above is all
-+ * in the text section because it has alignment requirements
-+ * that we cannot fulfill any other way.
-+ */
-+.data
-+
-+/*
-  * The IDT and GDT 'descriptors' are a strange 48-bit object
-  * only used by the lidt and lgdt instructions. They are not
-  * like usual segment descriptors - they consist of a 16-bit
-@@ -362,53 +375,6 @@
- 
- 	.fill NR_CPUS-1,6,0		# space for the other GDT descriptors
- 
--/*
-- * This is initialized to create an identity-mapping at 0-8M (for bootup
-- * purposes) and another mapping of the 0-8M area at virtual address
-- * PAGE_OFFSET.
-- */
--.org 0x1000
--ENTRY(swapper_pg_dir)
--	.long 0x0007 + __PA(boot_pgtables)
--	.long 0x1007 + __PA(boot_pgtables)
--	/* default: 766 entries */
--	.fill BOOT_USER_PGD_PTRS-2,4,0
--	.long 0x0007 + __PA(boot_pgtables)
--	.long 0x1007 + __PA(boot_pgtables)
--	/* default: 254 entries */
--	.fill BOOT_KERNEL_PGD_PTRS-2,4,0
--
--/*
-- * The page tables are initialized to only 8MB here - the final page
-- * tables are set up later depending on memory size.
-- */
--.org 0x2000
--boot_pgtables:
--
--/*
-- * empty_zero_page must immediately follow the page tables ! (The
-- * initialization loop counts until empty_zero_page)
-- */
--
--.org 0x4000
--boot_pgtables_end:
--ENTRY(empty_zero_page)
--
--.org 0x5000
--
--/*
-- * Real beginning of normal "text" segment
-- */
--ENTRY(stext)
--ENTRY(_stext)
--
--/*
-- * This starts the data section. Note that the above is all
-- * in the text section because it has alignment requirements
-- * that we cannot fulfill any other way.
-- */
--.data
--
- ALIGN
- /*
-  * The Global Descriptor Table contains 20 quadwords, per-CPU.
-@@ -444,3 +410,26 @@
- 	.fill (NR_CPUS-1)*GDT_ENTRIES,8,0 /* other CPU's GDT */
- #endif
- 
-+.section .data.page_aligned, "aw"
-+ENTRY(empty_zero_page)
-+	.fill 4096,1,0
-+
-+/*
-+ * This is initialized to create an identity-mapping at 0-8M (for bootup
-+ * purposes) and another mapping of the 0-8M area at virtual address
-+ * PAGE_OFFSET.
-+ */
-+ENTRY(swapper_pg_dir)
-+	.long 0x0007 + __PA(boot_pgtables)
-+	.long 0x1007 + __PA(boot_pgtables)
-+	/* default: 766 entries */
-+	.fill BOOT_USER_PGD_PTRS-2,4,0
-+	.long 0x0007 + __PA(boot_pgtables)
-+	.long 0x1007 + __PA(boot_pgtables)
-+	/* default: 254 entries */
-+	.fill BOOT_KERNEL_PGD_PTRS-2,4,0
-+
-+.section .data.boot_pgtable, "aw"
-+boot_pgtables:
-+	.fill 2*4096,1,0
-+boot_pgtables_end:
-diff -urN linux-bg1/arch/i386/vmlinux.lds linux/arch/i386/vmlinux.lds
---- linux-bg1/arch/i386/vmlinux.lds	Tue Jul 23 19:19:44 2002
-+++ linux/arch/i386/vmlinux.lds	Sun Aug  4 11:59:19 2002
-@@ -63,6 +63,7 @@
-   .data.percpu  : { *(.data.percpu) }
-   __per_cpu_end = .;
-   . = ALIGN(4096);
-+  .data.boot_pgtable : { *(.data.boot_pgtable) }
-   __init_end = .;
- 
-   . = ALIGN(4096);
-@@ -72,7 +73,7 @@
-   __nosave_end = .;
- 
-   . = ALIGN(4096);
--  .data.page_aligned : { *(.data.idt) }
-+  .data.page_aligned : { *(.data.page_aligned) *(.data.idt) }
- 
-   . = ALIGN(32);
-   .data.cacheline_aligned : { *(.data.cacheline_aligned) }
++				set_pmd(pmd, __pmd(__pa(pte_base) | _KERNPG_TABLE));
++				if (pte_base != pte_offset_kernel(pmd, 0))
++					BUG();	
+ 			}
+ 		}
+ 	}	
 
---------------070708010204080401030108--
+--------------090002090708030806050502--
 

@@ -1,33 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263104AbREWOdF>; Wed, 23 May 2001 10:33:05 -0400
+	id <S263105AbREWOjP>; Wed, 23 May 2001 10:39:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263103AbREWOcz>; Wed, 23 May 2001 10:32:55 -0400
-Received: from [195.6.125.97] ([195.6.125.97]:32006 "EHLO looping.sycomore.fr")
-	by vger.kernel.org with ESMTP id <S263099AbREWOcp>;
-	Wed, 23 May 2001 10:32:45 -0400
-Date: Wed, 23 May 2001 16:28:01 +0200
-From: sebastien person <sebastien.person@sycomore.fr>
-To: liste noyau linux <linux-kernel@vger.kernel.org>
-Subject: [timer] max timeout
-Message-Id: <20010523162801.38dabdff.sebastien.person@sycomore.fr>
-X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.6; i686-pc-linux-gnu)
+	id <S263106AbREWOiz>; Wed, 23 May 2001 10:38:55 -0400
+Received: from mail.inup.com ([194.250.46.226]:24595 "EHLO mailhost.lineo.fr")
+	by vger.kernel.org with ESMTP id <S263105AbREWOiu>;
+	Wed, 23 May 2001 10:38:50 -0400
+Date: Wed, 23 May 2001 16:37:58 +0200
+From: =?ISO-8859-1?Q?christophe_barb=E9?= <christophe.barbe@lineo.fr>
+To: Andi Kleen <ak@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: sk_buff destructor in 2.2.18
+Message-ID: <20010523163758.C7823@pc8.lineo.fr>
+In-Reply-To: <20010523161654.C7531@pc8.lineo.fr> <20010523162739.A24463@gruyere.muc.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20010523162739.A24463@gruyere.muc.suse.de>; from ak@suse.de on Wed, May 23, 2001 at 16:27:39 +0200
+X-Mailer: Balsa 1.1.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+It seems to not be the case, because my destructor is called.
+Could you point me the code where you think this method is already used?
 
-is there a max timeout to respect when I use mod_timer ? or add_timer ?
+Thank you for your answer,
+Christophe
 
-Is it bad to do the following call ?
 
-	mod_timer(&timer, jiffies+(0.1*HZ));
+On Wed, 23 May 2001 16:27:39 Andi Kleen wrote:
+> On Wed, May 23, 2001 at 04:16:54PM +0200, christophe barbé wrote:
+> > Hi all,
+> > 
+> > I'm trying to figure out how to use the destructor function in the
+> skbuff
+> > object. 
+> > I've read (the source code and) the alan cox's article from
+> linuxjournal
+> > but it refers to linux 2.0.
+> > Perhaps someone can tell me what's wrong in the following :
+> 
+> You can't use the destructor; it is already used by the main stack for
+> socket
+> memory management.
+> 
+> -Andi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+-- 
+Christophe Barbé
+Software Engineer - christophe.barbe@lineo.fr
+Lineo France - Lineo High Availability Group
+42-46, rue Médéric - 92110 Clichy - France
+phone (33).1.41.40.02.12 - fax (33).1.41.40.02.01
+http://www.lineo.com
 
-that might fire the timer 1/10 second later.
-
-Thanks.
-
-sebastien person

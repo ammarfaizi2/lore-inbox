@@ -1,45 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263154AbUDZQv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263104AbUDZQ4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263154AbUDZQv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 12:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263104AbUDZQv3
+	id S263104AbUDZQ4S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 12:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbUDZQ4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 12:51:29 -0400
-Received: from fed1rmmtao05.cox.net ([68.230.241.34]:10980 "EHLO
-	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
-	id S263154AbUDZQvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 12:51:25 -0400
-Date: Mon, 26 Apr 2004 09:51:04 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Tom Armistead <tarmiste@eng.mcd.mot.com>
-Cc: paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fixes to MVME5100 support in 2.6.5
-Message-ID: <20040426165104.GC19246@smtp.west.cox.net>
-References: <40880A0B.E9A569F5@eng.mcd.mot.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40880A0B.E9A569F5@eng.mcd.mot.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 26 Apr 2004 12:56:18 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:8424 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S263104AbUDZQ4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 12:56:16 -0400
+Date: Mon, 26 Apr 2004 12:55:57 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc2-mm2
+In-Reply-To: <20040426013944.49a105a8.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0404261251400.3414@montezuma.fsmlabs.com>
+References: <20040426013944.49a105a8.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 22, 2004 at 11:08:11AM -0700, Tom Armistead wrote:
+The directory is all setup on k.o but the actual file appears to have not
+been compressed which confused a few scripts.
 
-> 
-> This patch corrects problems of compiling and running the 2.6 kernel on
-> the MVME5100 board.    The existing MVME5100 platform support in 2.6
-> does not compile and run due to a moved include file (pplus.h) and a
-> changed interface to openpic_init().  This patch corrects those
-> problems.
-
-Have you booted an MVME5100 after these changes as well?  The
-mvme5100_openpic_initsenses table looks like it needs to be updated
-still.  For a guide to how it should all look, if you've got the hw and
-time, please look how the PowerPlus code was updated recently (in BK,
-the key is trini@kernel.crashing.org|ChangeSet|20040311200618|42037,
-currently changeset 1.1557.88.1).
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+--12:24:26--
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6-rc2/2.6.6-rc2-mm2/2.6.6-rc2-mm2.bz2
+           => `/build/patches/2.6.6-rc2-mm2.bz2.partial'
+Resolving www.kernel.org... done.
+Connecting to www.kernel.org[204.152.189.116]:80... connected.
+HTTP request sent, awaiting response... 404 Not Found

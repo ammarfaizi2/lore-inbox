@@ -1,101 +1,220 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261367AbTC0TYX>; Thu, 27 Mar 2003 14:24:23 -0500
+	id <S261304AbTC0Tcr>; Thu, 27 Mar 2003 14:32:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261364AbTC0TYR>; Thu, 27 Mar 2003 14:24:17 -0500
-Received: from 12-229-138-196.client.attbi.com ([12.229.138.196]:28544 "EHLO
-	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
-	id <S261362AbTC0TXQ>; Thu, 27 Mar 2003 14:23:16 -0500
-Message-ID: <3E835241.9060407@comcast.net>
-Date: Thu, 27 Mar 2003 11:34:25 -0800
-From: Walt H <waltabbyh@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030326
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: thunder7@xs4all.nl
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: vesafb problem
-References: <3E8329D2.7040909@comcast.net> <20030327190222.GA4060@middle.of.nowhere>
-In-Reply-To: <20030327190222.GA4060@middle.of.nowhere>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261287AbTC0Tcq>; Thu, 27 Mar 2003 14:32:46 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:51720 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261304AbTC0Tch>;
+	Thu, 27 Mar 2003 14:32:37 -0500
+Date: Thu, 27 Mar 2003 11:42:48 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: Re: lm sensors sysfs file structure
+Message-ID: <20030327194248.GK32667@kroah.com>
+References: <1048582394.4774.7.camel@workshop.saharact.lan> <20030325175603.GG15823@kroah.com> <1048705473.7569.10.camel@nosferatu.lan> <3E82024A.4000809@portrix.net> <20030326202622.GJ24689@kroah.com> <3E82292E.536D9196@paradyne.com> <20030326225234.GA27436@kroah.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="oyUTqETQ0mS9luUI"
+Content-Disposition: inline
+In-Reply-To: <20030326225234.GA27436@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jurriaan wrote:
 
-> 
-> I had a similar problem with 1 Gb Ram, and received this answer on the
-> linux-kernel mailinglist:
-> 
-> ======================================================
-> To: thunder7@xs4all.nl
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: 2.5.64: ioremap_nocache() failes with 1 gigabyte memory, works with 512 Mb?
-> From: Roland Dreier <roland@topspin.com>
-> Date: 14 Mar 2003 00:15:26 -0800
-> 
->     thunder7> Now I added some information to the printk, and I now
->     thunder7> know:
-> 
->     thunder7> fb: Can't remap 3Dfx Voodoo5 register area. (start d0000000 length 8000000)
-> 
-> Length 0x8000000 means the driver is trying to ioremap a 128MB.
-> 
->     thunder7> If I boot my kernel with 'mem=512M' I can use the
->     thunder7> framebuffer just fine (well, it doesn't work and writes
->     thunder7> funky patters to the screen, but at least
->     thunder7> ioremap_nocache() works fine).
-> 
->     thunder7> What is the reason ioremap_nocache() fails? Is this
->     thunder7> something that can be prevented? I am not entirely clear
->     thunder7> on what is happening anyway (real memory, virtual
->     thunder7> memory, nocache-memory, io-memory - a little bit above
->     thunder7> my head :-) ).
-> 
-> ioremap_nocache() uses "vmalloc space".  The kernel has some address
-> space it uses for kernel virtual memory mappings -- that is, for
-> mapping vmalloc()'ed memory and ioremap()'ed memory.
-> 
-> On i386, the kernel uses whatever part of the top 1 GB of address space
-> is not used for directly mapped RAM (aka lowmem).  (There are a few
-> other things that take some address space but that is approximately
-> true).
-> 
-> This means with "mem=512M", you will probably have about 500M of
-> vmalloc space, which is more than enough to ioremap the framebuffer.
-> 
-> With the full 1 GB of memory, you might think that there would be no
-> vmalloc space available at all.  However, <asm/page.h> defines a
-> constant VMALLOC_RESERVE (which by default is 128 MB), and the kernel
-> makes sure that there is at least this much vmalloc space available.
-> However, by the time you load the module, at least some of this space
-> has been consumed, so the ioremap fails.  (If nothing else uses
-> vmalloc space, just loading a module will call vmalloc() to get space
-> for the module to be loaded into!)
-> 
-> One not very good way for you to proceed would be to change the
-> definition of VMALLOC_RESERVE from (128 << 20) to something like (256
-> << 20), which should leave the driver room to ioremap the framebuffer.
-> This is a little ugly.  However, I don't see why a framebuffer driver
-> would need to ioremap _all_ of a video card's memory -- so a better
-> solution would be to fix the driver to only ioremap what it needs to.
-> 
-> Best,
->   Roland
-> ======================================================
-> 
-> To see if this is it, booting with mem=512M would be a good test.
-> 
-> Kind regards,
-> Jurriaan
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thanks for the reply. That is indeed what is doing it. When I added 
-mem=512M, I had two smiling penguins on boot :)  My vid card does have 
-128MB Ram, but I also tend to agree that I'm not sure that the 
-framebuffer needs to remap *all* of its memory. But, for now, I think 
-I'll add the hack (256 << 20) to make it work. Any ideas if this might 
-have unforseen bad effects? Might it screw up highmem I/O? Thanks again,
+Ok, I've modified the /proc file document to reflect the proposed sysfs
+file changes and included it below.
 
--Walt
+Any comments?  Any objections?
 
+thanks,
+
+greg k-h
+
+
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=sensors-sysfs
+
+Naming and data format standards for sysfs files
+------------------------------------------------
+
+The libsensors library offers an interface to the raw sensors data
+through the sysfs interface. See libsensors documentation and source for
+more further information.
+
+An alternative method that some programs use is to access the sysfs
+files directly. This document briefly describes the standards that the
+drivers follow, so that an application program can scan for entries and
+access this data in a simple and consistent way.
+
+If you are developing a userspace application please send us feedback on
+this standard.
+
+Note that motherboards vary widely in the connections to sensor chips.
+There is no standard that ensures, for example, that the second
+temperature sensor is connected to the CPU, or that the second fan is on
+the CPU. Therefore, programs must provide a facility for the user to
+label or bind /proc entries for display.  Sensor chips often have unused
+inputs that should be ignored by user programs.
+
+Each chip gets its own directory in the sysfs /sys/devices tree.  To
+find all sensor chips, it is easier to follow the symlinks from
+/sys/i2c/devices/
+
+All sysfs values are fixed point numbers.  To get the true value of some
+of the values, you should divide by the specified value.
+
+There is only one value per file, unlike the older /proc specification.
+
+Alarms are direct indications read from the chips. The drivers do NOT
+make comparisons of readings to thresholds. This allows violations
+between readings to be caught and alarmed. The exact definition of an
+alarm (for example, whether a threshold must be met or must be exceeded
+to cause an alarm) is chip-dependent.
+
+
+-------------------------------------------------------------------------
+
+sysfs entries are as follows:
+
+
+Entry		Function
+-----		--------
+alarms		Alarm bitmask.
+		Read only.
+		Integer representation of one to four bytes.
+		A '1' bit means an alarm.
+		Chips should be programmed for 'comparator' mode so that
+		the alarm will 'come back' after you read the register
+		if it is still valid.
+		Generally a direct representation of a chip's internal
+		alarm registers; there is no standard for the position
+		of individual bits.
+		Bits are defined in kernel/include/sensors.h.
+
+beep_enable	Beep/interrupt enable
+		0 to disable.
+		1 to enable.
+		Read/Write
+
+beep_mask	Bitmask for beep.
+		Same format as 'alarms' with the same bit locations.
+		Read only.
+
+curr_max[1-n]	Current max value
+		Fixed point XXXX, divide by 100 to get Amps.
+		Read/Write.
+
+curr_min[1-n]	Current min or hysteresis value.
+		Preferably a hysteresis value, reported as a absolute
+		current, NOT a delta from the max value.
+		Fixed point XXXX, divide by 100 to get Amps.
+		Read/Write.
+
+curr_input[1-n]	Current input value
+		Fixed point XXXX, divide by 100 to get Amps.
+		Read only.
+		
+fan_min[1-3]	Fan minimum value
+		Integer value indicating RPM
+		Read/Write.
+
+fan_input[1-3]	Fan input value.
+		Integer value indicating RPM
+		Read only.
+
+fan_div[1-3]	Fan divisor.
+		Integers in powers of two (1,2,4,8,16,32,64,128).
+		Some chips only support values 1,2,4,8.
+		See doc/fan-divisors for details.
+
+in_min[0-8]	Voltage min value.
+		Fixed point value in form XXX.  Divide by 100 to get
+		Volts.
+		Read/Write
+		
+in_max[0-8]	Voltage max value.
+		Fixed point value in form XXX.  Divide by 100 to get
+		Volts.
+		Read/Write
+		
+in_input[0-8]	Voltage input value.
+		Fixed point value in form XXX.  Divide by 100 to get
+		Volts.
+		Read only
+		Actual voltage depends on the scaling resistors on the
+		motherboard, as recommended in the chip datasheet.
+		This varies by chip and by motherboard.
+		Because of this variation, values are generally NOT scaled
+		by the chip driver, and must be done by the application.
+		However, some drivers (notably lm87 and via686a)
+		do scale, with various degrees of success.
+		These drivers will output the actual voltage.
+		First two values are read/write and third is read only.
+		Typical usage:
+			in_*0	CPU #1 voltage (not scaled)
+			in_*1	CPU #1 voltage (not scaled)
+			in_*2	3.3V nominal (not scaled)
+			in_*3	5.0V nominal (scaled)
+			in_*4	12.0V nominal (scaled)
+			in_*5	-12.0V nominal (scaled)
+			in_*6	-5.0V nominal (scaled)
+			in_*7	varies
+			in_*8	varies
+
+pwn[1-3]	Pulse width modulation fan control.
+		Integer 0 - 255
+		Read/Write
+		255 is max or 100%.
+		Corresponds to the fans 1-3.
+
+pwn_enable[1-3] pwn enable
+		not always present even if pwn* is.
+		0 to turn off
+		1 to turn on
+		Read/Write
+
+sensor[1-3]	Sensor type selection.
+		Integers 1,2,3, or thermistor Beta value (3435)
+		Read/Write.
+
+temp_max[1-3]	Temperature max value.
+		Fixed point value in form XXXXX and should be divided by
+		100 to get degrees Celsius.
+		Read/Write value.
+
+temp_min[1-3]	Temperature min or hysteresis value.
+		Fixed point value in form XXXXX and should be divided by
+		100 to get degrees Celsius.  This is preferably a
+		hysteresis value, reported as a absolute temperature,
+		NOT a delta from the max value.
+		Read/Write value.
+
+temp_input[1-3] Temperature input value.
+		Read only value.
+
+		If there are multiple temperature sensors, temp_*1 is
+		generally the sensor inside the chip itself, generally
+		reported as "motherboard temperature".  temp_*2 and
+		temp_*3 are generally sensors external to the chip
+		itself, for example the thermal diode inside the CPU or
+		a thermistor nearby.
+
+vid		CPU core voltage.
+		Read only.
+		Fixed point value in form XXXX corresponding to CPU core
+		voltage as told to the sensor chip.  Divide by 1000 to
+		get Volts.  Not always correct.
+
+vrm		Voltage Regulator Module version number. 
+		Read only.
+		Two digit number (XX), first is major version, second is
+		minor version.
+		Affects the way the driver calculates the core voltage from
+		the vid pins. See doc/vid for details.
+
+--oyUTqETQ0mS9luUI--

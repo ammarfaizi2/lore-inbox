@@ -1,149 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132597AbRAPU3i>; Tue, 16 Jan 2001 15:29:38 -0500
+	id <S132044AbRAPUbI>; Tue, 16 Jan 2001 15:31:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131229AbRAPU32>; Tue, 16 Jan 2001 15:29:28 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:6404 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S132637AbRAPU3Y>;
-	Tue, 16 Jan 2001 15:29:24 -0500
-Message-ID: <20010116121845.A3172@bug.ucw.cz>
-Date: Tue, 16 Jan 2001 12:18:45 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Keith Owens <kaos@ocs.com.au>, Werner Puschitz <werner.lx@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: HP Pavilion 8290 HANGS on boot 2.4/2.4-test9
-In-Reply-To: <Pine.LNX.4.21.0101131608320.1168-100000@localhost.localdomain> <12064.979432308@ocs3.ocs-net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <12064.979432308@ocs3.ocs-net>; from Keith Owens on Sun, Jan 14, 2001 at 11:31:48AM +1100
+	id <S131188AbRAPUa6>; Tue, 16 Jan 2001 15:30:58 -0500
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:17909 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S129780AbRAPUan>; Tue, 16 Jan 2001 15:30:43 -0500
+Date: Tue, 16 Jan 2001 12:30:34 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: Venkatesh Ramamurthy <Venkateshr@ami.com>
+cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Linux not adhering to BIOS Drive boot order?
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95198@ATL_MS1>
+Message-ID: <Pine.LNX.4.21.0101161221530.17397-100000@sol.compendium-tech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 16 Jan 2001, Venkatesh Ramamurthy wrote:
 
-> >Is there a safe way to add debug information like simple string prints in
-> >arch/i386/boot/compressed/head.s and in arch/i386/kernel/head.S
-> >so that I can see at the console where the boot process hangs?
-> 
-> Time for another version of my VIDEO_CHAR patch.]
+> 	[Venkatesh Ramamurthy]  Dont you think that mounting and booting
+> based on disk label names is better, then relying on device nodes which can
+> change when a new card is added?. The existing patch for 2.2.xx is quite
+> small and it does not bloat the kernel too much either. I think we can port
+> it for 2.4.XX with ease.In my words it is worth the effort 
 
-What abourt early_printk? Works well on x86-64... And you can easily
-redirect printk to early_printk.
+Of course that would be better. The only complaint I have with such a
+system is that of backwards compatibility...as long as the legacy device
+names are still supported i would have no problem with it at all. 
 
-#include <asm/io.h>
+however, this brings up an interesting question: what happens if two disks
+(presumably from two different machines) have the same disk label? what
+happens then? for instance, i have several linux machines both at my
+workplace and my home. if for some reason one of these machines dies due
+to hardware failure and i want to get stuff off the drives, i put the disk
+containing the /home partition on the failed machine into a working
+machine and reboot. What /home gets mounted then? the original /home or
+the new one from the dead machine? (and don't say end users wouldn't
+possibly do that... if they are adding hardware into their systems this is
+by no means beyond their capabilities)
 
+at least with physical device nodes i can say 'computer, you will mount
+this partition on this mountpoint!' and be done with it.
 
-#ifndef MINIKERNEL
-#define VGABASE		0xffffffff800b8000ul	/* This is "wrong" address to access it, we should access it using 0xffff8000000b8000ul; but 0xffff8000000b8000ul is not available early at boot. */
-#else
-#define VGABASE		0xb8000ul
-#endif
+so tell me then, how would one discern between two partitions with the
+same label?
 
-#define MAX_YPOS	25
-#define MAX_XPOS	80
+just a thought....
 
-static int current_ypos = 1, current_xpos = 0; /* We want to print before clearing BSS */
-int printk_ready = 0;
+ Kelsey Hudson                                           khudson@ctica.com 
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
 
-#ifndef MINIKERNEL
-void
-early_clear (void)
-{
-	int k, i;
-	for(k = 0; k < MAX_YPOS; k++)
-		for(i = 0; i < MAX_XPOS; i++)
-			writew(0, VGABASE + 2*(MAX_XPOS*k + i));
-	current_ypos = 0;
-}
-
-void
-early_puts (const char *str)
-{
-	char c;
-	int  i, k, j;
-
-	while ((c = *str++) != '\0') {
-		if (current_ypos >= MAX_YPOS) {
-#ifndef CONFIG_SIMNOW
-			/* scroll 1 line up */
-			for(k = 1, j = 0; k < MAX_YPOS; k++, j++) {
-				for(i = 0; i < MAX_XPOS; i++) {
-					writew(readw(VGABASE + 2*(MAX_XPOS*k + i)),
-					       VGABASE + 2*(MAX_XPOS*j + i));
-				}
-			}
-			for(i = 0; i < MAX_XPOS; i++) {
-				writew(0x720, VGABASE + 2*(MAX_XPOS*j + i));
-			}
-			current_ypos = MAX_YPOS-1;
-#else
-			/* MUCH faster */
-			early_clear();
-			current_ypos = 0;
-#endif
-		}
-		if (c == '\n') {
-			current_xpos = 0;
-			current_ypos++;
-		} else if (c != '\r')  {
-			writew(((0x7 << 8) | (unsigned short) c),
-			       VGABASE + 2*(MAX_XPOS*current_ypos + current_xpos++));
-			if (current_xpos >= MAX_XPOS) {
-				current_xpos = 0;
-				current_ypos++;
-			}
-		}
-	}
-}
-#else
-#define putc(c, x) writew(((0x7 << 8) | (unsigned short) (c)), \
-			  VGABASE + (x) * 2);
-
-void
-early_puts (const char *str)
-{
-	char c;
-	int  i, rest;
-
-	while ((c = *str++) != '\0') {
-		if (c == '\n' || c == '\r') {
-			/* blank rest of the line */
-			rest = MAX_XPOS - (current_xpos % MAX_XPOS);
-			for (i=0; i < rest; i++) {
-				putc(' ', current_xpos++);
-			}
-		} else {
-			putc(c, current_xpos);
-			current_xpos++;
-		}
-		current_xpos %= MAX_XPOS * MAX_YPOS;
-	}
-}
-#endif /* MINIKERNEL */
-
-static char buf[1024];
-
-int early_printk(const char *fmt, ...)
-{
-	va_list args;
-	int i;
-
-	va_start(args, fmt);
-	i = vsprintf(buf, fmt, args); /* hopefully i < sizeof(buf)-4 */
-	va_end(args);
-
-	if (!printk_ready)
-		early_puts(buf);
-	else
-		printk("%s", buf);
-
-	return i;
-}
-
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

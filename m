@@ -1,114 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbTHaLKM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 07:10:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbTHaLKM
+	id S261179AbTHaLQO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 07:16:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbTHaLQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 07:10:12 -0400
-Received: from c-780372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.120]:30124
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S261151AbTHaLKE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 07:10:04 -0400
-Subject: Re: [SHED] Questions.
-From: Ian Kumlien <pomac@vapor.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3F51D4A4.4090501@cyberone.com.au>
-References: <1062324435.9959.56.camel@big.pomac.com>
-	 <3F51CB44.3080805@cyberone.com.au> <1062325465.5171.60.camel@big.pomac.com>
-	 <3F51D0BD.8030307@cyberone.com.au> <1062326980.9959.65.camel@big.pomac.com>
-	 <3F51D4A4.4090501@cyberone.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-faU6QMxHFkxanlWPG38k"
-Message-Id: <1062328131.5171.77.camel@big.pomac.com>
+	Sun, 31 Aug 2003 07:16:14 -0400
+Received: from ns.suse.de ([195.135.220.2]:9123 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261179AbTHaLQK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 07:16:10 -0400
+Subject: Re: 2.6.0-test4-mm3.1 oops with ext3 extended attributes on R/O
+	filesystem
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Valdis.Kletnieks@vt.edu,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030830214751.5baaab4c.akpm@osdl.org>
+References: <200308310412.h7V4Cxd7013786@turing-police.cc.vt.edu>
+	 <20030830214751.5baaab4c.akpm@osdl.org>
+Content-Type: text/plain
+Organization: SuSE Labs, SuSE Linux AG
+Message-Id: <1062328746.2386.21.camel@bree.suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sun, 31 Aug 2003 13:08:51 +0200
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 31 Aug 2003 13:19:06 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-faU6QMxHFkxanlWPG38k
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Sun, 2003-08-31 at 06:47, Andrew Morton wrote:
+> Valdis.Kletnieks@vt.edu wrote:
+> >
+> > Working on installing SELINUX, and I get to the part where all the file labels
+> >  get added.  Unfortunately, I had some file systems mounted R/O (intentionally,
+> >  forgot to mount them R/W for this).  The ext3 code upchucked while trying
+> >  to set extended attributes on the filesystem it couldn't write to.
+> 
+> Thanks.   It's a very straightforward bug; I'll fix it with the below patch.
 
-[Forgot to CC LKML last time, so i didn't remove old text ]
+Thanks for fixing.
 
-On Sun, 2003-08-31 at 12:57, Nick Piggin wrote:
-> Ian Kumlien wrote:
-> >On Sun, 2003-08-31 at 12:41, Nick Piggin wrote:
-> >>Ian Kumlien wrote:
-> >>>On Sun, 2003-08-31 at 12:17, Nick Piggin wrote:
+> A wider question is whether we should have got this far into the filesystem
+> code if the fs is mounted read-only.  A check right up at the VFS
+> setxattr() level might make sense.
 
-> >>>>Search for "Nick's scheduler policy" ;)
+The read-only check is in ext3_xattr_set_handle(). My thinking was that
+it should happen below the xattr handler level, so that attribute
+classes with some sort of set behavior are possible on read-only file
+systems as well. I'm not aware of an implementation that would need
+this, though.
 
-> >>>Heh, yeah, i have been following your and con's work via
-> >>>marc.theaimsgroup.com. =3D)
+> Regardless of that, this fix is needed because journal_start() could fail
+> for other reasons.
 
-> >>Well, my patch does almost exactly what you describe.
+Yes.
 
-> >Yes, i know =3D)... You and con should team up =3D)
+> diff -puN fs/ext3/xattr.c~ext3-xattr-oops-fix fs/ext3/xattr.c
+> --- 25/fs/ext3/xattr.c~ext3-xattr-oops-fix	2003-08-30 21:41:24.000000000 -0700
+> +++ 25-akpm/fs/ext3/xattr.c	2003-08-30 21:42:41.000000000 -0700
+> @@ -873,17 +873,22 @@ ext3_xattr_set(struct inode *inode, int 
+>  	       const void *value, size_t value_len, int flags)
+>  {
+>  	handle_t *handle;
+> -	int error, error2;
+> +	int error;
+>  
+>  	handle = ext3_journal_start(inode, EXT3_DATA_TRANS_BLOCKS);
+> -	if (IS_ERR(handle))
+> +	if (IS_ERR(handle)) {
+>  		error = PTR_ERR(handle);
+> -	else
+> +	} else {
+> +		int error2;
+> +
+>  		error = ext3_xattr_set_handle(handle, inode, name_index, name,
+>  					      value, value_len, flags);
+> -	error2 = ext3_journal_stop(handle);
+> +		error2 = ext3_journal_stop(handle);
+> +		if (error == 0)
+> +			error = error2;
+> +	}
+>  
+> -	return error ? error : error2;
+> +	return error;
+>  }
+>  
+>  /*
+> 
+> _
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SuSE Labs, SuSE Linux AG <http://www.suse.de/>
 
-> Heh, well we discuss stuff sometimes, but we disagree on things.
-> Which is a good thing because now our eggs are in two baskets.
-
-Yes, but sometimes it feels like a merger would be better... As long as
-the propper quantum usage prevails =3D)
-
-> >>>But wouldn't ingos off the shelf stuff work better with the quantum
-> >>>values like that?
-
-> >>That means more complexity and behaviour that is more difficult
-> >>to trace. The interactivity stuff is already a monster to tune.
-
-> >Oh, humm, how much did you change btw? =3D))
-
-> Yeah quite a lot. Lots included removing the interactivity stuff.
-
-Humm, yeah, that should work automatically with the "used the full
-quantum" if thats still in that is... =3D)
-
-> >>>And is the preempt min quantum in there?
-
-> >>No. If you do that, you'll either break the priority concept very
-> >>badly, or you'll break it a little bit and turn the scheduler into
-> >>an O(n) one.
-
-> >>Well I guess you could just break it a little bit without it being
-> >>O(n)
-
-> >Well, i just thought since each context switch/reschedule is costly...
-> >Having something that prevents a freshly scheduled process from being
-> >forced off before it can actually do something would be usefull.
-
-> Yeah it is, but the process will still take a lot of the penalty,
-> and if it is using a lot of CPU in context switching, then it will
-> get a lower priority anyway. Possibly there could be a very small
-> additional penalty per context switch, but so far it hasn't been
-> a big problem AFAIK.
-
-Well my idea was more... The highest pri gets MIN_QUANT and a preemt
-can't happen faster than MIN_QUANT or so..=20
-If i remember correctly, 2.6 spends much more time doing the actual
-context switches (not time / context switch but amount during this
-period). The new 1000 HZ thingy doesn't have to have that effect...
-
-And since to many context switches are inefficient imho, some standoffs
-would be good =3D)
-
---=20
-Ian Kumlien <pomac@vapor.com>
-
---=-faU6QMxHFkxanlWPG38k
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/UddD7F3Euyc51N8RAjSnAJ9jRryrfXglQi+ketPYmtmsA6gzXgCfSTJA
-pT2sC8AxcNrOEy3EjLYVYoE=
-=zO+V
------END PGP SIGNATURE-----
-
---=-faU6QMxHFkxanlWPG38k--
 

@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280983AbRKLUl7>; Mon, 12 Nov 2001 15:41:59 -0500
+	id <S280987AbRKLUnK>; Mon, 12 Nov 2001 15:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280982AbRKLUlt>; Mon, 12 Nov 2001 15:41:49 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:9488 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S280991AbRKLUl3>; Mon, 12 Nov 2001 15:41:29 -0500
-Message-ID: <3BF033F0.D544EF6B@lexus.com>
-Date: Mon, 12 Nov 2001 12:41:21 -0800
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S280982AbRKLUnB>; Mon, 12 Nov 2001 15:43:01 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:55307 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S280985AbRKLUml>; Mon, 12 Nov 2001 15:42:41 -0500
+Date: Mon, 12 Nov 2001 17:24:27 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: "Gord R. Lamb" <glamb@max-t.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: I/O lockup
+In-Reply-To: <Pine.LNX.4.21.0111121617150.1064-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0111121723310.1160-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: joeja@mindspring.com, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: loop back broken in 2.2.14
-In-Reply-To: <Springmail.105.1005586843.0.91657700@www.springmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-joeja@mindspring.com wrote:
 
-> Okay, I can delete out those two lines to get loop working.
->
-> Is 2.4.x really a stable tree?  Or should I wait for 2.4.25 before I consider it really stable?
 
-If by stable you mean "unchanging", of course not -
+Well, Arjan just told me that qla2x00 is doing weird shit. He seems to be
+fixing it... 
 
-much development is still happening.
+On Mon, 12 Nov 2001, Marcelo Tosatti wrote:
 
-If however by stable you mean "does not crash",
-it has been very stable here, with a few known
-needed patches applied.  2.4.14 is stable for me
-on all systems, but compaq smart controllers do
-need a small patch - I am also running the low
-latency and/or preempt patches with excellent
-stability.
-
-cu
-
-jjs
-
+> 
+> 
+> On Mon, 12 Nov 2001, Gord R. Lamb wrote:
+> 
+> > Hi everyone,
+> > 
+> > I've been having a problem for a while now with a strange lockup induced
+> > under heavy SCSI I/O (particularly when I write directly to block devices
+> > with dd of=/dev/sd?, but also when writing to a filesystem on that
+> > device).  I'm writing around 50-100mb/sec over FC (qlogic 2200) under
+> > Linux 2.4 (tried 2.4.3 through 2.4.10).
+> > 
+> > It seems that some vm or I/O related spinlock is being taken and held, but
+> > not released (?).  There is no oops or BUG() or anything (no messages at
+> > all in fact).. all I/O just stops.  I can still invoke sysrq, type
+> > characters at the console, etc.  In fact, usually top continues to run and
+> > display kswapd as the dominant process.
+> 
+> If kswapd is eating the CPU, its probably a VM problem.
+> 
+> Please try the newest 2.4.xx which has VM updates and if the problem
+> happens again, tell us.
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

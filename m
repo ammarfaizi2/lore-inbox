@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284258AbRLGSFR>; Fri, 7 Dec 2001 13:05:17 -0500
+	id <S282904AbRLGSN6>; Fri, 7 Dec 2001 13:13:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282904AbRLGSFJ>; Fri, 7 Dec 2001 13:05:09 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:11142 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S284272AbRLGSFA>; Fri, 7 Dec 2001 13:05:00 -0500
-Date: Fri, 07 Dec 2001 10:04:11 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: Henning Schmiedehausen <hps@intermeta.de>, linux-kernel@vger.kernel.org
-Subject: Re: SMP/cc Cluster description
-Message-ID: <2697104000.1007719451@mbligh.des.sequent.com>
-In-Reply-To: <20011207092314.F27589@work.bitmover.com>
-X-Mailer: Mulberry/2.0.8 (Win32)
+	id <S281719AbRLGSNt>; Fri, 7 Dec 2001 13:13:49 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:31468 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S282904AbRLGSNi>;
+	Fri, 7 Dec 2001 13:13:38 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C42D7C3@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Patrick Mochel'" <mochel@osdl.org>, Cory Bell <cory.bell@usa.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
+Date: Fri, 7 Dec 2001 10:13:25 -0800 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My pay job is developing a distributed source management system which works
-> by replication.  We already have users who put all the etc files in it and
-> manage them that way.  Works great.  It's like rdist except it never screws
-> up and it has merging.
+> From: Patrick Mochel [mailto:mochel@osdl.org]
+> The Intel ACPI guys kinda have this working. They are able to 
+> extract and
+> execute the methods. But, they still have yet to make devices 
+> request and
+> use that information. Maybe Andy Grover can comment on this..
+> 
+> BTW, The latest ACPI patch is at: 
+> http://sourceforge.net/projects/acpi/.
 
-So would that mean I would need bitkeeper installed in order to change my
-password? 
+Exactly right. Our current patch will print a nice list for each PCI to PCI
+bridge, but pci-irq.c isn't actually using the data yet on IA32. (IA64 does
+use _PRT data.) We'll get around to doing this (eventually) but it would
+happen sooner if someone else stepped up and lent a hand...
 
-And IIRC, bitkeeper is not free either?
-
-M.
-
-
-
+Regards -- Andy

@@ -1,90 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265961AbUBPWlY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 17:41:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265967AbUBPWlY
+	id S265921AbUBPWbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 17:31:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265931AbUBPWbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 17:41:24 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:57539 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265961AbUBPWlN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 17:41:13 -0500
-Date: Mon, 16 Feb 2004 17:40:54 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, lhcs-devel@lists.sourceforge.net,
-       Pavel Machek <pavel@ucw.cz>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH][2.6-mm] split drain_local_pages
-Message-ID: <Pine.LNX.4.58.0402161720390.11793@montezuma.fsmlabs.com>
+	Mon, 16 Feb 2004 17:31:09 -0500
+Received: from fw.osdl.org ([65.172.181.6]:26849 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265921AbUBPWa7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 17:30:59 -0500
+Date: Mon, 16 Feb 2004 14:30:55 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: David Eger <eger@theboonies.us>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.3-rc3 radeonfb: Problems with new (and old) driver
+In-Reply-To: <1076969892.3649.66.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0402161420390.30742@home.osdl.org>
+References: <Pine.LNX.4.50L0.0402160411260.2959-100000@rosencrantz.theboonies.us>
+  <1076904084.12300.189.camel@gaston>  <Pine.LNX.4.58.0402160947080.30742@home.osdl.org>
+  <1076968236.3648.42.camel@gaston>  <Pine.LNX.4.58.0402161410430.30742@home.osdl.org>
+ <1076969892.3649.66.camel@gaston>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CPU hotplug core needs to pass a cpu parameter to drain_local_pages, it's
-safe to call __drain_local_pages if the cpu being drained is offline. The
-semantics for drain_local_pages do not change.
 
-Index: linux-2.6.3-rc3-mm1/mm/page_alloc.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.3-rc3-mm1/mm/page_alloc.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 page_alloc.c
---- linux-2.6.3-rc3-mm1/mm/page_alloc.c	16 Feb 2004 20:42:50 -0000	1.1.1.1
-+++ linux-2.6.3-rc3-mm1/mm/page_alloc.c	16 Feb 2004 21:58:19 -0000
-@@ -414,19 +414,19 @@ int is_head_of_free_region(struct page *
- }
 
- /*
-- * Spill all of this CPU's per-cpu pages back into the buddy allocator.
-+ * drain_local_pages helper, this is only safe to use when the cpu
-+ * being drained isn't currently online.
-  */
--void drain_local_pages(void)
-+
-+void __drain_local_pages(int cpu)
- {
--	unsigned long flags;
- 	struct zone *zone;
- 	int i;
--
--	local_irq_save(flags);
-+
- 	for_each_zone(zone) {
- 		struct per_cpu_pageset *pset;
+On Tue, 17 Feb 2004, Benjamin Herrenschmidt wrote:
+> > 
+> > That would just make the code more logical, and it should fix your 
+> > concerns, no?
+> 
+> Yes, I was looking into this at the moment. Who else but fbcon and
+> vgacon will need fixing ? I suppose all the xxxxcon in
+> drivers/video/console, do you "see" any other ?
 
--		pset = &zone->pageset[smp_processor_id()];
-+		pset = &zone->pageset[cpu];
- 		for (i = 0; i < ARRAY_SIZE(pset->pcp); i++) {
- 			struct per_cpu_pages *pcp;
+I don't see that anybody else can possibly care. In fact, I doubt even 
+vgacon actually cares. It's just a regular unblank, but with the 
+information that we came from graphics mode. I think it would be cleaner 
+to add a new parameter to the "con_blank()" function, which would also 
+cause compiler warnings for non-converted consoles, which is good.
 
-@@ -435,7 +435,19 @@ void drain_local_pages(void)
- 						&pcp->list, 0);
- 		}
- 	}
--	local_irq_restore(flags);
-+}
-+
-+/*
-+ * Spill all of this CPU's per-cpu pages back into the buddy allocator.
-+ */
-+
-+void drain_local_pages(void)
-+{
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	__drain_local_pages(smp_processor_id());
-+	local_irq_restore(flags);
- }
- #endif /* CONFIG_PM */
+Right now we encode multiple things into the one existing "blank"
+parameter, which is just confusing. We have
 
-@@ -1574,7 +1586,7 @@ static int page_alloc_cpu_notify(struct
- 		count = &per_cpu(nr_pagecache_local, cpu);
- 		atomic_add(*count, &nr_pagecache);
- 		*count = 0;
--		drain_local_pages(cpu);
-+		__drain_local_pages(cpu);
- 	}
- 	return NOTIFY_OK;
- }
+   -1: /* enter graphics mode (just save whatever state we need to save, 
+          possibly clear state to be polite) */
+    0: /* regular unblank (restore screen contents, enable backlight) */
+    1: /* regular blank */
+    2..x: VESA blank type x-1.
+
+and I'd suggest that the new case would be the "regular unblank", but with 
+the new parameter saying that we're coming from graphics mode. For 
+example, I don't think the vgacon_blank() function would change at _all_ 
+(except for the new parameter that it would just ignore).
+
+As far as I can tell, fbcon is the _only_ thing that wouldn't ignore the 
+new information, exactly because fbcon might want to reset things like the 
+graphics engine.
+
+		Linus

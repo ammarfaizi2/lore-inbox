@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263717AbTKRQZd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 11:25:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbTKRQZd
+	id S263728AbTKRQ0q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 11:26:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbTKRQ0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 11:25:33 -0500
-Received: from h80ad25f9.async.vt.edu ([128.173.37.249]:25991 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263717AbTKRQZa (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 11:25:30 -0500
-Message-Id: <200311181625.hAIGPHB8009202@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: cijoml@volny.cz
-Cc: Frank =?iso-8859-1?q?B=FCttner?= <frank-buettner@gmx.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: AW: HT enable on BIOS which doesn't supports it? 
-In-Reply-To: Your message of "Tue, 18 Nov 2003 17:07:29 +0100."
-             <200311181707.29057.cijoml@volny.cz> 
-From: Valdis.Kletnieks@vt.edu
-References: <00e001c3adec$58762250$0200a8c0@netzvonfrank>
-            <200311181707.29057.cijoml@volny.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_2143884384P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 18 Nov 2003 11:26:45 -0500
+Received: from nat9.steeleye.com ([65.114.3.137]:16135 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263728AbTKRQ0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 11:26:31 -0500
+Subject: Re: lib.a causing modules not to load
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031117060542.088D32C0B1@lists.samba.org>
+References: <20031117060542.088D32C0B1@lists.samba.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Tue, 18 Nov 2003 11:25:16 -0500
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 18 Nov 2003 10:25:16 -0600
+Message-Id: <1069172719.1835.30.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_2143884384P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Sun, 2003-11-16 at 20:47, Rusty Russell wrote:
+> I think lib.a should be linked as is if !CONFIG_MODULES, and done as a
+> ..o if CONFIG_MODULES.  Other alternatives are possible, but make it
+> tricky if someone adds a module later which wants something in lib.a.
 
-On Tue, 18 Nov 2003 17:07:29 +0100, "Michal Semler (volny.cz)" said:
-> Hmm..so why "ht" flag is detected?
-> =
+I tried this and it is getting to be a whole nasty mess can of worms:
 
-> This chip is really strange. It looks like only renamed real P4/XEON,
-> coz through CPUFREQ I got it to work on lower frequencies:
+You can't link the lib objects all in, because they can be overridden by
+the arch dependent lib.a (we rely on link order to permit this).  For
+instance on x86, dump_stack and bust_spinlocks give duplicate symbols.
 
-Not really.  Here's mine (Dell Latitude C840):
+If we have to add processing logic to work out what symbols are in the
+arch lib.a, we might as well go the whole hog and try to work out what
+is missing from the kernel and compile that alone as a module.
 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Pentium(R) 4 Mobile CPU 1.60GHz
-stepping        : 4
-cpu MHz         : 1595.776
-=2E...
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmo=
-v pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-
-Wow.. HT-enabled. However, if I build an SMP-enabled kernel, it turns out=
- that
-there's only one sibling...
+James
 
 
---==_Exmh_2143884384P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE/ukfscC3lWbTT17ARAtvBAKCpLW9TCFUzZ5zHEwPm8LPWoVLijgCgt/jJ
-vesn6Amrr7+ZD2uEvFIbSX0=
-=yu/K
------END PGP SIGNATURE-----
-
---==_Exmh_2143884384P--

@@ -1,65 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263033AbTDZMHn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 08:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbTDZMHn
+	id S263975AbTDZMcP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 08:32:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264648AbTDZMcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 08:07:43 -0400
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:37636 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S263033AbTDZMHm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 08:07:42 -0400
-Date: Sat, 26 Apr 2003 14:20:02 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: linux-kernel@vger.kernel.org
-Cc: sp@osb.hu
-Subject: Re: [PATCH 2.4] dmi_ident made public
-Message-Id: <20030426142002.70c0daf6.khali@linux-fr.org>
-In-Reply-To: <1051265517.5460.11.camel@dhcp22.swansea.linux.org.uk>
-References: <20030424184759.5f7b3323.khali@linux-fr.org>
-	<20030424231028.GA29393@kroah.com>
-	<20030425121517.28c9002b.khali@linux-fr.org>
-	<1051265517.5460.11.camel@dhcp22.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 26 Apr 2003 08:32:15 -0400
+Received: from camus.xss.co.at ([194.152.162.19]:43280 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id S263975AbTDZMcN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 08:32:13 -0400
+Message-ID: <3EAA7F21.3070503@xss.co.at>
+Date: Sat, 26 Apr 2003 14:44:17 +0200
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21rc1-ac2
+References: <200304251753.h3PHrqU08482@devserv.devel.redhat.com>
+In-Reply-To: <200304251753.h3PHrqU08482@devserv.devel.redhat.com>
+X-Enigmail-Version: 0.74.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-> > What's more, I plan to write another module that exports the DMI
-> > data, as scanned at boot time, to userland (via sysfs), and such a
-> > module definitely requires that the DMI data is made public in
-> > dmi_scan.
-> 
-> I suspect the DMI module should itself do the sysfs interface, and I 
-> certainly think the idea of it being in sysfs has merit.
+Here is a first test report for 2.4.21-rc1-ac2:
 
-I was not really sure about this. There are two issues that would need
-to be discussed:
-1* Including it into dmi_scan makes it impossible to be a module, at
-least with my knowledge of the modules mechanics. Correct me if I'm
-wrong.
-2* There is a need for dmi scanning on IA-64 systems, where locating the
-DMI table follows a different scheme from what we do for i386 systems.
-Having a platform-independant module for the sysfs stuff would save us
-from code duplication (which is precisely what I am trying to avoid
-here).
-I don't know how much of a concern these two points are, and any light
-will be appreciated.
+*) Shutdown/Reboot problems in 2.4.21-rc1-ac1 due to
+   deadlock in ide_unregister_subdriver() seem to be
+   fixed!
 
-Anyway, I think this is almost a completely different problem from the
-one I first posted about. There still are two modules around (i8k and
-omke) that would take great benefit of the simple patch I submitted some
-days ago. So, unless there is any motivated objection against it (such
-as an alternative solution I wouldn't have thought about), I'd still
-like to see the above mentioned patch applied, since it would give us
-the possibility to remove all the duplicated code (more than 100 lines
-per module).
+*) EXTRAVERSION in top-level Makefile was not updated
 
-Thanks.
+*) Unresolved symbol "fc_type_trans" in iph5526.o
+   Fixed by the following patch:
+
+--- linux-2.4.21-rc1-ac2/net/802/fc.c.orig      Sat Apr 26 13:35:22 2003
++++ linux-2.4.21-rc1-ac2/net/802/fc.c   Sat Apr 26 13:40:40 2003
+@@ -11,6 +11,8 @@
+  */
+
+ #include <linux/config.h>
++#include <linux/module.h>
++
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+ #include <linux/types.h>
+@@ -95,6 +97,8 @@
+        return 0;
+ #endif
+ }
++
++EXPORT_SYMBOL(fc_type_trans);
+
+ unsigned short
+ fc_type_trans(struct sk_buff *skb, struct net_device *dev)
+
+--- linux-2.4.21-rc1-ac2/net/802/Makefile.orig  Sat Apr 26 13:44:38 2003
++++ linux-2.4.21-rc1-ac2/net/802/Makefile       Sat Apr 26 13:45:42 2003
+@@ -9,7 +9,7 @@
+
+ O_TARGET := 802.o
+
+-export-objs = llc_macinit.o p8022.o psnap.o
++export-objs = llc_macinit.o p8022.o psnap.o fc.o
+
+ obj-y  = p8023.o
+
+
+No other problems found so far... :-)
+
+HTH
+
+- andreas
 
 -- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+

@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129092AbRBGV4O>; Wed, 7 Feb 2001 16:56:14 -0500
+	id <S129032AbRBGWH2>; Wed, 7 Feb 2001 17:07:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129110AbRBGV4K>; Wed, 7 Feb 2001 16:56:10 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:38926 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S129092AbRBGVz5>; Wed, 7 Feb 2001 16:55:57 -0500
-Date: Wed, 07 Feb 2001 16:55:26 -0500
-From: Chris Mason <mason@suse.com>
-To: Chris Wedgwood <cw@f00f.org>, Xuan Baldauf <xuan--reiserfs@baldauf.org>
-cc: David Rees <dbr@spoke.nols.com>,
+	id <S129110AbRBGWHT>; Wed, 7 Feb 2001 17:07:19 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:43281 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S129032AbRBGWHK>; Wed, 7 Feb 2001 17:07:10 -0500
+Message-ID: <3A81C6BF.D892CFE6@baldauf.org>
+Date: Wed, 07 Feb 2001 23:05:51 +0100
+From: Xuan Baldauf <xuan--reiserfs@baldauf.org>
+Organization: Medium.net
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: de-DE,en
+MIME-Version: 1.0
+To: Chris Mason <mason@suse.com>
+CC: Chris Wedgwood <cw@f00f.org>, Xuan Baldauf <xuan--reiserfs@baldauf.org>,
+        David Rees <dbr@spoke.nols.com>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
 Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
-Message-ID: <707700000.981582926@tiny>
-In-Reply-To: <20010208104729.B4749@metastasis.f00f.org>
-X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+In-Reply-To: <707700000.981582926@tiny>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thursday, February 08, 2001 10:47:29 AM +1300 Chris Wedgwood
-<cw@f00f.org> wrote:
+Chris Mason wrote:
 
-> these appear on your system every couple of days right? if so... are
-> you able to run with the fs mount notails for a couple of days and
-> see if you still experience these?
-> 
-> my guess is you probably still will as most log files aren't
-> candidates for tail-packing (too large) but it will help eliminate
-> one more thing....
-> 
+> On Thursday, February 08, 2001 10:47:29 AM +1300 Chris Wedgwood
+> <cw@f00f.org> wrote:
+>
+> > these appear on your system every couple of days right? if so... are
+> > you able to run with the fs mount notails for a couple of days and
+> > see if you still experience these?
+> >
+> > my guess is you probably still will as most log files aren't
+> > candidates for tail-packing (too large) but it will help eliminate
+> > one more thing....
+> >
+>
+> Yes, it really would.
+>
+> 1) mount -o notail
+> 2) rm old_logfile
+> 3) restart syslog
+>
+> This will ensure the log files don't have tails at all.  Knowing for sure
+> the bug doesn't involve tails would remove much code from the search.
+>
+> -chris
 
-Yes, it really would.
+Mhhh. It's a busy server from which I am about 700km away. I don't like to
+restart it now. (Especially because it cannot boot from hard disk, only from
+floppy disk, due to bios problems). But I'd be happy if following is true:
 
-1) mount -o notail
-2) rm old_logfile
-3) restart syslog
+(1) Enabling "-o notails" is possible at runtime, i.e. "mount / -o
+remount,notails" works and
+(2) Notails is compatible with all the tails found on disk (so notails only
+changes the way the disk is written, not the way the disk is read).
 
-This will ensure the log files don't have tails at all.  Knowing for sure
-the bug doesn't involve tails would remove much code from the search.
+Is this true?
 
--chris
+Xuân.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

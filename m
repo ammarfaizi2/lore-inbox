@@ -1,76 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129345AbQLOUL6>; Fri, 15 Dec 2000 15:11:58 -0500
+	id <S129383AbQLOUTS>; Fri, 15 Dec 2000 15:19:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbQLOULt>; Fri, 15 Dec 2000 15:11:49 -0500
-Received: from web5202.mail.yahoo.com ([216.115.106.170]:28165 "HELO
-	web5202.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129345AbQLOULa>; Fri, 15 Dec 2000 15:11:30 -0500
-Message-ID: <20001215194059.10333.qmail@web5202.mail.yahoo.com>
-Date: Fri, 15 Dec 2000 11:40:59 -0800 (PST)
-From: Rob Landley <telomerase@yahoo.com>
-Subject: Re: Is there a Linux trademark issue with sun?
-To: Larry McVoy <lm@bitmover.com>
-Cc: maddog@valinux.com, linux-kernel@vger.kernel.org
+	id <S129480AbQLOUTJ>; Fri, 15 Dec 2000 15:19:09 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50185 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129383AbQLOUSw>; Fri, 15 Dec 2000 15:18:52 -0500
+Subject: Linux 2.2.19pre1
+To: linux-kernel@vger.kernel.org
+Date: Fri, 15 Dec 2000 19:51:04 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1470sk-0001kp-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Larry McVoy <lm@bitmover.com> wrote:
 
-> Yup, that's Scooter (all the Sun old timers call him
-> Scooter, I dunno where
-> it came from, I wasn't enough of an old timer). 
-> And, yeah, he does a lot 
-> of marketing.  But in many respects, he's the
-> perfect CEO.  He's always
-> out in public, pushing the message, and he tends to
-> leave the day to day
-> stuff to the other folks.  I'll take him over Gates
-> any day of the week.
+Ok this is the first block of changes before we merge the VM stuff. This is
+mostly the bits left over from the 2.2.18 port that were deferred as too
+risky near the end of a prerelease set and some bug swats
 
-I'm not against them, and I wouldn't make too big a
-deal out of it.  I'm just recommending that somebody
-official ask them politely to stop doing it.
 
-Here's how I see it:
+2.2.19pre1
+o	Basic page aging				(Neil Schemenauer)
+	| This is a beginning to trying to get the VM right
+	| Next stage is to go through Andrea's stuff and sort 
+	| it out the way I want it.
+o	E820 memory detect backport from 2.4		(Michael Chen)
+o	Fix cs46xx refusing to run on emachines400	(me)
+o	Fix parport docs				(Tim Waugh)
+o	Fix USB serial name reporting			(me)
+o	Fix else warning in initio scsi			(John Fort)
+o	Fix incorrect timeout (that couldnt occur
+	fortunately) in sched.c				(Andrew Archibald)
+o	Fix A20 fix credits				(Christian Lademann)
+o	Support for OnStream SC-x0 tape drives		(Willem Riede, 
+							 Kurt Garloff)
+o	Intel 815 added to the AGPGART code		(Robert M Love)
+o	3Ware scsi fixes			(Arnaldo Carvalho de Melo)
+o	Clean up scsi_init_malloc no mem case	(Arnaldo Carvalho de Melo)
+o	Fix dead module parameter in ip_masq_user.c	(Keith Owens)
+o	Switch max_files and friends to a struct to	(Tigran Aivazian)
+	be sure they stay together
+o	Update microcode driver				(Tigran Aivazian)
+o	Fix free memory dereference in lance driver	(Eli Carter)
+o	ISOfs fixes 					(Andries Brouwer)
+o	Watchdog driver for Advantech boards		(Marek Michalkiewicz)
+o	ISDN updates					(Karsten Keil)
+o	Docs fix 					(Pavel Rabel)
+o	wake_one semantics for accept()			(Andrew Morton)
+o	Masquerade updates				(Juanjo Ciarlante)
+o	Add support for long serialnums on the Metricom	(Alex Belits)
+o	Onboard ethernet driver for the Intel 'Panther'	(Ard van Breemen,
+	boards						 Andries Brouwer)
+o	VIA686a timer reset to 18Hz background		(Vojtech Pavlik)
+o	3c527 driver rewrite				(Richard Procter)
+	| This supercedes my driver because
+	| - it works for more people
+	| - he has time to use his MCA box to debug it
+o	Minix subpartition support			(Anand Krishnamurthy 
+							 Rajeev Pillai)
+o	Remove unused() crap from DRM. You will need
+	to hand load agp as well if needed		(me)
 
-Sun feels that their core product, Solaris, is
-threatened by Linux.  They have several options:
 
-A) Jump on board and use Linux on their hardware.
-B) Improve Solaris until it can compete on its own
-merits.
-C) Market Solaris better, to make people want Solaris
-instead of Linux.
-D) Confuse people into thinking that Linux and Solaris
-are the same thing.
+--
+Alan Cox <alan@lxorguk.ukuu.org.uk>
+Red Hat Kernel Hacker
+& Linux 2.2 Maintainer                        Brainbench MVP for TCP/IP
+http://www.linux.org.uk/diary                 http://www.brainbench.com
 
-He's gone for D, and he's run straight into the Linux
-trademark doing so.  If everybody wants to abolish the
-Linux trademark, that's fine.  But if we don't defend
-it here, I really do think it becomes too weak to be
-useful in other situations.
-
-McNealy wants to leverage the growth of Linux to help
-his company, which is fine, but he's going about it
-the wrong way.  What if IBM had done this sort of
-thing with AIX or Monterey instead of miraculously
-acquiring a clue?  IBM hasn't, they've respected the
-Linux trademark very conscientiously.
-
-> Scott's only big sin was to dump SunOS for Slowaris.
-
-I still dunno WHY that happened (other than gaining
-threading), but I suspect that should go to email...
-
-Rob
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Shopping - Thousands of Stores. Millions of Products.
-http://shopping.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,75 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310721AbSCHH5H>; Fri, 8 Mar 2002 02:57:07 -0500
+	id <S293680AbSCHH55>; Fri, 8 Mar 2002 02:57:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310719AbSCHH46>; Fri, 8 Mar 2002 02:56:58 -0500
-Received: from userk185.dsl.pipex.com ([62.188.58.185]:52970 "EHLO
-	userk185.dsl.pipex.com") by vger.kernel.org with ESMTP
-	id <S293680AbSCHH4t>; Fri, 8 Mar 2002 02:56:49 -0500
-Date: Fri, 8 Mar 2002 07:56:47 +0000
-From: Sean Hunter <sean@uncarved.com>
-To: Stephen Samuel <samuel@bcgreen.com>
-Cc: "Matthew D. Pitts" <mpitts@suite224.net>, linux-kernel@vger.kernel.org,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
-Message-ID: <20020308075647.GA13736@uncarved.com>
-Mail-Followup-To: Sean Hunter <sean@uncarved.com>,
-	Stephen Samuel <samuel@bcgreen.com>,
-	"Matthew D. Pitts" <mpitts@suite224.net>,
-	linux-kernel@vger.kernel.org,
-	"Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020305154147.A6211@vger.timpanogas.org> <3C8554F4.9000403@bcgreen.com> <004301c1c4a6$ab218340$b0d3fea9@pcs686> <3C881649.2030000@bcgreen.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
-Content-Disposition: inline
-In-Reply-To: <3C881649.2030000@bcgreen.com>
-User-Agent: Mutt/1.3.25i
+	id <S310716AbSCHH5i>; Fri, 8 Mar 2002 02:57:38 -0500
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:22276 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S293680AbSCHH5c>; Fri, 8 Mar 2002 02:57:32 -0500
+Message-ID: <3C886DA3.7010408@megapathdsl.net>
+Date: Thu, 07 Mar 2002 23:52:03 -0800
+From: Miles Lane <miles@megapathdsl.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020212
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: andreas.bombe@munich.netsurf.de
+CC: linux-kernel@vger.kernel.org
+Subject: 2.5.6 -- ieee1394drv.o: In function `initialize_dma_ir_prg': undefined reference to `virt_to_bus_not_defined_use_pci_map'
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+drivers/ieee1394/ieee1394drv.o: In function `initialize_dma_ir_prg':
+drivers/ieee1394/ieee1394drv.o(.text+0xb1a2): undefined reference to 
+`virt_to_bus_not_defined_use_pci_map'
+drivers/ieee1394/ieee1394drv.o(.text+0xb1b5): undefined reference to 
+`virt_to_bus_not_defined_use_pci_map'
+drivers/ieee1394/ieee1394drv.o(.text+0xb22c): undefined reference to 
+`virt_to_bus_not_defined_use_pci_map'
+drivers/ieee1394/ieee1394drv.o(.text+0xb23f): undefined reference to 
+`virt_to_bus_not_defined_use_pci_map'
+drivers/ieee1394/ieee1394drv.o(.text+0xb2e8): undefined reference to 
+`virt_to_bus_not_defined_use_pci_map'
+drivers/ieee1394/ieee1394drv.o(.text+0xb2f9): more undefined references 
+to `virt_to_bus_not_defined_use_pci_map' follow
 
---gBBFr7Ir9EOA20Yy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+CONFIG_IEEE1394=y
+CONFIG_IEEE1394_PCILYNX=y
+CONFIG_IEEE1394_OHCI1394=y
+CONFIG_IEEE1394_VIDEO1394=y
+CONFIG_IEEE1394_SBP2=y
+CONFIG_IEEE1394_DV1394=y
+CONFIG_IEEE1394_VERBOSEDEBUG=y
 
-On Thu, Mar 07, 2002 at 05:39:21PM -0800, Stephen Samuel wrote:
->=20
-> note: this solution DOES NOT PRECLUDE YOU (or anybody else) FROM
-> USING BITKEEPER (or any other proprietary solution) in the privacy of
-> your office and/or home -- even if you want to do Linux development
-> with it.  It's simply about what occurs in the OFFICIAL Linux kernel
-> code tree, which probably has a reasonably high proportion of people
-> who are both politically and financially sensitive to the idea of
-> being almost required to use an closed source product to work on
-> their open source 'baby'.
->=20
+Gnu C                  2.96
+Gnu make               3.79.1
+binutils               2.11.90.0.8
+util-linux             2.11f
+mount                  2.11g
+modutils               2.4.14
+e2fsprogs              1.23
+reiserfsprogs          3.x.0j
+pcmcia-cs              3.1.22
+PPP                    2.4.1
+isdn4k-utils           3.1pre1
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.3.3
+Sh-utils               2.0.11
 
-You left off:
-
-  We support your right to have babies, even though you can't have=20
-     babies, which is nobodies fault, not even Larry McVoy's.
-
-Thanks for giving everyone your permission to use bitkeeper in the privacy =
-of
-their own home.  Its nice to know you think anyone gives a fuck about your
-opinion. Now kindly sod off and stop wasting everybodies time.
-
-Sean
-
-
---gBBFr7Ir9EOA20Yy
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8iG6+AgJf0xrWsZwRAv3CAJ9jcAbRAOMQZmFdgu/OH+kR1h7OPACgkXvA
-670On2JLq9SrI8wdJSQj554=
-=B2rI
------END PGP SIGNATURE-----
-
---gBBFr7Ir9EOA20Yy--

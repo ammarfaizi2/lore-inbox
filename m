@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264372AbUBOIRX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 03:17:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbUBOIRW
+	id S264339AbUBOIG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 03:06:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264359AbUBOIG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 03:17:22 -0500
-Received: from may.nosdns.com ([207.44.240.96]:63442 "EHLO may.nosdns.com")
-	by vger.kernel.org with ESMTP id S264372AbUBOIRP (ORCPT
+	Sun, 15 Feb 2004 03:06:56 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:26752 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S264339AbUBOIGs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 03:17:15 -0500
-Date: Sun, 15 Feb 2004 01:16:47 -0700
-From: Elikster <elik@webspires.com>
-X-Mailer: The Bat! (v2.02.3 CE) Personal
-Reply-To: Elikster <elik@webspires.com>
-Organization: WebSpires Technologies
-X-Priority: 3 (Normal)
-Message-ID: <1693736809.20040215011647@webspires.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re[2]: e1000 problems in 2.6.x
-In-Reply-To: <402EE603.8020106@tmr.com>
-References: <C6F5CF431189FA4CBAEC9E7DD5441E0102229F6F@orsmsx402.jf.intel.com>
- <20040215023226.GE1040@saturn5.com> <402EE603.8020106@tmr.com>
-MIME-Version: 1.0
+	Sun, 15 Feb 2004 03:06:48 -0500
+Date: Sun, 15 Feb 2004 09:06:47 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: Simon Gate <simon@noir.se>, linux-kernel@vger.kernel.org
+Subject: Re: psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 bytes away.
+Message-ID: <20040215080647.GB314@ucw.cz>
+References: <20040214224348.67102cfd.simon@noir.se> <200402142259.34836.mbuesch@freenet.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - may.nosdns.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - webspires.com
+Content-Disposition: inline
+In-Reply-To: <200402142259.34836.mbuesch@freenet.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Bill,
+On Sat, Feb 14, 2004 at 10:59:26PM +0100, Michael Buesch wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On Saturday 14 February 2004 22:43, you wrote:
+> > Changed from kernel 2.6.1 to 2.6.2 an get this error in dmesg
+> > 
+> > psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 bytes away.
+> > 
+> > My mouse goes crazy for a few secs and then returns to normal for a while. Is this a 2.6.2 problem or is this is something old?
+> 
+> here's the fix:
 
-    You are not alone.  It happened to all boxes with Intel E1000 network cards and integrated.  It happened on 2.6.2 kernel version and I downgraded back to 2.4.24 version and it was running fine.  The problems I experienced is network lag and lot of network disconnects and such.  It is the kernel 2.6.2 that this problem showed up.
+... no, that's a fix for a different bug. Actually, without this fix it
+works more or less OK.
 
-   I haven't tried the latest versions yet that Linus just released to see if they fixed that issue yet.
-
-Saturday, February 14, 2004, 8:22:43 PM, you wrote:
-
-BD> Steve Simitzis wrote:
->> i should have mentioned in my email that i tried every combination of
->> settings: auto-neg on the box and forced on the switch, both forced
->> (to the same settings, of course), forced on the box with auto-neg on
->> the switch, and auto-neg on both sides. in all cases, the result was
->> the same: RX packet errors and the same watchdog messages. what i thought
->> was particularly strange was that the switch refused to auto-negotiate
->> full duplex.
-
-
+> - --- linux-2.6.3-rc2/drivers/input/serio/i8042.c.orig	2004-02-10 21:33:21.000000000 +0100
+> +++ linux-2.6.3-rc2/drivers/input/serio/i8042.c	2004-02-10 21:37:03.000000000 +0100
+> @@ -379,6 +379,8 @@
+>  	unsigned int dfl;
+>  	int ret;
+>  
+> +	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
+> +
+>  	spin_lock_irqsave(&i8042_lock, flags);
+>  	str = i8042_read_status();
+>  	if (str & I8042_STR_OBF)
+> @@ -433,7 +435,6 @@
+>  irq_ret:
+>  	ret = 1;
+>  out:
+> - -	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
+>  	return IRQ_RETVAL(ret);
+>  }
 
 -- 
-Best regards,
- Elikster                            mailto:elik@webspires.com
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

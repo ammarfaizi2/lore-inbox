@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVCNRLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVCNRQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261629AbVCNRLX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 12:11:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVCNRLW
+	id S261596AbVCNRQs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 12:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVCNRQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 12:11:22 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46225 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261629AbVCNRLN (ORCPT
+	Mon, 14 Mar 2005 12:16:48 -0500
+Received: from fire.osdl.org ([65.172.181.4]:61640 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261596AbVCNRQq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 12:11:13 -0500
-Date: Mon, 14 Mar 2005 18:10:53 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: linux-os <linux-os@analogic.com>
-Cc: Jakob Eriksson <jakov@vmlinux.org>, Andi Kleen <ak@muc.de>,
-       Stas Sergeev <stsp@aknet.ru>, Alan Cox <alan@redhat.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       wine-devel@winehq.org, torvalds@osdl.org
-Subject: Re: [patch] x86: fix ESP corruption CPU bug
-Message-ID: <20050314171052.GD5461@elf.ucw.cz>
-References: <42348474.7040808@aknet.ru> <20050313201020.GB8231@elf.ucw.cz> <4234A8DD.9080305@aknet.ru> <Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org> <Pine.LNX.4.58.0503131614360.2822@ppc970.osdl.org> <423518A7.9030704@aknet.ru> <m14qfey3iz.fsf@muc.de> <4235AC0B.70507@vmlinux.org> <Pine.LNX.4.61.0503141158460.19270@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0503141158460.19270@chaos.analogic.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 14 Mar 2005 12:16:46 -0500
+Date: Mon, 14 Mar 2005 09:18:22 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+cc: Pavel Machek <pavel@ucw.cz>, David Lang <david.lang@digitalinsight.com>,
+       Dave Jones <davej@redhat.com>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Paul Mackerras <paulus@samba.org>, benh@kernel.crashing.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: dmesg verbosity [was Re: AGP bogosities]
+In-Reply-To: <200503140855.18446.jbarnes@engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0503140907380.6119@ppc970.osdl.org>
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz> <20050314083717.GA19337@elf.ucw.cz>
+ <200503140855.18446.jbarnes@engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> Can you tell me how the invisible high-word (invisible in VM-86, and
-> in real mode) could possibly harm something running in VM-86 or
-> read-mode ???  I don't even think it's a BUG. If the transition
 
-You can have protected-mode application running in dosemu with 16-bit
-stack segment.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+On Mon, 14 Mar 2005, Jesse Barnes wrote:
+> 
+> We already have the 'quiet' option, but even so, I think the kernel is *way* 
+> too verbose.  Someone needs to make a personal crusade out of removing 
+> unneeded and unjustified printks from the kernel before it really gets better 
+> though...
+
+The thing is, this comes up every once in a while (pretty often,
+actually), but the bulk of those messages _do_ end up being useful. For
+certain classes of bugs, I almost invariably ask for the bootup messages:  
+the PCI interrupt routing printou stuff is absolutely invaluable.
+
+In fact, even the ones that have no "information" end up often being a big
+clue about where the hang happened.
+
+So yes, when things work (and hey, that's happily 99.9% of the time) they
+are almost all worthless. But just _one_ case where they help is a big
+deal. So don't say "most people don't care", because that is a totally
+irrelevant argument. It's not "most people" who matter. It's not even
+kernel developers who matter - they can know how to enable the stuff if
+they ever see a problem. The _only_ people who matter are the very
+occasional regular users that see problems.
+
+And those occasional people are often not going to eb very good at
+reporting bugs. If they don't see anything happening, they'll just give up
+rather than bother to report it. So I do think we want the fairly verbose
+thing enabled by default. You can then hide it with the graphical bootup 
+for "most people".
+
+		Linus

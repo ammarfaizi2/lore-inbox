@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267376AbUH1Rlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267490AbUH1RoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267376AbUH1Rlw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 13:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267351AbUH1Rlv
+	id S267490AbUH1RoE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 13:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267482AbUH1RmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 13:41:51 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:2229 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S267535AbUH1Rjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 13:39:47 -0400
-Date: Sat, 28 Aug 2004 18:45:27 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Hamie <hamish@travellingkiwi.com>
-Cc: Alexander Rauth <Alexander.Rauth@promotion-ie.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: radeonfb problems (console blanking & acpi suspend)
-Message-ID: <20040828164517.GA3048@openzaurus.ucw.cz>
-References: <1093277876.9973.15.camel@pro30.local.promotion-ie.de> <20040824110024.GA3502@openzaurus.ucw.cz> <412BB8FF.3090601@travellingkiwi.com>
+	Sat, 28 Aug 2004 13:42:00 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:34726 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267551AbUH1RkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 13:40:05 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P8
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040823225255.GA16820@elte.hu>
+References: <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>
+	 <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu>
+	 <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu>
+	 <20040820195540.GA31798@elte.hu> <20040821140501.GA4189@elte.hu>
+	 <20040823210151.GA10949@elte.hu> <1093300882.826.28.camel@krustophenia.net>
+	 <20040823225255.GA16820@elte.hu>
+Content-Type: text/plain
+Message-Id: <1093714808.8611.36.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <412BB8FF.3090601@travellingkiwi.com>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 28 Aug 2004 13:40:08 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 2004-08-23 at 18:52, Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
+> > Should this fix the 500+ usec latency I saw in rt_garbage_collect? 
+> > This one took a while to occur (overnight).
+> 
+> i dont think it will. Does the patch below help?
+> 
+> 	Ingo
+> 
+> --- net/ipv4/route.c.orig
+> +++ net/ipv4/route.c
+> @@ -738,7 +738,7 @@ static int rt_garbage_collect(void)
+>  
+>  		if (atomic_read(&ipv4_dst_ops.entries) < ip_rt_max_size)
+>  			goto out;
+> -	} while (!in_softirq() && time_before_eq(jiffies, now));
+> +	} while (!in_softirq() && time_before_eq(jiffies, now) && !need_resched());
+>  
+>  	if (atomic_read(&ipv4_dst_ops.entries) < ip_rt_max_size)
+>  		goto out;
+> 
 
-> >>2) after an acpi suspend the backlight goes back on but there is no 
-> >>data
-> >>displayed on the screen (no X running nor started since boot)
-> >>
-> >>If more information is needed for diagnosis then please email me.
-> >>   
-> >>
-> >
-> >Known problem for suspend-to-ram, see Ole Rohne's patches.
-> > 
-> >
-> Really? I use 2.6.8.1 on an r50p with radeonfb enabled, and don't 
-> experience this... But I do run X as well (X.Org) with the X.Org 
+Nope, the above does not actually fix it.  I got a 716 usec latency in
+rt_garbage_collect:
 
-It works with some bioses, breaks with other...
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+http://krustophenia.net/testresults.php?dataset=2.6.8.1-P9#/var/www/2.6.8.1-P9/trace12.txt
+
+I believe this is associated with heavy route cache activity, I did not
+see this one again until I left a gnutella client running overnight.
+
+Lee
 

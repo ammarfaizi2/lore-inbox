@@ -1,27 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbUKKLPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbUKKLPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262208AbUKKLPP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 06:15:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262210AbUKKLON
+	id S262210AbUKKLPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 06:15:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbUKKLOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 06:14:13 -0500
-Received: from [195.135.223.242] ([195.135.223.242]:3456 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262208AbUKKLLj (ORCPT
+	Thu, 11 Nov 2004 06:14:06 -0500
+Received: from [195.135.223.242] ([195.135.223.242]:4224 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262210AbUKKLLj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 11 Nov 2004 06:11:39 -0500
-Date: Thu, 11 Nov 2004 00:44:43 +0100
+Date: Thu, 11 Nov 2004 00:42:03 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Andries Brouwer <Andries.Brouwer@cwi.nl>, vojtech@ucw.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [no problem] PC110 broke 2.6.9
-Message-ID: <20041110234442.GF1099@elf.ucw.cz>
-References: <20041106232228.GA9446@apps.cwi.nl> <Pine.LNX.4.58.0411061529200.2223@ppc970.osdl.org> <1099791769.5564.118.camel@localhost.localdomain>
+To: andyliu <liudeyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH]a tar filesystem for 2.6.10-rc1-mm3
+Message-ID: <20041110234203.GE1099@elf.ucw.cz>
+References: <aad1205e04110523176bf66a37@mail.gmail.com> <aad1205e04110621472123bf67@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1099791769.5564.118.camel@localhost.localdomain>
+In-Reply-To: <aad1205e04110621472123bf67@mail.gmail.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,21 +27,44 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > Ahh.. Interesting. One improvement might be to make sure that this driver 
-> > links in very late in the game, so that if any other drivers have 
-> > allocated the IO, at least it won't override that. Also, it might make 
-> > sense to say that the dang thing can share interrupts.
+>   let's think about the way we access the file which contained in a tar file
+> may we can untar the whole thing and we find the file we want to access
+> or we can use the t option with tar to list all the files in the tar
+> and then untar
+> the only one file we want to access.
 > 
-> It can't share interrupts.
+>   but with the help of the tarfs,we can mount a tar file to some dir and access
+> it easily and quickly.it's like the tarfs in mc.
 > 
-> > But yes, we should probably make sure to make it harder to enable the
-> > driver by mistake, and try to do minimal probing of it. I have no idea how
-> > to probe for the thing, though.
+>  just mount -t tarfs tarfile.tar /dir/to/mnt -o loop
+> then access the files easily.
 > 
-> I never found anything. 
+> it was writen by Kazuto Miyoshi (kaz@earth.email.ne.jp) Hirokazu
+> Takahashi (h-takaha@mub.biglobe.ne.jp) for linux 2.4.0
+> 
+> and i make it work for linux 2.6.0. now a patch for linux
+> 2.6.10-rc1-mm3
 
-Perhaps disable the driver is machine is not intel 486?
+Hmm, at least it needs to be indented by tab, see
+Documentation/CodingStyle. If it could do compressed tars... well I
+could find a use for _that_...
 									Pavel
+
+> +static int tarfs_readdir(struct file * filp,
+> +                        void * dirent, filldir_t filldir)
+> +{
+> +  struct inode *inode = filp->f_dentry->d_inode;
+> +  int err;
+> +  struct tarent *dir_tarent, *ent;
+> +  int dtype=0;
+> +  int count, stored;
+> +
+> +  dir_tarent = TARENT(inode);
+> +
+> +  message("tarfs: tarfs_readdir (dir_tarent %p, f_pos %ld)\n",
+> +         dir_tarent, (long)filp->f_pos);
+> +
+
 -- 
 People were complaining that M$ turns users into beta-testers...
 ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

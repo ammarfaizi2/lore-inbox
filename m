@@ -1,47 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267709AbTASWhC>; Sun, 19 Jan 2003 17:37:02 -0500
+	id <S267708AbTASWeq>; Sun, 19 Jan 2003 17:34:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267711AbTASWhC>; Sun, 19 Jan 2003 17:37:02 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:54289 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267709AbTASWhB>; Sun, 19 Jan 2003 17:37:01 -0500
-Message-ID: <3E2B1DA7.CAA76FFF@linux-m68k.org>
-Date: Sun, 19 Jan 2003 22:50:32 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>
-CC: Larry McVoy <lm@bitmover.com>, Jamie Lokier <jamie@shareable.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Is the BitKeeper network protocol documented?
-References: <20030118043309.GA18658@bjl1.asuk.net> <20030118052919.GA22751@work.bitmover.com> <3E296342.B3042E09@linux-m68k.org> <20030119113902.D1594@schatzie.adilger.int>
+	id <S267709AbTASWeq>; Sun, 19 Jan 2003 17:34:46 -0500
+Received: from holomorphy.com ([66.224.33.161]:12168 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267708AbTASWeo>;
+	Sun, 19 Jan 2003 17:34:44 -0500
+Date: Sun, 19 Jan 2003 14:43:29 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rusty Russell <rusty@rustcorp.com.au>,
+       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cpumask_t
+Message-ID: <20030119224329.GI780@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+References: <20020808.073630.37512884.davem@redhat.com> <20020809080517.E4BE5443C@lists.samba.org> <20030119213524.GH780@holomorphy.com> <20030119221852.GC789@holomorphy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030119221852.GC789@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Jan 19, 2003 at 02:18:52PM -0800, William Lee Irwin III wrote:
+> This is just broken anyway. And fixing it isn't as obvious as just
 
-Andreas Dilger wrote:
 
-> > IOW "You should be thankful for what I offer, if you don't like it, piss
-> > off!"  Might not be what you've intended, but that's what I arrived here and
-> > I'm sure I'm not the only one.
-> 
-> That's what he intended, and rightfully so.
+Fix up several obvious stupidities. Atop the prior patch:
 
-I just wanted to make sure I understood correctly, I have an appropriate
-answer, but I can't word it as nicely as Larry.
+ arch/i386/kernel/irq.c  |    2 +-
+ arch/i386/kernel/smp.c  |    7 +++++--
+ include/linux/cpumask.h |    6 +++---
+ 3 files changed, 9 insertions(+), 6 deletions(-)
 
->  You now have things you didn't
-> have before (i.e. hourly snapshots of Linus' tree) and you still aren't
-> happy.  I guess some people will never be happy with anything, so there is
-> no point in trying to appease them.
 
-If you don't see the problem, maybe you should read
-/usr/src/linux/COPYING again for a change.
-
-bye, Roman
-
+diff -urpN cpu-2.5.59-1/arch/i386/kernel/irq.c cpu-2.5.59-2/arch/i386/kernel/irq.c
+--- cpu-2.5.59-1/arch/i386/kernel/irq.c	2003-01-19 13:27:24.000000000 -0800
++++ cpu-2.5.59-2/arch/i386/kernel/irq.c	2003-01-19 14:30:24.000000000 -0800
+@@ -873,7 +873,7 @@ static int irq_affinity_write_proc (stru
+ 	 * one online CPU still has to be targeted.
+ 	 */
+ 	cpus_and(tmp, new_value, cpu_online_map);
+-	if (!any_online_cpu(tmp))
++	if (!any_online_cpu(tmp) >= NR_CPUS)
+ 		return -EINVAL;
+ 
+ 	irq_affinity[irq] = new_value;
+diff -urpN cpu-2.5.59-1/arch/i386/kernel/smp.c cpu-2.5.59-2/arch/i386/kernel/smp.c
+--- cpu-2.5.59-1/arch/i386/kernel/smp.c	2003-01-19 12:23:52.000000000 -0800
++++ cpu-2.5.59-2/arch/i386/kernel/smp.c	2003-01-19 14:34:40.000000000 -0800
+@@ -331,8 +331,9 @@ asmlinkage void smp_invalidate_interrupt
+ 			leave_mm(cpu);
+ 	}
+ 	ack_APIC_irq();
++	smp_mb__before_clear_bit();
+ 	cpu_clear(cpu, flush_cpumask);
+-
++	smp_mb__after_clear_bit();
+ out:
+ 	put_cpu_no_resched();
+ }
+@@ -370,6 +371,7 @@ static void flush_tlb_others(cpumask_t c
+ 	 * atomic_set_mask(cpumask, &flush_cpumask);
+ 	 */
+ 	flush_cpumask = cpumask;
++	mb();
+ 	/*
+ 	 * We have to send the IPI only to
+ 	 * CPUs affected.
+@@ -377,7 +379,8 @@ static void flush_tlb_others(cpumask_t c
+ 	send_IPI_mask(cpumask, INVALIDATE_TLB_VECTOR);
+ 
+ 	while (any_online_cpu(flush_cpumask) < NR_CPUS)
+-		/* nothing. lockup detection does not belong here */;
++		/* nothing. lockup detection does not belong here */
++		mb();
+ 
+ 	flush_mm = NULL;
+ 	flush_va = 0;
+diff -urpN cpu-2.5.59-1/include/linux/cpumask.h cpu-2.5.59-2/include/linux/cpumask.h
+--- cpu-2.5.59-1/include/linux/cpumask.h	2003-01-19 11:53:27.000000000 -0800
++++ cpu-2.5.59-2/include/linux/cpumask.h	2003-01-19 14:40:49.000000000 -0800
+@@ -16,7 +16,7 @@ extern cpumask_t cpu_online_map;
+ 
+ #define cpu_online(cpu)		test_bit(cpu, cpu_online_map.mask)
+ #define num_online_cpus()	bitmap_weight(cpu_online_map.mask, NR_CPUS)
+-#define any_online_cpu(map)	find_first_zero_bit((map).mask, NR_CPUS)
++#define any_online_cpu(map)	find_first_bit((map).mask, NR_CPUS)
+ 
+ #define cpu_set(cpu, map)		set_bit(cpu, (map).mask)
+ #define cpu_clear(cpu, map)		clear_bit(cpu, (map).mask)
+@@ -26,8 +26,8 @@ extern cpumask_t cpu_online_map;
+ #define cpus_and(dst,src1,src2)	bitmap_and((dst).mask,(src1).mask, (src2).mask, NR_CPUS)
+ #define cpus_or(dst,src1,src2)	bitmap_or((dst).mask, (src1).mask, (src2).mask, NR_CPUS)
+ #define cpus_equal(map1, map2)	bitmap_equal((map1).mask, (map2).mask, NR_CPUS)
+-#define first_cpu(map)		find_first_zero_bit((map).mask, NR_CPUS)
+-#define next_cpu(cpu, map)	find_next_zero_bit((map).mask, NR_CPUS, cpu)
++#define first_cpu(map)		find_first_bit((map).mask, NR_CPUS)
++#define next_cpu(cpu, map)	find_next_bit((map).mask, NR_CPUS, cpu)
+ 
+ static inline int next_online_cpu(int cpu, cpumask_t map)
+ {

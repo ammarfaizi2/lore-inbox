@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270476AbTGNQT3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 12:19:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270477AbTGNQT3
+	id S270257AbTGNQUA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 12:20:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270449AbTGNQUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 12:19:29 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37582 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S270476AbTGNQTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 12:19:20 -0400
-Date: Mon, 14 Jul 2003 18:34:01 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Mark Watts <m.watts@eris.qinetiq.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: requirements for installing a 2.6.0-test kernel....
-Message-ID: <20030714163401.GO12104@fs.tum.de>
-References: <200307141659.05451.m.watts@eris.qinetiq.com>
+	Mon, 14 Jul 2003 12:20:00 -0400
+Received: from AMarseille-201-1-2-223.w193-253.abo.wanadoo.fr ([193.253.217.223]:23847
+	"EHLO gaston") by vger.kernel.org with ESMTP id S270257AbTGNQT4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 12:19:56 -0400
+Subject: Re: [Linux-fbdev-devel] fbdev and power management
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: James Simmons <jsimmons@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+In-Reply-To: <20020105111340.GA2254@zaurus.ucw.cz>
+References: <Pine.LNX.4.44.0307090024170.32323-100000@phoenix.infradead.org>
+	 <1057750557.514.22.camel@gaston>
+	 <20030709151032.A22612@flint.arm.linux.org.uk>
+	 <20020105111340.GA2254@zaurus.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1058200445.515.23.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307141659.05451.m.watts@eris.qinetiq.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 14 Jul 2003 18:34:06 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 14, 2003 at 04:59:05PM +0100, Mark Watts wrote:
-
-> Now that 2.6.0-test is out, can someone point me at the definative 
-> instrictions for compiling and booting a 2.6.x kernel?
+On Sat, 2002-01-05 at 12:13, Pavel Machek wrote:
+> Hi!
 > 
-> I understand that the compile process has changed since 2.4.x, and I may also 
-> need some updated module related things.
+> > I'm slightly concerned by this.  There are a growing amount of drivers
+> > in 2.5 which are being made to work with the existing power management
+> > system.  This "new" system seems to have been hanging around for about
+> > 4 months now with no visible further work, presumably so that a paper
+> > can be presented before its release.
 > 
-> This doesnt have to be a handholding guide, just a quick rundown/qhecklist 
-> will do.
+> I believe it is bad idea to change driver
+> model again in 2.6.x-pre. I believe current
+> solution is pretty much okay.
 
-http://www.codemonkey.org.uk/post-halloween-2.5.txt 
+Current solution is not okay and actually, the save_state/suspend
+distinction makes no sense. We have designed a working solution
+a while ago now, Patrick has it implemented for month, it must
+get in now or 2.6 will not have proper power management but just
+"might work" kind of crap
 
-The minimum required versions of programs is as usual in 
-Documentation/Changes.
+Ben.
 
-> Cheers,
-> 
-> Mark.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

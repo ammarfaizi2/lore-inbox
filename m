@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVBIWOH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVBIXBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbVBIWOH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 17:14:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVBIWOH
+	id S261955AbVBIXBj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 18:01:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVBIXBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 17:14:07 -0500
-Received: from gprs215-196.eurotel.cz ([160.218.215.196]:64655 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261943AbVBIWOE (ORCPT
+	Wed, 9 Feb 2005 18:01:39 -0500
+Received: from fw.osdl.org ([65.172.181.6]:57306 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261955AbVBIXBi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 17:14:04 -0500
-Date: Wed, 9 Feb 2005 23:07:50 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp logic error?
-Message-ID: <20050209220750.GB2065@elf.ucw.cz>
-References: <20050208203950.GA21623@cirrus.madduck.net>
+	Wed, 9 Feb 2005 18:01:38 -0500
+Date: Wed, 9 Feb 2005 15:06:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: anton@samba.org, ahuja@austin.ibm.com, linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] PPC64 collect and export low-level cpu usage statistics
+Message-Id: <20050209150643.60812d3f.akpm@osdl.org>
+In-Reply-To: <16906.34562.379000.336836@cargo.ozlabs.ibm.com>
+References: <16906.34562.379000.336836@cargo.ozlabs.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050208203950.GA21623@cirrus.madduck.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Paul Mackerras <paulus@samba.org> wrote:
+>
+> POWER5 machines have a per-hardware-thread register which counts at a
+> rate which is proportional to the percentage of cycles on which the
+> cpu dispatches an instruction for this thread (if the thread gets all
+> the dispatch cycles it counts at the same rate as the timebase
+> register).  This register is also context-switched by the hypervisor.
+> Thus it gives a fine-grained measure of the actual cpu usage by the
+> thread over time.
+> 
+> This patch adds code to read this register every timer interrupt and
+> on every context switch.
 
-> I am trying to get swsusp working on a 2.6.10 Debian kernel
-> (2.6.10-1-686, custom compile, enabling only CONFIG_SOFTWARE_SUSPEND
-> and leaving CONFIG_PM_STD_PARTITION empty) on this Sony Vaio Z1RSP
-> Centrino 1.7 Pentium M laptop... without much success. Whenever
-> I enter swsusp mode, the kernel reports that it cannot find the swap
-> space and aborts.
+fyi: This patch consumes another entry from thread_struct.pad[]. 
+ppc64-implement-a-vdso-and-use-it-for-signal-trampoline.patch consumes two
+more entries, so with both patches, you have none left.
 
-Try doing it on vanilla, just one swapfile, and pass
-resume=/dev/your_swapdevice.
 
-Oh, and cc me next time if you want faster reply...
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

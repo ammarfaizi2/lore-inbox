@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136918AbRA2CEj>; Sun, 28 Jan 2001 21:04:39 -0500
+	id <S136666AbRA2CRN>; Sun, 28 Jan 2001 21:17:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144905AbRA2CEb>; Sun, 28 Jan 2001 21:04:31 -0500
-Received: from ferret.lmh.ox.ac.uk ([163.1.138.204]:43782 "HELO
-	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
-	id <S137010AbRA2CEQ>; Sun, 28 Jan 2001 21:04:16 -0500
-Date: Mon, 29 Jan 2001 02:04:15 +0000 (GMT)
-From: Chris Evans <chris@scary.beasts.org>
-To: <Tony.Young@ir.com>
-cc: <slug@slug.org.au>, <csa@oss.sgi.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux Disk Performance/File IO per process
-In-Reply-To: <C0D2F5944500D411AD8A00104B31930E108096@ir_nt_server2>
-Message-ID: <Pine.LNX.4.30.0101290200220.21841-100000@ferret.lmh.ox.ac.uk>
+	id <S136999AbRA2CRD>; Sun, 28 Jan 2001 21:17:03 -0500
+Received: from mail5.mia.bellsouth.net ([205.152.144.17]:34458 "EHLO
+	mail5.mia.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S136666AbRA2CQq>; Sun, 28 Jan 2001 21:16:46 -0500
+Message-ID: <3A74D2BE.2020000@bellsouth.net>
+Date: Sun, 28 Jan 2001 21:17:34 -0500
+From: Louis Garcia <louisg00@bellsouth.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-8 i686; en-US; m18) Gecko/20010127
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.1-pre11
+In-Reply-To: <3A74B16D.6020304@bellsouth.net> <20010128203703.T19833@conectiva.com.br>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arnaldo Carvalho de Melo wrote:
 
-On Mon, 29 Jan 2001 Tony.Young@ir.com wrote:
-
-> All,
->
-> I work for a company that develops a systems and performance management
-> product for Unix (as well as PC and TANDEM) called PROGNOSIS. Currently we
-> support AIX, HP, Solaris, UnixWare, IRIX, and Linux.
->
-> I've hit a bit of a wall trying to expand the data provided by our Linux
-> solution - I can't seem to find anywhere that provides the metrics needed to
-> calculate disk busy in the kernel! This is a major piece of information that
-> any mission critical system administrator needs to successfully monitor
-> their systems.
-
-Stephen Tweedie has a rather funky i/o stats enhancement patch which
-should provide what you need. It comes with RedHat7.0 and gives decent
-disk statistics in /proc/partitions.
-
-Unfortunately this patch is not yet in the 2.2 or 2.4 kernel. I'd like to
-see it make the kernel as a 2.4.x item. Failing that, it'll probably make
-the 2.5 kernel.
-
-Cheers
-Chris
+> Em Sun, Jan 28, 2001 at 06:55:25PM -0500, Louis Garcia escreveu:
+> 
+>> I am getting messages everytime I use the network from my RH7 + 
+>> kernel-2.4.1-pre11 system:
+>> 
+>> modprobe: modprobe: Can't locate module net-pf-10
+>> 
+>> I have checked my .config  and can't find that modules. This does not 
+>> happen with 2.4.0 kernel, only with the latest pre series maybe pre7 on.
+> 
+> 
+> you haven't included support for IPv6 and your distribution initscripts is
+> trying to load it for some reason, two solutions:
+> 
+> 1. enable IPv6 in your kernel build
+> 2. disable it in your /etc/modules.conf file, like this:
+> 
+> alias net-pf-10 off
+> 
+> - Arnaldo
+> 
+> 
+> 
+Anyone have an idea where in the initscripts does this happen?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

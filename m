@@ -1,26 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292796AbSCDTi0>; Mon, 4 Mar 2002 14:38:26 -0500
+	id <S292762AbSCDTnh>; Mon, 4 Mar 2002 14:43:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292762AbSCDTiQ>; Mon, 4 Mar 2002 14:38:16 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:65296 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S292796AbSCDTiD>; Mon, 4 Mar 2002 14:38:03 -0500
-Message-Id: <200203041937.g24JbR8t064983@smtpzilla2.xs4all.nl>
-Content-Type: text/plain; charset=US-ASCII
-From: "Robert H. de Vries" <rhdv@xs4all.nl>
-To: <linux-kernel@vger.kernel.org>, "Leonard N. Zubkoff" <lnz@dandelion.com>
-Subject: Anybody working on fixing the BusLogic driver for 2.5.5?
-Date: Mon, 4 Mar 2002 20:37:52 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S292798AbSCDTn0>; Mon, 4 Mar 2002 14:43:26 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:42690 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S292762AbSCDTnN>; Mon, 4 Mar 2002 14:43:13 -0500
+Date: Mon, 04 Mar 2002 11:44:24 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+To: ipslinux@us.ibm.com
+cc: linux-kernel@vger.kernel.org
+Subject: 2.5.5 and 2.5.5-dj2 compile error
+Message-ID: <19230000.1015271064@w-hlinder.des>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just checking if I'm not going to do something which is already being done.
 
-	Robert
--- 
-Robert de Vries
-rhdv@xs4all.nl
+I have an 8-way SMP system which doesn't compile the 2.5.x kernel.
+If I turn off CONFIG_SCSI_IPS it compiles fine. It also worked
+fine with 2.4.x. 
+
+Here is the error:
+
+gcc -D__KERNEL__ -I/home/hlinder/src/linux-2.5.5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=ips  -c -o ips.o
+ips.c
+ips.c:143:2: #error Please convert me to Documentation/DMA-mapping.txt
+ips.c: In function `ips_next':
+ips.c:3784: structure has no member named `address'
+ips.c:3789: structure has no member named `address'
+ips.c:3798: structure has no member named `address'
+ips.c: In function `ips_done':
+ips.c:4473: structure has no member named `address'
+ips.c:4477: structure has no member named `address'
+ips.c:4494: structure has no member named `address'
+ips.c:4512: structure has no member named `address'
+ips.c:4525: structure has no member named `address'
+make[3]: *** [ips.o] Error 1
+make[3]: Leaving directory `/home/hlinder/src/linux-2.5.5/drivers/scsi'
+
+Let me know if you want any more info.
+
+Hanna Linder
+hannal@us.ibm.com
+IBM Linux Technology Center
+
+

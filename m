@@ -1,113 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269472AbUINQna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269570AbUINQtt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269472AbUINQna (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 12:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269460AbUINQkk
+	id S269570AbUINQtt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 12:49:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269517AbUINQoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 12:40:40 -0400
-Received: from holomorphy.com ([207.189.100.168]:50324 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269567AbUINQbP (ORCPT
+	Tue, 14 Sep 2004 12:44:19 -0400
+Received: from holomorphy.com ([207.189.100.168]:54164 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269470AbUINQh0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 12:31:15 -0400
-Date: Tue, 14 Sep 2004 09:31:06 -0700
+	Tue, 14 Sep 2004 12:37:26 -0400
+Date: Tue, 14 Sep 2004 09:37:12 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
-Message-ID: <20040914163106.GS9106@holomorphy.com>
-References: <20040914105048.GA31238@elte.hu> <20040914105904.GB31370@elte.hu> <20040914110237.GC31370@elte.hu> <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu> <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au> <20040914140905.GM4180@dualathlon.random>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: Albert Cahalan <albert@users.sf.net>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Andrew Morton OSDL <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       Paul Jackson <pj@sgi.com>, James Morris <jmorris@redhat.com>,
+       Chris Wright <chrisw@osdl.org>
+Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
+Message-ID: <20040914163712.GT9106@holomorphy.com>
+References: <20040909205531.GA17088@k3.hellgate.ch> <20040909212507.GA32276@k3.hellgate.ch> <1094942212.1174.20.camel@cube> <20040914064403.GB20929@k3.hellgate.ch> <20040914071058.GH9106@holomorphy.com> <20040914075508.GA10880@k3.hellgate.ch> <20040914080132.GJ9106@holomorphy.com> <20040914092748.GA11238@k3.hellgate.ch> <20040914153758.GO9106@holomorphy.com> <20040914160150.GB13978@k3.hellgate.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040914140905.GM4180@dualathlon.random>
+In-Reply-To: <20040914160150.GB13978@k3.hellgate.ch>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 14, 2004 at 04:09:05PM +0200, Andrea Arcangeli wrote:
-> 1) cond_resched should become a noop if CONFIG_PREEMPT=y
->    (cond_resched_lock of course should still unlock/relock if
->     need_resched() is set, but not __cond_resched).
-> 2) all Ingo's new and old might_sleep should be converted to
->    cond_resched (or optionally to cond_resched_costly, see point 5).
-> 3) might_sleep should return a debug statement.
-> 4) cond_resched should call might_sleep if need_resched is not set if
->    CONFIG_PREEMPT=n is disabled, and it should _only_ call might_sleep
->    if CONFIG_PREEMPT=y after we implement point 1.
-> 5) no further config option should exist (if we really add an option
->    it should be called CONFIG_COND_RESCHED_COSTLY of similar to 
->    differentiate scheduling points in fast paths (like spinlock places
->    with CONFIG_PREEMPT=n) (so you can choose between cond_resched() and
->    cond_resched_costly())
-> I recommended point 2,3,4,5 already (a few of them twice), point 1 (your
-> point) looks lower prio (CONFIG_PREEMPT=y already does an overkill of
-> implicit need_resched() checks anyways).
+On Tue, 14 Sep 2004 08:37:58 -0700, William Lee Irwin III wrote:
+>> No, in general races of the form "permissions were altered after I
+>> checked them" can happen.
 
-The might_sleep() in cond_resched() sounds particularly useful to pick
-up misapplications of cond_resched().
+On Tue, Sep 14, 2004 at 06:01:50PM +0200, Roger Luethi wrote:
+> Can you make an example? Some scenario where this would be important?
+
+Not particularly. It largely means poorly-coded apps may report gibberish.
 
 
-On Tue, Sep 14, 2004 at 11:33:48PM +1000, Nick Piggin wrote:
->> Why would someone who really cares about latency not enable preempt?
->> cond_rescheds everywhere? Isn't this now the worst of both worlds?
+On Tue, 14 Sep 2004 08:37:58 -0700, William Lee Irwin III wrote:
+>> Checking that system calls succeeded is a minimum requirement at all
+>> times. Misinterpreting error returns is the app's fault.
 
-On Tue, Sep 14, 2004 at 04:09:05PM +0200, Andrea Arcangeli wrote:
-> to avoid lots of worthless cond_resched in all spin_unlock and to avoid
-> kernel crashes if some driver is not preempt complaint?
-> I've a better question for you, why would someone ever disable
-> CONFIG_PREEMPT_VOLUNTARY? That config option is a nosense as far as I
-> can tell. If something it should be renamed to
-> "CONFIG_I_DON_T_WANT_TO_RUN_THE_OLD_KERNEL_CODE" ;)
+On Tue, Sep 14, 2004 at 06:01:50PM +0200, Roger Luethi wrote:
+> It's async. You can't rely on return values. They'd have to be in
+> netlink messages.
 
-Well, thankfully we've taken the whole of the preempt-related code in
-spin_unlock() and all the other locking primitives out of line for the
-CONFIG_PREEMPT case (and potentially more, though that would be at the
-expense of x86(-64)).
+That's fine. Do these error messages specify which field access(es)
+caused the error?
 
-preempt_schedule() is actually what's used in preempt_check_resched(),
-not cond_resched(), and this inspired me to take a look at that. What
-on earth are people smoking with all these loops done up with gotos?
-I suppose this isn't even the half of it, but it's what I looked at.
+
+On Tue, 14 Sep 2004 08:37:58 -0700, William Lee Irwin III wrote:
+>> Irritating. That must mean you can't ask for specific fields.
+
+On Tue, Sep 14, 2004 at 06:01:50PM +0200, Roger Luethi wrote:
+> How so? For process fields, the request block is one u32 indicating the
+> number of field IDs to follow, then a bunch of u32 containing field IDs.
+> Any subset of field IDs, in any order of the tool's choosing.
+> The kernel replies with one message per process, each message containing
+> all the fields the tool requested, in the same order.
+
+Then assuming the error messages indicate which field access(es) caused
+the error(s), you're already done; userspace must merely retry the
+request with the offending fields cast out. Otherwise, you're still
+done: userspace can merely retry the field accesses one at a time
+(though it's nicer to say which ones caused the errors).
+
+
+On Tue, 14 Sep 2004 08:37:58 -0700, William Lee Irwin III wrote:
+>> Well, "return this set of fields" means there's only one type of
+>> request necessary, and userspace merely iterates through the subsets
+>> obtained by striking out fields to which accesses caused errors until
+>> either the set is empty or the call succeeds. One field at a time at
+>> all times also means there's only one type of request necessary. So I
+
+On Tue, Sep 14, 2004 at 06:01:50PM +0200, Roger Luethi wrote:
+> One field at a time at all times is unnecessarily slow.
+
+Yes, that was the "slower and stupider than thou" option. You've
+already vectorized field access requests, of which I heartily approve.
 
 
 -- wli
-
-Nuke some superfluous gotos in preempt_schedule().
-
-Index: mm5-2.6.9-rc1/kernel/sched.c
-===================================================================
---- mm5-2.6.9-rc1.orig/kernel/sched.c	2004-09-13 16:27:46.998672328 -0700
-+++ mm5-2.6.9-rc1/kernel/sched.c	2004-09-14 09:01:46.514087864 -0700
-@@ -2464,18 +2464,19 @@
- 	 * If there is a non-zero preempt_count or interrupts are disabled,
- 	 * we do not want to preempt the current task.  Just return..
- 	 */
--	if (unlikely(ti->preempt_count || irqs_disabled()))
--		return;
--
--need_resched:
--	ti->preempt_count = PREEMPT_ACTIVE;
--	schedule();
--	ti->preempt_count = 0;
-+	if (likely(!ti->preempt_count && !irqs_disabled())) {
-+		do {
-+			ti->preempt_count = PREEMPT_ACTIVE;
-+			schedule();
-+			ti->preempt_count = 0;
- 
--	/* we could miss a preemption opportunity between schedule and now */
--	barrier();
--	if (unlikely(test_thread_flag(TIF_NEED_RESCHED)))
--		goto need_resched;
-+			/*
-+			 * Without this barrier, we could miss a
-+			 * preemption opportunity between schedule and now
-+			 */
-+			barrier();
-+		} while (unlikely(test_thread_flag(TIF_NEED_RESCHED)));
-+	}
- }
- 
- EXPORT_SYMBOL(preempt_schedule);

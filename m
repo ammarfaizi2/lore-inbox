@@ -1,198 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264642AbUDVTbB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264596AbUDVTh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264642AbUDVTbB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 15:31:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264624AbUDVTbB
+	id S264596AbUDVTh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 15:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264643AbUDVTh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 15:31:01 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:13061 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S264642AbUDVTaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 15:30:21 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "David S. Miller" <davem@redhat.com>
-Subject: [PATCH 2.6] Take care of large inlines in include/linux/netdevice.h
-Date: Thu, 22 Apr 2004 22:30:04 +0300
-User-Agent: KMail/1.5.4
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+	Thu, 22 Apr 2004 15:37:28 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:6538 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S264596AbUDVThQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 15:37:16 -0400
+Message-ID: <40881F1B.8060909@tmr.com>
+Date: Thu, 22 Apr 2004 15:38:03 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_80BiA88DF6mZt9z"
-Message-Id: <200404222230.04406.vda@port.imtp.ilyichevsk.odessa.ua>
+Newsgroups: mail.linux-kernel
+To: Bob Tracy <rct@gherkin.frus.com>
+CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] sym53c500_cs PCMCIA SCSI driver (new)
+References: <20040416130548.B5080@infradead.org> "from Christoph Hellwig at Apr 16, 2004 01:05:48 pm" <20040416141720.746ABDBEE@gherkin.frus.com>
+In-Reply-To: <20040416141720.746ABDBEE@gherkin.frus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bob Tracy wrote:
+> Christoph Hellwig wrote:
+> 
+>>I've given it a short spin and here's a bunch of comments:
+> 
+> 
+> Thank you for taking the time and trouble to review it.
+> 
+> 
+>> - the split into three source files is supserflous, one file should do it
+> 
+> 
+> Given that the driver currently supports only PCMCIA implementations,
+> I agree.  My thinking was if someone comes up with a host adapter that
+> isn't PCMCIA, the SYM53C500.c file is to the sym53c500_cs driver what
+> the qlogicfas.c file is to the qlogic_cs driver, that is, core functions
+> that could support multiple types of host adapters.  The logic to
+> handle the different types of adapters isn't there, and I don't know
+> that it ever will be (else, it's probable that someone would have
+> written the Linux driver long before now).  However, after baring my
+> ignorance to the world and saying I was unaware of non-PCMCIA
+> implementations, I found a FreeBSD driver for the NCR 53c500.  Never
+> say "never," I guess...  Your opinion counts for much, but you're the
+> only person I've heard from.  Is there a consensus I should forget
+> about the non-PCMCIA cases?
+> 
+> 
+>> - please don't use host.h or scsi.h from drivers/scsi/.  The defintions
+>>   not present in include/scsi/ are deprecated and shall not be used (the
+>>   most prominent example in your driver are the Scsi_<Foo> typedefs that
+>>   have been replaced by struct scsi_foo
+> 
+> 
+> I caught that in the coding style guidelines (and in the mentioned
+> include files), and will fix for the next submission.
+> 
+> 
+>> - the driver doesn't even try to deal with multiple HBAs
+> 
+> 
+> Guilty as charged.  Functionally, there's nothing in the driver I
+> submitted that wasn't in the original.  Suggestions welcome...  Which
+> of the existing PCMCIA SCSI drivers do a proper job of handling
+> multiple host adapters in your opinion?  I'll try to adapt that code to
+> fit this driver.  If I have to "roll my own" from scratch, I'm probably
+> in over my head.
+> 
+> 
+>> - your detection logic could be streamlined a little, e.g. the request/release
+>>   resource mess
+> 
+> 
+> I'll see what I can do.
+> 
+> Although I touched on it above, by way of apology/explanation, the goal
+> for the initial port was to replicate the functionality I already had in
+> older kernel versions.  It appears I faithfully replicated the
+> deficiencies of the old driver as well :-).  Again, thank you for the
+> feedback.
+> 
+> Anyone else have input before I act on the recommendations I've been
+> given?  Unless I hear otherwise, I'll start work on the code
+> consolidation and removal of dependencies on deprecated include files.
+> The detection logic and handling multiple HBAs will take a bit more
+> effort...
+> 
+WRT the split of code... if there is some reason why there will never be 
+another type of card then the split is unnessessary. But otherwise, 
+you've done the work, and it matches the way other drivers were split, 
+so why scrap it?
 
---Boundary-00=_80BiA88DF6mZt9z
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+As you guessed I don't feel strongly one way or the other, just thought 
+you could use a little support for having made the effort to design for 
+the future.
 
-Size =A0Uses Wasted Name and definition
-=3D=3D=3D=3D=3D =3D=3D=3D=3D =3D=3D=3D=3D=3D=3D =3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-   97  141  10780 netif_wake_queue      include/linux/netdevice.h
-  127   59   6206 dev_kfree_skb_any     include/linux/netdevice.h
-   73   83   4346 dev_kfree_skb_irq     include/linux/netdevice.h
-  131   39   4218 netif_device_attach   include/linux/netdevice.h
-   46   41   1040 netif_device_detach   include/linux/netdevice.h
-   44   31    720 netif_carrier_on      include/linux/netdevice.h
-   83    7    378 netif_schedule        include/linux/netdevice.h
-  112    7    552 __netif_rx_schedule   include/linux/netdevice.h
-  136    4    348 netif_rx_schedule     include/linux/netdevice.h
-   67    3     94 __netif_rx_complete   include/linux/netdevice.h
-   72    7    312 netif_rx_complete     include/linux/netdevice.h
-
-Patch deinlines netif_wake_queue, dev_kfree_skb_irq
-and __netif_rx_schedule. This in turn reduces size of
-netif_device_attach, dev_kfree_skb_any and netif_rx_schedule,
-which left inlined.
-
-Compile tested. With my usual .config:
-
-# size vmlinux.pre2 vmlinux
-   text    data     bss     dec     hex filename
-4449399 1113642  235488 5798529  587a81 vmlinux.pre2
-4438267 1113704  235488 5787459  584f43 vmlinux
-
-Please apply.
-=2D-
-vda
-
---Boundary-00=_80BiA88DF6mZt9z
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="netdevice.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="netdevice.patch"
-
-diff -urN linux-2.6.5.orig/include/linux/netdevice.h linux-2.6.5.netdevice/include/linux/netdevice.h
---- linux-2.6.5.orig/include/linux/netdevice.h	Sun Apr  4 06:38:18 2004
-+++ linux-2.6.5.netdevice/include/linux/netdevice.h	Thu Apr 22 22:17:25 2004
-@@ -605,15 +605,7 @@
- 	clear_bit(__LINK_STATE_XOFF, &dev->state);
- }
- 
--static inline void netif_wake_queue(struct net_device *dev)
--{
--#ifdef CONFIG_NETPOLL_TRAP
--	if (netpoll_trap())
--		return;
--#endif
--	if (test_and_clear_bit(__LINK_STATE_XOFF, &dev->state))
--		__netif_schedule(dev);
--}
-+void netif_wake_queue(struct net_device *dev);
- 
- static inline void netif_stop_queue(struct net_device *dev)
- {
-@@ -638,20 +630,7 @@
- /* Use this variant when it is known for sure that it
-  * is executing from interrupt context.
-  */
--static inline void dev_kfree_skb_irq(struct sk_buff *skb)
--{
--	if (atomic_dec_and_test(&skb->users)) {
--		struct softnet_data *sd;
--		unsigned long flags;
--
--		local_irq_save(flags);
--		sd = &__get_cpu_var(softnet_data);
--		skb->next = sd->completion_queue;
--		sd->completion_queue = skb;
--		raise_softirq_irqoff(NET_TX_SOFTIRQ);
--		local_irq_restore(flags);
--	}
--}
-+void dev_kfree_skb_irq(struct sk_buff *skb);
- 
- /* Use this variant in places where it could be invoked
-  * either from interrupt or non-interrupt context.
-@@ -814,20 +793,7 @@
-  * already been called and returned 1.
-  */
- 
--static inline void __netif_rx_schedule(struct net_device *dev)
--{
--	unsigned long flags;
--
--	local_irq_save(flags);
--	dev_hold(dev);
--	list_add_tail(&dev->poll_list, &__get_cpu_var(softnet_data).poll_list);
--	if (dev->quota < 0)
--		dev->quota += dev->weight;
--	else
--		dev->quota = dev->weight;
--	__raise_softirq_irqoff(NET_RX_SOFTIRQ);
--	local_irq_restore(flags);
--}
-+void __netif_rx_schedule(struct net_device *dev);
- 
- /* Try to reschedule poll. Called by irq handler. */
- 
-diff -urN linux-2.6.5.orig/net/core/dev.c linux-2.6.5.netdevice/net/core/dev.c
---- linux-2.6.5.orig/net/core/dev.c	Sun Apr  4 06:37:07 2004
-+++ linux-2.6.5.netdevice/net/core/dev.c	Thu Apr 22 22:17:22 2004
-@@ -3176,6 +3176,46 @@
- }
- #endif /* CONFIG_HOTPLUG_CPU */
- 
-+void netif_wake_queue(struct net_device *dev)
-+{
-+#ifdef CONFIG_NETPOLL_TRAP
-+	if (netpoll_trap())
-+		return;
-+#endif
-+	if (test_and_clear_bit(__LINK_STATE_XOFF, &dev->state))
-+		__netif_schedule(dev);
-+}
-+
-+void dev_kfree_skb_irq(struct sk_buff *skb)
-+{
-+	if (atomic_dec_and_test(&skb->users)) {
-+		struct softnet_data *sd;
-+		unsigned long flags;
-+
-+		local_irq_save(flags);
-+		sd = &__get_cpu_var(softnet_data);
-+		skb->next = sd->completion_queue;
-+		sd->completion_queue = skb;
-+		raise_softirq_irqoff(NET_TX_SOFTIRQ);
-+		local_irq_restore(flags);
-+	}
-+}
-+
-+void __netif_rx_schedule(struct net_device *dev)
-+{
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	dev_hold(dev);
-+	list_add_tail(&dev->poll_list, &__get_cpu_var(softnet_data).poll_list);
-+	if (dev->quota < 0)
-+		dev->quota += dev->weight;
-+	else
-+		dev->quota = dev->weight;
-+	__raise_softirq_irqoff(NET_RX_SOFTIRQ);
-+	local_irq_restore(flags);
-+}
-+
- 
- /*
-  *	Initialize the DEV module. At boot time this walks the device list and
-@@ -3285,6 +3325,9 @@
- EXPORT_SYMBOL(synchronize_net);
- EXPORT_SYMBOL(unregister_netdevice);
- EXPORT_SYMBOL(unregister_netdevice_notifier);
-+EXPORT_SYMBOL(netif_wake_queue);
-+EXPORT_SYMBOL(dev_kfree_skb_irq);
-+EXPORT_SYMBOL(__netif_rx_schedule);
- 
- #if defined(CONFIG_BRIDGE) || defined(CONFIG_BRIDGE_MODULE)
- EXPORT_SYMBOL(br_handle_frame_hook);
-
---Boundary-00=_80BiA88DF6mZt9z--
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

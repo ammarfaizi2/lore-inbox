@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263321AbSJCOM5>; Thu, 3 Oct 2002 10:12:57 -0400
+	id <S261286AbSJCOAa>; Thu, 3 Oct 2002 10:00:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263325AbSJCOM5>; Thu, 3 Oct 2002 10:12:57 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:11532 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S263321AbSJCOMx>; Thu, 3 Oct 2002 10:12:53 -0400
-Date: Thu, 3 Oct 2002 15:17:07 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Greg Ungerer <gerg@snapgear.com>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
-Subject: Re: Linux 2.5.40-ac1
-Message-ID: <20021003151707.A17513@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg Ungerer <gerg@snapgear.com>, linux-kernel@vger.kernel.org,
-	Alan Cox <alan@redhat.com>
-References: <3D9B8363.6030806@snapgear.com>
+	id <S261316AbSJCOAa>; Thu, 3 Oct 2002 10:00:30 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:23827 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S261286AbSJCOA3>; Thu, 3 Oct 2002 10:00:29 -0400
+Date: Thu, 3 Oct 2002 15:05:31 +0100
+From: John Levon <levon@movementarian.org>
+To: linux-kernel@vger.kernel.org
+Cc: kai-germaschewski@uiowa.edu
+Subject: Re: RfC: Don't cd into subdirs during kbuild
+Message-ID: <20021003140530.GA56233@compsoc.man.ac.uk>
+References: <Pine.LNX.4.44.0210022153090.10307-100000@chaos.physics.uiowa.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D9B8363.6030806@snapgear.com>; from gerg@snapgear.com on Thu, Oct 03, 2002 at 09:38:11AM +1000
+In-Reply-To: <Pine.LNX.4.44.0210022153090.10307-100000@chaos.physics.uiowa.edu>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *17x6bb-0002Wl-00*1KWDVfljkZw* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 09:38:11AM +1000, Greg Ungerer wrote:
-> What do you think about the separate mm/mmnommu directories
-> at the top level?  Should the mmnommu be merged into mm?
+On Wed, Oct 02, 2002 at 09:59:00PM -0500, Kai Germaschewski wrote:
 
-The sepearate one is horrible maintaince wise.  Please introduce
-CONFIG_MMU and try to make as many _files_ in mm/ conditional on
-those.  Else use the proper ways (cond_syscall(), inline stubs) to
-hide the differences.
+> ChangeSet@1.676, 2002-10-02 14:42:00-05:00, kai@tp1.ruhr-uni-bochum.de
+>   kbuild: Remove xfs vpath hack
 
+Why is it a hack ?
 
+>   xfs.o is built as one modules out of objects distributed into
+>   multiple subdirs. That is okay with the current kbuild, you just
+>   have to include the path for objects which reside in a subdir, then.
+>   
+>   xfs used vpath instead of explicitly adding the paths, which is
+>   inconsistent and conflicts e.g. with proper module version generation.
+
+So I must name the full path for each object in drivers/oprofile/ I
+include from arch/i386/oprofile/ then ?
+
+regards
+john

@@ -1,56 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316878AbSGSQJE>; Fri, 19 Jul 2002 12:09:04 -0400
+	id <S316864AbSGSQJX>; Fri, 19 Jul 2002 12:09:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316882AbSGSQJE>; Fri, 19 Jul 2002 12:09:04 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:45030 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316878AbSGSQJD>;
-	Fri, 19 Jul 2002 12:09:03 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-Date: Fri, 19 Jul 2002 11:08:44 -0400
-User-Agent: KMail/1.4.1
-References: <3D361091.13618.16DC46FB@localhost> <41821596.1026977488@[10.10.2.3]>
-In-Reply-To: <41821596.1026977488@[10.10.2.3]>
+	id <S316882AbSGSQJX>; Fri, 19 Jul 2002 12:09:23 -0400
+Received: from lockupnat.curl.com ([216.230.83.254]:13821 "EHLO
+	egghead.curl.com") by vger.kernel.org with ESMTP id <S316864AbSGSQJV>;
+	Fri, 19 Jul 2002 12:09:21 -0400
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: close return value
+References: <200207182347.g6INlcl47289@saturn.cs.uml.edu>
+From: "Patrick J. LoPresti" <patl@curl.com>
+Date: 19 Jul 2002 12:12:21 -0400
+In-Reply-To: <200207182347.g6INlcl47289@saturn.cs.uml.edu>
+Message-ID: <s5gsn2fr922.fsf@egghead.curl.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207191108.44659.frankeh@watson.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 18 July 2002 10:31 am, Martin J. Bligh wrote:
-> > Do you think the breakdown is realistic?
->
-> Here's a list of other things I am hoping to see merged:
->
-> shared pagetables
-> large page support
-> NUMA aware multipath IO
-> NUMA aware scheduler extensions
-> ia32 discontigmem support for NUMA machines
-> NUMA aware slab allocator
-> CONFIG_NONLINEAR (in some form, quite possibly a cut down version)
-> shared pagetables
-> large page support
-> rcu rtcache
-> rcu dcache
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+"Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
 
-Thanks Martin.
+> You check printf() and fprintf() then? Like this?
+> 
+> ///////////////////////////////////////////
+> void err_print(int err){
+>   const char *msg;
+>   int rc;
+> 
+>   msg = strerror(err);
+>   if(!msg) err_print(errno);
+> 
+>   do{
+>     rc = fprintf(stderr,"Problem: %s\n",msg);
+>   }while(rc<0 && errno==EINTR);
+>   if(rc<0) err_print(errno);
+> }
+> ///////////////////////////////////////////
 
-I am confident that we will have large page support in 2.5 by then ready and 
-tested as described at OLS.
+Wow, I hardly know where to begin.
 
--- 
--- Hubertus Franke  (frankeh@watson.ibm.com)
+I could point out that, at least according to my man page, fprintf()
+returns the number of characters printed; it tells you nothing about
+errors.  Also, fprintf() is a library funciton, not a system call, so
+you cannot expect it to put anything meaningful in errno.  (I am not
+sure whether these mistakes were part of your sarcasm or your
+ignorance.)
+
+Or I could ask, what part of "assertion failure" did you not
+understand?  Yes, the code above is idiotic.  But checking that
+fprintf() did not return zero, and calling abort() otherwise, is often
+the right thing to do.
+
+Yes, I exaggerated.  There are times when you can reasonably skip
+checking a system call for errors; namely, when you have coded
+defensively enough that any error can do no harm.  If you can show
+that the rest of your program operates correctly whether the call
+succeeded or not, then you can skip the error check.
+
+But my main point still holds: You should *not* skip error checks
+because you "know" that the error is "impossible".  It takes little
+experience with real-world systems to learn that the "impossible"
+happens with alarming frequency.  And when it does, aborting
+immediately is much better than proceeding, because your subsequent
+code is unpredictable and therefore dangerous when your assumptions
+have been violated.
+
+Once you have taken the hit of making a system call, the additional
+cost of checking the return value is irrelevant.  So do yourself and
+your users a favor and add the checks.
+
+> Get off your high horse.
+
+Actually, I would rather give others a lift to join me.  The view is
+pretty good from up here.
+
+ - Pat

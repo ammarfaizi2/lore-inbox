@@ -1,531 +1,371 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129495AbQKHB7G>; Tue, 7 Nov 2000 20:59:06 -0500
+	id <S129523AbQKHCDH>; Tue, 7 Nov 2000 21:03:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129523AbQKHB6q>; Tue, 7 Nov 2000 20:58:46 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48666 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129495AbQKHB6i>; Tue, 7 Nov 2000 20:58:38 -0500
-Subject: Linux 2.2.18pre20
-To: linux-kernel@vger.kernel.org
-Date: Wed, 8 Nov 2000 01:59:41 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130002AbQKHCC5>; Tue, 7 Nov 2000 21:02:57 -0500
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:30725 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S129523AbQKHCCj>; Tue, 7 Nov 2000 21:02:39 -0500
+Message-ID: <3A08B43C.BD477012@holly-springs.nc.us>
+Date: Tue, 07 Nov 2000 21:02:36 -0500
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <E13tKWd-00084X-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.18pre20
+In-Reply-To: <E13tKWd-00084X-00@the-village.bc.nu>
+Content-Type: multipart/mixed;
+ boundary="------------BEE5382C8DCF10D98996FFD5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok last call for 2.2.18. The PS/2 cases I've looked at all appear to be
-ghost PS/2 interfaces created due to the USB support fooling programs.
+This is a multi-part message in MIME format.
+--------------BEE5382C8DCF10D98996FFD5
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Break it if you can 8)
+64-bit printk.
 
-Alan
+-M
 
-[S/390 stuff isnt trivial to merge so will have to wait]
+Alan Cox wrote:
+> 
+> Ok last call for 2.2.18. The PS/2 cases I've looked at all appear to be
+> ghost PS/2 interfaces created due to the USB support fooling programs.
+--------------BEE5382C8DCF10D98996FFD5
+Content-Type: text/plain; charset=us-ascii;
+ name="printk.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="printk.patch"
 
-2.2.18pre20
-o	Fix ide-probe SMP build error			(Ian Morgan)
-o	Fix appletalk physical layer ioctl handling	(Andi Kleen)
-o	Sparc update					(Dave Miller)
-o	Update Stephen Tweedie's contact info		(Stephen Tweedie)
-o	Fix typo in esp and scsi_obsolete code		(Dave Miller)
-o	Bonding ioctl check fix				(Willy Tarreau)
-o	Fix ipv6 procfs bug				(Al Viro)
-o	Report PIV in proc as family 15 and uname as	(me)
-	model 6 as discussed
-o	Redo Intel cache decodes as code not tables	(me)
-	and add new ones  (based on updates by
-	Asit Mallick & Andrew Ip)
-o	Fix CMOS locking in machine_power_off paths	(me)
-o	Create build tree symlinks only if insmod is
-	new enough not to be confused by it		(Keith Owens)
-o	Fix cmsg handling				(Philippe Troin)
-o	Tiny xpds driver changes			(Dan Hollis)
-o	Fix vmalloc sign bug				(Ben LaHaise)
-o	SMBFS fixes/changes for find_next problems and	(Urban Widmark)
-	to avoid truncate bug in netapps
-o	Fix ntfs translation bug			(Anton Altaparmakov)
-o	Fix sparc problem with some soundcards and the	(Jedd Garzik)
-	_IOC magic
-o	Update ppa driver to v2.05			(Tim Waugh)
-
-
-2.2.18pre19
-o	Fix transproxy socket lookup			(Val Henson)
-o	Add ICS1893 PHY to the SiS900 driver		(Lei-Chun Chang)
-o	Fix documentation error in matroxfb		(Vsevolod Sipakov)
-o	Update IDE floppy maintainer			(Paul Bristow)
-o	Fix remaining cmos locking			(Paul Gortmaker)
-o	Fix sparc bitfield/compiler bits on sound	(Dave Miller)
-o	Update Pegasus USB driver			(Petko Manolov)
-o	Networking updates - move divert header		(Andi Kleen)
-o	Add ETH_P_ATM* defines				(Matti Aarnio)
-o	Fix one more missing GFP_KERNEL/sk->allocation	(Dave Miller)
-o	Fix ISDN multilink handler bug			(Kai Germaschewski)
-o	Fix ymfpci unload cases				(Kai Germaschewski)
-
-2.2.18pre18
-o	Fix off by one in net/ipv4/proc			(Dave Miller)
-o	Move the fpu emu patch that got away		(Dave Miller)
-o	K6 update for MTRR ability			(Dave Jones)
-o	Fix raid1/vm deadlock				(Marcelo Tosatti)
-o	Fix usb mouse userspace memory accesses		(David Woodhouse)
-o	Fix xpdsl if compiled in (typo)			(Arjan van de Ven)
-o	Rio fixes for modem handling. Fix a small (Patrick van de Lageweg)
-	generic serial bug
-o	IBMtr driver fixes for cable pulls, pcmcia	(Burt Silverman,
-	behaviour etc					 Mike Sullivan)
-o	Tidy up /dev/microcode messages			(Daniel Roesen)
-o	Add arpfilter					(Andi Kleen)
-o	IDE floppy updates for clik support, cleanups	(Paul Bristow)
-o	Fix irongate handling on Alpha			(Soohoon Lee)
-o	Fix HZ=100 assumption in aha152x.c		(me)
-o	Fix power management handling in i810 audio	(me)
-	(From an ALSA fix by Godmar Back)
-o	Put the NFS block default back to 4K		(Trond Myklebust)
-o	Fix misleading comment in printk code		(Riley Williams)
-o	Fix fbcon scroll back/paste bug			(Herbert Xu)
-o	Fix rtc_lock for ide-probe, and hd.c		(Richard Johnson)
-o	Backport of 2.4 PR_GET/SET_KEEPCAPS		(Brian Brunswick)
-	(from Chris Evans 2.4 code)
-o	LRU list corruption fix				(Andrea Arcangeli)
-o	Initial gcc 2.96+ support for kernel building	(H J Lu)
-	| Not a recommended compiler for production kernels...
-o	ALI silence clearing fix			(Ching-Ling Lee)
-o	Fix remaining old-style use of copy_strings	(Solar Designer)
-o	Better pci_resource_start macro for 2.2		(Jeff Garzik)
-o	Fix nbd deadlock				(Marcelo Tosatti)
-
-2.2.18pre17
-o	Move a few escaped m68k headers into the right	(me)
-	directory
-o	Backport 2.4 AF_UNIX garbage collect speedups	(Dave Miller)
-o	TCP fixes for NFS 				(Saadia Khan)
-o	Fix USB audio hangs				(David Woodhouse)
-o	Sparc64 dcache and exec fixes			(Dave Miller)
-o	Fix typing crap in divert.h			(Jeff Garzik)
-o	Use pkt_type in diverter, add maintainer info	(Dave Miller)
-o	Fix obscure NAT problem in FIB code		(Dave Miller)
-o	Fix sk->allocation in TCP sendmsg		(Marcelo Tossati)
-o	Elevator fixes					(Andrea Arcangeli)
-o	Allow broken_suid on NFS root			(Trond Myklebust)
-o	Fix net/ipv6/proc off by one bug		(Dave Miller)
-o	Fix AGP oops on Alpha				(Michal Jaegermann)
-o	MSR/CPUID init call fixes			(Arjan van de Ven)
-o	CS4281 sound hang fixes				(Thomas Woller)
-o	AX.25 comment updates, Joerg has moved email	(Joerg Reuter)
-
-2.2.18pre16
-o	Finally get the m68k tree merged		(Andrew McPherson
-							 and a cast of many)
-o	Bring the sparc back in line, make it build 	(Anton Blanchard)
-o	USB Bluetooth fixes/docs			(Greg Kroah-Hartman)
-o	Fix auth_null credentials bug			(Hai-Pao Fan)
-o	Update cpu flag names 				(Dave Jones)
-o	Console 'quiet' boot option as in 2.4		(Rusty Russell)
-o	Make the sx serial driver work again	(Patrick van de Lageweg)
-o	Fix negotation on the SYM53C1010		(Gerard Roudier)
-o	Fix alpha loops per jiffy			(Jay Estabrook)
-o	Fix pegasus to work with 2.2 kernels		(Greg Kroah-Hartman)
-o	Update plusb driver for 2.2.x			(Eric Ayers, 
-							 Deti Fliegl)
-o	Fix ohci to use __init				(Greg Kroah-Hartman)
-o	/sbin/hotplug support for USB as in 2.4		(Greg Kroah-Hartman)
-o	Update ksymoops url				(Keith Owens)
-o	Update the changes doc about gcc 		(Petri Kaukasoina)
-o	Fix AMD flag naming				(Ulrich Windl)
-o	Restore old block size on devices after a
-	partition scan (needed for powermac for one)	(Michael Schmitz)
-o	Fix GPL naming in SubmittingDrivers		(Mike Harris)
-o	NFSv3 server patches merge			(Dave Higgen)
-o	CS46xx changes					(Nils Faerber)
-o	Fix sys_nanosleep for >4GHz CPU changes		(me)
-	(Spotted by Ben Herrenschmidt)
-o	Fix pas rev D mixer				(??)
-o	Fix multiple spelling errors			(André Dahlqvist)
-o	ISDN updates					(Kai Germaschewski)
-o	XSpeed DSL driver				(Timothy Lee, 
-							 Dan Hollis)
-o	IDE multi-lun/single-lun handling		(Jens Axboe)
-o	Fix alpha generic trident sound support		(Rich Payne)
-o	Fix PPC for loops per jiffy			(Cort Dougan)
-
-2.2.18pre15
-o	Default msdos behaviour to old (small) letters	(me)
-	| An option 'big' goes with 'small'
-o	Fix define collision in cpqfc			(Arjan van de Ven)
-o	Fix case where scripts/kwhich isnt executable	(me)
-o	Alpha FPU divide fix				(Richard Henderson)
-o	Add ADMtek985 to the tulip list			(J Katz)
-o	Lose excess ymfpci debugging			(Rob Landley)
-o	Fix i2c bus id clash				(Russell King)
-o	Update the ARM vidc driver			(Russell King)
-o	Update the ARM am79c961a driver			(Russell King)
-o	Fix parport_pc build with no PCI		(Russell King)
-o	Fix ARM memzero					(Russell King)
-o	Update ARM for __init and __setup		(Russell King)
-o	Update ARM to loops_per_jiffy			(Russell King)
-o	Remove arm ecard debug messages			(Russell King)
-o	Fix ARM makefiles				(Russell King)
-o	Fix iph5526 driver to use mdelay		(Arjan van de Ven)
-o	Fix epca, dtlk, aha152x loops_per_sec bits	(Philipp Rumpf)
-o	Fix smp tlb invalidate and bogomip printing	(Philipp Rumpf)
-o	Fix NLS warnings				(Arjan van de Ven)
-o	Fix wavfront conversion to loops_per_jiffies	(me)
-o	Fix an audio problem and a sanyo changer 	(Jens Axboe)
-	problem
-o	Fix include bug with divert			(me)
-	| Alternate fix to Willy Tarreau's
-o	Fix Alpha for loops_per_jiffy			(Willy Tarreau)
-
-2.2.18pre14
-o	Reorder attributes in drm to work with gcc272	(me)
-o	GNU cross compilers are foo-bar-gcc 		(Russell King)
-o	Add extra strange pcnet32 ident			(Willy Tarreau)
-o	Since no vendor can get which right.. use a	(Miquel van Smoorenburg)
-	shell script instead
-	| Please nobody tell me this fails in some bash version!
-o	Should be using bash not bash2 (escaped debug)	(Petri Kaukasoina)
-o	spin_unlock_irq wrong debug mode printk		(Willy Tarreau)
-o	Fix pcxx for the loops changes			(Arjan van de Ven)
-o	Fix ov511/via-rhine name clash			(Arjan van de Ven)
-o	Fix bridge compile with loops_per_sec change	(Mitch Adair)
-o	8139too driver added				(Jeff Garzik)
-
-2.2.18pre13
-o	Change udelay to use loops_per tick		(Philipp Rumpf)
-	| Otherwise we bomb out at 2GHz which isnt far enough
-	| away with 1.4/1.6GHz stuff due out RSN
-o	Fix drivers using big delays to use mdelay	(me)
-o	Fix drivers that used loops_per_sec		(Philipp Rumpf, me)
-o	Fix yamaha PCI sound SMP bug			(Arjan van de Ven)
-o	Change to preferred USB init fix		(David Rees)
-o	Fix rio fix					(Arjan van de Ven)
-o	Catch the VT but no mouse case in init/main.c	(Arjan van de Ven)
-o	Fix the 'which' compiler stuff			(Horst von Brand,
-							 Peter Samuelson)
-	| Can someone verify for me this works on Slackware and
-	| on Caldera ?
-o	Add devfs include. Devfs wont be going into 2.2 (Richard Gooch)
-	but this again makes it easier to do 2.2/2.4
-	drivers.
-
-2.2.18pre12
-o	Fix cyrix MTRR handling bug 			(IIZUKA Daisuke)
-o	Fix ymfpci poll					(me, Arjan)
-o	Update radio-maestro, add Configure.help	(Adam Tla/lka>
-o	Fix rio/generic serial build bug		(Marcelo Tossati)
-o	USB build bug fix				(Arjan van de Ven)
-o	Fix missing ac97_codec.c return value		(Arjan van de Ven)
-o	Fix several warnings				(Arjan van de Ven)
-o	Made the PS/2 reconnect behaviour optional	(me)
-	| Its now 'psaux-reconnect' on the boot line
-o	Allow for newer Hauppauge with 4 ports		(Krischan Jodies)
-o	Switch sound drivers from library to object	(Arjan van de Ven)
-o	Kill the not working ac97 lock on the 810	(me)
-o	Automatically select older compilers for kernel
-	builds on Debian and RH				(Arjan van de Ven)
-o	Start volumes higher on ac97, teach the driver  (Rui Sousa)
-	about 5bit and 6bit codec precision and use
-	the mute bit.
-
-2.2.18pre11
-o	Kill bogus codec_id assignment			(Linus Torvalds)
-o	Update codec init code to handle id right	(me)
-o	Fix dead/clashing define for NFS		(Trond Myklebust)
-o	Remove the find_vga crap from bttv		(me)
-o	Fix return on probe failure for cadet		(Arjan van de Ven)
-o	Add missing configure.help stuff from 2.4test	(Alan Ford)
-o	Fix inia100/megaraid define clash		(Arjan van de Ven)
-o	__xchg marked as taking volatiles		(Arjan van de Ven)
-o	Fix vwsnd warning in sound core			(Arjan van de Ven)
-o	wdt_pci driver should return -EIO on error	(Arjan van de Ven)
-o	Fix init_adfs_fs warning			(Arjan van de Ven)
-o	Fix the joystick driver option parsing		(Arjan van de Ven)
-o	Update mkdep to handle // commenting		(Mike Klar)
-o	Thunderlan driver typo fixes			(Torben Mathiasen)
-o	Add KX133/KT133 stuff to the AGP/DRM 		(Jeff Nguyen)
-o	FIx multiple card bug in eepro driver		(Aristeu Filho)
-o	Initial YMF PCI native driver			(Pete Zaitcev)
-	| Based on Jaroslav's ALSA driver and I've tweaked it
-	| a bit and maybe broken it 8)
-o	Fix procfs unlink bugs				(Willy Tarreau)
-o	X.25 bugfix backport				(Henner Eisen)
-o	Fix incorrect free_dma on DMAless boxes		(Boria)
-o	Fix via audio driver merge			(Nick Lamb)
-o	Update plusb driver to 2.4 one			(Greg Kroah-Hartman)
-o	Put description info in wacom driver		(Greg Kroah-Hartman)
-o	Update both UHCI drivers to match 2.4test	(Greg Kroah-Hartman)
-o	Masquerade cleanup/warning fixes		(Horst von Brand)
-
-2.2.18pre10
-o	Add printk level to partition printk messages	(me)
-o	Fix bluesmoke address report/serialize		(Andrea Arcangeli)
-o	Add 2.4pre CPUID/MSR docs to 2.2.18pre		(Adrian Bunk)
-o	Update to the 2.4pre via audio driver		(Jeff Garzik)
-o	Fix small SMP race in set_current_state		(Andrea Arcangeli)
-o	Fix __KERNEL__ checks in sparc headers		(Dave Miller)
-o	Fix ADFS root directory bug added in pre9	(Russell King)
-o	Trap incorrect swap partition sizes		(Andries Brouwer)
-o	Fix nfsroot bootp/dhcp on sparc64		(Dave Miller)
-o	Tidy up tcp opt parsing				(Dave Miller)
-o	Check range on port range sysctl		(Dave Miller)
-o	Back out erroneous i2c.h change			(Arjan van de Ven)
-o	Fix trident hangs due to over zealous addition	(Eric Brombaugh)
-	of midi support
-o	Fix big endian/macro bug in ext2fs		(Andi Kleen)
-o	Bring dabusb driver into line with 2.4		(Greg Kroah-Hartman)
-o	Bring event drivers into line with 2.4		(Franz Sirl,
-							 Greg Kroah-Hartman)
-o	Fix usb help texts				(Greg Kroah-Hartman)
-o	Generic frame diverter				(Benoit Locher)
-o	Bring USB serial back into line with 2.4	(Greg Kroah-Hartman)
-o	Fix DVD driver rpc state bug			(Jens Axboe)
-o	Fix extra sunrpc printk				(Tim Mann)
-o	USB init tidy up				(Greg Kroah-Hartman)
-o	Allow PlanB video on generic PPC		(Michel Lanners)
-o	Doc fixes/trim cvs logs on isdn drivers		(Kai Germaschewski)
-o	USB hid, hub, ibmcam, dsbr100 devices updates	(Greg Kroah-Hartman)
-o	Return EAFNOSUPPORT for out of range families
-o	Fix SMP locking on floppy driver		(Jonathan Corbet)
-o	Add module author info to acm.c			(Greg Kroah-Hartman)
-o	Update CREDITS to reflect all the USB guys	(Greg Kroah-Hartman)
+diff -B --unidirectional-new-file --exclude-from=DiffExcludeList --recursive --unified linux-2.2.16/include/asm-alpha/div64.h linux/include/asm-alpha/div64.h
+--- linux-2.2.16/include/asm-alpha/div64.h	Wed Dec 31 19:00:00 1969
++++ linux/include/asm-alpha/div64.h	Fri Aug 11 20:04:18 2000
+@@ -0,0 +1,14 @@
++#ifndef __ALPHA_DIV64
++#define __ALPHA_DIV64
++
++/*
++ * Hey, we're already 64-bit, no
++ * need to play games..
++ */
++#define do_div(n,base) ({ \
++	int __res; \
++	__res = ((unsigned long) (n)) % (unsigned) (base); \
++	(n) = ((unsigned long) (n)) / (unsigned) (base); \
++	__res; })
++
++#endif
+diff -B --unidirectional-new-file --exclude-from=DiffExcludeList --recursive --unified linux-2.2.16/include/asm-arm/div64.h linux/include/asm-arm/div64.h
+--- linux-2.2.16/include/asm-arm/div64.h	Wed Dec 31 19:00:00 1969
++++ linux/include/asm-arm/div64.h	Fri Aug 11 20:05:41 2000
+@@ -0,0 +1,14 @@
++#ifndef __ASM_ARM_DIV64
++#define __ASM_ARM_DIV64
++
++/* We're not 64-bit, but... */
++#define do_div(n,base)						\
++({								\
++	int __res;						\
++	__res = ((unsigned long)n) % (unsigned int)base;	\
++	n = ((unsigned long)n) / (unsigned int)base;		\
++	__res;							\
++})
++
++#endif
++
+diff -B --unidirectional-new-file --exclude-from=DiffExcludeList --recursive --unified linux-2.2.16/include/asm-i386/div64.h linux/include/asm-i386/div64.h
+--- linux-2.2.16/include/asm-i386/div64.h	Wed Dec 31 19:00:00 1969
++++ linux/include/asm-i386/div64.h	Fri Aug 11 20:06:05 2000
+@@ -0,0 +1,17 @@
++#ifndef __I386_DIV64
++#define __I386_DIV64
++
++#define do_div(n,base) ({ \
++	unsigned long __upper, __low, __high, __mod; \
++	asm("":"=a" (__low), "=d" (__high):"A" (n)); \
++	__upper = __high; \
++	if (__high) { \
++		__upper = __high % (base); \
++		__high = __high / (base); \
++	} \
++	asm("divl %2":"=a" (__low), "=d" (__mod):"rm" (base), "0" (__low), "1" (__upper)); \
++	asm("":"=A" (n):"a" (__low),"d" (__high)); \
++	__mod; \
++})
++
++#endif
+diff -B --unidirectional-new-file --exclude-from=DiffExcludeList --recursive --unified linux-2.2.16/include/asm-m68k/div64.h linux/include/asm-m68k/div64.h
+--- linux-2.2.16/include/asm-m68k/div64.h	Wed Dec 31 19:00:00 1969
++++ linux/include/asm-m68k/div64.h	Fri Aug 11 20:06:57 2000
+@@ -0,0 +1,35 @@
++#ifndef _M68K_DIV64_H
++#define _M68K_DIV64_H
++
++/* n = n / base; return rem; */
++
++#if 1
++#define do_div(n, base) ({					\
++	union {							\
++		unsigned long n32[2];				\
++		unsigned long long n64;				\
++	} __n;							\
++	unsigned long __rem, __upper;				\
++								\
++	__n.n64 = (n);						\
++	if ((__upper = __n.n32[0])) {				\
++		asm ("divul.l %2,%1:%0"				\
++			: "=d" (__n.n32[0]), "=d" (__upper)	\
++			: "d" (base), "0" (__n.n32[0]));	\
++	}							\
++	asm ("divu.l %2,%1:%0"					\
++		: "=d" (__n.n32[1]), "=d" (__rem)		\
++		: "d" (base), "1" (__upper), "0" (__n.n32[1]));	\
++	(n) = __n.n64;						\
++	__rem;							\
++})
++#else
++#define do_div(n,base) ({					\
++	int __res;						\
++	__res = ((unsigned long) n) % (unsigned) base;		\
++	n = ((unsigned long) n) / (unsigned) base;		\
++	__res;							\
++})
++#endif
++
++#endif /* _M68K_DIV64_H */
+diff -B --unidirectional-new-file --exclude-from=DiffExcludeList --recursive --unified linux-2.2.16/include/asm-mips/div64.h linux/include/asm-mips/div64.h
+--- linux-2.2.16/include/asm-mips/div64.h	Wed Dec 31 19:00:00 1969
++++ linux/include/asm-mips/div64.h	Fri Aug 11 20:41:49 2000
+@@ -0,0 +1,20 @@
++/* $Id: div64.h,v 1.1.2.1 2000/08/12 00:41:49 zapman Exp $
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ */
++#ifndef _ASM_DIV64_H
++#define _ASM_DIV64_H
++
++/*
++ * Hey, we're already 64-bit, no
++ * need to play games..
++ */
++#define do_div(n,base) ({ \
++	int __res; \
++	__res = ((unsigned long) n) % (unsigned) base; \
++	n = ((unsigned long) n) / (unsigned) base; \
++	__res; })
++
++#endif /* _ASM_DIV64_H */
+diff -B --unidirectional-new-file --exclude-from=DiffExcludeList --recursive --unified linux-2.2.16/include/asm-ppc/div64.h linux/include/asm-ppc/div64.h
+--- linux-2.2.16/include/asm-ppc/div64.h	Wed Dec 31 19:00:00 1969
++++ linux/include/asm-ppc/div64.h	Fri Aug 11 20:07:41 2000
+@@ -0,0 +1,10 @@
++#ifndef __PPC_DIV64
++#define __PPC_DIV64
++
++#define do_div(n,base) ({ \
++int __res; \
++__res = ((unsigned long) n) % (unsigned) base; \
++n = ((unsigned long) n) / (unsigned) base; \
++__res; })
++
++#endif
+diff -B --unidirectional-new-file --exclude-from=DiffExcludeList --recursive --unified linux-2.2.16/include/asm-s390/div64.h linux/include/asm-s390/div64.h
+--- linux-2.2.16/include/asm-s390/div64.h	Wed Dec 31 19:00:00 1969
++++ linux/include/asm-s390/div64.h	Fri Aug 11 20:08:05 2000
+@@ -0,0 +1,10 @@
++#ifndef __S390_DIV64
++#define __S390_DIV64
++
++#define do_div(n,base) ({ \
++int __res; \
++__res = ((unsigned long) n) % (unsigned) base; \
++n = ((unsigned long) n) / (unsigned) base; \
++__res; })
++
++#endif
+diff -B --unidirectional-new-file --exclude-from=DiffExcludeList --recursive --unified linux-2.2.16/include/asm-sparc/div64.h linux/include/asm-sparc/div64.h
+--- linux-2.2.16/include/asm-sparc/div64.h	Wed Dec 31 19:00:00 1969
++++ linux/include/asm-sparc/div64.h	Fri Aug 11 20:08:25 2000
+@@ -0,0 +1,11 @@
++#ifndef __SPARC_DIV64
++#define __SPARC_DIV64
++
++/* We're not 64-bit, but... */
++#define do_div(n,base) ({ \
++	int __res; \
++	__res = ((unsigned long) n) % (unsigned) base; \
++	n = ((unsigned long) n) / (unsigned) base; \
++	__res; })
++
++#endif /* __SPARC_DIV64 */
+diff -B --unidirectional-new-file --exclude-from=DiffExcludeList --recursive --unified linux-2.2.16/include/asm-sparc64/div64.h linux/include/asm-sparc64/div64.h
+--- linux-2.2.16/include/asm-sparc64/div64.h	Wed Dec 31 19:00:00 1969
++++ linux/include/asm-sparc64/div64.h	Fri Aug 11 20:08:42 2000
+@@ -0,0 +1,14 @@
++#ifndef __SPARC64_DIV64
++#define __SPARC64_DIV64
++
++/*
++ * Hey, we're already 64-bit, no
++ * need to play games..
++ */
++#define do_div(n,base) ({ \
++	int __res; \
++	__res = ((unsigned long) n) % (unsigned) base; \
++	n = ((unsigned long) n) / (unsigned) base; \
++	__res; })
++
++#endif /* __SPARC64_DIV64 */
+diff -B --unidirectional-new-file --exclude-from=DiffExcludeList --recursive --unified linux-2.2.16/lib/vsprintf.c linux/lib/vsprintf.c
+--- linux-2.2.16/lib/vsprintf.c	Wed Aug  9 15:58:33 2000
++++ linux/lib/vsprintf.c	Fri Aug 11 20:13:09 2000
+@@ -14,6 +14,8 @@
+ #include <linux/string.h>
+ #include <linux/ctype.h>
  
-o	ipfw wrong allocation flag fix			(Rusty Russell)
-o	Implement Sun style lockf/nfs cache barriers	(Trond Myklebust)
-o	Updated ISI serial driver			(Multitech)
-	| You may well need their newer firmware set/loader for the
-	| later cards too
++#include <asm/div64.h>
++
+ unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base)
+ {
+ 	unsigned long result = 0,value;
+@@ -29,8 +31,8 @@
+ 			}
+ 		}
+ 	}
+-	while (isxdigit(*cp) && (value = isdigit(*cp) ? *cp-'0' : (islower(*cp)
+-	    ? toupper(*cp) : *cp)-'A'+10) < base) {
++	while (isxdigit(*cp) &&
++	       (value = isdigit(*cp) ? *cp-'0' : toupper(*cp)-'A'+10) < base) {
+ 		result = result*base + value;
+ 		cp++;
+ 	}
+@@ -46,14 +48,11 @@
+ 	return simple_strtoul(cp,endp,base);
+ }
+ 
+-/* we use this so that we can do without the ctype library */
+-#define is_digit(c)	((c) >= '0' && (c) <= '9')
+-
+ static int skip_atoi(const char **s)
+ {
+ 	int i=0;
+ 
+-	while (is_digit(**s))
++	while (isdigit(**s))
+ 		i = i*10 + *((*s)++) - '0';
+ 	return i;
+ }
+@@ -66,14 +65,7 @@
+ #define SPECIAL	32		/* 0x */
+ #define LARGE	64		/* use 'ABCDEF' instead of 'abcdef' */
+ 
+-#define do_div(n,base) ({ \
+-int __res; \
+-__res = ((unsigned long) n) % (unsigned) base; \
+-n = ((unsigned long) n) / (unsigned) base; \
+-__res; })
+-
+-static char * number(char * str, long num, int base, int size, int precision
+-	,int type)
++static char * number(char * str, long long num, int base, int size, int precision, int type)
+ {
+ 	char c,sign,tmp[66];
+ 	const char *digits="0123456789abcdefghijklmnopqrstuvwxyz";
+@@ -145,7 +137,7 @@
+ int vsprintf(char *buf, const char *fmt, va_list args)
+ {
+ 	int len;
+-	unsigned long num;
++	unsigned long long num;
+ 	int i, base;
+ 	char * str;
+ 	const char *s;
+@@ -156,7 +148,10 @@
+ 	int precision;		/* min. # of digits for integers; max
+ 				   number of chars for from string */
+ 	int qualifier;		/* 'h', 'l', or 'L' for integer fields */
++	                        /* 'z' support added 23/7/1999 S.H.    */
++				/* 'z' changed to 'Z' --davidm 1/25/99 */
+ 
++	
+ 	for (str=buf ; *fmt ; ++fmt) {
+ 		if (*fmt != '%') {
+ 			*str++ = *fmt;
+@@ -177,7 +172,7 @@
+ 		
+ 		/* get field width */
+ 		field_width = -1;
+-		if (is_digit(*fmt))
++		if (isdigit(*fmt))
+ 			field_width = skip_atoi(&fmt);
+ 		else if (*fmt == '*') {
+ 			++fmt;
+@@ -193,7 +188,7 @@
+ 		precision = -1;
+ 		if (*fmt == '.') {
+ 			++fmt;	
+-			if (is_digit(*fmt))
++			if (isdigit(*fmt))
+ 				precision = skip_atoi(&fmt);
+ 			else if (*fmt == '*') {
+ 				++fmt;
+@@ -206,7 +201,7 @@
+ 
+ 		/* get the conversion qualifier */
+ 		qualifier = -1;
+-		if (*fmt == 'h' || *fmt == 'l' || *fmt == 'L') {
++		if (*fmt == 'h' || *fmt == 'l' || *fmt == 'L' || *fmt =='Z') {
+ 			qualifier = *fmt;
+ 			++fmt;
+ 		}
+@@ -255,6 +250,9 @@
+ 			if (qualifier == 'l') {
+ 				long * ip = va_arg(args, long *);
+ 				*ip = (str - buf);
++			} else if (qualifier == 'Z') {
++				size_t * ip = va_arg(args, size_t *);
++				*ip = (str - buf);
+ 			} else {
+ 				int * ip = va_arg(args, int *);
+ 				*ip = (str - buf);
+@@ -290,16 +288,23 @@
+ 				--fmt;
+ 			continue;
+ 		}
+-		if (qualifier == 'l')
++		if (qualifier == 'L')
++			num = va_arg(args, long long);
++		else if (qualifier == 'l') {
+ 			num = va_arg(args, unsigned long);
+-		else if (qualifier == 'h') {
++			if (flags & SIGN)
++				num = (signed long) num;
++		} else if (qualifier == 'Z') {
++			num = va_arg(args, size_t);
++		} else if (qualifier == 'h') {
+ 			num = (unsigned short) va_arg(args, int);
+ 			if (flags & SIGN)
+-				num = (short) num;
+-		} else if (flags & SIGN)
+-			num = va_arg(args, int);
+-		else
++				num = (signed short) num;
++		} else {
+ 			num = va_arg(args, unsigned int);
++			if (flags & SIGN)
++				num = (signed int) num;
++		}
+ 		str = number(str, num, base, field_width, precision, flags);
+ 	}
+ 	*str = '\0';
 
-2.2.18pre9
-o	Fix usb module load oops			(Thomas Sailer)
-o	Bring USB boot drivers in line with 2.4t8	(Greg Kroah-Hartman)
-o	And USB print drivers				(Greg Kroah-Hartman)
-o	And USB Rio driver				(Greg Kroah-Hartman)
-o	And USB dc2xx driver				(Greg Kroah-Hartman)
-o	And USB mdc800 driver				(Greg Kroah-Hartman)
-o	NFSv3 support and NFS updates			(Trond Myklebust and co)
-o	Compaq 64bit/66Mhz PCI Fibrechannel driver	(Amy Vanzant-Hodge)
-o	Disable microtouch driver (doesnt work in 2.2	(Greg Kroah-Hartman)
-	currently)
-o	Update ADFS support				(Russell King)
-o	Update ARM arch specific code and includes	(Russell King)
-o	Update ARM specific drivers 			(Russell King)
-o	Use both fast and slow A20 gating on boot	(Kira Brown)
-	| if your box doesnt boot I want to know about it...
-	| Needed for stuff like the AMD Elan
+--------------BEE5382C8DCF10D98996FFD5--
 
-2.2.18pre8
-o	Fix mtrr compile bug				(Peter Blomgren)
-o	Alpha PCI boot up fix				(Michal Jaegermann)
-o	Fix vt/keyboard dependancy in USB config	(Arjan van de Ven)
-o	Fix sound hangs on cs4281			(Tom Woller)
-o	Fix Alpha vmlinuz.lds				(Andrea Arcangeli)
-o	Fix CDROMPLAYTRKIND bug, allow root to open	(Jens Axboe)
-	the cd door whenver.
-o	Update ov511 to match 2.4			(Greg Kroah-Hartman)
-o	Further devio.c fix				(Greg Kroah-Hartman)
-o	Update NR_TASKS comment				(Jarkko Kovala)
-o	Further sparc64 ioctl translator fixes		(Andi Kleen)
-
-2.2.18pre7
-o	Fix the AGP compile in bug			(Arjan van de Ven)
-o	Revert old incorrect syncppp state change	(Ivan Passos)
-o	Fix i810 rng to actually get built in		(Arjan van de Ven)
-o	Megaraid compile fix, joystick, mkiss fixes	(Arjan van de Ven)
-o	Kawasaki USB ethernet depends on net		(Arjan van de Ven)
-o	Compaq cpqarray update				(Charles White)
-o	Fix usb problem with no USB unit found		(Oleg Drokin)
-o	Driver for the radio on some maestro cards	(Adam Tlalka)
-o	Additional shared map support needed for sparc64(Dave Miller)
-o	Fix wdt_pci when compiled in			(me, Arjan van de Ven)
-o	Fix usb missing symbol when non modular		(Arjan van de Ven)
-o	Identify chip and also handle MTRR for the 	(me)
-	Cyrix III
-o	Allow binding to all ports multicast		(Andi Kleen)
-o	Bring USB docs up to date			(Greg Kroah-Hartman)
-o	Bring USB devio up to date			(Greg Kroah-Hartman)
-o	pci_resource_len null function for non PCI case	(Arjan van de Ven)
-o	Fix synchronous write off end of disk bug	(Jari Ruusu)
-
-2.2.18pre6
-o	Fix the IDE PCI not compiling bug		(Dag Wieers)
-o	Kill an escaped reference to vger.rutgers	(Dave Miller)
-o	Small rtl8139 fixups				(Jeff Garzik)
-o	Add USB bluetooth driver			(Greg Kroah-Hartman)
-o	Fix oops in visor driver			(Greg Kroah-Hartman)
-o	Remove some unneeded ext2 includes,fix a bug	(Andreas Dilger)
-	in the UFS code
-o	Fix rtc race between timer and rtc irq		(Andrea Arcangeli)
-o	Fix slow gettimeofday SMP race			(Andrea Arcangeli)
-o	Check lost_ticks in settimeofday to be more	(Andrea Arcangeli)
-	precise
-
-2.2.18pre5
-o	Added older VIA ide chipsets to the not to be	(me)
-	autotuned list
-o	Fix crash on boot problem with __setup stuff	(me)
-o	Small acenic fix				(Matt Domsch)
-o	Fix hfc_pci isdn driver				(Jens David)
-o	Fix smbfs configuration problem			(Urban Widmark)
-o	Emu10K wrapper/build fixes			(Rui Sousa)
-o	Small cleanups					(Arjan van de Ven)
-o	Fix sparc32 build bug				(Horst von Brand)
-o	Fix quota oops					(Martin Diehl)
-o	Add i810 random number driver			(Jeff Garzik)
-o	Clear suid bits on ext2 truncate as per SuS	(Andi Kleen)
-o	Fix illegal use of section attributes		(Arjan van de Ven)
-o	Documentation for nmi watchdog			(Marcelo Tosatti)
-o	Fix uninitialised variable warnings		(Arjan van de Ven)
-o	Save DR6 condition into the TSS			(Ryan Wallach)
-o	Add additional __init's to the kernel	(Andrzej M. Krzysztofowicz)
-o	Backport 2.4 wdt_pci driver			(JP Nollman, me)
-o	AGP i810 fixes					(Chip Salzenberg)
-o	UDMA support for ALI1543 & 1543C IDE devices	(ALI)
-o	2.4 MSR/CPUID driver backport			(Dave Jones, 
-								H Peter Anvin)
-o	Fix incorrect use of kernel v user ptr in NCPfs	(Petr Vandrovec)
-o	Updated scsi tape driver			(Kai Makisara)
-
-2.2.18pre4
-o	Remove the aacraid driver again, having looked	(me)
-	at what is needed to make it acceptable and 
-	debug it - Im dumping it back on Adaptec
-o	DAC960 update					(Leonard Zubkoff)
-o	Add setup vmlinuz.lds changes for Sparc		(Arjan van den Ven)
-o	Sparc updates for drm, ioctl and other		(Dave Miller)
-o	Megaraid driver update				(Peter Jarrett)
-o	Add cd volume 0 to the amp power off on the
-	crystal cs46xx					(Bill Nottingham)
-o	Fix IPV6 fragment and kfree bugs		(Alexey Kuznetsov)
-o	Fix emu10k build bug				(me)
-o	Emu10K driver upgrade. Adds emu-aps support	(Rui Sousa)
-o	Updated IBM serveraid driver to 4.20		(IBM)
-o	Ext2 block handling cleanup from 2.4		(Al Viro)
-o	Make the ATI128 driver modular			(Marcelo Tosatti)
-o	Fix megaraid build bug with gcc 2.7.2		(Arjan van de Ven)
-o	Fix some of the dquot races			(Jan Kara)
-o	x86 setup code cleanup				(Dave Jones)
-o	Implement 2.4 compatible __setup and __initcall	(Arjan van de Ven)
-o	Tidy up smp_call_function stuff			(Keitaro Yosimura)
-o	Remove 2.4 compat glue from cs4281 driver	(Marcelo Tosatti)
-o	Fix minor bugs in bluesmoke now someone actually
-	has a faulty CPU and logs			(me)
-o	Fix definition of IPV6_TLV_ROUTERALERT		(Dave Miller)
-o	Fix in6_addr, ip_decrease_ttl, other		(Dave Miller)
-	minor bits
-o	cp932 fixes					(Kazuki Yasumatsu)
-o	Updated gdth driver				(Andreas Koepf)
-o	Acenic update					(Jes Sorensen)
-o	Update USB serial drivers			(Greg Kroah-Hartman)
-o	Move pci_resource_len into pci compat		(Marcelo Tosatti)
-
-2.2.18pre3  (versus 2.2.17pre20)
-o	Clean up most of the compatibility macros	(me)
-	that various people use. I've systematically
-	moved the 100% correct ones to the headers
-	used in 2.4
-o	Fix newly introduced bug in kmem_cache_shrink	(Daniel Roesen)
-o	Further updates to symbios drivers		(Gerhard Roudier)
-o	Remove emu10K warning and mtrr warning		(Daniel Roesen)
-o	Fix symbol clash between cs4281 and esssolo1	(Arjan van de Ven)
-o	Fix acenic non modular/module build issues	(Arjan van de Ven)
-o	Fix bug in alpha csum_partial_copy that could	(Herbert Xu)
-	cause spurious EFAULTs
-o	Yet another eepro100 variant sighted		(Torben Mathiasen)
-o	Minor microcode.c final tweak			(Daniel Roesen)
-o	Document that ATIFB is now modular		(Marcelo Tosatti)
-o	Parport update					(Tim Waugh)
-o	First set of ext2 updates/fixes			(Al Viro)
-o	Bring smbfs back into line with 2.2		(Urban Widmark)
-	| This should make OS/2 work again
-o	Fix S/390 _stext (still doesnt build dasd)	(Kurt Roeckx)
-o	Remove unused vars in arch/i386/kernel/bios32.c	(Daniel Roesen)
-o	Update the DHCP initrd support			(Chip Salzenberg)
-o	Allow opening empty scsi removables like IDE
-	with O_NONBLOCK (needed for some ioctls)	(Chip Salzenberg)
-o	Back out vibra mixer change
-o	Fix error returns in sbni driver		(Dawson Engler)
-o	Initial merge of the aacraid driver		(Adaptec)
-	| Much deuglification left to be done here
-o	Report megaraid: on obscure megaraid error	(Daniel Deimert)
-	strings
-o	Add another CS4299 id string			(Mulder Tjeerd)
-
-2.2.18pre2  (versus 2.2.17pre20)
-
-o	Fix the compile problems with microcode.c	(Dave Jones, 
-							 Daniel Roesen)
-o	GDTH driver update 				(Achim Leubner)
-o	Fix mathsemu miuse of casting with asm		(??)
-o	Make msnd_pinnacle driver build on Alpha
-o	Acenic 0.45 fixes				(Chip Salzenberg)
-o	Compaq CISS driver (SA 5300)			(Charles White, 
-	+ cleanups					 me)
-	+ gcc 2.95 fixup
-o	Modularise pm2fb and atyfb
-o	Upgrade AMI Megaraid driver to 1.09		(AMI)
-o	Add DEC HSG80 and COMPAQ 'logical volume' to
-	scsi multilun list
-o	SK PCI FDDI driver support			(Schneider & Koch)
-o	Linux 2.2 USB backport				(Vojtech Pavlik)
-	backport 3 + further fixes from the USB list
-	+ mm/slab.c fix for cache destroy
-o	AGP driver backport				(XFree86, Precision
-	DRM driver backport				 Insight, XiG, HJ Lu, 
-							 VA Linux, 
-							 and others)
-
-2.2.18pre1  (versus 2.2.17pre20)
-
-o	Update symbios/ncr driver to 1.7.0/3.4.0	(Gerhard Roudier)
-o	Updated ATP870U driver				(ACard)
-o	Avoid running tq_scheduler stuff sometimes with	(Andrea Arcangeli)
-	interrupts off
-o	Futher cpu setup updates			(me)
-o	IBM MCA scsi driver updates			(Michael Lang)
-o	Fix incorrect out of memory handling in bttv	(Dawson Engler)
-o	Fix incorrect out of memory handling in buz	(Dawson Engler)
-o	Fix incorrect out of memory handling in qpmouse	(Dawson Engler)
-o	Fix error handling memory leak in ipddp		(Dawson Engler)
-o	Fix error handling memory leak in sdla		(Dawson Engler)
-o	Fix error handling memory leak in softoss	(Dawson Engler)
-o	Fix error handling memory leak in ixj 		(Dawson Engler)
-o	Fix error handling memory leak in ax25		(Dawson Engler)
-o	Merge the microcode driver from 2.4 into 2.2	(Tigran Aivazian)
-o	Fix skbuff handling bug in the smc9194 driver	(Arnaldo Melo)
-o	Make vfat use the same generation rules as	(H. Kawaguchi,
-	in windows 9x					 Chip Salzenberg)
-o	Fix oops in the CPQ array driver		(Arnaldo Melo)
-o	Fix ac97 codec not setting the id field		(Bill Nottingham)
-o	Further work on the cs46xx/CD power bits	(me)
-o	Synclink updates 				(Paul Fulgham)
-o	Synclink init bug fix				(Arnaldo Melo)
-o	Handle odd interrupts from toshiba floppies	(Alain Knaff)
-o	Fix trident driver build on nautilus Alpha	(Peter Petrakis)
-o	Add later sb16 imix support tot he sb driver	(Massimo Dal Zotto)
-o	Ignore luns that report can be connected, but	(Matt Domsch)
-	not currently
-o	Fix dereference after kfree in uart401.c	(Dawson Engler)
-o	Return correct SuS error code for an unknown	(Herbert Xu)
-	socket family
-o	Add sub window clipping to the bttv driver	(Thomas Jacob)
-o	Fix nfs cache locked messages			(Trond Myklebust)
-o	Fix the modutils misdocumentation		(Martin Douda)
-o	Remove bogus biosparm code from seagate.c	(Andries Brouwer)
-o	Return correct error code on failed fasync set	(Chip Salzenberg)
-o	Handle dcc resume with newer irc clients when	(Scottie Shore)
-	doing an irq masq
-
---
-Alan Cox <alan@lxorguk.ukuu.org.uk>
-Red Hat Kernel Hacker
-& Linux 2.2 Maintainer                        Brainbench MVP for TCP/IP
-http://www.linux.org.uk/diary                 http://www.brainbench.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

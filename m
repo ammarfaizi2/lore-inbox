@@ -1,34 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132130AbQLPTNu>; Sat, 16 Dec 2000 14:13:50 -0500
+	id <S129352AbQLPTiA>; Sat, 16 Dec 2000 14:38:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132236AbQLPTNk>; Sat, 16 Dec 2000 14:13:40 -0500
-Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:1029 "EHLO
-	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S132130AbQLPTNa>;
-	Sat, 16 Dec 2000 14:13:30 -0500
-Date: Sat, 16 Dec 2000 19:42:20 +0100
-From: f5ibh <f5ibh@db0bm.ampr.org>
-Message-Id: <200012161842.TAA21775@db0bm.ampr.org>
-To: kaos@ocs.com.au
-Subject: Re: 2.4.0-test13-pre2, unresolved symbols
-Cc: linux-kernel@vger.kernel.org
+	id <S129593AbQLPThw>; Sat, 16 Dec 2000 14:37:52 -0500
+Received: from pc7.prs.nunet.net ([199.249.167.77]:48900 "HELO
+	pc7.prs.nunet.net") by vger.kernel.org with SMTP id <S129352AbQLPThe>;
+	Sat, 16 Dec 2000 14:37:34 -0500
+Date: 16 Dec 2000 19:07:10 -0000
+Message-ID: <20001216190710.1514.qmail@pc7.prs.nunet.net>
+From: "Rico Tudor" <rico@patrec.com>
+To: linux-kernel@vger.kernel.org
+Subject: ServerWorks docs?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Keith,
-
-Keith Owens wrote :
->>/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o
->>/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol
->>rpc_wake_up_task
-
->Does this fix it?
-
-Yes, _this_ problem is fixed, thank you.
-
-Regards
-
-		Jean-Luc
+Does anyone have reference material for the ServerWorks northbridge?
+I want to add their chipsets to my ECC-monitoring utility, but their
+web site is little more than marketing drivel.  Plus, they don't respond
+to e-mail.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

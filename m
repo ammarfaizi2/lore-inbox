@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289272AbSCDK4h>; Mon, 4 Mar 2002 05:56:37 -0500
+	id <S291272AbSCDLHt>; Mon, 4 Mar 2002 06:07:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290843AbSCDK41>; Mon, 4 Mar 2002 05:56:27 -0500
-Received: from juguete.quim.ucm.es ([147.96.5.11]:59663 "EHLO
-	juguete.quim.ucm.es") by vger.kernel.org with ESMTP
-	id <S289272AbSCDK4R>; Mon, 4 Mar 2002 05:56:17 -0500
-Date: Mon, 4 Mar 2002 11:56:11 +0100 (CET)
-From: Ramon Garcia Fernandez <ramon@juguete.quim.ucm.es>
+	id <S291484AbSCDLHk>; Mon, 4 Mar 2002 06:07:40 -0500
+Received: from dsl-213-023-043-059.arcor-ip.net ([213.23.43.59]:60564 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S291272AbSCDLHb>;
+	Mon, 4 Mar 2002 06:07:31 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: I/O scheduling suggestion
-In-Reply-To: <Pine.LNX.4.33.0203031941040.842-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.21.0203041144000.21966-100000@juguete.quim.ucm.es>
+Subject: Ext2 Directory Index, updated
+Date: Mon, 4 Mar 2002 12:03:27 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16hqFb-0000co-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[I hope there is no problem is replaying to linux-kernel; I feel that
-this discussion should be public]
+After some considerable time letting this patch 'age', here's an update
+to 2.4.18:
 
-On Sun, 3 Mar 2002, Mark Hahn wrote:
+   http://people.nl.linux.org/~phillips/htree/htree-2.4.18
 
-> > Yes, but that I/O activity was originated by some task. So it must
-> > be possible to modify the page cache to keep track of that task.
-> 
-> you missed the point: the pagecache permits (encourages!) the
-> "responsibility" for IO to be shared among many procs.  for instance,
-> who is responsible for reading a particular page of glibc?
+The diff to 2.4.17 was provided by Ted Ts'o, and bug hunting/fixing by
+Chris Li (who has the rather interesting email address
+<chrisl@gnuchina.org>).  Chris is working on the Ext3 port as well.
 
-Although a IO action can benefit several processes, there is one that
-creates the request. If another process needs the same page while the
-first request has not been completed, its priority can be raised.
+Bill Irwin is providing loving care and attention to the hash function, so I 
+feel it's in good hands.
 
-> > That a process that is using the disk a lot would have less priority for
-> > i/o. Therefore the rest of the users would be better served. Futhermore,
-> 
-> that does not follow.  the issue is fairness, and linux already has
-> reasonably good IO fairness.  if you're worried about DOS, this wouldn't
-> solve it, since the DOSer just forks a bunch before submitting IO.
+Known Bug:
 
-It would be more fair to make the priority of a process that makes less IO
-higher. In this way, an interactive user that opens an editor is less
-bothered by an application that makes intensive access.
+  - highmem doesn't work (because the kmapping code is wrong)
 
-It gives more stability against a bogus application that takes too much
-memory.
+To Do:
 
-In order to avoid a denial of service, Linux could implement per session
-or per uid limits.
+  - Finalize hash function.
+  - Coalesce on delete.  I have to do this sooner rather than later,
+    since hash bucket fragmentation leads quickly to reduced leaf
+    fullness.
+  - Stable telldir cookie for NFS
+  - Ext2 util updates (in progress, Ted Ts'o)
+  - Miscellaneous source cleanups
 
-> 
-> > the acrobat reader or Mozilla that takes a lot of memory would not bring
-> > the machine down because of swapping, because that swapping would have
-> > less priority that the rest of i/o requests.
-> 
-> this is an excellent example of why better design is not obvious:
-> swapping often needs  the *highest* priority, since one small IO could
-> be preventing the whole system from making progress.
+Because of the unfinalized hash function, this patch is still for testing 
+only.
 
-But this case is the exception, not the rule. The normal behaviour of the
-system should be optimized for the most frequent case. To handle the
-exception, the process can tell the kernel by raising its priority.
-For instance, an unpriviledged application could be allowed to raise
-its priority for a limited time, so that it can, for instance, save the
-document and exit faster.
-
-Ramon
-
+-- 
+Daniel

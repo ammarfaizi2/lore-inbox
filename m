@@ -1,50 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264919AbSJPEgK>; Wed, 16 Oct 2002 00:36:10 -0400
+	id <S264918AbSJPEfR>; Wed, 16 Oct 2002 00:35:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264920AbSJPEgI>; Wed, 16 Oct 2002 00:36:08 -0400
-Received: from modemcable061.219-201-24.mtl.mc.videotron.ca ([24.201.219.61]:61060
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S264919AbSJPEgG>; Wed, 16 Oct 2002 00:36:06 -0400
-Date: Wed, 16 Oct 2002 00:29:00 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: sfrench@us.ibm.com
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2.5] CIFS connect.c return ipv4_connect value
-Message-ID: <Pine.LNX.4.44.0210160028050.1460-100000@montezuma.mastecende.com>
+	id <S264919AbSJPEfR>; Wed, 16 Oct 2002 00:35:17 -0400
+Received: from packet.digeo.com ([12.110.80.53]:40178 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264918AbSJPEfP>;
+	Wed, 16 Oct 2002 00:35:15 -0400
+Message-ID: <3DACEDE0.7FB25F02@digeo.com>
+Date: Tue, 15 Oct 2002 21:41:04 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.43
+References: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Oct 2002 04:41:05.0302 (UTC) FILETIME=[3CDD5B60:01C274CE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Index: linux-2.5.43/fs/cifs/connect.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.43/fs/cifs/connect.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 connect.c
---- linux-2.5.43/fs/cifs/connect.c	16 Oct 2002 03:46:04 -0000	1.1.1.1
-+++ linux-2.5.43/fs/cifs/connect.c	16 Oct 2002 04:27:52 -0000
-@@ -63,8 +63,6 @@
- int
- cifs_reconnect(struct TCP_Server_Info *server)
- {
--	int rc = 0;
+Linus Torvalds wrote:
+> 
+> A huge merging frenzy for the feature freeze,
+
+Doesn't compile on ia32 uniprocessor.  The owner of
+changeset 1.852 is hereby debited 31 CPUs.
+
+Also, non-IO_APIC kernels have not been linking for some time.
+
+Here is a quick fix for both problems.
+
+
+
+ include/asm-i386/apic.h |    4 ++--
+ include/asm-i386/smp.h  |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+--- 2.5.43/include/asm-i386/smp.h~mpparse-fix	Tue Oct 15 21:26:18 2002
++++ 2.5.43-akpm/include/asm-i386/smp.h	Tue Oct 15 21:26:31 2002
+@@ -37,6 +37,7 @@
+  #endif /* CONFIG_CLUSTERED_APIC */
+ #endif 
+ 
++#define BAD_APICID 0xFFu
+ #ifdef CONFIG_SMP
+ #ifndef __ASSEMBLY__
+ 
+@@ -65,7 +66,6 @@ extern void zap_low_mappings (void);
+  * the real APIC ID <-> CPU # mapping.
+  */
+ #define MAX_APICID 256
+-#define BAD_APICID 0xFFu
+ extern volatile int cpu_to_physical_apicid[NR_CPUS];
+ extern volatile int physical_apicid_to_cpu[MAX_APICID];
+ extern volatile int cpu_to_logical_apicid[NR_CPUS];
+--- 2.5.43/include/asm-i386/apic.h~mpparse-fix	Tue Oct 15 21:34:03 2002
++++ 2.5.43-akpm/include/asm-i386/apic.h	Tue Oct 15 21:34:05 2002
+@@ -7,8 +7,6 @@
+ #include <asm/apicdef.h>
+ #include <asm/system.h>
+ 
+-#ifdef CONFIG_X86_LOCAL_APIC
 -
- 	cFYI(1, ("\nReconnecting tcp session "));
+ #define APIC_DEBUG 0
  
- 	/* lock tcp session */
-@@ -75,8 +73,7 @@
- 	     ("\nState: 0x%x Flags: 0x%lx", server->ssocket->state,
- 	      server->ssocket->flags));
+ #if APIC_DEBUG
+@@ -17,6 +15,8 @@
+ #define Dprintk(x...)
+ #endif
  
--	ipv4_connect(&server->sockAddr, &server->ssocket);
--	return rc;
-+	return ipv4_connect(&server->sockAddr, &server->ssocket);
- }
- 
- int
++#ifdef CONFIG_X86_LOCAL_APIC
++
+ /*
+  * Basic functions accessing APICs.
+  */
 
--- 
-function.linuxpower.ca
-
+.

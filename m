@@ -1,85 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269586AbUKASxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S273245AbUKAS6t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269586AbUKASxG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 13:53:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S287887AbUKASxF
+	id S273245AbUKAS6t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 13:58:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S288609AbUKASyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 13:53:05 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:5248 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S287422AbUKASgh (ORCPT
+	Mon, 1 Nov 2004 13:54:12 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:63978 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S288238AbUKASpM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 13:36:37 -0500
-Date: Mon, 1 Nov 2004 19:36:31 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: linux-kernel@vger.kernel.org
-Subject: x86-64 numa: accessing memnodemap[] beyond its end
-Message-ID: <20041101183631.GA24023@vana.vc.cvut.cz>
+	Mon, 1 Nov 2004 13:45:12 -0500
+Date: Mon, 1 Nov 2004 19:46:15 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Florian Schmidt <mista.tapas@gmx.net>, Lee Revell <rlrevell@joe-job.com>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Message-ID: <20041101184615.GB32009@elte.hu>
+References: <1099227269.1459.45.camel@krustophenia.net> <20041031131318.GA23437@elte.hu> <20041031134016.GA24645@elte.hu> <20041031162059.1a3dd9eb@mango.fruits.de> <20041031165913.2d0ad21e@mango.fruits.de> <20041031200621.212ee044@mango.fruits.de> <20041101134235.GA18009@elte.hu> <20041101135358.GA19718@elte.hu> <20041101140630.GA20448@elte.hu> <1099324040.3337.32.camel@thomas>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1099324040.3337.32.camel@thomas>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-   what prevents function below (arch/x86_64/mm/numa.c) from accessing
-memnodemap[] beyond its end?  NODEMAPSIZE is 0xFF, so for first attempted
-bit shift 24 it attempts to access field 0x100000000 >> 24 = 0x100.
-Fortunately it survives as memnodemap[256] fortunately contains zero and
-not 0xFF or 0x01, but still it seems to me that some test for index
-overflow is missing here. 
-						Thanks,
-							Petr Vandrovec
 
+* Thomas Gleixner <tglx@linutronix.de> wrote:
 
-u8  memnodemap[NODEMAPSIZE];
+> >   http://redhat.com/~mingo/realtime-preempt/
+> > 
+> > Thomas, can you confirm that this kernel fixes the irqs-off latencies? 
+> > (the priority loop indeed was done with irqs turned off.)
+> 
+> The latencies are still there. I have the feeling it's worse than 0.6.2.
 
-int __init compute_hash_shift(struct node *nodes)
-{
-        int i;
-        int shift = 24;
-        u64 addr;
+what is the worst latency you can trigger with Florian's latest
+rtc_wakeup code? (please re-download it, there has been a recent update)
 
-        /* When in doubt use brute force. */
-        while (shift < 48) {
-                memset(memnodemap,0xff,sizeof(*memnodemap) * NODEMAPSIZE);
-                for (i = 0; i < numnodes; i++) {
-                        if (nodes[i].start == nodes[i].end)
-                                continue;
-                        for (addr = nodes[i].start;
-                             addr < nodes[i].end;
-                             addr += (1UL << shift)) {
-                                if (memnodemap[addr >> shift] != 0xff &&
-                                    memnodemap[addr >> shift] != i) {
-                                        printk(KERN_INFO
-                                            "node %d shift %d addr %Lx conflict %d\n",
-                                               i, shift, addr, memnodemap[addr>>shift]);
-                                        goto next;
-                                }
-                                memnodemap[addr >> shift] = i;
-                        }
-                }
-                return shift;
-        next:
-                shift++;
-        }
-        memset(memnodemap,0,sizeof(*memnodemap) * NODEMAPSIZE);
-        return -1;
-}
+also, there are no "arbitrary load" latency guarantees with
+DEADLOCK_DETECTION turned on, since we search the list of all held locks
+during task-exit time - this can generate pretty bad latencies e.g.
+during hackbench.
 
-Bootdata ok (command line is BOOT_IMAGE=2.6.10-1-424-64 ro root=801 ramdisk=0 video=matroxfb:vesa:0x11E,left:16,right:8,hslen:48,xres:1920,upper:2,vslen:4,lowe)
-Linux version 2.6.10-rc1-c2424 (root@vana) (gcc version 3.3.3 (Debian 20040401)) #2 SMP Mon Nov 1 15:43:42 CET 2004
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 0000000000100000 - 0000000040000000 (usable)
- BIOS-e820: 0000000100000000 - 0000000140000000 (usable)
-Scanning NUMA topology in Northbridge 24
-Number of nodes 2 (10010)
-Node 0 MemBase 0000000000000000 Limit 000000003fffffff
-Node 1 MemBase 0000000100000000 Limit 000000013fffffff
-node 1 shift 24 addr 100000000 conflict 0
-Using node hash shift of 25
-Bootmem setup node 0 0000000000000000-000000003fffffff
-Bootmem setup node 1 0000000100000000-000000013fffffff
-
-P.S.:  No, this setup does not come from standard BIOS.
+	Ingo

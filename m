@@ -1,83 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267645AbUHELON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267641AbUHELOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267645AbUHELON (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 07:14:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267640AbUHELMN
+	id S267641AbUHELOo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 07:14:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267646AbUHELOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 07:12:13 -0400
-Received: from zero.aec.at ([193.170.194.10]:18436 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S267643AbUHELKM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 07:10:12 -0400
-To: prasanna@in.ibm.com
-cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, ak@muc.de, akpm@osdl.org,
-       suparna@in.ibm.com
-Subject: Re: [1/3] kprobes-func-args-268-rc3.patch
-References: <2pMJz-13N-9@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 05 Aug 2004 13:09:46 +0200
-In-Reply-To: <2pMJz-13N-9@gated-at.bofh.it> (Prasanna S. Panchamukhi's
- message of "Thu, 05 Aug 2004 11:30:09 +0200")
-Message-ID: <m3acx9yh6t.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Aug 2004 07:14:41 -0400
+Received: from qserv01.quadrics.com ([194.202.174.11]:16052 "EHLO
+	qserv01.quadrics.com") by vger.kernel.org with ESMTP
+	id S267641AbUHELNu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 07:13:50 -0400
+Subject: pte_modify fix backport...
+From: Daniel J Blueman <daniel.blueman@quadrics.com>
+To: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       marcelo.tosatti@cyclades.com
+Content-Type: text/plain
+Organization: Quadrics Ltd
+Message-Id: <1091704431.1829.235.camel@pc107.quadrics.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 05 Aug 2004 12:13:51 +0100
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Aug 2004 11:08:31.0468 (UTC) FILETIME=[8AE20AC0:01C47ADC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prasanna S Panchamukhi <prasanna@in.ibm.com> writes:
-> traps again to restore processor state and switch back to the
-> probed function. Linus noted correctly at KS that we need to be 
-> careful as gcc assumes that the callee owns arguments. For the
-> time being we try to avoid tailcalls in the probe function; in 
-> the long run we should probably also save and restore enough 
-> stack bytes to cover argument space.
->
-> Sample Usage:
-> 	static int jip_queue_xmit(struct sk_buff *skb, int ipfragok)
-> 	{
-> 		... whatever ...
-> 		jprobe_return();
-> 		/*No tailcalls please */
-> 		return 0;
-> 	}
+This patch [1] corrects the behaviour of pte_modify() on ia64 to not
+clear page protection flags it shouldn't touch.
 
-I think you misunderstood Linus' suggestion.  The problem with
-modifying arguments on the stack frame is always there because the C
-ABI allows it. One suggested solution was to use a second function
-call that passes the arguments again to get a private copy. But the
-compiler's tail call optimization could sabotate that when you a
-are not careful.
+Without this patch, it clears the uncacheable flag on UC memory regions,
+which can cause MCAs with device I/O.
 
-That's all quite hackish and compiler dependent. I would suggest an 
-assembly wrapper that copies the arguments when !CONFIG_REGPARM.
-Just assume the function doesn't have more than a fixed number
-of arguments, that should be good enough.
+It was taken into 2.6.0 a while ago, but is yet to be included in 2.4 -
+the patch here is rediffed against 2.4.26-rc5.
 
-This way you avoid any subtle compiler dependencies.
-With CONFIG_REGPARM it's enough to just save/restore pt_regs,
-which kprobes will do anyways.
->  
->  static struct kprobe *current_kprobe;
->  static unsigned long kprobe_status, kprobe_old_eflags, kprobe_saved_eflags;
-> +static struct pt_regs kprobe_saved_regs;
-> +static long *kprobe_saved_esp;
-> +extern void show_registers(struct pt_regs *regs);
+Is there chance of it being taken in?
 
-Shouldn't that be in some header? 
+--- [1]
 
-  
-> +
-> +int longjmp_break_handler(struct kprobe *p, struct pt_regs *regs)
-> +{
-> +	u8 *addr = (u8 *)(regs->eip-1);
-> +
-> +	if ((addr > (u8 *)jprobe_return) && (addr < (u8 *)jprobe_return_end)) {
+diff -durN linux-2.4.26-rc5-orig/include/asm-ia64/pgtable.h linux-2.4.26-rc5-patched/include/asm-ia64/pgtable.h
+--- linux-2.4.26-rc5-orig/include/asm-ia64/pgtable.h	2004-02-18 13:36:32.000000000 +0000
++++ linux-2.4.26-rc5-patched/include/asm-ia64/pgtable.h	2004-08-05 11:46:03.000000000 +0100
+@@ -60,7 +60,8 @@
+ #define _PAGE_PROTNONE		(__IA64_UL(1) << 63)
+ 
+ #define _PFN_MASK		_PAGE_PPN_MASK
+-#define _PAGE_CHG_MASK		(_PFN_MASK | _PAGE_A | _PAGE_D)
++/* Mask of bits which may be changed by pte_modify(); the odd bits are there for _PAGE_PROTNONE */
++#define _PAGE_CHG_MASK		(_PAGE_P | _PAGE_PROTNONE | _PAGE_PL_MASK | _PAGE_AR_MASK | _PAGE_ED)
+ 
+ #define _PAGE_SIZE_4K	12
+ #define _PAGE_SIZE_8K	13
+@@ -216,7 +217,7 @@
+ ({ pte_t __pte; pte_val(__pte) = physpage + pgprot_val(pgprot); __pte; })
+ 
+ #define pte_modify(_pte, newprot) \
+-	(__pte((pte_val(_pte) & _PAGE_CHG_MASK) | pgprot_val(newprot)))
++	(__pte((pte_val(_pte) & ~_PAGE_CHG_MASK) | (pgprot_val(newprot) & _PAGE_CHG_MASK)))
+ 
+ #define page_pte_prot(page,prot)	mk_pte(page, prot)
+ #define page_pte(page)			page_pte_prot(page, __pgprot(0))
 
-It would be probably safer to use RELOC_HIDE on the function pointer here,
-just to be safe against future gcc optimizations
-
-The rest looks ok.
-
--Andi
+-- 
+Daniel J Blueman
+Software Engineer, Quadrics Ltd
 

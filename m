@@ -1,92 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262848AbVA2CzS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVA2D12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262848AbVA2CzS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 21:55:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbVA2CzS
+	id S261420AbVA2D12 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 22:27:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbVA2D12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 21:55:18 -0500
-Received: from web30207.mail.mud.yahoo.com ([68.142.200.90]:20883 "HELO
-	web30207.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S262850AbVA2Cyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 21:54:45 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=J2Oip9vGb0tKYjqdSWU7zY78GstERnIwrHAy9b/+L+cnk7WywtYFJbSklmmZkghpsw8MNeKQb7jdW0MEiAIEmNnba5C4byVx215uTecftXow051OonovGXtpOCWj9NIbcXtn5w0lj+JmocGjfDvpZHXh2/slezQFEyeYBDMmYg4=  ;
-Message-ID: <20050129025441.78952.qmail@web30207.mail.mud.yahoo.com>
-Date: Fri, 28 Jan 2005 18:54:41 -0800 (PST)
-From: Martins Krikis <mkrikis@yahoo.com>
-Subject: Re: [RFC PATCH 2.4] ata_piix on ich6r in RAID mode
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <41FAE72C.1010905@pobox.com>
-MIME-Version: 1.0
+	Fri, 28 Jan 2005 22:27:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52189 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261420AbVA2D1X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 22:27:23 -0500
+Date: Fri, 28 Jan 2005 22:27:20 -0500
+From: Bill Nottingham <notting@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: slab BUG in FC devel kernel, x86-64
+Message-ID: <20050129032720.GA7119@nostromo.devel.redhat.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The kernel in question is based on 2.6.11-rc2-bk4, FWIW.
 
---- Jeff Garzik <jgarzik@pobox.com> wrote:
+Transcribed by hand. Happened when rsyncing data onto
+a LVM-on-RAID1, sata_via controller. (root FS is on generic
+VIA IDE).
 
-> Martins Krikis wrote:
-> > Without this patch, if the BIOS of an ICH6R box has IDE set to
-> "RAID"
-> > mode then ata_piix will not find any SATA disks because it
-> incorrectly
-> > tries the legacy mode. With the patch all 4 SATA drives become
-> visible.
-> > I don't think it would break any other vendor's SATA, but you can
-> be
-> > the judge of that. If so, perhaps we can restrict the test some
-> more
-> > by checking vendor/device IDs.
-> 
-> > --- linux-2.4.29/drivers/scsi/libata-core.c	2005-01-28
-> 12:07:56.000000000 -0500
-> > +++ linux-2.4.29-iswraid/drivers/scsi/libata-core.c	2005-01-28
-> 12:14:43.000000000 -0500
-> > @@ -3605,6 +3605,9 @@ int ata_pci_init_one (struct pci_dev *pd
-> >  			legacy_mode = (1 << 3);
-> >  	}
-> >  
-> > +	if ((pdev->class >> 8) == PCI_CLASS_STORAGE_RAID)
-> > +		legacy_mode = 0;
-> > +
-> >  	/* FIXME... */
-> >  	if ((!legacy_mode) && (n_ports > 1)) {
-> >  		printk(KERN_ERR "ata: BUG: native mode, n_ports > 1\n");
-> 
-> 
-> hmmmmmm.  Maybe "!= PCI_CLASS_STORAGE_IDE" instead?
+slab: double free detected in cache 'size-128', objp ffff81000340bba8.
+Kernel BUG at slab:2188
+invalid operand: 0000 [1]
+CPU 0
+Modules linked in: md5 ipv6 parport_pc lp parport sunrpc ipt_REJECT ipt_state
+ ip-contrack iptable_filter ip_tables dm_mod video button battery ac raid1
+ ohci1394 ieee1394 uhci_hcd ehci_hcd i2c_viapro i2c_core snd_via82xx
+ snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd_page_alloc
+ gameport snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore via_rhine
+ mii floppy ext3 jbd sata_via libata sd_mod scsi_mod
+Pid: 161, comm: kswapd0 Not tainted 2.6.10-1.1115_FC4
+RIP: 0010:[<ffffffff80168e9e>] <ffffffff80168e9e>{free_block+208}
+RSP: 0018:ffff81003bde9cd8  EFLAGS: 00010092
+RAX: 000000000000004a RBX: ffff81000340b000 RCX: ffffffff8042e010
+RDX: ffffffff8042e010 RSI: 0000000000000001 RDI: ffff81003a82a7d0
+RBP: ffff81003bfef640 R08: ffffffff8042e010 R09: ffff81001dafdd78
+R10: 0000000100000000 R11: 0000ffff8044bd20 R12: ffff81000340bba8
+R13: 0000000000000013 R14: ffff81000340b028 R15: 0000000000000013
+FS:  00002aaaaaaba3a0(0000) GS:ffffffff8050d880(0000) knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 00002aaaaaaac000 CR3: 000000000b36d000 CR4: 00000000000006e0
+Process kswapd0 (pid: 161, threadinfo ffff81003bde8000, task ffff81003bd5d070)
+Stack: 0000000000000001 ffff81003bfe9698 000000101a285a78 ffff81003bfef640
+       0000000000000010 ffff81003bfe9688 ffff81003bfe9698 0000000000000000
+       0000000000000080 ffffffff801690c1
+Call Trace:<ffffffff801690c1>{cache_flusharray+242} <ffffffff80168c22>{kfree+156}
+       <ffffffff801a4c89>{destroy_inode+41} <ffffffff801a509c>{dispose_list+95}
+       <ffffffff801a5e80>{shrink_icache_memory+993} <ffffffff8016c4cb>{shrink_slab+188}
+       <ffffffff8016e112>{balance_pgdat+547} <ffffffff8016e331>{kswapd+260}
+       <ffffffff801508b1>{autoremove_wake_function+0} <ffffffff801508b1>{autoremove_wake_function+0}
+       <ffffffff801508b1>{autoremove_wake_function+0} <ffffffff8012f75b>{schedule_tail+11}
+       <ffffffff8010f327>{child_rip+8} <ffffffff8016e22d>{kswapd+0}
+       <ffffffff8010f31f>{child_rip+0}
 
-Yes, that's much better. No need to even read the programming IF
-byte unless the class code identifies it as an IDE controller.
-
-> Overall, however, I am worried about your report of the driver's 
-> behavior based on that BIOS's configuration.  The driver follows the
-> PCI 
-> IDE standard (previously SFF 8038i), where a register indicates
-> whether 
-> its in legacy or native mode.  As it see it, either
-> a) the driver logic for reading that register is wrong, or
-> b) BIOS incorrectly configuring the device, or
-> c) that register is only applicable for PCI_CLASS_STORAGE_IDE
-> devices.
-> 
-> Comments either way?
-
-I'd say "c". I don't have the spec, but my PCI course-book
-seems to imply so. I could send a new patch but I can't
-verify it just yet---the board decided to stop booting...
-
-  Martins
-
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - Easier than ever with enhanced search. Learn more.
-http://info.mail.yahoo.com/mail_250
+Code: 0f 0b 21 f1 36 80 ff ff ff ff 8c 08 0f b7 43 24 48 89 de 48
+RIP <ffffffff80168e9e>{free_block+208} RSP <ffff81003bde9cd8>

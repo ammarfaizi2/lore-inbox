@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293207AbSBWVKs>; Sat, 23 Feb 2002 16:10:48 -0500
+	id <S293209AbSBWVZ7>; Sat, 23 Feb 2002 16:25:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293210AbSBWVKg>; Sat, 23 Feb 2002 16:10:36 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4112 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293207AbSBWVKY>; Sat, 23 Feb 2002 16:10:24 -0500
-Subject: Re: [PATCH] Lightweight userspace semaphores...
-To: lm@bitmover.com (Larry McVoy)
-Date: Sat, 23 Feb 2002 21:22:59 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds), mingo@elte.hu (Ingo Molnar),
-        rusty@rustcorp.com.au (Rusty Russell),
-        matthew@hairy.beasts.org (Matthew Kirkwood),
-        bcrl@redhat.com (Benjamin LaHaise), david@mysql.com (David Axmark),
-        wli@holomorphy.com (William Lee Irwin III),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020223102805.F11156@work.bitmover.com> from "Larry McVoy" at Feb 23, 2002 10:28:05 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293213AbSBWVZt>; Sat, 23 Feb 2002 16:25:49 -0500
+Received: from mustard.heime.net ([194.234.65.222]:30944 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S293209AbSBWVZo>; Sat, 23 Feb 2002 16:25:44 -0500
+Date: Sat, 23 Feb 2002 22:25:37 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Promise 20269 support?
+In-Reply-To: <E16ejba-00068Z-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0202232223590.13846-100000@mustard.heime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16ejdD-000690-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Exactly.  SMP gives you coherent memory and test-and-set or some other
-> atomic operation.  Why not use it?
+> > Does anyone know when (or if) the PDC20269 driver will be merged into the
+> > official 2.4 kernel?
+>
+> With luck 2.4.19
+>
 
-Coherent memory on some platforms, locks on some platforms. Fortunately both
-on several important architectures. It needs a much cleaner API but in
-user space to wrap the user mode/kernel mode mixed locks. You need the
-kernel side for sleeping cases
+What's the problem with it? I've been using the current one for a couple
+of months without any problems, and I have tested it with a
+half-a-terabyte RAID-0 with really high load. It's never let me down...
+
+roy
+--
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

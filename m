@@ -1,54 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263926AbTKTH2C (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 02:28:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264027AbTKTH2C
+	id S264184AbTKTHo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 02:44:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbTKTHo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 02:28:02 -0500
-Received: from c-213-160-43-40.customer.ggaweb.ch ([213.160.43.40]:9221 "EHLO
-	sco01.cobalt.webhostings.ch") by vger.kernel.org with ESMTP
-	id S263926AbTKTH2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 02:28:00 -0500
-Message-ID: <3FBC6728.7030504@sensaco.com>
-Date: Thu, 20 Nov 2003 08:03:04 +0100
-From: George Fankhauser <gfa@sensaco.com>
-Reply-To: gfa@sensaco.com
-Organization: http://www.sensaco.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: setcontext syscall
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Nov 2003 02:44:29 -0500
+Received: from waste.org ([209.173.204.2]:8873 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S264184AbTKTHo1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 02:44:27 -0500
+Date: Thu, 20 Nov 2003 01:44:05 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH][2.6-mm] Fix 4G/4G X11/vm86 oops
+Message-ID: <20031120074405.GG22139@waste.org>
+References: <Pine.LNX.4.53.0311181113150.11537@montezuma.fsmlabs.com> <Pine.LNX.4.44.0311180830050.18739-100000@home.osdl.org> <20031119203210.GC22139@waste.org> <20031119230928.GE22139@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031119230928.GE22139@waste.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there!
+On Wed, Nov 19, 2003 at 05:09:28PM -0600, Matt Mackall wrote:
+> On Wed, Nov 19, 2003 at 02:32:10PM -0600, Matt Mackall wrote:
+> > 
+> > Zwane's got a K6-2 500MHz. I've just managed to reproduce this on my
+> > 1.4GHz Opteron box (with Debian gcc 3.2). Here, the "ooh la la" bit
+> > doesn't help. So my suspicion is that the printk is changing the
+> > timing just enough on Zwane's box that he's getting a timer interrupt
+> > knocking him out of vm86 mode before he hits a fatal bit in the fault
+> > handling path for 4/4. Printks in handle_vm86_trap, handle_vm86_fault,
+> > do_trap:vm86_trap, and do_general_protection:gp_in_vm86 never fire so
+> > there's probably something amiss in the trampoline code.
+> 
+> Some more datapoints:
+> 
+> CPU          distro          compiler  video        X     result
+> K6-2/500     connectiva 9    2.96      trident      4.3   reboot (zwane)
+> K6-2/500     connectiva 9    3.2.2     trident      4.3   reboot (zwane)
+> Opteron 240  debian unstable 3.2       S3           4.2.1 reboot
+> Athlon 2100  debian unstable 3.2       radeon 7500  4.2.1 works
+> P4M 1800     debian unstable 3.2       radeon m7    4.2.1 reboot
 
-I wonder why linux i386 does not implement setcontext as a syscall. 
-Instead it's in in glibc in userspace.
+And indeed it does turn out to be a problem with the trampoline
+mechanics. The fix for -mm4:
 
-The problem that one may run into is with asynchronous signals such as 
-SIGALRM, VTALRM, and IO: Let's say you have good reason to block such 
-signals because your handling one of them and want to restore another 
-user context which has them enabled in its sigmask. What sigcontext 
-simply does is
-1. trap into sigprocmask
-2. restore all regs and jump
-after exit of 1) until jump in 2) there is plenty of time to run into 
-another asynchronous signal which must be detected in the nested handler 
-etc. This is rather ugly.
-I see this as a main reason to put setcontext into the kernel. Another 
-one is performance: since we use sigprocmask, a syscall is used anyway.
-And BTW: All SysV implementations use indeed syscalls for set/getcontext 
-for these reasons.
 
-What do you think?
+Fix triple faulting on some boxes with 4G/4G
 
-regards
-George
+
+ mm-mpm/arch/i386/kernel/vm86.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN arch/i386/kernel/vm86.c~virtual-esp arch/i386/kernel/vm86.c
+--- mm/arch/i386/kernel/vm86.c~virtual-esp	2003-11-20 01:36:32.000000000 -0600
++++ mm-mpm/arch/i386/kernel/vm86.c	2003-11-20 01:36:32.000000000 -0600
+@@ -306,7 +306,7 @@ static void do_sys_vm86(struct kernel_vm
+ 	tss->esp0 = virtual_esp0(tsk);
+ 	if (cpu_has_sep)
+ 		tsk->thread.sysenter_cs = 0;
+-	load_esp0(tss, &tsk->thread);
++	load_virtual_esp0(tss, tsk);
+ 	put_cpu();
+ 
+ 	tsk->thread.screen_bitmap = info->screen_bitmap;
+
+_
+ 
+
 -- 
-Sensaco GmbH
-mailto:gfa@sensaco.com
-
+Matt Mackall : http://www.selenic.com : Linux development and consulting

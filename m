@@ -1,75 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262353AbVBKVkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262354AbVBKVod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbVBKVkN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 16:40:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVBKVkN
+	id S262354AbVBKVod (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 16:44:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbVBKVod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 16:40:13 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:37510 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262353AbVBKVjx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 16:39:53 -0500
-Subject: Re: Ext2/3 32-bit stat() wrap for ~2TB files
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       "Theodore Ts'o" <tytso@mit.edu>, Alex Tomas <alex@clusterfs.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050211212736.GD16520@schnapps.adilger.int>
-References: <1108155135.1944.196.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050211212736.GD16520@schnapps.adilger.int>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1108157964.1944.209.camel@sisko.sctweedie.blueyonder.co.uk>
+	Fri, 11 Feb 2005 16:44:33 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:48802 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262354AbVBKVmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 16:42:50 -0500
+Date: Fri, 11 Feb 2005 21:42:48 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, agk@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] device-mapper: multipath
+Message-ID: <20050211214248.GA16070@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, agk@redhat.com,
+	linux-kernel@vger.kernel.org
+References: <20050211171506.GX10195@agk.surrey.redhat.com> <20050211173143.GA11278@infradead.org> <20050211133632.2277fed9.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Fri, 11 Feb 2005 21:39:25 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050211133632.2277fed9.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Fri, 2005-02-11 at 21:27, Andreas Dilger wrote:
-
-> > Trouble is, that limit *should* be an i_blocks limit, because i_blocks
-> > is still 32-bits, and (more importantly) is multiplied by the fs
-> > blocksize / 512 in stat(2) to return st_blocks in 512-byte chunks. 
-> > Overflow 2^32 sectors in i_blocks and stat(2) wraps.
+On Fri, Feb 11, 2005 at 01:36:32PM -0800, Andrew Morton wrote:
+> Christoph Hellwig <hch@infradead.org> wrote:
+> >
+> > > +EXPORT_SYMBOL(dm_register_path_selector);
+> >  > +EXPORT_SYMBOL(dm_unregister_path_selector);
+> > 
+> >  I though we agreed to only allow GPL'ed path selectors at OSDL?
 > 
-> I agree.  The problem AFAIR is that the i_blocks accounting is done in
-> the quota code, so it was a challenge to get it right, and the i_size
-> limit was easier to do.
+> (OSDL?)
 
-The i_size limit is also wrong for dense files; I'd be satisfied with
-just getting it right!  i_blocks handling through the quota calls is
-cleaner these days, but I don't think that's a particularly satisfactory
-solution --- reaching maximum file size has all sorts of specific
-semantics such as sending SIGXFSZ which you don't really want to have to
-replicate.
-
->   Until now I don't think anyone has created
-> dense 2TB files, so the sparse limit was enough.
-
-Yep.
-
-> Note also that there was a patch to extend i_blocks floating around
-> (pretty small hack to use one of the reserved fields), and it might make
-> sense to get this into the kernel before we actually need it.
-
-True, but it's not really a problem right now --- i_blocks is counted in
-fs blocksize units, so we're nowhere near overflowing that.  It's only
-when stat() converts it to st_blocks' 512-byte units that we get into
-trouble within the kernel.
-
-> > 	if (res > (512LL << 32) - (1 << bits))
-> > 		res = (512LL << 32) - (1 << bits);
-> 
-> So, for the quick fix we could reduce this by the number of expected
-> [td]indirect blocks and submit that to 2.4 also.
-
-Agreed.
-
---Stephen
+Argg, I meant OLS, sorry.
 

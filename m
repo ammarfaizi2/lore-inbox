@@ -1,34 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbUKMOul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbUKMOy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262765AbUKMOul (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 09:50:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262764AbUKMOtK
+	id S262766AbUKMOy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 09:54:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbUKMOy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 09:49:10 -0500
-Received: from h151_115.u.wavenet.pl ([217.79.151.115]:54693 "EHLO
-	alpha.polcom.net") by vger.kernel.org with ESMTP id S262763AbUKMOsd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 09:48:33 -0500
-Date: Sat, 13 Nov 2004 15:48:25 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove ancient SCSI ChangeLog
-In-Reply-To: <20041113140541.GY2249@stusta.de>
-Message-ID: <Pine.LNX.4.60.0411131546340.30488@alpha.polcom.net>
-References: <20041113140541.GY2249@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 13 Nov 2004 09:54:27 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4370 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262766AbUKMOyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 09:54:24 -0500
+Date: Sat, 13 Nov 2004 15:53:51 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Robert Olsson <robert.olsson@its.uu.se>
+Cc: davem@davemloft.net, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [patch] net/core/pktgen.c shouldn't include pci.h
+Message-ID: <20041113145351.GZ2249@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Nov 2004, Adrian Bunk wrote:
+If rebuilding after touching pci.h in 2.6, net/core/pktgen.c is the only 
+file under net/ that gets rebuilt.
 
-> Documentation/scsi/ChangeLog wasn't updated for nearly 8 years.
+I searched and didn't find any reason why net/core/pktgen.c needs to 
+include pci.h .
 
-So maybe it is protected because of historical value? :-)
+I'm therefore suggesting the patch below (applies against both 2.4
+and 2.6).
 
 
-Grzegorz Kulewski
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc1-mm5-full/net/core/pktgen.c.old	2004-11-13 14:37:43.000000000 +0100
++++ linux-2.6.10-rc1-mm5-full/net/core/pktgen.c	2004-11-13 14:40:07.000000000 +0100
+@@ -69,7 +69,6 @@
+ #include <linux/ioport.h>
+ #include <linux/slab.h>
+ #include <linux/interrupt.h>
+-#include <linux/pci.h>
+ #include <linux/delay.h>
+ #include <linux/init.h>
+ #include <linux/inet.h>
+
 

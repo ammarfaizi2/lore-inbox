@@ -1,30 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314293AbSDRKeu>; Thu, 18 Apr 2002 06:34:50 -0400
+	id <S314294AbSDRKrp>; Thu, 18 Apr 2002 06:47:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314294AbSDRKet>; Thu, 18 Apr 2002 06:34:49 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32013 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314293AbSDRKes>; Thu, 18 Apr 2002 06:34:48 -0400
-Subject: Re: [RFC] 2.5.8 sort kernel tables
-To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
-Date: Thu, 18 Apr 2002 11:52:50 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020418102105.GB7884@merlin.emma.line.org> from "Matthias Andree" at Apr 18, 2002 12:21:05 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S314295AbSDRKro>; Thu, 18 Apr 2002 06:47:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64017 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314294AbSDRKro>;
+	Thu, 18 Apr 2002 06:47:44 -0400
+Message-ID: <3CBEA42B.5707A305@zip.com.au>
+Date: Thu, 18 Apr 2002 03:47:07 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Hans-Peter Jansen <hpj@urpla.net>
+CC: Mel <mel@csn.ul.ie>, linux-kernel@vger.kernel.org
+Subject: Re: page_alloc.c comments patch
+In-Reply-To: <Pine.LNX.4.44.0204180306050.4760-100000@skynet> <20020418103219.3ADBAEC@shrek.lisa.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16y9X0-0004LY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Any real-world figures on how long this sort process would take on big
-> tables on some sparc or i586 class box? (Just trying to figure if bubble
-> is really adequate. It is if the table is indeed essentially sorted with
-> only like 10 reversed neighbours or if it's short.)
+Hans-Peter Jansen wrote:
+> 
+> On Thursday, 18. April 2002 04:26, Mel wrote:
+> > This patch is a first cut effort at commenting how the buddy algorithm
+> > works for allocating and freeing blocks of pages. No code is changed so
+> > the impact is minimal to put it mildly
+> 
+> Sure?
+> 
+> > -     index = page_idx >> (1 + order);
 
-If the table is 90% ordered an insertion sort searching from tail is even
-more efficient for the general case and just as simple. Its still arguing
-about milliseconds 8)
+It's OK:
+
+-       index = page_idx >> (1 + order);
+
++       /* index is the number bit inside the free_area_t bitmap stored in
++        * area->map
++        */
++       index = page_idx >> (1 + order);
+
+> Nevertheless, great attempt, Mel.
+
+yes, it is.
+
+-

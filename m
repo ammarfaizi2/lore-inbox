@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265439AbUABIpS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 03:45:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265440AbUABIpS
+	id S265437AbUABJHP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 04:07:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265463AbUABJHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 03:45:18 -0500
-Received: from colino.net ([62.212.100.143]:247 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S265439AbUABIpO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 03:45:14 -0500
-Date: Fri, 2 Jan 2004 09:44:17 +0100
-From: Colin Leroy <colin@colino.net>
-To: linux-kernel@vger.kernel.org
-Subject: Strange cdc-acm behaviour
-Message-Id: <20040102094417.432e342a.colin@colino.net>
-Organization: 
-X-Mailer: Sylpheed version 0.9.5claws (GTK+ 2.2.4; powerpc-unknown-linux-gnu)
+	Fri, 2 Jan 2004 04:07:15 -0500
+Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:55936 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S265437AbUABJHN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 04:07:13 -0500
+Subject: Re: ext2 on a CD-RW
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Peter Osterlund <petero2@telia.com>
+Cc: Andrew Morton <akpm@osdl.org>, axboe@suse.de, packet-writing@suse.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <m2llorkuhn.fsf@telia.com>
+References: <Pine.LNX.4.44.0401020022060.2407-100000@telia.com>
+	 <20040101162427.4c6c020b.akpm@osdl.org>  <m2llorkuhn.fsf@telia.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aSMuloVyP2kmDoPUHlE8"
+Organization: Red Hat, Inc.
+Message-Id: <1073034412.4429.1.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 02 Jan 2004 10:06:52 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Since I upgraded to 2.6.1-rc1-ben1 (BenH tree), modem hangups using USB
-phone (cdc-acm) cause ohci-hcd to disable itself:
+--=-aSMuloVyP2kmDoPUHlE8
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-# killall -HUP pppd && tail /var/log/syslog
-Jan  2 09:39:02 [pppd] Hangup (SIGHUP) 
-Jan  2 09:39:02 [pppd] Connection terminated. 
-Jan  2 09:39:02 [pppd] Connect time 0.5 minutes. 
-Jan  2 09:39:02 [pppd] Sent 283 bytes, received 273 bytes. 
-Jan  2 09:39:03 [kernel] ohci_hcd 0001:01:1b.0: OHCI Unrecoverable Error, 
-disabled 
-Jan  2 09:39:03 [pppd]Exit.
+On Fri, 2004-01-02 at 02:30, Peter Osterlund wrote:
 
-I built ohci-hcd as a module to be able to re-use USB devices without
-rebooting (using rmmod && modprobe). 
-It didn't do that with the last version I had, which was 2.6.0-test11-benh.
+> The packet writing code has the restriction that a bio must not span a
+> packet boundary. (A packet is 32*2048 bytes.) If the page when mapped
+> to disk starts 2kb before a packet boundary, merge_bvec_fn therefore
+> returns 2048, which is less than len, which is 4096 if the whole page
+> is mapped, so the bio_add_page() call fails.
 
-Happy new year to everyone,
--- 
-Colin
+devicemapper has similar restrictions for raid0 format; in that case
+it's device-mappers job to split the page/bio. Just as it is UDF's task
+to do the same I suspect...
+
+
+--=-aSMuloVyP2kmDoPUHlE8
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/9TSsxULwo51rQBIRAh2qAJ9xWevQsSBzVVq/hcv2FrH6OQkLlwCfa8+i
+o7gh8z7PRbUxO/v3xs8tyes=
+=152j
+-----END PGP SIGNATURE-----
+
+--=-aSMuloVyP2kmDoPUHlE8--

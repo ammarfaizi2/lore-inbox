@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265094AbUGBXPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265096AbUGBXWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265094AbUGBXPW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 19:15:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265033AbUGBXPW
+	id S265096AbUGBXWY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 19:22:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265097AbUGBXWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 19:15:22 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:64179 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S265094AbUGBXPT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 19:15:19 -0400
-Date: Sat, 3 Jul 2004 01:07:09 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: jt@hpl.hp.com
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Dan Williams <dcbw@redhat.com>, Pavel Roskin <proski@gnu.org>,
-       David Gibson <hermes@gibson.dropbear.id.au>
-Subject: Re: [PATCH] Update in-kernel orinoco drivers to upstream current CVS
-Message-ID: <20040703010709.A22334@electric-eye.fr.zoreil.com>
-References: <20040702222655.GA10333@bougret.hpl.hp.com>
+	Fri, 2 Jul 2004 19:22:24 -0400
+Received: from hell.org.pl ([212.244.218.42]:34578 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S265096AbUGBXWX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 19:22:23 -0400
+Date: Sat, 3 Jul 2004 01:22:28 +0200
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: Terence Ripperda <tripperda@nvidia.com>
+Cc: Stefan Seyfried <seife@gmane0305.slipkontur.de>,
+       swsusp-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@suse.cz>
+Subject: Re: [Swsusp-devel] Re: nvidia's driver and swsusp (need help w/ n forc e2 mobo)
+Message-ID: <20040702232228.GA19080@hell.org.pl>
+Mail-Followup-To: Terence Ripperda <tripperda@nvidia.com>,
+	Stefan Seyfried <seife@gmane0305.slipkontur.de>,
+	swsusp-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+	Pavel Machek <pavel@suse.cz>
+References: <20040702192044.GO1815@hygelac> <20040702200012.GU1815@hygelac>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040702222655.GA10333@bougret.hpl.hp.com>; from jt@bougret.hpl.hp.com on Fri, Jul 02, 2004 at 03:26:55PM -0700
-X-Organisation: Land of Sunshine Inc.
+In-Reply-To: <20040702200012.GU1815@hygelac>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes <jt@bougret.hpl.hp.com> :
-[...]
-> 	The difference between 0.13e and 0.15rc1+ is not small. I
-> believe Pavel did a good job in splitting the various patches in small
-> pieces when adding them to the CVS, and David has tracked the kernel,
-> but reconciliating the two branches is no trivial matter.
+Thus wrote Terence Ripperda:
+> I tried hibernating/resuming while in X. but I don't see any acpi
+> calls coming through to our driver via the pci driver model. is this
+> expected?
 
-I have extracted a few things from the bz2 ball that Dan sent (against
-2.6.7-mm5 which already contains some orinoco bits):
+I'm no PM expert, but I'm getting the idea that you're wrong at your
+principles. 
 
--rw-r--r--    1 romieu   users        4564 jui  3 00:47 orinoco-10.patch
--rw-r--r--    1 romieu   users       15999 jui  3 00:47 orinoco-20.patch
--rw-r--r--    1 romieu   users       33135 jui  3 00:47 orinoco-30.patch
--rw-r--r--    1 romieu   users       11463 jui  3 00:47 orinoco-40.patch
+To begin with, there's no such thing as acpi calls. There's driver model in
+2.6 (i.e. pci_module_init() / pci_register_driver()), and there's 2.4's
+lack of thereof (i.e. pm_register()). As far as I know, those two
+interfaces have nothing specifically to do with ACPI nor APM. 
 
-Available at http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.7-mm5/
+I think the proper way to conditionalize this in the code is to check for
+CONFIG_PM as the prerequisite and KERNEL_2_6/!KERNEL_2_6 to choose between
+those interfaces (and only that: bear in mind swsusp2 and pmdisk require
+neither APM nor ACPI). Perhaps you're building with only CONFIG_PM defined?
 
-So far the patches lack comments but they are quite simple.
+Hopefully others will be able to clarify this.
+Best regards,
 
---
-Ueimor
+-- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

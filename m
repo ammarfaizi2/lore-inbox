@@ -1,95 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130622AbRBEQPd>; Mon, 5 Feb 2001 11:15:33 -0500
+	id <S135225AbRBEQQn>; Mon, 5 Feb 2001 11:16:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130775AbRBEQPX>; Mon, 5 Feb 2001 11:15:23 -0500
-Received: from ip165-228.fli-ykh.psinet.ne.jp ([210.129.165.228]:8644 "EHLO
-	standard.erephon") by vger.kernel.org with ESMTP id <S130622AbRBEQPP>;
-	Mon, 5 Feb 2001 11:15:15 -0500
-Message-ID: <3A7ED185.B9AEB000@yk.rim.or.jp>
-Date: Tue, 06 Feb 2001 01:15:01 +0900
-From: Ishikawa <ishikawa@yk.rim.or.jp>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: ja, en
+	id <S133111AbRBEQQd>; Mon, 5 Feb 2001 11:16:33 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:40949 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130775AbRBEQQV>; Mon, 5 Feb 2001 11:16:21 -0500
+Date: Mon, 5 Feb 2001 14:15:30 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: LA Walsh <law@sgi.com>
+cc: Delta <birtl00@dmi.usherb.ca>, linux-kernel@vger.kernel.org
+Subject: Re: System unresponsitive when copying HD/HD
+In-Reply-To: <3A7C64F9.F3192611@sgi.com>
+Message-ID: <Pine.LNX.4.21.0102051410090.1311-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: /usr/src/linux/scripts/ver_linux prints out incorrect info when "ls" 
- is aliased.
-In-Reply-To: <3A7D7210.EA87572A@yk.rim.or.jp> <20010205073929.A32155@cadcamlab.org>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Samuelson wrote:
+On Sat, 3 Feb 2001, LA Walsh wrote:
 
-> [Ishikawa]
-> > I just noticed that running
-> >
-> >         .   /usr/src/linux/script/ver_linux
-> >
-> > prints out strange libc version
-> [...]
-> > I found that if the command "ls" is aliased to "ls -aF"
->
-> So ... don't use '.' to execute scripts.  If there is some
-> documentation somewhere that told you to do this, please notify the
-> author that it is wrong.
->
->   sh scripts/ver_linux
->
+> I've noticed less responsive disk response on 2.4.0 vs. 2.2.17.  
+> For example -- I run vmware and suspend it frequently when I'm
+> not using it.  One of them requires a 158Mb save file.  Before,
+> I could suspend that one, then start another which reads in a
+> smaller 50M save file.  The smaller one would come up while the
+> other was still saving.  As of 2.4, the smaller one doesn't come
+> up -- I can't even do an 'ls' until the big save finishes.
 
-This is a good observation.
+[snip]
 
-I have no idea why I invoked ver_linux using "." : I must have
-seen it somewhere and just followed it somehow.
+This could be related with (from the linux-mm bugzilla):
 
-Hard to tell where I have seen. I must have seen it in the last few
-days.
+  http://distro.conectiva.com/bugzilla/show_bug.cgi?id=1178
 
-Here is one URL where "." is used, but this was not where I saw the
-usage.
+I have a patch against 2.4.1 and 2.4.1-ac which {c,sh}ould
+fix this bug, but I don't know if it will fix your situation.
+If your problem still happens with this patch, let me know and
+I'll see how I can fix it:
 
-http://oss.sgi.com/projects/devfs/mail/devfs/msg00261.html
+  http://www.surriel.com/patches/2.4/2.4.1-vmpatch
 
-I have found the same problem cropped up in the kernel mailing list
-before.
+regards,
 
-    http://uwsg.iu.edu/hypermail/linux/kernel/0003.1/0898.html
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
 
-The above thread showed that non-other than Alan Cox also chimed in the
-thread.
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-So there must have been a reason to let people try "." for
-invoking /usr/src/linux/scripts/ver_linux.
-
-One theory might be that, as a root, people may run
-    # ./ver_linux   (under scripts directory).
-
-And then, when they try to show what they did, they may
-create a report showing the FULL path name of the scripts so that
-there is no mistaking ver_scripts for something else.
-And in doing so, somebody might have forgotten to remove the
-leading "."
-    #./usr/src/linux/scripts/ver_linux
-Somebody eles looked at the above and "figured" that the
-leading "./" is a typo and thus corrects it to ". /"
-and now we have
-   #. /usr/src/linux/scripts/ver_linux
-
-Anyway, I have found another  libc version output
-in somebody's post. The poster must have similar problem as I did.
-(See at the end for ver_linux output result. )
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/9906.3/0990.html
-
-So in any case, I think protecting the
-ver_linux from strange interaction of various
-shell features might be a good idea after all.
-
-(I was not convinced why "sh /usr/src/linux/scripts/ver_linux" works
-since /bin/sh is a symlink to bash in my setup and it seems that
-my ./bashrc includes the ls alias. But when I tried it, it works. )
-
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

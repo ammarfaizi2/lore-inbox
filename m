@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269306AbUIBXfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269304AbUIBXfR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269306AbUIBXfS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 19:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269305AbUIBXcz
+	id S269304AbUIBXfR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 19:35:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269307AbUIBXdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 19:32:55 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:35473 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269307AbUIBXcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:32:11 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q8
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Mark_H_Johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-In-Reply-To: <20040902232839.GA32440@elte.hu>
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com>
-	 <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu>
-	 <1094108653.11364.26.camel@krustophenia.net>
-	 <20040902071525.GA19925@elte.hu>
-	 <1094167534.1571.10.camel@krustophenia.net>
-	 <20040902232839.GA32440@elte.hu>
+	Thu, 2 Sep 2004 19:33:09 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:914 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269289AbUIBXbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 19:31:46 -0400
+Subject: Re: The argument for fs assistance in handling archives (was:
+	silent semantic changes with reiser4)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Christer Weinigel <christer@weinigel.se>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <20040902214731.GF24932@mail.shareable.org>
+References: <20040901200806.GC31934@mail.shareable.org>
+	 <200409021407.i82E70hx004899@laptop11.inf.utfsm.cl>
+	 <20040902173214.GB24932@mail.shareable.org>
+	 <m3pt54il82.fsf@zoo.weinigel.se>
+	 <20040902214731.GF24932@mail.shareable.org>
 Content-Type: text/plain
-Message-Id: <1094167928.1571.13.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 02 Sep 2004 19:32:09 -0400
 Content-Transfer-Encoding: 7bit
+Message-Id: <1094164023.6163.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 02 Sep 2004 23:27:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 19:28, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> > Do you see any optional networking features in the trace (other than
-> > ip_conntrack)?  I was under the impression that I had everything
-> > optional disabled.
-> 
-> yeah, it seems to be only ip_conntrack and netfilter (which conntrack
-> relies on).
-> 
+On Iau, 2004-09-02 at 22:47, Jamie Lokier wrote:
+>     - Can the daemon keep track of _every_ file on my disk like this?
+>       That's more than a million files, and about 10^5 directories.
+>       dnotify would require the daemon to open all the directories.
+>       I'm not sure what inotify offers.
 
-FWIW these seem to only slow down the single packet path by about 10%. 
-This is pretty good.
+This is currently a real issue for both desktop search and for virus
+scanners. They want a "what changed and where" system wide (or at least
+per namespace/mount).
 
-Lee
 

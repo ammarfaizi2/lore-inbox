@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281709AbRKUK4V>; Wed, 21 Nov 2001 05:56:21 -0500
+	id <S281706AbRKUK6L>; Wed, 21 Nov 2001 05:58:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281708AbRKUK4M>; Wed, 21 Nov 2001 05:56:12 -0500
-Received: from [194.65.152.209] ([194.65.152.209]:15791 "EHLO
+	id <S281700AbRKUK6C>; Wed, 21 Nov 2001 05:58:02 -0500
+Received: from [194.65.152.209] ([194.65.152.209]:43183 "EHLO
 	criticalsoftware.com") by vger.kernel.org with ESMTP
-	id <S281706AbRKUK4E>; Wed, 21 Nov 2001 05:56:04 -0500
-Message-Id: <200111211055.fALAtP287652@criticalsoftware.com>
+	id <S281703AbRKUK5q>; Wed, 21 Nov 2001 05:57:46 -0500
+Message-Id: <200111211057.fALAvi288566@criticalsoftware.com>
 Content-Type: text/plain;
   charset="iso-8859-1"
-From: =?iso-8859-1?q?Lu=EDs=20Henriques?= 
-	<lhenriques@criticalsoftware.com>
-To: "Tyler BIRD" <BIRDTY@uvsc.edu>, <adilger@turbolabs.com>
+From: =?iso-8859-1?q?Lu=EDs=20Henriques?= <umiguel@alunos.deis.isec.pt>
+To: Mike Fedyk <mfedyk@matchmail.com>, Anton Altaparmakov <aia21@cam.ac.uk>,
+        linux-kernel@vger.kernel.org
 Subject: Re: copy to suer space
-Date: Wed, 21 Nov 2001 10:49:43 +0000
+Date: Wed, 21 Nov 2001 10:52:02 +0000
 X-Mailer: KMail [version 1.3.1]
-Cc: <aia21@cam.ac.uk>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <sbfa4d3a.051@MAIL-SMTP.uvsc.edu>
-In-Reply-To: <sbfa4d3a.051@MAIL-SMTP.uvsc.edu>
+In-Reply-To: <5.1.0.14.2.20011120165440.00a745b0@pop.cus.cam.ac.uk> <20011120123915.W1308@lynx.no> <20011120160657.A4124@mikef-linux.matchmail.com>
+In-Reply-To: <20011120160657.A4124@mikef-linux.matchmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 November 2001 07:31 pm, Tyler BIRD wrote:
-> What is the other "specifc event that occurs" you could write a spinlock
-> and the other thread that causes the event could release that lock
-> Of course interrups should be enabled when some thing like this should
-> happen Is this other event a interrupt?
+> This to me looks like the main desire is to fool the user.  It looks like
+> it doing something, but it really isn't...
 
-The specific event is a breakpoint interrupt: when a specific memory address 
-is used (for opcode fetch/read/write) in the addressing space of a process, 
-then an exception is raised and a handler for this exception will be called - 
-this is my module.
-
->
->
-> There are various ways I'll have to look up when I get home.
-> you could alter the cs if you change the vma properties especially the
-> permissions properties and you can do this I just don't have the details
-> now.
->
-> the cs is protected by default
-> Tyler
->
+Not really... This may look like an old DOS virus :) but it is not! It's a 
+fault injection tool - it's purpose (in this case, of corse) is to cause a 
+very short delay on a critic process.
 
 -- 
 Luís Henriques

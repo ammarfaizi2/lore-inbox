@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132483AbRDJXrU>; Tue, 10 Apr 2001 19:47:20 -0400
+	id <S132488AbRDJXtu>; Tue, 10 Apr 2001 19:49:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132484AbRDJXrL>; Tue, 10 Apr 2001 19:47:11 -0400
-Received: from yoda.planetinternet.be ([195.95.30.146]:58127 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S132483AbRDJXq4>; Tue, 10 Apr 2001 19:46:56 -0400
-Date: Wed, 11 Apr 2001 01:46:52 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: Miquel van Smoorenburg <miquels@cistron-office.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Let init know user wants to shutdown
-Message-ID: <20010411014652.A9756@ping.be>
-In-Reply-To: <20010405000215.A599@bug.ucw.cz> <9b04fo$9od$3@ncc1701.cistron.net> <20010411013830.A9704@ping.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
-In-Reply-To: <20010411013830.A9704@ping.be>
+	id <S132484AbRDJXtl>; Tue, 10 Apr 2001 19:49:41 -0400
+Received: from nrg.org ([216.101.165.106]:17212 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S132485AbRDJXta>;
+	Tue, 10 Apr 2001 19:49:30 -0400
+Date: Tue, 10 Apr 2001 16:49:06 -0700 (PDT)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: Paul McKenney <Paul.McKenney@us.ibm.com>
+cc: ak@suse.de, Dipankar Sarma <dipankar.sarma@in.ibm.com>,
+        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+        Suparna Bhattacharya <bsuparna@in.ibm.com>
+Subject: Re: [Lse-tech] Re: [PATCH for 2.5] preemptible kernel
+In-Reply-To: <OF6C3EA7C6.99519DF9-ON88256A2A.0079A408@LocalDomain>
+Message-ID: <Pine.LNX.4.05.10104101613010.17287-100000@cosmic.nrg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 11, 2001 at 01:38:30AM +0200, Kurt Roeckx wrote:
-> On Tue, Apr 10, 2001 at 11:20:24PM +0000, Miquel van Smoorenburg wrote:
-> > 
-> > the shutdown scripts
-> > include "kill -15 -1; sleep 2; kill -9 -1". The "-1" means
-> > "all processes except me". That means init will get hit with
-> > SIGTERM occasionally during shutdown, and that might cause
-> > weird things to happen.
+On Tue, 10 Apr 2001, Paul McKenney wrote:
+> The algorithms we have been looking at need to have absolute guarantees
+> that earlier activity has completed.  The most straightforward way to
+> guarantee this is to have the critical-section activity run with preemption
+> disabled.  Most of these code segments either take out locks or run
+> with interrupts disabled anyway, so there is little or no degradation of
+> latency in this case.  In fact, in many cases, latency would actually be
+> improved due to removal of explicit locking primitives.
+>
+> I believe that one of the issues that pushes in this direction is the
+> discovery that "synchronize_kernel()" could not be a nop in a UP kernel
+> unless the read-side critical sections disable preemption (either in
+> the natural course of events, or artificially if need be).  Andi or
+> Rusty can correct me if I missed something in the previous exchange...
 > 
-> -1 mean everything but init.
+> The read-side code segments are almost always quite short, and, again,
+> they would almost always otherwise need to be protected by a lock of
+> some sort, which would disable preemption in any event.
+> 
+> Thoughts?
 
-Oh, maybe you mean killall5 -TERM?
+Disabling preemption is a possible solution if the critical section is short
+- less than 100us - otherwise preemption latencies become a problem.
 
-Which would send a SIGTERM to all processes but the one in his
-own session.
+The implementation of synchronize_kernel() that Rusty and I discussed
+earlier in this thread would work in other cases, such as module
+unloading, where there was a concern that it was not practical to have
+any sort of lock in the read-side code path and the write side was not
+time critical.
 
-(Hey look, you wrote that manpage.)
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
 
-
-Kurt
+MontaVista Software                             nigel@mvista.com
 

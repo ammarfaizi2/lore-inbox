@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270647AbRHNSjD>; Tue, 14 Aug 2001 14:39:03 -0400
+	id <S270644AbRHNSlD>; Tue, 14 Aug 2001 14:41:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270645AbRHNSix>; Tue, 14 Aug 2001 14:38:53 -0400
-Received: from smtp3.cern.ch ([137.138.131.164]:49078 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S270631AbRHNSin>;
-	Tue, 14 Aug 2001 14:38:43 -0400
-To: Johannes Erdfelt <johannes@erdfelt.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Determine if card is in 32 or 64 bit PCI slot?
-In-Reply-To: <20010808161703.Q21901@sventech.com> <E15UaNj-00062K-00@the-village.bc.nu> <20010808165919.R21901@sventech.com>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 14 Aug 2001 17:55:57 +0200
-In-Reply-To: Johannes Erdfelt's message of "Wed, 8 Aug 2001 16:59:19 -0400"
-Message-ID: <d3elqe63g2.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S270632AbRHNSky>; Tue, 14 Aug 2001 14:40:54 -0400
+Received: from www.casdn.neu.edu ([155.33.251.101]:4370 "EHLO
+	www.casdn.neu.edu") by vger.kernel.org with ESMTP
+	id <S270644AbRHNSka>; Tue, 14 Aug 2001 14:40:30 -0400
+From: "Andrew Scott" <A.J.Scott@casdn.neu.edu>
+Organization: Northeastern University
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Tue, 14 Aug 2001 09:58:32 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Are we going too fast?
+Reply-to: A.J.Scott@casdn.neu.edu
+Message-ID: <3B78F648.14074.58721CD@localhost>
+In-Reply-To: <3B776EA5000338FD@mta3n.bluewin.ch> (added by postmaster@bluewin.ch)
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Johannes" == Johannes Erdfelt <johannes@erdfelt.com> writes:
+On 13 Aug 2001, at 20:46, Per Jessen wrote:
 
-Johannes> On Wed, Aug 08, 2001, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Johannes> wrote:
->> Are you sure the card actually needs this. Most such cards support
->> dual address cycle, so when placed in a 32bit slot will still do
->> 64bit DMA
+> >On Mon, 13 Aug 2001 14:11:32 +0100 (BST), Alan Cox wrote:
+> >
+> >If you want maximum stability you want to be running 2.2 or even 2.0. Newer
+> >less tested code is always less table. 2.4 wont be as stable as 2.2 for a
+> >year yet.
+> 
+> Couldn't have put that any better. On mission-critical systems, this is
+> exactly what people do. Personally, my experience is from the big-iron
+> world of S390 -  if you're a bleeding-edge organisation, you'll be out
+> there applying the latest PTFs, you'll be running the latest OS/390 etc. 
+> If you're conservative, you're at least 2, maybe 3 releases (in todays 
+> OS390 this means about 18-24 months) behind. If you're ultra-conservative,
+> you'll wait for the point where you can no longer avoid an upgrade.
 
-Johannes> No I don't know if it's needed. I had no idea that PCI could
-Johannes> do that.
+We've only just now moved from 2.0.36 to 2.2.18, and cautiously at 
+that. We've started to run into applications that won't run on the 
+older kernel/lib combinatons that we need.
 
-Johannes> Is dual address cycle mandated by the PCI specs?
 
-According to the PCI spec "The master is required in all cases to use
-two clocks to communicate a 64-bit address, since the width of a
-target's bus is not known during the address phase."
-
-Aka, the answer to your question is yes.
-
-Jes
+                      _
+                     / \   / ascott@casdn.neu.edu
+                    / \ \ /
+                   /   \_/

@@ -1,78 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262932AbTJ3XHn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 18:07:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262937AbTJ3XHn
+	id S262982AbTJ3XeW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 18:34:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbTJ3XeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 18:07:43 -0500
-Received: from a205017.upc-a.chello.nl ([62.163.205.17]:2176 "EHLO
-	mail.fluido.as") by vger.kernel.org with ESMTP id S262932AbTJ3XHj
+	Thu, 30 Oct 2003 18:34:21 -0500
+Received: from ncc1701.cistron.net ([62.216.30.38]:40633 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S262982AbTJ3XeE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 18:07:39 -0500
-Date: Fri, 31 Oct 2003 00:07:30 +0100
-From: "Carlo E. Prelz" <fluido@fluido.as>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Ben Collins <bcollins@debian.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: [FBDEV UPDATE] Newer patch.
-Message-ID: <20031030230730.GA942@casa.fluido.as>
-References: <20031023234552.GB554@phunnypharm.org> <Pine.LNX.4.44.0310301833140.4560-100000@phoenix.infradead.org>
+	Thu, 30 Oct 2003 18:34:04 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: uptime reset after about 45 days
+Date: Thu, 30 Oct 2003 23:34:03 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <bns75b$ssn$1@news.cistron.nl>
+References: <1067552357.3fa18e65d1fca@secure.solidusdesign.com> <Pine.LNX.4.44.0310310005090.11473-100000@gaia.cela.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310301833140.4560-100000@phoenix.infradead.org>
-X-operating-system: Linux casa 2.6.0-test7-radeon
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1067556843 29591 62.216.29.200 (30 Oct 2003 23:34:03 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Subject: [Linux-fbdev-devel] Re: [FBDEV UPDATE] Newer patch.
-	Date: gio, ott 30, 2003 at 06:38:46 +0000
+In article <Pine.LNX.4.44.0310310005090.11473-100000@gaia.cela.pl>,
+Maciej Zenczykowski  <maze@cela.pl> wrote:
+>> After about 45 days or so, my uptime was reset. My idle time is correct.
+>> 
+>> $ cat /proc/uptime
+>> 94245.37 3686026.54
+>> 
+>> $ cat /proc/version Linux version 2.4.20-gentoo-r1
+>> (root@dpb2.resnet.calvin.edu) (gcc version 3.2.2) #6 SMP Thu Apr 17
+>> 14:11:34 EDT 2003
+>
+>Uptime is stored in jiffies which is 32bit on your arch, which results in 
+>an overflow after 2^32 clock ticks. TTTicks were 100 HZ till recently 
+>(overflow after 470 or so days) now, they're 1000 -> overflows after 45 
+>days.  Doesn't wreck anything except for uptime display - known problem, 
 
-Quoting James Simmons (jsimmons@infradead.org):
+No, that's only on 2.6, and it has been fixed in 2.6 too.
+The 2.4 32 bits kernels run with HZ=100.
 
-> I have fixed the problems you have reported. I have a newer patch. Note 
-> this is updated with the LCD support. I like to see if the patch works on 
-> sparc. I has updates from the latest 2.4.X kernels. Please give it a try.
-> 
-> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
-> 
-> Let me know the results.
+Sounds like the gentoo-kernel has just upped HZ to 1000 without
+fixing these problems properly. That's .. disappointing.
 
-Thanks for integrating Ben's radeon stuff. But I have bad news.
+Mike.
 
-I got a fresh 2.6.0test9 and patched it with your patch. First,
-radeonfb_setup was missing from radeon_base.c, while it was declared
-in fbmem.c. I applied the patch that was contributed to the list by
-Javier Villavicencio a few days ago. Thus, I had a good compile. I
-have video=radeonfb:1280x1024-32@75 set in my lilo.conf file. 
-
-At reboot, my LCD screen complained about bad frequencies: 50.9 kHz
-horizontal, and 43.7 Hz vertical. Normal frequencies with the above
-settings are 80kHz and 75Hz. Passing 1280x1024-32@60 instead of
-1280x1024-32@75 did not change the generated frequencies, so it seems
-that interpretation of the mode line is not OK.
-
-I plugged in an old CRT monitor, and I could see a normal screen. But
-when starting X (set up with Option "UseFBDev" "true"), the LCD
-monitor became happy of the frequency that it received but was frozen
-with a garbled screen. And the keyboard was dead. I logged in remotely
-and found out that the X executable was hanging and could not be
-killed. Reboot was needed.
-
-I can run at 1280x1024-32@75 with 2.6.0test7 with the original patches
-from Ben (actually, using the whole kernel tree that he suggested I
-should use, gotten via rsync). And X works OK in FB mode with his
-kernel. With proper OpenGL acceleration.
-
-All this with a radeon 9200 card. More info upon request...
-
-Carlo
-
--- 
-  *         Se la Strada e la sua Virtu' non fossero state messe da parte,
-* K * Carlo E. Prelz - fluido@fluido.as             che bisogno ci sarebbe
-  *               di parlare tanto di amore e di rettitudine? (Chuang-Tzu)

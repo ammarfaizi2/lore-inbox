@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135443AbRDMIeW>; Fri, 13 Apr 2001 04:34:22 -0400
+	id <S132704AbRDMIkn>; Fri, 13 Apr 2001 04:40:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135447AbRDMIeN>; Fri, 13 Apr 2001 04:34:13 -0400
-Received: from agnus.shiny.it ([194.20.232.6]:47369 "EHLO agnus.shiny.it")
-	by vger.kernel.org with ESMTP id <S135446AbRDMIeB>;
-	Fri, 13 Apr 2001 04:34:01 -0400
-Message-ID: <XFMail.010413103349.pochini@shiny.it>
-X-Mailer: XFMail 1.3 [p0] on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S135441AbRDMIkX>; Fri, 13 Apr 2001 04:40:23 -0400
+Received: from mailout2-0.nyroc.rr.com ([24.92.226.121]:28877 "EHLO
+	mailout2-0.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S132704AbRDMIkN>; Fri, 13 Apr 2001 04:40:13 -0400
+Message-ID: <009801c0c3f6$69d45c70$0701a8c0@morph>
+From: "Dan Maas" <dmaas@dcine.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <cj@cjcj.com>, <bart@jukie.net>
+Subject: Re: Asynchronous IO
+Date: Fri, 13 Apr 2001 04:45:07 -0400
 MIME-Version: 1.0
-In-Reply-To: <200104122036.f3CKa1s70637@aslan.scsiguy.com>
-Date: Fri, 13 Apr 2001 10:33:49 +0200 (CEST)
-From: Giuliano Pochini <pochini@shiny.it>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: new aic7xxx driver problems
-Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+IIRC the problem with implementing asynchronous *disk* I/O in Linux today is
+that the filesystem code assumes synchronous I/O operations that block the
+whole process/thread. So implementing "real" asynch I/O (without the
+overhead of creating a process context for each operation) would require
+re-writing the filesystems as non-blocking state machines. Last I heard this
+was a long-term goal, but nobody's done the work yet (aside from maybe the
+SGI folks with XFS?). Or maybe I don't know what I'm talking about...
 
->>> Can you elaborate on what you had to modify ?
->>
->>I just added AHC_ULTRA to the features of 7850
->>
->>AHC_AIC7850_FE        = AHC_SPIOCAP|AHC_AUTOPAUSE|AHC_TARGETMODE|AHC_ULTRA,
->
-> What's the PCI id of the card you are using ?
+Bart, glad to hear you are working on an event interface, sounds cool! One
+feature that I really, really, *really* want to see implemented is the
+ability to block on a set of any "waitable kernel objects" with one
+syscall - not just file descriptors, but also SysV semaphores and message
+queues, UNIX signals and child proceses, file locks, pthreads condition
+variables, asynch disk I/O completions, etc. I am dying for a clean way to
+accomplish this that doesn't require more than one thread... (Win32 and
+FreeBSD kick our butts here with MsgWaitForMultipleObjects() and
+kevent()...) IMHO cleaning up this API deficiency is just as important as
+optimizing the extreme case of socket I/O with zillions of file
+descriptors...
 
-I'm not at home. If I remember right, it reported exactly the ID
-of AHC_AIC7850 card, but I have a *PowerDomain* 2930CU (the Macintosh
-version of the card) so pci IDs are likely to be different from the PC
-version.
-
->>Plain v6.1.11 hangs. It prints scsi0: blah blah scsi1: sdfdfgsg, I hear the
->>cd spinning up and nothing more.
->
-> Did you apply a patch, or upgrade using the tar file?  If the latter,
-> you're missing some changes to the SCSI layer that make the initial
-> bus settle delay implimentation more sane.
-
-:-/  I'll try the patch this night.
-
-
-Bye.
-    Giuliano Pochini ->)|(<- Shiny Network {AS6665} ->)|(<-
+Regards,
+Dan
 

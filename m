@@ -1,84 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264091AbUDRA22 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 20:28:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbUDRA22
+	id S264088AbUDRAXr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 20:23:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbUDRAXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 20:28:28 -0400
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:40969 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id S264091AbUDRA2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 20:28:25 -0400
-Date: Sun, 18 Apr 2004 01:28:20 +0100 (BST)
-From: chris@scary.beasts.org
-X-X-Sender: cevans@sphinx.mythic-beasts.com
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: Nasty 2.6 sendfile() bug / regression; affects vsftpd
-Message-ID: <Pine.LNX.4.58.0404180026490.16486@sphinx.mythic-beasts.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 17 Apr 2004 20:23:47 -0400
+Received: from florence.buici.com ([206.124.142.26]:32640 "HELO
+	florence.buici.com") by vger.kernel.org with SMTP id S264088AbUDRAXo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 20:23:44 -0400
+Date: Sat, 17 Apr 2004 17:23:43 -0700
+From: Marc Singer <elf@buici.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Marc Singer <elf@buici.com>, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: vmscan.c heuristic adjustment for smaller systems
+Message-ID: <20040418002343.GA16025@flea>
+References: <20040417193855.GP743@holomorphy.com> <20040417212958.GA8722@flea> <20040417162125.3296430a.akpm@osdl.org> <20040417233037.GA15576@flea> <20040417165151.24b1fed5.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040417165151.24b1fed5.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew, linux-kernel,
+On Sat, Apr 17, 2004 at 04:51:51PM -0700, Andrew Morton wrote:
+> Marc Singer <elf@buici.com> wrote:
+> >
+> > On Sat, Apr 17, 2004 at 04:21:25PM -0700, Andrew Morton wrote:
+> > > Marc Singer <elf@buici.com> wrote:
+> > > >
+> > > >  I'd say that there is no statistically significant difference between
+> > > >  these sets of times.  However, after I've run the test program, I run
+> > > >  the command "ls -l /proc"
+> > > > 
+> > > >  				 swappiness
+> > > >  			60 (default)		0
+> > > >  			------------		--------
+> > > >  elapsed time(s)		18			1
+> > > >  			30			1
+> > > >  			33			1
+> > > 
+> > > How on earth can it take half a minute to list /proc?
+> > 
+> > I've watched the vmscan code at work.  The memory pressure is so high
+> > that it reclaims mapped pages zealously.  The program's code pages are
+> > being evicted frequently.
+> 
+> Which tends to imply that the VM is not reclaiming any of that nfs-backed
+> pagecache.
 
-Large-file download support with vsftpd and the 2.6 kernel is a broken
-combination. After careful consideration, I'm pretty sure the bug is with
-the 2.6 kernel. At the very least, behaviour has changed from 2.4. An
-initial fix is included below.
+I don't think that's the whole story.  They question is why.
 
-vsftpd makes extensive use of sendfile to achieve high performance. When
-vsftpd was first written, sendfile64 did not exist. So, in order to
-transfer >2Gb files, multiple sendfile() calls are used [1]. The main
-issue with sendfile() and >2Gb files is of course that the "offset" in/out
-parameter cannot be used, because it is not 64-bit. The solution is
-simple; use NULL for the offset parameter and keep track of the file
-position in a purely user-space variable.
-The above scheme works well with 2.4, but unfortunately fails with
-EOVERFLOW in 2.6 at the 2Gb mark.
-This failure seems to be a bug. I could be wrong here, but it seems the
-intent of EOVERFLOW is to indicate to the user that a large 64-bit kernel
-value cannot be stuffed into a 32-bit userspace return value. In the case
-of using NULL as the offset paramter, userspace does not care about the
-64-bit file offset and no truncation will ever occur.
-The below patch fixes this up to restore 2.4 behaviour in the event of a
-NULL offset parameter. It's currently under testing and looking good.
+> > I've been wondering if the swappiness isn't a red herring.  Is it
+> > reasonable that the distress value (in refill_inactive_zones ()) be
+> > 50?
+> 
+> I'd assume that setting swappiness to zero simply means that you still have
+> all of your libc in pagecache when running ls.
 
-Any chance you can review this and sneak into 2.6.soon?
+Perhaps.  I think it is more important that it is still mapped.
 
---- read_write.c.old	2004-04-17 18:39:11.000000000 +0100
-+++ read_write.c	2004-04-17 23:38:04.000000000 +0100
-@@ -545,6 +545,7 @@
- 	loff_t pos;
- 	ssize_t retval;
- 	int fput_needed_in, fput_needed_out;
-+	loff_t *orig_ppos = ppos;
+> 
+> What happens if you do the big file copy, then run `sync', then do the ls?
 
- 	/*
- 	 * Get input file, and verify that it is ok..
-@@ -599,7 +600,7 @@
- 	retval = -EINVAL;
- 	if (unlikely(pos < 0))
- 		goto fput_out;
--	if (unlikely(pos + count > max)) {
-+	if (unlikely(pos + count > max && orig_ppos != NULL)) {
- 		retval = -EOVERFLOW;
- 		if (pos >= max)
- 			goto fput_out;
-@@ -608,7 +609,7 @@
+It still takes a long time.  I'm watching the network load as I
+perform the ls.  There's almost 20 seconds of no screen activity while
+NFS reloads the code. 
 
- 	retval = in_file->f_op->sendfile(in_file, ppos, count, file_send_actor, out_file);
+> 
+> Have you experimented with the NFS mount options?  v2? UDP?
 
--	if (*ppos > max)
-+	if (*ppos > max && orig_ppos != NULL)
- 		retval = -EOVERFLOW;
+Doesn't seem to matter.  I've used v2, v3, UDP and TCP.
 
- fput_out:
+I have more data.
 
-Cheers
-Chris
+All of these tests are performed at the console, one command at a
+time.  I have a telnet daemon available, so I open a second connection
+to the target system.  I run a continuous loop of file copies on the
+console and I execute 'ls -l /proc' in the telnet window.  It's a
+little slow, but it isn't unreasonable.  Hmm.  I then run the copy
+command in the telnet window followed by the 'ls -l /proc'.  It works
+fine.  I logout of the console session and perform the telnet window
+test again.  The 'ls -l /proc takes 30 seconds.
 
-[1] Note that I'm not inspired to use sendfile64, as it will STILL need
-multiple sendfile64 calls - the "count" variabe is still 32-bit. The only
-change from sendfile is that the offset parameter becomes 64-bit.
+When there is more than one process running, everything is peachy.
+When there is only one process (no context switching) I see the slow
+performance.  I had a hypothesis, but my test of that hypothesis
+failed.

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318850AbSIIUEV>; Mon, 9 Sep 2002 16:04:21 -0400
+	id <S318722AbSIIUFg>; Mon, 9 Sep 2002 16:05:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318851AbSIIUEV>; Mon, 9 Sep 2002 16:04:21 -0400
-Received: from packet.digeo.com ([12.110.80.53]:33743 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S318850AbSIIUEU>;
-	Mon, 9 Sep 2002 16:04:20 -0400
-Message-ID: <3D7CFFC2.283953@digeo.com>
-Date: Mon, 09 Sep 2002 13:08:34 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.32 i686)
-X-Accept-Language: en
+	id <S318810AbSIIUFg>; Mon, 9 Sep 2002 16:05:36 -0400
+Received: from dsl-213-023-039-209.arcor-ip.net ([213.23.39.209]:52160 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318722AbSIIUFe>;
+	Mon, 9 Sep 2002 16:05:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Subject: Re: Question about pseudo filesystems
+Date: Mon, 9 Sep 2002 22:12:28 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Alexander Viro <viro@math.psu.edu>, Rusty Russell <rusty@rustcorp.com.au>,
+       linux-kernel@vger.kernel.org
+References: <20020907192736.A22492@kushida.apsleyroad.org> <E17o4UE-0006Zh-00@starship> <20020909204834.A5243@kushida.apsleyroad.org>
+In-Reply-To: <20020909204834.A5243@kushida.apsleyroad.org>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Zwane Mwaikambo <zwane@mwaikambo.name>,
-       Linus Torvalds <torvalds@transmeta.com>, Robert Love <rml@tech9.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] per isr in_progress markers
-References: <Pine.LNX.4.44.0209092120310.1096-100000@linux-box.realnet.co.sz> <Pine.LNX.4.44.0209092122030.4648-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Sep 2002 20:08:50.0065 (UTC) FILETIME=[B65D6010:01C2583C]
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17oUtY-0006tn-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> 
-> On Mon, 9 Sep 2002, Zwane Mwaikambo wrote:
-> 
-> > As an aside, i just had an idea for another way to improve interrupt
-> > handling latency. Instead of walking through all the isrs in the chain,
-> > we can have an isr flag wether it was the source of the irq, and if so
-> > we stop right there and not walk through the other isrs. Obviously
-> > taking into account that some devices are dumb and have no real way of
-> > determining.
-> 
-> this is something i have a 0.5 MB patch for that touches a few hundred
-> drivers. I can dust it off if there's demand - it will break almost
-> nothing because i've done the hard work of adding the default 'no work was
-> done' bit to every driver's IRQ handler.
-> 
+On Monday 09 September 2002 21:48, Jamie Lokier wrote:
+> The expected behaviour is as it has always been: rmmod fails if anyone
+> is using the module, and succeeds if nobody is using the module.  The
+> garbage collection of modules is done using "rmmod -a" periodically, as
+> it always has been.
 
-Does that code re-order the chain dynamically?
+When you say 'rmmod modulename' the module is supposed to be removed, if
+it can be.  That is the user's expectation, and qualifies as 'obviously
+correct'.
 
-(My laptop shares an interrupt between the cardbus controller
-and the cardbus ethernet controller.  The ethernet controller
-generates 1000 interrupts per second.  The cardbus controller
-generates 2 interrupts per day.  yenta_interrupt is really, really
-slow).
+Garbage collecting should *not* be the primary mechanism for removing
+modules, that is what rmmod is for.  Neither should a filesystem module
+magically disappear from the system just because the last mount went
+away, unless the module writer very specifically desires that.  This is
+where the obfuscating opinion is coming from: Al has come up with an
+application where he wants the magic disappearing behavior and wants
+to impose it on the rest of the world, regardless of whether it makes
+sense.
+
+-- 
+Daniel

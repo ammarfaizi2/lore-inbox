@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316715AbSG3Vn3>; Tue, 30 Jul 2002 17:43:29 -0400
+	id <S316695AbSG3VlM>; Tue, 30 Jul 2002 17:41:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316693AbSG3Vn2>; Tue, 30 Jul 2002 17:43:28 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35076 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316705AbSG3Vmy>; Tue, 30 Jul 2002 17:42:54 -0400
-Date: Tue, 30 Jul 2002 14:46:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
-       <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: [patch] Input cleanups for 2.5.29 [2/2]
-In-Reply-To: <20020730233542.A23181@ucw.cz>
-Message-ID: <Pine.LNX.4.33.0207301441050.2051-100000@penguin.transmeta.com>
+	id <S316693AbSG3VlL>; Tue, 30 Jul 2002 17:41:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33036 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316684AbSG3Vkd>;
+	Tue, 30 Jul 2002 17:40:33 -0400
+Message-ID: <3D47089C.6030504@mandrakesoft.com>
+Date: Tue, 30 Jul 2002 17:43:56 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@zip.com.au>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [patch] disable READA
+References: <3D47043E.413E9803@zip.com.au>
+X-Enigmail-Version: 0.65.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> There's a bug in bread() which can cause it to misinterpret a
+> failed READA request as an IO error on SMP.
 
-On Tue, 30 Jul 2002, Vojtech Pavlik wrote:
-> 
-> Now the question remaining is how to fix that? You can just skip the
-> patch. I've tried a 'bk undo', but that complains about unmerged leaves
-> in that case (though really nothing depends on those changes). Or should
-> I just make another cset on top of all the previous?
 
-Ugh. there's a few things you can do
+> --- 2.4.19-rc3/drivers/block/ll_rw_blk.c~no-readahead	Tue Jul 30 14:18:17 2002
+> +++ 2.4.19-rc3-akpm/drivers/block/ll_rw_blk.c	Tue Jul 30 14:19:52 2002
+> @@ -841,7 +841,9 @@ static int __make_request(request_queue_
+>  	rw_ahead = 0;	/* normal case; gets changed below for READA */
+>  	switch (rw) {
+>  		case READA:
+> +#if 0	/* bread() misinterprets failed READA attempts as IO errors on SMP */
+>  			rw_ahead = 1;
+> +#endif
 
- - I often actually do a "bk undo -axxx" and then just re-do the parts I 
-   want to re-do.
 
-   NOTE! This only works if you haven't already had people pull from your 
-   repository (or you'll need to ask them to do the "bk undo" as well).
 
- - You can reverse the cset, which means that it's still there, but there 
-   is also a cset that says "undo that other cset". I prefer to not pull 
-   those kinds of undo's, but they do happen, and I occasionally do them
-   myself. I try to avoid it, but it's very useful for debugging ("does 
-   that problem go away if I undo just that one cset?"), and sometimes 
-   it _is_ the sanest way to go.
+If the problem is only on SMP, then that should be #ifndef CONFIG_SMP...
 
-   So do "bk cset -xA.BBB"
+	Jeff
 
- - in this case, maybe just adding a new cset is the proper thing. 
-   Especially as reversing the cset doesn't actually get you where you
-   want anyway, since you'd still have to do the "unsigned short" -> "u16"  
-   translation as yet another cset.
 
-I only get upset if the tree looks _really_ cluttered, in which case I may 
-ask you to re-do it (that's happened once with the reiserfs tree).
-
-			Linus
 

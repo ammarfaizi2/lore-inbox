@@ -1,11 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267089AbTAAEkV>; Tue, 31 Dec 2002 23:40:21 -0500
+	id <S267091AbTAAEwx>; Tue, 31 Dec 2002 23:52:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267091AbTAAEkV>; Tue, 31 Dec 2002 23:40:21 -0500
-Received: from mx1.it.wmich.edu ([141.218.1.89]:28390 "EHLO mx1.it.wmich.edu")
-	by vger.kernel.org with ESMTP id <S267089AbTAAEkT>;
-	Tue, 31 Dec 2002 23:40:19 -0500
+	id <S267111AbTAAEww>; Tue, 31 Dec 2002 23:52:52 -0500
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:38934 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S267091AbTAAEwv>;
+	Tue, 31 Dec 2002 23:52:51 -0500
+From: <Hell.Surfers@cwctv.net>
+To: ed.sweetman@wmich.edu, tyketto@wizard.com, linux-kernel@vger.kernel.org
+Date: Wed, 1 Jan 2003 05:01:12 +0000
+Subject: RE:Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+MIME-Version: 1.0
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1041397272201"
+Message-ID: <0b1ce4758040113DTVMAIL9@smtp.cwctv.net>
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
+
+
+--1041397272201
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+read up on why the GPL exists, its not to protect a billion dollar company, its to protect honest contributors from having their work stolen by big buisness like just what happened when Nvidia used various GPLd HEADER FILES IN ITS MODULES AND KEPT SOURCE CLOSED. by "DEAD HORSE".
+
+Dean. Three ways to kill yourself, and ive been drove in one...
+
+On Tue, 31 Dec 2002 23:48:44 -0500 Ed Sweetman <ed.sweetman@wmich.edu> wrote:
+
+--1041397272201
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Received: from mx1.it.wmich.edu ([141.218.1.89]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Wed, 1 Jan 2003 04:48:42 +0000
+Received: from hermes.it.wmich.edu (localhost [127.0.0.1])
+	by hermes.localmail (8.1336/8.12.4) with SMTP id h014mk52003764
+	for <Hell.Surfers@cwctv.net>; Tue, 31 Dec 2002 23:48:46 -0500 (EST)
+Received: from smtp.wmich.edu ([127.0.0.1])
+ by hermes.it.wmich.edu (NAVGW 2.5.2.9) with SMTP id M2002123123484510962
+ ; Tue, 31 Dec 2002 23:48:45 -0500
+Received: from wmich.edu (localhost [127.0.0.1])
+	(authenticated bits=0)
+	by smtp.wmich.edu (8.1336/8.12.4) with ESMTP id h014mi8l003760;
+	Tue, 31 Dec 2002 23:48:45 -0500 (EST)
 Message-ID: <3E12732C.3080009@wmich.edu>
 Date: Tue, 31 Dec 2002 23:48:44 -0500
 From: Ed Sweetman <ed.sweetman@wmich.edu>
@@ -18,8 +58,7 @@ References: <0aebf3510030113DTVMAIL9@smtp.cwctv.net> <20030101035618.GA7829@wiza
 In-Reply-To: <20030101035618.GA7829@wizard.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: ed.sweetman@wmich.edu
 
 A Guy Called Tyketto wrote:
 > On Wed, Jan 01, 2003 at 03:13:00AM +0000, Hell.Surfers@cwctv.net wrote:
@@ -102,4 +141,7 @@ motivated to dive into that mess yet so I dont see much motivation on
 nvidia's side to change how they do things.
 
 ok. dead horse 0   people 1.  no doubt a rematch will proceed.
+
+--1041397272201--
+
 

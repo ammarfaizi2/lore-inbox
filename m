@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315779AbSEZIA4>; Sun, 26 May 2002 04:00:56 -0400
+	id <S315785AbSEZIGP>; Sun, 26 May 2002 04:06:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315784AbSEZIAz>; Sun, 26 May 2002 04:00:55 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:26884 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315779AbSEZIAz>; Sun, 26 May 2002 04:00:55 -0400
-Date: Sun, 26 May 2002 09:00:47 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: A Guy Called Tyketto <tyketto@wizard.com>
-Cc: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.18-dj1
-Message-ID: <20020526090046.A32058@flint.arm.linux.org.uk>
-In-Reply-To: <20020526014439.GA19527@suse.de> <20020526075314.GA1307@wizard.com>
+	id <S315792AbSEZIGO>; Sun, 26 May 2002 04:06:14 -0400
+Received: from bs1.dnx.de ([213.252.143.130]:18092 "EHLO bs1.dnx.de")
+	by vger.kernel.org with ESMTP id <S315785AbSEZIGO>;
+	Sun, 26 May 2002 04:06:14 -0400
+Date: Sun, 26 May 2002 10:05:39 +0200
+From: Robert Schwebel <robert@schwebel.de>
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+Message-ID: <20020526100539.M598@schwebel.de>
+In-Reply-To: <20020525150542.B17889@work.bitmover.com> <20020525221751.41FC311972@denx.denx.de> <20020525161034.L28795@work.bitmover.com> <20020526015609.F598@schwebel.de> <20020525204026.D19792@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.16i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 26, 2002 at 12:53:14AM -0700, A Guy Called Tyketto wrote:
-> >>EIP; c01cbd2d <fb_copy_cmap+9d/2b0>   <=====
+On Sat, May 25, 2002 at 08:40:26PM -0700, Larry McVoy wrote:
+> My first problem is that this is a partial sampling of the source base.
+> My second problem is that Paolo Mantegazza isn't the original author of
+> that file.
 
-This oops has existed over several 2.5 versions.  The following was thrown
-around to fix it (I don't remember who though).
+We'll discuss that on the RTAI mailing list. 
 
---- orig/drivers/video/fbcmap.c	Fri May  3 11:12:44 2002
-+++ linux/drivers/video/fbcmap.c	Fri May 10 19:39:38 2002
-@@ -150,9 +150,9 @@
-     else
- 	tooff = from->start-to->start;
-     size = to->len-tooff;
--    if (size > from->len-fromoff)
-+    if (size > (int)(from->len-fromoff))
- 	size = from->len-fromoff;
--    if (size < 0)
-+    if (size <= 0)
- 	return;
-     size *= sizeof(u16);
-     
+> Well, I find it misleading. It makes it sound like you have rights to that
+> code that you don't and it makes it sound like it is LGPLed.
 
+You are right, and be sure we'll do our best to clarify the situation as
+good as possible. Take into account that the license change took place just
+recently and there are surely things left which have to be cleaned up. It
+is common agreement between the RTAI team that patches and schedulers are
+GPL, self-developed services are LGPL. 
 
+Sidenote: before the 24.1.9 release we publically asked on the RTAI mailing
+list if we have missed somebody in the "authors" file: 
+
+  http://www.realtimelinux.org/archives/rtai/20024/0066.html
+
+Nobody has spoken up who is not listed there so far. 
+
+Robert
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+ +--------------------------------------------------------+
+ | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
+ | Pengutronix - Linux Solutions for Science and Industry |
+ |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
+ |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
+ +--------------------------------------------------------+

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263803AbUAISyM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 13:54:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263805AbUAISyL
+	id S263452AbUAISqA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 13:46:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbUAISp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 13:54:11 -0500
-Received: from smtp.sys.beep.pl ([195.245.198.13]:15634 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S263803AbUAISyI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 13:54:08 -0500
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: James Morris <jmorris@redhat.com>
-Subject: Re: [PATCH][SELINUX] 3/7 Add node controls
-Date: Fri, 9 Jan 2004 19:53:54 +0100
-User-Agent: KMail/1.5.94
-Cc: linux-kernel@vger.kernel.org
-References: <Xine.LNX.4.44.0401091017250.21309-100000@thoron.boston.redhat.com>
-In-Reply-To: <Xine.LNX.4.44.0401091017250.21309-100000@thoron.boston.redhat.com>
+	Fri, 9 Jan 2004 13:45:59 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:61457 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S263173AbUAISoj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 13:44:39 -0500
+Date: Sat, 10 Jan 2004 02:43:11 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+X-X-Sender: <raven@wombat.indigo.net.au>
+To: <viro@parcelfarce.linux.theplanet.co.uk>
+cc: "H. Peter Anvin" <hpa@zytor.com>, Jim Carter <jimc@math.ucla.edu>,
+       "Ogden, Aaron A." <aogden@unocal.com>, <thockin@sun.com>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Mike Waychison <Michael.Waychison@sun.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [autofs] [RFC] Towards a Modern Autofs
+In-Reply-To: <20040108183135.GE30321@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.33.0401100241020.21972-100000@wombat.indigo.net.au>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200401091953.54296.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-5.5, required 8, AWL,
+	BAYES_10, EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT,
+	REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 09 of January 2004 16:39, James Morris wrote:
-> This patch against 2.6.1-mm2 adds 'node' access controls for SELinux,
-> which allows network traffic to be controlled on the basis of remote
-> address.
+On Thu, 8 Jan 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
+
+> Basically, it's a single-point analog of autofs done entirely in VFS.
+> The job of automounter is to maintain the traps and react to events.
 >
-> Like the previous patch, similar functionality was present in earlier
-> SELinux implementations; this is a rework within the constraints of the
-> LSM hooks present in the mainline kernel.
-But only for IPv4 right? What about IPv6 part - is SELinux able to deal with 
-IPv6 at all?
+> And yes, I should've done that months ago.  Waaaaay too long backlog -
+> bdev work, dev_t stuff, netdev, yadda, yadda.
+>
 
-> Please apply.
+So that's why Peter appears to have not made progress.
 
--- 
-Arkadiusz Mi¶kiewicz    CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux
+Yes. Tell me about the 24 hour days that feel like an hour and feel like
+only an hours progress has been made.
+
+Ian
+
+
+

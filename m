@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271363AbTHHO2k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 10:28:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271365AbTHHO2k
+	id S271369AbTHHO3d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 10:29:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271367AbTHHO3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 10:28:40 -0400
-Received: from quechua.inka.de ([193.197.184.2]:9195 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S271363AbTHHO2j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 10:28:39 -0400
-From: Bernd Eckenfels <ecki-lkm@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-In-Reply-To: <1060351312.25209.468.camel@passion.cambridge.redhat.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.20-xfs (i686))
-Message-Id: <E19l8EM-0006R3-00@calista.inka.de>
-Date: Fri, 08 Aug 2003 16:28:34 +0200
+	Fri, 8 Aug 2003 10:29:32 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28588 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S271369AbTHHO31
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 10:29:27 -0400
+Message-ID: <3F33B3B9.7030905@pobox.com>
+Date: Fri, 08 Aug 2003 10:29:13 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mark Watts <m.watts@eris.qinetiq.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Innovision EIO DM-8301H/R SATA cards...
+References: <200308081408.16564.m.watts@eris.qinetiq.com> <3F33A3EB.9030108@pobox.com> <200308081511.28238.m.watts@eris.qinetiq.com>
+In-Reply-To: <200308081511.28238.m.watts@eris.qinetiq.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1060351312.25209.468.camel@passion.cambridge.redhat.com> you wrote:
-> The practice of using JFFS2 on CF (and other real block devices) isn't
-> really something I encourage, but it seems to have happened because
-> there isn't a 'real' block device based file system which is
-> powerfail-save, optimised for space and which uses compression. If
-> reiser4 can fill that gap, that would be pleasing to me.
+Mark Watts wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> 
+> 
+>>Mark Watts wrote:
+>>
+>>>-----BEGIN PGP SIGNED MESSAGE-----
+>>>Hash: SHA1
+>>>
+>>>
+>>>My local supplier has started doing some SATA cards....
+>>>
+>>>http://www.ivmm.com/eio/products_sata_pci_host.html
+>>>
+>>>
+>>>The chip on the board i the screenshot looks vaguely like a Silicon Image
+>>>chip - - am I correct in thinking that these are supported in linux?
+>>
+>>If they are Silicon Image, yes, they are supported.
+> 
+> 
+> Great stuff - can someone confirm whether I still need to do the folloing for 
+> the latest 2.4.22 kernels in order to get good performance?
+> 
+> # hdparm -d1 -X66 /dev/hdX
+> # echo "max_kb_per_request:15" > /proc/.ide/hdX/settings
 
-Thanks for that great article, would you care to describe where the slowness
-of JFFS2 is coming from?
 
-Do you have experiences with XFS and ext3 (datajournal) filesystems in terms
-of power fail security?
+I have no idea :(   I'm off in libata land, which will soon support 
+Silicon Image SATA as well...
+
+	Jeff
 
 
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+

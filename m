@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261583AbSJMS5g>; Sun, 13 Oct 2002 14:57:36 -0400
+	id <S261337AbSJMTGY>; Sun, 13 Oct 2002 15:06:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261585AbSJMS5f>; Sun, 13 Oct 2002 14:57:35 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:7698
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261583AbSJMS5f>; Sun, 13 Oct 2002 14:57:35 -0400
-Subject: Re: Evolution and 2.5.x
-From: Robert Love <rml@tech9.net>
-To: Eric Blade <eblade@m-net.arbornet.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200210131854.g9DIs1I0062874@m-net.arbornet.org>
-References: <200210131854.g9DIs1I0062874@m-net.arbornet.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Oct 2002 15:03:23 -0400
-Message-Id: <1034535804.6032.4501.camel@phantasy>
-Mime-Version: 1.0
+	id <S261404AbSJMTGX>; Sun, 13 Oct 2002 15:06:23 -0400
+Received: from 12-221-42-172.client.insightBB.com ([12.221.42.172]:3456 "EHLO
+	theretriever.org") by vger.kernel.org with ESMTP id <S261337AbSJMTGX>;
+	Sun, 13 Oct 2002 15:06:23 -0400
+Date: Sun, 13 Oct 2002 14:11:58 -0500 (CDT)
+From: solrosin@mail.theretriever.org
+To: linux-kernel@vger.kernel.org
+Subject: Problem with ide-scsi kernel module
+Message-ID: <Pine.LNX.4.44.0210131410120.2020-100000@theretriever.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-13 at 14:54, Eric Blade wrote:
+It would appear that there is a problem in the ide-scsi kernel module.  I 
+HAVE properly built the kernel beforehand, so I know it's not a matter of 
+the kernel being improperly built.  Here's the error message I'm getting 
+when I try to insmod ide-scsi:
+ 
+Using /lib/modules/2.4.19/kernel/drivers/scsi/ide-scsi.o
+/lib/modules/2.4.19/kernel/drivers/scsi/ide-scsi.o: unresolved symbol 
+scsi_unregister_module_R81d85a75
+/lib/modules/2.4.19/kernel/drivers/scsi/ide-scsi.o: unresolved symbol 
+scsi_register_Rfb1392b2
+/lib/modules/2.4.19/kernel/drivers/scsi/ide-scsi.o: unresolved symbol 
+scsi_register_module_Rfa20b7b0
+ 
+ 
+This is the only module that is doing this, so it's an isolated incident.  
+The problem is that I need to use ide-scsi to use my CD writer.  Is there 
+a patch for this, or am I doing something wrong that I didn't know about?  
+The version of gcc I'm using is "gcc version 2.96 20000731 (Red Hat Linux 
+7.3 2.96-110)".  Let me know what you think.  Thanks.
 
->   I'm guessing that not too many of the kernel developers use Evolution as
-> their email program :)   Since I started picking up the 2.5.x series, at around
-> 2.5.34, Evolution does not run anywhere near properly.  I'm not sure if that
-> is a kernel issue, or a problem with Evolution's code..  But it did improve
-> quite a bit with all the low-level process management that was in the 2.5.3x 
-> series.  It still doesn't work right though.  (in 2.5.34, evolution would
-> just plain halt the system ... in 2.5.42, it mostly works right, as long
-> as you don't try to compose a message.. composing a message will leave you
-> with a whole buch of zombie processes). 
-
-Hey, I use Evolution ;-)
-
-See this thread:
-http://lists.ximian.com/archives/public/evolution-hackers/2002-June/004841.html
-
-It is indeed broken in 2.5 and it is not, for once, our fault.  This
-thread and other discussion seem to point out it is a bug in ORBit.
-
-	Robert Love
 

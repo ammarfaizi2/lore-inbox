@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314291AbSEMRx2>; Mon, 13 May 2002 13:53:28 -0400
+	id <S314295AbSEMRyP>; Mon, 13 May 2002 13:54:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314295AbSEMRx1>; Mon, 13 May 2002 13:53:27 -0400
-Received: from mail.eskimo.com ([204.122.16.4]:45838 "EHLO mail.eskimo.com")
-	by vger.kernel.org with ESMTP id <S314291AbSEMRx0>;
-	Mon, 13 May 2002 13:53:26 -0400
-Date: Mon, 13 May 2002 10:52:50 -0700
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Elladan <elladan@eskimo.com>, Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] ext2 and ext3 block reservations can be bypassed
-Message-ID: <20020513105250.A30395@eskimo.com>
-In-Reply-To: <elladan@eskimo.com> <200205131709.g4DH9Fjv006328@pincoya.inf.utfsm.cl>
-Mime-Version: 1.0
+	id <S314358AbSEMRyO>; Mon, 13 May 2002 13:54:14 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:35523 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S314295AbSEMRyM>;
+	Mon, 13 May 2002 13:54:12 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-From: Elladan <elladan@eskimo.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15583.64945.895937.416115@napali.hpl.hp.com>
+Date: Mon, 13 May 2002 10:53:53 -0700
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: davidm@hpl.hp.com, Rusty Russell <rusty@rustcorp.com.au>,
+        <engebret@vnet.ibm.com>, <justincarlson@cmu.edu>,
+        <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
+        <anton@samba.org>, <ak@suse.de>, <paulus@samba.org>
+Subject: Re: Memory Barrier Definitions
+In-Reply-To: <Pine.LNX.4.44.0205130938380.19524-100000@home.transmeta.com>
+X-Mailer: VM 7.03 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 13, 2002 at 01:09:15PM -0400, Horst von Brand wrote:
-> Elladan <elladan@eskimo.com> said:
-> 
-> [...]
-> 
-> > Regardless of whether it's a good thing to depend on security-wise, it
-> > is a problem to have something that appears to be a security feature
-> > which doesn't actually work.
-> 
-> It is _not_ a security feature, it is meant to keep the filesystem from
-> fragmenting too badly. root can use that space, since root can do whatever
-> she wants anyway.
+>>>>> On Mon, 13 May 2002 09:50:01 -0700 (PDT), Linus Torvalds <torvalds@transmeta.com> said:
 
-But it *appears* to be a security feature.  Thus, someone might
-incorrectly depend on it, unless it's clearly documented as otherwise.
-This is probably best considered a documentation issue.  Instead of
-saying it's "reserved for root" etc., tools should indicate it's
-"reserved to prevent fragmentation, still accessible by root"
+  Linus> Until ia64 is a noticeable portion of the installed base, and
+  Linus> indeed, until it has shown that it can survive at all, we're
+  Linus> not going to design the Linux SMP memory ordering around that
+  Linus> architecture.
 
-At least one document I recall seeing indicates that this reserve is so
-system software (eg. cron jobs) won't fail, and so root will still be
-able to log in when the disk is full.  This interpretation makes it
-sound like a security feature - if it isn't meant as one, some effort
-should be made to ensure there's no confusion, or else someone might
-depend on the behavior.
+Well, I hope we can *discuss* ideas for models that could accommodate
+all platforms.
 
--J
+  Linus> We're _not_ going to make up a complicated, big fancy new
+  Linus> model. We might tweak the current one a bit. And if that
+  Linus> means that some architectures get heavier barriers than they
+  Linus> strictly need, then so be it. There are two overriding
+  Linus> concerns:
+
+  Linus>  - sanity: maybe it's better to have one mb() that is a
+  Linus> sledgehammer but obvious, than it is to have many subtle
+  Linus> variations that are just asking for subtle bugs.
+
+I tend to agree.
+
+  Linus>  - x86 _owns_ the market right now, and we're not going to
+  Linus> make up barriers that add overhead to x86. We may add
+  Linus> barriers that end up being no-op's on x86 (because it is
+  Linus> fairly ordered anyway), but basically it should be designed
+  Linus> for the _common_ case, not for some odd-ball architecture
+  Linus> that has sold machines mostly for test purposes.
+
+Nobody suggested such a thing.
+
+  Linus> The x86 situation is obviously just today. In five or ten
+  Linus> years maybe everybody agrees that we should follow the ia-64
+  Linus> model, and x86 can do strange things that end up being slow.
+
+Geez, how about we spend a little time thinking about it *now*?
+Perhaps Rusty can come up with a model that will be easy to program
+for *and* work well for all platforms.  Wouldn't that be neat?  If
+not, we can always fall back on the sledge hammer (unlike other
+platforms, ia64 performance isn't affected much be extraneous memory
+barriers).
+
+	--david

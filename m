@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbTKTU6y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 15:58:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTKTU6y
+	id S262051AbTKTVLg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 16:11:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTKTVLg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 15:58:54 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:60685 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S262110AbTKTU6x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 15:58:53 -0500
-Date: Thu, 20 Nov 2003 19:01:56 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] remove include recursion from linux/pagemap.h
-Message-ID: <20031120210156.GV30259@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Thu, 20 Nov 2003 16:11:36 -0500
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:34286 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S262051AbTKTVLf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 16:11:35 -0500
+Date: Thu, 20 Nov 2003 14:07:39 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Timothy Miller <miller@techsource.com>
+Cc: Justin Cormack <justin@street-vision.com>,
+       Jesse Pollard <jesse@cats-chateau.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+Message-ID: <20031120140739.I20568@schatzie.adilger.int>
+Mail-Followup-To: Timothy Miller <miller@techsource.com>,
+	Justin Cormack <justin@street-vision.com>,
+	Jesse Pollard <jesse@cats-chateau.net>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1068512710.722.161.camel@cube> <03111209360001.11900@tabby> <20031120172143.GA7390@deneb.enyo.de> <03112013081700.27566@tabby> <1069357453.26642.93.camel@lotte.street-vision.com> <3FBD27A0.50803@techsource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3FBD27A0.50803@techsource.com>; from miller@techsource.com on Thu, Nov 20, 2003 at 03:44:16PM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Nov 20, 2003  15:44 -0500, Timothy Miller wrote:
+> This could be a problem if COW causes you to run out of space when 
+> writing to the file.
 
-	I don't know if this qualifies for the current patch acceptance mode,
-but I found it "funny" enough to send a patch.
+Not much different than running out of space copying a file.
 
-- Arnaldo
+> This could also be a benefit if, for whatever reason, you have lots of 
+> copies of the same file that you never change.  But that sounds somewhat 
+> pointless to me.
 
-===== include/linux/pagemap.h 1.37 vs edited =====
---- 1.37/include/linux/pagemap.h	Tue Aug 19 02:38:39 2003
-+++ edited/include/linux/pagemap.h	Thu Nov 20 18:57:09 2003
-@@ -8,7 +8,6 @@
- #include <linux/fs.h>
- #include <linux/list.h>
- #include <linux/highmem.h>
--#include <linux/pagemap.h>
- #include <asm/uaccess.h>
- #include <linux/gfp.h>
- 
+Umm, snapshots-in-time of your /home, /usr/src, etc?  Copies of the kernel?
+Lots of reasons to have mostly-identical versions of files.  Almost like
+hard links, except you aren't at the mercy of your editor/patch to do the
+right thing when modifying one of those copies.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

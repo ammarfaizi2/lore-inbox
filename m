@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129112AbRBFQCQ>; Tue, 6 Feb 2001 11:02:16 -0500
+	id <S129051AbRBFQC4>; Tue, 6 Feb 2001 11:02:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129063AbRBFQCG>; Tue, 6 Feb 2001 11:02:06 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:6408 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S129051AbRBFQBy>; Tue, 6 Feb 2001 11:01:54 -0500
-Message-ID: <3A801FEA.E622B306@Hell.WH8.TU-Dresden.De>
-Date: Tue, 06 Feb 2001 17:01:46 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac3 i686)
-X-Accept-Language: en, de-DE
+	id <S129063AbRBFQCr>; Tue, 6 Feb 2001 11:02:47 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:64009 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129051AbRBFQCQ>; Tue, 6 Feb 2001 11:02:16 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE005@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'lkml'" <linux-kernel@vger.kernel.org>
+Subject: kernel param. Q's
+Date: Tue, 6 Feb 2001 08:02:12 -0800 
 MIME-Version: 1.0
-To: Dale Farnsworth <dale@farnsworth.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: VIA silent disk corruption - patch
-In-Reply-To: <20010206085223.A28894@zenos.local.farnsworth.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dale Farnsworth wrote:
-> 
-> However, if I enable the BIOS parameter "I/O Recovery Time", I can still
-> enable read caching without seeing any data corruption.
-> The lastest BIOS revision (1005C) enables "I/O Recovery Time" by default
-> where the previous revision I had (1004D) did not.
+(Linux 2.4.0)
 
-Interesting stuff.
+1.  Are the PARIDE options that are listed in
+linux/Documentation/kernel-parameters.txt still valid?
+I couldn't find them in drivers/block/paride anywhere.
 
-Asus, Germany released 1005D today. It's available from
-ftp://ftp.asuscom.de/pub/ASUSCOM/BIOS/Socket_A/VIA_Chipset/Apollo_KT133/A7V/1005D.zip
+2.  kernel-parameters.txt says (or implies to me) that
+    ide?=nodma
+is a valid kernel option.  However, I can't see this
+parsed in drivers/block anywhere.  Anybody know if this
+is (still) valid?
 
-No comments about what they changed and/or fixed.
+Thanks,
+~Randy_________________________________________
 
--Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

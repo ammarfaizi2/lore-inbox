@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbUFVI7X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUFVJFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbUFVI7X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 04:59:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUFVI7W
+	id S261638AbUFVJFb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 05:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUFVJFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 04:59:22 -0400
-Received: from postin.uv.es ([147.156.1.90]:51648 "EHLO postin.uv.es")
-	by vger.kernel.org with ESMTP id S261604AbUFVI7N (ORCPT
+	Tue, 22 Jun 2004 05:05:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:13481 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261638AbUFVJF1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 04:59:13 -0400
-Date: Tue, 22 Jun 2004 10:59:09 +0200
-From: uaca@alumni.uv.es
-To: linux-kernel@vger.kernel.org
-Subject: capabilities, cap_set_cap and setuid()
-Message-ID: <20040622085908.GA13906@pusa.informat.uv.es>
+	Tue, 22 Jun 2004 05:05:27 -0400
+Date: Tue, 22 Jun 2004 02:04:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: mikpe@csd.uu.se, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][1/6] perfctr-2.7.3 for 2.6.7-rc1-mm1: core
+Message-Id: <20040622020417.0ec87564.akpm@osdl.org>
+In-Reply-To: <20040622085901.GA31971@infradead.org>
+References: <200405312218.i4VMIISg012277@harpo.it.uu.se>
+	<20040622015311.561a73bf.akpm@osdl.org>
+	<20040622085901.GA31971@infradead.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> On Tue, Jun 22, 2004 at 01:53:11AM -0700, Andrew Morton wrote:
+> > Also there should be a document or a manpage or something which describes,
+> > in detail:
+> > 
+> > - the user/kernel API  (separate document, probably)
+> 
+> It also needs moving back to /proc/<pid>/ files from the syscall API.
 
-I didn't find an answer about enabling CAP_SETPCAP
-
-Why is deemed a security risk? 
-
-Maybe the question seems silly but, where is the risk, a root user
-can setuid /bin/sh and maked things still more fun... it sounds brain dead.
-
-Another question... why is not allowed to do the following:
-
-uid = 0 program enables enables only one capability (in all sets) and if it
-changes to another uid (by calling setuid) the program losses the
-capability.
-
-Any comment would be greatly appreciated
-
-Thanks in advance
-
-	Ulisses
-
-                Debian GNU/Linux: a dream come true
------------------------------------------------------------------------------
-"Computers are useless. They can only give answers."            Pablo Picasso
-
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+What does this mean?

@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263977AbSLPOru>; Mon, 16 Dec 2002 09:47:50 -0500
+	id <S264745AbSLPPDi>; Mon, 16 Dec 2002 10:03:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264745AbSLPOru>; Mon, 16 Dec 2002 09:47:50 -0500
-Received: from smtp-server4.tampabay.rr.com ([65.32.1.43]:19694 "EHLO
-	smtp-server4.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S263977AbSLPOrs>; Mon, 16 Dec 2002 09:47:48 -0500
-From: "Scott Robert Ladd" <scott@coyotegulch.com>
-To: <root@chaos.analogic.com>, "Brian Jackson" <brian-kernel-list@mdrx.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: /proc/cpuinfo and hyperthreading
-Date: Mon, 16 Dec 2002 09:56:27 -0500
-Message-ID: <FKEAJLBKJCGBDJJIPJLJIELIDLAA.scott@coyotegulch.com>
+	id <S265777AbSLPPDi>; Mon, 16 Dec 2002 10:03:38 -0500
+Received: from elixir.e.kth.se ([130.237.48.5]:35337 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S264745AbSLPPDi>;
+	Mon, 16 Dec 2002 10:03:38 -0500
+To: "Scott Robert Ladd" <scott@coyotegulch.com>
+Cc: <root@chaos.analogic.com>, "Brian Jackson" <brian-kernel-list@mdrx.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/cpuinfo and hyperthreading
+References: <FKEAJLBKJCGBDJJIPJLJIELIDLAA.scott@coyotegulch.com>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 16 Dec 2002 16:11:23 +0100
+In-Reply-To: "Scott Robert Ladd"'s message of "Mon, 16 Dec 2002 09:56:27 -0500"
+Message-ID: <yw1xr8cigfs4.fsf@lakritspipa.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.3.95.1021216090324.20273A-100000@chaos.analogic.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Johnson asked:
-> How do you know this? How can I learn what Windows does with
-> Win/2000/professional?
+"Scott Robert Ladd" <scott@coyotegulch.com> writes:
 
-Run the Windows Task Manager and selected the Performance tab; on my system,
-it shows two separate graphs, one for each logical CPU.
+> > How do you know this? How can I learn what Windows does with
+> > Win/2000/professional?
+> 
+> Run the Windows Task Manager and selected the Performance tab; on my system,
+> it shows two separate graphs, one for each logical CPU.
 
-> if two CPUs are present...." Direct quote. If you have two logical
+It's easy to write a program that displays any number of graphs
+vaguely related to the system load.  How do we know that the
+performance meter isn't lying?
 
-> CPUs, you can't remove one, therefore, unless M$ has fixed the problem(s)
-> in XP, you can't use Windows with two logical CPUs, i.e., hyperthreading.
-
-The machine came with Windows XP pre-installed; I ran it a couple of times,
-then blew it away (do I hear cheers?) when I installed Linux. I probably
-didn't run it long-enough to hit any bugs.
-
-..Scott
-
---
-Scott Robert Ladd
-Coyote Gulch Productions,  http://www.coyotegulch.com
-No ads -- just very free (and somewhat unusual) code.
-
+-- 
+Måns Rullgård
+mru@users.sf.net

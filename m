@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317765AbSGKFJd>; Thu, 11 Jul 2002 01:09:33 -0400
+	id <S317768AbSGKFL1>; Thu, 11 Jul 2002 01:11:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317767AbSGKFJc>; Thu, 11 Jul 2002 01:09:32 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:54994 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S317765AbSGKFJa>;
-	Thu, 11 Jul 2002 01:09:30 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, R.E.Wolff@BitWizard.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: Rusty's module talk at the Kernel Summit 
-In-reply-to: Your message of "Wed, 10 Jul 2002 23:55:04 -0300."
-             <20020711025503.GB5973@conectiva.com.br> 
-Date: Thu, 11 Jul 2002 15:16:22 +1000
-Message-Id: <20020711051232.324454224@lists.samba.org>
+	id <S317769AbSGKFL0>; Thu, 11 Jul 2002 01:11:26 -0400
+Received: from holomorphy.com ([66.224.33.161]:4756 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S317768AbSGKFKF>;
+	Thu, 11 Jul 2002 01:10:05 -0400
+Date: Wed, 10 Jul 2002 22:11:52 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: lazy_buddy-2.5.25-1
+Message-ID: <20020711051152.GD27093@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20020710085917.GP25360@holomorphy.com> <20020711044956.GB27093@holomorphy.com> <20020711050221.GC27093@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020711050221.GC27093@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020711025503.GB5973@conectiva.com.br> you write:
-> Em Thu, Jul 11, 2002 at 12:48:30PM +1000, Rusty Russell escreveu:
-> > On Thu, 4 Jul 2002 10:24:11 -0700
-> > "Adam J. Richter" <adam@yggdrasil.com> wrote:
-> > > smaller ones, in the case where there is substantial code that is not
-> > > needed for some configurations.
-> > 
-> > For God's sake, WHY?  Look at what you're doing to your TLB (and if you
-> > made IPv4 a removable module, I'll bet real money you have a bug unless
-> > you are *very* *very* clever).
-> > 
-> > Modules are not "free".  Sorry.
-> 
-> What about Andi Kleen patch to not use vmalloc (well, vmalloc is used as a
-> fallback) when loading modules but instead use big pages?  It is being
-> integrated in 2.4.20-pre, IIRC. IIRC with that there is still some issues, so
-> for enlightening the audience here, could you share your view on that patch? 
-8)
+On Wed, Jul 10, 2002 at 10:02:21PM -0700, William Lee Irwin III wrote:
+> Even worse, I spotted another (thankfully more minor) bug while still
+> peeking at this... okay, back to more urgent things.
 
-Sure, but there was no indication that Adam was using such a patch 8)
+I'm *not* having a good day. One parting shot and I really go back to
+the other stuff:
 
-> And for _debugging_ IPv4 maybe the modularisation, if Adam was clever, could
-> help somewhat.
+> @@ -739,8 +739,8 @@
+>  	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next) {
+>  		node_zones = pgdat->node_zones;
+>  		for (i = 0; i < MAX_NR_ZONES; ++i) {
+> -			for (order = 0; order < MAX_ORDER; ++order)
+> -				pages += node_zones[i].free_area[order].locally_free;
+> +			for (order = MAX_ORDER; order >= 0; --order)
+> +				pages = 2*pages + node_zones[i].free_area[order].locally_free;
+>  		}
+>  	}
+>  	return pages;
 
-Definitely.  For debugging purposes, you don't need reference
-counting: when the hacker says "remove it", you remove it. 8)
+forgets to start from 0 pages for each zone. Don't bother trying to be
+smart and let the compiler figure it out, it's for /proc/meminfo anyway:
 
 Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Bill
+
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.633   -> 1.634  
+#	     mm/page_alloc.c	1.128   -> 1.129  
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/07/10	wli@tisifone.holomorphy.com	1.634
+# page_alloc.c:
+#   Correct nr_deferred_pages() calculation.
+# --------------------------------------------
+#
+diff --minimal -Nru a/mm/page_alloc.c b/mm/page_alloc.c
+--- a/mm/page_alloc.c	Wed Jul 10 22:12:14 2002
++++ b/mm/page_alloc.c	Wed Jul 10 22:12:14 2002
+@@ -740,7 +740,7 @@
+ 		node_zones = pgdat->node_zones;
+ 		for (i = 0; i < MAX_NR_ZONES; ++i) {
+ 			for (order = 0; order < MAX_ORDER; ++order)
+-				pages += node_zones[i].free_area[order].locally_free;
++				pages += node_zones[i].free_area[order].locally_free << order;
+ 		}
+ 	}
+ 	return pages;

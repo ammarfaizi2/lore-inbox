@@ -1,59 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbTIYMnc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 08:43:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbTIYMnc
+	id S261344AbTIYMn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 08:43:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbTIYMn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 08:43:32 -0400
-Received: from darville.vm.bytemark.co.uk ([212.13.199.38]:7684 "EHLO
-	david.darville.name") by vger.kernel.org with ESMTP id S261316AbTIYMnb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 08:43:31 -0400
-Date: Thu, 25 Sep 2003 13:43:28 +0100
-From: David Darville <david@darville.name>
-To: linux-kernel@vger.kernel.org
-Subject: Fusion MPT SCSI driver in 2.4.22 crashes with highmem
-Message-ID: <20030925124328.GA574@david.darville.name>
+	Thu, 25 Sep 2003 08:43:59 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:58061 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S261344AbTIYMn4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 08:43:56 -0400
+Date: Thu, 25 Sep 2003 14:43:15 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       Zilvinas Valinskas <zilvinas@gemtek.lt>, alistair@devzero.co.uk,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-test5-mm4
+Message-ID: <20030925124315.GB24049@ucw.cz>
+References: <20030922013548.6e5a5dcf.akpm@osdl.org> <200309221317.42273.alistair@devzero.co.uk> <20030922143605.GA9961@gemtek.lt> <20030922115509.4d3a3f41.akpm@osdl.org> <m2oexc345m.fsf@p4.localdomain> <20030922214526.GD2983@ucw.cz> <m2u171ene7.fsf@p4.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <m2u171ene7.fsf@p4.localdomain>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I try to use a diagnostics tool for for my tape drives, I get a kernel
-oops. The tape drives are attached to a LSI Logic 53c1030 based Ultra320
-controller on a dual Xeon box, and I am using the Fusion MPT driver included
-in the version 2.4.22 kernel.
-While trying to debug the problem, I found out that everything works when I
-compile the kernel without highmem support.
+On Thu, Sep 25, 2003 at 02:13:04AM +0200, Peter Osterlund wrote:
 
+> Vojtech Pavlik <vojtech@suse.cz> writes:
+> 
+> > On Mon, Sep 22, 2003 at 11:27:17PM +0200, Peter Osterlund wrote:
+> > > Andrew Morton <akpm@osdl.org> writes:
+> > > 
+> > > > Zilvinas Valinskas <zilvinas@gemtek.lt> wrote:
+> > > > >
+> > > > > Btw Andrew ,
+> > > > > 
+> > > > > this change  "Synaptics" -> "SynPS/2" - breaks driver synaptic driver
+> > > > > from http://w1.894.telia.com/~u89404340/touchpad/index.html. 
+> > > > > 
+> > > > > 
+> > > > > -static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/
+> > > > > 2", "ImPS/2", "ImExPS/2", "Synaptics"}; 
+> > > > > +static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/2", "ImPS/2", "ImExPS/2", "SynPS/2"};
+> > > > 
+> > > > You mean it breaks the XFree driver?  Is it just a matter of editing
+> > > > XF86Config to tell it the new protocl name?
+> > > 
+> > > It breaks the event device auto detection, which works by parsing
+> > > /proc/bus/input/devices. The protocol name is hard coded so you can't
+> > > just change the XF86Config file.
+> > > 
+> > > > Either way, it looks like a change which should be reverted?
+> > > 
+> > > I think the new protocol name is better, so why not just fix the X
+> > > driver instead. Here is a fixed version:
+> > > 
+> > > http://w1.894.telia.com/~u89404340/touchpad/synaptics-0.11.4.tar.bz2
+> > 
+> > I'd suggest the driver either checks the BUS/VENDOR/DEVICE ids or the
+> > bitfields for the pad, not the name. Names are unreliable ...
+> 
+> OK, this is now implemented in version 0.11.5, which I just uploaded
+> to my web site. This version also adds support for the new events
+> ABS_TOOL_WIDTH, BTN_TOOL_FINGER, BTN_TOOL_DOUBLETAP and
+> BTN_TOOL_TRIPLETAP.
 
-The oops I get is:
-kernel BUG in header file at line 162
-kernel BUG at panic.c:141!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[__out_of_line_bug+15/36] Tainted: P
-EFLAGS: 00010086
-eax: 00000026   ebx: f7928a00   ecx: 00000002 edx: 02000000
-esi: c3e8207c   edi: f79ba1f0   ebp: f79ba1d8 esp: f6fabc68
-ds: 0018   es: 0018   ss: 0018
-Process hp_ltt (pid: 590, stackpage=f6fab000)
-Stack: c026fa80 000000a2 c0202f38 000000a2 f7928a00 c3e8207c f79ba1c0 f79ba1d8
-       c02c2934 c0132070 00000000 00000000 ffffffff 00000000 0000000e 00000060
-       00000000 00000002 c0204831 c3e8207c f7928a00 f79ba1c0 0000005a 00000293
-Call Trace:    [mptscsih_AddSGE+200/832] [__alloc_pages+64/352]
- [mptscsih_qcmd+621/1288]  [scsi_dispatch_cmd+649/904] [scsi_old_done+0/1500]
- [scsi_request_fn+826/892]  [__scsi_insert_special+110/128]
- [scsi_insert_special_req+26/32] [scsi_do_req+328/368]
- [sg_common_write+587/604] [sg_cmd_done_bh+0/912] [sg_new_write+539/576]
- [sg_ioctl+616/3004] [journal_dirty_metadata+356/396] [__alloc_pages+64/352]
- [do_wp_page+112/668] [handle_mm_fault+135/184] [do_page_fault+380/1178]
- [do_page_fault+0/1178] [sys_rt_sigaction+159/324] [sys_ioctl+685/746]
- [error_code+52/60] [system_call+51/56]
+Great, thanks.
 
-Code: 0f 0b 8d 00 a6 fa 26 c0 eb fe 8d 74 26 00 8d bc 27 00 00 00
-
----
-David Darville
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

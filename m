@@ -1,78 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265714AbTL3JqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 04:46:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265715AbTL3JqZ
+	id S265718AbTL3JsV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 04:48:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265717AbTL3JsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 04:46:25 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:62390 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265714AbTL3JqS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 04:46:18 -0500
-Date: Tue, 30 Dec 2003 10:45:47 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Diego Calleja <grundig@teleline.es>
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       ramon.rey@hispalinux.es, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-mm2
-Message-ID: <20031230094547.GB7833@suse.de>
-References: <20031229013223.75c531ed.akpm@osdl.org> <1072727943.1064.15.camel@debian> <1072731446.5170.4.camel@teapot.felipe-alfaro.com> <20031229233839.7f3b5666.grundig@teleline.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 30 Dec 2003 04:48:21 -0500
+Received: from postfix4-2.free.fr ([213.228.0.176]:48036 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S265718AbTL3JsT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 04:48:19 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: Muli Ben-Yehuda <mulix@mulix.org>, "Sirotkin, Alexander" <demiurg@ti.com>
+Subject: Re: network driver that uses skb destructor
+Date: Tue, 30 Dec 2003 10:48:06 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, <linux-atm-general@lists.sourceforge.net>
+References: <3FF05C27.5030706@ti.com> <20031229172402.GG13481@actcom.co.il>
+In-Reply-To: <20031229172402.GG13481@actcom.co.il>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031229233839.7f3b5666.grundig@teleline.es>
+Message-Id: <200312301048.06261.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 29 2003, Diego Calleja wrote:
-> El Mon, 29 Dec 2003 21:57:26 +0100 Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> escribió:
-> 
-> > The same happens here. cdrecord is broken under -mm, but works fine with
-> > plain 2.6.0.
-> 
-> 
-> 
-> I'm seeing the same here:
-> 
-> open("/dev/cd-rw", O_RDWR|O_NONBLOCK)   = -1 EROFS (Read-only file system)
-> write(2, "cdrecord.mmap: Read-only file sy"..., 89cdrecord.mmap: Read-only file system. Cannot open '/dev/cd-rw'. Cannot open SCSI driver.) = 89
+> I wrote a patch to allow chaining of skb destructors, which was fairly
+> simple and would allow both the driver and the upper layers to set
+> their destructors. If there's any interet, I could probably resurrect
+> it.
 
---- drivers/cdrom/cdrom.c~	2003-12-29 15:58:55.698005022 +0100
-+++ drivers/cdrom/cdrom.c	2003-12-29 16:01:32.555918156 +0100
-@@ -740,20 +740,21 @@
- 
- 	cdinfo(CD_OPEN, "entering cdrom_open\n"); 
- 	cdi->use_count++;
--	ret = -EROFS;
--	if (fp->f_mode & FMODE_WRITE) {
--		if (!CDROM_CAN(CDC_RAM))
--			goto out;
--		if (cdrom_open_write(cdi))
--			goto out;
--	}
- 
- 	/* if this was a O_NONBLOCK open and we should honor the flags,
- 	 * do a quick open without drive/disc integrity checks. */
- 	if ((fp->f_flags & O_NONBLOCK) && (cdi->options & CDO_USE_FFLAGS))
- 		ret = cdi->ops->open(cdi, 1);
--	else
-+	else {
-+		if (fp->f_mode & FMODE_WRITE) {
-+			ret = -EROFS;
-+			if (!CDROM_CAN(CDC_RAM))
-+				goto out;
-+			if (cdrom_open_write(cdi))
-+				goto out;
-+		}
- 		ret = open_for_data(cdi);
-+	}
- 
- 	cdinfo(CD_OPEN, "Use count for \"/dev/%s\" now %d\n", cdi->name, cdi->use_count);
- 	/* Do this on open.  Don't wait for mount, because they might
+It may also be useful for the ATM layer.  At the moment there is a
+vcc->pop routine that frees skb's, it should really be a destructor.
+Check out this email:
+	http://www.atm.tut.fi/list-archive/linux-atm/msg05485.html
+However AFAICS destructors would need to be chained.
 
-Fix is with andrew for -mm3
-
--- 
-Jens Axboe
-
+Duncan.

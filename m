@@ -1,50 +1,251 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289606AbSA2MGW>; Tue, 29 Jan 2002 07:06:22 -0500
+	id <S289594AbSA2Lp5>; Tue, 29 Jan 2002 06:45:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289578AbSA2MFX>; Tue, 29 Jan 2002 07:05:23 -0500
-Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:29315 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289595AbSA2L5n>;
-	Tue, 29 Jan 2002 06:57:43 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Note describing poor dcache utilization under high memory pressure
-Date: Tue, 29 Jan 2002 13:01:56 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Oliver Xymoron <oxymoron@waste.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
-In-Reply-To: <Pine.LNX.4.33L.0201290937160.32617-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0201290937160.32617-100000@imladris.surriel.com>
+	id <S289540AbSA2LoQ>; Tue, 29 Jan 2002 06:44:16 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:42767 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S289542AbSA2Lkm>; Tue, 29 Jan 2002 06:40:42 -0500
+Date: Mon, 28 Jan 2002 20:46:28 +0300
+Message-Id: <200201281746.g0SHkSS23084@bitshadow.namesys.com>
+From: Hans Reiser <reiser@namesys.com>
+To: torvalds@transmeta.com
+CC: reiser@namesys.com, reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] ReiserFS 2.5 Update Patch Set 10 of 25
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16VWxZ-0000A3-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 29, 2002 12:38 pm, Rik van Riel wrote:
-> On Tue, 29 Jan 2002, Daniel Phillips wrote:
-> 
-> > > Either that, or we don't populate the page tables of the
-> > > parent and the child at all and have the page tables
-> > > filled in at fault time.
-> >
-> > Yes, you could go that route but you'd have to do some weird and wonderful
-> > bookkeeping to figure out how to populate those page tables.
-> 
-> Not really, if the page table isn't present you just check whether
-> you need to allocate a new one or whether you need to instantiate
-> one.
 
-Since you didn't store it in the parent and you didn't store it in the child,
-how are you going to find it?  This is my point about the weird and wonderful
-bookkeeping, which I managed to avoid entirely.
+This set of patches of which this is one will update ReiserFS in 2.5
+to contain all bugfixes applied to 2.4 plus allow relocating the journal plus
+uuid support plus fix the kdev_t compilation failure.
 
-> That can all be done from within pte_alloc, which is always called
-> by handle_mm_fault()...
+10-journal-preallocated.diff
+    Patch by Chris Mason for bug found and debugged by Anne Milicia
+    (milicia@missioncriticallinux.com): don't run preallocated blocks
+    through journal_mark_freed() and don't corrupt i_prealloc_block during
+    __discard_prealloc().
 
--- 
-Daniel
+
+The other patches in this set are:
+
+
+01-reiserfs-kdev-fixed.diff
+    kdev_t fixes to comply with new interface.
+
+02-reiserfs-journal-relocation.diff
+    Support for relocated journals.
+
+03-check_nlink_in_reiserfs_read_inode2.diff
+    It is possible that knfsd is trying to access inode of a file
+    that is being removed from the disk by some other thread. As we
+    update sd on unlink all that is required is to check for nlink
+    here. This bug was first found by Sizif when debugging
+    SquidNG/Butterfly, forgotten, and found again after Philippe
+    Gramoulle <philippe.gramoulle@mmania.com> reproduced it.
+
+    More logical fix would require changes in fs/inode.c:iput() to
+    remove inode from hash-table _after_ fs cleaned disk stuff up and
+    in iget() to return NULL if I_FREEING inode is found in
+    hash-table.  We await Al Viro doing the more logical fix, and we
+    provide this fix so that users can work while we wait for the
+    better fix.
+
+04-bitmap-range-checking.diff
+    Check that block number are going to free in a bitmap makes sense.
+    This avoids oops after trying to access bitmap for wild block number.
+
+05-prepare_for_delete_or_cut-cleanup.diff
+    Patch by Chris Mason <Mason@Suse.COM>.
+    prepare_for_delete_or_cut() tries to find the unformatted node in
+    the buffer cache to make sure it isn't in use.  Since unformatted
+    nodes are never in the buffer cache, this check is useless.  The
+    page locking done by mm/vmscan.c:vmtruncate protects us from
+    truncating away pages that are in use, so it is safe to just remove
+    the bogus check from our code.
+
+    Since the get_hash_table was also the reason for the repeat loop,
+    this patch removes it as well.  
+
+    This should make file deletes faster, at the very least it cuts down
+    on CPU overhead for deletes/truncates.
+
+06-E-cleanup.diff
+    There is always place for Yet Another Cleanup of Reiserfs Code.
+
+07-mmaped_data_loss_fix.diff
+    fixes a bug first noticed using a Freebsd nfs testing tool. When writing to
+    a previously mmaped-filled hole in file, and then writing with write() there
+    again, page that write() hits loses mmap-written content.
+
+08-unlink-truncate-opened.diff
+    Fixes long-standing problem in reiserfs, when disk space gets leaked
+    if crash occurred when some process hold a reference to unlinked file.
+
+    It's possible to unlink file that is still opened by some
+    process. In this case, body of file is actually removed at the time
+    of last close. If crash occurs in between last unlink (when
+    directory entry for this file is removed) and last close, body
+    doesn't get unlinked and "disk-space-leak" occurs. To prevent this,
+    unlink-truncate-opened patch stores in the tree a special record at the
+    time of last unlink. This record is a form of logical logging and
+    will be either removed during following close, or replayed during
+    next mount after a crash.
+
+09-chown-32-bit-fix.diff
+        Reiserfs 3.5 disk format can only store 16 bit uid/gid inside
+        stat-data. This patch adds error checking so that EINVAL is returned
+        on attempt to change uid/gid of an old file to value that doesn't
+        fit into 16 bit, in stead of silently truncating it into 16 bit.
+
+10-journal-preallocated.diff
+    Patch by Chris Mason for bug found and debugged by Anne Milicia
+    (milicia@missioncriticallinux.com): don't run preallocated blocks
+    through journal_mark_freed() and don't corrupt i_prealloc_block during
+    __discard_prealloc().
+
+11-double-replay.diff
+    Patch by Chris Mason to avoid duplicate replay of last flushed
+    transaction.
+
+12-infinite-replay.diff
+    Patch to break infinite loop in journal_read() in the case when the
+    journal log area is completely filled with transactions.
+
+13-scan_magic_cleanup.diff
+    Fixes a problem with v3.6 fs mounted readonly and then remounted rw.
+    
+14-map_block_for_writepage_highmem_fix.diff
+    Fixes erroroneous page access before making sure page is really accessable.
+    Bug can be triggered only on highmem sysetms.
+
+15-long_symlinks_fix.diff
+    Symlink-body length check was made against an incorrect value, allowing for
+    too long nodes to be inserted into tree. This might lead to obscure 
+    warnings in some cases.
+
+16-tail_data_corruption_on_mempressure.diff
+    Fixes a bug when mmap-write to a file tail and subsequent read cause written
+    data to be lost due to page-cache interacting mistake in low number of free 
+    buffers situation.
+
+17-kreiserfsd-sleep-timeout.diff
+    Correct a typo in fs/reiserfs/journal.c:
+    interruptible_sleep_on_timeout() takes timeout in jiffies, rather
+    than seconds.
+
+18-corrupted_fs_panic_on_lookup_fix.diff
+    Certain disk corruptions and i/o errors may cause lookup() to panic, which
+    is wrong.
+
+19-big-endian-const.diff
+    Suppress compilation warnings on big endian platform.
+
+20-rename_stale_item_bug.diff
+    This patch fixes 2 bugs in reiserfs_rename(). First one being attempt to
+    access item before verifying it was not moved since last access. Second
+    is a window, where old filename may be written to disk with 'visible'
+    flag unset without these changes be journaled.
+
+21-reiserfs-inode_cache-fixed.diff
+    reiserfs_inode_cache seems to be too long. converting it to
+    reiser_inode_cache.
+
+22-expanding-truncate-5.diff
+    This patch makes sure that indirect pointers for holes are correctly filled
+    in by zeroes at
+    hole-creation time. (Author is Chris Mason. fs/buffer.c
+    (generic_cont_expand) were written by Alexander Viro)
+
+23-romount-nobug-onclose.diff
+    Somebody introduced a bug in reiserfs_release_file() leading to corrupting
+    journal for ro filesystems.
+
+24-reiserfs-boot-verbose.diff
+    Do not print unsuccesful superblocks read warnings 
+    (if old or new one cannot be found). Print verbose journal info. 
+    Convert warnings to standard format.
+
+25-mount-convert-fix.diff
+    Fixes a case where v3.6 filesystem can get wrong magic after converting
+    from v3.5 one.
+
+
+
+
+
+--- linux-2.5.3-pre4/fs/reiserfs/bitmap.c.orig	Thu Jan 24 12:21:23 2002
++++ linux-2.5.3-pre4/fs/reiserfs/bitmap.c	Thu Jan 24 12:48:40 2002
+@@ -84,7 +84,7 @@
+    to free a list of blocks at once. -Hans */
+ 				/* I wonder if it would be less modest
+                                    now that we use journaling. -Hans */
+-void reiserfs_free_block (struct reiserfs_transaction_handle *th, unsigned long block)
++static void _reiserfs_free_block (struct reiserfs_transaction_handle *th, unsigned long block)
+ {
+     struct super_block * s = th->t_super;
+     struct reiserfs_super_block * rs;
+@@ -92,9 +92,6 @@
+     struct buffer_head ** apbh;
+     int nr, offset;
+ 
+-  RFALSE(!s, "vs-4060: trying to free block on nonexistent device");
+-  RFALSE(is_reusable (s, block, 1) == 0, "vs-4070: can not free such block");
+-
+   PROC_INFO_INC( s, free_block );
+ 
+   rs = SB_DISK_SUPER_BLOCK (s);
+@@ -110,9 +107,6 @@
+ 	  return;
+   }
+ 
+-  /* mark it before we clear it, just in case */
+-  journal_mark_freed(th, s, block) ;
+-
+   reiserfs_prepare_for_journal(s, apbh[nr], 1 ) ;
+ 
+   /* clear bit for the given block in bit map */
+@@ -131,7 +125,26 @@
+   s->s_dirt = 1;
+ }
+ 
++void reiserfs_free_block (struct reiserfs_transaction_handle *th, 
++                          unsigned long block) {
++    struct super_block * s = th->t_super;
++
++    RFALSE(!s, "vs-4061: trying to free block on nonexistent device");
++    RFALSE(is_reusable (s, block, 1) == 0, "vs-4071: can not free such block");
++    /* mark it before we clear it, just in case */
++    journal_mark_freed(th, s, block) ;
++    _reiserfs_free_block(th, block) ;
++}
++
++/* preallocated blocks don't need to be run through journal_mark_freed */
++void reiserfs_free_prealloc_block (struct reiserfs_transaction_handle *th, 
++                          unsigned long block) {
++    struct super_block * s = th->t_super;
+ 
++    RFALSE(!s, "vs-4060: trying to free block on nonexistent device");
++    RFALSE(is_reusable (s, block, 1) == 0, "vs-4070: can not free such block");
++    _reiserfs_free_block(th, block) ;
++}
+ 
+ /* beginning from offset-th bit in bmap_nr-th bitmap block,
+    find_forward finds the closest zero bit. It returns 1 and zero
+@@ -664,11 +677,13 @@
+ static void __discard_prealloc (struct reiserfs_transaction_handle * th,
+ 				struct reiserfs_inode_info *ei)
+ {
++  unsigned long save = ei->i_prealloc_block ;
+   while (ei->i_prealloc_count > 0) {
+-    reiserfs_free_block(th,ei->i_prealloc_block);
++    reiserfs_free_prealloc_block(th,ei->i_prealloc_block);
+     ei->i_prealloc_block++;
+     ei->i_prealloc_count --;
+   }
++  ei->i_prealloc_block = save;
+   list_del_init(&(ei->i_prealloc_list));
+ }
+ 
+

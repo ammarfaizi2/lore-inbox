@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262933AbREWBJS>; Tue, 22 May 2001 21:09:18 -0400
+	id <S262934AbREWBP6>; Tue, 22 May 2001 21:15:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262934AbREWBJJ>; Tue, 22 May 2001 21:09:09 -0400
-Received: from ns.suse.de ([213.95.15.193]:57874 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S262933AbREWBI4>;
-	Tue, 22 May 2001 21:08:56 -0400
-Date: Wed, 23 May 2001 03:08:54 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: <ttel5535@artax.karlin.mff.cuni.cz>
-Cc: "H. Peter Anvin" <hpa@transmeta.com>,
-        Martin Knoblauch <martin.knoblauch@teraport.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
-In-Reply-To: <Pine.LNX.4.21.0105230212050.14816-100000@artax.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.30.0105230307470.4030-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262935AbREWBPs>; Tue, 22 May 2001 21:15:48 -0400
+Received: from smtp1.Stanford.EDU ([171.64.14.23]:35494 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S262934AbREWBPl>; Tue, 22 May 2001 21:15:41 -0400
+Message-Id: <5.0.2.1.2.20010522180640.00ae5a30@pxwang.pobox.stanford.edu>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Tue, 22 May 2001 18:15:30 -0700
+To: alan@lxorguk.ukuu.org.uk
+From: Philip Wang <PXWang@stanford.edu>
+Subject: [PATCH] drivers/media/video/zr36120.c (repost)
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 May 2001, Tomas Telensky wrote:
+Greetings,
 
-> Yes. Recently I tried to transform whole cpuid code to a userspace
-> utility. Not easy, not clean... but it worked.
+I wanted to repost this zr36120 patch, both because so far it has gone 
+unnoticed, and because there was a problem with the text formatting which 
+is now fixed.
 
-See http://www.sourceforge.net/projects/x86info
-or ftp://ftp.suse.com/pub/people/davej/x86info/
+There is a bug in zr36120.c of not freeing memory on error paths.  This one 
+is particularly dangerous, because kmalloc allocates a memory block the 
+size of an entire video clip!  I simply free the local pointer, vcp, before 
+returning -EFAULT.
 
-regards,
+Philip
 
-Dave.
-
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
+--- drivers/media/video/zr36120.c.orig      Tue May 22 18:08:22 2001
++++ drivers/media/video/zr36120.c   Tue May 22 18:08:49 2001
+@@ -1195,8 +1195,10 @@
+                 if (vcp==NULL)
+                         return -ENOMEM;
+                 if (vw.clipcount && copy_from_user(vcp,vw.clips,sizeof(s$
+-                       return -EFAULT;
+-
++                 {
++                   vfree(vcp);
++                   return -EFAULT;
++                 }
+                 on = ztv->running;
+                 if (on)
+                         zoran_cap(ztv, 0);
 

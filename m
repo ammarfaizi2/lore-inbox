@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317876AbSHaTYF>; Sat, 31 Aug 2002 15:24:05 -0400
+	id <S317888AbSHaT3Z>; Sat, 31 Aug 2002 15:29:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317887AbSHaTYF>; Sat, 31 Aug 2002 15:24:05 -0400
-Received: from mta11n.bluewin.ch ([195.186.1.211]:31919 "EHLO
-	mta11n.bluewin.ch") by vger.kernel.org with ESMTP
-	id <S317876AbSHaTYF>; Sat, 31 Aug 2002 15:24:05 -0400
-Message-ID: <3D7117C3.5060307@linkvest.com>
-Date: Sat, 31 Aug 2002 21:23:47 +0200
-From: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: en-us, en
+	id <S317931AbSHaT3Z>; Sat, 31 Aug 2002 15:29:25 -0400
+Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:25988 "EHLO
+	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S317888AbSHaT3Y>; Sat, 31 Aug 2002 15:29:24 -0400
+Date: Sat, 31 Aug 2002 16:33:33 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: bert hubert <ahu@ds9a.nl>
+cc: Vojtech Pavlik <vojtech@suse.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: keyboard slowdown regression in 2.5.32 (right .config) Re: FIXED
+ in 2.5.29 Re: keyboard ONLY functions in 2.5.27 with local APIC on for UP
+In-Reply-To: <20020831191432.GA9522@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.4.44L.0208311633160.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Lionel Bouton <Lionel.Bouton@inet6.fr>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SMB browser
-References: <3D709AB7.705@linkvest.com> <3D70A909.8080105@inet6.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 31 Aug 2002, bert hubert wrote:
+
+> > Can you check with the attached patch? Or (better) Linus's current BK
+> > tree?
 >
->
->> Then the user access /smb/WG2/Machine38/Share12/Dir1/File2
->> Cool, no?
->
-> I see some shortcomings :
->
-> How will you handle multiple users ?
-> Janice and Bob have accounts on the Linux client and both want to have 
-> access at the same time to their [Home] for example :
-> |-- DOM1 --|-- Machine4--|--[Home]
+> When I refind Rik van Riel's bk-to-patch directory, I'll give it a shot.
+> Again, thanks!
 
+ftp://nl.linux.org/pub/linux/bk2patch/
 
-To access files on the server share, the client must send authentication 
-tockens. This should be send by the daemon and must be get from a file 
-on the disk that each user shuold have (the kerberos ticket got by PAM). 
-If no file (or invalid one) is available, then it should be accessed as 
-guest.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-> How will you handle users with multiple logins on a Domain/Machine ? 
-
-The user will already been logged on ONE domain controller.
-
-> Maybe you'd be better starting with something like :
->
-> local_user_home_directory--|--smb--|--login--|--WGx/DOMy--|.... 
-
-I don't understand why a per-user directory tree should be needed. A 
-per-machine tree should be enough.
-
-
-This doesn't answer my question:
-How do I communicate between a kernel driver and a userspace program?
-What is the best method in terms of:
-- simplicity (first implementation)
-- efficacity (second implementation, performance oriented)
-Is it viy UNIX sockets?
-Is it ioctls?
-Or shared memory?
-
-Thanks.
--jec
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266846AbUBRM5p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 07:57:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266878AbUBRM5p
+	id S265201AbUBRMbt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 07:31:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266369AbUBRMbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 07:57:45 -0500
-Received: from s199-007.catv.glattnet.ch ([80.242.199.7]:16772 "EHLO
-	hathi.ethgen.de") by vger.kernel.org with ESMTP id S266846AbUBRM5l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 07:57:41 -0500
-Date: Wed, 18 Feb 2004 13:57:31 +0100
-From: Klaus Ethgen <Klaus@Ethgen.de>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [KERNEL] Re: [KERNEL] Re: TCP: Treason uncloaked DoS ??
-Message-ID: <20040218125731.GB11303@hathi.ethgen.de>
-References: <20040218102725.GB3394@hathi.ethgen.de> <20040218105508.GA7320@dingdong.cryptoapps.com> <20040218124141.GA11303@hathi.ethgen.de> <20040218124859.GA8382@dingdong.cryptoapps.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+	Wed, 18 Feb 2004 07:31:49 -0500
+Received: from [212.28.208.94] ([212.28.208.94]:37135 "HELO dewire.com")
+	by vger.kernel.org with SMTP id S265201AbUBRMbr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 07:31:47 -0500
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: tridge@samba.org
+Subject: Re: UTF-8 and case-insensitivity
+Date: Wed, 18 Feb 2004 13:31:36 +0100
+User-Agent: KMail/1.6.1
+Cc: hpa@zytor.com, Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <16434.58656.381712.241116@samba.org> <200402181105.58425.robin.rosenberg.lists@dewire.com> <16435.20457.610841.62521@samba.org>
+In-Reply-To: <16435.20457.610841.62521@samba.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040218124859.GA8382@dingdong.cryptoapps.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402181331.36859.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
+On Wednesday 18 February 2004 12.43, tridge@samba.org wrote:
+> Robin,
+>  > I've read it also:
+>  > http://www.microsoft.com/globaldev/getwr/steps/wrg_unicode.mspx
+>  > "The fundamental representation of text in Windows NT-based
+>  > operating systems is UTF-16"
 
-Hello,
+I believe (please correct me if this is wrong) that Windows never actually
+supported any of the UCS-2 code that were in conflict with UTF-16. The cost
+of this operation was that some of the "private" code blocks of unicode 2.0, i.e. 
+U+D800..U+DFFF were redefined as "surrogates" in Unicode 3.0 making the 
+UTF-16 encoding more or less backwards compatible with UCS-2. And it's 
+UTF-16LE and UCS-2LE, but I suspect you knew that :-)
 
-Am Mi den 18. Feb 2004 um 13:48 schriebst Du:
-> So you have a packetshaper then?  By this I mean a PacketShaper from
-> packeteer (http://packeteer.com/prod-sol/products/packetshaper.cfm).
+> yep, in this thread I've been mistakenly using the term UCS-16 when I
+> should have said UTF-16 (ie. the variable length, 2 byte encoding).
+> 
+> Samba currently treats the bytes on the wire from windows as UCS-2 (a
+> 2 byte fixed width encoding), whereas perhaps it should be treating
+> them as UTF-16. I should write a smbtorture test to detect the
+> difference and see what different versions of windows actually use.
+See above, and most importantly the definition in Amendment 1 of the unicode 
+3.0 standard.
 
-No, only the kernel own htb shaper. And it is on the other interface.
+> luckily the new charset handling stuff in samba3 and samba4 will make
+> this easy to fix :-)
+Happy man!
 
-> I can't see how, but I don't know your setup and/or config. to
-
-Me too. But this exactely is my problem.
-
-> If there is a PacketShaper near the machine, I'm going to suggest
-> taking that away and see if this message goes away.  If it's upstream
-> of course you can't do this.
-
-After this tip that it could be tu do with the TC on the other interface
-I will try this out this night.
-
-Regards
-   Klaus
-- -- 
-Klaus Ethgen                            http://www.ethgen.de/
-pub  2048R/D1A4EDE5 2000-02-26 Klaus Ethgen <Klaus@Ethgen.de>
-Fingerprint: D7 67 71 C4 99 A6 D4 FE  EA 40 30 57 3C 88 26 2B
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iQEVAwUBQDNhO5+OKpjRpO3lAQHw3QgAkJKfGdcLVGzUJEGBX0kOSCdufb/yxDXt
-Y5/V2t4RkWN9wwnRc58u/Ga/S7acUeK7vMOLTyioLY2DI12JXOKugfTsGPnm7qmc
-qgpVnZ0u0exsUJZHgtbe9ezW3Yot0U7yQv+VDidT28ieGMj1PrY8p0D0zc2hnMU8
-iJcmoHeThK4JCw25Uu0jxTfx/LE5XIjp23LRwKJY3UOmjH4MQpJbJH2Sz7uycfX8
-V4NXzK+t2LiCX01jT/diuRcvEZ95IkOxrspuy0OHd9L7Gi4dWYDVueLwBSM6apBO
-B4AEKWrzzzkqKLxgiWh64fXq/wqWi3rvdR0hu/w8TG+QDBEcltOPog==
-=7JRR
------END PGP SIGNATURE-----
+-- robin

@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129161AbRBZX5A>; Mon, 26 Feb 2001 18:57:00 -0500
+	id <S129268AbRB0AEW>; Mon, 26 Feb 2001 19:04:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129281AbRBZX4u>; Mon, 26 Feb 2001 18:56:50 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:35743 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129161AbRBZX4b>;
-	Mon, 26 Feb 2001 18:56:31 -0500
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S129281AbRB0AEC>; Mon, 26 Feb 2001 19:04:02 -0500
+Received: from ns.suse.de ([213.95.15.193]:39696 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129268AbRB0AD6>;
+	Mon, 26 Feb 2001 19:03:58 -0500
+Date: Tue, 27 Feb 2001 01:03:36 +0100
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: New net features for added performance
+Message-ID: <20010227010336.A25816@gruyere.muc.suse.de>
+In-Reply-To: <3A9842DC.B42ECD7A@mandrakesoft.com> <oupsnl3k5gs.fsf@pigdrop.muc.suse.de> <15002.60239.486243.682681@pizda.ninka.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15002.60558.421029.405754@pizda.ninka.net>
-Date: Mon, 26 Feb 2001 15:53:50 -0800 (PST)
-To: root@chaos.analogic.com
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.1 network (socket) performance
-In-Reply-To: <Pine.LNX.3.95.1010223104549.2101B-100000@chaos.analogic.com>
-In-Reply-To: <3A966FF1.2C9E5641@colorfullife.com>
-	<Pine.LNX.3.95.1010223104549.2101B-100000@chaos.analogic.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15002.60239.486243.682681@pizda.ninka.net>; from davem@redhat.com on Mon, Feb 26, 2001 at 03:48:31PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 26, 2001 at 03:48:31PM -0800, David S. Miller wrote:
+> 
+> Andi Kleen writes:
+>  > 4) Better support for aligned RX by only copying the header
+> 
+> Andi you can make this now:
+> 
+> 1) Add new "post-header data pointer" field in SKB.
 
-Richard B. Johnson writes:
- > > unix socket sends eat into memory reserved for atomic allocs.
+That would imply to let the drivers parse all headers to figure out the length.
+I think it's better to have a "header base" and "data base" pointer.
+The driver would just copy some standard size that likely contains all of
+the header 
+When you're finished with the header use 
+skb->database+(skb->hdrptr-skb->hdrbase) to get the start of data. 
 
-OK (Manfred is being quoted here, to be clear).
+Or did I misunderstand you?
 
-I'm still talking with Alexey about how to fix this, I might just
-prefer killing this fallback mechanism of skb_alloc_send_skb then
-make AF_UNIX act just like everyone else.
 
-This was always just a performance hack, and one which makes less
-and less sense as time goes on.
 
-Later,
-David S. Miller
-davem@redhat.com
+> 3) Enforce correct usage of it in all the networking :-)
+
+,) -- the tricky part.
+
+
+-Andi

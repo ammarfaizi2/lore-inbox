@@ -1,26 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131113AbRBVVu0>; Thu, 22 Feb 2001 16:50:26 -0500
+	id <S129394AbRBVVyH>; Thu, 22 Feb 2001 16:54:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131069AbRBVVuQ>; Thu, 22 Feb 2001 16:50:16 -0500
-Received: from alto.i-cable.com ([210.80.60.4]:2209 "EHLO alto.i-cable.com")
-	by vger.kernel.org with ESMTP id <S130940AbRBVVuH>;
-	Thu, 22 Feb 2001 16:50:07 -0500
-Message-ID: <3A9589CA.80506@hkicable.com>
-Date: Fri, 23 Feb 2001 05:51:06 +0800
-From: Thomas Lau <lkthomas@hkicable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1-ac20 i586; en-US; 0.8) Gecko/20010215
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129598AbRBVVx6>; Thu, 22 Feb 2001 16:53:58 -0500
+Received: from altern.org ([212.73.209.210]:20746 "HELO altern.org")
+	by vger.kernel.org with SMTP id <S129394AbRBVVxv>;
+	Thu, 22 Feb 2001 16:53:51 -0500
+Date: Thu, 22 Feb 2001 22:48:56 +0100 (CET)
+From: <alcove@altern.org>
+Subject: Problem with ATA/UDMA
 To: linux-kernel@vger.kernel.org
-Subject: request Video editor program: ( out of topic, but please help.)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Message-Id: <20010222215353Z129394-30605+137@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am looking for some program can edit and add effect to .avi, .mpg..etc 
-files, I tried to compile boardcast 2000c, but it's not work ( maybe 
-missing some file in the release)
-anyway , please help me if you can, Thanks
+Hi guys
 
+I have a HPT370 controler card, with a 60 gigs Maxtor IDE drive
+Card BIOS detects it to be UDMA5.
+
+It happens that the system hangs (seems it is especially when system has been up for more than 24 hours)(this is home box)
+
+Here is output it gives me:
+
+***************
+hdf: timeout waiting for DMA
+ide_dmaproc : chipset supported ide_dma_timeout func only : 14
+hdf : irq timeout : status=0x48 {DriveReady DataRequest }
+hdf : DMA disabled
+ide2 : reset : master : error (0x0a?)
+***************
+
+I would like to know what the probem is.
+I looked on the net and found that some people had exactly the same output in very earlier kernel versions (2.0)
+Anyway, does anyone know about a bug on this? Is there any patch, or any current development about this?
+
+Or does it simply mean my HD is diing? :-(
+
+Sorry if question is obvious
+
+Vincent

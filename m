@@ -1,100 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRA3AOa>; Mon, 29 Jan 2001 19:14:30 -0500
+	id <S131235AbRA3AUm>; Mon, 29 Jan 2001 19:20:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130982AbRA3AOL>; Mon, 29 Jan 2001 19:14:11 -0500
-Received: from smtp-server.maine.rr.com ([204.210.65.66]:46305 "HELO
-	smtp-server.maine.rr.com") by vger.kernel.org with SMTP
-	id <S129051AbRA3AOC>; Mon, 29 Jan 2001 19:14:02 -0500
-Message-ID: <000a01c08a50$3176f430$b001a8c0@caesar>
-From: "paradox3" <paradox3@maine.rr.com>
-To: "Trevor Hemsley" <Trevor-Hemsley@dial.pipex.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Poor SCSI drive performance FIXED on SMP machine, 2.2.16
-Date: Mon, 29 Jan 2001 19:04:19 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S130982AbRA3AUc>; Mon, 29 Jan 2001 19:20:32 -0500
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:1671 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S131235AbRA3AUM>; Mon, 29 Jan 2001 19:20:12 -0500
+Date: Tue, 30 Jan 2001 01:20:02 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+Cc: John Levon <moz@compsoc.man.ac.uk>, Timur Tabi <ttabi@interactivesi.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
+Message-ID: <20010130012002.S1173@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <Pine.LNX.4.21.0101291708140.30959-100000@mrworry.compsoc.man.ac.uk> <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com>; from pgpkeys@hislinuxbox.com on Mon, Jan 29, 2001 at 10:27:50AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks! I have added a terminator to the SCSI bus and also turned on TCQ and
-now
-I can write out 100 MB in 10 seconds (as opposed to several minutes)
+On Mon, Jan 29, 2001 at 10:27:50AM -0800, David D.W. Downey wrote:
+> And don't tell me "Well, then you shouldn't be touching the kernel if
+> you're not a developer" because that's crap too.
 
-Regards, Para-dox (paradox3@maine.rr.com)
+No this is a good advise. "Never touch anything you don't
+understand." If you like to develop for Linux, you should
+understand the API you use and if you don't understand it, either
+learn more about it (e.g. reading the source ;-)) or stop using
+it.
 
+Regards
 
------ Original Message -----
-From: "Trevor Hemsley" <Trevor-Hemsley@dial.pipex.com>
-To: "paradox3" <paradox3@maine.rr.com>
-Sent: Sunday, January 28, 2001 8:56 PM
-Subject: Re: Poor SCSI drive performance on SMP machine, 2.2.16
-
-
-> On Sun, 28 Jan 2001 19:58:04 -0500, paradox3 wrote:
->
-> >I've attached the output in the kernel ring buffer as it initializes the
-> >scsi drive. I haven't been
-> >able to find IBM's website for DGHS09U to see if it self terminates.
-Maybe
-> >you
-> >can tell.
->
-> Yeah, I have the PDF manual for that one here too - I used to have one.
-It's a Single ended
-> (ie not LVD), fast, wide 7200rpm drive with a 68 pin connector. It has a
-top speed of about
-> 14MB/sec. Pretty good drive in its day. It's the 7200rpm drive of the same
-generation as my
-> DGVS09U - the manual I have is dated October 1997.
->
-> From the manual...
->
-> Enable Active Termination
->  Single Ended 50 and 68 pin models are available with on card SCSI Bus
-Active Terminators.
-> The Active Termination feature can be enabled by installing a jumper
-between pins 13 and 14
-> of the Front Option Jumper Block or connecting pins 9 and 10 of the
-Auxiliary Connector on
-> 68 SCSI pin models. SCA-2 80 pin has no termination.
->
-> If you need more information about the drive, IBM are usually pretty good
-at keeping it on
-> their web site, http://www.storage.ibm.com should get you more.
->
-> I'd guess you need to jumper pins 13+14 of the front jumper block *or*
-pins 9+10 of the jumper
-> block on the back that lies between the power connector and the 68 pin
-cable connector. On
-> the back connector pins 1+2 are the ones nearest the power connector. On
-the front connector
-> pin 1 is the lefthandmost pin when you look at it with the PCB downwards
-and the front of the
-> drive towards you.
->
-> Since this looks like it's the only device you have attached to the
-controller then you should also
-> look in the BIOS setup (Ctrl-A at boot time) and find the section that
-talks about controller
-> termination. You can either set this to Automatic which usually works but
-sometimes gets it
-> wrong or you can set it to Low On/High ON which is correct if you have no
-external devices
-> and no devices attached to the internal 50 pin connector.
->
->
-> Trevor Hemsley, Brighton, UK.
-> Trevor-Hemsley@dial.pipex.com
->
->
-
+Ingo Oeser, reading it since 1996
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

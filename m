@@ -1,44 +1,44 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S157278AbPL1TfO>; Tue, 28 Dec 1999 14:35:14 -0500
-Received: by vger.rutgers.edu id <S157507AbPL1Tek>; Tue, 28 Dec 1999 14:34:40 -0500
-Received: from PO9.ANDREW.CMU.EDU ([128.2.10.109]:34641 "EHLO po9.andrew.cmu.edu") by vger.rutgers.edu with ESMTP id <S157433AbPL1Td4>; Tue, 28 Dec 1999 14:33:56 -0500
-Message-ID: <QsOF1LG00Uw70MI5g0@andrew.cmu.edu>
-Date: Tue, 28 Dec 1999 14:32:39 -0500 (EST)
-From: James R Bruce <bruce+@andrew.cmu.edu>
-To: linux-kernel@vger.rutgers.edu
-Subject: [OT] Re: fork bomb:the come back
+Received: by vger.rutgers.edu via listexpand id <S160042AbPL1X1D>; Tue, 28 Dec 1999 18:27:03 -0500
+Received: by vger.rutgers.edu id <S160018AbPL1X0p>; Tue, 28 Dec 1999 18:26:45 -0500
+Received: from ECE.CMU.EDU ([128.2.236.200]:43293 "EHLO ece.cmu.edu") by vger.rutgers.edu with ESMTP id <S160028AbPL1X03>; Tue, 28 Dec 1999 18:26:29 -0500
+Message-Id: <199912282324.SAA14055@kf8nh.apk.net>
+X-Mailer: exmh version 2.0.2 2/24/98
+To: James R Bruce <bruce+@andrew.cmu.edu>
 Cc: linux-kernel@vger.rutgers.edu
-In-Reply-To: <Pine.LNX.4.05.9912281334570.129-100000@ns.snowman.net>
-References: <Pine.LNX.4.05.9912281334570.129-100000@ns.snowman.net>
+Subject: Re: [OT] Re: fork bomb:the come back 
+In-reply-to: Your message of "Tue, 28 Dec 1999 14:32:39 EST." <QsOF1LG00Uw70MI5g0@andrew.cmu.edu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 28 Dec 1999 18:24:54 -0500
+From: "Brandon S. Allbery KF8NH" <allbery@kf8nh.apk.net>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+In message <QsOF1LG00Uw70MI5g0@andrew.cmu.edu>, James R Bruce writes:
++-----
+| Excerpts from internet.computing.linux-kernel: 28-Dec-99 Re: fork
+| bomb:the come back by Stephen Frost@mail.snowm 
+| >         There was a Coke machine at a university somewhere that would
+| tell you
+| > how many cans and whatnot were left at one point or another, I seem to
+| recall.
+| > Yes, over the internet (Or that may have been arpanet, not sure. :) ).
+| 
+| That would be Carnegie Mellon's CS department coke machine.  Sadly, it
+| has been disconnected.  There is a coffee machine online now however:
++--->8
 
-Excerpts from internet.computing.linux-kernel: 28-Dec-99 Re: fork
-bomb:the come back by Stephen Frost@mail.snowm 
->         There was a Coke machine at a university somewhere that would
-tell you
-> how many cans and whatnot were left at one point or another, I seem to
-recall.
-> Yes, over the internet (Or that may have been arpanet, not sure. :) ).
+They replaced the Coke machine during the remodeling of the CS lounge, and 
+the new one isn't quite as "hacker-friendly" so it's not online yet.  
+Various CS grad students are working on it, though, and hope to have it back 
+online soonish.
 
-That would be Carnegie Mellon's CS department coke machine.  Sadly, it
-has been disconnected.  There is a coffee machine online now however:
-    mrcoffee.res.cmu.edu
+-- 
+brandon s. allbery	   os/2,linux,solaris,perl	allbery@kf8nh.apk.net
+system administrator	   kthkrb,heimdal,gnome,rt	  allbery@ece.cmu.edu
+carnegie mellon / electrical and computer engineering			kf8nh
+    We are Linux. Resistance is an indication that you missed the point.
 
-I think the general argument trying to be made is that there are a lot
-of machines that are not, and will never be, connected to the internet. 
-The exact numbers don't matter, but it is worth noting that improvements
-that only apply to non-connected machines can still be quite useful to
-many.
-
-I would still guess that most embedded systems aren't connected to the
-internet; for every new machine on the internet, there's probably two
-more new ones that aren't; The sheer number of computers in other words,
-is growing faster than the number online.  Also, a lot of such systems
-are networked but not connected to the outside world; since they tend to
-be proprietary and often trusted (e.g. they lack internal security).
-
- - Jim Bruce
 
 
 -

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262648AbSKYIPl>; Mon, 25 Nov 2002 03:15:41 -0500
+	id <S262646AbSKYINV>; Mon, 25 Nov 2002 03:13:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262662AbSKYIPl>; Mon, 25 Nov 2002 03:15:41 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:52893 "EHLO
+	id <S262648AbSKYINV>; Mon, 25 Nov 2002 03:13:21 -0500
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:43421 "EHLO
 	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S262648AbSKYIPk>; Mon, 25 Nov 2002 03:15:40 -0500
-Date: Mon, 25 Nov 2002 03:22:31 -0500
+	id <S262646AbSKYINU>; Mon, 25 Nov 2002 03:13:20 -0500
+Date: Mon, 25 Nov 2002 03:20:11 -0500
 From: "Murray J. Root" <murrayr@brain.org>
 To: linux-kernel@vger.kernel.org
 Subject: Re: keyboard and mouse lost in X
-Message-ID: <20021125082231.GE1628@Master.Wizards>
+Message-ID: <20021125082011.GD1628@Master.Wizards>
 Mail-Followup-To: linux-kernel@vger.kernel.org
 References: <20021125070418.GB1628@Master.Wizards> <Pine.LNX.4.50.0211250217110.1462-100000@montezuma.mastecende.com> <20021125073110.GC1628@Master.Wizards> <Pine.LNX.4.50.0211250316320.1462-100000@montezuma.mastecende.com>
 Mime-Version: 1.0
@@ -42,9 +42,9 @@ On Mon, Nov 25, 2002 at 03:16:57AM -0500, Zwane Mwaikambo wrote:
 > > large.
 > 
 > What kind of keyboard/mouse?
-> 
+>
+ 
 ps/2 port, both
-mouse is Logitech MarbleMan+ (works with both mousemanplus and imps/2)
 
 -- 
 Murray J. Root

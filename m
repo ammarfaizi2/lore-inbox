@@ -1,60 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288921AbSAZBz1>; Fri, 25 Jan 2002 20:55:27 -0500
+	id <S288954AbSAZCEJ>; Fri, 25 Jan 2002 21:04:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288954AbSAZBzI>; Fri, 25 Jan 2002 20:55:08 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48390 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288921AbSAZBy5>; Fri, 25 Jan 2002 20:54:57 -0500
-Date: Fri, 25 Jan 2002 17:53:57 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andi Kleen <ak@suse.de>
-cc: <linux-kernel@vger.kernel.org>
+	id <S288957AbSAZCD7>; Fri, 25 Jan 2002 21:03:59 -0500
+Received: from ns.suse.de ([213.95.15.193]:23059 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S288954AbSAZCDp>;
+	Fri, 25 Jan 2002 21:03:45 -0500
+Date: Sat, 26 Jan 2002 03:03:41 +0100
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] syscall latency improvement #1
-In-Reply-To: <p73y9il7vlr.fsf@oldwotan.suse.de>
-Message-ID: <Pine.LNX.4.33.0201251741430.16917-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020126030341.A9651@wotan.suse.de>
+In-Reply-To: <p73y9il7vlr.fsf@oldwotan.suse.de> <Pine.LNX.4.33.0201251741430.16917-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0201251741430.16917-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 25, 2002 at 05:53:57PM -0800, Linus Torvalds wrote:
+> 
+> On 26 Jan 2002, Andi Kleen wrote:
+> >
+> > It doesn't explain the Athlon speedups. On athlon cli is ~4 cycles.
+> 
+> .. and it probably serializes the instruction stream.
 
-On 26 Jan 2002, Andi Kleen wrote:
->
-> It doesn't explain the Athlon speedups. On athlon cli is ~4 cycles.
+I have word from AMD engineering that it doesn't stall the pipeline
+or serializes.
 
-.. and it probably serializes the instruction stream.
+(I asked the question during the design of the x86-64 syscall code) 
 
-Look at the patch.
-
-The _only_ thing it does for the system call path is:
-
- - remove the "cli"
-
- - change
-
-	cmpl $0,..
-	jne
-	cmp $0,..
-	jne
-
-   into
-
-	movl ..,reg
-	testl reg,reg
-	jne
-
-and the latter may be worth a cycle (or two, if the CPU happens to like
-the second form better for some other reason), but it's certainly not
-noticeable.
-
-A 3.4% improvement is equivalent to something like 9 cycles, so the "cli"
-being faster on Athlon than on a PIII certainly explains why it's less
-noticeable on the Athlon, but it still makes me suspect that the _real_
-cost of the cli is on the order of 8 cycles.
-
-It should be eminently testable. Just remove the cli from the standard
-kernel, and do before-and-after tests.
-
-		Linus
-
+-Andi

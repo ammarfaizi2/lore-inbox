@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271132AbTGPVPV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 17:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271076AbTGPVPR
+	id S271145AbTGPVUG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 17:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271147AbTGPVUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 17:15:17 -0400
-Received: from eq16.auctionwatch.com ([66.7.130.111]:46127 "EHLO
-	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
-	id S271133AbTGPVPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 17:15:07 -0400
-Date: Wed, 16 Jul 2003 14:29:44 -0700
-From: Petro <petro@corp.vendio.com>
-To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <20030716212944.GB30218@corp.vendio.com>
-References: <20030715223342.GH26404@corp.vendio.com> <E19catr-0002rI-00@calista.inka.de>
+	Wed, 16 Jul 2003 17:20:06 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:15364 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S271145AbTGPVUA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 17:20:00 -0400
+Date: Wed, 16 Jul 2003 23:34:51 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
+Message-ID: <20030716213451.GA1964@win.tue.nl>
+References: <20030716184609.GA1913@kroah.com> <20030716130915.035a13ca.akpm@osdl.org> <20030716210253.GD2279@kroah.com> <20030716141320.5bd2a8b3.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E19catr-0002rI-00@calista.inka.de>
-User-Agent: Mutt/1.5.4i
-Subject: Re: LVM, snapshots and Linux 2.4.x
+In-Reply-To: <20030716141320.5bd2a8b3.akpm@osdl.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 03:16:07AM +0200, Bernd Eckenfels wrote:
-> In article <20030715223342.GH26404@corp.vendio.com> you wrote:
-> > if I turn off HIGHIO, the lvcreate command completes successfully, but
-> > the snapshot is unmountable. 
-> 
-> kvm was segfaulting for me with xfs if the snapsht volume gets full, but I
-> think this is fixed.
-> What filesystem do you had on the snapshot volume? Depending on the
-> filesystem, you may need to mount it without journal replay, or with
-> ignoring duplicate uuids.
+On Wed, Jul 16, 2003 at 02:13:20PM -0700, Andrew Morton wrote:
 
-    Kernel 2.4.18 segfaults when I do the lvcreate -s 
-    
-    Kernel 2.4.21 with the HighMem I/O fails on the lvcreate -s. 
-    
-    Kernel 2.4.21 without HighMem I/O fails but with High mem fails 
-                  when I try to mount the snapshot. 
+> The new dev_t encoding is a bit weird because we of course continue to
+> support the old 8:8 encoding.  I think the rule is: "if the top 32-bits are
+> zero, it is 8:8, otherwise 32:32".  We can express this nicely with
+> "%u:%u".
 
-    Kernel 2.4.21 without high memory, and without high i/o suceeds 
-                  in both creating and mounting the snapshot. 
+16-bit only: 8:8, otherwise 32-bit only: 16:16, otherwise 32:32.
 
--- 
-"On two occasions, I have been asked [by members of Parliament], 'Pray, 
-Mr. Babbage, if you put into the machine wrong figures, will the right 
-answers come out?' I am not able to rightly apprehend the kind of confusion 
-of ideas that could provoke such a question." -- Charles Babbage 
+Andries
+

@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261997AbTCRGYq>; Tue, 18 Mar 2003 01:24:46 -0500
+	id <S262178AbTCRGcQ>; Tue, 18 Mar 2003 01:32:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262178AbTCRGYq>; Tue, 18 Mar 2003 01:24:46 -0500
-Received: from otter.mbay.net ([206.55.237.2]:6919 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S261997AbTCRGYp> convert rfc822-to-8bit;
-	Tue, 18 Mar 2003 01:24:45 -0500
-From: John Alvord <jalvo@mbay.net>
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
-Date: Mon, 17 Mar 2003 22:35:26 -0800
-Message-ID: <sffd7vk3otsn0s7uhgvu1gkp2v0q6qv0cq@4ax.com>
-References: <200303172143.h2HLhLql010853@pincoya.inf.utfsm.cl> <200303180608.h2I68mu23488@Port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200303180608.h2I68mu23488@Port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: Forte Agent 1.92/32.570
-MIME-Version: 1.0
+	id <S262180AbTCRGcQ>; Tue, 18 Mar 2003 01:32:16 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:31691 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S262178AbTCRGcP>; Tue, 18 Mar 2003 01:32:15 -0500
+Date: Tue, 18 Mar 2003 08:42:58 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Ross Vandegrift <ross@willow.seitz.com>, linux-kernel@vger.kernel.org
+Subject: Re: assertion (newsk->state != TCP_SYN_RECV)
+Message-ID: <20030318064258.GI159052@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	"David S. Miller" <davem@redhat.com>,
+	Ross Vandegrift <ross@willow.seitz.com>,
+	linux-kernel@vger.kernel.org
+References: <20030312214421.GB20408@willow.seitz.com> <1047948907.19314.0.camel@rth.ninka.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+In-Reply-To: <1047948907.19314.0.camel@rth.ninka.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Mar 2003 08:05:30 +0200, Denis Vlasenko
-<vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+On Mon, Mar 17, 2003 at 04:55:07PM -0800, you [David S. Miller] wrote:
+> On Wed, 2003-03-12 at 13:44, Ross Vandegrift wrote:
+> > I've recently noticed these messages bouncing up in my logs every now
+> > and again.  It's always with a particular machine, one that runs 2.4.20.
+> > 
+> > Google turns up one other post, made on Mon Jan 13
+> > (http://hypermail.idiosynkrasia.net/linux-kernel/archived/2003/week02/0308.html)
+> > but no responses or explanations followed.
+> 
+> Try searching harder, it's a kernel bug which is fixed in
+> current 2.4.21 prepatches.
 
->On 17 March 2003 23:43, Horst von Brand wrote:
->> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> said:
->> > On 15 March 2003 20:34, Horst von Brand wrote:
->> > > Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> said:
->>
->> [...]
->>
->> > > > Why not? Disassemble from, say, EIP-16 and check whether you
->> > > > have an instruction starting exactly at EIP. If no, repeat from
->> > > > EIP-15, -14... You are guaranteed to succeed at EIP-0  ;)
->> > >
->> > > But your previous success (if any) doesn't mean anything, and
->> > > might even screw up the decoding after EIP
->> >
->> > How come? If I started to decode at EIP-n and got a sequence of
->> > instructions at EIP-n, EIP-n+k1, EIP-n+k2, EIP-n+k3..., EIP,
->> > instructions prior to EIP can be wrong. Instruction at EIP
->> > and all subsequent ones ought to be right.
->>
->> Iff you exactly hit EIP that way (sure, should check). But wrong
->> previous instructions _will_ confuse people or start them on all kind
->> of wild goose chases. Too much work for a dubious gain.
->
->You are right. But that is better than showing no prior instructions
->at all. And most of the time (can I say 90% ?) prior instructions
->will be ok.
+For reference, the patch is at
 
-You can also show the instruction sequences that make sense and let
-the human figure out the correct sequence when there are multiples.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=104399842612703&w=2
 
-john
+BTW: How severe is the bug? Is it a harmless message, or can it do bad
+things?
+
+
+-- v --
+
+v@iki.fi

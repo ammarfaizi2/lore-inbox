@@ -1,112 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310120AbSCGOPX>; Thu, 7 Mar 2002 09:15:23 -0500
+	id <S310344AbSCGONd>; Thu, 7 Mar 2002 09:13:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310335AbSCGOPO>; Thu, 7 Mar 2002 09:15:14 -0500
-Received: from elin.scali.no ([62.70.89.10]:16395 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S310120AbSCGOPD>;
-	Thu, 7 Mar 2002 09:15:03 -0500
-Subject: Re: a faster way to gettimeofday? rdtsc strangeness
-From: Terje Eggestad <terje.eggestad@scali.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Ben Greear <greearb@candelatech.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0203052024540.1475-100000@blue1.dev.mcafeelabs.com>
-In-Reply-To: <Pine.LNX.4.44.0203052024540.1475-100000@blue1.dev.mcafeelabs.com>
+	id <S310340AbSCGONX>; Thu, 7 Mar 2002 09:13:23 -0500
+Received: from sip-11a.usol.com ([63.64.148.11]:34832 "EHLO
+	dns1.civic.twp.ypsilanti.mi.us") by vger.kernel.org with ESMTP
+	id <S310335AbSCGONR>; Thu, 7 Mar 2002 09:13:17 -0500
+Subject: 8139too on Proliant
+From: Sean Middleditch <smiddle@twp.ypsilanti.mi.us>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/1.0.2 
-Date: 07 Mar 2002 15:14:56 +0100
-Message-Id: <1015510496.4373.58.camel@pc-16.office.scali.no>
+Date: 07 Mar 2002 09:13:19 -0500
+Message-Id: <1015510399.25062.1.camel@smiddle>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One word of caution.
+I've got a Compaq Proliant ML350.  We've added an additional PCI based
+D-Link 530TX network card to the machine.  However, the driver (8139too)
+fails to load.  The errors given are below.  We are using Debian Sid
+(kernel 2.4.9-686).  If a new kernel or recompile is needed to fix this
+problem, I'm willing, but if there's another way, I'd be *more* willing
+to do that (putting new kernelson this machine is not fun).
 
-If you have a CPU that begin throttling it usually cut the CPU clock in
-half and the rdtsc counter count half a fast.
+I have tried changing the IRQ's for the card, that didn't seem to help. 
+PnP is off, I believe (hard to tell with the Compaq BIOS).  Right now,
+it's sharing IRQ 15 with the onboard eepro100 based card.  The add-on
+card has been tested while sharing IRQ's with both the SCSI controllers
+and the serial ports (the only options the BIOS gives us), and got the
+exact same messages as below.
 
-You *should* actually call gettimeofday every few seconds (> 10) to
-correct offset.
+And, of course, like many people, I'm not subscribed to list.  CC on
+replies would be spiffy.  Thanks!
 
-If you have a SMP system with impropper cooling you actually get into
-trouble since you may have one CPU throttling alot and the other don't.
-Then the rdtsc of the two CPU's may be quite different.
-Have actually seen machines where sleep 1 took 1.2-1.4 secs!
+On the console:
+/lib/modules/2.4.9-686/kernel/drivers/net/8139too.o: init_module: No
+such device
+/lib/modules/2.4.9-686/kernel/drivers/net/8139too.o: insmod
+/lib/modules/2.4.9-686/kernel/drivers/net/8139too.o failed
+/lib/modules/2.4.9-686/kernel/drivers/net/8139too.o: insmod 8139too
+failed
+Hint: insmod errors can be caused by incorrect module parameters,
+including invalid IO or IRQ parameters
 
-TJ
-
-On Wed, 2002-03-06 at 05:31, Davide Libenzi wrote:
-> On Tue, 5 Mar 2002, Ben Greear wrote:
-> 
-> >
-> >
-> > Davide Libenzi wrote:
-> >
-> > > On Tue, 5 Mar 2002, Ben Greear wrote:
-> > >
-> > >
-> > >>I have a program that I very often need to calculate the current
-> > >>time, with milisecond accuracy.  I've been using gettimeofday(),
-> > >>but gprof shows it's taking a significant (10% or so) amount of
-> > >>time.  Is there a faster (and perhaps less portable?) way to get
-> > >>the time information on x86?  My program runs as root, so should
-> > >>have any permissions it needs to use some backdoor hack if that
-> > >>helps!
-> > >>
-> > >
-> > > If you're on x86 you can use collect rdtsc samples and convert them to ms.
-> > > You'll get even more then ms accuracy.
-> >
-> >
-> > Can I do this from user space?  If so, any examples or docs
-> > you can point me to?
-> >
-> > Also, I'm looking primarily for a speed increase, not an accuracy
-> > increase.
-> 
-> 
->     #include <linux/timex.h>
-> 
-> 
->     unsigned long long mscurr;
->     cycles_t cys, cye, mscycles;
->     struct timespec ts1, ts2;
-> 
->     clock_gettime(CLOCK_REALTIME, &ts1);
->     cys = get_cycles();
->     sleep(1);
->     clock_gettime(CLOCK_REALTIME, &ts2);
->     cye = get_cycles();
->     mscycles = (cye - cys) / ((ts2.tv_sec - ts1.tv_sec) * 1000 +
-> 		(ts2.tv_nsec - ts1.tv_nsec) / 1000000);
-> 
-> 
-> 
->     mscurr = ts2.tv_sec * 1000 + ts2.tv_nsec * 1000000 + (get_cycles() - cye) / mscycles;
-> 
-> 
-> 
-> 
-> 
-> - Davide
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-_________________________________________________________________________
-
-Terje Eggestad                  mailto:terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
-
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
-N-0619 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
+/var/log/messages:
+Mar  7 09:00:25 dns1 kernel: 8139too Fast Ethernet driver 0.9.18a
+Mar  7 09:00:25 dns1 kernel: PCI: Found IRQ 15 for device 00:04.0
+Mar  7 09:00:25 dns1 kernel: PCI: Unable to reserve I/O region
+#1:100@3000 for device 00:04.0
+Mar  7 09:00:25 dns1 kernel: Trying to free nonexistent resource
+<00003000-000030ff>
+Mar  7 09:00:25 dns1 kernel: Trying to free nonexistent resource
+<b0800000-b08000ff>
+Mar  7 09:00:25 dns1 kernel: Trying to free nonexistent resource
+<00003000-000030ff>
+Mar  7 09:00:25 dns1 kernel: Trying to free nonexistent resource
+<b0800000-b08000ff>
 

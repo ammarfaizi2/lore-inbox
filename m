@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261321AbSLHMSY>; Sun, 8 Dec 2002 07:18:24 -0500
+	id <S261448AbSLHMWX>; Sun, 8 Dec 2002 07:22:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261448AbSLHMSY>; Sun, 8 Dec 2002 07:18:24 -0500
-Received: from max.fiasco.org.il ([192.117.122.39]:9488 "HELO
-	latenight.fiasco.org.il") by vger.kernel.org with SMTP
-	id <S261321AbSLHMSY>; Sun, 8 Dec 2002 07:18:24 -0500
-Subject: Re: Detecting threads vs processes with ps or /proc
-From: Gilad Ben-Yossef <gilad@benyossef.com>
-To: Nick LeRoy <nleroy@cs.wisc.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200212060924.02162.nleroy@cs.wisc.edu>
-References: <200212060924.02162.nleroy@cs.wisc.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 08 Dec 2002 14:24:42 +0200
-Message-Id: <1039350288.15058.23.camel@klendathu.telaviv.sgi.com>
-Mime-Version: 1.0
+	id <S265409AbSLHMWX>; Sun, 8 Dec 2002 07:22:23 -0500
+Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:25987 "EHLO
+	dexter.hensema.net") by vger.kernel.org with ESMTP
+	id <S261448AbSLHMWW>; Sun, 8 Dec 2002 07:22:22 -0500
+From: Erik Hensema <usenet@hensema.xs4all.nl>
+Subject: Re: /proc/pci deprecation?
+Date: Sun, 8 Dec 2002 12:30:00 +0000 (UTC)
+Message-ID: <slrnav6eq7.6d2.usenet@dexter.hensema.net>
+References: <997222131F7@vcnet.vc.cvut.cz> <20021207131424.GL32065@louise.pinerecords.com> <20021207185252.GC1588@ppc.vc.cvut.cz>
+Reply-To: erik@hensema.xs4all.nl
+User-Agent: slrn/0.9.7.4 (Linux)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-12-06 at 17:24, Nick LeRoy wrote:
-
+Petr Vandrovec (vandrove@vc.cvut.cz) wrote:
+> On Sat, Dec 07, 2002 at 02:14:24PM +0100, Tomas Szepe wrote:
+>> > > IMO, yes, since those tools provide the summary, and exist almost purely in
+>> > > userspace. I forgot to mention in the orginal email that we could also drop
+>> > > the PCI names database, right? This would save a considerable amount in the
+>> > > kernel image alone..
+>> > 
+>> > If you want, make it user configurable like it was during 2.2.x. But
+>> > I personally prefer descriptive names and system overview I can parse 
+>> > without having mounted /usr to get working lspci.
+>> 
+>> Actually I'm inclined to insist that lspci belong in /sbin.  Really.  :)
 > 
-> Our software (Condor) and some related software (Globus) is running on a 
-> number of systems around the world.  Condor attempts to monitor the RAM usage 
-> of it's "user" (maybe "client" is a better word here) processes.  If the 
-> client forks, we need to monitor the client and all of it's children, which 
-> really isn't difficult.  The _problem_ is that if the client creates threads, 
-> it's impossible, from what we can tell, to tell the difference between 
-> separate threads and processes.
-> 
-> So my question, I guess, is this.  How can you tell, from user space, whether 
-> a group of processes are related as threads or through a "normal" child / 
-> parent relationship?  The systems that we're running on currently are 2.2.19 
-> and 2.4.18/19.
+> Try it. At least on Debian it is useless without name database, which lives in
+> /usr/share/misc/pci.ids...  I can read numbers directly from /proc/bus/pci, if
+> I want numbers.
 
-There is another approach save for the one already discussed here, which
-I have no idea how applicable it is in your case, but will produce 100%
-reliable results without additional kernel support - track the processes
-forks.
-
-There are several ways you can go about it - there's the expensive (in
-terms of CPU cycles) approach of using ptrace(2), the relativly painless
-way of overriding the "default" calls to fork and friends via ld.so(8)
-magical LD_PRELOAD  that nevertheless requires you control the execution
-of the "client" programs and even using a system call tracking module
-such as syscall-tracker (http://syscalltrack.sf.net) which might not be
-quite ready for use on a production system as of yet.
-
-Hope this helps,
-Gilad
+Hmmmm, on SuSE 8.0 too. I consider this a bug. Or at least a misfeature.
+Binaries in /bin and /sbin should not need anything from /usr.
 
 -- 
- Gilad Ben-Yossef <gilad@benyossef.com> 
- http://benyossef.com 
- "Denial really is a river in Eygept."
-
+Erik Hensema <erik@hensema.net>

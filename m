@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291224AbSAaSka>; Thu, 31 Jan 2002 13:40:30 -0500
+	id <S291226AbSAaSmw>; Thu, 31 Jan 2002 13:42:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291225AbSAaSkU>; Thu, 31 Jan 2002 13:40:20 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33295 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291224AbSAaSkM>; Thu, 31 Jan 2002 13:40:12 -0500
-Subject: Re: BusLogic build error in 2.5.3
-To: tsullivan@datawest.net (Tim Sullivan)
-Date: Thu, 31 Jan 2002 18:53:11 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1012501663.1349.20.camel@prostock.ecom-tech.com> from "Tim Sullivan" at Jan 31, 2002 11:27:42 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S291229AbSAaSmk>; Thu, 31 Jan 2002 13:42:40 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:56962 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S291226AbSAaSm1>;
+	Thu, 31 Jan 2002 13:42:27 -0500
+Date: Thu, 31 Jan 2002 13:42:25 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
+Cc: linux-kernel@vger.kernel.org, mge@sistina.com
+Subject: Re: [ANNOUNCE] LVM reimplementation ready for beta testing
+Message-ID: <20020131134225.B32321@havoc.gtf.org>
+In-Reply-To: <20020130202254.A7364@fib011235813.fsnet.co.uk> <20020131010119.GB858@ufies.org> <20020131134533.A10295@sistina.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16WMKd-0002uR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020131134533.A10295@sistina.com>; from mauelshagen@sistina.com on Thu, Jan 31, 2002 at 01:45:33PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> According to a note in the scsi_obsolete.c file, "Once the last
-> driver uses the new code this *ENTIRE* file will be nuked."
-> 
-> It seems that scsi_obsolete.c has been "nuked" prematurely :)
+On Thu, Jan 31, 2002 at 01:45:33PM +0100, Heinz J . Mauelshagen wrote:
+> LVM2 and the device-mapper are GPL/LGPL.
 
-If someone has deleted it I applaud them 8). The scsi_obsolete stuff goes
-back to 2.2 era and not enough people have jumped. Time to remind them that
-the service they are currently using is four years into its phase out and
-now going away
+Could you clarify the meaning of "GPL/LGPL"?  Are certain parts GPL and
+other parts LGPL?  If so, which parts?
 
-Alan
+	jeff
+
+
+

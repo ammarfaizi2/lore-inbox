@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262930AbREWAiC>; Tue, 22 May 2001 20:38:02 -0400
+	id <S262928AbREWAvQ>; Tue, 22 May 2001 20:51:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262924AbREWAhw>; Tue, 22 May 2001 20:37:52 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23302 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262932AbREWAhc>; Tue, 22 May 2001 20:37:32 -0400
-Subject: Re: 2.4.4 -  I2O printer port weirdness
-To: jd@dyatron.co.nz (John at Dyatron)
-Date: Wed, 23 May 2001 01:34:54 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <005901c0e31f$fa89cc80$2bfefe0a@dyatron.co.nz> from "John at Dyatron" at May 23, 2001 12:33:24 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E152Mc2-0002kI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S262931AbREWAu4>; Tue, 22 May 2001 20:50:56 -0400
+Received: from 193-153-20-111.uc.nombres.ttd.es ([193.153.20.111]:19466 "HELO
+	193-153-20-111.uc.nombres.ttd.es") by vger.kernel.org with SMTP
+	id <S262928AbREWAux>; Tue, 22 May 2001 20:50:53 -0400
+From: storage@lycos.es
+Reply-To: storage@lycos.es
+To: linux-kernel@vger.kernel.org
+Subject: REGISTRE EL SUYO AHORA
+Message-Id: <20010523005056Z262928-932+362@vger.kernel.org>
+Date: Tue, 22 May 2001 20:50:53 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I2C Printer port detects , then
-> 0x378 detects too
-> but both are parport0 ?
-> 
-> SMSC Super-IO detection, now testing Ports 2F0, 370 ...
-> parport0: PC-style at 0x378 [PCSPP,TRISTATE,EPP]
+Si tiene una empresa en marcha, un proyecto o una idea registre su dominio en Internet AHORA, 
+tal vez mañana sea demasiado tarde. Proteja su nombre en Internet. Si tiene ya dominio y ha de renovarlo proximamente transfiera el dominio por solo 20$ lo tendra un año renovado (esta operacion no afecta al hospedaje, solo al registrador del dominio)
 
-Thata your parallel port
+Si conoce a alguien en esta situacion y no sabe que regalarle regalele un dominio, es original y quedara bien.
 
-> i2c-philips-par.o: i2c Philips parallel port adapter module
-> i2c-philips-par.o: attaching to parport0
-> i2c-dev.o: Registered 'Philips Parallel port adapter' as minor 0
+Vea toda la informacion referente al registro de dominios en http://ir-a.net/mark/
 
-Then for some reason you attached a driver for external i2c bus onto it.
+REGALE UN DOMINIO O REGISTRE EL SUYO
+Otros servicios: hospedaje, redireccion de dominio, ...etc
+¿HAS DE RENOVAR EL REGISTRO DE TU DOMINIO? PRECIO ESPECIAL POR TRANSFERENCIA DE DOMINIO (20$ AÑO)
+PRECIO DE HOSTING IMBATIBLE
 
-I suspect you compiled things into your kernel you didnt mean too 8)
+-----------------------REMOVE------------------------------
+SI NO QUIERE RECIBIR MAS MENSAJES DESDE ESTA DIRECCION VAYA AL LINK 
+INDICADO
+Y SERA DADO DE BAJA INMEDIATAMENTE. DICHO LINK ES UN SERVICIO 
+INDEPENDIENTE DEL ENVIO DE ESTE EMAIL
+----------------------------------------------------------------------
+dar de baja de la lista de distribucion - remove distribution list
+http://borrame.anexos.com
+RemovingNet. Cuentas gratuitas para el control  de bajas.
+Free accounts for the control of  "unsubscribes"
+RemovingNet nada tiene que ver con este email ni con su
+contenido
+RemovingNet nothing has to do with this email nor with contained his
+----------------------------------------------------------------
+IF YOU DON'T WANT TO RECEIVE MORE MESSAGES FROM US, PLEASE CLICK ON THE LINK
+BELOW. http://borrame.anexos.com
+ YOUR EMAIL ADDRESS WILL BE REMOVED FROM OUR DATA BASE IMMEDIATELY.
+REMOVING.NET IS AN INDEPENDENT SERVICE
+-----------------------REMOVE------------------------------
+
+
 

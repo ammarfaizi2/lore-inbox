@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267556AbUIULGB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267563AbUIULHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267556AbUIULGB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 07:06:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267563AbUIULGB
+	id S267563AbUIULHw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 07:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267565AbUIULHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 07:06:01 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:60634 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267556AbUIULGA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 07:06:00 -0400
-Subject: Re: [sata] ALI M5281
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Shine on this Life That's Burnin' Out" <hopeless@islug.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0409210340520.2842@inconnu.isu.edu>
-References: <Pine.LNX.4.58.0409210340520.2842@inconnu.isu.edu>
-Content-Type: text/plain
+	Tue, 21 Sep 2004 07:07:52 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:64016 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S267563AbUIULHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 07:07:49 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Linas Vepstas <linas@austin.ibm.com>
+Subject: Re: [PATCH] [PPC64] [TRIVIAL] Janitor whitespace in pSeries_pci.c
+Date: Tue, 21 Sep 2004 14:07:09 +0300
+User-Agent: KMail/1.5.4
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org, anton@samba.org
+References: <20040920221933.GB1872@austin.ibm.com> <20040920223121.GC1872@austin.ibm.com>
+In-Reply-To: <20040920223121.GC1872@austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1095761018.30748.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 21 Sep 2004 11:03:40 +0100
+Content-Disposition: inline
+Message-Id: <200409211407.09764.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-09-21 at 10:51, Shine on this Life That's Burnin' Out
-wrote:
-> Even some sort of semi-functional code would be nice. (Reminds me of 
-> my attempts to forward-port old korean package for Aralion UltimaRAID 
-> systems. Works in later 2.4's but dies on 2.6 =( )
+On Tuesday 21 September 2004 01:31, Linas Vepstas wrote:
+> 
+> Forgot to attach the actual patch.
+> 
+> On Mon, Sep 20, 2004 at 05:19:33PM -0500, Linas Vepstas was heard to remark:
+> > Hi,
+> 
+> 
+> This file mixes tabs with 8 spaces, leading to poor display 
+> if one's editor doesn't have tab-stops set to 8.   Please apply.
 
-A lot of badly written code (or just old code that didnt know
-about the PCI mapping API) does that
+There are lots of such places.
+Automated scripts can easily produce megabytes worth of whitespace
+patches.
 
-> Was ALI good about specs for their old M15x3 series?
-
-Reasonably so, at least when approached by a Linux vendor. I have some
-ALi data sheets under NDA for example. I don't know how they view random
-individual requests. 
-
-Alan
+As I understand, such patches aren't accepted because
+merging pain is much greater than gain.
+Typically whitespace cleanups are piggybacked on some code changes.
+--
+vda
 

@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262485AbVAUTic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262474AbVAUTjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262485AbVAUTic (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 14:38:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262474AbVAUTic
+	id S262474AbVAUTjO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 14:39:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbVAUTjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 14:38:32 -0500
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:41168 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262485AbVAUTiJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 14:38:09 -0500
-Date: Fri, 21 Jan 2005 11:37:56 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: jgarzik@pobox.com
-Cc: Nicolas Pitre <nico@cam.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Add OMAP functions to smc91x.h
-Message-ID: <20050121193756.GM14554@atomide.com>
+	Fri, 21 Jan 2005 14:39:14 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:54485 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262474AbVAUTi5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 14:38:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=mIpf1cj/B9gPozrWdf2bD7tP/VDRK5IGm2bi+0Z8X/gX1xtBu42qhxTn7R1i7oNiQe2o9JI7IwoIKySymSNNF095E8Ahdt3mEbVtwjiq85HG96GExXxNyiWPYA/HLy6ZtIax1aIQ8eYWrx0DKiCiIxilr2sJtvTgwOUBIbDy8TE=
+Message-ID: <d120d500050121113867c82596@mail.gmail.com>
+Date: Fri, 21 Jan 2005 14:38:56 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Wiktor <victorjan@poczta.onet.pl>
+Subject: Re: AT keyboard dead on 2.6
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41F15307.4030009@poczta.onet.pl>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="+g7M9IMkV8truYOl"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <41F11F79.3070509@poczta.onet.pl>
+	 <d120d500050121074831087013@mail.gmail.com>
+	 <41F15307.4030009@poczta.onet.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 21 Jan 2005 20:07:51 +0100, Wiktor <victorjan@poczta.onet.pl> wrote:
+> Dmitry Torokhov wrote:
+> > Hi,
+> >
+> > What kernel version are you using? Have you tried 2.6.8.1? - it looks
+> > like changes in 2.6.9-rc2-bk3 caused problems on some hardware.
+> >
+> 
+> Hi,
+> 
+> it looks like 2.6.10 (which I was using) - serio ports are detected ok
+> (both on 0x60,0x64, keyboard irq 1, aux irq 12), keyboard also (AT
+> Keyboard Translated Set 2 on isa0060/serio) and nothing - while
+> detection NumLock (set by BIOS) is turned off and keyboard is dead.
+> Maybe someone would be so kind and compare keyboard driver
+> hadrware-level parts and (possibly) post patch reversing any changes
+> since 2.4?
 
---+g7M9IMkV8truYOl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Ahem, that would be the one wiping out entire input system...
 
-Hi Jeff,
+> Any other ideas?
 
-Attached patch adds support for various OMAP boards to the smc91x
-Ethernet driver. Nicolas asked to send it to you. Can you please apply?
+1. Try compiling psmouse as a module and not load it until keyboard
+driver (atkbd) is loaded.
 
-Regards,
+2. Try kernel 2.6.8.1 - it looks like changes in 2.6.9-rc2-bk3 are
+causing trouble on some systems but I can't figure out the reason.
 
-Tony
---+g7M9IMkV8truYOl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="patch-2.6.10-omap-net-drivers"
+Also, if you change undef DEBUG to #define DEBUG in
+drivers/input/serio/i8042.c, reboot with log_buf_size=131072 and send
+me the full dmesg or kernel log I'd appreciate it.
 
-Add support for various OMAP boards to smc91x Ethernet driver
+Thanks!
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Nicolas Pitre <nico@cam.org>
-
-diff -Nru --exclude-from=/home/tmlind/src/dontdiff-tony linus/drivers/net/smc91x.h b/drivers/net/smc91x.h
---- a/drivers/net/smc91x.h	2004-12-10 11:53:52.000000000 -0800
-+++ b/drivers/net/smc91x.h	2004-12-27 12:08:43.000000000 -0800
-@@ -162,6 +162,26 @@
- 	}
- }
- 
-+#elif	defined(CONFIG_ARCH_OMAP)
-+
-+/* We can only do 16-bit reads and writes in the static memory space. */
-+#define SMC_CAN_USE_8BIT	0
-+#define SMC_CAN_USE_16BIT	1
-+#define SMC_CAN_USE_32BIT	0
-+#define SMC_IO_SHIFT		0
-+#define SMC_NOWAIT		1
-+
-+#define SMC_inb(a, r)		readb((a) + (r))
-+#define SMC_outb(v, a, r)	writeb(v, (a) + (r))
-+#define SMC_inw(a, r)		readw((a) + (r))
-+#define SMC_outw(v, a, r)	writew(v, (a) + (r))
-+#define SMC_insw(a, r, p, l)	readsw((a) + (r), p, l)
-+#define SMC_outsw(a, r, p, l)	writesw((a) + (r), p, l)
-+#define SMC_inl(a, r)		readl((a) + (r))
-+#define SMC_outl(v, a, r)	writel(v, (a) + (r))
-+#define SMC_insl(a, r, p, l)	readsl((a) + (r), p, l)
-+#define SMC_outsl(a, r, p, l)	writesl((a) + (r), p, l)
-+
- #elif	defined(CONFIG_ISA)
- 
- #define SMC_CAN_USE_8BIT	1
-
---+g7M9IMkV8truYOl--
+-- 
+Dmitry

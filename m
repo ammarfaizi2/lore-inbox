@@ -1,592 +1,331 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVARBmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVARBpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVARBmO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 20:42:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVARBmF
+	id S261154AbVARBpU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 20:45:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVARBoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 20:42:05 -0500
-Received: from mail.dif.dk ([193.138.115.101]:55991 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262925AbVARBTs (ORCPT
+	Mon, 17 Jan 2005 20:44:55 -0500
+Received: from mail.dif.dk ([193.138.115.101]:1208 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261160AbVARBU6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 20:19:48 -0500
-Date: Tue, 18 Jan 2005 02:22:33 +0100 (CET)
+	Mon, 17 Jan 2005 20:20:58 -0500
+Date: Tue, 18 Jan 2005 02:23:47 +0100 (CET)
 From: Jesper Juhl <juhl-lkml@dif.dk>
 To: linux-kernel <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 06/11] Get rid of verify_area() - arch/mips/.
-Message-ID: <Pine.LNX.4.61.0501180150400.2730@dragon.hygekrogen.localhost>
+Subject: [PATCH 11/11] Get rid of verify_area() - the changes needed in
+ include/ to deprecate verify_area().
+Message-ID: <Pine.LNX.4.61.0501180155370.2730@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Convert a bunch of verify_area()'s to access_ok().
-arch/mips/.
+This deprecates verify_area() across the board. To be applied after the 
+previous 11 patches in this series.
 
 
 Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-diff -urp linux-2.6.11-rc1-bk4-orig/arch/mips/kernel/irixelf.c linux-2.6.11-rc1-bk4/arch/mips/kernel/irixelf.c
---- linux-2.6.11-rc1-bk4-orig/arch/mips/kernel/irixelf.c	2005-01-16 21:27:11.000000000 +0100
-+++ linux-2.6.11-rc1-bk4/arch/mips/kernel/irixelf.c	2005-01-16 23:51:09.000000000 +0100
-@@ -885,12 +885,11 @@ unsigned long irix_mapelf(int fd, struct
+--- linux-2.6.11-rc1-bk4-orig/include/asm-alpha/uaccess.h	2004-12-24 22:35:24.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-alpha/uaccess.h	2005-01-18 01:15:13.000000000 +0100
+@@ -48,7 +48,8 @@
+ 	__access_ok(((unsigned long)(addr)),(size),get_fs());	\
+ })
  
- 	/* First get the verification out of the way. */
- 	hp = user_phdrp;
--	retval = verify_area(VERIFY_READ, hp, (sizeof(struct elf_phdr) * cnt));
--	if(retval) {
-+	if (!access_ok(VERIFY_READ, hp, (sizeof(struct elf_phdr) * cnt))) {
- #ifdef DEBUG_ELF
--		printk("irix_mapelf: verify_area fails!\n");
-+		printk("irix_mapelf: access_ok fails!\n");
- #endif
--		return retval;
-+		return -EFAULT;
- 	}
- 
- #ifdef DEBUG_ELF
-diff -urp linux-2.6.11-rc1-bk4-orig/arch/mips/kernel/irixinv.c linux-2.6.11-rc1-bk4/arch/mips/kernel/irixinv.c
---- linux-2.6.11-rc1-bk4-orig/arch/mips/kernel/irixinv.c	2004-12-24 22:33:51.000000000 +0100
-+++ linux-2.6.11-rc1-bk4/arch/mips/kernel/irixinv.c	2005-01-16 23:52:00.000000000 +0100
-@@ -38,8 +38,8 @@ int dump_inventory_to_user (void *userbu
- 	inventory_t *user = userbuf;
- 	int v;
- 
--	if ((v = verify_area (VERIFY_WRITE, userbuf, size)))
--		return v;
-+	if (!access_ok(VERIFY_WRITE, userbuf, size))
-+		return -EFAULT;
- 
- 	for (v = 0; v < inventory_items; v++){
- 		inv = &inventory [v];
-diff -urp linux-2.6.11-rc1-bk4-orig/arch/mips/kernel/irixsig.c linux-2.6.11-rc1-bk4/arch/mips/kernel/irixsig.c
---- linux-2.6.11-rc1-bk4-orig/arch/mips/kernel/irixsig.c	2005-01-16 21:27:11.000000000 +0100
-+++ linux-2.6.11-rc1-bk4/arch/mips/kernel/irixsig.c	2005-01-17 00:07:42.000000000 +0100
-@@ -312,7 +312,7 @@ irix_sigaction(int sig, const struct sig
- #endif
- 	if (act) {
- 		sigset_t mask;
--		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
-+		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
- 		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
- 		    __get_user(new_ka.sa.sa_flags, &act->sa_flags))
- 			return -EFAULT;
-@@ -331,7 +331,7 @@ irix_sigaction(int sig, const struct sig
- 	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
- 
- 	if (!ret && oact) {
--		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
-+		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
- 		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
- 		    __put_user(old_ka.sa.sa_flags, &oact->sa_flags))
- 			return -EFAULT;
-@@ -350,12 +350,10 @@ asmlinkage int irix_sigpending(irix_sigs
- asmlinkage int irix_sigprocmask(int how, irix_sigset_t *new, irix_sigset_t *old)
+-extern inline int verify_area(int type, const void __user * addr, unsigned long size)
++/* this function will go away soon - use access_ok() instead */
++extern inline int __deprecated verify_area(int type, const void __user * addr, unsigned long size)
  {
- 	sigset_t oldbits, newbits;
--	int error;
+ 	return access_ok(type,addr,size) ? 0 : -EFAULT;
+ }
+--- linux-2.6.11-rc1-bk4-orig/include/asm-arm/uaccess.h	2004-12-24 22:35:00.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-arm/uaccess.h	2005-01-18 01:15:13.000000000 +0100
+@@ -77,7 +77,8 @@ static inline void set_fs (mm_segment_t 
  
- 	if (new) {
--		error = verify_area(VERIFY_READ, new, sizeof(*new));
--		if (error)
--			return error;
-+		if (!access_ok(VERIFY_READ, new, sizeof(*new)))
-+			return -EFAULT;
- 		__copy_from_user(&newbits, new, sizeof(unsigned long)*4);
- 		sigdelsetmask(&newbits, ~_BLOCKABLE);
+ #define access_ok(type,addr,size)	(__range_ok(addr,size) == 0)
  
-@@ -385,9 +383,8 @@ asmlinkage int irix_sigprocmask(int how,
- 		spin_unlock_irq(&current->sighand->siglock);
- 	}
- 	if(old) {
--		error = verify_area(VERIFY_WRITE, old, sizeof(*old));
--		if(error)
--			return error;
-+		if (!access_ok(VERIFY_WRITE, old, sizeof(*old)))
-+			return -EFAULT;
- 		__copy_to_user(old, &current->blocked, sizeof(unsigned long)*4);
- 	}
- 
-@@ -469,12 +466,13 @@ asmlinkage int irix_sigpoll_sys(unsigned
- #endif
- 
- 	/* Must always specify the signal set. */
--	if(!set)
-+	if (!set)
- 		return -EINVAL;
- 
--	error = verify_area(VERIFY_READ, set, sizeof(kset));
--	if (error)
-+	if (!access_ok(VERIFY_READ, set, sizeof(kset))) {
-+		error = -EFAULT;
- 		goto out;
-+	}
- 
- 	__copy_from_user(&kset, set, sizeof(set));
- 	if (error)
-@@ -485,11 +483,10 @@ asmlinkage int irix_sigpoll_sys(unsigned
- 		goto out;
- 	}
- 
--	if(tp) {
--		error = verify_area(VERIFY_READ, tp, sizeof(*tp));
--		if(error)
--			return error;
--		if(!tp->tv_sec && !tp->tv_nsec) {
-+	if (tp) {
-+		if (!access_ok(VERIFY_READ, tp, sizeof(*tp)))
-+			return -EFAULT;
-+		if (!tp->tv_sec && !tp->tv_nsec) {
- 			error = -EINVAL;
- 			goto out;
- 		}
-@@ -564,13 +561,15 @@ asmlinkage int irix_waitsys(int type, in
- 		retval = -EINVAL;
- 		goto out;
- 	}
--	retval = verify_area(VERIFY_WRITE, info, sizeof(*info));
--	if(retval)
-+	if (!access_ok(VERIFY_WRITE, info, sizeof(*info))) {
-+		retval = -EFAULT;
- 		goto out;
-+	}
- 	if (ru) {
--		retval = verify_area(VERIFY_WRITE, ru, sizeof(*ru));
--		if(retval)
-+		if (!access_ok(VERIFY_WRITE, ru, sizeof(*ru))) {
-+			retval = -EFAULT;
- 			goto out;
-+		}
- 	}
- 	if (options & ~(W_MASK)) {
- 		retval = -EINVAL;
-@@ -690,7 +689,7 @@ struct irix5_context {
- 
- asmlinkage int irix_getcontext(struct pt_regs *regs)
+-static inline int verify_area(int type, const void __user *addr, unsigned long size)
++/* this function will go away soon - use access_ok() instead */
++static inline int __deprecated verify_area(int type, const void __user *addr, unsigned long size)
  {
--	int error, i, base = 0;
-+	int i, base = 0;
- 	struct irix5_context *ctx;
- 	unsigned long flags;
+ 	return access_ok(type, addr, size) ? 0 : -EFAULT;
+ }
+--- linux-2.6.11-rc1-bk4-orig/include/asm-arm26/uaccess.h	2005-01-12 23:26:23.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-arm26/uaccess.h	2005-01-18 01:15:13.000000000 +0100
+@@ -40,7 +40,8 @@ extern int fixup_exception(struct pt_reg
  
-@@ -703,9 +702,9 @@ asmlinkage int irix_getcontext(struct pt
- 	       current->comm, current->pid, ctx);
- #endif
+ #define access_ok(type,addr,size)	(__range_ok(addr,size) == 0)
  
--	error = verify_area(VERIFY_WRITE, ctx, sizeof(*ctx));
--	if(error)
--		goto out;
-+	if (!access_ok(VERIFY_WRITE, ctx, sizeof(*ctx)))
-+		return -EFAULT;
-+
- 	__put_user(current->thread.irix_oldctx, &ctx->link);
+-static inline int verify_area(int type, const void * addr, unsigned long size)
++/* this function will go away soon - use access_ok() instead */
++static inline int __deprecated verify_area(int type, const void * addr, unsigned long size)
+ {
+ 	return access_ok(type, addr, size) ? 0 : -EFAULT;
+ }
+--- linux-2.6.11-rc1-bk4-orig/include/asm-cris/uaccess.h	2004-12-24 22:34:00.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-cris/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -91,7 +91,8 @@
+ #define __access_ok(addr,size) (__kernel_ok || __user_ok((addr),(size)))
+ #define access_ok(type,addr,size) __access_ok((unsigned long)(addr),(size))
  
- 	__copy_to_user(&ctx->sigmask, &current->blocked, sizeof(irix_sigset_t));
-@@ -725,17 +724,15 @@ asmlinkage int irix_getcontext(struct pt
- 	__put_user(regs->cp0_epc, &ctx->regs[35]);
+-extern inline int verify_area(int type, const void __user * addr, unsigned long size)
++/* this function will go away soon - use access_ok() instead */
++extern inline int __deprecated verify_area(int type, const void __user * addr, unsigned long size)
+ {
+ 	return access_ok(type,addr,size) ? 0 : -EFAULT;
+ }
+--- linux-2.6.11-rc1-bk4-orig/include/asm-frv/uaccess.h	2005-01-12 23:26:23.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-frv/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -67,7 +67,8 @@ static inline int ___range_ok(unsigned l
+ #define access_ok(type,addr,size) (__range_ok((addr), (size)) == 0)
+ #define __access_ok(addr,size) (__range_ok((addr), (size)) == 0)
  
- 	flags = 0x0f;
--	if(!current->used_math) {
-+	if (!current->used_math) {
- 		flags &= ~(0x08);
- 	} else {
- 		/* XXX wheee... */
- 		printk("Wheee, no code for saving IRIX FPU context yet.\n");
- 	}
- 	__put_user(flags, &ctx->flags);
--	error = 0;
- 
--out:
--	return error;
-+	return 0;
+-static inline int verify_area(int type, const void * addr, unsigned long size)
++/* this function will go away soon - use access_ok() / __range_ok() instead */
++static inline int __deprecated verify_area(int type, const void * addr, unsigned long size)
+ {
+ 	return __range_ok(addr, size);
+ }
+--- linux-2.6.11-rc1-bk4-orig/include/asm-h8300/uaccess.h	2004-12-24 22:34:30.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-h8300/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -24,7 +24,8 @@ static inline int __access_ok(unsigned l
+ 	return(RANGE_CHECK_OK(addr, size, 0L, (unsigned long)&_ramend));
  }
  
- asmlinkage unsigned long irix_setcontext(struct pt_regs *regs)
-@@ -752,9 +749,10 @@ asmlinkage unsigned long irix_setcontext
- 	       current->comm, current->pid, ctx);
- #endif
- 
--	error = verify_area(VERIFY_READ, ctx, sizeof(*ctx));
--	if (error)
-+	if (!access_ok(VERIFY_READ, ctx, sizeof(*ctx))) {
-+		error = -EFAULT;
- 		goto out;
-+	}
- 
- 	if (ctx->flags & 0x02) {
- 		/* XXX sigstack garbage, todo... */
-@@ -787,21 +785,19 @@ struct irix_sigstack { unsigned long sp;
- 
- asmlinkage int irix_sigstack(struct irix_sigstack *new, struct irix_sigstack *old)
+-static inline int verify_area(int type, const void *addr, unsigned long size)
++/* this function will go away soon - use access_ok() instead */
++static inline int __deprecated verify_area(int type, const void *addr, unsigned long size)
  {
--	int error;
-+	int error = -EFAULT;
+ 	return access_ok(type,addr,size)?0:-EFAULT;
+ }
+--- linux-2.6.11-rc1-bk4-orig/include/asm-i386/uaccess.h	2005-01-12 23:26:23.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-i386/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -84,7 +84,8 @@ extern struct movsl_mask {
+ #define access_ok(type,addr,size) (likely(__range_ok(addr,size) == 0))
  
- #ifdef DEBUG_SIG
- 	printk("[%s:%d] irix_sigstack(%p,%p)\n",
- 	       current->comm, current->pid, new, old);
- #endif
- 	if(new) {
--		error = verify_area(VERIFY_READ, new, sizeof(*new));
--		if(error)
-+		if (!access_ok(VERIFY_READ, new, sizeof(*new)))
- 			goto out;
- 	}
- 
- 	if(old) {
--		error = verify_area(VERIFY_WRITE, old, sizeof(*old));
--		if(error)
-+		if (!access_ok(VERIFY_WRITE, old, sizeof(*old)))
- 			goto out;
- 	}
- 	error = 0;
-@@ -815,21 +811,19 @@ struct irix_sigaltstack { unsigned long 
- asmlinkage int irix_sigaltstack(struct irix_sigaltstack *new,
- 				struct irix_sigaltstack *old)
+ /**
+- * verify_area: - Obsolete, use access_ok()
++ * verify_area: - Obsolete/deprecated and will go away soon, 
++ * use access_ok() instead.
+  * @type: Type of access: %VERIFY_READ or %VERIFY_WRITE
+  * @addr: User space pointer to start of block to check
+  * @size: Size of block to check
+@@ -100,7 +101,7 @@ extern struct movsl_mask {
+  *
+  * See access_ok() for more details.
+  */
+-static inline int verify_area(int type, const void __user * addr, unsigned long size)
++static inline int __deprecated verify_area(int type, const void __user * addr, unsigned long size)
  {
--	int error;
-+	int error = -EFAULT;
+ 	return access_ok(type,addr,size) ? 0 : -EFAULT;
+ }
+--- linux-2.6.11-rc1-bk4-orig/include/asm-ia64/uaccess.h	2004-12-24 22:34:30.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-ia64/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -69,7 +69,8 @@
+ })
+ #define access_ok(type, addr, size)	__access_ok((addr), (size), get_fs())
  
- #ifdef DEBUG_SIG
- 	printk("[%s:%d] irix_sigaltstack(%p,%p)\n",
- 	       current->comm, current->pid, new, old);
- #endif
- 	if (new) {
--		error = verify_area(VERIFY_READ, new, sizeof(*new));
--		if(error)
-+		if (!access_ok(VERIFY_READ, new, sizeof(*new)))
- 			goto out;
- 	}
- 
- 	if (old) {
--		error = verify_area(VERIFY_WRITE, old, sizeof(*old));
--		if(error)
-+		if (!access_ok(VERIFY_WRITE, old, sizeof(*old)))
- 			goto out;
- 	}
- 	error = 0;
-@@ -848,9 +842,10 @@ asmlinkage int irix_sigsendset(struct ir
+-static inline int
++/* this function will go away soon - use access_ok() instead */
++static inline int __deprecated 
+ verify_area (int type, const void __user *addr, unsigned long size)
  {
- 	int error;
+ 	return access_ok(type, addr, size) ? 0 : -EFAULT;
+--- linux-2.6.11-rc1-bk4-orig/include/asm-m32r/uaccess.h	2004-12-24 22:35:27.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-m32r/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -121,7 +121,8 @@ static inline int access_ok(int type, co
+ #endif /* CONFIG_MMU */
  
--	error = verify_area(VERIFY_READ, pset, sizeof(*pset));
--	if(error)
-+	if (!access_ok(VERIFY_READ, pset, sizeof(*pset))) {
-+		error = -EFAULT;
- 		goto out;
-+	}
- #ifdef DEBUG_SIG
- 	printk("[%s:%d] irix_sigsendset([%d,%d,%d,%d,%d],%d)\n",
- 	       current->comm, current->pid,
-diff -urp linux-2.6.11-rc1-bk4-orig/arch/mips/kernel/linux32.c linux-2.6.11-rc1-bk4/arch/mips/kernel/linux32.c
---- linux-2.6.11-rc1-bk4-orig/arch/mips/kernel/linux32.c	2004-12-24 22:35:00.000000000 +0100
-+++ linux-2.6.11-rc1-bk4/arch/mips/kernel/linux32.c	2005-01-17 00:23:33.000000000 +0100
-@@ -239,7 +239,7 @@ put_rusage (struct rusage32 *ru, struct 
+ /**
+- * verify_area: - Obsolete, use access_ok()
++ * verify_area: - Obsolete/deprecated and will go away soon,
++ * use access_ok() instead.
+  * @type: Type of access: %VERIFY_READ or %VERIFY_WRITE
+  * @addr: User space pointer to start of block to check
+  * @size: Size of block to check
+@@ -137,7 +138,7 @@ static inline int access_ok(int type, co
+  *
+  * See access_ok() for more details.
+  */
+-static inline int verify_area(int type, const void __user *addr,
++static inline int __deprecated verify_area(int type, const void __user *addr,
+ 			      unsigned long size)
  {
- 	int err;
+ 	return access_ok(type, addr, size) ? 0 : -EFAULT;
+--- linux-2.6.11-rc1-bk4-orig/include/asm-m68k/uaccess.h	2004-12-24 22:34:26.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-m68k/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -14,9 +14,10 @@
+ /* We let the MMU do all checking */
+ #define access_ok(type,addr,size) 1
  
--	if (verify_area(VERIFY_WRITE, ru, sizeof *ru))
-+	if (!access_ok(VERIFY_WRITE, ru, sizeof *ru))
- 		return -EFAULT;
- 
- 	err = __put_user (r->ru_utime.tv_sec, &ru->ru_utime.tv_sec);
-diff -urp linux-2.6.11-rc1-bk4-orig/arch/mips/kernel/sysirix.c linux-2.6.11-rc1-bk4/arch/mips/kernel/sysirix.c
---- linux-2.6.11-rc1-bk4-orig/arch/mips/kernel/sysirix.c	2004-12-24 22:35:28.000000000 +0100
-+++ linux-2.6.11-rc1-bk4/arch/mips/kernel/sysirix.c	2005-01-17 00:19:06.000000000 +0100
-@@ -289,9 +289,10 @@ asmlinkage int irix_syssgi(struct pt_reg
- 		struct task_struct *p;
- 		char tcomm[sizeof(current->comm)];
- 
--		retval = verify_area(VERIFY_WRITE, buf, sizeof(tcomm));
--		if (retval)
-+		if (!access_ok(VERIFY_WRITE, buf, sizeof(tcomm))) {
-+			retval = -EFAULT;
- 			break;
-+		}
- 		read_lock(&tasklist_lock);
- 		p = find_task_by_pid(pid);
- 		if (!p) {
-@@ -313,9 +314,10 @@ asmlinkage int irix_syssgi(struct pt_reg
- 		char *buf = (char *) regs->regs[base+6];
- 		char *value;
- 		return -EINVAL;	/* til I fix it */
--		retval = verify_area(VERIFY_WRITE, buf, 128);
--		if (retval)
-+		if (!access_ok(VERIFY_WRITE, buf, 128)) {
-+			retval = -EFAULT;
- 			break;
-+		}
- 		value = prom_getenv(name);	/* PROM lock?  */
- 		if (!value) {
- 			retval = -EINVAL;
-@@ -472,9 +474,8 @@ asmlinkage int irix_syssgi(struct pt_reg
- 		pmd_t *pmdp;
- 		pte_t *ptep;
- 
--		retval = verify_area(VERIFY_WRITE, pageno, sizeof(int));
--		if (retval)
--			return retval;
-+		if (!access_ok(VERIFY_WRITE, pageno, sizeof(int)))
-+			return -EFAULT;
- 
- 		down_read(&mm->mmap_sem);
- 		pgdp = pgd_offset(mm, addr);
-@@ -727,9 +728,10 @@ asmlinkage int irix_statfs(const char *p
- 		error = -EINVAL;
- 		goto out;
- 	}
--	error = verify_area(VERIFY_WRITE, buf, sizeof(struct irix_statfs));
--	if (error)
-+	if (!access_ok(VERIFY_WRITE, buf, sizeof(struct irix_statfs))) {
-+		error = -EFAULT;
- 		goto out;
-+	}
- 	error = user_path_walk(path, &nd);
- 	if (error)
- 		goto out;
-@@ -763,9 +765,10 @@ asmlinkage int irix_fstatfs(unsigned int
- 	struct file *file;
- 	int error, i;
- 
--	error = verify_area(VERIFY_WRITE, buf, sizeof(struct irix_statfs));
--	if (error)
-+	if (!access_ok(VERIFY_WRITE, buf, sizeof(struct irix_statfs))) {
-+		error = -EFAULT;
- 		goto out;
-+	}
- 	if (!(file = fget(fd))) {
- 		error = -EBADF;
- 		goto out;
-@@ -816,9 +819,8 @@ asmlinkage int irix_times(struct tms * t
- 	int err = 0;
- 
- 	if (tbuf) {
--		err = verify_area(VERIFY_WRITE,tbuf,sizeof *tbuf);
--		if (err)
--			return err;
-+		if (!access_ok(VERIFY_WRITE,tbuf,sizeof *tbuf)) 
-+			return -EFAULT;
- 		err |= __put_user(current->utime, &tbuf->tms_utime);
- 		err |= __put_user(current->stime, &tbuf->tms_stime);
- 		err |= __put_user(current->signal->cutime, &tbuf->tms_cutime);
-@@ -919,9 +921,8 @@ asmlinkage int irix_getdomainname(char *
+-static inline int verify_area(int type, const void *addr, unsigned long size)
++/* this function will go away soon - use access_ok() instead */
++static inline int __deprecated verify_area(int type, const void *addr, unsigned long size)
  {
- 	int error;
+-	return access_ok(type,addr,size)?0:-EFAULT;
++	return access_ok(type,addr,size) ? 0 : -EFAULT;
+ }
  
--	error = verify_area(VERIFY_WRITE, name, len);
--	if (error)
--		return error;
-+	if (!access_ok(VERIFY_WRITE, name, len))
-+		return -EFAULT;
+ /*
+--- linux-2.6.11-rc1-bk4-orig/include/asm-m68knommu/uaccess.h	2004-12-24 22:35:23.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-m68knommu/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -23,7 +23,8 @@ static inline int _access_ok(unsigned lo
+ 		(is_in_rom(addr) && is_in_rom(addr+size)));
+ }
  
- 	down_read(&uts_sem);
- 	if (len > __NEW_UTS_LEN)
-@@ -1050,7 +1051,7 @@ asmlinkage int irix_gettimeofday(struct 
- 	long nsec, seq;
- 	int err;
- 
--	if (verify_area(VERIFY_WRITE, tv, sizeof(struct timeval)))
-+	if (!access_ok(VERIFY_WRITE, tv, sizeof(struct timeval)))
- 		return -EFAULT;
- 
- 	do {
-@@ -1396,9 +1397,10 @@ asmlinkage int irix_statvfs(char *fname,
- 
- 	printk("[%s:%d] Wheee.. irix_statvfs(%s,%p)\n",
- 	       current->comm, current->pid, fname, buf);
--	error = verify_area(VERIFY_WRITE, buf, sizeof(struct irix_statvfs));
--	if (error)
-+	if (!access_ok(VERIFY_WRITE, buf, sizeof(struct irix_statvfs))) {
-+		error = -EFAULT;
- 		goto out;
-+	}
- 	error = user_path_walk(fname, &nd);
- 	if (error)
- 		goto out;
-@@ -1443,9 +1445,10 @@ asmlinkage int irix_fstatvfs(int fd, str
- 	printk("[%s:%d] Wheee.. irix_fstatvfs(%d,%p)\n",
- 	       current->comm, current->pid, fd, buf);
- 
--	error = verify_area(VERIFY_WRITE, buf, sizeof(struct irix_statvfs));
--	if (error)
-+	if (!access_ok(VERIFY_WRITE, buf, sizeof(struct irix_statvfs))) {
-+		error = -EFAULT;
- 		goto out;
-+	}
- 	if (!(file = fget(fd))) {
- 		error = -EBADF;
- 		goto out;
-@@ -1537,16 +1540,18 @@ asmlinkage int irix_mmap64(struct pt_reg
- 	prot = regs->regs[base + 6];
- 	if (!base) {
- 		flags = regs->regs[base + 7];
--		error = verify_area(VERIFY_READ, sp, (4 * sizeof(unsigned long)));
--		if(error)
-+		if (!access_ok(VERIFY_READ, sp, (4 * sizeof(unsigned long)))) {
-+			error = -EFAULT;
- 			goto out;
-+		}
- 		fd = sp[0];
- 		__get_user(off1, &sp[1]);
- 		__get_user(off2, &sp[2]);
- 	} else {
--		error = verify_area(VERIFY_READ, sp, (5 * sizeof(unsigned long)));
--		if(error)
-+		if (!access_ok(VERIFY_READ, sp, (5 * sizeof(unsigned long)))) {
-+			error = -EFAULT;
- 			goto out;
-+		}
- 		__get_user(flags, &sp[0]);
- 		__get_user(fd, &sp[1]);
- 		__get_user(off1, &sp[2]);
-@@ -1650,9 +1655,10 @@ asmlinkage int irix_statvfs64(char *fnam
- 
- 	printk("[%s:%d] Wheee.. irix_statvfs(%s,%p)\n",
- 	       current->comm, current->pid, fname, buf);
--	error = verify_area(VERIFY_WRITE, buf, sizeof(struct irix_statvfs64));
--	if(error)
-+	if (!access_ok(VERIFY_WRITE, buf, sizeof(struct irix_statvfs64))) {
-+		error = -EFAULT;
- 		goto out;
-+	}
- 	error = user_path_walk(fname, &nd);
- 	if (error)
- 		goto out;
-@@ -1697,9 +1703,10 @@ asmlinkage int irix_fstatvfs64(int fd, s
- 	printk("[%s:%d] Wheee.. irix_fstatvfs(%d,%p)\n",
- 	       current->comm, current->pid, fd, buf);
- 
--	error = verify_area(VERIFY_WRITE, buf, sizeof(struct irix_statvfs));
--	if (error)
-+	if (!access_ok(VERIFY_WRITE, buf, sizeof(struct irix_statvfs))) {
-+		error = -EFAULT;
- 		goto out;
-+	}
- 	if (!(file = fget(fd))) {
- 		error = -EBADF;
- 		goto out;
-@@ -1735,13 +1742,12 @@ out:
- 
- asmlinkage int irix_getmountid(char *fname, unsigned long *midbuf)
+-extern inline int verify_area(int type, const void * addr, unsigned long size)
++/* this function will go away soon - use access_ok() instead */
++extern inline int __deprecated verify_area(int type, const void * addr, unsigned long size)
  {
--	int err;
-+	int err = 0;
+ 	return access_ok(type,addr,size)?0:-EFAULT;
+ }
+--- linux-2.6.11-rc1-bk4-orig/include/asm-mips/uaccess.h	2004-12-24 22:33:49.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-mips/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -112,7 +112,8 @@
+ 	likely(__access_ok((unsigned long)(addr), (size),__access_mask))
  
- 	printk("[%s:%d] irix_getmountid(%s, %p)\n",
- 	       current->comm, current->pid, fname, midbuf);
--	err = verify_area(VERIFY_WRITE, midbuf, (sizeof(unsigned long) * 4));
--	if (err)
--		return err;
-+	if (!access_ok(VERIFY_WRITE, midbuf, (sizeof(unsigned long) * 4)))
-+		return -EFAULT;
+ /*
+- * verify_area: - Obsolete, use access_ok()
++ * verify_area: - Obsolete/deprecated and will go away soon,
++ * use access_ok() instead.
+  * @type: Type of access: %VERIFY_READ or %VERIFY_WRITE
+  * @addr: User space pointer to start of block to check
+  * @size: Size of block to check
+@@ -128,7 +129,7 @@
+  *
+  * See access_ok() for more details.
+  */
+-static inline int verify_area(int type, const void * addr, unsigned long size)
++static inline int __deprecated verify_area(int type, const void * addr, unsigned long size)
+ {
+ 	return access_ok(type, addr, size) ? 0 : -EFAULT;
+ }
+--- linux-2.6.11-rc1-bk4-orig/include/asm-parisc/uaccess.h	2004-12-24 22:34:26.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-parisc/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -35,7 +35,9 @@ extern int __put_kernel_bad(void);
+ extern int __put_user_bad(void);
  
- 	/*
- 	 * The idea with this system call is that when trying to determine
-diff -urp linux-2.6.11-rc1-bk4-orig/arch/mips/kernel/unaligned.c linux-2.6.11-rc1-bk4/arch/mips/kernel/unaligned.c
---- linux-2.6.11-rc1-bk4-orig/arch/mips/kernel/unaligned.c	2004-12-24 22:35:50.000000000 +0100
-+++ linux-2.6.11-rc1-bk4/arch/mips/kernel/unaligned.c	2005-01-17 00:22:39.000000000 +0100
-@@ -143,7 +143,7 @@ static inline int emulate_load_store_ins
- 	 * The remaining opcodes are the ones that are really of interest.
- 	 */
- 	case lh_op:
--		if (verify_area(VERIFY_READ, addr, 2))
-+		if (!access_ok(VERIFY_READ, addr, 2))
- 			goto sigbus;
+ #define access_ok(type,addr,size)   (1)
+-#define verify_area(type,addr,size) (0)
++#define verify_area(type,addr,size) (0)	/* FIXME: all users should go away soon,
++                                         * and use access_ok instead, then this 
++                                         * should be removed. */
  
- 		__asm__ __volatile__ (".set\tnoat\n"
-@@ -176,7 +176,7 @@ static inline int emulate_load_store_ins
- 		break;
+ #define put_user __put_user
+ #define get_user __get_user
+--- linux-2.6.11-rc1-bk4-orig/include/asm-ppc/uaccess.h	2005-01-12 23:26:23.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-ppc/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -37,7 +37,8 @@
+ #define access_ok(type, addr, size) \
+ 	(__chk_user_ptr(addr),__access_ok((unsigned long)(addr),(size)))
  
- 	case lw_op:
--		if (verify_area(VERIFY_READ, addr, 4))
-+		if (!access_ok(VERIFY_READ, addr, 4))
- 			goto sigbus;
+-extern inline int verify_area(int type, const void __user * addr, unsigned long size)
++/* this function will go away soon - use access_ok() instead */
++extern inline int __deprecated verify_area(int type, const void __user * addr, unsigned long size)
+ {
+ 	return access_ok(type, addr, size) ? 0 : -EFAULT;
+ }
+--- linux-2.6.11-rc1-bk4-orig/include/asm-ppc64/uaccess.h	2004-12-24 22:34:57.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-ppc64/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -56,7 +56,8 @@
+ #define access_ok(type,addr,size) \
+ 	__access_ok(((__force unsigned long)(addr)),(size),get_fs())
  
- 		__asm__ __volatile__ (
-@@ -206,7 +206,7 @@ static inline int emulate_load_store_ins
- 		break;
+-static inline int verify_area(int type, const void __user *addr, unsigned long size)
++/* this function will go away soon - use access_ok() instead */
++static inline int __deprecated verify_area(int type, const void __user *addr, unsigned long size)
+ {
+ 	return access_ok(type,addr,size) ? 0 : -EFAULT;
+ }
+--- linux-2.6.11-rc1-bk4-orig/include/asm-s390/uaccess.h	2004-12-24 22:34:26.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-s390/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -65,7 +65,8 @@
  
- 	case lhu_op:
--		if (verify_area(VERIFY_READ, addr, 2))
-+		if (!access_ok(VERIFY_READ, addr, 2))
- 			goto sigbus;
+ #define access_ok(type,addr,size) __access_ok(addr,size)
  
- 		__asm__ __volatile__ (
-@@ -248,7 +248,7 @@ static inline int emulate_load_store_ins
- 		 * would blow up, so for now we don't handle unaligned 64-bit
- 		 * instructions on 32-bit kernels.
- 		 */
--		if (verify_area(VERIFY_READ, addr, 4))
-+		if (!access_ok(VERIFY_READ, addr, 4))
- 			goto sigbus;
+-extern inline int verify_area(int type, const void __user *addr,
++/* this function will go away soon - use access_ok() instead */
++extern inline int __deprecated verify_area(int type, const void __user *addr,
+ 						unsigned long size)
+ {
+ 	return access_ok(type, addr, size) ? 0 : -EFAULT;
+--- linux-2.6.11-rc1-bk4-orig/include/asm-sh/uaccess.h	2004-12-24 22:34:44.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-sh/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -146,7 +146,8 @@ static inline int access_ok(int type, co
+ 	return __access_ok(addr, size);
+ }
  
- 		__asm__ __volatile__ (
-@@ -292,7 +292,7 @@ static inline int emulate_load_store_ins
- 		 * would blow up, so for now we don't handle unaligned 64-bit
- 		 * instructions on 32-bit kernels.
- 		 */
--		if (verify_area(VERIFY_READ, addr, 8))
-+		if (!access_ok(VERIFY_READ, addr, 8))
- 			goto sigbus;
+-static inline int verify_area(int type, const void __user * addr, unsigned long size)
++/* this function will go away soon - use access_ok() instead */
++static inline int __deprecated verify_area(int type, const void __user * addr, unsigned long size)
+ {
+ 	return access_ok(type,addr,size) ? 0 : -EFAULT;
+ }
+--- linux-2.6.11-rc1-bk4-orig/include/asm-sh64/uaccess.h	2004-12-24 22:34:29.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-sh64/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -60,7 +60,8 @@
+ #define access_ok(type,addr,size) (__range_ok(addr,size) == 0)
+ #define __access_ok(addr,size) (__range_ok(addr,size) == 0)
  
- 		__asm__ __volatile__ (
-@@ -326,7 +326,7 @@ static inline int emulate_load_store_ins
- 		goto sigill;
+-extern inline int verify_area(int type, const void __user * addr, unsigned long size)
++/* this function will go away soon - use access_ok() instead */
++extern inline int __deprecated verify_area(int type, const void __user * addr, unsigned long size)
+ {
+ 	return access_ok(type,addr,size) ? 0 : -EFAULT;
+ }
+--- linux-2.6.11-rc1-bk4-orig/include/asm-sparc/uaccess.h	2004-12-24 22:35:27.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-sparc/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -46,9 +46,10 @@
+ #define __access_ok(addr,size) (__user_ok((addr) & get_fs().seg,(size)))
+ #define access_ok(type,addr,size) __access_ok((unsigned long)(addr),(size))
  
- 	case sh_op:
--		if (verify_area(VERIFY_WRITE, addr, 2))
-+		if (!access_ok(VERIFY_WRITE, addr, 2))
- 			goto sigbus;
+-static inline int verify_area(int type, const void __user * addr, unsigned long size)
++/* this function will go away soon - use access_ok() instead */
++static inline int __deprecated verify_area(int type, const void __user * addr, unsigned long size)
+ {
+-	return access_ok(type,addr,size)?0:-EFAULT;
++	return access_ok(type,addr,size) ? 0 : -EFAULT;
+ }
  
- 		value = regs->regs[insn.i_format.rt];
-@@ -362,7 +362,7 @@ static inline int emulate_load_store_ins
- 		break;
+ /*
+--- linux-2.6.11-rc1-bk4-orig/include/asm-sparc64/uaccess.h	2004-12-24 22:35:50.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-sparc64/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -54,7 +54,8 @@ do {										\
+ #define __access_ok(addr,size) 1
+ #define access_ok(type,addr,size) 1
  
- 	case sw_op:
--		if (verify_area(VERIFY_WRITE, addr, 4))
-+		if (!access_ok(VERIFY_WRITE, addr, 4))
- 			goto sigbus;
+-static inline int verify_area(int type, const void __user * addr, unsigned long size)
++/* this function will go away soon - use access_ok() instead */
++static inline int __deprecated verify_area(int type, const void __user * addr, unsigned long size)
+ {
+ 	return 0;
+ }
+--- linux-2.6.11-rc1-bk4-orig/include/asm-v850/uaccess.h	2004-12-24 22:35:24.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-v850/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -27,7 +27,8 @@ extern inline int access_ok (int type, c
+ 	return val >= (0x80 + NUM_CPU_IRQS*16) && val < 0xFFFFF000;
+ }
  
- 		value = regs->regs[insn.i_format.rt];
-@@ -400,7 +400,7 @@ static inline int emulate_load_store_ins
- 		 * would blow up, so for now we don't handle unaligned 64-bit
- 		 * instructions on 32-bit kernels.
- 		 */
--		if (verify_area(VERIFY_WRITE, addr, 8))
-+		if (!access_ok(VERIFY_WRITE, addr, 8))
- 			goto sigbus;
+-extern inline int verify_area (int type, const void *addr, unsigned long size)
++/* this function will go away soon - use access_ok() instead */
++extern inline int __deprecated verify_area (int type, const void *addr, unsigned long size)
+ {
+ 	return access_ok (type, addr, size) ? 0 : -EFAULT;
+ }
+--- linux-2.6.11-rc1-bk4-orig/include/asm-x86_64/uaccess.h	2005-01-12 23:26:23.000000000 +0100
++++ linux-2.6.11-rc1-bk4/include/asm-x86_64/uaccess.h	2005-01-18 01:15:14.000000000 +0100
+@@ -49,7 +49,8 @@
  
- 		value = regs->regs[insn.i_format.rt];
-diff -urp linux-2.6.11-rc1-bk4-orig/arch/mips/math-emu/dsemul.c linux-2.6.11-rc1-bk4/arch/mips/math-emu/dsemul.c
---- linux-2.6.11-rc1-bk4-orig/arch/mips/math-emu/dsemul.c	2004-12-24 22:33:52.000000000 +0100
-+++ linux-2.6.11-rc1-bk4/arch/mips/math-emu/dsemul.c	2005-01-16 23:46:56.000000000 +0100
-@@ -95,7 +95,7 @@ int mips_dsemul(struct pt_regs *regs, mi
- 	fr = (struct emuframe *) dsemul_insns;
+ #define access_ok(type, addr, size) (__range_not_ok(addr,size) == 0)
  
- 	/* Verify that the stack pointer is not competely insane */
--	if (unlikely(verify_area(VERIFY_WRITE, fr, sizeof(struct emuframe))))
-+	if (unlikely(!access_ok(VERIFY_WRITE, fr, sizeof(struct emuframe))))
- 		return SIGBUS;
- 
- 	err = __put_user(ir, &fr->emul);
-@@ -128,7 +128,7 @@ int do_dsemulret(struct pt_regs *xcp)
- 	 * If we can't even access the area, something is very wrong, but we'll
- 	 * leave that to the default handling
- 	 */
--	if (verify_area(VERIFY_READ, fr, sizeof(struct emuframe)))
-+	if (!access_ok(VERIFY_READ, fr, sizeof(struct emuframe)))
- 		return 0;
- 
- 	/*
-@@ -142,7 +142,6 @@ int do_dsemulret(struct pt_regs *xcp)
- 
- 	if (unlikely(err || (insn != BADINST) || (cookie != BD_COOKIE))) {
- 		fpuemuprivate.stats.errors++;
--
- 		return 0;
- 	}
- 
+-extern inline int verify_area(int type, const void __user * addr, unsigned long size)
++/* this function will go away soon - use access_ok() instead */
++extern inline int __deprecated verify_area(int type, const void __user * addr, unsigned long size)
+ {
+ 	return access_ok(type,addr,size) ? 0 : -EFAULT;
+ }
 
 
 

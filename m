@@ -1,73 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263259AbTDBXcB>; Wed, 2 Apr 2003 18:32:01 -0500
+	id <S263215AbTDBXlc>; Wed, 2 Apr 2003 18:41:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263260AbTDBXcB>; Wed, 2 Apr 2003 18:32:01 -0500
-Received: from unthought.net ([212.97.129.24]:6634 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S263259AbTDBXb5>;
-	Wed, 2 Apr 2003 18:31:57 -0500
-Date: Thu, 3 Apr 2003 01:43:23 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Kenny Simpson <theonetruekenny@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: mmap-related questions
-Message-ID: <20030402234322.GB19708@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Benjamin LaHaise <bcrl@redhat.com>,
-	Kenny Simpson <theonetruekenny@yahoo.com>,
-	linux-kernel@vger.kernel.org
-References: <20030401125020.E25225@redhat.com> <20030402031840.60077.qmail@web20005.mail.yahoo.com> <20030402093049.GB17859@unthought.net> <20030402101006.A30582@redhat.com>
+	id <S263216AbTDBXlc>; Wed, 2 Apr 2003 18:41:32 -0500
+Received: from [12.47.58.55] ([12.47.58.55]:28432 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id <S263215AbTDBXlb>;
+	Wed, 2 Apr 2003 18:41:31 -0500
+Date: Wed, 2 Apr 2003 15:52:20 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.66-mm2] Fix page_convert_anon locking issues
+Message-Id: <20030402155220.651a1005.akpm@digeo.com>
+In-Reply-To: <110950000.1049326945@baldur.austin.ibm.com>
+References: <8910000.1049303582@baldur.austin.ibm.com>
+	<20030402132939.647c74a6.akpm@digeo.com>
+	<80300000.1049320593@baldur.austin.ibm.com>
+	<20030402150903.21765844.akpm@digeo.com>
+	<102170000.1049325787@baldur.austin.ibm.com>
+	<20030402153845.0770ef54.akpm@digeo.com>
+	<110950000.1049326945@baldur.austin.ibm.com>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030402101006.A30582@redhat.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Apr 2003 23:52:53.0138 (UTC) FILETIME=[F9BE4720:01C2F972]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 02, 2003 at 10:10:06AM -0500, Benjamin LaHaise wrote:
-> On Wed, Apr 02, 2003 at 11:30:50AM +0200, Jakob Oestergaard wrote:
-> >   make_dirty(big_map)
-> >   msync(first half of big_map)
-> >   msync(second half of big_map)    { crash during this }
-> > 
-> > Then I am guaranteed that (unless the server crashes), the first half of
-> > big_map *will* have reached the server, but not that all of the second
-> > half has.   Right?
+Dave McCracken <dmccr@us.ibm.com> wrote:
+>
 > 
-> Assuming you used MS_SYNC for the msync() flags.  MS_ASYNC could still be 
-> proceeding to flush the pages out in the background.  And the kernel may 
-> have triggered writeback of the second half -- it is free to do so as it 
-> sees fit.
-
-Yes. MS_ASYNC is "advisory" only, as I understand it.  (too bad it isn't
-select()'able actually, I could use that to work wonders with a database
-engine here...)
-
+> Oops.  The pmd_present() check should be after the page_to_pfn() !=
+> pte_pfn() check.
 > 
-> > Like any local-disk backed file.
-> > 
-> > Ignoring the case where the NFS *server* crashes, where could the write
-> > ordering differ, compared to local disk files ?
-> 
-> > In other words, what does Benjamin's "unexpected ways" refer to ?
-> 
-> All local clients will see the mmap() being updated from the time it is 
-> dirtied, but there is no ordering of write()s with respect to the mmap 
-> unless you explicitely msync(..MS_SYNC..) as in your example.
 
-Ok, so we're talking multiple processes reading/writing.
+hmmmm.  It also probably needs both compiler barriers and memory barriers.
 
-Now it makes a lot more sense - I was thinking one process only.  Silly
-simple-minded me  ;)
+It does give me creepy feelings.  I worry that because nobody uses
+remap_file_pages() yet, we will hit 2.6.25 before discovering that we have
+fundamental VM locking problems which affect $major$ applications.
 
-Thanks,
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:

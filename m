@@ -1,78 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291889AbSBYAIJ>; Sun, 24 Feb 2002 19:08:09 -0500
+	id <S291900AbSBYAdO>; Sun, 24 Feb 2002 19:33:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291890AbSBYAH7>; Sun, 24 Feb 2002 19:07:59 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:58640 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S291889AbSBYAHr>;
-	Sun, 24 Feb 2002 19:07:47 -0500
-Date: Mon, 25 Feb 2002 01:07:42 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: "Paul G. Allen" <pgallen@randomlogic.com>
-cc: "Linux kernel developer's mailing list" 
+	id <S291908AbSBYAdF>; Sun, 24 Feb 2002 19:33:05 -0500
+Received: from mail.actcom.co.il ([192.114.47.13]:13509 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S291900AbSBYAcv>; Sun, 24 Feb 2002 19:32:51 -0500
+Date: Mon, 25 Feb 2002 02:32:42 +0200 (EET)
+From: guy keren <choo@actcom.co.il>
+To: "Linux kernel developer's mailing list" 
 	<linux-kernel@vger.kernel.org>
-Subject: Re: gcc-2.95.3 vs gcc-3.0.4
-In-Reply-To: <3C775FEF.BDA0253C@randomlogic.com>
-Message-ID: <Pine.LNX.4.44.0202250100540.15348-100000@Expansa.sns.it>
+Subject: ANN: syscalltrack v0.7 released
+In-Reply-To: <Pine.LNX.4.44.0202250100540.15348-100000@Expansa.sns.it>
+Message-ID: <Pine.GSU.4.30_heb2.09.0202250231170.29380-100000@actcom.co.il>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At this link:
 
- http://www.cs.utk.edu/~rwhaley/ATLAS/gcc30.html
+syscalltrack-0.7, the 6th _alpha_ release of the linux kernel system call
+tracker, is available. syscalltrack supports both versions 2.2.x and 2.4.x
+of the linux kernel. The current release contains some major enhancements,
+and various bug fixes and code cleanups. See details below.
 
-you can find an interesting explanation why code compiled with gcc 3.0 is
-mostly slower than code compiled with gcc 2.95 on x86 CPUs (but it is
-really faster on other platforms like alpha and sparc64).
+* What is syscalltrack?
 
-basically the main reasons semm to be the scheduler algorithm and the fpu
-stack handling, but I suggest to read the full study.
+syscalltrack is a linux kernel module and supporting user space
+environment which allow interception, logging and possibly taking
+action upon system calls that match user defined criteria
+(syscalltrack can be thought of as a sophisticated, system wide
+strace).
 
+* Where can i get it?
 
-I would be interested to know if this apply to gcc 3.1 too.
+Information on syscalltrack is available on the project's homepage:
+http://syscalltrack.sourceforge.net, and in the project's file
+release.
 
-Luigi
+You can download the source directly from:
+http://prdownloads.sourceforge.net/syscalltrack/syscalltrack-0.70.tar.gz
 
-On Sat, 23 Feb 2002, Paul G. Allen wrote:
+* Call for developers:
 
-> Andrew Morton wrote:
-> >
-> > hugang wrote:
-> > >
-> > > On Fri, 22 Feb 2002 23:40:09 -0500
-> > > Justin Piszcz <war@starband.net> wrote:
-> > >
-> > > ...
-> > > > GCC 2.95.3
-> > > ...
-> > > > System is 899 kB
-> > > ...
-> > > > GCC 3.0.4
-> > > ...
-> > > > System is 962 kB
-> > > ...
-> > > >
-> > > Why the system size is different. Possble your use differ config.
-> >
->
-> The important thing is:
->
-> Which compiler, of all of the different versions, generates the most
-> stable and fastest code. Compile speed and kernel size is not NEARLY as
-> important as performance. So, which compiler fits the bill?
->
-> PGA
-> --
-> Paul G. Allen
-> Owner, Sr. Engineer, Security Specialist
-> Random Logic/Dream Park
-> www.randomlogic.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+The syscalltrack project is looking for developers, both for kernel
+space and user space. If you want to join in on the fun, get in touch
+with us on the 'syscalltrack-hackers' mailing list
+(http://lists.sourceforge.net/lists/listinfo/syscalltrack-hackers).
+
+* License and NO Warrany
+
+'syscalltrack' is Free Software, licensed under the GNU General Public
+License (GPL) version 2. The 'sct_ctrl_lib' library is licensed under
+the GNU Lesser General Public License (LGPL).
+
+'syscalltrack' is in _alpha_ stages and comes with NO warranty.
+If it breaks something, you get to keep all of the pieces.
+You have been warned (TM).
+
+Happy hacking and tracking!
+
+=======================================================================
+
+Major new features for 0.7
+--------------------------
+
+* Support for dynamic-cast of 'struct' syscall parameters when filtering
+  based on them, and for logging. See the relevant section in
+  doc/sct_config_manual.html for how to use this feature. Mostly useful now
+  for checking struct parameters in socket calls, so now its possible
+  to check if a client prorgam tries to connect to a given port or IP address,
+  etc.
+
+* Support for 'fail syscall' actions - allows you to specify that a matching
+  syscall invocation will prematurely return a given error code (or '0')
+  before the system call is actually performed. Handle with care, as failing
+  the wrong syscall invocations might render your system unuseable. Good
+  usage example: TODO
+
+* Support for convenience-macros in rule config files. Currently supported
+  macros include:
+
+    - ipaddr("127.0.0.1") -> translates an IP address to an unsigned long
+			     in network byte-order.
+    - htons(7) -> host to network byte-order for 'short' numbers.
+    - usernametoid("root") -> translates user name to UID.
+    - groupnametoid("wheel") -> translates group name to GID.
+
+* Experimental Device-driver control support - the syscalltrack kernel module
+  can now be controlled via a device-file interface - specify "-c device_file"
+  when running 'sct_config' to use it. The interface is currently
+  functionaly-equivalent to the existing 'sysctl' interface - but it will be
+  enhanced in the future to support logging via a device-file interface,
+  getting rule list via the device-file interface, etc.
+
+* Support for 'log_format' definition per rule, to override the global
+  'log_format'.
+
+* Initial correctness-testing script added. Currently only runs 2 tests -
+  will become more functional on the next release.
+
+* Support for new system calls - waitpid, close and creat.
+
+major bug fixes for version 0.7:
+
+* Fixes for white-space parsing in 'sct_config'.
+
+* Fix small memory leak when deserializing 'log' actions
+
+* Fix bug in the kernel module that would leave dangling function pointers
+  in case a user cleared only the 'before' function pointer. This bug
+  wasn't triggered, since sct_config always erased _all_ rules, causing this
+  code path to remain yet unused.
+
+=======================================================================
+
+--
+guy
+
+"For world domination - press 1,
+ or dial 0, and please hold, for the creator." -- nob o. dy
 

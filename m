@@ -1,164 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262839AbUJ1JMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262842AbUJ1JQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262839AbUJ1JMN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 05:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262842AbUJ1JMN
+	id S262842AbUJ1JQc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 05:16:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbUJ1JQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 05:12:13 -0400
-Received: from cantor.suse.de ([195.135.220.2]:29591 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262839AbUJ1JMF (ORCPT
+	Thu, 28 Oct 2004 05:16:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:7583 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262842AbUJ1JPU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 05:12:05 -0400
-Date: Thu, 28 Oct 2004 11:12:04 +0200
-From: Andi Kleen <ak@suse.de>
-To: manfred@colorfullife.com
+	Thu, 28 Oct 2004 05:15:20 -0400
+Date: Thu, 28 Oct 2004 02:13:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: slab errors
-Message-ID: <20041028091204.GB1618@wotan.suse.de>
+Subject: Re: [patch] cputime: introduce cputime.
+Message-Id: <20041028021317.48a6d0c2.akpm@osdl.org>
+In-Reply-To: <OF35D2677F.494347CD-ON42256F3B.002DDBE5-42256F3B.002F22AE@de.ibm.com>
+References: <20041027224805.31f5747b.akpm@osdl.org>
+	<OF35D2677F.494347CD-ON42256F3B.002DDBE5-42256F3B.002F22AE@de.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+>
+> > - kernel threads may have null p->signal
+>  > - remove some deoptimising inlines
+> 
+>  Does it work with these two changes ?
 
-I get this when booting 2.6.10rc1-bk6 on x86-64. slab doesn't seem
-to like its own initialization.
+Well it doesn't crash ;)
 
--Andi
+It compiles OK on a bunch of architectures, bloats the kernel by 2k and
+various system monitoring tools emit sensible-looking numbers.  What should
+I be looking for?
 
-
-Memory: 122340k/130496k available (3062k kernel code, 0k reserved, 1226k data, 244k init)
-slab error in cache_alloc_debugcheck_after(): cache `size-1024': double free, or memory outside object was overwritten
-
-Call Trace:<ffffffff80161dde>{alloc_arraycache+94} <ffffffff801603ea>{cache_alloc_debugcheck_after+186} 
-       <ffffffff80161955>{__kmalloc+181} <ffffffff80161dde>{alloc_arraycache+94} 
-       <ffffffff80161f72>{do_tune_cpucache+338} <ffffffff80160448>{cache_alloc_debugcheck_after+280} 
-       <ffffffff801621e9>{enable_cpucache+105} <ffffffff805cf468>{kmem_cache_init+712} 
-       <ffffffff805bb956>{start_kernel+310} <ffffffff805bb268>{_sinittext+616} 
-       
-0000010001102450: redzone 1: 0x5a2cf071, redzone 2: 0x5a2c5a5a.
-slab error in cache_alloc_debugcheck_after(): cache `size-1024': double free, or memory outside object was overwritten
-
-Call Trace:<ffffffff80161dde>{alloc_arraycache+94} <ffffffff801603ea>{cache_alloc_debugcheck_after+186} 
-       <ffffffff80161955>{__kmalloc+181} <ffffffff80161dde>{alloc_arraycache+94} 
-       <ffffffff80161f72>{do_tune_cpucache+338} <ffffffff80160448>{cache_alloc_debugcheck_after+280} 
-       <ffffffff801621e9>{enable_cpucache+105} <ffffffff805cf468>{kmem_cache_init+712} 
-       <ffffffff805bb956>{start_kernel+310} <ffffffff805bb268>{_sinittext+616} 
-       
-0000010001102868: redzone 1: 0x5a2cf071, redzone 2: 0x5a2cf05a.
-slab error in cache_alloc_debugcheck_after(): cache `size-1024': double free, or memory outside object was overwritten
-
-Call Trace:<ffffffff80161dde>{alloc_arraycache+94} <ffffffff801603ea>{cache_alloc_debugcheck_after+186} 
-       <ffffffff80161955>{__kmalloc+181} <ffffffff80161dde>{alloc_arraycache+94} 
-       <ffffffff80161f72>{do_tune_cpucache+338} <ffffffff80160448>{cache_alloc_debugcheck_after+280} 
-       <ffffffff801621e9>{enable_cpucache+105} <ffffffff805cf468>{kmem_cache_init+712} 
-       <ffffffff805bb956>{start_kernel+310} <ffffffff805bb268>{_sinittext+616} 
-       
-0000010001103098: redzone 1: 0x5a2cf071, redzone 2: 0x5a5a5a5a5a5a5a.
-slab error in cache_alloc_debugcheck_after(): cache `size-1024': double free, or memory outside object was overwritten
-
-Call Trace:<ffffffff80161dde>{alloc_arraycache+94} <ffffffff801603ea>{cache_alloc_debugcheck_after+186} 
-       <ffffffff80161955>{__kmalloc+181} <ffffffff80161dde>{alloc_arraycache+94} 
-       <ffffffff80161f72>{do_tune_cpucache+338} <ffffffff80160448>{cache_alloc_debugcheck_after+280} 
-       <ffffffff801621e9>{enable_cpucache+105} <ffffffff805cf468>{kmem_cache_init+712} 
-       <ffffffff805bb956>{start_kernel+310} <ffffffff805bb268>{_sinittext+616} 
-       
-00000100011038c8: redzone 1: 0x5a2cf071, redzone 2: 0x5a5a5a5a5a5a.
-slab error in cache_alloc_debugcheck_after(): cache `size-2048': double free, or memory outside object was overwritten
-
-Call Trace:<ffffffff80161dde>{alloc_arraycache+94} <ffffffff801603ea>{cache_alloc_debugcheck_after+186} 
-       <ffffffff80161955>{__kmalloc+181} <ffffffff80161dde>{alloc_arraycache+94} 
-       <ffffffff80161f72>{do_tune_cpucache+338} <ffffffff80160448>{cache_alloc_debugcheck_after+280} 
-       <ffffffff801621e9>{enable_cpucache+105} <ffffffff805cf468>{kmem_cache_init+712} 
-       <ffffffff805bb956>{start_kernel+310} <ffffffff805bb268>{_sinittext+616} 
-       
-0000010003ff1060: redzone 1: 0x5a2cf071, redzone 2: 0x5a5a5a5a5a.
-slab error in cache_alloc_debugcheck_after(): cache `size-2048': double free, or memory outside object was overwritten
-
-Call Trace:<ffffffff80161dde>{alloc_arraycache+94} <ffffffff801603ea>{cache_alloc_debugcheck_after+186} 
-       <ffffffff80161955>{__kmalloc+181} <ffffffff80161dde>{alloc_arraycache+94} 
-       <ffffffff80161f72>{do_tune_cpucache+338} <ffffffff80160448>{cache_alloc_debugcheck_after+280} 
-       <ffffffff801621e9>{enable_cpucache+105} <ffffffff805cf468>{kmem_cache_init+712} 
-       <ffffffff805bb956>{start_kernel+310} <ffffffff805bb268>{_sinittext+616} 
-       
-0000010003ff0848: redzone 1: 0x5a2cf071, redzone 2: 0x5a5a5a5a.
-slab error in cache_alloc_debugcheck_after(): cache `size-2048': double free, or memory outside object was overwritten
-
-Call Trace:<ffffffff80161dde>{alloc_arraycache+94} <ffffffff801603ea>{cache_alloc_debugcheck_after+186} 
-       <ffffffff80161955>{__kmalloc+181} <ffffffff80161dde>{alloc_arraycache+94} 
-       <ffffffff80161f72>{do_tune_cpucache+338} <ffffffff80160448>{cache_alloc_debugcheck_after+280} 
-       <ffffffff801621e9>{enable_cpucache+105} <ffffffff805cf468>{kmem_cache_init+712} 
-       <ffffffff805bb956>{start_kernel+310} <ffffffff805bb268>{_sinittext+616} 
-       
-0000010003ff0030: redzone 1: 0x5a2cf071, redzone 2: 0x5a5a5a5a.
-slab error in cache_alloc_debugcheck_after(): cache `size-2048': double free, or memory outside object was overwritten
-
-Call Trace:<ffffffff80161dde>{alloc_arraycache+94} <ffffffff801603ea>{cache_alloc_debugcheck_after+186} 
-       <ffffffff80161955>{__kmalloc+181} <ffffffff80161dde>{alloc_arraycache+94} 
-       <ffffffff80161f72>{do_tune_cpucache+338} <ffffffff80160448>{cache_alloc_debugcheck_after+280} 
-       <ffffffff801621e9>{enable_cpucache+105} <ffffffff805cf468>{kmem_cache_init+712} 
-       <ffffffff805bb956>{start_kernel+310} <ffffffff805bb268>{_sinittext+616} 
-       
-0000010003ff30a0: redzone 1: 0x5a2cf071, redzone 2: 0x5a2c5a5a.
-slab error in cache_alloc_debugcheck_after(): cache `size-2048': double free, or memory outside object was overwritten
-
-Call Trace:<ffffffff80161dde>{alloc_arraycache+94} <ffffffff801603ea>{cache_alloc_debugcheck_after+186} 
-       <ffffffff80161955>{__kmalloc+181} <ffffffff80161dde>{alloc_arraycache+94} 
-       <ffffffff80161f72>{do_tune_cpucache+338} <ffffffff80160448>{cache_alloc_debugcheck_after+280} 
-       <ffffffff801621e9>{enable_cpucache+105} <ffffffff805cf468>{kmem_cache_init+712} 
-       <ffffffff805bb956>{start_kernel+310} <ffffffff805bb268>{_sinittext+616} 
-       
-0000010003ff2888: redzone 1: 0x5a2cf071, redzone 2: 0x5a2cf05a.
-slab error in cache_alloc_debugcheck_after(): cache `size-2048': double free, or memory outside object was overwritten
-
-Call Trace:<ffffffff80161dde>{alloc_arraycache+94} <ffffffff801603ea>{cache_alloc_debugcheck_after+186} 
-       <ffffffff80161955>{__kmalloc+181} <ffffffff80161dde>{alloc_arraycache+94} 
-       <ffffffff80161f72>{do_tune_cpucache+338} <ffffffff80160448>{cache_alloc_debugcheck_after+280} 
-       <ffffffff801621e9>{enable_cpucache+105} <ffffffff805cf468>{kmem_cache_init+712} 
-       <ffffffff805bb956>{start_kernel+310} <ffffffff805bb268>{_sinittext+616} 
-       
-00000100011050e0: redzone 1: 0x5a2cf071, redzone 2: 0x5a5a5a5a5a5a5a.
-slab error in cache_alloc_debugcheck_after(): cache `size-2048': double free, or memory outside object was overwritten
-
-Call Trace:<ffffffff80161dde>{alloc_arraycache+94} <ffffffff801603ea>{cache_alloc_debugcheck_after+186} 
-       <ffffffff80161955>{__kmalloc+181} <ffffffff80161dde>{alloc_arraycache+94} 
-       <ffffffff80161f72>{do_tune_cpucache+338} <ffffffff80160448>{cache_alloc_debugcheck_after+280} 
-       <ffffffff801621e9>{enable_cpucache+105} <ffffffff805cf468>{kmem_cache_init+712} 
-       <ffffffff805bb956>{start_kernel+310} <ffffffff805bb268>{_sinittext+616} 
-       
-00000100011048c8: redzone 1: 0x5a2cf071, redzone 2: 0x5a5a5a5a5a5a.
-slab error in cache_alloc_debugcheck_after(): cache `size-2048': double free, or memory outside object was overwritten
-
-Call Trace:<ffffffff80161dde>{alloc_arraycache+94} <ffffffff801603ea>{cache_alloc_debugcheck_after+186} 
-       <ffffffff80161955>{__kmalloc+181} <ffffffff80161dde>{alloc_arraycache+94} 
-       <ffffffff80161f72>{do_tune_cpucache+338} <ffffffff80160448>{cache_alloc_debugcheck_after+280} 
-       <ffffffff801621e9>{enable_cpucache+105} <ffffffff805cf468>{kmem_cache_init+712} 
-       <ffffffff805bb956>{start_kernel+310} <ffffffff805bb268>{_sinittext+616} 
-       
-00000100011040b0: redzone 1: 0x5a2cf071, redzone 2: 0x5a5a5a5a5a.
-slab error in cache_alloc_debugcheck_after(): cache `size-2048': double free, or memory outside object was overwritten
-
-Call Trace:<ffffffff80161dde>{alloc_arraycache+94} <ffffffff801603ea>{cache_alloc_debugcheck_after+186} 
-       <ffffffff80161955>{__kmalloc+181} <ffffffff80161dde>{alloc_arraycache+94} 
-       <ffffffff80161f72>{do_tune_cpucache+338} <ffffffff80160448>{cache_alloc_debugcheck_after+280} 
-       <ffffffff801621e9>{enable_cpucache+105} <ffffffff805cf468>{kmem_cache_init+712} 
-       <ffffffff805bb956>{start_kernel+310} <ffffffff805bb268>{_sinittext+616} 
-       
-0000010001109120: redzone 1: 0x5a2cf071, redzone 2: 0x5a5a5a5a.
-Mount-cache hash table entries: 256 (order: 0, 4096 bytes)
-slab error in cache_alloc_debugcheck_after(): cache `size-32': double free, or memory outside object was overwritten
-
-Call Trace:<ffffffff801976c7>{alloc_vfsmnt+167} <ffffffff801603ea>{cache_alloc_debugcheck_after+186} 
-       <ffffffff80161955>{__kmalloc+181} <ffffffff801976c7>{alloc_vfsmnt+167} 
-       <ffffffff80181202>{do_kern_mount+82} <ffffffff805cff6f>{mnt_init+207} 
-       <ffffffff805cfcd6>{vfs_caches_init+198} <ffffffff805bb9b1>{start_kernel+401} 
-       <ffffffff805bb268>{_sinittext+616} 
-0000010003ffd668: redzone 1: 0x5a2cf071, redzone 2: 0x6b6b6b6b.
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU: Physical Processor ID: 0
-
-
--Andi

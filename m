@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267449AbSLEVH1>; Thu, 5 Dec 2002 16:07:27 -0500
+	id <S267477AbSLEVRQ>; Thu, 5 Dec 2002 16:17:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267452AbSLEVGy>; Thu, 5 Dec 2002 16:06:54 -0500
-Received: from smtp-server2.tampabay.rr.com ([65.32.1.39]:52888 "EHLO
-	smtp-server2.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S267450AbSLEVG1>; Thu, 5 Dec 2002 16:06:27 -0500
-Message-ID: <010c01c29ca4$01d43810$6501a8c0@titan>
-From: "Bill Beebe" <wbeebe@cfl.rr.com>
-To: "David Ashley" <dash@xdr.com>, <linux-kernel@vger.kernel.org>
-References: <200212051721.gB5HLpb07596@xdr.com>
-Subject: Re: 2.5.40 compile errors with my CONFIG options (included)
-Date: Thu, 5 Dec 2002 16:19:33 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S267472AbSLEVQb>; Thu, 5 Dec 2002 16:16:31 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:26628 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267467AbSLEVOr>;
+	Thu, 5 Dec 2002 16:14:47 -0500
+Date: Thu, 5 Dec 2002 22:21:20 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "David S. Miller" <davem@redhat.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, hubicka@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH] Start of compat32.h (again)
+Message-ID: <20021205212120.GA1386@elf.ucw.cz>
+References: <20021202090756.GA26034@wotan.suse.de> <20021202.021629.93360250.davem@redhat.com> <20021204111947.GB309@elf.ucw.cz> <20021205.130614.99253893.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021205.130614.99253893.davem@redhat.com>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had this same problem with 2.5.4x in general, and got this very helpful clue
-from Rusty Lynch:
+Hi!
 
-The problem is that when Virtual Terminal support is built into the kernel
-(not a module) then Input support also needs to be built into the kernel
-because it is making function calls that are implemented in the VT section.
+>    Actually, it tends to nullify the bloat cost and then make it few
+>    percent faster... For most of spec2000 modulo two or three cache-bound
+>    tests that are 50% slower :-(.
+> 
+> How about some test where relocations come into play?
+> spec2000 is a bad example, it's just crunch code.
 
-To fix this, change the build input support to be built in the kernel instead
-of building it as a module.  This can be done from "make xconfig" by
-clicking on the "Input device support" on the left, and then change the "Input
-devices (needed for keyboard, mouse, ...)" so that it has
-a check mark instead of a dot.
+time ./configure might be a good test...
 
-Hope this helps.
------ Original Message -----
-From: "David Ashley" <dash@xdr.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Thursday, December 05, 2002 12:21 PM
-Subject: 2.5.40 compile errors with my CONFIG options (included)
+> Most systems spend their time running quick small executables over and
+> over, and in such cases relocation overhead shows up very strongly.
 
+Really? What workload besides configure does many small programs?
 
-> drivers/built-in.o: In function `kd_nosound':
-> drivers/built-in.o(.text+0x110b0): undefined reference to `input_event'
-> drivers/built-in.o(.text+0x110cd): undefined reference to `input_event'
-> drivers/built-in.o: In function `kd_mksound':
-> drivers/built-in.o(.text+0x1117a): undefined reference to `input_event'
-> drivers/built-in.o: In function `kbd_bh':
-> drivers/built-in.o(.text+0x1200a): undefined reference to `input_event'
-> drivers/built-in.o(.text+0x12018): undefined reference to `input_event'
-> drivers/built-in.o(.text+0x12029): more undefined references to
-`input_event' follow
-> drivers/built-in.o: In function `kbd_connect':
-> drivers/built-in.o(.text+0x1245f): undefined reference to
-`input_open_device'
-> drivers/built-in.o: In function `kbd_disconnect':
-> drivers/built-in.o(.text+0x12477): undefined reference to
-`input_close_device'
-> drivers/built-in.o: In function `kbd_init':
-> drivers/built-in.o(.init.text+0x216e): undefined reference to
-`input_register_handler'
-[snip]
+> This is why I asked for fork, exec et al. latency figures for 32-bit
+> vs 64-bit on x86_64 but I've been informed in private email that
+> nobody can send me numbers due to NDAs.
+> 
+> I still think making the simple programs like ls, cat, bash et
+> al. 64-bit in a dist is a bad idea.
 
+Agreed for ls and cat, but I do not think it hurts for bash...
+
+								Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

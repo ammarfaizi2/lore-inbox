@@ -1,95 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262918AbTEVRsY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 13:48:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTEVRsB
+	id S262942AbTEVRuU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 13:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTEVRuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 13:48:01 -0400
-Received: from dhcp05.ists.dartmouth.edu ([129.170.249.105]:2690 "EHLO
-	uml.karaya.com") by vger.kernel.org with ESMTP id S262918AbTEVRqk
+	Thu, 22 May 2003 13:50:01 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:21122 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262942AbTEVRtp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 13:46:40 -0400
-Message-Id: <200305221759.h4MHxdjm013272@uml.karaya.com>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] UML filesystems
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 22 May 2003 13:59:39 -0400
-From: Jeff Dike <jdike@karaya.com>
+	Thu, 22 May 2003 13:49:45 -0400
+Message-Id: <200305221802.h4MI2UZ16813@owlet.beaverton.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [patch] signal-latency-2.5.69-A1 
+In-reply-to: Your message of "Thu, 22 May 2003 10:49:23 +0200."
+             <Pine.LNX.4.44.0305221042220.4330-100000@localhost.localdomain> 
+Date: Thu, 22 May 2003 11:02:30 -0700
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull
-	http://jdike.stearns.org:5000/fs-2.5
+    > This has shown some good results on our testing [...]
 
-This adds the two UML filesystems to the 2.5 tree - hostfs allows a directory
-on the host to be mounted as a filesystem inside UML, and hppfs is an overlay
-over /proc which allows the content of the UML's /proc to be controlled from
-the host.
+    (do you have any numeric results?)
 
-These are going into fs/hostfs and fs/hppfs.
+Sure.  We were running a web server benchmark with which we've had
+latency problems with in the past.  With your patch applied, it showed
+about an 8% improvement, but reliably produced the hang upon shutdown
+of the benchmark.
 
-The changes here include the merge into 2.5 and subsequent bug fixes.
+    It's perfectly safe to _generate_ an IPI from under the runqueue
+    lock. We do it in a number of cases, and did it for years. What
+    precise hardware did you run this on?
 
-				Jeff
+This was x86 -- since we have a variety of configurations I'll have to
+check back with the person who reported the problem and tested the patch
+for me to get more precise info.
 
+True, generation isn't a problem. What *could* be a problem is if we're
+waiting for any kind of response or status change from a processor as a
+result of that IPI (or perhaps, in this case, as a prerequisite to sending
+it.)  If the message is at all bidirectional, we may have problems.
 
- arch/um/Kconfig         |   13 
- fs/Makefile             |    2 
- fs/hostfs/Makefile      |   36 +
- fs/hostfs/hostfs.h      |   79 +++
- fs/hostfs/hostfs_kern.c |  958 ++++++++++++++++++++++++++++++++++++++++++++++++
- fs/hostfs/hostfs_user.c |  355 +++++++++++++++++
- fs/hppfs/Makefile       |   19 
- fs/hppfs/hppfs_kern.c   |  810 ++++++++++++++++++++++++++++++++++++++++
- 8 files changed, 2272 insertions(+)
+    firstly, the IPI is not sent to all processors, it's sent to a single
+    target CPU. Secondly, where and why would the hang happen?
 
-ChangeSet@1.1042.83.2, 2003-05-02 13:07:39-04:00, jdike@uml.karaya.com
-  Fixed the mode calculation in hostfs_create.
-  Removed root hostfs support.
+You're right, I misspoke about it going to all processors, confusing it with
+the flush tlb code above it.  But it doesn't really change my premise.
+I initially believed that one processor was unable to respond to the IPI
+because it had blocked interrupts.  So my thought was that one process was
+blocked on the runqueue lock (with interrupts disabled), while another
+was blocked sending the IPI to that processor.  You've introduced some
+legitimate questions about that being the problem, despite the patch
+making the hang disappear.
 
-ChangeSet@1.971.47.4, 2003-03-28 21:22:12-05:00, jdike@uml.karaya.com
-  Moved arch/um/fs/{hostfs,hppfs} under fs/.
+    we do loop in one place in the x86 APIC code, apic_wait_icr_idle(). I
+    believe this should never loop indefinitely, unless the hw is broken.
 
-ChangeSet@1.971.47.3, 2003-03-27 23:12:47-05:00, jdike@uml.karaya.com
-  Fixed some minor bugs in the open_private_file changes.
+This is probably the premiere gray area for me now.  I don't know enough
+about APICs to tell under what conditions APIC_ICR_BUSY will be true.
+Is it enough that you've disabled interrupts -- will the APIC show
+busy then?
 
-ChangeSet@1.971.47.2, 2003-03-27 22:37:42-05:00, jdike@uml.karaya.com
-  hppfs needed to be updated to use open/close_private_file instead
-  of init_private_file.
+    but i'd like to understand the precise reason for the hang first.
 
-ChangeSet@1.889.409.1, 2003-03-22 13:58:55-05:00, jdike@uml.karaya.com
-  Merge uml.karaya.com:/home/jdike/linux/2.5/linus-2.5
-  into uml.karaya.com:/home/jdike/linux/2.5/fs-2.5
+I'm all for that.
 
-ChangeSet@1.889.306.4, 2003-03-12 09:46:13-05:00, jdike@uml.karaya.com
-  Moved host descriptor cleanup from delete_inode to destroy_inode.
-  This stops file descriptors from being leaked.
+We've been unsuccessful getting much information from the hangs
+themselves.  nmi_watchdog has given us a couple of stack traces but it's
+always hard to tell the culprits from the victims.  We had this nasty
+interaction with runqueue locks and IPIs before with the tlb flush code,
+and although the evidence wasn't nearly so clear I thought it might be
+worth trying the patch.  So far it has worked, but it wouldn't be the
+first time new code just shifted windows around rather than closing
+them completely.
 
-ChangeSet@1.889.306.3, 2003-03-07 12:37:51-05:00, jdike@uml.karaya.com
-  hppfs works now that inodes are always read.
-
-ChangeSet@1.889.307.2, 2003-03-05 14:23:03-05:00, jdike@uml.karaya.com
-  Small fix to make hppfs work correctly.
-
-ChangeSet@1.889.242.6, 2003-02-24 17:26:48-05:00, jdike@uml.karaya.com
-  Fixed hppfs_lookup so that hppfs does more than just mount OK.
-
-ChangeSet@1.889.242.5, 2003-02-24 13:17:04-05:00, jdike@uml.karaya.com
-  Fixed the interface of stat_file.
-
-ChangeSet@1.889.242.4, 2003-02-24 01:50:34-05:00, jdike@uml.karaya.com
-  A minor fix to hostfs.
-  hppfs now compiles and mounts.
-
-ChangeSet@1.889.242.3, 2003-02-23 22:49:54-05:00, jdike@uml.karaya.com
-  Added a first-pass update of hppfs to 2.5.
-
-ChangeSet@1.889.242.2, 2003-02-23 21:48:56-05:00, jdike@uml.karaya.com
-  Some small compilation fixes to hostfs.
-
-ChangeSet@1.889.242.1, 2003-02-23 20:56:17-05:00, jdike@uml.karaya.com
-  Merged Petr Baudis' hostfs updates to 2.5.
-
+Rick

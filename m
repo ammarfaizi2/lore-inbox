@@ -1,61 +1,91 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <157299-215>; Tue, 9 Mar 1999 20:09:33 -0500
-Received: by vger.rutgers.edu id <157130-215>; Tue, 9 Mar 1999 20:09:19 -0500
-Received: from alcor.twinsun.com ([198.147.65.9]:4727 "EHLO alcor.twinsun.com" ident: "TIMEDOUT") by vger.rutgers.edu with ESMTP id <157075-212>; Tue, 9 Mar 1999 20:06:51 -0500
-X-Bogus-CC: o.r.c@p.e.l.l.p.o.r.t.l.a.n.d.o.r.u.s (david parsons)
+Received: by vger.rutgers.edu via listexpand id <159972-215>; Fri, 12 Mar 1999 02:10:40 -0500
+Received: by vger.rutgers.edu id <157506-215>; Fri, 12 Mar 1999 02:10:23 -0500
+Received: from ann.ixlabs.com ([208.201.250.22]:1104 "EHLO ann.ixlabs.com" ident: "root") by vger.rutgers.edu with ESMTP id <157498-212>; Fri, 12 Mar 1999 02:10:11 -0500
+Message-Id: <199903120707.XAA03144@ann.ixlabs.com>
 To: linux-kernel@vger.rutgers.edu
-Subject: Re: Recursion level of symlinks limitted to five?
-References: <36E3A065.9F07184B@imb-jena.de> <19990308213403.B9844@kali.munich.netsurf.de> <19990309115204.A19052@caffeine.ix.net.nz> <linux.kernel.7v4snva2bj.fsf@shine.twinsun.com> <7c4446$tk2@pell.pell.portland.or.us>
-From: Junio Hamano <junio@twinsun.com>
-Date: 09 Mar 1999 17:00:53 -0800
-In-Reply-To: o.r.c@p.e.l.l.p.o.r.t.l.a.n.d.o.r.u.s's message of "9 Mar 1999 13:33:58 -0800"
-Message-ID: <7v7lsqw43e.fsf@shine.twinsun.com>
-X-Mailer: Gnus v5.5/Emacs 20.3
+Cc: quinlan@transmeta.com, hjl@varesearch.com
+Subject: Linux @ Connectathon results
+Date: Thu, 11 Mar 1999 23:07:02 -0800
+From: "G. Allen Morris III" <gam3@ann.ixlabs.com>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
->>>>> "david" == david parsons <o.r.c@p.e.l.l.p.o.r.t.l.a.n.d.o.r.u.s> writes:
 
-david> In article <linux.kernel.7v4snva2bj.fsf@shine.twinsun.com>,
-david> Junio Hamano  <junio@twinsun.com> wrote:
->> Just out of curiosity, couldn't the resolving of symlinks all be
->> done in the userland? 
+  Daniel Quinlan, H.J. Lu, and G. Allen Morris III (me) spent
+parts of the last week testing the Linux 2.2.[23] nfs client
+and server at the Connectathon (http://www.connectathon.org).
+H.J. Lu did a large amount of testing before the event that
+made it possible to have patches available at the event.
 
-david>    A libc solution requires that everyone use a libc that's been
-david>    hacked to do this, umm, method, and not everyone will hack their
-david>    version of libc to do that.
+Here are some of the results of this testing as posted by Dan
+Quinlan:
 
-Agreed, and that's part of my idea.  If non-insignificant number
-of people feel that 5 levels of symlinks are too few for
-real-world applications, either (1) they rewrite their
-application so that it catches ELOOP whenever they call system
-calls and resolve symlink as needed, or (2) fold such a
-check-and-recover scheme into the standard C library so that
-application programmers do not have to worry about this
-limitation over and over again.  The key idea here is to fold
-this into the standard C library, not to replace the C library
-with your hacked one.
+  Here is the final set of patches that yielded the best results
+  (against 2.2.3).  We should try to put them into 2.2 eventually since
+  they don't break anything.
 
-When (2) happens, but until everybody updates to the new C
-library, applications running on a configuration where they do
-not see more than 5 levels of symlink indirection work fine with
-both the old and new C library, and in addition, applications
-running with the new C library would not even see 5-level
-restriction imposed by the kernel.  Of course, userland C
-library would still have its own limits, depending on the way
-the memory needed to recursively resolve symlinks are allocated.
-Over time, everybody would update their C library if the above
-makes into the standard C library.
+	nfsv2-wsize-0.d.dif (trond: wsize=8k, write gathering)
 
-When that happens, there is no reason for the kernel to even
-support 5 levels of indirection.  The kernel could even return
-ELOOP when it sees just one symbolic link and let the C library
-resolve the symlink.  Of course, on the other hand, we may want
-to have the kernel resolve some levels of indirection itself
-for, say, performance reasons.  But an important point of the
-idea outlined above is that it makes how many symlink
-indirections a typical application expects to be supported by
-the kernel irrelevant when the kernel implementor decides how
-many levels of symlinks are supported by the kernel.
+	  Without this patch, performance against correct NFSv2 servers that
+	  lack write cache was abysmal.  However, it reduces performance
+	  against NFSv2 servers that have a write cache (like NetApps) by
+	  about 10%.  That should be addressed, but what we should instead
+	  concentrate on is NFSv3.
+	
+	  The patch didn't change any pass/fail test results.
+
+	nfsd-2.2.2-1.patch (gam3: NFS rename cache and other assorted changes)
+
+	  We fail various tests without this patch, but I think we should
+	  be able to make long-term improvements (in 2.3) that make the rename cache
+	  necessary only when running NFS on top of odd filesystems like vfat.
+
+	locks-2.2.2.diff (hjl: short patch to address 3 lock test warnings)
+
+	  Fixes several minor problems.  Didn't cause any additional test
+	  failures.
+
+
+  The patches can be found at:
+
+  http://www.fys.uio.no/~trondmy/src/
+  http://www.csua.berkeley.edu/~gam3/knfsd/
+
+  and right here:
+
+Index: fs/locks.c
+===================================================================
+RCS file: /local/work/cvs/linux/linux/fs/locks.c,v
+retrieving revision 1.1.1.16
+diff -u -p -r1.1.1.16 locks.c
+- --- fs/locks.c	1999/01/27 00:28:56	1.1.1.16
++++ fs/locks.c	1999/02/14 01:26:10
+@@ -111,7 +111,9 @@
+ 
+ #include <asm/uaccess.h>
+ 
+- -#define OFFSET_MAX	((off_t)0x7fffffff)	/* FIXME: move elsewhere? */
++/* FIXME: move elsewhere? */
++#define OFFSET_MAX	((off_t) (sizeof (off_t) == 4 \
++				  ? 0x7fffffff : 0x7fffffffffffffffL))
+ 
+ static int flock_make_lock(struct file *filp, struct file_lock *fl,
+ 			       unsigned int cmd);
+@@ -672,8 +674,11 @@ static int posix_make_lock(struct file *
+ 
+ 	if (((start += l->l_start) < 0) || (l->l_len < 0))
+ 		return (0);
++	fl->fl_end = start + l->l_len - 1;
++	if (l->l_len > 0 && fl->fl_end < 0)
++		return (0);
+ 	fl->fl_start = start;	/* we record the absolute position */
+- -	if ((l->l_len == 0) || ((fl->fl_end = start + l->l_len - 1) < 0))
++	if (l->l_len == 0)
+ 		fl->fl_end = OFFSET_MAX;
+ 	
+ 	fl->fl_file = filp;
+
+------- End of Forwarded Message
 
 
 -

@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129659AbRBAQP2>; Thu, 1 Feb 2001 11:15:28 -0500
+	id <S130850AbRBAQQ2>; Thu, 1 Feb 2001 11:16:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130851AbRBAQPS>; Thu, 1 Feb 2001 11:15:18 -0500
-Received: from h57s242a129n47.user.nortelnetworks.com ([47.129.242.57]:12721
-	"EHLO zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S129659AbRBAQPF>; Thu, 1 Feb 2001 11:15:05 -0500
-Message-ID: <28560036253BD41191A10000F8BCBD116BDCEE@zcard00g.ca.nortel.com>
-From: "Jonathan Earle" <jearle@nortelnetworks.com>
-To: "'David S. Miller'" <davem@redhat.com>,
-        "'Linux Kernel List'" <linux-kernel@vger.kernel.org>
-Subject: RE: [UPDATE] Fresh zerocopy patch on kernel.org
-Date: Thu, 1 Feb 2001 11:06:30 -0500
-X-Mailer: Internet Mail Service (5.5.2652.35)
-X-Orig: <jearle@americasm01.nt.com>
+	id <S130872AbRBAQQS>; Thu, 1 Feb 2001 11:16:18 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:24077 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S130850AbRBAQQL>; Thu, 1 Feb 2001 11:16:11 -0500
+Date: Thu, 01 Feb 2001 11:16:04 -0500
+From: Chris Mason <mason@suse.com>
+To: David Ford <david@linux.com>, LKML <linux-kernel@vger.kernel.org>,
+        reiserfs-list@namesys.com
+Subject: Re: VM brokenness, possibly related to reiserfs
+Message-ID: <371620000.981044164@tiny>
+In-Reply-To: <3A790A16.C964877@linux.com>
+X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Malcolm Beattie writes:
->  > Alexey has mailed me suggesting the problem may be that netfilter
->  > is turned on.
+
+On Wednesday, January 31, 2001 11:02:46 PM -0800 David Ford <david@linux.com> wrote:
+
+> (Chris, changing JOURNAL_MAX_BATCH from 900 to 100 didn't affect
+> anything).
 > 
-> Oh yes, netfilter being enabled will cause some performance
-> degradation, that is for sure.
+> Ok, having approached this slightly more intelligently here are [better]
+> results.
+> 
+> The dumps are large so they are located at http://stuph.org/VM/.  Here's
+> the story.  
 
-Do you think that netfilter being enabled would also cause a decrease in
-routing throughput (ie: causing packet loss)?
+Sorry, can't seem to resolve stuph.org.  What is kreiserfsd doing during when the system is waiting for more ram?  With JOURNAL_MAX_BATCH set to 100, kreiserfsd will end up responsible for sending log blocks/metadata to disk and freeing the pinned buffers.
 
-Cheers!
-Jon
+-chris
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

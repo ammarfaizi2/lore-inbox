@@ -1,79 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130492AbQKCPxP>; Fri, 3 Nov 2000 10:53:15 -0500
+	id <S130570AbQKCPx4>; Fri, 3 Nov 2000 10:53:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130570AbQKCPxG>; Fri, 3 Nov 2000 10:53:06 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15736 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130492AbQKCPwx>; Fri, 3 Nov 2000 10:52:53 -0500
-Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
-To: tytso@mit.edu
-Date: Fri, 3 Nov 2000 15:53:34 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200011031509.eA3F9V719729@trampoline.thunk.org> from "tytso@mit.edu" at Nov 03, 2000 10:09:31 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S130721AbQKCPxh>; Fri, 3 Nov 2000 10:53:37 -0500
+Received: from devserv.devel.redhat.com ([207.175.42.156]:10758 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S130570AbQKCPxU>; Fri, 3 Nov 2000 10:53:20 -0500
+Date: Fri, 3 Nov 2000 10:53:19 -0500
+From: Crutcher Dunnavant <crutcher@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] SysRQ Registration Patch v: 0.10
+Message-ID: <20001103105319.A21856@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13rj9s-0003c4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Red Hat, Inc.
+X-Department: OS Development
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->      * Palmax PD1100 hangs during boot since 2.4.0-test9 (Alan Cox)
+Anyone interested in advanced debuging features:
 
-Fixed in pre10.
+I've reved the SysRQ Registration Patch, available at:
+http://bama.ua.edu/~dunna001/sysrq-register/
 
->      * AIC7xxx doesnt work non PCI ? (Doug says OK, new version due
->        anyway)
+The latest is 0.10, and applies to 2.2.18-pre9, 2.4.0-test10-pre6,
+and 2.4.0-test10-pre7. I got tired of reving the patch accross
+6 versions, so I am going to do all future revs against the latest 2.2
+and 2.4.
 
-This is now in Justin Gibbs hand but will take time to move on. Doug confirmed
-his current code is now merged too.
+I've changed some symbol names to be shorter/saner, cleaned up some formating,
+and made some trivial efficieny tweaks that the compiler *should* do on its own,
+anyway, but what the hell.
 
->      * Check all devices use resources properly (Everyone now has to use
->        request_region and check the return since we no longer single
->        thread driver inits in all module cases. Also memory regions are
->        now requestable and a lot of old drivers dont know this yet. --
->        Alan Cox)
+I also played with the example modules a bit, and fixed an SMP problem one of them had.
 
-Folks have done most of the common drivers. So its not really a show stopper
-now just a 'clean up'
+I really think that this would make a good addition to the kernel, and it touches a
+relatively small amount of code. Please examine this, and tell me what you think.
 
->      * Issue with notifiers that try to deregister themselves? (lnz;
->        notifier locking change by Garzik should backed out, according to
->        Jeff)
-
-and according to Alan
-
->      * SCSI CD-ROM doesn't work on filesystems with < 2kb block size
->        (Jens Axboe will fix)
-
-SCSI M/O has the same problem. 2.2 can mount MSDOS fs on M/O 2.4test 10 cant.
-
->      * FAT filesystem doesn't support 2kb sector sizes (did under 2.2.16,
->        doesn't under 2.4.0test7. Kazu Makashima, alan)
-
-This is the same as the SCSI cd rom issue. You can either do reblocking in the
-fat layer and other fs's needing it or do it in the scsi code.
-
->      * Spin doing ioctls on a down netdeice as it unloads == BOOM
->        (prumpf, Alan Cox) Possible other net driver SMP issues (andi
->        kleen)
-
-Turns out to be safe according to Jeff and ANK
-
-> 10. To Do But Non Showstopper
->      * PCMCIA/Cardbus hangs (Basically unusable - Hinds pcmcia code is
->        reliable)
->           + PCMCIA crashes on unloading pci_socket
-
-The pci_socket crash is fixed it seems
-
->      * Some AWE cards are not being found by ISAPnP ??
-
-You have this one higher up as problems with some SB AWE cards
-
-Alan
+-- 
+"I may be a monkey,     Crutcher Dunnavant 
+ but I'm a monkey       <crutcher@redhat.com>
+ with ambition!"        Red Hat OS Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

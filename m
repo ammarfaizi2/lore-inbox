@@ -1,71 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263455AbTDSUaD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 16:30:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTDSUaD
+	id S263461AbTDSUkB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 16:40:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTDSUkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 16:30:03 -0400
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:11722 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S263455AbTDSUaB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 16:30:01 -0400
-Date: Sat, 19 Apr 2003 22:41:38 +0200
-From: Manuel Estrada Sainz <ranty@debian.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Gibson <david@gibson.dropbear.id.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: firmware separation filesystem (fwfs)
-Message-ID: <20030419204138.GC638@ranty.ddts.net>
-Reply-To: ranty@debian.org
-References: <20030416163641.GA2183@ranty.ddts.net> <1050508028.28586.126.camel@dhcp22.swansea.linux.org.uk> <20030417012321.GB9219@zax> <1050585122.31390.25.camel@dhcp22.swansea.linux.org.uk>
+	Sat, 19 Apr 2003 16:40:00 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:37905 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S263461AbTDSUj6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 16:39:58 -0400
+Date: Sat, 19 Apr 2003 22:51:52 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Christian Staudenmayer <eggdropfan@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67-ac2 and lilo
+Message-ID: <20030419205152.GA19800@win.tue.nl>
+References: <20030419170725.35871.qmail@web41812.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1050585122.31390.25.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030419170725.35871.qmail@web41812.mail.yahoo.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 17, 2003 at 02:12:03PM +0100, Alan Cox wrote:
-> On Iau, 2003-04-17 at 02:23, David Gibson wrote:
-> > > But so would loading it from hotplug via ioctl. It might be we want
-> > > a clean hotplug way to ask for 'firmare for xyz'.
-> > 
-> > True, but ioctl()s are horrid.  And the driver needs to set up a
-> > suitable device to which the ioctl() is applied, and deal with binding
-> > the right image to the right instance, which can get messy in some
+On Sat, Apr 19, 2003 at 10:07:25AM -0700, Christian Staudenmayer wrote:
+
+> i'm running a machine that uses the aic7xxx driver for the old adaptec 2940 scsi
+> controller. i had problems with getting 2.5.67-ac2 to run, it used to end in
+> a kernel panic. i got told to remove the body of the function ide_xlate_1024
+> by just "return 0;", which fixed the problem, i could then boot the kernel.
+> but now, when running lilo, i get the following message:
 > 
-> You are ignoring the main issue of discussion. I don't care if its
-> ioctl, tcp/ip over carrier pigeon or a pipe.
+> Fatal: First boot sector doesn't have a valid LILO signature
 > 
-> fwfs is a broken idea because it leaves the data in kernel space. On
-> a giant IBM monster maybe nobody cares about a few hundred K of cached
-> firmware in the kernel, but the rest of us happen to run real world
-> computers.
+> these problems do not occur on kernels 2.4.20, 2.4.21-pre7-ac1 and 2.5.67-bk9,
+> if i boot another kernel, i can run/install LILO without problems.
+> 
+> i'd appreciate any insight on this problem.
 
- Many drivers currently include this same data in kernel space, in in
- headers, what I am trying to do is make it easy for them to support
- fwfs (or whatever it becomes in the end). This way, they may be able to
- support it with little effort (which increases the chances of them
- actualy supporting it) and people worried about memory usage can easly
- free up that memory with a simple unlink.
+Hmm. You did not forget to rerun LILO or so?
+If ide_xlate_1024 does nothing but "return 0" then
+handle_ide_mess() does nothing.
 
+What other differences does -ac2 have?
+It reintroduces a bug in the partition reading code - the fragment
 
-> Catting the firmware to a device node also works fine for me as an 
-> API, but keep the firmware in userspace.
+@@ -456,7 +556,7 @@
+                if (!subtypes[n].parse)
+                        continue;
+                subtypes[n].parse(state, bdev, START_SECT(p)*sector_size,
+-                                               NR_SECTS(p)*sector_size, slot);
++                                               NR_SECTS(p)*sector_size, n);
+        }
+        put_dev_sector(sect);
 
- When sysfs binary support is integrated I'll try to do something on top
- of it, and in any case, I'll at the minimum make sure that in-kernel
- data is optional.
+of the -ac2 patch is bad.
+In order to judge whether it is this or something else I would have
+to know much more about your system. What are the kernel boot messages
+for this disk under 2.5.67-bk9 that works and 2.5.67-ac2 that fails?
+What is the partition table? No disk managers in sight? Does LILO
+have lba32 or linear options?
+Does 2.5.67-ac2 work if you replace its fs/partitions/msdos.c by
+the vanilla one?
 
- Have a nice day
+Andries
 
- 	Manuel
- 
--- 
---- Manuel Estrada Sainz <ranty@debian.org>
-                         <ranty@bigfoot.com>
-			 <ranty@users.sourceforge.net>
------------------------- <manuel.estrada@hispalinux.es> -------------------
-Let us have the serenity to accept the things we cannot change, courage to
-change the things we can, and wisdom to know the difference.

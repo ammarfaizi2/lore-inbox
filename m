@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261866AbTCZSmR>; Wed, 26 Mar 2003 13:42:17 -0500
+	id <S261855AbTCZSij>; Wed, 26 Mar 2003 13:38:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261867AbTCZSmR>; Wed, 26 Mar 2003 13:42:17 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:56325 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261866AbTCZSmQ>;
-	Wed, 26 Mar 2003 13:42:16 -0500
-Date: Wed, 26 Mar 2003 10:52:36 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at sched.c:564! (2.4.20, 2.4.21-pre5-ac3)
-Message-ID: <20030326185236.GE24689@kroah.com>
-References: <20030326162538.GG2695@spackhandychoptubes.co.uk>
+	id <S261856AbTCZSij>; Wed, 26 Mar 2003 13:38:39 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:11452
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261855AbTCZSig>; Wed, 26 Mar 2003 13:38:36 -0500
+Subject: Re: [BK PATCH] USB changes for 2.5.66
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-usb-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1030326131317.8110E-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1030326131317.8110E-100000@gatekeeper.tmr.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048708934.31837.46.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030326162538.GG2695@spackhandychoptubes.co.uk>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 26 Mar 2003 20:02:16 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 26, 2003 at 04:25:38PM +0000, Chris Sykes wrote:
-> However it is easy to cause the BUG by simply:
+On Wed, 2003-03-26 at 18:17, Bill Davidsen wrote:
+> On Tue, 25 Mar 2003, Greg KH wrote:
 > 
-> bash # echo "Some string" >/dev/ttyUSB0
+> > Hi,
+> > 
+> > Here are some small USB changes.  Basically all little cleanups and
+> > bugfixes, nothing major.
+> > 
+> > Please pull from:  bk://linuxusb.bkbits.net/linus-2.5
+> 
+> Another "bk-only" patch. Guess I'd better look at the free (as in license,
+> not cost) clone again.
 
-The oops happens on close(), right?  To verify this try:
-	cat /dev/ttyUSB0
-no oops should happen until you interrupt this.
+Greg posts the patches to the usb-devel list, which is how come they
+tend to end up in -ac at times when Linus is being slack 8)
 
-Anyway, this is a known usb-serial bug right now.  It should be fixed in
-the 2.5 tree, but I haven't had enough people test that code out to know
-if this is really true (I can't duplicate the bug on 2.4 myself.)
-
-Can you test 2.5 to see if this is fixed there for you or not?
-
-thanks,
-
-greg k-h

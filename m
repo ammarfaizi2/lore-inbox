@@ -1,109 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261651AbRGRWFh>; Wed, 18 Jul 2001 18:05:37 -0400
+	id <S262355AbRGRWR3>; Wed, 18 Jul 2001 18:17:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262355AbRGRWF1>; Wed, 18 Jul 2001 18:05:27 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:2571 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261651AbRGRWFN>; Wed, 18 Jul 2001 18:05:13 -0400
-From: Linus Torvalds <torvalds@transmeta.com>
-Date: Wed, 18 Jul 2001 15:04:20 -0700
-Message-Id: <200107182204.f6IM4K001282@penguin.transmeta.com>
-To: kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org,
-        Julian Anastasov <ja@ssi.bg>
-Subject: Re: cpuid_eax damages registers (2.4.7pre7)
-Newsgroups: linux.dev.kernel
-In-Reply-To: <Pine.LNX.4.33.0107182239050.1298-100000@vaio>
-In-Reply-To: <Pine.LNX.4.33.0107181014590.883-100000@penguin.transmeta.com>
+	id <S262715AbRGRWRT>; Wed, 18 Jul 2001 18:17:19 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:9741 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S262355AbRGRWRG>; Wed, 18 Jul 2001 18:17:06 -0400
+Date: Wed, 18 Jul 2001 17:45:59 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Inclusion of zoned inactive/free shortage patch 
+In-Reply-To: <Pine.LNX.4.33.0107180920380.3806-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0107181734560.8651-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0107182239050.1298-100000@vaio> you write:
->
->Generated code looks okay now (using kgcc aka egcs-2.91.66):
->
->    2002:       31 c0                   xor    %eax,%eax
->    2004:       0f a2                   cpuid  
->    2006:       89 46 08                mov    %eax,0x8(%esi)
->    2009:       5b                      pop    %ebx
->    200a:       5e                      pop    %esi
->    200b:       c3                      ret    
->
->Patch follows:
 
-Can you verify with this alternate patch instead? Yours works ok on
-older gcc's, but the gcc team feels that clobbers must never cover
-inputs or outputs, so your patch really generates invalid asms.  Here's
-a alternate, can you verify that it works for you guys, and perhaps
-people can at the same time eye-ball it for any other issues they can
-think of?
 
-		Linus
+On Wed, 18 Jul 2001, Linus Torvalds wrote:
 
-----
---- pre7/linux/include/asm-i386/processor.h	Wed Jul 18 09:34:03 2001
-+++ linux/include/asm-i386/processor.h	Wed Jul 18 14:58:45 2001
-@@ -126,7 +126,7 @@
- 		  "=b" (*ebx),
- 		  "=c" (*ecx),
- 		  "=d" (*edx)
--		: "a" (op));
-+		: "0" (op));
- }
- 
- /*
-@@ -134,38 +134,42 @@
-  */
- extern inline unsigned int cpuid_eax(unsigned int op)
- {
--	unsigned int eax, ebx, ecx, edx;
-+	unsigned int eax;
- 
- 	__asm__("cpuid"
--		: "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx)
--		: "a" (op));
-+		: "=a" (eax)
-+		: "0" (op)
-+		: "bx", "cx", "dx");
- 	return eax;
- }
- extern inline unsigned int cpuid_ebx(unsigned int op)
- {
--	unsigned int eax, ebx, ecx, edx;
-+	unsigned int eax, ebx;
- 
- 	__asm__("cpuid"
--		: "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx)
--		: "a" (op));
-+		: "=a" (eax), "=b" (ebx)
-+		: "0" (op)
-+		: "cx", "dx" );
- 	return ebx;
- }
- extern inline unsigned int cpuid_ecx(unsigned int op)
- {
--	unsigned int eax, ebx, ecx, edx;
-+	unsigned int eax, ecx;
- 
- 	__asm__("cpuid"
--		: "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx)
--		: "a" (op));
-+		: "=a" (eax), "=c" (ecx)
-+		: "0" (op)
-+		: "bx", "dx" );
- 	return ecx;
- }
- extern inline unsigned int cpuid_edx(unsigned int op)
- {
--	unsigned int eax, ebx, ecx, edx;
-+	unsigned int eax, edx;
- 
- 	__asm__("cpuid"
--		: "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx)
--		: "a" (op));
-+		: "=a" (eax), "=d" (edx)
-+		: "0" (op)
-+		: "bx", "cx");
- 	return edx;
- }
- 
+> 
+> On Wed, 18 Jul 2001, Marcelo Tosatti wrote:
+> >
+> > I ended up using the "zone_t *zone" as a boolean and forgot to change it
+> > before sending the patch.
+> 
+> Ok.
+> 
+> My main worry really is that I absolutely detest special cases. Especially
+> special cases that just make the code uglier.
+> 
+> If it is right and necessary to _sometimes_ take zone inactive shortage
+> into account, why not do it always?
+> 
+> I realize that this makes a difference for how you'd do the test. If you
+> do it sometimes, you have something like
+> 
+> 	if (shortage_only && !inactive_shortage(page->zone))
+> 		return;
+> 
+> while if you decide that it is actually ok to always have this heuristic
+> you'd probably write it
+> 
+> 	if (inactive_plenty(page->zone))
+> 		return;
+> 
+> instead. See the difference? The first one says "this time we're only
+> interested in zones that have shortage". The second one says "in general,
+> if we have plenty of inactive pages in this zone, we don't want to bother
+> with it".
+> 
+> The reason I'd much prefer the latter is:
+>  - code that doesn't have special cases is more likely to be correct and
+>    have good behaviour over a wide variety of loads - simply because it
+>    gets tested under _all_ loads, not just the loads that trigger the
+>    special cases
+>  - code like the above means that we can more gradually approach the state
+>    of some zone shortage. We can do background shortage scanning, and
+>    nicely handle the case where we're not actually _short_ on any zone,
+>    but some zones are getting close to being short. Which should make the
+>    load smoother.
+> 
+> > Because I tried to avoid strict perzone shortage handling, keeping the
+> > global scanning to have _some_ "fair" aging between the zones.
+> 
+> Sure. But at the same time, if some zone has tons of memory and another
+> zone doesn't, then it is ok to say "we can ignore the zone with lots of
+> memory for now".
+> 
+> Yes, it's "unfair". Yes, it will cause the tight zone to be aged out
+> quicker. But yes, that's actually what we want.
+> 
+> Think something more NUMA-like for example - imagine walking a VM tree
+> where the process has pages mapped from multiple nodes. At the same time,
+> because of node affinity, some nodes would end up being under higher
+> memory pressure because of the processes they are running. Do we want to
+> age the pages on those nodes faster? Sure.
+> 
+> And we do NOT want to get into the situation that one zone/node ends up
+> being close to the shortage line all the time, and then when it crosses
+> over we have a clear "behaviour change".
+> 
+> Changing behaviour like that is bad.
+
+Ok, I understand and I agree with doing _unconditional_
+"zone_inactive_plenty()" instead of conditional
+"zone_inactive_shortage()".
+
+This way we do not get _strict_ zoned behaviour (with strict I mean only
+doing scanning for zones which have a shortage), making the shortage
+handling smoother and doing "fair" aging in cases where there are not
+specific zones under pressure.
+
+

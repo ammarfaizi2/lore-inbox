@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130692AbQKTAtZ>; Sun, 19 Nov 2000 19:49:25 -0500
+	id <S129210AbQKTBDV>; Sun, 19 Nov 2000 20:03:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130865AbQKTAtP>; Sun, 19 Nov 2000 19:49:15 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21539 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130692AbQKTAtJ>; Sun, 19 Nov 2000 19:49:09 -0500
+	id <S129805AbQKTBDL>; Sun, 19 Nov 2000 20:03:11 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:10509 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129210AbQKTBDF>; Sun, 19 Nov 2000 20:03:05 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: 2.4.0-test11-pre7: isapnp hang
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Mon, 20 Nov 2000 00:19:43 +0000 (GMT)
-Cc: twaugh@redhat.com (Tim Waugh), linux-kernel@vger.kernel.org
-In-Reply-To: <E13xeWC-0003AP-00@the-village.bc.nu> from "Alan Cox" at Nov 20, 2000 12:09:06 AM
-X-Mailer: ELM [version 2.5 PL1]
+Date: 19 Nov 2000 16:32:38 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8v9rf6$54k$1@cesium.transmeta.com>
+In-Reply-To: <20001119233450.H20970@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13xegT-0003An-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Is it the network card's fault (probably), or is there a less invasive
-> > probe that isapnp could use (unlikely, I guess)?
+Followup to:  <20001119233450.H20970@redhat.com>
+By author:    Tim Waugh <twaugh@redhat.com>
+In newsgroup: linux.dev.kernel
 > 
+> Reading from port 0x313 (my ISA NE2000 is at 0x300-0x31f) hangs my
+> machine dead.  Unfortunately, reading from that port is exactly what
+> the isapnp code does on boot, if compiled into the kernel.
 > 
-> That shouldnt be possible - we are supposed to start at 0x203 and skip the
-> problem area.
+> Is it the network card's fault (probably), or is there a less invasive
+> probe that isapnp could use (unlikely, I guess)?
+> 
 
-And a quick read of the code I pasted instead of just pasting suggests instead
-we should be using the patch below. Question however is who stole port 0x279
-which is the normal port to use. It shouldnt be lp since lp is supposed to 
-init after pnp.
+Try reserving ports 0x300-0x31f on the kernel command line
+("reserve=0x300,0x20").
 
---- drivers/pnp/isapnp.c.old	Tue Oct 31 20:29:59 2000
-+++ drivers/pnp/isapnp.c	Sun Nov 19 23:43:15 2000
-@@ -270,17 +270,16 @@
- {
- 	int rdp = isapnp_rdp;
- 	while (rdp <= 0x3ff) {
--		if (!check_region(rdp, 1)) {
--			isapnp_rdp = rdp;
--			return 0;
--		}
--		rdp += RDP_STEP;
- 		/*
- 		 *	We cannot use NE2000 probe spaces for ISAPnP or we
- 		 *	will lock up machines.
- 		 */
--		if(rdp >= 0x280 && rdp <= 0x380)
--			continue;
-+		if ((rdp < 0x280 || rdp >  0x380) && !check_region(rdp, 1)) 
-+		{
-+			isapnp_rdp = rdp;
-+			return 0;
-+		}
-+		rdp += RDP_STEP;
- 	}
- 	return -1;
- }
+I'm surprised isapnp uses a port in such a commonly used range,
+though.
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

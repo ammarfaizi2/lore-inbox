@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316035AbSEJPVm>; Fri, 10 May 2002 11:21:42 -0400
+	id <S316042AbSEJP2F>; Fri, 10 May 2002 11:28:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316032AbSEJPVl>; Fri, 10 May 2002 11:21:41 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:24716 "EHLO
-	zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S316026AbSEJPU6>; Fri, 10 May 2002 11:20:58 -0400
-Message-ID: <3CDBD9EA.1826BB48@nortelnetworks.com>
-Date: Fri, 10 May 2002 10:32:10 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S316043AbSEJP2E>; Fri, 10 May 2002 11:28:04 -0400
+Received: from ahriman.Bucharest.roedu.net ([141.85.128.71]:57814 "HELO
+	ahriman.bucharest.roedu.net") by vger.kernel.org with SMTP
+	id <S316042AbSEJP2D>; Fri, 10 May 2002 11:28:03 -0400
+Date: Fri, 10 May 2002 18:37:21 +0300 (EEST)
+From: Mihai RUSU <dizzy@roedu.net>
+X-X-Sender: <dizzy@ahriman.bucharest.roedu.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: mmap, SIGBUS, and handling it
+Message-ID: <Pine.LNX.4.33.0205101832080.9661-100000@ahriman.bucharest.roedu.net>
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: how to redirect serial console to telnet session?
-In-Reply-To: <3CDBC5A5.A1844CC0@nortelnetworks.com> <20020510160945.B7165@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> 
-> On Fri, May 10, 2002 at 09:05:41AM -0400, Chris Friesen wrote:
-> > Accordingly, I grabbed what looked like the important bits of xconsole, but it
-> > appears that this only gets me stuff written to /dev/console from userspace.
-> > How do I go about getting the output of kernel-level printk()s as well?
-> 
-> Check the LKML archives for something called 'netconsole' (or use google).
-> It got mentioned here about 6 months to a year ago.
+Hi
 
-I found some patches by Ingo Molnar, but they look like kernel mods.
+One change in kernel 2.4.x is to send a SIGBUS signal to the process
+trying to read a mmap section that is invalid.
 
-What I'm really looking for is a way to redirect this from userspace in a stock
-kernel.  I want the serial console as normal, but then for just debugging this
-one thing I want to telnet in over ethernet and basically redirect /dev/ttyS0
-onto my telnet session.
+Ex, if we have a file server, and that program gets a request for a file,
+it does a mmap. After that starts serving the file to the client (by
+write()-ing to the socket fd). If in the meantime some other process
+truncates the file which was mmap-ed , our program will receive a SIGBUS
+in write().
 
-Is this possible?
+If I understand right this is more POSIX compliant.
 
-Chris 
+Is there a clean/good way of handling this ?
 
+PS: why signal(SIGBUS,SIG_IGN) doesnt work, but a user handler its called
+if set with signal(SIGBUS,handle_sigbus) ?
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Thanks
+
+----------------------------
+Mihai RUSU
+
+Disclaimer: Any views or opinions presented within this e-mail are solely
+those of the author and do not necessarily represent those of any company,
+unless otherwise specifically stated.
+

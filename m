@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbTIECTA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 22:19:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbTIECTA
+	id S261651AbTIECaf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 22:30:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbTIECaf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 22:19:00 -0400
-Received: from smtp.terra.es ([213.4.129.129]:65247 "EHLO tsmtp3.ldap.isp")
-	by vger.kernel.org with ESMTP id S261375AbTIECS6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 22:18:58 -0400
-Message-ID: <3F57F236.3000809@terra.es>
-Date: Fri, 05 Sep 2003 04:17:26 +0200
-From: tonildg <tonildg@terra.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030830 Debian/1.4-3.he-1
-X-Accept-Language: en
+	Thu, 4 Sep 2003 22:30:35 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:53204 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S261651AbTIECae (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 22:30:34 -0400
+Date: Thu, 04 Sep 2003 19:29:45 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Dave Hansen <haveblue@us.ibm.com>, John Stultz <johnstul@us.ibm.com>
+cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] NR_CPUS=8 on a 32 cpu box
+Message-ID: <43280000.1062728984@[10.10.2.4]>
+In-Reply-To: <1062726472.32000.13.camel@nighthawk>
+References: <1062725220.1307.1562.camel@cog.beaverton.ibm.com> <1062726472.32000.13.camel@nighthawk>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: aquamodem@ameritech.net
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4  on to mpegs and DVB
-References: <3F560DC6.2090709@ameritech.net>	<3F57D776.4050404@ameritech.net> <20030904173901.7ab1b4bb.akpm@osdl.org> <3F57EC78.80801@ameritech.net>
-In-Reply-To: <3F57EC78.80801@ameritech.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Thu, 2003-09-04 at 18:27, john stultz wrote:
+>> Let me know if you have any comments or suggestions. 
+> 
+> While you're at it, can we do this as well?  10 bucks says we'll keep
+> hitting this otherwise.  I think Bill can manage to remember to change
+> it if he tries for a 64x NUMA-Q.  The rest of us are too stupid most of
+> the time.
 
->>> The DVD looked and sounded great, but, it was using 98% of the CPU!  
->>> 2.4 never used that much.
->>
+Yeah, good plan.
 
-Couldn't it be caused by the Xfree configuration? I see you have a 
-Nvidia card. Have you compiled the Nvidia closed and fu*king module for 
-a 2.6.0-test4 kernel (if it is available ¿?¿?) ?
+Thanks for that,
+
+M.
 

@@ -1,70 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVCaDTy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVCaD2P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbVCaDTy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 22:19:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbVCaDTy
+	id S261927AbVCaD2P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 22:28:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVCaD2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 22:19:54 -0500
-Received: from h80ad2599.async.vt.edu ([128.173.37.153]:3341 "EHLO
-	h80ad2599.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261925AbVCaDTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 22:19:51 -0500
-Message-Id: <200503310319.j2V3JhXJ009858@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Nick Orlov <bugfixer@list.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc1-mm3: class_simple API 
-In-Reply-To: Your message of "Sun, 27 Mar 2005 13:04:31 EST."
-             <20050327180431.GA4327@nikolas.hn.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050327180431.GA4327@nikolas.hn.org>
+	Wed, 30 Mar 2005 22:28:15 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:38618 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261927AbVCaD2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 22:28:06 -0500
+Subject: Re: drivers/acpi/video.c: null pointer dereference
+From: Len Brown <len.brown@intel.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Luming Yu <luming.yu@intel.com>
+In-Reply-To: <20050324203744.GB3966@stusta.de>
+References: <20050324203744.GB3966@stusta.de>
+Content-Type: multipart/mixed; boundary="=-JipfZAoNh4K1u0fiKgtp"
+Organization: 
+Message-Id: <1112239614.2175.68.camel@d845pe>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1112239182_3808P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 30 Mar 2005 22:19:42 -0500
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 30 Mar 2005 22:26:55 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1112239182_3808P
-Content-Type: text/plain; charset=us-ascii
 
-On Sun, 27 Mar 2005 13:04:31 EST, Nick Orlov said:
+--=-JipfZAoNh4K1u0fiKgtp
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> Problem is that the latest bk-driver-core patch included in the 2.6.12-rc1-mm3
-> removes class_simple API without providing EXPORT_SYMBOL'ed (as opposed to
-> EXPORT_SYMBOL_GPL) alternative.
+On Thu, 2005-03-24 at 15:37, Adrian Bunk wrote:
+> The Coverity checker found the following null pointer dereference in
+> drivers/acpi/video.c:
 > 
-> As the result I don't see a way how out-of-the-kernel non-GPL drivers
-> (nvidia in my case) could be fixed.
+> <--  snip  -->
+> 
+> ...
+> static int
+> acpi_video_switch_output(
+> ...
+> {
+> ...
+>         struct acpi_video_device *dev=NULL;
+> ...
+>         list_for_each_safe(node, next, &video->video_device_list) {
+>                 struct acpi_video_device * dev = container_of(node,
+> struct acpi_video_device, entry);
+> ...
+>         }
+> ...
+>         switch (event) {
+>         case ACPI_VIDEO_NOTIFY_CYCLE:
+>         case ACPI_VIDEO_NOTIFY_NEXT_OUTPUT:
+>                 acpi_video_device_set_state(dev, 0);
+>                 acpi_video_device_set_state(dev_next, 0x80000001);
+>                 break;
+>         case ACPI_VIDEO_NOTIFY_PREV_OUTPUT:
+>                 acpi_video_device_set_state(dev, 0);
+>                 acpi_video_device_set_state(dev_prev, 0x80000001);
+> ...
+> 
+> <--  snip  -->
+> 
+> 
+> Two different variables of the same name within 40 lines of code are a
+> good indication that something's wrong...
+> 
+> 
+> The outer "dev" variable is never assigned any value different from
+> NULL.
+> 
+> acpi_video_device_set_state dereferences this variable.
+> 
+> 
+> cu
+> Adrian
 
-Umm.. try running the latest drivers?
-
-[~]2 uname -a
-Linux turing-police.cc.vt.edu 2.6.12-rc1-mm3 #1 PREEMPT Sat Mar 26 22:07:50 EST 2005 i686 i686 i386 GNU/Linux
-[~]2 lsmod | grep nvidia
-nvidia               3912636  14 
-agpgart                25672  2 nvidia,intel_agp
-[~]2 grep -i nvidia /var/log/kernmsg
-Mar 30 21:58:19 turing-police kernel: [4294721.402000] nvidia: module license 'NVIDIA' taints kernel.
-Mar 30 21:58:19 turing-police kernel: [4294721.434000] NVRM: loading NVIDIA Linux x86 NVIDIA Kernel Module  1.0-7167  Fri Feb 25 09:08:22 PST 2005
-
-(All usual disclaimers about binary modules apply.  If 7167 doesn't work for
-you, bug NVidia (Zander is usually quite helpful with providing patches) and/or
-check the NVidia/Linux message boards (there's a link on the NVidia driver
-download page).
+Looks like we should do this:
 
 
---==_Exmh_1112239182_3808P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+--=-JipfZAoNh4K1u0fiKgtp
+Content-Disposition: attachment; filename=video.patch
+Content-Type: text/plain; name=video.patch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-iD8DBQFCS2xOcC3lWbTT17ARArHmAKCB3mfzV2338NZZ5rIFkwTyHQO1CQCg/W4e
-uutKH5cWeNWlqBe61KGfXZY=
-=9wDI
------END PGP SIGNATURE-----
+===== drivers/acpi/video.c 1.8 vs edited =====
+--- 1.8/drivers/acpi/video.c	2005-01-06 02:06:20 -05:00
++++ edited/drivers/acpi/video.c	2005-03-24 15:44:33 -05:00
+@@ -1585,7 +1585,7 @@
+ 	ACPI_FUNCTION_TRACE("acpi_video_switch_output");
+ 
+ 	list_for_each_safe(node, next, &video->video_device_list) {
+-		struct acpi_video_device * dev = container_of(node, struct acpi_video_device, entry);
++		dev = container_of(node, struct acpi_video_device, entry);
+ 		status = acpi_video_device_get_state(dev, &state);
+ 		if (state & 0x2){
+ 			dev_next = container_of(node->next, struct acpi_video_device, entry);
 
---==_Exmh_1112239182_3808P--
+--=-JipfZAoNh4K1u0fiKgtp--
+

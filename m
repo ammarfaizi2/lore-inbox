@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264880AbUE2OIF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264917AbUE2ON0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264880AbUE2OIF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 10:08:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUE2OIF
+	id S264917AbUE2ON0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 10:13:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUE2ONZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 10:08:05 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:14785 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264880AbUE2OIB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 10:08:01 -0400
-Date: Sat, 29 May 2004 16:08:00 +0200
-From: Jens Axboe <axboe@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: greg@kroah.com
-Subject: 2.6-BK usb (printing) broken
-Message-ID: <20040529140757.GA16264@suse.de>
+	Sat, 29 May 2004 10:13:25 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:17879 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S264917AbUE2ONY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 10:13:24 -0400
+Date: Sat, 29 May 2004 16:12:47 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: John Bradford <john@grabjohn.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Recommended compiler version
+Message-ID: <20040529161247.A19214@electric-eye.fr.zoreil.com>
+References: <20040529111616.A16627@electric-eye.fr.zoreil.com> <20040529115238.A17267@electric-eye.fr.zoreil.com> <200405291330.i4TDUhsN000547@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200405291330.i4TDUhsN000547@81-2-122-30.bradfords.org.uk>; from john@grabjohn.com on Sat, May 29, 2004 at 02:30:43PM +0100
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+John Bradford <john@grabjohn.com> :
+[...]
+> In my opinion, code that doesn't compile with 2.95.3 is broken - 2.95.3 is
 
-Something between 2.6.7-rc1 and current 2.6-BK broke usb printing here
-again. I have two printers attached:
+If you are asking for technical details, please read the thread ending
+at: http://oss.sgi.com/projects/netdev/archive/2004-05/msg00440.html
 
-usb 1-1: new full speed USB device using address 6
-usb 1-1: control timeout on ep0out
-usb 1-1: control timeout on ep0out
-usb 1-1: device not accepting address 6, error -110
-usb 1-1: new full speed USB device using address 7
-usb 1-1: control timeout on ep0out
-usb 1-1: control timeout on ep0out
-usb 1-1: device not accepting address 7, error -110
+[...]
+> Basically, 2.95.3 is something of a point of reference, so it only makes
+> sense to throw it out once we have a new point of reference.
 
-It's a VIA EPIA-800 board, lspci shows the following for usb:
+It makes no sense to religiously recommended 2.95.3 if it is known broken.
 
-00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 24)
-00:11.3 USB Controller: VIA Technologies, Inc. USB (rev 24)
+If nobody comes with a better approach, I'll simply submit a patch to
+remove the 2.95.3 recommendation (+ #error for the driver as suggested by ak).
 
--- 
-Jens Axboe
-
+--
+Ueimor

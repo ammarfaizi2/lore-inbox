@@ -1,98 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263795AbUILXRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUILX04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263795AbUILXRj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 19:17:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUILXRi
+	id S263818AbUILX04 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 19:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUILX04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 19:17:38 -0400
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:5134 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S263795AbUILXRf
+	Sun, 12 Sep 2004 19:26:56 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:40662 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S263818AbUILX0w
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 19:17:35 -0400
-Date: Mon, 13 Sep 2004 01:17:31 +0200
-From: =?iso-8859-1?B?QXVy6WxpZW4gR8lS1E1F?= <ag@roxor.be>
-To: linux-kernel@vger.kernel.org
-Subject: Re: iMac G3 IPv6 issue
-Message-ID: <20040912231730.GC11293@caladan.roxor.be>
-Reply-To: =?iso-8859-1?B?QXVy6WxpZW4gR8lS1E1F?= <ag@roxor.be>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040912133936.GA11099@caladan.roxor.be> <1095011851.4995.54.camel@localhost.localdomain> <20040912155850.0e8fd0b5.davem@davemloft.net>
+	Sun, 12 Sep 2004 19:26:52 -0400
+Date: Mon, 13 Sep 2004 01:26:04 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Hans-Frieder Vogt <hfvogt@arcor.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-bk11+ and 2.6.9-rc1-mm3,4 r8169: freeze during boot (FIX included)
+Message-ID: <20040912232604.GC27282@electric-eye.fr.zoreil.com>
+References: <200409130035.50823.hfvogt@arcor.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="48TaNjbzBVislYPb"
+Content-Type: multipart/mixed; boundary="4Ckj6UjgE2iN1+kY"
 Content-Disposition: inline
-In-Reply-To: <20040912155850.0e8fd0b5.davem@davemloft.net>
-User-Agent: Mutt/1.5.6+20040818i
+In-Reply-To: <200409130035.50823.hfvogt@arcor.de>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---48TaNjbzBVislYPb
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, Sep 12, 2004 at 03:58:50PM -0700, David S. Miller wrote:
-> On Sun, 12 Sep 2004 18:57:31 +0100
-> David Woodhouse <dwmw2@infradead.org> wrote:
->=20
-> > On Sun, 2004-09-12 at 15:39 +0200, Aur=C3=A9lien G=C3=89R=C3=94ME wrote:
-> > > I put IPv6 support, but the console is flooded by a lot of:
-> > > hw tcp v6 csum failed
-> > > However, IPv6 works, and IPv4 packets do not have this kind of issue.
-> > > The network card is a Sun Gem. It is kind of weird to see bad packets.
-> >=20
-> > I use the sungem in a similar machine with IPv6, and haven't seen any
-> > problems. Can you tcpdump from a different machine on the network and
-> > confirm whether these reported bad checksums really are happening or if
-> > it's the fault of the hardware/driver?
->=20
-> One thing that's interesting is that the sungem and sunhme
-> drivers are the only two in the whole tree that support
-> IPV6 checksum offload.  Like David, I have never seen this
-> problem on Sparc systems using the GEM chip and this
-> driver.
-
-The board is this:
-0002:02:0f.0 Ethernet controller: Apple Computer Inc. UniNorth GMAC (Sun
-GEM)
-
-So, it is Apple stuff wrapping a Sun GEM chip. The issue may come from
-that. Anyway, I am going to dig in the source code to find out.
-
-Cheers.
---=20
-        _,met$$$$$gg.        Aur=E9lien G=C9R=D4ME
-     ,g$$$$$$$$$$$$$$$P.     Free Software Developer
-   ,g$$P""       """Y$$.".   Unix Sys & Net Admin
-  ,$$P'              `$$$.
-',$$P       ,ggs.     `$$b:  Web: https://www.roxor.be/
-`d$$'     ,$P"'   .    $$$   Mail: ag@roxor.be
- $$P      d$'     ,    $$P   GPG Key ID: 03E1A172
- $$:      $$.   -    ,d$$'
- $$;      Y$b._   _,d$P'    ))  GNU  ((   /   Linux
- Y$$.    `.`"Y$$$$P"'      //         \\
- `$$b      "-.__          ((__,-"""-,__))     .---.
-  `Y$$b                    `--)~   ~(--`     /     \
-   `Y$$.      Debian      .-'(       )`-.    \.@-@./
-     `$$b.                `~~`@)   (@`~~`    /`\_/`\
-       `Y$$b.                 |     |       //  _  \\
-         `"Y$b._              |     |      | \     )|_
-             `""""            (8___8)     /`\_`>  <_/ \
-                               `---`      \__/'---'\__/
-BOFH excuse #113: Root nameservers are out of sync
-
---48TaNjbzBVislYPb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Hans-Frieder Vogt <hfvogt@arcor.de> :
+[2.6.9-rc1-bk11 r8169 freeze on amd64]
+> Until somebody comes up with a proper solution for this problem, I suggest as 
+> a work-around to introduce a parameter so that the DAC can be simply 
+> unselected if necessary, as outlined in the patch below.
+> 
+> Thanks for any suggestions as to what the problem might be.
 
-iD8DBQFBRNkKkFH2kwPhoXIRAtdjAJ0eh18GCmoBIgUo6waywgLGaONNiACeJGjd
-3RJD96VRnbJKTbmyphdBUIg=
-=NpKE
------END PGP SIGNATURE-----
+Remove the workaround, apply the attached patch and watch the oops.
 
---48TaNjbzBVislYPb--
+If it happens in rtl8169_rx_interrupt(), you may notice that R12 is set to 0xbfc.
+R12 is pkt_len in rtl8169_rx_interrupt. This value is twice too high. I have not
+figured why so far and I'll go to bed.
+
+Please Cc: netdev and jgarzik@pobox.com on followup.
+
+--
+Ueimor
+
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="r8169-dbg-b.patch"
+
+--- linux-2.6.9-rc1-bk17.orig/drivers/net/r8169.c	2004-09-10 21:57:57.000000000 +0200
++++ linux-2.6.9-rc1-bk17/drivers/net/r8169.c	2004-09-11 14:06:33.000000000 +0200
+@@ -984,9 +984,10 @@ rtl8169_init_board(struct pci_dev *pdev,
+ 	tp->cp_cmd = PCIMulRW | RxChkSum;
+ 
+ 	if ((sizeof(dma_addr_t) > 4) &&
+-	    !pci_set_dma_mask(pdev, DMA_64BIT_MASK))
++	    !pci_set_dma_mask(pdev, DMA_64BIT_MASK)) {
+ 		tp->cp_cmd |= PCIDAC;
+-	else {
++		dev->features |= NETIF_F_HIGHDMA;
++	} else {
+ 		rc = pci_set_dma_mask(pdev, DMA_32BIT_MASK);
+ 		if (rc < 0) {
+ 			printk(KERN_ERR PFX "DMA configuration failed.\n");
+@@ -1308,7 +1309,7 @@ rtl8169_hw_start(struct net_device *dev)
+ 	RTL_W8(EarlyTxThres, EarlyTxThld);
+ 
+ 	// For gigabit rtl8169
+-	RTL_W16(RxMaxSize, RxPacketMaxSize);
++	RTL_W16(RxMaxSize, RX_BUF_SIZE);
+ 
+ 	// Set Rx Config register
+ 	i = rtl8169_rx_config |
+@@ -1681,7 +1682,7 @@ rtl8169_rx_interrupt(struct net_device *
+ 		} else {
+ 			struct RxDesc *desc = tp->RxDescArray + entry;
+ 			struct sk_buff *skb = tp->Rx_skbuff[entry];
+-			int pkt_size = (status & 0x00001FFF) - 4;
++			int pkt_size = (status & 0x00003FFF) - 4;
+ 			void (*pci_action)(struct pci_dev *, dma_addr_t,
+ 				size_t, int) = pci_dma_sync_single_for_device;
+ 
+@@ -1698,6 +1699,7 @@ rtl8169_rx_interrupt(struct net_device *
+ 			pci_action(tp->pci_dev, le64_to_cpu(desc->addr),
+ 				   RX_BUF_SIZE, PCI_DMA_FROMDEVICE);
+ 
++			BUG_ON(pkt_size > (RX_BUF_SIZE - 4));
+ 			skb_put(skb, pkt_size);
+ 			skb->protocol = eth_type_trans(skb, dev);
+ 			rtl8169_rx_skb(skb);
+
+--4Ckj6UjgE2iN1+kY--

@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264042AbTEOOHR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 10:07:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264043AbTEOOHR
+	id S264040AbTEOOGB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 10:06:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264041AbTEOOGB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 10:07:17 -0400
-Received: from ms-smtp-02.southeast.rr.com ([24.93.67.83]:47753 "EHLO
-	ms-smtp-02.southeast.rr.com") by vger.kernel.org with ESMTP
-	id S264042AbTEOOHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 10:07:16 -0400
-From: Boris Kurktchiev <techstuff@gmx.net>
-Reply-To: techstuff@gmx.net
-To: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
-Subject: Re: Posible memory leak!?
-Date: Thu, 15 May 2003 10:24:36 -0400
-User-Agent: KMail/1.5.1
-References: <200305131415.37244.techstuff@gmx.net> <200305141012.53779.techstuff@gmx.net> <200305150545.h4F5j2u27109@Port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200305150545.h4F5j2u27109@Port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Thu, 15 May 2003 10:06:01 -0400
+Received: from ppp-62-245-209-2.mnet-online.de ([62.245.209.2]:22656 "EHLO
+	frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
+	id S264040AbTEOOGA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 10:06:00 -0400
+Date: Thu, 15 May 2003 16:18:49 +0200
+From: Julien Oster <lkml@frodoid.org>
+To: linux-kernel@vger.kernel.org
+Subject: [2.5.69] can't open root device on md1?
+Message-ID: <20030515141849.GA1213@frodo.midearth.frodoid.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305151024.37040.techstuff@gmx.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday May 15 2003 1:51 am, Denis Vlasenko wrote:
-> On 14 May 2003 17:12, Boris Kurktchiev wrote:
-> > heh this is very interesting.... top b n1 reports this:
-> > top - 10:08:24 up 16:36,  2 users,  load average: 0.16, 0.19, 0.08
-> > Tasks:  62 total,   1 running,  60 sleeping,   0 stopped,   1 zombie
-> > Cpu(s):  12.3% user,   5.1% system,   0.0% nice,  82.6% idle
-> > Mem:    385904k total,   381572k used,     4332k free,   137244k
-> > buffers Swap:   128512k total,    20012k used,   108500k free,
-> > 126168k cached
->
-> Typical. So what makes you think kernel leaks memory?
+Hello,
 
-well the fact that before my swap was never used, and now .... I need to 
-transcode something so I can show you how all swap is being used and non of 
-the RAM (thus making programs run much slower, as is the case with 
-transcode).
+after some success on other machines, I decided to boot 2.5.69 on my
+main workstation.
 
-> BTW, which version of procps do you have? Mine is 2.0.10,
-> 2.0.11 already exists.
+The filesystems of that workstation are completely SoftRAID Level 1
+devices, except for one which is a Level 0.
 
-I believe I have 2.0.10.
+However, while booting up, the kernel refuses to mount the root
+filesystem. The arrays and everything seems initialized correctly, there
+are a lot of messages from the md driver as there were in 2.4.21-rc2. No
+errors.
 
-> gkrellm must be subtracting something from MemTotal trying
-> to account for fact that large part of RAM is used as a cache.
-> You may consult its source.
+However, the 2.5.69 dies with
 
-No... I forgot to tell it to count cache and buffers... 
+VFS: unable to access root device "901" or "/dev/md1"
+
+(I haven't attached any serial console so I'm doing cut'n'paste from my
+mind)
+
+Any idea why this happens? Have the device numbers changed?
+
+Regards,
+Julien
+

@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282049AbRKZSon>; Mon, 26 Nov 2001 13:44:43 -0500
+	id <S282048AbRKZTAL>; Mon, 26 Nov 2001 14:00:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282013AbRKZSnf>; Mon, 26 Nov 2001 13:43:35 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:50952 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S282037AbRKZSmq>; Mon, 26 Nov 2001 13:42:46 -0500
-Date: Mon, 26 Nov 2001 16:42:35 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Momchil Velikov <velco@fadata.bg>, <mingo@elte.hu>,
-        <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>
-Subject: Re: [PATCH] Scalable page cache
-In-Reply-To: <20011126131641.A13955@redhat.com>
-Message-ID: <Pine.LNX.4.33L.0111261641530.1491-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S282064AbRKZS7F>; Mon, 26 Nov 2001 13:59:05 -0500
+Received: from AGrenoble-101-1-5-3.abo.wanadoo.fr ([80.11.136.3]:10638 "EHLO
+	strider.virtualdomain.net") by vger.kernel.org with ESMTP
+	id <S282072AbRKZS4w> convert rfc822-to-8bit; Mon, 26 Nov 2001 13:56:52 -0500
+Message-ID: <3C029159.80908@wanadoo.fr>
+Date: Mon, 26 Nov 2001 20:00:41 +0100
+From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us, fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Release Policy [was: Linux 2.4.16  ]
+In-Reply-To: <Pine.LNX.4.21.0111261524560.13976-100000@freak.distro.conectiva>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Nov 2001, Benjamin LaHaise wrote:
+Marcelo Tosatti wrote:
 
-> Thoughts?
 
-Please don't sacrifice code clarity on the altar of
-absolute performance ;)
+> Agreed. I stick with the -rc naming convention for 2.4+... 
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Thanks a lot - much better that way.
+
+François
+
+
 

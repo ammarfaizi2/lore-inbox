@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbULDCOB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262523AbULDCtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbULDCOB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 21:14:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbULDCOB
+	id S262523AbULDCtF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 21:49:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbULDCtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 21:14:01 -0500
-Received: from linaeum.absolutedigital.net ([63.87.232.45]:12699 "EHLO
-	linaeum.absolutedigital.net") by vger.kernel.org with ESMTP
-	id S262522AbULDCNw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 21:13:52 -0500
-Date: Fri, 3 Dec 2004 21:13:57 -0500 (EST)
-From: Cal Peake <cp@absolutedigital.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-ac13
-In-Reply-To: <1102096309.10714.1.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0412032110220.12957@linaeum.absolutedigital.net>
-References: <1102096309.10714.1.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Dec 2004 21:49:05 -0500
+Received: from [61.149.23.123] ([61.149.23.123]:56813 "EHLO adam.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S262523AbULDCtC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 21:49:02 -0500
+Date: Fri, 3 Dec 2004 18:39:25 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200412040239.iB42dPi12085@adam.yggdrasil.com>
+To: greg@kroah.com
+Subject: Re: [PATCH 2.6.10-rc2-bk15] sysfs_dir_close memory leak
+Cc: akpm@osdl.org, chrisw@osdl.org, linux-kernel@vger.kernel.org,
+       maneesh@in.ibm.com, viro@parcelfarce.linux.theplanet.co.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Dec 2004, Alan Cox wrote:
+On Fri, 3 Dec 2004 10:56:31 -0800, Greg KH wrote:
+>Thanks, I've deleted the BUG_ON() and will be sending the patch on to
+>Linus in a bit.
 
-> This -ac is a little different. It's still an experimental -ac to test the 
-> accumulated patches it would be nice to have in -ac but which might break
-> something and seemed too risky. As such please test it but in general wait
-> for the next -ac before planning to update production systems.
+	Great, thanks.
 
-Alan, you forgot to update your Makefile:
+>(oh, care to add a "Signed-off-by:" line to your patches?)
 
-VERSION = 2
-PATCHLEVEL = 6
-SUBLEVEL = 9
-EXTRAVERSION = -ac12 <---
-NAME=AC 1
+	When we first started using Signed-off-by: lines, I did,
+and then somebody commented on it to me in some way that gave me
+the impression that the practice was only for people who "approve"
+patches, but I'm happy to resume adding Signed-off-by: lines to all
+of my patches that are proposed for integration in the future.
 
--- Cal
-
+                    __     ______________
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

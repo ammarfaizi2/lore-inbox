@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291169AbSCOLPo>; Fri, 15 Mar 2002 06:15:44 -0500
+	id <S290796AbSCOLVn>; Fri, 15 Mar 2002 06:21:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290823AbSCOLOg>; Fri, 15 Mar 2002 06:14:36 -0500
-Received: from angband.namesys.com ([212.16.7.85]:22657 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S290277AbSCOLNd>; Fri, 15 Mar 2002 06:13:33 -0500
-Date: Fri, 15 Mar 2002 14:13:28 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-Message-ID: <20020315141328.A1879@namesys.com>
-In-Reply-To: <200203110018.BAA11921@webserver.ithnet.com> <15499.64058.442959.241470@charged.uio.no> <20020311091458.A24600@namesys.com> <20020311114654.2901890f.skraw@ithnet.com> <20020311135256.A856@namesys.com> <20020311155937.A1474@namesys.com> <20020315133241.A1636@namesys.com> <20020315120232.6d9b1dd5.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020315120232.6d9b1dd5.skraw@ithnet.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S290120AbSCOLV2>; Fri, 15 Mar 2002 06:21:28 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17163 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291272AbSCOLSs>;
+	Fri, 15 Mar 2002 06:18:48 -0500
+Message-ID: <3C91D885.509@mandrakesoft.com>
+Date: Fri, 15 Mar 2002 06:18:29 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stelian Pop <stelian.pop@fr.alcove.com>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] BK ignore list
+In-Reply-To: <20020315110152.GF13625@come.alcove-fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Stelian Pop wrote:
 
-On Fri, Mar 15, 2002 at 12:02:32PM +0100, Stephan von Krawczynski wrote:
-> > Ok I tried your scenario of mounting fs1, then mounting fs2, do io on fs2,
-> > umount fs2 and access fs1 and everything went fine.
-> > I cannot reproduce this at all. :(
-> There must be a reason for this. One "non-standard" option in my setup is in /etc/exports:
-> /p2/backup              192.168.1.1(rw,no_root_squash,no_subtree_check)
-> Can the "no_subtree_check" be a cause?
-I will try with this one.
-BTW how much i/o do you usually do to observe an effect.
-Are exported filesystems actually reside on one physical flesystem on server
-or they are separate physical filesystems too?
+>Hi Marcelo,
+>
+>This patch (send as a regular not a bk patch since for some
+>reason bitkeeper doesn't like changesets which modify files 
+>under BitKeeper/...) backports the exclusion patterns from
+>Linus' 2.5 BK repository.
+>
+>With this patch, bk citool can really be used :-)
+>
+>Stelian.
+>
+>===== BitKeeper/etc/ignore 1.1 vs edited =====
+>--- 1.1/BitKeeper/etc/ignore	Tue Feb  5 18:30:56 2002
+>+++ edited/BitKeeper/etc/ignore	Fri Mar 15 11:42:52 2002
+>
+You beat me to it :)
 
-> What kernels are you using (client,server)?
-2.4.18 at both sides.
+I was in fact just about to send the same thing along to Marcelo.
 
-Bye,
-    Oleg
+Thanks,
+
+    Jeff
+
+
+
+
+
+

@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268301AbUIBNWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268305AbUIBN0G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268301AbUIBNWM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 09:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268305AbUIBNWM
+	id S268305AbUIBN0G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 09:26:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268307AbUIBN0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 09:22:12 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:15024 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268301AbUIBNWI (ORCPT
+	Thu, 2 Sep 2004 09:26:06 -0400
+Received: from soundwarez.org ([217.160.171.123]:15812 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S268305AbUIBN0B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 09:22:08 -0400
-Date: Thu, 2 Sep 2004 15:23:42 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Charbonnel <thomas@undata.org>
-Cc: linux-kernel@vger.kernel.org, "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@raytheon.com
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q9
-Message-ID: <20040902132342.GA8677@elte.hu>
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <20040902111003.GA4256@elte.hu> <1094130969.5652.13.camel@localhost>
+	Thu, 2 Sep 2004 09:26:01 -0400
+Date: Thu, 2 Sep 2004 15:26:09 +0200
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Daniel Stekloff <dsteklof@us.ibm.com>
+Cc: Greg KH <greg@kroah.com>, Robert Love <rml@ximian.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] kernel sysfs events layer
+Message-ID: <20040902132609.GB26413@vrfy.org>
+References: <1093988576.4815.43.camel@betsy.boston.ximian.com> <20040831145643.08fdf612.akpm@osdl.org> <1093989513.4815.45.camel@betsy.boston.ximian.com> <20040831150645.4aa8fd27.akpm@osdl.org> <1093989924.4815.56.camel@betsy.boston.ximian.com> <20040902083407.GC3191@kroah.com> <1094126565.1761.25.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1094130969.5652.13.camel@localhost>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <1094126565.1761.25.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 02, 2004 at 05:02:46AM -0700, Daniel Stekloff wrote:
+> On Thu, 2004-09-02 at 01:34, Greg KH wrote:
+> > On Tue, Aug 31, 2004 at 06:05:24PM -0400, Robert Love wrote:
+> > > +int send_kevent(enum kevent type, struct kset *kset,
+> > > +		struct kobject *kobj, const char *signal);
+> > 
+> > Why is the kset needed?  We can determine that from the kobject.
+> > 
+> > How about changing this to:
+> > 	int send_kevent(struct kobject *kobj, struct attribute *attr);
+> > which just tells userspace that a specific attribute needs to be read,
+> > as something "important" has changed.
+> 
+> 
+> Do all events require an attribute? What about the "overheating"
+> example? Would you need an attribute or would getting a "signal" for a
+> specific kobj be enough? 
 
-* Thomas Charbonnel <thomas@undata.org> wrote:
+Hmm, both can be the case at the moment. We need to decide, if we want to
+mandate the use of a sysfs attribute instead of the string value as the signal.
 
-> With ACPI compiled in and booting with acpi=off (which again doesn't
-> seem to be honoured), here's another weird one :
+> Binding an attribute to an event would at least tell you the name of the
+> attribute to check. Otherwise, how does an app know the name of the
+> attribute that changed? Or am I missing something?
 
-> 00010000 0.003ms (+0.000ms): timer_interrupt (generic_handle_IRQ_event)
-> 00010001 0.003ms (+2.878ms): mark_offset_tsc (timer_interrupt)
-> 00010001 2.882ms (+0.000ms): do_timer (timer_interrupt)
+That's a valid point, right. If we don't use "verbs" as the signal string,
+and know what we can expect from that particular kind of event, we don't
+know which attribute has changed.
 
-do you have the NMI watchdog enabled? That could help us debugging this. 
-Enabling the APIC/IO_APIC and using nmi_watchdog=1 would be the ideal
-solution - if that doesnt work then nmi_watchdog=2 would be fine too,
-but remove this code from arch/i386/kernel/nmi.c:
 
-	if (nmi_watchdog == NMI_LOCAL_APIC)
-		nmi_hz = 1;
+The remaining questions are:
 
-(otherwise nmi_watchdog=2 would result in one NMI per second, not enough
-to shed light on the above 2.8 msec latency.)
+o Do we want the multicast - "channels" for the events? It may be nice, to
+  have it, if a application only interested in e.g. hotplug events, can get
+  only the interesting events?
 
-	Ingo
+o What kind of signal do we need? A lazy string, a well defined set like
+  ADD/REMOVE/CHANGE?
+  Or can we get rid of the whole signal? But how can we distinguish between
+  add and remove? Watching if the sysfs file comes or goes is not a option,
+  I think.
+
+Thanks,
+Kay

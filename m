@@ -1,67 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264248AbUEDGub@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264253AbUEDHB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264248AbUEDGub (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 02:50:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264250AbUEDGub
+	id S264253AbUEDHB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 03:01:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbUEDHB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 02:50:31 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:52641 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264248AbUEDGu3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 02:50:29 -0400
-Date: Tue, 4 May 2004 12:21:39 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rusty@rustcorp.com.au, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix deadlock in __create_workqueue
-Message-ID: <20040504065139.GB6911@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20040430113751.GA18296@in.ibm.com> <20040430191901.510ae947.akpm@osdl.org> <20040503122412.GB7143@in.ibm.com> <20040503130829.5c43c6fe.akpm@osdl.org>
-Mime-Version: 1.0
+	Tue, 4 May 2004 03:01:26 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:62699 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264253AbUEDHBX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 03:01:23 -0400
+Message-ID: <40973F7F.A9FA4F1@melbourne.sgi.com>
+Date: Tue, 04 May 2004 17:00:15 +1000
+From: Greg Banks <gnb@melbourne.sgi.com>
+Organization: SGI Australian Software Group
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18-6mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: Nikita Danilov <Nikita@Namesys.COM>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       alexander viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       trond myklebust <trondmy@trondhjem.org>
+Subject: Re: d_splice_alias() problem.
+References: <16521.5104.489490.617269@laputa.namesys.com>
+		<16529.56343.764629.37296@cse.unsw.edu.au>
+		<409634B9.8D9484DA@melbourne.sgi.com> <16534.54704.792101.617408@cse.unsw.edu.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040503130829.5c43c6fe.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 03, 2004 at 01:08:29PM -0700, Andrew Morton wrote:
-> yup, sorry, I misread the code.  Like this?
-
-Yes, looks fine to me!
-
+Neil Brown wrote:
 > 
-> --- 25/kernel/workqueue.c~worker_thread-race-fix	Mon May  3 13:02:25 2004
-> +++ 25-akpm/kernel/workqueue.c	Mon May  3 13:07:34 2004
-> @@ -201,19 +201,20 @@ static int worker_thread(void *__cwq)
->  	siginitset(&sa.sa.sa_mask, sigmask(SIGCHLD));
->  	do_sigaction(SIGCHLD, &sa, (struct k_sigaction *)0);
->  
-> +	set_current_state(TASK_INTERRUPTIBLE);
->  	while (!kthread_should_stop()) {
-> -		set_task_state(current, TASK_INTERRUPTIBLE);
-> -
->  		add_wait_queue(&cwq->more_work, &wait);
->  		if (list_empty(&cwq->worklist))
->  			schedule();
->  		else
-> -			set_task_state(current, TASK_RUNNING);
-> +			__set_current_state(TASK_RUNNING);
->  		remove_wait_queue(&cwq->more_work, &wait);
->  
->  		if (!list_empty(&cwq->worklist))
->  			run_workqueue(cwq);
-> +		set_current_state(TASK_INTERRUPTIBLE);
->  	}
-> +	__set_current_state(TASK_RUNNING);
->  	return 0;
->  }
+> > *   Dentry_stat.nr_unused can be be spuriously decremented when dput()
+> >     races with __dget_unlocked().  Eventual result is nr_unused<0
+> >     and kswapd loops.  This is the problem I mentioned earlier.  Note
+> >     that this is not an NFS-specific problem.  Fix is:
+> >
+> > --- linux.orig/fs/dcache.c    Mon May  3 21:46:30 2004
+> > +++ linux/fs/dcache.c Mon May  3 21:49:07 2004
+> > @@ -255,8 +255,8 @@
+> >
+> >  static inline struct dentry * __dget_locked(struct dentry *dentry)
+> >  {
+> > -     atomic_inc(&dentry->d_count);
+> > -     if (atomic_read(&dentry->d_count) == 1) {
+> > +     if (atomic_inc(&dentry->d_count) == 1) {
+> 
+> One problem with this is that (in include/asm-i386/atomic.h at least):
+>   static __inline__ void atomic_inc(atomic_t *v)
 
+Ok, how about this...it's portable, and not racy, but may perturb the
+logic slightly by also taking dentries off the unused list in the case
+where they already had d_count>=1.  I'm not sure how significant that is.
+In any case this also passes my tests.
+
+
+--- linux.orig/fs/dcache.c	Mon May  3 21:46:30 2004
++++ linux/fs/dcache.c	Tue May  4 14:34:44 2004
+@@ -256,7 +256,7 @@
+ static inline struct dentry * __dget_locked(struct dentry *dentry)
+ {
+ 	atomic_inc(&dentry->d_count);
+-	if (atomic_read(&dentry->d_count) == 1) {
++	if (!list_empty(&dentry->d_lru)) {
+ 		dentry_stat.nr_unused--;
+ 		list_del_init(&dentry->d_lru);
+ 	}
+@@ -663,6 +663,7 @@
+ 		if (gfp_mask & __GFP_FS)
+ 			prune_dcache(nr);
+ 	}
++	BUG_ON(dentry_stat.nr_unused < 0);
+ 	return dentry_stat.nr_unused;
+ }
+ 
+
+
+Greg.
 -- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.

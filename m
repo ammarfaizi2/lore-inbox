@@ -1,78 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266622AbTAOPFI>; Wed, 15 Jan 2003 10:05:08 -0500
+	id <S265541AbTAOPPx>; Wed, 15 Jan 2003 10:15:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266627AbTAOPFI>; Wed, 15 Jan 2003 10:05:08 -0500
-Received: from [213.171.53.133] ([213.171.53.133]:42505 "EHLO gulipin.miee.ru")
-	by vger.kernel.org with ESMTP id <S266622AbTAOPFH>;
-	Wed, 15 Jan 2003 10:05:07 -0500
-Date: Wed, 15 Jan 2003 18:16:11 +0300
-From: "Ruslan U. Zakirov" <cubic@wr.miee.ru>
-X-Mailer: The Bat! (v1.61)
-Reply-To: "Ruslan U. Zakirov" <cubic@wr.miee.ru>
-Organization: CITL MIEE
-X-Priority: 3 (Normal)
-Message-ID: <1884972299.20030115181611@wr.miee.ru>
-To: linux-kernel@vger.kernel.org
-CC: Adam Belay <ambx1@neo.rr.com>, Jaroslav Kysela <perex@suse.cz>,
-       Zwane Mwaikambo <zwane@holomorphy.com>
-Subject: [2.5.58][PnP] Some small points.
+	id <S265791AbTAOPPx>; Wed, 15 Jan 2003 10:15:53 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:12454 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S265541AbTAOPPw>; Wed, 15 Jan 2003 10:15:52 -0500
+Date: Wed, 15 Jan 2003 07:24:40 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+cc: linux-mm@kvack.org
+Subject: Re: 48GB NUMA-Q boots, with major IO-APIC hassles
+Message-ID: <840980000.1042644279@titus>
+In-Reply-To: <20030115105802.GQ940@holomorphy.com>
+References: <20030115105802.GQ940@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All.
-1) __pnp_remove_device(dev) call twice. First time in
-pnpc_remove_device(dev). I think it's wrong.
+> (2) MAX_IO_APIC's got clobbered in the subarch cleanups.
+> 	-- CONFIG_X86_NUMA was removed, use CONFIG_X86_NUMAQ
+> 	-- this is greppable, folks...
 
---- drivers/pnp/card.c~ 2003-01-15 13:52:08.000000000 +0300
-+++ drivers/pnp/card.c  2003-01-15 13:52:16.000000000 +0300
-@@ -144,7 +144,6 @@
-        list_for_each_safe(pos,temp,&card->devices){
-                struct pnp_dev *dev = card_to_pnp_dev(pos);
-                pnpc_remove_device(dev);
--               __pnp_remove_device(dev);
-        }
- }
+That wasn't the subarch cleanups that removed it, please be careful
+what you're saying. I plead not guilty to that one.
 
-_______________________________
-2) We've forgot to unreg driver on module unload in opl3sa2 driver.
---- sound/isa/opl3sa2.c~        2003-01-15 17:45:25.000000000 +0300
-+++ sound/isa/opl3sa2.c 2003-01-15 17:47:00.000000000 +0300
-@@ -881,6 +881,9 @@
+> (4) PCI bridges get misnumbered children.
+> 	-- Brew up a PCI hook for giving child buses their bus numbers.
+> 	-- Basically, fwd port mbligh's fix for 2.4.x more cleanly.
+> 	-- Okay, not IO-APIC-related, but it annoys me greatly.
+> 	-- ink is at least trying to steer me in the right direction here.
 
-        for (idx = 0; idx < SNDRV_CARDS; idx++)
-                snd_card_free(snd_opl3sa2_cards[idx]);
-+#ifdef CONFIG_PNP
-+       pnpc_unregister_driver(&opl3sa2_pnpc_driver);
-+#endif
- }
+Additional PCI-PCI bridges (eg starfire cards) have never been supported 
+in non-boot quads. It's not impossible, but don't be suprised if it 
+doesn't work.
 
- module_init(alsa_card_opl3sa2_init)
-_________________________________
-3) Queston: Why we do free in this way?
-static int snd_opl3sa2_free(opl3sa2_t *chip)
-{
-#ifdef CONFIG_PNP
-        chip->dev = NULL;   -> Here. Why NULL? Who realy free resources and how?
-#endif
-#ifdef CONFIG_PM
-        if (chip->pm_dev)
-                pm_unregister(chip->pm_dev);
-#endif
-        if (chip->irq >= 0)
-                free_irq(chip->irq, (void *)chip);
-        if (chip->res_port) {
-                release_resource(chip->res_port);
-                kfree_nocheck(chip->res_port);
-        }
-        snd_magic_kfree(chip);
-        return 0;
-}
-_______________________________________
-4) Have we got ALSA driver that work absolutly and use PnP layer in
-right ways?
-Best regards. Ruslan.
+> (5) Booting with notsc panic()'s.
+> 	-- Remove tsc_disable assignment in the __setup() call.
+> 	-- I'd be much obliged if the SMP TSC issues were at long
+> 	-- last conclusively dealt with. Not IO-APIC-related either,
+> 	-- but also very annoying.
+
+You don't have PIT support compiled in, and you turned off TSC support,
+leaving yourself with no timer. There's a patch in my tree to force on
+PIT support for NUMA-Q.
+
+M.
 

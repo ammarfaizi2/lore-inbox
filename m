@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264499AbTH2Jz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 05:55:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbTH2Jz6
+	id S264519AbTH2KBt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 06:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264521AbTH2KBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 05:55:58 -0400
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:53511 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264499AbTH2Jz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 05:55:57 -0400
-Subject: Re: [RFC] extents support for EXT3
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
-	 =?UTF-8?Q?=F3=AE=A0=92?= <retes_simbad@yahoo.es>
-To: Alex Tomas <bzzz@tmi.comex.ru>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-In-Reply-To: <m3r835rocm.fsf@bzzz.home.net>
-References: <m33cfm19ar.fsf@bzzz.home.net> <1062086590.2623.3.camel@debian>
-	 <m3r835rocm.fsf@bzzz.home.net>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1062150950.4120.5.camel@debian>
+	Fri, 29 Aug 2003 06:01:49 -0400
+Received: from [213.69.232.58] ([213.69.232.58]:56072 "HELO
+	flapp.schottelius.org") by vger.kernel.org with SMTP
+	id S264519AbTH2KBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 06:01:47 -0400
+Date: Fri, 29 Aug 2003 11:17:21 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.0: very slow keyboard repeating!
+Message-ID: <20030829091721.GA1187@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 29 Aug 2003 11:55:51 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zYM0uCDKw75PZbzx"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux flapp 2.6.0-test4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El vie, 29-08-2003 a las 08:04, Alex Tomas escribió:
 
->  RRV> This patch could be included with ext3 in 2.6.x?
-> 
-> well, as Andreas already said I don't try to get this patch into 2.6.
-> this is impossible, obviously. lots of work need to be done before mainline.
-> userspace utility (fsck, debugfs) should be prepared. at this time
-> I'd like to get comments, suggestions and wider testing, of course ;)
+--zYM0uCDKw75PZbzx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Well, I think this is 2.7 thing :). I will comment it and try testing :)
--- 
-Ramón Rey Vicente       <ramon dot rey at hispalinux dot es>
-        jabber ID       <rreylinux at jabber dot org>
-------------------------------------------------------------
-gpg public key ID 0xBEBD71D5 # http://pgp.escomposlinux.org/
+Hello!
 
+While beeing very happy in 2.5 that the keyboard was very fast in
+2.6 the repeat rate is as slow as in 2.4 again!
+I don't know if just test4 is the problem or test1-3, too.
+
+I could test test3/test1, to find out where the change occured.
+Does anyone know why this was changed?
+
+Nico
+
+--=20
+quote:   there are two time a day you should do nothing: before 12 and afte=
+r 12
+         (Nico Schottelius after writin' a very senseless email)
+cmd:     echo God bless America | sed 's/.*\(A.*\)$/Why \1?/'
+pgp:     new id: 0x8D0E27A4 | ftp.schottelius.org/pub/familiy/nico/pgp-key.=
+new
+url:     http://nerd-hosting.net - domains for nerds (from a nerd)
+
+--zYM0uCDKw75PZbzx
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE/TxohzGnTqo0OJ6QRAhPUAKCA7uDcFJ1CM5cYB4OP5EdnOalOWQCgmVkR
+cnoDa+FiptsjjXTceq6oDKM=
+=XEtU
+-----END PGP SIGNATURE-----
+
+--zYM0uCDKw75PZbzx--

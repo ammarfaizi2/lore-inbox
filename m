@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbQLOPkE>; Fri, 15 Dec 2000 10:40:04 -0500
+	id <S129436AbQLOPmo>; Fri, 15 Dec 2000 10:42:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129868AbQLOPjq>; Fri, 15 Dec 2000 10:39:46 -0500
-Received: from waste.org ([209.173.204.2]:24384 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S129348AbQLOPjh>;
-	Fri, 15 Dec 2000 10:39:37 -0500
-Date: Fri, 15 Dec 2000 09:09:05 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Stephen Frost <sfrost@snowman.net>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Netfilter <netfilter@us5.samba.org>
-Subject: Re: test13-pre1 changelog
-In-Reply-To: <20001215093016.S26953@ns>
-Message-ID: <Pine.LNX.4.30.0012150906270.18387-100000@waste.org>
+	id <S129697AbQLOPme>; Fri, 15 Dec 2000 10:42:34 -0500
+Received: from ms1.hinet.net ([168.95.4.10]:27070 "EHLO ms1.hinet.net")
+	by vger.kernel.org with ESMTP id <S129436AbQLOPmR>;
+	Fri, 15 Dec 2000 10:42:17 -0500
+Message-ID: <3A3A3472.33349B51@teatime.com.tw>
+Date: Fri, 15 Dec 2000 23:10:42 +0800
+From: Tommy Wu <tommy@teatime.com.tw>
+Reply-To: tommy@teatime.com.tw
+Organization: TeaTime Development
+X-Mailer: Mozilla 4.76 [zh] (Windows NT 5.0; U)
+X-Accept-Language: en,zh,zh-TW,zh-CN
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: bug: kernel timer added twice ad 000000000110052c.
+In-Reply-To: <3A3A0D9A.426A2FB0@teatime.com.tw> <20001215163747.F829@nightmaster.csn.tu-chemnitz.de>
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Dec 2000, Stephen Frost wrote:
+Ingo Oeser ¼g¹D:
+> 
+> >   I got the message as subject when I load the ip_conntrack/iptable_nat modules
+> >   for kernel 2.4.0-test9 to test12. All have the same problem.
+> Don't do that.
+> Recompile the modules _ALWAYS_ along with the kernel you compile
+> and use.
 
-> * Oliver Xymoron (oxymoron@waste.org) wrote:
-> > On Thu, 14 Dec 2000, Linus Torvalds wrote:
-> >
-> > > A 100ms delay sounds like some interrupt shut up or similar (and then
-> > > timer handling makes it limp along).
-> >
-> > Possibly related datapoint: after several days of uptime, my
-> > 2.4.0-test10pre? machine went into some sort of slow mode after coming
-> > back from suspend (and doing an /etc/init.d/networking restart). Symptoms
-> > seemed to be extra second or so setting up a TCP connection. Ping, etc.,
-> > appeared to work just fine, no packet loss apparent, bandwidth looked good
-> > too. Sadly I had to do actual work that required zippy web access, so I
-> > rebooted rather than doing a thorough diagnostic. This is a VAIO with
-> > compiled in eepro100, no special networking options.
->
-> 	Actually, I figured out what it was and I feel kind of stupid, and
-> suprised.  I knew I should have tried rebooting before complaining.  It
-> turns out it actually was something in my firewall rules, it appears that
-> for every logged packet there is something along the lines of a 100ms
-> delay that gets added on.
-
-Hmmm, that's seems rather extreme - does it have to wait for klogd to get
-scheduled before it proceeds? I would expect the filtering to be down in
-the noise except at fairly high loads.
+  Yes, I do that everytime, but it still have such message when I load iptables modules.
+  I also try to compile them all into the kernel, they are still got same message. :-(
 
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+
+    Tommy Wu
+    mailto:tommy@teatime.com.tw
+    http://www.teatime.com.tw/~tommy
+    ICQ: 22766091
+    Mobile Phone: +886 936 909490
+    TeaTime BBS +886 2 3151964 24Hrs V.Everything
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310740AbSC1AKe>; Wed, 27 Mar 2002 19:10:34 -0500
+	id <S310749AbSC1AMo>; Wed, 27 Mar 2002 19:12:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310749AbSC1AKO>; Wed, 27 Mar 2002 19:10:14 -0500
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:34063 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S310740AbSC1AKI>; Wed, 27 Mar 2002 19:10:08 -0500
-Date: Thu, 28 Mar 2002 00:09:38 +0000 (GMT)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-X-X-Sender: <matthew@sphinx.mythic-beasts.com>
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: Andi Kleen <ak@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Filesystem benchmarks: ext2 vs ext3 vs jfs vs minix
-In-Reply-To: <20020327180247.GU21133@turbolinux.com>
-Message-ID: <Pine.LNX.4.33.0203280005160.17217-100000@sphinx.mythic-beasts.com>
+	id <S310769AbSC1AMe>; Wed, 27 Mar 2002 19:12:34 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:7942 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S310749AbSC1AMP>; Wed, 27 Mar 2002 19:12:15 -0500
+Date: Wed, 27 Mar 2002 16:11:13 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Itai Nahshon <nahshon@actcom.co.il>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@suse.cz>,
+        Wakko Warner <wakko@animx.eu.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IDE and hot-swap disk caddies
+In-Reply-To: <200203280001.g2S01cb12720@lmail.actcom.co.il>
+Message-ID: <Pine.LNX.4.10.10203271605170.6006-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Mar 2002, Andreas Dilger wrote:
+On Thu, 28 Mar 2002, Itai Nahshon wrote:
 
-> If the I/O is normally sync driven, you should consider testing ext3
-> with "data=journal".  While this seems counterintuitive because it is
-> writing the data to disk twice, it can often be faster in real-world
-> "bursty" environments because the sync I/O goes to the journal in one
-> contiguous write, and it can then be written to the rest of the fs
-> asynchronously safely.
+> On Thursday 28 March 2002 00:51 am, Alan Cox wrote:
+> > > I have seen USB mass storage devices with ide connector on them, so it
+> > > is certainly possible to translate between scsi and ide. If it makes
+> > > sense from performance standpoint.... I don't know.
+> 
+> I have one of these. The performance that I get is really poor and there
+> are some quirks but it is still useful. I will be _very happy_ when I will be 
+> able to use it for system installation/upgrade (which did not happen yet).
+> 
+> >
+> > SCSI->IDE command translation isnt too hard providing you stick to simple
+> > stuff and blindly ignore things like ATAPI, SMART, and all the control
+> > stuff. The moment you get into the complex stuff its deeply unfunny.
+> >
+> 
+> What are the prospects of seeing SCSI and IDE code (and internal
+> programming interface) unified? How much can be unified until
+> performace considerations and code complexity mandates a separation?
 
-Good point (and partially borne out by my new numbers).
+Very easy if several issues are fixed, and that is the stumbling point.
+I would require strict compliance to the standards, faking all the missing
+parts of each transport layer, and abstraction of the all capabilties to a
+comman caller/interface.
 
-> You can also set up an external journal device so that the journal is
-> on another disk and avoid seeking between the journal and the rest of
-> the filesystem.
+Oh and make every transport protocol support their own error recovery.
 
-Good idea.  If I had only a disks - a slow one and a fast one,
-how should they be configured?  (Or might this be another area
-worthy of testing?  The tradeoffs can go both ways -- the slow
-disk might seem better for the async writes, but it'll also be
-worse at seeking, so perhaps might be more appropriate for the
-journal disk?)
+Cheers,
 
-Matthew.
+Andre Hedrick
+LAD Storage Consulting Group
 

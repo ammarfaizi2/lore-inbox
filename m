@@ -1,80 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310642AbSCPUsb>; Sat, 16 Mar 2002 15:48:31 -0500
+	id <S310645AbSCPUvv>; Sat, 16 Mar 2002 15:51:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310646AbSCPUsY>; Sat, 16 Mar 2002 15:48:24 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:21261 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S310642AbSCPUsR>;
-	Sat, 16 Mar 2002 15:48:17 -0500
-Date: Sat, 16 Mar 2002 13:47:32 -0700
-From: yodaiken@fsmlabs.com
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: yodaiken@fsmlabs.com, Andi Kleen <ak@suse.de>,
-        Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
+	id <S310656AbSCPUvp>; Sat, 16 Mar 2002 15:51:45 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:20677 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S310645AbSCPUvg>; Sat, 16 Mar 2002 15:51:36 -0500
+Date: Sat, 16 Mar 2002 13:51:32 -0700
+Message-Id: <200203162051.g2GKpWX14185@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <yodaiken@fsmlabs.com>, Andi Kleen <ak@suse.de>,
+        Paul Mackerras <paulus@samba.org>, <linux-kernel@vger.kernel.org>
 Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-Message-ID: <20020316134732.C21439@hq.fsmlabs.com>
-In-Reply-To: <20020316113536.A19495@hq.fsmlabs.com.suse.lists.linux.kernel> <Pine.LNX.4.33.0203161037160.31913-100000@penguin.transmeta.com.suse.lists.linux.kernel> <20020316115726.B19495@hq.fsmlabs.com.suse.lists.linux.kernel> <p73g0301f79.fsf@oldwotan.suse.de> <20020316125711.B20436@hq.fsmlabs.com> <20020316210504.A24097@wotan.suse.de> <20020316131219.C20436@hq.fsmlabs.com> <200203162027.g2GKRqf13432@vindaloo.ras.ucalgary.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <200203162027.g2GKRqf13432@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Sat, Mar 16, 2002 at 01:27:52PM -0700
-Organization: FSM Labs
+In-Reply-To: <Pine.LNX.4.33.0203161236160.32013-100000@penguin.transmeta.com>
+In-Reply-To: <200203162036.g2GKaL513580@vindaloo.ras.ucalgary.ca>
+	<Pine.LNX.4.33.0203161236160.32013-100000@penguin.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 16, 2002 at 01:27:52PM -0700, Richard Gooch wrote:
-> yodaiken@fsmlabs.com writes:
-> > On Sat, Mar 16, 2002 at 09:05:04PM +0100, Andi Kleen wrote:
-> > > That will hopefully change eventually because 2M pages are a bit help for
-> > > a lot of applications that are limited by TLB thrashing, but needs some 
-> > > thinking on how to avoid the fragmentation trap (e.g. I'm considering
-> > > to add a highmem zone again just for that and use rmap with targetted
-> > > physical freeing to allocating them) 
+Linus Torvalds writes:
+> 
+> On Sat, 16 Mar 2002, Richard Gooch wrote:
 > > 
-> > To me, once you have a G of memory, wasting a few meg on unused
-> > process memory seems no big deal.
+> > These are contiguous physical pages, or just logical (virtual) pages?
 > 
-> I'm not happy to throw away 2 MiB per process. My workstation has 1
-> GiB of RAM, and 65 processes (and that's fairly low compared to your
-> average desktop these days, because I just use olwm and don't have a
-> fancy desktop or lots of windows). You want me to throw over 1/8th of
-> my RAM away?!?
+> Contiguous virtual pages, but discontiguous physical pages.
 
-Why not?  If you just ran vim on console you'd be more productive and
-not need all those worthless processes. 
+That's what I was hoping. Having both contiguous would be of some
+benefit, but of course at the cost of having to unfragment physical
+pages. Even if Andi can cleanly do that with rmap, it's still going to
+cost (page copies, Dcache footprint, locking and more). I like the
+"wide" TLB approach much more.
 
-At 4KB/page and 8bytes/pte a
-1G process will need at least 2MB of pte alone ! Add in the 4 layers,
-the software VM struct, ...
-
-
+> The advantage being that you only need one set of virtual tags per
+> "wide" entry, and you just fill the whole wide entry directly from
+> the cacheline (ie the TLB entry is not really 32 bits any more, it's
+> a full cacheline).
 > 
-> And in fact, isn't it going to be more than 2 MiB wasted per process?
-> For each shared object loaded, only partial pages are going to be
-> used. *My* libc is less than 700 KiB, so I'd be wasting most of a page
-> to map it in.
+> The _real_ advantage being that it should be totally invisible to
+> software. I think Intel does something like this, but the point is,
+> I don't even have to know, and it still works.
 
-You're using a politically incorrect libc. 
-But sure, big pages are not always good.
+Completely behind the kernel's, back? Even so, is there some hint we
+can give to the CPU to help? Or perhaps a hint an application can give
+to the kernel to specify better alignment of mappings? The latter
+would require a way for the kernel to find out the preferred alignment
+from the CPU. Is this information available?
 
+Anyone know if AMD does this as well?
 
-> I want that 1 GiB of RAM to be used to cache most of my data. Those
-> NASA 1km/pixel satellite mosaics of the world are pretty big, you know
-> (21600x21600x3 per hemisphere:-).
+				Regards,
 
-
-> 
-> 				Regards,
-> 
-> 					Richard....
-> Permanent: rgooch@atnf.csiro.au
-> Current:   rgooch@ras.ucalgary.ca
-
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

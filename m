@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVCHIem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbVCHIlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbVCHIem (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 03:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVCHIem
+	id S261881AbVCHIlm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 03:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVCHIlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 03:34:42 -0500
-Received: from fire.osdl.org ([65.172.181.4]:33700 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261576AbVCHIej (ORCPT
+	Tue, 8 Mar 2005 03:41:42 -0500
+Received: from coderock.org ([193.77.147.115]:57017 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261881AbVCHIlk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 03:34:39 -0500
-Date: Tue, 8 Mar 2005 00:33:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: christoph@graphe.net, roland@redhat.com, shai@scalex86.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] del_timer_sync scalability patch
-Message-Id: <20050308003340.306b8293.akpm@osdl.org>
-In-Reply-To: <20050308081921.GA25679@elte.hu>
-References: <Pine.LNX.4.58.0503072244270.20044@server.graphe.net>
-	<20050307233202.1e217aaa.akpm@osdl.org>
-	<20050308081921.GA25679@elte.hu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 8 Mar 2005 03:41:40 -0500
+Date: Tue, 8 Mar 2005 09:41:21 +0100
+From: Domen Puncer <domen@coderock.org>
+To: Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Nishanth Aravamudan <nacc@us.ibm.com>
+Subject: Re: [BK PATCH] I2C patches for 2.6.11
+Message-ID: <20050308084121.GA23003@nd47.coderock.org>
+References: <20050304203531.GA31644@kroah.com> <20050305125902.71286764.khali@linux-fr.org> <20050306065555.GD14943@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050306065555.GD14943@kroah.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
->
+On 05/03/05 22:55 -0800, Greg KH wrote:
+> On Sat, Mar 05, 2005 at 12:59:02PM +0100, Jean Delvare wrote:
+> > Hi Greg,
+> > 
+> > > Here is a I2C update for 2.6.11.  It includes a number of fixes, and
+> > > some new i2c drivers.  All of these patches have been in the past few
+> > > -mm releases.
+> > 
+> > I checked against my own list of patches and found that I have two more,
+> > which were posted to the sensors and kernel-janitors list in early
+> > february:
+> > http://archives.andrew.net.au/lm-sensors/msg29340.html
+> > http://archives.andrew.net.au/lm-sensors/msg29342.html
+> > 
+> > They never made it to your own i2c tree, nor Andrew's tree. What do we
+> > want to do with these?
 > 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > Christoph Lameter <christoph@graphe.net> wrote:
-> > >
-> > > When a potential periodic timer is deleted through timer_del_sync, all
-> > >  cpus are scanned to determine if the timer is running on that cpu. In a
-> > >  NUMA configuration doing so will cause NUMA interlink traffic which limits
-> > >  the scalability of timers.
-> > > 
-> > >  The following patch makes the timer remember where the timer was last
-> > >  started. It is then possible to only wait for the completion of the timer
-> > >  on that specific cpu.
-> 
-> i'm not sure about this. The patch adds one more pointer to a very
-> frequently used and frequently embedded data structure (struct
-> timer_list), for the benefit of a rarely used API variant
-> (timer_del_sync()).
+> They should show up in the -kj tree, right?  That will make it to the
+> -mm tree, and then the kernel janitor maintainer will split them up and
+> send them to me and you.
 
-True.
+Actually, there's no "-mm step" in here.
+Patches should already be in your mailboxes.
 
-(We can delete timer.magic and check_timer() now.  It has served its purpose)
-
-> Furthermore, timer->base itself is affine too, a timer always runs on
-> the CPU belonging to timer->base. So a more scalable variant of
-> del_timer_sync() would perhaps be possible by carefully deleting the
-> timer and only going into the full loop if the timer was deleted before. 
-> (and in which case semantics require us to synchronize on timer
-> execution.) Or we could skip the full loop altogether and just
-> synchronize with timer execution if _we_ deleted the timer. This should
-> work fine as far as itimers are concerned.
-
-If we're prepared to rule that a timer handler is not allowed to do
-add_timer_on() then a recurring timer is permanently pinned to a CPU, isn't
-it?
-
-That should make things simpler?
+	Domen

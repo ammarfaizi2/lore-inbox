@@ -1,159 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315440AbSELWMS>; Sun, 12 May 2002 18:12:18 -0400
+	id <S315441AbSELWPR>; Sun, 12 May 2002 18:15:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315441AbSELWMR>; Sun, 12 May 2002 18:12:17 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:50948 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S315440AbSELWMP>; Sun, 12 May 2002 18:12:15 -0400
-Date: Mon, 13 May 2002 00:12:09 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Marcus Alanen <marcus@infa.abo.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Changelogs on kernel.org
-Message-ID: <20020512221209.GE1020@louise.pinerecords.com>
-In-Reply-To: <20020512010709.7a973fac.spyro@armlinux.org> <abmi0f$ugh$1@penguin.transmeta.com> <abmi0f$ugh$1@penguin.transmeta.com> <873cwx2hi4.fsf@CERT.Uni-Stuttgart.DE> <200205122142.AAA26566@infa.abo.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 1:11)
+	id <S315443AbSELWPQ>; Sun, 12 May 2002 18:15:16 -0400
+Received: from pD9E237A7.dip.t-dialin.net ([217.226.55.167]:42626 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315441AbSELWPQ>; Sun, 12 May 2002 18:15:16 -0400
+Date: Sun, 12 May 2002 16:15:09 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Diego Calleja <DiegoCG@teleline.es>
+cc: Becki Minich <bminich@earthlink.net>, <linux-kernel@vger.kernel.org>,
+        <johnnyo@mindspring.com>
+Subject: Re: Reiserfs has killed my root FS!?!
+In-Reply-To: <20020512234153.55d655d6.DiegoCG@teleline.es>
+Message-ID: <Pine.LNX.4.44.0205121613430.4369-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [Marcus Alanen <marcus@infa.abo.fi>, May-13 2002, Mon, 00:42 +0300]
-> In mailing-lists.linux-kernel, you wrote:
-> >torvalds@transmeta.com (Linus Torvalds) writes:
-> >
-> >> Perl is the obvious choice for doing transformations like these. Is
-> >> anybody willing to write a perl script that does the "sort by author"
-> >> thing?
->
-> [snip]
-> Basically the same, this treats each patch separately:
+Hi,
 
-I took the liberty of kicking it up another notch :)
+On Sun, 12 May 2002, Diego Calleja wrote:
+> > attempt to access beyond end of device
+> > 08:12: rw=0 want=268574776 limit=8747392
+> 
+> I'm not an expert, but this perhaps isn't a reiserfs problem.
 
-	- allow whitespace at the beginning of email line (strip it, though)
+Nope. It looks much more like the IDE problem Tomas Szepe addressed in 
+"2.5.15 IDE possibly trying to scribble beyond end of device"
 
-	- remove whitespace at the beginning and the end of "content"
-	lines and print everything out with a single tab in front
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102102901525874&w=2
 
-T.
+Regards,
+Thunder
+-- 
+Was it a black who passed anong in the sand?
+Was it a white who left his footprints?
+Was it an african? An indian?
+Sand says, 'twas human.
 
-
-Will process horrible mess like:
---
- <jsimmons@heisenberg.transvirtual.com> asfd
-     A bunch of fixes.
-
-<jsimmons@heisenberg.transvirtual.com>	
-	    Pmac updates
-
-<jsimmons@heisenberg.transvirtual.com>	   mmmm
-   Some more small fixes.
-
-<rmk@arm.linux.org.uk>
-	      [PATCH] 2.5.13: vmalloc link failure
-
-	The following patch fixes this, and also fixes the similar problem in
-	 scsi_debug.c:
-
-<trond.myklebust@fys.uio.no>
-	[PATCH] in_ntoa link failure
-
-	Nothing serious. Whoever it was that did that global replacemissed a
-	spot is all...
-
-<viro@math.psu.edu>
-	[PATCH] change_floppy() fix
-
-	Needed both in 2.4 and 2.5
-
--- into: --
-
-<jsimmons@heisenberg.transvirtual.com>
-	--------------------------------------------------------------
-	A bunch of fixes.
-
-	--------------------------------------------------------------
-	Pmac updates
-
-	--------------------------------------------------------------
-	Some more small fixes.
-
-
-<rmk@arm.linux.org.uk>
-	--------------------------------------------------------------
-	[PATCH] 2.5.13: vmalloc link failure
-
-	The following patch fixes this, and also fixes the similar problem in
-	scsi_debug.c:
-
-
-<trond.myklebust@fys.uio.no>
-	--------------------------------------------------------------
-	[PATCH] in_ntoa link failure
-
-	Nothing serious. Whoever it was that did that global replacemissed a
-	spot is all...
-
-
-<viro@math.psu.edu>
-	--------------------------------------------------------------
-	[PATCH] change_floppy() fix
-
-	Needed both in 2.4 and 2.5
-
---
-
-#!/usr/bin/perl -w
-
-use strict;
-
-my %people = ();
-my $addr = "";
-my @cur = ();
-
-sub append_item() {
-	if (!$addr) { return; }
-	if (!$people{$addr}) { @{$people{$addr}} = (); }
-	push @{$people{$addr}}, [@cur];
-
-	@cur = ();
-}
-
-while (<>) {
-	# Match address
-	if (/^\s*<([^>]+)>/) {
-		# Add old item (if any) before beginning new
-		append_item();
-		$addr = $1;
-	} elsif ($addr) {
-		# Add line to patch
-		s/^\s*(.*)\s*$/$1/;
-		push @cur, "\t$_\n";
-	} else {
-		# Header information
-		print;
-	}
-}
-
-
-sub print_items($) {
-	my @items = @{$people{$_[0]}};
-	# Vain attempt to sort patches from one address
-	@items = sort @items;
-	while ($_ = shift @items) {
-		# Item separator
-		print "\t--------------------------------------------------------------\n";
-		print @$_;
-	}
-}
-
-append_item();
-foreach $addr (sort keys %people) {
-	print "<$addr>\n";
-	print_items($addr);
-	print "\n";
-}

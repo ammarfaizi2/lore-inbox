@@ -1,80 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261860AbVBJV7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261871AbVBJWEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261860AbVBJV7h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 16:59:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVBJV7h
+	id S261871AbVBJWEl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 17:04:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbVBJWEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 16:59:37 -0500
-Received: from waste.org ([216.27.176.166]:61671 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261860AbVBJV7d (ORCPT
+	Thu, 10 Feb 2005 17:04:40 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:11667 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261871AbVBJWE2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 16:59:33 -0500
-Date: Thu, 10 Feb 2005 13:59:20 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] BSD Secure Levels: printk overhaul, 2.6.11-rc2-mm1 (1/8)
-Message-ID: <20050210215920.GB2474@waste.org>
-References: <20050207192108.GA776@halcrow.us>
+	Thu, 10 Feb 2005 17:04:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=CTdNvqJMKoq7nSQ+oIIqv4jFMmdWQ/qOeNt1xI8b0H+VL9E9kvvLk4Cd2CkJpLeQosQErNo3abEIvvbOinYBCQZvSbPdPXCH1ZuN0bGwFvPSEj/UKM/VvN/9RCuTXIU9/rER+h7n0SqJJFWfWrLXiowbORDQM7yRYxyObOLKr+Q=
+Message-ID: <58cb370e0502101404e4ddefa@mail.gmail.com>
+Date: Thu, 10 Feb 2005 23:04:09 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [ANNOUNCE] "iswraid" (ICHxR ataraid sub-driver) for 2.4.29
+Cc: Jeff Garzik <jgarzik@pobox.com>, Arjan van de Ven <arjan@infradead.org>,
+       Martins Krikis <mkrikis@yahoo.com>, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <58cb370e05021012051518e912@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050207192108.GA776@halcrow.us>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <420631BF.7060407@pobox.com> <420582C6.7060407@pobox.com>
+	 <58cb370e05020607197db9ecf4@mail.gmail.com> <420BB77B.3080508@tmr.com>
+	 <58cb370e05021012051518e912@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 07, 2005 at 01:21:08PM -0600, Michael Halcrow wrote:
-> This is the first in a series of eight patches to the BSD Secure
-> Levels LSM.  It overhauls the printk mechanism in order to reduce the
-> unnecessary usage of the .text area.  Thanks to Brad Spengler for the
-> suggestion.
+On Thu, 10 Feb 2005 21:05:13 +0100, Bartlomiej Zolnierkiewicz
+<bzolnier@gmail.com> wrote:
+> On Thu, 10 Feb 2005 14:35:23 -0500, Bill Davidsen <davidsen@tmr.com> wrote:
+> > Bartlomiej Zolnierkiewicz wrote:
+> > > On Sun, 06 Feb 2005 10:03:27 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
+> > >
+> > >>Arjan van de Ven wrote:
+> > >>
+> > >>>>I consider it not a new feature, but a missing feature, since otherwise
+> > >>>>user data cannot be accessed in the RAID setups.
+> > >>>
+> > >>>
+> > >>>the same is true for all new hardware drivers and hardware support
+> > >>>patches. And for new DRM (since new X may need it) and new .. and
+> > >>>new ... where is the line?
+> > >>>
+> > >>>for me a deep maintenance mode is about keeping existing stuff working;
+> > >>>all new hw support and derivative hardware support (such as this) can be
+> > >>>pointed at the new stable series... which has been out for quite some
+> > >>>time now..
+> > >>
+> > >>Red herring.
+> > >>
+> > >>2.4.x has ICH5/6 support -- but is missing the RAID support component.
+> > >>
+> > >>We are talking about hardware that is ALREADY supported by 2.4.x kernel,
+> > >>not new hardware.
+> > >>
+> > >>We are also talking about inability to access data on hardware supported
+> > >>by 2.4.x, not something that can easily be ignored or papered over with
+> > >>a compatibility mode.
+> > >
+> > >
+> > > the same arguments can be used for crypto support etc.,
+> > > answer is - use 2.6.x or add extra patches to get 2.4.x working
+> >
+> > It's fix in a sense. The hardware is supported now, just not very well.
+> > If an IDE chipset was capable of UDA4 and the driver only allowed UDA2
+> > it would be a fix, in this case thehardware is supported partially, the
+> > RAID conponent isn't working, and this is the fix.
 > 
-> Signed off by: Michael Halcrow <mhalcrow@us.ibm.com>
+> The so called "RAID component" is 100% *software* solution.
+> 
+> BTW What is UDA?
 
-> Index: linux-2.6.11-rc2-mm1-modules/security/seclvl.c
-> ===================================================================
-> --- linux-2.6.11-rc2-mm1-modules.orig/security/seclvl.c	2005-02-03 14:55:44.799527472 -0600
-> +++ linux-2.6.11-rc2-mm1-modules/security/seclvl.c	2005-02-03 14:56:18.527400056 -0600
-> @@ -101,22 +101,20 @@
->  
->  #define MY_NAME "seclvl"
->  
-> -/**
-> - * This time-limits log writes to one per second.
-> - */
-> -#define seclvl_printk(verb, type, fmt, arg...)			\
-> -	do {							\
-> -		if (verbosity >= verb) {			\
-> -			static unsigned long _prior;		\
-> -			unsigned long _now = jiffies;		\
-> -			if ((_now - _prior) > HZ) {		\
-> -				printk(type "%s: %s: " fmt,	\
-> -					MY_NAME, __FUNCTION__ ,	\
-> -					## arg);		\
-> -				_prior = _now;			\
-> -			}					\
-> -		}						\
-> -	} while (0)
-> +static void seclvl_printk( int verb, const char * fmt, ... )
-> +{
-> +	va_list args;
-> +	va_start( args, fmt );
-> +	if (verbosity >= verb) {
-> +		static unsigned long _prior;
-> +		unsigned long _now = jiffies;
-> +		if ((_now - _prior) > HZ) {
-> +			vprintk( fmt, args );
-> +		}
-> +		_prior = _now;
-> +	}
-> +	va_end( args );
-> +}
+[ This mail is just to explain why I don't like iswraid,
+  I don't care if it gets merged that much... ]
 
-This could be done with a seclvl_printk macro wrapping a
-__seclvl_printk function that provides __FUNCTION__, leaving the
-callers the same.
+another BTW: this driver adds another incompatibility between
+2.4.x and 2.6.x.  Also most 2.4.x users will want (or have to) migrate
+to 2.6.x one day and they will have to switch to using device mapper
+and dmraid anyway.  From my POV merging/supporting iswraid
+in any way is a lost of time for EVERYBODY in the long-term.
+Martins, I appreciate all hard work that went into iswraid driver but
+please face the simple fact, this driver was already obsoleted in
+the moment it was created (from Linux development process POV).
 
--- 
-Mathematics is the supreme nostalgia of our time.
+I previously (October?) asked about merging device-mapper
+instead as it provides easier way to migrate to 2.6.x (not only for
+Intel "RAID component" users but for ALL "RAID components" users)
+as they would be able to use the same method for accessing their
+data in both kernels.  I was said that it is too late for such changes
+(I consider device-mapper a new driver, changes to existing code
+are REALLY minimal AFAIR) and that 2.4.x should stick to ataraid while
+2.6.x to device-mapper which was just silly argument IMHO (why we
+don't stick to IDE drivers for SATA in 2.4.x?).  I finally gave up because
+I didn't want to waste more my time on this and didn't want to go into
+politics etc... but damn iswraid wasn't merged so I feel stupid now. :-)
+
+Regards,
+Bartlomiej

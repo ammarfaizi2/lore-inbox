@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbTIHKaK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 06:30:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbTIHKaK
+	id S261767AbTIHLFc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 07:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbTIHLFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 06:30:10 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:62337 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S262181AbTIHKaG (ORCPT
+	Mon, 8 Sep 2003 07:05:32 -0400
+Received: from thor.65535.net ([216.17.104.19]:50185 "EHLO thor.65535.net")
+	by vger.kernel.org with ESMTP id S261767AbTIHLFb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 06:30:06 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Dave Jones <davej@redhat.com>
-Date: Mon, 8 Sep 2003 12:29:49 +0200
+	Mon, 8 Sep 2003 07:05:31 -0400
+Date: Mon, 8 Sep 2003 04:04:24 -0700 (PDT)
+From: Rus Foster <rghf@fsck.me.uk>
+X-X-Sender: rghf@thor.65535.net
+To: linux-kernel@vger.kernel.org
+Subject: promblem compiling skas patch 
+Message-ID: <20030908040409.B61909@thor.65535.net>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: hi-res fb console with 2.6.0-testX ?
-Cc: linux-kernel@vger.kernel.org, cheapisp@sensewave.com
-X-mailer: Pegasus Mail v3.50
-Message-ID: <C71CD161531@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  7 Sep 03 at 22:58, Dave Jones wrote:
-> On Sun, Sep 07, 2003 at 09:51:51PM +0200, cheapisp@sensewave.com wrote:
->  > The kernel command lines which work with vesafb and matroxfb in 2.4 do not 
->  > work for me in 2.6.0-testX.                                                
->  >                                    
->  > kernel (hd0,0)/bz-2.6.0-t4mm3 root=/dev/hdc2 video=matrox:vesa:0x11A       
->  > kernel (hd0,0)/bz-2.6.0-t4mm3 root=/dev/hdc2 vga=794                       
-> 
-> vga= seems to have changed semantics. (Which is a polite way of saying
-> "has regressed" IMO), this has been reported several times before, but
-> it doesn't seem to be too high on peoples 'must fix' list.
-> 
->  > Doing fbset "vesa11A" causes the monitor to lose the sync.                 
-> 
-> last I looked, fbset needed updates for the changes in 2.6
+Hi All,
+OK I know the following isn't a standard part of the kernel, and if
+someone could point me to somewhere more appropiate I would be greatfule.
+Anyway I've downloaded a vanilla 2.4.21 and the skas patch from
+http://kernels.usermodelinux.org/host/
 
-video= changed sematic too. Now you have to do
-video=matroxfb:...., not video=matrox:....
+However when compling at the end of make Bzimage I'm getting
 
-And /dev/fb* changed semantic too, so forget about using fbset on your
-box.
+        /usr/src/linux-2.4.21/arch/i386/lib/lib.a
+/usr/src/linux-2.4.21/lib/lib.a /usr/src/linux-2.4.21/arch/i386/lib/lib.a
+\
+        --end-group \
+        -o vmlinux
+arch/i386/kernel/kernel.o: In function `sys_ptrace':
+arch/i386/kernel/kernel.o(.text+0x50c9): undefined reference to
+`proc_mm_get_mm'
+make: *** [vmlinux] Error 1
 
-And whole fb subsystem changed semantic, so do not build both
-vesafb & matroxfb into the kernel - either one or another, or
-you'll be definitely surprised what will happen (and I'm almost
-sure that blank screen is not what you want).
-                                                Best regards,
-                                                    Petr Vandrovec
-                                                    
+
+Can anyone shed any light on this?
+
+Rus
+ --
+w: http://www.jvds.com  | Linux + FreeBSD Servers from $15/mo
+e: rghf@jvds.com        | Totally Customizable Technology
+t: +447919 373537	| Forums
+t: 1-888-327-6330 	| http://forums.jvds.com
+
 

@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265066AbRFURkW>; Thu, 21 Jun 2001 13:40:22 -0400
+	id <S265065AbRFURkW>; Thu, 21 Jun 2001 13:40:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265067AbRFURkM>; Thu, 21 Jun 2001 13:40:12 -0400
-Received: from h0050da0a579c.ne.mediaone.net ([24.218.68.6]:3712 "EHLO
-	sexorcisto.net") by vger.kernel.org with ESMTP id <S265066AbRFURkA>;
-	Thu, 21 Jun 2001 13:40:00 -0400
-Date: Thu, 21 Jun 2001 13:40:02 -0400 (EDT)
-From: Vallimar <vallimar@mediaone.net>
-X-X-Sender: <vallimar@sexorcisto.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Problem with patch 2.4.6pre5
-Message-ID: <Pine.LNX.4.33.0106211336310.1063-100000@sexorcisto.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265066AbRFURkM>; Thu, 21 Jun 2001 13:40:12 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:57590 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S265065AbRFURjz>;
+	Thu, 21 Jun 2001 13:39:55 -0400
+Date: Thu, 21 Jun 2001 19:39:21 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200106211739.TAA370687.aeb@vlet.cwi.nl>
+To: linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: more gendisk stuff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+An hour ago or so I put 07-2.4.6pre5-gendisk on ftp.kernel.org
+(and rediffed the previous six patches against 2.4.6pre5).
 
-  After applying this patch, I suddenly got flooded by iptables with
-tonnes of messages being flagged as TAINTED by my firewall.  I previously
-ran 2.4.6pre3 with no problems whatsoever, so I think the additional
-network driver updates might have caused a problem?  I'm using
-a 3c905b if that helps any.  Sorry if this has already been reported,
-I hadn't been subscribed before and I didn't see any archives that
-I know of up-to-date to see if it had.  If you could, please cc me
-and let me know if it's truly a kernel problem, or I just have something
-configured wrong that is only now showing up.
+It has add_gendisk, del_gendisk, get_gendisk, blk_gendisk[]
+(a.k.a. register_gendisk, unregister_gendisk, find_gendisk),
+so that one now can find the gendisk structure given a kdev_t.
 
-		Thanks,
-		  Troy Edwards
+Interestingly, there were complaints several places in the source
+about the lack of these, but none of the complainers added them.
 
+Al, I don't know whether you are interested in this stuff, but comments
+(other than: "the stuff is full of races") are welcome.
 
+Andries

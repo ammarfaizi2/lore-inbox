@@ -1,29 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268725AbTBZR3t>; Wed, 26 Feb 2003 12:29:49 -0500
+	id <S268745AbTBZRaG>; Wed, 26 Feb 2003 12:30:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268745AbTBZR3t>; Wed, 26 Feb 2003 12:29:49 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:45525 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S268725AbTBZR3t>; Wed, 26 Feb 2003 12:29:49 -0500
-Message-ID: <F760B14C9561B941B89469F59BA3A8471380CF@orsmsx401.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
-Subject: RE: /proc/cpuinfo shows only 2 processors on dual P4-Xeon system
-Date: Wed, 26 Feb 2003 09:39:39 -0800
+	id <S268755AbTBZRaG>; Wed, 26 Feb 2003 12:30:06 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:3201 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S268745AbTBZRaE>; Wed, 26 Feb 2003 12:30:04 -0500
+Date: Wed, 26 Feb 2003 12:42:21 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "John W. M. Stevens" <john@betelgeuse.us>
+cc: jpiszcz <jpiszcz@lucidpixels.com>, vishwas@india.hp.com,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Question about DMA and cd burning.
+In-Reply-To: <20030226170814.GA28730@morningstar.nowhere.lie>
+Message-ID: <Pine.LNX.3.95.1030226123821.4476A-100000@chaos>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Andrew Walrond [mailto:andrew@walrond.org] 
-> ...with latest 2.5.63+ bk kernel. Is this correct?
+On Wed, 26 Feb 2003, John W. M. Stevens wrote:
+
+> On Wed, Feb 26, 2003 at 12:02:13PM -0500, Richard B. Johnson wrote:
+> > 
+> > If you want the best of all worlds, you need to get a good
+> > SCSI Controller and some SCSI disks.
 > 
-> 2.4 kernel shows 4 processors.
+> I'd pay $100 more for a good SCSI CDRW drive!
+> 
+> But they don't seem to be sold any more.  Anybody know where I can
+> still buy a new SCSI CDRW drive?
+> 
+> John S.
 
-Enable the ACPI "CPU enumeration only" option.
+I just did a search on "SCSI CD/RW" and came up with 304,000
+entries, the first several being "Plextor" "Plexwriter" (I have
+two of them at home).  Yamaha (I have one of them here at work).
+They seem to be the major SCSI DC/RW vendors..."
 
-Regards -- Andy
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+
+

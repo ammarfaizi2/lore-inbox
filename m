@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbUCFMn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 07:43:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbUCFMnF
+	id S261475AbUCFM5N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 07:57:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbUCFM5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 07:43:05 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:21418 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261661AbUCFMm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 07:42:58 -0500
-Date: Fri, 5 Mar 2004 23:09:51 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Steve Longerbeam <stevel@mvista.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: new special filesystem for consideration in 2.6/2.7
-Message-ID: <20040305220950.GA5352@openzaurus.ucw.cz>
-References: <40462AA1.7010807@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40462AA1.7010807@mvista.com>
-User-Agent: Mutt/1.3.27i
+	Sat, 6 Mar 2004 07:57:13 -0500
+Received: from spectre.fbab.net ([212.214.165.139]:4744 "HELO mail2.fbab.net")
+	by vger.kernel.org with SMTP id S261475AbUCFM5L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Mar 2004 07:57:11 -0500
+Message-ID: <4049CA99.4020002@fbab.net>
+Date: Sat, 06 Mar 2004 13:56:57 +0100
+From: "Magnus Naeslund(t)" <mag@fbab.net>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jamie Lokier <jamie@shareable.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
+ end)
+References: <20040229014357.GW8834@dualathlon.random> <1078370073.3403.759.camel@abyss.local> <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040305103308.GA5092@elte.hu> <20040305141504.GY4922@dualathlon.random> <20040305143425.GA11604@elte.hu> <20040305145947.GA4922@dualathlon.random> <20040305150225.GA13237@elte.hu> <20040305201139.GA7254@mail.shareable.org> <20040306051256.GA9909@mail.shareable.org>
+In-Reply-To: <20040306051256.GA9909@mail.shareable.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> (PRAMFS). It was originally developed for three major consumer
-> electronics companies for use in their smart cell phones
-> and other consumer devices.
+Jamie Lokier wrote:
+[snip]
 > 
-> An intro to PRAMFS along with a technical specification
-> is at the SourceForge project web page at
-> http://pramfs.sourceforge.net/. A patch for 2.6.3 has
-> been released at the SF project site.
+> Any code which is structured like this will break:
+> 
+> 	time_t timeout = time(0) + TIMEOUT_IN_SECONDS;
+> 
+> 	do {
+> 		/* Do some stuff which takes a little while. */
+> 	} while (time(0) <= timeout);
+> 
+> It goes wrong when time() returns a value that is in the past, and
+> then jumps forward to the correct time suddenly.  The timeout of the
+> above code is reduced by the size of that jump.  If the jump is larger
+> than TIMEOUT_IN_SECONDS, the timeout mechanism is defeated completely.
+> 
+> That sort of code is a prime candidate for the method of using a
+> worker thread updating a global variable, so it's really important to
+> to take care when using it.
+> 
 
-Well, I'd certainly love to see some usable linux cell phones. 
-(Well, one such beast in my pocket would probably be enough :-)
-(Is there a way to make linux cell phone without second
-cpu just for GSM stack?)
+But isn't this kind of code a known buggy way of implementing timeouts?
+Shouldn't it be like:
 
-Comments about pramfs: RAM is not really random access,
-you'll find that doing byte-sized random reads is way slower
-than linear read,
-but you are right that it is very different from disk.
+time_t x = time(0);
+do {
+   ...
+} while (time(0) - x >= TIMEOUT_IN_SECONDS);
 
-How do you handle powerfail in the middle of write?
-Do you run fsck or do you have some kind of logging?
+Ofcourse it can't handle times in the past, but it won't get easily hung 
+  with regards to leaps or wraparounds (if used with other functions).
 
+Regards
 
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Magnus
+
 

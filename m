@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262371AbVAPABb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbVAPANH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262371AbVAPABb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 19:01:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVAPABb
+	id S262380AbVAPANH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 19:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbVAPANG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 19:01:31 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:54914 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262371AbVAPABa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 19:01:30 -0500
+	Sat, 15 Jan 2005 19:13:06 -0500
+Received: from fw.osdl.org ([65.172.181.6]:14829 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262380AbVAPAND (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 19:13:03 -0500
+Date: Sat, 15 Jan 2005 16:12:27 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux@horizon.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ioe-lkml@axxeo.de
 Subject: Re: Make pipe data structure be a circular list of pages, rather
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux@horizon.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ioe-lkml@axxeo.de, torvalds@osdl.org
-In-Reply-To: <20050115234204.20123.qmail@science.horizon.com>
+In-Reply-To: <1105829719.16028.3.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0501151611540.8178@ppc970.osdl.org>
 References: <20050115234204.20123.qmail@science.horizon.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105829719.16028.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 15 Jan 2005 22:55:32 +0000
+ <1105829719.16028.3.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-01-15 at 23:42, linux@horizon.com wrote:
-> The beauty of Linus's scheme is that direct hardware-to-hardware
-> copying is possible, without inventing new kernel interfaces.
 
-You appear to need some simple kernel interfaces but not many and the
-low level is there. This looks much cleaner (although perhaps not as
-clever yet on the invalidation/cache side) as Matt  Dillon and Alan Cox
-(the other Alan Cox not me) are doing on Dragonfly BSD in the same sort
-of direction.
 
+On Sat, 15 Jan 2005, Alan Cox wrote:
+>
+> Alan Cox (the other Alan Cox not me)
+
+Oh no! You guys are multiplying! 
+
+Run! Run for your lives!
+
+		Linus

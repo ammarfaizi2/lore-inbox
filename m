@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269092AbRHCOBU>; Fri, 3 Aug 2001 10:01:20 -0400
+	id <S269186AbRHCOPd>; Fri, 3 Aug 2001 10:15:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269111AbRHCOBJ>; Fri, 3 Aug 2001 10:01:09 -0400
-Received: from [194.30.80.67] ([194.30.80.67]:28938 "EHLO
-	serv_correo.ingecom.net") by vger.kernel.org with ESMTP
-	id <S269092AbRHCOBB>; Fri, 3 Aug 2001 10:01:01 -0400
-Message-ID: <018201c11c24$cd2af730$66011ec0@frank>
-From: "Frank Torres" <frank@ingecom.net>
-To: <root@chaos.analogic.com>
-Cc: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.95.1010803085542.16919A-100000@chaos.analogic.com>
-Subject: Re: Duplicate console output to a RS232C and keep keyb where it is
-Date: Fri, 3 Aug 2001 16:01:28 +0200
+	id <S269223AbRHCOPV>; Fri, 3 Aug 2001 10:15:21 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:37899 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S269134AbRHCOPD>; Fri, 3 Aug 2001 10:15:03 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: ext3-2.4-0.9.4
+Date: Fri, 3 Aug 2001 16:08:20 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <01080219261601.00440@starship> <20010803100633.Z12470@redhat.com>
+In-Reply-To: <20010803100633.Z12470@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Message-Id: <01080316082001.01827@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, 3 Aug 2001, Frank Torres wrote:
-> >
-> > The RS232C is a serial port with 12V and there I have a BA63 20x4
-display
-> > connected. (info worldwide). It is setted with the right speed, parity,
-etc. I use echo whatever
-> > >/dev/ttyS2 and it works.
+On Friday 03 August 2001 11:06, Stephen C. Tweedie wrote:
+> Hi,
 >
-> It has probably been set okay after boot by `setserial` in some boot
-> script.
+> On Thu, Aug 02, 2001 at 07:26:16PM +0200, Daniel Phillips wrote:
+> > I believe you've summarized the SUS requirements very well.  Apart
+> > from legalistic arguments,
 >
-> > If I use the command line parameter everybody says:  (odd and 8 data
-bits is
-> > what I use)
-> >             serial=2,9600o8   and     console=ttyS2,9600o8 console=tty0
->
-> This is not valid. You cannot reasonably have parity and 8 bits. One
-> of them has to go. Either use 8 bits and no parity or 7 bits with
-> parity.
->
-> This is because there are 10 bits/baud. The "stop" bit is a timing
-> interval equal to one of these bits, between characters. Therefore, you
-> can have many stop bits, this just spaces the characters.
+> Umm, this is a specification.  It is *supposed* to be interpreted
+> legalistically!
 
-Richard:
-I must tell you I am the one who sets the speed, IRQ and the rest of the
-parameters of the serial port in an /etc/rc.serial built by me only with the
-settings I need. The original rc.serial was producing some error when
-executed by rc.sysinit (kern. 2.4.2-2)
-I have to configure ttyS2 with both, setserial and stty, 'cause of the
-parity and the stop bit, etc.
-I tested the following configurations:
-    8, no parity, stop b.
-    8, no parity, no stop b.
-    7, parity on, parity odd, stop b.
-    7, no parity, no stop b.
-All showed wrong or no characters in the display. It only worked with 8,
-parity on, parity odd, stop b. (also with no stop b.)
-The Linux is installed in a Beetle/M POS.
-Perhaps it can't be done? I mean to obtain the video through the serial port
-without modifying the normal keyb entry?
-Thanx
+I'm saying that, when the intent is clear as it is in this case then 
+trying to find loopholes in the form of expression is not useful.  
+Better to argue that SUS is wrong than to pretend it didn't say what it 
+did.
 
+> > SUS quite clearly states that fsync should
+> > not return until you are sure of having recorded not only the
+> > file's data, but the access path to it.  I interpret this as being
+> > able to "access the file by its name", and being able to guess by
+> > looking in lost+found doesn't count.
+>
+> But that is just an interpretation.  There's nothing in the spec
+> which forces that interpretation.
 
+Well, look at the name "lost+found".  It's lost, maybe we found the 
+data but the name is gone for good.  On the other hand, if we start 
+with the same on-disk state that fsck had before creating the 
+lost+found, but use a journal to recover the name, it *does* count 
+because we have a deterministic mechanism for making fsync's promise 
+come true.
+
+> fsync forces the data to disk.  There may be one or more pathnames
+> which the application also relies on, and if the application does
+> care about those, the application will have to ensure that they are
+> synced too.
+>
+> Look, I agree that your interpretation is useful.  It's just not an
+> unambiguous requirement of the spec.
+
+OK, fine, this damn English language and all that.  Do we agree that 
+"access" means "be able to open by name"?
+
+--
+Daniel

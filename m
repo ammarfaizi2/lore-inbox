@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131471AbRARJB3>; Thu, 18 Jan 2001 04:01:29 -0500
+	id <S131819AbRARJIV>; Thu, 18 Jan 2001 04:08:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132035AbRARJBT>; Thu, 18 Jan 2001 04:01:19 -0500
-Received: from mel.alcatel.fr ([212.208.74.132]:24617 "EHLO mel.alcatel.fr")
-	by vger.kernel.org with ESMTP id <S131471AbRARJBG>;
-	Thu, 18 Jan 2001 04:01:06 -0500
-Message-ID: <3A66B086.F0E81BB8@vz.cit.alcatel.fr>
-Date: Thu, 18 Jan 2001 09:59:50 +0100
-From: Christian Gennerat <christian.gennerat@vz.cit.alcatel.fr>
-X-Mailer: Mozilla 4.7 [fr] (WinNT; I)
-X-Accept-Language: fr,en
+	id <S132035AbRARJIL>; Thu, 18 Jan 2001 04:08:11 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:24082 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S131819AbRARJIC>;
+	Thu, 18 Jan 2001 04:08:02 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Urban Widmark <urban@teststation.com>
+Date: Thu, 18 Jan 2001 10:06:36 MET-1
 MIME-Version: 1.0
-To: paul@paulbristow.net
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>,
-        David Hinds <dhinds@sonic.net>
-Subject: Re: PCMCIA problem loading ide-floppy from ide_cs
-In-Reply-To: <3A65FD84.129CA315@Hell.WH8.TU-Dresden.De> <01011722372302.01013@zoltar.quantum.net>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: oops in 2.4.1-pre8
+CC: <linux-kernel@vger.kernel.org>, kernel@hollins.edu
+X-mailer: Pegasus Mail v3.40
+Message-ID: <12E9172B5107@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Bristow a écrit :
+> > Ethernet is compiled into the kernel as is smbfs (not as modules).  I've
+> > compiled this kernel with 4GB bigmem support (otherwise I only get 8xxMB
+> > total).
+> 
+> The smbfs cache code in 2.4.0 doesn't work with bigmem. For now disable
+> bigmem or don't use smbfs, it's oopsing all the time.
+> 
+> Rainer Mager reported the same thing yesterday ("Oops with 4GB memory
+> setting in 2.4.0 stable" if you want to read the thread).
 
-> Hi,
->
-> I am trying to understand the new PCMCIA configuration.  So far I am trying
-> to use the kernel PCMCIA driver.  The yenta_socket driver is working fine.
->
-> Using 2.4.0, and cardmgr 3.1.23
->
-> When I insert my Iomega Clik drive, cardmgr correctly identifies it as an ATA
-> Fixed Disk and loads ide_cs.  ide_cs does the ide_probe and correctly assumes
-> that the drive is an ide-floppy.  However at this point it doesn't seem to
-> even try to load the module.  KMOD is set to y in .config
->
-> If I preload the ide-floppy module everything loads up fine and I can use the
-> drive perfectly.  However, when I do a cardctl eject 0, everything screws up.
-> The eject command says it works, unlinks ide_cs, but seems to leave
-> ide-floppy working!  and yes, I have run depmod -a about a zillion times.
->
-> modprobe -nv finds the modules no problem.
+I think that I found source of problem. I have no simple solution :-(
 
-with modutils-2.4.1-1mdk I had to create some new sym-links
+You are using 'page_cache_entry()' function three times. But you
+are using it on kmap()ped memory (cachep, in this oops example). So
+it returns almost random value, which caused 'mapping' to be set
+to NULL when doing grab_page_cache(), which caused oops later in
+add_to_page_cache_unique...
 
-# ls -l /lib/modules/2.4.0-2mdk/pcmcia/
-total 0
-lrwxrwxrwx     ide_cs.o -> ../kernel/drivers/ide/ide-cs.o
-lrwxrwxrwx     floppy.o -> ../kernel/drivers/block/floppy.o
-lrwxrwxrwx     floppy_cs.o -> ../kernel/drivers/block/floppy_cs.o
--
-I think you must do the same for ide-floppy
+But I'm not 100% sure, as this would mean that you do not 
+kunmap/UnlockPage/page_cache_release any >1GB page at all in 
+smb_free_cache_blocks(), as page pointer obtained by page_cache_entry()
+points to some random page (to couple just below 1GB boundary) instead 
+of to correct one, so smbfs should die as soon as it finds first highmem
+page... Is it possible?
 
+Same problem is in smb_free_dircache. 
+
+You can try using __find_get_page() with index to get 'struct *page' 
+(it should always suceed, as you have all pages locked...), instead 
+of page_cache_entry(), but better solution is using couple { page, 
+page_address } instead of page_address alone.
+
+So your system has couple of chances to deadlock - either on out of
+kmaps, or on locked directory cache root (cachep), or on some of locked 
+directory cache pages (blocks)...
+
+And one nonfatal ;-) In smb_add_to_cache you have:
+
+page_off = PAGE_SIZE + (cachep->idx << PAGE_SHIFT);
+page = grab_cache_page(mapping, page_off >> PAGE_CACHE_SHIFT);
+
+This does not look correct to me. You should use PAGE_CACHE_SHIFT and
+PAGE_CACHE_SIZE, as otherwise you'll receive same page for idx=1 and 2
+when cache will use 8KB pages, but CPU 4KB ones. Using only first 4KB 
+of each cache page is better solution, than using same page for two
+different indexes, I think... But as currently PAGE_CACHE_SIZE == PAGE_SIZE...
+                                        Best regards,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291979AbSBYRIR>; Mon, 25 Feb 2002 12:08:17 -0500
+	id <S292017AbSBYRRR>; Mon, 25 Feb 2002 12:17:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292400AbSBYRII>; Mon, 25 Feb 2002 12:08:08 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43531 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293440AbSBYRH6>; Mon, 25 Feb 2002 12:07:58 -0500
-Date: Mon, 25 Feb 2002 09:06:15 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Rusty Russell <rusty@rustcorp.com.au>, <mingo@elte.hu>,
-        Matthew Kirkwood <matthew@hairy.beasts.org>,
-        Benjamin LaHaise <bcrl@redhat.com>, David Axmark <david@mysql.com>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Lightweight userspace semaphores...
-In-Reply-To: <E16fOAO-0005Ml-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0202250905090.3392-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292000AbSBYRRH>; Mon, 25 Feb 2002 12:17:07 -0500
+Received: from eos.telenet-ops.be ([195.130.132.40]:17558 "EHLO
+	eos.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S290109AbSBYRQw>; Mon, 25 Feb 2002 12:16:52 -0500
+Date: Mon, 25 Feb 2002 18:15:31 +0100
+To: Hans-Christian Armingeon <linux.johnny@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: knfsd not working in 2.4.18-rc4
+Message-ID: <20020225181531.A2069@abulafia>
+In-Reply-To: <16fLiV-0OqAvgC@fmrl03.sul.t-online.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16fLiV-0OqAvgC@fmrl03.sul.t-online.com>
+User-Agent: Mutt/1.3.23i
+From: jan <jan.van.nunen@pandora.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 25, 2002 at 04:05:26PM +0100, Hans-Christian Armingeon wrote:
+> Hi folks,
+> kernel nfsd in 2.4.18-rc4 isn't working when started via the distribution's boot scripts, and I don't know, how to set it up manually. I don't blame the distro's script, but it is a SuSE 7.3.
+> I think, it is a kernel issue.
+> 2.4.17 worked, 2.4.18-rc4 was the first, who showed this misbehaviour.
+> Maybe, it is final relevant?
 
+Hi, well at my place the kernel nfsd is fine (2.4.18-rc4) and has been
+for years now actually. I haven't heard of any of such problems with it,
+so if I was you I would have a look at your init.d script.
 
-On Mon, 25 Feb 2002, Alan Cox wrote:
-> > > 	fd = open("/dev/shm/sem....");
-> >
-> > Hmm.. Yes. Except I would allow a NULL backing store name for the
-> > normal(?) case of just wanting private anonymous memory.
->
-> unlink()
-
-Sure, but that, together with making up a unique temporary name etc just
-adds extra overhead for no actual gain.
-
-> > At the same time, I have to admit that I like the notion that Rusty had of
-> > libraries being able to just put their semaphores anywhere (on the stack
-> > etc), as it does work for many architectures. Ugh.
->
-> _alloca
-> mmap
->
-> Still fits on the stack 8)
-
-.. but is slow as hell.
-
-		Linus
-
+Jan

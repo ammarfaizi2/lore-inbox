@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264454AbSIVSZg>; Sun, 22 Sep 2002 14:25:36 -0400
+	id <S264455AbSIVS3s>; Sun, 22 Sep 2002 14:29:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264455AbSIVSZg>; Sun, 22 Sep 2002 14:25:36 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:16144
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S264454AbSIVSZg>; Sun, 22 Sep 2002 14:25:36 -0400
-Subject: Re: 2.5.38 scheduling oops? at boot
-From: Robert Love <rml@tech9.net>
-To: scott781@attbi.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0209220749280.918-200000@localhost.localdomain>
-References: <Pine.LNX.4.44.0209220749280.918-200000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 22 Sep 2002 14:30:45 -0400
-Message-Id: <1032719445.10108.988.camel@phantasy>
-Mime-Version: 1.0
+	id <S264456AbSIVS3s>; Sun, 22 Sep 2002 14:29:48 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34320 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264455AbSIVS3r>; Sun, 22 Sep 2002 14:29:47 -0400
+Date: Sun, 22 Sep 2002 11:35:55 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Ingo Molnar <mingo@elte.hu>, Karim Yaghmour <karim@opersys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LTT-Dev <ltt-dev@shafik.org>
+Subject: Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
+In-Reply-To: <Pine.LNX.4.44.0209221830400.8911-100000@serv>
+Message-ID: <Pine.LNX.4.44.0209221130060.1455-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-09-22 at 09:04, Scott M. Hoffman wrote:
 
->   I booted into 2.5.38 on a dual amd duron system using profile=2 on 
-> command line, and the system seemed a bit sluggish just to get bash to 
-> complete a filename in /proc.  I found the attached oops after these  
-> messages:
-> 	Starting migration thread for cpu 1
-> 	bad: Scheduling while atomic!
-> ...
-> Trace; c01186ed <schedule+3d/430>
-> Trace; c0118d9c <wait_for_completion+9c/100>
-> Trace; c0118b30 <default_wake_function+0/40>
-> Trace; c0118b30 <default_wake_function+0/40>
-> Trace; c011a2c5 <set_cpus_allowed+145/170>
-> Trace; c011a33e <migration_thread+4e/340>
-> Trace; c011a2f0 <migration_thread+0/340>
-> Trace; c0106f0d <kernel_thread_helper+5/18>
-> Trace; c01186ed <schedule+3d/430>
-> Trace; c0118d9c <wait_for_completion+9c/100>
-> Trace; c0118b30 <default_wake_function+0/40>
-> Trace; c0118b30 <default_wake_function+0/40>
-> Trace; c011a2c5 <set_cpus_allowed+145/170>
-> Trace; c012274f <ksoftirqd+4f/f0>
-> Trace; c0122700 <ksoftirqd+0/f0>
-> Trace; c0106f0d <kernel_thread_helper+5/18>
+On Sun, 22 Sep 2002, Roman Zippel wrote:
+> 
+> To summarize: You find tracing useful, but software tracing is only of
+> limited value in areas you're working at.
+>
+> What about other developers, which only want to develop a simple driver,
+> without having to understand the whole kernel? Traces still work where
+> printk() or kgdb don't work. I think it's reasonable to ask an user to
+> enable tracing and reproduce the problem, which you can't reproduce
+> yourself.
 
-This particular occurrence is known; thanks.  The startup of the
-migration_threads calls set_cpus_allowed(), and set_cpus_allowed()
-sleeps while disabling preemption.
+That makes adding source bloat ok? I've debugged some drivers with 
+dprintk() style tracing, and it often makes the code harder to follow, 
+even if it eds up being compiled away. 
 
-It will not hurt anything, but it needs to be fixed.  Before that, I
-need to find out why set_cpus_allowed() dies without the
-preempt_disable() in there.
+>From what I've seen from the LTT thing, it's too heavy-weight to be good
+for many things (taking SMP-global locks for trace events is _not_ a good
+idea if the trace is for doing things like doing performance tracing,
+where a tracer that adds synchronization fundamentally _changes_ what is
+going on in ways that have nothing to do with timing).
 
-	Robert Love
+I suspect we'll want to have some form of event tracing eventually, but
+I'm personally pretty convinced that it needs to be a per-CPU thing, and 
+the core mechanism would need to be very lightweight. It's easier to build 
+up complexity on top of a lightweight interface than it is to make a 
+lightweight interface out of a heavy one.
+
+			Linus
 

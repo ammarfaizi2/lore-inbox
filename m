@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S276162AbTHSQY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 12:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S276160AbTHSQY5
+	id S271373AbTHSQjg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 12:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274992AbTHSQSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 12:24:57 -0400
-Received: from h80ad2795.async.vt.edu ([128.173.39.149]:31367 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S276018AbTHSQXK (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 12:23:10 -0400
-Message-Id: <200308191623.h7JGN2Vq002752@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: jjluza <jjluza@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problem with test3-mm3 and nvidia drivers 
-In-Reply-To: Your message of "Tue, 19 Aug 2003 15:36:53 +0200."
-             <200308191536.53124.jjluza@yahoo.fr> 
-From: Valdis.Kletnieks@vt.edu
-References: <200308191536.53124.jjluza@yahoo.fr>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_592298874P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 19 Aug 2003 12:23:01 -0400
+	Tue, 19 Aug 2003 12:18:41 -0400
+Received: from mailadsl.gw.pacific.net.au ([202.7.91.241]:58280 "HELO
+	adsl.mailcall.com.au") by vger.kernel.org with SMTP id S272503AbTHSQQ4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 12:16:56 -0400
+Date: Wed, 20 Aug 2003 02:16:57 +1000 (EST)
+From: Omar Kilani <ok@mailcall.com.au>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Install new kernel without reboots.
+In-Reply-To: <Pine.LNX.4.51.0308191729290.27171@dns.toxicfilms.tv>
+Message-ID: <Pine.LNX.4.21.0308200213510.11034-100000@adm1.mailcall.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_592298874P
-Content-Type: text/plain; charset=us-ascii
+On Tue, 19 Aug 2003, Maciej Soltysiak wrote:
 
-On Tue, 19 Aug 2003 15:36:53 +0200, jjluza <jjluza@yahoo.fr>  said:
-> I try to compile nvidia drivers (closed sources) with test3-mm3 but it doesn't 
-> work anymore.
+> Hi,
+> 
+> I have heard it is possible to change the kernel without reboots.
+> And I am not talking about UML.
+> 
+> Is it true? I could not find any documents on the web.
+> 
+> Regards,
+> Maciej
+> -
 
-"Doesn't work" in what way?  Fails to compile? Fails to insmod? X fails to come up?
-X comes up but misbehaves? Other?
+As well as kexec, maybe you want to look at the "two kernel monte".
+This is what Scyld Beowulf uses to do single kernel image distribution.
+Not sure what it's status is for 2.4, though. I'm only using it on 2.2.
 
-> I worked with test3-mm1 and older release.
-> I don't try with test3-mm2.
+Regards,
+Omar Kilani
 
-It worked for me under -mm2.
-
---==_Exmh_592298874P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/Qk7lcC3lWbTT17ARAvz/AKCCjiT08xuNSeTc7EegYjJ8zDje+QCeK0PK
-fYcEBV/zmzm06TkO49ANNwo=
-=bfj0
------END PGP SIGNATURE-----
-
---==_Exmh_592298874P--

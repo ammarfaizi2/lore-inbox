@@ -1,69 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318108AbSFTDeo>; Wed, 19 Jun 2002 23:34:44 -0400
+	id <S318109AbSFTDno>; Wed, 19 Jun 2002 23:43:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318109AbSFTDen>; Wed, 19 Jun 2002 23:34:43 -0400
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:39595 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
-	id <S318108AbSFTDen>; Wed, 19 Jun 2002 23:34:43 -0400
-Message-ID: <3D114C27.4000801@quark.didntduck.org>
-Date: Wed, 19 Jun 2002 23:29:43 -0400
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
+	id <S318110AbSFTDnn>; Wed, 19 Jun 2002 23:43:43 -0400
+Received: from pcp01314487pcs.hatisb01.ms.comcast.net ([68.63.220.2]:20864
+	"EHLO bacchus.jdhouse.org") by vger.kernel.org with ESMTP
+	id <S318109AbSFTDnn>; Wed, 19 Jun 2002 23:43:43 -0400
+Date: Wed, 19 Jun 2002 22:46:09 -0500 (CDT)
+From: "Jonathan A. Davis" <davis@jdhouse.org>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: VIA KT266 PCI-related crashes fixed.  Now whats the catch?
+In-Reply-To: <200206190509.g5J59bL11170@Port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.44.0206192214140.2110-100000@bacchus.jdhouse.org>
 MIME-Version: 1.0
-To: devnull@adc.idt.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: >3G Memory support
-References: <Pine.GSO.4.31.0206191818370.13822-100000@bom.adc.idt.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-devnull@adc.idt.com wrote:
-> Hello All.
-> 
-> I have a PC with 4G of Memory and would like a process to be able to
-> address all 4G of memory.
-> 
-> I am running 2.4.13-ac8
-> 
-> The way i understand it is that linux shares the top 1G of process address
-> space with all processes on the system(so on systems with 4G is physical
-> addressability, it leaves 3G for each process).
-> 
->>From the archives, i learnt that i need to modify __PAGE_OFFSET and change
-> it from the default  (0xC0000000).
-> 
-> Looking at /usr/src/linux/include/asm-i386/page.h
-> 
-> <<SNIP>>
-> /*
->  * This handles the memory map.. We could make this a config
->  * option, but too many people screw it up, and too few need
->  * it.
->  *
->  * A __PAGE_OFFSET of 0xC0000000 means that the kernel has
->  * a virtual address space of one gigabyte, which limits the
->  * amount of physical memory you can use to about 950MB.
->  *
->  * If you want more physical memory than this then see the
->  *   CONFIG_HIGHMEM4G
->  * and CONFIG_HIGHMEM64G options in the kernel configuration.
->  */
-> 
-> <<END_OF_SNIP>>
-> 
-> When i compiled my kernel, i set CONFIG_HIGHMEM4G.
-> 
-> Does this mean that all my programs should be able to address 4G ?
+On Wed, 19 Jun 2002, Denis Vlasenko wrote:
 
-No.  It means the kernel can access all 4GB of memory.  For memory above 
-the 950MB that it can directly map, it needs to use dynamic mappings 
-(kmap).  User space is always 3GB virtual space per process, regardless 
-of the highmem setting.
+> 
+> Heh... doc says 0x00 and 0x10 are the same for reg 0x76...
+> did you test with 0x76 unchanged?
+> 
 
---
-				Brian Gerst
+I don't know what 0x76 does exactly, but I can say there is a very real
+difference between 0x00 and 0x10 on my system.  Leaving the register
+unchanged (0x10) results in system hangs.  They are a little harder to
+provoke than running without any changes, but they could still be
+triggered under severe disk load.  Clearing that register and the same
+tests run to completion (I've done about 5 iterations).  Perhaps this may
+be unique to specific board designs or chip steppings.  Clearing 0x76 and
+leaving 0x75 with it's initial value results in hangs that trigger just
+about as quickly (subjectively) as leaving both registers in their
+original state.
+
+Kinda reminds me of the original Tandy 1000 computers.  99.99% compatible
+which left you with a 0.01% that would drive you batty.  ;-)
+
+Oh, another data point.  Back when I first put this machine together and
+before I discovered ALSA drivers that would actually work properly with
+the onboard CMI chip, I dropped an Ensoniq 1371 (SB) card in.  Although
+the machine didn't crash, the sound was horrible with clicks, pops, etc.
+-- even when no actual sounds were being generated.  As that was about an
+hour before the discovery of ALSA and I had heard that some of the
+Ensoniq-based cards had PCI issues -- I didn't put much effort into
+diagnosing it.
+
+-Jonathan <davis@jdhouse.org>
+
+
 

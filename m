@@ -1,154 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129550AbRB0D6j>; Mon, 26 Feb 2001 22:58:39 -0500
+	id <S129555AbRB0EKV>; Mon, 26 Feb 2001 23:10:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129561AbRB0D6T>; Mon, 26 Feb 2001 22:58:19 -0500
-Received: from smtp.bellnexxia.net ([209.226.175.26]:52894 "EHLO
-	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S129550AbRB0D6H>; Mon, 26 Feb 2001 22:58:07 -0500
-Message-ID: <3A9B24BE.69777690@coplanar.net>
-Date: Mon, 26 Feb 2001 22:53:34 -0500
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Carlos Fernandez Sanz <cfernandez@myalert.com>
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: Problem creating filesystem
-In-Reply-To: <11dd01c0a04e$98b92e60$f40237d1@MIACFERNANDEZ>
+	id <S129561AbRB0EKL>; Mon, 26 Feb 2001 23:10:11 -0500
+Received: from 2-113.cwb-adsl.telepar.net.br ([200.193.161.113]:63471 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S129555AbRB0EKC>; Mon, 26 Feb 2001 23:10:02 -0500
+Date: Mon, 26 Feb 2001 23:30:55 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mike McLagan <mike.mclagan@linux.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dlci: update last_rx after netif_rx
+Message-ID: <20010226233055.H8692@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Mike McLagan <mike.mclagan@linux.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010226221151.X8692@conectiva.com.br> <3A9B174D.6B9A3C9C@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.14i
+In-Reply-To: <3A9B174D.6B9A3C9C@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Feb 26, 2001 at 09:56:13PM -0500
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carlos Fernandez Sanz wrote:
+Em Mon, Feb 26, 2001 at 09:56:13PM -0500, Jeff Garzik escreveu:
+> Arnaldo Carvalho de Melo wrote:
+> > --- linux-2.4.2/drivers/net/wan/dlci.c  Tue Feb 13 19:15:05 2001
+> > +++ linux-2.4.2.acme/drivers/net/wan/dlci.c     Mon Feb 26 23:43:25 2001
+> > @@ -229,6 +229,7 @@
+> >                 skb_pull(skb, header);
+> >                 netif_rx(skb);
+> >                 dlp->stats.rx_packets++;
+> > +               dev->last_rx = jiffies;
+> 
+> You need to update dlp->stats.rx_bytes too.
 
-> I have just purchased a new HD and I'm getting problems creating a
-> filesystem for it. I've done some research and some people claim the problem
-> might be kernel related so I'm asking here just in case.
->
-> The HD is a Maxtor 80 Gb, plugged to the Promise controller that comes with
-> Asus A7V motherboards. The controller is ide2, and the HD is /dev/hde. ide0
+thanks, updated patch, there was no previous variable with  the pkt lenght,
+so I've added one, hope is ok.
 
-how did you get it to recognise this controller?  kernel command line?
-stock RH7's kernel 2.2.16-22 doesn't have automatic support.  I'd be
-interested to know if 2.2.17-14 does, as I could use this on a system.
+- Arnaldo
 
->
-> and ide1 are working with no problems.
->
-> -----------------
-> fdisk shows some warnings (but doesn't refuse to create the partition):
->
-> [root@alhambra /sbin]# fdisk /dev/hde
-> Device contains neither a valid DOS partition table, nor Sun, SGI or OSF
-> disklabel
-> Building a new DOS disklabel. Changes will remain in memory only,
-> until you decide to write them. After that, of course, the previous
-> content won't be recoverable.
 
-This is normal for a blank disk; hopefully that's all this is.
-
->
->
-> The number of cylinders for this disk is set to 15871.
-> There is nothing wrong with that, but this is larger than 1024,
-> and could in certain setups cause problems with:
-> 1) software that runs at boot time (e.g., old versions of LILO)
-> 2) booting and partitioning software from other OSs
->    (e.g., DOS FDISK, OS/2 FDISK)
-
-this is fine. just a note for the inexperienced.
-
->
-> Warning: invalid flag 0xffffa855 of partition table 5 will be corrected by
-> w(rite)
-
-normal - related to first message.
-
->
->
-> Command (m for help): n
-> Command action
->    e   extended
->    p   primary partition (1-4)
-> p
-> Partition number (1-4): 1
-> First cylinder (1-15871, default 1):
-> Using default value 1
-> Last cylinder or +size or +sizeM or +sizeK (1-15871, default 15871):
-> Using default value 15871
->
-> Command (m for help): p
->
-> Disk /dev/hde: 16 heads, 63 sectors, 15871 cylinders
-> Units = cylinders of 1008 * 512 bytes
->
->    Device Boot    Start       End    Blocks   Id  System
-> /dev/hde1             1     15871   7998952+  83  Linux
->
-> Command (m for help): w
-> The partition table has been altered!
->
-> Calling ioctl() to re-read partition table.
->
-> WARNING: If you have created or modified any DOS 6.x
-> partitions, please see the fdisk manual page for additional
-> information.
-> Syncing disks.
-
-although it doesn't look like it's necessary, it's a good idea to
-reboot here. (it usually gives a additional error if reboot needed)
-
->
-> ------------------
-> When trying to create the filesystem, I get this:
->
-> [root@alhambra /sbin]# ./mke2fs /dev/hde1
-> mke2fs 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
-> /dev/hde1: Invalid argument passed to ext2 library while setting up
-> superblock
-
-sounds like an overflow.  try using badblocks to verify that the kernel
-will allow access to all sectors in the partition.
-
-badblocks -b 1024 -sv `fdisk -s /dev/hde1`
-
-if that works, it looks like overflow in mke2fs or e2fs libraries; try:
-
-delete partition 1 and make 2 more, each half of the disk,
-
-try mke2fs /dev/hde1
-
-if that works try mke2fs /dev/hde2;
-
-if they both work then the overflow is likely the size of the disk;
-but you have access to all of it in just two halves, until a fix is found.
-
->
-> -------------------
->
-> I'm using
-> Linux version 2.2.17-14 (root@porky.devel.redhat.com) (gcc version
-> egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 Mon Feb 5 16:02:20 EST
-> 2001
->
-> The IDE controller is
->   Bus  0, device  17, function  0:
->     Unknown mass storage controller: Promise Technology Unknown device (rev
-> 2).
->       Vendor id=105a. Device id=d30.
->       Medium devsel.  IRQ 10.  Master Capable.  Latency=32.
-
-Unrelated to disk "problem", you might want to set your PCI latency timer in
-BIOS to 64 or more.
-
->
->       I/O at 0x9000 [0x9001].
->       I/O at 0x8800 [0x8801].
->       I/O at 0x8400 [0x8401].
->       I/O at 0x8000 [0x8001].
->       I/O at 0x7800 [0x7801].
->       Non-prefetchable 32 bit memory at 0xdd800000 [0xdd800000].
-> [root@alhambra /proc]#
-
+--- linux-2.4.2/drivers/net/wan/dlci.c	Tue Feb 13 19:15:05 2001
++++ linux-2.4.2.acme/drivers/net/wan/dlci.c	Tue Feb 27 00:03:05 2001
+@@ -205,7 +205,7 @@
+ 
+ 			case FRAD_P_IP:
+ 				header = sizeof(hdr->control) + sizeof(hdr->IP_NLPID);
+-				skb->protocol = htons(ETH_P_IP);
++				skb->protocol = __constant_htons(ETH_P_IP);
+ 				process = 1;
+ 				break;
+ 
+@@ -224,11 +224,14 @@
+ 
+ 	if (process)
+ 	{
++		int pktlen = skb->len;
+ 		/* we've set up the protocol, so discard the header */
+ 		skb->mac.raw = skb->data; 
+ 		skb_pull(skb, header);
+ 		netif_rx(skb);
+ 		dlp->stats.rx_packets++;
++		dlp->stats.rx_bytes += pktlen;
++		dev->last_rx = jiffies;
+ 	}
+ 	else
+ 		dev_kfree_skb(skb);

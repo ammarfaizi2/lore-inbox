@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265427AbUAUO1c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 09:27:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265436AbUAUO1c
+	id S262425AbUAUOn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 09:43:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265442AbUAUOn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 09:27:32 -0500
-Received: from hell.sks3.muni.cz ([147.251.210.31]:22981 "EHLO
-	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S265427AbUAUO1b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 09:27:31 -0500
-Date: Wed, 21 Jan 2004 15:27:28 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: i830 agpgart oddities
-Message-ID: <20040121142728.GC1499@mail.muni.cz>
+	Wed, 21 Jan 2004 09:43:28 -0500
+Received: from pooh.lsc.hu ([195.56.172.131]:18883 "EHLO pooh.lsc.hu")
+	by vger.kernel.org with ESMTP id S262425AbUAUOn1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 09:43:27 -0500
+Date: Wed, 21 Jan 2004 15:28:02 +0100
+From: GCS <gcs@lsc.hu>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-mm5 dies booting, possibly ipv6 related
+Message-ID: <20040121142802.GA8840@lsc.hu>
+References: <20040120000535.7fb8e683.akpm@osdl.org> <400D083F.6080907@aitel.hist.no> <20040120175408.GA12805@lsc.hu> <20040120102302.47fa26cd.akpm@osdl.org> <400E47CB.5030000@aitel.hist.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <400E47CB.5030000@aitel.hist.no>
+X-Operating-System: GNU/Linux
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, Jan 21, 2004 at 10:35:07AM +0100, Helge Hafting <helgehaf@aitel.hist.no> wrote:
+[...]
+> It still crashes at boot time, in a slightly different way.
+> I got an "endless" amount of
+> [<c011f202>] register_proc_table+0xc0/0xd6
+> scrolling by at high speed.  After a minute or so it ended with
+> addr_conf_init
+> inet6_init
+> oo_initcalls
+> init
+> init
+> kernel_thread_helper
+> 
+> 
+> I have ipv6 compiled into the kernel, others with the same problem
+> seems to have this common factor.  
+ I have switched off CONFIG_IPV6, and now it boots.
 
-does anyone have an idea about following odd reset?
-
-I've tried suspend-to-disk. If I'm using agpgart and X server then resume simply
-resets whole system (no oops).
-If I change resume so that it restores pages from higher addresses to lower then
-it is all ok.
-If I start restoring at 0xc0000000 and ending at 0xcee00000 then it resets at
-about 0xcb8ab000.  If I start restoring at 0xcee00000 down to 0xc0000000 then it
-is ok and system is back ok as well.
-
-I have no idea why it depends on order of pages while interrupts are disabled
-and I'm only copying memory pages.
-
--- 
-Luká¹ Hejtmánek
+Cheers,
+GCS

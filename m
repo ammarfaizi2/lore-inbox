@@ -1,58 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVCTXTT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVCTXXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbVCTXTT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 18:19:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVCTXQJ
+	id S261391AbVCTXXi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 18:23:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVCTXTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 18:16:09 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48904 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261344AbVCTXMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 18:12:34 -0500
-Date: Mon, 21 Mar 2005 00:12:32 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] i386/x86_64 mpparse.c: kill maxcpus
-Message-ID: <20050320231232.GY4449@stusta.de>
-References: <20050320192549.GP4449@stusta.de> <20050320224233.GB26230@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050320224233.GB26230@redhat.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 20 Mar 2005 18:19:49 -0500
+Received: from gum.itee.uq.edu.au ([130.102.66.1]:30183 "EHLO
+	gum.itee.uq.edu.au") by vger.kernel.org with ESMTP id S261350AbVCTXSl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 18:18:41 -0500
+Message-ID: <423E0522.8050600@itee.uq.edu.au>
+Date: Mon, 21 Mar 2005 09:20:02 +1000
+From: John Williams <jwilliams@itee.uq.edu.au>
+Reply-To: jwilliams@itee.uq.edu.au
+Organization: School of ITEE, UQ
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [SATA] non-PCI SATA devices and libata
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Checked: This message probably not SPAM
+X-Spam-Score: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 20, 2005 at 05:42:34PM -0500, Dave Jones wrote:
-> On Sun, Mar 20, 2005 at 08:25:49PM +0100, Adrian Bunk wrote:
->  > Do we really need a global variable that does only hold the value of 
->  > NR_CPUS?
-> 
-> Yes.
->  
-> NR_CPUS = compile time
-> maxcpus = boot command line at runtime.
+Hello,
 
-If this is how is was expected to work - it isn't exactly what is 
-currently implemented.
+I am looking into developing a driver for a custom, non-PCI SATA 
+controller.  The target arch is Microblaze, an FPGA-based NOMMU target 
+on a 2.4.29-uc0 kernel.
 
-The function maxcpus in init/main.c sets a static variable max_cpus -
-not the global variable maxcpus in the mpparse.c files.
+It seems that Jeff Garzik's libata is the way to go for SATA, however 
+there seems to be some degree of coupling between libata and PCI support.
 
-How should it be?
+Some comments/observations, please correct me if I am wrong:
 
-Should max_cpus in init/main.c become global and replace the maxcpus 
-from the mpparse.c files?
+  - include/linux/libata.h appears to recognise that CONFIG_PCI may not 
+be set, however libata-compat.h is entirely PCI-specific.  Indeed, it 
+effectively maps generic bus/dma operations onto their pci-specific 
+equivalents.  Also, libata.h unconditionally includes pci.h.
 
-> 		Dave
+  - All of the drivers/scsi/sata_XXX drivers target PCI devices only.
 
-cu
-Adrian
+It seems I have a few choices here.
 
+Option 1 is to just hack together stubbed PCI support for my arch, 
+making our on-chip bus pretend to be PCI for the purposes of libata (and 
+indeed many other bus subsystems, like USB).  This is pretty unclean, 
+particularly since it is entirely likely that someone will build a 
+microblaze system with a true PCI bridge and bus, meaning that this 
+temporary hack would certainly come back to haunt me[1].
+
+Option 2 is to try to decouple libata from PCI support.  This may be as 
+simple as a conditional inclusion of libata-compat.h from libata.h, 
+however I am not yet familiar enough with libata to be sure.
+
+For now this will be staying in the NOMMU 2.4 kernel (uClinux), but if I 
+choose option (2) I would like to work with libata, not against it.  It 
+may well be that non-PCI SATA support is a Good Thing in a broader 
+sense, so perhaps this is a good discussion to have anyway.
+
+All input, suggestions and comments welcome.
+
+Thanks,
+
+John
+
+[1] There is a bigger picture here, that with FPGA-based CPUs like 
+Microblaze, we can build systems with arbitrary CPU/memory/IO bus 
+topologies.  Indeed, we do so on a daily basis.  In the back of my mind 
+I am envisioning some kind of generic bus abstraction API, of which PCI, 
+USB etc would be mere instances.
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+John Williams, Research Fellow,
+Embedded Systems Group / Reconfigurable Computing
+School of ITEE, The University of Queensland, Brisbane, Australia
 

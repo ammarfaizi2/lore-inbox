@@ -1,99 +1,173 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267276AbTAWVpg>; Thu, 23 Jan 2003 16:45:36 -0500
+	id <S267300AbTAWVzZ>; Thu, 23 Jan 2003 16:55:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267292AbTAWVpg>; Thu, 23 Jan 2003 16:45:36 -0500
-Received: from ulima.unil.ch ([130.223.144.143]:63708 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id <S267276AbTAWVpf>;
-	Thu, 23 Jan 2003 16:45:35 -0500
-Date: Thu, 23 Jan 2003 22:54:41 +0100
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: Jens Axboe <axboe@suse.de>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, cdwrite@other.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Can't burn DVD under 2.5.59 with ide-cd
-Message-ID: <20030123215441.GA12179@ulima.unil.ch>
-References: <200301231752.h0NHqOM5001079@burner.fokus.gmd.de> <20030123180124.GB9141@ulima.unil.ch> <20030123180653.GU910@suse.de> <20030123181002.GV910@suse.de> <20030123185554.GC9141@ulima.unil.ch> <20030123190711.GW910@suse.de> <20030123192140.GD9141@ulima.unil.ch> <20030123211805.GY910@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S267306AbTAWVzZ>; Thu, 23 Jan 2003 16:55:25 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:9196 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267300AbTAWVzX>;
+	Thu, 23 Jan 2003 16:55:23 -0500
+In-Reply-To: <20030123005530.GA808@ttnet.net.tr>
+Subject: Re: [PATCH] 2.5.59: ftruncate/truncate oopses with mandatory locking
+To: Faik Uygur <faikuygur@ttnet.net.tr>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+X-Mailer: Lotus Notes Release 6.0 September 26, 2002
+Message-ID: <OF1A4377C8.ABB3C54B-ON85256CB7.0078D6B0-86256CB7.00798BA6@pok.ibm.com>
+From: "Robert Williamson" <robbiew@us.ibm.com>
+Date: Thu, 23 Jan 2003 17:04:16 -0500
+X-MIMETrack: Serialize by Router on D01ML076/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
+ and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 01/23/2003 05:04:17 PM
+MIME-Version: 1.0
+Content-type: multipart/mixed; 
+	Boundary="0__=0ABBE624DFEB50208f9e8a93df938690918c0ABBE624DFEB5020"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030123211805.GY910@suse.de>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 23, 2003 at 10:18:05PM +0100, Jens Axboe wrote:
+--0__=0ABBE624DFEB50208f9e8a93df938690918c0ABBE624DFEB5020
+Content-type: text/plain; charset=us-ascii
 
-> No it's my mistake, should be blk_pc_request(). Sorry about that.
 
-Hello again ;-)
+>This patch fixes the truncate/ftruncate oopses with mandatory locking
+>enabled. The problem with ftruncate is that the local variable fl is
+>not initialized properly in locks_mandatory_area that it misbehaves at
+>various places like locks_insert_block. And the problem with truncate
+>is that the filp variable is NULL at posix_lock_file. The NULL value
+>comes from do_sys_truncate.
+>
+locks_mandatory_area needed a bit more tweaking to allow correct error
+handling, as well as
+adherence to the O_NONBLOCK flag if/when used.  Merged the original patch
+with my updates,
+ and updated the bug report.
 
-I don't have more sucess now:
+>The bug report and details can be found at,
+>http://bugme.osdl.org/show_bug.cgi?id=280
 
-Cdrecord-ProDVD-Clone 2.0 (i586-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
-Unlocked features: ProDVD Clone 
-Limited  features: speed 
-This copy of cdrecord is licensed for: private/research/educational_non-commercial_use
-TOC Type: 1 = CD-ROM
-scsidev: '/dev/hdc'
-devname: '/dev/hdc'
-scsibus: -2 target: -2 lun: -2
-Warning: Open by 'devname' is unintentional and not supported.
-Linux sg driver version: 3.5.27
-Using libscg version 'schily-0.7'
-Driveropts: 'burnfree'
-atapi: 1
-Device type    : Removable CD-ROM
-Version        : 2
-Response Format: 2
-Capabilities   : 
-Vendor_info    : 'SONY    '
-Identifikation : 'DVD RW DRU-500A '
-Revision       : '1.0f'
-Device seems to be: Generic mmc2 DVD-R/DVD-RW.
-Using generic SCSI-3/mmc-2 DVD-R/DVD-RW driver (mmc_dvd).
-Driver flags   : DVD SWABAUDIO BURNFREE 
-Supported modes: TAO PACKET SAO SAO/R96R RAW/R96R
-Drive buf size : 8126464 = 7936 KB
-FIFO size      : 67108864 = 65536 KB
-Track 01: data  4001 MB        
-Total size:     4001 MB = 2048512 sectors
-Current Secsize: 2048
-Blocks total: 2298496 Blocks current: 2298496 Blocks remaining: 249984
-Starting to write CD/DVD at speed 1 in dummy TAO mode for single session.
-Last chance to quit, starting dummy write in 9 seconds.  0.24% done, estimate finish Thu Jan 23 22:58:58 2003
-   8 seconds.  0.49% done, estimate finish Thu Jan 23 22:58:59 2003
-   7 seconds.  0.73% done, estimate finish Thu Jan 23 22:58:59 2003
-   6 seconds.  0.98% done, estimate finish Thu Jan 23 22:58:59 2003
-   5 seconds.  1.22% done, estimate finish Thu Jan 23 22:58:59 2003
-   4 seconds.  1.46% done, estimate finish Thu Jan 23 22:58:59 2003
-   0 seconds. Operation starts.
-Waiting for reader process to fill input buffer ... input buffer ready.
-BURN-Free is ON.
-Starting new track at sector: 0
-Track 01:    4 of 4001 MB written (fifo  97%)  16.1x.cdrecord-prodvd: Success. write_g1: scsi sendcmd: no error
-CDB:  2A 00 00 00 08 B8 00 00 1F 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes:
-Sense Key: 0xFFFFFFFF [], Segment 0
-Sense Code: 0x00 Qual 0x00 (no additional sense information) Fru 0x0
-Sense flags: Blk 0 (not valid) 
-resid: 63488
-cmd finished after 0.010s timeout 100s
+- Robbie
 
-write track data: error after 4571136 bytes
-Sense Bytes: 70 00 00 00 00 00 00 12 00 00 00 00 00 00 00 00 00 00
-Writing  time:    5.304s
-Average write speed 574.4x.
-Fixating...
-Fixating time:   77.059s
-cdrecord-prodvd: fifo had 1095 puts and 73 gets.
-cdrecord-prodvd: fifo was 0 times empty and 2 times full, min fill was 96%.
-Exit 254
+Robert V. Williamson <robbiew@us.ibm.com>
+Linux Test Project
+IBM Linux Technology Center
+Phone: (512) 838-9295   T/L: 678-9295
+Fax: (512) 838-4603
+Web: http://ltp.sourceforge.net
+IRC: #ltp on freenode.irc.net
+====================
+"Only two things are infinite, the universe and human stupidity, and I'm
+not sure about the former." -Albert Einstein
 
-Thank you very much,
+(See attached file: bug280.patch)
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+--0__=0ABBE624DFEB50208f9e8a93df938690918c0ABBE624DFEB5020
+Content-type: application/octet-stream; 
+	name="bug280.patch"
+Content-Disposition: attachment; filename="bug280.patch"
+Content-transfer-encoding: base64
+
+LS0tIGxpbnV4LTIuNS41OS1vcmlnL2ZzL2xvY2tkL3N2Y2xvY2suYwlUaHUgSmFuIDE2IDIwOjIx
+OjQ5IDIwMDMKKysrIGxpbnV4LTIuNS41OS1uZXcvZnMvbG9ja2Qvc3ZjbG9jay5jCVRodSBKYW4g
+MjMgMTY6MzI6MTYgMjAwMwpAQCAtMzE1LDcgKzMxNSw3IEBACiAKIGFnYWluOgogCWlmICghKGNv
+bmZsb2NrID0gcG9zaXhfdGVzdF9sb2NrKCZmaWxlLT5mX2ZpbGUsICZsb2NrLT5mbCkpKSB7Ci0J
+CWVycm9yID0gcG9zaXhfbG9ja19maWxlKCZmaWxlLT5mX2ZpbGUsICZsb2NrLT5mbCk7CisJIAkJ
+ZXJyb3IgPSBwb3NpeF9sb2NrX2ZpbGUoZmlsZS0+Zl9maWxlLmZfZGVudHJ5LT5kX2lub2RlLCAm
+bG9jay0+ZmwpOwogCiAJCWlmIChibG9jaykKIAkJCW5sbXN2Y19kZWxldGVfYmxvY2soYmxvY2ss
+IDApOwpAQCAtNDE5LDcgKzQxOSw3IEBACiAJbmxtc3ZjX2NhbmNlbF9ibG9ja2VkKGZpbGUsIGxv
+Y2spOwogCiAJbG9jay0+ZmwuZmxfdHlwZSA9IEZfVU5MQ0s7Ci0JZXJyb3IgPSBwb3NpeF9sb2Nr
+X2ZpbGUoJmZpbGUtPmZfZmlsZSwgJmxvY2stPmZsKTsKKwllcnJvciA9IHBvc2l4X2xvY2tfZmls
+ZShmaWxlLT5mX2ZpbGUuZl9kZW50cnktPmRfaW5vZGUsICZsb2NrLT5mbCk7CiAKIAlyZXR1cm4g
+KGVycm9yIDwgMCk/IG5sbV9sY2tfZGVuaWVkX25vbG9ja3MgOiBubG1fZ3JhbnRlZDsKIH0KQEAg
+LTUyMyw3ICs1MjMsNyBAQAogCSAqIGZvbGxvd2luZyB5aWVsZHMgYW4gZXJyb3IsIHRoaXMgaXMg
+bW9zdCBwcm9iYWJseSBkdWUgdG8gbG93CiAJICogbWVtb3J5LiBSZXRyeSB0aGUgbG9jayBpbiBh
+IGZldyBzZWNvbmRzLgogCSAqLwotCWlmICgoZXJyb3IgPSBwb3NpeF9sb2NrX2ZpbGUoJmZpbGUt
+PmZfZmlsZSwgJmxvY2stPmZsKSkgPCAwKSB7CisJaWYgKChlcnJvciA9IHBvc2l4X2xvY2tfZmls
+ZShmaWxlLT5mX2ZpbGUuZl9kZW50cnktPmRfaW5vZGUsICZsb2NrLT5mbCkpIDwgMCkgewogCQlw
+cmludGsoS0VSTl9XQVJOSU5HICJsb2NrZDogdW5leHBlY3RlZCBlcnJvciAlZCBpbiAlcyFcbiIs
+CiAJCQkJLWVycm9yLCBfX0ZVTkNUSU9OX18pOwogCQlubG1zdmNfaW5zZXJ0X2Jsb2NrKGJsb2Nr
+LCAxMCAqIEhaKTsKLS0tIGxpbnV4LTIuNS41OS1vcmlnL2ZzL2xvY2tkL3N2Y3N1YnMuYwlUaHUg
+SmFuIDE2IDIwOjIyOjIxIDIwMDMKKysrIGxpbnV4LTIuNS41OS1uZXcvZnMvbG9ja2Qvc3Zjc3Vi
+cy5jCVRodSBKYW4gMjMgMTY6MzI6MTYgMjAwMwpAQCAtMTc2LDcgKzE3Niw3IEBACiAJCQlsb2Nr
+LmZsX3R5cGUgID0gRl9VTkxDSzsKIAkJCWxvY2suZmxfc3RhcnQgPSAwOwogCQkJbG9jay5mbF9l
+bmQgICA9IE9GRlNFVF9NQVg7Ci0JCQlpZiAocG9zaXhfbG9ja19maWxlKCZmaWxlLT5mX2ZpbGUs
+ICZsb2NrKSA8IDApIHsKKwkJIAlpZiAocG9zaXhfbG9ja19maWxlKGZpbGUtPmZfZmlsZS5mX2Rl
+bnRyeS0+ZF9pbm9kZSwgJmxvY2spIDwgMCkgewogCQkJCXByaW50aygibG9ja2Q6IHVubG9jayBm
+YWlsdXJlIGluICVzOiVkXG4iLAogCQkJCQkJX19GSUxFX18sIF9fTElORV9fKTsKIAkJCQlyZXR1
+cm4gMTsKLS0tIGxpbnV4LTIuNS41OS1vcmlnL2ZzL2xvY2tzLmMJVGh1IEphbiAxNiAyMDoyMjo0
+NCAyMDAzCisrKyBsaW51eC0yLjUuNTktbmV3L2ZzL2xvY2tzLmMJVGh1IEphbiAyMyAxNjozMjox
+OSAyMDAzCkBAIC02NzgsMjcgKzY3OCw1MiBAQAogCXN0cnVjdCBmaWxlX2xvY2sgZmw7CiAJaW50
+IGVycm9yOwogCisJSU5JVF9MSVNUX0hFQUQoJmZsLmZsX2xpbmspOworCUlOSVRfTElTVF9IRUFE
+KCZmbC5mbF9ibG9jayk7CisJaW5pdF93YWl0cXVldWVfaGVhZCgmZmwuZmxfd2FpdCk7CisKIAlm
+bC5mbF9vd25lciA9IGN1cnJlbnQtPmZpbGVzOwogCWZsLmZsX3BpZCA9IGN1cnJlbnQtPnRnaWQ7
+CiAJZmwuZmxfZmlsZSA9IGZpbHA7Ci0JZmwuZmxfZmxhZ3MgPSBGTF9QT1NJWCB8IEZMX0FDQ0VT
+UyB8IEZMX1NMRUVQOworCisJLyogSWYgdGhlIE9fTk9OQkxPQ0sgZmxhZyBpcyB1c2VkIGRvbid0
+IHNsZWVwIHdoaWxlICovCisgICAgICAgIC8qIHRoZSBsb2NrIGlzIHByZXNlbnQgLVJXICAgICAg
+ICAgICAgICAgICAgICAgICAgICAqLyAKKwlpZiAoKGZpbHAgIT0gTlVMTCkgJiYgKGZpbHAtPmZf
+ZmxhZ3MgJiBPX05PTkJMT0NLKSkKKwkJZmwuZmxfZmxhZ3MgPSBGTF9QT1NJWCB8IEZMX0FDQ0VT
+UzsKKwllbHNlCQorCQlmbC5mbF9mbGFncyA9IEZMX1BPU0lYIHwgRkxfQUNDRVNTIHwgRkxfU0xF
+RVA7CisKIAlmbC5mbF90eXBlID0gKHJlYWRfd3JpdGUgPT0gRkxPQ0tfVkVSSUZZX1dSSVRFKSA/
+IEZfV1JMQ0sgOiBGX1JETENLOwogCWZsLmZsX3N0YXJ0ID0gb2Zmc2V0OwogCWZsLmZsX2VuZCA9
+IG9mZnNldCArIGNvdW50IC0gMTsKKwlmbC5mbF9uZXh0ID0gTlVMTDsKKwlmbC5mbF9ub3RpZnkg
+PSBOVUxMOworCWZsLmZsX2luc2VydCA9IE5VTEw7CisJZmwuZmxfcmVtb3ZlID0gTlVMTDsKKwlm
+bC5mbF9mYXN5bmMgPSBOVUxMOwogCiAJZm9yICg7OykgewotCQllcnJvciA9IHBvc2l4X2xvY2tf
+ZmlsZShmaWxwLCAmZmwpOwotCQlpZiAoZXJyb3IgIT0gLUVBR0FJTikKKwkJZXJyb3IgPSBwb3Np
+eF9sb2NrX2ZpbGUoaW5vZGUsICZmbCk7CisKKwkJLyogSWYgdGhlIHJldHVybmVkIGVycm9yIGlz
+IEVBR0FJTiwgZmlscCBpcyAqLworCQkvKiBub3QgTlVMTCwgYW5kIE9fTk9OQkxPQ0sgd2FzIHNw
+ZWNpZmllZCAgICovCisJCS8qIHRoZW4gcmV0dXJuIHRoZSBFQUdBSU4gZXJyb3IgIC1SVyAgICAg
+ICAgKi8KKwkJaWYgKChlcnJvciA9PSAtRUFHQUlOKSAmJiAoZmlscCAhPSBOVUxMKSAmJiAoZmls
+cC0+Zl9mbGFncyAmIE9fTk9OQkxPQ0spKQogCQkJYnJlYWs7CisKKwkJLyogcG9zaXhfbG9ja19m
+aWxlIG1heSByZXR1cm4gRURFQURMSywgc28gICAqLworCQkvKiB3ZSBzaG91bGQgcGFzcyBpdCBv
+biBpZiB0aGlzIG9jY3VycyAgLVJXICovCisJCWlmIChlcnJvciA9PSAtRURFQURMSykKKwkJCWJy
+ZWFrOworCiAJCWVycm9yID0gd2FpdF9ldmVudF9pbnRlcnJ1cHRpYmxlKGZsLmZsX3dhaXQsICFm
+bC5mbF9uZXh0KTsKLQkJaWYgKCFlcnJvcikgewotCQkJLyoKLQkJCSAqIElmIHdlJ3ZlIGJlZW4g
+c2xlZXBpbmcgc29tZW9uZSBtaWdodCBoYXZlCi0JCQkgKiBjaGFuZ2VkIHRoZSBwZXJtaXNzaW9u
+cyBiZWhpbmQgb3VyIGJhY2suCi0JCQkgKi8KLQkJCWlmICgoaW5vZGUtPmlfbW9kZSAmIChTX0lT
+R0lEIHwgU19JWEdSUCkpID09IFNfSVNHSUQpCi0JCQkJY29udGludWU7Ci0JCX0KKworCQkvKgor
+CQkgKiBJZiB3ZSd2ZSBiZWVuIHNsZWVwaW5nIHNvbWVvbmUgbWlnaHQgaGF2ZQorCQkgKiBjaGFu
+Z2VkIHRoZSBwZXJtaXNzaW9ucyBiZWhpbmQgb3VyIGJhY2suCisJCSAqLworCQlpZiAoKCFlcnJv
+cikgJiYgKChpbm9kZS0+aV9tb2RlICYgKFNfSVNHSUQgfCBTX0lYR1JQKSkgIT0gU19JU0dJRCkp
+CisJCQlicmVhazsKIAogCQlsb2NrX2tlcm5lbCgpOwogCQlsb2Nrc19kZWxldGVfYmxvY2soJmZs
+KTsKQEAgLTc3Miw5ICs3OTcsOCBAQAogCiAvKioKICAqCXBvc2l4X2xvY2tfZmlsZToKLSAqCUBm
+aWxwOiBUaGUgZmlsZSB0byBhcHBseSB0aGUgbG9jayB0bwotICoJQGNhbGxlcjogVGhlIGxvY2sg
+dG8gYmUgYXBwbGllZAotICoJQHdhaXQ6IDEgdG8gcmV0cnkgYXV0b21hdGljYWxseSwgMCB0byBy
+ZXR1cm4gLUVBR0FJTgorICoJQGlub2RlOiBUaGUgaW5vZGUgb2YgZmlsZSB0byBhcHBseSB0aGUg
+bG9jayB0bworICoJQHJlcXVlc3Q6IFRoZSBsb2NrIHRvIGJlIGFwcGxpZWQKICAqCiAgKiBBZGQg
+YSBQT1NJWCBzdHlsZSBsb2NrIHRvIGEgZmlsZS4KICAqIFdlIG1lcmdlIGFkamFjZW50IGxvY2tz
+IHdoZW5ldmVyIHBvc3NpYmxlLiBQT1NJWCBsb2NrcyBhcmUgc29ydGVkIGJ5IG93bmVyCkBAIC03
+ODgsMTQgKzgxMiwxMyBAQAogICogVG8gYWxsIHB1cmlzdHM6IFllcywgSSB1c2UgYSBmZXcgZ290
+bydzLiBKdXN0IHBhc3Mgb24gdG8gdGhlIG5leHQgZnVuY3Rpb24uCiAgKi8KIAotaW50IHBvc2l4
+X2xvY2tfZmlsZShzdHJ1Y3QgZmlsZSAqZmlscCwgc3RydWN0IGZpbGVfbG9jayAqcmVxdWVzdCkK
+K2ludCBwb3NpeF9sb2NrX2ZpbGUoc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGZpbGVfbG9j
+ayAqcmVxdWVzdCkKIHsKIAlzdHJ1Y3QgZmlsZV9sb2NrICpmbDsKIAlzdHJ1Y3QgZmlsZV9sb2Nr
+ICpuZXdfZmwsICpuZXdfZmwyOwogCXN0cnVjdCBmaWxlX2xvY2sgKmxlZnQgPSBOVUxMOwogCXN0
+cnVjdCBmaWxlX2xvY2sgKnJpZ2h0ID0gTlVMTDsKIAlzdHJ1Y3QgZmlsZV9sb2NrICoqYmVmb3Jl
+OwotCXN0cnVjdCBpbm9kZSAqIGlub2RlID0gZmlscC0+Zl9kZW50cnktPmRfaW5vZGU7CiAJaW50
+IGVycm9yLCBhZGRlZCA9IDA7CiAKIAkvKgpAQCAtMTQ2MCw3ICsxNDgzLDcgQEAKIAl9CiAKIAlm
+b3IgKDs7KSB7Ci0JCWVycm9yID0gcG9zaXhfbG9ja19maWxlKGZpbHAsIGZpbGVfbG9jayk7CisJ
+CWVycm9yID0gcG9zaXhfbG9ja19maWxlKGlub2RlLCBmaWxlX2xvY2spOwogCQlpZiAoKGVycm9y
+ICE9IC1FQUdBSU4pIHx8IChjbWQgPT0gRl9TRVRMSykpCiAJCQlicmVhazsKIAkJZXJyb3IgPSB3
+YWl0X2V2ZW50X2ludGVycnVwdGlibGUoZmlsZV9sb2NrLT5mbF93YWl0LApAQCAtMTYwMCw3ICsx
+NjIzLDcgQEAKIAl9CiAKIAlmb3IgKDs7KSB7Ci0JCWVycm9yID0gcG9zaXhfbG9ja19maWxlKGZp
+bHAsIGZpbGVfbG9jayk7CisJCWVycm9yID0gcG9zaXhfbG9ja19maWxlKGlub2RlLCBmaWxlX2xv
+Y2spOwogCQlpZiAoKGVycm9yICE9IC1FQUdBSU4pIHx8IChjbWQgPT0gRl9TRVRMSzY0KSkKIAkJ
+CWJyZWFrOwogCQllcnJvciA9IHdhaXRfZXZlbnRfaW50ZXJydXB0aWJsZShmaWxlX2xvY2stPmZs
+X3dhaXQsCkBAIC0xNjUwLDcgKzE2NzMsNyBAQAogCQkvKiBJZ25vcmUgYW55IGVycm9yIC0tIHdl
+IG11c3QgcmVtb3ZlIHRoZSBsb2NrcyBhbnl3YXkgKi8KIAl9CiAKLQlwb3NpeF9sb2NrX2ZpbGUo
+ZmlscCwgJmxvY2spOworCXBvc2l4X2xvY2tfZmlsZShmaWxwLT5mX2RlbnRyeS0+ZF9pbm9kZSwg
+JmxvY2spOwogfQogCiAvKgpAQCAtMTcxNyw3ICsxNzQwLDcgQEAKIAl9IGVsc2UgewogCQl1bmxv
+Y2tfa2VybmVsKCk7CiAJCXdhaXRlci0+ZmxfdHlwZSA9IEZfVU5MQ0s7Ci0JCXBvc2l4X2xvY2tf
+ZmlsZShmaWxwLCB3YWl0ZXIpOworCQlwb3NpeF9sb2NrX2ZpbGUoZmlscC0+Zl9kZW50cnktPmRf
+aW5vZGUsIHdhaXRlcik7CiAJfQogfQogCi0tLSBsaW51eC0yLjUuNTktb3JpZy9pbmNsdWRlL2xp
+bnV4L2ZzLmgJVGh1IEphbiAxNiAyMDoyMTo0NyAyMDAzCisrKyBsaW51eC0yLjUuNTktbmV3L2lu
+Y2x1ZGUvbGludXgvZnMuaAlUaHUgSmFuIDIzIDE2OjMxOjU2IDIwMDMKQEAgLTU2OCw3ICs1Njgs
+NyBAQAogZXh0ZXJuIHZvaWQgbG9ja3NfcmVtb3ZlX3Bvc2l4KHN0cnVjdCBmaWxlICosIGZsX293
+bmVyX3QpOwogZXh0ZXJuIHZvaWQgbG9ja3NfcmVtb3ZlX2Zsb2NrKHN0cnVjdCBmaWxlICopOwog
+ZXh0ZXJuIHN0cnVjdCBmaWxlX2xvY2sgKnBvc2l4X3Rlc3RfbG9jayhzdHJ1Y3QgZmlsZSAqLCBz
+dHJ1Y3QgZmlsZV9sb2NrICopOwotZXh0ZXJuIGludCBwb3NpeF9sb2NrX2ZpbGUoc3RydWN0IGZp
+bGUgKiwgc3RydWN0IGZpbGVfbG9jayAqKTsKK2V4dGVybiBpbnQgcG9zaXhfbG9ja19maWxlKHN0
+cnVjdCBpbm9kZSAqLCBzdHJ1Y3QgZmlsZV9sb2NrICopOwogZXh0ZXJuIHZvaWQgcG9zaXhfYmxv
+Y2tfbG9jayhzdHJ1Y3QgZmlsZV9sb2NrICosIHN0cnVjdCBmaWxlX2xvY2sgKik7CiBleHRlcm4g
+dm9pZCBwb3NpeF91bmJsb2NrX2xvY2soc3RydWN0IGZpbGUgKiwgc3RydWN0IGZpbGVfbG9jayAq
+KTsKIGV4dGVybiBpbnQgcG9zaXhfbG9ja3NfZGVhZGxvY2soc3RydWN0IGZpbGVfbG9jayAqLCBz
+dHJ1Y3QgZmlsZV9sb2NrICopOwo=
+
+--0__=0ABBE624DFEB50208f9e8a93df938690918c0ABBE624DFEB5020--
+

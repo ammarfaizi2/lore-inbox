@@ -1,48 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263668AbTEJHRr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 03:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263669AbTEJHRr
+	id S263669AbTEJH0M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 03:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263671AbTEJH0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 03:17:47 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:18127 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263668AbTEJHRq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 03:17:46 -0400
-Date: Sat, 10 May 2003 09:30:24 +0200
-From: Jens Axboe <axboe@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
-Message-ID: <20030510073024.GH812@suse.de>
-References: <20030507215430.GA1109@hh.idb.hist.no> <20030508013854.GW8931@holomorphy.com> <20030508065440.GA1890@hh.idb.hist.no> <20030508080135.GK8978@holomorphy.com> <20030508100717.GN8978@holomorphy.com> <3EBA4529.7050507@aitel.hist.no> <20030508120450.GT823@suse.de> <20030508133908.GA824@hh.idb.hist.no> <20030508133744.GD823@suse.de> <20030510070324.GF8978@holomorphy.com>
+	Sat, 10 May 2003 03:26:12 -0400
+Received: from smtp.actcom.co.il ([192.114.47.13]:11168 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S263669AbTEJH0L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 03:26:11 -0400
+Date: Sat, 10 May 2003 10:38:42 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC]  new syscall to allow notification when arbitrary pids die
+Message-ID: <20030510073842.GA31003@actcom.co.il>
+References: <3EBC9C62.5010507@nortelnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
 Content-Disposition: inline
-In-Reply-To: <20030510070324.GF8978@holomorphy.com>
+In-Reply-To: <3EBC9C62.5010507@nortelnetworks.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 10 2003, William Lee Irwin III wrote:
-> On Thu, May 08 2003, Helge Hafting wrote:
-> >> Much fuzz and two rejects.  Seems there is ongoing netfilter
-> >> work in mm3.
-> 
-> On Thu, May 08, 2003 at 03:37:44PM +0200, Jens Axboe wrote:
-> > akpm applied the patch rusty sent, you'd surely want to back that out
-> > first.
-> > dunno what else is in -mm, the patch reversed without incident on 2.5-bk
-> > as of right now.
-> 
-> It looks like rusty's patch only caught one of two bugs of the same
-> flavor and davem cleaned up the second. It looks like we're in good
-> shape on both fronts from where I'm standing but we should probably
-> wait for all of the original bugreporters to get back to use to
-> declare success on all fronts.
 
-As I wrote yesterday, bk-current has the fix from Davem that works for
-me.
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jens Axboe
+On Sat, May 10, 2003 at 02:29:54AM -0400, Chris Friesen wrote:
 
+> I see two immediate uses for this.  One would be to enable a "watcher"=20
+> process which can do useful things on the death of processes which=20
+> registered with it (logging, respawning, notifying other processes,
+> etc). =20
+
+Do it from user space, kill(pid, 0), check for ESRCH. I might see the
+benefit of a new system call if it was synchronous (wait() semantics),
+but since signal delivery is asynch anyway....=20
+
+> The second would be to enable mutual=20
+> suicide pacts between processes. (I'm not sure when I would use this, but=
+=20
+> it sounds kind of fun.)
+
+Same thing, kill(pid, 0).
+
+> Anyone have any opinions on this? =20
+
+There's already a well established way to do what you want (get
+non-immediate notification of process death). What benefit would your
+approach give?=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
+
+
+--UlVJffcvxoiEqYs2
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+vKyCKRs727/VN8sRAoPYAKCF+9tHhx7cIPWjOdSBEF1H51dZZACeKZ4Z
+m2zkdpjkRK4QOg8BSJ7dc44=
+=3MNT
+-----END PGP SIGNATURE-----
+
+--UlVJffcvxoiEqYs2--

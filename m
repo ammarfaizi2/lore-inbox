@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263650AbTDDLfn (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 06:35:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbTDDLfk (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 06:35:40 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:35736 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S263650AbTDDLea (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 06:34:30 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: David Jander <david.jander@protonic.nl>
-Date: Fri, 4 Apr 2003 13:45:41 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] ncpfs, kernel 2.4.18
+	id S263685AbTDDLzM (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 06:55:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263686AbTDDLzM (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 06:55:12 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:48061 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S263685AbTDDLzD (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 06:55:03 -0500
+Date: Fri, 4 Apr 2003 13:06:09 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Samium Gromoff <deepfire@ibe.miee.ru>
 Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <64319A7E14@vcnet.vc.cvut.cz>
+Subject: Re: Eric Raymond`s CML2 configuration generator
+Message-ID: <20030404120452.GA12796@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Samium Gromoff <deepfire@ibe.miee.ru>, linux-kernel@vger.kernel.org
+References: <20030404140410.52717dad.deepfire@ibe.miee.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030404140410.52717dad.deepfire@ibe.miee.ru>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  4 Apr 03 at 13:24, David Jander wrote:
+On Fri, Apr 04, 2003 at 02:04:10PM +0400, Samium Gromoff wrote:
 
-> This fixes a bug with Novell Netware Servers (in my case 3.12) sending error 
-> messages (and annoying beeps) to the console each time a linux client 
-> accesses de root directory of a volume. Please comment !
-> Please send replies with CC to me, since I am not subscribed to lkml.
+ > 		The question is why the utterly beautiful generator was dropped?
 
-What they say? It is completely legal to use NULL path in ncp_obtain_info,
-and in reality ncp_obtain_mtime() in fs/ncpfs/dir.c uses NULL path 
-explicitly (and it also checks for 'ncp_is_server_root(inode)', at least
-in 2.5.66 and 2.4.19). See ncp_add_handle_path, it contains code which
-converts NULL path to no path at all.
+overengineering, and not listening to the requests of people
+that would spend the most time using it, instead pandoring to
+the needs of figments of Erics imagination. The day Eric stopped
+listening to kernel developers, kernel developers stopped listening
+to Eric.
 
-Do not you just have loaded some misguided antivirus software on your server? 
-ncpfs uses inode based addressing scheme, where files are accessed by their 
-numbers instead of name. Only thing which accesses files by name are 
-validating functions, for converting name to number, and unlink (because of 
-4.x servers crash when unlink by inode is invoked on NFS namespace).
-                                                        Petr Vandrovec
-                                                        
+ > 		One of the obvious problems is that it was python-based, and thus being slow and
+ > 		requiring python to be installed.
+ > 		So what if it was written in C?
 
+not an issue.
+
+ > 		Is it possible for it to get in before 2.6?
+
+no. we're well into freeze now, and ripping out something of
+that size would be a major step backwards.
+Besides, Roman Zippel's kconfig work got merged instead,
+which is a large improvement over what we had in 2.4
+
+		Dave

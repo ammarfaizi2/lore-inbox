@@ -1,124 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262725AbTJPFlT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 01:41:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbTJPFlT
+	id S262729AbTJPFvO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 01:51:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbTJPFvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 01:41:19 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:20681 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S262725AbTJPFlQ (ORCPT
+	Thu, 16 Oct 2003 01:51:14 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:42420 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262729AbTJPFvM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 01:41:16 -0400
-Message-ID: <3F8E2F68.7010007@colorfullife.com>
-Date: Thu, 16 Oct 2003 07:40:56 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: William Lee Irwin III <wli@holomorphy.com>, albertogli@telpin.com.ar,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test5/6 (and probably 7 too) size-4096 memory leak
-References: <20031016025554.GH4292@telpin.com.ar>	<20031015211918.1a70c4d2.akpm@osdl.org>	<20031016044334.GE4461@holomorphy.com> <20031015215824.165dc4c7.akpm@osdl.org>
-In-Reply-To: <20031015215824.165dc4c7.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------060109060908060804080900"
+	Thu, 16 Oct 2003 01:51:12 -0400
+Date: Wed, 15 Oct 2003 22:48:21 -0700
+From: "Kurtis D. Rader" <kdrader@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: pberger@brimson.com, borchers@steinerpoint.com, greg@kroah.com
+Subject: [PATCH][2.6.0-test7] digi_acceleport.c has bogus "address of" operator
+Message-ID: <20031016054821.GA22005@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060109060908060804080900
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+http://bugme.osdl.org/show_bug.cgi?id=1365
 
-Andrew Morton wrote:
+The digi_acceleport.c USB serial driver has a bogus "address of" operator
+that results in panics like this:
 
->I'm thinking we need to stuff builtin_return_address(0) into the object and
->write a dumper, but I haven't looked into that.  Maybe I can persuade
->Manfred to cook up a custom patch to do that?  Just for size-4096?  Something
->really crude will be fine.
->  
->
-I've attached something: with the patch applied, `echo "size-4096 0 0 0" 
- > /proc/slabinfo` dumps all caller addresses.
+kernel BUG at include/asm/spinlock.h:120!
+invalid operand: 0000 [#1]
+Call Trace:
+ [<f88e9000>] digi_wakeup_write_lock+0x0/0xaa [digi_acceleport]
+ [<c0236842>] console_callback+0xa0/0xc2
+ [<c0136ebc>] worker_thread+0x228/0x3ce
+ [<f88e9000>] digi_wakeup_write_lock+0x0/0xaa [digi_acceleport]
+ [<c011e8b6>] default_wake_function+0x0/0x2e
+ [<c010993e>] ret_from_fork+0x6/0x14
+ [<c011e8b6>] default_wake_function+0x0/0x2e
+ [<c0136c94>] worker_thread+0x0/0x3ce
+ [<c010740d>] kernel_thread_helper+0x5/0xc
 
-It works fine and dumps all 25 outstanding objects of my bochs setup - 
-you might have to limit the dumps if you have 100k objects.
+The problem is that digi_wakeup_write_lock() takes a pointer to a struct
+usb_serial_port. However, what gets passed is a pointer to a pointer to a
+struct usb_serial_port.
 
---
-    Manfred
-
---------------060109060908060804080900
-Content-Type: text/plain;
- name="patch-slab-extended-last-user"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-slab-extended-last-user"
-
---- 2.6/mm/slab.c	2003-10-09 21:23:19.000000000 +0200
-+++ build-2.6/mm/slab.c	2003-10-16 07:32:06.000000000 +0200
-@@ -1891,6 +1891,15 @@
- 		*dbg_redzone1(cachep, objp) = RED_ACTIVE;
- 		*dbg_redzone2(cachep, objp) = RED_ACTIVE;
- 	}
-+	{
-+		int objnr;
-+		struct slab *slabp;
-+
-+		slabp = GET_PAGE_SLAB(virt_to_page(objp));
-+
-+		objnr = (objp - slabp->s_mem) / cachep->objsize;
-+		slab_bufctl(slabp)[objnr] = (int)caller;
-+	}
- 	objp += obj_dbghead(cachep);
- 	if (cachep->ctor && cachep->flags & SLAB_POISON) {
- 		unsigned long	ctor_flags = SLAB_CTOR_CONSTRUCTOR;
-@@ -1952,12 +1961,14 @@
- 		objnr = (objp - slabp->s_mem) / cachep->objsize;
- 		check_slabp(cachep, slabp);
- #if DEBUG
-+#if 0
- 		if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
- 			printk(KERN_ERR "slab: double free detected in cache '%s', objp %p.\n",
- 						cachep->name, objp);
- 			BUG();
- 		}
- #endif
-+#endif
- 		slab_bufctl(slabp)[objnr] = slabp->free;
- 		slabp->free = objnr;
- 		STATS_DEC_ACTIVE(cachep);
-@@ -2694,6 +2705,22 @@
- 	.show	= s_show,
- };
+=== diff -rup drivers/usb/serial/digi_acceleport.c.orig drivers/usb/serial/digi_acceleport.c
+--- drivers/usb/serial/digi_acceleport.c.orig   2003-10-15 22:03:26.000000000 -0700
++++ drivers/usb/serial/digi_acceleport.c        2003-10-15 21:10:21.000000000 -0700
+@@ -1728,8 +1728,7 @@ dbg( "digi_startup: TOP" );
+                init_waitqueue_head( &priv->dp_flush_wait );
+                priv->dp_in_close = 0;
+                init_waitqueue_head( &priv->dp_close_wait );
+-               INIT_WORK(&priv->dp_wakeup_work, (void *)digi_wakeup_write_lock,
+-                               (void *)(&serial->port[i]));
++               INIT_WORK(&priv->dp_wakeup_work, digi_wakeup_write_lock, serial->port[i]);
  
-+static void do_dump_slabp(kmem_cache_t *cachep)
-+{
-+	struct list_head *q;
-+
-+	check_irq_on();
-+	spin_lock_irq(&cachep->spinlock);
-+	list_for_each(q,&cachep->lists.slabs_full) {
-+		struct slab *slabp;
-+		int i;
-+		slabp = list_entry(q, struct slab, list);
-+		for (i=0;i<cachep->num;i++)
-+			printk(KERN_DEBUG "obj %p/%d: %p\n", slabp, i, (void*)(slab_bufctl(slabp)[i]));
-+	}
-+	spin_unlock_irq(&cachep->spinlock);
-+}
-+
- #define MAX_SLABINFO_WRITE 128
- /**
-  * slabinfo_write - Tuning for the slab allocator
-@@ -2734,6 +2761,7 @@
- 			    batchcount < 1 ||
- 			    batchcount > limit ||
- 			    shared < 0) {
-+				do_dump_slabp(cachep);
- 				res = -EINVAL;
- 			} else {
- 				res = do_tune_cpucache(cachep, limit, batchcount, shared);
+                /* initialize write wait queue for this port */
+                init_waitqueue_head( &serial->port[i]->write_wait );
 
---------------060109060908060804080900--
-
+-- 
+Kurtis D. Rader, Systems Support Engineer    service: 800-IBM-SERV
+IBM Integrated Technology Services           email: kdrader@us.ibm.com
+15300 SW Koll Pkwy, MS RHE2-O2               DID: +1 503-578-3714
+Beaverton, OR 97006-6063                     http://www.ibm.com

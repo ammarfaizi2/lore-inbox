@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274496AbRITNxr>; Thu, 20 Sep 2001 09:53:47 -0400
+	id <S274498AbRITN41>; Thu, 20 Sep 2001 09:56:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274498AbRITNxh>; Thu, 20 Sep 2001 09:53:37 -0400
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:774 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S274496AbRITNxa>; Thu, 20 Sep 2001 09:53:30 -0400
-Subject: Re: Error compiling 2.4.9 as bzImage
-From: Richard Russon <ntfs@flatcap.org>
-To: android@abac.com
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <01092003271500.00371@cy60022-a>
-In-Reply-To: <01092003271500.00371@cy60022-a>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Evolution-Format: text/plain
-X-Mailer: Evolution/0.13.99+cvs.2001.09.19.21.54 (Preview Release)
-Date: 20 Sep 2001 14:52:28 +0100
-Message-Id: <1000993948.7541.38.camel@home.flatcap.org>
-Mime-Version: 1.0
+	id <S274499AbRITN4S>; Thu, 20 Sep 2001 09:56:18 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:14271 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S274498AbRITNz7>;
+	Thu, 20 Sep 2001 09:55:59 -0400
+Date: Thu, 20 Sep 2001 09:56:22 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+In-Reply-To: <20010920014017.E720@athlon.random>
+Message-ID: <Pine.GSO.4.21.0109200952350.3498-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Android,
-
-> The following errors occured while trying to compile kernel 2.4.9:
-> ...
-
-This is a known problem.  Simply add the following line to unistr.c
-
-  #include <linux/kernel.h>
-
-Cheers,
-    FlatCap (Rich).
-    ntfs@flatcap.org
 
 
+On Thu, 20 Sep 2001, Andrea Arcangeli wrote:
+
+> > Umm... Not doing unnecessary work?  Semantics of releasing a block device
+> > depends on the kind of use.  BTW, I'm less than sure that fsync_dev() is
+> > the right thing for file access now that you've got that in pagecache -
+> > __block_fsync() seems to be more correct thing to do.
+> 
+> Not really, blkdev isn't a filesystem. It will never have a superblock
+> and its own inodes and we also need to filemap_fdatasync/wait the
+> physical address space.
+
+Had you actually read the fsync_dev()?  Let me make it clear: you are
+flushing _buffer_ cache upon blkdev_put(bdev, BDEV_FILE).  It was
+the right thing when file access went through buffer cache.  It's
+blatantly wrong with page cache.
 

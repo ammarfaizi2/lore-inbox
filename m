@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263713AbUGBPjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUGBPvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263713AbUGBPjl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 11:39:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263826AbUGBPjl
+	id S264251AbUGBPvL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 11:51:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUGBPvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 11:39:41 -0400
-Received: from postman4.arcor-online.net ([151.189.20.158]:58078 "EHLO
-	postman.arcor.de") by vger.kernel.org with ESMTP id S263713AbUGBPjj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 11:39:39 -0400
-Message-ID: <40E581B5.1040200@flashmail.com>
-Date: Fri, 02 Jul 2004 17:39:33 +0200
-From: Frieder Buerzele <stamm@flashmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: de-de, de-at, de, en-us, en
+	Fri, 2 Jul 2004 11:51:11 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:34178 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S264251AbUGBPvJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 11:51:09 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Rajesh Shah <rajesh.shah@intel.com>
+Subject: Re: MSI to memory?
+Date: Fri, 2 Jul 2004 09:51:08 -0600
+User-Agent: KMail/1.6.2
+Cc: Tom L Nguyen <tom.l.nguyen@intel.com>, linux-kernel@vger.kernel.org
+References: <200407011215.59723.bjorn.helgaas@hp.com> <20040701115339.A4265@unix-os.sc.intel.com>
+In-Reply-To: <20040701115339.A4265@unix-os.sc.intel.com>
 MIME-Version: 1.0
-To: Stefano Rivoir <s.rivoir@gts.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.7-mm5] Network regression?
-References: <40E2E16D.9030301@gts.it>
-In-Reply-To: <40E2E16D.9030301@gts.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407020951.08038.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have exactly the same problems with 2.6.7mm5
-2.6.7-bk15 works fine
+On Thursday 01 July 2004 12:53 pm, Rajesh Shah wrote:
+> On Thu, Jul 01, 2004 at 12:15:59PM -0600, Bjorn Helgaas wrote:
+> > If so, is that a useful capability that should be exposed through
+> > the Linux MSI interface?
+> ...
+> What type of usage model did you have in mind to have the 
+> device write to memory instead of using MSI for interrupts?
 
-Stefano Rivoir wrote:
-
->
-> Hi all,
->
-> as probably discussed in another thread (or maybe related to it?), 
-> 2.6.7-mm4 shows here a massive drop in network performances, while 
-> vanilla 2.6.7 runs just fine.
->
-> I'm behind a ~150 KBytes/sec ADSL, and with 2.6.7 I can download at 
-> full speed, while with -mm4 I can't go over 18/19 Kb/sec.
-
+I'm not a driver writer.  I don't have any usage model in mind.  I'm
+merely asking whether this is interesting functionality, because I
+don't see any generic way to use it, given the current Linux MSI
+interfaces.  I guess the answer is "the time to figure out an interface
+is when somebody figures out an interesting way to use it."

@@ -1,49 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267576AbTGWKjO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 06:39:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267587AbTGWKjN
+	id S267542AbTGWKlE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 06:41:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267587AbTGWKj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 06:39:13 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:10129 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S267576AbTGWKiZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 06:38:25 -0400
-Date: Wed, 23 Jul 2003 03:50:22 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: a.marsman@aYniK.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre7: are security issues solved?
-Message-Id: <20030723035022.23a75bc5.davem@redhat.com>
-In-Reply-To: <20030723104753.GA2479@gondor.apana.org.au>
-References: <Pine.LNX.4.44.0307212234390.3580-100000@localhost.localdomain>
-	<E19fGMZ-0000Zm-00@gondolin.me.apana.org.au>
-	<20030723033505.145db6b8.davem@redhat.com>
-	<20030723104753.GA2479@gondor.apana.org.au>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 23 Jul 2003 06:39:28 -0400
+Received: from diomedes.noc.ntua.gr ([147.102.222.220]:22372 "EHLO
+	diomedes.noc.ntua.gr") by vger.kernel.org with ESMTP
+	id S267542AbTGWKiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 06:38:20 -0400
+Message-ID: <3F1E6A25.5030308@gmx.net>
+Date: Wed, 23 Jul 2003 13:57:41 +0300
+From: jimis@gmx.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Feature proposal (scheduling related)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jul 2003 20:47:53 +1000
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
+With the current scheduler we can prioritize the CPU usage for each process. 
+What I think would be extremely useful (as I have needed it many times) is the 
+scheduling of disk I/O and net I/O traffic. 2 examples showing the importance 
+(the numbers are estimations just to explain whati I mean):
 
-> On Wed, Jul 23, 2003 at 03:35:05AM -0700, David S. Miller wrote:
-> > If I know your password is 7 characters I have a smaller
-> > space of passwords to search to just brute-force it.
-> 
-> It's much smaller if you didn't know that it was at most 7 characters
-> long.  However, if you did know the upper bound, or you were just
-> brute forcing all passwords starting from 1 character, then the
-> difference is relatively minor.  This is because
-> 
-> n + n^2 + n^3 + n^4 + n^5 + n^6
-> 
-> is much smaller than n^7 where n is something like 62 for a reasonable
-> password.
+1)I 'm connected to the internet via dial-up, therefore I only have 40 kbits of 
+bandwidth available. What I want to do is listen to icecast radio via xmms (at 
+22 kbits), download the kernel sources with wget, and browse the web at the same 
+time. Currently I think that this is *impossible* (correct me if I'm wrong) as 
+the radio will be full of pauses and the browsing experience painfully slow. 
+What I would like to be able to do (let's suppose nice has the --net option to 
+set net I/O priority):
+$ nice --net -1 xmms
+$ nice --net 1 wget ftp://.../KernelSources.tar.bz2
+$ mozilla
+This way, xmms which has top priority whould always get the 22kbits it needs. 
+What remains should go to the browser when I ask for a web page, and when the 
+browser doesn't request anything (let's say I'm reading a big doc in tldp) what 
+remains should go to wget. Wget has lower priority and won't irritate the 
+browsing experience, though the file will be downloaded when there is free 
+bandwidth.
 
-"7" in my example is an arbitrary number, increase it to any larger
-number you like.
+2) Normally mozilla starts in 5 seconds after intense disk I/O to load all 
+needed libraries. If I run in the background a long disk intense process
+(like find / -name 'whatever' -xdev) loading mozilla could need 20 boring 
+seconds, or doing other simple tasks might be irritating slow. What I would like 
+to be able to do is (once again let's suppose nice has the --disk option to set 
+disk I/O priority):
+$ nice --disk 1 find / -name 'whatever' -xdev
+$ mozilla
+and load mozilla ,which has the default disk priority 0, fast. The scheduler 
+should give to mozilla most disk troughput when it needs it.
+
+Notes:
+1) PLEASE CC REPLIES BACK TO ME since I 'm not subscribed to the list (I can't 
+stand the traffic). However I 'll be checking periodically the list via NNTP.
+2) As I have no idea of kernel programming I hope what I propose is aplicable 
+and relevant to the kernel, as I believe. Sorry if not.
+3) I hope what I propose is implementable using the existing scheduler. It would 
+be nice to have one scheduler to handle them all.
+4) I believe that these features don't need a lot of CPU power because the disk 
+and net I/O troughput are relatively slow.
+5) If you think that UNIX tradition forbits what I propose I must say that these 
+features could be invisible to programs, setting the new  priorities to the 
+default 0 or maybe to the same number as CPU priority.
+
+Thank you very much for your time,
+Dimitris
+
+

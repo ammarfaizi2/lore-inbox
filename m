@@ -1,103 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbTKROL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 09:11:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263294AbTKROL5
+	id S263667AbTKROOa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 09:14:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263679AbTKROOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 09:11:57 -0500
-Received: from natsmtp01.rzone.de ([81.169.145.166]:34183 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S263062AbTKROLw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 09:11:52 -0500
-Message-ID: <3FBA289D.4090201@softhome.net>
-Date: Tue, 18 Nov 2003 15:11:41 +0100
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
+	Tue, 18 Nov 2003 09:14:30 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:32517 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S263667AbTKROO2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 09:14:28 -0500
+Date: Tue, 18 Nov 2003 15:14:01 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Pontus Fuchs <pof@users.sourceforge.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: ndiswrapper
+In-Reply-To: <3FBA25CD.5020708@pobox.com>
+Message-ID: <Pine.LNX.4.44.0311181510290.29639-100000@gaia.cela.pl>
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Q] jiffies overflow & timers.
-References: <3FB91527.50007@softhome.net> <Pine.LNX.4.53.0311171347540.24608@chaos> <3FB9373D.6010300@softhome.net> <Pine.LNX.4.53.0311171624100.27657@chaos> <3FB9EC19.80107@softhome.net> <Pine.LNX.4.53.0311180802090.30076@chaos>
-In-Reply-To: <Pine.LNX.4.53.0311180802090.30076@chaos>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-
-   [ Very good lection on 2-complement arithmetics snipped. This is I 
-beleive feature of C: (type) conversion say to compiler "forget about 
-original data type - use this one". So this was misunderstanding on my 
-side. And thanks for examples ;-) ]
-
->>
->>   It is state machine, it is event driven - there is nothing that can
->>yield CPU to someone else, because in first place it does not take CPU ;-)))
->>   Right now it is run from tasklet - so ksoftirqd context.
->>
+> Pontus Fuchs wrote:
+> > Please! I don't want to start a flamewar if this is a good thing to do.
+> > I'm just trying to scratch my own itch and I doubt that this project
+> > changes the way Broadcom treats Linux users.
 > 
 > 
-> If you are looping in a tasklet, waiting for something to happen, you
-> are "locked up" until the event which may never happen. If for some
-> "bad hardware that they won't fix" reason, you must loop, then you
-> need to create a kernel thread. If the hardware is good and you
-> decided to write a driver this way, then you need to re-think
-> what you are doing.
+> Then help us reverse engineer the driver :)
 > 
+> 	Jeff
 
-   As I said this is network layer.
-   My hardware is good - we miss nothing ;-) [ After all it is made in 
-room next to mine ;-))) ]
+In a way getting it to run under linux (in an pseudo-ndis-emu box) is part
+of getting it reverse engineered - then we set up io-trace and presto we
+know precisely what is going on ;)
 
-   I have situations when layer needs to know that given time had passed 
-- so if is there any other way to do it without timers - I will really 
-appreciate for any advice.
+Speaking of io-trace has anyone actually done this?  I'm working on a 
+strace patch for io-trace'ing of user processes and have come to the 
+conclusion that this should be at least partially done in kernel-space 
+(you can't attach/detach to a pid without kernel support, you can io-trace 
+a program from start to finish in pure userspace, but as soon as you want 
+to attach to a running Xserver you are basically screwed (although that 
+can be circumvened), however if you want to detach then you are screwed 
+totally (unless you like live auto-patching of the traced program)...
 
-   The same stuff as in TCP/IP - after some time we need to tell that 
-this connection timed-out. and TCP/IP uses timers for this: given 
-routine will be called at specified jiffies, so e.g. handshake can be 
-invalidated or data retransmission invoked.
+I'm thinking of rewriteing the patch into the kernel ptrace mechanism 
+(i.e. PTRACE_IO_SYSCALL - stop on IO operations or syscalls)
 
-   In my case layer service routines will generate specially formated 
-input for fsm - so fsm will know that given timer has expired and will 
-take actions accordingly. Quite flexible - I enqueueing can be put into 
-any context and just need to "tasklet_schedule( &layer_entry );" The 
-same way skbs are passed to fsm. Pretty standard telecoms layer.
-
-
-   So to draw conclusion: ./kernel/timer.c: 
-add_timer/del_timer/mod_timer are not protected against jiffies 
-overflow. internal_add_timer() implicitely schedules items with expires 
-< jiffies into the head, so they will be processed at next timer tick. 
-(check 2.4.22 & 2.6.0test7)
-
-   Actually I beleive that here the same trick as for Y2K problem can be 
-used:
-    if (expires < ULONG_MAX/2 && jiffies >= ULONG_MAX/2
-          && (jiffies - expires) > ULONG_MAX/2)
-        assume_expires_has_overflown();
-   In any way, as you say, if someone sets the timer for time longer 
-that ULONG_MAX/2 - this is most likely bug. So as for it makes sens to 
-put checks in this routines with given above kind of hack to handle 
-jiffies overflow. And add const for longest timer expires period - 
-((ULONG_MAX/2)-1)
-    For example I need timer at top for about 45 seconds. Not more.
-    TCP timers at most about 1.5/2 minutes long.
-
-    I have no clue what those stuff in internal_add_timer() does - so I 
-cannot produce any patch to try. I can only guess what there really 
-going on. But case of expires overflow is clearly stated there as case 
-when ((signed long) idx < 0) - timer "in the past" comment. But whole 
-ide of those queueing is pretty obscure. And no external reference for 
-algoritms/alike...
-
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---                                                           _ _ _
-  "... and for $64000 question, could you get yourself       |_|*|_|
-    vaguely familiar with the notion of on-topic posting?"   |_|_|*|
-                                 -- Al Viro @ LKML           |*|*|*|
+Cheers,
+MaZe.
 

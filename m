@@ -1,78 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263405AbSJGVWp>; Mon, 7 Oct 2002 17:22:45 -0400
+	id <S263412AbSJGVZi>; Mon, 7 Oct 2002 17:25:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263406AbSJGVWp>; Mon, 7 Oct 2002 17:22:45 -0400
-Received: from smtpout.mac.com ([204.179.120.85]:24017 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S263405AbSJGVWm>;
-	Mon, 7 Oct 2002 17:22:42 -0400
-Date: Mon, 7 Oct 2002 16:28:45 -0500
-Subject: Re: BK is *evil* corporate software
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v546)
-Cc: linux-kernel@vger.kernel.org
-To: Pavel Machek <pavel@suse.cz>
-From: tom_gall@mac.com
-In-Reply-To: <20021007204414.GD7428@atrey.karlin.mff.cuni.cz>
-Message-Id: <C28AC789-DA3B-11D6-990A-0003939E069A@mac.com>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.546)
+	id <S263414AbSJGVZh>; Mon, 7 Oct 2002 17:25:37 -0400
+Received: from [212.100.65.236] ([212.100.65.236]:260 "HELO 2mails1128.com")
+	by vger.kernel.org with SMTP id <S263412AbSJGVZU> convert rfc822-to-8bit;
+	Mon, 7 Oct 2002 17:25:20 -0400
+From: "Jonathan Khomo (Mr)" <towmshipproject@dr.com>
+Reply-To: jkhomo1@post.com
+To: linux-kernel@vger.kernel.org
+Date: Mon, 7 Oct 2002 21:35:50 +0100
+Subject: partnership
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20021007212530Z263412-8740+8941@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>From the Desk of: Mr Jonathan Khomo. B.Sc.(SAU) M.Sc.,MNIM 
+Member, SADMNR 
+_______________________________________________________ 
+DEPARTMENT OF MINERALS AND ENERGY, PRETORIA, SOUTH AFRICA. 
 
-On Monday, October 7, 2002, at 03:44 PM, Pavel Machek wrote:
+Attn.President/CEO. 
+Sir, 
+It is my great pleasure to write you this letter on behalf of my colleagues 
+.Your information was given to me by a member of the South African Export 
+Promotion Council (SAEPC)Who was with the Government delegation on a 
+trip to your country for a bilateral 
+conference talk to encourage foreign investors. 
 
-> Hi!
->
->> O Please!  As the person that started this thread this is way way way
->> way out there and quite frankly I find offensive.
->>
->> I do NOT honestly think that Larry made the change to the license that
->> he did for the express purpose of milking some set of companies out of
->> $$$$.  That's just dumb.
->
-> Maybe it is doing for purpose of slowing down subversion/CVS/arch
-> development. Thats about as bad.
+I have decided to seek a confidential co-operation with you in the execution 
+of the deal hereunder for the benefit of all parties and hope you willkeep 
+it confidential because of the nature of this business. 
 
-Bah!
+Within the Department of Minerals & Energy where I work as a Director 
+of Audit and Project Implementation and with the co-operation of two 
+other top officials, we have in our possession an overdue payment in 
+US funds. 
 
->> Granted it's a different kind of license, (IE Microsoft doesn't have a
->> clause in IE that says Netscape developers can't use IE) but hey, it's
->> Larry's company and he's perfectly in his rights to do so.  It is
->> truely a good thing that Larry is allowing some set of us in the open
->> source community to use his product without costs.
->
-> Good thing for who?
+The said funds represent certain percentage of the total contract value 
+executed on behalf of my department by a foreign contracting firm which 
+we the officials over-invoiced to the amount of US$14.500,000.00(Fourteen 
+Million Five Hundred Thousand US Dollars). 
 
-Those developers who can use BitKeeper in their work, regardless if 
-they paid for it or not.
+Though the actual contract cost has been paid to the original contractor,leaving 
+the excess balance unclaimed.Since the present elected Government 
+is determined to pay foreign contractors all debts owed,so as to maintain 
+good relationship with foreign governments and non-government agencies,we 
+included our bills for approvals with the Department of Finance and the 
+Reserve Bank of South Africa (RBSA). 
 
-> Good thing for Larry? I don't know.
+We are seeking your assistance to front as beneficiary of the unclaimed 
+funds, since we are not allowed to operate foreign accounts.Details and 
+change of beneficiary information upon application for claim 
+to reflect payment and approvals will be secured on behalf of you/your 
+company. 
 
-Well that's for Larry to decide. I would hope that the benefits would 
-be there for him.
+I have the authority of my partners involved to propose that should you 
+be willing to assist us in this transaction your share as compensation 
+will be US$3.625m (25%), while my colleagues and I receive US$9.425m(65%)and 
+the balance of US$1.450m (10%)for taxation and miscellaneous expenses 
+incurred. 
 
-> Good thing for us? I don't think so.
+The business is completely safe and secure, provided you treat it with 
+utmost confidentiality.It does not matter whether you/your company does 
+contract projects as a transfer of powers will be secured in favour of 
+you/your company. Also, your area of specialization is not a hindrance 
+to the successful execution of this transaction. 
 
-Don't look a productivity gain in the mouth.
+I have reposed my confidence in you and hope that you will not disappoint 
+us. 
 
-> Good thing for subversion developers? Definitely not.
+Kindly notify me by email at (jkhomo1@post.com </cgi-bin/compose?curmbox=F000000001&a=ee22b4be97580fd052652a1c093198f6&mailto=1&to=jkhomo1@post.com&msg=MSG1033934613.56&start=43526&len=3229&src=&type=x>) including 
+your 
+current telephone and fax numbers for further details upon your acceptance 
+of this proposal. 
 
-In this case yes are you correct.  It's not good for them or for 
-related technologies.  OTOH, you'll get no break from companies such as 
-Microsoft. Wanna clone MS Word, well you're buying it to do that.  
-Course generally there's the reverse engineering clause.
+Thanks for your Anticipated co-operation. 
 
-I do not understand in any way shape or form why you THINK it's 
-reasonable for a company to give a competitor a leg up on putting them 
-out of business. It's not.  While it is normal for open source projects 
-to cross pollinate, this is not the case here.
+Sincerely yours, 
 
-BitKeeper is not open source software so you can't subject it to the 
-same standards that you apply to Open source works.
+Mr. Jonathan Khomo. 
 
-Regards,
 
-Tom
+
+
+
+
+
 

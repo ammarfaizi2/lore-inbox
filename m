@@ -1,63 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264574AbSIQWNl>; Tue, 17 Sep 2002 18:13:41 -0400
+	id <S264605AbSIQWQh>; Tue, 17 Sep 2002 18:16:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264605AbSIQWNl>; Tue, 17 Sep 2002 18:13:41 -0400
-Received: from ns1.cypress.com ([157.95.67.4]:17840 "EHLO ns1.cypress.com")
-	by vger.kernel.org with ESMTP id <S264574AbSIQWNk>;
-	Tue, 17 Sep 2002 18:13:40 -0400
-Message-ID: <3D87AA0D.6040600@cypress.com>
-Date: Tue, 17 Sep 2002 17:17:49 -0500
-From: Thomas Dodd <ted@cypress.com>
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Rogier Wolff <R.E.Wolff@bitwizard.nl>, gen-lists@blueyonder.co.uk,
+	id <S264621AbSIQWQh>; Tue, 17 Sep 2002 18:16:37 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:28806 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264605AbSIQWQg>;
+	Tue, 17 Sep 2002 18:16:36 -0400
+Date: Tue, 17 Sep 2002 15:21:02 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Thomas Dodd <ted@cypress.com>
+Cc: Rogier Wolff <R.E.Wolff@bitwizard.nl>, linux-kernel@vger.kernel.org,
        linux-usb-users@lists.sourceforge.net
-Subject: Re: [Linux-usb-users] Re: Problems accessing USB Mass Storage
-References: <Pine.LNX.4.33L2.0209171119430.14033-100000@dragon.pdx.osdl.net> <3D878788.2030603@cypress.com> <20020917125817.B11583@one-eyed-alien.net> <3D878CF7.3040304@cypress.com> <1032297193.1276.23.camel@stimpy.angelnet.internal> <20020917235822.C26741@bitwizard.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
+Subject: Re: Problems accessing USB Mass Storage
+Message-ID: <20020917152102.A17561@eng2.beaverton.ibm.com>
+References: <1032261937.1170.13.camel@stimpy.angelnet.internal> <20020917151816.GB2144@kroah.com> <3D876861.9000601@cypress.com> <20020917174631.GD2569@kroah.com> <20020917234302.A26741@bitwizard.nl> <3D87A6E3.5090407@cypress.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3D87A6E3.5090407@cypress.com>; from ted@cypress.com on Tue, Sep 17, 2002 at 05:04:19PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Rogier Wolff wrote:
-> On Tue, Sep 17, 2002 at 10:13:13PM +0100, Mark C wrote:
-
-> When dd is told to skip a certain number of input blocks it doesn't
-> seek past them, but reads them and then discards them. Thus if you're
-> not supposed to read sectors 1-100 then this will not work. 
-
-Fair enough. I, and the others though it did a seek.
-
-
-> Try the following program: 
-<snip>
-> with the command: 
+On Tue, Sep 17, 2002 at 05:04:19PM -0500, Thomas Dodd wrote:
 > 
-> 	dd if=/dev/sda of=firstpart 
 > 
-> (Get the partition table)
+> Rogier Wolff wrote:
+> > On Tue, Sep 17, 2002 at 10:46:31AM -0700, Greg KH wrote:
+> > 
+> >>On Tue, Sep 17, 2002 at 12:37:37PM -0500, Thomas Dodd wrote:
+> >>
+> >>>I get the feeling it's not a true mass storage device.
+> >>
+> >>Sounds like it.
+> > 
+> > 
+> > Nope. Sure does sound like it's a mass storage device. And it works
+> > too. 
+> > 
+> > The kernel managed to read the partition table off it, and got
+> > one valid partition: sda1. 
 > 
-> 	(seek 0x100000;dd of=secondpart) < /dev/sda 
+> Accept that you cannot read data from the device. At all.
+> Even dd fails. And the windows drivers work (using XP
+> in vmware it think it was) correctly on this same device.
 > 
-> Get everything beyond 1Mb. If this works, then we have to figure out
-> how low we can make the "0x100000" number to get all of the data.
-> 
-> Hypothesis: The partition table specifies that the data starts
-> on sector 200, and they didn't implement sectors 1-199.....
+> 	-Thomas
 
-Where did the sector 200 come from?
-Something in the dmesg output from before?
-(I don't really grok SCSI or USB at that level :( )
+But it did read the first 8 blocks off the devices when it
+read the partition, the usb debug showed:
 
-> Cheap basterds. 
+usb-storage: Command READ_10 (10 bytes)
+usb-storage: 28 00 00 00 00 00 00 00 08 00 30 da
 
-Agree:)
+With offsets starting at 0 -
 
-	-Thomas
+Bytes 2 - 5 are the logical block address, all 0.
+Bytes 7 - 8 are the transfer length  - 8 blocks.
 
+The last two bytes are junk.
+
+You should be able to run the equivalent:
+
+	dd if=/dev/sda of=/dev/zero bs=512 count=8
+
+And, look in dmesg for the failure message of the first read that fails, it
+could have set the device offline.
+
+-- Patrick Mansfield

@@ -1,56 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261556AbSJQRVi>; Thu, 17 Oct 2002 13:21:38 -0400
+	id <S261763AbSJQRMb>; Thu, 17 Oct 2002 13:12:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261588AbSJQRVi>; Thu, 17 Oct 2002 13:21:38 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55056 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261556AbSJQRRH>; Thu, 17 Oct 2002 13:17:07 -0400
-Date: Thu, 17 Oct 2002 10:25:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S261766AbSJQRMb>; Thu, 17 Oct 2002 13:12:31 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:17281 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261763AbSJQRM1>; Thu, 17 Oct 2002 13:12:27 -0400
+Date: Thu, 17 Oct 2002 13:20:23 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
 To: Christoph Hellwig <hch@infradead.org>
 cc: Crispin Cowan <crispin@wirex.com>, Greg KH <greg@kroah.com>,
-       <linux-kernel@vger.kernel.org>
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] make LSM register functions GPLonly exports
-In-Reply-To: <Pine.LNX.4.44.0210170958340.6739-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0210171015440.7066-100000@home.transmeta.com>
+In-Reply-To: <20021017175403.A32516@infradead.org>
+Message-ID: <Pine.LNX.3.95.1021017130633.6772A-200000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="1678434306-666635103-1034875223=:6772"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-On Thu, 17 Oct 2002, Linus Torvalds wrote:
+--1678434306-666635103-1034875223=:6772
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+On Thu, 17 Oct 2002, Christoph Hellwig wrote:
+
+> On Thu, Oct 17, 2002 at 09:51:06AM -0700, Crispin Cowan wrote:
+> > My argument against the intent of this change is that no, I do not think 
+> > we should restrict LSM modules to be GPL-only. LSM is an API for loading 
+> > externally developed packages of software, similar to syscalls. There is 
+> > benefit in permitting proprietary modules (you get additional modules 
+> > that you would not get otherwise) just as there is benefit in permitting 
+> > proprietary applications (you get Oracle, DB2, and WordPerfect).
 > 
-> If people think they can avoid the GPL by using function pointers, they 
-> are WRONG. And they have always been wrong.
+> My arguement is that I want this flag as a hint for authors of
+> propritary security modules that I'm going to sue them if they
+> use hook called from code I have copyright on.  This includes such
+> central parts as vfs_read/vfs_write.
 
-Side note: it should be noted that legally the GPLONLY note is nothing but 
-a strong hint and has nothing to do with the license (and only matters 
-for the _enforcement_ of said license). The fact is:
+There is no way of preventing authors from using "your" code once
+you publish it. They just can't claim that they wrote it without
+violating copyright law. Copyrights and Licensing are two different
+independent things. See a Lawyer.
 
- - the kernel copyright requires the GPL for derived works anyway.
+The attached 'C' program, when linked with any proprietary module,
+will bypass all the  "EXPORT_GPL_ONLY" and similar "SCREW_YOU" macros.
+To prevent using this or other similar work-arounds to road-blocks
+thrown in the way of users, you would have to get GNU 'ld' to prevent
+partial linking and make sure that all old copies have been destroyed.
 
- - if a company feels confident that they can prove in court that their
-   module is not a derived work, the GPL doesn't matter _anyway_, 
-   since a copyright license at that point is meaningless and wouldn't
-   cover the work regardless of whether we say it is GPLONLY or not.
+This, by example, shows that "GPL Only" is unenforceable.  I suggest
+that all the "GPL only" zealots try something new (like more good code),
+rather than attempting to prevent honest workers from using code
+they helped develop.
 
-   (In other words: for provably non-derived works, whatever kernel 
-   license we choose is totally irrelevant)
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 
-So the GPLONLY is really a big red warning flag: "Danger, Will Robinson". 
+--1678434306-666635103-1034875223=:6772
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="license.c"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.3.95.1021017132023.6772B@chaos.analogic.com>
+Content-Description: 
 
-It doesn't have any real legal effect on th emeaning of the license
-itself, except in the sense that it's another way to inform users about
-the copyright license (think of it as a "click through" issue - GPLONLY
-forces you to "click through" the fact that the kernel is under the GPL
-and thus derived works have to be too).
-
-Clearly "click through" _has_ been considered a legally meaningful thing,
-in that it voids the argument that somebody wasn't aware of the license.
-It doesn't change what you can or cannot do, but it has some meaning for
-whether it could be wilful infringement or just honest mistake.
-
-		Linus
-
+LyoNCiAqICAgU2luY2Ugc29tZSBpbiB0aGUgTGludXgta2VybmVsIGRldmVs
+b3BtZW50IGdyb3VwIHdhbnQgdG8gcGxheQ0KICogICBsYXd5ZXIsIGFuZCBy
+ZXF1aXJlIHRoYXQgYSBHUEwgTGljZW5zZSBleGlzdCBmb3IgZXZlcnkga2Vy
+bmVsDQogKiAgIG1vZHVsZSwgIHdlIHByb3ZpZGUgdGhlIGZvbGxvd2luZzoN
+CiAqDQogKiAgIEV2ZXJ5dGhpbmcgaW4gdGhpcyBmaWxlIChvbmx5KSBpcyBy
+ZWxlYXNlZCB1bmRlciB0aGUgc28tY2FsbGVkDQogKiAgIEdOVSBQdWJsaWMg
+TGljZW5zZSwgaW5jb3Jwb3JhdGVkIGhlcmVpbiBieSByZWZlcmVuY2UuDQog
+Kg0KICogICBOb3csIHdlIGp1c3QgbGluayB0aGlzIHdpdGggYW55IHByb3By
+aWV0YXJ5IGNvZGUgYW5kIGV2ZXJ5Ym9keQ0KICogICBidXQgdGhlIGxhd3ll
+cnMgYXJlIGhhcHB5Lg0KICovDQojaWZuZGVmIF9fS0VSTkVMX18NCiNkZWZp
+bmUgX19LRVJORUxfXw0KI2VuZGlmDQojaWZuZGVmIE1PRFVMRQ0KI2RlZmlu
+ZSBNT0RVTEUNCiNlbmRpZg0KI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPg0K
+I2lmIGRlZmluZWQoTU9EVUxFX0xJQ0VOU0UpDQpNT0RVTEVfTElDRU5TRSgi
+R1BMIik7DQojZW5kaWYNCg==
+--1678434306-666635103-1034875223=:6772--

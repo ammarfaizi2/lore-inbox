@@ -1,112 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318025AbSHHWHN>; Thu, 8 Aug 2002 18:07:13 -0400
+	id <S318027AbSHHWHz>; Thu, 8 Aug 2002 18:07:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318026AbSHHWHN>; Thu, 8 Aug 2002 18:07:13 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:8166 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318025AbSHHWHL>;
-	Thu, 8 Aug 2002 18:07:11 -0400
-Message-ID: <3D52EBB2.1070202@us.ibm.com>
-Date: Thu, 08 Aug 2002 15:07:46 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-CC: Martin Bligh <mjbligh@us.ibm.com>, Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: [patch] PCI configuration fix for NUMA-Q
-Content-Type: multipart/mixed;
- boundary="------------040503020604060304030101"
+	id <S318028AbSHHWHy>; Thu, 8 Aug 2002 18:07:54 -0400
+Received: from ppp-217-133-219-100.dialup.tiscali.it ([217.133.219.100]:28069
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S318027AbSHHWHx>; Thu, 8 Aug 2002 18:07:53 -0400
+Subject: Re: [PATCH] [2.5] asm-generic/atomic.h and changes to arm, parisc,
+	mips, m68k, sh, cris to use it
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0208082357170.8911-100000@serv>
+References: <Pine.LNX.4.44.0208082357170.8911-100000@serv>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-K6l+RS9sDatQluOl+1sb"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 09 Aug 2002 00:11:21 +0200
+Message-Id: <1028844681.1669.80.camel@ldb>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040503020604060304030101
-Content-Type: text/plain; charset=us-ascii; format=flowed
+
+--=-K6l+RS9sDatQluOl+1sb
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-Linus,
-	The PCI code for NUMA-Q machines has been broken for a while...  The kernel 
-currently can't find PCI busses on quad's other than the first.  This patch 
-fixes that problem.  Please apply.
+> Why did you change m68k? It was fine before.
 
-Cheers!
+- Didn't implement atomic_{add,sub,inc,dec}_return. This is currently
+not used in the generic kernel but it can be useful.
+- Had inline assembly for things the compiler should be able to generate
+on its own
+- Didn't work on SMP (irrelevant in practice, but we already need that
+in asm-generic/atomic.h for parisc so m68k gets it for free)
 
--Matt
+The actual assembly generated should be the same and the header is
+shorter.
 
---------------040503020604060304030101
-Content-Type: text/plain;
- name="numaq_pci_fix-2530.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="numaq_pci_fix-2530.patch"
+The only problem is that it may introduce bugs. Does it work on m68k?
 
-diff -Nur linux-2.5.15-vanilla/arch/i386/pci/direct.c linux-2.5.15-patched/arch/i386/pci/direct.c
---- linux-2.5.15-vanilla/arch/i386/pci/direct.c	Thu May  9 15:22:49 2002
-+++ linux-2.5.15-patched/arch/i386/pci/direct.c	Thu Aug  8 10:27:11 2002
-@@ -6,6 +6,10 @@
- #include <linux/init.h>
- #include "pci.h"
- 
-+/* Ensure the correct pci_conf1_{read|write} functions are compiled in */
-+#ifndef CONFIG_MULTIQUAD
-+
-+
- /*
-  * Functions for accessing PCI configuration space with type 1 accesses
-  */
-@@ -72,6 +76,11 @@
- 
- #undef PCI_CONF1_ADDRESS
- 
-+#else /* CONFIG_MULTIQUAD */
-+extern int pci_conf1_read (int seg, int bus, int dev, int fn, int reg, int len, u32 *value);
-+extern int pci_conf1_write (int seg, int bus, int dev, int fn, int reg, int len, u32 value);
-+#endif /* !CONFIG_MULTIQUAD */
-+
- static int pci_conf1_read_config_byte(struct pci_dev *dev, int where, u8 *value)
- {
- 	int result; 
-diff -Nur linux-2.5.15-vanilla/arch/i386/pci/numa.c linux-2.5.15-patched/arch/i386/pci/numa.c
---- linux-2.5.15-vanilla/arch/i386/pci/numa.c	Thu May  9 15:22:46 2002
-+++ linux-2.5.15-patched/arch/i386/pci/numa.c	Thu Aug  8 10:52:24 2002
-@@ -1,19 +1,23 @@
- /*
-  * numa.c - Low-level PCI access for NUMA-Q machines
-  */
-+
- #include <linux/pci.h>
- #include <linux/init.h>
--
- #include "pci.h"
- 
- #define BUS2QUAD(global) (mp_bus_id_to_node[global])
- #define BUS2LOCAL(global) (mp_bus_id_to_local[global])
- #define QUADLOCAL2BUS(quad,local) (quad_local_to_mp_bus_id[quad][local])
- 
-+/*
-+ * Functions for accessing PCI configuration space with type 1 accesses on NUMA-Q
-+ */
-+
- #define PCI_CONF1_ADDRESS(bus, dev, fn, reg) \
- 	(0x80000000 | (BUS2LOCAL(bus) << 16) | (dev << 11) | (fn << 8) | (reg & ~3))
- 
--static int pci_conf1_read (int seg, int bus, int dev, int fn, int reg, int len, u32 *value)
-+int pci_conf1_read (int seg, int bus, int dev, int fn, int reg, int len, u32 *value)
- {
- 	unsigned long flags;
- 
-@@ -41,7 +45,7 @@
- 	return 0;
- }
- 
--static int pci_conf1_write (int seg, int bus, int dev, int fn, int reg, int len, u32 value)
-+int pci_conf1_write (int seg, int bus, int dev, int fn, int reg, int len, u32 value)
- {
- 	unsigned long flags;
- 
 
---------------040503020604060304030101--
+--=-K6l+RS9sDatQluOl+1sb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9UuyJdjkty3ft5+cRAo40AJ4sgAJVFr2yzNSfCFeyB8USvjq8XgCbBohB
+/HD18mau4j/0baybE2bOd+c=
+=I+4X
+-----END PGP SIGNATURE-----
+
+--=-K6l+RS9sDatQluOl+1sb--

@@ -1,40 +1,138 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283734AbRK3RwV>; Fri, 30 Nov 2001 12:52:21 -0500
+	id <S283727AbRK3RuV>; Fri, 30 Nov 2001 12:50:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283735AbRK3RwM>; Fri, 30 Nov 2001 12:52:12 -0500
-Received: from [212.18.232.186] ([212.18.232.186]:23045 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S283734AbRK3Rv5>; Fri, 30 Nov 2001 12:51:57 -0500
-Date: Fri, 30 Nov 2001 17:50:58 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: dalecki@evision.ag
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Henning Schmiedehausen <hps@intermeta.de>,
-        Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: Coding style - a non-issue
-Message-ID: <20011130175058.B19193@flint.arm.linux.org.uk>
-In-Reply-To: <OF8451D8AC.A8591425-ON4A256B12.00806245@au.ibm.com> <Pine.GSO.4.21.0111281901110.8609-100000@weyl.math.psu.edu> <20011128162317.B23210@work.bitmover.com> <9u7lb0$8t9$1@forge.intermeta.de> <20011130072634.E14710@work.bitmover.com> <1007138360.6656.27.camel@forge> <3C07B820.4108246F@mandrakesoft.com> <3C07BFE8.5B32C49C@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C07BFE8.5B32C49C@evision-ventures.com>; from dalecki@evision-ventures.com on Fri, Nov 30, 2001 at 06:20:40PM +0100
+	id <S283728AbRK3RuC>; Fri, 30 Nov 2001 12:50:02 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:12967 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S283727AbRK3Rts>;
+	Fri, 30 Nov 2001 12:49:48 -0500
+Date: Fri, 30 Nov 2001 09:46:31 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: [PATCH] New fbdev api patch
+Message-ID: <Pine.LNX.4.10.10111300944370.26676-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 30, 2001 at 06:20:40PM +0100, Martin Dalecki wrote:
-> serial.c is another one for the whole multiport support which
-> may be used by maybe 0.1% of the Linux users thrown on them all
-> and some "magic" number silliness as well...
 
-Magic number silliness is something that's gone with my replacement
-serial drivers.  If multiport is such a problem, it can easily be
-cleaned up.  I'll add that to my to do list for serial stuff.
+Here is a patch that had Geert's blessing. This patch is to introduce a
+new api for the frmaebuffer layer that will massively cleanup this
+subsystem. Please apply. Thank you.
 
-Thanks.
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+--- linux-2.5.0/include/linux/fb.h	Wed Nov 28 16:43:10 2001
++++ linux/include/linux/fb.h	Thu Nov 29 11:02:26 2001
+@@ -241,6 +241,39 @@
+ 	__u32 reserved[4];		/* reserved for future compatibility */
+ };
+ 
++/* Internal HW accel */
++#define ROP_COPY 0
++#define ROP_XOR  1
++
++struct fb_copyarea {
++	__u32 sx;	/* screen-relative */
++	__u32 sy;
++	__u32 width;
++	__u32 height;
++	__u32 dx;
++	__u32 dy;
++};
++
++struct fb_fillrect {
++	__u32 dx;	/* screen-relative */
++	__u32 dy;
++	__u32 width;
++	__u32 height;
++	__u32 color;
++	__u32 rop;
++};
++
++struct fb_image {
++	__u32 width;	/* Size of image */
++	__u32 height;
++	__u16 dx;	/* Where to place image */
++	__u16 dy;
++	__u32 fg_color;	/* Only used when a mono bitmap */
++	__u32 bg_color;
++	__u8  depth;	/* Dpeth of the image */
++	char  *data;	/* Pointer to image data */
++};
++
+ #ifdef __KERNEL__
+ 
+ #if 1 /* to go away in 2.5.0 */
+@@ -250,10 +283,10 @@
+ #endif
+ 
+ #include <linux/fs.h>
++#include <linux/poll.h>
+ #include <linux/init.h>
+ #include <linux/devfs_fs_kernel.h>
+ 
+-
+ struct fb_info;
+ struct fb_info_gen;
+ struct vm_area_struct;
+@@ -283,9 +316,25 @@
+     /* set colormap */
+     int (*fb_set_cmap)(struct fb_cmap *cmap, int kspc, int con,
+ 		       struct fb_info *info);
+-    /* pan display (optional) */
+-    int (*fb_pan_display)(struct fb_var_screeninfo *var, int con,
+-			  struct fb_info *info);
++    /* checks var and creates a par based on it */
++    int (*fb_check_var)(struct fb_var_screeninfo *var, struct fb_info *info);
++    /* set the video mode according to par */
++    int (*fb_set_par)(struct fb_info *info);
++    /* set color register */
++    int (*fb_setcolreg)(unsigned regno, unsigned red, unsigned green,
++                        unsigned blue, unsigned transp, struct fb_info *info);
++    /* blank display */
++    int (*fb_blank)(int blank, struct fb_info *info);
++    /* pan display */
++    int (*fb_pan_display)(struct fb_var_screeninfo *var, int con, struct fb_info *info);
++    /* draws a rectangle */
++    void (*fb_fillrect)(struct fb_info *p, struct fb_fillrect *rect); 
++    /* Copy data from area to another */
++    void (*fb_copyarea)(struct fb_info *p, struct fb_copyarea *region); 
++    /* Draws a image to the display */
++    void (*fb_imageblit)(struct fb_info *p, struct fb_image *image);
++    /* perform polling on fb device */
++    int (*fb_poll)(struct fb_info *info, poll_table *wait);
+     /* perform fb specific ioctl (optional) */
+     int (*fb_ioctl)(struct inode *inode, struct file *file, unsigned int cmd,
+ 		    unsigned long arg, int con, struct fb_info *info);
+@@ -309,6 +358,7 @@
+    char *screen_base;                   /* Virtual address */
+    struct display *disp;		/* initial display variable */
+    struct vc_data *display_fg;		/* Console visible on this display */
++   int currcon;				/* Current VC. */	
+    char fontname[40];			/* default font name */
+    devfs_handle_t devfs_handle;         /* Devfs handle for new name         */
+    devfs_handle_t devfs_lhandle;        /* Devfs handle for compat. symlink  */
+@@ -387,6 +437,9 @@
+ 			  struct fb_info *info);
+ extern int fbgen_pan_display(struct fb_var_screeninfo *var, int con,
+ 			     struct fb_info *info);
++extern void cfb_fillrect(struct fb_info *p, struct fb_fillrect *rect); 
++extern void cfb_copyarea(struct fb_info *p, struct fb_copyarea *region); 
++extern void cfb_imageblit(struct fb_info *p, struct fb_image *image);
+ 
+     /*
+      *  Helper functions
+@@ -400,6 +453,7 @@
+ extern int fbgen_switch(int con, struct fb_info *info);
+ extern void fbgen_blank(int blank, struct fb_info *info);
+ 
++extern void fbgen2_set_disp(int con, struct fb_info *info);
+ 
+ /* drivers/video/fbmem.c */
+ extern int register_framebuffer(struct fb_info *fb_info);
 

@@ -1,66 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVAGU44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVAGU7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbVAGU44 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 15:56:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbVAGU4K
+	id S261607AbVAGU7R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 15:59:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVAGU50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 15:56:10 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:8090 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261600AbVAGUzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 15:55:37 -0500
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: "Jack O'Quin" <joq@io.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andreas Steinmetz <ast@domdv.de>, Chris Wright <chrisw@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       LAD mailing list <linux-audio-dev@music.columbia.edu>
-In-Reply-To: <20050107204650.GY2940@waste.org>
-References: <20050103140359.GA19976@infradead.org>
-	 <1104862614.8255.1.camel@krustophenia.net>
-	 <20050104182010.GA15254@infradead.org>
-	 <1104865034.8346.4.camel@krustophenia.net> <41DB4476.8080400@domdv.de>
-	 <1104898693.24187.162.camel@localhost.localdomain>
-	 <20050107011820.GC2995@waste.org> <87brc17pj6.fsf@sulphur.joq.us>
-	 <20050107200245.GW2940@waste.org> <87mzvl56j5.fsf@sulphur.joq.us>
-	 <20050107204650.GY2940@waste.org>
-Content-Type: text/plain
-Date: Fri, 07 Jan 2005 15:55:12 -0500
-Message-Id: <1105131313.20278.81.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jan 2005 15:57:26 -0500
+Received: from [213.85.13.118] ([213.85.13.118]:2434 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S261601AbVAGUzy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 15:55:54 -0500
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC] per thread page reservation patch
+References: <20050103011113.6f6c8f44.akpm@osdl.org>
+	<20050103114854.GA18408@infradead.org> <41DC2386.9010701@namesys.com>
+	<1105019521.7074.79.camel@tribesman.namesys.com>
+	<20050107144644.GA9606@infradead.org>
+	<1105118217.3616.171.camel@tribesman.namesys.com>
+	<41DEDF87.8080809@grupopie.com>
+From: Nikita Danilov <nikita@clusterfs.com>
+Date: Fri, 07 Jan 2005 23:55:39 +0300
+In-Reply-To: <41DEDF87.8080809@grupopie.com> (Paulo Marques's message of
+ "Fri, 07 Jan 2005 19:14:15 +0000")
+Message-ID: <m1llb5q7qs.fsf@clusterfs.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.5 (chayote, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-07 at 12:46 -0800, Matt Mackall wrote:
-> You just map your RT-dependent routine (PIC, of course) into the
-> segment and move your stack pointer into a second segment. I didn't
-> say it was easy, but it's all just bits. There's also the rlimit
-> issue.
-> 
-> Or, going the other way, the client app can pass map handles to the
-> server to bless. Some juggling might be involved but it's obviously
-> doable.
-> 
+Paulo Marques <pmarques@grupopie.com> writes:
 
-Christ, what a nightmare!  Since when does "obviously doable" mean it's
-a good idea?  Please, reread your above statements, then go back and
-look at the realtime LSM patch (it's less than 200 lines), and tell me
-again that your way is more secure.
+[...]
 
-Please keep in mind that there are already 1000s of users using the
-realtime LSM to do audio work.  Sorry, but I will take a known good,
-well understood, PROVEN solution over "it's obviously doable, it's all
-bits anyway".  Get back to me when you have some code, or at least some
-reasonable suggestions as Alan, Christoph and others have made.
+>
+> This seems like a very asymmetrical behavior. If the code explicitly
+> reserves pages, it should explicitly use them, or it will become
+> impossible to track down who is using what (not to mention that this
+> will slow down every regular user of __alloc_pages, even if it is just
+> for a quick test).
+>
+> Why are there specialized functions to reserve the pages, but then they
+> are used through the standard __alloc_pages interface?
 
-> As has been pointed out, an rlimit solution exists now as well.
+That's the whole idea behind this patch: at the beginning of "atomic"
+operation, some number of pages is reserved. As these pages are
+available through page allocator, _all_ allocations done by atomic
+operation will use reserved pages transparently. For example:
 
-Wrong, as was said repeatedly, rlimits only help with mlock!  Have you
-even been reading the thread?
+        perthread_pages_reserve(nr, GFP_KERNEL);
 
-Lee
+        foo()->
 
+            bar()->
+
+                page = find_or_create_page(some_mapping, ...);
+
+        perthread_pages_release(unused_pages);
+
+find_or_create() pages will use pages reserved for this thread and,
+hence, is guaranteed to succeed (given correct reservation).
+
+Alternative is to pass some sort of handle all the way down to actual
+calls to allocator, and to modify all generic code to use reservations.
+
+Nikita.

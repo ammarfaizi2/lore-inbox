@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbTDKT6C (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 15:58:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbTDKT6C (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 15:58:02 -0400
-Received: from userbb201.dsl.pipex.com ([62.190.241.201]:32923 "EHLO
-	irishsea.home.craig-wood.com") by vger.kernel.org with ESMTP
-	id S261649AbTDKT6B (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 15:58:01 -0400
-Date: Fri, 11 Apr 2003 21:09:44 +0100
-From: Nick Craig-Wood <ncw1@axis.demon.co.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net, message-bus-list@redhat.com,
-       Daniel Stekloff <dsteklof@us.ibm.com>
-Subject: Re: [ANNOUNCE] udev 0.1 release
-Message-ID: <20030411200944.GA3232@axis.demon.co.uk>
-References: <20030411032424.GA3688@kroah.com> <Pine.LNX.4.44.0304111939310.12110-100000@serv> <20030411181245.GD1821@kroah.com>
+	id S261664AbTDKT4X (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 15:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbTDKT4X (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 15:56:23 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:45749 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261609AbTDKT4V (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 15:56:21 -0400
+Date: Fri, 11 Apr 2003 13:04:07 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, Giuliano Pochini <pochini@shiny.it>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Mike Anderson <andmike@us.ibm.com>
+Subject: Re: [patch for playing] Patch to support 4000 disks and maintain
+Message-ID: <20030411130407.A9302@beaverton.ibm.com>
+References: <200304101339.49895.pbadari@us.ibm.com> <XFMail.20030411100430.pochini@shiny.it> <20030411154450.GW31739@ca-server1.us.oracle.com> <200304110928.32978.pbadari@us.ibm.com> <20030411175736.GY31739@ca-server1.us.oracle.com> <20030411111232.A7756@beaverton.ibm.com> <20030411183543.GA31739@ca-server1.us.oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030411181245.GD1821@kroah.com>
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030411183543.GA31739@ca-server1.us.oracle.com>; from Joel.Becker@oracle.com on Fri, Apr 11, 2003 at 11:35:43AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 11, 2003 at 11:12:45AM -0700, Greg KH wrote:
-> On Fri, Apr 11, 2003 at 08:02:41PM +0200, Roman Zippel wrote:
-> > To help serialization and perfomance issues, it might help to add a daemon 
-> > mode to hotplug. The kernel calls hotplug with a pipe from which it reads 
-> > the event data, after a certain timeout it can close the pipe and exit.
+On Fri, Apr 11, 2003 at 11:35:43AM -0700, Joel Becker wrote:
+> On Fri, Apr 11, 2003 at 11:12:32AM -0700, Patrick Mansfield wrote:
+> > I'm trying to pull the current multi-path patch up to 2.5.66 (ouch). 
 > 
-> Yes, this is probably what is going to happen soon.
+> 	I wasn't aware of this work.  This is very interesting.  Two
+> questions:
+> 
+> 1) When does it failover?  Meaning, if I I/O to a disk, but someone
+> yanks the fibrechannel plug.  Does your multipath wait for a SCSI
+> timeout to redirect the I/O?
 
-Excellent!  This should fix our continuing problems with many
-identical USB devices on one bus!  In particular 6 keyspans quad
-serial ports on the same USB bus never come up in the same order with
-hotplug which is a bit embarrassing.  Without hotplug they come up in
-the right order every time!
+> 2) If so, have you considered trapping loop up/down events to handle
+> such a case?  Real users of multipath tech do not want to wait 90s for
+> failover.
+> 
+> Joel
 
--- 
-Nick Craig-Wood
-ncw1@axis.demon.co.uk
+Generally it fails a path when we get a path specific error; it fails the
+IO if we get a device (i.e. logical unit) error. If there are no paths
+available, the IO is failed (though this could be changed to be
+user-settable).
+
+Behaviour on a cable removal is fibre, adapter, and adapter drive specific
+- the qla driver has some sort of timeout on a port down that can be
+lowered. It (fibre channel) can immediately complete (with failure) an
+outstanding IO on a port down (or SCN notification). loop attached does
+not always give you notification.
+
+So with loop attached (AFAIK) you still might have to wait for a timeout
+if you yank a disk.
+
+Timeouts are the hardest to deal with - since we don't know where the
+error occurred, so generally should not fail the IO (or path).
+
+If we had user scanning, and some sort of hotplug for targets coming and
+going, those be used to add and remove (or just fail) paths (at least for
+switch attached).
+
+-- Patrick Mansfield

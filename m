@@ -1,57 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270674AbTGNRc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 13:32:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270765AbTGNRc1
+	id S270688AbTGNRgA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 13:36:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270700AbTGNRgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 13:32:27 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:2319 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S270674AbTGNR02 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 13:26:28 -0400
-Date: Mon, 14 Jul 2003 19:41:15 +0200
-From: Jan Kara <jack@suse.cz>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Jan Kara <jack@suse.cz>
-Subject: Re: -- END OF BLOCK --
-Message-ID: <20030714174115.GA8620@atrey.karlin.mff.cuni.cz>
-References: <200307141239.h6ECdqXP002766@hraefn.swansea.linux.org.uk> <Pine.LNX.4.55L.0307140947210.18257@freak.distro.conectiva> <1058187405.606.65.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.55L.0307141000150.18257@freak.distro.conectiva>
+	Mon, 14 Jul 2003 13:36:00 -0400
+Received: from mail.kroah.org ([65.200.24.183]:40599 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270688AbTGNRfj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 13:35:39 -0400
+Date: Mon, 14 Jul 2003 10:38:13 -0700
+From: Greg KH <greg@kroah.com>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] /proc/bus/pci* changes
+Message-ID: <20030714173812.GA24142@kroah.com>
+References: <1058154708.747.1391.camel@cube> <20030714045304.GB19392@kroah.com> <1058161200.749.1454.camel@cube>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55L.0307141000150.18257@freak.distro.conectiva>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <1058161200.749.1454.camel@cube>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 14 Jul 2003, Alan Cox wrote:
+On Mon, Jul 14, 2003 at 01:40:01AM -0400, Albert Cahalan wrote:
 > 
-> > On Llu, 2003-07-14 at 13:50, Marcelo Tosatti wrote:
-> > > > I've resynched -ac to the quota code in pre5 and added the automatic
-> > > > quota loader on top again.
-> > >
-> > > And the deadlock avoidance patches too right?
-> > >
-> > > Would you mind sending me the automatic quota loader diff and the deadlock
-> > > avoidance diff ?
-> >
-> > The merge is non trivial. I'll let Christoph sort the mess out since I don't
-> > have time to waste on it, and the old -ac quota code works perfectly well for
-> > me.
+> The directory structure may well be finished,
+> at least until it is time to remove the old
+> interfaces. (in a few years I guess)
 > 
-> Okay.
-> 
-> The quota code you have in -ac is new Jan Kara's stuff (which supports
-> both formats, etc) plus the ext3 deadlock avoidance and the compat stuff ?
-  The deadlock avoidance, quota module autoload etc. are patches which
-are not existing for a long time (two weeks or so) and they were merged
-just into the last 2.5 kernel so it's not Christophs fault he didn't
-send them to you. Actually I just wanted to send them to you myself today...
-Anyway now it seems everything is sorted out.
+> What's missing is the ability to pass cache-control
+> info through the mmap() interface. This is useful
+> for non-PCI purposes as well. Some thought will be
+> required, as there is a set of commonly useful
+> settings among all the arch-specific features.
 
-								Honza
+Why would userspace want to do this?  Any examples?
 
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+> > And are you prepared to patch all of
+> > the userspace programs that currently rely on the existing interface
+> > (like XFree86 for one)?
+> 
+> The existing interface STILL WORKS. Apps can
+> transition over time, in part or in whole.
+> ("in part" meaning to use the old hacks on
+> the new pathname, gaining PCI domain support)
+> 
+> It's important to get the new interface in
+> ASAP, so that all the obscure (in-house, etc.)
+> user-space drivers can start to transition.
+> The X server is less of a worry, because it
+> is a very active project.
+> 
+> > Also, I don't think you are handling the pci domain space in your patch,
+> > or am I just missing it?
+> 
+> You missed it: third paragraph, first email
+> 
+> Example:
+> You have two devices with the same bus
+> number (5), device number (4), and function
+> number (2). One is in domain 0, and the
+> other is in domain 42. You get:
+> 
+> pci0/bus5/dev4/fn2/config-space
+> pci42/bus5/dev4/fn2/config-space
+> 
+> Depending on what pci_name_bus does with
+> the conflict, you'll get one or two symlinks
+> from the old name(s). You'll also get some
+> correctly-sized files to represent the
+> resources. For example:
+> 
+> pci0/bus5/dev4/fn2/bar0
+> pci0/bus5/dev4/fn2/bar1
+> pci0/bus5/dev4/fn2/bar2
+> pci42/bus5/dev4/fn2/bar0
+
+Any reason for not using the same sysfs naming scheme to keep things
+universal?
+
+> Here's an attachment:
+
+Which can't be quoted :(
+
+Anyway, I really don't like the huge array you are declaring if we have
+pci domains.  And I really don't want to apply this until someone shows
+me a real use for it.  Maybe we should add mmap functions to sysfs?  :)
+
+thanks,
+
+greg k-h

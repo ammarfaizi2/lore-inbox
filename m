@@ -1,38 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261451AbTBEPAW>; Wed, 5 Feb 2003 10:00:22 -0500
+	id <S261456AbTBEPDq>; Wed, 5 Feb 2003 10:03:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261456AbTBEPAW>; Wed, 5 Feb 2003 10:00:22 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:8859
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261451AbTBEPAV>; Wed, 5 Feb 2003 10:00:21 -0500
-Subject: Re: Help with promise sx6000 card
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linux Lists <user_linux@citma.cu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <5E3AE650.2010208@citma.cu>
-References: <20030203221923.M79151@webmail.citma.cu>
-	 <1044360902.23312.16.camel@irongate.swansea.linux.org.uk>
-	 <5E3AE650.2010208@citma.cu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1044461220.32062.11.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 05 Feb 2003 16:07:01 +0000
+	id <S261463AbTBEPDp>; Wed, 5 Feb 2003 10:03:45 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:58762 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S261456AbTBEPDo>; Wed, 5 Feb 2003 10:03:44 -0500
+Date: Wed, 5 Feb 2003 16:13:19 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.0, 2.2, 2.4, 2.5: fsync buffer race
+In-Reply-To: <20030204231652.GC128@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0302051605400.14908-100000@artax.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2020-02-05 at 15:59, Linux Lists wrote:
-> OK, but what i have to do to load the modules in that order
-> 
+> Hi!
+>
+> > > there's a race condition in filesystem
+> > >
+> > > let's have a two inodes that are placed in the same buffer.
+> > >
+> > > call fsync on inode 1
+> > > it goes down to ext2_update_inode [update == 1]
+> > > it calls ll_rw_block at the end
+> > > ll_rw_block starts to write buffer
+> > > ext2_update_inode waits on buffer
+> > >
+> > > while the buffer is writing, another process calls fsync on inode 2
+> > > it goes again to ext2_update_inode
+> > > it calls ll_rw_block
+> > > ll_rw_block sees buffer locked and exits immediatelly
+> > > ext2_update_inode waits for buffer
+> > > the first write finished, ext2_update_inode exits and changes made by
+> > > second proces to inode 2 ARE NOT WRITTEN TO DISK.
+> > >
+> >
+> > hmm, yes.  This is a general weakness in the ll_rw_block() interface.  It is
+> > not suitable for data-integrity writeouts, as you've pointed out.
+> >
+> > A suitable fix would be do create a new
+> >
+> > void wait_and_rw_block(...)
+> > {
+> > 	wait_on_buffer(bh);
+> > 	ll_rw_block(...);
+> > }
+> >
+> > and go use that in all the appropriate places.
+> >
+> > I shall make that change for 2.5, thanks.
+>
+> Should this be fixed at least in 2.4, too? It seems pretty serious for
+> mail servers (etc)...
+> 								Pavel
 
-Either build a kernel with them built in or run mkinitrd with the option
+It should, but it is a hazard. The problem is that every use of
+ll_rw_block has this bug, not only the one in ext2 fsync. The most clean
+thing would be to modify ll_rw_block to wait until buffer becomes
+unlocked, no one knows if it can produce some weird things.
 
---preload=i2o_core --preload=i2o_pci --preload=i2o_block.
+Even Linus didn't know what he was doing, see this comment around the
+buggy part in 2.2, 2.0 and previous kernels.
 
-The Red Hat installer builds a wrongly ordered initrd for i2o stuff in
-8.0. Thats fixed in the beta but doesn't help you.
+ll_rw_blk.c:
+        /* Uhhuh.. Nasty dead-lock possible here.. */
+        if (buffer_locked(bh))
+                return;
+        /* Maybe the above fixes it, and maybe it doesn't boot. Life is
+interesting */
+        lock_buffer(bh);
 
+Mikulas
 

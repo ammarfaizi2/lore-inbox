@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313305AbSGIKpY>; Tue, 9 Jul 2002 06:45:24 -0400
+	id <S313416AbSGIKp6>; Tue, 9 Jul 2002 06:45:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313416AbSGIKpX>; Tue, 9 Jul 2002 06:45:23 -0400
-Received: from hell.ascs.muni.cz ([147.251.60.186]:10627 "EHLO
-	hell.ascs.muni.cz") by vger.kernel.org with ESMTP
-	id <S313305AbSGIKpX>; Tue, 9 Jul 2002 06:45:23 -0400
-Date: Tue, 9 Jul 2002 12:48:08 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Austin Gonyou <austin@digitalroadkill.net>, linux-kernel@vger.kernel.org
-Subject: Re: Terrible VM in 2.4.11+ again?
-Message-ID: <20020709124807.D1510@mail.muni.cz>
-References: <20020709001137.A1745@mail.muni.cz> <1026167822.16937.5.camel@UberGeek> <20020709005025.B1745@mail.muni.cz> <20020708225816.GA1948@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020708225816.GA1948@werewolf.able.es>; from jamagallon@able.es on Tue, Jul 09, 2002 at 12:58:16AM +0200
-X-Muni: zakazka, vydelek, firma, komerce, vyplata
-X-echalon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mosad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
-X-policie-CR: Neserte mi nebo nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
+	id <S313477AbSGIKp5>; Tue, 9 Jul 2002 06:45:57 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:35280 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S313416AbSGIKp4>; Tue, 9 Jul 2002 06:45:56 -0400
+Date: Tue, 9 Jul 2002 11:48:38 +0100 (BST)
+From: Anton Altaparmakov <aia21@cantab.net>
+To: Jens Axboe <axboe@suse.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+Subject: Re: [PATCH] 2.4 IDE core for 2.5
+In-Reply-To: <20020709102249.GA20870@suse.de>
+Message-ID: <Pine.SOL.3.96.1020709114618.20865B-100000@libra.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09, 2002 at 12:58:16AM +0200, J.A. Magallon wrote:
-> Seriously, if you have that kind of problems, take the -aa kernel and use it.
-> I use it regularly and it behaves as one would expect, and fast.
-> And please, report your results...
+On Tue, 9 Jul 2002, Jens Axboe wrote:
+> I've forward ported the 2.4 IDE core (well 2.4.19-pre10-ac2 to be exact)
+> to 2.5.25. It consists of 7 separate patches:
 
-I've tried 2.4.19rc1aa2, it swaps even when I have 512MB ram and xcdroast with
-scsi-ide emulation cd writer reports to syslog:
-Jul  9 12:45:02 hell kernel: __alloc_pages: 3-order allocation failed
-(gfp=0x20/0)
-Jul  9 12:45:02 hell kernel: __alloc_pages: 3-order allocation failed
-(gfp=0x20/0)
-Jul  9 12:45:02 hell kernel: __alloc_pages: 2-order allocation failed
-(gfp=0x20/0)
-Jul  9 12:45:02 hell kernel: __alloc_pages: 1-order allocation failed
-(gfp=0x20/0)
-Jul  9 12:45:02 hell kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x20/0)
+Fantastic! Seeing that the patches are bitkeeper generated, would it be
+possible for you to make a repository available with the patches? (on
+bkbits perhaps?) Would make it a lot easier for us bitkeeper users just to
+pull from your repository... Especially once you update the patches...
 
-Am I something missing?
+Best regards,
 
+	Anton
 -- 
-Luká¹ Hejtmánek
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

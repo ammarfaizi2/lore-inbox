@@ -1,43 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262674AbVCJQFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262686AbVCJQMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262674AbVCJQFT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 11:05:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbVCJQFS
+	id S262686AbVCJQMU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 11:12:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVCJQMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 11:05:18 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:24200 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262674AbVCJQCC (ORCPT
+	Thu, 10 Mar 2005 11:12:14 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:24301 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S262686AbVCJQJL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 11:02:02 -0500
-Date: Thu, 10 Mar 2005 17:01:55 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: current linus bk, error mounting root
-Message-ID: <20050310160155.GC2578@suse.de>
-References: <422F5D0E.7020004@pobox.com> <9e473391050309125118f2e979@mail.gmail.com> <20050309210926.GZ28855@suse.de> <9e473391050309171643733a12@mail.gmail.com> <20050310075049.GA30243@suse.de> <9e4733910503100658ff440e3@mail.gmail.com> <20050310153151.GY2578@suse.de> <9e473391050310074556aad6b0@mail.gmail.com> <20050310154830.GB2578@suse.de> <9e47339105031007595b1e0cc3@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e47339105031007595b1e0cc3@mail.gmail.com>
+	Thu, 10 Mar 2005 11:09:11 -0500
+Message-ID: <42308073.CEA0DF75@tv-sign.ru>
+Date: Thu, 10 Mar 2005 20:14:27 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ram <linuxram@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Steven Pratt <slpratt@austin.ibm.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/2] readahead: improve sequential read detection
+References: <42260F30.BE15B4DA@tv-sign.ru> <1110412324.4816.89.camel@localhost>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10 2005, Jon Smirl wrote:
-> Here's what it is doing... looks like the first mount is failing
-> 
-> echo Creating root device
-> mkrootdev /dev/root
-> umount /sys
-> echo Mounting root filesystem
-> mount -o defaults --ro -t ext3 /dev/root /sysroot
-> mount -t tmpfs --bind /dev /sysroot/dev
-> echo Switching to new root
-> switchroot /sysroot
-> umount /initrd/dev
+Ram wrote:
+>
+> On Wed, 2005-03-02 at 11:08, Oleg Nesterov wrote:
+> >
+> >  out:
+> > - return newsize;
+> > + return ra->prev_page + 1;
+>
+> This change introduces one key behavioural change in
+> page_cache_readahead(). Instead of returning the number-of-pages
+> successfully read, it now returns the next-page-index which is yet to be
+> read. Was this essential?
 
-what are the major/minor numbers of /dev/root?
+The problem is that with this change:
++       if (offset == ra->prev_page && --req_size)
++               ++offset;
+we can't just return newsize.
 
--- 
-Jens Axboe
+Because the caller of page_cache_readahead(offset, req_size) expects
+that returned value is the number-of-pages successfully read from
+this original offset.
 
+Consider do_generic_mapping_read() reading two pages at offset 10,
+with ra->prev_page == 10.
+
+1st page, index == 10:
+	ret_size = page_cache_readahead(10, 2);		// returns 1
+	next_index += ret_size;				// next_index == 11
+
+2nd page, index == 11:
+	if (index == next_index)			// Yes
+		page_cache_readahead(11, 1);		// BOGUS!
+
+It can be solved without behavioural change of course, but it will be
+more complex.
+
+> At least, a comment towards this effect at the top of the function is
+> worth adding.
+
+Yes, it's my fault. I should have added comment in changelog at least.
+
+Oleg.

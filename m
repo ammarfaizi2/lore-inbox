@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131305AbQKJPoM>; Fri, 10 Nov 2000 10:44:12 -0500
+	id <S131038AbQKJPqw>; Fri, 10 Nov 2000 10:46:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131299AbQKJPoC>; Fri, 10 Nov 2000 10:44:02 -0500
-Received: from hybrid-024-221-152-185.az.sprintbbd.net ([24.221.152.185]:33781
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S131038AbQKJPnv>; Fri, 10 Nov 2000 10:43:51 -0500
-Date: Fri, 10 Nov 2000 08:42:11 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Benjamin Herrenschmidt <bh40@calva.net>
-Cc: "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.18pre21
-Message-ID: <20001110084211.B24101@opus.bloom.county>
-In-Reply-To: <200011100344.TAA01282@pizda.ninka.net> <19341005050711.11931@192.168.1.2>
-Mime-Version: 1.0
+	id <S131165AbQKJPqm>; Fri, 10 Nov 2000 10:46:42 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:24329 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S131038AbQKJPqb>;
+	Fri, 10 Nov 2000 10:46:31 -0500
+Message-ID: <3A0C1850.CF755AD0@mandrakesoft.com>
+Date: Fri, 10 Nov 2000 10:46:24 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ballabio_Dario@emc.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PATCH:  Pcmcia/Cardbus/xircom_tulip in 2.4.0-test10.
+In-Reply-To: <51FA50304EBCD2119EEC00A0C9F2C9D0B1C427@ITMI1MX1>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <19341005050711.11931@192.168.1.2>; from bh40@calva.net on Fri, Nov 10, 2000 at 12:35:27PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2000 at 12:35:27PM +0100, Benjamin Herrenschmidt wrote:
-> >   o	Resnchronize Apple PowerMac codebase		(Paul Mackerras & co)
-> >
-> >BUUUG, new DEV_MAC_HID sysctl number conflicts with DEV_MD
-> >in Ingo's raid patches.
+Ballabio_Dario@emc.com wrote:
 > 
-> Well, I beleive DEV_MAC_HID can safely be changed to something else as
-> userland only use the /proc entry name./
+> In order to have the xircom_tulip pcmcia cardbus working again with
+> recent kernels, it is necessary to specify:
+> 
+> ifconfig eth0 -multicast
+> 
+> Moreover if the card is configured by itself into the kernel
+> (i.e. with the default ne2000 pcmcia support removed),
+> the enclosed patch is required as well.
 
-One question here.  Is it important here that the # be consistant?  I mean
-since to change a sysctl isn't the name the important bit? ie:
-dev.md.speed_limit would work regardless of if DEV_MD is 3 or 4?
+Can you try the test11-pre2 patch?  It includes a bugfix to xircom_tulip
+from Andrea.
+
+ftp://ftp.??.kernel.org/pub/linux/kernel/testing/
+
+?? == your country code, such as "us", "fr", etc.
+
+
+> diff -r -u linux-2.4.0-test10/drivers/net/pcmcia/Config.in
+> linux/drivers/net/pcmcia/Config.in
+> --- linux-2.4.0-test10/drivers/net/pcmcia/Config.in     Sun Aug 13 19:21:20
+> 2000
+> +++ linux/drivers/net/pcmcia/Config.in  Wed Nov  1 17:55:18 2000
+> @@ -36,7 +36,8 @@
+>       "$CONFIG_PCMCIA_FMVJ18X" = "y" -o "$CONFIG_PCMCIA_PCNET" = "y" -o \
+>       "$CONFIG_PCMCIA_NMCLAN" = "y" -o "$CONFIG_PCMCIA_SMC91C92" = "y" -o \
+>       "$CONFIG_PCMCIA_XIRC2PS" = "y" -o "$CONFIG_PCMCIA_RAYCS" = "y" -o \
+> -     "$CONFIG_PCMCIA_NETWAVE" = "y" -o "$CONFIG_PCMCIA_WAVELAN" = "y" ];
+> then
+> +     "$CONFIG_PCMCIA_NETWAVE" = "y" -o "$CONFIG_PCMCIA_WAVELAN" = "y" -o \
+> +     "$CONFIG_PCMCIA_XIRTULIP" = "y" ]; then
+>     define_bool CONFIG_PCMCIA_NETCARD y
+>  fi
+
+thanks for the patch.
+
+	Jeff
+
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Jeff Garzik             |
+Building 1024           | Would you like a Twinkie?
+MandrakeSoft            |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268306AbUHFVij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266115AbUHFVrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268306AbUHFVij (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 17:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268311AbUHFVij
+	id S266115AbUHFVrF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 17:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268229AbUHFVrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 17:38:39 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:49650 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268306AbUHFVid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 17:38:33 -0400
-Date: Fri, 6 Aug 2004 23:38:24 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Adam Belay <ambx1@neo.rr.com>, Thomas Hood <jdthood@mail.com>
+	Fri, 6 Aug 2004 17:47:05 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:27622 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266115AbUHFVrA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 17:47:00 -0400
+Subject: [PATCH] mpage_readpage unable to handle bigger requests
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: What exactly is __ALIGN_STR in pnpbios/bioscalls.c for?
-Message-ID: <20040806213823.GG2746@fs.tum.de>
+Content-Type: multipart/mixed; boundary="=-ItlhabnZGiZx94LakW9S"
+Organization: 
+Message-Id: <1091828941.3641.404.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 06 Aug 2004 17:49:01 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-include/linux/linkage.h in kernel 2.6 includes #define's for __ALIGN and 
-__ALIGN_STR. In include/asm-i386/linkage.h, their values are changed 
-#ifdef CONFIG_X86_ALIGNMENT_16.
+--=-ItlhabnZGiZx94LakW9S
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-It isn't obvious what exacly CONFIG_X86_ALIGNMENT_16 is for (I've heard 
-more than one opinion), and since the __ALIGN_STR usage in 
-drivers/pnp/pnpbios/bioscalls.c is the only non-m68k/ppc usage of one of 
-these two #define's I wonder whether you might be able to enlighten me 
-what CONFIG_X86_ALIGNMENT_16 exactly is for?
+Hi Andrew,
 
-TIA
-Adrian
+I remember fixing this long time ago when we are playing we large
+readhead testing. But I don't see the fix making into the tree.
 
--- 
+The problem is, if we increase our readhead size arbitrarily 
+(say 2M), we call mpage_readpages() with 2M and when it tries 
+allocated bio enough to fit 2M it fails, then we kick it back
+to "confused" code - which does 4K at a time.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Fix is to, ask for the maxium driver can handle.
+
+Please include this patch.
+
+
+Thanks,
+Badari 
+
+
+
+--=-ItlhabnZGiZx94LakW9S
+Content-Disposition: attachment; filename=mpage_bio.patch
+Content-Type: text/plain; name=mpage_bio.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- linux.org/fs/mpage.c	2004-08-07 02:15:12.962350304 -0700
++++ linux/fs/mpage.c	2004-08-07 02:17:55.765600448 -0700
+@@ -290,7 +290,7 @@ do_mpage_readpage(struct bio *bio, struc
+ alloc_new:
+ 	if (bio == NULL) {
+ 		bio = mpage_alloc(bdev, blocks[0] << (blkbits - 9),
+-					nr_pages, GFP_KERNEL);
++			  min(nr_pages, bio_get_nr_vecs(bdev)), GFP_KERNEL);
+ 		if (bio == NULL)
+ 			goto confused;
+ 	}
+
+--=-ItlhabnZGiZx94LakW9S--
 

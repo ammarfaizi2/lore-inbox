@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269096AbUJVJs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270877AbUJVJxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269096AbUJVJs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 05:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270877AbUJVJs2
+	id S270877AbUJVJxS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 05:53:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270914AbUJVJxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 05:48:28 -0400
-Received: from imag.imag.fr ([129.88.30.1]:48026 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S269096AbUJVJs0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 05:48:26 -0400
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-From: Raphael Jacquot <Raphael.Jacquot@imag.fr>
-To: Timothy Miller <miller@techsource.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4177DF15.8010007@techsource.com>
-References: <4176E08B.2050706@techsource.com>
-	 <9e4733910410201808c0796c8@mail.gmail.com>
-	 <9e473391041020181150638b4@mail.gmail.com> <4177185A.9080708@sover.net>
-	 <4177DF15.8010007@techsource.com>
-Content-Type: text/plain
-Date: Fri, 22 Oct 2004 11:48:17 +0200
-Message-Id: <1098438497.7017.63.camel@raph.imag.fr>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 (2.0.1-4) 
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Fri, 22 Oct 2004 11:48:23 +0200 (CEST)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+	Fri, 22 Oct 2004 05:53:17 -0400
+Received: from vanessarodrigues.com ([192.139.46.150]:51872 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S270877AbUJVJxP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 05:53:15 -0400
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       jeremy@sgi.com
+Subject: Re: [PATCH] use mmiowb in qla1280.c
+References: <200410211613.19601.jbarnes@engr.sgi.com>
+	<200410211617.14809.jbarnes@engr.sgi.com>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 22 Oct 2004 05:53:13 -0400
+In-Reply-To: <200410211617.14809.jbarnes@engr.sgi.com>
+Message-ID: <yq03c07nkom.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 12:08 -0400, Timothy Miller wrote:
+>>>>> "Jesse" == Jesse Barnes <jbarnes@engr.sgi.com> writes:
 
-> For rendering or for display?  A DVI transmitter won't do more than 8 
-> bits per channel, but it can be helpful to have more than 8 bits per 
-> channel for greater mathematical precision when compositing images.
-> 
+Jesse> There are a few spots in qla1280.c that don't need a full PCI
+Jesse> write flush to the device, but rather a simple write ordering
+Jesse> guarantee.  This patch changes some of the PIO reads that cause
+Jesse> write flushes into mmiowb calls instead, which is a lighter
+Jesse> weight way of ensuring ordering.
 
-heres' an idea, have an option for an SDI and/or HDI transmitter , that
-could be done as an add-on card (see SMPTE). those 5000 USD
-www.bluefish444.com cards are way too expensive
+Jesse> Jes and James, can you ack this and/or push it in via the SCSI
+Jesse> BK tree?
 
-oh, and throw 512M of ram on there :D
+ACK!
 
+James will you push this one?
 
+Cheers,
+Jes

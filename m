@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262722AbSJIXrT>; Wed, 9 Oct 2002 19:47:19 -0400
+	id <S261973AbSJIXxr>; Wed, 9 Oct 2002 19:53:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262357AbSJIXqh>; Wed, 9 Oct 2002 19:46:37 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:2229 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262312AbSJIXqf>;
-	Wed, 9 Oct 2002 19:46:35 -0400
-Date: Wed, 09 Oct 2002 16:45:04 -0700 (PDT)
-Message-Id: <20021009.164504.28085695.davem@redhat.com>
-To: sekiya@sfc.wide.ad.jp
-Cc: dfawcus@cisco.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <uu1jv9o3j.wl@sfc.wide.ad.jp>
-References: <20021010002902.A3803@edi-view1.cisco.com>
-	<20021009.162438.82081593.davem@redhat.com>
-	<uu1jv9o3j.wl@sfc.wide.ad.jp>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S261984AbSJIXxq>; Wed, 9 Oct 2002 19:53:46 -0400
+Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:4257
+	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
+	id <S261973AbSJIXxp>; Wed, 9 Oct 2002 19:53:45 -0400
+From: Tim Hockin <thockin@hockin.org>
+Message-Id: <200210092359.g99NxJh05873@www.hockin.org>
+Subject: Re: [PATCH] 2.5.41 s390 (8/8): 16 bit uid/gids.
+To: davem@redhat.com (David S. Miller)
+Date: Wed, 9 Oct 2002 16:59:19 -0700 (PDT)
+Cc: torvalds@transmeta.com, thockin@hockin.org, schwidefsky@de.ibm.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20021009.163853.11929697.davem@redhat.com> from "David S. Miller" at Oct 09, 2002 04:38:53 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Yuji Sekiya <sekiya@sfc.wide.ad.jp>
-   Date: Thu, 10 Oct 2002 08:41:52 +0900
-   
-   The reason we change the prefix length  from /10 to /64 is
-   following spec and adapting other imprementations.
+> So maybe what you're saying is some "asm/uid16.h" that
+> conditionalizes?
 
-I think Derek's explanation shows that the specification
-allows the /10 behavior.
 
-Also, I suspect that since Derek works for Cisco, some "other
-implementations" behave how he describes. :-)
+It doesn't need to be asm/ - it can all be generic.  You just have
+<linux/uid16_convert.h> be the unconditional macro definitions.
+<linux/highuid.h> can conditionally include that.  Only downside is that you
+have to define the NOP version of the macros in highuid.h, but it's not like
+these are growing or evolving.
+
+I'm fine with that or manually defining CONFIG_UID16 - it is really for
+special cases.  I just loathe duplicated code :)
+
+Tim

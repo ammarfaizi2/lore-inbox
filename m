@@ -1,72 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268962AbTGOQvj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 12:51:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268964AbTGOQvi
+	id S269008AbTGOQxe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 12:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269012AbTGOQxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 12:51:38 -0400
-Received: from mail5.iserv.net ([204.177.184.155]:22180 "EHLO mail5.iserv.net")
-	by vger.kernel.org with ESMTP id S268962AbTGOQvf (ORCPT
+	Tue, 15 Jul 2003 12:53:34 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:43280 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S269008AbTGOQxR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 12:51:35 -0400
-Message-ID: <3F14348B.4050606@didntduck.org>
-Date: Tue, 15 Jul 2003 13:06:19 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kathy Frazier <kfrazier@mdc-dayton.com>
-CC: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: Interrupt doesn't make it to the 8259 on a ASUS P4PE mobo
-References: <PMEMILJKPKGMMELCJCIGOEKNCCAA.kfrazier@mdc-dayton.com>
-In-Reply-To: <PMEMILJKPKGMMELCJCIGOEKNCCAA.kfrazier@mdc-dayton.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Jul 2003 12:53:17 -0400
+Date: Tue, 15 Jul 2003 19:08:04 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 'what to expect'
+Message-ID: <20030715170804.GA1089@win.tue.nl>
+References: <20030711155613.GC2210@gtf.org> <20030711203850.GB20970@win.tue.nl> <20030715000331.GB904@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030715000331.GB904@matchmail.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kathy Frazier wrote:
-> Thanks for your reply, Andi.
-> 
-> 
->>>We have a proprietary PCI board installed in a (UP) system with an ASUS
-> 
-> P4PE
-> 
->>>motherboard (uses Intel 845PE chipset). This system is running Red Hat
-> 
-> 9.0
-> 
-> 
->>Have you checked the 845 errata sheets on the Intel website?
->>Perhaps it is some known hardware bug.
-> 
-> 
->>One thing you could try is to use Local APIC / IO APIC interrupt processing
->>instead of 8259.
-> 
-> 
-> Our hardware engineer has combed the Intel and ASUS websites, but found
-> nothing.  I'll give the APIC a try and see if I get different results and
-> let you know.
-> 
-> 
->>>/* start timer */
->>>dmatimer.expires = jiffies + 0.5*HZ;
-> 
-> 
->>That's a serious bug. You cannot use floating point in the kernel.
->>It will corrupt the FP state of the user process.
-> 
-> 
-> HZ on the INTEL platform is 100, so this should simply add 50 to the current
-> value of jiffies.  Besides, assigning the value to the unsigned int field
-> (expires) will truncate it to an integer anyway.
+On Mon, Jul 14, 2003 at 05:03:31PM -0700, Mike Fedyk wrote:
 
-Use HZ/2 instead.  GCC doesn't optimize floating point constants to the 
-same degree it does integers, because it doesn't know what mode 
-(rounding, precision) the FPU is in.
+> So, will the DOS partition make it up to 2TB?  If so, then we won't have
+> a problem until we have larger than 2TB drives
 
---
-				Brian Gerst
+Yes, DOS partition table works up to 2^32 sectors, and with
+2^9-byte sectors that is 2 TiB.
+
+People are encountering that limit already. We need something
+better, either use some existing scheme, or invent something.
+
+Andries
+
 

@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267378AbUI0VGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267374AbUI0VHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267378AbUI0VGV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 17:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267374AbUI0VFm
+	id S267374AbUI0VHw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 17:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267385AbUI0VGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 17:05:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:47016 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267378AbUI0VD5 (ORCPT
+	Mon, 27 Sep 2004 17:06:37 -0400
+Received: from mail.gurulabs.com ([67.137.148.7]:58497 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S267388AbUI0VGA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 17:03:57 -0400
-Date: Mon, 27 Sep 2004 14:03:53 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
-Subject: Re: Patch for comment: setuid core dumps
-Message-ID: <20040927140353.Z1973@build.pdx.osdl.net>
-References: <20040927202616.GA22228@devserv.devel.redhat.com>
+	Mon, 27 Sep 2004 17:06:00 -0400
+Subject: Re: thinkpad issue --No PCMCIA hotplug activity when onboard nic
+	(e1000) down
+From: Dax Kelson <dax@gurulabs.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com, dahinds@users.sourceforge.net
+In-Reply-To: <20040927215304.E26680@flint.arm.linux.org.uk>
+References: <1096317629.4075.65.camel@mentorng.gurulabs.com>
+	 <20040927215304.E26680@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1096319165.4075.78.camel@mentorng.gurulabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040927202616.GA22228@devserv.devel.redhat.com>; from alan@redhat.com on Mon, Sep 27, 2004 at 04:26:16PM -0400
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 27 Sep 2004 15:06:05 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox (alan@redhat.com) wrote:
->  
-> +suid_dumpable:
-> +
-> +This value can be used to query and set the core dump mode for setuid
-> +or otherwise protected/tainted binaries. The modes are
-> +
-> +0 - (default) - traditional behaviour. Any process which has changed
-> +	privilege levels or is execute only will not be dumped
-> +1 - (debug) - all processes dump core when possible. The core dump is
-> +	owned by the current user and no security is applied. This is
-> +	intended for system debugging situations only.
+On Mon, 2004-09-27 at 14:53, Russell King wrote:
+> On Mon, Sep 27, 2004 at 02:40:29PM -0600, Dax Kelson wrote:
+> > Myself and a co-worker have two ThinkPads bought a few months apart. The
+> > two model numbers are:
+> > 
+> > 2373-KUU -- T42p 14" LCD
+> > 2373-CXU -- T42 15" LCD
+> > 
+> > Both have the following onboard NIC and cardbus controller
+> > 02:01.0 Ethernet controller: Intel Corp. 82540EP Gigabit Ethernet Controller (Mobile) (rev 03)
+> > 02:00.0 CardBus bridge: Texas Instruments PCI4520 PC card Cardbus Controller (rev 01)
+> > 02:00.1 CardBus bridge: Texas Instruments PCI4520 PC card Cardbus Controller (rev 01)
+> 
+> Can you also provide the output of lspci -n for the above two
+> cardbus bridges please?
 
-This looks alright, since it keeps 0 and 1 with same meaning (for any
-user of prctl).
+Sure..
 
-> +2 - (suidsafe) - any binary which normally not be dumped is dumped
-> +	readable by root only. This allows the end user to remove
-> +	such a dump but not access it directly. For security reasons
-> +	core dumps in this mode will not overwrite one another or 
-> +	other files. This mode is appropriate when adminstrators are
-> +	attempting to debug problems in a normal environment.
-> +
+# lspci -n | grep 02:00
+02:00.0 Class 0607: 104c:ac46 (rev 01)
+02:00.1 Class 0607: 104c:ac46 (rev 01)
 
-But, in general, did you double check how this plays with /proc
-(task_dumpable) and ptrace_attach type stuff?  That seems sketchy.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

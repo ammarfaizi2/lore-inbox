@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263273AbTIWJJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 05:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263331AbTIWJJ6
+	id S263331AbTIWJOG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 05:14:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263335AbTIWJOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 05:09:58 -0400
-Received: from 81-202-66-245.user.ono.com ([81.202.66.245]:43394 "EHLO
+	Tue, 23 Sep 2003 05:14:06 -0400
+Received: from 81-202-66-245.user.ono.com ([81.202.66.245]:50818 "EHLO
 	subhal1.tecnoxarxa.com") by vger.kernel.org with ESMTP
-	id S263273AbTIWJJl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 05:09:41 -0400
-Message-ID: <3F700DA2.8060505@tecnoxarxa.com>
-Date: Tue, 23 Sep 2003 11:08:50 +0200
+	id S263331AbTIWJNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 05:13:44 -0400
+Message-ID: <3F700E96.8060005@tecnoxarxa.com>
+Date: Tue, 23 Sep 2003 11:12:54 +0200
 From: german aracil boned <german@tecnoxarxa.com>
 Organization: Tecnoxarxa
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
 X-Accept-Language: es-es, es
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
 Subject: ATTACK TO MY SYSTEM
 Content-Type: multipart/mixed;
- boundary="------------010900030409030400050206"
+ boundary="------------010801060706000801040603"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------010900030409030400050206
+--------------010801060706000801040603
 Content-Type: text/plain; charset=ISO-8859-3; format=flowed
 Content-Transfer-Encoding: 8bit
+
 
 Please
 
 I have an important attack in my system!
 I received many mails from many nets! with virus attachment.
-I don't have virus in my unix system. But people send mails with my mail 
+I don't have virus in my unix system. But people send mails with my mail
 address. Please see mail's header. It's not from my system ip.
 
-I close now my system to more of 700 nets!! and continuous receiving 
+I close now my system to more of 700 nets!! and continuous receiving
 mails now :(:(:(
 
 See attachment to see nets closed from my system.
@@ -46,9 +47,14 @@ Please help. I don't send any virus !
 
 -- 
 La riqueza consiste mucho más en el disfrute que en la posesión".
+                  Aristóteles (384 a.C.-322 a.C.)
+
+
+-- 
+La riqueza consiste mucho más en el disfrute que en la posesión".
                  Aristóteles (384 a.C.-322 a.C.)
 
---------------010900030409030400050206
+--------------010801060706000801040603
 Content-Type: text/plain;
  name="listip.txt"
 Content-Transfer-Encoding: 7bit
@@ -758,5 +764,6 @@ from unspecified.host ([195.80.0
 212.239.187.0
 194.224.226.0
 
---------------010900030409030400050206--
+
+--------------010801060706000801040603--
 

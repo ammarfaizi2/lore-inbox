@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271696AbRHUOYq>; Tue, 21 Aug 2001 10:24:46 -0400
+	id <S271694AbRHUO1G>; Tue, 21 Aug 2001 10:27:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271695AbRHUOYg>; Tue, 21 Aug 2001 10:24:36 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:65041 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271694AbRHUOYU>; Tue, 21 Aug 2001 10:24:20 -0400
-Subject: Re: 2.4.9 breaks apm, ymfpci, pcmcia on VAIO + patch
-To: mm@lunetix.de (Martin Mueller)
-Date: Tue, 21 Aug 2001 15:27:22 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, dahinds@users.sourceforge.net
-In-Reply-To: <20010821160628.A2296@cicero.werkleitz.de> from "Martin Mueller" at Aug 21, 2001 04:06:28 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S271698AbRHUO05>; Tue, 21 Aug 2001 10:26:57 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:49156 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271694AbRHUO0u>; Tue, 21 Aug 2001 10:26:50 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Stephan von Krawczynski <skraw@ithnet.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Memory Problem in 2.4.9 ?
+Date: Tue, 21 Aug 2001 16:33:27 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20010821154617.4671f85d.skraw@ithnet.com>
+In-Reply-To: <20010821154617.4671f85d.skraw@ithnet.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15ZCV0-0007xr-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010821142659Z16034-32384+269@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linux 2.4.8 worked _extremely_ well, all problems except the wrong
-> battery display gone. I just could suspend the running laptop while
-
-Does 2.4.8-ac8 show the 2.4.9 problem. If so then we can try and binary
-search out where it broke
-
-> Aug 21 15:01:32 cicero kernel: PCI: Enabling device 00:09.0 (0000 -> 0003) 
-> Aug 21 15:01:32 cicero kernel: PCI: Found IRQ 9 for device 00:09.0 
-> Aug 21 15:01:32 cicero kernel: ymfpci: YMF744 at 0xfedf8000 IRQ 9 
-> Aug 21 15:01:33 cicero kernel: ymfpci_codec_ready: codec 0 is not ready [0xffff] 
+On August 21, 2001 03:46 pm, Stephan von Krawczynski wrote:
+> Hello all,
 > 
-> This is with the ymfpci module shipped with the kernel tree, the
-> ALSA messages are roughly the same.
+> can anybody enlighten me about the following kernel-message:
+> 
+> Aug 21 14:37:39 admin kernel: __alloc_pages: 3-order allocation failed.
+> Aug 21 14:37:39 admin kernel: __alloc_pages: 2-order allocation failed. 
+> Aug 21 14:37:39 admin kernel: __alloc_pages: 3-order allocation failed.
+> Aug 21 14:37:39 admin kernel: __alloc_pages: 3-order allocation failed.
+> Aug 21 14:37:39 admin kernel: __alloc_pages: 2-order allocation failed.
+> Aug 21 14:37:39 admin kernel: __alloc_pages: 3-order allocation failed.
+> Aug 21 14:37:39 admin last message repeated 69 times
+> 
+> I get tons of them during verifying burned CDs with xcdroast (which takes
+> a really long time, and must have some problem therefore).  I would not 
+> worry you if it didn't work with earlier kernel-versions, but in fact it
+> did. 
 
-Something failed to bring back the codec ACLink.
+The following patch will tell us more about the failure, could you please
+apply (patch -p0): 
 
+--- ../2.4.9.clean/mm/page_alloc.c	Thu Aug 16 12:43:02 2001
++++ ./mm/page_alloc.c	Mon Aug 20 22:05:40 2001
+@@ -502,7 +502,7 @@
+ 	}
+ 
+ 	/* No luck.. */
+-	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed.\n", order);
++	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed (gfp=0x%x/%i).\n", order, gfp_mask, !!(current->flags & PF_MEMALLOC));
+ 	return NULL;
+ }
+ 

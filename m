@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293129AbSB1OdZ>; Thu, 28 Feb 2002 09:33:25 -0500
+	id <S292965AbSB1N7t>; Thu, 28 Feb 2002 08:59:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293302AbSB1Oa6>; Thu, 28 Feb 2002 09:30:58 -0500
-Received: from taifun.devconsult.de ([212.15.193.29]:35847 "EHLO
-	taifun.devconsult.de") by vger.kernel.org with ESMTP
-	id <S293408AbSB1O2z>; Thu, 28 Feb 2002 09:28:55 -0500
-Date: Thu, 28 Feb 2002 15:28:52 +0100
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/mounts: two different loop devices mounted on same mountpoint?!
-Message-ID: <20020228152852.B23019@devcon.net>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
-	kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020228095948.GG774@elf.ucw.cz> <Pine.LNX.4.33.0202281200230.15246-100000@unicef.org.yu> <20020228134455.GA28490@atrey.karlin.mff.cuni.cz>
+	id <S293339AbSB1N5S>; Thu, 28 Feb 2002 08:57:18 -0500
+Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:20999 "EHLO
+	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
+	id <S293342AbSB1N4D>; Thu, 28 Feb 2002 08:56:03 -0500
+Subject: Re: Kernel module ethics.
+From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
+To: lachinois@hotmail.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C7DFB9C.6A9F41F5@aitel.hist.no>
+In-Reply-To: <F82zxvoEaZWNaBJjvmZ00001183@hotmail.com> 
+	<3C7DFB9C.6A9F41F5@aitel.hist.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 28 Feb 2002 07:55:57 -0600
+Message-Id: <1014904559.11411.11.camel@zeus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020228134455.GA28490@atrey.karlin.mff.cuni.cz>; from pavel@suse.cz on Thu, Feb 28, 2002 at 02:44:55PM +0100
-Organization: dev/consulting GmbH
-X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 28, 2002 at 02:44:55PM +0100, Pavel Machek wrote:
+On Thu, 2002-02-28 at 03:42, Helge Hafting wrote:
+> How can a closed-source driver help you?  Even such a driver may be
+> pirated and used on the competitors card.  But you choose to trust
+> people in that situation.  If you trust people that much you might
+> as well release an open-source driver with a clause that it may only
+> be used with _your_ company's cards.  Or provide the _firmware_
+> with a strict licence and trust they don't pirate that.
 > 
-> > I think that is normal behaviour in 2.4.X
-> > that one can mount more than once
-> > on same mount point.
-> But two different devices? What's the semantics, then?
+> The ideal way (for us customers) is if your company and the others with
+> similiar hardware agree on sharing the development cost of a 
+> GPL driver.  Nobody loose from paying for a driver the others can use.
+> Capitalist competition is still possible:
+> * extra features, quality & reliability are selling points
+> * pricing, advertising
+> * trying to manufacture in cheaper ways than the others
+> 
+> Sharing the cost of development makes a lot of sense because the
+> others *will* come up with their own linux drivers anyway if
+> it turns out to be money in selling hardware to linux users.
+> All loose by making separate drivers.
 
-All accesses go to the filesystem mounted last. The one mounted first
-is inaccessible until you unmount the filesystem covering it. Well,
-not really inaccessible, if any process happened to have a working
-directory or an open file on the first filesystem at the time you
-mounted the second, it can still access it.
+Another possibility in this same vein is if you're a board level
+manufacturer integrating somebody elses silicon, prod the chip
+manufacturer to help with a driver (GPLed code, docs, whatever). It
+costs you very little, and you get to claim Linux support. If your extra
+(binary) firmware only works with your card (technical or market
+reasons, doesn't matter) you aren't giving away the store any more than
+with a closed driver.
 
-There is nothing special involved, after all, it's the same as if you
-mount a single filesystem to /mnt, the only difference is that the
-second mount this time doesn't cover a single dirtree on the root
-partition, but instead it covers a complete other filesystem.
+Regards 
 
-Andreas
--- 
-       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
-     ---------------------------------------------------------
-         +49 521 1365800 - af@devcon.net - www.devcon.net

@@ -1,40 +1,141 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280933AbRKGTdH>; Wed, 7 Nov 2001 14:33:07 -0500
+	id <S280942AbRKGTgR>; Wed, 7 Nov 2001 14:36:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280939AbRKGTc6>; Wed, 7 Nov 2001 14:32:58 -0500
-Received: from urdvg135.cms.usa.net ([204.68.25.135]:4556 "HELO
-	urdvg135.cms.usa.net") by vger.kernel.org with SMTP
-	id <S280933AbRKGTcl> convert rfc822-to-8bit; Wed, 7 Nov 2001 14:32:41 -0500
-Message-ID: <20011107193235.18379.qmail@cpdvg202.cms.usa.net>
-Date: 7 Nov 2001 13:32:35 CST
-From: Eric Bresie <ebresie@usa.net>
-To: linux-kernel@vger.kernel.org
-Subject: Probing for Kernel Configuration
-X-Mailer: USANET web-mailer (34FM.0700.21.01)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+	id <S280936AbRKGTf7>; Wed, 7 Nov 2001 14:35:59 -0500
+Received: from mpdr0.detroit.mi.ameritech.net ([206.141.239.206]:24535 "EHLO
+	mailhost.det.ameritech.net") by vger.kernel.org with ESMTP
+	id <S280935AbRKGTfu>; Wed, 7 Nov 2001 14:35:50 -0500
+Date: Wed, 7 Nov 2001 14:39:38 -0500 (EST)
+From: volodya@mindspring.com
+Reply-To: volodya@mindspring.com
+To: Nicson <nicson@unforgettable.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem to compile 2.4.14 on x86 (cause: mm/swap.c) : patch
+ included in body
+In-Reply-To: <0111071254290C.00326@padawah>
+Message-ID: <Pine.LNX.4.20.0111071438520.7304-100000@node2.localnet.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just recently installed a new version of Redhat 7.2 and had problems with
-some of my devices not being supported as part of the stock
-installation...this got me thinking...I noticed that when I did a lspci that a
-majority of my hardware was identified, but there was no guarantee that the
-module to support that hardware is present in the kernel or configured..
 
-Is it possible prior to kernel configuration to perhaps have something like a
-make newconfig or make probe-config to probe the system and give a guess as to
-what modules are needed for a given system...I guess you could think of it
-kind of as a plug-n-play for kernel configuration.
 
-I could see how this might require some mapping of hardware probed information
-to kernel config options which would then enable them (and if appropriate set
-to current settings).  And also might require some default utilities like the
-pci utilities, the usb utilities, scsi, etc...
+Similar problem here (2.4.14):
 
-Any comments?
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.14/kernel/drivers/block/loop.o
+depmod:         deactivate_page
 
-Eric Bresie
-ebresie@usa.net
+/usr/include/linux/swap.h has activate_page but no deactivate_page..
+
+                       Vladimir Dergachev 
+
+
+On Wed, 7 Nov 2001, Nicson wrote:
+
+> Hi all!
+> 
+> This is my first post on lkml, I tried to do it "by the book" (I read the 
+> "Unofficial Linus HOWTO" from Jeff Garzik) but may have missed something. My 
+> apologies if this is the case - and feel free to correct me, could be useful 
+> next time ;-)
+> 
+> [Disclaimer: I'm not a kernel hacker]
+> 
+> I wanted to compile 2.4.14 on a Dell PowerEdge 2500 with 2x PIII 1GHz, and 
+> encountered a small problem with the loopback dev. (either included or as a 
+> module) : the function deactivate_page() was not found.
+> The exact error message is:
+> ----------------[ start 'make bzImage' output ]-----------------
+> [...]
+> drivers/block/block.o: In function `lo_send':
+> drivers/block/block.o(.text+0x87af): undefined reference to `deactivate_page'
+> drivers/block/block.o(.text+0x87f9): undefined reference to `deactivate_page'
+> make: *** [vmlinux] Error 1                                                   
+> ----------------[ end 'make bzImage' output ]-----------------
+> 
+> I tried it also on another x86 box (PIII-UP), same problem.
+> 
+> I traced it back to mm/swap.c and include/linux/swap.h
+> On 2.4.13 the function deactivate_page() is present in mm/swap.c, but not in 
+> 2.4.14
+> 
+> I just added it (and the relevant declaration in include/linux/swap.h), and 
+> tried compiling 2.4.14 with this modification ---> problem fixed on both 
+> systems.
+> 
+> I couldn't find exactly who's the maintainer for this section of the kernel 
+> (and didn't want to bother Linus with something that trivial), so I post this 
+> on lkml in hope the person-in-charge will see it. I do not read lkml (just 
+> Kernel-Traffic, thanx Zack Brown for the great job!) so maybe someone else 
+> already submitted a patch for this bug.
+> 
+> Anyway, here is the small patch (made with diff -urN). It's basically only 
+> cut&paste stuff :
+> ------------------------------[ cut here ]-------------------------------
+> diff -urN linux/include/linux/swap.h linux-2.4.14-patched/include/linux/swap.h
+> --- linux/include/linux/swap.h  Mon Nov  5 21:42:13 2001
+> +++ linux-2.4.14-patched/include/linux/swap.h   Wed Nov  7 13:17:48 2001
+> @@ -105,6 +105,7 @@
+>  extern void FASTCALL(__lru_cache_del(struct page *));
+>  extern void FASTCALL(lru_cache_del(struct page *));
+>  
+> +extern void FASTCALL(deactivate_page(struct page *));
+>  extern void FASTCALL(activate_page(struct page *));
+>  
+>  extern void swap_setup(void);
+> diff -urN linux/mm/swap.c linux-2.4.14-patched/mm/swap.c
+> --- linux/mm/swap.c     Sun Nov  4 19:29:49 2001
+> +++ linux-2.4.14-patched/mm/swap.c      Wed Nov  7 13:17:26 2001
+> @@ -33,6 +33,32 @@
+>         8,      /* do swap I/O in clusters of this size */
+>  };
+>  
+> +/**
+> + * (de)activate_page - move pages from/to active and inactive lists
+> + * @page: the page we want to move
+> + * @nolock - are we already holding the pagemap_lru_lock?
+> + *
+> + * Deactivate_page will move an active page to the right
+> + * inactive list, while activate_page will move a page back
+> + * from one of the inactive lists to the active list. If
+> + * called on a page which is not on any of the lists, the
+> + * page is left alone.
+> + */
+> +static inline void deactivate_page_nolock(struct page * page)
+> +{
+> +       if (PageActive(page)) {
+> +               del_page_from_active_list(page);
+> +               add_page_to_inactive_list(page);
+> +       }
+> +}
+> +
+> +void deactivate_page(struct page * page)
+> +{
+> +       spin_lock(&pagemap_lru_lock);
+> +       deactivate_page_nolock(page);
+> +       spin_unlock(&pagemap_lru_lock);                                       
+> +}
+> +
+>  /*
+>   * Move an inactive page to the active list.
+>   */                                                                          
+> -------------------------------[ cut here ]-------------------------
+> 
+> 
+> Hope this helps...
+> 
+> Cheers!
+> --
+> Nicolas Ouedraogo
+> email: nicson@unforgettable.com
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

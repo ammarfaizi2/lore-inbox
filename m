@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290767AbSBVBSa>; Thu, 21 Feb 2002 20:18:30 -0500
+	id <S290823AbSBVBWK>; Thu, 21 Feb 2002 20:22:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290823AbSBVBST>; Thu, 21 Feb 2002 20:18:19 -0500
-Received: from web15003.mail.bjs.yahoo.com ([61.135.128.6]:1299 "HELO
-	web15003.mail.bjs.yahoo.com") by vger.kernel.org with SMTP
-	id <S290767AbSBVBSM>; Thu, 21 Feb 2002 20:18:12 -0500
-Message-ID: <20020222011800.95965.qmail@web15003.mail.bjs.yahoo.com>
-Date: Fri, 22 Feb 2002 09:18:00 +0800 (CST)
-From: =?gb2312?q?hanhbkernel?= <hanhbkernel@yahoo.com.cn>
-Subject: boot messeage
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=gb2312
-Content-Transfer-Encoding: 8bit
+	id <S290827AbSBVBWA>; Thu, 21 Feb 2002 20:22:00 -0500
+Received: from ns.suse.de ([213.95.15.193]:38669 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290823AbSBVBVv>;
+	Thu, 21 Feb 2002 20:21:51 -0500
+Date: Fri, 22 Feb 2002 02:21:49 +0100
+From: Dave Jones <davej@suse.de>
+To: Benjamin Pharr <ben@benpharr.com>
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: Linux 2.5.5-dj1 - Bug Reports
+Message-ID: <20020222022149.N5583@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Benjamin Pharr <ben@benpharr.com>, linux-kernel@vger.kernel.org,
+	vojtech@suse.cz
+In-Reply-To: <20020221233700.GA512@hst000004380um.kincannon.olemiss.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020221233700.GA512@hst000004380um.kincannon.olemiss.edu>; from ben@benpharr.com on Thu, Feb 21, 2002 at 05:37:00PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When booting Linux, the kernel messages are shown on
-screen. 
-I don't like to show these messages, so  "Support for
-console on virtual terminal" and "Support for console
-on serial port" are not chose when compiling kernel.
-But using the new kernel, computer can't boot. If one
-of "Support for console on virtual terminal" and
-"Support for console on serial port" is chose,
-Computer can be booted. If I don’t like the booting
-messages shown through terminal or HyperTerminal on
-screen.
-the following is my lilo.conf
-boot=/dev/hda
-map=/boot/map
-install=/boot/boot.b
-prompt
-timeout=50
-message=/boot/message
-linear
-default=linux-2.4.17
-image=/boot/linux2417
-	label=linux-2.4.17
-	initrd=/root/initrd
-	append="root=/dev/ram0 init=linuxrc rw"
-I using append="console=quiet  root=/dev/ram0
-init=linuxrc rw" and  
-append="console=/dev/null root=/dev/ram0 init=linuxrc
-rw" but computer can not be booted.
-Would you like to tell me how could I do?
+ > It compiled fine. When I booted up everything looked normal with the
+ > exception of a 
+ > eth1: going OOM 
+ > message that kept scrolling down the screen. My eth1 is a natsemi card.
 
+ That's interesting. Probably moreso for Manfred. I'll double check
+ I didn't goof merging the oom-handling patch tomorrow.
 
+ > Eventually that stopped and gdm came up. For some reason my keyboard and
+ > mouse wouldn't work.
 
-_________________________________________________________
-Do You Yahoo!? 
-到世界杯主题公园玩一玩，赢取世界杯门票乐一乐。
-http://cn.worldcup.yahoo.com/
+ -dj includes a different input layer to Linus' tree, which requires
+ some extra options enabled.  Vojtech, this is quite a frequent
+ 'bug report', and I think if you merged that with Linus, the number
+ of reports would climb. Is there a possibility of simplifying the
+ config.in somewhat? Or at least changing the defaults to give the
+ element of least surprise..
+ 
+ > It got to check.c in fs/partitions before stopping with an error.
+
+ That one I've not got an answer for. Can you give me more information
+ about your disk layout, partitions, number of disks, scsi?/ide?/lvm?
+ 
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266482AbUFUViW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266485AbUFUWBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266482AbUFUViW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 17:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266486AbUFUViW
+	id S266485AbUFUWBE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 18:01:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266486AbUFUWBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 17:38:22 -0400
-Received: from mail1.asahi-net.or.jp ([202.224.39.197]:58496 "EHLO
-	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
-	id S266482AbUFUViT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 17:38:19 -0400
-Message-ID: <40D75543.3050706@ThinRope.net>
-Date: Tue, 22 Jun 2004 06:38:11 +0900
-From: Kalin KOZHUHAROV <kalin@ThinRope.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
-X-Accept-Language: bg, en, ja, ru, de
-MIME-Version: 1.0
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new device support for forcedeth.c second try
-References: <C064BF1617D93B4B83714E38C4653A6E0BD11BCF@mail-sc-10.nvidia.com> <40D71CBB.4090009@gmx.net> <40D73040.5010106@ThinRope.net> <40D73BA2.5080703@gmx.net>
-In-Reply-To: <40D73BA2.5080703@gmx.net>
-X-Enigmail-Version: 0.83.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jun 2004 18:01:03 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:32812 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266485AbUFUWBB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 18:01:01 -0400
+Date: Tue, 22 Jun 2004 00:12:45 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BK and 'make distclean'
+Message-ID: <20040621221244.GB2903@mars.ravnborg.org>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Linus Torvalds <torvalds@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <40D700A4.8040708@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40D700A4.8040708@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel Hailfinger wrote:
-> Does the driver work for you when a cable is plugged in? Please test
-> normal network traffic.
+On Mon, Jun 21, 2004 at 11:37:08AM -0400, Jeff Garzik wrote:
+> It appears we have a conflict between what BitKeeper thinks is a source 
+> file, and what kbuild thinks is a source file:
+> 
+> 	[jgarzik@sata linux-2.6]$ bk -r co -Sq
+> 	[jgarzik@sata linux-2.6]$ make distclean
+> 	  CLEAN   scripts/package
+> 	[jgarzik@sata linux-2.6]$ bk -r co -Sq
+> 	[jgarzik@sata linux-2.6]$ make distclean
+> 	  CLEAN   scripts/package
 
-No, definately not :-( I just saw that I can up the iface and assign it addresses, but when I try to use it...
+It happens because I used 'clean-rule' in the package makefile.
+The problem is that I need to delete files at the root of the kernel src tree,
+and usually kbuild add the $(obj)/ prefix.
 
-I tried a ping and on the other host (directly connected with a cross cable) I got a lot of:
+So when we visit package/ the clean-rule is not empty and get executed.
 
-eth1: bogus packet size: 1774, status=0x21 nxpg=0x66.
-eth1: bogus packet size: 1774, status=0x21 nxpg=0x6d.
-eth1: bogus packet size: 1774, status=0x21 nxpg=0x74.
-...
-eth1: bogus packet size: 1774, status=0x21 nxpg=0x78.
-eth1: bogus packet size: 1779, status=0x21 nxpg=0x7f.
-eth1: bogus packet size: 1779, status=0x21 nxpg=0x52.
-eth1: bogus packet size: 1779, status=0x21 nxpg=0x59.
-eth1: bogus packet size: 1779, status=0x21 nxpg=0x60.
-eth1: bogus packet size: 1779, status=0x21 nxpg=0x67.
+I will fix tomorrow. Just need to add a simple existence check 
+before assigning 'clean-rule'.
 
-The size seems to fluctuate between 1774 and 1779, more like random.
 
-The iteresting thing is that sometimes it just starts and works!
-Like in the middle of a ping (or ping -f), or just starting iptraf (and get into promiscuous mode), the best description that fits here is "random"...
-
-Trying with tcpdump on the othe host:
-#  tcpdump  -XX -vvv -n -p -i eth1
-tcpdump: listening on eth1, link-type EN10MB (Ethernet), capture size 96 bytes
-06:34:30.708109 IP truncated-ip - 23 bytes missing! (tos 0x0, ttl  64, id 0, offset 0, flags [DF], length: 84) 192.168.44.20 > 192.168.44.123: icmp 64: echo request seq 1
-        0x0000:  0090 fe52 8bab 000c 6ecd ae29 0800 4500  ...R....n..)..E.
-        0x0010:  0054 0000 4000 4001 60c9 c0a8 2c14 c0a8  .T..@.@.`...,...
-        0x0020:  2c7b 0800 3864 b42c 0001 6054 d740 e2d5  ,{..8d.,..`T.@..
-        0x0030:  0600 0809 0a0b 0c0d 0e0f 1011 1213 1415  ................
-        0x0040:  1617 1819 1a1b 1c1d 1e1f 20              ...........
-06:34:31.707072 IP truncated-ip - 23 bytes missing! (tos 0x0, ttl  64, id 1, offset 0, flags [DF], length: 84) 192.168.44.20 > 192.168.44.123: icmp 64: echo request seq 2
-        0x0000:  0090 fe52 8bab 000c 6ecd ae29 0800 4500  ...R....n..)..E.
-        0x0010:  0054 0001 4000 4001 60c8 c0a8 2c14 c0a8  .T..@.@.`...,...
-        0x0020:  2c7b 0800 a166 b42c 0002 6154 d740 78d2  ,{...f.,..aT.@x.
-        0x0030:  0600 0809 0a0b 0c0d 0e0f 1011 1213 1415  ................
-        0x0040:  1617 1819 1a1b 1c1d 1e1f 20              ...........
-
-when doing this on the A7X8N-Deluxe:
-# ping  -c 2 192.168.44.123
-
-The MSG "23 bytes missing!" is different (saw 28, 29, etc).
-
-arping seems to work OK, so it is the IP that gets shreded here.
-
-Kalin.
-
--- 
-||///_ o  *****************************
-||//'_/>     WWW: http://ThinRope.net/
+	Sam

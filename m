@@ -1,84 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267219AbSLKQtG>; Wed, 11 Dec 2002 11:49:06 -0500
+	id <S267216AbSLKQ6r>; Wed, 11 Dec 2002 11:58:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267220AbSLKQtG>; Wed, 11 Dec 2002 11:49:06 -0500
-Received: from halon.barra.com ([144.203.11.1]:55194 "EHLO halon.barra.com")
-	by vger.kernel.org with ESMTP id <S267219AbSLKQtC>;
-	Wed, 11 Dec 2002 11:49:02 -0500
-From: Fedor Karpelevitch <fedor@apache.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [2.4]ALi M5451 sound hangs on init; workaround
-Date: Wed, 11 Dec 2002 08:52:42 -0800
-User-Agent: KMail/1.5
-Cc: lkml <linux-kernel@vger.kernel.org>, Vicente Aguilar <bisente@bisente.com>,
-       alsa-devel@lists.sourceforge.net,
-       Debian-Laptops <debian-laptop@lists.debian.org>
-References: <200212110715.20617.fedor@apache.org> <1039625298.18087.61.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1039625298.18087.61.camel@irongate.swansea.linux.org.uk>
+	id <S267217AbSLKQ6r>; Wed, 11 Dec 2002 11:58:47 -0500
+Received: from intpop.corp.wcom.ca ([205.150.160.74]:17307 "EHLO corp.wcom.ca")
+	by vger.kernel.org with ESMTP id <S267216AbSLKQ6r> convert rfc822-to-8bit;
+	Wed, 11 Dec 2002 11:58:47 -0500
+Message-ID: <071a01c2a137$a8646460$9c094d8e@wcom.ca>
+From: "Serge Kuznetsov" <serge@wcom.ca>
+To: "Joseph D. Wagner" <wagnerjd@prodigy.net>, <linux-kernel@vger.kernel.org>
+References: <001801c2a0a9$02613f40$2e863841@joe>
+Subject: Re: Is this going to be true ?
+Date: Wed, 11 Dec 2002 12:06:33 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200212110852.42778.fedor@apache.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4920.2300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have ALi M5451 souncard in my laptop (Compaq Presario 900z for
-> > those searching) and it hangs the machine with any kernel I tried
-> > (currently 2.4.20-ac1 + hirofumi patch). I traced it down to the
-> > line where it hangs - that is drivers/sound/trident.c:3379 which
-> > says: pci_write_config_byte(pci_dev, 0xB8, ~temp);
->
-> Looking at the docs it looks like the code Matt Wu added may have
-> been meant to do
->
-> 	pci_read_config_byte(pci_dev, 0x59, temp)
-> 	temp &= ~0x80
-> 	pci_write...
->
+What I can say is what Linux kernel development outperforms
+M$-Windows development in timeline by many parameters.
 
-just to make sure I got it right, is the following what you suggest? 
-(pseudo-patch):
+That what I know for sure.
 
---------
-static int ali_close_multi_channels(void)
-{
-        char temp = 0;
-        struct pci_dev *pci_dev = NULL;
+For this moment M$ have only nice and comfy GUI, but I hope it will change very soon. 
 
-	pci_dev =pci_find_device(PCI_VENDOR_ID_AL,PCI_DEVICE_ID_AL_M1533,
-		pci_dev);
-        if (pci_dev == NULL)
-                return -1;
--       temp = 0x80;
-+	pci_read_config_byte(pci_dev, 0x59, temp);
-+      temp &= ~0x80;
--       pci_write_config_byte(pci_dev, 0x59, ~temp);
-+	pci_write_config_byte(pci_dev, 0x59, temp);
 
-        pci_dev = pci_find_device(PCI_VENDOR_ID_AL,
-		PCI_DEVICE_ID_AL_M7101, pci_dev);
-        if (pci_dev == NULL)
-                return -1;
-
--       temp = 0x20;
-+	pci_read_config_byte(pci_dev, 0xB8, temp);
-+	temp &= ~0x20
--       pci_write_config_byte(pci_dev, 0xB8, ~temp);  // the line I 
-+	pci_write_config_byte(pci_dev, 0xB8, temp);  //commented out
-
-        return 0;
-}
----------------------
-I'll try it and will tell you what the result is. Anyway, what are 
-those commands doing, i.e. what am I loosing when I comment it out? 
-Is there some specific functionality I should test to see the result 
-of these changes?
-
-> and similarly for the other port
->
-> (Ditto with fixing setup_multi_cannnels)
->
-> Does it work sanely with those fixd ?
+All the Best!

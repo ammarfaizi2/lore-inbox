@@ -1,88 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280012AbRKVQfu>; Thu, 22 Nov 2001 11:35:50 -0500
+	id <S280016AbRKVQiK>; Thu, 22 Nov 2001 11:38:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280016AbRKVQfl>; Thu, 22 Nov 2001 11:35:41 -0500
-Received: from c0mailgw.prontomail.com ([216.163.180.10]:62275 "EHLO
-	c0mailgw06.prontomail.com") by vger.kernel.org with ESMTP
-	id <S280012AbRKVQf0>; Thu, 22 Nov 2001 11:35:26 -0500
-Message-ID: <3BFD2915.D640C3CB@starband.net>
-Date: Thu, 22 Nov 2001 11:34:29 -0500
-From: war <war@starband.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+	id <S280026AbRKVQiA>; Thu, 22 Nov 2001 11:38:00 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:3500 "EHLO
+	localhost") by vger.kernel.org with ESMTP id <S280016AbRKVQhy>;
+	Thu, 22 Nov 2001 11:37:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: war <war@starband.net>
 Subject: Re: Swap vs No Swap.
-In-Reply-To: <Pine.LNX.4.10.10111221006010.29736-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 22 Nov 2001 08:37:18 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <3BFC5A9B.915B77DF@starband.net> <E166rbB-0005LC-00@mauve.csi.cam.ac.uk> <3BFD2709.31A1A85E@starband.net>
+In-Reply-To: <3BFD2709.31A1A85E@starband.net>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E166wqm-0004XF-00@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unworkable?
-How is it unworkable for my situation?
-I have 1GB of memory, even when I launch every application I can, I still have
-350MB left over!
+On November 22, 2001 08:25, war wrote:
+> Why have SWAP if you don't need it - answer that.?
 
-Mark Hahn wrote:
+> > BS. You don't use swap INSTEAD of RAM, but AS WELL AS. Moving less
+> > frequently used data to swap allows you to put more frequently used data
+> > in RAM, which DOES speed things up. (At least, it does if the VM system
+> > works properly :P)
 
-> > You can say whatever you want.
->
-> gee, thanks.
->
-> > When my box starts swapping, the shit hits the fan, slows down dramatically.
->
-> then your disks are misconfigured.
->
-> > If you have no need for swap, you shouldn't have it, it simply slows the
-> > system down big time.
->
-> sure, that's obvious.  it's also unworkable in general.
->
-> >
-> >
-> > Mark Hahn wrote:
-> >
-> > > > How can having swap speed ANYTHING up?
-> > >
-> > > simple: under memory load, it's more efficient to scavenge
-> > > idle pages so they can be used for some "hotter" purpose.
-> > > there usually are *some* pages in any process which are
-> > > only used at startup, or very rarely used.  if there's no
-> > > memory pressure, sure, leave them there.  if there is some
-> > > other use for the memory, even caching files, then it's more
-> > > efficient to swap those pages (assuming they're dirty).
-> > >
-> > > swap is a sound way of making more efficient use of limited ram.
-> > >
-> > > > RAM = 1000MB/s.
-> > > > DISK = 10MB/s
-> > >
-> > > well, modern disks are 40 MB/s, and a typical non-rambus PC
-> > > has only around 600 MB/s dram bandwidth, depending on how you
-> > > measure it, etc.
-> > >
-> > > > Ram is generally 1000x faster than a hard disk.
-> > >
-> > > no, more like 20x; it can be up to around 80x (1.6 GB/s pc800
-> > > and a fairly pathetic 20 MB/s disk).  the *latency* ratio can
-> > > be much higher (10 ms vs 200 ns).
-> > >
-> > > > No swap = fastest possible solution.
-> > >
-> > > false in general.  the only case where this is true is where
-> > > you either have just the right amount of ram (unlikely, unless
-> > > you can tune your apps rather carefully), or you have too much (your case).
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
-> --
-> operator may differ from spokesperson.              hahn@coffee.mcmaster.ca
->                                               http://java.mcmaster.ca/~hahn
+Are you even reading what they're saying? Having swap lets you move less 
+frequently used data to disk in favour of having more frequently used data in 
+RAM. 
 
+Personally, I have more than enough RAM to run a fairly busy KDE2 desktop, 
+and still have over 128megs in disk cache. And I still run with swap. The VM 
+seems to find about 40megs of data I'm -simply not using-, and it now has the 
+freedom to push that to swap so it can cache things that I -do use-. Although 
+the more RAM you have, the less significant the results are, you'll find that 
+in normal desktop/workstation/server use, the kernel will -always- find 
+something to swap out to give itself more cache, and more cache is a very 
+good thing. It's not fucking rocket science.
+
+-Ryan

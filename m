@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265222AbTALMsE>; Sun, 12 Jan 2003 07:48:04 -0500
+	id <S265633AbTALNGs>; Sun, 12 Jan 2003 08:06:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265243AbTALMsE>; Sun, 12 Jan 2003 07:48:04 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:27923 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S265222AbTALMsD>;
-	Sun, 12 Jan 2003 07:48:03 -0500
-Date: Sun, 12 Jan 2003 13:56:45 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Paul Rolland <rol@witbe.net>
-Cc: linux-kernel@vger.kernel.org, Perex@suze.cz, rol@as2917.net
-Subject: Re: [PATCH 2.5.56] Sound core not compiling without /proc support
-Message-ID: <20030112125645.GA996@mars.ravnborg.org>
-Mail-Followup-To: Paul Rolland <rol@witbe.net>,
-	linux-kernel@vger.kernel.org, Perex@suze.cz, rol@as2917.net
-References: <008f01c2ba32$3aab6f40$2101a8c0@witbe>
+	id <S265727AbTALNGs>; Sun, 12 Jan 2003 08:06:48 -0500
+Received: from ns.suse.de ([213.95.15.193]:29453 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S265633AbTALNGr>;
+	Sun, 12 Jan 2003 08:06:47 -0500
+Date: Sun, 12 Jan 2003 14:15:35 +0100
+From: Hubert Mantel <mantel@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: UnitedLinux violating GPL?
+Message-ID: <20030112131535.GA8594@suse.de>
+References: <200301111634.h0BGYGUt003680@eeyore.valparaiso.cl> <10213.1042313279@passion.cambridge.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <008f01c2ba32$3aab6f40$2101a8c0@witbe>
-User-Agent: Mutt/1.4i
+In-Reply-To: <10213.1042313279@passion.cambridge.redhat.com>
+Organization: SuSE Linux AG, Nuernberg, Germany
+X-Operating-System: SuSE Linux - Kernel 2.4.19-4GB
+X-GPG-Key: 1024D/B0DFF780
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 12, 2003 at 01:00:40PM +0100, Paul Rolland wrote:
-> Hello,
+Hi,
+
+On Sat, Jan 11, David Woodhouse wrote:
+
+> >  Great! The "complete source code" for the kernel does include each
+> > and every single patch applied since linux-0.0.1? Guess I'll have to
+> > complain to a certain Torvalds then...
 > 
-> Here is a quick patch to allow sound support to compile correctly
-> when not using /proc support.
+> > Don't be silly. "Complete source code" means the source needed to
+> > rebuild the binary, nothing more. If that is a mangled version derived
+> > from some other  source, so be it. You are explicitly allowed to
+> > distribute changed versions, but only under GPL. [IANAL etc, so...]
+> 
+> I disagree. A preprocessed source file with all the variables renamed to 
+> random strings would suffice to rebuild the binary, and is obviously not 
+> acceptable -- being able to rebuild the binary is not the only criterion.
+> 
+> 	"The source code for a work means the preferred form of the work
+> 	for making modifications to it."
+> 
+> Note that the GPL doesn't say you have to give it in the preferred form for 
+> _building_ it, but the preferred form for _modifying_ it. 
+> 
+> In the opinion of many devlopers, the preferred form of the Linux kernel for
+> maintaining it is a set of individual patches against the closest
+> 'official' release, and not a tarball containing already-modified code. 
 
-You are making all users of functions manipulating /proc condentional.
-A simpler approach would be to make the functions that actually
-minipulate /proc conditional.
-For example snd_info_card_create() could be a noop if CONFIG_PROC_FS
-is not defined.
-Then you minimize the number of #ifdef's, and they are placed logically
-where they belongs.
+So you are saying that Alan Cox is violating the GPL since he releases his 
+-ac kernels only as one single monolithic patch against the vanilla tree, 
+not as individual patches (like Andrea Arcangeli does for example)?
 
-Furhtermore you make less code conditional which imply that the execution
-path - and thus code getting more test - is more similar for the two cases.
+I think the motivation for this ridiculous thread is very obvious.
 
-	Sam
+> dwmw2
+                                                                  -o)
+    Hubert Mantel              Goodbye, dots...                   /\\
+                                                                 _\_v

@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272792AbRIGR5A>; Fri, 7 Sep 2001 13:57:00 -0400
+	id <S272798AbRIGSDK>; Fri, 7 Sep 2001 14:03:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272794AbRIGR4u>; Fri, 7 Sep 2001 13:56:50 -0400
-Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:51471 "EHLO
-	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
-	id <S272792AbRIGR4f>; Fri, 7 Sep 2001 13:56:35 -0400
-Date: Fri, 7 Sep 2001 23:27:45 +0530 (IST)
-From: "SATHISH.J" <sathish.j@tatainfotech.com>
-To: kernelnewbies <kernelnewbies@nl.linux.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Reg lilo.conf changed and system doesn't boot
-Message-ID: <Pine.LNX.4.10.10109072322550.30022-100000@blrmail>
+	id <S272799AbRIGSDA>; Fri, 7 Sep 2001 14:03:00 -0400
+Received: from mhw.ulib.iupui.edu ([134.68.164.123]:16879 "EHLO
+	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
+	id <S272798AbRIGSCw>; Fri, 7 Sep 2001 14:02:52 -0400
+Date: Fri, 7 Sep 2001 13:03:12 -0500 (EST)
+From: "Mark H. Wood" <mwood@IUPUI.Edu>
+X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war 
+In-Reply-To: <200109071228.f87CSNMN017085@pincoya.inf.utfsm.cl>
+Message-ID: <Pine.LNX.4.33.0109071258050.4509-100000@mhw.ULib.IUPUI.Edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I know that this is not the place to ask this question.Please forgive me.
-I changed the lilo.conf on my machine(redhat 2.2.14-12 kernel) and it
-doesn't boot up. I don't have
-a boot floppy to boot. I have another disk which has an older version of
-linux(2.2.6). I can mount the disk if I boot from the other
-disk(2.2.6). Can I
-in some way alter the lilo.conf of my disk(2.2.14) and boot linux from
-that. Please tell me any ideas to do that.
+On Fri, 7 Sep 2001, Horst von Brand wrote:
+[quote snipped]
+> C's unsigned arithmetic is 2-complement. Never even seen a 1-complement
+> machine.
 
-Thanks in advance,
-Warm regards,
-satishj
+CDC big iron.  Seymour Cray found he could get a little more speed out of
+his design that way.  IIRC SPSS on CDC gear used the -0 value to indicate
+a missing case.
+
+-- 
+Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
+Make a good day.
 

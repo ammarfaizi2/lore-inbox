@@ -1,78 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267205AbUIXBmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267334AbUIXBqP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267205AbUIXBmc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 21:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267209AbUIXBmR
+	id S267334AbUIXBqP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 21:46:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267568AbUIXBiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 21:42:17 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:16265 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267205AbUIXBlb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 21:41:31 -0400
-Message-ID: <311601c90409231841774f5168@mail.gmail.com>
-Date: Thu, 23 Sep 2004 19:41:30 -0600
-From: Eric Mudama <edmudama@gmail.com>
-Reply-To: Eric Mudama <edmudama@gmail.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-Subject: Re: undecoded slave?
-Cc: tabris <tabris@tabris.net>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <200409240209.13884.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200409222357.39492.tabris@tabris.net>
-	 <200409231314.55547.bzolnier@elka.pw.edu.pl>
-	 <200409231630.49153.tabris@tabris.net>
-	 <200409240209.13884.bzolnier@elka.pw.edu.pl>
+	Thu, 23 Sep 2004 21:38:50 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:15085 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267330AbUIWUoX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 16:44:23 -0400
+Subject: [patch 5/9]  block/pf: replace pf_sleep() with 	msleep_interruptible()
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
+From: janitor@sternwelten.at
+Date: Thu, 23 Sep 2004 22:44:23 +0200
+Message-ID: <E1CAaS0-0002SZ-5W@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Sep 2004 02:09:13 +0200, Bartlomiej Zolnierkiewicz
-<bzolnier@elka.pw.edu.pl> wrote:
-> On Thursday 23 September 2004 22:30, tabris wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > On Thursday 23 September 2004 7:14 am, Bartlomiej Zolnierkiewicz wrote:
-> > > [ use linux-ide@vger.kernel.org for ATA stuff ]
-> > >
-> > > On Thursday 23 September 2004 05:57, tabris wrote:
-> > > > Probing IDE interface ide3...
-> > > > hdg: Maxtor 4D060H3, ATA DISK drive
-> > > > hdh: Maxtor 4D060H3, ATA DISK drive
-> > > > ide-probe: ignoring undecoded slave
-> > > >
-> > > > Booted 2.6.9-rc2-mm2, and I no longer have an hdh. the error above
-> > > > seems to be the only [stated] reason why.
-> > >
-> > > Please send hdparm -I output for both drives.
-> >
-> > As you can see, both drives are the same brand/size/model.
-> > Both are connected to the PDC20265 on my ASUS A7V266-E motherboard.
-> >
-> > /dev/hdg:
-> >
-> > ATA device, with non-removable media
-> >         Model Number:       Maxtor 4D060H3
-> >         Serial Number:      D3000000
-> >         Firmware Revision:  DAK019K0
-> 
-> Thanks.
-> It seems we will need to add this Serial Number to "undecoded slave" fixup.
-> 
-> Please also send /proc/ide/hd?/identify to exclude kernel/hdparm parsing bug.
 
-I'm confused, and I think something else must be going on... to have 2
-different drives, with two completely different ASICs in them (and
-therefore significantly different object code), have identical
-corruption of the same 6 bytes of their configuration block is just
-not likely.  I'm pretty sure they don't even have the same utility
-zone layout.
 
-Is that how the drive IDs when connected via other controllers, in
-another system, etc?
 
-hrm...
+Any comments would be appreciated. This is a re-push of a patch I
+submitted 20 July which hasn't been merged as of
+2.6.9-rc1-mm5/2.6.9-rc2. 
 
-eric
+Description: msleep_interruptible() is used instead of pf_sleep()
+to guarantee the task delays as expected. The defintion of pf_sleep()
+is also removed.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+---
+
+ linux-2.6.9-rc2-bk7-max/drivers/block/paride/pf.c |   10 ++--------
+ 1 files changed, 2 insertions(+), 8 deletions(-)
+
+diff -puN drivers/block/paride/pf.c~msleep_interruptible-drivers_block_pf drivers/block/paride/pf.c
+--- linux-2.6.9-rc2-bk7/drivers/block/paride/pf.c~msleep_interruptible-drivers_block_pf	2004-09-21 21:07:53.000000000 +0200
++++ linux-2.6.9-rc2-bk7-max/drivers/block/paride/pf.c	2004-09-21 21:07:53.000000000 +0200
+@@ -526,12 +526,6 @@ static void pf_eject(struct pf_unit *pf)
+ 
+ #define PF_RESET_TMO   30	/* in tenths of a second */
+ 
+-static void pf_sleep(int cs)
+-{
+-	current->state = TASK_INTERRUPTIBLE;
+-	schedule_timeout(cs);
+-}
+-
+ /* the ATAPI standard actually specifies the contents of all 7 registers
+    after a reset, but the specification is ambiguous concerning the last
+    two bytes, and different drives interpret the standard differently.
+@@ -546,11 +540,11 @@ static int pf_reset(struct pf_unit *pf)
+ 	write_reg(pf, 6, 0xa0+0x10*pf->drive);
+ 	write_reg(pf, 7, 8);
+ 
+-	pf_sleep(20 * HZ / 1000);
++	msleep_interruptible(20);
+ 
+ 	k = 0;
+ 	while ((k++ < PF_RESET_TMO) && (status_reg(pf) & STAT_BUSY))
+-		pf_sleep(HZ / 10);
++		msleep_interruptible(100);
+ 
+ 	flg = 1;
+ 	for (i = 0; i < 5; i++)
+_

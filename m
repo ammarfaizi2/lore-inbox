@@ -1,90 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131557AbRATXlB>; Sat, 20 Jan 2001 18:41:01 -0500
+	id <S131441AbRATXxD>; Sat, 20 Jan 2001 18:53:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131804AbRATXkv>; Sat, 20 Jan 2001 18:40:51 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:13316
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S131441AbRATXke>; Sat, 20 Jan 2001 18:40:34 -0500
-Date: Sat, 20 Jan 2001 15:40:19 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Minors remaining in Major 10 ??
-In-Reply-To: <3A6A1B40.459A1B7@transmeta.com>
-Message-ID: <Pine.LNX.4.10.10101201521320.657-100000@master.linux-ide.org>
+	id <S131678AbRATXwx>; Sat, 20 Jan 2001 18:52:53 -0500
+Received: from mserv1c.vianw.co.uk ([195.102.240.33]:47572 "EHLO
+	mserv1c.vianw.co.uk") by vger.kernel.org with ESMTP
+	id <S131441AbRATXws>; Sat, 20 Jan 2001 18:52:48 -0500
+From: Alan Chandler <alan@chandlerfamily.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [preview] Latest AMD & VIA IDE drivers with UDMA100 support
+Date: Sat, 20 Jan 2001 23:55:13 +0000
+Organization: [private individual]
+Message-ID: <cv8k6ts9oeb72pmhh9hsfjta6uen511a0j@4ax.com>
+In-Reply-To: <20010120215641.A1818@suse.cz> <Pine.LNX.4.10.10101201301200.657-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10101201301200.657-100000@master.linux-ide.org>
+X-Mailer: Forte Agent 1.8/32.548
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Jan 2001, H. Peter Anvin wrote:
+On Sat, 20 Jan 2001 14:57:07 -0800 (PST), Andre Hedrick wrote:
 
-> Andre Hedrick wrote:
-> > 
-> > On Sat, 20 Jan 2001, H. Peter Anvin wrote:
-> > 
-> > > Andre Hedrick wrote:
-> > > >
-> > > > HPA,
-> > > >
-> > > > Thoughts on granting all block subsystems a general access misc-char minor
-> > > > to do special service access that can not be down to a given device if it
-> > > > is open.  There are some things you can not do to a device if you are
-> > > > using its device-point to gain entry.  Also do the grab a neighboor and
-> > > > force the migration to find the desired major/minor is painful.
-> > > >
-> > >
-> > > Hmmm... this would be better done using a dedicated major (and then minor
-> > > = block major.)  This is something we can do in 2.5 once we have the
-> > > larger dev_t; at this point, I'd be really hesitant to allocate
-> > > additional that aren't obligatory.
-> > 
-> > Er, I did not make the point clear enough, drat.
-> > 
-> > mknod /dev/ide-service c 10 ???
-> > mknod /dev/scsi-service c 10 ???
-> > 
-> > These would be char devices that would allow one to pass a struct to an
-> > ioctl to do device or host services that normally have to attempted by
-> > opening the device desired.  This fails if you are trying to unload the
-> > driver (with KMOD enabled) so that you could switch devices or change
-> > driver types.  Yes this is the migration to a hotswap^H^H^H^H^H^H^H
-> > general host/device services calls.
-> > 
-> 
-> No, I think I understood perfectly well.  I said that if it's going to be
-> bound to each block device subsystem it would make more sense to
-> establish that tie explicitly -- if that isn't possible I'm a bit
-> confused.
+...
+>
+>Vojtech, I worry that the dynamic timing that you are calculating could
+>bite you.  Timings are exact especially at modes 3/4/5 the margins go to
+>an effective zero for varition or wiggle room.  The state diagrams from
+>Quantum that created the Ultra DMA 0,1,2,3,4,5 show how darn tight it
+>constrained.  You need to assume absolutes because the various board
+>makers screw up the skew tables by the PCB lane traces.
+>
 
-Okay, I am definitely not clear because I am leading the wrong direction.
-A single char-device would access all of ATA or all of SCSI.
+I am not sure this is just a question of small variations.  The hdparm
+-t differences between these two versions is quite significant.  This
+evidence would imply that the two approaches are making fundemental
+different decisions about what my hardware can do!
 
-Seek by a number of known things by the running kernel to find and select
-the needed host/device by a passive method.
-	host[I]
-	interrupt[J]
-	iobases[K]
-	lun_index[L]
-	memmaps[M]
-or
-	direct MAJOR|MINOR
+Under 2.2.17
 
-The idea is to have a char not a block because there is no buffered access
-to the dummy driver.  It is very painful to have to open one block device
-and pass parameters to select the one you really want to service in a
-passive mode.
+/dev/hda:
+ Timing buffered disk reads:  64 MB in 21.86 seconds =  2.93 MB/sec
 
-However, this looks like a case for another phone call because I am not
-able to explain it in email the way it needs to be explained :-((
+/dev/hdc:
+ Timing buffered disk reads:  64 MB in 20.81 seconds =  3.08 MB/sec
 
-Somebody please write a book, 'Communication for DUMMIES' please.
+Under 2.4.0
 
-Andre Hedrick
-Linux ATA Development
+/dev/hda:
+ Timing buffered disk reads:  64 MB in  6.58 seconds =  9.73 MB/sec
 
+/dev/hdc:
+ Timing buffered disk reads:  64 MB in  6.59 seconds =  9.71 MB/sec
+
+Alan
+
+alan@chandlerfamily.org.uk
+http://www.chandler.u-net.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318283AbSHZW5s>; Mon, 26 Aug 2002 18:57:48 -0400
+	id <S318277AbSHZW5l>; Mon, 26 Aug 2002 18:57:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318289AbSHZW5s>; Mon, 26 Aug 2002 18:57:48 -0400
-Received: from soul.math.tau.ac.il ([132.67.192.131]:55181 "EHLO tau.ac.il")
-	by vger.kernel.org with ESMTP id <S318283AbSHZW5r>;
-	Mon, 26 Aug 2002 18:57:47 -0400
-Date: Tue, 27 Aug 2002 02:02:01 +0300
-From: Yedidyah Bar-David <didi@tau.ac.il>
-To: linux-kernel@vger.kernel.org
-Subject: Re: updating the partition table of a busy drive
-Message-ID: <20020827020201.A20702@soul.math.tau.ac.il>
-References: <20020827005254.A20617@soul.math.tau.ac.il> <20020826220238.GE19435@clusterfs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020826220238.GE19435@clusterfs.com>; from adilger@clusterfs.com on Mon, Aug 26, 2002 at 04:02:38PM -0600
+	id <S318283AbSHZW5l>; Mon, 26 Aug 2002 18:57:41 -0400
+Received: from mail.actcom.co.il ([192.114.47.13]:13998 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S318277AbSHZW5k>; Mon, 26 Aug 2002 18:57:40 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Itai Nahshon <nahshon@actcom.co.il>
+Reply-To: nahshon@actcom.co.il
+To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre4-ac2
+Date: Tue, 27 Aug 2002 02:01:53 +0300
+User-Agent: KMail/1.4.3
+References: <200208261035.g7QAZ4G19985@devserv.devel.redhat.com>
+In-Reply-To: <200208261035.g7QAZ4G19985@devserv.devel.redhat.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200208270201.53750.nahshon@actcom.co.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 26, 2002 at 04:02:38PM -0600, Andreas Dilger wrote:
-> On Aug 27, 2002  00:52 +0300, Yedidyah Bar-David wrote:
-> > Currently, any change to a partition table of a busy drive is
-> > practically delayed to the next reboot. Even things trivial as
-> > changing the type of an unmounted partition do not work, if
-> > another partition on that drive is mounted (or swapped to, etc.).
-> > 
-> > On a side note, about a year and a half ago, there was a thread
-> > on lkml with the subject 'Partition IDs in the New World TM', in
-> > which a 'parttab' file was mentioned. I grepped and STFWed a lot,
-> > and could not find any relevant mention anywhere, besides this
-> > thread. Is this parttab implemented? Documented? Perhaps under
-> > a different name? Is this case it is quite hard to find
-> > (google search for 'linux parttab' has 37 results, but for
-> > e.g. 'linux partition table initrd' 11400 results).
-> 
-> Please see partx (util-linux) and/or GNU parted for tools which can
-> change partitions on mounted disks.  I believe the kernel has supported
-> this since 2.4.0, but not many tools do.
+On Monday 26 August 2002 13:35 pm, Alan Cox wrote:
+> o       Error handling clean ups for USB storage        (Pete Zaitcev)
 
-Thanks a lot! I am right off to adding a small note on my home
-page for google searches to find. Tools help, but information
-even more.
-I tried partx and it works just fine. parted will probably be even
-better, but is a bit more complicated (or so it seems).
+While USB-storage error handling is looked at...
 
-> 
-> Cheers, Andreas
-> --
-> Andreas Dilger
-> http://www-mddsp.enel.ucalgary.ca/People/adilger/
-> http://sourceforge.net/projects/ext2resize/
+--- linux-2.4.20-pre4-ac2-i2/drivers/usb/storage/transport.c.orig	Mon Aug 26 
+23:24:09 2002
++++ linux-2.4.20-pre4-ac2-i2/drivers/usb/storage/transport.c	Mon Aug 26 
+23:24:53 2002
+@@ -1164,6 +1164,10 @@
+ 				ret = USB_STOR_TRANSPORT_ABORTED;
+ 				goto out;
+ 			}
++			if (result == US_BULK_TRANSFER_FAILED) {
++				ret = USB_STOR_TRANSPORT_FAILED;
++				goto out;
++			}
+ 		}
+ 	}
 
-Again, Thanks!
+There's a check for US_BULK_TRANSFER_FAILED after
+a call to usb_stor_transfer everywhere except here... Is it for 
+a reason?
 
-	Didi
+Backround:
+A long time ago (linux-2.4.19-pre4-ac2) I got a USB disk
+related hang (all processes accessing it stuck in state D).
+It happened while reading from a USB-storage device
+(disk attached to a USB-IDE bridge).
+
+The system log has just these two errors:
+usb-uhci.c: interrupt, status 3, frame# 1660
+usb_control/bulk_msg: timeout
+
+That problem happened only once. I had to reboot in order
+to continue use the device.
+
+Is it possible that the missing check is the cause for that
+hang?
+
+-- Itai
 

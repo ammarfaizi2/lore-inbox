@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262866AbTC0EfG>; Wed, 26 Mar 2003 23:35:06 -0500
+	id <S262879AbTC0Exe>; Wed, 26 Mar 2003 23:53:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262871AbTC0EfF>; Wed, 26 Mar 2003 23:35:05 -0500
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:59629 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S262866AbTC0EfF>; Wed, 26 Mar 2003 23:35:05 -0500
-Message-Id: <200303270446.h2R4kGu4636448@pimout1-ext.prodigy.net>
-Content-Type: text/plain; charset=US-ASCII
-From: dan carpenter <d_carpenter@sbcglobal.net>
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 509] New: NULL pointer when rmmod faulty driver
-Date: Wed, 26 Mar 2003 12:25:28 +0100
-X-Mailer: KMail [version 1.3.2]
-References: <1451130000.1048708440@flay>
-In-Reply-To: <1451130000.1048708440@flay>
+	id <S262881AbTC0Exe>; Wed, 26 Mar 2003 23:53:34 -0500
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:33260 "EHLO
+	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
+	id <S262879AbTC0Exd>; Wed, 26 Mar 2003 23:53:33 -0500
+Message-ID: <3E82866A.1000704@blue-labs.org>
+Date: Thu, 27 Mar 2003 00:04:42 -0500
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030320
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: nit picking UDF
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Bmilter: Processing completed, Bmilter version 0.1.1 build 917; timestamp 2003-03-27 05:04:46, message serial number 842239
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 26 March 2003 08:54 pm, Martin J. Bligh wrote:
-> http://bugme.osdl.org/show_bug.cgi?id=509
->
+ACPI: (supports S0 S1 S4 S4bios S5)
+You didn't specify the type of your ufs filesystem
 
-> Mar 26 20:23:33 localhost modprobe: FATAL: Module /dev/video0 not found.
-> Mar 26 20:27:14 localhost kernel: drivers/usb/host/uhci-hcd.c: 1000: host
-> controller halted. very bad
+mount -t ufs -o 
+ufstype=sun|sunx86|44bsd|old|hp|nextstep|netxstep-cd|openstep ...
 
-There is a fixme next to the printf statement in 
-drivers/usb/host/uhci-hcd.c
+ >>>WARNING<<< Wrong ufstype may corrupt your filesystem, default is 
+ufstype=old
+ufs_read_super: bad magic number
+UDF-fs DEBUG fs/udf/lowlevel.c:65:udf_get_last_session: 
+CDROMMULTISESSION not supported: rc=-25
+UDF-fs DEBUG fs/udf/super.c:1472:udf_fill_super: Multi-session=0
+UDF-fs DEBUG fs/udf/super.c:460:udf_vrs: Starting at sector 16 (2048 
+byte sectors)
+UDF-fs DEBUG fs/udf/super.c:1208:udf_check_valid: Failed to read byte 
+32768. Assuming open disc. Skipping validity check
+UDF-fs DEBUG fs/udf/misc.c:286:udf_read_tagged: location mismatch block 
+256, tag 18 != 256
+UDF-fs DEBUG fs/udf/super.c:1262:udf_load_partition: No Anchor block found
+UDF-fs: No partition found (1)
+found reiserfs format "3.6" with standard journal
 
-  1886                  if ((status & USBSTS_HCH) && !uhci->is_suspended) {
-  1887                          err("%x: host controller halted. very bad", io_addr);
-  1888                          /* FIXME: Reset the controller, fix the offending TD */
-  1889                  }
+Is all this blurbage necessary?  I don't even have a disc in the 'rom 
+drive because it causes the kernel to lock up hard on bootup if I do.  
+Right at the moment, the 'rom isn't even plugged in.
 
-> Mar 26 20:27:14 localhost kernel: EIP:    0060:[<ce8c2a3c>]    Tainted: GF
-> Mar 26 20:27:14 localhost kernel: EFLAGS: 00010206
-> Mar 26 20:27:14 localhost kernel: EIP is at qc_usb_disconnect+0x98/0x268
-> [quickcam] Mar 26 20:27:14 localhost kernel: eax: ce8d07c0   ebx: 00000077 
+David
 
-The quickcam source isn't available to fix the null dereference bug.
-
-regards,
-dan

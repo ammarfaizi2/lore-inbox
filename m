@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271613AbRHPSul>; Thu, 16 Aug 2001 14:50:41 -0400
+	id <S271617AbRHPSwl>; Thu, 16 Aug 2001 14:52:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271617AbRHPSuc>; Thu, 16 Aug 2001 14:50:32 -0400
-Received: from archive.osdlab.org ([65.201.151.11]:50607 "EHLO fire.osdlab.org")
-	by vger.kernel.org with ESMTP id <S271613AbRHPSuM>;
-	Thu, 16 Aug 2001 14:50:12 -0400
-Message-ID: <3B7C14D6.B18E6540@osdlab.org>
-Date: Thu, 16 Aug 2001 11:45:42 -0700
-From: "Randy.Dunlap" <rddunlap@osdlab.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: hugang <linuxbest@soul.com.cn>
-CC: bart@jukie.net, linux-kernel@vger.kernel.org
-Subject: Re: apm, swsuspend.
-In-Reply-To: <20010814160812.I29740@jukie.net>
-		<3B798977.AB3E1EE3@osdlab.org> <20010817003358.64128986.linuxbest@soul.com.cn>
+	id <S271616AbRHPSwb>; Thu, 16 Aug 2001 14:52:31 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:25610 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S271617AbRHPSwO>; Thu, 16 Aug 2001 14:52:14 -0400
+Date: Thu, 16 Aug 2001 20:52:24 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Mark Hemment <markhe@veritas.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Align VM locks
+Message-ID: <20010816205224.C8726@athlon.random>
+In-Reply-To: <20010816202606.B8726@athlon.random> <Pine.LNX.4.33.0108161933240.3340-100000@alloc.wat.veritas.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0108161933240.3340-100000@alloc.wat.veritas.com>; from markhe@veritas.com on Thu, Aug 16, 2001 at 07:44:04PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hugang wrote:
+On Thu, Aug 16, 2001 at 07:44:04PM +0100, Mark Hemment wrote:
+>   At least on the work load I'm interest in, SpecFS v2.0 over NFSv3,
+> removing the KM_BOUNCE_WRITE results in a performance drop (confirmed
+> today).
+>
+>   It is often the case that when it comes time to write a page out it has
+> lost any mapping it had when it was made dirty via a write(), so there is
+> no side benefit of using a straight kmap().
 > 
-> On Tue, 14 Aug 2001 13:26:31 -0700
-> "Randy.Dunlap" <rddunlap@osdlab.org> wrote:
-> 
-> Can swsusp support in 2.4.x?
+>   By having KM_BOUNCE_WRITE we don't run through the "normal" mapping
+> space on I/O.  Not having KM_BOUNCE_WRITE causing extra shootdowns, which
+> _are_ expensive, as the code needs to busy-wait for all the other engines
+> (while the kmap_lock held - and on a 4-way there is a good chance one of
+> the processors is running with interrupts disabled).
+>   KM_BOUNCE_WRITE may waste virtual address-space, but it saves on
+> expensive shootdowns.
 
-According to 
-http://falcon.sch.bme.hu/~seasons/linux/swsusp.html,
-it works on 2.4.3 at least.
+I would never save addresss-space for performance of course, it's just
+that it is unused in my tree so it doesn't make sense to left it.
 
-~Randy
+I believe the slowdown is more a sign that kmap is not fast enoguh, not
+that you really need the BOUNCE_WRITE. I'd suggest to try to invlpg at
+kmap time entry-per-entry and to skip the global tlb flush during the
+wrap around as first thing and mark the kmap entries global (since it is
+safe with the invlpg) and see if it changes something. If kmap hurts on
+the I/O path it means it hurts on the pagecache read/writes etc... too,
+so lefting KM_BOUNCE_WRITE looks more hiding the performance hit instead
+of fixing it.
+
+Andrea

@@ -1,49 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316586AbSGGVxP>; Sun, 7 Jul 2002 17:53:15 -0400
+	id <S316588AbSGGV4Y>; Sun, 7 Jul 2002 17:56:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316587AbSGGVxO>; Sun, 7 Jul 2002 17:53:14 -0400
-Received: from pD952A04C.dip.t-dialin.net ([217.82.160.76]:16080 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316586AbSGGVxO>; Sun, 7 Jul 2002 17:53:14 -0400
-Date: Sun, 7 Jul 2002 15:55:43 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Greg KH <greg@kroah.com>,
+	id <S316589AbSGGV4X>; Sun, 7 Jul 2002 17:56:23 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:41152 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316588AbSGGV4W>;
+	Sun, 7 Jul 2002 17:56:22 -0400
+Message-ID: <3D28B97E.3050401@us.ibm.com>
+Date: Sun, 07 Jul 2002 14:58:22 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Oliver Neukum <oliver@neukum.name>
+CC: Greg KH <greg@kroah.com>,
        kernel-janitor-discuss 
 	<kernel-janitor-discuss@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
+       linux-kernel@vger.kernel.org
 Subject: Re: BKL removal
-In-Reply-To: <3D28B423.9060903@us.ibm.com>
-Message-ID: <Pine.LNX.4.44.0207071551180.10105-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <Pine.LNX.4.44L.0207061306440.8346-100000@imladris.surriel.com> <3D27390E.5060208@us.ibm.com> <20020707205543.GA18298@kroah.com> <200207072328.34244.oliver@neukum.name>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Oliver Neukum wrote:
+ >>> I would mind the BKL a lot less if it was as well understood
+ >>> everywhere as it is in VFS.  The funny part is that a lock like
+ >>>  the BKL would not last very long if it were well understood or
+ >>>  documented everywhere it was used.
+ >>
+ >> I would mind it a whole lot less if when you try to remove the
+ >> BKL, you do it correctly.  So far it seems like you enjoy doing
+ >> "hit and run" patches, without even fully understanding or
+ >> testing your patches out (the driverfs and input layer patches
+ >> are proof of that.)  This does nothing but aggravate the
+ >> developers who have to go clean up after you.
+ >>
+ >> Also, stay away from instances of it's use WHERE IT DOES NOT
+ >> MATTER for performance.  If I grab the BKL on insertion or
+ >> removal of a USB device, who cares?  I know you are trying to
+ >> remove it entirely out of the kernel, but please focus on places
+ >> where it actually helps, and leave the other instances alone.
+ >
+ > If you really want to make maximum impact, do tests. Very few
+ > people can measure lock contention on a 4-CPU system.
 
-On Sun, 7 Jul 2002, Dave Hansen wrote:
->   "As long as I comment [and understand] why I am using the BKL." 
-> would be a bit more accurate.  How many places in the kernel have you 
-> seen comments about what the BKL is actually doing?  Could you point 
-> me to some of your comments where _you_ are using the BKL?  Once you 
-> fully understand why it is there, the extra step of removal is usually 
-> very small.
+Do you mean "see lock contention", or "have the hardware to measure
+lock contention"?  We probably use lockmeter more than just about 
+anyone else.  But, I do not, nor have I ever contended, that things 
+like driverfs's BKL use have a performance impact.  I just consider 
+them messy, and bad practice.
 
-Old Blue, could you please bring me an example on where in USB the bkl 
-shouldn't be used, but is? And can you explain why it's wrong to use bkl
-there?
+ > And please rest assured that nobody wants to be maintainer of the
+ > subsystem that ruins scalability.
 
-							Regards,
-							Thunder
+I agree completely.  All of the maintainers who are handed data that 
+shows bad BKL contention have either done something about it, or are 
+doing something about it now.  2.5 is 2 orders of magnitude better 
+than 2.4 for BKL contention in most of the workloads that I see.
+
+ > And if you see a use of the BKL you don't understand ask first, or
+ > send a patch to the subsystem's mailing list, not lkml. People will
+ >  look at BKL usage if you ask. In fact such a look might even
+ > uncover bugs as in case of USB.
+
+I guess I got discouraged by a few non-responsive mailing lists in the 
+past.  I'll make an effort to use them more in the future.
+
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+Dave Hansen
+haveblue@us.ibm.com
 

@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263790AbTDXWX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 18:23:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263847AbTDXWX7
+	id S264480AbTDXW3v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 18:29:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264482AbTDXW3v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 18:23:59 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:25224 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263790AbTDXWX4
+	Thu, 24 Apr 2003 18:29:51 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:26760 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S264480AbTDXW3u
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 18:23:56 -0400
-Date: Thu, 24 Apr 2003 23:36:04 +0100
+	Thu, 24 Apr 2003 18:29:50 -0400
+Date: Thu, 24 Apr 2003 23:41:55 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: "Downing, Thomas" <Thomas.Downing@ipc.com>
-Cc: Daniel Phillips <phillips@arcor.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Timothy Miller <miller@techsource.com>,
+       Andreas Jellinghaus <aj@dungeon.inka.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Flame Linus to a crisp!
-Message-ID: <20030424223604.GA31179@mail.jlokier.co.uk>
-References: <170EBA504C3AD511A3FE00508BB89A9201FD9247@exnanycmbx4.ipc.com>
+Message-ID: <20030424224155.GB31179@mail.jlokier.co.uk>
+References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <20030424083730.5F79A2127F@dungeon.inka.de> <20030424085913.GH28253@mail.jlokier.co.uk> <3EA804A8.8070608@techsource.com> <1051209350.4004.6.camel@dhcp22.swansea.linux.org.uk> <20030424192941.E1425@almesberger.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <170EBA504C3AD511A3FE00508BB89A9201FD9247@exnanycmbx4.ipc.com>
+In-Reply-To: <20030424192941.E1425@almesberger.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Downing, Thomas wrote:
-> How does the server _know_ that the BIOS is what it says it is? Again,
-> what's the protocol?  Saying that they 'have a chat' is bypassing
-> the hard bits.
-> 
-> If I have the BIOS, any secrets it holds are now knowable to me.
-> This means that any protocol that relies on a secret in the BIOS is
-> broken from the start.  So now you need to define a protocol which
-> does not rely on any secret being known to the BIOS.  What is this
-> protocol?
+Werner Almesberger wrote:
+> Just like most vendors instinctively default to closed source.
 
-What makes you think you can read the BIOS?
+Quite.  Businesses instinctively do what they believe is in their best
+interests, and sometimes it is important to have constraints which
+cause businesses to function in our mutual best interest, which
+businesses are often not well placed to perceive.
 
-> The proposed 'end-to-end' copy protection schemes for entertainment
-> media etc, rely on proprietary _hardware_.
+> It's also worth to keep in mind that such decisions are frequently
+> taken by people with very different agendas, e.g. if "protected by
+> DRM" is perceived to appeal to analysts, shareholders or potential
+> shareholders, it may quickly become policy in many companies, just
+> like patents did.
 
-Yes, that's the severe version of DRM that we're talking about, for
-the game server scenario.
+In this regard, analysts, shareholders, consumers etc. are just like
+business, acting in their own percieved best interest.
 
-> This is still beatable, although at a higher cost.  Nor is the
-> problem quite parallel.  The broadcast problem is 'how do we keep
-> content encrypted till the last possible moment?' and 'how do we
-> keep the decryption engine tamper proof reverse engineering proof'.
-> The first part is easy.  The second part is not possible in an
-> absolute sense.  It can only be made more or less dificult.  Hence
-> the DMCA etc.
-
-We don't know for sure that it's not possible to make something
-reverse engineering proof.  Although all current CPUs require code to
-be decrypted at some point, there may be modules of computation that
-don't require that, so there would be no way to extract the secret key
-or decryption process in a useful way even when you can see every
-electronic signal in a device.  The jury is out on it, despite what
-slashdotters believe.
+Change the rules against the status quo and they all complain, but it
+is just change and they also all adapt to it.  That is business too.
 
 -- Jamie

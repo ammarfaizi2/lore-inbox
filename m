@@ -1,33 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277038AbRJQSjO>; Wed, 17 Oct 2001 14:39:14 -0400
+	id <S277053AbRJQSmx>; Wed, 17 Oct 2001 14:42:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277046AbRJQSjE>; Wed, 17 Oct 2001 14:39:04 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:12563 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S277038AbRJQSit>;
-	Wed, 17 Oct 2001 14:38:49 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200110171839.WAA22514@ms2.inr.ac.ru>
-Subject: Re: [NFS] NFSD over TCP: TCP broken?
-To: kalele@veritas.com (Shirish Kalele)
-Date: Wed, 17 Oct 2001 22:39:08 +0400 (MSK DST)
-Cc: linux-kernel@vger.kernel.org, tamir@veritas.com, paulp@veritas.com
-In-Reply-To: <005a01c1579d$adab2100$3291b40a@fserv2000.net> from "Shirish Kalele" at Oct 17, 1 11:25:27 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S277064AbRJQSmh>; Wed, 17 Oct 2001 14:42:37 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:53082 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S277053AbRJQSln>; Wed, 17 Oct 2001 14:41:43 -0400
+Date: Wed, 17 Oct 2001 20:42:04 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chip Salzenberg <chip@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Maneesh Soni <maneesh@in.ibm.com>
+Subject: Re: [PATCH] 2.4.13pre3aa1: expand_fdset() may use invalid pointer
+Message-ID: <20011017204204.C2380@athlon.random>
+In-Reply-To: <20011017113245.A3849@perlsupport.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20011017113245.A3849@perlsupport.com>; from chip@pobox.com on Wed, Oct 17, 2001 at 11:32:45AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, Oct 17, 2001 at 11:32:45AM -0700, Chip Salzenberg wrote:
+> In 2.4.13pre3aa1, expand_fdset() in fs/file.c has a couple of
+> execution paths that call kfree() on a pointer that hasn't yet been
+> initialized.  A minimal patch is attached.
 
-> I'm making nfsd do blocking writes.
+Good spotting! Thanks for the fix!! applied.
 
-I see. Well, then you should make this right. :-)
+CC'ed Maneesh since he's maintaining the rcu_fdset patch AFIK.
+
+> -- 
+> Chip Salzenberg               - a.k.a. -              <chip@pobox.com>
+>  "We have no fuel on board, plus or minus 8 kilograms."  -- NEAR tech
+
+> 
+> Index: linux/fs/file.c
+> --- linux/fs/file.c.old	Tue Oct 16 23:28:16 2001
+> +++ linux/fs/file.c	Wed Oct 17 00:29:43 2001
+> @@ -203,5 +203,5 @@
+>  	fd_set *new_openset = 0, *new_execset = 0;
+>  	int error, nfds = 0;
+> -	struct rcu_fd_set *arg;
+> +	struct rcu_fd_set *arg = NULL;
+>  
+>  	error = -EMFILE;
 
 
-> send(3N) manpage on Linux also says messages should be sent atomically.
 
-Sorry? Please, cite, I cannot find this. send() behaviour used to be
-pretty different. :-)
-
-Alexey
+Andrea

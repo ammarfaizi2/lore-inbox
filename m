@@ -1,105 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267523AbSLNJad>; Sat, 14 Dec 2002 04:30:33 -0500
+	id <S267535AbSLNJat>; Sat, 14 Dec 2002 04:30:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267535AbSLNJad>; Sat, 14 Dec 2002 04:30:33 -0500
-Received: from packet.digeo.com ([12.110.80.53]:17590 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267523AbSLNJab>;
-	Sat, 14 Dec 2002 04:30:31 -0500
-Message-ID: <3DFAFC07.DB5BB0FD@digeo.com>
-Date: Sat, 14 Dec 2002 01:38:15 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paul P Komkoff Jr <i@stingr.net>, ext2-devel@lists.sourceforge.net
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] 2.5.51-mm2
-References: <20021213181155.GB2496@stingr.net>
+	id <S267536AbSLNJat>; Sat, 14 Dec 2002 04:30:49 -0500
+Received: from holomorphy.com ([66.224.33.161]:15790 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267535AbSLNJar>;
+	Sat, 14 Dec 2002 04:30:47 -0500
+Date: Sat, 14 Dec 2002 01:38:31 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: mdew <mdew@orcon.net.nz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: rmap and nvidia?
+Message-ID: <20021214093831.GL9882@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	mdew <mdew@orcon.net.nz>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1039858571.559.15.camel@nirvana>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Dec 2002 09:38:16.0454 (UTC) FILETIME=[876E7A60:01C2A354]
+Content-Disposition: inline
+In-Reply-To: <1039858571.559.15.camel@nirvana>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul P Komkoff Jr wrote:
+On Sat, Dec 14, 2002 at 10:36:10PM +1300, mdew wrote:
+> is there a nvidia patch available to make it work with rmap?
 > 
-> This is very funny.
+> nirvana:~/NVIDIA_kernel-1.0-3123# make
+> echo \#define NV_COMPILER \"`cc -v 2>&1 | tail -1`\" > nv_compiler.h
+> cc -c -Wall -Wimplicit -Wreturn-type -Wswitch -Wformat -Wchar-subscripts
+> -Wparentheses -Wpointer-arith -Wcast-qual -Wno-multichar  -O -MD
+> -D__KERNEL__ -DMODULE -D_LOOSE_KERNEL_NAMES -DNTRM -D_GNU_SOURCE
+> -DRM_HEAPMGR -D_LOOSE_KERNEL_NAMES -D__KERNEL__ -DMODULE 
+> -DNV_MAJOR_VERSION=1 -DNV_MINOR_VERSION=0 -DNV_PATCHLEVEL=3123 
+> -DNV_UNIX   -DNV_LINUX   -DNVCPU_X86       -I.
+> -I/lib/modules/2.4.20-xfs-rmap15b/build/include -Wno-cast-qual nv.c
+> nv.c: In function `nv_get_phys_address':
+> nv.c:2182: warning: implicit declaration of function `pte_offset'
+> nv.c:2182: invalid type argument of `unary *'
+> make: *** [nv.o] Error 1
 
-Actually it's very bad.  Thanks for reporting this.
-
-> mke2fs -j -O dir_index -J size=192 -T news -N 1000100
-> atest3 1000000
->  (creat & write 1 byte to 1000000 files)
-> 
-> free space on device became 0 and voila
-> 
-> Unable to handle kernel paging request at virtual address 5a5a5b9e
-
-
-Here's a fix:
-
-
-
-If ext3_add_nondir() fails it will do an iput() of the inode.  But we
-continue to run ext3_mark_inode_dirty() against the potentially-freed
-inode.  This oopses when slab poisoning is enabled.
-
-Fix it so that we only run ext3_mark_inode_dirty() if the inode was
-successfully instantiated.
+Use pte_offset_map() with a corresponding pte_unmap().
 
 
-
- fs/ext3/namei.c |   11 +++++------
- 1 files changed, 5 insertions(+), 6 deletions(-)
-
---- 25/fs/ext3/namei.c~ext3-use-after-free	Sat Dec 14 01:25:03 2002
-+++ 25-akpm/fs/ext3/namei.c	Sat Dec 14 01:25:53 2002
-@@ -1566,8 +1566,11 @@ static int ext3_add_nondir(handle_t *han
- {
- 	int err = ext3_add_entry(handle, dentry, inode);
- 	if (!err) {
--		d_instantiate(dentry, inode);
--		return 0;
-+		err = ext3_mark_inode_dirty(handle, inode);
-+		if (!err) {
-+			d_instantiate(dentry, inode);
-+			return 0;
-+		}
- 	}
- 	ext3_dec_count(handle, inode);
- 	iput(inode);
-@@ -1609,7 +1612,6 @@ static int ext3_create (struct inode * d
- 		else
- 			inode->i_mapping->a_ops = &ext3_aops;
- 		err = ext3_add_nondir(handle, dentry, inode);
--		ext3_mark_inode_dirty(handle, inode);
- 	}
- 	ext3_journal_stop(handle, dir);
- 	unlock_kernel();
-@@ -1642,7 +1644,6 @@ static int ext3_mknod (struct inode * di
- 		inode->i_op = &ext3_special_inode_operations;
- #endif
- 		err = ext3_add_nondir(handle, dentry, inode);
--		ext3_mark_inode_dirty(handle, inode);
- 	}
- 	ext3_journal_stop(handle, dir);
- 	unlock_kernel();
-@@ -2105,7 +2106,6 @@ static int ext3_symlink (struct inode * 
- 	}
- 	EXT3_I(inode)->i_disksize = inode->i_size;
- 	err = ext3_add_nondir(handle, dentry, inode);
--	ext3_mark_inode_dirty(handle, inode);
- out_stop:
- 	ext3_journal_stop(handle, dir);
- 	unlock_kernel();
-@@ -2140,7 +2140,6 @@ static int ext3_link (struct dentry * ol
- 	atomic_inc(&inode->i_count);
- 
- 	err = ext3_add_nondir(handle, dentry, inode);
--	ext3_mark_inode_dirty(handle, inode);
- 	ext3_journal_stop(handle, dir);
- 	unlock_kernel();
- 	return err;
-
-_
+Bill

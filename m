@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268346AbTCCGjN>; Mon, 3 Mar 2003 01:39:13 -0500
+	id <S268347AbTCCHD5>; Mon, 3 Mar 2003 02:03:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268347AbTCCGjN>; Mon, 3 Mar 2003 01:39:13 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:57474 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268346AbTCCGjM>; Mon, 3 Mar 2003 01:39:12 -0500
-Date: Mon, 3 Mar 2003 12:24:53 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: Pavel Machek <pavel@ucw.cz>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Software Suspend Functionality in 2.5
-Message-ID: <20030303122453.A2634@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <1046369790.2190.9.camel@laptop-linux.cunninghams> <20030228121725.B2241@in.ibm.com> <20030228130548.GA8498@atrey.karlin.mff.cuni.cz> <20030228190924.A3034@in.ibm.com> <20030228134406.GA14927@atrey.karlin.mff.cuni.cz> <20030228204831.A3223@in.ibm.com> <20030228151744.GB14927@atrey.karlin.mff.cuni.cz> <1046458775.1720.5.camel@laptop-linux.cunninghams> <20030303095824.A2312@in.ibm.com> <1046673408.27945.5.camel@laptop-linux.cunninghams>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1046673408.27945.5.camel@laptop-linux.cunninghams>; from ncunningham@clear.net.nz on Mon, Mar 03, 2003 at 07:36:49PM +1300
+	id <S268386AbTCCHD5>; Mon, 3 Mar 2003 02:03:57 -0500
+Received: from [196.12.44.6] ([196.12.44.6]:10199 "EHLO students.iiit.net")
+	by vger.kernel.org with ESMTP id <S268347AbTCCHD4>;
+	Mon, 3 Mar 2003 02:03:56 -0500
+Date: Mon, 3 Mar 2003 12:46:02 +0530 (IST)
+From: Prasad <prasad_s@students.iiit.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: redirecting printk to the Serial port
+Message-ID: <Pine.LNX.4.44.0303031242150.24054-100000@students.iiit.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 03, 2003 at 07:36:49PM +1300, Nigel Cunningham wrote:
-> Hi.
-> 
-> On Mon, 2003-03-03 at 17:28, Suparna Bhattacharya wrote:
-> > If you add to that the possibility of being able to save more 
-> > in less space if you have compression, would it be useful ?
-> 
-> I'm not sure that it would because we don't know how much compression
-> we're going to get ahead of time, so we don't know how many extra pages
 
-The algorithm could be adjusted to deal with that, however ...
+Hi,
+	Got a silly doubt. when trying to insert one of my modules into
+the kernel, its getting rebooted and unfortunately i am losing all the
+debug(printk) messages.  Can i in some fashion capture all the printk's
+through the serial port. (I have two linux boxes and a serial cable to
+connect both of them)
 
-> we can save. The compression/decompression also takes extra time and
-> puts more drain on a potentially low battery.
-
-.. I didn't think about the battery drain - valid point !
-
-Regards
-Suparna
+Thanx in advance
+Prasad.
 
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
+Failure is not an option
 

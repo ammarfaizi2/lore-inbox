@@ -1,42 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267191AbUHIUMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266881AbUHIUDX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267191AbUHIUMa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 16:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266921AbUHIULm
+	id S266881AbUHIUDX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 16:03:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267185AbUHIUCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 16:11:42 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:57546 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267191AbUHIUIk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 16:08:40 -0400
-Subject: Re: /dev/hdl not showing up because
-	of	fix-ide-probe-double-detection patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tupshin Harper <tupshin@tupshin.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4117C028.7080905@tupshin.com>
-References: <411013F7.7080800@tupshin.com> <4111651E.1040406@tupshin.com>
-	 <20040804224709.3c9be248.akpm@osdl.org>
-	 <1091720165.8041.4.camel@localhost.localdomain>
-	 <4117C028.7080905@tupshin.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092078372.14640.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 09 Aug 2004 20:06:13 +0100
+	Mon, 9 Aug 2004 16:02:14 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:16872 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S267171AbUHIUBd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 16:01:33 -0400
+Message-Id: <200408092001.i79K1FRl210620@westrelay04.boulder.ibm.com>
+Subject: [PATCH 3/3] blk_queue_tags_resize_failure
+To: akpm@osdl.org
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, brking@us.ibm.com
+From: brking@us.ibm.com
+Date: Mon, 09 Aug 2004 15:01:13 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-09 at 19:19, Tupshin Harper wrote:
-> Doing a google search on "M0000000000000000000" shows that there have a 
-> been a handful of reports of maxtor drives showing this as the serial 
-> number, but I don't see any explanation of why.
 
-Thanks. Well thats easy to special case. Wonder what kind of a cow the
-Maxtor was having that day 8)
+Fixes blk_queue_resize_tags to properly handle allocation failures. Currently,
+if a memory allocation failure occurs during blk_queue_resize_tags, the tag map
+ends up getting freed, which should not happen. The old tag map should be preserved
+and only the resize should fail.
 
-M00 indeed
+Signed-off-by: Jens Axboe <axboe@suse.de>
+Signed-off-by: Brian King <brking@us.ibm.com>
+---
 
-Alan
+ linux-2.6.8-rc3-mm2-bjking1/drivers/block/ll_rw_blk.c |   20 ++++++++++--------
+ 1 files changed, 12 insertions(+), 8 deletions(-)
 
+diff -puN drivers/block/ll_rw_blk.c~blk_queue_tags_resize_failure drivers/block/ll_rw_blk.c
+--- linux-2.6.8-rc3-mm2/drivers/block/ll_rw_blk.c~blk_queue_tags_resize_failure	2004-08-09 14:51:42.000000000 -0500
++++ linux-2.6.8-rc3-mm2-bjking1/drivers/block/ll_rw_blk.c	2004-08-09 14:51:42.000000000 -0500
+@@ -571,6 +571,8 @@ static int
+ init_tag_map(request_queue_t *q, struct blk_queue_tag *tags, int depth)
+ {
+ 	int bits, i;
++	struct request **tag_index;
++	unsigned long *tag_map;
+ 
+ 	if (depth > q->nr_requests * 2) {
+ 		depth = q->nr_requests * 2;
+@@ -578,29 +580,31 @@ init_tag_map(request_queue_t *q, struct 
+ 				__FUNCTION__, depth);
+ 	}
+ 
+-	tags->tag_index = kmalloc(depth * sizeof(struct request *), GFP_ATOMIC);
+-	if (!tags->tag_index)
++	tag_index = kmalloc(depth * sizeof(struct request *), GFP_ATOMIC);
++	if (!tag_index)
+ 		goto fail;
+ 
+ 	bits = (depth / BLK_TAGS_PER_LONG) + 1;
+-	tags->tag_map = kmalloc(bits * sizeof(unsigned long), GFP_ATOMIC);
+-	if (!tags->tag_map)
++	tag_map = kmalloc(bits * sizeof(unsigned long), GFP_ATOMIC);
++	if (!tag_map)
+ 		goto fail;
+ 
+-	memset(tags->tag_index, 0, depth * sizeof(struct request *));
+-	memset(tags->tag_map, 0, bits * sizeof(unsigned long));
++	memset(tag_index, 0, depth * sizeof(struct request *));
++	memset(tag_map, 0, bits * sizeof(unsigned long));
+ 	tags->max_depth = depth;
+ 	tags->real_max_depth = bits * BITS_PER_LONG;
++	tags->tag_index = tag_index;
++	tags->tag_map = tag_map;
+ 
+ 	/*
+ 	 * set the upper bits if the depth isn't a multiple of the word size
+ 	 */
+ 	for (i = depth; i < bits * BLK_TAGS_PER_LONG; i++)
+-		__set_bit(i, tags->tag_map);
++		__set_bit(i, tag_map);
+ 
+ 	return 0;
+ fail:
+-	kfree(tags->tag_index);
++	kfree(tag_index);
+ 	return -ENOMEM;
+ }
+ 
+_

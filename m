@@ -1,103 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262194AbUCOB6C (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 20:58:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbUCOB6B
+	id S261914AbUCOB5L (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 20:57:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbUCOB5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 20:58:01 -0500
-Received: from web60006.mail.yahoo.com ([216.109.116.229]:22144 "HELO
-	web60006.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262194AbUCOB54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 20:57:56 -0500
-Message-ID: <20040315015756.15559.qmail@web60006.mail.yahoo.com>
-Date: Sun, 14 Mar 2004 17:57:56 -0800 (PST)
-From: Shi Jin <jinzishuai@yahoo.com>
-Subject: AIC7899 SCSI driver problem:DV failed to configure device.
+	Sun, 14 Mar 2004 20:57:11 -0500
+Received: from main.gmane.org ([80.91.224.249]:17603 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261914AbUCOB5J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 20:57:09 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Joshua Kwan <joshk@triplehelix.org>
+Subject: Re: 2.6.4-mm2
+Date: Sun, 14 Mar 2004 17:57:21 -0800
+Message-ID: <pan.2004.03.15.01.57.18.661707@triplehelix.org>
+References: <20040314172809.31bd72f7.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-68-126-222-152.dsl.pltn13.pacbell.net
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Sun, 14 Mar 2004 17:28:09 -0800, Andrew Morton wrote:
+> +kbuild-fix-early-dependencies.patch
+> +kbuild-fix-early-dependencies-fix.patch
+> 
+>  Parallel build fix
 
-I am having this problem for all the kernels I tried:
-2.4.18,2.4.25 and
-2.6.3.The message is:
-******************begin*********************
- SCSI subsystem driver Revision: 1.00
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER,
-Rev 6.2.36
-        <Adaptec aic7899 Ultra160 SCSI adapter>
-aic7899: Ultra160 Wide
-        Channel A, SCSI Id=7, 32/253 SCBs
+This set of patches requires the following fix to successfully link the
+kernel:
 
-scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER,
-Rev 6.2.36
-        <Adaptec aic7899 Ultra160 SCSI adapter>
-        aic7899: Ultra160 Wide Channel B, SCSI Id=7,
-32/253 SCBs
+--- linux/Makefile~   2004-03-14 17:52:54.000000000 -0800
++++ linux/Makefile    2004-03-14 17:52:21.000000000 -0800
+@@ -988,7 +988,7 @@
+        @set -e; \
+        $(if $($(quiet)cmd_$(1)),echo '  $(subst ','\'',$($(quiet)cmd_$(1)))';) \
+        $(cmd_$(1)); \
+-       scripts/fixdep $(depfile) $@ '$(subst $$,$$$$,$(subst ','\'',$(cmd_$(1))))' > $(@D)/.$(@F).tmp; \
++       scripts/basic/fixdep $(depfile) $@ '$(subst $$,$$$$,$(subst ','\'',$(cmd_$(1))))' > $(@D)/.$(@F).tmp; \
+        rm -f $(depfile); \
+        mv -f $(@D)/.$(@F).tmp $(@D)/.$(@F).cmd)
 
-blk: queue f797b818, I/O limit 4095Mb (mask
-0xffffffff)
-scsi0:A:0:0: DV failed to configure device.  Please
-file a bug report against this driver.
-(scsi0:A:0): 160.000MB/s transfers (80.000MHz DT,
-offset 31, 16bit)
-  Vendor:           Model:                   Rev: 0001
-  Type:   Direct-Access                      ANSI SCSI
-revision: 03
-blk: queue f797b618, I/O limit 4095Mb (mask
-0xffffffff)
-scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
-Attached scsi disk sda at scsi0, channel 0, id 0, lun
-0
-SCSI device sda: 2578022400 512-byte hdwr sectors
-(1319947 MB)
- sda: sda1 sda2 sda3
-******************end *************************
-The output of lspci -v is
-*****************begin********************
-00:0a.0 SCSI storage controller: Adaptec AIC-7899P
-U160/m (rev 01)
-        Subsystem: Tyan Computer: Unknown device 2468
-        Flags: bus master, 66Mhz, medium devsel,
-latency 72, IRQ 20
-        BIST result: 00
-        I/O ports at 1000 [disabled] [size=256]
-        Memory at f4000000 (64-bit, non-prefetchable)
-[size=4K]
-        Expansion ROM at <unassigned> [disabled]
-[size=128K]
-        Capabilities: <available only to root>
-
-00:0a.1 SCSI storage controller: Adaptec AIC-7899P
-U160/m (rev 01)
-        Subsystem: Tyan Computer: Unknown device 2468
-        Flags: bus master, 66Mhz, medium devsel,
-latency 72, IRQ 21
-        BIST result: 00
-        I/O ports at 1400 [disabled] [size=256]
-        Memory at f4001000 (64-bit, non-prefetchable)
-[size=4K]
-        Expansion ROM at <unassigned> [disabled]
-[size=128K]
-        Capabilities: <available only to root>
-******************end************************
-
-An external IDE RAID(level 5) is connected to this
-SCSI port.
-It is working fine for now being, but I don't know why
-the DV failed to
-configure error happens. So I report it here.
-
-Please tell me what else information you need.
-Thank you very much.
-
-Shi Jin
+-- 
+Joshua Kwan
 
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - More reliable, more storage, less spam
-http://mail.yahoo.com

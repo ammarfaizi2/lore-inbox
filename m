@@ -1,76 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272062AbRH2URc>; Wed, 29 Aug 2001 16:17:32 -0400
+	id <S272065AbRH2U2y>; Wed, 29 Aug 2001 16:28:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272061AbRH2URW>; Wed, 29 Aug 2001 16:17:22 -0400
-Received: from [208.48.139.185] ([208.48.139.185]:30595 "HELO
-	forty.greenhydrant.com") by vger.kernel.org with SMTP
-	id <S272060AbRH2URI>; Wed, 29 Aug 2001 16:17:08 -0400
-Date: Wed, 29 Aug 2001 13:17:20 -0700
-From: David Rees <dbr@greenhydrant.com>
-To: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-        ext3-users@redhat.com
-Subject: kupdated, bdflush and kjournald stuck in D state on RAID1 device (deadlock?)
-Message-ID: <20010829131720.A20537@greenhydrant.com>
-Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
-	linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-	ext3-users@redhat.com
+	id <S272066AbRH2U2o>; Wed, 29 Aug 2001 16:28:44 -0400
+Received: from cr934547-a.flfrd1.on.wave.home.com ([24.112.247.163]:10739 "EHLO
+	shippou.furryterror.org") by vger.kernel.org with ESMTP
+	id <S272065AbRH2U22>; Wed, 29 Aug 2001 16:28:28 -0400
+Date: Wed, 29 Aug 2001 07:54:33 -0400
+From: Zygo Blaxell <zblaxell@feedme.hungrycats.org>
+To: andre@linux-ide.org, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Patch for Promise FastTrack 100 Tx2 (aka PDC20268R)
+Message-ID: <20010829075433.A9238@feedme.hungrycats.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Sent to linux-raid, linux-kernel and ext3-users since I'm not sure what type of issue
-this is)
 
-I've got a test system here running Redhat 7.1 + stock 2.4.9 with these
-patches:
+--G4iJoqBmSsgzjUCe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-http://www.fys.uio.no/~trondmy/src/2.4.9/linux-2.4.9-NFS_ALL.dif
-http://www.zip.com.au/~akpm/ext3-2.4-0.9.6-249.gz
-http://domsch.com/linux/aacraid/linux-2.4.9-aacraid-20010816.patch
+The code in 2.4.9-ac3 for detecting a PDC20268 or PDC20268R doesn't
+enable BM-DMA for the PDC20268R.  The fix below seems to work for me.
 
-All three patches applied without any problems.
+There is a note in the comments to the effect that the Promise FastTrack
+100 RAID card has a different PCI device ID just to prevent Linux from
+detecting it.  Having seen both the UltraATA-100 and FastTrack-100 cards,
+I don't believe this is the case. =20
 
-I've got a RAID1 device running over two IDE drives on a Promise controller. 
-ext3 is the filesystem on the partition.  In this machine, the aacraid
-driver isn't enabled.
+Unlike certain previous Promise ATA and ATA-RAID controllers, there
+are physical differences between the RAID and non-RAID ATA-100 cards.
+The UltraATA-100 card is a normal 33MHz PCI card, while the FastTrack
+100 is a 66MHz PCI card.
 
-The machine is to be used as a development database server running Sybase
-11.9.2.  Shortly after installing Sybase and loading some data, I noticed
-this:
+Then again, last time I checked, 66MHz cards _look_ just like 33MHz cards.
+Hmmm...
 
-[sybase@zorro ~]$ uptime
-  1:01pm  up 1 day, 18:29,  3 users,  load average: 3.00, 3.00, 2.91
-[sybase@zorro ~]$ ps aux | head -15
-USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
-root         1  0.0  0.0  1368   72 ?        S    Aug27   0:05 init [3] 
-root         2  0.0  0.0     0    0 ?        SW   Aug27   0:00 [keventd]
-root         3  0.0  0.0     0    0 ?        SWN  Aug27   0:00 [ksoftirqd_CPU0]
-root         4  0.0  0.0     0    0 ?        SW   Aug27   0:03 [kswapd]
-root         5  0.0  0.0     0    0 ?        SW   Aug27   0:00 [kreclaimd]
-root         6  0.0  0.0     0    0 ?        DW   Aug27   0:00 [bdflush]
-root         7  0.0  0.0     0    0 ?        DW   Aug27   0:00 [kupdated]
-root         9  0.0  0.0     0    0 ?        SW<  Aug27   0:00 [mdrecoveryd]
-root        10  0.0  0.0     0    0 ?        SW<  Aug27   0:00 [raid1d]
-root        11  0.0  0.0     0    0 ?        SW   Aug27   0:02 [kjournald]
-root       130  0.0  0.0     0    0 ?        SW   Aug27   0:00 [kjournald]
-root       131  0.0  0.0     0    0 ?        DW   Aug27   0:01 [kjournald]
-root       374  0.0  0.0  1428  176 ?        S    Aug27   0:00 syslogd -m 0
-root       379  0.0  0.0  1984  396 ?        S    Aug27   0:00 klogd -2
-[sybase@zorro ~]$ 
+diff -ur linux/drivers/ide/ide-pci.c 586-smp/kernel-source-2.4.9-ac3-zb-586=
+-smp-zb2001082823/drivers/ide/ide-pci.c
+--- linux/drivers/ide/ide-pci.c	Mon Aug 13 17:56:19 2001
++++ 586-smp/kernel-source-2.4.9-ac3-zb-586-smp-zb2001082823/drivers/ide/ide=
+-pci.c	Tue Aug 28 23:31:08 2001
+@@ -767,6 +767,7 @@
+ 		    IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20265) ||
+ 		    IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20267) ||
+ 		    IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20268) ||
++		    IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20268R) ||
+ 		    IDE_PCI_DEVID_EQ(d->devid, DEVID_AEC6210) ||
+ 		    IDE_PCI_DEVID_EQ(d->devid, DEVID_AEC6260) ||
+ 		    IDE_PCI_DEVID_EQ(d->devid, DEVID_AEC6260R) ||
+diff -ur linux/drivers/ide/pdc202xx.c 586-smp/kernel-source-2.4.9-ac3-zb-58=
+6-smp-zb2001082823/drivers/ide/pdc202xx.c
+--- linux/drivers/ide/pdc202xx.c	Mon Aug 13 17:56:19 2001
++++ 586-smp/kernel-source-2.4.9-ac3-zb-586-smp-zb2001082823/drivers/ide/pdc=
+202xx.c	Tue Aug 28 23:31:21 2001
+@@ -133,6 +133,7 @@
+=20
+ 	switch(dev->device) {
+ 		case PCI_DEVICE_ID_PROMISE_20268:
++		case PCI_DEVICE_ID_PROMISE_20268R:
+ 			p +=3D sprintf(p, "\n                                PDC20268 TX2 Chips=
+et.\n");
+ 			invalid_data_set =3D 1;
+ 			break;
 
-As you can see, bdflush, kupdated and kjournald appear to be deadlocked.
+--=20
+Zygo Blaxell (Laptop) <zblaxell@feedme.hungrycats.org>
+GPG =3D D13D 6651 F446 9787 600B AD1E CCF3 6F93 2823 44AD
 
-How can I debug this problem and find out who's the problem?  I will try
-rebooting and to see if the problem returns.  If it does, it's back to ext2
-for me on this partition, I guess.  It seems like it could be a ext3
-issue to me...
+--G4iJoqBmSsgzjUCe
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-If there's any more information I can get, let me know.  I'll leave the
-machine like this for a while before I reboot it.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Thanks,
--Dave
+iD8DBQE7jNf5zPNvkygjRK0RAjZRAJ44YTSxooZ6WeQtS3PB7CiZqldw4QCfbI/c
+pCJUk1Vdvy2fSC/0uUdJlig=
+=BL9J
+-----END PGP SIGNATURE-----
+
+--G4iJoqBmSsgzjUCe--

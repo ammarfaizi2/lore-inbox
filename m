@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264567AbRFTC7S>; Tue, 19 Jun 2001 22:59:18 -0400
+	id <S264819AbRFTDCS>; Tue, 19 Jun 2001 23:02:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264819AbRFTC7I>; Tue, 19 Jun 2001 22:59:08 -0400
-Received: from sgi.SGI.COM ([192.48.153.1]:55658 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S264567AbRFTC7C>;
-	Tue, 19 Jun 2001 22:59:02 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: John Weber <weber@nyc.rr.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: How to compile on one machine and install on another? 
-In-Reply-To: Your message of "Tue, 19 Jun 2001 22:23:47 -0400."
-             <3B300933.2090807@nyc.rr.com> 
+	id <S264836AbRFTDCI>; Tue, 19 Jun 2001 23:02:08 -0400
+Received: from member.michigannet.com ([207.158.188.18]:46349 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S264819AbRFTDBu>; Tue, 19 Jun 2001 23:01:50 -0400
+Date: Tue, 19 Jun 2001 23:01:25 -0400
+From: Paul <set@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Repeatable hard locks on console switch. XFree 4.1.0
+Message-ID: <20010619230125.D268@squish.home.loc>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 20 Jun 2001 12:58:30 +1000
-Message-ID: <28123.993005910@kao2.melbourne.sgi.com>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Jun 2001 22:23:47 -0400, 
-John Weber <weber@nyc.rr.com> wrote:
->On a related note... is System.map also necessary?  Anyone care to explain 
->what System.map does?  I have noticed that my kernel works with or 
->without that file, but just figured it was a good question to ask in 
+	Dear All;
 
-Used by assorted user space utilities, ps, ksymoops, klogd and others.
-It is not needed for booting, so its presence in /boot is a mistake.
+	I can fire up XFree4.1.0 on one or several virtual
+consoles, and switch between them, and text consoles to my hearts
+content. However, if the X server exits everything is still fine,
+_except_ any attempt to switch consoles at this point will lock
+up the machine completely. (eg. numlock doesnt work, nor does
+magic sysrq, unpingable, no logs)
+	[ Trivially the problem manifests itself when one logs in
+via xdm, then logs out. You can log back on just fine, but if you
+try to switch virtual consoles after this it locks.]
+	XFree3.3.6 works good for me. XFree4.1.0 manifests the
+problem on 2.4.5, and 2.2.18. I128 server.
+	Any comments or suggestions welcome....
 
+Thanks;
+Paul
+set@pobox.com

@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317660AbSGZJl0>; Fri, 26 Jul 2002 05:41:26 -0400
+	id <S317668AbSGZJor>; Fri, 26 Jul 2002 05:44:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317663AbSGZJl0>; Fri, 26 Jul 2002 05:41:26 -0400
-Received: from [211.167.76.68] ([211.167.76.68]:54674 "EHLO discovery")
-	by vger.kernel.org with ESMTP id <S317660AbSGZJlZ>;
-	Fri, 26 Jul 2002 05:41:25 -0400
-Date: Fri, 26 Jul 2002 17:45:19 +0800
-From: Hu Gang <happy@soul.com.cn>
-To: linux-kernel@vger.kernel.org
-Subject: [OOPS] bad: schedule() with irqs disabled!
-Message-Id: <20020726174519.2c0dedbf.happy@soul.com.cn>
-X-Mailer: Sylpheed version 0.7.8claws9 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S317670AbSGZJor>; Fri, 26 Jul 2002 05:44:47 -0400
+Received: from angband.namesys.com ([212.16.7.85]:45188 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S317668AbSGZJom>; Fri, 26 Jul 2002 05:44:42 -0400
+Date: Fri, 26 Jul 2002 13:47:53 +0400
+From: Oleg Drokin <green@namesys.com>
+To: David Luyer <david@luyer.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.18-rc3-ac3: bug with using whole disks as filesystems
+Message-ID: <20020726134753.A18943@namesys.com>
+References: <004a01c233ba$1a764f50$638317d2@pacific.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <004a01c233ba$1a764f50$638317d2@pacific.net.au>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all:
+Hello!
 
-Oops Report:
-Jul 26 17:20:43 discovery kernel: bad: schedule() with irqs disabled!
-Jul 26 17:20:43 discovery kernel: c1929d5c c01da040 c1164ac0 c1929d84 c010fe35 00000001 c022cba8 fffffffe
-Jul 26 17:20:43 discovery kernel:        c1929d80 00000046 c1929d94 c010fe4b c1164ac0 00000000 c022cba0 c0117c30
-Jul 26 17:20:43 discovery kernel:        c1928000 c333d800 c63292a0 00000000 00000246 c019e270 c1928000 c63292a0
-Jul 26 17:20:43 discovery kernel: Call Trace: [try_to_wake_up+257/268] [wake_up_process+11/16] [Letext+160/172] [dev_queue_xmit+260/752] [ip_output+238/344]
-Jul 26 17:20:43 discovery kernel:    [ip_queue_xmit+930/1260] [tcp_transmit_skb+1082/1436] [tcp_transmit_skb+1257/1436] [default_wake_function+29/52] [tcp_push_one+115/252] [tcp_sendmsg+2637/4340]
-Jul 26 17:20:43 discovery kernel:    [__kfree_skb+285/292] [inet_sendmsg+62/68] [sock_sendmsg+111/144] [sock_write+168/180] [vfs_write+148/272] [sys_write+42/60]
-Jul 26 17:20:43 discovery kernel:    [syscall_call+7/11] 
-------
-ver_linux
-Linux discovery 2.5.28 #3 ËÄ 7ÔÂ 25 23:47:01 CST 2002 i686 unknown unknown GNU/Linux
- 
-Gnu C                  2.95.4
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.15
-e2fsprogs              1.27
-pcmcia-cs              3.1.34
-PPP                    2.4.1
-Linux C Library        2.2.5
-Dynamic linker (ldd)   2.2.5
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.12
-Modules Loaded         apm soundcore pcnet_cs 8390 crc32 ds yenta_socket pcmcia_core binfmt_misc agpgart rtc unix
+On Thu, Jul 25, 2002 at 07:03:11PM +1000, David Luyer wrote:
 
+> > Original commands to cause failure:
+> >   mkfs -b 8192 /dev/sdb -f
+> >   mount /dev/sdb /cache
+> Actually looks like the -b 8192 was the problem, the same happened
+> on /dev/sdb1.  Had to reboot again after that as mount was hanging
+> in the same way as cfdisk had previously.  Similar 'kernel BUG'
+> message resulted.
 
--- 
-thanks with regards!
-hugang.
+Linux kernel 2.4 reiserfs implementation lacks support for blocksizes
+different from 4096 bytes, we plan to merge it in after 2.4.19 is out.
+It have all the checks needed not to allow you to mount such volumes with
+too big blocksizes.
 
-***********************************
-Beijing Soul Technology Co.,Ltd.
-Tel:010-68425741/42/43/44
-Fax:010-68425745
-email:gang_hu@soul.com.cn
-web:http://www.soul.com.cn
-
-Developer, Debian GNU/Linux 
-***********************************
+Bye,
+    Oleg

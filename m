@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318468AbSHKXkL>; Sun, 11 Aug 2002 19:40:11 -0400
+	id <S318464AbSHKXik>; Sun, 11 Aug 2002 19:38:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318469AbSHKXkK>; Sun, 11 Aug 2002 19:40:10 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:42504 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318468AbSHKXkI>; Sun, 11 Aug 2002 19:40:08 -0400
-Date: Sun, 11 Aug 2002 20:42:16 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Daniel Phillips <phillips@arcor.de>, <frankeh@watson.ibm.com>,
-       <davidm@hpl.hp.com>, David Mosberger <davidm@napali.hpl.hp.com>,
-       "David S. Miller" <davem@redhat.com>, <gh@us.ibm.com>,
-       <Martin.Bligh@us.ibm.com>, William Lee Irwin III <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
+	id <S318468AbSHKXik>; Sun, 11 Aug 2002 19:38:40 -0400
+Received: from holomorphy.com ([66.224.33.161]:13480 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318464AbSHKXik>;
+	Sun, 11 Aug 2002 19:38:40 -0400
+Date: Sun, 11 Aug 2002 16:36:10 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Daniel Phillips <phillips@arcor.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       frankeh@watson.ibm.com, davidm@hpl.hp.com,
+       David Mosberger <davidm@napali.hpl.hp.com>,
+       "David S. Miller" <davem@redhat.com>, gh@us.ibm.com,
+       Martin.Bligh@us.ibm.com, linux-kernel@vger.kernel.org
 Subject: Re: large page patch (fwd) (fwd)
-In-Reply-To: <1029113179.16236.101.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44L.0208112041110.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020811233610.GK15685@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Daniel Phillips <phillips@arcor.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, frankeh@watson.ibm.com,
+	davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
+	"David S. Miller" <davem@redhat.com>, gh@us.ibm.com,
+	Martin.Bligh@us.ibm.com, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0208111553010.1233-100000@home.transmeta.com> <Pine.LNX.4.44.0208111555130.1233-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208111555130.1233-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Aug 2002, Alan Cox wrote:
+On Sun, 11 Aug 2002, Linus Torvalds wrote:
+>> If somebody sues you, you change the algorithm or you just hire a
+>> hit-man to whack the stupid git.
 
-> Unfortunately the USA forces people to deal with this crap. I'd hope SGI
-> would be decent enough to explicitly state they will license this stuff
-> freely for GPL use
+On Sun, Aug 11, 2002 at 03:56:10PM -0700, Linus Torvalds wrote:
+> Btw, I'm not a lawyer, and I suspect this may not be legally tenable 
+> advice. Whatever. I refuse to bother with the crap.
 
-I seem to remember Apple having a clause for this in
-their Darwin sources, forbidding people who contribute
-code from suing them about patent violations due to
-the code they themselves contributed.
+I'm not really sure what to think of all this patent stuff myself, but
+I may need to get some directions from lawyerish types before moving on
+here. OTOH I certainly like the suggested approach more than my
+conservative one, even though I'm still too chicken to follow it. =)
 
-kind regards,
+On a more practical note, though, someone left out an essential 'h'
+from my email address. Please adjust the cc: list. =)
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Thanks,
+Bill

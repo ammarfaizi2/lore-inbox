@@ -1,179 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313574AbSDHHYf>; Mon, 8 Apr 2002 03:24:35 -0400
+	id <S313196AbSDHHTk>; Mon, 8 Apr 2002 03:19:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313575AbSDHHYe>; Mon, 8 Apr 2002 03:24:34 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:34446 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S313574AbSDHHYd>;
-	Mon, 8 Apr 2002 03:24:33 -0400
-Date: Mon, 8 Apr 2002 09:24:14 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Neale Banks <neale@lowendale.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] VIA timer fix was removed?
-Message-ID: <20020408092414.D1509@ucw.cz>
-In-Reply-To: <20011119182927.A19179@suse.cz> <Pine.LNX.4.05.10204081626560.1445-100000@marina.lowendale.com.au>
-Mime-Version: 1.0
+	id <S313571AbSDHHTj>; Mon, 8 Apr 2002 03:19:39 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:45238 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S313196AbSDHHTi>; Mon, 8 Apr 2002 03:19:38 -0400
+Message-ID: <3CB144BE.9DC8B034@in.ibm.com>
+Date: Mon, 08 Apr 2002 12:50:30 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+Organization: IBM
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeremy Jackson <jerj@coplanar.net>
+CC: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org,
+        lkcd-devel@lists.sourceforge.net
+Subject: Re: Faster reboots (and a better way of taking crashdumps?)
+In-Reply-To: <00c501c1dce3$0ed806d0$7e0aa8c0@bridge> <1674141067.1018028922@[10.10.2.3]> <003301c1dd16$855df1b0$7e0aa8c0@bridge>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 08, 2002 at 04:33:49PM +1000, Neale Banks wrote:
+Jeremy Jackson wrote:
+> 
+> ----- Original Message -----
+> From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+> Sent: Friday, April 05, 2002 5:48 PM
+> 
+> > I need to avoid going through the BIOS ... this is a
+> > multiquad NUMA machine, and it doesn't take kindly
+> > to the reboot through the BIOS for various reasons.
+> > It also takes about 4 minutes, which is a pain ;-)
+> >
+> > I have source code access to our BIOS if I really wanted,
+> > I just want to avoid modifying it if possible.
+> 
+> well keep in mind that the fastest LinuxBIOS boot is 3 seconds...
+> a large part of the boot time on most PCs is the BIOS setting up
+> DOS support and painting silly logos on the screen, all of which
+> can go away.  I'm guessing your NUMA system has a bit more
+> to do at this stage due to the hardware, but still...
+> 
+> >
+> > > there are patches where a kernel can load another
+> > > kernel, also.
+> >
+> > Hmmm ... sounds interesting ... any pointers?
+> 
+> LOBOS,
+> 
+> http://www.acl.lanl.gov/linuxbios/papers/index.html
+> http://www.usenix.org/publications/library/proceedings/als2000/minnichLOBOS.
+> html
+> 
+> two kernel monte,
+> 
+> http://www.scyld.com/products/beowulf/software/monte.html
+> 
+> There's also suspend to disk support, which is closely related.
+> Kind of a restartable crash dump, without the crash:
+> 
+> http://falcon.sch.bme.hu/~seasons/linux/swsusp.html
+> 
+> >
+> > > As for taking crashdumps on the way up, I believe
+> > > (SGI's ?) linux kernel crash dumps does *exactly*
+> > > this.
+> >
+> > I was under the impression that most BIOSes reset
+> > memory on reboot, so this was impossible during a
+> > BIOS reboot?
+> 
+> oss.sgi.com seems to be down today... but iirc,
+> it doesn't boot through bios, but stashes some critical state
+> in a buffer previously reserverd, uses one of the above methods
+> to boot a new kernel, lets this kernel do the dump, then boots
+> through the bios to make sure hardware is completely restored
+> after the crash.  I'm sure it could be tailored to suit though.
 
-> Hi Vojtech,
-> 
-> Appended patch:
-> 
-> (a) merges your patch of November 2001 into 2.2.21rc3
-> (b) adds a boot-time option to explicitly disable the via-timer hacks.
-> 
-> I've been using this patch for a while, but haven't subjected it to more
-> thorough testing than that it boots OK and doesn't appear to complicate
-> anything (I might be able to trigger the relevant condition by running the
-> battery right down on my (old) AcerNote-950, but one of the last times
-> this happened I also got some pretty nasty file system corruption - so I'm
-> not too keen to try that one again :-| ).
-> 
-> Anyway, does this patch and my merge of it look correct?
+What you just described is the way Mission Critical's 
+crash dump facility implements this. It makes use of bootimg
+Werner Almesberger's implementation of linux-boots-linux, to
+soft reboot a new kernel without going through the bios on x86 
+machines.
 
-Looks OK.
+SGI lkcd doesn't do it that way today (btw, the lkcd project 
+has now shifted to sourceforge, so the right place to look at 
+is lkcd.sourceforge.net), but we are actually working on integrating
+this mechanism from Mission Critical's mcore into lkcd, with
+some enhancements/improvements. 
+
+I'm cc'ing the lkcd-devel mailing list which is where we discuss
+such stuff.
 
 > 
-> Thanks,
-> Neale.
-> 
-> --- linux-2.2.21-rc3-orig/arch/i386/kernel/time.c	Mon Mar 26 02:37:30 2001
-> +++ linux-2.2.21-rc3-ntb/arch/i386/kernel/time.c	Fri Apr  5 23:04:13 2002
-> @@ -81,6 +81,8 @@
->  
->  spinlock_t rtc_lock = SPIN_LOCK_UNLOCKED;
->  
-> +static int		via686a_hacks = 1; /* default to enabled */
-> +
->  static inline unsigned long do_fast_gettimeoffset(void)
->  {
->  	register unsigned long eax asm("ax");
-> @@ -111,6 +113,54 @@
->  	return delay_at_last_interrupt + edx;
->  }
->  
-> +/*
-> + * VIA hardware bug workaround with check if it is really needed and
-> + * a printk that could tell us what's exactly happening on machines which
-> + * trigger the check, but are not VIA-based.
-> + *
-> + * Must be called with the i8253_spinlock held.
-> + */
-> +
-> +static void via_reset_and_whine(int *count)
-> +{
-> +	static unsigned long last_whine = 0;
-> +	unsigned long new_whine;
-> +	int count2;
-> +
-> +	new_whine = last_whine;
-> +
-> +	outb_p(0x00, 0x43);		/* Re-read the timer */
-> +	count2 = inb_p(0x40);
-> +	count2 |= inb(0x40) << 8;
-> +
-> +	if (time_after(jiffies, last_whine)) {
-> +		printk(KERN_WARNING "timer.c: VIA bug check triggered. "
-> +			"Value read %d [%#x], re-read %d [%#x]\n",
-> +			*count, *count, count2, count2);
-> +		new_whine = jiffies + HZ;
-> +	}
-> +
-> +	*count = count2;
-> +
-> +	if (count2 > LATCH) {		/* Still bad */
-> +		if (time_after(jiffies, last_whine)) {
-> +			printk(KERN_WARNING "timer.c VIA bug really present. ");
-> +			new_whine = jiffies + HZ;
-> +		}
-> +		if (via686a_hacks) {
-> +			printk(KERN_WARNING "Resetting PIT timer.\n");
-> +			outb_p(0x34, 0x43);
-> +			outb_p(LATCH & 0xff, 0x40);
-> +			outb(LATCH >> 8, 0x40);
-> +		} else {
-> +			printk(KERN_WARNING "But VIA hacks disabled.\n");
-> +		}
-> +		*count = LATCH - 1;
-> +	}
-> +
-> +	last_whine = new_whine;
-> +}
-> +
->  #define TICK_SIZE tick
->  
->  #ifndef CONFIG_X86_TSC
-> @@ -177,12 +227,8 @@
->  	count |= inb_p(0x40) << 8;
->  
->  	/* VIA686a test code... reset the latch if count > max */
-> - 	if (count > LATCH-1) {
-> -		outb_p(0x34, 0x43);
-> -		outb_p(LATCH & 0xff, 0x40);
-> -		outb(LATCH >> 8, 0x40);
-> -		count = LATCH - 1;
-> -	}	
-> +	if (count > LATCH)
-> +		via_reset_and_whine(&count);
->  	
->  	/*
->  	 * avoiding timer inconsistencies (they are rare, but they happen)...
-> @@ -478,19 +524,8 @@
->  		count |= inb(0x40) << 8;
->  
->  		/* VIA686a test code... reset the latch if count > max */
-> -		if (count > LATCH-1) {
-> -			static int last_whine;
-> -			outb_p(0x34, 0x43);
-> -			outb_p(LATCH & 0xff, 0x40);
-> -			outb(LATCH >> 8, 0x40);
-> -			count = LATCH - 1;
-> -			if(time_after(jiffies, last_whine))
-> -			{
-> -				printk(KERN_WARNING "probable hardware bug: clock timer configuration lost - probably a VIA686a.\n");
-> -				printk(KERN_WARNING "probable hardware bug: restoring chip configuration.\n");
-> -				last_whine = jiffies + HZ;
-> -			}			
-> -		}	
-> +		if (count > LATCH)
-> +			via_reset_and_whine(&count);
->  
->  #if 0
->  		spin_unlock(&i8253_lock);
-> @@ -737,3 +772,25 @@
->  	setup_x86_irq(0, &irq0);
->  #endif
->  }
-> +
-> +static int __init timer_setup(char *str)
-> +{
-> +	int	invert;
-> +
-> +	while ((str != NULL) && (*str != '\0')) {
-> +		invert = (strncmp(str, "no-", 3) == 0);
-> +		if (invert)
-> +			str += 3;
-> +		if (strncmp(str, "via686a", 7) == 0) {
-> +			via686a_hacks = !invert;
-> +			if (invert)
-> +				printk(KERN_INFO "timer: VIA686a workaround disabled.\n");
-> +		}
-> +		str = strchr(str, ',');
-> +		if (str != NULL)
-> +			str += strspn(str, ", \t");
-> +	}
-> +	return 1;
-> +}
-> +
-> +__setup("timer=", timer_setup);
+> I'm currently researching combining the two, to create a LinuxBIOS
+> firmware debug console, which will allow complete crash dump to
+> be taken after a hardware reset, with the smallest possible Heisenburg
+> effect, aside from a hardware debugger.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+So how is the actual writeout accomplished ?(via LinuxBIOS ?)
+ 
+> 
+> Basically when the kernel panics, it dumps the CPU registers and
+> resets the CPU.  The firmware console makes no alterations to
+> the state of the hardware, instead running a modified kgdb stub
+> like routine, possibly without even touching RAM.  Also, if an SMI
+> button is available, this can be used as a hardware break switch,
+> allowing panics to use an even less invasive HLT instruction.
+> 
+> Jeremy
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

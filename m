@@ -1,79 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284506AbRLRShe>; Tue, 18 Dec 2001 13:37:34 -0500
+	id <S284857AbRLRTtn>; Tue, 18 Dec 2001 14:49:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284500AbRLRSgz>; Tue, 18 Dec 2001 13:36:55 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59666 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284484AbRLRSgn>; Tue, 18 Dec 2001 13:36:43 -0500
-Date: Tue, 18 Dec 2001 10:35:39 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: David Mansfield <david@cobite.com>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: Scheduler ( was: Just a second ) ...
-In-Reply-To: <20011218105459.X855@lynx.no>
-Message-ID: <Pine.LNX.4.33.0112181012540.2998-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284860AbRLRTsJ>; Tue, 18 Dec 2001 14:48:09 -0500
+Received: from h24-70-162-27.wp.shawcable.net ([24.70.162.27]:13200 "EHLO
+	ubb.apia.dhs.org") by vger.kernel.org with ESMTP id <S284849AbRLRTql>;
+	Tue, 18 Dec 2001 14:46:41 -0500
+Message-Id: <v04003a12b8454bdc0779@[24.70.162.28]>
+In-Reply-To: <20011218.113725.82100134.davem@redhat.com>
+In-Reply-To: <v04003a11b84549aa834a@[24.70.162.28]>
+ <20011215.220646.69411478.davem@redhat.com>
+ <20011218190621.A28147@buzz.ichilton.local>
+ <v04003a11b84549aa834a@[24.70.162.28]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Organisation: Judean People's Front; Department of Whips, Chains, Thumb-Screws, Six Tons of Whipping Cream, the Entire Soprano Section of the Mormon Tabernacle Choir and Guest Apperances of Eva Peron aka Eric Conspiracy Secret Laboratories
+X-Disclaimer-1: This message has been edited from it's original form by members of the Eric Conspiracy.
+X-Disclaimer-2: There is no Eric Conspiracy.
+X-Not-For-Humans: aardvark@apia.dhs.org and zebra@apia.dhs.org are spamtraps.
+Date: Tue, 18 Dec 2001 13:46:03 -0600
+To: "David S. Miller" <davem@redhat.com>
+From: "Tony 'Nicoya' Mantler" <nicoya@apia.dhs.org>
+Subject: Re: 2.4.17-rc1 wont do nfs root on Javastation
+Cc: ian@ichilton.co.uk, sparclinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 18 Dec 2001, Andreas Dilger wrote:
+At 1:37 PM -0600 12/18/01, David S. Miller wrote:
+>   From: "Tony 'Nicoya' Mantler" <nicoya@apia.dhs.org>
+>   Date: Tue, 18 Dec 2001 13:32:00 -0600
 >
-> Yes, esd is an interrupt hog, it seems.  When reading this thread, I
-> checked, and sure enough I was getting 190 interrupts/sec on the
-> sound card while not playing any sound.  I killed esd (which I don't
-> use anyways), and interrupts went to 0/sec when not playing sound.
-> Still at 190/sec when using mpg123 on my ymfpci (Yamaha YMF744B DS-1S)
-> sound card.
+>   I really think it should be a compile-time option to have it default to on,
+>   but I never figured out who maintains it.
+>
+>How then would you get a generic, yet NFS-ROOT capable kernel?
+>Answer: you can't
 
-190 interrupts / sec sounds excessive, but not wildly so. The interrupt
-per se is not going to be a CPU hog unless the sound card does programmed
-IO to fill the data queues, and while that is not unheard of, I don't
-think such a card has been made in the last five years.
+Compile-time *Option*, as in "IP-Autoconfig default to on: (yes/no)".
 
-Obviously getting 190 irq's per second even when not actually _doing_
-anything is a total waste of CPU, and is bad form. There may be some
-reason why esd does it, most probably for good synchronization between
-sound events and to avoid popping when the sound is shut down (many sound
-drivers seem to pop a bit on open/close, possibly due to driver bugs, but
-possibly because some hard-to-avoid-programmatically hardware glitch when
-powering down the logic.
+If you need to build a kernel generica for a platform where you can pass a
+commandline easily, you just leave it at 'no', and get the same behaviour
+as current.
 
-So waiting a while with the driver active may actually be a reasonable
-thing to do, although I suspect that after long sequences of silence "esd"
-should really shut down for a while (and "long" here is probably on the
-order of seconds, not minutes).
+If you need to build a kernel to nfsroot on a platform where setting a
+commandline is difficult or impossible (like javastation), set it to 'yes',
+and get a working nfsroot.
 
-What probably _really_ ends up hurting performance is probably not the
-interrupt per se (although it is noticeable), but the fact that we wake up
-and cause a schedule - which often blows any CPU caches, making the _next_
-interrupt also be more expensive than it would possibly need to be.
+Simple.
 
-The code for that (in the case of drivers that use the generic "dmabuf.c"
-infrastructure) seems to be in "finish_output_interrupt()", and I suspect
-that it could be improved with something like
 
-	dmap = adev->dmap_out;
-	lim = dmap->nbufs;
-	if (lim < 2) lim = 2;
-	if (dmap->qlen <= lim/2) {
-		...
-	}
+Alternatley, having a configuration option to set a commandline, like some
+other arches have, would also work.
 
-around the current unconditional wakeups.
 
-Yeah, yeah, untested, stupid example, the idea being that we only wake up
-if we have at least half the frags free now, instead of waking up for
-_every_ fragment that free's up.
+Cheers - Tony 'Nicoya' Mantler :)
 
-The above is just as a suggestion for some testing, if somebody actually
-feels like trying it out. It probably won't be good as-is, but as a
-starting point..
 
-		Linus
+--
+Tony "Nicoya" Mantler - Renaissance Nerd Extraordinaire - nicoya@apia.dhs.org
+Winnipeg, Manitoba, Canada           --           http://nicoya.feline.pp.se/
+
 

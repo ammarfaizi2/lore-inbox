@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbTILJbR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 05:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTILJbR
+	id S261423AbTILJiy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 05:38:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbTILJix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 05:31:17 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:5590 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S261357AbTILJbQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 05:31:16 -0400
-MIME-Version: 1.0
+	Fri, 12 Sep 2003 05:38:53 -0400
+Received: from smtphost.cis.strath.ac.uk ([130.159.196.96]:58337 "EHLO
+	smtphost.cis.strath.ac.uk") by vger.kernel.org with ESMTP
+	id S261423AbTILJiw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 05:38:52 -0400
+Date: Fri, 12 Sep 2003 10:38:37 +0100
+From: iain d broadfoot <ibroadfo@cis.strath.ac.uk>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: getting a working CD-drive in 2.6
+Message-ID: <20030912093837.GC2921@iain-vaio-fx405>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16225.37473.759644.110334@gargle.gargle.HOWL>
-Date: Fri, 12 Sep 2003 11:31:13 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-Cc: linux-kernel@vger.kernel.org, macro@ds2.pg.gda.pl
-Subject: Re: [PATCH][2.4.23-pre3] repair mpparse for default MP systems
-In-Reply-To: <20030912031619.GA1310@Krystal>
-References: <16224.62817.533540.928220@gargle.gargle.HOWL>
-	<20030912031619.GA1310@Krystal>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+X-Editor: Vim http://www.vim.org/
+X-Operating-System: Linux/2.6.0-test3 (i686)
+X-Uptime: 10:35:22 up  2:42,  4 users,  load average: 0.15, 0.36, 0.51
+X-Message-Flag: Outlook viruses can be made to send private documents from your hard drive to any or all recipients from your address book. But it only happens about once a month or so, so it's okay. Just keep on using it.
+User-Agent: Mutt/1.5.4i
+X-CIS-MailScanner: Found to be clean
+X-CIS-MailScanner-SpamCheck: not spam, SpamAssassin (score=-8.2, required 5,
+	BAYES_01 -5.40, USER_AGENT_MUTT -2.80)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Desnoyers writes:
- > * Mikael Pettersson (mikpe@csd.uu.se) wrote:
- > > Mathieu,
- > > 
- > > This patch for 2.4.23-pre3 should fix the problems your dual
- > > P5 with default MP config has been having since 2.4.21-pre2.
- > > Please let us know if it works or not.
- > > 
- > > /Mikael
- > > 
- > 
- > Yes, I just tested this patch, and everything seems to work fine. Thank
- > you. :)
- > 
- > The only point I see, which is not triggered on my machine (because of
- > the absence of ACPI) is this one :
- > 
- > There is also an initialization of this mp_irqs variable in
- > mp_config_acpi_legacy_irqs from mpparse.c. It only seems to be called
- > from within acpi_boot_init in acpi.c. So I wonder if it's possible that
- > we do use default configuration and then also go into
- > mp_config_acpi_legacy_irqs during the acpi init, thus reserving the
- > memory twice and forgetting the old pointer, which could lead to an
- > erratic result.
- > 
- > If it's possible, then there is still a problem in there.
+Hi,
 
-I looked through acpi/mpparse/setup and I don't think there is
-a problem. acpi does mp_config_acpi_legacy_irqs if it found its
-tables, but this is done before get_smp_config, and get_smp_config
-bails out early if ACPI already has done the deed. If it were a
-problem, it would affect _all_ MP configs not just yours.
+	Since starting using 2.6, I've been unable to use my cd-rw/dvd
+	drive at all.
 
-I'll submit the patch to Marcelo then, with appropriate explaination.
-(No forward port to 2.6 is needed, since the arrays-to-pointers
-change hasn't been done there (yet).)
+	It won't read, and it certainly won't write.
 
-/Mikael
+	Attaching my .config for you perusal - what have i done wrong?
+
+	ide-scsi is disabled.
+
+	cheers,
+
+	iain
+
+-- 
+"If sharing a thing in no way diminishes it, it is not rightly owned if it is
+not shared." -- St. Augustine

@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271090AbTGXFVC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 01:21:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271101AbTGXFVC
+	id S270498AbTGXGFL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 02:05:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270503AbTGXGFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 01:21:02 -0400
-Received: from user145.net484.nc.sprint-hsd.net ([65.40.169.145]:47241 "EHLO
-	mail1.lvwnet.com") by vger.kernel.org with ESMTP id S271090AbTGXFU7
+	Thu, 24 Jul 2003 02:05:11 -0400
+Received: from evrtwa1-ar2-4-33-045-074.evrtwa1.dsl-verizon.net ([4.33.45.74]:56247
+	"EHLO grok.yi.org") by vger.kernel.org with ESMTP id S270498AbTGXGFH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 01:20:59 -0400
-Message-ID: <3F1F7046.7080009@lvwnet.com>
-Date: Thu, 24 Jul 2003 01:36:06 -0400
-From: Vinnie <listacct1@lvwnet.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
+	Thu, 24 Jul 2003 02:05:07 -0400
+Message-ID: <3F1F7A97.7000304@candelatech.com>
+Date: Wed, 23 Jul 2003 23:20:07 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Philippe Troin <phil@fifi.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 (and newer) - prob with the new adaptec aic7xxx driver
- and Promise UltraTrak100 TX2
-References: <3F1F5397.8000001@lvwnet.com> <87ispsd229.fsf@ceramic.fifi.org>
-In-Reply-To: <87ispsd229.fsf@ceramic.fifi.org>
+To: Eric Wood <eric@interplas.com>
+CC: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: RH 9 kernel compile error
+References: <077a01c35157$d898c100$9100000a@intgrp.com>
+In-Reply-To: <077a01c35157$d898c100$9100000a@intgrp.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philippe Troin wrote:
->>
->>If I compile the kernel to use the NEW aic7xxx adaptec driver, the
->>SCSI bus hangs almost immediately upon commencement of a large write
->>operation, such as attempting to copy a 500MB file from one of the
->>internal client machines to a SMB shared directory on this server.
->>The problem is reproducible on 2.4.19 and 2.4.20 kernels, if I use the
->>"new" aic7xxx driver.
+Eric Wood wrote:
+> Sorry for the newbie question.
+> I'm trying some new megaraid drivers so I have to recompile.  For RH9, in
+> the /usr/src/linux-2.4/ directory, I used:
 > 
+> # cp configs/kernel-2.4.20-i686.config .config
+> # make rpm
 > 
-> 8< snip >8
-> 
-> Have you tried the updated aic7xxx driver at
-> http://people.freebsd.org/~gibbs/linux/SRC/ ?
-> 
-> AFAIK it fixes a lot of problems with aic7xxx and was not included in
-> 2.4.21 for technicalities.
+> During the recompile I get an error:
+> I have 2.4.20-18.9 and 2.4.20-6 installed and get the error for both
+> versions. Any ideas?
+> -eric wood
 
-Hi Phil,
+Try doing a make mrproper or make clean first.  That has helped
+me compile redhat kernels.  After mrproper, have to copy the .config
+again, make menuconfig (or maybe oldconfig would work),
+then: make dep bzImage modules
 
-Thanks Phil - the updated driver solved my problem, I am now happily up and 
-running (and doing big writes without problems) on a fresh-compiled 2.4.20 
-kernel, with the /drivers/scsi tree patched with the latest set of Justin 
-Gibbs' drivers (6.2.36)
+I have never used rpm target...but I imagine it works :)
 
-Thanks to Justin also, and everybody else who has (no doubt) worked on the 
-new Adaptec drivers to improve it since the versions included with the 
-official kernel.org 2.4.19 and 2.4.20 kernel sources.
+Ben
 
-Vinnie
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
 

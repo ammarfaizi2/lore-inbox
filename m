@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265106AbSJWR0R>; Wed, 23 Oct 2002 13:26:17 -0400
+	id <S265104AbSJWRcv>; Wed, 23 Oct 2002 13:32:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265108AbSJWR0R>; Wed, 23 Oct 2002 13:26:17 -0400
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:22596 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S265106AbSJWR0Q>; Wed, 23 Oct 2002 13:26:16 -0400
-Date: Wed, 23 Oct 2002 10:40:35 -0700 (PDT)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: Christoph Hellwig <hch@infradead.org>
-cc: linux-kernel@vger.kernel.org, <lkcd-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] LKCD for 2.5.44 (6/8): dump trace/dump calls/dump_in_progress
-In-Reply-To: <20021023180105.B16547@infradead.org>
-Message-ID: <Pine.LNX.4.44.0210231023130.28800-100000@nakedeye.aparity.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265105AbSJWRcv>; Wed, 23 Oct 2002 13:32:51 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:41464 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S265104AbSJWRcu>; Wed, 23 Oct 2002 13:32:50 -0400
+Date: Wed, 23 Oct 2002 13:39:00 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Dan Kegel <dank@kegel.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       "Charles 'Buck' Krasic" <krasic@acm.org>,
+       Mark Mielke <mark@mark.mielke.cc>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+Message-ID: <20021023133900.B27433@redhat.com>
+References: <Pine.LNX.4.44.0210221231330.1563-100000@blue1.dev.mcafeelabs.com> <3DB6D332.9000709@kegel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DB6D332.9000709@kegel.com>; from dank@kegel.com on Wed, Oct 23, 2002 at 09:49:54AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes -- I don't know how this didn't get picked up, this
-was probably the result of the volatile->atomic_t->volatile
-code changes.
+On Wed, Oct 23, 2002 at 09:49:54AM -0700, Dan Kegel wrote:
+> Furthermore, epoll is nice because it delivers one-shot readiness change
+> notification (I used to think that was a drawback, but coding
+> nonblocking OpenSSL apps has convinced me otherwise).
+> I may be confused, but I suspect the async poll being proposed by
+> Ben only delivers absolute readiness, not changes in readiness.
+> 
+> I think epoll is worth having, even if Ben's AIO already handled
+> networking properly.
 
-The patch change should be:
+That depends on how it compares to async read/write, which hasn't 
+been looked into yet.  The way the pipe code worked involved walking 
+the page tables, which is still quite expensive for small data sizes.  
+With the new code, the CPU's tlb will be used, which will make a big 
+difference, especially for the case where only a single address space 
+is in use on the system.
 
- #ifdef CONFIG_SMP
-    if (!dump_function_ptr) {
-        smp_send_stop();
-    }
- #endif
-
-I'm copying the utils.patch file to the web site now:
-
-	http://lkcd.sourceforge.net/download/latest/
-
---Matt
-
-On Wed, 23 Oct 2002, Christoph Hellwig wrote:
-|>On Wed, Oct 23, 2002 at 02:44:43AM -0700, Matt D. Robinson wrote:
-|>> +#if !defined(CONFIG_CRASH_DUMP) && !defined(CONFIG_CRASH_DUMP_MODULE)
-|>>  #ifdef CONFIG_SMP
-|>>  	smp_send_stop();
-|>>  #endif
-|>> +#endif
-|>
-|>Again, is there a chance you could make this a runtime switch?
-|>This would allow to poweroff dump-enabled kernel not configured for
-|>dumping.
-|>
-|>-
-|>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-|>the body of a message to majordomo@vger.kernel.org
-|>More majordomo info at  http://vger.kernel.org/majordomo-info.html
-|>Please read the FAQ at  http://www.tux.org/lkml/
-|>
-
+		-ben
 -- 
-
+"Do you seek knowledge in time travel?"

@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263960AbUCPQ2H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 11:28:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263359AbUCPQ2G
+	id S264005AbUCPQ15 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 11:27:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbUCPQUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 11:28:06 -0500
-Received: from zcamail05.zca.compaq.com ([161.114.32.105]:58884 "EHLO
-	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
-	id S263982AbUCPQ1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 11:27:10 -0500
-Date: Tue, 16 Mar 2004 10:38:24 -0600
-From: mikem@beardog.cca.cpqcorp.net
-To: axboe@suse.de, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: cpqarray patches for 2.6 [2 of 5]
-Message-ID: <20040316163824.GB21377@beardog.cca.cpqcorp.net>
-Reply-To: mike.miller@hp.com
+	Tue, 16 Mar 2004 11:20:39 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:12424 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S263974AbUCPQRg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 11:17:36 -0500
+Date: Tue, 16 Mar 2004 16:16:29 +0000
+From: Dave Jones <davej@redhat.com>
+To: Marc Zyngier <mzyngier@freesurf.fr>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       jgarzik@pobox.com
+Subject: Re: [3C509] Fix sysfs leak.
+Message-ID: <20040316161629.GD17958@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Marc Zyngier <mzyngier@freesurf.fr>, linux-kernel@vger.kernel.org,
+	torvalds@osdl.org, akpm@osdl.org, jgarzik@pobox.com
+References: <200403152147.i2FLl09s002942@delerium.codemonkey.org.uk> <wrpad2hf4be.fsf@panther.wild-wind.fr.eu.org> <20040316134613.GA15600@redhat.com> <wrp3c88g9xu.fsf@panther.wild-wind.fr.eu.org> <20040316142951.GA17958@redhat.com> <wrpwu5kessd.fsf@panther.wild-wind.fr.eu.org> <20040316153018.GB17958@redhat.com> <wrpr7vseq06.fsf@panther.wild-wind.fr.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <wrpr7vseq06.fsf@panther.wild-wind.fr.eu.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the second of 5 patches for cpqarray. The patch fixes an Oops when unloading the driver. Please apply in order.
+On Tue, Mar 16, 2004 at 05:05:45PM +0100, Marc Zyngier wrote:
+ >  #ifdef CONFIG_MCA
+ >  	mca_register_driver(&el3_mca_driver);
+ >  #endif
+ > -	return el3_cards ? 0 : -ENODEV;
+ > +	return 0;
+ >  }
+ >  
+ >  static void __exit el3_cleanup_module(void)
+ > 
+ > This is not pretty either, but 3c579 probing will work, and in your
+ > case it won't leave a dangling directory in sysfs.
 
-Thanks,
-mikem
--------------------------------------------------------------------------------
-   * Fix for segmentation fault when calling rmmod
+Yes, leaving the module around, and cleaning up at rmmod time should
+also work.  I'll test it in a while to be sure.
 
+ > Dave> Why is this even an issue so late on? Bus probing should have
+ > Dave> been done as part of bootup. By the time I get to modprobing
+ > Dave> device drivers, it should have been determined already.
+ > 
+ > Modprobing is perfectly OK, and indeed everything has been probed at
+ > this stage.
 
- drivers/block/cpqarray.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Clearly it hadn't, or otherwise modprobing 3c509 would have failed
+due to the lack of an eisa bus.
 
---- linux-2.6.1/drivers/block/cpqarray.c~cpqarray_0	2004-02-11 15:45:44.381344184 -0600
-+++ linux-2.6.1-root/drivers/block/cpqarray.c	2004-02-11 15:47:34.110662792 -0600
-@@ -300,7 +300,6 @@ static void __exit cpqarray_exit(void)
- 		iounmap(hba[i]->vaddr);
- 		unregister_blkdev(COMPAQ_SMART2_MAJOR+i, hba[i]->devname);
- 		del_timer(&hba[i]->timer);
--		blk_cleanup_queue(hba[i]->queue);
- 		remove_proc_entry(hba[i]->devname, proc_array);
- 		pci_free_consistent(hba[i]->pci_dev, 
- 			NR_CMDS * sizeof(cmdlist_t), (hba[i]->cmd_pool), 
-@@ -313,6 +312,7 @@ static void __exit cpqarray_exit(void)
- 			devfs_remove("ida/c%dd%d",i,j);
- 			put_disk(ida_gendisk[i][j]);
- 		}
-+		blk_cleanup_queue(hba[i]->queue);
- 	}
- 	devfs_remove("ida");
- 	remove_proc_entry("cpqarray", proc_root_driver);
+ > But having built-in drivers raises a few different
+ > problems (the driver may be initialized before all busses are probed).
 
-_
+There were no built-in drivers in this case.
+
+		Dave
+

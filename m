@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265464AbRF1BDF>; Wed, 27 Jun 2001 21:03:05 -0400
+	id <S265467AbRF1BFF>; Wed, 27 Jun 2001 21:05:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265467AbRF1BCz>; Wed, 27 Jun 2001 21:02:55 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:30868 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265464AbRF1BCr>;
-	Wed, 27 Jun 2001 21:02:47 -0400
+	id <S265468AbRF1BE4>; Wed, 27 Jun 2001 21:04:56 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:33172 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265467AbRF1BEq>;
+	Wed, 27 Jun 2001 21:04:46 -0400
 From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15162.33332.781686.45753@pizda.ninka.net>
-Date: Wed, 27 Jun 2001 18:02:44 -0700 (PDT)
-To: tom_gall@vnet.ibm.com
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Message-ID: <15162.33445.396761.71174@pizda.ninka.net>
+Date: Wed, 27 Jun 2001 18:04:37 -0700 (PDT)
+To: anton@samba.org
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, tom_gall@vnet.ibm.com,
+        linux-kernel@vger.kernel.org
 Subject: Re: RFC: Changes for PCI
-In-Reply-To: <3B3A64CD.28B72A2A@vnet.ibm.com>
+In-Reply-To: <20010628091704.B23627@krispykreme>
 In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com>
 	<3B3A5B00.9FF387C9@mandrakesoft.com>
-	<3B3A64CD.28B72A2A@vnet.ibm.com>
+	<20010628091704.B23627@krispykreme>
 X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Tom Gall writes:
- > Well you have device drivers like the symbios scsi driver for instance that
- > tries to determine if it's seen a card before. It does this by looking at the
- > bus,dev etc numbers...  It's quite reasonable for two different scsi cards to be
- > on the same bus number, same dev number etc yet they are in different PCI
- > domains.
+anton@samba.org writes:
+ > > Why not use sysdata like the other arches?
+ > > 
+ > > Changing the meaning of dev->bus->number globally seems pointless.  If
+ > > you are going to do that, just do it the right way and introduce another
+ > > struct member, pci_domain or somesuch.
  > 
- > Is this a device driver bug or feature?
+ > Thats 2.5 material. For 2.4 we should do as davem suggested and make
+ > the bus number unique. I do this by just adding 256 to each overlapping
+ > host bridge.
 
-As Peter Zaitcev and others have pointed out, they can use simple
-pointer comparisons here on the pci_dev struct.
+Looks, ppc64 is really still experimental right?  Which means it is
+2.5.x material, and 2.5.x has been quoted as being a week or two away.
 
- > Right, one could do that and then all the large machine architectures would have
- > their own implementation for the same problem. That's not necessarily a bad
- > thing, but some commonality I think would be a good thing.
+So we can solve this problem for real, with system bus domains, and
+get ppc64 working all within the framework of 2.5.x which is just
+around the corner.
 
-Well, if the claim is that your suggested changes provide this
-"commonality", I totally disagree.  Your changes do no more than
-provide hooks where no hooks are needed.  The hooks are there,
-and are why we have "sysdata" and all the drivers/pci/setup-*.c
-buisness.  If ppc64 cannot fit itself into the drivers/pci/setup-*.c
-infrastructure, either fix the infrastructure or concede that "our
-stuff is too weird to solve with generic code" and do what sparc64
-does with driving it's own PCI probing layer.
+For now, I am rather sure your systems for testing have < 256 physical
+PCI busses and you can for 2.4.x use the remapping scheme sparc64 uses.
 
 Later,
 David S. Miller

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317374AbSFMABw>; Wed, 12 Jun 2002 20:01:52 -0400
+	id <S317375AbSFMAPq>; Wed, 12 Jun 2002 20:15:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317375AbSFMABv>; Wed, 12 Jun 2002 20:01:51 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:30989 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317374AbSFMABu>;
-	Wed, 12 Jun 2002 20:01:50 -0400
-Date: Wed, 12 Jun 2002 16:57:47 -0700
-From: Greg KH <greg@kroah.com>
-To: jt@hpl.hp.com
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        linux-usb-devel@lists.sourceforge.net
-Subject: Re: Re : ANN: Linux 2.2 driver compatibility toolkit
-Message-ID: <20020612235747.GD17306@kroah.com>
-In-Reply-To: <20020610174050.A21783@bougret.hpl.hp.com> <3D07D022.5030106@mandrakesoft.com> <20020612162714.A24255@bougret.hpl.hp.com> <20020612233955.GC17306@kroah.com> <20020612165030.A24311@bougret.hpl.hp.com>
+	id <S317376AbSFMAPp>; Wed, 12 Jun 2002 20:15:45 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:42756 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S317375AbSFMAPo>;
+	Wed, 12 Jun 2002 20:15:44 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Thomas Duffy <tduffy@directvinternet.com>
+Cc: Kbuild Devel <kbuild-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [kbuild-devel] Re: Announce: Kernel Build for 2.5, release 3.0 is available 
+In-Reply-To: Your message of "12 Jun 2002 13:55:44 MST."
+             <1023915345.23246.20.camel@tduffy-lnx.afara.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Wed, 15 May 2002 22:01:58 -0700
+Date: Thu, 13 Jun 2002 10:15:31 +1000
+Message-ID: <30954.1023927331@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 12, 2002 at 04:50:30PM -0700, Jean Tourrilhes wrote:
-> 	Don't rush, I'm not sure if you are done with USB
-> changes. When the new HCD stuff will be in, I'm sure you will find
-> something else to tinker with.
+On 12 Jun 2002 13:55:44 -0700, 
+Thomas Duffy <tduffy@directvinternet.com> wrote:
+>On Wed, 2002-06-12 at 06:54, Keith Owens wrote:
+>
+>> New files:
+>> 
+>> kbuild-2.5-core-19
+>
+>> kbuild-2.5-i386-2.4.18-4
+>> kbuild-2.5-i386-2.4.19-pre10-2
+>
+>> kbuild-2.5-common-2.5.21-1
+>> kbuild-2.5-i386-2.5.21-1
+>
+>hrm.  I don't see any of these on the sourceforge site...
 
-Heh, I _know_ I'm not done with USB changes :)
-I'll just be backporting the ones that are now stable, and have been in
-the tree for a long time.  I'll not be backporting all of the new HCD
-drivers for one.
+I got side tracked and did not complete the upload.  They are there
+now.
 
-Here's what I think I'll change in 2.4.20 that is now in the 2.5 tree:
-	- update the USB documentation
-	- remove the horrible typedefs in usb.h
-	- change usb_submit_urb and usb_alloc_urb apis
-	- add new drivers
-	- backport the usb-serial api and locking changes
-
-And that will probably be enough for 2.4.20.  In the meantime, the USB
-changes in 2.5 will continue on, giving us more fodder to backport in
-2.4.21, not to mention 2.2.22 :)
-
-thanks,
-
-greg k-h

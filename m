@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261242AbTIXB1c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 21:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbTIXB1c
+	id S261240AbTIXB57 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 21:57:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbTIXB57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 21:27:32 -0400
-Received: from zero.aec.at ([193.170.194.10]:12559 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261242AbTIXB1b (ORCPT
+	Tue, 23 Sep 2003 21:57:59 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:51917 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S261240AbTIXB55 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 21:27:31 -0400
-To: "Ruth Ivimey-Cook" <Ruth.Ivimey-Cook@ivimey.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How are the Promise drivers doing?
-From: Andi Kleen <ak@muc.de>
-Date: Wed, 24 Sep 2003 03:27:14 +0200
-In-Reply-To: <yX7w.79l.13@gated-at.bofh.it> ("Ruth Ivimey-Cook"'s message of
- "Tue, 23 Sep 2003 17:20:14 +0200")
-Message-ID: <m3he33c6x9.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <yX7w.79l.13@gated-at.bofh.it>
+	Tue, 23 Sep 2003 21:57:57 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16240.47156.771134.68028@napali.hpl.hp.com>
+Date: Tue, 23 Sep 2003 14:16:36 -0700
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Luck, Tony" <tony.luck@intel.com>, "David S. Miller" <davem@redhat.com>,
+       davidm@hpl.hp.com, davidm@napali.hpl.hp.com, peter@chubb.wattle.id.au,
+       bcrl@kvack.org, ak@suse.de, iod00d@hp.com, peterc@gelato.unsw.edu.au,
+       linux-ns83820@kvack.org, linux-ia64@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: NS83820 2.6.0-test5 driver seems unstable on IA64
+In-Reply-To: <1064350834.11760.4.camel@dhcp23.swansea.linux.org.uk>
+References: <DD755978BA8283409FB0087C39132BD101B01194@fmsmsx404.fm.intel.com>
+	<1064350834.11760.4.camel@dhcp23.swansea.linux.org.uk>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Ruth Ivimey-Cook" <Ruth.Ivimey-Cook@ivimey.org> writes:
+>>>>> On Tue, 23 Sep 2003 22:00:34 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> said:
 
-> These days it seems more motherboards that have additional IDE ports use
-> Promise chips, with a few using HPT ones. I note the advent of the
-> Promise GPL SATA drivers and Jeff's libata. I am also aware that my
-> current setup ( Linux 2.4.22 and onboard 20276) does occasionally cause
-> me grief, with lost interrupts making me wonder if all is well. I have 2
-> Promise 20267 IDE cards available should that be useful.
+  >> Looking at a couple of ia64 build servers here I see zero unaligned
+  >> access messages in the logs.
 
-One big problem with the Promise drivers is that they are not 64bit
-clean. Trying them in a 64bit x86-64 kernel fails quickly.
-Fixing them is unfortunately a lot of work because of the weird
-Windows like programming style in the CAM layer in there.
+  Alan> Anyone who can deliver network traffic to your box can soon fix that...
 
-Also at least some released versions of them had gapping security holes
-in the ioctl handlers.
+Not if he's running Red Hat.  This is on a Red Hat 9 machine (x86,
+just so you can't argue it's ia64-specific...):
 
--Andi
+ $ fgrep LOGLEVEL /etc/rc.sysinit
+ /bin/dmesg -n $LOGLEVEL
+ $ fgrep LOGLEVEL /etc/sysconfig/*
+ /etc/sysconfig/init:LOGLEVEL=3
+
+Red Hat users won't be bothered by unaligned messages.
+
+	--david

@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312254AbSE1XKS>; Tue, 28 May 2002 19:10:18 -0400
+	id <S312973AbSE1XSo>; Tue, 28 May 2002 19:18:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312486AbSE1XKR>; Tue, 28 May 2002 19:10:17 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:44040 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S312254AbSE1XKQ>; Tue, 28 May 2002 19:10:16 -0400
-Date: Tue, 28 May 2002 16:10:13 -0700
-From: jw schultz <jw@pegasys.ws>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: trivial: reiserfs whitespace
-Message-ID: <20020528161013.H885@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020526183128.GA11385@elf.ucw.cz> <20020527024354.GA9510@tapu.f00f.org> <20020525145325.GA16155@conectiva.com.br> <20020528075937.GB1190@stupidest.org>
+	id <S313038AbSE1XSn>; Tue, 28 May 2002 19:18:43 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:62191 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S312973AbSE1XSn>; Tue, 28 May 2002 19:18:43 -0400
+Subject: Re: wait queue process state
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: jw schultz <jw@pegasys.ws>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020528190518.E21009@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 29 May 2002 01:21:47 +0100
+Message-Id: <1022631707.4123.151.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 28, 2002 at 12:59:37AM -0700, Chris Wedgwood wrote:
-> On Sat, May 25, 2002 at 11:53:25AM -0300, Arnaldo Carvalho de Melo wrote:
+On Wed, 2002-05-29 at 00:05, Benjamin LaHaise wrote:
+> On Tue, May 28, 2002 at 04:01:43PM -0700, jw schultz wrote:
+> > The read system call is interuptable, period.  Disk access
+> > is considered slow.   If you code asuming it will not be
+> > interupted or that an interupt will cause a return of -1
+> > your code may break on Linux and will certainly not be
+> > portable.
 > 
->     But doing it slowly, together with other patches, is not a bad
->     idea.
-> 
-> Well, in that case is there some kind of bk or command that can be
-> made to automagically run to purge white-space from the end
-> patches/changesets as they are produced?  It would also be nice to
-> have hunks such as[1]:
-> 
->      --- 1   Tue May 28 00:56:35 2002
->      +++ 2   Tue May 28 00:56:34 2002
->      @@ -1 +1 @@
->      -  
->      +		
-> 
-> stripped completely as they have no functional value and just add
-> bloat patches and such like.
-> 
-> This can be done with CVS but as it works very differently to bk
-> (which to be honest I really don't understand very well at all) I'm
-> not even sure if the above suggestion is meaningful.
-> 
->    --cw
+> Linux does not permit interrupting regular file reads on local disks; 
+> only NFS supports it.  Maybe 2.5 is the time to change this.
 
-CW makes an interesting point.  Perhaps bk could be
-configured to check for / +\t/ and /\s+$/ on changed lines,
-and possibly their contigious neighbors, and ask about purging
-the superfluous whitespace.  Comments Larry?
+What Unix and standards say and do make that one unfortunately a very
+bad idea. Its true that to the letter of the specs you can do
+interruptible disk I/O. Its also true to the real world that vast
+amounts of software breaks in subtle, unreported, oh hell what ate my
+file kind of ways
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt

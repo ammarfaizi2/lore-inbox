@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262882AbVAKXFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262874AbVAKWo7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262882AbVAKXFS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 18:05:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262935AbVAKXFR
+	id S262874AbVAKWo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 17:44:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbVAKWnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 18:05:17 -0500
-Received: from gw.c9x.org ([213.41.131.17]:55919 "HELO
-	nerim.mx.42-networks.com") by vger.kernel.org with SMTP
-	id S262927AbVAKXEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 18:04:04 -0500
-Date: Wed, 12 Jan 2005 00:03:40 +0059
-From: "Frank Denis \(Jedi/Sector One\)" <lkml@pureftpd.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-mm2: panic when munmap()ping the stack
-Message-ID: <20050111230402.GA5839@c9x.org>
-References: <1105401719.4153.2.camel@localhost>
+	Tue, 11 Jan 2005 17:43:22 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:30691 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262874AbVAKWm3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 17:42:29 -0500
+Date: Tue, 11 Jan 2005 14:42:17 -0800
+From: Greg KH <greg@kroah.com>
+To: Jason Gaston <jason.d.gaston@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] I2C support for Intel ICH7 - 2.6.10 - resubmit
+Message-ID: <20050111224217.GB19173@kroah.com>
+References: <200501060947.14595.jason.d.gaston@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1105401719.4153.2.camel@localhost>
-X-Operating-System: OpenBSD - http://www.openbsd.org/
+In-Reply-To: <200501060947.14595.jason.d.gaston@intel.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 04:01:58PM -0800, Jeremy Fitzhardinge wrote:
-> This program causes an instant panic for me:
->         #include <sys/mman.h>
->         int main(int argc, char **argv)
->         {
->         	munmap((char *)(((unsigned long)&argc) & ~4095), 4096*2);
->         	return 0;
->         }
-> Plain 2.6.10 segfaults as expected; I haven't tried -mm1 to see what it
-> does.
+On Thu, Jan 06, 2005 at 09:47:14AM -0800, Jason Gaston wrote:
+> This patch adds the Intel ICH7 DID to the i2c-i801.c driver and adds
+> an entry to Kconfig for I2C(SMBus) support. ?  Note: This patch relies
+> on the already submitted and accepted PATA patch to pci_ids.h
+> containing all ICH7 DID's.
+> If acceptable, please apply. 
 
-  I get an instant reboot with 2.6.10-mm2 and 2.6.10-mm1 with one page.
-  
-  2.6.10-rc3-mm1 just segfaults as expected.
+I rediffed the second part by hand, due to some other changes (pci ids
+are better expressed the PCI_DEVICE() macro.) and applied it.
 
---
-Frank - my stupid blog: http://00f.net
+thanks,
+
+greg k-h

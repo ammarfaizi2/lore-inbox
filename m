@@ -1,31 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263029AbTCLAgv>; Tue, 11 Mar 2003 19:36:51 -0500
+	id <S262975AbTCLAO5>; Tue, 11 Mar 2003 19:14:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263048AbTCLAgg>; Tue, 11 Mar 2003 19:36:36 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30983 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263029AbTCLAfz>; Tue, 11 Mar 2003 19:35:55 -0500
-Date: Tue, 11 Mar 2003 16:44:46 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: shemminger@osdl.org, <linux-kernel@vger.kernel.org>,
-       <linux-net@vger.kernel.org>
+	id <S261730AbTCLAOd>; Tue, 11 Mar 2003 19:14:33 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:50409 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261729AbTCLAMx>;
+	Tue, 11 Mar 2003 19:12:53 -0500
+Date: Tue, 11 Mar 2003 16:23:23 -0800 (PST)
+Message-Id: <20030311.162323.94095868.davem@redhat.com>
+To: shemminger@osdl.org
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
 Subject: Re: [PATCH] (8/8) Kill brlock
-In-Reply-To: <20030311.163408.124083653.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0303111644060.3002-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1047428123.15872.113.camel@dell_ss3.pdx.osdl.net>
+References: <Pine.LNX.4.44.0303091831560.2129-100000@home.transmeta.com>
+	<1047428123.15872.113.camel@dell_ss3.pdx.osdl.net>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Stephen Hemminger <shemminger@osdl.org>
+   Date: 11 Mar 2003 16:15:23 -0800
 
-On Tue, 11 Mar 2003, David S. Miller wrote:
->    
-> Ok, I'm fine with this then.  Linus you can apply all of his patches.
+   Previous patches killed all remaining uses of brlock so bye.
+   
+I'm all for this once patch 2/8 gets fixed up :-)
 
-I'm a lazy bum, and I would _really_ want this tested more before it hits 
-my tree. I think it makes sense, but still..
-
-		Linus
-
+So what is the new way to say "stop all incoming packet
+processing while I update data structure X"?

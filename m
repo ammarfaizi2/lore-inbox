@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262659AbUBZDsW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 22:48:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbUBZDsW
+	id S262642AbUBZDSB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 22:18:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbUBZDQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 22:48:22 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30930 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262659AbUBZDPy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 22:15:54 -0500
-Date: Thu, 26 Feb 2004 03:15:53 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andrew Morton <akpm@osdl.org>
-Cc: bgerst@didntduck.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Clean up sys_ioperm stubs
-Message-ID: <20040226031553.GF31035@parcelfarce.linux.theplanet.co.uk>
-References: <403D5F32.4080805@quark.didntduck.org> <20040226030523.GE31035@parcelfarce.linux.theplanet.co.uk> <20040225191140.36288919.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040225191140.36288919.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 25 Feb 2004 22:16:34 -0500
+Received: from alt.aurema.com ([203.217.18.57]:39347 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id S262642AbUBZDOt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 22:14:49 -0500
+Date: Thu, 26 Feb 2004 14:14:34 +1100 (EST)
+From: John Lee <johnl@aurema.com>
+To: Pavel Machek <pavel@ucw.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
+In-Reply-To: <20040225225159.GA1906@elf.ucw.cz>
+Message-ID: <Pine.GSO.4.03.10402261339140.8776-100000@swag.sw.oz.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 25, 2004 at 07:11:40PM -0800, Andrew Morton wrote:
-> viro@parcelfarce.linux.theplanet.co.uk wrote:
-> >
-> > On Wed, Feb 25, 2004 at 09:51:30PM -0500, Brian Gerst wrote:
-> > > Remove stubs for sys_ioperm for non-x86 arches, using sys_ni_syscall 
-> > > instead where applicable.
-> > 
-> > I have better suggestion: make sys_ioperm() a cond_syscall().  Then kill
-> > its implementation on all platforms where it just returns -ENOSYS.
-> 
-> Why is that better?  Sticking a pointer to the not-implemented-syscall into
-> the syscall table is pretty darn explicit.
 
-No chance of reuse.  BTW,
-#define __NR_ioperm	/* 101 */ <uncommented text>
-is asking for trouble.  You get the symbol defined (so that will fool any
-ifdef) and it expands to something completely bogus.
+
+On Wed, 25 Feb 2004, Pavel Machek wrote:
+
+> > Usage rate caps are expressed as rational numbers (e.g. "1 / 2") and hard caps 
+> > are signified by a "!" suffix.  The rational number indicates the proportion 
+> > of a single CPU's capacity that the task may use. The value of the number must 
+> > be in the range 0.0 to 1.0 inclusive for soft caps. For hard caps there is an 
+> > additional restriction that a value of 0.0 is not permitted.  Tasks with a 
+> > soft cap of 0.0 become true background tasks and only get to run when no other 
+> > tasks are active.
+> 
+> Why not use something like percent, parts per milion or whatever?
+
+Fair comment. Fine granularity with percentages would require decimal
+points and a function in the kernel to parse that value - maybe I could
+get around to doing that. But I suppose ppm could certainly be used. We
+just chose rational numbers to start with.
+
+> > When hard capped tasks exceed their cap they are removed from the run queues 
+> > and placed in a "sinbin" for a short while until their usage rate decays to
+> > within limits.
+> 
+> How do you solve this one?
+
+The task is removed from the runqueue and a timer is scheduled to put it
+back onto the runqueue. The delay period is the required amount of time
+for that task's usage to decay to below its cap.
+
+> I want to kill your system.
+> 
+> I launch task A, "semaphore grabber", that does filesystem
+> operations. Those need semaphores. I run it as "true background".
+> 
+> I wait for A to grab some lock, then I run B, which is while(1);
+> 
+> A holds lock that can not be unlocked, and your system is dead.
+> 
+> This may happen randomly, even without me on your system.
+
+Good point. We'll have to rethink background priorities.
+
+John
+
+

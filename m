@@ -1,87 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264795AbUD1Nr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264793AbUD1NxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264795AbUD1Nr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 09:47:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264793AbUD1Nr6
+	id S264793AbUD1NxX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 09:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264789AbUD1NxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 09:47:58 -0400
-Received: from smtp807.mail.sc5.yahoo.com ([66.163.168.186]:7835 "HELO
-	smtp807.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264795AbUD1NrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 09:47:16 -0400
-Date: Wed, 28 Apr 2004 08:50:40 -0500 (CDT)
-From: Brent Cook <busterbcook@yahoo.com>
-X-X-Sender: busterb@ozma.hauschen
-Reply-To: busterbcook@yahoo.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: pdflush eating a lot of CPU on heavy NFS I/O
-In-Reply-To: <20040427230203.1e4693ac.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0404280826070.31093@ozma.hauschen>
-References: <Pine.LNX.4.58.0404280009300.28371@ozma.hauschen>
- <20040427230203.1e4693ac.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 28 Apr 2004 09:53:23 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30225 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264804AbUD1NxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 09:53:20 -0400
+Date: Wed, 28 Apr 2004 14:53:16 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: [BUG] 2.6.6-rc3: make xxx_defconfig randomly sets options
+Message-ID: <20040428145316.C24948@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Linus Torvalds <torvalds@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Apr 2004, Andrew Morton wrote:
+Hi,
 
-> Brent Cook <busterbcook@yahoo.com> wrote:
-> >
-> >   Running any kernel from the 2.6.6-rc* series (and a few previous
-> >  -mm*'s),
->
-> It's a shame this wasn't reported earlier.
+If I have an ARM defconfig file which contains:
 
-Since it was a pretty big deal on my system, I just assumed it was for
-other people's too, and that someone else would have reported it by
-now. I only got concerned when it persisted between rc's.
+# CONFIG_SERIO is not set
 
-> > the pdflush process starts using near 100% CPU indefinitely after
-> >  a few minutes of initial NFS traffic, as far as I can tell.
->
-> Please confirm that the problem is observed on the NFS client and not the
-> NFS server?  I'll assume the client.
+with none of the other CONFIG_SERIO symbols, and I run make foo_defconfig,
+I get the following in the resulting .config:
 
-Yes, both affected machines had the issue when connecting as a client to a
-2.4.25-based NFS server.
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
 
-> What other filesystems are in use on the client?
+This is despite not being an X86 architecture, and isn't affected by
+whether CONFIG_EMBEDDED is set or not.
 
-One uses Reiser on /, the other uses ext3 on /. Here is the mount table
-for one machine:
+If I run "make oldconfig" after switching CONFIG_SERIO off and removing
+the other CONFIG_SERIO_* symbols, I get:
 
-/dev/hda3 on / type ext3 (rw)
-none on /dev/pts type devpts (rw,gid=5,mode=620)
-none on /proc type proc (rw)
-none on /sys type sysfs (rw)
-usbfs on /proc/bus/usb type usbfs (rw)
-ozma:/home on /home type nfs (rw,addr=192.168.1.1)
+Serial i/o support (SERIO) [Y/?] y
+i8042 PC Keyboard controller (SERIO_I8042) [Y/n/m/?] (NEW)
 
-Running 2.6.6-rc2-mm1,
-Here is a shot compiling KDE with the source on the NFS mount,
--j2. This is the initial state:
+It appears SERIO is forced on because SERIO_I8042 _may_ be wanted by
+the user, which in turn forces SERIO_I8042 to Y in the defconfig case
+because we don't accept input from the user and the default is Y.
 
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME CPU COMMAND
-12091 busterb   25   0 63524  59M  5140 R    38.4 23.8   0:19   0 cc1plus
-12199 busterb   25   0 55660  52M  5140 R    38.0 20.8   0:07   0 cc1plus
-    7 root      16   0     0    0     0 SW    4.9  0.0   0:03   0 pdflush
+So, there is _no_ way to presently have a working defconfig file for
+a machine which does not support I8042 - I8042 will always be
+_unconditionally_ selected no matter what.
 
-About 10 minutes into the process, pdflush starts taking over:
+Can we please take Aunt Tillie out to the firing squad?  This hacking
+around with the Kconfig files to make X86 life simple is causing _real_
+bugs for other architectures.
 
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME CPU COMMAND
-    7 root      25   0     0    0     0 RW   34.4  0.0   3:05   0 pdflush
-17856 busterb   25   0 69400  65M  5140 R    34.4 26.1   0:31   0 cc1plus
-19466 busterb   25   0 43732  39M  5140 R    26.3 15.5   0:03   0 cc1plus
-
-After stopping the compile, pdflush remains until a reboot:
-
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME CPU COMMAND
-    7 root      25   0     0    0     0 RW   98.0  0.0   3:21   0 pdflush
-
-The network light will flash continually on each machine once pdflush
-gets into this state, which makes me think NFS. Each machine has
-512-256 MB of ram and a single CPU.
-
- - Brent
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280688AbRKBNUB>; Fri, 2 Nov 2001 08:20:01 -0500
+	id <S280686AbRKBNXL>; Fri, 2 Nov 2001 08:23:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280687AbRKBNTy>; Fri, 2 Nov 2001 08:19:54 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:265 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S280686AbRKBNTj>;
-	Fri, 2 Nov 2001 08:19:39 -0500
-Date: Fri, 2 Nov 2001 11:19:25 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: firetiger <firetiger977@163.com>, <linux-kernel@vger.kernel.org>,
-        "Vladimir V. Saveliev" <monstr@namesys.com>
+	id <S280687AbRKBNXB>; Fri, 2 Nov 2001 08:23:01 -0500
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:39304
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S280686AbRKBNWt>; Fri, 2 Nov 2001 08:22:49 -0500
+Date: Fri, 02 Nov 2001 08:19:41 -0500
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>, firetiger <firetiger977@163.com>
+cc: linux-kernel@vger.kernel.org, "Vladimir V. Saveliev" <monstr@namesys.com>,
+        Arjan van de Ven <arjanv@redhat.com>
 Subject: Re: OOPS: reiserfs panic
+Message-ID: <507960000.1004707181@tiny>
 In-Reply-To: <3BE2958A.2070306@namesys.com>
-Message-ID: <Pine.LNX.4.33L.0111021118180.2963-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+In-Reply-To: <PIEMJKECONGJHFMFKFLHEEAGCAAA.firetiger977@163.com>
+ <3BE2958A.2070306@namesys.com>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Nov 2001, Hans Reiser wrote:
+
+
+On Friday, November 02, 2001 03:46:02 PM +0300 Hans Reiser
+<reiser@namesys.com> wrote:
 
 > It is not a Linus kernel that RedHat gave you. Please try the latest
-> Linus kernel, and tell us if that works. I think it will. Please give
-> us info about exactly what kernel they shipped if you can. Hans
+> Linus kernel, and tell us if that works. I think it will. Please give us
+> info about exactly what kernel they shipped if you can.
+> Hans
+> 
 
-Look closely, he _is_ running the latest Linus kernel and
-not the Redhat kernel RPM:
+Arjan, do any of the redhat kernels have the reiserfs brelse bug from
+2.4.10-ac?  (missing a get_bh in
+fs/reiserfs/inode.c:submit_bh_for_writepage)
 
-> >ksymoops 2.4.3 on i686 2.4.14-pre6.  Options used
-
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
+-chris
 

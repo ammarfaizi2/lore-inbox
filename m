@@ -1,67 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263310AbTKCVrG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 16:47:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTKCVrG
+	id S263365AbTKCVwr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 16:52:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263392AbTKCVwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 16:47:06 -0500
-Received: from ale.atd.ucar.edu ([128.117.80.15]:32199 "EHLO ale.atd.ucar.edu")
-	by vger.kernel.org with ESMTP id S263310AbTKCVrD (ORCPT
+	Mon, 3 Nov 2003 16:52:44 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:25836 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263365AbTKCVwh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 16:47:03 -0500
-From: "Charles Martin" <martinc@ucar.edu>
-To: <linux-kernel@vger.kernel.org>
-Cc: <martinc@atd.ucar.edu>
-Subject: RE: interrupts across  PCI bridge(s) not handled
-Date: Mon, 3 Nov 2003 14:46:57 -0700
-Message-ID: <000001c3a254$043d88c0$c3507580@atdsputnik>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Mon, 3 Nov 2003 16:52:37 -0500
+Subject: PATCH] linxu-2.4.23-pre9_cpu-map-fix_A0
+From: john stultz <johnstul@us.ibm.com>
+To: marcelo <marcelo.tosatti@cyclades.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1067896202.11436.20.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 03 Nov 2003 13:50:02 -0800
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.44.0311031218250.20373-100000@home.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Hmm..
-> 
-> The MP tables mention IRQ's up to 51, but no further.
-> 
-> But the PIRQ routing tables talk about irqs 92-95 for bus 6.
-> 
-> It really looks like the IRQ routing entries are just broken. One 
-> potential fix is to enable ACPI, and hope that the ACPI irq 
-> routing isn't 
-> as broken as the PIRQ stuff.
-> 
-> Other than that I don't see anything we can do. Anybody else?
-> 
-> 		Linus
-> 
+Marcelo, All,
 
-I enabled ACPI, and the interrupts are now assigned correctly,
-and in the range of 48-51:
+	I noticed on x440s that when HT is disabled in the BIOS I was having
+problems properly booting 2.4 in ACPI mode. Further investigation found
+a subtle problem w/ smp_boot_cpus() when clustered_acpi_mode is set. 
 
-           CPU0       CPU1       
+During bootup, phys_cpu_present_map is initialized by ORing
+apicid_to_phys_cpu_present() for each cpu apicid(see MP_processor_info)
+On flat mode boxes this translates to "phys_cpu_present_map |=
+(1<<apicid)". 
+
+On clustered_apic_mode boxes, since we're using phyiscal apic addresses,
+the apicids are not sequential so it is possible the
+phys_cpu_present_map can have holes in it (see
+apicid_to_phys_cpu_present()). 
+
+The problem arises in smp_boot_cpus() because when we are booting the
+cpus, we iterate through each apicid, however we bit-AND
+phys_cpu_present_map w/ (1<<apicid)  rather then using
+apicid_to_phys_cpu_present(apicid). On clustered apic machines, this may
+cause us to try to boot apicids that do not exist. 
+
+The following patch corrects the problem by always bit-ANDing
+phys_cpu_present_map with apicid_to_phys_cpu_present(). This is safe for
+flat mode boxes, as apicid_to_phys_cpu_present(apicid) translates back
+to (1<<apicid).  
+
+Additionally, the patch insures we do not try to boot BAD_APICIDs and
+removes a hack that was added to mpparse.c which worked around this
+problem in the non-ACPI boot path.
+
+In 2.5 we do not have this problem as we use logical rather then
+physical apic addressing. 
+
+Please consider for inclusion in your tree. 
+
+thanks
+-john
+
+diff -Nru a/arch/i386/kernel/mpparse.c b/arch/i386/kernel/mpparse.c
+--- a/arch/i386/kernel/mpparse.c	Mon Nov  3 13:48:33 2003
++++ b/arch/i386/kernel/mpparse.c	Mon Nov  3 13:48:33 2003
+@@ -587,10 +587,6 @@
+ 		++mpc_record;
+ 	}
  
- 48:        878        389   IO-APIC-level  piraq
- 49:        923        336   IO-APIC-level  piraq
- 50:      17239        838   IO-APIC-level  ioc2, piraq
- 51:        879        404   IO-APIC-level  piraq
+-	if (clustered_apic_mode){
+-		phys_cpu_present_map = logical_cpu_present_map;
+-	}
+-
+ 
+ 	printk("Enabling APIC mode: ");
+ 	if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
+diff -Nru a/arch/i386/kernel/process.c b/arch/i386/kernel/process.c
+--- a/arch/i386/kernel/process.c	Mon Nov  3 13:48:33 2003
++++ b/arch/i386/kernel/process.c	Mon Nov  3 13:48:33 2003
+@@ -44,6 +44,7 @@
+ #include <asm/irq.h>
+ #include <asm/desc.h>
+ #include <asm/mmu_context.h>
++#include <asm/smpboot.h>
+ #ifdef CONFIG_MATH_EMULATION
+ #include <asm/math_emu.h>
+ #endif
+@@ -377,7 +378,7 @@
+ 		   if its not, default to the BSP */
+ 		if ((reboot_cpu == -1) ||  
+ 		      (reboot_cpu > (NR_CPUS -1))  || 
+-		      !(phys_cpu_present_map & (1<<cpuid))) 
++		      !(phys_cpu_present_map & apicid_to_phys_cpu_present(cpuid)))
+ 			reboot_cpu = boot_cpu_physical_apicid;
+ 
+ 		reboot_smp = 0;  /* use this as a flag to only go through this once*/
+diff -Nru a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
+--- a/arch/i386/kernel/smpboot.c	Mon Nov  3 13:48:33 2003
++++ b/arch/i386/kernel/smpboot.c	Mon Nov  3 13:48:33 2003
+@@ -1108,13 +1108,17 @@
+ 
+ 	for (bit = 0; bit < NR_CPUS; bit++) {
+ 		apicid = cpu_present_to_apicid(bit);
++		
++		/* don't try to boot BAD_APICID */
++		if (apicid == BAD_APICID)
++			continue; 
+ 		/*
+ 		 * Don't even attempt to start the boot CPU!
+ 		 */
+ 		if (apicid == boot_cpu_apicid)
+ 			continue;
+ 
+-		if (!(phys_cpu_present_map & (1ul << bit)))
++		if (!(phys_cpu_present_map & apicid_to_phys_cpu_present(apicid)))
+ 			continue;
+ 		if (max_cpus <= cpucount+1)
+ 			continue;
+@@ -1125,7 +1129,8 @@
+ 		 * Make sure we unmap all failed CPUs
+ 		 */
+ 		if ((boot_apicid_to_cpu(apicid) == -1) &&
+-				(phys_cpu_present_map & (1ul << bit)))
++			(phys_cpu_present_map & 
++				apicid_to_phys_cpu_present(apicid)))
+ 			printk("CPU #%d/0x%02x not responding - cannot use it.\n",
+ 								bit, apicid);
+ 	}
 
-They are now getting handled properly, i.e. I am receiveing 
-interrupts from the boards located in the backplane extender. 
-This is with 2.4.22.
 
-I didn't realize that ACPI is related to interrupt management 
-as well as power control. Is there any downside to using ACPI?
-
-Thanks,
-Charlie
 

@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318614AbSGZWxT>; Fri, 26 Jul 2002 18:53:19 -0400
+	id <S318621AbSGZW7i>; Fri, 26 Jul 2002 18:59:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318615AbSGZWxT>; Fri, 26 Jul 2002 18:53:19 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:62220 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318614AbSGZWxS>;
-	Fri, 26 Jul 2002 18:53:18 -0400
-Date: Fri, 26 Jul 2002 15:55:58 -0700
-From: Greg KH <greg@kroah.com>
-To: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>
-Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [Pcihpd-discuss] [PATCH] ACPI PCI Hotplug driver update for 2.4.19-rc2-ac2
-Message-ID: <20020726225558.GG23657@kroah.com>
-References: <20020719192313.GD22862@kroah.com> <20020719203206.2062.T-KOUCHI@mvf.biglobe.ne.jp>
+	id <S318622AbSGZW7i>; Fri, 26 Jul 2002 18:59:38 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:22931 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S318621AbSGZW7h>;
+	Fri, 26 Jul 2002 18:59:37 -0400
+From: Cort Dougan <cort@fsmlabs.com>
+Date: Fri, 26 Jul 2002 16:55:35 -0600
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Keith Owens <kaos@ocs.com.au>, Lars Marowsky-Bree <lmb@suse.de>
+Subject: Re: module oops tracking [Re: [PATCH] cheap lookup of symbol names on oops()]
+Message-ID: <20020726165535.R13656@host110.fsmlabs.com>
+References: <20020725112142.I2276@host110.fsmlabs.com> <20020725190445.GO1180@dualathlon.random> <20020725142716.N2276@host110.fsmlabs.com> <20020725205910.GR1180@dualathlon.random> <20020725150525.Q2276@host110.fsmlabs.com> <20020725220643.GT1180@dualathlon.random> <20020725160559.X2276@host110.fsmlabs.com> <20020725225613.GW1180@dualathlon.random> <20020725170113.F5326@host110.fsmlabs.com> <20020726223750.GA1151@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020719203206.2062.T-KOUCHI@mvf.biglobe.ne.jp>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Fri, 28 Jun 2002 21:42:39 -0700
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020726223750.GA1151@dualathlon.random>; from andrea@suse.de on Sat, Jul 27, 2002 at 12:37:50AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 19, 2002 at 08:36:52PM -0700, KOCHI, Takayoshi wrote:
-> Hi,
-> 
-> My colleague pointed out that the patch was missing this critical patch.
-> Please include this also.
+I don't see how this is significantly different from the patch I sent
+apart from removing some useful debugging.  Is there something I'm missing?
 
-Thanks for the patch, I've added it to my tree.
-
-greg k-h
+The patch I sent prints out the offset from the symbol name nearest
+(below) the EIP and the offset from that symbol.  I found that really
+useful and was what I use the patch for.  Is there a reason you don't want
+that?  I know you had some cases where all symbols weren't listed for you
+but many of us do have those symbols we'd like to see.

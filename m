@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131831AbRBAX5c>; Thu, 1 Feb 2001 18:57:32 -0500
+	id <S131912AbRBAX6m>; Thu, 1 Feb 2001 18:58:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131936AbRBAX5W>; Thu, 1 Feb 2001 18:57:22 -0500
-Received: from topaz.3com.com ([192.156.136.158]:47822 "EHLO topaz.3com.com")
-	by vger.kernel.org with ESMTP id <S131831AbRBAX5O>;
-	Thu, 1 Feb 2001 18:57:14 -0500
-X-Lotus-FromDomain: 3COM
-From: Jagan_Pochimireddy@3com.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <882569E6.0083B746.00@hqoutbound.ops.3com.com>
-Date: Thu, 1 Feb 2001 15:58:58 -0800
-Subject: kernel ver 2.4.1 VFS problem
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S131410AbRBAX6c>; Thu, 1 Feb 2001 18:58:32 -0500
+Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:42297 "EHLO
+	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S132184AbRBAX6U>; Thu, 1 Feb 2001 18:58:20 -0500
+Message-ID: <3A79F812.D52B17B1@linux.com>
+Date: Thu, 01 Feb 2001 15:58:10 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs Software
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Michael J. Dikkema" <mjd@moot.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1 - can't read root fs (devfs maybe?)
+In-Reply-To: <Pine.LNX.4.21.0101312258190.227-100000@sliver.moot.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Michael J. Dikkema" wrote:
 
+> I went from 2.4.0 to 2.4.1 and was surprised that either the root
+> filesystem wasn't mounted, or it couldn't be read. I'm using devfs.. I'm
+> thinking there might have been a change with regards to the devfs
+> tree.. is the legacy /dev/hda1 still /dev/discs/disc0/part1?
 
-Hi ,
+This symlink doesn't exist/isn't usable for boot.  Use the qualified
+pathname.
 
-I wamt to use the latest kernel version 2.4.1 . I taken defualt configuration
-and built bzImage. When I try to boot with this image it's giving message like
-this.
+I.e. /dev/discs/disc0/part1 points to /dev/ide/host0/bus0/target0/lun0/part1
+on my machine.
 
-" VFS:Unable to mount root device 805 or 8:05"
-kernel panic "VFS:please append correct "root=\"
-"VFS:Unable to open root device"
+Use that pathname.
 
-Can any body help me where could be the problem
+-d
 
-Thanks
-Jagan
+--
+  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
+  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
+
 
 
 -

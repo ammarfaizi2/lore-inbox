@@ -1,79 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265865AbUBBWIM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 17:08:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbUBBWIM
+	id S265879AbUBBWYy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 17:24:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265906AbUBBWYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 17:08:12 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:8330 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S265865AbUBBWII
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 17:08:08 -0500
-Date: Mon, 2 Feb 2004 23:04:48 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Max Asbock <masbock@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Driver for IBM RSA service processor (1/2)
-Message-ID: <20040202230448.A18524@electric-eye.fr.zoreil.com>
-References: <200402021129.53193.masbock@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200402021129.53193.masbock@us.ibm.com>; from masbock@us.ibm.com on Mon, Feb 02, 2004 at 11:29:53AM -0800
-X-Organisation: Land of Sunshine Inc.
+	Mon, 2 Feb 2004 17:24:54 -0500
+Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:27457 "EHLO
+	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S265879AbUBBWYx convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 17:24:53 -0500
+Date: Mon, 2 Feb 2004 23:24:35 +0100 (CET)
+From: Lukasz Trabinski <lukasz@trabinski.net>
+X-X-Sender: lukasz@lt.wsisiz.edu.pl
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, riel@redhat.com
+Subject: Re: Linux 2.4.25-pre6
+In-Reply-To: <1075302289.1633.158.camel@hades.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.58LT.0402022322540.7204@lt.wsisiz.edu.pl>
+References: <200401202125.i0KLPOgh007806@lt.wsisiz.edu.pl> 
+ <Pine.LNX.4.58L.0401201940470.29729@logos.cnet> 
+ <Pine.LNX.4.58LT.0401210746350.2482@lt.wsisiz.edu.pl> 
+ <Pine.LNX.4.58L.0401210852490.5072@logos.cnet> 
+ <Pine.LNX.4.58LT.0401211225560.31684@oceanic.wsisiz.edu.pl> 
+ <1074686081.16045.141.camel@imladris.demon.co.uk> 
+ <Pine.LNX.4.58LT.0401211702100.23288@oceanic.wsisiz.edu.pl> 
+ <Pine.LNX.4.58L.0401211809220.5874@logos.cnet> <1075302289.1633.158.camel@hades.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Max Asbock <masbock@us.ibm.com> :
-> diff -urN linux-2.6.1/drivers/misc/ibmasm/event.c linux-2.6.1-ibmasm/drivers/misc/ibmasm/event.c
-> --- linux-2.6.1/drivers/misc/ibmasm/event.c	1969-12-31 16:00:00.000000000 -0800
-> +++ linux-2.6.1-ibmasm/drivers/misc/ibmasm/event.c	2004-01-20 11:16:29.000000000 -0800
-[...]
-> +void ibmasm_receive_event(struct service_processor *sp, void *data, size_t data_size)
-> +{
-[...]
-> +	/* advance indices in the buffer */
-> +	buffer->next_index = ++(buffer->next_index) % IBMASM_NUM_EVENTS;
+On Wed, 28 Jan 2004, David Woodhouse wrote:
 
--> buffer->next_index = (buffer->next_index + 1) % IBMASM_NUM_EVENTS;
+> On Wed, 2004-01-21 at 18:12 -0200, Marcelo Tosatti wrote:
+> > Lets try the clueless approach and remove the inode reclaim highmem fixes
+> > from Rik.
+> > 
+> > Please revert the attached patch (againts -pre6).
+> 
+> Did this make a difference?
 
-> diff -urN linux-2.6.1/drivers/misc/ibmasm/module.c linux-2.6.1-ibmasm/drivers/misc/ibmasm/module.c
-> --- linux-2.6.1/drivers/misc/ibmasm/module.c	1969-12-31 16:00:00.000000000 -0800
-> +++ linux-2.6.1-ibmasm/drivers/misc/ibmasm/module.c	2004-01-20 13:05:38.000000000 -0800
-[...]
-> +static int __init ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
-> +{
-> +	int result = 0;
+I think so
 
--> It can be set directly to -ENOMEM (and removed from several lines below).
-   It will be overriden later if everything succeeds.
+oceanic:~$ uptime
+ 23:23:12  up 11 days,  3:32, 29 users,  load average: 0.21, 0.52, 1.10
 
-> diff -urN linux-2.6.1/drivers/misc/ibmasm/remote.c linux-2.6.1-ibmasm/drivers/misc/ibmasm/remote.c
-> --- linux-2.6.1/drivers/misc/ibmasm/remote.c	1969-12-31 16:00:00.000000000 -0800
-> +++ linux-2.6.1-ibmasm/drivers/misc/ibmasm/remote.c	2004-01-14 16:42:01.000000000 -0800
-[...]
-> +void ibmasm_free_remote_queue(struct service_processor *sp)
-> +{
-> +	if (sp->remote_queue.start)
-> +		kfree(sp->remote_queue.start);
-> +}
+2.4.25-pre6 +  nohighmem.patch
 
--> kfree(NULL) does not hurt. The 'if' can be removed.
 
-[...]
-> +size_t ibmasm_events_available(struct remote_queue *q)
-> +{
-> +	ssize_t diff = q->writer - q->reader;
-> +
-> +	if (diff >= 0)
-> +		return diff;
-> +	else
-> +		return (q->end - q->reader);
-> +}
-
--> return (diff >= 0) ? diff : q->end - q->reader; 
-   Your choice.
-
---
-Ueimor
+-- 
+*[ £ukasz Tr±biñski ]*
+SysAdmin @wsisiz.edu.pl

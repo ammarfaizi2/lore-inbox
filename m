@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268069AbUI1WHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268066AbUI1WHj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268069AbUI1WHi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 18:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268066AbUI1WGy
+	id S268066AbUI1WHj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 18:07:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268070AbUI1WGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 18:06:54 -0400
-Received: from rproxy.gmail.com ([64.233.170.195]:16247 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268069AbUI1WGK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 18:06:10 -0400
-Message-ID: <dc54396f04092815063e7a62f6@mail.gmail.com>
-Date: Wed, 29 Sep 2004 00:06:09 +0200
-From: Ed Schouten <edschouten@gmail.com>
-Reply-To: Ed Schouten <edschouten@gmail.com>
-To: Rahul Karnik <deathdruid@gmail.com>
-Subject: Re: [Patch] i386: Xbox support
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Pavel Machek <pavel@suse.cz>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <5b64f7f04092814456d333892@mail.gmail.com>
+	Tue, 28 Sep 2004 18:06:47 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:33969 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S268066AbUI1WE6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 18:04:58 -0400
+Subject: Re: [RFC][PATCH] inotify 0.10.0
+From: Robert Love <rml@novell.com>
+To: Ray Lee <ray-lk@madrabbit.org>
+Cc: John McCutchan <ttb@tentacle.dhs.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, gamin-list@gnome.org,
+       viro@parcelfarce.linux.theplanet.co.uk, iggy@gentoo.org
+In-Reply-To: <1096408235.5177.49.camel@issola.madrabbit.org>
+References: <1096250524.18505.2.camel@vertex>
+	 <20040926211758.5566d48a.akpm@osdl.org>
+	 <1096318369.30503.136.camel@betsy.boston.ximian.com>
+	 <1096350328.26742.52.camel@orca.madrabbit.org>
+	 <1096403167.30123.5.camel@vertex>
+	 <1096405848.5177.15.camel@issola.madrabbit.org>
+	 <1096406467.30123.42.camel@vertex>
+	 <1096407301.4911.79.camel@betsy.boston.ximian.com>
+	 <1096408235.5177.49.camel@issola.madrabbit.org>
+Content-Type: text/plain
+Date: Tue, 28 Sep 2004 18:03:37 -0400
+Message-Id: <1096409017.4911.95.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
-References: <65184.217.121.83.210.1096308147.squirrel@217.121.83.210>
-	 <4158AA5B.8090601@yahoo.com.au>
-	 <dc54396f040927214651393131@mail.gmail.com>
-	 <415915F0.2000803@yahoo.com.au> <20040928090641.GC18819@elf.ucw.cz>
-	 <41592C64.3030409@yahoo.com.au>
-	 <5b64f7f04092814456d333892@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Sep 2004 17:45:33 -0400, Rahul Karnik <deathdruid@gmail.com> wrote:
-> Linus rejected a similar (slightly larger patch) last year.
-> 
-> http://marc.theaimsgroup.com/?t=105819036500001&r=1&w=2
-> 
-> That said, he does change his mind. Is this still a "politically hot potato"?
+On Tue, 2004-09-28 at 14:50 -0700, Ray Lee wrote:
 
->From my point of view it isn't. Xbox-Linux already exists for three
-years and Microsoft still haven't done anything against it. It would
-be silly if they would file a lawsuit against us, after three years.
+> I'm afraid I'm not seeing the complexity argument. Do you have other
+> concerns regarding dynamic lengths?
 
-If they would, it would be useless anyway. Quote from xbox-linux.org:
-"Everything done on this project is for the sole purpose of writing
-interoperable software under Sect. 1201 (f) Reverse Engineering
-exception of the DMCA."
+You _do_ see the complexity, you just don't that think it matters.
 
-Sect. 1201 (f) can be read here:
-http://cyber.law.harvard.edu/openlaw/DVD/1201.html#f
+It forces more complexity on user-space (as least as much as you have
+shown) and even more in the kernel (due partly to the current very
+simple event code in place that needs the buffer to be a multiple of the
+struct size, etc.).
 
-Yours,
--- 
- Ed Schouten <edschouten@gmail.com>
- Website: http://g-rave.nl/
+Personally, I don't know if it matters.  John and I have both said that
+we will look into going to a dynamic filename.
+
+Also, I am sure that John will take a patch, if you are so inclined.
+
+	Robert Love
+
+

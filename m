@@ -1,72 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbUBXXt0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 18:49:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbUBXXt0
+	id S262530AbUBXXvV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 18:51:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbUBXXvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 18:49:26 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:51136 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262499AbUBXXtV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 18:49:21 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Greg KH <greg@kroah.com>, marcel cotta <mc123@mail.ru>
-Subject: Re: 2.6.3 - Badness in pci_find_subsys at drivers/pci/search.c:167
-Date: Wed, 25 Feb 2004 00:55:10 +0100
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <403B7627.6080805@mail.ru> <20040224223043.GA2455@kroah.com>
-In-Reply-To: <20040224223043.GA2455@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Feb 2004 18:51:21 -0500
+Received: from gprs144-166.eurotel.cz ([160.218.144.166]:52865 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262530AbUBXXt6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 18:49:58 -0500
+Date: Wed, 25 Feb 2004 00:49:41 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Split kgdb into "lite" and "normal" parts
+Message-ID: <20040224234940.GD9209@elf.ucw.cz>
+References: <20040218225010.GH321@elf.ucw.cz> <200402191322.52499.amitkale@emsyssoft.com> <20040224213908.GD1052@smtp.west.cox.net> <20040224221541.GA9145@elf.ucw.cz> <20040224232137.GJ1052@smtp.west.cox.net> <20040224232703.GC9209@elf.ucw.cz> <20040224233809.GK1052@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402250055.10084.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20040224233809.GK1052@smtp.west.cox.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 of February 2004 23:30, Greg KH wrote:
-> On Tue, Feb 24, 2004 at 05:04:55PM +0100, marcel cotta wrote:
-> > i came across this while playing with hdparm
-> >
-> > Call Trace:
-> >  [<c0264128>] pci_find_subsys+0xe8/0xf0
-> >  [<c026415f>] pci_find_device+0x2f/0x40
-> >  [<c02e5d89>] ide_system_bus_speed+0x69/0x90
-> >  [<c02e528e>] ali15x3_tune_drive+0x1e/0x250
->
-> Ugh, this is due to calling system_bus_clock() from within an interrupt.
-> Is there any good reason to do this?  Can't we just cache the bus speed
-> in the local device structure if we really have to do this from within
-> an interrupt?
+Hi!
 
-ide_init() always initializes system_bus_speed variable
-so system_bus_clock() should never call ide_system_bus_speed()
-and no driver is calling ide_system_bus_speed() directly.
+> > > > > > Tested (core-lite.patch + i386-lite.patch + 8250.patch) combination.
+> > > > > > Looks good.
+> > > > > > 
+> > > > > > Let's first check this in and then do more cleanups.
+> > > > > > Tom, does it sound ok?
+> > > > > 
+> > > > > This sounds fine to me.  Pavel, I'm guessing you did this with quilt,
+> > > > > could you provide some pointers on how to replicate this in the future?
+> > > > 
+> > > > Unfortunately, I done it by hand :-(. But if -lite parts are not
+> > > > merged, soon, I'll be forced to start using quilt. Doing stuff by hand
+> > > > is quite painfull...
+> > > 
+> > > There's still a whole bunch of bogons in the -lite patch still, so I
+> > > don't think it should be merged yet.
+> > 
+> > Well, it seems to contains a *lot* less bogons than what currently is
+> > in -mm series.
+> > 
+> > What big problems do you see? It does not yet use weak symbols, but I
+> > do not think that's a serious problem. What else?
+> 
+> The first two big ones are:
+> - Doesn't like gdb 6.0 (You cannot assume the first packet is Hc...)
+> - Wierdities with kgdb_killed_or_detached / kgdb_might_be_resumed
+>   (both can die).
+> - Issues w/ handling 'D' and 'k' packets cleaner (and I think there was
+>   a correctness fix in there, too, but it was a while ago).
+> - Don't ACK packets sitting on the line
 
-Bug was that if no IDE kernel parameter was given during boot
-system_bus_speed will be zeroed in init_ide_data().
+Okay, these look important but probably only touch core-lite, right?
+So it should be easy to merge. Can you generate diff?
 
-This patch should fix the problem
-(as a bonus -> no need to zero these variables they are static).
+I'll try to import kgdb into quilt to make working with it
+easier. [But don't expect miracles.]
 
- linux-2.6.3-bk6-root/drivers/ide/ide.c |    3 ---
- 1 files changed, 3 deletions(-)
+> - All of the function pointer games (of which the weak symbols, but not
+>   all of them) are a part of.
+> - kgdb_schedule/process_breakpoint, required for kgdboe, harmless to use
+>   on serial.
 
-diff -puN drivers/ide/ide.c~ide_bus_speed drivers/ide/ide.c
---- linux-2.6.3-bk6/drivers/ide/ide.c~ide_bus_speed	2004-02-25 00:47:39.467793088 +0100
-+++ linux-2.6.3-bk6-root/drivers/ide/ide.c	2004-02-25 00:48:44.319934064 +0100
-@@ -302,9 +302,6 @@ static void __init init_ide_data (void)
- 	initializing = 1;
- 	ide_init_default_hwifs();
- 	initializing = 0;
--
--	idebus_parameter = 0;
--	system_bus_speed = 0;
- }
- 
- /*
 
-_
+> There's still a lot of stuff I checked into linux-2.6-kgdb that's
+> non-trivially important
+> (http://ppc.bkbits.net:8080/linux-2.6-kgdb/ChangeSet@-4w?nav=index.html)
 
+Hmm, I'm not allowed to use bt :-(.
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

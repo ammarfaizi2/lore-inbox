@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265628AbSJSQxu>; Sat, 19 Oct 2002 12:53:50 -0400
+	id <S265629AbSJSRFb>; Sat, 19 Oct 2002 13:05:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265629AbSJSQxu>; Sat, 19 Oct 2002 12:53:50 -0400
-Received: from mta05bw.bigpond.com ([139.134.6.95]:24543 "EHLO
-	mta05bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S265628AbSJSQxt>; Sat, 19 Oct 2002 12:53:49 -0400
-Message-ID: <3DB16901.7070905@snapgear.com>
-Date: Sun, 20 Oct 2002 00:15:29 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S265630AbSJSRFb>; Sat, 19 Oct 2002 13:05:31 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:57475 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265629AbSJSRFb>; Sat, 19 Oct 2002 13:05:31 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 19 Oct 2002 10:19:56 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Mark Mielke <mark@mark.mielke.cc>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+In-Reply-To: <20021019065624.GA17553@mark.mielke.cc>
+Message-ID: <Pine.LNX.4.44.0210191011330.1434-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH]: linux-2.5.44uc0 (MMU-less support)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Sat, 19 Oct 2002, Mark Mielke wrote:
 
-An updated uClinux patch is available at:
+> On Fri, Oct 18, 2002 at 12:16:48PM -0700, Davide Libenzi wrote:
+> > These functions are taken from the really simple example http server used
+> > to test/compare /dev/epoll with poll()/select()/rt-sig//dev/poll :
+>
+> They still represent an excessive complicated model that attempts to
+> implement /dev/epoll the same way that one would implement poll()/select().
+>
+> Sometimes the answer isn't emulation, or comparability.
+>
+> Sometimes the answer is innovation.
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0.patch.gz
-
-Changelog:
-
-1. patched against 2.5.44
-
-
-Smaller specific patches:
-
-. FEC ColdFire 5272 ethernet driver
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-fec.patch.gz
-
-. m68k/ColdFire/v850 serial drivers
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-serial.patch.gz
-
-. 68328 frame buffer
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-fb.patch.gz
-
-. binfmt_flat loader
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-binflat.patch.gz
-
-. m68knommu architecture
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-m68knommu.patch.gz
-
-. v850 architecture
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-v850.patch.gz
-
-. mm (MMU-less) only patch
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-mm.patch.gz
-
-Regards
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+Hem ... they're about 100 lines of code and they rapresent a complete I/O
+dispatching engine. And yes, like you could guess from the source code,
+the same skeleton was used, with different event retrieval methods, to
+test poll() , rt-sig , /dev/poll and /dev/epoll. And, as I said in the
+previous email, you could have implemented an I/O driven state machine. I
+personally like a little bit more coroutines, that the reason of such
+implementation.
 
 
 
-
-
+- Davide
 
 

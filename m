@@ -1,37 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265292AbRFUXXX>; Thu, 21 Jun 2001 19:23:23 -0400
+	id <S265297AbRFUX1X>; Thu, 21 Jun 2001 19:27:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265293AbRFUXXJ>; Thu, 21 Jun 2001 19:23:09 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:13708 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265292AbRFUXWx>;
-	Thu, 21 Jun 2001 19:22:53 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265296AbRFUX1N>; Thu, 21 Jun 2001 19:27:13 -0400
+Received: from dewey.mindlink.net ([204.174.16.4]:35848 "EHLO
+	dewey.paralynx.net") by vger.kernel.org with ESMTP
+	id <S265294AbRFUX1C>; Thu, 21 Jun 2001 19:27:02 -0400
+Subject: [OOPS] 2.4.5-anything Alpha, SMP
+From: Jay Thorne <Yohimbe@userfriendly.org>
+To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15154.33208.744328.463419@pizda.ninka.net>
-Date: Thu, 21 Jun 2001 16:22:32 -0700 (PDT)
-To: Mike Mackovitch <macko@asicdesigners.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, root@chaos.analogic.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Is it useful to support user level drivers
-In-Reply-To: <20010621160949.A10977@wacko.asicdesigners.com>
-In-Reply-To: <mailman.993156181.18994.linux-kernel2news@redhat.com>
-	<200106212206.f5LM6dK12282@devserv.devel.redhat.com>
-	<15154.29468.215080.602628@pizda.ninka.net>
-	<20010621160949.A10977@wacko.asicdesigners.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 21 Jun 2001 16:26:59 -0700
+Message-Id: <993166019.6681.2.camel@gracie.userfriendly.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ksymoops 2.4.0 on alpha 2.4.4-ac15.  Options used
+     -V (default)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.4.5-ac15/ (specified)
+     -m /usr/src/linux/System.map (specified)
 
-Mike Mackovitch writes:
- > Sorry, but SGI's IRIX does NOT handle graphics interrupts in user space.
+No modules in ksyms, skipping objects
+Unable to handle kernel paging request at virtual address
+043ffc000069c078
+CPU 2 init(1): Oops 0
+pc = [<fffffc000034550c>]  ra = [<fffffc00003456ac>]  ps = 0000
+Using defaults from ksymoops -t elf64-alpha -a alpha
+v0 = fffffc0000474238  t0 = 043ffc000069bff8  t1 = 0007ffffffffff85
+t2 = fffffc0000200000  t3 = fffffc00006a0150  t4 = 0000000000040305
+t5 = fffffc000047fc80  t6 = 0000000000000000  t7 = fffffc000205c000
+s0 = 000000012008e068  s1 = fffffc000047fcc8  s2 = fffffc000047fc80
+s3 = fffffc000047bdc0  s4 = fffffc0000474238  s5 = f0f0f0f0f0f0f0f1
+s6 = 0000000120006940
+a0 = fffffc000047fc80  a1 = fffffc000047bdc0  a2 = fffffc0000474238
+a3 = 0000000000000001  a4 = 000000012008e068  a5 = 0000000000000000
+t8 = 0000000000000000  t9 = 0000000000000000  t10= 0000000000000000
+t11= 0000000000000000  pv = fffffc0000345bd0  at = 0000000000000000
+gp = fffffc0000546300  sp = fffffc000205fad8
+Code: a4830938  ldq t3,2360(t2)
+ 40410522  subq t1,t0,t1
+ 4841b682  srl t1,13,t1
+ 48409721  sll t1,4,t0
+ 40220401  addq t0,t1,t0
+ 40240641  s8addq t0,t3,t0
+ a4820140  ldq t3,320(t1)
+Trace:fffffc00003456ac fffffc0000345920 fffffc000032aa38
+fffffc000031041c fffffc
+00003100b0 fffffc0000310d68 fffffc0000336fd0 fffffc0000310d04
+fffffc00003100b0 f
+ffffc00003100b0 fffffc0000310684 fffffc0000310658 fffffc0000310684 
+Kernel panic: Attempted to kill init!
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-What the heck is ULI then?  I've actually read the assembly code for
-this back when I did my SGI internship.
+>>PC;  fffffc000034550c <handle_mm_fault+1bc/1e0>   <=====
+Trace; fffffc00003456ac <__pmd_alloc+17c/1d0>
+Trace; fffffc0000345920 <make_pages_present+60/200>
+Trace; fffffc000032aa38 <ev5_flush_tlb_current_page+28/60>
+Trace; fffffc000031041c <entMM+1c/c0>
+Trace; fffffc00003100b0 <rest_init+30/80>
+Trace; fffffc0000310d68 <strace_error+40/48>
+Trace; fffffc0000336fd0 <tasklet_kill+e0/130>
+Trace; fffffc0000310d04 <strace+54/5c>
+Trace; fffffc00003100b0 <rest_init+30/80>
+Trace; fffffc00003100b0 <rest_init+30/80>
+Trace; fffffc0000310684 <kernel_clone+44/98>
+Trace; fffffc0000310658 <kernel_clone+18/98>
+Trace; fffffc0000310684 <kernel_clone+44/98>
 
-Later,
-David S. Miller
-davem@redhat.com
+
+1 warning issued.  Results may not be reliable.
+
+--
+--
+Jay Thorne Manager, Systems & Technology, UserFriendly Media, Inc.
+

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267134AbTGGQDc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 12:03:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267136AbTGGQDc
+	id S267131AbTGGQC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 12:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267134AbTGGQC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 12:03:32 -0400
-Received: from fed1mtao02.cox.net ([68.6.19.243]:24218 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S267134AbTGGQDa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 12:03:30 -0400
-Date: Mon, 7 Jul 2003 09:18:03 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Colin Leroy <colin@colino.net>
+	Mon, 7 Jul 2003 12:02:56 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:33809 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id S267131AbTGGQCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 12:02:55 -0400
+Date: Mon, 7 Jul 2003 07:04:52 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: Midian <midian@ihme.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] two PPC patches for 2.5.73
-Message-ID: <20030707161803.GC17433@ip68-0-152-218.tc.ph.cox.net>
-References: <20030706023922.52c2806a.colin@colino.net>
+Subject: Re: [BUG] Missing files in 2.5.74<
+Message-ID: <20030707050452.GB1792@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+References: <1057528492.15569.8.camel@midux>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030706023922.52c2806a.colin@colino.net>
+In-Reply-To: <1057528492.15569.8.camel@midux>
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 06, 2003 at 02:39:22AM +0200, Colin Leroy wrote:
+From: Midian <midian@ihme.org>
+Date: Mon, Jul 07, 2003 at 12:54:52AM +0300
+> Hello,
+> 
+> I've tryed to compile the 2.5.74 kernel with pm2fb support, and never
+> got it working I get this error message:
+>   
+>     CC [M]  drivers/video/pm2fb.o
+> drivers/video/pm2fb.c:44:25: video/fbcon.h: No such file or directory
 
-> here are two patches for kernel 2.5.73.
-> compile.diff is needed for the kernel to compile.
-> time.diff fixes uptime being wrong; I hope it's correct.
+This means this framebuffer driver hasn't been ported to the new API and
+won't compile, as you noticed.
 
-In the future, PPC changes should be sent to the linuxppc-dev list at
-lists.linuxppc.org, and this has already been fixed in the linuxppc-2.5
-tree (which has all of the changes ready to goto Linus, as well as stuff
-being worked on for PPC, etc).  This tree is at
-bk://ppc.bkbits.net/linuxppc-2.5 or
-rsync://source.mvista.com/linuxppc-2.5
-
+Kind regards,
+Jurriaan
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Cole's Law:
+  Thinly sliced cabbage.
+Debian (Unstable) GNU/Linux 2.5.74 4112 bogomips load av: 0.89 0.57 0.27

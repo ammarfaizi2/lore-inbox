@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262937AbSKRQaz>; Mon, 18 Nov 2002 11:30:55 -0500
+	id <S262924AbSKRQap>; Mon, 18 Nov 2002 11:30:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262959AbSKRQaz>; Mon, 18 Nov 2002 11:30:55 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:62426 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262937AbSKRQax>; Mon, 18 Nov 2002 11:30:53 -0500
-Date: Mon, 18 Nov 2002 08:34:34 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-cc: mingo@elte.hu, rml@tech9.net, riel@surriel.com, akpm@zip.com.au
-Subject: Re: unusual scheduling performance
-Message-ID: <705474709.1037608454@[10.10.2.3]>
-In-Reply-To: <20021118081854.GJ23425@holomorphy.com>
-References: <20021118081854.GJ23425@holomorphy.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S262937AbSKRQap>; Mon, 18 Nov 2002 11:30:45 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:12701 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S262924AbSKRQao>; Mon, 18 Nov 2002 11:30:44 -0500
+Date: Mon, 18 Nov 2002 10:36:20 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Sam Ravnborg <sam@ravnborg.org>, Nicolas Pitre <nico@cam.org>,
+       Andreas Steinmetz <ast@domdv.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: make distclean and make dep??
+In-Reply-To: <Pine.LNX.3.96.1021117024753.18748B-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44.0211181034100.24137-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On 16x, 2.5.47 kernel compiles take about 26s when the machine is
-> otherwise idle.
+On Sun, 17 Nov 2002, Bill Davidsen wrote:
+
+> On Fri, 15 Nov 2002, Sam Ravnborg wrote:
 > 
-> On 32x, 2.5.47 kernel compiles take about 48s when the machine is 
-> otherwise idle.
+> > Here is first try:
+> > - clean now deletes all generated files except .config + .config.old
+> > - mrproper in addition to clean only deleted .config + .config.old
+> > - distclean in addition ot mrproper deletes backupfiles as usual.
 > 
-> When a single-threaded task consumes an entire cpu, kernel compiles
-> take 36s on 32s when the machine is idle aside from the task consuming
-> that cpu and the kernel compile itself.
-> 
-> I suspect the scheduler, because cpu reporting in top(1) shows that a
-> two or more cpu-intensive tasks are concentrated on the same cpu, and
-> some long-lived tasks appear to be "bouncing" across cpus. If someone
-> with knowledge and/or expertise with respect to scheduling semantics
-> could look into this, I would be much obliged. Resolving this would
-> likely address many SMP and/or NUMA scheduling performance issues.
+> Just what I wanted. If you can be happy doing this it now provides all
+> three useful behaviours in a clear manner.
 
-1. make -j <what?>
+But when do you need the "clean + rm .config*" behavior? I don't see that 
+to be such a common case.
 
-2. profiles?
+That's why I think two targets are enough, "clean" to remove the files
+generated during the build and "distclean" to remove all other extra stuff
+to. And just keep mrproper to be an alias for distclean, since that's what
+"mrproper" traditionally was (AFAIK, Linus used it that way).
 
-3. Can you try the latest set of NUMA sched patches posted by Eric Focht?
+--Kai
 
-M.
 

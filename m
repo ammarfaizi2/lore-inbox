@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269290AbUJFPRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269294AbUJFPVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269290AbUJFPRU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 11:17:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269289AbUJFPRT
+	id S269294AbUJFPVs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 11:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269286AbUJFPSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 11:17:19 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:7552 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S269292AbUJFPPj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 11:15:39 -0400
-Date: Wed, 6 Oct 2004 11:15:13 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "David S. Miller" <davem@davemloft.net>
-cc: Joris van Rantwijk <joris@eljakim.nl>, linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-In-Reply-To: <20041006080104.76f862e6.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com>
-References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl>
- <20041006080104.76f862e6.davem@davemloft.net>
+	Wed, 6 Oct 2004 11:18:43 -0400
+Received: from inetc.connecttech.com ([64.7.140.42]:41481 "EHLO
+	inetc.connecttech.com") by vger.kernel.org with ESMTP
+	id S269300AbUJFPSK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 11:18:10 -0400
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Proper use of daemonize()?
+Date: Wed, 6 Oct 2004 11:18:07 -0400
+Organization: Connect Tech Inc.
+Message-ID: <030601c4abb7$af573770$294b82ce@stuartm>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Oct 2004, David S. Miller wrote:
+I've been looking at the kernel threads that use daemonize() and have
+some questions about the proper use of this call:
 
-> On Wed, 6 Oct 2004 16:52:27 +0200 (CEST)
-> Joris van Rantwijk <joris@eljakim.nl> wrote:
->
->> My understanding of POSIX is limited, but it seems to me that a read call
->> must never block after select just said that it's ok to read from the
->> descriptor. So any such behaviour would be a kernel bug.
->
-> There is no such guarentee.
+1: Some threads use the lock_kernel() calls around the daemonize()
+call. Is this necessary? I thought the BKL was phasing out.
 
-Huh?  Then why would anybody use select()?  It can't return a
-'guess" or it's broken. When select() or poll() claims that
-there are data available, there damn well better be data available
-or software becomes a crap-game. And, if you've decided that
-such a game-of-chance is okay then please keep your software
-out of the new Ethernet Avionics Buses that Airbus now is using.
+2: Some threads do their setup (like changing the comm string, setting
+the signal masks, etc) before daemonize(), some do it after. Is there
+any benefit to a particular order of operations? I can't see one.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.5-1.358-noreg on an i686 machine (5537.79 BogoMips).
-             Note 96.31% of all statistics are fiction.
+3: Some threads set current->tty to NULL. Why would a thread *not* do
+this?
+
+4: Some threads grab the sigmask_lock before manipulating their masks.
+Is this necessary? If so, some threads have bugs. If not, why do some
+threads bother?
+
+5: Some threads do flush_signals() or recalc_sigpending() before
+updating their blocked mask, some do it after. Does the order matter?
+I suspect not.
+
+6: MOD_INC_USE_COUNT should be used by all threads that could be in
+drivers built as modules, correct?
+
+7: If you're not spawning a permanent kernel thread (like kswapd frex)
+is the any benefit to using reparent_to_init()? I can't see one.
+
+Thanks,
+..Stu
 

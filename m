@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263164AbUDAUxa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 15:53:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbUDAUxa
+	id S263167AbUDAUvs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 15:51:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbUDAUv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 15:53:30 -0500
-Received: from ds002.xs4all.nl ([213.84.134.134]:30469 "EHLO
-	mail.metropipe.net") by vger.kernel.org with ESMTP id S263164AbUDAUxY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 15:53:24 -0500
-Date: Thu, 01 Apr 2004 22:49:30 00200 (CEST)
-To: linux-kernel@vger.kernel.org
-From: "Job 317" <job317@mailvault.com>
-Subject: Upgrade from 2.4.25 to 2.6.4 kernel
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary = "=_74165b7abcbfa3c36e4e17fd26560e77"
-Message-Id: <20040401205344.546715FB7B@mail.metropipe.net>
+	Thu, 1 Apr 2004 15:51:27 -0500
+Received: from barry.mail.mindspring.net ([207.69.200.25]:45870 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id S263161AbUDAUvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 15:51:21 -0500
+To: ak@suse.de, gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
+Message-Id: <20040401205133.6C94F4B104@berman.michael-chastain.com>
+Date: Thu,  1 Apr 2004 15:51:33 -0500 (EST)
+From: mec.gnu@mindspring.com (Michael Elizabeth Chastain)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME encoded message.
+Andi Kleen writes:
+> The solution from back then I actually liked best was to just round
+> up to the next second instead of rounding down when going from 1s
+> resolution to ns.
 
---=_74165b7abcbfa3c36e4e17fd26560e77
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+(My understanding of kernel internals is way rusty, so if I am
+talking nonsense here, just hit me with a cluestick or ignore
+me or something).
 
-Hello list.
+Ummm, I think that will just fail in the converse way if
+insn-conditions.o is retained in the inode cache while
+insn-conditions.c is dropped from the cache?
 
-Can someone please point me to a HOWTO on installing a 2.6.x kernel on a
-system that heretofore runs a 2.4.x kernel? 
+That is, consider these time-stamps:
 
-NOT a howto on building the kernel. I'm o.k. there. But I understand
-that it is not the same upgrading to a 2.6.x kernel as it is just
-upgrading to the next 2.4.x kernel. Is this correct? Aren't there
-startup scripts and things that rely on the 2.4.x structure that change
-slightly for a 2.6.x kernel?
+  insn-conditions.c  SSSS.NS1
+  insn-conditions.o  SSSS.NS2
 
-!!!!Also... is it possible to still to boot back to a 2.4.x kernel in
-this case? Lets say I keep my 2.4.25 kernel that I built on my RedHat 9
-box. Can I also boot to and from my 2.6.x kernel?
+Where SSSS is the same value on both files, and NS2 > NS1.
 
-Thanks.
+According to Ulrich, the current problem is that insn-conditions.o
+is dropped from the cache, so NS2 becomes 0, and insn-conditions.o
+becomes older than insn-conditions.c.
 
-JOB
---=_74165b7abcbfa3c36e4e17fd26560e77--
+With your patch, suppose that insn-conditions.c is dropped from the
+cache, while insn-conditions.o remains.  Then the timestamps will be:
 
+  insn-conditions.c  SSSS+1.0
+  insn-conditions.o  SSSS.NS2
 
+We lose again, insn-conditions.c has become newer than insn-conditions.o.
+
+insn-conditions.c is a generated file so I think this can actually
+happen during a gcc build.
+
+Michael C

@@ -1,87 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266543AbUG0SeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266549AbUG0Sfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266543AbUG0SeT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 14:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266549AbUG0SeT
+	id S266549AbUG0Sfd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 14:35:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266545AbUG0Sfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 14:34:19 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:46235 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S266543AbUG0SeQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 14:34:16 -0400
-Subject: Re: [Lse-tech] [RFC][PATCH] Change pcibus_to_cpumask() to
-	pcibus_to_node()
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Jesse Barnes <jbarnes@sgi.com>,
-       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       LSE Tech <lse-tech@lists.sourceforge.net>
-In-Reply-To: <200407270822.43870.jbarnes@engr.sgi.com>
-References: <1090887007.16676.18.camel@arrakis>
-	 <20040727105145.A18533@infradead.org>
-	 <200407270822.43870.jbarnes@engr.sgi.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1090953179.18747.19.camel@arrakis>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 27 Jul 2004 11:32:59 -0700
+	Tue, 27 Jul 2004 14:35:33 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:17084 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S266549AbUG0SfL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 14:35:11 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [patch] kernel events layer
+Date: Tue, 27 Jul 2004 20:35:04 +0200
+User-Agent: KMail/1.6.2
+Cc: Tim Hockin <thockin@hockin.org>, Greg KH <greg@kroah.com>,
+       Robert Love <rml@ximian.com>,
+       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       Andrew Morton <akpm@osdl.org>, cw@f00f.org,
+       linux-kernel@vger.kernel.org
+References: <F989B1573A3A644BAB3920FBECA4D25A6EBFB5@orsmsx407> <20040726204457.GA10970@hockin.org> <41069BB8.1030405@sun.com>
+In-Reply-To: <41069BB8.1030405@sun.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407272035.04832.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-07-27 at 08:22, Jesse Barnes wrote:
-> On Tuesday, July 27, 2004 2:51 am, Christoph Hellwig wrote:
-> > On Mon, Jul 26, 2004 at 05:10:08PM -0700, Matthew Dobson wrote:
-> > > So in discussions with Jesse at OLS, we decided that pcibus_to_node() is
+Am Dienstag, 27. Juli 2004 20:15 schrieb Mike Waychison:
+> Tim Hockin wrote:
+> > On Mon, Jul 26, 2004 at 03:03:05PM -0400, Greg KH wrote:
 > >
-> > Please do pcibus_to_nodemask() instead - there could be dual-ported pci
-> > bridges.
+> >>>On a related note, is this supposed to supersede the current hotplug
+> >>>mechanism?
+> >>
+> >>No, it will not.  At the most, it will report the same information to
+> >>make it easier for userspace programs who want to get the other
+> >>event information, also get the hotplug stuff through the same
+> >>interface, reducing their complexity.
+> >>
+> >>So the existing hotplug interface is not going away at all.  Do not even
+> >>begin to think that :)
+> >
+> >
+> > What about flipping it around and using either hotplug or a hotplug-like
+> > mechanism for these events?
+> >
+> > It solves the issue of events being dropped when there is no listening
+> > daemon...
+> >
+> > These are not going to be high-traffic messages, right, so the overhead is
+> > negligible...
+> >
 > 
-> Do you know of any?  On sn2 there are dual ported xio->pci bridges, but in 
-> that case, half the busses are associated with one node and the other half 
-> with another node, so pcibus_to_node would work in that case.  And for 
-> numalink->pci bridges, we'll return the node id of the bridge in that case 
-> (which may not have any memory, but in that case alloc_pages_node will fall 
-> back to the next node).
-> 
-> I wonder though if we shouldn't add
-> 
->   ...
-> #ifdef CONFIG_NUMA
->   int node; /* or nodemask_t if necessary */
-> #endif
->   ...
-> 
-> to struct pci_bus instead?  That would make the existing code paths a little 
-> faster and avoid the need for a global array, which tends to lead to TLB 
-> misses.
+> The problem with this is that you'd lose the ability to send the
+> messages broadcast, whereby you may have multiple dbus's listening for
+> events.
 
-I like that idea!  Stick a nodemask_t in struct pci_bus, initialize it
-to NODE_MASK_ALL.  If a particular arch wants to put something more
-accurate in there, then great, if not, we're just in the same boat we're
-in now.
+Why is that? Couldn't a hotplug script use dbus?
 
-Anyone else have opinions one way or the other on Jesse's idea?
-
-> Anyway, my needs are very simple.  I'd like to do 
-> alloc_pages_node(pci_to_node(pci_dev)); in the sn2 version of 
-> pci_alloc_consistent and use the new routine to simplify the initial irq 
-> setup code, making it look more like build_zonelists and the sched domains 
-> patch I posted yesterday.  So as long as those needs are provided for, I'm ok 
-> with the interface.
-> 
-> Thanks,
-> Jesse
-
-I'm trying to keep the dependency of topology on what the pci_dev and
-pci_bus structs look like to a minimum.  That's why I'd like to keep the
-topology function based on PCI bus numbers (or possibly struct pci_bus),
-not struct pci_dev.  The pci_bus is what really has the node affinity
-anyway, and the device only has that affinity through the fact that it
-is physically plugged into a particular bus.
-
--Matt
-
+	Regards
+		Oliver

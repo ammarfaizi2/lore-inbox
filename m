@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319336AbSHGUEq>; Wed, 7 Aug 2002 16:04:46 -0400
+	id <S319279AbSHGTe1>; Wed, 7 Aug 2002 15:34:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319337AbSHGUEq>; Wed, 7 Aug 2002 16:04:46 -0400
-Received: from pD9E231F8.dip.t-dialin.net ([217.226.49.248]:2528 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S319336AbSHGUEp>; Wed, 7 Aug 2002 16:04:45 -0400
-Date: Wed, 7 Aug 2002 14:07:09 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Thunder from the hill <thunder@ngforever.de>, <davidsen@tmr.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Why 'mrproper'?
-In-Reply-To: <20020807185105.GA268@win.tue.nl>
-Message-ID: <Pine.LNX.4.44.0208071406271.10270-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S319280AbSHGTe1>; Wed, 7 Aug 2002 15:34:27 -0400
+Received: from pat.uio.no ([129.240.130.16]:19678 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S319279AbSHGTe0>;
+	Wed, 7 Aug 2002 15:34:26 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15697.30489.765404.126474@charged.uio.no>
+Date: Wed, 7 Aug 2002 21:38:01 +0200
+To: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
+Cc: "'trond.myklebust@fys.uio.no'" <trond.myklebust@fys.uio.no>,
+       "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: RE: O_SYNC option doesn't work (2.4.18-3)
+In-Reply-To: <EE83E551E08D1D43AD52D50B9F511092E114E3@ntserver2>
+References: <EE83E551E08D1D43AD52D50B9F511092E114E3@ntserver2>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> " " == Gregory Giguashvili <Gregoryg@ParadigmGeo.com> writes:
 
-On Wed, 7 Aug 2002, Andries Brouwer wrote:
-> > > Funny that you ask this question first now.
-> > > mrproper came in 0.99p7
-> > > distclean came in 0.99p14 as a synonym for mrproper.
-> 
-> Read my letter again. Then check your sources.
-> Then see that what I wrote is exactly true.
+     > File locking, meaning lockd? There are so many problems with
+     > file locking in heterogeneous environments that we were moving
+     > towards dropping its usage.  Instead, we planned to use some
+     > home grown TCP based lock server mechanism.
 
-Hmmm... Anyone still have 0.99p14?
+     > I understand that locking file flushes NFS cache, isn't it? Why
+     > can't it be flushed by O_SYNC and "sync" options presence? This
+     > would make the life much easier for programmers...
 
-			Thunder
--- 
-.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
+Tough. The above is not part of the O_SYNC spec on any platform and I
+have no intention of implementing it.
 
+The sort of thing you would like to do will be possible with O_DIRECT
+(which is a design to allow user programs to manage their own
+caches). That has yet to be integrated into the standard kernel
+though.
+
+Cheers,
+  Trond

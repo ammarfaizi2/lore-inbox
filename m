@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266580AbUFWRCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266233AbUFWRDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266580AbUFWRCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 13:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUFWRCZ
+	id S266233AbUFWRDl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 13:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUFWRDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 13:02:25 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:24920 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S266585AbUFWRCG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 13:02:06 -0400
-Subject: Re: 2.6.7-bk5 scheduling while atomic
-From: Paul Fulghum <paulkf@microgate.com>
-To: Christian Kujau <evil@g-house.de>
-Cc: Klaus Dittrich <kladit@t-online.de>,
-       linux mailing-list <linux-kernel@vger.kernel.org>
-In-Reply-To: <40D864BF.9000304@g-house.de>
-References: <20040622135529.GA838@xeon2.local.here>
-	 <40D864BF.9000304@g-house.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1088010119.2017.1.camel@deimos.microgate.com>
+	Wed, 23 Jun 2004 13:03:33 -0400
+Received: from www.nute.net ([66.221.212.1]:39820 "EHLO mail.nute.net")
+	by vger.kernel.org with ESMTP id S266233AbUFWRCj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 13:02:39 -0400
+Date: Wed, 23 Jun 2004 17:02:39 +0000
+From: Mikael Bouillot <xaajimri@corbac.com>
+To: linux-kernel@vger.kernel.org
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+Subject: Re: Forcedeth driver bug
+Message-ID: <20040623170239.GA12050@mail.nute.net>
+References: <20040623142936.GA10440@mail.nute.net> <40D99A08.90707@ThinRope.net> <40D9A857.5040901@gmx.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Jun 2004 12:01:59 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40D9A857.5040901@gmx.net>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-06-22 at 11:56, Christian Kujau wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Klaus Dittrich wrote:
-> > System smp (2 x XEON, I7505) preemptive
-> >
-> > With kernel-2.6.7-bk5 I get a lot of
-> > "kernel: bad: scheduling while atomic!" messages
-> > during startup.
-> >
-> > 2.6.7 runs fine using the basically the same configuration.
-> >
-> > Did anybody else see this ?
+> forcedeth_gigabit_try19.txt is the most recent one.
 
-> yes, "me too". but i was not able to get the messages flushed to the
-> disk. this is 2.6.7-BK kernel from 2004-06-21 (around 4p.m., GMT+1).
+  OK, I've tried forcedeth_gigabit_try19 and I still get the same
+problem. The only difference is a "bad: scheduling while atomic!" in the
+syslog, but I still get stuck packets.
 
-2.6.7-bk6 fixes it for me.
+  I've also tried reverting to the older XT-PIC and again, no
+improvement.
 
---
-Paul Fulghum
-paulkf@microgate.com
+  I'll now try to work my way through debugging the problem myself. I've
+got limited experience with kernel hacking, but I'll learn along the way
+:-) If anyone has got any new information or suggestion, I would like to
+hear about it.
 
+  Mikael
 
+-- 
+Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!

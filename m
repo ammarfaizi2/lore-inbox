@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269913AbTGVUWn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 16:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269964AbTGVUWn
+	id S265440AbTGVUkq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 16:40:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269106AbTGVUkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 16:22:43 -0400
-Received: from pop.gmx.de ([213.165.64.20]:14037 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S269913AbTGVUWl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 16:22:41 -0400
-Date: Wed, 23 Jul 2003 02:07:16 +0530
-From: Apurva Mehta <apurva@gmx.net>
+	Tue, 22 Jul 2003 16:40:46 -0400
+Received: from smtp.terra.es ([213.4.129.129]:37193 "EHLO tsmtp9.mail.isp")
+	by vger.kernel.org with ESMTP id S265440AbTGVUkp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 16:40:45 -0400
+Date: Tue, 22 Jul 2003 22:55:54 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
 To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
+Cc: martin.zwickel@technotrend.de, tcfelker@mtco.com,
+       linux-kernel@vger.kernel.org, sim@netnation.com
 Subject: Re: Scheduler starvation (2.5.x, 2.6.0-test1)
-Message-ID: <20030722203716.GA1321@home.woodlands>
-Mail-Followup-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20030722013443.GA18184@netnation.com> <20030722172858.GB2880@home.woodlands> <1058899713.733.6.camel@teapot.felipe-alfaro.com>
+Message-Id: <20030722225554.1dbdbb89.diegocg@teleline.es>
+In-Reply-To: <1058899302.733.1.camel@teapot.felipe-alfaro.com>
+References: <bUil.2D8.11@gated-at.bofh.it>
+	<pan.2003.07.22.15.14.44.457281@mtco.com>
+	<20030722180442.6c116e1c.martin.zwickel@technotrend.de>
+	<1058899302.733.1.camel@teapot.felipe-alfaro.com>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1058899713.733.6.camel@teapot.felipe-alfaro.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> [2003-07-23 00:30]:
-> On Tue, 2003-07-22 at 19:28, Apurva Mehta wrote:
-> > I usually run Opera and the skipping occurs often while switching
-> > between tabs with the mouse (not when it is done with the keyboard).
-> > 
-> > Also, severe xmms skipping occurs while scrolling through PDF files
-> > (in Acrobat) while the first few seconds of a song are playing. The
-> > song virtually stops while I scroll. After the song plays for a bit,
-> > scrolling through a PDF makes no difference.
-> > 
-> > Sometimes, xmms pops up in between songs saying that it could not
-> > detect the audio device! This occurs mainly during heavy disk i/o or
-> > cpu usage.
-> 
-> Could you please test 2.6.0-test1-mm2 instead? It has additional
-> scheduler fixes which should improve your overall experience.
+El 22 Jul 2003 20:41:42 +0200 Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> escribió:
 
-I just patched my tree and compiled it. It does not work.. It freezes
-the system when I try to start X.. I gives a huge error message and
-the last line is something like :
-<6>note: X[1306] exited with preempt_count 1
+> Could you please test 2.6.0-test1-mm2? It includes some scheduler fixes
+> from Con Kolivas that will help in reducing or eliminating your
+> starvation issues.
 
-I checked all the logs and I cannot find the complete error message
-anywhere. Any suggestions where to look? 
+BTW, if/when you've some free time, you could try 2.5.63.
+It has the best linux scheduler i've never tried! (for my workload, of
+course)
 
-I also had to set root=0307 instead of /dev/hda7 to make it boot. But
-I guess that is unrelated to this issue..
-
-
-	- Apurva
+It'd be interesting to try to know what has changed since then.

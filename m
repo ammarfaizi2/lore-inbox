@@ -1,190 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261846AbTEZRgc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 13:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTEZRgc
+	id S261917AbTEZRlw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 13:41:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbTEZRlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 13:36:32 -0400
-Received: from [193.126.240.148] ([193.126.240.148]:466 "EHLO
-	mcmmta3.mediacapital.pt") by vger.kernel.org with ESMTP
-	id S261846AbTEZRg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 13:36:27 -0400
-Date: Mon, 26 May 2003 18:50:33 +0100
-From: "Paulo Andre'" <fscked@iol.pt>
-Subject: [PATCH] check copy_*_user return values in remaining WAN drivers
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <20030526185033.27160c6c.fscked@iol.pt>
-MIME-version: 1.0
-X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Content-type: multipart/mixed; boundary="Boundary_(ID_anjvUqJFjMYIKqq6WhYVxg)"
+	Mon, 26 May 2003 13:41:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13496 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261917AbTEZRlj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 13:41:39 -0400
+Message-ID: <3ED254DE.5020308@pobox.com>
+Date: Mon, 26 May 2003 13:54:38 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCHES] add ata scsi driver
+References: <3ED1B261.8030708@pobox.com> <Pine.LNX.4.44.0305260956590.11328-100000@home.transmeta.com> <20030526172405.GJ845@suse.de>
+In-Reply-To: <20030526172405.GJ845@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Jens Axboe wrote:
+> On Mon, May 26 2003, Linus Torvalds wrote:
+> 
+>>>What does the block layer need, that it doesn't have now?
+>>
+>>Exactly. I'd _love_ for people to really think about this.
+> 
+> 
+> In discussion with Jeff, it seems most of what he wants is already
+> there. He just doesn't know it yet :-)
 
---Boundary_(ID_anjvUqJFjMYIKqq6WhYVxg)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
 
-The following patch adds error checking to the copy_*_user() functions
-to the remaining WAN drivers which did not have this checking made. I'm
-sending a single patch as it's the same change in all files. Affected
-files are:
+hehe.  Here's a salient point:
 
-drivers/net/wan/comx-hw-comx.c
-drivers/net/wan/comx-hw-locomx.c
-drivers/net/wan/comx-hw-mixcom.c
-drivers/net/wan/comx-hw-munich.c
-drivers/net/wan/comx-proto-fr.c
-drivers/net/wan/comx-proto-lapb.c
-drivers/net/wan/pc300_drv.c
-drivers/net/wan/sbni.c
+native block drivers are typically used in one of two ways:  creating a 
+whole subsystem (ide, scsi), or servicing a single host (dac960).
 
-Applies cleanly on top of latest bk(-19). Please consider applying.
+I am doing the first:  creating a whole subsystem.  The infrastructure 
+involved in that, over and above what block already provides, is that 
+part I dread coding.
 
-		Paulo
+If I am to code that, I want to do so ONCE.  And that means a 
+bus-agnostic /dev/{disk,cdrom,tape}.  Not /dev/{ad,acd,at,ag}.
 
---Boundary_(ID_anjvUqJFjMYIKqq6WhYVxg)
-Content-type: text/plain; name=patch-drivers_net_wan.diff
-Content-transfer-encoding: 7BIT
-Content-disposition: attachment; filename=patch-drivers_net_wan.diff
+	Jeff
 
-diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/comx-hw-comx.c linux/drivers/net/wan/comx-hw-comx.c
---- linux-2.5-vanilla/drivers/net/wan/comx-hw-comx.c	2003-05-26 15:43:32.000000000 +0100
-+++ linux/drivers/net/wan/comx-hw-comx.c	2003-05-26 15:49:25.000000000 +0100
-@@ -1084,7 +1084,8 @@
- 		if (hw->firmware->data) {
- 			kfree(hw->firmware->data);
- 		}
--		copy_from_user(tmp + file->f_pos, buffer, count);
-+		if (copy_from_user(tmp + file->f_pos, buffer, count))
-+			return -EFAULT;
- 		hw->firmware->len = entry->size = file->f_pos + count;
- 		hw->firmware->data = tmp;
- 		file->f_pos += count;
-diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/comx-hw-locomx.c linux/drivers/net/wan/comx-hw-locomx.c
---- linux-2.5-vanilla/drivers/net/wan/comx-hw-locomx.c	2003-05-26 15:43:32.000000000 +0100
-+++ linux/drivers/net/wan/comx-hw-locomx.c	2003-05-26 15:49:25.000000000 +0100
-@@ -339,7 +339,10 @@
- 		return -ENOMEM;
- 	}
- 
--	copy_from_user(page, buffer, count = min_t(unsigned long, count, PAGE_SIZE));
-+	if (copy_from_user(page, buffer, count = min_t(unsigned long, count, PAGE_SIZE))) {
-+		free_page((unsigned long)page);
-+		return -EBADF;
-+	}
- 	if (*(page + count - 1) == '\n') {
- 		*(page + count - 1) = 0;
- 	}
-diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/comx-hw-mixcom.c linux/drivers/net/wan/comx-hw-mixcom.c
---- linux-2.5-vanilla/drivers/net/wan/comx-hw-mixcom.c	2003-05-26 15:43:32.000000000 +0100
-+++ linux/drivers/net/wan/comx-hw-mixcom.c	2003-05-26 15:49:25.000000000 +0100
-@@ -763,7 +763,10 @@
- 		return -ENOMEM;
- 	}
- 
--	copy_from_user(page, buffer, count = min_t(unsigned long, count, PAGE_SIZE));
-+	if (copy_from_user(page, buffer, count = min_t(unsigned long, count, PAGE_SIZE))) {
-+		free_page((unsigned long)page);
-+		return -EFAULT;
-+	}
- 	if (*(page + count - 1) == '\n') {
- 		*(page + count - 1) = 0;
- 	}
-diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/comx-hw-munich.c linux/drivers/net/wan/comx-hw-munich.c
---- linux-2.5-vanilla/drivers/net/wan/comx-hw-munich.c	2003-05-26 15:43:32.000000000 +0100
-+++ linux/drivers/net/wan/comx-hw-munich.c	2003-05-26 15:49:25.000000000 +0100
-@@ -2414,7 +2414,10 @@
- 	return -ENOMEM;
- 
-     /* Copy user data and cut trailing \n */
--    copy_from_user(page, buffer, count = min(count, PAGE_SIZE));
-+    if (copy_from_user(page, buffer, count = min(count, PAGE_SIZE))) {
-+	    free_page((unsigned long)page);
-+	    return -EFAULT;
-+    }
-     if (*(page + count - 1) == '\n')
- 	*(page + count - 1) = 0;
-     *(page + PAGE_SIZE - 1) = 0;
-diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/comx-proto-fr.c linux/drivers/net/wan/comx-proto-fr.c
---- linux-2.5-vanilla/drivers/net/wan/comx-proto-fr.c	2003-05-26 15:43:32.000000000 +0100
-+++ linux/drivers/net/wan/comx-proto-fr.c	2003-05-26 15:49:25.000000000 +0100
-@@ -657,7 +657,10 @@
- 		return -ENOMEM;
- 	}
- 
--	copy_from_user(page, buffer, count);
-+	if (copy_from_user(page, buffer, count)) {
-+		free_page((unsigned long)page);
-+		return -EFAULT;
-+	}
- 	if (*(page + count - 1) == '\n') {
- 		*(page + count - 1) = 0;
- 	}
-diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/comx-proto-lapb.c linux/drivers/net/wan/comx-proto-lapb.c
---- linux-2.5-vanilla/drivers/net/wan/comx-proto-lapb.c	2003-05-26 15:43:32.000000000 +0100
-+++ linux/drivers/net/wan/comx-proto-lapb.c	2003-05-26 15:49:25.000000000 +0100
-@@ -232,7 +232,10 @@
- 		return -ENOMEM;
- 	}
- 
--	copy_from_user(page, buffer, count);
-+	if (copy_from_user(page, buffer, count)) {
-+		free_page((unsigned long)page);
-+		return -EFAULT;
-+	}
- 	if (*(page + count - 1) == '\n') {
- 		*(page + count - 1) = 0;
- 	}
-diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/pc300_drv.c linux/drivers/net/wan/pc300_drv.c
---- linux-2.5-vanilla/drivers/net/wan/pc300_drv.c	2003-05-25 15:30:15.000000000 +0100
-+++ linux/drivers/net/wan/pc300_drv.c	2003-05-26 15:49:25.000000000 +0100
-@@ -2623,7 +2623,8 @@
- 					       sizeof(struct net_device_stats));
- 					if (card->hw.type == PC300_TE)
- 						memcpy(&pc300stats.te_stats,&chan->falc,sizeof(falc_t));
--				    copy_to_user(arg, &pc300stats, sizeof(pc300stats_t));
-+				    	if (copy_to_user(arg, &pc300stats, sizeof(pc300stats_t)))
-+						return -EFAULT;
- 				}
- 				return 0;
- 			}
-diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/sbni.c linux/drivers/net/wan/sbni.c
---- linux-2.5-vanilla/drivers/net/wan/sbni.c	2003-05-25 15:30:15.000000000 +0100
-+++ linux/drivers/net/wan/sbni.c	2003-05-26 15:49:25.000000000 +0100
-@@ -1290,8 +1290,9 @@
- 		error = verify_area( VERIFY_WRITE, ifr->ifr_data,
- 				     sizeof(struct sbni_in_stats) );
- 		if( !error )
--			copy_to_user( ifr->ifr_data, &nl->in_stats,
--				      sizeof(struct sbni_in_stats) );
-+			if (copy_to_user( ifr->ifr_data, &nl->in_stats,
-+				      sizeof(struct sbni_in_stats) ))
-+				return -EFAULT;
- 		break;
- 
- 	case  SIOCDEVRESINSTATS :
-@@ -1310,7 +1311,8 @@
- 		error = verify_area( VERIFY_WRITE, ifr->ifr_data,
- 				     sizeof flags );
- 		if( !error )
--			copy_to_user( ifr->ifr_data, &flags, sizeof flags );
-+			if (copy_to_user( ifr->ifr_data, &flags, sizeof flags ))
-+				return -EFAULT;
- 		break;
- 
- 	case  SIOCDEVSHWSTATE :
-@@ -1342,7 +1344,8 @@
- 					  sizeof slave_name )) != 0 )
- 			return  error;
- 
--		copy_from_user( slave_name, ifr->ifr_data, sizeof slave_name );
-+		if (copy_from_user( slave_name, ifr->ifr_data, sizeof slave_name ))
-+			return -EFAULT;
- 		slave_dev = dev_get_by_name( slave_name );
- 		if( !slave_dev  ||  !(slave_dev->flags & IFF_UP) ) {
- 			printk( KERN_ERR "%s: trying to enslave non-active "
 
---Boundary_(ID_anjvUqJFjMYIKqq6WhYVxg)--

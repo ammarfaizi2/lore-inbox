@@ -1,88 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262511AbULDAXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbULDA2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262511AbULDAXP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 19:23:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbULDAWA
+	id S262509AbULDA2t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 19:28:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbULDA2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 19:22:00 -0500
-Received: from fw.osdl.org ([65.172.181.6]:36517 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262510AbULDAVk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 19:21:40 -0500
-Date: Fri, 3 Dec 2004 16:05:38 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: host name length
-Message-Id: <20041203160538.77a22864.rddunlap@osdl.org>
-In-Reply-To: <40521AA6.7070308@redhat.com>
-References: <40521AA6.7070308@redhat.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Dec 2004 19:28:48 -0500
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:43701 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262509AbULDAXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 19:23:48 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: [PATCH] loopback device can't act as its backing store
+To: Andrew Morton <akpm@osdl.org>, franz_pletz@t-online.de, axboe@suse.de,
+       linux-kernel@vger.kernel.org, ludoschmidt@web.de
+Reply-To: 7eggert@nurfuerspam.de
+Date: Sat, 04 Dec 2004 01:25:20 +0100
+References: <fa.gge7q0c.1pjgej6@ifi.uio.no> <fa.gbb6job.1um2er1@ifi.uio.no>
+User-Agent: KNode/0.7.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1CaNjk-0001Tu-00@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Mar 2004 12:16:38 -0800 Ulrich Drepper wrote:
+Andrew Morton wrote:
 
-| POSIX nowadays contains
-| 
-|   _POSIX_HOST_NAME_MAX
-| and
-|   HOST_NAME_MAX
-| 
-| for programs to use to learn about the maximum host name length which is
-| allowed.  _POSIX_HOST_NAME_MAX is the standard-required minimum maximum
-| and the value must be 256.
-| 
-| The problem is that HOST_NAME_MAX currently is defined as 64, as defined
-| by __NET_UTS_LEN in <linux/utsname.h>.  I.e., we have HOST_NAME_MAX as
-| smaller than the minimum maximum which is obviously not POSIX compliant.
-| 
-| Now, we can simply ignore the problem or do something about it and
-| introduce a third version of the utsname structure with sufficiently big
-| nodename field.
-| 
-| Many OSes used small values before but 256 was chosen as a minimum
-| maximum and some OSes were changed since host names longer than 64 chars
-| indeed do exist.  I wonder why this never has been brought to the
-| attention.  Or were people happy enough with truncated host names?
-| 
-| 
-| Anyway, is there interest in getting this changed?
+> +        /* Avoid recursion */
+> +        f = file;
+> +        while (is_loop_device(f)) {
+> +                struct loop_device *l;
+> +
+> +                if (f->f_mapping->host == lo_file->f_mapping->host)
+> +                        goto out_putf;
+> +                l = f->f_mapping->host->i_bdev->bd_disk->private_data;
+> +                if (l->lo_state == Lo_unbound)
+> +                        break;
+> +                f = l->lo_backing_file;
+> +        }
+> 
 
-Yes (if not all forgotten).
-I was waiting for 2.7, but that seems to be the wrong thing to do.
+This seems wrong to me. AFAI can see, this does not address
+
+1) a->b->c->b->... (Maybe it' is catched later after some recursions)
+2) the max. recursion problem you mentioned. (Maybe it's catched by
+   not having enough loop devices and catching (1), but this may change)
 
 
-Can you show/tell me where _POSIX_HOST_NAME_MAX is specified to be
-at least 256?  All that I have found so far is SuSv3
-[ http://www.unix.org/single_unix_specification/ ], which says for
-sys/utsname.h - system name structure:
+I think the real fix is something like: (guess from this patch, untested)
 
-char  sysname[]  Name of this implementation of the operating system. 
-char  nodename[] Name of this node within the communications 
-                 network to which this node is attached, if any. 
-char  release[]  Current release level of this implementation. 
-char  version[]  Current version level of this release. 
-char  machine[]  Name of the hardware type on which the system is running. 
+f = file;
+i = MAX_LOOP_CHAIN;
+while (is_loop_device(f)) {
+        struct loop_device *l;
 
-The character arrays are of unspecified size, but the data stored in them
-shall be terminated by a null byte.
-</quote>
+/* if MAX_LOOP_CHAIN is high, leaving in the old check might be a nice
+   shortcut for the common case. Is it?
+ */
 
+        if(!--i) goto out_putf;
+/* off by one? I don't think so, but check it 'cause it's late. */
 
-and LSB 2.0.1:
-[ http://refspecs.freestandards.org/LSB_2.0.1/LSB-Core/LSB-Core.html ]
+        l = f->f_mapping->host->i_bdev->bd_disk->private_data;
+        if (l->lo_state == Lo_unbound)
+                break;
+/* shouldn't we generate an error instead?
+   I guess the error will be generated while recursing, but we just
+   followed the chain and know the result.
+ */
+        f = l->lo_backing_file;
+}
 
-Maximum length of a host name (not including the terminating null) as returned
-from the gethostname function shall be at least 255 bytes.
-</quote>
-
-Is there somewhere else to look?
-Anyway, I'm willing to do the kernel work if you want help with it.
-
----
-~Randy

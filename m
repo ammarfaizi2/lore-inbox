@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbUKOXcY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbUKOXe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbUKOXcY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 18:32:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUKOXcX
+	id S261651AbUKOXe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 18:34:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUKOXe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 18:32:23 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:35038
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261630AbUKOXaK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 18:30:10 -0500
-Date: Mon, 15 Nov 2004 15:15:25 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Patrick McHardy <kaber@trash.net>
-Cc: david+challenge-response@blue-labs.org, linux-kernel@vger.kernel.org,
-       sri@us.ibm.com, netfilter-devel@lists.netfilter.org
-Subject: Re: iptables OOPS (all recent kernels on x86_64)
-Message-Id: <20041115151525.164cc207.davem@davemloft.net>
-In-Reply-To: <41986353.1020800@trash.net>
-References: <41984CCC.9040800@blue-labs.org>
-	<41986353.1020800@trash.net>
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 15 Nov 2004 18:34:27 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:54225 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261651AbUKOXdx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 18:33:53 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: 2.6.10-rc2: strange behavior on dual Opteron w/ NUMA
+Date: Tue, 16 Nov 2004 00:32:13 +0100
+User-Agent: KMail/1.6.2
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+References: <200411152306.15606.rjw@sisk.pl> <20041115223509.GE3062@wotan.suse.de>
+In-Reply-To: <20041115223509.GE3062@wotan.suse.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200411160032.13112.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Nov 2004 09:05:39 +0100
-Patrick McHardy <kaber@trash.net> wrote:
-
-> David Ford wrote:
+On Monday 15 of November 2004 23:35, Andi Kleen wrote:
+> > I suspect that this has been intorduced in 2.6.10-rc1-mm5, so if you have 
+any 
+> > ideas, please let me know.  If you need more information, please let me 
+know 
+> > too.
 > 
-> > Up until 2.6.9, when I changed link status after the initial 
-> > configuration, I would get a kernel OOPS.  Now with 2.6.9, I get a 
-> > crash immediately on boot with network device configuration.   
-> > Attached is my boot log.
-> 
-> Apparently SCTP corrupted the inetaddr notifier chain by registering
-> the same notifier_block for IPv4 and IPv6, so masq_inet_event got a
-> struct inet6_ifaddr instead of a struct in_ifaddr. This patch should
-> fix it.
+> Could be the recent futex change. It seems to cause all kinds of problems.
+> I would try reverting that.
 
-Looks good, applied.  Thanks Patrick.
+You mean futex_wait-fix.patch?  Hasn't it already been identified as a buggy 
+one?
 
-I'll apply your 2.4.x backport of this fix as well.
+RJW
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

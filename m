@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317464AbSGaXfE>; Wed, 31 Jul 2002 19:35:04 -0400
+	id <S318562AbSGaXkT>; Wed, 31 Jul 2002 19:40:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318552AbSGaXfE>; Wed, 31 Jul 2002 19:35:04 -0400
-Received: from [143.166.83.88] ([143.166.83.88]:12809 "HELO
-	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S317464AbSGaXfD>; Wed, 31 Jul 2002 19:35:03 -0400
-X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
-Message-ID: <F44891A593A6DE4B99FDCB7CC537BBBBB839AD@AUSXMPS308.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: peter@chubb.wattle.id.au
-cc: pavel@ucw.cz, viro@math.psu.edu, Andries.Brouwer@cwi.nl,
-       linux-kernel@vger.kernel.org
-Subject: RE: 2.5.28 and partitions
-Date: Wed, 31 Jul 2002 18:38:24 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 1156AB7B5243327-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+	id <S318563AbSGaXkT>; Wed, 31 Jul 2002 19:40:19 -0400
+Received: from sj-msg-core-4.cisco.com ([171.71.163.54]:12516 "EHLO
+	sj-msg-core-4.cisco.com") by vger.kernel.org with ESMTP
+	id <S318562AbSGaXkS>; Wed, 31 Jul 2002 19:40:18 -0400
+Message-Id: <5.1.0.14.2.20020801094111.02776df0@mira-sjcm-3.cisco.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 01 Aug 2002 09:42:15 +1000
+To: "David Luyer" <david_luyer@pacific.net.au>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: RE: Linux 2.4.19ac3rc3 on IBM x330/x340 SMP - "ps" time skew
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <00c201c23892$1c5fb450$638317d2@pacific.net.au>
+References: <1028122125.8510.52.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Matt> What's wrong with EFI GUID scheme (GPT) (other than it wasn't
-> Matt> invented by Linux folks)?
-> 
-> Nothing, except it's not used on all platforms yet.
+At 10:59 PM 31/07/2002 +1000, David Luyer wrote:
+>Alan Cox wrote:
+> > > procps version is 2.0.7 (Debian 3.0).
+> > >
+> > > Where's the mistake -- should timer interrupts be on both
+> > > CPUs (I think this is the problem), or is procps miscalculating
+> > > Hz (seems less likely, someone would have noticed by now...)?
+> >
+> > HZ on x86 for user space is defined as 100. Its a procps problem
+>
+>Slight error in my initial diagnosis of why procps is getting Hertz
+>wrong tho.  It's not because timer interrupts are only happening
+>on one CPU.  It's because it thinks I have 4 CPUs per system, when
+>really I only have 2 CPUs per system.
 
-(set boot issues aside for now)
-It could.  I use it on x86 and IA-64 now.  I think Richard Hirst found the
-last (knock on wood) of my endianness bugs about 6 months ago, so I know it
-works on BE and LE non-Intel machines.  It's in the partitioning menu, not
-specific to arch.  The only arch dependency in code is on asm-ia64/efi.h for
-some typedefs, which is annoying but not hard to fix if desired (move
-relevant bits to include/linux/efi.h).
+procps is still wrong.
 
-> For my machines the *only* reason for having a legacy partitioning
-> scheme is to allow booting.
+HZ on x86 is 100 by default.
+that isn't 100 per CPU, but 100 per second, regardless of whether the timer 
+interrupt is distributed between CPUs or serviced on a single CPU.
 
-As you point out, booting is BIOS-specific.  So for now boot a disk with a
-native scheme (where your OS resides already) and mount that 64XB file
-system for data afterwords.  By the time that doesn't work, 32-bit CPUs will
-be dead anyhow.
 
-Thanks,
-Matt
+cheers,
 
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
+lincoln.
 

@@ -1,41 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277739AbRJIOrQ>; Tue, 9 Oct 2001 10:47:16 -0400
+	id <S277734AbRJIOpQ>; Tue, 9 Oct 2001 10:45:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277736AbRJIOqK>; Tue, 9 Oct 2001 10:46:10 -0400
-Received: from smtp.telecable.es ([212.89.0.35]:24849 "HELO smtp.telecable.es")
-	by vger.kernel.org with SMTP id <S277739AbRJIOp4>;
-	Tue, 9 Oct 2001 10:45:56 -0400
-Date: Tue, 9 Oct 2001 16:52:46 +0200
-From: Alejandro Conty <zz01f074@etsiig.uniovi.es>
-To: Gergely Tamas <dice@mfa.kfki.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] again: Re: Athlon kernel crash (i686 works)
-Message-Id: <20011009165246.52151c4d.zz01f074@etsiig.uniovi.es>
-In-Reply-To: <Pine.LNX.4.33.0110091611050.20120-100000@falka.mfa.kfki.hu>
-In-Reply-To: <20011009155907.6c9e0b98.zz01f074@etsiig.uniovi.es>
-	<Pine.LNX.4.33.0110091611050.20120-100000@falka.mfa.kfki.hu>
-Organization: poca
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.8; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S277735AbRJIOpJ>; Tue, 9 Oct 2001 10:45:09 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:2310 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S277732AbRJIOnh>; Tue, 9 Oct 2001 10:43:37 -0400
+Date: Tue, 9 Oct 2001 11:22:01 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: BALBIR SINGH <balbir.singh@wipro.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
+        lkml <linux-kernel@vger.kernel.org>, bcrl@redhat.com
+Subject: Re: pre6 VM issues
+In-Reply-To: <3BC30B9F.9060609@wipro.com>
+Message-ID: <Pine.LNX.4.21.0110091117010.5604-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi!
-> 
->  > Could my random kernel oopses be caused by that bug?
-> 
-> I'm not sure, but I think no. If you hit this bug, you're even not able to
-> start Linux. In most - if not all - reported cases, the computers did not
-> reach the shell. They oopsed e.g. at init or shortly after passing it.
 
-Ok, so is not that bug, I get an oops only once in a week.
 
-> 
->  > I have a VIA (ASUS A7V) cipset an K7 1000Mhz, and sometimes the
-> 
-> VIA KT133A ?
+On Tue, 9 Oct 2001, BALBIR SINGH wrote:
 
-Yes. I just updated to 2.4.10, so I will wait a few days and see what happens. By now I haven't had any crash (but the analog.o one, which is already fixed).
+> Marcelo Tosatti wrote:
+> 
+> >
+> >On Tue, 9 Oct 2001, BALBIR SINGH wrote:
+> >
+> >>Most of the traditional unices maintained a pool for each subsystem
+> >>(this is really useful when u have the memory to spare), so not matter
+> >>what they use memory only from their pool (and if needed peek outside),
+> >>but nobody else used the memory from the pool.
+> >>
+> >>I have seen cases where, I have run out of physical memory on my system,
+> >>so I try to log in using the serial console, but since the serial driver
+> >>does get_free_page (this most likely fails) and the driver complains back.
+> >>So, I had suggested a while back that important subsystems should maintain
+> >>their own pool (it will take a new thread to discuss the right size of
+> >>each pool).
+> >>
+> >>Why can't Linux follow the same approach? especially on systems with a lot
+> >>of memory.
+> >>
+> >
+> >There is nothing which avoids us from doing that (there is one reserved
+> >pool I remeber right now: the highmem bounce buffering pool, but that one
+> >is a special case due to the way Linux does IO in high memory and its only
+> >needed on _real_ emergencies --- it will be removed in 2.5, I hope).
+> >
+> >In general, its a better approach to share the memory and have a unified
+> >pool. If a given subsystem is not using its own "reversed" memory, another
+> >subsystems can use it.
+> >
+> >The problem we are seeing now can be fixed even without the reserved
+> >pools.
+> >
+> I agree that is the fair and nice thing to do, but I was talking about reserving
+> memory for device vs sharing it with a user process, user processes can wait,
+> their pages can even be swapped out if needed. But for a device that is not willing
+> to wait (GFP_ATOMIC) say in an interrupt context, this might be a issue.
+> 
+> 
+> Anyway, how do you plan to solve this ?
+
+I plan to have saner limits for atomic allocations for 2.4. For the corner
+cases, we can make then those limits tunable.
+
+For 2.5, I guess we'll need some scheme for those corner cases, since they
+will probably become more common (think about gigabit ethernet, etc).
+
+I'm not sure yet which one will be used. Ben (bcrl@redhat.com) has a nice
+scheme ready for reservation. But thats 2.5 only anyway.
+

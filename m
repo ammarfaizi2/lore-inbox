@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269018AbUIHNZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266679AbUIHM5P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269018AbUIHNZS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 09:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267686AbUIHNWp
+	id S266679AbUIHM5P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 08:57:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267566AbUIHM4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 09:22:45 -0400
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:53682 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S268328AbUIHNSD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 09:18:03 -0400
-Date: Wed, 8 Sep 2004 09:17:56 -0400
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, cherry@osdl.org
-Subject: [PATCH 2.6.9-rc1] Coda - fix sparse warnings
-Message-ID: <20040908131755.GA12173@delft.aura.cs.cmu.edu>
-Mail-Followup-To: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-	cherry@osdl.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094571421.28147.20.camel@cherrybomb.pdx.osdl.net>
-User-Agent: Mutt/1.5.6+20040803i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+	Wed, 8 Sep 2004 08:56:48 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:2786 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S267454AbUIHMs5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 08:48:57 -0400
+Date: Wed, 8 Sep 2004 08:53:21 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] preempt-smp.patch, 2.6.9-rc1-bk14
+In-Reply-To: <20040908111751.GA11507@elte.hu>
+Message-ID: <Pine.LNX.4.53.0409080814570.15087@montezuma.fsmlabs.com>
+References: <20040908111751.GA11507@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I reused the coda_file_read wrapper for sendfile and accidentally left
-the __user tag on the buffer. This patch should fix the sparse warnings.
+On Wed, 8 Sep 2004, Ingo Molnar wrote:
 
-Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
+> to solve this problem i've introduced a new spinlock field,
+> lock->break_lock, which signals towards the holding CPU that a
+> spinlock-break is requested by another CPU. This field is only set if a
+> CPU is spinning in a spinlock function [at any locking depth], so the
+> default overhead is zero. I've extended cond_resched_lock() to check for
+> this flag - in this case we can also save a reschedule. I've added the
+> lock_need_resched(lock) and need_lockbreak(lock) methods to check for
+> the need to break out of a critical section.
 
+Doesn't having break_lock within the same cacheline as lock bounce the 
+line around more?
 
-diff -urN --exclude '*.orig' linux-2.6.9-rc1-bk7.coda_sendfile/fs/coda/file.c linux-2.6.9-rc1-bk7.coda_sendfile2/fs/coda/file.c
---- linux-2.6.9-rc1-bk7.coda_sendfile/fs/coda/file.c	2004-09-01 12:15:15.000000000 -0400
-+++ linux-2.6.9-rc1-bk7.coda_sendfile2/fs/coda/file.c	2004-09-08 09:07:53.000000000 -0400
-@@ -46,7 +46,7 @@
- 
- static ssize_t
- coda_file_sendfile(struct file *coda_file, loff_t *ppos, size_t count,
--		   read_actor_t actor, void __user *target)
-+		   read_actor_t actor, void *target)
- {
- 	struct coda_file_info *cfi;
- 	struct file *host_file;
+> In addition to the preemption latency problems, the _irq() variants in
+> the above list didnt do any IRQ-enabling while spinning - possibly
+> resulting in excessive irqs-off sections of code!
+
+I had a patch for this 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0405.3/0578.html and it has 
+been running for about 3 months now on a heavily used 4 processor box. 
+It's all a matter of whether Andrew is feeling brave ;)
+
+Thanks,
+	Zwane

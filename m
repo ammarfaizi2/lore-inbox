@@ -1,62 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262883AbTDOSHo (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 14:07:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbTDOSHo 
+	id S262771AbTDOSJN (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 14:09:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTDOSJN 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 14:07:44 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:39079 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S262883AbTDOSHm 
+	Tue, 15 Apr 2003 14:09:13 -0400
+Received: from iucha.net ([209.98.146.184]:12924 "EHLO mail.iucha.net")
+	by vger.kernel.org with ESMTP id S262894AbTDOSJG 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 14:07:42 -0400
-Subject: Re: [RFC][PATCH] Extended Attributes for Security Modules
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: richard offer <offer@sgi.com>
-Cc: Andreas Gruenbacher <ag@bestbits.at>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       lsm <linux-security-module@wirex.com>, "Ted Ts'o" <tytso@mit.edu>,
-       lkml <linux-kernel@vger.kernel.org>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <385390000.1050425884@changeling.engr.sgi.com>
-References: <Pine.LNX.4.33.0304140033100.12311-100000@muriel.parsec.at>
-	 <1050414107.16051.70.camel@moss-huskers.epoch.ncsc.mil>
-	 <385390000.1050425884@changeling.engr.sgi.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1050430776.1051.137.camel@moss-huskers.epoch.ncsc.mil>
+	Tue, 15 Apr 2003 14:09:06 -0400
+Date: Tue, 15 Apr 2003 13:20:57 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: Kernels since 2.5.60 upto 2.5.67 freeze when X server terminates
+Message-ID: <20030415182057.GC29143@iucha.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Dave Jones <davej@codemonkey.org.uk>
+References: <20030415133608.A1447@cuculus.switch.gts.cz> <20030415125507.GA29143@iucha.net> <3E9C03DD.3040200@oracle.com> <20030415164435.GA6389@rivenstone.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Apr 2003 14:19:39 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GPJrCs/72TxItFYR"
+Content-Disposition: inline
+In-Reply-To: <20030415164435.GA6389@rivenstone.net>
+X-message-flag: Outlook: Where do you want [your files] to go today?
+X-gpg-key: http://iucha.net/florin_iucha.gpg
+X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
+User-Agent: Mutt/1.5.3i
+From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-04-15 at 12:58, richard offer wrote:
-> I see modules as empheral, but attritbutes as permanant. If I'm running one
-> LSM module, I reboot and use a different LSM module, what happens to the
-> attributes that the first module added to the file ?
 
-I'm not going to switch between a SELinux "module" and a non-SELinux
-"module" or vice versa without relabeling the filesystem to an
-appropriate initial state of security labels that is meaningful to the
-"module" I want to use.  I also wouldn't be performing such switching at
-all on any real systems.
+--GPJrCs/72TxItFYR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Either we should guarantee that modules only touch attributes they know
-> about---ignoring all others (but not overwriting them), or we have separate
-> namespaces for each module's attributes.
+On Tue, Apr 15, 2003 at 12:44:40PM -0400, Joseph Fannin wrote:
+> On Tue, Apr 15, 2003 at 03:06:37PM +0200, Alessandro Suardi wrote:
+> <snip>
+> > I surely hit bug 543 in 2.5.65 IIRC, and guess what...
+> >  ATI Radeon 7500 Mobile - XFree 4.2.1
+> >=20
+> > According to other emails on lkml, it appears that DRM and/or AGP
+> >  new kernel code might be at fault. I don't actually remember
+> >  seeing non-Radeon cards being hit by such problems though...
+>=20
+>     I've seen this problem too many times, but haven't tried to track
+> it down.  The video is ATI Rage 128 Pro.
+>=20
+>     A common bit seems to be ATI cards, judging from this thread.  I'm
+> also using the aty128fb framebuffer driver.  My motherboard is Aladdin V
+> based and so uses the ali-agp module.
 
-A security module can sanity check the first few bytes of the attribute
-value if it desires, and handle a mismatch as it desires.  That is a
-policy issue and up to the module writer.
+I think it has to do with the interaction between XFree86 4.3.0 and
+the AGP code.
 
-You also need to consider the implications for userspace of using a
-separate attribute name for each security module.  Do you really want to
-maintain your own patches for all of the utilities to let users get and
-set file security labels using your attribute name?  Note that we can
-add or remove security attributes to/from the SELinux security context
-without requiring changes to our patches for the utilities; the utility
-patches don't have to be tied to a specific security model.
+I have wdm as my display manager. I am able to login, but when logging
+out the system dies. These are the last two messages printed on the
+serial console:
+   agpgart: Putting AGP V2 device at 00:00.0 into 4x mode
+   agpgart: Putting AGP V2 device at 01:00.0 into 4x mode
+and then, hard freeze.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+These lines do not appear when using XFree86 4.2.1 .
 
+I have a Radeon 8500 and AGP 4x is enabled in BIOS. The motherboard is
+ECS K7S5A (SIS 735 chipset).
+
+Dave, if you have any patch to test send it over!
+
+florin
+
+--=20
+
+"NT is to UNIX what a doughnut is to a particle accelerator."
+
+--GPJrCs/72TxItFYR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+nE2JNLPgdTuQ3+QRArAOAJ43qtf9yA+DXlwU1k71QgGdAO1sugCfWAYl
+7RQz/Vw4S97ugOw+dAc27ew=
+=36Ye
+-----END PGP SIGNATURE-----
+
+--GPJrCs/72TxItFYR--

@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315536AbSHITsS>; Fri, 9 Aug 2002 15:48:18 -0400
+	id <S315630AbSHIUA0>; Fri, 9 Aug 2002 16:00:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315628AbSHITsS>; Fri, 9 Aug 2002 15:48:18 -0400
-Received: from pat.uio.no ([129.240.130.16]:40647 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S315536AbSHITsR>;
-	Fri, 9 Aug 2002 15:48:17 -0400
+	id <S315628AbSHIUA0>; Fri, 9 Aug 2002 16:00:26 -0400
+Received: from pop.gmx.de ([213.165.64.20]:35839 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S315456AbSHIUAZ> convert rfc822-to-8bit;
+	Fri, 9 Aug 2002 16:00:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@gmx.net>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: Benjamin LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: AIO together with SMPtimers-A0 oops and freezing
+Date: Fri, 9 Aug 2002 22:03:00 +0200
+X-Mailer: KMail [version 1.4]
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org,
+       "J.A. Magallon" <jamagallon@able.es>,
+       Ruben Puettmann <ruben@puettmann.net>
+References: <200208051920.29018.mcp@linux-systeme.de> <20020806223550.GC2733@werewolf.able.es> <20020806191446.E19564@redhat.com>
+In-Reply-To: <20020806191446.E19564@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15700.7516.306330.976815@charged.uio.no>
-Date: Fri, 9 Aug 2002 21:51:56 +0200
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: trond.myklebust@fys.uio.no, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5.30+] Fourth attempt at a shared credentials patch
-In-Reply-To: <55560000.1028921049@baldur.austin.ibm.com>
-References: <23130000.1028818693@baldur.austin.ibm.com>
-	<shsofcdfjt6.fsf@charged.uio.no>
-	<44050000.1028823650@baldur.austin.ibm.com>
-	<15698.41542.250846.334946@charged.uio.no>
-	<52960000.1028829902@baldur.austin.ibm.com>
-	<15698.52455.437254.428402@charged.uio.no>
-	<81390000.1028837464@baldur.austin.ibm.com>
-	<15698.59577.788998.300262@charged.uio.no>
-	<55560000.1028921049@baldur.austin.ibm.com>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208092158.57656.m.c.p@gmx.net>
+X-PRIORITY: 2 (High)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Dave McCracken <dmccr@us.ibm.com> writes:
+On Wednesday 07 August 2002 01:14, Benjamin LaHaise wrote:
 
-     > --On Thursday, August 08, 2002 11:55:05 PM +0200 Trond
-     > Myklebust <trond.myklebust@fys.uio.no> wrote:
+Hi Benjamin,
 
-    >> What if one thread is doing an RPC call while the other is
-    >> changing the 'groups' entry?
+>> Ben, I am using your AIO 20020619 patch + relevant fixes from the AIO 
+>> mailinglist together with your patch Ingo, SMPtimers-A0.
 
-     > Gah.  Good point.  Ok, I've added locking to the cred structure
-     > to handle this.  Here's my new patch with those changes made:
+> Hmmm, the only problem I can see in the aio code wrt timer usage is 
+> the following.  Does this patch make a difference?  If not, I'm guessing 
+> that the problem is something in SMPtimers-A0 that aio happens to 
+> trigger.  The only timer aio uses is for the timeout when waiting for an 
+> event, and the structure for that is put on the stack.
+Perfect!! That, really small, patch makes it working perfectly. The system is 
+up for some hours now with stress testing Oracle without any oops() or any 
+other problem.
 
-     > http://www.ibm.com/linux/ltc/patches/misc/cred-2.5.30-5.diff.gz
+Thanks alot Ben! :-)
 
-     > I've gone through all the code again, and don't see any other
-     > places where locking is really necessary.  Feel free to point
-     > them out to me if you see any.
+I'll let you know, after some days of stress testing Oracle, if it still 
+works. I expect it will do! :)
 
-Err... Well my original point about your changes to the sunrpc code
-still stand: no spinlocking there AFAICS. In addition, you'll want to
-talk to the Intermezzo people: they do allocation of buffers based on
-the (volatile) value of cred->ngroups.
 
-Finally, you also want all those reads and changes to more than one
-value in the credential such as the stuff in security/capability.c, or
-net/socket.c,... to be atomic. (Note: This is where 'struct ucred'
-with COW gives you an efficiency gain).
+-- 
+Kind regards
+        Marc-Christian Petersen
 
-Please also note that you only need spinlocking for the particular
-case of tasks that have set CLONE_CRED. In all other cases, it adds a
-rather nasty overhead...
+http://sourceforge.net/projects/wolk
 
-Cheers,
-  Trond
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at www.keyserver.net. Encrypted e-mail preferred.

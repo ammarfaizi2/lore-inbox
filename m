@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310361AbSCLCrl>; Mon, 11 Mar 2002 21:47:41 -0500
+	id <S310359AbSCLCtv>; Mon, 11 Mar 2002 21:49:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310359AbSCLCrb>; Mon, 11 Mar 2002 21:47:31 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21508 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310361AbSCLCrR>; Mon, 11 Mar 2002 21:47:17 -0500
-Date: Mon, 11 Mar 2002 18:33:38 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Bill Davidsen <davidsen@tmr.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-In-Reply-To: <3C8D667F.5040208@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0203111829550.1153-100000@home.transmeta.com>
+	id <S310363AbSCLCtl>; Mon, 11 Mar 2002 21:49:41 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13324 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310359AbSCLCt1>;
+	Mon, 11 Mar 2002 21:49:27 -0500
+Message-ID: <3C8D6CA4.8060604@mandrakesoft.com>
+Date: Mon, 11 Mar 2002 21:49:08 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>, Bill Davidsen <davidsen@tmr.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+In-Reply-To: <E16kcTV-0002ar-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
 
-
-On Mon, 11 Mar 2002, Jeff Garzik wrote:
+>>Linus, would it be acceptable to you to include an -optional- filter for 
+>>ATA commands?  There is definitely a segment of users that would like to 
+>>firewall their devices, and I think (as crazy as it may sound) that 
+>>notion is a valid one.
+>>
 >
-> If filtering is done, I agree the filter feature is disable-able if the
-> kernel builder / sysadmin desires such.  Disable the filter by default,
-> if that's your fancy.  But let us filter.  :)
+>Jeff -I like the idea of the filters - but if the ATA command raw stuff
+>is CAP_SYS_RAWIO then its the same right set as inb/outb. Beyond that
+>its a job for the NSA and RSBAC stuff ?
+>
+Yeah, you can still bit-bang with the current implementation, on that 
+capability.  Couldn't that be cured with s/CAP_SYS_RAWIO/some new 
+CAP_DEVICE_CMD/  for the raw device command interface?
 
-BUT WHAT THE HELL IS THE POINT?
+The current implementation needs to be changed anyway :)  From "ATA raw 
+command" to "device raw command" at the very least.
 
-Don't you get that? If the sysadmin can turn the filtering off, so can any
-root program. And your worry seems to be the CRM kind of disk locking
-utility which most _definitely_ would do exactly that if it is as evil as
-you think it is.
+    Jeff
 
-And if you hardcode the filtering at compile-time in the kernel, that
-means that you've now painted yourself into the corner that you already
-seemed to admit was not a good idea - the same way it's not a good idea
-for network filtering.
-
-		Linus
 
 

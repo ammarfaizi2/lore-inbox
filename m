@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262408AbTICO2U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 10:28:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262421AbTICO2U
+	id S263499AbTICOh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 10:37:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263505AbTICOh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 10:28:20 -0400
-Received: from ivoti.terra.com.br ([200.176.3.20]:41904 "EHLO
-	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S262408AbTICO2P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 10:28:15 -0400
-Message-ID: <3F55FAD8.6010003@terra.com.br>
-Date: Wed, 03 Sep 2003 11:29:44 -0300
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+	Wed, 3 Sep 2003 10:37:28 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:39130 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S263499AbTICOh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 10:37:27 -0400
+Date: Wed, 03 Sep 2003 07:36:55 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: len.brown@intel.com
+Subject: [Bug 1177] New: print_IO_APIC() is too early in ACPI mode
+Message-ID: <20720000.1062599815@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Kill unneeded version.h from net/sched
-Content-Type: multipart/mixed;
- boundary="------------090907080600050706040806"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090907080600050706040806
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+           Summary: print_IO_APIC() is too early in ACPI mode
+    Kernel Version: 2.6.0-test4
+            Status: NEW
+          Severity: normal
+             Owner: len.brown@intel.com
+         Submitter: len.brown@intel.com
+                CC: linux-acpi@intel.com
 
-	Hi,
 
-	Last patch, removing all references that checkversion gave me on net/
+setup_IO_APIC() doesn't know that ACPI is (later) programming the IO-APICs, 
+so it calls print_IO_APIC() and dumps the hardware state before the hardware is programmed. 
+ 
+This output is at best useless, and at worst confusing. 
+If this output is to appear when booting with ACPI, it should occur once -- after ACPI has 
+programmed the APICs.
 
-	Against 2.6-test4, please apply.
-
-	Cheers
-
-Felipe
-
---------------090907080600050706040806
-Content-Type: text/plain;
- name="net_sched-checkversion.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="net_sched-checkversion.patch"
-
---- linux-2.6.0-test4/net/sched/sch_htb.c	Fri Aug 22 20:57:14 2003
-+++ linux-2.6.0-test4-fwd/net/sched/sch_htb.c	Wed Sep  3 11:27:06 2003
-@@ -32,7 +32,6 @@
- #include <asm/bitops.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
--#include <linux/version.h>
- #include <linux/sched.h>
- #include <linux/string.h>
- #include <linux/mm.h>
-
---------------090907080600050706040806--
 

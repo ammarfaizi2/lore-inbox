@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144272AbRA1WjC>; Sun, 28 Jan 2001 17:39:02 -0500
+	id <S144363AbRA1WpM>; Sun, 28 Jan 2001 17:45:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144345AbRA1Wix>; Sun, 28 Jan 2001 17:38:53 -0500
-Received: from theirongiant.zip.net.au ([61.8.0.198]:16645 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S144272AbRA1Wis>; Sun, 28 Jan 2001 17:38:48 -0500
-Date: Mon, 29 Jan 2001 09:38:54 +1100
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: raiserfs, 2.4.1preX and nfs
-Message-ID: <20010129093854.C373@zip.com.au>
-Mime-Version: 1.0
+	id <S144423AbRA1WpC>; Sun, 28 Jan 2001 17:45:02 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:30290 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S144363AbRA1Wos>; Sun, 28 Jan 2001 17:44:48 -0500
+Message-ID: <3A74A17B.848384C5@ngforever.de>
+Date: Sun, 28 Jan 2001 15:47:23 -0700
+From: Thunder from the hill <thunder@ngforever.de>
+X-Mailer: Mozilla 4.76 [en]C-CCK-MCD QXW03240  (WinNT; U)
+X-Accept-Language: de,en-US
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: My appologies
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: Furball Inc.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm tempted to use raiserfs on a 45gig raid partition because I don't
-want to grow old and die before it finishes fscking. The main hassle
-is that that partition will be NFSed out and in the past there have
-been mutterings of rfs hacing hassles with nfs. Have these been sorted?
-Is there anything else I'd need to know about? A journalled fs would
-be way nice to have and I need to make a decision between ext2 and rfs
-asap.
+Hi, all,
 
-any help would be greatly appreciated.
+My mailer (NS4.76/Linux 2.4.0-test10) has corrupted some messages and
+send them at least twice. I apologize for that, please don't be worried.
 
--- 
-CaT (cat@zip.com.au)		*** Jenna has joined the channel.
-				<cat> speaking of mental giants..
-				<Jenna> me, a giant, bullshit
-				<Jenna> And i'm not mental
-					- An IRC session, 20/12/2000
-
+Thunder
+---
+Woah... I did a "cat /boot/vmlinuz >> /dev/audio" - and I think I heard
+god...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

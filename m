@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262741AbTDATIq>; Tue, 1 Apr 2003 14:08:46 -0500
+	id <S262784AbTDATL5>; Tue, 1 Apr 2003 14:11:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262749AbTDATIp>; Tue, 1 Apr 2003 14:08:45 -0500
-Received: from popmail.goshen.edu ([199.8.232.22]:41441 "EHLO mail.goshen.edu")
-	by vger.kernel.org with ESMTP id <S262741AbTDATIo>;
-	Tue, 1 Apr 2003 14:08:44 -0500
-Subject: Re: 2:05 E.T. April 1st
-From: Ezra Nugroho <ezran@goshen.edu>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0304011109040.14266-100000@shell1.aracnet.com>
-References: <Pine.LNX.4.44.0304011109040.14266-100000@shell1.aracnet.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9.7x.1) 
-Date: 01 Apr 2003 14:32:44 -0500
-Message-Id: <1049225564.22990.2037.camel@ezran.goshen.edu>
-Mime-Version: 1.0
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+	id <S262785AbTDATL5>; Tue, 1 Apr 2003 14:11:57 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:36877 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S262784AbTDATLz>; Tue, 1 Apr 2003 14:11:55 -0500
+Date: Tue, 1 Apr 2003 20:25:16 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Daniel Egger <degger@fhm.edu>
+cc: Christoph Rohland <cr@sap.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
+In-Reply-To: <1049221575.7628.14.camel@localhost>
+Message-ID: <Pine.LNX.4.44.0304012020290.1253-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I really get this joke!
-I was have been trying to download it myself and got several lost
-connections. I bet everyone was like me, and once the connection is lost
-they would try again and again, increasing the DDoS, and producing even
-more lost connections.
+On Tue, 1 Apr 2003, Daniel Egger wrote:
+> Am Die, 2003-04-01 um 18.24 schrieb Christoph Rohland:
+> 
+> > But on these systems you better use ramfs.
+> 
+> Just curious: Why? I'm using tmpfs on these systems and I'm rather
+> satisfied with it; especially the option to limit the amount of space
+> makes it rather useful. According to the documentation ramfs is most
+> useful as an educational example how to write filesystems not as a 
+> real filesystem...
 
-I though that was kinda funny.
+Simply because quite a lot of the tmpfs code is concerned with moving
+pages between ram and swap: if you've limited ram and no swap, you may
+not want to waste your ram on that code!  One day I might try applying
+#ifdef CONFIG_SWAPs within mm/shmem.c; but I might well not, it could
+get ugly, and looks rudimentary elsewhere - do we intend to get serious
+about CONFIG_SWAP?
 
-> The April Fool's joke is Red Hat Network attempting to keep up with the
-> DDoS attack they brought on themselves by releasing the ISOs for RH 9 a
-> week early to RHN subscribers. :) Although I did hear a rumor that
-> Saddam Hussein got a copy :). Curiously enough, in the long list of
-> countries you can't ship RH 9 to, Iraq is conspicuously absent.
-> 
-> 
-> -- 
-> M. Edward (Ed) Borasky, MS, MNLP, NST, FBG, PGS & PTA
-> 
-> znmeb@borasky-research.net
-> http://www.borasky-research.net
-> 
-> Have You Hugged Your Saguaro Today?
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Hugh
 

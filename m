@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262265AbVBKQBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262263AbVBKQIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262265AbVBKQBA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 11:01:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262264AbVBKQAx
+	id S262263AbVBKQIq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 11:08:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262264AbVBKQIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 11:00:53 -0500
-Received: from nina-2.cs.keele.ac.uk ([160.5.89.35]:28619 "EHLO
-	nina.cs.keele.ac.uk") by vger.kernel.org with ESMTP id S262263AbVBKQAs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 11:00:48 -0500
-Subject: Re: aacraid fails under kernel 2.6
-To: markh@osdl.org (Mark Haverkamp)
-Date: Fri, 11 Feb 2005 16:00:44 +0000 (GMT)
-Cc: jonathan@cs.keele.ac.uk (Jonathan Knight),
-       linux-kernel@vger.kernel.org (linux-kernel),
-       mark_salyzyn@adaptec.com (Mark Salyzyn)
-In-Reply-To: <1108135751.10361.6.camel@markh1.pdx.osdl.net> from "Mark Haverkamp" at Feb 11, 2005 07:29:11 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	Fri, 11 Feb 2005 11:08:46 -0500
+Received: from styx.suse.cz ([82.119.242.94]:28141 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S262263AbVBKQIp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 11:08:45 -0500
+Date: Fri, 11 Feb 2005 17:08:46 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Richard Koch <n1gp@hotmail.com>
+Cc: vojtech@suse.de, dtor_core@ameritech.net,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] adding the ICS MK712 touchscreen driver to 2.6
+Message-ID: <20050211160846.GD2284@ucw.cz>
+References: <BAY16-F19F98BAFC5D2AFD6CC88DB87770@phx.gbl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1CzdDo-0007dA-00@nina.cs.keele.ac.uk>
-From: Jonathan Knight <jonathan@cs.keele.ac.uk>
+Content-Disposition: inline
+In-Reply-To: <BAY16-F19F98BAFC5D2AFD6CC88DB87770@phx.gbl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A number of people have seen problems like this going from 2.4 to 2.6.
-> Mark Salyzyn from Adaptec has suggested in those cases to make sure that
-> the board firmware is up to date.  I've copied Mark on this mail.
+On Fri, Feb 11, 2005 at 10:50:19AM -0500, Richard Koch wrote:
 
+> Thanks for the evtest.c program and the information about evtouch. After the
+> minor change from LONG(BTN_LEFT) to LONG(BTN_TOUCH), patch below, I
+> was able to then get touch on/off events. Also I tested this driver with the
+> "evtouch" Xwindows driver and it worked nicely.
 
-We think we're on the latest everything.  The BIOS is A07 and the firmware
-on the controller is 2.8.0 build 6092
-
-
+Thanks a lot for testing and for the fix!
 
 -- 
-  ______    jonathan@cs.keele.ac.uk    Jonathan Knight,
-    /                                  Department of Computer Science
-   / _   __ Telephone: +44 1782 583437 University of Keele, Keele,
-(_/ (_) / / Fax      : +44 1782 713082 Staffordshire.  ST5 5BG.  U.K.
+Vojtech Pavlik
+SuSE Labs, SuSE CR

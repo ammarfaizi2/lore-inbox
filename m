@@ -1,77 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264802AbSJaKJe>; Thu, 31 Oct 2002 05:09:34 -0500
+	id <S264798AbSJaKXr>; Thu, 31 Oct 2002 05:23:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264803AbSJaKJe>; Thu, 31 Oct 2002 05:09:34 -0500
-Received: from cmailm4.svr.pol.co.uk ([195.92.193.211]:48914 "EHLO
-	cmailm4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S264802AbSJaKJc>; Thu, 31 Oct 2002 05:09:32 -0500
-Date: Thu, 31 Oct 2002 10:15:58 +0000
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Russell King <rmk@arm.linux.org.uk>,
-       Peter Chubb <peter@chubb.wattle.id.au>, tridge@samba.org, tytso@mit.edu
-Subject: Re: What's left over.
-Message-ID: <20021031101558.GB7487@fib011235813.fsnet.co.uk>
-References: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com> <20021031030143.401DA2C150@lists.samba.org>
-Mime-Version: 1.0
+	id <S264803AbSJaKXr>; Thu, 31 Oct 2002 05:23:47 -0500
+Received: from robur.slu.se ([130.238.98.12]:28683 "EHLO robur.slu.se")
+	by vger.kernel.org with ESMTP id <S264798AbSJaKXq>;
+	Thu, 31 Oct 2002 05:23:46 -0500
+From: Robert Olsson <Robert.Olsson@data.slu.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021031030143.401DA2C150@lists.samba.org>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15809.2056.151239.230395@robur.slu.se>
+Date: Thu, 31 Oct 2002 11:38:00 +0100
+To: Lucio Maciel <abslucio@terra.com.br>
+Cc: LKML <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>,
+       Robert Olsson <Robert.Olsson@data.slu.se>
+Subject: [PATCH 2.5.44] Pktgen for 2.5.44
+In-Reply-To: <1035921624.601.11.camel@walker>
+References: <1035921624.601.11.camel@walker>
+X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 02:00:31PM +1100, Rusty Russell wrote:
-> > > EVMS
-> > 
-> > Not for the feature freeze, there are some noises that imply that SuSE may 
-> > push it in their kernels. 
-> 
-> They have, IIRC.  Interestingly, it was less invasive (existing source
-> touched) than the LVM2/DM patch you merged.
 
-FUD.  I added to three areas of existing code:
+> Hello...
 
-i) Every man and his dog uses mempools in conjuction with slabs, so
-   rather than having everyone redefining their own alloc/free
-   functions I added the following huge functions to mempool.c.  In no
-   way were they mandatory.
+> I have ported (integrated sounds better i think...) pktgen from
+> 2.4.20-rc1 to 2.5.44...
 
-    /*
-     * A commonly used alloc and free fn.
-     */
-    void *mempool_alloc_slab(int gfp_mask, void *pool_data)
-    {
-            kmem_cache_t *mem = (kmem_cache_t *) pool_data;
-            return kmem_cache_alloc(mem, gfp_mask);
-    }
+> I only need to change current->need_resched to need_resched() in the
+> source... works fine for me....
 
-    void mempool_free_slab(void *element, void *pool_data)
-    {
-            kmem_cache_t *mem = (kmem_cache_t *) pool_data;
-            kmem_cache_free(mem, element);
-    }
+> I also correct the documentation changing multiskb to clone_skb
+> best regards
 
-ii) vcalloc, this *didn't* get merged, and will probably end up getting
-    moved into dm.h.
+Thanks!
 
-iii) ioctl32 support: people have argued against an ioctl interface,
-     and I'm inclined to agree with them, which is why I'm going to
-     publish an fs interface shortly.  However, given that we are
-     currently using an ioctl interface how do we avoid adding support for
-     32bit userland/64 kernel space ?  If EVMS isn't touching these
-     files does that mean they're not supporting these architectures ?
+There is also work going on with a "threaded" version with one process per CPU 
+a la ksoftirqd. And to each thread/CPU you can add single or multiple devices.
 
-        arch/mips64/kernel/ioctl32.c
-        arch/ppc64/kernel/ioctl32.c
-        arch/s390x/kernel/ioctl32.c
-        arch/sparc64/kernel/ioctl32.c
+But this work needs some more time. So your patch should be fine now.
 
+Cheers.
+						--ro
 
-So given that (ii) didn't get merged, which of (i) and (iii) were you
-objecting to ?
-
-- Joe

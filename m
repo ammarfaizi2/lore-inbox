@@ -1,57 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286677AbRLVEzs>; Fri, 21 Dec 2001 23:55:48 -0500
+	id <S286672AbRLVFBi>; Sat, 22 Dec 2001 00:01:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286679AbRLVEzi>; Fri, 21 Dec 2001 23:55:38 -0500
-Received: from svr3.applink.net ([206.50.88.3]:4883 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S286672AbRLVEx1>;
-	Fri, 21 Dec 2001 23:53:27 -0500
-Message-Id: <200112220453.fBM4rGSr022807@svr3.applink.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB =?iso-8859-1?q?in	Configure=2Ehelp=2E?=
-Date: Fri, 21 Dec 2001 22:49:34 -0600
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch> <200112220152.fBM1qJSr022347@svr3.applink.net> <a012ck$2jo$1@cesium.transmeta.com>
-In-Reply-To: <a012ck$2jo$1@cesium.transmeta.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S286675AbRLVFBS>; Sat, 22 Dec 2001 00:01:18 -0500
+Received: from dracula.gtri.gatech.edu ([130.207.193.70]:34832 "EHLO
+	shaft.shaftnet.org") by vger.kernel.org with ESMTP
+	id <S286672AbRLVFBL>; Sat, 22 Dec 2001 00:01:11 -0500
+Date: Sat, 22 Dec 2001 00:01:05 -0500
+From: Stuffed Crust <pizza@shaftnet.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] - 2.4.17 - if_arp.h - Add the Prism2 ARP type
+Message-ID: <20011222000105.A22554@shaftnet.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="A6N2fC+uXW/VQSAv"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 December 2001 22:32, H. Peter Anvin wrote:
-> Followup to:  <200112220152.fBM1qJSr022347@svr3.applink.net>
-> By author:    Timothy Covell <timothy.covell@ashavan.org>
-> In newsgroup: linux.dev.kernel
->
-> > No, the US never went metric.  That's why $200M Mars probes crash on
-> > entry due to some idiot using English units as opposed to the NASA
-> > standard of Metrics.  The funny thing is that Thomas Jefferson, an
-> > American President, suggested the Metric system to the French while he
-> > was ambassador there.
->
-> Ewhat?!
->
-> 	-hpa
 
-I'm assuming that you're questioning Jefferson's role.   Here are a couple of
-quotations which show that Jefferson's idea predated the official 
-implemenation.    I can do more digging if need be.
-
-1791 - "Jefferson Report." Thomas Jefferson described England's weight and 
-measures standards to Congress "on the supposition that the present measures 
-are to be retained," and also outlined a decimal system of weights and 
-measures of Jefferson's conception.
-
-And:
-
-As the scientists were experimenting in their laboratories, practical 
-tradesmen were making themselves permanent standards. In 1793, during 
-Napoleon's time, the French government adopted a new system of standards 
-called the metric system, based on what they called the metre.
+--A6N2fC+uXW/VQSAv
+Content-Type: multipart/mixed; boundary="r5Pyd7+fXNt84Ff3"
+Content-Disposition: inline
 
 
--- 
-timothy.covell@ashavan.org.
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+(Please CC: me responses; I'm not subscribed)
+
+Hey, this one-line patch (I diffed it against 2.4.17-rc2) defines the
+ARPHRD_IEEE80211_PRISM arp type.
+
+A little background.  The prism2 series of wireless ethernet cards are
+capable of operating in true promiscious mode, capturing raw 802.11
+frames.  When it's doing this, the driver prepends a special monitoring
+header onto the packet with useful information.=20
+
+Since the v0.1.6 release of the driver, this was handled via NETLINK
+broadcasts.. but that's Bad(tm).  Instead, the next version (0.1.14) of
+the driver will support raw capture using the PF_PACKET interface, which
+means that it'll need its own arp type for libpcap to recognize and
+handle the special headers.  (without the header, it sends standard
+ARPHRD_IEEE80211 frames)=20
+
+libpcap/ethereal/etc already have dissectors for this special header, so
+all that's left is to define a fixed arp type.
+
+So, I humbly submit this patch for inclusion.
+
+Thanks!
+--=20
+Solomon Peachy                                    pizzaATfucktheusers.org
+I ain't broke, but I'm badly bent.                           ICQ# 1318344
+Patience comes to those who wait.
+    ...It's not "Beanbag Love", it's a "Transanimate Relationship"...
+
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="prism_arp.diff"
+
+--- linux/include/linux/if_arp.h	Wed Dec 19 20:55:17 2001
++++ linux-old/include/linux/if_arp.h	Wed Dec 19 20:59:07 2001
+@@ -82,6 +82,7 @@
+ 	/* 787->799 reserved for fibrechannel media types */
+ #define ARPHRD_IEEE802_TR 800		/* Magic type ident for TR	*/
+ #define ARPHRD_IEEE80211 801		/* IEEE 802.11			*/
++#define ARPHRD_IEEE80211_PRISM 802	/* IEEE 802.11 + Prism2 header  */
+ 
+ #define ARPHRD_VOID	  0xFFFF	/* Void type, nothing is known */
+ 
+
+--r5Pyd7+fXNt84Ff3--
+
+--A6N2fC+uXW/VQSAv
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8JBORysXuytMhc5ERAvqzAJsGP6omLA+JdR4NPosz7oHt++23sQCfUjb3
+43pgeZYEk0VEA1QCnXbNiXE=
+=tNbJ
+-----END PGP SIGNATURE-----
+
+--A6N2fC+uXW/VQSAv--

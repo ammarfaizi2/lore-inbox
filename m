@@ -1,77 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbTI0SFA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 14:05:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTI0SFA
+	id S262131AbTI0SNV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 14:13:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbTI0SNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 14:05:00 -0400
-Received: from web40910.mail.yahoo.com ([66.218.78.207]:26203 "HELO
-	web40910.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262130AbTI0SEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 14:04:51 -0400
-Message-ID: <20030927180450.69071.qmail@web40910.mail.yahoo.com>
-Date: Sat, 27 Sep 2003 11:04:50 -0700 (PDT)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: Kernel panic:Unable to mount root fs (2.6.0-test5)
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: jean-marc@spaggiari.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20030927172902.GK7665@parcelfarce.linux.theplanet.co.uk>
+	Sat, 27 Sep 2003 14:13:21 -0400
+Received: from [65.248.4.67] ([65.248.4.67]:28589 "EHLO verdesmares.com")
+	by vger.kernel.org with ESMTP id S262131AbTI0SNQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Sep 2003 14:13:16 -0400
+Message-ID: <001001c38523$04422860$f8e4a7c8@bsb.virtua.com.br>
+From: "Breno" <brenosp@brasilsec.com.br>
+To: "Ingo Molnar" <mingo@elte.hu>, "Gabor MICSKO" <gmicsko@szintezis.hu>
+Cc: <linux-kernel@vger.kernel.org>
+References: <1064678738.3578.8.camel@sunshine> <Pine.LNX.4.56.0309271950450.21678@localhost.localdomain>
+Subject: Re: [Test] exec-shield-2.6.0-test5-G2 vs. paxtest & libsafe
+Date: Sat, 27 Sep 2003 15:13:11 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-XTmail: http://www.verdesmares.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Viro,
+something like this:
+www.bandnet.com.br/~breno_silva/Kernel_linux/sec_stack.c
+www.bandnet.com.br/~breno_silva/Kernel_linux/sec_stack1.1v.c
 
---- viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Sat, Sep 27, 2003 at 12:48:32PM -0400, Jean-Marc Spaggiari wrote:
->  
-> > Here is what I can see on the screen :
-> > 
-> > floppy0: no floppy controllers found
-> > RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
-> > loop: loaded (max 8 devices)
-> > 8139too Fast Ethernet driver 0.9.26
-> > eth0: Realtek RTL8139 at 0xe3809f00, 00:08:0d:89:3c:38, IRQ 5
-> > mice: PS/2 mouse device common for all mice
-> > Synaptics Touchpad, model: 1
-> >  Firware: 5.9
-> >  Sensor: 15
-> >  ne absolute packet format
-> >  Touchpad has extended capability bits
-> >  -> multifinger detection
-> >  -> palm detection
-> > input: Synaptics TouchPad on isa0060/serio1
-> > serio: i8042 AUX port at 0x60,0x64 irq 12
-> > input: AT Set 2 keyboard on isa0060/serio0
-> > serio: i8042 KBD port at 0x60, 0x64 irq 1
-> > NET: Registred protocol family 2
-> > IP: routing cache hash table of 4096 buckets, 32Kbytes
-> > TCP: Hash tables configured (established 32768 bind 32768)
-> > NET: Registerd protocol family 1
-> > VFS: Cannont open root device "302" or unknown-block(3,2)
-> > Please append a correct "root=" boot option
-> > Kernel panics: VFS: Unable to mount root fr onunknown-block(3,2)
-> 
-> Which has one interesting thing and doesn't have another.
-> 	1) kernel has no idea WTF major 3/minor 2 means.
-> 	2) kernel hadn't even tried to look around for IDE disks
-> 
-> The most likely cause: IDE support is not turned on.  Check your .config -
-> the interesting parts are CONFIG_BLK_DEV_IDE and CONFIG_BLK_DEV_IDEDISK.
 
-I never thought of that. But if he had used make oldconfig, make xconfig or
-copied a 2.4 .config into the source tree, how would CONFIG_BLK_DEV_IDE and
-CONFIG_BLK_DEV_IDEDISK end up N? 
+att,
+Breno
+----- Original Message -----
+From: "Ingo Molnar" <mingo@elte.hu>
+To: "Gabor MICSKO" <gmicsko@szintezis.hu>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Saturday, September 27, 2003 3:02 PM
+Subject: Re: [Test] exec-shield-2.6.0-test5-G2 vs. paxtest & libsafe
 
-Brad
 
-=====
-Brad Chapman
+>
+> On Sat, 27 Sep 2003, Gabor MICSKO wrote:
+>
+> > Kernel:
+> > Linux sunshine 2.6.0-test5-exec-shield-nptl #3 SMP 2003. sze. 27.,
+> > szombat, 13.37.42 CEST i686 GNU/Linux
+>
+> thanks for the testing. The ELF loader changes had a bug which ended up in
+> creating an extra executable page after .bss, failing some of the tests.
+> I've fixed this, could you try the -G3 patch?:
+>
+>   redhat.com/~mingo/exec-shield/exec-shield-2.6.0-test5-G3
+>   redhat.com/~mingo/exec-shield/exec-shield-2.6.0-test5-bk12-G3
+>
+> Ingo
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Permanent e-mail: kakadu_croc@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com

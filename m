@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263723AbRFDAYK>; Sun, 3 Jun 2001 20:24:10 -0400
+	id <S263823AbRFDBuG>; Sun, 3 Jun 2001 21:50:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263290AbRFDAQd>; Sun, 3 Jun 2001 20:16:33 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:59520 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S261978AbRFDADp>; Sun, 3 Jun 2001 20:03:45 -0400
-Date: Sun, 3 Jun 2001 18:03:46 -0600
-Message-Id: <200106040003.f5403kd07861@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Akash Jain <aki.jain@stanford.edu>, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org, su.class.cs99q@nntp.stanford.edu
-Subject: Re: [PATCH] fs/devfs/base.c
-In-Reply-To: <Pine.LNX.4.21.0106031652090.32451-100000@penguin.transmeta.com>
-In-Reply-To: <200105271321.f4RDLoM00342@mobilix.ras.ucalgary.ca>
-	<Pine.LNX.4.21.0106031652090.32451-100000@penguin.transmeta.com>
+	id <S263827AbRFDBt4>; Sun, 3 Jun 2001 21:49:56 -0400
+Received: from cogent.ecohler.net ([216.135.202.106]:29881 "EHLO
+	cogent.ecohler.net") by vger.kernel.org with ESMTP
+	id <S263823AbRFDBtr>; Sun, 3 Jun 2001 21:49:47 -0400
+Date: Sun, 3 Jun 2001 21:49:40 -0400
+From: lists@sapience.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac7
+Message-ID: <20010603214940.A19102@sapience.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E156Z88-0004O1-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
-> 
-> On Sun, 27 May 2001, Richard Gooch wrote:
-> > 
-> > I absolutely don't want this patch applied. It's bogus. It is entirely
-> > safe to alloc 1 kB on the stack in this code, since it has a short and
-> > well-controlled code path from syscall entry to the function.
-> 
-> IT IS NEVER EVER SAFE TO ALLOCATE 1kB OF STACK!
 
-I can see you care about this ;-)
 
-> Why?
->  - the kernel stack is 4kB, and _nobody_ has the right to eat up a
->    noticeable portion of it. It doesn't matter if you "know" your caller
->    or not: you do not know what interrupts happen during this time, and
->    how much stack they want.
+ FYI:
 
-OK, that's a good point. Easy solution: disable interrupts in that
-function.
+ 2 small issues:
 
-Only kidding.
+    o make xconfig fails (works ok in ac6) : 
 
-> Ergo: the simple rule of "don't allocate big structures of the
-> stack" is always a good rule, and making excuses for it is bad.
+      cat header.tk >> ./kconfig.tk
+      ./tkparse < ../arch/i386/config.in >> kconfig.tk
+      drivers/net/wireless/Config.in: 5: can't handle dep_bool/dep_mbool/dep_tristate condition
+      make[1]: *** [kconfig.tk] Error 1
 
-OK, well, I can make the structure static instead, since the function
-is single-threaded anyway.
+    o soundblaster link problem (ok in ac3 - but bad in ac6 as well) :
+    
+      drivers/sound/sounddrivers.o: In function `es1371_probe':
+      drivers/sound/sounddrivers.o(.text+0x5d6d): undefined reference to `gameport_register_port'
+      drivers/sound/sounddrivers.o: In function `es1371_remove':
+      drivers/sound/sounddrivers.o(.text+0x5e81): undefined reference to `gameport_unregister_port'
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+  Gene/
+  
+--
+  Gene Cohler
+  lists@sapience.com

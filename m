@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264196AbTEOUCf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 16:02:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTEOUBV
+	id S264193AbTEOTsi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 15:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264196AbTEOTsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 16:01:21 -0400
-Received: from magic-mail.adaptec.com ([208.236.45.100]:27536 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S264227AbTEOUBF
+	Thu, 15 May 2003 15:48:38 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:24906 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S264193AbTEOTsg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 16:01:05 -0400
-Date: Thu, 15 May 2003 14:13:53 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Looking for some BK assistance
-Message-ID: <267360000.1053029633@aslan.btc.adaptec.com>
-X-Mailer: Mulberry/3.0.3 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 15 May 2003 15:48:36 -0400
+Subject: Re: Test Patch: 2.5.69 Interrupt Latency
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       johannes@erdfelt.com,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <1053027740.2095.44.camel@diemos>
+References: <Pine.LNX.4.44L0.0305151355290.1139-100000@ida.rowland.org>
+	 <1053027740.2095.44.camel@diemos>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1053028778.2660.7.camel@diemos>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 15 May 2003 14:59:39 -0500
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to merge my 2.4.X BK tree with Marcelo's tree.  In the end,
-I want to have a tree that I can "bk send" to Marcelo that backs out
-the recent backout of the aic7xxx driver and puts the aic79xx driver
-back into its original location.  I understand how to override incoming
-content changes during the merge process, but the documentation on
-undoing renames is a bit vague.  During the merge process, my local
-file name is already a deleted name that is slightly different than
-the name in the parent repository.  If I try to resolve the rename by
-putting the file back into its original location, BK complains that that
-name already exists.  The documentation also warns that renames should
-only be performed in the master repository.  Can someone with BK clue
-point me in the right direction on this one?
+On Thu, 2003-05-15 at 14:42, Paul Fulghum wrote:
+> On Thu, 2003-05-15 at 13:11, Alan Stern wrote:
+> > Maybe they are an Intel-specific addition?  Or perhaps a more 
+> > recent version of the spec has more information -- the one I've got is 1.1 
+> > (March 1996).
+> 
+> I can't find any later documents.
+> 
+> > Can you suggest a good way of detecting whether or not a controller is
+> > part of a PIIX4 chipset, to indicate whether or not the OC bits are valid?
+> 
+> I don't see a generic way to determine the validity of these bits.
+> 
+> I think the PCI ID is the only way:
+> Vendor ID 8086
+> Device ID 7112
+> 
+> The erratum is only for the PIIX4, and it is
+> triggered only when the OC inputs are active,
+> so limiting the check to that device should
+> be OK.
 
-Thanks,
-Justin
+More clarification (at a suggestion from Charles Lepple):
+The errata covers all steppings of the 82371AB/EB/MB
+with a note that this bug will never be fixed
+in these devices.
+
+So checking for 8086:7112 should be sufficient without
+a need to check the version number.
+
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
+
 

@@ -1,45 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317392AbSGJOfa>; Wed, 10 Jul 2002 10:35:30 -0400
+	id <S317431AbSGJOeW>; Wed, 10 Jul 2002 10:34:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317433AbSGJOf3>; Wed, 10 Jul 2002 10:35:29 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:29701 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S317392AbSGJOf0>; Wed, 10 Jul 2002 10:35:26 -0400
-Date: Wed, 10 Jul 2002 15:38:01 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Vitaly Fertman <vitaly@namesys.com>, reiserfs-list@namesys.com,
-       linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: reiserfsprogs release
-Message-ID: <20020710153801.A8570@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Steven Cole <elenstev@mesatop.com>,
-	Vitaly Fertman <vitaly@namesys.com>, reiserfs-list@namesys.com,
-	linux-kernel@vger.kernel.org,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <200206251829.25799.vitaly@namesys.com> <20020625165254.GA30301@matrix.wg> <200206261317.10813.vitaly@namesys.com> <200207101206.48370.vitaly@namesys.com> <1026311034.7074.76.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
+	id <S317433AbSGJOeV>; Wed, 10 Jul 2002 10:34:21 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49420 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317431AbSGJOeU>; Wed, 10 Jul 2002 10:34:20 -0400
+Subject: Re: ATAPI + cdwriter problem
+To: as@sci.fi (Anssi Saari)
+Date: Wed, 10 Jul 2002 16:00:39 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20020710142125.GA27298@sci.fi> from "Anssi Saari" at Jul 10, 2002 05:21:25 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1026311034.7074.76.camel@spc9.esa.lanl.gov>; from elenstev@mesatop.com on Wed, Jul 10, 2002 at 08:23:54AM -0600
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17SIxL-0007DM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 10, 2002 at 08:23:54AM -0600, Steven Cole wrote:
-> On Wed, 2002-07-10 at 02:06, Vitaly Fertman wrote:
-> > 
-> > Hi all,
-> > 
-> > the latest reiserfsprogs-3.6.2 is available on our ftp site.
-> > 
-> 
-> Is the following patch to Documentation/Changes appropriate?
+> Does "recently" mean about four months ago, for 2.4.18? How would a
+> 2.4.18 with that patch compare to 2.4.19-pre10-ac2 which I'm running now?
 
-Does reiserfs in 2.4.19-pre require that version?  if yes it would be
-very bad (2.4 is not supposed to need newer userlevel during the series)
-
+He posted one a few days ago versus 2.4.19-rc1

@@ -1,31 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267085AbTAPNsy>; Thu, 16 Jan 2003 08:48:54 -0500
+	id <S267090AbTAPN5z>; Thu, 16 Jan 2003 08:57:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267089AbTAPNsy>; Thu, 16 Jan 2003 08:48:54 -0500
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:31116 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S267085AbTAPNsx>; Thu, 16 Jan 2003 08:48:53 -0500
-Message-ID: <3E26BB8D.7070601@ToughGuy.net>
-Date: Thu, 16 Jan 2003 19:32:53 +0530
-From: Linux Geek <bourne@ToughGuy.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	id <S267091AbTAPN5z>; Thu, 16 Jan 2003 08:57:55 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:40715 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
+	id <S267090AbTAPN5y>; Thu, 16 Jan 2003 08:57:54 -0500
+Date: Thu, 16 Jan 2003 15:06:47 +0100 (CET)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linux Geek <bourne@ToughGuy.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Tar'ing /proc ???
+In-Reply-To: <Pine.LNX.3.95.1030116090109.4226A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.51.0301161505570.20335@dns.toxicfilms.tv>
+References: <Pine.LNX.3.95.1030116090109.4226A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Tar'ing /proc ???
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> Normally, you do `tar -clf`
+>                         |________ stay on the same file-system.
+> Otherwise toy need to use --exclude /proc.  Proc is a virtual
+> file-system that contains things like kcore. You can get into
+Well i think that besides kcore (and maybe kmem) you should be able
+to archive it.
 
-I have been getting strange errors when i was trying to tar my /proc . 
-Are there any known issues/problems when we do such a thing ?
-Is it supposed to work at all ?
-
-There is no reason as to why i am doing this :-) , just wanted to try out.
-
-TIA , for all the help
+Regards,
+Maciej Soltysiak
 

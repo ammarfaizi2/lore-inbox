@@ -1,55 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262675AbUCOSWN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 13:22:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262696AbUCOSWN
+	id S262673AbUCOS0b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 13:26:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262640AbUCOS0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 13:22:13 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:12040 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S262675AbUCOSWE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 13:22:04 -0500
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Organization: Conectiva S/A
-To: Jochen Friedrich <jochen@scram.de>
-Subject: Re: [bug 2.6.4] llc2 oops
-Date: Mon, 15 Mar 2004 14:20:16 -0300
-User-Agent: KMail/1.6.2
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-References: <Pine.LNX.4.58.0403141732350.25924@localhost>
-In-Reply-To: <Pine.LNX.4.58.0403141732350.25924@localhost>
-MIME-Version: 1.0
+	Mon, 15 Mar 2004 13:26:31 -0500
+Received: from forumakad.pl ([212.182.115.22]:16345 "EHLO forumakad.pl")
+	by vger.kernel.org with ESMTP id S262642AbUCOSZt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 13:25:49 -0500
+Date: Mon, 15 Mar 2004 19:25:43 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Bind Mount Extensions 0.04 (linux-2.6.4)
+Message-ID: <20040315182543.GA22557@forumakad.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040315035506.GB30948@MAIL.13thfloor.at> <20040314201457.23fdb96e.akpm@osdl.org> <200403151425.15483@WOLK>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403151420.19986.acme@conectiva.com.br>
+In-Reply-To: <200403151425.15483@WOLK>
+User-Agent: Mutt/1.3.28i
+From: Dariush Pietrzak <eyck@forumakad.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 14 March 2004 13:49, Jochen Friedrich wrote:
-> Hi,
-
-
-> fffffffc005831d4
-> 
-> So, apparently, llc_ui_wait_for_conn() and llc_ui_wait_for_disc() are
-> buggy, as well...
-
-
-Oh well, yes, the code has lots of bugs as it is currently in the tree, I have 
-it rewritten in my net-experimental tree, that has lots of other changes 
-(mostly renames, moving buttloads of stuff from net/ipv4 to net/core, etc) to
-core code, tcp/ip v4/v6, sctp, etc, making most protocols use more and
-more common infrastructure, its solid, but I don't have time right now to
-work on chunk it to send to Dave, will do it, I hope, this month.
-
-But hey, if you are really interested in llc2 let me know and I'll send you
-my latest patches (IIRC they are at my 
-www.kernel.org/pub/linux/kernel/people/acme area).
-
-FWIW I have patches for ncftp, vsftpd, openssh, etc making them use
-PF_LLC, mostly transparent, just not for vsftpd, that reivents the
-get{name,addr}info wheel for some reason 8)
-
-- Arnaldo
+> I personally use it for a long time now and I really like it.
+ Same here, I hope this functionality gets merged sooner rather then later.
+-- 
+Dariush Pietrzak,
+Key fingerprint = 40D0 9FFB 9939 7320 8294  05E0 BCC7 02C4 75CC 50D9

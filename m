@@ -1,69 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317973AbSGLBk7>; Thu, 11 Jul 2002 21:40:59 -0400
+	id <S317975AbSGLBm5>; Thu, 11 Jul 2002 21:42:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317974AbSGLBk7>; Thu, 11 Jul 2002 21:40:59 -0400
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:16909
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S317973AbSGLBk4>; Thu, 11 Jul 2002 21:40:56 -0400
-X-All-Your-Base: Are Belong To Us!!!
-X-Envelope-Recipient: george@mvista.com
-X-Envelope-Sender: oliver@klozoff.com
-Message-Id: <5.1.0.14.2.20020711212948.00b02d58@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 11 Jul 2002 21:35:47 -0400
-To: george anzinger <george@mvista.com>
-From: Stevie O <oliver@klozoff.com>
-Subject: Re: HZ, preferably as small as possible
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3D2E2C48.DCB509D7@mvista.com>
-References: <Pine.LNX.4.10.10207110847170.6183-100000@zeus.compusonic.fi>
- <5.1.0.14.2.20020711201602.022387b0@whisper.qrpff.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S317977AbSGLBm4>; Thu, 11 Jul 2002 21:42:56 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:65295 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S317975AbSGLBmy>; Thu, 11 Jul 2002 21:42:54 -0400
+Date: Thu, 11 Jul 2002 21:51:29 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
+       "Carter K. George" <carter@polyserve.com>,
+       Don Norton <djn@polyserve.com>, "James S. Tybur" <jtybur@polyserve.com>
+Subject: Re: fsync fixes for 2.4
+In-Reply-To: <20020711225748.GN1342@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0207112149260.21511-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:09 PM 7/11/2002 -0700, george anzinger wrote:
->> Why must HZ be the same as 'interrupts per second'?
+
+
+On Fri, 12 Jul 2002, Andrea Arcangeli wrote:
+
+> On Thu, Jul 11, 2002 at 05:21:24PM -0300, Marcelo Tosatti wrote:
+> >
+> >
+> > On Wed, 10 Jul 2002, Andrea Arcangeli wrote:
+> >
+> > > At polyserve they found a severe problem with fsync in 2.4.
+> > >
+> > > In short the write_buffer (ll_rw_block of mainline) is a noop if old I/O
+> > > is in flight. You know the buffer can be made dirty while I/O is in
+> > > flight, and in such case fsync would return without flushing the dirty
+> > > buffers at all. Their proposed fix is strightforward, just a
+> > > wait_on_buffer before the ll_rw_block will guarantee somebody marked the
+> > > bh locked _after_ we wrote to it.
+> >
+> > >From what I can see the problem goes like:
+> >
+> >
+> > thread1				thread2
+> > 				writepage(page) (marks the buffers clean, page is
+> > 				locked for IO)
+> >
+> > mark_buffer_dirty()
+> >
+> > fsync()
+> >
+> > fsync_buffers_list() finds
+> > the dirtied buffer, but since
+> > its locked ll_rw_block() returns
+> > without queueing the data.
+> >
+> > fsync_buffers_list() waits on the writepage()'s
+> > write to return but not on latest data write.
+> >
+> >
+> > Is that what you mean or I'm misunderstanding something?
 >
->Well, in truth it has nothing to do with interrupts.  It is
->just that that is the way most systems keep time.  The REAL
->definition of HZ is in its relationship to jiffies and
->seconds.  
->
->I.e. jiffies * HZ = seconds, by definition.  
->
->Then we define interfaces that promise to return so many
->jiffies from now and we keep execution time and time slice
->times in jiffies.  In order to keep these things true, it is
->usual to set up some sort of timer to interrupt once each
->jiffie.  Now we can actually do this two ways.  We can say
->that the interrupt is a reminder to look at a "reliable
->clock" and update the system time with what we find OR we
->can use the interrupt to actually drive the system time. 
->The former is the more accurate way of doing things as it
->eliminates interrupt latency.  It also allows us to use a
->more sloppy source of interrupts since they are just
->reminders to check a clock and not actually driving the
->clock.  This, by the way, is what the high-res-timers patch
->does.  Doing things this way also allows one to reprogram
->the timer interrupt hardware with out worrying too much
->about loosing track of time.  The HRT patch does this to
->generate interrupts at sub jiffie intervals, but only when
->required.
+> yes, that's it.
 
-So why not do it this way:
+So I'm just going to add wait_on_page() on fsync_buffers_list() before the
+ll_rw_block().
 
-1. Let HZ = 1000.
-
-2. Program PIT (having programmed the PC speaker in DOS, I personally believe Intel forgot the 'A' at the end of the name) to fire every 10ms.
-
-3. void pit_isr(void) { jiffies += 10; do_other_stuff(); }
+Nothing else, since all of the other stuff on your patch seems to be
+improvements rather than bug fixes. ACK?
 
 
---
-Stevie-O
-
-Real programmers use COPY CON PROGRAM.EXE
 

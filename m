@@ -1,58 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVATTYC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVATTUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbVATTYC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 14:24:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVATTYB
+	id S261575AbVATTUg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 14:20:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVATTUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 14:24:01 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:35593 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261731AbVATTVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 14:21:35 -0500
-Message-Id: <200501201921.j0KJLVsG005475@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Fix ea-in-inode default ACL creation 
-In-Reply-To: Your message of "Thu, 20 Jan 2005 20:09:24 +0100."
-             <1106248164.15959.69.camel@winden.suse.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <1106245344.15959.13.camel@winden.suse.de> <200501201856.j0KIuiif016865@turing-police.cc.vt.edu>
-            <1106248164.15959.69.camel@winden.suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1106248889_12559P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 20 Jan 2005 14:21:30 -0500
+	Thu, 20 Jan 2005 14:20:33 -0500
+Received: from fsmlabs.com ([168.103.115.128]:34257 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261503AbVATTTc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 14:19:32 -0500
+Date: Thu, 20 Jan 2005 12:16:52 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] unexport profile_pc
+In-Reply-To: <20050120182019.GJ3174@stusta.de>
+Message-ID: <Pine.LNX.4.61.0501201216420.16780@montezuma.fsmlabs.com>
+References: <20050120182019.GJ3174@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1106248889_12559P
-Content-Type: text/plain; charset=us-ascii
+On Thu, 20 Jan 2005, Adrian Bunk wrote:
 
-On Thu, 20 Jan 2005 20:09:24 +0100, Andreas Gruenbacher said:
-> On Thu, 2005-01-20 at 19:56, Valdis.Kletnieks@vt.edu wrote:
-> > [...] I'm failing to see how adding *another* zero operation [...] is going to help the
-> > fact [...]
+> I haven't found any modular usage of profile_pc in the kernel.
 > 
-> It's an ancient kernel hackers trick:  ;)
-> > +		EXT3_I(inode)->i_state &= ~EXT3_STATE_NEW;
+> Is the patch below correct?
 
-Damn. I saw every *other* line of the patch but that one. Literally.
+Oprofile?
 
-(Make note to self - if a cold is making your eyes water and itch too
-much to wear your contacts, you probably can't see well enough to read code ;)
-
---==_Exmh_1106248889_12559P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFB8AS5cC3lWbTT17ARAulzAKDp6ASmYSD77j38+bfZlsb46EHQcQCgiRks
-V3Kju2ynKRlh4jjt8D2WfTc=
-=xsEj
------END PGP SIGNATURE-----
-
---==_Exmh_1106248889_12559P--

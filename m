@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbUEADzX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbUEADzX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 23:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbUEADzX
+	id S262770AbUDLFOO (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 12 Apr 2004 01:14:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbUDLFOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 23:55:23 -0400
-Received: from mail.kroah.org ([65.200.24.183]:11992 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261932AbUEADzP (ORCPT
+	Mon, 12 Apr 2004 01:14:14 -0400
+Received: from utilsc01.rightnowtech.com ([216.136.168.81]:57756 "EHLO
+	utilsc01.rightnowtech.com") by vger.kernel.org with ESMTP
+	id S262770AbUDLFON convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 23:55:15 -0400
-Date: Fri, 30 Apr 2004 18:55:49 -0700
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: John Cherry <cherry@osdl.org>, Scott Murray <scottm@somanetworks.com>,
-       eike-hotplug@sf-tec.de, Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc3-mm1 (compile stats)
-Message-ID: <20040501015549.GC16006@kroah.com>
-References: <20040430014658.112a6181.akpm@osdl.org> <1083342188.671.9.camel@cherrypit.pdx.osdl.net> <20040430223928.GA2541@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040430223928.GA2541@fs.tum.de>
-User-Agent: Mutt/1.5.6i
+	Mon, 12 Apr 2004 01:14:13 -0400
+MIME-Version: 1.0
+Message-Id: <407A25A3.000003.09644@websc-utils01.int.rightnowtech.com>
+Date: Sun, 11 Apr 2004 22:14:11 -0700 (PDT)
+To: linux-kernel@vger.kernel.org
+From: support@lantronix.com
+Reply-To: support@lantronix.com
+Subject: Re: illegal...
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org@vger.kernel.org>
 
-On Sat, May 01, 2004 at 12:39:28AM +0200, Adrian Bunk wrote:
-> On Fri, Apr 30, 2004 at 09:23:08AM -0700, John Cherry wrote:
-> > Just one new error in the allyesconfig and allmodconfig builds.
-> > 
-> >   CC      drivers/pci/hotplug/cpci_hotplug_core.o
-> > drivers/pci/hotplug/cpci_hotplug_core.c: In function
-> > `slot_paranoia_check':
-> > drivers/pci/hotplug/cpci_hotplug_core.c:97: structure has no member
-> > named `magic'
-> > drivers/pci/hotplug/cpci_hotplug_core.c:97: `SLOT_MAGIC' undeclared
-> > (first use in this function)
-> > drivers/pci/hotplug/cpci_hotplug_core.c:97: (Each undeclared identifier
-> > is reported only once
-> > drivers/pci/hotplug/cpci_hotplug_core.c:97: for each function it appears
-> > in.)
-> >   CC      drivers/net/tulip/21142.o
-> > make[3]: [drivers/pci/hotplug/cpci_hotplug_core.o] Error 1
-> >...
-> 
-> It seems cpci_hotplug_core.c was forgotten when some changes were made 
-> that are in bk-pci...
+Response
+---------------------------------------------------------------
+Dear Customer,
 
-Already fixed, thanks.
+Your question has NOT been submitted.
 
-greg k-h
+To submit a question to Lantronix Support, please click one of the links below:
+Post-Sales:
+http://ltxfaq.custhelp.com/cgi-bin/ltxfaq.cfg/php/enduser/ask.php 
+
+Pre-Sales:
+http://www.lantronix.com/howtobuy/salesinfo/index.html 
+
+You may also call our Technical Support Department during our normal business hours (between 6:00 am 5:30 pm Pacific Time, Monday through Friday) at 800-422-7044 (U.S. & Canada) or 949-453-3990 (worldwide).
+
+You may also find the answer to your questions in our Technical FAQ section of our WebSite at:
+http://www.lantronix.com/support 
+
+To download a manual for your Lantronix product, click the link below:
+http://www.lantronix.com/support/docs/ 
+
+Regards,
+Lantronix Technical Services
+---------------------------------------------------------------
+***************************************************************
+
+

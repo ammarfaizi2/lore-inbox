@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313922AbSDJXCV>; Wed, 10 Apr 2002 19:02:21 -0400
+	id <S313923AbSDJXJl>; Wed, 10 Apr 2002 19:09:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313923AbSDJXCU>; Wed, 10 Apr 2002 19:02:20 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:7299 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S313922AbSDJXCU>; Wed, 10 Apr 2002 19:02:20 -0400
-Date: Wed, 10 Apr 2002 19:02:18 -0400
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [prepatch] address_space-based writeback
-Message-ID: <20020410230218.GA7871@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3CB4203D.C3BE7298@zip.com.au> <Pine.GSO.4.21.0204100725410.15110-100000@weyl.math.psu.edu> <3CB48F8A.DF534834@zip.com.au> <20020410221211.GA6076@ravel.coda.cs.cmu.edu> <3CB4B248.2807558D@zip.com.au>
+	id <S313924AbSDJXJk>; Wed, 10 Apr 2002 19:09:40 -0400
+Received: from anchor-post-36.mail.demon.net ([194.217.242.94]:22026 "EHLO
+	anchor-post-36.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S313923AbSDJXJk>; Wed, 10 Apr 2002 19:09:40 -0400
+Date: Thu, 11 Apr 2002 00:09:37 +0100
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Radeon frame buffer driver
+Message-ID: <20020410230937.GA353@berserk.demon.co.uk>
+Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020410101913.GA975@berserk.demon.co.uk> <Pine.GSO.4.21.0204101305210.24941-100000@trillium.sonytel.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+User-Agent: Mutt/1.3.28i
+From: Peter Horton <pdh@berserk.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 02:44:40PM -0700, Andrew Morton wrote:
-> Jan Harkes wrote:
-> > But Coda has 2 inodes, which one are you connecting to whose superblock.
-> > My guess is that it would be correct to add inode->i_mapping->host to
-> > inode->i_mapping->host->i_sb, which will be the underlying inode in
-> > Coda's case, but host isn't guaranteed to be an inode, it just happens
-> > to be an inode in all existing situations.
+On Wed, Apr 10, 2002 at 01:06:09PM +0200, Geert Uytterhoeven wrote:
+> On Wed, 10 Apr 2002, Peter Horton wrote:
+> > On Wed, Apr 10, 2002 at 11:57:31AM +0100, benh@kernel.crashing.org wrote:
+> > > 
+> > > Fine, though I noticed the get_cmap_len got changed to
+> > > +	return var->bits_per_pixel == 8 ? 256 : 16;
+> > > 
+> > 
+> > The colour map is only used by the kernel and the kernel only uses 16
+> > entries so there isn't any reason to waste memory by making it any
+> > larger. I checked a few other drivers and they do the same (aty128fb for
+> > one).
 > 
-> When a page is marked dirty, the path which is followed
-> is page->mapping->host->i_sb.  So in this case the page will
-> be attached to its page->mapping.dirty_pages, and
-> page->mapping->host will be attached to page->mapping->host->i_sb.s_dirty
+> However, this change will make the driver not save/restore all color map
+> entries on VC switch in graphics mode.
 > 
-> This is as it always was - I didn't change any of this.
 
-As far as I can see, it should work just fine.
+My error. Apologies. I was getting confused between the colour map with
+the console colour <-> pixel value mapping (pointed to by ->dispsw_data)
+- too many variables with similiar names :-(
 
-> > Coda's inodes don't have to get dirtied because we never write them out,
-> > although the associated dirty pages do need to hit the disk eventually :)
-> 
-> Right.  Presumably, the pages hit the disk via the hosting inode's
-> filesystem's mechanics.
->
-> And it remains the case that Coda inodes will not be marked DIRTY_PAGES
-> because set_page_dirty()'s page->mapping->host walk will arrive at
-> the hosting inode.
-
-Correct, we rely completely on the hosting (inode's) filesystem to
-implement the actual file operations. So the hosting inode is the
-one that becomes dirty and pushed to disk by bdflush.
-
-Jan
-
+P.

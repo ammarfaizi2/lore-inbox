@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268129AbUIGOtS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268167AbUIGO5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268129AbUIGOtS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 10:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268153AbUIGOpl
+	id S268167AbUIGO5T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 10:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268185AbUIGOym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 10:45:41 -0400
-Received: from cantor.suse.de ([195.135.220.2]:53907 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268111AbUIGOoy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 10:44:54 -0400
-Date: Tue, 7 Sep 2004 16:44:53 +0200
-From: Andi Kleen <ak@suse.de>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel
-Message-ID: <20040907144452.GC20981@wotan.suse.de>
-References: <20040901072245.GF13749@mellanox.co.il> <20040903080058.GB2402@wotan.suse.de> <20040907104017.GB10096@mellanox.co.il> <20040907121418.GC25051@wotan.suse.de> <20040907134517.GA1016@mellanox.co.il> <20040907141524.GA13862@wotan.suse.de> <20040907142530.GB1016@mellanox.co.il> <20040907142945.GB20981@wotan.suse.de> <20040907143702.GC1016@mellanox.co.il>
+	Tue, 7 Sep 2004 10:54:42 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:23979 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S268167AbUIGOu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 10:50:59 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R8
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
+In-Reply-To: <20040907115722.GA10373@elte.hu>
+References: <20040903120957.00665413@mango.fruits.de>
+	 <20040905140249.GA23502@elte.hu> <20040906110626.GA32320@elte.hu>
+	 <200409061348.41324.rjw@sisk.pl> <1094473527.13114.4.camel@boxen>
+	 <20040906122954.GA7720@elte.hu> <20040907092659.GA17677@elte.hu>
+	 <20040907115722.GA10373@elte.hu>
+Content-Type: text/plain
+Message-Id: <1094568658.670.11.camel@boxen>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040907143702.GC1016@mellanox.co.il>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 07 Sep 2004 16:50:58 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 07, 2004 at 05:37:02PM +0300, Michael S. Tsirkin wrote:
-> Hello!
-> Quoting r. Andi Kleen (ak@suse.de) "Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel":
-> > On Tue, Sep 07, 2004 at 05:25:30PM +0300, Michael S. Tsirkin wrote:
-> > > > It may help your module, but won't solve the general problem shorter
-> > > > term.
-> > > But longer term it will be better, so why not go there?
-> > > Once the infrastructure is there, drivers will be able to be
-> > > migrated as required.
-> > 
-> > I have no problems with that. You would need two new entry points:
-> > one 64bit one without BKL and a 32bit one also without BKL. 
-> > 
-> > I think there were some objections to this scheme in the past,
-> > but I cannot think of a good alternative. 
-> > 
+On Tue, 2004-09-07 at 13:57, Ingo Molnar wrote:
+> test-booted the x64 kernel and found a number of bugs in the x64 port of
+> the VP patch. I've uploaded -R8 that fixes them:
 > 
-> Maybe one entry point with a flag?
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk12-R8
+> 
+> NOTE: i tested a (non-modular) 64-bit bzImage on a 32-bit OS (FC2) but
+> havent booted it on a 64-bit userland yet. But i'd expect 64-bit
+> userspace to work just fine too.
 
-That would be IMHO far uglier than two. 
+Looks fine over here on 2-CPU, debian 64-bit user-space with both preempt &
+voluntary preempt turned on. Init seems to explode 
+(gets killed over and over, not sure how this happens) on CONFIG_LATENCY_TRACE, 
+I'll take a look at that later today unless you have any offender you're aware of.
 
--Andi
+===== linux-2.5/arch/x86_64/kernel/x8664_ksyms.c 1.34 vs edited =====
+--- 1.34/arch/x86_64/kernel/x8664_ksyms.c	2004-08-24 11:08:31 +02:00
++++ edited/linux-2.5/arch/x86_64/kernel/x8664_ksyms.c	2004-09-07 16:31:46 +02:00
+@@ -221,3 +221,7 @@
+ #endif
+ 
+ EXPORT_SYMBOL(cpu_khz);
++
++#ifdef CONFIG_LATENCY_TRACE
++EXPORT_SYMBOL(mcount);
++#endif
+
+

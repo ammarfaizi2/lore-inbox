@@ -1,70 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263131AbTKFSLI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 13:11:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263244AbTKFSLI
+	id S263819AbTKFSAu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 13:00:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263813AbTKFSAt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 13:11:08 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:30116 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263131AbTKFSLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 13:11:05 -0500
-Date: Thu, 6 Nov 2003 19:11:04 +0100
-From: Jan Kara <jack@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [QUOTA] Drop spin lock when calling request_module
-Message-ID: <20031106181104.GB16172@atrey.karlin.mff.cuni.cz>
-References: <20031106161823.GC25830@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.44.0311060827070.1842-100000@home.osdl.org>
+	Thu, 6 Nov 2003 13:00:49 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:17028 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263812AbTKFSAn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 13:00:43 -0500
+Subject: RE: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Linux-SCSI <linux-scsi@vger.kernel.org>
+In-Reply-To: <B179AE41C1147041AA1121F44614F0B0598CE6@AVEXCH02.qlogic.org>
+References: <B179AE41C1147041AA1121F44614F0B0598CE6@AVEXCH02.qlogic.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hTaqNPdIuC6MyHrxeaeO"
+Organization: Red Hat, Inc.
+Message-Id: <1068141595.5234.10.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311060827070.1842-100000@home.osdl.org>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 06 Nov 2003 18:59:55 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> On Thu, 6 Nov 2003, Jan Kara wrote:
-> >  			actqf = NULL;
-> >  			goto out;
-> 
-> Mind changing this to just a "return NULL" instead and just remove the
-> label entirely, now that it doesn't actually need to play with any
-> spinlocks?
-> 
-> I don't mind goto's if there is a _point_ to them, but this one doesn't 
-> seem to fall under that heading.
-  You're right. The nicer fix is attached.
 
-									Honza
+--=-hTaqNPdIuC6MyHrxeaeO
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-----------------------------Cut here--------------------------------------
+On Thu, 2003-11-06 at 18:45, Andrew Vasquez wrote:
 
-diff -ruX ../kerndiffexclude linux-2.6.0-test9/fs/dquot.c linux-2.6.0-test9-loadfix/fs/dquot.c
---- linux-2.6.0-test9/fs/dquot.c	Sat Oct 25 20:44:03 2003
-+++ linux-2.6.0-test9-loadfix/fs/dquot.c	Thu Nov  6 19:10:37 2003
-@@ -128,16 +128,17 @@
- 	if (!actqf || !try_module_get(actqf->qf_owner)) {
- 		int qm;
- 
-+		spin_unlock(&dq_list_lock);
-+		
- 		for (qm = 0; module_names[qm].qm_fmt_id && module_names[qm].qm_fmt_id != id; qm++);
--		if (!module_names[qm].qm_fmt_id || request_module(module_names[qm].qm_mod_name)) {
--			actqf = NULL;
--			goto out;
--		}
-+		if (!module_names[qm].qm_fmt_id || request_module(module_names[qm].qm_mod_name))
-+			return NULL;
-+
-+		spin_lock(&dq_list_lock);
- 		for (actqf = quota_formats; actqf && actqf->qf_fmt_id != id; actqf = actqf->qf_next);
- 		if (actqf && !try_module_get(actqf->qf_owner))
- 			actqf = NULL;
- 	}
--out:
- 	spin_unlock(&dq_list_lock);
- 	return actqf;
- }
+> No.  We've had this IOWR problem since the inception of 5.x series
+> driver.  Software (SMS 3.0) has been built on top of the this IOCTL
+
+how about removing most if not all of these ioctls ?
+The scsi layer has a *generic* "send passthrough" mechanism already for
+example.
+
+
+
+--=-hTaqNPdIuC6MyHrxeaeO
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/qowaxULwo51rQBIRAu6SAJ0eYuH+qU6ZO7NOuv3/6D6WLSPtbwCeNpa/
+Uk2Bx05M7abbBYJcwwPceQ4=
+=vBdR
+-----END PGP SIGNATURE-----
+
+--=-hTaqNPdIuC6MyHrxeaeO--

@@ -1,51 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263479AbTEMLCK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 07:02:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbTEMLCK
+	id S263539AbTEMLGf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 07:06:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263630AbTEMLGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 07:02:10 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:44528 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263479AbTEMLCJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 07:02:09 -0400
-Subject: Re: kernel BUG at inode.c:562!
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Anders Karlsson <anders@trudheim.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1052823517.5022.3.camel@tor.trudheim.com>
-References: <1052823517.5022.3.camel@tor.trudheim.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gDLLcMHT6S+uA3njMYnD"
-Organization: Red Hat, Inc.
-Message-Id: <1052824488.4699.0.camel@laptop.fenrus.com>
+	Tue, 13 May 2003 07:06:35 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:46041 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263539AbTEMLGe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 07:06:34 -0400
+Date: Tue, 13 May 2003 13:19:08 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       kernel-janitor-discuss@lists.sourceforge.net
+Subject: Re: lse conference switched to IRC to discuss 2.6 must-fix list
+Message-ID: <20030513111908.GU17033@suse.de>
+References: <99500000.1052781962@w-hlinder>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 13 May 2003 13:14:48 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <99500000.1052781962@w-hlinder>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 12 2003, Hanna Linder wrote:
+> 
+> Major change this week only, please note!
+> 
+> Due to complaints about the restrictions of a phone conference
+> Andrew and I have decided to move the 2.6 must-fix discussion to irc.
+> 
+> The server we will use is: irc.oftc.net 
+>  (NOT irc.freenode.net as previously stated)
+> 
+> The channel is: #lse
+> 
+> If you need help getting started with irc see this helpful 
+> site at: http://irchelp.org or feel free to send me email for help.
+> 
+> The agenda and time remain the same:
+> 
+> 	LSE Tech IRC meeting Wednesday May 14
+> 
+> Andrew Morton: The 2.6 must fix list.
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=105165897515825&w=2
+> 
+> --On Wednesday, May 07, 2003 04:23:33 PM -0700 Andrew Morton <akpm@digeo.com> wrote:
+> 
+> > So can we change the subject to "the 2.6 must-fix list", and just say
+> > that:
+> > 
+> > - We'll work through it item by item, with a view to understanding what
+> >   is involved in each item.
+> > 
+> > - Attendance by owners of major must-fix items would be appreciated.
+> > 
+> 
+> note different day and time!
+> 
+> 2:00pm PDT (GMT-0700), 4:00pm CDT, 5:00pm EDT Wednesday May 14, 2003.
 
---=-gDLLcMHT6S+uA3njMYnD
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+How about doing it a bit earlier, for the europeans joining? At least
+for me, 2 hours earlier looks a lot better.
 
-On Tue, 2003-05-13 at 12:58, Anders Karlsson wrote:
-> EIP:    0010:[<c01554da>]    Tainted: PF
-> Using defaults from ksymoops -t elf32-i386 -a i386
+-- 
+Jens Axboe
 
-which other modules were in use ?
-
---=-gDLLcMHT6S+uA3njMYnD
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+wNOoxULwo51rQBIRAv/AAJ0XPkFIBQqtB01KxGBTDFH0T5B3gQCfSLgH
-jDJfHDD6Gb3yMRxkS8nfhoc=
-=gdwK
------END PGP SIGNATURE-----
-
---=-gDLLcMHT6S+uA3njMYnD--

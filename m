@@ -1,155 +1,205 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285252AbRLFWPw>; Thu, 6 Dec 2001 17:15:52 -0500
+	id <S285249AbRLFWOr>; Thu, 6 Dec 2001 17:14:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285250AbRLFWPh>; Thu, 6 Dec 2001 17:15:37 -0500
-Received: from stat8.steeleye.com ([63.113.59.41]:23046 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id <S285251AbRLFWPS>; Thu, 6 Dec 2001 17:15:18 -0500
-Date: Thu, 6 Dec 2001 17:13:12 -0500 (EST)
-From: Paul Clements <kernel@steeleye.com>
-Reply-To: Paul.Clements@steeleye.com
-To: Pavel Machek <pavel@suse.cz>
-cc: Paul.Clements@steeleye.com, Edward Muller <emuller@learningpatterns.com>,
-        linux-kernel@vger.kernel.org, james.bottomley@steeleye.com
-Subject: [PATCH] Re: Current NBD 'stuff'
-In-Reply-To: <20011206130220.B49@toy.ucw.cz>
-Message-ID: <Pine.LNX.4.10.10112061655190.17617-200000@clements.sc.steeleye.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="296485894-1626290488-1007676792=:17617"
+	id <S285250AbRLFWOj>; Thu, 6 Dec 2001 17:14:39 -0500
+Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:42113 "EHLO
+	oof.localnet") by vger.kernel.org with ESMTP id <S285249AbRLFWOZ>;
+	Thu, 6 Dec 2001 17:14:25 -0500
+Date: Thu, 6 Dec 2001 14:14:24 -0800
+From: Simon Kirby <sim@netnation.com>
+To: linux-kernel@vger.kernel.org
+Subject: [2.4.16] VM: Interesting copy behavior
+Message-ID: <20011206141423.A21691@netnation.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+While copying a filesystem from one hard drive to another on stock
+2.4.16, I noticed some weird read starvation:
 
---296485894-1626290488-1007676792=:17617
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+[sroot@r1:/root]# vmstat 1
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 0  1  2      0   3808   4908  97328   0   0   467   516 1228   213   4  15  81
+ 1  0  0      0   3824   5012  97216   0   0  1764     0 2935   191   1  27  72
+ 1  0  1      0   3696   5192  97156   0   0  8028     0  489   902   6  57  37
+ 1  0  0      0   3740   5436  96404   0   0  3360     0  632  1596  18  33  49
+ 1  0  0      0   3816   5772  95812   0   0  5228     0  688  1345   3  50  47
+ 2  0  0      0   3816   6048  95356   0   0  4020     0  637  1189   9  26  65
+ 1  0  1      0   3596   6304  95188   0   0  2800     0  607   854   2  22  76
+ 1  0  0      0   3732   6520  95576   0   0  2568     0  540   757   0  30  70
+ 1  0  0      0   3800   6636  95372   0   0  3504     0  826  1667  16  40  44
+ 2  0  0      0   3812   6732  95224   0   0  2956     0  950  2061  21  33  46
+ 1  0  0      0   3780   6820  94740   0   0  3548     0 1102  2648  29  57  14
+ 0  1  1      0   3820   6844  94248   0   0  1196  8544 2125  1326  13  34  53
+ 0  1  2      0   3812   6844  94256   0   0     4   476 6018    15   1  42  57
+ 0  1  2      0   3812   6844  94256   0   0     0  3092 7890    12   1  48  51
+ 0  1  2      0   3812   6844  94256   0   0     0  3236 6801    14   2  40  58
+ 0  1  2      0   3812   6844  94256   0   0     0  3784 5617    12   0  35  65
+ 0  1  2      0   3812   6844  94256   0   0     0  3424 5579    12   1  39  60
+ 0  1  2      0   3812   6844  94256   0   0     0  3736 6691    12   0  42  58
+ 0  1  2      0   3812   6844  94256   0   0     0  3612 6839    14   0  42  58
+ 0  1  2      0   3808   6848  94256   0   0     4  3684 6865    12   0  38  62
+ 0  1  2      0   3808   6848  94256   0   0     0     0 5760     8   0  40  60
+ 0  1  2      0   3788   6848  94268   0   0     8  3404 4345    23   1  29  70
+ 0  1  2      0   3808   6852  94228   0   0    48  1408 3376    80   2  20  78
+ 0  1  2      0   3780   6852  94256   0   0    12  2052 5278    34   0  28  72
+ 0  1  2      0   3780   6852  94256   0   0     0  3592 5863    12   0  28  72
+ 0  1  2      0   3776   6856  94256   0   0     4  3820 7082    12   0  40  60
+ 0  1  1      0   3804   6860  94204   0   0    44  2200 4350    70   1  29  70
+ 1  0  1      0   3816   6864  94172   0   0    52     0 3600    86   1  22  77
+ 0  1  1      0   3796   6864  94172   0   0    64     0 3537   106   0  21  79
+ 1  0  1      0   3832   6892  94088   0   0   116     0 3279   151   1  18  81
+ 1  0  0      0   3736   7104  93544   0   0  1412     0  984  1315  12  32  56
+ 2  0  0      0   3784   7188  92464   0   0  2620     0 1159  2811  40  41  19
+ 2  0  0      0   3812   7248  91720   0   0  1864     0  890  1955  19  42  39
+ 2  0  0      0   3748   7308  91068   0   0  1780     0  950  2161  23  35  42
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 3  0  0      0   3752   7368  90368   0   0  1764     0  969  2150  25  41  34
+ 1  0  1      0   3792   7676  89720   0   0  1144     0 1086  1160  12  25  64
+ 1  0  0      0   3728   7768  89384   0   0  2100     0  643  1236   8  25  67
+ 1  1  0      0   3800   7892  88848   0   0  2376     0  640  1291  14  25  61
+ 2  0  0      0   3800   7916  88468   0   0  1888     0  652  1339  13  21  67
+ 2  0  0      0   3784   7976  87948   0   0  3448     0  926  1903  19  37  44
+ 0  1  1      0   3748   8172  88140   0   0  6172     0 1017  1951   9  65  26
+ 1  0  0      0   3728   8328  87868   0   0   980     0  689   705   7  18  75
+ 1  0  0      0   3792   8416  87404   0   0  2528     0  728  1440  12  32  56
+ 1  1  0      0   3712   8576  87032   0   0  5156     0  837  1737  15  42  43
+ 1  0  0      0   3768   8720  86488   0   0  3660     0  749  1528  10  34  56
+ 2  0  0      0   3752   8800  85980   0   0  3264     0  849  1720  16  38  46
+ 2  0  1      0   3728   8948  85628   0   0  1576     0  751   892   6  22  73
+ 2  0  0      0   3724   9048  85208   0   0  1864     0  674  1226   7  27  66
+ 1  0  0      0   3744   9172  84724   0   0  2556     0  723  1398  12  33  55
+ 0  1  1      0   3812   9204  84516   0   0   932  6424 3303   478   4  25  71
+ 0  1  1      0   3812   9204  84516   0   0     0  3648 5929    11   0  39  61
+ 0  1  2      0   3812   9204  84516   0   0     0  3664 5492    13   0  30  70
+ 0  1  2      0   3812   9204  84516   0   0     0  3432 7031    12   0  38  62
+ 1  0  2      0   3808   9208  84516   0   0     4  3560 5324    13   0  36  64
+ 0  1  2      0   3808   9208  84516   0   0     0     0 4766     9   0  28  72
+ 0  1  2      0   3808   9208  84516   0   0     0  3924 6504    11   0  41  59
+ 0  1  2      0   3804   9212  84516   0   0     4  3896 6120    15   0  37  63
+ 0  1  2      0   3800   9216  84516   0   0     4  2400 5184    12   0  36  64
+ 0  1  2      0   3800   9216  84516   0   0     0  3804 7945    13   0  52  48
+ 0  1  2      0   3800   9216  84516   0   0     0  3724 6473    11   0  43  57
+ 0  1  2      0   3784   9224  84516   0   0     8  3408 6470    20   0  39  61
+ 0  1  2      0   3772   9228  84524   0   0     8  1312 5903    14   0  32  68
+ 0  1  2      0   3772   9228  84524   0   0     0  2884 5464    13   1  32  67
+ 0  1  2      0   3760   9228  84532   0   0     4  3524 5184    14   0  40  60
+ 0  1  2      0   3756   9228  84532   0   0     0   164 4897    14   1  24  75
+ 0  1  2      0   3712   9236  84548   0   0    80   108 3071   114   1  20  79
+ 0  1  1      0   3788   9240  84440   0   0    80     0 3147   119   2  18  80
+ 1  0  0      0   3824   9308  84144   0   0   624     0 2018   654   7  25  69
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 2  0  0      0   3748   9388  84424   0   0  2208     0  630  1248  10  29  61
+ 1  0  0      0   3792   9444  84068   0   0  2696     0  685  1345  13  26  61
+ 1  0  0      0   3732   9504  83816   0   0  1284     0  557  1080   7  19  75
+ 2  0  0      0   3772   9588  83248   0   0  1976     0  809  1812  18  33  49
+ 1  1  1      0   3780   9652  82656   0   0  2180     0  957  1983  17  48  35
+ 2  0  0      0   3772   9872  81980   0   0  2560     0 1078  1739  23  36  41
+ 2  0  0      0   3792   9948  81216   0   0  2916     0  982  2219  19  49  32
+ 1  0  0      0   3768  10032  79808   0   0  1684     0 1026  2628  30  65   5
+ 2  0  0      0   3716  10112  78932   0   0  1880     0  974  2237  27  59  14
+ 2  0  0      0   3800  10212  78152   0   0  2888     0  874  2019  13  42  45
+ 0  1  0      0   3764  10600  77436   0   0  3804     0 1367  1441  11  49  40
+ 1  0  0      0   3796  10732  76984   0   0  4796     0  788  1585  12  47  41
+ 1  0  0      0   3772  10760  76608   0   0  1716     0  668  1368  10  25  66
+ 2  0  1      0   5308  10652  76340   0   0  2708     0  655  1353   6  35  59
+ 2  0  0      0   3816  10768  79596   0   0  1744     0  701  1411  10  34  56
+ 1  0  0      0   3764  10732  79676   0   0  1672     8  910  1145   9  28  63
+ 2  0  0      0   3724  10464  79924   0   0  3544     0  926  1886  18  43  39
+ 1  0  1      0   3700  10492  79464   0   0  3412     0 1082  2242  18  48  34
+ 1  0  0      0   3704  10204  79564   0   0  3012   384  912  1210   3  29  68
+ 1  0  1      0   3820  10192  79460   0   0     4  7796 4594    16   2  26  72
+ 0  1  2      0   3820  10192  79460   0   0     0  3280 5765    16   1  43  56
+ 0  1  2      0   3820  10192  79460   0   0     0     0 4876     8   1  33  66
+ 0  1  2      0   3820  10192  79460   0   0     0  3832 5544    12   1  27  72
+ 0  1  2      0   3820  10192  79460   0   0     0  3688 7937    12   0  52  48
+ 0  1  2      0   3820  10192  79460   0   0     0  3712 6304    14   0  39  61
+ 0  1  2      0   3820  10192  79460   0   0     0  3824 6924    12   1  48  51
+ 0  1  2      0   3816  10196  79460   0   0     4  3644 5834    12   0  45  55
+ 0  1  2      0   3816  10196  79460   0   0     0  3640 5748    12   1  42  57
+ 0  1  2      0   3816  10196  79460   0   0     0  3984 6107    10   0  45  55
+ 0  1  2      0   3812  10200  79460   0   0     4   132 6522    14   1  48  51
+ 0  1  2      0   3796  10204  79472   0   0    12  5376 6622    23   0  38  62
+ 0  1  2      0   3740  10204  79524   0   0    24   804 5191    28   0  33  67
+ 0  1  2      0   3740  10204  79524   0   0     0  3676 5710    11   0  44  56
+ 0  1  2      0   3804  10192  79468   0   0    32  2160 4472    29   1  26  73
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 0  1  1      0   3808  10184  79456   0   0   120     0 3530    85   1  15  84
+ 0  1  1      0   3740  10168  79532   0   0    96     0 3888    83   2  20  78
+ 1  0  1      0   3816  10180  79436   0   0   292     0 3088    97   1  20  79
+ 2  0  0      0   3768   9952  79488   0   0  3248     0  814  1297   9  33  58
+ 2  0  0      0   3792   9924  79008   0   0  3556     0 1014  2322  19  45  36
+ 1  0  0      0   3780   9908  78532   0   0  3388     0 1062  2435  18  47  35
+ 1  2  0      0   3804   9980  79224   0   0  2848     0  893  1948  12  45  43
+ 1  0  0      0   3732  10012  78996   0   0   912     0  469   883   7  11  82
+ 1  1  0      0   3716  10248  78672   0   0   588     0  725   547   9  10  81
+ 1  0  0      0   3824  10292  78352   0   0   656     0  420   787  11   6  83
+ 1  2  0      0   3768  10316  78204   0   0   628     0  398   711  14   7  79
+ 2  0  0      0   3796  10348  77824   0   0   468    32  325   418   7  10  83
+ 0  1  0      0   3760  10356  77192   0   0   748     0  382   552  17  14  70
+ 1  0  1      0   3740  10460  76992   0   0   912     0  492   714   4   7  89
+ 2  0  0      0   3820  10476  76708   0   0  2004     0  631  1044  11  25  65
+ 1  0  0      0   3744  10448  76584   0   0  5056     0  714  1409  10  45  45
+ 2  0  0      0   3716  10500  76276   0   0  3360     0  784  1573   7  38  55
+ 1  0  0      0   3748  10556  75872   0   0  3296     0  843  1713  14  36  50
+ 2  0  0      0   3796  10540  75376   0   0  2776     0  991  2052  14  49  37
+ 2  0  0      0   3708  10576  74464   0   0  1716     0  815   888  19  23  59
+ 1  0  0      0   3736  10496  75000   0   0  1828     0  638  1245  25  33  42
+ 2  0  0      0   3816  10384  75916   0   0  2732     0  986  2048  19  48  33
+ 1  0  0      0   3760  10140  75744   0   0  2700     8 1024  2127  18  51  31
+ 2  0  0      0   3788   9920  75536   0   0  1736     0  817  1617  22  33  45
+ 1  0  1      0   3784   9988  75224   0   0  1468     0  952  1115  12  27  61
+ 2  0  0      0   3760   9692  75092   0   0  3144     0  894  1798  13  45  42
+ 0  1  1      0   3816   9392  75116   0   0   964  5728 3777   770   9  32  59
+ 2  1  1      0   4344   9336  74300   0   0    24  3384 4723    90   5  28  67
+ 0  1  1      0   4744   9320  74236   0   0    40   104 5081    40  11  33  56
+ 0  1  1      0   4568   9328  74380   0   0    80     0 3580   119   1  22  77
+ 1  0  0      0   3724   9396  75072   0   0   412     0 2515   328   4  20  76
+ 0  1  0      0   3768   9372  74604   0   0  1900     0  747  1497   9  35  56
+ 2  0  0      0   3792   9324  74364   0   0   764     0  498   889  11  18  72
+ 1  0  0      0   3760   9312  74172   0   0   680     0  456   801   9  16  75
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 1  1  0      0   3732   9312  73908   0   0   848     0  525   988  11  17  73
+ 1  1  1      0   3820   9380  73532   0   0   536     0  517   702   5  12  83
+ 0  1  0      0   3804   9440  73460   0   0   156  4096 3045   174   0  24  76
+ 0  1  0      0   3752   9440  73488   0   0    80     0 4798   121   2  24  75
+ 1  0  0      0   3708   9464  73224   0   0   412     0 1223   715  11  11  78
+ 1  0  0      0   5156   9444  72980   0   0  1160     0  539  1010  12  23  66
+ 0  1  0      0   3792   9440  74348   0   0  2952   512 1169  1250  11  31  58
+ 0  1  2      0   3456   9408  74704   0   0   416   856 1277   247   4  12  84
+ 1  1  2      0   3236   9376  74944   0   0   240   376 1417   236   2  16  82
+ 0  1  1      0   3516   9264  74764   0   0   308  1424 1433   235   3  14  83
+ 0  1  1      0   3736   9236  74564   0   0   332  1632 1793   189   1  10  89
+ 0  1  1      0   3816   9240  74476   0   0   164   820 3355   107   0  15  85
+ 1  0  1      0   3828   9244  74456   0   0   112   476 3084    85   0  18  82
+ 1  0  1      0   3776   9300  74448   0   0   256   572 1925   141   2  15  83
+ 1  0  1      0   3740   9292  74492   0   0   148  1624  803    72   1   5  94
+ 1  0  1      0   3736   9272  74488   0   0   448  1680 1189   265   3  13  84
+ 1  0  2      0   3776   9236  74476   0   0   156   876 3606    67   0  22  78
+ 1  0  2      0   3020   9248  75180   0   0   356   144 1278   229   1   7  92
+ 0  1  2      0   2828   9232  75360   0   0   136   836 1952   144   0  15  85
+ 0  1  2      0   3504   9180  74736   0   0     0  3496 3602    22   0  25  75
+ 0  1  2      0   3504   9180  74736   0   0     0  6060 4801    18   1  26  73
+ 1  1  1      0   4776   9152  73484   0   0     0  2896 4467    57  21  44  35
+ 0  1  1      0   4776   9152  73484   0   0     0     0 5704    11   0  40  60
 
-Pavel,
+It looks like maybe pages of "cp" itself might be getting thrown out and
+then it isn't able to run because the writes are starving the reads.
 
-Here is the patch against 2.4.16. Please consider for
-inclusion in 2.4 series kernel. We've been running this 
-code for several months now and it is working very well.
+I did a "ps -eo pid,args,wchan" during the last few times when "cp" was
+stuck: the wchan appeared to be "get_request_wait".
 
+Simon-
 
-On Thu, 6 Dec 2001, Pavel Machek wrote:
-
-> Do not comment code by //. Kill if it you want to.
-> 
-> You added clean way to stop nbd. Good.
-> 
-> DO NOT USE ALL CAPITALS not even in printks().
-> 
-> Fix those and patch looks ike good idea for 2.5.
-
-OK, done. 
-
-Thanks,
-
---
-Paul Clements
-Paul.Clements@SteelEye.com
-
---296485894-1626290488-1007676792=:17617
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="nbd_2_4_16.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.10.10112061713120.17617@clements.sc.steeleye.com>
-Content-Description: nbd patch
-Content-Disposition: attachment; filename="nbd_2_4_16.diff"
-
-LS0tIGxpbnV4LTIuNC4xNi9kcml2ZXJzL2Jsb2NrL25iZC5jLm9yaWcJRnJp
-IE9jdCAyNiAxODozOTowMiAyMDAxDQorKysgbGludXgtMi40LjE2L2RyaXZl
-cnMvYmxvY2svbmJkLmMJVGh1IERlYyAgNiAxNzo1MDozMiAyMDAxDQpAQCAt
-MjQsNyArMjQsOSBAQA0KICAqIDAxLTMtMTEgTWFrZSBuYmQgd29yayB3aXRo
-IG5ldyBMaW51eCBibG9jayBsYXllciBjb2RlLiBJdCBub3cgc3VwcG9ydHMN
-CiAgKiAgIHBsdWdnaW5nIGxpa2UgYWxsIHRoZSBvdGhlciBibG9jayBkZXZp
-Y2VzLiBBbHNvIGFkZGVkIGluIE1TR19NT1JFIHRvDQogICogICByZWR1Y2Ug
-bnVtYmVyIG9mIHBhcnRpYWwgVENQIHNlZ21lbnRzIHNlbnQuIDxzdGV2ZUBj
-aHlnd3luLmNvbT4NCi0gKg0KKyAqIDAxLTEyLTA2IE1ha2UgbmJkIGNsZWFu
-bHkga2lsbGFibGU7IGZpeCBzb21lIGxvY2tpbmcgaXNzdWVzOyBhY2tub3ds
-ZWRnZQ0KKyAqICAgYW5kIGxvZyBuZXR3b3JrIGVycm9yczsgbWFrZSBkZWZh
-dWx0IGRldmljZSBzaXplIDJUQi4NCisgKiAgIDxKYW1lcy5Cb3R0b21sZXlA
-U3RlZWxFeWUuY29tPiA8UGF1bC5DbGVtZW50c0BTdGVlbEV5ZS5jb20+DQog
-ICogcG9zc2libGUgRklYTUU6IG1ha2Ugc2V0X3NvY2sgLyBzZXRfYmxrc2l6
-ZSAvIHNldF9zaXplIC8gZG9faXQgb25lIHN5c2NhbGwNCiAgKiB3aHkgbm90
-OiB3b3VsZCBuZWVkIHZlcmlmeV9hcmVhIGFuZCBmcmllbmRzLCB3b3VsZCBz
-aGFyZSB5ZXQgYW5vdGhlciANCiAgKiAgICAgICAgICBzdHJ1Y3R1cmUgd2l0
-aCB1c2VybGFuZA0KQEAgLTk0LDE4ICs5NiwxMCBAQA0KIAlpbnQgcmVzdWx0
-Ow0KIAlzdHJ1Y3QgbXNnaGRyIG1zZzsNCiAJc3RydWN0IGlvdmVjIGlvdjsN
-Ci0JdW5zaWduZWQgbG9uZyBmbGFnczsNCi0Jc2lnc2V0X3Qgb2xkc2V0Ow0K
-IA0KIAlvbGRmcyA9IGdldF9mcygpOw0KIAlzZXRfZnMoZ2V0X2RzKCkpOw0K
-IA0KLQlzcGluX2xvY2tfaXJxc2F2ZSgmY3VycmVudC0+c2lnbWFza19sb2Nr
-LCBmbGFncyk7DQotCW9sZHNldCA9IGN1cnJlbnQtPmJsb2NrZWQ7DQotCXNp
-Z2ZpbGxzZXQoJmN1cnJlbnQtPmJsb2NrZWQpOw0KLQlyZWNhbGNfc2lncGVu
-ZGluZyhjdXJyZW50KTsNCi0Jc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmY3Vy
-cmVudC0+c2lnbWFza19sb2NrLCBmbGFncyk7DQotDQogDQogCWRvIHsNCiAJ
-CXNvY2stPnNrLT5hbGxvY2F0aW9uID0gR0ZQX05PSU87DQpAQCAtMTI1LDYg
-KzExOSwxMiBAQA0KIAkJZWxzZQ0KIAkJCXJlc3VsdCA9IHNvY2tfcmVjdm1z
-Zyhzb2NrLCAmbXNnLCBzaXplLCAwKTsNCiANCisJCWlmKHNpZ25hbF9wZW5k
-aW5nKGN1cnJlbnQpKSB7DQorCQkJcHJpbnRrKEtFUk5fV0FSTklORyAiTkJE
-IGNhdWdodCBzaWduYWxcbiIpOw0KKwkJCXJlc3VsdCA9IC1FSU5UUjsNCisJ
-CQlicmVhazsNCisJCX0NCisNCiAJCWlmIChyZXN1bHQgPD0gMCkgew0KICNp
-ZmRlZiBQQVJBTk9JQQ0KIAkJCXByaW50ayhLRVJOX0VSUiAiTkJEOiAlcyAt
-IHNvY2s9JWxkIGF0IGJ1Zj0lbGQsIHNpemU9JWQgcmV0dXJuZWQgJWQuXG4i
-LA0KQEAgLTEzNiwxMSArMTM2LDYgQEANCiAJCWJ1ZiArPSByZXN1bHQ7DQog
-CX0gd2hpbGUgKHNpemUgPiAwKTsNCiANCi0Jc3Bpbl9sb2NrX2lycXNhdmUo
-JmN1cnJlbnQtPnNpZ21hc2tfbG9jaywgZmxhZ3MpOw0KLQljdXJyZW50LT5i
-bG9ja2VkID0gb2xkc2V0Ow0KLQlyZWNhbGNfc2lncGVuZGluZyhjdXJyZW50
-KTsNCi0Jc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmY3VycmVudC0+c2lnbWFz
-a19sb2NrLCBmbGFncyk7DQotDQogCXNldF9mcyhvbGRmcyk7DQogCXJldHVy
-biByZXN1bHQ7DQogfQ0KQEAgLTMzNiw4ICszMzEsMjcgQEANCiAJCXNwaW5f
-dW5sb2NrX2lycSgmaW9fcmVxdWVzdF9sb2NrKTsNCiANCiAJCWRvd24gKCZs
-by0+cXVldWVfbG9jayk7DQorCQlpZighbG8tPmZpbGUpIHsNCisJCQl1cCgm
-bG8tPnF1ZXVlX2xvY2spOw0KKwkJCXNwaW5fbG9ja19pcnEoJmlvX3JlcXVl
-c3RfbG9jayk7DQorCQkJcHJpbnRrKEtFUk5fRVJSICJOQkQ6IGZhaWwgYmV0
-d2VlbiBhY2NlcHQgYW5kIHNlbWFwaG9yZSwgZmlsZSBsb3N0XG4iKTsNCisJ
-CQlyZXEtPmVycm9ycysrOw0KKwkJCW5iZF9lbmRfcmVxdWVzdChyZXEpOw0K
-KwkJCWNvbnRpbnVlOw0KKwkJfQ0KKwkJDQogCQlsaXN0X2FkZCgmcmVxLT5x
-dWV1ZSwgJmxvLT5xdWV1ZV9oZWFkKTsNCiAJCW5iZF9zZW5kX3JlcShsby0+
-c29jaywgcmVxKTsJLyogV2h5IGRvZXMgdGhpcyBibG9jaz8gICAgICAgICAq
-Lw0KKwkJaWYocmVxLT5lcnJvcnMpIHsNCisJCQlwcmludGsoS0VSTl9FUlIg
-Ik5CRDogbmJkX3NlbmRfcmVxIGZhaWxlZFxuIik7DQorCQkJbGlzdF9kZWwo
-JnJlcS0+cXVldWUpOw0KKw0KKwkJCXVwKCZsby0+cXVldWVfbG9jayk7DQor
-CQkJc3Bpbl9sb2NrX2lycSgmaW9fcmVxdWVzdF9sb2NrKTsNCisJCQluYmRf
-ZW5kX3JlcXVlc3QocmVxKTsNCisNCisJCQljb250aW51ZTsNCisJCX0NCiAJ
-CXVwICgmbG8tPnF1ZXVlX2xvY2spOw0KIA0KIAkJc3Bpbl9sb2NrX2lycSgm
-aW9fcmVxdWVzdF9sb2NrKTsNCkBAIC0zODcsMTIgKzQwMSwxNCBAQA0KIAkJ
-CXByaW50ayhLRVJOX0VSUiAibmJkOiBTb21lIHJlcXVlc3RzIGFyZSBpbiBw
-cm9ncmVzcyAtPiBjYW4gbm90IHR1cm4gb2ZmLlxuIik7DQogCQkJcmV0dXJu
-IC1FQlVTWTsNCiAJCX0NCi0JCXVwKCZsby0+cXVldWVfbG9jayk7DQogCQlm
-aWxlID0gbG8tPmZpbGU7DQotCQlpZiAoIWZpbGUpDQorCQlpZiAoIWZpbGUp
-IHsNCisJCQl1cCgmbG8tPnF1ZXVlX2xvY2spOw0KIAkJCXJldHVybiAtRUlO
-VkFMOw0KKwkJfQ0KIAkJbG8tPmZpbGUgPSBOVUxMOw0KIAkJbG8tPnNvY2sg
-PSBOVUxMOw0KKwkJdXAoJmxvLT5xdWV1ZV9sb2NrKTsNCiAJCWZwdXQoZmls
-ZSk7DQogCQlyZXR1cm4gMDsNCiAJY2FzZSBOQkRfU0VUX1NPQ0s6DQpAQCAt
-NDMzLDkgKzQ0OSwyOSBAQA0KIAkJaWYgKCFsby0+ZmlsZSkNCiAJCQlyZXR1
-cm4gLUVJTlZBTDsNCiAJCW5iZF9kb19pdChsbyk7DQorCQkvKiBvbiByZXR1
-cm4gdGlkeSB1cCBpbiBjYXNlIHdlIGhhdmUgYSBzaWduYWwgKi8NCisJCXBy
-aW50ayhLRVJOX1dBUk5JTkcgIk5CRDogbmJkX2RvX2l0IHJldHVybmVkXG4i
-KTsNCisJCS8qIEZvcmNpYmx5IHNodXRkb3duIHRoZSBzb2NrZXQgY2F1c2lu
-ZyBhbGwgbGlzdGVuZXJzDQorCQkgKiB0byBlcnJvcg0KKwkJICoNCisJCSAq
-IEZJWE1FOiBUaGlzIGNvZGUgaXMgZHVwbGljYXRlZCBmcm9tIHN5c19zaHV0
-ZG93biwgYnV0DQorCQkgKiB0aGVyZSBzaG91bGQgYmUgYSBtb3JlIGdlbmVy
-aWMgaW50ZXJmYWNlIHJhdGhlciB0aGFuDQorCQkgKiBjYWxsaW5nIHNvY2tl
-dCBvcHMgZGlyZWN0bHkgaGVyZSAqLw0KKwkJbG8tPnNvY2stPm9wcy0+c2h1
-dGRvd24obG8tPnNvY2ssIDIpOw0KKwkJZG93bigmbG8tPnF1ZXVlX2xvY2sp
-Ow0KKwkJcHJpbnRrKEtFUk5fV0FSTklORyAiTkJEOiBsb2NrIGFjcXVpcmVk
-XG4iKTsNCisJCW5iZF9jbGVhcl9xdWUobG8pOw0KKwkJZmlsZSA9IGxvLT5m
-aWxlOw0KKwkJbG8tPmZpbGUgPSBOVUxMOw0KKwkJbG8tPnNvY2sgPSBOVUxM
-Ow0KKwkJdXAoJmxvLT5xdWV1ZV9sb2NrKTsNCisJCWlmKGZpbGUpDQorCQkJ
-ZnB1dChmaWxlKTsNCiAJCXJldHVybiBsby0+aGFyZGVycm9yOw0KIAljYXNl
-IE5CRF9DTEVBUl9RVUU6DQorCQlkb3duKCZsby0+cXVldWVfbG9jayk7DQog
-CQluYmRfY2xlYXJfcXVlKGxvKTsNCisJCXVwKCZsby0+cXVldWVfbG9jayk7
-DQogCQlyZXR1cm4gMDsNCiAjaWZkZWYgUEFSQU5PSUENCiAJY2FzZSBOQkRf
-UFJJTlRfREVCVUc6DQpAQCAtNTEyLDcgKzU0OCw3IEBADQogCQlpbml0X01V
-VEVYKCZuYmRfZGV2W2ldLnF1ZXVlX2xvY2spOw0KIAkJbmJkX2Jsa3NpemVz
-W2ldID0gMTAyNDsNCiAJCW5iZF9ibGtzaXplX2JpdHNbaV0gPSAxMDsNCi0J
-CW5iZF9ieXRlc2l6ZXNbaV0gPSAweDdmZmZmYzAwOyAvKiAyR0IgKi8NCisJ
-CW5iZF9ieXRlc2l6ZXNbaV0gPSAoKHU2NCkweDdmZmZmYzAwKSA8PCAxMDsg
-LyogMlRCICovDQogCQluYmRfc2l6ZXNbaV0gPSBuYmRfYnl0ZXNpemVzW2ld
-ID4+IEJMT0NLX1NJWkVfQklUUzsNCiAJCXJlZ2lzdGVyX2Rpc2soTlVMTCwg
-TUtERVYoTUFKT1JfTlIsaSksIDEsICZuYmRfZm9wcywNCiAJCQkJbmJkX2J5
-dGVzaXplc1tpXT4+OSk7DQo=
---296485894-1626290488-1007676792=:17617--
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

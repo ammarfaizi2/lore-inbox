@@ -1,241 +1,158 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbTEFUEH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 16:04:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbTEFUEH
+	id S261438AbTEFUIx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 16:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbTEFUIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 16:04:07 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:5024 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261364AbTEFUDz (ORCPT
+	Tue, 6 May 2003 16:08:53 -0400
+Received: from ns.suse.de ([213.95.15.193]:34311 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261438AbTEFUIl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 16:03:55 -0400
-Message-ID: <3EB81809.4080003@colorfullife.com>
-Date: Tue, 06 May 2003 22:16:09 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: initcall kmem_cache cpu 1 oops
-References: <Pine.LNX.4.44.0305061319190.1821-100000@localhost.localdomain> <3EB7D6BD.6040101@colorfullife.com>
-In-Reply-To: <3EB7D6BD.6040101@colorfullife.com>
-Content-Type: multipart/mixed;
- boundary="------------010503060307050801010307"
+	Tue, 6 May 2003 16:08:41 -0400
+Subject: Re: ioctl cleanups: move SG_IO translation where it belongs
+From: Andi Kleen <ak@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030506200311.GA5520@elf.ucw.cz>
+References: <20030506200311.GA5520@elf.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 06 May 2003 22:21:11 +0200
+Message-Id: <1052252472.23104.11.camel@averell>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010503060307050801010307
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 2003-05-06 at 22:03, Pavel Machek wrote:
+> Hi!
+> 
+> This enables sharing of 200 lines of SG_IO support by all 64-bit
+> architectures. If it looks okay, more such patches will follow.
 
-Hi,
 
-attached is the promised cleanup/bugfix patch for the slab bootstrap:
+I currently have some patches for this function pending. When an
+unchanged data buffer is passed it is ok to just verify_area it, no need
+to kmalloc and copy. This simplifies this handler vastly.
 
-Changes:
-- kmem_cache_init & kmem_cache_sizes_init merged into one function, 
-called after mem_init(). It's impossible to bring slab to an operational 
-state without working gfp, thus the early partial initialization is not 
-necessary.
-- g_cpucache_up set to FULL at the end of kmem_cache_init instead of the 
-module init call. This is a bugfix: slab was completely initialized, 
-just the update of the state was missing.
-- some documentation for the bootstrap added.
+Here is the part from the 2.4 patch; haven't tried it with 2.5 yet,
+but should apply there too.
 
-Patch against 2.5.69-mm1, tested with UP and SMP on i386 (with 
-s/read_lock/spin_lock/ in filetable.c).
+Also adds some boundary checking.
 
-Andrew, what do you think? The minimal fix for the bug is a two-liner: 
-move g_cpucache_up=FULL from cpucache_init to kmem_cache_sizes_init, but 
-I want to get rid of kmem_cache_sizes_init, too.
+-Andi
 
---
-    Manfred
-
---------------010503060307050801010307
-Content-Type: text/plain;
- name="patch-slab-FULL"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-slab-FULL"
-
-// $Header$
-// Kernel Version:
-//  VERSION = 2
-//  PATCHLEVEL = 5
-//  SUBLEVEL = 69
-//  EXTRAVERSION = -mm1
---- 2.5/include/linux/slab.h	2003-05-05 20:27:16.000000000 +0200
-+++ build-2.5/include/linux/slab.h	2003-05-06 21:04:24.000000000 +0200
-@@ -49,7 +49,6 @@
+Index: linux-work/arch/x86_64/ia32/ia32_ioctl.c
+===================================================================
+RCS file: /home/cvs/Repository/linux/arch/x86_64/ia32/ia32_ioctl.c,v
+retrieving revision 1.31
+diff -u -u -r1.31 ia32_ioctl.c
+--- linux-work/arch/x86_64/ia32/ia32_ioctl.c	2003/03/21 07:50:07	1.31
++++ linux-work/arch/x86_64/ia32/ia32_ioctl.c	2003/04/26 16:38:39
+@@ -1373,12 +1381,16 @@
+ 	u32 iov_len;
+ } sg_iovec32_t;
  
- /* prototypes */
- extern void kmem_cache_init(void);
--extern void kmem_cache_sizes_init(void);
- 
- extern kmem_cache_t *kmem_find_general_cachep(size_t, int gfpflags);
- extern kmem_cache_t *kmem_cache_create(const char *, size_t, size_t, unsigned long,
---- 2.5/mm/slab.c	2003-05-06 21:01:42.000000000 +0200
-+++ build-2.5/mm/slab.c	2003-05-06 21:17:57.000000000 +0200
-@@ -571,11 +571,40 @@
- 	return cachep->array[smp_processor_id()];
- }
- 
--/* Initialisation - setup the `cache' cache. */
-+/* Initialisation.
-+ * Called after the gfp() functions have been enabled, and before smp_init().
-+ */
- void __init kmem_cache_init(void)
++#define EMU_SG_MAX 128
++
+ static int alloc_sg_iovec(sg_io_hdr_t *sgp, u32 uptr32)
  {
- 	size_t left_over;
-+	struct cache_sizes *sizes;
-+	struct cache_names *names;
-+
-+	/*
-+	 * Fragmentation resistance on low memory - only use bigger
-+	 * page orders on machines with more than 32MB of memory.
-+	 */
-+	if (num_physpages > (32 << 20) >> PAGE_SHIFT)
-+		slab_break_gfp_order = BREAK_GFP_ORDER_HI;
+ 	sg_iovec32_t *uiov = (sg_iovec32_t *) A(uptr32);
+ 	sg_iovec_t *kiov;
+ 	int i;
  
-+	
-+	/* Bootstrap is tricky, because several objects are allocated
-+	 * from caches that do not exist yet:
-+	 * 1) initialize the cache_cache cache: it contains the kmem_cache_t
-+	 *    structures of all caches, except cache_cache itself: cache_cache
-+	 *    is statically allocated.
-+	 *    Initially an __init data area is used for the head array, it's
-+	 *    replaced with a kmalloc allocated array at the end of the bootstrap.
-+	 * 2) Create the first kmalloc cache.
-+	 *    The kmem_cache_t for the new cache is allocated normally. An __init
-+	 *    data area is used for the head array.
-+	 * 3) Create the remaining kmalloc caches, with minimally sized head arrays.
-+	 * 4) Replace the __init data head arrays for cache_cache and the first
-+	 *    kmalloc cache with kmalloc allocated arrays.
-+	 * 5) Resize the head arrays of the kmalloc caches to their final sizes.
-+	 */
-+
-+	/* 1) create the cache_cache */
- 	init_MUTEX(&cache_chain_sem);
- 	INIT_LIST_HEAD(&cache_chain);
- 	list_add(&cache_cache.next, &cache_chain);
-@@ -589,27 +618,10 @@
- 	cache_cache.colour = left_over/cache_cache.colour_off;
- 	cache_cache.colour_next = 0;
- 
--	/* Register a cpu startup notifier callback
--	 * that initializes ac_data for all new cpus
--	 */
--	register_cpu_notifier(&cpucache_notifier);
++	if (sgp->iovec_count > EMU_SG_MAX)
++		return -EINVAL;
+ 	sgp->dxferp = kmalloc(sgp->iovec_count *
+ 			      sizeof(sg_iovec_t), GFP_KERNEL);
+ 	if (!sgp->dxferp)
+@@ -1391,40 +1403,10 @@
+ 		u32 iov_base32;
+ 		if (__get_user(iov_base32, &uiov->iov_base) ||
+ 		    __get_user(kiov->iov_len, &uiov->iov_len))
+-			return -EFAULT;
+-
+-		kiov->iov_base = kmalloc(kiov->iov_len, GFP_KERNEL);
+-		if (!kiov->iov_base)
+-			return -ENOMEM;
+-		if (copy_from_user(kiov->iov_base,
+-				   (void *) A(iov_base32),
+-				   kiov->iov_len))
+-			return -EFAULT;
+-
+-		uiov++;
+-		kiov++;
+-	}
+-
+-	return 0;
 -}
 -
- 
--/* Initialisation - setup remaining internal and general caches.
-- * Called after the gfp() functions have been enabled, and before smp_init().
-- */
--void __init kmem_cache_sizes_init(void)
+-static int copy_back_sg_iovec(sg_io_hdr_t *sgp, u32 uptr32)
 -{
--	struct cache_sizes *sizes = malloc_sizes;
--	struct cache_names *names = cache_names;
+-	sg_iovec32_t *uiov = (sg_iovec32_t *) A(uptr32);
+-	sg_iovec_t *kiov = (sg_iovec_t *) sgp->dxferp;
+-	int i;
 -
--	/*
--	 * Fragmentation resistance on low memory - only use bigger
--	 * page orders on machines with more than 32MB of memory.
--	 */
--	if (num_physpages > (32 << 20) >> PAGE_SHIFT)
--		slab_break_gfp_order = BREAK_GFP_ORDER_HI;
-+	/* 2+3) create the kmalloc caches */
-+	sizes = malloc_sizes;
-+	names = cache_names;
- 
- 	while (sizes->cs_size) {
- 		/* For performance, all the general caches are L1 aligned.
-@@ -638,10 +650,7 @@
- 		sizes++;
- 		names++;
+-	for (i = 0; i < sgp->iovec_count; i++) {
+-		u32 iov_base32;
+-
+-		if (__get_user(iov_base32, &uiov->iov_base))
+ 			return -EFAULT;
+-
+-		if (copy_to_user((void *) A(iov_base32),
+-				 kiov->iov_base,
+-				 kiov->iov_len))
++		if (verify_area(VERIFY_WRITE, (void *)A(iov_base32), kiov->iov_len))
+ 			return -EFAULT;
+-
++		kiov->iov_base = (void *)A(iov_base32);
+ 		uiov++;
+ 		kiov++;
  	}
--	/*
--	 * The generic caches are running - time to kick out the
--	 * bootstrap cpucaches.
--	 */
-+	/* 4) Replace the bootstrap head arrays */
- 	{
- 		void * ptr;
- 		
-@@ -660,29 +669,42 @@
- 		malloc_sizes[0].cs_cachep->array[smp_processor_id()] = ptr;
- 		local_irq_enable();
- 	}
-+
-+	/* 5) resize the head arrays to their final sizes */
-+	{
-+		kmem_cache_t *cachep;
-+		down(&cache_chain_sem);
-+		list_for_each_entry(cachep, &cache_chain, next)
-+			enable_cpucache(cachep);
-+		up(&cache_chain_sem);
-+	}
-+
-+	/* Done! */
-+	g_cpucache_up = FULL;
-+
-+	/* Register a cpu startup notifier callback
-+	 * that initializes ac_data for all new cpus
-+	 */
-+	register_cpu_notifier(&cpucache_notifier);
-+	
-+
-+	/* The reap timers are started later, with a module init call:
-+	 * That part of the kernel is not yet operational.
-+	 */
- }
+@@ -1434,16 +1416,6 @@
  
- int __init cpucache_init(void)
+ static void free_sg_iovec(sg_io_hdr_t *sgp)
  {
--	kmem_cache_t *cachep;
- 	int cpu;
- 
--	down(&cache_chain_sem);
--	g_cpucache_up = FULL;
+-	sg_iovec_t *kiov = (sg_iovec_t *) sgp->dxferp;
+-	int i;
 -
--	list_for_each_entry(cachep, &cache_chain, next)
--		enable_cpucache(cachep);
--	
- 	/* 
- 	 * Register the timers that return unneeded
- 	 * pages to gfp.
- 	 */
--
- 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
- 		if (cpu_online(cpu))
- 			start_cpu_timer(cpu);
- 	}
--	up(&cache_chain_sem);
- 
- 	return 0;
+-	for (i = 0; i < sgp->iovec_count; i++) {
+-		if (kiov->iov_base) {
+-			kfree(kiov->iov_base);
+-			kiov->iov_base = NULL;
+-		}
+-		kiov++;
+-	}
+ 	kfree(sgp->dxferp);
+ 	sgp->dxferp = NULL;
  }
---- 2.5/init/main.c	2003-05-06 21:01:41.000000000 +0200
-+++ build-2.5/init/main.c	2003-05-06 21:04:10.000000000 +0200
-@@ -424,7 +424,6 @@
- 	 */
- 	console_init();
- 	profile_init();
--	kmem_cache_init();
- 	local_irq_enable();
- 	calibrate_delay();
- #ifdef CONFIG_BLK_DEV_INITRD
-@@ -437,7 +436,7 @@
- #endif
- 	page_address_init();
- 	mem_init();
--	kmem_cache_sizes_init();
-+	kmem_cache_init();
- 	pidmap_init();
- 	pgtable_cache_init();
- 	pte_chain_init();
+@@ -1506,6 +1483,11 @@
+ 			goto out;
+ 		}
+ 	} else {
++		if (sg_io64.dxfer_len > 4*PAGE_SIZE) { 
++			err = -EINVAL;
++			goto out;
++		}
++
+ 		sg_io64.dxferp = kmalloc(sg_io64.dxfer_len, GFP_KERNEL);
+ 		if (!sg_io64.dxferp) {
+ 			err = -ENOMEM;
+@@ -1546,7 +1528,7 @@
+ 	err |= copy_to_user((void *)A(sbp32), sg_io64.sbp, sg_io64.mx_sb_len);
+ 	if (sg_io64.dxferp) {
+ 		if (sg_io64.iovec_count)
+-			err |= copy_back_sg_iovec(&sg_io64, dxferp32);
++			;
+ 		else
+ 			err |= copy_to_user((void *)A(dxferp32),
+ 					    sg_io64.dxferp,
 
---------------010503060307050801010307--
+
+
+
+
+
+
+
 

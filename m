@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136511AbREDVOA>; Fri, 4 May 2001 17:14:00 -0400
+	id <S136513AbREDVRa>; Fri, 4 May 2001 17:17:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136513AbREDVNw>; Fri, 4 May 2001 17:13:52 -0400
-Received: from dsl081-246-098.sfo1.dsl.speakeasy.net ([64.81.246.98]:26632
-	"EHLO are.twiddle.net") by vger.kernel.org with ESMTP
-	id <S136511AbREDVNX>; Fri, 4 May 2001 17:13:23 -0400
-Date: Fri, 4 May 2001 14:13:18 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+	id <S136518AbREDVRZ>; Fri, 4 May 2001 17:17:25 -0400
+Received: from mailgate3.cinetic.de ([212.227.116.80]:65036 "EHLO
+	mailgate3.cinetic.de") by vger.kernel.org with ESMTP
+	id <S136513AbREDVRD> convert rfc822-to-8bit; Fri, 4 May 2001 17:17:03 -0400
+Date: Fri, 4 May 2001 23:17:00 +0200
+Message-Id: <200105042117.f44LH0W04293@mailgate3.cinetic.de>
+MIME-Version: 1.0
+Organization: http://freemail.web.de/
+From: =?iso-8859-1?Q? "Ren=E9=20Scharfe" ?= <l.s.r@web.de>
+To: "Rusty Russell" <rusty@rustcorp.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.4 alpha semaphores optimization
-Message-ID: <20010504141318.B11122@twiddle.net>
-Mail-Followup-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010503194747.A552@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010503194747.A552@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Thu, May 03, 2001 at 07:47:47PM +0400
+Subject: Re: [PATCH] strtok -> strsep (The Easy Cases) 
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 03, 2001 at 07:47:47PM +0400, Ivan Kokshaysky wrote:
-> Initially I tried to use __builtin_expect in the rwsem.h, but found
-> that it doesn't help at all in the small inline functions - it works
-> as expected only in a reasonably large block of code.
+Rusty Russell <rusty@rustcorp.com.au> schrieb am 04.05.01:
+> In message <01050413055100.00907@golmepha> you write:
+> > Am Freitag,  4. Mai 2001 02:57 schrieb Rusty Russell:
+> > > There are two cases where the substitution is problematic:
+> > 
+> > Yes, but...
+> > 
+> > The cases which my patch modifies are of a different kind:
+> 
+> The very first hunk of your patch is wrong.  I didn't check the
+> others.  Note that the declaration of switches is:
 
-Eh?  Would you give me an example that isn't working properly?
+Oops. *blush*
 
+I think all other chunks are OK, but I'll check that thoroughly when I'll be home again next monday.
 
-r~
+Thank you for taking the time to look at my patch.
+
+René
+
+(who bites the table out of shame)
+______________________________________________________________________________
+Ferienklick.de - 225 Reisekataloge auf einen Blick!
+Direkt zu Ihrem Traumurlaub: http://ferienklick.de/?PP=2-0-100-105-0
+

@@ -1,61 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287862AbSCSSTE>; Tue, 19 Mar 2002 13:19:04 -0500
+	id <S288953AbSCSSYf>; Tue, 19 Mar 2002 13:24:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289243AbSCSSSz>; Tue, 19 Mar 2002 13:18:55 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:27893
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S287862AbSCSSSr>; Tue, 19 Mar 2002 13:18:47 -0500
-Date: Tue, 19 Mar 2002 10:20:03 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Luigi Genoni <kernel@Expansa.sns.it>, linux-kernel@vger.kernel.org
-Subject: Re: oops at boot with 2.5.7 and i810
-Message-ID: <20020319182003.GR2254@matchmail.com>
-Mail-Followup-To: Martin Dalecki <dalecki@evision-ventures.com>,
-	Luigi Genoni <kernel@Expansa.sns.it>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0203191716170.24700-100000@Expansa.sns.it> <3C9770C9.5000201@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S289243AbSCSSY0>; Tue, 19 Mar 2002 13:24:26 -0500
+Received: from morrison.empeg.co.uk ([193.119.19.130]:59887 "EHLO
+	fatboy.internal.empeg.com") by vger.kernel.org with ESMTP
+	id <S288953AbSCSSYR>; Tue, 19 Mar 2002 13:24:17 -0500
+Message-ID: <008301c1cf72$ce5801a0$2701230a@electronic>
+From: "Peter Hartley" <pdh@utter.chaos.org.uk>
+To: "Andreas Dilger" <adilger@clusterfs.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <006701c1cf6d$d9701230$2701230a@electronic> <20020319141554.GL470@turbolinux.com>
+Subject: Re: setrlimit and RLIM_INFINITY causing fsck failure, 2.4.18
+Date: Tue, 19 Mar 2002 18:20:53 -0000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 19, 2002 at 06:09:29PM +0100, Martin Dalecki wrote:
-> Luigi Genoni wrote:
-> >HI,
+Andreas Dilger wrote:
+> On Mar 19, 2002  17:45 -0000, Peter Hartley wrote:
+> > In particular, this means that an e2fsck 1.27 built against such a glibc
+> > will fail with SIGXFS every time on any block device bigger than
+2Gbytes.
+> > This is because:
 > >
-> >also with 2.5.7, as with 2.5.6, I have problems at boot.
-> >I get the usual oops while initialising IDE.
-> >
-> >my ide controller is:
-> >
-> >00:1f.1 IDE interface: Intel Corporation 82801AA IDE (rev 02) (prog-if 80
-> >[Master])
-> >        Subsystem: Intel Corporation 82801AA IDE
-> >        Flags: bus master, medium devsel, latency 0
-> >        I/O ports at 2460 [size=16]
-> >
-> >unfortunatelly, I do not have even the time to write down oops message,
-> >but eip is c0135068, but then I do not find a similar entry in system.map
-> >
-> >any hint
-> 
-> This device is behaving quite like the 440MX chipset
-> I have myself I can't therefore the oops expect beeing caused
-> by a trivial programming error in the actual ide driver.
-> I don't see much pointer acces in piix.c code as well.
-> 
-> However you could eventually just try apply the following
-> pseudo diff to piix.c and then try again:
-> 
-> - 
-> { PCI_DEVICE_ID_INTEL_82801AA_1,	PIIX_UDMA_66  | PIIX_PINGPONG },
-> + 
-> { PCI_DEVICE_ID_INTEL_82801AA_1,	PIIX_UDMA_66 },
-> 
-> Replaceing PIIX_UDMA_33 with PIIX_UDMA_33 could be worth a try as well.
-> 
+> >  * e2fsck calls setrlimit(RLIMIT_FSIZE, RLIM_INFINITY) in
+> >    an attempt to unset the limit. RLIM_INFINITY here is
+> >    0xFFFFFFFF. This is IMO the Right Thing.
+>
+> It is only the right thing if the original limit was not 0xFFFFFFFF.
+> Otherwise, it is just adding to the problem, because the problem only
+> happens when you try to SET the limit.
 
-replace what with what?
+True. (Old programs *will* perceive the value as 0xFFFFFFFF if it is
+RLIM_INFINITY; the kernel clips it to 0x7FFFFFFF in sys_old_getrlimit() but
+glibc expands it again in __new_getrlimit().)
+
+> > Surely the only Right Things to do in the kernel are (a) invent a new
+> > setrlimit call that corrects the RLIM_INFINITY value, or (b) have the
+> > current setrlimit call correct the RLIM_INFINITY value unconditionally.
+>
+> (c) rlimit should not apply to block devices.
+>
+> There were patches for this floating around, and I thought they made it
+> into 2.4.18, but they did not.
+
+Looking a bit closer at the particular SIGXFS that kills fsck (in
+generic_file_write) there's some S_ISBLK stuff going on just below.
+
+Is the fix just as simple as: (untested) (and with a mailer than mangles
+tabs)
+
+--- filemap.c~ Mon Feb 25 19:38:13 2002
++++ filemap.c Tue Mar 19 18:20:40 2002
+@@ -2885,9 +2885,9 @@
+   * Check whether we've reached the file size limit.
+   */
+  err = -EFBIG;
+
+- if (limit != RLIM_INFINITY) {
++ if (limit != RLIM_INFINITY && !S_ISBLK(inode->i_mode)) {
+   if (pos >= limit) {
+    send_sig(SIGXFSZ, current, 0);
+    goto out;
+   }
+
+All this rlimit stuff is a bit wonky in the presence of 64-bit file sizes
+anyway. Perhaps if we fix just the block-device case we can brush the rest
+under the carpet?
+
+        Peter
+
+

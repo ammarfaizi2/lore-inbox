@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265590AbUBBDVY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 22:21:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265592AbUBBDVX
+	id S265592AbUBBDZV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 22:25:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265595AbUBBDZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 22:21:23 -0500
-Received: from mail.kroah.org ([65.200.24.183]:5050 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265590AbUBBDVW (ORCPT
+	Sun, 1 Feb 2004 22:25:21 -0500
+Received: from mail.kroah.org ([65.200.24.183]:15291 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265592AbUBBDZR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 22:21:22 -0500
-Date: Sun, 1 Feb 2004 19:16:12 -0800
+	Sun, 1 Feb 2004 22:25:17 -0500
+Date: Sun, 1 Feb 2004 19:25:14 -0800
 From: Greg KH <greg@kroah.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: hal daemon and ide-floppy
-Message-ID: <20040202031612.GA20455@kroah.com>
-References: <20040126215036.GA6906@kroah.com> <20040201225224.GA4001@werewolf.able.es>
+To: Jonas Diemer <diemer@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Which interface: sysfs, proc, devfs?
+Message-ID: <20040202032514.GB20534@kroah.com>
+References: <20040129222813.3b22b2c8.diemer@gmx.de> <20040129230250.GA9988@kroah.com> <20040201215721.737ef5a3.diemer@gmx.de> <20040201212802.GA16301@kroah.com> <20040201230010.15874b4c.diemer@gmx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040201225224.GA4001@werewolf.able.es>
+In-Reply-To: <20040201230010.15874b4c.diemer@gmx.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 01, 2004 at 11:52:24PM +0100, J.A. Magallon wrote:
-> Hi all...
+On Sun, Feb 01, 2004 at 11:00:10PM +0100, Jonas Diemer wrote:
+> On Sun, 1 Feb 2004 13:28:03 -0800
+> Greg KH <greg@kroah.com> wrote:
 > 
-> It looks like haldaemon is polling my zip to see inserted disks
-> (it is the only hadware I have that uses ide-floppy).
-> I get a message like this
+> > You mean "submit a urb and be notified when it was completed?"  I
+> > thought libusb supported that with signals.
 > 
-> Feb  1 23:50:15 werewolf kernel: ide-floppy: hdd: I/O error, pc =  0, key =  2, asc = 3a, ascq =  0
-> Feb  1 23:50:15 werewolf kernel: ide-floppy: hdd: I/O error, pc = 1b, key =  2, asc = 3a, ascq =  0
-> Feb  1 23:50:15 werewolf kernel: hdd: No disk in drive
-> 
-> every 2 seconds, both in messages and syslog.
-> They can grow very large after some uptime ;)
+> Yeah, thats what I meant. In the html doc shipped with version 0.1.7,
+> it says "all functions in libusb v0.1 are synchronous, meaning the
+> functions block and wait for the operation to finish or timeout before
+> returning execution to the calling application. Asynchronous operation
+> will be supported in v1.0, but not v0.1."...
 
-Why not ask the hal authors about why they are doing this?
+Yet you want to do asynchronous support with sysfs?  How would that
+work?
 
-> What is the policy here ? Kill the message in ide-floppy.c ?
-> I suppose there can be some other similat messages around there...
+What kind of device are you writing a driver for?
 
-You might want to rate-limit those kernel messages though, that's not
-very nice to be able to do from userspace.
+> Thanks for that hint, I'll have a look at it. I only need 1 val per
+> file, i.e. a "firmware" file, which I learned is best done with the
+> firmware_class.
+
+For firmware only download type devices, I'd really recommend sticking
+with libusb, unless you have to.  It's much easier that way.
 
 thanks,
 

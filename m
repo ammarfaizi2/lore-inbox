@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288159AbSAQD6k>; Wed, 16 Jan 2002 22:58:40 -0500
+	id <S288169AbSAQEt0>; Wed, 16 Jan 2002 23:49:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288160AbSAQD6a>; Wed, 16 Jan 2002 22:58:30 -0500
-Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:8328 "EHLO
-	swan.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S288159AbSAQD6K>; Wed, 16 Jan 2002 22:58:10 -0500
-Date: Wed, 16 Jan 2002 23:01:51 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Rik spreading bullshit about VM
-Message-ID: <20020116230151.A549@earthlink.net>
+	id <S288173AbSAQEtR>; Wed, 16 Jan 2002 23:49:17 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:40835
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S288169AbSAQEtI>; Wed, 16 Jan 2002 23:49:08 -0500
+Date: Wed, 16 Jan 2002 23:32:41 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Ross Vandegrift <ross@willow.seitz.com>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2-2.1.4 is available
+Message-ID: <20020116233241.A29240@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Ross Vandegrift <ross@willow.seitz.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20020116145605.A10792@thyrsus.com> <20020116175014.A21277@willow.seitz.com> <20020116174340.A16302@thyrsus.com> <20020116180042.A21447@willow.seitz.com> <20020116180112.C16592@thyrsus.com> <20020116200240.B22161@willow.seitz.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: rwhron@earthlink.net
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020116200240.B22161@willow.seitz.com>; from ross@willow.seitz.com on Wed, Jan 16, 2002 at 08:02:40PM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ross Vandegrift <ross@willow.seitz.com>:
+> Sorry, didn't mean to be so terse.  Same as before - 'make config' or 'make
+> menuconfig', press enter upon being shown the main menu while the default
+> selection is "Intel or Processor type (FROZEN)".
 
-A couple points to followup on the notion of VM at mem=4m:
-
-2.4.18pre2aa2 can do it:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101123070310781&w=2
-
-2.5.2, 2.4.18-pre4, and 2.4.18-pre3-rmap11b would not allow login 
-with boot single mem=4m:
-
-2.4.18-pre3-rmap11b tried with init=/bin/bash and init=/bin/ash,
-but that would not produce a prompt either.
-
-Log at:
-http://home.earthlink.net/~rwhron/kernel/4m
-
-BTW, I think 4G is more important than 4M.
-
+Thanks.  Found and fixed.  See 2.1.5
 -- 
-Randy Hron
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+What if you were an idiot, and what if you were a member of Congress?
+But I repeat myself.        -- Mark Twain

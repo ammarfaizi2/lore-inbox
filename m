@@ -1,81 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264069AbRFNVew>; Thu, 14 Jun 2001 17:34:52 -0400
+	id <S264053AbRFNVen>; Thu, 14 Jun 2001 17:34:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264071AbRFNVeo>; Thu, 14 Jun 2001 17:34:44 -0400
-Received: from maild.telia.com ([194.22.190.101]:14075 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S264069AbRFNVe3>;
-	Thu, 14 Jun 2001 17:34:29 -0400
-Message-Id: <200106142134.f5ELYGA19032@maild.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Roger Larsson <roger.larsson@norran.net>
-To: root@chaos.analogic.com
-Subject: Re: SMP spin-locks
-Date: Thu, 14 Jun 2001 23:30:58 +0200
-X-Mailer: KMail [version 1.2.2]
-In-Reply-To: <Pine.LNX.3.95.1010614165153.16430A-100000@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.3.95.1010614165153.16430A-100000@chaos.analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
+	id <S264072AbRFNVec>; Thu, 14 Jun 2001 17:34:32 -0400
+Received: from alpo.casc.com ([152.148.10.6]:38360 "EHLO alpo.casc.com")
+	by vger.kernel.org with ESMTP id <S264053AbRFNVeT>;
+	Thu, 14 Jun 2001 17:34:19 -0400
+From: John Stoffel <stoffel@casc.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15145.11683.861734.853957@gargle.gargle.HOWL>
+Date: Thu, 14 Jun 2001 17:33:23 -0400
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: John Stoffel <stoffel@casc.com>, Roger Larsson <roger.larsson@norran.net>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.6-pre2, pre3 VM Behavior
+In-Reply-To: <Pine.LNX.4.33.0106141750260.28370-100000@duckman.distro.conectiva>
+In-Reply-To: <15145.8435.312548.682190@gargle.gargle.HOWL>
+	<Pine.LNX.4.33.0106141750260.28370-100000@duckman.distro.conectiva>
+X-Mailer: VM 6.92 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 14 June 2001 23:05, you wrote:
-> On Thu, 14 Jun 2001, Roger Larsson wrote:
-> > Hi,
-> >
-> > Wait a minute...
-> >
-> > Spinlocks on a embedded system? Is it _really_ SMP?
->
-> The embedded system is not SMP. However, there is definite
-> advantage to using an unmodified kernel that may/may-not
-> have been compiled for SMP. Of course spin-locks are used
-> to prevent interrupts from screwing up buffer pointers, etc.
->
 
-Not really - it prevents another processor entering the same code
-segment  (spin_lock_irqsave prevents both another processor and
-local interrupts).
+Rik> There's another issue.  If dirty data is written out in small
+Rik> bunches, that means we have to write out the dirty data more
+Rik> often.
 
-An interrupt on UP can not wait on a spin lock - it will never be released
-since no other code than the interrupt spinning will be able to execute)
+What do you consider a small bunch?  32k?  1Mb?  1% of buffer space?
+I don't see how delaying writes until the buffer is almost full really
+helps us.  As the buffer fills, the pressure to do writes should
+increase, so that we tend, over time, to empty the buffer.  
 
+A buffer is just that, not persistent storage.  
 
-> > What kind of performance problem do you have?
->
-> The problem is that a data acquisition board across the PCI bus
-> gives a data transfer rate of 10 to 11 megabytes per second
-> with a UP kernel, and the transfer drops to 5-6 megabytes per
-> second with a SMP kernel. The ISR is really simple and copies
-> data, that's all.
->
-> The 'read()' routine uses a spinlock when it modifies pointers.
->
-> I started to look into where all the CPU clocks were going. The
-> SMP spinlock code is where it's going. There is often contention
-> for the lock because interrupts normally occur at 50 to 60 kHz.
->
+And in the case given, we were not seeing slow degradation, we saw
+that the user ran into a wall (or inflection point in the response
+time vs load graph), which was pretty sharp.  We need to handle that
+more gracefully.  
 
-SMP compiled kernel, but running on UP hardware - right?
-Then this _should not_ happen!
+Rik> This in turn means extra disk seeks, which can horribly interfere
+Rik> with disk reads.
 
-see linux/Documentation/spinlocks.txt
+True, but are we optomizing for reads or for writes here?  Shouldn't
+they really be equally weighted for priority?  And wouldn't the
+Elevator help handle this to a degree?
 
-Is it your spinlocks that are causing this, or?
+Some areas to think about, at least for me.  And maybe it should be
+read and write pressure, not rate?  
 
-> When there is contention, a very long........jump occurs into
-> the test.lock segment. I think this is flushing queues.
->
+ - low write rate, and a low read rate.
+   - Do seeks dominate our IO latency/throughput?
 
-It does not matter, if there is contention - let it take time. Waiting is what
-spinlocking is about anyway...
+ - low read rate, higher write rate (ie buffers filling faster than
+   they are being written to disk)
+   - Do we care as much about reads in this case?  
+   - If the write is just a small, high intensity burst, we don't want
+     to go ape on writing out buffers to disk, but we do want to raise the
+     rate we do so in the background, no?
 
-/RogerL
+- low write rate, high read rate.
+  - seems like we want to keep writing the buffers, but at a lower
+    rate. 
 
--- 
-Roger Larsson
-Skellefteå
-Sweden
+Just some thoughts...
+
+John
+   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
+	 stoffel@lucent.com - http://www.lucent.com - 978-952-7548

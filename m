@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316739AbSFUSbn>; Fri, 21 Jun 2002 14:31:43 -0400
+	id <S316750AbSFUSoI>; Fri, 21 Jun 2002 14:44:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316746AbSFUSbm>; Fri, 21 Jun 2002 14:31:42 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:52183 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316739AbSFUSbl>;
-	Fri, 21 Jun 2002 14:31:41 -0400
-Subject: [ANNOUNCE]  Journaled File System (JFS)  release 1.0.20
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OFDFDF0583.75312435-ON85256BDF.0065A0DA@pok.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Fri, 21 Jun 2002 13:31:29 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.10 |March 28, 2002) at
- 06/21/2002 02:31:32 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S316751AbSFUSoH>; Fri, 21 Jun 2002 14:44:07 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:14929 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S316750AbSFUSoH>; Fri, 21 Jun 2002 14:44:07 -0400
+Date: Fri, 21 Jun 2002 21:44:00 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
+Message-ID: <20020621184400.GB1548@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	"Stephen C. Tweedie" <sct@redhat.com>,
+	Linux-kernel <linux-kernel@vger.kernel.org>,
+	ext2-devel@lists.sourceforge.net
+References: <Pine.LNX.4.44.0206191256550.20859-100000@localhost.localdomain> <20020620103429.A2464@redhat.com> <20020620101812.GL22427@clusterfs.com> <E17L2G0-00019Q-00@starship> <20020621145451.GA1548@niksula.cs.hut.fi> <20020621160833.D2805@redhat.com> <20020621153801.GK1465@niksula.cs.hut.fi> <20020621171550.E2805@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020621171550.E2805@redhat.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.0.20 of JFS was made available today.
+On Fri, Jun 21, 2002 at 05:15:50PM +0100, you [Stephen C. Tweedie] wrote:
+> Hi,
+> 
+> On Fri, Jun 21, 2002 at 06:38:01PM +0300, Ville Herva wrote:
+>  
+> > So I thought, but not in ext2?
+> 
+> It's in ext2 --- it's the i_dir_start_lookup field that remembers
+> where we were last.
 
-Drop 58 on June 21, 2002 (jfs-2.4-1.0.20.tar.gz
-and jfsutils-1.0.20.tar.gz) includes fixes to the file
-system and utilities.
-
-Utilities changes
-
-- don't display heartbeat during log format if output is redirected
-  (eliminates strange characters in redirected output from mkfs.jfs
-  with external log, fsck.jfs Phase 9)
-- fix mkfs.jfs to set version in JFS superblock properly if external
-   log is used (enables JFS external log compatibility with EVMS 1.1-pre2
-   or greater)
-- enhance jfsutils to support enormous disks like 8TB+ (Peter C.)
-- remove unused variables (Christoph Hellwig)
-
-File System changes
-
-- set s_maxbytes to 1 byte lower
-   When i_size was (PAGE_CACHE_SIZE << 32), generic_file_read overflowed
-   an index and failed on any read. Subtracting one fixes it.
-- procfs entries should be created when CONFIG_JFS_STATISTICS is set.
-   Currently, if CONFIG_JFS_DEBUG is not set, no entries are created
-   under /proc/fs/jfs, even if CONFIG_JFS_STATISTICS is set.
-- fix fsync (Christoph Hellwig)
-   fsync is allowed to return early if datasysnc is set and the
-   I_DIRTY_DATASYNC flags is cleared, not if either of those is true
-- JFS does not need to set i_version. It is never used. (Manfred Spraul)
-- Fix for truncate problem, assert(!test_cflag(COMMIT_Nolink, ip))
-   kernel BUG at jfs_txnmgr.c537! (bugzilla #583)
-- Fix race in JFS kernel threads.
-   Timing window existed between time threads dropped locks and slept,
-   where the waker can try and wake the threads before they got to sleep.
-
-For more details about JFS, please see the patch instructions or
-changelog.jfs files.
-
-Steve Best
-Linux Technology Center
-JFS for Linux http://oss.software.ibm.com/jfs
+Great. (Unfortunately the box that experienced the named incident was a
+2.2.20 + patches, so obviously the patch didn't help there :/ ).
 
 
+-- v --
 
-
-
-
-
+v@iki.fi

@@ -1,115 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130685AbRAWPYo>; Tue, 23 Jan 2001 10:24:44 -0500
+	id <S130869AbRAWP0F>; Tue, 23 Jan 2001 10:26:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130869AbRAWPYe>; Tue, 23 Jan 2001 10:24:34 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:21778 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130685AbRAWPYY>;
-	Tue, 23 Jan 2001 10:24:24 -0500
-Message-ID: <3A6DA1F7.9169C3BD@mandrakesoft.com>
-Date: Tue, 23 Jan 2001 10:23:35 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre9 i686)
-X-Accept-Language: en
+	id <S131238AbRAWPZz>; Tue, 23 Jan 2001 10:25:55 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:2944 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S130869AbRAWPZf>; Tue, 23 Jan 2001 10:25:35 -0500
+Date: Tue, 23 Jan 2001 10:25:14 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Trever L. Adams" <trever_Adams@bigfoot.com>
+cc: Patrizio Bruno <patrizio@dada.it>,
+        "Mike A. Harris" <mharris@opensourceadvocate.org>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Total loss with 2.4.0 (release)
+In-Reply-To: <3A6D9BE6.8070400@bigfoot.com>
+Message-ID: <Pine.LNX.3.95.1010123101348.1264A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Bart Dorsey <echo@thebucket.org>
-CC: linux-kernel@vger.kernel.org, mid@auk.cx, phillim@amtrak.com,
-        alan@redhat.com, Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] Re: Problem with Madge Tokenring (abyss.o) in 2.4.1-pre10
-In-Reply-To: <Pine.LNX.4.21.0101230832550.25107-100000@www>
-Content-Type: multipart/mixed;
- boundary="------------C870A6A1C9162BB41A2EFEFF"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------C870A6A1C9162BB41A2EFEFF
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Tue, 23 Jan 2001, Trever L. Adams wrote:
 
-Bart Dorsey wrote:
-> I constantly get this message on the console while using a Madge Smart
-> 16/4 PCI Mk2 (Abyss) token ring card.
+> Patrizio Bruno wrote:
 > 
-> kernel: Warning: kfree_skb on hard IRQ d08cfea9
+> > I think that your linux's partition has not been overwritten, but only the MBR
+> > of your disk, so you probably just need to reinstall lilo. Insert your
+> > installation bootdisk into your pc, then skip all the setup stuff, but the
+> > choose of the partition where you want to install and the source from where
+> > you want to install, then select just the lilo configuration (bootconfiguration
+> > I mean), complete that step and reboot your machine, lilo will'be there again.
+> > 
+> > P.
+> > 
+> > On Tue, 23 Jan 2001, Trever L. Adams wrote:
+> 
+> I hate to tell you this, but you couldn't be more wrong.  My MBR was 
+> fine.  Lilo was fine and ran fine.  The kernel even booted. The problem 
+> was my ext2 partition was scrambled but good (over 4 hours trying to fix 
+> it and answer all the questions that fsck threw out).  The ext2 drive 
+> lost a lot of data and suddenly had windows stuff all over it (yes, just 
+> like Mike, I had ttf fonts and other such things).
+> 
+> Trever
+> 
 
-The attached patch, against 2.4.1-pre10, should fix things.  tms380tr,
-the base module that abyss driver uses, needed to be updated to use
-special IRQ versions of the dev_kfree_skb function.
+Yes, last week I had a similar problem with the 2.4.0 (release) version.
+I use only SCSI (Buslogic on this machine). The root file-system
+was overwritten with a repeated directory-name+junk. This was reported
+to the linux-kernel list. This problem occurred during my automated
+nightly tape backup. Since the backup operation is mostly a read
+operation, I suggested that the corruption occurred while updating
+ATIME.
 
-Linus (and others), the patch also adds a missing dev->last_rx
-assignment (which records the time of last packet reception).
+The file system was not recoverable. I keep a week's worth of tapes
+before they get overwritten so I only lost a day's work and I really
+didn't do much on that day so I really lost nothing but my temper ;^;).
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
---------------C870A6A1C9162BB41A2EFEFF
-Content-Type: text/plain; charset=us-ascii;
- name="tms380tr.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="tms380tr.patch"
+Nobody seems to have discovered the problem yet. It is likely some
+race produced by those who have been working on finer-ganularity
+locking.
 
-Index: linux_2_4/drivers/net/tokenring/tms380tr.c
-diff -u linux_2_4/drivers/net/tokenring/tms380tr.c:1.1.1.3 linux_2_4/drivers/net/tokenring/tms380tr.c:1.1.1.3.76.2
---- linux_2_4/drivers/net/tokenring/tms380tr.c:1.1.1.3	Sun Oct 22 14:56:23 2000
-+++ linux_2_4/drivers/net/tokenring/tms380tr.c	Tue Jan 23 07:19:16 2001
-@@ -1977,7 +1977,7 @@
- 
- 		printk(KERN_INFO "Cancel tx (%08lXh).\n", (unsigned long)tpl);
- 
--		dev_kfree_skb(tpl->Skb);
-+		dev_kfree_skb_any(tpl->Skb);
- 	}
- 
- 	for(;;)
-@@ -1986,7 +1986,7 @@
- 		if(skb == NULL)
- 			break;
- 		tp->QueueSkb++;
--		dev_kfree_skb(skb);
-+		dev_kfree_skb_any(skb);
- 	}
- 
- 	return;
-@@ -2053,7 +2053,7 @@
- 		}
- 
- 		tp->MacStat.tx_packets++;
--		dev_kfree_skb(tpl->Skb);
-+		dev_kfree_skb_irq(tpl->Skb);
- 		tpl->BusyFlag = 0;	/* "free" TPL */
- 	}
- 
-@@ -2127,7 +2127,7 @@
- 				printk(KERN_INFO "%s: Received my own frame\n",
- 					dev->name);
- 				if(rpl->Skb != NULL)
--					dev_kfree_skb(rpl->Skb);
-+					dev_kfree_skb_irq(rpl->Skb);
- 			}
- 			else
- #endif
-@@ -2171,13 +2171,14 @@
- 					skb_trim(skb,Length);
- 					skb->protocol = tr_type_trans(skb,dev);
- 					netif_rx(skb);
-+					dev->last_rx = jiffies;
- 				}
- 			}
- 		}
- 		else	/* Invalid frame */
- 		{
- 			if(rpl->Skb != NULL)
--				dev_kfree_skb(rpl->Skb);
-+				dev_kfree_skb_irq(rpl->Skb);
- 
- 			/* Skip list. */
- 			if(rpl->Status & RX_START_FRAME)
+I'm still using the same kernel, although my 'tar' script now
+does --atime-preserve. I don't know if this really works as
+expected though...
 
---------------C870A6A1C9162BB41A2EFEFF--
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

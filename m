@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263160AbRFQXq5>; Sun, 17 Jun 2001 19:46:57 -0400
+	id <S263165AbRFRABM>; Sun, 17 Jun 2001 20:01:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263165AbRFQXqq>; Sun, 17 Jun 2001 19:46:46 -0400
-Received: from line153.ba.psg.sk ([195.80.179.153]:52354 "HELO ivan.doma")
-	by vger.kernel.org with SMTP id <S263160AbRFQXqg>;
-	Sun, 17 Jun 2001 19:46:36 -0400
-Date: Mon, 18 Jun 2001 01:45:47 +0200
-From: Ivan Vadovic <pivo@pobox.sk>
-To: linux-kernel@vger.kernel.org
-Subject: any good diff merging utility?
-Message-ID: <20010618014547.B1063@ivan.doma>
+	id <S263167AbRFRABC>; Sun, 17 Jun 2001 20:01:02 -0400
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:11020 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S263165AbRFRAAx>; Sun, 17 Jun 2001 20:00:53 -0400
+Subject: Re: [Emu10k1-devel] Re: Buggy emu10k1 drivers.
+From: Robert Love <rml@ufl.edu>
+To: Daniel Bertrand <d.bertrand@ieee.ca>
+Cc: Dylan Griffiths <Dylan_G@bigfoot.com>,
+        emu10k1-devel <emu10k1-devel@opensource.creative.com>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0106171449470.2175-100000@kilrogg>
+In-Reply-To: <Pine.LNX.4.33.0106171449470.2175-100000@kilrogg>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 17 Jun 2001 20:00:45 -0400
+Message-Id: <992822448.3798.6.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 17 Jun 2001 15:17:41 -0700, Daniel Bertrand wrote:
+> Can you give the CVS driver a try? Snapshots are available here:
+> http://opensource.creative.com/snapshot.html
+> 
+> The driver in the kernel is based on a CVS snapshot from last summer, the
+> problem may be fixed in CVS. Also, the CVS driver is a common driver for
+> 2.2 and 2.4 (with some #ifdef), so it may be useful to see if it works for
+> you on 2.4.5 but not on 2.2.19.
 
-I like to build kernels with a bunch of patches on top to test new stuff. The
-problem is that it takes a lot of effort to fix all the failed hunks during
-patching that really wouldn't have to be failed if only patch was a little more
-inteligent and could merge several patches into one ( if possible) or if could
-take into account already applied patches.
+if the driver in the kernel is that old, could we try merging a newer
+release?  is there any reason why it has not been done yet?
 
-Well, are there any utilities to merge diffs? I couldn't find any on freshmeat.
-So what are you using to stack many patches onto the kernel tree? Just manualy
-modify the diff? I'll try to write something more automatic if nothing comes up.
+-- 
+Robert M. Love
+rml@ufl.edu
+rml@tech9.net
 
-Ivan Vadovic

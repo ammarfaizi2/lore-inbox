@@ -1,99 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285210AbRLXSWc>; Mon, 24 Dec 2001 13:22:32 -0500
+	id <S285213AbRLXSYM>; Mon, 24 Dec 2001 13:24:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285216AbRLXSWX>; Mon, 24 Dec 2001 13:22:23 -0500
-Received: from otter.mbay.net ([206.40.79.2]:57609 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S285210AbRLXSWG>;
-	Mon, 24 Dec 2001 13:22:06 -0500
-Date: Mon, 24 Dec 2001 10:21:52 -0800 (PST)
-From: John Alvord <jalvo@mbay.net>
-To: David Lang <david.lang@digitalinsight.com>
-cc: Matthew Johnson <matthew@psychohorse.com>, linux-kernel@vger.kernel.org
-Subject: Re: Maybe I have a bad day or something
-In-Reply-To: <Pine.LNX.4.40.0112240934520.24605-100000@dlang.diginsite.com>
-Message-ID: <Pine.LNX.4.20.0112241021140.20876-100000@otter.mbay.net>
+	id <S285216AbRLXSYC>; Mon, 24 Dec 2001 13:24:02 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:7614 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S285213AbRLXSXq>; Mon, 24 Dec 2001 13:23:46 -0500
+Message-ID: <3C2772B1.3080202@redhat.com>
+Date: Mon, 24 Dec 2001 13:23:45 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011217
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Lang <david.lang@digitalinsight.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
+        Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Assigning syscall numbers for testing
+In-Reply-To: <Pine.LNX.4.40.0112240951030.24605-100000@dlang.diginsite.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Think of L-K as a very lossy communications path where lots of retries are
-necessary. john
+David Lang wrote:
 
-On Mon, 24 Dec 2001, David Lang wrote:
+> so this just means that an eye needs to be kept on the non-dynamic
+> syscalls  and up the starting point for dynamic syscalls significantly
+> before we run out of space for the non-dynamic ones.
+> 
+> running software that depends on features in a new kernel on a
+> significantly older kernel is always questionable, if you software really
+> needs to do that you need to watch for a bunch of things.
 
-> response to questions does vary drasticly, I've been reading the list for
-> almost 5 years now and while I seldom post most of the time I get an
-> immediate response (unfortunantly sometimes I can't folow up immediatly
-> with the requested info). When I don't get a response for a few days I try
-> to get more detail on the problem and repost, eventually I do get some
-> response.
-> 
-> one thing to remember about posting here. if you get a response that is
-> just wrong, argue back, point out why it's wrong. Everyone on this list
-> (up to and including Linus) makes mistakes and dismisses stuff to quickly
-> at times. some questions get asked frequently enough that they have a
-> canned answer (useing binary only modules and reporting a bug for example)
-> but most of the time there is a real answer eventually.
-> 
-> David Lang
-> 
-> 
->  On Mon, 24 Dec 2001, Matthew Johnson wrote:
-> 
-> > Date: Mon, 24 Dec 2001 08:11:28 -0800
-> > From: Matthew Johnson <matthew@psychohorse.com>
-> > To: linux-kernel@vger.kernel.org
-> > Subject: Re: Maybe I have a bad day or something
-> >
-> > On Monday 24 December 2001 06:23 am, Pat Villani wrote:
-> > > You're not alone.  Frankly, I just skim the subjects and some messages to
-> > > figure out whether or not to read further.
-> > >
-> > > Don't get discouraged.  There are way more readers who don't post than the
-> > > vocal minority who whine about coding styles or why Linus didn't pick up
-> > > their patch.  I found this out a while ago.  I wrote the original FreeDOS
-> > > code and ran into this constantly.  I admire Linus for not letting it get
-> > > him down; it did for me.  I eventually quit the project altogether,
-> > > disgusted with the bozos.
-> > >
-> >
-> > I am one of those readers that don't post, well to now. I don't want to make
-> > a fool out of myself, plus nothing yet has really piqued my interest and I
-> > never went to University to do CS or CE, played too much Rugby instead (but I
-> > want to go sometime perhaps), so my prgramming really is not up to scratch
-> > yet. Perhaps this is reflected on others too. Not above beta testing of
-> > course.
-> >
-> > Whining occurs pretty much everywhere, not just here. As this is an open and
-> > free development perhaps people feel free to be a little less professional in
-> > their words, rather than just reporting facts. Linus seems to be very Hobbit
-> > like, very humble indeed. Only Linus probably knows why it does not seem to
-> > get him down.
-> >
-> >
-> > > Well, I know I'm going to get flames on this one.  That's OK, it'll keep me
-> > > warm this Christmas.  May everyone have a safe and happy Holiday Season.
-> > >
-> >
-> > Nope, they may let you freeze instead. Happy Christmas  and New Year to
-> > everyone, may 2002 be very much more successful than 2001. 2001 was probably
-> > jinxed due to Arthur C Clark anyway...
-> >
-> > > Pat
-> >
-> > Matt
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+No.  This is different.  Calling a syscall and expecting to get either A) 
+the syscall you intended or B) -ENOSYS is an accepted, safe practice under 
+Unix/Linux.  This breaks that practice.
+
+
+
+
+
+-- 
+
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
 

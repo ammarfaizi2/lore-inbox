@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314046AbSDKNQW>; Thu, 11 Apr 2002 09:16:22 -0400
+	id <S314047AbSDKNUa>; Thu, 11 Apr 2002 09:20:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314047AbSDKNQV>; Thu, 11 Apr 2002 09:16:21 -0400
-Received: from ns.suse.de ([213.95.15.193]:28171 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S314046AbSDKNQU>;
-	Thu, 11 Apr 2002 09:16:20 -0400
-Date: Thu, 11 Apr 2002 15:16:16 +0200
-From: Andi Kleen <ak@suse.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: "David S. Miller" <davem@redhat.com>, taka@valinux.co.jp, ak@suse.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zerocopy NFS updated
-Message-ID: <20020411151616.A1239@wotan.suse.de>
-In-Reply-To: <20020411.164134.85392767.taka@valinux.co.jp> <20020411.203823.67879801.taka@valinux.co.jp> <20020411.043614.02328218.davem@redhat.com> <200204111257.g3BCvOX10348@Port.imtp.ilyichevsk.odessa.ua>
+	id <S314048AbSDKNU3>; Thu, 11 Apr 2002 09:20:29 -0400
+Received: from imhotep.hursley.ibm.com ([194.196.110.14]:45369 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S314047AbSDKNU3>; Thu, 11 Apr 2002 09:20:29 -0400
+Date: Thu, 11 Apr 2002 20:11:21 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Dr. David Alan Gilbert" <gilbertd@nospam.treblig.org>
+Cc: hahn@physics.mcmaster.ca, hch@infradead.org, rml@tech9.net,
+        Priyadarshini.Kuppuswamy@compaq.com, linux-kernel@vger.kernel.org
+Subject: Re: system call for finding the number of cpus??
+Message-Id: <20020411201121.78b95196.rusty@rustcorp.com.au>
+In-Reply-To: <20020408220239.GK612@gallifrey>
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 11, 2002 at 04:00:37PM -0200, Denis Vlasenko wrote:
-> On 11 April 2002 09:36, David S. Miller wrote:
-> > No, you must block truncate operations on the file until the client
-> > ACK's the nfsd read request if you wish to use sendfile() with
-> > nfsd.
-> 
-> Which shouldn't be a big performance problem unless I am unaware
-> of some real-life applications doing heavy truncates.
+On Mon, 8 Apr 2002 23:02:39 +0100
+"Dr. David Alan Gilbert" <gilbertd@nospam.treblig.org> wrote:
 
-Every unlink does a truncate. There are applications that delete files
-a lot.
+> But I'd actually go and ask the CPU hotswap guys - they must have a way
+> of getting a handle on this (hey does that mean you might have cpu0,
+> cpu1, cpu3 .... ?)
 
--Andi
+We use /proc/sys/cpu/*.
+
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

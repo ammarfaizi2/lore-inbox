@@ -1,33 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262288AbVAOOxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262289AbVAOPB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262288AbVAOOxb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 09:53:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbVAOOxb
+	id S262289AbVAOPB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 10:01:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbVAOPB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 09:53:31 -0500
-Received: from smtp-out-02.utu.fi ([130.232.202.172]:52161 "EHLO
-	smtp-out-02.utu.fi") by vger.kernel.org with ESMTP id S262288AbVAOOxa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 09:53:30 -0500
-Date: Sat, 15 Jan 2005 16:53:26 +0200
-From: Jan Knutar <jk-lkml@sci.fi>
-Subject: Re: Poor responsiveness during disk I/O
-In-reply-to: <7f45d939050114135752a00033@mail.gmail.com>
-To: Shaun Jackman <sjackman@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Message-id: <200501151653.27921.jk-lkml@sci.fi>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.2
-References: <7f45d9390501141121269b42b2@mail.gmail.com>
- <1105732650.6042.50.camel@laptopd505.fenrus.org>
- <7f45d939050114135752a00033@mail.gmail.com>
+	Sat, 15 Jan 2005 10:01:26 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:50364 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262289AbVAOPBZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 10:01:25 -0500
+Date: Sat, 15 Jan 2005 16:00:40 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Paul Mackerras <paulus@samba.org>
+Cc: akpm@osdl.org, torvalds@osdl.org, anton@samba.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PPC64 had _raw_read_trylock already
+Message-ID: <20050115150040.GD16517@elte.hu>
+References: <16868.64050.640925.128469@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16868.64050.640925.128469@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 14 January 2005 23:57, Shaun Jackman wrote:
-> Linux 2.6.8.1
 
-A "vmstat 1" output during high load would be nice...
+* Paul Mackerras <paulus@samba.org> wrote:
+
+> Ingo presumably didn't notice that ppc64 already had a functional
+> _raw_read_trylock when he added the #define to use the generic
+> version.  This just removes the #define so we use the ppc64-specific
+> version again.
+> 
+> Signed-off-by: Paul Mackerras <paulus@samba.org>
+
+yeah - sorry.
+
+	Ingo

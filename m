@@ -1,37 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130562AbQL2Dg1>; Thu, 28 Dec 2000 22:36:27 -0500
+	id <S130753AbQL2Dwe>; Thu, 28 Dec 2000 22:52:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130668AbQL2DgH>; Thu, 28 Dec 2000 22:36:07 -0500
-Received: from TK152095.tuwien.teleweb.at ([195.34.152.95]:4340 "EHLO
-	elch.elche") by vger.kernel.org with ESMTP id <S130562AbQL2DgC>;
-	Thu, 28 Dec 2000 22:36:02 -0500
-Date: Fri, 29 Dec 2000 04:05:20 +0100
-From: Armin Obersteiner <armin@xos.net>
-To: linux-kernel@vger.kernel.org
-Subject: aic7xxx 2.4.0 test12 hang
-Message-ID: <20001229040520.A3991@elch.elche>
+	id <S130668AbQL2DwY>; Thu, 28 Dec 2000 22:52:24 -0500
+Received: from 216-80-74-178.dsl.enteract.com ([216.80.74.178]:11780 "EHLO
+	kre8tive.org") by vger.kernel.org with ESMTP id <S130753AbQL2DwF>;
+	Thu, 28 Dec 2000 22:52:05 -0500
+Date: Thu, 28 Dec 2000 21:21:16 -0600
+From: Mike Elmore <mike@kre8tive.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: mike@kre8tive.org, linux-kernel@vger.kernel.org
+Subject: Re: Repeatable 2.4.0-test13-pre4 nfsd Oops rears it head again
+Message-ID: <20001228212116.A968@lingas.basement.bogus>
+Reply-To: mike@kre8tive.org
+In-Reply-To: <20001228161126.A982@lingas.basement.bogus> <200012282159.NAA00929@pizda.ninka.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200012282159.NAA00929@pizda.ninka.net>; from davem@redhat.com on Thu, Dec 28, 2000 at 01:59:03PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi!
+All,
 
-kernel: 2.4.0.test12
-hardware: Adaptec AIC-7892 Ultra 160/m SCSI host adapter (19160)
+You are some damn smart people.
 
-problem: kernel hangs when using my cdrom with cdparanoia to read cdda data.
-(i have nothing else on the bus for now.)
+Whatever evil was happening is fixed in test13-pre5.
 
-i'd like 2 provide more info, but after 2 *long* fsck ... (maybe tomorrow :-(
+I pounded it with 3 successive full backups of my
+multigig nfs mounted home directory to my Onstream
+drive while downloading a kernel and doing multiple
+>100M file copies over nfs at the same time while
+playing an mp3 off a nfs mounted partition.
 
-i've read about similar hangs on an alpha on this list (same kind of controller)
-any solution there ...
+It was moving slow cause the card is 10mbs, but all
+jobs finished and the machine is now sitting idle
+as happy as can be.
 
-Regards,
-	Armin
+Any idea what portion of pre4 got fixed in pre5 to
+fix this problem?  I'd just like to know so I can
+look around if it comes back.
+
+Sorta related:
+
+I really need to get rid of this 8139 card.  Since
+yall are the oracle, which nice 100mbs card is fine
+hardware and is coupled with a well debugged driver?
+
+I don't want to have any more network card problems.
+I'm tired of this crappy 8139.
+
+-mwe
+
+
+On Thu, Dec 28, 2000 at 01:59:03PM -0800, David S. Miller wrote:
+> 
+> Try pre5
+> 
+> Later,
+> David S. Miller
+> davem@redhat.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+
+-- 
+
+
+Mike Elmore
+mike@kre8tive.org
+
+"Never confuse activity with accomplishment."
+				-unknown
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

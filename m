@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262658AbTCTWQs>; Thu, 20 Mar 2003 17:16:48 -0500
+	id <S262674AbTCTWG5>; Thu, 20 Mar 2003 17:06:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262659AbTCTWQr>; Thu, 20 Mar 2003 17:16:47 -0500
-Received: from smtp08.iddeo.es ([62.81.186.18]:7121 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id <S262658AbTCTWQq>;
-	Thu, 20 Mar 2003 17:16:46 -0500
-Date: Thu, 20 Mar 2003 23:27:44 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: James Wright <james@jigsawdezign.com>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>, jun.nakajima@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: P4 3.06Ghz Hyperthreading with 2.4.20?
-Message-ID: <20030320222744.GA1975@werewolf.able.es>
-References: <F760B14C9561B941B89469F59BA3A847E96D2E@orsmsx401.jf.intel.com> <20030320212934.0e4ad939.james@jigsawdezign.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20030320212934.0e4ad939.james@jigsawdezign.com>; from james@jigsawdezign.com on Thu, Mar 20, 2003 at 22:29:34 +0100
-X-Mailer: Balsa 2.0.9
+	id <S262671AbTCTWG5>; Thu, 20 Mar 2003 17:06:57 -0500
+Received: from ishtar.tlinx.org ([64.81.58.33]:35523 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id <S262672AbTCTWGP>;
+	Thu, 20 Mar 2003 17:06:15 -0500
+From: "LA Walsh" <law@tlinx.org>
+To: "'mirrors'" <mirrors@kernel.org>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: Deprecating .gz format on kernel.org
+Date: Thu, 20 Mar 2003 14:17:04 -0800
+Message-ID: <001a01c2ef2e$701f9fd0$1403a8c0@sc.tlinx.org>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+Importance: Normal
+In-Reply-To: <20030319213917.GB1030@mars.ravnborg.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 03.20, James Wright wrote:
-> 
->   I have patched my 2.4.20 kernel with the relevant ACPI patch, and now it suing ACPI
-> it detects the 2 Logical CPU's BUT it still disables SMP and /proc/cpuinfo only shows one processor... Sorry for the including this but here is a extract "dmesg":
-> 
-[...]
-> SMP motherboard not detected.
+'Sam Ravnborg' wrote:
+> It is a convinient feature that I can download the kernel now and then
+> when at work (no linux) - and it makes it a bit simpler to use
+> an archiver that has native support for the format used.
+> Winzip, being the only allowed archiver at work, does not
+> have native bz2 support.
+----
+	I asked WinZip for plugin support so users could add
+arbitrary compressions formats (I specifically mentioned 'bz2').
+I even offered to do it myself if they wanted to give me NDA access
+to the code....  and was told that they have thought about
+extensibility but had no plans to support  it in the forseeable
+future.  Consider it a benefit of a closed source product.
+They control your file format, they control your business and personal decisions...nice.
 
-Check if your bios has something like 'Enable ACPI register'. My 400GX has it.
+	Anyone up for writing a Free version of Winzip to replace
+the "cooperative" Winzip authors' version (was was up for making
+minor mod's, but not starting from scratch).
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Bamboo) for i586
-Linux 2.4.21-pre5-jam0 (gcc 3.2.2 (Mandrake Linux 9.1 3.2.2-3mdk))
+-linda
+
+

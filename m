@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbULZOxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbULZPBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbULZOxO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 09:53:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbULZOxO
+	id S261665AbULZPBt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 10:01:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbULZPBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 09:53:14 -0500
-Received: from smtp1.adl2.internode.on.net ([203.16.214.181]:45316 "EHLO
-	smtp1.adl2.internode.on.net") by vger.kernel.org with ESMTP
-	id S261664AbULZOxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 09:53:10 -0500
-Date: Mon, 27 Dec 2004 01:23:02 +1030
-From: "Mark Williams (MWP)" <mwp@internode.on.net>
+	Sun, 26 Dec 2004 10:01:49 -0500
+Received: from ferdi.naasa.net ([212.8.0.5]:5125 "EHLO ferdi.naasa.net")
+	by vger.kernel.org with ESMTP id S261665AbULZPBr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Dec 2004 10:01:47 -0500
+From: Joerg Platte <lists@naasa.net>
+Reply-To: lists@naasa.net
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.10 make script problems
-Message-ID: <20041226145302.GA12627@linux.comp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Kernel 2.6.10 with IPSEC problems?
+Date: Sun, 26 Dec 2004 15:53:23 +0100
+User-Agent: KMail/1.7.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Message-Id: <200412261553.24178.lists@naasa.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi!
 
+After an upgrade from 2.6.9 to 2.6.10 my IPSEC tunnel does not work as usual. 
+My computer and the VPN-gateway can negotiate and build a tunnel and packets 
+can use the tunnel. But then packets which must be routed get lost somewhere 
+inside the kernel. tcpdump shows them first encrypted in ESP packets and then 
+the unencrypted payload on the same interface. But they do not leave the 
+kernel on the destination interface. Only packets with my computer as 
+destination are processed. I did not change my IPSEC configuration and the 
+kernel was configured using "make oldconfig".
 
-First... im not on lkml, so can you please CC replies back to me, thanks.
+Is there a problem in the routing layer somewhere inside the kernel or an 
+internal change which requires a configuration change on my side? How can I 
+determine, where and why the packets inside the kernel are thrown away?
 
+To verify the problem I build a 2.6.10 kernel on the VPN gateway. And this 
+kernel seems to have the same problem. Previously encrypted packets are not 
+routed to th destination.
 
-This is a werid one...
+Downgrading to 2.6.9 solved the problem in both cases...
 
-On running "make menuconfig" for the first time on a freshly extracted
-"linux-2.6.10.tar.bz2" everything works fine.
-
->From then on however, running "make" in any form ("make bzImage", "make
-menuconfig", etc) brings on this:
-
-[root@linux linux-2.6.10]# make bzImage
-make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 bzImage
-make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 bzImage
-make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 bzImage
-make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 bzImage
-make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 bzImage
-....
-
-which continues until i ctrl-c.
-
-I am running "GNU Make version 3.79.1", and all previous versions of the kernel
-(2.6.9, 2.6.8.1, etc) have all built, and still do build perfectly.
-
-Any ideas?
-
-Thanks,
- Mark Williams.
+Regards,
+Jörg

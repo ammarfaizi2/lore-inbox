@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317416AbSGJOhV>; Wed, 10 Jul 2002 10:37:21 -0400
+	id <S317436AbSGJOlx>; Wed, 10 Jul 2002 10:41:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317439AbSGJOhU>; Wed, 10 Jul 2002 10:37:20 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39943 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317416AbSGJOhT>;
-	Wed, 10 Jul 2002 10:37:19 -0400
-Date: Wed, 10 Jul 2002 15:40:03 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Marco Colombo <marco@esi.it>
-Cc: Larry McVoy <lm@bitmover.com>,
-       kernel-janitor-discuss 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: BKL removal
-Message-ID: <20020710154003.Z27706@parcelfarce.linux.theplanet.co.uk>
-References: <20020708222127.G11300@work.bitmover.com> <Pine.LNX.4.44.0207101144010.728-100000@Megathlon.ESI>
+	id <S317437AbSGJOlw>; Wed, 10 Jul 2002 10:41:52 -0400
+Received: from 216-42-72-141.ppp.netsville.net ([216.42.72.141]:32800 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S317436AbSGJOlv>; Wed, 10 Jul 2002 10:41:51 -0400
+Subject: Re: reiserfsprogs release
+From: Chris Mason <mason@suse.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Steven Cole <elenstev@mesatop.com>, Vitaly Fertman <vitaly@namesys.com>,
+       reiserfs-list@namesys.com, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20020710153801.A8570@infradead.org>
+References: <200206251829.25799.vitaly@namesys.com>
+	<20020625165254.GA30301@matrix.wg> <200206261317.10813.vitaly@namesys.com>
+	<200207101206.48370.vitaly@namesys.com>
+	<1026311034.7074.76.camel@spc9.esa.lanl.gov> 
+	<20020710153801.A8570@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 10 Jul 2002 10:44:32 -0400
+Message-Id: <1026312272.5663.227.camel@tiny>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0207101144010.728-100000@Megathlon.ESI>; from marco@esi.it on Wed, Jul 10, 2002 at 12:03:08PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 10, 2002 at 12:03:08PM +0200, Marco Colombo wrote:
-> Larry, there's something I've always wanted to ask you about your
-> idea of the "locking cliff": when you're counting the number of locks,
-> are you looking at the running image of an OS or at the source? 
+On Wed, 2002-07-10 at 10:38, Christoph Hellwig wrote:
+> On Wed, Jul 10, 2002 at 08:23:54AM -0600, Steven Cole wrote:
+> > On Wed, 2002-07-10 at 02:06, Vitaly Fertman wrote:
+> > > 
+> > > Hi all,
+> > > 
+> > > the latest reiserfsprogs-3.6.2 is available on our ftp site.
+> > > 
+> > 
+> > Is the following patch to Documentation/Changes appropriate?
+> 
+> Does reiserfs in 2.4.19-pre require that version?  if yes it would be
+> very bad (2.4 is not supposed to need newer userlevel during the series)
 
-Larry normally talks about the number of conceptual locks.  So in order
-to manipulate a `struct file', it really doesn't matter whether you have
-to grab the BKL, the files_struct lock or the filp->lock.  There's a big
-difference if you have to grab the filp->pos_lock, the filp->ra_lock and
-the filp->iobuf_lock.  You'd have to know what order to grab them in,
-for a start.
+No, it does not require that version.  It is a good idea since fsck
+improves with each release though ;-)
 
--- 
-Revolutions do not require corporate support.
+-chris
+
+

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316034AbSENUZ6>; Tue, 14 May 2002 16:25:58 -0400
+	id <S316039AbSENU3R>; Tue, 14 May 2002 16:29:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316037AbSENUZ5>; Tue, 14 May 2002 16:25:57 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:29969 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S316034AbSENUZ5>; Tue, 14 May 2002 16:25:57 -0400
-Date: Tue, 14 May 2002 21:25:51 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: John Weber <john.weber@linuxhq.com>
-Cc: Pawel Kot <pkot@linuxnews.pl>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Unofficial but Supported Kernel Patches
-Message-ID: <20020514202550.GB77716@compsoc.man.ac.uk>
-In-Reply-To: <Pine.LNX.4.33.0205121858570.493-100000@urtica.linuxnews.pl> <3CDEA50F.4000100@linuxhq.com>
+	id <S316040AbSENU3Q>; Tue, 14 May 2002 16:29:16 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:50879 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S316039AbSENU3P>;
+	Tue, 14 May 2002 16:29:15 -0400
+Date: Tue, 14 May 2002 22:29:12 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Andre LeBlanc <ap.leblanc@shaw.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: No Network after Compiling, 2.4.19-pre8 under Debian Woody
+Message-ID: <20020514202912.GA18544@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Andre LeBlanc <ap.leblanc@shaw.ca>, linux-kernel@vger.kernel.org
+In-Reply-To: <003c01c1fb9d$345e0a20$2000a8c0@metalbox>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 12, 2002 at 01:23:27PM -0400, John Weber wrote:
+On Tue, May 14, 2002 at 04:15:14PM -0700, Andre LeBlanc wrote:
+> Ok, the system is a Duron 1GHz on an ECS Motherboard with the SiS 730S
+> Chipset. 384 MB PC133, with a realtek 8139 based Nic.
+> heres the .config
+> 
+> network works fine if I boot the old(2.2.20) kernel but booting 2.4.19-pre8
+> causes me to have no network connection, But the device is configured
+> properly. (I Think)
+> I can also send my dmesg if it will help
 
-> I was thinking more about patches that are not included in the kernel 
-> right now, and perhaps more research patches that may never be included 
-> in the kernel.
-
-What do you think that list is ??
-
-(Btw, if anyone knows of things missing, do tell me)
-
-regards
-john
+Please do. Also show the output of ifconfig before and after trying to ping
+some hosts.
 
 -- 
-"So what you're saying is "screw the disabled" and you want us to do the
- same ?  No thanks..."
-	- Ian Hixie, bug 25537
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

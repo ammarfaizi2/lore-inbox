@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbUL1FB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbUL1FDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbUL1FB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 00:01:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbUL1FB1
+	id S262066AbUL1FDW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 00:03:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbUL1FDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 00:01:27 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:14249
+	Tue, 28 Dec 2004 00:03:22 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:19113
 	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262065AbUL1FBY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 00:01:24 -0500
-Date: Mon, 27 Dec 2004 21:00:07 -0800
+	id S262066AbUL1FDQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 00:03:16 -0500
+Date: Mon, 27 Dec 2004 21:01:57 -0800
 From: "David S. Miller" <davem@davemloft.net>
-To: yoshfuji@linux-ipv6.org
-Cc: roland@topspin.com, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, akpm@osdl.org, torvalds@osdl.org,
-       netdev@oss.sgi.com, yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH][v4][0/24] Second InfiniBand merge candidate patch set
-Message-Id: <20041227210007.398734cd.davem@davemloft.net>
-In-Reply-To: <20041220.153845.70996857.yoshfuji@linux-ipv6.org>
-References: <200412192214.KlDxQ7icOmxHYIf0@topspin.com>
-	<20041220.153845.70996857.yoshfuji@linux-ipv6.org>
+To: Patrick McHardy <kaber@trash.net>
+Cc: 7atbggg02@sneakemail.com, linux-kernel@vger.kernel.org,
+       solt2@dns.toxicfilms.tv, yoshfuji@linux-ipv6.org
+Subject: Re: what/where is ss tool ?
+Message-Id: <20041227210157.282b2412.davem@davemloft.net>
+In-Reply-To: <41C97915.8020604@trash.net>
+References: <012f01c4e81f$f4bddbd0$0e25fe0a@pysiak>
+	<20041222122758.GB6627@m.safari.iki.fi>
+	<41C96F24.2050409@trash.net>
+	<20041222.222654.126619836.yoshfuji@linux-ipv6.org>
+	<41C97915.8020604@trash.net>
 X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
 X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Dec 2004 15:38:45 +0900 (JST)
-YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org> wrote:
+On Wed, 22 Dec 2004 14:39:33 +0100
+Patrick McHardy <kaber@trash.net> wrote:
 
-> In article <200412192214.KlDxQ7icOmxHYIf0@topspin.com> (at Sun, 19 Dec 2004 22:14:43 -0800), Roland Dreier <roland@topspin.com> says:
+> YOSHIFUJI wrote:
+> > would you enclose URL by <>, like <http://...>?
+> > 
+> > --yoshfuji
+> > 
 > 
-> > The following series of patches is the latest version of the OpenIB
-> > InfiniBand drivers.  We believe that this version is suitable for
-> > merging when 2.6.11 opens (or into -mm immediately), although of
-> > course we are willing to go through as many more iterations as
-> > required to fix any remaining issues.
-> 
-> Maybe, via the net queue. David?
+> Updated patch attached, thanks everyone.
 
-If Roland can resubmit his patch queue to me with the fixes
-folks have recommended to him, I can start merging this stuff
-in.
+Applied, thanks Patrick.
 
-I leave for vacation Wednesday morning (PST time), so if it is
-submitted after that I'll get to it at the beginning of the
-new year.

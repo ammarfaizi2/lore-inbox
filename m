@@ -1,140 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262053AbTJSTIA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 15:08:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbTJSTIA
+	id S262048AbTJSTDa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 15:03:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbTJSTDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 15:08:00 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:7588 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262053AbTJSTH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 15:07:56 -0400
-Date: Sun, 19 Oct 2003 21:07:55 +0200
-From: Jan Kara <jack@ucw.cz>
-To: torvalds@osdl.org
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Quota locking fix
-Message-ID: <20031019190755.GB8169@atrey.karlin.mff.cuni.cz>
+	Sun, 19 Oct 2003 15:03:30 -0400
+Received: from holomorphy.com ([66.224.33.161]:23170 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262048AbTJSTD2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 15:03:28 -0400
+Date: Sun, 19 Oct 2003 12:01:21 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, davidm@hpl.hp.com, bjorn.helgaas@hp.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] prevent "dd if=/dev/mem" crash
+Message-ID: <20031019190121.GA1215@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Andrew Morton <akpm@osdl.org>, davidm@hpl.hp.com,
+	bjorn.helgaas@hp.com, linux-ia64@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <200310171610.36569.bjorn.helgaas@hp.com> <20031017155028.2e98b307.akpm@osdl.org> <200310171725.10883.bjorn.helgaas@hp.com> <20031017165543.2f7e9d49.akpm@osdl.org> <16272.34681.443232.246020@napali.hpl.hp.com> <20031017174955.6c710949.akpm@osdl.org> <m1llrh79la.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <m1llrh79la.fsf@ebiederm.dsl.xmission.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi Linus,
+On Sun, Oct 19, 2003 at 05:25:37AM -0600, Eric W. Biederman wrote:
+> We do have all of the information we need in struct page to see if a
+> page address is valid, so checking that is reasonable.  I suspect it
+> will require some interesting variant of pfn_to_page to handle of the
+> weird sparse memory locations properly.
 
-  I'm resending patch which fixes a quota locking problem causing deadlock
-(when inode was being released from icache and it caused newly created
-quota structure to be written). The patch against 2.6.0-test7 and should
-apply at test8 too. Please apply.
+It would be best to check the pfn before attempting to convert it to a
+struct page. The struct page * returned by arch code will be garbage in
+most instances, as none of the routines actually check validity
+internally. pfn_valid() is even bogus on most of them, so you'll have
+to walk pgdats by hand for this. The pfn_valid() checks work most of the
+time on PC's, but the first time someone runs X on a box with discontig
+and a bogus pfn_valid() they'll get fireworks (and in fact, it's already
+happened, but wasn't posted to lkml).
 
-								Honza
 
-------------- cut here ---------------
-
-diff -ruNX /home/jack/.kerndiffexclude linux-2.6.0-test7/fs/dquot.c linux-2.6.0-test7-1-lockfix/fs/dquot.c
---- linux-2.6.0-test7/fs/dquot.c	Tue Oct 14 15:52:08 2003
-+++ linux-2.6.0-test7-1-lockfix/fs/dquot.c	Tue Oct 14 16:26:28 2003
-@@ -826,28 +826,49 @@
- }
- 
- /*
-- * Release all quota for the specified inode.
-- *
-- * Note: this is a blocking operation.
-+ *	Remove references to quota from inode
-+ *	This function needs dqptr_sem for writing
-  */
--static void dquot_drop_nolock(struct inode *inode)
-+static void dquot_drop_iupdate(struct inode *inode, struct dquot **to_drop)
- {
- 	int cnt;
- 
- 	inode->i_flags &= ~S_QUOTA;
- 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
--		if (inode->i_dquot[cnt] == NODQUOT)
--			continue;
--		dqput(inode->i_dquot[cnt]);
-+		to_drop[cnt] = inode->i_dquot[cnt];
- 		inode->i_dquot[cnt] = NODQUOT;
- 	}
- }
- 
-+/*
-+ * 	Release all quotas referenced by inode
-+ */
- void dquot_drop(struct inode *inode)
- {
-+	struct dquot *to_drop[MAXQUOTAS];
-+	int cnt;
-+	
- 	down_write(&sb_dqopt(inode->i_sb)->dqptr_sem);
--	dquot_drop_nolock(inode);
-+	dquot_drop_iupdate(inode, to_drop);
- 	up_write(&sb_dqopt(inode->i_sb)->dqptr_sem);
-+	for (cnt = 0; cnt < MAXQUOTAS; cnt++)
-+		if (to_drop[cnt] != NODQUOT)
-+			dqput(to_drop[cnt]);
-+}
-+
-+/*
-+ *	Release all quotas referenced by inode.
-+ *	This function assumes dqptr_sem for writing
-+ */
-+void dquot_drop_nolock(struct inode *inode)
-+{
-+	struct dquot *to_drop[MAXQUOTAS];
-+	int cnt;
-+
-+	dquot_drop_iupdate(inode, to_drop);
-+	for (cnt = 0; cnt < MAXQUOTAS; cnt++)
-+		if (to_drop[cnt] != NODQUOT)
-+			dqput(to_drop[cnt]);
- }
- 
- /*
-@@ -862,6 +883,10 @@
- 		warntype[cnt] = NOWARN;
- 
- 	down_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
-+	if (IS_NOQUOTA(inode)) {
-+		up_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
-+		return QUOTA_OK;
-+	}
- 	spin_lock(&dq_data_lock);
- 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
- 		if (inode->i_dquot[cnt] == NODQUOT)
-@@ -894,6 +919,10 @@
- 	for (cnt = 0; cnt < MAXQUOTAS; cnt++)
- 		warntype[cnt] = NOWARN;
- 	down_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
-+	if (IS_NOQUOTA(inode)) {
-+		up_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
-+		return QUOTA_OK;
-+	}
- 	spin_lock(&dq_data_lock);
- 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
- 		if (inode->i_dquot[cnt] == NODQUOT)
-@@ -923,6 +952,10 @@
- 	unsigned int cnt;
- 
- 	down_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
-+	if (IS_NOQUOTA(inode)) {
-+		up_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
-+		return;
-+	}
- 	spin_lock(&dq_data_lock);
- 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
- 		if (inode->i_dquot[cnt] == NODQUOT)
-@@ -942,6 +975,10 @@
- 	unsigned int cnt;
- 
- 	down_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
-+	if (IS_NOQUOTA(inode)) {
-+		up_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
-+		return;
-+	}
- 	spin_lock(&dq_data_lock);
- 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
- 		if (inode->i_dquot[cnt] == NODQUOT)
+-- wli

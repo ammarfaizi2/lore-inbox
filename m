@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317525AbSGTVQ2>; Sat, 20 Jul 2002 17:16:28 -0400
+	id <S317535AbSGTVSe>; Sat, 20 Jul 2002 17:18:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317531AbSGTVQ2>; Sat, 20 Jul 2002 17:16:28 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:20215 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317525AbSGTVQ1>; Sat, 20 Jul 2002 17:16:27 -0400
-Subject: Re: [PATCH] generalized spin_lock_bit
-From: Robert Love <rml@tech9.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, riel@conectiva.com.br
-In-Reply-To: <20020720211539.GG1096@holomorphy.com>
-References: <1027196511.1555.767.camel@sinai>
-	<Pine.LNX.4.44.0207201335560.1492-100000@home.transmeta.com> 
-	<20020720211539.GG1096@holomorphy.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 20 Jul 2002 14:19:31 -0700
-Message-Id: <1027199971.1555.797.camel@sinai>
-Mime-Version: 1.0
+	id <S317536AbSGTVSe>; Sat, 20 Jul 2002 17:18:34 -0400
+Received: from ip68-100-183-147.nv.nv.cox.net ([68.100.183.147]:42425 "HELO
+	ascellatech.com") by vger.kernel.org with SMTP id <S317535AbSGTVSc>;
+	Sat, 20 Jul 2002 17:18:32 -0400
+Message-ID: <1027200088.3d39d4587cc66@192.168.101.69>
+Date: Sat, 20 Jul 2002 17:21:28 -0400
+From: Amith Varghese <amith@xalan.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-2.4.19-rc1-ac4 + Promise SX6000 + i2o
+References: <1026941364.4547.91.camel@viper>  <1026966681.4537.119.camel@viper>  <1027048267.4537.185.camel@viper> <1027197568.16818.23.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1027197568.16818.23.camel@irongate.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 4.0-cvs
+X-Originating-IP: 192.168.101.71
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-07-20 at 14:15, William Lee Irwin III wrote:
+So does this mean that the item mentioned in the 2.4.19-rc1-ac3 changelog will 
+not work because the 2.4.19 base tries to initialize the drive first? Or is 
+the -ac tree immune to this problem?
 
-> I was hoping to devolve the issue of the implementation of it to arch
-> maintainers by asking for this. I was vaguely aware that the atomic bit
-> operations are implemented via hashed spinlocks on PA-RISC and some
-> others, so by asking for the right primitives to come back up from arch
-> code I hoped those who spin elsewhere might take advantage of their
-> window of exclusive ownership.
+o        Newer SX6000 has PDC20276 chips. Handle this 
 
-Yah, me too ;)
+If that is the case, I guess I have to use the promise drivers.  However, i'll 
+offer free beer if anyone can help me get the i2o driver to work :)
 
-> Would saying "Here is an address, please lock it, and if you must flip
-> a bit, use this bit" suffice? I thought it might give arch code enough
-> room to wiggle, but is it enough?
+Thanks
+Amith
 
-I would prefer to do nothing right now.  We can implement the general
-interface but keep the pte_chain_lock abstraction.  Individual
-architectures can optimize their bitwise locking.
 
-If that does not suffice and their is a REAL problem in the future we
-can look to a better approach...
+Quoting Alan Cox <alan@lxorguk.ukuu.org.uk>:
 
-	Robert Love
+> On Fri, 2002-07-19 at 04:11, Amith Varghese wrote:
+> > Ok, I am still having problems booting 2.4.19-rc2-ac2.... I get an APIC
+> > error on CPU0 (and CPU1).  However, I tried 2.4.19-rc2 with my Promise
+> > SX6000 and get a slightly different result than 2.4.18.  It almost looks
+> > like the hard drives attached to the promise sx6000 are being
+> > initialized before it gets to the i2o code and the i2o block driver is
+> > unable to initialize /dev/i2o/hda (but thats a wild guess from my
+> 
+> They are. 2.4.19 base doesn't yet avoid them it seems. 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+
+
 

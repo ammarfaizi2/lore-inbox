@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286507AbRLUBV5>; Thu, 20 Dec 2001 20:21:57 -0500
+	id <S286508AbRLUB3r>; Thu, 20 Dec 2001 20:29:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286508AbRLUBVq>; Thu, 20 Dec 2001 20:21:46 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:20184 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S286507AbRLUBVh>;
-	Thu, 20 Dec 2001 20:21:37 -0500
-Date: Thu, 20 Dec 2001 17:21:24 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Wireless Extension - new driver API - phase 2
-Message-ID: <20011220172124.E15923@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S286510AbRLUB3h>; Thu, 20 Dec 2001 20:29:37 -0500
+Received: from svr3.applink.net ([206.50.88.3]:42759 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S286508AbRLUB3f>;
+	Thu, 20 Dec 2001 20:29:35 -0500
+Message-Id: <200112210129.fBL1TPSr018455@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Fwd: Re: Intel Kennereth LAN Support (Found)
+Date: Thu, 20 Dec 2001 19:25:44 -0600
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
 
-	I'm continuing the work on the new driver API for Wireless
-Extensions. The second phase was adding Wireless Events, and it's
-working.
-	If you are interested, grab the patches from my web page :
-http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html#newapi
 
-	More on this in January (hopefully). Happy Chrismas...
+On Thursday 20 December 2001 12:55, Timothy Covell wrote:
+> I've got a couple computers with built-in Intel
+> Kennereth LAN connections ( i815E chipset).
+> RH7.2 supports this with a custom patch which
+> I've been able to apply to later kernels by hand,
+> but it sure is a pain in the butt.  Are there any plans
+> for a fully free driver?
 
-	Jean
+Oops, my fault, it looks like it's been rolled into
+the eepro100 driver.   Pretty sneaky that.
+I've got 2.4.16 working w/o any extra work.
+
+-- 
+timothy.covell@ashavan.org.

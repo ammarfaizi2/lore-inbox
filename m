@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269134AbRHGQiL>; Tue, 7 Aug 2001 12:38:11 -0400
+	id <S269002AbRHGQvY>; Tue, 7 Aug 2001 12:51:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269002AbRHGQiC>; Tue, 7 Aug 2001 12:38:02 -0400
-Received: from [64.38.173.150] ([64.38.173.150]:24068 "EHLO chicago.cheek.com")
-	by vger.kernel.org with ESMTP id <S269001AbRHGQh6>;
-	Tue, 7 Aug 2001 12:37:58 -0400
-Message-ID: <3B7018C8.30101@cheek.com>
-Date: Tue, 07 Aug 2001 09:35:20 -0700
-From: Joseph Cheek <joseph@cheek.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010712
-X-Accept-Language: en-us
+	id <S269001AbRHGQvO>; Tue, 7 Aug 2001 12:51:14 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:52842 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S269002AbRHGQvD>; Tue, 7 Aug 2001 12:51:03 -0400
+Date: Tue, 7 Aug 2001 12:51:05 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@touchme.toronto.redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+Subject: Re: [RFC][DATA] re "ongoing vm suckage"
+In-Reply-To: <Pine.LNX.4.31.0108070920440.31117-100000@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0108071245250.30280-100000@touchme.toronto.redhat.com>
 MIME-Version: 1.0
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: eepro100 (PCI ID 82820) lockups/failure
-In-Reply-To: <20010806022727.A25793@saw.sw.com.sg> <Pine.LNX.4.10.10108060846230.14815-100000@chicago.cheek.com> <20010807034810.A10311@saw.sw.com.sg>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-once i changed the udelay() to 10 i was able to see the wait_for_timeout 
-errors others have reported.  with the udelay at 1 i saw nothing on the 
-screen before the lockup.
+On Tue, 7 Aug 2001, Linus Torvalds wrote:
 
-thanks!
+> Try pre4.
 
-joe
+It's similarly awful (what did you expect -- there are no meaningful
+changes between the two!).  io throughput to a 12 disk array is humming
+along at a whopping 40MB/s (can do 80) that's very spotty and jerky,
+mostly being driven by syncs.  vmscan gets delayed occasionally, and small
+interactive program loading varies from not to long (3s) to way too long
+(> 30s).
 
-Andrey Savochkin wrote:
-
->On Mon, Aug 06, 2001 at 08:48:22AM -0700, Joseph Cheek wrote:
->
->>i applied the usleep(1) patch and i still get lockups on 2.4.7-ac5.  not
->>sure how i could get you the info you need, but i would certainly be
->>willing to help.
->>
->>my machine locks hard before anything gets to syslog.
->>
->
->Are you able to check the screen?
->Had the driver printed anything before the lockup?
->
->	Andrey
->
-
+		-ben
 

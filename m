@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315546AbSFKBHW>; Mon, 10 Jun 2002 21:07:22 -0400
+	id <S315746AbSFKBI0>; Mon, 10 Jun 2002 21:08:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315746AbSFKBHV>; Mon, 10 Jun 2002 21:07:21 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:46829 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S315546AbSFKBHU>; Mon, 10 Jun 2002 21:07:20 -0400
-From: brendanburns@attbi.com
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: compiling hfs module in 2.5.21
-Date: Tue, 11 Jun 2002 01:05:32 +0000
-X-Mailer: AT&T Message Center Version 1 (Apr 29 2002)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="NextPart_Webmail_9m3u9jl4l_23256_1023757532"
-Message-Id: <20020611010535.IEDK11426.rwcrmhc51.attbi.com@rwcrwbc55>
+	id <S316603AbSFKBIY>; Mon, 10 Jun 2002 21:08:24 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:61663 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S315746AbSFKBIB>;
+	Mon, 10 Jun 2002 21:08:01 -0400
+Date: Mon, 10 Jun 2002 17:53:42 -0700
+To: Jeff Garzik <jgarzik@mandrakesoft.com>, irda-users@lists.sourceforge.net,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] : ir250_checker.diff
+Message-ID: <20020610175342.F21783@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ir250_checker.diff :
+------------------
+	o [CORRECT] Fix two bugs found by the Stanford checker in IrCOMM
 
---NextPart_Webmail_9m3u9jl4l_23256_1023757532
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
 
-Hello,
-I ran into a problem compiling the hfs (hierarchical file
-system) as a module in kernel 2.5.21. I'm running gcc
-version 2.95.4 20011002 (Debian prerelease) on a x86. 
-The error message from gcc is:
-  gcc -Wp,-MD,.inode.o.d -D__KERNEL__
--I/usr/src/linux-2.5.21/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe
--mpreferred-stack-boundary=2 -march=i686 -nostdinc
--iwithprefix include -DMODULE -include
-/usr/src/linux-2.5.21/include/linux/modversions.h  
--DKBUILD_BASENAME=inode   -c -o inode.o inode.c
-inode.c: In function `hfs_prepare_write':
-inode.c:242: dereferencing pointer to incomplete type
-make[3]: *** [inode.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.5.21/fs/hfs'
-make[2]: *** [_subdir_hfs] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.5.21/fs'
-make[1]: *** [fs] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.21'
-make: *** [modules] Error 2
 
-My solution is to add #include <linux/mm.h> to
-fs/hfs/inode.c, a patch to do this is attached.
 
-Thanks!
---brendan
-
---NextPart_Webmail_9m3u9jl4l_23256_1023757532
-Content-Type: application/octet-stream; name="inode-header.patch"
-Content-Transfer-Encoding: 7bit
-
---- a/fs/hfs/inode.c	Thu Jun  6 18:15:07 2002
-+++ b/fs/hfs/inode.c	Thu Jun  6 18:13:13 2002
-@@ -17,6 +17,7 @@
-  */
+diff -u -p linux/net/irda/ircomm/ircomm_core.d0.c linux/net/irda/ircomm/ircomm_core.c
+--- linux/net/irda/ircomm/ircomm_core.d0.c	Mon Jun 10 11:28:44 2002
++++ linux/net/irda/ircomm/ircomm_core.c	Mon Jun 10 11:30:01 2002
+@@ -512,7 +512,7 @@ int ircomm_proc_read(char *buf, char **s
  
- #include "hfs.h"
-+#include <linux/mm.h>
- #include <linux/hfs_fs_sb.h>
- #include <linux/hfs_fs_i.h>
- #include <linux/hfs_fs.h>
-
---NextPart_Webmail_9m3u9jl4l_23256_1023757532--
+ 	self = (struct ircomm_cb *) hashbin_get_first(ircomm);
+ 	while (self != NULL) {
+-		ASSERT(self->magic == IRCOMM_MAGIC, return len;);
++		ASSERT(self->magic == IRCOMM_MAGIC, break;);
+ 
+ 		if(self->line < 0x10)
+ 			len += sprintf(buf+len, "ircomm%d", self->line);
+diff -u -p linux/net/irda/ircomm/ircomm_tty.d0.c linux/net/irda/ircomm/ircomm_tty.c
+--- linux/net/irda/ircomm/ircomm_tty.d0.c	Mon Jun 10 11:28:57 2002
++++ linux/net/irda/ircomm/ircomm_tty.c	Mon Jun 10 11:31:09 2002
+@@ -523,6 +523,9 @@ static void ircomm_tty_close(struct tty_
+ 	if (!tty)
+ 		return;
+ 
++	ASSERT(self != NULL, return;);
++	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
++
+ 	save_flags(flags); 
+ 	cli();
+ 
+@@ -533,9 +536,6 @@ static void ircomm_tty_close(struct tty_
+ 		IRDA_DEBUG(0, __FUNCTION__ "(), returning 1\n");
+ 		return;
+ 	}
+-
+-	ASSERT(self != NULL, return;);
+-	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+ 
+ 	if ((tty->count == 1) && (self->open_count != 1)) {
+ 		/*

@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266536AbUFVAsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266538AbUFVAwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266536AbUFVAsV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 20:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266539AbUFVAsV
+	id S266538AbUFVAwT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 20:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266539AbUFVAwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 20:48:21 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:4992 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S266536AbUFVAsT (ORCPT
+	Mon, 21 Jun 2004 20:52:19 -0400
+Received: from main.gmane.org ([80.91.224.249]:5034 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266538AbUFVAwR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 20:48:19 -0400
-Date: Mon, 21 Jun 2004 17:48:13 -0700
-To: Andrew Morton <akpm@osdl.org>
-Cc: Joshua Kwan <jkwan@rackable.com>, linux-kernel@vger.kernel.org
-Subject: Re: What happened to linux/802_11.h?
-Message-ID: <20040622004813.GA12334@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <pan.2004.06.21.22.25.18.591967@triplehelix.org> <20040621173827.0403618b.akpm@osdl.org>
+	Mon, 21 Jun 2004 20:52:17 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: Matroxfb in 2.6 still doesn't work in 2.6.7
+Date: Tue, 22 Jun 2004 02:51:24 +0200
+Message-ID: <MPG.1b41a0f6b20282e39896d1@news.gmane.org>
+References: <20040618211031.GA4048@irc.pl> <20040619190503.GB17053@vana.vc.cvut.cz> <20040619193053.GA3644@irc.pl> <20040619203954.GC17053@vana.vc.cvut.cz> <20040620160437.GA29046@irc.pl> <20040620170114.GA4683@vana.vc.cvut.cz> <20040620213743.GA6974@irc.pl> <20040621013136.GB4683@vana.vc.cvut.cz> <20040621181003.GB28577@irc.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040621173827.0403618b.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-164-130.29-151.libero.it
+X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 21, 2004 at 05:38:27PM -0700, Andrew Morton wrote:
-> Joshua Kwan <jkwan@rackable.com> wrote:
-> >
-> > Hello,
+Tomasz Torcz wrote:
+> On Mon, Jun 21, 2004 at 03:31:36AM +0200, Petr Vandrovec wrote:
+> > > > > > video=matroxfb:vesa:0x11A,right:48,hslen:112,left:248,hslen:112,lower:1,vslen:3,upper:48
+> > > > > > maybe with ',sync:3' if +hsync/+vsync are mandatory for your monitor.
 > > 
-> > linus.patch from -mm1:
-> > # BitKeeper/deleted/.del-802_11.h~9b6bd4cff8af7a90
-> > #   2004/06/18 09:47:58-07:00 torvalds@ppc970.osdl.org +0 -0
-> > #   Delete: include/linux/802_11.h
-> > 
-> > Why was this file removed?
+> > 1280x1024-60 just selects some videomode fbdev subsystem thinks your monitor should use,
+> > while vesa:0x11A selects videomode I think you should use.
 > 
-> Nothing in the kernel is using it.
+>  Could fbdev be changed to select the same videomode as vesa: switch?
 
-	It was a remnant from the old aironet4500 driver that was
-removed during 2.5.X. It was also confusing because there is a file
-called drivers/net/wireless/ieee802_11.h that has a somewhat similar
-purpose and is used in various drivers (Orinoco, Atmel). I think it
-was discussed on netdev.
-	I was not aware that IPW2100 was using it. I could not try
-this driver because it doesn't compile with gcc 2.95.
+There is a vesafb-tng (the next generation) on Gentoo. I 
+applied it to my 2.6.7; it allows, among other things, to load 
+the vesafb driver as a module and to specify resolutions with 
+the "usual" (widthxheight-bitdepth@refresh) syntax.
 
-> > The IPW2100 driver
-> > (http://ipw2100.sourceforge.net) uses its definitions and now won't build
-> > against -bk or -mm kernel source.
-> 
-> Jean, should we restore 802_11.h, or is there some alternative file which
-> that driver should be using?
+On my video card (GeForce2 Go) it doesn't seem to work very 
+well though.
 
-	Well, Jeff explicitely said that we should not care about
-drivers outside the kernel ;-)
-	Seriously, I see three solutions :
-	1) Convert ipw2100 to using drivers/net/wireless/ieee802_11.h,
-extend this header as necessary
-	2) Have ipw2100 use a private version of 802_11.h
-	3) Convince us that this file is really needed (good luck)
-	Obviously (1) is better in the long term.
+-- 
+Giuseppe "Oblomov" Bilotta
 
-	Have fun...
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
 
-	Jean

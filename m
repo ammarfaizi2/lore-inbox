@@ -1,75 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262962AbTDBLGn>; Wed, 2 Apr 2003 06:06:43 -0500
+	id <S262960AbTDBLF6>; Wed, 2 Apr 2003 06:05:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262967AbTDBLGm>; Wed, 2 Apr 2003 06:06:42 -0500
-Received: from host217-36-80-42.in-addr.btopenworld.com ([217.36.80.42]:31921
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
-	id <S262962AbTDBLGk>; Wed, 2 Apr 2003 06:06:40 -0500
-Subject: Re: 2.5 Kernel Framebuffer Problems
-From: Matthew Hall <matt@ecsc.co.uk>
-To: mtangolics@rcn.com
+	id <S262962AbTDBLF6>; Wed, 2 Apr 2003 06:05:58 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:5640 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S262960AbTDBLF5>;
+	Wed, 2 Apr 2003 06:05:57 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Adam Lackorzynski <adam@os.inf.tu-dresden.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E190QXQ-0004Uz-00@smtp01.mrf.mail.rcn.net>
-References: <E190QXQ-0004Uz-00@smtp01.mrf.mail.rcn.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5Gkqs7jUBqM9FG5r2Fj6"
-Organization: ECSC Ltd.
-Message-Id: <1049282302.745.24.camel@sheeta>
+Subject: Re: genksyms crashes on drivers/char/joystick/pcigame.c 
+In-reply-to: Your message of "Tue, 01 Apr 2003 17:19:18 +0200."
+             <20030401151918.GJ1870@os.inf.tu-dresden.de> 
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.1.99 (Preview Release)
-Date: 02 Apr 2003 12:18:22 +0100
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 02 Apr 2003 21:17:11 +1000
+Message-ID: <25740.1049282231@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 1 Apr 2003 17:19:18 +0200, 
+Adam Lackorzynski <adam@os.inf.tu-dresden.de> wrote:
+>when genksyms is used on drivers/char/joystick/pcigame.c during "make
+>dep" it segfaults.
 
---=-5Gkqs7jUBqM9FG5r2Fj6
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 2003-04-01 at 19:31, mtangolics@rcn.com wrote:
-> I've had a couple of problems with framebuffer console, when=20
-> compiling several different versions of the 2.5 kernel.  I=20
-> included all the FB support, but when I boot up using, LILO=20
-> option, vga=3D791 or anything about normal, the screen either=20
-> goes black, and the system stops responding or the entire=20
-> screen becomes scrambled.  I have an NVidia Geforce4 video=20
-> card if that matters.  I've talked to a couple other users=20
-> who have encountered the same problem.  It's most likely just=20
-> a stupid mistake on my part, but any help would be extremely=20
-> appreciated.
-
-What does your lilo.conf line for 2.5 look like?
-You may need to append some video information, eg.
-
-append=3D"video=3Drivafb,xres:1024,yres:768,bpp:8"
-
-Matt
---=20
-- -- --- ---- .                                   .---- --- -- -
-Matthew Hall   \ http://people.ecsc.co.uk/~matt/ /
-matt@ecsc.co.uk '-------------------------------'
-
-Sig: Destiny is a good thing to accept when it's going your way. When it is=
-n't, don't call it destiny; call it injustice, treachery, or simple bad luc=
-k. -- Joseph Heller, "God Knows"
-
-- -- --- ---- ------------------------------------ ---- --- -- -
-PGP/GnuPG Key: 1024D/2EABF3D5
-Fingerprint: AA89 2BEE FC42 5D64 8CA0  B325 C39C 53E5 2EAB F3D5
-http://people.ecsc.co.uk/~matt/files/mattatecscdotcodotuk.asc
-- -- --- ---- ------------------------------------ ---- --- -- -
-
---=-5Gkqs7jUBqM9FG5r2Fj6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+isb9w5xT5S6r89URAocZAJ9cOzXXlSJw4GKfJuShq8oU1YUr3gCdHHOa
-yzG49QbuaH85lkfuj0CauPY=
-=sSRq
------END PGP SIGNATURE-----
-
---=-5Gkqs7jUBqM9FG5r2Fj6--
+genksyms assumes and requires valid C code as input.  genksyms does not
+attempt to validate the source, that is the job of gcc.  If gcc barfs
+on the code, then do not attempt to run it through genksyms.  This
+looks like a chicken and egg problem but is not, compile with
+MODVERSIONS=n to verify that new code is valid before building with
+MODVERSIONS=y.  To put it another way, do not run modversions on test
+kernels.
 

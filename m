@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129177AbRBSJaf>; Mon, 19 Feb 2001 04:30:35 -0500
+	id <S129412AbRBSJbZ>; Mon, 19 Feb 2001 04:31:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129358AbRBSJaZ>; Mon, 19 Feb 2001 04:30:25 -0500
-Received: from quechua.inka.de ([212.227.14.2]:15396 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S129177AbRBSJaL>;
-	Mon, 19 Feb 2001 04:30:11 -0500
-From: Bernd Eckenfels <W1012@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ip_conntrack error under 2.4.1-ac18
-In-Reply-To: <14992.40178.870916.407096@rhino.thrillseeker.net>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.7-20001104 ("Paradise Regained") (UNIX) (Linux/2.0.36 (i686))
-Message-Id: <E14Ume3-0000Lq-00@sites.inka.de>
-Date: Mon, 19 Feb 2001 10:30:11 +0100
+	id <S129409AbRBSJbP>; Mon, 19 Feb 2001 04:31:15 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:30536 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129358AbRBSJbL>; Mon, 19 Feb 2001 04:31:11 -0500
+Date: Mon, 19 Feb 2001 03:31:05 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+To: Thomas Lau <lkthomas@hkicable.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: anyone can tell me 2.4.2 is stable or not?
+In-Reply-To: <3A90848D.BA030697@hkicable.com>
+Message-ID: <Pine.LNX.3.96.1010219032949.17784A-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <14992.40178.870916.407096@rhino.thrillseeker.net> you wrote:
-> Feb 18 23:05:50 rhino kernel: ip_conntrack: maximum limit of 8184 entries exceed
-> ed
+On Mon, 19 Feb 2001, Thomas Lau wrote:
+> is it stable for use?
 
-> while running nessus, with 100 simultaneous connections set, against a
-> company machine.  This is the first time I've observed this error.
+Is the world a wonderful, beautiful place?
 
-It is not an error, you just used up all entries in the Conenction Track
-Table. You can increase the number of entries or reduce the number of
-concurrent Connections. You may also be able to use normal connect() scan
-methods, AFAIK the timing out of the connections is better with this.
+Both are subjective questions.  2.4 has been stable for me for quite a
+long time, as it has been for many others.  It totally depends on your
+hardware, and what you are doing.  I would say for the most part, yes.
 
-Greetings
-Bernd
+	Jeff
+
+
+
+

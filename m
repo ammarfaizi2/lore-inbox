@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbUE3H6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUE3IKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbUE3H6e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 03:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbUE3H6e
+	id S261443AbUE3IKl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 04:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbUE3IKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 03:58:34 -0400
-Received: from ms003msg.fastwebnet.it ([213.140.2.42]:36569 "EHLO
-	ms003msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S261358AbUE3H6c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 03:58:32 -0400
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: error compiling linux-2.6.6
-Date: Sun, 30 May 2004 09:55:55 +0200
-User-Agent: KMail/1.6.2
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <200405291424.43982.theman@artemio.net> <200405291646.55856.ornati@fastwebnet.it> <20040529172136.GS16099@fs.tum.de>
-In-Reply-To: <20040529172136.GS16099@fs.tum.de>
-MIME-Version: 1.0
+	Sun, 30 May 2004 04:10:41 -0400
+Received: from verein.lst.de ([212.34.189.10]:32658 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261443AbUE3IKk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 04:10:40 -0400
+Date: Sun, 30 May 2004 10:10:34 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: ambx1@neo.rr.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] pnpbios only makes sense for X86
+Message-ID: <20040530081034.GA30736@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, ambx1@neo.rr.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405300955.55187.ornati@fastwebnet.it>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 29 May 2004 19:21, Adrian Bunk wrote:
->
-> His problem is as far as I can see in no way related to the gcc version
-> he's using.
-
-Sorry,
-;-)
-
-Bye
+>From the Debian kernel package
 
 
--- 
-	Paolo Ornati
-	Linux v2.6.6
+--- kernel-source-2.6.6/drivers/pnp/pnpbios/Kconfig	2004-03-11 13:55:37.000000000 +1100
++++ kernel-source-2.6.6-1/drivers/pnp/pnpbios/Kconfig	2004-02-19 20:55:53.000000000 +1100
+@@ -3,7 +3,7 @@
+ #
+ config PNPBIOS
+ 	bool "Plug and Play BIOS support (EXPERIMENTAL)"
+-	depends on PNP && EXPERIMENTAL
++	depends on PNP && X86 && EXPERIMENTAL
+ 	---help---
+ 	  Linux uses the PNPBIOS as defined in "Plug and Play BIOS
+ 	  Specification Version 1.0A May 5, 1994" to autodetect built-in

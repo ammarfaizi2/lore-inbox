@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262568AbRE3CZk>; Tue, 29 May 2001 22:25:40 -0400
+	id <S262583AbRE3C1K>; Tue, 29 May 2001 22:27:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262579AbRE3CZa>; Tue, 29 May 2001 22:25:30 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:25071 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S262568AbRE3CZS>;
-	Tue, 29 May 2001 22:25:18 -0400
-Date: Tue, 29 May 2001 19:25:16 -0700
+	id <S262579AbRE3C0u>; Tue, 29 May 2001 22:26:50 -0400
+Received: from femail15.sdc1.sfba.home.com ([24.0.95.142]:47551 "EHLO
+	femail15.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S262580AbRE3C0s>; Tue, 29 May 2001 22:26:48 -0400
+Date: Tue, 29 May 2001 22:26:39 -0400
+From: Tom Vier <tmv5@home.com>
 To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: jt@hpl.hp.com, Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, tori@unhappy.mine.nu,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] net #9
-Message-ID: <20010529192516.A14915@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <200105300048.CAA04583@green.mif.pg.gda.pl> <20010529180420.A14639@bougret.hpl.hp.com> <3B14493E.63F861E7@mandrakesoft.com> <20010529182506.A14727@bougret.hpl.hp.com> <3B145127.5B173DFF@mandrakesoft.com> <20010529190152.A14806@bougret.hpl.hp.com> <3B14572E.47218B5@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5-ac3: qlogic corruption on alpha
+Message-ID: <20010529222639.B2090@zero>
+In-Reply-To: <20010529210958.A821@zero> <3B144A39.8471B53E@mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B14572E.47218B5@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, May 29, 2001 at 10:13:02PM -0400
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+In-Reply-To: <3B144A39.8471B53E@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, May 29, 2001 at 09:17:45PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 29, 2001 at 10:13:02PM -0400, Jeff Garzik wrote:
-> *shrug*  Well, if you want to go against the kernel standard that's fine
-> with me.  I won't put Andrzej's changes to your drivers upstream.  You
-> are going to continually see patches to clean that up, though, because
-> it makes the end user's kernel smaller.  Please consider noting this
-> special case in a comment in each of your drivers "do not clean up
-> static initializers" or similar.
+On Tue, May 29, 2001 at 09:17:45PM -0400, Jeff Garzik wrote:
+> Tom Vier wrote:
+> > i narrowed down some corruption i was having. it only happens on drives
+> > attached to my qlogic isp card. 2.2 has no problem, and in 2.4.5-ac3 my
+> > sym53c875 works fine. this machine is an alpha miata. it only happens when
+> > writing out a lot to disk. eg, untarring a kernel tarball, restoring a
+> > backup. anyone else see this?
 > 
-> It's really a pain in the ass to remember special cases like this, so
-> please reconsider.  Being not-like-the-others is detrimental to the long
-> term maintainability of the overall kernel.
-> 
-> Regards,
-> 
-> 	Jeff
+> Is this reproducible?
 
-	I agree with you on the special case. I don't like it
-either. Anyway, most patch to my drivers are applied wether I like it
-or not, so I guess that I should be happy that I was notified and I
-should sut up my big mouth because it won't make a difference.
-	If I reject the patch now, I will be applied behind my
-back. Been there, done that.
-	In other words : yes, please apply the patch.
+yes. by restoring a backup from tape. i tried cat /dev/zero > /dev/sdb1,
+but that wasn't enough to trigger any corruption (i correctly wrote all
+zeros). actually, now that i think about it, a good chunk of /dev/sdb2 was
+cached when i read it back, so that wasn't a very good test. i definetly get
+corruption under 2.4.5-ac4.
 
-	Jean
+<snip>
+
+> Other questions - is your machine SMP?  How much RAM?
+
+UP, half gig.
+
+-- 
+Tom Vier <tmv5@home.com>
+DSA Key id 0x27371A2C

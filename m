@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275789AbRJFWiD>; Sat, 6 Oct 2001 18:38:03 -0400
+	id <S275811AbRJFWmd>; Sat, 6 Oct 2001 18:42:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275816AbRJFWht>; Sat, 6 Oct 2001 18:37:49 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:10237 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S275789AbRJFWgx>;
-	Sat, 6 Oct 2001 18:36:53 -0400
-Date: Sun, 7 Oct 2001 00:36:43 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: chris@scary.beasts.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VM: 2.4.10ac4 vs. 2.4.11pre2
-Message-ID: <20011007003643.K724@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0110061252450.17262-100000@sphinx.mythic-beasts.com>
-Mime-Version: 1.0
+	id <S275808AbRJFWmX>; Sat, 6 Oct 2001 18:42:23 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:53777 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S275798AbRJFWmO>; Sat, 6 Oct 2001 18:42:14 -0400
+Subject: Re: %u-order allocation failed
+To: mikulas@artax.karlin.mff.cuni.cz
+Date: Sat, 6 Oct 2001 23:42:18 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), anton@samba.org (Anton Blanchard),
+        riel@conectiva.com.br (Rik van Riel),
+        kszysiu@main.braxis.co.uk (Krzysztof Rusocki), linux-xfs@oss.sgi.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1011007002406.18004A-100000@artax.karlin.mff.cuni.cz> from "Mikulas Patocka" at Oct 07, 2001 12:31:27 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0110061252450.17262-100000@sphinx.mythic-beasts.com>; from chris@scary.beasts.org on Sat, Oct 06, 2001 at 01:20:23PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15q09C-0002X7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 06, 2001 at 01:20:23PM +0100, chris@scary.beasts.org wrote:
+> > Nothing dangeorus there. The -ac vm isnt triggering these cases.
 > 
-> dbench 8             34Mbyte/sec       40Mbyte/sec
+> Sorry, but it can be triggered by _ANY_ VM since buddy allocator was
+> introduced. You have no guarantee, that you find two or more consecutive
+> free pages. And if you don't, poll() fails. 
 
-dbench wants a very unfair vm behaviour. We must penalize all tasks
-except one.  I measured a x2 slowdown after Linus introduced
-mark_page_accessed after 2.4.10pre11 (but still it was faster than
-pre10).
+The two page case isnt one you need to worry about. To all intents and
+purposes it does not happen, and if you do the maths it isnt going to fail
+in any interesting ways. Once you go to the 4 page set the odds get a lot
+longer and then rapidly get very bad indeed,
 
-If you want patches to make dbench much faster I can provide them, just
-ask, at the moment I just think dbench is a very bad benchmark. I can
-implement a /proc/sys/vm/dbench if people wants to post nice numbers
-without having to apply patches :).
-
-I'd also like to know what you get using -aa instead of mainline, there
-are a few changes that can make a difference in the numbers.
-
-Andrea
+Alan

@@ -1,105 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVADJyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVADKFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbVADJyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 04:54:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVADJyJ
+	id S261596AbVADKFz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 05:05:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVADKFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 04:54:09 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:35740 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261595AbVADJx5 (ORCPT
+	Tue, 4 Jan 2005 05:05:55 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:26296 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261596AbVADKFs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 04:53:57 -0500
-Date: Tue, 4 Jan 2005 10:53:56 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Cc: drepper@gmail.com, viro@parcelfarce.linux.theplanet.co.uk,
-       wli@holomorphy.com
-Subject: struct rusage::ru_wtime - "sys time, user time, iowait time"
-Message-ID: <20050104095356.GA29101@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	linux-kernel@vger.kernel.org, drepper@gmail.com,
-	viro@parcelfarce.linux.theplanet.co.uk, wli@holomorphy.com
+	Tue, 4 Jan 2005 05:05:48 -0500
+Date: Tue, 4 Jan 2005 11:05:23 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Con Kolivas <kernel@kolivas.org>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Paul Davis <paul@linuxaudiosystems.com>
+Subject: Re: Latency results with 2.6.10 - looks good
+Message-ID: <20050104100523.GB14787@elte.hu>
+References: <1104348820.5218.42.camel@krustophenia.net> <1104549524.3803.28.camel@krustophenia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <1104549524.3803.28.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd love to have 'time' to be able to print out the amount of time spent
-waiting for io. getrusage nor wait4 currently pass this information and,
-worse, there is no place for it in struct rusage.
 
-What would the preferred way of adding this ability be? To make things
-interesting, some parts of struct rusage are unused, and the majority of
-them not standardised by SuS:
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-            struct rusage {
-mandatory       struct timeval ru_utime; /* user time used */
-mandatory       struct timeval ru_stime; /* system time used */
-                long   ru_maxrss;        /* maximum resident set size */
-                long   ru_ixrss;         /* integral shared memory size */
-                long   ru_idrss;         /* integral unshared data size */
-                long   ru_isrss;         /* integral unshared stack size */
-filled          long   ru_minflt;        /* page reclaims */
-filled          long   ru_majflt;        /* page faults */
-filled (untrue) long   ru_nswap;         /* swaps */
-  ^             long   ru_inblock;       /* block input operations */
-  |             long   ru_oublock;       /* block output operations */
-space to fiddle long   ru_msgsnd;        /* messages sent */
-  |             long   ru_msgrcv;        /* messages received */
-  |             long   ru_nsignals;      /* signals received */
-  |             long   ru_nvcsw;         /* voluntary context switches */
-  v             long   ru_nivcsw;        /* involuntary context switches */
-            };
+> Followup: other audio users have confirmed that 2.6.10 is the best
+> release yet latency-wise.  It works most of the time at 64 frames
+> (~1.33ms latency).
+> 
+> Now, the bad news: there are still enough xruns to make it not quite
+> good enough for, say, a recording studio; as we all know with realtime
+> constraints the worst case scenario is important.  As expected the RT
+> kernel beats it by a wide margin.  I have attached some numbers,
+> excerpted from a post by Rui on the JACK list.  The JACK test used was
+> described previously on this list.
+> 
+> Ingo, what are your plans for pushing more of the RT patch set
+> upstream? It seems that the soft/hardirq threading and voluntary
+> preemption (turning the might_sleep checks into preemption points) are
+> required to further improve the latency of the standard kernel.  These
+> are well tested at this point and also zero cost for users who don't
+> enable them. I think if these features go upstream before 2.6.11 then
+> we can say all of the issues Paul raised, in that post months ago that
+> led to the VP patches, will be put to rest.
 
-SUSv3 says:
- The <sys/resource.h> header defines the rusage structure that includes at
- least the following members:
- 
- struct timeval ru_utime   user time used
- struct timeval ru_stime   system time used
+for 2.6.11 we have dozens of scheduler patches queued in -mm that do
+half of the work necessary for the rest of -RT. I'll split out more
+stuff from -RT once the scheduler queue in -mm gets smaller (i.e. once
+it gets merged upstream), but there's a natural limit to the rate of
+merging in a given subsystem, if we push things too hard it will
+deteriorate.
 
-Our own manpage: 
-	The above struct was taken from BSD 4.3 Reno.  Not all fields are
-	meaningful under Linux.  Right now (Linux 2.4, 2.6) only the fields
-	ru_utime, ru_stime, ru_minflt, ru_majflt, and ru_nswap are
-	maintained.
+also, there's the necessary merging of preempt-bkl patch. It makes
+little sense to add the more advanced stuff when the BKL is allowed to
+generate up to ~200 milliseconds latencies. Hardirq and softirq
+threading would be the next step after that point.
 
-So we have some liberty, constrained by the need to keep sizeof(rusage)
-constant. On different architectures sizeof(struct timeval)-2*sizeof(long)
-will not be the same, I bet. On 386, it is zero, but conceivably time_t (and
-'suseconds_t' brr) could be 32 bit while long is 64 on other platforms.
-
-The other good news is that at least 2.6.10 zeroes rusage before returning
-it, so userspace can be fairly confident that if it finds non-zero values in
-ru_wtime that they represent something.
-
-Ideas? My favorite would be to nuke 'messages sent' and 'messages received':
-
-            struct rusage {
-                struct timeval ru_utime; /* user time used */
-                struct timeval ru_stime; /* system time used */
-                long   ru_maxrss;        /* maximum resident set size */
-                long   ru_ixrss;         /* integral shared memory size */
-                long   ru_idrss;         /* integral unshared data size */
-                long   ru_isrss;         /* integral unshared stack size */
-                long   ru_minflt;        /* page reclaims */
-                long   ru_majflt;        /* page faults */
-                long   ru_nswap;         /* swaps */
-                long   ru_inblock;       /* block input operations */
-                long   ru_oublock;       /* block output operations */
-                struct timeval ru_wtime; /* time spent waiting on i/o */
-#if sizeof(struct timeval) != 2 * sizeof(long)
-		char pad[2 * sizeof(long) - sizeof(struct timeval)];
-#endif       
-                long   ru_nsignals;      /* signals received */
-                long   ru_nvcsw;         /* voluntary context switches */
-                long   ru_nivcsw;        /* involuntary context switches */
-            };
-
-Bert (keeping fingers crossed on alignment issues).
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+	Ingo

@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269743AbUJAK2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269749AbUJAKbS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269743AbUJAK2H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 06:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269748AbUJAK2G
+	id S269749AbUJAKbS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 06:31:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269748AbUJAKbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 06:28:06 -0400
-Received: from [80.227.59.61] ([80.227.59.61]:43139 "EHLO HasBox.COM")
-	by vger.kernel.org with ESMTP id S269743AbUJAK1x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 06:27:53 -0400
-Message-ID: <415D311E.2050006@0Bits.COM>
-Date: Fri, 01 Oct 2004 14:27:42 +0400
-From: Mitch DSouza <Mitch@0Bits.COM>
-User-Agent: Application 0.6+ (X11/20041001)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3 software suspend (pmdisk) stopped working 
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Oct 2004 06:31:18 -0400
+Received: from nessie.weebeastie.net ([220.233.7.36]:18307 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S269747AbUJAKbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 06:31:15 -0400
+Date: Fri, 1 Oct 2004 20:30:32 +1000
+From: CaT <cat@zip.com.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Li, Shaohua" <shaohua.li@intel.com>
+Subject: Re: promise controller resource alloc problems with ~2.6.8
+Message-ID: <20041001103032.GA1049@zip.com.au>
+References: <20040927084550.GA1134@zip.com.au> <Pine.LNX.4.58.0409301615110.2403@ppc970.osdl.org> <20040930233048.GC7162@zip.com.au> <Pine.LNX.4.58.0409301646040.2403@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0409301646040.2403@ppc970.osdl.org>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Pavel,
+On Thu, Sep 30, 2004 at 04:56:21PM -0700, Linus Torvalds wrote:
+> Now, the reason for using "insert_resource()" in arch/i386/pci/i386.c 
+> should go away with Shaohua Li's patch, so I'd love to hear if applying 
+> Li's patch _and_ making the "insert_resource()" be a "request_resource()" 
+> fixes the problem for you.
 
-I thought i was going barmy. I've reverted back to -rc2 which
-pmdisk works flawlessly on my laptop.
+You meant this, right?
 
-Thanks
-Mitch
+if (!pr || insert_resource(pr, r) < 0)
+	printk(KERN_ERR "PCI: Cannot allocate resource region %d of bridge %s\n", idx, pci_name(dev));
 
--------- Original Message --------
-Subject: Re: 2.6.9-rc3 software suspend (pmdisk) stopped working
-Date: Fri, 1 Oct 2004 12:23:51 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Mitch <Mitch@0Bits.COM>
-CC: linux-kernel@vger.kernel.org
-References: <415C2633.3050802@0Bits.COM>
+If so then the patch + the above did not work. :/
 
-Hi!
+> Greg, we kind of left the ACPI resource management breakage pending, and 
+> clearly we need some resolution. Comments?
 
-> Anyone noticed that pmdisk software suspend stopped working in -rc3 ?
-> In -rc2 it worked just fine. My script was
-> 
->  chvt 1
->  echo -n shutdown >/sys/power/disk
->  echo -n disk >/sys/power/state
->  chvt 7
-> 
-> In -rc3 it appears to write pages out to disk, but never shuts down the
-> machine. Is there something else i need to do or am missing ?
+BTW. I just realised (and I apologise for not doing so earlier) that I'm
+not using ACPI on this box.
 
-You are not missing anything, it is somehow broken. I'll try to find
-out what went wrong and fix it. In the meantime, look at -mm series,
-it works there.
-								Pavel
-
+-- 
+    Red herrings strewn hither and yon.

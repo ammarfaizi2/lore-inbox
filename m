@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293301AbSB1OZl>; Thu, 28 Feb 2002 09:25:41 -0500
+	id <S293082AbSB1Oi3>; Thu, 28 Feb 2002 09:38:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292958AbSB1OXG>; Thu, 28 Feb 2002 09:23:06 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:62475 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S293410AbSB1OUQ>; Thu, 28 Feb 2002 09:20:16 -0500
-Message-ID: <3C7E3C71.6050604@evision-ventures.com>
-Date: Thu, 28 Feb 2002 15:19:29 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S293302AbSB1Ofz>; Thu, 28 Feb 2002 09:35:55 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:3855 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S293337AbSB1Oe5>; Thu, 28 Feb 2002 09:34:57 -0500
+Date: Thu, 28 Feb 2002 15:34:53 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: Cyrille Chepelov <cyrille@chepelov.org>
+cc: <linux-kernel@vger.kernel.org>,
+        =?iso-8859-1?Q?Christian_Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+Subject: Re: [2.4.18] OOPS in smbfs 
+In-Reply-To: <20020227080024.GA16232@calixo.net>
+Message-ID: <Pine.LNX.4.33.0202281507560.32098-100000@cola.teststation.com>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Andries.Brouwer@cwi.nl, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: [PATCH] IDE clean 12 3rd attempt
-In-Reply-To: <UTC200202241352.g1ODqeb08003.aeb@apps.cwi.nl> <3C79435E.8030208@evision-ventures.com> <20020228094444.GB750@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> I sure hope they do.
+On Wed, 27 Feb 2002, Cyrille Chepelov wrote:
+
+> I did nothing special at the time; I had just mounted the device, and was
+> tab-completing into a directory using zsh (there are no specially named files 
+> at all in that directory: everything matches [0-9a-zA-Z._]). The server is a 
+> fairly storyless NT4.0 x86 server (I'm not quite sure what service pack, and 
+> wouldn't be surprised if it was  still at SP0).
 > 
-> I run 2.4.x on 486sx, which is .... pretty close to 386. 386 support
-> is not going to get dropped anytime soon...
+> Kernel version is 2.4.18-rc4
 
-Well the 486sx is the same die as 486 with coproc disabled. And in
-contrast the the 386 the 486 is a scalar, tough not super-scalar CPU.
-(This is what this "pipline stuff" and multiple pipeline stuff is about ;-).
+There is a bunch of smbfs changes in 2.4.18. Some fsx fixes from december
+and some cleanups from Al Viro. The latter I have not tested myself so I'm
+hoping those are causing this and that I will be able to trigger it
+easily.
 
-Please trust me they are *not* very similar from CPU design point
-of view. They are only similar on the command set level.
-Anyway just to put it straight: Your system certainly won't be affected
-by the removal.
+I now have 3 reports of identical oopses in 2.4.18. All of them crashed on
+a register with contents matching x0000000 and in smb_fill_cache.
+
+
+Does 2.4.17 work fine for everyone?
+Did any of you try something between 2.4.18-pre4 and 2.4.18-rc2?
+
+2.4.18-pre4 has about half the smbfs changes in 2.4.18 and 2.4.18-rc3 has
+the rest. A simple but helpful thing to do would be to see if 2.4.18-rc2
+works.
+
+I have planned to actually get to do some linux work this weekend, unlike
+the last few weeks, so your timing is pretty good. :)
+
+/Urban
 

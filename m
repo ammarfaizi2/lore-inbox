@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264010AbSLJJgb>; Tue, 10 Dec 2002 04:36:31 -0500
+	id <S264647AbSLJJoG>; Tue, 10 Dec 2002 04:44:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264647AbSLJJga>; Tue, 10 Dec 2002 04:36:30 -0500
-Received: from max.fiasco.org.il ([192.117.122.39]:13828 "HELO
-	latenight.fiasco.org.il") by vger.kernel.org with SMTP
-	id <S264010AbSLJJga>; Tue, 10 Dec 2002 04:36:30 -0500
-Subject: Re: hidden interface (ARP) 2.4.20
-From: Gilad Ben-Yossef <gilad@benyossef.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Willy Tarreau <willy@w.ods.org>, ratz@drugphish.ch,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20021209120814.2eaaef29.skraw@ithnet.com>
-References: <A6B0BFA3B496A24488661CC25B9A0EFA333DEF@himl07.hickam.pacaf.ds.af.mil>
-	<1039124530.18881.0.camel@rth.ninka.net>
-	<20021205140349.A5998@ns1.theoesters.com> <3DEFD845.1000600@drugphish.ch>
-	<20021205154822.A6762@ns1.theoesters.com>
-	<20021208170135.GA354@alpha.home.local> 
-	<20021209120814.2eaaef29.skraw@ithnet.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 10 Dec 2002 11:42:54 +0200
-Message-Id: <1039513380.2384.90.camel@klendathu.telaviv.sgi.com>
+	id <S266712AbSLJJoG>; Tue, 10 Dec 2002 04:44:06 -0500
+Received: from holomorphy.com ([66.224.33.161]:57755 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S264647AbSLJJoF>;
+	Tue, 10 Dec 2002 04:44:05 -0500
+Date: Tue, 10 Dec 2002 01:51:18 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: george anzinger <george@mvista.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/3] High-res-timers part 3 (posix to hrposix) take 20
+Message-ID: <20021210095118.GG9882@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>, george anzinger <george@mvista.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <3DB9A314.6CECA1AC@mvista.com> <3DF2F965.59D7CD84@mvista.com> <3DF3D706.977AC5BB@digeo.com> <3DF4487C.67FD90EF@mvista.com> <3DF44E98.DD173EE8@digeo.com> <3DF5A62C.242E171@mvista.com> <3DF5B2D1.FD134082@digeo.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DF5B2D1.FD134082@digeo.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-09 at 13:08, Stephan von Krawczynski wrote:
+On Tue, Dec 10, 2002 at 01:24:33AM -0800, Andrew Morton wrote:
+> A simple way of doing the "find an empty slot" is to descend the
+> tree, following the trail of nodes which have `count < 64' until
+> you hit the bottom.  At each node you'll need to walk the slots[]
+> array to locate the first empty one.
+> That's quite a few cache misses.  It can be optimised by adding
+> a 64-bit DECLARE_BITMAP to struct radix_tree_node.  This actually
+> obsoletes `count', because you can just replace the test for
+> zero count with a test for `all 64 bits are zero'.
 
-> This is unfortunately not sufficient, not even close to. If you really want to
-> have a good idea what is going on you should as well check out what is happening
-> with packet sizes a lot smaller than 1500 (normal mtu). Check data rate an
-> packet loss with packet sizes around 80 bytes or so to get an idea what bothers
-> us :-)
-
-VoIP? :-)
-
-Have you tried those tests with the NAPI network drivers patch? my
-experience has been that interrupt live lock is what's hitting you
-really hard in the scenarios you described and the NAPI network drivers
-patch id supposed to fix that. 
-
-
-Gilad
+I found that ffz() to find the index of the not-fully-populated child
+node to search was efficient enough to provide a precisely K == 2*levels
+constant within the O(1) for accesses in all non-failure cases.
+Measuring by cachelines it would have been superior to provide a
+cacheline-sized node at each level and perform ffz by hand.
 
 
+On Tue, Dec 10, 2002 at 01:24:33AM -0800, Andrew Morton wrote:
+> Such a search would be an extension to or variant of radix_tree_gang_lookup.
+> Something like the (old, untested) code below.
+> But it's a big job.  First thing to do is to write a userspace
+> test harness for the radix-tree code.  That's something I need to
+> do anyway, because radix_tree_gang_lookup fails for offests beyond
+> the 8TB mark, and it's such a pita fixing that stuff in-kernel.
 
--- 
- Gilad Ben-Yossef <gilad@benyossef.com> 
- http://benyossef.com 
- "Denial really is a river in Eygept."
+Userspace test harnesses are essential for this kind of work. They
+were for several of mine.
 
+
+Bill

@@ -1,62 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbUARAMV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 19:12:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266152AbUARAMV
+	id S265805AbUARAzk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 19:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266025AbUARAzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 19:12:21 -0500
-Received: from smtp09.auna.com ([62.81.186.19]:44730 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id S262328AbUARAMT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 19:12:19 -0500
-Date: Sun, 18 Jan 2004 01:12:17 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: 2.6.1-mm4
-Message-ID: <20040118001217.GE3125@werewolf.able.es>
-References: <20040115225948.6b994a48.akpm@osdl.org>
+	Sat, 17 Jan 2004 19:55:40 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.16]:6962 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S265805AbUARAzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 19:55:39 -0500
+Date: Sun, 18 Jan 2004 01:55:37 +0100
+From: Haakon Riiser <haakon.riiser@fys.uio.no>
+To: linux-kernel@vger.kernel.org
+Subject: Re: NTFS disk usage on Linux 2.6
+Message-ID: <20040118005537.GA11977@s.chello.no>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040115010210.GA570@s.chello.no> <200401151401.1764@sandersweb.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20040115225948.6b994a48.akpm@osdl.org> (from akpm@osdl.org on Fri, Jan 16, 2004 at 07:59:48 +0100)
-X-Mailer: Balsa 2.0.15
+In-Reply-To: <200401151401.1764@sandersweb.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 01.16, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1/2.6.1-mm4/
-> 
-> 
-
-Net driver problem:
-
-werewolf:/etc# modprobe --verbose 3c59x
-insmod /lib/modules/2.6.1-jam4/kernel/drivers/net/3c59x.ko 
-FATAL: Error inserting 3c59x (/lib/modules/2.6.1-jam4/kernel/drivers/net/3c59x.ko): Invalid argument
-
-/var/messages:
-Jan 18 01:03:00 werewolf kernel: 3c59x: falsely claims to have parameter rx_copybreak
-
-Hardware:
-
-00:12.0 Ethernet controller: 3Com Corporation 3c980-TX 10/100baseTX NIC [Python-T] (rev 78)
-        Subsystem: 3Com Corporation: Unknown device 1000
-        Flags: bus master, medium devsel, latency 32, IRQ 5
-        I/O ports at ec00 [size=128]
-        Memory at febfef80 (32-bit, non-prefetchable) [size=128]
-        Expansion ROM at feba0000 [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 2
-
-(if you answer from netdev, plz CC: me, I'm not subscribed. thanks)
-
-TIA
+Thanks go to everyone who confirmed this bug.  Since we now know the
+bug is real, I have created an entry for it in Bugzilla:
+http://bugzilla.kernel.org/show_bug.cgi?id=1899
 
 -- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 10.0 (Cooker) for i586
-Linux 2.6.1-jam4 (gcc 3.3.2 (Mandrake Linux 10.0 3.3.2-4mdk))
+ Haakon

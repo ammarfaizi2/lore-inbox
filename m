@@ -1,45 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266876AbUITQ5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264954AbUITRAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266876AbUITQ5c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 12:57:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266870AbUITQ4T
+	id S264954AbUITRAS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 13:00:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266534AbUITRAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 12:56:19 -0400
-Received: from mail.convergence.de ([212.227.36.84]:24763 "EHLO
-	email.convergence2.de") by vger.kernel.org with ESMTP
-	id S266871AbUITQrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 12:47:31 -0400
-Message-ID: <414F0970.4060603@linuxtv.org>
-Date: Mon, 20 Sep 2004 18:46:40 +0200
-From: Michael Hunold <hunold@linuxtv.org>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.6][12.1/14] DVB: add kernel message classifiers
-References: <414AF41A.6060009@linuxtv.org> <414AF461.4050707@linuxtv.org> <414AF4CE.7000000@linuxtv.org> <414AF51D.4060308@linuxtv.org> <414AF569.2020803@linuxtv.org> <414AF5BF.4020401@linuxtv.org> <414AF605.5040605@linuxtv.org> <414AF65F.2010200@linuxtv.org> <414AF6B1.9040706@linuxtv.org> <414AF71B.5070702@linuxtv.org> <20040920111118.GA6035@titan.lahn.de>
-In-Reply-To: <20040920111118.GA6035@titan.lahn.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Sep 2004 13:00:18 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:20631 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264954AbUITQ76 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 12:59:58 -0400
+Date: Mon, 20 Sep 2004 22:34:39 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [patch 1/3] Fix dcache lookup
+Message-ID: <20040920170439.GA5181@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This patchset fixes a few things left over from the last changes
+Andrew made to dcache lookup. I have tested them on a 2-way system
+using normal sanity tests, dcachebench and a very heavy rename
+test that we had earlier used for testing RCU-based dcache patches.
+These should spend some longish time in -mm.
 
-> Could you please apply the following patch on top, which adds
-> kernel message classifiers to printk()-calls in av7110_av.c
-> 
-> If you don't to apply the whole patch, please at least remove those two
-> printk() calls in av7110_ioctl() line 267 and 270, because on my Siemens
-> DVB-C 1.6 they are printed every second and fill up syslog! (BTW: Stereo
-> detection never worked for me)
+Thanks
+Dipankar
 
-I've taken the time and reworked the debug message logic in the av7110 
-driver. It depended on the saa7146 driver and used horrible macros 
-anyway, so I converted them alltogether.
 
-I'll try to get this into 2.6.9 as well.
 
-CU
-Michael.
+__d_lookup() has leftover stuff from earlier code to protect
+it against rename. The smp_rmb() there was needed for the
+sequence counter logic.
+
+Original dcache_rcu had :
+
++               move_count = dentry->d_move_count;
++               smp_rmb();
++
+                if (dentry->d_name.hash != hash)
+                        continue;
+                if (dentry->d_parent != parent)
+                        continue;
+
+This was to make sure that comparisons didn't happen before
+before the sequence counter was snapshotted. This logic is now
+gone and memory barrier is not needed. Removing this should also
+improve performance.
+
+The other change is the leftover smp_read_barrier_depends(),
+later converted to rcu_dereference(). Originally, the name
+comparison was not protected against d_move() and there could
+have been a mismatch of allocation size of the name string and  
+dentry->d_name.len. This was avoided by making the qstr update
+in dentry atomic using a d_qstr pointer. Now, we do ->d_compare()
+or memcmp() with the d_lock held and it is safe against d_move().
+So, there is no need to rcu_dereference() anything. In fact,
+the current code is meaningless.
+
+Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+
+
+ fs/dcache.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+
+diff -puN fs/dcache.c~dcache-fix-lookup fs/dcache.c
+--- linux-2.6.9-rc2-dcache/fs/dcache.c~dcache-fix-lookup	2004-09-17 23:35:44.000000000 +0530
++++ linux-2.6.9-rc2-dcache-dipankar/fs/dcache.c	2004-09-17 23:39:29.000000000 +0530
+@@ -978,8 +978,6 @@ struct dentry * __d_lookup(struct dentry
+ 
+ 		dentry = hlist_entry(node, struct dentry, d_hash);
+ 
+-		smp_rmb();
+-
+ 		if (dentry->d_name.hash != hash)
+ 			continue;
+ 		if (dentry->d_parent != parent)
+@@ -1002,7 +1000,11 @@ struct dentry * __d_lookup(struct dentry
+ 		if (dentry->d_parent != parent)
+ 			goto next;
+ 
+-		qstr = rcu_dereference(&dentry->d_name);
++		/*
++		 * It is safe to compare names since d_move() cannot
++		 * change the qstr (protected by d_lock).
++		 */
++		qstr = &dentry->d_name;
+ 		if (parent->d_op && parent->d_op->d_compare) {
+ 			if (parent->d_op->d_compare(parent, qstr, name))
+ 				goto next;
+
+_

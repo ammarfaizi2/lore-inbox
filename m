@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265958AbUBGUgr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 15:36:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266018AbUBGUgr
+	id S267091AbUBGUp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 15:45:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267100AbUBGUpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 15:36:47 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:34262 "HELO
+	Sat, 7 Feb 2004 15:45:54 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:4310 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265958AbUBGUfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 15:35:32 -0500
-Date: Sat, 7 Feb 2004 21:35:25 +0100
+	id S267085AbUBGUpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 15:45:46 -0500
+Date: Sat, 7 Feb 2004 21:45:38 +0100
 From: Adrian Bunk <bunk@fs.tum.de>
-To: bjornw@axis.com
-Cc: dev-etrax@axis.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] cris: remove kernel 2.0 #ifdef's
-Message-ID: <20040207203525.GB7388@fs.tum.de>
+To: klaus.kudielka@ieee.org
+Cc: linux-hams@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove kernel 2.2 code from drivers/net/hamradio/dmascc.c
+Message-ID: <20040207204538.GD7388@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,73 +22,43 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below removes some kernel 2.0 #ifdef's from 
-arch/cris/arch-v10/kernel/fasttimer.c .
+The patch below removes some #ifdef'd kernel 2.2 code from 
+drivers/net/hamradio/dmascc.c .
 
-Please apply
+cu
 Adrian
 
---- linux-2.6.2-mm1/arch/cris/arch-v10/kernel/fasttimer.c.old	2004-02-07 20:17:47.000000000 +0100
-+++ linux-2.6.2-mm1/arch/cris/arch-v10/kernel/fasttimer.c	2004-02-07 20:18:42.000000000 +0100
-@@ -592,23 +592,8 @@
+--- linux-2.6.2-mm1/drivers/net/hamradio/dmascc.c.old	2004-02-07 21:39:39.000000000 +0100
++++ linux-2.6.2-mm1/drivers/net/hamradio/dmascc.c	2004-02-07 21:39:58.000000000 +0100
+@@ -48,21 +48,6 @@
+ #include "z8530.h"
  
- #ifdef CONFIG_PROC_FS
- static int proc_fasttimer_read(char *buf, char **start, off_t offset, int len
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
--                       ,int *eof, void *data_unused
--#else
--                        ,int unused
--#endif
--                               );
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
-+                       ,int *eof, void *data_unused);
- static struct proc_dir_entry *fasttimer_proc_entry;
--#else
--static struct proc_dir_entry fasttimer_proc_entry =
--{
--  0, 9, "fasttimer",
--  S_IFREG | S_IRUGO, 1, 0, 0,
--  0, NULL /* ops -- default to array */,
--  &proc_fasttimer_read /* get_info */,
--};
--#endif
- #endif /* CONFIG_PROC_FS */
  
- #ifdef CONFIG_PROC_FS
-@@ -617,12 +602,7 @@
- #define BIG_BUF_SIZE (500 + NUM_TIMER_STATS * 300)
- 
- static int proc_fasttimer_read(char *buf, char **start, off_t offset, int len
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
--                       ,int *eof, void *data_unused
--#else
--                        ,int unused
+-/* Linux 2.2 and 2.3 compatibility */
+-
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,3,14)
+-#define net_device device
 -#endif
--                               )
-+                       ,int *eof, void *data_unused)
- {
-   unsigned long flags;
-   int i = 0;
-@@ -798,9 +778,7 @@
- 
-   memcpy(buf, bigbuf + offset, len);
-   *start = buf;
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
-   *eof = 1;
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,3,43)
+-#define netif_start_queue(dev) { dev->tbusy = 0; }
+-#define netif_stop_queue(dev) { dev->tbusy = 1; }
+-#define netif_wake_queue(dev) { dev->tbusy = 0; mark_bh(NET_BH); }
 -#endif
- 
-   return len;
- }
-@@ -975,12 +953,8 @@
-     }
- #endif
- #ifdef CONFIG_PROC_FS
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
-    if ((fasttimer_proc_entry = create_proc_entry( "fasttimer", 0, 0 )))
-      fasttimer_proc_entry->read_proc = proc_fasttimer_read;
--#else
--    proc_register_dynamic(&proc_root, &fasttimer_proc_entry);
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,3,47)
+-#define netif_running(dev) (dev->flags & IFF_UP)
 -#endif
- #endif /* PROC_FS */
-     if(request_irq(TIMER1_IRQ_NBR, timer1_handler, SA_SHIRQ,
-                    "fast timer int", NULL))
+-
+-
+ /* Number of buffers per channel */
+ 
+ #define NUM_TX_BUF      2          /* NUM_TX_BUF >= 1 (min. 2 recommended) */
+@@ -210,9 +195,6 @@
+ };
+ 
+ struct scc_priv {
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
+-  char name[IFNAMSIZ];
+-#endif
+   int type;
+   int chip;
+   struct net_device *dev;

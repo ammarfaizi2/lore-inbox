@@ -1,67 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264323AbTDWXtW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 19:49:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264324AbTDWXtW
+	id S264325AbTDWXuo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 19:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264327AbTDWXun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 19:49:22 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:4271 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264323AbTDWXtU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 19:49:20 -0400
-Subject: Re: Can one build 2.5.68 with allyesconfig?
-From: John Cherry <cherry@osdl.org>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: root@chaos.analogic.com, Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030423204828.GC26678@wohnheim.fh-wedel.de>
-References: <3EA5AABF.4090303@techsource.com>
-	 <Pine.LNX.4.53.0304221701320.17809@chaos>
-	 <1051127561.20214.20.camel@cherrypit.pdx.osdl.net>
-	 <20030423204828.GC26678@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: 
-Message-Id: <1051142471.20793.17.camel@cherrypit.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 23 Apr 2003 17:01:12 -0700
-Content-Transfer-Encoding: 8bit
+	Wed, 23 Apr 2003 19:50:43 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:15051 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264325AbTDWXue
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 19:50:34 -0400
+Date: Thu, 24 Apr 2003 02:02:15 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Andrew Morton <akpm@digeo.com>
+cc: Andries Brouwer <aebr@win.tue.nl>, <alan@lxorguk.ukuu.org.uk>,
+       <andre@linux-ide.org>, <axboe@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.67-ac2 direct-IO for IDE taskfile ioctl (0/4)
+In-Reply-To: <20030423162041.1b7ee5b3.akpm@digeo.com>
+Message-ID: <Pine.SOL.4.30.0304240142580.22047-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-23 at 13:48, Jörn Engel wrote:
-> On Wed, 23 April 2003 12:52:41 -0700, John Cherry wrote:
-> > 
-> > As mentioned in other mail, compile statistics for the latest 2.5
-> > kernels are at: http://www.osdl.org/archive/cherry/stability/
-> > 
-> > However, these statistics are based on defconfig and allmodconfig builds
-> > (not allyesconfig).  The allmodconfig build contains the riscom8 errors
-> > that you have observed as well as most other warnings/errors you would
-> > find in an allyesconfig build.
-> 
-> Do you have any form of automation when dealing with breaking drivers?
-> If I could reduce the necessary time for creating a working
-> allyesconfig, that would be quite nice.
 
-No.  I think Randy Dunlap replied earlier that he spent considerable
-time weeding out broken drivers from an allyesconfig configuration. 
-This still did not result in a bootable image.
+On Wed, 23 Apr 2003, Andrew Morton wrote:
 
-If you want to build with allyesconfig and continue on when you run into
-errors, just use the -k (keep going) option with make.
+> Andries Brouwer <aebr@win.tue.nl> wrote:
+> >
+> > On Wed, Apr 23, 2003 at 03:35:00PM -0700, Andrew Morton wrote:
+> >
+> > > What is special about the IDE ioctl approach?
+> >
+> > Usually one wants to use the standard commands for I/O.
+> > But if the purpose is to talk to the drive (set password,
+> > set native max, eject, change ZIP drive from big floppy
+> > mode to removable disk mode, etc. etc.) then one needs
+> > a means to execute IDE commands "by hand".
+>
+> Yes, but none of these are performance-critical and they don't involve
+> large amnounts of data.  A copy is OK.
 
-> 
-> Allyesconfig has a couple of advantages. The analysis of object files
-> is must simpler with just vmlinux to worry about. And some errors
-> don't show up until link time, not sure if you can catch all of them
-> with allmodconfig.
+low-level benchmarking is somehow performance critical :-)
 
-Agreed.
+note that direct-IO here is _only_ bonus, main goal is to
+use the same code for _all_ ioctl and fs generated IDE IO
+(remember that all fs IDE IO is rq->bio based)
 
-Feel free to hack on the compregress.sh script to produce compilation
-results that would benefit what you are doing.  It lives on the
-stability page.
+and this is work-in-progress...
 
-John
+> If all the rework against bio_map_user() and friends is needed for other
+> reasons then fine.  But it doesn't seem to be needed for the IDE taskfile
+> ioctl.
+
+Rework of bio_map_user() and co. is minimal and not needed but otherwise
+I will have to duplicate same code in 4 places. bio_map_user() now does
+allocated bio checking and grabs extra reference to bio which all users of
+old bio_map_user() have to do anyway (and they will probably forgot to).
+
+
 

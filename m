@@ -1,31 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262361AbSI2BLr>; Sat, 28 Sep 2002 21:11:47 -0400
+	id <S262362AbSI2BVm>; Sat, 28 Sep 2002 21:21:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262362AbSI2BLr>; Sat, 28 Sep 2002 21:11:47 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:25873 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S262361AbSI2BLq>;
-	Sat, 28 Sep 2002 21:11:46 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Does kernel use system stdarg.h? 
-In-reply-to: Your message of "Sat, 28 Sep 2002 18:26:43 +0100."
-             <20020928182643.A13064@flint.arm.linux.org.uk> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 29 Sep 2002 11:16:55 +1000
-Message-ID: <13406.1033262215@ocs3.intra.ocs.com.au>
+	id <S262363AbSI2BVm>; Sat, 28 Sep 2002 21:21:42 -0400
+Received: from h108-129-61.datawire.net ([207.61.129.108]:13776 "EHLO
+	mail.datawire.net") by vger.kernel.org with ESMTP
+	id <S262362AbSI2BVl> convert rfc822-to-8bit; Sat, 28 Sep 2002 21:21:41 -0400
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: [PROBLEM] 2.5.39 - might_sleep() exception - ACPI/APIC, UML compile  issues on MP 2000+
+Date: Sat, 28 Sep 2002 21:26:48 -0400
+User-Agent: KMail/1.4.6
+Cc: linux-kernel@vger.kernel.org, Jeff Dike <jdike@karaya.com>
+References: <200209280428.23572.spstarr@sh0n.net> <3D956D06.D7370490@digeo.com>
+In-Reply-To: <3D956D06.D7370490@digeo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200209282126.48790.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Sep 2002 18:26:43 +0100, 
-Russell King <rmk@arm.linux.org.uk> wrote:
->This seems to leave us with no official guaranteed way to get at the
->compiler specific includes, which is Bad News(tm).  We obviously can't
->use "-I/usr/lib/gcc-lib/`gcc -dumpmachine`/`gcc -dumpversion`/" and
->we've already had problems with the 2.4 "gcc -print-search-dirs"
->version.
 
-LANG=C gcc -print-search-dirs | sed ...
+I don't get that error anymore but UML won't compile:
+
+Unless im doing something wrong this is how i've been building UML (in 2.4)
+
+make menuconfig ARCH=um
+make modules ARCH=um
+make modules_install ARCH=um
+make linux ARCH=um
+
+Is this correct?
+
+Shawn.
+
+On September 28, 2002 04:49 am, Andrew Morton wrote:
+
+> Shawn Starr wrote:
+> > ...
+> > 3) Compile errors with UML:
+> >
+> > In file included from sched.c:19:
+> > /usr/src/linux-2.5.39/include/linux/mm.h:165: parse error before
+> > "pte_addr_t" /usr/src/linux-2.5.39/include/linux/mm.h:165: warning: no
+> > semicolon at end of struct or union
+> > /usr/src/linux-2.5.39/include/linux/mm.h:165: warning: no semicolon at
+> > end of struct or union /usr/src/linux-2.5.39/include/linux/mm.h:166:
+> > warning: type defaults to `int' in declaration of `pte'
+>
+> It's strange that this ever worked.  Does this fix?
+>
+> --- linux-2.5.39/include/asm-um/pgtable.h	Sun Sep 15 20:53:43 2002
+> +++ 25/include/asm-um/pgtable.h	Sat Sep 28 01:47:43 2002
+> @@ -215,6 +215,8 @@ static inline void set_pte(pte_t *pteptr
+>  	if(pte_present(*pteptr)) *pteptr = pte_mknewprot(*pteptr);
+>  }
+>
+> +typedef pte_t *pte_addr_t;
+> +
+>  /*
+>   * (pmds are folded into pgds so this doesnt get actually called,
+>   * but the define is needed for a generic inline function.)
 

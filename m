@@ -1,61 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310154AbSCUKPU>; Thu, 21 Mar 2002 05:15:20 -0500
+	id <S310190AbSCUKne>; Thu, 21 Mar 2002 05:43:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310168AbSCUKPH>; Thu, 21 Mar 2002 05:15:07 -0500
-Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:5261 "EHLO
-	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S310154AbSCUKO4>; Thu, 21 Mar 2002 05:14:56 -0500
-Date: Thu, 21 Mar 2002 11:14:49 +0100 (MET)
-From: Oliver.Neukum@lrz.uni-muenchen.de
-X-X-Sender: ui222bq@sun4.lrz-muenchen.de
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
-        Axel Kittenberger <Axel.Kittenberger@maxxio.at>,
-        <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Patch, forward release() return values to the close() call
-In-Reply-To: <3C99A54D.1050206@mandrakesoft.com>
-Message-Id: <Pine.SOL.4.44.0203211113500.6558-100000@sun4.lrz-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310206AbSCUKnY>; Thu, 21 Mar 2002 05:43:24 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:52428 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S310190AbSCUKnM>; Thu, 21 Mar 2002 05:43:12 -0500
+Date: Thu, 21 Mar 2002 05:43:06 -0500
+From: Tim Waugh <twaugh@redhat.com>
+To: Martin Blais <blais@iro.umontreal.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: xxdiff as a visual diff tool (shameless plug)
+Message-ID: <20020321054306.C14095@redhat.com>
+In-Reply-To: <20020321061423.HIXG2746.tomts17-srv.bellnexxia.net@there>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Mar 2002, Jeff Garzik wrote:
+On Thu, Mar 21, 2002 at 01:13:32AM -0500, Martin Blais wrote:
 
-> Oliver Neukum wrote:
->
-> >On Thursday 21 March 2002 09:27, Jeff Garzik wrote:
-> >
-> >>Whoops, my apologies.  The patch looks ok to me.
-> >>
-> >>I read your text closely and the patch not close enough.  As I said, it
-> >>is indeed wrong for a device driver to fail f_op->release(), "fail"
-> >>being defined as leaving fd state lying around, assuming that the system
-> >>will fail the fput().
-> >>
-> >>But your patch merely propagates a return value, not change behavior,
-> >>which seems sane to me.
-> >>
-> >
-> >Hi,
-> >
-> >close() does not directly map to release().
-> >If you want your device to return error
-> >information reliably, you need to implement flush().
-> >
->
-> Agreed.
->
-> I still think propagating f_op->release's return value is a good idea,
-> though.
->
->     Jeff
+> It does not do edits at this point because I felt everyone has
+> their own strong preferences for editing files.
 
-Probably. Throwing away information without need is bad.
+Incidentally, on a related subject: editdiff (from patchutils) can do
+simple hunk editing.  Use emacs or vi to hand-edit a patch, and it
+will fix up offsets and counts for you.
 
-	Regards
-		Oliver
-
-
+Tim.
+*/

@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264737AbUFCQ7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264880AbUFCRCj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264737AbUFCQ7m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 12:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbUFCQ7l
+	id S264880AbUFCRCj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 13:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263828AbUFCQ7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 12:59:41 -0400
-Received: from c7ns3.center7.com ([216.250.142.14]:11750 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S264538AbUFCQ71 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 12:59:27 -0400
-Message-ID: <40BF9124.6080807@drdos.com>
-Date: Thu, 03 Jun 2004 14:59:16 -0600
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: submit_bh leaves interrupts on upon return
-References: <40BE93DC.6040501@drdos.com> <20040603085002.GG28915@suse.de> <40BF8E1F.1060009@drdos.com> <20040603165250.GO1946@suse.de>
-In-Reply-To: <20040603165250.GO1946@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Jun 2004 12:59:53 -0400
+Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:26381
+	"EHLO muru.com") by vger.kernel.org with ESMTP id S263875AbUFCQ7h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 12:59:37 -0400
+Date: Thu, 3 Jun 2004 09:59:32 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Dave Jones <davej@redhat.com>, Herbert Xu <herbert@gondor.apana.org.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [CPUFREQ] Make powernow-k7 work with CONFIG_ACPI_PROCESSOR == m
+Message-ID: <20040603165931.GC10801@atomide.com>
+References: <20040603121704.GB8164@gondor.apana.org.au> <20040603123714.GF7794@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040603123714.GF7794@redhat.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-
->Submitting large numbers of buffer_heads from b_end_io is _nasty_, 2.4
->io scheduler runtime isn't exactly world champion and you are doing this
->at hard irq time. Not a good idea. Definitely not the true path to
->performance, unless you don't care about anything else in the system.
->
->At least in 2.6 you have a much faster io scheduler and the additionally
->large bio, so you wont spend nearly as much time there if you are
->clever. You still need process context, though, that hasn't changed.
->
+* Dave Jones <davej@redhat.com> [040603 05:38]:
+> On Thu, Jun 03, 2004 at 10:17:04PM +1000, Herbert Xu wrote:
+>  > Hi:
+>  > 
+>  > The last round of updates to powernow-k7.c broke it when
+>  > CONFIG_ACPI_PROCESSOR is built as a module.  This patch
+>  > fixes that.
 >  
->
-Sounds like I need to move to 2.6. I noticed the elevator is coalescing 
-quite well, and since I am posting mostly continguous runs of sectors, 
-what ends up at the adapter level would probably not change much much 
-between 2.4 and 2.6 since I am maxing out the driver request queues as 
-it is (255 pending requests of 32 scatter/gather elements of 256 sector 
-runs). 2.6 might help but I suspect it will only help alleviate the 
-submission overhead, and not make much difference on performance since 
-the 3Ware card does have an upward limit on outstanding I/O requests.
+> How strange, I could swear I already merged this patch into
+> the last round that went to Linus.  I'll make sure it gets
+> into the next one. There's been some corruption with the
+> cpufreq -bk tree the last few days which has only just got
+> fixed up, so I'm a little behind on cpufreq patches.
 
-Jeff
+The Deja Vu was the same patch for powernow-k8.
 
+Regards,
+
+Tony

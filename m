@@ -1,48 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269849AbUJMVKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269848AbUJMVKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269849AbUJMVKl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 17:10:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269851AbUJMVKj
+	id S269848AbUJMVKd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 17:10:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269847AbUJMVKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 17:10:39 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:6873 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S269847AbUJMVKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 17:10:35 -0400
-Date: Wed, 13 Oct 2004 23:10:29 +0200
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: linux-kernel@vger.kernel.org, debian-alpha@lists.debian.org,
-       linux-alpha@vger.kernel.org
-Subject: Re: 2.4.27, alpha arch, make bootimage and make bootpfile fails
-Message-ID: <20041013211029.GB5056@gamma.logic.tuwien.ac.at>
-References: <20041012173344.GA21846@gamma.logic.tuwien.ac.at> <20041013233247.A11663@jurassic.park.msu.ru>
+	Wed, 13 Oct 2004 17:10:33 -0400
+Received: from mx1.magmacom.com ([206.191.0.217]:4774 "EHLO mx1.magmacom.com")
+	by vger.kernel.org with ESMTP id S269848AbUJMVKP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 17:10:15 -0400
+Subject: Re: Clock inaccuracy seen on NVIDIA nForce2 systems
+From: Jesse Stockall <stockall@magma.ca>
+To: Andy Currid <ACurrid@nvidia.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <8E5ACAE05E6B9E44A2903C693A5D4E8A01C45AC2@hqemmail02.nvidia.com>
+References: <8E5ACAE05E6B9E44A2903C693A5D4E8A01C45AC2@hqemmail02.nvidia.com>
+Content-Type: text/plain
+Message-Id: <1097701839.5500.111.camel@homer.blizzard.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20041013233247.A11663@jurassic.park.msu.ru>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 13 Oct 2004 17:10:39 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mit, 13 Okt 2004, Ivan Kokshaysky wrote:
-> > /usr/src/linux-2.4.27/arch/alpha/lib/lib.a -o bootloader
-> > /usr/src/linux-2.4.27/lib/lib.a(vsprintf.o): In function `vsnprintf':
-> > vsprintf.o(.text+0xcd4): undefined reference to `printk'
+On Wed, 2004-10-13 at 16:30, Andy Currid wrote:
+> A possible cause of this behavior is a clock synchronization issue that
+> can arise on some nForce2 systems when interrupts are routed through the
+> IOAPIC, and Spread Spectrum (SS) clocking is enabled. Under certain
+> conditions, this can cause the IOAPIC to issue multiple interrupts to
+> the CPU when it should have issued only one.
 > 
-> Thanks for the report. The appended patch should fix that.
+> If you are experiencing clock inaccuracy on nForce2 hardware, take the
+> following steps to determine if this issue may be the cause:
+> 
+> 1. Determine if the hardware you are using may be affected by this
+>    problem. The problem is limited to MCP2 and MCP2-T hardware; it does
+>    not affect MCP2-S or any nForce3 hardware. MCP2 and MCP2-T hardware
+>    may be identified by the PCI device ID of the ISA bridge, which is
+>    0x0060 for these devices.
+> 
+>    To read the bridge device ID, use 'lspci -n -s 0:1.0' . The output
+>    should be of the form '0000:00:01.0 Class 0601: 10de:0060 (rev a3)'.
+>    The device ID of the bridge in this example is "0060" following the
+>    NVIDIA PCI vendor ID "10de".
+> 
+>    If your ISA bridge device ID is not 0x0060, then this issue is not
+>    the cause of any clock inaccuracy you are experiencing.
 
-Thanks a lot. This fixed it. Testing will be done tomorrow.
+lspci -n -s 0:1.0
 
-Best wishes
+output:  0000:00:01.0 Class 0601: 10de:0060 (rev a3)
 
-Norbert
+> 
+> 2. Otherwise, examine the output from 'cat /proc/interrupts'. If IRQ0
+>    (the timer) is shown to be in PIC mode rather than IOAPIC mode, then
+>    this issue is not the cause of any clock inaccuracy you are
+>    experiencing.
+> 
 
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-WHAPLODE DROVE (n.)
-A homicidal golf stroke.
-			--- Douglas Adams, The Meaning of Liff
+cat /proc/interrupts
+
+output: 0:  179117760    IO-APIC-edge  timer
+
+> 3. Otherwise, reboot your system and enter BIOS SETUP. Check if your
+>    BIOS has a Front Side Bus (FSB) Spread Spectrum (SS) clocking option.
+>    On many systems, this option is located in the "Advanced Chipset
+>    Features" menu. If the option is present and enabled, disable it.
+>    Boot Linux and observe the system clock over several hours to verify
+>    if this has improved its accuracy.
+> 
+
+Both Front Side Bus and AGP spread spectrum are disabled.
+
+The system is running 2.6.9-rc4 and has been up for 2 days. I'm showing
+an offset of -32 seconds and growing.
+	
+Jesse
+
+-- 
+Jesse Stockall <stockall@magma.ca>
+

@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265163AbTFYW5J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 18:57:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265178AbTFYW5I
+	id S265157AbTFYW65 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 18:58:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265178AbTFYW5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 18:57:08 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:43393
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265163AbTFYW47 convert rfc822-to-8bit (ORCPT
+	Wed, 25 Jun 2003 18:57:18 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:64974 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265166AbTFYW5B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 18:56:59 -0400
-Subject: Re: DVB Include files
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Marcus Metzler <mocm@metzlerbros.de>,
-       Christoph Hellwig <hch@infradead.org>, mocm@mocm.de,
-       Michael Hunold <hunold@convergence.de>, Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030625202312.GG1770@wohnheim.fh-wedel.de>
-References: <20030625181606.A29104@infradead.org>
-	 <16121.55873.675690.542574@sheridan.metzler>
-	 <20030625182409.A29252@infradead.org>
-	 <16121.56382.444838.485646@sheridan.metzler>
-	 <20030625185036.C29537@infradead.org>
-	 <16121.58735.59911.813354@sheridan.metzler>
-	 <20030625191532.A1083@infradead.org>
-	 <16121.60747.537424.961385@sheridan.metzler>
-	 <20030625194250.GF1770@wohnheim.fh-wedel.de>
-	 <16122.379.321217.737557@sheridan.metzler>
-	 <20030625202312.GG1770@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+	Wed, 25 Jun 2003 18:57:01 -0400
+Subject: Re: patch O1int for 2.5.73 - interactivity work
+From: Andy Pfiffer <andyp@osdl.org>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Mike Galbraith <efault@gmx.de>
+In-Reply-To: <1056577981.603.3.camel@teapot.felipe-alfaro.com>
+References: <200306260209.45020.kernel@kolivas.org>
+	 <1056577981.603.3.camel@teapot.felipe-alfaro.com>
+Content-Type: text/plain
 Organization: 
-Message-Id: <1056582481.1998.20.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1056582622.1200.5.camel@andyp.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 26 Jun 2003 00:08:02 +0100
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 25 Jun 2003 16:10:23 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-06-25 at 21:23, Jörn Engel wrote:
-> So you don't recompile, but you still changed the magic ioctl numbers
-> from 17 to 47 and from 18 to 48.  Old binaries don't work any more,
-> even though the same semantics are still present.  That is an
-> incompatible change in my book.
-> 
-> Worse if there is a new semantic for 17 or 18, in that case the old
-> binaries may break randomly, depending on kernel version.
+On Wed, 2003-06-25 at 14:53, Felipe Alfaro Solana wrote:
+> On Wed, 2003-06-25 at 18:09, Con Kolivas wrote:
+> > Hi all 
+> > 
+> > I've used the corner cases described that cause a lot of the interactivity 
+> > problems to develop this patch.
 
-Sure but you keep old ones around once its stable. This is a completely
-pointless conversation to have before 2.6.0-test kernels. There isnt a
-stable in kernel dvb api yet because its not been shipped in a stable
-kernel.
+> This patch is indeed much better than the ones posted before. In fact,
+> it's really, really hard for me to make XMMS skip audio. It feels much
+> better in general, but there are still some rough edges when the system
+> is under load. For example, the mouse cursor on an X session doesn't
+> move smoothly, and feels a little jumpy. It can be somewhat fixed by
+> renicing the X server to -20.
 
-(Although I'd note the api has been as stable if not more stable than
-some in kernel stuff 8))
+I'm running with this patch on my dual-proc desktop right now.
+
+I agree: with a make -j20 going, the mouse became non-responsive
+for about 1 second at a time.  Renicing the X server to -20 greatly
+improved the response of my desktop with this patch under load.
+
+I could switch virtual desktops (blackbox), move the mouse to focus on
+an aterm and type a command (and get a response back), and not wait
+too long for evolution to repaint or open a piece of email.
+
+I could tell that something was grinding away on my system, but it was
+still tolerable.
+
+Andy
+
 

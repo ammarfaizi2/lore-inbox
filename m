@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280510AbRKNMV0>; Wed, 14 Nov 2001 07:21:26 -0500
+	id <S280531AbRKNMYf>; Wed, 14 Nov 2001 07:24:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280531AbRKNMVQ>; Wed, 14 Nov 2001 07:21:16 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:17898 "EHLO
+	id <S280532AbRKNMYZ>; Wed, 14 Nov 2001 07:24:25 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:21482 "EHLO
 	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S280510AbRKNMVD>; Wed, 14 Nov 2001 07:21:03 -0500
-Date: Wed, 14 Nov 2001 13:18:53 +0100 (MET)
+	id <S280531AbRKNMYM>; Wed, 14 Nov 2001 07:24:12 -0500
+Date: Wed, 14 Nov 2001 13:20:37 +0100 (MET)
 From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
+To: Gerhard Mack <gmack@innerfire.net>
 cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
 Subject: Re: fdutils.
-In-Reply-To: <Pine.LNX.3.95.1011113162546.134A-100000@chaos.analogic.com>
-Message-ID: <Pine.GSO.3.96.1011114131451.9644B-100000@delta.ds2.pg.gda.pl>
+In-Reply-To: <Pine.LNX.4.10.10111131400220.9397-100000@innerfire.net>
+Message-ID: <Pine.GSO.3.96.1011114131910.9644C-100000@delta.ds2.pg.gda.pl>
 Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Nov 2001, Richard B. Johnson wrote:
+On Tue, 13 Nov 2001, Gerhard Mack wrote:
 
-> Without a floppy-based rescue system, you have to use bootable CDROM,
-> usually supplied by a vendor, without the tools to truly rescue a
-> system. You can only re-install. For instance some vendors don't
-> provide a SCSI-tape module so you can't recover from a SCSI tape.
+> >  You only confirm what I wrote -- hardly anyone uses floppies, so there is
+> > no need to keep mechanical compatibility in devices -- a complete dump of
+> > 1.44" FD support would be almost harmless.  Hence whether a Zip or a
+> > LS-120 -- it doesn't really matter.  You need new media anyway. 
+> 
+> What an interesting thing to be reading as I'm reinstalling linux on a
+> server using a combination of boot/root floppies and a network install.
 
- You can have a Zip based rescue system, or an LZ-120 one, or an MO one
-(if you can afford a drive), etc...  What's the difference? 
+ Or a single Zip, LS-120, etc. medium...  Is that worse?
 
-> It would be a disaster, hardly harmless. Have you a clue how much
-> work gets done off-site (perhaps at home), using "sneaker-net"
-> (floppies)? Engineers who have to work for a living take work home
-> every night. They don't have to take a whole source-code tree because
-> they have already duplicated their work environment via CDROM or tape.
-> They take home, work on, and return, current source-code or
-> documentation on floppies.
+> Are you that clueless on purpose? 
 
- If they used Zip, LS-120, or anything, what would would be the
-difference?  I can't see any.
+ I hope not...
 
 -- 
 +  Maciej W. Rozycki, Technical University of Gdansk, Poland   +

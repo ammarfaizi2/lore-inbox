@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266099AbTLaD1V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 22:27:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266100AbTLaD1V
+	id S266100AbTLaD11 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 22:27:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266101AbTLaD11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 22:27:21 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:34497 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S266099AbTLaD1U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 22:27:20 -0500
-Date: Tue, 30 Dec 2003 19:27:16 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: john moser <bluefoxicy@linux.net>, linux-kernel@vger.kernel.org
-Subject: Re: Slab allocator . . . cache?  WTF is it?
-Message-ID: <20031231032716.GZ1882@matchmail.com>
-Mail-Followup-To: john moser <bluefoxicy@linux.net>,
-	linux-kernel@vger.kernel.org
-References: <20031230221859.15F503956@sitemail.everyone.net> <20031230235029.GY1882@matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031230235029.GY1882@matchmail.com>
-User-Agent: Mutt/1.5.4i
+	Tue, 30 Dec 2003 22:27:27 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:6295 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S266100AbTLaD1Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 22:27:25 -0500
+Date: Wed, 31 Dec 2003 16:20:52 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: kernel.bkbits.net is up
+In-reply-to: <200312310312.hBV3CIL29133@work.bitmover.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1072840851.2006.97.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <200312310312.hBV3CIL29133@work.bitmover.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 30, 2003 at 03:50:29PM -0800, Mike Fedyk wrote:
-> First of all, does it swap out and stay swapped out, or does it swap in and
-> out constantly?
+Pardon my ignorance, but what's the benefit to having an account there?
 
-http://www.matchmail.com/stats/lrrd/matchmail.com/fileserver.matchmail.com-swap.html
+Regards,
 
-Look at the monthly graph.
+Nigel
 
-Weeks 49 and 50 are 2.4.20-rmap.
-
-Week 51 to half of week 52 is 2.4.23
-
-After that it is 2.4.23-aa1.
-
-I'd suggest that if you have any problems with too much swapping in and out,
-to try 2.4.23-aa1.
-
-Mike
+On Wed, 2003-12-31 at 16:12, Larry McVoy wrote:
+> If you don't have an account on this and you want one (it's mostly for 
+> BK users but has sort of turned into a public machine for any of the 
+> kernel developers, DaveM describes it as "a friendly place") send me 
+> or davem a ssh2 key and we'll set you up.
+> 
+> --lm
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+My work on Software Suspend is graciously brought to you by
+LinuxFund.org.
 

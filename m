@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbQLMX7O>; Wed, 13 Dec 2000 18:59:14 -0500
+	id <S129423AbQLNABE>; Wed, 13 Dec 2000 19:01:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129453AbQLMX7E>; Wed, 13 Dec 2000 18:59:04 -0500
-Received: from acct2.voicenet.com ([207.103.26.205]:49834 "HELO voicenet.com")
-	by vger.kernel.org with SMTP id <S129383AbQLMX6q>;
-	Wed, 13 Dec 2000 18:58:46 -0500
-Message-ID: <3A380613.22D085CC@voicenet.com>
-Date: Wed, 13 Dec 2000 18:28:19 -0500
-From: safemode <safemode@voicenet.com>
-Organization: none
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: IDE bugs for intel 440LX chipset in Test12?
+	id <S129652AbQLNAAy>; Wed, 13 Dec 2000 19:00:54 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:42629 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S129423AbQLNAAm>; Wed, 13 Dec 2000 19:00:42 -0500
+Date: Wed, 13 Dec 2000 23:30:15 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.0-test12:
+Message-ID: <20001213233015.Q5918@redhat.com>
+In-Reply-To: <20001213192352.L5918@redhat.com> <20001213231155.A2690@gruyere.muc.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001213231155.A2690@gruyere.muc.suse.de>; from ak@suse.de on Wed, Dec 13, 2000 at 11:11:55PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All I can say right now is that enabling DMA on a 440LX chipset with
-2.4.0-test12  or any other kernel I can remember has caused DMA timeout
-and ide-reset problems.  Disabling dma on the harddrives doesn't help
-that much either, I still get ide resets.   What I'm looking for right
-now is some information on how to log what the kernel recieves from the
-harddrive and possibly what it sends so I can give rik some better
-information on what's going on in this chipset.  Thanks.
+On Wed, Dec 13, 2000 at 11:11:55PM +0100, Andi Kleen wrote:
 
+> Perhaps it should mention that the guaranteed useful range of atomic_t 
+> is only 24bit ?  Documentation without source would rather useless if it
+> didn't mention such pitfalls.
+
+Does
+<URL:ftp://people.redhat.com/twaugh/patches/linux24/linux-macrodoc.patch>
+look better?
+
+Tim.
+*/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

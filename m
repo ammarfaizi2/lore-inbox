@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131386AbRCNOkG>; Wed, 14 Mar 2001 09:40:06 -0500
+	id <S131450AbRCNOzF>; Wed, 14 Mar 2001 09:55:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131400AbRCNOj4>; Wed, 14 Mar 2001 09:39:56 -0500
-Received: from windsormachine.com ([206.48.122.28]:17418 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S131386AbRCNOjh>; Wed, 14 Mar 2001 09:39:37 -0500
-Message-ID: <3AAF8274.735F0F04@windsormachine.com>
-Date: Wed, 14 Mar 2001 09:38:44 -0500
-From: Mike Dresser <mdresser@windsormachine.com>
-Organization: Windsor Machine & Stamping
-X-Mailer: Mozilla 4.75 [en] (Win98; U)
-X-Accept-Language: en
+	id <S131444AbRCNOyz>; Wed, 14 Mar 2001 09:54:55 -0500
+Received: from aeon.tvd.be ([195.162.196.20]:22752 "EHLO aeon.tvd.be")
+	by vger.kernel.org with ESMTP id <S131450AbRCNOyq>;
+	Wed, 14 Mar 2001 09:54:46 -0500
+Date: Wed, 14 Mar 2001 15:51:36 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Linux-fbdev-devel] [RFC] fbdev & power management
+In-Reply-To: <20010314140550.30460@mailhost.mipsys.com>
+Message-ID: <Pine.LNX.4.05.10103141550350.25760-100000@callisto.of.borg>
 MIME-Version: 1.0
-To: Alex Baretta <alex@baretta.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 5Mb missing...
-In-Reply-To: <Pine.LNX.4.33.0103070958110.1424-100000@mikeg.weiden.de> <3AAF7AD1.D24E526C@baretta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-scanner: scanned by Inflex 0.1.5c - (http://www.inflex.co.za/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Baretta wrote:
+On Wed, 14 Mar 2001, Benjamin Herrenschmidt wrote:
+> >> Either that, or the fbdev would register with PCI (or whatever), _and_
+> >> fbcon would too independently. In that scenario, fbcon would only handle
+> >> things like disabling the cursor timer, while fbdev's would handle HW
+> >> issues. THe only problem is for fbcon to know that a given fbdev is
+> >> asleep, this could be an exported per-fbdev flag, an error code, or
+> >> whatever. In this case, fbcon can either buffer text input, or fallback
+> >> to the cfb working on the backed up fb image (that last thing can be
+> >> handled entirely within the fbdev I guess).
+> >
+> >I'd go for a fallback to dummycon. It's of no use to waste power on creating
+> >graphical images of the text console when asleep. And the fallback to
+> dummycon
+> >is needed anyway while a fbdev is opened (in 2.5.x).
+> 
+> We do already have the backup image since we need to backup & restore the
+> framebuffer content.
 
-> [alex@localhost /home]$ free -m
->              total       used       free     shared    buffers
-> cached
-> Mem:           251        209         42         60
-> 61         92
->
-> I strongly doubt this can be a bug in the kernel. Could anyone
-> explain to me why this might happen?
+Fine. Keep it. But there's no reason to keep on updating it when the screen
+contents change. Fbcon can do that when the fbdev goes out of sleep mode.
 
-grep Memory /var/log/kern.log
+Gr{oetje,eeting}s,
 
-You've got your kernel itself loading into ram, reserved memory, etc.
+						Geert
 
-I've got 48 meg in this test box of mine, and a free -m shows 46, a free shows
-47356.  Divided by 1024, gives 46, when rounded off.  So yes, free -m is
-correct.  That 251 meg is what's available to use, after your kernel loads,
-etc.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-mike
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

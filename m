@@ -1,65 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbUA3Q52 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 11:57:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbUA3Q52
+	id S262328AbUA3Q7C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 11:59:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbUA3Q7C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 11:57:28 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:45989 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262123AbUA3Q50 (ORCPT
+	Fri, 30 Jan 2004 11:59:02 -0500
+Received: from [207.111.197.98] ([207.111.197.98]:38926 "EHLO www.igotu.com")
+	by vger.kernel.org with ESMTP id S262328AbUA3Q64 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 11:57:26 -0500
-Date: Fri, 30 Jan 2004 11:57:20 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Arnd Bergmann <arnd@arndb.de>
-cc: linux-kernel@vger.kernel.org, R CHAN <rspchan@starhub.net.sg>
-Subject: Re: [CRYPTO]: Miscompiling sha256.c by gcc 3.2.3 and arch pentium3,4
-In-Reply-To: <200401301643.13477.arnd@arndb.de>
-Message-ID: <Xine.LNX.4.44.0401301156120.16128-100000@thoron.boston.redhat.com>
+	Fri, 30 Jan 2004 11:58:56 -0500
+From: "Martin Bogomolni" <martinb@www.igotu.com>
+To: Michael Knigge <Michael.Knigge@set-software.de>,
+       Markus Schaber <schabios@logi-track.com>
+Cc: linux-kernel@vger.kernel.org
+Reply-To: martinb@igotu.com
+Subject: Re: Errors with USB Disk
+Date: Fri, 30 Jan 2004 11:30:37 -0500
+Message-Id: <20040130162256.M39489@www.igotu.com>
+In-Reply-To: <20040130.11444335@knigge.local.net>
+References: <20040130122324.7ac7ef34.schabios@logi-track.com> <20040130.11444335@knigge.local.net>
+X-Mailer: Open WebMail 2.21 20031110
+X-OriginatingIP: 12.100.203.195 (martinb)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset=iso-8859-1
+X-yoursite-MailScanner-Information: Please contact the ISP for more information
+X-yoursite-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jan 2004, Arnd Bergmann wrote:
 
-> James Morris wrote:
-> > Have you noticed if this happens for any of the other crypto algorithms?
-> 
-> Just as a reminder, there is still an issue with extreme stack usage
-> of some of the algorithms, depending on compiler version and
-> flags.
-> 
-> The worst I have seen was around 16kb for twofish_setkey on 64 bit
-> s390 with gcc-3.1 (iirc). Right now, I get up to 4kb for this
-> function with gcc-3.3.1, which probably works but is definitely
-> a bad sign. I've seen this as well on other architectures (iirc
-> on x86_64), but not as severe.
-> 
-> Other algorithms are bad as well, these are the top scores from
-> Jörn Engel's checkstack.pl (s390 64bit 2.6.1 gcc-3.3.1):
-> 
-> 0x00000a twofish_setkey:           lay    %r15,-3960(%r15)
-> 0x0026fc aes_decrypt:              lay    %r15,-1168(%r15)
-> 0x000c0c aes_encrypt:              lay    %r15,-1000(%r15)
-> 0x00000e sha512_transform:         lay    %r15,-936(%r15)
-> 0x001292 test_deflate:             lay    %r15,-784(%r15)
-> 0x0028a2 cast6_decrypt:            lay    %r15,-696(%r15)
-> 0x00d1a0 twofish_encrypt:          lay    %r15,-664(%r15)
-> 0x001b34 setkey:                   lay    %r15,-656(%r15)
-> 0x00e2b0 twofish_decrypt:          lay    %r15,-624(%r15)
-> 0x000c9e cast6_encrypt:            lay    %r15,-600(%r15)
-> 0x000014 sha1_transform:           lay    %r15,-504(%r15)
+Michael, Markus, Et. Al.
 
-I'm not seeing anything like this on x86 (e.g. stack usage is 8 bytes), 
-and can't see an obvious way to fix the problem for your compiler.
+We are seeing the same problem ( USB hangs ) on 2.4.24 and 2.4.25-pre7 w/ the
+patches submitted by Oliver and Alan S.   We're copying about 15GiB of data
+between an IDE and USB drive, and see the hang occur somewhere in the first
+1GiB of data transferred.   
 
+Changing max_sectors to 128/64/32/16/8 in the scsiglue.c doesn't make any
+difference as far as stability goes.  Unfortunately, once the system locks up,
+it ceases responding even to the SysCtl hack. 
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+I'm in the process of performing tests on various platforms and verbose
+logging usb_storage via serial console.  As soon as I have some results I will
+be posting them to the linux-usb-devel list.
 
+Martin 
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+ 
+iD8DBQFAGAwugZQNxll+EIcRAi5QAJwPVaycmtXpTpfRlO+1BJaQUSbEwQCgltX6
+qQ1ruCegNDc+w82h9iPT+Zc=
+=FTcP
+-----END PGP SIGNATURE-----
 

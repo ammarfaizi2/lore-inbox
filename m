@@ -1,82 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264369AbTKURAk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 12:00:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264370AbTKURAk
+	id S264372AbTKURJp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 12:09:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbTKURJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 12:00:40 -0500
-Received: from kiuru.kpnet.fi ([193.184.122.21]:44994 "EHLO kiuru.kpnet.fi")
-	by vger.kernel.org with ESMTP id S264369AbTKURAi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 12:00:38 -0500
-Subject: Re: Nick's scheduler v19a
-From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-To: Timothy Miller <miller@techsource.com>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FBE3B0D.8030501@techsource.com>
-References: <3FB62608.4010708@cyberone.com.au>
-	 <1069361130.13479.12.camel@midux> <3FBD4F6E.3030906@cyberone.com.au>
-	 <1069395102.16807.11.camel@midux> <3FBDAE99.9050902@cyberone.com.au>
-	 <1069405566.18362.5.camel@midux> <3FBDD790.5060401@cyberone.com.au>
-	 <1069407179.18505.11.camel@midux>  <yw1xy8uaujv0.fsf@kth.se>
-	 <1069410094.18790.2.camel@midux>  <3FBE3B0D.8030501@techsource.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-etCsHel23ZXd4F5mGxfr"
-Message-Id: <1069434035.21039.5.camel@midux>
+	Fri, 21 Nov 2003 12:09:45 -0500
+Received: from the-penguin.otak.com ([65.37.126.18]:3712 "EHLO
+	the-penguin.otak.com") by vger.kernel.org with ESMTP
+	id S264372AbTKURJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 12:09:43 -0500
+Date: Fri, 21 Nov 2003 09:09:33 -0800
+From: Lawrence Walton <lawrence@the-penguin.otak.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Opps on boot 2.6.0-pre9-mm4
+Message-ID: <20031121170933.GA1269@the-penguin.otak.com>
+References: <20031120193318.GA5578@the-penguin.otak.com> <20031120131945.3cd35911.akpm@osdl.org> <20031120233006.GA1331@the-penguin.otak.com> <20031120160601.6b1fbd53.akpm@osdl.org> <20031120210953.GA25417@neo.rr.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 21 Nov 2003 19:00:35 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031120210953.GA25417@neo.rr.com>
+X-Operating-System: Linux 2.6.0-test9-mm4 on an i686
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adam Belay [ambx1@neo.rr.com] wrote:
+> On Thu, Nov 20, 2003 at 04:06:01PM -0800, Andrew Morton wrote:
+> > Lawrence Walton <lawrence@the-penguin.otak.com> wrote:
+> > >
+> > > > Looks like it died inside the machine's BIOS.
+> > > >
+> > > > Please try reverting the three pnp patches:
+> > > >
+> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/broken-out/pnp-fix-3.patch
+> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/broken-out/pnp-fix-2.patch
+> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/broken-out/pnp-fix-1.patch
+> > > >
+> > > > and let us know?
+> > > >
+> > > I reverted these and it works great!
+> > >
+> > >
+> > >
+> > > > - Upgrade the bios
+> > > The bios is the latest so updating it would not of been a option.
+> > >
+> >
+> > OK, thanks.   Adam, those pnp patches are suspect...
+> 
+> Hmm, well it couldn't be patch 3 because it relates to isapnp.  Patch
+> 1 is the only patch that changes the PnPBIOS calls, and it has been
+> known to fix problems for some systems.  Also it does what the actual
+> specifications recommend.  You may just have a buggy system that's
+> triggered by the static resource calls.  If so, we could use dynamic
+> instead resources when the DMI scan matches with this system.  Patch
+> 2 provides an option to disable the PnPBIOS proc interface, but it
+> should not affect PnPBIOS calls.
+> 
+> Lawrence, could you please test this again, only this time excluding
+> patch 1 and no others.  If that doesn't work try excluding patch 2.
+> 
+> Thanks,
+> Adam
+> 
+> P.S.
 
---=-etCsHel23ZXd4F5mGxfr
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+Adam this worked great too. 
+My guess is that this board is a little different.
+It's a Asus A7V333 with fireiwire and the raid.
 
-Yes, but how could I know if the bug is in XFree86? in kernel? in the
-nvidia driver module? and no, I can't even hope to try to reproduce bugs
-without nvidia module, because no X =3D> no bugs. If you tell me what I
-need to add to kernel configuration to get some info while something
-happens, I'll probably try to reproduce bugs when test10 is out with
-vanilla kernel.
 
-And yes, I'm intrested in the performance of other's computers too, but
-if this is new then it's new, and I can't by my self know where the bug
-(maybe) is.
+-- 
+*--* Mail: lawrence@otak.com
+*--* Voice: 425.739.4247
+*--* Fax: 425.827.9577
+*--* HTTP://www.otak-k.com/~lawrence/
+--------------------------------------
+- - - - - - O t a k  i n c . - - - - - 
 
-Regards,
-Markus
-
-On Fri, 2003-11-21 at 18:19, Timothy Miller wrote:
-> Markus H=E4stbacka wrote:
-> > That may be true, but why should I complain anymore? Nick made a really
-> > great patch that makes things working for me.
-> >=20
->=20
->=20
-> Are you interested only in the performance of your own computer, or do=20
-> you have any interest in the performance of other people's computers as=20
-> well?
->=20
-> If there's a bug, there's a bug, and you've identified it.  Contrary to=20
-> the attitude of our friends in Redmond, the open source community tends=20
-> to see bugs as being really evil.  If you've found a bug, we want to=20
-> investigate it and fix it.
---=20
-"Software is like sex, it's better when it's free."
-Markus H=E4stbacka <midian at ihme.org>
-
---=-etCsHel23ZXd4F5mGxfr
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/vkSz3+NhIWS1JHARAomeAJ9zOmB69kJ7v7la97/gRxoU1+ZHsgCgr6Uo
-ib5JkFmqj+R6cPhIcGNXRfA=
-=37yV
------END PGP SIGNATURE-----
-
---=-etCsHel23ZXd4F5mGxfr--
 

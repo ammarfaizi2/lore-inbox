@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263880AbUAMJ7r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 04:59:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263909AbUAMJ7r
+	id S263834AbUAMJ5j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 04:57:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbUAMJ5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 04:59:47 -0500
-Received: from [220.70.238.158] ([220.70.238.158]:48391 "HELO linux-kernel")
-	by vger.kernel.org with SMTP id S263880AbUAMJ7p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 04:59:45 -0500
-Message-ID: <vcblyclgr.0424757207dpbnkn@Arild.espenesfvrbkahfor>
-From: "Arild.espenes" <yearBalkan@dwp.net>
-Date: Tue, 13 Jan 2004 18:57:54 -0000
-To: linux-kernel@vger.kernel.org
-Subject: Modern way of losing customized we;ght natural strategies
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 13 Jan 2004 04:57:39 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:54021 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263805AbUAMJ5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 04:57:37 -0500
+Date: Tue, 13 Jan 2004 09:57:11 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Andreas Haumer <andreas@xss.co.at>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: [2.4 patch] disallow modular CONFIG_COMX
+Message-ID: <20040113095711.A15396@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Garzik <jgarzik@pobox.com>, Adrian Bunk <bunk@fs.tum.de>,
+	Andreas Haumer <andreas@xss.co.at>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+References: <Pine.LNX.4.58L.0312311109131.24741@logos.cnet> <3FF2EAB3.1090001@xss.co.at> <20040111013043.GY25089@fs.tum.de> <40031EB1.5030705@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40031EB1.5030705@pobox.com>; from jgarzik@pobox.com on Mon, Jan 12, 2004 at 05:24:49PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello butcher,
+On Mon, Jan 12, 2004 at 05:24:49PM -0500, Jeff Garzik wrote:
+> I agree with the intent...
+> 
+> At this point, I am tempted to simply comment it out of the Config.in, 
+> and let interested parties backport bug fixes and crap from 2.6 if they 
+> would like.  The driver has had obvious bugs for a while...
 
-At last you have an opportunity to purchase good directly from manufactures. You save your money purchasing quality products from our plant's store.
-Today we present you FatBlast product.
-
-What is FatBlast actually?
-
-Fatblast is an advanced fat-binding supplement that removes fat from the foods you eat!
-Formulated with the powerful fat-binding fiber Chitosan, the proprietary blend of all-natural compounds...
-
-Our corporation was the first one who started selling this product on
-the web in the year 2004. Try our FDA approved product tday graphic
-
-Read about our dscounts and special bonses:
-http://www.theonlyrealstuff.com/fly/index.php?pid=pharmaboss
-
-fatteners pebbles bargain superuser, underworld Anita remarked Ghent seducer Andalusian Ernest Gleason Bedford repulsing physics fourth Eugenia.
-
+In 2.6 it's as buggy as in 2.4..
 

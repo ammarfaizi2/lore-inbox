@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263759AbTFGVav (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 17:30:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263761AbTFGVau
+	id S263743AbTFGVOF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 17:14:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263759AbTFGVOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 17:30:50 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7431 "EHLO
+	Sat, 7 Jun 2003 17:14:05 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32773 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263759AbTFGVat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 17:30:49 -0400
+	id S263743AbTFGVOC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 17:14:02 -0400
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Maximum swap space?
-Date: 7 Jun 2003 14:43:54 -0700
+Subject: Re: What are .s files in arch/i386/boot
+Date: 7 Jun 2003 14:27:34 -0700
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bbtmaq$r03$1@cesium.transmeta.com>
-References: <ltptlqb72n.fsf@colina.demon.co.uk> <33435.4.64.196.31.1055008200.squirrel@www.osdl.org>
+Message-ID: <bbtlc6$qtd$1@cesium.transmeta.com>
+References: <Pine.LNX.4.44.0306072102580.1776-100000@jlap.stev.org> <6un0gty981.fsf@zork.zork.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -24,29 +24,34 @@ Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <33435.4.64.196.31.1055008200.squirrel@www.osdl.org>
-By author:    "Randy.Dunlap" <rddunlap@osdl.org>
+Followup to:  <6un0gty981.fsf@zork.zork.net>
+By author:    Sean Neakums <sneakums@zork.net>
 In newsgroup: linux.dev.kernel
+>
+> James Stevenson <james@stev.org> writes:
 > 
-> From http://www.xenotime.net/linux/doc/swap-mini-howto.txt:
+> >> > > What are .s files in arch/i386/boot, are they c sources of some sort?
+> >> > > Where can I find the specifications documents they were made from? 
+> >> > 
+> >> > There are not c files.
+> >> > They are assembler files
+> >> > 
+> >> > Try running gcc on a c file with the -S option
+> >> > it will generate the same then you can tweak the
+> >> > assembler produced to make it faster.
+> >> > 
+> >> Where can I find the .c files they were made from,
+> >> and the spec sheets the .c files were made from? 
+> >
+> > You would have to find the original author of the person
+> > who tweaks the assembler in the .s file chances are the .c
+> > file is long gone though.
 > 
-> 3.  Swap space limits
-> 
-> Linux 2.4.10 and later, and Linux 2.5 support any combination of swap
-> files or swap devices to a maximum number of 32 of them.  Prior to Linux
-> 2.4.10, the limit was any combination of 8 swap files or swap devices.  On
-> x86 architecture systems, each of these swap areas has a limit of 2 GiB.
+> If there were ever C files to begin with.  It's not unheard-of for
+> people to write assembler code from scratch.
 > 
 
-2 GiB is getting a bit tight, especially with tmpfs, ust like the
-previous limits of 16 MiB and 128 MiB were getting tight at various
-points, and it's annoying to have to make multiple partitions.
-
-tmpfs is a good thing -- in my experience even if it is stored
-primarily on disk it is much faster for temp files than any other
-filesystem, simply because it never has to worry about consistency.
-This means it's entirely reasonable to have a "farm" machine with a
-40 GiB tmpfs used for everything except the OS itself.
+The ones in the Linux kernel were all written from scratch.
 
 	-hpa
 -- 

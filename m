@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267680AbTAMA56>; Sun, 12 Jan 2003 19:57:58 -0500
+	id <S267677AbTAMA5S>; Sun, 12 Jan 2003 19:57:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267689AbTAMA56>; Sun, 12 Jan 2003 19:57:58 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:4809 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267680AbTAMA5y>;
-	Sun, 12 Jan 2003 19:57:54 -0500
-From: Randy Dunlap <rddunlap@osdl.org>
-Message-ID: <1850.4.64.197.173.1042420003.squirrel@www.osdl.org>
-Date: Sun, 12 Jan 2003 17:06:43 -0800 (PST)
+	id <S267680AbTAMA5S>; Sun, 12 Jan 2003 19:57:18 -0500
+Received: from dsl092-067-143.bos1.dsl.speakeasy.net ([66.92.67.143]:26759
+	"EHLO europa.beakerware.net") by vger.kernel.org with ESMTP
+	id <S267677AbTAMA5R>; Sun, 12 Jan 2003 19:57:17 -0500
+Date: Sun, 12 Jan 2003 20:08:42 -0500 (EST)
+From: Michael Kingsbury <beaker@europa.beakerware.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: any chance of 2.6.0-test*?
-To: <robw@optonline.net>
-In-Reply-To: <1042410059.1208.150.camel@RobsPC.RobertWilkens.com>
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
-        <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
-        <20030112211530.GP27709@mea-ext.zmailer.org>
-        <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
-        <20030112215949.GA2392@www.kroptech.com>
-        <1042410059.1208.150.camel@RobsPC.RobertWilkens.com>
-X-Priority: 3
-Importance: Normal
-Cc: <akropel1@rochester.rr.com>, <matti.aarnio@zmailer.org>,
-       <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.8)
+In-Reply-To: <20030110161012.GD2041@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0301122002480.7225-100000@europa.beakerware.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Harder to read: The primary code path is polluted with repetative code
->> that has no bearing on its primary mission.
->
-> I thought it was easier to read.  For me, I can read "ok, this condition
-> happens, I fail"... Or "if this other condition happens, I release my path,
-> then I fail"...
+> Say, I've been having _smashing_ success with 2.5.x on the desktop and
+> on big fat highmem umpteen-way SMP (NUMA even!) boxen, and I was
+> wondering if you were considering 2.6.0-test* anytime soon.
+> 
+> I'd love to get this stuff out for users to hammer on ASAP, and things
+> are looking really good AFAICT.
+> 
+> Any specific concerns/issues/wishlist items you want taken care of
+> before doing it or is it a "generalized comfort level" kind of thing?
+> Let me know, I'd be much obliged for specific directions to move in.
 
-over and over, with additions each time?
+As long as I can't unzip the latest, do a quick
 
-> Whereas the "goto out" was very unclear.  It made me page down to figure out
-> what was going on.
->
-> That's the whole point.. To just browse the code.. I shouldn't have to page
-> down to understand what the code right in front of me is doing.  "goto out"
-> is unclear.  "retun error" is clear.  "path_release" seems like a relatively
-> plain english function name and I can guess what it does without knowing
-> exactly what it does.  I can also surmise that if I go beyond a certain
-> point in the function that I need to path_release() the same way a
-> non-kernel programmer might need to free memory allocated inside of a
-> function before returning to the calling function.
-So you choose to agree with your lessons that goto is bad, but
-ignore the other lesson that functions shouldn't have multiple
-return paths?  Or didn't have that lesson?
-~Randy
+	'make xconfig' w/o changing the defaults,
 
+	 followed by
 
+	'make bzImage',
+
+and actually get the sucker to compile, I'd say go for it.  But there's 
+still too much breakage.  And until that breakage is fixed, you won't get 
+the next wave of people (users) who are curious to poke around with it.  
+(some of us don't care to take half a day just to figure out what to do to make something compile because 
+there's problems in the source.)
+
+(Yes, I realize I have to customize the kernel some.  But at the very 
+least the defaults shouldn't cause it to fall flat on its face.)
+
+-mike
 

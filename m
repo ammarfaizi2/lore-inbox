@@ -1,85 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbUKPNDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbUKPNGt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261971AbUKPNDv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 08:03:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbUKPNCN
+	id S261973AbUKPNGt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 08:06:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbUKPNGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 08:02:13 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:2351 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261973AbUKPNBL (ORCPT
+	Tue, 16 Nov 2004 08:06:48 -0500
+Received: from gprs214-224.eurotel.cz ([160.218.214.224]:25728 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261973AbUKPNFB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 08:01:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Qtn5ZRpFy1kOMlWf1Gw2tsvo0fni28lvfmgQm78hxiqygWswdxaarloTfyFnbBwz6Iqzje5o4PsqCSMvcRSBk7ArI/c9AG9HM1xbs3WbB85KGM689rwznc+sEI+nO+6jHKTaFC0bJTSI/2/hsRbO0ZG69shDXXx+hUXBZAsxS6k=
-Message-ID: <58cb370e04111605019fc1df8@mail.gmail.com>
-Date: Tue, 16 Nov 2004 14:01:10 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>
-Subject: Re: [BUG] Kernel disables DMA on RICOH CD-R/RW
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20041116124656.82075.qmail@web52601.mail.yahoo.com>
+	Tue, 16 Nov 2004 08:05:01 -0500
+Date: Tue, 16 Nov 2004 14:04:45 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>, Greg KH <greg@kroah.com>
+Subject: Cleanup PCI power states
+Message-ID: <20041116130445.GA10085@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041116124656.82075.qmail@web52601.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Nov 2004 23:46:56 +1100 (EST), Srihari Vijayaraghavan
-<sriharivijayaraghavan@yahoo.com.au> wrote:
-> As of 2.6.9-rc4 (I have verified this to be case all
-> the way up to 2.6.10-rc2), kernel displays this
-> message:
-> 
-> Uniform Multi-Platform E-IDE driver Revision:
-> 7.00alpha2
-> ide: Assuming 33MHz system bus speed for PIO modes;
-> override with idebus=xx
-> VP_IDE: IDE controller at PCI slot 0000:00:0f.1
-> ACPI: PCI interrupt 0000:00:0f.1[A] -> GSI 20 (level,
-> low) -> IRQ 20
-> VP_IDE: chipset revision 6
-> VP_IDE: not 100% native mode: will probe irqs later
-> VP_IDE: VIA vt8237 (rev 00) IDE UDMA133 controller on
-> pci0000:00:0f.1
->     ide0: BM-DMA at 0xcc00-0xcc07, BIOS settings:
-> hda:DMA, hdb:pio
->     ide1: BM-DMA at 0xcc08-0xcc0f, BIOS settings:
-> hdc:DMA, hdd:DMA
-> Probing IDE interface ide0...
-> hda: ST3120026A, ATA DISK drive
-> Using anticipatory io scheduler
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> Probing IDE interface ide1...
-> hdc: Pioneer DVD-ROM ATAPIModel DVD-113 0113, ATAPI
-> CD/DVD-ROM drive
-> hdd: RICOH CD-R/RW MP7083A, ATAPI CD/DVD-ROM drive
-> hdd: Disabling (U)DMA for RICOH CD-R/RW MP7083A
-> (blacklisted)
-> 
-> The kernel disables DMA on the CD-R/RW (/dev/hdd) and
-> of course it would not let me enable it manually
-> either. Up until 2.6.9-rc3 the drive worked in DMA
-> mode just fine.
-> 
-> (I have been using this drive for more than 4 years. I
-> have used it under 2.2.x, 2.4.x, >=2.5.50 in DMA mode
-> just fine. Although I have changed everything else in
-> the computer in those long years: CPU, M/B, RAM, HDD
-> etc., save this great CD-R/RW drive, which has been
-> working fine.)
-> 
-> So the question is: why?
-> (And what can I do to enable DMA again?)
+Hi!
 
-Previously VIA IDE driver ignored DMA blacklists completely
-(which was of course wrong), it was fixed.
+This is step 0 before adding type-safety to PCI layer... It introduces
+constants and uses them to clean driver up. I'd like this to go in
+now, so that I can convert drivers during 2.6.10... Please apply,
 
-Probably this drive should be removed from the blacklist.
-Does anybody remember why was it added there?
+								Pavel
 
-Bartlomiej
+[amd8111e.c piece below shows exactly why this is needed; feel free to
+apply it or not...]
+
+--- clean/include/linux/pci.h	2004-10-01 00:30:30.000000000 +0200
++++ linux/include/linux/pci.h	2004-11-14 23:36:46.000000000 +0100
+@@ -480,6 +480,14 @@
+ #define DEVICE_COUNT_COMPATIBLE	4
+ #define DEVICE_COUNT_RESOURCE	12
+ 
++typedef int __bitwise pci_power_t;
++
++#define PCI_D0	((pci_power_t __force) 0)
++#define PCI_D1	((pci_power_t __force) 1)
++#define PCI_D2	((pci_power_t __force) 2)
++#define PCI_D3hot	((pci_power_t __force) 3)
++#define PCI_D3cold	((pci_power_t __force) 4)
++
+ /*
+  * The pci_dev structure is used to describe PCI devices.
+  */
+--- clean/drivers/net/amd8111e.c	2004-10-01 00:30:15.000000000 +0200
++++ linux/drivers/net/amd8111e.c	2004-11-14 23:48:04.000000000 +0100
+@@ -1865,17 +1865,17 @@
+ 		if(lp->options & OPTION_WAKE_PHY_ENABLE)
+ 			amd8111e_enable_link_change(lp);	
+ 		
+-		pci_enable_wake(pci_dev, 3, 1);
+-		pci_enable_wake(pci_dev, 4, 1); /* D3 cold */
++		pci_enable_wake(pci_dev, PCI_D3hot, 1);
++		pci_enable_wake(pci_dev, PCI_D3cold, 1);
+ 
+ 	}
+ 	else{		
+-		pci_enable_wake(pci_dev, 3, 0);
+-		pci_enable_wake(pci_dev, 4, 0); /* 4 == D3 cold */
++		pci_enable_wake(pci_dev, PCI_D3hot, 0);
++		pci_enable_wake(pci_dev, PCI_D3cold, 0);
+ 	}
+ 	
+ 	pci_save_state(pci_dev, lp->pm_state);
+-	pci_set_power_state(pci_dev, 3);
++	pci_set_power_state(pci_dev, PCI_D3hot);
+ 
+ 	return 0;
+ }
+@@ -1887,11 +1887,11 @@
+ 	if (!netif_running(dev))
+ 		return 0;
+ 
+-	pci_set_power_state(pci_dev, 0);
++	pci_set_power_state(pci_dev, PCI_D0);
+ 	pci_restore_state(pci_dev, lp->pm_state);
+ 
+-	pci_enable_wake(pci_dev, 3, 0);
+-	pci_enable_wake(pci_dev, 4, 0); /* D3 cold */
++	pci_enable_wake(pci_dev, PCI_D3hot, 0);
++	pci_enable_wake(pci_dev, PCI_D3cold, 0);
+ 
+ 	netif_device_attach(dev);
+ 
+
+
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

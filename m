@@ -1,149 +1,493 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130231AbQLFNuL>; Wed, 6 Dec 2000 08:50:11 -0500
+	id <S129846AbQLFNtV>; Wed, 6 Dec 2000 08:49:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130673AbQLFNuB>; Wed, 6 Dec 2000 08:50:01 -0500
-Received: from cs85214.pp.htv.fi ([212.90.85.214]:55291 "EHLO
-	chip.nutshakers.dhs.org") by vger.kernel.org with ESMTP
-	id <S130231AbQLFNtr>; Wed, 6 Dec 2000 08:49:47 -0500
-Date: Wed, 6 Dec 2000 15:18:46 +0200 (EET)
-From: Panu Matilainen <pmatilai@pp.htv.fi>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <aviro@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
-        "Stephen C. Tweedie" <sct@redhat.com>, Alan Cox <alan@redhat.com>,
-        Christoph Rohland <cr@sap.com>, Rik van Riel <riel@conectiva.com.br>,
-        MOLNAR Ingo <mingo@chiara.elte.hu>, <urban@svenskatest.se>
-Subject: Re: test12-pre5
-In-Reply-To: <Pine.LNX.4.10.10012041906510.2047-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0012061518050.26107-100000@chip.nutshakers.dhs.org>
+	id <S130231AbQLFNtL>; Wed, 6 Dec 2000 08:49:11 -0500
+Received: from 208-48-236-144.dsl1.ROC.gblx.net ([208.48.236.144]:36849 "EHLO
+	suzaku.fynet.org") by vger.kernel.org with ESMTP id <S129846AbQLFNtE>;
+	Wed, 6 Dec 2000 08:49:04 -0500
+Message-ID: <3A2E3C39.B96B9516@fsc-usa.com>
+Date: Wed, 06 Dec 2000 08:16:41 -0500
+From: Brian Kress <kressb@fsc-usa.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Peter Samuelson <peter@cadcamlab.org>
+CC: Roberto Ragusa <robertoragusa@technologist.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel panic in SoftwareRAID autodetection
+In-Reply-To: <14893.25967.936504.881427@notabene.cse.unsw.edu.au> <yam8375.1358.149393648@a4000> <20001205183657.J6567@cadcamlab.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Dec 2000, Linus Torvalds wrote:
+Peter Samuelson wrote:
+> 
+> [Roberto Ragusa]
+> > BTW, here is a little patch regarding a silly problem I found
+> > about RAID partitions naming (/proc/partitions).
+> > No more "md8" "md9" "md:" "md;" ... but "md8" "md9" "md10" "md11" ...
+> > Well, this patch should work up to "md99".
+> 
+> This stuff *really* should be split out into the drivers.  Brian Kress
+> had a patch against test11 for this.  Brian?  You want to fold in this
+> fix?
 
->
-> Ok, this contains one of the fixes for the dirty inode buffer list (the
-> other fix is pending, simply because I still want to understand why it
-> would be needed at all). Al?
->
-> Also, it has the final installment of the PageDirty handling, and now
-> officially direct IO can work by just marking the physical page dirty and
-> be done with it. NFS along with all filesystems have been converted, the
-> one hold-out still being smbfs.
->
-> Who works on smbfs these days? I see two ways of fixing smbfs now that
-> "writepage()" only gets an anonymous page and no "struct file" information
-> any more (this also fixes the double page unlock that Andrew saw).
-
-Urban Widmark is the smbfs maintainer nowadays. BTW Urban thanks again for
-the NetApp-fix, it has saved my behind quite a few times by now :)
-
-        - Panu -
+	Sure.  I got resounding silence to posting the patch last time,
+so I'm not sure if anyone actually wants this patch, but here it is 
+again with this fix (the non ugly version) folded in.
 
 
->
->  - disable shared mmap over smbfs (very easily done by just setting
->    writepage to NULL)
->
->  - fetch the dentry that writepage needs by just looking at the
->    inode->i_dentry list and/or just make the smbfs page cache host be the
->    dentry instead of the inode like other filesystems. The first approach
->    assumes that all paths are equal for writeout, the second one assumes
->    that there are no hard linking going on in smbfs.
->
-> Somebody more knowledgeable than I will have to make the decision
-> (otherwise I'll just end up disabling shared mmap - I doubt anybody really
-> uses it anyway, but it would be more polite to just support it).
->
-> NOTE! There's another change to "writepage()" semantics than just dropping
-> the "struct file": the new writepage() is supposed to mirror the logic of
-> readpage(), and unlock the page when it is done with it. This allows the
-> VM system more visibility into what IO is pending (which the VM doesn't
-> take advantage of yet, but now it can _truly_ use the same logic for both
-> swapout and for dirty file writeback).
->
-> The other change is that I forward-ported the ymfpci driver from 2.2.18,
-> as it works better than the ALSA one on my now-to-be-main-laptop ;)
->
-> [ Alan - I ahve your patches in my incoming queue still, I wanted to get
->   an interim version out to check with Al on the block list and the VM
->   stuff with Rik and people. ]
->
-> 		Linus
->
-> ----
->  - pre5:
->     - Jaroslav Kysela: ymfpci driver
->     - me: get rid of bogus MS_INVALIDATE semantics
->     - me: final part of the PageDirty() saga
->     - Rusty Russell: 4-way SMP iptables fix
->     - Al Viro: oops - bad ext2 inode dirty block bug
->
->  - pre4:
->     - Andries Brouwer: final isofs pieces.
->     - Kai Germaschewski: ISDN
->     - play CD audio correctly, don't stop after 12 minutes.
->     - Anton Altaparmakov: disable NTFS mmap for now, as it doesn't work.
->     - Stephen Tweedie: fix inode dirty block handling
->     - Bill Hartner: reschedule_idle - prefer right cpu
->     - Johannes Erdfelt: USB updates
->     - Alan Cox: synchronize
->     - Richard Henderson: alpha updates and optimizations
->     - Geert Uytterhoeven: fbdev could be fooled into crashing fix
->     - Trond Myklebust: NFS filehandles in inode rather than dentry
->
->  - pre3:
->     - me: more PageDirty / swapcache handling
->     - Neil Brown: raid and md init fixes
->     - David Brownell: pci hotplug sanitization.
->     - Kanoj Sarcar: mips64 update
->     - Kai Germaschewski: ISDN sync
->     - Andreas Bombe: ieee1394 cleanups and fixes
->     - Johannes Erdfelt: USB update
->     - David Miller: Sparc and net update
->     - Trond Myklebust: RPC layer SMP fixes
->     - Thomas Sailer: mixed sound driver fixes
->     - Tigran Aivazian: use atomic_dec_and_lock() for free_uid()
->
->  - pre2:
->     - Peter Anvin: more P4 configuration parsing
->     - Stephen Tweedie: O_SYNC patches. Make O_SYNC/fsync/fdatasync
->       do the right thing.
->     - Keith Owens: make mdule loading use the right struct module size
->     - Boszormenyi Zoltan: get MTRR's right for the >32-bit case
->     - Alan Cox: various random documentation etc
->     - Dario Ballabio: EATA and u14-34f update
->     - Ivan Kokshaysky: unbreak alpha ruffian
->     - Richard Henderson: PCI bridge initialization on alpha
->     - Zach Brown: correct locking in Maestro driver
->     - Geert Uytterhoeven: more m68k updates
->     - Andrey Savochkin: eepro100 update
->     - Dag Brattli: irda update
->     - Johannes Erdfelt: USB update
->
->  - pre1: (for ISDN synchronization _ONLY_! Not complete!)
->     - Byron Stanoszek: correct decimal precision for CPU MHz in
->       /proc/cpuinfo
->     - Ollie Lho: SiS pirq routing.
->     - Andries Brouwer: isofs cleanups
->     - Matt Kraai: /proc read() on directories should return EISDIR, not EINVAL
->     - me: be stricter about what we accept as a PCI bridge setup.
->     - me: always set PCI interrupts to be level-triggered when we enable them.
->     - me: updated PageDirty and swap cache handling
->     - Peter Anvin: update A20 code to work without keyboard controller
->     - Kai Germaschewski: ISDN updates
->     - Russell King: ARM updates
->     - Geert Uytterhoeven: m68k updates
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
->
+Brian 
 
+
+--------------------------- Patch
+---------------------------------------
+
+diff -u --recursive linux-2.4.0-test11/drivers/block/DAC960.c
+linux-2.4.0-test11-ppfix/drivers/block/DAC960.c
+--- linux-2.4.0-test11/drivers/block/DAC960.c	Mon Nov 20 15:17:25 2000
++++ linux-2.4.0-test11-ppfix/drivers/block/DAC960.c	Thu Nov 23 14:29:37
+2000
+@@ -1885,6 +1885,21 @@
+ }
+ 
+ 
++char *DAC960_disk_name(struct gendisk *hd, int minor, char *buf)
++
++{
++	int ctlr = hd->major - DAC960_MAJOR;
++	int disk = minor >> hd->minor_shift;
++	int part = minor & ((1 << hd->minor_shift) - 1);
++
++	if (part)
++		sprintf(buf, "%s/c%dd%dp%d", hd->major_name, ctlr, disk, part);
++	else
++		sprintf(buf, "%s/c%dd%d", hd->major_name, ctlr, disk);
++	return buf;
++}
++
++
+ /*
+   DAC960_RegisterBlockDevice registers the Block Device structures
+   associated with Controller.
+@@ -1945,6 +1960,7 @@
+   Controller->GenericDiskInfo.nr_real = Controller->LogicalDriveCount;
+   Controller->GenericDiskInfo.next = NULL;
+   Controller->GenericDiskInfo.fops = &DAC960_BlockDeviceOperations;
++  Controller->GenericDiskInfo.hd_name = DAC960_disk_name;
+   /*
+     Install the Generic Disk Information structure at the end of the
+list.
+   */
+diff -u --recursive linux-2.4.0-test11/drivers/block/cciss.c
+linux-2.4.0-test11-ppfix/drivers/block/cciss.c
+--- linux-2.4.0-test11/drivers/block/cciss.c	Mon Nov 20 15:17:25 2000
++++ linux-2.4.0-test11-ppfix/drivers/block/cciss.c	Thu Nov 23 14:22:55
+2000
+@@ -1749,6 +1749,20 @@
+ 	kfree(size_buff);
+ }	
+ 
++char *cciss_disk_name(struct gendisk *hd, int minor, char *buf)
++
++{
++	int ctlr = hd->major - COMPAQ_CISS_MAJOR;
++	int disk = minor >> hd->minor_shift;
++	int part = minor & ((1 << hd->minor_shift) - 1);
++
++	if (part)
++		sprintf(buf, "%s/c%dd%dp%d", hd->major_name, ctlr, disk, part);
++	else
++		sprintf(buf, "%s/c%dd%d", hd->major_name, ctlr, disk);
++	return buf;
++}
++
+ /*
+  *  This is it.  Find all the controllers and register them.  I really
+hate
+  *  stealing all these major device numbers.
+@@ -1851,6 +1865,7 @@
+ 		hba[i]->gendisk.part = hba[i]->hd;
+ 		hba[i]->gendisk.sizes = hba[i]->sizes;
+ 		hba[i]->gendisk.nr_real = hba[i]->num_luns;
++		hba[i]->gendisk.hd_name = cciss_disk_name;
+ 
+ 		/* Get on the disk list */ 
+ 		hba[i]->gendisk.next = gendisk_head;
+diff -u --recursive linux-2.4.0-test11/drivers/block/cpqarray.c
+linux-2.4.0-test11-ppfix/drivers/block/cpqarray.c
+--- linux-2.4.0-test11/drivers/block/cpqarray.c	Mon Nov 20 15:20:29 2000
++++ linux-2.4.0-test11-ppfix/drivers/block/cpqarray.c	Thu Nov 23
+14:14:03 2000
+@@ -362,6 +362,20 @@
+ }
+ #endif /* MODULE */
+ 
++char *ida_disk_name(struct gendisk *hd, int minor, char *buf)
++
++{
++	int ctlr = hd->major - COMPAQ_SMART2_MAJOR;
++	int disk = minor >> hd->minor_shift;
++	int part = minor & ((1 << hd->minor_shift) - 1);
++
++	if (part)
++		sprintf(buf, "%s/c%dd%dp%d", hd->major_name, ctlr, disk, part);
++	else
++		sprintf(buf, "%s/c%dd%d", hd->major_name, ctlr, disk);
++	return buf;                                                   
++}
++
+ /*
+  *  This is it.  Find all the controllers and register them.  I really
+hate
+  *  stealing all these major device numbers.
+@@ -512,6 +526,7 @@
+ 		ida_gendisk[i].part = ida + (i*256);
+ 		ida_gendisk[i].sizes = ida_sizes + (i*256);
+ 		ida_gendisk[i].nr_real = 0; 
++		ida_gendisk[i].hd_name = ida_disk_name;
+ 	
+ 		/* Get on the disk list */
+ 		ida_gendisk[i].next = gendisk_head;
+diff -u --recursive linux-2.4.0-test11/drivers/ide/ide-probe.c
+linux-2.4.0-test11-ppfix/drivers/ide/ide-probe.c
+--- linux-2.4.0-test11/drivers/ide/ide-probe.c	Thu Aug  3 19:29:49 2000
++++ linux-2.4.0-test11-ppfix/drivers/ide/ide-probe.c	Thu Nov 23 12:32:16
+2000
+@@ -726,6 +726,40 @@
+ 	return 0;
+ }
+ 
++char* ide_disk_name(struct gendisk *hd, int minor, char *buf)
++
++{
++	int unit = (minor >> hd->minor_shift) + 'a';                         
++	unsigned int part = minor & ((1 << hd->minor_shift) - 1);
++
++	switch (hd->major) {
++		case IDE9_MAJOR:
++			unit += 2;
++		case IDE8_MAJOR:
++			unit += 2;
++		case IDE7_MAJOR:
++			unit += 2;
++		case IDE6_MAJOR:
++			unit += 2;
++		case IDE5_MAJOR:
++			unit += 2;
++		case IDE4_MAJOR:
++			unit += 2;
++		case IDE3_MAJOR:
++			unit += 2;
++		case IDE2_MAJOR:
++			unit += 2;
++		case IDE1_MAJOR:
++			unit += 2;
++		case IDE0_MAJOR:
++	}
++	if (part)
++		sprintf(buf, "hd%c%d", unit, part);
++	else
++		sprintf(buf, "hd%c", unit);
++	return buf;                                                          
++}
++
+ /*
+  * init_gendisk() (as opposed to ide_geninit) is called for each major
+device,
+  * after probing for drives, to allocate partition tables and other
+data
+@@ -781,6 +815,7 @@
+ 	gd->fops        = ide_fops;             /* file operations */
+ 	gd->de_arr	= kmalloc (sizeof *gd->de_arr * units, GFP_KERNEL);
+ 	gd->flags	= kmalloc (sizeof *gd->flags * units, GFP_KERNEL);
++	gd->hd_name	= ide_disk_name;
+ 	if (gd->de_arr)
+ 		memset (gd->de_arr, 0, sizeof *gd->de_arr * units);
+ 	if (gd->flags)
+diff -u --recursive linux-2.4.0-test11/drivers/md/lvm.c
+linux-2.4.0-test11-ppfix/drivers/md/lvm.c
+--- linux-2.4.0-test11/drivers/md/lvm.c	Mon Nov 20 15:20:30 2000
++++ linux-2.4.0-test11-ppfix/drivers/md/lvm.c	Thu Nov 23 07:47:20 2000
+@@ -213,9 +213,7 @@
+ &lvm_proc_get_info;
+ #endif
+ 
+-#ifdef LVM_HD_NAME
+-void lvm_hd_name(char *, int);
+-#endif
++char *lvm_hd_name(struct gendisk *, int, char *);
+ /* End external function prototypes */
+ 
+ 
+@@ -230,9 +228,6 @@
+ int lvm_snapshot_alloc(lv_t *);
+ void lvm_snapshot_release(lv_t *); 
+ 
+-#ifdef LVM_HD_NAME
+-extern void (*lvm_hd_name_ptr) (char *, int);
+-#endif
+ static int lvm_map(struct buffer_head *, int);
+ static int lvm_do_lock_lvm(void);
+ static int lvm_do_le_remap(vg_t *, void *);
+@@ -397,11 +392,6 @@
+ 		lvm_gendisk.next = NULL;
+ 	}
+ 
+-#ifdef LVM_HD_NAME
+-	/* reference from drivers/block/genhd.c */
+-	lvm_hd_name_ptr = lvm_hd_name;
+-#endif
+-
+ 	blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), DEVICE_REQUEST);
+ 	blk_queue_make_request(BLK_DEFAULT_QUEUE(MAJOR_NR),
+lvm_make_request_fn);
+ 	blk_queue_pluggable(BLK_DEFAULT_QUEUE(MAJOR_NR),
+lvm_plug_device_noop);
+@@ -460,11 +450,6 @@
+ 	remove_proc_entry(LVM_NAME, &proc_root);
+ #endif
+ 
+-#ifdef LVM_HD_NAME
+-	/* reference from linux/drivers/block/genhd.c */
+-	lvm_hd_name_ptr = NULL;
+-#endif
+-
+ 	printk(KERN_INFO "%s -- Module successfully deactivated\n", lvm_name);
+ 
+ 	return;
+@@ -1448,24 +1433,22 @@
+  * internal support functions
+  */
+ 
+-#ifdef LVM_HD_NAME
+ /*
+  * generate "hard disk" name
+  */
+-void lvm_hd_name(char *buf, int minor)
++char *lvm_hd_name(struct gendisk *hd, int minor, char *buf)
+ {
+ 	int len = 0;
+ 	lv_t *lv_ptr;
+ 
+ 	if (vg[VG_BLK(minor)] == NULL ||
+ 	    (lv_ptr = vg[VG_BLK(minor)]->lv[LV_BLK(minor)]) == NULL)
+-		return;
++		return buf;
+ 	len = strlen(lv_ptr->lv_name) - 5;
+ 	memcpy(buf, &lv_ptr->lv_name[5], len);
+ 	buf[len] = 0;
+-	return;
++	return buf;
+ }
+-#endif
+ 
+ 
+ /*
+@@ -2515,6 +2498,8 @@
+ 
+ 	blksize_size[MAJOR_NR] = lvm_blocksizes;
+ 	blk_size[MAJOR_NR] = lvm_size;
++
++	lvm_gendisk.hd_name=lvm_hd_name;
+ 
+ 	return;
+ } /* lvm_gen_init() */
+diff -u --recursive linux-2.4.0-test11/drivers/md/md.c
+linux-2.4.0-test11-ppfix/drivers/md/md.c
+--- linux-2.4.0-test11/drivers/md/md.c	Mon Nov 20 15:20:30 2000
++++ linux-2.4.0-test11-ppfix/drivers/md/md.c	Thu Nov 23 07:56:06 2000
+@@ -113,6 +113,8 @@
+ extern struct block_device_operations md_fops;
+ static devfs_handle_t devfs_handle;
+ 
++char *md_disk_name(struct gendisk*, int, char *);
++
+ static struct gendisk md_gendisk=
+ {
+ 	major: MD_MAJOR,
+@@ -125,6 +127,7 @@
+ 	real_devices: NULL,
+ 	next: NULL,
+ 	fops: &md_fops,
++	hd_name: md_disk_name,
+ };
+ 
+ /*
+@@ -215,6 +218,14 @@
+ 	MOD_INC_USE_COUNT;
+ 
+ 	return mddev;
++}
++
++char * md_disk_name(struct gendisk *hd, int minor, char* buf)
++
++{
++	int unit = (minor >> hd->minor_shift);
++	sprintf(buf, "%s%d", hd->major_name, unit);
++        return buf;
+ }
+ 
+ struct gendisk * find_gendisk (kdev_t dev)
+diff -u --recursive linux-2.4.0-test11/drivers/scsi/sd.c
+linux-2.4.0-test11-ppfix/drivers/scsi/sd.c
+--- linux-2.4.0-test11/drivers/scsi/sd.c	Mon Nov 20 15:17:18 2000
++++ linux-2.4.0-test11-ppfix/drivers/scsi/sd.c	Thu Nov 23 09:53:01 2000
+@@ -1013,6 +1013,30 @@
+ 	return i;
+ }
+ 
++char *scsi_disk_name(struct gendisk *hd, int minor, char *buf)
++
++{
++	int unit = (minor >> hd->minor_shift) + 'a';
++	unsigned int part = minor & ((1 << hd->minor_shift) - 1);
++
++	if (hd->major >= SCSI_DISK1_MAJOR && hd->major <= SCSI_DISK7_MAJOR) {
++		unit = unit + (hd->major - SCSI_DISK1_MAJOR + 1) * 16;
++		if (unit > 'z') {
++			unit -= 'z' + 1;
++			sprintf(buf, "sd%c%c", 'a' + unit / 26, 'a' + unit % 26);
++			if (part)
++				sprintf(buf + 4, "%d", part);
++			return buf;
++		}
++	}
++
++	if (part)
++		sprintf(buf, "sd%c%d", unit, part);
++	else
++		sprintf(buf, "sd%c", unit);
++	return buf;
++}
++
+ /*
+  * The sd_init() function looks at all SCSI drives present, determines
+  * their size, and reads partition table entries for them.
+@@ -1109,6 +1133,7 @@
+ 		sd_gendisks[i].next = sd_gendisks + i + 1;
+ 		sd_gendisks[i].real_devices =
+ 		    (void *) (rscsi_disks + i * SCSI_DISKS_PER_MAJOR);
++		sd_gendisks[i].hd_name=scsi_disk_name;
+ 	}
+ 
+ 	LAST_SD_GENDISK.next = NULL;
+diff -u --recursive linux-2.4.0-test11/fs/partitions/check.c
+linux-2.4.0-test11-ppfix/fs/partitions/check.c
+--- linux-2.4.0-test11/fs/partitions/check.c	Mon Nov 20 15:17:27 2000
++++ linux-2.4.0-test11-ppfix/fs/partitions/check.c	Thu Nov 23 14:30:45
+2000
+@@ -83,11 +83,10 @@
+  */
+ char *disk_name (struct gendisk *hd, int minor, char *buf)
+ {
+-	unsigned int part;
+ 	const char *maj = hd->major_name;
+ 	int unit = (minor >> hd->minor_shift) + 'a';
++	unsigned int part = minor & ((1 << hd->minor_shift) - 1);
+ 
+-	part = minor & ((1 << hd->minor_shift) - 1);
+ 	if (hd->part[minor].de) {
+ 		int pos;
+ 
+@@ -95,77 +94,8 @@
+ 		if (pos >= 0)
+ 			return buf + pos;
+ 	}
+-	/*
+-	 * IDE devices use multiple major numbers, but the drives
+-	 * are named as:  {hda,hdb}, {hdc,hdd}, {hde,hdf}, {hdg,hdh}..
+-	 * This requires special handling here.
+-	 */
+-	switch (hd->major) {
+-		case IDE9_MAJOR:
+-			unit += 2;
+-		case IDE8_MAJOR:
+-			unit += 2;
+-		case IDE7_MAJOR:
+-			unit += 2;
+-		case IDE6_MAJOR:
+-			unit += 2;
+-		case IDE5_MAJOR:
+-			unit += 2;
+-		case IDE4_MAJOR:
+-			unit += 2;
+-		case IDE3_MAJOR:
+-			unit += 2;
+-		case IDE2_MAJOR:
+-			unit += 2;
+-		case IDE1_MAJOR:
+-			unit += 2;
+-		case IDE0_MAJOR:
+-			maj = "hd";
+-			break;
+-		case MD_MAJOR:
+-			unit -= 'a'-'0';
+-			break;
+-	}
+-	if (hd->major >= SCSI_DISK1_MAJOR && hd->major <= SCSI_DISK7_MAJOR) {
+-		unit = unit + (hd->major - SCSI_DISK1_MAJOR + 1) * 16;
+-		if (unit > 'z') {
+-			unit -= 'z' + 1;
+-			sprintf(buf, "sd%c%c", 'a' + unit / 26, 'a' + unit % 26);
+-			if (part)
+-				sprintf(buf + 4, "%d", part);
+-			return buf;
+-		}
+-	}
+-	if (hd->major >= COMPAQ_SMART2_MAJOR && hd->major <=
+COMPAQ_SMART2_MAJOR+7) {
+-		int ctlr = hd->major - COMPAQ_SMART2_MAJOR;
+- 		int disk = minor >> hd->minor_shift;
+- 		int part = minor & (( 1 << hd->minor_shift) - 1);
+- 		if (part == 0)
+- 			sprintf(buf, "%s/c%dd%d", maj, ctlr, disk);
+- 		else
+- 			sprintf(buf, "%s/c%dd%dp%d", maj, ctlr, disk, part);
+- 		return buf;
+- 	}
+-	if (hd->major >= COMPAQ_CISS_MAJOR && hd->major <=
+COMPAQ_CISS_MAJOR+7) {
+-                int ctlr = hd->major - COMPAQ_CISS_MAJOR;
+-                int disk = minor >> hd->minor_shift;
+-                int part = minor & (( 1 << hd->minor_shift) - 1);
+-                if (part == 0)
+-                        sprintf(buf, "%s/c%dd%d", maj, ctlr, disk);
+-                else
+-                        sprintf(buf, "%s/c%dd%dp%d", maj, ctlr, disk,
+part);
+-                return buf;
+-	}
+-	if (hd->major >= DAC960_MAJOR && hd->major <= DAC960_MAJOR+7) {
+-		int ctlr = hd->major - DAC960_MAJOR;
+- 		int disk = minor >> hd->minor_shift;
+- 		int part = minor & (( 1 << hd->minor_shift) - 1);
+- 		if (part == 0)
+- 			sprintf(buf, "%s/c%dd%d", maj, ctlr, disk);
+- 		else
+- 			sprintf(buf, "%s/c%dd%dp%d", maj, ctlr, disk, part);
+- 		return buf;
+- 	}
++	if (hd->hd_name) return hd->hd_name(hd, minor, buf);
++
+ 	if (part)
+ 		sprintf(buf, "%s%c%d", maj, unit, part);
+ 	else
+diff -u --recursive linux-2.4.0-test11/include/linux/genhd.h
+linux-2.4.0-test11-ppfix/include/linux/genhd.h
+--- linux-2.4.0-test11/include/linux/genhd.h	Mon Nov 20 15:31:01 2000
++++ linux-2.4.0-test11-ppfix/include/linux/genhd.h	Thu Nov 23 07:44:35
+2000
+@@ -72,6 +72,8 @@
+ 
+ 	devfs_handle_t *de_arr;         /* one per physical disc */
+ 	char *flags;                    /* one per physical disc */
++
++	char *(*hd_name) (struct gendisk *, int, char *);
+ };
+ #endif  /*  __KERNEL__  */
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

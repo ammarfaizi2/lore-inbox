@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266575AbTGFAZW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 20:25:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266577AbTGFAZW
+	id S266577AbTGFAdn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 20:33:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbTGFAdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 20:25:22 -0400
-Received: from gw.uk.sistina.com ([62.172.100.98]:24589 "EHLO
-	gw.uk.sistina.com") by vger.kernel.org with ESMTP id S266575AbTGFAZT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 20:25:19 -0400
-Date: Sun, 6 Jul 2003 01:39:48 +0100
-From: Alasdair G Kergon <agk@uk.sistina.com>
-To: dm-devel@sistina.com
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [dm-devel] [RFC] device-mapper v4 ioctl interface implementation
-Message-ID: <20030706013948.A19057@uk.sistina.com>
-Mail-Followup-To: dm-devel@sistina.com,
-	Linux Mailing List <linux-kernel@vger.kernel.org>
-References: <20030701145812.GA1596@fib011235813.fsnet.co.uk>
+	Sat, 5 Jul 2003 20:33:43 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:18853 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266577AbTGFAdm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 20:33:42 -0400
+Date: Sat, 5 Jul 2003 17:49:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: paterley <paterley@DrunkenCodePoets.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.74-mm2
+Message-Id: <20030705174915.09173756.akpm@osdl.org>
+In-Reply-To: <20030705200133.3aa1da18.paterley@DrunkenCodePoets.com>
+References: <20030705132528.542ac65e.akpm@osdl.org>
+	<20030705175830.4ccfead8.paterley@DrunkenCodePoets.com>
+	<20030705182359.269b404d.paterley@DrunkenCodePoets.com>
+	<20030705160445.2ab1e0ec.akpm@osdl.org>
+	<20030705200133.3aa1da18.paterley@DrunkenCodePoets.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030701145812.GA1596@fib011235813.fsnet.co.uk>; from thornber@sistina.com on Tue, Jul 01, 2003 at 03:58:12PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 01, 2003 at 03:58:12PM +0100, Joe Thornber wrote:
-> Following on from the header file for the v4 ioctl interface that I
-> posted a couple of weeks ago, here is the first cut at the
-> implementation (3 patches posted as a follow up to this mail).  I hope
-> the v1 interface can be retired before 2.6.  Tools are not yet
-> available to drive this, but should be later this week.
- 
-Updated device-mapper tools (dmsetup + libdevmapper) are now 
-available for testing at:
-  ftp://ftp.sistina.com/pub/LVM2/device-mapper/device-mapper-testing-new-version4-interface.tgz
+paterley <paterley@DrunkenCodePoets.com> wrote:
+>
+> same oops, at the same point with smbfs compiled in.  
 
-This tarball also includes the complete device-mapper patches 
-for 2.4.20 and 2.4.21, also available outside the tarball at:
-  ftp://ftp.sistina.com/pub/LVM2/device-mapper/patches/combined*
-
-Updated LVM2 tools to work alongside the above are at:
-  ftp://ftp.sistina.com/pub/LVM2/tools/LVM2.0-testing.tgz
-
-If the new tools detect the old version 1 driver, they try to
-fall back and use the version 1 API, so you shouldn't
-need to keep two sets of tools around if you're regularly
-swapping kernels.  [But this hasn't been thoroughly tested.]
-
-Alasdair
--- 
-agk@uk.sistina.com
+And what happens if you disable smbfs altogether?

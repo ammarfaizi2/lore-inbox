@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263217AbUJ2R0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263433AbUJ2R0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263217AbUJ2R0f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 13:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263433AbUJ2RYc
+	id S263433AbUJ2R0g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 13:26:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUJ2RYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 13:24:32 -0400
-Received: from smtp.ono.com ([62.42.230.12]:57014 "EHLO mta02.onolab.com")
-	by vger.kernel.org with ESMTP id S263217AbUJ2RTk (ORCPT
+	Fri, 29 Oct 2004 13:24:04 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:34538 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263433AbUJ2RVj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 13:19:40 -0400
-Message-ID: <41827B89.4070809@hispalinux.es>
-Date: Fri, 29 Oct 2004 19:19:05 +0200
-From: =?ISO-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Xavier Bestel <xavier.bestel@free.fr>, James Bruce <bruce@andrew.cmu.edu>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Andrea Arcangeli <andrea@novell.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK kernel workflow
-References: <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random> <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org> <Pine.LNX.4.61.0410252350240.17266@scrub.home> <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org> <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org> <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com>
-In-Reply-To: <20041028151004.GA3934@work.bitmover.com>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 29 Oct 2004 13:21:39 -0400
+Date: Fri, 29 Oct 2004 19:22:43 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Paul Davis <paul@linuxaudiosystems.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Message-ID: <20041029172243.GA19630@elte.hu>
+References: <20041029111408.GA28259@elte.hu> <20041029161433.GA6717@elte.hu> <20041029183256.564897b2@mango.fruits.de> <20041029162316.GA7743@elte.hu> <20041029163155.GA9005@elte.hu> <20041029191652.1e480e2d@mango.fruits.de> <20041029170237.GA12374@elte.hu> <20041029170948.GA13727@elte.hu> <20041029193303.7d3990b4@mango.fruits.de> <20041029172151.GB16276@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041029172151.GB16276@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Larry McVoy wrote:
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-| Since you haven't paid for the product, copyright law applies and
-| that's quite different than contract law.  You get a certain set
-| of rights, which vary worldwide, when you buy something.  Copyright
-| is far more restrictive.
-|
-| "Fair use" != "reverse engineering" in any venue so far as I know.
+> 
+> * Florian Schmidt <mista.tapas@gmx.net> wrote:
+> 
+> >   CC      fs/ioctl.o
+> > fs/ioctl.c: In function `sys_ioctl':
+> > fs/ioctl.c:75: error: structure has no member named `ioctl_nobkl'
+> > fs/ioctl.c:76: error: structure has no member named `ioctl_nobkl'
+> 
+> fs.h chunk went missing ... uploading -V0.5.14 in a minute.
 
-In Spain, reverse engineering is allowed for interoperability.
-- --
-Ramón Rey Vicente <ramon.rey en hispalinux.es>
-JID rreylinux@jabber.org - GPG public key id 0x9F28E377
-GPG Fingerprint 0BC2 8014 2445 51E8 DE87  C888 C385 A9D3 9F28 E377
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+done.
 
-iD8DBQFBgnuJw4Wp058o43cRAkGoAJ4rmFCXzNNklsC+ITWYn5GxFyTdgACgiPzH
-eDRazB4r4gTrkcjWR3YwaIg=
-=dCLQ
------END PGP SIGNATURE-----
+	Ingo

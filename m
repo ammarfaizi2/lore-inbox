@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267215AbSKPEiA>; Fri, 15 Nov 2002 23:38:00 -0500
+	id <S267219AbSKPFGB>; Sat, 16 Nov 2002 00:06:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267216AbSKPEiA>; Fri, 15 Nov 2002 23:38:00 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:16911 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267215AbSKPEh7>; Fri, 15 Nov 2002 23:37:59 -0500
-Date: Sat, 16 Nov 2002 04:44:54 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
-       richard@bouska.cz
-Subject: Re: NFS mountned  directory  and apache2 (2.5.47)
-Message-ID: <20021116044454.A31763@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
-	richard@bouska.cz
-References: <79A23782BB8@vcnet.vc.cvut.cz> <15829.22032.166977.73195@helicity.uio.no> <20021115202649.A18706@infradead.org> <15829.24239.643774.231548@helicity.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267220AbSKPFGB>; Sat, 16 Nov 2002 00:06:01 -0500
+Received: from CPE3236333432363339.cpe.net.cable.rogers.com ([24.114.11.87]:6148
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S267219AbSKPFGA>; Sat, 16 Nov 2002 00:06:00 -0500
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [RFC][PATCH] Fix drivers/acpi/sleep.c compile error if swsusp is disabled
+Date: Sat, 16 Nov 2002 00:12:53 -0500
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200211132304.03608.spstarr@sh0n.net> <20021114225922.GA1334@elf.ucw.cz>
+In-Reply-To: <20021114225922.GA1334@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <15829.24239.643774.231548@helicity.uio.no>; from trond.myklebust@fys.uio.no on Fri, Nov 15, 2002 at 09:53:03PM +0100
+Message-Id: <200211160012.53649.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15, 2002 at 09:53:03PM +0100, Trond Myklebust wrote:
->      > Linus removed that in early 2.5 because it led to kmap()
->      > deadlocks.  sendfile can fail with EINVAL and userspace must
->      > not rely on it working on any object.
-> 
-> Fair enough. The kernel may not be the appropriate place for providing
-> such an emulation, but there's no reason why glibc shouldn't be able
-> to do so for the case where sendfile returns EINVAL.
+I can fix this, sure. I'll have a fix later today or so.
 
-*nod*
-
-> However none of this changes the matter of the NFS client. The latter
-> *does* support a pagecache, and so the one-line patch is appropriate.
-
-just a little bit more then one line :)  nfs needs to do the same
-revalidation as in nfs_file_read and then call generic_file_sendfile.
+On November 14, 2002 05:59 pm, Pavel Machek wrote:
+> Hi!
+>
+> > Hi, this should fix this compile problem (if this is correct).
+> >
+> > Please apply.
+>
+> It would silently do nothing, that's bad.
+>
+> Could you make it so that CONFIG_ACPI_SLEEP is not selectable without
+> CONFIG_SOFTWARE_SUSPEND  and move CONFIG_SOFTWARE_SUSPEND into "power
+> managment" submenu?
+> 								Pavel
+>
+> >                 break;
+> >
+> >         case ACPI_STATE_S2:
+> > +#ifdef CONFIG_SOFTWARE_SUSPEND
+> >         case ACPI_STATE_S3:
+> >                 do_suspend_lowlevel(0);
+> > +#endif
+> >                 break;
+> >         }
+> >         local_irq_restore(flags);
 

@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262638AbVCDH6v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVCDICV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262638AbVCDH6v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 02:58:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262604AbVCDH5h
+	id S262610AbVCDICV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 03:02:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbVCDICU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 02:57:37 -0500
-Received: from fire.osdl.org ([65.172.181.4]:21687 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262615AbVCDH53 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 02:57:29 -0500
-Date: Thu, 3 Mar 2005 23:56:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Justin Schoeman <justin@expertron.co.za>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Tracing memory leaks (slabs) in 2.6.9+ kernels?
-Message-Id: <20050303235633.694e87c6.akpm@osdl.org>
-In-Reply-To: <422812D9.4090303@expertron.co.za>
-References: <4225768B.3010005@expertron.co.za>
-	<20050302012444.4ed05c23.akpm@osdl.org>
-	<422700CB.2070109@expertron.co.za>
-	<20050303042620.685133db.akpm@osdl.org>
-	<422812D9.4090303@expertron.co.za>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Mar 2005 03:02:20 -0500
+Received: from smtp1.Stanford.EDU ([171.67.16.123]:36266 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S262610AbVCDICF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 03:02:05 -0500
+Date: Fri, 4 Mar 2005 00:01:42 -0800 (PST)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <ext2-devel@lists.sourceforge.net>,
+       <jfs-discussion@www-124.southbury.usf.ibm.com>, <reiser@namesys.com>,
+       <mc@cs.Stanford.EDU>
+Subject: Re: [CHECKER] Do ext2, jfs and reiserfs respect mount -o sync/dirsync
+ option?
+In-Reply-To: <Pine.LNX.4.61.0503040831470.7350@yvahk01.tjqt.qr>
+Message-ID: <Pine.GSO.4.44.0503032352410.8740-100000@elaine24.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Schoeman <justin@expertron.co.za> wrote:
->
-> Will the slab debugger make it into the kernel as a standard compile 
->  time option?  It is a _really_ usefull tool to have around.
+> It may happen that FISC reads the disk before the write command even finished.
+> With all the HD head movement optimization in the kernel (block layer,
+> boiling down to TCQ/NCQ), this sounds possible.
 
-It has a slight downside: it unconditionally changes the type of
-kmem_bufctl_t to unsigned long, which wastes two or four bytes per page of
-slab.
+FiSC "crashes" the kernel immediately after a file system operation
+(creat, mkdir, write, etc) returns.  Presumably, if a file system is
+mounted -o sync, all the FS operations should be done synchronously. i.e.,
+if creat("foo") returns, the file "foo" better be on disk.  It turns out
+not the case for ext2, jfs and reiserfs.
 
-I suppose we could fix that up with suitable use of CONFIG_DEBUG_SLAB.
+-Junfeng
+

@@ -1,57 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287516AbSBCScn>; Sun, 3 Feb 2002 13:32:43 -0500
+	id <S287518AbSBCSkN>; Sun, 3 Feb 2002 13:40:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287518AbSBCScX>; Sun, 3 Feb 2002 13:32:23 -0500
-Received: from 64-30-107-48.ftth.sac.winfirst.net ([64.30.107.48]:9220 "EHLO
-	leng.internal") by vger.kernel.org with ESMTP id <S287516AbSBCScR>;
-	Sun, 3 Feb 2002 13:32:17 -0500
-Date: Sun, 3 Feb 2002 10:32:16 -0800
-From: Manuel McLure <manuel@mclure.org>
-To: linux-kernel@vger.kernel.org
-Cc: Andre Hedrick <andre@linuxdiskcert.org>
-Subject: Re: 2.4.17 Oops when trying to mount ATAPI CDROM
-Message-ID: <20020203103216.E12338@ulthar.internal>
-In-Reply-To: <20020202170244.A12338@ulthar.internal> <Pine.LNX.4.10.10202021715180.26613-100000@master.linux-ide.org> <20020203102109.C12338@ulthar.internal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20020203102109.C12338@ulthar.internal>; from manuel@mclure.org on Sun, Feb 03, 2002 at 10:21:09 -0800
-X-Mailer: Balsa 1.2.4
+	id <S287532AbSBCSjy>; Sun, 3 Feb 2002 13:39:54 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:33503 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S287518AbSBCSjq>; Sun, 3 Feb 2002 13:39:46 -0500
+Message-Id: <200202011342.g11DgBfd001291@tigger.cs.uni-dortmund.de>
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does 
+In-Reply-To: Message from Keith Owens <kaos@ocs.com.au> 
+   of "Fri, 01 Feb 2002 16:18:03 +1100." <26363.1012540683@kao2.melbourne.sgi.com> 
+Date: Fri, 01 Feb 2002 14:42:11 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Keith Owens <kaos@ocs.com.au> said:
 
-On 2002.02.03 10:21 Manuel McLure wrote:
-> 
-> On 2002.02.02 22:04 Andre Hedrick wrote:
-> >
-> > Manuel,
-> >
-> > Would you be kind enough to be a little more specific on the hardware?
-> > The attached devices bu make model and real vender if known.
-> kml/
-> 
-> The CD-ROM is detected as a Pioneer CD-ROM ATAPI Model DR-A24X 0104 - I
-> haven't opened the case to look at it but I do recall that it is
-> definitely a 24X Pioneer ATAPI CDROM.
-> 
+[...]
 
-Some more information - if I boot without "hdc=noprobe hdc=cdrom", I don't 
-get the oops whel loading the "ide-cd" module - instead I get
+> I know, it makes it even harder to see what the initialization order
+> is.  Some are controlled by the Makefile/subdirs order, some by special
+> calls in the code.
 
-hdc: set_drive_speed_status: status=0x00 { }
-hdc: lost interrupt
-hdc: ATAPI 20X CD-ROM drive, 128kB Cache, DMA
-Uniform CD-ROM driver Revision: 3.12
-hdc: lost interrupt
-hdc: lost interrupt
-hdc: lost interrupt
-
-The module eventually finishes initializing but is not usable due to the 
-"lost interrupt"s.
-
+Just to repeat myself: This is clearly a problem for tsort(1): Give
+restrictions of the form "This has to come after that" (perhaps a special
+comment at the start of the file containing the init function?), tsort that
+and pick the order out of the result. Should be a few lines of script. No
+central repository for the dependencies, no messing around with half the
+world to fix dependencies. Plus they become explicit, which they aren't
+today.
 -- 
-Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
-<manuel@mclure.org>     | and significant law, no man may kill a cat.
-<http://www.mclure.org> |             -- H.P. Lovecraft
+Horst von Brand			     http://counter.li.org # 22616

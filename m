@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVBODla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVBODkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbVBODla (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 22:41:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVBODla
+	id S261618AbVBODkL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 22:40:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVBODkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 22:41:30 -0500
-Received: from mta10.srv.hcvlny.cv.net ([167.206.5.85]:40230 "EHLO
-	mta10.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S261613AbVBODlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 22:41:11 -0500
-Date: Mon, 14 Feb 2005 22:14:41 -0500 (EST)
-From: vcjones@networkingunlimited.com (Vincent C Jones)
-Subject: Re: Radeon FB troubles with recent kernels
-In-reply-to: <3xVku-kH-15@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: mpm@selenic.com
-Message-id: <20050215031441.EFABE1DDFE@X31.nui.nul>
-Organization: Networking Unlimited, Inc.
-Content-transfer-encoding: 7BIT
-Newsgroups: linux.kernel
+	Mon, 14 Feb 2005 22:40:10 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:39599 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261615AbVBODjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 22:39:52 -0500
+Subject: Re: [BK] upgrade will be needed
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Larry McVoy <lm@bitmover.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050215030145.GB6288@bitmover.com>
+References: <20050214174932.GB8846@bitmover.com>
+	 <1108406835.8413.20.camel@localhost.localdomain>
+	 <20050214190137.GB16029@bitmover.com>
+	 <1108415541.8413.48.camel@localhost.localdomain>
+	 <20050214231148.GP13174@bitmover.com>
+	 <1108425420.8413.78.camel@localhost.localdomain>
+	 <20050215000028.GS13174@bitmover.com>
+	 <1108426451.8413.84.camel@localhost.localdomain>
+	 <20050215003535.GB32158@bitmover.com>
+	 <1108429259.8413.99.camel@localhost.localdomain>
+	 <20050215030145.GB6288@bitmover.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 14 Feb 2005 22:39:44 -0500
+Message-Id: <1108438784.8413.117.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3xVku-kH-15@gated-at.bofh.it> you write:
->On my Thinkpad T30 with a Radeon Mobility M7 LW, I get interesting
->console video corruption if I start GDM, switch back to text mode,
->then stop it again. X is Xfree86 from Debian/unstable or X.org 6.8.2.
->
->The corruption shows up whenever the console scrolls after X has been
->shut down and manifests as horizontal lines spaced about 4 pixel rows
->apart containing contents recognizable as the X display. Switch from
->vt1 to vt2 and back or visual bell clears things back to normal, but
->corruption will reappear on the next scroll.
->
->This has appeared in at least 2.6.11-rc3-mm2 and rc4.
+On Mon, 2005-02-14 at 19:01 -0800, Larry McVoy wrote:
 
-On my Thinkpad X31 with a Radeon Mobility M6 LY I see a major
-regression going from 2.6.11-rc3 to rc4. With rc-4, the frame
-buffer console (using "video=radeonfb:1024x768-24@60") comes up as
-640x480 expanded to 1024x768. The inability of ACPI suspend to turn
-off the backlight also returns. Using rc-3, frame buffer console
-works fine and suspend/resume appears to work reliably without
-needing radeontool to turn off the backlight (as long as I do it
-from X.org X).
+> Would the tarball + patch server suffice for you?  We could make a
+> ChangeSet file which had bk changes -v output in it and that would 
+> give you a fairly useful set of version information.  For those who
+> don't know, bk changes -v is output in time sorted order of changesets
+> with the changeset comments then each file's comments like the output
+> below.  
+> 
 
--- 
-Dr. Vincent C. Jones, PE              Expert advice and a helping hand
-Computer Network Consultant           for those who want to manage and
-Networking Unlimited, Inc.            control their networking destiny
-Phone: +1 201 568-7810
-14 Dogwood Lane, Tenafly, NJ 07670
-VCJones@NetworkingUnlimited.com     http://www.networkingunlimited.com
+This is perfect for me. The only time I've ever used BK was when someone
+told me that I needed the lastest snapshot from the bk-tree.  What I do
+with the kernel is to port it, write drivers or customize it for
+customers. So I'm not in the development part of the kernel (although
+I'll report bugs and fixes when I find them). I really believe that the
+majority that download the kernel from BK are doing things like I am and
+not part of the core development team. 
+
+Currently, I'm working on a customization of Ingo's RT version, so
+really at the moment I don't even need access to BK. But with my
+previous job, I was downloading the bk version quite a lot. But just to
+get the latest updates. So what you have suggested would have been all
+that I needed.  As I've mentioned, earlier. I work from job to job and
+my needs change with each one. I joined in this discussion because it
+could have affected me quite a bit, since someday I might be hired to
+work on a SCM tool, and I'm very careful about NDAs and the like.
+ 
+-- Steve
+
+PS - I'm packing up now to drive to Boston. See everyone at
+LinuxWorld ;-)
+
+
+

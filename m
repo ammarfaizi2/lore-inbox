@@ -1,77 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271801AbRHWKuX>; Thu, 23 Aug 2001 06:50:23 -0400
+	id <S271806AbRHWLV0>; Thu, 23 Aug 2001 07:21:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272170AbRHWKuO>; Thu, 23 Aug 2001 06:50:14 -0400
-Received: from gnu.in-berlin.de ([192.109.42.4]:37130 "EHLO gnu.in-berlin.de")
-	by vger.kernel.org with ESMTP id <S271801AbRHWKuD>;
-	Thu, 23 Aug 2001 06:50:03 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 23 Aug 2001 11:11:22 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Gunther Mayer <Gunther.Mayer@t-online.de>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, alan@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: yenta_socket hangs sager laptop in kernel 2.4.6-> PNPBIOS life saver
-Message-ID: <20010823111122.B1143@bytesex.org>
+	id <S271808AbRHWLVP>; Thu, 23 Aug 2001 07:21:15 -0400
+Received: from biancha.hardboiledegg.com ([66.38.186.202]:32015 "HELO
+	biancha.hardboiledegg.com") by vger.kernel.org with SMTP
+	id <S271806AbRHWLU5>; Thu, 23 Aug 2001 07:20:57 -0400
+Date: Thu, 23 Aug 2001 07:21:04 -0400
+From: Marc Heckmann <heckmann@hbesoftware.com>
+To: linux-kernel@vger.kernel.org
+Subject: small patch for 2.4.9 VM
+Message-ID: <20010823072104.A13430@hbe.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E15Zca4-0001z2-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.18i
+User-Agent: Mutt/1.2.5i
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1-pre3 (http://amavis.org/)
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1-pre3 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 22, 2001 at 07:18:20PM +0100, Alan Cox wrote:
-> > Try -ac Kernels with integrated PNPBIOS and "lspnp -v",
-> > then you will see your "motherboard resources". No magic.
-> 
-> Except on the intel boards [ ... bios bugs list snipped ... ] 
+[not on list, please CC me]
 
-2.4.8-ac8 works for me, and lspnp does list these "obscure"
-ressources:
+Hi,
 
-bytesex kraxel ~# /root/bin/lspnp -v
-00 PNP0c01 memory controller: RAM
-        mem 0x00000000-0x0009ffff
-        mem 0x00100000-0x0bfdffff
-        mem 0x0bfe0000-0x0bfeffff
-        mem 0x000e0000-0x000fffff
-        mem 0xffff0000-0xffffffff
-        io 0x0398-0x0399
-        io 0x0024-0x003d
-        io 0x0062-0x0062
-        io 0x0066-0x0066
-        io 0x0090-0x009f
-        io 0x00a4-0x00bd
-        io 0x0230-0x0233
-        io 0x1000-0x103f
-        io 0x1400-0x140f
-        io 0x3810-0x381f
+I've been tracking the vm changes in the 2.4.9-pre series. I was seeing
+really good improvements with 2.4.9-pre3 but then in pre4 it went to shit
+on my box (192mb, 200mb swap). The page cache was huge at all times and
+went pretty deep into swap on light loads. staring at the diff between
+pre3 and pre4, I noticed that background page aging in kswapd has changed
+[see do_try_free_pages], instead of just doing refill_inactive_scan(), it
+now does swap_out() first, then refill_inactive. Somehow, this seems to
+prevent proper page aging or something [please correct me if i'm wrong,
+haven't had the time to stare at swap_out() yet]. Anyway the short patch
+below, makes it behave like pre3 which is quite good for me.  This might
+also be the cause of other peoples mm problems with 2.4.9 final.
 
-01 PNP0c02 reserved: other
-        io 0x0cf8-0x0cff
-        io 0x04d0-0x04d1
+also, pre3 behaved _very_ good during OOM situations but then after pre4
+it degraded to something similar to 2.4.8. The pre4 changes causes
+do_try_free_pages to be constantly called by kswapd until _both_ the the
+inactive_shortage and the free_shortage are gone. kswapd used to sleep for
+a second if at least one of them wasn't short on pages. using some
+printk's to debug, I noticed that there are enough free pages, but the
+inactive target is _never_ reached so kswapd just goes nuts. This is also
+why we don't go into OOM since the oom test only tests free pages and
+cache. I think Rik might have commented on this already in another thread.  
+When I have time, I'll try putting kswapd to sleep for a second if we have
+enough free pages, but not enough inactive ones.
 
-02 PNP0c04 system peripheral: other
-        irq 13
-        io 0x00f0-0x00ff
+I noticed that a lot of comments in the VM are now bogus with 2.4.9. I
+really think that the changes between pre3 and pre4 could have been better
+commented. I'm sure the changes have a reason to be there, but having
+justification for them would really help to debug the thing.
 
-03 PNP0000 system peripheral: programmable interrupt controller
-[ ... more standard PC hardware follows ... ]
+ -marc
 
-But it seems they are _not_ reserved by the pnp bios code, at least they
-are not listed in /proc/ioports
+--- linux/mm/vmscan.c.orig.249	Thu Aug 16 23:55:50 2001
++++ linux/mm/vmscan.c	Thu Aug 23 12:35:32 2001
+@@ -818,9 +818,11 @@
+ #define GENERAL_SHORTAGE 4
+ static int do_try_to_free_pages(unsigned int gfp_mask, int user)
+ {
+-	/* Always walk at least the active queue when called */
+-	int shortage = INACTIVE_SHORTAGE;
++	int shortage = 0;
+ 	int maxtry;
++
++	/* Always walk at least the active queue when called */
++	refill_inactive_scan(DEF_PRIORITY);
+ 
+ 	maxtry = 1 << DEF_PRIORITY;
+ 	do {
 
-> Before PnPBIOS can go mainstream we'd have to generate a detailed list
-> of buggy bios signatures
-
-Why?  It shouldn't harm if disabled, so IMHO it should be fine when
-flagged "experimental" and with a warning label about broken bioses in
-Configure.help ...
-
-  Gerd
-
--- 
-Damn lot people confuse usability and eye-candy.

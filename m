@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268848AbUJTSue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269079AbUJUJLP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268848AbUJTSue (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 14:50:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268846AbUJTSt6
+	id S269079AbUJUJLP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 05:11:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268819AbUJUJHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 14:49:58 -0400
-Received: from smtp1.sloane.cz ([62.240.161.228]:5585 "EHLO smtp1.sloane.cz")
-	by vger.kernel.org with ESMTP id S268991AbUJTSpe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 14:45:34 -0400
-From: Michal Semler <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: linux-kernel@vger.kernel.org
-Subject: Hibernation and time and dhcp
-Date: Wed, 20 Oct 2004 20:45:24 +0200
-User-Agent: KMail/1.6.2
+	Thu, 21 Oct 2004 05:07:16 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:12676 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S270345AbUJUJFU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 05:05:20 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410202045.24388.cijoml@volny.cz>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] ibm-acpi-0.6 - ACPI driver for IBM ThinkPad laptops
+Date: Thu, 21 Oct 2004 17:04:59 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F84041ABFD4@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] ibm-acpi-0.6 - ACPI driver for IBM ThinkPad laptops
+Thread-Index: AcS3Fxo7eXcEZqjvRkeuzpHjx/stsgANDPMQ
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Borislav Deianov" <borislav@users.sourceforge.net>
+Cc: <acpi-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 21 Oct 2004 09:05:00.0449 (UTC) FILETIME=[0B610910:01C4B74D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
+>
+>On Wed, Oct 20, 2004 at 11:18:08AM +0800, Yu, Luming wrote:
+>> 
+>> I'm working on a generic hotkey driver, which will move configurable 
+>> stuff to user space. 
+>[snip]
+>> 1. add a new hotkey:
+>>  echo "0 : _SB.VGA : _SB.VGA.LCD._BCM :0x86 : 0x86" >
+>> /proc/acpi/ev_config
+>
+>How would user space know what devices and methods to use? In the
+>kernel, you can use HIDs where available, or check for specific
+>objects with acpi_get_handle(). Are you going to expose these to user
+>space somehow?
+>
+>Boris
+>
 
-with 2.6.9 hibernation to disk finally works! Thanks
-To ram it still don't work, system starts with lcd disabled - but it is 
-another story.
+Wrt hotkey, there don't have any standard or well known method to
+find out which acpi device and acpi methods are for which hotkey.
+But, they are working in the similar way, which is achieving hotkey 
+function through acpi generic core. 
 
-I have now this problem - when I hibernate and then system is started up in 
-other company, it don't update time and shows still for example 14:00 - when 
-I rehibernate for example in 20:00 - could you ask bios for current time? 
-It's better to have bad time about few seconds instead of hours.
+So, at the first stage , I have to rely on user or vendor to supply 
+meaningful data, till we have standard auto-config method.
 
-Same problem with dhcp - it should ask for IP when rehibernate.
+Thanks,
+Luming
 
-Thanks for fixing
-
-Michal

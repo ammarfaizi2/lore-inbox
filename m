@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262094AbVBUU0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbVBUU32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbVBUU0g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 15:26:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbVBUU0g
+	id S262082AbVBUU32 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 15:29:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbVBUU32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 15:26:36 -0500
-Received: from mta9.adelphia.net ([68.168.78.199]:21484 "EHLO
-	mta9.adelphia.net") by vger.kernel.org with ESMTP id S262094AbVBUU0T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 15:26:19 -0500
-Message-ID: <421A4375.9040108@nodivisions.com>
-Date: Mon, 21 Feb 2005 15:24:21 -0500
-From: Anthony DiSante <theant@nodivisions.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: uninterruptible sleep lockups
-References: <421A3414.2020508@nodivisions.com> <200502211945.j1LJjgbZ029643@turing-police.cc.vt.edu>
-In-Reply-To: <200502211945.j1LJjgbZ029643@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Mon, 21 Feb 2005 15:29:28 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:54409 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262082AbVBUU3X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 15:29:23 -0500
+Message-Id: <200502212027.j1LKRvUg007130@laptop11.inf.utfsm.cl>
+To: zander@kde.org, Andrea Arcangeli <andrea@suse.de>, darcs-users@darcs.net,
+       lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: [darcs-users] Re: [BK] upgrade will be needed 
+In-reply-to: <20050221194557.GA23251@factotummedia.nl> 
+References: <20050214020802.GA3047@bitmover.com> <200502172105.25677.pmcfarland@downeast.net> <421551F5.5090005@tupshin.com> <20050218090900.GA2071@opteron.random> <bc647aafb53842b58dd0279161fb48e0@spy.net> <buosm3q5v5y.fsf@mctpc71.ucom.lsi.nec.co.jp> <20050221155306.GU7247@opteron.random> <20050221194557.GA23251@factotummedia.nl>
+Comments: In-reply-to zander@kde.org
+   message dated "Mon, 21 Feb 2005 20:45:57 +0100."
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Mon, 21 Feb 2005 17:27:57 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.19.1]); Mon, 21 Feb 2005 17:27:59 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
->>It seems like this problem is always going to exist, because some hardware 
->>and some drivers will always be buggy.  So shouldn't we have some sort of 
->>watchdog higher up in the kernel, that watches for hung processes like this 
->>and kills them?
-> 
-> And said watchdog would clean up the mess, how, exactly?  There's lots of sticky
-> issues having to do with breaking locks and possibly still-pending I/O (I once had
-> a tape drive complete an I/O 3 *days* after the request was sent - good thing no
-> watchdog killed the process and deallocated the memory that I/O landed in ;)
+zander@kde.org said:
+> On Mon, Feb 21, 2005 at 04:53:06PM +0100, Andrea Arcangeli wrote:
 
-I'm not a kernel programmer, so I don't have the answers to any of that.  I 
-guess I was thinking that there'd be some way to distinguish between 
-processes that are truly stuck -- that is, never coming back -- and 
-processes like yours, that are taking a long time but still working.
+[...]
 
-Or maybe it SHOULD have killed your process, in some "proper" way that 
-prevents any outstanding I/O requests from coming in days later and breaking 
-things.  Again, I'm no kernel hacker, but if an I/O request takes *3 days*, 
-isn't that an indication of a bug or of faulty hardware perhaps?
+> > AFIK all other SCM except arch and darcs always modify the repo, I never
+> > heard complains about it, as long as incremental backups are possible
+> > and they definitely are possible.
 
-> It's been covered before, look in the lkml archives for details.
+> Well, as you seem to have never been bitten by that bug; let me assure you
+> the problem is very real.  Each file (,v file) can live in the repo for
+> many years and has to servive any spurious writes to be usable.  The
+> curruption of such files (in my experience) only shows itself if you try
+> to access its history; which may be weeks after the corruption started,
+> and you can't use a backup for that since you will overwrite new versions
+> added since.
 
-Thanks, I'll do that.  But could you give me a more specific pointer? 
-Searching lkml for "uninterruptible" returns ~2000 results.
-
-Thanks,
-Anthony DiSante
-http://nodivisions.com/
+Marking files read-only won't save you from corruption by NFS or the disk
+or the kernel or... randomly scribbling around.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

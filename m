@@ -1,56 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261927AbTEEEvv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 00:51:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTEEEvt
+	id S261936AbTEEFZl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 01:25:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbTEEFZl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 00:51:49 -0400
-Received: from dp.samba.org ([66.70.73.150]:19667 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261927AbTEEEvo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 00:51:44 -0400
-From: Rusty Trivial Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] Better docs for boot-up code
-Date: Mon, 05 May 2003 14:58:39 +1000
-Message-Id: <20030505050414.500542C111@lists.samba.org>
+	Mon, 5 May 2003 01:25:41 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7063 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261936AbTEEFZk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 01:25:40 -0400
+Message-ID: <3EB5F8B0.20501@pobox.com>
+Date: Mon, 05 May 2003 01:37:52 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Matt_Domsch@Dell.com, alan@redhat.com, linux-kernel@vger.kernel.org,
+       jgarzik@redhat.com
+Subject: Re: [RFC][PATCH] Dynamic PCI Device IDs
+References: <1051749599.20870.234.camel@iguana.localdomain> <20030502231558.GA16209@kroah.com>
+In-Reply-To: <20030502231558.GA16209@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:  Pavel Machek <pavel@ucw.cz>
+Greg KH wrote:
+> On Wed, Apr 30, 2003 at 07:39:57PM -0500, Matt_Domsch@Dell.com wrote:
+> 
+>>>First off, nice idea, but I think the implementation needs a bit of
+>>>work.
+>>
+>>Thanks.  I didn't expect it to be perfect first-pass.
+>>Let me answer some questions out-of-order, maybe that will help.
+>>
+>>
+>>>>echo 1 > probe_it
+>>>>Why wouldn't the writing to the new_id file cause the probe to
+>>>
+>>>happen immediatly?  Why wait?  So I think we can get rid of that file.
+>>
+>>That was my first idea, but Jeff said:
+>>http://marc.theaimsgroup.com/?l=linux-kernel&m=104681922317051&w=2
+>>        I think there is value in decoupling the two operations:
+>>        
+>>        	echo "0x0000 0x0000 0x0000 0x0000 0x0000 0x0000" >
+>>.../3c59x/table
+>>        	echo 1 > .../3c59x/probe_it
+>>        
+>>        Because you want the id table additions to be persistant in the face of
+>>        cardbus unplug/replug, and for the case where cardbus card may not be
+>>        present yet, but {will,may} be soon.
+> 
+> 
+> But by adding the device ids, they will be persistant, for that driver,
+> right?  Then when the device is plugged in, the core will iterate over
+> the static and dynamic ids, right?  If so, I don't see how a "probe_it"
+> file is needed.
 
-  Hi!
-  
-  This adds some nice docs for boot-up code. Please apply,
-  
-  							Pavel
-  Index: linux/arch/i386/boot/setup.S
-  ===================================================================
+Consider the case:
+Device already exists, and is plugged in.  Like a standard PCI card.
+Driver doesn't support PCI id, and the sysadmin uses /bin/echo to add one.
 
---- trivial-2.5.69/arch/i386/boot/setup.S.orig	2003-05-05 14:46:23.000000000 +1000
-+++ trivial-2.5.69/arch/i386/boot/setup.S	2003-05-05 14:46:23.000000000 +1000
-@@ -893,6 +893,9 @@
- 	movw	%cs, %si
- 	subw	$DELTA_INITSEG, %si
- 	shll	$4, %esi			# Convert to 32-bit pointer
-+
-+# jump to startup_32 in arch/i386/kernel/head.S
-+#	
- # NOTE: For high loaded big kernels we need a
- #	jmpi    0x100000,__BOOT_CS
- #
---- trivial-2.5.69/arch/i386/kernel/trampoline.S.orig	2003-05-05 14:46:23.000000000 +1000
-+++ trivial-2.5.69/arch/i386/kernel/trampoline.S	2003-05-05 14:46:23.000000000 +1000
-@@ -4,6 +4,8 @@
-  *
-  *	4 Jan 1997 Michael Chastain: changed to gnu as.
-  *
-+ *	This is only used for booting secondary CPUs in SMP machine
-+ *
-  *	Entry: CS:IP point to the start of our code, we are 
-  *	in real mode with no stack, but the rest of the 
-  *	trampoline page to make our stack and everything else
--- 
-  What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
-  Don't blame me: the Monkey is driving
-  File: Pavel Machek <pavel@ucw.cz>: Better docs for boot-up code
+For unplugged case, you know you don't need to re-run the probe.
+
+If you really don't want probe_it, I suppose you could re-run the 
+driver's PCI probe for the cases where it is redundant.  However, my own 
+preference is to let the sysadmin decide whether or not the driver's PCI 
+probe should be re-run.
+
+	Jeff
+
+
+
+

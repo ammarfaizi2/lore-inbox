@@ -1,28 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314351AbSD0ScS>; Sat, 27 Apr 2002 14:32:18 -0400
+	id <S314352AbSD0Seh>; Sat, 27 Apr 2002 14:34:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314352AbSD0ScR>; Sat, 27 Apr 2002 14:32:17 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60433 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314351AbSD0ScQ>; Sat, 27 Apr 2002 14:32:16 -0400
-Subject: Re: [PATCH] 2.4.18 - CMI9738 codec support in ac97_codec.c
-To: eclark@ee.tcd.ie
-Date: Sat, 27 Apr 2002 19:50:45 +0100 (BST)
-Cc: ollie@sis.com.tw, linux-kernel@vger.kernel.org
-In-Reply-To: <20020427044051.SM00304@moog.mee.tcd.ie> from "Ed  Clark" at Apr 27, 2002 05:01:55 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S314358AbSD0Seg>; Sat, 27 Apr 2002 14:34:36 -0400
+Received: from front1.mail.megapathdsl.net ([66.80.60.31]:1808 "EHLO
+	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S314352AbSD0Sef>; Sat, 27 Apr 2002 14:34:35 -0400
+Subject: Re: kernel 2.5.10 problems
+From: Miles Lane <miles@megapathdsl.net>
+To: Tommy Faasen <faasen@xs4all.nl>
+Cc: Dave Jones <davej@suse.de>, dmacbanay@softhome.net,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1019894325.420.1.camel@it0>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E171XHR-0000IF-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 27 Apr 2002 11:32:46 -0700
+Message-Id: <1019932366.2001.8.camel@turbulence.megapathdsl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<original deleted - your mailer needs debugging so it wordwraps text/plain
- as per the RFC's>
+On Sat, 2002-04-27 at 00:58, Tommy Faasen wrote:
+> On Fri, 2002-04-26 at 02:24, Dave Jones wrote:
+> > On Thu, Apr 25, 2002 at 05:58:14PM -0600, dmacbanay@softhome.net wrote:
+> > 
+> >  > 3.  Starting sometime after kernel 2.5.1 (I couldn't compile any kernels 
+> >  > from then up until 2.5.5) the Evolution email program locks up whenever 
+> >  > Calender, Tasks, or Contacts is selected.  I have to go to another terminal 
+> >  > and kill it. 
+> > 
+> > Oh, and does this still apply to 2.5.10 ?
+> > Again, last few lines from an strace to find out what its doing when it locks
+> > up may be useful.
+> > 
+> I would like to confirm this bug on 2.5.8, 2.4.x is ok, I have to try
+> 2.5.10 yet ...
 
-I'd rather keep the core AC97 code clean. It would be much nicer to have
-the driver handle this case, since for a partially implemented codec only
-the card driver really knows the right strategy.
+I have been aware of this bug since about 2.5.5.  It is still present 
+in 2.5.10.  I have been attempting to gather more useful debugging
+information.  So far, I haven't come up with anything that points
+clearly to the problem.
+
+Regarding using strace to identify the bug, it should be noted
+that Evolution uses multiple processes that all communicate with
+the shell process (evolution).  The process that handles access
+to much of Evolution's storage for the most of the Evolution
+components is called wombat.
+
+My plan is to run "strace wombat", "strace evolution-mail" and
+"strace evolution-addressbook" in separate terminal windows.
+The evolution process can then be started normally.  
+
+My observations so far lead me to suspect a problem with
+wombat.  If any of you other Evolution uses would care to 
+help me with this testing, please do!
+
+Thanks,
+	Miles
+

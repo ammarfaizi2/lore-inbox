@@ -1,70 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317517AbSIBGqe>; Mon, 2 Sep 2002 02:46:34 -0400
+	id <S318018AbSIBGyD>; Mon, 2 Sep 2002 02:54:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317592AbSIBGqe>; Mon, 2 Sep 2002 02:46:34 -0400
-Received: from mxout2.netvision.net.il ([194.90.9.21]:5545 "EHLO
-	mxout2.netvision.net.il") by vger.kernel.org with ESMTP
-	id <S317517AbSIBGqd>; Mon, 2 Sep 2002 02:46:33 -0400
-Date: Mon, 02 Sep 2002 09:51:05 +0200
-From: Gil Disatnik <Jewnix@technohac.com>
-Subject: Promise PDC20276 & 2.2.19
-To: linux-kernel@vger.kernel.org
-Message-id: <5.1.0.14.2.20020902094221.00b4e918@mail.netvision.net.il>
-MIME-version: 1.0
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
+	id <S318027AbSIBGyD>; Mon, 2 Sep 2002 02:54:03 -0400
+Received: from dp.samba.org ([66.70.73.150]:31403 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S318018AbSIBGyB>;
+	Mon, 2 Sep 2002 02:54:01 -0400
+Date: Mon, 2 Sep 2002 16:51:48 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: ingo.oeser@informatik.tu-chemnitz.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.32-bug
+Message-Id: <20020902165148.71001a6f.rusty@rustcorp.com.au>
+In-Reply-To: <20020831181438.A2047@flint.arm.linux.org.uk>
+References: <E17ktU0-00035E-00@flint.arm.linux.org.uk>
+	<20020831140007.C781@nightmaster.csn.tu-chemnitz.de>
+	<20020831181438.A2047@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I am trying to get this onboard raid controller to work on a linux machine 
-that runs 2.2.19,
+On Sat, 31 Aug 2002 18:14:38 +0100
+Russell King <rmk@arm.linux.org.uk> wrote:
 
-I recompiled my own kernel with the following options enabled:
+> On Sat, Aug 31, 2002 at 02:00:08PM +0200, Ingo Oeser wrote:
+> > Hi Rusty,
+> 
+> Grr.
 
-"Support Promise software RAID (Fasttrak(tm))"
+Hey Russell, mistaking you for me is a compliment for one of us.
 
-It didn't work and dmesg showd:
-"Promise Fasttrak(tm) Softwareraid driver 0.03beta: No raid array found"
+Hmm, I can see why you're unhappy then...
 
-I then added just in case:
-PROMISE PDC202{46|62|65|67|68|69|70} support
-Special UDMA Feature
-Special FastTrak Feature
-
-The same error, only this time it also says:
-"ide: Skipping Promise RAID controller." (Before the "No raid array found" 
-error)
-
-I then manually added to the .config:
-
-CONFIG_PDC202XX_BURST=y
-CONFIG_PDC202XX_FORCE=y
-
-Nothing works.
-Any suggestions?
-
-P.S - if it's relevant, I have built a mirrored array, not stripped.
-
-Thanks
-
-
-
-Regards
-
-Gil Disatnik
-UNIX system/security administrator.
-
-GibsonLP@EFnet
-
-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-"Windows NT has detected mouse movement, you MUST restart
-your computer before the new settings will take effect, [ OK ]"
---------------------------------------------------------------------
-Windows is a 32 bit patch to a 16 bit GUI based on a 8 bit operating
-system, written for a 4 bit processor by a 2 bit company which can
-not stand 1 bit of competition.
--_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
-
+Rusty.
+PS.  For the record, Russell is ARM maintainer, serial code rewriter, and has
+	approximately 3 times as much functional brain-mass as I do.  See?
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

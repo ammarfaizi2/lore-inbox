@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281175AbRKTRMH>; Tue, 20 Nov 2001 12:12:07 -0500
+	id <S281177AbRKTROR>; Tue, 20 Nov 2001 12:14:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281177AbRKTRL5>; Tue, 20 Nov 2001 12:11:57 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:31878 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S281175AbRKTRLs>; Tue, 20 Nov 2001 12:11:48 -0500
-Message-ID: <3BFA8F87.9FB4C13E@nortelnetworks.com>
-Date: Tue, 20 Nov 2001 12:14:47 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.15-pre5 i686)
-X-Accept-Language: en
+	id <S281170AbRKTROH>; Tue, 20 Nov 2001 12:14:07 -0500
+Received: from [194.65.152.209] ([194.65.152.209]:12421 "EHLO
+	criticalsoftware.com") by vger.kernel.org with ESMTP
+	id <S281171AbRKTROC>; Tue, 20 Nov 2001 12:14:02 -0500
+Message-Id: <200111201714.fAKHEc276467@criticalsoftware.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: =?iso-8859-1?q?Lu=EDs=20Henriques?= 
+	<lhenriques@criticalsoftware.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: copy to suer space
+Date: Tue, 20 Nov 2001 17:08:52 +0000
+X-Mailer: KMail [version 1.3.1]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <5.1.0.14.2.20011120165440.00a745b0@pop.cus.cam.ac.uk>
+In-Reply-To: <5.1.0.14.2.20011120165440.00a745b0@pop.cus.cam.ac.uk>
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Swap
-In-Reply-To: <Pine.LNX.3.95.1011120111730.7650A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@nortelnetworks.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> On Tue, 20 Nov 2001, Wolfgang Rohdewald wrote:
-> 
-> > On Tuesday 20 November 2001 15:51, J.A. Magallon wrote:
-> > > When a page is deleted for one executable (because we can re-read it from
-> > > on-disk binary), it is discarded, not paged out.
-> >
-> > What happens if the on-disk binary has changed since loading the program?
-> > -
-> 
-> It can't. That's the reason for `install` and other methods of changing
-> execututable files (mv exe-file exe-file.old ; cp newfile exe-file).
-> The currently open, and possibly mapped file can be re-named, but it
-> can't be overwritten.
+> I don't think what you are trying to do is possible. Even if you somehow
+> managed to write over the code segment of a user space process (which I
+> very much doubt would be possible as I assume the memory is mapped
+> read-only)
 
-Actually, with NFS (and probably others) it can.  Suppose I change the file on
-the server, and it's swapped out on a client that has it mounted.  When it swaps
-back in, it can get the new information.
+Is there a way to solve this problem? To temporarly turn it read/write?
 
-Chris
+>, as soon as the kernel pages out (i.e. discards!) some portion
+> of the executable due to memory shortage your changes would be lost, since
+> the paging back into memory would happen by reading the executable back
+> from disk, which would mean it would read the unmodified code into
+> memory...
+
+When I'm modifing the code, I'm sure that the page is in memory because my 
+code is called from the user space, in the exact location where I want to 
+change it (with a breakpoint interruption...)
+
+The point is that I can't write to the memory location I want... How do I 
+solve this?
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Luís Henriques

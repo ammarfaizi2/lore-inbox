@@ -1,56 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266839AbUHISVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266835AbUHISY5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266839AbUHISVM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 14:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266835AbUHISU6
+	id S266835AbUHISY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 14:24:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266833AbUHISWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 14:20:58 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:25045 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S266830AbUHISTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 14:19:49 -0400
-Message-Id: <200408091819.i79IJ3Y12216@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'William Lee Irwin III'" <wli@holomorphy.com>
-Cc: "'Hirokazu Takahashi'" <taka@valinux.co.jp>,
-       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>,
-       "Seth, Rohit" <rohit.seth@intel.com>
-Subject: RE: Hugetlb demanding paging for -mm tree
-Date: Mon, 9 Aug 2004 11:19:04 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcR7+XF2ZTVnVwEMSpOlhuzmrE2wFACOoLFA
-In-Reply-To: <20040806210750.GT17188@holomorphy.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Mon, 9 Aug 2004 14:22:41 -0400
+Received: from adsl-67-114-19-185.dsl.pltn13.pacbell.net ([67.114.19.185]:8600
+	"EHLO bastard.smallmerchant.com") by vger.kernel.org with ESMTP
+	id S266831AbUHISTX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 14:19:23 -0400
+Message-ID: <4117C028.7080905@tupshin.com>
+Date: Mon, 09 Aug 2004 11:19:20 -0700
+From: Tupshin Harper <tupshin@tupshin.com>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: /dev/hdl not showing up because of	fix-ide-probe-double-detection
+ patch
+References: <411013F7.7080800@tupshin.com> <4111651E.1040406@tupshin.com>	 <20040804224709.3c9be248.akpm@osdl.org> <1091720165.8041.4.camel@localhost.localdomain>
+In-Reply-To: <1091720165.8041.4.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote on Friday, August 06, 2004 2:08 PM
-> On Fri, Aug 06, 2004 at 01:55:38PM -0700, Chen, Kenneth W wrote:
-> > diff -Nurp linux-2.6.7/mm/hugetlb.c linux-2.6.7.hugetlb/mm/hugetlb.c
-> > --- linux-2.6.7/mm/hugetlb.c	2004-08-06 11:44:59.000000000 -0700
-> > +++ linux-2.6.7.hugetlb/mm/hugetlb.c	2004-08-06 13:15:24.000000000 -0700
-> > @@ -276,9 +276,10 @@ retry:
-> >  	}
-> >
-> >  	spin_lock(&mm->page_table_lock);
-> > -	if (pte_none(*pte))
-> > +	if (pte_none(*pte)) {
-> >  		set_huge_pte(mm, vma, page, pte, vma->vm_flags & VM_WRITE);
-> > -	else
-> > +		update_mmu_cache(vma, addr, *pte);
-> > +	} else
-> >  		put_page(page);
-> >  out:
-> >  	spin_unlock(&mm->page_table_lock);
+Alan Cox wrote:
+
+> Two disks are not permitted to have the same serial number. If you can
 >
-> update_mmu_cache() does not appear to check the size of the translation
-> to be established in many architectures. e.g. on arch/ia64/ it does
-> flush_icache_range(addr, addr + PAGE_SIZE) unconditionally, and only
-> sets PG_arch_1 on a single struct page. Similar comments apply to
-> sparc64 and ppc64; I didn't check any others.
+>give me the full ident data I'll take a detailed look - could be I'm not
+>comparing enough bytes if its only different on the last digit.
+>
+>Alan
+>
+>  
+>
+I originally thought that the problem might be not enough bytes being 
+checked, but now I'm concerned that Maxtor has some problem with not 
+having a proper serial number recorded for some drives. hdparm -i also 
+show M0000000000000000000 for both of these drives. Below is the output 
+of hdparm -i for the two drives, and below that, the output of catting 
+/dev/ide/hdk and hdl.
 
-I suppose this is fixable in update_mmu_cache() where it can check the
-type of pte and do appropriate sizing and other things.  ia64 would have
-to check the address instead of looking at the pte.
+Doing a google search on "M0000000000000000000" shows that there have a 
+been a handful of reports of maxtor drives showing this as the serial 
+number, but I don't see any explanation of why.
 
+-Tupshin
+
+
+
+ hdparm -i /dev/hdl
+
+/dev/hdl:
+
+ Model=Maxtor 4R120L0, FwRev=RAMB1TU0, SerialNo=M0000000000000000000
+ Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=240121728
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 udma5 *udma6
+ AdvancedPM=yes: disabled (255) WriteCache=enabled
+ Drive conforms to: (null):
+
+ * signifies the current active mode
+
+rescue:/home/tupshin# hdparm -i /dev/hdk
+
+/dev/hdk:
+
+ Model=Maxtor 4R120L0, FwRev=RAMB1TU0, SerialNo=M0000000000000000000
+ Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=240121728
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 udma5 *udma6
+ AdvancedPM=yes: disabled (255) WriteCache=enabled
+ Drive conforms to: (null):
+
+ * signifies the current active mode
+
+ cat /proc/ide/hdl/identify
+0040 3fff c837 0010 0000 0000 003f 0000
+0000 0000 4d30 3030 3030 3030 3030 3030
+3030 3030 3030 3030 0003 1000 0039 5241
+4d42 3154 5530 4d61 7874 6f72 2034 5231
+3230 4c30 2020 2020 2020 2020 2020 2020
+2020 2020 2020 2020 2020 2020 2020 8010
+0000 2f00 4000 0200 0000 0007 3fff 0010
+003f fc10 00fb 0110 f780 0e4f 0000 0007
+0003 0078 0078 0078 0078 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+00fe 001e 7c6b 7b09 4003 7c68 3a01 4003
+407f 0000 0000 0000 fffe 6b00 c0c0 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0001 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0001 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 8aa5
+
+ cat /proc/ide/hdk/identify
+0040 3fff c837 0010 0000 0000 003f 0000
+0000 0000 4d30 3030 3030 3030 3030 3030
+3030 3030 3030 3030 0003 1000 0039 5241
+4d42 3154 5530 4d61 7874 6f72 2034 5231
+3230 4c30 2020 2020 2020 2020 2020 2020
+2020 2020 2020 2020 2020 2020 2020 8010
+0000 2f00 4000 0200 0000 0007 3fff 0010
+003f fc10 00fb 0110 f780 0e4f 0000 0007
+0003 0078 0078 0078 0078 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+00fe 001e 7c6b 7b09 4003 7c68 3a01 4003
+407f 0000 0000 0000 fffe 603b c0c0 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0001 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0001 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 5aa5
 

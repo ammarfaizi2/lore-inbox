@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265960AbUGIUGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265964AbUGIUIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265960AbUGIUGw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 16:06:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265955AbUGIUEm
+	id S265964AbUGIUIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 16:08:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265955AbUGIUG5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 16:04:42 -0400
-Received: from mproxy.gmail.com ([216.239.56.242]:2700 "HELO mproxy.gmail.com")
-	by vger.kernel.org with SMTP id S265964AbUGIUEY convert rfc822-to-8bit
+	Fri, 9 Jul 2004 16:06:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:64910 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265964AbUGIUGd convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 16:04:24 -0400
-Message-ID: <7f800d9f0407091304499b4c95@mail.gmail.com>
-Date: Fri, 9 Jul 2004 13:04:20 -0700
-From: Andre Eisenbach <int2str@gmail.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: 2.6.7-np7
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <40EE7450.3080600@yahoo.com.au>
+	Fri, 9 Jul 2004 16:06:33 -0400
+Date: Fri, 9 Jul 2004 13:05:53 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: yoshfuji@linux-ipv6.org
+Cc: bastian@waldi.eu.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390 - mark IPv6 support for QETH as broken
+Message-Id: <20040709130553.223bdc6b.davem@redhat.com>
+In-Reply-To: <20040710.045904.106621629.yoshfuji@linux-ipv6.org>
+References: <20040709120336.74e57ceb.akpm@osdl.org>
+	<20040709192253.GA11138@wavehammer.waldi.eu.org>
+	<20040709123005.086fdfc5.davem@redhat.com>
+	<20040710.045904.106621629.yoshfuji@linux-ipv6.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-References: <40EE7450.3080600@yahoo.com.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 09 Jul 2004 20:32:48 +1000, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> http://www.kerneltrap.org/~npiggin/2.6.7-np7/
-> 
-> This is 2.6.7-np7 with patches for 2.6.7-bk20 and 2.6.7-mm7.
-> It contains my scheduler interactivity and memory management
-> changes.
+On Sat, 10 Jul 2004 04:59:04 +0900 (JST)
+YOSHIFUJI Hideaki / $B5HF#1QL@(B <yoshfuji@linux-ipv6.org> wrote:
 
-Ebuild for Gentoo users here:
-http://ironcreek.net/np-sources/np-sources-2.6.7-r7.ebuild
+> David, inet6device area is created when we create first address.
 
-Thanks,
-  André
+We could change the ipv6 layer to allocate the private
+layer much earlier.

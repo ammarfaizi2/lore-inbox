@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274341AbRITGky>; Thu, 20 Sep 2001 02:40:54 -0400
+	id <S274347AbRITGly>; Thu, 20 Sep 2001 02:41:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274343AbRITGko>; Thu, 20 Sep 2001 02:40:44 -0400
-Received: from paloma17.e0k.nbg-hannover.de ([62.159.219.17]:40105 "HELO
-	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S274341AbRITGki>; Thu, 20 Sep 2001 02:40:38 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Robert Love <rml@ufl.edu>, Roger Larsson <roger.larsson@norran.net>
-Subject: Re: Feedback on preemptible kernel patch
-Date: Thu, 20 Sep 2001 08:40:56 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200109140302.f8E32LG13400@zero.tech9.net> <200109181822.f8IIMv618968@mailg.telia.com> <1000855890.19833.51.camel@phantasy>
-In-Reply-To: <1000855890.19833.51.camel@phantasy>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010920064042Z274341-760+14433@vger.kernel.org>
+	id <S274345AbRITGlo>; Thu, 20 Sep 2001 02:41:44 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:11006 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274346AbRITGlf>;
+	Thu, 20 Sep 2001 02:41:35 -0400
+Date: Thu, 20 Sep 2001 08:41:31 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: Robert Love <rml@tech9.net>, Roger Larsson <roger.larsson@norran.net>,
+        linux-kernel@vger.kernel.org,
+        ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+Message-ID: <20010920084131.C1629@athlon.random>
+In-Reply-To: <1000939458.3853.17.camel@phantasy> <20010920063143.424BD1E41A@Cantor.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010920063143.424BD1E41A@Cantor.suse.de>; from Dieter.Nuetzel@hamburg.de on Thu, Sep 20, 2001 at 08:31:34AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 19. September 2001 01:31 schrieb Robert Love:
-> On Tue, 2001-09-18 at 14:18, Roger Larsson wrote:
-> > Do you run with the playback process reniced -N?
-> > It should really run with a low SCHED_FIFO or SCHED_RT policy.
-> > But renicing it with a negative value gives some of the benefits...
-> > (but you need to run as root)
-> > In addition to this the program might need to lock its pages down - the
-> > only thing I can think of that could cause several seconds delay would
-> > be if it has been swapped out...
->
-> Certainly giving it a higher priority should improve results (especially
-> with preemption), but the application should receive a fair amount of
-> process attention as it is, as it is TASK_RUNNABLE at all times and the
-> disk I/O should be routinely preempted.  I am interested how much
-> renicing it helps, though.
+Those inodes lines reminded me one thing, you may want to give it a try:
 
-Nearly zero :-)
-
-> Now, if it has to swap pages, that is a very good point.  I tend to
-> blame this, or perhaps something with a long held lock (the audio
-> driver?) for the blips.
-
-System didn't go into swap during whole test, sorry.
-
-> Its so hard to tell swap/VM issues now with all the VM work, sadly...:)
-
-I point to the second;-)
-
--Dieter
+--- 2.4.10pre12aa1/fs/inode.c.~1~	Thu Sep 20 01:44:07 2001
++++ 2.4.10pre12aa1/fs/inode.c	Thu Sep 20 08:37:33 2001
+@@ -295,6 +295,12 @@
+ 			 * so we have to start looking from the list head.
+ 			 */
+ 			tmp = head;
++
++			if (unlikely(current->need_resched)) {
++				spin_unlock(&inode_lock);
++				schedule();
++				spin_lock(&inode_lock);
++			}
+ 		}
+ 	}
+ 
+Andrea

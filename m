@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261660AbTCJXS5>; Mon, 10 Mar 2003 18:18:57 -0500
+	id <S261907AbTCJXaS>; Mon, 10 Mar 2003 18:30:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261900AbTCJXS5>; Mon, 10 Mar 2003 18:18:57 -0500
-Received: from ftpbox.mot.com ([129.188.136.101]:36999 "EHLO ftpbox.mot.com")
-	by vger.kernel.org with ESMTP id <S261660AbTCJXS4>;
-	Mon, 10 Mar 2003 18:18:56 -0500
-X-POPI: The contents of this message are Motorola Internal Use Only (MIUO)
-	unless indicated otherwise in the message.
-Date: Mon, 10 Mar 2003 17:29:35 -0600
-From: Patrick E Kane <kane@urbana.css.mot.com>
-To: phoebe-list@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Stack growing and buffer overflows
-Message-ID: <20030310172935.A1324@scapula.urbana.css.mot.com>
-References: <20030310230012.26391.qmail@linuxmail.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030310230012.26391.qmail@linuxmail.org>; from felipe_alfaro@linuxmail.org on Tue, Mar 11, 2003 at 12:00:12AM +0100
+	id <S261928AbTCJXaS>; Mon, 10 Mar 2003 18:30:18 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46088 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261907AbTCJXaQ>; Mon, 10 Mar 2003 18:30:16 -0500
+Date: Mon, 10 Mar 2003 15:33:37 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+cc: akpm@digeo.com, <george@mvista.com>, <cobra@compuserve.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Runaway cron task on 2.5.63/4 bk?
+In-Reply-To: <20030310230539.30103.qmail@linuxmail.org>
+Message-ID: <Pine.LNX.4.44.0303101529040.20597-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The OpenBSD guys have been working on closing  buffer overflow holes.
-Slashdot has this pointer to a msg from Theo de Raadt: 
-http://groups.google.com/groups?selm=b1aq2h%242q9g%241%40FreeBSD.csie.NCTU.edu.tw&output=gplain
 
-    In the last while, a couple of people in OpenBSD have
-    been putting some buffer overflow "solutions" into our 
-    source tree; under my continual prodding.  I thought I 
-    would summarize some of these and how they fit together, 
-    since what I have seen written up so far has been
-    wildly inaccurate.  (Bad reporter, no cookie).
+On Tue, 11 Mar 2003, Felipe Alfaro Solana wrote:
+>  
+> why not sleep(0)? 
 
-    These are, in short form:
+I think a much more likely (and correct) usage for big sleep values is 
+more something like this:
 
-       1) PROT_* purity
-       2) W^X
-       3) .rodata
-       4) propolice
+	do_with_timeout(xxx, int timeout)
+	{
+		struct timespec ts;
 
-    ...
+		... set up some async event ..
+		ts.tv_nsec = 0;
+		ts.tv_sec = timeout;
+		while (nanosleep(&ts, &ts)) {
+			if (async event happened)
+				return happy;
+		}
+		.. tear down the async event if it didn't happen ..
+	}
 
-I like the idea of turning off execute permission on the stack pages.
+and here the natural thing to do in user space is to just make the "no 
+timeout" case be a huge value.
 
-PEK
----
+At which point it is a _bug_ in the kernel if we return early with some 
+random error code.
 
+		Linus
 
-
-
-  

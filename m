@@ -1,74 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbUKROSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbUKROVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbUKROSS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 09:18:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbUKROSS
+	id S262061AbUKROVX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 09:21:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbUKROVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 09:18:18 -0500
-Received: from mail6.hitachi.co.jp ([133.145.228.41]:7906 "EHLO
-	mail6.hitachi.co.jp") by vger.kernel.org with ESMTP id S262020AbUKROSM
+	Thu, 18 Nov 2004 09:21:22 -0500
+Received: from alog0668.analogic.com ([208.224.223.205]:37504 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262061AbUKROVS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 09:18:12 -0500
-Message-ID: <419CAF77.5010208@sdl.hitachi.co.jp>
-Date: Thu, 18 Nov 2004 23:19:35 +0900
-From: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
+	Thu, 18 Nov 2004 09:21:18 -0500
+Date: Thu, 18 Nov 2004 09:21:04 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Signal handler deadlock
+Message-ID: <Pine.LNX.4.61.0411180916510.6160@chaos.analogic.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE/LKST] LKST 2.2.0 for linux-2.6.9 is released.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+Hello,
 
-We are pleased to announce releasing new version of Linux Kernel State
-Tracer.
+If I have a MUTEX in a driver and the driver can
+also be called from a signal handler, will the
+MUTEX deadlock when the signal handler calls the
+driver?
 
-The Linux Kernel State Tracer(a.k.a. LKST) version 2.2.0 has been
-released. This version can be applied to linux-2.6.9. And LKST 2.2.0
-supports IA32, IA64 and x86-64 platforms.
+Code --->----> driver-->MUTEX-taken-->***SIGNAL***
 
-LKST is a tool that supports to analyze of fault and evaluate for kernel.
-Especially it is usuful for analyzing the unanticipated fault of kernal.
+Signal handler --->driver--->MUTEX-waiting (will it deadlock?)
 
-The latest version of the LKST newly supports the x86-64 architecture.
+I use 'down()' and 'up()' in the driver. With Linux-2.4.22 the
+code does not deadlock. With Linux-2.6.9, it does.
 
-For more changes, see Changelog-2.2.0.txt
-<http://prdownloads.sourceforge.net/lkst/Changelog-2.2.0.txt?download>
+Is this the expected behavior? FYI I wrote the driver, not the
+dumb code that calls it from a signal handler. I would never
+have called anything by printf() from such a handler, so
+don't preach to the choir. I just need to know if it should
+work, before I tell somebody to rewrite some code.
 
-Remarks:
-For supporting IA64 and x86-64, we hacked KernelHooks.
 
-LKST binaries, source code and documents are available in the following
-site,
-https://sourceforge.net/projects/lkst/
-http://sourceforge.jp/projects/lkst/
-
-We prepared a mailing list written below in order to let users know
-update of LKST.
-
-lkst-users@lists.sourceforge.net
-lkst-users@lists.sourceforge.jp
-
-To subscribe, please refer following URL,
-
-http://lists.sourceforge.net/lists/listinfo/lkst-users
-http://lists.sourceforge.jp/mailman/listinfo/lkst-users
-
-And if you have any comments, please send to the above list, or to
-another mailing-list written below.
-
-lkst-develop@lists.sourceforge.net
-lkst-develop@lists.sourceforge.jp
-
-With kindest regards,
-All of the LKST developers
-
--- 
-Masami HIRAMATSU
-2nd Research Dept.
-Hitachi, Ltd., Systems Development Laboratory
-  E-mail: hiramatu@sdl.hitachi.co.jp
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

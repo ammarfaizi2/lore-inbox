@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263272AbTJUTDl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 15:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263273AbTJUTDl
+	id S263271AbTJUTLC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 15:11:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263273AbTJUTLC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 15:03:41 -0400
-Received: from [199.45.143.209] ([199.45.143.209]:7174 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S263272AbTJUTDk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 15:03:40 -0400
-Subject: Re: 2.6.0-test8 and HIGMEM = segfaults and panics?
-From: Zan Lynx <zlynx@acm.org>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031021155337.GF2617@rdlg.net>
-References: <20031021155337.GF2617@rdlg.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ybyrBF7hcRlNgoGek42t"
-Organization: 
-Message-Id: <1066762982.5055.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 21 Oct 2003 13:03:02 -0600
+	Tue, 21 Oct 2003 15:11:02 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30214 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263271AbTJUTK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 15:10:58 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Blockbusting news, this is important (Re: Why are bad disk se
+	ctors numbered strangely, and what happens to them?)
+Date: 21 Oct 2003 12:10:22 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <bn40au$hdu$1@cesium.transmeta.com>
+References: <785F348679A4D5119A0C009027DE33C105CDB2EF@mcoexc04.mlm.maxtor.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <785F348679A4D5119A0C009027DE33C105CDB2EF@mcoexc04.mlm.maxtor.com>
+By author:    "Mudama, Eric" <eric_mudama@Maxtor.com>
+In newsgroup: linux.dev.kernel
+> 
+> If current trends hold, in the next few years, hard drives are going to have
+> to pick up and rewrite their data continuously to avoid signal decay on the
+> media... a drive gets closer and closer to a DRAM cell than a stone tablet.
+> (And yes, I've heard all the jokes about bricks/stones/etc)
+> 
 
---=-ybyrBF7hcRlNgoGek42t
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Quite frankly, I think you'll have a hideously hard time selling that
+to customers, once a few of them have lost their Quicken records due
+to having had their computers turned off/disconnected for some time.
 
-On Tue, 2003-10-21 at 09:53, Robert L. Harris wrote:
-> I'm running a dual-athalon system.  When I compiled the 2.6.0-test8 kerne=
-l I
-> enabled HIGHMEM for 4 Gigs as I'm at 1.5G now and planning on purchasing
-> an additional 512Meg DIMM next weekend (yeah, should have with the
-> 1.5Gig).
->=20
-> At any rate the box comes up just fine and runs for a while but once the
-> memory is in use for a few hours and seems to exceed 220+ Megs about any
-> command I execute will Segfault and the kernel has panic'd twice
-> (couldn't read the whole oops).
-
-I run a dual athlon system with 2 GB, and it has never done anything
-like that.
-
-Have you run memtest86 on your system to verify it isn't a physical
-memory problem?
-
-Are you using registered RAM chips?  I seem to remember from my
-motherboard documentation that registered is required to use more than 2
-memory slots.
---=20
-Zan Lynx <zlynx@acm.org>
-
---=-ybyrBF7hcRlNgoGek42t
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA/lYLmG8fHaOLTWwgRApAsAJ9WhdhdXGsQQ4ZBk5OscL/e1uSBrACgmR8T
-B+zg1O85S811FPh31wxoZB0=
-=BuPR
------END PGP SIGNATURE-----
-
---=-ybyrBF7hcRlNgoGek42t--
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+If you send me mail in HTML format I will assume it's spam.
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

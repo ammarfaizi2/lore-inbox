@@ -1,91 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267027AbSKTA5P>; Tue, 19 Nov 2002 19:57:15 -0500
+	id <S267035AbSKTBAf>; Tue, 19 Nov 2002 20:00:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267035AbSKTA5P>; Tue, 19 Nov 2002 19:57:15 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:28125 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267027AbSKTA5O>;
-	Tue, 19 Nov 2002 19:57:14 -0500
-To: Andrew Morton <akpm@digeo.com>
-cc: vasya vasyaev <vasya197@yahoo.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>, linux-kernel@vger.kernel.org
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: Machine's high load when HIGHMEM is enabled 
-In-reply-to: Your message of Tue, 19 Nov 2002 01:40:31 PST.
-             <3DDA070F.CF2047BF@digeo.com> 
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <18339.1037754225.1@us.ibm.com>
-Date: Tue, 19 Nov 2002 17:03:45 -0800
-Message-Id: <E18EJHN-0004lr-00@w-gerrit2>
+	id <S267135AbSKTBAf>; Tue, 19 Nov 2002 20:00:35 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:56244 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267035AbSKTBAe>;
+	Tue, 19 Nov 2002 20:00:34 -0500
+Subject: gettimeofday() cripples notsc system
+From: Michael Hohnbaum <hohnbaum@us.ibm.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 19 Nov 2002 17:06:25 -0800
+Message-Id: <1037754386.3393.255.camel@dyn9-47-17-164.beaverton.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oracle usually likes its SGA locked in memory, so if it is
-set to request 800 MG of RAM on a 1 GB machine, I think you
-have tuned Oracle to be requesting too much SGA for your
-hardware.
+John,
 
-gerrit
+Running a large application that issues many gettimeofday()
+system calls on a kernel running with notsc, results in time
+slowing way down.  I've seen the system time advance only 
+three minutes over a 30 minute period.  The following program,
+executed twice demonstrates the problem.  Three instances running
+in parallel made a 16 processor machine completely unusable.
 
-In message <3DDA070F.CF2047BF@digeo.com>, > : Andrew Morton writes:
-> vasya vasyaev wrote:
-> > 
-> > Hi again,
-> > 
-> > Let me try to explain what is this all about...
-> > 
-> > Box has 1 GB of RAM, it's running oracle database.
-> > After some disk activity disk cache has 400 Mb, so 600
-> > Mb is free
-> 
-> And the other 400 megabytes will be freed up on demand.
-> 
-> > Oracle is tuned for using of 800 Mb of RAM for SGA (as
-> > shared memory segment), so Oracle needs 800 Mb of RAM
-> > to be free before it's start, right ?
-> 
-> No...  If that were so, you'd never be able to start any
-> applications.
-> 
-> > So when oracle starts it can't allocate this 800 Mb
-> > for SGA and fails to start...
-> 
-> Well, maybe Oracle is failing to start.  But maybe that's
-> not for the reasons you are assuming.
-> 
-> > Where is a problem - in kernel which can't reduce disk
-> > cache to allow allocating of shared memory segment or
-> > in oracle ?
-> 
-> If Oracle requests 800 megabytes from the kernel, it will get it.
-> It won't be able to mlock it (I'm guessing here).
->  
-> > BTW, free doesn't show that shared memory is in use
-> > when oracle is started and requested shared memory
-> > segment is allocated (and ipcs shows it).
-> 
-> Yup, the "shared" accounting is always zero.  Maybe we should
-> fix that, or remove it.
->  
-> > We need to control disk cache to reduce it as much as
-> > possible because it's not needed for oracle, much
-> > better is to allow oracle to control the RAM
-> > for it's use.
-> > 
-> > As to compare, on solaris we mount ufs with
-> > "forcedirectio" mount option, which tells not to use
-> > disk cache.
-> 
-> Please ensure that the failure is not some Oracle-specific setup
-> thing, and then provide specific details on the problem which you
-> are observing.  The assumptions which you are making may not be
-> correct.
-> 
-> Thanks.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+#include <sys/time.h>
+
+main()
+{
+        struct timeval  tv;
+        struct timezone tz;
+        while (1) 
+                if (gettimeofday(&tv, &tz)) 
+                        return;
+}
+
+I've recreated on 2.5.30, 2.5.44, and 2.5.47.  Running a system that
+is using the tsc I've tried 100 instances of this test running in
+parallel with no problems - other than the normal incorrect time due 
+to tsc skew.  At least no time slowdowns or hangs.  The system I'm 
+using is a 4 node NUMAQ (x86) box.
+
+I assume there is a lock starvation problem happening here, correct?
+Any chance of fixing this?
+-- 
+
+Michael Hohnbaum                      503-578-5486
+hohnbaum@us.ibm.com                   T/L 775-5486
+

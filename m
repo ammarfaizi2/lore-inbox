@@ -1,78 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264730AbTCEHdX>; Wed, 5 Mar 2003 02:33:23 -0500
+	id <S264754AbTCEIPE>; Wed, 5 Mar 2003 03:15:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264745AbTCEHdX>; Wed, 5 Mar 2003 02:33:23 -0500
-Received: from users.linvision.com ([62.58.92.114]:10881 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S264730AbTCEHdV>; Wed, 5 Mar 2003 02:33:21 -0500
-Date: Wed, 5 Mar 2003 08:43:33 +0100
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Matthew Wilcox <willy@debian.org>,
-       Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Proposal: Eliminate GFP_DMA
-Message-ID: <20030305084332.B22193@bitwizard.nl>
-References: <20030228064631.G23865@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73heao7ph2.fsf@amdsimf.suse.de> <20030228141234.H23865@parcelfarce.linux.theplanet.co.uk> <1046445897.16599.60.camel@irongate.swansea.linux.org.uk> <20030228143405.I23865@parcelfarce.linux.theplanet.co.uk> <1046447737.16599.83.camel@irongate.swansea.linux.org.uk> <20030304185616.A9527@bitwizard.nl> <1046819369.12226.34.camel@irongate.swansea.linux.org.uk>
+	id <S264756AbTCEIPE>; Wed, 5 Mar 2003 03:15:04 -0500
+Received: from buitenpost.surfnet.nl ([192.87.108.12]:47028 "EHLO
+	buitenpost.surfnet.nl") by vger.kernel.org with ESMTP
+	id <S264754AbTCEIPD>; Wed, 5 Mar 2003 03:15:03 -0500
+Date: Wed, 5 Mar 2003 09:25:20 +0100
+To: Brian Litzinger <brian@top.worldcontrol.com>, linux-kernel@vger.kernel.org
+Subject: Re: Booting 2.5.63 vs 2.4.20 I can read multicast data
+Message-ID: <20030305082519.GA920@pangsit>
+References: <20030304073939.GA31394@top.worldcontrol.com> <20030304223953.GA3114@pangsit> <20030305061102.GA8473@top.worldcontrol.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1046819369.12226.34.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+In-Reply-To: <20030305061102.GA8473@top.worldcontrol.com>
+X-Mailer: Mutt on Debian GNU/Linux sid
+X-Editor: vim
+X-Organisation: SURFnet bv
+X-Address: Radboudburcht, P.O. Box 19035, 3501 DA Utrecht, NL
+X-Phone: +31 302 305 305
+X-Telefax: +31 302 305 329
+User-Agent: Mutt/1.5.3i
+From: Niels den Otter <otter@surfnet.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 04, 2003 at 11:09:30PM +0000, Alan Cox wrote:
-> On Tue, 2003-03-04 at 17:56, Rogier Wolff wrote:
-> > All the modifier flags on kmalloc and GFP should be "memory allocation
-> > descriptors".
-> > A DMA pool descriptor will only point to pools that have that
-> > capability.
+Brian,
+
+On Tuesday,  4 March 2003, brian@worldcontrol.com wrote:
+> The apps I have vlc, and mpeg2dec (with mods) cannot read multicast
+> data under 2.5.63, but both work under 2.4.20.
 > 
-> Much much too simple. DMA to what from where for example ? Post 2.6 its
-> IMHO a case of making the equivalent of pci_alloc_* pci_map_* work with
-> generic device objects now we have them.
+> I also have some PERL tools which do multicasting stuff and they don't
+> work any longer either.
+> 
+> However, I added 'eth0' to the IO::Socket::Multicast::mcast_add() 
+> call and now the data is showing up.
+> 
+> I believe this means back in the C/C++ paradigm you can't rely on
+> INADDR_ANY to do the right thing.  So you may have to set the specific
+> IP of the interface you want your multicast data to come from in
+> imr_interface.s_addr of the struct ip_mreq you pass in via setsockopt(
+> sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, ...
+> 
+> I'll give this a try and let you know what I find.
 
-I can't think of a case that doesn't fit my model. So, if you're
-saying that it's simple, that's good.
+But lot of multicast applications use INADDR_ANY and most don't provide
+an option to choose a specific interface. So I really think that the
+kernel should bind the application to an ethernet interface and not to
+the loopback interface to make them work.
 
-          dev1      +----------+        dev2
-           |        |  CPU /   |         |
-   --------+--------+  BRIDGE  +---------+--------
-           |        |  ---->   |         |
-          mem1      +----------+        mem2
-
-If for example, there are two PCI busses, and a memory controller on
-both of them, but no DMA cpability in one direction through the PCI 
-bridge (embedded CPU) then there should be two memory pools. 
-
-In the picture above: dev1 can reach mem2, but dev2 can't reach mem1.
-
-PCI devices on the restricted PCI bus (dev2) will have to pass a 
-memory allocation descriptor that describes just the memory on 
-that PCI bus,  the other one (dev1) can pass a descriptor that 
-prefers the non-shared memory, (leaving as much as possible for 
-the devices on the other bus (bus2)), but
-reverts to the memory that the other devices can handle as well. 
-
-But if we end up "reading" from dev1, and writing the same data
-to dev2 we're better off DMAing it to "mem2". So, how to tell
-the dev1 driver that allocing off the allocation descriptor 
-"mem1, then mem2", is not a good a good idea, and that it should
-use "mem2, then mem1" is a problem that remains to be solved... 
+Can you please check if it tries to bind to the loopback interface when
+using INADDR_ANY by checking 'netstat -n -g' output?
 
 
-But if I'm missing a case that can't be modelled, please enlighten
-me as to what I'm missing.... 
-
-			Roger.
-
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currently in such an      * 
-* excursion: The stable situation does not include humans. ***************
+-- Niels

@@ -1,73 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267201AbSK3BsP>; Fri, 29 Nov 2002 20:48:15 -0500
+	id <S267203AbSK3BxY>; Fri, 29 Nov 2002 20:53:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267203AbSK3BsP>; Fri, 29 Nov 2002 20:48:15 -0500
-Received: from 5-106.ctame701-1.telepar.net.br ([200.193.163.106]:2230 "EHLO
-	5-106.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S267201AbSK3BsO>; Fri, 29 Nov 2002 20:48:14 -0500
-Date: Fri, 29 Nov 2002 23:55:24 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Javier Marcet <jmarcet@pobox.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Exaggerated swap usage
-In-Reply-To: <20021130013832.GF15682@jerry.marcet.dyndns.org>
-Message-ID: <Pine.LNX.4.44L.0211292349550.15981-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267204AbSK3BxY>; Fri, 29 Nov 2002 20:53:24 -0500
+Received: from nessie.weebeastie.net ([61.8.7.205]:20864 "EHLO
+	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S267203AbSK3BxX>; Fri, 29 Nov 2002 20:53:23 -0500
+Date: Sat, 30 Nov 2002 13:00:10 +1100
+From: CaT <cat@zip.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.50 / ALSA: sound cutouts when playing from hd
+Message-ID: <20021130020009.GB612@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Nov 2002, Javier Marcet wrote:
+I seem to be on a roll today. :)
 
-> >First, lets get one thing straight:  the problem is the slowness,
-> >not necessarily the swap usage.  It is very easy to jump to wrong
->
-> OK, you might be right on this point.
+Whenever I play an mp3 from HD I get sound cutouts. I can't really say
+when exactly is happening but putting the mpg into ram by running
 
-> root # vmstat 1
-> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
->  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
->  0  1 265048   5248  32248 119108    6   15    65    62  252   585 21  6 73  0
->  1  6 266648   4480  32316 120300    0 4656  2152  4652 1348   821 13  8 79  0
->  1  0 265052   4496  31036 120184    8  336  1668   340 1226   765 15  7 78  0
->  0  1 265052   4496  31112 121564    4    0  3152     0 1198   894 18  8 74  0
->  1  0 265052   4504  31076 123112    0    0  3024  8576 1229   857 17  7 76  0
-                                      ^^^^^^^^^^^^^^^^^^^
+dd if=mp3 of=/dev/null 
 
-Looks like my guess was right after all.  The amount of swap
-IO is maybe 10% of the amount of filesystem IO in your vmstat
-snippet above.
+until no disc activity occurs seems to solve the issues. The laptop is a
+p3-700, 128meg free ram, 44 bytes of swap usage and the following is
+reported by hdparm:
 
-> This is after the system has been in use with a 512MB swap partition for
-> around 1 hour. I must say it is barely usable as a desktop, way _far_
-> from a responsive environment. looking at the memory numbers it's easy
-> to think I need more memory, but with other kernels,
+/dev/hda:
+ multcount    = 16 (on)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    = 256 (on)
+ geometry     = 2584/240/63, sectors = 39070080, start = 0
+ busstate     =  1 (on)
 
-> So yes, you are right that swap usage is not the problem. It seems more
-> like memory getting too dirty.
+/dev/hda:
 
-Two things could be happening here:
+ Model=TOSHIBA MK2016GAP, FwRev=U0.30 A, SerialNo=X0B70560T
+ Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=46
+ BuffType=unknown, BuffSize=0kB, MaxMultSect=16, MultSect=16
+ CurCHS=17475/15/63, CurSects=16513875, LBA=yes, LBAsects=39070080
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4 
+ DMA modes: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 
+ AdvancedPM=yes: unknown setting WriteCache=enabled
+ Drive Supports : Reserved : ATA-1 ATA-2 ATA-3 ATA-4 ATA-5 
 
-1) the kernel decides to cache the wrong things in the
-   page cache
+This does not happen with the CD-ROM drive and it's not happening now
+with another mp3 (sigh...) but I have had this happen quite a few times
+now.
 
-and/or
+As usual, if you want any more info, please holler.
 
-2) the IO scheduler is giving worse latencies now
-
-If the problem is (1) it might get resolved by using the -rmap
-or -aa kernels.  If the problem is (2) you'll want Andrew Morton's
-read_latency patch (which I'll port to 2.4.20 real soon now).
-
-regards,
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
-
+        All people are equal,
+        But some are more equal then others.
+            - George W. Bush Jr, President of the United States
+              September 21, 2002 (Abridged version of security speech)

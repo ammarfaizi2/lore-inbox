@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281856AbRKWB3g>; Thu, 22 Nov 2001 20:29:36 -0500
+	id <S281832AbRKWBtP>; Thu, 22 Nov 2001 20:49:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281862AbRKWB30>; Thu, 22 Nov 2001 20:29:26 -0500
-Received: from mta04ps.bigpond.com ([144.135.25.136]:9196 "EHLO
-	mta04ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S281861AbRKWB3N>; Thu, 22 Nov 2001 20:29:13 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Christoph Hellwig <hch@ns.caldera.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Updated parameter and modules rewrite (2.4.14) 
-In-Reply-To: Your message of "Thu, 22 Nov 2001 11:08:28 BST."
-             <200111221008.fAMA8Sa04042@ns.caldera.de> 
-Date: Fri, 23 Nov 2001 12:28:17 +1100
-Message-Id: <E16758b-0001xO-00@wagner>
+	id <S281844AbRKWBtG>; Thu, 22 Nov 2001 20:49:06 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:61057 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S281832AbRKWBs7>;
+	Thu, 22 Nov 2001 20:48:59 -0500
+Message-ID: <3BFDAB08.28F8B5C8@pobox.com>
+Date: Thu, 22 Nov 2001 17:48:56 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.15-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: trond.myklebust@fys.uio.no, linux-kernel <linux-kernel@vger.kernel.org>
+CC: Mark Hahn <hahn@physics.mcmaster.ca>
+Subject: Re: sunrpc woes with tux2 in 2.4.15-pre8,9
+In-Reply-To: <3BFD7633.2525641E@pobox.com>
+		<shsn11eidv0.fsf@charged.uio.no>
+		<3BFD9078.63FE28F2@pobox.com> <15357.38291.883472.720575@charged.uio.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200111221008.fAMA8Sa04042@ns.caldera.de> you write:
-> In article <E166p1R-0004ll-00@wagner> you wrote:
-> >    http://ftp.kernel.org/pub/linux/kernel/people/rusty
-> >
-> > 	Unified boot/module parameter and module loader rewrite
-> > updated to 2.4.14.  I'm off to Linux Kongress, so I'll be difficult to
-> > contact for 10 days or so.
-> 
-> I absolutly oppose to the cosmetic naming changes.
+Trond Myklebust wrote:
 
-Hi Christoph!
+> Something is indeed very wrong. Your setup uses a PIII, and no SMP. It
+> shouldn't be requiring atomic_dec_and_lock() at all. Certainly this is
+> the case on my own setup on stock 2.4.15-pre9.
+>
+> Could you check that the TUX patch isn't squashing the #define and
+> test for ATOMIC_DEC_AND_LOCK that is contained in
+> include/linux/spinlock.h in the stock Linus kernel. The latter is a
+> workaround that is designed to stop MODVERSIONS from interfering with
+> the re-#definition of atomic_dec_and_lock() in spinlock.h.
 
-Um, me too.  I should have reposted my previous explanation, sorry!
+Yes, it looks like he's doing just that -
 
-> Please let module be be initialized by module_init() and exited by
-> module_exit().  We had a hard enough time to get it everywhere, not
-> to mention the name makes a lot of sense.
+I built it with smp enabled and the problem
+goes away, so it's an implicit assumption
+of smp in the current tux code.
 
-Unfortunately, removal needs to be done in two stages, to sanely make
-things like IPv6 modular (a deactivate, and a kill stage).  It turns
-out that this applies to loading as well, in case the loading fails
-part way through (there's also a number of modules at the moment which
-initialize in the wrong order, which can lead to an oops).
+cu
 
-> Also MODULE_PARAM should just stay, combined with Keith's proposal
-> to use it at boottime aswell (as KBUILD_OBJECT.<paramname>).
+jjs
 
-Firstly, Keith and I agree on KBUILD_OBJECT[/.]paramname, BTW.  I'm
-not sure it was his proposal originally, though: it's a pretty simple
-and old idea.
-
-The previous module param stuff was prone to user bugs (no type
-checking), was not extensible, and required duplicated code for boot
-time.  It also did not have the option of appearing in /proc.
-
-It is possible to write macros mapping the NEW macros to the OLD, but
-not vice versa, otherwise I wouldn't change at all.
-
-Hope that clarifies,
-Rusty.
---
-Premature optmztion is rt of all evl. --DK

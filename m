@@ -1,49 +1,256 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267436AbSLMDAs>; Thu, 12 Dec 2002 22:00:48 -0500
+	id <S267349AbSLMC6w>; Thu, 12 Dec 2002 21:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267466AbSLMDAs>; Thu, 12 Dec 2002 22:00:48 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:39124
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267436AbSLMDAq>; Thu, 12 Dec 2002 22:00:46 -0500
-Date: Thu, 12 Dec 2002 22:11:18 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: James Cleverdon <jamesclv@us.ibm.com>
-cc: Martin Bligh <mbligh@us.ibm.com>, John Stultz <johnstul@us.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5][RFC] Using xAPIC apic address space on !Summit
-In-Reply-To: <200212121841.32381.jamesclv@us.ibm.com>
-Message-ID: <Pine.LNX.4.50.0212122153310.6931-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0212112105490.14901-100000@montezuma.mastecende.com>
- <200212121809.43698.jamesclv@us.ibm.com> <Pine.LNX.4.50.0212122116260.6931-100000@montezuma.mastecende.com>
- <200212121841.32381.jamesclv@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267363AbSLMC6X>; Thu, 12 Dec 2002 21:58:23 -0500
+Received: from dp.samba.org ([66.70.73.150]:734 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267349AbSLMC6F>;
+	Thu, 12 Dec 2002 21:58:05 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Revert module directory hierarchy and depmod invocation
+Date: Fri, 13 Dec 2002 14:04:57 +1100
+Message-Id: <20021213030554.F27312C14D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Dec 2002, James Cleverdon wrote:
+Linus, please apply.
 
-> Sure you can physically address them, if you assign IDs using Intel's official
-> xAPIC numbering scheme (which must be clustered for more than 7 CPUs).  But,
-> you still don't have enough destination address bits to go around.  In flat
-> mode, the kernel assumes you have one bit per CPU and phys IDs will be < 0xF.
->
-> Bill tells me that you may be doing this for an emulator.  Why not emulate
-> clusered APIC mode, like the real hardware uses?
->
-> I know the name x86_summit doesn't really fit.  The summit patch should work
-> for any xAPIC box that uses the system bus for interrupt delivery and has
-> multiple APIC clusters.  Is that what you're working towards?
+While the kernel, depmod et. al. don't care, other tools want the
+directory hierarchy under /lib/modules/`uname -r`/.  Sure, it's bogus
+for them to rely on kernel source layout, but noone has come up with a
+better alternative, so revert.
 
-Hmm although i could then skip the logical destination mode and stick to
-physical destination mode. This would greatly simplify my code paths since
-i could almost use the same code for both normal SMP and this larger sim.
-Debugging would then be somewhat simpler. My target doesn't have multiple
-APIC clusters and all are addressable via a 0xff broadcast.
+NOTE: You *still* can't have two modules of the same name!  (You never
+could).
 
 Thanks,
-	Zwane
--- 
-function.linuxpower.ca
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+Name: Module init reentry fix
+Author: Rusty Russell
+Status: Tested on 2.5.51
+
+D: This changes the code to drop the module_mutex() before calling the
+D: module's init function, so module init functions can call
+D: request_module().  This was trivial before someone broke the module
+D: code to start non-live.  Now it requires us to keep info on the
+D: exact module state.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27854-linux-2.5.51/include/linux/module.h .27854-linux-2.5.51.updated/include/linux/module.h
+--- .27854-linux-2.5.51/include/linux/module.h	2002-12-10 15:56:53.000000000 +1100
++++ .27854-linux-2.5.51.updated/include/linux/module.h	2002-12-12 11:31:28.000000000 +1100
+@@ -116,10 +116,16 @@ struct module_ref
+ 	atomic_t count;
+ } ____cacheline_aligned;
+ 
++enum module_state
++{
++	MODULE_STATE_LIVE,
++	MODULE_STATE_COMING,
++	MODULE_STATE_GOING,
++};
++
+ struct module
+ {
+-	/* Am I live (yet)? */
+-	int live;
++	enum module_state state;
+ 
+ 	/* Member of list of modules */
+ 	struct list_head list;
+@@ -177,6 +183,14 @@ struct module
+ 	char args[0];
+ };
+ 
++/* FIXME: It'd be nice to isolate modules during init, too, so they
++   aren't used before they (may) fail.  But presently too much code
++   (IDE & SCSI) require entry into the module during init.*/
++static inline int module_is_live(struct module *mod)
++{
++	return mod->state != MODULE_STATE_GOING;
++}
++
+ #ifdef CONFIG_MODULE_UNLOAD
+ 
+ void __symbol_put(const char *symbol);
+@@ -195,7 +209,7 @@ static inline int try_module_get(struct 
+ 
+ 	if (module) {
+ 		unsigned int cpu = get_cpu();
+-		if (likely(module->live))
++		if (likely(module_is_live(module)))
+ 			local_inc(&module->ref[cpu].count);
+ 		else
+ 			ret = 0;
+@@ -210,7 +224,7 @@ static inline void module_put(struct mod
+ 		unsigned int cpu = get_cpu();
+ 		local_dec(&module->ref[cpu].count);
+ 		/* Maybe they're waiting for us to drop reference? */
+-		if (unlikely(!module->live))
++		if (unlikely(!module_is_live(module)))
+ 			wake_up_process(module->waiter);
+ 		put_cpu();
+ 	}
+@@ -219,7 +233,7 @@ static inline void module_put(struct mod
+ #else /*!CONFIG_MODULE_UNLOAD*/
+ static inline int try_module_get(struct module *module)
+ {
+-	return !module || module->live;
++	return !module || module_is_live(module);
+ }
+ static inline void module_put(struct module *module)
+ {
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27854-linux-2.5.51/kernel/module.c .27854-linux-2.5.51.updated/kernel/module.c
+--- .27854-linux-2.5.51/kernel/module.c	2002-12-10 15:56:54.000000000 +1100
++++ .27854-linux-2.5.51.updated/kernel/module.c	2002-12-12 11:31:28.000000000 +1100
+@@ -44,6 +44,14 @@
+ static DECLARE_MUTEX(module_mutex);
+ LIST_HEAD(modules); /* FIXME: Accessed w/o lock on oops by some archs */
+ 
++/* We require a truly strong try_module_get() */
++static inline int strong_try_module_get(struct module *mod)
++{
++	if (mod && mod->state == MODULE_STATE_COMING)
++		return 0;
++	return try_module_get(mod);
++}
++
+ /* Convenient structure for holding init and core sizes */
+ struct sizes
+ {
+@@ -378,7 +386,7 @@ sys_delete_module(const char *name_user,
+ 	}
+ 
+ 	/* Already dying? */
+-	if (!mod->live) {
++	if (mod->state == MODULE_STATE_GOING) {
+ 		/* FIXME: if (force), slam module count and wake up
+                    waiter --RR */
+ 		DEBUGP("%s already dying\n", mod->name);
+@@ -386,6 +394,16 @@ sys_delete_module(const char *name_user,
+ 		goto out;
+ 	}
+ 
++	/* Coming up?  Allow force on stuck modules. */
++	if (mod->state == MODULE_STATE_COMING) {
++		forced = try_force(flags);
++		if (!forced) {
++			/* This module can't be removed */
++			ret = -EBUSY;
++			goto out;
++		}
++	}
++
+ 	if (!mod->exit || mod->unsafe) {
+ 		forced = try_force(flags);
+ 		if (!forced) {
+@@ -407,7 +425,7 @@ sys_delete_module(const char *name_user,
+ 			ret = -EWOULDBLOCK;
+ 	} else {
+ 		mod->waiter = current;
+-		mod->live = 0;
++		mod->state = MODULE_STATE_GOING;
+ 	}
+ 	restart_refcounts();
+ 
+@@ -507,7 +525,7 @@ static inline void module_unload_free(st
+ 
+ static inline int use_module(struct module *a, struct module *b)
+ {
+-	return try_module_get(b);
++	return strong_try_module_get(b);
+ }
+ 
+ static inline void module_unload_init(struct module *mod)
+@@ -578,7 +596,7 @@ void *__symbol_get(const char *symbol)
+ 
+ 	spin_lock_irqsave(&modlist_lock, flags);
+ 	value = __find_symbol(symbol, &ksg);
+-	if (value && !try_module_get(ksg->owner))
++	if (value && !strong_try_module_get(ksg->owner))
+ 		value = 0;
+ 	spin_unlock_irqrestore(&modlist_lock, flags);
+ 
+@@ -935,12 +953,8 @@ static struct module *load_module(void *
+ 		goto free_mod;
+ 	}
+ 
+-	/* Initialize the lists, since they will be list_del'd if init fails */
+-	INIT_LIST_HEAD(&mod->extable.list);
+-	INIT_LIST_HEAD(&mod->list);
+-	INIT_LIST_HEAD(&mod->symbols.list);
+ 	mod->symbols.owner = mod;
+-	mod->live = 0;
++	mod->state = MODULE_STATE_COMING;
+ 	module_unload_init(mod);
+ 
+ 	/* How much space will we need?  (Common area in first) */
+@@ -1097,51 +1111,40 @@ sys_init_module(void *umod,
+ 	flush_icache_range((unsigned long)mod->module_core,
+ 			   (unsigned long)mod->module_core + mod->core_size);
+ 
+-	/* Now sew it into exception list (just in case...). */
++	/* Now sew it into the lists.  They won't access us, since
++           strong_try_module_get() will fail. */
+ 	spin_lock_irq(&modlist_lock);
+ 	list_add(&mod->extable.list, &extables);
++	list_add_tail(&mod->symbols.list, &symbols);
+ 	spin_unlock_irq(&modlist_lock);
++	list_add(&mod->list, &modules);
++
++	/* Drop lock so they can recurse */
++	up(&module_mutex);
+ 
+-	/* Note, setting the mod->live to 1 here is safe because we haven't
+-	 * linked the module into the system's kernel symbol table yet,
+-	 * which means that the only way any other kernel code can call
+-	 * into this module right now is if this module hands out entry
+-	 * pointers to the other code.  We assume that no module hands out
+-	 * entry pointers to the rest of the kernel unless it is ready to
+-	 * have them used.
+-	 */
+-	mod->live = 1;
+ 	/* Start the module */
+ 	ret = mod->init ? mod->init() : 0;
+ 	if (ret < 0) {
+ 		/* Init routine failed: abort.  Try to protect us from
+                    buggy refcounters. */
++		mod->state = MODULE_STATE_GOING;
+ 		synchronize_kernel();
+-		if (mod->unsafe) {
++		if (mod->unsafe)
+ 			printk(KERN_ERR "%s: module is now stuck!\n",
+ 			       mod->name);
+-			/* Mark it "live" so that they can force
+-			   deletion later, and we don't keep getting
+-			   woken on every decrement. */
+-		} else {
+-			mod->live = 0;
++		else {
++			down(&module_mutex);
+ 			free_module(mod);
++			up(&module_mutex);
+ 		}
+-		up(&module_mutex);
+ 		return ret;
+ 	}
+ 
+ 	/* Now it's a first class citizen! */
+-	spin_lock_irq(&modlist_lock);
+-	list_add_tail(&mod->symbols.list, &symbols);
+-	spin_unlock_irq(&modlist_lock);
+-	list_add(&mod->list, &modules);
+-
++	mod->state = MODULE_STATE_LIVE;
+ 	module_free(mod, mod->module_init);
+ 	mod->module_init = NULL;
+ 
+-	/* All ok! */
+-	up(&module_mutex);
+ 	return 0;
+ }
+ 

@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbVAST2B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbVASTaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261859AbVAST2B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 14:28:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVAST2B
+	id S261861AbVASTaI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 14:30:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVASTaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 14:28:01 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:58078 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261859AbVAST15 (ORCPT
+	Wed, 19 Jan 2005 14:30:08 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:20959 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261861AbVAST35 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 14:27:57 -0500
-Date: Wed, 19 Jan 2005 20:27:56 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andreas Gruenbacher <agruen@suse.de>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Sam Ravnborg <sam@ravnborg.org>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [kbuild 2/5] Dont use the running kernels config file by default
-In-Reply-To: <1106160130.8642.46.camel@winden.suse.de>
-Message-ID: <Pine.LNX.4.61.0501192022010.30794@scrub.home>
-References: <20050118184123.729034000.suse.de>  <20050118192608.423265000.suse.de>
-  <Pine.LNX.4.61.0501182106340.6118@scrub.home>  <1106157119.8642.25.camel@winden.suse.de>
-  <Pine.LNX.4.61.0501191858060.30794@scrub.home> <1106160130.8642.46.camel@winden.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 19 Jan 2005 14:29:57 -0500
+Date: Wed, 19 Jan 2005 20:29:56 +0100
+From: Andi Kleen <ak@suse.de>
+To: Steve Longerbeam <stevel@mvista.com>
+Cc: Andi Kleen <ak@suse.de>, Hugh Dickins <hugh@veritas.com>,
+       linux-mm <linux-mm@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, andrea@suse.de,
+       akpm@osdl.org
+Subject: Re: BUG in shared_policy_replace() ?
+Message-ID: <20050119192955.GC26170@wotan.suse.de>
+References: <Pine.LNX.4.44.0501191221400.4795-100000@localhost.localdomain> <41EE9991.6090606@mvista.com> <20050119174506.GH7445@wotan.suse.de> <41EEA575.9040007@mvista.com> <20050119183430.GK7445@wotan.suse.de> <41EEAE04.3050505@mvista.com> <20050119190927.GM7445@wotan.suse.de> <41EEB440.8010108@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41EEB440.8010108@mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 19 Jan 2005, Andreas Gruenbacher wrote:
-
-> Okay, more verbose then. On your machine which is running kernel version
-> x you build kernel version y. You grab the version y kernel source tree,
-> let's say a vendor tree, which has meaningful default configurations in
-> arch/$ARCH/defconfig. The runnig kernel's configuration may also work
-> for that kernel source tree, or it may not.
-
-How is that more verbose?
-Please provide an example config that worked under 2.4 but doesn't produce 
-a reasonable result under 2.6.
-
-> > So they should first try the 2.6 kernel provided by the distribution and 
-> > then try compiling their own kernel. In this situation it's actually more 
-> > likely that they produce a working kernel with the current behaviour, the 
-> > defconfig is not a guarantee for a working kernel either.
+On Wed, Jan 19, 2005 at 11:25:52AM -0800, Steve Longerbeam wrote:
 > 
-> You assume that the user is already running the kind of kernel he is
-> trying to produce. Al least to me this assumption seems weird.
+> 
+> Andi Kleen wrote:
+> 
+> >On Wed, Jan 19, 2005 at 10:59:16AM -0800, Steve Longerbeam wrote:
+> > 
+> >
+> >>Andi Kleen wrote:
+> >>
+> >>   
+> >>
+> >>>>yeah, 2.6.10 makes sense to me too. But I'm working in -mm2, and
+> >>>>the new2 = NULL line is missing, hence my initial confusion. Trivial
+> >>>>patch to -mm2 attached. Just want to make sure it has been, or will be,
+> >>>>put back in.
+> >>>> 
+> >>>>
+> >>>>       
+> >>>>
+> >>>That sounds weird. Can you figure out which patch in mm removes it?
+> >>>
+> >>>
+> >>>     
+> >>>
+> >>found it:
+> >>
+> >>http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10/2.6.10-mm1/broken-out/mempolicy-optimization.patch
+> >>   
+> >>
+> >
+> >Are you sure? I don't see it touching the new2 free at the end of the 
+> >function.
+> > 
+> >
+> 
+> it's not touching the new2 free, it's removing the new2 = NULL which is 
+> the problem.
+> 
+> -				new2 = NULL;
 
-Why is that weird?
+Ah, I agree. Yes, it looks like a merging error when merging
+with Hugh's changes. Thanks for catching this.
 
-bye, Roman
+The line should not be removed. Andrew should I submit a new patch or can 
+you just fix it up?
+
+-Andi

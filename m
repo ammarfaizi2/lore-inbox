@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281004AbRLWKxn>; Sun, 23 Dec 2001 05:53:43 -0500
+	id <S286864AbRLWLMW>; Sun, 23 Dec 2001 06:12:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286863AbRLWKxX>; Sun, 23 Dec 2001 05:53:23 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:32720 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S281004AbRLWKxM>;
-	Sun, 23 Dec 2001 05:53:12 -0500
-Date: Sun, 23 Dec 2001 10:53:03 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: How to fix false positives on references to discarded
- text/data?
-Message-ID: <940624132.1009104782@[195.224.237.69]>
-In-Reply-To: <23259.1009099071@ocs3.intra.ocs.com.au>
-In-Reply-To: <23259.1009099071@ocs3.intra.ocs.com.au>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S286865AbRLWLMM>; Sun, 23 Dec 2001 06:12:12 -0500
+Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:50436 "EHLO
+	boris.prodako.se") by vger.kernel.org with ESMTP id <S286864AbRLWLL5>;
+	Sun, 23 Dec 2001 06:11:57 -0500
+Date: Sun, 23 Dec 2001 12:11:38 +0100 (CET)
+From: Tobias Ringstrom <tori@ringstrom.mine.nu>
+X-X-Sender: <tori@boris.prodako.se>
+To: Vasil Kolev <lnxkrnl@mail.ludost.net>
+cc: Keith Owens <kaos@ocs.com.au>, Norbert Veber <nveber@pyre.virge.net>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17] net/network.o(.text.lock+0x1a88): undefined reference
+ to `local symbols...
+In-Reply-To: <Pine.LNX.4.33.0112231226260.1032-100000@doom.bastun.net>
+Message-ID: <Pine.LNX.4.33.0112231206090.4356-100000@boris.prodako.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 23 Dec 2001, Vasil Kolev wrote:
+
+> # ./reference_discarded.pl
+> Finding objects, 538 objects, ignoring 0 module(s)
+> Finding conglomerates, ignoring 48 conglomerate(s)
+> Scanning objects
+> Error: ./drivers/net/dmfe.o .data refers to 00000514 R_386_32
+> .text.exit
+> Done
+
+Does this patch fix the problem?
+
+/Tobias
+
+--- dmfe.c.orig	Fri Nov 23 13:14:17 2001
++++ dmfe.c	Sun Dec 23 12:09:25 2001
+@@ -527,7 +527,7 @@
+ }
+ 
+ 
+-static void __exit dmfe_remove_one (struct pci_dev *pdev)
++static void __devexit dmfe_remove_one (struct pci_dev *pdev)
+ {
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	struct dmfe_board_info *db = dev->priv;
+@@ -2059,7 +2059,7 @@
+ 	name:		"dmfe",
+ 	id_table:	dmfe_pci_tbl,
+ 	probe:		dmfe_init_one,
+-	remove:		dmfe_remove_one,
++	remove:		__devexit_p(dmfe_remove_one),
+ };
+ 
+ MODULE_AUTHOR("Sten Wang, sten_wang@davicom.com.tw");
 
 
---On Sunday, 23 December, 2001 8:17 PM +1100 Keith Owens <kaos@ocs.com.au> 
-wrote:
-
-> (5) Post process the objects before ld sees them, remove the dangling
->     references in safe sections.
->
->     Will probably mess up timestamps on objects, as well as requiring
->     yet another program for kernel build.  Cross compiling would be
->     "interesting".
->
-
-1+5) (seeing as you seem to have already written some perl); would it
-     be possible to run our own perl code to check for whichever dangling
-     references we are concerned about (and not those we aren't), then do
-
-> (1) Drop the ld check for discarded sections.
->
->     I don't want to lose the ld check, it has already found several
->     bits of buggy code.  For example, usb_uhci.c calls the exit routine
->     from the init code on error, but the exit code has been discarded
->     in vmlinux - oops.  New binutils flagged that bug and others.
-
-This would seem to have the advantage of better readability of errors
-too.
-
---
-Alex Bligh

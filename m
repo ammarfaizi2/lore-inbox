@@ -1,83 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbVBKQNw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbVBKQSs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262264AbVBKQNw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 11:13:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVBKQNw
+	id S262267AbVBKQSs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 11:18:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbVBKQSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 11:13:52 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:34951 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262264AbVBKQNX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 11:13:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=jIH1rvuoByHuP7iNnyBBgTjzl8mTQE+76O9js4l1wlC1n8u3y9JnVjhb2+SwsXzIQcacRm7PYlPLuaykfgI4wmt9MeP/9vofuapI9BDJ7YEPYmLW+0Jt1KmmUXyNhcXpjNQnlKqFeaoNk4z6BAHAYliVjECFcan8RcMT2h4/YjA=
-Message-ID: <9e473391050211081338f9d84e@mail.gmail.com>
-Date: Fri, 11 Feb 2005 11:13:23 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Alexandre Oliva <aoliva@redhat.com>
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Cc: Larry McVoy <lm@bitmover.com>, Stelian Pop <stelian@popies.net>,
+	Fri, 11 Feb 2005 11:18:48 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:33951 "EHLO
+	mail.bitmover.com") by vger.kernel.org with ESMTP id S262267AbVBKQSp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 11:18:45 -0500
+Date: Fri, 11 Feb 2005 08:18:44 -0800
+To: Alexandre Oliva <aoliva@redhat.com>, Stelian Pop <stelian@popies.net>,
        Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <or1xbn6rn5.fsf@livre.redhat.lsd.ic.unicamp.br>
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Message-ID: <20050211161844.GA17175@bitmover.com>
+Mail-Followup-To: lm@bitmover.com,
+	Alexandre Oliva <aoliva@redhat.com>,
+	Stelian Pop <stelian@popies.net>,
+	Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
+References: <20050205193848.GH5028@deep-space-9.dsnet> <20050205233841.GA20875@bitmover.com> <20050208154343.GH3537@crusoe.alcove-fr> <20050208155845.GB14505@bitmover.com> <ord5vatdph.fsf@livre.redhat.lsd.ic.unicamp.br> <20050209155113.GA10659@bitmover.com> <or7jlgpxio.fsf@livre.redhat.lsd.ic.unicamp.br> <20050210211700.GA26361@bitmover.com> <or1xbn6rn5.fsf@livre.redhat.lsd.ic.unicamp.br> <20050211154842.GA16507@bitmover.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050204201157.GN27707@bitmover.com>
-	 <20050205193848.GH5028@deep-space-9.dsnet>
-	 <20050205233841.GA20875@bitmover.com>
-	 <20050208154343.GH3537@crusoe.alcove-fr>
-	 <20050208155845.GB14505@bitmover.com>
-	 <ord5vatdph.fsf@livre.redhat.lsd.ic.unicamp.br>
-	 <20050209155113.GA10659@bitmover.com>
-	 <or7jlgpxio.fsf@livre.redhat.lsd.ic.unicamp.br>
-	 <20050210211700.GA26361@bitmover.com>
-	 <or1xbn6rn5.fsf@livre.redhat.lsd.ic.unicamp.br>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050211154842.GA16507@bitmover.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: lm@bitmover.com (Larry McVoy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Feb 2005 07:39:47 -0800 (PST), Alexandre Oliva
-<aoliva@redhat.com> wrote:
-> The bit I don't understand is that you've claimed you'd be willing to
-> implement the code needed to export the additional information that
-> Roman, myself and probably many others would like to have, if someone
-> would pay for that, but you're not willing to grant him access to this
-> information such that he can write the code himself.  How come you
-> wouldn't welcome a BK-export piece of software that you could use
-> yourself to create and maintain the CVS tree, without having to
-> develop and maintain the software, and insist on developing such
-> software yourself, but only if someone else pays for it?
+The mails have started flowing in saying "I don't agree with Alexandre
+and please don't pull the plug" so a point of clarification.  We have
+no intention of shutting down the BK free product.  We are aware that
+there are 10's of thousands of developers in the open source world
+who do not agree with Alexandre's narrow view of things.  You're fine,
+we're not taking BK away.  I only trying to get Alexandre to see that
+his definition of "help" is somewhat narrow-minded.
 
-Think about it from Larry's side for a minute. BK is a proprietary
-piece of software, it is not open source.  That means that anyone who
-works on it needs to be an employee or contractor of Bitmover and have
-signed all of the appropriate non-disclosure and non-compete
-documents.  These documents exist at all proprietary software
-companies, they are not specific to Bitmover. None of you guys are
-willing to sign those documents.
+Cheers,
 
-It's not Larry choosing not to have you do the work, you are self
-selecting not to do it because you won't sign the contracts. Larry
-also has to be reasonably confident that if you do sign you won't
-violate them.
+--lm
 
-The conclusion is that someone else who is willing to sign the
-documents has to do the work. That person needs to be hired and paid.
-It is unreasonable to ask Larry to add features like you want on his
-own dime.
-
-There is a solution on the table:
-1) Written proposal describing in detail the commands you want added to bk
-2) Submit it for a quote.
-3) Raise the money 
-4) Negotiate for exact delivery dates.
-
-Since no one has bothered to put together a real proposal, I can only
-conclude that you are more interested in writing email complaints than
-actually achieving a solution.
+On Fri, Feb 11, 2005 at 07:48:42AM -0800, lm wrote:
+> On Fri, Feb 11, 2005 at 01:30:22PM -0200, Alexandre Oliva wrote:
+> > > Can you offer any plausible explanation other than a good faith desire
+> > > to help the open source community, albeit in a non-traditional way?
+> > 
+> > I don't see what you've done as helping the open source community.  
+> 
+> So in your mind, aiding the open source community is done only through
+> creating more open source.  Directly.  The fact that open source projects
+> which use BK are more productive than if they were not using BK is
+> irrelevant and of no value, correct?  The fact that they are creating
+> more open source more quickly because of their use of BK is irrelevant
+> and of no value, correct?
+> 
+> In that case, get the free BK users to agree with you and we'll pull the
+> plug on free BK.  The point of giving away BK for free is to help you.
+> If you have consensus that it isn't helping then we'll shut it down.
+> 
+> On the other hand, if you can't achieve that consensus then perhaps you
+> might consider broadening your definition of "help" to include something
+> other than "more GPLed source".
+> -- 
+> ---
+> Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

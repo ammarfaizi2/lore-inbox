@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268972AbUINFIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269006AbUINFU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268972AbUINFIg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 01:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268999AbUINFIg
+	id S269006AbUINFU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 01:20:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269031AbUINFU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 01:08:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:25535 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268972AbUINFH1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 01:07:27 -0400
-Date: Mon, 13 Sep 2004 22:05:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: raybry@sgi.com, jbarnes@engr.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [profile] amortize atomic hit count increments
-Message-Id: <20040913220521.03d0e539.akpm@osdl.org>
-In-Reply-To: <20040914044748.GZ9106@holomorphy.com>
-References: <20040913015003.5406abae.akpm@osdl.org>
-	<20040914044748.GZ9106@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 14 Sep 2004 01:20:28 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:51115 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269006AbUINFU0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 01:20:26 -0400
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+From: Lee Revell <rlrevell@joe-job.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Andrea Arcangeli <andrea@novell.com>,
+       Hugh Dickins <hugh@veritas.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <41460283.3020909@tmr.com>
+References: <20040910153421.GD24434@devserv.devel.redhat.com>
+	 <593560000.1094826651@[10.10.2.4]>
+	 <1095016687.1306.667.camel@krustophenia.net>  <41460283.3020909@tmr.com>
+Content-Type: text/plain
+Message-Id: <1095139224.1752.14.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 14 Sep 2004 01:20:25 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> read_proc_profile()
->  does not flush the per-cpu hashtables because flushing may cause
->  timeslice overrun on the systems where prof_buffer cacheline bounces
->  are so problematic as to livelock the timer interrupt.
+On Mon, 2004-09-13 at 16:26, Bill Davidsen wrote:
+> Certainly if you run ppp the serial port won't like being ignored that 
+> long, and if you pull down data on a parallel port that really won't 
+> like it. The soundcard is probably only a problem if you're recording 
+> input, in spite of some posts here about skipping, the world doesn't end 
+> if you get a skip, although 2ms shouldn't cause that anyway.
 
-That's a bit of a problem, isn't it?  As we can accumulate an arbitrarily
-large number of hits within the hash table is it not possible that the
-/proc/profile results could be grossly inaccurate?
+The world also doesn't end if your web server returns a "Server too
+busy" error either.
 
-If you had two front-ends per cpu to the profiling buffer then the CPU
-which is running the /proc/profile read could tell all the other CPUs to
-flip to their alternate buffer and can then perform accumulation at its
-leisure.
+Sorry, wrong answer.
 
-How does oprofile get around this?  I guess in most modes the CPUs are not
-synchronised.
+Lee
 
-One wonders how long we should keep flogging the /prof/profile profiling
-code.  What systems are seeing this livelock?

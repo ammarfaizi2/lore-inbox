@@ -1,229 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268025AbUIJWhj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267992AbUIJWm7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268025AbUIJWhj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 18:37:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267619AbUIJWfz
+	id S267992AbUIJWm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 18:42:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267994AbUIJWhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 18:35:55 -0400
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:19914 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S267979AbUIJW1k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 18:27:40 -0400
-From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [patch][6/6] ide: unify PIO code
-Date: Sat, 11 Sep 2004 00:26:45 +0200
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
+	Fri, 10 Sep 2004 18:37:50 -0400
+Received: from gprs40-132.eurotel.cz ([160.218.40.132]:43597 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S268008AbUIJW33 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 18:29:29 -0400
+Date: Sat, 11 Sep 2004 00:29:15 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: swsusp: kill crash when too much memory is free
+Message-ID: <20040910222915.GC1347@elf.ucw.cz>
+References: <20040909154219.GB11742@atrey.karlin.mff.cuni.cz> <200409100001.28781.rjw@sisk.pl> <20040910094039.GC11281@atrey.karlin.mff.cuni.cz> <200409101926.30902.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409110026.45055.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200409101926.30902.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-[patch] ide: unify PIO code
+> > Can you try my "bigdiff"? Also, does it work okay in 32-bit mode?
+> 
+> Well, the good news is that it sort of works.  Still, there are some bad news, 
+> as usual. ;-)
 
-Use PIO code from ide-taskfile.c in ide-disk.c so:
-- drive status is checked after PIO read
-- request is failed if invalid data phase
-  is detected during PIO write
+So it sort-of-works, 32-bit and 64-bit mode? Good.
 
-Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
----
+> First, to make the box wake up, I have to unload ohci_hcd and everything that 
+> sits on IRQ11 before suspending (on my system that is sk98lin, yenta_socked, 
+> and ohci1394).  If you want me to show what happens if I don't unload these 
+> modules, I'll be able to grab some traces in a couple of hours. ;-)  Also, I 
+> have to compile out the frequency scaling, because otherwise it hangs solid 
+> at some time after wake-up.
+> 
+> Second, after it's woken up, it seems to be very, _very_ slow, and the reason 
+> is indicated by this:
 
- linux-2.6.9-rc1-bk16-bzolnier/drivers/ide/ide-disk.c     |   86 ---------------
- linux-2.6.9-rc1-bk16-bzolnier/drivers/ide/ide-taskfile.c |   15 --
- linux-2.6.9-rc1-bk16-bzolnier/include/linux/ide.h        |    5 
- 3 files changed, 7 insertions(+), 99 deletions(-)
+Hmm, I do not know what nForce3 is (it should use better name at the
+minimum), but that driver probably needs some work.
 
-diff -puN drivers/ide/ide-disk.c~ide_pio_unify drivers/ide/ide-disk.c
---- linux-2.6.9-rc1-bk16/drivers/ide/ide-disk.c~ide_pio_unify	2004-09-10 23:50:51.944780112 +0200
-+++ linux-2.6.9-rc1-bk16-bzolnier/drivers/ide/ide-disk.c	2004-09-10 23:50:51.955778440 +0200
-@@ -123,72 +123,6 @@ static int lba_capacity_is_ok (struct hd
- #ifndef CONFIG_IDE_TASKFILE_IO
- 
- /*
-- * read_intr() is the handler for disk read/multread interrupts
-- */
--static ide_startstop_t read_intr (ide_drive_t *drive)
--{
--	ide_hwif_t *hwif	= HWIF(drive);
--	struct request *rq = hwif->hwgroup->rq;
--	u8 stat;
--
--	/* new way for dealing with premature shared PCI interrupts */
--	if (!OK_STAT(stat=hwif->INB(IDE_STATUS_REG),DATA_READY,BAD_R_STAT)) {
--		if (stat & (ERR_STAT|DRQ_STAT)) {
--			return task_error(drive, rq, __FUNCTION__, stat);
--		}
--		/* no data yet, so wait for another interrupt */
--		ide_set_handler(drive, &read_intr, WAIT_CMD, NULL);
--		return ide_started;
--	}
--
--	if (drive->mult_count)
--		ide_pio_multi(drive, 0);
--	else
--		ide_pio_sector(drive, 0);
--	rq->errors = 0;
--	if (!hwif->nleft) {
--		ide_end_request(drive, 1, hwif->nsect);
--		return ide_stopped;
--	}
--	ide_set_handler(drive, &read_intr, WAIT_CMD, NULL);
--	return ide_started;
--}
--
--/*
-- * write_intr() is the handler for disk write/multwrite interrupts
-- */
--static ide_startstop_t write_intr (ide_drive_t *drive)
--{
--	ide_hwgroup_t *hwgroup	= HWGROUP(drive);
--	ide_hwif_t *hwif	= HWIF(drive);
--	struct request *rq	= hwgroup->rq;
--	u8 stat;
--
--	if (!OK_STAT(stat = hwif->INB(IDE_STATUS_REG),
--			DRIVE_READY, drive->bad_wstat)) {
--		printk("%s: write_intr error1: nr_sectors=%u, stat=0x%02x\n",
--			drive->name, hwif->nleft, stat);
--        } else {
--		if ((hwif->nleft == 0) ^ ((stat & DRQ_STAT) != 0)) {
--			rq->errors = 0;
--			if (!hwif->nleft) {
--				ide_end_request(drive, 1, hwif->nsect);
--				return ide_stopped;
--			}
--			if (drive->mult_count)
--				ide_pio_multi(drive, 1);
--			else
--				ide_pio_sector(drive, 1);
--			ide_set_handler(drive, &write_intr, WAIT_CMD, NULL);
--			return ide_started;
--		}
--		/* the original code did this here (?) */
--		return ide_stopped;
--	}
--	return task_error(drive, rq, __FUNCTION__, stat);
--}
--
--/*
-  * __ide_do_rw_disk() issues READ and WRITE commands to a disk,
-  * using LBA if supported, or CHS otherwise, to address sectors.
-  * It also takes care of issuing special DRIVE_CMDs.
-@@ -299,11 +233,9 @@ ide_startstop_t __ide_do_rw_disk (ide_dr
- 			command = lba48 ? WIN_READ_EXT : WIN_READ;
- 		}
- 
--		ide_execute_command(drive, command, &read_intr, WAIT_CMD, NULL);
-+		ide_execute_command(drive, command, &task_in_intr, WAIT_CMD, NULL);
- 		return ide_started;
- 	} else {
--		ide_startstop_t startstop;
--
- 		if (drive->mult_count) {
- 			hwif->data_phase = TASKFILE_MULTI_OUT;
- 			command = lba48 ? WIN_MULTWRITE_EXT : WIN_MULTWRITE;
-@@ -314,21 +246,7 @@ ide_startstop_t __ide_do_rw_disk (ide_dr
- 
- 		hwif->OUTB(command, IDE_COMMAND_REG);
- 
--		if (ide_wait_stat(&startstop, drive, DATA_READY,
--				drive->bad_wstat, WAIT_DRQ)) {
--			printk(KERN_ERR "%s: no DRQ after issuing %s\n",
--				drive->name,
--				drive->mult_count ? "MULTWRITE" : "WRITE");
--			return startstop;
--		}
--		if (!drive->unmask)
--			local_irq_disable();
--		ide_set_handler(drive, &write_intr, WAIT_CMD, NULL);
--		if (drive->mult_count) {
--			ide_pio_multi(drive, 1);
--		} else {
--			ide_pio_sector(drive, 1);
--		}
-+		pre_task_out_intr(drive, rq);
- 		return ide_started;
- 	}
- }
-diff -puN drivers/ide/ide-taskfile.c~ide_pio_unify drivers/ide/ide-taskfile.c
---- linux-2.6.9-rc1-bk16/drivers/ide/ide-taskfile.c~ide_pio_unify	2004-09-10 23:50:51.947779656 +0200
-+++ linux-2.6.9-rc1-bk16-bzolnier/drivers/ide/ide-taskfile.c	2004-09-11 00:22:29.168358288 +0200
-@@ -301,7 +301,7 @@ static u8 wait_drive_not_busy(ide_drive_
- 	return stat;
- }
- 
--void ide_pio_sector(ide_drive_t *drive, unsigned int write)
-+static void ide_pio_sector(ide_drive_t *drive, unsigned int write)
- {
- 	ide_hwif_t *hwif = drive->hwif;
- 	struct scatterlist *sg = hwif->sg_table;
-@@ -338,9 +338,7 @@ void ide_pio_sector(ide_drive_t *drive, 
- #endif
- }
- 
--EXPORT_SYMBOL_GPL(ide_pio_sector);
--
--void ide_pio_multi(ide_drive_t *drive, unsigned int write)
-+static void ide_pio_multi(ide_drive_t *drive, unsigned int write)
- {
- 	unsigned int nsect;
- 
-@@ -349,8 +347,6 @@ void ide_pio_multi(ide_drive_t *drive, u
- 		ide_pio_sector(drive, write);
- }
- 
--EXPORT_SYMBOL_GPL(ide_pio_multi);
--
- static inline void ide_pio_datablock(ide_drive_t *drive, struct request *rq,
- 				     unsigned int write)
- {
-@@ -368,8 +364,8 @@ static inline void ide_pio_datablock(ide
- 	}
- }
- 
--ide_startstop_t task_error(ide_drive_t *drive, struct request *rq,
--			   const char *s, u8 stat)
-+static ide_startstop_t task_error(ide_drive_t *drive, struct request *rq,
-+				  const char *s, u8 stat)
- {
- 	if (rq->bio) {
- 		ide_hwif_t *hwif = drive->hwif;
-@@ -399,8 +395,6 @@ ide_startstop_t task_error(ide_drive_t *
- 	return drive->driver->error(drive, s, stat);
- }
- 
--EXPORT_SYMBOL_GPL(task_error);
--
- static void task_end_request(ide_drive_t *drive, struct request *rq, u8 stat)
- {
- 	if (rq->flags & REQ_DRIVE_TASKFILE) {
-@@ -424,6 +418,7 @@ ide_startstop_t task_in_intr (ide_drive_
- 	struct request *rq = HWGROUP(drive)->rq;
- 	u8 stat = hwif->INB(IDE_STATUS_REG);
- 
-+	/* new way for dealing with premature shared PCI interrupts */
- 	if (!OK_STAT(stat, DATA_READY, BAD_R_STAT)) {
- 		if (stat & (ERR_STAT | DRQ_STAT))
- 			return task_error(drive, rq, __FUNCTION__, stat);
-diff -puN include/linux/ide.h~ide_pio_unify include/linux/ide.h
---- linux-2.6.9-rc1-bk16/include/linux/ide.h~ide_pio_unify	2004-09-10 23:52:22.957944008 +0200
-+++ linux-2.6.9-rc1-bk16-bzolnier/include/linux/ide.h	2004-09-10 23:52:49.058976048 +0200
-@@ -1361,11 +1361,6 @@ extern void atapi_output_bytes(ide_drive
- extern void taskfile_input_data(ide_drive_t *, void *, u32);
- extern void taskfile_output_data(ide_drive_t *, void *, u32);
- 
--extern void ide_pio_sector(ide_drive_t *, unsigned int);
--extern void ide_pio_multi(ide_drive_t *, unsigned int);
--
--extern ide_startstop_t task_error(ide_drive_t *, struct request *, const char *, u8);
--
- extern int drive_is_ready(ide_drive_t *);
- extern int wait_for_ready(ide_drive_t *, int /* timeout */);
- 
-_
+
+>   5:    6656316          XT-PIC  NVidia nForce3
+....
+>   5:    6680145          XT-PIC  NVidia nForce3
+
+								Pavel
+
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

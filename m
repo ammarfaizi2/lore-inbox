@@ -1,63 +1,189 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264878AbUE0Q36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264875AbUE0QgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264878AbUE0Q36 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 12:29:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264879AbUE0Q36
+	id S264875AbUE0QgM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 12:36:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264879AbUE0QgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 12:29:58 -0400
-Received: from mxsf09.cluster1.charter.net ([209.225.28.209]:39697 "EHLO
-	mxsf09.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S264878AbUE0Q34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 12:29:56 -0400
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: [RFD] Explicitly documenting patch submission
-Date: Thu, 27 May 2004 12:13:05 -0400
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
-Message-Id: <pan.2004.05.27.16.13.04.82253@yahoo.com>
-References: <20040527062002.GA20872@work.bitmover.com> <20040527010409.66e76397.akpm@osdl.org> <20040527145127.GB3375@work.bitmover.com>
-To: linux-kernel@vger.kernel.org, lm@bitmover.com
+	Thu, 27 May 2004 12:36:12 -0400
+Received: from lug.demon.co.uk ([80.177.165.112]:48434 "EHLO lug.demon.co.uk")
+	by vger.kernel.org with ESMTP id S264875AbUE0QgA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 12:36:00 -0400
+From: David Johnson <dj@david-web.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Can't make XFS work with 2.6.6
+Date: Thu, 27 May 2004 17:36:08 +0100
+User-Agent: KMail/1.6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_4jhtACK8s0nx1zr"
+Message-Id: <200405271736.08288.dj@david-web.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 May 2004 07:51:27 -0700, Larry McVoy wrote:
-> I suspect that with a little practice this could be quite useful.  
-> I could build tools which record the secondary patches as diffs to
-> the patches (I think) and if you have ever read a diff of a diff 
-> it is suprisingly useful.  I tend to save diffs of my work in 
-> progress and then later I'll generate diffs again and diff them to 
-> get my context back.
 
-This is a classic case of wanting an audit trail just like you have in
-accounting packages. For audit trails you have to have the entire trail,
-not just pieces of it. 
+--Boundary-00=_4jhtACK8s0nx1zr
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I like the idea of nested packages signed by each person who touched it.
-The gives a perfect audit trail back to who authored each line. I'm sure
-bk could be modified to produce these automatically.
+Hello,
 
-I don't believe the size of this would get out of control. Only the master
-Linux repository has to keep all of it. bk clone could get a new option
-that says, i don't care about the downstream audit trail. Disks are cheap,
-I doubt if the entire Linux audit trail would fill up more than a couple
-of them.
+I'm having a problem getting my system to boot with 2.6.6 and a XFS root 
+filesystem. On boot it can't mount the root fs:
 
-Audit trails are something that are rarely looked at but of vital
-importance. Linux needs complete and accurate audit trails. I agree that
-audit trails can clutter up patches, but the patches have to have these
-trails. The way to address this is via tools that convert the new patches
-into the old formats for people to read. Plus the bitkeeper interface
-would also hide all of the detail unless asked. Of course other source
-control systems will also need a set of helper tools too.
+XFS: Bad magic number
+XFS: SB validate failed
+Kernel Panic: VFS: Unable to mount root fs on unknown-block(0,0)
 
-Another problem is that you need a central key repository. Since it's
-pretty stupid to for each developer to send $2,000 to verisign for a key
-maybe bitmover would consider running the key repository. This is a
-painful job, if they want to do it, I'd let them.
+XFS is compiled in so it's not a module problem. Google says this error is 
+usually caused by passing the wrong root parameter to the kernel, but I'm 
+definitely giving the right root device.
 
+I can boot just fine with 2.4.25 using exactly the same boot options in Grub.
+I attach my .config. I'd be very greatful for any help with this. I've tried 
+recompiling with XFS as a module and checked my version of xfsprogs meets the 
+requirements.
 
-Jon Smirl, jonsmirl@yahoo.com
+Thanks in advance,
+David.
 
+-- 
+David Johnson
+http://www.david-web.co.uk/
 
+--Boundary-00=_4jhtACK8s0nx1zr
+Content-Type: application/x-gzip;
+  name="config.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="config.gz"
+
+H4sICGIXtkAAA2NvbmZpZwCMXEtz27iy3s+vYNUsblI1c2JJtiyfqiwgEJRwRBAwQb1mw1JsxtGN
+LflI8kz872+DDwkkG/RdTMbE13g3+oWGfv/td4+8nfYvm9P2YfP8/O49ZbvssDllj97L5mfmPex3
+37dP//Ye97v/OXnZ4/b02++/URkFfJKuRsOv79WHEPPLx5z7PQubsIjFnKZck9QXBABo5HeP7h8z
+6OX0dtie3r3n7O/s2du/nrb73fHSCVspqCtYlJDw0iINGYlSKoXiIbsU64REPgllZJWNYzljUSqj
+VAtVdT3JZ/nsHbPT2+ulM70kymptrRdc0UuBkpqvUnE/Z3O7A+2nKpaUaZ0SSpNaAzQxo4a5FiVk
+7vPE2x693f5kOq8oQwntzINUT3mQfO1dV+VTmahwPrGb4LPiD7uVM8jEmPk+85EuZiQM9Vroy/CC
+ecJWl0+mZGgtMZeaTpmfRlKqdinR7TKfET/k9tpXCA3u7SlQmkqVcMH/Ymkg41TDH/aI8y0K95vH
+zbdn4JD94xv87/j2+ro/WOwnpD8PmTWOoiCdR6Ekvt1fCUBXtIKRBZJjLUOWMEOuSCwaLSxYrLmM
+NLa0AFecpQ77h+x43B+80/tr5m12j973zPB4dqydnDRnrHMHpoSFJEJ31YALuSYTFjvxaC7IvRPV
+cyHqjFeDx3wCh8PdN9dL7UTL001iOnXSMH17dXWFwmIwGuLAtQu46QASTZ2YECscG7oaVCB3+Fxw
+/gHcjYtO9BpHZ0OE08TstsaWsxFemcZzLRmOLXlEpyDXHFMu4X4nOvAd/a5jvnIux4ITOkjxli1O
+QuZtUCrUik4nl/NuClfE9+slYS+lBKROKUuHFRYvNROpaQGqpCScyJgnU1GvvFTpUsYzncpZHeDR
+IlSNvsd1dZEfaqmI36o8kRJ6VJw220xYmM41i6lU6zoGpakCrZLCTOgMjm8bHviRXF6Kp4olKQhV
+FjfKmJiHBMRanNQkTuPAVyouZkyopNGbQkYPhVy2i0NJSYhNViKFcFibQlBQnG0TCfs5JijGRzOc
+4TgFvSx9vMW8N+2WqFSBGdNSS8H28PLP5pB5/mH7d3Y4FpZMqUF9TK9EcsonU8FqCqUsusbVeIkO
+63A1K5JMy00FfWSpvyS2t54sGGhkajZkZvccs4nRbq2Jqf0/2QHMsd3mKXvJdqfKFPM+Ear4Hx5R
+4vNFg6nabLQMkiWJ4czNNUg1XDgokfpcz1odm+ahk8e/N7sHMDtpbnG+gQ0Kvef6sxgZ352yw/fN
+Q/bZ02dT4GJYmUbaa2WK07GUSaWeYRZWX0XL4jznz94YTBar/aoZmO6L1RlMhU8iCRM2pxebtUXp
+y5RFZJzbqbUmgMFS7ofMVY9rFZJ1OgazYNasC4cZzOl0InClbkjA3pNLI2Rw1Z23wuCsgvECskYu
+YSIyCFrbA6P0gkP237ds9/DuHcFL2O6e7KU30whidt+qOX47XphIUeAhRQXl5A+PgSfwhyco/AN/
+2WxFuT1T+AThme8JylE5LESHQVyQ+DxmFLO7C5hElvQ1RabHeknRQr2s6rg5YiOcF0AtcdliSEI2
+IXSduw2OUUVE5LbtRchpggkDSmoGASVl22jXmv7q182w4ujn2/KFbg6PZs+O7eNVUCAVuTfdn16f
+356wQ1l6L2Y+rarsV/bwdsoN/O9b88/+AK6gZSOPeRQI0F5hYLlaRRmR8wTOY71QcFAmL0Xjfvb3
+9sEW0Renb/tQFnvy7GqeBxwsU+McOMxsn41hMn7MF3WCvAWRvewP716SPfzY7Z/3T+/lIID1ReJ/
+tnuB7/ZKbsAdfQYH2Kxh29cBia1kbE26LDBeBFIGtlLYawMgqzh40ViFgAeyxscXSM+NBy5xXi7J
+ZDKtr0kD7/VH12cPyXBLLtefN+/WVAuZ8bx/+Ok9FktnMUM4g+VfpIFvy2FonTuUu6lA1X3q4xZD
+BVMOTnsHjenTJ/RuiPsuFckclDUy+woOjQv90q5G47VKpEE7KkdjH60LOpyFHfViYtmMVmHubX8d
+9e76TZBHPIlrjnM4bnMqScgX+E/xLyIQX+IwbHMrbIp1PKvW88KSA7LNETz6DI7o/uHNaN5c23/Z
+Pmb/Ov06GWHg/cieX79sd9/3HpgBZpsfzbGtHdeq6amfNvig3bcxPex1LItSsKMSnutA3LQsyXRi
+wkjdXVB0owCA1XJzaUkThFKpdXcHmmremEOaEBgdlzQJXePPSQIesrR+iPOVNOv28GP7CgXVPn75
+9vb0ffvLPn6mldI5Q3lR+MPrq+6xF5r90p7RcXpqbEYe14JDVR2wRcaSxLgtWREhHmO7IZXwYb/X
+SRP/1WvEJxAOEqRpnzTQPMCEmYGX2imZJzVBW0IyCtdN67jRCSlCp63OCaPD/gqPbJxpQt67WQ26
+aYR/e/1ROwnnKzxQVGOG7laSmAch66ah61GfDu+6h0z1zU2/WzQbkkE3yVQlgw9GbEiGeMCkItG0
+13eEuCoSBYvXSRDp0e1176a7EZ/2r2C/Uxl2n40zYcSW3SNfLGe4gX2m4FyQSbcM0xxWute9Xzqk
+d1fsg4VMYtG/6zqLC06AN1arFapkGqekPF98MXafy+aZvOiVlrw0Irg0T9p6L5fP7/ZXbuGnga5s
+n7x6Wa8IEH963B5//uGdNq/ZHx71/4yl7WafF86/zJVO46IssWVxVSq1xl3Cc1OYnXZuc1LpaL1/
+yezZgh2b/evpXzBE73/ffmbf9r8+nyfy8vZ82r6CER/Oo2N9OUr9CkBjYWKWG4YA1LycHIO/zU2O
+w3HNSUI5mfBogu9PctjsjvnIyOl02H57O9XthrwFrUAYJ0nc0UlA2xSXXp73//xZXFo9tkNB1WoP
+likw6goML46f1rwjQl2KroAJbdavwZze1k5DWWBEsU7BeDcj4RSMviZBzDRLADVhBqG/9m5ACVoR
+gpJqPOehDx5CLEyMBw8mlKSFi1SEO7CwRo1MgF3yFekvZnkcMkmMg8wjnJ3tmTtF4ZnozqHXCgJ/
+QSK97mAEAS519w5qMInd6HiugWEddkrB8uo+oF0M74vVoHfX6xgC6xyCQUEB4W5cwe3zZA7mmC8F
+4fg9VEHmp4J2DHTiJ/g9UI7ysRC0Y5hcdTQNDgrpOXRsIW1VV9OOe5gcjCicktuutvVa3AzoCLgN
+v8A4N3N/6zBJClaiJIV27jr48T7nlZRr3NCyaYIOlipJwPXGlGlJQvpGcjQFsCnvdR0ZQ+CyOc8E
+g67lzAn6HUsJBMNB7yOCrhY0F7e9jiH4dHB386sbv+qQPpFWg47ucyHXjhMZXfln3YLwPuXCxcRE
+woWox4qQG4i3o4mMC5W0DZFLJGtuLqvb7h5jzOsN7q69T8H2kC3hv89YdUOXk7Ua6MuOXg3arBFl
+p3/2h5/b3VPbYIrYOTBvkbVyQBShM1YLfpnvVAj7+g3aCnmUa90L5Tzill4EknTG1pcCXgyg+lKF
+tUKJrpfmCgI8uzSW88S+X6tqqNB42eNaNgJgOXkaLAWJZwgQkQQpLRokyRTBEol1sGDxWOra9QJg
+KsKiSmYJuOKqvihcTWKGFJnkGeK31kPk/daKFBdapIseVtivXV7ECjVk1iadR854bQnNQMi0vl8p
+06pRwpXJBKosV67+7S22h9Pb5tnT2cGEemt3SjWGVekCy+jgajG0OoEvY4osCF3XRzdsDW/YHt/w
+MkC7wWQeRSysrXrAw4K/zgM8F7bFSWVpxtyfsFrt8zLAofq+fT4hK3CZfxQYeztKYjhU9ggNECSq
+WcRj2ixKEDIiTCZWs7TInGq2qMqj0ygXJKHTNOSC1xwdG+QqJtEEszRtKkFaQy4ANQMbU7UGVNWK
+W+tRIvkJrYXjbdgcUhSIGWWRoxKjEQ74mrYWt0DItMFq9qqxaJJMHeNLQgdAldCOsU9ZCI4EjoGv
+ljgW0clZBSyXUd4ourlqutYgzJ2bW7J7kxlJPAGRELP/mPu6BmgkbrsIzg7zmV8TXZeWwEsBto2J
+35riuavycrA1j5IAjiZoKjw8a9NpItysbMaZ51Y0h2kAHQmVjonmLUY3KHJkTTFyak0xdppNOX6i
+oXASulYGOQklgrB7iWD8ft6JeOZcZBoSrXmARdBrdGAUO5qfuyH8ZIAqwyUXADhzAuBYMaMfSK7J
+puB9tVo8w8GS+KK9CDFZtk019ffw/6UChqhoHrpk87AtnDGsIXUtJHZVkSpx9RTEZOKApqFrBJic
+trsrpQ8++rr0tyCjvKfM3BI7CMi0IZftFWsJZgtkcz68bmFtVhq6+XmIH8ph5zEaulhofNg+PmVd
+THQJeJVmSJCyccEzyElcBbGdyAZfeQLNOeZIE9XI//lk539/bphuOT0ajkrQ69h8iJdlWYQkSkdX
+/d69vRw+yCaGe31hSHF/jyvcFSYwaDw1bdXHo/whUWMUMHaubzIP8KEx+L9j1EuYZeG4OBsOiLnf
+BBInxXSZBqFcQgkQhi1Gud9r475+2R+875vtwfvvW/aWNfKETDN5OrjLRfRO2fGEVAIzbcLwiBTA
+JmvdOWwDpuWgQ8cCTIkA7e6IjPHYlR2ApRNBl0WotRbT9udC4Pk4Yxn5jSj2ZUfv5yTkfzkGDc4D
+XsskYiR1a6O4to/pLjtZmRWWR9Zk+CJB5/QjO5gqn3pXHuxr7+pKfNuePte896K/mhcteO2OekqU
+WgtG8D3SczDfsbNq2l6wyJdxOgDlZy8nC/FLJhYKLJlqAQqA1UJcYPNPpXQyVNWvrjeXL0ry9rx9
+BRZ/2T6/e7uSbd3xENNaMg+5S0r1XBFHcz+O891UuSKgEeunrthqfhawLCxrk6HZaoMvQwSPxRG2
+9sM+LtpY8yr9Mgo9GowcwVE4hYRO8cTxNTOpjIEjKh2PesM7nLtmd6PQUSvhExkNPlgQZEX4aoIL
+aN1H0iuS/c9s58UmqoWcvKSdRmYics/Z8eiZtyCfdvvdnz82L4fN43b/uclYLaFVNLDZedsqVbbW
+29LxuiTwfXzZp1wpHFEullbKEbN2Vci1D85gMW1w7KU1ECpubQZ/mYc8bXtY+xEc0m/H9+Mpe6nt
+qUFaWwf78Ppjv3vHMhtBgERID7vXt5PzdphHan4Od86P2eHZBHxre2VTpkKCbWSime94eao0ma+c
+qKYxY1G6+tq76l9306y/3g5H1nLkRP+R64b33SBIXN55jrJFEYhtVGILLCheLBz/IrGr1Am4xcaK
+x6KGch75ZwLrhtkkLDY+Uz66uu43C+HfsuqFu3KAJqM+dV4f5CQKDOmx40KuIKBc6b5jtq0c1do6
+zdg6z366jLcqAbUBvdoDPiOgTV0DOtOEsw9JVsmHJBFbJnUN2mYw+2Fe/pxF1wLBRWGRkop2VhAs
+9Gq1Io53HxWj6oRTXBmVrCrndFoweweVySBubRb9sTlsHozr00pKXVgct0jSUu5YTzCWVlmNNUiY
+RkWOg9+4+C/8oOyw3dhpBfWqo/7NFdKiKa46xM6KRRXF6ZzE4Gxf462wVQI2EGapg0IyFFCSDxHP
+Vi6bojK2VsNcxdyNUpWsrQh/lQfvKIQm5lHytX8ztESvSQlwSH+lXCLLXKngde45veqnzRTNMoIi
+eN3lFBwMlcgPkQTw5eb08ONx/+SZNPqG4gXn3pdY8B5YJIb2pLCuARYmc/f82Xi15ScOhzIe3A3x
+l4RggIccbGhcUMlordp2YVDkI4Ex5H1/3r++vucJSpVqKxizdt3YXL+q70kt8Rk+TSoiPkyDJR2Y
+wGVSidUnb2H5K7vmIIqnd8LxYtVQRAvuc1zsGFhzx6sag+VPCB3DWXDSHAwLAnAZHQ6JHztejy7J
+AnfXY7JEHilYhnY0yR8VFo8FkRteitgu/VriL3ymdAqiq37azvXJ89P+sD39eDnWmshfXY4b1zll
+saLtp0emqSmcpvy9neNlSlGf924GeEDljA9xr/GMO7Jjc1z4tzd40mIJj3o9PMHY4GB4dIEOGyMH
+tUPxARbl2caOeBTg5dOLj/A05JNpBxXnK1ys5GgsNVm4MkMNRQHjLRSvkcDHxB2qvLpJKr1z7yzg
+Q0d2bwnfDfHQnIEXjgNeYjA7NyylL2Xbfzyzq852x/3hCPbD9tXFt5qBssZPaQFpk/QN9jvOPmca
+PXZmRZUkvu65UuArksDE5roHMwlveiPtUCQlDU9Gt50EobjF99MiwF+1XwhG3bMFAvwwWwQfjeGu
+uwtgj+Fo6Mg2K2mWo8HtyJWxd6EJb0c3rsy/C9WwfzttS0hpwhW5nHTxWdUEY8DO3VsHInh0c+s4
+qzbNnVucFZmdxvL7gMTI/A9IxnN8Vax+prwd6RTb4wMWbeFjAUel/fA5z8h6yR63G6wWmAFMppii
+87dP2xPYwIvtY7b3xof95vFhkwewq6d/djt+PQG9eJB42Lz+2D4c2/o2GNtGXzBOlcAlPUB0PWZx
+3xVzAwIudIJ5zwAtJqQ3tNWxKWPoS9NiITQLi3ewdo3pBKsAgEmZadA69R1ggiSxxMW1aYzAACJn
+ru+ZwoWSZN3r45KlQF2Qy9YDKGJSEFdiL+CztUOHADbwA+dcC/WCHzOAE/PuMcK1tqnN42RO2rc0
+dA866Rns9+3x1by9LOz4NvcBV2Ceq/BJh3+Z33K0neAAvBk4q0HA4jZoHkQhHQWykftvlaejXyOr
+9aIk/7Gp34pfDXralz9ahVxShnLSjpjq/dvu0XJeTUzp/HMB1S8FhNvd26+C1COHhx/bU/ZgftTH
+qhdZwRr4aP4WhylSVNQLwFYX4GfUvHko1ux+ziKKPqk1uNTa/ABEvS3BV+YJv9atPtuF4FVWw6t1
+XKYSFk427mgaMjy1tXpf3QqU5KNT8+urXh52aHbqvh/LKyaK4D59sVJ5qGHeG97cODT2ufPWgE18
+GR0soXe3qfnhENocK7gKN9c3DkvK4O4Hcjk8H7nkXwW7ksdL2GHt5vBfyWDgkHAGH4Np5kjZBpTq
+66Ero7uA+yP3vIEde1czNz6T8aTXd6VzF9xLHN6KgSPRd3hgOTsL5srELtC7zrp3wxt37anvysM3
+Z7xDEBt8LQLnJUbOTfrapbjzRRe8qzrYZL3Brbt6gXdsmu7dDdz8YuChGxaEmawBh6UNBIFwOb4G
+5ZT1bjsYIsf7DmvU4CaEM1q5Z18ROIxeIzxkxOmCj9FclVwcmpeGjfcRpnjV77fD+rCZxPu/xq6l
+qXEcCP+VqblvQUjChsMe5FcsYsdeywaGS8oLKZZaBlMhHObfb7dkO5Ld7cmFwt2t1ltqSd1fKuVR
+ViSmApbG/xvvQNnH/r3dW9Toccq8ceToAzNKiLmNdm8g2gXGbJlQBDCU929v9fu++frUukae9ybx
+HfRFpIZKPbEN7iUX7aNT/tiKVPowt7cZEUWHOcbN5xHtkuOheXsDW4RAVUJNYQyWQuzTlh8KZISA
+xa5adv/8Blm3DzD+W/35Sb07kf3ltkBShWWWlehTS29gKIUbPMsUPj08kUfcdFtcVWaF0O5MTqKW
+zLqLOzKiFJHwrDt6ixkVYWg8LwimVAGcOGhe4Fg5NifOYXe73NNMFQTF5Q3PWy5p3m2V5io+ITzp
+UfX1s34/IUadoFhi6UKxoKKYQPnSSoDuNUDND82xeWrIOE9UwL2W6c7HRyy+92VehrSZhex7wV3b
+m2xLQd+c6cGDgE5woOIzT/WrGMt+yAVfLTBzdkWYZiW9Jsmf9Qvj86BzDvwVs+uZCeMX2VS7xDn8
+1TG4VObT53m9LgkPBYeJ9UF+YSz9LjILZfb7ZzgBICYJqX4IYYNCnUdb/Vx/HJvxkPFFSZ8ZdceK
++3BiVc3DtVDM1QjyizJZzRhjWK+FyqP8vbDYusrMKK+UGgQ29sna90pYxiHh0TlRumvT6LH31GnO
+XsQUIUzlNW0wtNwr2sxDbinX9DOzWebDQt0L5mZBN6rMlhNDNgnXWYkzjpeY2LySkOf5P9DDjl8F
+ylDRfbmun1/2R8p5BZOtRbAmBkGEUFzGQcbBYC6vDIiBS9g9YHj8mGxwkoXvQB93TBX6VSFLylEf
+RObDfOZ0PvOpfOa/yefW9Z+AT3a7BEWpp/FET9kXoYSRHOGVub379mT9ukZ2WC+iYSHkNsqo0o00
+39p1JRWjBFcF5GGIjkQvCRv+2W3AlvpgcrdROYHCnMyQ9XeVMXHnD0wvOALT9QLLEbgRvdgVWaoL
+SzL5YiHaxyidw1uY9jdzRkNyXAR3gZ4co7khVXZzfX1pUnQtniXSdol9BCF7WJtvJ0kVRFamQaYu
+IlFewMmSzDTC8B0rdaoghUO560X6em/LUa3NLcjn/uu50Sh8o4xO8CU2YeN6dqgfyh0xcGLgOwaY
+ean6WU10Qpnmrr64grUq8RiFLXeXCzISsBDpCX/F3WbcKp8GSMCXXkQ8L55k5UnFsr2QT+rxrIlU
+vq42ybp7mChnPjGjtg8Lnotg+RyvogdeZyTpTUcNh952MEPw+27uxMYihb4gQJaJypPUEgvswNEc
+jFUHE7oDjAgj9CLWrqVYf4Iae+fCN3e7WqraFrnjXAGfsGru1krtNoW3JLJRqTeY20jZJrgHRKJK
+6MXal0z3bP2cHUZZIDiePpym4eNjxk8WesGpD8dXHd1T/vpwrfNcFKVEWOM+5p6ovlntetEeQaA+
+gtX4LanfX77ql/0YxRcayIILOLXWX99fP5vVannzx+y71SoggFfAuKzsFnP6UdsR+vMsIeb12xFa
+Meb7QIi2hQdCZ2V3RsFXDAbmQIi+8BsInVNwxl9nIMRMUVfonCZgQMkGQnScgSN0Mz9D0805HXzD
+3Gm7QoszyrRiXvVRCGwRHPs7+qLXUTO7OqfYIDUjZq2d18yxSywGX+FOgh8VncTvq8qPh06C78JO
+gp8xnQTfL30z/L4yM8qt0RFYDttyk8nVjomO6NgVy67KyBkJZsU+NGAruRAupzW7yCKZUGBsGwyl
+efv2b/30nwnr601AdN7YYOCYdfIIRZG0iF8b15pEaTjB+JvsDk5PSUbDGVpycMTlnNJaqURQeID6
+LR9NGReStE2Tyy3u6BNqcfwj7DoTMaVlhqc+JhcoYhjSD0/6SR0OTrwf9GKjm4EMwV1d7yKJjx9p
+vjM06/CHP4mQw86qvfdbX/Qn8/tMzRgumzrcGf7h18exeTHuLeNXBYN7fMrWfO9iDBkfErdVYsV3
+t8Q0WBC05YimYjGjiFfLa4q8nF2NyIEd/N7SPB2NpuIRo7zPSDpGmTjQHy1dEMoRbWdcE6Q6jjqd
+hsKnVoi+8FFisDmG6VLpxwJdoCU9VrtsC39+NSlB3j8lr/8c6sOvb4fm6/j6vne6HhTa5UmkN86k
+OycDE+dL4uCLaOqpZtbQRdj+XRG2v/dgMVQZINZhVhV+6AD7w///Awna3wUDbQAA
+
+--Boundary-00=_4jhtACK8s0nx1zr--

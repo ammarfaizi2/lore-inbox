@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268643AbTCCToD>; Mon, 3 Mar 2003 14:44:03 -0500
+	id <S268745AbTCCTsF>; Mon, 3 Mar 2003 14:48:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268660AbTCCToD>; Mon, 3 Mar 2003 14:44:03 -0500
-Received: from ip252-142.choiceonecom.com ([216.47.252.142]:28176 "EHLO
-	explorer.reliacomp.net") by vger.kernel.org with ESMTP
-	id <S268643AbTCCToC>; Mon, 3 Mar 2003 14:44:02 -0500
-Message-ID: <3E63B227.8030101@cendatsys.com>
-Date: Mon, 03 Mar 2003 13:51:03 -0600
-From: Edward King <edk@cendatsys.com>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0rc1) Gecko/20020417
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Soeren Sonnenburg <kernel@nn7.de>
-CC: Mikael Pettersson <mikpe@user.it.uu.se>, szepe@pinerecords.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21pre4-ac5 status report
-References: <200303011252.h21CqBpl013357@harpo.it.uu.se> <1046523858.26074.7.camel@sun>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268746AbTCCTsE>; Mon, 3 Mar 2003 14:48:04 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33806 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268745AbTCCTsB>; Mon, 3 Mar 2003 14:48:01 -0500
+Date: Mon, 3 Mar 2003 19:58:25 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Matt Porter <porter@cox.net>
+Cc: linux-kernel@vger.kernel.org, Dave Miller <davem@redhat.com>
+Subject: Re: *dma_sync_single API change to support non-coherent cpus
+Message-ID: <20030303195825.C17997@flint.arm.linux.org.uk>
+Mail-Followup-To: Matt Porter <porter@cox.net>,
+	linux-kernel@vger.kernel.org, Dave Miller <davem@redhat.com>
+References: <20030303111848.A31278@home.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030303111848.A31278@home.com>; from porter@cox.net on Mon, Mar 03, 2003 at 11:18:48AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 03, 2003 at 11:18:48AM -0700, Matt Porter wrote:
+> On non cache coherent processors, it is necessary to perform
+> cache operations on the virtual address associated with the
+> buffer to ensure consistency.  There is one problem, however,
+> the current API does not provide the virtual address for the
+> buffer.  It only provides the bus address in the dma_addr_t.
+> On arm and mips, this is dealt with by simply doing bus_to_virt().
+> However, bus_to_virt() isn't valid for all addresses that could
+> have been passed into *map_single().
 
-Soeren Sonnenburg wrote:
+I find myself thinking, in passing, why we don't have these
+architectures define something like the following in architecture
+specific code:
 
->On Sat, 2003-03-01 at 13:52, Mikael Pettersson wrote:
->  
->
->>On 01 Mar 2003 11:47:39 +0100, Soeren Sonnenburg wrote:
->>    
->>
->>>As I guessed. I've got two pdc20268 with just one drive per channel
->>>(where the last drive is a cdrom-drive)
->>>
->>>So one pdc no problem >1 -> trouble.
->>>      
->>>
->>Maybe that's changed in 2.4.21-pre-ac new IDE code, I don't know.
->>
->>Your cards don't share interrupts with anything else I hope?
->>    
->>
-I tried  two pdc20268's which failed miserably
+	struct dma_addr {
+		unsigned long cpu;
+		unsigned long bus;
+		unsigned long size;
+	};
 
-Used an Asus motherboard and an FIC motherboard, different cables, 
-different cards, different powersupply.Hard drives are 200GB western 
-digitals, one drive per channel.  
+	#define dma_bus_addr(x)	((x).bus)
+	#define dma_cpu_addr(x)	((x).cpu)
 
-Tried an SIIG card with the SiI680 chipset -- same problem using is and 
-the pdc20268, but is more stable than a single pdc -- so now I have 4 
-drives on that card.
+and have:
 
-My kernel is 2.4.21-pre4-ac6 -- let me know if the pre5's solve the problem.
+	dma_map_single(dev, &dma_addr, addr, size);
 
-Ed King
+	dma_sync_single(dev, &dma_addr);
+
+Architectures which only need the CPU address can place only that in
+their structure definition, and make dma_map_single and friends no-ops.
+I feel that this would get rid of all the shouting DMA_* macros found
+in various pci.h header files.
+
+This may be something considering for 2.7 though.
+
+DaveM, as the author of the original PCI DMA API, any comments on this
+(probably ill-thoughtout) idea?
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

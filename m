@@ -1,40 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbQL1Gch>; Thu, 28 Dec 2000 01:32:37 -0500
+	id <S129391AbQL1I3m>; Thu, 28 Dec 2000 03:29:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129348AbQL1Gc2>; Thu, 28 Dec 2000 01:32:28 -0500
-Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:20999
-	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S129314AbQL1GcM>; Thu, 28 Dec 2000 01:32:12 -0500
-Date: Thu, 28 Dec 2000 19:01:43 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Ari Heitner <aheitner@andrew.cmu.edu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: innd mmap bug in 2.4.0-test12
-Message-ID: <20001228190143.A14673@metastasis.f00f.org>
-In-Reply-To: <20001228160005.B14479@metastasis.f00f.org> <Pine.SOL.3.96L.1001228000150.3482A-100000@unix13.andrew.cmu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.SOL.3.96L.1001228000150.3482A-100000@unix13.andrew.cmu.edu>; from aheitner@andrew.cmu.edu on Thu, Dec 28, 2000 at 12:06:47AM -0500
-X-No-Archive: Yes
+	id <S129525AbQL1I3c>; Thu, 28 Dec 2000 03:29:32 -0500
+Received: from smtp2.free.fr ([212.27.32.6]:47121 "EHLO smtp2.free.fr")
+	by vger.kernel.org with ESMTP id <S129391AbQL1I3T>;
+	Thu, 28 Dec 2000 03:29:19 -0500
+To: alan@lxorguk.ukuu.org.uk
+Subject: [patch] megaraid in 2.2.18 : correctly identify NetRaid cards
+Message-ID: <977990332.3a4af2bc18914@imp.free.fr>
+Date: Thu, 28 Dec 2000 08:58:52 +0100 (MET)
+From: Willy Tarreau <wtarreau@free.fr>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 195.6.58.78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 28, 2000 at 12:06:47AM -0500, Ari Heitner wrote:
+Hello Alan,
 
-    does anyone other than me think that the pm code is *way* too
-    agressive about spinning down the hard drive? my 256mb laptop
-    (2.2.16) will only spin down the disk for about 30 seconds before
-    it decides it's got something else it feels like writing out, and
-    spins back up. Spinnup has got to be more wasteful than just
-    leaving the drive spinning...
+As previously discussed, I've slighlty arranged the version identification
+code in the 2.2.18 megaraid driver so that it correcly sees bios and firmware
+versions on a netraid. Without the patch, I only get smileys and hieroglyphs
+because the version is interpreted as a string which it is not, on the netraid.
 
-use hdparm to increase the spin-down time then
+On the netraid I have here, the fourth byte in the version is always 0x20, which
+I used to identify the version coding because on a megaraid, I have a number
+here instead. I'd like people who also have a netraid to test if this is enough
+to catch their bios and firmware releases too.
 
+Here comes the small patch. Please note that I extended the version length to
+8 bytes to conform to the syntax the bios uses : letter.2digits.2digits
+The old undefined code under #ifdef HP has been removed since it was buggy
+anyway (char >> 8 always gives 0 ...)
 
-  --cw
+Regards,
+Willy
+
+--- linux/drivers/scsi/megaraid.h-orig	Wed Dec 27 16:08:26 2000
++++ linux/drivers/scsi/megaraid.h	Wed Dec 27 16:08:00 2000
+@@ -639,8 +639,8 @@
+     u32 nWriteBlocks[FC_MAX_LOGICAL_DRIVES];
+     u32 nInterrupts;
+     /* Host adapter parameters */
+-    u8 fwVer[7];
+-    u8 biosVer[7];
++    u8 fwVer[8];
++    u8 biosVer[8];
+ 
+     struct Scsi_Host *host;
+ 
+--- linux/drivers/scsi/megaraid.c-orig	Wed Dec 27 13:22:27 2000
++++ linux/drivers/scsi/megaraid.c	Wed Dec 27 16:02:27 2000
+@@ -1767,27 +1767,25 @@
+   if (megaCfg->host->can_queue >= MAX_COMMANDS) {
+     megaCfg->host->can_queue = MAX_COMMANDS-1;
+   }
++  if ((megaCfg->productInfo.FwVer[3] == 0x20) &&
++      (megaCfg->productInfo.BiosVer[3] == 0x20)) {
++	/* use HP firmware and bios version encoding */
++	  sprintf (megaCfg->fwVer, "%c.%02x.%02x",
++		   megaCfg->productInfo.FwVer[2],
++		   megaCfg->productInfo.FwVer[1],
++		   megaCfg->productInfo.FwVer[0]);
++	  sprintf (megaCfg->biosVer, "%c.%02x.%02x",
++		   megaCfg->productInfo.BiosVer[2],
++		   megaCfg->productInfo.BiosVer[1],
++		   megaCfg->productInfo.BiosVer[0]);
++  }
++  else {
++	  memcpy (megaCfg->fwVer, (char *)megaCfg->productInfo.FwVer, 4);
++	  megaCfg->fwVer[4] = 0;
+ 
+-#ifdef HP			/* use HP firmware and bios version encoding */
+-  sprintf (megaCfg->fwVer, "%c%d%d.%d%d",
+-	   megaCfg->productInfo.FwVer[2],
+-	   megaCfg->productInfo.FwVer[1] >> 8,
+-	   megaCfg->productInfo.FwVer[1] & 0x0f,
+-	   megaCfg->productInfo.FwVer[2] >> 8,
+-	   megaCfg->productInfo.FwVer[2] & 0x0f);
+-  sprintf (megaCfg->biosVer, "%c%d%d.%d%d",
+-	   megaCfg->productInfo.BiosVer[2],
+-	   megaCfg->productInfo.BiosVer[1] >> 8,
+-	   megaCfg->productInfo.BiosVer[1] & 0x0f,
+-	   megaCfg->productInfo.BiosVer[2] >> 8,
+-	   megaCfg->productInfo.BiosVer[2] & 0x0f);
+-#else
+-  memcpy (megaCfg->fwVer, (char *)megaCfg->productInfo.FwVer, 4);
+-  megaCfg->fwVer[4] = 0;
+-
+-  memcpy (megaCfg->biosVer, (char *)megaCfg->productInfo.BiosVer, 4);
+-  megaCfg->biosVer[4] = 0;
+-#endif
++	  memcpy (megaCfg->biosVer, (char *)megaCfg->productInfo.BiosVer, 4);
++	  megaCfg->biosVer[4] = 0;
++  }
+ 
+   printk ("megaraid: [%s:%s] detected %d logical drives" CRLFSTR,
+           megaCfg->fwVer,
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

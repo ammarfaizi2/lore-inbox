@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287835AbSAFMTu>; Sun, 6 Jan 2002 07:19:50 -0500
+	id <S287838AbSAFMUk>; Sun, 6 Jan 2002 07:20:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287838AbSAFMTk>; Sun, 6 Jan 2002 07:19:40 -0500
-Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:35753 "EHLO
-	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S287835AbSAFMTY>;
-	Sun, 6 Jan 2002 07:19:24 -0500
-Date: Sun, 6 Jan 2002 16:02:25 -0500
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: ajoshi@shell.unixbox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] A very little patch to make rivafb to be compiled
-Message-Id: <20020106160225.5c080f76.johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S287840AbSAFMUe>; Sun, 6 Jan 2002 07:20:34 -0500
+Received: from ns1.baby-dragons.com ([199.33.245.254]:45224 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S287838AbSAFMUV>; Sun, 6 Jan 2002 07:20:21 -0500
+Date: Sun, 6 Jan 2002 07:19:46 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Dave Jones <davej@suse.de>
+cc: "H. Peter Anvin" <hpa@zytor.com>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <Pine.LNX.4.33.0201060218080.29977-100000@Appserv.suse.de>
+Message-ID: <Pine.LNX.4.43.0201060717560.20756-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Ani Joshi and other hackers.
 
-Here is patch against 2.5.2-pre9 wich make rivafb to be compiled:
+	Hello Dave , All ,
 
---- /usr/src/linux-2.5.2-pre/drivers/video/riva/fbdev.c~        Wed Nov 14
-17:52:20 2001
-+++ /usr/src/linux-2.5.2-pre/drivers/video/riva/fbdev.c Sun Jan  6
-15:45:04 2002
-@@ -1811,7 +1811,7 @@
-        info = &rinfo->info;
- 
-        strcpy(info->modename, rinfo->drvr_name);
--       info->node = -1;
-+       info->node = to_kdev_t(-1);
-        info->flags = FBINFO_FLAG_DEFAULT;
-        info->fbops = &riva_fb_ops;
+On Sun, 6 Jan 2002, Dave Jones wrote:
 
-Now it works good.
+> On Sat, 5 Jan 2002, H. Peter Anvin wrote:
+>
+> > ... and if you want to see something that's worse than either, check out
+> > /proc/ide/hda/identify.
+> AFAIAC, the /proc/ide/ stuff should never have happened.
+> It's proven that every bit of it can be done in userspace.
+	Then lets get rid of /proc/scsi , How about /proc/sys ...
+	What is the differance here ?  Maybe I am missing something ?
+		Hoping for enlightenment .  JimL
 
-Thanks all for your work.
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
 
----
-WBR. //s0mbre

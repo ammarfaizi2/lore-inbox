@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265766AbTGSIGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 04:06:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270515AbTGSIGJ
+	id S270515AbTGSIIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 04:08:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270527AbTGSIIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 04:06:09 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:61192 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265766AbTGSIGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 04:06:07 -0400
-Date: Sat, 19 Jul 2003 09:21:03 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-pre7
-Message-ID: <20030719092103.A19754@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.55L.0307181649290.29493@freak.distro.conectiva> <1058569601.544.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
+	Sat, 19 Jul 2003 04:08:09 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45939 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S270515AbTGSIIF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 04:08:05 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Mike Fedyk <mfedyk@matchmail.com>,
+       "Trever L. Adams" <tadams-lists@myrealbox.com>, rms@gnu.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper
+References: <E19dbGS-00026T-9R@fencepost.gnu.org>
+	<1058558982.2479.28.camel@aurora.localdomain>
+	<20030718221730.GF2289@matchmail.com>
+	<1058567990.19512.103.camel@dhcp22.swansea.linux.org.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Jul 2003 02:20:31 -0600
+In-Reply-To: <1058567990.19512.103.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <m1lluvx700.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1058569601.544.1.camel@teapot.felipe-alfaro.com>; from felipe_alfaro@linuxmail.org on Sat, Jul 19, 2003 at 01:06:41AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 19, 2003 at 01:06:41AM +0200, Felipe Alfaro Solana wrote:
-> > Here goes -pre7.
-> 
-> Will ACL/xattr support get its way onto mainstream 2.4 soon?
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-xattr support is in 2.4 mainline although only JFS currently support
-it.
+> On Gwe, 2003-07-18 at 23:17, Mike Fedyk wrote:
+> > On Fri, Jul 18, 2003 at 04:09:42PM -0400, Trever L. Adams wrote:
+> > > McVoy, thank you for helping Linus, Cox, Miller et al scale better.  As
+> > 
+> > One nit.
+> > 
+> > I don't think Alan is using BK.  I could be wrong though.
+> 
+> I'm not - and with the snapshots neither I or anyone else is forced to.
+
+For the linux kernel.  The problem is the satellite projects which
+adopt bitkeeper less carefully.  Unless there is a general gateway I
+have missed.
+
+Eric

@@ -1,75 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271829AbRICVX2>; Mon, 3 Sep 2001 17:23:28 -0400
+	id <S271830AbRICVdu>; Mon, 3 Sep 2001 17:33:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271830AbRICVXT>; Mon, 3 Sep 2001 17:23:19 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:43199 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S271829AbRICVXH>; Mon, 3 Sep 2001 17:23:07 -0400
-Date: Mon, 3 Sep 2001 17:23:23 -0400
-From: Stephen Tweedie <sct@redhat.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: mb/ext3@dcs.qmul.ac.uk, linux-kernel@vger.kernel.org,
-        ext3-users@redhat.com
-Subject: Re: ext3 oops under moderate load
-Message-ID: <20010903172323.A20255@devserv.devel.redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0108301740420.7921-100000@inconnu.isu.edu> <Pine.LNX.4.33.0108310759460.13139-100000@nick.dcs.qmul.ac.uk> <3B904AC4.6A449086@zip.com.au>
+	id <S271831AbRICVdl>; Mon, 3 Sep 2001 17:33:41 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:23571 "EHLO
+	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S271830AbRICVdb>; Mon, 3 Sep 2001 17:33:31 -0400
+Date: Mon, 3 Sep 2001 23:35:26 +0200
+From: Steffen Moser <lists@steffen-moser.de>
+To: "Udo A. Steinberg" <reality@delusion.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Parallel Port doesn't detect EPP
+Message-ID: <20010903233526.P2725@steffen-moser.de>
+Mail-Followup-To: "Udo A. Steinberg" <reality@delusion.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3B93DE17.92CF408E@delusion.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B904AC4.6A449086@zip.com.au>; from akpm@zip.com.au on Fri, Aug 31, 2001 at 07:41:08PM -0700
+In-Reply-To: <3B93DE17.92CF408E@delusion.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Fri, Aug 31, 2001 at 07:41:08PM -0700, Andrew Morton wrote:
+* On Mon, Sep 03, 2001 at 09:46 PM (+0200), Udo A. Steinberg wrote:
 
-> > kernel BUG at revoke.c:307!
+> I have just two questions regarding parallel port support with my
+> Via686a chipset:
 > 
-> Yours is the third report of this - it's definitely a bug in
-> ext3.  I still need to work out how you managed to get a page
-> attached to the inode which has not had its buffers fed through
-> journal_dirty_data().  There seem to be several ways in which
-> this can happen.
+> #1) EPP is no longer listed as supported transfer mode, but it used
+>     to be.
 
-I've just been able to reproduce it, using large symlinks.
+What's your BIOS setting for your parallel port? 
 
-The killer seems to be a situation when you have a revoked
-buffer-cache buffer and we then start allocating, and deallocating,
-the same buffer from the page cache.  Large symlinks work from the
-page cache and satisfy this condition nicely.
+I've got quite the same "problem" when setting it to "ECP+PPP". When 
+configuring "EPP" mode it runs well (and my Iomega ZIP drive ("ppa") 
+is able to use 32 bit mode) - I don't need "ECP" mode here.
 
-Running a few parallel tasks writing to the end of large sparse files
-and truncating them (to create and delete lots of indirect blocks,
-populating the buffer cache with revoked data), then adding large
-symlink create/delete activity in the same directory, I was able to
-reproduce the oops in a few minutes.
+My motherboard ist an "Epox 8kta+". 
 
-I suspect that the same sort of effect is causing the revoke oops
-Peter Braam saw with discretionally journaled files.
-
-How to fix?  Well, the issue is that whenever we create any journaled
-data, we need to cancel all previous indications of the revoke, even
-if the old revoke was in the buffer cache but the new block is in the
-page cache.  That implies we effectively need the same as
-unmap_underlying_metadata, but for our own specific piece of metadata.
-Indeed, unmap_underlying_metadata already does the required lookup of
-the old cached buffer_head.  If we can pass in the page and the
-looked-up alias to an address_space a_ops, then:
-
-1) we can piggy-back the revoke cleanup on top of the existing
-get_hash_table which unmap_underlying_metadata performs; and
-
-2) we can detect whether the calling inode is journaled, so we know
-whether or not to clear out the revoke status on the underlying
-buffer_head (after all, if we're only allocating the new page as
-unjournaled data, the old revoke status should stay intact.)
-
-It's now 10pm and the baby is crying, so I guess that testing the fix
-can wait until tomorrow. :)
-
-Cheers,
- Stephen
-
+Regards,
+Steffen

@@ -1,76 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135548AbREBOtA>; Wed, 2 May 2001 10:49:00 -0400
+	id <S135550AbREBOzA>; Wed, 2 May 2001 10:55:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135549AbREBOsv>; Wed, 2 May 2001 10:48:51 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:13575 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S135548AbREBOsj>; Wed, 2 May 2001 10:48:39 -0400
-Date: Wed, 2 May 2001 10:49:52 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: <proski@fonzie.nine.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.4-ac3 +IPX -SYSCTL compile fix
-Message-ID: <Pine.LNX.4.33.0105021040120.921-100000@fonzie.nine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135574AbREBOyu>; Wed, 2 May 2001 10:54:50 -0400
+Received: from norma.kjist.ac.kr ([203.237.41.18]:12673 "EHLO
+	norma.kjist.ac.kr") by vger.kernel.org with ESMTP
+	id <S135550AbREBOym>; Wed, 2 May 2001 10:54:42 -0400
+Date: Wed, 2 May 2001 10:24:18 +0900
+From: Maintaniner on duty <hugh@norma.kjist.ac.kr>
+Message-Id: <200105020124.f421OIG01555@norma.kjist.ac.kr>
+To: andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Both 2.4.4aa2 and 2.4.4aa3 fail to compile
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-File net/ipx/sysctl_net_ipx.c provides dummy functions for
-ipx_register_sysctl and ipx_unregister_sysctl if CONFIG_SYSCTL is not
-defined. The problem is, sysctl_net_ipx.c is not even compiled in this
-case.
+With gcc-2.95.2 provided by SuSE-7.0 for Alpha on UP2000 SMP with 2GB memory
 
-I'm moving the dummy functions to af_ipx.c where they are used. Not sure
-about conformance with the coding standards, but I think that "static
-inline" is preferred over defines. Feel free to correct me.
 
-The patch is also here:
-http://www.red-bean.com/~proski/linux/ipxsysctl.diff
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mno-fp-regs -ffixed-8 -mcpu=ev6 -Wa,-mev6    -c -o extable.o extable.c
+extable.c: In function `search_exception_table_without_gp':
+extable.c:54: `modlist_lock' undeclared (first use in this function)
+extable.c:54: (Each undeclared identifier is reported only once
+extable.c:54: for each function it appears in.)
+make[2]: *** [extable.o] Error 1
+make[2]: Leaving directory `/usr/src/linux/arch/alpha/mm'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/linux/arch/alpha/mm'
+make: *** [_dir_arch/alpha/mm] Error 2
 
-The patch has been tested. IPX works fine without SYSCTL.
 
 Regards,
-Pavel Roskin
 
-----------------------------------------------
---- linux.orig/net/ipx/af_ipx.c
-+++ linux/net/ipx/af_ipx.c
-@@ -116,8 +116,18 @@
- #include <linux/init.h>
- #include <linux/if_arp.h>
+G. Hugh Song
 
-+#ifdef CONFIG_SYSCTL
- extern void ipx_register_sysctl(void);
- extern void ipx_unregister_sysctl(void);
-+#else
-+static inline void ipx_register_sysctl(void)
-+{
-+}
-+
-+static inline void ipx_unregister_sysctl(void)
-+{
-+}
-+#endif
-
- /* Configuration Variables */
- static unsigned char ipxcfg_max_hops = 16;
---- linux.orig/net/ipx/sysctl_net_ipx.c
-+++ linux/net/ipx/sysctl_net_ipx.c
-@@ -44,11 +44,5 @@ void ipx_unregister_sysctl(void)
- }
-
- #else
--void ipx_register_sysctl(void)
--{
--}
--
--void ipx_unregister_sysctl(void)
--{
--}
-+#error This file shouldn't be compiled without CONFIG_SYSCTL defined
- #endif
-
+ghsong at kjist dot ac dot kr

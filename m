@@ -1,39 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292328AbSBYWPQ>; Mon, 25 Feb 2002 17:15:16 -0500
+	id <S292355AbSBYWPQ>; Mon, 25 Feb 2002 17:15:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292333AbSBYWPF>; Mon, 25 Feb 2002 17:15:05 -0500
-Received: from mx1.afara.com ([63.113.218.20]:9189 "EHLO afara-gw.afara.com")
-	by vger.kernel.org with ESMTP id <S292328AbSBYWO7>;
-	Mon, 25 Feb 2002 17:14:59 -0500
-Subject: Re: Linux 2.4.18
-From: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020225.140851.31656207.davem@redhat.com>
-In-Reply-To: <20020225200618.0FAE82069E@eos.telenet-ops.be>
-	<Pine.LNX.4.21.0202251631170.31542-100000@freak.distro.conectiva> 
-	<20020225.140851.31656207.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2.99 Preview Release
-Date: 25 Feb 2002 14:14:30 -0800
-Message-Id: <1014675271.12310.36.camel@tduffy-lnx.afara.com>
+	id <S292328AbSBYWPG>; Mon, 25 Feb 2002 17:15:06 -0500
+Received: from [208.151.48.2] ([208.151.48.2]:44750 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S292323AbSBYWOv>; Mon, 25 Feb 2002 17:14:51 -0500
+Subject: Re: If you were to write a book about operating systems...
+From: "Samuel M. Stringham" <sams@e-sa.com>
+To: Eric Krout <ekrout@bucknell.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1014670118.2232.23.camel@ekrout.resnet.bucknell.edu>
+In-Reply-To: <1014670118.2232.23.camel@ekrout.resnet.bucknell.edu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-vWNIS9B9aX1GEHujtxIT"
+X-Mailer: Evolution/1.0.2 (1.0.2-1) 
+Date: 25 Feb 2002 17:12:46 -0500
+Message-Id: <1014675167.3127.30.camel@linux-admin.esa-hq.e-sa.com>
 Mime-Version: 1.0
-X-OriginalArrivalTime: 25 Feb 2002 22:14:52.0962 (UTC) FILETIME=[D93CE020:01C1BE49]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-02-25 at 14:08, David S. Miller wrote:
-> 
-> We can avoid this kind of mess in the future if the "-rc*" releases
-> really are "release candidates" instead of "just another diff".
-> Ie. they are done as patches _and_ tarballs, then the final can just
-> be done with a "cp" command.
 
-the problem with that is the top level Makefile still needs to be
-changed.  the last thing I want is to be running a 2.4.18-rc3 kernel and
-have uname tell me it is 2.4.18.
+--=-vWNIS9B9aX1GEHujtxIT
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--tduffy
+On Mon, 2002-02-25 at 15:48, Eric Krout wrote:
+> would you use Java as your means of illustrating particular concepts?
+>=20
+> The reason I ask is that I find fault with the course I'm currently
+> taking because the text that our curriculum is based on does just this.=20
+> Now, granted, we have written some C code during labs, but that doesn't
+> cut it for me.
+>=20
 
+Well, the book you are talking about is the dinosaur book is it not?=20
+The reason they use this is for more cross platform opportunities and to
+stress that operating system procedures are not a bunch of MicroSoft API
+calls (as was the main downfall of the old way the class was taught with
+the first edition of the dinosaur book).  Though the book is light on
+implimentation it is rather useful for ideas and concepts.  This book
+and their authors actually came highly recommended from this list
+earlier.
+
+Hope this helps
+
+Samuel Stringham
+
+
+--=-vWNIS9B9aX1GEHujtxIT
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8erbeAHsuhBrdlT0RAiRDAJ9yjC63ljSb4pWEf5c2sSMsk9FALwCgk3w0
+GQg5DcAOBU78tkphCd53MJo=
+=HOeh
+-----END PGP SIGNATURE-----
+
+--=-vWNIS9B9aX1GEHujtxIT--

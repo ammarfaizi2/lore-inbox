@@ -1,57 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267482AbTBXVRk>; Mon, 24 Feb 2003 16:17:40 -0500
+	id <S267595AbTBXVbV>; Mon, 24 Feb 2003 16:31:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267484AbTBXVRk>; Mon, 24 Feb 2003 16:17:40 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:24546 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S267482AbTBXVRj>;
-	Mon, 24 Feb 2003 16:17:39 -0500
-Date: Mon, 24 Feb 2003 16:27:47 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
+	id <S267583AbTBXVbV>; Mon, 24 Feb 2003 16:31:21 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:36998 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S267595AbTBXVbT>;
+	Mon, 24 Feb 2003 16:31:19 -0500
+Date: Mon, 24 Feb 2003 22:42:20 +0100
+From: Andrea Arcangeli <andrea@suse.de>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+Cc: davidm@hpl.hp.com, David Lang <david.lang@digitalinsight.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
-Message-ID: <20030224212747.GA21675@gtf.org>
-References: <Pine.LNX.3.95.1030224143236.14614A-100000@chaos> <Pine.LNX.4.44.0302241259320.13406-100000@penguin.transmeta.com>
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030224214220.GX29467@dualathlon.random>
+References: <15961.33856.876529.568807@napali.hpl.hp.com> <Pine.LNX.4.44.0302231840220.1690-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302241259320.13406-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.44.0302231840220.1690-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 24, 2003 at 01:02:39PM -0800, Linus Torvalds wrote:
-> Does gcc still warn about things like
+On Sun, Feb 23, 2003 at 06:54:41PM -0800, Linus Torvalds wrote:
 > 
-> 	#define COUNT (sizeof(array)/sizeof(element))
+> On Sun, 23 Feb 2003, David Mosberger wrote:
+> >   >> 2 GHz Xeon:	701 SPECint
+> >   >> 1 GHz Itanium 2:	810 SPECint
+> > 
+> >   >> That is, Itanium 2 is 15% faster.
+> > 
+> > Unfortunately, HP doesn't sell 1.5MB/1GHz Itanium 2 workstations, but
+> > we can do some educated guessing:
+> > 
+> >   1GHz Itanium 2, 3MB cache:		810 SPECint
+> >   900MHz Itanium 2, 1.5MB cache:	674 SPECint
+> > 
+> > Assuming pure frequency scaling, a 1GHz/1.5MB Itanium 2 would get
+> > around 750 SPECint.  In reality, it would get slightly less, but most
+> > likely substantially more than 701.
 > 
-> 	int i;
-> 	for (i = 0; i < COUNT; i++)
-> 		...
+> And as Dean pointed out:
 > 
-> where COUNT is obviously unsigned (because sizeof is size_t and thus 
-> unsigned)?
+>   2Ghz Xeon MP with 2MB L3 cache:	842 SPECint
 > 
-> Gcc used to complain about things like that, which is a FUCKING DISASTER. 
+> In other words, the P4 eats the Itanium for breakfast even if you limit it 
+> to 2GHz due to some "process" rule.
 > 
-> Any compiler that complains about the above should be shot in the head, 
-> and the warning should be killed.
+> And if you don't make up any silly rules, but simply look at "what's 
+> available today", you get
+> 
+>   2.8Ghz Xeon MP with 2MB L3 cache: 	907 SPECint
+> 
+> or even better (much cheaper CPUs):
+> 
+>   3.06 GHz P4 with 512kB L2 cache:	1074 SPECint
+>   AMD Athlon XP 2800+:			 933 SPECint
+> 
+> These are systems that you can buy today. With _less_ cache, and clearly
+> much higher performance (the difference between the best-performing
+> published ia-64 and the best P4 on specint, the P4 is 32% faster. Even 
+> with the "you can only run the P4 at 2GHz because that is all it ever ran 
+> at in 0.18" thing the ia-64 falls behind.
 
-Maybe...  I suppose it's an implementation issue, because the lack of
-signedness issues is probably only noticeable after data value analysis.
+I agree, especially the cache difference makes any comparison not
+interesting to my eyes (it's similar to running dbench with different
+pagecache sizes and comparing the results). But I've a side note on
+these matters in favour of the 64bit platforms. I could be wrong, but
+AFIK some of the specint testcases generates a double data memory
+footprint if compiled 64bit, so I guess some of the testcases should be
+really called speclong and not specint. (however I don't think those
+testcases alone can explain a global 32% difference, but still there
+would be some difference in favour of the 32bit platform)
 
-Playing devil's advocate here, I actually don't mind it warning for a
-scenarion like this, because quite often it indicates an area where, if
-s/int/unsigned int/ is performed, the compiler could potentially do a
-better job of optimizing.
+So in short, I currently believe specint is not a good benchmark to
+compare a 64bit cpu to a 32bit cpu, 64bit can only lose in specint if
+the cpu is exactly the same but only the data 'longs' are changed to
+64bit.  To do a real fair comparison one should first change the source
+replacing every "long" with either a "long long" or an "int", only then
+it will be fair to compare specint results between 32bit and 64bit cpus.
 
-I agree your above specific example shouldn't trigger a warning
-[implementation excuses aside].
+I never used specint myself, so don't ask me more details on this, and
+again I could be wrong, but really - if I'm right - somebody should go
+over the source and make a kind of unofficial (but official) patch
+available to people to generate a specint testsuite usable to compare
+32bit with 64bit results, or lots of effort will be wasted by people
+pretending to do the impossible. I mean, if the memory bus is the same
+hardware in both the 32bit and 64bit runs, the double memory footprint
+will run slower and there's nothing the OS or the hardware can do about
+it (and dozen mbytes of ram won't fit in l1 cache, not even on the
+itanium 8). The benchmark suite really must be fixed to ensure the 32bit
+and 64bit compilation will generate the same _data_ memory footprint if
+one wants to make comparisons between the two.
 
-	Jeff
-
-
-
+Andrea

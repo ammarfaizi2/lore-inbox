@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVCBXwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVCBXsd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbVCBXwW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 18:52:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVCBXvS
+	id S261375AbVCBXsd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 18:48:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVCBXfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 18:51:18 -0500
-Received: from gate.crashing.org ([63.228.1.57]:27088 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261320AbVCBXgJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 18:36:09 -0500
-Subject: Re: [PATCH 3/3] openfirmware: implements hotplug for macio devices
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeffrey Mahoney <jeffm@suse.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050301211828.GD16465@locomotive.unixthugs.org>
-References: <20050301211828.GD16465@locomotive.unixthugs.org>
-Content-Type: text/plain
-Date: Thu, 03 Mar 2005 10:33:37 +1100
-Message-Id: <1109806417.5610.124.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Wed, 2 Mar 2005 18:35:25 -0500
+Received: from reverendtimms.isu.mmu.ac.uk ([149.170.192.65]:33178 "EHLO
+	reverendtimms.isu.mmu.ac.uk") by vger.kernel.org with ESMTP
+	id S261355AbVCBXbs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 18:31:48 -0500
+From: David Johnson <dj@david-web.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Keyboard broken on Inspiron 5150 with 2.6.11
+Date: Wed, 2 Mar 2005 22:33:12 +0000
+User-Agent: KMail/1.7.1
+References: <200503022135.16575.dj@david-web.co.uk> <d120d50005030214037e7531cb@mail.gmail.com>
+In-Reply-To: <d120d50005030214037e7531cb@mail.gmail.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200503022233.12913.dj@david-web.co.uk>
+X-MMU-Signature: 882ebab52a0f830be1832cc65aa07dd1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-01 at 16:18 -0500, Jeffrey Mahoney wrote:
-> This patch adds the hotplug routine for generating hotplug events when
-> devices are seen on the macio bus. It uses the attributed created by the
-> sysfs nodes to generate the hotplug environment vars for userspace.
-> 
-> In order for hotplug to work with macio devices, patches to module-init-tools
-> and hotplug must be applied. Those patches are available at:
-> 
-> ftp://ftp.suse.com/pub/people/jeffm/linux/macio-hotplug/
+On Wednesday 02 Mar 2005 22:03, Dmitry Torokhov wrote:
+> On Wed, 2 Mar 2005 21:35:16 +0000, David Johnson <dj@david-web.co.uk> wrote:
+> > Hi all,
+> >
+> > I've just booted 2.6.11 and the keyboard on my Dell Inspiron 5150 laptop
+> > doesn't work at all. I've not tried the -rc versions, but it works fine
+> > with 2.6.10.
+>
+> Does it work if you boot with i8042.noacpi boot option? And what about
+> your touchpad?
 
-Ok, looks good too. It would be interesting to convert the media-bay
-stuff to use hotplug now too :) But that mean some serious work on swim3
-and ide-pmac to make them more hotplug friendly... Not sure it's worth
-the pain. The current mecanism actually works, even if it's not pretty,
-and mediabay-based machines are a thing of the past.
+Ah yes, it works perfectly with that boot option.
 
-Ben.
+I can't check the touchpad as X won't start when the option isn't passed 
+(maybe because touchpad device doesn't exist, but I can't check the X log).
 
+Regards,
+David.
 
+-- 
+David Johnson
+http://www.david-web.co.uk/
+http://www.penguincomputing.co.uk/

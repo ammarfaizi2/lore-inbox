@@ -1,107 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318037AbSGMCjM>; Fri, 12 Jul 2002 22:39:12 -0400
+	id <S318020AbSGMCj1>; Fri, 12 Jul 2002 22:39:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318072AbSGMCjL>; Fri, 12 Jul 2002 22:39:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40466 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318037AbSGMCjK>;
-	Fri, 12 Jul 2002 22:39:10 -0400
-Message-ID: <3D2F9521.96D7080B@zip.com.au>
-Date: Fri, 12 Jul 2002 19:49:05 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: colpatch@us.ibm.com
-CC: linux-kernel@vger.kernel.org, Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Martin Bligh <mjbligh@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch[ Simple Topology API
-References: <3D2F75D7.3060105@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S318072AbSGMCj0>; Fri, 12 Jul 2002 22:39:26 -0400
+Received: from pop.gmx.de ([213.165.64.20]:26894 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S318020AbSGMCjX>;
+	Fri, 12 Jul 2002 22:39:23 -0400
+Date: Sat, 13 Jul 2002 04:42:02 +0200
+From: Ingo Rohloff <lundril@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Patch to loop.c - fixes locking issues (IMHO)
+Message-ID: <20020713024202.GA2007@curin.highspeed>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="qDbXVdCdHGoSgWSk"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dobson wrote:
-> 
-> Here is a very rudimentary topology API for NUMA systems.  It uses prctl() for
-> the userland calls, and exposes some useful things to userland.  It would be
-> nice to expose these simple structures to both users and the kernel itself.
-> Any architecture wishing to use this API simply has to write a .h file that
-> defines the 5 calls defined in core_ibmnumaq.h and include it in asm/mmzone.h.
 
-Matt,
+--qDbXVdCdHGoSgWSk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I suspect what happens when these patches come out is that most people simply
-don't have the knowledge/time/experience/context to judge them, and nothing
-ends up happening.  No way would I pretend to be able to comment on the
-big picture, that's for sure.
+Hi,
 
-If the code is clean, the interfaces make sense, the impact on other
-platforms is minimised and the stakeholders are OK with it then that
-should be sufficient, yes?
+I think the time has come again, to start a discussion
+about the way locking is done in drivers/block/loop.c
 
-AFAIK, the interested parties with this and the memory binding API are
-ia32-NUMA, ia64, PPC, some MIPS and x86-64-soon.  It would be helpful
-if the owners of those platforms could review this work and say "yes,
-this is something we can use and build upon".  Have they done that?
+Assume we use an unmodified kernel and plug in an
+encryption module (lets say a twofish.o module).
 
+Then we do the following:
 
-I'd have a few micro-observations:
+dd if=/dev/zero of=foo bs=1024 count=1024
+losetup -e twofish /dev/loop0 foo
+mke2fs /dev/loop0
+rmmod twofish
+mount /dev/loop0 /mnt
 
-> ...
-> --- linux-2.5.25-vanilla/kernel/membind.c       Wed Dec 31 16:00:00 1969
-> +++ linux-2.5.25-api/kernel/membind.c   Fri Jul 12 16:13:17 2002
-> ..
-> +inline int memblk_to_node(int memblk)
+-> funny doesn't work...
 
-The inlines with global scope in this file seem strange?
+What happened: 
+losetup doesn't lock "twofish.o", because the following
+functions are called in the following order:
 
+lo_open 
+  no encryption module defined yet, so no locking is done
+loop_set_status 
+  calls loop_init_xfer, which will lock twofish.o once
+lo_release
+  encryption module is unlocked
 
-Matthew Dobson wrote:
-> 
-> Here is a Memory Binding API
-> ...
-> +    memblk_binding:    { MEMBLK_NO_BINDING, MPOL_STRICT },             \
+I think this is simply wrong, because
+a) People don't expect this.
+b) People probably don't want this.
+c) A correct locking scheme will make the code
+   in loop_unregister_transfer quite useless, because
+   it will ensure that loop_unregister_transfer is only
+   called from a module that isn't used by any loop device.
 
-> ...
-> +typedef struct memblk_list {
-> +       memblk_bitmask_t bitmask;
-> +       int behavior;
-> +       rwlock_t lock;
-> +} memblk_list_t;
+My patch simply removes the locking/unlocking from lo_open
+and lo_release. 
+(I left in the code in loop_unregister_transfer because
+ this makes the change in code as small as possible and
+ the code doesn't hurt even if I think it's obsolete.)
 
-Is is possible to reduce this type to something smaller for
-CONFIG_NUMA=n?
+The result is that an encryption module is locked as many times
+as there are loop devices using it. 
+The module will be locked as soon as "loop_set_status" is called
+and it will be unlocked when "loop_clr_fd" is called.
 
-In the above task_struct initialiser you should initialise the
-rwlock to RWLOCK_LOCK_UNLOCKED.
+So the number of locks on the encryption module corresponds to the 
+number of loop devices using the encryption module...
 
-It's nice to use the `name:value' initialiser format in there, too.
+Please can someone help me get this patch into the kernel...
+(I tried at least 3 times and have failed so far...)
 
+so long
+  Ingo Rohloff
 
-> ...
-> +int set_memblk_binding(memblk_bitmask_t memblks, int behavior)
-> +{
-> ...
-> +       read_lock_irqsave(&current->memblk_binding.lock, flags);
+--qDbXVdCdHGoSgWSk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="loop-lock.patch"
 
-Your code accesses `current' a lot.  You'll find that the code
-generation is fairly poor - evaluating `current' chews 10-15
-bytes of code.  You can perform a manual CSE by copying current
-into a local, and save a few cycles.
+--- loop-orig.c	Thu Jul 11 05:25:05 2002
++++ loop.c	Sat Jul 13 03:56:14 2002
+@@ -902,7 +902,7 @@
+ static int lo_open(struct inode *inode, struct file *file)
+ {
+ 	struct loop_device *lo;
+-	int	dev, type;
++	int	dev;
+ 
+ 	if (!inode)
+ 		return -EINVAL;
+@@ -917,10 +917,6 @@
+ 	lo = &loop_dev[dev];
+ 	MOD_INC_USE_COUNT;
+ 	down(&lo->lo_ctl_mutex);
+-
+-	type = lo->lo_encrypt_type; 
+-	if (type && xfer_funcs[type] && xfer_funcs[type]->lock)
+-		xfer_funcs[type]->lock(lo);
+ 	lo->lo_refcnt++;
+ 	up(&lo->lo_ctl_mutex);
+ 	return 0;
+@@ -929,7 +925,7 @@
+ static int lo_release(struct inode *inode, struct file *file)
+ {
+ 	struct loop_device *lo;
+-	int	dev, type;
++	int	dev;
+ 
+ 	if (!inode)
+ 		return 0;
+@@ -944,11 +940,7 @@
+ 
+ 	lo = &loop_dev[dev];
+ 	down(&lo->lo_ctl_mutex);
+-	type = lo->lo_encrypt_type;
+ 	--lo->lo_refcnt;
+-	if (xfer_funcs[type] && xfer_funcs[type]->unlock)
+-		xfer_funcs[type]->unlock(lo);
+-
+ 	up(&lo->lo_ctl_mutex);
+ 	MOD_DEC_USE_COUNT;
+ 	return 0;
 
-> ...
-> +struct page * _alloc_pages(unsigned int gfp_mask, unsigned int order)
-> +{
-> ...
-> +       spin_lock_irqsave(&node_lock, flags);
-> +       temp = pgdat_list;
-> +       spin_unlock_irqrestore(&node_lock, flags);
-
-Not sure what you're trying to lock here, but you're not locking
-it ;)  This is either racy code or unneeded locking.
-
-
-Thanks.
+--qDbXVdCdHGoSgWSk--

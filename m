@@ -1,90 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbUAUMRH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 07:17:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263178AbUAUMRH
+	id S262965AbUAUMXl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 07:23:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265934AbUAUMXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 07:17:07 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:2802 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id S263107AbUAUMRD (ORCPT
+	Wed, 21 Jan 2004 07:23:41 -0500
+Received: from ns.suse.de ([195.135.220.2]:19386 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262965AbUAUMXj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 07:17:03 -0500
-Date: Wed, 21 Jan 2004 23:13:26 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Dave Jones <davej@redhat.com>
-Cc: antispam@absamail.co.za, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.1 MCE falseness?] Hardware reports non-fatal error
-Message-Id: <20040121231326.3acd3823.sfr@canb.auug.org.au>
-In-Reply-To: <20040118020301.GA8621@redhat.com>
-References: <1074390255.8198.22.camel@ksyrium.local>
-	<20040118020301.GA8621@redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 21 Jan 2004 07:23:39 -0500
+Date: Wed, 21 Jan 2004 13:23:37 +0100
+From: Andi Kleen <ak@suse.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, vojtech@suse.cz
+Subject: mouse configuration in 2.6.1
+Message-Id: <20040121132337.7f8d3c79.ak@suse.de>
+In-Reply-To: <20040121043608.6E4BB2C0CB@lists.samba.org>
+References: <p73r7xwglgn.fsf@verdi.suse.de>
+	<20040121043608.6E4BB2C0CB@lists.samba.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Wed__21_Jan_2004_23_13_26_+1100_ei/zhp0rh0YvqfQu"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__21_Jan_2004_23_13_26_+1100_ei/zhp0rh0YvqfQu
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Wed, 21 Jan 2004 15:06:57 +1100
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-On Sun, 18 Jan 2004 02:03:01 +0000 Dave Jones <davej@redhat.com> wrote:
->
-> On Sun, Jan 18, 2004 at 03:44:16AM +0200, Niel Lambrechts wrote:
+> In message <p73r7xwglgn.fsf@verdi.suse.de> you write:
+> > Rusty Russell <rusty@rustcorp.com.au> writes:
+> > 
+> > > Migrating to module_param() is the Right Thing here IMHO, which actually
+> > > takes the damn address,
+> > 
+> > The main problem is that module_parm renames the boot time arguments and
+> > makes them long and hard to remember.
 > 
->  > I get the following problem with 2.6.1 consistently after apm resuming:
->  > "ksyrium kernel: MCE: The hardware reports a non fatal, correctable
->  > incident occurred on CPU 0.
->  > 
->  > Message from syslogd@ksyrium at Wed Jan 14 13:33:06 2004 ...
->  > ksyrium kernel: Bank 1: f2000000000001c5"
+> Um, if the module name is neat, and the parameter name is neat, the
+> combination of the two with a "."  between them will be nest.
+
+Unfortunately we have lots of non neat module names and many previous boot
+time arguments note their subsystem which adds even more redundancy.
+
+And you're suggesting people to move to module_parm now in the stable
+series leads to renaming of module parameters, which breaks previously
+working configurations in often subtle ways. Maybe that's acceptable
+in a unstable development kernel, but I don't think it is in 2.6.
+
+How about adding a "setup option alias" table and require that everybody
+changing an existing __setup to module_parm adds an alias there?
+
+> > E.g. the new argument needed to make the mouse work on KVMs is
+> > mindboogling, could be nearly a Windows registry entry.
 > 
-> As it only happens when you resume from APM, I'm inclined to believe
-> its a BIOS bug.  With the output of dmidecode, we could blacklist this
-> box to not do the nonfatal checking.
+> I have no idea what you are talking about. 8(
 
-My Thinkpad T22 produces a similar warning on resume using APM:
+psmouse_base.psmouse_noext
 
-kernel: MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
-kernel: Bank 1: f200000000000104
+(brought to you by the department of redundancy department)
 
-dmidecode output starts with:
+The "new" and "improved" version is apparently:
 
-# dmidecode 2.3
-SMBIOS 2.3 present.
-46 structures occupying 1585 bytes.
-Table at 0x1FFF0000.
-Handle 0x0000
-        DMI type 0, 20 bytes.
-        BIOS Information
-                Vendor: IBM
-                Version: 16ET31WW (1.11 )
-                Release Date: 03/20/2003
-	.
-	.
-Handle 0x0001
-        DMI type 1, 25 bytes.
-        System Information
-                Manufacturer: IBM
-                Product Name: 26475EA
+psmouse_base.psmouse_proto=bare
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+which is even worse.
 
---Signature=_Wed__21_Jan_2004_23_13_26_+1100_ei/zhp0rh0YvqfQu
-Content-Type: application/pgp-signature
+And 2.6.0 -> 2.6.1 silently changing to that without any documentation anywhere,
+silently breaking my mouse. And debugging it requires a lot of reboots
+because we have regressed to Windows state where every mouse setting change
+requires a reboot :-/
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Sorry Rusty. You are probably the wrong target for the flame, but a combination
+of probably well intended changes including module_parm brought a total usability 
+disaster here.
 
-iD8DBQFADmzmFG47PeJeR58RAoG+AJ95yCcVVQRGvkfJTiY7HMwuhVO3ygCfW2+m
-DOyamOoPsEhYuII8YRDgx0o=
-=yaTi
------END PGP SIGNATURE-----
-
---Signature=_Wed__21_Jan_2004_23_13_26_+1100_ei/zhp0rh0YvqfQu--
+-Andi

@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVBBJuk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbVBBJxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262201AbVBBJuk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 04:50:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbVBBJuk
+	id S262222AbVBBJxP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 04:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbVBBJxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 04:50:40 -0500
-Received: from gprs214-253.eurotel.cz ([160.218.214.253]:15236 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262201AbVBBJud (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 04:50:33 -0500
-Date: Wed, 2 Feb 2005 10:50:14 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Jes Sorensen <jes@wildopensource.com>
-Cc: kernel-janitors@osdl.org, kernel list <linux-kernel@vger.kernel.org>,
-       linux-pm@osdl.org, benh@kernel.crashing.org
-Subject: Re: driver model u32 -> pm_message_t conversion: help needed
-Message-ID: <20050202095014.GA12955@elf.ucw.cz>
-References: <20050125194710.GA1711@elf.ucw.cz> <yq0brb3qs74.fsf@jaguar.mkp.net>
+	Wed, 2 Feb 2005 04:53:14 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:6919 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262222AbVBBJwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 04:52:47 -0500
+Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack
+	pointer)
+From: Arjan van de Ven <arjan@infradead.org>
+To: Peter Busser <busser@m-privacy.de>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <200502021035.59536.busser@m-privacy.de>
+References: <200501311015.20964.arjan@infradead.org>
+	 <200502011044.39259.busser@m-privacy.de> <20050202001549.GA17689@thunk.org>
+	 <200502021035.59536.busser@m-privacy.de>
+Content-Type: text/plain
+Date: Wed, 02 Feb 2005 10:52:38 +0100
+Message-Id: <1107337959.4143.75.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yq0brb3qs74.fsf@jaguar.mkp.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 2005-02-02 at 10:35 +0100, Peter Busser wrote:
+> Hi!
+> 
+> > Umm, so exactly how many applications use multithreading (or otherwise
+> > trigger the GLIBC mprotect call), and how many applications use nested
+> > functions (which is not ANSI C compliant, and as a result, very rare)?
+> >
+> > Do the tests both ways, and document when the dummy() re-entrant
+> > function might actually be hit in real life, and then maybe people
+> > won't feel that you are deliberately and unfairly overstating things
+> > to try to root for one security approach versus another. 
+> 
+> Well, you can already do the test both ways. There is a kiddie mode, which 
+> doesn't do this test. And a blackhat mode, which does it. Basically removing 
+> the mprotect and nested function is demoting blackhat mode into kiddie mode.
 
-> Pavel> Hi!  Two Long time ago, BenH said that making patches is easy,
-> Pavel> so I hope to get his help now... And will probably need more.
-> 
-> Pavel> Suspend routines change, slowly.
-> 
-> Pavel> - int (*suspend)(struct device * dev, u32 state); + int
-> Pavel> (*suspend)(struct device * dev, pm_message_t state);
-> 
-> Pavel> For now u32 is typedef-ed to pm_message_t, but that is not
-> Pavel> going to be the case for 2.6.12. What needs to be done is
-> Pavel> changing all state parameters from u32 to
-> Pavel> pm_message_t. suspend() functions should not use state variable
-> Pavel> for now (except for PCI ones, those are allowed to call
-> Pavel> pci_choose_state and convert state into pci_power_t, and use
-> Pavel> that).
-> 
-> Sorry for being late responding to this, but I'd say this is a prime
-> example for typedef's considered evil (see Greg's OLS talk ;).
-> 
-> It would be a lot cleaner if it was made a struct and then passing a
-> struct pointer as the argument instead of passing the struct by value
-> as you do right now.
+actually you don't. The presence of the nested function (technically,
+the taking of the address of a nested function) marks the PT_GNU_STACK
+field in the binary, not the runtime behavior. As such, paxtest does not
+offer any real such choice in behavior. The binary needs stack
+trampolines, just that in one case you don't use them.
 
-Sorry, can't do that. That would require flag day and change
-everything at once. That is just not feasible. When things are
-settled, it is okay to change it to struct passed by value.. It is
-small anyway and at least we will not have problems with freeing it
-etc.
-
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

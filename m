@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132094AbQKJWdz>; Fri, 10 Nov 2000 17:33:55 -0500
+	id <S132018AbQKJWgP>; Fri, 10 Nov 2000 17:36:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132079AbQKJWdp>; Fri, 10 Nov 2000 17:33:45 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:39684 "EHLO
+	id <S132044AbQKJWgF>; Fri, 10 Nov 2000 17:36:05 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:42244 "EHLO
 	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S132059AbQKJWd0>; Fri, 10 Nov 2000 17:33:26 -0500
-Message-ID: <3A0C76C0.CAC8B9D4@timpanogas.org>
-Date: Fri, 10 Nov 2000 15:29:20 -0700
+	id <S132018AbQKJWfu>; Fri, 10 Nov 2000 17:35:50 -0500
+Message-ID: <3A0C7758.85A5851A@timpanogas.org>
+Date: Fri, 10 Nov 2000 15:31:52 -0700
 From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
 Organization: TRG, Inc.
 X-Mailer: Mozilla 4.7 [en] (WinNT; I)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
+To: sendmail-bugs@sendmail.org
+CC: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
 Subject: Re: sendmail fails to deliver mail with attachments in /var/spool/mqueue
-In-Reply-To: <3A0C3F30.F5EB076E@timpanogas.org> <3A0C6B7C.110902B4@timpanogas.org> <3A0C6E01.EFA10590@timpanogas.org> <26054.973893835@euclid.cs.niu.edu> <8uhs7c$2hr$1@cesium.transmeta.com>
+In-Reply-To: <Pine.GSO.4.21.0011101712390.17943-100000@weyl.math.psu.edu> <3A0C7517.FB96CF08@timpanogas.org> <20001110143222.I16213@sendmail.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,65 +24,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-"H. Peter Anvin" wrote:
+Claus Assmann wrote:
 > 
-> Followup to:  <26054.973893835@euclid.cs.niu.edu>
-> By author:    Neil W Rickert <sendmail+rickert@sendmail.org>
-> In newsgroup: linux.dev.kernel
-> >
-> > "Jeff V. Merkey" <jmerkey@timpanogas.org> wrote:
-> >
-> > >The problem of dropping connections on 2.4 was related to the O RefuseLA
-> > >settings.  The defaults  in the RedHat, Suse, and OpenLinux RPMs are
-> > >clearly set too low for modern Linux kernels.  You may want them cranked
-> > >up to 100 or something if you want sendmail to always work.
-> >
-> > If a modern Linux kernel requires high load average defaults, I will
-> > stop using Linux.
-> >
+> On Fri, Nov 10, 2000, Jeff V. Merkey wrote:
 > 
-> Numerically high load averages aren't inherently a bad thing.  There
-> isn't anything bad about a system with a loadavg of 20 if it does what
-> it should in the time you'd expect.  However, if your daemons start
-> blocking because they assume this number means badness, than that is
-> the problem, not the loadavg in itself.
+> > I have dual T1 lines going into the box, and I just added a 4-way ADSL
+> > circuit as well (4 x 550K).  Claus claimed there were TCPIP timeout bugs
 
-Well, here's what the sendmail folks **REAL** opinion of Linux is and
-the way load average is calculated (senders name removed)
-
-[... sendmail person ...]
-
- Ok, here's my blunt answer: Linux sucks.  Why does it have a load
-> average of 10 if there are two processes running? Let's check the
-> man page:
-> 
->             and the three load averages for the system.  The load
->             averages  are  the average number of process ready to
->             run during the last 1, 5 and 15 minutes.   This  line
->             is  just  like  the  output of uptime(1).
-> 
-> So: Linux load average on these systems is broken.
-
-So I guess we know where we stand with the sendmail folks.  If the US
-post office delivered mail at Christmas time using a size based priority
-the way sendmail does, folks would all get their Christmas presents
-about mid-February unless O NumberOfPostalWorkers=20 was set high
-enough.  
+You said there were TCPIP timeout bugs.  I can go retrieve the email. 
+If there's this type of problem, the linux folks need to know so it can
+get fixed.  
 
 Jeff
 
-
 > 
->         -hpa
+> Please DON'T quote me wrong. This is getting very annoying.
+> Is that your way to spread rumours and false accusations?
 > 
-> --
-> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-> "Unix gives you enough rope to shoot yourself in the foot."
-> http://www.zytor.com/~hpa/puzzle.txt
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+> Unless you come up with something constructive, I'm off this
+> "discussion" now.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbVAYD7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbVAYEGf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbVAYD7i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 22:59:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVAYD7i
+	id S261802AbVAYEGf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 23:06:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVAYEGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 22:59:38 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:36586 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261797AbVAYD7f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 22:59:35 -0500
-Date: Mon, 24 Jan 2005 22:59:30 -0500
-From: Dave Jones <davej@redhat.com>
-To: Len Brown <len.brown@intel.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/29] x86-i8259-shutdown
-Message-ID: <20050125035930.GG13394@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Len Brown <len.brown@intel.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
-	linux-kernel@vger.kernel.org
-References: <x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com> <1106623970.2399.205.camel@d845pe>
+	Mon, 24 Jan 2005 23:06:34 -0500
+Received: from tomts20.bellnexxia.net ([209.226.175.74]:44755 "EHLO
+	tomts20-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261802AbVAYEG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 23:06:28 -0500
+Subject: Re: [patch 1/13] Qsort
+From: Eric St-Laurent <ericstl34@sympatico.ca>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200501250044.j0P0iPG3031683@inf.utfsm.cl>
+References: <200501250044.j0P0iPG3031683@inf.utfsm.cl>
+Content-Type: text/plain
+Date: Mon, 24 Jan 2005 23:06:26 -0500
+Message-Id: <1106625987.18485.6.camel@orbiter>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1106623970.2399.205.camel@d845pe>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 10:32:50PM -0500, Len Brown wrote:
- > On Wed, 2005-01-19 at 02:31, Eric W. Biederman wrote:
- > > From: Eric W. Biederman <ebiederm@xmission.com>
- > > 
- > > This patch disables interrupt generation from the legacy pic on
- > > reboot.  Now that there is a sys_device class it should not be called
- > > while drivers are still using interrupts.
- > > 
- > > There is a report about this breaking ACPI power off on some systems.
- > > http://bugme.osdl.org/show_bug.cgi?id=4041
- > > However the final comment seems to exhonorate this code.  So until
- > > I get more information I believe that was a false positive.
- > 
- > No, the last comment in the bug report
- > (davej says that there were poweroff problems in FC)
- > does not exhonerate this patch.
- > All it says is that there are additional poweroff bugs out there.
+On Mon, 2005-01-24 at 21:43 -0300, Horst von Brand wrote:
+> AFAICS, this is just a badly implemented Shellsort (the 10/13 increment
+> sequence starting with the number of elements is probably not very good,
+> besides swapping stuff is inefficient (just juggling like Shellsort does
+> gives you almost a third less copies)).
+> 
+> Have you found a proof for the O(n log n) claim?
 
-Indeed. Since dropping the kexec bits from the Fedora kernel,
-the 'hangs at poweroff' bug went away for a lot of folks,
-but there still remain some people affected by some other regression.
-https://bugzilla.redhat.com/beta/show_bug.cgi?id=acpi_power_off
-has the gory details.
+"Why a Comb Sort is NOT a Shell Sort
 
-		Dave
+A shell sort completely sorts the data for each gap size. A comb sort
+takes a more optimistic approach and doesn't require data be completely
+sorted at a gap size. The comb sort assumes that out-of-order data will
+be cleaned-up by smaller gap sizes as the sort proceeds. "
+
+Reference:
+
+http://world.std.com/~jdveale/combsort.htm
+
+Another good reference:
+
+http://yagni.com/combsort/index.php
+
+Personally, i've used it in the past because of it's small size.  With
+C++ templates you can have a copy of the routine generated for a
+specific datatype, thus skipping the costly function call used for each
+compare.  With some C macro magic, i presume something similar can be
+done, for time-critical applications.
+
+Best regards,
+
+Eric St-Laurent
+
 

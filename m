@@ -1,90 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263342AbSLOX3I>; Sun, 15 Dec 2002 18:29:08 -0500
+	id <S263256AbSLOXeO>; Sun, 15 Dec 2002 18:34:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263362AbSLOX3H>; Sun, 15 Dec 2002 18:29:07 -0500
-Received: from mail.michigannet.com ([208.49.116.30]:519 "EHLO
-	member.michigannet.com") by vger.kernel.org with ESMTP
-	id <S263342AbSLOX3G>; Sun, 15 Dec 2002 18:29:06 -0500
-Date: Sun, 15 Dec 2002 18:36:54 -0500
-From: Paul <set@pobox.com>
-To: John Bradford <john@bradfords.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Oops 2.5.51] PnPBIOS: cat /proc/bus/pnp/escd
-Message-ID: <20021215233654.GF1432@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>,
-	John Bradford <john@bradfords.org.uk>, linux-kernel@vger.kernel.org
-References: <20021215230344.GE1432@squish.home.loc> <200212152339.gBFNddsV002213@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212152339.gBFNddsV002213@darkstar.example.net>
+	id <S263276AbSLOXeN>; Sun, 15 Dec 2002 18:34:13 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:29392 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S263256AbSLOXeM>;
+	Sun, 15 Dec 2002 18:34:12 -0500
+Date: Mon, 16 Dec 2002 00:38:16 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200212152338.AAA24823@harpo.it.uu.se>
+To: m.c.p@wolk-project.de
+Subject: Re: 2.4.21-pre1 broke the ide-tape driver
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       marcelo@conectiva.com.br
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford <john@bradfords.org.uk>, on Sun Dec 15, 2002 [11:39:38 PM] said:
-> > 
-> > 	Hi;
-> > 
-> > 	'cat /proc/bus/pnp/escd' consistantly produces this:
-> > 
-> > Paul
-> > set@pobox.com
-> > 
-> > (need any more info, just ask)
-> 
-> Could you run that oops through ksymoops, please?
-> 
-> John.
 
-	Hi;
+On Sun, 15 Dec 2002 02:23:34 +0100, Marc-Christian Petersen wrote:
+>> Kernel 2.4.21-pre1 broke the ide-tape driver: the driver
+>> now hangs during initialisation. 2.2 kernels (with Andre's
+>> IDE patch) and 2.4 up to 2.4.20 do not have this problem.
+>> My box has a Seagate STT8000A ATAPI tape drive as hdd;
+>> hdc is a Philips CD-RW, and the controller is ICH2 (i850 chipset).
+>http://linux.bkbits.net:8080/linux-2.4/patch@1.828?nav=index.html|ChangeSet@-7d|cset@1.828
 
-	Sorry, I had, but it didnt seem to add any more info
-than what the kernel popped out, with all the debugging on:
+Addendum: this patch fixes the init-time hang, and ide-tape does
+seem to work fine, but 'rmmod ide-tape' oopses -- 2.4.20-ac2 also
+oopses on 'rmmod ide-tape'.
 
-Paul
-set@pobox.com
+/Mikael
 
-ksymoops 2.4.7 on i686 2.4.20-rc2.  Options used
-     -v ./vmlinux (specified)
-     -K (specified)
-     -L (specified)
-     -O (specified)
-     -m ./System.map (specified)
-
-SGI XFS for Linux 2.5.51 with no debug enabled
-Unable to handle kernel paging request at virtual address ffffd000
-00007b74
-*pde = 00001063
+Unable to handle kernel NULL pointer dereference at virtual address 000000c4
+d08a8048
+*pde = 00000000
 Oops: 0000
 CPU:    0
-EIP:    0088:[<00007b74>]    Not tainted
+EIP:    0010:[<d08a8048>]    Not tainted
 Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010007
-eax: 000000a0   ebx: 00a0d07b   ecx: 00000400   edx: 00000000
-esi: 0000d000   edi: 00000000   ebp: c31e7eb0   esp: c31e7e88
-ds: 00a0   es: 0098   ss: 0068
-Stack: 00000000 0090d000 00907b89 d049d4eb 00000042 00680068 0246d016 00920098 
-       c31e7efc 0080000b 00000042 00a00098 00000090 00000000 c0217074 00000060 
-       00000082 00000000 00000000 00000068 00000068 00000246 00000042 c31e7efc 
-Call Trace:
- [<c0217074>] __pnp_bios_read_escd+0xf0/0x14c
- [<c02170df>] pnp_bios_read_escd+0xf/0x30
- [<c02180cf>] proc_read_escd+0x5f/0xf0
- [<c015dab5>] proc_file_read+0xb9/0x174
- [<c0138d27>] vfs_read+0xab/0x150
- [<c0138ff4>] sys_read+0x28/0x3c
- [<c010a7c7>] syscall_call+0x7/0xb
-Code:  Bad EIP value.
+EFLAGS: 00010202
+eax: 00000000   ebx: 00000000   ecx: c0241ea0   edx: 00000128
+esi: 00000014   edi: d08aa9c0   ebp: bfffeb08   esp: ce825f88
+ds: 0018   es: 0018   ss: 0018
+Process rmmod.old (pid: 614, stackpage=ce825000)
+Stack: d08a1000 fffffff0 d08a1000 c0116a53 d08a1000 fffffff0 ce7d5000 bfffeb08 
+       c0115ef7 d08a1000 00000000 ce824000 bffffc85 00000001 c0106c17 bffffc85 
+       08060ac8 00000100 bffffc85 00000001 bfffeb08 00000081 0000002b 0000002b 
+Call Trace:    [<c0116a53>] [<c0115ef7>] [<c0106c17>]
+Code: 8b 83 c4 00 00 00 85 c0 74 0e 68 a4 a8 8a d0 50 e8 1f ce 8d 
 
 
->>EIP; 00007b74 Before first symbol   <=====
+>>EIP; d08a8048 <END_OF_CODE+8be8/????>   <=====
 
-Trace; c0217074 <__pnp_bios_read_escd+f0/14c>
-Trace; c02170df <pnp_bios_read_escd+f/30>
-Trace; c02180cf <proc_read_escd+5f/f0>
-Trace; c015dab5 <proc_file_read+b9/174>
-Trace; c0138d27 <vfs_read+ab/150>
-Trace; c0138ff4 <sys_read+28/3c>
-Trace; c010a7c7 <syscall_call+7/b>
+>>ecx; c0241ea0 <chrdevs+0/7f8>
+>>edi; d08aa9c0 <END_OF_CODE+b560/????>
+>>ebp; bfffeb08 Before first symbol
+>>esp; ce825f88 <_end+e5c4db8/10620e90>
 
+Trace; c0116a53 <free_module+17/98>
+Trace; c0115ef7 <sys_delete_module+f3/1b0>
+Trace; c0106c17 <system_call+33/38>
+
+Code;  d08a8048 <END_OF_CODE+8be8/????>
+00000000 <_EIP>:
+Code;  d08a8048 <END_OF_CODE+8be8/????>   <=====
+   0:   8b 83 c4 00 00 00         mov    0xc4(%ebx),%eax   <=====
+Code;  d08a804e <END_OF_CODE+8bee/????>
+   6:   85 c0                     test   %eax,%eax
+Code;  d08a8050 <END_OF_CODE+8bf0/????>
+   8:   74 0e                     je     18 <_EIP+0x18>
+Code;  d08a8052 <END_OF_CODE+8bf2/????>
+   a:   68 a4 a8 8a d0            push   $0xd08aa8a4
+Code;  d08a8057 <END_OF_CODE+8bf7/????>
+   f:   50                        push   %eax
+Code;  d08a8058 <END_OF_CODE+8bf8/????>
+  10:   e8 1f ce 8d 00            call   8dce34 <_EIP+0x8dce34>

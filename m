@@ -1,73 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266271AbUJIAX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUJIA07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266271AbUJIAX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 20:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266333AbUJIAX3
+	id S266274AbUJIA07 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 20:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266333AbUJIA06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 20:23:29 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:44470 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266271AbUJIAX1 (ORCPT
+	Fri, 8 Oct 2004 20:26:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5569 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266274AbUJIA0z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 20:23:27 -0400
-Subject: Re: [PATCH] cpusets - big numa cpu and memory placement
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Hubertus Franke <frankeh@watson.ibm.com>
-Cc: Paul Jackson <pj@sgi.com>, Rick Lindsley <ricklind@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Simon.Derr@bull.net,
-       pwil3058@bigpond.net.au, dipankar@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       efocht@hpce.nec.com, LSE Tech <lse-tech@lists.sourceforge.net>,
-       hch@infradead.org, steiner@sgi.com, Jesse Barnes <jbarnes@sgi.com>,
-       sylvain.jeaugey@bull.net, djh@sgi.com,
-       LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       sivanich@sgi.com
-In-Reply-To: <4165A31E.4070905@watson.ibm.com>
-References: <20041007015107.53d191d4.pj@sgi.com>
-	 <200410071053.i97ArLnQ011548@owlet.beaverton.ibm.com>
-	 <20041007072842.2bafc320.pj@sgi.com>  <4165A31E.4070905@watson.ibm.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1097281329.6470.123.camel@arrakis>
+	Fri, 8 Oct 2004 20:26:55 -0400
+Date: Fri, 8 Oct 2004 17:26:51 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [BUG]  oom killer not triggering in 2.6.9-rc3
+Message-ID: <20041008172651.F2441@build.pdx.osdl.net>
+References: <41672D4A.4090200@nortelnetworks.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 08 Oct 2004 17:22:10 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <41672D4A.4090200@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Fri, Oct 08, 2004 at 06:14:02PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-07 at 13:12, Hubertus Franke wrote:
-> The way this is heading is quite promising.
-> - sched_domains seems the right answer wrt to partitioning the machine.
->    Given some boot option or dynamic means one can shift cpus from
->    on domain to the next domain.
-> - If I understood correctly, there would be only one level of such
->    hard partitioning, speak exclusive cpu-set or sched_domain.
-> - In each such domain/set we allow shared *use*.
+* Chris Friesen (cfriesen@nortelnetworks.com) wrote:
+> 
+> I have an Xserve running 2.6.9-rc3 and patched to run the ppc kernel rather than 
+> the ppc64 kernel.  It's configured with 2GB of memory, no swap.
+> 
+> If I run one instance of the following program, it allocates all but about 3MB 
+> of memory, and the memory hog spins with 100% of the cpu.
+> 
+> If I run two instances of the program, the machine locks up, doesn't respond to 
+> pings, and is basically dead to the world.
+> 
+> Shouldn't the oom-killer be kicking in?
 
-I don't think that there needs to be a requirement that we have only one
-level of hard partitioning.  The rest of your points are valid though,
-Hubertus.
+Kicks in for me (albeit the world comes to a screeching halt for a few
+moments before it kicks in).  I'm using this patch below from Andrew.
+Does it help you?
 
-It'd be really nice if we could all get together with a wall of
-whiteboards, some markers, and a few pots of coffee.  I think we'd all
-get this pretty much hashed out in an hour or two.  This isn't directed
-at you, Hubertus, but at the many communication breakdowns in this
-thread.
-
-
-> First, one needs to understand that sched_domains are nothing else
-> but a set of cpus that are considered during load balancing times.
-> By constricting the top_domain to the respective exclusive set one
-> essentially has accomplished the desired feature of partitioning
-> the machines into "isolated" sections (here from cpu perspective).
-> So it is quite possible that an entire domain is empty based, while
-> another exclusive domain would be totally overloaded.
-
-I think that is very well stated, Hubertus.  By having a more or less
-passive data structure that is only checked at load balance time, we can
-ensure (in a very light-weight way) that no task ever moves *out* of
-it's area nor moves *into* someone else's area.
-
--Matt
+diff -puN mm/vmscan.c~vmscan-handle-empty-zones mm/vmscan.c
+--- 25/mm/vmscan.c~vmscan-handle-empty-zones	2004-10-07 19:10:52.844797784 -0700
++++ 25-akpm/mm/vmscan.c	2004-10-07 19:11:49.804138648 -0700
+@@ -851,6 +851,9 @@ shrink_caches(struct zone **zones, struc
+ 	for (i = 0; zones[i] != NULL; i++) {
+ 		struct zone *zone = zones[i];
+ 
++		if (zone->present_pages == 0)
++			continue;
++
+ 		zone->temp_priority = sc->priority;
+ 		if (zone->prev_priority > sc->priority)
+ 			zone->prev_priority = sc->priority;
+@@ -999,6 +1002,9 @@ static int balance_pgdat(pg_data_t *pgda
+ 			for (i = pgdat->nr_zones - 1; i >= 0; i--) {
+ 				struct zone *zone = pgdat->node_zones + i;
+ 
++				if (zone->present_pages == 0)
++					continue;
++
+ 				if (zone->all_unreclaimable &&
+ 						priority != DEF_PRIORITY)
+ 					continue;
+@@ -1033,6 +1039,9 @@ static int balance_pgdat(pg_data_t *pgda
+ 		for (i = 0; i <= end_zone; i++) {
+ 			struct zone *zone = pgdat->node_zones + i;
+ 
++			if (zone->present_pages == 0)
++				continue;
++
+ 			if (zone->all_unreclaimable && priority != DEF_PRIORITY)
+ 				continue;
+ 
+_
 

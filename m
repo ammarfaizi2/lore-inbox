@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287500AbRLaMu4>; Mon, 31 Dec 2001 07:50:56 -0500
+	id <S287502AbRLaMuq>; Mon, 31 Dec 2001 07:50:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287501AbRLaMuq>; Mon, 31 Dec 2001 07:50:46 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:61710 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287500AbRLaMug>;
-	Mon, 31 Dec 2001 07:50:36 -0500
-Date: Mon, 31 Dec 2001 10:50:15 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Dave Jones <davej@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Manfred Spraul <manfred@colorfullife.com>
+	id <S287501AbRLaMug>; Mon, 31 Dec 2001 07:50:36 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23822 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287502AbRLaMuV>; Mon, 31 Dec 2001 07:50:21 -0500
 Subject: Re: [patch] Prefetching file_read_actor()
-In-Reply-To: <20011231033220.A1686@suse.de>
-Message-ID: <Pine.LNX.4.33L.0112311049550.24031-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+To: akpm@zip.com.au (Andrew Morton)
+Date: Mon, 31 Dec 2001 13:00:21 +0000 (GMT)
+Cc: davej@suse.de (Dave Jones), linux-kernel@vger.kernel.org (Linux Kernel),
+        manfred@colorfullife.com (Manfred Spraul)
+In-Reply-To: <3C2FFB2F.D02095A2@zip.com.au> from "Andrew Morton" at Dec 30, 2001 09:44:15 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16L23C-0004v8-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Dec 2001, Dave Jones wrote:
+> > +
+> > +       if (size > 128) {
+> > +               int i;
+> > +               for(i=0; i<size; i+=64) {
+> > +                       prefetch (kaddr+offset);
+> > +                       prefetch (kaddr+offset+(L1_CACHE_BYTES*2));
+> > +               }
+> > +       }
+> > +
 
-> diff -urN --exclude-from=/home/davej/.exclude linux-2.5.2-pre5/mm/filemap.c linux-2.5/mm/filemap.c
-> --- linux-2.5.2-pre5/mm/filemap.c	Sun Dec 16 23:21:24 2001
-> +++ linux-2.5/mm/filemap.c	Mon Dec 31 03:22:51 2001
-> @@ -1570,6 +1570,15 @@
->  		size = count;
->
->  	kaddr = kmap(page);
-> +
-> +	if (size > 128) {
-> +		int i;
-> +		for(i=0; i<size; i+=64) {
-> +			prefetch (kaddr+offset);
-> +			prefetch (kaddr+offset+(L1_CACHE_BYTES*2));
-
-Neat piece of deep magic, please document it ;)
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Thats almost certainly wrong for most processors. It might work on the PIII
+but I wouldnt trust the right results on others. Fix copy_to_user to
+have a prefetching version if appropriate
 

@@ -1,59 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbTKTQl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 11:41:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbTKTQl5
+	id S262038AbTKTQiu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 11:38:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbTKTQiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 11:41:57 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:35001 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262061AbTKTQl4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 11:41:56 -0500
-Date: Thu, 20 Nov 2003 22:10:13 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: maneesh@in.ibm.com, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: [PATCH] sysfs_remove_dir Vs dcache_readdir race fix
-Message-ID: <20031120164012.GA1760@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20031120054707.GA1724@in.ibm.com> <20031120054957.GD24159@parcelfarce.linux.theplanet.co.uk> <20031120055655.GB1724@in.ibm.com> <20031120102525.GD1367@in.ibm.com> <20031120071709.0acf35aa.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031120071709.0acf35aa.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+	Thu, 20 Nov 2003 11:38:50 -0500
+Received: from ajax.xo.com ([207.155.248.44]:34498 "EHLO ajax.xo.com")
+	by vger.kernel.org with ESMTP id S262038AbTKTQis (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 11:38:48 -0500
+Message-ID: <3FBCEDF7.7030807@katana-technology.com>
+Date: Thu, 20 Nov 2003 11:38:15 -0500
+From: Larry Sendlosky <lsendlosky@katana-technology.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: patch for current cvs of microkernel for interrupt delivery
+Content-Type: multipart/mixed;
+ boundary="------------000603060105030009030508"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 20, 2003 at 07:17:09AM -0800, Andrew Morton wrote:
-> Maneesh Soni <maneesh@in.ibm.com> wrote:
-> >  cpu 0						cpu 1
-> >  dcache_dir_open()
-> >  --> adds the cursor dentry
-> > 
-> >  					sysfs_remove_dir()
-> >  					--> list_del_init cursor dentry
-> > 
-> >  dcache_readdir()
-> >  --> loops forever on inititalized cursor dentry.
-> > 
-> > 
-> >  Though all these operations happen under parent's i_sem, but it is dropped 
-> >  between ->open() and ->readdir() as both are different calls. 
-> > 
-> >  I think people will also agree that there is no need for sysfs_remove_dir() 
-> >  to modify d_subdirs list.
-> 
-> Seems to me that the libfs code is fragile.
-> 
-> What happens if the dentry at filp->f_private_data gets moved to a
-> different directory after someone did dcache_dir_open()?  Does the loop
-> in dcache_readdir() go infinite again?
+This is a multi-part message in MIME format.
+--------------000603060105030009030508
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I am not sure if it is that bad. AFAICS, private_data points to a dummy
-dentry marking the current directory read position, that dentry cannot
-be moved to a different directory.
+Changes are in mainline linux for "public" ethernet support (device
+config support).  Currently, the attached patch is needed in
+the microkernel for interrupt delivery to work.
 
-Thanks
-Dipankar
+larry
+
+ps: nfs root mounting cheat will come shortly.
+
+
+--------------000603060105030009030508
+Content-Type: text/plain;
+ name="kma.c.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kma.c.patch"
+
+Index: kma.c
+===================================================================
+RCS file: /src/microkernel/sys/ds/kma/kma.c,v
+retrieving revision 1.54
+diff -C8 -u -r1.54 kma.c
+--- kma.c	18 Nov 2003 19:31:37 -0000	1.54
++++ kma.c	20 Nov 2003 16:35:35 -0000
+@@ -1773,17 +1773,17 @@
+  * Returns:
+  *	none
+  */
+ static inline void
+ kma_deliver_queued_int(struct trapframe *frame)
+ {
+         u_int index = vs_deliver_int(curvs, PCPU_GET(cpuid));
+         if (index < KMA_VI_MAX_INTERRUPT)
+-                kma_propagate_int(index + KMA_VI_IRQ_BASE, frame);
++                kma_propagate_int(index, frame);
+         return;
+ }
+ 
+ 
+ /* 
+  * KMA internal interface
+  *
+  */
+
+--------------000603060105030009030508--
+

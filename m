@@ -1,157 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVCRT0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVCRT2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbVCRT0t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 14:26:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbVCRT0t
+	id S261977AbVCRT2f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 14:28:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVCRT2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 14:26:49 -0500
-Received: from alog0452.analogic.com ([208.224.222.228]:38889 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261969AbVCRT0m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 14:26:42 -0500
-Date: Fri, 18 Mar 2005 14:22:25 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Le Wen <le_wen@hotmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Questions about request_irq and reading PCI_INTERRUPT_LINE
-In-Reply-To: <BAY20-F284EE2A7DE004B2A2FECC7E54A0@phx.gbl>
-Message-ID: <Pine.LNX.4.61.0503181407300.28091@chaos.analogic.com>
-References: <BAY20-F284EE2A7DE004B2A2FECC7E54A0@phx.gbl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 18 Mar 2005 14:28:34 -0500
+Received: from colin2.muc.de ([193.149.48.15]:32265 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261977AbVCRT2M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 14:28:12 -0500
+Date: 18 Mar 2005 20:28:08 +0100
+Date: Fri, 18 Mar 2005 20:28:08 +0100
+From: Andi Kleen <ak@muc.de>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mel Gorman <mel@csn.ul.ie>, linux-ia64@vger.kernel.org,
+       Jens.Maurer@gmx.net
+Subject: Re: [PATCH] add a clear_pages function to clear pages of higher order
+Message-ID: <20050318192808.GB38053@muc.de>
+References: <Pine.LNX.4.58.0503101229420.13911@schroedinger.engr.sgi.com> <200503111008.12134.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.58.0503161720570.1787@schroedinger.engr.sgi.com> <200503181154.37414.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.58.0503180652350.15022@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503180652350.15022@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Mar 2005, Le Wen wrote:
+On Fri, Mar 18, 2005 at 07:00:06AM -0800, Christoph Lameter wrote:
+> On Fri, 18 Mar 2005, Denis Vlasenko wrote:
+> 
+> > NT stores are not about 5% increase. 200%-300%. Provided you are ok with
+> > the fact that zeroed page ends up evicted from cache. Luckily, this is exactly
+> > what you want with prezeroing.
+> 
+> These are pretty significant results. Maybe its best to use non-temporal
 
-> On Fri, 18 Mar 2005, Le Wen wrote:
->
->> Hi, there,
->> 
->> I have problem to grab video from my ati all-in-wonder card. The card is in 
->> a PII Celeron machine with an on board video card (ATI Technologies Inc 3D 
->> Rage IIC AGP). there is no monitor connected with the on board video card. 
->> I only hook my AIW card with a monitor.
->> 
->> I use km-0.6 from gatos project. I load this km_drv module, but kernel 
->> always complains:
->> 
->> km: IRQ 0 busy
->> 
->> I checked code:
->>       km_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
->> 
->> here dev->irq with a value 0.
->> 
->> When km_probe gets called, it try to request an IRQ0 returns a -EBUSY:
->>       kms_irq=dev.irq;
->>       result=request_irq(kms->irq, handler, SA_SHIRQ, tag, (void *)kms);
->> 
->>       if(result==-EBUSY){
->>               printk(KERN_ERR "km: IRQ %ld busy\n", kms->irq);
->>               goto fail;
->>       }
->> 
->> 
->> So I tried to get right IRQ number using:
->>       u8 myirq;
->>       int rtn=pci_read_config_byte(dev,PCI_INTERRUPT_LINE, &myirq);
->>       dev->irq=myirq;
->>       kms->irq=dev_irq;
->>       result=request_irq(kms->irq, handler, SA_SHIRQ, tag, (void *)kms);
->> 
->>       if(result==-EBUSY){
->>               printk(KERN_ERR "km: IRQ %ld busy\n", kms->irq);
->>               goto fail;
->>       }
->>       if(result<0){
->>               printk(KERN_ERR "km: could not install irq handler: 
->> result=%d\n",result);
->>               goto fail;
->>       }
->> But this time I got:
->> 
->> km: kms->irq=24
->> km: could not install irq handler: result=-38
->> 
->> 
->> My questions are:
->> 1. I don't know why dev->irq has value of 0?
->> 
->
-> The PCI interface now needs to be enabled first. The IRQ value
-> returned is BAD until after one calls pci_enable_device(). This
-> is a BUG, now considered a FEATURE so it's unlikely to be fixed!
-> There are lots of people who have encountered this problem
-> with modules that are not in the "distribution".
->
->> 2. Is an IRQ number of 24 valid for a Intel PII Celeron?
->> 
->
-> Could be, but it;s probably invalid considering the way you
-> got it.
->
->> 3. What does this result=-38 mean?
->> 
->
-> Probably errno 38, i.e., ENOSYS
->
->> 
->> Wen, Le
->> 
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-> Notice : All mail here is now cached for review by Dictator Bush.
->                 98.36% of all statistics are fiction.
->
-> Thank you Dick!
->
-> But pci_enable_device(dev) was called sucussful before read 
-> pci_read_config_byte():
->
-> static int __devinit km_probe(struct pci_dev *dev, const struct pci_device_id 
-> *pci_id)
-> {
-> ...
-> if (pci_enable_device(dev))
->               return -EIO;
->       printk(KERN_DEBUG "pci_read_config_byte(dev,PCI_INTERRUPT_LINE, 
-> &testirq)\n");
->       u8 myirq;//=0;
->       int rtn=pci_read_config_byte(dev,PCI_INTERRUPT_LINE, &myirq);
->       kms->dev=dev;
->       dev->irq=myirq;
->       kms->irq=dev->irq;
-> and then call
->      result=request_irq(kms->irq, handler, SA_SHIRQ, tag, (void *)kms);
->
+The differences are actually less. I do not know what Denis benchmarked,
+but in my tests the difference was never more than ~10%.  He got a zero
+too much? 
 
-Whatever you do, do NOT read the PCI_INTERRUPT_LINE and think that
-it is an IRQ. It's not. The low 4-bits show some stuff called an
-"interrupt line", then there is the next 4-bits that is called
-"interrupt pin". None of these values show you the IRQ to use!
-In fact, INTA is required to be used for a "single-function"
-device to generate interrupts. Therefore everything on the
-usual PCI/Bus will be connected to INTA. INTA is some pin
-that gets connected to a PC-board trace that only the vendor
-(and BIOS group) knows. The Linux PCI interface gets its
-information from the BIOS so it "knows" what the actual
-IRQ is. You can't get that information by reading a PCI/Bus
-device configuration register.
+It does not make any sense if you think of it - the memory bus
+of the CPU cannot be that much faster than the cache.
 
-You code should do:
-         .... find your device, then:
- 	pci_enable_device(dev);
-         irq = dev->irq;
-         result=request_irq(irq, handler, SA_INTERRUPT|SA_SHIRQ,
-                           "device name", (void *)parameters);
+And the drawback of eating the cache misses later is really very
+significant.
 
+> stores in general for clearing pages? I checked and Itanium has always
+> used non-temporal stores. So there will be no benefit for us from this
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+That is weird. I would actually try to switch to temporal stores, maybe
+it will improve some benchmarks. 
+
+> approach (we have 16k and 64k page sizes which may make the situation a
+> bit different). Try to update the i386 architectures to do the same?
+
+Definitely not. 
+
+You can experiment with using it for the cleaner daemon, but even
+there I would use some heuristic to make sure you only use it 
+on a page that are at the end of a pretty long queue.
+
+e.g. if you can guarantee that the page allocator will go through
+500k-1MB before going to the NT page that is cache cold it may
+be a good idea. But that might be pretty complicated and I am not
+sure it will be worth it.
+
+But for the clear running in the page fault handler context it is 
+definitely a bad idea.
+
+-Andi

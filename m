@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263398AbTJBQ6g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 12:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263400AbTJBQ6g
+	id S263394AbTJBRDt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 13:03:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263400AbTJBRDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 12:58:36 -0400
-Received: from dsl-hkigw4g29.dial.inet.fi ([80.222.54.41]:23168 "EHLO
-	dsl-hkigw4g29.dial.inet.fi") by vger.kernel.org with ESMTP
-	id S263398AbTJBQ6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 12:58:35 -0400
-Date: Thu, 2 Oct 2003 19:59:20 +0300 (EEST)
-From: Petri Koistinen <petri.koistinen@iki.fi>
-X-X-Sender: petri@dsl-hkigw4g29.dial.inet.fi
-To: linux-kernel@vger.kernel.org
-Subject: ksoftirqd & kswapd returning nothing while non-void
-Message-ID: <Pine.LNX.4.58.0310021953260.5991@dsl-hkigw4g29.dial.inet.fi>
+	Thu, 2 Oct 2003 13:03:49 -0400
+Received: from mail.g-housing.de ([62.75.136.201]:13475 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S263394AbTJBRDs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 13:03:48 -0400
+Message-ID: <3F7C5A70.5060900@g-house.de>
+Date: Thu, 02 Oct 2003 19:03:44 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031002
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: sailer@ife.ee.ethz.ch
+Subject: SND_ENS1371 needs GAMEPORT ?
+References: <slrnbniia2.p62.erik@bender.home.hensema.net>
+In-Reply-To: <slrnbniia2.p62.erik@bender.home.hensema.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+since nobody seems to notice, i re-post this again under a different 
+topic. no, it's not even a critical thing, but annoying or perhaps 
+someone can help me to understand the full impact of this issue.
 
-I just compiled latest 2.6.0-test kernel and noticed these two warnings:
+i've filed a bugzilla report:
 
-kernel/softirq.c: In function `ksoftirqd':
-kernel/softirq.c:352: warning: no return statement in function returning non-void
+http://bugzilla.kernel.org/show_bug.cgi?id=1309
 
-mm/vmscan.c: In function `kswapd':
-mm/vmscan.c:1045: warning: no return statement in function returning non-void
 
-Is here something that should be worried about?
+Thank you,
+Christian.
 
-Best regards,
-Petri Koistinen
+-- 
+BOFH excuse #255:
+
+Standing room only on the bus.
+

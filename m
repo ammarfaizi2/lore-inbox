@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269636AbUJLLaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269639AbUJLLcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269636AbUJLLaU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 07:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269633AbUJLLaT
+	id S269639AbUJLLcj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 07:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269627AbUJLLci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 07:30:19 -0400
-Received: from gate.crashing.org ([63.228.1.57]:42951 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S269621AbUJLL3O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 07:29:14 -0400
-Subject: Re: Totally broken PCI PM calls
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: ncunningham@linuxmail.org
-Cc: David Brownell <david-b@pacbell.net>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       Paul Mackerras <paulus@samba.org>
-In-Reply-To: <1097578189.3728.14.camel@desktop.cunninghams>
-References: <1097455528.25489.9.camel@gaston>
-	 <200410110915.33331.david-b@pacbell.net> <1097533363.13795.22.camel@gaston>
-	 <200410111946.03634.david-b@pacbell.net>  <1097553724.7778.34.camel@gaston>
-	 <1097578189.3728.14.camel@desktop.cunninghams>
-Content-Type: text/plain
-Message-Id: <1097580477.26690.5.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 12 Oct 2004 21:27:58 +1000
+	Tue, 12 Oct 2004 07:32:38 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:948 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269639AbUJLLcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 07:32:23 -0400
+Message-ID: <416BBF48.4070102@yahoo.com.au>
+Date: Tue, 12 Oct 2004 21:26:00 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Ronny V. Vindenes" <s864@ii.uib.no>
+CC: Jens Axboe <axboe@suse.de>, ck@vds.kolivas.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: CFQ v2 high cpu load fix(?)
+References: <1097579760.4086.27.camel@tentacle125.gozu.lan>
+In-Reply-To: <1097579760.4086.27.camel@tentacle125.gozu.lan>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > In the first case, it makes even sense to keep the driver operating
-> > while the device is D1, the driver would then just wake the device on an
-> > incoming request (provided this is allowed by the policy). In the later
-> > case, the driver state is the only thing that matters.
+Ronny V. Vindenes wrote:
+> CFQ v2 is much better in a lot of cases, but certain situations trigger
+> a cpu load so high it starves the rest of the system thus completely
+> ruining the interactive experience. While casually looking at the
+> problem, I stumbled upon a patch by Arjan van de Ven sent to lkml on
+> sept. 1 (Subject: block fixes). Part of it is already included in the
+> CFQ v2 patches and after applying the rest[1] I'm no longer able to
+> trigger the problem.
 > 
-> Not quite - you have to be able to get the device into a matching state
-> at resume time. Probably not a problem in most cases, I realise, but
-> thought it was worth a mention.
-
-Wait, I'm not talking about swsusp here, that's exactly my distinction
-between driver state and device state :) Only system suspend like swsusp
-and suspend-to-ram require a completely coherent and frozen memory
-"image".
-
-All sorts of dynamic PM, including system-wide "idle" can deal with
-scenarios where the driver can stay functional and decide by itself to
-wake up the device upon incoming requests.
-
-> [...]
+> [1] Patch attached against 2.6.9-rc4-ck1 but applies to rc4-mm1 with
+> some minor fuzz.
 > 
-> > Yup, with the exception that it becomes hell when those devices are
-> > anywhere on the VM path... which makes userspace policy unuseable for
-> > system suspend.
 > 
-> A device on the VM path? I don't follow here. Can I have a hand please?
+> 
+> ------------------------------------------------------------------------
+> 
+> --- patches/linux-2.6.9-rc4-ck1/drivers/block/ll_rw_blk.c	2004-10-12 12:25:09.798003278 +0200
+> +++ linux-2.6.9-rc4-ck1/drivers/block/ll_rw_blk.c	2004-10-12 12:25:42.959479479 +0200
+> @@ -100,7 +100,7 @@
+>  		nr = q->nr_requests;
+>  	q->nr_congestion_on = nr;
+>  
+> -	nr = q->nr_requests - (q->nr_requests / 8) - 1;
+> +	nr = q->nr_requests - (q->nr_requests / 8) - (q->nr_requests/16)- 1;
+>  	if (nr < 1)
+>  		nr = 1;
+>  	q->nr_congestion_off = nr;
 
-Any block device basically, I don't even want to think about the issues
-between NFS & suspend :)
 
-That is anything that userspace potentially requires to operate (device on
-the path to an mmap'd file, swap, whatever)...
+I thought this first hunk looked like a good idea when Arjan sent the
+patch. Can you check if it alone helps your problem?
 
-Ben.
-
-
+The second hunk should be basically a noop.

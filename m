@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbTDXIiq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 04:38:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbTDXIiq
+	id S261874AbTDXIlL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 04:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbTDXIlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 04:38:46 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:51335 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261851AbTDXIio
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 04:38:44 -0400
-Date: Thu, 24 Apr 2003 09:50:49 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: John Bradford <john@grabjohn.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flame Linus to a crisp!
-Message-ID: <20030424085049.GG28253@mail.jlokier.co.uk>
-References: <20030424074400.GD28253@mail.jlokier.co.uk> <200304240816.h3O8GGrH000399@81-2-122-30.bradfords.org.uk>
+	Thu, 24 Apr 2003 04:41:11 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:3467 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S261840AbTDXIlI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 04:41:08 -0400
+Date: Thu, 24 Apr 2003 02:25:44 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@digeo.com>
+Cc: mbligh@aracnet.com, ncunningham@clear.net.nz, gigerstyle@gmx.ch,
+       geert@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: Re: Fix SWSUSP & !SWAP
+Message-ID: <20030424002544.GC2925@elf.ucw.cz>
+References: <1051136725.4439.5.camel@laptop-linux> <1584040000.1051140524@flay> <20030423235820.GB32577@atrey.karlin.mff.cuni.cz> <20030423170759.2b4e6294.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200304240816.h3O8GGrH000399@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030423170759.2b4e6294.akpm@digeo.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
-> > If the hardware that comes out of industry won't let you hack, hey you
-> > still have basic materials like SiO2 from the real world to make your
-> > own.  Tough, but rewarding :)
+Hi!
+
+> > If you really want to "solve" it reliably, you can always
+> > 
+> > swapon /dev/hdfoo666
+> > 
 > 
-> We should be doing this _anyway_.
+> Seems that using a swapfile instead of a swapdev would fix that neatly.
 > 
-> With open hardware designs, there would be no problem with
-> documentation not being available to write drivers.
+> But iirc, suspend doesn't work with swapfiles.  Is that correct?  If so,
+> what has to be done to get it working?
 
-Open hardware design has a long way to come along, but the real
-problem is that making hardware is very expensive - because it is
-actually very difficult and depends upon enormous global industries.
-Even making a one-off PCB is very expensive compared with buying
-commodity hardware that does interesting stuff.
+Swapfile does not work, because even readonly mount wants to replay
+logs, and that'd be disk corruption.
 
-I was looking at various lumps of wood, metal and plastic around my
-home and realised that I'd have a hard time making _anything_ that I
-use daily, let alone computer hardware.
+It could be doable with modifications to the filesystems, but it would
+be hard (and I do not think it is worth it).
+								Pavel
 
-I'd love to find a cheaper, more accessible way of manufacturing
-hardware than is available to individuals at present.
-
-In principle, the industry which can make things could make use of
-open source designs, and then sell them to us.  I'm not sure how to
-make that come about, or how to make those things readily extendable
-by enthusiastic users - to close the loop.
-
--- Jamie
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131327AbRBJMhC>; Sat, 10 Feb 2001 07:37:02 -0500
+	id <S130012AbRBJNCS>; Sat, 10 Feb 2001 08:02:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130012AbRBJMgw>; Sat, 10 Feb 2001 07:36:52 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:29169 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131368AbRBJMgf>; Sat, 10 Feb 2001 07:36:35 -0500
-Date: Sat, 10 Feb 2001 10:36:05 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Mike Galbraith <mikeg@wen-online.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.1-ac7
-In-Reply-To: <Pine.LNX.4.21.0102100727350.27389-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0102101030000.2378-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130918AbRBJNCI>; Sat, 10 Feb 2001 08:02:08 -0500
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:65285 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S130012AbRBJNCD>; Sat, 10 Feb 2001 08:02:03 -0500
+Date: Sun, 11 Feb 2001 02:02:00 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Daniel Stone <daniel@kabuki.eyep.net>
+Cc: Chris Mason <mason@suse.com>, David Rees <dbr@spoke.nols.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+Message-ID: <20010211020200.A9570@metastasis.f00f.org>
+In-Reply-To: <479040000.981564496@tiny> <E14QkfM-0004EL-00@piro.kabuki.eyep.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14QkfM-0004EL-00@piro.kabuki.eyep.net>; from daniel@kabuki.eyep.net on Thu, Feb 08, 2001 at 05:34:44PM +1100
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Feb 2001, Marcelo Tosatti wrote:
-> On Sat, 10 Feb 2001, Mike Galbraith wrote:
-> 
-> > This change makes my box swap madly under load.
-> 
-> Swapped out pages were not being counted in the flushing limitation.
-> 
-> Could you try the following patch? 
+On Thu, Feb 08, 2001 at 05:34:44PM +1100, Daniel Stone wrote:
 
-Marcelo's patch should do the trick wrt. to making page_launder()
-well-behaved again.  It should fix the problems some people have
-seen with bursty swap behaviour.
+    I run Reiser on all but /boot, and it seems to enjoy corrupting my
+    mbox'es randomly.
 
-> --- linux.orig/mm/vmscan.c      Sat Feb 10 08:26:17 2001
-> +++ linux/mm/vmscan.c   Sat Feb 10 09:34:20 2001
-> @@ -515,6 +515,7 @@
-> 
->                         writepage(page);
->                         flushed_pages++;
-> +                       max_launder--;
->                         page_cache_release(page);
-> 
->                         /* And re-start the thing.. */
+what kind of corruption are you seeing?
+
+    This also occurs in some log files, but I put it down to syslogd
+    crashing or something.
+
+syslogd crashing shouldn't corrupt files... 
 
 
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262849AbTDAUQt>; Tue, 1 Apr 2003 15:16:49 -0500
+	id <S262837AbTDAUNl>; Tue, 1 Apr 2003 15:13:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262845AbTDAUQs>; Tue, 1 Apr 2003 15:16:48 -0500
-Received: from to-telus.redhat.com ([207.219.125.105]:32506 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S262840AbTDAUPt>; Tue, 1 Apr 2003 15:15:49 -0500
-Date: Tue, 1 Apr 2003 15:27:13 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: akpm@digeo.com, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Filesystem aio rdwr patchset
-Message-ID: <20030401152713.B26513@redhat.com>
-References: <20030401215957.A1800@in.ibm.com>
+	id <S262840AbTDAUNl>; Tue, 1 Apr 2003 15:13:41 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:55813 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S262837AbTDAUN3>; Tue, 1 Apr 2003 15:13:29 -0500
+Date: Tue, 1 Apr 2003 12:24:46 -0800
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Partition check order in fs/partition/check.c?
+Message-ID: <20030401202446.GB4078@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <200304010934.h319Y5TR270722@d06relay02.portsmouth.uk.ibm.com> <20030401113503.A30470@flint.arm.linux.org.uk> <200304011316.h31DFwTR039380@d06relay02.portsmouth.uk.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030401215957.A1800@in.ibm.com>; from suparna@in.ibm.com on Tue, Apr 01, 2003 at 09:59:57PM +0530
+In-Reply-To: <200304011316.h31DFwTR039380@d06relay02.portsmouth.uk.ibm.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 01, 2003 at 09:59:57PM +0530, Suparna Bhattacharya wrote:
-> I would really appreciate comments and review feedback 
-> from the perspective of fs developers especially on
-> the latter 2 patches in terms of whether this seems a 
-> sound approach or if I'm missing something very crucial
-> (which I just well might be)
-> Is this easy to do for other filesystems as well ?
+On Tue, Apr 01, 2003 at 03:14:56PM +0200, Peter Oberparleiter wrote:
+> Hm, what do you think of these additional checks:
+> 
+> 1. Check for overlap of partitions
 
-I disagree with putting the iocb pointer in the task_struct: it feels 
-completely bogus as it modifies semantics behind the scenes without 
-fixing APIs.
+Be very careful here.  While you better not _use_ overlapping
+partitions, a partition table with overlapping partitions is
+a traditional UNIX default.  It is usually something like
 
-		-ben
+	part	start	length
+	a	0	3/8 drive
+	b	3/8	1/8 drive
+	c	0	whole drive
+	d	0	1/3 drive
+	e	1/3	1/3 drive
+	f	2/3	1/3 drive
+	g	1/3	2/3 drive
+	h	1/2	1/2 drive
+
+In this way admins wouldn't repartition, just use the default
+partitions in suitable combinations.  This actually reduced
+the likelihood of overlapping partitions because the
+partitioning tools were sometimes confusing causing custom
+partition to have 1 cylinder overlaps.  When drives got to be
+larger than 2GB these default partition sizes became
+increasingly pointless.
+
+
 -- 
-Junk email?  <a href="mailto:aart@kvack.org">aart@kvack.org</a>
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

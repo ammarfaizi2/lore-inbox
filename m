@@ -1,79 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269750AbUJHIIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268146AbUJHIOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269750AbUJHIIW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 04:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269772AbUJHIIW
+	id S268146AbUJHIOr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 04:14:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268117AbUJHIOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 04:08:22 -0400
-Received: from mail9.messagelabs.com ([194.205.110.133]:23774 "HELO
-	mail9.messagelabs.com") by vger.kernel.org with SMTP
-	id S269745AbUJHIHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 04:07:16 -0400
-X-VirusChecked: Checked
-X-Env-Sender: icampbell@arcom.com
-X-Msg-Ref: server-12.tower-9.messagelabs.com!1097222834!12612264
-X-StarScan-Version: 5.2.10; banners=arcom.com,-,-
-X-Originating-IP: [194.200.159.164]
-Subject: Re: [PATCH] trivial fix for warning in kernel/power/console.c
-From: Ian Campbell <icampbell@arcom.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au, Patrick Mochel <mochel@digitalimplant.org>,
-       Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <20041007160858.0708e968.akpm@osdl.org>
-References: <1097157857.5231.10.camel@icampbell-debian>
-	 <20041007160858.0708e968.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Arcom Control Systems
-Message-Id: <1097222833.5231.67.camel@icampbell-debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 08 Oct 2004 09:07:13 +0100
+	Fri, 8 Oct 2004 04:14:47 -0400
+Received: from village.ehouse.ru ([193.111.92.18]:48649 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S269796AbUJHIKO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 04:10:14 -0400
+From: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
+To: comsatcat@earthlink.net
+Subject: Re: Megaraid random loss of luns
+Date: Fri, 8 Oct 2004 11:47:38 +0400
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <1096586111.25603.13.camel@solaris.skunkware.org>
+In-Reply-To: <1096586111.25603.13.camel@solaris.skunkware.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410081147.39035.rathamahata@ehouse.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Not only that, orig_kmsg is assigned to but never read from.
-
-I decided to restore it rather that dump it, so how about:
-
-Fix warnings in kernel/power/console.c by only declaring orig_fgconsole
-and orig_kmsg when required by SUSPEND_CONSOLE. Restore kmsg_redirect on
-resume.
-
-Signed-off-by: Ian Campbell <icampbell@arcom.com>
-
-Index: 2.6-bk/kernel/power/console.c
-===================================================================
---- 2.6-bk.orig/kernel/power/console.c	2004-10-07 14:47:25.000000000 +0100
-+++ 2.6-bk/kernel/power/console.c	2004-10-08 08:56:28.750936142 +0100
-@@ -11,7 +11,9 @@
- 
- static int new_loglevel = 10;
- static int orig_loglevel;
-+#ifdef SUSPEND_CONSOLE
- static int orig_fgconsole, orig_kmsg;
-+#endif
- 
- int pm_prepare_console(void)
- {
-@@ -50,6 +52,7 @@
- 	acquire_console_sem();
- 	set_console(orig_fgconsole);
- 	release_console_sem();
-+	kmsg_redirect = orig_kmsg;
- #endif
- 	return;
- }
+On Friday 01 October 2004 03:15, comsatcat wrote:
+> I'm not sure if this is the correct list or not to ask about this, but
+> it seemed proper.  We have a machine running the megaraid module that
+> came with vanilla 2.6.7.  Earlier this morning all the luns suddenly
+> disappeared for no apparent reason.
+> 
+> The kernel logged the following messages:
+<cut>
+> Could someone provide an explanation of what exactly went wrong if
+> possible (if the megaraid driver was at fault or the raid controller)? 
+> Are there any known bugs with large raid 5 volumes using the megaraid
+> driver?  The volumes are each 325G (4 total) in this situation.  We've
+> experienced other problems with the megaraid driver such as 1TB luns
+> (two per controller) loosing almost all disks in them (I thought this
+> was a controller problem at first, but we have 2 different models of
+> controllers, 1 LSI PCI 320-4x and 2 LSI PCI 320-2x's, on 3 identical
+> hardware configurations and have been experiencing problems on all of
+> them).
+I've got exactly the same issues for four of my machines under heavy IO load
+(all are raid1) with megaraid 320-{1,2} and megaraid 160 (Series 475).
+kernel 2.6.8.1. For me it looks like a driver issue rather than  a particular
+controller problem ...
 
 -- 
-Ian Campbell, Senior Design Engineer
-                                        Web: http://www.arcom.com
-Arcom, Clifton Road, 			Direct: +44 (0)1223 403 465
-Cambridge CB1 7EA, United Kingdom	Phone:  +44 (0)1223 411 200
-
-
-_____________________________________________________________________
-The message in this transmission is sent in confidence for the attention of the addressee only and should not be disclosed to any other party. Unauthorised recipients are requested to preserve this confidentiality. Please advise the sender if the addressee is not resident at the receiving end.  Email to and from Arcom is automatically monitored for operational and lawful business reasons.
-
-This message has been virus scanned by MessageLabs.
+Sergey S. Kostyliov <rathamahata@ehouse.ru>
+Jabber ID: rathamahata@jabber.org

@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267206AbUGMXDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267211AbUGMXGr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267206AbUGMXDl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 19:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267210AbUGMXDl
+	id S267211AbUGMXGr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 19:06:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267215AbUGMXGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 19:03:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:1721 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267206AbUGMXDj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 19:03:39 -0400
-Date: Tue, 13 Jul 2004 16:06:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: paul@linuxaudiosystems.com, rlrevell@joe-job.com,
-       linux-audio-dev@music.columbia.edu, mingo@elte.hu, arjanv@redhat.com,
+	Tue, 13 Jul 2004 19:06:47 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:9192 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S267211AbUGMXGh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 19:06:37 -0400
+Message-ID: <40F46A7F.5000703@pacbell.net>
+Date: Tue, 13 Jul 2004 16:04:31 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: Stuart_Hayes@Dell.com, whbeers@mbio.ncsu.edu, olh@suse.de,
+       Gary_Lerhaupt@Dell.com, linux-usb-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel
- Preemption Patch
-Message-Id: <20040713160628.596b96a3.akpm@osdl.org>
-In-Reply-To: <20040713225305.GO974@dualathlon.random>
-References: <200407130001.i6D01pkJ003489@localhost.localdomain>
-	<20040712170844.6bd01712.akpm@osdl.org>
-	<20040713162539.GD974@dualathlon.random>
-	<20040713114829.705b9607.akpm@osdl.org>
-	<20040713213847.GH974@dualathlon.random>
-	<20040713145424.1217b67f.akpm@osdl.org>
-	<20040713220103.GJ974@dualathlon.random>
-	<20040713152532.6df4a163.akpm@osdl.org>
-	<20040713223701.GM974@dualathlon.random>
-	<20040713154448.4d29e004.akpm@osdl.org>
-	<20040713225305.GO974@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: [linux-usb-devel] [PATCH] proper bios handoff in ehci-hcd
+References: <7A8F92187EF7A249BF847F1BF4903C046304CF@ausx2kmpc103.aus.amer.dell.com> <20040713145628.27ae43e7@lembas.zaitcev.lan>
+In-Reply-To: <20040713145628.27ae43e7@lembas.zaitcev.lan>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
->
-> What I'm doing is basically to replace all might_sleep with cond_resched
+Pete Zaitcev wrote:
 
-I cannot see a lot of point in that.  They are semantically different
-things and should look different in the source.
+> I hit regressions when we implemented the proper handoff as requested
+> by Stuart @Dell, so I think for the moment the right thing would be this:
+> 
+> --- linux-2.4.21-15.18.EL/drivers/usb/host/ehci-hcd.c	2004-07-01
+> 08:07:56.000000000 -0700
+> +++ linux-2.4.21-15.18-usb/drivers/usb/host/ehci-hcd.c	2004-07-08
+> 15:15:05.944863675 -0700
+> @@ -302,7 +302,8 @@
+>  		if (cap & (1 << 16)) {
+>  			ehci_err (ehci, "BIOS handoff failed (%d, %04x)\n",
+>  				where, cap);
+> -			return 1;
+> +			pci_write_config_dword (ehci->hcd.pdev, where, 0);
+> +			return 0;
+>  		} 
+>  		ehci_dbg (ehci, "BIOS handoff succeeded\n");
+>  	}
+> 
+> Essentially, here I insist on doing the right thing with cap|=(1<<24),
+> which fixes Dell boxes which implement proper handoff, but then if we
+> time out as on Thinkpads, write zero as the old code did (probably
+> pointless, but just to be safe) and continue.
 
-And it's currently OK to add a might_sleep() to (say) an inline path which
-is expended a zillion times because we know it'll go away for production
-builds.  If those things become cond_resched() calls instead, the code
-increase will be permanent.
+I'd rather not change the config space again ... that's clearly wrong.
+Or is there some policy about what sorts of BIOS bugs we should assume?
 
-> cond_resched_lock is another story of course.
+Instead, how about:  (a) longer timeout, 5 seconds to match OHCI's
+absurdly long default there; (b) change that "handoff failed" message
+to add "continuing anyway"; and (c) return 0 as you do, which I'm
+expecting is the key part of that patch.
 
-cond_resched_lock() doesn't work on SMP.  I'll probably be removing it in
-favour of unconditionally dropping the lock every N times around the loop,
-to allow the other CPU (the one with need_resched() true) to get in there
-and take it.
+That'll evidently work for Will, as well as correctly functioning hardware
+with EHCI-aware BIOS (the Dell boxes and the AMI BIOS box I tested) also
+the classic EHCI-unaware BIOS setups.
 
-And please let me repeat: preemption is the way in which we wish to provide
-low-latency.  At this time, patches which sprinkle cond_resched() all over
-the place are unwelcome.  After 2.7 forks we can look at it again.
+- Dave
 
-I've yet to go through Arjan's patch - I suspect a lot of it is not needed.
+

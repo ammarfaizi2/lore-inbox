@@ -1,90 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262054AbREPS4t>; Wed, 16 May 2001 14:56:49 -0400
+	id <S261777AbREPThT>; Wed, 16 May 2001 15:37:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262060AbREPS4j>; Wed, 16 May 2001 14:56:39 -0400
-Received: from fandango.cs.unitn.it ([193.205.199.228]:26899 "EHLO
-	fandango.cs.unitn.it") by vger.kernel.org with ESMTP
-	id <S262054AbREPS4U>; Wed, 16 May 2001 14:56:20 -0400
-From: Massimo Dal Zotto <dz@cs.unitn.it>
-Message-Id: <200105161856.UAA18123@fandango.cs.unitn.it>
-Subject: Re: wrong /dev/sd... order with multiple adapters in kernel 2.4.4
-In-Reply-To: <Pine.LNX.3.95.1010516141437.2686A-100000@chaos.analogic.com> from
- "Richard B. Johnson" at "May 16, 2001 02:25:45 pm"
-To: root@chaos.analogic.com
-Date: Wed, 16 May 2001 20:55:43 +0200 (MEST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S261909AbREPThJ>; Wed, 16 May 2001 15:37:09 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:14859 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261777AbREPThE>; Wed, 16 May 2001 15:37:04 -0400
+Message-ID: <3B02D6AB.E381D317@transmeta.com>
+Date: Wed, 16 May 2001 12:36:11 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Geert Uytterhoeven <geert@linux-m68k.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca>
+		<Pine.LNX.4.05.10105160921220.23225-100000@callisto.of.borg> <200105161822.f4GIMo509185@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 16 May 2001, Massimo Dal Zotto wrote:
+Richard Gooch wrote:
 > 
-> > Hi,
-> > 
-> > I have recently upgraded the kernel from 2.2.19 to 2.4.4 and discovered
-> > that it assigns the /dev/sd... devices in the wrong order with respect both
-> > to the behavior of kernel 2.2.19 and to the `scsihosts' boot option which I
-> > specified at the boot prompt.
-> [SNIPPED]
+> Geert Uytterhoeven writes:
+> > On Tue, 15 May 2001, Richard Gooch wrote:
+> > > Alan Cox writes:
+> > > > >         len = readlink ("/proc/self/3", buffer, buflen);
+> > > > >         if (strcmp (buffer + len - 2, "cd") != 0) {
+> > > > >                 fprintf (stderr, "Not a CD-ROM! Bugger off.\n");
+> > > > >                 exit (1);
+> > > >
+> > > > And on my box cd is the cabbage dicer whoops
+> > >
+> > > Actually, no, because it's guaranteed that a trailing "/cd" is a
+> > > CD-ROM. That's the standard.
+> >
+> > Then  check for `/cd' at the end instead of `cd' :-)
 > 
-> As a work-around, you can use modules and boot through 'initrd' where
-> you load the modules in the order you want.
-
-I wanted to use a simpler method, a plain kernel with two static drivers
-which can simply be copied to /boot or to a floppy. Of course any more
-sophisticated method would work but I wanted a simple thing.
-
-> When you have two SCSI disk controllers, the order at which the drives
-> are seen will "always be wrong" --Murphys Law. You can control the
-> order in which the controllers are detected and installed by using
-> modules.
-
-Yes, I understand that any particular order will be wrong for some users.
-
-I'm not complaining about the current scan order. What I'm complaining about
-is that we do *have* a specific method of forcing the desired order (the
-scsihosts boot option) but this is ignored by some parts of the scsi code.
-
-I suggest that the scsihosts order is taken into account also when detecting
-the /dev/sd devices and not only when creating the /dev/scsi/ devices.
-
-> Basically you cannot ever expect that multiple controllers will
-> be detected in any particular order. They usually end up being detected
-> in the device-order for which they exist on the PCI bus. This changes!
-
-This is not the case with kernel 2.4.4. They are detected in `ld' order.
-Changing the makefiles will change the scan order.
-
-> If both of your controllers are "pluggable", you can swap them
-> on the physical bus to change the order in which they are detected.
-
-This is impossible given the density of cables and cards in the cabinet, and
-useless anyway given the fact that devices are detected in `ld' order.
-
-> If only one is pluggable, you might try another PCI slot. It may
-> have a number above/below the one embedded on the board.
+> Argh! What I wrote in text is what I meant to say. The code didn't
+> match. No wonder people seemed to be missing the point. So the line of
+> code I actually meant was:
+>         if (strcmp (buffer + len - 3, "/cd") != 0) {
 > 
-> Cheers,
-> Dick Johnson
-> 
-> Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-> 
-> "Memory is like gasoline. You use it up when you are running. Of
-> course you get it all back when you reboot..."; Actual explanation
-> obtained from the Micro$oft help desk.
-> 
-> 
+
+This is still a really bad idea.  You don't want to tie this kind of
+things to the name.
+
+	-hpa
 
 -- 
-Massimo Dal Zotto
-
-+----------------------------------------------------------------------+
-|  Massimo Dal Zotto               email: dz@cs.unitn.it               |
-|  Via Marconi, 141                phone: ++39-0461534251              |
-|  38057 Pergine Valsugana (TN)      www: http://www.cs.unitn.it/~dz/  |
-|  Italy                             pgp: see my www home page         |
-+----------------------------------------------------------------------+
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137045AbREKE7S>; Fri, 11 May 2001 00:59:18 -0400
+	id <S137046AbREKFQt>; Fri, 11 May 2001 01:16:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137046AbREKE7I>; Fri, 11 May 2001 00:59:08 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:60422 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S137045AbREKE6z>; Fri, 11 May 2001 00:58:55 -0400
-Message-Id: <200105110458.f4B4wnU82110@aslan.scsiguy.com>
-To: Joachim Backes <backes@rhrk.uni-kl.de>
-cc: LINUX Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.4.4, Adaptec 7880 on board controller 
-In-Reply-To: Your message of "Fri, 11 May 2001 06:42:01 +0200."
-             <XFMail.20010511064201.backes@rhrk.uni-kl.de> 
-Date: Thu, 10 May 2001 22:58:49 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S137047AbREKFQj>; Fri, 11 May 2001 01:16:39 -0400
+Received: from web10206.mail.yahoo.com ([216.136.130.70]:6919 "HELO
+	web10206.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S137046AbREKFQY>; Fri, 11 May 2001 01:16:24 -0400
+Message-ID: <20010511051623.69540.qmail@web10206.mail.yahoo.com>
+Date: Thu, 10 May 2001 22:16:23 -0700 (PDT)
+From: sri gg <srimg@yahoo.com>
+Subject: usb uhci & 8139too ON 2.4.2
+To: linux Kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi,
->
->when booting on a machine having an Adaptec 7880 on board
->controller (Kernel 2.4.4), then i get the following msg:
->
->...
->...
->
->SCSI subsystem driver Revision: 1.00
->request_module[scsi_hostadapter]: Root fs not mounted
->request_module[scsi_hostadapter]: Root fs not mounted
->request_module[scsi_hostadapter]: Root fs not mounted
+Hello,
+      I recently compiled the 2.4.2 with usb support.
+I also brought a ethernet card based on the 8139too.o
+driver. When i insert the module, the following 
+message keeps blurting out:
 
-This was fixed post v6.1.5 of the aic7xxx driver.  You
-can obtain patches for the latest version from here:
+kernel: uhci: host controller halted. very bad
+kernel: uhci: host controller halted. very bad
+kernel: uhci: host controller halted. very bad
+.
+.
+.
 
-http://people.FreeBSD.org/~gibbs/linux/
+this happens only when i insert the 8139too module.
+else the usb works fine, and detects the usb
+devices. Is there anything i am missing or should be
+doing... Any help or suggestions would be very 
+helpful.
+Thanks.
+srimg.
 
---
-Justin
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - buy the things you want at great prices
+http://auctions.yahoo.com/

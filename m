@@ -1,73 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbULSXpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbULSX6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261350AbULSXpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 18:45:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbULSXpZ
+	id S261353AbULSX6T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 18:58:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbULSX6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 18:45:25 -0500
-Received: from main.gmane.org ([80.91.229.2]:50142 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261350AbULSXpQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 18:45:16 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Joseph Seigh" <jseigh_02@xemaps.com>
-Subject: Re: What does atomic_read actually do?
-Date: Sun, 19 Dec 2004 18:50:54 -0500
-Message-ID: <opsi94i4z0s29e3l@grunion>
-References: <opsi7o5nqfs29e3l@grunion>  <1103394867.4127.18.camel@laptopd505.fenrus.org> <opsi7xcuizs29e3l@grunion>  <1103399680.4127.20.camel@laptopd505.fenrus.org> <opsi707edhs29e3l@grunion> <1103494866.6052.354.camel@localhost>
+	Sun, 19 Dec 2004 18:58:19 -0500
+Received: from pao-nav01.pao.digeo.com ([12.47.58.24]:48399 "HELO
+	pao-nav01.pao.digeo.com") by vger.kernel.org with SMTP
+	id S261353AbULSX6Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Dec 2004 18:58:16 -0500
+Date: Sun, 19 Dec 2004 15:57:22 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: lista4@comhem.se, linux-kernel@vger.kernel.org, mr@ramendik.ru,
+       kernel@kolivas.org
+Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+Message-Id: <20041219155722.01b1bec0.akpm@digeo.com>
+In-Reply-To: <41C6073B.6030204@yahoo.com.au>
+References: <14514245.1103496059334.JavaMail.tomcat@pne-ps4-sn2>
+	<41C6073B.6030204@yahoo.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: stenquists.ne.client2.attbi.com
-User-Agent: Opera M2/7.54 (Win32, build 3865)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Dec 2004 23:57:55.0191 (UTC) FILETIME=[8EC92870:01C4E626]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Dec 2004 17:21:06 -0500, Robert Love <rml@novell.com> wrote:
-
-> On Sat, 2004-12-18 at 15:43 -0500, Joseph Seigh wrote:
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 >
->> > it does so on *x86
->>
->> Is this documented for gcc anywhere?  Just because it does so doesn't
->> mean it's guaranteed.
->
-> Listen to what Arjan is saying: It is not a compiler feature.  x86
-> already guarantees that an aligned word-size read is atomic in the
-> nothing-can-interleave sense.
->
-I'm aware of that.  I'm not asking a question about x86 architecture.  I'm
-asking what guarantees that the compiler will load the int using one MOV
-instruction since there's nothing in the C standard that requires that,  
-even
-for volatile.   I think it's unlikely the compiler would use multiple loads
-a byte at a time but it really requires a compiler person to  
-authoritatively
-make that statement.
+> Andrew, what should we do?
 
-It's a big problem getting support for threaded programming in C since the
-C standard doesn't acknowlege threads.  For Posix threads, Posix had to  
-come
-up with a separate compliance certification for C compilers.  So when you  
-use
-posix pthreads, you have to use a posix compliant compiler to ensure your
-program will work correctly.
+- Ask Voluspa to do
 
-It's the same issue here.  The atomic functions are another thread api.   
-What's
-the assurance that gcc supports this api correctly?   There was the  
-possibility
-since the C standard leaves it implementation dependent what constitutes
-volatile access, that gcc did something special there.  But the gcc  
-documentation
-says this for volatile, "There is no guarantee that these reads and writes  
-are atomic,
-especially for objects larger than int."
+	echo 0 > /proc/sys/vm/swap_token_timeout
 
-http://gcc.gnu.org/onlinedocs/gcc-3.4.3/gcc/Volatiles.html#Volatiles
+  on 2.6.10-rc3 and retest.
 
-Joe Seigh
+- Dig out Rik's token-timeout-autotuning patch, make it apply, test it,
+  then ask Volupsa and others to test that.
 
+Have you time to look into the latter?
+
+(We still don't know why it chews tons of CPU, do we?)

@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282236AbRK2Ard>; Wed, 28 Nov 2001 19:47:33 -0500
+	id <S282260AbRK2Avn>; Wed, 28 Nov 2001 19:51:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282232AbRK2ArY>; Wed, 28 Nov 2001 19:47:24 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:40965 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S282228AbRK2ArL>; Wed, 28 Nov 2001 19:47:11 -0500
-Date: Wed, 28 Nov 2001 16:57:30 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Larry McVoy <lm@bitmover.com>
-cc: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>
+	id <S282246AbRK2Av0>; Wed, 28 Nov 2001 19:51:26 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:3712 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S282260AbRK2AvD>;
+	Wed, 28 Nov 2001 19:51:03 -0500
+Date: Wed, 28 Nov 2001 16:50:45 -0800 (PST)
+Message-Id: <20011128.165045.41632609.davem@redhat.com>
+To: viro@math.psu.edu
+Cc: pwalten@au1.ibm.com, linux-kernel@vger.kernel.org
 Subject: Re: Coding style - a non-issue
-In-Reply-To: <20011128162317.B23210@work.bitmover.com>
-Message-ID: <Pine.LNX.4.40.0111281651530.1666-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.GSO.4.21.0111281901110.8609-100000@weyl.math.psu.edu>
+In-Reply-To: <OF8451D8AC.A8591425-ON4A256B12.00806245@au.ibm.com>
+	<Pine.GSO.4.21.0111281901110.8609-100000@weyl.math.psu.edu>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Nov 2001, Larry McVoy wrote:
+   From: Alexander Viro <viro@math.psu.edu>
+   Date: Wed, 28 Nov 2001 19:17:42 -0500 (EST)
+   
+   indent does _not_ solve the problem of:
 
-> > Al, -><- close to setting up a Linux Kernel Hall of Shame - one with names of
-> > wankers (both individual and coprorat ones) responsible, their code and
-> > commentary on said code...
->
-> Please, please, please, I'm begging you, please do this.  It's the only way
-> people learn quickly.  Being nice is great, but nothing works faster than
-> a cold shower of public humiliation :-)
-
-Well, I don't know about "Hall of Shame" but having an "Hall of Flame"
-without you two guys is like going at the OktoberFest being abstemious :)
-
-
-
-- Davide
-
-
-
+Al, I think you just described the Intel e100 driver.
+:-)

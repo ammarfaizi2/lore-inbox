@@ -1,68 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293085AbSCJQUQ>; Sun, 10 Mar 2002 11:20:16 -0500
+	id <S293091AbSCJQpO>; Sun, 10 Mar 2002 11:45:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293087AbSCJQUG>; Sun, 10 Mar 2002 11:20:06 -0500
-Received: from 99dyn73.com21.casema.net ([62.234.30.73]:53418 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S293085AbSCJQTv>; Sun, 10 Mar 2002 11:19:51 -0500
-Message-Id: <200203101619.RAA16806@cave.bitwizard.nl>
-Subject: Re: RAID magics gone...
-In-Reply-To: <200203100914.KAA14394@cave.bitwizard.nl> from Rogier Wolff at "Mar
- 10, 2002 10:14:30 am"
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Date: Sun, 10 Mar 2002 17:19:49 +0100 (MET)
-CC: linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-notice1: This Email contains my Email address. This grants you the right
-X-notice2: to communicate with me using this address, related to the subject
-X-notice3: in this message. Unsollicitated mass-mailings are explictly 
-X-notice4: forbidden here, and by Dutch law. 
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S293094AbSCJQpI>; Sun, 10 Mar 2002 11:45:08 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:55498 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S293091AbSCJQos>;
+	Sun, 10 Mar 2002 11:44:48 -0500
+Date: Sun, 10 Mar 2002 17:44:46 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200203101644.RAA02312@harpo.it.uu.se>
+To: neilb@cse.unsw.edu.au
+Subject: [PATCH] 2.5.6 missing EXPORT_SYMBOL for NFSD module
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogier Wolff wrote:
-> 
-> Hi,
-> 
-> I have a machine with 4 160G disks in a raid-0 configuration. Now
-> after upgrading the hardware, all of a sudden raidstart can't find the
-> raid-superblocks anymore. Invalid magic. 
-> 
-> I'm suspecting that it might be that the superblock was overwritten
-> with data or something like that. Does anybody know of a bug like
-> this?
-> 
-> We're running kernel-2.4.16 with andre's IDE patches for the large
-> disks.
-> 
-> I'll see if I can find the "magic" anywhere on the disk....
+NFSD doesn't work as a module in recent 2.5 kernels since
+svc_reserve() isn't exported. The trivial patch below fixes this.
 
-Couldn't find them .
+/Mikael
 
-Moved the disks to the old machine, got my RAID back. But I still
-can't find the magic numbers for the rais-sb anywhere. 
-
-
-Could it be that 48bit addressing doesn't work for PIO mode?
-Either KERNEL bug, drive bug or by spec?
-
-I found that the drives were horribly slow when I tried searching
-them. So I turned DMA on only after having failed to mount the raid,
-and started to "search" through the whole disk.
-
-Can someone seek to the 8k before end of a raid-partition, and dump
-the remaining part of the disk, so that I can be sure to know what it
-looks like? That should include the raid-sb, right?
-
-				Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+--- linux-2.5.6/net/sunrpc/sunrpc_syms.c.~1~	Wed Feb 20 03:11:04 2002
++++ linux-2.5.6/net/sunrpc/sunrpc_syms.c	Sun Mar 10 14:32:04 2002
+@@ -77,6 +77,7 @@
+ EXPORT_SYMBOL(svc_recv);
+ EXPORT_SYMBOL(svc_wake_up);
+ EXPORT_SYMBOL(svc_makesock);
++EXPORT_SYMBOL(svc_reserve);
+ 
+ /* RPC statistics */
+ #ifdef CONFIG_PROC_FS

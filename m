@@ -1,65 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbUB0HO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 02:14:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUB0HO4
+	id S261744AbUB0HRk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 02:17:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbUB0HRk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 02:14:56 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:59365 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261728AbUB0HOt (ORCPT
+	Fri, 27 Feb 2004 02:17:40 -0500
+Received: from snota.svorka.net ([194.19.72.11]:6051 "HELO snota.svorka.net")
+	by vger.kernel.org with SMTP id S261744AbUB0HQX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 02:14:49 -0500
-Date: Fri, 27 Feb 2004 08:14:45 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Mark Gross <mgross@linux.co.intel.com>
-Cc: Tim Bird <tim.bird@am.sony.com>, root@chaos.analogic.com,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Why no interrupt priorities?
-Message-ID: <20040227071445.GA5695@devserv.devel.redhat.com>
-References: <403E4363.2070908@am.sony.com> <403E5EF7.7080309@am.sony.com> <1077831001.4443.9.camel@laptop.fenrus.com> <200402261421.34885.mgross@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
-Content-Disposition: inline
-In-Reply-To: <200402261421.34885.mgross@linux.intel.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 27 Feb 2004 02:16:23 -0500
+Message-ID: <403EEEB9.5030408@svorka.no>
+Date: Fri, 27 Feb 2004 08:16:09 +0100
+From: Jo Christian Buvarp <jcb@svorka.no>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: Enrico Demarin <enricod@videotron.ca>, linux-kernel@vger.kernel.org,
+       "Moore, Eric Dean" <Emoore@lsil.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: Ibm Serveraid Problem with 2.4.25
+References: <403DB882.9000401@svorka.no> <1077839333.4823.5.camel@localhost.localdomain> <1077846502.4454.2.camel@localhost.localdomain> <Pine.LNX.4.58L.0402270011140.2029@logos.cnet>
+In-Reply-To: <Pine.LNX.4.58L.0402270011140.2029@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+No, I only got IBM ServeRAID support
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--------------------------------------------------------------
+Med vennlig hilsen/Yours sincerely
+Jo Christian Buvarp
+Teknisk Leder
+Svorka Aksess AS
 
-On Thu, Feb 26, 2004 at 02:21:34PM -0800, Mark Gross wrote:
-> > hardware IRQ priorities are useless for the linux model. In linux, the
-> > hardirq runs *very* briefly and then lets the softirq context do the
-> > longer taking work. hardware irq priorities then don't matter really
-> > because the hardirq's are hardly ever interrupted really, and when they
-> > are they cause a performance *loss* due to cache trashing. The latency
-> > added by waiting briefly is going to be really really short for any sane
-> > hardware.
-> 
-> Keep in mind the context is Linux running on non-sane hardware, sloooow CPUs, 
+Notice:
+This e-mail may contain confidential and privileged material for the sole use of the intended recipient. Any review or distribution by others is strictly prohibited. If this e-mail is received by others than the intended recipient, please contact the sender and delete all copies.
 
-50Mhz is already really really fast in this context.
 
-> latency sensitive small io buffers etc. Losing system wide throughput to have 
-> the hardware codec not be starved is a happy trade off to make.
 
-The point I tried to make was that it would INCREASE latency. Unless you
-have misdesigned device drivers, which is something that is fixable :)
+Marcelo Tosatti wrote:
 
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+>Jo,
+>
+>You're also using the MPT Fusion driver?
+>
+>It has been updated in 2.4.25, and probably something broke. DAMN.
+>
+>Eric, please look into this for us ?
+>
+>On Thu, 26 Feb 2004, Enrico Demarin wrote:
+>
+>  
+>
+>>Hi everyone,
+>>
+>>I just checked, same message on a IBM x235 , it uses the
+>>
+>>Fusion MPT SCSI Host driver 2.05.11.03
+>>
+>>driver.
+>>
+>>Same message as you  ( except the offsets vary ) when I reboot.
+>>
+>>- Enrico
+>>
+>>On Thu, 2004-02-26 at 18:48, Enrico Demarin wrote:
+>>    
+>>
+>>>I have the same here using the "partially opensource" drivers for a
+>>>Promise TX2... no message on 2.4.24.I wonder if it also means it's
+>>>corrupting the FS ? :(
+>>>
+>>>
+>>>- Enrico
+>>>
+>>>On Thu, 2004-02-26 at 04:12, Jo Christian Buvarp wrote:
+>>>      
+>>>
+>>>>Just upgraded my server with the 2.4.25 kernel and I noticed an error :/
+>>>>The server is an IBM 345 with a Serveraid 5I controller, when doing an
+>>>>dmesg i get this error:
+>>>>
+>>>>attempt to access beyond end of device
+>>>>08:05: rw=0, want=528036, limit=528034
+>>>>attempt to access beyond end of device
+>>>>08:09: rw=0, want=65208120, limit=65208118
+>>>>
+>>>>This error only shows up in 2.4.25, when rebooting to 2.4.24 everything
+>>>>looks fine :)
+>>>>I tried upgrading the serveraid bios to the newest version (6.11.07),
+>>>>but i still got the error.
+>>>>
+>>>>So is this an bug in the kernel? Or do I have a problem on my server ?
+>>>>Is it safe to run 2.4.25 with this error ? Or should i go back to 2.4.24
+>>>>        
+>>>>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAPu5kxULwo51rQBIRAueRAJ9/9fVkGjp3/kov2GDeJpWoMhkkwQCeMSvh
-4YEN64kc5xUfFmcyOJhQwLY=
-=qaEk
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--

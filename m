@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264470AbTLGSJG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 13:09:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264474AbTLGSJG
+	id S264481AbTLGScO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 13:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264484AbTLGScO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 13:09:06 -0500
-Received: from holomorphy.com ([199.26.172.102]:26585 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264470AbTLGSJC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 13:09:02 -0500
-Date: Sun, 7 Dec 2003 10:08:53 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Amir Hermelin <amir@montilio.com>
+	Sun, 7 Dec 2003 13:32:14 -0500
+Received: from www.stereoconnection.CA ([216.16.235.58]:42121 "EHLO
+	nic.NetDirect.CA") by vger.kernel.org with ESMTP id S264481AbTLGScN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 13:32:13 -0500
+Date: Sun, 7 Dec 2003 13:32:01 -0500
+From: Chris Frey <cdfrey@netdirect.ca>
+To: Mark Symonds <mark@symonds.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Creating a page struct for HIGHMEM pages
-Message-ID: <20031207180853.GA8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Amir Hermelin <amir@montilio.com>, linux-kernel@vger.kernel.org
-References: <20031207175915.GZ8039@holomorphy.com> <00c401c3bcec$bbd52e40$1d01a8c0@CARTMAN>
+Subject: Re: 2.4.23 hard lock, 100% reproducible.
+Message-ID: <20031207133201.A4744@netdirect.ca>
+References: <20031207023650.GA772@symonds.net> <87he0ds3sv.fsf@ceramic.fifi.org> <02a901c3bc7b$69294ee0$7a01a8c0@gandalf>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <00c401c3bcec$bbd52e40$1d01a8c0@CARTMAN>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <02a901c3bc7b$69294ee0$7a01a8c0@gandalf>; from mark@symonds.net on Sat, Dec 06, 2003 at 08:34:32PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 07, 2003 at 08:05:39PM +0200, Amir Hermelin wrote:
-> Yes, I've tried ioremap (and placed the address in the ->virtual field), but
-> had problems with pre-written code that used kmap.  So, basically, what
-> you're saying is that I must change my code that uses kmap, or
-> alternatively, allocated page* below the highmem_start_page address.  Is
-> this correct?
+On Sat, Dec 06, 2003 at 08:34:32PM -0800, Mark Symonds wrote:
+> Other than that, nothing.  Is there a patch out there 
+> that will simply make 2.4.22 secure?  Things run great
+> on that kernel. 
 
-You don't need struct pages at all; ioremap() will just map physical to
-virtual without the things just fine.
+Here's the relevant section from patch-2.4.23
+
+- Chris
 
 
--- wli
+diff -urN linux-2.4.22/mm/mmap.c linux-2.4.23/mm/mmap.c
+--- linux-2.4.22/mm/mmap.c      2003-06-13 07:51:39.000000000 -0700
++++ linux-2.4.23/mm/mmap.c      2003-11-28 10:26:21.000000000 -0800
+@@ -1041,6 +1041,9 @@
+        if (!len)
+                return addr;
+
++       if ((addr + len) > TASK_SIZE || (addr + len) < addr)
++               return -EINVAL;
++
+        /*
+         * mlock MCL_FUTURE?
+         */
+

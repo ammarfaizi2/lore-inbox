@@ -1,98 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271692AbTGREiv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 00:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271693AbTGREiv
+	id S271694AbTGREw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 00:52:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271695AbTGREw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 00:38:51 -0400
-Received: from mail.donpac.ru ([217.107.128.190]:17861 "EHLO donpac.ru")
-	by vger.kernel.org with ESMTP id S271692AbTGREit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 00:38:49 -0400
-Date: Fri, 18 Jul 2003 08:53:35 +0400
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bug 954] New: link failure for arch/ppc/mm/built-in.o, function mem_pieces_find
-Message-ID: <20030718045335.GA12803@pazke>
-Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel@vger.kernel.org
-References: <5310000.1058499045@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fUYQa+Pmc3FrFX/N"
-Content-Disposition: inline
-In-Reply-To: <5310000.1058499045@[10.10.2.4]>
-User-Agent: Mutt/1.5.4i
-From: Andrey Panin <pazke@donpac.ru>
-X-Spam-Score: -11.5 (-----------)
+	Fri, 18 Jul 2003 00:52:59 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:45015 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id S271694AbTGREw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 00:52:58 -0400
+Date: Fri, 18 Jul 2003 06:04:17 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: "Brown, Len" <len.brown@intel.com>
+cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       "'ACPI-Devel mailing list'" <acpi-devel@lists.sourceforge.net>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'Marcelo Tosatti'" <marcelo@conectiva.com.br>
+Subject: Re: "noht" (RE: ACPI patches updated (20030714))
+In-Reply-To: <A5974D8E5F98D511BB910002A50A66470B981269@hdsmsx103.hd.intel.com>
+Message-ID: <Pine.LNX.4.44.0307180551060.1319-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 17 Jul 2003, Brown, Len wrote:
+> "noht" turns out to be tricky for ACPI in practice.
 
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks a lot for looking into it, Len.
+Nice to know I wasn't being too silly when I said it's beyond me now.
 
-On 198, 07 17, 2003 at 08:30:45 -0700, Martin J. Bligh wrote:
-> http://bugme.osdl.org/show_bug.cgi?id=3D954
->=20
->            Summary: link failure for arch/ppc/mm/built-in.o, function
->                     mem_pieces_find
->     Kernel Version: 2.6.0-test1 + cset-20030717_2009
->             Status: NEW
->           Severity: blocking
->              Owner: bugme-janitors@lists.osdl.org
->          Submitter: barryn@pobox.com
->=20
->=20
-> Distribution: Gentoo
-> Hardware Environment: 400MHz Apple PowerMac G4 (AGP Graphics model)
-> Software Environment: gcc 2.95.3, binutils 2.12.90.0.7 20020423
-> Problem Description:
-> When I try to compile linux-2.6.0-test1 + the cset-20030719_2009 patch (i=
-=2Ee.,
-> the latest BitKeeper snapshot on kernel.org as of this writing), I get th=
-is
-> compile error:
->   LD      .tmp_vmlinux1
-> arch/ppc/mm/built-in.o: In function `mem_pieces_find':
-> arch/ppc/mm/built-in.o(.init.text+0x8f8): undefined reference to `__va'
-> arch/ppc/mm/built-in.o(.init.text+0x8f8): relocation truncated to fit:
-> R_PPC_REL24 __va
-> make: *** [.tmp_vmlinux1] Error 1
+> ACPI really shouldn't tinker with or skip LAPIC enumeration.  It can't rely
+> on the table LAPIC ids to get packge numbers, and it can't rely on the BIOS
+> to have MPS implemented to enumerate physical processors.
+> 
+> The only reliable way to get the logical/physical mapping is the way
+> init_intel() does it today -- run CPUID locally on that logical processor
+> after it is up and running.
+> 
+> So if the kernel is to disable HT, the proper way would be to initialize all
+> the logical processors, have them identify themselves, and then optionally
+> take themselves off-line.  A possiblity for 2.6.
 
-Does this one-line patch helps ?
+Yes, a possibility.  But I doubt it'll be worth bothering.
 
-diff -u linux-2.6.0-test1.vanilla/arch/ppc/mm/mem_pieces.c linux-2.6.0-test=
-1/arch/ppc/mm/mem_pieces.c
---- linux-2.6.0-test1.vanilla/arch/ppc/mm/mem_pieces.c	2003-07-18 08:47:49.=
-000000000 +0400
-+++ linux-2.6.0-test1/arch/ppc/mm/mem_pieces.c	2003-07-18 08:48:53.00000000=
-0 +0400
-@@ -19,6 +19,7 @@
- #include <linux/stddef.h>
- #include <linux/blk.h>
- #include <linux/init.h>
-+#include <asm/page.h>
-=20
- #include "mem_pieces.h"
-=20
+> BIOS SETUP remains the preferred way to disable HT.  If the hardware is
+> implemented such that duplicated resources could be combined when HT is
+> disabled, only the BIOS would be able to do that -- so single threaded
+> performance with Linux implemented 'noht' might lag performance with BIOS
+> implemented 'noht'...
+> 
+> Given that 'noht' is workaround for a missing BIOS switch, I'm not confident
+> it is a win to burden the Linux kernel with it.
 
---=20
-Andrey Panin		| Linux and UNIX system administrator
-pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+I imagine we could still retain it when going the acpitable.c route;
+but I'd prefer to be consistent across the ways, and just remove all
+traces of "noht" now (a boot option to mask off the "ht" flag from
+cpuinfo, its current role, is definitely not worth retaining).
 
---fUYQa+Pmc3FrFX/N
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Hugh
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/F31Pby9O0+A2ZecRAiE2AJ9lJ0CAcLbegbcwYWh+VNWAdiim8QCfT+57
-qL949pMSa0k7s0uImRqqJPM=
-=vnW7
------END PGP SIGNATURE-----
-
---fUYQa+Pmc3FrFX/N--

@@ -1,102 +1,251 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264191AbUESP2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264253AbUESPbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264191AbUESP2m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 11:28:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUESP2m
+	id S264253AbUESPbs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 11:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUESPbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 11:28:42 -0400
-Received: from userel174.dsl.pipex.com ([62.188.199.174]:25733 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id S264191AbUESP20
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 11:28:26 -0400
-Date: Wed, 19 May 2004 16:26:46 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: tigran@einstein.homenet
-To: Ricky Beam <jfbeam@bluetronic.net>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: overlaping printk
-In-Reply-To: <Pine.GSO.4.33.0405191110380.14297-100000@sweetums.bluetronic.net>
-Message-ID: <Pine.LNX.4.44.0405191624240.4081-100000@einstein.homenet>
+	Wed, 19 May 2004 11:31:45 -0400
+Received: from hellhawk.shadowen.org ([212.13.208.175]:46596 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S264228AbUESPba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 11:31:30 -0400
+Date: Wed, 19 May 2004 16:29:40 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org,
+       agl@us.ibm.com, david@gibson.dropbear.id.au, mbligh@aracnet.com
+Subject: Re: do_page_fault() mm->mmap_sem deadlocks
+Message-ID: <255460000.1084980580@[192.168.100.2]>
+X-Mailer: Mulberry/3.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;
+ boundary="==========9A59EB708DDD873BD32C=========="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It happens to me often (on SMP) too. Originally I thought that printk is
-broken but having looked at the code I see that it has sufficient locking
-in place to prevent this from happening (on printk side). However, the
-fact that it only happens on a serial console (especially at low baud
-rates like 9600)  points in the direction of the serial driver.
+--==========9A59EB708DDD873BD32C==========
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Kind regards
-Tigran
+--On Monday, May 17, 2004 11:07:45 -0700 Andrew Morton <akpm@osdl.org> 
+wrote:
 
-On Wed, 19 May 2004, Ricky Beam wrote:
+> Yes.  The "oops deadlocks when mmap_sem is held" problem is rather
+> irritating, and would be nice to fix.
 
-> Can anyone explain why the kernel does this on a serial console:
-> 
-> C<PU0 >C2P:U M 3a:ch Mianech iCnhee cCk heExckc epEtxcieopnt: i0o0n0: 0000000000
-> 0000000000000040
-> 00C4P
-> U 2C:P UE 3IP:: E cI0P:1 0c10fa108 1fEFa8L AEGSF:L AG00S0:0 00200460
-> 0246    e
-> ax:     e 0ax00: 0000000000 0eb00x:  ebfx7f: a6f070f0a4 0ec00x:  e0c2x:a7 a02bea
-> 7e aebedxe : efdx7f: a6f700f0a4
-> 000     e
-> si      e: sif7: faf76f0a0040 e0d0i e:d ci0: 10c01f107e1f e7be p:eb 0p:00 000000
-> 00000 e00sp e:s fp:7 faf77ffab45
-> fb4*
-> ** **Ba*n kBa 0nk:  00:00 0000000000000000000000000000[00[0000000000000000000000
-> 0000000]00] a at t 00000000000000000000000000000000
-> 
-> ***** * BaBankn k1 1: :0 000000000000000000000000000000g0eneral protection fault
-> : 0000 [#1]
-> ....
-> 
-> That's two MCE's being printed at the exact same time. (CPU2 & 3 are a single
-> P4 Xeon.)  It makes it real damn hard to debug when the errors are printed
-> like that.
-> 
-> The GPF was printed correctly:
-> CPU:    3
-> EIP:    0060:[<c010c0a7>]    Not tainted
-> EFLAGS: 00010282   (2.6.6-SMP-rc3+BK@1.1386)
-> EIP is at intel_machine_check+0x12b/0x364
-> eax: 0000001f   ebx: 00000004   ecx: 00000407   edx: 00006f52
-> esi: 00000407   edi: 00000000   ebp: 00000000   esp: f7fa5f04
-> ds: 007b   es: 007b   ss: 0068
-> Process swapper (pid: 0, threadinfo=f7fa4000 task=f7fa85c0)
-> Stack: c0304002 00000001 00000000 00000000 f7fa5fb4 0000000f c0120adc 00000003
->        00000001 00000000 00000004 00000001 00000000 f7fa4000 02a7abee f7fa4000
->        f7fa4000 c0101f7e 00000000 f7fa5fb4 00000246 c0101fa8 00000046 c03cf108
-> Call Trace:
->  [<c0120adc>] run_timer_softirq+0x110/0x180
->  [<c0101f7e>] default_idle+0x0/0x2d
->  [<c0101fa8>] default_idle+0x2a/0x2d
->  [<c010bf7c>] intel_machine_check+0x0/0x364
->  [<c01049b5>] error_code+0x2d/0x38
->  [<c0101f7e>] default_idle+0x0/0x2d
->  [<c0101fa8>] default_idle+0x2a/0x2d
->  [<c010201c>] cpu_idle+0x37/0x40
->  [<c0119558>] printk+0x172/0x1a8
->  [<c03b2981>] print_cpu_info+0x86/0xd2
-> 
-> Code: 0f 32 81 c3 02 04 00 00 89 44 24 08 89 54 24 04 c7 04 24 f7
-> 
-> I wouldn't trust it as it was on the MCE'ing processor.
-> 
-> Note: The answer to "which kernel" is ALL of them. (even the bastard stepchild
-> redhat 2.4 kernel will do it.)
-> 
-> It goes on to have a fit unblanking a never blanked VT.  Stupid kernel!
-> 
-> --Ricky
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Ok.
+
+> These kernel-mode faults are by no means uncommon - probably the most
+> frequent scenario is:
+>
+> 	p = malloc(...);
+> 	read(fd, p, n);
+>
+> Here, generic_file_read() will take a copy_to_user() fault for each page
+> to COW it.
+>
+> Which makes one wonder why we aren't caching the result of the previous
+> exception table search.  I bet that would get a nice hit rate, and would
+> fix up any overhead which your change introduces.
+[...]
+> Please.  Also please consider (and instrument) a last-hit cache in
+> search_exception_tables().  Maybe it should be per-task.
+
+Ok.  As you suggested I tried out a cache for this, per system and per cpu 
+versions.  I found that if you are using it on all kernel faults you get 
+about a 75% hit ratio.  However, with the instrumentation in it is clear 
+that without my additional usage the exception table is rarely used, once 
+on a large i386 machine and about 11 times on my smaller i386 machine even 
+through a kernbench run.  Indeed, its pretty obvious when you look at it, 
+good faults such as the read scenario above match against the address space 
+and are handled.  We don't need to look them up in the exceptions table 
+unless we cannot fix the fault.
+
+So attempt #2. With the current code as long as we are able to get the 
+mmap_sem we will detect the bad pointer and oops as required.  Only if we 
+find mmap_sem locked might we be heading for deadlock and is the extra 
+'source' check of value.  So I now down_read_trylock mmap_sem and only if 
+that fails do I apply the 'source' exception checks.
+
+>From the i386 version:
+
++       if (!down_read_trylock(&mm->mmap_sem)) {
++               if ((error_code & 4) == 0 && !check_exception(regs))
++                       goto bad_area_nosemaphore;
++               down_read(&mm->mmap_sem);
++       }
+
+This will catch the deadlock case and catches nearly all of the failures 
+that full source validation would catch.  Invalid accesses to valid user 
+space addresses will succeed as they would currently.  It should add _no_ 
+additional overhead for the vast majority of faults.
+
+i386 and ppc64 versions attached.  Testing with kernbench shows no 
+performance impact.
+
+-apw
+--==========9A59EB708DDD873BD32C==========
+Content-Type: text/plain; charset=iso-8859-1;
+ name="010-fault_deadlock_ppc64.txt"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename="010-fault_deadlock_ppc64.txt";
+ size=2680
+
+If a fault in the kernel leads to an unexpected protection fault whilst in
+a code path which holds mmap_sem we will deadlock in do_page_fault() while
+trying to classify the fault.  By carefully testing the source of the fault
+we can detect and OOPS on the vast majority of these, greatly enhancing
+diagnosis of such bugs.
+
+---
+ fault.c |   39 ++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 38 insertions(+), 1 deletion(-)
+
+diff -X /home/apw/lib/vdiff.excl -rupN reference/arch/ppc64/mm/fault.c =
+current/arch/ppc64/mm/fault.c
+--- reference/arch/ppc64/mm/fault.c	2004-05-10 14:55:08.000000000 +0100
++++ current/arch/ppc64/mm/fault.c	2004-05-19 14:37:15.000000000 +0100
+@@ -75,6 +75,8 @@ static int store_updates_sp(struct pt_re
+ 	return 0;
+ }
+=20
++int check_exception(struct pt_regs *regs);
++
+ /*
+  * The error_code parameter is
+  *  - DSISR for a non-SLB data access fault,
+@@ -110,7 +112,29 @@ void do_page_fault(struct pt_regs *regs,
+ 		bad_page_fault(regs, address, SIGSEGV);
+ 		return;
+ 	}
+-	down_read(&mm->mmap_sem);
++
++	/* When running in the kernel we expect faults to occur only to
++	 * addresses in user space.  All other faults represent errors in the
++	 * kernel and should generate an OOPS.  Unfortunatly, in the case of an
++	 * erroneous fault occuring in a code path which already holds mmap_sem
++	 * we will deadlock attempting to validate the fault against the
++	 * address space.  Luckily the kernel only validly references user
++	 * space from well defined areas of code, which are listed in the
++	 * exceptions table. =20
++	 *
++	 * As the vast majority of faults will be valid we will only perform
++	 * the source reference check when there is a possibilty of a deadlock.
++	 * Attempt to lock the address space, if we cannot we then validate the
++	 * source.  If this is invalid we can skip the address space check,
++	 * thus avoiding the deadlock.
++	 */
++	if (!down_read_trylock(&mm->mmap_sem)) {
++		if (!user_mode(regs) && !check_exception(regs))
++			goto bad_area_nosemaphore;
++
++		down_read(&mm->mmap_sem);
++	}
++
+ 	vma =3D find_vma(mm, address);
+ 	if (!vma)
+ 		goto bad_area;
+@@ -200,6 +224,7 @@ good_area:
+ bad_area:
+ 	up_read(&mm->mmap_sem);
+=20
++bad_area_nosemaphore:
+ 	/* User mode accesses cause a SIGSEGV */
+ 	if (user_mode(regs)) {
+ 		info.si_signo =3D SIGSEGV;
+@@ -259,3 +284,15 @@ void bad_page_fault(struct pt_regs *regs
+ 	/* kernel has accessed a bad area */
+ 	die("Kernel access of bad area", regs, sig);
+ }
++
++int check_exception(struct pt_regs *regs)
++{
++	const struct exception_table_entry *entry;
++
++	/* Are we prepared to handle this fault?  */
++	if ((entry =3D search_exception_tables(regs->nip)) !=3D NULL) {
++		return 1;
++	}
++
++	return 0;
++}
+
+--==========9A59EB708DDD873BD32C==========
+Content-Type: text/plain; charset=us-ascii; name="015-fault_deadlock_i386.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="015-fault_deadlock_i386.txt";
+ size=2597
+
+If a fault in the kernel leads to an unexpected protection fault whilst in
+a code path which holds mmap_sem we will deadlock in do_page_fault() while
+trying to classify the fault.  By carefully testing the source of the fault
+we can detect and OOPS on the vast majority of these, greatly enhancing
+diagnosis of such bugs.
+
+---
+ extable.c |   12 ++++++++++++
+ fault.c   |   22 +++++++++++++++++++++-
+ 2 files changed, 33 insertions(+), 1 deletion(-)
+
+diff -upN reference/arch/i386/mm/extable.c current/arch/i386/mm/extable.c
+--- reference/arch/i386/mm/extable.c	2004-03-11 20:47:12.000000000 +0000
++++ current/arch/i386/mm/extable.c	2004-05-19 12:58:14.000000000 +0100
+@@ -34,3 +34,15 @@ int fixup_exception(struct pt_regs *regs
+ 
+ 	return 0;
+ }
++
++int check_exception(struct pt_regs *regs)
++{
++	const struct exception_table_entry *fixup;
++
++	fixup = search_exception_tables(regs->eip);
++	if (fixup) {
++		return 1;
++	}
++
++	return 0;
++}
+diff -upN reference/arch/i386/mm/fault.c current/arch/i386/mm/fault.c
+--- reference/arch/i386/mm/fault.c	2004-01-09 06:59:02.000000000 +0000
++++ current/arch/i386/mm/fault.c	2004-05-19 12:58:14.000000000 +0100
+@@ -198,6 +198,7 @@ static inline int is_prefetch(struct pt_
+ } 
+ 
+ asmlinkage void do_invalid_op(struct pt_regs *, unsigned long);
++int check_exception(struct pt_regs *regs);
+ 
+ /*
+  * This routine handles page faults.  It determines the address,
+@@ -262,7 +263,26 @@ asmlinkage void do_page_fault(struct pt_
+ 	if (in_atomic() || !mm)
+ 		goto bad_area_nosemaphore;
+ 
+-	down_read(&mm->mmap_sem);
++	/* When running in the kernel we expect faults to occur only to
++	 * addresses in user space.  All other faults represent errors in the
++	 * kernel and should generate an OOPS.  Unfortunatly, in the case of an
++	 * erroneous fault occuring in a code path which already holds mmap_sem
++	 * we will deadlock attempting to validate the fault against the
++	 * address space.  Luckily the kernel only validly references user
++	 * space from well defined areas of code, which are listed in the
++	 * exceptions table.  
++	 *
++	 * As the vast majority of faults will be valid we will only perform
++	 * the source reference check when there is a possibilty of a deadlock.
++	 * Attempt to lock the address space, if we cannot we then validate the
++	 * source.  If this is invalid we can skip the address space check,
++	 * thus avoiding the deadlock.
++	 */
++	if (!down_read_trylock(&mm->mmap_sem)) {
++		if ((error_code & 4) == 0 && !check_exception(regs))
++			goto bad_area_nosemaphore;
++		down_read(&mm->mmap_sem);
++	}
+ 
+ 	vma = find_vma(mm, address);
+ 	if (!vma)
+
+--==========9A59EB708DDD873BD32C==========--
 

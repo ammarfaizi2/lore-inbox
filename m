@@ -1,72 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262503AbUDDR3I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 13:29:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbUDDR3I
+	id S262518AbUDDRhD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 13:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbUDDRhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 13:29:08 -0400
-Received: from ulysses.news.tiscali.de ([195.185.185.36]:53258 "EHLO
-	ulysses.news.tiscali.de") by vger.kernel.org with ESMTP
-	id S262503AbUDDR3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 13:29:04 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Thomas Beneke <thomas.beneke@web.de>
-Newsgroups: linux.kernel
-Subject: Re: 2.6.4 & 2.6.5 breaks e100 support on my laptop
-Date: Sun, 04 Apr 2004 19:28:39 +0200
-Organization: Tiscali Germany
-Message-ID: <c4pgku$15ua$1@ulysses.news.tiscali.de>
-References: <1HhT9-3MH-7@gated-at.bofh.it> <1HiYZ-4FS-41@gated-at.bofh.it>
-NNTP-Posting-Host: p83.129.109.197.tisdip.tiscali.de
+	Sun, 4 Apr 2004 13:37:03 -0400
+Received: from mailrelay03.sunrise.ch ([194.158.229.31]:52430 "EHLO
+	obelix.spectraweb.ch") by vger.kernel.org with ESMTP
+	id S262518AbUDDRg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 13:36:58 -0400
+Date: Sun, 4 Apr 2004 19:36:46 +0200
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.5, ACPI, suspend and ThinkPad R40
+Message-ID: <20040404173646.GA15635@puck.ch>
+Mail-Followup-To: bol, linux-kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: ulysses.news.tiscali.de 1081099742 38858 83.129.109.197 (4 Apr 2004 17:29:02 GMT)
-X-Complaints-To: abuse@tiscali.de
-NNTP-Posting-Date: Sun, 4 Apr 2004 17:29:02 +0000 (UTC)
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040316
-X-Accept-Language: en-us, en
-In-Reply-To: <1HiYZ-4FS-41@gated-at.bofh.it>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
+Content-Disposition: inline
+X-From: Olivier Bornet <Olivier.Bornet@puck.ch>
+X-Url: http://puck.ch/
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Olivier Bornet <Olivier.Bornet@puck.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernt Hansen wrote:
-> Nevermind.  I must have had some weird configuration SNAFU.
-> 
-> It's working now :)  
-> 
-> Bernt.
-> 
-> On Sun, Apr 04, 2004 at 11:30:50AM -0400, Bernt Hansen wrote:
-> 
->>Hi,
->>
->>I have a Toshiba Tecra S1 laptop with a built-in ethernet card which
->>uses the e100 driver.  The ethernet works fine with linux kernel 2.6.3.
->>As of 2.6.4 (and 2.6.5) I get the following message at startup:
->>
->>e100: Intel(R) PRO/100 Network Driver, 3.0.17
->>e100: Copyright(c) 1999-2004 Intel Corporation
->>PCI: Enabling device 0000:02:08.0 (0000 -> 0003)
->>PCI: Setting latency timer of device 0000:02:08.0 to 64
->>e100: eth%d: e100_eeprom_load: EEPROM corrupted
->>e100: probe of 0000:02:08.0 failed with error -11
->>
->>and the ethernet no longer works.  (The 2nd last message eth%d is
->>probably missing the ethernet number as a parameter to this printk)
->>
->>Please cc: me in replies since I am not subscribed to the list.
->>
->>Let me know if there is anything I can do to help fix this problem.
->>
->>Thanks,
->>Bernt.
->>-- 
->>Bernt Hansen     Norang Consulting Inc.
-> 
-> 
-I've no probs with same hardware + kernel.
 
-Regards,
-Thomas
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hello,
+
+I have an IBM ThinkPad R40, with kernel 2.6.5 and ACPI enabled. The
+system is a GNU/Debian testing up-to-date, with acpid debian package
+1.0.3-2.
+
+I can suspend with Fn-F4, thanks to a acpi config doing:
+
+    echo 3 > /proc/acpi/sleep
+
+The laptop goes to sleep as execpted: all the lights goes off, and the
+light with the moon goes on. All is OK until this. :-)
+
+The problem is that I can't resume it. I have found no way. Pressing Fn
+don't work. The power button don't work. Closing and opening the display
+don't work. The only way to re-start the computer is to remove the
+battery. Of course, this cause a reboot.
+
+Has anyone some suggestion for me ?
+
+Thanks in advance.
+
+		Olivier
+--=20
+Olivier Bornet                |    fran=E7ais : http://puck.ch/f
+Swiss Ice Hockey Results      |    english  : http://puck.ch/e
+http://puck.ch/               |    deutsch  : http://puck.ch/g
+Olivier.Bornet@puck.ch        |    italiano : http://puck.ch/i
+Get my PGP-key at http://puck.ch/pgp or at http://pgp.mit.edu/
+
+--3V7upXqbjpZ4EhLz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAcEeudj3R/MU9khgRAng2AKCAFf4hpFUCyo+lMslC1XjQp9XpOACeO+e/
+bi6oCpVNioryKkBloVQ2Ke4=
+=83mq
+-----END PGP SIGNATURE-----
+
+--3V7upXqbjpZ4EhLz--

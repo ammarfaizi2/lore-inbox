@@ -1,92 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbULHROw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbULHRPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbULHROw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 12:14:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbULHROv
+	id S261271AbULHRPb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 12:15:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbULHRPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 12:14:51 -0500
-Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:61580 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261270AbULHROW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 12:14:22 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-In-Reply-To: <20041207141123.GA12025@elte.hu>
-References: <20041116130946.GA11053@elte.hu>
-	 <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu>
-	 <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu>
-	 <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu>
-	 <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu>
-	 <20041207132927.GA4846@elte.hu>  <20041207141123.GA12025@elte.hu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Kihon Technologies
-Date: Wed, 08 Dec 2004 12:13:38 -0500
-Message-Id: <1102526018.25841.308.camel@localhost.localdomain>
+	Wed, 8 Dec 2004 12:15:30 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:10372 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261271AbULHROu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 12:14:50 -0500
+Date: Wed, 8 Dec 2004 09:14:20 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Darren Hart <darren@dvhart.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, blainey@ca.ibm.com,
+       Martin J Bligh <mbligh@aracnet.com>, nacc@us.ibm.com,
+       johnstul@us.ibm.com, fultonm@ca.ibm.com
+Subject: Re: nanosleep resolution, jiffies vs microseconds
+Message-ID: <20041208171420.GD1270@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <1102524468.16986.30.camel@farah.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1102524468.16986.30.camel@farah.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+Hello, Darren,
 
-I found a race condition in slab.c, but I'm still trying to figure out
-exactly how it's playing out.  This has to do with dynamic loading and
-unloading of caches. I have a small test case that simulates the problem
-at http://home.stny.rr.com/rostedt/tests/sillycaches.tgz
+Thank you very much for getting to the bottom of this!
 
-This was done on:
+This is mostly an issue when sleeping for small numbers of ticks,
+so if HZ was 10000, a nanosleep(1000000) would get bumped by
+a couple hundred microseconds rather than the current milliseconds,
+right?
 
-# uname -r
-2.6.10-rc2-mm3-V0.7.32-9
+Further, if one were to do nanosleep(900000) given HZ of 1024,
+the expected sleep time would be 2 milliseconds, right?
 
-I have a module that creates a cache to allocate objects from. When you
-unload the module, it deallocates the objects and then destroys the
-cache.  But with your patched kernel I get the following output, and the
-system then goes into an unstable state. That is the system will crash
-at a latter time. Usually when dealing with caches.
+						Thanx, Paul
 
-Here's the output:
-
-slab error in kmem_cache_destroy(): cache `silly_stuff': Can't free all objects
- [<c0103953>] dump_stack+0x23/0x30 (20)
- [<c014929f>] kmem_cache_destroy+0xff/0x1a0 (28)
- [<d081e10d>] mkcache_cleanup+0x1d/0x21 [sillymod] (12)
- [<c013a711>] sys_delete_module+0x161/0x1a0 (100)
- [<c0102a00>] syscall_call+0x7/0xb (-8124)
----------------------------
-| preempt count: 00000001 ]
-| 1-level deep critical section nesting:
-----------------------------------------
-.. [<c01383ed>] .... print_traces+0x1d/0x60
-.....[<c0103953>] ..   ( <= dump_stack+0x23/0x30)
-
-
-I've done some extra testing and found that if I wait between the frees
-and the destroying of the cache, everything works fine.  This problem
-happens because it seems that the objects in the slab are being freed in
-a batch style and they don't get freed on the destroy. I put prints in
-to see more information and found that in kmem_cache_destroy, it calls
-__cache_shrink, which calls drain_cpu_caches (obvious from code), but
-what my prints show, is that when it gets down to drain_array_locked (it
-gets in the function) that ac->avail is zero.  I need to read more into
-the details of how the slab works, but you can take a look too.
-
-By the way, 2.6.10-rc2-mm3 does not have a problem with this.
-
-Thanks,
-
--- Steve
+On Wed, Dec 08, 2004 at 08:47:48AM -0800, Darren Hart wrote:
+> I am looking at trying to improve the latency of nanosleep for short
+> sleep times (~1ms).  After reading Martin Schwidefsky's post for cputime
+> on s390 (Message-ID:
+> <20041111171439.GA4900@mschwid3.boeblingen.de.ibm.com>), it seems to me
+> that we may be able to accomplish this by storing the expire time in
+> microseconds rather than jiffies.  Here is an example for context:
+> 
+> Say we want to sleep for 1ms on i386, we call nanosleep(1000000).
+> Unfortunately on i386 a jiffy is slightly less than 1ms (as one might
+> expect with HZ = 1000).  So when sys_nanosleep calls
+> timespec_to_jiffies, it returns 2.  Now to allow for the corner case
+> when my 1ms sleep request gets called at the very tail end of a clock
+> period (see ascii diagram below), nanosleep adds 1 to that and calls
+> schedule_timeout with 3.  So a 1 ms sleep correctly turns into 3
+> jiffies.
+> 
+> If we were to store the expire value in microseconds, this corner case
+> would still exist and still span two full tick periods.  However, the
+> large majority of the time, nanosleep(1000000) could pause for only 2
+> jiffies, instead of 3.  Before I dug to deep into the relevant code I
+> wanted to hear some opinions on this approach.
+> 
+> 
+> Worst case scenario for a 1ms sleep:
+> 
+> TICK @ 1000000000 ns ------------------------   (X jiffies)
+> 
+> 
+>     nanosleep(1000000) // this can't correctly wake until 1001999849
+> TICK @ 1000999849 ns ------------------------   (X jiffies + 1)
+> 
+> 
+> 
+> TICK @ 1001999698 ns ------------------------   (X jiffies + 2)
+>     at 1001999849 nanosleep call can wake up
+>     (but since this is after X jiffies + 2, we can't actually wake
+>      until X jiffies + 3)
+> 
+> TICK @ 1002999547 ns ------------------------   (X jiffies + 3)
+>     wake from nanosleep
+> 
+> 
+> Thanks,
+> 
+> -- 
+> Darren Hart <darren@dvhart.com>
+> 
+> 
+> 

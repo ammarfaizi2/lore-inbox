@@ -1,83 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261375AbTAXSJt>; Fri, 24 Jan 2003 13:09:49 -0500
+	id <S261398AbTAXSLc>; Fri, 24 Jan 2003 13:11:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261398AbTAXSJs>; Fri, 24 Jan 2003 13:09:48 -0500
-Received: from ns0.cobite.com ([208.222.80.10]:31244 "EHLO ns0.cobite.com")
-	by vger.kernel.org with ESMTP id <S261375AbTAXSJr>;
-	Fri, 24 Jan 2003 13:09:47 -0500
-Date: Fri, 24 Jan 2003 13:18:54 -0500 (EST)
-From: David Mansfield <lkml@dm.cobite.com>
-X-X-Sender: david@admin
-To: Nick Piggin <piggin@cyberone.com.au>
-cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.59mm5, raid1 resync speed regression.
-In-Reply-To: <3E31701E.4020101@cyberone.com.au>
-Message-ID: <Pine.LNX.4.44.0301241311350.32240-100000@admin>
+	id <S261448AbTAXSLc>; Fri, 24 Jan 2003 13:11:32 -0500
+Received: from fmr03.intel.com ([143.183.121.5]:9956 "EHLO hermes.sc.intel.com")
+	by vger.kernel.org with ESMTP id <S261398AbTAXSLb>;
+	Fri, 24 Jan 2003 13:11:31 -0500
+Message-Id: <200301241820.h0OIKZr16376@unix-os.sc.intel.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: mgross <mgross@unix-os.sc.intel.com>
+Reply-To: mgross@unix-os.sc.intel.com
+Organization: SSG Intel
+To: GrandMasterLee <masterlee@digitalroadkill.net>
+Subject: Re: Using O(1) scheduler with 600 processes.
+Date: Fri, 24 Jan 2003 10:22:17 -0800
+X-Mailer: KMail [version 1.3.1]
+Cc: Austin Gonyou <austin@coremetrics.com>, linux-kernel@vger.kernel.org
+References: <1043367029.28748.130.camel@UberGeek> <200301240204.h0O24Kr04239@unix-os.sc.intel.com> <1043388479.12855.21.camel@localhost>
+In-Reply-To: <1043388479.12855.21.camel@localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> David Mansfield wrote:
-> 
-> >Hi Andrew, list,
-> >
-> >I'm booting 2.5.59mm5 to run a database workload benchmark that I've been
-> >running against various kernels.  I'll post those results if they are
-> >interesting later, but I did notice that the raid1 resync is proceeding at
-> >half the speed (at best) that it usually does (vs. 2.5.59 that is).
-> >
-> >It currently at about 4-8 mb/sec (and falling as resync progresses),
-> >usually at 12-15 mb/sec.
-> >
-> >System is SMP 2xPIII 866mhz, 2GB ram, raid1 is two 15k U160 (running only
-> >an Ultra speed :-( because the onboard controller sucks) SCSI disks, same
-> >channel on aic7xxx.
-> >
-> >Kernel is 2.5.59-mm5 compiled with gcc version 2.96 20000731 (Red Hat 
-> >Linux 7.3 2.96-112)
-> >
-> >David
-> >
-> Thanks for the report. Please do post any results you get.
-> 
-> What disk workload exactly does a RAID1 resync consist of?
-> 
+On Thursday 23 January 2003 10:08 pm, GrandMasterLee wrote:
+> Well, if I could get a clean patch against 2.4.20, or possibly some help
+> fixing the one  I do have, thanks to Ingo, then we'd have a straight
+> O(1) sched for 2.4.20. I tried merging the patch that Ingo gave me, and
+> everything seems OK, but I don't have any menu selection for O(1) stuff
+> in the kernel config.(0 and 100 priority bits)
+>
+> So I can't tell if it's enabled.
 
-Well, I don't know the internals of it, but it goes something like: 
+do a ps -aux and see if there are any process migration threads, if you do 
+then its running the O(1) scheduler.
 
-decide which half of the mirror is more current.  Read blocks from this 
-partition, write to other.  Periodically update raid-superblock or 
-something.  The partitions in my case are on separate SCSI disks.
+>
+> > Your milage will vary.
+> > 
+> > Give it a try.
+> > 
+> > --mgross
+> > 
+>
+> I agree. In the interest of time, I may have to forego O(1), but maybe
+> I'll get lucky. :) *hint*hint* :)
 
-The thing about it is, it attempts to throttle the sync speed to not
-interfere too much with operation of the system (background resync could
-suck up all i/o 'cycles' and make a system unusable) by monitoring the
-amount of requests through the raid device itself.  The sysadmin can set a
-'speed limit' in /proc to control this, but I have it really high, so it
-*should* be syncing at max speed regardless of any i/o happening to the
-raid device itself.
+You really should try the O(1) scheduler.  600 process is a lot, we had ~100 
+for our benchmarks so it wasn't as big of a overhead for the old scheduler.  
+(Running Itanium 2's didn't hurt either ;) 
 
-So it's a bit complicated.  You'd have to look at the code or ask someone 
-(Neil Brown) who knows more about it.
+Your running Xeon's with more processes, you are more likely to see a benefit 
+from the O(1) scheduler.
 
-.... I'm rebooting and looking at it again.  Here's something strange, if 
-I let the system sit completely idle, the resync speed increases almost to 
-the 'normal' rate, but causing any (minor) disk activity in another window 
-causes the rate to plummet for minutes.
-
-I think there's some strange interaction with the speed-limit code in the 
-raid1 resync.
-
-David
-
-P.S. I'll post my benchmark date if/when available.
-
-
--- 
-/==============================\
-| David Mansfield              |
-| lkml@dm.cobite.com           |
-\==============================/
-
+--mgross

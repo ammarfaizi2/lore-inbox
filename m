@@ -1,72 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262709AbUDDTvA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 15:51:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbUDDTu7
+	id S262730AbUDDT6F (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 15:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbUDDT6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 15:50:59 -0400
-Received: from linux-bt.org ([217.160.111.169]:48811 "EHLO mail.holtmann.net")
-	by vger.kernel.org with ESMTP id S262709AbUDDTu5 (ORCPT
+	Sun, 4 Apr 2004 15:58:05 -0400
+Received: from webmail.sub.ru ([213.247.139.22]:53254 "HELO techno.sub.ru")
+	by vger.kernel.org with SMTP id S262730AbUDDT6B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 15:50:57 -0400
-Subject: No interrupts for PCMCIA cards
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sun, 4 Apr 2004 15:58:01 -0400
+Subject: Re: 2.6.4 : 100% CPU use on EIDE disk operarion, VIA chipset
+From: Mikhail Ramendik <mr@ramendik.ru>
+To: Andreas Hartmann <andihartmann@freenet.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <406FC621.1090507@A88da.a.pppool.de>
+References: <fa.g80v5s8.b2ofhi@ifi.uio.no> <fa.ljb660n.d2ofa9@ifi.uio.no>
+	 <406FC621.1090507@A88da.a.pppool.de>
 Content-Type: text/plain
-Message-Id: <1081108265.5533.17.camel@pegasus>
+Message-Id: <1081108674.1072.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 04 Apr 2004 21:51:05 +0200
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-6aspMR) 
+Date: Sun, 04 Apr 2004 23:57:55 +0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
+Hello,
 
-while trying to fix a problem with a Bluetooth PCMCIA card I faced the
-problem that my Cardbus controller don't give out any interrupts. I
-tried it with 2.6.5 and this is my PCMCIA bridge:
+Andreas Hartmann wrote:
+> > As recommended there, I have tried 2.6.5-rc3-mm4.
+> > 
+> > No change. Still 100% CPU usage; the performance seems teh same.
+> 
+> Yes. But it's curious:
+> Take a tar-file, e.g. tar the compiled 2.6 kernel directory. Than, untar 
+> it again - the machine behaves total normaly. 
 
-0000:02:0e.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller (rev 01)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 168, Cache Line Size: 0x20 (128 bytes)
-        Interrupt: pin A routed to IRQ 18
-        Region 0: Memory at 20000000 (32-bit, non-prefetchable)
-        Bus: primary=02, secondary=04, subordinate=07, sec-latency=176
-        Memory window 0: 20400000-207ff000 (prefetchable)
-        Memory window 1: 20800000-20bff000
-        I/O window 0: 00004000-000040ff
-        I/O window 1: 00004400-000044ff
-        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
-        16-bit legacy interface ports at 0001
+Not really. I tried a "simple" tar (no gzib/bzip2) - it was the same as
+with cp, a near-100% CPU "system" load, most of it iowait.
 
-And this is how /proc/interrupts look like:
+If I use bzip2 with tar, then yes, the load is nearly 100% "user",
+actually it's bzip2. But this is because the disk i/o is done at a *far*
+slower rate; the bottleneck is the CPU. If we don't read (or write) the
+disk heavily, naturally the system/iowait load is low.
 
-           CPU0       
-  0:    7241752    IO-APIC-edge  timer
-  1:      10923    IO-APIC-edge  i8042
-  2:          0          XT-PIC  cascade
-  8:          4    IO-APIC-edge  rtc
- 12:         94    IO-APIC-edge  i8042
- 14:     134100    IO-APIC-edge  ide0
- 15:          1    IO-APIC-edge  ide1
- 18:          0   IO-APIC-level  yenta
- 19:     120010   IO-APIC-level  uhci_hcd
- 20:          0   IO-APIC-level  ohci_hcd
- 21:     231886   IO-APIC-level  ohci1394, ohci_hcd, eth0
- 22:        297   IO-APIC-level  acpi, ehci_hcd
- 23:         57   IO-APIC-level  aic7xxx, uhci_hcd
-NMI:          0 
-LOC:    7241898 
-ERR:          0
-MIS:          0
+I tried doing a "cp" in another xterm window, while the tar/bzip2 was
+running. And sure enough, up the CPU system/iowait usage goes - the
+"cp"'s disk i/o takes much of the CPU time away from the bz2 task! Looks
+exactly like a cause of performance problems.
 
-The count for interrupt 18 is still zero every time, but on my Sony C1VE
-laptop the PCMCIA cards get their interrupts.
+(All of this was done on 2.6.5-rc3-mm4).
 
-Regards
+Yours, Mikhail Ramendik
 
-Marcel
+
+
+> And the 2.6-kernel is about 
+> 23% faster than the 2.4-kernel.
+> 
+> 
+> > Yours, Mikhail Ramendik
+> > 
+> > P.S. Sorry for making all comments into answers to your letter. I just
+> > don't want to break the thread. 
+> 
+> No problem - it's easier to read with comment directly in the text.
+> 
+> 
+> Regards,
+> Andreas Hartmann
+> 
+> 
 
 

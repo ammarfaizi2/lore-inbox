@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280758AbRKBSE4>; Fri, 2 Nov 2001 13:04:56 -0500
+	id <S280760AbRKBSEG>; Fri, 2 Nov 2001 13:04:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280756AbRKBSEl>; Fri, 2 Nov 2001 13:04:41 -0500
-Received: from [208.232.58.25] ([208.232.58.25]:16323 "EHLO kronos.usol.com")
-	by vger.kernel.org with ESMTP id <S280758AbRKBSEE>;
-	Fri, 2 Nov 2001 13:04:04 -0500
-Subject: Re: Via onboard audio
-From: Sean Middleditch <elanthis@awesomeplay.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15zii5-00037A-00@the-village.bc.nu>
-In-Reply-To: <E15zii5-00037A-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.30.16.08 (Preview Release)
-Date: 02 Nov 2001 13:03:13 -0500
-Message-Id: <1004724193.4883.21.camel@smiddle>
+	id <S280755AbRKBSD5>; Fri, 2 Nov 2001 13:03:57 -0500
+Received: from ce06d.unt0.torres.ka0.zugschlus.de ([212.126.206.6]:47883 "EHLO
+	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
+	id <S280760AbRKBSDu>; Fri, 2 Nov 2001 13:03:50 -0500
+Date: Fri, 2 Nov 2001 19:03:48 +0100
+From: Marc Haber <mh+linux-kernel@zugschlus.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Intel chipset development documents
+Message-ID: <20011102190348.C17298@torres.ka0.zugschlus.de>
+In-Reply-To: <1004721050.20610.7.camel@lemsip>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1004721050.20610.7.camel@lemsip>; from greg@ecsc.co.uk on Fri, Nov 02, 2001 at 05:10:50PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-11-02 at 13:06, Alan Cox wrote:
-> > OK, will do that.  RedHat uses your kernel trees, right?  I'll download
-> > new RPM's from rawhide if they're there (I'm in no hurry.)
-> 
-> Both Linus and -ac current trees support
-> 
-> make config
-> make rpm
-> 
-> rpm -Ivh blah...
-> 
-> then edit your lilo/grub config 8)
+On Fri, Nov 02, 2001 at 05:10:50PM +0000, Greg Sheard wrote:
+> Hi all. Apologies for OT, but this seems the best place to ask.
+> Intel have removed documentation for the 430VX (Triton) chipset from
+> their developer site.
 
-Hmm, good point, I forgot that was added.
+The famous Triton chipset was numbered 430_F_X. The 430VX was one of
+low-cost successor.
 
-I suppose I could be evil and ask when make deb support will be there for my
-more preferred Debian boxes... But I won't ask.  ~,^
+Greetings
+Marc
 
-Thanks, Alan!
-
-Sean Etc.
-
-
+-- 
+-----------------------------------------------------------------------------
+Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
+Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
+Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29

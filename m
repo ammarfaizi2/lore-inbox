@@ -1,32 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263825AbUDPWG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 18:06:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263886AbUDPWEJ
+	id S263854AbUDPWGX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 18:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbUDPWEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 18:04:09 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2434 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263876AbUDPWAR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 18:00:17 -0400
-Date: Fri, 16 Apr 2004 23:00:14 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       bfennema@falcon.csc.calpoly.edu
-Subject: Re: Fix UDF-FS potentially dereferencing null
-Message-ID: <20040416220014.GI24997@parcelfarce.linux.theplanet.co.uk>
-References: <20040416214104.GT20937@redhat.com>
+	Fri, 16 Apr 2004 18:04:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58565 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263854AbUDPV4I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 17:56:08 -0400
+Date: Fri, 16 Apr 2004 14:51:15 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: jt@hpl.hp.com
+Cc: jt@bougret.hpl.hp.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       irda-users@lists.sourceforge.net
+Subject: Re: IrDA patches for 2.6.6
+Message-Id: <20040416145115.63d7790b.davem@redhat.com>
+In-Reply-To: <20040414221518.GA5434@bougret.hpl.hp.com>
+References: <20040414221518.GA5434@bougret.hpl.hp.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040416214104.GT20937@redhat.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 16, 2004 at 10:41:04PM +0100, Dave Jones wrote:
-> Move size instantiation after null check for 'dir', nearer
-> to where its first used.
- 
-Check in question is a BS - it never gets NULL passed as dir.
+
+All applied, thanks Jean.

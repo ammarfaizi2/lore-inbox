@@ -1,39 +1,83 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <972117-5431>; Fri, 10 Jul 1998 12:45:29 -0400
-Received: from haymarket.ed.ac.uk ([129.215.128.53]:53341 "EHLO haymarket.ed.ac.uk" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <972177-5431>; Fri, 10 Jul 1998 12:16:58 -0400
-Date: Fri, 10 Jul 1998 14:34:32 +0100
-Message-Id: <199807101334.OAA00877@dax.dcs.ed.ac.uk>
-From: "Stephen C. Tweedie" <sct@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: Bill Hawes <whawes@star.net>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, ganesh.sittampalam@magd.ox.ac.uk, Virtual Memory problem report list <linux-kernel@vger.rutgers.edu>
-Subject: Re: Progress! was: Re: Yet more VM writable swap-cached pages
-In-Reply-To: <35A57732.A7B5DFF@star.net>
-References: <Pine.LNX.3.95.980709184611.6873C-100000@fishy> <199807100042.BAA07833@dax.dcs.ed.ac.uk> <35A57732.A7B5DFF@star.net>
+Received: by vger.rutgers.edu id <971249-26836>; Sat, 11 Jul 1998 05:50:23 -0400
+Received: from noc.nyx.net ([206.124.29.3]:3249 "EHLO noc.nyx.net" ident: "mail") by vger.rutgers.edu with ESMTP id <971721-26836>; Sat, 11 Jul 1998 05:49:57 -0400
+Date: Sat, 11 Jul 1998 04:57:52 -0600 (MDT)
+From: Colin Plumb <colin@nyx.net>
+Message-Id: <199807111057.EAA14133@nyx10.nyx.net>
+X-Nyx-Envelope-Data: Date=Sat Jul 11 04:57:52 1998, Sender=colin, Recipient=, Valsender=colin@localhost
+To: root@chaos.analogic.com
+Subject: Re: Future time
+Cc: linux-kernel@vger.rutgers.edu
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hi,
+Regarding improving the clock handling...
 
-On Thu, 09 Jul 1998 22:06:42 -0400, Bill Hawes <whawes@star.net> said:
+I'm working on it.  See http://phk.freebsd.dk/rover.html for what *can*
+be done if you try, and have a few hundred dollars in timekeeping
+hardware added to your PC (upshot: he currently can't distinguish the
+performance of his PC from a Cesium atomic frequency standard, and is
+looking to borrow one so he can measure more accurately), and I'm free
+to steal his ideas.
 
-> In my searches for the problem I had overlooked the interaction
-> between the PRESENT and PROT_NONE bits.
+I'm trying for good performance from existing PC hardware though.
+Thanks for the heads-up on the even crappier main oscillators.
+(If you can get an Allan variance curve out of the manufacturers,
+it would be very nice.)
 
-You're not the only one!
+For folks who don't know, a typical current PC has two crystals.
+a 14.318 MHz "colour burst*4" crystal at 315/22 MHz that drives the
+programmable timer (IRQ 0) directly, and the processor's 60/66 MHz
+clock and the serial port's 12 MHz clock through a PLL chip.
 
-> Hopefully any remaining swap bugs won't be so hard to track down ...
+Secondly, a 32768 Hz crystal for the battery-backed clock.  This is
+actually shaped like a miniature quartz tuning fork, and is a low 
+frequency to reduce power consumption in the attached circuitry.
+Every quartz wristwatch in the world runs off such a crystal.
 
-Yep.  Ingo and I have been doing a bunch of swapping stress tests with
-no problems so far, so we're hoping that any other problems that turn
-up will be due to the use of specific features like PROT_NONE and
-won't be problems in the underlying swap mechanisms.  Well, we can
-hope, can't we?  :)
+Although theoretically the higher-frequency crystal has less loss
+than the tuning fork (which has arms waving in the air), which results
+in greater frequency precision, in practice the tuning forks are
+optimized for timekeeping and tolerances are tighter, while the higher
+frequency clocks are built to just (barely) make it within spec.
 
---Stephen
+The link on the rover.html page to John R. Vig's paper will tell you
+more than you probably ever wanted to know about Quartz oscillators.
 
+
+Anyway, Alan Cox was nice enough to point out to me that there are some
+embedded systems where the RTC interrupt is wired to RESET rather than
+IRQ 8 so the system can use it as a watchdog timer.  This makes using
+that source for interrupts somewhat impractical.  The code has to adapt
+to a wide variety of brokenness.  (It's still doable, although precision 
+suffers.)
+
+
+The idea I'm working on is to use the cycle counter as much as possible,
+but to calibrate it against the battery-backed RTC (which will also
+detect all kinds of APM events), and calibrate that whole mess against
+external sources with NTP.
+
+
+I've been working on code to take RDTSC readings from successive interrupts
+and strip out the noise.  Since the noise is one-sided (interrupts are
+only ever late, not early), averaging doesn't get rid of it too well.
+Since the noise depends on what you're doing (when the make -j finishes,
+things change), using averages isn't even stable, let alone precise.
+
+
+Right now I'm trying to deal with SMP issues.  If any SMP hackers would
+like to guide me through SMP interrupt handling on *all* Linux platforms,
+I'd like to ask a few questions.  Please email me.  (E.g. I don't understand
+the APIC stuff at all.)
+-- 
+	-Colin
+
+(P.S. This all started when David Miller complained to me about how
+long secure TCP sequence number generation was taking.  I looked, and
+gettimeofday() was taking half of the time.  So I set out to fix it.
+Fixing it *right* is a lot harder than it seems.)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.rutgers.edu
+Please read the FAQ at http://www.altern.org/andrebalsa/doc/lkml-faq.html

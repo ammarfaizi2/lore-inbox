@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263099AbSITRLw>; Fri, 20 Sep 2002 13:11:52 -0400
+	id <S263080AbSITRJn>; Fri, 20 Sep 2002 13:09:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263137AbSITRLw>; Fri, 20 Sep 2002 13:11:52 -0400
-Received: from are.twiddle.net ([64.81.246.98]:12440 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S263099AbSITRLu>;
-	Fri, 20 Sep 2002 13:11:50 -0400
-Date: Fri, 20 Sep 2002 10:16:36 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: "J.A. Magallon" <jamagallon@able.es>, Brian Gerst <bgerst@didntduck.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, dvorak <dvorak@xs4all.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Syscall changes registers beyond %eax, on linux-i386
-Message-ID: <20020920101636.A25490@twiddle.net>
-Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
-	"J.A. Magallon" <jamagallon@able.es>,
-	Brian Gerst <bgerst@didntduck.org>,
-	Petr Vandrovec <VANDROVE@vc.cvut.cz>, dvorak <dvorak@xs4all.nl>,
-	linux-kernel@vger.kernel.org
-References: <20020919224613.GA2026@werewolf.able.es> <Pine.LNX.3.95.1020920081925.19137A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.3.95.1020920081925.19137A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Fri, Sep 20, 2002 at 08:27:32AM -0400
+	id <S263084AbSITRJn>; Fri, 20 Sep 2002 13:09:43 -0400
+Received: from smtp01.web.de ([194.45.170.210]:51473 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S263080AbSITRJm> convert rfc822-to-8bit;
+	Fri, 20 Sep 2002 13:09:42 -0400
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: =?iso-8859-15?q?Ren=E9=20Scharfe?= <l.s.r@web.de>
+To: Jean Tourrilhes <jt@hpl.hp.com>
+Subject: [PATCH] 2.5.37 wavelan_cs compile error, warning fix
+Date: Fri, 20 Sep 2002 19:14:43 +0200
+User-Agent: KMail/1.4.2
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209201914.43965.l.s.r@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 20, 2002 at 08:27:32AM -0400, Richard B. Johnson wrote:
-> Adding 1 to %eax is plain dumb.
+Hi,
 
-No it isn't.  P4 has a partial register stall on the
-flags register when using incl.  You'll notice that
-we *do* use incl except when optimizing for P4.
+this patch fixes a compile error and a warning about an unused
+function in wavelan_cs.c. Compiles, untested.
 
-> Also that 1 is 4 bytes long.
-
-No it isn't.  There is an 8-bit signed immediate form.
-
-As for the rest of the memory operand rant, the problem
-is not that gcc won't try to use memory operands, it's
-that the bit of code that's supposed to put these 
-memory operands back together is like 10 years old and
-hasn't been taught about the memory aliasing subsystem.
-So any time it sees a memory load cross a memory store,
-it gives up.
-
-Perhaps I'll have this fixed for gcc 3.4.
+René
 
 
+--- linux-2.5.37/drivers/net/wireless/wavelan_cs.c	Fri Sep 20 18:22:38 2002
++++ linux/drivers/net/wireless/wavelan_cs.c	Fri Sep 20 19:00:11 2002
+@@ -56,6 +56,7 @@
+  *
+  */
+ 
++#include <linux/types.h>
+ #include <linux/ethtool.h>
+ #include <asm/uaccess.h>
+ #include "wavelan_cs.p.h"		/* Private header */
+@@ -1860,6 +1861,7 @@
+ }
+ #endif	/* HISTOGRAM */
+ 
++#if WIRELESS_EXT <= 12
+ static int netdev_ethtool_ioctl(struct net_device *dev, void *useraddr)
+ {
+ 	u32 ethcmd;
+@@ -1880,6 +1882,7 @@
+ 
+ 	return -EOPNOTSUPP;
+ }
++#endif
+ 
+ /*------------------------------------------------------------------*/
+ /*
 
-r~

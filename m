@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268000AbUHWXHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267831AbUHWWrf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268000AbUHWXHn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 19:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268129AbUHWXHj
+	id S267831AbUHWWrf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 18:47:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268104AbUHWWrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 19:07:39 -0400
-Received: from fire.osdl.org ([65.172.181.4]:61145 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S268000AbUHWXG3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 19:06:29 -0400
-Subject: Re: IA32 (2.6.8.1 - 2004-08-22.21.30) - 3 New warnings (gcc 3.2.2)
-From: John Cherry <cherry@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040823213431.GA4371@kroah.com>
-References: <200408231251.i7NCpJDK006874@cherrypit.pdx.osdl.net>
-	 <20040823213431.GA4371@kroah.com>
-Content-Type: text/plain
-Message-Id: <1093302139.12874.143.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 23 Aug 2004 16:02:20 -0700
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Aug 2004 18:47:15 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:56788 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S267773AbUHWWg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 18:36:58 -0400
+Date: Mon, 23 Aug 2004 18:41:16 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: BlaisorBlade <blaisorblade_spam@yahoo.it>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
+       len.brown@intel.com
+Subject: Re: [PATCH] Oops and panic while unloading holder of pm_idle
+In-Reply-To: <200408171728.06262.blaisorblade_spam@yahoo.it>
+Message-ID: <Pine.LNX.4.58.0408231839280.13924@montezuma.fsmlabs.com>
+References: <200408171728.06262.blaisorblade_spam@yahoo.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg,
+On Thu, 19 Aug 2004, BlaisorBlade wrote:
 
-Yes, these are valid warnings (as most warning are).  I am just flagging
-these since they are NEW to the build.  These particular warnings are
-likely to go away soon after Jan 1, which is good information to know. 
-These warning will not show up again as NEW warnings.
+> (CC me on replies as I'm not subscribed).
+>
+> A short description, with my hypothesis about how the panic() happened:
 
-BTW, Linus flagged these warning cases as part of changeset 1.1803.1.58.
+There is a short one liner for this which is already in the latest
+kernel;
 
-John
+Index: linux-2.6.8-rc1-mm1/drivers/acpi/processor.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.8-rc1-mm1/drivers/acpi/processor.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 processor.c
+--- linux-2.6.8-rc1-mm1/drivers/acpi/processor.c	14 Jul 2004 04:56:25 -0000	1.1.1.1
++++ linux-2.6.8-rc1-mm1/drivers/acpi/processor.c	20 Jul 2004 15:31:46 -0000
+@@ -2372,8 +2372,10 @@ acpi_processor_remove (
+ 	pr = (struct acpi_processor *) acpi_driver_data(device);
 
+ 	/* Unregister the idle handler when processor #0 is removed. */
+-	if (pr->id == 0)
++	if (pr->id == 0) {
+ 		pm_idle = pm_idle_save;
++		synchronize_kernel();
++	}
 
-On Mon, 2004-08-23 at 14:34, Greg KH wrote:
-> On Mon, Aug 23, 2004 at 05:51:19AM -0700, John Cherry wrote:
-> > drivers/cpufreq/cpufreq_userspace.c:157:2: warning: #warning The /proc/sys/cpu/ and sysctl interface to cpufreq will be removed from the 2.6. kernel series soon after 2005-01-01
-> > drivers/cpufreq/proc_intf.c:15:2: warning: #warning This module will be removed from the 2.6. kernel series soon after 2005-01-01
-> 
-> Um, these look like valid warnings to me, you might want to review these
-> by hand before sending them out.
-> 
-> thanks,
-> 
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+ 	status = acpi_remove_notify_handler(pr->handle, ACPI_DEVICE_NOTIFY,
+ 		acpi_processor_notify);

@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268896AbUIMTak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268883AbUIMTjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268896AbUIMTak (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 15:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268892AbUIMTak
+	id S268883AbUIMTjN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 15:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268902AbUIMTjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 15:30:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40128 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268899AbUIMTaY (ORCPT
+	Mon, 13 Sep 2004 15:39:12 -0400
+Received: from hera.kernel.org ([63.209.29.2]:57261 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S268883AbUIMTjL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 15:30:24 -0400
-Date: Mon, 13 Sep 2004 12:30:13 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [no patch] broken use of mm_release / deactivate_mm
-In-Reply-To: <20040913190633.GA22639@apps.cwi.nl>
-Message-ID: <Pine.LNX.4.58.0409131224440.2378@ppc970.osdl.org>
-References: <20040913190633.GA22639@apps.cwi.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 13 Sep 2004 15:39:11 -0400
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: Calling syscalls from x86-64 kernel results in a crash on Opteron
+ machines
+Date: Mon, 13 Sep 2004 19:39:04 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <ci4t0o$244$1@terminus.zytor.com>
+References: <4145A8E1.8010409@qlusters.com> <200409131644.54441.arnd@arndb.de> <4145BA28.5020702@qlusters.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1095104344 2181 127.0.0.1 (13 Sep 2004 19:39:04 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 13 Sep 2004 19:39:04 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 13 Sep 2004, Andries Brouwer wrote:
->
-> What happens at a fork, is that a long sequence of things is done,
-> and if a failure occurs all previous things are undone. Thus
-> (in copy_process()):
+Followup to:  <4145BA28.5020702@qlusters.com>
+By author:    Constantine Gavrilov <constg@qlusters.com>
+In newsgroup: linux.dev.kernel
 > 
->         if ((retval = copy_mm(clone_flags, p)))
->                 goto bad_fork_cleanup_signal;
->         if ((retval = copy_namespace(clone_flags, p)))
->                 goto bad_fork_cleanup_mm;
->         retval = copy_thread(0, clone_flags, stack_start, stack_size, p, regs);
->         if (retval)
->                 goto bad_fork_cleanup_namespace;
+> I can implement differently what I want, though it will be somewhat 
+> kludgy and kernel depenedent (depends on a version and distribution). I 
+> wanted to avoid that. Since what I write is really an application and 
+> not interface, it was very "native" to use application syscall approach.
 > 
-> ...
+> My real problem is not how to implement it. I want to understand this 
+> specific x86_64 problem.
 > 
-> bad_fork_cleanup_namespace:
->         exit_namespace(p);
-> bad_fork_cleanup_mm:
->         exit_mm(p);
->         if (p->active_mm)
->                 mmdrop(p->active_mm);
 
-I agree. Looks like the "exit_mm()" should really be a "mmput()".
+Put it in userspace.  Really.
 
-Can we have a few more eyes on this thing? Ingo, Nick?
-
-		Linus
+	-hpa

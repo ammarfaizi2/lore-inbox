@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262264AbTC1H6I>; Fri, 28 Mar 2003 02:58:08 -0500
+	id <S262292AbTC1IOy>; Fri, 28 Mar 2003 03:14:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262292AbTC1H6I>; Fri, 28 Mar 2003 02:58:08 -0500
-Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:58363
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262264AbTC1H6I>; Fri, 28 Mar 2003 02:58:08 -0500
-Date: Fri, 28 Mar 2003 03:05:42 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 64GB NUMA-Q after pgcl
-In-Reply-To: <20030328075730.GP30140@holomorphy.com>
-Message-ID: <Pine.LNX.4.50.0303280303190.2884-100000@montezuma.mastecende.com>
-References: <20030328040038.GO1350@holomorphy.com>
- <Pine.LNX.4.50.0303280243080.2884-100000@montezuma.mastecende.com>
- <20030328075730.GP30140@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262428AbTC1IOy>; Fri, 28 Mar 2003 03:14:54 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:34321 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262292AbTC1IOy>; Fri, 28 Mar 2003 03:14:54 -0500
+Date: Fri, 28 Mar 2003 08:26:07 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       David Ford <david+cert@blue-labs.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.66 buglet
+Message-ID: <20030328082607.A13326@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Dave Jones <davej@codemonkey.org.uk>,
+	David Ford <david+cert@blue-labs.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <3E827CDA.8030904@blue-labs.org> <20030327145440.A900@infradead.org> <20030327233050.GD16251@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030327233050.GD16251@suse.de>; from davej@codemonkey.org.uk on Thu, Mar 27, 2003 at 11:30:50PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Mar 2003, William Lee Irwin III wrote:
-
-> Sure. On NUMA-Q mem_map[] is not allocated using bootmem except for
-> node 0. Various other bootmem allocations are also proportional to
-> memory as measured in units of PAGE_SIZE, but not all.
+On Thu, Mar 27, 2003 at 11:30:50PM +0000, Dave Jones wrote:
+> On Thu, Mar 27, 2003 at 02:54:40PM +0000, Christoph Hellwig wrote:
+>  > +	error = devfs_mk_symlink("cpu/microcode", "../misc/microcode");
 > 
-> So all we're seeing here is node 0's mem_map[] with "miscellaneous"
-> bootmem allocations thrown in, whether reduced or increased.
-> 
-> This is not very reflective of what's going on as the majority of mem_map[]
-> is allocated through a custom reservation mechanism as opposed to bootmem.
+> Where did ../misc/microcode come from? That sounds horribly
+> generic compared to /dev/cpu/microcode
 
-Thanks, nice work btw, although the core guts of this stuff is somewhat of 
-a mystery to some of us ;)
+devfs automatically registers /dev/misc/<name> entries for any minor
+registered by misc_register.
 
-	Zwane
--- 
-function.linuxpower.ca

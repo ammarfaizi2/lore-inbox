@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269336AbRGaP7v>; Tue, 31 Jul 2001 11:59:51 -0400
+	id <S269334AbRGaP6v>; Tue, 31 Jul 2001 11:58:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269331AbRGaP7f>; Tue, 31 Jul 2001 11:59:35 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:27411
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S269335AbRGaP7U>; Tue, 31 Jul 2001 11:59:20 -0400
-Date: Tue, 31 Jul 2001 11:58:09 -0400
-From: Chris Mason <mason@suse.com>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Hans Reiser <reiser@namesys.com>, Rik van Riel <riel@conectiva.com.br>,
-        Christoph Hellwig <hch@caldera.de>, linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-Message-ID: <108130000.996595089@tiny>
-In-Reply-To: <20010801031554.B7728@weta.f00f.org>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S269331AbRGaP6m>; Tue, 31 Jul 2001 11:58:42 -0400
+Received: from dnscache.cbr.au.asiaonline.net ([210.215.8.100]:55682 "EHLO
+	dnscache.cbr.au.asiaonline.net") by vger.kernel.org with ESMTP
+	id <S269335AbRGaP6e>; Tue, 31 Jul 2001 11:58:34 -0400
+Message-ID: <3B66D580.5217B48B@acm.org>
+Date: Wed, 01 Aug 2001 01:57:52 +1000
+From: Gareth Hughes <gareth.hughes@acm.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7 -- GCC-3.0 -- "multiline string literals deprecated" -- PATCH
+In-Reply-To: <200107311415.f6VEF9oD028247@pincoya.inf.utfsm.cl>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-
-
-On Wednesday, August 01, 2001 03:15:54 AM +1200 Chris Wedgwood <cw@f00f.org>
-wrote:
-
-> On Tue, Jul 31, 2001 at 09:41:25AM -0400, Chris Mason wrote:
+Horst von Brand wrote:
 > 
->     if (some_error) {
->     #ifdef CONFIG_REISERFS_CHECK
->         panic("some_error") ;
->     #else
->         gracefully_recover
->     #endif
-> 
-> What a terrible construct... if would be much more elegant as:
-> 
->         if(some_error) {
->                 _namesys_internal_foo("some_error");
->                 recover_bar();
->         }
-> 
-> where _namesys_internal_foo is compiled differently and may not return
-> depending on CONFIG_REISERFS_CHECK and maybe also the error type.
+> AFAIU, they are non-standard, and can easily hide bugs (in opening a string
+> and forgetting to close you are in escence commenting out lines of code)
 
-Two part answer...
+Zack Weinberg, who's post started the thread, gave three main criteria
+for their removal in
+http://gcc.gnu.org/ml/gcc-patches/2001-07/msg00327.html, including:
 
-1) almost none of the CONFIG_REISERFS_CHECKs look like that, it was an
-oversimplified example ;-)
+<quote>
+There is only one argument in my mind for keeping them:
 
-2) Even still, the #ifdefs look nasty, and make the code hard to read.  Take
-a look at the latest ac release, which has a patch from Nikita that is
-similar to what you describe.
+  - It makes it easier to write lengthy chunks of inline assembly.
 
--chris
+This is certainly true, however, writing a lengthy chunk of inline
+assembly is almost always a mistake; it interferes with the compiler's
+ability to do its job.  Therefore I do not think there is any
+compelling need to make that easy.
+</quote>
 
+If I ever write inline assembly, then it's for a very good reason.  I'd
+hesitate to call almost all uses of inline assembly a "mistake",
+particlarly in places like the kernel, or math-intensive ones like 3D
+graphics.
 
+> Right. If you use a compiler, you shouldn't need it much. Better make
+> other, more important, things easy/more foolproof, even at some cost for
+> the asm() writer. (Hint: Count the lines of asm in the kernel (an
+> _extremely_ heavy asm user!) vs the lines of plain C)
 
+No argument re: lines of code.  However, if I have to write a decent
+chunk of inline assembly, multiline strings are much nicer IMHO.
+
+> Yep, this is a braindead argument. There must have been others (sensible
+> ones)...
+
+See above ;-)
+
+> I hope they disallow multiline strings pretty soon.
+
+I don't have strong feelings either way.  And I sure don't want to have
+this argument again...
+
+-- Gareth

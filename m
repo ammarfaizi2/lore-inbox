@@ -1,153 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265887AbUITDVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUITDXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265887AbUITDVj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 23:21:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265900AbUITDVj
+	id S265910AbUITDXT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 23:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265909AbUITDXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 23:21:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5316 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265887AbUITDVd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 23:21:33 -0400
-Date: Sun, 19 Sep 2004 20:21:26 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, zaitcev@redhat.com
-Subject: Re: [BUG] ub.c badness in current bk
-Message-Id: <20040919202126.1073925b@lembas.zaitcev.lan>
-In-Reply-To: <1095473325.3574.4.camel@gaston>
-References: <mailman.1095300780.10032.linux-kernel2news@redhat.com>
-	<20040917002935.77620d1d@lembas.zaitcev.lan>
-	<1095414394.13531.77.camel@gaston>
-	<20040917090448.32ff763c@lembas.zaitcev.lan>
-	<1095469463.3574.2.camel@gaston>
-	<1095473325.3574.4.camel@gaston>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 19 Sep 2004 23:23:19 -0400
+Received: from gourmet.spamgourmet.com ([216.218.230.146]:16061 "EHLO
+	gourmet.spamgourmet.com") by vger.kernel.org with ESMTP
+	id S265900AbUITDWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 23:22:37 -0400
+Message-ID: <414E0873.2020506@home.se>
+Date: Mon, 20 Sep 2004 00:30:11 +0200
+From: linuxkernel1.20.sandos@spamgourmet.com
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: de2104x bug in 2.6.9-rc2
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-mdh_se-MailScanner-Information: Please contact the ISP for more information
+X-mdh_se-MailScanner: Found to be clean
+X-MailScanner-From: linuxkernel1.20.sandos@spamgourmet.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Sep 2004 12:08:46 +1000
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+Ive seen mentions of the de2104 driver not working for quite some time 
+in 2.6 (since 2.5 even?), and Im seeing this still on 2.6.9-rc2. Anyway, 
+a little info if anyone wants it. I can also help debug by trying out 
+patches if need be.
 
-> And the real one without fuckup in media_change(), sorry, I sent
-> the wrong patch.
+2.6.8-rc2:
+http://sandos.ath.cx/IMG_0403.JPG
+2.6.9-rc2:
+http://sandos.ath.cx/IMG_0404.JPG
 
-> +	 * Here's our equivalent of spinup. We probably need to better check
-> +	 * the sense codes from TUR ?
+lspci -vvv:
 
-This really bothers me. The key 6 is asking for a clearing and possibly
-a spin-up (my ZIP 100 returns 6 until it's spun up), that's right. But
-it won't start without START_STOP command, on pure TURs. So it's a delusion
-to accept this as a spin-up. I do plan for a decent spin-up code, but
-it's a little difficult within the ub's phylosophy (possibly it was a bad
-design to rely on a state machine too much).
+0000:00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 
+[KT133/KM133] (rev 03)
+        Subsystem: Asustek Computer, Inc. A7V133/A7V133-C Mainboard
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 8
+        Region 0: Memory at e6000000 (32-bit, prefetchable) [size=32M]
+        Capabilities: <available only to root>
 
-How about this deal. I'll add a clearly marked workaround like the
-appended patch, and then ask you to try again when a proper spin-up gets
-implemented?
+0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 
+AGP] (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66MHz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 0
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+        I/O behind bridge: 0000d000-0000dfff
+        Memory behind bridge: e4000000-e4dfffff
+        Prefetchable memory behind bridge: e4f00000-e5ffffff
+        BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B-
+        Capabilities: <available only to root>
 
-Note that the patch is against -mm where the REQUEST SENSE is set correctly.
-I strongly suggest you to use ub from -mm. Linus' tree is behind.
+0000:00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super 
+South] (rev 40)
+        Subsystem: Asustek Computer, Inc. A7V133/A7V133-C Mainboard
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping+ SERR- FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Capabilities: <available only to root>
 
-Also, I might have screwed something along the way, so if it fails, please
-send me dmesg and the contents of /sys/..../diag.
+0000:00:04.1 IDE interface: VIA Technologies, Inc. 
+VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06) 
+(prog-if 8a [Master SecP PriP])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Region 4: I/O ports at b800 [size=16]
+        Capabilities: <available only to root>
 
-Greetings,
--- Pete
+0000:00:04.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 
+1.1 Controller (rev 16) (prog-if 00 [UHCI])
+        Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, Cache Line Size: 0x08 (32 bytes)
+        Interrupt: pin D routed to IRQ 10
+        Region 4: I/O ports at b400 [size=32]
+        Capabilities: <available only to root>
 
-diff -urp -X dontdiff linux-2.6.9-rc2-mm1/drivers/block/ub.c linux-2.6.9-rc2-mm1-ub/drivers/block/ub.c
---- linux-2.6.9-rc2-mm1/drivers/block/ub.c	2004-09-17 23:04:27.000000000 -0700
-+++ linux-2.6.9-rc2-mm1-ub/drivers/block/ub.c	2004-09-19 20:11:07.655890215 -0700
-@@ -25,6 +25,7 @@
-  *  -- prune comments, they are too volumnous
-  *  -- Exterminate P3 printks
-  *  -- Resove XXX's
-+ *  -- Redo "benh's retries", perhaps have spin-up code to handle them. V:D=?
-  */
- #include <linux/kernel.h>
- #include <linux/module.h>
-@@ -157,7 +158,8 @@ struct ub_scsi_cmd {
- 	struct ub_scsi_cmd *next;
- 
- 	int error;			/* Return code - valid upon done */
--	int act_len;			/* Return size */
-+	unsigned int act_len;		/* Return size */
-+	unsigned char key, asc, ascq;	/* May be valid if error==-EIO */
- 
- 	int stat_count;			/* Retries getting status. */
- 
-@@ -1141,16 +1146,8 @@ static void ub_scsi_urb_compl(struct ub_
- 		(*cmd->done)(sc, cmd);
- 
- 	} else if (cmd->state == UB_CMDST_SENSE) {
--		/* 
--		 * We do not look at sense, because even if there was no sense,
--		 * we get into UB_CMDST_SENSE from a STALL or CSW FAIL only.
--		 * We request sense because we want to clear CHECK CONDITION
--		 * on devices with delusions of SCSI, and not because we
--		 * are curious in any way about the sense itself.
--		 */
--		/* if ((cmd->top_sense[2] & 0x0F) == NO_SENSE) { foo } */
--
- 		ub_state_done(sc, cmd, -EIO);
-+
- 	} else {
- 		printk(KERN_WARNING "%s: "
- 		    "wrong command state %d on device %u\n",
-@@ -1309,6 +1306,10 @@ static void ub_top_sense_done(struct ub_
- 	 */
- 	ub_cmdtr_sense(sc, scmd, sense);
- 
-+	/*
-+	 * Find the command which triggered the unit attention or a check,
-+	 * save the sense into it, and advance its state machine.
-+	 */
- 	if ((cmd = ub_cmdq_peek(sc)) == NULL) {
- 		printk(KERN_WARNING "%s: sense done while idle\n", sc->name);
- 		return;
-@@ -1326,6 +1327,10 @@ static void ub_top_sense_done(struct ub_
- 		return;
- 	}
- 
-+	cmd->key = sense[2] & 0x0F;
-+	cmd->asc = sense[12];
-+	cmd->ascq = sense[13];
-+
- 	ub_scsi_urb_compl(sc, cmd);
- }
- 
-@@ -1621,6 +1638,9 @@ static int ub_sync_tur(struct ub_dev *sc
- 
- 	rc = cmd->error;
- 
-+	if (rc == -EIO && cmd->key != 0)	/* Retries for benh's key */
-+		rc = cmd->key;
-+
- err_submit:
- 	kfree(cmd);
- err_alloc:
-@@ -1836,6 +1856,7 @@ static int ub_probe(struct usb_interface
- 	request_queue_t *q;
- 	struct gendisk *disk;
- 	int rc;
-+	int i;
- 
- 	rc = -ENOMEM;
- 	if ((sc = kmalloc(sizeof(struct ub_dev), GFP_KERNEL)) == NULL)
-@@ -1902,7 +1923,11 @@ static int ub_probe(struct usb_interface
- 	 * has to succeed, so we clear checks with an additional one here.
- 	 * In any case it's not our business how revaliadation is implemented.
- 	 */
--	ub_sync_tur(sc);
-+	for (i = 0; i < 3; i++) {	/* Retries for benh's key */
-+		if ((rc = ub_sync_tur(sc)) <= 0) break;
-+		if (rc != 0x6) break;
-+		msleep(10);
-+	}
- 
- 	sc->removable = 1;		/* XXX Query this from the device */
- 
+0000:00:04.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 
+1.1 Controller (rev 16) (prog-if 00 [UHCI])
+        Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, Cache Line Size: 0x08 (32 bytes)
+        Interrupt: pin D routed to IRQ 10
+        Region 4: I/O ports at b000 [size=32]
+        Capabilities: <available only to root>
+
+0000:00:04.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] 
+(rev 40)
+        Subsystem: Asustek Computer, Inc. A7V133/A7V133-C Mainboard
+        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin ? routed to IRQ 9
+        Capabilities: <available only to root>
+
+0000:00:09.0 Unknown mass storage controller: Promise Technology, Inc. 
+PDC20268 (Ultra100 TX2) (rev 01) (prog-if 85)
+        Subsystem: Promise Technology, Inc. Ultra100TX2
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66MHz+ UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (1000ns min, 4500ns max), Cache Line Size: 0x08 (32 
+bytes)
+        Interrupt: pin A routed to IRQ 10
+        Region 0: I/O ports at 9400 [size=8]
+        Region 1: I/O ports at 9000 [size=4]
+        Region 2: I/O ports at 8800 [size=8]
+        Region 3: I/O ports at 8400 [size=4]
+        Region 4: I/O ports at 8000 [size=16]
+        Region 5: Memory at e3800000 (32-bit, non-prefetchable) [size=16K]
+        Expansion ROM at <unassigned> [disabled] [size=16K]
+        Capabilities: <available only to root>
+
+0000:00:0c.0 Ethernet controller: Digital Equipment Corporation DECchip 
+21041 [Tulip Pass 3] (rev 11)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at 7800 [size=128]
+        Region 1: Memory at e3000000 (32-bit, non-prefetchable) [size=128]
+        Expansion ROM at <unassigned> [disabled] [size=256K]
+
+0000:00:0d.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M 
+[Tornado] (rev 74)
+        Subsystem: 3Com Corporation 3C905C-TX Fast Etherlink for PC 
+Management NIC
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (2500ns min, 2500ns max), Cache Line Size: 0x08 (32 
+bytes)
+        Interrupt: pin A routed to IRQ 10
+        Region 0: I/O ports at 7400 [size=128]
+        Region 1: Memory at e2800000 (32-bit, non-prefetchable) [size=128]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: <available only to root>
+
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro 
+AGP 1X/2X (rev 5c) (prog-if 00 [VGA])
+        Subsystem: ATI Technologies Inc: Unknown device 0088
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping+ SERR- FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (2000ns min), Cache Line Size: 0x08 (32 bytes)
+        Region 0: Memory at e5000000 (32-bit, prefetchable) [size=16M]
+        Region 1: I/O ports at d800 [size=256]
+        Region 2: Memory at e4000000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at e4fe0000 [disabled] [size=128K]
+        Capabilities: <available only to root>
+
+

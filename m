@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284732AbRLPRcV>; Sun, 16 Dec 2001 12:32:21 -0500
+	id <S284731AbRLPRoC>; Sun, 16 Dec 2001 12:44:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284737AbRLPRcL>; Sun, 16 Dec 2001 12:32:11 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:32726 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S284732AbRLPRb6>; Sun, 16 Dec 2001 12:31:58 -0500
-Date: Sun, 16 Dec 2001 19:33:35 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][OOPS] loop block device induced on 2.5.1-pre11+HIGHMEM
-In-Reply-To: <Pine.LNX.4.33.0112162022530.12588-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0112161932440.23025-100000@netfinity.realnet.co.sz>
+	id <S284737AbRLPRnw>; Sun, 16 Dec 2001 12:43:52 -0500
+Received: from aramis.rutgers.edu ([128.6.4.2]:58752 "EHLO aramis.rutgers.edu")
+	by vger.kernel.org with ESMTP id <S284731AbRLPRnm>;
+	Sun, 16 Dec 2001 12:43:42 -0500
+Date: Sun, 16 Dec 2001 12:43:33 -0500 (EST)
+From: Suresh Gopalakrishnan <gsuresh@cs.rutgers.edu>
+To: Terje Eggestad <terje.eggestad@scali.no>
+cc: Andrew Morton <akpm@zip.com.au>, GOTO Masanori <gotom@debian.org>,
+        linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: O_DIRECT wierd behavior..
+In-Reply-To: <Pine.LNX.4.30.0112161454160.26995-100000@elin.scali.no>
+Message-ID: <Pine.GSO.4.02A.10112161208160.25791-100000@aramis.rutgers.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Dec 2001, Ingo Molnar wrote:
 
-> yes, it's a valid configuration. Eg. distribution makers are frequently
-> using highmem-enabled kernels - and it's a natural thing that they boot &
-> work just fine on non-highmem boxes as well. Also, even a highmem box
-> could have a RAM failure anytime that forces a temporary removal of RAM,
-> causing the box to have no highmem RAM anymore, in which situation it
-> would be pretty awkward if the highmem-enabled kernel failed.
+On Sun, 16 Dec 2001, Terje Eggestad wrote:
+> The problem is that the kernel that don't support O_DIRECT has
+> erronous handling of the O_DIRECT flag. Meaning they happily accept
+> it. In order to figure out ifthe running kernel support O_DIRECT you
+> MUST attempt an unaligned read/write, if it succed the kernel DON'T
+> support O_DIRECT. TJ
 
-Thanks, i'll try the patch this evening when i get home and give you the
-lowdown.
+You are right! It went through on 2.4.2 even with an unaligned buffer.
 
-Cheers,
-	Zwane Mwaikambo
+So direct i/o has to be multiple of page size blocks, from page aligned
+buffer, and apparently into page aligned offset in the file! Is this the
+expected behavior?
+
+--suresh
+
+> > Thanks for the patches. There seems to be one more fix required: the test
+> > program below works in 2.4.16 only if the write size is a multiple of 4K.
+> > (Why) are all writes expected to be page size, in addition to being page
+> > aligned? (It works fine on 2.4.2 for all sizes). Any quick fixes? :)
+> > --suresh
 
 

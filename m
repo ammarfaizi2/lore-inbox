@@ -1,55 +1,206 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbUK0Mli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbUK0MqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbUK0Mli (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 07:41:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbUK0Mli
+	id S261196AbUK0MqB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 07:46:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbUK0MqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 07:41:38 -0500
-Received: from math.ut.ee ([193.40.5.125]:5080 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S261197AbUK0Mlb (ORCPT
+	Sat, 27 Nov 2004 07:46:01 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:63904 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S261196AbUK0Mpf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 07:41:31 -0500
-Date: Sat, 27 Nov 2004 14:15:01 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: matthieu castet <castet.matthieu@free.fr>
-cc: Li Shaohua <shaohua.li@intel.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jean Tourrilhes <jt@bougret.hpl.hp.com>, Adam Belay <ambx1@neo.rr.com>,
-       =?ISO-8859-1?Q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>
-Subject: Re: [PATCH] smsc-ircc2: Add PnP support.
-In-Reply-To: <41A7CF6A.8010603@free.fr>
-Message-ID: <Pine.SOC.4.61.0411271411190.1904@math.ut.ee>
-References: <E1CVAfT-0002n9-Rn@rhn.tartu-labor> <419E16E5.1000601@free.fr> 
- <419E17FF.1000503@free.fr> <Pine.SOC.4.61.0411191822030.9059@math.ut.ee> 
- <419E2D2B.4020804@free.fr> <Pine.SOC.4.61.0411191934070.29328@math.ut.ee> 
- <419E3B7A.4000904@free.fr> <Pine.SOC.4.61.0411200102580.12992@math.ut.ee> 
- <419F136B.8010308@free.fr> <Pine.SOC.4.61.0411211949260.23880@math.ut.ee> 
- <41A0DB78.2010807@free.fr> <Pine.SOC.4.61.0411212050490.11420@math.ut.ee> 
- <41A0F893.9020106@free.fr> <1101086961.2940.7.camel@sli10-desk.sh.intel.com>
- <Pine.SOC.4.61.0411221016270.16427@math.ut.ee> <41A753A0.1070305@free.fr>
- <Pine.SOC.4.61.0411262018170.26264@math.ut.ee> <41A7CF6A.8010603@free.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 27 Nov 2004 07:45:35 -0500
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+       Keir.Fraser@cl.cam.ac.uk, Ian.Pratt@cl.cam.ac.uk
+Subject: Re: [5/7] Xen VMM patch set : split free_irq into teardown_irq 
+In-reply-to: Your message of "Sat, 20 Nov 2004 19:20:41 GMT."
+             <E1CVamo-0002mX-00@mta1.cl.cam.ac.uk> 
+Date: Sat, 27 Nov 2004 12:45:31 +0000
+From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Message-Id: <E1CY1xD-0007bR-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That's because resource point at the end of the resources list, so there is 
-> nothing to read. With this patch, you should see something.
+ 
+> > > +/*
+> > > + * Internal function to unregister an irqaction - typically used to
+> > > + * deallocate special interrupts that are part of the architecture.
+> > >   */
+> > 
+> > It's not static so the internal is kinda wrong.  Please provide a full
+> > kerneldoc comment, like the other functions in this file.
+> 
+> teardown_irq is to free_irq what setup_irq is to request_irq.
+> 
+> The comment we included in the original patch was taken from
+> setup_irq. However, I've written the attached patch that adds
+> kerneldoc style comments to both setup_irq and teardown_irq if
+> it's preferred.
 
-On bootup there are loads on lines 167 and 472.
+Is everyone happy with the second version of the patch that
+adds kerneldoc comments to setup_irq and our new teardown_irq?
 
-On auto there are none.
+Thanks,
+Ian
 
-On activate there are
-******846*******
-pnp: Device 00:0a activated.
 
-On modprobe smsc-ircc2 there are no more debug lines, just
-found SMC SuperIO Chip (devid=0x5a rev=00 base=0x002e): LPC47N227
-smsc_superio_flat(): IrDA not enabled
-smsc_superio_flat(): fir: 0x00, sir: 0x00, dma: 15, irq: 0, mode: 0x02
+---
 
-And I checked that I am using the new patch.
+This patch moves the `unregister the irqaction' part of free_irq into
+a new function teardown_irq, leaving only the mapping from dev_id to
+irqaction and freeing the irqaction in free_irq.  free_irq
+calls teardown_irq to unregister the irqaction.  This is similar
+to how setup_irq and request_irq work for registering irq's.
+We need teardown_irq to allow us to unregister irq's which were
+registered early during boot when memory management wasn't ready
+yet, i.e. irq's which were registered using setup_irq and use a static
+irqaction which cannot be kfree'd.
 
--- 
-Meelis Roos (mroos@linux.ee)
+Signed-off-by: ian.pratt@cl.cam.ac.uk
+
+---
+
+diff -Nurp pristine-linux-2.6.10-rc2/include/linux/irq.h tmp-linux-2.6.10-rc2-xen.patch/include/linux/irq.h
+--- pristine-linux-2.6.10-rc2/include/linux/irq.h	2004-11-15 01:28:57.000000000 +0000
++++ tmp-linux-2.6.10-rc2-xen.patch/include/linux/irq.h	2004-11-19 14:00:39.000000000 +0000
+@@ -73,6 +73,7 @@ extern irq_desc_t irq_desc [NR_IRQS];
+ #include <asm/hw_irq.h> /* the arch dependent stuff */
+ 
+ extern int setup_irq(unsigned int irq, struct irqaction * new);
++extern int teardown_irq(unsigned int irq, struct irqaction * old);
+ 
+ #ifdef CONFIG_GENERIC_HARDIRQS
+ extern cpumask_t irq_affinity[NR_IRQS];
+diff -Nurp pristine-linux-2.6.10-rc2/kernel/irq/manage.c tmp-linux-2.6.10-rc2-xen.patch/kernel/irq/manage.c
+--- pristine-linux-2.6.10-rc2/kernel/irq/manage.c	2004-11-18 16:00:21.000000000 +0000
++++ linux-2.6.10-rc2-xen0/kernel/irq/manage.c	2004-11-20 19:18:03.000000000 +0000
+@@ -144,9 +144,14 @@ int can_request_irq(unsigned int irq, un
+ 	return !action;
+ }
+ 
+-/*
+- * Internal function to register an irqaction - typically used to
+- * allocate special interrupts that are part of the architecture.
++/**
++ *	setup_irq - register an irqaction structure
++ *	@irq: Interrupt to register
++ *	@irqaction: The irqaction structure to be registered
++ *
++ *	Normally called by request_irq, this function can be used
++ *	directly to allocate special interrupts that are part of the
++ *	architecture.
+  */
+ int setup_irq(unsigned int irq, struct irqaction * new)
+ {
+@@ -215,28 +220,27 @@ int setup_irq(unsigned int irq, struct i
+ 	return 0;
+ }
+ 
+-/**
+- *	free_irq - free an interrupt
+- *	@irq: Interrupt line to free
+- *	@dev_id: Device identity to free
+- *
+- *	Remove an interrupt handler. The handler is removed and if the
+- *	interrupt line is no longer in use by any driver it is disabled.
+- *	On a shared IRQ the caller must ensure the interrupt is disabled
+- *	on the card it drives before calling this function. The function
+- *	does not return until any executing interrupts for this IRQ
+- *	have completed.
++/*
++ *	teardown_irq - unregister an irqaction
++ *	@irq: Interrupt line being freed
++ *	@old: Pointer to the irqaction that is to be unregistered
++ *
++ *	This function is called by free_irq and does the actual
++ *	business of unregistering the handler. It exists as a 
++ *	seperate function to enable handlers to be unregistered 
++ *	for irqactions that have been allocated statically at 
++ *	boot time.
+  *
+  *	This function must not be called from interrupt context.
+  */
+-void free_irq(unsigned int irq, void *dev_id)
++int teardown_irq(unsigned int irq, struct irqaction * old)
+ {
+ 	struct irq_desc *desc;
+ 	struct irqaction **p;
+ 	unsigned long flags;
+ 
+ 	if (irq >= NR_IRQS)
+-		return;
++		return -ENOENT;
+ 
+ 	desc = irq_desc + irq;
+ 	spin_lock_irqsave(&desc->lock,flags);
+@@ -248,7 +252,7 @@ void free_irq(unsigned int irq, void *de
+ 			struct irqaction **pp = p;
+ 
+ 			p = &action->next;
+-			if (action->dev_id != dev_id)
++			if (action != old)
+ 				continue;
+ 
+ 			/* Found it - now remove it from the list of entries */
+@@ -265,13 +269,52 @@ void free_irq(unsigned int irq, void *de
+ 
+ 			/* Make sure it's not being used on another CPU */
+ 			synchronize_irq(irq);
+-			kfree(action);
+-			return;
++			return 0;
+ 		}
+-		printk(KERN_ERR "Trying to free free IRQ%d\n",irq);
++		printk(KERN_ERR "Trying to teardown free IRQ%d\n",irq);
+ 		spin_unlock_irqrestore(&desc->lock,flags);
++		return -ENOENT;
++	}
++}
++
++/**
++ *	free_irq - free an interrupt
++ *	@irq: Interrupt line to free
++ *	@dev_id: Device identity to free
++ *
++ *	Remove an interrupt handler. The handler is removed and if the
++ *	interrupt line is no longer in use by any driver it is disabled.
++ *	On a shared IRQ the caller must ensure the interrupt is disabled
++ *	on the card it drives before calling this function. The function
++ *	does not return until any executing interrupts for this IRQ
++ *	have completed.
++ *
++ *	This function must not be called from interrupt context.
++ */
++void free_irq(unsigned int irq, void *dev_id)
++{
++	struct irq_desc *desc;
++	struct irqaction *action;
++	unsigned long flags;
++
++	if (irq >= NR_IRQS)
++		return;
++
++	desc = irq_desc + irq;
++	spin_lock_irqsave(&desc->lock,flags);
++	for (action = desc->action; action != NULL; action = action->next) {
++		if (action->dev_id != dev_id)
++			continue;
++
++		spin_unlock_irqrestore(&desc->lock,flags);
++
++		if (teardown_irq(irq, action) == 0)
++			kfree(action);
+ 		return;
+ 	}
++	printk(KERN_ERR "Trying to free free IRQ%d\n",irq);
++	spin_unlock_irqrestore(&desc->lock,flags);
++	return;
+ }
+ 
+ EXPORT_SYMBOL(free_irq);
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

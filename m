@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266222AbUBRLnz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 06:43:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUBRLnz
+	id S265698AbUBRLm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 06:42:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUBRLm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 06:43:55 -0500
-Received: from dp.samba.org ([66.70.73.150]:48296 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266222AbUBRLnu (ORCPT
+	Wed, 18 Feb 2004 06:42:57 -0500
+Received: from main.gmane.org ([80.91.224.249]:50132 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265698AbUBRLm4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 06:43:50 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16435.20457.610841.62521@samba.org>
-Date: Wed, 18 Feb 2004 22:43:37 +1100
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-Cc: hpa@zytor.com, Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: UTF-8 and case-insensitivity
-In-Reply-To: <200402181105.58425.robin.rosenberg.lists@dewire.com>
-References: <16434.58656.381712.241116@samba.org>
-	<200402181105.58425.robin.rosenberg.lists@dewire.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: tridge@samba.org
-From: tridge@samba.org
+	Wed, 18 Feb 2004 06:42:56 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Patrick Beard" <patrick@scotcomms.co.uk>
+Subject: Kernel 2.60 i810 Framebuffer.
+Date: Wed, 18 Feb 2004 11:42:49 -0000
+Message-ID: <c0vj3p$4go$1@sea.gmane.org>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: gateway.scotcomms.co.uk
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin,
+Hi,
 
- > I've read it also:
- > http://www.microsoft.com/globaldev/getwr/steps/wrg_unicode.mspx
- > "The fundamental representation of text in Windows NT-based
- > operating systems is UTF-16"
+Not a show stopper problem, but its annoying.
 
-yep, in this thread I've been mistakenly using the term UCS-16 when I
-should have said UTF-16 (ie. the variable length, 2 byte encoding).
+I'm using kernel 2.60 with framebuffer support for i810. All is working
+well except when I shutdown from while in iceWM. If I issue a shutdown
+from xterm, then X stops and the console displays normally i.e. the text
+that was there before X started, but it doesn't refresh and show the
+shutdown sequence, instead the screen remains static. If I log into a
+console on tty(x) and then shutdown, the shutdown sequence is shown.
 
-Samba currently treats the bytes on the wire from windows as UCS-2 (a
-2 byte fixed width encoding), whereas perhaps it should be treating
-them as UTF-16. I should write a smbtorture test to detect the
-difference and see what different versions of windows actually use.
+Hope I explained this ok.
 
-luckily the new charset handling stuff in samba3 and samba4 will make
-this easy to fix :-)
+Any Ideas?
+
+--
+Patrick
+
+
+

@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129485AbQKVWgG>; Wed, 22 Nov 2000 17:36:06 -0500
+        id <S129514AbQKVWg4>; Wed, 22 Nov 2000 17:36:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129514AbQKVWf5>; Wed, 22 Nov 2000 17:35:57 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16755 "EHLO
-        the-village.bc.nu") by vger.kernel.org with ESMTP
-        id <S129485AbQKVWfm>; Wed, 22 Nov 2000 17:35:42 -0500
-Subject: Re: PROBLEM: Cruft mounting option incorrect in ISOFS code
-To: jeffery.s.peel@intel.com (Peel, Jeffery S)
-Date: Wed, 22 Nov 2000 22:06:11 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-In-Reply-To: <9678C2B4D848D41187450090276D1FAE2999D6@FMSMSX32> from "Peel, Jeffery S" at Nov 22, 2000 01:56:29 PM
-X-Mailer: ELM [version 2.5 PL1]
+        id <S131123AbQKVWgq>; Wed, 22 Nov 2000 17:36:46 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:63752 "EHLO smtp1.cern.ch")
+        by vger.kernel.org with ESMTP id <S129514AbQKVWg1>;
+        Wed, 22 Nov 2000 17:36:27 -0500
+To: Miles Lane <miles@speakeasy.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Alan Cox's e-mail address is hosed?
+In-Reply-To: <3A1CEBC9.8010109@speakeasy.org>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 22 Nov 2000 23:06:19 +0100
+In-Reply-To: Miles Lane's message of "Thu, 23 Nov 2000 02:04:57 -0800"
+Message-ID: <d3bsv7ll0k.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13yi1u-0006V9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> under 1 gig in size.  You can exhibit the problem by mounting the dvd movie
-> "The World is Not Enough" as it contains a video_ts.vob which is larger than
-> 1 gigabyte.  You will see that most of the file lengths are incorrect due to
-> the "cruft mounting option" hacking off the high order byte.  There are
-> certainly many more movies out there that exhibit this problem so it would
-> be a good thing for someone to fix.
+>>>>> "Miles" == Miles Lane <miles@speakeasy.org> writes:
 
-The cruft thing is correct in itself. The size being 4Gb is trivial to change
-providing someone can provide a reference to the standards that say its ok.
-So is the limit 4Gig, who documents it ?
+Miles> I attempted to reply to a message from Alan and got the
+Miles> following response.
 
-Alan
+No it isn't, Alan uses ORBS and you are obviously black listed there
+(www.orbs.org).
 
+This one seems to come up every now and then, and always turns into a
+flamewar. Now it's Alan's choice so if you want to argue over this,
+take it somewhere else please.
+
+Who is maintaining the FAQ? this might be a good idea to add to under
+the mailing list section.
+
+Jes
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129308AbQKTABA>; Sun, 19 Nov 2000 19:01:00 -0500
+	id <S129183AbQKTAFK>; Sun, 19 Nov 2000 19:05:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129183AbQKTAAu>; Sun, 19 Nov 2000 19:00:50 -0500
-Received: from ns1.metabyte.com ([216.218.208.34]:7 "EHLO ns1.metabyte.com")
-	by vger.kernel.org with ESMTP id <S129807AbQKTAAl>;
-	Sun, 19 Nov 2000 19:00:41 -0500
-From: Pete Zaitcev <zaitcev@metabyte.com>
-Message-Id: <200011192330.PAA05251@ns1.metabyte.com>
-Subject: Loud screech after reboot of 2.2.18-pre22
-To: jgarzik@mandrakesoft.com
-Date: Sun, 19 Nov 2000 15:30:39 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129807AbQKTAFB>; Sun, 19 Nov 2000 19:05:01 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:21509 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S129183AbQKTAEy>; Sun, 19 Nov 2000 19:04:54 -0500
+Date: Sun, 19 Nov 2000 23:34:50 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-test11-pre7: isapnp hang
+Message-ID: <20001119233450.H20970@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="xHbokkKX1kTiQeDC"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I have a Sony VAIO Z505JE with ymfpci sound and built-in microphone
-and speaker. Everything worked fine with 2.2.17 plus ymfpci patch,
-but the 2.2.18-pre22 produces a loud screech starting as sound
-initializes and ending when startup scrips load mixer settings.
-This happens because of audio loop between microphone and speakers.
+--xHbokkKX1kTiQeDC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I found that the culprit is the change to values of array
-mixer_defaults[] in ac97_codec.c, that happened in 2.2.18-pre.
+Reading from port 0x313 (my ISA NE2000 is at 0x300-0x31f) hangs my
+machine dead.  Unfortunately, reading from that port is exactly what
+the isapnp code does on boot, if compiled into the kernel.
 
-Currently I run the following patch:
+Is it the network card's fault (probably), or is there a less invasive
+probe that isapnp could use (unlikely, I guess)?
 
---- linux-2.2.18-pre22/drivers/sound/ac97_codec.c	Sat Nov 18 19:04:34 2000
-+++ linux-2.2.18-pre22-p3/drivers/sound/ac97_codec.c	Sun Nov 19 15:37:44 2000
-@@ -131,7 +131,7 @@
- 	{SOUND_MIXER_PCM,	0x4343},
- 	{SOUND_MIXER_SPEAKER,	0x4343},
- 	{SOUND_MIXER_LINE,	0x4343},
--	{SOUND_MIXER_MIC,	0x4343},
-+	{SOUND_MIXER_MIC,	0x1111},	/* P3 - audio loop */
- 	{SOUND_MIXER_CD,	0x4343},
- 	{SOUND_MIXER_ALTPCM,	0x4343},
- 	{SOUND_MIXER_IGAIN,	0x4343},
+Tim.
+*/
 
-I wonder if there is a better way?
+--xHbokkKX1kTiQeDC
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-In the interests of full disclosure let me mention that YMFxxx do have
-internal loopbacks that may produce the same effect and that I checked
-to the best of my ability that those loopbacks are muted. Therefore
-I conclude that the loopback happens inside the AC97 (if such a thing
-is possible).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
---Pete
+iD8DBQE6GGOZONXnILZ4yVIRAm9dAJ43+odSrZBkSH/QpZPYtDuBceHb1ACfUhIw
+ZwSlHkkq07y5TyRz2VCLQHA=
+=JUlb
+-----END PGP SIGNATURE-----
+
+--xHbokkKX1kTiQeDC--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

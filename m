@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293752AbSB1UyH>; Thu, 28 Feb 2002 15:54:07 -0500
+	id <S293024AbSB1VEE>; Thu, 28 Feb 2002 16:04:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293744AbSB1Uwg>; Thu, 28 Feb 2002 15:52:36 -0500
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:53519 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S293741AbSB1UuB>; Thu, 28 Feb 2002 15:50:01 -0500
-Message-ID: <3C7E96D7.1000904@megapathdsl.net>
-Date: Thu, 28 Feb 2002 12:45:11 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020217
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
-Subject: 2.5.5-dj2 -- Unresolved symbol dparent_lock in fat.o
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S293748AbSB1VCW>; Thu, 28 Feb 2002 16:02:22 -0500
+Received: from ns.suse.de ([213.95.15.193]:43794 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S310112AbSB1VCA>;
+	Thu, 28 Feb 2002 16:02:00 -0500
+Date: Thu, 28 Feb 2002 22:01:58 +0100
+From: Dave Jones <davej@suse.de>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.5-dj2, modify arch/i386/Config.help for highpte options.
+Message-ID: <20020228220158.I32662@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Steven Cole <elenstev@mesatop.com>, Ingo Molnar <mingo@elte.hu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200202281827.LAA26782@tstac.esa.lanl.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200202281827.LAA26782@tstac.esa.lanl.gov>; from elenstev@mesatop.com on Thu, Feb 28, 2002 at 12:12:51PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.5-dj2 + nls.patch + migrate.diff + console_8.diff
-+ roberto nibaldo's patches:
+On Thu, Feb 28, 2002 at 12:12:51PM -0700, Steven Cole wrote:
+ > Here is a snippet from arch/i386/config.in both 2.5.5-dj2 and 2.5.6-pre1:
+ > choice 'High Memory Support' \
+ >         "off           CONFIG_NOHIGHMEM \
+ >          4GB           CONFIG_HIGHMEM4G \
+ >          4GB-highpte   CONFIG_HIGHMEM4G_HIGHPTE \
+ >          64GB          CONFIG_HIGHMEM64G \
+ >          64GB-highpte  CONFIG_HIGHMEM64G_HIGHPTE" off
 
-depmod: *** Unresolved symbols in /lib/modules/2.5.5-dj2/kernel/fs/fat/fat.o
-depmod: 	dparent_lock
-
-CONFIG_MK7=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_CPUID=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_SMP=y
-CONFIG_PREEMPT=y
-CONFIG_HAVE_DEC_LOCK=y
-
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
-
-CONFIG_QUOTA=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_FAT_FS=m
-CONFIG_VFAT_FS=m
-
+ Would this not be better done using a "use highpte" bool in
+ the !CONFIG_NOHIGHMEM case ? 
+ 
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

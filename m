@@ -1,78 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290671AbSARKUR>; Fri, 18 Jan 2002 05:20:17 -0500
+	id <S290667AbSARKVr>; Fri, 18 Jan 2002 05:21:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290669AbSARKUI>; Fri, 18 Jan 2002 05:20:08 -0500
-Received: from hitpro.hitachi.co.jp ([133.145.224.7]:51161 "EHLO
-	hitpro.hitachi.co.jp") by vger.kernel.org with ESMTP
-	id <S290667AbSARKTw>; Fri, 18 Jan 2002 05:19:52 -0500
-From: serizawa@sdl.hitachi.co.jp
-To: linux-kernel@vger.kernel.org
-cc: lkst-develop@lists.sourceforge.net
-Subject: Announcement of Linux Kernel State Tracer (LKST)
-X-Mailer: Mew version 1.94b37 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S290656AbSARKVh>; Fri, 18 Jan 2002 05:21:37 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:26120 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S290667AbSARKVX>; Fri, 18 Jan 2002 05:21:23 -0500
+Message-ID: <3C47F716.A192DB3F@aitel.hist.no>
+Date: Fri, 18 Jan 2002 11:21:10 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.2-pre11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
+Subject: Re: o(1) to the rescue
+In-Reply-To: <20020118030630.AA34757D57@oscar.casa.dyndns.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <20020118192318Q.serizawa@sdl.hitachi.co.jp>
-Date: Fri, 18 Jan 2002 19:23:18 +0900 (JST)
-X-Dispatcher: imput version 20000228(IM140)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ed Tomlinson wrote:
+> 
+> Try this with and without the o(1) scheduler (J0).
+> 
+> Create a dir full of 1 meg or so jpegs.  Fire up kde.  Try using the
+> Tools/Create image gallery.
+> With the standard scheduler linux is unusable - it stalls for most of the
+> processing time for
+> each image.   With o(1) its just a little jerky - still usable though (a
+> gallery is building as I
+> type this).
 
-  Dear all,
+I guess this thing starts a thread per image?  That would
+give a lot of _running_ processes, which is exactly what
+the O(1) scheduler improves.
 
-  I'd like to announce publication of Linux Kernel State Tracer (LKST), 
-which is a tracer for Linux kernel.
-  LKST's main purpose is debugging, fault analysis and performance
-analysis of enterprise systems. 
-  For the purpose, LKST has these features,
-      - It is possible to change dynamically which events are recorded.
-        Developers can obtain information about the events which they 
-	concern only interesting events.
-        And, It reduces the overhead of components which is not related
-	with trouble.
-      - It is possible to change each handlers related each events.
-        A default handler of all events is just recording the events.
-        But, if it is necessary, default handler can be changed.
-        This function can be used as following,
-          +Notify user processes when the handler detects abnormal status.
-          +Change a maskset,which controls what type of events should be
-           recorded, dynamically by the handler.
-           ->  The system can usually run with a few events trace for the
-               cause of good performance. And, when the handler detects 
-	       abnormal status, it can change a maskset to get more 
-	       detail information.
-
-  LKST binaries, source code and documents are available in the following site,
-       https://sourceforge.net/projects/lkst/
-               or 
-       http://oss.hitachi.co.jp/sdl/english/lkst.html (now updating)
-
-  I'm afraid misunderstanding so I add attention.
-
-  - This release is still BETA because some of features 
-    are not implemented.
-  - Implementation of each trace points is not final but
-    tentative. We started to improve this interface, and it will 
-    be included this feature in the next release (which will be 
-    by end of March in the next year).
-
-  We prepared a mailing list written below in order to let users 
-know updates of LKST.
-
-lkst-users@lists.sourceforge.net
-
-To subscribe, please refer following URL,
-
-http://lists.sourceforge.net/lists/listinfo/lkst-users
-
-And if you have any comments, please send to the above list,
-or to another mailing list written below.
-
-lkst-develop@lists.sourceforge.net
-
-Kindest regards,
-Kazuyoshi Serizawa
-Systems Development Laboratory, Hitachi,Ltd.
+Helge Hafting

@@ -1,61 +1,204 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265128AbSKEXmA>; Tue, 5 Nov 2002 18:42:00 -0500
+	id <S265355AbSKEXex>; Tue, 5 Nov 2002 18:34:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265130AbSKEXmA>; Tue, 5 Nov 2002 18:42:00 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:35081 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265128AbSKEXl7>; Tue, 5 Nov 2002 18:41:59 -0500
-Date: Tue, 5 Nov 2002 18:47:59 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Filesystem Capabilities in 2.6?
-In-Reply-To: <Pine.LNX.4.44.0211021025420.2413-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.3.96.1021105183722.20035A-100000@gatekeeper.tmr.com>
+	id <S265357AbSKEXex>; Tue, 5 Nov 2002 18:34:53 -0500
+Received: from mclean.mail.mindspring.net ([207.69.200.57]:34349 "EHLO
+	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S265355AbSKEXeq>; Tue, 5 Nov 2002 18:34:46 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Mike Diehl <mdiehl@dominion.dyndns.org>
+To: "Kevin Corry" <corryk@us.ibm.com>, evms-devel@lists.sourceforge.net
+Subject: Re: [Evms-announce] EVMS announcement
+Date: Tue, 5 Nov 2002 16:11:09 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+References: <02110516191004.07074@boiler> <20021105214012.C2B4651CF@dominion.dyndns.org>
+In-Reply-To: <20021105214012.C2B4651CF@dominion.dyndns.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20021105215100.E927E51CF@dominion.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Nov 2002, Linus Torvalds wrote:
+Well, I'm a bit disapointed.  My experience with LVM has been nothing
+short of disasterous; EVMS looked like a very good alternative to LVM.
+Volume Management is one of the FEW things that Linux lacks that the
+"Big Boys" have.
 
-> There are two fairly trivial ways to do it:
-> 
->  - put the actual data in the directory entry itself. This is efficient, 
->    but not very easily extensible, since most directory structures have 
->    serious size limitations.
+<pause> I got up to get a drink and my 2-year-old jumped up to my desk and 
+sent this...  Continue Ranting....
 
-I think the arguments against having different capabilities for the same
-executable by different names have been made. It does seem that this would
-mean a symbolic link to the enabled directory entry would work and have
-capabilities, while a hard link to the inode would not?
+The biggest thing that EVMS had going for it was it's modular design.  As I 
+understand it, EVMS could even be used to manage the current MD and LVM 
+drivers.  I was looking forward to partition-level encryption, etc.  
 
-Being hard to understand is one source of security errors of the "I didn't
-mean to do that" type. 
- 
->  - Make a new file type, and put just that information in the directory
->    (so that it shows up in d_type on a readdir()).  Put the real data in
->    the file, ie make it largely look like an "extended symlink".
+I wish the decision had gone the other way.  Get rid of LVM and get EVMS into 
+the mainstream.  Any chance that, after this "migration," we might do just 
+that?  I'd love to see the day when LVM and MD aren't kernel options by 
+themselves, but rather options under EVMS, along with lots of other cools 
+things.
 
-I thought about symlink-like thngs when I was trying to envision an ACL by
-group, allowing control of a group other than the non-owner group to have
-more (or fewer) rights.
- 
-> The latter approach is probably a bit too reminiscent of a Windows
-> "shortcut" aka LNK file to some people, but hey, maybe it's a good idea.
+But never mind me.  I'm just a linux user, not a linux developer.
 
-The problem with any form of link by name is that there's no easy way to
-tell from the inode how many pointers there are, and from the link to tell
-when the link target has changed. I could envision security attacks based
-on changing the base file and having capabilities apply via the link.
-
-None of this is beyond implementation, but the idea of having something on
-a file inode certainly removes all attacks taking advantage of the link
-relationship. The best way to make something secure is to eliminate the
-need for it.
+     > On Tuesday 05 November 2002 05:19 pm, Kevin Corry wrote:
+     >      > Greetings EVMS users,
+     >      >
+     >      > On behalf of the EVMS team, we would like to announce a
+     >      > significant change in direction for the Enterprise Volume
+     >      > Management System project.
+     >      >
+     >      > As many of you may know by now, the 2.5 kernel feature freeze
+     >      > has come and gone, and it seems clear that the EVMS kernel
+     >      > driver is not going to be included. With this in mind, we have
+     >      > decided to rework the EVMS user-space administration tools (the
+     >      > Engine) to work with existing drivers currently in the kernel,
+     >      > including (but not necessarily limited to) device mapper and
+     >      > MD.
+     >      >
+     >      > Why make this change? With EVMS being passed over for inclusion
+     >      > in 2.5, the future of the EVMS kernel driver becomes very
+     >      > uncertain. We could obviously continue working on it and keep
+     >      > it up-to-date as a patch against the latest kernels. Numerous
+     >      > helpful comments and changes were suggested during the review
+     >      > of the code last month on the kernel mailing list. We could
+     >      > spend the time to make many of the desired fixes, including
+     >      > some architectural and interface changes. However, the one
+     >      > issue that has not been addressed at length is EVMS's in-kernel
+     >      > volume discovery mechanism.  We believe that even if the other
+     >      > changes are made, this will eventually become an issue at a
+     >      > later time. Moving discovery to user-space is certainly a
+     >      > possibility. However, at that point, it would become difficult
+     >      > to differentiate the EVMS driver from the device mapper driver,
+     >      > since they would be performing very similar tasks.
+     >      >
+     >      > In addition, there would be no need to maintain duplicate MD
+     >      > kernel code in order to provide compatibility with existing
+     >      > software RAID devices.  Obviously this duplication has been a
+     >      > significant issue, but it was an unfortunate necessity in order
+     >      > for MD devices to be discovered within the current EVMS kernel
+     >      > framework. With discovery moving to user-space, the EVMS tools
+     >      > can simply be rewritten to communicate with the existing MD
+     >      > driver in the kernel. This approach allows MD to be used
+     >      > directly, without requiring it to be immediately ported to
+     >      > device mapper. However, if the decision is made in the future
+     >      > to make that port, then the EVMS tools should only become
+     >      > simpler.
+     >      >
+     >      > We will also emphasize that this change has not been made
+     >      > suddenly or without a great deal of thought. We have been
+     >      > contemplating this possibility since shortly after the Ottawa
+     >      > Linux Symposium in July. However, we continued to develop the
+     >      > EVMS kernel driver because of input from our users. We wanted
+     >      > to go ahead and submit the driver and get the opinion of the
+     >      > full community before making this decision. In the last few
+     >      > weeks it has become clear that the current EVMS approach is not
+     >      > what the kernel community was looking for, so we have spent
+     >      > that time determining the feasibility and consequences of
+     >      > making this switch. We have come up with a good initial plan,
+     >      > and everyone involved now agrees that this is the best course
+     >      > of action.
+     >      >
+     >      > So how will this switch affect the EVMS users? Ideally, we want
+     >      > the users' experience with EVMS to remain completely unchanged.
+     >      > Based on our current plans, the user interfaces will not have
+     >      > to change at all, since we don't see any major changes to the
+     >      > Engine's external application interface. The plan is to provide
+     >      > the same, single, coherent method for performing all volume
+     >      > management tasks. This change will be almost transparent for
+     >      > most users. The same features, plugins, and capabilities will
+     >      > be supported.
+     >      >
+     >      > There will, of course, be some minor changes. Specifically,
+     >      > installing EVMS will be slightly different. It will involve
+     >      > different kernel options than you are used to with the current
+     >      > version. In the 2.5 kernel, all of the major components are
+     >      > already present, so little, if any, kernel patching should be
+     >      > necessary. Since device mapper has not yet been included in the
+     >      > main 2.4 kernel, 2.4 users will still require kernel patches.
+     >      > In addition, some functionality still does not exist in any of
+     >      > the available drivers. Specifically, we may provide extra
+     >      > device mapper modules for features like bad block relocation.
+     >      > The installation of the EVMS engine tools, on the other hand,
+     >      > should not change significantly from the current method.
+     >      >
+     >      > The other major difference will be due to the move to
+     >      > user-space discovery. First of all, why make this switch? The
+     >      > most obvious reason is that the kernel drivers become much
+     >      > simpler, and the only things they need to provide is I/O
+     >      > handling and a method for activating the volumes. While disk
+     >      > partitioning and software RAID still perform discovery in the
+     >      > kernel, the trend seems to be to move these tasks to
+     >      > user-space. It is likely at some point in the future that
+     >      > partitioning and MD will also be moved out of the kernel as
+     >      > well. However, the drawback to making this switch is losing
+     >      > automatic boot-time volume discovery. Activating EVMS volumes
+     >      > will now require a call to a user-space utility, which will
+     >      > need to be added to the system's init scripts in order to
+     >      > activate the volumes on each boot.
+     >      >
+     >      > In addition, this switch complicates having the root filesystem
+     >      > on an EVMS volume. Currently there is a lot of work being done
+     >      > on adding initramfs to the 2.5 kernel, which will provide a
+     >      > pre-root-fs user-space. This new system should provide a simple
+     >      > method for adding tasks to run during this early user-space,
+     >      > and those who wish to use root-on-EVMS will just need to add
+     >      > the EVMS tools to their initramfs. For 2.4 users, this means
+     >      > using an initial ramdisk (initrd) to provide this same pre-root
+     >      > user-space. Initrd setup is certainly awkward and often
+     >      > distribution- specific. But we will do our best to provide
+     >      > adequate instructions and assistance to those who need help in
+     >      > that situation.
+     >      >
+     >      > Looking ahead, we *will* continue to *fully* support the 1.2.0
+     >      > version of EVMS on 2.4 kernels, and possibly release a 1.2.1
+     >      > version with some recent bug fixes. We will also make a
+     >      > reasonable effort to maintain the current EVMS kernel driver on
+     >      > 2.5. It will not go through any other major changes, but we
+     >      > will try to keep it up-to-date and working with the latest 2.5
+     >      > releases, until the new EVMS tools are complete. At that point,
+     >      > the 2.5 EVMS driver will be dropped. Also, the new enhancements
+     >      > we have been working on recently, such as clustering and volume
+     >      > move, will only be developed under the new Engine model, and
+     >      > will not be available for the current 1.2.x code base.
+     >      >
+     >      > So how long will this take? Currently, we are estimating that
+     >      > we can have the user-space volume activation framework working,
+     >      > along with initial support for most of the plugins, by early
+     >      > 2003. Certain features, such as BBR and Snapshotting, may take
+     >      > longer to work out the details of their operation. We will soon
+     >      > open a new CVS tree to hold the new Engine code, leaving the
+     >      > old trees as a repository for bug fixes to the 1.2.x version.
+     >      >
+     >      > In summary, we feel that this decision is the best way to
+     >      > support our users for the long term. We want to provide EVMS on
+     >      > current and future kernels, and we feel this change provides
+     >      > the best method for achieving that. At the same time, this
+     >      > addresses all of the concerns voiced by the kernel community. 
+     >      > If anyone has any questions or concerns about this decision,
+     >      > please email us or the EVMS mailing list at
+     >      > evms-devel@lists.sf.net. We will be happy to answer any
+     >      > questions or discuss these changes in more detail.
+     >      >
+     >      > Thank you,
+     >      >
+     >      > The EVMS Team
+     >      > http://evms.sourceforge.net/
+     >      > evms-devel@lists.sourceforge.net
+     >      >
+     >      >
+     >      > -------------------------------------------------------
+     >      > This sf.net email is sponsored by: See the NEW Palm
+     >      > Tungsten T handheld. Power & Color in a compact size!
+     >      > http://ads.sourceforge.net/cgi-bin/redirect.pl?palm0001en
+     >      > _______________________________________________
+     >      > Evms-announce mailing list
+     >      > Evms-announce@lists.sourceforge.net
+     >      > To subscribe/unsubscribe, please visit:
+     >      > https://lists.sourceforge.net/lists/listinfo/evms-announce
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Mike Diehl
+PGP Encrypted E-mail preferred.
+Public Key via: http://dominion.dyndns.org/~mdiehl/mdiehl.asc
 

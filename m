@@ -1,57 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265708AbTAOHXH>; Wed, 15 Jan 2003 02:23:07 -0500
+	id <S265806AbTAOHaN>; Wed, 15 Jan 2003 02:30:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265777AbTAOHXH>; Wed, 15 Jan 2003 02:23:07 -0500
-Received: from almesberger.net ([63.105.73.239]:8975 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S265708AbTAOHXG>; Wed, 15 Jan 2003 02:23:06 -0500
-Date: Wed, 15 Jan 2003 04:31:47 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: kuznet@ms2.inr.ac.ru
-Cc: Roman Zippel <zippel@linux-m68k.org>, kronos@kronoz.cjb.net,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Migrating net/sched to new module interface
-Message-ID: <20030115043147.A1840@almesberger.net>
-References: <3E24A981.1EA03E8B@linux-m68k.org> <200301150119.EAA14364@sex.inr.ac.ru>
-Mime-Version: 1.0
+	id <S265815AbTAOHaN>; Wed, 15 Jan 2003 02:30:13 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:55265 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S265806AbTAOHaL>; Wed, 15 Jan 2003 02:30:11 -0500
+Date: Tue, 14 Jan 2003 23:38:55 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+cc: "'Zwane Mwaikambo'" <zwane@holomorphy.com>,
+       "'Nakajima, Jun'" <jun.nakajima@intel.com>,
+       "'haveblue@us.ibm.com'" <haveblue@us.ibm.com>
+Subject: Re: [BUG] SLAB.C:1617-error on boot
+Message-ID: <827790000.1042616334@titus>
+In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C022BD900@usslc-exch-4.slc.unisys.com>
+References: <3FAD1088D4556046AEC48D80B47B478C022BD900@usslc-exch-4.slc.unisys.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200301150119.EAA14364@sex.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Wed, Jan 15, 2003 at 04:19:28AM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
-> Somewhat overdone.
+It's just a warning ... I thing you'll find more info logged
+on http://bugme.osdl.org ... I've been hitting that for ages
+with no ill effects ;-)
 
-I think it would be nice to introduce in 2.7 a shutdowncall
-(*) function class for modules that works like exitcall, but
-with the following differences:
+--On Tuesday, January 14, 2003 22:13:26 -0600 "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com> wrote:
 
- - does not return before the module has really de-registered
-   itself everywhere, including synchronization with any
-   callbacks, etc.
- - has a return code, and can fail if it would have to sleep
-   for a possibly long time
+> I get the error below consistently on boot with 2.5.58. Didn't see it with
+> 2.5.56 (skipped 2.5.57).
+> 
+> .............................
+> Detected 1899.559 MHz processor.
+> 
+> Console: colour VGA+ 80x25
+> 
+> Calibrating delay loop... 3702.78 BogoMIPS
+> 
+> Memory: 3952476k/3997504k available (2436k kernel code, 43892k reserved,
+> 1280k data, 132k init, 3080000k highmem)
+> 
+> Debug: sleeping function called from illegal context at mm/slab.c:1617
+> 
+> Call Trace:
+> 
+>  [<c013b09c>] kmem_cache_alloc+0x74/0x76
+> 
+>  [<c013a2ca>] kmem_cache_create+0x72/0x5be
+> 
+>  [<c0105000>] _stext+0x0/0x56
+> 
+> 
+> Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes)
+> 
+> Inode-cache hash table entries: 262144 (order: 9, 2097152 bytes)
+> 
+> ................
+> 
+> 
+> --Natalie
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-Before calling the shutdown function, all symbols exported by
-the module are hidden, and after the shutdown functions returns,
-the module can be unloaded.
 
-That way, the module reference count becomes merely advisory
-information, and the real locking, synchronization, etc. is
-inside the module.
-
-The module unload mechanism could then check whether the module
-is old (uses exitcall) or new (uses shutdowncall), and act
-accordingly. Modules and the services they use could then be
-gradually fixed.
-
-(*) Or maybe use a nicer name :-)
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277148AbRJVRO6>; Mon, 22 Oct 2001 13:14:58 -0400
+	id <S277152AbRJVRQ6>; Mon, 22 Oct 2001 13:16:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277151AbRJVROi>; Mon, 22 Oct 2001 13:14:38 -0400
-Received: from 24-28-205-10.mf3.cox.rr.com ([24.28.205.10]:3345 "EHLO
-	24-28-205-10.mf3.cox.rr.com") by vger.kernel.org with ESMTP
-	id <S277148AbRJVROe>; Mon, 22 Oct 2001 13:14:34 -0400
-To: linux-kernel@vger.kernel.org
-Path: 24-28-205-10.mf3.cox.rr.com!not-for-mail
-From: gsh@cox.rr.com (Greg Hennessy)
-Newsgroups: list.linux
-Subject: Re: Linux 2.2.20pre10
-Date: Mon, 22 Oct 2001 17:16:26 +0000 (UTC)
-Organization: A InterNetNews site
-Message-ID: <9r1k9a$173$1@24-28-205-10.mf3.cox.rr.com>
-In-Reply-To: <E15viGk-0002Xu-00@the-village.bc.nu>
-NNTP-Posting-Host: localhost
-X-Trace: 24-28-205-10.mf3.cox.rr.com 1003770986 1252 127.0.0.1 (22 Oct 2001 17:16:26 GMT)
-X-Complaints-To: news@24-28-205-10.mf3.cox.rr.com
-NNTP-Posting-Date: Mon, 22 Oct 2001 17:16:26 +0000 (UTC)
+	id <S277154AbRJVRQj>; Mon, 22 Oct 2001 13:16:39 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10508 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277152AbRJVRQc>; Mon, 22 Oct 2001 13:16:32 -0400
+Subject: Re: Linux 2.2.20pre11
+To: greg@kroah.com (Greg KH)
+Date: Mon, 22 Oct 2001 18:23:02 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011022100508.B3885@kroah.com> from "Greg KH" at Oct 22, 2001 10:05:08 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15vin0-0002eh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E15viGk-0002Xu-00@the-village.bc.nu>,
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> As it stands I cannot legally advise the US security services about Linux 
-> security issues. Normally I'd find this excruciatingly funny but in the
-> current circumstances its rather less humourous.
+> On Mon, Oct 22, 2001 at 11:21:49AM +0100, Alan Cox wrote:
+> > 
+> > 2.2.20pre11
+> > o	Security fixes
+> > 	| Details censored in accordance with the US DMCA
+> 
+> http://marc.theaimsgroup.com/?l=bugtraq&m=100343090106914
 
-Which part of the DMCA do you think prohibits this?
-
+There are other security related changes

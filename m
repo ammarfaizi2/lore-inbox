@@ -1,78 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVAUCii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262237AbVAUCpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262235AbVAUCii (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 21:38:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVAUCih
+	id S262237AbVAUCpX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 21:45:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbVAUCpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 21:38:37 -0500
-Received: from gizmo04bw.bigpond.com ([144.140.70.14]:40647 "HELO
-	gizmo04bw.bigpond.com") by vger.kernel.org with SMTP
-	id S262235AbVAUCie (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 21:38:34 -0500
-Message-ID: <41F06B26.6000702@bigpond.net.au>
-Date: Fri, 21 Jan 2005 13:38:30 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Thu, 20 Jan 2005 21:45:23 -0500
+Received: from ozlabs.org ([203.10.76.45]:31688 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262237AbVAUCpQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 21:45:16 -0500
 MIME-Version: 1.0
-To: "Marc E. Fiuczynski" <mef@cs.princeton.edu>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>, Chris Han <xiphux@gmail.com>,
-       ckrm-tech@lists.sourceforge.net
-Subject: Re: [ANNOUNCE][RFC] plugsched-2.0 patches ...
-References: <NIBBJLJFDHPDIBEEKKLPGELGDHAA.mef@cs.princeton.edu>
-In-Reply-To: <NIBBJLJFDHPDIBEEKKLPGELGDHAA.mef@cs.princeton.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16880.28170.976516.285336@cargo.ozlabs.ibm.com>
+Date: Fri, 21 Jan 2005 13:50:50 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: anton@samba.org, akpm@osdl.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PPC64: EEH Recovery
+In-Reply-To: <20050120223916.GJ9140@austin.ibm.com>
+References: <20050106192413.GK22274@austin.ibm.com>
+	<20050117201415.GA11505@austin.ibm.com>
+	<16877.63693.915740.385920@cargo.ozlabs.ibm.com>
+	<20050120223916.GJ9140@austin.ibm.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc E. Fiuczynski wrote:
-> Peter, thank you for maintaining Con's plugsched code in light of Linus' and
-> Ingo's prior objections to this idea.  On the one hand, I partially agree
-> with Linus&Ingo's prior views that when there is only one scheduler that the
-> rest of the world + dog will focus on making it better. On the other hand,
-> having a clean framework that lets developers in a clean way plug in new
-> schedulers is quite useful.
+Linas Vepstas writes:
+
+> > 2. I don't see why the device nodes for the PCI subtree being reset
+> >    would go away, and thus I don't see the need for your eeh_cfg_tree
+> >    struct.
 > 
-> Linus & Ingo, it would be good to have an indepth discussion on this topic.
-> I'd argue that the Linux kernel NEEDS a clean pluggable scheduling
-> framework.
+> Its not the reset, its the hot-plug remove.  The hot plug code assumes
+> that you are going to physically remove the device from the slot, so
+> it removes the device_node as part of the "unconfig".  
+
+OK, I missed that.  It seems a bit bogus to me.  Could you point me at
+where in the code this happens?
+
+> > 3. Is there a good reason why we can't use the assigned-addresses
+> >    property on the relevant device tree nodes to tell us what to set
+> >    the BARs to?
 > 
-> Let me make a case for this NEED by example.  Ingo's scheduler belongs to
-> the egalitarian regime of schedulers that do a poor job of isolating
-> workloads from each other in multiprogrammed environments such as those
-> found on Enterprise servers and in my case on PlanetLab (www.planet-lab.org)
-> nodes.  This has been rectified by HP-UX, Solaris, and AIX through the use
-> of fair share schedulers that use O(1) schedulers within a share.  Currently
-> PlanetLab uses a CKRM modified version of Ingo's scheduler.
+> Yes, the reason is that after a reset, that property doesn't hold any 
+> decent data.   I discussed this with the firmware developers, and thier 
+> response was that it is the kernel's responsibility to compute 
+> (or save/restore) such values.  (Except for bridges, which they will do for us).
 
-I'm hoping that the CKRM folks will send me a patch to add their 
-scheduler to plugsched :-)
+The not holding any decent data is a consequence of the device nodes
+getting thrown away, isn't it?  I fail to see how resetting the device
+can of itself affect our copy of the device tree.
 
->  Similarly, the
-> linux-vserver project also modifies Ingo's scheduler to construct an
-> entitlement based scheduling regime. These are not just variants of O(1)
-> schedulers in the sense of Con's staircase O(1). Nor is it clear what the
-> best type of scheduler is for these environments (i.e., HP-UX, Solaris and
-> AIX don't have it fully solved yet either). The ability to dynamically swap
-> out schedulers on a production system like PlanetLab would help in
-> determining what type of scheduler is the most appropriate.  This is because
-> it is non-trivial, if not impossible, to recreate the multiprogrammed
-> workloads that we see in a lab.
+> > In particular I think it should be a
+> >    userland write to a sysfs file that kicks off the restart process
+> >    rather than it just happening after 5 seconds.  Anyway, what
+> >    process or thread is executing that 5 second sleep?  Is it keventd
+> >    or something?
 > 
-> For these reasons, it would be useful for plugsched (or something like it)
-> to make its way into the mainline kernel as a framework to plug in different
-> schedulers.  Alternatively, it would be useful to consider in what way
-> Ingo's scheduler needs to support plugins such as the CKRM and Vserver types
-> of changes.
-> 
-> Best regards,
-> Marc
+> Its a workqueue.
 
+Which get run in keventd's context.  In other words no other
+workqueues will get run during the 5 second sleep, or at least not on
+that cpu.
 
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Paul.

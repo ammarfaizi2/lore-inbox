@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265773AbTATNOQ>; Mon, 20 Jan 2003 08:14:16 -0500
+	id <S265787AbTATNNi>; Mon, 20 Jan 2003 08:13:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265786AbTATNOQ>; Mon, 20 Jan 2003 08:14:16 -0500
-Received: from mjrdom.else.net ([216.126.72.33]:31043 "EHLO mjrdom.else.net")
-	by vger.kernel.org with ESMTP id <S265773AbTATNOO>;
-	Mon, 20 Jan 2003 08:14:14 -0500
-Message-ID: <011501c2c087$17f511d0$0500000b@shiva.com>
-Reply-To: "Alexandre April" <alexandre.april@sympatico.ca>
-From: "Alexandre April" <alexandre.april@sympatico.ca>
-To: "Jan-Benedict Glaw" <jbglaw@lug-owl.de>, <linux-kernel@vger.kernel.org>
-References: <002c01c2c001$f36db9f0$0a01a8c0@aaprilhome> <20030120072329.GI30184@lug-owl.de> <00d201c2c083$5aceb460$0500000b@shiva.com> <20030120131924.GO30184@lug-owl.de>
-Subject: Re: CD Changer
-Date: Mon, 20 Jan 2003 08:23:17 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S265791AbTATNNi>; Mon, 20 Jan 2003 08:13:38 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:26054 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265787AbTATNNh>;
+	Mon, 20 Jan 2003 08:13:37 -0500
+Date: Mon, 20 Jan 2003 13:19:58 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Alessandro Suardi <ALESSANDRO.SUARDI@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "Latitude with broken BIOS" ?
+Message-ID: <20030120131958.GB27417@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Alessandro Suardi <ALESSANDRO.SUARDI@oracle.com>,
+	linux-kernel@vger.kernel.org
+References: <7346727.1043065918456.JavaMail.nobody@web11.us.oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7346727.1043065918456.JavaMail.nobody@web11.us.oracle.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Well I tried using ide-scsi for the CD changer device but without your
-"Scan all LUNs" and it showed only one device so I suppose if I turn that
-switch on I'll probably gonna see all 4 cd in different LUNs.
-
-    Do you have the exact swicth for Scan all LUNs ?
-
-    Alex
------ Original Message -----
-From: "Jan-Benedict Glaw" <jbglaw@lug-owl.de>
-To: <linux-kernel@vger.kernel.org>
-Sent: Monday, January 20, 2003 8:19 AM
-Subject: Re: CD Changer
+On Mon, Jan 20, 2003 at 04:31:58AM -0800, Alessandro Suardi wrote:
 
 
+ >   I was hoping to use HT on my new Latitude C640 (P4 @ 1.8Ghz) but at boot
+ >   both 2.4.21-pre3 and 2.5.59 (obviously with a SMP kernel) tell me
+
+I'd be surprised^Wamazed if your laptop has HT. AFAIK, no-one is
+shipping such a system yet. Just because the CPU flags say 'ht' does
+not mean it has >1 CPU thread per CPU package.
+
+ >  "Dell Latitude with broken BIOS detected. Refusing to enable the local APIC."
+
+Lots of Dell laptops (like other vendors) crash instantly when trying to
+enable the APIC.
+
+ >  Is this anything that can be played with ?
+
+Nope.
+
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,146 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbUKIWdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbUKIWg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261730AbUKIWdO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 17:33:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbUKIWdO
+	id S261732AbUKIWg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 17:36:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUKIWg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 17:33:14 -0500
-Received: from nwkea-mail-2.sun.com ([192.18.42.14]:33009 "EHLO
-	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
-	id S261730AbUKIWcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 17:32:36 -0500
-Date: Tue, 09 Nov 2004 17:32:16 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: More linux-2.6.9 module problems
-In-reply-to: <Pine.LNX.4.61.0411091652440.5941@chaos.analogic.com>
-To: linux-os@analogic.com
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Message-id: <41914570.5060501@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <Pine.LNX.4.61.0411081148520.5510@chaos.analogic.com>
- <41911FD4.2060902@sun.com>
- <Pine.LNX.4.61.0411091522440.3519@chaos.analogic.com>
- <41913A16.5090508@sun.com>
- <Pine.LNX.4.61.0411091652440.5941@chaos.analogic.com>
+	Tue, 9 Nov 2004 17:36:27 -0500
+Received: from hell.sks3.muni.cz ([147.251.210.30]:29143 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S261732AbUKIWgP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 17:36:15 -0500
+Date: Tue, 9 Nov 2004 23:35:58 +0100
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Stefan Schmidt <zaphodb@zaphods.net>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
+Message-ID: <20041109223558.GR1309@mail.muni.cz>
+References: <20041103222447.GD28163@zaphods.net> <20041104121722.GB8537@logos.cnet> <20041104181856.GE28163@zaphods.net> <20041109164113.GD7632@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041109164113.GD7632@logos.cnet>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi all,
 
-linux-os wrote:
-> On Tue, 9 Nov 2004, Mike Waychison wrote:
+On Tue, Nov 09, 2004 at 02:41:13PM -0200, Marcelo Tosatti wrote:
+> Stefan, Lukas, 
 > 
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> linux-os wrote:
->>
->>> On Tue, 9 Nov 2004, Mike Waychison wrote:
->>>
->>>> -----BEGIN PGP SIGNED MESSAGE-----
->>>> Hash: SHA1
->>>>
->>>> linux-os wrote:
->>>>
->>>>>
->>>>> I have a memory-test procedure that tests
->>>>> memory on a board, accessed via the PCI bus.
->>>>> There is a lot of RAM and it's bank-switched
->>>>> into some 64k windows so it takes a lot of
->>>>> time to test, about 60 seconds.
->>>>>
->>>>> This is in a module, therefore inside the kernel.
->>>>> When it is invoked via an ioctl() call, the
->>>>> kernel is frozen for the whole test-time. The
->>>>> test procedure does not use any spin-locks nor
->>>>> does it even use any semaphores. It just does a
->>>>> bunch of read/write operations over the PCI/Bus.
->>>>>
->>>>> I thought that I could enable the preemptible-
->>>>> kernel option and the machine would then respond
->>>>> normally. Not so. Even with 4 CPUs, when one
->>>>> ioctl() is busy in the kernel, nothing else
->>>>> happens until its done. Even keyboard activity
->>>>> is gone, no Caps Lock and no Num Lock, no `ping`
->>>>> response over the network. However, the machine
->>>>> comes back to life when the memory-test is done.
->>>>>
->>>>> This is kernel version 2.6.9. Is it possible that
->>>>> somebody left on the BKL when calling a module
->>>>> ioctl() on this version? If not, what do I do
->>>>> to be able to execute a time-consuming procedure
->>>>> from inside the kernel? Do I break it up into
->>>>> sections and execute schedule() periodically
->>>>> (temporary work-around --works)??
->>>>>
->>>>
->>>> The BKL has always been grabbed across ioctls.  Drop the lock when you
->>>> enter your f_op->ioctl call and grab it again open completion.
->>>>
->>>
->>> Hmmm. I get 'scheduling while atomic' screaming across the screen!
->>> There are no atomic operations in my ioctl functions so I don't
->>> know what its complaining about. I think I shouldn't have tried
->>> to do anything with BKL because I (my task) doesn't own it.
->>>
->>
->> 'Scheduling while atomic' means you called some function that may
->> schedule itself out while you are holding a spinlock.  Note that the BKL
->> is not a regular spinlock, and scheduling is allowed while holding it.
->>
->> Please see
->> http://james.bond.edu.au/courses/inft73626@033/Assigs/Papers/kernel_locking_techniques.html
->>
->> by Robert Love, the section titled "The Big Kernel Lock"
->>
->> Something else is wrong with your code.
+> Can you please run your workload which cause 0-order page allocation 
+> failures with the following patch, pretty please? 
 > 
+> We will have more information on the free areas state when the allocation 
+> fails.
 > 
-> Not quite. Something is wrong with the e100 network driver used in
-> 2.6.9. When I do:
-> 
-> int ioctl(,,,,)
-> {
->    int ret;
->    unlock_kernel();
->    ret = original_ioctl(...);
->    lock_kernel();
->    return ret;
-> }
-> In my driver,  completely unrelated to the network.... It's
-> something in the e100 network driver that the kernel's
-> complaining about. If I shut down the network and remove
-> the network driver module I don't have any problems while
-> enabling BKL. Everything runs fine.
-> 
+> Andrew, please apply it to the next -mm, will you?
 
-Don't do that. ioctls rightly-assume that the BKL is held when they are
-called.
+here is the trace:
+ klogd: page allocation failure. order:0, mode: 0x20
+  [__alloc_pages+441/862] __alloc_pages+0x1b9/0x363
+  [__get_free_pages+42/63] __get_free_pages+0x25/0x3f
+  [kmem_getpages+37/201] kmem_getpages+0x21/0xc9
+  [cache_grow+175/333] cache_grow+0xab/0x14d
+  [cache_alloc_refill+376/537] cache_alloc_refill+0x174/0x219
+  [__kmalloc+137/140] __kmalloc+0x85/0x8c
+  [alloc_skb+75/224] alloc_skb+0x47/0xe0
+  [e1000_alloc_rx_buffers+72/227] e1000_alloc_rx_buffers+0x44/0xe3
+  [e1000_clean_rx_irq+402/1095] e1000_clean_rx_irq+0x18e/0x447
+  [e1000_clean+85/202] e1000_clean+0x51/0xca
+  [net_rx_action+123/246] net_rx_action+0x77/0xf6
+  [__do_softirq+183/198] __do_softirq+0xb7/0xc6
+  [do_softirq+45/47] do_softirq+0x2d/0x2f
+  [do_IRQ+274/304] do_IRQ+0x112/0x130
+  [common_interrupt+24/32] common_interrupt+0x18/0x20
+  [_spin_unlock_irq+13/28] _spin_unlock_irq+0x9/0x1c
+  [do_syslog+295/990] do_syslog+0x127/0x3de
+  [autoremove_wake_function+0/87] autoremove_wake_function+0x0/0x57
+  [autoremove_wake_function+0/87] autoremove_wake_function+0x0/0x57
+  [dnotify_parent+62/166] dnotify_parent+0x3a/0xa6
+  [vfs_read+180/281] vfs_read+0xb0/0x119
+  [sys_read+85/128] sys_read+0x51/0x80
+  [syscall_call+7/11] syscall_call+0x7/0xb
+ DMA per-cpu:
+ cpu 0 hot: low 2, high 6, batch 1
+ cpu 0 cold: low 0, high 2, batch 1
+ cpu 1 hot: low 2, high 6, batch 1
+ cpu 1 cold: low 0, high 2, batch 1
+ Normal per-cpu:
+ cpu 0 hot: low 32, high 96, batch 16
+ cpu 0 cold: low 0, high 32, batch 16
+ cpu 1 hot: low 32, high 96, batch 16
+ cpu 1 cold: low 0, high 32, batch 16
+ HighMem per-cpu:
+ cpu 0 hot: low 14, high 42, batch 7
+ cpu 0 cold: low 0, high 14, batch 7
+ cpu 1 hot: low 14, high 42, batch 7
+ cpu 1 cold: low 0, high 14, batch 7
 
-When I said drop the lock, I meant for _your_ ioctl code.
+ Free pages:         348kB (112kB HighMem)
+ Active:38175 inactive:210615 dirty:95618 writeback:2461 unstable:0 free:87 slab:7706 mapped:14968 pagetables:404
+ DMA free:4kB min:12kB low:24kB high:36kB active:456kB inactive:11152kB present:16384kB
+ protections[]: 0 0 0
+ Normal free:232kB min:708kB low:1416kB high:384kB active:40264kB inactive:88296kB present:131008kB
+ protections[]: 0 0 0
+ HighMem free:112kB min:128kB low:256kB high:384kB active:40264kB inactive:88296kB present:131008kB
+ protections[]: 0 0 0
+ DMA: 1*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 4kB
+ Normal: 0*4kB 1*8kB 0*16kB 1*32kB 1*64kB 1*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 232kB
+ HighMem: 0*4kB 0*8kB 1*16kB 1*32kB 1*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 112kB
+ Swap cache: add 1, delete 1, find 0/0, race 0+0
 
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBkUVvdQs4kOxk3/MRAscGAKCa51vEk6sXl9zc/mNf+2i6ntvhfACeORkF
-YlqcKKfN/5Y++pY4Ws6Kgpw=
-=LsgB
------END PGP SIGNATURE-----
+-- 
+Luká¹ Hejtmánek

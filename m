@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266204AbUA1VpT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 16:45:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266206AbUA1VpS
+	id S266194AbUA1Vny (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 16:43:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266204AbUA1Vny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 16:45:18 -0500
-Received: from mail.kroah.org ([65.200.24.183]:38294 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266204AbUA1Vn4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 16:43:56 -0500
-Date: Wed, 28 Jan 2004 13:43:56 -0800
-From: Greg KH <greg@kroah.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PC300 update
-Message-ID: <20040128214356.GA8999@kroah.com>
-References: <Pine.LNX.4.58L.0401281741120.2088@logos.cnet>
+	Wed, 28 Jan 2004 16:43:54 -0500
+Received: from fmr03.intel.com ([143.183.121.5]:26536 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S266194AbUA1Vnv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 16:43:51 -0500
+Subject: Re: acpi - forcing only button event & powerdown on?
+From: Len Brown <len.brown@intel.com>
+To: Nick Bartos <spam99@2thebatcave.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0020AE587@hdsmsx402.hd.intel.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE0020AE587@hdsmsx402.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1075326225.2496.16.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0401281741120.2088@logos.cnet>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 28 Jan 2004 16:43:45 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 28, 2004 at 05:42:11PM -0200, Marcelo Tosatti wrote:
-> 
-> - Mark pci_device_id list with __devinitdata
+> Is there a way to force acpi on, but only for the couple of things I
+> need
+> (disabling the rest if it is a good idea), so I don't get into trouble
+> later?
 
-Noooo!!!   I think we've finally audited all uses of this.  Do not do
-this please, it is wrong for 2.6.
+yes, build with...
+CONFIG_ACPI=y
+CONFIG_ACPI_BUTTON=y
+everything else =n
+make oldconfig (which will turn on CONFIG_ACPI_BOOT, INTERPRETER) and
+build...
 
-> - Add #ifdef DEBUG around debug printk()
+For your system on the acpi=ht blacklist, you'll need acpi=force to
+over-ride it.  Note that as ACPI has gotten better, some of the systems
+on the blacklist have come off.  acpi-devel@lists.sourceforge.net would
+be a good place to bring up that issue for a particular platform.
 
-What's wrong with dev_dbg()?  It gives you a much better idea of which
-device is spitting out the messages.
+cheers,
+-Len
 
-thanks,
 
-greg k-h

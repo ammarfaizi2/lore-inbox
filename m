@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268283AbUJVXNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268180AbUJVXPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268283AbUJVXNF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 19:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268278AbUJVXMC
+	id S268180AbUJVXPv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 19:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268228AbUJVXPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 19:12:02 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59655 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S268040AbUJVXIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 19:08:07 -0400
-Date: Sat, 23 Oct 2004 00:07:55 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, linux-net@vger.kernel.org,
-       prism54-private@prism54.org, netdev@oss.sgi.com
-Subject: Re: 2.6.9-mm1: pc_debug multiple definitions
-Message-ID: <20041023000755.E3459@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	jgarzik@pobox.com, linux-net@vger.kernel.org,
-	prism54-private@prism54.org, netdev@oss.sgi.com
-References: <20041022032039.730eb226.akpm@osdl.org> <20041022133929.GA2831@stusta.de>
+	Fri, 22 Oct 2004 19:15:30 -0400
+Received: from mail.kroah.org ([69.55.234.183]:19875 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269093AbUJVXKR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 19:10:17 -0400
+X-Donotread: and you are reading this why?
+Subject: Re: [PATCH] Driver Core patches for 2.6.10-rc1
+In-Reply-To: <10984865723197@kroah.com>
+X-Patch: quite boring stuff, it's just source code...
+Date: Fri, 22 Oct 2004 16:09:32 -0700
+Message-Id: <10984865721186@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041022133929.GA2831@stusta.de>; from bunk@stusta.de on Fri, Oct 22, 2004 at 03:39:29PM +0200
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 03:39:29PM +0200, Adrian Bunk wrote:
-> 
-> The following compile error comes from Linus' tree:
-> 
-> 
-> <--  snip  -->
-> 
-> ...
->   LD      drivers/built-in.o
-> drivers/pcmcia/built-in.o(.bss+0xf20): multiple definition of `pc_debug'
-> drivers/net/built-in.o(.data+0x24ae0): first defined here
-> make[1]: *** [drivers/built-in.o] Error 1
-> 
-> <--  snip  -->
-> 
-> 
-> The pc_debug in drivers/pcmcia/ds.c was made non-static in Linus' tree,
-> but the global definition of a global variable with such a generic name 
-> in drivers/net/wireless/prism54/islpci_mgt.c seems to be equally wrong.
+ChangeSet 1.2023, 2004/10/22 15:43:17-07:00, greg@kroah.com
 
-I've forwarded it to Dominik to sort out with suggested solutions.
-Hopefully Dominik will forward a fix soon.
+hotplug: prevent skips in sequence number from happening
 
-(PS, I dropped David Hinds from the CC list - David doesn't maintain
-2.6 PCMCIA.)
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+
+ lib/kobject_uevent.c |   17 +++++++++--------
+ 1 files changed, 9 insertions(+), 8 deletions(-)
+
+
+diff -Nru a/lib/kobject_uevent.c b/lib/kobject_uevent.c
+--- a/lib/kobject_uevent.c	2004-10-22 15:59:34 -07:00
++++ b/lib/kobject_uevent.c	2004-10-22 15:59:34 -07:00
+@@ -255,13 +255,6 @@
+ 	envp [i++] = scratch;
+ 	scratch += sprintf (scratch, "DEVPATH=%s", kobj_path) + 1;
+ 
+-	spin_lock(&sequence_lock);
+-	seq = ++hotplug_seqnum;
+-	spin_unlock(&sequence_lock);
+-
+-	envp [i++] = scratch;
+-	scratch += sprintf(scratch, "SEQNUM=%lld", (long long)seq) + 1;
+-
+ 	envp [i++] = scratch;
+ 	scratch += sprintf(scratch, "SUBSYSTEM=%s", name) + 1;
+ 
+@@ -277,7 +270,15 @@
+ 		}
+ 	}
+ 
+-	pr_debug ("%s: %s %s %s %s %s %s %s\n", __FUNCTION__, argv[0], argv[1],
++	spin_lock(&sequence_lock);
++	seq = ++hotplug_seqnum;
++	spin_unlock(&sequence_lock);
++
++	envp [i++] = scratch;
++	scratch += sprintf(scratch, "SEQNUM=%lld", (long long)seq) + 1;
++
++	pr_debug ("%s: %s %s seq=%lld %s %s %s %s %s\n",
++		  __FUNCTION__, argv[0], argv[1], (long long)seq,
+ 		  envp[0], envp[1], envp[2], envp[3], envp[4]);
+ 
+ 	send_uevent(action_string, kobj_path, buffer, scratch - buffer, GFP_KERNEL);
+

@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261966AbTHaHyd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 03:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbTHaHyc
+	id S261897AbTHaHxA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 03:53:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbTHaHxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 03:54:32 -0400
-Received: from smtp102.mail.sc5.yahoo.com ([216.136.174.140]:49042 "HELO
-	smtp102.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261966AbTHaHy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 03:54:27 -0400
-Date: Sun, 31 Aug 2003 04:52:20 -0300
-From: Gerardo Exequiel Pozzi <djgeray2k@yahoo.com.ar>
-To: Jeff Chua <jeff89@silk.corp.fedex.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] hda:end_request: I/O error, dev 03:00 (hda), sector 0
-Message-Id: <20030831045220.3ace5a34.djgeray2k@yahoo.com.ar>
-In-Reply-To: <Pine.LNX.4.42.0308311221430.17575-100000@silk.corp.fedex.com>
-References: <Pine.LNX.4.42.0308311221430.17575-100000@silk.corp.fedex.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 31 Aug 2003 03:53:00 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:26641 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S261897AbTHaHw6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 03:52:58 -0400
+From: Michael Frank <mhf@linuxmail.org>
+To: Patrick Mochel <mochel@osdl.org>
+Subject: Re: 2.6.0-test4: Tested the Power Management Update
+Date: Sun, 31 Aug 2003 15:52:20 +0800
+User-Agent: KMail/1.5.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <200308311027.08779.mhf@linuxmail.org>
+In-Reply-To: <200308311027.08779.mhf@linuxmail.org>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200308311551.04559.mhf@linuxmail.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Aug 2003 12:24:29 +0800 (SGT), Jeff Chua wrote:
+On Sunday 31 August 2003 10:34, Michael Frank wrote:
+> 6) MINOR UNCHANGED: As to the mouse, i8042 does not resume, so I
+> config i8042 as a module and reload it on resume. However, current
+> drivers/input/serio/Kconfig makes this impossible, which I whined
+> about a few times already ;)
 >
->What do I need to get rid of these errors ...
+> config SERIO_I8042
+> tristate "i8042 PC Keyboard controller" if EMBEDDED || !X86
 >
->dmesg after boot up ...
->
-*snip*
->Partition check:
-> hda:end_request: I/O error, dev 03:00 (hda), sector 0
->end_request: I/O error, dev 03:00 (hda), sector 2
->end_request: I/O error, dev 03:00 (hda), sector 4
->end_request: I/O error, dev 03:00 (hda), sector 6
->end_request: I/O error, dev 03:00 (hda), sector 0
->end_request: I/O error, dev 03:00 (hda), sector 2
->end_request: I/O error, dev 03:00 (hda), sector 4
->end_request: I/O error, dev 03:00 (hda), sector 6
-> unable to read partition table
+> Maybe bug in kconfig: Even when X86 if off, can't touch i8042
+> using menuconfig.
 
-I suppose that your disk will be in good state, ok,
-A time ago I had the same error (with hdc), and was that had forgotten
-to clear the hdc=ide-scsi from of the line append in lilo.
+No, just another BUG in my head: I mistook X86_GENERIC for X86
+- How BRILLIANT to _hide_ X86 away in arch/i386/Kconfig - it 
+is even inaccessible ....
 
-Possibly it is your problem, although it is strange to me with hda.
+mainmenu "Linux Kernel Configuration"
 
-Please check your command line at boot, and remove the bad apppend line in lilo.conf
+  config X86
+	bool
+	default y
+	help
+	  This is Linux's home port.  Linux was originally native to the Intel
+	  386, and runs on all the later x86 processors including the Intel
+	  486, 586, Pentiums, and various instruction-set-compatible chips by
+	  AMD, Cyrix, and others.
 
-chau,
- djgera
+Couldn't one have a better way of handling this ?
 
+Regards
+Michael
 
--- 
-Gerardo Exequiel Pozzi ( djgera )
-http://www.vmlinuz.com.ar http://www.djgera.com.ar
-KeyID: 0x1B8C330D
-Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D

@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265740AbTFNUsa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 16:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265742AbTFNUsa
+	id S265737AbTFNUui (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 16:50:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265736AbTFNUui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 16:48:30 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11276 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265740AbTFNUsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 16:48:24 -0400
-Date: Sat, 14 Jun 2003 22:02:05 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Matt Porter <mporter@kernel.crashing.org>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] early_port_register
-Message-ID: <20030614220205.F14835@flint.arm.linux.org.uk>
-Mail-Followup-To: Matt Porter <mporter@kernel.crashing.org>,
-	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-References: <20030612132001.A4693@home.com> <20030612212723.A15400@infradead.org> <20030612134113.B4693@home.com> <20030612225310.G3348@flint.arm.linux.org.uk> <20030613105238.A29723@flint.arm.linux.org.uk>
+	Sat, 14 Jun 2003 16:50:38 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:13036 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265714AbTFNUuX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 16:50:23 -0400
+Date: Sat, 14 Jun 2003 23:03:34 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] input: Add PCI PS/2 controller support [5/13]
+Message-ID: <20030614230334.A26210@ucw.cz>
+References: <20030614223513.A25948@ucw.cz> <20030614223934.C25997@ucw.cz> <20030614224022.D25997@ucw.cz> <200306142251.51235.oliver@neukum.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030613105238.A29723@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Fri, Jun 13, 2003 at 10:52:38AM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200306142251.51235.oliver@neukum.org>; from oliver@neukum.org on Sat, Jun 14, 2003 at 10:51:51PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 13, 2003 at 10:52:38AM +0100, Russell King wrote:
-> On Thu, Jun 12, 2003 at 10:53:10PM +0100, Russell King wrote:
-> > Sigh, there seems to be one cset still pending in my serial BK tree:
-> > 
-> > ChangeSet@1.1113.2.1, 2003-05-14 16:50:47+02:00, hch@lab343.munich.sgi.com
-> >   acpi serial stuff
-> > 
-> > I'll request Linus pulls this tonight.
+On Sat, Jun 14, 2003 at 10:51:51PM +0200, Oliver Neukum wrote:
+
+> > +static int pcips2_write(struct serio *io, unsigned char val)
+> > +{
+> > +	struct pcips2_data *ps2if = io->driver;
+> > +	unsigned int stat;
+> > +
+> > +	do {
+> > +		stat = inb(ps2if->base + PS2_STATUS);
+> > +		cpu_relax();
+> > +	} while (!(stat & PS2_STAT_TXEMPTY));
 > 
-> FYI, its still sitting here...
+> What will happen if somebody unplugs the base station while this
+> is running?
 
-Linus pulled it, but added an extra cset:
-
-1.1311  Remove strange and broken ACPI rule from serial Makefile
-
-diff -Nru a/drivers/serial/Makefile b/drivers/serial/Makefile
---- a/drivers/serial/Makefile	Wed May 14 07:50:37 2003
-+++ b/drivers/serial/Makefile	Sat Jun 14 12:07:41 2003
-@@ -8,7 +8,6 @@
- serial-8250-$(CONFIG_GSC) += 8250_gsc.o
- serial-8250-$(CONFIG_PCI) += 8250_pci.o
- serial-8250-$(CONFIG_PNP) += 8250_pnp.o
--serial-8250-$(CONFIG_ACPI) += acpi.o
- serial-8250-$(CONFIG_SERIAL_HCDP) += 8250_hcdp.o
- 
- obj-$(CONFIG_SERIAL_CORE) += core.o
-
-The file is actually called "8250_acpi.o".
-
-Can you guys ensure that the patch and code works and send an update
-direct to Linus please?
-
-Unfortunately, its too late for 2.5.71.
+I suppose it will wait until you put the base station back. Russell, is
+there any notification that the base is getting removed or do all the
+loops need checking? I'd consider it not hotpluggable for now.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

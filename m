@@ -1,72 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267737AbUJOM2G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267739AbUJOMbj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267737AbUJOM2G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 08:28:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267739AbUJOM2G
+	id S267739AbUJOMbj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 08:31:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267743AbUJOMbj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 08:28:06 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:31379 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S267737AbUJOM2B
+	Fri, 15 Oct 2004 08:31:39 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:20609 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S267739AbUJOMbh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 08:28:01 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 15 Oct 2004 08:31:37 -0400
+Subject: Re: Fw: signed kernel modules?
+From: Josh Boyer <jdub@us.ibm.com>
+To: root@chaos.analogic.com
+Cc: Roman Zippel <zippel@linux-m68k.org>, David Howells <dhowells@redhat.com>,
+       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
+       David Woodhouse <dwmw2@infradead.org>, Greg KH <greg@kroah.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0410150723180.8573@chaos.analogic.com>
+References: <27277.1097702318@redhat.com>
+	 <1097626296.4013.34.camel@localhost.localdomain>
+	 <1096411448.3230.22.camel@localhost.localdomain>
+	 <1092403984.29463.11.camel@bach> <1092369784.25194.225.camel@bach>
+	 <20040812092029.GA30255@devserv.devel.redhat.com>
+	 <20040811211719.GD21894@kroah.com>
+	 <OF4B7132F5.8BE9D947-ON87256EEB.007192D0-86256EEB.00740B23@us.ibm.com>
+	 <1092097278.20335.51.camel@bach> <20040810002741.GA7764@kroah.com>
+	 <1092189167.22236.67.camel@bach> <19388.1092301990@redhat.com>
+	 <30797.1092308768@redhat.com>
+	 <20040812111853.GB25950@devserv.devel.redhat.com>
+	 <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com>
+	 <27175.1095936746@redhat.com> <30591.1096451074@redhat.com>
+	 <10345.1097507482@redhat.com>
+	 <1097507755.318.332.camel@hades.cambridge.redhat.com>
+	 <1097534090.16153.7.camel@localhost.localdomain>
+	 <1097570159.5788.1089.camel@baythorne.infradead.org>
+	 <23446.1097777340@redhat.com> <Pine.LNX.4.61.0410151253360.7182@scrub.home>
+	 <Pine.LNX.4.61.0410150723180.8573@chaos.analogic.com>
+Content-Type: text/plain
+Message-Id: <1097843492.29988.6.camel@weaponx.rchland.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 15 Oct 2004 07:31:32 -0500
 Content-Transfer-Encoding: 7bit
-Date: Fri, 15 Oct 2004 08:27:10 -0400 (EDT)
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Robert Wisniewski <bob@watson.ibm.com>, Roland Dreier <roland@topspin.com>,
-       karim@opersys.com, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Thomas Zanussi <trz@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U0
-In-Reply-To: <1097806897.2682.80.camel@krustophenia.net>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
-	<20041011215909.GA20686@elte.hu>
-	<20041012091501.GA18562@elte.hu>
-	<20041012123318.GA2102@elte.hu>
-	<20041012195424.GA3961@elte.hu>
-	<20041013061518.GA1083@elte.hu>
-	<20041014002433.GA19399@elte.hu>
-	<416F0071.3040304@opersys.com>
-	<20041014234603.GA22964@elte.hu>
-	<416F14B4.8070002@opersys.com>
-	<52u0swddpk.fsf@topspin.com>
-	<16751.12005.419748.661651@kix.watson.ibm.com>
-	<1097806897.2682.80.camel@krustophenia.net>
-X-Mailer: VM 6.43 under 20.4 "Emerald" XEmacs  Lucid
-Message-ID: <16751.49412.433407.262686@kix.watson.ibm.com>
-From: Robert Wisniewski <bob@watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell writes:
- > On Thu, 2004-10-14 at 22:00, Robert Wisniewski wrote:
- > > Theoretically a problem, in practice not, i.e., good enough for soft/normal
- > > real-time, not hard real-time; probably wouldn't want my heart monitor on
- > > it, but then I wouldn't be using Linux for that either :-)
- > 
- > Also, the issue here is how we do debug logging.  You would presumably
- > not use this at all in production.
- > 
- > Lee 
+On Fri, 2004-10-15 at 07:10, Richard B. Johnson wrote:
+> On Fri, 15 Oct 2004, Roman Zippel wrote:
+> 
+> > Hi,
+> >
+> > On Thu, 14 Oct 2004, David Howells wrote:
+> >
+> >> I've uploaded an updated module signing patch with Rusty's suggested
+> >> additions:
+> >
+> > Can someone please put this patch into some context, where it's not
+> > completely pointless? As is it does not make anything more secure.
+> > Why is the kernel more trustable than a kernel module?
+> > If someone could show me how I can trust the running kernel, it should be
+> > rather easy to extend the same measures to modules without the need for
+> > this patch.
+> >
+> > bye, Roman
+> > -
+> 
+> This is just the first step, which I think must be quashed
+> immediately. The ultimate goal is to control what you put
+> into your computer. Eventually, some central licensing
+> authority will certify any modules that are allowed to
+> be run in your computer. Doesn't anybody else see this?
 
-Yes actually you would.  If the tracing subsystem is designed correctly you
-leave it in for production systems and enable it when you need to find a
-problem.  The reason is because many times you can not reproduce a problem
-someone in production is seeing in your environment.  In addition to the
-LTT/Relayfs and K42 tracing work, lots of of tracing work/papers suggest
-leaving it in all the time.  Most commercial operating systems have made
-the investment to correctly design tracing facilities so they are
-available.  LTT in combination with relayfs could fulfill that role for
-Linux.
+cd linux-2.6;
+patch -R -p1 < ../<modsign patch name>
 
-Robert Wisniewski
-The K42 MP OS Project
-Advanced Operating Systems
-Scalable Parallel Systems
-IBM T.J. Watson Research Center
-914-945-3181
-http://www.research.ibm.com/K42/
-bob@watson.ibm.com
+josh
+

@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262220AbTEZUYt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 16:24:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbTEZUYt
+	id S262222AbTEZUcc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 16:32:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbTEZUcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 16:24:49 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:29158 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262220AbTEZUYr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 16:24:47 -0400
-Date: Mon, 26 May 2003 22:38:00 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
+	Mon, 26 May 2003 16:32:32 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11021 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262222AbTEZUca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 16:32:30 -0400
+Date: Mon, 26 May 2003 13:45:25 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [BK PATCHES] add ata scsi driver
-Message-ID: <20030526203800.GP845@suse.de>
-References: <1053976644.2298.194.camel@mulgrave> <Pine.LNX.4.44.0305261317520.12186-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305261317520.12186-100000@home.transmeta.com>
+In-Reply-To: <1053981380.1768.203.camel@mulgrave>
+Message-ID: <Pine.LNX.4.44.0305261339340.13489-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 26 2003, Linus Torvalds wrote:
+
+On 26 May 2003, James Bottomley wrote:
 > 
-> On 26 May 2003, James Bottomley wrote:
-> >
-> > On Mon, 2003-05-26 at 15:07, Jens Axboe wrote:
-> > > Alright, so what do you need? Start out with X tags, shrink to Y (based
-> > > on repeated queue full conditions)? Anything else?
-> > 
-> > Actually, it's easier than that: just an API to alter the number of tags
-> > in the block layer (really only the size of your internal hash table). 
-> > The actual heuristics of when to alter the queue depth is the province
-> > of the individual drivers (although Doug Ledford was going to come up
-> > with a generic implementation).
+> > I'd hate for SATA to pick up these kinds of mistakes from the SCSI layer.
 > 
-> Talking about tagged queueing - does the SCSI layer still remove the
-> request from the request list when it starts executing it?
+> The elevator is based on linear head movements.
 
-Yes
+Historically, yes.
 
-> At least historically that's a major mistake, and generates a crappy 
-> elevator, because it removes information from the block layer about where 
-> the disk is (or is going to be).
+But we've been moving more and more towards a latency-based elevator, or
+at least one that takes latency into account. Which is exactly why you'd
+like to leave unfinished requests on the queue, because otherwise your
+queue doesn't really show what is really going on.
 
-Not necessarily, the io schedulers keep track of where we are going. You
-don't need an active front request for that.
+In particular, while the higher layers don't actually _do_ this yet, from 
+a latency standpoint the right thing to do when some request seems to get 
+starved is to refuse to feed more tagged requeusts to the device until the 
+starved request has finished. 
 
-> I know Andrew thinks that SCSI tagged queuing is a bunch of crap, and he 
-> has the latency numbers to prove it. He blames the SCSI disks themselves, 
-> but I think it might be the fact that SCSI makes it impossible to make a 
-> fair queuing algorithm for higher levels by hiding information.
-> 
-> Has anybody looked at just removing the request at command _completion_ 
-> time instead? That's what IDE does, and it's the _right_ thing to do.
+As I mentioned, Andrew actually had some really bad latency numbers to
+prove that this is a real issue. SCSI with more than 4 tags or so results 
+in potentially _major_ starvation, because the disks themselves are not 
+even trying to avoid it.
 
-I know this is a pet peeve of yours (must be, I remember you bringing it
-up at least 3 time before :), but I don't think that's necessarily true.
-It shouldn't matter _one_ bit whether you leave the request there or
-not, it's unmergeable. As long as the io scheduler keeps track of this
-(and it does!) we are golden.
+Also, even aside from the starvation issue with unfair disks, just from a
+"linear head movement" standpoint, you really want to sort the queue
+according to what is going on _now_ in the disk. If the disk eats the
+requests immediately (but doesn't execute them immediately), the sorting
+has nothing to go on, and you get tons of back-and-forth movements.
 
--- 
-Jens Axboe
+Basically, if you're trying to do an elevator, you need to know what the 
+outstanding commands are. Think it through on paper, and you'll see what I 
+mean.
+
+			Linus
 

@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbUA2Igl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 03:36:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbUA2Igl
+	id S262564AbUA2Ipa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 03:45:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbUA2Ipa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 03:36:41 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:29933 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S262048AbUA2Igi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 03:36:38 -0500
-From: Matthias Fouquet-Lapar <mfl@kernel.paris.sgi.com>
-Message-Id: <200401290823.i0T8NTDi024477@mtv-vpn-hw-mfl-2.corp.sgi.com>
-Subject: Re: [RFC/PATCH, 1/4] readX_check() performance evaluation
-To: davidm@hpl.hp.com
-Date: Thu, 29 Jan 2004 09:23:20 +0100 ("CET)
-Cc: ak@suse.de (Andi Kleen), davidm@napali.hpl.hp.com, iod00d@hp.com,
-       ishii.hironobu@jp.fujitsu.com, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-In-Reply-To: <16408.3157.336306.812481@napali.hpl.hp.com> from "David Mosberger" at Jan 28, 2004 11:24:05 AM
-X-Mailer: ELM [version 2.5 PL6]
+	Thu, 29 Jan 2004 03:45:30 -0500
+Received: from zone3.gcu-squad.org ([217.19.50.74]:52485 "EHLO
+	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S262564AbUA2Ip3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 03:45:29 -0500
+Message-ID: <1075365845.4018c7d5353d7@imp.gcu.info>
+Date: Thu, 29 Jan 2004 09:44:05 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: Re: [BK PATCH] i2c driver fixes for 2.6.2-rc2
+References: <20040127233242.GA28891@kroah.com> <20040129004402.GC5830@werewolf.able.es>
+In-Reply-To: <20040129004402.GC5830@werewolf.able.es>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2 / FreeBSD-4.6.2
+X-Originating-IP: 62.23.237.137
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   Andi> e.g. one bit ECC errors in memory are quite common.  And with
->   Andi> ECC memory they are not really fatal.
+Quoting "J.A. Magallon" <jamagallon@able.es>:
+
+> After upgrading to sensors 2.8.3 (first I compiled it, then installed
+> the Makdrake package when appeared), my temperatures are still
+> mutiplied by 10. I use 2.6.2-rc2-mm1.
 > 
-> Yet they are a good indicator that something is wrong (not performing
-> properly) or may be failing soon.  I don't think putting on blinders
-> for such problems is a good idea.  Though I agree that the question of
-> how to report such things without needlessly alerting Joe Clueless is
-> an interesting challenge.
+> Any ideas ?
 
-We have done a rather large study with DIMMs that had SBEs and have
-found no evidence that a SBE turns into a UCE, i.e. the fact that a SBE is
-reported, is no indication that the device might fail soon.
+As stated on our kernel 2.6 dedicated page [1]: You need lm_sensors CVS
+for kernels 2.6.2-rc1 and later.
 
-As a matter of fact the soft error rates increases while parts use
-smaller process technologies and lower supply voltages. Cosmic rays
-are one source for soft errors. Another source are alpha particles
-emitted by the solder.
+We plan to release lm_sensors 2.8.4 as soon as Linux 2.6.2 final is
+there.
 
-Still I think it's important to log SBEs, but you probably will need
-a treshhold in case you hit a hard SBE. Also scrubbing the memory location
-(and re-read the location to check if the error was transient or not)
-might be a good idea if the memory controller supports this.
-If it is a true, hard SBE it should be reported. It also might be a good
-idea to mark the page, so it does not get re-allocated. 
+[1] http://secure.netroedge.com/~lm78/kernel26.html
 
-
-Thanks
-
-Matthias Fouquet-Lapar  Core Platform Software    mfl@sgi.com  VNET 521-8213
-Principal Engineer      Silicon Graphics          Home Office (+33) 1 3047 4127
+-- 
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/
 

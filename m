@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263279AbTE0LYa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 07:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTE0LYa
+	id S263285AbTE0L1d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 07:27:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263302AbTE0L1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 07:24:30 -0400
-Received: from bunyip.cc.uq.edu.au ([130.102.2.1]:49936 "EHLO
-	bunyip.cc.uq.edu.au") by vger.kernel.org with ESMTP id S263274AbTE0LYZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 07:24:25 -0400
-Message-ID: <3ED34E4A.8040601@torque.net>
-Date: Tue, 27 May 2003 21:38:50 +1000
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: linux-scsi@vger.kernel.org
-Subject: Re: [RFR] a new SCSI driver
-References: <20030524195123.GA8394@gtf.org>
-In-Reply-To: <20030524195123.GA8394@gtf.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 27 May 2003 07:27:33 -0400
+Received: from ns.suse.de ([213.95.15.193]:2059 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263285AbTE0L13 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 07:27:29 -0400
+Date: Tue, 27 May 2003 13:40:43 +0200
+From: Andi Kleen <ak@suse.de>
+To: Erich Focht <efocht@hpce.nec.com>
+Cc: Andi Kleen <ak@suse.de>, LSE <lse-tech@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Node affine NUMA scheduler extension
+Message-ID: <20030527114042.GH31510@wotan.suse.de>
+References: <200305271031.55554.efocht@hpce.nec.com> <200305271154.52608.efocht@hpce.nec.com> <20030527100148.GE31510@wotan.suse.de> <200305271339.29151.efocht@hpce.nec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305271339.29151.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-<snip>
+> I left the loadbalancer to decide on where the homenode should be. And
+> the decision wasn't good enough (it lead to unbalanced nodes, that's
+> certainly not the case on Opteron :-). So it made sense to have a
+> specialized homenode chooser which considered the node loads instead
+> of changing the normal load balancer.
 
-> * Only supports Intel PATA and SATA right now
+I have that, but only on exec (similar to what 2.5 mainline does with the
+NUMA scheduler)
 
-Jeff,
-Your patch applies to lk 2.5.70 without problems.
+> BTW: do you assign the homenode at first load balancing or at first
+> cross-node balancing?
 
-I found that my dual Celeron (abit mobo) has this
-Intel IDE controller:
-   00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+It's the same on Opteron: each CPU is an own node. The lazy homenode for
+fork/clone is chosen on the first load balance of the new thread.
 
-so I tried a 2.5.70 kernel with this patch. Two disks
-connected:
-   - SCSI disk to a Tekram 390u3w controller (sym53c8xx_2
-     driver). Root partition on this disk
-   - a Maxtor ATA disk (D740X-6L) to the Intel IDE
-     controller.
 
-Didn't get too far. After finding the SCSI controller and
-SCSI disk at boot up, this came out just before it locked up:
-  ata1:PATA max UDMA/33 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
-
-So I disabled the IDE controllers in the BIOS and then
-this came out:
-  ....
-  PCI: Enabling device 00:07.1 (0000->0001)
-  ata1:PATA max UDMA/33 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
-  ATA: abnormal status 0xFF on port 0x1F7
-  ATA: abnormal status 0xFF on port 0x1F7
-
-and it locked up again.
-
-Doug Gilbert
-
+-Andi

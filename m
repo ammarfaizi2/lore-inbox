@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316684AbSIALeR>; Sun, 1 Sep 2002 07:34:17 -0400
+	id <S314138AbSIALhI>; Sun, 1 Sep 2002 07:37:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316695AbSIALeR>; Sun, 1 Sep 2002 07:34:17 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:40198 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316684AbSIALeP>; Sun, 1 Sep 2002 07:34:15 -0400
-Date: Sun, 1 Sep 2002 07:32:00 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: conman@kolivas.net
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: VM changes added to performance patches for 2.4.19
-In-Reply-To: <1030170794.3d6728aa24046@kolivas.net>
-Message-ID: <Pine.LNX.3.96.1020901072631.337B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314396AbSIALhH>; Sun, 1 Sep 2002 07:37:07 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:11458 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S314138AbSIALhH>;
+	Sun, 1 Sep 2002 07:37:07 -0400
+Date: Sun, 01 Sep 2002 04:35:12 -0700 (PDT)
+Message-Id: <20020901.043512.51698754.davem@redhat.com>
+To: szepe@pinerecords.com
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] warnkill trivia 2/2
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020901113741.GM32122@louise.pinerecords.com>
+References: <20020901112856.GL32122@louise.pinerecords.com>
+	<20020901.042539.63049493.davem@redhat.com>
+	<20020901113741.GM32122@louise.pinerecords.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Aug 2002 conman@kolivas.net wrote:
+   From: Tomas Szepe <szepe@pinerecords.com>
+   Date: Sun, 1 Sep 2002 13:37:42 +0200
 
-> 
-> With the patch against 2.4.19:
-> 
-> Scheduler O(1), Preemptible, Low Latency
-> 
-> I have now added two extra alternative patches that include 
-> either Rik's rmap (thanks Rik) or AA's vm changes (thanks to Nuno Monteiro for
-> merging this)
-> 
-> For the record, with the (very) brief usage of these two patches I found the
-> rmap patch a little faster. This is very subjective and completely untested.
-> 
-> Check them out here and tell me what you think(please read the FAQ):
-> http://kernel.kolivas.net
+   > BTW who even passes around const atomic_t's?  Ie. what
+   > genrated the warning and made you even edit this to begin with?
+   
+   fs/reiserfs/buffer2.c, line ~28:
+   atomic_t gets the const quality on account of being a member
+   of a const struct buffer_head instance.
+   
+   void wait_buffer_until_released (const struct buffer_head * bh)
+   {
 
-The ck3-aa patch has worked perfectly for me until I try to shut down. At
-that point I get to "turning off swap" and the system hangs with the disk
-light on. Can't get a dump, and it doesn't happen every time, but enough
-that I am very cautious in what I do at shutdown. Total hang ignoring
-sysreq.
+Reiserfs is buggy, it means struct  buffer_head const * bh
 
-Athlon 1.4GHz, 1GB RAM, hda:30GB, hdc:40GB, 20x CD-R, multiple NICs, two
-local networks, one PPP over high speed serial.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Let's keep the sparc atomic_read() how it is so more bugs
+like this can be found.

@@ -1,81 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288136AbSACCYh>; Wed, 2 Jan 2002 21:24:37 -0500
+	id <S288138AbSACCZ2>; Wed, 2 Jan 2002 21:25:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288137AbSACCY1>; Wed, 2 Jan 2002 21:24:27 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:43396
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S288136AbSACCYO>; Wed, 2 Jan 2002 21:24:14 -0500
-Date: Wed, 2 Jan 2002 21:10:38 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Dave Jones <davej@suse.de>
-Cc: Lionel Bouton <Lionel.Bouton@free.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020102211038.C21788@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Dave Jones <davej@suse.de>, Lionel Bouton <Lionel.Bouton@free.fr>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020102174824.A21408@thyrsus.com> <Pine.LNX.4.33.0201030006120.427-100000@Appserv.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0201030006120.427-100000@Appserv.suse.de>; from davej@suse.de on Thu, Jan 03, 2002 at 12:10:28AM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S288137AbSACCZS>; Wed, 2 Jan 2002 21:25:18 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:1943 "EHLO
+	VL-MS-MR004.sc1.videotron.ca") by vger.kernel.org with ESMTP
+	id <S288138AbSACCZG>; Wed, 2 Jan 2002 21:25:06 -0500
+Message-ID: <3C33C100.3070808@videotron.ca>
+Date: Wed, 02 Jan 2002 21:25:04 -0500
+From: Roger Leblanc <r_leblanc@videotron.ca>
+Organization: General DataComm
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010914
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: David Brownell <david-b@pacbell.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Deadlock in kernel on USB shutdown
+In-Reply-To: <000701c193f6$4ca368a0$6800000a@brownell.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@suse.de>:
-> Given decoding DMI isn't going to get you 100% fool proof way of
-> detecting slots (See posts on laptops/other usually-with-crap-bios
-> hardware), I think you're barking up the wrong tree with this
-> anyway.
+David Brownell wrote:
 
-But at the least I could have logic that says: if you get a DMI
-readout and there are no ISA slots listed, *then* do useful deductions.
- 
-> And if you don't know what hardware you've got in the box your
-> configuring a kernel for, its questionable that you should be
-> doing so in the first place.
+>
+>The classic question is whether the same thing happens when you
+>make your system use the "uhci" driver instead of "usb-uhci".  If the
+>symptom is hang on rmmod, then rmmodding a different module
+>may well make a difference.
+>
+It works great with uhci! Thanks a lot! I guess it points to a serious 
+bug in usb-uhci?
 
-That's exactly the bad assumption we need to dynamite.  Vaporize.  Nuke.
+Thanks to everyone
 
-It should be possible to build a correctly customized kernel without
-opening the case of your machine.  It should be possible for
-non-technical people to customize kernels.  Kernel customization
-should present an interface based on what you want to *do* with the
-machine, not the specific hardware inside it (because the configurator
-is smart enough to map from the intended-function domain to the hardware-
-specifics domain).
+Roger
 
-Think useability.  On Macintoshes, you configure a kernel by moving the 
-equivalents of modules in and out of a system folder.  Users tune their
-kernels by moving files around -- no muttering of elaborate incantations
-required.  *That's* the direction we should be moving in; there is no 
-good technical reason for the process to be anywhere near as arcane as
-it is now.
 
-I have spent eighteen months thinking very hard about this problem, and
-whacking a significant piece of it with actual code.  So I can say this:
-the reason linux kernel configuration is still a black art is *only* 
-that lots of people *want it to be that way*.  We have elected to
-treat kernel-building as an initiatory rite that separates the worthy
-geeks from the unwashed technopeasant masses.
-
-This is fine if all we want is to impress each other with our wizardliness.
-If, on the other hand, we are serious about world domination, it's an
-attitude that's got to go.  We have enough real technical problems to solve 
-without surrounding Linux with a thicket of pseudo-problems.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-During waves of terror attacks, Israel's national police chief will
-call on all concealed-handgun permit holders to make sure they carry
-firearms at all times, and Israelis have many examples where
-concealed permit holders have saved lives.
-	-- John R. Lott
-Conservatism is the blind and fear-filled worship of dead radicals.

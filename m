@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVCUTFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVCUTFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261591AbVCUTFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 14:05:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVCUTFQ
+	id S261596AbVCUTFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 14:05:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVCUTFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 14:05:16 -0500
-Received: from smtp-4.llnl.gov ([128.115.41.84]:57590 "EHLO smtp-4.llnl.gov")
-	by vger.kernel.org with ESMTP id S261591AbVCUTFK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 14:05:10 -0500
-From: Dave Peterson <dsp@llnl.gov>
-To: Andi Kleen <ak@muc.de>
-Subject: Re: [PATCH] NMI handler message passing / work deferral API
-Date: Mon, 21 Mar 2005 11:03:56 -0800
-User-Agent: KMail/1.5.3
-Cc: oprofile-list@lists.sourceforge.net, bluesmoke-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, dave_peterson@pobox.com
-References: <200503202056.02429.dave_peterson@pobox.com> <m1eke93ul3.fsf@muc.de>
-In-Reply-To: <m1eke93ul3.fsf@muc.de>
+	Mon, 21 Mar 2005 14:05:25 -0500
+Received: from c7ns3.center7.com ([216.250.142.14]:25238 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S261596AbVCUTFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 14:05:19 -0500
+Message-ID: <423F1852.3070902@utah-nac.org>
+Date: Mon, 21 Mar 2005 11:54:10 -0700
+From: jmerkey <jmerkey@utah-nac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: arjanv@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: clone() and pthread_create() segment fault in 2.4.29
+References: <423F13EA.6050007@utah-nac.org> <1111431021.6952.73.camel@laptopd505.fenrus.org>
+In-Reply-To: <1111431021.6952.73.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503211103.56930.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 March 2005 07:08 am, Andi Kleen wrote:
-> Dave Peterson <dave_peterson@pobox.com> writes:
-> > Below is an experimental 2.6.11.5 kernel patch that implements the
-> > following:
-> >
-> >      - A generic mechanism for safely passing information from NMI
-> > handlers to code that executes outside NMI context.
->
-> See the machine check queueing implementation in
-> arch/x86_64/kernel/mce.c. It does exactly that already.
->
-> Several other architectures already have similar mechanisms.
->
-> -Andi
+Arjan van de Ven wrote:
 
-Yes exactly.  That's one reason why I posted the patch.  Different
-sybsystems that need this type of functionality shouldn't have to
-individually reinvent the wheel.  With a single implementation, code
-is more compact and easier to understand and maintain.  I would argue
-that code maintenance is of particular concern to code such as NMI
-and machine check handlers because bugs in this type of code can be
-hard to track down.
+>On Mon, 2005-03-21 at 11:35 -0700, jmerkey wrote:
+>  
+>
+>>In case nobody has already reported it, clone() and pthread_create() 
+>>return SIGSEGV faults
+>>when a 2.4.29 kernel on the Taroon Red Hat release.
+>>    
+>>
+>
+>you're running an OS that requires a kernel with NPTL support. Yet you
+>run a kernel without. Bad idea.
+>
+>
+>  
+>
+which 2.4 kernels will work properly on RH ES release 3, Taroon Update 
+4.  2.4.28 also crashes with pthread_create() and clone().
+Is 2.4.21 the only kernel version that works with this RH release?
 
-Dave
+Jeff

@@ -1,61 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264000AbTEFRWM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 13:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbTEFRWM
+	id S263871AbTEFRaE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 13:30:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263872AbTEFRaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 13:22:12 -0400
-Received: from smtp014.mail.yahoo.com ([216.136.173.58]:34565 "HELO
-	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264000AbTEFRWJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 13:22:09 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: trond.myklebust@fys.uio.no
-Subject: Re: [NFS] processes stuck in D state
-Date: Tue, 6 May 2003 19:32:29 +0200
-User-Agent: KMail/1.5.1
-References: <200305061652.13280.fsdeveloper@yahoo.de> <200305061830.25417.fsdeveloper@yahoo.de> <16055.59608.512121.756564@charged.uio.no>
-In-Reply-To: <16055.59608.512121.756564@charged.uio.no>
-Cc: neilb@cse.unsw.edu.au, nfs@lists.sourceforge.net,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Zeev Fisher <Zeev.Fisher@il.marvell.com>
+	Tue, 6 May 2003 13:30:04 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:2565 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263871AbTEFRaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 13:30:02 -0400
+Date: Tue, 6 May 2003 18:42:10 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Andy Pfiffer <andyp@osdl.org>
+cc: Russell King <rmk@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       James Simmons <jsimmons@transvirtual.com>
+Subject: Re: 2.5.69: Missing logo?
+In-Reply-To: <1052241905.1238.3.camel@andyp.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44.0305061841280.7110-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200305061932.39828.fsdeveloper@yahoo.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Tuesday 06 May 2003 18:54, Trond Myklebust wrote:
-> >>>>> " " == Michael Buesch <fsdeveloper@yahoo.de> writes:
->     >> kill -9 all the processes.  kill -9 rpciod.
->     >>
->      > kill -9 doesn't work for me to kill the app.
->
-> I didn't say kill the app. I said signal it with -9, then signal
-> rpciod.
+It is the reversal of the changes of cfbimgblit.c. It brought back this 
+bug :-(
 
-Ah, I understand. :)
-
-> Cheers,
->   Trond
-
-- -- 
-Regards Michael Büsch
-http://www.8ung.at/tuxsoft
- 19:31:20 up  3:22,  2 users,  load average: 1.23, 1.09, 1.04
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+t/G3oxoigfggmSgRAq5BAJ0SezM+y1LFnwglArReHERXb2VJZQCeKKd0
-Sx6RqCkOvm4FvgTCVyx2gCE=
-=K8c7
------END PGP SIGNATURE-----
+> On Tue, 2003-05-06 at 10:07, Russell King wrote:
+> > Hi,
+> > 
+> > I seem to have a penguin missing in action, somewhere between 2.5.68 and
+> > 2.5.69.  Has anyone else lost a penguin under similar circumstances?
+> 
+> Tux is AWOL for me, too.
+> 
+> bk/linux-2.5.69+kexec2> grep LOGO .config
+> CONFIG_LOGO=y
+> CONFIG_LOGO_LINUX_MONO=y
+> CONFIG_LOGO_LINUX_VGA16=y
+> CONFIG_LOGO_LINUX_CLUT224=y
+> bk/linux-2.5.69+kexec2> grep CONFIG_FB .config | grep =y
+> CONFIG_FB=y
+> CONFIG_FB_VESA=y
+> CONFIG_FB_I810=y
+> CONFIG_FB_I810_GTF=y
+> bk/linux-2.5.69+kexec2> lspci | grep -i VGA
+> 01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP
+> (rev 85)
+> bk/linux-2.5.69+kexec2>
+> 
+> 
+> > $ grep LOGO linux-sa1100/.config
+> > CONFIG_LOGO=y
+> > # CONFIG_LOGO_LINUX_MONO is not set
+> > CONFIG_LOGO_LINUX_VGA16=y
+> > CONFIG_LOGO_LINUX_CLUT224=y
+> > 
+> > Other than the missing logo, the fb display looks as it did under 2.5.68.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317362AbSHLBaO>; Sun, 11 Aug 2002 21:30:14 -0400
+	id <S318546AbSHLBgh>; Sun, 11 Aug 2002 21:36:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317385AbSHLBaO>; Sun, 11 Aug 2002 21:30:14 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:62987
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317362AbSHLBaO>; Sun, 11 Aug 2002 21:30:14 -0400
-Date: Sun, 11 Aug 2002 18:24:34 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: martin@dalecki.de
-cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, Nick Orlov <nick.orlov@mail.ru>,
-       B.Zolnierkiewicz@elka.pw.edu.pl,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org, davidsen@tmr.com
-Subject: Re: [PATCH] pdc20265 problem.
-In-Reply-To: <3D53656F.9000004@evision.ag>
-Message-ID: <Pine.LNX.4.10.10208111806370.3940-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318552AbSHLBgh>; Sun, 11 Aug 2002 21:36:37 -0400
+Received: from quechua.inka.de ([212.227.14.2]:3450 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S318546AbSHLBgg>;
+	Sun, 11 Aug 2002 21:36:36 -0400
+From: Bernd Eckenfels <ecki-news2002-08@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] VM Regress - A VM regression and test tool
+In-Reply-To: <Pine.LNX.4.44.0208112109110.16360-100000@skynet>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E17e4C2-0005yH-00@sites.inka.de>
+Date: Mon, 12 Aug 2002 03:40:26 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Aug 2002, Marcin Dalecki wrote:
+In article <Pine.LNX.4.44.0208112109110.16360-100000@skynet> you wrote:
+> It works by using kernel modules to get a definite view of what the kernel
+> is at and to provide reliable, reproducible tests. Modules are divided
+> up into 4 catagories. Core modules provide infrastructure for the tool.
+> Sense modules tell what is going on in the VM. Test tests particular
+> features and bench modules (none yet) will benchmark different sections
+> of the VM.
 
-> Uz.ytkownik Andre Hedrick napisa?:
-> > Clearly the difference between what is silkscreened and the usage intent
-> > is beyond the obvious :-/  Since I have had or still have first hand
-> > experience in the observed behaior under Linux and MicroSoft, you are
-> > going by what is read.  Book knowledges gets you books not reality.
-> > try a few w/ all of them bootable and see what happens.  So until Linux
-> > gets a clue about EDDS 2.0 and or 3.0 it has not a chance of getting the
-> > correct hd0/hd1 from the INT13/19 services.  Obviously experience and
-> > first hand knowledge of reality is worthless in Linux.  I am out of this
-> > thread.
-> 
-> BTW. EDDS is up to level 3.3
+This sounds more like a micro benchmark tool, which is a good start, but the
+real problem with VM optimizations is, that they have to take into account
+real world load and especially user experience.
 
-That is nice to know since it has never been submitted to the Committee
-and the last time I checked with the author it was 3.0.  Then again you
-are so vast with knowledge, maybe you submitted 3.3 ... LOL.
+A simple example is the fact, that an idle desktop box will feel very sluggy
+if a user comes back after a few hours break, because all visible programs
+are paged out. To improve this, one could think about adding a flag to
+applications like "connected to gui". This feature would need a test then,
+which is no usual micro benchmark.
 
-You are so full of BULLSHIT it is no longer funny.
+So I think it is a good idea to avoid to introduce slow operations in
+hot code path, but it does not help much the developers in the problem of
+simulating workload and measuring the interactive and real throughput.
 
-e02112r1 is the current revision for project proposal for EDDS 3.0.
+But perhaps you can take this into account?
 
-Gee, where is Martin's name and or Company to be found for the adoption
-into ATA-7.
-
-No where.
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+Greetings
+Bernd

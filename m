@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263231AbUDZTBR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263366AbUDZTE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263231AbUDZTBR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 15:01:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263324AbUDZTBR
+	id S263366AbUDZTE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 15:04:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263440AbUDZTE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 15:01:17 -0400
-Received: from pop073-mtl.zid.com ([207.253.126.73]:53008 "HELO oddpost.com")
-	by vger.kernel.org with SMTP id S263231AbUDZTBN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 15:01:13 -0400
-Message-ID: <b93501c42bbc$1a26e860$eb239b6c@canstorels>
-From: <canstorels@oddpost.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Federal Provincial Subsidies
-Date: Tue, 27 Apr 2004 05:27:16 +1100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Mon, 26 Apr 2004 15:04:57 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:26761 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S263366AbUDZTEz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 15:04:55 -0400
+Subject: Re: 2 NFS problems
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: "Stanley, Jon" <Jon.Stanley@savvis.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B33FD3ADBD7054DB410CD9DA314133E775E21@sl6exch4>
+References: <3B33FD3ADBD7054DB410CD9DA314133E775E21@sl6exch4>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1123
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
+Message-Id: <1083006294.10733.32.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 26 Apr 2004 15:04:54 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Canada Books
-26 Bellevue
-St-Anne-des-Lacs
-Qc, Canada
-J0R 1B0
-(450) 224-9275
+On Sat, 2004-04-24 at 20:28, Stanley, Jon wrote:
+> I have two distinct problems possibly related to NFS in the Linux
+> kernel.  Any assistance would be appreciated, any flames that say "you
+> should have looked such-and-such place" are welcome as well, so long as
+> they include pointers to said places :-)
+> 
+> 1)  A system will become unusable, with the following in
+> /var/log/messages:
+> 
+> Apr 24 22:16:35 <hostname> kernel: __alloc_pages: 4-order allocation
+> failed.
+> Apr 24 22:16:35 <hostname> kernel: __alloc_pages: 4-order allocation
+> failed.
 
-Legal Deposit-National Library of Canada
-ISBN 2-922870-05-7
+Sorry. NFS does not do anything more than order 1 page allocations
+(unless you are talking about the server - but that only does it at
+startup).
 
-The Canadian Subsidy Directory 2004 edition is now available.
-This publication lists more than 2600 grants and loans from
-government departments, foundations and associations.
-
-The Canadian Subsidy Directory is sold for $69.95, to obtain 
-a copy please call: 450-224-9275
-
+Cheers,
+  Trond

@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269417AbUJFTzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269421AbUJFTyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269417AbUJFTzY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 15:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269440AbUJFTzX
+	id S269421AbUJFTyy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 15:54:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269409AbUJFTyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 15:55:23 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:62687 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S269417AbUJFTye (ORCPT
+	Wed, 6 Oct 2004 15:54:53 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:32187 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269421AbUJFTx6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 15:54:34 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [RFC][PATCH] Way for platforms to alter built-in serial ports
-Date: Wed, 6 Oct 2004 13:54:15 -0600
-User-Agent: KMail/1.7
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <200409301014.00725.bjorn.helgaas@hp.com> <200410010858.27390.bjorn.helgaas@hp.com> <20041006083249.C18379@flint.arm.linux.org.uk>
-In-Reply-To: <20041006083249.C18379@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Oct 2004 15:53:58 -0400
+Date: Wed, 6 Oct 2004 21:55:15 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Ingo Molnar'" <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+       "'Andrew Morton'" <akpm@osdl.org>,
+       "'Nick Piggin'" <nickpiggin@yahoo.com.au>
+Subject: Re: Default cache_hot_time value back to 10ms
+Message-ID: <20041006195515.GA14501@elte.hu>
+References: <20041006074815.GC1137@elte.hu> <200410061718.i96HI9606629@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410061354.15746.bjorn.helgaas@hp.com>
+In-Reply-To: <200410061718.i96HI9606629@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 October 2004 1:32 am, Russell King wrote:
-> On Fri, Oct 01, 2004 at 08:58:27AM -0600, Bjorn Helgaas wrote:
-> > My main point is that I think the early init stuff (i.e.,
-> > serial8250_isa_init_ports()) should go away, so we don't have the
-> > dichotomy of having the compiled-in stuff handled differently than
-> > the run-time enumerated stuff.
-> 
-> You're always going to have this.  For instance, the standard ISA serial
-> ports may not show up in any "enumerated stuff" on an x86 box - and x86
-> people expect that the port at 0x3f8 is ttyS0, 2f8 is ttyS1 etc.
-> 
-> Change that order and they'll scream at you.
 
-I don't forsee any order changing.  I would expect to use link
-ordering so all the 8250_platform ports are registered first, then
-all the 8250_acpi, then all the 8250_pci.
+* Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
 
-The order WOULD change in some cases on ia64, because we'd get rid
-of the current wierdness where the device in the HCDP/PCDP firmware
-table always becomes ttyS0, regardless of where it lives.  This
-would be an improvement, though, because the devices would stop
-changing names just because you selected a different firmware
-console.
+>  5   ms 106.0
+>  7.5 ms 110.3
+> 10   ms 112.5
+> 12.5 ms 112.0
+> 15   ms 111.6
 
-> See my previous mail why this doesn't work - x86 serial console
-> requirements.
-> 
-> I think you'll do better to discuss this problem with Alan so that
-> he can change his (and maybe others) points of view wrt when the
-> serial console is initialised.  Until then I'm going to continue
-> sitting on the fence on this point.
+ok, great. 9ms and 11ms would still be interesting. My guess would be
+that the maximum is at 9. (albeit the numbers, when plotted, indicate
+that the measurement might be a bit noisy.)
 
-Yeah, I'll poke him about "console=uart".  I sent it to you because I
-think a clean solution requires minor 8250 hooks so we can look up
-the ttyS device that corresponds to an MMIO or IO address.
+	Ingo

@@ -1,94 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267807AbUHZI14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267830AbUHZIbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267807AbUHZI14 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 04:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267818AbUHZI14
+	id S267830AbUHZIbs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 04:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267828AbUHZIbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 04:27:56 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:60167 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S267807AbUHZI1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 04:27:46 -0400
-Message-ID: <412D9FFA.6030307@hist.no>
-Date: Thu, 26 Aug 2004 10:31:54 +0200
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+	Thu, 26 Aug 2004 04:31:48 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:29943 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S267818AbUHZIbd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 04:31:33 -0400
+Message-ID: <412D9FE6.9050307@namesys.com>
+Date: Thu, 26 Aug 2004 01:31:34 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: Nicholas Miell <nmiell@gmail.com>, Wichert Akkerman <wichert@wiggy.net>,
-       Jeremy Allison <jra@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Spam <spam@tnonline.net>, torvalds@osdl.org, reiser@namesys.com,
-       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
+To: Andrew Morton <akpm@osdl.org>
+CC: hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-References: <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy> <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy> <20040826053200.GU31237@waste.org>
-In-Reply-To: <20040826053200.GU31237@waste.org>
+References: <20040824202521.GA26705@lst.de>	<412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org>
+In-Reply-To: <20040825152805.45a1ce64.akpm@osdl.org>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-[...]
+Andrew Morton wrote:
 
->What it breaks is the concept of a file. In ways that are ill-defined,
->not portable, hard to work with, and needlessly complex. Along the
->way, it breaks every single application that ever thought it knew what
->a file was.
->
->Progress? No, this has been done before. Various dead operating
->systems have done it or similar and regretted it. Most recently MacOS,
->which jumped through major hurdles to begin purging themselves of
->resource forks when they went to OS X. They're still there, but
->heavily deprecated.
->
+>Hans Reiser <reiser@namesys.com> wrote:
 >  
 >
->>cp, grep, cat, and tar will continue to work just fine on files with
->>multiple streams.
+>>I had not intended to respond to this because I have nothing positive to 
+>>say, but Andrew said I needed to respond and suggested I should copy 
+>>Linus.
 >>    
 >>
 >
->Find some silly person with an iBook and open a shell on OS X. Use cp
->to copy a file with a resource fork. Oh look, the Finder has no idea
->what the new file is, even though it looks exactly identical in the
->shell. Isn't that _wonderful_? 
->
-It is what I'd expect.  Now, use cp -R to copy  the file
-_with its directory_, and see if that fares better.  If not - bad
-implementation of fs and/or cp.  The way I see file-as -directory
-is that _file_ operations (like the reads issued by cat) only
-work on the file part.  You want the directory part?  Use
-directory operations such as those "cp -R" use.
-
->Now try cat < a > b on a file with a
->fork. How is that ever going to work?
+>Yes, but I didn't say "flame Christoph and ignore the issues" ;)
 >  
 >
-It is going to copy the _file_ part, of course.  I wouldn't
-expect anything else - "cat" doesn't deal with directories.
+Oh....;-)
 
-This also raise the question of when to use file-as-directory.
-A usage where you need everything to follow the file, even
-when using "cat" calls out for an application that puts everything
-into one file.  Directory-as-file is the wrong tool for that job, so don't
-worry about such problems.
+>There are lots of little things to do with implementation, coding style,
+>module exports, deadlocks, what code goes where, etc.  These are all normal
+>daily kernel business and we should set them aside for now and concentrate
+>on the bigger issues.
+>  
+>
+Yes, you are right, but I am not sure Viro will go along with that..... ;-)
 
-Sticking thumbnails in a file-as-dir is another story though.  Move the
-file (with "mv a b", not  "cat a>b;rm a") moves the image file _and_ the
-thumbnail.  No time wasted on regenerating thumbnails, no disk space
-or cleanup time wasted on dangling thumbs.  Use the image file
-for its intended purposes (view it, mail it off, serve it on the web,
-edit it, print it) and the thumbnail doesn't get in the way
-because it isn't embedded in the file format.  Embedding it
-in the file might work for jpeg which support generic embedded data,
-it surely won't work for every image format out there.
+>And as I see it, there are two big issues:
+>
+>a) reiser4 extends the Linux API in ways which POSIX/Unix/etc do not
+>   anticipate and 
+>
+>b) it does this within the context of just a single filesystem.
+>
+>I see three possible responses:
+>
+>a) accept the reiser4-only extensions as-is (possibly with post-review
+>   modifications, of course) or
+>
+>b) accept the reiser4-only extensions with a view to turning them into
+>   kernel-wide extensions at some time in the future, so all filesystems
+>   will offer the extensions (as much as poss) or
+>
+>c) reject the extensions.
+>
+>
+>My own order of preference is b) c) a). 
+>
+I don't object to b), though I think b) should wait for 2.7 and reiser4 
+should not.
 
-This is my idea of how file-as-directory should work.
+> The fact that one filesystem will
+>offer features which other filesystems do not and cannot offer makes me
+>queasy for some reason.
+>  
+>
+Andrew, we need to compete with WinFS and Dominic Giampaolo's filesystem 
+for Apple, and that means we need to put search engine and database 
+functionality into the filesystem.  It takes 11 years of serious 
+research to build a clean storage layer able to handle doing that.  
+Reiser4 has done that, finally.  None of the other Linux filesystems 
+have.  The next major release of ReiserFS is going to be bursting with 
+semantic enhancements, because the prerequisites for them are in place 
+now.  None of the other Linux filesystems have those prerequisites.  
+They won't be able to keep up with the semantic enhancements.  This 
+metafiles and file-directories stuff is actually fairly trivial stuff.
 
-Helge Hafting
+Look guys, in 1993 I anticipated the battle would be here, and I build 
+the foundation for a defensive tower right at the spot MS and Apple are 
+now maneuvering towards.  Help me get the next level on the tower before 
+they get here.  It is one hell of a foundation, they won't be able to 
+shake it, their trees are not as powerful.  Don't move reiser4 into vfs, 
+use reiser4 as the vfs.  Don't write filesystems, write file plugins and 
+disk format plugins and all the other kinds of plugins, and you won't be 
+missing any expressive power that you really want....
 
+Give Saveliev and I some credit.  10 years of hard work at an ivory 
+tower nobody thought mattered.  Now the battle leaves the browser and 
+swings our way.  Don't duplicate that infrastructure, use it. 
 
-Helge Hafting
+There is so much we could use help with if talented people like you 
+chose to contribute.
+
+>b) means that at some time in the future we need to hoist the reiser4
+>extensions (at a conceptual level) (and probably with restrictions) up into
+>the VFS.  This will involve much thought, argument and work.
+>
+>
+>To get us started on this route it would really help me (and, probably,
+>others) if you could describe what these API extensions are in a very
+>simple way, without referring to incomprehehsible web pages,
+>
+what is not comprehensible....?
+
+> and without
+>using terms which non-reiser4 people don't understand.
+>  
+>
+Well, I agree that there is value in defining things in more detail than 
+we have.
+
+>It would be best if each extension was addressed in a separate email
+>thread.
+>
+>We also need to discuss what a reiser4 "module" is, what its capabilities
+>are, and what licensing implications they have.
+>
+>Then, we can look at each one and say "yup, that makes sense - we want
+>Linux to do that" and we can also think about how we would implement it at
+>the VFS level.
+>
+>If we follow the above route I believe we can make progress in a technical
+>direction and not get deadlocked on personal/political stuff.
+>
+>
+>Now, an alternative to all the above is to just merge reiser4 as-is, after
+>addressing all the lower-level coding issues.  And see what happens.  That
+>may be a thing which Linus wishes to do.  I'm easy.
+>
+>
+>  
+>
 

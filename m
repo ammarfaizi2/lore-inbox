@@ -1,78 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265053AbTLMW2l (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 17:28:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265279AbTLMW2l
+	id S264556AbTLMW2N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 17:28:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbTLMW2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 17:28:41 -0500
-Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:8609
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S265053AbTLMW2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 17:28:37 -0500
-Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
-From: Ian Kumlien <pomac@vapor.com>
-To: ross@datscreative.com.au
-Cc: Jesse Allen <the3dfxdude@hotmail.com>, linux-kernel@vger.kernel.org,
-       AMartin@nvidia.com
-In-Reply-To: <200312140407.28580.ross@datscreative.com.au>
-References: <200312140407.28580.ross@datscreative.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qa/Jv4ZXdpVkAhkfCGbW"
-Message-Id: <1071354516.2634.3.camel@big.pomac.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 13 Dec 2003 23:28:36 +0100
+	Sat, 13 Dec 2003 17:28:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:929 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264556AbTLMW2I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 17:28:08 -0500
+Date: Sat, 13 Dec 2003 14:28:03 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nicolai Lissner <nlissne@linux01.gwdg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: test11: fd0 with msdos showing garbage
+In-Reply-To: <200312132302.36999.nlissne@linux01.gwdg.de>
+Message-ID: <Pine.LNX.4.58.0312131420350.1855@home.osdl.org>
+References: <200312132302.36999.nlissne@linux01.gwdg.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-qa/Jv4ZXdpVkAhkfCGbW
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Sat, 2003-12-13 at 19:07, Ross Dickson wrote:
-> ..APIC TIMER ack delay, reload:16701, safe:16691
+On Sat, 13 Dec 2003, Nicolai Lissner wrote:
+>
+> While doing a BIOS-Update for my board, I have tried to read/write an
+> msdos-formatted disk with kernel 2.6.0-test11. It can be mounted without
+> errors - but "ls" shows only garbage. The disk is 100% ok - and can be readed
+> with kernel 2.4.x without problems.
+>
+> I have done some more investigation with that. I can format a disk with e2fs,
+> even with msdos - both *seem* to work correct - data can be stored and readed
+> - but if the disk have been formatted with msdos on another system it cannot
+> be readed with test11.
+> So I started to do a diskimage with "dd if=/dev/fd0 of=disk.image"
+> - and found some interesting differences:
+> While kernel 2.4 produces a file of  1474560 bytes,
+> test11 produces a file of 737280 bytes only.
 
-calibrating APIC timer ...
-..... CPU clock speed is 2079.0146 MHz.
-..... host bus clock speed is 332.0663 MHz.
-NET: Registered protocol family 16
-..APIC TIMER ack delay, reload:20791, safe:20779
-..APIC TIMER ack delay, predelay count: 20769
-..APIC TIMER ack delay, predelay count: 20786
-..APIC TIMER ack delay, predelay count: 20716
-..APIC TIMER ack delay, predelay count: 20731
-..APIC TIMER ack delay, predelay count: 20747
-..APIC TIMER ack delay, predelay count: 20762
-..APIC TIMER ack delay, predelay count: 20780
-..APIC TIMER ack delay, predelay count: 20729
-..APIC TIMER ack delay, predelay count: 20740
-..APIC TIMER ack delay, predelay count: 20757
----
+Sounds like test11 mis-identified the floppy format.
 
-Survived my greptest which no non patched kernel has ever done on this
-machine.
+> Comparing these files I found:
+>
+> from offset 0x00000000 to 0x000013FF  -- no difference.
+> but... surprise !
+> The diskimage done with kernel 2.6.0-test11 shows the directory of the disk -
+> beginning at offset 0x00001400
 
-Has anyone got that extended ringbuffer to work? I haven't been able to
-get a complete "boot" dmesg in ages because of all the output all the
-drivers make... Does it need a updated dmesg?
-(I mean, is this like the non updated gnome-terminal in mdk 9.1 that
-deadlocks on 2.6 if you run some ncurces apps in a "larger than usual"
-window?)
+Can you try using /dev/fd0H1440 instead of /dev/fd0?
 
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+Also, please set the FP_DEBUG flag in the floppy driver flags - something
+like "floppy=debug" should do that for you. That should tell more about
+the autoprobing..
 
---=-qa/Jv4ZXdpVkAhkfCGbW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/25KU7F3Euyc51N8RAl4uAJ9vHT3ZMYTTPgoAui7qHXOHfl7eRwCgtC+G
-U9d+IfDIRnMvCJ6/YR56yE8=
-=KRFF
------END PGP SIGNATURE-----
-
---=-qa/Jv4ZXdpVkAhkfCGbW--
-
+		Linus

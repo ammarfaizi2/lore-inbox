@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316896AbSGJIPS>; Wed, 10 Jul 2002 04:15:18 -0400
+	id <S316961AbSGJIRa>; Wed, 10 Jul 2002 04:17:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316961AbSGJIPR>; Wed, 10 Jul 2002 04:15:17 -0400
-Received: from mta3.srv.hcvlny.cv.net ([167.206.5.9]:38386 "EHLO
-	mta3.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S316896AbSGJIPQ>; Wed, 10 Jul 2002 04:15:16 -0400
-Date: Wed, 10 Jul 2002 04:18:00 -0400
-From: Bill Darrow <bdarrow@optonline.net>
-Subject: [patch] regards SIS645DX/SIS5513
-To: linux-kernel@vger.kernel.org
-Message-id: <20020710041800.34945f02.bdarrow@optonline.net>
-MIME-version: 1.0
-X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S317498AbSGJIR3>; Wed, 10 Jul 2002 04:17:29 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:24324 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S316961AbSGJIR2>; Wed, 10 Jul 2002 04:17:28 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Vitaly Fertman <vitaly@namesys.com>
+To: reiserfs-list@namesys.com
+Subject: reiserfsprogs release
+Date: Wed, 10 Jul 2002 12:06:48 +0400
+X-Mailer: KMail [version 1.4]
+References: <200206251829.25799.vitaly@namesys.com> <20020625165254.GA30301@matrix.wg> <200206261317.10813.vitaly@namesys.com>
+In-Reply-To: <200206261317.10813.vitaly@namesys.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207101206.48370.vitaly@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quick hack to support SiS645dx(646)/961B onboard 5513 family IDE controller for those of you with 645dx boards....
 
-diff -c -b -r linuxold/drivers/ide/sis5513.c linux/drivers/ide/sis5513.c
-*** linuxold/drivers/ide/sis5513.c	Wed Jul 10 04:00:48 2002
---- linux/drivers/ide/sis5513.c	Wed Jul 10 00:03:14 2002
-***************
-*** 177,182 ****
---- 177,183 ----
-  	{ "SiS730",	PCI_DEVICE_ID_SI_730,	ATA_100a,	SIS5513_LATENCY },
-  	{ "SiS650",	PCI_DEVICE_ID_SI_650,	ATA_100,	SIS5513_LATENCY },
-  	{ "SiS645",	PCI_DEVICE_ID_SI_645,	ATA_100,	SIS5513_LATENCY },
-+ 	{ "SiS646",	PCI_DEVICE_ID_SI_646,   ATA_100,	SIS5513_LATENCY },
-  	{ "SiS635",	PCI_DEVICE_ID_SI_635,	ATA_100,	SIS5513_LATENCY },
-  	{ "SiS640",	PCI_DEVICE_ID_SI_640,	ATA_66,		SIS5513_LATENCY },
-  	{ "SiS630",	PCI_DEVICE_ID_SI_630,	ATA_66,		SIS5513_LATENCY },
-diff -c -b -r linuxold/include/linux/pci_ids.h linux/include/linux/pci_ids.h
-*** linuxold/include/linux/pci_ids.h	Wed Jul 10 03:59:40 2002
---- linux/include/linux/pci_ids.h	Wed Jul 10 00:10:41 2002
-***************
-*** 475,480 ****
---- 475,481 ----
-  #define PCI_DEVICE_ID_SI_635		0x0635
-  #define PCI_DEVICE_ID_SI_640		0x0640
-  #define PCI_DEVICE_ID_SI_645		0x0645
-+ #define PCI_DEVICE_ID_SI_646		0x0646
-  #define PCI_DEVICE_ID_SI_650		0x0650
-  #define PCI_DEVICE_ID_SI_730		0x0730
-  #define PCI_DEVICE_ID_SI_630_VGA	0x6300
+Hi all,
 
+the latest reiserfsprogs-3.6.2 is available on our ftp site.
 
-Bill
+The most of changes are just bug fixes and speedups.
+    StatData got wrong values sometimes.
+    Tails were not converted back if had been converted to internal.
+    Lost+found was not accessible sometimes due to wrong flag in
+    metadata.
+    Extra checks on --check and fixes on --fix-fixable were added
+    for wrong st_nlinks, some info in internal tree.
+    Some multiple checks during overwriting and relocation were
+    eliminated.
+    Etc.
+
+Added different block size support - 1k, 2k and for Alpha 8k.
+Kernel support we are going to include into 2.4.20.
+
+Support for bad block lists was added also but disabled for now
+due to some conflicts with the current kernel, which have not been
+solved yet.
+
+Verson numbering scheme was changed.
+
+Another pre release 3.6.3-pre1 is also available. It includes some 
+great speedups for reiserfsck.
+
+-- 
+
+Thanks,
+Vitaly Fertman

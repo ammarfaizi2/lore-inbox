@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266258AbTGEBA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 21:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266259AbTGEBA2
+	id S266260AbTGECMt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 22:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266261AbTGECMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 21:00:28 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:988 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266258AbTGEBA1 (ORCPT
+	Fri, 4 Jul 2003 22:12:49 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:64145 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266260AbTGECMs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 21:00:27 -0400
-Date: Fri, 4 Jul 2003 18:15:39 -0700
+	Fri, 4 Jul 2003 22:12:48 -0400
+Date: Fri, 4 Jul 2003 19:28:06 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: anton@samba.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.74-mm1
-Message-Id: <20030704181539.2be0762a.akpm@osdl.org>
-In-Reply-To: <20030704210737.GI955@holomorphy.com>
-References: <20030703023714.55d13934.akpm@osdl.org>
-	<20030704210737.GI955@holomorphy.com>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [2.5.74] bad: scheduling while atomic!
+Message-Id: <20030704192806.76f07845.akpm@osdl.org>
+In-Reply-To: <20030704153407.GA3540@k3.hellgate.ch>
+References: <20030704153407.GA3540@k3.hellgate.ch>
 X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,34 +25,37 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
+Roger Luethi <rl@hellgate.ch> wrote:
 >
-> On Thu, Jul 03, 2003 at 02:37:14AM -0700, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.74/2.5.74-mm1/
+> I haven't had the time to investigate this, so I don't have much
+> information to share beyond the trace below. I think I have seen this at
+> least with 2.5.73, too. The system looks okay, then, usually hours later
+> (if at all, it's a rare event), something triggers a flood of those call
+> traces (many of them per second).
 > 
-> anton saw the OOM killer try to kill pdflush, causing tons of spurious
-> wakeups. This should avoid picking kernel threads in select_bad_process().
+> The syslog seems to suggest it might be related to IDE DMA:
 > 
+> Jul  4 17:17:28 [kernel] hda: dma_timer_expiry: dma status == 0x61
+> Jul  4 17:17:44 [kernel] hda: timeout waiting for DMA
+> Jul  4 17:17:44 [kernel]  [<c0107000>] default_idle+0x0/0x40
+> Jul  4 17:17:44 [kernel] bad: scheduling while atomic!
 > 
-> -- wli
+> Compiler is gcc 3.2.3.
 > 
-> 
-> ===== mm/oom_kill.c 1.23 vs edited =====
-> --- 1.23/mm/oom_kill.c	Wed Apr 23 03:15:53 2003
-> +++ edited/mm/oom_kill.c	Fri Jul  4 14:03:32 2003
-> @@ -123,7 +123,7 @@
->  	struct task_struct *chosen = NULL;
->  
->  	do_each_thread(g, p)
-> -		if (p->pid) {
-> +		if (p->pid && p->mm) {
->  			int points = badness(p);
->  			if (points > maxpoints) {
->  				chosen = p;
+> bad: scheduling while atomic!
+> Call Trace:
+>  [<c0107000>] default_idle+0x0/0x40
+>  [<c011f110>] schedule+0x500/0x510
+>  [<c0107063>] poll_idle+0x23/0x40
+>  [<c0118073>] apm_cpu_idle+0xa3/0x140
+>  [<c0117fd0>] apm_cpu_idle+0x0/0x140
+>  [<c0107000>] default_idle+0x0/0x40
+>  [<c01070b8>] cpu_idle+0x38/0x40
+>  [<c0105000>] rest_init+0x0/0x30
+>  [<c037c738>] start_kernel+0x138/0x140
+>  [<c037c4c0>] unknown_bootoption+0x0/0x100
 
-Look at select_bad_process(), and the ->mm test in badness().  pdflush
-can never be chosen.
-
-Nevertheless, there have been several report where kernel threads _are_ 
-being hit my the oom killer.  Any idea why that is?
-
+Possibly the IDE error handler has a locking imbalance.  It returned from
+the interrupt handler without having unlocked a lock which it should have
+unlocked, and that left the currently-running process (the idle task in
+this case) with an incorrect preempt count.

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281936AbRKURf0>; Wed, 21 Nov 2001 12:35:26 -0500
+	id <S281938AbRKURf4>; Wed, 21 Nov 2001 12:35:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281934AbRKURfQ>; Wed, 21 Nov 2001 12:35:16 -0500
-Received: from maild.telia.com ([194.22.190.101]:16069 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S281927AbRKURfD>;
-	Wed, 21 Nov 2001 12:35:03 -0500
-Message-Id: <200111211734.fALHYla18640@d1o849.telia.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Jakob Kemi <jakob.kemi@telia.com>
-To: marcel@mesa.nl, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: New ac patch???
-Date: Wed, 21 Nov 2001 18:34:17 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Dominik Kubla <kubla@sciobyte.de>,
-        Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org,
-        andre@linux-ide.org
-In-Reply-To: <20011121120033.C21032@duron.intern.kubla.de> <E166VIr-0004ik-00@the-village.bc.nu> <20011121132333.F15851@joshua.mesa.nl>
-In-Reply-To: <20011121132333.F15851@joshua.mesa.nl>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S281937AbRKURfq>; Wed, 21 Nov 2001 12:35:46 -0500
+Received: from mnh-1-04.mv.com ([207.22.10.36]:32519 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S281934AbRKURfb>;
+	Wed, 21 Nov 2001 12:35:31 -0500
+Message-Id: <200111211853.NAA03050@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Pavel Machek <pavel@suse.cz>
+cc: Adam Feuer <adamf@pobox.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Swsusp mailing list <swsusp@lister.fornax.hu>,
+        ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        Gabor Kuti <seasons@falcon.sch.bme.hu>
+Subject: Re: [swsusp] Re: swsusp for 2.4.14 
+In-Reply-To: Your message of "Wed, 21 Nov 2001 16:46:20 +0100."
+             <20011121164620.D31379@atrey.karlin.mff.cuni.cz> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 21 Nov 2001 13:53:13 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesdayen den 21 November 2001 13.23, Marcel J.E. Mol wrote:
-> On Wed, Nov 21, 2001 at 11:12:28AM +0000, Alan Cox wrote:
-> > > > Not exaclty. It is a 48Gig drive in a dell inspiron 8000. I think it
-> > > > is IBM but the logs do not show a brandname. I can try open up the
-> > > > case tonight if you want to know for sure?
-> > >
-> > > It's an IBM IC25T048ATDA05-0 to be precise.
-> >
-> > Thanks. It seems IBM laptop drives are the ones that specifically need
-> > this fix. That ties in with the windows 98 reports/microsoft fixes.
->
-> Would that be enough reason to add only the specific flushing code of
-> the taskfile patch (if at all possible) to the kernel? Maybe Andre is
-> willing to extract the relevant code in a seperate patch...
->
-> -Marcel
+pavel@suse.cz said:
+> Yep, I'd like to see it. [The way uml is setup with one uml kernel
+> running in *many* real processes, saving/restoring cpu state is not
+> going to be easy.]
 
-This also affects my Desktop PC with two IBM Deskstar 60GXP 40GB drives. I'd 
-like to see it in 2.4.15.
+It won't be horrible.  You have to recreate all the processes (and getting
+their address spaces mapped correctly should be easy) and get them all
+ptraced by the tracing thread.  UML processes which are CLONE_VM are also
+CLONE_VM on the host, so that will take a little bit of care.
 
-/Jakob
+Devices will need to be reopened as well.
+
+				Jeff
 

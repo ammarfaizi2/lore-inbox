@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266731AbSKZTsx>; Tue, 26 Nov 2002 14:48:53 -0500
+	id <S266637AbSKZUBB>; Tue, 26 Nov 2002 15:01:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266746AbSKZTsx>; Tue, 26 Nov 2002 14:48:53 -0500
-Received: from packet.digeo.com ([12.110.80.53]:11153 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266731AbSKZTsv>;
-	Tue, 26 Nov 2002 14:48:51 -0500
-Message-ID: <3DE3D1D1.BE5B30ED@digeo.com>
-Date: Tue, 26 Nov 2002 11:56:01 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Srihari Vijayaraghavan <harisri@bigpond.com>, Jens Axboe <axboe@suse.de>,
-       Neil Brown <neilb@cse.unsw.edu.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.49: kernel BUG at drivers/block/ll_rw_blk.c:1950!
-References: <200211262203.20088.harisri@bigpond.com>
+	id <S266792AbSKZUBA>; Tue, 26 Nov 2002 15:01:00 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:15620 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266637AbSKZUA4>;
+	Tue, 26 Nov 2002 15:00:56 -0500
+Date: Tue, 26 Nov 2002 14:35:47 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Wim Coekaerts <Wim.Coekaerts@oracle.com>
+Subject: Re: [RFC] hangcheck-timer module
+Message-ID: <20021126133547.GA1268@zaurus>
+References: <20021121201931.GH770@nic1-pc.us.oracle.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Nov 2002 19:56:02.0333 (UTC) FILETIME=[D8FB44D0:01C29585]
+Content-Disposition: inline
+In-Reply-To: <20021121201931.GH770@nic1-pc.us.oracle.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srihari Vijayaraghavan wrote:
-> 
-> [1.] One line summary of the problem:
-> kernel BUG at drivers/block/ll_rw_blk.c:1950!
+> [ Feh, forgot to attach the damned file. ]
 
-That's BIO_BUG_ON(!bio->bi_size);
+:-)
 
-> Software RAID 0.
+> 	The module is currently used in a cluster environment.  After
+> some time out to lunch, the rest of the cluster will have given up on a
+> machine.  If the machine suddenly comes back and assumes it is still
+> "live", bad things can happen.
 
-Yes, there have been a few reports of this.  The pagecache code
-does bio_add_page() against a new BIO and it doesn't work.  We
-end up submitting an empty BIO and boom.
+Would it make it more sense for other machines
+to "kill" offending machine (cut power or press reset)?
 
-I've seen various RAID patches floating about which address this,
-but either they weren't merged or they didn't work right.
 
-Jens, what is the policy here?  Should bio_add_page() for an
-empty bio "always succeed"?  (Bearing in mind that pages can
-be 64k...).    I guess -EIO would be better than a BUG.
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 
-Are there more RAID fixes pending?
-
-Thanks.

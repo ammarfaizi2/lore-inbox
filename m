@@ -1,131 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129453AbRBUQsQ>; Wed, 21 Feb 2001 11:48:16 -0500
+	id <S129184AbRBUQ7s>; Wed, 21 Feb 2001 11:59:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129691AbRBUQsF>; Wed, 21 Feb 2001 11:48:05 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:24416 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129184AbRBUQrx>; Wed, 21 Feb 2001 11:47:53 -0500
-Date: Wed, 21 Feb 2001 10:47:51 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-cc: Zeljko Stevanovic <zsteva@kernel.net>,
-        root <Andrew.Price@pricea.madasafish.com>,
-        Martin Braun <braun@itwm.fhg.de>, Martin Greco <msgreco@sinectis.com>,
-        Jon Noble <jon.noble@euskalnet.net>,
-        Gerriet Backer <backer@informatik.uni-hamburg.de>,
-        kgroombr@users.sourceforge.net, Rick Kennell <kennell@ecn.purdue.edu>
-Subject: PATCH: Via audio rate lock, for testing
-Message-ID: <Pine.LNX.3.96.1010221104452.13788P-100000@mandrakesoft.mandrakesoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129396AbRBUQ7j>; Wed, 21 Feb 2001 11:59:39 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:13162 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129184AbRBUQ7Z>; Wed, 21 Feb 2001 11:59:25 -0500
+Date: Wed, 21 Feb 2001 18:00:35 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Andreas Dilger <adilger@turbolinux.com>,
+        Linux LVM Development list <lvm-devel@sistina.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>,
+        Heinz Mauelshagen <mauelshagen@sistina.com>
+Subject: Re: [lvm-devel] *** ANNOUNCEMENT *** LVM 0.9.1 beta5 available at www.sistina.com
+Message-ID: <20010221180035.N25927@athlon.random>
+In-Reply-To: <20010220234219.B2023@athlon.random> <200102210031.f1L0VQU15564@webber.adilger.net> <20010221021252.A932@athlon.random> <200102210349.f1L3nHE03110@mobilix.atnf.CSIRO.AU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200102210349.f1L3nHE03110@mobilix.atnf.CSIRO.AU>; from rgooch@ras.ucalgary.ca on Wed, Feb 21, 2001 at 02:49:17PM +1100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can you guys test this patch, and let me know if it fixes Via audio
-problems on your kernel?
+On Wed, Feb 21, 2001 at 02:49:17PM +1100, Richard Gooch wrote:
+> You definately can mknod(2) on devfs. [..]
 
-It should apply against 2.4.1 or 2.4.1-acXX kernels.  Note that it
-should be applied with "patch -p0" while in the linux kernel source
-directory, not applied with "patch -p1".
+So then why don't we simply create the VG ourself with the right minor number
+and use it as we do without devfs? We'll still have a global 256 VG limit this
+way but that's not a minor issue.
 
-Regards,
-
-	Jeff
-
-
-
-
-Index: drivers/sound/via82cxxx_audio.c
-===================================================================
-RCS file: /cvsroot/gkernel/linux_2_4/drivers/sound/via82cxxx_audio.c,v
-retrieving revision 1.1.1.13.22.1
-diff -u -r1.1.1.13.22.1 via82cxxx_audio.c
---- drivers/sound/via82cxxx_audio.c	2001/02/18 23:58:28	1.1.1.13.22.1
-+++ drivers/sound/via82cxxx_audio.c	2001/02/21 16:36:23
-@@ -281,6 +281,8 @@
- 
- 	int dev_dsp;		/* /dev/dsp index from register_sound_dsp() */
- 
-+	int locked_rate : 1;
-+
- 	struct semaphore syscall_sem;
- 	struct semaphore open_sem;
- 
-@@ -503,10 +505,16 @@
- static int via_set_rate (struct ac97_codec *ac97,
- 			 struct via_channel *chan, unsigned rate)
- {
-+	struct via_info *card = ac97->private_data;
- 	int rate_reg;
- 
- 	DPRINTK ("ENTER, rate = %d\n", rate);
- 
-+	if (card->locked_rate) {
-+		chan->rate = 48000;
-+		goto out;
-+	}
-+
- 	if (rate > 48000)		rate = 48000;
- 	if (rate < 4000) 		rate = 4000;
- 
-@@ -530,6 +538,13 @@
- 	 */
- 	chan->rate = via_ac97_read_reg (ac97, rate_reg);
- 
-+	if (chan->rate == 0) {
-+		card->locked_rate = 1;
-+		chan->rate = 48000;
-+		printk (KERN_WARNING PFX "Codec rate locked at 48Khz\n");
-+	}
-+
-+out:
- 	DPRINTK ("EXIT, returning rate %d Hz\n", chan->rate);
- 	return chan->rate;
- }
-@@ -1438,7 +1453,7 @@
-  *	via_ac97_reset - Reset Via AC97 hardware
-  *	@card: Private info for specified board
-  *
-- *	Reset Via AC97 hardware.
-+ *	Reset Via AC97 codec, controller, and hardware.
-  */
- 
- static int __init via_ac97_reset (struct via_info *card)
-@@ -1512,8 +1527,8 @@
- 	 */
- 
- 	/* enable variable rate, variable rate MIC ADC */
--	tmp16 = via_ac97_read_reg (&card->ac97, 0x2A);
--	via_ac97_write_reg (&card->ac97, 0x2A, tmp16 | (1<<0));
-+	tmp16 = via_ac97_read_reg (&card->ac97, AC97_EXTENDED_STATUS);
-+	via_ac97_write_reg (&card->ac97, AC97_EXTENDED_STATUS, tmp16 | 1);
- 
- 	pci_read_config_byte (pdev, VIA_ACLINK_CTRL, &tmp8);
- 	if ((tmp8 & (VIA_CR41_AC97_ENABLE | VIA_CR41_AC97_RESET)) == 0) {
-@@ -1588,8 +1603,22 @@
- 	}
- 
- 	/* enable variable rate, variable rate MIC ADC */
--	tmp16 = via_ac97_read_reg (&card->ac97, 0x2A);
--	via_ac97_write_reg (&card->ac97, 0x2A, tmp16 | (1<<0));
-+	tmp16 = via_ac97_read_reg (&card->ac97, AC97_EXTENDED_STATUS);
-+	via_ac97_write_reg (&card->ac97, AC97_EXTENDED_STATUS, tmp16 | 1);
-+
-+	/*
-+	 * If we cannot enable VRA, we have a locked-rate codec.
-+	 * We try again to enable VRA before assuming so, however.
-+	 */
-+	tmp16 = via_ac97_read_reg (&card->ac97, AC97_EXTENDED_STATUS);
-+	if ((tmp16 & 1) == 0) {
-+		via_ac97_write_reg (&card->ac97, AC97_EXTENDED_STATUS, tmp16 | 1);
-+		tmp16 = via_ac97_read_reg (&card->ac97, AC97_EXTENDED_STATUS);
-+		if ((tmp16 & 1) == 0) {
-+			card->locked_rate = 1;
-+			printk (KERN_WARNING PFX "Codec rate locked at 48Khz\n");
-+		}
-+	}
- 
- 	DPRINTK ("EXIT, returning 0\n");
- 	return 0;
-
+Andrea

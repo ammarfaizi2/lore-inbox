@@ -1,72 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbULBNDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbULBNEC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261603AbULBNDn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 08:03:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbULBNDn
+	id S261604AbULBNEC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 08:04:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbULBNEC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 08:03:43 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:21988 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S261603AbULBNDk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 08:03:40 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Jan Kasprzak <kas@fi.muni.cz>
-Subject: Re: [PATCH] cosa.h ioctl numbers
-Date: Thu, 2 Dec 2004 13:58:00 +0100
-User-Agent: KMail/1.6.2
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-References: <20041202124456.GF11992@fi.muni.cz>
-In-Reply-To: <20041202124456.GF11992@fi.muni.cz>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_YFxrBu6pK8KFJzX";
-  charset="iso-8859-15"
+	Thu, 2 Dec 2004 08:04:02 -0500
+Received: from mail.gmx.de ([213.165.64.20]:34719 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261604AbULBNDz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 08:03:55 -0500
+X-Authenticated: #4399952
+Date: Thu, 2 Dec 2004 14:06:12 +0100
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-19
+Message-ID: <20041202140612.4c07bca8@mango.fruits.de>
+In-Reply-To: <20041202122931.GA25357@elte.hu>
+References: <20041201160632.GA3018@elte.hu>
+	<20041201162034.GA8098@elte.hu>
+	<33059.192.168.1.5.1101927565.squirrel@192.168.1.5>
+	<20041201212925.GA23410@elte.hu>
+	<20041201213023.GA23470@elte.hu>
+	<32788.192.168.1.8.1101938057.squirrel@192.168.1.8>
+	<20041201220916.GA24992@elte.hu>
+	<20041201234355.0dac74cf@mango.fruits.de>
+	<20041202084040.GC7585@elte.hu>
+	<20041202132218.02ea2c48@mango.fruits.de>
+	<20041202122931.GA25357@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200412021358.00844.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2 Dec 2004 13:29:31 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
---Boundary-02=_YFxrBu6pK8KFJzX
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+> it's very likely not the simple jack_test client. I've attached the
+> trace in question. Here are the tasks that were running:
+> 
+>  gkrellm
+>    IRQ 0
+>   IRQ 14
+>    IRQ 5
+>    jackd
+>  kblockd
+>   korgac
+> ksoftirq
+> qjackctl
+>   qsynth
+>        X
+>     xmms
+> 
+> the trace doesnt show what task jackd was waiting on, and it would be
+> hard to establish it, the tracepoint would have to 'discover' all other
+> holders of the pipe fd, which is quite complex.
 
-On Dunnersdag 02 Dezember 2004 13:44, Jan Kasprzak wrote:
-> 	The following patch reverts the changes in ioctl() numbers
-> for COSA WAN card, makink the ioctl numbers the same as in 2.4, and thus
-> preserving the binary compatibility with user-space utils.
+I'm not knowledgable enough to read the trace, but what was for example
+the last thing qsynth was doing? Did it go to sleep? I suppose this was
+Rui's 9 qsynth's test, right?
 
->  /* Read the block from the device memory */
-> -#define COSAIORMEM	_IOWR('C',0xf2, struct cosa_download)
-> +#define COSAIORMEM	_IOWR('C',0xf2, struct cosa_download *)
-> =20
->  /* Write the block to the device memory (i.e. download the microcode) */
-> -#define COSAIODOWNLD	_IOW('C',0xf2, struct cosa_download)
-> +#define COSAIODOWNLD	_IOW('C',0xf2, struct cosa_download *)
+Hmm, i wonder if there's a way to detect non RT behaviour in jackd
+clients. I mean AFAIK the only thing allowed for the process callback of
+on is the FIFO it waits on to be woken, right? Every other sleeping is
+to be considered a bug. 
 
-Isn't that rather misleading? I suppose the real argument is=20
-'struct cosa_download', so you should have some kind of comment there,=20
-e.g.
+> 
+> > Oh wow. Just before hitting send i got three xruns of around
+> > 0.020-0.050msec. Ok, will read up on recent emails to see what to do
+> > to debug these.
+> 
+> which jackd version is this? I saw similar small spurious xruns with
+> 99.0, those went away in recent CVS versions.
 
-#define COSAIODOWNLD _IOW('C',0xf2, long) /* actually struct cosa_download =
-*/
+For this test i used jackd from yesterdays CVS. With the 0.99 version i
+think i saw more of these xruns, but cannot tell (still running the CVS
+version right now).. They all had in common though that they are in the
+0.020-0.040msec range.
 
-	Arnd <><
-
---Boundary-02=_YFxrBu6pK8KFJzX
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBrxFY5t5GS2LDRf4RAtnUAKCZP0ICuWA4sxhEVsgALNmKDtje4ACeLGb4
-dU/0dsDVgsky04YoyANOzNQ=
-=PyGl
------END PGP SIGNATURE-----
-
---Boundary-02=_YFxrBu6pK8KFJzX--
+Flo

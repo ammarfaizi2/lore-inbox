@@ -1,79 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbUDBWZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 17:25:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbUDBWZZ
+	id S261231AbUDBW3I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 17:29:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUDBW3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 17:25:25 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:22493 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261221AbUDBWZV
+	Fri, 2 Apr 2004 17:29:08 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:59378 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261231AbUDBW3A
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 17:25:21 -0500
-Subject: Re: [Patch 6/23] mask v2 - Replace cpumask_t with one using mask
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Paul Jackson <pj@sgi.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040401131136.792495fa.pj@sgi.com>
-References: <20040401122802.23521599.pj@sgi.com>
-	 <20040401131136.792495fa.pj@sgi.com>
-Content-Type: multipart/mixed; boundary="=-peOxaTSCWUCvdUT91V7S"
-Organization: IBM LTC
-Message-Id: <1080944675.9787.113.camel@arrakis>
+	Fri, 2 Apr 2004 17:29:00 -0500
+Date: Fri, 2 Apr 2004 14:28:38 -0800
+From: Todd Poynor <tpoynor@mvista.com>
+To: mochel@digitalimplant.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Device suspend/resume fixes
+Message-ID: <20040402222838.GB2423@dhcp193.mvista.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 02 Apr 2004 14:24:36 -0800
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In case some changes to device handling during suspend/resume are
+welcome:
 
---=-peOxaTSCWUCvdUT91V7S
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+(1) Set device power state at runtime resume (as is done for runtime
+suspend) so that a later suspend does not think the device is still
+suspended.
 
-On Thu, 2004-04-01 at 13:11, Paul Jackson wrote:
-> Patch_6_of_23 - Rework cpumasks to use new mask ADT
-> 	Removes many old include/asm-<arch> and asm-generic cpumask files
-> 	Add intersects, subset, xor and andnot operators.
-> 	Provides temporary emulators for obsolete const, promote, coerce
-> 	Presents entire cpumask API clearly in single cpumask.h file
+(2) Move devices from active to off list only when suspending all
+devices, not for runtime suspend, to match resume handling, and to
+avoid reordering the device list (which is in order of registration
+and suspend/resume works best that way).
 
-<snip>
+(3) Flush signals between resume handlers in case a resume function
+causes, for example, an ECHILD from modprobe or hotplug, so
+interruptible APIs for the next handler aren't affected.
 
-> +#else /* !CONFIG_SMP */
-> +
-> +#define	cpu_online_map		     cpumask_of_cpu(0)
-> +#define	cpu_possible_map	     cpumask_of_cpu(0)
 
-I mentioned earlier that there's probably a better way to do this for
-UP...  What do you think about this?
-
--Matt
-
---=-peOxaTSCWUCvdUT91V7S
-Content-Disposition: attachment; filename=UP-cpu_online_map.patch
-Content-Type: text/x-patch; name=UP-cpu_online_map.patch; charset=
-Content-Transfer-Encoding: 7bit
-
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-pj_mask_v2/include/linux/cpumask.h linux-2.6.4-UP_online_map/include/linux/cpumask.h
---- linux-2.6.4-pj_mask_v2/include/linux/cpumask.h	Fri Apr  2 14:03:21 2004
-+++ linux-2.6.4-UP_online_map/include/linux/cpumask.h	Fri Apr  2 14:13:54 2004
-@@ -134,8 +134,12 @@ extern cpumask_t cpu_possible_map;
+--- linux-2.6.4-orig/drivers/base/power/suspend.c	2004-03-11 14:57:55.000000000 -0800
++++ linux-2.6.4-pm/drivers/base/power/suspend.c	2004-04-02 14:07:31.188415120 -0800
+@@ -42,13 +42,6 @@
+ 	if (dev->bus && dev->bus->suspend)
+ 		error = dev->bus->suspend(dev,state);
  
- #else /* !CONFIG_SMP */
+-	if (!error) {
+-		list_del(&dev->power.entry);
+-		list_add(&dev->power.entry,&dpm_off);
+-	} else if (error == -EAGAIN) {
+-		list_del(&dev->power.entry);
+-		list_add(&dev->power.entry,&dpm_off_irq);
+-	}
+ 	return error;
+ }
  
--#define	cpu_online_map		     cpumask_of_cpu(0)
--#define	cpu_possible_map	     cpumask_of_cpu(0)
-+#define	cpu_online_map				\
-+({						\
-+	cpumask_t m = MASK_ALL1(NR_CPUS);	\
-+	m;					\
-+})
-+#define	cpu_possible_map	     cpu_online_map
+@@ -81,12 +74,16 @@
+ 	while(!list_empty(&dpm_active)) {
+ 		struct list_head * entry = dpm_active.prev;
+ 		struct device * dev = to_device(entry);
+-		if ((error = suspend_device(dev,state))) {
+-			if (error != -EAGAIN)
+-				goto Error;
+-			else
+-				error = 0;
+-		}
++		error = suspend_device(dev,state);
++
++		if (!error) {
++			list_del(&dev->power.entry);
++			list_add(&dev->power.entry,&dpm_off);
++		} else if (error == -EAGAIN) {
++			list_del(&dev->power.entry);
++			list_add(&dev->power.entry,&dpm_off_irq);
++		} else
++			goto Error;
+ 	}
+  Done:
+ 	up(&dpm_sem);
+--- linux-2.6.4-orig/drivers/base/power/resume.c	2004-03-11 14:57:55.000000000 -0800
++++ linux-2.6.4-pm/drivers/base/power/resume.c	2004-04-02 14:07:29.425683096 -0800
+@@ -37,6 +37,7 @@
+ 		list_del_init(entry);
+ 		resume_device(dev);
+ 		list_add_tail(entry,&dpm_active);
++		flush_signals(current);
+ 	}
+ }
  
- #define num_online_cpus()	     1
- #define num_possible_cpus()	     1
+--- linux-2.6.4-orig/drivers/base/power/runtime.c	2004-03-11 15:02:22.000000000 -0800
++++ linux-2.6.4-pm/drivers/base/power/runtime.c	2004-04-02 14:23:31.400440704 -0800
+@@ -12,9 +12,14 @@
+ 
+ static void runtime_resume(struct device * dev)
+ {
++	int error;
++
+ 	if (!dev->power.power_state)
+ 		return;
+-	resume_device(dev);
++	if (!(error = resume_device(dev)))
++		dev->power.power_state = 0;
++
++	return error;
+ }
 
---=-peOxaTSCWUCvdUT91V7S--
+
+-- 
+Todd Poynor
+MontaVista Software
 

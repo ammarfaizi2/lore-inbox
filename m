@@ -1,86 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbULSBaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbULSBwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbULSBaw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 20:30:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbULSBaw
+	id S261259AbULSBwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 20:52:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbULSBwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 20:30:52 -0500
-Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:51356 "EHLO
-	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261258AbULSBa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 20:30:29 -0500
-Message-ID: <41C4D990.1060507@kolivas.org>
-Date: Sun, 19 Dec 2004 12:29:52 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Mikhail Ramendik <mr@ramendik.ru>, ck@vds.kolivas.org, riel@redhat.com,
-       Andrew Morton <akpm@osdl.org>, linux <linux-kernel@vger.kernel.org>
-Subject: Re: [ck] 2.6.7 backport request, spinoff idea
-References: <200412171504.41234.mr@ramendik.ru> <41C4A670.9090009@kolivas.org> <41C4A899.10102@kolivas.org> <200412190321.16567.mr@ramendik.ru> <41C4CE77.40601@kolivas.org>
-In-Reply-To: <41C4CE77.40601@kolivas.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig6A1BD1BC968F11B26B53D63E"
+	Sat, 18 Dec 2004 20:52:16 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:4117 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261259AbULSBwI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Dec 2004 20:52:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=LLL3OJgMQDwyxnlsdzXUNnMBsJUtzej0iZeLnXDPSBrQ3r6UFxjG/X3fZS1pV/hUWuQtunkTOhm0VhK/bkTiVJq2kcBOgjikAeQYnlzLJG/m6yleymaMtLARCJKoxIQisA8xN3WoPlDnabqFVTOdhrdT+SyWjveBGyMpRGye2WA=
+Message-ID: <d4b385204121817521b0df40f@mail.gmail.com>
+Date: Sun, 19 Dec 2004 01:52:06 +0000
+From: Mikkel Krautz <krautz@gmail.com>
+Reply-To: Mikkel Krautz <krautz@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling Interval
+Cc: greg@kroah.com, vojtech@suse.cz
+In-Reply-To: <20041218165331.GA7737@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1103335970.15567.15.camel@localhost>
+	 <20041218012725.GB25628@kroah.com> <41C46B4D.5040506@gmail.com>
+	 <20041218165331.GA7737@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig6A1BD1BC968F11B26B53D63E
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Con Kolivas wrote:
-> Mikhail Ramendik wrote:
+On Sat, 18 Dec 2004 08:53:31 -0800, Greg KH <greg@kroah.com> wrote:
+> On Sat, Dec 18, 2004 at 05:39:25PM +0000, Mikkel Krautz wrote:
+> > On Fri, 17 Dec 2004 18:59:48 -0800, Greg KH <greg@kroah.com> wrote:
+> > > What about makeing it a module paramater then, that is exported to
+> > > sysfs?  That makes it easier to adjust on the fly (before the mouse is
+> > > inserted), and doesn't require the kernel to be rebuilt.
+> >
+> > I really like the idea. I'm start to think that this is the ideal way to
+> > accomplish this.
+> >
+> > Here's a new patch. Let's hope it doesn't wrap!
 > 
->> Con Kolivas wrote:
->>
->>
->>> Actually I wonder if the swap token is responsible in 2.6.10-rc3
->>>
->>> Try this
->>> echo 0 > /proc/sys/vm/swap_token_timeout
->>
->>
->>
->> Well, this makes things really better, although not as good as 
->> 2.6.8.1. There are kswapd cpu jumps and screen freezes, but they only 
->> last several seconds (the longest is in the very beginning, about 
->> 15-20 sec).
->>
->> Thanks! This makes the system much more useable.
+> It was eaten :(
 > 
+> > module_init(hid_init);
+> > module_exit(hid_exit);
+> > +module_param(hid_mouse_polling_interval, int, 644);
 > 
-> This is worth posting to lkml so I've cc'ed a few relevant people (there 
-> is already a thread about this there). Rik care to comment? I recall 
-> pointing out this test case a while back. Got any way to make it harder 
-> to trigger the swap token? It seems to affect normal workloads adversely 
-> considering how rare swap thrashing actually occurs.
+> 0644, or use the proper #defines instead.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Rik tells me he has already posted a patch for this problem :D
+Here's an updated version, with your and Marcel's suggestions:
 
-Sorry for cc'ing the wrong email Rik. Do you have a simple link to the 
-patch or can you send it on this thread please?
 
-Cheers,
-Con
 
---------------enig6A1BD1BC968F11B26B53D63E
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFBxNmQZUg7+tp6mRURAjKRAJ416Pw7U3CfMc7J5WdozNjWO+YbJQCeMyda
-jjkkMxN0hOWiS8TlgVtH/Ic=
-=D36A
------END PGP SIGNATURE-----
+Signed-off-by: Mikkel Krautz <krautz@gmail.com>
+---
 
---------------enig6A1BD1BC968F11B26B53D63E--
+
+ hid-core.c |    9 ++++++++-
+ 1 files changed, 8 insertions(+), 1 deletion(-)
+
+
+--- clean/drivers/usb/input/hid-core.c
++++ dirty/drviers/usb/input/hid-core.c
+@@ -37,11 +37,12 @@
+  * Version Information
+  */
+ 
+-#define DRIVER_VERSION "v2.0"
++#define DRIVER_VERSION "v2.01"
+ #define DRIVER_AUTHOR "Andreas Gal, Vojtech Pavlik"
+ #define DRIVER_DESC "USB HID core driver"
+ #define DRIVER_LICENSE "GPL"
+ 
++static unsigned int hid_mousepoll_interval;
+ static char *hid_types[] = {"Device", "Pointer", "Mouse", "Device", "Joystick",
+ 				"Gamepad", "Keyboard", "Keypad", "Multi-Axis Controller"};
+ 
+@@ -1663,6 +1664,11 @@
+ 		if ((endpoint->bmAttributes & 3) != 3)		/* Not an interrupt endpoint */
+ 			continue;
+ 
++		/* Change the polling interval of mice. */
++		if (hid->collection->usage == HID_GD_MOUSE
++				&& hid_mousepoll_interval > 0)
++			endpoint->bInterval = hid_mousepoll_interval;
++		
+ 		/* handle potential highspeed HID correctly */
+ 		interval = endpoint->bInterval;
+ 		if (dev->speed == USB_SPEED_HIGH)
+@@ -1910,6 +1916,7 @@
+ 
+ module_init(hid_init);
+ module_exit(hid_exit);
++module_param_named(mousepoll, hid_mousepoll_interval, uint, 0644);
+ 
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);

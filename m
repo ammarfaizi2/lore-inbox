@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbTFDP2x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 11:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263458AbTFDP2x
+	id S263459AbTFDPn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 11:43:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263461AbTFDPn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 11:28:53 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47621 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263452AbTFDP2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 11:28:52 -0400
-Date: Wed, 4 Jun 2003 08:41:59 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: David Woodhouse <dwmw2@infradead.org>,
-       Stewart Smith <stewartsmith@mac.com>, <linux-kernel@vger.kernel.org>,
-       Stewart Smith <stewart@linux.org.au>
-Subject: Re: [PATCH] fixed: CRC32=y && 8193TOO=m unresolved symbols
-In-Reply-To: <20030604153224.GF19929@gtf.org>
-Message-ID: <Pine.LNX.4.44.0306040838370.13753-100000@home.transmeta.com>
+	Wed, 4 Jun 2003 11:43:57 -0400
+Received: from dan.arc.nasa.gov ([143.232.69.77]:27521 "EHLO rudi.arc.nasa.gov")
+	by vger.kernel.org with ESMTP id S263459AbTFDPn4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 11:43:56 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dan Christian <Daniel.A.Christian@NASA.gov>
+Reply-To: Daniel.A.Christian@NASA.gov
+Organization: NASA Ames Research Center
+To: Clemens Schwaighofer <cs@tequila.co.jp>,
+       "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: 2.4.21-rc7 SMP module unresolved symbols
+Date: Wed, 4 Jun 2003 08:57:15 -0700
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <200306031728.41982.Daniel.A.Christian@NASA.gov> <20030604083150.GA2770@werewolf.able.es> <3EDDBD16.9050301@tequila.co.jp>
+In-Reply-To: <3EDDBD16.9050301@tequila.co.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200306040857.15782.Daniel.A.Christian@NASA.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 04 June 2003 02:34, Clemens Schwaighofer wrote:
+> J.A. Magallon wrote:
+> > You're missing a make install, I think ( at least this is what I
+> > do, perhaps something is redundant:
+>
+> make install only works if you have something like
+> "install_kernel.sh" script available in your system. not all systems
+> have that. so it might just fail. and there is no problem by copying
+> the System.map and bzImage by hand to the /boot directory
 
-On Wed, 4 Jun 2003, Jeff Garzik wrote:
-> 
-> Any opinions on moving it out of lib/lib.a?
-> 
-> We have our own conditional linking system, essentially, so that's what
-> I would prefer.
+Right.  I just copy by hand.
 
-That makes sense. lib/lib.a wasn't ever _that_ sensible, since we only 
-really include object files in it that we know should be linked in. The 
-linker really does know less than the build system, and in this case that 
-seems to be causing a real bug.
+The kernel will boot just fine, but it can't load most of it's modules.
 
-		Linus
-
+-Dan

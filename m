@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261847AbSJIRAp>; Wed, 9 Oct 2002 13:00:45 -0400
+	id <S261849AbSJIRAV>; Wed, 9 Oct 2002 13:00:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261831AbSJIRAo>; Wed, 9 Oct 2002 13:00:44 -0400
-Received: from members.cotse.com ([216.112.42.58]:63625 "EHLO cotse.com")
-	by vger.kernel.org with ESMTP id <S261847AbSJIRAn>;
-	Wed, 9 Oct 2002 13:00:43 -0400
-Message-ID: <YWxhbg==.35e5d37d477d0ddc01cb3484f9ef3349@1034183288.cotse.net>
-Date: Wed, 9 Oct 2002 13:08:08 -0400 (EDT)
-X-Abuse-To: abuse@cotse.com
-X-AntiForge: http://packetderm.cotse.com/antiforge.php
-Subject: Patches from Redhat gcc 3.2
-From: "Alan Willis" <alan@cotse.net>
-To: <phil-list@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: alan@cotse.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S261850AbSJIRAU>; Wed, 9 Oct 2002 13:00:20 -0400
+Received: from findaloan-online.cc ([216.209.85.42]:43525 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S261849AbSJIRAU>;
+	Wed, 9 Oct 2002 13:00:20 -0400
+Date: Wed, 9 Oct 2002 13:05:17 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Giuliano Pochini <pochini@shiny.it>
+Cc: Robert Love <rml@tech9.net>, riel@conectiva.com.br, akpm@digeo.com,
+       linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
+Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
+Message-ID: <20021009170517.GA5608@mark.mielke.cc>
+References: <1034104637.29468.1483.camel@phantasy> <XFMail.20021009103325.pochini@shiny.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <XFMail.20021009103325.pochini@shiny.it>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 09, 2002 at 10:33:25AM +0200, Giuliano Pochini wrote:
+> > The point of O_STREAMING is one change: drop pages in the pagecache
+> > behind our current position, that are free-able, because we know we will
+> > never want them.
+> Does it drop pages unconditionally ?  What happens if I do a
+> streaming_cat largedatabase > /dev/null while other processes
+> are working on it ?  It's not a good thing to remove the whole
+> cached data other apps are working on.
 
-  Which of the 69 patches in the redhat gcc-3.2 rpm from RH8 provide the
-functionality needed for the __thread keyword, and anything else needed for
-nptl to work correctly.  Also, are any modifications needed to glibc 2.3?
-Also, I do not wish to make my system unusable with 2.4.x kernels,.. if I
-build glibc with --enable-kernel=current, will that make glibc unusable with
-2.4.x kernels?  I've been using 2.5 for a while now,. but I do want a sane
-recourse.  Is this line also correct: --enable-addons=nptl,nptl_db, where
-I've untarred the nptl dirs under in the main glibc directory.
+Anybody could make the cache thrash. I don't see this as an argument against
+O_STREAMING (whether explicitly activated, or dynamically activated).
 
-   I'm trying to set up an environment where I can use nptl on gentoo.
+The only extension I would suggest (I don't think the patch did this?) 
+is that pages should only be candidates for being forgotten if all
+open files associated with the page are O_STREAMING and all seek
+points for all open files are beyond the page.
 
-Any assistance is most welcome :o)
+This would allow for a web app, or similar, that was serving the same
+document over two different sockets, to provide a compromise between
+O_STREAMING and not O_STREAMING where performance would suffer, but
+for the common case, where only one person is accessing the file, the
+full benefit of O_STREAMING would be realized.
 
-Thanks in advance,
+Does the patch allow for mmap() to benefit from O_STREAMING?
+"I intend to access this virtual memory range sequentially..."
 
--alan
+mark
 
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

@@ -1,76 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265196AbUAJIAw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 03:00:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265198AbUAJIAw
+	id S265200AbUAJICd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 03:02:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265201AbUAJICd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 03:00:52 -0500
-Received: from moutng.kundenserver.de ([212.227.126.177]:30943 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S265196AbUAJIAu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 03:00:50 -0500
-Message-ID: <3FFFB1AD.5050307@boergens.de>
-Date: Sat, 10 Jan 2004 09:02:53 +0100
-From: Kevin Boergens <kevin@boergens.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.5) Gecko/20031007
-X-Accept-Language: de, en-us, en
+	Sat, 10 Jan 2004 03:02:33 -0500
+Received: from odpn1.odpn.net ([212.40.96.53]:6535 "EHLO odpn1.odpn.net")
+	by vger.kernel.org with ESMTP id S265200AbUAJICa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 03:02:30 -0500
+To: linux-kernel@vger.kernel.org
+Cc: jgarzik@pobox.com
+Subject: 2.4.24 eth0: TX underrun, threshold adjusted.
+From: "Gabor Z. Papp" <gzp@papp.hu>
+Date: Sat, 10 Jan 2004 09:02:27 +0100
+Message-ID: <x665fkb59o@gzp>
+User-Agent: Gnus/5.1004 (Gnus v5.10.4)
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: cs5530_set_xfer_mode
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:e39b2c33c20867b2edbd9f79b3c25ad5
+Content-Type: text/plain; charset=us-ascii
+X-Authenticated: gzp1 odpn1.odpn.net a3085bdc7b32ae4d7418f70f85f7cf5f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Replacing 2.4.23 with 2.4.24 went without any error I noticed.
 
-Maybe this is a question to stupid for this list,
-but I asked for it in de.comp.os.unix.linux.hardware
-<bt8tln$4htn0$1@ID-213387.news.uni-berlin.de> and on the Debian user
-mailing list, and although many people tried, nobody could help me.
+After 8h uptime I have connected the first nfsroot client.
 
-I have a server with a National Semiconductor CS5530 southbridge
-(http://www.national.com/pf/CS/CS5530.html) and after booting it only
-worked in MDMA2. I tried to force it with hdparm -d1X66 but that caused
-only nasty messages on syslog, like:
+In the server host klog got 12 "eth0: TX underrun, threshold adjusted."
+messages while the client started to mount the dirs.
 
-***********************************************************************
-Jan  5 16:46:14 server kernel: hda: timeout waiting for DMA
-Jan  5 16:46:14 server kernel: ide_dmaproc: chipset supported
-ide_dma_timeout fu
-nc only: 14
-Jan  5 16:46:14 server kernel: hda: status error: status=0x58 {
-DriveReady SeekC
-omplete DataRequest }
-Jan  5 16:46:14 server kernel: hda: drive not ready for command
-**********************************************************************
+etherwake uses obsolete (PF_INET,SOCK_PACKET)
+IN=eth0 OUT= MAC=ff:ff:ff:ff:ff:ff:00:07:e9:12:49:34:08:00 SRC=0.0.0.0 DST=255.255.255.255 LEN=576 TOS=0x00 PREC=0x00 TTL=20 ID=0 PROTO=UDP SPT=68 DPT=67 LEN=556 IN=eth0 OUT= MAC=ff:ff:ff:ff:ff:ff:00:07:e9:12:49:34:08:00 SRC=0.0.0.0 DST=255.255.255.255 LEN=576 TOS=0x00 PREC=0x00 TTL=20 ID=1 PROTO=UDP SPT=68 DPT=67 LEN=556 
+IN=eth0 OUT= MAC=ff:ff:ff:ff:ff:ff:00:07:e9:12:49:34:08:00 SRC=0.0.0.0 DST=255.255.255.255 LEN=576 TOS=0x00 PREC=0x00 TTL=60 ID=0 PROTO=UDP SPT=68 DPT=67 LEN=556 IN=eth0 OUT= MAC=ff:ff:ff:ff:ff:ff:00:07:e9:12:49:34:08:00 SRC=0.0.0.0 DST=255.255.255.255 LEN=576 TOS=0x00 PREC=0x00 TTL=64 ID=0 DF PROTO=UDP SPT=68 DPT=67 LEN=556
+IN=eth0 OUT= MAC=ff:ff:ff:ff:ff:ff:00:07:e9:12:49:34:08:00 SRC=0.0.0.0 DST=255.255.255.255 LEN=576 TOS=0x00 PREC=0x00 TTL=64 ID=0 DF PROTO=UDP SPT=68 DPT=67 LEN=556
+eth0: TX underrun, threshold adjusted.
+[10 times]
+eth0: TX underrun, threshold adjusted.
 
-I tried this with the Debian kernel images 2.4.18-bf2.4 and
-2.2.20-idepci and with several disks, all the same.
+Host bridge: Intel Corp. 82845G/GL [Brookdale-G]
+P4-2.4GHz 512MB RAM
+eth0 intel eepro100
+eth1 onboard b44 (for pppoe)
 
+Never noticed such problem with 2.4.23 or earlier kernels.
 
+Just noticed, on the nfsroot client getting the same message 4 times.
+There is only one eepro100:
 
-I would have given up hope already, if I had not found out that the
-S.u.S.E. 7.3 kernel 2.4.10-4GB has no problem with this chipset at all.
-While booting, the kernel says:
+Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 10)
+        Subsystem: Intel Corp.: Unknown device 0070
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop-
+        ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium
+        >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (2000ns min, 14000ns max), Cache Line Size 08
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at f7800000 (32-bit, non-prefetchable) [size=4K]
+        Region 1: I/O ports at d000 [size=64]
+        Region 2: Memory at f7000000 (32-bit, non-prefetchable) [size=128K]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA
+        PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
 
-hda WDC[...]
-ide0 at 0x[...] on irq14
-hda: cs5530_set_xfer_mode(UDMA2)
-
-And everything works as fast as I want.
-My questions:
-
-1) What's the differences in the kernels to cause this behavior?
-2) How do I get my Debian kernel to behave alike?
-
-
-
-Any help GREATLY appreciated,
-	Kevin
-
--- 
-http://www.boergens.de
-
+Additional debug infos available on request.
 

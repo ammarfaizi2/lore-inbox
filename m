@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269981AbTGUMoI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 08:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269987AbTGUMoI
+	id S270007AbTGUMs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 08:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270013AbTGUMs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 08:44:08 -0400
-Received: from sina187-156.sina.com.cn ([202.106.187.156]:19717 "HELO sina.com")
-	by vger.kernel.org with SMTP id S269981AbTGUMoH (ORCPT
+	Mon, 21 Jul 2003 08:48:56 -0400
+Received: from pushme.nist.gov ([129.6.16.92]:18577 "EHLO postmark.nist.gov")
+	by vger.kernel.org with ESMTP id S270007AbTGUMsw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 08:44:07 -0400
-Message-ID: <3F1C570E.8080607@sina.com>
-Date: Mon, 21 Jul 2003 21:11:42 +0000
-From: snoopyzwe <snoopyzwe@sina.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; zh-CN; rv:1.2.1) Gecko/20021130
-X-Accept-Language: zh-cn,zh
-MIME-Version: 1.0
+	Mon, 21 Jul 2003 08:48:52 -0400
 To: linux-kernel@vger.kernel.org
-Subject: how to calculate the system idle time
+Subject: 2.6.0-test1 - device_suspend KERN_EMERG message?
+From: Ian Soboroff <ian.soboroff@nist.gov>
+Date: Mon, 21 Jul 2003 09:03:48 -0400
+Message-ID: <9cffzl0nia3.fsf@rogue.ncsl.nist.gov>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I want to implement a module, whose main task is to check the system
-idle time(no keyboard and mouse input) and suspend the whole system(when
-the idle time is long enough). But there comes the problem, how to
-calculate the system idle time. How can I get the time user has no
-operation.
-thanks
-snoopyzwe
 
+Is there any special reason to scream that we're suspending devices in
+device_suspend?
 
+int device_suspend(u32 state, u32 level)
+{
+        struct device * dev;
+        int error = 0;
+
+        printk(KERN_EMERG "Suspending devices\n");
+
+...
+
+And likewise further below during resume.
+
+On my box, syslog shouts to all xterms and KDE throws up a kwrite message
+too.  Why is this an emergency?  If there are no objections, I'll send
+a patch to move these messages to KERN_NOTICE.
+
+Ian
 

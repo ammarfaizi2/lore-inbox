@@ -1,41 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267556AbUJVUUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267730AbUJVUUt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267556AbUJVUUu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 16:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267625AbUJVUTX
+	id S267730AbUJVUUt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 16:20:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267556AbUJVUTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 16:19:23 -0400
-Received: from c7ns3.center7.com ([216.250.142.14]:49090 "EHLO
+	Fri, 22 Oct 2004 16:19:35 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:48834 "EHLO
 	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S267556AbUJVUPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 16:15:38 -0400
-Message-ID: <417961A1.9030901@drdos.com>
-Date: Fri, 22 Oct 2004 13:38:09 -0600
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.6.9 and GPL Buyout
-Content-Type: multipart/mixed;
- boundary="------------090002040507090303020309"
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-This is a multi-part message in MIME format.
---------------090002040507090303020309
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-
-
---------------090002040507090303020309
-Content-Type: message/rfc822;
- name="Re: Linux v2.6.9 and GPL Buyout"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Re: Linux v2.6.9 and GPL Buyout"
-
+	id S267376AbUJVUO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 16:14:58 -0400
 Message-ID: <41796178.7010006@drdos.com>
 Date: Fri, 22 Oct 2004 13:37:28 -0600
 From: "Jeff V. Merkey" <jmerkey@drdos.com>
@@ -43,15 +16,17 @@ User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: "Jeff V. Merkey" <jmerkey@drdos.com>
-CC: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, 
- David Weinehall <tao@acc.umu.se>,
- Dax Kelson <dax@gurulabs.com>, Linus Torvalds <torvalds@osdl.org>, 
- Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       David Weinehall <tao@acc.umu.se>, Dax Kelson <dax@gurulabs.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux v2.6.9 and GPL Buyout
 References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417550FB.8020404@drdos.com> <1098218286.8675.82.camel@mentorng.gurulabs.com> <41757478.4090402@drdos.com> <20041022090752.GA1308@khan.acc.umu.se> <41793204.9090208@drdos.com> <20041022175233.GY24336@parcelfarce.linux.theplanet.co.uk> <417941C7.1030207@drdos.com>
 In-Reply-To: <417941C7.1030207@drdos.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
 
 Jeff V. Merkey wrote:
 
@@ -99,6 +74,3 @@ are theirs. They stated we can ship Linux with fear of being sued if we
 comply with their Linux Certification Program.
 
 
-
-
---------------090002040507090303020309--

@@ -1,56 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266845AbUGVJiY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266665AbUGVJlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266845AbUGVJiY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 05:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266848AbUGVJiY
+	id S266665AbUGVJlq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 05:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266670AbUGVJlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 05:38:24 -0400
-Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:56497 "EHLO
-	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
-	id S266845AbUGVJ0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 05:26:52 -0400
-Message-ID: <313680C9A886D511A06000204840E1CF08F43052@whq-msgusr-02.pit.comms.marconi.com>
-From: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
-To: "'bert hubert'" <ahu@ds9a.nl>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       "'Andrew Morton'" <akpm@osdl.org>
-Cc: crossgcc <crossgcc@sources.redhat.com>,
-       "'linuxppc-dev@lists.linuxppc.org'" <linuxppc-dev@lists.linuxppc.org>
-Subject: RE: (somewhat questionable) use of ipt_ECN.c and ipt_ecn.c in the
-	 linux kernel
-Date: Thu, 22 Jul 2004 05:25:51 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 22 Jul 2004 05:41:46 -0400
+Received: from [194.243.27.136] ([194.243.27.136]:34322 "HELO
+	venere.pandoraonline.it") by vger.kernel.org with SMTP
+	id S266665AbUGVJli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 05:41:38 -0400
+X-Qmail-Scanner-Mail-From: devel@integra-sc.it via venere.pandoraonline.it
+X-Qmail-Scanner-Rcpt-To: shesha@inostor.com,linux-kernel@vger.kernel.org,kernelnewbies@nl.linux.org
+X-Qmail-Scanner: 1.22 (Clear:RC:1(213.140.22.76):. Processed in 0.056464 secs)
+Date: Thu, 22 Jul 2004 11:46:45 +0200
+From: Devel <devel@integra-sc.it>
+To: Shesha Sreenivasamurthy <shesha@inostor.com>
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Subject: Re: O_DIRECT
+Message-Id: <20040722114645.4b64429b.devel@integra-sc.it>
+In-Reply-To: <40FE9F3F.2090205@inostor.com>
+References: <40FD561D.1010404@inostor.com>
+	<20040720184824.GA30090@outpost.ds9a.nl>
+	<20040721164510.3086b49f.devel@integra-sc.it>
+	<40FE9F3F.2090205@inostor.com>
+Organization: Integra Solutions
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->This is the (somewhat questionable) use of ipt_ECN.c and ipt_ecn.c in the
-linux kernel.
-
-I presume that "Cygwin" folks would like to see this to be resolved by the
-"linux kernel" folks ?
-
------Original Message-----
-From: bert hubert [mailto:ahu@ds9a.nl]
-Sent: Thursday, July 22, 2004 5:03 AM
-To: Povolotsky, Alexander
-Cc: crossgcc; 'Hollis Blanchard'; 'bertrand marquis';
-'trevor_scroggins@hotmail.com'; 'Dan Kegel'; 'Geert Uytterhoeven';
-'linuxppc-dev@lists.linuxppc.org'; Linux Kernel list
-Subject: Re: No rule to make target `net/ipv4/netfilter/ipt_ecn.o'
+Thanks a lot for your answare.
+So if i would write information on a partition without a fs i have to write additional information to "retrive" the first one.
+Do you know some readable material about o project about that?
 
 
-> make[3]: *** No rule to make target
->  `net/ipv4/netfilter/ipt_ecn.o', needed by
-`net/ipv4/netfilter/built-in.o'.
-> Stop.
+Il Wed, 21 Jul 2004 09:52:15 -0700
+Shesha Sreenivasamurthy <shesha@inostor.com> scrisse:
 
-This is the (somewhat questionable) use of ipt_ECN.c and ipt_ecn.c in the
-linux kernel. Windows filesystems are case insensitive, and see this as one
-file.
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+> Usually what you do is, partition the disk, create filesystem and read 
+> or write files.
+>   Reading and writing is without a filesystem.
+>    Assume you have maintained some superblock information of your own 
+> driver say last 512 bytes you have designated as superblock. You can 
+> seek to that position and read the last 512 bytes which is meaningful 
+> only to you. Note that I am read/writing raw bytes not any file. 
+> Therefore you can read/write without a filesystem and even without any 
+> partition,
+> 
+> -Shesha
+> 
+> 
+> Devel wrote:
+> 
+> >Hi all,
+> >how i can write data on a partition without a filesystem??
+> >
+> >Saluti Carlo!
+> >
+> >Il Tue, 20 Jul 2004 20:48:24 +0200
+> >bert hubert <ahu@ds9a.nl> scrisse:
+> >
+> >  
+> >
+> >>On Tue, Jul 20, 2004 at 10:27:57AM -0700, Shesha Sreenivasamurthy wrote:
+> >>    
+> >>
+> >>>I am having trouble with O_DIRECT. Trying to read or write from a block 
+> >>>device partition.
+> >>>
+> >>>1. Can O_DIRECT be used on a plain block device partition say 
+> >>>"/dev/sda11" without having a filesystem on it.
+> >>>      
+> >>>
+> >>As fas as I know, yes, but be aware that O_DIRECT requires page aligned
+> >>addresses! (an integral of 4096 on most systems).
+> >>
+> >>    
+> >>
+> >>>2. If no file system is created then what should be the softblock size. 
+> >>>I am using the IOCTL "BLKBSZGET". Is this correct?
+> >>>      
+> >>>
+> >>No idea what you mean - but see above about the aligned addresses.
+> >>
+> >>    
+> >>
+> >>>3. Can we use SEEK_END with O_DIRECT on a partition without filesystem.
+> >>>      
+> >>>
+> >>I see no reason why not. Good luck!
+> >>
+> >>-- 
+> >>http://www.PowerDNS.com      Open source, database driven DNS Software 
+> >>http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+> >>-
+> >>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >>the body of a message to majordomo@vger.kernel.org
+> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >>Please read the FAQ at  http://www.tux.org/lkml/
+> >>
+> >>    
+> >>
+> >
+> >--
+> >Kernelnewbies: Help each other learn about the Linux kernel.
+> >Archive:       http://mail.nl.linux.org/kernelnewbies/
+> >FAQ:           http://kernelnewbies.org/faq/
+> >
+> >
+> >.
+> >
+> >  
+> >
+> 

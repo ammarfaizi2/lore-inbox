@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267802AbUG3ThR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267809AbUG3TkC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267802AbUG3ThR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 15:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267808AbUG3ThQ
+	id S267809AbUG3TkC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 15:40:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267803AbUG3TkC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 15:37:16 -0400
-Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:43690 "EHLO
-	imf22aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S267811AbUG3Tgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 15:36:52 -0400
-Date: Fri, 30 Jul 2004 14:36:51 -0500
-From: Zinx Verituse <zinx@epicsol.org>
-To: linux-kernel@vger.kernel.org
-Subject: ide-cd problems
-Message-ID: <20040730193651.GA25616@bliss>
-Mime-Version: 1.0
+	Fri, 30 Jul 2004 15:40:02 -0400
+Received: from web14923.mail.yahoo.com ([216.136.225.7]:50270 "HELO
+	web14923.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267809AbUG3Tjj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 15:39:39 -0400
+Message-ID: <20040730193932.20813.qmail@web14923.mail.yahoo.com>
+Date: Fri, 30 Jul 2004 12:39:32 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: Exposing ROM's though sysfs
+To: Martin Mares <mj@ucw.cz>
+Cc: Matthew Wilcox <willy@debian.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       lkml <linux-kernel@vger.kernel.org>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20040730193559.GA4687@ucw.cz>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm going to bump this topic a bit, since it's been a while..
-There are still some issues with ide-cd's SG_IO, listed from
-most important as percieved by me to least:
+--- Martin Mares <mj@ucw.cz> wrote:
+> > Another idea, it's ok to read the ROM when there is no device
+> driver
+> > loaded. When the driver for one of these card loads it could
+> trigger a
+> > copy of the ROM into RAM and cache it in a PCI structure.
+> 
+> I really doubt it's worth the RAM wasted by the automatic caching of
+> ROM's
+> which will be probably left unused in 99.9% of cases.
 
- * Read-only access grants you the ability to write/blank media in the drive
- * (with above) You can open the device only in read-only mode.
- * You can't open the device unless there is media in the drive
- * Still seems to be no way to specify scatter gather/dma buffers yourself,
-   though I'm not entirely sure that matters anyway.
+The caching is only going to happen for cards with minimal address
+decoder implementations. As far as I know there is only one card that
+does this.
 
-The read-only granting write/blank seems like a pretty serious security issue
-to me.  Not being able to open the device without media is merely extremely
-annoying (and I suspect fixing it would break a lot of programs).
+=====
+Jon Smirl
+jonsmirl@yahoo.com
 
--- 
-Zinx Verituse                                    http://zinx.xmms.org/
+
+		
+__________________________________
+Do you Yahoo!?
+Take Yahoo! Mail with you! Get it on your mobile phone.
+http://mobile.yahoo.com/maildemo 

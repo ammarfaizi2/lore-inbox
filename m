@@ -1,43 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293759AbSCAU4A>; Fri, 1 Mar 2002 15:56:00 -0500
+	id <S293755AbSCAU5a>; Fri, 1 Mar 2002 15:57:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293757AbSCAUzv>; Fri, 1 Mar 2002 15:55:51 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25872 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293755AbSCAUzg>;
-	Fri, 1 Mar 2002 15:55:36 -0500
-Message-ID: <3C7FEAC9.DDA73021@mandrakesoft.com>
-Date: Fri, 01 Mar 2002 15:55:37 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] moving task_struct
-In-Reply-To: <Pine.LNX.4.21.0203012040220.32042-100000@serv>
+	id <S293757AbSCAU5W>; Fri, 1 Mar 2002 15:57:22 -0500
+Received: from mnh-1-24.mv.com ([207.22.10.56]:35337 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S293755AbSCAU5C>;
+	Fri, 1 Mar 2002 15:57:02 -0500
+Message-Id: <200203012059.PAA03945@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
+Subject: user-mode port 0.55-2.4.18
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 01 Mar 2002 15:59:36 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The patch below simply moves task_struct into its own header file.
-> This makes thread_info and task_struct indepedent from sched.h and will 
-> allows archs to decide themselves the dependencies between these
-> structures.
+The user-mode port of 2.4.18 is available.
 
-nice...   In addition to your second patch, this first patch may be a
-small step in paving the way for further unraveling of nasty include
-dependencies.
+2.4.18 was a long release, so there were quite a few changes in UML, which
+I'll try to summarize sanely here:
 
-Regards,
+Device support:
 
-	Jeff
+Persistent TUN/TAP is now supported.  This means that with a little work
+by root ahead of time to assign a tap device to the user, UML may set up
+networking with the host without root assistance.  There is a new tool, 
+tunctl, which allows management persistent TUN/TAP devices.
 
+The MTD, LVM, and md configs are now pulled into the UML config.
 
+Sound is now supported by a driver which relays to the host's /dev/dsp and
+/dev/mixer.
 
--- 
-Jeff Garzik      |
-Building 1024    |
-MandrakeSoft     | Choose life.
+New stuff:
+
+The 'jail' and 'honeypot' switches now make (I believe) UML secure against
+a hostile root user.  UML also no longer reads its /proc/<pid>/maps file,
+making it easier to run inside chroot.
+
+The default initialization strings for the main console, the consoles as a
+group, and the serial lines as a group are now configurable.  Support for
+the various channels are also configurable.
+
+The console and serial lines now use the official devfs names when devfs is
+enabled.  There are symlinks from the old names for compatibility.
+
+Sending SIGINT or SIGTERM to the tracing will cause a clean shutdown of the
+kernel (but not userspace).
+
+jailtest is a new utility for poking at a UML from the inside to make sure
+that it is secure.
+
+uml_moo supports V2 COW files.
+
+Bug fixes:
+
+Signal delivery was redone again, so that the new pthreads library works now.
+
+The BogoMips calculation is fixed.
+
+Modules can be loaded in a kernel that has only one of gprof and gcov support
+configured.
+
+The mconsole socket and pid file have been moved from /tmp to the user's 
+$HOME.
+
+Fixed a data corruption bug in hostfs.
+
+Reboots work properly when the UML binary is not in the current directory.
+
+Numerous bugs fixed and cleanups done in the debugging support.
+
+Fixed several bugs with IRQ handling.
+
+A data-corrupting swap bug was fixed.
+
+Several unsafe string manipulations in uml_mconsole and uml_switch were
+fixed.
+
+There were also many other miscellaneous bugs fixed and cleanups made.
+
+The project's home page is http://user-mode-linux.sourceforge.net
+
+Downloads are available at 
+	http://user-mode-linux.sourceforge.net/dl-sf.html
+
+				Jeff
+

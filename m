@@ -1,887 +1,1740 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264799AbSLGVqi>; Sat, 7 Dec 2002 16:46:38 -0500
+	id <S264814AbSLGVzx>; Sat, 7 Dec 2002 16:55:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264806AbSLGVqi>; Sat, 7 Dec 2002 16:46:38 -0500
-Received: from packet.digeo.com ([12.110.80.53]:31454 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264799AbSLGVq0>;
-	Sat, 7 Dec 2002 16:46:26 -0500
-Message-ID: <3DF26DF4.F1692AFA@digeo.com>
-Date: Sat, 07 Dec 2002 13:53:56 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S264818AbSLGVzx>; Sat, 7 Dec 2002 16:55:53 -0500
+Received: from lakemtao04.cox.net ([68.1.17.241]:37304 "EHLO
+	lakemtao04.cox.net") by vger.kernel.org with ESMTP
+	id <S264814AbSLGVzJ>; Sat, 7 Dec 2002 16:55:09 -0500
+Message-ID: <3DF27021.4000509@cox.net>
+Date: Sat, 07 Dec 2002 16:03:13 -0600
+From: David van Hoose <davidvh@cox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: jorg de jong <jorg@dejong.info>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: status of HPT374 support in 2.4.20 and 2.5.50
-References: <3DF26772.8040502@dejong.info>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Dec 2002 21:53:56.0494 (UTC) FILETIME=[240DD2E0:01C29E3B]
+To: linux-kernel@vger.kernel.org
+Subject: Kenel compilation failure
+Content-Type: multipart/mixed;
+ boundary="------------020905090909050800050108"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jorg de jong wrote:
-> 
-> Hi,
-> 
-> I just bought a Highpoint Rocketraid 404 controler. To my suppirce I
-> found that
-> the kernel I was using does not like it one bit. The kernel entered a
-> kernel panic/BUG
-> in file hpt666.c:1031. The kernel was a Redhat stock kernel
-> 2.4.18-18.8.0smp.
-> 
-> Not afraid to build my own kernel I tried:
-> - 2.4.20; which also stoped with a kernel panic.
-> - 2.4.20-ac1; this kernel boots just fine. It even sees the controller
-> but does not detect
-> the drive.
-> - 2.5.46; sees the controler but no drive
-> - 2.5.50; sees the controler but no drive
-> 
+This is a multi-part message in MIME format.
+--------------020905090909050800050108
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This patch (against 2.4.20) is the one I use when I need to
-use the hpt374 in 2.4 kernels.
+I downloaded kernel 2.4.20 and got the following during 'make modules'
 
+; SNIP
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.20/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
+-pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS
+-include /usr/src/linux-2.4.20/include/linux/modversions.h  -nostdinc
+-iwithprefix include -DKBUILD_BASENAME=scsi_syms  -DEXPORT_SYMTAB -c
+scsi_syms.c
+ld -m elf_i386 -r -o scsi_mod.o scsi.o hosts.o scsi_ioctl.o constants.o
+scsicam.o scsi_proc.o scsi_error.o scsi_obsolete.o scsi_queue.o scsi_lib.o
+scsi_merge.o
+scsi_dma.o scsi_scan.o scsi_syms.o
+ln -sf sim710.scr fake7.c
+gcc -E -D__KERNEL__ -I/usr/src/linux-2.4.20/include -traditional
+-DCHIP=710 fake7.c | grep -v '^#' | perl -s script_asm.pl -ncr710
+script_asm.pl : Illegal combination of registers in line 72 :   MOVE
+CTEST7 & 0xef TO CTEST7
+        Either source and destination registers must be the same,
+        or either source or destination register must be SFBR.
+make[2]: *** [sim710_d.h] Error 255
+make[2]: Leaving directory `/usr/src/linux-2.4.20/drivers/scsi'
+make[1]: *** [_modsubdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.20/drivers'
+make: *** [_mod_drivers] Error 2
+; SNIP
 
- drivers/ide/hpt366.c  |  468 ++++++++++++++++++++++++++++++++++++++++----------
- drivers/ide/ide-pci.c |   69 ++++++-
- 2 files changed, 446 insertions(+), 91 deletions(-)
+I didn't know who exactly to send that to, but I am definately sure that 
+isn't supposed to happen. I've attached my configuration file to help. 
+I'm not on the mailing list, so if you need anymore information, email 
+me directly.
+Thank you.
 
---- 24/drivers/ide/hpt366.c~hpt374	Sat Dec  7 13:51:38 2002
-+++ 24-akpm/drivers/ide/hpt366.c	Sat Dec  7 13:51:38 2002
-@@ -166,9 +166,8 @@ struct chipset_bus_clock_list_entry {
-  *        PIO.
-  * 31     FIFO enable.
-  */
--struct chipset_bus_clock_list_entry forty_base [] = {
--
--	{	XFER_UDMA_4,    0x900fd943	},
-+struct chipset_bus_clock_list_entry forty_base_hpt366[] = {
-+	{	XFER_UDMA_4,	0x900fd943	},
- 	{	XFER_UDMA_3,	0x900ad943	},
- 	{	XFER_UDMA_2,	0x900bd943	},
- 	{	XFER_UDMA_1,	0x9008d943	},
-@@ -186,8 +185,7 @@ struct chipset_bus_clock_list_entry fort
- 	{	0,		0x0120d9d9	}
- };
- 
--struct chipset_bus_clock_list_entry thirty_three_base [] = {
--
-+struct chipset_bus_clock_list_entry thirty_three_base_hpt366[] = {
- 	{	XFER_UDMA_4,	0x90c9a731	},
- 	{	XFER_UDMA_3,	0x90cfa731	},
- 	{	XFER_UDMA_2,	0x90caa731	},
-@@ -206,7 +204,7 @@ struct chipset_bus_clock_list_entry thir
- 	{	0,		0x0120a7a7	}
- };
- 
--struct chipset_bus_clock_list_entry twenty_five_base [] = {
-+struct chipset_bus_clock_list_entry twenty_five_base_hpt366[] = {
- 
- 	{	XFER_UDMA_4,	0x90c98521	},
- 	{	XFER_UDMA_3,	0x90cf8521	},
-@@ -331,6 +329,144 @@ struct chipset_bus_clock_list_entry fift
- 	{       0,              0x0ac1f48a      }
- };
- 
-+struct chipset_bus_clock_list_entry thirty_three_base_hpt372[] = {
-+	{	XFER_UDMA_6,	0x1c81dc62	},
-+	{	XFER_UDMA_5,	0x1c6ddc62	},
-+	{	XFER_UDMA_4,	0x1c8ddc62	},
-+	{	XFER_UDMA_3,	0x1c8edc62	},	/* checkme */
-+	{	XFER_UDMA_2,	0x1c91dc62	},
-+	{	XFER_UDMA_1,	0x1c9adc62	},	/* checkme */
-+	{	XFER_UDMA_0,	0x1c82dc62	},	/* checkme */
-+
-+	{	XFER_MW_DMA_2,	0x2c829262	},
-+	{	XFER_MW_DMA_1,	0x2c829266	},	/* checkme */
-+	{	XFER_MW_DMA_0,	0x2c82922e	},	/* checkme */
-+
-+	{	XFER_PIO_4,	0x0c829c62	},
-+	{	XFER_PIO_3,	0x0c829c84	},
-+	{	XFER_PIO_2,	0x0c829ca6	},
-+	{	XFER_PIO_1,	0x0d029d26	},
-+	{	XFER_PIO_0,	0x0d029d5e	},
-+	{	0,		0x0d029d5e	}
-+};
-+
-+struct chipset_bus_clock_list_entry fifty_base_hpt372[] = {
-+	{	XFER_UDMA_5,	0x12848242	},
-+	{	XFER_UDMA_4,	0x12ac8242	},
-+	{	XFER_UDMA_3,	0x128c8242	},
-+	{	XFER_UDMA_2,	0x120c8242	},
-+	{	XFER_UDMA_1,	0x12148254	},
-+	{	XFER_UDMA_0,	0x121882ea	},
-+
-+	{	XFER_MW_DMA_2,	0x22808242	},
-+	{	XFER_MW_DMA_1,	0x22808254	},
-+	{	XFER_MW_DMA_0,	0x228082ea	},
-+
-+	{	XFER_PIO_4,	0x0a81f442	},
-+	{	XFER_PIO_3,	0x0a81f443	},
-+	{	XFER_PIO_2,	0x0a81f454	},
-+	{	XFER_PIO_1,	0x0ac1f465	},
-+	{	XFER_PIO_0,	0x0ac1f48a	},
-+	{	0,		0x0a81f443	}
-+};
-+
-+struct chipset_bus_clock_list_entry sixty_six_base_hpt372[] = {
-+	{	XFER_UDMA_6,	0x1c869c62	},
-+	{	XFER_UDMA_5,	0x1cae9c62	},
-+	{	XFER_UDMA_4,	0x1c8a9c62	},
-+	{	XFER_UDMA_3,	0x1c8e9c62	},
-+	{	XFER_UDMA_2,	0x1c929c62	},
-+	{	XFER_UDMA_1,	0x1c9a9c62	},
-+	{	XFER_UDMA_0,	0x1c829c62	},
-+
-+	{	XFER_MW_DMA_2,	0x2c829c62	},
-+	{	XFER_MW_DMA_1,	0x2c829c66	},
-+	{	XFER_MW_DMA_0,	0x2c829d2e	},
-+
-+	{	XFER_PIO_4,	0x0c829c62	},
-+	{	XFER_PIO_3,	0x0c829c84	},
-+	{	XFER_PIO_2,	0x0c829ca6	},
-+	{	XFER_PIO_1,	0x0d029d26	},
-+	{	XFER_PIO_0,	0x0d029d5e	},
-+	{	0,		0x0d029d26	}
-+};
-+
-+struct chipset_bus_clock_list_entry thirty_three_base_hpt374[] = {
-+	{	XFER_UDMA_6,	0x12808242	},
-+	{	XFER_UDMA_5,	0x12848242	},
-+	{	XFER_UDMA_4,	0x12ac8242	},
-+	{	XFER_UDMA_3,	0x128c8242	},
-+	{	XFER_UDMA_2,	0x120c8242	},
-+	{	XFER_UDMA_1,	0x12148254	},
-+	{	XFER_UDMA_0,	0x121882ea	},
-+
-+	{	XFER_MW_DMA_2,	0x22808242	},
-+	{	XFER_MW_DMA_1,	0x22808254	},
-+	{	XFER_MW_DMA_0,	0x228082ea	},
-+
-+	{	XFER_PIO_4,	0x0a81f442	},
-+	{	XFER_PIO_3,	0x0a81f443	},
-+	{	XFER_PIO_2,	0x0a81f454	},
-+	{	XFER_PIO_1,	0x0ac1f465	},
-+	{	XFER_PIO_0,	0x0ac1f48a	},
-+	{	0,		0x06814e93	}
-+};
-+
-+#if 0
-+struct chipset_bus_clock_list_entry fifty_base_hpt374[] = {
-+	{	XFER_UDMA_6,	},
-+	{	XFER_UDMA_5,	},
-+	{	XFER_UDMA_4,	},
-+	{	XFER_UDMA_3,	},
-+	{	XFER_UDMA_2,	},
-+	{	XFER_UDMA_1,	},
-+	{	XFER_UDMA_0,	},
-+	{	XFER_MW_DMA_2,	},
-+	{	XFER_MW_DMA_1,	},
-+	{	XFER_MW_DMA_0,	},
-+	{	XFER_PIO_4,	},
-+	{	XFER_PIO_3,	},
-+	{	XFER_PIO_2,	},
-+	{	XFER_PIO_1,	},
-+	{	XFER_PIO_0,	},
-+	{	0,	}
-+};
-+#endif
-+#if 0
-+struct chipset_bus_clock_list_entry sixty_six_base_hpt374[] = {
-+	{	XFER_UDMA_6,	0x12406231	},	/* checkme */
-+	{	XFER_UDMA_5,	0x12446231	},
-+				0x14846231
-+	{	XFER_UDMA_4,		0x16814ea7	},
-+				0x14886231
-+	{	XFER_UDMA_3,		0x16814ea7	},
-+				0x148c6231
-+	{	XFER_UDMA_2,		0x16814ea7	},
-+				0x148c6231
-+	{	XFER_UDMA_1,		0x16814ea7	},
-+				0x14906231
-+	{	XFER_UDMA_0,		0x16814ea7	},
-+				0x14986231
-+	{	XFER_MW_DMA_2,		0x16814ea7	},
-+				0x26514e21
-+	{	XFER_MW_DMA_1,		0x16814ea7	},
-+				0x26514e97
-+	{	XFER_MW_DMA_0,		0x16814ea7	},
-+				0x26514e97
-+	{	XFER_PIO_4,		0x06814ea7	},
-+				0x06514e21
-+	{	XFER_PIO_3,		0x06814ea7	},
-+				0x06514e22
-+	{	XFER_PIO_2,		0x06814ea7	},
-+				0x06514e33
-+	{	XFER_PIO_1,		0x06814ea7	},
-+				0x06914e43
-+	{	XFER_PIO_0,		0x06814ea7	},
-+				0x06914e57
-+	{	0,		0x06814ea7	}
-+};
-+#endif
-+
- #define HPT366_DEBUG_DRIVE_INFO		0
- #define HPT370_ALLOW_ATA100_5		1
- #define HPT366_ALLOW_ATA66_4		1
-@@ -347,6 +483,10 @@ static int n_hpt_devs;
- 
- static unsigned int pci_rev_check_hpt3xx(struct pci_dev *dev);
- static unsigned int pci_rev2_check_hpt3xx(struct pci_dev *dev);
-+static unsigned int pci_rev3_check_hpt3xx(struct pci_dev *dev);
-+static unsigned int pci_rev5_check_hpt3xx(struct pci_dev *dev);
-+static unsigned int pci_rev7_check_hpt3xx(struct pci_dev *dev);
-+
- byte hpt366_proc = 0;
- byte hpt363_shared_irq;
- byte hpt363_shared_pin;
-@@ -360,11 +500,13 @@ extern char *ide_media_verbose(ide_drive
- static int hpt366_get_info (char *buffer, char **addr, off_t offset, int count)
- {
- 	char *p	= buffer;
--	char *chipset_nums[] = {"366", "366", "368", "370", "370A"};
-+	char *chipset_nums[] = {"366", "366",  "368",
-+				"370", "370A", "372",
-+				"??",  "374" };
- 	int i;
- 
- 	p += sprintf(p, "\n                             "
--		"HighPoint HPT366/368/370\n");
-+		"HighPoint HPT366/368/370/372/374\n");
- 	for (i = 0; i < n_hpt_devs; i++) {
- 		struct pci_dev *dev = hpt_devs[i];
- 		unsigned long iobase = dev->resource[4].start;
-@@ -388,7 +530,7 @@ static int hpt366_get_info (char *buffer
- 			(c0 & 0x80) ? "no" : "yes",
- 			(c1 & 0x80) ? "no" : "yes");
- 
--		if (pci_rev_check_hpt3xx(dev)) {
-+		if (pci_rev3_check_hpt3xx(dev)) {
- 			u8 cbl;
- 			cbl = inb_p(iobase + 0x7b);
- 			outb_p(cbl | 1, iobase + 0x7b);
-@@ -437,7 +579,19 @@ static int hpt366_get_info (char *buffer
- }
- #endif  /* defined(DISPLAY_HPT366_TIMINGS) && defined(CONFIG_PROC_FS) */
- 
--static unsigned int pci_rev_check_hpt3xx (struct pci_dev *dev)
-+/*
-+ * fixme: it really needs to be a switch.
-+ */
-+
-+static unsigned int pci_rev2_check_hpt3xx (struct pci_dev *dev)
-+{
-+	unsigned int class_rev;
-+	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
-+	class_rev &= 0xff;
-+	return ((int) (class_rev > 0x01) ? 1 : 0);
-+}
-+
-+static unsigned int pci_rev3_check_hpt3xx (struct pci_dev *dev)
- {
- 	unsigned int class_rev;
- 	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
-@@ -445,12 +599,20 @@ static unsigned int pci_rev_check_hpt3xx
- 	return ((int) (class_rev > 0x02) ? 1 : 0);
- }
- 
--static unsigned int pci_rev2_check_hpt3xx (struct pci_dev *dev)
-+static unsigned int pci_rev5_check_hpt3xx (struct pci_dev *dev)
- {
- 	unsigned int class_rev;
- 	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
- 	class_rev &= 0xff;
--	return ((int) (class_rev > 0x01) ? 1 : 0);
-+	return ((int) (class_rev > 0x04) ? 1 : 0);
-+}
-+
-+static unsigned int pci_rev7_check_hpt3xx (struct pci_dev *dev)
-+{
-+	unsigned int class_rev;
-+	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
-+	class_rev &= 0xff;
-+	return ((int) (class_rev > 0x06) ? 1 : 0);
- }
- 
- static int check_in_drive_lists (ide_drive_t *drive, const char **list)
-@@ -484,6 +646,7 @@ static unsigned int pci_bus_clock_list (
- 
- static void hpt366_tune_chipset (ide_drive_t *drive, byte speed)
- {
-+	struct pci_dev *dev	= HWIF(drive)->pci_dev;
- 	byte regtime		= (drive->select.b.unit & 0x01) ? 0x44 : 0x40;
- 	byte regfast		= (HWIF(drive)->channel) ? 0x55 : 0x51;
- 			/*
-@@ -497,30 +660,13 @@ static void hpt366_tune_chipset (ide_dri
- 	/*
- 	 * Disable the "fast interrupt" prediction. 
- 	 */
--	pci_read_config_byte(HWIF(drive)->pci_dev, regfast, &drive_fast);
-+	pci_read_config_byte(dev, regfast, &drive_fast);
- 	if (drive_fast & 0x02)
--		pci_write_config_byte(HWIF(drive)->pci_dev, regfast, drive_fast & ~0x20);
-+		pci_write_config_byte(dev, regfast, drive_fast & ~0x20);
- 
--	pci_read_config_dword(HWIF(drive)->pci_dev, regtime, &reg1);
--	/* detect bus speed by looking at control reg timing: */
--	switch((reg1 >> 8) & 7) {
--		case 5:
--			reg2 = pci_bus_clock_list(speed, forty_base);
--			break;
--		case 9:
--			reg2 = pci_bus_clock_list(speed, twenty_five_base);
--			break;
--		default:
--		case 7:
--			reg2 = pci_bus_clock_list(speed, thirty_three_base);
--			break;
--	}
--#if 0
--	/* this is a nice idea ... */
--	list_conf = pci_bus_clock_list(speed,
--				       (struct chipset_bus_clock_list_entry *)
--				       dev->sysdata);
--#endif
-+	pci_read_config_dword(dev, regtime, &reg1);
-+	reg2 = pci_bus_clock_list(speed,
-+		(struct chipset_bus_clock_list_entry *) dev->sysdata);
- 	/*
- 	 * Disable on-chip PIO FIFO/buffer (to avoid problems handling I/O errors later)
- 	 */
-@@ -531,7 +677,12 @@ static void hpt366_tune_chipset (ide_dri
- 	}	
- 	reg2 &= ~0x80000000;
- 
--	pci_write_config_dword(HWIF(drive)->pci_dev, regtime, reg2);
-+	pci_write_config_dword(dev, regtime, reg2);
-+}
-+
-+static void hpt368_tune_chipset (ide_drive_t *drive, byte speed)
-+{
-+	hpt366_tune_chipset(drive, speed);
- }
- 
- static void hpt370_tune_chipset (ide_drive_t *drive, byte speed)
-@@ -577,6 +728,39 @@ static void hpt370_tune_chipset (ide_dri
- 	pci_write_config_dword(dev, drive_pci, list_conf);
- }
- 
-+static void hpt372_tune_chipset (ide_drive_t *drive, byte speed)
-+{
-+	byte regfast		= (HWIF(drive)->channel) ? 0x55 : 0x51;
-+	unsigned int list_conf	= 0;
-+	unsigned int drive_conf	= 0;
-+	unsigned int conf_mask	= (speed >= XFER_MW_DMA_0) ? 0xc0000000 : 0x30070000;
-+	byte drive_pci		= 0x40 + (drive->dn * 4);
-+	byte drive_fast		= 0;
-+	struct pci_dev *dev	= HWIF(drive)->pci_dev;
-+
-+	/*
-+	 * Disable the "fast interrupt" prediction.
-+	 * don't holdoff on interrupts. (== 0x01 despite what the docs say)
-+	 */
-+	pci_read_config_byte(dev, regfast, &drive_fast);
-+	drive_fast &= ~0x07;
-+	pci_write_config_byte(HWIF(drive)->pci_dev, regfast, drive_fast);
-+					
-+	list_conf = pci_bus_clock_list(speed,
-+			(struct chipset_bus_clock_list_entry *)
-+					dev->sysdata);
-+	pci_read_config_dword(dev, drive_pci, &drive_conf);
-+	list_conf = (list_conf & ~conf_mask) | (drive_conf & conf_mask);
-+	if (speed < XFER_MW_DMA_0)
-+		list_conf &= ~0x80000000; /* Disable on-chip PIO FIFO/buffer */
-+	pci_write_config_dword(dev, drive_pci, list_conf);
-+}
-+
-+static void hpt374_tune_chipset (ide_drive_t *drive, byte speed)
-+{
-+	hpt372_tune_chipset(drive, speed);
-+}
-+
- static int hpt3xx_tune_chipset (ide_drive_t *drive, byte speed)
- {
- 	if ((drive->media != ide_disk) && (speed < XFER_SW_DMA_0))
-@@ -585,9 +769,15 @@ static int hpt3xx_tune_chipset (ide_driv
- 	if (!drive->init_speed)
- 		drive->init_speed = speed;
- 
--	if (pci_rev_check_hpt3xx(HWIF(drive)->pci_dev)) {
-+	if (pci_rev7_check_hpt3xx(HWIF(drive)->pci_dev)) {
-+		hpt374_tune_chipset(drive, speed);
-+	} else if (pci_rev5_check_hpt3xx(HWIF(drive)->pci_dev)) {
-+		hpt372_tune_chipset(drive, speed);
-+	} else if (pci_rev3_check_hpt3xx(HWIF(drive)->pci_dev)) {
- 		hpt370_tune_chipset(drive, speed);
--        } else {
-+	} else if (pci_rev2_check_hpt3xx(HWIF(drive)->pci_dev)) {
-+		hpt368_tune_chipset(drive, speed);
-+	} else {
-                 hpt366_tune_chipset(drive, speed);
-         }
- 	drive->current_speed = speed;
-@@ -664,13 +854,20 @@ static int config_chipset_for_dma (ide_d
- 	byte ultra66		= eighty_ninty_three(drive);
- 	int  rval;
- 
-+	config_chipset_for_pio(drive);
-+	drive->init_speed = 0;
-+	
- 	if ((drive->media != ide_disk) && (speed < XFER_SW_DMA_0))
- 		return ((int) ide_dma_off_quietly);
- 
--	if ((id->dma_ultra & 0x0020) &&
-+	if ((id->dma_ultra & 0x0040) &&
-+	    (pci_rev5_check_hpt3xx(HWIF(drive)->pci_dev)) &&
-+	    (ultra66)) {
-+		speed = XFER_UDMA_6;
-+	} else if ((id->dma_ultra & 0x0020) &&
- 	    (!check_in_drive_lists(drive, bad_ata100_5)) &&
- 	    (HPT370_ALLOW_ATA100_5) &&
--	    (pci_rev_check_hpt3xx(HWIF(drive)->pci_dev)) &&
-+	    (pci_rev3_check_hpt3xx(HWIF(drive)->pci_dev)) &&
- 	    (ultra66)) {
- 		speed = XFER_UDMA_5;
- 	} else if ((id->dma_ultra & 0x0010) &&
-@@ -703,7 +900,8 @@ static int config_chipset_for_dma (ide_d
- 
- 	(void) hpt3xx_tune_chipset(drive, speed);
- 
--	rval = (int)(	((id->dma_ultra >> 11) & 7) ? ide_dma_on :
-+	rval = (int)(	((id->dma_ultra >> 14) & 3) ? ide_dma_on :
-+			((id->dma_ultra >> 11) & 7) ? ide_dma_on :
- 			((id->dma_ultra >> 8) & 7) ? ide_dma_on :
- 			((id->dma_mword >> 8) & 7) ? ide_dma_on :
- 						     ide_dma_off_quietly);
-@@ -726,12 +924,14 @@ void hpt3xx_intrproc (ide_drive_t *drive
- 
- void hpt3xx_maskproc (ide_drive_t *drive, int mask)
- {
-+	struct pci_dev *dev = HWIF(drive)->pci_dev;
-+
- 	if (drive->quirk_list) {
--		if (pci_rev_check_hpt3xx(HWIF(drive)->pci_dev)) {
-+		if (pci_rev3_check_hpt3xx(dev)) {
- 			byte reg5a = 0;
--			pci_read_config_byte(HWIF(drive)->pci_dev, 0x5a, &reg5a);
-+			pci_read_config_byte(dev, 0x5a, &reg5a);
- 			if (((reg5a & 0x10) >> 4) != mask)
--				pci_write_config_byte(HWIF(drive)->pci_dev, 0x5a, mask ? (reg5a | 0x10) : (reg5a & ~0x10));
-+				pci_write_config_byte(dev, 0x5a, mask ? (reg5a | 0x10) : (reg5a & ~0x10));
- 		} else {
- 			if (mask) {
- 				disable_irq(HWIF(drive)->irq);
-@@ -758,7 +958,7 @@ static int config_drive_xfer_rate (ide_d
- 		}
- 		dma_func = ide_dma_off_quietly;
- 		if (id->field_valid & 4) {
--			if (id->dma_ultra & 0x002F) {
-+			if (id->dma_ultra & 0x007F) {
- 				/* Force if Capable UltraDMA */
- 				dma_func = config_chipset_for_dma(drive);
- 				if ((id->field_valid & 2) &&
-@@ -889,6 +1089,43 @@ int hpt370_dmaproc (ide_dma_action_t fun
- 	}
- 	return ide_dmaproc(func, drive);	/* use standard DMA stuff */
- }
-+
-+int hpt374_dmaproc (ide_dma_action_t func, ide_drive_t *drive)
-+{
-+	struct pci_dev *dev	= HWIF(drive)->pci_dev;
-+	ide_hwif_t *hwif	= HWIF(drive);
-+	unsigned long dma_base	= hwif->dma_base;
-+	byte mscreg		= hwif->channel ? 0x54 : 0x50;
-+//	byte reginfo		= hwif->channel ? 0x56 : 0x52;
-+	byte dma_stat;
-+
-+	switch (func) {
-+		case ide_dma_check:
-+			return config_drive_xfer_rate(drive);
-+		case ide_dma_test_irq:	/* returns 1 if dma irq issued, 0 otherwise */
-+			dma_stat = inb(dma_base+2);
-+#if 0  /* do not set unless you know what you are doing */
-+			if (dma_stat & 4) {
-+				byte stat = GET_STAT();
-+				outb(dma_base+2, dma_stat & 0xE4);
-+			}
-+#endif
-+			/* return 1 if INTR asserted */
-+			return (dma_stat & 4) == 4;
-+		case ide_dma_end:
-+		{
-+			byte bwsr_mask = hwif->channel ? 0x02 : 0x01;
-+			byte bwsr_stat, msc_stat;
-+			pci_read_config_byte(dev, 0x6a, &bwsr_stat);
-+			pci_read_config_byte(dev, mscreg, &msc_stat);
-+			if ((bwsr_stat & bwsr_mask) == bwsr_mask)
-+				pci_write_config_byte(dev, mscreg, msc_stat|0x30);
-+		}
-+		default:
-+			break;
-+	}
-+	return ide_dmaproc(func, drive);	/* use standard DMA stuff */
-+}
- #endif /* CONFIG_BLK_DEV_IDEDMA */
- 
- /*
-@@ -1006,7 +1243,7 @@ static int hpt370_busproc(ide_drive_t * 
- 	return 0;
- }
- 
--static void __init init_hpt370(struct pci_dev *dev)
-+static void __init init_hpt37x(struct pci_dev *dev)
- {
- 	int adjust, i;
- 	u16 freq;
-@@ -1027,18 +1264,44 @@ static void __init init_hpt370(struct pc
- 	freq &= 0x1FF;
- 	if (freq < 0x9c) {
- 		pll = F_LOW_PCI_33;
--		dev->sysdata = (void *) thirty_three_base_hpt370;
--		printk("HPT370: using 33MHz PCI clock\n");
-+		if (pci_rev7_check_hpt3xx(dev)) {
-+			dev->sysdata = (void *) thirty_three_base_hpt374;
-+		} else if (pci_rev5_check_hpt3xx(dev)) {
-+			dev->sysdata = (void *) thirty_three_base_hpt372;
-+		} else if (dev->device == PCI_DEVICE_ID_TTI_HPT372) {
-+			dev->sysdata = (void *) thirty_three_base_hpt372;
-+		} else {
-+			dev->sysdata = (void *) thirty_three_base_hpt370;
-+		}
-+		printk("HPT37X: using 33MHz PCI clock\n");
- 	} else if (freq < 0xb0) {
- 		pll = F_LOW_PCI_40;
- 	} else if (freq < 0xc8) {
- 		pll = F_LOW_PCI_50;
--		dev->sysdata = (void *) fifty_base_hpt370;
--		printk("HPT370: using 50MHz PCI clock\n");
-+		if (pci_rev7_check_hpt3xx(dev)) {
-+	//		dev->sysdata = (void *) fifty_base_hpt374;
-+			BUG();
-+		} else if (pci_rev5_check_hpt3xx(dev)) {
-+			dev->sysdata = (void *) fifty_base_hpt372;
-+		} else if (dev->device == PCI_DEVICE_ID_TTI_HPT372) {
-+			dev->sysdata = (void *) fifty_base_hpt372;
-+		} else {
-+			dev->sysdata = (void *) fifty_base_hpt370;
-+		}
-+		printk("HPT37X: using 50MHz PCI clock\n");
- 	} else {
- 		pll = F_LOW_PCI_66;
--		dev->sysdata = (void *) sixty_six_base_hpt370;
--		printk("HPT370: using 66MHz PCI clock\n");
-+		if (pci_rev7_check_hpt3xx(dev)) {
-+	//		dev->sysdata = (void *) sixty_six_base_hpt374;
-+			BUG();
-+		} else if (pci_rev5_check_hpt3xx(dev)) {
-+			dev->sysdata = (void *) sixty_six_base_hpt372;
-+		} else if (dev->device == PCI_DEVICE_ID_TTI_HPT372) {
-+			dev->sysdata = (void *) sixty_six_base_hpt372;
-+		} else {
-+			dev->sysdata = (void *) sixty_six_base_hpt370;
-+		}
-+		printk("HPT37X: using 66MHz PCI clock\n");
- 	}
- 	
- 	/*
-@@ -1049,7 +1312,7 @@ static void __init init_hpt370(struct pc
- 	 * on PRST/SRST when the HPT state engine gets reset.
- 	 */
- 	if (dev->sysdata) 
--		goto init_hpt370_done;
-+		goto init_hpt37X_done;
- 	
- 	/*
- 	 * adjust PLL based upon PCI clock, enable it, and wait for
-@@ -1076,9 +1339,18 @@ static void __init init_hpt370(struct pc
- 				pci_write_config_dword(dev, 0x5c, 
- 						       pll & ~0x100);
- 				pci_write_config_byte(dev, 0x5b, 0x21);
--				dev->sysdata = (void *) fifty_base_hpt370;
--				printk("HPT370: using 50MHz internal PLL\n");
--				goto init_hpt370_done;
-+				if (pci_rev7_check_hpt3xx(dev)) {
-+	//	dev->sysdata = (void *) fifty_base_hpt374;
-+					BUG();
-+				} else if (pci_rev5_check_hpt3xx(dev)) {
-+					dev->sysdata = (void *) fifty_base_hpt372;
-+				} else if (dev->device == PCI_DEVICE_ID_TTI_HPT372) {
-+					dev->sysdata = (void *) fifty_base_hpt372;
-+				} else {
-+					dev->sysdata = (void *) fifty_base_hpt370;
-+				}
-+				printk("HPT37X: using 50MHz internal PLL\n");
-+				goto init_hpt37X_done;
- 			}
- 		}
- pll_recal:
-@@ -1088,13 +1360,41 @@ pll_recal:
- 			pll += (adjust >> 1);
- 	} 
- 
--init_hpt370_done:
-+init_hpt37X_done:
- 	/* reset state engine */
- 	pci_write_config_byte(dev, 0x50, 0x37); 
- 	pci_write_config_byte(dev, 0x54, 0x37); 
- 	udelay(100);
- }
- 
-+static void __init init_hpt366 (struct pci_dev *dev)
-+{
-+	unsigned int reg1	= 0;
-+	byte drive_fast		= 0;
-+
-+	/*
-+	 * Disable the "fast interrupt" prediction.
-+	 */
-+	pci_read_config_byte(dev, 0x51, &drive_fast);
-+	if (drive_fast & 0x80)
-+		pci_write_config_byte(dev, 0x51, drive_fast & ~0x80);
-+	pci_read_config_dword(dev, 0x40, &reg1);
-+									
-+	/* detect bus speed by looking at control reg timing: */
-+	switch((reg1 >> 8) & 7) {
-+		case 5:
-+			dev->sysdata = (void *) forty_base_hpt366;
-+			break;
-+		case 9:
-+			dev->sysdata = (void *) twenty_five_base_hpt366;
-+			break;
-+		case 7:
-+		default:
-+			dev->sysdata = (void *) thirty_three_base_hpt366;
-+			break;
-+	}
-+}
-+
- unsigned int __init pci_init_hpt366 (struct pci_dev *dev, const char *name)
- {
- 	byte test = 0;
-@@ -1118,20 +1418,14 @@ unsigned int __init pci_init_hpt366 (str
- 	if (test != 0x08)
- 		pci_write_config_byte(dev, PCI_MAX_LAT, 0x08);
- 
--	if (pci_rev_check_hpt3xx(dev)) {
--		init_hpt370(dev);
-+	if (pci_rev3_check_hpt3xx(dev)) {
-+		init_hpt37x(dev);
- 		hpt_devs[n_hpt_devs++] = dev;
- 	} else {
-+		init_hpt366(dev);
- 		hpt_devs[n_hpt_devs++] = dev;
- 	}
- 	
--#if defined(DISPLAY_HPT366_TIMINGS) && defined(CONFIG_PROC_FS)
--	if (!hpt366_proc) {
--		hpt366_proc = 1;
--		hpt366_display_info = &hpt366_get_info;
--	}
--#endif /* DISPLAY_HPT366_TIMINGS && CONFIG_PROC_FS */
--
- 	return dev->irq;
- }
- 
-@@ -1151,8 +1445,6 @@ unsigned int __init ata66_hpt366 (ide_hw
- 
- void __init ide_init_hpt366 (ide_hwif_t *hwif)
- {
--	int hpt_rev;
--
- 	hwif->tuneproc	= &hpt3xx_tune_drive;
- 	hwif->speedproc	= &hpt3xx_tune_chipset;
- 	hwif->quirkproc	= &hpt3xx_quirkproc;
-@@ -1165,31 +1457,37 @@ void __init ide_init_hpt366 (ide_hwif_t 
- 		hwif->serialized = hwif->mate->serialized = 1;
- #endif
- 
--	hpt_rev = pci_rev_check_hpt3xx(hwif->pci_dev);
--	if (hpt_rev) {
--		/* set up ioctl for power status. note: power affects both
--		 * drives on each channel */
--		hwif->busproc   = &hpt370_busproc;
--	}
--
--	if (pci_rev2_check_hpt3xx(hwif->pci_dev)) {
--		/* do nothing now but will split device types */
--		hwif->resetproc = &hpt3xx_reset;
--/*
-- * don't do until we can parse out the cobalt box argh ...
-- *		hwif->busproc   = &hpt3xx_tristate;
-- */
--	}
--
- #ifdef CONFIG_BLK_DEV_IDEDMA
- 	if (hwif->dma_base) {
--		if (hpt_rev) {
-+		if (pci_rev3_check_hpt3xx(hwif->pci_dev)) {
- 			byte reg5ah = 0;
- 			pci_read_config_byte(hwif->pci_dev, 0x5a, &reg5ah);
- 			if (reg5ah & 0x10)	/* interrupt force enable */
- 				pci_write_config_byte(hwif->pci_dev, 0x5a, reg5ah & ~0x10);
--			hwif->dmaproc = &hpt370_dmaproc;
-+			/*
-+			 * set up ioctl for power status.
-+			 * note: power affects both
-+			 * drives on each channel
-+			 */
-+			hwif->resetproc	= &hpt3xx_reset;
-+			hwif->busproc	= &hpt370_busproc;
-+
-+			if (pci_rev7_check_hpt3xx(hwif->pci_dev)) {
-+				hwif->dmaproc	= &hpt374_dmaproc;
-+			} else if (pci_rev5_check_hpt3xx(hwif->pci_dev)) {
-+				hwif->dmaproc	= &hpt374_dmaproc;
-+			} else if (hwif->pci_dev->device == PCI_DEVICE_ID_TTI_HPT372) {
-+				hwif->dmaproc	= &hpt374_dmaproc;
-+			} else if (pci_rev3_check_hpt3xx(hwif->pci_dev)) {
-+				hwif->dmaproc	= &hpt370_dmaproc;
-+			}
-+		} else if (pci_rev2_check_hpt3xx(hwif->pci_dev)) {
-+//			hwif->resetproc	= &hpt3xx_reset;
-+//			hwif->busproc	= &hpt3xx_tristate;
-+			hwif->dmaproc	= &hpt366_dmaproc;
- 		} else {
-+//			hwif->resetproc = &hpt3xx_reset;
-+//			hwif->busproc   = &hpt3xx_tristate;
- 			hwif->dmaproc = &hpt366_dmaproc;
- 		}
- 		if (!noautodma)
---- 24/drivers/ide/ide-pci.c~hpt374	Sat Dec  7 13:51:38 2002
-+++ 24-akpm/drivers/ide/ide-pci.c	Sat Dec  7 13:51:38 2002
-@@ -79,6 +79,8 @@
- #define DEVID_UM8886BF	((ide_pci_devid_t){PCI_VENDOR_ID_UMC,     PCI_DEVICE_ID_UMC_UM8886BF})
- #define DEVID_HPT34X	((ide_pci_devid_t){PCI_VENDOR_ID_TTI,     PCI_DEVICE_ID_TTI_HPT343})
- #define DEVID_HPT366	((ide_pci_devid_t){PCI_VENDOR_ID_TTI,     PCI_DEVICE_ID_TTI_HPT366})
-+#define DEVID_HPT372	((ide_pci_devid_t){PCI_VENDOR_ID_TTI,     PCI_DEVICE_ID_TTI_HPT372})
-+#define DEVID_HPT374	((ide_pci_devid_t){PCI_VENDOR_ID_TTI,     PCI_DEVICE_ID_TTI_HPT374})
- #define DEVID_ALI15X3	((ide_pci_devid_t){PCI_VENDOR_ID_AL,      PCI_DEVICE_ID_AL_M5229})
- #define DEVID_CY82C693	((ide_pci_devid_t){PCI_VENDOR_ID_CONTAQ,  PCI_DEVICE_ID_CONTAQ_82C693})
- #define DEVID_HINT	((ide_pci_devid_t){0x3388,                0x8013})
-@@ -450,6 +452,13 @@ static ide_pci_device_t ide_pci_chipsets
- 	{DEVID_UM8886BF,"UM8886BF",	NULL,		NULL,		NULL,		NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}}, 	ON_BOARD,	0 },
- 	{DEVID_HPT34X,	"HPT34X",	PCI_HPT34X,	NULL,		INIT_HPT34X,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	NEVER_BOARD,	16 },
- 	{DEVID_HPT366,	"HPT366",	PCI_HPT366,	ATA66_HPT366,	INIT_HPT366,	DMA_HPT366,	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	240 },
-+#if 1
-+	{DEVID_HPT372,	"HPT372",	PCI_HPT366,	ATA66_HPT366,	INIT_HPT366,	DMA_HPT366,	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	0 },
-+	{DEVID_HPT374,	"HPT374",	PCI_HPT366,	ATA66_HPT366,	INIT_HPT366,	DMA_HPT366,	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	0 },
-+#else
-+	{DEVID_HPT372,	"HPT372",	NULL,		NULL,		NULL,		NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	0 },
-+	{DEVID_HPT374,	"HPT374",	NULL,		NULL,		NULL,		NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	0 },
-+#endif
- 	{DEVID_ALI15X3,	"ALI15X3",	PCI_ALI15X3,	ATA66_ALI15X3,	INIT_ALI15X3,	DMA_ALI15X3,	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	ON_BOARD,	0 },
- 	{DEVID_CY82C693,"CY82C693",	PCI_CY82C693,	NULL,		INIT_CY82C693,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	ON_BOARD,	0 },
- 	{DEVID_HINT,	"HINT_IDE",	NULL,		NULL,		NULL,		NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	ON_BOARD,	0 },
-@@ -474,6 +483,7 @@ static unsigned int __init ide_special_s
- {
- 	switch(dev->device) {
- 		case PCI_DEVICE_ID_TTI_HPT366:
-+		case PCI_DEVICE_ID_TTI_HPT374:
- 		case PCI_DEVICE_ID_PROMISE_20246:
- 		case PCI_DEVICE_ID_PROMISE_20262:
- 		case PCI_DEVICE_ID_PROMISE_20265:
-@@ -824,6 +834,7 @@ controller_ok:			
- 		    IDE_PCI_DEVID_EQ(d->devid, DEVID_AEC6260R) ||
- 		    IDE_PCI_DEVID_EQ(d->devid, DEVID_HPT34X) ||
- 		    IDE_PCI_DEVID_EQ(d->devid, DEVID_HPT366) ||
-+		    IDE_PCI_DEVID_EQ(d->devid, DEVID_HPT374) ||
- 		    IDE_PCI_DEVID_EQ(d->devid, DEVID_CS5530) ||
- 		    IDE_PCI_DEVID_EQ(d->devid, DEVID_CY82C693) ||
- 		    IDE_PCI_DEVID_EQ(d->devid, DEVID_CMD646) ||
-@@ -906,6 +917,44 @@ static void __init pdc20270_device_order
- 	ide_setup_pci_device(dev2, d2);
- }
- 
-+static void __init hpt374_device_order_fixup (struct pci_dev *dev, ide_pci_device_t *d)
-+{
-+	struct pci_dev *dev2 = NULL, *findev;
-+	ide_pci_device_t *d2;
-+
-+	if (PCI_FUNC(dev->devfn) & 1)
-+		return;
-+
-+	pci_for_each_dev(findev) {
-+		if ((findev->vendor == dev->vendor) &&
-+		    (findev->device == dev->device) &&
-+		    ((findev->devfn - dev->devfn) == 1) &&
-+		    (PCI_FUNC(findev->devfn) & 1)) {
-+			dev2 = findev;
-+			break;
-+		}
-+	}
-+
-+	printk("%s: IDE controller on PCI bus %02x dev %02x\n", d->name, dev->bus->number, dev->devfn);
-+	ide_setup_pci_device(dev, d);
-+	if (!dev2) {
-+		return;
-+	} else {
-+		byte irq = 0, irq2 = 0;
-+		pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
-+		pci_read_config_byte(dev2, PCI_INTERRUPT_LINE, &irq2);
-+		if (irq != irq2) {
-+			pci_write_config_byte(dev2, PCI_INTERRUPT_LINE, irq);
-+			dev2->irq = dev->irq;
-+			printk("%s: pci-config space interrupt fixed.\n", d->name);
-+		}
-+	}
-+	d2 = d;
-+	printk("%s: IDE controller on PCI bus %02x dev %02x\n", d2->name, dev2->bus->number, dev2->devfn);
-+	ide_setup_pci_device(dev2, d2);
-+
-+}
-+
- static void __init hpt366_device_order_fixup (struct pci_dev *dev, ide_pci_device_t *d)
- {
- 	struct pci_dev *dev2 = NULL, *findev;
-@@ -919,12 +968,11 @@ static void __init hpt366_device_order_f
- 
- 	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
- 	class_rev &= 0xff;
--	if (class_rev > 5)
--		class_rev = 5;
--	
-+
- 	strcpy(d->name, chipset_names[class_rev]);
- 
- 	switch(class_rev) {
-+		case 5:
- 		case 4:
- 		case 3:	printk("%s: IDE controller on PCI bus %02x dev %02x\n", d->name, dev->bus->number, dev->devfn);
- 			ide_setup_pci_device(dev, d);
-@@ -944,11 +992,18 @@ static void __init hpt366_device_order_f
- 			hpt363_shared_irq = (dev->irq == dev2->irq) ? 1 : 0;
- 			if (hpt363_shared_pin && hpt363_shared_irq) {
- 				d->bootable = ON_BOARD;
--				printk("%s: onboard version of chipset, pin1=%d pin2=%d\n", d->name, pin1, pin2);
-+				printk("%s: onboard version of chipset, "
-+					"pin1=%d pin2=%d\n", d->name,
-+					pin1, pin2);
- #if 0
--				/* I forgot why I did this once, but it fixed something. */
-+				/*
-+				 * This is the third undocumented detection
-+				 * method and is generally required for the
-+				 * ABIT-BP6 boards.
-+				 */
- 				pci_write_config_byte(dev2, PCI_INTERRUPT_PIN, dev->irq);
--				printk("PCI: %s: Fixing interrupt %d pin %d to ZERO \n", d->name, dev2->irq, pin2);
-+				printk("PCI: %s: Fixing interrupt %d pin %d "
-+					"to ZERO \n", d->name, dev2->irq, pin2);
- 				pci_write_config_byte(dev2, PCI_INTERRUPT_LINE, 0);
- #endif
- 			}
-@@ -988,6 +1043,8 @@ void __init ide_scan_pcidev (struct pci_
- 		return;	/* UM8886A/BF pair */
- 	else if (IDE_PCI_DEVID_EQ(d->devid, DEVID_HPT366))
- 		hpt366_device_order_fixup(dev, d);
-+	else if (IDE_PCI_DEVID_EQ(d->devid, DEVID_HPT374))
-+		hpt374_device_order_fixup(dev, d);
- 	else if (IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20270))
- 		pdc20270_device_order_fixup(dev, d);
- 	else if (!IDE_PCI_DEVID_EQ(d->devid, IDE_PCI_DEVID_NULL) || (dev->class >> 8) == PCI_CLASS_STORAGE_IDE) {
+-David van Hoose
+davidvh@cox.net
 
-_
+--------------020905090909050800050108
+Content-Type: text/plain;
+ name="kernel-config"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kernel-config"
+
+#
+# Automatically generated by make menuconfig: don't edit
+#
+CONFIG_X86=y
+# CONFIG_SBUS is not set
+CONFIG_UID16=y
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+# CONFIG_MPENTIUMIII is not set
+CONFIG_MPENTIUM4=y
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MELAN is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_X86_HAS_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_F00F_WORKS_OK=y
+CONFIG_X86_MCE=y
+CONFIG_TOSHIBA=m
+CONFIG_I8K=m
+CONFIG_MICROCODE=y
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+# CONFIG_NOHIGHMEM is not set
+CONFIG_HIGHMEM4G=y
+# CONFIG_HIGHMEM64G is not set
+CONFIG_HIGHMEM=y
+CONFIG_HIGHIO=y
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+# CONFIG_SMP is not set
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+# CONFIG_X86_TSC_DISABLE is not set
+CONFIG_X86_TSC=y
+
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_ISA=y
+CONFIG_PCI_NAMES=y
+CONFIG_EISA=y
+# CONFIG_MCA is not set
+CONFIG_HOTPLUG=y
+
+#
+# PCMCIA/CardBus support
+#
+CONFIG_PCMCIA=m
+CONFIG_CARDBUS=y
+CONFIG_TCIC=y
+CONFIG_I82092=y
+CONFIG_I82365=y
+
+#
+# PCI Hotplug Support
+#
+# CONFIG_HOTPLUG_PCI is not set
+# CONFIG_HOTPLUG_PCI_COMPAQ is not set
+# CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM is not set
+# CONFIG_HOTPLUG_PCI_IBM is not set
+# CONFIG_HOTPLUG_PCI_ACPI is not set
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+# CONFIG_KCORE_AOUT is not set
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PM=y
+# CONFIG_ACPI is not set
+CONFIG_APM=y
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+# CONFIG_APM_DO_ENABLE is not set
+CONFIG_APM_CPU_IDLE=y
+# CONFIG_APM_DISPLAY_BLANK is not set
+# CONFIG_APM_RTC_IS_GMT is not set
+# CONFIG_APM_ALLOW_INTS is not set
+# CONFIG_APM_REAL_MODE_POWER_OFF is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_SERIAL=m
+# CONFIG_PARPORT_PC_FIFO is not set
+# CONFIG_PARPORT_PC_SUPERIO is not set
+CONFIG_PARPORT_PC_PCMCIA=m
+# CONFIG_PARPORT_AMIGA is not set
+# CONFIG_PARPORT_MFC3 is not set
+# CONFIG_PARPORT_ATARI is not set
+# CONFIG_PARPORT_GSC is not set
+# CONFIG_PARPORT_SUNBPP is not set
+# CONFIG_PARPORT_OTHER is not set
+CONFIG_PARPORT_1284=y
+
+#
+# Plug and Play configuration
+#
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_XD=m
+CONFIG_PARIDE=m
+CONFIG_PARIDE_PARPORT=m
+CONFIG_PARIDE_PD=m
+CONFIG_PARIDE_PCD=m
+CONFIG_PARIDE_PF=m
+CONFIG_PARIDE_PT=m
+CONFIG_PARIDE_PG=m
+CONFIG_PARIDE_ATEN=m
+CONFIG_PARIDE_BPCK=m
+CONFIG_PARIDE_BPCK6=m
+CONFIG_PARIDE_COMM=m
+CONFIG_PARIDE_DSTR=m
+CONFIG_PARIDE_FIT2=m
+CONFIG_PARIDE_FIT3=m
+CONFIG_PARIDE_EPAT=m
+CONFIG_PARIDE_EPATC8=y
+CONFIG_PARIDE_EPIA=m
+CONFIG_PARIDE_FRIQ=m
+CONFIG_PARIDE_FRPW=m
+CONFIG_PARIDE_KBIC=m
+CONFIG_PARIDE_KTTI=m
+CONFIG_PARIDE_ON20=m
+CONFIG_PARIDE_ON26=m
+CONFIG_BLK_CPQ_DA=m
+CONFIG_BLK_CPQ_CISS_DA=m
+CONFIG_CISS_SCSI_TAPE=y
+CONFIG_BLK_DEV_DAC960=m
+CONFIG_BLK_DEV_UMEM=m
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_NBD=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+# CONFIG_BLK_DEV_INITRD is not set
+# CONFIG_BLK_STATS is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=m
+CONFIG_MD_RAID0=m
+CONFIG_MD_RAID1=m
+CONFIG_MD_RAID5=m
+CONFIG_MD_MULTIPATH=m
+CONFIG_BLK_DEV_LVM=m
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=y
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_NAT=y
+CONFIG_IP_ROUTE_MULTIPATH=y
+CONFIG_IP_ROUTE_TOS=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_IP_ROUTE_LARGE_TABLES=y
+# CONFIG_IP_PNP is not set
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+CONFIG_NET_IPGRE_BROADCAST=y
+CONFIG_IP_MROUTE=y
+CONFIG_IP_PIMSM_V1=y
+CONFIG_IP_PIMSM_V2=y
+# CONFIG_ARPD is not set
+# CONFIG_INET_ECN is not set
+CONFIG_SYN_COOKIES=y
+
+#
+#   IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_UNCLEAN=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_LOCAL=y
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+CONFIG_IP_NF_COMPAT_IPCHAINS=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_COMPAT_IPFWADM=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IPV6=m
+
+#
+#   IPv6: Netfilter Configuration
+#
+# CONFIG_IP6_NF_QUEUE is not set
+CONFIG_IP6_NF_IPTABLES=m
+CONFIG_IP6_NF_MATCH_LIMIT=m
+CONFIG_IP6_NF_MATCH_MAC=m
+CONFIG_IP6_NF_MATCH_MULTIPORT=m
+CONFIG_IP6_NF_MATCH_OWNER=m
+CONFIG_IP6_NF_MATCH_MARK=m
+CONFIG_IP6_NF_MATCH_LENGTH=m
+CONFIG_IP6_NF_MATCH_EUI64=m
+CONFIG_IP6_NF_FILTER=m
+CONFIG_IP6_NF_TARGET_LOG=m
+CONFIG_IP6_NF_MANGLE=m
+CONFIG_IP6_NF_TARGET_MARK=m
+# CONFIG_KHTTPD is not set
+CONFIG_ATM=y
+CONFIG_ATM_CLIP=y
+# CONFIG_ATM_CLIP_NO_ICMP is not set
+CONFIG_ATM_LANE=m
+CONFIG_ATM_MPOA=m
+CONFIG_ATM_BR2684=m
+CONFIG_ATM_BR2684_IPFILTER=y
+CONFIG_VLAN_8021Q=m
+CONFIG_IPX=m
+# CONFIG_IPX_INTERN is not set
+CONFIG_ATALK=m
+
+#
+# Appletalk devices
+#
+CONFIG_DEV_APPLETALK=y
+CONFIG_LTPC=m
+CONFIG_COPS=m
+CONFIG_COPS_DAYNA=y
+CONFIG_COPS_TANGENT=y
+CONFIG_IPDDP=m
+CONFIG_IPDDP_ENCAP=y
+CONFIG_IPDDP_DECAP=y
+CONFIG_DECNET=m
+CONFIG_DECNET_SIOCGIFCONF=y
+CONFIG_DECNET_ROUTER=y
+CONFIG_DECNET_ROUTE_FWMARK=y
+CONFIG_BRIDGE=m
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_LLC is not set
+CONFIG_NET_DIVERT=y
+# CONFIG_ECONET is not set
+CONFIG_WAN_ROUTER=m
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CBQ=m
+CONFIG_NET_SCH_HTB=m
+CONFIG_NET_SCH_CSZ=m
+# CONFIG_NET_SCH_ATM is not set
+CONFIG_NET_SCH_PRIO=m
+CONFIG_NET_SCH_RED=m
+CONFIG_NET_SCH_SFQ=m
+CONFIG_NET_SCH_TEQL=m
+CONFIG_NET_SCH_TBF=m
+CONFIG_NET_SCH_GRED=m
+CONFIG_NET_SCH_DSMARK=m
+CONFIG_NET_SCH_INGRESS=m
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=m
+CONFIG_NET_CLS_ROUTE4=m
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=m
+CONFIG_NET_CLS_U32=m
+CONFIG_NET_CLS_RSVP=m
+CONFIG_NET_CLS_RSVP6=m
+CONFIG_NET_CLS_POLICE=y
+
+#
+# Network testing
+#
+# CONFIG_NET_PKTGEN is not set
+
+#
+# Telephony Support
+#
+CONFIG_PHONE=m
+CONFIG_PHONE_IXJ=m
+CONFIG_PHONE_IXJ_PCMCIA=m
+
+#
+# ATA/IDE/MFM/RLL support
+#
+CONFIG_IDE=y
+
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+# CONFIG_IDEDISK_STROKE is not set
+# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
+# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
+# CONFIG_BLK_DEV_IDEDISK_IBM is not set
+# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
+# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
+# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
+# CONFIG_BLK_DEV_IDEDISK_WD is not set
+# CONFIG_BLK_DEV_COMMERIAL is not set
+# CONFIG_BLK_DEV_TIVO is not set
+CONFIG_BLK_DEV_IDECS=m
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDETAPE=m
+CONFIG_BLK_DEV_IDEFLOPPY=y
+CONFIG_BLK_DEV_IDESCSI=m
+# CONFIG_IDE_TASK_IOCTL is not set
+CONFIG_BLK_DEV_CMD640=y
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+CONFIG_BLK_DEV_ISAPNP=y
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_BLK_DEV_IDEDMA_TIMEOUT is not set
+# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_AEC62XX=y
+CONFIG_AEC62XX_TUNING=y
+CONFIG_BLK_DEV_ALI15X3=y
+# CONFIG_WDC_ALI15X3 is not set
+CONFIG_BLK_DEV_AMD74XX=y
+# CONFIG_AMD74XX_OVERRIDE is not set
+CONFIG_BLK_DEV_CMD64X=y
+CONFIG_BLK_DEV_CMD680=y
+CONFIG_BLK_DEV_CY82C693=y
+CONFIG_BLK_DEV_CS5530=y
+CONFIG_BLK_DEV_HPT34X=y
+# CONFIG_HPT34X_AUTODMA is not set
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_PIIX_TUNING=y
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+CONFIG_BLK_DEV_PDC202XX=y
+# CONFIG_PDC202XX_BURST is not set
+CONFIG_PDC202XX_FORCE=y
+CONFIG_BLK_DEV_SVWKS=y
+CONFIG_BLK_DEV_SIS5513=y
+CONFIG_BLK_DEV_SLC90E66=y
+# CONFIG_BLK_DEV_TRM290 is not set
+CONFIG_BLK_DEV_VIA82CXXX=y
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_BLK_DEV_ATARAID=m
+CONFIG_BLK_DEV_ATARAID_PDC=m
+CONFIG_BLK_DEV_ATARAID_HPT=m
+
+#
+# SCSI support
+#
+CONFIG_SCSI=m
+CONFIG_BLK_DEV_SD=m
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_CHR_DEV_ST=m
+CONFIG_CHR_DEV_OSST=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_DEBUG_QUEUES=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+
+#
+# SCSI low-level drivers
+#
+CONFIG_BLK_DEV_3W_XXXX_RAID=m
+CONFIG_SCSI_7000FASST=m
+CONFIG_SCSI_ACARD=m
+CONFIG_SCSI_AHA152X=m
+CONFIG_SCSI_AHA1542=m
+CONFIG_SCSI_AHA1740=m
+CONFIG_SCSI_AACRAID=m
+CONFIG_SCSI_AIC7XXX=m
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+# CONFIG_AIC7XXX_PROBE_EISA_VL is not set
+# CONFIG_AIC7XXX_BUILD_FIRMWARE is not set
+CONFIG_SCSI_AIC7XXX_OLD=m
+CONFIG_AIC7XXX_OLD_TCQ_ON_BY_DEFAULT=y
+CONFIG_AIC7XXX_OLD_CMDS_PER_DEVICE=8
+CONFIG_AIC7XXX_OLD_PROC_STATS=y
+CONFIG_SCSI_DPT_I2O=m
+CONFIG_SCSI_ADVANSYS=m
+CONFIG_SCSI_IN2000=m
+CONFIG_SCSI_AM53C974=m
+CONFIG_SCSI_MEGARAID=m
+CONFIG_SCSI_BUSLOGIC=m
+# CONFIG_SCSI_OMIT_FLASHPOINT is not set
+CONFIG_SCSI_CPQFCTS=m
+CONFIG_SCSI_DMX3191D=m
+CONFIG_SCSI_DTC3280=m
+CONFIG_SCSI_EATA=m
+CONFIG_SCSI_EATA_TAGGED_QUEUE=y
+# CONFIG_SCSI_EATA_LINKED_COMMANDS is not set
+CONFIG_SCSI_EATA_MAX_TAGS=16
+CONFIG_SCSI_EATA_DMA=m
+CONFIG_SCSI_EATA_PIO=m
+CONFIG_SCSI_FUTURE_DOMAIN=m
+CONFIG_SCSI_GDTH=m
+CONFIG_SCSI_GENERIC_NCR5380=m
+# CONFIG_SCSI_GENERIC_NCR53C400 is not set
+CONFIG_SCSI_G_NCR5380_PORT=y
+# CONFIG_SCSI_G_NCR5380_MEM is not set
+CONFIG_SCSI_IPS=m
+CONFIG_SCSI_INITIO=m
+CONFIG_SCSI_INIA100=m
+CONFIG_SCSI_PPA=m
+CONFIG_SCSI_IMM=m
+# CONFIG_SCSI_IZIP_EPP16 is not set
+# CONFIG_SCSI_IZIP_SLOW_CTR is not set
+CONFIG_SCSI_NCR53C406A=m
+CONFIG_SCSI_NCR53C7xx=m
+# CONFIG_SCSI_NCR53C7xx_sync is not set
+CONFIG_SCSI_NCR53C7xx_FAST=y
+CONFIG_SCSI_NCR53C7xx_DISCONNECT=y
+CONFIG_SCSI_SYM53C8XX_2=m
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+# CONFIG_SCSI_SYM53C8XX_IOMAPPED is not set
+CONFIG_SCSI_NCR53C8XX=m
+CONFIG_SCSI_SYM53C8XX=m
+CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=4
+CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
+CONFIG_SCSI_NCR53C8XX_SYNC=20
+# CONFIG_SCSI_NCR53C8XX_PROFILE is not set
+# CONFIG_SCSI_NCR53C8XX_IOMAPPED is not set
+# CONFIG_SCSI_NCR53C8XX_PQS_PDS is not set
+# CONFIG_SCSI_NCR53C8XX_SYMBIOS_COMPAT is not set
+CONFIG_SCSI_PAS16=m
+CONFIG_SCSI_PCI2000=m
+CONFIG_SCSI_PCI2220I=m
+CONFIG_SCSI_PSI240I=m
+CONFIG_SCSI_QLOGIC_FAS=m
+CONFIG_SCSI_QLOGIC_ISP=m
+CONFIG_SCSI_QLOGIC_FC=m
+# CONFIG_SCSI_QLOGIC_FC_FIRMWARE is not set
+CONFIG_SCSI_QLOGIC_1280=m
+CONFIG_SCSI_SEAGATE=m
+CONFIG_SCSI_SIM710=m
+CONFIG_SCSI_SYM53C416=m
+CONFIG_SCSI_DC390T=m
+# CONFIG_SCSI_DC390T_NOGENSUPP is not set
+CONFIG_SCSI_T128=m
+CONFIG_SCSI_U14_34F=m
+# CONFIG_SCSI_U14_34F_LINKED_COMMANDS is not set
+CONFIG_SCSI_U14_34F_MAX_TAGS=8
+CONFIG_SCSI_ULTRASTOR=m
+CONFIG_SCSI_DEBUG=m
+
+#
+# PCMCIA SCSI adapter support
+#
+CONFIG_SCSI_PCMCIA=y
+CONFIG_PCMCIA_AHA152X=m
+CONFIG_PCMCIA_FDOMAIN=m
+CONFIG_PCMCIA_NINJA_SCSI=m
+CONFIG_PCMCIA_QLOGIC=m
+
+#
+# Fusion MPT device support
+#
+CONFIG_FUSION=m
+# CONFIG_FUSION_BOOT is not set
+# CONFIG_FUSION_ISENSE is not set
+CONFIG_FUSION_CTL=m
+CONFIG_FUSION_LAN=m
+CONFIG_NET_FC=y
+
+#
+# IEEE 1394 (FireWire) support (EXPERIMENTAL)
+#
+CONFIG_IEEE1394=m
+# CONFIG_IEEE1394_PCILYNX is not set
+CONFIG_IEEE1394_OHCI1394=m
+CONFIG_IEEE1394_VIDEO1394=m
+CONFIG_IEEE1394_SBP2=m
+# CONFIG_IEEE1394_SBP2_PHYS_DMA is not set
+CONFIG_IEEE1394_ETH1394=m
+CONFIG_IEEE1394_DV1394=m
+CONFIG_IEEE1394_RAWIO=m
+CONFIG_IEEE1394_CMP=m
+CONFIG_IEEE1394_AMDTP=m
+# CONFIG_IEEE1394_VERBOSEDEBUG is not set
+
+#
+# I2O device support
+#
+CONFIG_I2O=m
+CONFIG_I2O_PCI=m
+CONFIG_I2O_BLOCK=m
+CONFIG_I2O_LAN=m
+CONFIG_I2O_SCSI=m
+CONFIG_I2O_PROC=m
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+CONFIG_DUMMY=m
+CONFIG_BONDING=m
+CONFIG_EQUALIZER=m
+CONFIG_TUN=m
+CONFIG_ETHERTAP=m
+CONFIG_NET_SB1000=m
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_SUNLANCE is not set
+CONFIG_HAPPYMEAL=m
+# CONFIG_SUNBMAC is not set
+# CONFIG_SUNQE is not set
+CONFIG_SUNGEM=m
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_EL1=m
+CONFIG_EL2=m
+CONFIG_ELPLUS=m
+CONFIG_EL16=m
+CONFIG_EL3=m
+CONFIG_3C515=m
+# CONFIG_ELMC is not set
+# CONFIG_ELMC_II is not set
+CONFIG_VORTEX=m
+CONFIG_LANCE=m
+CONFIG_NET_VENDOR_SMC=y
+CONFIG_WD80x3=m
+# CONFIG_ULTRAMCA is not set
+CONFIG_ULTRA=m
+CONFIG_ULTRA32=m
+CONFIG_SMC9194=m
+CONFIG_NET_VENDOR_RACAL=y
+CONFIG_NI5010=m
+CONFIG_NI52=m
+CONFIG_NI65=m
+CONFIG_AT1700=m
+CONFIG_DEPCA=m
+CONFIG_HP100=m
+CONFIG_NET_ISA=y
+CONFIG_E2100=m
+CONFIG_EWRK3=m
+CONFIG_EEXPRESS=m
+CONFIG_EEXPRESS_PRO=m
+CONFIG_HPLAN_PLUS=m
+CONFIG_HPLAN=m
+CONFIG_LP486E=m
+CONFIG_ETH16I=m
+CONFIG_NE2000=m
+CONFIG_NET_PCI=y
+CONFIG_PCNET32=m
+CONFIG_ADAPTEC_STARFIRE=m
+CONFIG_AC3200=m
+CONFIG_APRICOT=m
+CONFIG_CS89x0=m
+CONFIG_TULIP=m
+# CONFIG_TULIP_MWI is not set
+CONFIG_TULIP_MMIO=y
+CONFIG_DE4X5=m
+CONFIG_DGRS=m
+CONFIG_DM9102=m
+CONFIG_EEPRO100=m
+CONFIG_E100=m
+CONFIG_LNE390=m
+CONFIG_FEALNX=m
+CONFIG_NATSEMI=m
+CONFIG_NE2K_PCI=m
+CONFIG_NE3210=m
+CONFIG_ES3210=m
+CONFIG_8139CP=m
+CONFIG_8139TOO=m
+# CONFIG_8139TOO_PIO is not set
+# CONFIG_8139TOO_TUNE_TWISTER is not set
+CONFIG_8139TOO_8129=y
+# CONFIG_8139_OLD_RX_RESET is not set
+CONFIG_SIS900=m
+CONFIG_EPIC100=m
+CONFIG_SUNDANCE=m
+# CONFIG_SUNDANCE_MMIO is not set
+CONFIG_TLAN=m
+CONFIG_TC35815=m
+CONFIG_VIA_RHINE=m
+# CONFIG_VIA_RHINE_MMIO is not set
+CONFIG_WINBOND_840=m
+CONFIG_NET_POCKET=y
+CONFIG_ATP=m
+CONFIG_DE600=m
+CONFIG_DE620=m
+
+#
+# Ethernet (1000 Mbit)
+#
+CONFIG_ACENIC=m
+# CONFIG_ACENIC_OMIT_TIGON_I is not set
+CONFIG_DL2K=m
+CONFIG_E1000=m
+# CONFIG_MYRI_SBUS is not set
+CONFIG_NS83820=m
+CONFIG_HAMACHI=m
+CONFIG_YELLOWFIN=m
+CONFIG_SK98LIN=m
+CONFIG_TIGON3=m
+CONFIG_FDDI=y
+CONFIG_DEFXX=m
+CONFIG_SKFP=m
+# CONFIG_HIPPI is not set
+CONFIG_PLIP=m
+CONFIG_PPP=m
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+# CONFIG_PPP_BSDCOMP is not set
+# CONFIG_PPPOE is not set
+CONFIG_PPPOATM=m
+CONFIG_SLIP=m
+CONFIG_SLIP_COMPRESSED=y
+CONFIG_SLIP_SMART=y
+CONFIG_SLIP_MODE_SLIP6=y
+
+#
+# Wireless LAN (non-hamradio)
+#
+CONFIG_NET_RADIO=y
+CONFIG_STRIP=m
+CONFIG_WAVELAN=m
+CONFIG_ARLAN=m
+CONFIG_AIRONET4500=m
+CONFIG_AIRONET4500_NONCS=m
+CONFIG_AIRONET4500_PNP=y
+CONFIG_AIRONET4500_PCI=y
+CONFIG_AIRONET4500_ISA=y
+CONFIG_AIRONET4500_I365=y
+CONFIG_AIRONET4500_PROC=m
+CONFIG_AIRO=m
+CONFIG_HERMES=m
+CONFIG_PLX_HERMES=m
+CONFIG_PCI_HERMES=m
+CONFIG_PCMCIA_HERMES=m
+CONFIG_AIRO_CS=m
+CONFIG_NET_WIRELESS=y
+
+#
+# Token Ring devices
+#
+CONFIG_TR=y
+CONFIG_IBMTR=m
+CONFIG_IBMOL=m
+CONFIG_IBMLS=m
+CONFIG_3C359=m
+CONFIG_TMS380TR=m
+CONFIG_TMSPCI=m
+CONFIG_TMSISA=m
+CONFIG_ABYSS=m
+# CONFIG_MADGEMC is not set
+CONFIG_SMCTR=m
+CONFIG_NET_FC=y
+CONFIG_IPHASE5526=m
+CONFIG_RCPCI=m
+CONFIG_SHAPER=m
+
+#
+# Wan interfaces
+#
+CONFIG_WAN=y
+CONFIG_HOSTESS_SV11=m
+CONFIG_COSA=m
+# CONFIG_COMX is not set
+# CONFIG_DSCC4 is not set
+CONFIG_FARSYNC=m
+# CONFIG_LANMEDIA is not set
+CONFIG_ATI_XX20=m
+CONFIG_SEALEVEL_4021=m
+# CONFIG_SYNCLINK_SYNCPPP is not set
+# CONFIG_HDLC is not set
+CONFIG_DLCI=m
+CONFIG_DLCI_COUNT=24
+CONFIG_DLCI_MAX=8
+CONFIG_SDLA=m
+CONFIG_WAN_ROUTER_DRIVERS=y
+CONFIG_VENDOR_SANGOMA=m
+CONFIG_WANPIPE_CHDLC=y
+CONFIG_WANPIPE_FR=y
+CONFIG_WANPIPE_X25=y
+CONFIG_WANPIPE_PPP=y
+CONFIG_WANPIPE_MULTPPP=y
+CONFIG_CYCLADES_SYNC=m
+CONFIG_CYCLOMX_X25=y
+# CONFIG_LAPBETHER is not set
+# CONFIG_X25_ASY is not set
+CONFIG_SBNI=m
+CONFIG_SBNI_MULTILINE=y
+
+#
+# PCMCIA network device support
+#
+CONFIG_NET_PCMCIA=y
+CONFIG_PCMCIA_3C589=m
+CONFIG_PCMCIA_3C574=m
+CONFIG_PCMCIA_FMVJ18X=m
+CONFIG_PCMCIA_PCNET=m
+CONFIG_PCMCIA_AXNET=m
+CONFIG_PCMCIA_NMCLAN=m
+CONFIG_PCMCIA_SMC91C92=m
+CONFIG_PCMCIA_XIRC2PS=m
+# CONFIG_ARCNET_COM20020_CS is not set
+CONFIG_PCMCIA_IBMTR=m
+CONFIG_PCMCIA_XIRCOM=m
+CONFIG_PCMCIA_XIRTULIP=m
+CONFIG_NET_PCMCIA_RADIO=y
+CONFIG_PCMCIA_RAYCS=m
+CONFIG_PCMCIA_NETWAVE=m
+CONFIG_PCMCIA_WAVELAN=m
+CONFIG_AIRONET4500_CS=m
+
+#
+# ATM drivers
+#
+CONFIG_ATM_TCP=m
+CONFIG_ATM_LANAI=m
+CONFIG_ATM_ENI=m
+# CONFIG_ATM_ENI_DEBUG is not set
+# CONFIG_ATM_ENI_TUNE_BURST is not set
+CONFIG_ATM_FIRESTREAM=m
+CONFIG_ATM_ZATM=m
+# CONFIG_ATM_ZATM_DEBUG is not set
+CONFIG_ATM_ZATM_EXACT_TS=y
+CONFIG_ATM_NICSTAR=m
+CONFIG_ATM_NICSTAR_USE_SUNI=y
+CONFIG_ATM_NICSTAR_USE_IDT77105=y
+CONFIG_ATM_IDT77252=m
+# CONFIG_ATM_IDT77252_DEBUG is not set
+# CONFIG_ATM_IDT77252_RCV_ALL is not set
+CONFIG_ATM_IDT77252_USE_SUNI=y
+CONFIG_ATM_AMBASSADOR=m
+# CONFIG_ATM_AMBASSADOR_DEBUG is not set
+CONFIG_ATM_HORIZON=m
+# CONFIG_ATM_HORIZON_DEBUG is not set
+CONFIG_ATM_IA=m
+# CONFIG_ATM_IA_DEBUG is not set
+CONFIG_ATM_FORE200E_MAYBE=m
+CONFIG_ATM_FORE200E_PCA=y
+CONFIG_ATM_FORE200E_PCA_DEFAULT_FW=y
+CONFIG_ATM_FORE200E_TX_RETRY=16
+CONFIG_ATM_FORE200E_DEBUG=0
+CONFIG_ATM_FORE200E=m
+
+#
+# Amateur Radio support
+#
+CONFIG_HAMRADIO=y
+CONFIG_AX25=m
+# CONFIG_AX25_DAMA_SLAVE is not set
+CONFIG_NETROM=m
+CONFIG_ROSE=m
+
+#
+# AX.25 network device drivers
+#
+# CONFIG_MKISS is not set
+# CONFIG_6PACK is not set
+# CONFIG_BPQETHER is not set
+# CONFIG_DMASCC is not set
+# CONFIG_SCC is not set
+# CONFIG_BAYCOM_SER_FDX is not set
+# CONFIG_BAYCOM_SER_HDX is not set
+# CONFIG_BAYCOM_PAR is not set
+# CONFIG_BAYCOM_EPP is not set
+CONFIG_SOUNDMODEM=m
+CONFIG_SOUNDMODEM_SBC=y
+CONFIG_SOUNDMODEM_WSS=y
+CONFIG_SOUNDMODEM_AFSK1200=y
+CONFIG_SOUNDMODEM_AFSK2400_7=y
+CONFIG_SOUNDMODEM_AFSK2400_8=y
+CONFIG_SOUNDMODEM_AFSK2666=y
+CONFIG_SOUNDMODEM_HAPN4800=y
+CONFIG_SOUNDMODEM_PSK4800=y
+CONFIG_SOUNDMODEM_FSK9600=y
+# CONFIG_YAM is not set
+
+#
+# IrDA (infrared) support
+#
+CONFIG_IRDA=m
+CONFIG_IRLAN=m
+CONFIG_IRNET=m
+CONFIG_IRCOMM=m
+CONFIG_IRDA_ULTRA=y
+CONFIG_IRDA_CACHE_LAST_LSAP=y
+CONFIG_IRDA_FAST_RR=y
+# CONFIG_IRDA_DEBUG is not set
+
+#
+# Infrared-port device drivers
+#
+CONFIG_IRTTY_SIR=m
+CONFIG_IRPORT_SIR=m
+CONFIG_DONGLE=y
+CONFIG_ESI_DONGLE=m
+CONFIG_ACTISYS_DONGLE=m
+CONFIG_TEKRAM_DONGLE=m
+CONFIG_GIRBIL_DONGLE=m
+CONFIG_LITELINK_DONGLE=m
+CONFIG_MCP2120_DONGLE=m
+CONFIG_OLD_BELKIN_DONGLE=m
+CONFIG_ACT200L_DONGLE=m
+CONFIG_MA600_DONGLE=m
+CONFIG_USB_IRDA=m
+CONFIG_NSC_FIR=m
+CONFIG_WINBOND_FIR=m
+CONFIG_TOSHIBA_FIR=m
+CONFIG_SMC_IRCC_FIR=m
+CONFIG_ALI_FIR=m
+CONFIG_VLSI_FIR=m
+
+#
+# ISDN subsystem
+#
+CONFIG_ISDN=m
+CONFIG_ISDN_BOOL=y
+CONFIG_ISDN_PPP=y
+CONFIG_ISDN_PPP_VJ=y
+CONFIG_ISDN_MPP=y
+CONFIG_ISDN_PPP_BSDCOMP=m
+CONFIG_ISDN_AUDIO=y
+CONFIG_ISDN_TTY_FAX=y
+
+#
+# ISDN feature submodules
+#
+CONFIG_ISDN_DRV_LOOP=m
+# CONFIG_ISDN_DIVERSION is not set
+
+#
+# Passive ISDN cards
+#
+CONFIG_ISDN_DRV_HISAX=m
+CONFIG_ISDN_HISAX=y
+CONFIG_HISAX_EURO=y
+CONFIG_DE_AOC=y
+# CONFIG_HISAX_NO_SENDCOMPLETE is not set
+# CONFIG_HISAX_NO_LLC is not set
+# CONFIG_HISAX_NO_KEYPAD is not set
+CONFIG_HISAX_1TR6=y
+CONFIG_HISAX_NI1=y
+CONFIG_HISAX_MAX_CARDS=8
+CONFIG_HISAX_16_0=y
+CONFIG_HISAX_16_3=y
+CONFIG_HISAX_AVM_A1=y
+CONFIG_HISAX_IX1MICROR2=y
+CONFIG_HISAX_ASUSCOM=y
+CONFIG_HISAX_TELEINT=y
+CONFIG_HISAX_HFCS=y
+CONFIG_HISAX_SPORTSTER=y
+CONFIG_HISAX_MIC=y
+CONFIG_HISAX_ISURF=y
+CONFIG_HISAX_HSTSAPHIR=y
+CONFIG_HISAX_TELESPCI=y
+CONFIG_HISAX_S0BOX=y
+CONFIG_HISAX_FRITZPCI=y
+CONFIG_HISAX_AVM_A1_PCMCIA=y
+CONFIG_HISAX_ELSA=y
+CONFIG_HISAX_DIEHLDIVA=y
+CONFIG_HISAX_SEDLBAUER=y
+CONFIG_HISAX_NETJET=y
+CONFIG_HISAX_NETJET_U=y
+CONFIG_HISAX_NICCY=y
+CONFIG_HISAX_BKM_A4T=y
+CONFIG_HISAX_SCT_QUADRO=y
+CONFIG_HISAX_GAZEL=y
+CONFIG_HISAX_HFC_PCI=y
+CONFIG_HISAX_W6692=y
+CONFIG_HISAX_HFC_SX=y
+CONFIG_HISAX_ENTERNOW_PCI=y
+CONFIG_HISAX_DEBUG=y
+CONFIG_HISAX_SEDLBAUER_CS=m
+CONFIG_HISAX_ELSA_CS=m
+CONFIG_HISAX_AVM_A1_CS=m
+CONFIG_HISAX_ST5481=m
+CONFIG_HISAX_FRITZ_PCIPNP=m
+
+#
+# Active ISDN cards
+#
+CONFIG_ISDN_DRV_ICN=m
+CONFIG_ISDN_DRV_PCBIT=m
+# CONFIG_ISDN_DRV_SC is not set
+# CONFIG_ISDN_DRV_ACT2000 is not set
+CONFIG_ISDN_DRV_EICON=y
+CONFIG_ISDN_DRV_EICON_DIVAS=m
+# CONFIG_ISDN_DRV_EICON_OLD is not set
+CONFIG_ISDN_DRV_TPAM=m
+CONFIG_ISDN_CAPI=m
+CONFIG_ISDN_DRV_AVMB1_VERBOSE_REASON=y
+CONFIG_ISDN_CAPI_MIDDLEWARE=y
+CONFIG_ISDN_CAPI_CAPI20=m
+CONFIG_ISDN_CAPI_CAPIFS_BOOL=y
+CONFIG_ISDN_CAPI_CAPIFS=m
+CONFIG_ISDN_CAPI_CAPIDRV=m
+CONFIG_ISDN_DRV_AVMB1_B1ISA=m
+CONFIG_ISDN_DRV_AVMB1_B1PCI=m
+CONFIG_ISDN_DRV_AVMB1_B1PCIV4=y
+CONFIG_ISDN_DRV_AVMB1_T1ISA=m
+CONFIG_ISDN_DRV_AVMB1_B1PCMCIA=m
+CONFIG_ISDN_DRV_AVMB1_AVM_CS=m
+CONFIG_ISDN_DRV_AVMB1_T1PCI=m
+CONFIG_ISDN_DRV_AVMB1_C4=m
+CONFIG_HYSDN=m
+CONFIG_HYSDN_CAPI=y
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Input core support
+#
+CONFIG_INPUT=m
+CONFIG_INPUT_KEYBDEV=m
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_JOYDEV=m
+CONFIG_INPUT_EVDEV=m
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_SERIAL_CONSOLE=y
+CONFIG_SERIAL_EXTENDED=y
+CONFIG_SERIAL_MANY_PORTS=y
+CONFIG_SERIAL_SHARE_IRQ=y
+# CONFIG_SERIAL_DETECT_IRQ is not set
+CONFIG_SERIAL_MULTIPORT=y
+# CONFIG_HUB6 is not set
+CONFIG_SERIAL_NONSTANDARD=y
+CONFIG_COMPUTONE=m
+CONFIG_ROCKETPORT=m
+CONFIG_CYCLADES=m
+# CONFIG_CYZ_INTR is not set
+CONFIG_DIGIEPCA=m
+CONFIG_ESPSERIAL=m
+CONFIG_MOXA_INTELLIO=m
+CONFIG_MOXA_SMARTIO=m
+CONFIG_ISI=m
+CONFIG_SYNCLINK=m
+CONFIG_SYNCLINKMP=m
+CONFIG_N_HDLC=m
+CONFIG_RISCOM8=m
+CONFIG_SPECIALIX=m
+CONFIG_SPECIALIX_RTSCTS=y
+CONFIG_SX=m
+CONFIG_RIO=m
+# CONFIG_RIO_OLDPCI is not set
+CONFIG_STALDRV=y
+CONFIG_STALLION=m
+CONFIG_ISTALLION=m
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+CONFIG_LP_CONSOLE=y
+CONFIG_PPDEV=m
+
+#
+# I2C support
+#
+CONFIG_I2C=m
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_PHILIPSPAR=m
+CONFIG_I2C_ELV=m
+CONFIG_I2C_VELLEMAN=m
+CONFIG_I2C_ALGOPCF=m
+CONFIG_I2C_ELEKTOR=m
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_PROC=m
+
+#
+# Mice
+#
+CONFIG_BUSMOUSE=m
+CONFIG_ATIXL_BUSMOUSE=m
+CONFIG_LOGIBUSMOUSE=m
+CONFIG_MS_BUSMOUSE=m
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_82C710_MOUSE=m
+CONFIG_PC110_PAD=m
+CONFIG_MK712_MOUSE=m
+
+#
+# Joysticks
+#
+CONFIG_INPUT_GAMEPORT=m
+CONFIG_INPUT_NS558=m
+CONFIG_INPUT_LIGHTNING=m
+CONFIG_INPUT_PCIGAME=m
+CONFIG_INPUT_CS461X=m
+CONFIG_INPUT_EMU10K1=m
+CONFIG_INPUT_SERIO=m
+CONFIG_INPUT_SERPORT=m
+CONFIG_INPUT_ANALOG=m
+CONFIG_INPUT_A3D=m
+CONFIG_INPUT_ADI=m
+CONFIG_INPUT_COBRA=m
+CONFIG_INPUT_GF2K=m
+CONFIG_INPUT_GRIP=m
+CONFIG_INPUT_INTERACT=m
+CONFIG_INPUT_TMDC=m
+CONFIG_INPUT_SIDEWINDER=m
+CONFIG_INPUT_IFORCE_USB=m
+CONFIG_INPUT_IFORCE_232=m
+CONFIG_INPUT_WARRIOR=m
+CONFIG_INPUT_MAGELLAN=m
+CONFIG_INPUT_SPACEORB=m
+CONFIG_INPUT_SPACEBALL=m
+CONFIG_INPUT_STINGER=m
+CONFIG_INPUT_DB9=m
+CONFIG_INPUT_GAMECON=m
+CONFIG_INPUT_TURBOGRAFX=m
+# CONFIG_QIC02_TAPE is not set
+
+#
+# Watchdog Cards
+#
+CONFIG_WATCHDOG=y
+# CONFIG_WATCHDOG_NOWAYOUT is not set
+CONFIG_ACQUIRE_WDT=m
+CONFIG_ADVANTECH_WDT=m
+CONFIG_ALIM7101_WDT=m
+CONFIG_SC520_WDT=m
+CONFIG_PCWATCHDOG=m
+CONFIG_EUROTECH_WDT=m
+CONFIG_IB700_WDT=m
+CONFIG_WAFER_WDT=m
+CONFIG_I810_TCO=m
+CONFIG_MIXCOMWD=m
+CONFIG_60XX_WDT=m
+CONFIG_SC1200_WDT=m
+CONFIG_SOFT_WATCHDOG=m
+CONFIG_W83877F_WDT=m
+CONFIG_WDT=m
+CONFIG_WDTPCI=m
+# CONFIG_WDT_501 is not set
+CONFIG_MACHZ_WDT=m
+CONFIG_AMD7XX_TCO=m
+CONFIG_AMD_RNG=m
+CONFIG_INTEL_RNG=m
+CONFIG_AMD_PM768=m
+CONFIG_NVRAM=m
+CONFIG_RTC=y
+CONFIG_DTLK=m
+CONFIG_R3964=m
+# CONFIG_APPLICOM is not set
+CONFIG_SONYPI=m
+
+#
+# Ftape, the floppy tape device driver
+#
+CONFIG_FTAPE=m
+CONFIG_ZFTAPE=m
+CONFIG_ZFT_DFLT_BLK_SZ=10240
+CONFIG_ZFT_COMPRESSOR=m
+CONFIG_FT_NR_BUFFERS=3
+# CONFIG_FT_PROC_FS is not set
+CONFIG_FT_NORMAL_DEBUG=y
+# CONFIG_FT_FULL_DEBUG is not set
+# CONFIG_FT_NO_TRACE is not set
+# CONFIG_FT_NO_TRACE_AT_ALL is not set
+CONFIG_FT_STD_FDC=y
+# CONFIG_FT_MACH2 is not set
+# CONFIG_FT_PROBE_FC10 is not set
+# CONFIG_FT_ALT_FDC is not set
+CONFIG_FT_FDC_THR=8
+CONFIG_FT_FDC_MAX_RATE=2000
+CONFIG_FT_ALPHA_CLOCK=0
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_AGP_I810=y
+CONFIG_AGP_VIA=y
+CONFIG_AGP_AMD=y
+# CONFIG_AGP_AMD_8151 is not set
+CONFIG_AGP_SIS=y
+CONFIG_AGP_ALI=y
+# CONFIG_AGP_SWORKS is not set
+CONFIG_DRM=y
+# CONFIG_DRM_OLD is not set
+CONFIG_DRM_NEW=y
+CONFIG_DRM_TDFX=m
+CONFIG_DRM_R128=m
+CONFIG_DRM_RADEON=m
+CONFIG_DRM_I810=m
+CONFIG_DRM_I810_XFREE_41=y
+CONFIG_DRM_I830=m
+CONFIG_DRM_MGA=m
+CONFIG_DRM_SIS=m
+
+#
+# PCMCIA character devices
+#
+CONFIG_PCMCIA_SERIAL_CS=m
+CONFIG_SYNCLINK_CS=m
+CONFIG_MWAVE=m
+
+#
+# Multimedia devices
+#
+CONFIG_VIDEO_DEV=m
+
+#
+# Video For Linux
+#
+CONFIG_VIDEO_PROC_FS=y
+CONFIG_I2C_PARPORT=m
+CONFIG_VIDEO_BT848=m
+CONFIG_VIDEO_PMS=m
+CONFIG_VIDEO_BWQCAM=m
+CONFIG_VIDEO_CQCAM=m
+CONFIG_VIDEO_W9966=m
+CONFIG_VIDEO_CPIA=m
+CONFIG_VIDEO_CPIA_PP=m
+CONFIG_VIDEO_CPIA_USB=m
+CONFIG_VIDEO_SAA5249=m
+CONFIG_TUNER_3036=m
+CONFIG_VIDEO_STRADIS=m
+CONFIG_VIDEO_ZORAN=m
+CONFIG_VIDEO_ZORAN_BUZ=m
+CONFIG_VIDEO_ZORAN_DC10=m
+CONFIG_VIDEO_ZORAN_LML33=m
+CONFIG_VIDEO_ZR36120=m
+CONFIG_VIDEO_MEYE=m
+
+#
+# Radio Adapters
+#
+CONFIG_RADIO_CADET=m
+CONFIG_RADIO_RTRACK=m
+CONFIG_RADIO_RTRACK2=m
+CONFIG_RADIO_AZTECH=m
+CONFIG_RADIO_GEMTEK=m
+CONFIG_RADIO_GEMTEK_PCI=m
+CONFIG_RADIO_MAXIRADIO=m
+CONFIG_RADIO_MAESTRO=m
+# CONFIG_RADIO_MIROPCM20 is not set
+# CONFIG_RADIO_MIROPCM20_RDS is not set
+CONFIG_RADIO_SF16FMI=m
+CONFIG_RADIO_TERRATEC=m
+CONFIG_RADIO_TRUST=m
+CONFIG_RADIO_TYPHOON=m
+CONFIG_RADIO_TYPHOON_PROC_FS=y
+CONFIG_RADIO_ZOLTRIX=m
+
+#
+# File systems
+#
+# CONFIG_QUOTA is not set
+CONFIG_AUTOFS_FS=m
+CONFIG_AUTOFS4_FS=m
+CONFIG_REISERFS_FS=m
+# CONFIG_REISERFS_CHECK is not set
+CONFIG_REISERFS_PROC_INFO=y
+# CONFIG_ADFS_FS is not set
+# CONFIG_ADFS_FS_RW is not set
+# CONFIG_AFFS_FS is not set
+CONFIG_HFS_FS=m
+CONFIG_BEFS_FS=m
+# CONFIG_BEFS_DEBUG is not set
+CONFIG_BFS_FS=m
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+# CONFIG_JBD_DEBUG is not set
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_UMSDOS_FS=m
+CONFIG_VFAT_FS=y
+# CONFIG_EFS_FS is not set
+# CONFIG_JFFS_FS is not set
+# CONFIG_JFFS2_FS is not set
+CONFIG_CRAMFS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_JFS_FS=m
+CONFIG_JFS_DEBUG=y
+# CONFIG_JFS_STATISTICS is not set
+CONFIG_MINIX_FS=m
+CONFIG_VXFS_FS=m
+CONFIG_NTFS_FS=y
+# CONFIG_NTFS_RW is not set
+CONFIG_HPFS_FS=m
+CONFIG_PROC_FS=y
+# CONFIG_DEVFS_FS is not set
+# CONFIG_DEVFS_MOUNT is not set
+# CONFIG_DEVFS_DEBUG is not set
+CONFIG_DEVPTS_FS=y
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_QNX4FS_RW is not set
+CONFIG_ROMFS_FS=m
+CONFIG_EXT2_FS=y
+CONFIG_SYSV_FS=m
+CONFIG_UDF_FS=m
+# CONFIG_UDF_RW is not set
+CONFIG_UFS_FS=m
+# CONFIG_UFS_FS_WRITE is not set
+
+#
+# Network File Systems
+#
+CONFIG_CODA_FS=m
+CONFIG_INTERMEZZO_FS=m
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+# CONFIG_ROOT_NFS is not set
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_TCP=y
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_SMB_FS=m
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="cp437"
+CONFIG_NCP_FS=m
+CONFIG_NCPFS_PACKET_SIGNING=y
+CONFIG_NCPFS_IOCTL_LOCKING=y
+CONFIG_NCPFS_STRONG=y
+CONFIG_NCPFS_NFS_NS=y
+CONFIG_NCPFS_OS2_NS=y
+CONFIG_NCPFS_SMALLDOS=y
+CONFIG_NCPFS_NLS=y
+CONFIG_NCPFS_EXTRAS=y
+CONFIG_ZISOFS_FS=y
+
+#
+# Partition Types
+#
+CONFIG_PARTITION_ADVANCED=y
+# CONFIG_ACORN_PARTITION is not set
+CONFIG_OSF_PARTITION=y
+# CONFIG_AMIGA_PARTITION is not set
+# CONFIG_ATARI_PARTITION is not set
+CONFIG_MAC_PARTITION=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_BSD_DISKLABEL=y
+CONFIG_MINIX_SUBPARTITION=y
+CONFIG_SOLARIS_X86_PARTITION=y
+CONFIG_UNIXWARE_DISKLABEL=y
+# CONFIG_LDM_PARTITION is not set
+CONFIG_SGI_PARTITION=y
+# CONFIG_ULTRIX_PARTITION is not set
+CONFIG_SUN_PARTITION=y
+# CONFIG_EFI_PARTITION is not set
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_737=m
+CONFIG_NLS_CODEPAGE_775=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_852=m
+CONFIG_NLS_CODEPAGE_855=m
+CONFIG_NLS_CODEPAGE_857=m
+CONFIG_NLS_CODEPAGE_860=m
+CONFIG_NLS_CODEPAGE_861=m
+CONFIG_NLS_CODEPAGE_862=m
+CONFIG_NLS_CODEPAGE_863=m
+CONFIG_NLS_CODEPAGE_864=m
+CONFIG_NLS_CODEPAGE_865=m
+CONFIG_NLS_CODEPAGE_866=m
+CONFIG_NLS_CODEPAGE_869=m
+CONFIG_NLS_CODEPAGE_936=m
+CONFIG_NLS_CODEPAGE_950=m
+CONFIG_NLS_CODEPAGE_932=m
+CONFIG_NLS_CODEPAGE_949=m
+CONFIG_NLS_CODEPAGE_874=m
+CONFIG_NLS_ISO8859_8=m
+CONFIG_NLS_CODEPAGE_1250=m
+CONFIG_NLS_CODEPAGE_1251=m
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_ISO8859_3=m
+CONFIG_NLS_ISO8859_4=m
+CONFIG_NLS_ISO8859_5=m
+CONFIG_NLS_ISO8859_6=m
+CONFIG_NLS_ISO8859_7=m
+CONFIG_NLS_ISO8859_9=m
+CONFIG_NLS_ISO8859_13=m
+CONFIG_NLS_ISO8859_14=m
+CONFIG_NLS_ISO8859_15=y
+CONFIG_NLS_KOI8_R=m
+CONFIG_NLS_KOI8_U=m
+CONFIG_NLS_UTF8=y
+
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_MDA_CONSOLE=m
+
+#
+# Frame-buffer support
+#
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_RIVA=m
+CONFIG_FB_CLGEN=m
+CONFIG_FB_PM2=m
+# CONFIG_FB_PM2_FIFO_DISCONNECT is not set
+CONFIG_FB_PM2_PCI=y
+CONFIG_FB_PM3=m
+# CONFIG_FB_CYBER2000 is not set
+CONFIG_FB_VESA=y
+# CONFIG_FB_VGA16 is not set
+CONFIG_FB_HGA=m
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_MATROX=m
+CONFIG_FB_MATROX_MILLENIUM=y
+CONFIG_FB_MATROX_MYSTIQUE=y
+CONFIG_FB_MATROX_G100=y
+CONFIG_FB_MATROX_I2C=m
+CONFIG_FB_MATROX_MAVEN=m
+# CONFIG_FB_MATROX_G450 is not set
+CONFIG_FB_MATROX_MULTIHEAD=y
+CONFIG_FB_ATY=m
+CONFIG_FB_ATY_GX=y
+CONFIG_FB_ATY_CT=y
+CONFIG_FB_RADEON=m
+CONFIG_FB_ATY128=m
+CONFIG_FB_SIS=m
+CONFIG_FB_SIS_300=y
+CONFIG_FB_SIS_315=y
+CONFIG_FB_NEOMAGIC=m
+CONFIG_FB_3DFX=m
+CONFIG_FB_VOODOO1=m
+# CONFIG_FB_TRIDENT is not set
+# CONFIG_FB_VIRTUAL is not set
+# CONFIG_FBCON_ADVANCED is not set
+CONFIG_FBCON_MFB=m
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FBCON_HGA=m
+# CONFIG_FBCON_FONTWIDTH8_ONLY is not set
+# CONFIG_FBCON_FONTS is not set
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+
+#
+# Sound
+#
+CONFIG_SOUND=m
+CONFIG_SOUND_ALI5455=m
+CONFIG_SOUND_BT878=m
+CONFIG_SOUND_CMPCI=m
+CONFIG_SOUND_CMPCI_FM=y
+CONFIG_SOUND_CMPCI_FMIO=388
+CONFIG_SOUND_CMPCI_FMIO=388
+CONFIG_SOUND_CMPCI_MIDI=y
+CONFIG_SOUND_CMPCI_MPUIO=330
+CONFIG_SOUND_CMPCI_JOYSTICK=y
+CONFIG_SOUND_CMPCI_CM8738=y
+# CONFIG_SOUND_CMPCI_SPDIFINVERSE is not set
+CONFIG_SOUND_CMPCI_SPDIFLOOP=y
+CONFIG_SOUND_CMPCI_SPEAKERS=2
+CONFIG_SOUND_EMU10K1=m
+CONFIG_MIDI_EMU10K1=y
+CONFIG_SOUND_FUSION=m
+CONFIG_SOUND_CS4281=m
+CONFIG_SOUND_ES1370=m
+CONFIG_SOUND_ES1371=m
+CONFIG_SOUND_ESSSOLO1=m
+CONFIG_SOUND_MAESTRO=m
+CONFIG_SOUND_MAESTRO3=m
+CONFIG_SOUND_FORTE=m
+CONFIG_SOUND_ICH=m
+CONFIG_SOUND_RME96XX=m
+CONFIG_SOUND_SONICVIBES=m
+CONFIG_SOUND_TRIDENT=m
+CONFIG_SOUND_MSNDCLAS=m
+# CONFIG_MSNDCLAS_HAVE_BOOT is not set
+CONFIG_MSNDCLAS_INIT_FILE="/etc/sound/msndinit.bin"
+CONFIG_MSNDCLAS_PERM_FILE="/etc/sound/msndperm.bin"
+CONFIG_SOUND_MSNDPIN=m
+# CONFIG_MSNDPIN_HAVE_BOOT is not set
+CONFIG_MSNDPIN_INIT_FILE="/etc/sound/pndspini.bin"
+CONFIG_MSNDPIN_PERM_FILE="/etc/sound/pndsperm.bin"
+CONFIG_SOUND_VIA82CXXX=m
+CONFIG_MIDI_VIA82CXXX=y
+CONFIG_SOUND_OSS=m
+# CONFIG_SOUND_TRACEINIT is not set
+CONFIG_SOUND_DMAP=y
+CONFIG_SOUND_AD1816=m
+CONFIG_SOUND_SGALAXY=m
+CONFIG_SOUND_ADLIB=m
+CONFIG_SOUND_ACI_MIXER=m
+CONFIG_SOUND_CS4232=m
+CONFIG_SOUND_SSCAPE=m
+CONFIG_SOUND_GUS=m
+CONFIG_SOUND_GUS16=y
+CONFIG_SOUND_GUSMAX=y
+CONFIG_SOUND_VMIDI=m
+CONFIG_SOUND_TRIX=m
+CONFIG_SOUND_MSS=m
+CONFIG_SOUND_MPU401=m
+CONFIG_SOUND_NM256=m
+CONFIG_SOUND_MAD16=m
+CONFIG_MAD16_OLDCARD=y
+CONFIG_SOUND_PAS=m
+# CONFIG_PAS_JOYSTICK is not set
+CONFIG_SOUND_PSS=m
+# CONFIG_PSS_MIXER is not set
+# CONFIG_PSS_HAVE_BOOT is not set
+CONFIG_SOUND_SB=m
+CONFIG_SOUND_AWE32_SYNTH=m
+CONFIG_SOUND_WAVEFRONT=m
+CONFIG_SOUND_MAUI=m
+CONFIG_SOUND_YM3812=m
+CONFIG_SOUND_OPL3SA1=m
+CONFIG_SOUND_OPL3SA2=m
+CONFIG_SOUND_YMFPCI=m
+CONFIG_SOUND_YMFPCI_LEGACY=y
+CONFIG_SOUND_UART6850=m
+CONFIG_SOUND_AEDSP16=m
+CONFIG_SC6600=y
+CONFIG_SC6600_JOY=y
+CONFIG_SC6600_CDROM=4
+CONFIG_SC6600_CDROMBASE=0
+CONFIG_AEDSP16_SBPRO=y
+CONFIG_AEDSP16_MPU401=y
+CONFIG_SOUND_TVMIXER=m
+
+#
+# USB support
+#
+CONFIG_USB=m
+# CONFIG_USB_DEBUG is not set
+CONFIG_USB_DEVICEFS=y
+# CONFIG_USB_BANDWIDTH is not set
+CONFIG_USB_LONG_TIMEOUT=y
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_UHCI=m
+CONFIG_USB_UHCI_ALT=m
+CONFIG_USB_OHCI=m
+CONFIG_USB_AUDIO=m
+# CONFIG_USB_EMI26 is not set
+CONFIG_USB_BLUETOOTH=m
+CONFIG_USB_MIDI=m
+CONFIG_USB_STORAGE=m
+# CONFIG_USB_STORAGE_DEBUG is not set
+CONFIG_USB_STORAGE_DATAFAB=y
+CONFIG_USB_STORAGE_FREECOM=y
+CONFIG_USB_STORAGE_ISD200=y
+CONFIG_USB_STORAGE_DPCM=y
+CONFIG_USB_STORAGE_HP8200e=y
+CONFIG_USB_STORAGE_SDDR09=y
+CONFIG_USB_STORAGE_SDDR55=y
+CONFIG_USB_STORAGE_JUMPSHOT=y
+CONFIG_USB_ACM=m
+CONFIG_USB_PRINTER=m
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+# CONFIG_USB_KBD is not set
+# CONFIG_USB_MOUSE is not set
+# CONFIG_USB_AIPTEK is not set
+CONFIG_USB_WACOM=m
+# CONFIG_USB_DC2XX is not set
+CONFIG_USB_MDC800=m
+CONFIG_USB_SCANNER=m
+CONFIG_USB_MICROTEK=m
+CONFIG_USB_HPUSBSCSI=m
+CONFIG_USB_IBMCAM=m
+CONFIG_USB_OV511=m
+CONFIG_USB_PWC=m
+CONFIG_USB_SE401=m
+CONFIG_USB_STV680=m
+CONFIG_USB_VICAM=m
+CONFIG_USB_DSBR=m
+CONFIG_USB_DABUSB=m
+CONFIG_USB_PEGASUS=m
+CONFIG_USB_RTL8150=m
+CONFIG_USB_KAWETH=m
+CONFIG_USB_CATC=m
+CONFIG_USB_CDCETHER=m
+CONFIG_USB_USBNET=m
+CONFIG_USB_USS720=m
+
+#
+# USB Serial Converter support
+#
+# CONFIG_USB_SERIAL is not set
+CONFIG_USB_RIO500=m
+CONFIG_USB_AUERSWALD=m
+CONFIG_USB_TIGL=m
+CONFIG_USB_BRLVGER=m
+CONFIG_USB_LCD=m
+
+#
+# Bluetooth support
+#
+CONFIG_BLUEZ=m
+CONFIG_BLUEZ_L2CAP=m
+CONFIG_BLUEZ_SCO=m
+# CONFIG_BLUEZ_BNEP is not set
+
+#
+# Bluetooth device drivers
+#
+CONFIG_BLUEZ_HCIUSB=m
+CONFIG_BLUEZ_USB_ZERO_PACKET=y
+CONFIG_BLUEZ_HCIUART=m
+CONFIG_BLUEZ_HCIUART_H4=y
+CONFIG_BLUEZ_HCIDTL1=m
+CONFIG_BLUEZ_HCIBT3C=m
+CONFIG_BLUEZ_HCIBLUECARD=m
+CONFIG_BLUEZ_HCIVHCI=m
+
+#
+# Kernel hacking
+#
+CONFIG_DEBUG_KERNEL=y
+# CONFIG_DEBUG_STACKOVERFLOW is not set
+# CONFIG_DEBUG_HIGHMEM is not set
+# CONFIG_DEBUG_SLAB is not set
+# CONFIG_DEBUG_IOVIRT is not set
+CONFIG_MAGIC_SYSRQ=y
+# CONFIG_DEBUG_SPINLOCK is not set
+# CONFIG_FRAME_POINTER is not set
+
+#
+# Library routines
+#
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=m
+
+--------------020905090909050800050108--
+

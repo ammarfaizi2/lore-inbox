@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290797AbSDAARo>; Sun, 31 Mar 2002 19:17:44 -0500
+	id <S291620AbSDAAh0>; Sun, 31 Mar 2002 19:37:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290593AbSDAARf>; Sun, 31 Mar 2002 19:17:35 -0500
-Received: from [194.46.8.33] ([194.46.8.33]:36869 "EHLO angusbay.vnl.com")
-	by vger.kernel.org with ESMTP id <S290818AbSDAART>;
-	Sun, 31 Mar 2002 19:17:19 -0500
-Date: Mon, 1 Apr 2002 01:30:15 +0100
-From: Dale Amon <amon@vnl.com>
-To: linux-kernel@vger.kernel.org
-Subject: Number of loopback devices
-Message-ID: <20020401003015.GO4583@vnl.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
+	id <S290983AbSDAAhH>; Sun, 31 Mar 2002 19:37:07 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:5697 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S290818AbSDAAg6>; Sun, 31 Mar 2002 19:36:58 -0500
+Date: Mon, 1 Apr 2002 02:36:41 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br
+Subject: Re: Linux 2.4.19-pre5
+Message-ID: <20020401023641.M1331@dualathlon.random>
+In-Reply-To: <20020330135333.A16794@rushmore> <3CA616B2.1F0D8A76@zip.com.au> <3CA6B210.D5AE5D7A@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux, the choice of a GNU generation
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Loopbacks are so damned useful that I'm certain I'll
-soon run out of them, and I doubt I'm the only person
-in that position, particularly with some of the 
-improvements in the crypto patches making it possible
-to run an all crypto system.
+On Sat, Mar 30, 2002 at 10:52:00PM -0800, Andrew Morton wrote:
+> False alarm.  My test app was not handling SIGBUS inside its SIGBUS
+> handler. 
 
-I note that the number is set in loop.c
+Good :). BTW, sigbus should never indicate an oom failure, SIGKILL is
+always sent in such a case. If it would came out of a pagefault it would
+mean it was a MAP_SHARED access beyond the end of the file.
 
-	static int max_loop = 8;
+thanks,
 
-and I wonder what the safe upper limit for this is, 
-and if there is some reason for not making it larger
-or perhaps making it a CONFIGurable item?
-
-
+Andrea

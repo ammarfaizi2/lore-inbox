@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263927AbUAVPTL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 10:19:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265851AbUAVPTL
+	id S266420AbUAVTwv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 14:52:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266422AbUAVTwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 10:19:11 -0500
-Received: from mail.rdslink.ro ([193.231.236.20]:57017 "EHLO mail.rdslink.ro")
-	by vger.kernel.org with ESMTP id S263927AbUAVPTI (ORCPT
+	Thu, 22 Jan 2004 14:52:51 -0500
+Received: from ore.jhcloos.com ([64.240.156.239]:41220 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S266420AbUAVTws (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 10:19:08 -0500
-Message-ID: <400FE9A5.5060500@rdslink.ro>
-Date: Thu, 22 Jan 2004 17:17:57 +0200
-From: "Beratco Matei jr." <mathew@rdslink.ro>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: ro, en-us, en
+	Thu, 22 Jan 2004 14:52:48 -0500
+To: ncunningham@users.sourceforge.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Shutdown IDE before powering off.
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <1074800199.12771.110.camel@laptop-linux> (Nigel Cunningham's
+ message of "Fri, 23 Jan 2004 08:36:40 +1300")
+References: <1074735774.31963.82.camel@laptop-linux>
+	<20040121234956.557d8a40.akpm@osdl.org>
+	<200401220813.i0M8DX4Q000511@81-2-122-30.bradfords.org.uk>
+	<m3y8rzlrj5.fsf@lugabout.jhcloos.org>
+	<1074800199.12771.110.camel@laptop-linux>
+Date: Thu, 22 Jan 2004 14:52:33 -0500
+Message-ID: <m3r7xrlq0u.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-To: Carlos Velasco <lkernel@newipnet.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: iswraid calling modprobe when scsi statically  compiled?
-References: <400C50FA.5070809@rdslink.ro> <200401201130310490.1D90BAC9@192.168.128.16>
-In-Reply-To: <200401201130310490.1D90BAC9@192.168.128.16>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Nigel" == Nigel Cunningham <ncunningham@users.sourceforge.net> writes:
 
->* Sorry by the off-topic *
->However I have problems when booting. I'm using GRUB trying to boot
->directly over ICH5R RAID without any success. It doesn't see any known
->filesystem in (hd0).
->Are you booting directly to RAID disks? I'm using RAID1, it may be a
->bit different.
->What boot loader are you using?
->  
->
-I'm using grub from RedHat 9. I did have redhat installed on my 3rd disk 
-and moved it to my
-raid array (a lot later). When I installed it, i had to install grub on 
-floppy,
-boot from floppy, enter command-line and install to HDD from floppy. 
-This is because
-the grub from redhat (i mean after you booted) doesn't detect the RAID 
-correctly, and still sees
-hd0 as the primary master disk (hda, my 3rd disk).
+Nigel> Actually, we wouldn't want to call sync
+Nigel> anyway for reasons I won't go into here
 
-Anyway, this is what i've done, and it works. I actually installed it on 
-the ext3 partition (from my
-raid) , and the MBR is the "standard" one from windows, with the ext3 as 
-primary (so I can
-reinstall the other OS anytime without reinstalling grub).
+Sorry for the confusion; I didn't mean call sync so much as flush
+synchronously (ie wait for the drive to ack) thrice before the reboot.
+
+-JimC
 

@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130461AbQLTXqF>; Wed, 20 Dec 2000 18:46:05 -0500
+	id <S130144AbQLTXxP>; Wed, 20 Dec 2000 18:53:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130389AbQLTXpp>; Wed, 20 Dec 2000 18:45:45 -0500
-Received: from nilpferd.fachschaften.tu-muenchen.de ([129.187.176.79]:20947
-	"HELO nilpferd.fachschaften.tu-muenchen.de") by vger.kernel.org
-	with SMTP id <S130348AbQLTXpg>; Wed, 20 Dec 2000 18:45:36 -0500
-Date: Thu, 21 Dec 2000 00:15:13 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: <bunk@pluto.fachschaften.tu-muenchen.de>
-To: John Reiser <jreiser@BitWagon.com>
-cc: <linux-kernel@vger.kernel.org>
+	id <S130406AbQLTXxG>; Wed, 20 Dec 2000 18:53:06 -0500
+Received: from e166066.upc-e.chello.nl ([213.93.166.66]:11269 "EHLO Ion.var.cx")
+	by vger.kernel.org with ESMTP id <S130144AbQLTXxC>;
+	Wed, 20 Dec 2000 18:53:02 -0500
+Date: Thu, 21 Dec 2000 00:22:40 +0100
+From: Frank v Waveren <fvw@var.cx>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: John Reiser <jreiser@BitWagon.com>, linux-kernel@vger.kernel.org
 Subject: Re: tighter compression for x86 kernels
-In-Reply-To: <3A412C8D.59DDD9F2@BitWagon.com>
-Message-ID: <Pine.NEB.4.31.0012202338040.21463-100000@pluto.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20001221002240.A1213@var.cx>
+In-Reply-To: <3A412C8D.59DDD9F2@BitWagon.com> <Pine.NEB.4.31.0012202338040.21463-100000@pluto.fachschaften.tu-muenchen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.NEB.4.31.0012202338040.21463-100000@pluto.fachschaften.tu-muenchen.de>; from bunk@fs.tum.de on Thu, Dec 21, 2000 at 12:15:13AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Dec 2000, John Reiser wrote:
+On Thu, Dec 21, 2000 at 12:15:13AM +0100, Adrian Bunk wrote:
+> > Both source (GPLv2) and pre-compiled binary for x86 are available.
+>                ^^^^^
+> That's not true. Read
+>   http://wildsau.idv.uni-linz.ac.at/mfx/upx-license.html
 
-> Beta release v1.11 of the UPX executable compressor http://upx.tsx.org
-> offers new, tighter re-compression of compressed Linux kernels for x86.
-> Additional space savings of about 15% have been seen using
-> "upx --best vmlinuz" (example: 617431 ==> 525099, saving 92332 bytes).
-> Both source (GPLv2) and pre-compiled binary for x86 are available.
-               ^^^^^
-That's not true. Read
-  http://wildsau.idv.uni-linz.ac.at/mfx/upx-license.html
+>From that page:
 
+   UPX and the UCL library are free software; you can redistribute them
+   and/or modify them under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2 of
+   the License, or (at your option) any later version.
 
-> [I'm not subscribed to this mailing list, so CC: or mail me if appropriate.]
-
-cu,
-Adrian
-
+Seems GPL2 to me. I haven't read all of the rest of the page, but
+that'd either be dual licensing stuff, or further restrictions, which
+would be in contradiction with the GPL.
+   
 -- 
-A "No" uttered from deepest conviction is better and greater than a
-"Yes" merely uttered to please, or what is worse, to avoid trouble.
-                -- Mahatma Ghandi
-
+Frank v Waveren                                      Fingerprint: 0EDB 8787
+fvw@[var.cx|dse.nl|stack.nl|chello.nl] ICQ#10074100     09B9 6EF5 6425 B855
+Public key: http://www.var.cx/pubkey/fvw@var.cx-gpg     7179 3036 E136 B85D
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

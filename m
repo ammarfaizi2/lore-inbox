@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUEXHFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263163AbUEXHK4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUEXHFd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 03:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUEXHFc
+	id S263163AbUEXHK4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 03:10:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263624AbUEXHK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 03:05:32 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:30616 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261239AbUEXHFT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 03:05:19 -0400
-Subject: Re: 4g/4g for 2.6.6
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Phy Prabab <phyprabab@yahoo.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040523215519.48712.qmail@web90008.mail.scd.yahoo.com>
-References: <20040523215519.48712.qmail@web90008.mail.scd.yahoo.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YbliFrT6/IxkhIIomXBN"
-Organization: Red Hat UK
-Message-Id: <1085382314.2780.6.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 24 May 2004 09:05:14 +0200
+	Mon, 24 May 2004 03:10:56 -0400
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:51316 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263163AbUEXHKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 03:10:52 -0400
+Message-ID: <40B19FF8.2050402@yahoo.com.au>
+Date: Mon, 24 May 2004 17:10:48 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       rmk+lkml@arm.linux.org.uk
+Subject: Re: scheduler: IRQs disabled over context switches
+References: <20040523174359.A21153@flint.arm.linux.org.uk> <20040524083715.GA24967@elte.hu> <Pine.LNX.4.58.0405232340070.2676@bigblue.dev.mdolabs.com> <20040524090538.GA26183@elte.hu>
+In-Reply-To: <20040524090538.GA26183@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> * Davide Libenzi <davidel@xmailserver.org> wrote:
+> 
+> 
+>>We used to do it in 2.4. What changed to make it fragile? The
+>>threading (TLS) thing?
+> 
+> 
+> it _should_ work, but in the past we only had trouble from such changes
+> (at least in the O(1) tree of scheduling - 2.4 scheduler is OK.). We
+> could try the patch below. It certainly boots on SMP x86. But it causes
+> a 3.5% slowdown in lat_ctx so i'd not do it unless there are some really
+> good reasons.
+> 
+> 	Ingo
+> 
+> --- linux/kernel/sched.c.orig	
+> +++ linux/kernel/sched.c	
+> @@ -247,9 +247,15 @@ static DEFINE_PER_CPU(struct runqueue, r
+>   * Default context-switch locking:
+>   */
+>  #ifndef prepare_arch_switch
+> -# define prepare_arch_switch(rq, next)	do { } while (0)
+> -# define finish_arch_switch(rq, next)	spin_unlock_irq(&(rq)->lock)
+> -# define task_running(rq, p)		((rq)->curr == (p))
+> +# define prepare_arch_switch(rq, next)				\
+> +		do {						\
+> +			spin_lock(&(next)->switch_lock);	\
+> +			spin_unlock(&(rq)->lock);		\
 
---=-YbliFrT6/IxkhIIomXBN
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, 2004-05-23 at 23:55, Phy Prabab wrote:
-> So do I understand this correctly, in 2.6.7(+) it will
-> no longer be necessary to have the 4g patches?  I will
-> be able to get 4g/process with the going forward
-> kernels?
-
-The kernel RPMs I do (http://people.redhat.com/arjanv/2.6/) pretty much
-will have it always for 2.6. Not just for large memory configs, but
-because several userspace applications (databases, java etc) really like
-that extra Gb of virtual space too.=20
-As for the cost; 4:4 split seems to be hardly expensive at all, only in
-some microbenchmarks.
-
---=-YbliFrT6/IxkhIIomXBN
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAsZ6qxULwo51rQBIRAu0YAJ4xPh7FQa/SWz7nRAXeg5dz7HWfPACfSeSw
-06aZ/CXX+iscXwGbiGZDHbU=
-=7geg
------END PGP SIGNATURE-----
-
---=-YbliFrT6/IxkhIIomXBN--
-
+spin_unlock_irq?

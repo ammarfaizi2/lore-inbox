@@ -1,123 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263062AbVBCRve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262849AbVBCRup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbVBCRve (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 12:51:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263888AbVBCRtq
+	id S262849AbVBCRup (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 12:50:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbVBCRuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 12:49:46 -0500
-Received: from mail.kroah.org ([69.55.234.183]:11688 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263357AbVBCRlV convert rfc822-to-8bit
+	Thu, 3 Feb 2005 12:50:32 -0500
+Received: from mail.kroah.org ([69.55.234.183]:5032 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262616AbVBCRlR convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 12:41:21 -0500
-Cc: johnrose@austin.ibm.com
-Subject: [PATCH] PCI Hotplug: remove incorrect rpaphp firmware dependency
-In-Reply-To: <11074524213464@kroah.com>
+	Thu, 3 Feb 2005 12:41:17 -0500
+Cc: aurelien@aurel32.net
+Subject: [PATCH] I2C: Fix DS1621 detection
+In-Reply-To: <20050203173745.GA24076@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 3 Feb 2005 09:40:21 -0800
-Message-Id: <1107452421934@kroah.com>
+Date: Thu, 3 Feb 2005 09:38:58 -0800
+Message-Id: <11074523381178@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
 Content-Transfer-Encoding: 7BIT
 From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2044, 2005/02/03 00:41:04-08:00, johnrose@austin.ibm.com
+ChangeSet 1.2041, 2005/02/03 00:28:34-08:00, aurelien@aurel32.net
 
-[PATCH] PCI Hotplug: remove incorrect rpaphp firmware dependency
+[PATCH] I2C: Fix DS1621 detection
 
-The RPA PCI Hotplug module incorrectly uses a certain firmware property when
-determining the hotplug capabilities of a slot.  Recent firmware changes have
-demonstrated that this property should not be referenced or depended upon by
-the OS.  This patch removes the dependency, and implements a correct set of
-logic for determining hotplug capabilities.
+Dallas Semiconductors as recently changed the design of their DS1621
+chips, including the bits that were checked in the kernel driver to
+detect it.
 
-Signed-off-by: John Rose <johnrose@austin.ibm.com>
+The patch below fixes the detection by checking an other bit of the
+configuration register instead.
+
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-diff -puN drivers/pci/hotplug/rpadlpar_core.c~02_rpadebug drivers/pci/hotplug/rpadlpar_core.c
+
+ drivers/i2c/chips/ds1621.c |   12 ++++++++----
+ 1 files changed, 8 insertions(+), 4 deletions(-)
 
 
- drivers/pci/hotplug/rpaphp.h      |    7 ------
- drivers/pci/hotplug/rpaphp_core.c |   39 +++++++++++++++++++++++++++-----------
- 2 files changed, 28 insertions(+), 18 deletions(-)
-
-
-diff -Nru a/drivers/pci/hotplug/rpaphp.h b/drivers/pci/hotplug/rpaphp.h
---- a/drivers/pci/hotplug/rpaphp.h	2005-02-03 09:28:39 -08:00
-+++ b/drivers/pci/hotplug/rpaphp.h	2005-02-03 09:28:39 -08:00
-@@ -109,13 +109,6 @@
- extern struct list_head rpaphp_slot_head;
- extern int num_slots;
+diff -Nru a/drivers/i2c/chips/ds1621.c b/drivers/i2c/chips/ds1621.c
+--- a/drivers/i2c/chips/ds1621.c	2005-02-03 09:35:23 -08:00
++++ b/drivers/i2c/chips/ds1621.c	2005-02-03 09:35:23 -08:00
+@@ -42,9 +42,8 @@
+ /* Many DS1621 constants specified below */
+ /* Config register used for detection         */
+ /*  7    6    5    4    3    2    1    0      */
+-/* |Done|THF |TLF |NVB | 1  | 0  |POL |1SHOT| */
+-#define DS1621_REG_CONFIG_MASK		0x0C
+-#define DS1621_REG_CONFIG_VAL		0x08
++/* |Done|THF |TLF |NVB | X  | X  |POL |1SHOT| */
++#define DS1621_REG_CONFIG_NVB		0x10
+ #define DS1621_REG_CONFIG_POLARITY	0x02
+ #define DS1621_REG_CONFIG_1SHOT		0x01
+ #define DS1621_REG_CONFIG_DONE		0x80
+@@ -55,6 +54,7 @@
+ #define DS1621_REG_TEMP_MAX		0xA2 /* word, RW */
+ #define DS1621_REG_CONF			0xAC /* byte, RW */
+ #define DS1621_COM_START		0xEE /* no data */
++#define DS1621_COM_STOP			0x22 /* no data */
  
--static inline int is_hotplug_capable(struct device_node *dn)
--{
--	unsigned char *ptr = get_property(dn, "ibm,fw-pci-hot-plug-ctrl", NULL);
--
--	return (int) (ptr != NULL);
--}
--
- /* function prototypes */
+ /* The DS1621 configuration register */
+ #define DS1621_ALARM_TEMP_HIGH		0x40
+@@ -212,9 +212,13 @@
  
- /* rpaphp_pci.c */
-diff -Nru a/drivers/pci/hotplug/rpaphp_core.c b/drivers/pci/hotplug/rpaphp_core.c
---- a/drivers/pci/hotplug/rpaphp_core.c	2005-02-03 09:28:39 -08:00
-+++ b/drivers/pci/hotplug/rpaphp_core.c	2005-02-03 09:28:39 -08:00
-@@ -287,26 +287,43 @@
- 	return 1;
- }
- 
--static int is_php_dn(struct device_node *dn, int **indexes, int **names, int **types,
--	  int **power_domains)
-+static int is_php_type(char *drc_type)
- {
-+	unsigned long value;
-+	char *endptr;
-+
-+	/* PCI Hotplug nodes have an integer for drc_type */
-+	value = simple_strtoul(drc_type, &endptr, 10);
-+	if (endptr == drc_type)
-+		return 0;
-+
-+	return 1;
-+}
-+
-+static int is_php_dn(struct device_node *dn, int **indexes, int **names,
-+		int **types, int **power_domains)
-+{
-+	int *drc_types;
- 	int rc;
- 
--	if (!is_hotplug_capable(dn))
--		return (0);
--	rc = get_children_props(dn, indexes, names, types, power_domains);
--	if (rc)
--		return (0);
--	return (1);
-+	rc = get_children_props(dn, indexes, names, &drc_types, power_domains);
-+	if (rc) {
-+		if (is_php_type((char *) &drc_types[1])) {
-+			*types = drc_types;
-+			return 1;
-+		}
-+	}
-+
-+	return 0;
- }
- 
--static int is_dr_dn(struct device_node *dn, int **indexes, int **names, int **types,
--	  int **power_domains, int **my_drc_index)
-+static int is_dr_dn(struct device_node *dn, int **indexes, int **names,
-+		int **types, int **power_domains, int **my_drc_index)
- {
- 	int rc;
- 
- 	*my_drc_index = (int *) get_property(dn, "ibm,my-drc-index", NULL);
--	if(!*my_drc_index) 		
-+	if(!*my_drc_index)
- 		return (0);
- 
- 	if (!dn->parent)
+ 	/* Now, we do the remaining detection. It is lousy. */
+ 	if (kind < 0) {
++		/* The NVB bit should be low if no EEPROM write has been 
++		   requested during the latest 10ms, which is highly 
++		   improbable in our case. */
+ 		conf = ds1621_read_value(new_client, DS1621_REG_CONF);
+-		if ((conf & DS1621_REG_CONFIG_MASK) != DS1621_REG_CONFIG_VAL)
++		if (conf & DS1621_REG_CONFIG_NVB)
+ 			goto exit_free;
++		/* The 7 lowest bits of a temperature should always be 0. */
+ 		temp = ds1621_read_value(new_client, DS1621_REG_TEMP);
+ 		if (temp & 0x007f)
+ 			goto exit_free;
 

@@ -1,110 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270626AbTHESSw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 14:18:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270644AbTHESS2
+	id S267561AbTHESKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 14:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267705AbTHESKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 14:18:28 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:52961 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S270640AbTHESSP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 14:18:15 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 5 Aug 2003 20:18:11 +0200 (MEST)
-Message-Id: <UTC200308051818.h75IIB517382.aeb@smtp.cwi.nl>
-To: akpm@osdl.org, torvalds@osdl.org
-Subject: [PATCH] fix error return get/set_native_max functions
-Cc: linux-kernel@vger.kernel.org
+	Tue, 5 Aug 2003 14:10:16 -0400
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:59128 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S267561AbTHESKN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 14:10:13 -0400
+Date: Tue, 5 Aug 2003 12:09:46 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: i_blksize
+Message-ID: <20030805120946.Y4479@schatzie.adilger.int>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, Andries.Brouwer@cwi.nl,
+	linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <UTC200308051627.h75GR7J08241.aeb@smtp.cwi.nl> <20030805105006.2769e44a.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030805105006.2769e44a.akpm@osdl.org>; from akpm@osdl.org on Tue, Aug 05, 2003 at 10:50:06AM -0700
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In ide-disk.c we have functions
-  idedisk_read_native_max_address
-  idedisk_read_native_max_address_ext
-  idedisk_set_max_address
-  idedisk_set_max_address_ext
-that are documented as
+On Aug 05, 2003  10:50 -0700, Andrew Morton wrote:
+> Andries.Brouwer@cwi.nl wrote:
+> > Yes. But nevertheless, now that you brought this up,
+> > we might consider throwing out i_blksize.
+> > 
+> > I am not aware of anybody who actually uses this to give
+> > per-file advice. So, it could be in the superblock.
+> 
+> I suppose so.  reiserfs plays with it.
+> 
+> I can't really see that anyone would want to set the I/O size hint on a
+> per-inode basis, especially as the readahead and writebehind code will
+> cheerfully ignore it.
 
- /*
-  * Sets maximum virtual LBA address of the drive.
-  * Returns new maximum virtual LBA address (> 0) or 0 on failure.
-  */
+Actually, Lustre uses this, because each file can be striped over a
+different number of storage targets, and you want read and write requests
+large enough to try and write to all of the targets at one time.
 
-The IDE command they execute returns the largest address,
-and 1 is added to get the capacity.
-Unfortunately, the code does
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-	addr = 0;
-	if (ide_command_succeeds) {
-		addr = ...
-	}
-	addr++;
-
-so that the return value on error is 1 instead of 0.
-The patch below moves the addr++.
-
-Andries
-
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
---- a/drivers/ide/ide-disk.c	Mon Jul 28 05:39:23 2003
-+++ b/drivers/ide/ide-disk.c	Tue Aug  5 21:00:34 2003
-@@ -964,12 +964,13 @@
- 		     | ((args.tfRegister[  IDE_HCYL_OFFSET]       ) << 16)
- 		     | ((args.tfRegister[  IDE_LCYL_OFFSET]       ) <<  8)
- 		     | ((args.tfRegister[IDE_SECTOR_OFFSET]       ));
-+		addr++;	/* since the return value is (maxlba - 1), we add 1 */
- 	}
--	addr++;	/* since the return value is (maxlba - 1), we add 1 */
- 	return addr;
- }
- 
--static unsigned long long idedisk_read_native_max_address_ext(ide_drive_t *drive)
-+static unsigned long long
-+idedisk_read_native_max_address_ext(ide_drive_t *drive)
- {
- 	ide_task_t args;
- 	unsigned long long addr = 0;
-@@ -992,8 +993,8 @@
- 			   ((args.tfRegister[IDE_LCYL_OFFSET])<<8) |
- 			    (args.tfRegister[IDE_SECTOR_OFFSET]);
- 		addr = ((__u64)high << 24) | low;
-+		addr++;	/* since the return value is (maxlba - 1), we add 1 */
- 	}
--	addr++;	/* since the return value is (maxlba - 1), we add 1 */
- 	return addr;
- }
- 
-@@ -1002,7 +1003,8 @@
-  * Sets maximum virtual LBA address of the drive.
-  * Returns new maximum virtual LBA address (> 0) or 0 on failure.
-  */
--static unsigned long idedisk_set_max_address(ide_drive_t *drive, unsigned long addr_req)
-+static unsigned long
-+idedisk_set_max_address(ide_drive_t *drive, unsigned long addr_req)
- {
- 	ide_task_t args;
- 	unsigned long addr_set = 0;
-@@ -1024,12 +1026,13 @@
- 			 | ((args.tfRegister[  IDE_HCYL_OFFSET]       ) << 16)
- 			 | ((args.tfRegister[  IDE_LCYL_OFFSET]       ) <<  8)
- 			 | ((args.tfRegister[IDE_SECTOR_OFFSET]       ));
-+		addr_set++;
- 	}
--	addr_set++;
- 	return addr_set;
- }
- 
--static unsigned long long idedisk_set_max_address_ext(ide_drive_t *drive, unsigned long long addr_req)
-+static unsigned long long
-+idedisk_set_max_address_ext(ide_drive_t *drive, unsigned long long addr_req)
- {
- 	ide_task_t args;
- 	unsigned long long addr_set = 0;
-@@ -1059,6 +1062,7 @@
- 			   ((args.tfRegister[IDE_LCYL_OFFSET])<<8) |
- 			    (args.tfRegister[IDE_SECTOR_OFFSET]);
- 		addr_set = ((__u64)high << 24) | low;
-+		addr_set++;
- 	}
- 	return addr_set;
- }

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315344AbSDWUjf>; Tue, 23 Apr 2002 16:39:35 -0400
+	id <S315341AbSDWUk7>; Tue, 23 Apr 2002 16:40:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315343AbSDWUjb>; Tue, 23 Apr 2002 16:39:31 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:15503 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S315333AbSDWUjF>;
-	Tue, 23 Apr 2002 16:39:05 -0400
-Date: Mon, 22 Apr 2002 00:17:21 +0000
+	id <S315323AbSDWUjh>; Tue, 23 Apr 2002 16:39:37 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:16271 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S315341AbSDWUj0>;
+	Tue, 23 Apr 2002 16:39:26 -0400
+Date: Sun, 21 Apr 2002 23:08:43 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Anton Altaparmakov <aia21@cantab.net>
-Cc: Sean Reifschneider <jafo@tummy.com>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: eNBD on loopback [was Re: [PATCH] 2.5.8 IDE 36]
-Message-ID: <20020422001720.H155@toy.ucw.cz>
-In-Reply-To: <20020420212833.G2866@tummy.com> <5.1.0.14.2.20020421113007.04012810@pop.cus.cam.ac.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rob Landley <landley@trommello.org>, Alexander Viro <viro@math.psu.edu>,
+        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Message-ID: <20020421230842.E155@toy.ucw.cz>
+In-Reply-To: <20020421081224.6B6C547B@merlin.webofficenow.com> <Pine.LNX.4.44.0204211136590.17272-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
@@ -22,30 +22,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > >Don't ask me, I'm not a user, I have just seen the patch submissions, and
-> > >I just want to get real user feedback before I'd merge a new "extended
-> > >nbd".
-> >
-> >I haven't used enbd, because the site was down the weekend I was evaluating
-> >the alternatives...  I did try NBD and DRBD, however.  My experience was
-> >that enbd could hardly be worse than nbd, for the following reasons:
-> >
-> >    The nbd server software referenced in the Configuration documentation
-> >    (the only I was able to find, and that only after some digging), would
-> >    fail rather quickly because the remote kernel would send a request much
-> >    larger than the server was expecting.
+> > The well-defined resync points are the 2.5.N releases.  If -pre goes away,
+> > then the dot-releases might need to come a little closer together, that's all.
 > 
-> Indeed. The source code reference in th Configuration documentation is very 
-> much out of data and completely broken for anything that requires 64 bit 
-> sizes on a 32 bit architecture.
+> I agree.
+> 
+> I've told myself that I shouldn't have done "-preX" releases at all in
+> 2.5.x - the "real" numbers have become diluted by them, and I suspect the
+> -pre's are really just because I got used to making them during the
+> over-long 2.4.x time.
 
-Can you submit patch to fix that docs? It should point to sourceforge..
+I believe -pre's are still important. Daily snapshots are too likely to be
+broken, and "real" releases are different from -pre ones (with *usefull*
+difference): you can ignore -pre release, but you can't ignore real release
+(because real releases are relative to each other).
 
-> This is all fixed now (I know because I shared your frustration and went 
-> and fixed it myself (-:), if you want to get a properly working version 
-> which exhibits no problems under very intensive i/o on a 15GiB partition 
-> over a 100MBit lan just go to http://sf.net/projects/nbd/ and get the 
-> latest version from CVS or download the new 2.0 release tarball.
+Having slightly more frequent real releases would be nice, but I believe
+it is not feasible to make them as common as pre- patches.
 								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287421AbSA0ATi>; Sat, 26 Jan 2002 19:19:38 -0500
+	id <S287388AbSA0Ams>; Sat, 26 Jan 2002 19:42:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287388AbSA0AT3>; Sat, 26 Jan 2002 19:19:29 -0500
-Received: from hermes.toad.net ([162.33.130.251]:47554 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S287386AbSA0ATL>;
-	Sat, 26 Jan 2002 19:19:11 -0500
-Subject: Re: proc_file_read bug?
-From: Thomas Hood <jdthood@mail.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 26 Jan 2002 19:19:18 -0500
-Message-Id: <1012090760.2575.85.camel@thanatos>
-Mime-Version: 1.0
+	id <S287401AbSA0Ame>; Sat, 26 Jan 2002 19:42:34 -0500
+Received: from ns.suse.de ([213.95.15.193]:55822 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287388AbSA0AmR>;
+	Sat, 26 Jan 2002 19:42:17 -0500
+Date: Sun, 27 Jan 2002 01:42:16 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Jim McDonald <Jim@mcdee.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <andre@linuxdiskcert.org>
+Subject: Re: IO Throughput Problem with 2.5.2-dj6 and HPT370 RAID Controller
+In-Reply-To: <1012084624.1504.216.camel@lapcat>
+Message-ID: <Pine.LNX.4.33.0201270139510.12210-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I discovered that this question is fully answered in
-chapter 4 of Linux Device Drivers, 2nd Edition, by
-Alessandro Rubini & Jonathan Corbet.  Excellent book.
+On 26 Jan 2002, Jim McDonald wrote:
 
-This "hack" seems to me rather unfortunate.  It makes
-a single argument serve two completely different and
-not mutually exclusive purposes.  It means that when I
-want to override the file offset increment I can't set the
-data start position within the buffer, and vice versa.
-Overloading "start" in this way also sets an arbitrary
-and randomly varying upper limit on the overriding file
-offset increment: it can't be equal to or greater than
-the address at which the data buffer happens to start.
-(It was the seeming irrationality of this that led me
-to wonder earlier whether or not the code contained a bug.)
+> Which shows a couple of things: first, that the single-drive performance
+> of 2.5.2-dj6 seems to be really low, and second that running both disks
+> at the same time results in each disk itself transferring data faster
+> than when they were running alone!
 
-It might have been better to add a new argument to the
-read function for the purpose of returning offset increase
-overrides.
+I'm not sure about the cause of the performance drop, but one thing
+I did notice that maybe Andre can shed some insight on..
 
+> Boot log from 2.4.17:
+> hda: 53369568 sectors (27325 MB) w/2048KiB Cache, CHS=3322/255/63, UDMA(66)
+> hdc: 80043264 sectors (40982 MB) w/2048KiB Cache, CHS=79408/16/63, UDMA(33)
+> hde: 120069936 sectors (61476 MB) w/2048KiB Cache, CHS=119117/16/63, UDMA(100)
+> hdg: 120069936 sectors (61476 MB) w/2048KiB Cache, CHS=119117/16/63, UDMA(100)
+>
+> Boot log from 2.5.2-dj6:
+> hda: 53369568 sectors (27325 MB) w/2048KiB Cache, CHS=3322/255/63, UDMA(66)
+> hdc: 80043264 sectors (40982 MB) w/2048KiB Cache, CHS=79408/16/63, UDMA(33)
+> hde: 120069936 sectors (61476 MB) w/2048KiB Cache, CHS=119117/255/63, UDMA(100)
+> hdg: 120069936 sectors (61476 MB) w/2048KiB Cache, CHS=119117/255/63, UDMA(100)
 
+Note that the drives that are now reported as slower have slightly
+different geometry. Andre ?
 
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

@@ -1,55 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262892AbUB0Ou6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 09:50:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262895AbUB0Ou5
+	id S262898AbUB0OvY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 09:51:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbUB0OvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 09:50:57 -0500
-Received: from pileup.ihatent.com ([217.13.24.22]:32260 "EHLO
-	pileup.ihatent.com") by vger.kernel.org with ESMTP id S262892AbUB0Ou4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 09:50:56 -0500
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-mm3 sometimes freeze on "sync"
-References: <20040222172200.1d6bdfae.akpm@osdl.org>
-	<403C7D4D.1040104@aitel.hist.no>
-	<20040225013938.53179d6c.akpm@osdl.org>
-	<403DB324.9080702@aitel.hist.no>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 27 Feb 2004 15:49:38 +0100
-In-Reply-To: <403DB324.9080702@aitel.hist.no>
-Message-ID: <874qtc4lx9.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Fri, 27 Feb 2004 09:51:24 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:5831 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S262898AbUB0OvQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 09:51:16 -0500
+Date: Fri, 27 Feb 2004 22:51:05 +0800
+From: "Michael Frank" <mhf@linuxmail.org>
+To: "Russell King" <rmk+lkml@arm.linux.org.uk>
+Subject: Re: Why no interrupt priorities?
+Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       "Mark Gross" <mgross@linux.co.intel.com>, arjanv@redhat.com,
+       "Tim Bird" <tim.bird@am.sony.com>, root@chaos.analogic.com,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>
+References: <F760B14C9561B941B89469F59BA3A84702C932F2@orsmsx401.jf.intel.com> <1077859968.22213.163.camel@gaston> <opr30muhyf4evsfm@smtp.pacific.net.th> <20040227090548.A15644@flint.arm.linux.org.uk> <opr306i5cm4evsfm@smtp.pacific.net.th> <20040227135019.A24457@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-ID: <opr3097ft54evsfm@smtp.pacific.net.th>
+In-Reply-To: <20040227135019.A24457@flint.arm.linux.org.uk>
+User-Agent: Opera M2/7.50 (Linux, build 600)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting <helgehaf@aitel.hist.no> writes:
+On Fri, 27 Feb 2004 13:50:19 +0000, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-> Andrew Morton wrote:
-> > Helge Hafting <helgehaf@aitel.hist.no> wrote:
-> >
-> >>2.6.3-mm3 (and 2.6.3-mm1) occationally freeze on "sync".
-> > yup. bug.  This should fix.
-> 
-> This seems to work for me.  I've booted 2.6.3-mm3 with this
-> patch.  I ran some syncs, then forced the machine to
-> swap with a big tar and ran some more syncs.  It works.
-> 
+> On Fri, Feb 27, 2004 at 09:31:43PM +0800, Michael Frank wrote:
+>> On Fri, 27 Feb 2004 09:05:48 +0000, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+>> > On Fri, Feb 27, 2004 at 02:26:31PM +0800, Michael Frank wrote:
+>> >> Is this to imply that edge triggered shared interrupts are used anywhere?
+>> >
+>> > It is (or used to be) rather common with serial ports.  Remember that
+>> > COM1 and COM3 were both defined to use IRQ4 and COM2 and COM4 to use
+>> > IRQ3.
+>> >
+>> >> Never occured to me to use shared IRQ's edge triggered as this mode
+>> >> _cannot_ work reliably for HW limitations.
+>> >
+>> > The serial driver takes great care with this - when we service such an
+>> > interrupt, we keep going until we have scanned all the devices until
+>> > such time that we can say "all devices are no longer signalling an
+>> > interrupt".
+>> >
+>> > This is something it has always done - it's nothing new.
+>> >
+>>
+>> Sorry, i think the serial driver IRQ is level triggered :)
+>
+> That's actually incorrect.  Serial devices are (were) connected to the
+> old ISA PICs which are definitely edge triggered.
+>
 
-Just posted in reply to someone else ont he list, but I'm runnign -mm3
-with the patch and seeing hangs after mkfs'ing ext3 fs'es on HP
-servers with the cciss-driver; roughly 50% chance of it happening on
-"umount /dir && mke2fs -j -L /dir /dev/cciss/c0d0p5 && mount /dir".
+I was under the impression that the PIC's are historically set to
+level triggered, certainly was the case with (IBM) PC's/AT's and
+with embedded system I am working with.
 
-> Helge Hafting
-> 
+At least it explains why I was never able to share IRQ's on hardware
+with PIC's under linux.
 
-mvh,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+Regards
+Michael
+
+
+
+

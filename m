@@ -1,40 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263603AbUEXTba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263946AbUEXTdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263603AbUEXTba (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 15:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263946AbUEXTb0
+	id S263946AbUEXTdm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 15:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264198AbUEXTdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 15:31:26 -0400
-Received: from zero.aec.at ([193.170.194.10]:33029 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263603AbUEXTbZ (ORCPT
+	Mon, 24 May 2004 15:33:42 -0400
+Received: from zero.aec.at ([193.170.194.10]:34053 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S263946AbUEXTdk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 15:31:25 -0400
-To: MalteSch@gmx.de
+	Mon, 24 May 2004 15:33:40 -0400
+To: Scott Robert Ladd <coyote@coyotegulch.com>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Bad X-performance on 2.6.6 & 2.6.7-rc1 on x86-64
-References: <1ZqbC-5Gl-13@gated-at.bofh.it>
+Subject: Re: NUMA Questions
+References: <1Zt9u-86V-3@gated-at.bofh.it>
 From: Andi Kleen <ak@muc.de>
-Date: Mon, 24 May 2004 21:31:21 +0200
-In-Reply-To: <1ZqbC-5Gl-13@gated-at.bofh.it> (Malte
- =?iso-8859-1?Q?Schr=F6der's?= message of "Mon, 24 May 2004 18:10:08 +0200")
-Message-ID: <m3r7t9d3li.fsf@averell.firstfloor.org>
+Date: Mon, 24 May 2004 21:33:36 +0200
+In-Reply-To: <1Zt9u-86V-3@gated-at.bofh.it> (Scott Robert Ladd's message of
+ "Mon, 24 May 2004 21:20:08 +0200")
+Message-ID: <m3n03xd3hr.fsf@averell.firstfloor.org>
 User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Malte Schröder <MalteSch@gmx.de> writes:
+Scott Robert Ladd <coyote@coyotegulch.com> writes:
 
-> Hi,
-> I build a 64-bit kernel (using gcc 3.3.3) on debian/sid for an Athlon 64 3200+. The System has a Radeon 9800pro as graphics card. 
-> When playing videos using xine in full PAL-Resolution these videos run choppy, top then shows a cpuload of roughly 50% system and 50% user.
+[hmm, didn't I answer this already?]
 
-I would suggest using oprofile to find out where the CPU time is going.
+>
+> Can anyone shed light on this?
 
-2.6.7rc1 had a fix to help performance with hardware accelerated
-DVD playback on x86-64, but apparently that's not what you're doing.
+The system calls were still missing on x86-64 in 2.6.7rc1. 
+
+Apply this small patch.
 
 -Andi
+
+--- linux-2.6.7rc1/include/asm-x86_64/unistd.h	2004-05-23 15:41:56.000000000 +0200
++++ linux-2.6.7rc1-amd64/include/asm-x86_64/unistd.h	2004-05-24 01:31:42.000000000 +0200
+@@ -535,11 +535,11 @@
+ #define __NR_vserver		236
+ __SYSCALL(__NR_vserver, sys_ni_syscall)
+ #define __NR_mbind 		237
+-__SYSCALL(__NR_mbind, sys_ni_syscall)
++__SYSCALL(__NR_mbind, sys_mbind)
+ #define __NR_set_mempolicy 	238
+-__SYSCALL(__NR_set_mempolicy, sys_ni_syscall)
++__SYSCALL(__NR_set_mempolicy, sys_set_mempolicy)
+ #define __NR_get_mempolicy 	239
+-__SYSCALL(__NR_get_mempolicy, sys_ni_syscall)
++__SYSCALL(__NR_get_mempolicy, sys_get_mempolicy)
+ #define __NR_mq_open 		240
+ __SYSCALL(__NR_mq_open, sys_mq_open)
+ #define __NR_mq_unlink 		241
 

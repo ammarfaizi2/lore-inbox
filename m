@@ -1,83 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269039AbUIMW71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269007AbUIMWqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269039AbUIMW71 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 18:59:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269030AbUIMW5z
+	id S269007AbUIMWqd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 18:46:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269030AbUIMWqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 18:57:55 -0400
-Received: from gw.goop.org ([64.81.55.164]:8358 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S269026AbUIMW4X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 18:56:23 -0400
-Subject: Re: [PATCH] Fix for spurious interrupts on e100 resume
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: john.ronciak@intel.com
-Cc: ganesh.venkatesan@intel.com, scott.feldman@intel.com,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1094769368.4298.7.camel@localhost>
-References: <1094769368.4298.7.camel@localhost>
-Content-Type: text/plain
-Date: Mon, 13 Sep 2004 15:53:11 -0700
-Message-Id: <1095115991.20501.19.camel@localhost>
+	Mon, 13 Sep 2004 18:46:20 -0400
+Received: from itapoa.terra.com.br ([200.154.55.227]:38021 "EHLO
+	itapoa.terra.com.br") by vger.kernel.org with ESMTP id S269020AbUIMWj2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 18:39:28 -0400
+Date: Mon, 13 Sep 2004 18:43:39 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@conectiva.com.br>
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] - missing check in usb/serial/usb-serial.c.
+Message-Id: <20040913184339.7afb744c.lcapitulino@conectiva.com.br>
+Organization: Conectiva S/A.
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-conectiva-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-09 at 15:36 -0700, Jeremy Fitzhardinge wrote:
-> I've been having problems with spurious interrupts being raised when the
-> e100 driver resets the chip during a resume:
 
-OK, that patch didn't really work terribly well - the interrupt still
-happens.  I've changed it to simply disable the interrupt during e100_up
-(), which does seem to work properly.
+ Hi Greg,
 
-	J
+ This patch add a missing check in the call to bus_register() and
+not initialise `result' (which is not necessary).
 
 
+Signed-off-by: Luiz Capitulino <lcapitulino@conectiva.com.br>
 
-On resume, the e100 chip seems to raise an interrupt during chip reset.
-Since there's no IRQ handler registered yet, the kernel complains that
-"nobody cared" about the interrupt.  This change disables the IRQ during
-e100_up(), while the hardware is being (re-)initialized.
+ drivers/usb/serial/usb-serial.c |   19 +++++++++++++------
+ 1 files changed, 13 insertions(+), 6 deletions(-)
 
 
- drivers/net/e100.c |    6 ++++++
- 1 files changed, 6 insertions(+)
-
-diff -puN drivers/net/e100.c~e100-restore-irq drivers/net/e100.c
---- local-2.6/drivers/net/e100.c~e100-restore-irq	2004-09-13 13:38:27.000000000 -0700
-+++ local-2.6-jeremy/drivers/net/e100.c	2004-09-13 13:38:28.075416972 -0700
-@@ -1678,6 +1678,9 @@ static int e100_up(struct nic *nic)
+diff -X /home/capitulino/kernels/2.6/dontdiff -Nparu a/drivers/usb/serial/usb-serial.c a~/drivers/usb/serial/usb-serial.c
+--- a/drivers/usb/serial/usb-serial.c	2004-08-26 12:31:41.000000000 -0300
++++ a~/drivers/usb/serial/usb-serial.c	2004-09-12 18:12:30.000000000 -0300
+@@ -1229,7 +1229,7 @@ struct tty_driver *usb_serial_tty_driver
+ static int __init usb_serial_init(void)
+ {
+ 	int i;
+-	int result = 0;
++	int result;
  
- 	if((err = e100_rx_alloc_list(nic)))
- 		return err;
-+
-+	disable_irq(nic->pdev->irq);
-+
- 	if((err = e100_alloc_cbs(nic)))
- 		goto err_rx_clean_list;
- 	if((err = e100_hw_init(nic)))
-@@ -1689,6 +1692,7 @@ static int e100_up(struct nic *nic)
- 		nic->netdev->name, nic->netdev)))
- 		goto err_no_irq;
- 	e100_enable_irq(nic);
-+	enable_irq(nic->pdev->irq);
- 	netif_wake_queue(nic->netdev);
- 	return 0;
+ 	usb_serial_tty_driver = alloc_tty_driver(SERIAL_TTY_MINORS);
+ 	if (!usb_serial_tty_driver)
+@@ -1240,13 +1240,17 @@ static int __init usb_serial_init(void)
+ 		serial_table[i] = NULL;
+ 	}
  
-@@ -1698,6 +1702,8 @@ err_clean_cbs:
- 	e100_clean_cbs(nic);
- err_rx_clean_list:
- 	e100_rx_clean_list(nic);
-+
-+	enable_irq(nic->pdev->irq);
- 	return err;
- }
+-	bus_register(&usb_serial_bus_type);
++	result = bus_register(&usb_serial_bus_type);
++	if (result) {
++		err("%s - registering bus driver failed", __FUNCTION__);
++		goto exit_bus;
++	}
  
-
-_
-Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
-
+ 	/* register the generic driver, if we should */
+ 	result = usb_serial_generic_register(debug);
+ 	if (result < 0) {
+ 		err("%s - registering generic driver failed", __FUNCTION__);
+-		goto exit;
++		goto exit_generic;
+ 	}
+ 
+ 	usb_serial_tty_driver->owner = THIS_MODULE;
+@@ -1264,7 +1268,7 @@ static int __init usb_serial_init(void)
+ 	result = tty_register_driver(usb_serial_tty_driver);
+ 	if (result) {
+ 		err("%s - tty_register_driver failed", __FUNCTION__);
+-		goto exit_generic;
++		goto exit_reg_driver;
+ 	}
+ 
+ 	/* register the USB driver */
+@@ -1281,10 +1285,13 @@ static int __init usb_serial_init(void)
+ exit_tty:
+ 	tty_unregister_driver(usb_serial_tty_driver);
+ 
+-exit_generic:
++exit_reg_driver:
+ 	usb_serial_generic_deregister();
+ 
+-exit:
++exit_generic:
++	bus_unregister(&usb_serial_bus_type);
++
++exit_bus:
+ 	err ("%s - returning with error %d", __FUNCTION__, result);
+ 	put_tty_driver(usb_serial_tty_driver);
+ 	return result;

@@ -1,75 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264547AbTGGCXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 22:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266785AbTGGCXI
+	id S264569AbTGGCmr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 22:42:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266783AbTGGCmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 22:23:08 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:46013 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264547AbTGGCW5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 22:22:57 -0400
-Date: Sun, 6 Jul 2003 19:37:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: barryn@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] heavy disk access sometimes freezes 2.5.73-mm[123]
-Message-Id: <20030706193722.79352bc3.akpm@osdl.org>
-In-Reply-To: <3F08DA84.7010500@cyberone.com.au>
-References: <20030703090541.GB5044@ip68-101-124-193.oc.oc.cox.net>
-	<20030706204630.GA2904@ip68-4-255-84.oc.oc.cox.net>
-	<3F08DA84.7010500@cyberone.com.au>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 6 Jul 2003 22:42:47 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:61711 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S264569AbTGGCmq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 22:42:46 -0400
+Date: Sun, 6 Jul 2003 23:57:29 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel oops with .74 snapshot.
+Message-ID: <20030707025729.GG1820@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+References: <87n0frp4v1.fsf@enki.rimspace.net> <1057540770.215922@palladium.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1057540770.215922@palladium.transmeta.com>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <piggin@cyberone.com.au> wrote:
->
-> >I've figured things out a bit more and filed a Bugzilla report:
-> >http://bugme.osdl.org/show_bug.cgi?id=877
+Em Sun, Jul 06, 2003 at 06:19:29PM -0700, Linus Torvalds escreveu:
+> Daniel Pittman wrote:
+> >
+> > I got the following series of oops reports when booting a .74 snapshot.
+> > Following is information on the latest changeset in the CVS export
+> > server, and the reports.
+> 
+> Just out of interest, does this fix it for you? It looks sane, but since
+> David is off for the weekend, I don't want to apply it without some serious
+> feedback that "yes, it fixes the problem".
 
-Barry says the problem started with 2.5.73-mm1.  There was a reiserfs patch
-added in that kernel.
+Yes, that was what Yoshfuji fixed (he introduced the bug) :-)
 
-Does a `patch -R' of this fix it up?
-
-
- fs/reiserfs/tail_conversion.c |   13 +++++++++++++
- 1 files changed, 13 insertions(+)
-
-diff -puN fs/reiserfs/tail_conversion.c~reiserfs-unmapped-buffer-fix fs/reiserfs/tail_conversion.c
---- 25/fs/reiserfs/tail_conversion.c~reiserfs-unmapped-buffer-fix	2003-06-27 23:20:15.000000000 -0700
-+++ 25-akpm/fs/reiserfs/tail_conversion.c	2003-06-27 23:20:15.000000000 -0700
-@@ -143,6 +143,16 @@ void reiserfs_unmap_buffer(struct buffer
-     }
-     clear_buffer_dirty(bh) ;
-     lock_buffer(bh) ;
-+    /* Remove the buffer from whatever list it belongs to. We are mostly
-+       interested in removing it from per-sb j_dirty_buffers list, to avoid
-+        BUG() on attempt to write not mapped buffer */
-+    if ( !list_empty(&bh->b_assoc_buffers) && bh->b_page) {
-+	struct inode *inode = bh->b_page->mapping->host;
-+	struct reiserfs_journal *j = SB_JOURNAL(inode->i_sb);
-+	spin_lock(&j->j_dirty_buffers_lock);
-+	list_del_init(&bh->b_assoc_buffers);
-+	spin_unlock(&j->j_dirty_buffers_lock);
-+    }
-     clear_buffer_mapped(bh) ;
-     clear_buffer_req(bh) ;
-     clear_buffer_new(bh);
-@@ -180,6 +190,9 @@ unmap_buffers(struct page *page, loff_t 
-         }
- 	bh = next ;
-       } while (bh != head) ;
-+      if ( PAGE_SIZE == bh->b_size ) {
-+	ClearPageDirty(page);
-+      }
-     }
-   } 
- }
-
-_
-
+- Arnaldo

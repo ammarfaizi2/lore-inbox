@@ -1,77 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUFRHdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264851AbUFRHhb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265029AbUFRHdR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 03:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265037AbUFRHdQ
+	id S264851AbUFRHhb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 03:37:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265033AbUFRHha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 03:33:16 -0400
-Received: from fmr99.intel.com ([192.55.52.32]:52939 "EHLO
-	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
-	id S265029AbUFRHdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 03:33:13 -0400
-Subject: [BKPATCH] ACPI for 2.4
-From: Len Brown <len.brown@intel.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1087540935.4488.214.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 18 Jun 2004 03:32:49 -0400
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jun 2004 03:37:30 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2944 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S264851AbUFRHh3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 03:37:29 -0400
+Date: Fri, 18 Jun 2004 08:45:53 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200406180745.i5I7jrvk000381@81-2-122-30.bradfords.org.uk>
+To: 4Front Technologies <dev@opensound.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <40D2474D.8030303@opensound.com>
+References: <40D232AD.4020708@opensound.com>
+ <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk>
+ <40D23EBD.50600@opensound.com>
+ <40D24606.6040009@yahoo.com.au>
+ <40D2474D.8030303@opensound.com>
+Subject: Re: Stop the Linux kernel madness
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo, please do a 
+Quote from 4Front Technologies <dev@opensound.com>:
+> I don't expect you to make my life easier. Why don't we all take
+> a huge plunge backwards to circa 1958 and start programming by throwing
+> switches?
 
-	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.4.27
+Nah, I don't think the novelty would last very long - can you imagine
+toggling something like KDE in on the front panel?
 
-thanks,
--Len
+Now, a less huge plunge back to 1977 hardware might be fun.  If anybody
+is throwing away unwanted VAX hardware in the London and Kent area, I might
+be interested :-).
 
-ps. a plain patch is also available here:
-ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.4.27/acpi-20040326-2.4.27.diff.gz
-
-This will update the following files:
-
- arch/i386/kernel/acpi.c      |    5 +++
- arch/i386/kernel/mpparse.c   |   18 ++++++++++-
- arch/x86_64/kernel/mpparse.c |    1 
- drivers/acpi/asus_acpi.c     |    4 +-
- drivers/acpi/pci_link.c      |   22 +------------
- drivers/acpi/pci_root.c      |   49 ++++++++++++++++++++++++++++++-
- drivers/acpi/thermal.c       |    7 ++++
- 7 files changed, 82 insertions(+), 24 deletions(-)
-
-through these ChangeSets:
-
-<len.brown@intel.com> (04/06/18 1.1359.6.28)
-   [ACPI] handle SCI override to nth IOAPIC
-   http://bugzilla.kernel.org/show_bug.cgi?id=2835
-
-<len.brown@intel.com> (04/06/18 1.1359.6.27)
-   [ACPI] fix 2.4.27-pre3 IRQ override regression
-   due to dynamically allocated mp_irqs[].
-   http://bugzilla.kernel.org/show_bug.cgi?id=2834
-
-<len.brown@intel.com> (04/06/18 1.1359.6.26)
-   [ACPI] avoid spurious interrupts on VIA
-   http://bugzilla.kernel.org/show_bug.cgi?id=2243
-
-<len.brown@intel.com> (04/06/18 1.1359.6.25)
-   [ACPI] fix passive cooling mode indicator (Luming Yu)
-   http://bugzilla.kernel.org/show_bug.cgi?id=1770
-
-<len.brown@intel.com> (04/06/17 1.1359.6.24)
-   [ACPI] PCI bus numbering workaround for ServerWorks
-   from David Shaohua Li
-   http://bugzilla.kernel.org/show_bug.cgi?id=1662
-
-<sziwan@hell.org.pl> (04/06/03 1.1359.6.23)
-   [PATCH] acpi4asus trivial sync with 2.6 (Karol 'sziwan' Kozimor)
-
-
-
-
+John.

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263772AbTLJRaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 12:30:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbTLJRaQ
+	id S263811AbTLJRpo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 12:45:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbTLJRpo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 12:30:16 -0500
-Received: from hibernia.jakma.org ([213.79.33.168]:16023 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S263772AbTLJRaM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 12:30:12 -0500
-Date: Wed, 10 Dec 2003 17:30:01 +0000 (GMT)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Jens Axboe <axboe@suse.de>
-cc: Joe Thornber <thornber@sistina.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Device-mapper submission for 2.4
-In-Reply-To: <20031210084546.GG3988@suse.de>
-Message-ID: <Pine.LNX.4.56.0312101726340.1218@fogarty.jakma.org>
-References: <20031209134551.GG472@reti> <Pine.LNX.4.44.0312091206490.1289-100000@logos.cnet>
- <20031209143412.GI472@reti> <Pine.LNX.4.56.0312092106280.30298@fogarty.jakma.org>
- <20031209222624.GA6591@reti> <20031210084546.GG3988@suse.de>
-X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+	Wed, 10 Dec 2003 12:45:44 -0500
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:10510 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id S263809AbTLJRpf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 12:45:35 -0500
+Message-ID: <3FD75BB0.7030001@lougher.demon.co.uk>
+Date: Wed, 10 Dec 2003 17:45:20 +0000
+From: Phillip Lougher <phillip@lougher.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-GB; rv:1.2.1) Gecko/20030228
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: manningc2@actrix.gen.nz
+CC: David Woodhouse <dwmw2@infradead.org>, joern@wohnheim.fh-wedel.de,
+       kbiswas@neoscale.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [OT?]Re: partially encrypted filesystem
+References: <E1ATLgF-0003XX-0V@anchor-post-31.mail.demon.net> <20031210010947.CA5875748@blood.actrix.co.nz>
+In-Reply-To: <20031210010947.CA5875748@blood.actrix.co.nz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Dec 2003, Jens Axboe wrote:
+Charles Manning wrote:
+> On Tuesday 09 December 2003 02:44, phillip@lougher.demon.co.uk wrote:
+>>Or maybe 'not in(to)-place' :-) I don't think I was saying compression is
+>>difficult, it is not difficult if you've designed the filesystem correctly.
+> 
+> 
+> Effectively saying that a fs that can't easily support compression is badly 
+> designed is a dangerous over-simplfication/generalisation/slur. 
+> 
 
-> Arguments akin to "But XFS got merged, surely we can to" don't hold
-> up one bit. Should be obvious why.
+Apologies all round to anyone who feels offended.  What I meant to say 
+is compression is not that difficult if you design the filesystem from 
+the outset with compression in mind - retro fitting compression to an 
+existing filesystem, however, can be very difficult (especially 
+compressed metadata), and that's why it's not a good idea.
 
-Its not about a /new/ feature, its about an existing feature which is 
-incompatible between 2.4 and 2.6.
+The concept that all well designed filesystems should easily support 
+compression is wrong, and I didn't intend to imply that.
 
-I dont really care whether its done via forward or backware compat. 
-(but why was LVM1 removed from 2.6?)
+Phillip
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-	warning: do not ever send email to spam@dishone.st
-Fortune:
-[Washington, D.C.] is the home of... taste for the people -- the big,
-the bland and the banal.
-		-- Ada Louise Huxtable

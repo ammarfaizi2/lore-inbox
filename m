@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264700AbUD2VUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264860AbUD2VYD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264700AbUD2VUy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 17:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264971AbUD2VRh
+	id S264860AbUD2VYD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 17:24:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264870AbUD2VVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 17:17:37 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:36757 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264966AbUD2VRT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 17:17:19 -0400
-Subject: Re: Possible permissions bug on NFSv3 kernel client
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E1BJISs-0000MM-W0@localhost>
-References: <1QhAA-5zc-13@gated-at.bofh.it> <1QnPD-2pg-1@gated-at.bofh.it>
-	 <E1BJISs-0000MM-W0@localhost>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1083273435.3686.85.camel@lade.trondhjem.org>
+	Thu, 29 Apr 2004 17:21:00 -0400
+Received: from holomorphy.com ([207.189.100.168]:31617 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264994AbUD2VS3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 17:18:29 -0400
+Date: Thu, 29 Apr 2004 14:18:25 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, James.Bottomley@steeleye.com
+Subject: Re: 2.6.6-rc2-mm2
+Message-ID: <20040429211825.GC783@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	James.Bottomley@steeleye.com
+References: <20040426013944.49a105a8.akpm@osdl.org> <20040429184126.GB783@holomorphy.com> <20040429134546.5e9515d8.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 29 Apr 2004 17:17:15 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040429134546.5e9515d8.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-29 at 16:49, Pascal Schmidt wrote:
-> On Thu, 29 Apr 2004 19:50:06 +0200, you wrote in linux.kernel:
-> 
-> >> ...so that the the MODIFY and EXTEND bits aren't set when writing to a
-> >> block or character device.
-> >
-> > Hmm... Why shouldn't the MODIFY bit at least be set if the user
-> > requested write access to the device?
-> 
-> It's somewhat of a mixed-up situation for device nodes exported via
-> NFSv3. Permission bits are on the server, but the actual write does
-> not happen via NFS (as v3 WRITE only works on regular files).
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> I missed -mm1; both this and -mm1 appear to be unable to detect Adaptec
+>> 39160 HBA's. I'm in the midst of bisecting this. Thus far I have the
+>> last known-working as virgin 2.6.6-rc2, and first known broken is patch
+>> #36 out of 308 i.e. it's probably in one of the external bk trees or
+>> linus.patch, though linus.patch doesn't seem to have anything related.
 
-It's not "mixed up" at all: the permissions checking has to be done by
-the server, period.
-All the file security information (the mode bits, owner uid, group gid,
-ACLs etc) that determine whether or not the open() should succeed are
-defined on the *server* not on the client. If the former is doing some
-form of mapping of those values (in particular if it is doing some form
-of root/uid/gid squashing) then the only way for the client to get it
-right is to make an ACCESS call.
+On Thu, Apr 29, 2004 at 01:45:46PM -0700, Andrew Morton wrote:
+> bk-scsi.patch will be the one to try.
 
-The fact that the subsequent writes go to a device on the client is
-entirely irrelevant.
+Is there a split-up version of that anywhere I can do bisection search on?
 
-Cheers,
-  Trond
+
+-- wli

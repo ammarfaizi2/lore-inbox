@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262920AbUCPBLP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 20:11:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbUCPADc
+	id S263161AbUCPBHq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 20:07:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263157AbUCPBDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 19:03:32 -0500
-Received: from mail.kroah.org ([65.200.24.183]:3247 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262873AbUCPAB5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 19:01:57 -0500
-Subject: Re: [PATCH] Driver Core update for 2.6.4
-In-Reply-To: <10793951461961@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 15 Mar 2004 15:59:07 -0800
-Message-Id: <10793951473255@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 15 Mar 2004 20:03:40 -0500
+Received: from monitor.cc.swin.edu.au ([136.186.1.62]:48648 "EHLO
+	monitor.cc.swin.edu.au") by vger.kernel.org with ESMTP
+	id S263058AbUCPBDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 20:03:20 -0500
+Message-ID: <D00002dbb7@monitor.cc.swin.edu.au>
+From: postmaster@groupwise.swin.edu.au
 To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Date: Tue, 16 Mar 2004 12:03:15 +1100
+Subject: Undelivered (Virus)
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="--=bae8905e-5cec-4abe-bc50-db2328c4907c"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1608.84.5, 2004/03/10 16:05:50-08:00, chrisw@osdl.org
+----=bae8905e-5cec-4abe-bc50-db2328c4907c
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-[PATCH] class_simple cleanup in misc
+Swinburne University of Technology has prevented delivery of your email because:
+It contains a virus.
 
-Error path doesn't class_simple_destroy.
+The details of the email are as follows:
+  Recipient: hkitson@groupwise.swin.edu.au
+  Sender: linux-kernel@vger.kernel.org
+  Subject: important
+  Date: 3/16/2004
 
+While the mail message appears to have been sent from yourself,
+Swinburne University understands that your email address may have
+been spoofed/faked.
 
- drivers/char/misc.c |    1 +
- 1 files changed, 1 insertion(+)
+If this is a legitimate email from yourself, please clean the
+email and resend it, if not, please disregard this notice.
 
+Regards,
 
-diff -Nru a/drivers/char/misc.c b/drivers/char/misc.c
---- a/drivers/char/misc.c	Mon Mar 15 15:29:45 2004
-+++ b/drivers/char/misc.c	Mon Mar 15 15:29:45 2004
-@@ -342,6 +342,7 @@
- 	if (register_chrdev(MISC_MAJOR,"misc",&misc_fops)) {
- 		printk("unable to get major %d for misc devices\n",
- 		       MISC_MAJOR);
-+		class_simple_destroy(misc_class);
- 		return -EIO;
- 	}
- 	return 0;
+Swinburne University of Technology
+GroupWise Postmaster
 
+----=bae8905e-5cec-4abe-bc50-db2328c4907c--

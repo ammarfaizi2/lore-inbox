@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261344AbSI3VoL>; Mon, 30 Sep 2002 17:44:11 -0400
+	id <S261369AbSI3Vuy>; Mon, 30 Sep 2002 17:50:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261359AbSI3VoL>; Mon, 30 Sep 2002 17:44:11 -0400
-Received: from petasus.ch.intel.com ([143.182.124.5]:27211 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S261344AbSI3VoJ>; Mon, 30 Sep 2002 17:44:09 -0400
-Message-ID: <288F9BF66CD9D5118DF400508B68C44604758A6C@orsmsx113.jf.intel.com>
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "'Arnd Bergmann'" <arnd@bergmann-dalldorf.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] e100 schedule while atomic
-Date: Mon, 30 Sep 2002 14:48:03 -0700
+	id <S261371AbSI3Vuy>; Mon, 30 Sep 2002 17:50:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32531 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261369AbSI3Vux>;
+	Mon, 30 Sep 2002 17:50:53 -0400
+Message-ID: <3D98C863.10302@pobox.com>
+Date: Mon, 30 Sep 2002 17:55:47 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Kent Yoder <key@austin.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Oops on 2.5.39 was Re: [PATCH] pcnet32 cable status check
+References: <Pine.LNX.4.44.0209301639010.14068-100000@ennui.austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd wrote:
-
-> Running e100 on linux-2.5.39 showed that the driver 
-> incorrectly holds a lock while calling request_irq(), which 
-> does kmalloc().
+Kent Yoder wrote:
+>>I just added mii_check_media() to drivers/net/mii.c.  It's in the latest 
+>>2.5.x snapshot, 
+>>ftp://ftp.kernel.org/pub/linux/kernel/v2.5/snapshots/patch-2.5.39-bk2.bz2
 > 
-> This patch appears to solve the problem. Not sure if it is 
-> correct, but something like it has to be done.
+> 
+>   That looks like just what the doctor ordered, but unfortunately it looks 
+> like 2.5.39-bk2 is oopsing on boot on this machine.
 
-Thanks for pointing this out.  I don't think the lock needs to be held at
-all in e100_open, so we'll look into cleaning that up.  Regardless, we'll
-included a fix for this problem in our next set of patches to Jeff.
+for the purposes of testing, you can copy drivers/net/mii.c and 
+include/linux/mii.h directly into 2.4.x at those same locations.
 
--scott

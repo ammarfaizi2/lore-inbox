@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267402AbTHERs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 13:48:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267317AbTHERs5
+	id S262499AbTHERnE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 13:43:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbTHERnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 13:48:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:16789 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269237AbTHERsh (ORCPT
+	Tue, 5 Aug 2003 13:43:04 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30098 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262499AbTHERnC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 13:48:37 -0400
-Date: Tue, 5 Aug 2003 10:50:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: i_blksize
-Message-Id: <20030805105006.2769e44a.akpm@osdl.org>
-In-Reply-To: <UTC200308051627.h75GR7J08241.aeb@smtp.cwi.nl>
-References: <UTC200308051627.h75GR7J08241.aeb@smtp.cwi.nl>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Aug 2003 13:43:02 -0400
+Date: Tue, 5 Aug 2003 10:47:47 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Ducrot Bruno <poup@poupinou.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [TRIVIAL] sanitize power management config menus, take two
+In-Reply-To: <20030805165117.GH18982@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.44.0308051006060.23977-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
->
-> > Looks like I got myself confused
-> 
-> Yes. But nevertheless, now that you brought this up,
-> we might consider throwing out i_blksize.
-> 
-> I am not aware of anybody who actually uses this to give
-> per-file advice. So, it could be in the superblock.
 
-I suppose so.  reiserfs plays with it.
+> Trouble is, the same goes for ACPI -- it doesn't require that CONFIG_PM
+> code be present.
 
-I can't really see that anyone would want to set the I/O size hint on a
-per-inode basis, especially as the readahead and writebehind code will
-cheerfully ignore it.
+I initially missed that part of your patch, and that is incorrect - Only
+part of ACPI (CONFIG_ACPI_SLEEP) should depend on CONFIG_PM.
 
-> Any objections?
+> I think the correct x86 solution would be to introduce a real dummy
+> option for the menus, and imply CONFIG_PM if APM or swsusp (the two
+> options that seem to actually need CONFIG_PM code) is enabled.
 
-I don't think it's worth fiddling with at this time, really.
+I can buy that. There are actually three levels of power management that 
+we handle:
 
-> If sizeof(struct inode) decreases by 1% then we can keep 1% more inodes.
->
-> That reminds me - I threw out i_dev and i_cdev, but Al reintroduced i_cdev.
-> We should do as some comment says and make a union with i_bdev and i_pipe.
-> Another 8 bytes gone.
+- System Power Management (swsusp, CONFIG_ACPI_SLEEP)
+- Device Power Management (kernel/pm.c, future driver model support)
+- CPU Power Management (cpufreq)
 
-Well all the inode slab caches are using SLAB_HWCACHE_ALIGN at present, so
-it's a little moot.  Especially on a pentium4-compiled kernel.
+SPM implies that DPM will be enabled, but both DPM and CPM can exist 
+without SPM, and independently of each other. All of them would 
+essentially fall under CONFIG_PM.. 
 
-But I expect most distributed 2.6 kernels will be pII or pIII-compiled. 
-Let's look:
+Would you willing to whip up a patch for the Kconfig entries? 
 
-SMP:
-	sizeof(struct ext2_inode_info) = 0x1d0
-	sizeof(struct ext3_inode_info) = 0x1e0
 
-Both of these pack eight-per-page.  Need to get them to 0x1c4 (and remove
-SLAB_HWCACHE_ALIGN) to get to nine-per-page.
-
-UP:
-	sizeof(struct ext3_inode_info) = 0x1c4		(whew!)
-	sizeof(struct ext2_inode_info) = 0x1b4
-
-So for these filesystems at least, we need to remove SLAB_HWCACHE_ALIGN and
-we will get a 12% improvement in packing density on uniprocessor.
-
-unionification of i_[bcp]dev sounds like a good idea to give us a little
-margin there.
+	-pat
 

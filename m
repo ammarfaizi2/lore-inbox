@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268293AbUJDAxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268294AbUJDAzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268293AbUJDAxG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 20:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268294AbUJDAxG
+	id S268294AbUJDAzU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 20:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268295AbUJDAzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 20:53:06 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:56756 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268293AbUJDAxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 20:53:02 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm4-S7
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-In-Reply-To: <20041003195725.GA31882@elte.hu>
-References: <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu>
-	 <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu>
-	 <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu>
-	 <20040928000516.GA3096@elte.hu> <1096785457.1837.0.camel@krustophenia.net>
-	 <1096786248.1837.4.camel@krustophenia.net>
-	 <1096787179.1837.8.camel@krustophenia.net> <20041003195725.GA31882@elte.hu>
-Content-Type: text/plain
-Message-Id: <1096851180.16648.2.camel@krustophenia.net>
+	Sun, 3 Oct 2004 20:55:19 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:15313 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268294AbUJDAzH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 20:55:07 -0400
+Date: Sun, 3 Oct 2004 17:53:09 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
+       ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20041003175309.6b02b5c6.pj@sgi.com>
+In-Reply-To: <835810000.1096848156@[10.10.2.4]>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20040805190500.3c8fb361.pj@sgi.com>
+	<247790000.1091762644@[10.10.2.4]>
+	<200408061730.06175.efocht@hpce.nec.com>
+	<20040806231013.2b6c44df.pj@sgi.com>
+	<411685D6.5040405@watson.ibm.com>
+	<20041001164118.45b75e17.akpm@osdl.org>
+	<20041001230644.39b551af.pj@sgi.com>
+	<20041002145521.GA8868@in.ibm.com>
+	<415ED3E3.6050008@watson.ibm.com>
+	<415F37F9.6060002@bigpond.net.au>
+	<821020000.1096814205@[10.10.2.4]>
+	<20041003083936.7c844ec3.pj@sgi.com>
+	<834330000.1096847619@[10.10.2.4]>
+	<835810000.1096848156@[10.10.2.4]>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 03 Oct 2004 20:53:01 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-10-03 at 15:57, Ingo Molnar wrote:
-> do you still have the stacktrace too that went to the syslog? What
-> codepath called _mmx_memcpy()?
-> 
+Martin wrote:
+> (and existing processes forcibly migrated off)
 
-Here is an almost identical one (it's even exactly 507 usecs!).  This
-and the one I sent previously were apparently caused by switching from X
-to a text console and back. 
+No can do.  As described in my previous message, everything is happily
+moved already, with some user code (and a CPU_MASK_ALL patch to kthread
+I haven't submitted yet) _except_ for a few per-CPU threads such as the
+migration helpers, which can _not_ be moved off their respective CPUs.
 
-Sep  2 16:13:49 krustophenia kernel: (events/0/3): new 507 us maximum-latency critical section.
-Sep  2 16:13:49 krustophenia kernel:  => started at: <kernel_fpu_begin+0x15/0x70>
-Sep  2 16:13:49 krustophenia kernel:  => ended at:   <_mmx_memcpy+0x13a/0x180>
-Sep  2 16:13:49 krustophenia kernel:  [check_preempt_timing+259/464] check_preempt_timing+0x103/0x1d0
-Sep  2 16:13:49 krustophenia kernel:  [_mmx_memcpy+314/384] _mmx_memcpy+0x13a/0x180
-Sep  2 16:13:49 krustophenia kernel:  [sub_preempt_count+70/96] sub_preempt_count+0x46/0x60
-Sep  2 16:13:49 krustophenia kernel:  [sub_preempt_count+70/96] sub_preempt_count+0x46/0x60
-Sep  2 16:13:49 krustophenia kernel:  [_mmx_memcpy+314/384] _mmx_memcpy+0x13a/0x180
-Sep  2 16:13:49 krustophenia kernel:  [vgacon_save_screen+120/128] vgacon_save_screen+0x78/0x80
-Sep  2 16:13:49 krustophenia kernel:  [redraw_screen+411/560] redraw_screen+0x19b/0x230
-Sep  2 16:13:49 krustophenia kernel:  [complete_change_console+44/224] complete_change_console+0x2c/0xe0
-Sep  2 16:13:49 krustophenia kernel:  [console_callback+258/272] console_callback+0x102/0x110
-Sep  2 16:13:49 krustophenia kernel:  [worker_thread+422/624] worker_thread+0x1a6/0x270
-Sep  2 16:13:49 krustophenia kernel:  [console_callback+0/272] console_callback+0x0/0x110
-Sep  2 16:13:49 krustophenia kernel:  [default_wake_function+0/32] default_wake_function+0x0/0x20
-Sep  2 16:13:49 krustophenia kernel:  [schedule+718/1360] schedule+0x2ce/0x550
-Sep  2 16:13:49 krustophenia kernel:  [default_wake_function+0/32] default_wake_function+0x0/0x20
-Sep  2 16:13:49 krustophenia kernel:  [schedule+718/1360] schedule+0x2ce/0x550
-Sep  2 16:13:49 krustophenia kernel:  [kthread+180/192] kthread+0xb4/0xc0
-Sep  2 16:13:49 krustophenia kernel:  [worker_thread+0/624] worker_thread+0x0/0x270
-Sep  2 16:13:49 krustophenia kernel:  [kthread+0/192] kthread+0x0/0xc0
-Sep  2 16:13:49 krustophenia kernel:  [kernel_thread_helper+5/16] kernel_thread_helper+0x5/0x10
-
-Lee
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

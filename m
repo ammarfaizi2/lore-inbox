@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261620AbTIKXuU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 19:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbTIKXuU
+	id S261607AbTIKXq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 19:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbTIKXq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 19:50:20 -0400
-Received: from smtp.netcabo.pt ([212.113.174.9]:38842 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id S261620AbTIKXuR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 19:50:17 -0400
-From: =?iso-8859-15?q?Jo=E3o=20Seabra?= <seabra@aac.uc.pt>
-To: linux-kernel@vger.kernel.org
-Subject: Yet another query about sis963
-Date: Fri, 12 Sep 2003 00:50:21 +0100
-User-Agent: KMail/1.5.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200309120050.21630.seabra@aac.uc.pt>
-X-OriginalArrivalTime: 11 Sep 2003 23:47:09.0695 (UTC) FILETIME=[03F488F0:01C378BF]
+	Thu, 11 Sep 2003 19:46:29 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:17129 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261607AbTIKXq2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 19:46:28 -0400
+Date: Thu, 11 Sep 2003 16:35:25 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Erlend Aasland <erlend-a@ux.his.no>
+Cc: jmorris@intercode.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [CRYPTO] add alg. type to /proc/crypto output
+Message-Id: <20030911163525.1fbb70b0.davem@redhat.com>
+In-Reply-To: <20030905143859.GA18143@johanna5.ux.his.no>
+References: <20030905143859.GA18143@johanna5.ux.his.no>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Fri, 5 Sep 2003 16:38:59 +0200
+Erlend Aasland <erlend-a@ux.his.no> wrote:
 
- Could someone enlight me about the support of this chipset in 2.4 series?
- I've read some posts about it, dating from not long time ago and since im 
-planning to buy an asus l5800c with that chipset i would like to know if 
-linux is going to work in it or not.
- I have seen other problems with sis (such as graphics not (quite) working in 
-linux) and i think im going to buy other laptop that doesnt use sis.... 
-(toshiba maybe...)
+> Here is a patch that add alg. type output to /proc/crypto. Booted and
+> tested.
 
-Thanks for your kindness,
-
- João Seabra
- 
-
+I've applied this, thank you.

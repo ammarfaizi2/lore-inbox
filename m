@@ -1,101 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293658AbSCPBvL>; Fri, 15 Mar 2002 20:51:11 -0500
+	id <S293659AbSCPCHZ>; Fri, 15 Mar 2002 21:07:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293657AbSCPBvB>; Fri, 15 Mar 2002 20:51:01 -0500
-Received: from pcls2.std.com ([199.172.62.104]:38873 "EHLO TheWorld.com")
-	by vger.kernel.org with ESMTP id <S293656AbSCPBup>;
-	Fri, 15 Mar 2002 20:50:45 -0500
-Message-ID: <3C92A4EB.C50ED834@world.std.com>
-Date: Fri, 15 Mar 2002 20:50:35 -0500
-From: Gordon J Lee <gordonl@world.std.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.18-m1 i686)
-X-Accept-Language: en
+	id <S293661AbSCPCHP>; Fri, 15 Mar 2002 21:07:15 -0500
+Received: from adsl-64-164-18-186.dsl.snfc21.pacbell.net ([64.164.18.186]:65093
+	"HELO switchmanagement.com") by vger.kernel.org with SMTP
+	id <S293659AbSCPCHK>; Fri, 15 Mar 2002 21:07:10 -0500
+Message-ID: <3C92A8C8.7020000@switchmanagement.com>
+Date: Fri, 15 Mar 2002 18:07:04 -0800
+From: Brian Strand <bstrand@switchmanagement.com>
+Organization: Switch Management
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020310
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IBM x360 2.2.x boot failure, 2.4.9 works fine
-In-Reply-To: <3C927F3E.7C7FB075@world.std.com> <20020315233441.GG5563@kroah.com>
-Content-Type: multipart/mixed;
- boundary="------------D43B7AEA21899E923F578BC1"
+To: linux-kernel@vger.kernel.org
+Subject: Suse 2.4.16 LVM hangs with multiple snapshots of the same LV
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------D43B7AEA21899E923F578BC1
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+I have a single-processor ppro200 with 96M memory running Suse's 2.4.16 
+kernel (k_deflt-2.4.16-22).  I am creating and mounting many (like 8-10) 
+snapshots of the same logical volume over a week or so (a poor man's 
+nightly backup, if you will).  The write activity on the source logical 
+volume is limited to a brief period once per day, starting at 23:20; at 
+all other times the source logical volume is mounted read-only.  The 
+snapshot logs grow to about 3GB per snapshot volume before the oldest 
+snapshot is removed.  So far, so good.
 
-Thanks for the rapid replies,
+Unfortunately, the box falls over every few days doing this; it has 
+lasted anywhere from 1 day to over 1 week.  Also, memtest completes one 
+pass with 0 errors.  I got the following in the syslog before the latest 
+hang:
 
+Mar 11 23:24:12 dailies kernel: clm-2100: nesting info a different FS
+Mar 11 23:24:44 dailies last message repeated 15 times
+Mar 11 23:25:46 dailies last message repeated 94 times
+Mar 11 23:26:48 dailies last message repeated 38 times
+Mar 11 23:26:50 dailies last message repeated 2 times
+Mar 11 23:37:35 dailies kernel: clm-2100: nesting info a different FS
+Mar 11 23:38:27 dailies last message repeated 16 times
+Mar 11 23:39:28 dailies last message repeated 33 times
+Mar 11 23:40:01 dailies last message repeated 27 times
+Mar 11 23:40:03 dailies kernel: clm-2100: nesting info a different FS
+Mar 11 23:40:34 dailies last message repeated 22 times
+Mar 11 23:41:35 dailies last message repeated 42 times
+Mar 11 23:42:32 dailies last message repeated 72 times
+Mar 11 23:44:22 dailies kernel: clm-2100: nesting info a different FS
+Mar 11 23:45:23 dailies last message repeated 57 times
+Mar 11 23:46:27 dailies last message repeated 31 times
+Mar 11 23:47:28 dailies last message repeated 53 times
+Mar 11 23:48:26 dailies last message repeated 81 times
+Mar 11 23:49:27 dailies last message repeated 48 times
 
-> Eeek, these machines are now in the wild?  Didn't realize this :)
+Is what I'm doing with the multiple snapshots supported and/or sane?  I 
+found very little information in the various LVM howtos, Sistina, and 
+google on creating multiple snapshots from a single LV.
 
-Yes.  They are still ramping up production, and evals are scarce.
-I am pretty excited about it, because on paper, even without
-the hyperthreading, they should run pretty fast for I/O intensive
-workloads.  My current eval project is to get some empirical
-performance numbers on a particular application.
+Regards,
+Brian
 
-> I don't know if anyone ever tried a 2.2.x kernel on these boxes :)
-
-I'm first!  Lucky me!   :-)
-
-
-> Is there a reason you _really_ need a 2.2.x kernel for this machine?
-
-Longterm no, shortterm yes,
-We have some modifications to the 2.2.x kernel/drivers that would cost
-us some time to migrate to 2.4.x.  We expect to do this, but not within
-the short eval period during which I have the box.  My immediate goal
-is to get it running enough to take performance measurements so we
-can clearly quantify the cost/benefit of migrating to this box.
-
-
-> You also might try a UP 2.2.x kernel on this box to see if the problem
-> is in the parsing of the APIC tables (as I think it is.)
-
-As a matter of fact, we did try a UP 2.2.x kernel, and it worked.  But then
-
-we only have one CPU, and where is the fun in that ?  :-)
-So I suppose this gives further support to the mishandled APIC table
-theory.
-
-I am interested and motivated to understand the details of APIC's further.
-If I were to attempt to patch up a 2.2.x kernel to workaround this problem,
-
-what documentation should I have on hand ?  I have an Intel SMP 1.4
-doc, although I haven't studied it in detail yet.  Is this sufficient or
-are
-there other Must Have documents that I will need ?
-
-    - GL
-
-
---------------D43B7AEA21899E923F578BC1
-Content-Type: text/x-vcard; charset=us-ascii;
- name="gordonl.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Gordon J Lee
-Content-Disposition: attachment;
- filename="gordonl.vcf"
-
-begin:vcard 
-n:Lee;Gordon
-tel;fax:(617) 354-9272
-tel;home:(617) 576-1779
-tel;work:(617) 354-9292 x108
-x-mozilla-html:TRUE
-url:http://www.mazunetworks.com
-org:Mazu Networks
-adr:;;50 Cushing Street;Cambridge;MA;02138;USA
-version:2.1
-email;internet:gordonl@world.std.com
-title:Principal Software Engineer
-note;quoted-printable:125 Cambridge Park Drive=0D=0ACambridge, MA  02140=0D=0A=0D=0A
-x-mozilla-cpt:;0
-fn:Gordon Lee
-end:vcard
-
---------------D43B7AEA21899E923F578BC1--
 

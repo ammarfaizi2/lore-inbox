@@ -1,79 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266204AbUGARzd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266209AbUGASEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266204AbUGARzd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 13:55:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266209AbUGARzd
+	id S266209AbUGASEi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 14:04:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266212AbUGASEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 13:55:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59285 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266204AbUGARz0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 13:55:26 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 1 Jul 2004 14:04:38 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:36482 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S266209AbUGASEd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 14:04:33 -0400
+Subject: Re: [RFC] on-chip coherent memory API for DMA
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: Ian Molton <spyro@f2s.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com,
+       Russell King <rmk@arm.linux.org.uk>
+In-Reply-To: <40E42374.8060407@pacbell.net>
+References: <1088518868.1862.18.camel@mulgrave>
+		<40E41BE1.1010003@pacbell.net> <1088692004.1887.8.camel@mulgrave> 
+	<40E42374.8060407@pacbell.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <16612.20364.397802.306245@segfault.boston.redhat.com>
-Date: Thu, 1 Jul 2004 13:53:16 -0400
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: netconsole hangs w/ alt-sysrq-t
-In-Reply-To: <20040701170512.GH25826@waste.org>
-References: <16527.47765.286783.249944@segfault.boston.redhat.com>
-	<20040428142753.GE28459@waste.org>
-	<16527.63123.869014.733258@segfault.boston.redhat.com>
-	<16604.18881.850162.785970@segfault.boston.redhat.com>
-	<20040625232711.GE25826@waste.org>
-	<16608.12233.39964.940020@segfault.boston.redhat.com>
-	<20040628151954.GH25826@waste.org>
-	<16608.20014.220537.339589@segfault.boston.redhat.com>
-	<20040701165201.GF25826@waste.org>
-	<16612.16858.959279.469244@segfault.boston.redhat.com>
-	<20040701170512.GH25826@waste.org>
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 01 Jul 2004 13:04:20 -0500
+Message-Id: <1088705063.1919.16.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding Re: netconsole hangs w/ alt-sysrq-t; Matt Mackall <mpm@selenic.com> adds:
+On Thu, 2004-07-01 at 09:45, David Brownell wrote:
+> Seems unreasonable to me, unless there's also an API to change
+> the mode of the dma_alloc_coherent() memory from the normal
+> "CPU can read/write as usual" to the exotic "need to use special
+> memory accessors".  (And another to report what mode the API is
+> in at the current moment.)
 
-mpm> On Thu, Jul 01, 2004 at 12:54:50PM -0400, Jeff Moyer wrote:
->> ==> Regarding Re: netconsole hangs w/ alt-sysrq-t; Matt Mackall
->> <mpm@selenic.com> adds:
->> 
-mpm> On Mon, Jun 28, 2004 at 12:58:22PM -0400, Jeff Moyer wrote:
->> >> ==> Regarding Re: netconsole hangs w/ alt-sysrq-t; Matt Mackall >>
->> <mpm@selenic.com> adds:
-mpm> No, I think we get to this on the non-NAPI route as well. The ->poll
-mpm> check keeps us from filtering twice.
->> >> I'll have to take your word for it on this one, as I can't find a way
->> >> into this code for the non-napi case.  Would anyone care to give an
->> >> authoritative answer on this?
->> 
-mpm> I could be mistaken, but that's my recollection from last summer.
-mpm> Hopefully I'll have some spare cycles for this next week.
->> >> One other thing we might consider is adding a call to >>
->> touch_nmi_watchdog() to zap_completion_queue.
->> 
-mpm> Not sure how I feel about that yet. If we can't get out of the guts of
-mpm> netpoll in a timely fashion, then perhaps that's an indication that
-mpm> the watchdog should indeed fire. Describe the scenario where you think
-mpm> we should do this, please.
->> Alt-Sysrq-t from the keyboard on a heavily-loaded UP system.
+No. That's why you specify how you'd like the memory to be treated.  If
+you don't want the memory to be accessible only via IO accessors, then
+you specify DMA_MEMORY_MAP and take the failure if the platform can't
+handle it.
 
-mpm> Is it because we're spinning for too long waiting for skbs or is it
-mpm> just because sysrq-t takes that long to dump its guts? How does the
-mpm> watchdog get tickled in the sysrq-t over slow serial console case?
+> And I don't like modal APIs like that, which is why it'd make
+> more sense to me to have a new allocator API for this new
+> kind of DMA memory.  (Which IS for that IBM processor, yes?)
 
-mpm> In other words, would this better be done between dumps in the sysrq-t
-mpm> loop where we actually know we're making forward progress?
+There is no "new" kind of memory.  This is currently how *all* I/O
+memory is accessed.  DMA_MEMORY_MAP is actually the new bit since it
+allows I/O memory to be treated as normal memory.
 
-Good point.  I tend to center my thinking too much around netdump.  You're
-right, if we're waiting too long for skb's, we probably should trigger the
-NMI watchdog.  It also appears that show_state includes a call to
-touch_nmi_watchdog in its loop.
+> Alternatively, modify dma_alloc_coherent() to say what kind
+> of address it must return.  Since this is a "generic" DMA
+> API, the caller of dma_alloc_coherent() shouldn't need to be
+> guessing how they may actually use the memory returned.
+> That new "must guess" requirement will break some code...
 
--Jeff
+There is no "must guess".  Either the driver specifies DMA_MEMORY_MAP or
+DMA_MEMORY_IO.  If you specify DMA_MEMORY_IO then you have to use
+accessors for dma_alloc_coherent() memory.  If you never wish to bother
+with it, simply specify DMA_MEMORY_MAP and take the failure on platforms
+which cannot comply.
+
+> So -- you're saying it's not a bug that a __GFP_NOFAIL|__GFP_WAIT
+> allocation be able to fail?  Curious.  I'd have thought the API
+> was clear about that.  Allocating 128 MB from a 1 MB region must
+> of course fail, but allocating one page just needs a wait/wakeup.
+
+It can *only* happen if you specify DMA_MEMORY_EXCLUSIVE; that preempts
+the GFP_ flags and the application must be coded with this in mind. 
+Otherwise it will respect the GFP_ flags.
+
+James
+
+

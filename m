@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317994AbSIESRo>; Thu, 5 Sep 2002 14:17:44 -0400
+	id <S318022AbSIESZd>; Thu, 5 Sep 2002 14:25:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318009AbSIESRo>; Thu, 5 Sep 2002 14:17:44 -0400
-Received: from relay1.pair.com ([209.68.1.20]:8196 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S317994AbSIESRn>;
-	Thu, 5 Sep 2002 14:17:43 -0400
-X-pair-Authenticated: 192.249.49.31
-Message-ID: <3D77A0FF.8060000@cybsft.com>
-Date: Thu, 05 Sep 2002 13:22:55 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
-X-Accept-Language: en-us, en
+	id <S318027AbSIESZd>; Thu, 5 Sep 2002 14:25:33 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:49413 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S318022AbSIESZc>; Thu, 5 Sep 2002 14:25:32 -0400
+Message-ID: <3D77A22A.DC3F4D1@zip.com.au>
+Date: Thu, 05 Sep 2002 11:27:54 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: kyi <kyi@kyi.sytes.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: nic driver
-References: <1031248870.973.6.camel@Jayson>
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Chuck Lever <cel@citi.umich.edu>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+References: <Pine.LNX.4.44.0209051023490.5579-100000@dexter.citi.umich.edu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Chuck Lever wrote:
+> 
+> hi all-
+> 
+> it appears that changes in or around invalidate_inode_pages that went into
+> 2.5.32/3 have broken certain cache behaviors that the NFS client depends
+> on.  when the NFS client calls invalidate_inode_pages to purge directory
+> data from the page cache, sometimes it works as before, and sometimes it
+> doesn't, leaving stale pages in the page cache.
+> 
+> i don't know much about the MM, but i can reliably reproduce the problem.
+> what more information can i provide?  please copy me, as i'm not a member
+> of the linux-kernel mailing list.
 
-kyi wrote:
-| I relize that this isn't the correct list for this, but I can't seem to
-| find and anwser anywhere. Could someone please tell me what driver the
-|
-|
-| Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
-|
-| uses. The Realtek kernel drivers don't mention this card. Thanks in
-| advance for any help.
-|
-| - Jayson Garrell
-|
+The locking became finer-grained.
 
-Mine uses ne2k-pci.
+Up to 2.5.31 or thereabouts, invalidate_inode_pages was grabbing
+the global pagemap_lru_lock and walking all the inodes pages inside
+that lock.  This basically shuts down the entire VM for the whole
+operation.
 
-kr
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+In 2.5.33, that lock is per-zone, and invalidate takes it on a 
+much more fine-grained basis.
 
-iD8DBQE9d6D/OSid126whWsRAnTGAJwM2k98N1qrzTthpLPDMcxr6PaugwCeIvyd
-xHyKmNhbZxDQGyN0eKN4Ul8=
-=RMFM
------END PGP SIGNATURE-----
+That all assumes SMP/preempt.  If you're seeing these problems on
+uniproc/non-preempt then something fishy may be happening.
 
+But be aware that invalidate_inode_pages has always been best-effort.
+If someone is reading, or writing one of those pages then it
+certainly will not be removed.  If you need assurances that the
+pagecache has been taken down then we'll need something stronger
+in there.

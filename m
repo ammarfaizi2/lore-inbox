@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314023AbSDKLDp>; Thu, 11 Apr 2002 07:03:45 -0400
+	id <S314022AbSDKLA3>; Thu, 11 Apr 2002 07:00:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314025AbSDKLDo>; Thu, 11 Apr 2002 07:03:44 -0400
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:11694 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S314023AbSDKLDn>; Thu, 11 Apr 2002 07:03:43 -0400
-Message-ID: <3CB56D05.6040702@didntduck.org>
-Date: Thu, 11 Apr 2002 07:01:25 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
+	id <S314023AbSDKLA2>; Thu, 11 Apr 2002 07:00:28 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:477 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S314022AbSDKLA1>; Thu, 11 Apr 2002 07:00:27 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: David Shirley <dave@cs.curtin.edu.au>
+Date: Thu, 11 Apr 2002 21:03:40 +1000 (EST)
 MIME-Version: 1.0
-To: blesson paul <blessonpaul@msn.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: put_user_byte()
-In-Reply-To: <F38uSbh29cM3oryKFRJ00031d09@hotmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15541.28044.720063.458160@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The process of NFS mounting?
+In-Reply-To: message from David Shirley on Thursday April 11
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-blesson paul wrote:
-> Hi all
->                I need to copy some data from kernel memory space to user 
-> memory space. When I investigated, the command for that purpose is 
-> put_user_byte(). But in kernel2.4, I can't find the implementation of 
-> this command. I want to know the command which replaced put_user_byte() 
-> in 2.4 kernel. Also I want to know whether there is any synonyms for 
-> verify_area() in kernel 2.4
-> regards
-> Blesson Paul
+On Thursday April 11, dave@cs.curtin.edu.au wrote:
+> Hi everyone,
+> 
+> I'm not sure that this is the correct list for this question,
+> so I apologise if you think so.
 
-Use put_user(val, uaddr).  val must be of type unsigned char (or casted 
-to it).  It will return 0 on success or -EFAULT on fault.  verify_area() 
-is normally not needed in 2.4, unless you are copying many values to 
-user space and only want to do the priviledge check once on the whole range.
+nfs@lists.sourceforge.net might be a reasonable alternative.
 
--- 
+> 
+> Basically I want to understand the process of NFS mounting
+> in terms of network activity and transactions from client
+> to server.
 
-						Brian Gerst
+use ethereal to watch what actually happens on the wire...
 
+> 
+>  From my understanding basically the client requests the mountd
+> port from the servers portmapper.
+> 
+> Then the client talks to mountd
+> 
+> etc etc etc..
+> 
+> Well the problem I have is that it seems that mountd is trying to
+> establish a new UDP connection (yeah yeah i know...) to the mount
+				            ^^^^^^^ Not sure what you know...
+> client process. Is this what is supposed to happen?
+> 
+
+Maybe if you try to explain your difficulty more clearly we might be
+able to help.  Try explaining exactly what you think happens and
+exactly why you doubt that that is correct..
+
+You may well find yourself answering your own qujestion :-)
+
+NeilBrown

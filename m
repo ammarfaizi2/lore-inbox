@@ -1,66 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132404AbRAMVPM>; Sat, 13 Jan 2001 16:15:12 -0500
+	id <S132402AbRAMVPm>; Sat, 13 Jan 2001 16:15:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132405AbRAMVPD>; Sat, 13 Jan 2001 16:15:03 -0500
-Received: from smtp-out2.bellatlantic.net ([199.45.40.144]:15008 "EHLO
-	smtp-out2.bellatlantic.net") by vger.kernel.org with ESMTP
-	id <S132404AbRAMVOw>; Sat, 13 Jan 2001 16:14:52 -0500
-Date: Sat, 13 Jan 2001 16:12:13 -0500 (EST)
-From: Werner Puschitz <werner.lx@verizon.net>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: HP Pavilion 8290 HANGS on boot 2.4/2.4-test9
-In-Reply-To: <Pine.LNX.4.10.10101131219340.3339-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.21.0101131608320.1168-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132405AbRAMVPZ>; Sat, 13 Jan 2001 16:15:25 -0500
+Received: from main.braxis.co.uk ([212.160.232.26]:45830 "EHLO
+	main.braxis.co.uk") by vger.kernel.org with ESMTP
+	id <S132402AbRAMVPN>; Sat, 13 Jan 2001 16:15:13 -0500
+Date: Sat, 13 Jan 2001 22:11:42 +0100
+From: Krzysztof Rusocki <lkml@braxis.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0 (w/XFS) & reset_xmit_timer
+Message-ID: <20010113221142.A3913@main.braxis.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 13 Jan 2001, Andre Hedrick wrote:
+Hi,
 
-> On Sat, 13 Jan 2001, Werner wrote:
-> 
-> > The first and last message I get is: 
-> > "Uncompressing Linux... OK, booting the kernel"
-> 
-> > # lspci
-> > 00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge(rev 02)
-> > 00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge(rev 02)
-> > 00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
-> > 00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
-> 
-> It is to early to be caught by a DMA engine fault, but you have one of the
-> award winning systems that designed flaw in the hardware.  Only if the
-> BIOS with INT13 calls are performing DMA stuff until the OS takes over
-> could this be a player.
-> 
-> If you disable DMA in the BIOS does that help?
+Since 2.4.0 (from XFS CVS source tree) i get such things from kernel:
 
-No, it didn't make any difference.
+Jan 13 20:55:48 main kernel: reset_xmit_timer sk=c299b9a0 1 when=0x6061, caller=c0218f88 
+Jan 13 20:58:09 main kernel: reset_xmit_timer sk=c49aa040 1 when=0x594b, caller=c0218f88 
+Jan 13 21:01:30 main kernel: reset_xmit_timer sk=c0a25040 1 when=0x2f24, caller=c0218f88 
+Jan 13 21:22:33 main kernel: reset_xmit_timer sk=c6ce99a0 1 when=0x337a, caller=c0218f88 
+Jan 13 21:32:15 main kernel: reset_xmit_timer sk=c2fb5680 1 when=0x58ef, caller=c0218f88 
+Jan 13 21:34:49 main kernel: reset_xmit_timer sk=c46bccc0 1 when=0x2fcf, caller=c0218f88 
+Jan 13 21:34:52 main kernel: reset_xmit_timer sk=c2a949a0 1 when=0x3724, caller=c0218f88 
+Jan 13 21:36:42 main kernel: reset_xmit_timer sk=c49aa040 1 when=0x8fbf, caller=c0218f88 
+Jan 13 21:41:42 main kernel: reset_xmit_timer sk=c49aa040 1 when=0x4c4e, caller=c0218f88 
+Jan 13 21:45:51 main kernel: reset_xmit_timer sk=c398f360 1 when=0x552b, caller=c0218f88 
+Jan 13 21:50:38 main kernel: reset_xmit_timer sk=c7c979a0 1 when=0x3caf, caller=c0218f88 
+Jan 13 21:50:38 main kernel: reset_xmit_timer sk=c7c979a0 1 when=0x38d3, caller=c0218f88 
+Jan 13 21:50:38 main kernel: reset_xmit_timer sk=c7c979a0 1 when=0x3432, caller=c0218f88 
 
-Is there a safe way to add debug information like simple string prints in
-arch/i386/boot/compressed/head.s and in arch/i386/kernel/head.S
-so that I can see at the console where the boot process hangs?
+On 2.4.0-test13-pre3 (patched with XFS patch from SGI) there was _NO_ such
+things... I ain't kernel developer, so i have no idea of possible cause...
 
-Thanks
-Werner
+My 2.4.0-t13-pre3 and 2.4.0 kernel configs does _NOT_ practically differ.
 
+I use DM9102 ethernet driver together with QoS (CBQ & TBF queues and U32
+classifier).
 
-> 
-> Regards,
-> 
-> Andre Hedrick
-> Linux ATA Development
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+I didn't find this problem related stuff in LKML archives, so i decided to
+write this down here...
 
+- Krzysztof
+
+PS
+sorry for my english
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

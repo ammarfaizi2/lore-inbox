@@ -1,323 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbSJDR2D>; Fri, 4 Oct 2002 13:28:03 -0400
+	id <S261574AbSJDQBn>; Fri, 4 Oct 2002 12:01:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262783AbSJDR2C>; Fri, 4 Oct 2002 13:28:02 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:61312 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S262780AbSJDR1t>;
-	Fri, 4 Oct 2002 13:27:49 -0400
-Message-ID: <3D9DC978.5090004@colorfullife.com>
-Date: Fri, 04 Oct 2002 19:01:44 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: akpm@digeo.com, linux-kernel@vger.kernel.org
-CC: mbligh@aracnet.com
-Subject: [PATCH] patch-slab-split-02-SMP
-Content-Type: multipart/mixed;
- boundary="------------040508020306090206020701"
+	id <S261581AbSJDQBn>; Fri, 4 Oct 2002 12:01:43 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:54927 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S261574AbSJDQBh>; Fri, 4 Oct 2002 12:01:37 -0400
+Date: Fri, 4 Oct 2002 12:07:08 -0400
+To: David Howells <dhowells@cambridge.redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] AFS filesystem for Linux (2/2)
+Message-ID: <20021004160708.GA14737@ravel.coda.cs.cmu.edu>
+Mail-Followup-To: David Howells <dhowells@cambridge.redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <jaharkes@cs.cmu.edu> <20021004140229.GA11066@ravel.coda.cs.cmu.edu> <27276.1033745672@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <27276.1033745672@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040508020306090206020701
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, Oct 04, 2002 at 04:34:32PM +0100, David Howells wrote:
+> > We don't. Coda has the all or nothing fetch. When we get an open upcall and
+> > the file isn't cached we get the whole file, and return the filehandle we
+> > just used to fetch the file, that way even when pages haven't been flushed
+> > to disk yet, the kernel will see the same data. All reads and writes are
+> > wrapped in such a way that readpage and writepage directly access the cache
+> > file, when an mmap is active the Coda inode isn't even touched anymore.
+> 
+> So, say you've got a really big file in your cache. Someone changes a single
+> byte in it. You can work out that the file has changed by one of a number of
+> means. How do you avoid having to throw the entire file back to the server?
 
-part 2:
-[depends on -01-rename]
+Coda actually writes the whole file back. Someone was working on an
+rsync based method, but I haven't heard anything for a while. It is
+actually mostly databases that update single bytes in large files.
+Anything like a text editor will move the original file to a backup copy
+and write a new version anyways. Compilers tend to throw away the old
+object files and create a new file, etc.
 
-Always enable the cpu arrays. They provide LIFO ordering, which should 
-improve cache hit rates. And the array allocator is slightly faster than 
-the list operations.
+> > Pretty much, but we need that extra space for the disconnected writes
+> > anyways, that way we can always roll back to a consistent version.
+> 
+> How do you sync up with the server on reconnection? This is similar to the
+> problem you pointed out that I have to solve - how to deal with the file on
+> the server being changed by another client whilst I'm also trying to write to
+> it.
 
-Please apply
+We automatically resolve directory conflict, file conflicts are 'punted'
+to userspace. There is a manual repair tool, where a user can pick the
+version that he believes is the most appropriate, or he can substitute a
+replacement or merged copy.
 
---
-	Manfred
+There is also a framework for application specific resolvers, these can
+try to automatically merge f.i. calendar files, or email boxes, or
+remove/recompile object files when there is a conflict, etc.
 
---------------040508020306090206020701
-Content-Type: text/plain;
- name="patch-slab-split-02-SMP"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-slab-split-02-SMP"
+For AFS you don't have to care, it's semantics without locking are that
+the 'last writer to close it's fd' wins.
 
---- 2.5/mm/slab.c	Fri Oct  4 18:55:20 2002
-+++ build-2.5/mm/slab.c	Fri Oct  4 18:58:13 2002
-@@ -198,9 +198,7 @@
- 	unsigned int	 	flags;	/* constant flags */
- 	unsigned int		num;	/* # of objs per slab */
- 	spinlock_t		spinlock;
--#ifdef CONFIG_SMP
- 	unsigned int		batchcount;
--#endif
- 
- /* 2) slab additions /removals */
- 	/* order of pgs per slab (2^n) */
-@@ -227,10 +225,8 @@
- /* 3) cache creation/removal */
- 	const char		*name;
- 	struct list_head	next;
--#ifdef CONFIG_SMP
- /* 4) per-cpu data */
- 	cpucache_t		*cpudata[NR_CPUS];
--#endif
- #if STATS
- 	unsigned long		num_active;
- 	unsigned long		num_allocations;
-@@ -238,13 +234,11 @@
- 	unsigned long		grown;
- 	unsigned long		reaped;
- 	unsigned long 		errors;
--#ifdef CONFIG_SMP
- 	atomic_t		allochit;
- 	atomic_t		allocmiss;
- 	atomic_t		freehit;
- 	atomic_t		freemiss;
- #endif
--#endif
- };
- 
- /* internal c_flags */
-@@ -278,7 +272,7 @@
- #define	STATS_INC_ERR(x)	do { } while (0)
- #endif
- 
--#if STATS && defined(CONFIG_SMP)
-+#if STATS
- #define STATS_INC_ALLOCHIT(x)	atomic_inc(&(x)->allochit)
- #define STATS_INC_ALLOCMISS(x)	atomic_inc(&(x)->allocmiss)
- #define STATS_INC_FREEHIT(x)	atomic_inc(&(x)->freehit)
-@@ -402,7 +396,6 @@
- 
- #define cache_chain (cache_cache.next)
- 
--#ifdef CONFIG_SMP
- /*
-  * chicken and egg problem: delay the per-cpu array allocation
-  * until the general caches are up.
-@@ -411,7 +404,6 @@
- 
- static void enable_cpucache (kmem_cache_t *cachep);
- static void enable_all_cpucaches (void);
--#endif
- 
- /* Cal the num objs, wastage, and bytes left over for a given slab size. */
- static void cache_estimate (unsigned long gfporder, size_t size,
-@@ -501,10 +493,8 @@
- 
- int __init cpucache_init(void)
- {
--#ifdef CONFIG_SMP
- 	g_cpucache_up = 1;
- 	enable_all_cpucaches();
--#endif
- 	return 0;
- }
- 
-@@ -832,10 +822,8 @@
- 	cachep->dtor = dtor;
- 	cachep->name = name;
- 
--#ifdef CONFIG_SMP
- 	if (g_cpucache_up)
- 		enable_cpucache(cachep);
--#endif
- 	/* Need the semaphore to access the chain. */
- 	down(&cache_chain_sem);
- 	{
-@@ -900,7 +888,6 @@
- #define is_chained_cache(x) 1
- #endif
- 
--#ifdef CONFIG_SMP
- /*
-  * Waits for all CPUs to execute func().
-  */
-@@ -955,10 +942,6 @@
- 	up(&cache_chain_sem);
- }
- 
--#else
--#define drain_cpu_caches(cachep)	do { } while (0)
--#endif
--
- static int __cache_shrink(kmem_cache_t *cachep)
- {
- 	slab_t *slabp;
-@@ -1044,13 +1027,11 @@
- 		up(&cache_chain_sem);
- 		return 1;
- 	}
--#ifdef CONFIG_SMP
- 	{
- 		int i;
- 		for (i = 0; i < NR_CPUS; i++)
- 			kfree(cachep->cpudata[i]);
- 	}
--#endif
- 	kmem_cache_free(&cache_cache, cachep);
- 
- 	return 0;
-@@ -1330,7 +1311,6 @@
- 	cache_alloc_one_tail(cachep, slabp);		\
- })
- 
--#ifdef CONFIG_SMP
- void* cache_alloc_batch(kmem_cache_t* cachep, int flags)
- {
- 	int batchcount = cachep->batchcount;
-@@ -1363,7 +1343,6 @@
- 		return cc_entry(cc)[--cc->avail];
- 	return NULL;
- }
--#endif
- 
- static inline void * __cache_alloc (kmem_cache_t *cachep, int flags)
- {
-@@ -1376,7 +1355,6 @@
- 	cache_alloc_head(cachep, flags);
- try_again:
- 	local_irq_save(save_flags);
--#ifdef CONFIG_SMP
- 	{
- 		cpucache_t *cc = cc_data(cachep);
- 
-@@ -1398,19 +1376,12 @@
- 			spin_unlock(&cachep->spinlock);
- 		}
- 	}
--#else
--	objp = cache_alloc_one(cachep);
--#endif
- 	local_irq_restore(save_flags);
- 	return objp;
- alloc_new_slab:
--#ifdef CONFIG_SMP
- 	spin_unlock(&cachep->spinlock);
--#endif
- 	local_irq_restore(save_flags);
--#ifdef CONFIG_SMP
- alloc_new_slab_nolock:
--#endif
- 	if (cache_grow(cachep, flags))
- 		/* Someone may have stolen our objs.  Doesn't matter, we'll
- 		 * just come back here again.
-@@ -1512,7 +1483,6 @@
- 	}
- }
- 
--#ifdef CONFIG_SMP
- static inline void __free_block (kmem_cache_t* cachep,
- 							void** objpp, int len)
- {
-@@ -1526,7 +1496,6 @@
- 	__free_block(cachep, objpp, len);
- 	spin_unlock(&cachep->spinlock);
- }
--#endif
- 
- /*
-  * __cache_free
-@@ -1534,7 +1503,6 @@
-  */
- static inline void __cache_free (kmem_cache_t *cachep, void* objp)
- {
--#ifdef CONFIG_SMP
- 	cpucache_t *cc = cc_data(cachep);
- 
- 	CHECK_PAGE(objp);
-@@ -1554,9 +1522,6 @@
- 	} else {
- 		free_block(cachep, &objp, 1);
- 	}
--#else
--	cache_free_one(cachep, objp);
--#endif
- }
- 
- /**
-@@ -1674,8 +1639,6 @@
- 	return (gfpflags & GFP_DMA) ? csizep->cs_dmacachep : csizep->cs_cachep;
- }
- 
--#ifdef CONFIG_SMP
--
- /* called with cache_chain_sem acquired.  */
- static int tune_cpucache (kmem_cache_t* cachep, int limit, int batchcount)
- {
-@@ -1772,7 +1735,6 @@
- 
- 	up(&cache_chain_sem);
- }
--#endif
- 
- /**
-  * cache_reap - Reclaim memory from caches.
-@@ -1816,7 +1778,6 @@
- 			searchp->dflags &= ~DFLGS_GROWN;
- 			goto next_unlock;
- 		}
--#ifdef CONFIG_SMP
- 		{
- 			cpucache_t *cc = cc_data(searchp);
- 			if (cc && cc->avail) {
-@@ -1824,7 +1785,6 @@
- 				cc->avail = 0;
- 			}
- 		}
--#endif
- 
- 		full_free = 0;
- 		p = searchp->slabs_free.next;
-@@ -1958,9 +1918,7 @@
- #if STATS
- 				" (statistics)"
- #endif
--#ifdef CONFIG_SMP
- 				" (SMP)"
--#endif
- 				"\n");
- 		return 0;
- 	}
-@@ -2018,7 +1976,6 @@
- 				high, allocs, grown, reaped, errors);
- 	}
- #endif
--#ifdef CONFIG_SMP
- 	{
- 		unsigned int batchcount = cachep->batchcount;
- 		unsigned int limit;
-@@ -2029,8 +1986,7 @@
- 			limit = 0;
- 		seq_printf(m, " : %4u %4u", limit, batchcount);
- 	}
--#endif
--#if STATS && defined(CONFIG_SMP)
-+#if STATS
- 	{
- 		unsigned long allochit = atomic_read(&cachep->allochit);
- 		unsigned long allocmiss = atomic_read(&cachep->allocmiss);
-@@ -2077,7 +2033,6 @@
- ssize_t slabinfo_write(struct file *file, const char *buffer,
- 				size_t count, loff_t *ppos)
- {
--#ifdef CONFIG_SMP
- 	char kbuf[MAX_SLABINFO_WRITE+1], *tmp;
- 	int limit, batchcount, res;
- 	struct list_head *p;
-@@ -2113,8 +2068,5 @@
- 	if (res >= 0)
- 		res = count;
- 	return res;
--#else
--	return -EINVAL;
--#endif
- }
- #endif
+> Whatever model you choose, you have to accept some compromises.
 
---------------040508020306090206020701--
+I thought you were implementing AFS, how can you choose your model?
 
+> The model I'm thinking of is as follows:
+...
+>  (*) All data cached by a client for a particular file is zapped if I get a
+>      callback from the server and/or the data version number of that file
+>      appears to have changed.
+
+How about dirty data, that was locally modified? There is a network
+latency that comes into play here. If you want last writer wins you
+should not zap dirty data.
+
+>  (*) In O_SYNC mode, data is written back to the server as promptly as
+>      possible within the write() call (maybe through the auspices of
+>      prepare_write and commit_write).
+
+So other clients will read inconsistent data if they don't have that
+chunk cached. And if the server generates callbacks on the write of a
+chunk, all clients see the update?
+
+>  (*) In non-O_SYNC mode, I would like the data to be written back through the
+>      page cache's writepage() routine(s). By setting the dirty bits on pages,
+>      the write will be scheduled by the VM at some point. This would permit
+>      better write coelescing locally. However, security becomes a problem,
+>      since I have to say to the server which user I'm doing a store as, and if
+>      the data is coelesced from writes done as several different users, then
+>      there could be a problem if the store is rejected.
+
+Ehh, access permissions should already be checked when the file is
+opened. NFS is dealing with the same problems here.
+
+>      How does Coda deal with this security problem?
+
+What problem? If you don't have write permission you can't write to the
+file. If you do have write permissions you can write. When the last
+writer closes it's filehandle the data is sent to the server with his
+permissions.
+
+Now if the ACL is changed on the servers before the close so that this
+last writer loses write access we get a 'conflict' that is punted to
+userspace, similar to the case when writing to an already updated file.
+
+> > Why would it probably be swapped out to disc? If you're really worried about
+> > that you could mlock the memory. And if you think that is too expensive, it
+> > is still better to mlock memory in userspace that to allocate that same
+> > memory in kernel space.
+> 
+> I'm storing mine on disc as do normal disc-based FS's. That means it can be a
+> lot bigger. Besides, you don't really want to mlock memory or store it in the
+> kernel - that would be a big chunk of memory permanently committed and
+> unavailable for other uses.
+
+So I store it in VM on the disk and you store it in your private FS on
+disk. Looks like the same thing to me, except I get to enjoy the
+benefits of the page/swapcache keeping the data in memory when it is
+frequently used without having to do anything smart.
+
+> > Yeah, that's why Coda is using a recoverable VM, basically a mmapped
+> > file with an log where modifications are recorded so that we can
+> > replay/rollback uncommitted operations when we're restarting.
+> 
+> What's "VM" in this context?
+
+Virtual Memory. A private mmap of a file. Updates dirty the pages, so
+they end up in swap, but we log the same update in a logfile (journal),
+when the log fills up, the changes written directly to the underlying
+file. Optionally, when we know that the swap copy and the file copy of
+the page are identical, the page is remapped to reduce swap usage. That
+is where we store all the metadata and the Coda file -> cache file
+mappings so that they can survive a reboot or system crash.
+
+Jan
 

@@ -1,63 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266161AbSKQE3E>; Sat, 16 Nov 2002 23:29:04 -0500
+	id <S267456AbSKQEdl>; Sat, 16 Nov 2002 23:33:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267456AbSKQE3E>; Sat, 16 Nov 2002 23:29:04 -0500
-Received: from packet.digeo.com ([12.110.80.53]:9637 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266161AbSKQE3D>;
-	Sat, 16 Nov 2002 23:29:03 -0500
-Message-ID: <3DD71CAA.E2FE9D9@digeo.com>
-Date: Sat, 16 Nov 2002 20:35:54 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Adam Belay <ambx1@neo.rr.com>
-CC: Justin A <ja6447@albany.edu>, greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: pnpbios oops on boot w/ 2.5.47
-References: <200211161700.29653.ja6447@albany.edu> <3DD6C1DC.44966373@digeo.com> <3DD6F655.4214A594@digeo.com> <20021116232528.GA1273@neo.rr.com>
+	id <S267459AbSKQEdl>; Sat, 16 Nov 2002 23:33:41 -0500
+Received: from tapu.f00f.org ([66.60.186.129]:52679 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S267456AbSKQEdk>;
+	Sat, 16 Nov 2002 23:33:40 -0500
+Date: Sat, 16 Nov 2002 20:40:39 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Re: [PATCH] 2.5.47: strdup()
+Message-ID: <20021117044039.GA1860@tapu.f00f.org>
+References: <87d6p63ui2.fsf@goat.bogus.local> <20021117000806.GB443@tapu.f00f.org> <873cq1nfhk.fsf@goat.bogus.local>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Nov 2002 04:35:55.0339 (UTC) FILETIME=[D154C1B0:01C28DF2]
+Content-Disposition: inline
+In-Reply-To: <873cq1nfhk.fsf@goat.bogus.local>
+User-Agent: Mutt/1.4i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Belay wrote:
-> 
-> The typo appears to be in pnpbios_set_resources.  Andrew: Is this where you
-> found it?
+On Sun, Nov 17, 2002 at 02:37:27AM +0100, Olaf Dietsche wrote:
 
-Well no.
+> So you like duplicate code? Well, to each his own.
 
-> --- a/drivers/pnp/pnpbios/core.c        Wed Nov  6 17:51:53 2002
-> +++ b/drivers/pnp/pnpbios/core.c        Sat Nov 16 23:03:00 2002
-> @@ -1285,9 +1285,9 @@
->                 return -EBUSY;
->         if (flags == PNP_DYNAMIC && !pnp_is_dynamic(dev))
->                 return -EPERM;
-> -       node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
->         if (pnp_bios_dev_node_info(&node_info) != 0)
->                 return -ENODEV;
-> +       node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
+Not at all.
 
-As far as I can see, max_node_size is never initialised anywhere.
+I'm just not sure I like strdup being *easy* to use at it leads to
+misuse.  Admittedly this is a very poor argument for not having it.
 
-mnm:/usr/src/25> grep -rI max_node_size .
-./drivers/pnp/pnpbios/core.c:   node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
-./drivers/pnp/pnpbios/core.c:   node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
-./drivers/pnp/pnpbios/core.c:   node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
-./drivers/pnp/pnpbios/core.c:   node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
-./drivers/pnp/pnpbios/proc.c:   node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
-./drivers/pnp/pnpbios/proc.c:   node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
-./drivers/pnp/pnpbios/proc.c:   node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
-./drivers/pnp/pnpbios/proc.c:   node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
-./fs/reiserfs/fix_node.c:    int total_node_size, max_node_size, current_item_size;
-./fs/reiserfs/fix_node.c:    max_node_size = MAX_CHILD_SIZE (PATH_H_PBUFFER (tb->tb_path, h));
-./fs/reiserfs/fix_node.c:       if (i == max_node_size)
-./fs/reiserfs/fix_node.c:       return (i / max_node_size + 1);
-./fs/reiserfs/fix_node.c:    cur_free = max_node_size;
-./fs/reiserfs/fix_node.c:       if (total_node_size + current_item_size <= max_node_size) {
-./fs/reiserfs/fix_node.c:       if (current_item_size > max_node_size) {
-./fs/reiserfs/fix_node.c:                   current_item_size, max_node_size);
-./fs/reiserfs/fix_node.c:           free_space = max_node_size - total_node_size - IH_SIZE;
-./include/linux/pnpbios.h:      __u16   max_node_size;
+
+  --cw

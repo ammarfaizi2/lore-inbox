@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264944AbTA1KBM>; Tue, 28 Jan 2003 05:01:12 -0500
+	id <S264962AbTA1KD1>; Tue, 28 Jan 2003 05:03:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264962AbTA1KBM>; Tue, 28 Jan 2003 05:01:12 -0500
-Received: from mail2.webart.de ([195.30.14.11]:21009 "EHLO mail2.webart.de")
-	by vger.kernel.org with ESMTP id <S264944AbTA1KBL>;
-	Tue, 28 Jan 2003 05:01:11 -0500
-Message-ID: <398E93A81CC5D311901600A0C9F29289469372@cubuss2>
-From: Raphael Schmid <Raphael_Schmid@CUBUS.COM>
-To: "'alexander.riesen@synopsys.COM'" <alexander.riesen@synopsys.COM>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: AW: Bootscreen
-Date: Tue, 28 Jan 2003 11:01:15 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S264954AbTA1KD1>; Tue, 28 Jan 2003 05:03:27 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:38800 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S264962AbTA1KD0>;
+	Tue, 28 Jan 2003 05:03:26 -0500
+Date: Tue, 28 Jan 2003 11:12:03 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Tom Sightler <ttsig@tuxyturvy.com>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, vojtech@suse.cz,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Dell Latitude CPi keyboard problems since 2.5.42
+Message-ID: <20030128111203.D27323@ucw.cz>
+References: <200301272057.VAA13114@harpo.it.uu.se> <1043718980.1548.3.camel@iso-2146-l1.zeusinc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1043718980.1548.3.camel@iso-2146-l1.zeusinc.com>; from ttsig@tuxyturvy.com on Mon, Jan 27, 2003 at 08:56:07PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> try init=/bin/bash in kernel command line.
-Maybe I have a bad aura towards Linux or 
-something, but I can *still* press Alt-Fx.
+On Mon, Jan 27, 2003 at 08:56:07PM -0500, Tom Sightler wrote:
 
-You know, I've thought about the Bootscreen
-thingy again, and also had a quick peek (on
-Windows here) at those patches.
+> On Mon, 2003-01-27 at 15:57, Mikael Pettersson wrote:
+> > However, your version of atkbd.c caused a linkage error due to a
+> > reference to input_regs() in atkbd_interrupt(). I extracted
+> > just the changes to atkbd_cleanup() and atkbd_command(), but that
+> > left me with a dead keyboard on the first test box. In the end
+> > I kept only the atkbd_cleanup() change and the increased timeout
+> > for RESET_BAT in atkbd_command() [see below].
+> 
+> Just as another point of reference, I tested your patch with only the
+> RESET_BAT changes and it worked on my machine as well.
 
-2.5 is all nice and fluffy, but you shouldn't
-use it for any end user software really.
+Great.
 
-Would it be possible/easy (i.e.: the least
-way of resistance) to modify the kernel so
-that console initialization does not happen
-until everything is up and running? What I
-was up to in the first place was getting into
-X as fast as possible, and without too many
-different screens. I've even been thinking
-of setting the hostname, bringing up loop-
-back networking and calling xinit directly 
-from within the kernel (init/main.c or where
-was it?).
-
-So if Linux would not do *anything* to the
-screen (as in: just leave alone whatever the 
-bootloader put there) just one command before
-xinit is called, I'd be the most happy guy
-on the planet and you'd see me jump around
-in circles :-)
-
-- Raphael 
+-- 
+Vojtech Pavlik
+SuSE Labs

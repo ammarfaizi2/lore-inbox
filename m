@@ -1,67 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273826AbRI3Rih>; Sun, 30 Sep 2001 13:38:37 -0400
+	id <S273829AbRI3RkR>; Sun, 30 Sep 2001 13:40:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273829AbRI3Ri2>; Sun, 30 Sep 2001 13:38:28 -0400
-Received: from mail2.aracnet.com ([216.99.193.35]:13837 "EHLO
-	mail2.aracnet.com") by vger.kernel.org with ESMTP
-	id <S273826AbRI3RiO>; Sun, 30 Sep 2001 13:38:14 -0400
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: GCC 2.95, 2.96 and 3.0 on linear algebra (was RE: 2 GB file limitation)
-Date: Sun, 30 Sep 2001 10:38:42 -0700
-Message-ID: <HBEHIIBBKKNOBLMPKCBBMENEDNAA.znmeb@aracnet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20010930102342.A13042@vega.digitel2002.hu>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S273832AbRI3RkH>; Sun, 30 Sep 2001 13:40:07 -0400
+Received: from [213.37.2.230] ([213.37.2.230]:32712 "EHLO
+	villaverde.madritel.es") by vger.kernel.org with ESMTP
+	id <S273829AbRI3Rjy>; Sun, 30 Sep 2001 13:39:54 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Cannot unload some modules
+Message-Id: <E15mbcJ-0001Hd-00@DervishD>
+Date: Thu, 27 Sep 2001 15:54:19 +0200
+From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	 Coronado <dervishd@jazzfree.com>
+Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	   Coronado <dervishd@jazzfree.com>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have heard from the Atlas linear algebra folks the following:
+    Hello all :))
 
-1. For compiling Atlas, both on Athlons and Pentia, GCC 2.95.x produces
-*significantly* faster operation than either 3.0.x or 2.96.x
-2. For IA64, the reverse is true: GCC 3.0.x produces significantly faster
-code.
+    I have a problem with some modules, specially with 'dummy.o' (the
+dummy network device driver) and some USB ones: they aren't unloaded,
+even when unused and autocleanable, issuing two or more 'rmmod -a'
+commands.
 
-I can dig up the URL for the mailing list if anyone cares for the details.
+    This leaded me to think that the 'cleanup()' functions of those
+modules did hang, but the modules are correctly unloaded if called by
+their name in rmmod, but no if 'rmmod -a' is used :((
 
---
-M. Edward (Ed) Borasky, Chief Scientist, Borasky Research
-http://www.borasky-research.net  http://www.aracnet.com/~znmeb
-mailto:znmeb@borasky-research.net  mailto:znmeb@aracnet.com
+    I've took a look at 'module.c' and I'm clueless. I've checked the
+modules and are loaded with 'modprobe -k', are marked as
+autocleanable and marked as unused, too.
 
-Q: How do you tell when a pineapple is ready to eat?
-A: It picks up its knife and fork.
+    BTW, I've noticed too that the serial module sometimes has a
+negative value in its 'use' count :!!
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Gábor Lénárt
-> Sent: Sunday, September 30, 2001 1:24 AM
-> To: Luigi Genoni
-> Cc: Linux Kernel
-> Subject: Re: 2 GB file limitation
+    Can anybody tell me what could be happening?. Thanks a lot.
 
-[snip]
-
-> > > I think you can get >2GB support if you've Gcc 3.0. Even with
-> the latest
-> > >
-> > ???
-> > I am using it and I am using gcc 2.95.3 for normal things,
-> > and to compiled my kernel and my libc, because gcc
-> > 3.0.1 produces slower binaries on my Athlons (yes, with athlon
-> > optimizzations turned on), at less for my programs, and it is better to
-> > avoid it for glibc compilation because of back compatibility issues.
->
-> Yes, gcc3 is (well at least NOW) a piece of shit. It produces BIGGER and
-> SLOWER binaries ... Checked on: Athlon, AMD K6-2.
-> With the same gcc command line ...
-
+    Raúl

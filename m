@@ -1,67 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270494AbUJUBp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270697AbUJUBv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270494AbUJUBp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 21:45:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270652AbUJUBky
+	id S270697AbUJUBv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 21:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270654AbUJUBpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 21:40:54 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:49422 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S270503AbUJUBix
+	Wed, 20 Oct 2004 21:45:35 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:58792 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S270655AbUJUBlE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 21:38:53 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <cfriesen@nortelnetworks.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: UDP recvmsg blocks after select(), 2.6 bug?
-Date: Wed, 20 Oct 2004 18:38:22 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKIEJBPCAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <41770AC6.7090604@nortelnetworks.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Wed, 20 Oct 2004 18:15:01 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Wed, 20 Oct 2004 18:15:02 -0700
+	Wed, 20 Oct 2004 21:41:04 -0400
+Date: Thu, 21 Oct 2004 03:41:00 +0200
+From: maximilian attems <janitor@sternwelten.at>
+To: kj <kernel-janitors@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [KJ] [announce] 2.6.9-kjt1 patchset
+Message-ID: <20041021014059.GA21605@stro.at>
+Mail-Followup-To: kj <kernel-janitors@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20041021011859.GA1933@stro.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041021011859.GA1933@stro.at>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 21 Oct 2004, maximilian attems wrote:
 
-> David Schwartz wrote:
+> 
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>  dropped 40 patches:
+> 
+> list-for-each-arch_ia64_sn_io_machvec_pci_bus_cvlink.patch
+> file removed
+> 
+> list-for-each-arch_ppc64_kernel_pSeries_pci.patch
+> no longer needed
+> 
+> list_for_each-pcmcia-rsrc_mgr.patch
+> wrong
+>  
+> msleep-drivers_net_3c505.patch
+> msleep-drivers_net_appletalk_ltpc.patch
+> msleep-drivers_net_cs89x0.patch
+> msleep-drivers_net_e100.patch
+> msleep-drivers_net_e1000_osdep.patch
+> msleep-drivers_net_ewrk3.patch
+> msleep-drivers_net_gt96100eth.patch
+> msleep-drivers_net_irda_act200l-sir.patch
+> msleep-drivers_net_irda_irtty-sir.patch
+> msleep-drivers_net_irda_ma600-sir.patch
+> msleep-drivers_net_irda_sir_dev.patch
+> msleep-drivers_net_irda_tekram-sir.patch
+> msleep-drivers_net_ixgb_osdep.patch
+> msleep-drivers_net_max89x0.patch
+> msleep-drivers_net_ni65.patch
+> msleep-drivers_net_ns83820.patch
+> msleep-drivers_net_s2io.patch
+> msleep-drivers_net_slip.patch
+> msleep-drivers_net_tokenring_ibmtr.patch
+> msleep-drivers_net_tulip_de2104x.patch
+> msleep-drivers_net_wan_cosa.patch
+> msleep-drivers_net_wan_cycx_drv.patch
+> msleep-drivers_net_wireless_airo.patch
+> msleep-drivers_net_wireless_prism54_islpci_dev.patch
+> msleep-drivers_net_xirc2ps_cs.patch
+> msleep-drivers_parport_ieee1284_ops.patch
+> sleep-drivers_scsi_mesh.patch
+> msleep-drivers_scsi_osst.patch
+> msleep-drivers_scsi_qla2xxx_qla_init.patch
+> msleep-drivers_scsi_qla2xxx_qla_os.patch
+> msleep-drivers_scsi_sd.patch
+> msleep-drivers_scsi_wd7000.patch
+> msleep-drivers_serial_pmac_zilog.patch
+> msleep-drivers_serial_serial_core.patch
+> set-current-state-net_wan_farsync.patch
+forgot to say that those got reworked,
+and are there for in current kjt.
+ 
 
-> > 	Perhaps I missed the details, but under your proposal, how
-> > do you predict
-> > at 'select' time what mode the socket will be in at 'recvmsg' time?!
-
-> Well, if you've got a blocking socket, and do a nonblocking read with
-> MSG_DONTWAIT, everything works fine.  You lose a bit of
-> performance, but it works.
->
-> The problem case is if you create a socket, set O_NONBLOCK, do
-> select, clear
-> O_NONBLOCK, then do a recvmsg().
->
-> I suspect it's not a very common thing to do, so my proposal
-> would still help
-> the vast majority of existing apps.
->
-> Chris
-
-	I think this is a reasonable thing to do. Applications that select in one
-mode and then operate in another are rare, and the suggested change won't
-break anything.
-
-	DS
-
-
+--
+maks
+kernel janitor  	http://janitor.kernelnewbies.org/
 

@@ -1,122 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271185AbVBFHnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265335AbVBFHrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271185AbVBFHnx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 02:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271178AbVBFHnw
+	id S265335AbVBFHrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 02:47:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263922AbVBFHrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 02:43:52 -0500
-Received: from gateway.ottawa.transgaming.com ([209.217.80.34]:14034 "HELO
-	ottawa.transgaming.com") by vger.kernel.org with SMTP
-	id S272790AbVBFHmv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 02:42:51 -0500
-Subject: Re: PATCH: SysV semaphore race vs SIGSTOP
-From: Ove Kaaven <ovek@transgaming.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <420485B1.5030103@colorfullife.com>
-References: <420485B1.5030103@colorfullife.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Organization: TransGaming Technologies Inc
-Date: Sun, 06 Feb 2005 02:42:49 -0500
-Message-Id: <1107675769.20835.48.camel@renegade>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Sun, 6 Feb 2005 02:47:08 -0500
+Received: from smtp818.mail.sc5.yahoo.com ([66.163.170.4]:19097 "HELO
+	smtp818.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S272654AbVBFHqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 02:46:24 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-input@atrey.karlin.mff.cuni.cz
+Subject: [PATCH] Add resume support to serio bus.
+Date: Sun, 6 Feb 2005 02:46:20 -0500
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502060246.20878.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lør, 05,.02.2005 kl. 09.37 +0100, skrev Manfred Spraul:
-> Hi Ove,
-> 
-> >As I mentioned in an earlier mail, there is a race when SIGSTOP-ing a
-> >process waiting for a SysV semaphore, where if a process holding a
-> >semaphore suspends another process waiting on the semaphore and then
-> >releases the semaphore, 
-> >
-> Your patch looks correct (for 2.4 - 2.6 uses a different approach), but 
+Hi,
 
-Actually I myself don't think the patch I sent is 100% correct. The most
-glaring problem is of course that it only handles SIGSTOP and nothing
-else, but I wasn't sure how to handle anything else. Also, I've since
-found that the "continue" in there made it impossible to attach
-debuggers or the like to a process blocked in semop. Finally, it would
-occasionally continue to loop after the condition is satisfied, e.g.
-when the semop is 0.
+This patch adds resume support to serio_bus based on serio reconnect
+framework so now not only i8042 ports will be re-initialized at resume.
+It also removes serio_reconnect calls from i8042 as they no longer
+needed.
 
-So, the if check in my patch is more correct as
+Tested on S4 (swsusp) with Synaptics touchpad.
 
-+               if (is_stopping(current) && queue.status == 1)
-+                       /* Could either EINTR out or continue.
-+                        * I suppose EINTR is the robust choice. */
-+                       queue.status = -EINTR;
+-- 
+Dmitry
 
-but that still doesn't handle all signals. I'm thinking that if the
-SIGSTOP problem can be solved simply by returning EINTR (and let the
-userspace code deal with that by retrying), then perhaps that can be
-done for all signals.
 
-Summarily, my "perfect" patch for 2.4 might simply look like this
-(assuming signal_pending does the right thing, which I haven't
-verified):
+===================================================================
 
---- ipc/sem.c.original	2005-01-31 18:17:17.000000000 -0500
-+++ ipc/sem.c	2005-02-06 01:52:01.000000000 -0500
-@@ -961,6 +961,9 @@
- 			error = -EIDRM;
- 			goto out_free;
+
+ChangeSet@1.2007, 2005-02-06 02:39:30-05:00, dtor_core@ameritech.net
+  Input: add resume method to serio bus so ports are properly
+         set up at resume time. Remove calls to serio_reconnect
+         from i8042 as they should now be reconnected in course
+         of regular resume process.
+  
+  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+
+
+ i8042.c |    8 ++++----
+ serio.c |   17 +++++++++++++++++
+ 2 files changed, 21 insertions(+), 4 deletions(-)
+
+
+===================================================================
+
+
+
+diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+--- a/drivers/input/serio/i8042.c	2005-02-06 02:40:01 -05:00
++++ b/drivers/input/serio/i8042.c	2005-02-06 02:40:01 -05:00
+@@ -899,7 +899,7 @@
+  * Here we try to restore the original BIOS settings
+  */
+ 
+-static int i8042_suspend(struct device *dev, u32 state, u32 level)
++static int i8042_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	if (level == SUSPEND_DISABLE) {
+ 		del_timer_sync(&i8042_timer);
+@@ -932,12 +932,12 @@
  		}
-+		if (signal_pending(current) && queue.status == 1)
-+			queue.status = -EINTR;
+ 
+ /*
+- * Reconnect anything that was connected to the ports.
++ * Activate all ports.
+  */
+ 
+ 	for (i = 0; i < I8042_NUM_PORTS; i++)
+-		if (i8042_activate_port(&i8042_ports[i]) == 0)
+-			serio_reconnect(i8042_ports[i].serio);
++		i8042_activate_port(&i8042_ports[i]);
 +
- 		/*
- 		 * If queue.status == 1 we where woken up and
- 		 * have to retry else we simply return.
-
-
-As for 2.6, yes, the 2.6 code does seem to be harder to make a simple
-patch for. Then again, we're thinking of using futexes instead of
-semaphores if a 2.6 kernel is detected, so if futexes don't have this
-problem, I guess we can use them to work around this semaphore flaw.
-
-> I'm not certain that it's needed:
-> You assume that signals have an immediate effect.
-
-I don't necessarily need it to have an "immediate" effect. Only that
-pending signals are taken into consideration when the process returns
-from certain blocking system calls dealing with atomic synchronization
-primitives such as semaphores. I want to be able to think that
-synchronization primitives are there to *protect* me against the effects
-of implementation details such as delayed signal delivery, not that they
-have their own synchronization issues. After all, the man page for
-"semop" states that
-
-* The calling process catches a signal: the value of semzcnt is
-decremented and semop() fails, with errno set to EINTR.
-
-and I want to be able to expect this to always actually happen. Because
-semop is supposed to be an *atomic* operation, I don't expect it to
-*both* catch a signal *and* succeed within the same semop system call
-(knowing that the signal *must* have been sent by the time the semaphore
-condition was fulfilled). See where I'm coming from?
-
-> Linux ignores that - it delays signal processing under some 
-> circumstances. If a syscall can be completed without blocking, then the 
-> syscall is handled, regardless of any pending signals. The signal is 
-> handled at the syscall return, i.e. after completing the syscall.
-> That's not just in SysV semaphore - at least pipes are identical:
-
-Perhaps. But at least read() doesn't claim to be an atomic
-synchronization primitive like semop() does. Though I suppose it's
-occasionally used that way...
-
-> pipe_read first check if there is data. If there is some, then it 
-> returns the data. Signals are only checked if there is no pending data.
-> I'm not sure if this is a bug. But if it's one, then far more than just 
-> sysv sem must be updated.
-
-I'd probably only concern myself with things that are supposed to be
-atomic, really.
-
-Anyway, thanks a lot for answering.
-
+ /*
+  * Restart timer (for polling "stuck" data)
+  */
+diff -Nru a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+--- a/drivers/input/serio/serio.c	2005-02-06 02:40:01 -05:00
++++ b/drivers/input/serio/serio.c	2005-02-06 02:40:01 -05:00
+@@ -774,6 +774,22 @@
+ 
+ #endif /* CONFIG_HOTPLUG */
+ 
++static int serio_resume(struct device *dev)
++{
++	struct serio *serio = to_serio_port(dev);
++
++	if (!serio->drv || !serio->drv->reconnect || serio->drv->reconnect(serio)) {
++		serio_disconnect_port(serio);
++		/*
++		 * Driver re-probing can take a while, so better let kseriod
++		 * deal with it.
++		 */
++		serio_rescan(serio);
++	}
++
++	return 0;
++}
++
+ /* called from serio_driver->connect/disconnect methods under serio_sem */
+ int serio_open(struct serio *serio, struct serio_driver *drv)
+ {
+@@ -826,6 +842,7 @@
+ 	serio_bus.drv_attrs = serio_driver_attrs;
+ 	serio_bus.match = serio_bus_match;
+ 	serio_bus.hotplug = serio_hotplug;
++	serio_bus.resume = serio_resume;
+ 	bus_register(&serio_bus);
+ 
+ 	return 0;

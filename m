@@ -1,54 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129529AbRCMJll>; Tue, 13 Mar 2001 04:41:41 -0500
+	id <S130531AbRCMJwv>; Tue, 13 Mar 2001 04:52:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130214AbRCMJlb>; Tue, 13 Mar 2001 04:41:31 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:45064 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129529AbRCMJlV>;
-	Tue, 13 Mar 2001 04:41:21 -0500
-Date: Tue, 13 Mar 2001 10:40:47 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Adrian Cox <adrian@humboldt.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: static scheduling - SCHED_IDLE?
-Message-ID: <20010313104047.A23780@pcep-jamie.cern.ch>
-In-Reply-To: <Pine.LNX.4.33.0103081747010.1314-100000@duckman.distro.conectiva> <3AA93124.EC22CC8A@mvista.com> <3AA93ABE.7000707@humboldt.co.uk> <20010312190527.A23065@pcep-jamie.cern.ch> <3AAD2592.4060109@humboldt.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AAD2592.4060109@humboldt.co.uk>; from adrian@humboldt.co.uk on Mon, Mar 12, 2001 at 07:37:54PM +0000
+	id <S130541AbRCMJwl>; Tue, 13 Mar 2001 04:52:41 -0500
+Received: from mailhub2.shef.ac.uk ([143.167.2.154]:21122 "EHLO
+	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
+	id <S130531AbRCMJw1>; Tue, 13 Mar 2001 04:52:27 -0500
+Date: Tue, 13 Mar 2001 09:55:33 +0000 (GMT)
+From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Nathan Paul Simons <npsimons@fsmlabs.com>, linux-kernel@vger.kernel.org
+Subject: Re: system call for process information?
+In-Reply-To: <Pine.GSO.4.21.0103122202270.28460-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0103130945460.507-100000@erdos.shef.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Cox wrote:
-> >> Jamie Lokier's suggestion of raising priority when in the kernel doesn't 
-> >> help. You need to raise the priority of the task which is currently in 
-> >> userspace and will call up() next time it enters the kernel. You don't 
-> >> know which task that is.
+Hi Alexander, Nathan and all!
+
+Thanks for your great answers! First of all - I was not REALLY proposing
+to include this system call in the kernel - I just wanted to hear some pro
+and contra - so, thanks again for your explanations! I started yesterday
+sketching the required functions, will have to retreat to reading top & ps
+sources, btw, apart from these 2 obvious sources, what else would you
+suggest to look through for a good implementation of CPU-utilization
+calculator as well as other process (multithreaded, SMP,...) statistics?
+Portable (POSIX), maybe some documentation, not just sources?
+
+Thanks
+Guennadi
+
+On Mon, 12 Mar 2001, Alexander Viro wrote:
+
+> On Mon, 12 Mar 2001, Nathan Paul Simons wrote:
 > 
-> > Dear oh dear.  I was under the impression that kernel semaphores are
-> > supposed to be used as mutexes only -- there are other mechanisms for
-> > signalling between processes.
+> > On Mon, Mar 12, 2001 at 09:21:37PM +0000, Guennadi Liakhovetski wrote:
+> > > CPU utilisation. Each new application has to calculate it (ps, top, qps,
+> > > kps, various sysmons, procmons, etc.). Wouldn't it be worth it having a
+> > > syscall for that? Wouldn't it be more optimal?
 > 
-> I think most of the kernel semaphores are used as mutexes, with 
-> occasional producer/consumer semaphores. I think the core kernel code is 
-> fine, the risk mostly comes from miscellaneous character devices. I've 
-> written code that does this for a specialised device driver. I wanted 
-> only one process to have the device open at once, and for others to 
-> block on open. Using semaphores meant that multiple shells could do "cat 
->  > /dev/mywidget" and be serialised.
+> The first rule of optimization: don't. I.e. optimizing something that
+> is not a bottleneck is pointless.
+> 
+> > 	No, it wouldn't be worth it because you're talking about 
+> > sacrificing simplicity and kernel speed in favor of functionality.
+> 
+> Or, in that case, in favour of nothing. It doesn't add any functionality.
+> 
+> > This has been know to lead to "bloat-ware".  Every new syscall you
+> > add takes just a little bit more time and space in the kernel, and
+> > when only a small number of programs will be using it, it's really 
+> > not worth it.  This time and space may not be large, but once you
+> > get _your_ syscall added, why can't everyone else get theirs added 
+> > as well?  And so, after making about a thousand specialized syscalls
+> > standard in the kernel, you end up with IRIX (from what I've heard).
+> 
+> 	In that case there is much simpler argument.
+> 
+> If your program checks the system load so often that converting results
+> from ASCII to integers takes noticable time - all you are measuring
+> is the load created by that program. In other words, any program that
+> would get any speedup from such syscall is absolutely worthless, since
+> the load created by measurement will drown the load you are trying
+> to measure.
+> 
+> 	End of story. It's not only unnecessary and tasteless, it's
+> useless. 
+> 								Cheers,
+> 									Al
+> 
+> 
 
-Oh, it's you :-)
+___
 
-In this case we don't care if process A is blocked waiting for idle
-process B to release the device, do we?
+Dr. Guennadi V. Liakhovetski
+Department of Applied Mathematics
+University of Sheffield, U.K.
+email: G.Liakhovetski@sheffield.ac.uk
 
-> Locking up users of this strange piece of hardware doesn't bring down 
-> the system, so your suggestion could work. We need a big fat warning in 
-> semaphore.h, and a careful examination of the current code.
 
-If it weren't for the weight of history, they could be called `struct
-mutex' just to rub it in.
-
--- Jamie

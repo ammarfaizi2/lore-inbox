@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbULIAgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbULIAjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261391AbULIAgh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 19:36:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbULIAgh
+	id S261417AbULIAjd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 19:39:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbULIAjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 19:36:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:24784 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261391AbULIAgc (ORCPT
+	Wed, 8 Dec 2004 19:39:33 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:10387 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261417AbULIAjV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 19:36:32 -0500
-Message-ID: <41B79DC7.5060209@redhat.com>
-Date: Wed, 08 Dec 2004 16:35:19 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: Andreas Steinmetz <ast@domdv.de>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: host name length
-References: <40521AA6.7070308@redhat.com> <20041203160538.77a22864.rddunlap@osdl.org> <Pine.LNX.4.53.0412060934450.11891@yvahk01.tjqt.qr> <41B48C9E.6030607@osdl.org> <41B49773.1010006@domdv.de> <41B4B210.1040105@redhat.com> <41B4B2CD.80209@domdv.de> <41B76443.2040205@osdl.org>
-In-Reply-To: <41B76443.2040205@osdl.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 8 Dec 2004 19:39:21 -0500
+Date: Thu, 9 Dec 2004 11:39:06 +1100
+From: Greg Banks <gnb@sgi.com>
+To: Philippe Elie <phil.el@wanadoo.fr>
+Cc: Greg Banks <gnb@sgi.com>, John Levon <levon@movementarian.org>,
+       Akinobu Mita <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org
+Subject: Re: [mm patch] oprofile: backtrace operation does not initialized
+Message-ID: <20041209003906.GE4239@sgi.com>
+References: <200412081830.51607.amgta@yacht.ocn.ne.jp> <20041208160055.GA82465@compsoc.man.ac.uk> <20041208223156.GB4239@sgi.com> <20041208235623.GA563@zaniah>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041208235623.GA563@zaniah>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 09, 2004 at 12:56:23AM +0100, Philippe Elie wrote:
+> 
+> oprofile_timer_init doesn't reset op->setup/shutdown, I don't like the idea to
+> reset them in oprofile_timer_init() it's error prone. John any idea ?
 
-> So sethostname(2) sets fqdn, right?
+A better long term solution would be not to change the ops structure
+but to copy and chain it, as I did in my experimental cswitch patches.
+The approach I took allows for a new fake event which can be selected
+at runtime with --event instead of with a boot option.
 
-It depends on what people want.  Some people want to use the fqdn.
+But for now I don't see any drama with leaving in the ->setup() and
+->shutdown() methods when rewriting the ops structure.  Ditto for
+the ->create_files() methods.
 
-
-> Ulrich, do you want help on this or is it already done?
-
-I haven't done any owkr on it an unlikely will get to it anytime soon.
-
+Greg.
 -- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.

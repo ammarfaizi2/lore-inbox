@@ -1,40 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265856AbTGDIOU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 04:14:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265857AbTGDIOT
+	id S265862AbTGDISo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 04:18:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265864AbTGDISo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 04:14:19 -0400
-Received: from WebDev.iNES.RO ([80.86.100.174]:60820 "EHLO webdev.ines.ro")
-	by vger.kernel.org with ESMTP id S265856AbTGDIOJ (ORCPT
+	Fri, 4 Jul 2003 04:18:44 -0400
+Received: from [195.95.38.160] ([195.95.38.160]:38397 "HELO mail.vt4.net")
+	by vger.kernel.org with SMTP id S265862AbTGDISm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 04:14:09 -0400
-Date: Fri, 4 Jul 2003 11:28:34 +0300 (EEST)
-From: Andrei Ivanov <andrei.ivanov@ines.ro>
-X-X-Sender: shadow@webdev.ines.ro
-To: linux-kernel@vger.kernel.org
-Subject: ext3 error
-Message-ID: <Pine.LNX.4.56L0.0307041121360.21426@webdev.ines.ro>
+	Fri, 4 Jul 2003 04:18:42 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: Jan Dittmer <j.dittmer@portrix.net>, linux-kernel@vger.kernel.org
+Subject: Re: Unable to handle NULL point when doing lsof
+Date: Fri, 4 Jul 2003 10:34:55 +0200
+User-Agent: KMail/1.5.2
+References: <3F0539E5.6030905@portrix.net>
+In-Reply-To: <3F0539E5.6030905@portrix.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307041034.55785.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 04 July 2003 10:25, Jan Dittmer wrote:
+> Just executing lsof gives a segmentation fault.
+> This is 2.5.73-mm3 and reproducable on dual p3 and single p3-800.
+> Will try 2.5.74-mm1 now.
 
-I found these errors in the logs while running 2.5.74-mm1:
+I can confirm this on 2.5.74-mm1, machine Single p3 650.
 
-EXT3-fs warning (device hda3): ext3_unlink: Deleting nonexistent file 
-(608857), 0
-EXT3-fs warning (device hda3): ext3_unlink: Deleting nonexistent file 
-(626408), 0
-EXT3-fs warning (device hda3): ext3_unlink: Deleting nonexistent file 
-(579055), 0
-EXT3-fs error (device hda3): ext3_delete_entry: bad entry in directory 
-#657519: inode out of bounds - offset=824, inode=375560
-8452, rec_len=20, name_len=9
-Remounting filesystem read-only
-EXT3-fs error (device hda3) in start_transaction: Readonly filesystem
-EXT3-fs error (device hda3): ext3_find_entry: bad entry in directory 
-#657519: inode out of bounds - offset=824, inode=37556084
-52, rec_len=20, name_len=9
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+c013b6b0
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT 
+CPU:    0
+EIP:    0060:[kfree+48/112]    Not tainted VLI
+EFLAGS: 00010006
+EIP is at kfree+0x30/0x70
+eax: 00140000   ebx: c5de6aa0   ecx: c5d38630   edx: 00000000
+esi: 00000100   edi: 00000206   ebp: c5d38630   esp: cf683f48
+ds: 007b   es: 007b   ss: 0068
+Process lsof (pid: 1762, threadinfo=cf682000 task=c68ff310)
+Stack: 00000100 c5de6ab8 c5de6aa0 c3b9fb60 c5d38630 c016e1e5 00000100 00000000 
+       c3b9fb60 c5f7dca0 cffcf220 c015038a c5d38630 c3b9fb60 c85d0580 c3b9fb60 
+       c5f7dca0 00000000 cf682000 c014e95d c3b9fb60 c5f7dca0 c5f7dca0 c3b9fb60 
+Call Trace:
+ [seq_release_private+37/72] seq_release_private+0x25/0x48
+ [__fput+266/288] __fput+0x10a/0x120
+ [filp_close+77/128] filp_close+0x4d/0x80
+ [sys_close+97/160] sys_close+0x61/0xa0
+ [syscall_call+7/11] syscall_call+0x7/0xb
+
+Code: 24 0c 8b 74 24 18 89 5c 24 08 89 7c 24 10 85 f6 74 2a 9c 5f fa 8b 15 38 
+d2 33 c0 8d 86 00 00 00 40 c1 e8 0c 8d 04 80 8b 54 c2 08 <8b> 1a 8b 03 3b 43 
+04 73 18 89 74 83 10 ff 03 57 9d 8b 5c 24 08 
+
+
+Jan
+-- 
+Penguin laptop (i686) running GNU/Linux 2.5.74-mm1 #1 Fri Jul 4 07:26:32 CEST 
+2003
+Giving money and power to governments is like giving whiskey and
+car keys to teenage boys.
+	-- P.J. O'Rourke
 

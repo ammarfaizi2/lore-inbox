@@ -1,80 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268505AbUILHSc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268506AbUILHVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268505AbUILHSc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 03:18:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268506AbUILHSc
+	id S268506AbUILHVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 03:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268511AbUILHVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 03:18:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58519 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268505AbUILHSa (ORCPT
+	Sun, 12 Sep 2004 03:21:25 -0400
+Received: from holomorphy.com ([207.189.100.168]:56451 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268506AbUILHUM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 03:18:30 -0400
-Date: Sun, 12 Sep 2004 00:16:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, len.brown@intel.com
-Subject: Re: Possible dcache BUG
-Message-Id: <20040912001626.759e2d17.akpm@osdl.org>
-In-Reply-To: <20040912000354.7243a328@laptop.delusion.de>
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org>
-	<20040808113930.24ae0273.akpm@osdl.org>
-	<200408100012.08945.gene.heskett@verizon.net>
-	<200408102342.12792.gene.heskett@verizon.net>
-	<Pine.LNX.4.58.0408102044220.1839@ppc970.osdl.org>
-	<20040810211849.0d556af4@laptop.delusion.de>
-	<Pine.LNX.4.58.0408102201510.1839@ppc970.osdl.org>
-	<Pine.LNX.4.58.0408102213250.1839@ppc970.osdl.org>
-	<20040812180033.62b389db@laptop.delusion.de>
-	<Pine.LNX.4.58.0408121813190.1839@ppc970.osdl.org>
-	<20040912000354.7243a328@laptop.delusion.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 12 Sep 2004 03:20:12 -0400
+Date: Sun, 12 Sep 2004 00:19:48 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [pagevec] resize pagevec to O(lg(NR_CPUS))
+Message-ID: <20040912071948.GH2660@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040909155226.714dc704.akpm@osdl.org> <20040909230905.GO3106@holomorphy.com> <20040909162245.606403d3.akpm@osdl.org> <20040910000717.GR3106@holomorphy.com> <414133EB.8020802@yahoo.com.au> <20040910174915.GA4750@logos.cnet> <20040912045636.GA2660@holomorphy.com> <4143D07E.3030408@yahoo.com.au> <20040912062703.GF2660@holomorphy.com> <4143E6C6.40908@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4143E6C6.40908@yahoo.com.au>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Udo A. Steinberg" <us15@os.inf.tu-dresden.de> wrote:
->
->  However, then as slab usage went skyrocket after 3 days, I started logging
->  these:
-> 
->   [<c013e98f>] __kmalloc+0x6f/0x80
->   [<c0217af9>] acpi_os_allocate+0xa/0xb
->   [<c022b9b6>] acpi_ut_callocate+0x30/0x7a
->   [<c022b840>] acpi_ut_acquire_from_cache+0x9d/0xaa
->   [<c022c7d8>] acpi_ut_create_generic_state+0xa/0x12
->   [<c021b0b2>] acpi_ds_result_stack_push+0x8/0x25
->   [<c021b268>] acpi_ds_create_walk_state+0x53/0x70
->   [<c0227913>] acpi_ps_delete_parse_tree+0x20/0x89
->   [<c0227238>] acpi_ps_parse_loop+0x550/0x7bb
->   [<c02274f0>] acpi_ps_parse_aml+0x4d/0x1a1
->   [<c0219dd4>] acpi_ds_call_control_method+0xd3/0x1b3
->   [<c0227505>] acpi_ps_parse_aml+0x62/0x1a1
->   [<c0227d1f>] acpi_psx_execute+0x13b/0x194
->   [<c0225212>] acpi_ns_execute_control_method+0x3b/0x47
->   [<c02251c0>] acpi_ns_evaluate_by_handle+0x6f/0x86
->   [<c02250cd>] acpi_ns_evaluate_relative+0xa9/0xc3
->   [<c02249c3>] acpi_evaluate_object+0xf3/0x1a0
->   [<c0160f56>] link_path_walk+0xbe6/0xe70
->   [<c022f496>] acpi_battery_get_status+0x68/0x102
->   [<c022f9b6>] acpi_battery_read_state+0x88/0x275
->   [<c018124b>] proc_file_read+0xbb/0x250
->   [<c0152ea1>] vfs_read+0xd1/0x130
->   [<c0153171>] sys_read+0x41/0x70
->   [<c01040db>] syscall_call+0x7/0xb
+William Lee Irwin III wrote:
+>> No, I'd expect zone->lru_lock to be taken most often for lru_cache_add()
+>> and lru_cache_del().
 
-great, thanks for working that out.
+On Sun, Sep 12, 2004 at 04:03:50PM +1000, Nick Piggin wrote:
+> Well "lru_cache_del" will be often coming from the scanner.
+> lru_cache_add should be being performed on newly allocated pages,
+> which should be node local most of the time.
 
-Random guess: acpi_evaluate_object() is returning an error but is
-allocating memory anyway.
+I presume page scanning to be rare outside memory-starved systems. I
+would expect lru_cache_del() in the scanner to originate from evictions
+of inodes in some odd cases, and from process or virtual area
+destruction in the case of anonymous memory.
 
-In acpi_battery_get_status():
 
-	status = acpi_evaluate_object(battery->handle, "_BST", NULL, &buffer);
-	if (ACPI_FAILURE(status)) {
-		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Error evaluating _BST\n"));
-		return_VALUE(-ENODEV);
-	}
+William Lee Irwin III wrote:
+>> There can be no adequate compile-time metric of L1 cache size. 64B
+>> cachelines with 16KB caches sounds a bit small, 256 entries, which is
+>> even smaller than TLB's on various systems.
 
-Is that failure path being taken?
+On Sun, Sep 12, 2004 at 04:03:50PM +1000, Nick Piggin wrote:
+> Although I'm pretty sure that is what Itanium 2 has. P4s may even
+> have 128B lines and 16K L1 IIRC.
+
+Pathetic and not particularly intelligent on the cpu designers' parts.
+The L1 cache should be large enough to cover at least two base pages
+and have at least as many entries as the TLB.
+
+
+William Lee Irwin III wrote:
+>> In general a hard cap at the L1 cache size would be beneficial for
+>> operations done in tight loops, but there is no adequate detection
+>> method. Also recall that the page structures things will be touched
+>> regardless if they are there to be touched in a sufficiently large
+>> pagevec.  Various pagevecs are meant to amortize locking done in
+>> scenarios where there is no relationship between calls. Again,
+>> lru_cache_add() and lru_cache_del() are the poster children. These
+>> operations are often done for one page at a time in some long codepath,
+>> e.g. fault handlers, and the pagevec is merely deferring the work until
+>> enough has accumulated. radix_tree_gang_lookup() and mpage_readpages()
+>> OTOH execute the operations to be done under the locks in tight loops,
+>> where the lock acquisitions are to be done immediately by the same caller.
+>> This differentiation between the characteristics of pagevec users
+>> happily matches the cases where they're used on-stack and per-cpu.
+>> In the former case, larger pagevecs are desirable, as the cachelines
+>> will not be L1-hot regardless; in the latter, L1 size limits apply.
+
+On Sun, Sep 12, 2004 at 04:03:50PM +1000, Nick Piggin wrote:
+> Possibly, I don't know. Performing a large stream of faults to
+> map in a file could easily keep all pages of a small pagevec
+> in cache.
+> Anyway, the point I'm making is just that you don't want to be
+> expanding this thing just because you can. If all else is equal,
+> a smaller size is obviously preferable. So obviously, simple
+> testing is required - but I don't think I need to be telling you
+> that ;)
+
+A large stream of faults to map in a file will blow L1 caches of the
+sizes you've mentioned at every kernel/user context switch. 256 distinct
+cachelines will very easily be referenced between faults. MAP_POPULATE
+and mlock() don't implement batching for either ->page_table_lock or
+->tree_lock, so the pagevec point is moot in pagetable instantiation
+codepaths (though it probably shouldn't be).
+
+O_DIRECT writes and msync(..., ..., MS_SYNC) will use pagevecs on
+->tree_lock in a rapid-fire process-triggerable manner. Almost all
+uses of pagevecs for ->lru_lock outside the scanner that I'm aware
+of are not rapid-fire in nature (though there probably should be some).
+IMHO pagevecs are somewhat underutilized.
+
+
+William Lee Irwin III wrote:
+>> 4*lg(NR_CPUS) is 64 for 16x-31x boxen. No constant number suffices.
+>> Adaptation to systems and the usage cases would be an improvement.
+
+On Sun, Sep 12, 2004 at 04:03:50PM +1000, Nick Piggin wrote:
+> Ignore my comments about disliking compile time sizing: the main
+> thing is to just find improvements, and merge-worthy implementation
+> can follow.
+
+Sorry, 4*lg(NR_CPUS) is 64 when lg(NR_CPUS) = 16, or 65536 cpus. 512x
+Altixen would have 4*lg(512) = 4*9 = 36. The 4*lg(NR_CPUS) sizing was
+rather conservative on behalf of users of stack-allocated pagevecs.
+
+
+-- wli

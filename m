@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281840AbRKWAh0>; Thu, 22 Nov 2001 19:37:26 -0500
+	id <S281841AbRKWAwJ>; Thu, 22 Nov 2001 19:52:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281841AbRKWAhH>; Thu, 22 Nov 2001 19:37:07 -0500
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:2317 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S281840AbRKWAgt>; Thu, 22 Nov 2001 19:36:49 -0500
-Date: Thu, 22 Nov 2001 19:36:45 -0500 (EST)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-To: Ryan Cumming <bodnar42@phalynx.dhs.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched_[set|get]_affinity() syscall, 2.4.15-pre9
-In-Reply-To: <E16744i-0004zQ-00@localhost>
-Message-ID: <Pine.LNX.4.10.10111221926130.31054-100000@coffee.psychology.mcmaster.ca>
+	id <S281843AbRKWAwA>; Thu, 22 Nov 2001 19:52:00 -0500
+Received: from [213.98.126.44] ([213.98.126.44]:27785 "HELO mitica.trasno.org")
+	by vger.kernel.org with SMTP id <S281841AbRKWAvz>;
+	Thu, 22 Nov 2001 19:51:55 -0500
+To: "Ishak Hartono" <lotus@upnaway.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: anyone got the same problem with DIGITAL 21143 network card ?
+In-Reply-To: <001201c1735c$9ac546d0$0b01a8c0@lotus>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <001201c1735c$9ac546d0$0b01a8c0@lotus>
+Date: 23 Nov 2001 01:50:26 +0100
+Message-ID: <m2u1vml38t.fsf@trasno.mitica>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> CPUs, because the scheduling decision was moved away from where it really 
-> should take place: the scheduler. I'm sure I'm missing something, though.
+>>>>> "ishak" == Ishak Hartono <lotus@upnaway.com> writes:
 
-only that it's nontrivial to estimate the migration costs, I think.
-at one point, around 2.3.3*, there was some effort at doing this - 
-or something like it.  specifically, the scheduler kept track of 
-how long a process ran on average, and was slightly more willing
-to migrate a short-slice process than a long-slice.  "short" was 
-defined relative to cache size and a WAG at dram bandwidth.
+ishak> I tried to compile 2.4.14 and successfully detect the digital 21143 network
+ishak> card, however, i can't ping out
 
-the rationale was that if you run for only 100 us, you probably
-don't have a huge working set.  that justification is pretty thin,
-and perhaps that's why the code gradually disappeared.
+ishak> this is just a curiosity, because it works with my 2.2.17 kernel
 
-hmm, you really want to monitor things like paging and cache misses,
-but both might be tricky, and would be tricky to use sanely.
-a really simple, and appealing heuristic is to migrate a process
-that hasn't run for a long while - any cache state it may have had
-is probably gone by now, so there *should* be no affinity.
+ishak> the reason why i didn't move to 2.4.x yet because i got this problem with
+ishak> 2.4.5 as well and gave it a try again on 2.4.14 kernel
 
-regards, mark hahn.
+ishak> anyone know what should i check in the system  other than blaming on the
+ishak> kernel ?
 
+Could you check if this patch makes your card work?
+
+It works for me.
+
+Later, Juan.
+
+--- linux/drivers/net/tulip/21142.c.orig	Mon Nov  5 20:50:27 2001
++++ linux/drivers/net/tulip/21142.c	Mon Nov  5 21:26:40 2001
+@@ -188,8 +188,9 @@
+ 			int i;
+ 			for (i = 0; i < tp->mtable->leafcount; i++)
+ 				if (tp->mtable->mleaf[i].media == dev->if_port) {
++					int startup = ! ((tp->chip_id == DC21143 && tp->revision == 65));
+ 					tp->cur_index = i;
+-					tulip_select_media(dev, 1);
++					tulip_select_media(dev, startup);
+ 					setup_done = 1;
+ 					break;
+ 				}
+
+
+
+
+-- 
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

@@ -1,79 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263080AbRE1P75>; Mon, 28 May 2001 11:59:57 -0400
+	id <S263079AbRE1P5r>; Mon, 28 May 2001 11:57:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263082AbRE1P7r>; Mon, 28 May 2001 11:59:47 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:30725 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S263080AbRE1P7n>;
-	Mon, 28 May 2001 11:59:43 -0400
-Date: Mon, 28 May 2001 17:59:40 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [patch] 4GB I/O, 2nd edition
-Message-ID: <20010528175940.M9102@suse.de>
+	id <S263080AbRE1P5h>; Mon, 28 May 2001 11:57:37 -0400
+Received: from thimm.dialup.fu-berlin.de ([160.45.217.207]:9735 "EHLO
+	pua.physik.fu-berlin.de") by vger.kernel.org with ESMTP
+	id <S263079AbRE1P5W>; Mon, 28 May 2001 11:57:22 -0400
+Date: Mon, 28 May 2001 17:57:12 +0200
+From: Axel Thimm <Axel.Thimm@physik.fu-berlin.de>
+To: linux-kernel@vger.kernel.org
+Subject: Status of ALi MAGiK 1 support in 2.4.?
+Message-ID: <20010528175712.B18955@pua.nirvana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+What is the status of the support for this chipset, found for example in an
+ASUS A7A266? Judging from
+             http://www.acerlabs.com/eng/support/faqlnx.htm
+one gets the impression that ALi is respectfully treating the Linux community.
 
-One minor bug found that would possibly oops if the SCSI pool ran out of
-memory for the sg table and had to revert to a single segment request.
-This should never happen, as the pool is sized after number of devices
-and queue depth -- but it needed fixing anyway.
+Although VIA is the most popular chipset vendor, its reaction on the recently
+Southbridge 686 bugs (and even more recently the Northbridge bug with Athlon
+C) and the pirq routing problem in Linux rather disqualify it.
 
-Other changes:
+So it seems that only AMD and ALi are left with Socket A chipsets (SiS 735 is
+yet to come). And the ALi MAGiK 1 has a good feature/cost ratio and is being
+reported as very stable (although perhaps not very fast).
 
-- Support cpqarray and cciss (two separate patches)
+So having been burned in the recent past with VIAs KT133A/686B and Linux, I
+hope that I can get an ALi MAGiK 1 board and rest in peace ...
 
-- Cleanup IDE DMA on/off wrt highmem
-
-- Move run_task_queue back again in __wait_on_buffer. Need to look at
-  why this hurts performance.
-
-- Don't account front merge as sequence decrement in elevator (will not
-  incur a seek)
-
-- Dump info when highmem I/O is enabled, mainly for debugging
-
-This version has run the cerberus hell-hound all night (IDE and SCSI),
-no bugs discovered. The patches were split up even more, for easier
-reading etc. It will not apply cleanly to latest 2.4.5-ac kernels, let
-me know if you want a version for that...
-
-The patches (in apply order)
-
-*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.5/
-
-- block-highmem-2
-
-  The highmem block infrastructure, and pci dma additions.
-
-- zone-dma32-5
-
-  Adds the 32-bit dma capable memory zone and make highmem kmap both
-  source and destination page.
-
-- scsi-high-1
-
-  Adds general highmem support to the SCSI layer and selected low level
-  drivers.
-
-- ide-high-1
-
-  Adds general highmem support to the IDE layer and selected low level
-  drivers.
-
-- cpqarray-high-1
-
-  Adds highmem support to the Compaq smart array driver
-
-- cciss-high-1
-
-  Adds highmem support to the 64-bit Compaq smart array driver
-
+Thanks, Axel.
 -- 
-Jens Axboe
-
+Axel.Thimm@physik.fu-berlin.de

@@ -1,79 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266761AbTBTSTy>; Thu, 20 Feb 2003 13:19:54 -0500
+	id <S266765AbTBTSVT>; Thu, 20 Feb 2003 13:21:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266765AbTBTSTy>; Thu, 20 Feb 2003 13:19:54 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:24478 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S266761AbTBTSTt>;
-	Thu, 20 Feb 2003 13:19:49 -0500
-Date: Thu, 20 Feb 2003 10:29:41 -0800
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Dave Jones <davej@codemonkey.org.uk>,
-       James Simmons <jsimmons@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: FBdev updates.
-Message-ID: <20030220182941.GK14445@vana.vc.cvut.cz>
-References: <Pine.LNX.4.44.0302200108090.20350-100000@phoenix.infradead.org> <20030220150201.GD13507@codemonkey.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030220150201.GD13507@codemonkey.org.uk>
-User-Agent: Mutt/1.5.3i
+	id <S266771AbTBTSVT>; Thu, 20 Feb 2003 13:21:19 -0500
+Received: from tang.qis.net ([209.150.98.149]:48390 "EHLO lamut.jtang.org")
+	by vger.kernel.org with ESMTP id <S266765AbTBTSUF>;
+	Thu, 20 Feb 2003 13:20:05 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Oops: nfsd/reiserfs, 2.4.20 with preemption
+Message-Id: <20030220182949.557DC3E62@cavall.jtang.org>
+Date: Thu, 20 Feb 2003 13:29:49 -0500 (EST)
+From: tang@jtang.org (J. Tang)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 20, 2003 at 03:02:01PM +0000, Dave Jones wrote:
-> On Thu, Feb 20, 2003 at 01:09:33AM +0000, James Simmons wrote:
-> 
->  > New updates to the fbdev layer. You can grab the diff from 
->  > http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
-> 
-> James,
->  Whats the current status with matroxfb ? Its been broken
-> for months now, and hasn't seen any progress wrt getting it
-> back on its feet.
-> 
-> I understand Petr had some concerns with the new API, but
-> *something* needs to be done to get this back up and running.
-> 
-> I'd understand if this was a neglected hardly-used-by-anyone
-> driver, but there's an awful lot of matrox cards out there.
-> 
-> This was first reported broken way back in 2.5.53, but I believe
-> was broken even longer before that.
+Hello there.
 
-Since 2.5.51, when rewrite came in... 
+I have been experiencing some very odd nfs problems lately; eventually I
+was able to get this output:
 
-You can get patch which reverts most of James's work at
-ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/matroxfb-2.5.59.gz.
+------------------------------------------------------------
 
-I was for five weeks in U.S., so I did not do anything with
-matroxfb during that time. I plan to use fillrect and copyrect
-from generic code (although it means unnecessary multiply on
-generic side, and division in matroxfb, but well, if we gave
-up on reasonable speed for fbdev long ago...). But I simply
-want loadfont and putcs hooks for character painting. And if 
-fbdev maintainer does not want to give me them, well, then 
-matroxfb and fbdev are not compatible.
+nfsd/reiserfs, fhtype=0, len=-603226364 - odd
+Unable to handle kernel paging request at virtual address 9110d6ff
+ printing eip:
+d6bec2b0
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<d6bec2b0>]    Not tainted
+EFLAGS: 00010282
+eax: d6bec200   ebx: dc0b6084   ecx: 00000000   edx: dc0b7e9c
+esi: bec2a8d6   edi: d6f27880   ebp: c15c06f8   esp: dc0b7e3c
+ds: 0018   es: 0018   ss: 0018
+Process nfsd (pid: 229, stackpage=dc0b7000)
+Stack: c0145b01 d6f27880 dc0b7e9c dc0b6000 00000000 c15c06f8 00000000 c0145dde
+       d6bec280 00000000 c15c06f8 c0175574 dc0b7e9c 00000005 dc0b7ebc 00000000
+       d6bec280 c01755b3 d6bec280 00000000 c0175574 dc0b7e9c 00000005 dc0b14a4
+Call Trace:    [<c0145b01>] [<c0145dde>] [<c0175574>] [<c01755b3>] [<c0175574>]
+  [<c01756bc>] [<c013bc10>] [<e29cec35>] [<e29cf54d>] [<e29b4be4>] [<e29d4d28>]
+  [<e29dbaac>] [<e29dbaac>] [<e29cc5c3>] [<e29b482f>] [<e29db3f8>] [<e29cc3a0>]
+  [<c01055dc>]
 
-I refuse to remove features from matroxfb driver, and textmode
-support is one of current features (needed and required to be
-able to run VMware on fullscreen - and as main part of my
-job happens in VMware...). So there is couple of choices:
-(1) new maintainer, or
-(2) remove matroxfb from kernel, or
-(3) persuade me that I want to write matroxcon and forget about fbcon at all, or
-(4) something else I do not know about.
+Code: 10 91 ff d6 10 91 ff d6 00 00 00 00 dc c2 be d6 03 00 00 00
+ <6>note: nfsd[229] exited with preempt_count 1
 
-Besides that with that strange additional copy in accel_putcs
-I get much slower output than with 2.4.x... and although I
-understand that for 2.6.x we'll all have faster computers than
-we had for 2.4.x, I still think that speed should be primary
-concern, and code extensibility and readability secondary.
-But well, I told it dozens of time, so why I bother. I do
-not want to end up as Larry.
-					Petr Vandrovec
-					vandrove@vc.cvut.cz
+------------------------------------------------------------
 
+Specifics of my system:
+
+Pentium III, Debian Woody, kernel 2.4.20 with prempt patches:
+
+ext3-scheduling-storm.patch        sync_fs-fix-2.patch
+ext3-use-after-free.patch          sync_fs-fix.patch
+preempt-kernel-rml-2.4.20-1.patch  sync_fs.patch
+
+running knfsd and reiserfs.  I have not seen this error reported within
+the lkml archives.  Let me know if additional information is needed to
+track down this problem.
+
+As that I am not subscribed to this list, please CC all replies to the
+address below.  Thanks.
+
+-- 
+Jason Tang  /  tang@jtang.org  /  http://www.jtang.org/~tang

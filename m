@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262335AbSJ2Va5>; Tue, 29 Oct 2002 16:30:57 -0500
+	id <S262344AbSJ2VjT>; Tue, 29 Oct 2002 16:39:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262346AbSJ2Va5>; Tue, 29 Oct 2002 16:30:57 -0500
-Received: from x101-201-88-dhcp.reshalls.umn.edu ([128.101.201.88]:7296 "EHLO
-	arashi.yi.org") by vger.kernel.org with ESMTP id <S262335AbSJ2Va5>;
-	Tue, 29 Oct 2002 16:30:57 -0500
-Date: Tue, 29 Oct 2002 15:37:19 -0600
-From: Matt Reppert <arashi@arashi.yi.org>
-To: linux-kernel@vger.kernel.org
-Subject: poll-related "scheduling while atomic", 2.5.44-mm6
-Message-Id: <20021029153719.4ebc4486.arashi@arashi.yi.org>
-Organization: Yomerashi
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-message-flag: : This mail sent from host minerva, please respond.
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262366AbSJ2VjT>; Tue, 29 Oct 2002 16:39:19 -0500
+Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:39372 "EHLO
+	gull.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S262344AbSJ2VjS>; Tue, 29 Oct 2002 16:39:18 -0500
+Date: Tue, 29 Oct 2002 14:38:51 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Antonino Daplas <adaplas@pol.net>
+Subject: Re: [BK updates] fbdev changes updates.
+In-Reply-To: <20021029200838.GA27552@suse.de>
+Message-ID: <Pine.LNX.4.33.0210291437050.1363-100000@maxwell.earthlink.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Debug: sleeping function called from illegal context at mm/slab.c:1304
-Call Trace:
- [<c0113f98>] __might_sleep+0x54/0x5c
- [<c012e342>] kmem_flagcheck+0x1e/0x50
- [<c012ec4b>] kmalloc+0x4b/0x114
- [<c014c2cd>] sys_poll+0x91/0x284
- [<c0106eb3>] syscall_call+0x7/0xb
 
-This one comes from calling kmalloc with GFP_KERNEL in sys_poll.
+> On Tue, Oct 29, 2002 at 12:45:10PM -0800, James Simmons wrote:
+>  > The reason for this is we will see in the future embedded ix86
+>  > boards with things like i810 framebuffers with NO vga core. In this case
+>  > we will need a fbdev driver for a graphical console. Thus the agp code
+>  > must be started before the fbdev layer.
+>
+> Can you explain exactly what the agpgart code is doing that needs
+> to be done earlier than framebuffer ? I don't see any reason for this
+> change. There should be no GART mappings until we've booted userspace
+> (except for the case of IOMMU)
 
-bad: scheduling while atomic!
-Call Trace:
- [<c0112ba1>] do_schedule+0x3d/0x2c8
- [<c011d14e>] add_timer+0x36/0x124
- [<c011ddb0>] schedule_timeout+0x84/0xa4
- [<c011dd20>] process_timeout+0x0/0xc
- [<c014c216>] do_poll+0xc2/0xe8
- [<c014c3ca>] sys_poll+0x18e/0x284
- [<c0106eb3>] syscall_call+0x7/0xb
+Best to ask the author of the i810 framebuffer driver. He can tell you his
+need for AGP stuff. I CC.
 
-Another little tidbit. I was in X11 while this was happening, and I
-happened to stop a process (nautilus) just before I looked in my logs
-about this ... and caught a "Notice: process nautilus exited with
-preempt_count 2". So my guess is somewhere between -mm5 and -mm6 we
-screwed up the atomicity count. (Funny I didn't see that for more
-processes, though.)
 
-Matt

@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287734AbSAIQFQ>; Wed, 9 Jan 2002 11:05:16 -0500
+	id <S287750AbSAIQH0>; Wed, 9 Jan 2002 11:07:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287720AbSAIQE5>; Wed, 9 Jan 2002 11:04:57 -0500
-Received: from pat.uio.no ([129.240.130.16]:64995 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S287743AbSAIQEi>;
-	Wed, 9 Jan 2002 11:04:38 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15420.27148.80553.930142@charged.uio.no>
-Date: Wed, 9 Jan 2002 17:04:28 +0100
-To: Birger Lammering <b.lammering@science-computing.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: more tcpdumpinfo for nfs3 problem: aix-server
-In-Reply-To: <15420.23686.566719.128899@stderr.science-computing.de>
-In-Reply-To: <15418.55750.210978.737165@stderr.science-computing.de>
-	<15418.63966.866222.749974@charged.uio.no>
-	<15420.23686.566719.128899@stderr.science-computing.de>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+	id <S287756AbSAIQHK>; Wed, 9 Jan 2002 11:07:10 -0500
+Received: from nat-pool-hsv.redhat.com ([12.150.234.132]:5885 "EHLO
+	dhcp-177.hsv.redhat.com") by vger.kernel.org with ESMTP
+	id <S287750AbSAIQGu>; Wed, 9 Jan 2002 11:06:50 -0500
+Date: Wed, 9 Jan 2002 10:06:12 -0600
+From: Tommy Reynolds <reynolds@redhat.com>
+To: salvador@inti.gov.ar
+Cc: alan@lxorguk.ukuu.org.uk, marcelo@conectiva.com.br,
+        t.sailer@alumni.ethz.ch, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFCA] Sound: adding /proc/driver/{vendor}/{dev_pci}/ac97 entry  for es1371 driver
+Message-Id: <20020109100612.66cffd84.reynolds@redhat.com>
+In-Reply-To: <3C3C658B.1DDBFA69@inti.gov.ar>
+In-Reply-To: <3C3C658B.1DDBFA69@inti.gov.ar>
+Organization: Red Hat Software, Inc. / Embedded Development
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.r)?Tca/pnqP0/n"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=.r)?Tca/pnqP0/n
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-     > Strange situation: both, you and the amd-guys, think the bug is
-     > somewhere in the code of the other.
+Uttered "salvador" <salvador@inti.gov.ar>, spoke thus:
 
-Although I won't exclude the fact that there may be a kernel bug, as
-long as this condition is not reproducible with anything other than
-amd, I'm going to need a lot of convincing.
+> Doubts:
+> 1) This adds something like: /proc/driver/es1371/00:03.00/ac97 I took the
+> idea from emu10k1.c module. My doubt is about the `:' it looks wrong in a
+> file name, specially when that's usually used to separate file names/paths.
+> Should we pass it by a small routine that converts : into something like _?
 
-     > And I have no idea, how to circle in the
-     > bug.... (Kernel-debugging???)
+I wouldn't change it.  In fact, Linux allows _any_ character except a NULL in a
+filename, although POSIX doesn't.  (Well, I wouldn't use a '/' in a filename
+even if I escaped it out the wazoo!)
 
-That depends a lot on what it is amd actually does. Is it for instance
-acting as a proxy between the client and the server, or in any other
-way touching those packets?
-I've never used amd, so I frankly have no idea what sort of special
-thing it does on top of the standard NFS client. That's why I'd prefer
-that Ion look into it.
+> 2) I used a buffer of fixed length as in other modules, but I don't feel
+> really good doing it. What solutions are recommended? (if any)
 
-If it turns out that a proper bugreport can be compiled that points to
-a kernel NFS client problem, I'll be happy to help fix it. As things
-stand, however, I am unable to reproduce any such problems on my own
-setups and I have no spare time at the moment to start messing with
-amd myself.
+The kernel stack is really small and doesn't grow, so a buffer allocated on the
+stack could cause "load-dependent instability".  Using a "vmalloc" and a "vfree"
+is fast, cheap and easy.
 
-Cheers,
-  Trond
+-- 
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- + -- -- -- -- -- -- -- -- -- --
+Tommy Reynolds                               | mailto: <reynolds@redhat.com>
+Red Hat, Inc., Embedded Development Services | Phone:  +1.256.704.9286
+307 Wynn Drive NW, Huntsville, AL 35805 USA  | FAX:    +1.256.837.3839
+Senior Software Developer                    | Mobile: +1.919.641.2923
+
+--=.r)?Tca/pnqP0/n
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iEYEARECAAYFAjw8angACgkQWEn3bOOMcupuJQCaAxZvRfqn6McFx+ruovh9nNjm
+GIQAn1XKe+BAlkcGJS2IsK1iX6+ryqmE
+=Rqj2
+-----END PGP SIGNATURE-----
+
+--=.r)?Tca/pnqP0/n--
+

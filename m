@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313313AbSDGNeq>; Sun, 7 Apr 2002 09:34:46 -0400
+	id <S313319AbSDGNsJ>; Sun, 7 Apr 2002 09:48:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313318AbSDGNep>; Sun, 7 Apr 2002 09:34:45 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:3080 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S313313AbSDGNeo>; Sun, 7 Apr 2002 09:34:44 -0400
-Date: Sun, 7 Apr 2002 14:34:37 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.8-pre2
-Message-ID: <20020407143437.F30048@flint.arm.linux.org.uk>
-In-Reply-To: <20020407112716.A30048@flint.arm.linux.org.uk> <Pine.GSO.4.21.0204071239310.2567-100000@lisianthus.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S313322AbSDGNsI>; Sun, 7 Apr 2002 09:48:08 -0400
+Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:36103 "HELO
+	osinvestor.com") by vger.kernel.org with SMTP id <S313319AbSDGNsH>;
+	Sun, 7 Apr 2002 09:48:07 -0400
+Date: Sun, 7 Apr 2002 09:48:06 -0400 (EDT)
+From: Rob Radez <rob@osinvestor.com>
+X-X-Sender: <rob@pita.lan>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Russell King <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: WatchDog Driver Updates
+In-Reply-To: <E16uCo2-000632-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0204070938490.3791-100000@pita.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 07, 2002 at 12:42:45PM +0200, Geert Uytterhoeven wrote:
-> On Sun, 7 Apr 2002, Russell King wrote:
-> > On Sun, Apr 07, 2002 at 12:17:28PM +0200, Geert Uytterhoeven wrote:
-> > > Please either add resource management code to anakinfb and clps711xfb,
-> > > or apply the patch below.
-> > 
-> > They're not ISA nor PCI - in fact, they're specific system-on-a-chip
-> > framebuffers.  I therefore don't see the point of your patch.
-> 
-> Even then, please don't add them to the section marked with the comment
-> `Chipset specific drivers that use resource management'. My patch just moves
-> their initialization to the section marked with the comment `Chipset specific
-> drivers that don't use resource management (yet)'. So it's still valid.
 
-Ok, I agree the clps711x can be moved.  As for Anakin, that's up to the
-anakin people to sort out - I've mailed them directly.  There's a bunch
-of other stuff in there as well that needs to be fixed up.
+On Sun, 7 Apr 2002, Alan Cox wrote:
 
-> > (Oh, and a bugbear - people go running around adding checks for the
-> > return value of request_region and friends on embedded devices where
-> > there can't be the possibility of a clash waste memory needlessly.)
-> 
-> Perhaps you want to modularize the driver later? Resource management also
-> prevents you from insmoding two drivers for the same hardware.
+> > > 5. WDIOC_GETSTATUS is supposed to return the WDIOF_* flags.  Returning
+> > >    "watchdog active" as bit 0 causes it to indicate WDIOF_OVERHEAT.
+> >
+> > Hmm...I'm not seeing any standards here.  Some drivers would just send
+>
+> Documentation/* in current -ac
 
-Point 1: You can't perform resource management on the System RAM since
- they're already claimed.
-Point 2: You can't perform resource management on bits in a control
- register that performs many other random functions; resource management
- is byte based not bit based.
+2.4.19-pre5-ac3
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Right, Documentation/watchdog.txt:
+The i810 TCO watchdog driver also implements the WDIOC_GETSTATUS and
+WDIOC_GETBOOTSTATUS ioctl()s. WDIOC_GETSTATUS returns the actual counter value
+and WDIOC_GETBOOTSTATUS returns the value of TCO2 Status Register (see Intel's
+documentation for the 82801AA and 82801AB datasheet).
+
+Documentation/watchdog-api.txt lists each driver and how the ones that
+implement GETSTATUS do so in a 'silly' manner.  While it also does mention
+how cards are supposed to return WDIOF_* (and list supported flags in the
+options), it also shows how all of 3 out of 20 watchdog drivers actually
+follow that convention.  7 return the number 1, 1 returns the number of ticks,
+and 1 returns whether the card is enabled or disabled.  So following the
+standards embodied in the code, every driver should just return 1 ;-).
+
+Ah-ha, the crown jewels!
+Documentation/pcwd-watchdog.txt:
+        WDIOC_GETSTATUS
+                This returns the status of the card, with the bits of
+                WDIOF_* bitwise-anded into the value.  (The comments
+                are in linux/pcwd.h)
+Although, this is hidden away in a driver specific file (and even references
+a file which no longer exists).  I guess I'll clean all this up in my next
+patch.
+
+Regards,
+Rob Radez
+
 

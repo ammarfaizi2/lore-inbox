@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316799AbSGBPuv>; Tue, 2 Jul 2002 11:50:51 -0400
+	id <S316820AbSGBQFR>; Tue, 2 Jul 2002 12:05:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316803AbSGBPuu>; Tue, 2 Jul 2002 11:50:50 -0400
-Received: from vena.lwn.net ([206.168.112.25]:22280 "HELO eklektix.com")
-	by vger.kernel.org with SMTP id <S316799AbSGBPuu>;
-	Tue, 2 Jul 2002 11:50:50 -0400
-Message-ID: <20020702155319.25599.qmail@eklektix.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OKS] Module removal 
-From: corbet@lwn.net (Jonathan Corbet)
-In-reply-to: Your message of "Tue, 02 Jul 2002 11:20:19 EDT."
-             <Pine.LNX.3.96.1020702111607.27954E-100000@gatekeeper.tmr.com> 
-Date: Tue, 02 Jul 2002 09:53:19 -0600
+	id <S316821AbSGBQFQ>; Tue, 2 Jul 2002 12:05:16 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:25050 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S316820AbSGBQFQ>; Tue, 2 Jul 2002 12:05:16 -0400
+Date: Tue, 2 Jul 2002 18:07:12 +0200
+From: Axel Siebenwirth <axel@hh59.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.24] RTL8139: ioctl(SIOCGIFHWADDR): No such device
+Message-ID: <20020702160712.GA8921@neon.hh59.org>
+Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+	linux-kernel@vger.kernel.org
+References: <20020701202026.GA896@neon.hh59.org> <3D20BB85.7030504@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D20BB85.7030504@mandrakesoft.com>
+User-Agent: Mutt/1.4i
+Organization: hh59.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also, as someone mentioned, it means a reboot every time you need to try
-> something new while doing module development. That doesn't sound like a
-> great idea...
+Hi Jeff!
 
-This is a misconception I've seen go by a few times now; maybe I wrote up
-that session badly.  Anyway...
+On Mon, 01 Jul 2002, Jeff Garzik wrote:
 
-...the module remove option, under the proposal, would not disappear
-entirely.  It would just no longer be represented as safe.  Removable
-modules would be a "kernel hacking" option, still available to people
-developing drivers and such.  Aunt Tillie would no longer be able to remove
-modules from her kernel, but that's not likely to bother her too much...
+> >Have not tried 2.5.23 but 2.5.22 works fine. Since there have been changes 
+> >to the 8139too driver I guess thats it. Unfortunately I do not know where 
+> >to fix
+> >this.
+> 
+> None that should affect this, however.
+> 
+> Can you please copy your 2.5.22 drivers/net/8139too.c into 2.5.24, and 
+> test 2.5.24 with the older driver?
 
-jon
+Ok. I copied 8139too driver of 2.5.22 to 2.5.24 and it it was still the same.
 
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net
+I attached output of "lspci -vvv" and "dmesg".
+
+"ifconfig eth1 up" returns with something like "device not found".
+
+Regards,
+Axel

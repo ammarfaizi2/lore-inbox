@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277265AbRJQW3a>; Wed, 17 Oct 2001 18:29:30 -0400
+	id <S277266AbRJQWwe>; Wed, 17 Oct 2001 18:52:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277266AbRJQW3T>; Wed, 17 Oct 2001 18:29:19 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:65037 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S277265AbRJQW3K>; Wed, 17 Oct 2001 18:29:10 -0400
-Date: Wed, 17 Oct 2001 19:27:26 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: "Oleg A. Yurlov" <kris@spylog.com>
-Cc: <linux-kernel@vger.kernel.org>, <mantel@suse.de>
-Subject: Re: "3.5GB user address space" option.
-In-Reply-To: <1981072193242.20011018021819@spylog.com>
-Message-ID: <Pine.LNX.4.33L.0110171926270.1554-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277271AbRJQWwY>; Wed, 17 Oct 2001 18:52:24 -0400
+Received: from maties2.sun.ac.za ([146.232.128.10]:31886 "EHLO
+	maties2.sun.ac.za") by vger.kernel.org with ESMTP
+	id <S277266AbRJQWwT>; Wed, 17 Oct 2001 18:52:19 -0400
+Date: Thu, 18 Oct 2001 00:52:33 +0200
+From: Hugo van der Merwe <hugovdm@mail.com>
+To: Kurt Garloff <garloff@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: ps/2 mouse, keyboard conflicts
+Message-ID: <20011018005233.A17427@baboon.wilgenhof.sun.ac.za>
+Mail-Followup-To: Hugo van der Merwe <hugovdm@mail.com>,
+	Kurt Garloff <garloff@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011017144158.A6534@baboon.wilgenhof.sun.ac.za> <20011017233440.B13317@garloff.casa-etp.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011017233440.B13317@garloff.casa-etp.nl>
+User-Agent: Mutt/1.3.23i
+X-Scanner: exiscan *15tzYC-0003ei-00*SPLe7O2bz82* http://duncanthrax.net/exiscan/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Oct 2001, Oleg A. Yurlov wrote:
+> the mouse needs to be reinitialized after being replugged. First it needs to
 
->         How I can use 3.5GB in my apps ? I try malloc() and get
-> error on 2G bounce... :-(
+It was plugged in at boot time, is this then still necessary?
 
-You may want to use the 'hoard' memory allocation library,
-it seems a bit smarter than glibc's malloc in getting all
-the address space your program wants.
+> so it got disbaled. You can try reenabling by using the parammeter
+> psaux-reconnect and check whether this makes a difference.
+> 
+> I don't have the slightest clue why it affects yoiur keyboard.
 
-1) install libhoard
-2) export LD_PRELOAD=libhoard.so
-3) run the program
+Is there good reason to believe that this is my problem then? How can I
+find evidence that supports this theory? Especially interesting was the
+days when I could start X and use the ps/2 mouse and keyboard for a
+while, before they locked up...
 
-cheers,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Hugo van der Merwe

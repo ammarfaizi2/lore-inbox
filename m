@@ -1,64 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269582AbUIRQ7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267930AbUIRRDf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269582AbUIRQ7i (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 12:59:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269583AbUIRQ7i
+	id S267930AbUIRRDf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 13:03:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269583AbUIRRDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 12:59:38 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:62595 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S269582AbUIRQ7e (ORCPT
+	Sat, 18 Sep 2004 13:03:33 -0400
+Received: from mail.aknet.ru ([217.67.122.194]:59653 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S267930AbUIRRDa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 12:59:34 -0400
-Date: Sat, 18 Sep 2004 18:59:32 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Stas Sergeev <stsp@aknet.ru>
+	Sat, 18 Sep 2004 13:03:30 -0400
+Message-ID: <414C6ABC.4030702@aknet.ru>
+Date: Sat, 18 Sep 2004 21:05:00 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: ESP corruption bug - what CPUs are affected?
-Message-ID: <20040918165932.GA15570@vana.vc.cvut.cz>
-References: <3BFF2F87096@vcnet.vc.cvut.cz> <414C662D.5090607@aknet.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <414C662D.5090607@aknet.ru>
-User-Agent: Mutt/1.5.6+20040818i
+References: <4149D243.5050501@aknet.ru> <200409180104.09796.vda@port.imtp.ilyichevsk.odessa.ua> <414C14CD.7030200@aknet.ru> <200409181608.18440.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200409181608.18440.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AV-Checked: ClamAV using ClamSMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 18, 2004 at 08:45:33PM +0400, Stas Sergeev wrote:
-> Hi Petr.
-> 
-> Petr Vandrovec wrote:
-> >natural solution seems to be to create complete 16bit CPL1 
-> >environment, return to it, load ESP as you want, and then do IRET 
-> >to return to CPL2 or CPL3.  Fortunately V8086 mode is not affected, 
-> >so there should be no problem with using CPL1 for this middle step.  
-> >But of course it is not something you want to do on each return 
-> >from interrupt handler...  Well, or maybe you want...
-> Actually, this may indeed be what I want!
-> I think this can be implemented with the checks
-> that Denis Vlasenko suggests. Something like this
-> can be added to entry.S, right before the "iret":
-> ---
-> if (!(old_EFLAGS & VM_MASK) && (descr_old_SS is 16bit one))
->  push_a_stack_frame_to_return_to_the_ring1_trampoline();
-> ---
-> This way the overhead for the normal case would be
-> something about 4 asm insns (the check), and for the
-> dosemu case - who cares? (and probably also the wine
-> people will value that)
-> 
-> Does this look reasonable? If it does, I think I
-> should just start implementing that.
+Hi Denis.
 
-Do not forget that you have to implement also return to CPL1, as
-NMI may arrive while you are running on CPL1.  So it may not be
-as trivial as it seemed.  Maybe all these programs survive that
-their CPL3 stack changes, and then you could just push cs,eip and
-esp on CPL3 stack, and return to user code (vsyscall page seems 
-natural place for that code) which would do pop %esp; retf?
+Denis Vlasenko wrote:
+> Aha. The only way to sanely handle it is to
+> hack on entry.S I'm afraid. Something like rewriting
+> CS:EIP so that it returns to a small ring-3 trampoline
+> which clears upper 16 bits of ESP and jumps to original CS:EIP.
+Well, I don't really want to clear the higher word
+of ESP (even if I want to do that in most cases),
+but I'd really like to just restore it properly.
+Of course (I think) ring-3 trampoline will not
+work for many reasons. The most obvious one is
+that it itself can be interrupted in any place.
+Another problem with it is that the return frame
+will have to be pushed to the stack of a DOS prog.
+This is not the good thing to do. dosemu avoids
+ever touching the stack of a DOS prog by setting
+up the sigaltstack.
+What *will* work, however, is a ring-1 trampoline,
+as Petr Vandrovec suggested. It can be executed
+with interrupts disabled (I think) so will not
+be interrupted, and it can (isn't it?) use the
+kernel stack, if I understand that correctly.
 
-Only problem is how to find that old SS points to 16bit segment.
-You need LAR and/or you have to peek GDT/LDT to find stack size, 
-and AFAIK LAR is microcoded on P4.
-						Petr Vandrovec
+> Now, how to detect when to use this? Hmm.... the simplest thing
+> is to check that
+> (old_ESP <= 0xffff) && !(old_EFLAGS & VM_MASK) && (descr_old_SS is 16bit one)
+Yes, that's an excellent idea (except for the
+ESP<=0xffff check - I don't think this one is
+necessary).
+
+> This will cost us only one comparison in the normal
+> path,
+Yes, so I think I should just try to implement
+that. Not as a ring-3 trampoline, but as a ring-1
+one.
+
+> because typically ESP of Linus executables
+> is greater than 0xffff.
+I'd rather say, because the stack segment is 32bit
+for them always.
+And this all should work, as it seems to me.
+Thanks for the hint about the checking.
 

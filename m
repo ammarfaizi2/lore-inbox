@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282859AbRLMJAT>; Thu, 13 Dec 2001 04:00:19 -0500
+	id <S282805AbRLMJB7>; Thu, 13 Dec 2001 04:01:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282848AbRLMJAJ>; Thu, 13 Dec 2001 04:00:09 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:33163 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S280771AbRLMI7w>;
-	Thu, 13 Dec 2001 03:59:52 -0500
-Date: Thu, 13 Dec 2001 00:59:30 -0800 (PST)
-Message-Id: <20011213.005930.75759707.davem@redhat.com>
-To: pierre.lombard@imag.fr
+	id <S282873AbRLMJBo>; Thu, 13 Dec 2001 04:01:44 -0500
+Received: from [203.161.228.202] ([203.161.228.202]:38412 "EHLO
+	spf1.hq.outblaze.com") by vger.kernel.org with ESMTP
+	id <S282805AbRLMJAj>; Thu, 13 Dec 2001 04:00:39 -0500
+Date: Thu, 13 Dec 2001 16:59:07 +0800
+From: Yusuf Goolamabbas <yusufg@outblaze.com>
+To: nfs@lists.sourceforge.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] small doc update for
- /proc/sys/net/ipv4/icmp_rate{mask,limit}
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011213085749.GA8332@sci41.imag.fr>
-In-Reply-To: <20011212122722.GA21997@sci41.imag.fr>
-	<20011212.163726.38712274.davem@redhat.com>
-	<20011213085749.GA8332@sci41.imag.fr>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Subject: Interesting nfs testing tool by Avi Tevanian of Apple
+Message-ID: <20011213165907.A2653@outblaze.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Pierre Lombard <pierre.lombard@imag.fr>
-   Date: Thu, 13 Dec 2001 09:57:49 +0100
-   
-   A fresh & unedited version against a vanilla 2.4.17-pre8 is
-   text-attached.
+Read this on a freebsd list today, might be of interest to nfs hackers
+and other kernel hackers.
 
-Applied, thanks.
+http://docs.freebsd.org/cgi/getmsg.cgi?fetch=528858+0+current/freebsd-hackers
+
+It has helped Matt Dillon (of FreeBSD fame) find a lot of bugs in
+FreeBSD NFS and FFS implementation. The complete thread has a lot of
+information
+
+Regards, Yusuf
+
+-- 
+Yusuf Goolamabbas
+yusufg@outblaze.com

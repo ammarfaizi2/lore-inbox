@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263638AbUAIT6I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 14:58:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbUAIT6I
+	id S264258AbUAIT7h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 14:59:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264331AbUAIT7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 14:58:08 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40978 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263638AbUAIT6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 14:58:03 -0500
-Message-ID: <3FFF07B2.70801@zytor.com>
-Date: Fri, 09 Jan 2004 11:57:38 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-CC: viro@parcelfarce.linux.theplanet.co.uk, Ian Kent <raven@themaw.net>,
-       autofs mailing list <autofs@linux.kernel.org>,
-       "Ogden, Aaron A." <aogden@unocal.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [autofs] [RFC] Towards a Modern Autofs
-References: <3FFC96FE.9050002@zytor.com> <Pine.LNX.4.44.0401082050210.354-100000@donald.themaw.net> <20040108183135.GE30321@parcelfarce.linux.theplanet.co.uk> <3FFF03EA.4060603@sun.com>
-In-Reply-To: <3FFF03EA.4060603@sun.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jan 2004 14:59:37 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:15277 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S264258AbUAIT7M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 14:59:12 -0500
+Date: Sat, 10 Jan 2004 08:48:08 +1300
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Subject: To whom should I submit Suspend patches?
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Reply-to: ncunningham@users.sourceforge.net
+Message-id: <1073677687.2067.29.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: multipart/signed; boundary="=-dR8U8tH2eV+138fTS46O";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Waychison wrote:
->>
->> Special vfsmount mounted somewhere; has no superblock associated with it;
->> attempt to step on it triggers event; normal result of that event is to
->> get a normal mount on top of it, at which point usual chaining logics
->> will make sure that we don't see the trap until it's uncovered by removal
->> of covering filesystem.  Trap (and everything mounted on it, etc.) can
->> be removed by normal lazy umount.
->>
->> Basically, it's a single-point analog of autofs done entirely in VFS.
->> The job of automounter is to maintain the traps and react to events.
->>
-> Is there any clear advantage to doing this in the VFS other than saving
-> a superblock and a dentry/inode pair or two?
-> 
-> I remember talking to you about this, and I seem to recall that these
-> mount traps would probably communicate using a struct file, so a
-> trap-user would somehow receive events about when the trap was set
-> off.   Will this communication model continue to work within a cloned
-> namespace?  What happens if the trap-client closes the file?
-> 
 
-The biggest issue is to ensure that the appropriate atomicity guarantees
-can be maintained.  In particular, it must be possible to umount the
-underlying filesystem and all mount traps on top of it atomically.
-Anything less will result in race conditions.
+--=-dR8U8tH2eV+138fTS46O
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-	-hpa
+Hi.
+
+Patrick has a new job and it seems to have swallowed him whole. To whom
+should I be submitting patches for Suspend itself? I was wanting to go
+wild submitting patches before my move to Canberra in three weeks time.
+I do have a BK tree I can put them in if it helps.
+
+Regards,
+
+Nigel
+--=20
+My work on Software Suspend is graciously brought to you by
+LinuxFund.org.
+
+--=-dR8U8tH2eV+138fTS46O
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA//wV3VfpQGcyBBWkRAvwAAJ4y3Gvp4krBdYiLu3TxTG6o1SAekgCfQbwL
+7QqPjzBQd0IEvA7h5+1vL9Q=
+=q37n
+-----END PGP SIGNATURE-----
+
+--=-dR8U8tH2eV+138fTS46O--
 

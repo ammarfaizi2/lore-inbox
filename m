@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268001AbUIAHrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268088AbUIAHww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268001AbUIAHrO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 03:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268878AbUIAHrO
+	id S268088AbUIAHww (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 03:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268383AbUIAHww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 03:47:14 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:63905 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268001AbUIAHrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 03:47:12 -0400
-Subject: Re: f_ops flag to speed up compatible ioctls in linux kernel
-From: Lee Revell <rlrevell@joe-job.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, discuss@x86-64.org,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040901073218.GQ16297@parcelfarce.linux.theplanet.co.uk>
-References: <20040901072245.GF13749@mellanox.co.il>
-	 <20040901073218.GQ16297@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Message-Id: <1094024831.1970.21.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 01 Sep 2004 03:47:12 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Sep 2004 03:52:52 -0400
+Received: from 10fwd.cistron-office.nl ([62.216.29.197]:39861 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id S268088AbUIAHwt convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 03:52:49 -0400
+Date: Wed, 01 Sep 2004 07:52:46 +0000
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+Subject: Re: HIGHMEM4G config for 1GB RAM on desktop?
+To: Timothy Miller <miller@techsource.com>
+Cc: linux-kernel@vger.kernel.org
+References: <200408021602.34320.swsnyder@insightbb.com>
+	<20040804120633.4dca57b3.akpm@osdl.org> <411ABF85.2080200@techsource.com>
+	<41336CB1.6030105@techsource.com> <cgvpb4$ljq$1@news.cistron.nl>
+	<4134FFC3.50409@techsource.com>
+In-Reply-To: <4134FFC3.50409@techsource.com> (from miller@techsource.com on
+	Wed Sep  1 00:46:27 2004)
+X-Mailer: Balsa 2.2.3
+Message-Id: <1094025166l.22433l.1l@drinkel.cistron.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-01 at 03:32, viro@parcelfarce.linux.theplanet.co.uk
-wrote:
-> On Wed, Sep 01, 2004 at 10:22:45AM +0300, Michael S. Tsirkin wrote:
-> > Hello!
-> > Currently, on the x86_64 architecture, its quite tricky to make
-> > a char device ioctl work for an x86 executables.
-> > In particular,
-> >    1. there is a requirement that ioctl number is unique -
-> >       which is hard to guarantee especially for out of kernel modules
-> 
-> Too bad.
-> 
-> >    2. there's a performance huge overhead for each compat call - there's
-> >       a hash lookup in a global hash inside a lock_kernel -
-> >       and I think compat performance *is* important.
+On Wed, 01 Sep 2004 00:46:27, Timothy Miller wrote:
+> Miquel van Smoorenburg wrote:
+> > In article <41336CB1.6030105@techsource.com>,
+> > Timothy Miller  <miller@techsource.com> wrote:
 > > 
-> > Further, adding a command to the ioctl suddenly requires changing
-> > two places - registration code and ioctl itself.
+> >>Timothy Miller wrote:
+> >>
+> >>>Hey, that rings a bell.  I have a 3ware 7000-2 controller with two 
+> >>>WD1200JB drives in RAID1.  I find that if I dd from the disk, I get 
+> >>>exactly the read throughput that is the max for the drives (47MB/sec). 
+> >>>However, if I do a WRITE test, the performance is miserable.
+> > 
+> > Try setting /sys/block/sda/queue/nr_requests to twice the number
+> > in /sys/block/sda/device/queue_depth
 > 
-> So don't add them.  Adding a new ioctl is *NOT* a step to be taken lightly -
-> we used to be far too accepting in that area and as somebody who'd waded
-> through the resulting dungpiles over the last months I can tell you that
-> result is utterly revolting.
-> 
+> This will improve write performance?
 
-By adding a new ioctl you are adding a new use of the BKL.  It has been
-suggested on dri-devel that this should be fixed.  Is this even
-possible?
+You won't know before you try it ofcourse. It helps on my 85xx controllers.
+The problem is that the internal queue size of some 3ware controllers
+(queue_depth) is larger than the I/O schedulers nr_requests so that
+the I/O scheduler doesn't get much chance to properly order and merge
+the requests.
 
-Lee
+I've sent patches to 3ware a couple of times to make queue_depth
+writable so that you can tune that as well, but they were refused
+for no good reason AFAICS. Very unfortunate - if you have 8 JBOD
+disks attached, you want to set queue_depth for each of them to
+(max_controller_queue_depth / 8) to prevent one disk from starving
+the other ones, but oh well.
 
+> And if this helps, how do I make 
+> it permanent?
+
+Can't say, depends on your distribution. For recent Debian at
+least you can use /etc/sysctl.conf
+
+Mike.
 

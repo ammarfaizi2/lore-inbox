@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbULJEyu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbULJE7U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbULJEyu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 23:54:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbULJEyt
+	id S261693AbULJE7U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 23:59:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbULJE7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 23:54:49 -0500
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:18596 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261707AbULJEyr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 23:54:47 -0500
-Message-ID: <41B92C11.80106@yahoo.com.au>
-Date: Fri, 10 Dec 2004 15:54:41 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Hugh Dickins <hugh@veritas.com>, Christoph Lameter <clameter@sgi.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V12 [0/7]: Overview and performance
-    tests
-References: <Pine.LNX.4.44.0412091830580.17648-300000@localhost.localdomain> <41B92567.8070809@yahoo.com.au>
-In-Reply-To: <41B92567.8070809@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Dec 2004 23:59:20 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12519 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261693AbULJE7R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 23:59:17 -0500
+Date: Thu, 9 Dec 2004 20:59:14 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Robert Love <rml@novell.com>
+Cc: Timothy Chavez <chavezt@gmail.com>, Chris Wright <chrisw@osdl.org>,
+       linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, ttb@tentacle.dhs.org
+Subject: Re: [audit] Upstream solution for auditing file system objects
+Message-ID: <20041209205914.A2357@build.pdx.osdl.net>
+References: <f2833c760412091602354b4c95@mail.gmail.com> <20041209174610.K469@build.pdx.osdl.net> <f2833c76041209185024cb1c4d@mail.gmail.com> <1102650138.6052.228.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1102650138.6052.228.camel@localhost>; from rml@novell.com on Thu, Dec 09, 2004 at 10:42:18PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+* Robert Love (rml@novell.com) wrote:
+> What we both need, ultimately, is a generic file change notification
+> system.  This way inotify, dnotify, your audit thing, and whatever else
+> can hook into the filesystem as desired.
 
-> Yep, the update_mmu_cache issue is real. There is a parallel problem
-> that is update_mmu_cache can be called on a pte who's page has since
-> been evicted and reused. Again, that looks safe on IA64, but maybe
-> not on other architectures.
-> 
-> It can be solved by moving lru_cache_add to after update_mmu_cache in
-> all cases but the "update accessed bit" type fault. I solved that by
-> simply defining that out for architectures that don't need it - a raced
-> fault will simply get repeated if need be.
-> 
+Yup, makes sense.  From my handwavy perspective inotify was the generic
+file event notifcation mechanism, but I agree with your point.
 
-The page-freed-before-update_mmu_cache issue can be solved in that way,
-not the set_pte and update_mmu_cache not performed under the same ptl
-section issue that you raised.
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

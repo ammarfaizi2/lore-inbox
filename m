@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275031AbRJUVqn>; Sun, 21 Oct 2001 17:46:43 -0400
+	id <S275767AbRJUVxP>; Sun, 21 Oct 2001 17:53:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275823AbRJUVqd>; Sun, 21 Oct 2001 17:46:33 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3844 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S275767AbRJUVqX>; Sun, 21 Oct 2001 17:46:23 -0400
-Subject: Re: The new X-Kernel !
-To: seanc@gearboxsoftware.com (Sean Cavanaugh)
-Date: Sun, 21 Oct 2001 22:52:53 +0100 (BST)
+	id <S275823AbRJUVxF>; Sun, 21 Oct 2001 17:53:05 -0400
+Received: from shake.vivendi.hu ([213.163.0.180]:21122 "EHLO
+	vega.digitel2002.hu") by vger.kernel.org with ESMTP
+	id <S275767AbRJUVwp>; Sun, 21 Oct 2001 17:52:45 -0400
+Date: Sun, 21 Oct 2001 23:53:11 +0200
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: Sean Cavanaugh <seanc@gearboxsoftware.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <000801c15a78$b79a4280$150a10ac@gearboxsoftware.com> from "Sean Cavanaugh" at Oct 21, 2001 04:38:26 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15vQWb-00085J-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: The new X-Kernel !
+Message-ID: <20011021235311.C21640@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+In-Reply-To: <20011021220346.D19390@vega.digitel2002.hu> <000801c15a78$b79a4280$150a10ac@gearboxsoftware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <000801c15a78$b79a4280$150a10ac@gearboxsoftware.com>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: vega Linux 2.4.12 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 21, 2001 at 04:38:26PM -0500, Sean Cavanaugh wrote:
+> This side thread is funny, everyone here is thinking too much like a
+> developer :)
+> 
 > Normal users really don't need to see the startup message spam on boot,
 > unless there is an error (at which point it should be able to present
 > the error to the user).  Any kind of of progress indicator' s really
-
-The big problem is making sure they then see the error, and the previous
-progress information. On a solid hang they might not get it
-
 > more for feedback that the boot is proceeding ok.  The fact the boot
 > sequence isn't even interactive should also be a big hint that it isn't
 > really necessary (except for kernel and driver developers).
 
-You are thinking the small picture not the big one. If you are going to
-graphical in init then you want to make full use of the graphical
-environment to clearly show things like parallel fsck behaviour, what
-servers are starting up (with pretty icons) and to do interactive things 
-like starting a rescue shell, going single user, pausing the boot,
-changing run level, interactive boot.
 
-Alan
+A big no-no ... as I told my story of my girlfriend with Linux.
+Nobody is forced to use Linux .... I don't think so to put more complexity
+JUST FOR stupid users. But come on! I don't inmagine that a user CAN'T
+live with visible kernel messages ... Or if so, send them to the hospital
+because they're allegric to letters :) 
+
+But for being serious ... For example you can build SECURITY into an OS.
+You can install "firewalls" to Windows. And that sw component may ask
+user that it detects something which MAY cause problems, and it asks
+user if this task is allowed or not. And most of "stupid-users" don't
+even read what message said! And if so, it's not helpful at all, since
+the security on answering a question is to KNOW what does it covers.
+What does it means? There is NO perfect security, there is NO perfect
+solution and so for "stupid-user' TILL someone invents AI to help them ;-)
+
+- Gabor

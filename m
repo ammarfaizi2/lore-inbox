@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264946AbUGIPAz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264954AbUGIPCX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264946AbUGIPAz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 11:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264948AbUGIPAz
+	id S264954AbUGIPCX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 11:02:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264957AbUGIPCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 11:00:55 -0400
-Received: from mpc-26.sohonet.co.uk ([193.203.82.251]:28608 "EHLO
-	moving-picture.com") by vger.kernel.org with ESMTP id S264946AbUGIPAx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 11:00:53 -0400
-Message-ID: <40EEB322.40002@moving-picture.com>
-Date: Fri, 09 Jul 2004 16:00:50 +0100
-From: James Pearson <james-p@moving-picture.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040524
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Thomas Moestl <moestl@ibr.cs.tu-bs.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: umount() and NFS races in 2.4.26
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Disclaimer: This email and any attachments are confidential, may be legally
-X-Disclaimer: privileged and intended solely for the use of addressee. If you
-X-Disclaimer: are not the intended recipient of this message, any disclosure,
-X-Disclaimer: copying, distribution or any action taken in reliance on it is
-X-Disclaimer: strictly prohibited and may be unlawful. If you have received
-X-Disclaimer: this message in error, please notify the sender and delete all
-X-Disclaimer: copies from your system.
-X-Disclaimer: 
-X-Disclaimer: Email may be susceptible to data corruption, interception and
-X-Disclaimer: unauthorised amendment, and we do not accept liability for any
-X-Disclaimer: such corruption, interception or amendment or the consequences
-X-Disclaimer: thereof.
+	Fri, 9 Jul 2004 11:02:23 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:4997 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S264954AbUGIPCN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 11:02:13 -0400
+Date: Fri, 9 Jul 2004 16:01:11 +0100
+From: Dave Jones <davej@redhat.com>
+To: Stefan Reinauer <stepan@openbios.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Pavel Machek <pavel@suse.cz>,
+       Erik Rigtorp <erik@rigtorp.com>, linux-kernel@vger.kernel.org,
+       pavel@ucw.cz
+Subject: Re: [PATCH] swsusp bootsplash support
+Message-ID: <20040709150111.GA3891@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Stefan Reinauer <stepan@openbios.org>,
+	Christoph Hellwig <hch@infradead.org>, Pavel Machek <pavel@suse.cz>,
+	Erik Rigtorp <erik@rigtorp.com>, linux-kernel@vger.kernel.org,
+	pavel@ucw.cz
+References: <20040708110549.GB9919@linux.nu> <20040708133934.GA10997@infradead.org> <20040708204840.GB607@openzaurus.ucw.cz> <20040708210403.GA18049@infradead.org> <20040709144859.GA18243@openbios.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040709144859.GA18243@openbios.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Moestl:
- >after deploying an SMP machine at work, we started to experience Oopses
- >in file-system related code relatively frequently. Investigation
- >revealed that they were caused by references using junk pointers from
- >freed super blocks via dangling inodes from unmounted file systems;
- >Oopses would always be preceded by the warning
- > VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a 
-nice day...
- >on an unmount (unmount activity is high on this machine due to heavy 
- >use of the automounter).
+On Fri, Jul 09, 2004 at 04:48:59PM +0200, Stefan Reinauer wrote:
 
-Are you using the latest autofs4 kernel patches?
+ > On the other hand, the jpeg decoder is 8k object size - less than the
+ > dozens of gzip/gunzip algorithms in the kernel, so complaining sounds a
+ > little foolish to me.
 
-I had a similar problem - see the thread at:
+The zlibs should be consolidated these days, I remember an effort
+about 18 months back to do so at least. Did any new ones get introduced
+since then ?
 
-http://marc.theaimsgroup.com/?l=linux-nfs&m=108515468003933&w=2
+ > Whether one wants retro text messages or a graphical bootup mechanism is
+ > sure a philosophical thing. IMHO starting X that early is not an option.
 
-The latest autofs4 patches fixed it for me - available from:
+It works surprisingly well.
 
-http://www.kernel.org/pub/linux/daemons/autofs/v4
+		Dave
 
-James Pearson

@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262931AbUEBI6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262932AbUEBJh0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262931AbUEBI6I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 04:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbUEBI6H
+	id S262932AbUEBJh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 05:37:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbUEBJh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 04:58:07 -0400
-Received: from wavehammer.waldi.eu.org ([82.139.196.55]:53717 "EHLO
-	extern.mail.waldi.eu.org") by vger.kernel.org with ESMTP
-	id S262931AbUEBI6E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 04:58:04 -0400
-Date: Sun, 2 May 2004 10:58:02 +0200
-From: Bastian Blank <bastian@waldi.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: [s390, 2.6.6-rc3] dasd(eckd): Read device characteristics returned error -5
-Message-ID: <20040502085802.GA17027@wavehammer.waldi.eu.org>
-Mail-Followup-To: Bastian Blank <bastian@waldi.eu.org>,
-	linux-kernel@vger.kernel.org
+	Sun, 2 May 2004 05:37:26 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25615 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262932AbUEBJhZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 05:37:25 -0400
+Date: Sun, 2 May 2004 10:37:21 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>, vandrove@vc.cvut.cz, cw@f00f.org,
+       koke@amedias.org, linux-kernel@vger.kernel.org
+Subject: Re: strange delays on console logouts (tty != 1)
+Message-ID: <20040502103721.C9605@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, vandrove@vc.cvut.cz,
+	cw@f00f.org, koke@amedias.org, linux-kernel@vger.kernel.org
+References: <20040430195351.GA1837@amedias.org> <20040501214617.GA6446@taniwha.stupidest.org> <20040501232448.GA4707@vana.vc.cvut.cz> <20040501180347.31f85764.akpm@osdl.org> <20040502090059.A9605@flint.arm.linux.org.uk> <20040502011337.2b0b3ca3.akpm@osdl.org> <20040502091751.B9605@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040502091751.B9605@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Sun, May 02, 2004 at 09:17:51AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, May 02, 2004 at 09:17:51AM +0100, Russell King wrote:
+> > If so, how is tty_hangup() getting involved?
+> 
+> The only way it could be invoked is via SAK, which obviously isn't
+> happening here.
+> 
+> However, login _does_ call sys_vhangup() which in turn calls tty_vhangup()
+> so I suspect that the statement "tty hangup is scheduled for work_queue"
+> is based on the _assumption_ that sys_vhangup() calls tty_hangup()
+> rather than the function it actually does.
 
---FL5UXtIhxfXey3p5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ok, the VT_OPENQRY crap is a debian modification to agetty.  As far as
+I can see, there is no code in agetty which calls sys_vhangup().
 
-2.6.6-rc3 is not able to access any dasd on my s390 guest. It fails with
-the following error:
+So the question to Petr is: how did you determine that the tty was
+being hung up?
 
-| dasd(eckd): Read device characteristics returned error -5
-| dasd_generic couldn't online device 0.0.0882 with discipline ECKD
-
-2.6.5 works fine.
-
-Bastian
-
---=20
-Oblivion together does not frighten me, beloved.
-		-- Thalassa (in Anne Mulhall's body), "Return to Tomorrow",
-		   stardate 4770.3.
-
---FL5UXtIhxfXey3p5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iEYEARECAAYFAkCUuBoACgkQnw66O/MvCNGGLwCdHXOgKUBW6dYdPE4puLi4KpZJ
-xQ0An2QIZ1VoynYqpo9g/O1ST8OM1/u7
-=EPtP
------END PGP SIGNATURE-----
-
---FL5UXtIhxfXey3p5--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263225AbTI2MVp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 08:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263227AbTI2MVp
+	id S263301AbTI2Mec (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 08:34:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263302AbTI2Mec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 08:21:45 -0400
-Received: from [195.249.40.37] ([195.249.40.37]:525 "HELO nettonet.dk")
-	by vger.kernel.org with SMTP id S263225AbTI2MVo (ORCPT
+	Mon, 29 Sep 2003 08:34:32 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:53484 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S263301AbTI2MeW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 08:21:44 -0400
-From: Simon Ask Ulsnes <simon@ulsnes.dk>
-To: linux-kernel@vger.kernel.org
-Subject: Complaint: Wacom driver in 2.6
-Date: Mon, 29 Sep 2003 14:21:45 +0200
-User-Agent: KMail/1.5.4
+	Mon, 29 Sep 2003 08:34:22 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309291421.45692.simon@ulsnes.dk>
+Message-ID: <16248.9932.145681.897552@gargle.gargle.HOWL>
+Date: Mon, 29 Sep 2003 14:34:20 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test6 APM/IDE double-suspend weirdness
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello there!
-I am the lucky owner of a Wacom Graphire 2 tablet, which works great with the 
-latest 2.4-kernels. However, the 2.6-drive is unusually and utterly broken. 
-Frankly, it doesn't work at all.
+In test6 (and test5 and possibly earlier), when suspending
+my aging Latitude with APM, the machine turns off, only to
+turn itself on again one second later with the disk spinning
+up. Then it turns itself off again a second later.
 
-When I load up X11 with the proper /dev-symlinks and all that stuff in place 
-(2.6 names the tablet /dev/input/event1 as opposed to 2.4, which names it /
-dev/input/event0), the tablet simply doesn't respond. I can see in my 
-XFree86.0.log file that the tablet is recognized correctly by the kernel, but 
-that's about it.
+The kernel log contains:
+hda: start_power_step(step: 0)
+hda: start_power_step(step: 1)
+hda: complete_power_step(step: 1, stat: 50, err: 0)
+hda: completing PM request, suspend
 
-Of course, I tried the linux-wacom (linux-wacom.sourceforge.net) drivers, but 
-they fail to compile most miserably (the beta dev-version). From what I could 
-deduce of the compiler output, it is incompatible with 2.6.
+Apart from this, both APM suspend and resume work fine.
 
-I filed a bug report a long time ago (2.5.65-ish), but no one really seemed to 
-care.
+(ACPI is not an option on this machine, even if I wanted to
+use it (I don't). APM has worked near-perfectly for years.)
 
-I would really like some info on what progress is being made in this area, as 
-it currently is the only thing stopping me from switching seriously to 2.6.
-I suppose it is also one of those drivers that Linus keeps talking about need 
-to be ready before 2.6 can be finally released (in which I agree, obviously).
-
-And finally, some relevant system specs:
-Distro: Gentoo
-Kernel: 2.6.0-test6
-X11: XFree86 4.3.99.12
-
-Yours sincerely,
-Simon Ask Ulsnes
-
-
+/Mikael

@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287231AbSAGV4m>; Mon, 7 Jan 2002 16:56:42 -0500
+	id <S287237AbSAGV7M>; Mon, 7 Jan 2002 16:59:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287205AbSAGV4c>; Mon, 7 Jan 2002 16:56:32 -0500
-Received: from mhw.ulib.iupui.edu ([134.68.164.123]:14531 "EHLO
-	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
-	id <S287215AbSAGV4P>; Mon, 7 Jan 2002 16:56:15 -0500
-Date: Mon, 7 Jan 2002 16:56:15 -0500 (EST)
-From: "Mark H. Wood" <mwood@IUPUI.Edu>
-X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems? 
-In-Reply-To: <Pine.LNX.4.10.10201031901320.31717-100000@xarch.tu-graz.ac.at>
-Message-ID: <Pine.LNX.4.33.0201071633460.20179-100000@mhw.ULib.IUPUI.Edu>
+	id <S287244AbSAGV7D>; Mon, 7 Jan 2002 16:59:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59148 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287234AbSAGV6w>;
+	Mon, 7 Jan 2002 16:58:52 -0500
+Message-ID: <3C3A1A18.6B87CDE9@mandrakesoft.com>
+Date: Mon, 07 Jan 2002 16:58:48 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+CC: Daniel Phillips <phillips@bonn-fries.net>, torvalds@transmeta.com,
+        viro@math.psu.edu, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: PATCH 2.5.2.9: ext2 unbork fs.h (part 1/7)
+In-Reply-To: <20020107132121.241311F6A@gtf.org> <E16NcLw-0001R9-00@starship.berlin> <3C3A13F8.33BABD62@mandrakesoft.com> <20020107214925.GH1026@conectiva.com.br>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jan 2002, Alex wrote:
-[snippage]
-> This stupid Win2k or even *brrr* XP ^H^H^H detects all the hardware
-> fine when installing. Even ISA. So should Linux.
+Arnaldo Carvalho de Melo wrote:
+> 
+> Em Mon, Jan 07, 2002 at 04:32:40PM -0500, Jeff Garzik escreveu:
+> > I am very much interested in a better solution...  I could not figure
+> > out how to get a private pointer from a struct inode*, without using a
+> > nasty OFFSET_OF macro or a pointer to self as I implemented.
+> 
+> Why nasty, don't you like the list_head macros? 8) BTW, thats how Linus
+> suggested it to be done in private conversation. Look at list_entry.
 
-It does it  v e r y  s l o w l y  however.  I've been following this
-thread primarily to see why it isn't faster.  They seem to still use the
-old "throw all drivers at the box and see which ones stick" approach for
-everything, when one ought to at least be able to ask decent buses what's
-there and skip 70% of the stuff not needed in milliseconds.  But non-PNP
-ISA gear is of course going to need the old probing or manual
-configuration.
+Yep, sorry Linus :)  I just much prefer inserting the back-ref at object
+creation time to pointer arithmetic...  that way there is no type
+information lost, and it gives the compiler a better opportunity to see
+the relationship between the two structs.
 
-Apparently the BIOS can't be relied on to figure things out properly in
-quite a number of cases.  Is it, in fact, ridiculous to think of just
-asking the bridge chip "do you see anything" (in cases where there *is* a
-bridge chip)?  IOW how hard is it to just talk to the decent portion of
-the hardware and get useful answers?
+	Jeff
 
-The most interesting question (for IBM-PC type boxes) is "is there any
-non-PNP ISA gear other than the standard serial, parallel, keyboard,
-mouse, etc. ports?"  A reliable answer to that question eliminates
-probing in the "no" case:  you can just ask the hardware what it is.
-These constraints bound a large and growing portion of the set of machines
-to be configured, and it might be useful to optimize for them if it isn't
-too costly.
 
 -- 
-Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
-Our lives are forever changed.  But *that* is exactly as it always was.
-
+Jeff Garzik      | Alternate titles for LOTR:
+Building 1024    | Fast Times at Uruk-Hai
+MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
+                 | Samwise Gamgee: International Hobbit of Mystery

@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262805AbREOPxC>; Tue, 15 May 2001 11:53:02 -0400
+	id <S262799AbREOPuM>; Tue, 15 May 2001 11:50:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262802AbREOPww>; Tue, 15 May 2001 11:52:52 -0400
-Received: from m446-mp1-cvx1a.col.ntl.com ([213.104.69.190]:4481 "EHLO
-	[213.104.69.190]") by vger.kernel.org with ESMTP id <S262803AbREOPwf>;
-	Tue, 15 May 2001 11:52:35 -0400
+	id <S262802AbREOPuC>; Tue, 15 May 2001 11:50:02 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:14088 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S262807AbREOPtt>;
+	Tue, 15 May 2001 11:49:49 -0400
+Date: Tue, 15 May 2001 12:49:41 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.LNX.4.21.0105142332550.23955-100000@penguin.transmeta.com>
-From: John Fremlin <chief@bandits.org>
-Date: 15 May 2001 16:51:58 +0100
-In-Reply-To: <Pine.LNX.4.21.0105142332550.23955-100000@penguin.transmeta.com> (Linus Torvalds's message of "Mon, 14 May 2001 23:41:15 -0700 (PDT)")
-Message-ID: <m27kzi4nkx.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (GTK)
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] filemap.c fixes
+In-Reply-To: <Pine.LNX.4.21.0105150835330.1802-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0105151247140.4671-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+On Tue, 15 May 2001, Linus Torvalds wrote:
 
-[...]
+> Can you and Marcelo fight out the changes you've posted and re-do them
+> against pre2?
 
-> Nobody really uses it because it would require you to add a line or
-> two to your init scripts to pick up the major number from
-> /proc/devices, and that's obviously too hard. Much better to just
-> hardcode randome numbers, right?
+OK. Though I don't know when Marcelo and I will be on the same
+timezone again (for some reasons his days don't seem to take
+24 hours ;)).
 
-And thereby avoid using procfs. Hardcoding is the way the BSDs seem to
-be going.
+> I've applied some of the most obvious ones, but some had a thread of
+> "we should really remove xxx/3" etc that didn't seem to get finished..
 
-Clueless suggestion: I suppose you could allocate numbers on kernel
-build or something.
+It should be ok to apply that patch anyway. When we _do_ figure
+out which of the two options we should take we'll send you an
+incremental patch. Until then we can just leave the "xxx/3" thing
+alone.
 
-[...]
+(in fact, I don't think it'll make much of a difference at all)
 
--- 
+regards,
 
-	http://ape.n3.net
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

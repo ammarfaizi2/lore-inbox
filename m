@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313986AbSDKErc>; Thu, 11 Apr 2002 00:47:32 -0400
+	id <S313987AbSDKEs7>; Thu, 11 Apr 2002 00:48:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313987AbSDKErb>; Thu, 11 Apr 2002 00:47:31 -0400
-Received: from ns0.tateyama.or.jp ([210.128.170.1]:49419 "HELO
-	ns0.tateyama.or.jp") by vger.kernel.org with SMTP
-	id <S313986AbSDKEra> convert rfc822-to-8bit; Thu, 11 Apr 2002 00:47:30 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Gabor Kerenyi <wom@tateyama.hu>
-To: Ed Vance <EdV@macrolink.com>
-Subject: Re: how to write driver for PCI cards
-Date: Thu, 11 Apr 2002 13:52:29 +0900
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A776C@EXCHANGE>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200204111352.29829.wom@tateyama.hu>
+	id <S313988AbSDKEs6>; Thu, 11 Apr 2002 00:48:58 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:14033 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S313987AbSDKEs6>;
+	Thu, 11 Apr 2002 00:48:58 -0400
+Date: Wed, 10 Apr 2002 21:41:12 -0700 (PDT)
+Message-Id: <20020410.214112.10765569.davem@redhat.com>
+To: kaber@trash.net
+Cc: kuznet2@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: bug in sch_generic.c:pfifo_fast_enqueue
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0204012131330.13230-200000@el-zoido.localnet>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 April 2002 01:18, Ed Vance wrote:
+   From: Patrick McHardy <kaber@trash.net>
+   Date: Mon, 1 Apr 2002 21:43:03 +0200 (CEST)
 
-> > There is a good news (at least for me), my company would like to
-> > have a Linux driver for its card. And this great task is mine.
-> > So I'm going to write a driver.
->
-> What kind of card is it? serial, SCSI, network? ...
+   I found a small bug in pfifo_fast_enqueue, instead of
+   
+   if (list->qlen <= skb->dev->tx_queue_len)
+   
+   it should be
+   
+   if (list->qlen <= qdisc->dev->tx_queue_len)
+   
+   i guess.
 
-It is a PLC/NC (Programmable Logic Controller) now for Compact PCI.
-
-> > Can anyone give me some online docs about PCI bus? (I found some
-> > info about PCI-9050 chip but it doesn't contain what I need.)
->
-> Did you mean PLX-9050 PCI interface chip? This is a widely used chip
-> and should have several examples. If your device uses interrupts, you
-> will need to know how the kind of interrupt sources (edge, level) and
-> how they are connected to the 9050.
-
-Yes it is  a PLX-9050. The device uses interrupts, but why should I have to 
-know that what type of interrupt it is? Until now I haven't found anything 
-describing it.
-I could find out from the docs that it uses memory I/O and everything is done 
-through a 8K buffer.
-
-Gabor
-
+skb->dev == qdisc->dev should be invariant when this
+code runs.  So the code is correct, albeit possibly
+confusing.

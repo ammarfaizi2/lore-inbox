@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVCOW5D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVCOW5C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbVCOW5D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 17:57:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVCOWyB
+	id S262119AbVCOW5C (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 17:57:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVCOWy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 17:54:01 -0500
-Received: from 70-56-134-246.albq.qwest.net ([70.56.134.246]:51149 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261205AbVCOWjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 17:39:49 -0500
-Date: Tue, 15 Mar 2005 15:40:46 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: "J. Bruce Fields" <bfields@fieldses.org>
-cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] APM: fix interrupts enabled in device_power_up
-In-Reply-To: <20050315223339.GF11916@fieldses.org>
-Message-ID: <Pine.LNX.4.61.0503151539170.23036@montezuma.fsmlabs.com>
-References: <20050312131143.GA31038@fieldses.org>
- <Pine.LNX.4.61.0503120806001.17127@montezuma.fsmlabs.com>
- <20050315223339.GF11916@fieldses.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 15 Mar 2005 17:54:26 -0500
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:19282 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S262053AbVCOWwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 17:52:51 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="3.90,166,1107763200"; 
+   d="scan'208"; a="619714124:sNHT20807384"
+Message-Id: <5.1.0.14.2.20050315232212.05f5d4c8@171.71.163.14>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 15 Mar 2005 23:35:34 +1100
+To: comsatcat <comsatcat@earthlink.net>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: qla2xxx fail over support
+Cc: Andrew Vasquez <andrew.vasquez@qlogic.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <1110919432.11160.6.camel@solaris.zataoh.com>
+References: <20050314231630.GB8548@plap.qlogic.org>
+ <1110838136.12171.4.camel@solaris.zataoh.com>
+ <20050314231630.GB8548@plap.qlogic.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Mar 2005, J. Bruce Fields wrote:
+At 07:43 AM 16/03/2005, comsatcat wrote:
+>Unfortunantly all the beta drivers seem to have issues working with
+>mcdata switches.  I've tried about 10 different versions available from
+>qlogic's ftp and all of them give trace messages and "scheduling while
+>atomic" messages when detecting luns that are going through the mcdata
+>switch.  any suggestions would be appreciated (along with whom to
+>contact at qlogic regarding beta driver development).
 
-> On Sat, Mar 12, 2005 at 08:21:29AM -0700, Zwane Mwaikambo wrote:
-> > On Sat, 12 Mar 2005, J. Bruce Fields wrote:
-> > 
-> > > On APM resume this morning on my Thinkpad X31, I got a "spin_lock is
-> > > already locked" error; see below.  This doesn't happen on every resume,
-> > > though it's happened before.  The kernel is 2.6.11 plus a bunch of
-> > > (hopefully unrelated...) NFS patches.
-> > >
-> > > Mar 12 07:07:31 puzzle kernel: PCI: Setting latency timer of device 0000:00:1f.5 to 64
-> > > Mar 12 07:07:31 puzzle kernel: arch/i386/kernel/time.c:179: spin_lock(arch/i386/kernel/time.c:c0603c28) already locked by arch/i386/kernel/time.c/309
-> > > Mar 12 07:07:31 puzzle kernel: arch/i386/kernel/time.c:316: spin_unlock(arch/i386/kernel/time.c:c0603c28) not locked
-> > 
-> > APM was calling device_power_down and device_power_up with interrupts 
-> > enabled, resulting in a few calls to get_cmos_time being done with 
-> > interrupts enabled (rtc_lock needs to be acquired with interrupts 
-> > disabled).
-> 
-> Thanks, I haven't been following the discussion carefully, but for
-> what's it worth I did apply that patch and now (a few suspend-resume
-> cycles later) haven't seen the spin_lock warning or seen any other ill
-> effects.
-> 
-> Let me know if there's any testing it would be useful for me to do.
+use a Cisco MDS FC switch and all your problems will go away. :-)
+just kidding ... the errors you're seeing will likely happen regardless of 
+what brand FC switch you have .. LUN Discovery and/or FC NS queries are 
+likely the same regardless of FC switch.
 
-Thanks for testing it, suspend/resume cycles are what i was most 
-interested in.
+what you're seeing is essentially a bug in the qlogic driver - and likely 
+why it was listed as being "beta".
 
-	Zwane
+if you're after multipathing support, rather than doing it in the FC 
+driver, may i suggest that you instead look at using Christophe Varoqui's 
+excellent multipath-tools (see 
+http://christophe.varoqui.free.fr/wiki/wakka.php?wiki=Home) which i have 
+used successfully here across a range of midrange & enterprise storage arrays
+
+
+cheers,
+
+lincoln.

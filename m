@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135666AbREFMz2>; Sun, 6 May 2001 08:55:28 -0400
+	id <S135669AbREFNAl>; Sun, 6 May 2001 09:00:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135668AbREFMzL>; Sun, 6 May 2001 08:55:11 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31749 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135666AbREFMzH>; Sun, 6 May 2001 08:55:07 -0400
-Subject: Re: CML2 design philosophy heads-up
-To: esr@thyrsus.com
-Date: Sun, 6 May 2001 13:58:49 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (CML2), kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010505192731.A2374@thyrsus.com> from "Eric S. Raymond" at May 05, 2001 07:27:31 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S135671AbREFNAc>; Sun, 6 May 2001 09:00:32 -0400
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:57104 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S135669AbREFNAZ>; Sun, 6 May 2001 09:00:25 -0400
+Date: Mon, 7 May 2001 01:00:22 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Athlon possible fixes
+Message-ID: <20010507010022.A32198@metastasis.f00f.org>
+In-Reply-To: <20010506142346.C31269@metastasis.f00f.org> <E14wO16-00023N-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14wO7g-000240-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14wO16-00023N-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, May 06, 2001 at 01:51:59PM +0100
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> # These were separate questions in CML1
-> derive MAC_SCC from MAC & SERIAL
-> derive MAC_SCSI from MAC & SCSI
-> derive SUN3_SCSI from (SUN3 | SUN3X) & SCSI
+On Sun, May 06, 2001 at 01:51:59PM +0100, Alan Cox wrote:
 
-Not all Mac's use the SCC if they have serial
-Not all Mac's use the same SCSI controller
+    prefetch is virtually addresses. An application would need access
+    to /dev/mem or similar. So the only folks I think it might
+    actually bite are the Xserver people.
 
-Alan
+depends, maybe it depends on what part of the northbridge it
+traverses, so it may only affect RAM and not PCI/AGP memory
 
+it should be possible to write a test program that uses /dev/mem to
+test for this is someone has a buggy MB (or wants to send me one,
+I'll gladly do it -- my MBs work perfect it seems)
+
+
+  --cw
+    
+    
+    

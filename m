@@ -1,92 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271651AbRHQNV6>; Fri, 17 Aug 2001 09:21:58 -0400
+	id <S271652AbRHQNUh>; Fri, 17 Aug 2001 09:20:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271653AbRHQNVr>; Fri, 17 Aug 2001 09:21:47 -0400
-Received: from [200.156.3.116] ([200.156.3.116]:17393 "EHLO
-	office.extracta.com.br") by vger.kernel.org with ESMTP
-	id <S271651AbRHQNV1>; Fri, 17 Aug 2001 09:21:27 -0400
-Message-ID: <3B7D1B52.3070606@extracta.com.br>
-Date: Fri, 17 Aug 2001 10:25:38 -0300
-From: Jon Lapham <lapham@extracta.com.br>
-Reply-To: lapham@extracta.com.br
-Organization: Extracta Moleculas Naturais
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010807
-X-Accept-Language: en-us
+	id <S271651AbRHQNU1>; Fri, 17 Aug 2001 09:20:27 -0400
+Received: from dfmail.f-secure.com ([194.252.6.39]:13325 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S271652AbRHQNUL>; Fri, 17 Aug 2001 09:20:11 -0400
+Date: Fri, 17 Aug 2001 16:34:02 +0300 (MET DST)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: Helge Hafting <helgehaf@idb.hist.no>
+cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: VM nuisance
+In-Reply-To: <3B78E10A.E8772B79@idb.hist.no>
+Message-ID: <Pine.LNX.4.30.0108171343290.2660-100000@fs131-224.f-secure.com>
 MIME-Version: 1.0
-To: "Cress, Andrew R" <andrew.r.cress@intel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Strange SCSI behavior?
-In-Reply-To: <9678C2B4D848D41187450090276D1FAE1008EAF7@FMSMSX32>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew-
 
-I don't know if this helps, but this is the message tar spits out when 
-this problem occurs:
+On Tue, 14 Aug 2001, Helge Hafting wrote:
+> dean gaudet wrote:
+> > i would happily give up 10 to 20% system resources for checkpoint
+> > overhead if it meant that i'd be that much closer to a crashproof
+> > system.
 
-/bin/tar: home/pedro/COL&AMk-TA: Read error at byte 21958656, reading 
-10240 byte: Input/output error
+It's not necessarily needed so much and not even checkpointing using
+(optional) non-overcommiting. See e.g. the Solaris numbers for yourself,
+http://www.google.com/search?q=cache:http://lists.openresources.com/NetBSD/tech-userlevel/msg00722.html
+All big guys support this optionally, sometimes even in a finer graded
+level, like per process settable by developer overjudgable (sp?) by
+admin (AIX) or using virtual swap space where the degree of the memory
+overcommitment controllable (IRIX), etc. Linux had the "quasi"
+non-overcommiting [it didn't reserved the demanded memory, just checked
+if there is enough free(able) in user space allocation time]
+controllable by /proc/sys/vm/overcommit_memory in 2.2 but in 2.4
+vm_enough_memory() overestimates freeable memory (in contrast to 2.2
+kernels) so basically it's useless - this is one of the reasons why OOM
+so trendy topic recently.
 
-Cress, Andrew R wrote:
-> Jon,
-> 
-> You really need to know what the additional sense data shows.
-> With DAT tapes often they have variable length block sizes and get errors
-> from some UNIX commands as a result.  Or, it may be something that could be
-> fixed with a firmware update to the DAT drive, or a driver fix.  It depends
-> on the details.  Is sd08:11 the DAT drive?
+Although non-overcommit prevents running out of VM but when VM is full
+then system can either livelock or start arbitrary process killing so
+non-overcommit becomes useless. How others solved this? They reserve
+some VM for root so he can act whatever he wants. Well written apps (I
+could mention e.g. apache) don't really care about system is in an OOM
+situation - they happily do their jobs just as before (proved in
+practice ;)
 
-Hmmm... I have no idea!  I know that "host 0 channel 0 id 1 lun 0" 
-refers to the new Atlas HD, and I know that I have another HD with id 0, 
-and that the tape drive is id 3.  I do not know how to interpret 
-"sd08:11", suggestions?
+When root reserved VM is also used up, welcome OOM killer - however with
+the above two protection bar the chance for this is pretty around 0 if
+admin don't prefer running stuffs as root.
 
-Maybe 'sd08' refers to the block device number?
-[root@office sysadm]# cat /proc/devices
-[snip]
-Block devices:
-   2 fd
-   7 loop
-   8 sd
-  22 ide1
-  65 sd
-  66 sd
+Note, these are optional for those who are willing to sacrifice a couple
+of percent system resources.
 
-So, one of the three SCSI devices uses block 8... but which?  I don't know.
+> > so why not just use the most simple OOM around:  shoot the first app which
+> > can't get its page.  app writers won't like it, and users won't like it
+> > until the app writers fix their bugs, but then nobody likes the current
+> > situation, so what's the difference?
+> It used to be like that.  Unfortunately, the first app unable to
+> get its page might very well be init, and then the entire system goes
+> down in flames.
 
-> 
-> Make sure 
-> CONFIG_SCSI_LOGGING=y 
-> CONFIG_SCSI_DEBUG=m (or =y)
-> in your kernel, and issue
-> echo "scsi log error 3" > /proc/scsi/scsi
-> and rerun the tape backup to get more info.
-> 
-> Andy
-> 
+Well, I ported the 2.4 OOM killer to 2.2.19 and added reserved root VM
+	http://mlf.linux.rulez.org/mlf/ezaz/reserved_root_memory.html
 
+It works like it kills the process chosen by OOM killer when the first
+app can't get its page in page fault. OOM killing in 2.4 works
+differently. Apps loop forever in __alloc_pages() until they can get a
+page or out_of_memory() decides its time to kill somebody. So whenever
+there is some VM tuning, out_of_memory() should be tuned. Of course it's
+usually missed. Futhermore it's also a heuristic, not an "exact"
+decision made by e.g. 2.2 kernels. So in short, IMHO it will never work.
+I asked explanation for a couple of times for this 2.4 behavior but
+nobody bothered. I think partly it's because of the aggressive caching.
+One easy solution could be to drop out_of_memory() completely, put back
+oom_kill() to page fault from kswapd() and make tunable the number of
+looping in __alloc_pages().
 
-Okay, good idea.  I will recompile setting those symbols, but I will not 
-be able to do so until after the machine is idle (>5PM tonight).  BTW, 
-these are my current SCSI symbol defs:
+> The real solution is to have enough memory for the task at hand.
 
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_CHR_DEV_ST=y
-# CONFIG_CHR_DEV_OSST is not set
-# CONFIG_BLK_DEV_SR is not set
-# CONFIG_CHR_DEV_SG is not set
-CONFIG_SCSI_DEBUG_QUEUES=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
-# CONFIG_SCSI_LOGGING is not set
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
-CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+Define to the user the "enough memory" when he wants to open different
+kind of documents, run scientific applications with different size data
+sets or whatever. What would you expect from your computer either "Hey,
+your resources is not enough for this task" or just crash the
+application?
 
+> Failing that, get so much swap space that people will be happy when
+
+The "buy more disk, buy more RAM!" kind of answers were one of the
+reasons Linux user base growth so big as it is today escaping from
+the old advisers ...
+
+2.4 is killer if expertise is given [not to install Linux but to
+carefully setup the box for its job] but it fails otherwise because of
+its OOM handling.
+
+	Szaka
 

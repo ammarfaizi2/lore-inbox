@@ -1,55 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270558AbUJTUa6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268989AbUJTUYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270558AbUJTUa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 16:30:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270547AbUJTU00
+	id S268989AbUJTUYx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 16:24:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270546AbUJTUTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 16:26:26 -0400
-Received: from pat.uio.no ([129.240.130.16]:4001 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S270561AbUJTUZF (ORCPT
+	Wed, 20 Oct 2004 16:19:52 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5531 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270548AbUJTUTA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 16:25:05 -0400
-Subject: Re: [PATCH] lockd: replace semaphore, sleep_on
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Matthew Wilcox <matthew@wil.cx>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20041020194522.GX16153@parcelfarce.linux.theplanet.co.uk>
-References: <1098299743.20821.54.camel@thomas>
-	 <20041020194522.GX16153@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Date: Wed, 20 Oct 2004 22:24:27 +0200
-Message-Id: <1098303867.5390.74.camel@lade.trondhjem.org>
+	Wed, 20 Oct 2004 16:19:00 -0400
+Date: Wed, 20 Oct 2004 13:22:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add key management syscalls to non-i386 archs
+Message-Id: <20041020132247.5f2b40da.akpm@osdl.org>
+In-Reply-To: <23586.1098301696@redhat.com>
+References: <p73d5zdyyxc.fsf@verdi.suse.de>
+	<3506.1098283455@redhat.com.suse.lists.linux.kernel>
+	<23586.1098301696@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0.326, required 12,
-	RCVD_NUMERIC_HELO 0.33)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Howells <dhowells@redhat.com> wrote:
+>
+> > Hey, I already allocated 248 for setaltroot.
 
-> On Wed, Oct 20, 2004 at 09:15:43PM +0200, Thomas Gleixner wrote:
-> > 
-> > Use wait_event, completion instead of the obsolete sleep_on functions
-> > and the abused semaphore
-
-What is the point of all this timeout business when starting/stopping
-lockd? We sure as hell don't want lockd to survive us if we are the
-process that is responsible for killing it, and neither do we want to
-start locking if there is no lockd to handle callbacks.
-Please see the example of rpciod in net/sunrpc/sched.c for how to do
-this correctly.
-
-As for the client changes to the GRANTED mechanism, where is
-wait_for_completion_timeout() defined? It is not part of Linus' kernel.
-
-Cheers,
-  Trond
-
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
-
+I wouldn't be in a rush to wire up sys_altroot() actually.
+Unless some security issues are resolved it's going away again.

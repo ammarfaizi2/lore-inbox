@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269084AbTCBC0i>; Sat, 1 Mar 2003 21:26:38 -0500
+	id <S269086AbTCBClS>; Sat, 1 Mar 2003 21:41:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269086AbTCBC0h>; Sat, 1 Mar 2003 21:26:37 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:51982 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S269084AbTCBC0g>; Sat, 1 Mar 2003 21:26:36 -0500
-Date: Sat, 1 Mar 2003 18:36:50 -0800
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: syslog full of kernel BUGS, frequent intermittent instability
-Message-ID: <20030302023649.GA30797@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <20030301082126.56c00418.coyote1@cytanet.com.cy> <200303011455.h21EtwhU000402@81-2-122-30.bradfords.org.uk> <20030301150350.GA27794@lug-owl.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030301150350.GA27794@lug-owl.de>
-User-Agent: Mutt/1.3.27i
+	id <S269091AbTCBClS>; Sat, 1 Mar 2003 21:41:18 -0500
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:1753 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S269086AbTCBClR>; Sat, 1 Mar 2003 21:41:17 -0500
+Message-ID: <3E617428.3090207@kegel.com>
+Date: Sat, 01 Mar 2003 19:02:00 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: Dan Kegel <dank@kegel.com>
+CC: Steven Cole <elenstev@mesatop.com>, Matthias Schniedermeyer <ms@citd.de>,
+       Joe Perches <joe@perches.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mike@aiinc.ca
+Subject: Re: [PATCH] kernel source spellchecker
+References: <Pine.LNX.4.44.0303011503590.29947-101000@korben.citd.de> 	<3E6101DE.5060301@kegel.com> <1046546305.10138.415.camel@spc1.mesatop.com> <3E6167B1.6040206@kegel.com>
+In-Reply-To: <3E6167B1.6040206@kegel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 01, 2003 at 04:03:50PM +0100, Jan-Benedict Glaw wrote:
-> On Sat, 2003-03-01 14:55:58 +0000, John Bradford <john@grabjohn.com>
-> wrote in message <200303011455.h21EtwhU000402@81-2-122-30.bradfords.org.uk>:
-> > > It's the mandrake default AFAIK.  I don't know what all that stuff is, 
-> > > so I don't mess with it.  My installation does "feel" bloated (very
-> > > unscientific opinion): it "feels" much less responsive in the GUI
-> > 
-> > /dev/hda2	/	ext3	defaults		1  1
-> > 
-> > which you can change to
-> > 
-> > /dev/hda2	/	ext3	defaults, noatime	1  1
->                           you loose -----^
-> 
-> > This is a bit off-topic, but in my experience is about the best way to
-> > increase performance on old, (and not so old), hardware, apart from
-> > compiling a custom kernel.  Without noatime, every time you read a
-> > file, the current date and time is written to the disk.  With noatime,
-> > it's only recorded for a write.  Almost no programs use the access
-> > time data.
-> 
-> Except some email clients...
+My corrections file is up at http://www.kegel.com/spell-fix-dan1.txt
+and the patch that produces is
+http://www.kegel.com/linux-2.5.63-bk5-spell.patch.bz2.bin
+The perl script took about an hour of 450MHz cpu time.
+(Might be worth adding a quick path to detect and skip
+files with none of the misspelled words.  Or just run
+on a fast machine...)
 
-And as you and i already hashed out on the rsync list mutt is
-perfectly happy and fully functional with noatime,nodiratime
-because it updates the atime manually which still works.
-As the headers indicate i'm using mutt,  It spots new mail 
-in other mboxes just fine with noatime turned on.  I get the
-"Inc:" count, c<tab> works, and folder lists indicate
-correctly which folders have been updated since last visit.
+I did a spot check, and it looked pretty good, but some
+of the fixes are just too pedantic.  In particular,
+   decrementor=decrementer
+should probably be dropped from the fix list.
 
-Perhaps you are thinking of another MUA or an oooold version
-of mutt?
+Any other changes people want to see in the script
+or the corrections file?   Should I add fixes for
+uncommon errors (those that happen only in one or two files)?
 
-
+- Dan
 
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
 
-		Remember Cernan and Schmitt

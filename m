@@ -1,95 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVAMBKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVAMBKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbVAMBKL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 20:10:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVAMBG7
+	id S261505AbVAMBKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 20:10:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVAMBH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 20:06:59 -0500
-Received: from nijmegen.renzel.net ([195.243.213.130]:52871 "EHLO
-	mx1.renzel.net") by vger.kernel.org with ESMTP id S261502AbVALVwX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 16:52:23 -0500
-From: Mws <mws@twisted-brains.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: pci express error on ASUS P5AD2
-Date: Wed, 12 Jan 2005 22:52:29 +0100
-User-Agent: KMail/1.7.2
-References: <200501101424.41686.mws@twisted-brains.org>
-In-Reply-To: <200501101424.41686.mws@twisted-brains.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1280830.guksHG2Gk4";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Wed, 12 Jan 2005 20:07:28 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:1732 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261487AbVALVvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 16:51:54 -0500
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+From: Lee Revell <rlrevell@joe-job.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, Chris Wright <chrisw@osdl.org>,
+       "Jack O'Quin" <joq@io.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, arjanv@redhat.com, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <20050112190949.GH2940@waste.org>
+References: <20050111230642.GD2940@waste.org>
+	 <200501120213.j0C2DjGO008084@localhost.localdomain>
+	 <20050112190949.GH2940@waste.org>
+Content-Type: text/plain
+Date: Wed, 12 Jan 2005 16:25:58 -0500
+Message-Id: <1105565159.3357.11.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200501122252.39603.mws@twisted-brains.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1280830.guksHG2Gk4
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, 2005-01-12 at 11:09 -0800, Matt Mackall wrote:
+> On Tue, Jan 11, 2005 at 09:13:44PM -0500, Paul Davis wrote:
+> > >A client starts at normal priority, asks jack nicely to promote it to
+> > >RT, then jackd, if so configured/enabled, calls the wrapper with a PID
+> > 
+> > a PID? clients are multithreaded, and only specific threads run with
+> > RT scheduling (normally just the one created for them by
+> > libjack). So you presumably mean a TID, which in turn creates a
+> > problem for any system (e.g. 2.4) where all threads share the PID, and
+> > sched_setscheduler() really does use the PID as a PID, not a TID.
+> 
+> That actually sounds like an independent API problem.
+> 
 
-On Monday 10 January 2005 14:24, you wrote:
-> Hi,
->=20
-> i am using an ASUS P5AD2Premium Board with a P4 3,4 LGA 775 CPU.
->=20
-> This one has got 2 Gigabit PCI Express Ethernet cards on-board.
->=20
-> lspci=20
->=20
-> 0000:02:00.0 Ethernet controller: Marvell Technology Group Ltd. Gigabit E=
-thernet Controller (rev 15)
-> 0000:03:00.0 Ethernet controller: Marvell Technology Group Ltd. Gigabit E=
-thernet Controller (rev 15)
->=20
-> both 2 are working, but when i load the driver modules=20
-> i get 2 unrecoverable PciExpress Hardware failures.
->=20
-> Drivers are not implemented in the Kernel Mainstream but as syskonnect to=
-ld me, already send to the devs.
->=20
-> Driver version from syskonnect is v 7.09
->=20
-> obtainable @
->=20
-> http://www.syskonnect.com/syskonnect/support/driver/htm/sk9e21_lin.htm
->=20
->=20
-> help is appreciated. just mail me for more information if needed.
->=20
-> regards
-> marcel
->=20
-Hi,
+What's your point?  It has to work on 2.4, so this is not a feasible
+solution.
 
-it does still appear with 2.6.11-rc1
+> > but its gets worse. JACK clients need to drop RT scheduling under
+> > certain, well-defined circumstances. how do they get it back under
+> > this scheme?
+> 
+> Assuming a more thread-aware API, they just ask for privileges again.
+> But with the non-thread-aware API, my first reaction would be the thread in
+> question clones, and the clone drops privileges.
+> 
 
-eth0: -- ERROR --
-        Class:  Hardware failure
-        Nr:  0x271
-        Msg:  Uncorrectable PCI Express error
-eth1: -- ERROR --
-        Class:  Hardware failure
-        Nr:  0x271
-        Msg:  Uncorrectable PCI Express error
+Clones?  Seems pretty inefficient compared to having a simple mechanism
+for root to grant users the ability to run RT tasks.  We have such a
+system now, and it works perfectly, so any solution that makes people
+jump through hoops will be rejected.
 
+Lee
 
-regards
-marcel
-
---nextPart1280830.guksHG2Gk4
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBB5ZwnPpA+SyJsko8RAplhAKCmJkpQRcCXyaQG8PfJzxurezi1XwCgmVFQ
-VGCiZC4X1iwoOcT2JThHIXg=
-=LToV
------END PGP SIGNATURE-----
-
---nextPart1280830.guksHG2Gk4--

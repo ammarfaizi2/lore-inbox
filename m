@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271634AbRHUK2L>; Tue, 21 Aug 2001 06:28:11 -0400
+	id <S271635AbRHUK3L>; Tue, 21 Aug 2001 06:29:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271635AbRHUK2B>; Tue, 21 Aug 2001 06:28:01 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:15374 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S271634AbRHUK1s>;
-	Tue, 21 Aug 2001 06:27:48 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Brian Dushaw <dushaw@apl.washington.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.8-ac8, agpgart, r128, and mtrr 
-In-Reply-To: Your message of "Tue, 21 Aug 2001 05:01:53 MST."
-             <Pine.LNX.4.33.0108210423110.3231-100000@munk.apl.washington.edu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 21 Aug 2001 20:27:58 +1000
-Message-ID: <2329.998389678@ocs3.ocs-net>
+	id <S271636AbRHUK3B>; Tue, 21 Aug 2001 06:29:01 -0400
+Received: from celebris.bdk.pl ([212.182.99.100]:16903 "EHLO celebris.bdk.pl")
+	by vger.kernel.org with ESMTP id <S271635AbRHUK2v>;
+	Tue, 21 Aug 2001 06:28:51 -0400
+Date: Tue, 21 Aug 2001 12:35:58 +0200 (CEST)
+From: Wojtek Pilorz <wpilorz@bdk.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.2.19 - add TEAC PD/CD handling for PD disks
+Message-ID: <Pine.LNX.4.21.0108211229010.682-100000@celebris.bdk.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Aug 2001 05:01:53 -0700 (PDT), 
-Brian Dushaw <dushaw@apl.washington.edu> wrote:
->I have an ATI Technologies Inc Rage 128 PF video card.
->The module r128.o needs to have agpgart loaded first and depmod
->does not seem to set this up properly.  I've added the line:
->"pre-install r128 modprobe agpgart " to my /etc/modules.conf file.
+Alan,
 
-"before r128 agpgart" is better.
+I am using the following one-line patch to be able to use PD disks
+in my TEAC PD/CD drive, without CONFIG_SCSI_MULTI_LUN.
+Could you please consider applying this for 2.2.20?
 
->I wouldn't have thought this would require user intervention like this.
+Best regards,
 
-modprobe and depmod only handle direct symbol dependencies between
-modules.  The only symbols exported by agpgart are agp_free_memory,
-agp_allocate_memory, agp_copy_info, agp_bind_memory, agp_unbind_memory,
-agp_enable, agp_backend_acquire, agp_backend_release.  None of these
-symbols are referenced by r128 so modprobe is quite correct, there is
-no symbol dependency between agpgart and r128.  If you want it to be
-automatic, then r128 must reference an agpgart symbol.
+Wojtek
 
-But the drm maintainers decided not to rely on agp.  If agp is present
-it will be used, if agp is not present then drm runs without it.
-drivers/char/drm/drm_agpsupport.h uses inter_module_get() to see if agp
-is loaded and to extract agp data, if available.  This allows drm to
-run without forcing agp to be present and loaded.  So if you want agp
-before drm, it must be explicitly loaded.  Design decision.
-
->Aug 20 13:04:37 localhost modprobe: modprobe: Can't locate module block-major-33
-
-block-major-33 is the third IDE hard disk/CD-ROM interface, for hd[ef].
-
->Aug 20 13:04:40 localhost modprobe: modprobe: Can't locate module char-major-226
-
-char-major-226 is DRI (DRM_MAJOR).  That one puzzles me, I cannot see
-where it is being triggered from.
+--- linux-2.2.19/drivers/scsi/scsi.c.teac	Sun Mar 25 18:31:31 2001
++++ linux-2.2.19/drivers/scsi/scsi.c	Tue Aug 21 12:10:33 2001
+@@ -307,6 +307,7 @@
+ {"COMPAQ","LOGICAL VOLUME","*", BLIST_FORCELUN},
+ {"NEC","PD-1 ODX654P","*", BLIST_FORCELUN | BLIST_SINGLELUN},
+ {"MATSHITA","PD-1","*", BLIST_FORCELUN | BLIST_SINGLELUN},
++{"TEAC","PD-1","*", BLIST_FORCELUN | BLIST_SINGLELUN},
+ {"iomega","jaz 1GB","J.86", BLIST_NOTQ | BLIST_NOLUN},
+ {"TOSHIBA","CDROM","*", BLIST_ISROM},
+ {"MegaRAID", "LD", "*", BLIST_FORCELUN},     /* Multiple luns always safe (logical raid vols) */
 

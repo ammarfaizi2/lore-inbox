@@ -1,90 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129842AbQKISNL>; Thu, 9 Nov 2000 13:13:11 -0500
+	id <S130452AbQKISOV>; Thu, 9 Nov 2000 13:14:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129886AbQKISNB>; Thu, 9 Nov 2000 13:13:01 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:20237 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129842AbQKISMr>;
-	Thu, 9 Nov 2000 13:12:47 -0500
-Message-ID: <3A0AE91D.AC074BAE@mandrakesoft.com>
-Date: Thu, 09 Nov 2000 13:12:45 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S130394AbQKISOL>; Thu, 9 Nov 2000 13:14:11 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:63753 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129886AbQKISN6>;
+	Thu, 9 Nov 2000 13:13:58 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200011091803.VAA05245@ms2.inr.ac.ru>
+Subject: Re: [patch] NE2000
+To: davem@redhat.com (David S. Miller)
+Date: Thu, 9 Nov 2000 21:03:51 +0300 (MSK)
+Cc: morton@nortelnetworks.com, andrewm@uow.edu.au,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200011090127.RAA17691@pizda.ninka.net> from "David S. Miller" at Nov 8, 0 05:27:30 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: Steven_Snyder@3com.com, linux-kernel@vger.kernel.org
-Subject: Re: Porting Linux v2.2.x Ethernet driver to v2.4.x?
-In-Reply-To: <88256992.00632296.00@hqoutbound.ops.3com.com> <3A0AE88D.FCA19A5A@mandrakesoft.com>
-Content-Type: multipart/mixed;
- boundary="------------C268B649A7842FB7450882D7"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------C268B649A7842FB7450882D7
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hello!
 
-...and the attached document, referred to in the previous mail.  :)   I
-think I posted this recently, but it's small so a repost is no big deal.
--- 
-Jeff Garzik             |
-Building 1024           | Would you like a Twinkie?
-MandrakeSoft            |
---------------C268B649A7842FB7450882D7
-Content-Type: text/plain; charset=us-ascii;
- name="netdevices.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="netdevices.txt"
+> Alexey!  Even someone understood all this already, look
+> to include/net/sock.h SOCK_SLEEP_{PRE,POST} macros :-)
+> 
+> I will compose a patch to fix all this.
 
+O! But who was this wiseman? 8)
 
-Network Devices, the Kernel, and You!
-
-
-Introduction
-============
-The following is a random collection of documentation regarding
-network devices.
-
-
-
-
-struct net_device synchronization rules
-=======================================
-dev->open:
-	Locking: Inside rtnl_lock() semaphore.
-	Sleeping: OK
-
-dev->stop:
-	Locking: Inside rtnl_lock() semaphore.
-	Sleeping: OK
-
-dev->do_ioctl:
-	Locking: Inside rtnl_lock() semaphore.
-	Sleeping: OK
-
-dev->get_stats:
-	Locking: Inside dev_base_lock spinlock.
-	Sleeping: NO
-
-dev->hard_start_xmit:
-	Locking: Inside dev->xmit_lock spinlock.
-	Sleeping: NO
-
-dev->tx_timeout:
-	Locking: Inside dev->xmit_lock spinlock.
-	Sleeping: NO
-
-dev->set_multicast_list:
-	Locking: Inside dev->xmit_lock spinlock.
-	Sleeping: NO
-
-
-
---------------C268B649A7842FB7450882D7--
-
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

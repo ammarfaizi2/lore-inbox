@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264499AbTLCFDy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 00:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbTLCFDx
+	id S264501AbTLCFTX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 00:19:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbTLCFTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 00:03:53 -0500
-Received: from rth.ninka.net ([216.101.162.244]:11904 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S264499AbTLCFDx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 00:03:53 -0500
-Date: Tue, 2 Dec 2003 21:03:37 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Stephen Lee <mukansai@emailplus.org>
-Cc: laforge@netfilter.org, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Extremely slow network with e1000 & ip_conntrack
-Message-Id: <20031202210337.5dda502f.davem@redhat.com>
-In-Reply-To: <20031202204404.9ADD.MUKANSAI@emailplus.org>
-References: <20031130074532.0105.MUKANSAI@emailplus.org>
-	<20031130155236.GJ26749@obroa-skai.de.gnumonks.org>
-	<20031202204404.9ADD.MUKANSAI@emailplus.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Dec 2003 00:19:23 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:9912 "EHLO hermes.jf.intel.com")
+	by vger.kernel.org with ESMTP id S264501AbTLCFTW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 00:19:22 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: memory hotremove prototype, take 3
+Date: Tue, 2 Dec 2003 21:19:02 -0800
+Message-ID: <A20D5638D741DD4DBAAB80A95012C0AE0125DCB0@orsmsx409.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: memory hotremove prototype, take 3
+Thread-Index: AcO5OVp9zk1fsPFaQmak6sj8vKu9eQAI1Gyg
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Yasunori Goto" <ygoto@fsw.fujitsu.com>, "Pavel Machek" <pavel@suse.cz>
+Cc: <linux-kernel@vger.kernel.org>, "Luck, Tony" <tony.luck@intel.com>,
+       "IWAMOTO Toshihiro" <iwamoto@valinux.co.jp>,
+       "Hirokazu Takahashi" <taka@valinux.co.jp>,
+       "Linux Hotplug Memory Support" <lhms-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 03 Dec 2003 05:19:03.0443 (UTC) FILETIME=[F758D630:01C3B95C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 02 Dec 2003 20:44:06 +0900
-Stephen Lee <mukansai@emailplus.org> wrote:
 
-> After lots of trial-and-error, I can make the problem disappear by
-> backing these 4 files out from 2.5.44 to their 2.5.43 versions.
-> 
-> net/ipv4/icmp.c
-> net/ipv4/ip_output.c
-> net/ipv4/raw.c
-> net/ipv4/udp.c
+> From: Yasunori Goto
 
-Interesting, but not very.  This essentially backs out the whole
-ipv4 packet sending engine rewrite we did to support IPSEC and
-UDP sendfile support.
+> IMHO, To hot-remove memory, memory attribute should be divided
+> into Hotpluggable and no-Hotpluggable, and each attribute memory
+> should be allocated each unit(ex. node).
 
-Ie. it's a lot of large interrelated changes.  We know now what
-introduced the problem, but this hasn't really narrowed it down
-much.
+Why? I still don't get that -- we should be able to use the virtual
+addressing mechanism of any CPU to swap under the rug any virtual
+address without needing to do anything more than allocate a page frame
+for the new physical location (I am ignoring here devices that are 
+directly accessing physical memory--a callback in the device model could
+be added to require them to reallocate their buffers).
+
+Or am I deadly and naively wrong?
+
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)

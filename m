@@ -1,86 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131392AbRANUsA>; Sun, 14 Jan 2001 15:48:00 -0500
+	id <S131966AbRANVEF>; Sun, 14 Jan 2001 16:04:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131966AbRANUrl>; Sun, 14 Jan 2001 15:47:41 -0500
-Received: from proxy.class.de ([62.180.31.150]:11172 "EHLO proxy.class.de")
-	by vger.kernel.org with ESMTP id <S131392AbRANUri>;
-	Sun, 14 Jan 2001 15:47:38 -0500
-Message-ID: <3A620C44.8030906@class.de>
-Date: Sun, 14 Jan 2001 21:29:56 +0100
-From: Martin Tessun <martin.tessun@class.de>
-Organization: Class GmbH
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; 0.7) Gecko/20010105
-X-Accept-Language: en
+	id <S132799AbRANVD4>; Sun, 14 Jan 2001 16:03:56 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:63250 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S131966AbRANVDi>; Sun, 14 Jan 2001 16:03:38 -0500
+Date: Sun, 14 Jan 2001 16:04:31 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Urban Widmark <urban@teststation.com>
+cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: eth1: Transmit timed out, status 0000, PHY status 0000
+In-Reply-To: <Pine.LNX.4.30.0101141132100.22034-100000@cola.teststation.com>
+Message-ID: <Pine.LNX.4.31.0101141505470.935-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-To: Martin Maciaszek <mmaciaszek@gmx.net>
-CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: vmware 2.0.3, kernel 2.4.0 and a cdrom
-In-Reply-To: <20010114204948.A10017@nexus.shadowrun.not>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 14 Jan 2001, Urban Widmark wrote:
 
-I have the same problem. But if I say my CD-RW is the cdrom all works as 
-expected (/dev/scd1).
+>> eth1: Transmit timed out, status 0000, PHY status 0000,
+>> resetting...
+>[snip]
+>> Keeps going nonstop until I ifdown eth1.
+>>
+>> Card worked fine 2 days ago...
+>
+>So what did you change?
 
-Also the capabilities aren't correct I think:
+Nothing.
 
+>Has the machine been up since then?
 
-Jan 14 21:26:31 worf kernel: sr0: scsi3-mmc drive: 0x/0x writer cd/rw caddy
-
-for my CDROM; it is a TEAC-CDROM without caddy, but tray and has a 
-read-speed of 42. It is NOT a writer.
-
-The writer seems to be recognized correctly (again a TEAC-CDRW):
-
-Jan 14 21:26:31 worf kernel: sr1: scsi3-mmc drive: 24x/24x writer cd/rw 
-xa/form2 cdda tray
-
-Only the write-speed isn't correct (it can only write 8x not 24x)
-
-As I have no time in the moment to dig this down further, I just write 
-this for information.
-
-Btw I'm using kernel 2.4.0 with reiserfs and NVIDIA patch.
-
-Bye
-Martin 
- 
-
-Martin Maciaszek wrote:
-
-> Since I installed Kernel 2.4.0 VMware is no longer able to
-> recognize my cdrom drive. VMware shows a dialog box on power up
-> with following content:
-> [...]
-> CDROM: '/dev/scd0' exists, but does not appear tobe a CDROM device.
-> 
-> Error connecting the CDROM device
-> [...]
-> 
-> At the same time my syslog records the following message:
-> Jan 13 21:49:57 nexus kernel: sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
-> 
-> I tried 2.2.18 and VMware recognized the cdrom drive.
-> 
-> Any hints?
-> 
-> Cheers
-> Martin
+No.  I rebooted to W98 a few times.  W98 doesn't have a driver
+installed for that card though - and wont.
 
 
--- 
-+-------------------------------------------------------------------------------
-| MARTIN TESSUN               Telefon: 08151 / 991 - 257
-| System Engineer             Telefax: 08151 / 991 - 259
-| Class GmbH                  Mobil  : 0172  / 8363502
-| Moosstrasse 7               eMail  : Martin.Tessun@class.de
-| D-82319 Starnberg           URL    : http://www.class.de
-+-------------------------------------------------------------------------------
+
+>Someone else with the same symptoms (in 2.4)
+>    http://www.uwsg.iu.edu/hypermail/linux/net/0011.0/0027.html
+>
+>Becker's reply
+>    http://www.uwsg.iu.edu/hypermail/linux/net/0011.0/0032.html
+>
+>"Try unplugging the system and doing a really cold boot. A soft-off does
+> not reset the chip.
+
+Tried that too.. didn't work.  I switched PCI slots and whatnot
+though and it works again..  <shrug>
+
+
+> If this solves the problem, we will have to add code to re-load the
+> EEPROM info into the chip."
+
+If the problem recurs I will try to test it out more and report
+to the list.
+
+FWIW it is a DLink DFE 530TX.
+
+Thanks for the reply.
+
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Free Software advocate
+          This message is copyright 2001, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+
+#[Mike A. Harris bash tip #1 - separate history files per virtual console]
+# Put the following at the bottom of your ~/.bash_profile
+[ ! -d ~/.bash_histdir ] && mkdir ~/.bash_histdir
+tty |grep "^/dev/tty[0-9]" >& /dev/null && \
+        export HISTFILE=~/.bash_histdir/.$(tty | sed -e 's/.*\///')
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

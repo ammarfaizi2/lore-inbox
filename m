@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbVC2PUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbVC2PVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262305AbVC2PUL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 10:20:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbVC2PUL
+	id S262311AbVC2PVG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 10:21:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbVC2PVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 10:20:11 -0500
-Received: from [205.205.44.10] ([205.205.44.10]:45841 "EHLO
-	sembo111.teknor.com") by vger.kernel.org with ESMTP id S262305AbVC2PUF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 10:20:05 -0500
-Message-ID: <5009AD9521A8D41198EE00805F85F18F054EA085@sembo111.teknor.com>
-From: "Bouchard, Sebastien" <Sebastien.Bouchard@ca.kontron.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Delay in a tasklet.
-Date: Tue, 29 Mar 2005 10:20:03 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 29 Mar 2005 10:21:06 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:59072 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262311AbVC2PVB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 10:21:01 -0500
+Date: Tue, 29 Mar 2005 17:20:57 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       schwidefsky@de.ibm.com, netdev@oss.sgi.com
+Subject: Re: [PATCH] s390: claw network device driver
+Message-ID: <20050329152057.GA27840@wohnheim.fh-wedel.de>
+References: <200503290533.j2T5XEYT028850@hera.kernel.org> <4248FBFD.5000809@pobox.com> <20050328230830.5e90396f.akpm@osdl.org> <20050329071002.GA16204@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050329071002.GA16204@havoc.gtf.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 29 March 2005 02:10:02 -0500, Jeff Garzik wrote:
+> 
+> As mentioned in the email, you want netdev, not linux-net...
 
-I'm in the process of writing a linux driver and I have a question in
-regards to tasklet :
+Just out of curiosity: why are there two mailing lists?  Especially if
+one of them is the Wrong One.
 
-Is it ok to have large delay "udelay(1000);" in the tasklet?
+Jörn
 
-If not, what should I do? 
-
-Please send the answer to me personally (I'm not subscribe to the mailling
-list) :
-
-Sebastien Bouchard 
-Software designer
-Kontron Canada Inc. 
-<mailto:sebastien.bouchard@ca.kontron.com> 
-<http://www.kontron.com/> 
-Corp. Tel.: (450) 430-5400 
-Direct Tel.: (450) 437-4661 x2426 
-
-
+-- 
+The competent programmer is fully aware of the strictly limited size of
+his own skull; therefore he approaches the programming task in full
+humility, and among other things he avoids clever tricks like the plague. 
+-- Edsger W. Dijkstra

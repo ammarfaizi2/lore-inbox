@@ -1,76 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276842AbRJCCxE>; Tue, 2 Oct 2001 22:53:04 -0400
+	id <S275817AbRJCEB2>; Wed, 3 Oct 2001 00:01:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276845AbRJCCwz>; Tue, 2 Oct 2001 22:52:55 -0400
-Received: from rj.sgi.com ([204.94.215.100]:42661 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S276842AbRJCCwm>;
-	Tue, 2 Oct 2001 22:52:42 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andreas Schwab <schwab@suse.de>, Ian Grant <Ian.Grant@cl.cam.ac.uk>,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [patch] 2.4.10 build failure - atomic_dec_and_lock export 
-In-Reply-To: Your message of "Tue, 02 Oct 2001 19:52:29 +0200."
-             <15289.65245.126409.37240@charged.uio.no> 
-Mime-Version: 1.0
+	id <S275818AbRJCEBT>; Wed, 3 Oct 2001 00:01:19 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:50868 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S275817AbRJCEBH>; Wed, 3 Oct 2001 00:01:07 -0400
+Message-ID: <3BBA8D9E.74ECDE98@idcomm.com>
+Date: Tue, 02 Oct 2001 22:01:34 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Best gigabit card for linux
+In-Reply-To: <001a01c13fed$ef3806f0$6c01a8c0@ABEPC> <3BAC153A.4060700@osafo.com> <3BBA7767.C99059CB@home.com>
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 03 Oct 2001 12:52:57 +1000
-Message-ID: <30648.1002077577@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Oct 2001 19:52:29 +0200, 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
->>>>>> " " == Andreas Schwab <schwab@suse.de> writes:
->
->     > Trond Myklebust <trond.myklebust@fys.uio.no> writes:
->     > |> If you have CONFIG_SMP defined then atomic_dec_and_lock will
->     > |> never get defined
->
->     > Unless you use CONFIG_MODVERSIONS, which causes
->     > atomic_dec_and_lock to be versioned and defined as a macro via
->     > <linux/modversions.h>.
->
->Oh great... That's going to confound the test in <linux/spinlock.h>
->too.
->
->Urgh. Can anybody propose a less ugly solution than EXPORT_SYMBOL_NOVERS()?
+Seth Goldberg wrote:
+> 
+> Hi,
+> 
+>    I ordered 2 NSC-based giga ethernet cards (copper) and I was able to
+> get 54.4 Megabytes/s sustained (between an amd athlon 1200 MHz and an
+> athlon 1000 MHz) on kernel v2.4.5.
+> 
+>   Since these card cost $45 each, i HIGHLY recommend them.  The actualy
+> manufacturer is a company called Cameo in Taiwan.
 
-Use a second flag when atomic_dec_and_lock() is #defined.  No conflict
-with modversions then.
+Are those available in 64 bit pci slot format? I assume for that price
+they run in 32 bit slots (which is no doubt a bottleneck on a real
+gigabit).
 
-Index: 10.1/lib/dec_and_lock.c
---- 10.1/lib/dec_and_lock.c Wed, 29 Aug 2001 09:36:05 +1000 kaos (linux-2.4/j/21_dec_and_lo 1.1.1.1 644)
-+++ 10.1(w)/lib/dec_and_lock.c Wed, 03 Oct 2001 12:24:35 +1000 kaos (linux-2.4/j/21_dec_and_lo 1.1.1.1 644)
-@@ -26,7 +26,7 @@
-  * store-conditional approach, for example.
-  */
- 
--#ifndef atomic_dec_and_lock
-+#ifndef ATOMIC_DEC_AND_LOCK
- int atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock)
- {
- 	spin_lock(lock);
-Index: 10.1/include/linux/spinlock.h
---- 10.1/include/linux/spinlock.h Thu, 05 Jul 2001 14:00:51 +1000 kaos (linux-2.4/X/48_spinlock.h 1.1.2.1 644)
-+++ 10.1(w)/include/linux/spinlock.h Wed, 03 Oct 2001 12:27:02 +1000 kaos (linux-2.4/X/48_spinlock.h 1.1.2.1 644)
-@@ -42,6 +42,7 @@
- #if (DEBUG_SPINLOCKS < 1)
- 
- #define atomic_dec_and_lock(atomic,lock) atomic_dec_and_test(atomic)
-+#define ATOMIC_DEC_AND_LOCK
- 
- /*
-  * Your basic spinlocks, allowing only a single CPU anywhere
-@@ -128,7 +129,7 @@ typedef struct {
- #endif /* !SMP */
- 
- /* "lock on reference count zero" */
--#ifndef atomic_dec_and_lock
-+#ifndef ATOMIC_DEC_AND_LOCK
- #include <asm/atomic.h>
- extern int atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock);
- #endif
+D. Stimits, stimits@idcomm.com
 
+> 
+>  --Seth
+> 
+> Colin Frank wrote:
+> >
+> > In the following test. I was able to achieve close to 40 MegaBytes
+> > per second using the packet engines Hamachi driver.
+> >
+> > http://www.linuxcare.com/labs/sol-val/3w-esc6800-web.epl
+> > Test done with:
+> >     Packet engines Hamachi card
+> >     3ware escalade 6800
+> >     2.2.16 kernel.
+> >     Cisco 6500
+> >     10 - 20 client machines each with eepro100 cards
+> >
+> > Colin...
+> >
+> > Abe Hayhurst wrote:
+> >
+> > >Hi Alan,
+> > >
+> > >I wanted to know your opinion as to which combination of gigabit cards (both
+> > >fiber and copper) and drivers would yield the best performance (mostly
+> > >transferring large files from server to client, but also latency) in Linux.
+> > >I am not a programmer, a kernel tweaker, or a driver developer. I need a
+> > >card that either has a driver that comes with Red Hat Linux 7.1 or is easy
+> > >to install and needs minimal tweaks to the driver. I am currently
+> > >considering cards from 3Com (Alteon), Broadcom, Intel, and SysKonnect.
+> > >
+> > >Thanks for your help,
+> > >
+> > >Abe Hayhurst
+> > >
+> > >-
+> > >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > >the body of a message to majordomo@vger.kernel.org
+> > >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > >Please read the FAQ at  http://www.tux.org/lkml/
+> > >
+> > >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

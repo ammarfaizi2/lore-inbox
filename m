@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261365AbSKXPWy>; Sun, 24 Nov 2002 10:22:54 -0500
+	id <S261371AbSKXP0c>; Sun, 24 Nov 2002 10:26:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261371AbSKXPWy>; Sun, 24 Nov 2002 10:22:54 -0500
-Received: from services.cam.org ([198.73.180.252]:5910 "EHLO mail.cam.org")
-	by vger.kernel.org with ESMTP id <S261365AbSKXPWx>;
-	Sun, 24 Nov 2002 10:22:53 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
-Subject: Re: Invalid module format - how does one fix this?
-Date: Sun, 24 Nov 2002 10:30:07 -0500
-User-Agent: KMail/1.4.3
-Cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
-References: <200211241450.gAOEosO10740@localhost.localdomain>
-In-Reply-To: <200211241450.gAOEosO10740@localhost.localdomain>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211241030.07212.tomlins@cam.org>
+	id <S261375AbSKXP0c>; Sun, 24 Nov 2002 10:26:32 -0500
+Received: from holomorphy.com ([66.224.33.161]:5516 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261371AbSKXP0c>;
+	Sun, 24 Nov 2002 10:26:32 -0500
+Date: Sun, 24 Nov 2002 07:30:17 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: akpm@digeo.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: opps in kswapd
+Message-ID: <20021124153017.GC18063@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ed Tomlinson <tomlins@cam.org>, akpm@digeo.com, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org
+References: <25282B06EFB8D31198BF00508B66D4FA03EA5B14@fmsmsx114.fm.intel.com> <200211241001.27971.tomlins@cam.org> <20021124150039.GB18063@holomorphy.com> <200211241021.54957.tomlins@cam.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211241021.54957.tomlins@cam.org>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 24, 2002 09:50 am, J.E.J. Bottomley wrote:
-> > 2.5.49-mm1 works ok here (shpte enabled too).  I see two frustrating
-> > problems left with the modules change (user perspective).  The most
-> > irratating one is messages like:
-> >
-> > FATAL: Error inserting /lib/modules/2.5.49-mm1/kernel/ac97_codec.o:
-> > Invalid module format
-> >
-> > I get this on about 10% of the modules I want to load.  How do I fix
-> > it?
->
-> It seems that the new module loader *requires* init routines (they were
-> optional on the old one) so a lot of modules that are simply helper
-> routines and didn't previously have an init now need one.
->
-> I fixed this on my 53c700.c library module by adding
->
-> no_module_init;
->
-> at the end of the file.
->
-> > The second is that automatic loading is not working.  Manually loading
-> > modules is a PITA. What plans are there to fix this?
->
-> This hasn't annoyed me enough that I've looked into it yet.  I suspec the
-> new modprobe doesn't know about the in-kernel module names (or to look in
-> /etc/modules.conf) yet.
+At some point in the past, I wrote:
+>>>> Okay, you've jumped into oblivion. What fs's were you using here?
 
-Thanks James.  Including init.h and adding no_module_init fixes ac97_codec.
-Now to see if the matrox fb stuff also can be fixed.
+On Sun, Nov 24, 2002 at 10:01:27AM -0500, Ed Tomlinson wrote:
+>>> reiserfs.  (sorry about the subject line)
 
-Ed Tomlinson
+On November 24, 2002 10:00 am, William Lee Irwin III wrote:
+>> Did you have CONFIG_HUGETLB_FS=y and/or the patch in this thread applied?
+
+On Sun, Nov 24, 2002 at 10:21:54AM -0500, Ed Tomlinson wrote:
+> No.  hense the apology about the subject line (now updated).
+> Ed
+
+Okay, thanks. I'll start looking into the state of reiserfsv3 in 2.5.49+
+I think this is a filesystem-specific issue given the procedure in which
+the bad callback address was encountered.
+
+
+Thanks,
+Bill

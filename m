@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129181AbRBUXZq>; Wed, 21 Feb 2001 18:25:46 -0500
+	id <S130608AbRBUX1Q>; Wed, 21 Feb 2001 18:27:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130580AbRBUXZg>; Wed, 21 Feb 2001 18:25:36 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3086 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129181AbRBUXZV>; Wed, 21 Feb 2001 18:25:21 -0500
-Subject: Re: mke2fs + 8MB + 2.2.5 = hangs
-To: javiroman@wanadoo.es (Javi Roman)
-Date: Wed, 21 Feb 2001 23:28:39 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A944C92.60A1E514@wanadoo.es> from "Javi Roman" at Feb 22, 2001 12:17:38 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S130649AbRBUX1G>; Wed, 21 Feb 2001 18:27:06 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:275 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S130608AbRBUX04>;
+	Wed, 21 Feb 2001 18:26:56 -0500
+Date: Thu, 22 Feb 2001 00:26:48 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Martin Mares <mj@suse.cz>
+Cc: "H. Peter Anvin" <hpa@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+Message-ID: <20010222002648.A26568@pcep-jamie.cern.ch>
+In-Reply-To: <20010221220835.A8781@atrey.karlin.mff.cuni.cz> <XFMail.20010221132959.davidel@xmailserver.org> <20010221223238.A17903@atrey.karlin.mff.cuni.cz> <971ejs$139$1@cesium.transmeta.com> <20010221233204.A26671@atrey.karlin.mff.cuni.cz> <3A94435D.59A4D729@transmeta.com> <20010221235008.A27924@atrey.karlin.mff.cuni.cz> <3A94470C.2E54EB58@transmeta.com> <20010222000755.A29061@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Vigc-00030Q-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010222000755.A29061@atrey.karlin.mff.cuni.cz>; from mj@suse.cz on Thu, Feb 22, 2001 at 12:07:55AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have not probed a higer kernel because I have any
-> compiled drivers (I have not sources) for 2.2.5-15 kernel.
-> I don't know if it's a kernel problem or a install program problem.
-> (I have a 4MB machine with RedHat 6.2 with 2.2.5-15
-> kernel and mk2efs work fine with partition over 100MB???)
-> I don't understand.
+Martin Mares wrote:
+> Hello!
+> 
+> > True.  Note too, though, that on a filesystem (which we are, after all,
+> > talking about), if you assume a large linear space you have to create a
+> > file, which means you need to multiply the cost of all random-access
+> > operations with O(log n).
+> 
+> One could avoid this, but it would mean designing the whole filesystem in a
+> completely different way -- merge all directories to a single gigantic
+> hash table and use (directory ID,file name) as a key, but we were originally
+> talking about extending ext2, so such massive changes are out of question
+> and your log n access argument is right.
 
-The RH installer probably still had the workarounds in it that it had for
-the 6.0 release. Early 2.2 tended to stop if it was totally idle, had a lot
-in ram (or very little ram) and did a lot of writes mkfs style. It almost
-only happens on install tools.
+A gigantic hash table has serious problems with non-locality of
+reference.  Basically any regular access pattern you started with is
+destroyed.  This is a problem with pageable RAM, let alone disks with
+millisecond seek times.
 
-That was fixed during mid 2.2 I forget exactly where. There are still 2.2 
-open questions with currnet 2.2 but only when creating _very_ large file
-systems with little memory, where the write throttling may still need a bit
-of work.
-
-Alan
-
+-- Jamie

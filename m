@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289844AbSAPDeL>; Tue, 15 Jan 2002 22:34:11 -0500
+	id <S289374AbSAPDlw>; Tue, 15 Jan 2002 22:41:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289842AbSAPDeB>; Tue, 15 Jan 2002 22:34:01 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61708 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289844AbSAPDdt>; Tue, 15 Jan 2002 22:33:49 -0500
-Message-ID: <3C44F484.4080204@zytor.com>
-Date: Tue, 15 Jan 2002 19:33:24 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S289965AbSAPDln>; Tue, 15 Jan 2002 22:41:43 -0500
+Received: from femail12.sdc1.sfba.home.com ([24.0.95.108]:10942 "EHLO
+	femail12.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S290068AbSAPDla>; Tue, 15 Jan 2002 22:41:30 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk
+Subject: Re: Hardwired drivers are going away?
+Date: Tue, 15 Jan 2002 13:39:48 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: peter@horizon.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020115025840.11509.qmail@science.horizon.com> <E16QSxC-0004yp-00@the-village.bc.nu> <20020115.043911.21332087.davem@redhat.com>
+In-Reply-To: <20020115.043911.21332087.davem@redhat.com>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>
-CC: Daniel Phillips <phillips@bonn-fries.net>,
-        Alexander Viro <viro@math.psu.edu>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: initramfs buffer spec -- second draft
-In-Reply-To: <Pine.GSO.4.21.0201131536480.27390-100000@weyl.math.psu.edu> <E16Qa0W-0001kH-00@starship.berlin> <20020115140436.L11251@lynx.adilger.int> <E16Qcha-0001lF-00@starship.berlin> <20020115165951.R11251@lynx.adilger.int>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020116034129.CRCX26021.femail12.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
+On Tuesday 15 January 2002 07:39 am, David S. Miller wrote:
+>    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>    Date: Tue, 15 Jan 2002 12:44:38 +0000 (GMT)
+>
+>    If at boot time we keep a big chunk of ram free at the kernel end and
+> just load modules one after each other into that space until we get into
+> real paging that problem goes away
+>
+> And we do have module_map/module_unmap interfaces already so it's
+> easy to toy with this.
+>
+> I've always been meaning to do a "alloc 4MB page at boot, lock into
+> TLB, carve module pages out of that, vmalloc when that runs out" on
+> sparc64.
 
->> 
-> Well, a few quick tests show (GNU cpio version 2.4.2), with raw sizes
-> in "blocks" as output by cpio, compressed sizes in bytes:
-> 
-> find <dir> | cpio -o -H <format> | gzip -9 | wc -c
-> 
-> dir		  bin (default)		newc (proposed)
-> 		  raw	   gzip		  raw	   gzip
-> /sbin		15121	3289678		12952	2769451
-> /etc		 8822	 689517		 8996	 693700
-> /usr/local/sbin	 1895	 385461		 1899	 385764
-> 
-> The binary format reports lots of "truncating inode number", but for
-> the purpose of initramfs, that is not an issue as we don't anticipate
-> more than 64k files.  I don't know why the /sbin test is so heavily
-> in favour of the newc (ASCII) format, but I repeated it to confirm
-> the numbers.
-> 
+How would this handle modules being unloaded?  Are you going to try to pack 
+the space, try to re-use the holes (allowing fragmentation), handle unloading 
+the last module only (high water mark), or just ignore it and basically not 
+allow modules to ever be unloaded?
 
+Just curious...
 
-Probably because it does hard links.
-
-	-hpa
-
+Rob
 

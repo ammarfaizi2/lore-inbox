@@ -1,147 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263338AbSJFF42>; Sun, 6 Oct 2002 01:56:28 -0400
+	id <S263339AbSJFGFx>; Sun, 6 Oct 2002 02:05:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263339AbSJFF42>; Sun, 6 Oct 2002 01:56:28 -0400
-Received: from adsl-64-123-59-158.dsl.stlsmo.swbell.net ([64.123.59.158]:14720
-	"EHLO base.torri.linux") by vger.kernel.org with ESMTP
-	id <S263338AbSJFF40>; Sun, 6 Oct 2002 01:56:26 -0400
-Subject: ext3 mount failed [2.5.40-ac3]
-From: Stephen Torri <storri@sbcglobal.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S263341AbSJFGFx>; Sun, 6 Oct 2002 02:05:53 -0400
+Received: from packet.digeo.com ([12.110.80.53]:41095 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S263339AbSJFGFw>;
+	Sun, 6 Oct 2002 02:05:52 -0400
+Message-ID: <3D9FD407.D595BC49@digeo.com>
+Date: Sat, 05 Oct 2002 23:11:19 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.40 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <conman@kolivas.net>
+CC: linux-kernel@vger.kernel.org, rcastro@ime.usp.br, ciarrocchi@linuxmail.org
+Subject: Re: load additions to contest
+References: <20021005182850.31930.qmail@linuxmail.org> <3D9F3A52.4FB46701@digeo.com> <200210061538.43778.conman@kolivas.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Oct 2002 01:01:59 -0500
-Message-Id: <1033884119.1125.14.camel@base.torri.linux>
-Mime-Version: 1.0
+X-OriginalArrivalTime: 06 Oct 2002 06:11:21.0519 (UTC) FILETIME=[310CFBF0:01C26CFF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the clip of the boot message from trying to start 2.5.40-ac3
-kernel. gcc-3.2 used. I can do whatever setup and configuration you
-require. 
+Con Kolivas wrote:
+> 
+> ...
+> 
+> tarc_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.19 [2]              88.0    74      50      25      1.31
+> 2.4.19-cc [1]           86.1    78      51      26      1.28
+> 2.5.38 [1]              91.8    74      46      22      1.37
+> 2.5.39 [1]              94.4    71      58      27      1.41
+> 2.5.40 [1]              95.0    71      59      27      1.41
+> 2.5.40-mm1 [1]          93.8    72      56      26      1.40
+> 
+> This load repeatedly creates a tar of the include directory of the linux
+> kernel. You can see a decrease in performance was visible at 2.5.38 without a
+> concomitant increase in loads, but this improved by 2.5.39.
 
-mounting root filesystem
-request_module[block-major-33]: not ready
-mount: error 6 mounting ext 3
-pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed: 2
-unmount /initrd/proc failed: 2
-Freeing unused Kernel memory: 176K freed
-Kernel panic: no init found
+Well the kernel compile took 7% longer, but the tar got 10% more
+work done.  I expect this is a CPU scheduler artifact.  The scheduler
+has changed so much, it's hard to draw any conclusions.
 
-Kernel config:
+Everything there will be in cache.  I'd suggest that you increase the
+size of the tarball a *lot*, so the two activities are competing for
+disk.
 
+> tarx_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.19 [2]              87.6    74      13      24      1.30
+> 2.4.19-cc [1]           81.5    80      12      24      1.21
+> 2.5.38 [1]              296.5   23      54      28      4.41
+> 2.5.39 [1]              108.2   64      9       12      1.61
+> 2.5.40 [1]              107.0   64      8       11      1.59
+> 2.5.40-mm1 [1]          120.5   58      12      16      1.79
+> 
+> This load repeatedly extracts a tar  of the include directory of the linux
+> kernel. A performance boost is noted by the compressed cache kernel
+> consistent with this data being cached better (less IO). 2.5.38 shows very
+> heavy writing and a performance penalty with that. All the 2.5 kernels show
+> worse performance than the 2.4 kernels as the time taken to compile the
+> kernel is longer even though the amount of work done by the load has
+> decreased.
 
-# IDE chipset support/bugfixes
-#
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_PDC202XX_NEW=y
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_IDEDMA_AUTO=y
+hm, that's interesting.  I assume the tar file is being extracted
+into the same place each time?  Is tar overwriting the old version,
+or are you unlinking the destination first?
 
-#
-# File systems
-#
-CONFIG_QUOTA=y
-CONFIG_QUOTACTL=y
-CONFIG_AUTOFS_FS=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_REISERFS_FS=y
-CONFIG_REISERFS_PROC_INFO=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_CRAMFS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_JFS_FS=y
-CONFIG_JFS_DEBUG=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_ROMFS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_UDF_FS=y
+It would be most interesting to rename the untarred tree, so nothing
+is getting deleted.
 
+Which filesystem are you using here?
+ 
+> read_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.19 [2]              134.1   54      14      5       2.00
+> 2.4.19-cc [2]           92.5    72      22      20      1.38
+> 2.5.38 [2]              100.5   76      9       5       1.50
+> 2.5.39 [2]              101.3   74      14      6       1.51
+> 2.5.40 [1]              101.5   73      13      5       1.51
+> 2.5.40-mm1 [1]          104.5   74      9       5       1.56
+> 
+> This load repeatedly copies a file the size of the physical memory to
+> /dev/null. Compressed caching shows the performance boost of caching more of
+> this data in physical ram - caveat is that this data would be simple to
+> compress so the advantage is overstated. The 2.5 kernels show equivalent
+> performance at 2.5.38 (time down at the expense of load down) but have better
+> performance at 2.5.39-40 (time down with equivalent load being performed).
+> 2.5.40-mm1 seems to exhibit the same performance as 2.5.38.
 
-The system has two IBM HDs, one Seagate and a DVD/CRW. It has a IDE
-controller on the motherboard and a Promise ATA100 card. Below are the
-print outs of the devices:
+That's complex.  I expect there's a lot of eviction of executable
+text happening here.  I'm working on tuning that up a bit.
+ 
+> lslr_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.19 [2]              83.1    77      34      24      1.24
+> 2.4.19-cc [1]           82.8    79      34      24      1.23
+> 2.5.38 [1]              74.8    89      16      13      1.11
+> 2.5.39 [1]              76.7    88      18      14      1.14
+> 2.5.40 [1]              74.9    89      15      12      1.12
+> 2.5.40-mm1 [1]          76.0    89      15      12      1.13
+> 
+> This load repeatedly does a `ls -lR >/dev/null`. The performance seems to be
+> overall similar, with the bias towards the kernel compilation being performed
+> sooner.
 
-(hdparm -i /dev/hda)
-* /dev/hda1 /mnt/win98 (vfat)
-* /dev/hda2 /boot (ext3)
-dev/hda:
-
- Model=ST310232A, FwRev=3.09, SerialNo=6BQ032H9
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=512kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=20005650
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 *udma2 udma3 udma4
- AdvancedPM=no WriteCache=enabled
- Drive conforms to: device does not report version:  1 2 3 4
-
-(hdparm -i /dev/hde)
-dev/hde:
-* /dev/hde1 	/ (root) (ext3)
-* /dev/hde2	swap (swap)
-* /dev/hde5	/usr (ext3)
-* /dev/hde6	/home (ext3)
-dev/hdf: (same drive as hde)
-* /dev/hdf1	/usr/src (ext3)
-* /dev/hdf2	/mnt/misc_1 (ext3)
-
- Model=IBM-DTLA-307045, FwRev=TX6OA50C, SerialNo=YMDYMT5M619
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
- BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=90069840
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
- AdvancedPM=yes: disabled (255) WriteCache=enabled
- Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:  2 3 4 5
-
-(lspci -v)
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-(prog-if 80
-[Master])
-        Flags: bus master, medium devsel, latency 64
-        [virtual] I/O ports at 01f0
-        [virtual] I/O ports at 03f4
-        [virtual] I/O ports at 0170
-        [virtual] I/O ports at 0374
-        I/O ports at ffa0 [size=16]
-
-00:14.0 Unknown mass storage controller: Promise Technology, Inc. 20267
-(rev 02)        Subsystem: Promise Technology, Inc. Ultra100
-        Flags: bus master, medium devsel, latency 64, IRQ 10
-        I/O ports at efe0 [size=8]
-        I/O ports at efac [size=4]
-        I/O ports at efa0 [size=8]
-        I/O ports at efa8 [size=4]
-        I/O ports at ef00 [size=64]
-        Memory at febe0000 (32-bit, non-prefetchable) [size=128K]
-        Expansion ROM at febd0000 [disabled] [size=64K]
-        Capabilities: [58] Power Management version 1
-
-Stephen Torri
-storri@sbcglobal.net
+How many files were under the `ls -lR'?  I'd suggest "zillions", so
+we get heavily into slab reclaim, and lots of inode and directory
+cache thrashing and seeking...

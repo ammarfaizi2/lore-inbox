@@ -1,19 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313588AbSDQTvK>; Wed, 17 Apr 2002 15:51:10 -0400
+	id <S313589AbSDQTzc>; Wed, 17 Apr 2002 15:55:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313589AbSDQTvJ>; Wed, 17 Apr 2002 15:51:09 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:1219 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S313588AbSDQTvI>;
-	Wed, 17 Apr 2002 15:51:08 -0400
-Date: Wed, 17 Apr 2002 13:49:18 -0700
+	id <S313592AbSDQTzb>; Wed, 17 Apr 2002 15:55:31 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:8392 "EHLO e21.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S313589AbSDQTza>;
+	Wed, 17 Apr 2002 15:55:30 -0400
+Date: Wed, 17 Apr 2002 13:53:55 -0700
 From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Adam Kropelin <akropel1@rochester.rr.com>
-cc: Frank Davis <fdavis@si.rr.com>, linux-kernel@vger.kernel.org,
-        davej@suse.de, Brian Gerst <bgerst@didntduck.org>
+To: Rick Stevens <rstevens@vitalstream.com>, linux-kernel@vger.kernel.org
 Subject: Re: 2.5.8-dj1 : arch/i386/kernel/smpboot.c error
-Message-ID: <1829430000.1019076558@flay>
-In-Reply-To: <20020417191718.GA8660@www.kroptech.com>
+Message-ID: <1831780000.1019076835@flay>
+In-Reply-To: <3CBDCD8D.1090802@vitalstream.com>
 X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,18 +20,34 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I wonder if we can play the same trick we've played before ....
->> haven't tested the appended, but maybe it, or something like it
->> will work without the ifdef's?
+>>>> Even though clustered_apic_mode is 0, the compiler still complains
+>>>> about the second one and the first one doesn't depend on
+>>>> clustered_apic_mode at all.
+>>>> 
+>>> Hmmm ... not sure why the compiler complains about the second one,
+>>> that's very strange ;-)
+>>> 
+>> 
+>> I agree. The cpp ouput clealy shows
+>> 
+>>         if ((0) && (numnodes > 1)) {
+>> 
+>> so I'm not sure why there's a problem.
 > 
-> IMHO, this sort of trickery in the name of improving readability
-> is misguided. To me, anyway, the #ifdef's are much easer to read than
-> magic name-changing macros buried in a header somewhere.
+> Is the thing generating the "(0)" a macro?  If so, then the rules
 
-Well, except that you can take that abstraction inside your head, and
-not worry about it when reading the mainline code. I don't really care
-one way or the other, at least io.h is readable now ;-)
+  #define clustered_apic_mode (0)
+
+> of C and the "&&" operator say that "if the first is false, the
+> second needn't even be evaluated".  
+
+That's what I would have thought.
+But I don't think it's the second part that causes the warning,
+it's the thing *inside* the if clause.
+
+> Could that be what's causing the warning?
+
+To my mind, that's why we should *not* be getting a warning ?
 
 M.
-
 

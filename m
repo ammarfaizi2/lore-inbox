@@ -1,241 +1,401 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290668AbSAYMm7>; Fri, 25 Jan 2002 07:42:59 -0500
+	id <S290670AbSAYMnj>; Fri, 25 Jan 2002 07:43:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290670AbSAYMmv>; Fri, 25 Jan 2002 07:42:51 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:40858 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S290668AbSAYMmp>;
-	Fri, 25 Jan 2002 07:42:45 -0500
-Date: Fri, 25 Jan 2002 15:40:15 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [patch] [sched] interactiveness updates to -J4, 2.5.3-pre3
-Message-ID: <Pine.LNX.4.33.0201251528520.7457-100000@localhost.localdomain>
+	id <S290671AbSAYMnZ>; Fri, 25 Jan 2002 07:43:25 -0500
+Received: from pilot05.cl.msu.edu ([35.9.5.25]:25040 "EHLO pilot05.cl.msu.edu")
+	by vger.kernel.org with ESMTP id <S290670AbSAYMnO>;
+	Fri, 25 Jan 2002 07:43:14 -0500
+Message-Id: <200201251243.g0PChCA34512@pilot05.cl.msu.edu>
+Subject: Re: ABIT BX6 Rev 2.0 and Kernel Oopses
+To: kunathma@pilot.msu.edu (Marcel Kunath)
+Date: Fri, 25 Jan 2002 07:43:12 -0500 (EST)
+From: "Marcel Kunath" <kunathma@pilot.msu.edu>
+Cc: linux-kernel@vger.kernel.org, rmaynard@nc.rr.com, chingk@ucs.orst.edu,
+        draht@suse.de
+In-Reply-To: <200201250932.g0P9Wef21936@pilot18.cl.msu.edu> from "Marcel Kunath" at Jan 25, 2002 04:32:40 am
+X-Mailer: ELM [version 2.4 PL25]
+Content-Type: text/plain
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I just got mail from Reid and he said he now slowed down his 450 CPu to a
+lower speed and it now boots Linux as well. I guess its a work around but
+there must be a bug to catch either in the kernel or in the BIOS or the
+engineering of the board itsxelf.
 
-the attached patch updates the interactiveness code to the -J4 version,
-which was found to be better than -J2 by most people. (remaining issues
-are still being worked on.)
+I guess one can only find the bug by getting two original boards and flashing
+the BIOS of one of them and then comparing their functioning.
 
-besides tuning, the patch does the following things:
+mk
 
- - it moves all the scheduler constants into sched.h and makes their usage
-   more conform, and to make tuning patches more compact and easier to
-   compare.
+> > Bug Report >
+---------- > > To: > Linux Kernel Mailing List
+>
+> Cc:
+> Reid rmaynard@nc.rr.com
+> Kenneth chingk@ucs.orst.edu
+> Roman Drahtmüller draht@suse.de
+>
+> I would send a copy of this to ABIT but they aren't very reachable. I don't
+> know a point of contact for the macro-society known as Microsoft.
+>
+>
+>
+> The following is a collection of information and data accumulated after playin
+g
+> with a specific motherboard and a variety of operating systems (for 18 hours).
 
- - introduces two new tunables for places that influence interactiveness.
-   We now have the following tunables:
+> The failure to install, run and operate some of the OS' on the board or rather
 
-    #define MIN_TIMESLICE          ( 10 * HZ / 1000)
-    #define MAX_TIMESLICE          (300 * HZ / 1000)
-    #define CHILD_FORK_PENALTY     95
-    #define PARENT_FORK_PENALTY    100
-    #define EXIT_WEIGHT            3
-    #define PRIO_INTERACTIVE_RATIO 20
-    #define PRIO_CPU_HOG_RATIO     60
-    #define PRIO_BONUS_RATIO       70
-    #define INTERACTIVE_DELTA      3
-    #define MAX_SLEEP_AVG          (2*HZ)
-    #define STARVATION_LIMIT       (2*HZ)
+> operate them at the meant to be CPU speed.
+>
+>
+>
+> The report regards:
+>
+>     Abit BX6 Rev. 2   also knows as
+>     Abit BX6 Rev. 2.0 also knows as
+>     Abit BX6-2.0
+>
+>
+> and contains the following sections:
+>
+>     1. GENERAL
+>     2. HARDWARE SETUP
+>     3. PROBLEM SITUATION
+>     4. SUMMARY
+>     5. WEB RESEARCH
+>     6. MY ANALYSIS
+>     7. THANK YOU
+>     8. KERNEL OOPSES
+>     9. LINKS
+>
+>
+>
+> GENERAL
+> -------
+>
+> The board was purchased in December 1999 (built into a machine) and came from
+> the manufacturer with the BIOS 'BXR_MN.BIN'.
+>
+> The latest BIOS is 'BXR_QR.BIN'.
+>
+> The BIOS history can be found here:
+> http://fae.abit.com.tw/eng/download/bios/bx620.htm
+>
+> The machine is filled with a Pentium III CPU 550 MHz. I tested this CPU using
+> the Intel test utility and this CPU is neither overclocked or been tampered
+> with.
+>
+> This board has been specified to work with Linux at:
+>
+> http://lhd.zdnet.com/db/dispproduct.php3?DISP?334
+>
+> Throughout my research I have been in contact with BX6-2.0 users who had no
+> trouble and others who had the same trouble as I did.
+>
+> This board has been known to be used by a variety of overclockers. In my setup
 
-   Some current values of the tunables (such as PARENT_FORK_PENALTY's 100%
-   value) has no effect currently, but i've added it nevertheless to
-   increase tuning flexibility. They can be removed once we decide that
-   things are cast into stone.
+> no overclocked CPU has been used or in other words my CPU was never intended t
+o
+> be running above its meant to be speed. The target speed of the Pentium III 55
+0
+> MHz was always 550MHz.
+>
+>
+> During my testing I have removed all unnecessary hardware from the setup tryin
+g
+> to find a hardware component that caused the problems. I could not however.
+>
+>
+> HARDWARE SETUP
+> --------------
+>
+> Abit BX6-2.0 (SLOT 1 mobo)
+> Pentium III 550 Mhz
+> Kingston Valueram 256 MB PC100
+> LG CD-RW CED-8042B
+> NVIDIA RIVA TNT2 32 MB AGP
+> IBM 30.7 GB 75GXP DTLA-307030 (brand new so its got nothing to do with the
+> drive; I know this drive has been having its own bad calls in the news but it
+> is not the issue here)
+> Lite-ON Monitor
+>
+> Over the course of my testing I also tried another stick of memory, a Trident
+> 3Dimage 4MB AGP card and a Toshiba 24x CD-Rom. The same problem I am about to
+> discuss occurred.
+>
+>
+> PROBLEM SITUATION
+> -----------------
+>
+> After the purchase in 1999 I installed SuSE 6.2 on the machine. I don't
+> remember having any trouble at it and I am pretty sure it was at the CPU speed
 
- - introduces rq->expired_timestamp to guarantee a certain level of
-   fairness even to CPU hogs. expired_timestamp is not touched in any of
-   the hotpaths, it's only used/set in the timer interrupt and in the idle
-   thread branch of schedule(). This fairness guarantee does work as
-   intended, and it does not disturb interactivity in any noticeable way
-   even under higher load. It's mostly protection against intentional or
-   unintended abuse.
+> of 550MHz. The machine came with Win98 and has been running for 2 years with
+> Win98. The SuSE install was only a test run back then and I had wiped it off
+> the disk afterwards.
+>
+> 2002: My latest goal was installing Windows XP on this new drive in the
+> machine. (The drive before was a DTLA-305030). I had updated the BIOS two
+> months ago to QR and Win98 ran fine.
+>
+> For the next few paragraphs the CPU is running at 550MHz!!!
+>
+> I put in the XP CD and it booted and I formatted a 6 Gig partition in NTFS. In
 
-this patch depends on the fork-fix patch. All other previous patches are
-otherwise independent from each other. I've tested all 9 patches together
-on both UP and SMP systems, and they equivalent with the -J6 patch
-correctness-wise, and with the -J4 patch tuning-wise.
+> the install procedure it copies over a bunch of files and then reboots to then
 
-	Ingo
+> drive the rest of the installation from harddisk. On this reboot I got a Blue
+> Screen Of Death. It reported that there was a Stop error when a process tried
+> to write to read-only memory. I therefore removed all hardware and turned of
+> caching and shadowing in the BIOS to diagnose the problem. The problem
+> persisted and I get either BSOD's or stalls. The BSOD's report
+> (DRIVER_)IRQL_NOT_LESS_OR_EQUAL errors now. Microsoft support pages give the
+> same advice I already applied but the OS won't load.
+>
+> I then went back and installed Win98 to check for sure something wasn't out of
 
---- linux/kernel/exit.c.orig	Fri Jan 25 10:44:18 2002
-+++ linux/kernel/exit.c	Fri Jan 25 12:06:36 2002
-@@ -59,6 +59,8 @@
- 	current->time_slice += p->time_slice;
- 	if (current->time_slice > MAX_TIMESLICE)
- 		current->time_slice = MAX_TIMESLICE;
-+	current->sleep_avg = (current->sleep_avg*EXIT_WEIGHT + p->sleep_avg) /
-+					(EXIT_WEIGHT + 1);
- 	__restore_flags(flags);
+> order. It installed without hitch and booted and ran fine.
+>
+> I went back to installing XP with the same problem occuring.
+>
+> I went back to older BIOS. I tried MN, KU, HJ. It didn't help.
+>
+> I pulled out a set of Mandrake 8.1 CDs and it booted off CD but then stalled o
+r
+> crashed. I pulled out a old set of SuSE 6.4 CDs and it booted but as soon as
+> the kernel loaded it oopsed.
+>
+> All while doing this I was searching the web for help and gathered tips from a
 
- 	p->pid = 0;
---- linux/kernel/sched.c.orig	Fri Jan 25 10:44:18 2002
-+++ linux/kernel/sched.c	Fri Jan 25 12:06:36 2002
-@@ -41,7 +41,7 @@
-  */
- struct runqueue {
- 	spinlock_t lock;
--	unsigned long nr_running, nr_switches;
-+	unsigned long nr_running, nr_switches, expired_timestamp;
- 	task_t *curr, *idle;
- 	prio_array_t *active, *expired, arrays[2];
- 	int prev_nr_running[NR_CPUS];
-@@ -109,12 +108,30 @@
-  * being a CPU hog.
-  *
-  */
--#define PRIO_INTERACTIVE	(MAX_RT_PRIO + MAX_USER_PRIO/4)
--#define PRIO_CPU_HOG		(MAX_RT_PRIO + MAX_USER_PRIO*3/4)
+> couple of mailing lists.
+>
+> Accidentally I set the CPU to a lower speed than 550MHz and booted the machine
+.
+> The BIOS complained that the CPU was misconfigured and I should change the BIO
+S
+> settings but it also gave me the option to go ahead (F1) and boot anyhow.
+>
+> The CPU is at 366 MHz (underclocked)!!!!!
+>
+> I went ahead and suddenly XP booted.
+>
+> Here I went and pulled out my SuSE 6.4 CD and now it wouldn't oops anymore. I
+> went ahead and installed SuSE 6.4 on a second partition. I rebooted and it
+> booted just fine.
+>
+> I went back and set the CPU back to 550Mhz and booting XP or SuSE became
+> impossible again. SuSE kernel dumped a large oops onto my screen.
+>
+> Today I got a set of RedHat 7.2 CDs and it will not install at 550MHz. It
+> stalls or suddenly reboots. I set the CPU to 366 MHz again and installed RH
+> onto another partition. My setup is now:
+>
+> /dev/hda1 XP
+> /dev/hda2 SuSE 6.4
+> /dev/hda3 swap
+> /dev/hda4 RH 7.2
+>
+> After having installed RH I rebooted and it boots fine at 366 MHz. If I set th
+e
+> CPU to 550Mhz the RH kernel oopses.
+>
+>
+> Now many people suggested to turn off about everything in the BIOS and work my
 
--#define TASK_INTERACTIVE(p) (((p)->prio <= PRIO_INTERACTIVE) ||		\
--	(((p)->prio < PRIO_CPU_HOG) &&					\
--		((p)->prio <= NICE_TO_PRIO((p)->__nice)-3)))
-+#define PRIO_INTERACTIVE \
-+		(MAX_RT_PRIO + MAX_USER_PRIO*PRIO_INTERACTIVE_RATIO/100)
-+#define PRIO_CPU_HOG \
-+		(MAX_RT_PRIO + MAX_USER_PRIO*PRIO_CPU_HOG_RATIO/100)
-+
-+#define TASK_INTERACTIVE(p) \
-+	(((p)->prio <= PRIO_INTERACTIVE) || \
-+	(((p)->prio < PRIO_CPU_HOG) && \
-+		((p)->prio <= NICE_TO_PRIO((p)->__nice) - INTERACTIVE_DELTA)))
-+
-+/*
-+ * We place interactive tasks back into the active array, if possible.
-+ *
-+ * To guarantee that this does not starve expired tasks we ignore the
-+ * interactivity of a task if the first expired task had to wait more
-+ * than a 'reasonable' amount of time. This deadline timeout is
-+ * load-dependent, as the frequency of array switched decreases with
-+ * increasing number of running tasks:
-+ */
-+#define EXPIRED_STARVING(rq) \
-+		((rq)->expired_timestamp && \
-+		(jiffies - (rq)->expired_timestamp >= \
-+			STARVATION_LIMIT * ((rq)->nr_running) + 1))
+> way upwards. I did this and only left IDE controller enabled. It booted fine a
+t
+> 366 Mhz. As soon as I switched to 550 Mhz even with L2 Cache and L1 Cache
+> disabled and any shadowing turned off too it would stall.
+>
+>
+> SUMMARY
+> -------
+>
+> Original motherboard allowed for Linux installation (SuSE 6.2) and runs Win98
+> fine at speed 550MHz Pentium III CPU. No problems for two years and to this
+> date with Win98.
+>
+> The BIOS was updated in late 2001 to QR. The machine still runs Win98 fine at
+> 550MHz. Operating systems such as XP, RH, SuSE must be installed and run at 36
+6
+> MHz now. UNDERCLOCKED!!!
+>
+>
+> WEB RESEARCH
+> ------------
+>
+> I have dug into google and found quite some information. This problem has been
 
- static inline int effective_prio(task_t *p)
- {
-@@ -122,18 +139,19 @@
+> known but occurs very rarely and in only special cases and I think I know why.
 
- 	/*
- 	 * Here we scale the actual sleep average [0 .... MAX_SLEEP_AVG]
--	 * into the 19 ... -18 bonus/penalty range.
-+	 * into the -14 ... +14 bonus/penalty range.
- 	 *
--	 * We take off the 10% from the full 0...39 priority range so that:
-+	 * We use 70% of the full 0...39 priority range so that:
- 	 *
--	 * 1) nice +19 CPU hogs do not preempt nice 0 CPU hogs just yet.
-+	 * 1) nice +19 CPU hogs do not preempt nice 0 CPU hogs.
- 	 * 2) nice -20 interactive tasks do not get preempted by
- 	 *    nice 0 interactive tasks.
- 	 *
--	 * Both properties are important to certain applications.
-+	 * Both properties are important to certain workloads.
- 	 */
--	bonus = MAX_USER_PRIO*9/10 * p->sleep_avg / MAX_SLEEP_AVG -
--							MAX_USER_PRIO*9/10/2;
-+	bonus = MAX_USER_PRIO*PRIO_BONUS_RATIO*p->sleep_avg/MAX_SLEEP_AVG/100 -
-+			MAX_USER_PRIO*PRIO_BONUS_RATIO/100/2;
-+
- 	prio = NICE_TO_PRIO(p->__nice) - bonus;
- 	if (prio < MAX_RT_PRIO)
- 		prio = MAX_RT_PRIO;
-@@ -275,8 +293,10 @@
+>
+> If I ran XP at 550 Mhz and chose Safe Mode it would run down a list of modules
 
- 	p->state = TASK_RUNNING;
- 	if (!rt_task(p)) {
--		p->sleep_avg = (p->sleep_avg * 4) / 5;
-+		p->sleep_avg = p->sleep_avg * CHILD_FORK_PENALTY / 100;
- 		p->prio = effective_prio(p);
-+
-+		current->sleep_avg = current->sleep_avg * PARENT_FORK_PENALTY / 100;
- 	}
- 	spin_lock_irq(&rq->lock);
-	p->cpu = smp_processor_id();
-@@ -562,7 +587,13 @@
- 		p->need_resched = 1;
- 		p->prio = effective_prio(p);
- 		p->time_slice = NICE_TO_TIMESLICE(p->__nice);
--		enqueue_task(p, TASK_INTERACTIVE(p) ? rq->active : rq->expired);
-+
-+		if (!TASK_INTERACTIVE(p) || EXPIRED_STARVING(rq)) {
-+			if (!rq->expired_timestamp)
-+				rq->expired_timestamp = jiffies;
-+			enqueue_task(p, rq->expired);
-+		} else
-+			enqueue_task(p, rq->active);
- 	}
- out:
- 	if (!(now % BUSY_REBALANCE_TICK))
-@@ -604,6 +636,7 @@
- 		if (rq->nr_running)
- 			goto pick_next_task;
- 		next = rq->idle;
-+		rq->expired_timestamp = 0;
- 		goto switch_tasks;
- 	}
+> loaded and suddenly stall at "driver/agp440.sys".
+>
+> I searched google and a ton of people using 2K or XP have trouble with the
+> agp440.sys problem. This doesn't mean AGP is the cause here since XP doesn't
+> dump out its real module loading log when loading. agp440.sys is just the last
 
-@@ -615,6 +648,7 @@
- 		rq->active = rq->expired;
- 		rq->expired = array;
- 		array = rq->active;
-+		rq->expired_timestamp = 0;
- 	}
+> module mentioned before it stalls.
+>
+> The agp440.sys problem occurs also for many other boards and configurations
+> (e.g. Athlon, P4 and other NVIDIA cards)
+>
+> I figured this was not the right direction.
+>
+> Having remembered that I once ran Linux on this board two years ago I figured
+> its either the CPU or the mobo. I remembered I flashed the BIOS recently. I
+> looked up what I could find and voila people did the same as me and had the
+> same trouble:
+>
+> Reid reports that all his mobo can run is Win98 and neither 2K, Linux or BSDs
+> runs:
+>
+> http://groups.google.com/groups?hl=en&frame=right&th=b5b6671ee8e4a3ad&seekm=q2
+vZ
+> 6.77281%24ru2.22650002%40typhoon.southeast.rr.com#link1
+>
+> A reverting to the old BIOS does not help. I contacted Reid and he still has n
+o
+> fix for the situation.
+>
+> I got another example which is exactly like mine and Reid's:
+>
+> http://groups.google.com/groups?q=bx6+kernel+panic&hl=en&selm=37B6EE47.3D9A3AE
+5%
+> 40ucs.orst.edu&rnum=3
+>
+> Kenneth ran NT on his BX6-2. It worked wonderfully. Then he flashed his BIOS
+> and it oopsed from thereon in. He went back to use his old BIOS but his OS is
+> still unstable. He tried Mandrake on it then and it won't succeed but oopses.
+>
+>
+> MY ANALYSIS
+> -----------
+>
+> The board as it was manufactured was able to run all types of OS. Manypeople
+> have assured me that is what they are doing.
+>
+> I and Reid though cannot run anything but Win9x. The thing that makes our case
 
- 	idx = sched_find_first_zero_bit(array->bitmap);
---- linux/include/linux/sched.h.orig	Fri Jan 25 10:44:18 2002
-+++ linux/include/linux/sched.h	Fri Jan 25 12:06:36 2002
-@@ -256,7 +256,6 @@
+> special is that we both flashed the BIOS and then tried to install XP or Linux
+.
+>
+>
+> I do wonder if the BIOS installed at the plant was in some way special and any
 
- 	unsigned int time_slice;
+> BIOS flashed at home and downloaded from the web are containing inconsistencie
+s
+> which break the mobo from working with NT or Linux kernels. The fact that
+> others run Linux and Nt fine on their mobo but my flashed and revertedly
+> flashed mobo cannot makes me wonder.
+>
+>
+> THANK YOU
+> ---------
+>
+> I would love to contact Abit about this but they don't leave a single point of
 
--	#define MAX_SLEEP_AVG (2*HZ)
- 	unsigned long sleep_avg;
- 	unsigned long sleep_timestamp;
+> contact on their web pages.
+>
+> I appreciate any comments in regards to this issue. I will now report what the
 
-@@ -418,11 +417,22 @@
- #define DEF_USER_NICE		0
+> kernel errored on and it may help the hackers in building an opinion about thi
+s
+> issue.
+>
+> Thank you for reading this lengthy document! I could care less if Ican run a
+> certain OS on this specific by today's standard's outdatedbox but it bugs me
+> that there seems to have creaped in a bug intoABIT's board which makes it
+> incompatible with a advanced kernel like the Linux 2.2 or 2.4 kernel and the N
+T
+> kernel as well but gives it theability to handle the functionality of the Win9
+x
+> kernel.
+>
+> I wish somebody would invest the time in researching this topic in detail.
+>
+> I know ABIT has their own Linux distro. I do not have a copy of it but I would
 
- /*
-- * Default timeslice is 90 msecs, maximum is 180 msecs.
-+ * Default timeslice is 150 msecs, maximum is 300 msecs.
-  * Minimum timeslice is 10 msecs.
-+ *
-+ * These are the 'tuning knobs' of the scheduler:
-  */
- #define MIN_TIMESLICE		( 10 * HZ / 1000)
--#define MAX_TIMESLICE		(180 * HZ / 1000)
-+#define MAX_TIMESLICE		(300 * HZ / 1000)
-+#define CHILD_FORK_PENALTY	95
-+#define PARENT_FORK_PENALTY	100
-+#define EXIT_WEIGHT		3
-+#define PRIO_INTERACTIVE_RATIO	20
-+#define PRIO_CPU_HOG_RATIO	60
-+#define PRIO_BONUS_RATIO	70
-+#define INTERACTIVE_DELTA	3
-+#define MAX_SLEEP_AVG		(2*HZ)
-+#define STARVATION_LIMIT	(2*HZ)
-
- #define USER_PRIO(p)		((p)-MAX_RT_PRIO)
- #define MAX_USER_PRIO		(USER_PRIO(MAX_PRIO))
---- linux/include/linux/init_task.h.orig	Fri Jan 25 10:44:18 2002
-+++ linux/include/linux/init_task.h	Fri Jan 25 12:06:36 2002
-@@ -53,7 +53,7 @@
-     mm:			NULL,						\
-     active_mm:		&init_mm,					\
-     run_list:		LIST_HEAD_INIT(tsk.run_list),			\
--    time_slice:		NICE_TO_TIMESLICE(DEF_USER_NICE),		\
-+    time_slice:		HZ,						\
-     next_task:		&tsk,						\
-     prev_task:		&tsk,						\
-     p_opptr:		&tsk,						\
-
+> be damn curious to know if their distro runs on their ownboard after a BIOS
+> flash.
+>
+> Thanks for your time and if you need more info contact me,
+>
+> Marcel
+>
+>
+> KERNEL OOPSES
+> -------------
+>
+> RH 7.2 default i686 kernel (I think its 2.4.7):
+>
+> EXT3-fs: mounted filesystem with ordered data mode.
+> Freeing unused kernel memory: 220k freed.
+> CPU 0: Machine Check Exception: 0000000000000004
+> Bank 3: b20000000002010a
+> Kernel panic: CPU context corrupt
+> In interrupt handler - not syncing
+>
+>
+> SuSE 6.4 default 2.2.14 kernel:
+>
+> Unable to handle kernel paging request at virtual address 05efa769.2%
+> current->tss.cr3 = 00101000, %cr3 = 00101000
+> *pde = 00000000
+> Oops: 0002
+> CPU: 0
+> EIP: 0010:[<c011825>]
+> EFLAGS: 00010013
+> eax: 000000ff ebx: c0289f24 ecx: 00008c7e edx: c0289f24
+> esi: 20000001 edi: 00000000 ebp: c0289e6c esp: c0289e74
+> ds: 0018 es: 0018 ss: 0018
+> Process swapper (pid: 0, process nr: 0, stackpage=c0289000)
+> Stack: c0289f24 24000001 0000000e c0289f24 c026ad58 00000001 c0289eacc01d43b4
+>        00000001 00000695............
+> Call Trace: ........................
+> Code: 28 8b 45 08 c7 45 f4 00 00 00 00 c7 45 f0 00 00 00 00 89 45
+> Aiee, killing interrupt handler
+> Kernel panic: Attempted to kill idle task!
+> In swapper task - not syncing.
+>
+>
+>
+>
+> Kenneth's Mandrake 6.0 Oops:
+>
+> Kernel panic: LRU block list corrupted
+> Unable to handle kernul NULL pointer dereference at virtual address
+> 00000028
+> current->tss.cr3 = 00101000, %cr3 = 00101000
+> *pde = 00000000
+> Oops: 0000
+> CPU: 0
+> .
+> .
+> .
+>
+>
+> LINKS
+> -----
+>
+> Abit Support:
+> http://fae.abit.com.tw/eng/
+>
+> Abit BX6 Rev. 2:
+> http://fae.abit.com.tw/eng/download/bios/bx620.htm
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

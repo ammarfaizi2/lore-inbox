@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315746AbSG1KaH>; Sun, 28 Jul 2002 06:30:07 -0400
+	id <S315784AbSG1Kdd>; Sun, 28 Jul 2002 06:33:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315748AbSG1KaH>; Sun, 28 Jul 2002 06:30:07 -0400
-Received: from science.horizon.com ([192.35.100.1]:37450 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP
-	id <S315746AbSG1KaH>; Sun, 28 Jul 2002 06:30:07 -0400
-Date: 28 Jul 2002 10:33:11 -0000
-Message-ID: <20020728103311.25018.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 'select' failure or signal should not update timeout
+	id <S315870AbSG1Kdd>; Sun, 28 Jul 2002 06:33:33 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:5021 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S315784AbSG1Kdc>;
+	Sun, 28 Jul 2002 06:33:32 -0400
+Date: Sun, 28 Jul 2002 06:35:55 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Federico Ferreres <fferreres@ojf.com>
+cc: Daniel Mose <imcol@unicyclist.com>, Larry McVoy <lm@work.bitmover.com>,
+       Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org, openpatentfunds@home.se
+Subject: Re: Funding GPL projects or funding the GPL?
+In-Reply-To: <1027847824.3829.49.camel@fede>
+Message-ID: <Pine.GSO.4.21.0207280601260.27010-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen asked for:
-> waitonmonotonicallyincreasingnonadjustablehighres64bittime()
 
-Well, take the POSIX clock_gettime() interface and add clock_waittime().
-Oh, wait.. they already did it.  clock_nanosleep().
 
-The POSIX folks realized that people want a variety of tiemrs, and
-so the functions take a clockid_t first argument, which is just an enum.
-They defined two values, but leave the field open to others:
-- CLOCK_MONOTONIC, which is what you want.  Unspecified epoch
-  (possibly boot time), and never gets adjusted
-- CLOCK_REALTIME, which is the classig time() UTC time.
+On 28 Jul 2002, Federico Ferreres wrote:
 
-Extensions define CLOCK_PROCESS_CPUTIME_ID and CLOCK_THREAD_CPUTIME_ID.
+> I stated a simple idea aimed at solving a real world issue. And you
+> haven't proved it wrong. It may not be what you or the kernel hackers
+> need/want (which is FINE). But it would solve ALL the funding problems
+> at least.
 
-The clock weenies are welcome to add CLOCK_TAI, CLOCK_GPS, CLOCK_UTS
-(see Markus Kuhn's suggestion), CLOCK_UTC (with some "better" leap-second
-handling), CLOCK_FREQADJUST (uses frequency but not phase adjustments),
-CLOCK_NOSTEP (frequency and phase adjustments, but doesn't step),
-and anything else you like.
+You don't get it.  So far the only guy who had been charitable was Larry, who
+felt that problem was real but had serious doubts about viability of your
+idea.  I don't feel charitable and I've no reason to hesitate telling that
+you guys _are_ waste of time.  No maybes about it.  It's that simple...
 
-Astronomers might add CLOCK_UT1, CLOCK_UT0, CLOCK_SIDERIAL, CLOCK_TDB,
-CLOCK_TDT, CLOCK_TCG, CLOCK_TCB, and maybe a few things I haven't thought
-of.  The interface doesn't require that all of these be implemented in
-the kernel, of course.

@@ -1,487 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265874AbTFSSAu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 14:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265875AbTFSSAu
+	id S265877AbTFSSCj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 14:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265879AbTFSSCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 14:00:50 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:6363 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265874AbTFSSAk (ORCPT
+	Thu, 19 Jun 2003 14:02:39 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:40922 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265877AbTFSSCf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 14:00:40 -0400
-Date: Thu, 19 Jun 2003 11:14:12 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] PCI device list locking - take 3
-Message-ID: <20030619181412.GA5257@kroah.com>
+	Thu, 19 Jun 2003 14:02:35 -0400
+Subject: [PATCH 2.5.72 1/2] i_size atomic access
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andrea Arcangeli <andrea@suse.de>
+Content-Type: multipart/mixed; boundary="=-5fZdQvXIMEaAytk7UvwN"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 19 Jun 2003 11:16:56 -0700
+Message-Id: <1056046616.17359.18.camel@dell_ss5.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I think I got it all covered this time :)
 
-Here's the latest version of the pci list locking patch.  I've taken
-Chris's comments and addressed them by making sure we don't walk off the
-end of a deleted device in the pci_find_* and pci_get_* functions.
+--=-5fZdQvXIMEaAytk7UvwN
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-This version has survived a pretty hard beating on a pci hotplug system,
-as proof of concept...
+This adds a sequence counter only version of the reader/writer
+consistent mechanism to seqlock.h  This is used in the second
+part of this patch give atomic access to i_size.
 
-Comments?
+re-diff against 2.5.72.
 
-thanks,
+The patch is also available for download from OSDL's patch lifecycle 
+manager (PLM):
 
-greg k-h
+http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1939
 
+Daneil McNeil <daniel@osdl.org>
 
---- a/drivers/pci/bus.c	Thu Jun 19 11:08:53 2003
-+++ b/drivers/pci/bus.c	Thu Jun 19 11:08:53 2003
-@@ -93,7 +93,11 @@
- 			continue;
- 
- 		device_add(&dev->dev);
-+
-+		spin_lock(&pci_bus_lock);
- 		list_add_tail(&dev->global_list, &pci_devices);
-+		spin_unlock(&pci_bus_lock);
-+
- 		pci_proc_attach_device(dev);
- 		pci_create_sysfs_dev_files(dev);
- 
-@@ -108,7 +112,9 @@
- 		 * it and then scan for unattached PCI devices.
- 		 */
- 		if (dev->subordinate && list_empty(&dev->subordinate->node)) {
-+			spin_lock(&pci_bus_lock);
- 			list_add_tail(&dev->subordinate->node, &dev->bus->children);
-+			spin_unlock(&pci_bus_lock);
- 			pci_bus_add_devices(dev->subordinate);
- 		}
- 	}
---- a/drivers/pci/hotplug.c	Thu Jun 19 11:08:53 2003
-+++ b/drivers/pci/hotplug.c	Thu Jun 19 11:08:53 2003
-@@ -173,6 +173,24 @@
+--=-5fZdQvXIMEaAytk7UvwN
+Content-Disposition: attachment; filename=patch.2.5.72-isize.1
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; name=patch.2.5.72-isize.1; charset=ISO-8859-1
+
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.72/include/linux/seqlock.=
+h linux-2.5.72-isize/include/linux/seqlock.h
+--- linux-2.5.72/include/linux/seqlock.h	2003-06-16 21:20:00.000000000 -070=
+0
++++ linux-2.5.72-isize/include/linux/seqlock.h	2003-06-17 16:56:25.15995628=
+9 -0700
+@@ -94,6 +94,57 @@ static inline int read_seqretry(const se
+ 	return (iv & 1) | (sl->sequence ^ iv);
  }
- EXPORT_SYMBOL(pci_visit_dev);
- 
-+static void pci_destroy_dev(struct pci_dev *dev)
-+{
-+	device_unregister(&dev->dev);
+=20
 +
-+	/* Remove the device from the device lists, and prevent any further
-+	 * list accesses from this device */
-+	spin_lock(&pci_bus_lock);
-+	list_del(&dev->bus_list);
-+	list_del(&dev->global_list);
-+	dev->bus_list.next = dev->bus_list.prev = NULL;
-+	dev->global_list.next = dev->global_list.prev = NULL;
-+	spin_unlock(&pci_bus_lock);
-+
-+	pci_free_resources(dev);
-+	pci_proc_detach_device(dev);
-+	pci_put_dev(dev);
-+}
-+
- /**
-  * pci_remove_device_safe - remove an unused hotplug device
-  * @dev: the device to remove
-@@ -186,11 +204,7 @@
- {
- 	if (pci_dev_driver(dev))
- 		return -EBUSY;
--	device_unregister(&dev->dev);
--	list_del(&dev->bus_list);
--	list_del(&dev->global_list);
--	pci_free_resources(dev);
--	pci_proc_detach_device(dev);
-+	pci_destroy_dev(dev);
- 	return 0;
- }
- EXPORT_SYMBOL(pci_remove_device_safe);
-@@ -237,17 +251,15 @@
- 		pci_remove_behind_bridge(dev);
- 		pci_proc_detach_bus(b);
- 
-+		spin_lock(&pci_bus_lock);
- 		list_del(&b->node);
-+		spin_unlock(&pci_bus_lock);
-+
- 		kfree(b);
- 		dev->subordinate = NULL;
- 	}
- 
--	device_unregister(&dev->dev);
--	list_del(&dev->bus_list);
--	list_del(&dev->global_list);
--	pci_free_resources(dev);
--	pci_proc_detach_device(dev);
--	pci_put_dev(dev);
-+	pci_destroy_dev(dev);
- }
- 
- /**
---- a/drivers/pci/pci.h	Thu Jun 19 11:08:53 2003
-+++ b/drivers/pci/pci.h	Thu Jun 19 11:08:53 2003
-@@ -59,3 +59,6 @@
- extern int pci_visit_dev(struct pci_visit *fn,
- 			 struct pci_dev_wrapped *wrapped_dev,
- 			 struct pci_bus_wrapped *wrapped_parent);
-+
-+/* Lock for read/write access to pci device and bus lists */
-+extern spinlock_t pci_bus_lock;
---- a/drivers/pci/proc.c	Thu Jun 19 11:08:53 2003
-+++ b/drivers/pci/proc.c	Thu Jun 19 11:08:53 2003
-@@ -12,6 +12,7 @@
- #include <linux/proc_fs.h>
- #include <linux/seq_file.h>
- #include <linux/smp_lock.h>
-+#include "pci.h"
- 
- #include <asm/uaccess.h>
- #include <asm/byteorder.h>
-@@ -308,39 +309,45 @@
- /* iterator */
- static void *pci_seq_start(struct seq_file *m, loff_t *pos)
- {
--	struct list_head *p = &pci_devices;
-+	struct pci_dev *dev = NULL;
- 	loff_t n = *pos;
- 
--	/* XXX: surely we need some locking for traversing the list? */
-+	dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev);
- 	while (n--) {
--		p = p->next;
--		if (p == &pci_devices)
--			return NULL;
-+		dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev);
-+		if (dev == NULL)
-+			goto exit;
- 	}
--	return p;
-+exit:
-+	return dev;
- }
-+
- static void *pci_seq_next(struct seq_file *m, void *v, loff_t *pos)
- {
--	struct list_head *p = v;
-+	struct pci_dev *dev = v;
-+
- 	(*pos)++;
--	return p->next != &pci_devices ? (void *)p->next : NULL;
-+	dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev);
-+	return dev;
- }
-+
- static void pci_seq_stop(struct seq_file *m, void *v)
- {
--	/* release whatever locks we need */
-+	if (v) {
-+		struct pci_dev *dev = v;
-+		pci_put_dev(dev);
-+	}
- }
- 
- static int show_device(struct seq_file *m, void *v)
- {
--	struct list_head *p = v;
--	const struct pci_dev *dev;
-+	const struct pci_dev *dev = v;
- 	const struct pci_driver *drv;
- 	int i;
- 
--	if (p == &pci_devices)
-+	if (dev == NULL)
- 		return 0;
- 
--	dev = pci_dev_g(p);
- 	drv = pci_dev_driver(dev);
- 	seq_printf(m, "%02x%02x\t%04x%04x\t%x",
- 			dev->bus->number,
-@@ -455,19 +462,18 @@
-  */
- static int show_dev_config(struct seq_file *m, void *v)
- {
--	struct list_head *p = v;
--	struct pci_dev *dev;
-+	struct pci_dev *dev = v;
-+	struct pci_dev *first_dev;
- 	struct pci_driver *drv;
- 	u32 class_rev;
- 	unsigned char latency, min_gnt, max_lat, *class;
- 	int reg;
- 
--	if (p == &pci_devices) {
-+	first_dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, NULL);
-+	if (dev == first_dev)
- 		seq_puts(m, "PCI devices found:\n");
--		return 0;
--	}
-+	pci_put_dev(first_dev);
- 
--	dev = pci_dev_g(p);
- 	drv = pci_dev_driver(dev);
- 
- 	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
---- a/drivers/pci/search.c	Thu Jun 19 11:08:53 2003
-+++ b/drivers/pci/search.c	Thu Jun 19 11:08:53 2003
-@@ -1,6 +1,17 @@
 +/*
-+ * 	PCI searching functions.
-+ *
-+ *	Copyright 1993 -- 1997 Drew Eckhardt, Frederic Potter,
-+ *				David Mosberger-Tang
-+ *	Copyright 1997 -- 2000 Martin Mares <mj@ucw.cz>
-+ *	Copyright 2003 -- Greg Kroah-Hartman <greg@kroah.com>
++ * Version using sequence counter only.=20
++ * This can be used when code has its own mutex protecting the
++ * updating starting before the write_seqcntbeqin() and ending
++ * after the write_seqcntend().
 + */
 +
- #include <linux/pci.h>
- #include <linux/module.h>
- 
-+spinlock_t pci_bus_lock = SPIN_LOCK_UNLOCKED;
++typedef struct seqcnt {
++	unsigned sequence;
++} seqcnt_t;
 +
- static struct pci_bus *
- pci_do_find_bus(struct pci_bus* bus, unsigned char busnr)
- {
-@@ -52,11 +63,15 @@
- struct pci_bus * 
- pci_find_next_bus(const struct pci_bus *from)
- {
--	struct list_head *n = from ? from->node.next : pci_root_buses.next;
-+	struct list_head *n;
- 	struct pci_bus *b = NULL;
- 
-+	WARN_ON(irqs_disabled());
-+	spin_lock(&pci_bus_lock);
-+	n = from ? from->node.next : pci_root_buses.next;
- 	if (n != &pci_root_buses)
- 		b = pci_bus_b(n);
-+	spin_unlock(&pci_bus_lock);
- 	return b;
- }
- 
-@@ -97,24 +112,36 @@
-  * device structure is returned.  Otherwise, %NULL is returned.
-  * A new search is initiated by passing %NULL to the @from argument.
-  * Otherwise if @from is not %NULL, searches continue from next device on the global list.
-+ *
-+ * NOTE: Do not use this function anymore, use pci_get_subsys() instead, as
-+ * the pci device returned by this function can disappear at any moment in
-+ * time.
-  */
- struct pci_dev *
- pci_find_subsys(unsigned int vendor, unsigned int device,
- 		unsigned int ss_vendor, unsigned int ss_device,
- 		const struct pci_dev *from)
- {
--	struct list_head *n = from ? from->global_list.next : pci_devices.next;
-+	struct list_head *n;
-+	struct pci_dev *dev;
++#define SEQCNT_ZERO { 0 }
++#define seqcnt_init(x)	do { *(x) =3D (seqcnt_t) SEQCNT_ZERO; } while (0)
 +
-+	WARN_ON(irqs_disabled());
-+	spin_lock(&pci_bus_lock);
-+	n = from ? from->global_list.next : pci_devices.next;
- 
--	while (n != &pci_devices) {
--		struct pci_dev *dev = pci_dev_g(n);
-+	while (n && (n != &pci_devices)) {
-+		dev = pci_dev_g(n);
- 		if ((vendor == PCI_ANY_ID || dev->vendor == vendor) &&
- 		    (device == PCI_ANY_ID || dev->device == device) &&
- 		    (ss_vendor == PCI_ANY_ID || dev->subsystem_vendor == ss_vendor) &&
- 		    (ss_device == PCI_ANY_ID || dev->subsystem_device == ss_device))
--			return dev;
-+			goto exit;
- 		n = n->next;
- 	}
--	return NULL;
-+	dev = NULL;
-+exit:
-+	spin_unlock(&pci_bus_lock);
-+	return dev;
- }
- 
- /**
-@@ -128,6 +155,10 @@
-  * returned.  Otherwise, %NULL is returned.
-  * A new search is initiated by passing %NULL to the @from argument.
-  * Otherwise if @from is not %NULL, searches continue from next device on the global list.
-+ * 
-+ * NOTE: Do not use this function anymore, use pci_get_device() instead, as
-+ * the pci device returned by this function can disappear at any moment in
-+ * time.
-  */
- struct pci_dev *
- pci_find_device(unsigned int vendor, unsigned int device, const struct pci_dev *from)
-@@ -135,6 +166,77 @@
- 	return pci_find_subsys(vendor, device, PCI_ANY_ID, PCI_ANY_ID, from);
- }
- 
-+/**
-+ * pci_get_subsys - begin or continue searching for a PCI device by vendor/subvendor/device/subdevice id
-+ * @vendor: PCI vendor id to match, or %PCI_ANY_ID to match all vendor ids
-+ * @device: PCI device id to match, or %PCI_ANY_ID to match all device ids
-+ * @ss_vendor: PCI subsystem vendor id to match, or %PCI_ANY_ID to match all vendor ids
-+ * @ss_device: PCI subsystem device id to match, or %PCI_ANY_ID to match all device ids
-+ * @from: Previous PCI device found in search, or %NULL for new search.
-+ *
-+ * Iterates through the list of known PCI devices.  If a PCI device is
-+ * found with a matching @vendor, @device, @ss_vendor and @ss_device, a pointer to its
-+ * device structure is returned, and the reference count to the device is
-+ * incremented.  Otherwise, %NULL is returned.  A new search is initiated by
-+ * passing %NULL to the @from argument.  Otherwise if @from is not %NULL,
-+ * searches continue from next device on the global list.
-+ * The reference count for @from is always decremented if it is not %NULL.
-+ */
-+struct pci_dev * 
-+pci_get_subsys(unsigned int vendor, unsigned int device,
-+	       unsigned int ss_vendor, unsigned int ss_device,
-+	       struct pci_dev *from)
++/* Start of read using pointer to a sequence counter only.  */
++static inline unsigned read_seqcntbegin(const seqcnt_t *s)
 +{
-+	struct list_head *n;
-+	struct pci_dev *dev;
-+
-+	WARN_ON(irqs_disabled());
-+	spin_lock(&pci_bus_lock);
-+	n = from ? from->global_list.next : pci_devices.next;
-+
-+	while (n && (n != &pci_devices)) {
-+		dev = pci_dev_g(n);
-+		if ((vendor == PCI_ANY_ID || dev->vendor == vendor) &&
-+		    (device == PCI_ANY_ID || dev->device == device) &&
-+		    (ss_vendor == PCI_ANY_ID || dev->subsystem_vendor == ss_vendor) &&
-+		    (ss_device == PCI_ANY_ID || dev->subsystem_device == ss_device))
-+			goto exit;
-+		n = n->next;
-+	}
-+	dev = NULL;
-+exit:
-+	pci_put_dev(from);
-+	dev = pci_get_dev(dev);
-+	spin_unlock(&pci_bus_lock);
-+	return dev;
++	unsigned ret =3D s->sequence;
++	smp_rmb();
++	return ret;
 +}
 +
-+/**
-+ * pci_get_device - begin or continue searching for a PCI device by vendor/device id
-+ * @vendor: PCI vendor id to match, or %PCI_ANY_ID to match all vendor ids
-+ * @device: PCI device id to match, or %PCI_ANY_ID to match all device ids
-+ * @from: Previous PCI device found in search, or %NULL for new search.
-+ *
-+ * Iterates through the list of known PCI devices.  If a PCI device is
-+ * found with a matching @vendor and @device, a pointer to its device structure is
-+ * returned.  Otherwise, %NULL is returned.
-+ * A new search is initiated by passing %NULL to the @from argument.
-+ * Otherwise if @from is not %NULL, searches continue from next device on the global list.
-+ *
-+ * Iterates through the list of known PCI devices.  If a PCI device is
-+ * found with a matching @vendor and @device, the reference count to the
-+ * device is incremented and a pointer to its device structure is returned.
-+ * Otherwise, %NULL is returned.  A new search is initiated by passing %NULL
-+ * to the @from argument.  Otherwise if @from is not %NULL, searches continue
-+ * from next device on the global list.  The reference count for @from is
-+ * always decremented if it is not %NULL.
++/* Test if reader processed invalid data.
++ * Equivalent to: iv is odd or sequence number has changed.
++ *                (iv & 1) || (*s !=3D iv)
++ * Using xor saves one conditional branch.
 + */
-+struct pci_dev *
-+pci_get_device(unsigned int vendor, unsigned int device, struct pci_dev *from)
++static inline int read_seqcntretry(const seqcnt_t *s, unsigned iv)
 +{
-+	return pci_get_subsys(vendor, device, PCI_ANY_ID, PCI_ANY_ID, from);
++	smp_rmb();
++	return (iv & 1) | (s->sequence ^ iv);
 +}
 +
- 
- /**
-  * pci_find_device_reverse - begin or continue searching for a PCI device by vendor/device id
-@@ -151,16 +253,24 @@
- struct pci_dev *
- pci_find_device_reverse(unsigned int vendor, unsigned int device, const struct pci_dev *from)
- {
--	struct list_head *n = from ? from->global_list.prev : pci_devices.prev;
-+	struct list_head *n;
-+	struct pci_dev *dev;
- 
--	while (n != &pci_devices) {
--		struct pci_dev *dev = pci_dev_g(n);
-+	WARN_ON(irqs_disabled());
-+	spin_lock(&pci_bus_lock);
-+	n = from ? from->global_list.prev : pci_devices.prev;
 +
-+	while (n && (n != &pci_devices)) {
-+		dev = pci_dev_g(n);
- 		if ((vendor == PCI_ANY_ID || dev->vendor == vendor) &&
- 		    (device == PCI_ANY_ID || dev->device == device))
--			return dev;
-+			goto exit;
- 		n = n->prev;
- 	}
--	return NULL;
-+	dev = NULL;
-+exit:
-+	spin_unlock(&pci_bus_lock);
-+	return dev;
- }
- 
- 
-@@ -179,15 +289,22 @@
- struct pci_dev *
- pci_find_class(unsigned int class, const struct pci_dev *from)
- {
--	struct list_head *n = from ? from->global_list.next : pci_devices.next;
-+	struct list_head *n;
-+	struct pci_dev *dev;
- 
--	while (n != &pci_devices) {
--		struct pci_dev *dev = pci_dev_g(n);
-+	spin_lock(&pci_bus_lock);
-+	n = from ? from->global_list.next : pci_devices.next;
++/*=20
++ * Sequence counter only version assumes that callers are using their
++ * own mutexing.
++ */
++static inline void write_seqcntbegin(seqcnt_t *s)
++{
++	s->sequence++;
++	smp_wmb();		=09
++}=09
 +
-+	while (n && (n != &pci_devices)) {
-+		dev = pci_dev_g(n);
- 		if (dev->class == class)
--			return dev;
-+			goto exit;
- 		n = n->next;
- 	}
--	return NULL;
-+	dev = NULL;
-+exit:
-+	spin_unlock(&pci_bus_lock);
-+	return dev;
- }
- 
- EXPORT_SYMBOL(pci_find_bus);
-@@ -196,3 +313,5 @@
- EXPORT_SYMBOL(pci_find_device_reverse);
- EXPORT_SYMBOL(pci_find_slot);
- EXPORT_SYMBOL(pci_find_subsys);
-+EXPORT_SYMBOL(pci_get_device);
-+EXPORT_SYMBOL(pci_get_subsys);
---- a/include/linux/pci.h	Thu Jun 19 11:08:53 2003
-+++ b/include/linux/pci.h	Thu Jun 19 11:08:53 2003
-@@ -566,6 +566,10 @@
- int pci_find_capability (struct pci_dev *dev, int cap);
- struct pci_bus * pci_find_next_bus(const struct pci_bus *from);
- 
-+struct pci_dev *pci_get_device (unsigned int vendor, unsigned int device, struct pci_dev *from);
-+struct pci_dev *pci_get_subsys (unsigned int vendor, unsigned int device,
-+				unsigned int ss_vendor, unsigned int ss_device,
-+				struct pci_dev *from);
- int pci_bus_read_config_byte (struct pci_bus *bus, unsigned int devfn, int where, u8 *val);
- int pci_bus_read_config_word (struct pci_bus *bus, unsigned int devfn, int where, u16 *val);
- int pci_bus_read_config_dword (struct pci_bus *bus, unsigned int devfn, int where, u32 *val);
-@@ -686,6 +690,13 @@
- 
- static inline struct pci_dev *pci_find_subsys(unsigned int vendor, unsigned int device,
- unsigned int ss_vendor, unsigned int ss_device, const struct pci_dev *from)
-+{ return NULL; }
++static inline void write_seqcntend(seqcnt_t *s)=20
++{
++	smp_wmb();
++	s->sequence++;
++}
 +
-+static inline struct pci_dev *pci_get_device (unsigned int vendor, unsigned int device, struct pci_dev *from)
-+{ return NULL; }
-+
-+static inline struct pci_dev *pci_get_subsys (unsigned int vendor, unsigned int device,
-+unsigned int ss_vendor, unsigned int ss_device, struct pci_dev *from)
- { return NULL; }
- 
- static inline void pci_set_master(struct pci_dev *dev) { }
+ /*
+  * Possible sw/hw IRQ protected versions of the interfaces.
+  */
+
+--=-5fZdQvXIMEaAytk7UvwN--
+

@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316951AbSGXKra>; Wed, 24 Jul 2002 06:47:30 -0400
+	id <S316953AbSGXLNf>; Wed, 24 Jul 2002 07:13:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316953AbSGXKra>; Wed, 24 Jul 2002 06:47:30 -0400
-Received: from ns1.systime.ch ([194.147.113.1]:63498 "EHLO mail.systime.ch")
-	by vger.kernel.org with ESMTP id <S316951AbSGXKr3>;
-	Wed, 24 Jul 2002 06:47:29 -0400
-From: "Martin Brulisauer" <martin@uceb.org>
-To: Joshua MacDonald <jmacd@namesys.com>
-Date: Wed, 24 Jul 2002 12:50:28 +0200
-Subject: Re: type safe lists (was Re: PATCH: type safe(r) list_entry repacement: generic_out_cast)
-CC: neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org
-Message-ID: <3D3EA294.30758.3567B82@localhost>
-In-reply-to: <20020724095656.GB11106@reload.namesys.com>
-References: <3D3E75E9.28151.2A7FBB2@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+	id <S316959AbSGXLNf>; Wed, 24 Jul 2002 07:13:35 -0400
+Received: from [213.69.232.58] ([213.69.232.58]:29962 "HELO schottelius.org")
+	by vger.kernel.org with SMTP id <S316953AbSGXLNe>;
+	Wed, 24 Jul 2002 07:13:34 -0400
+Date: Wed, 24 Jul 2002 15:16:43 +0200
+From: Nico Schottelius <nicos-mutt@pcsystems.de>
+To: Joshua Uziel <uzi@uzix.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: cpu speed is 165mhz instead of real 650mhz
+Message-ID: <20020724131642.GA479@schottelius.org>
+References: <20020724110121.GA1925@schottelius.org> <20020724102709.GA17905@uzix.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
+Content-Disposition: inline
+In-Reply-To: <20020724102709.GA17905@uzix.org>
+User-Agent: Mutt/1.4i
+X-MSMail-Priority: Is not really needed
+X-Mailer: Yam on Linux ?
+X-Operating-System: Linux flapp 2.5.27
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Jul 2002, at 13:56, Joshua MacDonald wrote:
-> The list code is trivial, but when you have 10 classes of list and no type
-> safety between independent list classes or even between the list head and list
-> item types, there is a strong possibility you will pass the wrong argument to
-> some list routine because there is nothing to stop you.
-So it is.
 
-At kernel level nothing will stop me to halt() the cpu, if I realy want 
-to. It is important to understand that tools (and all compilers are
-just tools) will not enable me to write correct code. 
-> 
-> I can say a lot of good and bad things about C++, but at least it lets you do
-> this kind of thing with type safety and without ugly macros.
-> 
-Yes. That's absolutely true for C++. But the kernel is implemented 
-in C and C is "only" kind of a high-level-assembler language. It is
-ment to be open - on purpose. There exist other languages that 
-have these kinds of concepts you bring in (I would not use C++ as 
-the best example - take OBERON/MODULA or EIFFEL). But these 
-languages are not made to implement an operating system 
-(remember the reason K&R have specified and implemented C?).
+--YZ5djTAD1cGYuMQK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-What I realy dislike is the approach to bring in any OO concepts 
-into the C language the linux kernel bases on. Keep the code as 
-simple and homogenous as possible (or try to rewrite it in OO).
+Joshua Uziel [Wed, Jul 24, 2002 at 03:27:09AM -0700]:
+> * Nico Schottelius <nicos-mutt@pcsystems.de> [020724 02:03]:
+> > This periodicly appears in my system. The Kernel seems to misdetect the
+> > right cpu speed and then it's running only at 165mhz.
+> > I don't really understand why this happens, there's no acpi enabled, wh=
+ich
+> > caused this failure the last time.
+>=20
+> Is this a notebook computer?  Is it that you're sometimes booting it up
+> while the system is unplugged (ie. on battery)?
 
-The way I see this discussion is: Every software problem has it's 
-proper language to be solved in. And for this, Linus decided it to be 
-C.
+yes,it is, but slowing down to 500 mhz is the only  available speedstep
+option.
 
-Regards,
-Martin
+165 or similar is not supported (afaik) by the bios/processor.
 
+
+Nico
+
+--=20
+Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
+ils
+to mailing list!). If you don't know what pgp is visit www.gnupg.org.
+(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
+
+--YZ5djTAD1cGYuMQK
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9Pqi6tnlUggLJsX0RAiYpAKCfan65o8nj11PwILVsmMzDZ1fwOgCeLZdk
+NLN6iIrlOYnKa6VNGS5rLeU=
+=Fxju
+-----END PGP SIGNATURE-----
+
+--YZ5djTAD1cGYuMQK--

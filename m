@@ -1,85 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263957AbUKZUZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264115AbUKZUZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263957AbUKZUZh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 15:25:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbUKZUYt
+	id S264115AbUKZUZg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 15:25:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263957AbUKZUY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 15:24:49 -0500
-Received: from smtp-out.hotpop.com ([38.113.3.71]:59352 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S263957AbUKZT7u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:59:50 -0500
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: "Mario Gaucher" <zadiglist@zadig.ca>
-Subject: Re: [PATCH] fbdev: Fix crash if fb_set_var() called before register_framebuffer()
-Date: Fri, 26 Nov 2004 08:45:03 +0800
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200411250115.50895.adaplas@hotpop.com> <20041125235955.M86030@zadig.ca>
-In-Reply-To: <20041125235955.M86030@zadig.ca>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 26 Nov 2004 15:24:56 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:8357 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S264005AbUKZUGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 15:06:08 -0500
+Subject: Re: Suspend 2 merge: 23/51: PPC support.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041125184053.GL1417@openzaurus.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101296245.5805.282.camel@desktop.cunninghams>
+	 <20041125184053.GL1417@openzaurus.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1101420944.27250.73.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 26 Nov 2004 09:15:44 +1100
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411260845.04618.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 November 2004 08:20, Mario Gaucher wrote:
-> > The field info->modelist is initialized during register_framebuffer. 
-> > This field is also referred to in fb_set_var().  Thus a call to
-> > fb_set_var() before register_framebuffer() will cause a crash.  A few
-> > drivers do this, notably controlfb.  (This might fix reports of controlfb
-> > crashing in powermacs).
->
-> this patch works well... I can now boot my PowerMac 7300 using
-> 2.6.10-rc2-bk8 (that I got on kernel.org) with this patch...
+Hi.
 
-That's good.
+On Fri, 2004-11-26 at 05:40, Pavel Machek wrote:
+> Hi!
+> 
+> > Not updated for a while, so I'm not sure if it still works. If not, it
+> > shouldn't take much to get it going again.
+> 
+> It should have a lot in common with hugang's swsusp1/ppc support, right?
+> Can you coordinate with him and get that in?
 
->
-> but I still has some problem with my Matrox Millenium PCI card using
-> matroxfb driver... the kernel boot... but I get corrupted characters on
-> the console... X load ok and display ok...
+He submitted it in the first place, so I'm already relying on him to
+send updates.
 
-Try this first.
+Regards,
 
-1. Open drivers/video/matrox/matrofb_accel.c
-2. At the end of the file is this function:
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-static void matroxfb_imageblit(struct fb_info* info, const struct fb_image* image) {
-	MINFO_FROM_INFO(info);
-
-	DBG_HEAVY(__FUNCTION__);
-
-	if (image->depth == 1) {
-		u_int32_t fgx, bgx;
-
-		fgx = ((u_int32_t*)info->pseudo_palette)[image->fg_color];
-		bgx = ((u_int32_t*)info->pseudo_palette)[image->bg_color];
-		matroxfb_1bpp_imageblit(PMINFO fgx, bgx, image->data, image->width, image->height, image->dy, image->dx);
-	} else {
-		/* Danger! image->depth is useless: logo painting code always
-		   passes framebuffer color depth here, although logo data are
-		   always 8bpp and info->pseudo_palette is changed to contain
-		   logo palette to be used (but only for true/direct-color... sic...).
-		   So do it completely in software... */
-		cfb_imageblit(info, image);
-	}
-}
-
-3. Replace the above function to use software drawing so it becomes like this:
-
-static void matroxfb_imageblit(struct fb_info* info, const struct fb_image* image) {
-	cfb_imageblit(info, image);
-}
-
-Tony
-
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 

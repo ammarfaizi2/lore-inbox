@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311195AbSCPXf5>; Sat, 16 Mar 2002 18:35:57 -0500
+	id <S311206AbSCPXh5>; Sat, 16 Mar 2002 18:37:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311198AbSCPXfs>; Sat, 16 Mar 2002 18:35:48 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:22288 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S311195AbSCPXfi>;
-	Sat, 16 Mar 2002 18:35:38 -0500
-Date: Sat, 16 Mar 2002 16:34:58 -0700
-From: yodaiken@fsmlabs.com
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: yodaiken@fsmlabs.com, Andi Kleen <ak@suse.de>,
-        Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-Message-ID: <20020316163458.A25041@hq.fsmlabs.com>
-In-Reply-To: <20020316113536.A19495@hq.fsmlabs.com.suse.lists.linux.kernel> <Pine.LNX.4.33.0203161037160.31913-100000@penguin.transmeta.com.suse.lists.linux.kernel> <20020316115726.B19495@hq.fsmlabs.com.suse.lists.linux.kernel> <p73g0301f79.fsf@oldwotan.suse.de> <20020316125711.B20436@hq.fsmlabs.com> <20020316210504.A24097@wotan.suse.de> <20020316131219.C20436@hq.fsmlabs.com> <200203162027.g2GKRqf13432@vindaloo.ras.ucalgary.ca> <20020316134732.C21439@hq.fsmlabs.com> <200203162105.g2GL5H914363@vindaloo.ras.ucalgary.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <200203162105.g2GL5H914363@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Sat, Mar 16, 2002 at 02:05:17PM -0700
-Organization: FSM Labs
+	id <S311205AbSCPXhr>; Sat, 16 Mar 2002 18:37:47 -0500
+Received: from gateway2.ensim.com ([65.164.64.250]:50703 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S311198AbSCPXhh>; Sat, 16 Mar 2002 18:37:37 -0500
+X-mailer: xrn 8.03-beta-26
+From: Paul Menage <pmenage@ensim.com>
+Subject: Re: [PATCH] Speedup SMP kernel on UP box
+To: Paul Gortmaker <p_gortmaker@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+X-Newsgroups: 
+In-Reply-To: <0C01A29FBAE24448A792F5C68F5EA47D238DE0@nasdaq.ms.ensim.com>
+Message-Id: <E16mNjq-0002xW-00@pmenage-dt.ensim.com>
+Date: Sat, 16 Mar 2002 15:37:26 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 16, 2002 at 02:05:17PM -0700, Richard Gooch wrote:
-> > Why not?  If you just ran vim on console you'd be more productive and
-> > not need all those worthless processes. 
+In article <0C01A29FBAE24448A792F5C68F5EA47D238DE0@nasdaq.ms.ensim.com>,
+you write:
+>@@ -9,9 +9,15 @@
+>  */
 > 
-> Yeah, right.
+> #ifdef CONFIG_SMP
+>-#define LOCK "lock ; "
+>+#define LOCK "\n1:\tlock ; "
+>+#define LOCK_ADDR	"\n" \
+>+			".section .lock.init,\"a\"\n\t" \
+>+			".align 4\n\t" \
+>+			".long 1b\n" \
+>+			".previous\n"
 
-I was just trying to be nice.
 
-> > At 4KB/page and 8bytes/pte a
-> > 1G process will need at least 2MB of pte alone ! Add in the 4 layers,
-> > the software VM struct, ...
-> 
-> This isn't a dedicated bigass-image display box. It's a workstation.
-> It's where I read email, hack kernels, write visualisation tools and
-> stuff like that.
-> 
-> And I can afford a few MiB of RAM for PTE's and such for *the one
-> process which is mapping my huge data files*! That's effectively a
-> small, one-time cost. Every other process doesn't have a significant
-> PTE cost.
+Why not do:
 
-Well, it's a matter of target. I'm thinking about our customers who
-do high grade image processing on a stream of gig+ bitmaps. They need
-64 (some are already painfully stranded on Alphas) and they don't use these
-boxes for email. 
+#define LOCK "1: lock ; \n" \
+	 	".section .lock.init,\"a\"\n" \
+		".align 4\n"\
+		".long 1b\n"\
+		".previous\n" 
 
-> > But sure, big pages are not always good.
-> 
-> Hm. With wide TLB's, what are the benefits to big pages? One
+Then you don't need the LOCK_ADDR macro, so most of atomic.h can be
+left as is. The assembler doesn't seem to care that there's a section
+change between the lock prefix and the instruction that it's locking.
 
-tlb miss rates, mm structure overhead and setup/teardown, swap speed,
-
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
-
+Paul

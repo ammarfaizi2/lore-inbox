@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265850AbUFDQkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265859AbUFDQmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265850AbUFDQkP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 12:40:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265857AbUFDQkP
+	id S265859AbUFDQmw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 12:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUFDQmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 12:40:15 -0400
-Received: from main.gmane.org ([80.91.224.249]:19171 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265850AbUFDQkI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 12:40:08 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ian Abbott <abbotti@mev.co.uk>
-Subject: Re: [PATCH] Memory leak in visor.c and ftdi_sio.c
-Date: Fri, 04 Jun 2004 17:34:41 +0100
-Message-ID: <c9q8a6$hga$1@sea.gmane.org>
-References: <40C08E6D.8080606@infosciences.com>
+	Fri, 4 Jun 2004 12:42:52 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:19623 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265859AbUFDQkl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 12:40:41 -0400
+Date: Fri, 4 Jun 2004 17:40:32 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       luto@myrealbox.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, suresh.b.siddha@intel.com, jun.nakajima@intel.com
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+Message-ID: <20040604164032.GA2331@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Arjan van de Ven <arjanv@redhat.com>, Andi Kleen <ak@suse.de>,
+	Linus Torvalds <torvalds@osdl.org>, luto@myrealbox.com,
+	mingo@elte.hu, linux-kernel@vger.kernel.org, akpm@osdl.org,
+	suresh.b.siddha@intel.com, jun.nakajima@intel.com
+References: <20040603230834.GF868@wotan.suse.de> <20040604092552.GA11034@elte.hu> <200406040826.15427.luto@myrealbox.com> <Pine.LNX.4.58.0406040830200.7010@ppc970.osdl.org> <20040604154142.GF16897@devserv.devel.redhat.com> <Pine.LNX.4.58.0406040843240.7010@ppc970.osdl.org> <20040604155138.GG16897@devserv.devel.redhat.com> <Pine.LNX.4.58.0406040856100.7010@ppc970.osdl.org> <20040604181304.325000cb.ak@suse.de> <20040604163753.GN16897@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: mail.mev.co.uk
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-In-Reply-To: <40C08E6D.8080606@infosciences.com>
-Cc: linux-usb-devel@lists.sourceforge.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040604163753.GN16897@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04/06/2004 15:59, nardelli wrote:
-> Note that I have not verified any of the below on
-> hardware associated with drivers/usb/serial/ftdi_sio.c,
-> only with drivers/usb/serial/visor.c.  If anyone has
-> hardware for this device, I would appreciate your comments.
-> 
-> A memory leak occurs in both drivers/usb/serial/ftdi_sio.c
-> and drivers/usb/serial/visor.c when the usb device is
-> unplugged while data is being written to the device.  This
-> patch should clear that up.
+On Fri, Jun 04, 2004 at 06:37:54PM +0200, Arjan van de Ven wrote:
+> Fedora makes the heap non executable too; it only broke X which has it's own
+> shared library loader (which btw had all the right mprotects in place, just
+> ifdef'd for freebsd, ia64 and a few other architectures that default to
+> non-executable heap, so we just added x86(-64) to that)
 
-The change to ftdi_sio.c looks correct to me.
-
-I made the original change to ftdi_sio.c to allocate the write urbs 
-and their transfer buffers dynamically (instead of using a 
-preallocated pool) and I copied that technique from visor.c!
-
-A related problem with the current implementation is that is easy to 
-run out of memory by running something similar to this:
-
-  # cat /dev/zero > /dev/ttyUSB0
-
-That affects both the ftdi_sio and visor drivers.
-
--- 
--=( Ian Abbott @ MEV Ltd.    E-mail: <abbotti@mev.co.uk>        )=-
--=( Tel: +44 (0)161 477 1898   FAX: +44 (0)161 718 3587         )=-
-
+Maybe you should just call mprotect always to be safe? :)  OTOH I guess
+the world would end if a X release had less ifdefs than the previous one..

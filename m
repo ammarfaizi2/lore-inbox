@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265218AbUD3S7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265219AbUD3TBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265218AbUD3S7I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 14:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264993AbUD3S7I
+	id S265219AbUD3TBk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 15:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265220AbUD3TBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 14:59:08 -0400
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:34092 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S265219AbUD3S7F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 14:59:05 -0400
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "'Timothy Miller'" <miller@techsource.com>
-Cc: "'Bartlomiej Zolnierkiewicz'" <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "'Peter Williams'" <peterw@aurema.com>,
-       "'Marc Boucher'" <marc@linuxant.com>,
-       "'Sean Estabrooks'" <seanlkml@rogers.com>,
-       "'Linus Torvalds'" <torvalds@osdl.org>,
-       "'Paul Wagland'" <paul@wagland.net>, "'Rik van Riel'" <riel@redhat.com>,
-       <koke@sindominio.net>, "'Rusty Russell'" <rusty@rustcorp.com.au>,
-       "'lkml - Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       "'David Gibson'" <david@gibson.dropbear.id.au>
-Subject: RE: [PATCH] Blacklist binary-only modules lying about their license
-Date: Fri, 30 Apr 2004 11:58:48 -0700
-Organization: Cisco Systems
-Message-ID: <009e01c42ee5$2e89fc80$ca41cb3f@amer.cisco.com>
+	Fri, 30 Apr 2004 15:01:40 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:27337 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S265219AbUD3TBg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 15:01:36 -0400
+From: "Nick Warne" <nick@ukfsn.org>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 30 Apr 2004 20:01:35 +0100
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <40929F5B.9090603@techsource.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-Importance: Normal
+Subject: patch-2.6.5.gz build error
+Message-ID: <4092B09F.32629.4812E67D@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> WINE is a user process.  It does not run in kernel space, so we don't 
-> care about it.  Since all the closed-source stuff, like 
-> Office, runs in user space, it CANNOT corrupt the kernel (barring real 
-> kernel bugs).
-> 
-> I think Linus needs to smack you down like he did with that guy who 
-> couldn't understand the distinction between firmware and a 
-> kernel driver.
+Hello all,
 
-I think he doesn't, because he can read what other said. I know what
-distinction it is and I've been working on kernel for years since I was
-still in school.
+Tonight I installed patch-2.6.5.gz to a 2.6.4 build tree - patch file 
+from:
 
-I'm not arguing about the taint issue, or any technical issue, as clearly
-stated in my last paragraph. I am mearly responding to the questioning to
-Linuxant's business model.
+http://www.kernel.org/pub/linux/kernel/v2.6/
 
-> As long as the kernel is protected, we are generally in favor of it.
->
-> > Linuxant did a wrong thing by working around the warning 
-> > message, but I don't think it's fair to accuse of their business 
-> > because they allow binary drivers run on Linux.
-> 
-> The fact that binary drivers are "evil" does not reflect badly on 
-> Linuxant, in my opinion.
+and whilst building, GCC exited with Error 1 in:
 
-It doesn't look like so to me.
+include/linux/module.h: Line 53
+
+const struct exception_table_entry *
+
+I couldn't see anything wrong (as if _I_ would know anyway ;) ), but 
+guessed a bit, so removed the white space and re-added it, plus 
+newlined it at the end, all in nano, and then the build all worked 
+OK.
+
+Looks like a strange char is added somewhere in that patch (or patch 
+tool adds it?).
+
+Regards,
+
+Nick
+(Not subscribed to list).
+
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."
 

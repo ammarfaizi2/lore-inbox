@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262519AbVBXWdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262523AbVBXWhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262519AbVBXWdY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 17:33:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262521AbVBXWdY
+	id S262523AbVBXWhS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 17:37:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbVBXWhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 17:33:24 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:61394 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262519AbVBXWdH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 17:33:07 -0500
-Date: Thu, 24 Feb 2005 22:32:18 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@davemloft.net>,
-       benh@kernel.crashing.org, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] page table iterators
-In-Reply-To: <421E4E27.20004@yahoo.com.au>
-Message-ID: <Pine.LNX.4.61.0502242224070.14886@goblin.wat.veritas.com>
-References: <4214A1EC.4070102@yahoo.com.au> <4214A437.8050900@yahoo.com.au> 
-    <20050217194336.GA8314@wotan.suse.de> <1108680578.5665.14.camel@gaston> 
-    <20050217230342.GA3115@wotan.suse.de> 
-    <20050217153031.011f873f.davem@davemloft.net> 
-    <20050217235719.GB31591@wotan.suse.de> <4218840D.6030203@yahoo.com.au> 
-    <Pine.LNX.4.61.0502210619290.7925@goblin.wat.veritas.com> 
-    <421B0163.3050802@yahoo.com.au> 
-    <Pine.LNX.4.61.0502230136240.5772@goblin.wat.veritas.com> 
-    <421D1737.1050501@yahoo.com.au> 
-    <Pine.LNX.4.61.0502240457350.5427@goblin.wat.veritas.com> 
-    <1109224777.5177.33.camel@npiggin-nld.site> 
-    <Pine.LNX.4.61.0502241143001.6630@goblin.wat.veritas.com> 
-    <421E4E27.20004@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Thu, 24 Feb 2005 17:37:18 -0500
+Received: from fire.osdl.org ([65.172.181.4]:44694 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262523AbVBXWfG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 17:35:06 -0500
+Date: Thu, 24 Feb 2005 14:35:09 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Alex Deucher <alexdeucher@gmail.com>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Marvell 88W8310 and 88E8050 PCI Express support
+Message-ID: <20050224143509.4fe2a6a8@dxpl.pdx.osdl.net>
+In-Reply-To: <a728f9f905022413465b96acd4@mail.gmail.com>
+References: <a728f9f905022413465b96acd4@mail.gmail.com>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed-Claws 1.0.1 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Feb 2005, Nick Piggin wrote:
-> Hugh Dickins wrote:
-> > 
-> > Has anyone _ever_ seen a p??_ERROR message?  I'm inclined to just
-> > put three functions into mm/memory.c to do the p??_ERROR and p??_clear,
-> > but that way the __FILE__ and __LINE__ will always come out the same.
-> > I think if it ever proves a problem, we'd just add in a dump_stack.
-> 
-> I think a function is the most sensible. And a good idea, it should
-> reduce the icache pressure in the loops (although gcc does seem to
-> do a pretty good job of moving unlikely()s away from the fastpath).
+On Thu, 24 Feb 2005 16:46:34 -0500
+Alex Deucher <alexdeucher@gmail.com> wrote:
 
-At one stage I was adding unlikelies to all the p??_bads, then it
-seemed more sensible to hide that in a new macro (which of course
-must do the none and bad tests inline, before going off to the function).
+> I've noticed most of the new AMD64 chipsets now include integrated
+> marvell GigE and wifi chips onboard.  I haven't been able to find much
+> on the status of linux support for these chips.  Apparently the PCIE
+> GigE chip only works with sk98lin
 
-David's response confirms that __FILE__,__LINE__ shouldn't be an issue.
+You need to use the version from SysKonnect.  If you look at the source
+for that, you will see why I started on the skge driver.
 
-> I think at the point these things get detected, there is little use
-> for having a dump_stack. But we may as well add one anyway if it is
-> an out of line function?
 
-We could at little cost.  But I think if these messages come up at all,
-they're likely to come up in clumps, where the backtrace won't actually
-be giving any interesting info, and the quantity of them be a nuisance
-itself.  I'd rather leave it to the next person who gets the error and
-wants the backtrace to add it.
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0502.1/0010.html
+> Does anyone know if support for the chip is being added to skge? 
 
-Hugh
+As soon as I get the hardware (on order), or a donation of a new system.
+Then I will report the interface from sk98lin.
+
+> The
+> 88W8310 doesn't seem to be supported at all, at least not that I can
+> see.  Does anyone know the status of the 88W8310?  Are there any
+> experimental drivers?  Is Marvell friendly to opensource?  Are the
+> databooks available?
+
+If you find databook for Yukon 2 chipset let me know.  I found the original
+Yukon and Genesis manuals, but nothing newer.

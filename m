@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315207AbSFDQss>; Tue, 4 Jun 2002 12:48:48 -0400
+	id <S315210AbSFDQuL>; Tue, 4 Jun 2002 12:50:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315210AbSFDQsr>; Tue, 4 Jun 2002 12:48:47 -0400
-Received: from mons.uio.no ([129.240.130.14]:54676 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S315207AbSFDQsp>;
-	Tue, 4 Jun 2002 12:48:45 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Organization: Dept. of Physics, University of Oslo, Norway
-To: Matthias Welk <welk@fokus.gmd.de>
-Subject: Re: nfs slowdown since 2.5.4
-Date: Tue, 4 Jun 2002 18:48:38 +0200
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200206041253.44446.welk@fokus.gmd.de> <shsg0032pxw.fsf@charged.uio.no> <200206041756.55696.welk@fokus.gmd.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200206041848.38954.trond.myklebust@fys.uio.no>
+	id <S315232AbSFDQuK>; Tue, 4 Jun 2002 12:50:10 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:49916 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S315210AbSFDQtL>; Tue, 4 Jun 2002 12:49:11 -0400
+Subject: Re: linux-2.5.20-ct1
+From: Robert Love <rml@tech9.net>
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+        Lightweight patch manager <patch@luckynet.dynu.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+In-Reply-To: <Pine.LNX.4.44.0206032239500.3833-100000@hawkeye.luckynet.adm>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 04 Jun 2002 09:48:56 -0700
+Message-Id: <1023209337.912.103.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 June 2002 17:56, Matthias Welk wrote:
+On Mon, 2002-06-03 at 21:41, Thunder from the hill wrote:
 
-> To get more info about this problem I compared the compile time and the nfs
-> traffic between 2.4.18-4 and 2.5.20 on a RedHat 7.3 system.
-> The sources (mosfet-liquid0.9.5.tar.gz - KDE style) were located on the
-> local disc and the libraries were linked over nfs.
-> The results attached to this mail show the big difference !
+> On Mon, 3 Jun 2002, William Lee Irwin III wrote:
+> > Please discard the atomic update patch altogether; there were enough
+> > eyebrows raised that this cannot qualify as a simple cleanup.
+> 
+> Is there something serious to add about them? Is it sure that they won't 
+> work or such? Otherwise I'd suggest just getting them tested.
+
+Maybe it is not wise to integrate a tree with patches you do to know are
+correct or not?
+
+	Robert Love
 
 
-
-Details of your setup please... What mount options are you using, which NFS 
-server implementation, filesystem on the server, networking cards,....
-
-Cheers,
-  Trond

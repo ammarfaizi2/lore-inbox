@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318432AbSHPOoT>; Fri, 16 Aug 2002 10:44:19 -0400
+	id <S318455AbSHPOrW>; Fri, 16 Aug 2002 10:47:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318435AbSHPOoT>; Fri, 16 Aug 2002 10:44:19 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:23183 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S318432AbSHPOoS>;
-	Fri, 16 Aug 2002 10:44:18 -0400
-Date: Fri, 16 Aug 2002 16:48:46 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: CLONE_DETACHED and exit notification (was user-vm-unlock-2.5.31-A2)
-In-Reply-To: <20020816151911.A590@kushida.apsleyroad.org>
-Message-ID: <Pine.LNX.4.44.0208161639150.29243-100000@localhost.localdomain>
+	id <S318468AbSHPOrW>; Fri, 16 Aug 2002 10:47:22 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:33975 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S318455AbSHPOrV>;
+	Fri, 16 Aug 2002 10:47:21 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200208161450.SAA29730@sex.inr.ac.ru>
+Subject: Re: [PATCH][RFC] sigurg/sigio cleanup for 2.5.31
+To: jmorris@intercode.com.au (James Morris)
+Date: Fri, 16 Aug 2002 18:50:28 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Mutt.LNX.4.44.0208162239370.687-100000@blackbird.intercode.com.au> from "James Morris" at Aug 16, 2 11:07:22 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-On Fri, 16 Aug 2002, Jamie Lokier wrote:
+> All existing paths which write to the pid/uid/euid fields are protected by
+> the BKL
 
-> You've said that pthread_exit() _always_ notifies a sibling thread using
-> a futex.
+euid? Are you about current->xxx? You jest, you read it, not write.
 
-yes.
+Well, and if you are going to say that reading is racy, then I wonder
+why you started from this place, not from another users current->xxx,
+which are really critical and surely cannot use bkl. :-)
 
-> Well, can we please move the futex wakeup into the kernel?  That is all
-> I ask.  It will make pthread_exit() _faster_, and me happy because all
-> exits are notified.
+> > But I daresay this is deadlock:
+> 
+> Yep.
 
-(well, now you have reduced your point to the question of pure a
-performance optimisation, dropping allegations of "pthreadizm" or
-"inability to support different threading libraries because there's no
-polite exit", thus so far we are in agreement.)
+Ergo, never use BKL. :-)
 
-there are some practical problems with making the notification a futex,
-not a simple flag. Eg. futexes right now do not force any lock-counter
-format upon userspace. Futexes can be used as mutexes, conditional
-variables, read-write locks, all of which have different atomic counter
-formats and uses. By doing the TID-release notification via a futex the
-actual format of the lock is forced, which is a cleanliness problem. Just
-writing $0 to the TID pointer is a robust thing on the other hand.
-
-	Ingo
-
-ps. (you have not replied to 90% of the email i wrote. Does this mean
-agreement or disagreement?)
-
+Alexey

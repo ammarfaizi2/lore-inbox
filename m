@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263078AbTJFChv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 22:37:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263922AbTJFChv
+	id S263953AbTJFDBt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 23:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263954AbTJFDBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 22:37:51 -0400
-Received: from h80ad26c9.async.vt.edu ([128.173.38.201]:17536 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263078AbTJFChu (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 22:37:50 -0400
-Message-Id: <200310060237.h962baCE012938@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Jan Schubert <Jan.Schubert@GMX.li>
-Cc: linux-kernel@vger.kernel.org, dz@debian.org
-Subject: Re: 2.6.0_test6: CONFIG_I8K produces wrong/no keycodes for special buttons 
-In-Reply-To: Your message of "Sat, 04 Oct 2003 12:17:11 +0200."
-             <3F7E9E27.20500@GMX.li> 
-From: Valdis.Kletnieks@vt.edu
-References: <3F7E9E27.20500@GMX.li>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1024141176P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 05 Oct 2003 22:37:36 -0400
+	Sun, 5 Oct 2003 23:01:49 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:28933 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263953AbTJFDBs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 23:01:48 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
+Date: 6 Oct 2003 02:52:12 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <blqlcs$dfg$1@gatekeeper.tmr.com>
+References: <1065139380.736.109.camel@cube> <Pine.LNX.4.44.0310021720510.7833-100000@home.osdl.org>
+X-Trace: gatekeeper.tmr.com 1065408732 13808 192.168.12.62 (6 Oct 2003 02:52:12 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1024141176P
-Content-Type: text/plain; charset=us-ascii
+In article <Pine.LNX.4.44.0310021720510.7833-100000@home.osdl.org>,
+Linus Torvalds  <torvalds@osdl.org> wrote:
+| 
+| On 2 Oct 2003, Albert Cahalan wrote:
+| > 
+| > No. I mean "ban" like we ban CLONE_THREAD w/o CLONE_DETACHED.
+| 
+| No. Let's not do that.
+| 
+| We ban only things that do not make sense. That was true of trying to 
+| share signal handlers with different address spaces. But it is _not_ true 
+| of having separate file descriptors for different threads.
+| 
+| I don't imagine anybody cares _that_ deeply about fuser that it can't 
+| afford to recurse into thread directories.
+| 
+| And it may or may not make sense to not have a "/proc/<nn>/task/<yy>/fd"
+| directory at all if the thread shares file descriptors with the thread 
+| group leader. That would be a fairly easy optimization.
 
-On Sat, 04 Oct 2003 12:17:11 +0200, Jan Schubert <Jan.Schubert@GMX.li>  said:
-> There are 4 special buttons on dell-laptops which you could only get to 
-> work using CONFIG_I8K.
+I think Albert has a good point on performance, since nothing is using
+the ability to have separate fd sets, I can't see it as a requirement.
+However, I have an application which has a lot of files and sockets
+open, and I think having the separation may make things far nicer when
+not all the threads need have everything open.
 
-I'm assuming you're talking about the Inspiron line of laptops?  The Latitude
-series doesn't have said 4 buttons (or at least on my Latitude C840, there are
-no such buttons)
+But if there are going to be both kinds of threaded processes, there
+should be a good way to tell if a program like lsof needs to chase every
+thread or not. I'm not totally sure what Albert has in mind for
+/proc/task, but if there were a way to create subdirs only for threads
+with separate fd space, that would be one approach.
 
---==_Exmh_-1024141176P
-Content-Type: application/pgp-signature
+lsof is painful now, hopefully for things which share fd it can be much
+faster.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/gNVwcC3lWbTT17ARAmaoAKDk2XRJYwKlVGn3ml2K3gqLvlvtzgCgnJEG
-qcKkVf6u+etJHzSkTV3RdMQ=
-=HsV+
------END PGP SIGNATURE-----
-
---==_Exmh_-1024141176P--
+And how does this new capability fit with SUS, if at all?
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

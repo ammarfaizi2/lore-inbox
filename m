@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVBOVKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVBOVQV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbVBOVKB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 16:10:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVBOVKB
+	id S261888AbVBOVQV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 16:16:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVBOVQV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 16:10:01 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:13329 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261887AbVBOVJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 16:09:46 -0500
-Message-Id: <200502152109.j1FL92HG023685@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Diego Calleja <diegocg@gmail.com>, prakashp@arcor.de,
-       paolo.ciarrocchi@gmail.com, gregkh@suse.de, pmcfarland@downeast.net,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 001 release 
-In-Reply-To: Your message of "Tue, 15 Feb 2005 14:51:06 EST."
-             <1108497066.7826.33.camel@krustophenia.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net> <20050211011609.GA27176@suse.de> <1108354011.25912.43.camel@krustophenia.net> <4d8e3fd305021400323fa01fff@mail.gmail.com> <42106685.40307@arcor.de> <1108422240.28902.11.camel@krustophenia.net> <20050215004329.5b96b5a1.diegocg@gmail.com>
-            <1108497066.7826.33.camel@krustophenia.net>
+	Tue, 15 Feb 2005 16:16:21 -0500
+Received: from bay102-f19.bay102.hotmail.com ([64.4.61.29]:62683 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261888AbVBOVQS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 16:16:18 -0500
+Message-ID: <BAY102-F19E1EAF2890ED05756D241AE6B0@phx.gbl>
+X-Originating-IP: [64.90.198.61]
+X-Originating-Email: [jocosby@hotmail.com]
+In-Reply-To: <1108501139.3772.2.camel@krustophenia.net>
+From: "Joseph Cosby" <jocosby@hotmail.com>
+To: rlrevell@joe-job.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 IO-APIC + timer doesn't work! with VMWare 4
+Date: Tue, 15 Feb 2005 14:15:08 -0700
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1108501741_4257P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 15 Feb 2005 16:09:02 -0500
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 15 Feb 2005 21:16:01.0331 (UTC) FILETIME=[8CD54030:01C513A3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1108501741_4257P
-Content-Type: text/plain; charset=us-ascii
+Thank you Lee,
+  I haven't contacted them, but will do so now upon your suggestion. I did 
+look through their support forums but did not find what I was looking for.
 
-On Tue, 15 Feb 2005 14:51:06 EST, Lee Revell said:
+Joseph
 
-> I wonder if XP's solution is patented.
+>From: Lee Revell <rlrevell@joe-job.com>
+>To: Joseph Cosby <jocosby@hotmail.com>
+>CC: linux-kernel@vger.kernel.org
+>Subject: Re: 2.6.9 IO-APIC + timer doesn't work! with VMWare 4
+>Date: Tue, 15 Feb 2005 15:58:59 -0500
+>
+>On Tue, 2005-02-15 at 13:29 -0700, Joseph Cosby wrote:
+> > Hi,
+> >   Using VMWare 4 with a 2.6.9 kernel I get "IO-APIC + timer doesn't 
+>work!"
+> > As suggested, the noapic option fixes the problem. This resulted after
+> > adding APIC support to my kernel. My problem is, I need APIC support to 
+>boot
+> > on a separate, non-VMWare machine, and I need to keep the kernel and 
+>boot
+> > params the same on both machines.
+> >   Aside from disabling APIC support, and running with the noapic 
+>parameter,
+> > can anybody suggest how to get this running on the VMware machine?
+>
+>Did you ask VMWare about it?
+>
+>Lee
+>
 
-If it is, IBM's OS/360 and OS/VS1 and MVS had prior art way back in the 70's.
-There were *plenty* of products that would look at the system call usage and
-spit out an ordered load list for SYS1.LINKLIB and SYS1.LPALIB - so the idea of
-machine-optimizing the list of things to cache for a fast startup is *not*
-new.
+_________________________________________________________________
+Express yourself instantly with MSN Messenger! Download today - it's FREE! 
+http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
 
-I'd not be surprised to find out that somebody did something like that on the 7094 ;)
-
-
---==_Exmh_1108501741_4257P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCEmTtcC3lWbTT17ARAhDHAKDemp78nnSpKrXjFs0bqqrQj0U6SQCdGRT7
-MCUa2ow+2uYNJBLYWvbZjJ0=
-=leTS
------END PGP SIGNATURE-----
-
---==_Exmh_1108501741_4257P--

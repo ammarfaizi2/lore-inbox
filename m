@@ -1,72 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317458AbSGOM0F>; Mon, 15 Jul 2002 08:26:05 -0400
+	id <S315717AbSGOMiB>; Mon, 15 Jul 2002 08:38:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317462AbSGOM0E>; Mon, 15 Jul 2002 08:26:04 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:12727 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S317458AbSGOM0D>; Mon, 15 Jul 2002 08:26:03 -0400
-Date: Mon, 15 Jul 2002 14:27:13 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207151227.g6FCRDlo020618@burner.fokus.gmd.de>
-To: andre@linux-ide.org, schilling@fokus.gmd.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
+	id <S317450AbSGOMiA>; Mon, 15 Jul 2002 08:38:00 -0400
+Received: from cmailg7.svr.pol.co.uk ([195.92.195.177]:7793 "EHLO
+	cmailg7.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S315717AbSGOMiA>; Mon, 15 Jul 2002 08:38:00 -0400
+Date: Mon, 15 Jul 2002 13:40:35 +0100
+To: Andrew Theurer <habanero@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-lvm@sistina.com
+Subject: Re: [Announce] device-mapper beta3 (fast snapshots)
+Message-ID: <20020715124035.GA4609@fib011235813.fsnet.co.uk>
+References: <3D2F6464.60908@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D2F6464.60908@us.ibm.com>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Andre Hedrick <andre@linux-ide.org>
+Andrew,
 
->> >Now your silly PCATA stupid ass Tailgate Bridge that you are boasting
->> >about does some of the worst things anyone could ever imagine.
->> 
->> ???? Looks stupid (like dou did not get the message).
+On Fri, Jul 12, 2002 at 06:21:08PM -0500, Andrew Theurer wrote:
+> Thanks for the results.  I tried the same thing, but with the latest 
+> release (beta 4) and I am not observing the same behavior.
 
->I guess I need to break it down to simple terms, and hoped that your
->broadcast in expertise could cover your mouth.  This makes it harder for
->me because I do not communicate well over email.
+I've just read through the evms 1.1-pre4 code.
 
->Firewire 1394, USB, Parallel Port, PCMCIA/CardBus are all effective
->tailgates via an alternate physical transport layer and protocol.
->Therefore it should be obvious many different versions of the hardware get
->it wrong.  Now in other operating system which are commerial based, there
->are device specific drivers to perform soft-protocol corrections to
->generate the appearance of a perfect product.  Much as in optics, here is
->another case where two wrongs make a right.  COSTAR for Hubble Space
->Telescope is real world example.
+You (or Kevin Corry rather) have obviously looked at the
+device-mapper snapshot code and tried to reimplement it.  I think it
+might have been better if you'd actually used the relevent files from
+device-mapper such as the kcopyd daemon.
 
-If _you_ had the experience you pretend, then why do you claim that the fact 
-that I cannot use ide-scsi with a PCATA connection to my CD writer is caused
-by bad hardware?
+Also I have serious concerns about the correctness of your
+implementation, for example:
 
-As the drive becomes usable with CDROM_SEND_PACKET and is completely unusable 
-via ide-scsi it is obvious that the reason cannot be a hardware problem but must 
-be a driver design bug.
+i) It is possible for the exception table to be updated *before* the
+   copy on write of the data actually occurs.  This means that briefly
+   the on disk state of the snapshot is inconsistent.  Users of EVMS
+   that experience a machine failure will therefor have no option but to
+   delete all snapshots.
 
+ii) The exception table is only written out every
+    (EVMS_VSECTOR_SIZE/sizeof(u_int64_t)) exceptions.  Surely I've misread
+    the code here ?  This would mean I could have a machine that
+    triggers 1 fewer exceptions than this, then does nothing to this
+    volume, at no point would the exception table get written to disk?
+    Or do you periodically flush the exception table as well ?
+    Again if the machine crashed the snapshot would be useless.
 
->If you knew anything about the production industry, and maybe you do, it
->would be obvious that most of the Far East and Pacific Ring hardware
->people are still creating product based on SFF-8020 a retired document.
+iii) EVMS is writing the exception table data to the cow device
+     asynchronously, you *cannot* do this without risking deadlocks with
+     the VM system.
 
-If this affects the drivers, then there need to be a workaround regardless of 
-the driver layering model in use.
-
->> I am not whining, but you answer with  unrelated stuff. Why? Are you missing
->> experience and arguments?
-
->I just asked you for a formal preferred model coresponding to READ/WRITE
->10/16 fixed to the OS standard CDB as the base of a Packet Interface, yet
->you counter with a redirect. :-/
-
->Put up or shut up.
-
->Insert "Joerg Schilling" Perfect Packet Interface for review.
-
-Why didn't you read my short abstract I send out yesterday?
-
-Jörg
-
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix
+- Joe

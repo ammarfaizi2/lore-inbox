@@ -1,90 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261424AbSJQNRN>; Thu, 17 Oct 2002 09:17:13 -0400
+	id <S261418AbSJQNe0>; Thu, 17 Oct 2002 09:34:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261449AbSJQNRN>; Thu, 17 Oct 2002 09:17:13 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:6407 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S261424AbSJQNQX>; Thu, 17 Oct 2002 09:16:23 -0400
-Message-Id: <200210171322.g9HDME7o024177@pincoya.inf.utfsm.cl>
-To: GrandMasterLee <masterlee@digitalroadkill.net>
-cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Posix capabilities 
-In-Reply-To: Message from GrandMasterLee <masterlee@digitalroadkill.net> 
-   of "16 Oct 2002 23:00:20 CDT." <1034827220.32333.69.camel@localhost> 
-Date: Thu, 17 Oct 2002 10:22:14 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S261452AbSJQNe0>; Thu, 17 Oct 2002 09:34:26 -0400
+Received: from mail.hometree.net ([212.34.181.120]:40101 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S261418AbSJQNeZ>; Thu, 17 Oct 2002 09:34:25 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Posix capabilities
+Date: Thu, 17 Oct 2002 13:40:23 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <aomek7$vh1$1@forge.intermeta.de>
+References: <20021016154459.GA982@TK150122.tuwien.teleweb.at> <874rblcpw5.fsf@goat.bogus.local>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1034862023 26833 212.34.181.4 (17 Oct 2002 13:40:23 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Thu, 17 Oct 2002 13:40:23 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GrandMasterLee <masterlee@digitalroadkill.net> said:
-> On Wed, 2002-10-16 at 22:26, Theodore Ts'o wrote:
+Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de> writes:
 
-[...]
+>So you claim, system administrators are stupid people?
 
-> > Personally, I'm not so convinced that capabilities are such a great
-> > idea.  System administrators have a hard enough time keeping 12 bits
-> > of permissions correct on executable files; with capabilities they
-> > have to keep track of several hundred bits of capabilties flags, which
-> > must be set precisely correctly, or the programs will either (a) fail
-> > to function, or (b) have a gaping huge security hole.  
+Yes, definitely. There are lots of incredibly stupid admins out
+there. There are some smart, some really smart, some smart-asses and
+some paranoids but 99% of the people that call themselves "admins" are
+unbelievably stupid. No matter how many different three-to-five letter
+acronyms trail their names.
 
-Nodz.
+This is true for every OS out there. Look at the mess that the NT
+rights management created... :-)
 
-> While working with LIDS in it's early stages of implementation, and
-> having written some documentation around CAPs and  extended attributes,
-> as well as managing that environment, I see value in CAPs, but I see it
-> a difficult task to say, manage 100 servers with very tight CAPs set. 
+	Regards
+		Henning
 
-It is easier on the sysadmin for the people upstream (developers,
-distributors, ...) to set up stuff sanely in the executable. Sure, a lot of
-flexibility is lost this way.
-
-> > This probablem could be solved with some really scary, complex user
-> > tools (which no one has written yet). 
-
-> Looking at CA Unicenter, they have an ACLs and CAPs product which does
-> centralized management of those attributes to keep the configs sane
-> across your environment. Not trying to advertise for them, but the point
-> is, if a commercial product exists to do this, then it should be highly
-> possible in the OSS community as well.
-
-Sorry, but I gather the vast mayority of Linux instalations to be
-single-machine (home use, ...). I have yet to see a hundred-machine setup
-myself (maximal is some 30 around here), so this is out of the league of
-most people anyway. Plus Linux is falling more and more into the hands of
-the unwashed masses, who have a dificult time remembering not to do
-everything as root (leave alone fix up permissions).
-
-> >  Alternatively you could just
-> > let programs continue to be setuid root, but modify the executable to
-> > explicitly drop all the capabilities except for the ones that are
-> > actually needed as one of the first things that executable does.
-> 
-> To make management easy for the admins when I dealt with LIDS and making
-> it *very* tight, I had to write several wrappers, replace commands, etc
-> so they ran chrooted automatically, etc. It was a PITA. Cool when it
-> worked, but it was still a PITA.
-
-But a once-in-the-development PITA, not a once-for-each-installation PITA
-
-> > It perhaps only gives you 90% of the benefits of the full-fledged
-> > capabilities model, but it's much more fool proof, and much easier to
-> > administer.
-
-> Perhaps exntending the security module to actually have a centralized
-> host configuration utility, using say AES or diffie-hellman and SSL or
-> SSH to do the configuration management of this. Centralizing, or
-> distributing the management of this, but with a decided upon security
-> architecture is what, imho, will actually make this type of
-> configuration very useable, and manageable. 
-
-Have you seen any such centralized configuration management in real use?
-The nearest we come here is Red Hat's kickstart for configuring the whole
-Lab (mostly) the same when installing, and that is for only slightly
-heterogeneous machines that must look the same to users.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

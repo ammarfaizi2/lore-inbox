@@ -1,27 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317673AbSGJXWR>; Wed, 10 Jul 2002 19:22:17 -0400
+	id <S317678AbSGJXfC>; Wed, 10 Jul 2002 19:35:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317674AbSGJXWQ>; Wed, 10 Jul 2002 19:22:16 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39954 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317672AbSGJXWP>; Wed, 10 Jul 2002 19:22:15 -0400
+	id <S317679AbSGJXfC>; Wed, 10 Jul 2002 19:35:02 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49936 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317678AbSGJXfA>; Wed, 10 Jul 2002 19:35:00 -0400
+Date: Thu, 11 Jul 2002 00:37:43 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Pavel Machek <pavel@ucw.cz>,
+       "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
 Subject: Re: [OT] /proc/cpuinfo output from some arch
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Thu, 11 Jul 2002 00:47:18 +0100 (BST)
-Cc: hpa@zytor.com (H. Peter Anvin), pavel@ucw.cz (Pavel Machek),
-       acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org
-In-Reply-To: <20020711001549.D17806@flint.arm.linux.org.uk> from "Russell King" at Jul 11, 2002 12:15:49 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Message-ID: <20020711003743.B25089@flint.arm.linux.org.uk>
+References: <20020711001549.D17806@flint.arm.linux.org.uk> <E17SRB0-00086D-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17SRB0-00086D-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E17SRB0-00086D-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jul 11, 2002 at 12:47:18AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What about /proc/sys/cpu/<number>/<datapoint> ?
+On Thu, Jul 11, 2002 at 12:47:18AM +0100, Alan Cox wrote:
+> > What about /proc/sys/cpu/<number>/<datapoint> ?
+> 
+> What happens if the cpus are hot plugged and change ID while doing the
+> config 8)
 
-What happens if the cpus are hot plugged and change ID while doing the
-config 8)
+As far as SMP systems and cpufreq is concerned, we're going to have
+a /proc/sys/cpu/all/ as well - you can't control the clock rate of
+each cpu independently on such systems (otherwise they wouldn't be
+very symetric.)
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

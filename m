@@ -1,60 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261651AbTCLNte>; Wed, 12 Mar 2003 08:49:34 -0500
+	id <S263182AbTCLOAc>; Wed, 12 Mar 2003 09:00:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263179AbTCLNte>; Wed, 12 Mar 2003 08:49:34 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:19719 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261651AbTCLNtd>; Wed, 12 Mar 2003 08:49:33 -0500
-Date: Wed, 12 Mar 2003 13:59:54 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Torsten Foertsch <torsten.foertsch@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.19] How to get the path name of a struct dentry
-Message-ID: <20030312135954.A11564@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Torsten Foertsch <torsten.foertsch@gmx.net>,
-	linux-kernel@vger.kernel.org
-References: <200303121033.08560.torsten.foertsch@gmx.net> <20030312104741.A9625@infradead.org> <200303121404.04979.torsten.foertsch@gmx.net> <200303121432.51329.torsten.foertsch@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200303121432.51329.torsten.foertsch@gmx.net>; from torsten.foertsch@gmx.net on Wed, Mar 12, 2003 at 02:32:47PM +0100
+	id <S263183AbTCLOAb>; Wed, 12 Mar 2003 09:00:31 -0500
+Received: from [199.33.245.55] ([199.33.245.55]:2965 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S263182AbTCLOAa>; Wed, 12 Mar 2003 09:00:30 -0500
+Date: Wed, 12 Mar 2003 09:11:02 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: problem w/ auto negotiate & ns83820 & netgear fsm726s switch
+Message-ID: <Pine.LNX.4.53.0303120908470.21265@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 12, 2003 at 02:32:47PM +0100, Torsten Foertsch wrote:
-> 
-> char*
-> full_d_path( struct dentry *dentry,
-> 	     struct vfsmount *vfsmnt,
-> 	     char *buf, int buflen ) {
->   char *res;
->   struct vfsmount *rootmnt;
->   struct dentry *root;
->   struct namespace *ns;
-> 
->   ns=current->namespace;
-> /*   get_namespace( ns ); */
 
-you want to keep this.
+	Hello All ,  I am having a dickens of a time with auto negotiation
+	between a netgear fsm726s & a TrendNet TEG-PCISX+ .  Fyi ,  Which
+	I bought just for this card .
 
->   rootmnt=mntget( ns->root );
-> /*   put_namespace( ns ); */
+	The switch reports negotiating ...
+	Port Name        Link On/Off State      Rate/Duplex Flow Ctrl
+	26GB Not Defined Up   On     Forwarding (10   Full) (Disabled)
 
-do the put once you're completly done with it
+	ns83820 reports ,  eth0: link now 1000F mbps, full duplex and up.
 
-> 
->   root = dget(rootmnt->mnt_root);
-> 
->   spin_lock(&dcache_lock);
->   res = __d_path(dentry, vfsmnt, root, rootmnt, buf, buflen);
->   spin_unlock(&dcache_lock);
-> 
->   dput(root);
->   mntput(rootmnt);
->   return res;
+	The thruput to a 10/100 device is dismal at best .  Which
+	lead me to the idea that something was wrong with negotiation .
+	See (*) below .
 
-looks okay to me otherwise.
+	I have attempted to set the switch port speed/duplex/flow manually
+	then I am unable to ping thru the ns83820 card .
 
+	I am quite aware that this could well be a difficulty in the
+	switch still .  So I am looking for pointers on where to look ?
+ 	I already tried the netgear suport site ;-} .  That is why I am
+	running the lastest code for the switch (1.0.4) .
+
+		Tia ,  JimL
+
+# uname -a
+Linux filesrv1 2.4.21-pre3 #1 SMP Sat Mar 8 13:44:59 EST 2003 i686 unknown
+
+# dmesg | grep eth0
+ns83820.c: National Semiconductor DP83820 10/100/1000 driver.
+eth0: ns83820.c: 0x22c: f022100b, subsystem: 100b:f022
+eth0: detected 64 bit PCI data bus.
+eth0: enabling optical transceiver
+eth0: ns83820 v0.20: DP83820 v1.3: 00:40:f4:66:df:ed io=0xfeafe000 irq=20 f=sg
+...
+eth0: link now 1000F mbps, full duplex and up.
+eth0: no IPv6 routers present
+
+cut-n-paste from serial console of ...
+                        FSM726S Managed Stackable Switch
+ Unit   1                 Set-up > Port Configuration
+
+Port    Name             Link   On/Off   State        Rate/Duplex   Flow Ctrl
+...
+ 2      Not Defined      Up       On     Forwarding   (100  Full)   (Enabled )
+...
+26GB    Not Defined      Up       On     Forwarding   (10   Full)   (Disabled)
+
+
+(*)
+# tftp filesrv1
+tftp> mode binary
+tftp> get getme
+Received 495321088 bytes in 334.0 seconds
+tftp> quit
+
+# bc
+This is free software with ABSOLUTELY NO WARRANTY.
+For details type `warranty'.
+scale=10
+495321088/334
+1482997.2694610778	< Bytes/sec
+last*8
+11863978.1556886224	< ~ bits/sec
+quit
+#
+
+-- 
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+

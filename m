@@ -1,77 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263212AbTFGPSC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 11:18:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbTFGPSC
+	id S263201AbTFGPaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 11:30:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbTFGPaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 11:18:02 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:25553 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263201AbTFGPR7
+	Sat, 7 Jun 2003 11:30:09 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:32212 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263201AbTFGPaG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 11:17:59 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 7 Jun 2003 11:30:06 -0400
+Date: Sat, 7 Jun 2003 17:43:15 +0200 (MET DST)
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Adrian Bunk <bunk@fs.tum.de>
-Subject: [PATCH] Re: 2.5.70-mm5: sc1200.c compile error if !CONFIG_PROC_FS
-Date: Sat, 7 Jun 2003 17:31:28 +0200
-User-Agent: KMail/1.4.1
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Paul Mackerras <paulus@samba.org>
+cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Move BUG/BUG_ON/WARN_ON to asm headers
+In-Reply-To: <16097.56616.35782.882995@argo.ozlabs.ibm.com>
+Message-ID: <Pine.SOL.4.30.0306071738580.28622-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200306071731.28130.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Fixed now.
+Hi Paul,
+
+What about adding asm-generic/bug.h ?
 --
 Bartlomiej
 
-[ide] fix compilation of NS SC1x00 driver without procfs
+On Sat, 7 Jun 2003, Paul Mackerras wrote:
 
- drivers/ide/pci/sc1200.c |   22 +++++++++++-----------
- 1 files changed, 11 insertions(+), 11 deletions(-)
+> Linus,
+>
+> This patch moves the definitions of BUG, BUG_ON and WARN_ON from
+> <linux/kernel.h> to <asm/bug.h> (which <linux/kernel.h> includes), and
+> supplies a new implementation for PPC which uses a conditional trap
+> instruction for BUG_ON and WARN_ON, thus avoiding a conditional
+> branch.  This patch trims over 50kB from the size of the kernel that I
+> use on powermacs.
+>
+> With this patch, on PPC we have a __bug_table section in the vmlinux
+> binary, and also in modules if they use BUG, BUG_ON or WARN_ON.  The
+> __bug_table section has one entry for each BUG/BUG_ON/WARN_ON, giving
+> the address of the trap instruction and the corresponding line number,
+> filename and function name.  This information is used in the exception
+> handler for the exception that the trap instruction produces.  The
+> arch-specific module code handles the __bug_table section so that
+> BUG/BUG_ON/WARN_ON work correctly in modules.
+>
+> Several architecture maintainers have acked this change.  It should be
+> completely benign for all of the other architectures (though they may
+> decide to do something similar if they have a conditional trap
+> instruction available).
+>
+> Please apply.
+>
+> Thanks,
+> Paul.
 
-diff -puN drivers/ide/pci/sc1200.c~ide-sc1200-noprocfs-fix drivers/ide/pci/sc1200.c
---- linux-2.5.70-bk11/drivers/ide/pci/sc1200.c~ide-sc1200-noprocfs-fix	Sat Jun  7 17:15:46 2003
-+++ linux-2.5.70-bk11-root/drivers/ide/pci/sc1200.c	Sat Jun  7 17:22:15 2003
-@@ -32,17 +32,6 @@
- #include "ide_modes.h"
- #include "sc1200.h"
- 
--#define DISPLAY_SC1200_TIMINGS
--
--#if defined(DISPLAY_SC1200_TIMINGS) && defined(CONFIG_PROC_FS)
--#include <linux/stat.h>
--#include <linux/proc_fs.h>
--
--static int sc1200_get_info(char *, char **, off_t, int);
--extern int (*sc1200_display_info)(char *, char **, off_t, int); /* ide-proc.c */
--extern char *ide_media_verbose(ide_drive_t *);
--static u8 sc1200_proc = 0;
--
- #define SC1200_REV_A	0x00
- #define SC1200_REV_B1	0x01
- #define SC1200_REV_B3	0x02
-@@ -81,6 +70,17 @@ static unsigned short sc1200_get_pci_clo
- 	return pci_clock;
- }
- 
-+#define DISPLAY_SC1200_TIMINGS
-+
-+#if defined(DISPLAY_SC1200_TIMINGS) && defined(CONFIG_PROC_FS)
-+#include <linux/stat.h>
-+#include <linux/proc_fs.h>
-+
-+static int sc1200_get_info(char *, char **, off_t, int);
-+extern int (*sc1200_display_info)(char *, char **, off_t, int); /* ide-proc.c */
-+extern char *ide_media_verbose(ide_drive_t *);
-+static u8 sc1200_proc = 0;
-+
- static struct pci_dev *bmide_dev;
- 
- static int sc1200_get_info (char *buffer, char **addr, off_t offset, int count)
-
-_
 

@@ -1,71 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267771AbRG3UXh>; Mon, 30 Jul 2001 16:23:37 -0400
+	id <S267805AbRG3Ua1>; Mon, 30 Jul 2001 16:30:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267784AbRG3UX1>; Mon, 30 Jul 2001 16:23:27 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:45894 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S267771AbRG3UXS>; Mon, 30 Jul 2001 16:23:18 -0400
-Date: Mon, 30 Jul 2001 22:21:33 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: "James A. Treacy" <treacy@home.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Random (hard) lockups
-Message-ID: <20010730222133.D26097@pckurt.casa-etp.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	"James A. Treacy" <treacy@home.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010729143401.A527@debian.org>
+	id <S267806AbRG3UaR>; Mon, 30 Jul 2001 16:30:17 -0400
+Received: from barbados.bluemug.com ([63.195.182.101]:51205 "EHLO
+	barbados.bluemug.com") by vger.kernel.org with ESMTP
+	id <S267790AbRG3UaJ>; Mon, 30 Jul 2001 16:30:09 -0400
+Date: Mon, 30 Jul 2001 13:29:57 -0700
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [CFT] initramfs patch
+Message-ID: <20010730132957.A20284@bluemug.com>
+Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
+	linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-fsdevel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0107300137550.16140-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gdTfX7fkYsEEjebm"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010729143401.A527@debian.org>
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux 2.4.7-SMP i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+In-Reply-To: <Pine.GSO.4.21.0107300137550.16140-100000@weyl.math.psu.edu>
+X-PGP-ID: 5C09BB33
+X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
+From: Mike Touloumtzis <miket@bluemug.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On Mon, Jul 30, 2001 at 02:05:55AM -0400, Alexander Viro wrote:
+> 
+> The thing unpacks cpio archive (currently - linked into the kernel image)
+> on root ramfs and execs /init. After that we are in userland code. Said
+> code (source in init/init.c and init/nfsroot.c) emulates the vanilla
+> 2.4 behaviour. You can replace it with your own - that's just the default
+> that gives (OK, is supposed to give) a backwards-compatible behaviour.
 
---gdTfX7fkYsEEjebm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+One thing that would make embedded systems developers very happy
+is the ability to map a romfs or cramfs filesystem directly from
+the kernel image, avoiding the extra copy necessitated by the cpio
+archive.  Are there problems with this approach?
 
-On Sun, Jul 29, 2001 at 02:34:01PM -0400, James A. Treacy wrote:
-> The machine is a 1GHz Athlon (266) on an MSI K7T Turbo with 256M ram,
-
-A 1.2GHz Athlon with the very same motherboard and the same amount of RAM
-seems to be stable with 2.4.7 and PPro or K6 optimizations and crashes
-during the init procedure if the kernel is optimized for K7.
-
-It seems that the board is sensitive to high memory bandwidth operations.
-This may be due to bad electrical design of the board or the chipset or due
-to bad chipset settings. (See thread VIA KT133A / athlon / MMX)
-
-It may be a good idea to play with BIOS settings or slow the machine down a
-bit.
-
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, DE                                SCSI, Security
-
---gdTfX7fkYsEEjebm
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7ZcHNxmLh6hyYd04RAumVAKDF9tAVsP7tFJHxR69kcC2aARpCNgCfSkEC
-RYyiYVs8izjgBwYBeW0YYMc=
-=lgEv
------END PGP SIGNATURE-----
-
---gdTfX7fkYsEEjebm--
+miket

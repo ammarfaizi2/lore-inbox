@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263305AbUCTKNI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 05:13:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbUCTKNI
+	id S263310AbUCTKON (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 05:14:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbUCTKON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 05:13:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27798 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263305AbUCTKNF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 05:13:05 -0500
-Message-ID: <405C191F.3020501@pobox.com>
-Date: Sat, 20 Mar 2004 05:12:47 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+	Sat, 20 Mar 2004 05:14:13 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:58771
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S263310AbUCTKOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 05:14:08 -0500
+Message-ID: <405C195B.10004@redhat.com>
+Date: Sat, 20 Mar 2004 02:13:47 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040319
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Chris Mason <mason@suse.com>
-Subject: Re: [PATCH] barrier patch set
-References: <20040319153554.GC2933@suse.de> <200403200140.59543.bzolnier@elka.pw.edu.pl> <405B936C.50200@pobox.com> <200403200224.14055.bzolnier@elka.pw.edu.pl> <20040320095820.GC2711@suse.de>
-In-Reply-To: <20040320095820.GC2711@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] error value for opening block devices
+X-Enigmail-Version: 0.83.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------030003010301040404040407"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> I agree with Bart, it's usually never that clear. Quit harping the
-> stupid LG issue, they did something brain dead in the firmware and I
-> almost have to say that they got what they deserved for doing something
-> as _stupid_ as that.
+This is a multi-part message in MIME format.
+--------------030003010301040404040407
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-I use it because it's an excellent illustration of what happens when you 
-ignore the spec.
+Opening a non-existing block device currently yields an ENXIO error.
+Doing the same for char devices produces the correct error ENODEV.
 
+The attached patch fixes the symptoms.  Somebody with more knowledge
+will have to decide whether there are any negative side effects.
 
-> Jeff, it's wonderful to think that you can always rely on checking spec
-> bits, but in reality it never really 'just works out' for any given set
-> of hardware.
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
 
-"just issue it and hope" is not a reasonable plan, IMO.
+--------------030003010301040404040407
+Content-Type: text/plain;
+ name="d-blk-enodev"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="d-blk-enodev"
 
-	Jeff
-
-
-
+LS0tIGZzL2Jsb2NrX2Rldi5jLXNhdmUJMjAwNC0wMy0xMiAxMTo0NDoxNC4wMDAwMDAwMDAg
+LTA4MDAKKysrIGZzL2Jsb2NrX2Rldi5jCTIwMDQtMDMtMjAgMDE6NTM6MTkuMDAwMDAwMDAw
+IC0wODAwCkBAIC01NTAsNyArNTUwLDcgQEAgc3RhdGljIGludCBkb19vcGVuKHN0cnVjdCBi
+bG9ja19kZXZpY2UgKgogewogCXN0cnVjdCBtb2R1bGUgKm93bmVyID0gTlVMTDsKIAlzdHJ1
+Y3QgZ2VuZGlzayAqZGlzazsKLQlpbnQgcmV0ID0gLUVOWElPOworCWludCByZXQgPSAtRU5P
+REVWOwogCWludCBwYXJ0OwogCiAJZmlsZS0+Zl9tYXBwaW5nID0gYmRldi0+YmRfaW5vZGUt
+PmlfbWFwcGluZzsKQEAgLTU2Myw2ICs1NjMsNyBAQCBzdGF0aWMgaW50IGRvX29wZW4oc3Ry
+dWN0IGJsb2NrX2RldmljZSAqCiAJfQogCW93bmVyID0gZGlzay0+Zm9wcy0+b3duZXI7CiAK
+KwlyZXQgPSAtRU5YSU87CiAJZG93bigmYmRldi0+YmRfc2VtKTsKIAlpZiAoIWJkZXYtPmJk
+X29wZW5lcnMpIHsKIAkJYmRldi0+YmRfZGlzayA9IGRpc2s7Cg==
+--------------030003010301040404040407--

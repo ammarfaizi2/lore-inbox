@@ -1,68 +1,294 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbUJ3Pb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbUJ3PdU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbUJ3Pb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 11:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbUJ3Paw
+	id S261267AbUJ3PdU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 11:33:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbUJ3PdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 11:30:52 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:50397 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S261193AbUJ3PIY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 11:08:24 -0400
-Date: Sat, 30 Oct 2004 17:08:10 +0200
-From: maximilian attems <janitor@sternwelten.at>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Nish Aravamudan <nish.aravamudan@gmail.com>, kj <kernel-janitors@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [KJ] 2.6.10-rc1-kjt1: ixgb_ethtool.c doesn't compile
-Message-ID: <20041030150810.GC7330@stro.at>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Nish Aravamudan <nish.aravamudan@gmail.com>,
-	kj <kernel-janitors@osdl.org>, linux-kernel@vger.kernel.org
-References: <20041024151241.GA1920@stro.at> <20041029235137.GG6677@stusta.de> <29495f1d04102921447ab65101@mail.gmail.com> <20041030050924.GA4374@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041030050924.GA4374@stusta.de>
-User-Agent: Mutt/1.5.6+20040722i
+	Sat, 30 Oct 2004 11:33:14 -0400
+Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:23699 "EHLO
+	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261198AbUJ3OjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 10:39:13 -0400
+Message-ID: <4183A77A.2090601@kolivas.org>
+Date: Sun, 31 Oct 2004 00:38:50 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Alexander Nyberg <alexn@dsv.su.se>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: [PATCH][plugsched 11/28] Make the family public
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig60C117A70E1CCF3F74E7EA77"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Oct 2004, Adrian Bunk wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig60C117A70E1CCF3F74E7EA77
+Content-Type: multipart/mixed;
+ boundary="------------050503070103030309030700"
 
-> On Fri, Oct 29, 2004 at 09:44:18PM -0700, Nish Aravamudan wrote:
-> > On Sat, 30 Oct 2004 01:51:37 +0200, Adrian Bunk <bunk@stusta.de> wrote:
-> > > On Sun, Oct 24, 2004 at 05:12:41PM +0200, maximilian attems wrote:
-> > > >...
-> > > > splitted out 168 patches:
-> > > > http://debian.stro.at/kjt/2.6.10-rc1-kjt1/split/
-> > > 
-> > > Could you provide a .tar.gz (or .tar.bz) of the splitted patches
-> > > (similar to how Andrew does for -mm)?
-> > 
-> > Do you mean like the one he provided?
-> > 
-> > please test out:
-> > http://debian.stro.at/kjt/2.6.10-rc1-kjt1/2.6.10-rc1-kjt1.patch.bz2
-> > 
-> > Admittedly, it's not tarred first, but still... Maybe you mean
-> > something else, though, and I'm just confused.
-> >...
-> 
-> No, I'd like to have a .tar.gz of the split directory, similar to
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9/2.6.9-mm1/2.6.9-mm1-broken-out.tar.gz
+This is a multi-part message in MIME format.
+--------------050503070103030309030700
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-thanks for the idea! done for all the older kjt releases. 
-you'll find latest:
-http://debian.stro.at/kjt/2.6.10-rc1-kjt1/2.6.10-rc1-kjt1-split.tar.bz2
-http://debian.stro.at/kjt/2.6.10-rc1-kjt1/2.6.10-rc1-kjt1-split.tar.gz
+   Make the family public
+
+
+--------------050503070103030309030700
+Content-Type: text/x-patch;
+ name="publicise_family.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="publicise_family.diff"
+
+Take all the relatives, siblings etc and make them public in scheduler.c
+
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
+
+
+Index: linux-2.6.10-rc1-mm2-plugsched1/kernel/sched.c
+===================================================================
+--- linux-2.6.10-rc1-mm2-plugsched1.orig/kernel/sched.c	2004-10-29 21:47:05.009044066 +1000
++++ linux-2.6.10-rc1-mm2-plugsched1/kernel/sched.c	2004-10-29 21:47:08.882439571 +1000
+@@ -3228,104 +3228,6 @@ out_unlock:
+ 	return retval;
+ }
  
-> This way, it would be easier to simply grep for a file causing a 
-> problem.
+-static inline struct task_struct *eldest_child(struct task_struct *p)
+-{
+-	if (list_empty(&p->children)) return NULL;
+-	return list_entry(p->children.next,struct task_struct,sibling);
+-}
+-
+-static inline struct task_struct *older_sibling(struct task_struct *p)
+-{
+-	if (p->sibling.prev==&p->parent->children) return NULL;
+-	return list_entry(p->sibling.prev,struct task_struct,sibling);
+-}
+-
+-static inline struct task_struct *younger_sibling(struct task_struct *p)
+-{
+-	if (p->sibling.next==&p->parent->children) return NULL;
+-	return list_entry(p->sibling.next,struct task_struct,sibling);
+-}
+-
+-static void show_task(task_t * p)
+-{
+-	task_t *relative;
+-	unsigned state;
+-	unsigned long free = 0;
+-	static const char *stat_nam[] = { "R", "S", "D", "T", "t", "Z", "X" };
+-
+-	printk("%-13.13s ", p->comm);
+-	state = p->state ? __ffs(p->state) + 1 : 0;
+-	if (state < ARRAY_SIZE(stat_nam))
+-		printk(stat_nam[state]);
+-	else
+-		printk("?");
+-#if (BITS_PER_LONG == 32)
+-	if (state == TASK_RUNNING)
+-		printk(" running ");
+-	else
+-		printk(" %08lX ", thread_saved_pc(p));
+-#else
+-	if (state == TASK_RUNNING)
+-		printk("  running task   ");
+-	else
+-		printk(" %016lx ", thread_saved_pc(p));
+-#endif
+-#ifdef CONFIG_DEBUG_STACK_USAGE
+-	{
+-		unsigned long * n = (unsigned long *) (p->thread_info+1);
+-		while (!*n)
+-			n++;
+-		free = (unsigned long) n - (unsigned long)(p->thread_info+1);
+-	}
+-#endif
+-	printk("%5lu %5d %6d ", free, p->pid, p->parent->pid);
+-	if ((relative = eldest_child(p)))
+-		printk("%5d ", relative->pid);
+-	else
+-		printk("      ");
+-	if ((relative = younger_sibling(p)))
+-		printk("%7d", relative->pid);
+-	else
+-		printk("       ");
+-	if ((relative = older_sibling(p)))
+-		printk(" %5d", relative->pid);
+-	else
+-		printk("      ");
+-	if (!p->mm)
+-		printk(" (L-TLB)\n");
+-	else
+-		printk(" (NOTLB)\n");
+-
+-	if (state != TASK_RUNNING)
+-		show_stack(p, NULL);
+-}
+-
+-void show_state(void)
+-{
+-	task_t *g, *p;
+-
+-#if (BITS_PER_LONG == 32)
+-	printk("\n"
+-	       "                                               sibling\n");
+-	printk("  task             PC      pid father child younger older\n");
+-#else
+-	printk("\n"
+-	       "                                                       sibling\n");
+-	printk("  task                 PC          pid father child younger older\n");
+-#endif
+-	read_lock(&tasklist_lock);
+-	do_each_thread(g, p) {
+-		/*
+-		 * reset the NMI-timeout, listing all files on a slow
+-		 * console might take alot of time:
+-		 */
+-		touch_nmi_watchdog();
+-		show_task(p);
+-	} while_each_thread(g, p);
+-
+-	read_unlock(&tasklist_lock);
+-}
+-
+ static void __devinit ingo_init_idle(task_t *idle, int cpu)
+ {
+ 	runqueue_t *rq = cpu_rq(cpu);
+Index: linux-2.6.10-rc1-mm2-plugsched1/kernel/scheduler.c
+===================================================================
+--- linux-2.6.10-rc1-mm2-plugsched1.orig/kernel/scheduler.c	2004-10-29 21:47:05.010043910 +1000
++++ linux-2.6.10-rc1-mm2-plugsched1/kernel/scheduler.c	2004-10-29 21:47:08.883439414 +1000
+@@ -635,6 +635,104 @@ void __sched yield(void)
+ 
+ EXPORT_SYMBOL(yield);
+ 
++static inline struct task_struct *eldest_child(struct task_struct *p)
++{
++	if (list_empty(&p->children)) return NULL;
++	return list_entry(p->children.next,struct task_struct,sibling);
++}
++
++static inline struct task_struct *older_sibling(struct task_struct *p)
++{
++	if (p->sibling.prev==&p->parent->children) return NULL;
++	return list_entry(p->sibling.prev,struct task_struct,sibling);
++}
++
++static inline struct task_struct *younger_sibling(struct task_struct *p)
++{
++	if (p->sibling.next==&p->parent->children) return NULL;
++	return list_entry(p->sibling.next,struct task_struct,sibling);
++}
++
++static void show_task(task_t * p)
++{
++	task_t *relative;
++	unsigned state;
++	unsigned long free = 0;
++	static const char *stat_nam[] = { "R", "S", "D", "T", "t", "Z", "X" };
++
++	printk("%-13.13s ", p->comm);
++	state = p->state ? __ffs(p->state) + 1 : 0;
++	if (state < ARRAY_SIZE(stat_nam))
++		printk(stat_nam[state]);
++	else
++		printk("?");
++#if (BITS_PER_LONG == 32)
++	if (state == TASK_RUNNING)
++		printk(" running ");
++	else
++		printk(" %08lX ", thread_saved_pc(p));
++#else
++	if (state == TASK_RUNNING)
++		printk("  running task   ");
++	else
++		printk(" %016lx ", thread_saved_pc(p));
++#endif
++#ifdef CONFIG_DEBUG_STACK_USAGE
++	{
++		unsigned long * n = (unsigned long *) (p->thread_info+1);
++		while (!*n)
++			n++;
++		free = (unsigned long) n - (unsigned long)(p->thread_info+1);
++	}
++#endif
++	printk("%5lu %5d %6d ", free, p->pid, p->parent->pid);
++	if ((relative = eldest_child(p)))
++		printk("%5d ", relative->pid);
++	else
++		printk("      ");
++	if ((relative = younger_sibling(p)))
++		printk("%7d", relative->pid);
++	else
++		printk("       ");
++	if ((relative = older_sibling(p)))
++		printk(" %5d", relative->pid);
++	else
++		printk("      ");
++	if (!p->mm)
++		printk(" (L-TLB)\n");
++	else
++		printk(" (NOTLB)\n");
++
++	if (state != TASK_RUNNING)
++		show_stack(p, NULL);
++}
++
++void show_state(void)
++{
++	task_t *g, *p;
++
++#if (BITS_PER_LONG == 32)
++	printk("\n"
++	       "                                               sibling\n");
++	printk("  task             PC      pid father child younger older\n");
++#else
++	printk("\n"
++	       "                                                       sibling\n");
++	printk("  task                 PC          pid father child younger older\n");
++#endif
++	read_lock(&tasklist_lock);
++	do_each_thread(g, p) {
++		/*
++		 * reset the NMI-timeout, listing all files on a slow
++		 * console might take alot of time:
++		 */
++		touch_nmi_watchdog();
++		show_task(p);
++	} while_each_thread(g, p);
++
++	read_unlock(&tasklist_lock);
++}
++
+ extern struct sched_drv ingo_sched_drv;
+ static const struct sched_drv *scheduler = &ingo_sched_drv;
+ 
 
-thanks a lot for the testing.
 
---
-maks
-kernel janitor  	http://janitor.kernelnewbies.org/
+--------------050503070103030309030700--
 
+--------------enig60C117A70E1CCF3F74E7EA77
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBg6d6ZUg7+tp6mRURAnjvAJ9T3JI/XjhIkWVS8DcX9qYjqJdD6gCdE/gb
+QpdPZ6kcFCoM/zSP04oCj/U=
+=XLDH
+-----END PGP SIGNATURE-----
+
+--------------enig60C117A70E1CCF3F74E7EA77--

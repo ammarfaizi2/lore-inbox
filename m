@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262864AbTKCUM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 15:12:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262937AbTKCUM0
+	id S263354AbTKCU0T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 15:26:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263400AbTKCU0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 15:12:26 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:43494 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S262864AbTKCUMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 15:12:25 -0500
-Date: Mon, 3 Nov 2003 21:12:23 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: how to restart userland?
-Message-ID: <20031103201223.GC16820@louise.pinerecords.com>
-References: <20031103193940.GA16820@louise.pinerecords.com> <200311032003.hA3K3tgv017273@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311032003.hA3K3tgv017273@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.1i
+	Mon, 3 Nov 2003 15:26:19 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:157 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S263354AbTKCUYd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 15:24:33 -0500
+Message-ID: <3FA6B97C.6070707@softhome.net>
+Date: Mon, 03 Nov 2003 21:24:28 +0100
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Muli Ben-Yehuda <mulix@mulix.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: How provoke call stack trace
+References: <3FA6A0AF.2070300@softhome.net> <20031103185334.GS32115@actcom.co.il>
+In-Reply-To: <20031103185334.GS32115@actcom.co.il>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov-03 2003, Mon, 15:03 -0500
-Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
-
-> On Mon, 03 Nov 2003 20:39:40 +0100, Tomas Szepe <szepe@pinerecords.com>  said:
-> > Would anyone know of a proven way to completely restart the userland
-> > of a Linux system?
+Muli Ben-Yehuda wrote:
+> On Mon, Nov 03, 2003 at 07:38:39PM +0100, Ihar 'Philips' Filipau wrote:
 > 
-> This would be distinct from 'shutdown -r' how?
+> 
+>>   Is there any function which can be used by module to just 
+>>investigate some given call path?
+> 
+> 
+> Assuming 2.6, call dump_stack(). If you want greater flexibility,
+> investigate show_trace() and friends. 
+> 
+> Hope this helps, 
 
-No reboot.
+   I'm sitting right now on 2.4.22 - so no 2.6 nicities.
+   I actually wanted to have something like this on ppc - but ppc has no 
+dump_stack() implemented.
 
-> Is there a reason you want to "completely" restart userland and *not*
-> reboot (for instance, wanting to keep existing mounts, etc)?
+   Thanks any way.
 
-Extensive userland upgrades (glibc is a nice example I guess), etc.
-
-> A case could be made that for a "complete" restart, you need to trash
-> those mounts too (if you're restarting to get a 'clean' setup, you want
-> to actually be clean), and so forth.
-
-Right.
+   [ Just checked 2.6 - ppc has dump_stack() now. Nice. It looks like 
+all archs have implemented it in 2.6. Cool. ]
 
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
+--                                                           _ _ _
+  "... and for $64000 question, could you get yourself       |_|*|_|
+    vaguely familiar with the notion of on-topic posting?"   |_|_|*|
+                                 -- Al Viro @ LKML           |*|*|*|
+

@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318774AbSHER47>; Mon, 5 Aug 2002 13:56:59 -0400
+	id <S318804AbSHESDf>; Mon, 5 Aug 2002 14:03:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318802AbSHER47>; Mon, 5 Aug 2002 13:56:59 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:56710
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S318774AbSHER46>; Mon, 5 Aug 2002 13:56:58 -0400
-Date: Mon, 5 Aug 2002 11:00:14 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Harald Dunkel <harri@synopsys.COM>
-Cc: Thunder from the hill <thunder@ngforever.de>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.4.19
-Message-ID: <20020805180014.GB11424@opus.bloom.county>
-References: <Pine.LNX.4.44.0208030631580.5119-100000@hawkeye.luckynet.adm> <3D4BCF5A.7080904@Synopsys.COM>
-Mime-Version: 1.0
+	id <S318806AbSHESDf>; Mon, 5 Aug 2002 14:03:35 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5382 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318804AbSHESDe>;
+	Mon, 5 Aug 2002 14:03:34 -0400
+Message-ID: <3D4EC114.C87FEEFF@zip.com.au>
+Date: Mon, 05 Aug 2002 11:16:52 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Rmap speedup
+References: <E17biDi-0000w7-00@starship> <Pine.LNX.4.44L.0208051056440.23404-100000@imladris.surriel.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D4BCF5A.7080904@Synopsys.COM>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 03, 2002 at 02:40:58PM +0200, Harald Dunkel wrote:
-> Hi T.
+Rik van Riel wrote:
 > 
-> Thunder from the hill wrote:
-> >Hi,
-> >
-> >On Sat, 3 Aug 2002, Harald Dunkel wrote:
-> >
-> >>PS: After booting 2.4.19 'depmod -a' works as expected, but
-> >>    'depmod -ae -F /boot/System.map-2.4.19 2.4.19' doesn't. I
-> >>    would guess its a problem with depmod.
-> >
-> >
-> >I'd rather guess the problem is that you didn't make dep after config 
-> >changes. Read the FAQ, please.
+> On Mon, 5 Aug 2002, Daniel Phillips wrote:
 > 
-> Of course 'make dep' was in. But Debian includes modutils 2.4.15. After
-> upgrading to 2.4.19 the problem is gone. Debian is out of date :-(.
+> > > Despite the fact that the number of pte_chain references in
+> > > page_add/remove_rmap now just averages two in that test.
+> >
+> > It's weird that it only averages two.  It's a four way and your running
+> > 10 in parallel, plus a process to watch for completion, right?
 > 
-> Maybe it would help to update Documentation/Changes to list the new
-> modutils, too?
+> I explained this one in the comment above the declaration of
+> struct pte_chain ;)
+> 
+>  * A singly linked list should be fine for most, if not all, workloads.
+>  * On fork-after-exec the mapping we'll be removing will still be near
+>  * the start of the list, on mixed application systems the short-lived
+>  * processes will have their mappings near the start of the list and
+>  * in systems with long-lived applications the relative overhead of
+>  * exit() will be lower since the applications are long-lived.
 
-Are you sure you didn't just get bit by a binutils bug?  Newer modutils
-are required by newer binutils, but older binutils certainly work.  Is
-this Debian/unstable or Debian/stable?
+I don't think so - the list walks in there are fairly long.
+What seems to be happening is that, as Daniel mentioned,
+all the pte_chains for page N happen to have good locality
+with the pte_chains for page N+1.  Like parallel lines.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+That might not hold up for longer-lived processes, slab cache
+fragmentation, longer chains, etc...

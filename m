@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279028AbRJVWgV>; Mon, 22 Oct 2001 18:36:21 -0400
+	id <S279027AbRJVWgU>; Mon, 22 Oct 2001 18:36:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279025AbRJVWgI>; Mon, 22 Oct 2001 18:36:08 -0400
-Received: from jalon.able.es ([212.97.163.2]:7140 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S279027AbRJVWfK>;
-	Mon, 22 Oct 2001 18:35:10 -0400
-Date: Tue, 23 Oct 2001 00:35:55 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Michael T . Babcock" <mbabcock@fibrespeed.net>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: VM
-Message-ID: <20011023003555.A25439@werewolf.able.es>
-In-Reply-To: <3BD420ED.4090508@fibrespeed.net> <E15vffF-00023N-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <E15vffF-00023N-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Oct 22, 2001 at 16:02:49 +0200
-X-Mailer: Balsa 1.2.1
+	id <S279030AbRJVWgD>; Mon, 22 Oct 2001 18:36:03 -0400
+Received: from deepthought.blinkenlights.nl ([62.58.162.228]:4356 "EHLO
+	mail.blinkenlights.nl") by vger.kernel.org with ESMTP
+	id <S279028AbRJVWfW>; Mon, 22 Oct 2001 18:35:22 -0400
+Date: Tue, 23 Oct 2001 00:50:42 +0200 (CEST)
+From: Sten <sten@blinkenlights.nl>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: INIT_MMAP on sparc64
+In-Reply-To: <20011022.152800.59654230.davem@redhat.com>
+Message-ID: <Pine.LNX.4.40-blink.0110230044400.20416-100000@deepthought.blinkenlights.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 22 Oct 2001, David S. Miller wrote:
 
-On 20011022 Alan Cox wrote:
->> I have never done this comparison myself, but I was wondering how ugly 
->> it would be if stable versions of Andrea's and Rik's VMs were both 
->> available in your/Linus' kernel as compile-time options.  Assuming that 
->> each provides better performance under certain conditions, wouldn't 
+>    From: Sten <sten@blinkenlights.nl>
+>    Date: Tue, 23 Oct 2001 00:39:35 +0200 (CEST)
 >
->Too ugly for words.
->-
+>    mjes, the kernel module loader is nice, it's just
+>    that I know what hardware I have and like to build
+>    a kernel with what I need.
+>
+> "arch/sparc64/defconfig" handles every onboard necessary device any
+> machine in my sparc64 collection has, and that kernel is under 3.5MB
+>
+> It probably encompasses all the hardware you really need too :-)
 
-and how about a CONFIG_ ?? So -ac patch size will become manageable again.
+Well the thing is that I like todo evil things,
+like connecting sgi flatpanels to creator3d's, using
+non sun blessed ( aka sub 1000$ ) ethernet cards or
+sticking in wierd raid cards.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.12-ac5-beo #1 SMP Mon Oct 22 02:05:06 CEST 2001 i686
+Which is why I like linux ;)
+
+Having source is great because I can break it,
+and maybe learn something in the process.
+
+--
+
+Sten Spans
+

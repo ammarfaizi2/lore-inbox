@@ -1,95 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264146AbTCXJ5i>; Mon, 24 Mar 2003 04:57:38 -0500
+	id <S264141AbTCXKTs>; Mon, 24 Mar 2003 05:19:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264148AbTCXJ5i>; Mon, 24 Mar 2003 04:57:38 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:31878 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264146AbTCXJ5g>; Mon, 24 Mar 2003 04:57:36 -0500
-Date: Mon, 24 Mar 2003 11:08:24 +0000
-From: norbert_wolff@t-online.de (Norbert Wolff)
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk
-Subject: PROBLEM: linux-2.5.65-ac3 does not boot whith IDE-drivers
-Message-Id: <20030324110824.1b419814.norbert_wolff@t-online.de>
-In-Reply-To: <3E7E3248.7070307@portrix.net>
-References: <20030322140337.GA1193@brodo.de>
-	<1048350905.9219.1.camel@irongate.swansea.linux.org.uk>
-	<20030322162502.GA870@brodo.de>
-	<1048354921.9221.17.camel@irongate.swansea.linux.org.uk>
-	<20030323010338.GA886@brodo.de>
-	<1048434472.10729.28.camel@irongate.swansea.linux.org.uk>
-	<20030323145915.GA865@brodo.de>
-	<1048444868.10729.54.camel@irongate.swansea.linux.org.uk>
-	<20030323181532.GA6819@brodo.de>
-	<20030323182554.GA1270@brodo.de>
-	<3E7E3248.7070307@portrix.net>
+	id <S264147AbTCXKTs>; Mon, 24 Mar 2003 05:19:48 -0500
+Received: from mail.ithnet.com ([217.64.64.8]:43526 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S264141AbTCXKTr>;
+	Mon, 24 Mar 2003 05:19:47 -0500
+Date: Mon, 24 Mar 2003 11:30:35 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: jgarzik@pobox.com, rml@tech9.net, mj@ucw.cz, alan@redhat.com, pavel@ucw.cz,
+       szepe@pinerecords.com, arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Ptrace hole / Linux 2.2.25
+Message-Id: <20030324113035.540cfd25.skraw@ithnet.com>
+In-Reply-To: <1940000.1048460794@[10.10.2.4]>
+References: <29100000.1048459104@[10.10.2.4]>
+	<3E7E3AF0.6040107@pobox.com>
+	<1940000.1048460794@[10.10.2.4]>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Sun, 23 Mar 2003 15:06:35 -0800
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
 
-I tried linux-2.5.65-ac3 with ide-disk and ide-scsi drivers both built in
-the Kernel.
-Two ide-disks attached to ide0, two CDROMS attached to ide1.
-Im using the sis5513-PCI-IDE-Driver, but configuring it out makes no difference.
+> > I agree that we are disagreeing about what should be mainline 2.4 :)
 
-The System hangs while booting with last messages
-	ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-	ide1 at 0x170-0x177,0x376 on irq 15
+I guess this is the main reason why kernel-maintenance is organized
+non-democratic (and has always been). Sometimes you just get nowhere if 5
+brilliant people (_no_ sarcasm here) talk about at least 6 brilliant, but
+completely different, ideas.
 
-It seems that all Drives went twice in the driver-list, so ata_attach
-gets called twice for them, which leads to the hang.
+> > "People are shipping it, so it must be good" is the proverbial
+> > road-to-hell-paved-with-good-intentions.
+> 
+> Mmmm ... not sure what that says about the vendor kernels ;-)
 
-Dirty Hack that works for me below.
+As we all know it just says everything.
 
-Regards,
+> But I'm well aware that that's in disagreement with others ... having a
+> separate "common-vendor" tree is probably the right thing to do.
 
-	Norbert
+dear Martin, dear Jeff, dear all,
 
+_please_ be honest and realistic: we are talking about the problem of vendors
+forking around yakr (Yet Another Kernel Release) and you really say "lets solve
+it all with _another_ fork" ?? Come on, don't be silly (tm Linus).
+Let's focus and not fork. There _are_ issues with 2.4, but they are getting
+solved bit-by-bit. It would be faster of course if we all would concentrate on
+the _mainline_ and not on yet-another patchlist, split-tree or whatever.
 
---- drivers/ide/ide.c.orig	2003-03-24 10:52:40.000000000 +0000
-+++ drivers/ide/ide.c	2003-03-24 10:57:52.000000000 +0000
-@@ -1423,6 +1423,14 @@
- {
- 	struct list_head *p;
- 	spin_lock(&drivers_lock);
-+#define _DEBUG 1
-+#ifdef _DEBUG
-+	printk("ata_attach called for %s\n", drive->name);
-+#endif
-+	if (drive->already_attached) {
-+		printk ("ata_attach: already attached for %s !\n", drive->name);
-+		return 0;
-+	}
- 	list_for_each(p, &drivers) {
- 		ide_driver_t *driver = list_entry(p, ide_driver_t, drivers);
- 		if (!try_module_get(driver->owner))
-@@ -1431,12 +1439,14 @@
- 		if (driver->attach(drive) == 0) {
- 			module_put(driver->owner);
- 			drive->gendev.driver = &driver->gen_driver;
-+			drive->already_attached = 1;
- 			return 0;
- 		}
- 		spin_lock(&drivers_lock);
- 		module_put(driver->owner);
- 	}
- 	drive->gendev.driver = &idedefault_driver.gen_driver;
-+	drive->already_attached = 1;
- 	spin_unlock(&drivers_lock);
- 	if(idedefault_driver.attach(drive) != 0)
- 		panic("ide: default attach failed");
---- include/linux/ide.h.orig	2003-03-24 11:01:41.000000000 +0000
-+++ include/linux/ide.h	2003-03-24 11:02:33.000000000 +0000
-@@ -791,6 +791,7 @@
- 	int		forced_lun;	/* if hdxlun was given at boot */
- 	int		lun;		/* logical unit */
- 	int		crc_count;	/* crc counter to reduce drive speed */
-+	int     already_attached;  /* Dirty Hack ... */
- 	struct list_head list;
- 	struct device	gendev;
- 	struct gendisk *disk;
+Another thing has already been talked about here, so lets talk real open about
+it: some of us are living in the strong impression that Marcelo has problems
+with the pure time working on maintaining. I do not know anything about the
+backgrounds, but if this is really true, then let _me_ ask Conectiva if there
+is a chance that he can do the maintaining full-time. I mean this is for sure
+one of the interesting PR activities, too. After all those years it is still
+true: there can be only one.
+Of course this only makes sense if he still really wants to do that. _Me_
+asking this because I am in no way related to any other distro, vendor or
+Marcelo, just being the "linux-enthusiast from next-door" (with management
+background ;-). 
+
+JMHO
+Stephan

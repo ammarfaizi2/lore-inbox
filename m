@@ -1,82 +1,95 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314629AbSD0WUp>; Sat, 27 Apr 2002 18:20:45 -0400
+	id <S314632AbSD0Wco>; Sat, 27 Apr 2002 18:32:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314625AbSD0WUo>; Sat, 27 Apr 2002 18:20:44 -0400
-Received: from gear.torque.net ([204.138.244.1]:19729 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S314624AbSD0WUl>;
-	Sat, 27 Apr 2002 18:20:41 -0400
-Message-ID: <3CCB22BB.BA6BDFF6@torque.net>
-Date: Sat, 27 Apr 2002 18:14:19 -0400
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.10-dj1 i686)
-X-Accept-Language: en
+	id <S314633AbSD0Wcn>; Sat, 27 Apr 2002 18:32:43 -0400
+Received: from ch-12-44-141-235.lcisp.com ([12.44.141.235]:13185 "EHLO
+	dual.lcisp.com") by vger.kernel.org with ESMTP id <S314632AbSD0Wcn>;
+	Sat, 27 Apr 2002 18:32:43 -0400
+From: "Kevin Krieser" <kkrieser_list@footballmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: 48-bit IDE [Re: 160gb disk showing up as 137gb]
+Date: Sat, 27 Apr 2002 17:32:35 -0500
+Message-ID: <NDBBLFLJADKDMBPPNBALIEIMIEAA.kkrieser_list@footballmail.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: axboe@suse.de, Dave Jones <davej@suse.de>, linux-scsi@vger.kernel.org
-Subject: [PATCH] ide-scsi 2.5.10-dj1 compilation failure 
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <D143FBF049570C4BB99D962DC25FC2D2159B40@freedom.icomedias.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <christoph@lameter.com> reported this
-compile error in lk 2.5.10-dj1:
-> ide-scsi.c:837: unknown field `abort' specified in initializer
-> ide-scsi.c:837: warning: initialization from incompatible pointer type
-> ide-scsi.c:838: unknown field `reset' specified in initializer
-> ide-scsi.c:838: warning: initialization from incompatible pointer type
+Unfortunately, I was recalling some article I read last year that said you
+needed upgraded firmware (such as upgraded motherboard or new PCI card) to
+get > 137GB support.  I should have verified that my information was still
+correct.
 
-Below is a patch which attempts to do the right thing:
-it wires up the scsi new eh handling and attempts to do
-a device reset.
+And here I made sure the motherboard I bought this month had 133 support so
+I could use future large hard drives on it :)  At least I finally have
+support for my ATA100 drives at something faster than ATA33.
 
-It has been tested and oopses in start_request() inside
-ide.c when a device reset is issued :-) Since the previous
-ide-scsi logic just ignored scsi error handling, it isn't
-really a whole lot worse. There is a "fix me" at the
-appropriate point.
+-----Original Message-----
+From: Martin Bene [mailto:martin.bene@icomedias.com]
+Sent: Saturday, April 27, 2002 10:34 AM
+To: Kevin Krieser; linux-kernel@vger.kernel.org
+Subject: AW: 48-bit IDE [Re: 160gb disk showing up as 137gb]
 
-Doug Gilbert
 
---- linux/drivers/scsi/ide-scsi.c	Sat Apr 27 14:52:08 2002
-+++ linux/drivers/scsi/ide-scsi.c2510dj1hack	Sat Apr 27 17:36:07 2002
-@@ -804,14 +804,20 @@
- 	return 0;
- }
- 
--int idescsi_abort (Scsi_Cmnd *cmd)
-+/* try to do correct thing for scsi subsystem's new eh */
-+int idescsi_device_reset (Scsi_Cmnd *cmd)
- {
--	return SCSI_ABORT_SNOOZE;
--}
-+	ide_drive_t *drive = idescsi_drives[cmd->target];
-+        struct request req;
- 
--int idescsi_reset (Scsi_Cmnd *cmd, unsigned int resetflags)
--{
--	return SCSI_RESET_SUCCESS;
-+        ide_init_drive_cmd(&req);
-+        req.flags = REQ_SPECIAL;
-+/* FIX ME, the next executable line causes on oops in lk 2.5.10-dj1
-+ * [code copied from ide-cd's ide_cdrom_reset(), does it work?]
-+ */
-+        ide_do_drive_cmd(drive, &req, ide_wait);
-+
-+	return SUCCESS;
- }
- 
- int idescsi_bios (Disk *disk, kdev_t dev, int *parm)
-@@ -834,8 +840,8 @@
- 	info:		idescsi_info,
- 	ioctl:		idescsi_ioctl,
- 	queuecommand:	idescsi_queue,
--	abort:		idescsi_abort,
--	reset:		idescsi_reset,
-+	eh_device_reset_handler: 
-+			idescsi_device_reset,
- 	bios_param:	idescsi_bios,
- 	can_queue:	10,
- 	this_id:	-1,
+Hi Kevin,
+
+> You need an IDE controller that supports ATA133.  For most existing
+> computers, that is going to require a new card.
+
+That actually turns out not to be the case.
+
+While you do need a new controller if you want to use ATA133, the LBA48
+addressing scheme in no way depends on ATA133. Running a 160GB disk on your
+old ATA100 (or ATA66 or ATA33) controller works just fine.
+
+Bye, Martin
+
+-----Original  Message-----
+>
+>
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Ville Herva
+> Sent: Saturday, April 27, 2002 7:56 AM
+> To: Martin Bene; linux-kernel@vger.kernel.org
+> Subject: 48-bit IDE [Re: 160gb disk showing up as 137gb]
+>
+>
+> On Sat, Apr 27, 2002 at 12:16:06PM +0200, you [Martin Bene] wrote:
+> >
+> > IDE: The kernel IDE driver needs to support 48-bit
+> addresseing to support
+> > 160GB.
+> >
+> > (...) however, you can do something about the linux ATA driver: code
+> > is in the 2.4.19-pre tree, it went in with 2.4.19-pre3.
+>
+> But which IDE controllers support 48-bit addressing? Not all
+> of them? Does
+> linux IDE driver support 48-bit for all of them? Do they require BIOS
+> upgrade in order to operate 48-bit?
+>
+> Or can I just grab a 160GB Maxtor and 2.4.19-preX, stick them
+> into whatever
+> box I have and be done with it?
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+
 

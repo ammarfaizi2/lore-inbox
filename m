@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268535AbTBOEvD>; Fri, 14 Feb 2003 23:51:03 -0500
+	id <S268533AbTBOFEN>; Sat, 15 Feb 2003 00:04:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268536AbTBOEvD>; Fri, 14 Feb 2003 23:51:03 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:32204 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S268535AbTBOEvC>; Fri, 14 Feb 2003 23:51:02 -0500
-Subject: Re: Synchronous signal delivery..
-From: Keith Adamson <keith.adamson@attbi.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
+	id <S268534AbTBOFEM>; Sat, 15 Feb 2003 00:04:12 -0500
+Received: from almesberger.net ([63.105.73.239]:54031 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S268533AbTBOFEM>; Sat, 15 Feb 2003 00:04:12 -0500
+Date: Sat, 15 Feb 2003 02:14:02 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Giuliano Pochini <pochini@shiny.it>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0302141554120.1296-100000@penguin.transmeta.com>
-References: <Pine.LNX.4.44.0302141554120.1296-100000@penguin.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 15 Feb 2003 00:04:18 -0500
-Message-Id: <1045285459.24460.97.camel@x1-6-00-d0-70-00-74-d1>
+Subject: Re: Synchronous signal delivery..
+Message-ID: <20030215021402.F2791@almesberger.net>
+References: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com> <XFMail.20030214115507.pochini@shiny.it> <20030215012538.E2791@almesberger.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030215012538.E2791@almesberger.net>; from wa@almesberger.net on Sat, Feb 15, 2003 at 01:25:38AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-14 at 20:03, Linus Torvalds wrote:
-> Could we extend that to bind "other" timers to the sigfd()? Yes. And maybe 
-> we could make it easier in general to "bind" events to the fd, instead of 
-> having the coupling be static (ie right now it's a static coupling at 
-> "sigfd()" call time, it could be split up into a "create descriptor" and 
-> "bind descriptor" thing).
-> 
-How about in the reverse ... being able to have multiple
-processes able to dynamically connect to a single existing sigfd 
-and listen for a signal?  You said that you want to reserve write()
-for sending signals through the sigfd.  If you implement the 
-write(sigfd, ...) then this seems to provide a very nice writer/reader
-signal deliver interface with well defined end points for the sender 
-and receivers.  Or maybe I'm just confused.
+I wrote:
+>     ssize_t overwrite(int fd,
+>       const void *data_if_empty,size_t size_if_empty,
+>       const void *data_if_full,size_t size_if_full,
+>       int *was_empty);
 
+Bah, rubbish. Make this
 
+    ssize_t overwrite(int fd,const void *data,size_t size);
+
+If the pipe/queue is empty, don't write, and return 0. Now, this
+could probably be implemented with a flag to send(2) (then this
+wouldn't work for pipes, but you could use socketpair(2) for a
+similar effect). Example:
+
+void add_signal(int signum)
+{
+	static int signal_set = 0;
+	int new_signal = 1 << signum;
+	int sent;
+
+	signal_set |= new_signal;
+	sent = send(fd,&signal_set,sizeof(int),MSG_OVERWRITE);
+	if (!sent) {
+		send(fd,&new_signal,sizeof(int),0);
+		signal_set = new_signal;
+	}
+}
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

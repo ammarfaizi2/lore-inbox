@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316264AbSEKTPD>; Sat, 11 May 2002 15:15:03 -0400
+	id <S316267AbSEKTU2>; Sat, 11 May 2002 15:20:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316265AbSEKTPC>; Sat, 11 May 2002 15:15:02 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:54033
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S316264AbSEKTPB>; Sat, 11 May 2002 15:15:01 -0400
-Date: Sat, 11 May 2002 12:12:18 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.15 IDE 60
-In-Reply-To: <3CDD6749.6080209@wanadoo.fr>
-Message-ID: <Pine.LNX.4.10.10205111210320.3133-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316265AbSEKTU1>; Sat, 11 May 2002 15:20:27 -0400
+Received: from ppp-217-133-216-65.dialup.tiscali.it ([217.133.216.65]:405 "EHLO
+	home.ldb.ods.org") by vger.kernel.org with ESMTP id <S314684AbSEKTU0>;
+	Sat, 11 May 2002 15:20:26 -0400
+Subject: [PATCH] [2.4] [2.5] Fix PPPoATM crash on disconnection
+	(tasklet_disable; kfree(tasklet))
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: mitch@sfgoth.com, linux-kernel@vger.kernel.org, linux-ppp@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-9ZyLQKsRiOkTqgm5n1Vv"
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 11 May 2002 21:19:31 +0200
+Message-Id: <1021144771.3909.27.camel@ldb>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-You have to specify which of the 6 revisions of the chipset you have.
-Also in some cases which of the 13 sub-revisions, and the latter is
-determined by the sub-vender-device.
+--=-9ZyLQKsRiOkTqgm5n1Vv
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, 11 May 2002, Pierre Rousselet wrote:
+PPPoATM uses tasklet_disable() on a tasklet inside a struct and then
+frees the struct, leaving a pointer to the freed tasklet inside tasklet
+lists.
+This patch replaces tasklet_disable() with tasklet_kill().
 
-> Martin Dalecki wrote:
->  > Fri May 10 16:17:01 CEST 2002 ide-clean-60
->  >
->  > Synchronize with 2.5.15
->  >
->  > - Rewrite ioctl handling.
->  >
->  > - Apply fix for hpt366 "hang on boot" by Andre.
-> 
-> No, it doesn't fix it for me.
-> 
-> -- 
-> Pierre
-> ------------------------------------------------
->    Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-> ------------------------------------------------
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+This bug is present in both 2.4.18 and 2.5.15 (and the patch applies to
+both).
 
-Andre Hedrick
-LAD Storage Consulting Group
 
+--- linux-old/net/atm/pppoatm.c	Wed Apr 10 14:37:34 2002
++++ linux/net/atm/pppoatm.c	Fri May 10 21:56:28 2002
+@@ -125,7 +125,7 @@
+ 	pvcc =3D atmvcc_to_pvcc(atmvcc);
+ 	atmvcc->push =3D pvcc->old_push;
+ 	atmvcc->pop =3D pvcc->old_pop;
+-	tasklet_disable(&pvcc->wakeup_tasklet);
++	tasklet_kill(&pvcc->wakeup_tasklet);
+ 	ppp_unregister_channel(&pvcc->chan);
+ 	atmvcc->user_back =3D NULL;
+ 	kfree(pvcc);
+
+--=-9ZyLQKsRiOkTqgm5n1Vv
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA83W7Ddjkty3ft5+cRAuHJAJ9hgqFsR0U6ZY4sBf55XtWgzIbXPQCeJO9h
+bw91pWe1Ln5XDEE/Y82AW/c=
+=r8i7
+-----END PGP SIGNATURE-----
+
+--=-9ZyLQKsRiOkTqgm5n1Vv--

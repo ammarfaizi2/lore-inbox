@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314325AbSEFJxk>; Mon, 6 May 2002 05:53:40 -0400
+	id <S314295AbSEFJzm>; Mon, 6 May 2002 05:55:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314327AbSEFJxj>; Mon, 6 May 2002 05:53:39 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:58888 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314325AbSEFJxi>; Mon, 6 May 2002 05:53:38 -0400
-Date: Mon, 6 May 2002 10:53:31 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.13 IDE 53
-Message-ID: <20020506105331.A20048@flint.arm.linux.org.uk>
-In-Reply-To: <1019549894.1450.41.camel@turbulence.megapathdsl.net> <3CC7E358.8050905@evision-ventures.com> <20020425172508.GK3542@suse.de> <20020425173439.GM3542@suse.de> <aa9qtb$d8a$1@penguin.transmeta.com> <3CD55601.9030604@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S314327AbSEFJzl>; Mon, 6 May 2002 05:55:41 -0400
+Received: from balu.sch.bme.hu ([152.66.208.40]:7116 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S314295AbSEFJzj>;
+	Mon, 6 May 2002 05:55:39 -0400
+Date: Mon, 6 May 2002 11:55:38 +0200 (MEST)
+From: Pozsar Balazs <pozsy@sch.bme.hu>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: _reliable_ way to get the dev for a mount point?
+Message-ID: <Pine.GSO.4.30.0205051830060.28842-100000@balu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 05, 2002 at 05:55:45PM +0200, Martin Dalecki wrote:
-> - Start splitting the functions for host chip handling in to separate entities.
->    This change is quite sensitive and may cause some trouble but it's for
->    certain worth it anyway, because it should for example provide a much better
->    infrastructure for th handling of different architectures.
 
-Are you at some point going to add the black/white lists back into
-icside.c that you removed shortly after you took over the IDE
-maintainence?  I've been patiently waiting to see what was going to
-happen to them.
+Hi all!
 
+I found that in a chrooted environment the /proc/mounts file is
+messed up badly. For example, if I do a
+ chroot /path/to/somewhere
+then in the chrooted environment's proc/mounts file will truncate
+the /path/to/somewhere string from those mount point it can, and leaves
+the rest as they are. (something like s|/path/to/somewhere|| )
+Consequently you will have at least two devices showns as mounted to /.
+But it can get worse (i know its extreme), if the directory of the
+chrooted environment is overmounted.
+
+For example, here's an output from inside the chroot environment:
+# cat /proc/mounts
+rootfs / rootfs rw 0 0
+/dev/root / ext3 rw 0 0
+none /dev devfs rw 0 0
+none /proc proc rw 0 0
+none /proc/bus/usb usbdevfs rw 0 0
+none /root/chroot1/proc proc rw 0 0
+/dev/cdrom / iso9660 ro 0 0
+none /proc proc rw 0 0
+/dev/hda2 / ext3 rw 0 0
+
+As you can see, there are 3 devices shown as mounted to / (in reality,
+only 2 in the chrooted env), and you cannot know from this which of these
+3 is your real rootdir.
+
+
+So, my question is there a way to get back the device for a directory,
+_reliably_. (I want to know which devices holds the files my process sees
+under an arbitrary /path/to/somewhere).
+
+Thanks,
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Balazs Pozsar
+
 

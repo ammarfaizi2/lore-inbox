@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbULFSUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbULFSYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbULFSUF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 13:20:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbULFSUF
+	id S261577AbULFSYq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 13:24:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbULFSYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 13:20:05 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:34519 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261592AbULFSUA (ORCPT
+	Mon, 6 Dec 2004 13:24:45 -0500
+Received: from the.earth.li ([193.201.200.66]:34024 "EHLO the.earth.li")
+	by vger.kernel.org with ESMTP id S261577AbULFSYi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 13:20:00 -0500
-Subject: Re: [RFC] dynamic syscalls revisited
-From: Arjan van de Ven <arjan@infradead.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Adrian Bunk <bunk@stusta.de>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0412061026490.5219@montezuma.fsmlabs.com>
-References: <1101741118.25841.40.camel@localhost.localdomain>
-	 <20041129151741.GA5514@infradead.org>
-	 <Pine.LNX.4.53.0411291740390.30846@yvahk01.tjqt.qr>
-	 <1101748258.25841.53.camel@localhost.localdomain>
-	 <20041205234605.GF2953@stusta.de>
-	 <1102349255.25841.189.camel@localhost.localdomain>
-	 <1102353388.25841.198.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0412061026490.5219@montezuma.fsmlabs.com>
-Content-Type: text/plain
-Message-Id: <1102356738.8767.2.camel@laptop.fenrus.org>
+	Mon, 6 Dec 2004 13:24:38 -0500
+Date: Mon, 6 Dec 2004 18:24:38 +0000
+From: Jonathan McDowell <noodles@earth.li>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] parport_pc MODULE_PARM fix
+Message-ID: <20041206182438.GM10285@earth.li>
+References: <20041206180242.GJ10285@earth.li> <41B49A63.6030104@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Mon, 06 Dec 2004 13:18:25 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41B49A63.6030104@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 06, 2004 at 09:44:03AM -0800, Randy.Dunlap wrote:
+> Jonathan McDowell wrote:
+> > ps2, epp, ecp or ecpepp)");
+> >-MODULE_PARM(init_mode, "s");
+> >+module_param_string(init_mode, init_mode, 7, 0);
+> > #endif
+> I think that it should be:
+> 
+> module_param(init_mode, charp, 0);
+> 
+> and leave 'init_mode' as a char *, not a char array.
+> 
+> Can you test that change and resubmit the patch (if it works :) ?
 
-> I didn't know we were on a crusade to end all binary modules at all costs. 
-> Why not just make _all_ symbols in the kernel EXPORT_SYMBOL_GPL then? I 
-> really believe this is taking things to new levels of silliness, we should 
-> also possibly consider adding code in glibc to stop proprietary 
-> libraries/applications from running. What do you think?
+Even better; that does the trick too. Extremely trivial patch below.
 
+Signed-Off-By: Jonathan McDowell <noodles@earth.li>
 
-unlike the glibc license (LGPL) the kernel license (GPL) does not allow 
-for binary only modules to be linked against it.
-So your question is a bit weird... 
+-----
+--- drivers/parport/parport_pc.c.orig	2004-12-06 17:44:08.000000000 +0000
++++ drivers/parport/parport_pc.c	2004-12-06 18:18:43.000000000 +0000
+@@ -3157,7 +3157,7 @@
+ #ifdef CONFIG_PCI
+ static int __init parport_init_mode_setup(char *str)
+ {
+-	printk(KERN_DEBUG "parport_pc.c: Specified parameter parport_init_mode=%s\n", str);
++	DPRINTK(KERN_DEBUG "parport_pc.c: Specified parameter parport_init_mode=%s\n", str);
+ 
+ 	if (!strcmp (str, "spp"))
+ 		parport_init_mode=1;
+@@ -3193,7 +3193,7 @@
+ #endif
+ #ifdef CONFIG_PCI
+ MODULE_PARM_DESC(init_mode, "Initialise mode for VIA VT8231 port (spp, ps2, epp, ecp or ecpepp)");
+-MODULE_PARM(init_mode, "s");
++module_param(init_mode, charp, 0);
+ #endif
+ 
+ static int __init parse_parport_params(void)
+-----
 
+J.
+
+-- 
+/-\                             | 101 things you can't have too much
+|@/  Debian GNU/Linux Developer |       of : 19 - A Good Thing.
+\-                              |

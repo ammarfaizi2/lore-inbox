@@ -1,177 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272521AbVBEVMA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265642AbVBEVO3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272521AbVBEVMA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 16:12:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272506AbVBEVL5
+	id S265642AbVBEVO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 16:14:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269437AbVBEVO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 16:11:57 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:30123 "EHLO suse.de")
-	by vger.kernel.org with ESMTP id S269599AbVBEVLP (ORCPT
+	Sat, 5 Feb 2005 16:14:28 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:49705 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S272585AbVBEVND (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 16:11:15 -0500
-Date: Sat, 5 Feb 2005 22:11:36 +0100
-From: Vojtech Pavlik <vojtech@suse.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       zhilla <zhilla@spymac.com>, Victor Hahn <victorhahn@web.de>
-Subject: Re: [RFC/RFT] Better handling of bad xfers/interrupt delays in psmouse
-Message-ID: <20050205211136.GB8451@ucw.cz>
-References: <200502051448.57492.dtor_core@ameritech.net>
+	Sat, 5 Feb 2005 16:13:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=TWox4iBHiKaSSwe1b6EEN6SnIR5t/dzkR1FTlUtTXh854EQnOIM57wRa6tmajEolQ6BfIiyng9Bg1Mx5qNRKbm9cydoef6RUVzKPO7FHvDMK6Kcx/4Ru3dJunWKX2F7W4xg06myzY3HHTh7t3PT2KNvc0KifB8A7jiREgupabIA=
+Message-ID: <58cb370e05020513135aaaa64e@mail.gmail.com>
+Date: Sat, 5 Feb 2005 22:13:03 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Jean Delvare <khali@linux-fr.org>
+Subject: Re: 2.6.11-rc3-bk1: ide1: failed to initialize IDE interface
+Cc: LKML <linux-kernel@vger.kernel.org>, Prarit Bhargava <prarit@sgi.com>
+In-Reply-To: <20050205215535.43ff8cb9.khali@linux-fr.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502051448.57492.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050204234422.4a9c6fd0.khali@linux-fr.org>
+	 <58cb370e050204154155cafb20@mail.gmail.com>
+	 <20050205215535.43ff8cb9.khali@linux-fr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 05, 2005 at 02:48:56PM -0500, Dmitry Torokhov wrote:
-> Hi,
-> 
-> The patch below attempts to better handle situation when psmouse interrupt
-> is delayed for more than 0.5 sec by requesting a resend. This will allow
-> properly synchronize with the beginning of the packet as mouse is supposed
-> to resend entire package.
+On Sat, 5 Feb 2005 21:55:35 +0100, Jean Delvare <khali@linux-fr.org> wrote:
+> Hi Bartlomiej & all,
 
-Have you actually tested the mouse is really sending the whole packet?
-I'd suspect it could just resend the last byte. :I Maybe using the
-GET_PACKET command would be more useful in this case.
+Hi,
 
-Also, we could use GET_PACKET to check the mode of the mouse, when we
-get several successive lost bytes.
+> > > I would tend to think that this is *not* an error, so we shouldn't
+> > > display an error message in this case. Maybe init_hwif() should
+> > > return 1 instead of 0 in this case.
+> >
+> > Yep this is the simplest fix - interface without a drives should
+> > return success value.  Care to make a patch?
+> 
+> That would be as simple as this, I guess:
+> 
+> Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> 
+> --- linux-2.6.11-rc3-bk2/drivers/ide/ide-probe.c.orig   2005-02-05 19:41:01.000000000 +0100
+> +++ linux-2.6.11-rc3-bk2/drivers/ide/ide-probe.c        2005-02-05 19:42:46.000000000 +0100
+> @@ -1248,8 +1248,9 @@
+>  {
+>         int old_irq, unit;
+> 
+> +       /* Return success if no device is connected */
+>         if (!hwif->present)
+> -               return 0;
+> +               return 1;
+> 
+>         if (!hwif->irq) {
+>                 if (!(hwif->irq = ide_default_irq(hwif->io_ports[IDE_DATA_OFFSET])))
 
-> Additionally, psmouse will also request resend if KBC indicates parity or
-> timeout errors. 
+Thanks!
+ 
+> There's another thing I noticed about IDE and thought I might report as
+> well. It seems that, when an IDE interface has no device connected, it
+> ends up being probed twice. From dmesg:
 > 
-> The patch should apply to 2.6.11-rc2+. A version of this patch for 2.6.10
-> is available here:
+> ICH3M: chipset revision 1
+> ICH3M: not 100% native mode: will probe irqs later
+>     ide0: BM-DMA at 0x1860-0x1867, BIOS settings: hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0x1868-0x186f, BIOS settings: hdc:pio, hdd:pio
+> Probing IDE interface ide0...
+> hda: HITACHI_DK23CA-15, ATA DISK drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> Probing IDE interface ide1...
+> Probing IDE interface ide1...
+> Probing IDE interface ide2...
+> Probing IDE interface ide3...
+> Probing IDE interface ide4...
+> Probing IDE interface ide5...
 > 
-> 	http://www.geocities.com/dt_or/input/2_6_10/
-> 
-> -- 
-> Dmitry
-> 
-> 
-> ===================================================================
-> 
-> 
-> ChangeSet@1.2006, 2005-02-05 14:33:05-05:00, dtor_core@ameritech.net
->   Input: psmouse - better handle bad transfers and interrupt delays
->          by requesting resend of the last packet so we don't need to
->          guess if received byte is remainder of last packet or start
->          of a new one.
->   
->   Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> 
-> 
->  psmouse-base.c |   48 +++++++++++++++++++++++++++++++++++++++++++-----
->  psmouse.h      |    2 ++
->  2 files changed, 45 insertions(+), 5 deletions(-)
-> 
-> 
-> ===================================================================
-> 
-> 
-> 
-> diff -Nru a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-> --- a/drivers/input/mouse/psmouse-base.c	2005-02-05 14:37:51 -05:00
-> +++ b/drivers/input/mouse/psmouse-base.c	2005-02-05 14:37:51 -05:00
-> @@ -134,6 +134,42 @@
->  	return PSMOUSE_FULL_PACKET;
->  }
->  
-> +static void psmouse_handle_bad_xfer(struct psmouse *psmouse, unsigned int flags)
-> +{
-> +	if (psmouse->state == PSMOUSE_ACTIVATED)
-> +		printk(KERN_WARNING "psmouse.c: bad data from KBC -%s%s\n",
-> +			flags & SERIO_TIMEOUT ? " timeout" : "",
-> +			flags & SERIO_PARITY ? " bad parity" : "");
-> +
-> +	if (!psmouse->resend) {
-> +		/*
-> +		 * This is first error. Try to request resend but not if we got
-> +		 * timeout and we are in initialize phase - there most likely no
-> +		 * mouse at all.
-> +		 */
-> +		if (psmouse->state > PSMOUSE_INITIALIZING || (~flags & SERIO_TIMEOUT)) {
-> +			if (serio_write(psmouse->ps2dev.serio, PSMOUSE_CMD_RESEND) == 0) {
-> +				psmouse->resend = 1;
-> +				psmouse->pktcnt = 0;
-> +			}
-> +		}
-> +	} else {
-> +		/*
-> +		 * This is second error in a row. If mouse was itialized - attempt
-> +		 * to rconnect, otherwise just signal failure.
-> +		 */
-> +		psmouse->resend = 0;
-> +		if (psmouse->state > PSMOUSE_INITIALIZING) {
-> +			psmouse->state = PSMOUSE_IGNORE;
-> +			printk(KERN_NOTICE "psmouse.c: issuing reconnect request\n");
-> +			serio_reconnect(psmouse->ps2dev.serio);
-> +		}
-> +	}
-> +
-> +	if (!psmouse->resend)
-> +		ps2_cmd_aborted(&psmouse->ps2dev);
-> +}
-> +
->  /*
->   * psmouse_interrupt() handles incoming characters, either gathering them into
->   * packets or passing them to the command routine as command output.
-> @@ -149,11 +185,7 @@
->  		goto out;
->  
->  	if (flags & (SERIO_PARITY|SERIO_TIMEOUT)) {
-> -		if (psmouse->state == PSMOUSE_ACTIVATED)
-> -			printk(KERN_WARNING "psmouse.c: bad data from KBC -%s%s\n",
-> -				flags & SERIO_TIMEOUT ? " timeout" : "",
-> -				flags & SERIO_PARITY ? " bad parity" : "");
-> -		ps2_cmd_aborted(&psmouse->ps2dev);
-> +		psmouse_handle_bad_xfer(psmouse, flags);
->  		goto out;
->  	}
->  
-> @@ -168,11 +200,17 @@
->  	if (psmouse->state == PSMOUSE_INITIALIZING)
->  		goto out;
->  
-> +	psmouse->resend = 0;
-> +
->  	if (psmouse->state == PSMOUSE_ACTIVATED &&
->  	    psmouse->pktcnt && time_after(jiffies, psmouse->last + HZ/2)) {
->  		printk(KERN_WARNING "psmouse.c: %s at %s lost synchronization, throwing %d bytes away.\n",
->  		       psmouse->name, psmouse->phys, psmouse->pktcnt);
->  		psmouse->pktcnt = 0;
-> +		if (serio_write(serio, PSMOUSE_CMD_RESEND) == 0) {
-> +			psmouse->resend = 1;
-> +			goto out;
-> +		}
->  	}
->  
->  	psmouse->last = jiffies;
-> diff -Nru a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-> --- a/drivers/input/mouse/psmouse.h	2005-02-05 14:37:51 -05:00
-> +++ b/drivers/input/mouse/psmouse.h	2005-02-05 14:37:51 -05:00
-> @@ -13,6 +13,7 @@
->  #define PSMOUSE_CMD_ENABLE	0x00f4
->  #define PSMOUSE_CMD_DISABLE	0x00f5
->  #define PSMOUSE_CMD_RESET_DIS	0x00f6
-> +#define PSMOUSE_CMD_RESEND	0x00fe
->  #define PSMOUSE_CMD_RESET_BAT	0x02ff
->  
->  #define PSMOUSE_RET_BAT		0xaa
-> @@ -48,6 +49,7 @@
->  	unsigned long last;
->  	unsigned long out_of_sync;
->  	enum psmouse_state state;
-> +	unsigned int resend;
->  	char devname[64];
->  	char phys[32];
->  
-> 
-> 
+> Notice how ide1, which happens to have no device attached, is listed
+> twice. I can reproduce this on my second system as well (i386 too, but
+> otherwise completely different). I guess it doesn't cause any trouble,
+> but looks suboptimal.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+CONFIG_IDE_GENERIC is enabled
+
+> While we're at it, I also wonder why ide2-ide5 are probed, when neither
+> of my systems has them.
+
+CONFIG_IDE_GENERIC again
+
+It was always like that but the printk has been added recently
+so people start to noticing it...
+
+Alan has a patch in -ac to not probe for legacy ports if system
+has PCI but it needs testing and is limited to x86 currently.
+Also it not a full solution as legacy ports logic needs to be
+moved to ide_generic anyway...
+
+Bartlomiej

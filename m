@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbUCZSwL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 13:52:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbUCZSwL
+	id S262258AbUCZSxm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 13:53:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262294AbUCZSwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 13:52:11 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:7297 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262099AbUCZSvN (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 13:51:13 -0500
-Message-ID: <406462C1.5020507@namesys.com>
-Date: Fri, 26 Mar 2004 09:05:05 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nikita Danilov <Nikita@Namesys.COM>
-CC: Reiserfs developers mail-list <Reiserfs-Dev@Namesys.COM>,
-       Reiserfs mail-list <Reiserfs-List@Namesys.COM>,
-       Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
-       cliff@lindows.com, Tom Welch <tom.welch@lindows.com>,
-       Kurt Garloff <garloff@suse.de>, Daniel Robbins <drobbins@gentoo.org>,
-       Ramon Reiser <reiserrf@hotmail.com>
-Subject: Reiser4 needs more testers
-References: <16484.24086.167505.94478@laputa.namesys.com>
-In-Reply-To: <16484.24086.167505.94478@laputa.namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Mar 2004 13:52:21 -0500
+Received: from fed1mtao07.cox.net ([68.6.19.124]:27550 "EHLO
+	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S261518AbUCZSvK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 13:51:10 -0500
+Date: Fri, 26 Mar 2004 11:51:03 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Meelis Roos <mroos@linux.ee>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.5-pre* does not boot on my PReP PPC
+Message-ID: <20040326185103.GB20819@smtp.west.cox.net>
+References: <Pine.GSO.4.44.0403262029010.2460-100000@math.ut.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0403262029010.2460-100000@math.ut.ee>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have one NFS related bug remaining, and one mmap all of memory 
-related bug (and performance issue) that you can hit using iozone.  We 
-will fix both of these in next week's snapshot, they were both multi-day 
-bug fixes.  When they are fixed, unless users/distros find bugs next 
-week we will submit it for inclusion in the -mm and then the official 
-kernel.
+On Fri, Mar 26, 2004 at 08:33:18PM +0200, Meelis Roos wrote:
 
-We hope it is now fairly stable for average users if you avoid those two 
-issues (we need to get rid of those dire warnings about its 
-stability...., we will remember that next snapshot....;-) )
+> Recent 2.6.5-pre* and -rc1 and -BK don't boot on my Motorola Powerstack
+> (PReP with no RTAS but with OF).
+> 
+> I use netboot to test new kernels.  Normally, the screen is changed to
+> VGA text mode and the bootloader speaks some lines of info and asks for
+> the kernel command line. Now, the image is loaded via tftp (as shown by
+> tcpdump, the last datagram is smaller) and nothing more happens. The
+> cursor stays where it is - at the beginning of the Booting ... line in
+> graphics mode OF environment and that's all.
 
-We need a lot more real user testers, because we have run out of scripts 
-that can crash it, and there are distros that would like to ship it 
-soon.  Please also complain to vitaly@namesys.com and ramon@namesys.com 
-about poor documentation, etc., ....
-
-The new reiser4 snapshot (against 2.6.5-rc2) is available at
-
-http://www.namesys.com/snapshots/2004.03.26/
-
+Hmm.  Can you hook up a serial line, enable serial console as well and
+see if anything pops out there?
 
 -- 
-Hans
-
+Tom Rini
+http://gate.crashing.org/~trini/

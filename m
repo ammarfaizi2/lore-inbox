@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270269AbRHWUOs>; Thu, 23 Aug 2001 16:14:48 -0400
+	id <S270266AbRHWUOi>; Thu, 23 Aug 2001 16:14:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270270AbRHWUOm>; Thu, 23 Aug 2001 16:14:42 -0400
-Received: from trained-monkey.org ([209.217.122.11]:42512 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP
-	id <S270263AbRHWUOb>; Thu, 23 Aug 2001 16:14:31 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: hiren_mehta@agilent.com ("MEHTA,HIREN (A-SanJose,ex1)"),
-        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: releasing driver to kernel in source+binary format
-In-Reply-To: <E15ZzmR-0004O1-00@the-village.bc.nu>
-From: Jes Sorensen <jes@trained-monkey.org>
-Date: 23 Aug 2001 16:14:38 -0400
-In-Reply-To: Alan Cox's message of "Thu, 23 Aug 2001 20:04:39 +0100 (BST)"
-Message-ID: <m3vgjelej5.fsf@trained-monkey.org>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S270264AbRHWUO3>; Thu, 23 Aug 2001 16:14:29 -0400
+Received: from mail.fbab.net ([212.75.83.8]:18952 "HELO mail.fbab.net")
+	by vger.kernel.org with SMTP id <S270263AbRHWUOQ>;
+	Thu, 23 Aug 2001 16:14:16 -0400
+X-Qmail-Scanner-Mail-From: mag@fbab.net via mail.fbab.net
+X-Qmail-Scanner-Rcpt-To: raybry@timesn.com twalberg@mindspring.com linux-kernel@vger.kernel.org
+X-Qmail-Scanner: 0.94 (No viruses found. Processed in 5.694597 secs)
+Message-ID: <03fc01c12c10$8155b060$020a0a0a@totalmef>
+From: "Magnus Naeslund\(f\)" <mag@fbab.net>
+To: <raybry@timesn.com>, "Tim Walberg" <twalberg@mindspring.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010823143440.G20693@mindspring.com> <3B85615A.58920036@timesn.com>
+Subject: Re: macro conflict
+Date: Thu, 23 Aug 2001 22:16:34 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+From: <raybry@timesn.com>
+> Without digging through the archives to see if this has already
+> been suggested (if so, I apologize), why can't the following be done:
+>
+> min(x,y) = ({typeof((x)) __x=(x), __y=(y); (__x < __y) ? __x : __y})
+>
+> That gets you the correct "evaluate the args once" semantics and gives
+> you control over typing (the comparison is done in the type of the
+> first argument) and we don't have to change a zillion drivers.
+>
+> (typeof() is a gcc extension.)
+>
 
->> Well, Qlogic also has their firmware released in binary format.
-Alan> Firmware that runs on the processor in the card is somewhat of a
-Alan> different item. If its just a binary firmware image to load into
-Alan> the card and that is run by the card I dont think its an issue.
+But then again, how do you know it's the type of x we want, maybe we want
+type of y, that is and signed char (not an int like x).
+Talk about hidden buffer overflow stuff :)
 
-Alan> If its code run on the host processor then there is an issue.
+Magnus
 
-One might even want to add that opening up firmware has some positive
-side effects: Look at how Alteon completely ruled the Gigabit Ethernet
-world with their NIC and open firmware programme (until they decided
-to bug out before the big players started picking up and squeezing
-them out on price).
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ Programmer/Networker [|] Magnus Naeslund
+ PGP Key: http://www.genline.nu/mag_pgp.txt
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-Jes
+
+

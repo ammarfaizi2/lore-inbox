@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUHGKy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUHGK67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbUHGKy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 06:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUHGKy2
+	id S261451AbUHGK67 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 06:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUHGK67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 06:54:28 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:20425 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261426AbUHGKy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 06:54:27 -0400
-Date: Sat, 7 Aug 2004 12:53:50 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408071053.i77Aromi006941@burner.fokus.fraunhofer.de>
-To: mj@ucw.cz, schilling@fokus.fraunhofer.de
-Cc: James.Bottomley@steeleye.com, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+	Sat, 7 Aug 2004 06:58:59 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:53260 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261451AbUHGK64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 06:58:56 -0400
+Date: Sat, 7 Aug 2004 11:58:54 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Pat Gefre <pfg@sgi.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Altix I/O code reorganization
+Message-ID: <20040807115854.A17606@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, Pat Gefre <pfg@sgi.com>,
+	linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <200408042014.i74KE8fD141211@fsgi900.americas.sgi.com> <20040806141836.A9854@infradead.org> <200408060919.20993.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200408060919.20993.jbarnes@engr.sgi.com>; from jbarnes@engr.sgi.com on Fri, Aug 06, 2004 at 09:19:20AM -0700
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 06, 2004 at 09:19:20AM -0700, Jesse Barnes wrote:
+> On Friday, August 6, 2004 6:18 am, Christoph Hellwig wrote:
+> > Yikes, this is truely horrible.  First your patch ordering doesn't make
+> > any sense, with just the first patch applied the system won't work at all.
+> > Please submit a series of _small_ patches going from A to B keeping the
+> > code working everywhere inbetween.
+> 
+> Much of this stuff is clearly interdependent (and dependent on PROM changes), 
+> so I don't think that would make sense.
 
->From: Martin Mares <mj@ucw.cz>
+It's not.  E.g. hwgraph removal and dma code rework aren't related to hiding
+of lots of interfaces in the firmware at all.
 
->> I see always the same answers from Linux people who don't know anyrthing than
->> their belly button :-(
->> 
->> Chek Solaris to see that your statements are wrong.
-
->Well, so could you please enlighten the Linux people and say in a couple
->of words how it could be done?
-
-1)	Fetch the Solaris install CD images from:
-	http://wwws.sun.com/software/solaris/solaris-express/get.html
-
-	Solaris is free for personal use and free for being used to 
-	develop OSS.
-
-2)	"unzip" the CD images
-
-3)	use cdrecord to write the CDs
-
-4)	Start installation with CD#1
-
-	......
-
-5)	Take a look at /etc/path_to_inst and call "man path_to_inst"
-
-The used method even works nicely for USB devices.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

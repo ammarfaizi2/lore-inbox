@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268719AbUI3OrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268900AbUI3Ot7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268719AbUI3OrI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 10:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268900AbUI3OrI
+	id S268900AbUI3Ot7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 10:49:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269294AbUI3Ot6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 10:47:08 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:46331 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268719AbUI3OrF (ORCPT
+	Thu, 30 Sep 2004 10:49:58 -0400
+Received: from mail.dif.dk ([193.138.115.101]:32689 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S268900AbUI3Ot5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 10:47:05 -0400
-Message-ID: <415C1C6D.1030307@watson.ibm.com>
-Date: Thu, 30 Sep 2004 10:47:09 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-Reply-To: nagar@watson.ibm.com
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
+	Thu, 30 Sep 2004 10:49:57 -0400
+Date: Thu, 30 Sep 2004 16:47:30 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [OT] Microsofts FAT patent ruled Invalid.
+Message-ID: <Pine.LNX.4.61.0409301638270.2751@jjulnx.backbone.dif.dk>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][1/1] Per-priority statistics for CFQ w/iopriorities 2.6.8.1
-References: <20040930065917.GA2288@suse.de> <415C1643.8000605@watson.ibm.com> <20040930142004.GB3251@suse.de>
-In-Reply-To: <20040930142004.GB3251@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
 
-> On Thu, Sep 30 2004, Shailabh Nagar wrote:
-> 
->>Jens Axboe wrote:
->>
->>>Hi,
->>>
->>>Missed this patch the first time over (thank you lwn :-) - why are you
->>>using atomic counters? In all the paths you set them, you already have
->>>the queue lock.
->>>
->>
->>Thats right, there's no need for them. I used these instinctively....
->>Will fix in next version, unless (hint, hint) you're taking a look at 
->>adding priorities back to mainline's CFQ.
-> 
-> 
-> It will never be for the mainline cfq, that is a dead code base. -mm has
-> a first stab at a cfq v2 with persistent io contexts, the priority based
-> code will go on top of that.
-> 
+Hi,
 
-Great. In CKRM, we'll switch to using -mm's cfq then.
+Sorry if this is too off topic, but I thought it might be of 
+interrest to the people responsible for the FAT code in the kernel and 
+possibly others.
 
--- Shailabh
+The Public Patent Foundation (http://www.pubpat.org/) has succeded in 
+getting Microsofts patent on FAT ruled invalid. It's not all over yet, but 
+it looks good, so it looks like we don't have to fear infringement of this 
+patent any longer.
+
+There's more info at groklaw :  
+http://www.groklaw.net/article.php?story=20040930074317160
+and at PubPat :
+http://www.pubpat.org/Microsoft_517_Rejected.htm
+
+--
+Jesper Juhl
+

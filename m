@@ -1,70 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264883AbUEVDtQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUEVDta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264883AbUEVDtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 23:49:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265195AbUEVDtQ
+	id S265195AbUEVDta (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 23:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265200AbUEVDta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 23:49:16 -0400
-Received: from holomorphy.com ([207.189.100.168]:15239 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264883AbUEVDtO (ORCPT
+	Fri, 21 May 2004 23:49:30 -0400
+Received: from fw.osdl.org ([65.172.181.6]:45479 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265195AbUEVDtZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 23:49:14 -0400
-Date: Fri, 21 May 2004 20:49:02 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: manfred@colorfullife.com
-Cc: mpm@selenic.com, linux-kernel@vger.kernel.org
-Subject: slab redzoning
-Message-ID: <20040522034902.GB2161@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	manfred@colorfullife.com, mpm@selenic.com,
-	linux-kernel@vger.kernel.org
+	Fri, 21 May 2004 23:49:25 -0400
+Date: Fri, 21 May 2004 20:46:18 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Vadim Lobanov <vadim@cs.washington.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Starting project.
+Message-Id: <20040521204618.6a89ddf9.rddunlap@osdl.org>
+In-Reply-To: <20040521201011.D8524-100000@attu4.cs.washington.edu>
+References: <20040521201011.D8524-100000@attu4.cs.washington.edu>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The code does not appear to match the intent for slab redzoning sizing.
-It wants to ignore size increases when order 0 allocations are involved,
-and otherwise to allow the size increase except when it would make the
-size cross a power of 2 boundary.
+On Fri, 21 May 2004 20:22:15 -0700 (PDT) Vadim Lobanov <vadim@cs.washington.edu> wrote:
 
-This actually came under scrutiny during a discussion of fls() usage,
-but there appears to be little that can be done there.
+| Hello,
+| 
+| Up to now, I've been reading up on various outside sources about the 
+| structure of the Linux kernel, as well as following the discussions on 
+| this list. Though so far I've only had experience at writing userland 
+| programs on *nixes, I've acquired a curiosity for the overall structure of 
+| the kernel, the algorithms it uses, and its evolution over time. Though I 
+| know the theory behind operating systems in general, I'd like to get some 
+| hands-on practice. For this reason, I am curious if a list of pending 
+| TODOs/projects relating to the kernel or drivers is maintained anywhere,
+| such that I could pick a simple one to try to work on, for starters. After 
+| all, the best way to learn is to dive right in. :)
 
-The following patch attempts to correct this variation of code from
-intent and to document the intent in more detail. Untested.
+It depends.  on your interest level, project goals(s)/size, etc.
+BTW, please use 2.6.x for anything new that you do.
 
-One thing that could happen is to change or clarify what's trying to
-be done to be something other than what I've arranged this to do. The
-important point is that the current code doesn't match the intent.
+There are current iSCSI and Infiniband driver projects underway.
+These are attempts to add fairly large, new drivers to the kernel.
 
+For a list of smaller, get-your-feet-wet projects, you could consider
+some of these:
 
-Index: mm4-2.6.6/mm/slab.c
-===================================================================
---- mm4-2.6.6.orig/mm/slab.c	2004-05-21 14:30:17.000000000 -0700
-+++ mm4-2.6.6/mm/slab.c	2004-05-21 20:13:07.892507000 -0700
-@@ -1158,8 +1158,21 @@
- 	 * large objects, if the increased size would increase the object size
- 	 * above the next power of two: caches with object sizes just above a
- 	 * power of two have a significant amount of internal fragmentation.
-+	 *
-+	 * The situation we're trying to avoid is there being a power of 2,
-+	 * 2**n for some n, where size < 2**n <= size + 3*BYTES_PER_WORD,
-+	 * but excepting anything smaller than a page.
-+	 * PAGE_SIZE >= 1024 and 3*BYTES_PER_WORD <= 24 so ignore the
-+	 * case where size would more than double from redzone overhead
-+	 * in this check; it's taken care of by checking for <= PAGE_SIZE.
-+	 * 1 << fls(size) is the next power of 2 above size, so then
-+	 * this checks that size is more than 3*BYTES_PER_WORD below it.
-+	 * This also special cases the case where size is a power of 2,
-+	 * where fragmentation would be increased greatly.
- 	 */
--	if ((size < 4096 || fls(size-1) == fls(size-1+3*BYTES_PER_WORD)))
-+	if (size + 3*BYTES_PER_WORD <= PAGE_SIZE ||
-+				((size & (size - 1)) &&
-+				(1 << fls(size)) - size > 3*BYTES_PER_WORD))
- 		flags |= SLAB_RED_ZONE|SLAB_STORE_USER;
- 	flags |= SLAB_POISON;
- #endif
+- the current must-fix list, which is kept in the latest
+	-mm tree patch; current file is here (but there is
+	no permanent URL for it):
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-mm4/broken-out/must-fix.patch
+
+the current kernel-janitors project TODO list:
+http://janitor.kernelnewbies.org/TODO
+(but check on their mailing list before taking one of these on)
+
+Bug reports from the Stanford Checker project, but these are mostly
+email postings*, not web postings:
+http://metacomp.stanford.edu/
+
+Bug reports from the Coverity people (like Checker):
+http://www.coverity.com/main.html
+but mostly email postings*
+
+Bug reports from the OPERA project (similar to Checker, but from
+UIUC):	http://carmen.cs.uiuc.edu/
+but mostly email postings*
+
+Current bugs in the kernel bugzilla database:
+http://bugzilla.kernel.org/
+
+Some projects maintain their own TODO list.  If there are some areas
+that you are particularly interested in, check with them to see if
+they have a TODO list.
+
+--
+~Randy

@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261511AbSJHXU5>; Tue, 8 Oct 2002 19:20:57 -0400
+	id <S263314AbSJHXZh>; Tue, 8 Oct 2002 19:25:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261518AbSJHXUE>; Tue, 8 Oct 2002 19:20:04 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:56329 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261511AbSJHXTK>;
-	Tue, 8 Oct 2002 19:19:10 -0400
-Date: Tue, 8 Oct 2002 16:21:06 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] USB and driver core changes for 2.5.41
-Message-ID: <20021008232105.GI11337@kroah.com>
-References: <20021008231511.GA11337@kroah.com> <20021008231557.GB11337@kroah.com> <20021008231646.GC11337@kroah.com> <20021008231747.GD11337@kroah.com> <20021008231832.GE11337@kroah.com> <20021008231903.GF11337@kroah.com> <20021008231957.GG11337@kroah.com> <20021008232032.GH11337@kroah.com>
+	id <S263238AbSJHXVu>; Tue, 8 Oct 2002 19:21:50 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:59048 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261721AbSJHXT7>;
+	Tue, 8 Oct 2002 19:19:59 -0400
+Date: Tue, 08 Oct 2002 16:18:38 -0700 (PDT)
+Message-Id: <20021008.161838.15299897.davem@redhat.com>
+To: bidulock@openss7.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: export of sys_call_table
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021008162017.A11261@openss7.org>
+References: <20021004164151.D2962@openss7.org>
+	<20021004.153804.94857396.davem@redhat.com>
+	<20021008162017.A11261@openss7.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021008232032.GH11337@kroah.com>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.573.92.19 -> 1.573.92.20
-#	drivers/usb/core/usb.c	1.92    -> 1.93   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/08	greg@kroah.com	1.573.92.20
-# USB: removed unused DEVFS /sbin/hotplug attribute
-# --------------------------------------------
-#
-diff -Nru a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
---- a/drivers/usb/core/usb.c	Tue Oct  8 15:53:32 2002
-+++ b/drivers/usb/core/usb.c	Tue Oct  8 15:53:32 2002
-@@ -558,14 +558,6 @@
- 	 */
- 	envp [i++] = scratch;
- 	length += snprintf (scratch, buffer_size - length,
--			    "%s", "DEVFS=/proc/bus/usb");
--	if ((buffer_size - length <= 0) || (i >= num_envp))
--		return -ENOMEM;
--	++length;
--	scratch += length;
--
--	envp [i++] = scratch;
--	length += snprintf (scratch, buffer_size - length,
- 			    "DEVICE=/proc/bus/usb/%03d/%03d",
- 			    usb_dev->bus->busnum, usb_dev->devnum);
- 	if ((buffer_size - length <= 0) || (i >= num_envp))
+   From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+   Date: Tue, 8 Oct 2002 16:20:17 -0600
+
+   This version (courtesy of Dave Grothe at GCOM) uses up/down
+   semaphore instead of read/write spinlocks.
+   
+Oh really?
+
+   +static int (*do_putpmsg) (int, void *, void *, int, int) = NULL;
+   +static int (*do_getpmsg) (int, void *, void *, int, int) = NULL;
+   +
+   +static rwlock_t streams_call_lock = RW_LOCK_UNLOCKED;
+           ^^^^^^^^
+   +
+   +long asmlinkage sys_putpmsg(int fd, void *ctlptr, void *datptr, int band, int flags)
+   +{
+   +	int ret = -ENOSYS;
+   +	read_lock(&streams_call_lock);
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   +	if (do_putpmsg)
+   +		ret = (*do_putpmsg) (fd, ctlptr, datptr, band, flags);
+   +	read_unlock(&streams_call_lock);
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   +	return ret;
+   +}

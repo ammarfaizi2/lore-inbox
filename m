@@ -1,35 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262479AbSI2Nw2>; Sun, 29 Sep 2002 09:52:28 -0400
+	id <S262478AbSI2NtG>; Sun, 29 Sep 2002 09:49:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262480AbSI2Nw2>; Sun, 29 Sep 2002 09:52:28 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:17282
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S262479AbSI2Nw1>; Sun, 29 Sep 2002 09:52:27 -0400
-Date: Sun, 29 Sep 2002 10:06:53 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: v2.6 vs v3.0
-Message-ID: <20020929100653.B31787@animx.eu.org>
-References: <200209290114.15994.jdickens@ameritech.net> <Pine.LNX.4.44.0209290858170.22404-100000@innerfire.net> <20020929134620.GD2153@gallifrey>
-Mime-Version: 1.0
+	id <S262480AbSI2NtG>; Sun, 29 Sep 2002 09:49:06 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:24255 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S262478AbSI2NtE>;
+	Sun, 29 Sep 2002 09:49:04 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Generic HDLC interface continued
+References: <m3y99nrtsu.fsf@defiant.pm.waw.pl>
+	<20020928202138.A17244@se1.cogenit.fr>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 29 Sep 2002 15:49:22 +0200
+In-Reply-To: <20020928202138.A17244@se1.cogenit.fr>
+Message-ID: <m3smzsnbx9.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <20020929134620.GD2153@gallifrey>; from Dr. David Alan Gilbert on Sun, Sep 29, 2002 at 02:46:20PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In my case I gave 2.5.x an attempt at building on my x86 box a few weeks
-> ago but had to give up because of the lack of LVM which I rely on.
-> 
-> I fancy having a go on some of my non-x86 boxen; does anyone know the
-> state of 2.5.x for non-x86?
-> 
-> (Does anyone other than some marketing bods really care if it is 2.6 or
-> 3.0 - I definitly don't).
+Francois Romieu <romieu@cogenit.fr> writes:
 
-I thought 2.4 should be 3.0 since 1.3 went to 2.0 =)
+> > Addressing the second problem (unknown data length) requires the caller
+> > (user-space utils) to supply allocated space size. The kernel would
+> > update the size to reflect the actual amount of data required, allowing
+> > the caller to allocate more space and try again (or ignore the unknown
+> > interface).
+> 
+> If size/limit of an underlying object is in a structure for other purpose
+> than debygging, it means something (S) is working with an object and it (S)
+> doesn't know what it is.
+> Design proble: always work with an object whose 
+> identity you know or simply pass a reference to someone knowing better.
 
+Not exactly. The caller always knows meaning of the returned value
+(or it reports error etc). The caller doesn't just know size of the value
+_in_advance_, as it isn't constant. Still, meaning of the variable portion
+of the data is defined by the constant part.
+
+It won't be a problem if allocating space is a kernel task.
+
+> struct ifreq
+...
+
+>         struct {
+>              int type;
+>              union {
+>                  raw_hdlc_proto *;
+>                  ...
+>                  sync_serial_settings *;
+>                  etc_line_settings *;
+> 			}
+> 		} ifru_settings;
+>     } ifr_ifru;
+> };
+> 
+> Note however that struct ifreq on amphetamin (wrt lines of code) doesn't 
+> improve readability for everybody. That's a slightly different problem.
+
+Of course, I didn't want to include all the member structs directly
+in ifreq definition (in the header file). I just did it for the purpose
+of discussion.
+
+> > What is important here is that inner union consists of pointers
+> > to *_proto / *_settings structs and not of the structs themselves.
+> 
+> Agree on this.
+> 
+> > Another solution - using a different ifreq structs for different tasks
+> > (something like the sockaddr_*) - sort of:
+> [...]
+> 
+> I am not too fond of this and, again, what are these 'size' for ?
+> If it's supposed to replace/duplicate ifreq, the 'settings' part should
+> be a pointer imho. Same reason as before: size change => compatibility 
+> problems for tools (we have sources but downgrading tools when returning to
+> previous kernel sucks).
+
+Yes. That's why I want to finally have a well-designed interface,
+with no need for changes in the future (except as needed for new
+interfaces/protocols etc).
+That's why I want to do it in 2.5 and then downport it to 2.4
+and possibly even to 2.2.
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Krzysztof Halasa
+Network Administrator

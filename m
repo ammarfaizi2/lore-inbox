@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263154AbUDMDeH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 23:34:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263164AbUDMDeH
+	id S263169AbUDMDmp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 23:42:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263192AbUDMDmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 23:34:07 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:34766 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S263154AbUDMDeF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 23:34:05 -0400
+	Mon, 12 Apr 2004 23:42:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:27102 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263169AbUDMDml (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 23:42:41 -0400
+Date: Mon, 12 Apr 2004 20:42:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org, mpm@selenic.com
 Subject: Re: [PATCH] eliminate nswap and cnswap
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton OSDL <akpm@osdl.org>, mpm@selenic.com
-Content-Type: text/plain
-Organization: 
-Message-Id: <1081827102.1593.227.camel@cube>
+Message-Id: <20040412204223.2a07d123.akpm@osdl.org>
+In-Reply-To: <1081827102.1593.227.camel@cube>
+References: <1081827102.1593.227.camel@cube>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 12 Apr 2004 23:31:43 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The nswap and cnswap variables counters have never
-> been incremented as Linux doesn't do task swapping.
+Albert Cahalan <albert@users.sourceforge.net> wrote:
+>
+> > The nswap and cnswap variables counters have never
+> > been incremented as Linux doesn't do task swapping.
+> 
+> I'm pretty sure they were used for paging activity.
+> We don't eliminate support for "swap space", do we?
+> 
+> Somebody must have broken nswap and cnswap while
+> hacking on some vm code. I hate to see the variables
+> get completely ripped out of the kernel instead of
+> getting fixed.
 
-I'm pretty sure they were used for paging activity.
-We don't eliminate support for "swap space", do we?
+There's nothing in 2.4 which increments these, nor was there in 2.6.  Which
+tends to imply that they weren't very important.
 
-Somebody must have broken nswap and cnswap while
-hacking on some vm code. I hate to see the variables
-get completely ripped out of the kernel instead of
-getting fixed.
-
-
-
+We could sort-of do this - move them into mm_struct (doing it in
+task_struct was always wrong) and increment them in the VM.  But we'd need
+some reason why these statistics are interesting, and we'd need an
+explanation of what nswap and cnswap are actually supposed to represent.  
 

@@ -1,46 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264253AbSIVPDu>; Sun, 22 Sep 2002 11:03:50 -0400
+	id <S264260AbSIVPVJ>; Sun, 22 Sep 2002 11:21:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264258AbSIVPDt>; Sun, 22 Sep 2002 11:03:49 -0400
-Received: from mta04bw.bigpond.com ([139.134.6.87]:25550 "EHLO
-	mta04bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S264253AbSIVPDt>; Sun, 22 Sep 2002 11:03:49 -0400
-Message-ID: <3D8DDD85.9020102@snapgear.com>
-Date: Mon, 23 Sep 2002 01:11:01 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S264261AbSIVPVJ>; Sun, 22 Sep 2002 11:21:09 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:33809 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S264260AbSIVPVI>; Sun, 22 Sep 2002 11:21:08 -0400
+Date: Sun, 22 Sep 2002 17:24:12 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: Re: [kbuild-devel] linux kernel conf 0.6
+In-Reply-To: <20020920071055.A1852@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.44.0209221648180.338-100000@serv>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.5.38uc0 (MMU-less support)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hi All,
+On Fri, 20 Sep 2002, Sam Ravnborg wrote:
 
-Latest MMUless support patches, against linux-2.5.38,
-are up at:
+> I have been working on integrating lkc with kbuild.
+> Here is the result.
 
-    http://www.uclinux.org/pub/uClinux/uClinux-2.5.x.
+Thanks, nice work. :)
 
-The patch file is linux-2.5.38uc0.patch.gz
+> Rules.make
+> - Added infrastructure to support host-ccprogs, in other words
+>   support tools written (partly) in c++.
 
-After the hiccup that was 2.5.17 this one patched pretty
-easily. Happy hacking :-)
+There are all compiled with gcc instead of g++, are you sure that will ok
+with all supported gcc versions?
 
-Regards
-Greg
+> scripts/lkc/Makefile*
+> - As kbuild does not distingush between individual objects,
+>   used for a given target, but (try to) build them all, I have
+>   found a solution where I create one Makefile for each executable.
+>   I could not see a clean way to integrate this in kbuild, and finally
+>   decided that in this special case a number of Makefiles did not
+>   hurt too much.
 
+Here I thought about using "ifeq ($(MAKECMDGOALS),...)" to keep them in a
+single file. Did you try something like this?
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+> flex/bison
+> - Prepared for "_shipped" files.
+>   Rename lex.zconf.c to lex.zconf.c_shipped etc. in the version
+>   reday to go in the kernel.
+
+This works quite well for users, but it's very annoying for the developer.
+Kai, any chances to use md5sum for this at some point, e.g. with a helper
+script like this:
+
+set -e
+src=$1
+dst=$2
+shift 2
+
+test -f $dst && tail -1 $dst | sed 's,/\* \(.*\) \*/,\1,' | md5sum -c && touch $dst && exit 0
+echo "$@"
+"$@"
+echo "/* $(md5sum $src) */" >> $dst
+
+The only problem with this script is that it only supports a single input
+and output file.
+
+Something else I'd like to have for later is the ability to compile
+$(sharedobjs) as a shared library and install it somewhere so it can be
+used by external programs.
+
+bye, Roman
 
 

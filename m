@@ -1,258 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265382AbSLCSF3>; Tue, 3 Dec 2002 13:05:29 -0500
+	id <S265012AbSLCSQn>; Tue, 3 Dec 2002 13:16:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265426AbSLCSF3>; Tue, 3 Dec 2002 13:05:29 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:19660 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S265382AbSLCSFY>;
-	Tue, 3 Dec 2002 13:05:24 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: linux-kernel@vger.kernel.org
-Date: Tue, 3 Dec 2002 19:12:27 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: 2.5.50-bk: floppy: buffer layout error ...
-X-mailer: Pegasus Mail v3.50
-Message-ID: <94A09B0451B@vcnet.vc.cvut.cz>
+	id <S265033AbSLCSQn>; Tue, 3 Dec 2002 13:16:43 -0500
+Received: from mg02.austin.ibm.com ([192.35.232.12]:62462 "EHLO
+	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S265012AbSLCSQm>; Tue, 3 Dec 2002 13:16:42 -0500
+Subject: Re: [Linux-pm-devel] Re: IBM/MontaVista Dynamic Power Management
+	Project
+From: Hollis Blanchard <hollis@austin.ibm.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Bishop Brock <bcbrock@us.ibm.com>, linux-kernel@vger.kernel.org,
+       cpufreq@www.linux.uk.org, linux-pm-devel@lists.sourceforge.net
+In-Reply-To: <1038938270.28176.2.camel@laptop.fenrus.com>
+References: <OF6879354C.0478D137-ON86256C84.005CA3C0@pok.ibm.com> 
+	<1038938270.28176.2.camel@laptop.fenrus.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-dRw3b9S3yuVVY6qYfUZq"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Dec 2002 12:27:03 -0600
+Message-Id: <1038940024.1249.190.camel@granite.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  is there some known problem with error handling in floppy driver?
-It complains loudly that "buffer layer error at fs/buffer.c:2641"
-and fs/buffer.c:2690. It happened during floppy write. After reformatting
-floppy write succeeded without any complaints.
-                                            Thanks,
-                                                   Petr Vandrovec
-                                                   
-  
-end_request: I/O error, dev fd0, sector 2872
-Buffer I/O error on device fd(2,0), logical block 359
-buffer layer error at fs/buffer.c:2641
-Pass this trace through ksymoops for reporting
-Call Trace:
- [<c014cdf3>] __buffer_error+0x33/0x38
- [<c0150171>] check_ttfb_buffer+0x41/0x48
- [<c01501a7>] drop_buffers+0x2f/0xb0
- [<c01502bc>] try_to_free_buffers+0x94/0x108
- [<c01311cd>] __remove_from_page_cache+0x2d/0x68
- [<c014e586>] try_to_release_page+0x42/0x48
- [<c0139b4d>] invalidate_complete_page+0x25/0xa4
- [<c0139eeb>] invalidate_inode_pages+0x6f/0xcc
- [<c014d415>] invalidate_bdev+0x19/0x20
- [<c01525b5>] kill_bdev+0xd/0x28
- [<c0153a12>] blkdev_put+0xbe/0x208
- [<c0153b6e>] blkdev_close+0x12/0x18
- [<c014c9e4>] __fput+0x30/0x144
- [<c014c9b0>] fput+0x14/0x18
- [<c014b45d>] filp_close+0x101/0x10c
- [<c014b4d6>] sys_close+0x6e/0x8c
- [<c0108dc7>] syscall_call+0x7/0xb
 
-buffer layer error at fs/buffer.c:2690
-Pass this trace through ksymoops for reporting
-Call Trace:
- [<c014cdf3>] __buffer_error+0x33/0x38
- [<c01501df>] drop_buffers+0x67/0xb0
- [<c01502bc>] try_to_free_buffers+0x94/0x108
- [<c01311cd>] __remove_from_page_cache+0x2d/0x68
- [<c014e586>] try_to_release_page+0x42/0x48
- [<c0139b4d>] invalidate_complete_page+0x25/0xa4
- [<c0139eeb>] invalidate_inode_pages+0x6f/0xcc
- [<c014d415>] invalidate_bdev+0x19/0x20
- [<c01525b5>] kill_bdev+0xd/0x28
- [<c0153a12>] blkdev_put+0xbe/0x208
- [<c0153b6e>] blkdev_close+0x12/0x18
- [<c014c9e4>] __fput+0x30/0x144
- [<c014c9b0>] fput+0x14/0x18
- [<c014b45d>] filp_close+0x101/0x10c
- [<c014b4d6>] sys_close+0x6e/0x8c
- [<c0108dc7>] syscall_call+0x7/0xb
+--=-dRw3b9S3yuVVY6qYfUZq
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-buffer layer error at fs/buffer.c:2641
-Pass this trace through ksymoops for reporting
-Call Trace:
- [<c014cdf3>] __buffer_error+0x33/0x38
- [<c0150171>] check_ttfb_buffer+0x41/0x48
- [<c01501a7>] drop_buffers+0x2f/0xb0
- [<c01502bc>] try_to_free_buffers+0x94/0x108
- [<c01311cd>] __remove_from_page_cache+0x2d/0x68
- [<c014e586>] try_to_release_page+0x42/0x48
- [<c0139b4d>] invalidate_complete_page+0x25/0xa4
- [<c0139eeb>] invalidate_inode_pages+0x6f/0xcc
- [<c014d415>] invalidate_bdev+0x19/0x20
- [<c01525b5>] kill_bdev+0xd/0x28
- [<c0153a12>] blkdev_put+0xbe/0x208
- [<c0153b6e>] blkdev_close+0x12/0x18
- [<c014c9e4>] __fput+0x30/0x144
- [<c014c9b0>] fput+0x14/0x18
- [<c014b45d>] filp_close+0x101/0x10c
- [<c014b4d6>] sys_close+0x6e/0x8c
- [<c0108dc7>] syscall_call+0x7/0xb
+On Tue, 2002-12-03 at 11:57, Arjan van de Ven wrote:
+> On Tue, 2002-12-03 at 18:46, Bishop Brock wrote:
+> > IBM and MontaVista have initiated a joint project to develop a
+> > dynamic power management control and policy mechanism for Linux
+> > for processors supporting dynamic voltage and frequency scaling.
+> > A paper describing the proposal can be obtained from
+> >=20
+> > http://www.research.ibm.com/arl/projects/dpm.html
+> >=20
+> > A working prototype of the proposed framework for
+> > the IBM PowerPC 405LP processor exists and will be made
+> > public in the near future.
+>=20
+> any idea if/how this will fit into the existing cross platform cpufreq
+> framework ?
 
-buffer layer error at fs/buffer.c:2690
-Pass this trace through ksymoops for reporting
-Call Trace:
- [<c014cdf3>] __buffer_error+0x33/0x38
- [<c01501df>] drop_buffers+0x67/0xb0
- [<c01502bc>] try_to_free_buffers+0x94/0x108
- [<c01311cd>] __remove_from_page_cache+0x2d/0x68
- [<c014e586>] try_to_release_page+0x42/0x48
- [<c0139b4d>] invalidate_complete_page+0x25/0xa4
- [<c0139eeb>] invalidate_inode_pages+0x6f/0xcc
- [<c014d415>] invalidate_bdev+0x19/0x20
- [<c01525b5>] kill_bdev+0xd/0x28
- [<c0153a12>] blkdev_put+0xbe/0x208
- [<c0153b6e>] blkdev_close+0x12/0x18
- [<c014c9e4>] __fput+0x30/0x144
- [<c014c9b0>] fput+0x14/0x18
- [<c014b45d>] filp_close+0x101/0x10c
- [<c014b4d6>] sys_close+0x6e/0x8c
- [<c0108dc7>] syscall_call+0x7/0xb
+It subsumes it, similar to Dominik's ideas in "[RFC] Dynamic Frequency
+and Voltage Scaling Infrastructure" (on the cpufreq list). The idea is
+that you want scaling events to be generated by the kernel rather than
+only scaling on userland input. The paper (and Dominik's mail) give you
+some ideas of when and why...
 
-buffer layer error at fs/buffer.c:2641
-Pass this trace through ksymoops for reporting
-Call Trace:
- [<c014cdf3>] __buffer_error+0x33/0x38
- [<c0150171>] check_ttfb_buffer+0x41/0x48
- [<c01501a7>] drop_buffers+0x2f/0xb0
- [<c01502bc>] try_to_free_buffers+0x94/0x108
- [<c01311cd>] __remove_from_page_cache+0x2d/0x68
- [<c014e586>] try_to_release_page+0x42/0x48
- [<c0139b4d>] invalidate_complete_page+0x25/0xa4
- [<c0139eeb>] invalidate_inode_pages+0x6f/0xcc
- [<c014d415>] invalidate_bdev+0x19/0x20
- [<c01525b5>] kill_bdev+0xd/0x28
- [<c0153a12>] blkdev_put+0xbe/0x208
- [<c0153b6e>] blkdev_close+0x12/0x18
- [<c014c9e4>] __fput+0x30/0x144
- [<c014c9b0>] fput+0x14/0x18
- [<c014b45d>] filp_close+0x101/0x10c
- [<c014b4d6>] sys_close+0x6e/0x8c
- [<c0108dc7>] syscall_call+0x7/0xb
+-Hollis
+--=20
+PowerPC Linux
+IBM Linux Technology Center
 
-buffer layer error at fs/buffer.c:2690
-Pass this trace through ksymoops for reporting
-Call Trace:
- [<c014cdf3>] __buffer_error+0x33/0x38
- [<c01501df>] drop_buffers+0x67/0xb0
- [<c01502bc>] try_to_free_buffers+0x94/0x108
- [<c01311cd>] __remove_from_page_cache+0x2d/0x68
- [<c014e586>] try_to_release_page+0x42/0x48
- [<c0139b4d>] invalidate_complete_page+0x25/0xa4
- [<c0139eeb>] invalidate_inode_pages+0x6f/0xcc
- [<c014d415>] invalidate_bdev+0x19/0x20
- [<c01525b5>] kill_bdev+0xd/0x28
- [<c0153a12>] blkdev_put+0xbe/0x208
- [<c0153b6e>] blkdev_close+0x12/0x18
- [<c014c9e4>] __fput+0x30/0x144
- [<c014c9b0>] fput+0x14/0x18
- [<c014b45d>] filp_close+0x101/0x10c
- [<c014b4d6>] sys_close+0x6e/0x8c
- [<c0108dc7>] syscall_call+0x7/0xb
+--=-dRw3b9S3yuVVY6qYfUZq
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-buffer layer error at fs/buffer.c:2641
-Pass this trace through ksymoops for reporting
-Call Trace:
- [<c014cdf3>] __buffer_error+0x33/0x38
- [<c0150171>] check_ttfb_buffer+0x41/0x48
- [<c01501a7>] drop_buffers+0x2f/0xb0
- [<c01502bc>] try_to_free_buffers+0x94/0x108
- [<c01311cd>] __remove_from_page_cache+0x2d/0x68
- [<c014e586>] try_to_release_page+0x42/0x48
- [<c0139b4d>] invalidate_complete_page+0x25/0xa4
- [<c0139eeb>] invalidate_inode_pages+0x6f/0xcc
- [<c014d415>] invalidate_bdev+0x19/0x20
- [<c01525b5>] kill_bdev+0xd/0x28
- [<c0153a12>] blkdev_put+0xbe/0x208
- [<c0153b6e>] blkdev_close+0x12/0x18
- [<c014c9e4>] __fput+0x30/0x144
- [<c014c9b0>] fput+0x14/0x18
- [<c014b45d>] filp_close+0x101/0x10c
- [<c014b4d6>] sys_close+0x6e/0x8c
- [<c0108dc7>] syscall_call+0x7/0xb
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-buffer layer error at fs/buffer.c:2690
-Pass this trace through ksymoops for reporting
-Call Trace:
- [<c014cdf3>] __buffer_error+0x33/0x38
- [<c01501df>] drop_buffers+0x67/0xb0
- [<c01502bc>] try_to_free_buffers+0x94/0x108
- [<c01311cd>] __remove_from_page_cache+0x2d/0x68
- [<c014e586>] try_to_release_page+0x42/0x48
- [<c0139b4d>] invalidate_complete_page+0x25/0xa4
- [<c0139eeb>] invalidate_inode_pages+0x6f/0xcc
- [<c014d415>] invalidate_bdev+0x19/0x20
- [<c01525b5>] kill_bdev+0xd/0x28
- [<c0153a12>] blkdev_put+0xbe/0x208
- [<c0153b6e>] blkdev_close+0x12/0x18
- [<c014c9e4>] __fput+0x30/0x144
- [<c014c9b0>] fput+0x14/0x18
- [<c014b45d>] filp_close+0x101/0x10c
- [<c014b4d6>] sys_close+0x6e/0x8c
- [<c0108dc7>] syscall_call+0x7/0xb
+iD8DBQA97Pd34KXmU2P6AeoRAsmMAKCh5vZCf0NW0euko78Z5YSVrlKaIQCeK6YU
+zxB0qW3Gk9oLBxld7qmiBLw=
+=B196
+-----END PGP SIGNATURE-----
 
-buffer layer error at fs/buffer.c:2641
-Pass this trace through ksymoops for reporting
-Call Trace:
- [<c014cdf3>] __buffer_error+0x33/0x38
- [<c0150171>] check_ttfb_buffer+0x41/0x48
- [<c01501a7>] drop_buffers+0x2f/0xb0
- [<c01502bc>] try_to_free_buffers+0x94/0x108
- [<c01311cd>] __remove_from_page_cache+0x2d/0x68
- [<c014e586>] try_to_release_page+0x42/0x48
- [<c0139b4d>] invalidate_complete_page+0x25/0xa4
- [<c0139eeb>] invalidate_inode_pages+0x6f/0xcc
- [<c014d415>] invalidate_bdev+0x19/0x20
- [<c01525b5>] kill_bdev+0xd/0x28
- [<c0153a12>] blkdev_put+0xbe/0x208
- [<c0153b6e>] blkdev_close+0x12/0x18
- [<c014c9e4>] __fput+0x30/0x144
- [<c014c9b0>] fput+0x14/0x18
- [<c014b45d>] filp_close+0x101/0x10c
- [<c014b4d6>] sys_close+0x6e/0x8c
- [<c0108dc7>] syscall_call+0x7/0xb
-
-buffer layer error at fs/buffer.c:2690
-Pass this trace through ksymoops for reporting
-Call Trace:
- [<c014cdf3>] __buffer_error+0x33/0x38
- [<c01501df>] drop_buffers+0x67/0xb0
- [<c01502bc>] try_to_free_buffers+0x94/0x108
- [<c01311cd>] __remove_from_page_cache+0x2d/0x68
- [<c014e586>] try_to_release_page+0x42/0x48
- [<c0139b4d>] invalidate_complete_page+0x25/0xa4
- [<c0139eeb>] invalidate_inode_pages+0x6f/0xcc
- [<c014d415>] invalidate_bdev+0x19/0x20
- [<c01525b5>] kill_bdev+0xd/0x28
- [<c0153a12>] blkdev_put+0xbe/0x208
- [<c0153b6e>] blkdev_close+0x12/0x18
- [<c014c9e4>] __fput+0x30/0x144
- [<c014c9b0>] fput+0x14/0x18
- [<c014b45d>] filp_close+0x101/0x10c
- [<c014b4d6>] sys_close+0x6e/0x8c
- [<c0108dc7>] syscall_call+0x7/0xb
-
-buffer layer error at fs/buffer.c:2641
-Pass this trace through ksymoops for reporting
-Call Trace:
- [<c014cdf3>] __buffer_error+0x33/0x38
- [<c0150171>] check_ttfb_buffer+0x41/0x48
- [<c01501a7>] drop_buffers+0x2f/0xb0
- [<c01502bc>] try_to_free_buffers+0x94/0x108
- [<c01311cd>] __remove_from_page_cache+0x2d/0x68
- [<c014e586>] try_to_release_page+0x42/0x48
- [<c0139b4d>] invalidate_complete_page+0x25/0xa4
- [<c0139eeb>] invalidate_inode_pages+0x6f/0xcc
- [<c014d415>] invalidate_bdev+0x19/0x20
- [<c01525b5>] kill_bdev+0xd/0x28
- [<c0153a12>] blkdev_put+0xbe/0x208
- [<c0153b6e>] blkdev_close+0x12/0x18
- [<c014c9e4>] __fput+0x30/0x144
- [<c014c9b0>] fput+0x14/0x18
- [<c014b45d>] filp_close+0x101/0x10c
- [<c014b4d6>] sys_close+0x6e/0x8c
- [<c0108dc7>] syscall_call+0x7/0xb
+--=-dRw3b9S3yuVVY6qYfUZq--
 

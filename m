@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263827AbUE2H42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263885AbUE2ICT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263827AbUE2H42 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 03:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263885AbUE2H42
+	id S263885AbUE2ICT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 04:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUE2ICT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 03:56:28 -0400
-Received: from mail.tpgi.com.au ([203.12.160.113]:20361 "EHLO
-	mail6.tpgi.com.au") by vger.kernel.org with ESMTP id S263827AbUE2H41
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 03:56:27 -0400
-Message-ID: <40B83F15.9070701@linuxmail.org>
-Date: Sat, 29 May 2004 17:43:17 +1000
+	Sat, 29 May 2004 04:02:19 -0400
+Received: from mail.tpgi.com.au ([203.12.160.57]:62597 "EHLO mail1.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S263885AbUE2ICO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 04:02:14 -0400
+Message-ID: <40B84065.3000106@linuxmail.org>
+Date: Sat, 29 May 2004 17:48:53 +1000
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Pavel Machek <pavel@ucw.cz>
-CC: swsusp-devel@lists.sourceforge.net,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [Swsusp-devel] suspend2 problems on SMP machine, incorrect tainting
-References: <20040528103549.GA2789@elf.ucw.cz>
-In-Reply-To: <20040528103549.GA2789@elf.ucw.cz>
+CC: Rob Landley <rob@landley.net>, seife@suse.de, linux-kernel@vger.kernel.org,
+       Suspend list <swsusp-devel@lists.sourceforge.net>
+Subject: Re: swappiness=0 makes software suspend fail.
+References: <200405280000.56742.rob@landley.net> <20040528215642.GA927@elf.ucw.cz>
+In-Reply-To: <20040528215642.GA927@elf.ucw.cz>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again.
+Hi.
 
-I should mention that the code is not perfectly stable at the moment. As soon as it is I'll get 
-stuck into last cleanups and then the merge. Crashes I'm seeing involve an oops shortly after 
-resuming, occuring in slab code. Obviously an inconsistency has somehow sneaked in. I'm away from 
-home for 8 days from Monday AM, so a fix won't be forthcoming this week. It shouldn't be far away 
-though.
+Pavel Machek wrote:
+>>With swappiness at the default (60), software suspend frees all the memory it 
+>>needs.  With swappiness at 0, software suspend basically doesn't free any 
+>>memory, and the suspend gets aborted.
+>>
+>>Just thought I'd mention it.  Tried on 2.6.6...
+> 
+> 
+> Uh, yes, right.
+> 
+> That explains why some people see bad problems I could not
+> reproduce. Thanks a lot.
+> 
+> Stefan, we may want to do echo 100 > /proc/sys/vm/swappiness in
+> suspend script...
+> 
+> 									Pavel
 
-Regards,
+This applies to suspend2 for 2.6 as well. I recently changed to using the same routines to free memory.
 
 Nigel
+
+
 -- 
 Nigel & Michelle Cunningham
 C/- Westminster Presbyterian Church Belconnen

@@ -1,88 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbVB1JnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVB1JnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261486AbVB1JnM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 04:43:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVB1JnM
+	id S261570AbVB1JnV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 04:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVB1JnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 04:43:12 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:46428 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261486AbVB1JnG (ORCPT
+	Mon, 28 Feb 2005 04:43:21 -0500
+Received: from smtp14.wxs.nl ([195.121.6.28]:64247 "EHLO smtp14.wxs.nl")
+	by vger.kernel.org with ESMTP id S261570AbVB1JnQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 04:43:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=fhYxBMLTPjtvZBKxHMndRuxHY7lpeITmBxpAeFYgZDRwExSjfZtX2mS4Bpk895VqFnzo3BrS+pPQZ/Iuv8fu0qS9iWrsn1ES6i9/D5f4Qse93J6302QKrUcgoGPKDfDHx8FiBTWp3KplDuegCk9VRT4nk8ne2ntqjlJVMAasLAE=
-Message-ID: <3f250c71050228014355797bd8@mail.gmail.com>
-Date: Mon, 28 Feb 2005 05:43:05 -0400
-From: Mauricio Lin <mauriciolin@gmail.com>
-Reply-To: Mauricio Lin <mauriciolin@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] A new entry for /proc
-Cc: hugh@veritas.com, wli@holomorphy.com, linux-kernel@vger.kernel.org,
-       rrebel@whenu.com, marcelo.tosatti@cyclades.com, nickpiggin@yahoo.com.au
-In-Reply-To: <3f250c7105022507146b4794f1@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050106202339.4f9ba479.akpm@osdl.org>
-	 <Pine.LNX.4.44.0501081917020.4949-100000@localhost.localdomain>
-	 <3f250c710502220513179b606a@mail.gmail.com>
-	 <3f250c71050224003110e74704@mail.gmail.com>
-	 <20050224010947.774628f3.akpm@osdl.org>
-	 <3f250c710502240343563c5cb0@mail.gmail.com>
-	 <20050224035255.6b5b5412.akpm@osdl.org>
-	 <3f250c7105022507146b4794f1@mail.gmail.com>
+	Mon, 28 Feb 2005 04:43:16 -0500
+Date: Mon, 28 Feb 2005 10:42:45 +0100
+From: Iwan Sanders <iwan.sanders@tuxproject.info>
+Subject: Bigmem in Linux 2.6.8
+In-reply-to: <16930.45319.682534.351648@cse.unsw.edu.au>
+X-Originating-IP: 212.26.213.3
+To: linux-kernel@vger.kernel.org
+Message-id: <1109583765.4222e795e12d4@www.proserv.ath.cx>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.5
+References: <421DE9A9.4090902@wasp.net.au> <421F4629.5080309@wasp.net.au>
+ <16930.45319.682534.351648@cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi,
 
-I comitted a mistake. Indeed the old smaps is still faster than new one.
+I've got a quick question about the amount of memory used by Linux.
+I compiled a 2.6.8 kernel on a machine with 2GB internal memory but
+it seems to use only 882MB. Did I miss an option in the config file?
 
-Take a look:
 
-Old smaps
-real 19.52
-user 2.15
-sys 17.27
+Regards,
 
-New smaps
-real 25.93
-user 3.19
-sys 22.31
+Iwan Sanders
 
-Any comments????
 
-BR,
 
-Mauricio Lin.
-
-On Fri, 25 Feb 2005 11:14:36 -0400, Mauricio Lin <mauriciolin@gmail.com> wrote:
-> Hi all,
-> 
-> I tested the two smaps entry using time command.
-> 
-> I tested 100.000 cat commands with smaps for each version.
-> 
-> I checked the difference between the two versions and the new one is
-> faster than old one. So Hugh is correct about the loop performance.
-> 
-> Thanks!!!
-> 
-> Mauricio Lin.
-> 
-> On Thu, 24 Feb 2005 03:52:55 -0800, Andrew Morton <akpm@osdl.org> wrote:
-> > Mauricio Lin <mauriciolin@gmail.com> wrote:
-> > >
-> > > But can i use jiffies to measure this kind of performance??? AFAIK, if
-> > >  it is more efficient, then it is faster, right? How can I know how
-> > >  fast it is? Any idea?
-> >
-> > umm,
-> >
-> > time ( for i in $(seq 100); do; cat /proc/nnn/smaps; done > /dev/null )
-> >
-> > ?
-> >
->
+-------------------------------------------------------------
+This message was sent though the www.proserv.ath.cx mailgate!
+ProServ - WebHosting for peanuts!

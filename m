@@ -1,76 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129257AbQKYXKG>; Sat, 25 Nov 2000 18:10:06 -0500
+        id <S131856AbQKYXM4>; Sat, 25 Nov 2000 18:12:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131856AbQKYXJ4>; Sat, 25 Nov 2000 18:09:56 -0500
-Received: from mx1.eskimo.com ([204.122.16.48]:64016 "EHLO mx1.eskimo.com")
-        by vger.kernel.org with ESMTP id <S129257AbQKYXJn>;
-        Sat, 25 Nov 2000 18:09:43 -0500
-Date: Sat, 25 Nov 2000 14:39:35 -0800 (PST)
-From: Clayton Weaver <cgweav@eskimo.com>
+        id <S131904AbQKYXMr>; Sat, 25 Nov 2000 18:12:47 -0500
+Received: from nova.acomp.usf.edu ([131.247.100.22]:14832 "EHLO
+        nova.acomp.usf.edu") by vger.kernel.org with ESMTP
+        id <S131856AbQKYXMe>; Sat, 25 Nov 2000 18:12:34 -0500
+Date: Sat, 25 Nov 2000 17:42:22 -0500 (EST)
+From: Rick Bunke <rbunke@helios.acomp.usf.edu>
+Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
 To: linux-kernel@vger.kernel.org
-Subject: reproducible 2.2.1x nethangs
-Message-ID: <Pine.SUN.3.96.1001125135348.2443A-100000@eskimo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-id: <Pine.GSO.4.21.0011251651280.28783-100000@nova.acomp.usf.edu>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel versions 2.2.17 and 2.2.18-pre23 (same behavior)
-monolithic kernel
-i21143 tulip card (may or may not be significant, stock kernel driver)
-egcs-1.1.2, glibc-2.1.3, binutils-2.9.1.0.25
+I read up on this thread in the archives (the last message in thread was
+posted on the 24th) so I'm sorry if this has already been said.
 
-I can reliably hang either 2.2.17 or 2.2.18-pre23 (same way, same
-circumstances) with httpd over eth0. It is not a particularly exotic
-kernel config (ethernet, tulip, dummy, ppp, aha154x, scsi hd/cd/tape,
-pio ide, i486, generic pci driving an sis496 pci 2.0 bus, no pci bridge 
-optimization, firewall enabled, no masq, no proxy, no adv routing). All of
-this hardware and the network are stable on 2.0.38 (ie the tcp/ip over
-ethernet hang never happens there). It happens without any ipchains
-rules installed (the support is there, but it's not configured).
+I'm having the same problem with 2.4.0-test10, but I don't have the
+problem with 2.4.0-test9.  So i think the bug might have been introduced
+in 10.
 
-It doesn't seem to do it on ftp (although that may simply be not having
-pushed it hard enough). It can handle 100s of mbs in a single ftp session
-without falling over, but a rapid sequence of httpd requests will knock
-it over every time.
+When I try to compile xfree86 (the DRI version) under test10 my system 
+locks up and then has to clean up a bunch of errors in the filesystem on
+reboot.  I went back, removed my build tree, recreated it, recompiled
+again and it would lock up again.  I did this a few times under kernel
+2.4.0-test10 and it would consistantly lock up, then I went to the kernel
+archive and found this thread which says the problem is in test11.  I then
+decided I better try out test9 and see if it was just me.  I rebooted into
+kernel 2.4.0-test9, removed my build tree, recreated it, then recompiled
+again and it worked just fine without locking up.  That is what leads me
+to believe the problem was introduced in test10 and probably carried over
+to test11.  Hope this helps. 
 
-Minor points of evidence:
+If you want more info just let me know 
+my email address is rbunke@helios.acomp.usf.edu.
 
-* on one test, "strace -ff ..." showed the second argument to accept()
-  scribbled over (6-7 lines of "^@^@..." in the child) about three forks
-  before it deadlocked. I saw the same thing at the bottom of the
-  httpd server's log after an earlier hang.
+Have Fun
+Rick
 
-* It doesn't simply stop, it suddenly gets really slow on the connect
-  where it is going to hang. The last html page downloaded on one test
-  ended up with a partial document, so it sometimes starts the data
-  transfer, it simply can't complete it (the kernel/network_stack is
-  already on it's way to the twilight zone when the download starts, it
-  simply manages to squeeze out a few packets before it gets there).
-
-* When it happens, it takes the keyboard with it, and you can't ping it.
-
-* It's not the hd filesystems. I can html browse the same files that it
-  hangs on over eth0 via lynx on the same host where the httpd server is
-  running for hours without reproducing the kernel hang. I can move gbs
-  of data around on those filesystems without errors and without
-  filesystem corruption.
-
-Since the error can be reproduced so reliably, it should be possible to
-debug it, if I know where/how to enable verbose logging.
-
-Suggestions?
-
-Regards,
-
-Clayton Weaver
-<mailto:cgweav@eskimo.com>
-(Seattle)
-
-"Everybody's ignorant, just in different subjects."  Will Rogers
-
-
+Information is the currency of democracy.
+		   - Thomas Jefferson
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315541AbSEHGsF>; Wed, 8 May 2002 02:48:05 -0400
+	id <S292730AbSEHHML>; Wed, 8 May 2002 03:12:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315542AbSEHGsC>; Wed, 8 May 2002 02:48:02 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:17603 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S315541AbSEHGrv>;
-	Wed, 8 May 2002 02:47:51 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S293457AbSEHHMK>; Wed, 8 May 2002 03:12:10 -0400
+Received: from khms.westfalen.de ([62.153.201.243]:12419 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S292730AbSEHHMK>; Wed, 8 May 2002 03:12:10 -0400
+Date: 08 May 2002 08:57:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <8OSr1ajHw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.44.0205071142001.1067-100000@home.transmeta.com>
+Subject: Re: [PATCH] 2.5.14 IDE 56
+X-Mailer: CrossPoint v3.12d.kh9 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15576.51389.931803.495093@argo.ozlabs.ibm.com>
-Date: Wed, 8 May 2002 16:42:05 +1000 (EST)
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] IDE 58
-In-Reply-To: <3CD7ECB9.9050606@evision-ventures.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+Organization: Organisation? Me?! Are you kidding?
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki writes:
+torvalds@transmeta.com (Linus Torvalds)  wrote on 07.05.02 in <Pine.LNX.4.44.0205071142001.1067-100000@home.transmeta.com>:
 
-> - Virtualize the udma_enable method as well to help ARM and PPC people.  Please
->    please if you would like to have some other methods virtualized in a similar
->    way - just tell me or even better do it yourself at the end of ide-dma.c.
->    I *don't mind* patches.
-> 
-> - Fix the pmac code to adhere to the new API. It's supposed to work again.
->    However this is blind coding... I give myself 80% chances for it to work ;-).
+> If you have /dev/hda1, that _cannot_ be a symlink to the physical tree,
+> because on a physical level that partition DOES NOT EXIST. It's purely a
+> virtual mapping.
 
-OK, now I am truly impressed.  Not only does it compile cleanly, it
-works first go!
+Well ... one *could* argue that there's justification for showing those  
+partitions by the exact same argument that there's reason to show devices  
+on a SCSI or USB bus. It's just going further down the tree.
 
-I am using the tiny patch below, it sets the unmask flag so interrupts
-will be unmasked by default (which is safe on powermacs).
+Say something like
 
-Thanks,
-Paul.
+        /driverfs/root/pci0/00:1f.4/scsi_bus/003/pc_partition/2
 
-diff -urN linux-2.5/drivers/ide/ide-pmac.c pmac-2.5/drivers/ide/ide-pmac.c
---- linux-2.5/drivers/ide/ide-pmac.c	Wed May  8 16:40:17 2002
-+++ pmac-2.5/drivers/ide/ide-pmac.c	Wed May  8 08:26:48 2002
-@@ -343,6 +343,7 @@
- 			ide_hwifs[ix].autodma = 1;
- #endif
- 	}
-+	ide_hwifs[ix].unmask = 1;
- }
- 
- #if 0
+Sure, it's software, not hardware. OTOH, it's one of the things that  
+change with hotplug. (And incidentally, fdisk changing partitions *might*  
+be handled somewhat like a hotplug event ...)
+
+As to linking to /dev, I see no reason why you couldn't have that tree  
+include information (not in the tree *structure*, obviously) of what the  
+relevant device numbers are. That's more expensive than a lookup with a  
+pointer gotten from /dev, but it's certainly possible.
+
+MfG Kai

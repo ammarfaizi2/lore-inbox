@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264413AbTDPOrQ (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 10:47:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264415AbTDPOrQ 
+	id S264415AbTDPOrY (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 10:47:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbTDPOrY 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 10:47:16 -0400
-Received: from zero.aec.at ([193.170.194.10]:54020 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264413AbTDPOrP 
+	Wed, 16 Apr 2003 10:47:24 -0400
+Received: from h000.c000.snv.cp.net ([209.228.32.64]:55806 "HELO
+	c000.snv.cp.net") by vger.kernel.org with SMTP id S264415AbTDPOrW 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 10:47:15 -0400
-Date: Wed, 16 Apr 2003 16:58:53 +0200
-From: Andi Kleen <ak@muc.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: ak@muc.de, akpm@digeo.com, linux-kernel@vger.kernel.org, anton@samba.org,
-       schwidefsky@de.ibm.com, davidm@hpl.hp.com, matthew@wil.cx,
-       ralf@linux-mips.org, rth@redhat.com
-Subject: Re: Reduce struct page by 8 bytes on 64bit
-Message-ID: <20030416145853.GA2421@averell>
-References: <20030416140715.GA2159@averell> <20030416.072638.65480350.davem@redhat.com> <20030416144312.GA2327@averell> <20030416.073814.124147956.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030416.073814.124147956.davem@redhat.com>
-User-Agent: Mutt/1.4i
+	Wed, 16 Apr 2003 10:47:22 -0400
+X-Sent: 16 Apr 2003 14:59:14 GMT
+Message-ID: <003e01c30428$bb6de410$6901a8c0@athialsinp4oc1>
+From: "Brien" <admin@brien.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: my dual channel DDR 400 RAM won't work on any linux distro
+Date: Wed, 16 Apr 2003 10:59:07 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 16, 2003 at 04:38:14PM +0200, David S. Miller wrote:
->    From: Andi Kleen <ak@muc.de>
->    Date: Wed, 16 Apr 2003 16:43:12 +0200
->    
->    On sparc64. But is that true too for all other 64bit architectures supported?
->    
->    e.g. How about PA-RISC? (always seems to do things differently)
->    
-> It cannot require more than the existing API requires, which is
-> "unsigned long *bitmask", ie. anything equivalent in behavior to an
-> unsigned long pointer is good enough.
+(I posted this on some forums and they recommended that I try here)
 
-Sure, but perhaps it does assume all accesses to this bitmap are going
-through the set_bit functions. e.g. consider an implementation that
-uses a spinlock for this - parisc seems to do that for example
-from a quick look into their bitops.h. And they have an 64bit kernel
-too.
+Hi,
 
-In this case part of the unsigned long could be accessed directly 
-using the aliasing.
+I have a Gigabyte SINXP1394 motherboard, and 2 Kingston 512 MB DDR 400 (CL
+2.5) RAM modules installed. Whenever I try to install any Linux
+distribution, I always get a black screen after the kernel loads, when I
+have dual channel enabled; If I take out 1 of the RAM modules (either one),
+everything works as it should -- it's not a bad module (works perfectly
+under Windows by the way). I can't disable dual channel without taking out
+half of my RAM, and I really do not want to run with only half of it. Does
+anyone have any idea how I can fix this problem, or is it something that
+needs to be updated in the kernel?
 
--Andi
+Thanks for any info.
 
 

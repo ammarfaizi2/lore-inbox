@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318739AbSIJFZo>; Tue, 10 Sep 2002 01:25:44 -0400
+	id <S318995AbSIJF2e>; Tue, 10 Sep 2002 01:28:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318993AbSIJFZo>; Tue, 10 Sep 2002 01:25:44 -0400
-Received: from mx9.mail.ru ([194.67.57.19]:19467 "EHLO mx9.mail.ru")
-	by vger.kernel.org with ESMTP id <S318739AbSIJFZn>;
-	Tue, 10 Sep 2002 01:25:43 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
+	id <S319039AbSIJF2e>; Tue, 10 Sep 2002 01:28:34 -0400
+Received: from web40511.mail.yahoo.com ([66.218.78.128]:3250 "HELO
+	web40511.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S318995AbSIJF2d>; Tue, 10 Sep 2002 01:28:33 -0400
+Message-ID: <20020910053314.24891.qmail@web40511.mail.yahoo.com>
+Date: Mon, 9 Sep 2002 22:33:14 -0700 (PDT)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Which HDIO_ command(s) to flush all data to disk
 To: linux-kernel@vger.kernel.org
-Subject: [2.5] DAC960
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: 194.226.0.89 via proxy [194.226.0.63]
-Date: Tue, 10 Sep 2002 09:30:28 +0400
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17odbY-000BHv-00@f1.mail.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-      Hello folks, i`m looking at the DAC960 driver and i have
-realised its implemented at the block layer, bypassing SCSI.
+I'm trying to write a program that flushes all outstanding data to 
+an IDE hard drive, including the write cache. Is it sufficient just
+to write:
 
-   So given i have some motivation to have a working 2.5 DAC960
-driver (i have one, being my only controller)
-i`m kinda pondering the matter.
+unsigned char args[4] = {WIN_FLUSH_CACHE,0,0,0};
+ioctl(fd, HDIO_DRIVE_CMD, &args)
 
-   Questions:
-       1. Whether we need the thing to be ported to SCSI
-layer, as opposed to leaving it being a generic block device? (i suppose yes)
-       2. Which 2.5 SCSI driver should i use as a start of learning?
-       3. Whether the SCSI driver API would change during 2.5?
+or do I need to worry about the buffer cache as well(WIN_WRITE_BUFFER?)
 
----
-regards,
-   Samium Gromoff
-____________
-________________________________
+Thanks in advance.
 
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Finance - Get real-time stock quotes
+http://finance.yahoo.com

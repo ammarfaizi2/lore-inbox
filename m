@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264502AbRFJG2W>; Sun, 10 Jun 2001 02:28:22 -0400
+	id <S263988AbRFJGqM>; Sun, 10 Jun 2001 02:46:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264503AbRFJG2L>; Sun, 10 Jun 2001 02:28:11 -0400
-Received: from web13906.mail.yahoo.com ([216.136.175.69]:31751 "HELO
-	web13906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S264502AbRFJG2A>; Sun, 10 Jun 2001 02:28:00 -0400
-Message-ID: <20010610062755.64407.qmail@web13906.mail.yahoo.com>
-Date: Sat, 9 Jun 2001 23:27:55 -0700 (PDT)
-From: Mr Miles T Lane <miles_lane@yahoo.com>
-Subject: 2.4.5-ac12 -- Unresolved symbols in drivers/net/wan/comx.o -- "proc_get_inode"
-To: linux-kernel@vger.kernel.org
+	id <S264504AbRFJGqC>; Sun, 10 Jun 2001 02:46:02 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:59274 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264503AbRFJGpu>;
+	Sun, 10 Jun 2001 02:45:50 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15139.6030.237198.508845@pizda.ninka.net>
+Date: Sat, 9 Jun 2001 23:45:34 -0700 (PDT)
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Riley Williams <rhw@MemAlpha.CX>, Adrian Cox <adrian@humboldt.co.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Probable endianess problem in TLAN driver 
+In-Reply-To: <26927.992129768@redhat.com>
+In-Reply-To: <15138.44403.815959.756121@pizda.ninka.net>
+	<15138.42357.146305.892652@pizda.ninka.net>
+	<Pine.LNX.4.33.0106092356360.23184-100000@infradead.org>
+	<26927.992129768@redhat.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i
--r ln -sf ../{} pcmcia
-if [ -r System.map ]; then /sbin/depmod -ae -F
-System.map  2.4.5-ac12; fi
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.5-ac12/kernel/drivers/net/wan/comx.o
-depmod: 	proc_get_inode
 
+David Woodhouse writes:
+ > davem@redhat.com said:
+ > > Riley Williams writes:
+ > >  > Even if that wasn't true, aren't the above all self-recursive
+ > >  > definitions that would prevent anything calling them from compiling?
+ > 
+ > > Yes, it looks that way. 
+ > 
+ > cpp doesn't recurse. 
 
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail - only $35 
-a year!  http://personal.mail.yahoo.com/
+My bad.  What I actually mean is that it simply wouldn't work.
+They'd have to do something like drivers/net/eepro100.c does
+(grep for "#ifndef USE_IO").
+
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131978AbRCVK63>; Thu, 22 Mar 2001 05:58:29 -0500
+	id <S131988AbRCVLJ7>; Thu, 22 Mar 2001 06:09:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131983AbRCVK6T>; Thu, 22 Mar 2001 05:58:19 -0500
-Received: from [212.115.175.146] ([212.115.175.146]:19188 "EHLO
+	id <S131990AbRCVLJu>; Thu, 22 Mar 2001 06:09:50 -0500
+Received: from [212.115.175.146] ([212.115.175.146]:19700 "EHLO
 	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
-	id <S131978AbRCVK6H>; Thu, 22 Mar 2001 05:58:07 -0500
-Message-ID: <27525795B28BD311B28D00500481B7601F1064@ftrs1.intranet.ftr.nl>
+	id <S131988AbRCVLJk>; Thu, 22 Mar 2001 06:09:40 -0500
+Message-ID: <27525795B28BD311B28D00500481B7601F1065@ftrs1.intranet.ftr.nl>
 From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
-To: Alan Olsen <alan@clueserver.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: RE: mysterious card
-Date: Thu, 22 Mar 2001 11:56:52 +0100
+To: "Patrick O'Rourke" <orourke@missioncriticallinux.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: RE: [PATCH] Prevent OOM from killing init
+Date: Thu, 22 Mar 2001 12:08:25 +0100
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
@@ -19,21 +19,30 @@ Content-Type: text/plain;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ok, the question is: does anyone know a place on the web where I can find
-> specifications of ISA-slots? I need to know what is supposed to be
-connected
-> to
-> the pins (1, 2, 6, etc.)
-AO> It is supposed to do that!
+> Since the system will panic if the init process is chosen by
+> the OOM killer, the following patch prevents select_bad_process()
+> from picking init.
 
-Yes, I guess so!
+Hmmm, wouldn't it be nice to make this all configurable? Like; have
+some list of PIDs that can be killed?
+I would hate it the daemon that checks my UPS would get killed...
+(that deamon brings the machine down safely when the UPS'
+batteries get emptied).
+Would be something like:
 
-AO> That sounds like the card that came with an old DOS debugger.
+int *dont_kill_pid, ndont_kill_pid;
+// initialize with at least pid '1' and n=1
 
-Not really. I found it in some high-end UNIX server (non-Linux).
+         for_each_task(p) {
+		int loop;
+		for(loop=ndont_kill_pid-1; loop>=0; loop--)
+		{
+			if (dont_kill_pid[loop] == p->pid) break;
+		}
+              if (p->pid && !(loop>=0)) {
+                         int points = badness(p);
+                         if (points > maxpoints) {
+                                 chosen = p;
 
-AO> The old 8088 PCs did not have a reset switch. This was so you could do
-AO> hardware breaks when the whole system was locked up.
 
-This one triggers the I/O Channel Check pin (pin 1 (at the frame), component
-side).
+(untested (not even compiled or anything) code)

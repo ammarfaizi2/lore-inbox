@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282778AbRLGGlY>; Fri, 7 Dec 2001 01:41:24 -0500
+	id <S282781AbRLGGkd>; Fri, 7 Dec 2001 01:40:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285428AbRLGGlO>; Fri, 7 Dec 2001 01:41:14 -0500
-Received: from lsmls01.we.mediaone.net ([24.130.1.20]:3824 "EHLO
-	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S282784AbRLGGkz>; Fri, 7 Dec 2001 01:40:55 -0500
-Message-ID: <3C1064BB.329B966F@kegel.com>
-Date: Thu, 06 Dec 2001 22:42:03 -0800
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
+	id <S282778AbRLGGkY>; Fri, 7 Dec 2001 01:40:24 -0500
+Received: from web11403.mail.yahoo.com ([216.136.131.233]:32547 "HELO
+	web11403.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S282781AbRLGGkM>; Fri, 7 Dec 2001 01:40:12 -0500
+Message-ID: <20011207064010.5879.qmail@web11403.mail.yahoo.com>
+Date: Thu, 6 Dec 2001 22:40:10 -0800 (PST)
+From: Abhishek Rai <abbashake007@yahoo.com>
+Subject: Qusestion: printk
+To: Kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: horrible disk thorughput on itanium
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus wrote:
-> >> As far as I can see bonnie++ doesn't use putc_unlocked, but putc.
-> >
-> >Plain old Bonnie suffered from the same thing.  I long ago made it
-> >use putc_unlocked() here because throughput was horrible otherwise.
-> 
-> Oh, yeah, blame it on bonnie.
-> 
->         "Our C library 'putc' is horribly sucky"
-> 
->         "Well, then, use something else then".
-> 
-> Isn't somebody ashamed of glibc and willing to try to fix it? It might
-> be as simple as just testing a static flag "have I used pthread_create"
-> or even a function pointer that gets switched around at pthread_create..
+printk works erratically on my machine:
 
-That sounds racy.  Better to make the change at compile time, maybe?
-Say, 
+the same module with the same kernel priority flag for
+printk (eg. KERN_INFO, KERN_EMERG etc) when insmoded
+one time will have printk working just fine. but say
+the next time  the comp boots, or even i rmmod it and
+reinsert, printk won't print anything. 
+however in one lifetime of the module, the behaviour
+is consistent- either all the printk's work all don't
+work.
 
-#ifdef __USE_REENTRANT 
-#define putc(_ch, _fp) _IO_putc (_ch, _fp)
-#else
-#define putc(_ch, _fp) _IO_putc_unlocked (_ch, _fp)
-#endif
+-abhishek
 
-That's pedantically safe, I think.  
 
-- Dan
+=====
+Don't say Goodbye say Goodluck
+============================================================
+Abhishek Rai
+3rd year,B.Tech, Computer Science and Engineering
+IIT KGP,India
+abbashake007@yahoo.com
+============================================================
+
+
+__________________________________________________
+Do You Yahoo!?
+Send your FREE holiday greetings online!
+http://greetings.yahoo.com

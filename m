@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316848AbSFQIgt>; Mon, 17 Jun 2002 04:36:49 -0400
+	id <S316847AbSFQIfA>; Mon, 17 Jun 2002 04:35:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316849AbSFQIgs>; Mon, 17 Jun 2002 04:36:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2579 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316848AbSFQIgp>;
-	Mon, 17 Jun 2002 04:36:45 -0400
-Message-ID: <3D0DA090.9F1B60BE@zip.com.au>
-Date: Mon, 17 Jun 2002 01:40:48 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
+	id <S316848AbSFQIe7>; Mon, 17 Jun 2002 04:34:59 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:52624 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S316847AbSFQIev>;
+	Mon, 17 Jun 2002 04:34:51 -0400
+Date: Mon, 17 Jun 2002 10:32:10 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: Robert Love <rml@mvista.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 2.4.19-pre10-ac2: O(1) scheduler merge, -A3.
+In-Reply-To: <Pine.LNX.4.44.0206170946360.1263-100000@netfinity.realnet.co.sz>
+Message-ID: <Pine.LNX.4.44.0206171028040.9220-100000@e2>
 MIME-Version: 1.0
-To: rwhron@earthlink.net
-CC: davej@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.21 IDE 91
-References: <20020615120511.GA30803@rushmore>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rwhron@earthlink.net wrote:
-> 
-> >> Recently, 2.5.20-dj[34] completed all my tests, whereas
-> >> 2.5.{19,20,21} haven't.   I realize breakage in the development series
-> >> is expected and sometimes good.  Nonetheless, "two thumbs up" for -dj.
-> 
-> > That's interesting. What exactly was failing ? It'd be in everyones
-> > interests to get those bits pushed to Linus sooner.
-> 
-> tiobench.pl --size 2048 --numruns 3 --threads 128  # 384 MB ram in machine
-> 
-> The ssh session running vmstat no longer updates.  Console won't
-> give a new "login" prompt with <Enter>.  <sysrq T> prints a
-> trace (which I haven't captured - it's really long with > 128 processes).
-> 
-> Does <sysrq T> need any post processing to convert addresses to
-> something more useful?  I'll save it on 2.5.22 if it happens.
 
-Well I dunno, Randy.  Works fine here, on aic7xxx SCSI and hpt366 IDE.
+On Mon, 17 Jun 2002, Zwane Mwaikambo wrote:
 
->From your trace it would seem that writeout completion has not
-occurred against one or more pages.  Could be that the device
-driver lost an interrupt, or it failed to deliver completion
-for one or more BIO segments, or something screwed up at the
-VFS level.
+> > i have planned to submit the irqbalance patch for 2.4-ac real soon, which
+> > needs this function - current IRQ distribution on P4 SMP boxes is a
+> > showstopper.
+> 
+> Can we add a config time option for irqbalance? I consider it extra
+> overhead for setups which can do the interrupt distribution via hardware
+> properly, [...]
 
-I am (of course ;)) disinclined to believe the latter, mainly
-because of the amount of testing I do here.  Eight-hour Cerberus
-runs on quad CPU, five IDE disks and six SCSI disks all chugging
-along, no probs.
+What x86 hardware do you have in mind?
 
-Is it reproducible?   Are you able to try it on a different machine?
-On other disks in the same machine? 
+My main issue with irqbalance is the lack of testing it has - eg. a
+showstopper SMP-on-UP bug was found just two days ago.
 
--
+> [...] also irqbalance breaks NUMAQ horribly seeing as it assumes a
+> number of things like addressing modes.
+
+exactly what does it assume that breaks NUMAQ?
+
+	Ingo
+

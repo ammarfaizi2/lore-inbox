@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315388AbSHGXar>; Wed, 7 Aug 2002 19:30:47 -0400
+	id <S316548AbSHGXqi>; Wed, 7 Aug 2002 19:46:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316437AbSHGXaq>; Wed, 7 Aug 2002 19:30:46 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:49168 "EHLO
+	id <S316649AbSHGXqi>; Wed, 7 Aug 2002 19:46:38 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:51216 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S315388AbSHGXaq>; Wed, 7 Aug 2002 19:30:46 -0400
-Date: Wed, 7 Aug 2002 19:28:19 -0400 (EDT)
+	id <S316548AbSHGXqh>; Wed, 7 Aug 2002 19:46:37 -0400
+Date: Wed, 7 Aug 2002 19:44:10 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Why 'mrproper'?
-In-Reply-To: <20020807170041.GA259@win.tue.nl>
-Message-ID: <Pine.LNX.3.96.1020807191903.14463G-100000@gatekeeper.tmr.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Steven Cole <elenstev@mesatop.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>,
+       Steven Cole <scole@lanl.gov>
+Subject: Re: Linux v2.4.19-rc5
+In-Reply-To: <Pine.LNX.4.44L.0208071939190.23404-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.3.96.1020807193425.14463K-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Aug 2002, Andries Brouwer wrote:
+On Wed, 7 Aug 2002, Rik van Riel wrote:
 
-> On Wed, Aug 07, 2002 at 08:55:25AM -0400, Bill Davidsen wrote:
+> On Wed, 7 Aug 2002, Bill Davidsen wrote:
 > 
-> > Having started out on the four floppy MCC "distribution" of Linux,
-> > building kernels clean with 'make distclean,' can someone provide a quick
-> > historical note as to what mrproper buys? A quick look at the tree after
-> > each didn't tell me much.
+> > Thanks much for the clarification, the data are useful even if they do
+> > show room for improvement in the corner case.
 > 
-> Funny that you ask this question first now.
+> If dbench numbers are meaningful to you, maybe you could
+> translate them into something kernel developers can
+> understand ? ;)
 
-It came to me as I was looking for something else in 2.4.19. Notably that
-"make backup" backs up "linux" even though the tar file now unpacks into
-linux-2.4.19. That looks kind of like a problem waiting to bite some
-kernel developer.
+Sure, glad to. If the 2.5 numbers are much worse than 2.4, somthing isn't
+working as well, another problem, go have a beer to drown your sorrow. On
+the other hand if it runs much better, you have done a great job and can
+go have a beer to celebrate.
 
-> mrproper came in 0.99p7
-> distclean came in 0.99p14 as a synonym for mrproper.
+Seriously, I would read the reasonably smooth curve of values as good
+sign, as opposed to "gets real badd and improves under more load" or
+similar. And the fact that it stayed up, and presumably didn't eat all the
+filesystems indicates that the system is getting more stable IDE.
 
-It certainly isn't such now, it does a good bit more. Anyway, I have my
-bit of history for the day, thanks all!
+One more thing, if you have been fighting bad machines for 15 hours and no
+one is looking, it's time to go get a beer. And cashews, and cheddar. I am
+out of here (as in where I am working right now, not my office).
 
 -- 
 bill davidsen <davidsen@tmr.com>

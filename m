@@ -1,66 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264442AbTK0HaO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 02:30:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbTK0HaN
+	id S264441AbTK0HaF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 02:30:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264442AbTK0HaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 02:30:13 -0500
-Received: from vega.digitel2002.hu ([213.163.0.181]:40392 "HELO lgb.hu")
-	by vger.kernel.org with SMTP id S264442AbTK0HaH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 02:30:07 -0500
-Date: Thu, 27 Nov 2003 08:30:04 +0100
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: bert hubert <ahu@ds9a.nl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6 not cat proof
-Message-ID: <20031127073004.GB6275@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
-References: <20031126201052.GA16106@outpost.ds9a.nl> <1069877780.7606.0.camel@laptop-linux>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1069877780.7606.0.camel@laptop-linux>
-X-Operating-System: vega Linux 2.6.0-test9 i686
-User-Agent: Mutt/1.5.4i
+	Thu, 27 Nov 2003 02:30:05 -0500
+Received: from mail-08.iinet.net.au ([203.59.3.40]:8116 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264441AbTK0HaA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 02:30:00 -0500
+Message-ID: <3FC5A7F0.8080507@cyberone.com.au>
+Date: Thu, 27 Nov 2003 18:29:52 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert White <rwhite@casabyte.com>
+CC: "'Jesse Pollard'" <jesse@cats-chateau.net>,
+       "'Florian Weimer'" <fw@deneb.enyo.de>, Valdis.Kletnieks@vt.edu,
+       "'Daniel Gryniewicz'" <dang@fprintf.net>,
+       "'linux-kernel mailing list'" <linux-kernel@vger.kernel.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAilRHd97CfESTROe2OYd1HQEAAAAA@casabyte.com>
+In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAilRHd97CfESTROe2OYd1HQEAAAAA@casabyte.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 27, 2003 at 09:16:20AM +1300, Nigel Cunningham wrote:
-> The cat kills the keyboard instead of the mouse? That is sad!
 
-So, delete /bin/cat ;-)
 
-> 
-> On Thu, 2003-11-27 at 09:10, bert hubert wrote:
-> > This bug has been seen here over eight years ago and it is back.. linux
-> > 2.6.0-test4 is still not cat proof :-)
-> > 
-> > I found my cat asleep on the warm laptop, it is winter here, and the
-> > keyboard was dead. Mouse still works, but I had to reboot before I could use
-> > the keyboard again. Restarting X, which I could do with the mouse, did not
-> > help.
-> > 
-> > But I'm willing to live with this problem :-) Not sure if I want to debug
-> > this, my previous laptop turned out to be filled with hair too. She never
-> > lies on the keyboard when I'm at home!
-> > 
-> > Thought you'd want to know,
-> > 
-> > 	bert.
-> -- 
-> Nigel Cunningham
-> 495 St Georges Road South, Hastings 4201, New Zealand
-> 
-> Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-> with alarming frequency, order arises from chaos, and no one is given credit.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Robert White wrote:
 
--- 
-- Gábor (larta'H)
+>(Among the other N objections, add things like the lack of any sort of
+>control or option parameters)
+>...
+>N += 1: Sparse Copying (e.g. seeking past blocks of zeros)
+>N += 1: Unlink or overwrite or what?
+>N += 1: In-Kernel locking and resolution for pages that are mandatory
+>lock(ed)
+>N += 1: No fine-grained control for concurrency issues (multiple writers)
+>
+>Start with doing a cp --help and move on from there for an unbounded list of
+>issues that sys_copy(int fd1, int fd2) does not even come close to
+>addressing.
+>
+>
+
+To be fair, sys_copy is never intended to replace cp or try to be
+very smart. I don't think it is semantically supposed to do much more
+than replace a read, write loop (of course, the syscall also has an
+offset and count).
+
+sparse copying would be implementation dependant. If cp wanted to do
+something special it would not use one big copy call. I think unlink
+/ overwrite is irrelevant if its semantically a read write loop.
+
+

@@ -1,69 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264610AbUF1B2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264625AbUF1BgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264610AbUF1B2R (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 21:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbUF1B2R
+	id S264625AbUF1BgN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 21:36:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbUF1BgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 21:28:17 -0400
-Received: from disk.smurf.noris.de ([192.109.102.53]:31369 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S264610AbUF1B2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 21:28:15 -0400
-From: "Matthias Urlichs" <smurf@smurf.noris.de>
-Date: Mon, 28 Jun 2004 03:24:07 +0200
-To: Chris Wedgwood <cw@f00f.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [parisc-linux] Re: [PATCH] Fix the cpumask rewrite
-Message-ID: <20040628012407.GC4648@kiste>
-References: <1088266111.1943.15.camel@mulgrave> <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org> <20040626221802.GA12296@taniwha.stupidest.org> <Pine.LNX.4.58.0406261536590.16079@ppc970.osdl.org> <1088290477.3790.2.camel@localhost.localdomain> <20040627000541.GA13325@taniwha.stupidest.org> <pan.2004.06.27.12.00.03.857572@smurf.noris.de> <20040627224115.GA22532@taniwha.stupidest.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040627224115.GA22532@taniwha.stupidest.org>
-User-Agent: Mutt/1.5.6+20040523i
-X-Smurf-Spam-Score: -3.8 (---)
-X-Smurf-Spam-Report: Spam detection software, running on the system "server.smurf.noris.de", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hi, Chris Wedgwood: > On Sun, Jun 27, 2004 at
-	02:00:03PM +0200, Matthias Urlichs wrote: > > > <heretic> > > #define
-	jiffies __get_jiffies() > > </heretic> > > Well, I have that but it's
-	only part of the story. > True. [...] 
-	Content analysis details:   (-3.8 points, 10.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-	1.1 AWL                    AWL: From: address is in the auto white-list
+	Sun, 27 Jun 2004 21:36:13 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:3776 "EHLO hermes.jf.intel.com")
+	by vger.kernel.org with ESMTP id S264625AbUF1BgK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 21:36:10 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Subject: RE: [ACPI] No APIC interrupts after ACPI suspend
+Date: Mon, 28 Jun 2004 09:35:55 +0800
+Message-ID: <B44D37711ED29844BEA67908EAF36F032D5361@pdsmsx401.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] No APIC interrupts after ACPI suspend
+Thread-Index: AcRcZF641UwOCqemSn+kQC5S4Z2nDAAR9R0A
+From: "Li, Shaohua" <shaohua.li@intel.com>
+To: "Matthew Garrett" <mjg59@srcf.ucam.org>
+Cc: <linux-kernel@vger.kernel.org>, <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 28 Jun 2004 01:35:56.0242 (UTC) FILETIME=[41E01320:01C45CB0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Currently we have no suspend/resume code for IOAPIC, we should add it.
+For PIC mode, current 8259 resume code ignored IRQ level/edge trigger,
+and it should be added.
 
-Chris Wedgwood:
-> On Sun, Jun 27, 2004 at 02:00:03PM +0200, Matthias Urlichs wrote:
-> 
-> > <heretic>
-> > #define jiffies __get_jiffies()
-> > </heretic>
-> 
-> Well, I have that but it's only part of the story.
-> 
-True.
+Thanks,
+Shaohua
+>-----Original Message-----
+>From: acpi-devel-admin@lists.sourceforge.net [mailto:acpi-devel-
+>admin@lists.sourceforge.net] On Behalf Of Matthew Garrett
+>Sent: Monday, June 28, 2004 12:28 AM
+>To: David Eriksson
+>Cc: linux-kernel@vger.kernel.org; acpi-devel@lists.sourceforge.net
+>Subject: Re: [ACPI] No APIC interrupts after ACPI suspend
+>
+>On Sat, 2004-06-26 at 18:42 +0200, David Eriksson wrote:
+>
+>> Maybe you've found this bug?
+>>
+>> http://bugme.osdl.org/show_bug.cgi?id=2643
+>
+>Yeah, that one was biting me, but it's not the one causing this bug.
+>cat /proc/interrupts shows that the ACPI interrupt is correctly set to
+>level triggered, but the ioapic isn't set up correctly so no interrupts
+>make it through. The same seems to be true for all other
+level-triggered
+>interrupts.
+>
+>--
+>Matthew Garrett | mjg59@srcf.ucam.org
+>
+>
+>
+>-------------------------------------------------------
+>This SF.Net email sponsored by Black Hat Briefings & Training.
+>Attend Black Hat Briefings & Training, Las Vegas July 24-29 -
+>digital self defense, top technical experts, no vendor pitches,
+>unmatched networking opportunities. Visit www.blackhat.com
+>_______________________________________________
+>Acpi-devel mailing list
+>Acpi-devel@lists.sourceforge.net
+>https://lists.sourceforge.net/lists/listinfo/acpi-devel
 
-> As Alan pointed out a suitable API could also make it easier to work
-> towards a clock-less system for embedded targets.
-> 
-Well, drivers do need some way of timing things, else they wouldn't read
-jiffies in the first place. So, at minimum, an embedded system would
-need a way to trigger a timeout at some specified time in the future.
-
-A simple __get_jiffies() implementation could just set up a 1/HZ-second
-timer (and busy-wait for it, and increase its internal jiffies counter)
-every tenth call or so. That would probably slow down the whole system
-somewhat, but I'd assume it'd mostly work.
-
--- 
-Matthias Urlichs

@@ -1,109 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVACAra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVACAtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261374AbVACAra (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 19:47:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVACAr3
+	id S261369AbVACAtf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 19:49:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVACAte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 19:47:29 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44045 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261374AbVACApx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 19:45:53 -0500
-Date: Mon, 3 Jan 2005 01:45:51 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: William Lee Irwin III <wli@debian.org>
-Cc: Bill Davidsen <davidsen@tmr.com>, Andries Brouwer <aebr@win.tue.nl>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       linux-kernel@vger.kernel.org
+	Sun, 2 Jan 2005 19:49:34 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:12767 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261174AbVACAta (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 19:49:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=UaLebdxo346FjYY/u7AeGpvOx/QiHhu3/GAN6Y43uk1ZNy8tvapIUy1dzLqea5vQZT5ZL7YssOutOWbT88ADBurvNRDYoiZ5HqjdRkdCK4pGpGpKwbWLS0ZJ7rbVUDidMh+mZlBRRj/EtxlPvUNSZj5Vdm4/RIzMzDlIUc7PeHU=
+Message-ID: <799406d60501021649737f1bd@mail.gmail.com>
+Date: Mon, 3 Jan 2005 00:49:22 +0000
+From: Adam Mercer <ramercer@gmail.com>
+Reply-To: Adam Mercer <ramercer@gmail.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: starting with 2.7
-Message-ID: <20050103004551.GK4183@stusta.de>
-References: <20050102221534.GG4183@stusta.de> <41D87A64.1070207@tmr.com> <20050103003011.GP29332@holomorphy.com>
+In-Reply-To: <20050103003857.GJ4183@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050103003011.GP29332@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1697129508.20050102210332@dns.toxicfilms.tv>
+	 <20050102203615.GL29332@holomorphy.com>
+	 <20050102212427.GG2818@pclin040.win.tue.nl>
+	 <20050102214211.GM29332@holomorphy.com>
+	 <20050102221534.GG4183@stusta.de>
+	 <20050103001917.GO29332@holomorphy.com>
+	 <20050103003857.GJ4183@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 02, 2005 at 04:30:11PM -0800, William Lee Irwin III wrote:
-> Adrian Bunk wrote:
-> >> The main advantage with stable kernels in the good old days (tm) when 4 
-> >> and 6 were even numbers was that you knew if something didn't work, and 
-> >> upgrading to a new kernel inside this stable kernel series had a 
-> >> relatively low risk of new breakages. This meant one big migration every 
-> >> few years and relatively easy upgrades between stable series kernels.
-> >> Nowadays in 2.6, every new 2.6 kernel has several regressions compared 
-> >> to the previous one, and additionally obsolete but used code like 
-> >> ipchains and devfs is scheduled for removal making upgrades even harder 
-> >> for many users.
+On Mon, 3 Jan 2005 01:38:58 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+
+> 2.4.27 -> 2.4.28 is a kernel upgrade that is very unlikely to cause
+> problems.
 > 
-> On Sun, Jan 02, 2005 at 05:49:08PM -0500, Bill Davidsen wrote:
-> > And there you have my largest complaint with the new model. If 2.6 is 
-> > stable, it should not have existing features removed just because 
-> > someone has a new wet dream about a better but incompatible way to do 
-> > things. I expect working programs to be deliberately broken in a 
-> > development tree, but once existing features are removed there simply is 
-> > no stable set of features.
-> 
-> The presumption is that these changes are frivolous. This is false.
-> The removals of these features are motivated by their unsoundness,
-> and those removals resolve real problems. If they did not do so, they
-> would not pass peer review.
+> Compared to this, 2.6.9 -> 2.6.10 is much more likely to break an
+> existing setup that worked in 2.6.9 .
 
-The netfilter people plan to remove ipfwadm and ipchains before 2.6.11 .
+IIRC 2.4.9 -> 2.4.10 broke a few setups as well.
 
-This is legacy code that makes their development sometimes a bit harder, 
-but AFAIK ipchains in 2.6.10 doesn't suffer from any serious real 
-problems.
+Cheers
 
-> Adrian Bunk wrote:
-> >> There's the point that most users should use distribution kernels, but 
-> >> consider e.g. that there are poor souls with new hardware not supported 
-> >> by the 3 years old 2.4.18 kernel in the stable part of your Debian 
-> >> distribution.
-> 
-> On Sun, Jan 02, 2005 at 05:49:08PM -0500, Bill Davidsen wrote:
-> > The stable and development kernel model worked for a decade, partly 
-> > because people could build on a feature set and not have that feature 
-> > just go away, leaving the choice of running without fixes or not 
-> > running. Since we manage to support 2.2 and 2.4 (and perhaps even 2.0?) 
-> > I don't see why the definition of "stable" can't simply mean "no 
-> > deletions from the feature set" and let new features come in for those 
-> > who want them. Absent that 2.4 will be the last stable kernel, in the 
-> > sense that features won't be deliberately broken or removed.
-> 
-> I can't speak for anyone during the times of more ancient Linux history;
-> however, developers' dissatisfaction with the development model has been
-> aired numerous times in certain fora. It has not satisfactorily served
-> developers or users. Users are locked into distro kernels for
-> incompatible extensions, and developers are torn between multiple
-> codebases.
-
-At least on Debian, ftp.kernel.org kernels work fine.
-
-> This fragmentation of programmer effort is trivially recognizable as
-> counterproductive. A single focal point for programmer effort is far
-> superior for a development model. If the standard of stability is not
-> passed then the code is not ready to be included in any kernel. Then
-> the distinction is lost, and each of the fragmented codebases gets a
-> third-class effort, and a spurious expenditure of effort is wasted on
-> porting fixes and features across numerous different codebases.
->...
-
-My impression is that currently 2.4 doesn't take that much time of 
-developers (except for Marcelo's), and that it's a quite usable and 
-stable kernel.
-
-> -- wli
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Adam

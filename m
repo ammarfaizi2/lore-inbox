@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129618AbRC3BeX>; Thu, 29 Mar 2001 20:34:23 -0500
+	id <S129749AbRC3Bnr>; Thu, 29 Mar 2001 20:43:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129638AbRC3BeO>; Thu, 29 Mar 2001 20:34:14 -0500
-Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:65033 "EHLO
-	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S129618AbRC3BeI>;
-	Thu, 29 Mar 2001 20:34:08 -0500
-Message-ID: <3AC3E26B.5060504@magenta-netlogic.com>
-Date: Fri, 30 Mar 2001 02:33:31 +0100
-From: Tony Hoyle <tmh@magenta-netlogic.com>
-Organization: Magenta Logic
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac26 i686; en-US; 0.8.1) Gecko/20010326
+	id <S130038AbRC3Bnh>; Thu, 29 Mar 2001 20:43:37 -0500
+Received: from james.kalifornia.com ([208.179.59.2]:9551 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S129749AbRC3BnW>; Thu, 29 Mar 2001 20:43:22 -0500
+Message-ID: <3AC3E484.7020907@blue-labs.org>
+Date: Thu, 29 Mar 2001 17:42:28 -0800
+From: David <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-pre8 i686; en-US; 0.8.1) Gecko/20010326
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Tony Hoyle <tmh@magenta-netlogic.com>
+To: "Richard B. Johnson" <root@quark.analogic.com>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: How to debug an oops?
-In-Reply-To: <3AC3D79D.7000503@magenta-netlogic.com>
+Subject: [OT] Re: Linux connectivity trashed.
+In-Reply-To: <000701c0b854$f2cf4f10$1428b2cc@DJLAPTOP>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, came across a bit strong on that message.  It's 2am and I'm tired.
+Might I suggest seeking a new employer whose IT department doesn't seek 
+the smell of fresh fertilizer compounds about their head and neck.
 
-Stupid thing is I fixed the bug...
+-d
 
-Tony
+Richard B. Johnson wrote:
 
--- 
-Don't click on this sig - a cyberwoozle will eat your underwear.
+> This is for information only.
+> 
+> Last week a standard RH distribution of  Linux was rooted from what looks
+> like a Russian invasion. The penetration used the method taught in the CERT
+> Advisory CA-2000-17.
+> [...]
 
-tmh@magenta-netlogic.com        http://www.nothing-on.tv
 

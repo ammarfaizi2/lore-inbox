@@ -1,62 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135541AbRDXLLe>; Tue, 24 Apr 2001 07:11:34 -0400
+	id <S135546AbRDXLXi>; Tue, 24 Apr 2001 07:23:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135545AbRDXLLZ>; Tue, 24 Apr 2001 07:11:25 -0400
-Received: from ns.suse.de ([213.95.15.193]:31243 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S135541AbRDXLLL>;
-	Tue, 24 Apr 2001 07:11:11 -0400
-Mail-Copies-To: never
-To: Joseph Carter <knghtbrd@debian.org>
-Cc: Ville Herva <vherva@mail.niksula.cs.hut.fi>,
-        "Mike A. Harris" <mharris@opensourceadvocate.org>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>, jh@suse.cz
-Subject: Re: [Semi-OT] Dual Athlon support in kernel
-In-Reply-To: <Pine.LNX.4.33.0104240115050.21785-100000@asdf.capslock.lan>
-	<3AE52C2C.C6B2B472@mountain.net>
-	<20010424131857.F3529@niksula.cs.hut.fi>
-	<20010424033922.A5878@debian.org>
-From: Andreas Jaeger <aj@suse.de>
-Date: 24 Apr 2001 13:11:01 +0200
-In-Reply-To: <20010424033922.A5878@debian.org> (Joseph Carter's message of "Tue, 24 Apr 2001 03:39:22 -0700")
-Message-ID: <ho4rve364a.fsf@gee.suse.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.1 (Channel Islands)
+	id <S135547AbRDXLX1>; Tue, 24 Apr 2001 07:23:27 -0400
+Received: from adsl-64-123-58-70.dsl.stlsmo.swbell.net ([64.123.58.70]:29166
+	"EHLO bigandy.swbell.net") by vger.kernel.org with ESMTP
+	id <S135546AbRDXLXU>; Tue, 24 Apr 2001 07:23:20 -0400
+Date: Tue, 24 Apr 2001 06:19:31 -0500 (CDT)
+From: Andy Carlson <naclos@swbell.net>
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Matrox FB console driver
+In-Reply-To: <Pine.LNX.4.10.10104232117410.30211-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.20.0104240616170.244-100000@bigandy>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joseph Carter <knghtbrd@debian.org> writes:
+time prime before x
+real    1m23.535s
+user    0m40.550s
+sys     0m42.980s
 
-> On Tue, Apr 24, 2001 at 01:18:57PM +0300, Ville Herva wrote:
-> > There's also AthlonLinux http://athlonlinux.org/ and AthlonGCC
-> > http://athlonlinux.org/agcc/about.shtml, but I have no experience with those
-> > (I have no Athlon ;( ).
-> 
-> A warning about agcc, I've discovered that it does not always compile code
-> quite the way you expect it.  This is unsurprising given it's based on
-> pgcc which is known to change alignments on you in ways that sometimes
-> break things subtly.
-> 
-> 
-> I do not know if agcc actually can produce code which simply does not work
-> as is reported with pgcc (I suspect the alignment differences account for
-> many of those cases), but I recall reading in the past few days that agcc
-> is not supported for compiling the kernel.
-> 
-> It also fails to properly compile certain other programs, notably anything
-> that includes asm functions.  As a result, my own experience suggests you
-> consider agcc in the same class as gcc 3.0 at the moment - experimental.
-> Hopefully the k7 optimizations that work well will find their way into a
-> nice athlon subarch options in standard gcc and agcc won't be necessary.
+/proc/mtrr before x
+reg00: base=0x00000000 (   0MB), size= 256MB: write-back, count=1
+reg01: base=0xfd800000 (4056MB), size=   4MB: write-combining, count=1
 
-Note that gcc 3.0 will have support for Athlons, -mcpu=athlon and
--march=athlon are both supported and will do the right thing.  For
-details you should ask Jan Hubicka who implemented this some time ago,
+time prime after x
+real    0m48.732s
+user    0m41.070s
+sys     0m7.690s
 
-Andreas
--- 
- Andreas Jaeger
-  SuSE Labs aj@suse.de
-   private aj@arthur.inka.de
-    http://www.suse.de/~aj
+/proc/mtrr after x
+reg00: base=0x00000000 (   0MB), size= 256MB: write-back, count=1
+reg01: base=0xfd800000 (4056MB), size=   4MB: write-combining, count=1
+
+time prime in X
+real    0m42.835s
+user    0m41.180s
+sys     0m1.710s
+
+/proc/version
+Linux version 2.4.3-ac12 (root@bigandy) (gcc version 2.95.2 19991024 (release)) #15 SMP Mon Apr 23 19:35:33 CDT 2001
+
+/proc/cpuinfo
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 1
+model name	: Pentium Pro
+stepping	: 9
+cpu MHz		: 199.312
+cache size	: 512 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+bogomips	: 397.31
+
+processor	: 1
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 1
+model name	: Pentium Pro
+stepping	: 7
+cpu MHz		: 199.312
+cache size	: 512 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+bogomips	: 398.13
+
+
+Andy Carlson                           |\      _,,,---,,_
+naclos@swbell.net                ZZZzz /,`.-'`'    -.  ;-;;,_
+BJC Health System                     |,4-  ) )-,_. ,\ (  `'-'
+St. Louis, Missouri                  '---''(_/--'  `-'\_)
+Cat Pics: http://andyc.dyndns.org
+
+On Mon, 23 Apr 2001, Mark Hahn wrote:
+
+> > I was playing around with a program that I was using to time differences
+> > between kernels (a silly prime program that puts out 1000000 primes).  I
+> > noticed a very strange behaviour.  On a fresh boot, with the Penguin
+> > pictures that the Matrox FB driver puts up, the prime program runs
+> > 1 minute, 30 seconds.  If I reset, it still runs 1M30S.  If I start X,
+> > and exit, it runs 48 seconds.  Is this a known behaviour?  Thanks.
+> 
+> do you mean that running and exiting X makes your computer faster?
+> is /proc/mtrr sane at both times?
+> 
+

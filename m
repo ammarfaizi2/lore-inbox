@@ -1,395 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262048AbSI3NJT>; Mon, 30 Sep 2002 09:09:19 -0400
+	id <S262052AbSI3NKj>; Mon, 30 Sep 2002 09:10:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262050AbSI3NJT>; Mon, 30 Sep 2002 09:09:19 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:44466 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262048AbSI3NJH>; Mon, 30 Sep 2002 09:09:07 -0400
-To: James Morris <jmorris@intercode.com.au>
-Cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
-       <linux-security-module@wirex.com>, Chris Wright <chris@wirex.com>
-Subject: Re: [PATCH] accessfs v0.6 ported to 2.5.35-lsm1 - 1/2
-References: <Mutt.LNX.4.44.0209292236200.27145-100000@blackbird.intercode.com.au>
-	<87it0o4zrr.fsf@goat.bogus.local>
-From: Olaf Dietsche 
-	<olaf.dietsche--list.linux-security-module@exmail.de>
-Date: Mon, 30 Sep 2002 15:14:01 +0200
-Message-ID: <8765wn39ie.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
-MIME-Version: 1.0
+	id <S262053AbSI3NKj>; Mon, 30 Sep 2002 09:10:39 -0400
+Received: from theorie3.physik.uni-erlangen.de ([131.188.166.130]:13317 "EHLO
+	theorie3.physik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S262052AbSI3NKd>; Mon, 30 Sep 2002 09:10:33 -0400
+Date: Mon, 30 Sep 2002 15:15:23 +0200
+From: Norbert Nemec <nobbi@theorie3.physik.uni-erlangen.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Serious Problems with PCI and SMP
+Message-ID: <20020930131523.GA504@cognac.physik.uni-erlangen.de>
+Reply-To: Norbert Nemec <nobbi@theorie3.physik.uni-erlangen.de>
+References: <20020923155355.GA565@cognac.physik.uni-erlangen.de> <200209240828.g8O8Stp24897@Port.imtp.ilyichevsk.odessa.ua> <20020926090754.GA22448@cognac.physik.uni-erlangen.de> <200209261204.g8QC4vp04049@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209261204.g8QC4vp04049@Port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Dietsche <olaf.dietsche--list.linux-security-module@exmail.de> writes:
+On Thu, Sep 26, 2002 at 02:59:14PM -0200, Denis Vlasenko wrote:
+> Can you try to boot 486-optimized kernel?
 
-> James Morris <jmorris@intercode.com.au> writes:
->
->> On Fri, 27 Sep 2002, Greg KH wrote:
->>
->>> As for the ip_prot_sock hook in general, does it look ok to the other
->>> developers?
->>> 
->>
->> This hook is not necessary: any related access control decision can be
->> made via the more generic and flexible socket_bind() hook (like SELinux).
->
-> AFAICS, it looks like you can make _additional_ checks only. You still
-> have to grant CAP_NET_BIND_SERVICE for binding to ports below PROT_SOCK.
-> So, this doesn't look like a viable solution for me.
->
-> Anyway, thanks for this pointer, I'll look into socket_bind().
+Doesn't make any difference at all. :-(
 
-Seems like my first impression was correct. You can augment the
-existing checks only.
+> Can you remove one CPU and run SMP kernel on UP configuration?
 
-For this particular case it means, without CAP_NET_BIND_SERVICE the
-hook is effectively useless for ports below PROT_SOCK. Quite the
-contrary, since you must grant this capability, it leaves the door
-wide open to other net protocols.
+Tried it, but the kernel immediately goes into an endless loop complaining about
+an "apic error at cpu0" (no matter which CPU I remove), even before I get to
+see anything interesting.
 
-Even SELinux would benefit from this new hook, since they could move
-the protocol specific part away from socket_bind() to ip_prot_sock().
-Thus, they could gain _real_ fine grained control over who has access
-and who has not.
+I'm really desperate: the only suggestion I did not try yet, was to test a 
+2.5 kernel. Anyhow, even if I tried that (right now I'm still dreading the idea)
+and even if it should work, I still wouldn't have any idea which detail of the
+2.5 line should be backported to fix the bug. :-(
 
-Regards, Olaf.
+Maybe I should try the 2.2 line? I know that 2.2.13 is working (but I don't have
+the .config files for those old, working kernels) and I know that 2.2.19 is broken.
+Therefore I would need at least 2-3 compiles to know where the bug was introduced
+and then I still wouldn't know what to do with that information.
 
-diff -urN a/include/linux/security.h b/include/linux/security.h
---- a/include/linux/security.h	Fri Sep 27 19:09:00 2002
-+++ b/include/linux/security.h	Mon Sep 30 13:50:33 2002
-@@ -784,6 +784,16 @@
-  *	A non-zero return value will cause an ICMP parameter problem message to
-  *	be generated and transmitted to the sender.  The @pp_ptr parameter may
-  *	be used to point to the offending option parameter.
-+ * @ip_prot_sock:
-+ *	Check, whether this is a protected port.
-+ *	Security modules may use this hook to implement fine grained control
-+ *	based on the port number.
-+ *	@port contains the requested port
-+ *	@sock contains the socket structure.
-+ *	@address contains the address to bind to.
-+ *	@addrlen contains the length of address.
-+ *	The module should return 0, if permission to access this port is
-+ *	granted, -EACCES otherwise.
-  *
-  * Security hooks for network devices.
-  * @netdev_unregister:
-@@ -1351,6 +1361,8 @@
- 	void (*ip_decapsulate) (struct sk_buff * skb);
- 	int (*ip_decode_options) (struct sk_buff * skb,
- 				  const char *optptr, unsigned char **pp_ptr);
-+	int (*ip_prot_sock) (int port, struct socket *sock,
-+			     struct sockaddr *address, int addrlen);
+Perhaps, I'll just wait for 2.6 to be published or for the 6 machines to get thrown
+out some day. :-(
+
+Ciao,
+Nobbi
+
+> On 26 September 2002 07:07, Norbert Nemec wrote:
+> 
+> BTW, for lkml readers: this was in original post:
+> =================================================
+> We have a number of machines with identical dual PPro 200 mainboards. They all
+> run fine on 2.2.13 kernels. Trying 2.4.18,2.4.19,2.4.20-pre7 and even 2.2.19, 
+> the same problem shows up:
+> With SMP activated in the kernel, I get the boot-messages
+> ---------
+> PCI: PCI BIOS revision 2.10 entry at 0xfb0a0, last bus=0
+> PCI: Using configuration type 1
+> PCI: Probing PCI hardware
+> PCI BIOS passed nonexistent PCI bus 0!
+> PCI BIOS passed nonexistent PCI bus 0!
+> Limiting direct PCI/PCI transfers.
+> ---------
+> Afterwards, everything runs fine, except that PCI seems to be only half-way
+> functional: network-cards don't give any error messages but behave just
+> as if the cable was disconnected scsi-cards give strange errors (don't recall
+> what exactly)
+> With SMP disabled in the kernel, everything works just fine.
+> ================================
+> > > Post your .config and dmesg
+> >
+> > Here they are. In this version, CONFIG_PCI_GOBIOS=y is set. Switching to
+> > CONFIG_PCI_GODIRECT=y or CONFIG_PCI_GOANY=y only adds the line
+> > ----
+> >  PCI: PCI BIOS revision 2.10 entry at 0xfb0a0, last bus=0
+> > +PCI: Using configuration type 1
+> >  PCI: Probing PCI hardware
+> > ----
+> > without any further difference.
+> 
+> > .config:
+> > ---------------------------
+> > #
+> > # Processor type and features
+> > #
+> > CONFIG_M686=y
  
- 	void (*netdev_unregister) (struct net_device * dev);
- 
-diff -urN a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
---- a/net/ipv4/af_inet.c	Fri Sep 27 19:07:38 2002
-+++ b/net/ipv4/af_inet.c	Mon Sep 30 13:50:33 2002
-@@ -531,7 +531,7 @@
- 
- 	snum = ntohs(addr->sin_port);
- 	err = -EACCES;
--	if (snum && snum < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
-+	if (security_ops->ip_prot_sock(snum, sock, uaddr, addr_len))
- 		goto out;
- 
- 	/*      We keep a pair of addresses. rcv_saddr is the one
-diff -urN a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
---- a/net/ipv6/af_inet6.c	Fri Sep 27 19:07:38 2002
-+++ b/net/ipv6/af_inet6.c	Mon Sep 30 13:50:33 2002
-@@ -313,7 +313,7 @@
- 	}
- 
- 	snum = ntohs(addr->sin6_port);
--	if (snum && snum < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
-+	if (security_ops->ip_prot_sock(snum, sock, uaddr, addr_len))
- 		return -EACCES;
- 
- 	lock_sock(sk);
-diff -urN a/security/capability.c b/security/capability.c
---- a/security/capability.c	Fri Sep 27 19:09:01 2002
-+++ b/security/capability.c	Mon Sep 30 13:50:33 2002
-@@ -18,6 +18,7 @@
- #include <linux/smp_lock.h>
- #include <linux/skbuff.h>
- #include <linux/netlink.h>
-+#include <net/sock.h>
- 
- /* flag to keep track of how we were registered */
- static int secondary;
-@@ -773,6 +774,15 @@
- 	return 0;
- }
- 
-+static int cap_ip_prot_sock (int port, struct socket *sock,
-+			     struct sockaddr *address, int addrlen)
-+{
-+	if (port && port < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
-+		return -EACCES;
-+
-+	return 0;
-+}
-+
- static void cap_netdev_unregister (struct net_device *dev)
- {
- 	return;
-@@ -1189,6 +1199,7 @@
- 	.ip_encapsulate =		cap_ip_encapsulate,
- 	.ip_decapsulate =		cap_ip_decapsulate,
- 	.ip_decode_options =		cap_ip_decode_options,
-+	.ip_prot_sock =			cap_ip_prot_sock,
- 
- 	.netdev_unregister =		cap_netdev_unregister,
- 
-diff -urN a/security/dte/dte.c b/security/dte/dte.c
---- a/security/dte/dte.c	Fri Sep 27 19:09:01 2002
-+++ b/security/dte/dte.c	Mon Sep 30 13:50:33 2002
-@@ -25,6 +25,7 @@
- #include <asm/uaccess.h>
- #include <linux/skbuff.h>
- #include <linux/netlink.h>
-+#include <net/sock.h>
- 
- 
- extern int dte_initialized;
-@@ -609,6 +610,15 @@
- 	return 0;
- }
- 
-+static int dte_ip_prot_sock (int port, struct socket *sock,
-+			     struct sockaddr *address, int addrlen)
-+{
-+	if (port && port < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
-+		return -EACCES;
-+
-+	return 0;
-+}
-+
- static void dte_netdev_unregister (struct net_device *dev)
- {
- 	return;
-@@ -1053,6 +1063,7 @@
- 	ip_encapsulate:			dte_ip_encapsulate,
- 	ip_decapsulate:			dte_ip_decapsulate,
- 	ip_decode_options:		dte_ip_decode_options,
-+	ip_prot_sock:			dte_ip_prot_sock,
- 	
- 	netdev_unregister:		dte_netdev_unregister,
- 	
-diff -urN a/security/dummy.c b/security/dummy.c
---- a/security/dummy.c	Fri Sep 27 19:09:01 2002
-+++ b/security/dummy.c	Mon Sep 30 13:50:33 2002
-@@ -18,6 +18,7 @@
- #include <linux/security.h>
- #include <linux/skbuff.h>
- #include <linux/netlink.h>
-+#include <net/sock.h>
- 
- static int dummy_sethostname (char *hostname)
- {
-@@ -590,6 +591,15 @@
- 	return 0;
- }
- 
-+static int dummy_ip_prot_sock (int port, struct socket *sock,
-+			       struct sockaddr *address, int addrlen)
-+{
-+	if (port && port < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
-+		return -EACCES;
-+
-+	return 0;
-+}
-+
- static void dummy_netdev_unregister (struct net_device *dev)
- {
- 	return;
-@@ -1009,6 +1019,7 @@
- 	.ip_encapsulate =		dummy_ip_encapsulate,
- 	.ip_decapsulate =		dummy_ip_decapsulate,
- 	.ip_decode_options =		dummy_ip_decode_options,
-+	.ip_prot_sock =			dummy_ip_prot_sock,
- 
- 	.ipc_permission =		dummy_ipc_permission,
- 	.ipc_getinfo =			dummy_ipc_getinfo,
-diff -urN a/security/lids/lids_lsm.c b/security/lids/lids_lsm.c
---- a/security/lids/lids_lsm.c	Fri Sep 27 19:09:01 2002
-+++ b/security/lids/lids_lsm.c	Mon Sep 30 13:50:33 2002
-@@ -22,6 +22,7 @@
- #include <linux/lids.h>
- #include <linux/lidsext.h>
- #include <linux/lidsif.h>
-+#include <net/sock.h>
- 
- struct security_operations *lids_secondary_ops;
- 
-@@ -767,6 +768,15 @@
- 	return 0;
- }
- 
-+static int lids_ip_prot_sock (int port, struct socket *sock,
-+			      struct sockaddr *address, int addrlen)
-+{
-+	if (port && port < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
-+		return -EACCES;
-+
-+	return 0;
-+}
-+
- static void lids_netdev_unregister (struct net_device *dev)
- {
- 	return;
-@@ -1208,6 +1218,7 @@
- 	ip_encapsulate:			lids_ip_encapsulate,
- 	ip_decapsulate:			lids_ip_decapsulate,
- 	ip_decode_options:		lids_ip_decode_options,
-+	ip_prot_sock:			lids_ip_prot_sock,
- 	
- 	ipc_permission:			lids_ipc_permission,
- 	ipc_getinfo:			lids_ipc_getinfo,
-diff -urN a/security/owlsm.c b/security/owlsm.c
---- a/security/owlsm.c	Fri Sep 27 19:09:01 2002
-+++ b/security/owlsm.c	Mon Sep 30 13:50:33 2002
-@@ -23,6 +23,7 @@
- #include <linux/netlink.h>
- #include <linux/ctype.h>
- #include <linux/file.h>
-+#include <net/sock.h>
- 
- #include "owlsm.h"
- 
-@@ -607,6 +608,15 @@
- 	return 0;
- }
- 
-+static int owlsm_ip_prot_sock (int port, struct socket *sock,
-+			       struct sockaddr *address, int addrlen)
-+{
-+	if (port && port < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
-+		return -EACCES;
-+
-+	return 0;
-+}
-+
- static void owlsm_netdev_unregister (struct net_device *dev) 
- {
- 	return;
-@@ -1005,6 +1015,7 @@
- 	ip_encapsulate:			owlsm_ip_encapsulate,
- 	ip_decapsulate:			owlsm_ip_decapsulate,
- 	ip_decode_options:		owlsm_decode_options,
-+	ip_prot_sock:			owlsm_ip_prot_sock,
- 
- 	netdev_unregister:		owlsm_netdev_unregister,
- 	
-diff -urN a/security/selinux/hooks.c b/security/selinux/hooks.c
---- a/security/selinux/hooks.c	Fri Sep 27 19:09:01 2002
-+++ b/security/selinux/hooks.c	Mon Sep 30 13:50:33 2002
-@@ -3218,6 +3218,52 @@
- 	return nsid_ip_decode_options(skb, optptr, pp_ptr);
- }
- 
-+static int selinux_ip_prot_sock(int port, struct socket *sock,
-+				struct sockaddr *address, int addrlen)
-+{
-+	if (port && port < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
-+		return -EACCES;
-+
-+	/*
-+	 * If PF_INET, check name_bind permission for the port.
-+	 */
-+	if (sock->sk->family == PF_INET) {
-+		struct inode_security_struct *isec;
-+		struct task_security_struct *tsec;
-+		avc_audit_data_t ad;
-+		struct sockaddr_in *addr = (struct sockaddr_in *)address;
-+		struct sock *sk = sock->sk;
-+		security_id_t sid;
-+		int err;
-+
-+		err = task_precondition(current);
-+		if (err <= 0)
-+			return err;
-+		tsec = current->security;
-+		err = inode_precondition(SOCK_INODE(sock));
-+		if (err <= 0)
-+			return err;
-+		isec = SOCK_INODE(sock)->i_security;
-+
-+		if (port&&(port < max(PROT_SOCK,ip_local_port_range_0) ||
-+			   port > ip_local_port_range_1)) {
-+			err = security_port_sid(sk->family, sk->type,
-+						sk->protocol, port, &sid);
-+			if (err)
-+				return err;
-+			AVC_AUDIT_DATA_INIT(&ad,NET);
-+			ad.u.net.port = port;
-+			err = avc_has_perm_audit(isec->sid, sid,
-+						 isec->sclass,
-+						 SOCKET__NAME_BIND, &ad);
-+			if (err)
-+				return err;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static void selinux_netdev_unregister(struct net_device *dev)
- {
- 	netdev_free_security(dev);
-@@ -3313,43 +3359,6 @@
- 	if (err)
- 		return err;
- 
--	/*
--	 * If PF_INET, check name_bind permission for the port.
--	 */
--	if (sock->sk->family == PF_INET) {
--		struct inode_security_struct *isec;
--		struct task_security_struct *tsec;
--		avc_audit_data_t ad;
--		struct sockaddr_in *addr = (struct sockaddr_in *)address;
--		unsigned short snum = ntohs(addr->sin_port);
--		struct sock *sk = sock->sk;
--		security_id_t sid;
--
--		err = task_precondition(current);
--		if (err <= 0)
--			return err;
--		tsec = current->security;
--		err = inode_precondition(SOCK_INODE(sock));
--		if (err <= 0)
--			return err;
--		isec = SOCK_INODE(sock)->i_security;
--
--		if (snum&&(snum < max(PROT_SOCK,ip_local_port_range_0) ||
--			   snum > ip_local_port_range_1)) {
--			err = security_port_sid(sk->family, sk->type,
--						sk->protocol, snum, &sid);
--			if (err)
--				return err;
--			AVC_AUDIT_DATA_INIT(&ad,NET);
--			ad.u.net.port = snum;
--			err = avc_has_perm_audit(isec->sid, sid,
--						 isec->sclass,
--						 SOCKET__NAME_BIND, &ad);
--			if (err)
--				return err;
--		}
--	}
--
- 	return 0;
- }
- 
-@@ -4814,6 +4823,7 @@
- 	ip_encapsulate:			selinux_ip_encapsulate,
- 	ip_decapsulate:			selinux_ip_decapsulate,
- 	ip_decode_options:		selinux_ip_decode_options,
-+	ip_prot_sock:			selinux_ip_prot_sock,
- 	
- 	netdev_unregister:		selinux_netdev_unregister,
- 	
+
+-- 
+-- _____________________________________Norbert "Nobbi" Nemec
+-- Hindenburgstr. 44   ...   D-91054 Erlangen   ...   Germany
+-- eMail: <Norbert@Nemec-online.de>  Tel: +49-(0)-9131-204180

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbTEHKIN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 06:08:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbTEHKIN
+	id S261253AbTEHKIO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 06:08:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbTEHKIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 06:08:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63379 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261201AbTEHKIM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 06:08:14 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:33446 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261253AbTEHKIM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 8 May 2003 06:08:12 -0400
-Date: Thu, 8 May 2003 11:20:47 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Terje Eggestad <terje.eggestad@scali.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Steffen Persvold <sp@scali.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The disappearing sys_call_table export.
-Message-ID: <20030508102047.GT10374@parcelfarce.linux.theplanet.co.uk>
-References: <200305071507_MC3-1-37CF-FE32@compuserve.com> <1052387912.4849.43.camel@pc-16.office.scali.no> <20030508095943.B22255@devserv.devel.redhat.com>
+Date: Thu, 8 May 2003 12:20:46 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Simon Kelley <simon@thekelleys.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Binary firmware in the kernel - licensing issues.
+Message-ID: <20030508102046.GJ1469@wohnheim.fh-wedel.de>
+References: <3EB79ECE.4010709@thekelleys.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030508095943.B22255@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3EB79ECE.4010709@thekelleys.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 08, 2003 at 09:59:43AM +0000, Arjan van de Ven wrote:
-> On Thu, May 08, 2003 at 11:58:33AM +0200, Terje Eggestad wrote:
-> > I guess something like this:
-> > 
-> > typedef int (*syscall_hook_t)(void * arg1, void * arg2, void * arg3,
-> > void * arg4, void * arg5, void * arg6);
-> > 
-> > #define HOOK_IN_FLAG 0x1
-> > #define HOOK_OUT_FLAG 0x2
-> > 
-> > opaquehandle = int register_syscall_hook(int syscall_nr, syscall_hook_t
-> > hook_function, int flags);
-> > int unregister(int opaquehandle);
-> > 
-> > I'd make a stab at it if I knew that it stood a chance of getting
-> > accepted. 
+On Tue, 6 May 2003 12:38:54 +0100, Simon Kelley wrote:
 > 
-> I dont think it has.
+> BUT. These things need firmware loaded, at least the ones without
+> built-in flash. The Atmel drivers come with binary firmware
+> as header files full of hex, with the following notice.
+> 
+> It isn't clear what the license agreement referred to in the above
+> actually is, but I don't think it's reasonable to just assume it's the
+> GPL and shove these files into the kernel as-is.
 
-I think it could, actually - who maintains fortunes these days?  It's
-a bit too long, though...
+After some thoughts, this appears to be related to NDA processor
+documentation not included in the kernel source.
+
+For the kernel or the main CPU, the driver firmware is just data. The
+same, as the magic 0x12345678ul that gets written to some register
+because [can't tell, NDA]. In both cases, magic data gets written
+somewhere and afterwards, things just work.
+
+So binary code that doesn't get executed on the main CPU *should* be
+ok, but whether the lawyers would agree, I have no idea.
+
+Jörn
+
+-- 
+"Translations are and will always be problematic. They inflict violence 
+upon two languages." (translation from German)

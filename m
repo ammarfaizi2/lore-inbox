@@ -1,32 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287828AbSAFLQr>; Sun, 6 Jan 2002 06:16:47 -0500
+	id <S287816AbSAFLb2>; Sun, 6 Jan 2002 06:31:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287817AbSAFLQh>; Sun, 6 Jan 2002 06:16:37 -0500
-Received: from dialin-145-254-131-080.arcor-ip.net ([145.254.131.80]:9220 "EHLO
-	dale.home") by vger.kernel.org with ESMTP id <S287827AbSAFLQc>;
-	Sun, 6 Jan 2002 06:16:32 -0500
-Date: Sun, 6 Jan 2002 12:16:29 +0100
-From: Alex Riesen <fork0@users.sourceforge.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: reiserfs over nfs export problems
-Message-ID: <20020106121629.A244@steel>
-Reply-To: Alex Riesen <fork0@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S287831AbSAFLbS>; Sun, 6 Jan 2002 06:31:18 -0500
+Received: from hirogen.kabelfoon.nl ([62.45.45.69]:58892 "HELO
+	hirogen.kabelfoon.nl") by vger.kernel.org with SMTP
+	id <S287816AbSAFLbF>; Sun, 6 Jan 2002 06:31:05 -0500
+Message-ID: <004a01c196a5$91964840$73552d3e@kabelfoon.nl>
+From: "Stepan Hluchan" <stepan@3amp.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.17 - hang after 'freeing unused kernel memory'
+Date: Sun, 6 Jan 2002 12:30:39 +0100
+Organization: 3 AM Productions
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-i've tried to export a reiserfs volume over nfs (knfsd).
-First kexportfs fails with "invalid argument", and mounts
-are failing with a "reason given by server: Permission denied".
-All subsequent exports succeeded.
+Hi all,
 
-The same is in 2.4.18-pre1. 2.4.17 looks ok.
-I suspect that unexport everything before first export
-could also make it work properly. 
+I have installed the RedHat 7.2 distro (I think it comes with
+2.4.10-something
+but that hangs too) on one machine A. and then transferred the HD to
+another (machine B) where it should be used.   On machine A (Celeron 800Mhz)
+it all boots up fine with any kernel, on machine B (P75 @ 100Mhz, ancient
+BIOS
+and mobo) it hangs after the message 'freeing up XX k unused kernel memory'.
 
--alex
+I have compiled the 2.4.17, 2.4.0 kernels set to 'classic pentium', but both
+would
+hang...
+
+What can be the cause for this?  (keep in mind it works fine on the newer
+machine)
+
+Thanks in advance,
+
+Stepan
+
+
+:: stepan hluchan
+--------------------------------------------------------
+p :  +31.(0)626.126.308
+e :  stepan@3amp.com
+i  :  http://stepan.3amp.com/
+Gallery - http://stepan.3amp.com/gallery/
+--------------------------------------------------------
+

@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263522AbTJLUOY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 16:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbTJLUOY
+	id S263528AbTJLUVM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 16:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263529AbTJLUVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 16:14:24 -0400
-Received: from mail.convergence.de ([212.84.236.4]:11215 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S263522AbTJLUOX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 16:14:23 -0400
-Message-ID: <3F89B61E.9090106@convergence.de>
-Date: Sun, 12 Oct 2003 22:14:22 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.5b) Gecko/20030903 Thunderbird/0.2
-X-Accept-Language: de-de, de-at, de, en-us, en
+	Sun, 12 Oct 2003 16:21:12 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:8700 "EHLO
+	cluless.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S263528AbTJLUVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 16:21:10 -0400
+Date: Sun, 12 Oct 2003 16:21:07 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cluless.boston.redhat.com
+To: asdfd esadd <retu834@yahoo.com>
+cc: Kenn Humborg <kenn@linux.ie>, <Valdis.Kletnieks@vt.edu>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.7 thoughts: common well-architected object model
+In-Reply-To: <20031011183405.38980.qmail@web13007.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44.0310121620290.31963-100000@cluless.boston.redhat.com>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/14] LinuxTV.org DVB driver update
-References: <20031011105320.1c9d46db.davem@redhat.com> <Pine.GSO.4.21.0310121115260.27309-100000@starflower.sonytel.be> <20031012110846.GA1677@mars.ravnborg.org>
-In-Reply-To: <20031012110846.GA1677@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Sam,
+On Sat, 11 Oct 2003, asdfd esadd wrote:
 
->>>It is your responsibility to resolve such things though.  It is
->>>inevitable and unavoidable that others outside of your development
->>>group will make many changes to your files, as we fix bugs that
->>>are tree-wide.
->>
->>So you best subscribe to bk-commits-head and monitor every patch that affects
->>drivers/media/dvb/.
-> 
-> 
-> Or more simple - keep a copy of the kernel where your patches got applied,
-> and make a diff between that kernel and latest.
-> Apply that diff to your local tree, and you are up-to-date.
-> 
-> This gives a good opportunity to review what has been applied without
-> passing the maintainer.
+> So let me restate the need again for a:
 
-Yes, another good hint. Thanks!
+Again?  Again no reason or justification?
 
-> 	Sam
+       0   2   4   6   8   10
+  
+                        /
+                       /
+                      /
+                     /
+                    /
+                   /
+                  /
+           TROLL-O-METER
 
-CU
-Michael.
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

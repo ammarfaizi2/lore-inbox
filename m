@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVCDMUB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262769AbVCDNHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbVCDMUB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 07:20:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262824AbVCDMSV
+	id S262769AbVCDNHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 08:07:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262908AbVCDNFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 07:18:21 -0500
-Received: from fire.osdl.org ([65.172.181.4]:52697 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262777AbVCDLPx (ORCPT
+	Fri, 4 Mar 2005 08:05:22 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:48091 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S263092AbVCDM67 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 06:15:53 -0500
-Date: Fri, 4 Mar 2005 03:15:04 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: mike@waychison.com, bunk@stusta.de, linux-kernel@vger.kernel.org
+	Fri, 4 Mar 2005 07:58:59 -0500
 Subject: Re: [2.6 patch] unexport complete_all
-Message-Id: <20050304031504.4ea49f83.akpm@osdl.org>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Mike Waychison <mike@waychison.com>, Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
 In-Reply-To: <58cb370e0503040240314120ea@mail.gmail.com>
 References: <422817C3.2010307@waychison.com>
-	<58cb370e0503040240314120ea@mail.gmail.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	 <58cb370e0503040240314120ea@mail.gmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1109940906.26799.20.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 04 Mar 2005 12:55:09 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
->
 > Andrew, what is the policy for adding exports for out of tree GPL code?
 > 
+> IMHO although it is convenient for maintainers of such code it is
+> inconvenient for us (ie. when making changes to code) and gives
+> people false assumptions about stability of *in-kernel* APIs.
 
-There isn't one.  Such things cause way too much email.
+Why isn't it _GPL if it is for a specific module need ?
 
-What complete_all() does is to permit more than one task to wait on a
-completion and for all those tasks to be woken by a single complete(). 
-Without it you'd need to record how many tasks are sleeping there and do
-complete() that many times.
-
-So it's a sensible part of the completion API from a regularity-of-the-API
-POV.  We use it in the coredump code and I don't think we'd be likely to want
-to rip it out.
-
-In fact, I'd say that complete() should have always done it this way...
-
+Even more so for those cases where a person adds a non _GPL export for
+another persons code. 

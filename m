@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291475AbSBABBS>; Thu, 31 Jan 2002 20:01:18 -0500
+	id <S291477AbSBABD1>; Thu, 31 Jan 2002 20:03:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291477AbSBABBH>; Thu, 31 Jan 2002 20:01:07 -0500
-Received: from mbr.sphere.ne.jp ([203.138.71.91]:5798 "EHLO mbr.sphere.ne.jp")
-	by vger.kernel.org with ESMTP id <S291475AbSBABAt>;
-	Thu, 31 Jan 2002 20:00:49 -0500
-Date: Fri, 1 Feb 2002 10:00:31 +0900
-From: Bruce Harada <harada@mbr.sphere.ne.jp>
-To: Jeff Garzik <garzik@havoc.gtf.org>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: [PATCH] PIIX4->ICH user message changes
-Message-Id: <20020201100031.09c240e9.harada@mbr.sphere.ne.jp>
-In-Reply-To: <20020131141025.E669@havoc.gtf.org>
-In-Reply-To: <20020131224122.59d1de9e.bruce@ask.ne.jp>
-	<E16WIFn-0002Iy-00@the-village.bc.nu>
-	<20020201022958.7b58493f.harada@mbr.sphere.ne.jp>
-	<20020131141025.E669@havoc.gtf.org>
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.6; i686-pc-linux-gnu)
-X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
+	id <S291479AbSBABDT>; Thu, 31 Jan 2002 20:03:19 -0500
+Received: from mail1.amc.com.au ([203.15.175.2]:20485 "HELO mail1.amc.com.au")
+	by vger.kernel.org with SMTP id <S291478AbSBABDJ>;
+	Thu, 31 Jan 2002 20:03:09 -0500
+Message-Id: <5.1.0.14.0.20020201120040.00a05b20@mail.amc.localnet>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 01 Feb 2002 12:03:02 +1100
+To: <linux-kernel@vger.kernel.org>
+From: Stuart Young <sgy@amc.com.au>
+Subject: Re: Wanted: Volunteer to code a Patchbot
+Cc: Rik van Riel <riel@conectiva.com.br>
+In-Reply-To: <Pine.LNX.4.33L.0201311150030.32634-100000@imladris.surriel
+ .com>
+In-Reply-To: <5.1.0.14.0.20020131114402.02653b10@mail.amc.localnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 11:51 AM 31/01/02 -0200, Rik van Riel wrote:
+>On Thu, 31 Jan 2002, Stuart Young wrote:
+>
+>--------------------------------------------------------------
+>This is the patchbot auto-reply.
+>
+>You tried to send me a patch (attached below) but I don't
+>know you.  To confirm that you exist (and aren't a spammer)
+>please reply to this message.
+>
+>After receiving your reply your queued patches will be
+>published.
+>--------------------------------------------------------------
 
-And lastly, here's the user message changes:
+Beautiful. Just beautiful. *grin*
 
-diff -urN -X dontdiff linux-2.4.18-pre7/drivers/ide/piix.c linux-2.4.18-pre7-bjh/drivers/ide/piix.c
---- linux-2.4.18-pre7/drivers/ide/piix.c	Fri Oct 26 05:53:47 2001
-+++ linux-2.4.18-pre7-bjh/drivers/ide/piix.c	Fri Feb  1 00:13:10 2002
-@@ -89,17 +89,24 @@
- 	u8  reg44 = 0, reg48 = 0, reg4a = 0, reg4b = 0, reg54 = 0, reg55 = 0;
- 
- 	switch(bmide_dev->device) {
-+	        case PCI_DEVICE_ID_INTEL_82801CA_10:
-+	        case PCI_DEVICE_ID_INTEL_82801CA_11:
-+			p += sprintf(p, "\n                                Intel ICH3 Ultra 100 Chipset.\n");
-+			break;
- 		case PCI_DEVICE_ID_INTEL_82801BA_8:
- 		case PCI_DEVICE_ID_INTEL_82801BA_9:
--	        case PCI_DEVICE_ID_INTEL_82801CA_10:
--			p += sprintf(p, "\n                                Intel PIIX4 Ultra 100 Chipset.\n");
-+			p += sprintf(p, "\n                                Intel ICH2 Ultra 100 Chipset.\n");
- 			break;
--		case PCI_DEVICE_ID_INTEL_82372FB_1:
- 		case PCI_DEVICE_ID_INTEL_82801AA_1:
-+			p += sprintf(p, "\n                                Intel ICH Ultra 66 Chipset.\n");
-+			break;
-+		case PCI_DEVICE_ID_INTEL_82372FB_1:
- 			p += sprintf(p, "\n                                Intel PIIX4 Ultra 66 Chipset.\n");
- 			break;
--		case PCI_DEVICE_ID_INTEL_82451NX:
- 		case PCI_DEVICE_ID_INTEL_82801AB_1:
-+			p += sprintf(p, "\n                                Intel ICH0 Ultra 33 Chipset.\n");
-+			break;
-+		case PCI_DEVICE_ID_INTEL_82451NX:
- 		case PCI_DEVICE_ID_INTEL_82443MX_1:
- 		case PCI_DEVICE_ID_INTEL_82371AB:
- 			p += sprintf(p, "\n                                Intel PIIX4 Ultra 33 Chipset.\n");
+Just hope the spammers don't catch on and start sending replies.
+
+
+Stuart Young - sgy@amc.com.au
+(aka Cefiar) - cefiar1@optushome.com.au
+
+[All opinions expressed in the above message are my]
+[own and not necessarily the views of my employer..]
+

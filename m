@@ -1,47 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262500AbRENVMc>; Mon, 14 May 2001 17:12:32 -0400
+	id <S262501AbRENVWM>; Mon, 14 May 2001 17:22:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262499AbRENVMW>; Mon, 14 May 2001 17:12:22 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:32009 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S262502AbRENVMK>; Mon, 14 May 2001 17:12:10 -0400
-Date: Mon, 14 May 2001 18:11:50 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <viro@math.psu.edu>
+	id <S262502AbRENVWC>; Mon, 14 May 2001 17:22:02 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63497 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262501AbRENVVt>; Mon, 14 May 2001 17:21:49 -0400
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.LNX.4.31.0105141328020.22874-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0105141802070.18102-100000@duckman.distro.conectiva>
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Mon, 14 May 2001 22:18:07 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hpa@transmeta.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        torvalds@transmeta.com (Linus Torvalds), viro@math.psu.edu
+In-Reply-To: <3B003EFC.61D9C16A@mandrakesoft.com> from "Jeff Garzik" at May 14, 2001 04:24:28 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14zPjE-0001Rl-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 May 2001, Linus Torvalds wrote:
+> Note also that persistence of permissions and hardcoded in-kernel naming
+> is a problem throughout proc...  It's not unique to in-driver
+> filesystems.
 
-> End of discussion.
-
-I've been doubting whether to work on both the -ac kernels
-and the -linus tree, but this is a pretty good argument for
-sticking with -ac and just ignoring the -linus tree...
-
-Lets see what happens...
-
-regards,
-
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+And the /proc namespace is a walking testimony to why numbers are not the 
+primarily problem in /dev space and tidyness

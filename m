@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbUKILhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbUKILjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbUKILhK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 06:37:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUKILbt
+	id S261505AbUKILjt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 06:39:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbUKILh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 06:31:49 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:41413 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261477AbUKILU6 (ORCPT
+	Tue, 9 Nov 2004 06:37:29 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:28596 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261477AbUKILf5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 06:20:58 -0500
-Date: Tue, 9 Nov 2004 13:22:42 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Amit Shah <amit.shah@codito.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RT-V0.7.22 Bug with fbdev and e100
-Message-ID: <20041109122242.GA25077@elte.hu>
-References: <200411091623.51495.amit.shah@codito.com> <20041109121330.GA23533@elte.hu>
+	Tue, 9 Nov 2004 06:35:57 -0500
+Subject: Re: [PATCH 2/11] oprofile: arch-independent code for stack trace
+	sampling
+From: Greg Banks <gnb@melbourne.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: OProfile List <oprofile-list@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041109030557.1de3f96a.akpm@osdl.org>
+References: <1099996668.1985.783.camel@hole.melbourne.sgi.com>
+	 <20041109030557.1de3f96a.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Silicon Graphics Inc, Australian Software Group.
+Message-Id: <1100000147.1985.839.camel@hole.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041109121330.GA23533@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 09 Nov 2004 22:35:48 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-11-09 at 22:05, Andrew Morton wrote:
+> Greg Banks <gnb@melbourne.sgi.com> wrote:
+> >
+> > +	struct oprofile_cpu_buffer * cpu_buf = &cpu_buffer[smp_processor_id()];
+> 
+> oprofile is currently doing suspicious things with smp_processor_id() in
+> premptible reasons.  Is this patch compounding things?
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+It's not changing the contexts where smp_processor_id() is called,
+just pushing it down one level from a bunch of interrupt handlers
+to the 2 oprofile sampling functions they call.  If it was busted
+before it's no more nor less busted now.
 
-> [...] This will reduce the utility of fbcon when debugging kernel
-> crashes, but it should avoid this assert [...]
+I presume the perceived problem is that with CONFIG_PREEMPT=y the
+thread can be pre-empted onto another CPU?  If it makes everyone
+happier I can sprinkle a few preempt_disable()s around, but I'd
+prefer to do it in a subsequent patch rather than respin this.
 
-in fact the way i implemented it in my tree:
+Greg.
+-- 
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.
 
-#define in_atomic_rt()  (!oops_in_progress && (in_atomic() || irqs_disabled()))
 
-still enables crash messages to make it to fbcon. So the only thing
-skipped will be non-fatal messages printed from 'raw' critical sections.
-(which are very rare in PREEMPT_RT kernels).
-
-	Ingo

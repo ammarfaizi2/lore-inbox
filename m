@@ -1,43 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264392AbUBOJip (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 04:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbUBOJip
+	id S264433AbUBOJmi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 04:42:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbUBOJmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 04:38:45 -0500
-Received: from disk.smurf.noris.de ([192.109.102.53]:38830 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S264392AbUBOJio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 04:38:44 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: Hard drive fault prediction
-Date: Sun, 15 Feb 2004 10:25:02 +0100
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2004.02.15.09.25.02.357163@smurf.noris.de>
-References: <7A25937D23A1E64C8E93CB4A50509C2A0310F0B9@stca204a.bus.sc.rolm.com> <1076790000.10391.13.camel@ssatchell1.pyramid.net>
-NNTP-Posting-Host: kiste.smurf.noris.de
+	Sun, 15 Feb 2004 04:42:38 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:59629 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264433AbUBOJmf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 04:42:35 -0500
+Date: Sun, 15 Feb 2004 10:42:24 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, mh@nadir.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: oops w/ 2.6.2-mm1 on ppc32
+Message-ID: <20040215094224.GY26397@suse.de>
+References: <20040215074140.GA3840@nadir.org> <1076831383.6958.38.camel@gaston> <20040215001019.33e4089b.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Trace: server.smurf.noris.de 1076837102 14482 192.109.102.35 (15 Feb 2004 09:25:02 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Sun, 15 Feb 2004 09:25:02 +0000 (UTC)
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040215001019.33e4089b.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Stephen Satchell wrote:
+On Sun, Feb 15 2004, Andrew Morton wrote:
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> >
+> > On Sun, 2004-02-15 at 18:41, Marc Heckmann wrote:
+> > > It happened while the machine was waking up from sleep. There were no
+> > > UDF or ISO filesystems mounted at the time, in fact, there wasn't even
+> > > a cd in the drive. The "autorun" process was running though (polls the
+> > > cdrom drive, to see if a disc has been inserted...). There were some
+> > > request timeouts on the cdrom drive (hdc) just before, it went to
+> > > sleep (system was idle at the time, I wasn't even at home).
+> > > 
+> > > Here is the kernel output before and after the machine went to sleep. The Oops
+> > > is at the bottom.
+> > 
+> > Looks like CD went berserk, and something didn't deal with the
+> > error correctly... I don't know those code path in there
+> > very well... Can you paste more of the ide-cd errors,
+> > those are weird.
+> 
+> Note that isofs_fill_super() calls sb_bread() before setting the blocksize.
+> For this it is relying on blockdev.bd_block_size being set up
+> appropriately.
+> 
+> Which all tends to imply that the underlying queue's ->hardsect_size is
+> very wrong.
+> 
+> The code which is responsible for setting up the queue's hardsect_size
+> appears to live in cdrom_read_toc():
+> 
+> 	/* Check to see if the existing data is still valid.
+> 	   If it is, just return. */
+> 	(void) cdrom_check_status(drive, sense);
+> 
+> 	if (CDROM_STATE_FLAGS(drive)->toc_valid)
+> 		return 0;
+> 
+> 	/* Try to get the total cdrom capacity and sector size. */
+> 	stat = cdrom_read_capacity(drive, &toc->capacity, &sectors_per_frame,
+> 				   sense);
+> 	if (stat)
+> 		toc->capacity = 0x1fffff;
+> 
+> 	set_capacity(drive->disk, toc->capacity * sectors_per_frame);
+> 	blk_queue_hardsect_size(drive->queue,
+> 				sectors_per_frame << SECTOR_BITS);
+> 
+> I'm wondering about that `return 0;' in there.  That will return "success"
+> even though we haven't set up half the things which should have been set
+> up.
+> 
+> Jens, should we be returning some sort of error code there?
 
-> Are there any drive-independent error counters I can monitor in 2.4 to
-> be able to detect drive failures early?
-
-S.M.A.R.T.
-
-You can tell most drives to do a nondisruptive background check.
+I'll have a look to see if it can go wrong, but ->toc_valid should never
+be set if the hardsector stuff etc hasn't been set up yet.
 
 -- 
-Matthias Urlichs
+Jens Axboe
+

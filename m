@@ -1,49 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268324AbTCFTy6>; Thu, 6 Mar 2003 14:54:58 -0500
+	id <S268266AbTCFTsR>; Thu, 6 Mar 2003 14:48:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268325AbTCFTy6>; Thu, 6 Mar 2003 14:54:58 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:13577
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S268324AbTCFTy5>; Thu, 6 Mar 2003 14:54:57 -0500
-Subject: Re: Inconsistency in changing the state of task ??
-From: Robert Love <rml@tech9.net>
-To: prash_t@softhome.net
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <courier.3E674902.000007D9@softhome.net>
-References: <courier.3E646584.000059D3@softhome.net>
-	 <1046800283.999.59.camel@phantasy.awol.org>
-	 <courier.3E674902.000007D9@softhome.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1046981138.684.7.camel@phantasy.awol.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 06 Mar 2003 15:05:39 -0500
-Content-Transfer-Encoding: 7bit
+	id <S268290AbTCFTsR>; Thu, 6 Mar 2003 14:48:17 -0500
+Received: from as12-5-6.spa.s.bonet.se ([217.215.177.162]:61641 "EHLO
+	www.tnonline.net") by vger.kernel.org with ESMTP id <S268266AbTCFTsO>;
+	Thu, 6 Mar 2003 14:48:14 -0500
+Date: Thu, 6 Mar 2003 20:58:42 +0100
+From: Anders Widman <andewid@tnonline.net>
+X-Mailer: The Bat! (v1.63 Beta/6)
+Reply-To: Anders Widman <andewid@tnonline.net>
+Organization: TNOnline.net
+X-Priority: 3 (Normal)
+Message-ID: <1328248062.20030306205842@tnonline.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Entire LAN goes boo  with 2.5.64
+In-Reply-To: <3E679878.2090807@datadirectnet.com>
+References: <20030306094021$7081@gated-at.bofh.it>
+ <3E679878.2090807@datadirectnet.com>
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-06 at 08:11, prash_t@softhome.net wrote:
+Tried  with  a  Realtek  8139B and the Intel Pro100+ adapter. The same
+thing   happens.   The   LAN   goes  crazy  and all programs trying to
+access or use the LAN on the Linuxbox goes super-slow or crashes.
 
-> Thanks Robert for the reply.
-> But I notice that __set_current_state() is same as current->state. So, I 
-> didn't understand the safety factor on using __set_current_state( ). 
+I am rather lost when it comes to where I should begin to look.
 
-There is no safety with __set_current_state().  It is just an
-abstraction.
+Have not compiled in IPX, network filtering and most other things. The
+only  network  card  I  have compiled in is the Rtl8139 and the Becker
+Intel Pro100+ driver.
 
-The safety comes from set_current_state(), which ensures memory
-ordering.
+Here is my net config: http://tnonline.net/conf.png
 
-This is an issue not just on SMP, but on a weakly ordered processor like
-Alpha.
+I  have  not compiled in ACPI or APM or APIC. And they are disabled in
+BIOS too.
 
-> Also why should I use __set_current_state() instead of set_current_state() 
-> when the later is SMP safe.
+//Anders
 
-You only use __set_current_state() if you know you do not need to ensure
-memory ordering constraints.
 
-	Robert Love
+> I've had this happen once, but with a 2.4 kernel. I had compiled in IPX
+> and configured it for autodiscovery of frame type. On boot, it would
+> flip back and forth between two different types rather fast (as fast as
+> the 100base NIC could do it), freaking out every piece of networking
+> equipment and every computer. See if you have IPX compiled in. 
+> Otherwise, run ethereal or another sniffer to see what exactly the 
+> network traffic is; that might be helpful.
+
+> Alexander
+
+> Anders Widman wrote:
+>>    Hello,
+>> 
+>>    Trying  out  the  2.5.64  kernel  to try to solve some IDE specific
+>>    problems  with 2.4.x kernels. Now I have another problem. We have a
+>>    Windows LAN and a Windows XP with WinRoute Pro as gateway.
+>> 
+>>    When  booting  the linux-machine with the 2.5.64 kernel the windows
+>>    machine goes to 100% cpu and the switch (Dlink) goes crazy (loosing
+>>    link, other machines get 100k/s instead of 10-12MiB/s etc).
+>> 
+>>    I  compiled  the  2.5.64  with  as  few  options  as  possible,  no
+>>    netfilter, or IPSec or similar stuff.
+>> 
+>>    What can be the problem?
+>> 
+>> 
+>> --------
+>> PGP public key: https://tnonline.net/secure/pgp_key.txt
+>> 
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+   
+
+
+
+--------
+PGP public key: https://tnonline.net/secure/pgp_key.txt
 

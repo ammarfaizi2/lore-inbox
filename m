@@ -1,97 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266683AbUGQCJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266685AbUGQCMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266683AbUGQCJu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 22:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266684AbUGQCJt
+	id S266685AbUGQCMs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 22:12:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbUGQCMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 22:09:49 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:53164 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266683AbUGQCJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 22:09:46 -0400
-Message-ID: <40F88A69.4080003@acm.org>
-Date: Fri, 16 Jul 2004 21:09:45 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Khalid Aziz <khalid_aziz@hp.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ipmi_msghandler module load failure
-References: <1089995643.5015.47.camel@lyra.fc.hp.com>
-In-Reply-To: <1089995643.5015.47.camel@lyra.fc.hp.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Jul 2004 22:12:48 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:44484 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S266685AbUGQCMq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 22:12:46 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Chris Wright <chrisw@osdl.org>,
+       Ravikiran G Thirumalai <kiran@in.ibm.com>, linux-kernel@vger.kernel.org,
+       dipankar@in.ibm.com
+Subject: Re: [RFC] Lock free fd lookup 
+In-reply-to: Your message of "Fri, 16 Jul 2004 18:19:36 MST."
+             <20040717011936.GK3411@holomorphy.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 17 Jul 2004 12:12:39 +1000
+Message-ID: <3310.1090030359@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So they've added enforcement so that non-init code cannot call init 
-code.  The call as it was is actually safe, there is a variable that 
-will  only cause it to be called if it has not been called yet (there 
-are possible reasons to do this when the driver is compiled into the 
-kernel) and it always gets called at init time. The the enforcement is 
-probably a good thing, though.  The patch looks ok.
+On Fri, 16 Jul 2004 18:19:36 -0700, 
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>On Sat, Jul 17, 2004 at 10:55:59AM +1000, Keith Owens wrote:
+>> 2-3-4 trees are self balancing, which gave decent lookup performance.
+>> Since red-black trees are logically equivalent to 2-3-4 trees it should
+>> be possible to use lockfree red-black trees.  However I could not come
+>> up with a lockfree red-black tree, mainly because an read-black insert
+>> requires atomic changes to multiple structures.  The 2-3-4 tree only
+>> needs atomic update to one structure at a time.
+>
+>This actually appears to confirm my earlier assertion about the linkage
+>of the data structure. Is this conclusion what you had in mind?
 
--Corey
+Not quite.  The 2-3-4 tree has embedded linkage, but it can be done
+lockfree if you really have to.  The problem is that a single 2-3-4
+list entry maps to two red-black list entries.  I could atomically
+update a single 2-3-4 list entry, including its pointers, even when the
+list was being read or updated by other users.  I could not work out
+how to do the equivalent update when the list linkage data was split
+over two red-black nodes.
 
-Khalid Aziz wrote:
-
->Corey,
->
->On a 2.6.7 kernel, when I try to modprobe ipmi_msghandler, it fails to
->load with following message:
->
->FATAL: Error inserting ipmi_msghandler (/lib/modules/2.6.7/kernel/drivers/char/ipmi/ipmi_msghandler.ko): Invalid module format
->
->And there is an error message in dmesg:
->
->ipmi_msghandler: init symbol 0xa000000200058080 used in module code at a000000200031b32
->
->What I have been able to determine is that ipmi_msghandler.c defines
->ipmi_init_msghandler() as the module_init() routine and then it also
->calls ipmi_init_msghandler() diretcly from couple of other places. This
->does not seem to be okay in 2.6.7 kernel. I was able to fix this by
->defining a new module_init routine which in turn calls
->ipmi_init_msghandler(). I also removed __init from
->ipmi_init_msghandler() since it gets called from ipmi_open() on an open
->of the ipmi device file. So I would think we want to keep
->ipmi_init_msghandler() around even after initialization. Here is the
->patch. Please apply if it looks good:
->
->--- linux-2.6.7/drivers/char/ipmi/ipmi_msghandler.c	2004-06-15 23:19:36.000000000 -0600
->+++ linux-2.6.7.new/drivers/char/ipmi/ipmi_msghandler.c	2004-07-16 10:28:52.000000000 -0600
->@@ -3072,7 +3072,7 @@
-> 	200   /* priority: INT_MAX >= x >= 0 */
-> };
-> 
->-static __init int ipmi_init_msghandler(void)
->+static int ipmi_init_msghandler(void)
-> {
-> 	int i;
-> 
->@@ -3107,6 +3107,11 @@
-> 	return 0;
-> }
-> 
->+static __init int ipmi_init_msghandler_mod(void)
->+{
->+	ipmi_init_msghandler();
->+}
->+
-> static __exit void cleanup_ipmi(void)
-> {
-> 	int count;
->@@ -3143,7 +3148,7 @@
-> }
-> module_exit(cleanup_ipmi);
-> 
->-module_init(ipmi_init_msghandler);
->+module_init(ipmi_init_msghandler_mod);
-> MODULE_LICENSE("GPL");
-> 
-> EXPORT_SYMBOL(ipmi_alloc_recv_msg);
->
->  
->
-
+The list structure is an implementation detail, the use of 2-3-4 or
+red-black is completely transparent to the main code.  The main code
+wants to lookup a structure from the list, to update a structure, to
+insert or to delete a structure without waiting.  How the list of
+structures is maintained is a problem for the internals of the API.
 

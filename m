@@ -1,54 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267372AbUITVxw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267370AbUITVxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267372AbUITVxw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 17:53:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267374AbUITVxw
+	id S267370AbUITVxp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 17:53:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267372AbUITVxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 17:53:52 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:61136 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S267372AbUITVxs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 17:53:48 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Christoph Lameter <clameter@sgi.com>
-Subject: Re: device driver for the SGI system clock, mmtimer
-Date: Mon, 20 Sep 2004 15:53:29 -0600
-User-Agent: KMail/1.7
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       linux-kernel@vger.kernel.org, Bob Picco <Robert.Picco@hp.com>,
-       venkatesh.pallipadi@intel.com, Andrew Morton <akpm@osdl.org>
-References: <200409161003.39258.bjorn.helgaas@hp.com> <20040916181426.GA5052@ucw.cz> <Pine.LNX.4.58.0409161142570.7453@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0409161142570.7453@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409201553.29824.bjorn.helgaas@hp.com>
+	Mon, 20 Sep 2004 17:53:45 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:23782 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S267370AbUITVxm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 17:53:42 -0400
+Subject: Re: [RFC][PATCH] inotify 0.9.2
+From: Robert Love <rml@novell.com>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: linux-kernel@vger.kernel.org, nautilus-list@gnome.org,
+       gamin-list@gnome.org, viro@parcelfarce.linux.theplanet.co.uk
+In-Reply-To: <1095652572.23128.2.camel@vertex>
+References: <1095652572.23128.2.camel@vertex>
+Content-Type: multipart/mixed; boundary="=-sl/49RxIvWIY2yNksnjC"
+Date: Mon, 20 Sep 2004 17:52:34 -0400
+Message-Id: <1095717155.5258.7.camel@betsy.boston.ximian.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 September 2004 12:46 pm, Christoph Lameter wrote:
-> On Thu, 16 Sep 2004, Vojtech Pavlik wrote:
-> > mmtimer and hpet are the same hardware actually, just a different
-> > specification revision, hpet being the newer one.
-> 
-> Its basically the same software API but different hardware.
 
-OK, I guess I'm convinced that the SGI mmtimer and the HPET
-really are different things.  It looks like the counter resolution,
-frequency, and size (which are all described in the HPET register
-set) are either compiled into mmtimer or discovered via special-
-purpose SGI hooks.
+--=-sl/49RxIvWIY2yNksnjC
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-So maybe it's not really a good thing to integrate mmtimer and
-hpet.  Apps that mmap the HPET will be expecting a certain register
-layout that mmtimer doesn't support.
+On Sun, 2004-09-19 at 23:56 -0400, John McCutchan wrote:
 
-I was confused because your mmtimer patch mentions the Intel
-spec, and the driver identifies itself as "IA-PC Multimedia Timer".
-My vote would be to leave mmtimer alone, and perhaps remove the
-references to the Intel spec and change the driver ident string.
-After all, it doesn't really implement very much of the HPET
-functionality, and I don't think the Intel spec says anything
-that relates to the SGI hardware.
+> I would appreciate design review, code review and testing.
+
+Hi, John.
+
+When you pass SLAB_PANIC to kmem_cache_create(), the slab layer will
+panic the kernel and thus halt the machine.  So there is no reason to
+check the return value.
+
+We could remove the SLAB_PANIC, but I think that it makes sense, so
+instead I removed the code checking the returns, saving a few bytes.
+
+Patch is against your inotify patch.
+
+	Robert Love
+
+
+--=-sl/49RxIvWIY2yNksnjC
+Content-Disposition: attachment; filename=inotify-slab-panic-rml-2.6.9-rc2.patch
+Content-Type: text/x-patch; name=inotify-slab-panic-rml-2.6.9-rc2.patch; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+Signed-Off-By: Robert Love <rml@novell.com>
+
+ drivers/char/inotify.c |   20 +++++++-------------
+ 1 files changed, 7 insertions(+), 13 deletions(-)
+
+diff -urN linux-inotify/drivers/char/inotify.c linux/drivers/char/inotify.c
+--- linux-inotify/drivers/char/inotify.c	2004-09-20 17:10:58.000000000 -0400
++++ linux/drivers/char/inotify.c	2004-09-20 17:33:03.369317992 -0400
+@@ -942,19 +942,13 @@
+ 
+ 	inotify_debug_flags = INOTIFY_DEBUG_NONE;
+ 
+-	watcher_cache = kmem_cache_create ("watcher_cache", 
+-			sizeof(struct inotify_watcher), 0, SLAB_PANIC, NULL, NULL);
+-
+-	if (!watcher_cache) {
+-		misc_deregister (&inotify_device);
+-	}
+-	kevent_cache = kmem_cache_create ("kevent_cache", 
+-			sizeof(struct inotify_kernel_event), 0, SLAB_PANIC, NULL, NULL);
+-
+-	if (!kevent_cache) {
+-		misc_deregister (&inotify_device);
+-		kmem_cache_destroy (watcher_cache);
+-	}
++	watcher_cache = kmem_cache_create ("watcher_cache",
++			sizeof(struct inotify_watcher), 0,
++			SLAB_PANIC, NULL, NULL);
++
++	kevent_cache = kmem_cache_create ("kevent_cache",
++			sizeof(struct inotify_kernel_event), 0,
++			SLAB_PANIC, NULL, NULL);
+ 
+ 	printk(KERN_ALERT "inotify 0.9.2 minor=%d\n", inotify_device.minor);
+ out:
+
+--=-sl/49RxIvWIY2yNksnjC--
+

@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbUKBOgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbUKBOf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbUKBOgA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 09:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbUKBOLZ
+	id S261495AbUKBOf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 09:35:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbUKBOLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 09:11:25 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:22686 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261240AbUKBNvP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 08:51:15 -0500
-Date: Tue, 2 Nov 2004 14:52:20 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] optional non-interactive mode for cpu scheduler
-Message-ID: <20041102135220.GA20237@elte.hu>
-References: <41871BA7.6070300@kolivas.org> <20041102125218.GH15290@elte.hu> <4187854C.6000803@kolivas.org> <20041102131105.GA17535@elte.hu> <41878E47.5090805@kolivas.org>
+	Tue, 2 Nov 2004 09:11:38 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:7955 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261244AbUKBNwv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 08:52:51 -0500
+Date: Tue, 02 Nov 2004 22:53:43 +0900 (JST)
+Message-Id: <20041102.225343.06193184.yoshfuji@linux-ipv6.org>
+To: jgarzik@pobox.com
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, akpm@osdl.org,
+       davem@davemloft.net, yoshfuji@linux-ipv6.org
+Subject: Re: IPv6 dead in -bk11
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <418781EF.7020100@pobox.com>
+References: <418781EF.7020100@pobox.com>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41878E47.5090805@kolivas.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <418781EF.7020100@pobox.com> (at Tue, 02 Nov 2004 07:47:43 -0500), Jeff Garzik <jgarzik@pobox.com> says:
 
-* Con Kolivas <kernel@kolivas.org> wrote:
+> 
+> IPv6 works 100% for my workstations in 2.6.10-rc2-bk2, but fails in 
+> 2.6.10-rc2-bk11:
+> 
+> 	[jgarzik@sata g]$ ping6 www.kame.net
+> 	connect: Network is unreachable
 
-> I'll look into coding it later this week (thanks for suggesting I do
-> it btw). This ordeal has left me seriously sleep deprived :P
+Please send me:
+ % ifconfig -a
+ % netstat -nr --inet6
+ % ip -6 addr
+ % ip -6 route
+ % ip -6 neigh
 
-:-|
+Thanks.
 
-> Since we're considering providing a special cpu policy for high
-> latency high cpu usage, does that mean we can now talk about other
-> policies like batch, isochronous etc? And in the medium to long term
-> future, gang and group?
-
-SCHED_ISO would be interesting, but all SCHED_BATCH patches that i've
-seen so far were fundamentally broken. [ none protects against the
-possibility of a simple CPU hog starving a SCHED_BATCH task in kernel
-mode holding say /home's i_sem forever. None except the one i wrote a
-couple of years ago that is ;-) ]
-
-but obviously any new scheduling policy first needs considerable
-testing, exposure and concensus. The main thing that makes
-SCHED_CPUBOUND possibly objectionable is that it could easily be used as
-a flag to 'turn off the interactivity code', which is wrong and just
-prolongs the fixing of interactivity-estimator bugs. Scientific apps
-burn CPU time exclusively and they have a stable priority at the low end
-of the range.
-
-One exception would be CPU-bound code with multiple threads which
-interact with each other - one always runs but the others always sleep.
-A possible solution would be to exclude all inter-task synchronization
-methods from the 'interactivity boost' and only hard-device-waits would
-be considered true 'waiting', such as keyboard, mouse, disk or network
-IO.
-
-	Ingo
+--yoshfuji @ still trying to debug refcnt etc....

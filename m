@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136189AbRDVP7W>; Sun, 22 Apr 2001 11:59:22 -0400
+	id <S136191AbRDVQEM>; Sun, 22 Apr 2001 12:04:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136190AbRDVP7M>; Sun, 22 Apr 2001 11:59:12 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:33034 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S136189AbRDVP64>;
-	Sun, 22 Apr 2001 11:58:56 -0400
-To: Daniel Dorau <woodst@cs.tu-berlin.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Inspiron 8000 does not resume after suspend
-In-Reply-To: <20010421145133.A419@woodstock.home.xxx>
+	id <S136192AbRDVQEC>; Sun, 22 Apr 2001 12:04:02 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:32011 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S136191AbRDVQDz>;
+	Sun, 22 Apr 2001 12:03:55 -0400
+To: esr@thyrsus.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alexander Viro <viro@math.psu.edu>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Request for comment -- a better attribution system
+In-Reply-To: <20010421164659.A4704@thyrsus.com> <E14r6oh-0004Zu-00@the-village.bc.nu> <20010421194916.B14896@thyrsus.com>
 From: Jes Sorensen <jes@linuxcare.com>
-Date: 22 Apr 2001 17:58:48 +0200
-In-Reply-To: Daniel Dorau's message of "Sat, 21 Apr 2001 14:51:33 +0200"
-Message-ID: <d3elul0vuv.fsf@lxplus015.cern.ch>
+Date: 22 Apr 2001 18:02:38 +0200
+In-Reply-To: "Eric S. Raymond"'s message of "Sat, 21 Apr 2001 19:49:16 -0400"
+Message-ID: <d3ae582a8x.fsf@lxplus015.cern.ch>
 User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Daniel" == Daniel Dorau <woodst@cs.tu-berlin.de> writes:
+>>>>> "Eric" == Eric S Raymond <esr@thyrsus.com> writes:
 
-Daniel> Hello, my Inspiron 8000 (BIOS A09) notebook running 2.4.3 does
-Daniel> not resume after suspending. I have APM compiled in with the
-Daniel> following options:
+Eric> Alan Cox <alan@lxorguk.ukuu.org.uk>:
+>> I actually prefer MAINTAINERS because it breaks things down by area
+>> and reflects the actual maintainership and areas covered. Something
+>> that per file does not
 
-Daniel> - Enable PM at boot time - Make CPU Idle calls whe ide -
-Daniel> Enable console blanking using APM - RTC stores time in GMT
+Eric> Instead of arguing this point, I will demonstrate a solution
+Eric> with working code.  -- <a
 
-This sounds a little like the problem I am seeing with my
-StinkPad 600E, you might want to try enabling CONFIG_APM_ALLOW_INTS
-and see if that makes a difference (thats the magic option required
-for the 600E).
+A MAINTAINERS file does not need code, as Horst said, no more
+specialized tools!
 
 Jes

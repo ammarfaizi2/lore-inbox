@@ -1,68 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292230AbSBBFtt>; Sat, 2 Feb 2002 00:49:49 -0500
+	id <S292233AbSBBFxV>; Sat, 2 Feb 2002 00:53:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292231AbSBBFtj>; Sat, 2 Feb 2002 00:49:39 -0500
-Received: from bitmover.com ([192.132.92.2]:22914 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S292230AbSBBFtc>;
-	Sat, 2 Feb 2002 00:49:32 -0500
-Date: Fri, 1 Feb 2002 21:49:18 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Rob Landley <landley@trommello.org>
-Cc: Larry McVoy <lm@bitmover.com>,
-        Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        Keith Owens <kaos@ocs.com.au>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper change granularity (was Re: A modest proposal -- We need a patch penguin)
-Message-ID: <20020201214918.E27081@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Rob Landley <landley@trommello.org>, Larry McVoy <lm@bitmover.com>,
-	Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-	Keith Owens <kaos@ocs.com.au>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <lm@bitmover.com> <200202011111.g11BBVf0009257@tigger.cs.uni-dortmund.de> <20020201083855.C8664@work.bitmover.com> <20020202001058.UXDU10685.femail14.sdc1.sfba.home.com@there>
+	id <S292234AbSBBFxL>; Sat, 2 Feb 2002 00:53:11 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:35340 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S292233AbSBBFxC>;
+	Sat, 2 Feb 2002 00:53:02 -0500
+Date: Fri, 1 Feb 2002 21:51:16 -0800
+From: Greg KH <greg@kroah.com>
+To: Nathan <wfilardo@fuse.net>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Issues with 2.5.3-dj1
+Message-ID: <20020202055115.GA11359@kroah.com>
+In-Reply-To: <3C5B5EC0.40503@fuse.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020202001058.UXDU10685.femail14.sdc1.sfba.home.com@there>; from landley@trommello.org on Fri, Feb 01, 2002 at 06:45:59PM -0500
+In-Reply-To: <3C5B5EC0.40503@fuse.net>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Sat, 05 Jan 2002 03:42:25 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 01, 2002 at 06:45:59PM -0500, Rob Landley wrote:
-> > The norm is:
-> > 	clone a repository
-> > 	edit the files
-> > 	modify/compile/debug until it works
-> > 	check in
-> > 	push the patch up the shared repository
-> > I'm really at a loss as to why that shouldn't be the norm here as well.
+On Fri, Feb 01, 2002 at 10:36:32PM -0500, Nathan wrote:
+> System is a Sony VAIO R505JE, kernel 2.5.3-dj1 + preempt + acpi + acpi 
+> pci irq routing.  Debian unstable, updated today.
 > 
-> You'll notice that bitkeeper is totally useless between the clone and the 
-> check in, in your model.  It can't really be used DURING development, only 
-> before and after.
+> 1: USB dies a very similar death in 2.5.3-dj1 as it did in 2.5.2-dj6 
+> (OOPS below and in previous mail).  What else can I provide?
 
-What nonsense.  Go read the docs.
+What were you doing with USB at the time?  Unloading the drivers?  What
+USB host controller, and USB drivers were you using?
 
-> As for a simple example of when your model above breaks down, a lot of 
-> developers who use things like emacs have their source control system as part 
-> of their integrated development environment.  When they "save and compile", 
-> it's checked into the RCS (often with a terse three or four word comment 
-> that's intended as a label to jog the developer's memory).  
+And the most important of all, does this also happen in 2.5.3?
 
-Hey genuis.  Download BK, install it, get into emacs, and type the key
-strokes you just described.  What happens?  I'll let you in on a little
-secret, smart boy, it does exactly what it should do.  Works just like
-it were RCS or SCCS.  It was carefully designed behave exactly like SCCS
-so that emacs/make/patch/etc all just know how to use it.  Try patching
-a BK repository w/ patch(1) and you'll see
+thanks,
 
-    retrieve file from revision system with lock?
-
-Just works.  Fits neatly with the tools that we all know and love.
-
-So explain to me again how it is that the tool is "totally useless"
-when it works *exactly* the way you say it should?
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+greg k-h

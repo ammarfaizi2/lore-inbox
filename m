@@ -1,81 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283566AbRLOT1k>; Sat, 15 Dec 2001 14:27:40 -0500
+	id <S283655AbRLOUUp>; Sat, 15 Dec 2001 15:20:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283588AbRLOT1b>; Sat, 15 Dec 2001 14:27:31 -0500
-Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:43219 "EHLO
-	gull.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S283566AbRLOT1Q>; Sat, 15 Dec 2001 14:27:16 -0500
-Message-ID: <3C1B17D7.9F4372BC@earthlink.net>
-Date: Sat, 15 Dec 2001 04:28:55 -0500
-From: Jeff <piercejhsd009@earthlink.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S283675AbRLOUUf>; Sat, 15 Dec 2001 15:20:35 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:36481 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S283655AbRLOUUT>;
+	Sat, 15 Dec 2001 15:20:19 -0500
+Date: Sat, 15 Dec 2001 23:17:56 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: bcrl <bcrl@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] mempool-2.5.1-D2
+Message-ID: <Pine.LNX.4.33.0112152251060.27426-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: war <war@starband.net>
-CC: Wakko Warner <wakko@animx.eu.org>,
-        Kristian Peters <kristian.peters@korseby.net>,
-        kernel <linux-kernel@vger.kernel.org>
-Subject: Re: cdrecord reports size vs. capabilities error....
-In-Reply-To: <3C1880F4.8CE5AC8F@earthlink.net> <3C19DEAF.4080703@korseby.net> <20011214064202.A24719@animx.eu.org> <3C1A0DF6.5030401@korseby.net> <3C1A11AF.610B9B02@starband.net> <20011214170105.B25469@animx.eu.org> <3C1AB9F4.BFEABFEB@starband.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I guess the problem was in my module.conf file, I forgot to add alias
-scd1 sr_mod. I didn't remember the capabilities error from before. The
-warning is still there in scanbus, but everything is now working
-correctly.
-Thanks to everybody for their help.
 
-war wrote:
-> 
-> Yeah, when I switched controllers etc it puts the message in different spots.
-> I'm not sure why it does that.
-> You'll have to ask the guy who wrote the driver I guess.
-> 
-> Wakko Warner wrote:
-> 
-> > > That just means it is not a standard compliant CDRW drive.
-> > > I've asked Joerg Schilling about this and that's what he said.
-> > > I get the same thing.
-> > >
-> > > Linux sg driver version: 3.1.20
-> > > Using libscg version 'schily-0.5'
-> > > scsibus0:
-> > >         0,0,0     0) *
-> > >         0,1,0     1) *
-> > >         0,2,0     2) 'IOMEGA  ' 'ZIP 100         ' 'J.03' Removable Disk
-> > >         0,3,0     3) 'MATSHITA' 'CD-ROM CR-8008  ' '8.0e' Removable CD-ROM
-> > >         0,4,0     4) *
-> > >         0,5,0     5) *
-> > >         0,6,0     6) *
-> > >         0,7,0     7) *
-> > > scsibus1:
-> > >         1,0,0   100) '        ' 'SMART100X/2400  ' '1.44' Removable CD-ROM
-> > >         1,1,0   101) 'PLEXTOR ' 'CD-R   PX-W1210A' '1.09' Removable CD-ROM
-> > > cdrecord: Warning: controller returns wrong size for CD capabilities page.
-> > >         1,2,0   102) 'MATSHITA' 'CD-ROM CR-581-M ' '1.05' Removable CD-ROM
-> > >         1,3,0   103) 'HP      ' 'CD-Writer+ 7500 ' '1.0a' Removable CD-ROM
-> > >         1,4,0   104) 'SONY    ' 'CD-ROM CDU77E-Q ' '1.3a' Removable CD-ROM
-> > >         1,5,0   105) *
-> > >         1,6,0   106) *
-> > >         1,7,0   107) *
-> >
-> > Ok, but why would having 2 identical cdroms be different?  they both have
-> > the same firmware, yet cdrecord -scanbus shows one of them with the wrong
-> > size thing.  There's 2 scsi controllers, but if I swap them, the wrong size
-> > stays with the drive, not the controller.
-> >
-> > --
-> >  Lab tests show that use of micro$oft causes cancer in lab animals
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Sat, 15 Dec 2001, Stephan von Krawczynski wrote:
 
-Jeff
-piercejhsd009@earthlink.net
+> >  - mempool_alloc(), if called from a process context, never fails. This
+> >    simplifies lowlevel IO code (which often must not fail) visibly.
+>
+> Uh, do you trust your own word? This already sounds like an upcoming
+> deadlock to me _now_. [...]
+
+please check it out how it works. It's not done by 'loop forever until
+some allocation succeeds'. It's done by FIFO queueing for pool elements
+that are guaranteed to be freed after some reasonable timeout. (and there
+is no other freeing path that might leak the elements.)
+
+> [...] I saw a lot of try-and-error during the last month regarding
+> exactly this point. There have been VM-days where allocs didn't really
+> fail (set with right flags), but didn't come back either. [...]
+
+hm, iirc, the code was just re-trying the allocation infinitely (while
+sleeping on kswapd_wait).
+
+> [...] And exactly this was the reason why the stuff was _broken_.
+> Obviously no process can wait a indefinitely long time to get its
+> alloc fulfilled. And there are conditions under heavy load where this
+> cannot be met, and you will see complete stall.
+
+this is the problem with doing this in the (current) page allocator:
+allocation and freeing of pages is done by every process, so the real ones
+that need those pages for deadlock avoidance are starved. Identifying
+reserved pools and creating closed circuits of allocation/freeing
+relations solves this problem - 'outsiders' cannot 'steal' from the
+reserve. In addition, creating pools of composite structures helps as well
+in cases where multiple allocations are needed to start a guaranteed
+freeing operation.
+
+mempool moves deadlock avoidance to a different, and explicit level. If
+everything uses mempools then the normal allocators (the page allocator)
+can remove all their reserved pools and deadlock-avoidance code.
+
+> [...] Looking at your mempool-ideas one cannot fight the impression
+> that you try to "patch" around a deficiency of the current code. This
+> cannot be the right thing to do.
+
+to the contrary - i'm not 'patching around' any deficiency, i'm removing
+the need to put deadlock avoidance into the page allocator. But in this
+transitional period of time the 'old code' still stays around for a while.
+If you look at Ben's patch you'll see the same kind of dualness - until a
+mechanizm is fully used things like that are unavoidable.
+
+	Ingo
+

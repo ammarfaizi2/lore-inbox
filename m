@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbULIXr1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbULIXvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbULIXr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 18:47:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbULIXr1
+	id S261678AbULIXvD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 18:51:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbULIXvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 18:47:27 -0500
-Received: from c7ns3.center7.com ([216.250.142.14]:51358 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S261162AbULIXrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 18:47:22 -0500
-Message-ID: <41B8E6A5.3090103@devicelogics.com>
-Date: Thu, 09 Dec 2004 16:58:29 -0700
-From: "Jeff V. Merkey" <jmerkey@devicelogics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Thu, 9 Dec 2004 18:51:03 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:46776 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261680AbULIXuu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 18:50:50 -0500
+Date: Thu, 9 Dec 2004 15:49:53 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: page fault scalability patch V12: rss tasklist vs sloppy rss
+In-Reply-To: <20041209232945.GH2714@holomorphy.com>
+Message-ID: <Pine.LNX.4.58.0412091543100.1369@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.44.0412091830580.17648-300000@localhost.localdomain>
+ <Pine.LNX.4.58.0412091348130.7478@schroedinger.engr.sgi.com>
+ <20041209225259.GG2714@holomorphy.com> <Pine.LNX.4.58.0412091500360.1102@schroedinger.engr.sgi.com>
+ <20041209232945.GH2714@holomorphy.com>
 MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: kernel-stuff@comcast.net, Imanpreet Singh Arora <imanpreet@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Question from Russells Spinlocks
-References: <120920042115.25628.41B8C082000394E30000641C220076219400009A9B9CD3040A029D0A05@comcast.net> <Pine.LNX.4.60.0412092326260.2294@hermes-1.csi.cam.ac.uk>
-In-Reply-To: <Pine.LNX.4.60.0412092326260.2294@hermes-1.csi.cam.ac.uk>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
+On Thu, 9 Dec 2004, William Lee Irwin III wrote:
 
+> On Thu, Dec 09, 2004 at 03:07:13PM -0800, Christoph Lameter wrote:
+> > Sloppy rss left the rss in the section of mm that contained the counters.
+> > So that has a separate cacheline. The idea of putting the atomic ops in a
+> > group was to only have one exclusive cacheline for mmap_sem and the rss.
+> > Which could lead to more bouncing of a single cache line rather than
+> > bouncing multiple cache lines less. But it seems to me that the problem
+> > essentially remains the same if the rss counter is not split.
 >
->
->Your last sentence is incorrect.  Spinlocks on 1 CPU machines still need 
->to disable preemption (assuming preemption is compiled in obviously, if 
->not then indeed you are right).  Otherwise preemption could take place in 
->the middle of a data manipulation and you would still have the same race 
->as you described with two cpus working concurrently.  Except that with 
->preemption it is only logical concurrence not actual physical concurrence.
->
->Best regards,
->
->	Anton
->
->  
->
+> The prior results Robin Holt cited were that the counter needed to be
+> in a different cacheline from the ->mmap_sem and ->page_table_lock.
+> We shouldn't need to evaluate splitting for the atomic RSS algorithm.
 
-Anton is correct in his analysis.
+Ok. Then we would need rss and rss_anon on two additional cache lines?
+Both rss and anon_rss on one line? mmap_sem and the page_table_lock also
+each on different cache lines?
 
-Jeff
+> A faithful implementation would just move the atomic counters away from
+> the ->mmap_sem and ->page_table_lock (just shuffle some mm fields).
+> Obviously a complete set of results won't be needed unless it's very
+> surprisingly competitive with the stronger algorithms. Things should be
+> fine just making sure that behaves similarly to the one with the shared
+> cacheline with ->mmap_sem in the sense of having a curve of similar shape
+> on smaller systems. The absolute difference probably doesn't matter,
+> but there is something to prove, and the largest risk of not doing so
+> is exaggerating the low-end performance benefits of stronger algorithms.
+
+The advantage in the split rss solution is that it can be placed on the
+same cacheline as other stuff from task that is already needed. So there
+is minimal overhead involved. But I can certainly give it a spin and see
+what the results are.
+

@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262650AbUCJSba (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 13:31:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbUCJSba
+	id S262751AbUCJSb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 13:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbUCJSb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 13:31:30 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:41863 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262650AbUCJSb1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 13:31:27 -0500
-Date: Wed, 10 Mar 2004 13:33:53 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: "Godbole, Amarendra (GE Consumer & Industrial)" 
-	<Amarendra.Godbole@ge.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: (0 == foo), rather than (foo == 0)
-In-Reply-To: <20040310100215.1b707504.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.53.0403101324120.18709@chaos>
-References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com>
- <20040310100215.1b707504.rddunlap@osdl.org>
+	Wed, 10 Mar 2004 13:31:57 -0500
+Received: from cpc1-cmbg3-5-0-cust123.cmbg.cable.ntl.com ([81.96.64.123]:22400
+	"EHLO cuddles.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id S262751AbUCJSbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 13:31:53 -0500
+From: Andrew Haley <aph@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16463.24215.666911.238474@cuddles.cambridge.redhat.com>
+Date: Wed, 10 Mar 2004 18:29:43 +0000
+To: Richard Henderson <rth@twiddle.net>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Thomas Schlichter <thomas.schlichter@web.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       gcc@gcc.gnu.org
+Subject: Re: [PATCH] fix warning about duplicate 'const'
+In-Reply-To: <20040310182227.GA6647@twiddle.net>
+References: <200403090043.21043.thomas.schlichter@web.de>
+	<20040308161410.49127bdf.akpm@osdl.org>
+	<Pine.LNX.4.58.0403081627450.9575@ppc970.osdl.org>
+	<200403090217.40867.thomas.schlichter@web.de>
+	<Pine.LNX.4.58.0403081728250.9575@ppc970.osdl.org>
+	<20040310054918.GB4068@twiddle.net>
+	<Pine.LNX.4.58.0403100740120.1092@ppc970.osdl.org>
+	<20040310182227.GA6647@twiddle.net>
+X-Mailer: VM 7.14 under Emacs 21.3.50.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Mar 2004, Randy.Dunlap wrote:
+Richard Henderson writes:
+ > On Wed, Mar 10, 2004 at 07:43:10AM -0800, Linus Torvalds wrote:
+ > > Ok, let's try just stripping the "const" out of the min/max macros, and
+ > > see what complains.
+ > 
+ > I remember what complains.  You get actual errors from
+ > 
+ > 	const int x; 
+ > 	int y;
+ > 	min(x, y);
 
-> On Wed, 10 Mar 2004 11:46:40 +0530 Godbole, Amarendra \(GE Consumer &
-> Industrial\) wrote:
->
-> Hi,
->
-> While writing code, the assignment operator (=) is many-a-times
-> confused with the comparison operator (==) resulting in very subtle
-> bugs difficult to track. To keep a check on this -- the constant
-> can be written on the LHS rather than the RHS which will result
-> in a compile time error if wrong operator is used.
->
+Can you explain *why* we have to produce a diagnostic for "const const
+int" by default?
 
-People who develop kernel code know the difference between
-'==' and '=' and are never confused my them. If you make
-contributions to kernel code, and write: "if (0==foo)", your
-code will be reviewed until it is obsolete and never find
-its way into the kernel. Please don't insult kernel developers
-with this kind of kid-stuff.
+Can't we dispatch such things to "-pedantic" ?  Or treat "const const"
+like "long long" used to be, a gcc extension?
 
-People who develop kernel code also know what a line-warp is.
-They put a '\n' "[Enter] key" in their text every so-often,
-maybe every 70 to 79 characters...
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+Andrew.

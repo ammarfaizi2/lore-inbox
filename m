@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263981AbRFMPKF>; Wed, 13 Jun 2001 11:10:05 -0400
+	id <S263987AbRFMPNo>; Wed, 13 Jun 2001 11:13:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263983AbRFMPJy>; Wed, 13 Jun 2001 11:09:54 -0400
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:5983 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S263981AbRFMPJs>; Wed, 13 Jun 2001 11:09:48 -0400
-Date: Wed, 13 Jun 2001 10:09:44 -0500
-From: Nathan Straz <nstraz@sgi.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5 data corruption
-Message-ID: <20010613100944.A4584@sgi.com>
-Mail-Followup-To: Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200106122017.f5CKHnf24565@work.bitmover.com>
-Mime-Version: 1.0
+	id <S263993AbRFMPNe>; Wed, 13 Jun 2001 11:13:34 -0400
+Received: from c017-h020.c017.sfo.cp.net ([209.228.12.234]:5813 "HELO
+	c017.sfo.cp.net") by vger.kernel.org with SMTP id <S263987AbRFMPNX>;
+	Wed, 13 Jun 2001 11:13:23 -0400
+X-Sent: 13 Jun 2001 15:13:13 GMT
+Message-ID: <3B276DDE.A19F60DF@sangate.com>
+Date: Wed, 13 Jun 2001 16:42:54 +0300
+From: Mark Mokryn <mark@sangate.com>
+Organization: SANgate Systems
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: SMP module compilation on UP?
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200106122017.f5CKHnf24565@work.bitmover.com>
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 12, 2001 at 01:17:49PM -0700, Larry McVoy wrote:
-> Folks, I believe I have a reproducible test case which corrupts data in
-> 2.4.5.
+Hi,
 
-Why don't you send the test case to the list?  I would love to try it
-out and it would be a good addition to LTP.
+Is it possible to build an SMP module on a machine running a UP kernel
+(or vice versa)? We of course get unresolved symbols during module load
+due to the smp prefix on the ksyms, and haven't seen how to get around
+it. (Defining __SMP__ does not cut it, though I believe this used to
+work a while ago).
 
--- 
-Nate Straz                                              nstraz@sgi.com
-sgi, inc                                           http://www.sgi.com/
-Linux Test Project                                  http://ltp.sf.net/
+Please reply to me as well as to the list.
+
+Thanks,
+-mark

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbUCDQ2I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 11:28:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbUCDQ2I
+	id S262008AbUCDQeN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 11:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbUCDQeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 11:28:08 -0500
-Received: from main.gmane.org ([80.91.224.249]:1682 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262000AbUCDQ2G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 11:28:06 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+	Thu, 4 Mar 2004 11:34:13 -0500
+Received: from mailout.zma.compaq.com ([161.114.64.104]:65295 "EHLO
+	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S262008AbUCDQeK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 11:34:10 -0500
+Message-ID: <40475A63.40909@digital.com>
+Date: Thu, 04 Mar 2004 11:33:39 -0500
+From: Aneesh Kumar KV <aneesh.kumar@digital.com>
+User-Agent: Mozilla/5.0 (X11; U; OSF1 alpha; en-US; rv:1.4.1) Gecko/20031012
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: mru@kth.se
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Alpha ptrace.c
-Date: Thu, 04 Mar 2004 17:28:03 +0100
-Message-ID: <yw1x8yigd1bg.fsf@kth.se>
-References: <40475290.2050404@digital.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+References: <fa.cc73a44.1fjgqpi@ifi.uio.no> <fa.cg0ffsb.l402hh@ifi.uio.no>
+In-Reply-To: <fa.cg0ffsb.l402hh@ifi.uio.no>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:PBzJaJnfCLKx0nfXbDeVFoE1EMQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aneesh Kumar KV <aneesh.kumar@digital.com> writes:
+Måns Rullgård wrote:
+> Aneesh Kumar KV <aneesh.kumar@digital.com> writes:
+> 
+> 
+>>This patch was acknowledged by Richard
+> 
+> 
+> And what is the purpose of it?
+> 
 
-> This patch was acknowledged by Richard
 
-And what is the purpose of it?
+I guess exit_code should be set before we wake_up the child.
 
--- 
-Måns Rullgård
-mru@kth.se
+-aneesh
+
 

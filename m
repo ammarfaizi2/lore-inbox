@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266524AbUAWGow (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 01:44:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266529AbUAWGow
+	id S266517AbUAWGiw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 01:38:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266515AbUAWGg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 01:44:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26066 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266524AbUAWGgq (ORCPT
+	Fri, 23 Jan 2004 01:36:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:21202 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266517AbUAWGgn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 01:36:46 -0500
+	Fri, 23 Jan 2004 01:36:43 -0500
 To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, akpm@osdl.org, nathans@sgi.com
+Cc: torvalds@osdl.org, akpm@osdl.org
 From: davej@redhat.com
-Subject: logic error in XFS
-Message-Id: <E1Ajuub-0000xw-00@hardwired>
+Subject: PCI probing typo?
+Message-Id: <E1Ajuub-0000xN-00@hardwired>
 Date: Fri, 23 Jan 2004 06:35:25 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yet another misplaced ! by the looks..
+Looking at this code, I can't convince myself it's
+currently doing the right thing.  It looks more like
+the intention was one of the two below..
 
     Dave
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/fs/xfs/xfs_log_recover.c linux-2.5/fs/xfs/xfs_log_recover.c
---- bk-linus/fs/xfs/xfs_log_recover.c	2003-10-09 01:01:24.000000000 +0100
-+++ linux-2.5/fs/xfs/xfs_log_recover.c	2004-01-14 07:06:40.000000000 +0000
-@@ -1553,7 +1553,7 @@ xlog_recover_reorder_trans(
- 		case XFS_LI_BUF:
- 		case XFS_LI_6_1_BUF:
- 		case XFS_LI_5_3_BUF:
--			if ((!flags & XFS_BLI_CANCEL)) {
-+			if (!(flags & XFS_BLI_CANCEL)) {
- 				xlog_recover_insert_item_frontq(&trans->r_itemq,
- 								itemq);
- 				break;
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/arch/i386/pci/direct.c linux-2.5/arch/i386/pci/direct.c
+--- bk-linus/arch/i386/pci/direct.c	2003-09-29 19:45:06.000000000 +0100
++++ linux-2.5/arch/i386/pci/direct.c	2004-01-05 05:54:04.000000000 +0000
+@@ -259,7 +259,7 @@ static int __init pci_direct_init(void)
+ 	release_resource(region);
+ 
+  type2:
+-	if ((!pci_probe & PCI_PROBE_CONF2) == 0)
++	if ((pci_probe & PCI_PROBE_CONF2) == 0)
+ 		goto out;
+ 	region = request_region(0xCF8, 4, "PCI conf2");
+ 	if (!region)
+

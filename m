@@ -1,66 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263833AbTIBRwi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 13:52:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbTIBRuF
+	id S263847AbTIBRzn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 13:55:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263751AbTIBRzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 13:50:05 -0400
-Received: from ns.suse.de ([195.135.220.2]:25317 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263833AbTIBRfU (ORCPT
+	Tue, 2 Sep 2003 13:55:16 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39307 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263847AbTIBRi1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 13:35:20 -0400
-To: Matthew Wilcox <willy@debian.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_64_BIT
-References: <20030902143424.GO13467@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 02 Sep 2003 19:35:11 +0200
-In-Reply-To: <20030902143424.GO13467@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel>
-Message-ID: <p73wucrm6uo.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 Sep 2003 13:38:27 -0400
+Date: Tue, 2 Sep 2003 10:38:44 -0700
+From: Dave Olien <dmo@osdl.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Petri Koistinen <petri.koistinen@iki.fi>, linux-kernel@vger.kernel.org
+Subject: Re: Sparse warning: bitmap.h: bad constant expression
+Message-ID: <20030902173844.GA20578@osdl.org>
+References: <Pine.LNX.4.56.0309012249230.14789@dsl-hkigw4a35.dial.inet.fi> <20030902015702.GA10265@osdl.org> <20030902095628.GB7616@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030902095628.GB7616@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox <willy@debian.org> writes:
 
-> What do people think of CONFIG_64_BIT?  It saves us from using
-> !(IA64 || MIPS64 || PARISC64 || S390X || SPARC64 || X86_64) or
-> the X86_64 people deciding their architecture is more important.
+I was lazy with my problem summary yesterday.  The sparse warning is actually
+about the declaration of the functions bitmap_shift_right() and
+bitmap_shift_left() in bitmap.h.  In these cases, the bits argument to
+DECLARE_BITMAP() was an argument to the function, and th variable sized
+array is in the scope of that function.
+
+The only uses of these functions I can find are in the macros
+physids_shift_right, physids_shift_left, in mpsec.h, and cpus_shift_rigt
+and cpus_shift_left, in cpumask_array.h.
+
+In all uses, the "bits" argument eventually resolves to being a constant.
+It would require the inline expansion of the bitmap_shift_*() functions
+to take advantage of that.
+
+Otherwise, as has been pointed out, this is valid C99.
+
+On Tue, Sep 02, 2003 at 11:56:28AM +0200, Jörn Engel wrote:
 > 
-> I also considered CONFIG_ILP32 vs CONFIG_LP64 (since that's the real
-> problem with, eg, megaraid), but that requires more explanation and
-> offers people several ways to get it wrong (should I depend on ILP32
-> or !LP64?)
-
-At least for code BITS_PER_LONG == 64 is already good enough.
-
-For Kconfigs it may make sense, but is there any Config rule that 
-checks for all 64bit archs (opposed to checking for specific archs)?
-I cannot thinkg of any.
-
--Andi
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-Matthew Wilcox <willy@debian.org> writes:
-
-> What do people think of CONFIG_64_BIT?  It saves us from using
-> !(IA64 || MIPS64 || PARISC64 || S390X || SPARC64 || X86_64) or
-> the X86_64 people deciding their architecture is more important.
+> Not quite true.  The above is an implicit call to alloca and should
+> not exist in the kernel.  No need to hack support into sparse.
 > 
-> I also considered CONFIG_ILP32 vs CONFIG_LP64 (since that's the real
-> problem with, eg, megaraid), but that requires more explanation and
-> offers people several ways to get it wrong (should I depend on ILP32
-> or !LP64?)
-
-At least for code BITS_PER_LONG == 64 is already good enough.
-
-For Kconfigs it may make sense, but is there any Config rule that 
-checks for all 64bit archs (opposed to checking for specific archs)?
-I cannot thinkg of any.
-
--Andi
+> Petri's code below has constant array bounds, once the preprocessing
+> is done, that should be fixed in sparse.
+> 
+> > On Mon, Sep 01, 2003 at 10:59:21PM +0300, Petri Koistinen wrote:
+> > > Hi!
+> > > 
+> > > If I try to compile latest kernel with "make C=1" I'll get many warning
+> > > messages from sparse saying:
+> > > 
+> > > warning: include/linux/bitmap.h:85:2: bad constant expression
+> > > warning: include/linux/bitmap.h:98:2: bad constant expression
+> > > 
+> > > Sparse doesn't seem to like DECLARE_BITMAP macros.
+> > > 
+> > > #define DECLARE_BITMAP(name,bits) \
+> > >         unsigned long name[BITS_TO_LONGS(bits)]
+> > > 
+> > > So what is wrong with this and how it could be fixed so that sparse
+> > > wouldn't complain?
+> 
+> Sorry, I've just had a casual glance at sparse so far.  Looks like a
+> preprocessing problem, that's all I can say.
+> 
+> Jörn
+> 
+> -- 
+> Fancy algorithms are slow when n is small, and n is usually small.
+> Fancy algorithms have big constants. Until you know that n is
+> frequently going to be big, don't get fancy.
+> -- Rob Pike
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

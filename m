@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131786AbRAKLzs>; Thu, 11 Jan 2001 06:55:48 -0500
+	id <S132149AbRAKL52>; Thu, 11 Jan 2001 06:57:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131763AbRAKLzi>; Thu, 11 Jan 2001 06:55:38 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:11706 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S131268AbRAKLz2>; Thu, 11 Jan 2001 06:55:28 -0500
-Message-ID: <3A5D9F29.4274AD6B@sap.com>
-Date: Thu, 11 Jan 2001 12:55:21 +0100
-From: "Karsten Hopp (Red Hat)" <Karsten.Hopp@sap.com>
-X-Mailer: Mozilla 4.75 [de] (X11; U; Linux 2.2.16-22 i686)
+	id <S132061AbRAKL5S>; Thu, 11 Jan 2001 06:57:18 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:8640 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S131979AbRAKL5H>; Thu, 11 Jan 2001 06:57:07 -0500
+Message-ID: <3A5DA113.DC8DB21C@uow.edu.au>
+Date: Thu, 11 Jan 2001 23:03:31 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-ac6: drivers/net/rcpci45.c typo
+To: Troels Walsted Hansen <troels@thule.no>
+CC: linux-kernel@vger.kernel.org, greg@wind.enjellic.com, joey@linux.de,
+        David Hinds <dhinds@sonic.net>
+Subject: Re: [PATCH] klogd busy loop on zero byte (output from 3c59x driver)
+In-Reply-To: <CKECLHEEHJOPHGPCOCKPEECCCCAA.troels@thule.no>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- ./drivers/net/rcpci45.c.orig        Thu Jan 11 12:49:19 2001
-+++ ./drivers/net/rcpci45.c     Thu Jan 11 12:47:04 2001
-@@ -120,7 +120,7 @@
-        { RC_PCI45_VENDOR_ID, RC_PCI45_DEVICE_ID, PCI_ANY_ID,
-PCI_ANY_ID, },
-        { }
- };
--MODULE_DEVICE_TABLE(pci, rcpci_pci_table);
-+MODULE_DEVICE_TABLE(pci, rcpci45_pci_table);
- 
- static void __exit rcpci45_remove_one(struct pci_dev *pdev)
- {
+Troels Walsted Hansen wrote:
+> 
+> Hi all.
+> 
+> I found a bug in the sysklogd package version 1.4. When it encounters a zero
+> byte in the kernel logging output, the text parser enters a busy loop. I
+> came upon it when the 3c59x driver from kernel 2.4.0 started outputting two
+> zero bytes for the product code of my laptop's 3Com card. It could be argued
+> that the kernel should never output zero bytes in the logging info, but
+> obviously that will happen from time to time.
 
+Yep.  %02x%02x it now is.
 
+The code in question was snitched from pcmcia-cs's 3c575_cb.c, and
+I assume David would have heard if it was busting klogd.  Maybe
+there's a klogd version problem, or maybe your NIC's EEPROM is hosed?
 
---
- Karsten Hopp        | Karsten.Hopp@sap.com
- SAP-AG LinuxLab     | http://www.sap.com/linux/
- Neurottstrasse 16
- 69190 Walldorf
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265464AbUBFNnL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 08:43:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265466AbUBFNnL
+	id S265452AbUBFNq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 08:46:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265457AbUBFNq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 08:43:11 -0500
-Received: from imap.gmx.net ([213.165.64.20]:61642 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265464AbUBFNnJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 08:43:09 -0500
-X-Authenticated: #4512188
-Message-ID: <402399E4.10804@gmx.de>
-Date: Fri, 06 Feb 2004 14:43:00 +0100
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: a.verweij@student.tudelft.nl
-CC: Craig Bradney <cbradney@zip.com.au>, Daniel Drake <dan@reactivated.net>,
-       =?ISO-8859-1?Q?Luis_Miguel_Garc=EDa?= <ktech@wanadoo.es>,
-       david+challenge-response@blue-labs.org, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
-References: <Pine.GHP.4.44.0402061433510.7943-100000@elektron.its.tudelft.nl>
-In-Reply-To: <Pine.GHP.4.44.0402061433510.7943-100000@elektron.its.tudelft.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Feb 2004 08:46:29 -0500
+Received: from sole.infis.univ.trieste.it ([140.105.134.1]:36553 "EHLO
+	sole.infis.univ.trieste.it") by vger.kernel.org with ESMTP
+	id S265452AbUBFNqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 08:46:21 -0500
+Date: Fri, 6 Feb 2004 14:46:19 +0100
+From: Andrea Barisani <lcars@infis.univ.trieste.it>
+To: linux-kernel@vger.kernel.org
+Subject: PATCH: I2C is missing on 2.6.2 with ppc arch
+Message-ID: <20040206134619.GA23338@sole.infis.univ.trieste.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GPG-Key: 0x864C9B9E
+X-GPG-Fingerprint: 0A76 074A 02CD E989 CE7F  AC3F DA47 578E 864C 9B9E
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh, I am using a furthermore patched version of this kernel:
 
-http://forums.gentoo.org/viewtopic.php?p=840090#840090
+Hi guys,
 
-It is based on 2.6-mm1 and has a lot of goodies.
+i2c support is missing on 2.6.2 with ppc arch, it was present on 2.6.1 and
+it's needed for many things, most notably dmasound_pmac support.
 
-Prakash
+
+Here's a patch that fix the problem:
+
+--- Kconfig.orig	2004-02-06 14:40:23.452443000 +0100
++++ Kconfig	2004-02-06 14:36:59.412443000 +0100
+@@ -1255,6 +1255,8 @@ endmenu
+ 
+ source "drivers/char/Kconfig"
+ 
++source "drivers/i2c/Kconfig"
++
+ source "drivers/media/Kconfig"
+ 
+ source "fs/Kconfig"
+
+
+Bye
+
+
+--
+------------------------------------------------------------
+INFIS Network Administrator & Security Officer         .*. 
+Department of Physics       - University of Trieste     V 
+lcars@infis.univ.trieste.it - GPG Key 0x864C9B9E      (   )
+----------------------------------------------------  (   )
+"How would you know I'm mad?" said Alice.             ^^-^^
+"You must be,'said the Cat,'or you wouldn't have come here."
+------------------------------------------------------------

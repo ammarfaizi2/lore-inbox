@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315510AbSECAfn>; Thu, 2 May 2002 20:35:43 -0400
+	id <S315490AbSECAiQ>; Thu, 2 May 2002 20:38:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315511AbSECAfm>; Thu, 2 May 2002 20:35:42 -0400
-Received: from [194.234.65.222] ([194.234.65.222]:47521 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S315510AbSECAfl>; Thu, 2 May 2002 20:35:41 -0400
-Date: Fri, 3 May 2002 02:35:04 +0200 (CEST)
+	id <S315491AbSECAiP>; Thu, 2 May 2002 20:38:15 -0400
+Received: from [194.234.65.222] ([194.234.65.222]:6307 "EHLO mustard.heime.net")
+	by vger.kernel.org with ESMTP id <S315490AbSECAiO>;
+	Thu, 2 May 2002 20:38:14 -0400
+Date: Fri, 3 May 2002 02:37:55 +0200 (CEST)
 From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
 X-X-Sender: roy@mustard.heime.net
-To: Jeff Nguyen <jeff@aslab.com>
-cc: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
         Pavel Machek <pavel@suse.cz>, <linux-kernel@vger.kernel.org>
 Subject: Re: IDE hotplug support?
-In-Reply-To: <09fa01c1f227$c8357f00$6502a8c0@jeff>
-Message-ID: <Pine.LNX.4.44.0205030232490.31927-100000@mustard.heime.net>
+In-Reply-To: <E173RID-0005Ii-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0205030237260.31927-100000@mustard.heime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You can get a sustained read speed of 80MB/s on the Adaptec 2000S
-> Zero Channel RAID with 7 drives (RAID-5). But the sustained write
-> speed is only around 32MB/s.
+On Fri, 3 May 2002, Alan Cox wrote:
+
+> > > The request aliasing effects will be almost for sure disasterous
+> > > to overall system performance.
+> > 
+> > hm. all I want is lots of space. I don't need speed here. What is 
+> > 'disasterous' here?
 > 
-> On the other hand, the 3Ware Escalade 7850 can sustain a read speed
-> of 130MB/s with 8 drives (RAID-5). The write speed is 30MB/s.
-
-I've done 82MB/s with two WD 120GB 7200 IDE drives in sw raid 0
-
-ok. that was outer rim, but still.
-
-need I say more?
-
-roy
---
+> Halve the expected throughput and subtract a bit. Since you can put 8
+> ports on a 3ware card one drive per port at 160Gb a drive I suspect you
+> don't need master/slave pairs 8)
+>
+I do. I can't afford 3ware
+-- 
 Roy Sigurd Karlsbakk, Datavaktmester
 
 Computers are like air conditioners.

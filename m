@@ -1,88 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUFTOrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265500AbUFTO7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265909AbUFTOrP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 10:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265893AbUFTOqe
+	id S265500AbUFTO7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 10:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265574AbUFTO7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 10:46:34 -0400
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:46011 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265877AbUFTOp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 10:45:29 -0400
-Message-ID: <40D5A305.80807@yahoo.com.au>
-Date: Mon, 21 Jun 2004 00:45:25 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Sun, 20 Jun 2004 10:59:15 -0400
+Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:26546 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S265500AbUFTO7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 10:59:14 -0400
+Message-ID: <40D5A642.6020901@backtobasicsmgmt.com>
+Date: Sun, 20 Jun 2004 07:59:14 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back To Basics Network Management
+User-Agent: Mozilla Thunderbird 0.7 (Windows/20040616)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Grzegorz Kulewski <kangur@polcom.net>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Memory and rsync problem with vanilla 2.6.7
-References: <20040426013944.49a105a8.akpm@osdl.org> <Pine.LNX.4.58.0404270105200.2304@donald.themaw.net> <Pine.LNX.4.58.0404261917120.24825@alpha.polcom.net> <Pine.LNX.4.58.0404261102280.19703@ppc970.osdl.org> <Pine.LNX.4.58.0404262350450.3003@alpha.polcom.net> <Pine.LNX.4.58.0406191841050.6160@alpha.polcom.net> <Pine.LNX.4.58.0406191040170.6178@ppc970.osdl.org> <40D508E8.2050407@yahoo.com.au> <Pine.LNX.4.58.0406201543520.22369@alpha.polcom.net> <Pine.LNX.4.58.0406201636380.29262@alpha.polcom.net>
-In-Reply-To: <Pine.LNX.4.58.0406201636380.29262@alpha.polcom.net>
-Content-Type: multipart/mixed;
- boundary="------------000003080300080907020407"
+To: linux-kernel@vger.kernel.org
+CC: Acpi-devel@lists.sourceforge.net
+Subject: Re: 2.6.7 ACPI OOPS (random dereferrencing)
+References: <Pine.LNX.4.60.0406180957470.977@hosting.rdsbv.ro> <1087571167.22483.20.camel@forum-beta.geizhals.at> <Pine.LNX.4.58.0406201340560.1998@kai.makisara.local>
+In-Reply-To: <Pine.LNX.4.58.0406201340560.1998@kai.makisara.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000003080300080907020407
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Kai Makisara wrote:
 
-Grzegorz Kulewski wrote:
->>>Well it doesn't seem to have caused too much trouble as yet... But it
->>>is the obvious candidate if your problems continue. If you are not a
->>>bk user, the attached patch will also revert that change.
->>
->>Thanks, I will test it soon and I will report results. But I am not saying 
->>it is a bug - maybe it is simply change that can lead to problems with 
->>insane debug options but itself is good?
-> 
-> 
-> Are you sure that this is good patch against vanilla 2.6.7? It gives me 
-> 2 failed hunks (both normal and -R)... Should I merge it manually?
-> 
+> The reports in the list above do not all point to similar symptoms. The 
+> reports from Thomas, Kevin, Pozsar, and me seem to have two things in 
+> common:
+> - an Intel motherboard
+> - hang when enabling ACPI
 
-You're right here's the correct one.
-
---------------000003080300080907020407
-Content-Type: text/x-patch;
- name="vm-revert-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="vm-revert-fix.patch"
-
- linux-2.6-npiggin/mm/vmscan.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
-
-diff -puN mm/vmscan.c~vm-revert-fix mm/vmscan.c
---- linux-2.6/mm/vmscan.c~vm-revert-fix	2004-06-21 00:43:07.000000000 +1000
-+++ linux-2.6-npiggin/mm/vmscan.c	2004-06-21 00:44:30.000000000 +1000
-@@ -867,9 +867,8 @@ shrink_caches(struct zone **zones, struc
- 	for (i = 0; zones[i] != NULL; i++) {
- 		struct zone *zone = zones[i];
- 
--		zone->temp_priority = sc->priority;
--		if (zone->prev_priority > sc->priority)
--			zone->prev_priority = sc->priority;
-+		if (zone->free_pages < zone->pages_high)
-+			zone->temp_priority = priority;
- 
- 		if (zone->all_unreclaimable && sc->priority != DEF_PRIORITY)
- 			continue;	/* Let kswapd poll it */
-@@ -1044,8 +1043,6 @@ scan:
- 					all_zones_ok = 0;
- 			}
- 			zone->temp_priority = priority;
--			if (zone->prev_priority > priority)
--				zone->prev_priority = priority;
- 			sc.nr_scanned = 0;
- 			sc.nr_reclaimed = 0;
- 			sc.priority = priority;
-
-_
-
---------------000003080300080907020407--
+There is an entry in the RedHat Bugzilla where Len Brown is actively 
+participating on this issue; he has been able to reproduce it (no 
+surprise, he works for Intel and shouldn't have any trouble obtaining 
+the same hardware <G>). There is no fix yet, though.

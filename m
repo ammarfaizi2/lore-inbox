@@ -1,46 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282914AbSADSYs>; Fri, 4 Jan 2002 13:24:48 -0500
+	id <S288711AbSADS2Q>; Fri, 4 Jan 2002 13:28:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288711AbSADSYi>; Fri, 4 Jan 2002 13:24:38 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:59364 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S282690AbSADSY3>; Fri, 4 Jan 2002 13:24:29 -0500
-Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
-To: Andries.Brouwer@cwi.nl
-Cc: acme@conectiva.com.br, adilger@turbolabs.com, ion@cs.columbia.edu,
-        linux-fsdevel@vger.kernel.org, linux-fsdevel-owner@vger.kernel.org,
-        linux-kernel@vger.kernel.org, phillips@bonn-fries.net
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF2FE44987.D9D207BC-ON87256B37.005AB446@boulder.ibm.com>
-From: "Bryan Henderson" <hbryan@us.ibm.com>
-Date: Fri, 4 Jan 2002 09:45:04 -0700
-X-MIMETrack: Serialize by Router on D03NM031/03/M/IBM(Release 5.0.9 |November 16, 2001) at
- 01/04/2002 09:45:05 AM
+	id <S288713AbSADS2H>; Fri, 4 Jan 2002 13:28:07 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3845 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288711AbSADS1v>; Fri, 4 Jan 2002 13:27:51 -0500
+Subject: Re: Two hdds on one channel - why so slow?
+To: skraw@ithnet.com (Stephan von Krawczynski)
+Date: Fri, 4 Jan 2002 18:38:33 +0000 (GMT)
+Cc: hahn@physics.mcmaster.ca (Mark Hahn), linux-kernel@vger.kernel.org
+In-Reply-To: <20020104191906.5fe0efe9.skraw@ithnet.com> from "Stephan von Krawczynski" at Jan 04, 2002 07:19:06 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16MZEf-00053p-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> all. With IDE you are busted, because no vendor has any warranty lasting long
+> enough. Don't try to argue that this is unfair comparison, warranty counts. 
+> Don't tell me this is not going to work, because it _does_.
 
->>    sizeof (foo): 1611, sizeof(foo): 19364 => -bs should be removed
->> ...
->>    int
->>    foo(int x): 11408, int foo(int x): 57275 => -psl should be removed
->
->I do not think good style is best defined by majority vote.
+Right at the moment the same process seems to work for IDE drives with 1
+year warranties.
 
-I don't think the implication was that sizeof(foo) is better style because
-more people like it.  The implication is that consistency is, in general,
-good programming style and it's easier to arrive at consistency by adhering
-to the majority style than by adhering to the minority style.
-
-Of course, there are other variables that may in any particular case have
-more weight than the consistency or minimal effort considerations.
-
-And I don't see what any of this has to do with whether an option should be
-removed from Lindent.  Lindent should be a tool, which means it helps a
-user do whatever he wants to do.  Whether he should want to do "sizeof
-(foo)" is a separate issue.
-
-
+Alan (raid addict ;))

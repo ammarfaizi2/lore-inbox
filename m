@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319590AbSIHKWj>; Sun, 8 Sep 2002 06:22:39 -0400
+	id <S319591AbSIHK3z>; Sun, 8 Sep 2002 06:29:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319591AbSIHKWj>; Sun, 8 Sep 2002 06:22:39 -0400
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:5134 "EHLO
-	ns.higherplane.net") by vger.kernel.org with ESMTP
-	id <S319590AbSIHKWi>; Sun, 8 Sep 2002 06:22:38 -0400
-Date: Sun, 8 Sep 2002 20:31:14 +1000
-From: john slee <indigoid@higherplane.net>
-To: boot-messages@rameria.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: I'm collecting linux boot messages. Care to send me some?
-Message-ID: <20020908103114.GL10820@higherplane.net>
-References: <20020904125815.K781@nightmaster.csn.tu-chemnitz.de> <20020904185708.M781@nightmaster.csn.tu-chemnitz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020904185708.M781@nightmaster.csn.tu-chemnitz.de>
-User-Agent: Mutt/1.3.25i
+	id <S319592AbSIHK3z>; Sun, 8 Sep 2002 06:29:55 -0400
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:6802 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S319591AbSIHK3z>; Sun, 8 Sep 2002 06:29:55 -0400
+Date: Sun, 8 Sep 2002 12:57:48 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@mwaikambo.name>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Robert Love <rml@tech9.net>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH][RFC] per isr in_progress markers
+In-Reply-To: <Pine.LNX.4.44.0209080952410.16565-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0209081250000.1096-100000@linux-box.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 04, 2002 at 06:57:08PM +0200, Ingo Oeser wrote:
-> On Wed, Sep 04, 2002 at 12:58:15PM +0200, I wrote:
-> > I collected already some interesting boot messages posted here.
-> > 
-> > Now I want more ;-)
-> > 
-> > Care to help? Then read on.
-> 
-> These boots should come from WORKING boots. 
-> 
-> Buggy boots with lots of warnings and errors give a bad picture
-> of Linux and my collection is intended to do the opposite.
+On Sun, 8 Sep 2002, Ingo Molnar wrote:
 
-the openbsd people request (or used to, havent installed openbsd lately)
-that you 'dmesg | mail dmesg@openbsd.org' after installation.
+> hm, perhaps it could confuse some of the more complex shared-IRQ-aware
+> device drivers, such as IDE. But your patch is very tempting nevertheless,
+> it removes much of the disadvantage of sharing interrupt lines. Most of
+> the handlers on the chain are supposed to be completely independent.
 
-linux has way too many users for this to be workable but i would imagine
-that they collect some interesting data from it.
+iirc IDE is capable of doing its own masking per device(nIEN) and in fact 
+does even do unconditional sti's in its isr paths. So i would think it 
+would be one of the not so painful device drivers to take care of. 
+DISCLAIMER: I am not Andre Hedrick
 
-j.
-
+	Zwane
 -- 
-toyota power: http://indigoid.net/
+function.linuxpower.ca
+

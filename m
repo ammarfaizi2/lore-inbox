@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbTJXTqH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 15:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbTJXTqH
+	id S262534AbTJXTxH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 15:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262557AbTJXTxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 15:46:07 -0400
-Received: from nagatino-gw.corbina.net ([195.14.53.90]:52719 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S262567AbTJXTqE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 15:46:04 -0400
-Date: Fri, 24 Oct 2003 23:50:06 +0400
-From: Alex Tomas <alex@clusterfs.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix against sym53c8xx v.2
-Message-Id: <20031024235006.34e00c2e.alex@clusterfs.com>
-Organization: CFS
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 24 Oct 2003 15:53:07 -0400
+Received: from fed1mtao03.cox.net ([68.6.19.242]:63908 "EHLO
+	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S262540AbTJXTxD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 15:53:03 -0400
+Date: Fri, 24 Oct 2003 12:52:43 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nico-kernel@schottelius.org, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: 3c59x problem with 2.4.6-test[34]
+Message-ID: <20031024195243.GB985@ip68-0-152-218.tc.ph.cox.net>
+References: <20030907212348.GA836@ip68-0-152-218.tc.ph.cox.net> <20030929151827.GB862@ip68-0-152-218.tc.ph.cox.net> <20031015183505.GA963@ip68-0-152-218.tc.ph.cox.net> <20031017235325.GA957@ip68-0-152-218.tc.ph.cox.net> <20031018122708.GA401@schottelius.org> <20031018041448.6362faee.akpm@osdl.org> <20031024193402.GA985@ip68-0-152-218.tc.ph.cox.net> <20031024124356.212fc590.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Fri__24_Oct_2003_23_50_06_+0400_46tOmKWZ450tBH0V"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031024124356.212fc590.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Fri, Oct 24, 2003 at 12:43:56PM -0700, Andrew Morton wrote:
+> Tom Rini <trini@kernel.crashing.org> wrote:
+> >
+> > Okay.  First an odd part.  When the card does not work, I didn't get
+> >  anything in the syslog with debug=7, but I did get plenty when it works.
+> 
+> Well that's a big hint.  If no debug output comes out then the driver
+> simply isn't being executed.  You'll need to investigate and report on this
+> further.  Make sure that you've set `dmesg -n 7' of course...
 
---Multipart=_Fri__24_Oct_2003_23_50_06_+0400_46tOmKWZ450tBH0V
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+>From the original message, something is happening:
+Sep  6 18:13:57 opus kernel: 0000:00:0e.0: 3Com PCI 3c905B Cyclone 100baseTx at 0xe480. Vers LK1.1.19
+Sep  6 18:13:57 opus vmunix:   ***WARNING*** No MII transceivers found!
 
-hi!
 
-without following patch I couldn't get 160MB from my disk.
-removed line restores previous clocking value (0 in my case).
-so, driver thinks disk isn't DT-capable ...
-
-with best regards, Alex
-
---Multipart=_Fri__24_Oct_2003_23_50_06_+0400_46tOmKWZ450tBH0V
-Content-Type: application/octet-stream;
- name="sym53c8xx2-160-fix.patch"
-Content-Disposition: attachment;
- filename="sym53c8xx2-160-fix.patch"
-Content-Transfer-Encoding: base64
-
-SW5kZXg6IGxpbnV4LTIuNi4wLXRlc3Q3L2RyaXZlcnMvc2NzaS9zeW01M2M4eHhfMi9zeW1fbWlz
-Yy5jCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT0KLS0tIGxpbnV4LTIuNi4wLXRlc3Q3Lm9yaWcvZHJpdmVycy9zY3NpL3N5
-bTUzYzh4eF8yL3N5bV9taXNjLmMJMjAwMy0xMC0yNCAyMzozNTozNy4wMDAwMDAwMDAgKzA0MDAK
-KysrIGxpbnV4LTIuNi4wLXRlc3Q3L2RyaXZlcnMvc2NzaS9zeW01M2M4eHhfMi9zeW1fbWlzYy5j
-CTIwMDMtMTAtMjQgMjM6Mzc6MDYuMDAwMDAwMDAwICswNDAwCkBAIC0zMjgsNyArMzI4LDYgQEAK
-IAkgICAgdHAtPmlucV9ieXRlNTYgICE9IGlucV9ieXRlNTYpIHsKIAkJdHAtPmlucV92ZXJzaW9u
-ID0gaW5xX3ZlcnNpb247CiAJCXRwLT5pbnFfYnl0ZTcgICA9IGlucV9ieXRlNzsKLQkJdHAtPmlu
-cV9ieXRlNTYgID0gaW5xX2J5dGU1NjsKIAkJcmV0dXJuIDE7CiAJfQogCXJldHVybiAwOwo=
-
---Multipart=_Fri__24_Oct_2003_23_50_06_+0400_46tOmKWZ450tBH0V--
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

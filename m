@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262933AbTCYRAC>; Tue, 25 Mar 2003 12:00:02 -0500
+	id <S262970AbTCYRGX>; Tue, 25 Mar 2003 12:06:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262970AbTCYRAC>; Tue, 25 Mar 2003 12:00:02 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:2578 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262933AbTCYRAB>;
-	Tue, 25 Mar 2003 12:00:01 -0500
-Date: Tue, 25 Mar 2003 09:10:32 -0800
-From: Greg KH <greg@kroah.com>
-To: Jan Dittmer <j.dittmer@portrix.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i2c-via686a driver
-Message-ID: <20030325171032.GB15823@kroah.com>
-References: <3E7E0B37.5060505@portrix.net> <20030323202743.A11150@infradead.org> <200303232136.10089.dominik@kubla.de> <20030323204810.A11421@infradead.org> <3E7E2963.4070302@portrix.net> <20030325035451.GG11874@kroah.com> <3E801D8B.2040107@portrix.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E801D8B.2040107@portrix.net>
-User-Agent: Mutt/1.4i
+	id <S263029AbTCYRGX>; Tue, 25 Mar 2003 12:06:23 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:54416 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S262970AbTCYRGW>; Tue, 25 Mar 2003 12:06:22 -0500
+Date: Tue, 25 Mar 2003 18:17:05 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Fionn Behrens <fionn@unix-ag.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: System time warping around real time problem - please help
+In-Reply-To: <Pine.LNX.4.53.0303251152080.29361@chaos>
+Message-ID: <Pine.LNX.4.33.0303251813530.15248-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 25, 2003 at 10:12:43AM +0100, Jan Dittmer wrote:
-> Greg KH wrote:
-> >On Sun, Mar 23, 2003 at 10:38:43PM +0100, Jan Dittmer wrote:
-> >
-> >>Anyway, here is a corrected version.
-> >
-> >
-> >Oops, one other thing.  The pci_device_id structure should be
-> >initialized by using the .field = method, not the way the driver is
-> >currently.
-> >
-> >Oh, and one patch that adds the Kconfig, Makefile, and driver to the
-> >tree would be great.
-> >
-> I included that one with the first mail, but here it is again together 
-> with the hopefully correctly fixed driver.
+On Tue, 25 Mar 2003, Richard B. Johnson wrote:
 
-Yes, but you didn't include it all in one patch.  It's tough to apply a
-.c file with 'patch' :)
+> On Tue, 25 Mar 2003, Fionn Behrens wrote:
+>
+> > I have got an increasingly annoying problem with our fairly new (fall
+> > '02) Dual Athlon2k+ Gigabyte 7dpxdw linux system running 2.4.20.
+> > The only kernel patch applied is Alan Cox's ptrace patch.
+> >
+>
+[...]
+> If this shows time jumping around you have one of either:
+>
+> (1)	Bad timer channel 0 chip (PIT).
+> (2)	Some daemon trying to sync time with another system.
+> (3)	You are traveling too close to the speed of light.
 
-Also, you need to set up the adapter.dev.parent pointer before calling
-i2c_add_adapter().
+(4) Unsync'ed TSCs?
 
-Can you make that one change, and send a single patch?
+See help text for CONFIG_X86_TSC_DISABLE. Never had this problem
+myself, though.
 
-thanks,
-
-greg k-h

@@ -1,92 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264887AbUBFMvM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 07:51:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUBFMvM
+	id S264919AbUBFM5N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 07:57:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbUBFM5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 07:51:12 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:24735 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S264887AbUBFMvI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 07:51:08 -0500
-Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
-From: Craig Bradney <cbradney@zip.com.au>
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-Cc: Daniel Drake <dan@reactivated.net>,
-       Luis Miguel =?ISO-8859-1?Q?Garc=EDa?= <ktech@wanadoo.es>,
-       david+challenge-response@blue-labs.org, linux-kernel@vger.kernel.org,
-       a.verweij@student.tudelft.nl
-In-Reply-To: <40237765.6080602@gmx.de>
-References: <402298C7.5050405@wanadoo.es> <40229D2C.20701@blue-labs.org>
-	 <4022B55B.1090309@wanadoo.es>  <20040205154059.6649dd74.akpm@osdl.org>
-	 <1076026496.16107.23.camel@athlonxp.bradney.info>
-	 <4022DE3C.1080905@wanadoo.es> <4022E209.3040909@gmx.de>
-	 <4022E3C8.4020704@wanadoo.es>  <4022E69B.5070606@gmx.de>
-	 <1076029281.23586.36.camel@athlonxp.bradney.info> <40235DBA.4030408@gmx.de>
-	 <1076062051.16107.49.camel@athlonxp.bradney.info> <40236F06.5050103@gmx.de>
-	 <40236207.7050104@reactivated.net> <402374B0.8080907@gmx.de>
-	 <40237765.6080602@gmx.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-K3JYy4HhW+MoPUULqWur"
-Message-Id: <1076071864.1036.3.camel@athlonxp.bradney.info>
+	Fri, 6 Feb 2004 07:57:13 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:7330 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264919AbUBFM5L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 07:57:11 -0500
+Date: Fri, 6 Feb 2004 13:56:23 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Tony Lindgren <tony@atomide.com>
+Cc: linux-kernel@vger.kernel.org, davej@redhat.com
+Subject: Re: [PATCH] powernow-k8 max speed sanity check
+Message-ID: <20040206125623.GC22597@atrey.karlin.mff.cuni.cz>
+References: <20040131203512.GA21909@atomide.com> <20040203131432.GE550@openzaurus.ucw.cz> <20040205181704.GC7658@atomide.com> <20040205184841.GB590@elf.ucw.cz> <20040205213303.GA9757@atomide.com> <20040205213837.GF1541@elf.ucw.cz> <20040205215620.GC9757@atomide.com> <20040206002806.GB1736@elf.ucw.cz> <20040206011509.GE10268@atomide.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 06 Feb 2004 13:51:04 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040206011509.GE10268@atomide.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-K3JYy4HhW+MoPUULqWur
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+> > > Are the middle values needed? What if you only use the min and max 
+> > > fid/vid values, and always recalculate the stepping tables from those 
+> > > values?
+> > 
+> > Well, 1600MHz operation is very nice, as it has significantly less
+> > power consumption but pretty much same performance. It also does not
+> > start CPU fan most of the time :-).  
+> 
+> Yes, 1600MHz would be nice, I agree.
+> 
+> But I meant calculating all the valid values inbetween min and max without
+> relying on getting those values from the BIOS.
 
-On Fri, 2004-02-06 at 12:15, Prakash K. Cheemplavam wrote:
-> Prakash K. Cheemplavam wrote:
-> > Daniel Drake wrote:
-> >=20
-> >> Prakash K. Cheemplavam wrote:
-> >>
-> >>> Ok, then it makes sense, so you are using APIc with CPU Disconnect=20
-> >>> and Ross' patch. This explains your low idle temps. As I said this=20
-> >>> config doesn't work for me.
-> >>
-> >>
-> >>
-> >> Have you experimented with the new apic_tack boot options in Ross's=20
-> >> latest patches?
-> >> apic_tack=3D2 seems to work best for me.
-> >=20
-> >=20
-> > Stupid me. I haven't thoruoughly read the text. I have not activated th=
-e=20
-> > patch, so I'll try this. thx for pointing out..
->=20
-> OK, I appended apic_tack=3D2 and yes, it survives several hdparms! Great,=
-=20
-> so gonna try if it is really stable.Then I can try =3D1. CPU cooling down=
-.=20
-> Already at 46=B0C. :-)
->=20
-> Not bad,not bad, though I saw a small performace degration: hdparm gives=20
-> me 60-61mb/s instead of >62mb/s, but I won't complain. :-)
->=20
+I do not think values can be calculated by some simple
+formula. voltage/frequency relations may be quite complex..
 
-Ahh yes.. missing the kernel line argument will make a difference. I'm
-running apic_tack=3D2 as well. From what I remember =3D2 was the "better"
-patch option if it made your system stable.
+> I guess the code already does that to figure out how many steps are needed
+> to change between min and max?
 
-Craig
+Well, but it steps voltage first, then frequency [going up] or
+frequency first, voltage then [going down]; middle values used by the
+transitions are not too good if you want to be power-efficient.
 
---=-K3JYy4HhW+MoPUULqWur
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAI424i+pIEYrr7mQRAvHuAJ9M4+fq68daj12hCpIdWN+vtH0ezQCggYhU
-giIoPSX92+xXTYz7SmDUNlE=
-=ZXXp
------END PGP SIGNATURE-----
-
---=-K3JYy4HhW+MoPUULqWur--
-
+								Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

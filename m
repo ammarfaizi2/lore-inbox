@@ -1,67 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264646AbSKIFPN>; Sat, 9 Nov 2002 00:15:13 -0500
+	id <S264647AbSKIF0n>; Sat, 9 Nov 2002 00:26:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264647AbSKIFPN>; Sat, 9 Nov 2002 00:15:13 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31243 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264646AbSKIFPM>;
-	Sat, 9 Nov 2002 00:15:12 -0500
-Date: Sat, 9 Nov 2002 05:21:50 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: willy@debian.org, andmike@us.ibm.com, hch@lst.de,
-       James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org,
-       mochel@osdl.org, parisc-linux@lists.parisc-linux.org
-Subject: Re: [parisc-linux] Untested port of parisc_device to generic device interface
-Message-ID: <20021109052150.T12011@parcelfarce.linux.theplanet.co.uk>
-References: <200211090451.UAA26160@baldur.yggdrasil.com>
-Mime-Version: 1.0
+	id <S264649AbSKIF0n>; Sat, 9 Nov 2002 00:26:43 -0500
+Received: from dp.samba.org ([66.70.73.150]:46571 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S264647AbSKIF0m>;
+	Sat, 9 Nov 2002 00:26:42 -0500
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200211090451.UAA26160@baldur.yggdrasil.com>; from adam@yggdrasil.com on Fri, Nov 08, 2002 at 08:51:28PM -0800
+Content-Transfer-Encoding: 7bit
+Message-ID: <15820.40456.734049.126906@argo.ozlabs.ibm.com>
+Date: Sat, 9 Nov 2002 16:32:56 +1100
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, Franz.Sirl-kernel@lauterbach.com
+Subject: [PATCH] Update adbhid.c driver
+X-Mailer: VM 7.07 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 08, 2002 at 08:51:28PM -0800, Adam J. Richter wrote:
-> My patch is a net deletion of 57 lines and will allow simplification
-> of parisc DMA allocation.
+Linus,
 
-57 lines of clean elegant code, replacing them with overly generic ugly
-code and bloated data structures.  struct device is a round 256 bytes
-on x86.  more on 64-bit architectures.
+This patch updates drivers/macintosh/adbhid.c driver (which interfaces
+between the ADB bus and the input layer).  The patch gets rid of
+global cli/sti uses and corrects some typos (for example
+input.idversion -> input.id.version).  These changes have been
+approved by Franz Sirl, the maintainer of this driver.
 
-> in.  parisc can use the generic driver API without getting fat.
+Please apply.
 
-no.  it can't.
+Thanks,
+Paul.
 
-> Problems specific to the generic device API can be incrementally
-> improved and nobody is treating it as set in stone.  I think the
-> generic device API is close enough already so that it's worth porting
-> to, even if future clean-ups will then require some small changes to
-> the code that is ported to it.
-
-Everyone's saying "ra!  ra!  generic device model!" without asking
-what the cost is.  Don't you think it's reasonable that _as the most
-common device type_, struct device should be able to support PCI in a
-clean manner?  Don't you think that the fact that it fails to do so is
-a problem?  Don't you look at the locks sprinkled all over the struct
-device system and wonder what they're all _for_?
-
-Don't get me wrong.  I want a generic device model.  But I think it's
-clear the current one has failed to show anything more than eye candy.
-Perhaps it's time to start over, with something small and sane -- maybe
-kobject (it's not quite what we need, but it's close).  Put one of those
-in struct pci_dev.  Remove duplicate fields.  Now maybe grow kobject a
-little, or perhaps start a new struct with a kobject as its first member.
-
-And, for gods sake, don't fuck it up by integrating it with USB too early
-in the game.  Let's get it right for PCI, maybe some other internal busses
-(i'm gagging to write an EISA subsystem ;-).  SCSI is more interesting
-than USB.  Above all, don't fall into the trap of "It's a bus and it
-has devices on it, therefore it must be a part of devicefs".
-
-*sigh*.  halloween was a week ago.
-
--- 
-Revolutions do not require corporate support.
+diff -urN linux-2.5/drivers/macintosh/adbhid.c pmac-2.5/drivers/macintosh/adbhid.c
+--- linux-2.5/drivers/macintosh/adbhid.c	2002-10-09 08:18:31.000000000 +1000
++++ pmac-2.5/drivers/macintosh/adbhid.c	2002-11-07 14:50:41.000000000 +1100
+@@ -3,8 +3,9 @@
+  *
+  * ADB HID driver for Power Macintosh computers.
+  *
+- * Adapted from drivers/macintosh/mac_keyb.c by Franz Sirl
+- * (see that file for its authors and contributors).
++ * Adapted from drivers/macintosh/mac_keyb.c by Franz Sirl.
++ * drivers/macintosh/mac_keyb.c was Copyright (C) 1996 Paul Mackerras
++ * with considerable contributions from Ben Herrenschmidt and others.
+  *
+  * Copyright (C) 2000 Franz Sirl.
+  *
+@@ -433,22 +434,17 @@
+ static int
+ adb_message_handler(struct notifier_block *this, unsigned long code, void *x)
+ {
+-	unsigned long flags;
+-
+ 	switch (code) {
+ 	case ADB_MSG_PRE_RESET:
+ 	case ADB_MSG_POWERDOWN:
+ 	    	/* Stop the repeat timer. Autopoll is already off at this point */
+-		save_flags(flags);
+-		cli();
+ 		{
+ 			int i;
+ 			for (i = 1; i < 16; i++) {
+ 				if (adbhid[i])
+-					del_timer(&adbhid[i]->input.timer);
++					del_timer_sync(&adbhid[i]->input.timer);
+ 			}
+ 		}
+-		restore_flags(flags);
+ 
+ 		/* Stop pending led requests */
+ 		while(!led_request.complete)
+@@ -479,7 +475,7 @@
+ 	memset(adbhid[id], 0, sizeof(struct adbhid));
+ 	sprintf(adbhid[id]->phys, "adb%d:%d.%02x/input", id, default_id, original_handler_id);
+ 
+-	init_input_dev(&adbhid[id]);
++	init_input_dev(&adbhid[id]->input);
+ 
+ 	adbhid[id]->id = default_id;
+ 	adbhid[id]->original_handler_id = original_handler_id;
+@@ -508,21 +504,21 @@
+ 		switch (original_handler_id) {
+ 		default:
+ 			printk("<unknown>.\n");
+-			adbhid[id]->input.idversion = ADB_KEYBOARD_UNKNOWN;
++			adbhid[id]->input.id.version = ADB_KEYBOARD_UNKNOWN;
+ 			break;
+ 
+ 		case 0x01: case 0x02: case 0x03: case 0x06: case 0x08:
+ 		case 0x0C: case 0x10: case 0x18: case 0x1B: case 0x1C:
+ 		case 0xC0: case 0xC3: case 0xC6:
+ 			printk("ANSI.\n");
+-			adbhid[id]->input.idversion = ADB_KEYBOARD_ANSI;
++			adbhid[id]->input.id.version = ADB_KEYBOARD_ANSI;
+ 			break;
+ 
+ 		case 0x04: case 0x05: case 0x07: case 0x09: case 0x0D:
+ 		case 0x11: case 0x14: case 0x19: case 0x1D: case 0xC1:
+ 		case 0xC4: case 0xC7:
+ 			printk("ISO, swapping keys.\n");
+-			adbhid[id]->input.idversion = ADB_KEYBOARD_ISO;
++			adbhid[id]->input.id.version = ADB_KEYBOARD_ISO;
+ 			i = adbhid[id]->keycode[10];
+ 			adbhid[id]->keycode[10] = adbhid[id]->keycode[50];
+ 			adbhid[id]->keycode[50] = i;
+@@ -531,7 +527,7 @@
+ 		case 0x12: case 0x15: case 0x16: case 0x17: case 0x1A:
+ 		case 0x1E: case 0xC2: case 0xC5: case 0xC8: case 0xC9:
+ 			printk("JIS.\n");
+-			adbhid[id]->input.idversion = ADB_KEYBOARD_JIS;
++			adbhid[id]->input.id.version = ADB_KEYBOARD_JIS;
+ 			break;
+ 		}
+ 

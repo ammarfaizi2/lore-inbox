@@ -1,108 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266609AbSLCXQv>; Tue, 3 Dec 2002 18:16:51 -0500
+	id <S266615AbSLCXWO>; Tue, 3 Dec 2002 18:22:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266615AbSLCXQv>; Tue, 3 Dec 2002 18:16:51 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:6405 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id <S266609AbSLCXQt>; Tue, 3 Dec 2002 18:16:49 -0500
-Date: Tue, 3 Dec 2002 18:24:05 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-X-X-Sender: root@oddball.prodigy.com
-Reply-To: Bill Davidsen <davidsen@tmr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.4.20 gets duplex wrong on NIC
-Message-ID: <Pine.LNX.4.44.0212031818310.1176-200000@oddball.prodigy.com>
+	id <S266623AbSLCXWO>; Tue, 3 Dec 2002 18:22:14 -0500
+Received: from ns1.triode.net.au ([202.147.124.1]:56768 "EHLO
+	iggy.triode.net.au") by vger.kernel.org with ESMTP
+	id <S266615AbSLCXWN>; Tue, 3 Dec 2002 18:22:13 -0500
+Message-ID: <3DED3E88.3020609@torque.net>
+Date: Wed, 04 Dec 2002 10:30:16 +1100
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-99928551-1038957845=:1176"
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ide-scsi] "structure has no member named `tag'"
+Content-Type: multipart/mixed;
+ boundary="------------040006010407010800070302"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+This is a multi-part message in MIME format.
+--------------040006010407010800070302
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---8323328-99928551-1038957845=:1176
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+"Rusty Lynch" <rusty@linux.co.intel.com> wrote
+ >
+ > There was a discussion on this at
+ > http://marc.theaimsgroup.com/?t=103861087100001&r=1&w=2
+ >
+ > To get past this you can just change the line to compare
+ > ->name instead ->tag until the real fix lands.
 
-In spite of modules.conf the system boots with the NIC in half duplex. I 
-verified this with the mii-tool, I can set it full with mii-tool and it 
-works right (copied a CD image 650MB), and the blade in the switch has 
-been set either full or auto without gain. Yes, I tried the e100 driver as 
-well.
+For lk 2.5.50-bk3 that attached patch should work.
 
-Info I think shows this attached to prevent munging, let me know if more 
-is needed.
+Doug Gilbert
 
 
---8323328-99928551-1038957845=:1176
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1; name="duplex-bug.log"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0212031824050.1176@oddball.prodigy.com>
-Content-Description: 
-Content-Disposition: attachment; filename="duplex-bug.log"
 
-U2NyaXB0IHN0YXJ0ZWQgb24gVHVlIERlYyAgMyAxODoxNjoyMSAyMDAyDQpD
-b21tb24gcHJvZmlsZSAxLjkgaGFja2VkIGxhc3Rtb2QgMjAwMi0xMS0xNCAy
-MTo1NTo0NS0wNA0NCk5vIGNvbW1vbiBkaXJlY3RvcnkgYXZhaWxhYmxlDQ0K
-U2Vzc2lvbiB0aW1lIDE4OjE2OjIxIG9uIDEyLzAzLzAyDQ0Kb2RkYmFsbDpy
-b290PiB0YWlsIC0yMAgICAgICAgIG1tLZG1lc2cgfCB0YWlsIC0yMA0NCkVY
-VDMgRlMgMi40LTAuOS4xOSwgMTkgQXVndXN0IDIwMDIgb24gaWRlMCgzLDY3
-KSwgaW50ZXJuYWwgam91cm5hbA0NCkVYVDMtZnM6IG1vdW50ZWQgZmlsZXN5
-c3RlbSB3aXRoIG9yZGVyZWQgZGF0YSBtb2RlLg0NCmhkYzogRE1BIGRpc2Fi
-bGVkDQ0KU2VyaWFsIGRyaXZlciB2ZXJzaW9uIDUuMDVjICgyMDAxLTA3LTA4
-KSB3aXRoIE1BTllfUE9SVFMgU0hBUkVfSVJRIFNFUklBTF9QQ0kgSVNBUE5Q
-IGVuYWJsZWQNDQp0dHlTMDAgYXQgMHgwM2Y4IChpcnEgPSA0KSBpcyBhIDE2
-NTUwQQ0NCmVlcHJvMTAwLmM6djEuMDlqLXQgOS8yOS85OSBEb25hbGQgQmVj
-a2VyIGh0dHA6Ly93d3cuc2N5bGQuY29tL25ldHdvcmsvZWVwcm8xMDAuaHRt
-bA0NCmVlcHJvMTAwLmM6ICRSZXZpc2lvbjogMS4zNiAkIDIwMDAvMTEvMTcg
-TW9kaWZpZWQgYnkgQW5kcmV5IFYuIFNhdm9jaGtpbiA8c2F3QHNhdy5zdy5j
-b20uc2c+IGFuZCBvdGhlcnMNDQpQQ0k6IEZvdW5kIElSUSA5IGZvciBkZXZp
-Y2UgMDA6MDYuMA0NClBDSTogU2hhcmluZyBJUlEgOSB3aXRoIDAwOjA3LjIN
-DQpldGgwOiBJbnRlbCBDb3JwLiA4MjU1Ny84LzkgW0V0aGVybmV0IFBybyAx
-MDBdLCAwMDo5MDoyNzowNzpGMjo5RSwgSVJRIDkuDQ0KICBSZWNlaXZlciBs
-b2NrLXVwIGJ1ZyBleGlzdHMgLS0gZW5hYmxpbmcgd29yay1hcm91bmQuDQ0K
-ICBCb2FyZCBhc3NlbWJseSA3MTM4MDctMDAyLCBQaHlzaWNhbCBjb25uZWN0
-b3JzIHByZXNlbnQ6IFJKNDUNDQogIFByaW1hcnkgaW50ZXJmYWNlIGNoaXAg
-aTgyNTU1IFBIWSAjMS4NDQogIEdlbmVyYWwgc2VsZi10ZXN0OiBwYXNzZWQu
-DQ0KICBTZXJpYWwgc3ViLXN5c3RlbSBzZWxmLXRlc3Q6IHBhc3NlZC4NDQog
-IEludGVybmFsIHJlZ2lzdGVycyBzZWxmLXRlc3Q6IHBhc3NlZC4NDQogIFJP
-TSBjaGVja3N1bSBzZWxmLXRlc3Q6IHBhc3NlZCAoMHgyNGM5ZjA0MykuDQ0K
-ICBSZWNlaXZlciBsb2NrLXVwIHdvcmthcm91bmQgYWN0aXZhdGVkLg0NCmFw
-bTogQklPUyB2ZXJzaW9uIDEuMiBGbGFncyAweDAzIChEcml2ZXIgdmVyc2lv
-biAxLjE2KQ0NCmxwOiBkcml2ZXIgbG9hZGVkIGJ1dCBubyBkZXZpY2VzIGZv
-dW5kDQ0Kb2RkYmFsbDpyb290PiBtaWktdG9vbCANDQpldGgwOiBubyBhdXRv
-bmVnb3RpYXRpb24sIDEwYmFzZVQtSEQsIGxpbmsgb2sNDQpvZGRiYWxsOnJv
-b3Q+IGlmY29uZmlnIGV0aDANDQpldGgwICAgICAgTGluayBlbmNhcDpFdGhl
-cm5ldCAgSFdhZGRyIDAwOjkwOjI3OjA3OkYyOjlFICANDQogICAgICAgICAg
-aW5ldCBhZGRyOjE5Mi4xNjguMTkyLjI0MiAgQmNhc3Q6MTkyLjE2OC4xOTIu
-MjU1ICBNYXNrOjI1NS4yNTUuMjU1LjANDQogICAgICAgICAgVVAgQlJPQURD
-QVNUIFJVTk5JTkcgTVVMVElDQVNUICBNVFU6MTUwMCAgTWV0cmljOjENDQog
-ICAgICAgICAgUlggcGFja2V0czoyNTMgZXJyb3JzOjAgZHJvcHBlZDowIG92
-ZXJydW5zOjAgZnJhbWU6MA0NCiAgICAgICAgICBUWCBwYWNrZXRzOjI5IGVy
-cm9yczowIGRyb3BwZWQ6MCBvdmVycnVuczowIGNhcnJpZXI6MA0NCiAgICAg
-ICAgICBjb2xsaXNpb25zOjAgdHhxdWV1ZWxlbjoxMDAgDQ0KICAgICAgICAg
-IFJYIGJ5dGVzOjI4Mjc4ICgyNy42IEtiKSAgVFggYnl0ZXM6MjE5MiAoMi4x
-IEtiKQ0NCiAgICAgICAgICBJbnRlcnJ1cHQ6OSBCYXNlIGFkZHJlc3M6MHg0
-MDAwIA0NCg0NCm9kZGJhbGw6cm9vdD4gbWlpLXRvb2wgLUYgMTBiYXNlVC1G
-RCAvZGV2L2V0aDAIIAgIIAgIIAgIIAgIIAgIIAgIIAgIIAgIIAhldGgwDQ0K
-b2RkYmFsbDpyb290PiBtaWktdG9vbCANDQpldGgwOiAxMCBNYml0LCBmdWxs
-IGR1cGxleCwgbGluayBvaw0NCm9kZGJhbGw6cm9vdD4gY2F0IC9ldGMvbW9k
-dWxlcy5jb25mDQ0KIyAkSWQ6IG1vZHVsZXMuY29uZiAxLjMgMjAwMi8xMS8x
-MyAyMDozNzoxNSByb290IEV4cCAkDQ0KDQ0KIyBwYXJhbGxlbCBwb3J0DQ0K
-YWxpYXMgcGFycG9ydF9sb3dsZXZlbCBwYXJwb3J0X3BjDQ0KDQ0KIyBuZXR3
-b3JrIGNhcmQgKGUxMDA/KQ0NCmFsaWFzIGV0aDAgZWVwcm8xMDANDQpvcHRp
-b25zIGV0aDAgZnVsbF9kdXBsZXg9MQ0NCg0NCiMgdHJ5IHRvIGZvcmNlIGxv
-YWQgc291bmQNDQojYWxpYXMgc291bmQtc2xvdC0wIGFjOTcNDQoNDQojIFVT
-QiBpbmZvDQ0KYWxpYXMgdXNiLWNvbnRyb2xsZXIJdXNiLXVoY2kNDQpvZGRi
-YWxsOnJvb3Q+IGxzbW9kDQ0KTW9kdWxlICAgICAgICAgICAgICAgICAgU2l6
-ZSAgVXNlZCBieSAgICBOb3QgdGFpbnRlZA0NCmxwICAgICAgICAgICAgICAg
-ICAgICAgIDg1NDQgICAwICAoYXV0b2NsZWFuKQ0NCnBhcnBvcnQgICAgICAg
-ICAgICAgICAgMzI5MjggICAwICAoYXV0b2NsZWFuKSBbbHBdDQ0KYXBtICAg
-ICAgICAgICAgICAgICAgICAxMTk5NiAgIDEgDQ0KZWVwcm8xMDAgICAgICAg
-ICAgICAgICAyMDk0MCAgIDEgDQ0KbWlpICAgICAgICAgICAgICAgICAgICAg
-MzQ5MiAgIDAgIFtlZXBybzEwMF0NDQpzZXJpYWwgICAgICAgICAgICAgICAg
-IDQ3NzEyICAgMCAgKGF1dG9jbGVhbikNDQpvZGRiYWxsOnJvb3Q+IGV4aXQN
-DQpleGl0DQ0KDQpTY3JpcHQgZG9uZSBvbiBUdWUgRGVjICAzIDE4OjE3OjQ2
-IDIwMDINCg==
---8323328-99928551-1038957845=:1176--
+--------------040006010407010800070302
+Content-Type: text/plain;
+ name="ide-scsi_2550mike.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide-scsi_2550mike.diff"
+
+--- linux/drivers/scsi/ide-scsi.c	2002-11-23 13:01:23.000000000 +1100
++++ linux/drivers/scsi/ide-scsi.c2550mike	2002-12-01 00:44:26.000000000 +1100
+@@ -764,7 +764,7 @@
+ 
+ 	if (disk) {
+ 		struct Scsi_Device_Template **p = disk->private_data;
+-		if (strcmp((*p)->tag, "sg") == 0)
++		if (strcmp((*p)->scsi_driverfs_driver.name, "sg") == 0)
+ 			return test_bit(IDESCSI_SG_TRANSFORM, &scsi->transform);
+ 	}
+ 	return test_bit(IDESCSI_TRANSFORM, &scsi->transform);
+
+--------------040006010407010800070302--
+

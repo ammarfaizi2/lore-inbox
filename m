@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266941AbSL3MVC>; Mon, 30 Dec 2002 07:21:02 -0500
+	id <S266933AbSL3MUg>; Mon, 30 Dec 2002 07:20:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266944AbSL3MVC>; Mon, 30 Dec 2002 07:21:02 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:45440
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266941AbSL3MVB>; Mon, 30 Dec 2002 07:21:01 -0500
-Subject: Re: Highpoint HPT370 not working in 2.4.18+ versions
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: system_lists@nullzone.org
-Cc: Scott McDermott <vaxerdec@frontiernet.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <5.1.1.6.2.20021230100446.03168ec8@192.168.2.131>
-References: <5.1.1.6.2.20021226012834.037b9558@192.168.2.131>
-	<5.1.1.6.2.20021226012834.037b9558@192.168.2.131> 
-	<5.1.1.6.2.20021230100446.03168ec8@192.168.2.131>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 30 Dec 2002 13:10:56 +0000
-Message-Id: <1041253856.13076.5.camel@irongate.swansea.linux.org.uk>
+	id <S266938AbSL3MUg>; Mon, 30 Dec 2002 07:20:36 -0500
+Received: from home.wiggy.net ([213.84.101.140]:56024 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S266933AbSL3MUf>;
+	Mon, 30 Dec 2002 07:20:35 -0500
+Date: Mon, 30 Dec 2002 13:28:57 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Indention - why spaces?
+Message-ID: <20021230122857.GG10971@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <fa.f9m4suv.e6ubgf@ifi.uio.no> <ylfzsgi3jz.fsf@windlord.stanford.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ylfzsgi3jz.fsf@windlord.stanford.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-30 at 09:10, system_lists@nullzone.org wrote:
-> 
-> Hi there Scott,
-> 
->     my card (which not need any patch for working on in 2.4.18 but doesnt 
-> work (its simply not detected) on next versions) is:
-> 
-> HighPoint Technologies, Inc.
-> HPT370 UDMA/ATA100 RAID Controller BIOS v1.0.3b1
-> 
-> have u any idea?
+Previously Russ Allbery wrote:
+> <http://www.jwz.org/doc/tabs-vs-spaces.html>
 
-Make sure you have the HPT driver compiled into your kernel
+Well, I disagree: http://www.wiggy.net/rants/tabsvsspaces.xhtml
 
+Wichert.
+
+-- 
+Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
+A random hacker

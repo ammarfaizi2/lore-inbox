@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284200AbRLZQtb>; Wed, 26 Dec 2001 11:49:31 -0500
+	id <S284246AbRLZQ5n>; Wed, 26 Dec 2001 11:57:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283876AbRLZQtM>; Wed, 26 Dec 2001 11:49:12 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:1755 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S284246AbRLZQtH>;
-	Wed, 26 Dec 2001 11:49:07 -0500
-Date: Wed, 26 Dec 2001 11:49:06 -0500 (EST)
-From: "Calin A. Culianu" <calin@ajvar.org>
-To: Jelnin Andrey <bsod@gs7.saminfo.ru>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: I have problem with SB-FMI16 radio
-In-Reply-To: <200112262042.fBQKgj3F029225@ns.gs7.saminfo.ru>
-Message-ID: <Pine.LNX.4.30.0112261147401.20982-100000@rtlab.med.cornell.edu>
+	id <S283876AbRLZQ5d>; Wed, 26 Dec 2001 11:57:33 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:6929 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S282400AbRLZQ5R>; Wed, 26 Dec 2001 11:57:17 -0500
+Date: Wed, 26 Dec 2001 13:43:01 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: James Cleverdon <jamesclv@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] MAX_MP_BUSSES increase
+In-Reply-To: <200112200428.fBK4SNq29583@butler1.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.21.0112261341470.9842-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Dec 2001, Jelnin Andrey wrote:
 
-> Hi
-> I have problem with SB-FMI16 radio
->
-> I use plain 2.4.5 kernel from Slackware 8.0
-> 1. I compile module for radio-sb16fmi  - that's ok
-> 2. I /sbin/modprobe radio-sb16fmi io=0x284  - that's ok
-> 3. When I try to control radio I hear nothing
-> What is this ???
->
-> PS In RedHat 6.2 - it work's without problem ???
+James, 
 
-This is a stupid suggestion, but try running something like aumix or
-something to turn the volume on the output channels on.  For some reason,
-on some soundcards, the driver somehow initializes the board to have 0%
-volume on all output channels!!
+Don't remove the "#ifdef CONFIG_MULTIQUAD" on your patch: Let the old max
+(32) for non-multiquad machines.
 
-It's possible that internally redhat compensates for this by doing that
-"applying mixer settings" thing you see at bootup... which would explain
-why it works in redhat and not in slackware...
+Please resend me the patch this way.
 
--Calin
+On Wed, 19 Dec 2001, James Cleverdon wrote:
+
+> We've run into a bit of a problem with a forthcoming system.  The BIOS 
+> reserves so many PCI bus numbers for hotplug when maxed out PCI expansion 
+> box(es) are present that some arrays (mp_bus_id_to_node[], 
+> mp_bus_id_to_pci_bus[], etc) overflow, splattering important variables.
 

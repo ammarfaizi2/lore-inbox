@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265064AbRFZR7q>; Tue, 26 Jun 2001 13:59:46 -0400
+	id <S265079AbRFZSBg>; Tue, 26 Jun 2001 14:01:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265071AbRFZR7g>; Tue, 26 Jun 2001 13:59:36 -0400
-Received: from pc2-camb6-0-cust223.cam.cable.ntl.com ([213.107.107.223]:31128
-	"EHLO kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
-	id <S265064AbRFZR7X>; Tue, 26 Jun 2001 13:59:23 -0400
-X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
-To: Tim Waugh <twaugh@redhat.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: parport_pc tries to load parport_serial automatically 
-In-Reply-To: Message from Tim Waugh <twaugh@redhat.com> 
-   of "Tue, 26 Jun 2001 10:23:03 BST." <20010626102303.K7663@redhat.com> 
-In-Reply-To: <Pine.LNX.4.21.0106260308100.1730-100000@freak.distro.conectiva>  <20010626102303.K7663@redhat.com> 
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1965377001P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	id <S265074AbRFZSB0>; Tue, 26 Jun 2001 14:01:26 -0400
+Received: from hank-fep7-0.inet.fi ([194.251.242.202]:61401 "EHLO
+	fep07.tmt.tele.fi") by vger.kernel.org with ESMTP
+	id <S265071AbRFZSBF>; Tue, 26 Jun 2001 14:01:05 -0400
+Message-ID: <3B38CD65.AB3366A@pp.inet.fi>
+Date: Tue, 26 Jun 2001 20:59:01 +0300
+From: Jari Ruusu <jari.ruusu@pp.inet.fi>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19aa2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andries.Brouwer@cwi.nl
+CC: torvalds@transmeta.com, R.E.Wolff@BitWizard.nl, axboe@suse.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: loop device broken in 2.4.6-pre5
+In-Reply-To: <UTC200106261041.MAA454888.aeb@vlet.cwi.nl>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Tue, 26 Jun 2001 18:59:11 +0100
-From: Philip Blundell <philb@gnu.org>
-Message-Id: <E15Ex7I-0008TV-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1965377001P
-Content-Type: text/plain; charset=us-ascii
+Andries.Brouwer@cwi.nl wrote:
+>     From jari.ruusu@pp.inet.fi Tue Jun 26 10:20:51 2001
+> 
+>     This patch fixes the problem. Please consider applying.
+> 
+>     --- linux-2.4.6-pre5/drivers/block/loop.c    Sat Jun 23 07:52:39 2001
+>     +++ linux/drivers/block/loop.c    Tue Jun 26 09:21:47 2001
+>     @@ -653,7 +653,7 @@
+>          bs = 0;
+>          if (blksize_size[MAJOR(lo_device)])
+>              bs = blksize_size[MAJOR(lo_device)][MINOR(lo_device)];
+>     -    if (!bs)
+>     +    if (!bs || S_ISREG(inode->i_mode))
+>              bs = BLOCK_SIZE;
+> 
+>          set_blocksize(dev, bs);
+> 
+> But why 1024? Next week your neighbour comes and has a file-backed
+> loop device with an odd number of 512-byte sectors.
+> If you want a guarantee, then I suppose one should pick 512.
+> (Or make the set blocksize ioctl also work on loop devices.)
 
->- change parport_pc so that it doesn't request parport_serial at
->  init.  In this case, how will parport_serial get loaded at all?
->  Perhaps with some recommended /etc/modules.conf lines (perhaps
->  parport_lowlevel{1,2,3,...})?
+Because 1024 was the previous default. Keeping the same default that was
+used before offers least surprises to users and tools.
 
-This would be a bit bad, because it would require people to guess whether they 
-might have a card that parport_serial can drive and/or try loading the module 
-to see what happens.
-
-I guess one option would be for parport_pc to somehow "know" what cards are 
-really multi-I/O ones, and only load parport_serial when it will be able to 
-find something to do.  Doesn't seem all that appealing though.
-
->- parport_serial could be made to initialise successfully even if it
->  doesn't see any devices that it can drive.
-
-If you do that then the code will effectively be there all the time, even when 
-it's not needed.  You might as well just compile it in to parport_pc.  To be 
-honest, there isn't all that much of it so maybe this wouldn't be such a bad 
-idea.
-
-p.
-
-
-
---==_Exmh_-1965377001P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.5 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999 (debian)
-
-iD8DBQE7OM1vVTLPJe9CT30RAieVAKCSROwbdtLuu6AP00yiRO59LvYYegCfQ0D/
-cdU+j8nHBcQS0fF2uozZKcU=
-=WLTX
------END PGP SIGNATURE-----
-
---==_Exmh_-1965377001P--
+Regards,
+Jari Ruusu <jari.ruusu@pp.inet.fi>

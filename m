@@ -1,64 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbUJ0Dez@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbUJ0Dft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbUJ0Dez (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 23:34:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbUJ0Dey
+	id S261394AbUJ0Dft (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 23:35:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbUJ0Dfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 23:34:54 -0400
-Received: from boggle.pobox.com ([208.58.1.193]:36574 "EHLO boggle.pobox.com")
-	by vger.kernel.org with ESMTP id S261626AbUJ0DcS (ORCPT
+	Tue, 26 Oct 2004 23:35:48 -0400
+Received: from relay01.pair.com ([209.68.5.15]:5642 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S261623AbUJ0DcS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 26 Oct 2004 23:32:18 -0400
-Date: Tue, 26 Oct 2004 20:32:12 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The naming wars continue...
-Message-ID: <20041027033212.GC9375@ip68-4-98-123.oc.oc.cox.net>
-References: <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org> <417EC260.1010401@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <417EC260.1010401@tmr.com>
-User-Agent: Mutt/1.5.5.1i
+X-pair-Authenticated: 66.190.53.4
+Message-ID: <417F16BB.3030300@cybsft.com>
+Date: Tue, 26 Oct 2004 22:32:11 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Alexander Batyrshin <abatyrshin@ru.mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+References: <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com> <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com> <20041027002455.GC31852@elte.hu>
+In-Reply-To: <20041027002455.GC31852@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 26, 2004 at 05:32:16PM -0400, Bill Davidsen wrote:
-> Linus Torvalds wrote:
-[snip]
-> >Which is just another reason why the name itself is not that meaningful. 
-> >It can never carry the kind of information that people seem to _expect_ it 
-> >to carry. 
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
 > 
-> I wasn't going to reply to this since it's your call and I've had my 
-> say, but since several others have, let me throw out one more idea on 
-> the off chance you like it:
 > 
-> Stop doing the pre's on the next version! After 2.6.10 comes 2.6.10.1 
-> etc, which everyone can see are incremental changes to 2.6.10, and when 
-> you really mean it, then put out 2.6.11-rc1.
+>>Several things in regard to V0.2:
+>>
+>>1) Interactive responsiveness seems to be noticably sluggish at times on
+>>all three of the systems I have tested this on.
+>>2) My 450MHz UP system is definitely the worst by far. Scrolling through
+>>the syslog in a telnet session produces pauses every few seconds for
+>>about a second, that is while it's still responding. These problems seem
+>>to be network related, but there are no indications of what the problem
+>>is. This system also at times will just stop responding to network requests.
+>>3) Both of the SMP systems are lacking the snappy responsiveness in X
+>>that I have become accustomed to with previous patches, but the 2.6GHz
+>>Xeon (w/HT) is worse than the 933MHz Xeon. Again no indications of
+>>problems in the logs.
+>>4) Using amlat to run the RTC at 1kHz will kill any of these systems
+>>very quickly.
 > 
-> Did that strike a nerve?
+> 
+> could you try this with -V0.3 too? I believe most of these problems
+> should be solved.
+> 
+> 	Ingo
+> 
 
-2.6.10.1, etc. suggests important bug fixes for 2.6.10, *not* prereleases
-of 2.6.11. But... perhaps (with sufficient warning) the even/odd principle
-could be applied to the third number. So, this would happen:
+I've repeated the above on the dual 933 Xeon:
 
-2.6.even   = release
-2.6.even.x = release, with added bug/security fixes
-2.6.odd    = first (zeroth?) -pre/-rc release
-2.6.odd.x  = additional -pre/-rc releases
+Still problems with interactive behavior. Running KDE, with top running 
+in xterm, scrolling through the menus I get some pauses. When the pauses 
+occur I see kdeinit hit the top of the list and sometimes consuming 90% 
+or more of a CPU and idle usage drops to 30-40%. I do see some latency 
+traces (not really high ones) in the log that were generated by kdeinit 
+but I think they were generated prior to when these pauses occurred, 
+most likely when logging in.
 
-A more concrete example:
-2.6.11-rc1, 2.6.11-rc2, 2.6.11-rc3, 2.6.11, 2.6.12-rc1, 2.6.12-rc2, 2.6.12
-would become:
-2.6.11,     2.6.11.1,   2.6.11.2,   2.6.12, 2.6.13,     2.6.13.1,   2.6.14
+Running amlat still hard locks the system. The last time this happened I 
+got this in the log:
 
-How does this sound? (It just occurred to me that this might break
-scripts, but it may be worth discussing anyway.)
+  Oct 26 21:43:56 porky kernel: BUG: sleeping function called from 
+invalid context amlat(3963) at kernel/mutex.c:28
+Oct 26 21:43:56 porky kernel: in_atomic():1 [00000001], irqs_disabled():1
+Oct 26 21:43:56 porky kernel:  [<c011c7da>] __might_sleep+0xca/0xe0 (12)
+Oct 26 21:43:56 porky kernel:  [<c0137d89>] _mutex_lock+0x39/0x50 (36)
+Oct 26 21:43:56 porky kernel:  [<c0137df6>] 
+_mutex_lock_irqsave+0x16/0x20 (24)
+Oct 26 21:43:56 porky kernel:  [<c012977d>] __mod_timer+0x4d/0x1f0 (12)
+Oct 26 21:43:56 porky kernel:  [<c01f6535>] rtc_do_ioctl+0x185/0x970 (44)
+Oct 26 21:43:56 porky kernel:  [<c013838d>] __mcount+0x1d/0x30 (136)
+Oct 26 21:43:56 porky kernel:  [<c01f6d2b>] rtc_ioctl+0xb/0x30 (4)
+Oct 26 21:43:56 porky kernel:  [<c0179367>] sys_ioctl+0xe7/0x250 (4)
+Oct 26 21:43:56 porky kernel:  [<c01131f8>] mcount+0x14/0x18 (8)
+Oct 26 21:43:56 porky kernel:  [<c01f6d2b>] rtc_ioctl+0xb/0x30 (20)
+Oct 26 21:43:56 porky kernel:  [<c0179367>] sys_ioctl+0xe7/0x250 (20)
+Oct 26 21:43:56 porky kernel:  [<c0106739>] sysenter_past_esp+0x52/0x71 (48)
+Oct 26 21:43:56 porky kernel: preempt count: 00000002
+Oct 26 21:43:56 porky kernel: . 2-level deep critical section nesting:
+Oct 26 21:43:56 porky kernel: .. entry 1: _spin_lock_irqsave+0x22/0x80 
+[<c02c71c2>] / (rtc_do_ioctl+0x158/0x970 [<c01f6508>])
+Oct 26 21:43:56 porky kernel: .. entry 2: print_traces+0x1d/0x60 
+[<c01394bd>] / (dump_stack+0x23/0x30 [<c0107613>])
+Oct 26 21:43:56 porky kernel:
+Oct 26 21:43:56 porky kernel: BUG: scheduling while atomic: IRQ 
+8/0x00000001/672
+Oct 26 21:43:56 porky kernel: caller is schedule+0x30/0xe0
+Oct 26 21:43:57 porky kernel:  [<c02c58c1>] __schedule+0x771/0x7d0 (12)
+Oct 26 21:43:57 porky kernel:  [<c02c5950>] schedule+0x30/0xe0 (8)
+Oct 26 21:43:57 porky kernel:  [<c013838d>] __mcount+0x1d/0x30 (60)
+Oct 26 21:43:57 porky kernel:  [<c02c592e>] schedule+0xe/0xe0 (4)
+Oct 26 21:43:57 porky kernel:  [<c02c6c4d>] down_write_mutex+0x12d/0x1e0 (4)
+Oct 26 21:43:57 porky kernel:  [<c01131f8>] mcount+0x14/0x18 (8)
+Oct 26 21:43:57 porky kernel:  [<c02c5950>] schedule+0x30/0xe0 (20)
+Oct 26 21:43:57 porky kernel:  [<c01131f8>] mcount+0x14/0x18 (4)
+Oct 26 21:43:57 porky kernel:  [<c02c74ea>] _spin_unlock+0x1a/0x40 (20)
+Oct 26 21:43:57 porky kernel:  [<c02c6c4d>] down_write_mutex+0x12d/0x1e0 
+(12)
 
--Barry K. Nathan <barryn@pobox.com>
+Working on booting the 450 right now.
 
+kr

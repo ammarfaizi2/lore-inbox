@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129172AbRBGLKA>; Wed, 7 Feb 2001 06:10:00 -0500
+	id <S129053AbRBGLWu>; Wed, 7 Feb 2001 06:22:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129299AbRBGLJu>; Wed, 7 Feb 2001 06:09:50 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:43525 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129172AbRBGLJr>; Wed, 7 Feb 2001 06:09:47 -0500
-Date: Wed, 7 Feb 2001 05:06:33 -0600
-To: linux-legal@nl.linux.org
-Cc: Roberto Diaz <rdiazmartin@vivaldi.net.dhis.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Software Mestizo Manifesto
-Message-ID: <20010207050632.B10556@cadcamlab.org>
-In-Reply-To: <Pine.LNX.4.21.0102070547440.494-100000@vivaldi.ddts.net> <Pine.LNX.4.21.0102070252580.1535-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.21.0102070252580.1535-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Wed, Feb 07, 2001 at 02:56:42AM -0200
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S129129AbRBGLWk>; Wed, 7 Feb 2001 06:22:40 -0500
+Received: from AStrasbourg-201-2-1-11.abo.wanadoo.fr ([193.251.1.11]:57353
+	"EHLO lune.perinfo.com") by vger.kernel.org with ESMTP
+	id <S129053AbRBGLW3>; Wed, 7 Feb 2001 06:22:29 -0500
+Message-ID: <002101c090f8$79095dc0$8900030a@nicolasp>
+From: "Nicolas Parpandet" <nparpand@perinfo.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: toshiba tecra 8100
+Date: Wed, 7 Feb 2001 12:24:01 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  [Roberto Diaz]
-> > I am trying to make a manifesto in order to attach it to all my
-> > gpl'd developments..
 
-[Rik van Riel]
-> Quoted from the GPL:
-> -------
->   6. Each time you redistribute the Program (or any work based on the
-> Program), the recipient automatically receives a license from the
-> original licensor to copy, distribute or modify the Program subject to
-[...]
-> Your "ethical" statement is incompatible with the GPL.
+Hello,
 
-Quoted from the GPL:
--------
-  0. [...] Activities other than copying, distribution and modification
-are not covered by this License; they are outside its scope.
+ On toshiba Tecra 8100 (latest bios), kernel 2.4.2-pre1
+
+ * APM + Pcmcia Xircom (tulip), Hangs on "ifup" either as module or staticly
+linked. (no more Sysrq)
+
+ * Xircom alone without APM is ok.
+
+ With ACPI big slowdown (as everybody else...)
+
+ just for informational purpose as I cannot debug it myself !!
+
+ Bye all.
 
 
-Roberto's statement is about *use*, not *distribution*, so it is
-orthogonal to the GPL.
-
-It *does*, however, violate the DFSG, at least in spirit (since it is
-only a suggestion).  For what it's worth, the DFSG is my standard for
-whether a particular project is worth my time to contribute code to.
-
-Also, Roberto -- it is rather presumptuous to assume that all of your
-(potentially) thousands of contributors from around the world happen to
-agree about that "fraternity of mankind" or whatever that was.  Call me
-a misanthrope, but I'm not sure *I* agree with that one.
-
-Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

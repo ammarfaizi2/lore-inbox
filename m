@@ -1,104 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266379AbUG0Qrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265214AbUG0Q6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266379AbUG0Qrp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 12:47:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbUG0Qro
+	id S265214AbUG0Q6g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 12:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266409AbUG0Q6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 12:47:44 -0400
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:62683 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S266434AbUG0Qqw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 12:46:52 -0400
-Date: Tue, 27 Jul 2004 12:45:14 -0400
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: The dreadful CLOSE_WAIT
-In-reply-to: <20040727083947.GB31766@DervishD>
-To: DervishD <raul@pleyades.net>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <4106869A.5030905@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <20040727083947.GB31766@DervishD>
+	Tue, 27 Jul 2004 12:58:35 -0400
+Received: from h-66-134-46-235.snvacaid.covad.net ([66.134.46.235]:15498 "EHLO
+	mail.cryptobackpack.org") by vger.kernel.org with ESMTP
+	id S265214AbUG0Q6d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 12:58:33 -0400
+Date: Tue, 27 Jul 2004 09:55:17 -0700
+From: David Bryson <david@tsumego.com>
+To: Erik Steffl <steffl@bigfoot.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Future devfs plans
+Message-ID: <20040727165517.GA7727@heliosphan.in.cryptobackpack.org>
+Reply-To: David Bryson <david@tsumego.com>
+References: <200407261445.i6QEjAS04697@freya.yggdrasil.com> <410450CA.9080708@hispalinux.es> <pan.2004.07.26.05.35.49.669188@dungeon.inka.de> <4104AB98.8070506@bigfoot.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
+Content-Disposition: inline
+In-Reply-To: <4104AB98.8070506@bigfoot.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-DervishD wrote:
->     Hi all :))
->
->     Seems under Linux that, when a connection is in the CLOSE_WAIT
-> state, the only wait to go to LAST_ACK is the application doing the
-> 'shutdown()' or 'close()'. Doesn't seem to be a timeout for that.
->
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This is by design.  It is possible to close a single direction of data
-transmission in TCP, hence the shutdown system call.
+On Sun, Jul 25, 2004 at 11:58:32PM -0700 or thereabouts, Erik Steffl wrote:
+> >devfs allowes you to not have the driver loaded till you try to use it.
+> >so udev _cannot_ do what devfs does.
+> >
+> >still I agree that the way kernel/hotplug/udev work is much better and
+> >supporting the old style devfs works is not necessary. but please be
+> >honest about the differences.
+>=20
+>   which means that now iPod automatically connects to firewire (and=20
+> looses info on random tracks, sometime some other settings), instead of=
+=20
+> only connecting when I try to actually access it (the device).
+>=20
 
+I have been using ipods with linux for about 3 years.
+And I see that it says "do not disconnect" even after I have unmounted
+the file system.  I just disconnect it at this point and have not
+had any problems.
 
->     Well, I think this is dangerous because a bad application (and a
-> couple of widely used servers have this problem) can exhaust system
-> network resources (difficult, but possible). For example, a
-> concurrent FTP server with a race condition that doesn't do the
-> shutdown when the remote end aborts. Writing such a 'bad app' is very
-> easy, just do the socket->bind->listen->accept and after accepting
-> the connection forget the connected socket and keeps on listening. If
-> the remote end aborts, the server leaves the connection in
-> CLOSE_WAIT. Sometimes it has a associated timer, when data remains in
-> the tx queue, it seems that the kernel tries to retransmit all that
-> data, which makes no sense: in CLOSE_WAIT state the other end is not
-> there... Surely I'm missing a lot :((
+>   it looks like there is no user level (end user, not admin) control on=
+=20
+> when the device drivers are loaded anymore - or is there?
+>=20
+>   Is there any way to load drivers on demand (obviously it's not job of=
+=20
+> udev but whose job it is?). What about unloading them - I unmount the=20
+> disk and i think the iPod is disconnecred but it still says connected -=
+=20
+> is there any way to disconnect it (I guess similar problems arise with=20
+> other hotplug devices)
+>=20
 
-It may be half there.  It should be in FIN_WAIT1 state.
+This has been discussed in length on lkml many times during the
+writing of udev.  IIRC the argument was something like:
+ "we shouldn't be unloading modules because the memory taken up by a
+ module in memory(a few k) isn't worth writing the code to save"
 
->
->     Since I don't know if a timeout (or another solution) exists to
-> avoid this I won't give names, but it's pretty easy to do a DoS
-> attack over a very known FTP server just using 'wget' and your
-> favourite C-c keys.
+I also recall there was something about end user behavior, but I don't
+remember the details.  Read the archives.
 
-This is broken application behaviour.  Forgetting about sockets (or any
-other resource for that matter) is bad news.
+--oyUTqETQ0mS9luUI
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
->
->     IMHO, Linux (Unix) is about not allowing a bad app to screw the
-> system, and the CLOSE_WAIT state allows that. I know: you can screw
-> the system using as root an application that allocates and locks
-> large chunks of memory, or other 'legal' bad things, the sysadmin
-> should not allow the use of crappy software, but will do any harm a
-> CLOSE_WAIT timeout?
->
-
-This is the same idea of having a server run that loses a bit of memory
-on each bad request.  It would be an application bug, and similarly, the
-kernel would have no way to know whether the application was doing
-something wrong or not.
-
-If you are _really_ concerned, you'd cap out at NR_OPEN per process
-anyway :)
-
-
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-http://www.sun.com
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFBBoaZdQs4kOxk3/MRArNBAJ91A7CCycwWfwZqUJNuL/y7GrlYngCfYOkC
-mM1vvp7GVHe6pBrvPXtuEIY=
-=VcrF
+iD8DBQFBBoj1LfsM4nS2FiARApMTAKCHLu07aE8o0/nDomsm276Xl59jeQCglQlH
+t49DmS4vVAIn5/Llz8kh3O0=
+=Y4tX
 -----END PGP SIGNATURE-----
+
+--oyUTqETQ0mS9luUI--

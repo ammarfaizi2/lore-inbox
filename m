@@ -1,57 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129047AbRBGSan>; Wed, 7 Feb 2001 13:30:43 -0500
+	id <S129500AbRBGSfN>; Wed, 7 Feb 2001 13:35:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129877AbRBGSad>; Wed, 7 Feb 2001 13:30:33 -0500
-Received: from ns.caldera.de ([212.34.180.1]:10506 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S129047AbRBGSaW>;
-	Wed, 7 Feb 2001 13:30:22 -0500
-Date: Wed, 7 Feb 2001 19:27:36 +0100
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Ben LaHaise <bcrl@redhat.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-Message-ID: <20010207192736.B23859@caldera.de>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Ben LaHaise <bcrl@redhat.com>,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Manfred Spraul <manfred@colorfullife.com>,
-	Steve Lord <lord@sgi.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	kiobuf-io-devel@lists.sourceforge.net,
-	Ingo Molnar <mingo@redhat.com>
-In-Reply-To: <20010206212503.A5426@caldera.de> <Pine.LNX.4.30.0102062132250.10016-100000@elte.hu>
-Mime-Version: 1.0
+	id <S129674AbRBGSfE>; Wed, 7 Feb 2001 13:35:04 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15877 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129500AbRBGSex>; Wed, 7 Feb 2001 13:34:53 -0500
+Subject: Re: Oopses in 2.4.1  (lots of them)
+To: arthur-p@home.com (Arthur Pedyczak)
+Date: Wed, 7 Feb 2001 18:35:45 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux kernel list)
+In-Reply-To: <Pine.LNX.4.30.0102070735590.4661-100000@cs865114-a.amp.dhs.org> from "Arthur Pedyczak" at Feb 07, 2001 07:50:28 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.LNX.4.30.0102062132250.10016-100000@elte.hu>; from mingo@elte.hu on Tue, Feb 06, 2001 at 09:35:58PM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14QZRU-0000xJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 06, 2001 at 09:35:58PM +0100, Ingo Molnar wrote:
-> caching bmap() blocks was a recent addition around 2.3.20, and i suggested
-> some time ago to cache pagecache blocks via explicit entries in struct
-> page. That would be one solution - but it creates overhead.
-> 
-> but there isnt anything wrong with having the bhs around to cache blocks -
-> think of it as a 'cached and recycled IO buffer entry, with the block
-> information cached'.
+> am not sure how to eliminate or confirm this. Recently I added some RAM
+> (256->384) and decided to get rid of swap. This seemed to have destabilized
+> the system, although nothing is obvious. I can try to stress the system by
 
-I was not talking about caching physical blocks but the remaining
-buffer-cache support stuff.
+Get a copy of memtest86, its a standalone memory tester.
 
-	Christoph
-
--- 
-Of course it doesn't work. We've performed a software upgrade.
-Whip me.  Beat me.  Make me maintain AIX.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132154AbRCVTH1>; Thu, 22 Mar 2001 14:07:27 -0500
+	id <S132153AbRCVTIh>; Thu, 22 Mar 2001 14:08:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132153AbRCVTHS>; Thu, 22 Mar 2001 14:07:18 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:43974 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S132154AbRCVTHH>;
-	Thu, 22 Mar 2001 14:07:07 -0500
-Date: Thu, 22 Mar 2001 19:04:52 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk, Alexander Viro <viro@math.psu.edu>,
-        "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: 2.4.2 fs/inode.c
-Message-ID: <20010322190452.C7756@redhat.com>
-In-Reply-To: <20010322134215.A25508@cs.cmu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010322134215.A25508@cs.cmu.edu>; from jaharkes@cs.cmu.edu on Thu, Mar 22, 2001 at 01:42:15PM -0500
+	id <S132158AbRCVTIS>; Thu, 22 Mar 2001 14:08:18 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:53479 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S132156AbRCVTIG>;
+	Thu, 22 Mar 2001 14:08:06 -0500
+Date: Thu, 22 Mar 2001 14:07:23 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Colin Watson <cjw44@flatline.org.uk>
+cc: Richard Guenther <richard.guenther@student.uni-tuebingen.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: How to mount /proc/sys/fs/binfmt_misc ?
+In-Reply-To: <E14g9p0-0005yj-00@riva.ucam.org>
+Message-ID: <Pine.GSO.4.21.0103221338300.5619-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, Mar 22, 2001 at 01:42:15PM -0500, Jan Harkes wrote:
-> 
-> I found some code that seems wrong and didn't even match it's comment.
-> Patch is against 2.4.2, but should go cleanly against 2.4.3-pre6 as well.
- 
-Patch looks fine to me.  Have you tested it?  If this goes wrong,
-things break badly...
 
->  		/* Don't do this for I_DIRTY_PAGES - that doesn't actually dirty the inode itself */
-> -		if (flags & (I_DIRTY | I_DIRTY_SYNC)) {
-> +		if (flags & (I_DIRTY_SYNC | I_DIRTY_DATASYNC)) {
+On Thu, 22 Mar 2001, Colin Watson wrote:
 
---Stephen
+> I would very much like to be able to assume that a filesystem never
+> contains two identical filenames linking to different inodes, and that
+> any . and .. links I find always point to things that are vaguely like
+> directories! I realize that you can't assume much about /proc, and that
+> the kernel shouldn't spend forever checking it, but I would hope that
+> it's generally expected to conform to basic rules of sanity. I'd like my
+> binfmt_misc management tool to be able to say "OK, beware that you can
+> screw up your system with this - but if you ask me for a status report
+> I'll be able to deliver the right answer". That's what I mean by "manage
+> reliably". As it is, I can only guarantee that I'll give the right
+> answer to status reports or be able to successfully register and
+> unregister even sane binary formats if my program is the only interface
+> being used to binfmt_misc, and I'm not doing any expensive checks.
+
+Actually, the right thing to do would be to drop the ugly tricks with
+writing to .../register and use normal create()/write()/close() to add
+entries. Commit-on-close and there you go. unlink() to remove these
+suckers, chmod g-r to disable.
+
+IOW, instead of
+echo ':foo:.......' >register		echo ':.....' > /etc/binfmt_misc/foo
+echo '-1' > foo				rm /etc/binfmt_misc/foo
+echo '0' > foo				chmod g-r /etc/binfmt_misc/foo
+echo '1' > foo				chmod g+r /etc/binfmt_misc/foo
+echo '-1' > status			rm /etc/binfmt_misc/*
+echo '0' > status			chmod -x /etc/binfmt_misc
+echo '1' > status			chmod +x /etc/binfmt_misc
+cat status				cat /etc/binfmt_misc/*
+
+Normal behaviour instead of black magic, no checks for duplicate entries,
+special names, yodda, yodda - everything would work as one expects from
+normal directory. When you want to create a file you create it, not write
+an incantation into a magic file. And when you want to remove it, the
+last thing you would normally think of is writing "-1" into the victim.
+Yes, I know that procfs doesn't allow that. Mark the correct conclusion:
+	(A)	procfs is not suitable for the task
+	(B)	we should invent a kludgy way to create files, etc. on
+		procfs without using normal create() and reimplement the
+		sanity checks
+	(C)	same as (B), but ignore sanity
+Your choice being...?
+
+And yes, I'm quite aware of the fact that we are stuck with the current
+kludgy API - compatibility issues and all such. Pity, that...
+
+Al, very unimpressed both with design and implementation of that kludge...
+

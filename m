@@ -1,42 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268368AbUH3AHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268367AbUH3AIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268368AbUH3AHb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 20:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268367AbUH3AHb
+	id S268367AbUH3AIj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 20:08:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268372AbUH3AIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 20:07:31 -0400
-Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:57221 "HELO
-	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S268368AbUH3AH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 20:07:29 -0400
-In-Reply-To: <1093821430.8099.49.camel@lade.trondhjem.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: silent semantic changes with reiser4
-Cc: viro@parcelfarce.linux.theplanet.co.uk, reiser@namesys.com, flx@msu.ru,
-       pj@sgi.com, riel@redhat.com, ninja@slaphack.com, diegocg@teleline.es,
-       jamie@shareable.org, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com, torvalds@osdl.org
-X-Mailer: BeMail - Mail Daemon Replacement 2.3.1 Final
-From: "Alexander G. M. Smith" <agmsmith@rogers.com>
-Date: Sun, 29 Aug 2004 20:07:24 -0400 EDT
-Message-Id: <1326059983-BeMail@cr593174-a>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Aug 2004 20:08:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:63395 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268367AbUH3AIV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 20:08:21 -0400
+Message-ID: <41326FE1.2050508@redhat.com>
+Date: Sun, 29 Aug 2004 20:08:01 -0400
+From: Neil Horman <nhorman@redhat.com>
+Reply-To: nhorman@redhat.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Marc_Str=E4mke?= <marcstraemke.work@gmx.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problem accessing Sandisk CompactFlash Cards (Connected to the
+   IDE bus)
+References: <cgs2c1$ccg$1@sea.gmane.org> <4131DC5D.8060408@redhat.com> <cgsuq2$7cb$1@sea.gmane.org>
+In-Reply-To: <cgsuq2$7cb$1@sea.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote on Sun, 29 Aug 2004 19:17:10 -0400:
-> Is it just the fantasy of supporting hard-links across "stream
-> boundaries" (as in "touch a b; ln b a/b; ln a b/a")? I'm pretty sure
-> nobody wants to have to add cyclic graph detection to their filesystems
-> anyway. 8-)
+Marc Strämke wrote:
 
-Been there, done that.  It works in a rough form in an experimental RAM file system for BeOS.  But deleting files requires a graph traversal to see if it is isolating just one item or a whole bunch of them.  It also implies keeping track of multiple parent directories for everything.  It does make it useful for the user - you can have files and directories in multiple places, so you don't have to decide on one classification for a file (or directory).  One other downside is a lot of locking complexity (or not if you don't need fine grained locking) to guarantee atomicity of the delete.
+> Neil Horman wrote:
+>
+>> Its been awhile, but the last time that I looked at the relevant 
+>> code, there was a table of drive vendor/device strings that were used 
+>> to identify CFA devices and differentiate them from regular ide 
+>> devices.  If this particular device isn't a match in that table, it 
+>> would be mis-identified, and that could be leading to your above 
+>> problem.
+>> Neil
+>>
+>
+> Thx for the suggestion. The only table i could find is in 
+> drive_is_flashcard, which is only checked if drive->removable is set, 
+> which is not the case with the newer card (but is with the old one).
+> Another thing which is weird is that the old card returns an 
+> id->config value of 0x848a which according to manuals from SanDisk is 
+> for a Compactflash card NOT running in True Ide mode, but instead in 
+> memory mapped IO mode (iam no expert for Compactflash, so i dont even 
+> know the exact difference), but as far as i can tell are both cards 
+> wired by the IDE adapter so that they should run in True IDE mode, and 
+> if i understand the Compactflash specification correctly, this is the 
+> only mode of operation which is electrically compatible with the 
+> IDE/ATA bus, isnt it?
+> I tried forcing both the drive->removable and drive->is_flash flags to 
+> the true, my dmesg output then shows me the card as a CFA DISK drive, 
+> but i still get the same errors when reading or writing from/to the 
+> device.
+>
+> TIA for any further hints,
+> Marc
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-For user convenience, the low level delete function returns an error code if there is more than one item cut off from the root, but it could just as well delete all of them (sort of like rmdir giving an error if the directory isn't empty rather than just deleting everything).
+What kernel are you looking at?  I'm looking at 2.4.21, and it seems to 
+get checked more-or-less universally.  Also, I noticed this:
+|| !strncmp(id->model, "SunDisk SDCFB", 13)    /* SunDisk */
+I've not heard of SunDisk.  SunDisk->SanDisk == Typo?
+Are you using a SanDisk CFA card?  Could this perhaps be part of your issue?
+Neil
 
-- Alex
+-- 
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *Red Hat, Inc.
+ *nhorman@redhat.com
+ *gpg keyid: 1024D / 0x92A74FA1
+ *http://pgp.mit.edu
+ ***************************************************/
+

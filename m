@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266805AbUIAOoC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266798AbUIAOyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266805AbUIAOoC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 10:44:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266806AbUIAOoC
+	id S266798AbUIAOyk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 10:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266810AbUIAOyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 10:44:02 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:132 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266805AbUIAOny
+	Wed, 1 Sep 2004 10:54:40 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:29191 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S266798AbUIAOyj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 10:43:54 -0400
-Message-ID: <4135E017.1000901@pobox.com>
-Date: Wed, 01 Sep 2004 10:43:35 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>
-CC: bzolnier@milosz.na.pl, Lee Revell <rlrevell@joe-job.com>,
-       Greg Stark <gsstark@mit.edu>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Todd Poynor <tpoynor@mvista.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       tim.bird@am.sony.com, dsingleton@mvista.com
-Subject: Re: [PATCH] Configure IDE probe delays
-References: <20040730191100.GA22201@slurryseal.ddns.mvista.com> <200408272005.08407.bzolnier@elka.pw.edu.pl> <1093630121.837.39.camel@krustophenia.net> <200408272059.51779.bzolnier@elka.pw.edu.pl> <4135CC9E.5060905@rtr.ca>
-In-Reply-To: <4135CC9E.5060905@rtr.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Sep 2004 10:54:39 -0400
+Date: Wed, 1 Sep 2004 16:56:47 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Ian Wienand <ianw@gelato.unsw.edu.au>, Christoph Hellwig <hch@lst.de>
+Subject: Re: kbuild: Support LOCALVERSION
+Message-ID: <20040901145646.GA7252@mars.ravnborg.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, Ian Wienand <ianw@gelato.unsw.edu.au>,
+	Christoph Hellwig <hch@lst.de>
+References: <20040831192642.GA15855@mars.ravnborg.org> <20040901134341.GT6985@lug-owl.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040901134341.GT6985@lug-owl.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> 
->>
->>> What determines whether 48 bit addressing will be used then?
->>
->>
->> Availability of 48-bit addressing feature set and host capabilities
->> (some don't support LBA48 when DMA is used etc.).
-> 
-> 
-> I haven't examined the "released" IDE drivers in some time,
-> but one optimisation that can save a LOT of CPU usage
-> is for the driver to only use LBA48 *when necessary*,
-> and use LBA28 I/O otherwise.
-> 
-> Each access to an IDE register typically chews up 600+ns,
-> or the equivalent of a couple thousand instruction executions
-> on a modern core.  Avoiding LBA48 when it's not needed will
-> save four such accesses per I/O, or about 2.5us.
+On Wed, Sep 01, 2004 at 03:43:41PM +0200, Jan-Benedict Glaw wrote:
+> Maybe it would also be good (in the longer term)
+> to introduce a config name into one of the Kconfig files, which is
+> preserved in the .config file (eg. SuSE does something like that and
+> even while I'm not a SuSE user, it's really dandy at some times, esp.
+> for things like "SMP-4GB", "VAX-KA4x" and the like). It's basically like
+> adding the defconfig_* name to some of the variables :-)
 
+Ian addedconfig CONFIG_LOCALVERSION to a Kconfig file. I will
+try to add it and see how it turns out. If Ian does not beat me..
 
-Doing this is either pointless or impossible on newer SATA controllers. 
-  Most are memory-mapped I/O not PIO, where the high-order bits of the 
-ATA taskfile are accessed due to an extended register size, not 
-"double-pumping" a FIFO.
+> PS: When will the package support show up?
+UML needs to be finised first.
+I have several packages related patches queued up. But I want
+to give it an extra look since there are several basic issues
+I am not satisfied with.
 
-Even-newer SATA controllers are FIS-based rather than taskfile-based, so 
-you pass it a FIS (containing all the registers) unconditionally.
-
-	Jeff
-
-
+	Sam

@@ -1,82 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132413AbRDDAJI>; Tue, 3 Apr 2001 20:09:08 -0400
+	id <S132405AbRDDAMi>; Tue, 3 Apr 2001 20:12:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132405AbRDDAI6>; Tue, 3 Apr 2001 20:08:58 -0400
-Received: from snowstorm.mail.pipex.net ([158.43.192.97]:61344 "HELO
-	snowstorm.mail.pipex.net") by vger.kernel.org with SMTP
-	id <S132219AbRDDAIx>; Tue, 3 Apr 2001 20:08:53 -0400
-From: Michael Miller <michaelm@mjmm.org>
-Message-Id: <200104040003.f3403MG01149@mjmm.org>
-Subject: memory size detection problem on 2.3.16+ and 2.4.x
-To: linux-kernel@vger.kernel.org
-Date: Wed, 4 Apr 2001 01:03:22 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL3]
+	id <S132560AbRDDAMa>; Tue, 3 Apr 2001 20:12:30 -0400
+Received: from ns2.auctionwatch.com ([64.14.24.2]:21773 "EHLO
+	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
+	id <S132405AbRDDAMV>; Tue, 3 Apr 2001 20:12:21 -0400
+Message-ID: <5179B27750A9D411B968009027E06E27012D6FAB@exback.corp.auctionwatch.com>
+From: "Michael S. Fischer" <michael@auctionwatch.com>
+To: "'mingo@redhat.com'" <mingo@redhat.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: md driver doesn't notice disk going out
+Date: Tue, 3 Apr 2001 17:12:29 -0700 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I forgot to say, we're running kernel 2.4.3 + Sistina LVM patch 0.9.1b6.
 
-summary: e801 memory size detection call failure, but bios doesnt
-set carry flag on error and hence get an incorrect memory size.
-
-Since the 2.3.16 kernel, my PC has been unable
-to run any newer kernels (>2.3.16 or 2.4.x) without using the mem=64M
-command line parameter.  This was when the new bigmem support was added
-which changed the memory detection routines somewhat.
-
-I have traced this down to a problem with the way in which the kernel
-calls the e801 memory size detection bios call.  The kernel assumes that
-the bios will set the carry flag on the return from the call should
-there be an error.  However, the BIOS on my PC doesnt do this- infact
-it seems to simply return from the call without changing any registers.
-
-As a result, my memory size being used is approx 1GB which is derived from 
-the values in the CX and DX registers before the call. My BIOS does not clear
-them (CX or DX) nor does it set the carry flag. 
-
-I have included a pretty harmless patch below (taken against 2.4.2) for
- arch/i386/boot/setup.S
-which works around this buggy BIOS issue.  
-
-The patch clears CX and DX before the call to the e801 routine.  This
-should be harmless for any machines which currently work correctly.
-
-Please could this patch be included in the next 2.4.x kernel source tree,
-as I would guess that it is not only me affected by this...
-
-Many thanks.
-Michael Miller
-
---- linux-2.4.2-orig/arch/i386/boot/setup.S	Sat Jan 27 18:51:35 2001
-+++ linux/arch/i386/boot/setup.S	Wed Apr  4 00:13:52 2001
-@@ -32,6 +32,10 @@
-  *
-  * Transcribed from Intel (as86) -> AT&T (gas) by Chris Noe, May 1999.
-  * <stiker@northlink.com>
-+ *
-+ * Workaround flakey BIOSes for e801 call - which don't use carry flag
-+ * on errors. Michael Miller (michaelm@mjmm.org), April 2001
-+ *
-  */
- 
- #define __ASSEMBLY__
-@@ -341,6 +345,11 @@
- # to write everything into the same place.)
- 
- meme801:
-+	xorl	%edx, %edx			# Clear regs to work around
-+	xorl	%ecx, %ecx			# flakey BIOSes which don't
-+						# use carry bit correctly
-+						# This way we get 0MB ram on
-+						# call failure
- 	movw	$0xe801, %ax
- 	int	$0x15
- 	jc	mem88
-
-
-
-
+> -----Original Message-----
+> From: Michael S. Fischer 
+> Sent: Tuesday, April 03, 2001 5:09 PM
+> To: 'mingo@redhat.com'; 'linux-kernel@vger.kernel.org'
+> Subject: md driver doesn't notice disk going out
+> 
+> 
+> Hello,
+> 
+> We're testing lvm over md (RAID 1) for a database 
+> application.  Part of our tests include simulating failure.  
+> So, we pulled the power on one of the drives, and the kernel 
+> reported...
+> 
+> hdd: status error: status=0x00 { }
+> hdd: drive not ready for command
+> ...
+> ide1: reset timed-out, status=0x80
+> hdd: lost interrupt
+> hdd: lost interrupt
+> hdd: lost interrupt
+> ...
+> 
+> However, /proc/mdstat still reports:
+> 
+> Personalities : [linear] [raid0] [raid1] [raid5] 
+> read_ahead 1024 sectors
+> md1 : active raid1 hdd[1] hdb[0]
+>       19925760 blocks [2/2] [UU]
+>       
+> md0 : active raid1 hdc[1] hda[0]
+>       19925760 blocks [2/2] [UU]
+> 
+> It appears the md driver just didn't bother to notice -- and 
+> now all writes to the filesystem are blocked.
+> 
+> In case it matters, here's our lvm config:
+> 
+> --- Volume group ---
+> VG Name               data0_vg
+> VG Access             read/write
+> VG Status             available/resizable
+> VG #                  0
+> MAX LV                256
+> Cur LV                1
+> Open LV               1
+> MAX LV Size           255.99 GB
+> Max PV                256
+> Cur PV                2
+> Act PV                2
+> VG Size               38 GB
+> PE Size               4 MB
+> Total PE              9728
+> Alloc PE / Size       7680 / 30 GB
+> Free  PE / Size       2048 / 8 GB
+> VG UUID               6XH7Nq-JL9u-cbjw-rUoP-Kx9o-hlZN-LPhdmj
+> 
+> --- Logical volume ---
+> LV Name                /dev/data0_vg/data0_lv
+> VG Name                data0_vg
+> LV Write Access        read/write
+> LV Status              available
+> LV #                   1
+> # open                 1
+> LV Size                30 GB
+> Current LE             7680
+> Allocated LE           7680
+> Stripes               2
+> Stripe size (KByte)   16
+> Allocation             next free
+> Read ahead sectors     120
+> Block device           58:0
+> 
+> 
+> --- Physical volumes ---
+> PV Name (#)           /dev/md0 (1)
+> PV Status             available / allocatable
+> Total PE / Free PE    4864 / 1024
+> 
+> PV Name (#)           /dev/md1 (2)
+> PV Status             available / allocatable
+> Total PE / Free PE    4864 / 1024
+> 
+> Please CC: me on replies.  Thanks.
+> 
+> --
+> Michael S. Fischer / michael at auctionwatch.com / 
+http://www.auctionwatch.com
+Systems Engineer, AuctionWatch.com Inc. / Phone: +1 650 808 5842  

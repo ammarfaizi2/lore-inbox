@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131571AbQLLMsT>; Tue, 12 Dec 2000 07:48:19 -0500
+	id <S131753AbQLLMwU>; Tue, 12 Dec 2000 07:52:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131753AbQLLMsK>; Tue, 12 Dec 2000 07:48:10 -0500
-Received: from gate-hq.megaloman.sk ([194.1.174.252]:30704 "EHLO
-	megaloman.megaloman.sk") by vger.kernel.org with ESMTP
-	id <S131571AbQLLMsA>; Tue, 12 Dec 2000 07:48:00 -0500
-Date: Tue, 12 Dec 2000 13:17:21 +0100 (CET)
-From: Peter Hanecak <hanecak@megaloman.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.17 with Hedrick's IDE patch compiled with gcc-2.95.3-0.20000323
-Message-ID: <Pine.LNX.4.21.0012121317020.14622-100000@megaloman.megaloman.sk>
+	id <S131803AbQLLMwL>; Tue, 12 Dec 2000 07:52:11 -0500
+Received: from tele-post-20.mail.demon.net ([194.217.242.20]:62468 "EHLO
+	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S131753AbQLLMwB>; Tue, 12 Dec 2000 07:52:01 -0500
+Message-ID: <3A36183F.1EBD9368@agelectronics.co.uk>
+Date: Tue, 12 Dec 2000 12:21:19 +0000
+From: Adrian Cox <apc@agelectronics.co.uk>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: groudier@club-internet.fr, mj@suse.cz, lk@tantalophile.demon.co.uk,
+        davej@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: pdev_enable_device no longer used ?
+In-Reply-To: <Pine.LNX.4.10.10012112207400.2144-100000@linux.local> <200012112221.OAA01081@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+"David S. Miller" wrote:
+> Interpreting physical BAR values is another issue altogether.  Kernel
+> wide interfaces for this may be easily added to include/asm/pci.h
+> infrastructure, please just choose some sane name for it and I will
+> compose a patch ok? :-)
 
-I saw announcement about new 2.2.18 release and notice about
-newer compilers. So I'm writing ...
+There's a semi-respectable use for BAR values: peer-to-peer mastering. 
+A new kernel interface could actually make that portable, eg:
 
-Since Sep 6 2000 I'm running kernel 2.2.17 with Andre Hedrick's IDE patch
-(20000904) compiled with gcc-2.95.3-0.20000323 (RedHat package). I'm
-runing it on Pentium III/650 MHz system with 256 MB of RAM, 4 disks and
-one CD-ROM (two disk and CD-ROM are on regular IDE, one disk in on ATA),
-old ES1688 based ISA sound card and  PCI 3c905B Cyclone etherrnet adapter.
+int pci_peer_master_address(struct pci_dev *master,
+	struct pci_dev *target, int resource, unsigned long offset,
+	unsigned long *address);
+Return values PCI_PEER_OK, PCI_PEER_NOWAY, PCI_PEER_FXBUG,
+PCI_PEER_YOURE_JOKING_RIGHT, ... Bus address usable by master placed in
+address.
 
-I'm working mostly undex X windows (GNOME desktop).
-
-Since then I did not encountered any crash except one - when one program
-attempted to allocate A LOT of memory.
-
-Also my "biggest" problem with my machine is that when I'm making big IO
-with disks (copying BIG files - 10-100 MB), machine stops respondiong for
-a socond (sound stop playing, mouse cursor responding, screen
-redrawing). But after that everything continues fine.
-
-
-Thanks to kernel developers for good work.
+Implementing something like this with a single hostbridge is simple.
+It's  harder on boards like my Intel 840 motherboard here, where the
+33MHz and 66MHz buses don't talk to each other. It could eventually grow
+into a big list of platform specific workarounds, but at least they'd
+all be in one place where we could see them.
 
 
-If anyone has questions I will be happe to answer.
-
-
-Sincerely
-
-Peter Hanecak
-
--- 
-===================================================================
-  Peter Hanecak <hanecak@megaloman.com>
-  GPG pub.key: http://www.megaloman.com/gpg/hanecak-megaloman.txt
-===================================================================
-
+- Adrian Cox, AG Electronics
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263430AbTCNSPA>; Fri, 14 Mar 2003 13:15:00 -0500
+	id <S263454AbTCNSVt>; Fri, 14 Mar 2003 13:21:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263431AbTCNSPA>; Fri, 14 Mar 2003 13:15:00 -0500
-Received: from adsl-63-195-13-70.dsl.chic01.pacbell.net ([63.195.13.70]:45715
-	"EHLO mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id <S263430AbTCNSO6>; Fri, 14 Mar 2003 13:14:58 -0500
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 14 Mar 2003 10:25:21 -0800
-MIME-Version: 1.0
-Subject: Re: VESA FBconsole driver?
-CC: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>
-Message-ID: <3E71AE11.29314.4B46B5D@localhost>
-References: <3E70A68F.9422.AF1599@localhost>
-In-reply-to: <Pine.GSO.4.21.0303141114210.3569-100000@vervain.sonytel.be>
-X-mailer: Pegasus Mail for Windows (v4.02)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	id <S263455AbTCNSVt>; Fri, 14 Mar 2003 13:21:49 -0500
+Received: from employees.nextframe.net ([213.160.234.200]:31477 "EHLO
+	toosexy.nextframe.net") by vger.kernel.org with ESMTP
+	id <S263454AbTCNSVr>; Fri, 14 Mar 2003 13:21:47 -0500
+Date: Fri, 14 Mar 2003 19:34:16 +0100
+From: Morten Helgesen <morten.helgesen@nextframe.net>
+To: alan@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re:  Linux 2.5.64-ac4
+Message-ID: <20030314183416.GA1462@toosexy>
+Reply-To: morten.helgesen@nextframe.net
+References: <200303141509.h2EF9R017016@devserv.devel.redhat.com> <20030314165317.GA543@toosexy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030314165317.GA543@toosexy>
+User-Agent: Mutt/1.4i
+X-Editor: VIM - Vi IMproved 6.1
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+On Fri, Mar 14, 2003 at 05:53:17PM +0100, Morten Helgesen wrote:
+> Hi Alan, 
+> 
+> On Fri, Mar 14, 2003 at 10:09:27AM -0500, Alan Cox wrote:
+> > Linux 2.5.64-ac4
+> 
+> it looks like someone changed the prototypes in includes/linux/fb.h 
+> without changing the actual functions ... 
 
-> Assumed the BIOS can recover from whatever the application has done to the
-> graphics chipset...
+s/includes/include/ ... doh
 
-If the program just crashed (and did not lock the graphics card), the 
-BIOS can nearly always restore the screen properly. I know that from the 
-years of doing graphics development under DOS and always using the BIOS 
-to restore the screen when I screwed up and crashed my graphics programs 
-;-)
+> 
+> -extern void cfb_fillrect(struct fb_info *info, struct fb_fillrect *rect);
+> -extern void cfb_copyarea(struct fb_info *info, struct fb_copyarea *area);
+> -extern void cfb_imageblit(struct fb_info *info, struct fb_image *image);
+> +extern void cfb_fillrect(struct fb_info *info, const struct fb_fillrect *rect);
+> +extern void cfb_copyarea(struct fb_info *info, const struct fb_copyarea *area);
+> +extern void cfb_imageblit(struct fb_info *info, const struct fb_image *image);
+> 
+> drivers/video/cfbcopyarea.c:346: conflicting types for `cfb_copyarea'
+> include/linux/fb.h:459: previous declaration of `cfb_copyarea'
+> make[3]: *** [drivers/video/cfbcopyarea.o] Error 1
+> make[2]: *** [drivers/video] Error 2
+> 
+> == Morten
+> 
+> -- 
+> 
+> "Livet er ikke for nybegynnere" - sitat fra en klok person.
+> 
+> Morten Helgesen 
+> UNIX System Administrator & C Developer 
+> Nextframe AS
+> morten.helgesen@nextframe.net / 93445641
+> http://www.nextframe.net
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Regards,
+-- 
 
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
+"Livet er ikke for nybegynnere" - sitat fra en klok person.
 
-~ SciTech SNAP - The future of device driver technology! ~
-
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+morten.helgesen@nextframe.net / 93445641
+http://www.nextframe.net

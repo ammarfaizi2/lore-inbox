@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289225AbSAGPmu>; Mon, 7 Jan 2002 10:42:50 -0500
+	id <S289231AbSAGPz0>; Mon, 7 Jan 2002 10:55:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289231AbSAGPmk>; Mon, 7 Jan 2002 10:42:40 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:49301 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S289225AbSAGPma>;
-	Mon, 7 Jan 2002 10:42:30 -0500
-Date: Mon, 7 Jan 2002 16:41:37 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Christoph Hellwig <hch@ns.caldera.de>
-Cc: Jaroslav Kysela <perex@suse.cz>, sound-hackers@zabbo.net,
-        linux-sound@vger.rutgers.edu, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: ALSA patch for 2.5.2pre9 kernel
-Message-ID: <20020107164136.I5235@khan.acc.umu.se>
-In-Reply-To: <Pine.LNX.4.31.0201061814580.545-100000@pnote.perex-int.cz> <200201071432.g07EWI802933@ns.caldera.de>
-Mime-Version: 1.0
+	id <S289237AbSAGPzQ>; Mon, 7 Jan 2002 10:55:16 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24839 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289231AbSAGPzN>; Mon, 7 Jan 2002 10:55:13 -0500
+Subject: Re: swapping,any updates ?? Just wasted money on mem upgrade performance still suck :-(
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Date: Mon, 7 Jan 2002 16:06:19 +0000 (GMT)
+Cc: cej@ti.com (christian e), riel@conectiva.com.br (Rik van Riel),
+        andrea@suse.de (Andrea Arcangeli),
+        linux-kernel@vger.kernel.org (linux kernel)
+In-Reply-To: <200201071530.g07FU2E07077@Port.imtp.ilyichevsk.odessa.ua> from "vda@port.imtp.ilyichevsk.odessa.ua" at Jan 07, 2002 05:30:04 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <200201071432.g07EWI802933@ns.caldera.de>; from hch@ns.caldera.de on Mon, Jan 07, 2002 at 03:32:18PM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16NcHz-0001dv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 07, 2002 at 03:32:18PM +0100, Christoph Hellwig wrote:
-> In article <Pine.LNX.4.31.0201061814580.545-100000@pnote.perex-int.cz> you wrote:
-> > The latest patch is alsa-2002-01-06-1-linux-2.5.2pre9.patch.gz and
-> > contains:
-> 
-> > * moved linux/drivers/sound directory to linux/sound/oss
-> > * moved sound core files to linux/sound
-> > * integrated ALSA kernel code
-> >   - linux/include/sound - sound header files
-> >   - linux/sound/core	- midlevel (no hw dependent) code
-> >   - linux/sound/drivers - generic drivers (no arch dependent)
-> >   - linux/sound/i2c     - reduced I2C core and drivers
-> >   - linux/sound/isa	- ISA sound hardware drivers
-> >   - linux/sound/pci	- PCI sound hardware drivers
-> >   - linux/sound/ppc	- PowerPC sound hardware drivers
-> >   - linux/sound/synth	- generic synthesizer support code
-> 
-> > We appreciate any comments regarding directory structure
-> 
-> linux/sound is silly.  It's drivers so put it under linux/drivers/sound.
-> Everything else seems to be sane to me.
+> knobs. It just won't happen. Fixing VM behavior is the only way. It has to 
+> work satisfactorily _without_ tuning.
 
-One question: What happens with hardware both available in both isa & pci
-versions (or any other combination that doesn't fit into this
-sorting?!)
+Thats something you will never achieve. Virtual memory is about heuristics,
+crystal ball gazing and guesswork. There are always some workloads where you
+want little caching and some where you want lots of caching - such as a 
+fileserver.
 
+You can make it right for most people but the last few percent you
+will always get by tuning knobs - either directly or via GUI tools like
+powertweak
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+Alan
+

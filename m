@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272051AbTGYMyD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 08:54:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272052AbTGYMyD
+	id S272053AbTGYNCr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 09:02:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272054AbTGYNCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 08:54:03 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:55702 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S272051AbTGYMyA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 08:54:00 -0400
-Date: Fri, 25 Jul 2003 10:05:33 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Meelis Roos <mroos@math.ut.ee>
-Cc: lkml <linux-kernel@vger.kernel.org>, neilb@cse.unsw.edu.au
-Subject: Re: NFS server broken in 2.4.22-pre6?
-In-Reply-To: <Pine.GSO.4.44.0307242023530.5806-100000@math.ut.ee>
-Message-ID: <Pine.LNX.4.55L.0307251001480.12492@freak.distro.conectiva>
-References: <Pine.GSO.4.44.0307242023530.5806-100000@math.ut.ee>
+	Fri, 25 Jul 2003 09:02:47 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:2557 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S272053AbTGYNCq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 09:02:46 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Larry McVoy <lm@bitmover.com>,
+       Leandro Guimar?es Faria Corsetti Dutra 
+	<lgcdutra@terra.com.br>
+Subject: Re: Switching to the OSL License, in a dual way.
+Date: Fri, 25 Jul 2003 08:17:33 -0500
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+References: <pan.2003.07.24.18.06.06.546220@terra.com.br> <pan.2003.07.24.21.05.40.969654@terra.com.br> <20030724215744.GA7777@work.bitmover.com>
+In-Reply-To: <20030724215744.GA7777@work.bitmover.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <03072508173301.16381@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 24 Jul 2003, Meelis Roos wrote:
-
-> NFS serving seems to be broken in 2.4.22-pre6. I had 2 computers running
-> 2.4.22-pre6 (x86, debian unstable current). Tried to acces them via NFS
-> (using am-utils actually) from a 3rd computer, IO error. Tried to
-> mount directly, mount: RPC: timed out. Rebooted one computer to 2.4.18
-> and NFS started to work.
+On Thursday 24 July 2003 16:57, Larry McVoy wrote:
+[snip
 >
-> No more details currently but I can test more thoroughly tomorrow.
+> In other words, reverse engineering is ok if the product doesn't
+> provide access to your data, we do that already, poof, no reverse
+> engineering allowed.  So it's illegal to reverse engineer BK.
 
-Meelis,
+Nonesense. If the business no longer has the licence to use BK (for
+whatever reason) then it no longer has access to the data. Now to
+get access to the data you must reverse engineer BK...
 
-Please report more details.
+Even though the data is still ASCII, the interrelationships between the
+parts of the data is still "data". And extracting/viewing that would
+require the reverse enginnering.

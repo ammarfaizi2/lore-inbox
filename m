@@ -1,105 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293082AbSCJQR5>; Sun, 10 Mar 2002 11:17:57 -0500
+	id <S293085AbSCJQUQ>; Sun, 10 Mar 2002 11:20:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293083AbSCJQRs>; Sun, 10 Mar 2002 11:17:48 -0500
-Received: from mx0.gmx.de ([213.165.64.100]:49345 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S293082AbSCJQRe>;
-	Sun, 10 Mar 2002 11:17:34 -0500
-Date: Sun, 10 Mar 2002 17:17:27 +0100 (MET)
-From: Kai Engert <kai.engert@gmx.de>
-To: Jochen Friedrich <jochen@scram.de>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+	id <S293087AbSCJQUG>; Sun, 10 Mar 2002 11:20:06 -0500
+Received: from 99dyn73.com21.casema.net ([62.234.30.73]:53418 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S293085AbSCJQTv>; Sun, 10 Mar 2002 11:19:51 -0500
+Message-Id: <200203101619.RAA16806@cave.bitwizard.nl>
+Subject: Re: RAID magics gone...
+In-Reply-To: <200203100914.KAA14394@cave.bitwizard.nl> from Rogier Wolff at "Mar
+ 10, 2002 10:14:30 am"
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Date: Sun, 10 Mar 2002 17:19:49 +0100 (MET)
+CC: linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-notice1: This Email contains my Email address. This grants you the right
+X-notice2: to communicate with me using this address, related to the subject
+X-notice3: in this message. Unsollicitated mass-mailings are explictly 
+X-notice4: forbidden here, and by Dutch law. 
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-In-Reply-To: <Pine.LNX.4.43.0203100949470.14532-100000@alpha.bocc.de>
-Subject: Re: [patch] Missing module for ISDN / AVM PCMCIA card
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0002126097@gmx.net
-X-Authenticated-IP: [212.172.10.91]
-Message-ID: <9391.1015777047@www3.gmx.net>
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jochen,
-
-> > (Please note that Red Hat seems to have modified that patch a little,
-> the
-> > file included in their kernel 2.4.9-31 has 3 lines changed.
+Rogier Wolff wrote:
 > 
-> This might be the bug fix Kai Germaschewski added to my patch:
+> Hi,
+> 
+> I have a machine with 4 160G disks in a raid-0 configuration. Now
+> after upgrading the hardware, all of a sudden raidstart can't find the
+> raid-superblocks anymore. Invalid magic. 
+> 
+> I'm suspecting that it might be that the superblock was overwritten
+> with data or something like that. Does anybody know of a bug like
+> this?
+> 
+> We're running kernel-2.4.16 with andre's IDE patches for the large
+> disks.
+> 
+> I'll see if I can find the "magic" anywhere on the disk....
 
-ok, let me clear the mystery.
+Couldn't find them .
 
-Your patch:
-  http://uwsg.iu.edu/hypermail/linux/kernel/0103.1/att-0957/01-avmdiff
-
-Kai Germaschewski changed:
-  -MODULE_PARM(isdnprot, "1-4");
-
-  +MODULE_PARM(isdnprot, "1-4i");
+Moved the disks to the old machine, got my RAID back. But I still
+can't find the magic numbers for the rais-sb anywhere. 
 
 
-RedHat did not include Kai's fix, but changed:
----[snip]--------
+Could it be that 48bit addressing doesn't work for PIO mode?
+Either KERNEL bug, drive bug or by spec?
 
---- /usr/src/linux/drivers/isdn/pcmcia/avma1_cs.c	Sun Mar 10 01:50:58 2002
-+++
-/home/inst/up2date/t/usr/src/linux-2.4.9-31/drivers/isdn/hisax/avma1_cs.c	Sun Mar 10 01:18:09 2002
-@@ -7,10 +7,12 @@
- ======================================================================*/
- 
- #include <linux/module.h>
-+
-+
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/ptrace.h>
--#include <linux/malloc.h>
-+#include <linux/slab.h>
- #include <linux/string.h>
- #include <linux/timer.h>
- #include <asm/io.h>
-@@ -349,16 +351,16 @@
- 		link->conf.ConfigIndex = cf->index;
- 		link->io.BasePort1 = cf->io.win[0].base;
- 		link->io.NumPorts1 = cf->io.win[0].len;
--		link->io.BasePort2 = 0;
- 		link->io.NumPorts2 = 0;
-                 printk(KERN_INFO "avma1_cs: testing i/o %#x-%#x\n",
- 			link->io.BasePort1,
--		        link->io.BasePort1+link->io.NumPorts1);
-+		        link->io.BasePort1+link->io.NumPorts1 - 1);
- 		i = CardServices(RequestIO, link->handle, &link->io);
- 		if (i == CS_SUCCESS) goto found_port;
- 	    }
- 	    i = next_tuple(handle, &tuple, &parse);
- 	}
-+
- found_port:
- 	if (i != CS_SUCCESS) {
- 	    cs_error(link->handle, RequestIO, i);
-@@ -487,7 +489,7 @@
-     case CS_EVENT_CARD_REMOVAL:
- 	link->state &= ~DEV_PRESENT;
- 	if (link->state & DEV_CONFIG) {
--	    link->release.expires = (jiffies+(HZ/20));
-+	    link->release.expires =  jiffies + HZ/20;
- 	    add_timer(&link->release);
- 	}
- 	break;
-@@ -539,3 +541,5 @@
- 	avma1cs_detach(dev_list);
-     }
- }
-+
-+MODULE_LICENSE("GPL");
+I found that the drives were horribly slow when I tried searching
+them. So I turned DMA on only after having failed to mount the raid,
+and started to "search" through the whole disk.
 
----[snip]--------
+Can someone seek to the 8k before end of a raid-partition, and dump
+the remaining part of the disk, so that I can be sure to know what it
+looks like? That should include the raid-sb, right?
 
-Thanks,
-Kai
+				Roger. 
 
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

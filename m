@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317312AbSG1UQt>; Sun, 28 Jul 2002 16:16:49 -0400
+	id <S317314AbSG1U2w>; Sun, 28 Jul 2002 16:28:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317308AbSG1UQs>; Sun, 28 Jul 2002 16:16:48 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:38093 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S317304AbSG1UQs>;
-	Sun, 28 Jul 2002 16:16:48 -0400
-Date: Sun, 28 Jul 2002 22:20:08 +0200
+	id <S317327AbSG1U2w>; Sun, 28 Jul 2002 16:28:52 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:43213 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S317314AbSG1U2w>;
+	Sun, 28 Jul 2002 16:28:52 -0400
+Date: Sun, 28 Jul 2002 22:32:12 +0200
 From: bert hubert <ahu@ds9a.nl>
-To: Benson Chow <blc+lkml-post@q.dyndns.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: traffic shaper in 2.4.18 working?
-Message-ID: <20020728202007.GA19742@outpost.ds9a.nl>
+Subject: FIXED in 2.5.29 Re: keyboard ONLY functions in 2.5.27 with local APIC on for UP
+Message-ID: <20020728203211.GA20082@outpost.ds9a.nl>
 Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Benson Chow <blc+lkml-post@q.dyndns.org>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0207281337330.1415-100000@q.dyndns.org>
+	Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+References: <20020720222905.GA15288@outpost.ds9a.nl> <20020728204051.A15238@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207281337330.1415-100000@q.dyndns.org>
+In-Reply-To: <20020728204051.A15238@ucw.cz>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 28, 2002 at 01:56:49PM -0600, Benson Chow wrote:
-> (initial conditions)
-> I have two existing IP addresses on eth0 belonging to the same subnet as a
-> virtual host.  This machine is a dual CPU box at 450MHz with an Intel
-> EtherPro 100.
-> 
-> (what I've done)
-> I've executed:
-> shapecfg attach shaper0 eth0
-> shapecfg speed shaper0 19000
-> ifconfig shaper0 10.0.0.80
-> 
-> However, it seems whenever I subsequently connect to this
-> machine's 10.0.0.80 from another machine, it still transmits at full
-> bandwidth of the media and not the 19K (Bytes/sec?) that I expect?
-> 
-> Is this a proper usage of this device or is it a bug?
+On Sun, Jul 28, 2002 at 08:40:51PM +0200, Vojtech Pavlik wrote:
 
-Add a route to your remote machine via shaper0 and check again. Linux does
-not automatically route traffic with the source address of an interface out
-over that interface. This is not a bug. If you want to force this, use
-policy routing.
+> > I find that my keyboard only works if I turn on the local APIC on UP on my
+> > laptop. The only clue I see scrolling past is something about 'AT keyboard
+> > timeout, not present?'. I don't have my nullmodem cable handy to check it
+> > out further.
 
-See http://lartc.org/howto/lartc.rpdb.html 
+> Can you check with 2.5.29? Several bugs in the keyboard support were
+> fixed.
+
+Including mine, thanks! I just tested without local APIC on UP and my
+keyboard works just fine. 
 
 Regards,
 
-bert hubert
+bert
 
 -- 
 http://www.PowerDNS.com          Versatile DNS Software & Services

@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVCCERl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262487AbVCBWph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbVCCERl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 23:17:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVCCEPZ
+	id S262487AbVCBWph (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 17:45:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVCBWlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 23:15:25 -0500
-Received: from pimout4-ext.prodigy.net ([207.115.63.98]:23019 "EHLO
-	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261342AbVCCEKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 23:10:31 -0500
-Date: Wed, 2 Mar 2005 20:10:20 -0800
-From: Chris Wedgwood <cw@f00f.org>
+	Wed, 2 Mar 2005 17:41:46 -0500
+Received: from fire.osdl.org ([65.172.181.4]:52676 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262503AbVCBWjr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 17:39:47 -0500
+Date: Wed, 2 Mar 2005 14:39:34 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303041020.GA28642@taniwha.stupidest.org>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+Cc: dhowells@redhat.com, davidm@snapgear.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] BDI: Provide backing device capability information
+Message-Id: <20050302143934.30d191d7.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503021423420.25732@ppc970.osdl.org>
+References: <20050302090734.5a9895a3.akpm@osdl.org>
+	<9420.1109778627@redhat.com>
+	<31789.1109799287@redhat.com>
+	<20050302135146.2248c7e5.akpm@osdl.org>
+	<Pine.LNX.4.58.0503021423420.25732@ppc970.osdl.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 02:21:38PM -0800, Linus Torvalds wrote:
-
->  - 2.6.<even>: even at all levels, aim for having had minimally intrusive
->    patches leading up to it (timeframe: a week or two)
+Linus Torvalds <torvalds@osdl.org> wrote:
 >
-> with the odd numbers going like:
->
->  - 2.6.<odd>: still a stable kernel, but accept bigger changes leading up
->    to it (timeframe: a month or two).
->  - 2.<odd>.x: aim for big changes that may destabilize the kernel for
->    several releases (timeframe: a year or two)
+> On Wed, 2 Mar 2005, Andrew Morton wrote:
+> >
+> > Why not make these bitfields as well?
+> 
+> Side note: bitfields aren't exactly wonderful.
 
-[...]
+Yup.  In this application the fields are initialised once (usually at
+compile time) and are never modified.  So the compiler should be able to
+generate the same code as it would with an open-coded bit test.  Which is
+about the only situation where we should use bitfields, IMO.
 
-Why not change the "2.6 prefix" to 2.8, 3.0 (or whatever) if/when you
-do go to a new naming scheme --- simply to make a clean break between
-the new and the old.  Plus it will give the suckdork crowd[1] bigger
-numbers to drivel on about.
+That being said, there aren't many backing_dev_info's in a system, so we
+won't be saving much memory.  Some architectures will presumably generate
+faster code with plain old integers.  You'd only ever lose if the
+backing_dev_info happened to straddle a cacheline boundary.  It's marginal.
 
-That said it would be a large numerical leap without and real feature
-changes so perhaps that will further add to confusion?
-
-Sigh.
-
-
-
-[1] Well, and the CGL and similar people.  "New CGL with improved
-    version numbers and fewer calories!"

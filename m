@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316339AbSGASxp>; Mon, 1 Jul 2002 14:53:45 -0400
+	id <S316397AbSGAS4g>; Mon, 1 Jul 2002 14:56:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316342AbSGASxp>; Mon, 1 Jul 2002 14:53:45 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:46291 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S316339AbSGASxn>; Mon, 1 Jul 2002 14:53:43 -0400
-Date: Mon, 1 Jul 2002 20:56:04 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OKS] Kernel release management
-In-Reply-To: <Pine.LNX.3.96.1020701140915.23920A-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.NEB.4.44.0207012045110.24810-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316404AbSGAS4f>; Mon, 1 Jul 2002 14:56:35 -0400
+Received: from dingo.clsp.jhu.edu ([128.220.34.67]:24584 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316397AbSGAS4d>;
+	Mon, 1 Jul 2002 14:56:33 -0400
+Date: Sun, 30 Jun 2002 23:49:35 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: fchabaud@free.fr
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, swsusp@lister.fornax.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][swsusp] 2.4.19-pre10-ac2
+Message-ID: <20020630214935.GA103@elf.ucw.cz>
+References: <200206201106.g5KB6V719618@fuji.home.perso>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200206201106.g5KB6V719618@fuji.home.perso>
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Jul 2002, Bill Davidsen wrote:
+Hi!
 
-> I suggested that 2.5 be opened when 2.4 came out, so I like the idea of
-> 2.7 starting when 2.6 is released. I think developers will maintain the
-> 2.6 work out of pride and desire to have a platform for the "next big
-> thing." And their code can always be placed on hold for 2.7 until they
-> clarify their thinking on 2.6, if that's really needed.
->
-> Most of the developers take pride in what they did in the recent past and
-> would certainly not be a problem if a fix were needed. And if there is a
-> reasonable -rc process there shouldn't be any major bugs of the "start
-> over" variety.
+> Following six patches for swsusp that were used by various people
+> through swsusp list. They should apply in order to 2.4.19-pre10-ac2.
+> Most of those is already in 2.5.22 suspend part managed by Pavel.
 
-This is IMHO a very bad idea:
-- A stable base to start new development upon is a very good thing
-  (and I don't believe in the stability of 2.6.0).
-- Something I'd call the "Debian syndrome" will appear:
-    There are only very few developers who run Debian stable because even
-    during the release cycle there's always an unstable tree. One of the
-    results is that many of the Debian developers aren't that much
-    focussed on working on the next stable release (the current stable
-    release of Debian is nearly two years old and doesn't support kernel
-    2.4...).
-  If 2.7 doesn't start before 2.6 is _really_ stable everyone who wants
-  to have a new development tree is more interested in making 2.6 a really
-  good kernel instead of focussing immediately on 2.7 .
+Heh, so now I'm going patch by patch to figure what to merge :-(.
 
+> 1/6	Documentation and comments cleanings
 
-Just my 0.02 (Euro-)cent
-Adrian
+@@ -1715,9 +1715,9 @@
+ S: Germany
 
+ N: Gabor Kuti
+-E: seasons@falcon.sch.bme.hu
+-E: seasons@makosteszta.sote.hu
+-D: Author and Maintainer for Software Suspend
++M: seasons@falcon.sch.bme.hu
++M: seasons@makosteszta.sote.hu
++D: Software suspend
+
+ N: Jaroslav Kysela
+ E: perex@suse.cz
+
+Why do you change E to M here?
+									Pavel
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
-
-
-
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

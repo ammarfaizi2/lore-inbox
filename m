@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbULIOF3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbULIOF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbULIOF3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 09:05:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbULIOF3
+	id S261338AbULIOF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 09:05:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbULIOF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 09:05:29 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:15328 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261335AbULIOFR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 09:05:17 -0500
-Date: Thu, 9 Dec 2004 08:05:04 -0600
-From: Robin Holt <holt@sgi.com>
-To: Limin Gu <limin@dbear.engr.sgi.com>
+	Thu, 9 Dec 2004 09:05:56 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:4824 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261338AbULIOFw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 09:05:52 -0500
+Date: Thu, 9 Dec 2004 15:05:50 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Hsu I-Chieh <ejhsu@msn.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] jobfs - new virtual filesystem for job kernel/user interface
-Message-ID: <20041209140504.GD5187@lnx-holt.americas.sgi.com>
-References: <200412082203.iB8M3Lk22375@dbear.engr.sgi.com>
+Subject: Re: Can't call function provided by kernel
+Message-ID: <20041209140550.GA8230@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Hsu I-Chieh <ejhsu@msn.com>, linux-kernel@vger.kernel.org
+References: <BAY5-F186433AE314D0B1687EDC0A4B70@phx.gbl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200412082203.iB8M3Lk22375@dbear.engr.sgi.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <BAY5-F186433AE314D0B1687EDC0A4B70@phx.gbl>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 08, 2004 at 02:03:21PM -0800, Limin Gu wrote:
-> Hello,
-> 
-> I am looking for your comments on the attached draft, it is the job patch 
-> for 2.6.9. I have posted job patch for older kernel before, but in this patch
-> I have replaced the /proc/job binary ioctl calls with a new small virtual 
-> filesystem (jobfs).
-> 
-> Job uses the hook provided by PAGG (Process Aggregates). A job is a group
-> related processes all descended from a point of entry process and identified
-> by a unique job identifier (jid). You can find the general information
-> about PAGG and Job at http://oss.sgi.com/projects/pagg/
-> 
-> I will very much appreciate your comments, suggestions and criticisms
-> on this new filesystem design and implementation as the job kernel/user
-> communication interface. The patch is still a draft.
-> 
-> Thank you!
+On Thu, Dec 09, 2004 at 08:09:08AM +0000, Hsu I-Chieh wrote:
 
-I maintain my position that this belongs in /proc.
+> I'm writing a kernel module in kernel 2.6.x. I called
+> local_flush_tlb_all() in my module and there is no error or warning during
+> compiling time. The code fragment is as follow:
 
-Why not have a structure something like:
+The problem is probably that local_flush_tlb_all() is not exported. It
+appears to only be exported on IA64.
 
-/proc/<pid>/job -> ../jobs/<jid>
-/proc/jobs/<jid>/<pid> -> ../../<pid>
+In fact, it appears the entire function does not exist on all that many
+architectures!
 
-What other information is really necessary from userland?
-
-Robin
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

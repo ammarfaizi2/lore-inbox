@@ -1,98 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264697AbUGFXPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264702AbUGFXQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264697AbUGFXPP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 19:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264702AbUGFXPO
+	id S264702AbUGFXQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 19:16:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264701AbUGFXQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 19:15:14 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:25784 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264697AbUGFXOz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 19:14:55 -0400
-Subject: [BK PATCH] on-chip coherent memory API for DMA
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 06 Jul 2004 18:14:35 -0500
-Message-Id: <1089155678.2854.796.camel@mulgrave>
+	Tue, 6 Jul 2004 19:16:16 -0400
+Received: from cantor.suse.de ([195.135.220.2]:11683 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264668AbUGFXQD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 19:16:03 -0400
+Date: Wed, 7 Jul 2004 01:16:00 +0200
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Stephen Hemminger <shemminger@osdl.org>, ahu@ds9a.nl,
+       acme@conectiva.com.br, netdev@oss.sgi.com, alessandro.suardi@oracle.com,
+       phyprabab@yahoo.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix tcp_default_win_scale.
+Message-ID: <20040706231600.GA18181@wotan.suse.de>
+References: <32886.63.170.215.71.1088564087.squirrel@www.osdl.org> <20040629222751.392f0a82.davem@redhat.com> <20040630152750.2d01ca51@dell_ss3.pdx.osdl.net> <20040630153049.3ca25b76.davem@redhat.com> <20040701133738.301b9e46@dell_ss3.pdx.osdl.net> <20040701140406.62dfbc2a.davem@redhat.com> <20040702013225.GA24707@conectiva.com.br> <20040706093503.GA8147@outpost.ds9a.nl> <20040706114741.1bf98bbe@dell_ss3.pdx.osdl.net> <20040706132426.097f71e6.davem@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040706132426.097f71e6.davem@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a rollup of the previous patch I sent to the list for the
-on-chip API.  It's available at
 
-bk://linux-voyager.bkbits.net/dma-declare-coherent-memory-2.6
+I would not change anything, just suggest that users who sit
+behind such a broken device do
 
-I split the patches I sent up into the five separate areas that they
-affect:
+echo 0 > /proc/sys/net/ipv4/tcp_window_scaling
 
-ChangeSet@1.1783, 2004-06-30 21:44:24-05:00, jejb@mulgrave.(none)
-  Convert NCR_Q720 to use dma_declare_coherent_memory
-  
-  This board makes an ideal example for using the API
-  since it consists of 4 SCSI I/O processors and a 
-  0.5-2MB block of memory on a single MCA card.
-  
-  Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+and yell loudly at their ISPs to get this fixed. Crippling the stack
+by default just to work around such obvious bugs would be wrong.
 
-ChangeSet@1.1782, 2004-06-30 21:38:34-05:00, jejb@mulgrave.(none)
-  Add x86 implementation of dma_declare_coherent_memory
-  
-  This actually implements the API (all except for
-  DMA_MEMORY_INCLUDES_CHILDREN).
-  
-  Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+In the past there were similar bugs with broken VJ header compression
+algorithms that also corrupted window scaling. We just ignored
+these and suggested to the users to turn it off. That worked fine.
 
-ChangeSet@1.1781, 2004-06-30 21:11:14-05:00, jejb@mulgrave.(none)
-  Add vmalloc alignment constraints
-  
-  vmalloc is used by ioremap() to get regions for
-  remapping I/O space.  To feed these regions back
-  into a __get_free_pages() type memory allocator,
-  they are expected to have more alignment than 
-  get_vm_area() proves.  So add additional alignment
-  constraints for VM_IOREMAP.
-  
-  Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+[btw it's quite possible that this isn't a firewall, but also
+some kind of header compression that is doing the wrong thing]
 
-ChangeSet@1.1780, 2004-06-30 21:08:15-05:00, jejb@mulgrave.(none)
-  Add memory region bitmap implementations
-  
-  These APIs deal with bitmaps representing contiguous
-  memory regions.  The idea is to set, free and find
-  a contiguous area.
-  
-  For ease of implementation (as well as to conform
-  to the standard requirements), the bitmaps always
-  return n aligned n length regions.  The implementation
-  is also limited to BITS_PER_LONG contiguous regions.
-  
-  Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
-
-ChangeSet@1.1779, 2004-06-30 21:02:11-05:00, jejb@mulgrave.(none)
-  Add dma_declare_coherent_memory() API
-  
-  This adds the description and a null prototype.
-  
-  Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
-
-And the diffstat is:
-
- Documentation/DMA-API.txt      |   79 +++++++++++++++++++++++++++++
- arch/i386/kernel/pci-dma.c     |  111 ++++++++++++++++++++++++++++++++++++++++-
- drivers/scsi/NCR_Q720.c        |   21 ++++++-
- include/asm-i386/dma-mapping.h |   12 ++++
- include/linux/bitmap.h         |    3 +
- include/linux/device.h         |    3 +
- include/linux/dma-mapping.h    |   26 +++++++++
- lib/bitmap.c                   |   76 ++++++++++++++++++++++++++++
- mm/vmalloc.c                   |   20 ++++++-
- 9 files changed, 344 insertions(+), 7 deletions(-)
-
-James
-
-
+-Andi

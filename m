@@ -1,156 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132511AbREHVdb>; Tue, 8 May 2001 17:33:31 -0400
+	id <S135363AbREHVeB>; Tue, 8 May 2001 17:34:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135363AbREHVdW>; Tue, 8 May 2001 17:33:22 -0400
-Received: from quasar.osc.edu ([192.148.249.15]:6060 "EHLO quasar.osc.edu")
-	by vger.kernel.org with ESMTP id <S132511AbREHVdP>;
-	Tue, 8 May 2001 17:33:15 -0400
-Date: Tue, 8 May 2001 17:32:57 -0400
-From: "'Pete Wyckoff'" <pw@osc.edu>
-To: Venkatesh Ramamurthy <Venkateshr@ami.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ken Nicholson <knicholson@corp.iready.com>,
-        pollard@tomcat.admin.navo.hpc.mil, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Direct Sockets Support??
-Message-ID: <20010508173257.C15867@quasar.osc.edu>
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE6402B9DEE0@ATL_MS1>
-Mime-Version: 1.0
+	id <S135404AbREHVdv>; Tue, 8 May 2001 17:33:51 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:8648 "EHLO
+	c0mailgw02.prontomail.com") by vger.kernel.org with ESMTP
+	id <S135363AbREHVdp>; Tue, 8 May 2001 17:33:45 -0400
+Message-ID: <3AF8661D.F3A08367@mvista.com>
+Date: Tue, 08 May 2001 14:33:17 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 
+In-Reply-To: <Pine.LNX.3.95.1010508154726.29540A-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i-nntp2
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE6402B9DEE0@ATL_MS1>; from Venkateshr@ami.com on Tue, May 08, 2001 at 04:18:01PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Venkateshr@ami.com said:
-> 	> But in the case of an application which fits in main memory, and
-> 	> has been running for a while (so all pages are present and
-> 	> dirty), all you'd really have to do is verify the page tables are
-> 	> in the proper state and skip the TLB flush, right?
+"Richard B. Johnson" wrote:
 > 
-> 	We really cannot assume this. There are two cases 
-> 		a. when a user app wants to receive some data, it allocates
-> memory(using malloc) and waits for the hw to do zero-copy read. The kernel
-> does not allocate physical page frames for the entire memory region
-> allocated. We need to lock the memory (and locking is expensive due to
-> costly TLB flushes) to do this
+> To driver wizards:
 > 
-> 		b. when a user app wants to send data, he fills the buffer
-> and waits for the hw to transmit data, but under heavy physical memory
-> pressure, the swapper might swap the pages we want to transmit. So we need
-> to lock the memory to be 100% sure.
+> I have a driver which needs to wait for some hardware.
+> Basically, it needs to have some code added to the run-queue
+> so it can get some CPU time even though it's not being called.
+> 
+> It needs to get some CPU time which can be "turned on" or
+> "turned off" as a result of an interrupt or some external
+> input from  an ioctl().
+> 
+> So I thought that the "tasklet" would be ideal. However, the
+> scheduler "thinks" that a tasklet is an interrupt, so any
+> attempt to sleep in the tasklet results in a kernel panic,
+> "ieee scheduling in an interrupt..., BUG sched.c line 688".
+> 
+> Next, I added code to try queue_task(). This has the same problem.
+> 
+> Basically the procedure needs to do:
+> 
+> procedure()
+> {
+>     if(some_event)
+>         schedule_timeout(n);               /* Needs to sleep */
+>     else if(something_else)
+>         do_something();
+>    queue_task(procedure, &tq_immediate);   /* Needs to queue itself again */
+> }
+> 
+> Since I'm running against a time-line, I temporarily  gave the module
+> some CPU time through an ioctl(), i.e., a separate task that does nothing
+> except repeatably execute ioctl(GIVE_CPU, NULL); This shows that the
+> driver actually works. It's a GPIB driver so it needs to get the
+> CPU to find out if it's addressed to listen, etc. These events don't
+> produce interrupts.
+> 
+> So, what am I supposed to do to add a piece of driver code to the
+> run queue so it gets scheduled occasionally?
+> 
+> Cheers,
+> Dick Johnson
 
-You're right, of course.  But I suspect that the fast path of
-re-locking memory which is happily in core will go much faster
-by removing the multi-processor TLB purge.  And it can't hurt,
-unless I'm missing something.
+How about something like:
 
-		-- Pete
+#include <linux/timer.h>
 
---- linux-2.4.4-stock/mm/mlock.c	Tue May  8 17:26:34 2001
-+++ linux/mm/mlock.c	Tue May  8 17:24:13 2001
-@@ -114,6 +114,10 @@
- 	return 0;
- }
- 
-+/* implemented in mm/memory.c */
-+extern int mlock_make_pages_present(struct vm_area_struct *vma,
-+	unsigned long addr, unsigned long end);
-+
- static int mlock_fixup(struct vm_area_struct * vma, 
- 	unsigned long start, unsigned long end, unsigned int newflags)
- {
-@@ -138,7 +142,7 @@
- 		pages = (end - start) >> PAGE_SHIFT;
- 		if (newflags & VM_LOCKED) {
- 			pages = -pages;
--			make_pages_present(start, end);
-+			mlock_make_pages_present(vma, start, end);
- 		}
- 		vma->vm_mm->locked_vm -= pages;
- 	}
+void queue_task(void process_timeout(void), unsigned long timeout,
+struct timer_list *timer, unsigned long data)
+{
+	unsigned long expire = timeout + jiffies;
 
---- linux-2.4.4-stock/mm/memory.c	Tue May  8 17:25:36 2001
-+++ linux/mm/memory.c	Tue May  8 17:24:40 2001
-@@ -1438,3 +1438,80 @@
- 	} while (addr < end);
- 	return 0;
- }
-+
-+/*
-+ * Specialized version of make_pages_present which does not require
-+ * a multi-processor TLB purge for every page if nothing about the PTE
-+ * was modified.
-+ */
-+int mlock_make_pages_present(struct vm_area_struct *vma,
-+	unsigned long addr, unsigned long end)
-+{
-+	int ret, write;
-+	struct mm_struct *mm = current->mm;
-+
-+	write = (vma->vm_flags & VM_WRITE) != 0;
-+
-+	/*
-+	 * We need the page table lock to synchronize with kswapd
-+	 * and the SMP-safe atomic PTE updates.
-+	 */
-+	spin_lock(&mm->page_table_lock);
-+
-+	ret = 0;
-+	for (ret=0; !ret && addr < end; addr += PAGE_SIZE) {
-+		pgd_t *pgd;
-+		pmd_t *pmd;
-+		pte_t *pte, entry;
-+		int modified;
-+
-+		current->state = TASK_RUNNING;
-+		pgd = pgd_offset(mm, addr);
-+		pmd = pmd_alloc(mm, pgd, addr);
-+		if (!pmd) {
-+			ret = -1;
-+			break;
-+		}
-+		pte = pte_alloc(mm, pmd, addr);
-+		if (!pte) {
-+			ret = -1;
-+			break;
-+		}
-+		entry = *pte;
-+		if (!pte_present(entry)) {
-+			/*
-+			 * If it truly wasn't present, we know that kswapd
-+			 * and the PTE updates will not touch it later. So
-+			 * drop the lock.
-+			 */
-+			if (pte_none(entry)) {
-+				ret = do_no_page(mm, vma, addr, write, pte);
-+				continue;
-+			}
-+			ret = do_swap_page(mm, vma, addr, pte,
-+				pte_to_swp_entry(entry), write);
-+			continue;
-+		}
-+
-+		modified = 0;
-+		if (write) {
-+			if (!pte_write(entry)) {
-+				ret = do_wp_page(mm, vma, addr, pte, entry);
-+				continue;
-+			}
-+			if (!pte_dirty(entry)) {
-+			    entry = pte_mkdirty(entry);
-+			    modified = 1;
-+			}
-+		}
-+		if (!pte_young(entry)) {
-+			entry = pte_mkyoung(entry);
-+			modified = 1;
-+		}
-+		if (modified)
-+		    establish_pte(vma, addr, pte, entry);
-+	}
-+
-+	spin_unlock(&mm->page_table_lock);
-+	return ret;
-+}
+	init_timer(&timer);
+	timer->expires = expire;
+	timer->data = data;
+	timer->function = process_timeout;
+
+	add_timer(&timer);
+}
+
+
+You will have to define the "struct timer_list timer".  This should
+cause the function passed to be called after "timeout" jiffies (1/HZ,
+not to be confused with 10 ms).  If you want to stop the timer early do:
+
+	del_timer_sync(&timer);
+
+"data" was not used in you example, but process_timeout will be passed
+"data" when it is called.  This routine is called as part of the timer
+interrupt, so it must be fast and should not do schedule() calls.  It
+could queue a tasklet, however, to relax constraints a bit.
+
+George

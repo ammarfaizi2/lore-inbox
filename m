@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262074AbSI3Ojp>; Mon, 30 Sep 2002 10:39:45 -0400
+	id <S262810AbSI3PBd>; Mon, 30 Sep 2002 11:01:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262111AbSI3Ojp>; Mon, 30 Sep 2002 10:39:45 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:53245 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262074AbSI3Ojo>; Mon, 30 Sep 2002 10:39:44 -0400
-Subject: Re: [RFC] LSM changes for 2.5.38
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Valdis.Kletnieks@vt.edu
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com
-In-Reply-To: <200209301419.g8UEJI6E001699@turing-police.cc.vt.edu>
-References: <20020927003210.A2476@sgi.com>
-	<Pine.GSO.4.33.0209270743170.22771-100000@raven>
-	<20020927175510.B32207@infradead.org>
-	<200209271809.g8RI92e6002126@turing-police.cc.vt.edu>
-	<20020927191943.A2204@infradead.org>
-	<200209271854.g8RIsPe6002510@turing-police.cc.vt.edu>
-	<20020927195919.A4635@infradead.org> 
-	<200209301419.g8UEJI6E001699@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 30 Sep 2002 15:51:11 +0100
-Message-Id: <1033397471.16947.7.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262812AbSI3PBd>; Mon, 30 Sep 2002 11:01:33 -0400
+Received: from landfill.ihatent.com ([217.13.24.22]:39400 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262810AbSI3PBc>;
+	Mon, 30 Sep 2002 11:01:32 -0400
+To: linux-kernel@vger.kernel.org
+Subject: CPU/cache detection wrong
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 28 Sep 2002 14:29:31 +0200
+Message-ID: <m3hegaxpp0.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-09-30 at 15:19, Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 27 Sep 2002 19:59:19 BST, Christoph Hellwig said:
-> 
-> > insmod doesn't require modules to be in /lib/modules.
-> 
-> This would probably be closed by this code in sys_create_module():
-> 
->         /* check that we have permission to do this */
->         error = security_ops->module_ops->create_module(name, size);
->         if (error)
->                 goto err1;
+Accroding to my kernel, this is what i got:
 
-This is part of the problem as ever. The name that is used is
-meaningless. The module loader needs to make meaningful decisions. That
-really means it needs to be able to see the actual loaded module. If we
-go to Rusty's kernel module loader then we can fix this because we can
-pass the actual module code/data block and sizes to the LSM. At that
-point the LSM can do meaningful things like GPG.
+CPU: Before vendor init, caps: 3febf9ff 00000000 00000000, vendor = 0
+CPU: L1 I cache: 0K, L1 D cache: 8K
+CPU: L2 cache: 512K
+CPU: After vendor init, caps: 3febf9ff 00000000 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU:     After generic, caps: 3febf9ff 00000000 00000000 00000000
+CPU:             Common caps: 3febf9ff 00000000 00000000 00000000
+CPU: Intel(R) Pentium(R) 4 Mobile CPU 1.70GHz stepping 04
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
 
-In the current form you can say that module creation can only be done by
-the right kind of user, and the program "insmod", but even in this case
-the module name fed to the LSM seems worthless
+The machine is a Comapq Evo n800c with a 1.7GHz P4-M in it, and
+according to the BIOS I've got 16kb/512Kb L1/L2-cache. Accroding to
+the 2.4.20-pre7-ac3-kernel. It's been like this at least since
+2.4.19-pre4 or so.
 
-
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

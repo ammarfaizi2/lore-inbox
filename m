@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbTIZUxe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 16:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbTIZUxe
+	id S261556AbTIZUqj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 16:46:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbTIZUqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 16:53:34 -0400
-Received: from h-64-236-243-31.twi.com ([64.236.243.31]:42083 "EHLO
-	wbsmtphost.wb-mail.com") by vger.kernel.org with ESMTP
-	id S261559AbTIZUxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 16:53:33 -0400
-Subject: Prefered method to map PCI memory into userspace.
-From: Jim Deas <jdeas@jadsystems.com>
-Reply-To: jdeas@jadsystems.com
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: JAD Systems
-Message-Id: <1064609623.16160.11.camel@ArchiveLinux>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 26 Sep 2003 13:53:43 -0700
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Sep 2003 16:46:38 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:45003 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S261556AbTIZUqh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 16:46:37 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Jan Rychter <jan@rychter.com>
+Date: Fri, 26 Sep 2003 22:46:12 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: vmware in Linux 2.6
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <155339E1124@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am looking for the most current (blessed) structure
-for mapping PCI memory to a user process. One that allows
-both PIO and busmastering to work on a common block of
-PCI RAM. I am not concerned with backporting to older
-kernels but it would be nice if the solution wasn't ibm specific.
+On 26 Sep 03 at 12:56, Jan Rychter wrote:
+> >>>>> "Petr" == Petr Vandrovec <VANDROVE@vc.cvut.cz>:
+>  Petr> On 26 Sep 03 at 12:50, Mons Rullgord wrote:
+>  >> "Petr Vandrovec" <VANDROVE@vc.cvut.cz> writes:
+>  >>
+>  > Is it possible to use vmware with Linux 2.6?  The kernel modules
+>  > (obviously) fail to compile.
+> 
+> [...]
+> 
+>  Petr> And except that this patch makes thing compilable, it also makes
+>  Petr> driver a bit friendlier to the MM subsystem, it allows you to use
+>  Petr> VMware on 4G/4G host, and it properly handles bridged networking
+>  Petr> on adapters using hardware (or pseudohardware...) Tx checksumming
+>  Petr> (although only for IPv4 due to features of dev_queue_xmit_nit).
+> 
+> Does VMware roll these changes back in? This isn't cheap software, I
+> feel they should care for Linux users a bit more.
 
-My problem is a 64M window into a frame buffer that I would
-like to map into user space. I am more than willing to put
-forth the effort, I just want to make sure I'm heading in
-the right direction.
+Yes. Currently VMware's & mine code is identical except that mine
+vmmon supports all released products since VMware 2.0.0 through VMware 
+express, GSX & so on up to the VMware 4.0.2, while VMware's code supports 
+only product it is shipped with. And you need C++ (for templates which are
+used for generating code for different product versions) with mine code,
+while you get one unwind template instance from VMware.
 
-Is there a better forum for posting this? Regards,
-J. Deas
+> For those who run VMware on notebooks with ACPI, another patch is
+> necessary, otherwise ACPI C-states handling doesn't notice VMware and as
+> a result the guest system is unbearably slow.
 
-RH9.0 2.4.20-6smp kernel and above.
+If this patch is for vmmon, can you share it with VMware (or with me
+and I'll then share it with VMware) ? I cannot explain why ACPI does 
+not notice that kernel is spending about 99% of time in the kernel, 
+being very busy with hard work...
 
-
--- 
-Jim Deas <jdeas@jadsystems.com>
-JAD Systems
+                                            Thanks,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                
 

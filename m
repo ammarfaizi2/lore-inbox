@@ -1,62 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129340AbQKDRms>; Sat, 4 Nov 2000 12:42:48 -0500
+	id <S129261AbQKDRo6>; Sat, 4 Nov 2000 12:44:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129357AbQKDRmi>; Sat, 4 Nov 2000 12:42:38 -0500
-Received: from msheas02.msh.de ([212.4.227.2]:44936 "EHLO msheas02.msh.de")
-	by vger.kernel.org with ESMTP id <S129340AbQKDRmc>;
-	Sat, 4 Nov 2000 12:42:32 -0500
-From: Klaus Dittrich <kladi@z.zgs.de>
-Message-Id: <200011041741.SAA10204@df1tlb.local.here>
-Subject: 2.4.0-test10 does not boot
+	id <S129095AbQKDRos>; Sat, 4 Nov 2000 12:44:48 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:42511 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S129057AbQKDRol>; Sat, 4 Nov 2000 12:44:41 -0500
+Date: 04 Nov 2000 13:30:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Date: Sat, 4 Nov 2000 18:41:59 +0100 (MET)
-Phone: 049-7151-987709
-Fax: 049-7151-987709
-X-Mailer: ELM [version 2.5 PL3]
+Message-ID: <7pChtmSXw-B@khms.westfalen.de>
+In-Reply-To: <200011022106.WAA18428@ns.caldera.de>
+Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
+X-Mailer: CrossPoint v3.12d.kh5 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <3A01D463.9ADEF3AF@Rikers.org> <200011022106.WAA18428@ns.caldera.de>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.] Kernel 2.4.0-test10 does not boot
-[2.] I installed  2.4.0-test10 in the same manner and on the same disk
-I did with 2.4.0-test8 which boots an runs.
-I use an ASUS-P2B-DS with 2xPII-350 and BIOS 1013BETA005.
-After rebooting the last message is "Uncompressing the kernel .." and
-then the system hangs. 
-I have read that using dma by default made trouble so I made a new 
-kernel without this feature but with the same bad result.
+hch@caldera.de (Christoph Hellwig)  wrote on 02.11.00 in <200011022106.WAA18428@ns.caldera.de>:
 
-[3.] Kernel  2.4.0-test10
+> In article <3A01D463.9ADEF3AF@Rikers.org> you wrote:
+> > As is being discussed here, C99 has some replacements to the gcc syntax
+> > the kernel uses. I believe the C99 syntax will win in the near future,
+> > and thus the gcc syntax will have to be removed at some point. In the
+> > interim the kernel will either move towards supporting both, or a
+> > quantum jump to support the new gcc3+ compiler only. I am hoping a
+> > little thought can get put into this such that this change will be less
+> > painful down the road.
+>
+> BTW: the C99 syntax for named structure initializers is supported from
+> gcc 2.7.<something> on. But a policy decision has been take to use
+> gcc synta in kernel.
 
-[4.] from the running system ..
-Linux df1tlpc 2.4.0-test8 #3 SMP Wed Nov 1 17:51:26 MET 2000 i686 unknown
-Kernel modules         2.3.9
-Gnu C                  2.95.2
-Gnu Make               3.79.1
-Binutils               2.10.0.33
-Linux C Library        x   1 root     root      4065224 Oct 18 20:36 /lib/libc.so.6
-Dynamic linker         ldd (GNU libc) 2.1.3
-Procps                 2.0.6
-Mount                  2.10f
-Net-tools              1.54
-Kbd                    0.99
-Sh-utils               2.0
-Modules Loaded                                                     
+Just so everyone knows what we're talking about, some examples from C99:
 
-[5.] -
+33 EXAMPLE 9 Arrays can be initialized to correspond to the elements of an  
+enumeration by using designators:
 
-[6.] -
+enum { member_one, member_two };
+const char *nm[] = {
+        [member_two] = "member two",
+        [member_one] = "member one",
+};
 
-[7.] -
+34 EXAMPLE 10 Structure members can be initialized to nonzero values  
+without depending on their order:
 
--- 
-Best regards 
-Klaus Dittrich
+div_t answer = {
+        .quot = 2,
+        .rem = -1
+};
 
-e-mail: kladi@z.zgs.de
+35 EXAMPLE 11 Designators can be used to provide explicit initialization  
+when unadorned initializer lists might be misunderstood:
+
+struct { int a[3], b; }
+w[] = {
+        [0].a = {1},
+        [1].a[0] = 2
+};
+
+
+MfG Kai
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

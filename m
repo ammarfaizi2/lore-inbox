@@ -1,71 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261742AbRESKOe>; Sat, 19 May 2001 06:14:34 -0400
+	id <S261745AbRESKWN>; Sat, 19 May 2001 06:22:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261743AbRESKOY>; Sat, 19 May 2001 06:14:24 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:56158 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S261742AbRESKOI>; Sat, 19 May 2001 06:14:08 -0400
-Message-ID: <3B064690.2040803@kalifornia.com>
-Date: Sat, 19 May 2001 03:10:24 -0700
-From: Ben Ford <ben@kalifornia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; rv:0.9) Gecko/20010505
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: CML2 design philosophy heads-up
-In-Reply-To: <20010518034307.A10784@thyrsus.com> <E150fV9-0006q1-00@the-village.bc.nu> <20010518105353.A13684@thyrsus.com> <3B053B9B.23286E6C@redhat.com> <20010518112625.A14309@thyrsus.com> <20010518093414.A21164@qcc.sk.ca> <mailman.990252541.15890.linux-kernel2news@redhat.com> <200105190640.f4J6efG11140@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261746AbRESKWE>; Sat, 19 May 2001 06:22:04 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:21264 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S261745AbRESKVt>; Sat, 19 May 2001 06:21:49 -0400
+Date: Sat, 19 May 2001 12:21:47 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Johannes Erdfelt <johannes@erdfelt.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: To Pending Device Number Registrants
+Message-ID: <20010519122147.B31814@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010515145830.Y5599@sventech.com> <Pine.LNX.4.21.0105151208540.2339-100000@penguin.transmeta.com> <20010515154325.Z5599@sventech.com> <20010517102029.A44@toy.ucw.cz> <20010518133250.O32405@sventech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010518133250.O32405@sventech.com>; from johannes@erdfelt.com on Fri, May 18, 2001 at 01:32:51PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
+Hi!
 
->>[about Aunt Tullie]
->>Because, for example, a kernel compile can be a part of the standard 
->>install now, and you will end up with a kernel built specifically for 
->>your machine that doesn't print 50 initialization failed messages on boot.
->>[...]
->>And you can also now run a kernel built for your shiny new Athlon, not 
->>the old piece of shit that was hot stuff in '92.
->>
->
->It is way too easy to crush your example, by pointing out that
->Red Hat ships and automatically installs an Athlon-optimized kernel.
->
->However, the argument above is wrong even if Red Hat did not.
->We are talking about CML2 and interaction with Aunt Tullie.
->This has nothing to do with automated rebuild at install time.
->
->-- Pete
->
+> > > > But no, I don't actually like sockets all that much myself. They are hard
+> > > > to use from scripts, and many more people are familiar with open/close and
+> > > > read/write.
+> > > 
+> > > Agreed.
+> > > 
+> > > It would be nice to use open/close/read/write for control and bulk and
+> > > sockets for interrupt and isochronous.
+> > 
+> > What makes interrupt so different? Last time I checked int pipes were very
+> > similar to bulk pipes... Do you care about "packet boundaries"? You can
+> > somehow emulate with read, too...
+> 
+> We probably could. It would have interesting semantics however. We would
+> have to have an ioctl or something else to specify period, and if it's
+> one shot, etc.
 
-First off, the lady's name was Tillie ;)
+ioctl for specifying period seems okay to me, and I believe UDP
+sockets already have very similar semantics for read/write.
 
-Second, how many kernels does Redhat ship in order to have one for 
-386/486/586/k6/Athlon . . . .
-Quite a pain in the ass.  And look at how much shit has to be built in 
-in order to get a kernel that works for everybody!  People bitch at 
-Microsoft for doing it, then turn around and do the same thing.
+> We could probably shoehorn isochronous semantics onto read/write as
+> well, but I don't want to begin to think how ugly that'll be.
 
-And nobody said anything about an automated rebuild.
+What's the problem?
 
-I said a custom kernel build at install time.  I said nothing about 
-having it automated.  I wouldn't trust an automated build anyways, 
-especially if it came from Redhat.  With the philosophy ESR is aiming 
-at, it would be all to easy to ask the user if they'd like to build a 
-custom kernel, then present them with Eric's interface.  And that has 
-everything to do with interaction with good ole Aunt Tillie.
+> A completely ioctl solution would work better in that case since it's
+> cleaner. The only problem would be the fact it's called ioctl.
 
--b
-
+I do not think it is cleaner. Could AF_USB be used to get "clean"
+solution?
+								Pavel
 -- 
- "One trend that bothers me is the glorification of
-stupidity, that the media is reassuring people it's 
-alright not to know anything. That to me is far more 
-dangerous than a little pornography on the Internet." 
-  - Carl Sagan
-
-
-
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+

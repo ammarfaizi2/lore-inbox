@@ -1,40 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264701AbUD1JFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUD1JQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264701AbUD1JFy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 05:05:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264698AbUD1JFy
+	id S264704AbUD1JQO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 05:16:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264708AbUD1JQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 05:05:54 -0400
-Received: from hell.org.pl ([212.244.218.42]:47630 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S264703AbUD1JFf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 05:05:35 -0400
-Date: Wed, 28 Apr 2004 11:05:35 +0200
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: 234976@bugs.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: Bug#234976: kernel-source-2.6.4: Software Suspend doesn't work
-Message-ID: <20040428090535.GA20653@hell.org.pl>
-References: <1PcWn-1tE-11@gated-at.bofh.it> <1Pf8I-3qP-31@gated-at.bofh.it> <1PuTf-7ZO-7@gated-at.bofh.it> <1Py1q-1ZH-23@gated-at.bofh.it> <1Py1y-1ZH-43@gated-at.bofh.it> <1PAlX-3Vx-1@gated-at.bofh.it> <20040427233009.GA24051@hell.org.pl> <20040427233341.GA6592@elf.ucw.cz> <20040427234653.GA23804@hell.org.pl> <20040428005627.GA20405@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <20040428005627.GA20405@elf.ucw.cz>
-User-Agent: Mutt/1.4.2i
+	Wed, 28 Apr 2004 05:16:14 -0400
+Received: from mail.native-instruments.de ([217.9.41.138]:47266 "EHLO
+	mail.native-instruments.de") by vger.kernel.org with ESMTP
+	id S264704AbUD1JQM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 05:16:12 -0400
+Message-ID: <015701c42d01$70886260$9602010a@jingle>
+From: "Florian Schirmer" <jolt@tuxbox.org>
+To: "Linus Torvalds" <torvalds@osdl.org>, <armin@melware.de>
+Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       <i4ldeveloper@listserv.isdn4linux.de>
+References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org>
+Subject: Re: Linux 2.6.6-rc3
+Date: Wed, 28 Apr 2004 11:16:07 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Pavel Machek:
-> > Right, you didn't receive that. Yes, plain swsusp1 passes that stage but
-> > hangs or reboots during copying (or a little bit after) and with Herbert 
-> > Xu's patch I can suspend and resume with glxgears running.
-> Ouch, you are using old version of patch, that puts swsusp_pg_dir at
-> non-page-aligned address => crash. Can you try newer one? [I'm fwd-ing
-> it to you in private mail].
+Hi,
 
-Yes, the updated patch also fixes this bug.
-Best regards,
+> Armin Schindler:
+>   o ISDN CAPI: add ncci list semaphore
 
--- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+This looks broken for !CONFIG_ISDN_CAPI_MIDDLEWARE configs. Note the up()
+inside the #ifdef.
+
+@@ -904,13 +917,17 @@
+ 			if (copy_from_user((void *)&ncci, (void *)arg,
+ 					   sizeof(ncci)))
+ 				return -EFAULT;
+-			nccip = capincci_find(cdev, (u32) ncci);
+-			if (!nccip)
++
++			down(&cdev->ncci_list_sem);
++			if ((nccip = capincci_find(cdev, (u32) ncci)) == 0) {
++				up(&cdev->ncci_list_sem);
+ 				return 0;
++			}
+ #ifdef CONFIG_ISDN_CAPI_MIDDLEWARE
+ 			if ((mp = nccip->minorp) != 0) {
+ 				count += atomic_read(&mp->ttyopencount);
+ 			}
++			up(&cdev->ncci_list_sem);
+ #endif /* CONFIG_ISDN_CAPI_MIDDLEWARE */
+ 			return count;
+ 		}
+
+
+Regards,
+   Florian
+

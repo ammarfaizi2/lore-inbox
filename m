@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbVAXXXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVAXXYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261722AbVAXXXw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 18:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVAXXXq
+	id S261672AbVAXXYq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 18:24:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVAXXYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 18:23:46 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6593 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261689AbVAXXTD convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 18:19:03 -0500
-Date: Mon, 24 Jan 2005 17:32:30 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
-Cc: Andres Salomon <dilinger@voxel.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-as1 / 2.4 security-only patchset?
-Message-ID: <20050124193230.GB15501@logos.cnet>
-References: <1105605448.7316.13.camel@localhost> <20050124171011.GW16286@edu.joroinen.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20050124171011.GW16286@edu.joroinen.fi>
-User-Agent: Mutt/1.5.5.1i
+	Mon, 24 Jan 2005 18:24:00 -0500
+Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:45121 "EHLO
+	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S261672AbVAXXSV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 18:18:21 -0500
+Date: Tue, 25 Jan 2005 00:18:18 +0100 (CET)
+From: Lukasz Trabinski <lukasz@oceanic.wsisiz.edu.pl>
+To: chas3@users.sourceforge.net
+Cc: Mike Westall <westall@cs.clemson.edu>,
+       linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Bartlomiej Solarz <solarz@wsisiz.edu.pl>
+Subject: Re: [Linux-ATM-General] Kernel 2.6.10 and 2.4.29 Oops fore200e (fwd)
+In-Reply-To: <200501242238.j0OMcru4017742@ginger.cmf.nrl.navy.mil>
+Message-ID: <Pine.LNX.4.61L.0501250009240.9051@oceanic.wsisiz.edu.pl>
+References: <200501242238.j0OMcru4017742@ginger.cmf.nrl.navy.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 07:10:11PM +0200, Pasi Kärkkäinen wrote:
-> On Thu, Jan 13, 2005 at 03:37:28AM -0500, Andres Salomon wrote:
-> > Hi,
-> > 
-> > I'm announcing a new kernel tree; -as.  The goal of this tree is to form
-> > a stable base for vendors/distributors to use for their kernels.  In
-> > order to do this, I intend to include only security fixes and obvious
-> > bugfixes, from various sources.  I do not intend to include driver
-> > updates, large subsystem fixes, cleanups, and so on.  Basically, this is
-> > what I'd want 2.6.10.1 to contain.
-> > 
-> 
-> Hi!
-> 
-> This is good!
-> 
-> Is anybody doing the same for 2.4 kernel series? Only security-fixes for vanilla
-> 2.4 kernels.. that would be nice too. 
+On Mon, 24 Jan 2005, chas williams - CONTRACTOR wrote:
 
-Nope, nobody has done that for v2.4 kernels. 
+> the author sent me the latest version of the driver and i
+> got it applied.  the driver does has some useful changes
+> along with this broken change.  i suggest udelay() since
+> it preserves the author's original intent.
 
-Security fixes are included in v2.4-pre which is later shipped as v2.4.x final.
+Ok, i have just put udelay() function to the driver. If router will not 
+crash after 5-6 days, it mean that driver works fine. I will inform about
+it. Generally problems has stareted (frequently crashes) when we puted to 
+them more atm interfaces/VCs and router started forward more traffic and
+operated with two additional full bgp table.
 
-If someone is willing to maintain a list of the upcomming security updates I'm more than
-happy to cooperate.
-
-
+-- 
+£T

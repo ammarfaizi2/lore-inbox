@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbUCNQaF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 11:30:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbUCNQ2v
+	id S261202AbUCNQ2g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 11:28:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbUCNQ2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 11:28:51 -0500
-Received: from p062096.ppp.asahi-net.or.jp ([221.113.62.96]:61163 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S261376AbUCNQ2W
+	Sun, 14 Mar 2004 11:28:36 -0500
+Received: from p062096.ppp.asahi-net.or.jp ([221.113.62.96]:59627 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S261202AbUCNQ2E
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 11:28:22 -0500
-Date: Mon, 15 Mar 2004 01:28:20 +0900
-Message-ID: <m2brmz1jh7.wl%ysato@users.sourceforge.jp>
+	Sun, 14 Mar 2004 11:28:04 -0500
+Date: Mon, 15 Mar 2004 01:28:00 +0900
+Message-ID: <m2ekrv1jhr.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] H8/300 support update (3/4) - fix waring
+Subject: [PATCH] H8/300 support update (1/4) - Interrupt handling cleanup
 User-Agent: Wanderlust/2.11.23 (Wonderwall) SEMI/1.14.6 (Maruoka)
  LIMIT/1.14.7 (Fujiidera) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,127 +23,823 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- fix gcc-3.4.0 warnings
+- merge common routine
+- runtime vector setup update
 
 -- 
 Yoshinori Sato
 <ysato@users.sourceforge.jp>
 
-diff -Nru -X .exclude-diff linux-2.6.4/arch/h8300/kernel/setup.c linux-2.6.4-h8300/arch/h8300/kernel/setup.c
---- linux-2.6.4/arch/h8300/kernel/setup.c	2004-01-09 15:59:09.000000000 +0900
-+++ linux-2.6.4-h8300/arch/h8300/kernel/setup.c	2004-03-03 17:30:20.000000000 +0900
-@@ -135,7 +135,7 @@
- 	init_mm.brk = (unsigned long) 0; 
+diff -Nru -X .exclude-diff linux-2.6.4/arch/h8300/kernel/Makefile linux-2.6.4-h8300/arch/h8300/kernel/Makefile
+--- linux-2.6.4/arch/h8300/kernel/Makefile	2004-01-09 15:59:44.000000000 +0900
++++ linux-2.6.4-h8300/arch/h8300/kernel/Makefile	2004-03-03 21:11:04.000000000 +0900
+@@ -4,7 +4,7 @@
  
- #if (defined(CONFIG_H8300H_SIM) || defined(CONFIG_H8S_SIM)) && defined(CONFIG_GDB_MAGICPRINT)
--	register_console(&gdb_console);
-+	register_console((struct console *)&gdb_console);
+ extra-y := vmlinux.lds.s
+ 
+-obj-y := process.o traps.o ptrace.o \
++obj-y := process.o traps.o ptrace.o ints.o \
+ 	 sys_h8300.o time.o semaphore.o signal.o \
+          setup.o h8300_ksyms.o gpio.o init_task.o \
+          syscalls.o
+diff -Nru -X .exclude-diff linux-2.6.4/arch/h8300/kernel/ints.c linux-2.6.4-h8300/arch/h8300/kernel/ints.c
+--- linux-2.6.4/arch/h8300/kernel/ints.c	1970-01-01 09:00:00.000000000 +0900
++++ linux-2.6.4-h8300/arch/h8300/kernel/ints.c	2004-03-15 01:20:29.000000000 +0900
+@@ -0,0 +1,248 @@
++/*
++ * linux/arch/h8300/platform/h8300h/ints.c
++ *
++ * Yoshinori Sato <ysato@users.sourceforge.jp>
++ *
++ * Based on linux/arch/$(ARCH)/platform/$(PLATFORM)/ints.c
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file COPYING in the main directory of this archive
++ * for more details.
++ *
++ * Copyright 1996 Roman Zippel
++ * Copyright 1999 D. Jeff Dionne <jeff@rt-control.com>
++ */
++
++#include <linux/module.h>
++#include <linux/types.h>
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <linux/kernel_stat.h>
++#include <linux/seq_file.h>
++#include <linux/init.h>
++#include <linux/random.h>
++#include <linux/bootmem.h>
++
++#include <asm/system.h>
++#include <asm/irq.h>
++#include <asm/traps.h>
++#include <asm/io.h>
++#include <asm/setup.h>
++#include <asm/hardirq.h>
++#include <asm/errno.h>
++
++/*
++ * This structure has only 4 elements for speed reasons
++ */
++typedef struct irq_handler {
++	irqreturn_t (*handler)(int, void *, struct pt_regs *);
++	int         flags;
++	int         count;
++	void	    *dev_id;
++	const char  *devname;
++} irq_handler_t;
++
++static irq_handler_t *irq_list[NR_IRQS];
++static int use_kmalloc;
++
++extern unsigned long *interrupt_redirect_table;
++extern const int h8300_saved_vectors[];
++extern const unsigned long h8300_trap_table[];
++int h8300_enable_irq_pin(unsigned int irq);
++void h8300_disable_irq_pin(unsigned int irq);
++
++#define CPU_VECTOR ((unsigned long *)0x000000)
++#define ADDR_MASK (0xffffff)
++
++#if defined(CONFIG_RAMKERNEL)
++static unsigned long __init *get_vector_address(void)
++{
++	unsigned long *rom_vector = CPU_VECTOR;
++	unsigned long base,tmp;
++	int vec_no;
++
++	base = rom_vector[EXT_IRQ0] & ADDR_MASK;
++	
++	/* check romvector format */
++	for (vec_no = EXT_IRQ1; vec_no <= EXT_IRQ0+EXT_IRQS; vec_no++) {
++		if ((base+(vec_no - EXT_IRQ0)*4) != (rom_vector[vec_no] & ADDR_MASK))
++			return NULL;
++	}
++
++	/* ramvector base address */
++	base -= EXT_IRQ0*4;
++
++	/* writerble check */
++	tmp = ~(*(volatile unsigned long *)base);
++	(*(volatile unsigned long *)base) = tmp;
++	if ((*(volatile unsigned long *)base) != tmp)
++		return NULL;
++	return (unsigned long *)base;
++}
++#endif
++
++void __init init_IRQ(void)
++{
++#if defined(CONFIG_RAMKERNEL)
++	int i;
++	unsigned long *ramvec,*ramvec_p;
++	const unsigned long *trap_entry;
++	const int *saved_vector;
++
++	ramvec = get_vector_address();
++	if (ramvec == NULL)
++		panic("interrupt vector serup failed.");
++	else
++		printk("virtual vector at 0x%08lx\n",(unsigned long)ramvec);
++
++	/* create redirect table */
++	ramvec_p = ramvec;
++	trap_entry = h8300_trap_table;
++	saved_vector = h8300_saved_vectors;
++	for ( i = 0; i < NR_IRQS; i++) {
++		if (i == *saved_vector) {
++			ramvec_p++;
++			saved_vector++;
++		} else {
++			if ( i < NR_TRAPS ) {
++				if (*trap_entry)
++					*ramvec_p = VECTOR(*trap_entry);
++				ramvec_p++;
++				trap_entry++;
++			} else
++				*ramvec_p++ = REDIRECT(interrupt_entry);
++		}
++	}
++	interrupt_redirect_table = ramvec;
++#ifdef DUMP_VECTOR
++	ramvec_p = ramvec;
++	for (i = 0; i < NR_IRQS; i++) {
++		if ((i % 8) == 0)
++			printk("\n%p: ",ramvec_p);
++		printk("%p ",*ramvec_p);
++		ramvec_p++;
++	}
++	printk("\n");
++#endif
++#endif
++}
++
++int request_irq(unsigned int irq, 
++		irqreturn_t (*handler)(int, void *, struct pt_regs *),
++                unsigned long flags, const char *devname, void *dev_id)
++{
++	irq_handler_t *irq_handle;
++	if (irq < 0 || irq >= NR_IRQS) {
++		printk("Incorrect IRQ %d from %s\n", irq, devname);
++		return -EINVAL;
++	}
++	if (irq_list[irq] || (h8300_enable_irq_pin(irq) == -EBUSY))
++		return -EBUSY;
++
++	if (use_kmalloc)
++		irq_handle = (irq_handler_t *)kmalloc(sizeof(irq_handler_t), GFP_ATOMIC);
++	else {
++		/* use bootmem allocater */
++		irq_handle = (irq_handler_t *)alloc_bootmem(sizeof(irq_handler_t));
++		irq_handle = (irq_handler_t *)((unsigned long)irq_handle | 0x80000000);
++	}
++
++	if (irq_handle == NULL)
++		return -ENOMEM;
++
++	irq_handle->handler = handler;
++	irq_handle->flags   = flags;
++	irq_handle->count   = 0;
++	irq_handle->dev_id  = dev_id;
++	irq_handle->devname = devname;
++	irq_list[irq] = irq_handle;
++	return 0;
++}
++
++EXPORT_SYMBOL(request_irq);
++
++void free_irq(unsigned int irq, void *dev_id)
++{
++	if (irq >= NR_IRQS) {
++		return;
++	}
++	if (!irq_list[irq] || irq_list[irq]->dev_id != dev_id)
++		printk("Removing probably wrong IRQ %d from %s\n",
++		       irq, irq_list[irq]->devname);
++	h8300_disable_irq_pin(irq);
++	if (((unsigned long)irq_list[irq] & 0x80000000) == 0) {
++		kfree(irq_list[irq]);
++		irq_list[irq] = NULL;
++	}
++}
++
++EXPORT_SYMBOL(free_irq);
++
++/*
++ * Do we need these probe functions on the m68k?
++ */
++unsigned long probe_irq_on (void)
++{
++	return 0;
++}
++
++EXPORT_SYMBOL(probe_irq_on);
++
++int probe_irq_off (unsigned long irqs)
++{
++	return 0;
++}
++
++EXPORT_SYMBOL(probe_irq_off);
++
++void enable_irq(unsigned int irq)
++{
++	if (irq >= EXT_IRQ0 && irq <= (EXT_IRQ0 + EXT_IRQS))
++		IER_REGS |= 1 << (irq - EXT_IRQ0);
++}
++
++void disable_irq(unsigned int irq)
++{
++	if (irq >= EXT_IRQ0 && irq <= (EXT_IRQ0 + EXT_IRQS))
++		IER_REGS &= ~(1 << (irq - EXT_IRQ0));
++}
++
++asmlinkage void process_int(int irq, struct pt_regs *fp)
++{
++	irq_enter();
++	h8300_clear_isr(irq);
++	if (irq >= NR_TRAPS && irq < NR_IRQS) {
++		if (irq_list[irq]) {
++			irq_list[irq]->handler(irq, irq_list[irq]->dev_id, fp);
++			irq_list[irq]->count++;
++			if (irq_list[irq]->flags & SA_SAMPLE_RANDOM)
++				add_interrupt_randomness(irq);
++		}
++	} else {
++		BUG();
++	}
++	irq_exit();
++}
++
++int show_interrupts(struct seq_file *p, void *v)
++{
++	int i = *(loff_t *) v;
++
++	if ((i < NR_IRQS) && (irq_list[i]!=NULL)) {
++		seq_printf(p, "%3d: %10u ",i,irq_list[i]->count);
++		seq_printf(p, "%s\n", irq_list[i]->devname);
++	}
++
++	return 0;
++}
++
++void init_irq_proc(void)
++{
++}
++
++static int __init enable_kmalloc(void)
++{
++	use_kmalloc = 1;
++	return 0;
++}
++core_initcall(enable_kmalloc);
+--- linux-2.6.4/arch/h8300/platform/h8300h/Makefile	2004-03-14 18:17:37.000000000 +0900
++++ linux-2.6.4-h8300/arch/h8300/platform/h8300h/Makefile	2004-03-15 00:26:38.000000000 +0900
+@@ -4,15 +4,5 @@
+ # Reuse any files we can from the H8/300H
+ #
+ 
+-#VPATH := $(VPATH):$(BOARD)
++obj-y := entry.o ints_h8300h.o
+ 
+-.S.o:
+-	$(CC) -D__ASSEMBLY__ $(AFLAGS) -I. -c $< -o $*.o
+-
+-obj-y := entry.o ints.o
+-
+-$(BOARD)/crt0_$(MODEL).o: $(BOARD)/crt0_$(MODEL).S
+-
+-entry.o: entry.S
+-
+-ints.o: ints.c
+diff -Nru -X .exclude-diff linux-2.6.4/arch/h8300/platform/h8300h/ints.c linux-2.6.4-h8300/arch/h8300/platform/h8300h/ints.c
+--- linux-2.6.4/arch/h8300/platform/h8300h/ints.c	2004-02-20 01:08:00.000000000 +0900
++++ linux-2.6.4-h8300/arch/h8300/platform/h8300h/ints.c	1970-01-01 09:00:00.000000000 +0900
+@@ -1,251 +0,0 @@
+-/*
+- * linux/arch/h8300/platform/h8300h/ints.c
+- *
+- * Yoshinori Sato <ysato@users.sourceforge.jp>
+- *
+- * Based on linux/arch/$(ARCH)/platform/$(PLATFORM)/ints.c
+- *
+- * This file is subject to the terms and conditions of the GNU General Public
+- * License.  See the file COPYING in the main directory of this archive
+- * for more details.
+- *
+- * Copyright 1996 Roman Zippel
+- * Copyright 1999 D. Jeff Dionne <jeff@rt-control.com>
+- */
+-
+-#include <linux/module.h>
+-#include <linux/types.h>
+-#include <linux/kernel.h>
+-#include <linux/sched.h>
+-#include <linux/kernel_stat.h>
+-#include <linux/seq_file.h>
+-#include <linux/init.h>
+-#include <linux/random.h>
+-#include <linux/bootmem.h>
+-
+-#include <asm/system.h>
+-#include <asm/irq.h>
+-#include <asm/traps.h>
+-#include <asm/io.h>
+-#include <asm/setup.h>
+-#include <asm/gpio.h>
+-#include <asm/hardirq.h>
+-#include <asm/regs306x.h>
+-#include <asm/errno.h>
+-
+-/*
+- * This structure has only 4 elements for speed reasons
+- */
+-typedef struct irq_handler {
+-	irqreturn_t (*handler)(int, void *, struct pt_regs *);
+-	int         flags;
+-	int         count;
+-	void	    *dev_id;
+-	const char  *devname;
+-} irq_handler_t;
+-
+-static irq_handler_t *irq_list[NR_IRQS];
+-static int use_kmalloc;
+-
+-extern unsigned long *interrupt_redirect_table;
+-
+-#define CPU_VECTOR ((unsigned long *)0x000000)
+-#define ADDR_MASK (0xffffff)
+-
+-static inline unsigned long *get_vector_address(void)
+-{
+-	unsigned long *rom_vector = CPU_VECTOR;
+-	unsigned long base,tmp;
+-	int vec_no;
+-
+-	base = rom_vector[EXT_IRQ0] & ADDR_MASK;
+-	
+-	/* check romvector format */
+-	for (vec_no = EXT_IRQ1; vec_no <= EXT_IRQ5; vec_no++) {
+-		if ((base+(vec_no - EXT_IRQ0)*4) != (rom_vector[vec_no] & ADDR_MASK))
+-			return NULL;
+-	}
+-
+-	/* ramvector base address */
+-	base -= EXT_IRQ0*4;
+-
+-	/* writerble check */
+-	tmp = ~(*(volatile unsigned long *)base);
+-	(*(volatile unsigned long *)base) = tmp;
+-	if ((*(volatile unsigned long *)base) != tmp)
+-		return NULL;
+-	return (unsigned long *)base;
+-}
+-
+-void __init init_IRQ(void)
+-{
+-#if defined(CONFIG_RAMKERNEL)
+-	int i;
+-	unsigned long *ramvec,*ramvec_p;
+-	unsigned long break_vec;
+-
+-#if defined(CONFIG_GDB_DEBUG)
+-	break_vec = ramvec[TRAP3_VEC];
+-#else
+-	break_vec = VECTOR(trace_break);
+-#endif
+-
+-	ramvec = get_vector_address();
+-	if (ramvec == NULL)
+-		panic("interrupt vector serup failed.");
+-	else
+-		printk("virtual vector at 0x%08lx\n",(unsigned long)ramvec);
+-
+-	for (ramvec_p = ramvec, i = 0; i < NR_IRQS; i++)
+-		*ramvec_p++ = REDIRECT(interrupt_entry);
+-
+-	ramvec[TRAP0_VEC] = VECTOR(system_call);
+-	ramvec[TRAP3_VEC] = break_vec;
+-	interrupt_redirect_table = ramvec;
+-#ifdef DUMP_VECTOR
+-	ramvec_p = interrupt_redirect_table;
+-	for (i = 0; i < NR_IRQS; i++) {
+-		if ((i % 8) == 0)
+-			printk("\n%p: ",ramvec_p);
+-		printk("%p ",*ramvec_p);
+-		ramvec_p++;
+-	}
+-	printk("\n");
+-#endif
+-#endif
+-}
+-
+-int request_irq(unsigned int irq, 
+-		irqreturn_t (*handler)(int, void *, struct pt_regs *),
+-                unsigned long flags, const char *devname, void *dev_id)
+-{
+-	irq_handler_t *irq_handle;
+-	if (irq < 0 || irq >= NR_IRQS) {
+-		printk("Incorrect IRQ %d from %s\n", irq, devname);
+-		return -EINVAL;
+-	}
+-	if (irq_list[irq])
+-		return -EBUSY;
+-	if (irq >= EXT_IRQ0 && irq <= EXT_IRQ3) {
+-		if (H8300_GPIO_RESERVE(H8300_GPIO_P8, 1 << (irq - EXT_IRQ0)) == 0)
+-			return -EBUSY;
+-		H8300_GPIO_DDR(H8300_GPIO_P8, (irq - EXT_IRQ0), 0);
+-	}
+-	if (irq >= EXT_IRQ4 && irq <= EXT_IRQ5) {
+-		if (H8300_GPIO_RESERVE(H8300_GPIO_P9, 1 << (irq - EXT_IRQ0)) == 0)
+-			return -EBUSY;
+-		H8300_GPIO_DDR(H8300_GPIO_P9, (irq - EXT_IRQ0), 0);
+-	}
+-
+-	if (use_kmalloc)
+-		irq_handle = (irq_handler_t *)kmalloc(sizeof(irq_handler_t), GFP_ATOMIC);
+-	else {
+-		/* use bootmem allocater */
+-		irq_handle = (irq_handler_t *)alloc_bootmem(sizeof(irq_handler_t));
+-		irq_handle = (irq_handler_t *)((unsigned long)irq_handle | 0x80000000);
+-	}
+-
+-	if (irq_handle == NULL)
+-		return -ENOMEM;
+-
+-	irq_handle->handler = handler;
+-	irq_handle->flags   = flags;
+-	irq_handle->count   = 0;
+-	irq_handle->dev_id  = dev_id;
+-	irq_handle->devname = devname;
+-	irq_list[irq] = irq_handle;
+-	return 0;
+-}
+-
+-EXPORT_SYMBOL(request_irq);
+-
+-void free_irq(unsigned int irq, void *dev_id)
+-{
+-	if (irq >= NR_IRQS) {
+-		return;
+-	}
+-	if (!irq_list[irq] || irq_list[irq]->dev_id != dev_id)
+-		printk("Removing probably wrong IRQ %d from %s\n",
+-		       irq, irq_list[irq]->devname);
+-	if (irq >= EXT_IRQ0 && irq <= EXT_IRQ5)
+-		*(volatile unsigned char *)IER &= ~(1 << (irq - EXT_IRQ0));
+-	if (((unsigned long)irq_list[irq] & 0x80000000) == 0) {
+-		kfree(irq_list[irq]);
+-		irq_list[irq] = NULL;
+-	}
+-}
+-
+-EXPORT_SYMBOL(free_irq);
+-
+-/*
+- * Do we need these probe functions on the m68k?
+- */
+-unsigned long probe_irq_on (void)
+-{
+-	return 0;
+-}
+-
+-EXPORT_SYMBOL(probe_irq_on);
+-
+-int probe_irq_off (unsigned long irqs)
+-{
+-	return 0;
+-}
+-
+-EXPORT_SYMBOL(probe_irq_off);
+-
+-void enable_irq(unsigned int irq)
+-{
+-	if (irq >= EXT_IRQ0 && irq <= EXT_IRQ5) {
+-		*(volatile unsigned char *)IER |= (1 << (irq - EXT_IRQ0));
+-		*(volatile unsigned char *)ISR &= ~(1 << (irq - EXT_IRQ0));
+-	}
+-}
+-
+-void disable_irq(unsigned int irq)
+-{
+-	if (irq >= EXT_IRQ0 && irq <= EXT_IRQ5) {
+-		*(volatile unsigned char *)IER &= ~(1 << (irq - EXT_IRQ0));
+-	}
+-}
+-
+-asmlinkage void process_int(int vec, struct pt_regs *fp)
+-{
+-	irq_enter();
+-	if (vec >= EXT_IRQ0 && vec <= EXT_IRQ5)
+-		*(volatile unsigned char *)ISR &= ~(1 << (vec - EXT_IRQ0));
+-	if (vec < NR_IRQS) {
+-		if (irq_list[vec]) {
+-			irq_list[vec]->handler(vec, irq_list[vec]->dev_id, fp);
+-			irq_list[vec]->count++;
+-			if (irq_list[vec]->flags & SA_SAMPLE_RANDOM)
+-				add_interrupt_randomness(vec);
+-		}
+-	} else {
+-		BUG();
+-	}
+-	irq_exit();
+-}
+-
+-int show_interrupts(struct seq_file *p, void *v)
+-{
+-	int i = *(loff_t *) v;
+-
+-	if ((i < NR_IRQS) && (irq_list[i]!=NULL)) {
+-		seq_printf(p, "%3d: %10u ",i,irq_list[i]->count);
+-		seq_printf(p, "%s\n", irq_list[i]->devname);
+-	}
+-
+-	return 0;
+-}
+-
+-void init_irq_proc(void)
+-{
+-}
+-
+-static int __init enable_kmalloc(void)
+-{
+-	use_kmalloc = 1;
+-	return 0;
+-}
+-core_initcall(enable_kmalloc);
+diff -Nru -X .exclude-diff linux-2.6.4/arch/h8300/platform/h8300h/ints_h8300h.c linux-2.6.4-h8300/arch/h8300/platform/h8300h/ints_h8300h.c
+--- linux-2.6.4/arch/h8300/platform/h8300h/ints_h8300h.c	1970-01-01 09:00:00.000000000 +0900
++++ linux-2.6.4-h8300/arch/h8300/platform/h8300h/ints_h8300h.c	2004-03-03 21:11:04.000000000 +0900
+@@ -0,1 +1,87 @@
++/*
++ * linux/arch/h8300/platform/h8300h/ints_h8300h.c
++ * Interrupt handling CPU variants
++ *
++ * Yoshinori Sato <ysato@users.sourceforge.jp>
++ *
++ */
++
++#include <linux/config.h>
++#include <linux/init.h>
++#include <linux/errno.h>
++
++#include <asm/ptrace.h>
++#include <asm/traps.h>
++#include <asm/irq.h>
++#include <asm/io.h>
++#include <asm/gpio.h>
++#include <asm/regs306x.h>
++
++/* saved vector list */
++const int __initdata h8300_saved_vectors[]={
++#if defined(CONFIG_GDB_DEBUG)
++	TRAP3_VEC,
++#endif
++	-1
++};
++
++/* trap entry table */
++const unsigned long __initdata h8300_trap_table[NR_TRAPS]={
++	0,0,0,0,0,0,0,0,
++	(unsigned long)system_call,  /* TRAPA #0 */
++	0,0,
++	(unsigned long)trace_break,  /* TRAPA #3 */
++};
++
++int h8300_enable_irq_pin(unsigned int irq)
++{
++	int bitmask;
++	if (irq < EXT_IRQ0 || irq > EXT_IRQ5)
++		return 0;
++
++	/* initialize IRQ pin */
++	bitmask = 1 << (irq - EXT_IRQ0);
++	switch(irq) {
++	case EXT_IRQ0:
++	case EXT_IRQ1:
++	case EXT_IRQ2:
++	case EXT_IRQ3:
++		if (H8300_GPIO_RESERVE(H8300_GPIO_P8, bitmask) == 0)
++			return -EBUSY;
++		H8300_GPIO_DDR(H8300_GPIO_P8, bitmask, H8300_GPIO_INPUT);
++		break;
++	case EXT_IRQ4:
++	case EXT_IRQ5:
++		if (H8300_GPIO_RESERVE(H8300_GPIO_P9, bitmask) == 0)
++			return -EBUSY;
++		H8300_GPIO_DDR(H8300_GPIO_P9, bitmask, H8300_GPIO_INPUT);
++		break;
++	}
++
++	return 0;
++}
++
++void h8300_disable_irq_pin(unsigned int irq)
++{
++	int bitmask;
++	if (irq < EXT_IRQ0 || irq > EXT_IRQ5)
++		return;
++
++	/* disable interrupt & release IRQ pin */
++	bitmask = 1 << (irq - EXT_IRQ0);
++	switch(irq) {
++	case EXT_IRQ0:
++	case EXT_IRQ1:
++	case EXT_IRQ2:
++	case EXT_IRQ3:
++		*(volatile unsigned char *)IER &= ~bitmask;
++		H8300_GPIO_FREE(H8300_GPIO_P8, bitmask);
++		break ;
++	case EXT_IRQ4:
++	case EXT_IRQ5:
++		*(volatile unsigned char *)IER &= ~bitmask;
++		H8300_GPIO_FREE(H8300_GPIO_P9, bitmask);
++		break;
++	}
++}
+diff -Nru -X .exclude-diff linux-2.6.4/arch/h8300/platform/h8s/Makefile linux-2.6.4-h8300/arch/h8300/platform/h8s/Makefile
+--- linux-2.6.4/arch/h8300/platform/h8s/Makefile	2004-03-14 18:17:37.000000000 +0900
++++ linux-2.6.4-h8300/arch/h8300/platform/h8s/Makefile	2004-03-15 00:26:46.000000000 +0900
+@@ -4,16 +4,5 @@
+ # Reuse any files we can from the H8S
+ #
+ 
+-#VPATH := $(VPATH):$(BOARD)
+-
+-.S.o:
+-	$(CC) -D__ASSEMBLY__ $(AFLAGS) -I. -c $< -o $*.o
+-
+-obj-y := entry.o ints.o
+-
+-$(BOARD)/crt0_$(MODEL).o: $(BOARD)/crt0_$(MODEL).S
+-
+-entry.o: entry.S
+-
+-ints.o: ints.c
++obj-y := entry.o ints_h8s.o
+diff -Nru -X .exclude-diff linux-2.6.4/arch/h8300/platform/h8s/ints_h8s.c linux-2.6.4-h8300/arch/h8300/platform/h8s/ints_h8s.c
+--- linux-2.6.4/arch/h8300/platform/h8s/ints_h8s.c	1970-01-01 09:00:00.000000000 +0900
++++ linux-2.6.4-h8300/arch/h8300/platform/h8s/ints_h8s.c	2004-03-15 00:47:59.000000000 +0900
+@@ -0,0 +1,102 @@
++/*
++ * linux/arch/h8300/platform/h8s/ints_h8s.c
++ * Interrupt handling CPU variants
++ *
++ * Yoshinori Sato <ysato@users.sourceforge.jp>
++ *
++ */
++
++#include <linux/config.h>
++#include <linux/init.h>
++#include <linux/errno.h>
++
++#include <asm/ptrace.h>
++#include <asm/traps.h>
++#include <asm/irq.h>
++#include <asm/io.h>
++#include <asm/gpio.h>
++#include <asm/regs267x.h>
++
++/* saved vector list */
++const int __initdata h8300_saved_vectors[]={
++#if defined(CONFIG_GDB_DEBUG)
++	TRACE_VEC,
++	TRAP3_VEC,
++#endif
++	-1
++};
++
++/* trap entry table */
++const unsigned long __initdata h8300_trap_table[NR_TRAPS]={
++	0,0,0,0,0,
++	(unsigned long)trace_break,  /* TRACE */
++	0,0,
++	(unsigned long)system_call,  /* TRAPA #0 */
++	0,0,0,0,0,0,0
++};
++
++/* IRQ pin assignment */
++struct irq_pins {
++	unsigned char port_no;
++	unsigned char bit_no;
++} __attribute__((aligned(1),packed));
++/* ISTR = 0 */
++const static struct irq_pins irq_assign_table0[16]={
++	{H8300_GPIO_P5,H8300_GPIO_B0},{H8300_GPIO_P5,H8300_GPIO_B1},
++	{H8300_GPIO_P5,H8300_GPIO_B2},{H8300_GPIO_P5,H8300_GPIO_B3},
++	{H8300_GPIO_P5,H8300_GPIO_B4},{H8300_GPIO_P5,H8300_GPIO_B5},
++	{H8300_GPIO_P5,H8300_GPIO_B6},{H8300_GPIO_P5,H8300_GPIO_B7},
++	{H8300_GPIO_P6,H8300_GPIO_B0},{H8300_GPIO_P6,H8300_GPIO_B1},
++	{H8300_GPIO_P6,H8300_GPIO_B2},{H8300_GPIO_P6,H8300_GPIO_B3},
++	{H8300_GPIO_P6,H8300_GPIO_B4},{H8300_GPIO_P6,H8300_GPIO_B5},
++	{H8300_GPIO_PF,H8300_GPIO_B1},{H8300_GPIO_PF,H8300_GPIO_B2},
++}; 
++/* ISTR = 1 */
++const static struct irq_pins irq_assign_table1[16]={
++	{H8300_GPIO_P8,H8300_GPIO_B0},{H8300_GPIO_P8,H8300_GPIO_B1},
++	{H8300_GPIO_P8,H8300_GPIO_B2},{H8300_GPIO_P8,H8300_GPIO_B3},
++	{H8300_GPIO_P8,H8300_GPIO_B4},{H8300_GPIO_P8,H8300_GPIO_B5},
++	{H8300_GPIO_PH,H8300_GPIO_B2},{H8300_GPIO_PH,H8300_GPIO_B3},
++	{H8300_GPIO_P2,H8300_GPIO_B0},{H8300_GPIO_P2,H8300_GPIO_B1},
++	{H8300_GPIO_P2,H8300_GPIO_B2},{H8300_GPIO_P2,H8300_GPIO_B3},
++	{H8300_GPIO_P2,H8300_GPIO_B4},{H8300_GPIO_P2,H8300_GPIO_B5},
++	{H8300_GPIO_P2,H8300_GPIO_B6},{H8300_GPIO_P2,H8300_GPIO_B7},
++};
++
++#define IRQ_GPIO_MAP(irqbit,port,bit)				  \
++do {								  \
++	if (*(volatile unsigned short *)ITSR & irqbit) {	  \
++		port = irq_assign_table1[irq - EXT_IRQ0].port_no; \
++		bit  = irq_assign_table1[irq - EXT_IRQ0].bit_no;  \
++	} else {						  \
++		port = irq_assign_table0[irq - EXT_IRQ0].port_no; \
++		bit  = irq_assign_table0[irq - EXT_IRQ0].bit_no;  \
++	}							  \
++} while(0)
++
++int h8300_enable_irq_pin(unsigned int irq)
++{
++	if (irq >= EXT_IRQ0 && irq <= EXT_IRQ15) {
++		unsigned short ptn = 1 << (irq - EXT_IRQ0);
++		unsigned int port_no,bit_no;
++		IRQ_GPIO_MAP(ptn,port_no,bit_no);
++		if (H8300_GPIO_RESERVE(port_no, bit_no) == 0)
++			return -EBUSY;                   /* pin already use */
++		H8300_GPIO_DDR(port_no, bit_no, H8300_GPIO_INPUT);
++		*(volatile unsigned short *)ISR &= ~ptn; /* ISR clear */
++	}		
++	return 0;
++}
++
++void h8300_disable_irq_pin(unsigned int irq)
++{
++	if (irq >= EXT_IRQ0 && irq <= EXT_IRQ15) {
++		/* disable interrupt & release IRQ pin */
++		unsigned short ptn = 1 << (irq - EXT_IRQ0);
++		unsigned short port_no,bit_no;
++		*(volatile unsigned short *)ISR &= ~ptn;
++		*(volatile unsigned short *)IER &= ~ptn;
++		IRQ_GPIO_MAP(ptn,port_no,bit_no);
++		H8300_GPIO_FREE(port_no, bit_no);
++	}
++}
+diff -Nru -X .exclude-diff linux-2.6.4/include/asm-h8300/irq.h linux-2.6.4-h8300/include/asm-h8300/irq.h
+--- linux-2.6.4/include/asm-h8300/irq.h	2004-01-09 15:59:10.000000000 +0900
++++ linux-2.6.4-h8300/include/asm-h8300/irq.h	2004-03-03 21:13:21.000000000 +0900
+@@ -13,6 +13,16 @@
+ #define EXT_IRQ5 17
+ #define EXT_IRQ6 18
+ #define EXT_IRQ7 19
++#define EXT_IRQS 5
++
++#include <asm/regs306x.h>
++#define h8300_clear_isr(irq)                                                \
++do {                                                                        \
++	if (irq >= EXT_IRQ0 && irq <= EXT_IRQ5)                             \
++		*(volatile unsigned char *)ISR &= ~(1 << (irq - EXT_IRQ0)); \
++} while(0)
++
++#define IER_REGS *(volatile unsigned char *)IER
+ #endif
+ #if defined(CONFIG_CPU_H8S)
+ #define NR_IRQS 128
+@@ -32,6 +42,16 @@
+ #define EXT_IRQ13 29
+ #define EXT_IRQ14 30
+ #define EXT_IRQ15 31
++#define EXT_IRQS 15
++
++#include <asm/regs267x.h>
++#define h8300_clear_isr(irq)                                                 \
++do {                                                                         \
++	if (irq >= EXT_IRQ0 && irq <= EXT_IRQ15)                             \
++		*(volatile unsigned short *)ISR &= ~(1 << (irq - EXT_IRQ0)); \
++} while(0)
++
++#define IER_REGS *(volatile unsigned short *)IER
  #endif
  
- 	printk("\r\n\nuClinux " CPU "\n");
-diff -Nru -X .exclude-diff linux-2.6.4/arch/h8300/mm/init.c linux-2.6.4-h8300/arch/h8300/mm/init.c
---- linux-2.6.4/arch/h8300/mm/init.c	2004-01-09 15:59:41.000000000 +0900
-+++ linux-2.6.4-h8300/arch/h8300/mm/init.c	2004-03-14 23:33:13.000000000 +0900
-@@ -156,7 +156,7 @@
- 	/* DAVIDM look at setup memory map generically with reserved area */
- 	unsigned long tmp;
- 	extern char _etext, _stext, _sdata, _ebss, __init_begin, __init_end;
--	extern unsigned char _ramend, _ramstart;
-+	extern unsigned long  _ramend, _ramstart;
- 	unsigned long len = &_ramend - &_ramstart;
- 	unsigned long start_mem = memory_start; /* DAVIDM - these must start at end of kernel */
- 	unsigned long end_mem   = memory_end; /* DAVIDM - this must not include kernel stack at top */
-diff -Nru -X .exclude-diff linux-2.6.4/arch/h8300/platform/h8300h/generic/timer.c linux-2.6.4-h8300/arch/h8300/platform/h8300h/generic/timer.c
---- linux-2.6.4/arch/h8300/platform/h8300h/generic/timer.c	2004-03-14 18:17:37.000000000 +0900
-+++ linux-2.6.4-h8300/arch/h8300/platform/h8300h/generic/timer.c	2004-03-14 23:33:13.000000000 +0900
-@@ -31,7 +31,7 @@
- #include <asm/regs306x.h>
- #define CMFA 6
+ static __inline__ int irq_canonicalize(int irq)
+diff -Nru -X .exclude-diff linux-2.6.4/include/asm-h8300/traps.h linux-2.6.4-h8300/include/asm-h8300/traps.h
+--- linux-2.6.4/include/asm-h8300/traps.h	2004-01-09 16:00:05.000000000 +0900
++++ linux-2.6.4-h8300/include/asm-h8300/traps.h	2004-03-03 21:13:21.000000000 +0900
+@@ -20,9 +20,18 @@
+ #define VECTOR(address) ((JMP_OP)|((unsigned long)address))
+ #define REDIRECT(address) ((JSR_OP)|((unsigned long)address))
  
--int platform_timer_setup(void (*timer_int)(int, void *, struct pt_regs *))
-+int platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
- {
- 	ctrl_outb(H8300_TIMER_COUNT_DATA,TCORA2);
- 	ctrl_outb(0x00,_8TCSR2);
-@@ -62,7 +62,7 @@
- #define GRA  0x00ffff6a
- #define GRB  0x00ffff6c
++#define TRACE_VEC 5
++
+ #define TRAP0_VEC 8
+ #define TRAP1_VEC 9
+ #define TRAP2_VEC 10
+ #define TRAP3_VEC 11
  
--int platform_timer_setup(void (*timer_int)(int, void *, struct pt_regs *))
-+int platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
- {
- 	*(unsigned short *)GRA= H8300_TIMER_COUNT_DATA;
- 	*(unsigned short *)TCNT=0;
-diff -Nru -X .exclude-diff linux-2.6.4/include/asm-h8300/bitops.h linux-2.6.4-h8300/include/asm-h8300/bitops.h
---- linux-2.6.4/include/asm-h8300/bitops.h	2004-02-20 01:08:06.000000000 +0900
-+++ linux-2.6.4-h8300/include/asm-h8300/bitops.h	2004-03-14 23:33:13.000000000 +0900
-@@ -89,21 +89,21 @@
- 	case BIT:						     \
- 	__asm__("stc ccr,%w1\n\t"				     \
- 		"orc #0x80,ccr\n\t"				     \
--		"bld #" #BIT ",@%3\n\t"				     \
--		OP " #" #BIT ",@%3\n\t"				     \
-+		"bld #" #BIT ",@%4\n\t"				     \
-+		OP " #" #BIT ",@%4\n\t"				     \
- 		"rotxl.l %0\n\t"				     \
- 		"ldc %w1,ccr"					     \
--		: "=r"(retval),"=&r"(ccrsave)			     \
-+		: "=r"(retval),"=&r"(ccrsave),"=m"(*b_addr)	     \
- 		: "0" (retval),"r" (b_addr)			     \
- 		: "memory");                                         \
-         break;
- 
- #define H8300_GEN_TEST_BITOP_CONST(OP,BIT)			     \
- 	case BIT:						     \
--	__asm__("bld #" #BIT ",@%2\n\t"				     \
--		OP " #" #BIT ",@%2\n\t"				     \
-+	__asm__("bld #" #BIT ",@%3\n\t"				     \
-+		OP " #" #BIT ",@%3\n\t"				     \
- 		"rotxl.l %0\n\t"				     \
--		: "=r"(retval)					     \
-+		: "=r"(retval),"=m"(*b_addr)			     \
- 		: "0" (retval),"r" (b_addr)			     \
- 		: "memory");                                         \
-         break;
-@@ -129,13 +129,13 @@
- 	} else {						     \
- 		__asm__("stc ccr,%w1\n\t"			     \
- 			"orc #0x80,ccr\n\t"			     \
--			"btst %w4,@%3\n\t"			     \
--			OP " %w4,@%3\n\t"			     \
-+			"btst %w5,@%4\n\t"			     \
-+			OP " %w5,@%4\n\t"			     \
- 			"beq 1f\n\t"				     \
- 			"inc.l #1,%0\n"				     \
- 			"1:\n\t"				     \
- 			"ldc %w1,ccr"				     \
--			: "=r"(retval),"=&r"(ccrsave)		     \
-+			: "=r"(retval),"=&r"(ccrsave),"=m"(*b_addr)  \
- 			: "0" (retval),"r" (b_addr),"r"(nr)	     \
- 			: "memory");				     \
- 	}							     \
-@@ -159,12 +159,12 @@
- 			H8300_GEN_TEST_BITOP_CONST(OP,7) 	     \
- 		}						     \
- 	} else {						     \
--		__asm__("btst %w3,@%2\n\t"			     \
--			OP " %w3,@%2\n\t"			     \
-+		__asm__("btst %w4,@%3\n\t"			     \
-+			OP " %w4,@%3\n\t"			     \
- 			"beq 1f\n\t"				     \
- 			"inc.l #1,%0\n"				     \
- 			"1:"					     \
--			: "=r"(retval)				     \
-+			: "=r"(retval),"=m"(*b_addr)		     \
- 			: "0" (retval),"r" (b_addr),"r"(nr)	     \
- 			: "memory");				     \
- 	}							     \
-@@ -183,7 +183,7 @@
- 
- static __inline__ int find_next_zero_bit (void * addr, int size, int offset)
- {
--	unsigned long *p = ((unsigned long *) addr) + (offset >> 5);
-+	unsigned long *p = (unsigned long *)(((unsigned long)addr + (offset >> 3)) & ~3);
- 	unsigned long result = offset & ~31UL;
- 	unsigned long tmp;
- 
++#if defined(__H8300H__)
++#define NR_TRAPS 12
++#endif
++#if defined(__H8300S__)
++#define NR_TRAPS 16
++#endif
++
+ #endif /* _H8300_TRAPS_H */

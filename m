@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265175AbUGISaK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265211AbUGISaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265175AbUGISaK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 14:30:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUGISaK
+	id S265211AbUGISaw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 14:30:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbUGISaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 14:30:10 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:51706 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S265175AbUGISaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 14:30:04 -0400
+	Fri, 9 Jul 2004 14:30:52 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:20717 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S265211AbUGISaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 14:30:46 -0400
 From: jmerkey@comcast.net
-To: Dave Jones <davej@redhat.com>
-Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Ext3 File System "Too many files" with snort
-Date: Fri, 09 Jul 2004 18:30:03 +0000
-Message-Id: <070920041830.26579.40EEE42B0008C334000067D32200748184970A059D0A0306@comcast.net>
+Date: Fri, 09 Jul 2004 18:30:45 +0000
+Message-Id: <070920041830.21850.40EEE455000BE22E0000555A2200735446970A059D0A0306@comcast.net>
 X-Mailer: AT&T Message Center Version 1 (Jun 24 2004)
 X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,38 +22,40 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-
-> On Fri, Jul 09, 2004 at 04:36:14PM +0000, jmerkey@comcast.net wrote:
+> jmerkey@comcast.net writes:
 > 
->  > > Do you create a subdirectory for every user?  
->  > Yes.  Snort creates a subdirectory for each IP address identified as 
-> generation an attack
->  > or alert.  This number can get very large, BTW.
+> > I may alter the on disk structures to increase this to something larger, say 
+> 16,000,000,
+> > which would break ext3 on other systems.  I will look at the code for this 
+to 
+> see if this is 
+> > even possible without the FS meta data growing so huge, it renders 
+performance 
+> poor.
+> > These types of limits should probably be done away with with an 
+architectural 
+> change, 
 > 
-> The last time I looked at snort it created a tcpdump capture file of the
-> days activity.  I remember seeing the behaviour you describe in an earlier
-> release, so either you have an old version (which you should probably
-> update given snort's sketchy security hole history), 
-
-This is the lastest 2.1.3 version they are posting.  
-
-or theres a configuration
-> option that you might be able to fiddle with to get it to work in capture-file
-> mode.
+> It's not only ext3 - one reason this limit is there because
+> in the old stat st_nlink was 16bit only. Now that stat64 is there
+> and glibc uses it by default it could be increased to 32bit, 
+> but you would need to think what to do with old applications that 
+> stat the directory. For files >2GB old stat returns an errno, 
+> maybe this would need to be done for such directories too.
 > 
 
-not using capture file mode for this instantiation.  Sooner or later EXT(whatever) should
-handle more than 32000 files in a single directory.   I will submit a patch to Andi and 
-Andreas to review with this change.  May make some sense.  Since most folks install Linux 
-on a clean system and really are not doing a lot of cross compatible FS swapping of 
-hard drives, it really should be low impact if a system uses on-disk structures that 
-are larger, provided they are not downgrading their system to an older kernel.  Using a
-different partition type may be the easiest way to do this without casuing breakage across
-linux kernels and EXT versions.
+Andi,  
 
-Jeff
+Sounds like this is correct.    I will look at statfs().  I am very familiar 
+with this section of linux 
+with the VFS.  We should make this value 32 bit.  One solution would be to 
+instrument a 
+versioning field in the superblock so we can write the smarts into ext3/2/reiser  
+to handle
+different on-disk structures.  when a supoerblock gets read, it could detect 
+waht type of 
+on disk structures are instrumented.  
 
-> Either way, it's got to be easier than hacking ext3 code 8)
-> 
-> 		Dave
+Jeff  
+> -Andi
 > 

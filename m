@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312830AbSCZXZu>; Tue, 26 Mar 2002 18:25:50 -0500
+	id <S312827AbSCZX1u>; Tue, 26 Mar 2002 18:27:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312827AbSCZXZk>; Tue, 26 Mar 2002 18:25:40 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49674 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312826AbSCZXZf>; Tue, 26 Mar 2002 18:25:35 -0500
-Subject: Re: 2.4.19-pre4-ac1 vmware and emu10k1 problems
-To: magamo@ranka.2y.net (Malcolm Mallardi)
-Date: Tue, 26 Mar 2002 23:41:33 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020326160638.A2103@trianna.upcommand.net> from "Malcolm Mallardi" at Mar 26, 2002 04:06:38 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S312838AbSCZX1l>; Tue, 26 Mar 2002 18:27:41 -0500
+Received: from ns1.baby-dragons.com ([199.33.245.254]:25745 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S312827AbSCZX1a>; Tue, 26 Mar 2002 18:27:30 -0500
+Date: Tue, 26 Mar 2002 18:27:12 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-atm-general@lists.sourceforge.net,
+        Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ATM locking fix.
+In-Reply-To: <20020326.145202.122762468.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0203261825410.12942-100000@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16q0ZJ-0004D0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The vmware modules will not compile properly under 2.4.19-pre4-ac1, or
-> under 2.4.19-pre2-ac2, but compile fine on their mainline kernel
-> counterparts.  Here is the errors that I get from vmware-config.pl:
 
-Please take vmware problems up with the vmware folks
+	Hello Dave ,  I have attached the linux-atm list so they can see
+	what you have found .  Hth ,  JimL
 
-> Also, under 2.4.19-pre4-ac1, when the emu10k1 module is loaded, I get a
-> large amount of constant static until I rmmod it.  2.4.19-pre4's
-> initialization of the emu10k1 driver is fine, and when the emu10k1
-> driver is replaced with the latest CVS version of the emu10k1 driver,
-> it initializes and performs normally.
+On Tue, 26 Mar 2002, David S. Miller wrote:
 
-I'll take a look at that see whats up
+>
+> I'm applying this patch with some minor cleanups of my own.
+>
+> I went and then checked around for atm_find_dev() users to
+> make sure they held the atm_dev_lock, and I discovered several pieces
+> of "hidden treasure".
+>
+> Firstly, have a look at net/atm/common.c:atm_ioctl() and how it
+> accesses userspace while holding atm_dev_lock.  That is just the
+> tip of the iceberg.
+>
+> ATM sorely needs a maintainer.  Any of the kernel janitors want to
+> learn how ATM works? :-))))
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
+
+
+

@@ -1,216 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271182AbTGWR4K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 13:56:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271187AbTGWR4K
+	id S271187AbTGWR4n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 13:56:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271190AbTGWR4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 13:56:10 -0400
-Received: from tudela.mad.ttd.net ([194.179.1.233]:65418 "EHLO
-	tudela.mad.ttd.net") by vger.kernel.org with ESMTP id S271182AbTGWRzm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 13:55:42 -0400
-Date: Wed, 23 Jul 2003 20:10:46 +0200 (MEST)
-From: Javier Achirica <achirica@telefonica.net>
-To: Daniel Ritz <daniel.ritz@gmx.ch>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-net <linux-net@vger.kernel.org>
-Subject: Re: [PATCH 2.5] fixes for airo.c
-In-Reply-To: <200307231956.58656.daniel.ritz@gmx.ch>
-Message-ID: <Pine.SOL.4.30.0307232006310.15976-100000@tudela.mad.ttd.net>
+	Wed, 23 Jul 2003 13:56:43 -0400
+Received: from smtp.integrinautics.com ([204.247.117.11]:20473 "EHLO
+	smtp.integrinautics.com") by vger.kernel.org with ESMTP
+	id S271187AbTGWR4g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 13:56:36 -0400
+Message-ID: <3F1ECFDD.D561D861@integrinautics.com>
+Date: Wed, 23 Jul 2003 11:11:41 -0700
+From: Dave Lawrence <dgl@integrinautics.com>
+Organization: IntegriNautics Corporation
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: compact flash IDE hot-swap summary please
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have read through some old threads on this mailing
+list and am confused about what is and isn't supported
+by Linux in the area of removable IDE devices.  I
+apologize in advance for my ignorance, but I think there
+are others nearly as ignorant as I that could benefit
+from answers to these questions.
 
+I have a Zaurus handheld that runs Linux that seems 
+to be able to hot-swap its IDE compact flash device
+with no problems.  But I've read in a recent
+thread "hdparm and removable IDE?" that hot-swap
+isn't "fully" supported and that is won't be
+until:
 
-On Wed, 23 Jul 2003, Daniel Ritz wrote:
-
-> [shortening the cc: list a bit..]
+>2.7 at the earliest, and only if there is a general buy in about such a
+>change to the init handling. Similarly the big issues with hdparm -U and
+>-R are the same as with hotplug races, and will take a lot more than
+>quick hacks to fix.
 >
-> On Wed July 23 2003 12:26, Javier Achirica wrote:
-> >
-> > You cannot use down() in xmit, as it may be called in interrupt context. I
-> > know it slows things down, but that's the only way I figured out of
-> > handling a transmission while the card is processing a long command.
+>Alan Cox
+
+How come my Zaurus hot-swaps fine (or does it have
+intermittent problems that I've just never seen?)?
+
+
+I have a single board computer with one IDE connector
+that has two compact flash (one master (hda), one slave (hdb))
+IDE devices connected to the one cable.  Is it possible in
+Linux now to (safely) remove the slave compact flash
+device after unmounting all partitions on that device?
+If not, will it ever be possible (or is there a hardware
+limitation that precludes doing this?)?
+
+Is it possible in Linux now to (safely) remove the slave 
+compact flash without unmounting the partitions (assuming
+you're using a file system like ext3 that is robust to
+shutdowns)?
+
+If not, will this ever be supported (and when?) or is there a 
+hardware limitation that precludes it?
+
+How about if the compact flash device is in a SanDisk
+USB card reader or a Lexar Jumpshot USB card reader?
+Is hot-swapping of such media supported today without
+unmounting the partitions?  If not, will it ever be?
+
+
+Also, there were two related threads in January/February of
+2002 that discussed the removability of compact flash:
+
+false positives on disk change checks 
+PROBLEM: ext2/mount - multiple mounts corrupts inodes 
+
+The original problem was that in 2.4 kernels, compact
+flash disks are corrupted if you remount already mounted
+partitions.  Somebody found a hack workaround for this
+problem, which was to remove the following lines of
+code from ide-probe.c:
+
+> if (id->config & (1<<7)) 
+> drive->removable = 1; 
+> +#endif 
+
+However, Andre Hedrick had the following response to
+this hack:
+
+>REGARDLESS, it is removable media and this it reports so. 
+>The driver will not change to create false reports, because CFA has its 
+>own rules, and if you can figure them out great. 
 >
-> hu? no. you can do a down() as xmit is never called from interrupt context. and
-> the dev->hard_start_xmit() calls are serialized with the dev->xmit_lock. the
-> serialization is broken by the schedule_work() thing.
-
-Ok, sure. But then, if you are in interrupt context, whet do you do with
-the packet?
-
-There's no problem with serialization, because if the packet gets
-scheduled with schedule_work(), the queue it's also stopped (before
-releasing the xmit_lock) so dev->hard_start_xmit() doesn't get called
-again.
-
-> >
-> > I thought about the fix and I think it's fixed. The only case the race
-> > could happen is if there's some work pending to be scheduled and the queue
-> > gets started again (by the interrupt handler), so airo_start_xmit
-> > overwrites the priv->xmit data. Now, because of the new flag, the
-> > interrupt handler won't wake the queue until the pending packet is
-> > sent to the card (or fails) so I don't see how can the race happen
-> > (although I didn't see it until you pointed out :-(
-> >
+>Removable media shall always report as Removable media. 
 >
-> may be the flag fixes the problem, but it adds complexity...
-
-I know. It's the best I could do. Anyway, in the works there's a complete
-rewrite of the packet handling, moving from I/O port access to mapped
-memory. I'll get into that once I get this version stable and the other
-one working.
-
-Javier Achirica
-
-> >
-> > On Wed, 23 Jul 2003, Daniel Ritz wrote:
-> >
-> > > ok, now the braindamaged thing called sourceforge showed the changes, but:
-> > > - i don't think the race is fixed. just remove the whole down_trylock()
-> > >   crap in the xmit altogether and replace it with a single down(). faster,
-> > >   simpler, not racy...and with the schedule_work you win nothing, you lose
-> > > speed
-> > > - please don't commit bugfixes and new features in the same changeset...
-> > > - the loop-forever fix in transmit_allocate: you should have copied the
-> > > comment
-> > >   changes from my patch too, so the spin-forever-comment goes away...
-> > >
-> > > i look closer when i'm home, having a real operating system to work on, not
-> > > this
-> > > winblows box at work now..
-> > >
-> > > -daniel
-> > >
-> > >
-> > > Javier Achirica wrote:
-> > > >
-> > > > Today I updated the CVS and Sourceforge (airo-linux.sf.net) with the
-> > > > latest version (1.53) that (I hope) fixes the race problem. If everything
-> > > > is fine, I'll commit the changes to the kernel tree.
-> > > >
-> > > > Javier Achirica
-> > > >
-> > > > On Mon, 21 Jul 2003, Daniel Ritz wrote:
-> > > >
-> > > > > On Mon July 21 2003 21:44, Javier Achirica wrote:
-> > > > > >
-> > > > > > On Mon, 21 Jul 2003, Daniel Ritz wrote:
-> > > > > >
-> > > > > > > On Mon July 21 2003 13:00, Javier Achirica wrote:
-> > > > > > > >
-> > > > > > > > Daniel,
-> > > > > > > >
-> > > > > > > > Thank you for your patch. Some comments about it:
-> > > > > > > >
-> > > > > > > > - I'd rather fix whatever is broken in the current code than going
-> > > back to
-> > > > > > > > spinlocks, as they increase latency and reduce concurrency. In any
-> > > case,
-> > > > > > > > please check your code. I've seen a spinlock in the interrupt
-> > > handler that
-> > > > > > > > may lock the system.
-> > > > > > >
-> > > > > > > but we need to protect from interrupts while accessing the card and
-> > > waiting for
-> > > > > > > completion. semaphores don't protect you from that.
-> > > spin_lock_irqsave does. the
-> > > > > > > spin_lock in the interrupt handler is there to protect from
-> > > interrupts from
-> > > > > > > other processors in a SMP system (see Documentation/spinlocks.txt)
-> > > and is btw.
-> > > > > > > a no-op on UP. and semaphores are quite heavy....
-> > > > > >
-> > > > > > Not really. You can still read the received packets from the card (as
-> > > > > > you're not issuing any command and are using the other BAP) while a
-> > > > > > command is in progress. There are some specific cases in which you
-> > > need
-> > > > > > to have protection, and that cases are avoided with the down_trylock.
-> > > > > >
-> > > > >
-> > > > > ok, i think i have to look closer...if the card can handle that then we
-> > > don't need
-> > > > > to irq-protect all the areas i did protect...but i do think that those
-> > > down_trylock and
-> > > > > then the schedule_work should be replaced by a simple
-> > > spinlock_irq_save...
-> > > > >
-> > > > > i look closer at it tomorrow.
-> > > > > you happen to have the tech spec lying aroung?
-> > > > >
-> > > > > > AFAIK, interrupt serialization is assured by the interrupt handler, so
-> > > you
-> > > > > > don't need to do that.
-> > > > > >
-> > > > > > > > - The fix for the transmit code you mention, is about fixing the
-> > > returned
-> > > > > > > > value in case of error? If not, please explain it to me as I don't
-> > > see any
-> > > > > > > > other changes.
-> > > > > > >
-> > > > > > > fixes:
-> > > > > > > - return values
-> > > > > > > - when to free the skb, when not
-> > > > > > > - disabling the queues
-> > > > > > > - netif_wake_queue called from the interrupt handler only (and on
-> > > the right
-> > > > > > >   net_device)
-> > > > > > > - i think the priv->xmit stuff and then the schedule_work is evil:
-> > > > > > >   if you return 0 from the dev->hard_start_xmit then the network
-> > > layer assumes
-> > > > > > >   that the packet was kfree_skb()'ed (which does only frees the
-> > > packet when the
-> > > > > > >   refcount drops to zero.) this is the cause for the keventd
-> > > killing, for sure!
-> > > > > > >
-> > > > > > >   if you return 0 you already kfree_skb()'ed the packet. and that's
-> > > it.
-> > > > > >
-> > > > > > This is where I have the biggest problems. As I've read in
-> > > > > > Documentation/networking/driver.txt, looks like the packet needs to be
-> > > > > > freed "soon", but doesn't require to be before returning 0 in
-> > > > > > hard_start_xmit. Did I get it wrong?
-> > > > > >
-> > > > >
-> > > > > no, i got it wrong. but still...it's the xmit where the oops comes
-> > > from....
-> > > > >
-> > > > > wait. isn't there a race in airo_do_xmit? at high xfer rates (when it
-> > > oopses) the
-> > > > > queue can wake right after it is stopped in the down_trylock section. so
-> > > you can
-> > > > > happen to loose an skb 'cos the write to priv->xmit is not protected at
-> > > all and
-> > > > > there should be a check so that only one skb can be queue there. no?
-> > > > > (and then the irq-handler can wake the queue too)
-> > > > >
-> > > > > ok, i think i got it now. i'll do a new patch tomorrow or so that tries:
-> > > > > - to fix the transmit not to oops
-> > > > > - to avoid disabling the irq's whenever possible
-> > > > > - using spinlocks instead of the heavier semaphores ('cos i think if
-> > > it's done cleaner
-> > > > >   than i did it now, it's faster than the semas, and to make hch happy
-> > > :)
-> > > > >
-> > > > >
-> > > > > > Thanks for your help,
-> > > > > > Javier Achirica
-> > > > > >
-> > > > >
-> > > > > rgds
-> > > > > -daniel
-> > > > >
-> > > > >
-> > > > >
-> > > >
-> > >
-> > >
-> > >
-> >
-> >
+>If you purchase enough of the media, the OEM will allow you to alter the 
+>identify page and this it will not longer report "Removable". 
 >
+>Regards, 
 >
->
+>Andre Hedrick 
+>Linux Disk Certification Project Linux ATA Development 
 
+It seems like Andre is implying the problem that is
+causing my compact flash disk corruption is that the
+disk is reporting being removable when it actually
+is not.  But what good is it for the disk to be
+flagged as removable if hot-swapping isn't supported?
+Shouldn't the "hack" solution be put into the kernel
+(at least as a configuration option) until the kernel
+fully supports removable compact flash (at which time,
+one would hope that you could remount compact flash
+without disk curruption)?  In 2.2 kernels,
+compact flash disks weren't corrupted by remounts - in
+2.4 they are.
+
+On a potentially related note (or maybe completely
+off-topic), I always get these kernel messages when
+using compact flash:
+hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+hda: task_no_data_intr: error=0x04 { DriveStatusError }
+They don't seem to be related to any real problem.  How do
+I make those error messages go away?
+
+
+Thanks in advance for a "hotswap for dummies" summary.
+
+                               Dave

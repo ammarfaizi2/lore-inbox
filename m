@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284253AbRLAVKG>; Sat, 1 Dec 2001 16:10:06 -0500
+	id <S281680AbRLAVZc>; Sat, 1 Dec 2001 16:25:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284257AbRLAVJs>; Sat, 1 Dec 2001 16:09:48 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54540 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284252AbRLAVJm>; Sat, 1 Dec 2001 16:09:42 -0500
-Subject: Re: Coding style - a non-issue
-To: stano@meduna.org (Stanislav Meduna)
-Date: Sat, 1 Dec 2001 21:18:15 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200112012039.fB1KdGq03665@meduna.org> from "Stanislav Meduna" at Dec 01, 2001 09:39:16 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281679AbRLAVZW>; Sat, 1 Dec 2001 16:25:22 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22800 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281669AbRLAVZN>; Sat, 1 Dec 2001 16:25:13 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Incremental prepatches
+Date: 1 Dec 2001 13:24:44 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9ubhqs$ep8$1@cesium.transmeta.com>
+In-Reply-To: <3C089BDB.4020801@zytor.com> <3C08B2FA.10709@fugmann.dhs.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16AHWZ-0008IS-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "it works/does not work for me" is not testing. Testing
-> is _actively_ trying to break things, _very_ preferably
-> by another person that wrote the code and to do it
-> in documentable and reproducible way. I don't see many
-> people doing it.
+Followup to:  <3C08B2FA.10709@fugmann.dhs.org>
+By author:    Anders Peter Fugmann <afu@fugmann.dhs.org>
+In newsgroup: linux.dev.kernel
+> 
+> Great.
+> While you are at it. Could you (when you have the time) extend the 
+> system to include a patch between the last pre version and a final 
+> version. Something like:
+> 
+> patch-2.5.1-pre8-2.5.2.gz
+> (when the time comes :-)
+> 
 
-If you want a high quality, tested supported kernel which has been through
-extensive QA then use kernel for a reputable vendor, or do the QA work
-yourself or with other people. We have kernel janitors, so why not kernel QA
-projects ?
+I thought there was something I'd forgotten...
 
-However you'll need a lot of time, a lot of hardware and a lot of attention
-to procedure
+patch-2.4.16-pre1-final.gz is there now; others will be generated when
+the time comes.
 
-Alan
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261806AbRE3Sf4>; Wed, 30 May 2001 14:35:56 -0400
+	id <S261819AbRE3Sj4>; Wed, 30 May 2001 14:39:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261807AbRE3Sfq>; Wed, 30 May 2001 14:35:46 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53254 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261806AbRE3Sfb>; Wed, 30 May 2001 14:35:31 -0400
-Subject: Re: Athlon fast_copy_page revisited
-To: mayfield+kernel@sackheads.org (Jimmie Mayfield)
-Date: Wed, 30 May 2001 19:33:23 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010530110817.A12364@sackheads.org> from "Jimmie Mayfield" at May 30, 2001 11:08:18 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261823AbRE3Sjq>; Wed, 30 May 2001 14:39:46 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:49169 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S261819AbRE3Sjh>;
+	Wed, 30 May 2001 14:39:37 -0400
+Date: Wed, 30 May 2001 15:39:29 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Jonathan Morton <chromi@cyberspace.org>,
+        Mike Galbraith <mikeg@wen-online.de>,
+        Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Plain 2.4.5 VM
+In-Reply-To: <Pine.LNX.4.21.0105300913240.4783-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0105301537150.12540-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E155AmZ-0006NL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> schemes in user-space but if I try in kernel space, I get the notorious crash inside
-> fast_copy_page.  (If there was some sort of fundamental hardware problem associated with
-> prefetch or streaming, wouldn't it also show up in user-space?)  Note: I've yet to try the 
+On Wed, 30 May 2001, Marcelo Tosatti wrote:
 
-That has been one of the great puzzles. There are patterns that are very
-different in kernel space - notably physically linear memory and code running
-from a 4Mb tlb.
+> The problem is that we allow _every_ task to age pages on the system
+> at the same time --- this is one of the things which is fucking up.
 
-Alan
+This should not have any effect on the ratio of cache
+reclaiming vs. swapout use, though...
+
+> The another problem is that don't limit the writeout in the VM.
+
+This is a big problem too, but also unrelated to the
+impossibility of balancing cache vs. swap in the current
+scheme.
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

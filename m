@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272836AbRISS6N>; Wed, 19 Sep 2001 14:58:13 -0400
+	id <S272873AbRISTEn>; Wed, 19 Sep 2001 15:04:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272773AbRISS6D>; Wed, 19 Sep 2001 14:58:03 -0400
-Received: from puma.inf.ufrgs.br ([143.54.11.5]:29967 "EHLO inf.ufrgs.br")
-	by vger.kernel.org with ESMTP id <S272836AbRISS5t>;
-	Wed, 19 Sep 2001 14:57:49 -0400
-Date: Wed, 19 Sep 2001 15:58:49 -0300 (EST)
-From: Roberto Jung Drebes <drebes@inf.ufrgs.br>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Re[2]: [PATCH] Athlon bug stomper. Pls apply.
-In-Reply-To: <Pine.LNX.4.30.0109191141560.24917-100000@anime.net>
-Message-ID: <Pine.GSO.4.21.0109191552400.12342-100000@jacui>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S274136AbRISTEd>; Wed, 19 Sep 2001 15:04:33 -0400
+Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:6016
+	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with ESMTP id <S272873AbRISTEN>; Wed, 19 Sep 2001 15:04:13 -0400
+Date: Wed, 19 Sep 2001 12:04:00 -0700
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Message-Id: <200109191904.f8JJ40001476@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+To: Fabian Arias <dewback@vtr.net>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.9-ac12 - problem mounting reiserfs (parse error?)
+In-Reply-To: <Pine.LNX.4.40.0109191248360.5460-100000@ronto.dewback.cl>
+In-Reply-To: <Pine.LNX.4.33.0109191053400.1244-100000@portland.hansa.lan> <Pine.LNX.4.40.0109191248360.5460-100000@ronto.dewback.cl>
+Reply-To: whitney@math.berkeley.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Sep 2001, Dan Hollis wrote:
+I also have reiserfs mounts from /etc/fstab failing in 2.4.9-ac12, so
+I straced the mount process.  With options "defaults" in /etc/fstab,
+"mount /usr/local" does:
 
-> AFAIK noone has even tested it yet to see what it does to performance! Eg
-> it might slow down memory access so that athlon-optimized memcopy is now
-> slower than non-athlon-optimized memcopy. And if it turns out to be the
-> case, we might as well just use the non-athlon-optimized memcopy instead
-> of twiddling undocumented northbridge bits...
+  mount("/dev/hde8", "/usr/local", "reiserfs", 0xc0ed0000, 0x80597a8) = -1 EINVAL (Invalid argument)
 
-How can I test it? Can someone point me to a simple program to do it? Then
-I could run it over the non-optimized, the optimized in the good bios and
-the optimized in the bad bios plus patch to test it.
+While "mount /dev/hde8 /usr/local" gives:
 
-Altough my system shows the bug, I am not sure if we should add the patch
-as the default option right now. Actually, we don´t have a clue if the
-only thing this bit is doing is solving the bug or if it is going to be
-responsible for an unknown and unnoticed bug that will show up later. Why
-rush things up? Can´t we wait a word from VIA and then decide what to
-do? What could be done is to put this patch somewhere other than the list
-where we can point people that come to lkml with this problem to.
+  mount("/dev/hde8", "/usr/local", "reiserfs", 0xc0ed0000, 0) = 0
 
---
-Roberto Jung Drebes <drebes@inf.ufrgs.br>
-Porto Alegre, RS - Brasil
-http://www.inf.ufrgs.br/~drebes/
+But with the options "notail" in /etc/fstab, "mount /usr/local" does:
 
+  mount("/dev/hde8", "/usr/local", "reiserfs", 0xc0ed0000, 0x806d3e0) = 0
+
+Vital statistics:
+
+  RedHat 7.1.93
+  Linux version 2.4.9-ac12
+  gcc version 3.0.2 20010905 (Red Hat Linux 7.1 3.0.1-3)
+  mount 2.11g
+
+Cheers, Wayne

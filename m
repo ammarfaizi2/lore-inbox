@@ -1,89 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130781AbRAYMVT>; Thu, 25 Jan 2001 07:21:19 -0500
+	id <S129511AbRAYMXt>; Thu, 25 Jan 2001 07:23:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135241AbRAYMVJ>; Thu, 25 Jan 2001 07:21:09 -0500
-Received: from styx.suse.cz ([195.70.145.226]:50165 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S130781AbRAYMVA>;
-	Thu, 25 Jan 2001 07:21:00 -0500
-Date: Thu, 25 Jan 2001 13:20:54 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Alan Chandler <alan@chandlerfamily.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [preview] Latest AMD & VIA IDE drivers with UDMA100 support
-Message-ID: <20010125132054.B1204@suse.cz>
-In-Reply-To: <20010124202527.A2405@suse.cz> <Pine.LNX.4.10.10101241314470.14153-100000@master.linux-ide.org>
-Mime-Version: 1.0
+	id <S130008AbRAYMXj>; Thu, 25 Jan 2001 07:23:39 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23822 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129511AbRAYMXa>;
+	Thu, 25 Jan 2001 07:23:30 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200101251149.f0PBnB206123@flint.arm.linux.org.uk>
+Subject: Re: kernel BUG at slab.c:1542!(2.4.1-pre9)
+To: tim@parrswood.manchester.sch.uk (Tim Fletcher)
+Date: Thu, 25 Jan 2001 11:49:10 +0000 (GMT)
+Cc: phillips@innominate.de (Daniel Phillips),
+        Shawn.Starr@Home.net (Shawn Starr), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0101241803290.30141-100000@pine.parrswood.manchester.sch.uk> from "Tim Fletcher" at Jan 24, 2001 06:05:02 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10101241314470.14153-100000@master.linux-ide.org>; from andre@linux-ide.org on Wed, Jan 24, 2001 at 01:58:09PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 24, 2001 at 01:58:09PM -0800, Andre Hedrick wrote:
-
-> In the past there were hardcoded timing values for the allowable for the
-> VIA cores that were defined by VIA.  They were taken from their internal
-> lookup tables.  You have stated that you have allowed for "slop" in the
-> timing to attempt to soften the driver, that is your decision you are
-> totally responsible for keeping that chipset alive.
+Tim Fletcher writes:
+> What ever a none privilaged user space apps does witness:
 > 
-> I suspect that you have not seen and know that you have not hear in person
-> the issues that arise for pushing or slacking the timing on the HOST side
-> of the world.  However, I do expect that you understand that at slower
-> transfer rates you have a greater margin for error-tolerance.  However the
-> game completely changes once Mode 3 and higher are used.  The margins are
-> ever so narrow.  Thus by following the exact letter and value you remove
-> suspect from the driver.
+> root@localhost# dd if=/dev/random of=/dev/mem
 
-You can always check the /proc/ide/via listing to check that the values
-are the same as in the specs. Actually there is not much to get wrong
-with UDMA timing - it's just one register's value on VIA chipsets.
+If you can do that as a non-priviledged user, then you've got bigger
+security problems than that.
 
-> Additionally with the auto_crc_downgrade feature now in 2.4.x if they only
-> get iCRC errors the main driver will force the transfer rate down to
-> stablize the timings.  This was put in to correct for all the real crap
-> mainboards that everyone buys and expects them to work at full speed.
-> Well the do not, and fudging the timing tables to make crap work and
-> then cause ones that are within the tolerance of the cable skews is not
-> acceptable.  You will continue to fight this battle and lose, but consider
-> doing so gracefully.
-> 
-> Put the hardcoded timing values back in as default, and allow for the
-> option to use the dynamic fudged ones by the enduser.  The default are
-> generally stable, the fudged ones I can not comment.
+/dev/mem should NOT be read/writable by anyone other than root.  Its
+permissions should be no more than 600.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-There are no 'fudged' values. The values the chipset is programmed to,
-when the idebus= option is set to the default 33 MHz are exactly the
-same as in the specs. Really.
-
-I hope the auto_crc_downgrade will help things, at least on those
-drives, that don't crash their firmware in the case of a iCRCed
-transfer.
-
-Anyway, what about adding a XFER_UDMA_SLOW mode that would set the
-chipset to say 150 or 180 ns per UDMA cycle? At least AMD specs mention
-such a possibility. It's better than using MWDMA, and if XFER_UDMA_0 is
-still too fast for the drive, it'd be a good 'last fallback'.
-
-> Lastly the IDE-PCI clocking is independent of the FBS or PCI-Bus clocking.
-> The three timing ranges given by VIA for 25, 33, 41 are to morph the
-> IDE-PCI clock back to 33.  Thus PCI-Bus of 25 increases cycle time to
-> achieve the 33, as the 41 reduces time to achieve the 33.  I know what I
-> want to say, whether I did or not succeed is an issue.  So if you do not
-> follow me (as most usually fail to follow me :-(( ) just ask.
-
-Yes. The IDE timing should be always the same, independent on the PCI
-clock. However, it is programmed in terms of PCI cycles, so yes, the
-only thing my driver does is exactly this compensation for the PCI speed
-so that the IDE timing stays constant.
-
-Yes, my driver is doing exactly what you say.
-
--- 
-Vojtech Pavlik
-SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

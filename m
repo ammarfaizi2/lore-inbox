@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267994AbRGVP1u>; Sun, 22 Jul 2001 11:27:50 -0400
+	id <S267996AbRGVPiW>; Sun, 22 Jul 2001 11:38:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267995AbRGVP13>; Sun, 22 Jul 2001 11:27:29 -0400
-Received: from mail11.svr.pol.co.uk ([195.92.193.23]:9480 "EHLO
-	mail11.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S267994AbRGVP1Z>; Sun, 22 Jul 2001 11:27:25 -0400
-From: "Alan J. Wylie" <alan.nospam@glaramara.freeserve.co.uk>
+	id <S267997AbRGVPiN>; Sun, 22 Jul 2001 11:38:13 -0400
+Received: from gear.torque.net ([204.138.244.1]:30995 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S267996AbRGVPiF>;
+	Sun, 22 Jul 2001 11:38:05 -0400
+Message-ID: <3B5AE813.658ADC66@torque.net>
+Date: Sun, 22 Jul 2001 10:49:55 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+CC: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: MO-Drive under 2.4.7 usinf vfat
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15194.61662.338810.87576@glaramara.freeserve.co.uk>
-Date: Sun, 22 Jul 2001 16:27:26 +0100
-To: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
-Subject: ipt_unclean: TCP flags bad: 4
-X-Mailer: VM 6.93 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+> Is the capacity of your MO disk more than 640M?
 
-I've just upgraded to 2.4.7, and I'm getting lots of errors:
+No, the capacity is 635600896 bytes.
 
-ipt_unclean: TCP flags bad: 4
+$ sg_readcap /dev/sg1
+Read Capacity results:
+   Last block address = 310351 (0x4bc4f), Number of blocks = 310352
+   Block size = 2048 bytes
 
-I only see them when my ppp link is up - pppd version 2.4.0
+This is from my log:
+ Attached scsi removable disk sdb at scsi4, channel 0, id 0, lun 0
+ SCSI device sdb: 310352 2048-byte hdwr sectors (636 MB)
 
-Looking at ipt_unclean.c it seems that this message will be generated
-when I send a packet with flags set to RST only.
+$ cat /proc/scsi/scsi 
+Attached devices: 
+Host: scsi1 Channel: 00 Id: 01 Lun: 00
+  Vendor: IBM      Model: DNES-309170W     Rev: SA30
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+Host: scsi4 Channel: 00 Id: 00 Lun: 00
+  Vendor: FUJITSU  Model: M25-MCC3064AP    Rev: 0023
+  Type:   Optical Device                   ANSI SCSI revision: 02
 
-I've run a ppp session with the pppd option "record" turned on, and
-analysed the output with "ethereal". This is indeed what is on the
-wire. I'm no expert on TCP I'm afraid. The complete TCP stream
-follows:
+On my box the MO drive is /dev/sdb or /dev/sg1 .
 
-------------------------------------------------------------------------------
-No. Time        Source                Destination           Protocol Info
+Executing 'mount -t vfat /dev/sdb /mnt/extra -o debug'
+put this in my log:
+ MSDOS: Hardware sector size is 2048
+ [MS-DOS FS Rel. 12,FAT 16,check=n,conv=b,uid=0,gid=0,umask=022]
+ [me=0xf8,cs=32,#f=2,fs=1,fl=152,ds=305,de=512,data=
+   337,se=0,ts=1241408,ls=512,rc=0,fc=4294967295]
+ Transaction block size = 2048
 
-129 12.800000   62.137.113.223        news.svr.pol.co.uk    TCP
-    1148 > nntp [SYN] Seq=3684831495 Ack=0 Win=5840 Len=0
+> Perhaps, your MO disk will have the `ls' of a value smaller 
+> than 2048.
+Yes, ls=512 .
 
-131 12.900000   news.svr.pol.co.uk    62.137.113.223        TCP
-    nntp > 1148 [SYN, ACK] Seq=2607886663 Ack=3684831496 Win=32736 Len=0
+> Logical sector size smaller than device sector size cannot
+> be handled with FAT of 2.4 series.
 
-137 13.300000   62.137.113.223        news.svr.pol.co.uk    TCP
-    1148 > nntp [FIN, ACK] Seq=3684831502 Ack=2607887466 Win=7090 Len=0
+Great. When will that be fixed (Jens?) ? If not, can we get 
+a more civilized response than the current oops?
 
-142 13.400000   62.137.113.223        news.svr.pol.co.uk    TCP
-    1148 > nntp [RST] Seq=3684831503 Ack=0 Win=0 Len=0
-------------------------------------------------------------------------------
+Doug Gilbert
 
--- 
-Alan J. Wylie                        http://www.glaramara.freeserve.co.uk/
-"Perfection [in design] is achieved not when there is nothing left to add,
-but rather when there is nothing left to take away."
-  Antoine de Saint-Exupery

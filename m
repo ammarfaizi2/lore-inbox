@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266257AbSKUBHg>; Wed, 20 Nov 2002 20:07:36 -0500
+	id <S261701AbSKUBLy>; Wed, 20 Nov 2002 20:11:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266259AbSKUBHg>; Wed, 20 Nov 2002 20:07:36 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:33039 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S266257AbSKUBHf>; Wed, 20 Nov 2002 20:07:35 -0500
-Date: Wed, 20 Nov 2002 23:14:36 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Robert Love <rml@tech9.net>
-Cc: Rusty Lynch <rusty@linux.co.intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Coding style question] XXX_register or register_XXX
-Message-ID: <20021121011436.GF28717@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Robert Love <rml@tech9.net>, Rusty Lynch <rusty@linux.co.intel.com>,
-	linux-kernel@vger.kernel.org
-References: <001701c290ef$8417f020$94d40a0a@amr.corp.intel.com> <1037840908.1253.3178.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1037840908.1253.3178.camel@phantasy>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+	id <S261732AbSKUBLy>; Wed, 20 Nov 2002 20:11:54 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:58878 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S261701AbSKUBLx>; Wed, 20 Nov 2002 20:11:53 -0500
+Message-ID: <288F9BF66CD9D5118DF400508B68C44604758DE4@orsmsx113.jf.intel.com>
+From: "Feldman, Scott" <scott.feldman@intel.com>
+To: "'Jeff V. Merkey'" <jmerkey@vger.timpanogas.org>,
+       Robert Olsson <Robert.Olsson@data.slu.se>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: RE: e1000 fixes (NAPI)
+Date: Wed, 20 Nov 2002 17:18:51 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Wed, Nov 20, 2002 at 08:08:28PM -0500, Robert Love escreveu:
-> On Wed, 2002-11-20 at 18:49, Rusty Lynch wrote:
-> > int foo_register(&something);
-> > int foo_unregister(&something);
- 
-> But I prefer this - I like there to be a namespace for a given subsystem
-> and for it to be a prefix.
+> Need another fix.  You need to reinstrument the tasklet 
+> schedule in the fill_rx_ring instread of doing the whole thing from 
+> interrupt.  When the system is loaded at 100% saturation on gigbit 
+> with 300 byte packets or smaller, the driver does not allow any 
+> processes to run, and you cannot log in via ssh or any user space 
+> apps.  This is severely busted.   
 
-100% agreed. Just look at LLC 8) And yes, the big names was procom's fault,
-but the way it is structured... I'd love somebody to come up with something
-that makes it smaller 8)
+That's one of the points of NAPI - to process high traffic Rx rates outside
+of h/w interrupt context.
 
-- Arnaldo
+-scott

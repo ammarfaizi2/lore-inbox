@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266921AbRHOVvH>; Wed, 15 Aug 2001 17:51:07 -0400
+	id <S266982AbRHOV6S>; Wed, 15 Aug 2001 17:58:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267233AbRHOVu5>; Wed, 15 Aug 2001 17:50:57 -0400
-Received: from dsl081-080-099.lax1.dsl.speakeasy.net ([64.81.80.99]:42112 "EHLO
-	pelerin.serpentine.com") by vger.kernel.org with ESMTP
-	id <S266982AbRHOVuu>; Wed, 15 Aug 2001 17:50:50 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: goemon@anime.net (Dan Hollis), maxwax@mindspring.com (Maxwell Spangler),
-        oyhaare@online.no (=?iso-8859-1?q?=D8ystein?= Haare),
-        linux-kernel@vger.kernel.org
-Subject: Re: Via chipset
-In-Reply-To: <E15X7Kc-0003xP-00@the-village.bc.nu>
-X-NSA-Fodder: terrorist Clinton Project Monarch Mossad AK-47 Albania
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-Date: 15 Aug 2001 14:50:55 -0700
-In-Reply-To: <E15X7Kc-0003xP-00@the-village.bc.nu>
-Message-ID: <87snetat6o.fsf@pelerin.serpentine.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Academic Rigor)
+	id <S267579AbRHOV6J>; Wed, 15 Aug 2001 17:58:09 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28943 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S267532AbRHOV5y>; Wed, 15 Aug 2001 17:57:54 -0400
+Subject: Re: Coding convention of function header comments
+To: hzhong@cisco.com (Hua Zhong)
+Date: Wed, 15 Aug 2001 23:00:31 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <no.id> from "Hua Zhong" at Aug 15, 2001 02:41:41 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15X8iF-000489-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-a> Actually I've talked to a VIA person about it - the problem is I
-a> don't have clean concrete repeatably way to generate the problem
-a> and generate it rapidly.
+> /**
+>  * list_add - add a new entry
+>  * @new: new entry to be added
+>  * @head: list head to add it after
+>  *
+>  * Insert a new entry after the specified head.
+>  * This is good for implementing stacks.
+>  */
+> static __inline__ void list_add(struct list_head *new, struct list_head
+> *head)
+> {
+>  __list_add(new, head, head->next);
+> }
+> 
+> Similar to Java.  I want to ask that (1) is this a well-known convention or
+> was just invented (informally) by someone here (e.g., Linus?)?  Where can I
+> find the documentation about this convention? (2) can anyone point me to the
+> URL of similar well-known coding conventions (except the Java one)?
 
-Right.  The closest I've come to a reproducible setup is "keep the PCI
-bus very busy and hope for the best".  This yields roughly 1 bad byte
-read out of 150 million for stock 2.4.7, or 1 per 400 million for
-2.4.8-ac3.
+Ok firstly - yes its a straight rip off of the java one. The history is
+something like. Gnome needed a format for this, so Michael Zucchi (I
+believe) wrote up a hideous perl hack. Miguel de Icaza couldn't get the
+format right so it was extended with a free form body. 
 
-With error rates like this, it's not likely to be easy to find.
+Its documented in Documentation/kernel-doc-nano-HOWTO.txt
 
-        <b
+We do need to improve it to mark up structures, and also to actually
+finish the job.

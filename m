@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262350AbRENSFb>; Mon, 14 May 2001 14:05:31 -0400
+	id <S262349AbRENSCV>; Mon, 14 May 2001 14:02:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262351AbRENSFZ>; Mon, 14 May 2001 14:05:25 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:20238 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262350AbRENSFN>; Mon, 14 May 2001 14:05:13 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Not a typewriter
-Date: 14 May 2001 11:04:42 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9dp6nq$fvc$1@cesium.transmeta.com>
-In-Reply-To: <E14zLj4-0000zO-00@the-village.bc.nu> <200105141729.MAA28295@tomcat.admin.navo.hpc.mil>
+	id <S262350AbRENSCM>; Mon, 14 May 2001 14:02:12 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:64251 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S262349AbRENSB4>; Mon, 14 May 2001 14:01:56 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200105141800.f4EI0TTb001638@webber.adilger.int>
+Subject: Re: Getting FS access events
+In-Reply-To: <01051415043103.02742@starship> "from Daniel Phillips at May 14,
+ 2001 03:04:31 pm"
+To: Daniel Phillips <phillips@bonn-fries.net>
+Date: Mon, 14 May 2001 12:00:29 -0600 (MDT)
+CC: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200105141729.MAA28295@tomcat.admin.navo.hpc.mil>
-By author:    Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-In newsgroup: linux.dev.kernel
+Daniel writes:
+> But we don't need anything so fancy to try out your idea, we just need 
+> a lvm-like device that can:
 > 
-> well... actually it was 6 bit "ascii" computed from: (char - ' '). Depends
-> entirely on architecture, and implementation. EBCD/6Bit/7Bit and EBCDIC were
-> supported on the Honeywell systems.
-> 
+>   - Maintain a block cache
+>   - Remap logical to physical blocks
+>   - Record the block accesses
+>   - Physically reorder the blocks according to the recorded order
+>   - Load a given region of disk into the block cache on command
 
-There was also a genuine ASCII-6 encoding.  It didn't look much like
-ASCII-7 as far as I remember.
+The current LVM device (if compiled with DEBUG_MAP) will report all of
+the logical->physical block mappings via printk.  Probably too heavy-
+weight for a large amount of IO.  It could be changed to save the block
+numbers into a cache, to be extracted later.  All of the LVM mapping
+is done in the lvm_map() function.
 
-	-hpa
-
-
+Cheers, Andreas
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

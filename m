@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135520AbRBEUjU>; Mon, 5 Feb 2001 15:39:20 -0500
+	id <S131047AbRBEUsn>; Mon, 5 Feb 2001 15:48:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135748AbRBEUjK>; Mon, 5 Feb 2001 15:39:10 -0500
-Received: from host217-32-121-81.hg.mdip.bt.net ([217.32.121.81]:63752 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S135520AbRBEUjG>;
-	Mon, 5 Feb 2001 15:39:06 -0500
-Date: Mon, 5 Feb 2001 20:41:51 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-To: "Dunlap, Randy" <randy.dunlap@intel.com>
-cc: "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: Re: Q. on marking __initdata
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDFFC@orsmsx31.jf.intel.com>
-Message-ID: <Pine.LNX.4.21.0102052039470.1997-100000@penguin.homenet>
+	id <S131606AbRBEUsd>; Mon, 5 Feb 2001 15:48:33 -0500
+Received: from d231.as5200.mesatop.com ([208.164.122.231]:17032 "HELO
+	localhost.localdomain") by vger.kernel.org with SMTP
+	id <S131047AbRBEUsU>; Mon, 5 Feb 2001 15:48:20 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+Date: Mon, 5 Feb 2001 13:50:55 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk, jmd@turbogeek.com
+Subject: [PATCH] 2.4.1-ac3 CONFIG_INPUT documentation in Configure.help
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01020513505500.02799@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-and, while you are at it, you should (probably) also mark pin_2_irq() and 
-IO_APIC_get_PCI_irq_vector() functions as __init as well, for exactly the
-same reason as what you noticed.
+Here is a patch which adds documentation for CONFIG_INPUT to Configure.help.
 
-Regards,
-Tigran
+Now, only  496 undocumented config options in the 2.4.1-ac3 tree left to go,
+out of a total of 1982, of which 40 are apparently unused.
 
-On Mon, 5 Feb 2001, Dunlap, Randy wrote:
+This patch applies to 2.4.1-ac3.
 
-> Hi,
-> 
-> Just a question (not a patch proposal):
-> 
-> Could
-> +/* # of MP IRQ source entries */
-> +struct mpc_config_intsrc mp_irqs[MAX_IRQ_SOURCES];
-> 
-> in arch/i386/kernel/mpparse.c (in 2.4.1-ac3; or in
-> arch/i386/kernel/io_apic.c in 2.4.1) be marked as
-> __initdata ?  If not, why not?  Or is __initdata
-> not needed on it for some reason (and if so, what
-> reason)?
-> 
-> Thanks,
-> ~Randy_________________________________________
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+Steven
 
+--- linux/Documentation/Configure.help.orig     Mon Feb  5 12:07:46 2001
++++ linux/Documentation/Configure.help  Mon Feb  5 13:27:13 2001
+@@ -10560,6 +10560,16 @@
+ 
+   If unsure, say Y.
+ 
++Input core support
++CONFIG_INPUT
++  Say Y here if you want to enable any of the following options for
++  USB Human Interface Device (HID) support.
++
++  Say Y here if you want to enable any of the USB HID options in the
++  USB support section which require Input core support.
++
++  Otherwise, say N.
++
+ Keyboard support
+ CONFIG_INPUT_KEYBDEV
+   Say Y here if you want your USB HID keyboard (or an ADB keyboard
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

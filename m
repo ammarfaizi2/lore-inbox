@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130180AbQKOUmu>; Wed, 15 Nov 2000 15:42:50 -0500
+	id <S129150AbQKOUww>; Wed, 15 Nov 2000 15:52:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130138AbQKOUmk>; Wed, 15 Nov 2000 15:42:40 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:17674 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130162AbQKOUmb>; Wed, 15 Nov 2000 15:42:31 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: test11-pre5 breaks vmware
-Date: 15 Nov 2000 12:12:15 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8uuqmv$el4$1@cesium.transmeta.com>
-In-Reply-To: <CF021B54DF0@vcnet.vc.cvut.cz> <Pine.LNX.4.21.0011151454590.10690-100000@godzilla.spiteful.org>
+	id <S129189AbQKOUwm>; Wed, 15 Nov 2000 15:52:42 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:63363 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129150AbQKOUwe>; Wed, 15 Nov 2000 15:52:34 -0500
+Date: Wed, 15 Nov 2000 15:15:30 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: James Stevenson <mistral@stev.org>
+cc: mike@flyn.org, linux-kernel@vger.kernel.org
+Subject: Re: EJECT ioctl fails on empty SCSI CD-ROM
+In-Reply-To: <200011152008.UAA20801@linux.home>
+Message-ID: <Pine.LNX.3.95.1001115151153.15581A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.21.0011151454590.10690-100000@godzilla.spiteful.org>
-By author:    Scott Murray <scott@spiteful.org>
-In newsgroup: linux.dev.kernel
-> > 
-> > Oh. I did not compiled 11-test5, as G450 finally arrived ;-) OK,
-> > I'll release patch for vmware, as I cannot stop kernel developers
-> > from changing field names :-)
+On Wed, 15 Nov 2000, James Stevenson wrote:
+
 > 
-> Actually, I know of at least one other shipping commercial product
-> (Sitraka's JProbe Java Profiler) that will require patching because of
-> this change.  It seems unwise to be changing field names in commonly
-> used /proc files like cpuinfo at this point in time.
+> Hi
+> 
+> this is what i get on 2.2.17
+> 
+> open("/dev/scd1", O_RDONLY|O_NONBLOCK)  = 3
+> ioctl(3, CDROMEJECT, 0xbffffc78)        = 0
+> close(3)                                = 0
+> 
 > 
 
-The problem with "flags" is that it no longer contains quite the same
-information.  Since the semantics of the field changed slightly,
-changing the field name is sometimes more correct.
+> 
+> In local.linux-kernel-list, you wrote:
+> >Apparently using the CDROMEJECT ioctl with kernel 2.4-testX fails on
+> >a SCSI CD-ROM that does not have a disc in it.  The errno returned
+> >corresponds to the string ``No such file or directory.''
+> >
+> >The Linux CD-ROM Standard states that CDROMEJECT opens the drive tray.
+> >It does not mention any prerequisite such as media being present.
+> >
+> >Is this the expected behavior?  If so, I am curious to hear the rationale
+> >behind it.
+> 
 
-Also, if a piece of software needs raw CPUID information (unlike the
-"cooked" one provided by recent kernels) it should use
-/dev/cpu/*/cpuid.
+Well the open fails with ENOMEDIUM (errno 123). This is hardly appropriate
+since you can't insert any "media" on some machines without a paperclip.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+readlink("/dev/cdrom", "", 256)         = 9
+open("/dev/scd0", O_RDONLY)             = -1 ERRNO_123 (errno 123)
+
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

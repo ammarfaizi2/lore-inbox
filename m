@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265907AbUF3Syn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266796AbUF3S4d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265907AbUF3Syn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 14:54:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266796AbUF3Syn
+	id S266796AbUF3S4d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 14:56:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266807AbUF3S4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 14:54:43 -0400
-Received: from areq.eu.org ([212.191.78.132]:9746 "EHLO ix.p.lodz.pl")
-	by vger.kernel.org with ESMTP id S265907AbUF3Syk (ORCPT
+	Wed, 30 Jun 2004 14:56:32 -0400
+Received: from mail3.iserv.net ([204.177.184.153]:48276 "EHLO mail3.iserv.net")
+	by vger.kernel.org with ESMTP id S266796AbUF3S4U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 14:54:40 -0400
-From: Arkadiusz Patyk <areqlkl@areq.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: initramfs and kernel  2.6.7
-Date: Wed, 30 Jun 2004 20:55:02 +0200
-Message-ID: <r236e0tp11ek1q0rh5912e423mc78qio5g@4ax.com>
-X-Mailer: Forte Agent 2.0/32.652
+	Wed, 30 Jun 2004 14:56:20 -0400
+Message-ID: <40E30CE0.70005@didntduck.org>
+Date: Wed, 30 Jun 2004 14:56:32 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7) Gecko/20040608
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Joshua <jhudson@cyberspace.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] restore floppy boot image
+References: <Pine.SUN.3.96.1040630143510.23723A-100000@grex.cyberspace.org>
+In-Reply-To: <Pine.SUN.3.96.1040630143510.23723A-100000@grex.cyberspace.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Scan-Signature: 43d3d95615390a7043daff8d5b4bd9ad
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Joshua wrote:
+> After installing the 2.6.7 kernel a week ago, I had LILO problems
+> (lilo bombed on the kernel image). My first thought was to dd the kernel
+> to a floppy, and boot Windows so that I could get a new LILO (I have
+> a winmodem for dialup). My second thought was better check w/ hexdump
+> first.
+> 
+> I saw that "booting from floppy is no longer supported" message, and
+> thought "This won't do.
+> 
+> Rather than go back to the old version, I thought that I could do it
+> better.  Maybe I did and maybe I didn't, but this time the bzImage loading
+> code fits into a single sector (no more need of bootsect_kludge).
+> 
+> Patch-signed-off-by: Joshua Hudson <jhudson@cyberspace.org>
+> 
 
-I 'am trying to launch linux kernel 2.6.7 with initramfs.
+Direct floppy booting was removed for good reasons: it was broken in 
+many setups and is easily replaced by syslinux.  See make bzdisk.
 
-My pxelinux.cfg/default file looks as follows:
-default a1
-prompt 1
-timeout 600
-label a1
-kernel vmlinuz-2.6.7-1
-append initrd=initramfs_data.cpio.gz root=/dev/ram0 init=/linuxrc
-
-Kernel image  vmlinuz-2.6.7-1 and  initramfs_data.cpio.gz was loaded 
-succesfully by pxelinux.
-
-Kernel says:
-checking if image is initramfs... it is
-
-but later occurs an error:
-Kernel panic: VFS: Unable to mount root fs on ram0
-
-Full log: http://rescuecd.pld-linux.org/minicom.cap
-
-What should I do to run my system? 
-Maybe root=/dev/ram0 is not correct?
-
-Best regards,
--- 
-Arkadiusz Patyk [areq(at)pld-linux.org] [http://rescuecd.pld-linux.org/]
-[IRC:areq ICQ:16231667  GG:1383]  [AP3-6BONE] [AP14126-RIPE]
+--
+				Brian Gerst

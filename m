@@ -1,57 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129282AbREBHK1>; Wed, 2 May 2001 03:10:27 -0400
+	id <S130446AbREBHe1>; Wed, 2 May 2001 03:34:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135980AbREBHKS>; Wed, 2 May 2001 03:10:18 -0400
-Received: from post2.inre.asu.edu ([129.219.110.73]:57477 "EHLO
-	post2.inre.asu.edu") by vger.kernel.org with ESMTP
-	id <S129282AbREBHKN>; Wed, 2 May 2001 03:10:13 -0400
-Date: Wed, 02 May 2001 00:09:58 -0700
-From: Russ Dill <Russ.Dill@asu.edu>
-Subject: Re: Breakage of opl3sax cards since 2.4.3 (at least)
-To: dbronaugh@opensourcedot.com, linux-kernel@vger.kernel.org
-Message-id: <3AEFB2C6.24F7B40D@asu.edu>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac1-lpp i686)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S131205AbREBHeR>; Wed, 2 May 2001 03:34:17 -0400
+Received: from a1a90191.sympatico.bconnected.net ([209.53.18.14]:4508 "EHLO
+	a1a90191.sympatico.bconnected.net") by vger.kernel.org with ESMTP
+	id <S130446AbREBHeL>; Wed, 2 May 2001 03:34:11 -0400
+Date: Wed, 2 May 2001 00:33:59 -0700
+From: Shane Wegner <shane@cm.nu>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Patch: softdog and WDIOS_DISABLECARD
+Message-ID: <20010502003359.A20841@cm.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+Organization: Continuum Systems, Vancouver, Canada
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually, this occured at 2.4.2
+Hi,
 
-I searched though the archives, and the only people who were able to get
-this resolved were those with a non-isapnp card (by added isapnp=0).
-However, I have an isapnp card and the driver doesn't think my card
-exists. If I lod it, withot options, I get:
+I have found a potential problem with the current
+implementation of the software watchdog.  I have
+CONFIG_WATCHDOG_NOWAYOUT set for a reliable watchdog. 
+However, there are instances where I want to explicitly
+shut it down.  The problem with disabling
+CONFIG_WATCHDOG_NOWAYOUT is that events other than an
+explicit shutdown can disable the timer.  A SIGSEGV
+perhaps or the daemon being killed by the OOM handler.  In
+cases like this, the system should reboot IMO.
 
-russ kernel: opl3sa2: ISA PnP activate failed
-russ kernel: opl3sa2: No PnP cards found
-russ kernel: opl3sa2: 0 PnP card(s) found.
+This small patch adds the appropriate options to enable and
+disable the timer explicitly.
 
-OK, so I use my old isapnp.conf 
+--- softdog.c.orig	Wed May  2 00:15:56 2001
++++ softdog.c	Wed May  2 00:15:19 2001
+@@ -130,6 +130,7 @@
+ 	static struct watchdog_info ident = {
+ 		identity: "Software Watchdog",
+ 	};
++	int rv;
+ 	switch (cmd) {
+ 		default:
+ 			return -ENOIOCTLCMD;
+@@ -140,6 +141,25 @@
+ 		case WDIOC_GETSTATUS:
+ 		case WDIOC_GETBOOTSTATUS:
+ 			return put_user(0,(int *)arg);
++		case WDIOC_SETOPTIONS:
++			if(copy_from_user(&rv, (int*) arg, sizeof(int)))
++				return -EFAULT;
++
++			if (rv & WDIOS_DISABLECARD) {
++				lock_kernel();
++				del_timer(&watchdog_ticktock);
++				unlock_kernel();
++			return 0;
++			}
++
++			if (rv & WDIOS_ENABLECARD) {
++				lock_kernel();
++				mod_timer(&watchdog_ticktock, jiffies +
++				   (soft_margin * HZ));
++				unlock_kernel();
++				return 0;
++			}
++
+ 		case WDIOC_KEEPALIVE:
+ 			mod_timer(&watchdog_ticktock, jiffies+(soft_margin*HZ));
+ 			return 0;
 
-russ:/home/russ# isapnp /etc/isapnp.conf
-
-then insmod it like this:
-Board 1 has Identity 81 ff ff ff ff 20 00 a8 65:  YMH0020 Serial No -1
-[checksum 81]
-YMH0020/-1[0]{OPL3-SAX Sound Board}: Ports 0x240 0xE80 0x388 0x300
-0x100; IRQ10 DMA0 DMA3 --- Enabled OK
-YMH0020/-1[1]{OPL3-SAX Sound Board}: Port 0x204; --- Enabled OK
-
-russ:/home/russ# insmod opl3sa2 irq=10 io=0x240 dma=0 dma2=3
-mss_io=0xe80 isapnp=0
-Using /lib/modules/2.4.4-ac1-lpp/kernel/drivers/sound/opl3sa2.o
-/lib/modules/2.4.4-ac1-lpp/kernel/drivers/sound/opl3sa2.o: init_module:
-No such device
-Hint: insmod errors can be caused by incorrect module parameters,
-including invalid IO or IRQ parameters
-
-
-hmm, and kern.log says:
-
-russ kernel: opl3sa2: Control I/O port 0x240 is not a YMF7xx chipset!
-
-something in the changeover forgot about my card
+-- 
+Shane Wegner: shane@cm.nu
+              http://www.cm.nu/~shane/
+PGP:          1024D/FFE3035D
+              A0ED DAC4 77EC D674 5487
+              5B5C 4F89 9A4E FFE3 035D

@@ -1,85 +1,282 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263084AbUDATPT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 14:15:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbUDATPT
+	id S263061AbUDATY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 14:24:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263075AbUDATY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 14:15:19 -0500
-Received: from fujitsu2.fujitsu.com ([192.240.0.2]:5536 "EHLO
-	fujitsu2.fujitsu.com") by vger.kernel.org with ESMTP
-	id S263084AbUDATPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 14:15:09 -0500
-Date: Thu, 01 Apr 2004 11:14:52 -0800
-From: Yasunori Goto <ygoto@us.fujitsu.com>
-To: mbligh@aracnet.com
-Subject: [Patch] physnode_map definition should be signed
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>
-Message-Id: <20040401095436.DFDD.YGOTO@us.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.07.02
+	Thu, 1 Apr 2004 14:24:28 -0500
+Received: from verein.lst.de ([212.34.189.10]:47040 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S263061AbUDATYT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 14:24:19 -0500
+Date: Thu, 1 Apr 2004 21:24:12 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] kill spurious MAKDEV scripts
+Message-ID: <20040401192412.GA10082@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Martin-san.
+Kill magic ide/sound makedev scripts in scripts/.  The userland MAKEDEV
+is the proper place and already has support for them.
 
-In your modification of pfn_valid() for IA32 at 2.6.4 stock kernel,
-it doesn't return 0 even if the node is offline.
 
-True problem is physnode_map's definition.
-Physnode_map[]'s default (offline) value is -1,
-but it is defined as UNSIGNED 8. 
-So, pfn_to_nid() return 255. 
-
-I think this should be defined as signed like this patch.
-Maximum node number of IA32 is 16, so this is enough yet.
-
-I found this problem on multi-node emulation for memory-hotplug test.
-When I started X on this emulation, system panicked at remap_pte_range()
-by this problem.
-I think that system will be down when a program will call mmap()
-for hardware area.
-
-Could you check this? 
-Or, Do you already know this problem?
-
-Thanks.
-
------------------------------------------------------------------
- mem_node_hotplug-goto/arch/i386/mm/discontig.c  |    2 +-
- mem_node_hotplug-goto/include/asm-i386/mmzone.h |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -puN include/asm-i386/mmzone.h~phys_nodemap_modify include/asm-i386/mmzone.h
---- mem_node_hotplug/include/asm-i386/mmzone.h~phys_nodemap_modify	Wed Mar 31 12:34:33 2004
-+++ mem_node_hotplug-goto/include/asm-i386/mmzone.h	Wed Mar 31 12:35:07 2004
-@@ -37,7 +37,7 @@ extern struct pglist_data *node_data[];
- #define MAX_ELEMENTS 256
- #define PAGES_PER_ELEMENT (MAX_NR_PAGES/MAX_ELEMENTS)
+--- 1.15/Documentation/ide.txt	Tue Mar 16 21:30:15 2004
++++ edited/Documentation/ide.txt	Thu Apr  1 20:53:21 2004
+@@ -65,9 +65,7 @@
  
--extern u8 physnode_map[];
-+extern s8 physnode_map[];
+ To access devices on interfaces > ide0, device entries please make sure that
+ device files for them are present in /dev.  If not, please create such
+-entries, by simply running the included shell script:
+-
+-	/usr/src/linux/scripts/MAKEDEV.ide
++entries, by using /dev/MAKEDEV.
  
- static inline int pfn_to_nid(unsigned long pfn)
- {
-diff -puN arch/i386/mm/discontig.c~phys_nodemap_modify arch/i386/mm/discontig.c
---- mem_node_hotplug/arch/i386/mm/discontig.c~phys_nodemap_modify	Wed Mar 31 12:34:43 2004
-+++ mem_node_hotplug-goto/arch/i386/mm/discontig.c	Wed Mar 31 12:36:25 2004
-@@ -56,7 +56,7 @@ bootmem_data_t node0_bdata;
-  *     physnode_map[4-7] = 1;
-  *     physnode_map[8- ] = -1;
-  */
--u8 physnode_map[MAX_ELEMENTS] = { [0 ... (MAX_ELEMENTS - 1)] = -1};
-+s8 physnode_map[MAX_ELEMENTS] = { [0 ... (MAX_ELEMENTS - 1)] = -1};
+ This driver automatically probes for most IDE interfaces (including all PCI
+ ones), for the drives/geometries attached to those interfaces, and for the IRQ
+@@ -344,7 +342,7 @@
+  nht1		major 37, minor 129	second IDE tape, no rewind on close.
+  ...
  
- unsigned long node_start_pfn[MAX_NUMNODES];
- unsigned long node_end_pfn[MAX_NUMNODES];
-
-
--- 
-Yasunori Goto <ygoto at us.fujitsu.com>
-
-
+-Run linux/scripts/MAKEDEV.ide to create the above entries.
++Run /dev/MAKEDEV to create the above entries.
+ 
+ The general magnetic tape commands compatible interface, as defined by
+ include/linux/mtio.h, is accessible through the character device.
+--- 1.34/Documentation/sound/alsa/ALSA-Configuration.txt	Mon Mar 15 01:07:51 2004
++++ edited/Documentation/sound/alsa/ALSA-Configuration.txt	Thu Apr  1 20:53:59 2004
+@@ -30,8 +30,7 @@
+ Creating ALSA devices
+ =====================
+ 
+-Use the MAKEDEV.snd script located in the directory named scripts
+-in the linux kernel tree.
++Use the /dev/MAKEDEV script to create the nessecary device nodes.
+ 
+ 
+ Module parameters
+--- 1.2/scripts/MAKEDEV.ide	Mon Sep  8 00:49:37 2003
++++ edited/scripts/MAKEDEV.ide	Thu Apr  1 20:51:24 2004
+@@ -1,49 +0,0 @@
+-#!/bin/sh
+-#
+-# This script creates the proper /dev/ entries for IDE devices
+-# on the primary, secondary, tertiary, and quaternary interfaces.
+-# See ../Documentation/ide.txt for more information.
+-#
+-makedev () {
+-	rm -f /dev/$1
+-	echo mknod /dev/$1 $2 $3 $4
+-	     mknod /dev/$1 $2 $3 $4
+-	chown root:disk /dev/$1
+-	chmod 660 /dev/$1
+-}
+-
+-makedevs () {
+-	rm -f /dev/$1*
+-	makedev $1 b $2 $3
+-	for part in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+-	do
+-		makedev $1$part b $2 `expr $3 + $part`
+-	done
+-}
+-
+-makedevs hda  3 0
+-makedevs hdb  3 64
+-makedevs hdc 22 0
+-makedevs hdd 22 64
+-makedevs hde 33 0
+-makedevs hdf 33 64
+-makedevs hdg 34 0
+-makedevs hdh 34 64
+-makedevs hdi 56 0
+-makedevs hdj 56 64
+-makedevs hdk 57 0
+-makedevs hdl 57 64
+-makedevs hdm 88 0
+-makedevs hdn 88 64
+-makedevs hdo 89 0
+-makedevs hdp 89 64
+-makedevs hdq 90 0
+-makedevs hdr 90 64
+-makedevs hds 91 0
+-makedevs hdt 91 64
+-
+-for tape in 0 1 2 3 4 5 6 7
+-do
+-	makedev ht$tape c 37 $tape
+-	makedev nht$tape c 37 `expr $tape + 128`
+-done
+===== scripts/MAKEDEV.snd 1.2 vs edited =====
+--- 1.2/scripts/MAKEDEV.snd	Mon Sep  8 00:49:37 2003
++++ edited/scripts/MAKEDEV.snd	Thu Apr  1 20:51:24 2004
+@@ -1,161 +0,0 @@
+-#!/bin/bash
+-#
+-# This script creates the proper /dev/ entries for ALSA devices.
+-# See ../Documentation/sound/alsa/ALSA-Configuration.txt for more
+-# information.
+-
+-MAJOR=116
+-OSSMAJOR=14
+-MAX_CARDS=4
+-PERM=666
+-OWNER=root.root
+-
+-if [ "`grep -w -E "^audio" /etc/group`x" != x ]; then
+-  PERM=660
+-  OWNER=root.audio
+-fi
+-
+-function create_odevice () {
+-  rm -f $1
+-  echo -n "Creating $1..."
+-  mknod -m $PERM $1 c $OSSMAJOR $2
+-  chown $OWNER $1
+-  echo " done"
+-}
+-
+-function create_odevices () {
+-  tmp=0
+-  tmp1=0
+-  rm -f $1 $1?
+-  echo -n "Creating $1?..."
+-  while [ $tmp1 -lt $MAX_CARDS ]; do
+-    minor=$[ $2 + $tmp ]
+-    mknod -m $PERM $1$tmp1 c $OSSMAJOR $minor
+-    chown $OWNER $1$tmp1
+-    tmp=$[ $tmp + 16 ]
+-    tmp1=$[ $tmp1 + 1 ]
+-  done
+-  echo " done"
+-}
+-
+-function create_device1 () {
+-  rm -f $1
+-  minor=$2
+-  echo -n "Creating $1..."
+-  mknod -m $PERM $1 c $MAJOR $minor
+-  chown $OWNER $1
+-  echo " done"
+-}
+-
+-function create_devices () {
+-  tmp=0
+-  rm -f $1 $1?
+-  echo -n "Creating $1?..."
+-  while [ $tmp -lt $MAX_CARDS ]; do
+-    minor=$[ $tmp * 32 ]
+-    minor=$[ $2 + $minor ]
+-    mknod -m $PERM "${1}C${tmp}" c $MAJOR $minor
+-    chown $OWNER "${1}C${tmp}"
+-    tmp=$[ $tmp + 1 ]
+-  done
+-  echo " done"
+-}
+-
+-function create_devices2 () {
+-  tmp=0
+-  rm -f $1 $1?
+-  echo -n "Creating $1??..."
+-  while [ $tmp -lt $MAX_CARDS ]; do
+-    tmp1=0
+-    while [ $tmp1 -lt $3 ]; do
+-      minor=$[ $tmp * 32 ]
+-      minor=$[ $2 + $minor + $tmp1 ]
+-      mknod -m $PERM "${1}C${tmp}D${tmp1}" c $MAJOR $minor
+-      chown $OWNER "${1}C${tmp}D${tmp1}"
+-      tmp1=$[ $tmp1 + 1 ]
+-    done
+-    tmp=$[ $tmp + 1 ]
+-  done
+-  echo " done"
+-}
+-
+-function create_devices3 () {
+-  tmp=0
+-  rm -f $1 $1?
+-  echo -n "Creating $1??$4..."
+-  while [ $tmp -lt $MAX_CARDS ]; do
+-    tmp1=0
+-    while [ $tmp1 -lt $3 ]; do
+-      minor=$[ $tmp * 32 ]
+-      minor=$[ $2 + $minor + $tmp1 ]
+-      mknod -m $PERM "${1}C${tmp}D${tmp1}${4}" c $MAJOR $minor
+-      chown $OWNER "${1}C${tmp}D${tmp1}${4}"
+-      tmp1=$[ $tmp1 + 1 ]
+-    done
+-    tmp=$[ $tmp + 1 ]
+-  done
+-  echo " done"
+-}
+-
+-if test "$1" = "-?" || test "$1" = "-h" || test "$1" = "--help"; then
+-  echo "Usage: snddevices [max]"
+-  exit
+-fi
+-
+-if test "$1" = "max"; then
+-  DSP_MINOR=19
+-fi
+-
+-# OSS (Lite) compatible devices...
+-
+-if test $OSSMAJOR -eq 14; then
+-  create_odevices /dev/mixer		0
+-  create_odevice /dev/sequencer		1
+-  create_odevices /dev/midi		2
+-  create_odevices /dev/dsp		3
+-  create_odevices /dev/audio		4
+-  create_odevice /dev/sndstat		6
+-  create_odevice /dev/music		8
+-  create_odevices /dev/dmmidi		9
+-  create_odevices /dev/dmfm		10
+-  create_odevices /dev/amixer		11	# alternate mixer
+-  create_odevices /dev/adsp		12	# alternate dsp
+-  create_odevices /dev/amidi		13	# alternate midi
+-  create_odevices /dev/admmidi		14	# alternate direct midi
+-  # create symlinks
+-  ln -svf /dev/mixer0 /dev/mixer
+-  ln -svf /dev/midi0 /dev/midi
+-  ln -svf /dev/dsp0 /dev/dsp
+-  ln -svf /dev/audio0 /dev/audio
+-  ln -svf /dev/music /dev/sequencer2
+-  ln -svf /dev/adsp0 /dev/adsp
+-  ln -svf /dev/amidi0 /dev/amidi
+-fi
+-
+-# Remove old devices
+-
+-mv -f /dev/sndstat /dev/1sndstat
+-rm -f /dev/snd*
+-mv -f /dev/1sndstat /dev/sndstat
+-if [ -d /dev/snd ]; then
+-  rm -f /dev/snd/*
+-  rmdir /dev/snd
+-fi
+-
+-# Create new ones
+-
+-mkdir -p /dev/snd
+-create_devices  /dev/snd/control	0
+-create_device1  /dev/snd/seq		1
+-create_device1  /dev/snd/timer		33
+-create_devices2 /dev/snd/hw		4	4
+-create_devices2 /dev/snd/midi		8	8
+-create_devices3 /dev/snd/pcm		16	8	p
+-create_devices3 /dev/snd/pcm		24	8	c
+-
+-# Loader devices
+-
+-echo "ALSA loader devices"
+-rm -f /dev/aload*
+-create_devices  /dev/aload		0
+-create_device1  /dev/aloadSEQ		1

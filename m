@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVCCINi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVCCIMy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbVCCINi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 03:13:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVCCINh
+	id S261567AbVCCIMy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 03:12:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVCCIMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 03:13:37 -0500
-Received: from upco.es ([130.206.70.227]:47069 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S261570AbVCCINb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 03:13:31 -0500
-Date: Thu, 3 Mar 2005 09:13:29 +0100
-From: Romano Giannetti <romanol@upco.es>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11: suspending laptop makes system randomly unstable
-Message-ID: <20050303081329.GA3004@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: romano@dea.icai.upco.es,
-	linux-kernel@vger.kernel.org
-References: <422618F0.3020508@telefonica.net>
+	Thu, 3 Mar 2005 03:12:54 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:18873 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261567AbVCCIMw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 03:12:52 -0500
+Subject: Re: 2.6.11-rc5-mm1 reiser4,USB,crpyto: Something BAD happend
+From: Vladimir Saveliev <vs@namesys.com>
+To: Alexander Gran <alex@zodiac.dnsalias.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <200503021932.56330@zodiac.zodiac.dnsalias.org>
+References: <200503021932.56330@zodiac.zodiac.dnsalias.org>
+Content-Type: text/plain
+Message-Id: <1109837523.14024.498.camel@tribesman.namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <422618F0.3020508@telefonica.net>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 03 Mar 2005 11:12:04 +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 08:50:08PM +0100, Miguelanxo Otero Salgueiro wrote:
+Hello
 
->    - Setting randomly "last battery full charge" to a huge value 
-> (example: 400 Ah when max battery capacity is 38 Ah) so I get random 
-> charging/discharging timing patterns
+On Wed, 2005-03-02 at 21:32, Alexander Gran wrote:
+> Hi,
+> 
+> Whatever happens here, we need - at least - lower 
+> the amount of log generatet. This is not really handy...
+> lsusb still lists the disk
+> syslog can be found (as soon as syslogd finished...;) at
+> http://zodiac.dnsalias.org/misc/crashlog
 
-Happens to me sometime (and misdetection of ac status too, although I
-rmmod/insmod ac on suspend script). For me is not related to suspend, nor to
-preempt. 
+I get "You do not have permission to access this document." trying to
+access it.
 
-Try to put a 
 
-  for i in 1 2 3 4 5 6 7 8; do acpi > /dev/null ; done 
 
-in the resume script. Works for me. 
-
-More info (config, logs, dsdt...) in
-    
-           http://bugme.osdl.org/show_bug.cgi?id=4124
-
-Romano 
-
--- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

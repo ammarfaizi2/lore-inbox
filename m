@@ -1,39 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269516AbUINRXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269503AbUINRXO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269516AbUINRXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 13:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269530AbUINRTh
+	id S269503AbUINRXO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 13:23:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269581AbUINRUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 13:19:37 -0400
-Received: from mail5.bluewin.ch ([195.186.1.207]:38804 "EHLO mail5.bluewin.ch")
-	by vger.kernel.org with ESMTP id S269598AbUINRRB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 13:17:01 -0400
-Date: Tue, 14 Sep 2004 19:16:10 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Albert Cahalan <albert@users.sf.net>
-Subject: Re: [pidhashing] [2/3] lower PID_MAX_LIMIT for 32-bit machines
-Message-ID: <20040914171610.GB14031@k3.hellgate.ch>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Albert Cahalan <albert@users.sf.net>
-References: <20040913015003.5406abae.akpm@osdl.org> <20040914022530.GO9106@holomorphy.com> <20040914022827.GP9106@holomorphy.com> <20040914023114.GQ9106@holomorphy.com> <20040914105527.GB11238@k3.hellgate.ch> <20040914154144.GQ9106@holomorphy.com> <20040914154750.GA13978@k3.hellgate.ch> <20040914164157.GU9106@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040914164157.GU9106@holomorphy.com>
-X-Operating-System: Linux 2.6.8 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+	Tue, 14 Sep 2004 13:20:32 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:41624 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S269540AbUINRQN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 13:16:13 -0400
+Message-ID: <414726FB.20703@rtr.ca>
+Date: Tue, 14 Sep 2004 13:14:35 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] New QStor SATA/RAID Driver for 2.6.9-rc2
+References: <41471163.10709@rtr.ca> <1095177622.16990.48.camel@localhost.localdomain>
+In-Reply-To: <1095177622.16990.48.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Sep 2004 09:41:57 -0700, William Lee Irwin III wrote:
-> Please check to see that the above message arrived.
+Alan Cox wrote:
+> Correct ioctl return is -ENOTTY for unknown (thats a mistake still in
+> many existing drivers so no suprise its still being copied)
 
-It's in the archive. Sorry for the noise.
+Quoting linux/Documentation/scsi_mid_low_api.txt:
+*
+*      Unfortunately some applications expect -EINVAL and react badly
+*      when -ENOTTY is returned; stick with -EINVAL.
 
-Roger
+Looks like a documentation fix is needed then.
+
+This is a hardware RAID device, with various graduations of sharing
+possible between hardware and software.   It was originally written
+pre-libata, and the RAID functionality in particular does not map
+well to libata.  Nor do the host-queuing implementation and other features.
+
+Thanks Alan.  I'll address the other points you brought up later.
+
+Cheers
+-- 
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")

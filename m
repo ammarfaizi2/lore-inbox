@@ -1,65 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277974AbRJMRtV>; Sat, 13 Oct 2001 13:49:21 -0400
+	id <S278337AbRJMRzb>; Sat, 13 Oct 2001 13:55:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278336AbRJMRtL>; Sat, 13 Oct 2001 13:49:11 -0400
-Received: from grip.panax.com ([63.163.40.2]:46860 "EHLO panax.com")
-	by vger.kernel.org with ESMTP id <S277974AbRJMRtC>;
-	Sat, 13 Oct 2001 13:49:02 -0400
-Date: Sat, 13 Oct 2001 13:49:27 -0400
-From: Patrick McFarland <unknown@panax.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Which is better at vm, and why? 2.2 or 2.4
-Message-ID: <20011013134926.H249@localhost>
-In-Reply-To: <20011013133301.G249@localhost> <E15sSti-0003ME-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5oH/S/bF6lOfqCQb"
+	id <S278336AbRJMRzV>; Sat, 13 Oct 2001 13:55:21 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:16577
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S278338AbRJMRzN>; Sat, 13 Oct 2001 13:55:13 -0400
+Date: Sat, 13 Oct 2001 13:55:25 -0400
+From: Chris Mason <mason@suse.com>
+To: Ricardo Galli <gallir@m3d.uib.es>, linux-kernel@vger.kernel.org
+cc: alan@lxorguk.ukuu.org.uk
+Subject: Re: 2.4.12-ac1 dies (seems reiserfs)
+Message-ID: <1998710000.1002995725@tiny>
+In-Reply-To: <Pine.LNX.4.33.0110122323460.7693-100000@m3d.uib.es>
+In-Reply-To: <Pine.LNX.4.33.0110122323460.7693-100000@m3d.uib.es>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <E15sSti-0003ME-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.22i
-X-Operating-System: Linux 2.4.12 i586
-X-Distributed: Join the Effort!  http://www.distributed.net/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---5oH/S/bF6lOfqCQb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Well, I dont actually need anything thats provided in 2.4 thats not provide=
-d in 2.2. I tend to use standard hardware. Would 2.2 be a better choice?
+On Friday, October 12, 2001 11:29:46 PM +0200 Ricardo Galli
+<gallir@m3d.uib.es> wrote:
 
-On 13-Oct-2001, Alan Cox wrote:
-> > Hmm, it seems that I didnt realize I had to cc that to the list, becaus=
-e I =3D
-> > belive this is something that should be on the list.
-> >=20
-> > Anyhow, exactly how much tweeking did you do, and isnt the ac tree supp=
-ost =3D
-> > to be unstable?
->=20
-> The -ac patches vary in stability. The release announcement for each one =
-is
-> intended to be a guide to how stable I expect it to be.
->=20
+> This time linux has died when un-installing a debian package from a remote
+> ssh terminal, so it might be related to ReiserFS.
+> 
+> There is no logs, sysrq didn't work neither.
+> 
+> Several files are corrupted:
+> 
+> linux:/var/log# dpkg -i "kernel-source*"
+> dpkg: error processing kernel-source* (--install):
+>  cannot access archive: No such file or directory
+> Errors were encountered while processing:
+>  kernel-source*
+> 
+> 
+> (i tried to remove kernel-source-2.4.7 when the machine hung).
 
---=20
-Patrick "Diablo-D3" McFarland || unknown@panax.com
+2.4.12-ac1 has a bug in the reiserfs writepage func.  It was actually
+introduced (by us) back in 2.4.10-ac by a patch that merged in changes from
+the pure linux kernel.  Anyway, check your logs for warnings from brelse.
+If you've got apps running that hit writepage at all (vmware, staroffice,
+some databases), you've probably hit this bug.
 
---5oH/S/bF6lOfqCQb
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+In ac1, alan dropped all the reiserfs patches he's been including to get
+the -ac and the linus reiserfs code bases closer together, so there should
+not be any other problems.  My test machine is tied up right now though, so
+I haven't hammered on -ac yet.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
+I'd suggest grabbing reiserfsck 3.x.0k-pre10 and checking the FS.  I'd aslo
+apply this (or wait for ac2).
 
-iD8DBQE7yH6m8Gvouk7G1cURAgjXAJ95cASaSbtzcK92XrFrK5f7INHekwCfaE/X
-vUYk9koQVe+Zwrw4VAE5q+c=
-=5/I4
------END PGP SIGNATURE-----
+Note, alan might fix this by merging the put_bh change in
+end_buffer_io_async, in which case this patch will apply cleanly but be
+completely wrong.  Check -ac2 carefully to see if it is still required
+before using it there.  This is -ac specific, don't apply to pure linus
+kernels.
 
---5oH/S/bF6lOfqCQb--
+-chris
+
+--- linux-2412ac1/fs/reisefs/inode.c.orig        Wed Oct 10 13:33:24 2001
++++ linux-2412ac1/fs/reiser/fs/inode.c     Wed Oct 10 13:33:40 2001
+@@ -2002,6 +2002,7 @@
+     for(i = 0 ; i < nr ; i++) {
+         bh = bhp[i] ;
+        lock_buffer(bh) ;
++       get_bh(bh) ;
+        set_buffer_async_io(bh) ;
+        /* submit_bh doesn't care if the buffer is dirty, but nobody
+        ** later on in the call chain will be cleaning it.  So, we
+
+
+
+
+
+

@@ -1,66 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291414AbSBHOoK>; Fri, 8 Feb 2002 09:44:10 -0500
+	id <S291589AbSBHOvv>; Fri, 8 Feb 2002 09:51:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291580AbSBHOoA>; Fri, 8 Feb 2002 09:44:00 -0500
-Received: from jalon.able.es ([212.97.163.2]:1019 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S291414AbSBHOnk>;
-	Fri, 8 Feb 2002 09:43:40 -0500
-Date: Fri, 8 Feb 2002 15:43:32 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Felipe Contreras <al593181@mail.mty.itesm.mx>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Weird bug in linux, glibc, gcc or what?
-Message-ID: <20020208154332.A3336@werewolf.able.es>
-In-Reply-To: <20020207135749.GA4545@sion.mty.itesm.mx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20020207135749.GA4545@sion.mty.itesm.mx>; from al593181@mail.mty.itesm.mx on jue, feb 07, 2002 at 14:57:49 +0100
-X-Mailer: Balsa 1.3.1
+	id <S291592AbSBHOvk>; Fri, 8 Feb 2002 09:51:40 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47119 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291589AbSBHOv2>; Fri, 8 Feb 2002 09:51:28 -0500
+Subject: Re: [2.5.4-pre3] link error in drivers/video/video.o
+To: eike@bilbo.math.uni-mannheim.de (Rolf Eike Beer)
+Date: Fri, 8 Feb 2002 15:01:47 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200202081520.29475@bilbo.math.uni-mannheim.de> from "Rolf Eike Beer" at Feb 08, 2002 03:22:00 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16ZCX5-0003x1-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> drivers/video/video.o: In function `vesafb_init':
+> drivers/video/video.o(.text.init+0x13f9): undefined reference to 
+> `bus_to_virt_not_defined_use_pci_map'
+> make: *** [vmlinux] Error 1
 
-On 20020207 Felipe Contreras wrote:
->Hi,
->
->I've found a weird problem in linuxthreads. When I get out of a thread it
->happends one of three, the new thread get's defuct and the proccess never
->ends, it segfaults, or it works.
->
->The most weird is that it depends on the kernel, and also when I run the
->test trought gdb there is no problem.
->
->Here is the test:
->
->#include <pthread.h>
->
->void *test(void *arg) {
->	puts("Thread2");
->	return 0;
->}
->
->int main() {
->	pthread_t tt;
->	puts("Before Thread2");
->	pthread_create(&tt,NULL,test,NULL);
->	puts("After Thread2");
->	return 0;
->}
->
-
-Buggy program that could give unspecified behaviour, unless pthread
-standard talks about orphaned threads...
-
-Your main program can die (exit) before child thread ends, so it has
-nobody to notify its dying or return to.
-
-Try with a sleep(1) before main return, or better, do a
-pthread_join().
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-pre9-slb #3 SMP Fri Feb 8 01:33:12 CET 2002 i686
+Someone made incorrect changes to the vesafb code. It was discussed but
+not fixed before 2.5.3. vesafb should be using phys_to_virt

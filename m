@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269869AbUIDKV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269872AbUIDKX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269869AbUIDKV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 06:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269871AbUIDKV1
+	id S269872AbUIDKX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 06:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269873AbUIDKX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 06:21:27 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27336 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S269869AbUIDKVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 06:21:23 -0400
-Date: Sat, 4 Sep 2004 12:21:16 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, Maximilian Attems <janitor@sternwelten.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.6.9-rc1-mm3: char/riscom8.c doesn't compile
-Message-ID: <20040904102116.GM28499@fs.tum.de>
-References: <20040903014811.6247d47d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040903014811.6247d47d.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Sat, 4 Sep 2004 06:23:59 -0400
+Received: from shockwave.systems.pipex.net ([62.241.160.9]:40870 "EHLO
+	shockwave.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S269872AbUIDKXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 06:23:40 -0400
+Message-ID: <413997A7.9060406@tungstengraphics.com>
+Date: Sat, 04 Sep 2004 11:23:35 +0100
+From: Keith Whitwell <keith@tungstengraphics.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@yahoo.com>,
+       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: New proposed DRM interface design
+References: <20040904004424.93643.qmail@web14921.mail.yahoo.com> <Pine.LNX.4.58.0409040145240.25475@skynet> <20040904102914.B13149@infradead.org> <41398EBD.2040900@tungstengraphics.com> <20040904104834.B13362@infradead.org>
+In-Reply-To: <20040904104834.B13362@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 03, 2004 at 01:48:11AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.9-rc1-mm2:
->...
-> +drivers-char-riscom8c-min-max-removal.patch
->...
->  Janitorial things
->...
+Christoph Hellwig wrote:
+> On Sat, Sep 04, 2004 at 10:45:33AM +0100, Keith Whitwell wrote:
+> 
+>>>Umm, the Linux kernel isn't about minimizing interfaces.  We don't link a
+>>>copy of scsi helpers into each scsi driver either, or libata into each sata
+>>>driver.
+>>
+>>But regular users don't tend to pull down new scsi or ata drivers in the same 
+>>way that they do graphics drivers.  Hence the concern of many drm developers 
+>>to avoid introducing new failure modes in this process.
+> 
+> 
+> Actually regulat users do.  And they do by pulling an uptodate kernel or
+> using a vendor kernel with backports.  This model would work for video drivers
+> aswell.
 
-Doesn't compile:
+Sure, explain to me how I should upgrade my RH-9 system to work on my new i915?
 
-<--  snip  -->
+I'm not a big fan of the DRM code either, it's ironic that I'm in a position 
+where I'm defending it.  Thanks to the cleanup work Dave is doing though it is 
+improving after a long period of neglect.
 
-...
-  CC      drivers/char/riscom8.o
-drivers/char/riscom8.c:1178: macro `min_t' used with only 2 args
-...
-make[2]: *** [drivers/char/riscom8.o] Error 1
+However, introducing a new binary interface isn't going to magically transform 
+a fairly neglected codebase into a sparkly new one.  All I can really see it 
+doing is saving a few K of memory in the hetrogenous dual head case.  Oh, and 
+introducing a new failure mode to be debugged at a distance.
 
-<--  snip  -->
-
-
-Trivial fix:
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.9-rc1-mm3-full/drivers/char/riscom8.c.old	2004-09-04 11:36:08.000000000 +0200
-+++ linux-2.6.9-rc1-mm3-full/drivers/char/riscom8.c	2004-09-04 11:36:57.000000000 +0200
-@@ -1174,7 +1174,7 @@
- 			}
- 
- 			cli();
--			c = min_t(c, min(SERIAL_XMIT_SIZE - port->xmit_cnt - 1,
-+			c = min_t(int, c, min(SERIAL_XMIT_SIZE - port->xmit_cnt - 1,
- 					 SERIAL_XMIT_SIZE - port->xmit_head));
- 			memcpy(port->xmit_buf + port->xmit_head, tmp_buf, c);
- 			port->xmit_head = (port->xmit_head + c) & (SERIAL_XMIT_SIZE-1);
+Keith

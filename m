@@ -1,27 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262513AbTDXJX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 05:23:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262515AbTDXJX6
+	id S262515AbTDXJZG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 05:25:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbTDXJZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 05:23:58 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:54975 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S262513AbTDXJX4 (ORCPT
+	Thu, 24 Apr 2003 05:25:06 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:56004 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S262515AbTDXJZE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 05:23:56 -0400
-Date: Thu, 24 Apr 2003 11:34:27 +0200
+	Thu, 24 Apr 2003 05:25:04 -0400
+Date: Thu, 24 Apr 2003 11:35:35 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Andrew Morton <akpm@digeo.com>, mbligh@aracnet.com,
-       ncunningham@clear.net.nz, gigerstyle@gmx.ch, geert@linux-m68k.org,
-       linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@digeo.com>
+Cc: ncunningham@clear.net.nz, cat@zip.com.au, mbligh@aracnet.com,
+       gigerstyle@gmx.ch, geert@linux-m68k.org, linux-kernel@vger.kernel.org
 Subject: Re: Fix SWSUSP & !SWAP
-Message-ID: <20030424093427.GA3084@elf.ucw.cz>
-References: <1051136725.4439.5.camel@laptop-linux> <1584040000.1051140524@flay> <20030423235820.GB32577@atrey.karlin.mff.cuni.cz> <20030423170759.2b4e6294.akpm@digeo.com> <20030424002544.GC2925@elf.ucw.cz> <20030424090519.GI28253@mail.jlokier.co.uk>
+Message-ID: <20030424093534.GB3084@elf.ucw.cz>
+References: <1051136725.4439.5.camel@laptop-linux> <1584040000.1051140524@flay> <20030423235820.GB32577@atrey.karlin.mff.cuni.cz> <20030423170759.2b4e6294.akpm@digeo.com> <20030424001733.GB678@zip.com.au> <1051143408.4305.15.camel@laptop-linux> <20030423173720.6cc5ee50.akpm@digeo.com> <20030424091236.GA3039@elf.ucw.cz> <20030424022505.5b22eeed.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030424090519.GI28253@mail.jlokier.co.uk>
+In-Reply-To: <20030424022505.5b22eeed.akpm@digeo.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,23 +28,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > Swapfile does not work, because even readonly mount wants to replay
-> > logs, and that'd be disk corruption.
+> > No, ext3 will be "unclean" during resume (you can't really unmount it
+> > during suspend!) and r-o mounting of ext3 will replay journal and
+> > cause data corruption.
 > 
-> I don't understand.  During suspend, you just need a list of blocks to
-> write to from the swapfile.  You can get that list before starting the
-> actual suspend, so that writing doesn't imply any filesystem activity.
+> Sorry, I still don't get it.  Go through the steps for me:
 > 
-> When you're resuming, you just need a list of which disk blocks to
-> resume from.  Can't that list be stored in a few blocks of the
-> swapfile itself, with the only critical parameter being the first
-> block number to resume from?
+> 1) suspend writes pages to disk
+> 
+> 2) machine is shutdown
+> 
+> 3) restart, journal replay
+> 
+> 4) resume reads pages from disk.
 
-And how do you pass that first number? Please user could you write
-this down to paper and enter it on commandline during suspend?
+And now you have kernel which expects data still in journal (that was
+state before suspend), but reality on disk is quite different (journal
+was replayed). Data corruption.
 
-Okay, okay, this could be made to work. You could store pointer in
-swapspace or in reserved block somewhere...
+Simple enough steps?
 								Pavel
 -- 
 When do you have a heart between your knees?

@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290120AbSCCWkN>; Sun, 3 Mar 2002 17:40:13 -0500
+	id <S290184AbSCCWnn>; Sun, 3 Mar 2002 17:43:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290184AbSCCWkD>; Sun, 3 Mar 2002 17:40:03 -0500
-Received: from ns.suse.de ([213.95.15.193]:48647 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290120AbSCCWjy>;
-	Sun, 3 Mar 2002 17:39:54 -0500
-Date: Sun, 3 Mar 2002 23:39:52 +0100
-From: Dave Jones <davej@suse.de>
-To: Diego Calleja <DiegoCG@teleline.es>
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: 2.4.19-pre1-aa1 problems
-Message-ID: <20020303233952.A11129@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Diego Calleja <DiegoCG@teleline.es>, linux-kernel@vger.kernel.org,
-	andrea@suse.de
-In-Reply-To: <20020303214135.7fb8f07c.DiegoCG@teleline.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020303214135.7fb8f07c.DiegoCG@teleline.es>; from DiegoCG@teleline.es on Sun, Mar 03, 2002 at 09:41:35PM +0100
+	id <S290228AbSCCWnd>; Sun, 3 Mar 2002 17:43:33 -0500
+Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:40937 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S290184AbSCCWnV>;
+	Sun, 3 Mar 2002 17:43:21 -0500
+Message-ID: <3C82A702.1030803@candelatech.com>
+Date: Sun, 03 Mar 2002 15:43:14 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: latency & real-time-ness.
+In-Reply-To: <E16hd1T-0005QW-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 03, 2002 at 09:41:35PM +0100, Diego Calleja wrote:
- > 
- > Mar  3 20:39:17 localhost kernel: Unable to handle kernel paging request at virtual address 04740010
- > Mar  3 20:39:17 localhost kernel: c01a078a
- > Mar  3 20:39:17 localhost kernel: *pde = 00000000
- > Mar  3 20:39:17 localhost kernel: Oops: 0000
- > Mar  3 20:39:17 localhost kernel: CPU:    0
- > Mar  3 20:39:17 localhost kernel: EIP:    0010:[sock_poll+30/40]    Tainted: P
 
- Which modules do you have loaded ?
+
+Alan Cox wrote:
+
+>>I'm running the program at nice -18.
+>>So, what kind of things can I do to decrease the latency?
+>>
+> 
+> Hack up the ksoftirq stuff to only fall back to ksoftirqd after about
+> 500 iterations instead of one is one little detail to deal with
+
+
+Can someone expound slightly on this?
+
+
+> 
+> 
+>>Would the low-latency patch help me?
+>>
+> 
+> Yes
+
+
+Excellent, I'm compiling that now....
+
+Thanks,
+Ben
+
+
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

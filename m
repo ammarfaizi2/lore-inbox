@@ -1,27 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263906AbRFSNwz>; Tue, 19 Jun 2001 09:52:55 -0400
+	id <S264141AbRFSOAZ>; Tue, 19 Jun 2001 10:00:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263928AbRFSNwq>; Tue, 19 Jun 2001 09:52:46 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:43280
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S263906AbRFSNwg>; Tue, 19 Jun 2001 09:52:36 -0400
-From: Larry McVoy <lm@bitmover.com>
-Date: Tue, 19 Jun 2001 06:52:33 -0700
-Message-Id: <200106191352.f5JDqXO12351@work.bitmover.com>
-To: linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: 2.4.5 corruption (again)
+	id <S264213AbRFSOAP>; Tue, 19 Jun 2001 10:00:15 -0400
+Received: from web3503.mail.yahoo.com ([216.115.111.70]:17171 "HELO
+	web3503.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S264140AbRFSOAN>; Tue, 19 Jun 2001 10:00:13 -0400
+Message-ID: <20010619140011.15518.qmail@web3503.mail.yahoo.com>
+Date: Tue, 19 Jun 2001 15:00:11 +0100 (BST)
+From: =?iso-8859-1?q?Mich=E8l=20Alexandre=20Salim?= 
+	<salimma1@yahoo.co.uk>
+Subject: PCMCIA DVD-ROM not detected when self-powered
+To: linux-laptop@vger.kernel.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, my corruption is back and this time I'm saving the data.  Al, send some 
-email when you are around, we can talk about access to the data.  I'm tarring
-up both good & bad right now.  I've looked at a few files and they look
-"shifted".
+Hello,
 
-	extra junk
-	original file less sizeof(extra junk) bytes
+I am setting up my notebook (Sony Vaio Picturebook
+C1VE) so that I can watch DVD under Linux, and one
+stumbling block is that (this is tested under Windows)
+the DVD drive has to be self-powered to get an
+acceptable performance - audio/video output is very
+slow when the drive is powered through PCMCIA, and
+this is under Windows with full acceleration.
 
-The machine has been up 6 days since the last corruption happened and the
-process which detected the corruption ran successfully every night as well
-as about 4 times by hand after my last corroption report.  
+I have not managed to get the DVD drive (PCG-51A)
+detected by pcmcia-cs, using either the kernel pcmcia
+drivers or the standalone drivers. Wondering if I am
+missing something here..
+
+Thanks in advance,
+
+Michel
+
+____________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.co.uk address at http://mail.yahoo.co.uk
+or your free @yahoo.ie address at http://mail.yahoo.ie

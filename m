@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289050AbSAFXem>; Sun, 6 Jan 2002 18:34:42 -0500
+	id <S288932AbSAFXrO>; Sun, 6 Jan 2002 18:47:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289045AbSAFXeb>; Sun, 6 Jan 2002 18:34:31 -0500
-Received: from weta.f00f.org ([203.167.249.89]:42949 "EHLO weta.f00f.org")
-	by vger.kernel.org with ESMTP id <S288932AbSAFXe1>;
-	Sun, 6 Jan 2002 18:34:27 -0500
-Date: Mon, 7 Jan 2002 12:37:26 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Benjamin LaHaise <bcrl@redhat.com>, Gerrit Huizenga <gerrit@us.ibm.com>,
-        "M. Edward Borasky" <znmeb@aracnet.com>,
-        Harald Holzer <harald.holzer@eunet.at>, linux-kernel@vger.kernel.org
-Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
-Message-ID: <20020106233726.GA26491@weta.f00f.org>
-In-Reply-To: <20020106032030.A27926@redhat.com> <E16NFxv-0005e4-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16NFxv-0005e4-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.25i
-X-No-Archive: Yes
+	id <S289045AbSAFXrD>; Sun, 6 Jan 2002 18:47:03 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:24453 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S288932AbSAFXqz>; Sun, 6 Jan 2002 18:46:55 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sun, 6 Jan 2002 15:46:54 -0800
+Message-Id: <200201062346.PAA01750@baldur.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.5.2.9: fbdev kdev_t build fixes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik writes:
+>This patch fixes the build for the rest of fbdev in 2.5.2-pre9...
 
-On Sun, Jan 06, 2002 at 04:16:07PM +0000, Alan Cox wrote:
+        I submitted a patch two days ago that fixed drivers/video
+compilation.  The difference between my patch and yours is that
+while I deleted the initializations of the form "fb_info.node = -1;",
+you replaced them with "fb_info.node = NODEV;".
 
-    You don't neccessarily need PSE. Migrating to an option to support
-    > 4K _virtual_ page size is more flexible for x86, although it
-    would need glibc getpagesize() fixing I think, and might mean a
-    few apps wouldnt run in that configuration.
+        -1 is all ones, NODEV is currently encoded as all zeroes.
+I see no change in your patch that modifies any test for the
+value of the "node" field, so, if there was any test that relied
+on this value, it is now broken.
 
-If someone has a minute or so, can someone briefly explain the
-difference(s) between PSE and PAE?
+        However, I believe that there is no test that relies on the
+initial value of fb_info.node before any call to register_framebuffer
+(which sets fb_info.node to something meaningful).  So, as far as I
+can tell, these initializations of fb_info.node are just wasting
+CPU cycles and confusing developers.
 
+        Can anyone identify a place that uses the initialized value
+of fb_info.node prior to fb_info.node being set by register_framebuffer?
 
-
-  --cw
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbUJ3Rte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbUJ3Rwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbUJ3Rte (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 13:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbUJ3Rte
+	id S261224AbUJ3Rwt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 13:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbUJ3Rwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 13:49:34 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:55972 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261220AbUJ3Rtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 13:49:32 -0400
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-In-Reply-To: <20041030115808.GA29692@elte.hu>
-References: <20041029193303.7d3990b4@mango.fruits.de>
-	 <20041029172151.GB16276@elte.hu> <20041029172243.GA19630@elte.hu>
-	 <20041029203619.37b54cba@mango.fruits.de> <20041029204220.GA6727@elte.hu>
-	 <20041029233117.6d29c383@mango.fruits.de> <20041029212545.GA13199@elte.hu>
-	 <1099086166.1468.4.camel@krustophenia.net> <20041029214602.GA15605@elte.hu>
-	 <1099091566.1461.8.camel@krustophenia.net> <20041030115808.GA29692@elte.hu>
+	Sat, 30 Oct 2004 13:52:49 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:61452 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261224AbUJ3Rwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 13:52:47 -0400
+Subject: Re: PCI changes kill USB PM
+From: Arjan van de Ven <arjan@infradead.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Greg KH <greg@kroah.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200410301044.25476.david-b@pacbell.net>
+References: <1099095245.29689.191.camel@gaston>
+	 <200410301044.25476.david-b@pacbell.net>
 Content-Type: text/plain
-Date: Sat, 30 Oct 2004 13:49:29 -0400
-Message-Id: <1099158570.1972.5.camel@krustophenia.net>
+Message-Id: <1099158753.3883.6.camel@laptop.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Sat, 30 Oct 2004 19:52:33 +0200
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.6 (++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (2.6 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-30 at 13:58 +0200, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> > Here is the dmesg output.  It looks like the problem could be related
-> > to jackd's printing from the realtime thread.  But, this has to be the
-> > kernel's fault on some level, because with an earlier version I get no
-> > xruns.
-> 
-> with the earlier version these spinlocks were simply disabling
-> preemption, while now they will schedule away on contention. If that tty
-> lock is held for a long time by a lowprio task then that could delay the
-> highprio thread. We are starting to see priority inversion problems. 
-> But, the core issue is doing tty printouts - does jackd do that
-> periodically, or only as a reaction to an already existing latency?
-> 
+On Sat, 2004-10-30 at 10:44 -0700, David Brownell wrote:
 
-No, this cannot be the whole story, because unless verbose mode is
-specified, jackd will only prints anything if there is an xrun.  So
-there is something else going on.
+> Where "now" is "after a change from Arjan in May";
+> recent changes made it a more significant problem.
+> 
+> I agree with the guts of your patch -- adding the
+> missing "else" in:
+> 
+> 	if (pci_driver && pci_driver->suspend)
+> 		pci_driver->suspend(pdev, state);
+> 	else
+> 		pci_save_state(pdev);
+> 
+> That makes Arjan's patch only affect PCI drivers
+> which don't know how to suspend/resume themselves;
+> that's all his patch was supposed to affect.
 
-This _really_ feels like a kernel bug.  Are you saying that this could
-still be a jackd problem, even though T3 works perfectly with the exact
-same jackd binary?
-
-Lee
+well the idea back then was to just always save so that drivers could be lazy and only provide a specialized restore. However I agree with this change now that the API changed where regular state saves use the same storage area. 
 

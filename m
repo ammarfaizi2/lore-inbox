@@ -1,100 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266218AbSKLFts>; Tue, 12 Nov 2002 00:49:48 -0500
+	id <S266236AbSKLG0Z>; Tue, 12 Nov 2002 01:26:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266223AbSKLFts>; Tue, 12 Nov 2002 00:49:48 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:60360 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S266218AbSKLFtq>;
-	Tue, 12 Nov 2002 00:49:46 -0500
-Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC921@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Jamie Lokier'" <lk@tantalophile.demon.co.uk>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       "'mingo@redhat.com'" <mingo@redhat.com>,
-       "'Mark Mielke'" <mark@mark.mielke.cc>, linux-kernel@vger.kernel.org
-Subject: RE: Users locking memory using futexes
-Date: Mon, 11 Nov 2002 21:56:32 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S266237AbSKLG0Z>; Tue, 12 Nov 2002 01:26:25 -0500
+Received: from SNAP.THUNK.ORG ([216.175.175.173]:11410 "EHLO snap.thunk.org")
+	by vger.kernel.org with ESMTP id <S266236AbSKLG0X>;
+	Tue, 12 Nov 2002 01:26:23 -0500
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [1/4]: Ext2/3 updates: Fix/simplify alternate superblock logic
+From: tytso@mit.edu
+Message-Id: <E18BUbn-0005ix-00@snap.thunk.org>
+Date: Tue, 12 Nov 2002 01:33:11 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Fix/simplify alternate superblock logic
 
-> > This raises a good point - I guess we should be doing something like
-> > checking user limits (against locked memory, 'ulimit -l').
+Fix bugs when specifying an alternate superblock as a mount option; not 
+all of the cases where a alternate sb was specified and a block device
+whose hardware blocksize was not 1024 worked correctly (and the failure
+mode was different for ext2 and ext3).  The code has been tightened up
+and simplified, so that it is right in all of the permutations of these 
+cases.
 
-> If futexes are limited by user limits, that's going to mean some
-> threading program gets a surprise when too many threads decide to
-> block on a resource.  That's really nasty.  (Of course, a program can
-> get a surprise due to just running out of memory in sys_futex() too,
-> but that's much rarer).
- 
-Sure, as I mentioned in my email, that'd be _a_ way to do it, but I am not
-convinced at all it is the best -- of course, I don't know what could be the
-best way to do it; maybe a capability? a per-process tunable in /proc?
-another rlimit and we break POSIX? [do we?]
 
-Good thing is - I just found out after reading twice - that FUTEX_FD does
-not lock the page in memory, so that is one case less to worry about. 
+ext2/super.c |   12 +++++-------
+ext3/super.c |   10 ++++------
+2 files changed, 9 insertions(+), 13 deletions(-)
 
-In this context I was wondering it it really makes sense to worry about too
-many threads of a DoS process blocking on futex_wait() to lock memory out.
-At least, as an excercise ...
-
-> It would be nice if the futex waitqueues could be re-hashed against
-> swap entries when pages are swapped out, somehow, but this 
-> sounds hard.
-
-I am starting to think it could be done with no effort -- just off my
-little-knoledgeable-head -- let's say it can be done:
-
-In futex_wait(), we lock the page, store it and the offset [and whatever
-else] as now, and then releasing just after queueing in the hash table; this
-way the page can go wild to swap.
-
-Some other process has locked it, then goes on to do something else and the
-page ends up in swap. Whenever we call _wake() - or tell_waiters(), we need
-to make sure the page is in RAM - if not, we can page it in (__pin_page()
-does it already) and lock it, do the thing, unlock it.
-
-So, this would mean this patch should suffice:
---- futex.c	12 Nov 2002 05:38:55 -0000	1.1.1.3.8.1
-+++ futex.c	12 Nov 2002 05:50:35 -0000
-@@ -281,10 +277,12 @@
- 	/* Page is pinned, but may no longer be in this address space. */
- 	if (get_user(curval, (int *)uaddr) != 0) {
- 		ret = -EFAULT;
-+                unpin_page(page);
- 		goto out;
- 	}
- 	if (curval != val) {
- 		ret = -EWOULDBLOCK;
-+                unpin_page(page);
- 		goto out;
- 	}
- 	/*
-@@ -295,6 +293,7 @@
- 	 * the waiter from the list.
+diff -Nru a/fs/ext2/super.c b/fs/ext2/super.c
+--- a/fs/ext2/super.c	Tue Nov 12 01:12:15 2002
++++ b/fs/ext2/super.c	Tue Nov 12 01:12:15 2002
+@@ -548,9 +548,9 @@
+ 	struct buffer_head * bh;
+ 	struct ext2_sb_info * sbi;
+ 	struct ext2_super_block * es;
+-	unsigned long block, sb_block = 1;
+-	unsigned long logic_sb_block = get_sb_block(&data);
+-	unsigned long offset = 0;
++	unsigned long block, sb_block = get_sb_block(&data);
++	unsigned long logic_sb_block;
++	unsigned long offset;
+ 	unsigned long def_mount_opts;
+ 	int blocksize = BLOCK_SIZE;
+ 	int db_count;
+@@ -579,10 +579,8 @@
+ 	 * If the superblock doesn't start on a hardware sector boundary,
+ 	 * calculate the offset.  
  	 */
- 	add_wait_queue(&q.waiters, &wait);
-+        unpin_page(page);
- 	set_current_state(TASK_INTERRUPTIBLE);
- 	if (!list_empty(&q.list))
- 		time = schedule_timeout(time);
-@@ -313,7 +312,6 @@
- 	/* Were we woken up anyway? */
- 	if (!unqueue_me(&q))
- 		ret = 0;
--	unpin_page(page);
+-	if (blocksize != BLOCK_SIZE) {
+-		logic_sb_block = (sb_block*BLOCK_SIZE) / blocksize;
+-		offset = (sb_block*BLOCK_SIZE) % blocksize;
+-	}
++	logic_sb_block = (sb_block*BLOCK_SIZE) / blocksize;
++	offset = (sb_block*BLOCK_SIZE) % blocksize;
  
- 	return ret;
- }
-
-Rusty, Ingo: am I missing something big in here? I am kind of green in the
-interactions between the address spaces.
-
-Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
-fault]
-
+ 	if (!(bh = sb_bread(sb, logic_sb_block))) {
+ 		printk ("EXT2-fs: unable to read superblock\n");
+diff -Nru a/fs/ext3/super.c b/fs/ext3/super.c
+--- a/fs/ext3/super.c	Tue Nov 12 01:12:15 2002
++++ b/fs/ext3/super.c	Tue Nov 12 01:12:15 2002
+@@ -1000,8 +1000,8 @@
+ 	struct ext3_super_block *es = 0;
+ 	struct ext3_sb_info *sbi;
+ 	unsigned long sb_block = get_sb_block(&data);
+-	unsigned long block, logic_sb_block = 1;
+-	unsigned long offset = 0;
++	unsigned long block, logic_sb_block;
++	unsigned long offset;
+ 	unsigned long journal_inum = 0;
+ 	unsigned long def_mount_opts;
+ 	int blocksize;
+@@ -1033,10 +1033,8 @@
+ 	 * The ext3 superblock will not be buffer aligned for other than 1kB
+ 	 * block sizes.  We need to calculate the offset from buffer start.
+ 	 */
+-	if (blocksize != EXT3_MIN_BLOCK_SIZE) {
+-		logic_sb_block = (sb_block * EXT3_MIN_BLOCK_SIZE) / blocksize;
+-		offset = (sb_block * EXT3_MIN_BLOCK_SIZE) % blocksize;
+-	}
++	logic_sb_block = (sb_block * EXT3_MIN_BLOCK_SIZE) / blocksize;
++	offset = (sb_block * EXT3_MIN_BLOCK_SIZE) % blocksize;
+ 
+ 	if (!(bh = sb_bread(sb, logic_sb_block))) {
+ 		printk (KERN_ERR "EXT3-fs: unable to read superblock\n");

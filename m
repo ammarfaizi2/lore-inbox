@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290175AbSAWWqA>; Wed, 23 Jan 2002 17:46:00 -0500
+	id <S289619AbSAWWsA>; Wed, 23 Jan 2002 17:48:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289970AbSAWWpn>; Wed, 23 Jan 2002 17:45:43 -0500
-Received: from smtp4.vol.cz ([195.250.128.43]:65292 "EHLO majordomo.vol.cz")
-	by vger.kernel.org with ESMTP id <S289619AbSAWWp2>;
-	Wed, 23 Jan 2002 17:45:28 -0500
-Date: Wed, 23 Jan 2002 11:47:52 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Miklos Szeredi <Miklos.Szeredi@eth.ericsson.se>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        avfs@fazekas.hu
-Subject: Re: [ANNOUNCE] FUSE: Filesystem in Userspace 0.95
-Message-ID: <20020123104752.GA965@elf.ucw.cz>
-In-Reply-To: <200201100955.KAA19208@duna207.danubius> <20020113031052.I511@toy.ucw.cz> <200201211018.LAA08707@duna207.danubius>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200201211018.LAA08707@duna207.danubius>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S289925AbSAWWqd>; Wed, 23 Jan 2002 17:46:33 -0500
+Received: from ns1.jasper.com ([64.19.21.34]:46826 "EHLO ersfirep1")
+	by vger.kernel.org with ESMTP id <S289619AbSAWWqH>;
+	Wed, 23 Jan 2002 17:46:07 -0500
+From: "Radivoje Todorovic" <radivojet@jaspur.com>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: Netlink
+Date: Wed, 23 Jan 2002 16:45:04 -0600
+Message-ID: <BOEOJGNGENIJJMAOLHHCGELJDCAA.radivojet@jaspur.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello,
 
-> > Are you multithreaded? Like will big ftp download block all FUSE, all ftp,
-> > only one server, or everything?
-> 
-> FUSE and AVFS are both multithreaded.  Specifically ftp is quite well
-> threaded, and a big download will not block any operation, even on the
-> same server. 
+Not sure if this is the right list to ask this question....
 
-Good!
+While I was trying to evaluate what is the best method to get the data from
+Kernel-Space to User-Space and vice-versa I found that two techniques are
+available:
 
-> > >        o user can intentionally block the page writeback operation,
-> > >          causing a system lockup.  I'm not sure this can be solved in
-> > >          a truly secure way.  Ideas?
-> > 
-> > How does GRUB solve this?
-> 
-> What GRUB? 
+-IOCTL
+-Netlink Sockets
 
-Sorry, I meant HURD. It has "untrusted" filesystems in userland, too.
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+
+
+I would like to know which one would be used in what situation?
+Is there a (buffer, message)data size limit for the those two?
+
+Seems that if one wants to get data from the kernel which is triggered by
+some interupt IOCTL cannot be used as IOCTL is invoked  from the User-Space
+while netlink socket can listen for the kernel event to take place and then
+simply read from the socket. Correct?
+
+
+The other issue is that user-space part of Netlink socket is trivial to use
+while kernel part is nightmare. So I would appreciate any help if someone
+can send me sample module that both sends and receives "Hello" message
+to/from the Netlink Socket
+
+Rade
+

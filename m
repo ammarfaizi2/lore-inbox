@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130145AbRBMAZH>; Mon, 12 Feb 2001 19:25:07 -0500
+	id <S130074AbRBMA0h>; Mon, 12 Feb 2001 19:26:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130195AbRBMAY5>; Mon, 12 Feb 2001 19:24:57 -0500
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:44504 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S130145AbRBMAYl>;
-	Mon, 12 Feb 2001 19:24:41 -0500
-Date: Tue, 13 Feb 2001 00:24:08 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Werner Almesberger <Werner.Almesberger@epfl.ch>,
+	id <S130051AbRBMA01>; Mon, 12 Feb 2001 19:26:27 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:34572 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129752AbRBMA0U>; Mon, 12 Feb 2001 19:26:20 -0500
+Message-ID: <3A887F17.BA083B28@transmeta.com>
+Date: Mon, 12 Feb 2001 16:25:59 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Werner Almesberger <Werner.Almesberger@epfl.ch>,
         linux-kernel@vger.kernel.org
 Subject: Re: LILO and serial speeds over 9600
-In-Reply-To: <3A8876FA.EA2034D1@transmeta.com>
-Message-ID: <Pine.SOL.4.21.0102130020440.18655-100000@red.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <E14ST3g-000094-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Feb 2001, H. Peter Anvin wrote:
-
-> James Sutherland wrote:
-> > >
-> > > Depends on what the client can handle.  For the kernel, that might be
-> > > true, but for example a boot loader may only have a few K worth of buffer
-> > > space.
-> > 
-> > Fortunately, the bulky stuff (printk's from the booting kernel) will be
-> > going from the boot loader to the server, and should be buffered there
-> > OK until they can be processed. Only the stuff sent to the client will
-> > need buffering, and that should be simple keystrokes...
+Alan Cox wrote:
 > 
-> Well, any time there is a network there needs to be buffering, if you
-> want to have any kind of ACK protocol.
+> > I'm sure you can.  That doesn't mean it's the right solution.
+> 
+> And the UDP proposal will be at least as big if it does retransmits, and if
+> it doesnt , its junk. It will also need as much buffering, if not the same
+> packing trick
+> 
 
-Yes, but only the last packet sent, if you limit to one packet at a
-time... Shouldn't be a problem, even for the smallest code.
+Within limits, you're right, of course.  I suspect it won't be *as* big
+(especially not if it's talking to a PXE card which does the IP and UDP
+layers in firmware, but not TCP), but I still suspect better tradeoffs
+can be made this way.
 
+That being said, I'll look at TCP as well.
 
-James.
+	-hpa
 
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

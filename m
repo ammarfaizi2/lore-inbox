@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbULUQjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbULUQlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261793AbULUQjk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 11:39:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbULUQjk
+	id S261801AbULUQlj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 11:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbULUQjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 11:39:40 -0500
-Received: from picard.ine.co.th ([203.152.41.3]:20129 "EHLO picard.ine.co.th")
-	by vger.kernel.org with ESMTP id S261793AbULUQjZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 11:39:25 -0500
-Subject: Re: kernel (64bit) 4GB memory support
-From: Rudolf Usselmann <rudi@asics.ws>
-Reply-To: rudi@asics.ws
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: "Frank Denis (Jedi/Sector One)" <j@pureftpd.org>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <Pine.LNX.4.61.0412210930280.28648@montezuma.fsmlabs.com>
-References: <41BAC68D.6050303@pobox.com> <1102760002.10824.170.camel@cpu0>
-	 <41BB32A4.2090301@pobox.com> <1102824735.17081.187.camel@cpu0>
-	 <Pine.LNX.4.61.0412112141180.7847@montezuma.fsmlabs.com>
-	 <1102828235.17081.189.camel@cpu0>
-	 <Pine.LNX.4.61.0412120131570.7847@montezuma.fsmlabs.com>
-	 <1102842902.10322.200.camel@cpu0>
-	 <Pine.LNX.4.61.0412120934160.14734@montezuma.fsmlabs.com>
-	 <1103027130.3650.73.camel@cpu0>  <20041216074905.GA2417@c9x.org>
-	 <1103213359.31392.71.camel@cpu0>
-	 <Pine.LNX.4.61.0412201246180.12334@montezuma.fsmlabs.com>
-	 <1103646195.3652.196.camel@cpu0>
-	 <Pine.LNX.4.61.0412210930280.28648@montezuma.fsmlabs.com>
-Content-Type: text/plain
-Organization: ASICS.ws - Solutions for your ASICS & FPGA needs -
-Message-Id: <1103647158.3659.199.camel@cpu0>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 21 Dec 2004 23:39:18 +0700
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Dec 2004 11:39:51 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:48774 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261795AbULUQj1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 11:39:27 -0500
+Message-ID: <41C85216.1070304@tmr.com>
+Date: Tue, 21 Dec 2004 11:40:54 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: 7eggert@gmx.de
+CC: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9 NAT problem
+References: <fa.b00sk8v.12lus29@ifi.uio.no> <E1CgfT5-0000Zh-00@be1.7eggert.dyndns.org>
+In-Reply-To: <E1CgfT5-0000Zh-00@be1.7eggert.dyndns.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-21 at 23:33, Zwane Mwaikambo wrote:
+Bodo Eggert wrote:
+> Bill Davidsen wrote:
 > 
-> Ok don't worry about trying to isolate it, there should be a fix for it by 
-> 2.6.10.
+>>Antonio Pérez wrote:
 > 
-> Thanks,
-> 	Zwane
+> 
+>>>add this:
+>>>echo 0 > /proc/sys/net/ipv4/tcp_bic
+>>>echo 0 > /proc/sys/net/ipv4/tcp_ecn
+>>>echo 0 > /proc/sys/net/ipv4/tcp_vegas_conf_avoid
+>>
+>>I've seen this and similar advice for other problems, and have disabled=
+>> 
+>>ecn for several systems with networking ailments myself. Would it be
+>>better to have some of these off by default rather than have multiple
+>>versions of these problems appear into the future?
+> 
+> 
+> Disabeling ecn is a workaround for b0rken firewalls and may result in
+> using more bandwidth than nescensary. If disabeling ecn helps, dump the
+> firewall and get something that supports basic internet standards (or
+> ask the owner to do this).
+> 
+Like many other parameters, ecn can improve performance but may result 
+in a non-functional network. Based on that I still think it's better for 
+the default to be "works" and use of ecn or other tuning parameters such 
+as reducing timeouts should be "tuning" instead.
 
-Well, if somebody is working on it, I would be happy to very the
-fixes and assist in providing additional debugging information.
-Please don't take my previous email the wrong way - I do want to
-help any way I can ...
+Adding a few printk's seems to show that ecn is not so common that it 
+needs to be on by default. I suspect that the main use of ecn code is in 
+fighting with those broken routers and firewalls rather than improving 
+performance.
 
-Kind Regards,
-rudi
 
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

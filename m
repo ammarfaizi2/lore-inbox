@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbUKEOWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262702AbUKEOaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261634AbUKEOWK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 09:22:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbUKEOWK
+	id S262702AbUKEOaG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 09:30:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbUKEOaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 09:22:10 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:50392 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S261634AbUKEORo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 09:17:44 -0500
-To: linux-kernel@vger.kernel.org
-cc: Ian.Pratt@cl.cam.ac.uk
-Subject: Xen 2.0 Officially Released!
-Date: Fri, 05 Nov 2004 14:17:43 +0000
-From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Message-Id: <E1CQ4uN-0004PN-00@mta1.cl.cam.ac.uk>
+	Fri, 5 Nov 2004 09:30:06 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27147 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262702AbUKEOaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 09:30:02 -0500
+Date: Fri, 5 Nov 2004 14:29:53 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: remy.gauguey@mindspeed.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: non_linear memory on ARM
+Message-ID: <20041105142953.A22402@flint.arm.linux.org.uk>
+Mail-Followup-To: remy.gauguey@mindspeed.com, linux-kernel@vger.kernel.org
+References: <OFC878058C.F34D3F6A-ONC1256F43.004C88F3-C1256F43.004DDB20@nice.mindspeed.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <OFC878058C.F34D3F6A-ONC1256F43.004C88F3-C1256F43.004DDB20@nice.mindspeed.com>; from remy.gauguey@mindspeed.com on Fri, Nov 05, 2004 at 03:10:12PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 05, 2004 at 03:10:12PM +0100, remy.gauguey@mindspeed.com wrote:
+> I've tried to use the CONFIG_DISCONTIGMEM, but it seems that the large gap
+> of 2,5 Gb is a problem.
 
-The Xen team are pleased to announce the release of Xen 2.0, the
-open-source Virtual Machine Monitor.  Xen enables you to run
-multiple operating systems images concurrently on the same
-hardware, securely partitioning the resources of the machine
-between them. Xen uses a technique called 'para-virtualization'
-to achieve very low performance overhead -- typically just a few
-percent relative to native.  This new release provides kernel
-support for Linux 2.4.27/2.6.9 and NetBSD, with FreeBSD and Plan9
-to follow in the next few weeks.
+What problem are you seeing?
 
-Xen 2.0 runs on almost the entire set of modern x86 hardware
-supported by Linux, and is easy to 'drop-in' to an existing Linux
-installation.  The new release has a lot more flexibility in how
-guest OS virtual I/O devices are configured. For example, you can
-configure arbitrary firewalling, bridging and routing of guest
-virtual network interfaces, and use copy-on-write LVM volumes or
-loopback files for storing guest OS disk images.  Another new
-feature is 'live migration', which allows running OS images to be
-moved between nodes in a cluster without having to stop
-them. Visit the Xen homepage for downloads and documentation.
+PS, Do NOT cross post between linux-kernel and linux-arm-kernel.  Strictly
+one or the other please, never both.
 
-http://xen.sf.net
-
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

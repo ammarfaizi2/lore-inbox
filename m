@@ -1,30 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281180AbRKTRc1>; Tue, 20 Nov 2001 12:32:27 -0500
+	id <S281181AbRKTRir>; Tue, 20 Nov 2001 12:38:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281181AbRKTRcR>; Tue, 20 Nov 2001 12:32:17 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:61702 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S281180AbRKTRcI>; Tue, 20 Nov 2001 12:32:08 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15354.41239.767134.758605@beta.reiserfs.com>
-Date: Tue, 20 Nov 2001 21:29:43 +0300
-To: Reiserfs mail-list <Reiserfs-List@Namesys.COM>,
-        Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: [REISERFS TESTING] new patches on ftp.namesys.com: 2.4.15-pre7
-X-Mailer: VM 6.96 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
+	id <S281183AbRKTRi2>; Tue, 20 Nov 2001 12:38:28 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:56251 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S281181AbRKTRiU> convert rfc822-to-8bit; Tue, 20 Nov 2001 12:38:20 -0500
+Message-Id: <5.1.0.14.2.20011120173309.0262fd10@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 20 Nov 2001 17:37:19 +0000
+To: =?iso-8859-1?Q?Lu=EDs?= Henriques 
+	<lhenriques@criticalsoftware.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: copy to suer space
+Cc: <linux-kernel@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <200111201714.fAKHEc276467@criticalsoftware.com>
+In-Reply-To: <5.1.0.14.2.20011120165440.00a745b0@pop.cus.cam.ac.uk>
+ <5.1.0.14.2.20011120165440.00a745b0@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+At 17:08 20/11/01, Luís Henriques wrote:
+>When I'm modifing the code, I'm sure that the page is in memory because my
+>code is called from the user space, in the exact location where I want to
+>change it (with a breakpoint interruption...)
 
-new reiserfs patches are available for testing at
+There is a time window in which it might get paged out in the mean time but 
+it's admittedly a very small window. But that is irrelevant as copy_to_user 
+would take care of the page out case by faulting the page back in (that is 
+at least my understanding of it).
 
-ftp://ftp.namesys.com/pub/reiserfs-for-2.4/2.4.15-pre7.pending/
+But that is not the problem I was talking about: Imagine you do 
+successfully modify the user space code and AFTER THAT the kernel pages out 
+the code and pages it back in later. Your change is then lost without trace.
 
-Description is in README file.
+That can easily crash your program depending on what modifications you do 
+to it...
 
-Nikita.
+Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

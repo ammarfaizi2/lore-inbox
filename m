@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282276AbRLHQ4Q>; Sat, 8 Dec 2001 11:56:16 -0500
+	id <S282898AbRLHROG>; Sat, 8 Dec 2001 12:14:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282300AbRLHQ4G>; Sat, 8 Dec 2001 11:56:06 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:18963 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S282276AbRLHQz5>; Sat, 8 Dec 2001 11:55:57 -0500
-Date: Sat, 8 Dec 2001 17:55:44 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Lee Packham <lpackham@mswinxp.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Support of sonypi module/code
-Message-ID: <20011208175544.A22574@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-In-Reply-To: <000001c17fc3$fe666c00$0102a8c0@lee>
+	id <S282928AbRLHRN4>; Sat, 8 Dec 2001 12:13:56 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:37110 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S282898AbRLHRNn>; Sat, 8 Dec 2001 12:13:43 -0500
+Date: Sat, 8 Dec 2001 12:13:36 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: ymfpci bugfix
+Message-ID: <20011208121336.A14614@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <000001c17fc3$fe666c00$0102a8c0@lee>
-User-Agent: Mutt/1.3.20i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 08, 2001 at 08:40:30AM -0000, Lee Packham wrote:
+Hi, Marcelo:
 
-> Am I going to be treading on anybody's toes if I release a patch for the
-> sonypi module to add battery and AC power information support?
+In a true display of "never say never" case, here is an unanticipated
+bugfix for ymfpci in 2.4 (RH Bug 56977). It applies on top and/or
+independently from other 2.4 fixes (perhaps with offset to 41 lines).
 
-Mines. The driver _is_ maintained.
+Thanks,
+-- Pete
 
-> The reason is thus, to stop the fan spinning all the time on my laptop I
-> have to use ACPI (I have a Vaio FX-103). It doesn't work great, but it
-> works...
-> 
-> ACPI can't report battery info. Nor can APM!
-
-The latest versions of ACPI work pretty well, if it doesn't work
-for you it must be because of buggy ACPI bios. At least in my case,
-I found out that flashing a newer bios (look out for bioses that
-support Windows XP on the sony site) solves most of the problems.
-
-> You have to use the Programmable Interrupts thing to get them out of the
-> system. I wrote a program that did this (vaiod) on a polling interval to
-> set my screen brightness automagically but I would have to poll things
-> manually. It would be great to do this though /dev/sonypi.
-
-Why not. We already do this with ioctls for brightness control.
-
-> It doesn't look like the code has been updated for ages. So is anybody
-> going to complain if I do it?
-
-Your significance of 'ages' must be different that mines... 
-
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+--- linux-2.4.16/drivers/sound/ymfpci.c	Mon Nov 19 14:53:19 2001
++++ linux-2.4.16-niph/drivers/sound/ymfpci.c	Fri Dec  7 23:52:39 2001
+@@ -2162,12 +2203,15 @@
+ {
+ 	u8 cmd;
+ 
++	/*
++	 * In the 744, 754 only 0x01 exists, 0x02 is undefined.
++	 * It does not seem to hurt to trip both regardless of revision.
++	 */
+ 	pci_read_config_byte(pci, PCIR_DSXGCTRL, &cmd);
+-	if (cmd & 0x03) {
+-		pci_write_config_byte(pci, PCIR_DSXGCTRL, cmd & 0xfc);
+-		pci_write_config_byte(pci, PCIR_DSXGCTRL, cmd | 0x03);
+-		pci_write_config_byte(pci, PCIR_DSXGCTRL, cmd & 0xfc);
+-	}
++	pci_write_config_byte(pci, PCIR_DSXGCTRL, cmd & 0xfc);
++	pci_write_config_byte(pci, PCIR_DSXGCTRL, cmd | 0x03);
++	pci_write_config_byte(pci, PCIR_DSXGCTRL, cmd & 0xfc);
++
+ 	pci_write_config_word(pci, PCIR_DSXPWRCTRL1, 0);
+ 	pci_write_config_word(pci, PCIR_DSXPWRCTRL2, 0);
+ }

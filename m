@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267464AbUIJQTW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267528AbUIJQXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267464AbUIJQTW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 12:19:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267543AbUIJQSU
+	id S267528AbUIJQXT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 12:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267543AbUIJQUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 12:18:20 -0400
-Received: from mk-smarthost-2.mail.uk.tiscali.com ([212.74.114.38]:58896 "EHLO
-	mk-smarthost-2.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
-	id S267497AbUIJQNO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 12:13:14 -0400
-Date: Fri, 10 Sep 2004 09:11:45 -0700
-Message-ID: <413FCB3B00013DF2@mk-cpfrontend-1.mail.uk.tiscali.com>
-From: manoj_andersen@handbag.com
-Subject: Re:Investment / Partnership Inquiry
+	Fri, 10 Sep 2004 12:20:16 -0400
+Received: from pegasus.allegientsystems.com ([208.251.178.236]:55822 "EHLO
+	pegasus.lawaudit.com") by vger.kernel.org with ESMTP
+	id S267528AbUIJQTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 12:19:38 -0400
+Message-ID: <4141D415.6050705@optonline.net>
+Date: Fri, 10 Sep 2004 12:19:33 -0400
+From: Nathan Bryant <nbryant@optonline.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040806
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-To: unlisted-recipients:; (no To-header on input)
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+References: <20040909232532.GA13572@taniwha.stupidest.org> <1094798428.2800.3.camel@laptop.fenrus.com> <1094807650.17041.3.camel@localhost.localdomain> <593560000.1094826651@[10.10.2.4]> <chsivd$827$1@sea.gmane.org>
+In-Reply-To: <chsivd$827$1@sea.gmane.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sir,
+Alexander E. Patrakov wrote:
+> Martin J. Bligh wrote:
+> 
+>> --Alan Cox <alan@lxorguk.ukuu.org.uk> wrote (on Friday, September 10, 
+>> 2004 10:14:11 +0100):
+>>
+>>> Its probably appropriate to drop gcc 2.x support at that point too since
+>>> it's the major cause of remaining problems
+>>
+>>
+>> What problems does it cause? 2.95.4 still seems to work fine for me.
+> 
+> 
+> The latest gcc2 on the ftp.gnu.org site is gcc 2.95.3. There is 
+> officially no such thing as "gcc 2.95.4". Probably you are talking about 
+> a patched version of some gcc2 cvs snapshot - that's what distros 
+> provide. Please specify exactly what gcc version you are talking about.
 
- Re: Investment / Partnership Inquiry.
+2.95.4, if I remember correctly, contained fixes that went onto the gcc 
+2.95 branch after 2.95.3 was released. Some of the fixes were for 
+Linux-2.2/2.4 and glibc2.2 compatibility. This compiler was distributed 
+by Debian, I think.
 
- My cleint has found you listed as a business legally registered in your
-country. The origin of the source is the the Saudi Arabia Chamber of Commerce
-and Industry.
-
-My client who is a woman intends to do a business with you related to investment,
-hence I am writing this letter as a foundation of this interaction, I would
-be glad to get your response as quickly as possible.
- 
-As an insight, it may be proper of you to please let me know what your response
-will be to an offer to receive investment funds in cash if:
-
- 1. The said fund amounts to Twenty Five Million Dollars (US).
-
- 2. The said fund is in cash and will be transferred to you in same (Cash)state.
-
- 3.The fund is intended to be invested through your agency within your country,
-Preferably in real estate and other hard investment.
-
- 4. This transaction will result in your being paid a commission of 10%
-off the investment capital.
-
- 5.The fund owner desires absolute confidentiality and professionalism in
-the handling of this matter.
-
-You will be expected to justify the confidence been repososed in you by
-presenting logical investment plans, along with a banking scheme that is
-both safe
-and secure.
-
-Please respond urgently.
-
-Sincerely yours.
-
-Manoj  Andersen.
-
-Wong, Andersen & Co.
-Investment Consultants.
-Chittagong, Bangladesh.
-For expedient response please copy reply to:
-manoj_andersen@yahoo.com 
-
-__________________________________________________________________
-Get Tiscali Broadband From £15:99
-http://www.tiscali.co.uk/products/broadbandhome/
-
-
+> 
+> And there _is_ problem with gcc-2.95.3-compiled kernel: latest cvs glibc 
+> testsuite segfaults in nptl tests. There are no failures with the kernel 
+> identically configured, but compiled with gcc 3.3.4 or 3.4.1. So gcc 
+> 2.95.3 as supplied by gnu.org miscompiles the kernel (futexes?). Either 
+> fix the kernel or drop gcc2 support.
+> 
 

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264620AbSLLNYG>; Thu, 12 Dec 2002 08:24:06 -0500
+	id <S264614AbSLLNWc>; Thu, 12 Dec 2002 08:22:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264622AbSLLNYG>; Thu, 12 Dec 2002 08:24:06 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:7402 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S264620AbSLLNYF>;
-	Thu, 12 Dec 2002 08:24:05 -0500
-Date: Thu, 12 Dec 2002 14:35:13 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] ptrace-sigfix-2.5.51-A1
-Message-ID: <Pine.LNX.4.44.0212121431430.6741-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264617AbSLLNWc>; Thu, 12 Dec 2002 08:22:32 -0500
+Received: from mail.hometree.net ([212.34.181.120]:57565 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S264614AbSLLNWb>; Thu, 12 Dec 2002 08:22:31 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Is this going to be true ?
+Date: Thu, 12 Dec 2002 13:30:18 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <ata31a$fhc$1@forge.intermeta.de>
+References: <001801c2a0a9$02613f40$2e863841@joe> <1039699186.4304.8.camel@rhino>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1039699818 9375 212.34.181.4 (12 Dec 2002 13:30:18 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Thu, 12 Dec 2002 13:30:18 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Billy Harvey <Billy.Harvey@thrillseeker.net> writes:
 
-the attached patch, against BK-curr fixes a threading/ptrace bug noticed
-by the gdb people: when a thread is ptraced but other threads in the
-thread group are not then a SIGTRAP (via int3 or any of the other debug
-traps) causes the child thread(s) to die unexpectedly. This is because the
-default behavior for a no-handler SIGTRAP is to broadcast it.
+>Way back when Linus was studying interrupts and got 1 0 1 0 1 0 ..., he
+>thought, "I bet I could get a movement started to generate an entirely
+>new unix-like OS so popular it will eventually take over the world".
 
-The solution is to make all such signals specific, then the ptracer (gdb)  
-can filter the signal and upon continuation it's being handled properly
-(or put on the shared signal queue). SIGKILL and SIGSTOP are an exception.
-The patch only affects threaded and ptrace-d processes.
+No, as you can read in about every book about the Linux history. I'd
+advise "Rebel Code" or "Just for Fun: The Story of an Accidental
+Revolutionary" (where the title already says all :-) ).
 
-	Ingo
+	Regards
+		Henning
 
---- linux/kernel/signal.c.orig	2002-12-12 13:28:09.000000000 +0100
-+++ linux/kernel/signal.c	2002-12-12 13:26:03.000000000 +0100
-@@ -939,7 +947,8 @@
- 	if (sig_ignored(p, sig))
- 		goto out_unlock;
- 
--	if (sig_kernel_specific(sig))
-+	if (sig_kernel_specific(sig) ||
-+		       ((p->ptrace & PT_PTRACED) && !sig_kernel_only(sig)))
- 		goto out_send;
- 
- 	/* Does any of the threads unblock the signal? */
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

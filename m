@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270534AbRHNTNo>; Tue, 14 Aug 2001 15:13:44 -0400
+	id <S269842AbRHNTMN>; Tue, 14 Aug 2001 15:12:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270076AbRHNTNf>; Tue, 14 Aug 2001 15:13:35 -0400
-Received: from press-gopher.uchicago.edu ([128.135.204.194]:56504 "EHLO
-	press-gopher.uchicago.edu") by vger.kernel.org with ESMTP
-	id <S269875AbRHNTNY>; Tue, 14 Aug 2001 15:13:24 -0400
-Date: Tue, 14 Aug 2001 14:13:26 -0500 (CDT)
-From: "Roy C. Bixler" <rcb@press-gopher.uchicago.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: VM lockup with 2.4.8 / 2.4.8pre8
-In-Reply-To: <Pine.GSO.4.10.10108131229270.27903-100000@press-gopher.uchicago.edu>
-Message-ID: <Pine.GSO.4.10.10108141404050.2858-100000@press-gopher.uchicago.edu>
+	id <S269866AbRHNTME>; Tue, 14 Aug 2001 15:12:04 -0400
+Received: from phnx1-blk2-hfc-0251-d1db10f1.rdc1.az.coxatwork.com ([209.219.16.241]:64168
+	"EHLO mail.labsysgrp.com") by vger.kernel.org with ESMTP
+	id <S269842AbRHNTL7>; Tue, 14 Aug 2001 15:11:59 -0400
+Message-ID: <022901c124dc$ee5138f0$6baaa8c0@kevin>
+From: "Kevin P. Fleming" <kevin@labsysgrp.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: need help debugging a weird md/devfs problem...
+Date: Tue, 14 Aug 2001 09:19:45 -0700
+Organization: LSG, Inc.
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Aug 2001, I wrote:
-> I have just inadvertantly encountered a VM lockup with Linux 2.4.8.  The
-> KDE kspread application couldn't handle one spreadsheet I gave it and it
-> ran away consuming all memory in the system.  When I first ran into the
-> trouble, my machine has 384 Meg. RAM and 184 Meg. of swap.  I tried
-> 2.4.8pre8 and the lockup still occurs.  I have increased my swap to 768
-> Meg. and 2.4.8 still locks up.  I tried 2.4.7 and it doesn't lockup - it
-> correctly OOM kills the runaway process.
-> 
-> The system feels responcive up until it locks up.  Running 'top' while it
-> happens show that the lockup occurs at about the point where swap runs
-> out.  Other system details: it is running the latest Debian snapshot.
+I've got a weird situation here... a machine I just configured with two
+RAID-5 arrays over the weekend I can now cause to oops at will during
+bootup. All I have to do to cause this oops is to move one (or more) of the
+IDE drives between the four IDE channels in the box.
 
-I've managed to do a little more tracing on this.  I've tried this test on
-2.4.8-pre1 and it eventually kills the culprit process.  I tried again
-under 2.4.8 and, since the Sys-Rq key combinations worked while the system
-was otherwise completely quiet (no disk activity) and unresponcive, I
-tried hitting Sys-Rq-P a few times and the stack traces always looked like
-this:
+Through the use of ksymoops and looking at the code, I have narrowed the
+oops down to the call of "partition_name(rdev->old_dev)" in
+../drivers/md/md.c, when it has noticed that a drive has been relocated and
+it is trying to tell you what happened. In my case, rdev->old_dev contains
+major 3, minor 67, and there is no drive there anymore (remember, it's been
+moved :-). partition_name then calls into disk_name, which checks to see if
+that partition has a non-NULL .de member (meaning there is a devfs handle
+for that partition, it has been registered previously). In my case, this
+handle should be NULL, but it's not.
 
-do_try_to_free_pages
-kswapd
-kernel_thread
+I have added a number of debugging statements in various places
+(devfs_register_partition and disk_name, mostly), and set up a line printer
+console so I can see all the kernel startup messages.
+devfs_register_partition is most definitely _not_ being called to register
+this partition, but the .de member of the structure is non-NULL anyway.
+After adding some code to disk_name to dump out the .de member being
+searched for and the previous four in the structure (should be all of them
+for the "disk" in question), I find that there is a handle for the disc
+itself (even though the disc is not present), and some of the partitions
+have handles of 0x00000001 (including one that never existed, even when the
+drive was present at that location).
 
-or
+The only other point that I can think to mention is that there are two
+RAID-5 arrays in this box, and the oops occurs on the _second_ array to be
+found, not the first. The arrays have parallel members on all the drives, so
+the exact same "disk has been moved" logic is being followed for the first
+array, and working just fine. I'm now wondering if the initialization of the
+first array is somehow corrupting the gendisk->part[] structures for this
+drive that should not exist...
 
-swap_out_vma
-swap_out_mm
-swap_out
-refill_active_zone
-refill_inactive
-do_try_to_free_pages
-kswapd
-kernel_thread
-
-I also just tried 2.4.9-pre3 and the system locked before swap filled up
-with a screen full of '__alloc_pages: order 0 allocation failed' type
-messages.
-
--- 
-Roy Bixler
-The University of Chicago Press
-rcb@press-gopher.uchicago.edu
+Anyone have any suggesting as to where to continue looking to find the
+problem? I can put a workaround in to get my machine working, but there's
+definitely something very weird going on here. Too bad I can't just tell the
+kernel to notify me when that particular memory location gets modified...
 
 

@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317623AbSGXUfb>; Wed, 24 Jul 2002 16:35:31 -0400
+	id <S317547AbSGXU5L>; Wed, 24 Jul 2002 16:57:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317624AbSGXUfa>; Wed, 24 Jul 2002 16:35:30 -0400
-Received: from linuxpc1.lauterbach.com ([213.70.137.66]:16016 "HELO
-	linuxpc1.lauterbach.com") by vger.kernel.org with SMTP
-	id <S317623AbSGXUfa>; Wed, 24 Jul 2002 16:35:30 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>
-To: James Simmons <jsimmons@transvirtual.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Second set of console changes.
-Date: Wed, 24 Jul 2002 22:38:24 +0200
-User-Agent: KMail/1.4.2
-Cc: Linux console project <linuxconsole-dev@lists.sourceforge.net>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-References: <Pine.LNX.4.44.0207241157540.9506-100000@www.transvirtual.com>
-In-Reply-To: <Pine.LNX.4.44.0207241157540.9506-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207242238.24359@enzo.bigblue.local>
+	id <S317552AbSGXU5L>; Wed, 24 Jul 2002 16:57:11 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1035 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317547AbSGXU5L>; Wed, 24 Jul 2002 16:57:11 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: type safe lists (was Re: PATCH: type safe(r) list_entry repacement: generic_out_cast)
+Date: Wed, 24 Jul 2002 21:00:05 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <ahn4gl$347$1@penguin.transmeta.com>
+References: <20020723114703.GM11081@unthought.net.suse.lists.linux.kernel> <3D3E75E9.28151.2A7FBB2@localhost.suse.lists.linux.kernel> <p73d6tdtg2s.fsf@oldwotan.suse.de>
+X-Trace: palladium.transmeta.com 1027544393 13731 127.0.0.1 (24 Jul 2002 20:59:53 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 24 Jul 2002 20:59:53 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mittwoch, 24. Juli 2002 22:08, James Simmons wrote:
-> drivers/macintosh/mac_keyb.c
+In article <p73d6tdtg2s.fsf@oldwotan.suse.de>, Andi Kleen  <ak@suse.de> wrote:
+>> 
+>> As long as your pointers are 32bit this seems to be ok. But on 
+>> 64bit implementations pointers are not (unsigned long) so this cast 
+>> seems to be wrong.
+>
+>A pointer fits into unsigned long on all 64bit linux ports.
+>The kernel very heavily relies on that.
 
-This one is obsolete for PPC (replaced by drivers/macintosh/adbhid.c), 
-probably the same is true for m68k. Remove it as soon as Geert gives his OK.
+Not just the kernel, afaik.  I think it's rather tightly integrated into
+gcc internals too (ie pointers are eventually just converted to SI
+inside the compiler, and making a non-SI pointer would be hard). 
 
-Franz.
-
+			Linus

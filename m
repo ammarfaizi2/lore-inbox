@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbTDQOi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 10:38:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbTDQOiW
+	id S261482AbTDQOgD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 10:36:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbTDQOgD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 10:38:22 -0400
-Received: from 217-126-36-165.uc.nombres.ttd.es ([217.126.36.165]:45516 "EHLO
-	pau.intranet.ct") by vger.kernel.org with ESMTP id S261595AbTDQOhj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 10:37:39 -0400
-Date: Thu, 17 Apr 2003 16:47:35 +0200 (CEST)
-From: Pau Aliagas <linuxnow@newtral.org>
-X-X-Sender: pau@pau.intranet.ct
-To: lkml <linux-kernel@vger.kernel.org>, <jlnance@unity.ncsu.edu>
-Subject: Re: RedHat 9 and 2.5.x support
-In-Reply-To: <20030417142356.GA7195@ncsu.edu>
-Message-ID: <Pine.LNX.4.44.0304171642510.30694-100000@pau.intranet.ct>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Apr 2003 10:36:03 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:45510
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261482AbTDQOgC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 10:36:02 -0400
+Subject: Re: kernel support for non-English user messages
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: EricAltendorf@orst.edu
+Cc: Linus Torvalds <torvalds@transmeta.com>, John Bradford <john@grabjohn.com>,
+       vda@port.imtp.ilyichevsk.odessa.ua,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200304141645.48020.EricAltendorf@orst.edu>
+References: <Pine.LNX.4.44.0304141024250.19302-100000@home.transmeta.com>
+	 <200304141645.48020.EricAltendorf@orst.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1050587213.31412.48.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 17 Apr 2003 14:46:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Apr 2003 jlnance@unity.ncsu.edu wrote:
+On Maw, 2003-04-15 at 19:02, Eric Altendorf wrote:
+> If you find yourself having to write comments and documentation to 
+> explain your code, probably your identifiers are not well named, your 
+> functions are not short enough, and your code is not well structured 
+> enough.
+> 
+> Ideal code is completely self-documenting.
 
-> I have a related question.  While I am confident I can get RH9 to work
-> with a 2.5 kernel, I would like to do this in such a way that booting
-> into a 2.4 kernel still works, and installing updated 2.4 kernel RPMs
-> from Red Hat also continues to work.  I would also like to avoid making
-> any changes that prevent me from upgrading to the next RH release.  I
-> assume I can accomplish this by only making changes that involve installing
-> rpms rather than installing programs directly.  I am not confident I can 
-> accomplish all this, having failed in my attempt with RH8 :-)
-	
-* ftp://ftp.kernel.org/pub/linux/kernel/people/rusty/modutils-2.4.21-18.src.rpm
-* rpmbuild --rebuild modutils-2.4.21-18.src.rpm
-* rpm -Uvh modutils-2.4.21-18.i386.rpm
-* add the new kernel to /boot/grub/grub.conf
+We have a lot of elegant small functions that require knowledge of
+the data structures and lock ordering, which is why I do go around
+sticking kernel-doc into stuff I touch. 
 
-# vi /etc/rc.d/rc.sysinit 
-:360,360s/ksyms/modules/g
-:wq
-
-You are done.
-Pau
+Explaining the function is one thing, explaining the context in which
+it operates is another [IMHO]
 

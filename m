@@ -1,98 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265354AbUAPPwC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 10:52:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265379AbUAPPwC
+	id S265573AbUAPP61 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 10:58:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265579AbUAPP61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 10:52:02 -0500
-Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:35983 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S265354AbUAPPv6
+	Fri, 16 Jan 2004 10:58:27 -0500
+Received: from fed1mtao03.cox.net ([68.6.19.242]:16554 "EHLO
+	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S265573AbUAPP5t
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 10:51:58 -0500
-Subject: Re: modprobe failed: digest_null
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040113150319.1e309dcb.rddunlap@osdl.org>
-References: <20040113215355.GA3882@piper.madduck.net>
-	 <20040113143053.1c44b97d.rddunlap@osdl.org>
-	 <20040113223739.GA6268@piper.madduck.net>
-	 <20040113144141.1d695c3d.rddunlap@osdl.org>
-	 <20040113225047.GA6891@piper.madduck.net>
-	 <20040113150319.1e309dcb.rddunlap@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jxY5ZvHbO7vNNL7nTmsd"
-Message-Id: <1074268509.23742.744.camel@nosferatu.lan>
+	Fri, 16 Jan 2004 10:57:49 -0500
+Date: Fri, 16 Jan 2004 08:57:42 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       George Anzinger <george@mvista.com>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>, jim.houston@comcast.net,
+       Powerpc Linux <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: setjmp/longjmp hooks for kgdb 2.0.2
+Message-ID: <20040116155742.GK983@stop.crashing.org>
+References: <20040114165034.GB17509@stop.crashing.org> <200401151052.30740.amitkale@emsyssoft.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 16 Jan 2004 17:55:09 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401151052.30740.amitkale@emsyssoft.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 15, 2004 at 10:52:30AM +0530, Amit S. Kale wrote:
 
---=-jxY5ZvHbO7vNNL7nTmsd
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Hi Tom,
+> 
+> It's nice to see someone working on integrating powerpc kgdb with mainline 
+> kgdb. There are a lot of features (like thread lists, gdb deatch-reattach, 
+> automodule loading) powerpc kgdb will inherit automatically from common core.
+> 
+> setjmp, longjmp isn't required. search_exception_tables take care of invalid 
+> memory accesses by kgdb.
+> 
+> In arch/ppc/mm/fault.c:do_page_fault, call bad_page_fault if 
+> debugger_memerr_expected is non-zero instead of holding mmap_sem. 
+> 
+> bad_page_fault calls search_exception_tables at the begining. It takes care of 
+> invalid memory addresses by kgdb as kgdb uses get_user, put_user to access 
+> memory when the access can fail.
 
-On Wed, 2004-01-14 at 01:03, Randy.Dunlap wrote:
-> On Tue, 13 Jan 2004 23:50:47 +0100 martin f krafft <madduck@madduck.net> =
-wrote:
->=20
-> | also sprach Randy.Dunlap <rddunlap@osdl.org> [2004.01.13.2341 +0100]:
-> | > I would guess that you have a high-priority $PATH to old modprobe
-> | > than to the new modprobe...
-> |=20
-> | That would surprise me, Debian handles this quite well:
-> |=20
-> | diamond:~# which modprobe
-> | /sbin/modprobe
-> | diamond:~# modprobe -V
-> | module-init-tools version 3.0-pre5
-> | diamond:~# modprobe.modutils -V
-> | modprobe version 2.4.26
-> | modprobe: QM_MODULES: Function not implemented
-> | diamond:~# uname -r
-> | 2.6.1
->=20
-> OK, maybe someone else has an answer then.
->=20
-> The message:
-> kernel: request_module: failed /sbin/modprobe -- digest_null. error =3D 2=
-56
-> is from modutils and not from module-init-tools according to my
-> source files.
->=20
+OK, thanks.
 
-Its from the kernel afaik.  It calls modprobe, fails, and then prints
-its own custom message.  He basically just have something that tries
-to load a module with alias 'digest_null', but there is no such module,
-so fails.
+> For powerpc arch specific code (like entry.S) look at 
+> http://kgdb.sourceforge.net/linux-2.4.23-kgdb-1.9.patch
+> It contains powerpc arch specific code for kgdb. I was never able to test this 
+> code, so I don't know whether it works.
 
-I have the same thing when I open gnome-mixer:
+It might work on some subset of machines, but the serial driver is still
+broken for SERIAL_IO_MEM machines (which there are a lot of) nor is the
+ppc 8xx (which is what I would assume TimeSys used) serial driver
+patched up.
 
---
-request_module: failed /sbin/modprobe -- sound-slot-1. error =3D 256
---
+> If you modify kgdb core as well as arch specific files, please try to send 
+> separate patches. Single patch will require me to do more work when I merge 
+> it against separate patches.
 
-as I only have one sound card ...
+OK.  I _hope_ to get you a patch for the serial stuff shortly.
 
-
-Cheers,
-
---=20
-Martin Schlemmer
-
---=-jxY5ZvHbO7vNNL7nTmsd
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBACAldqburzKaJYLYRAhIzAJ9XDh7ilfNdn23k4zqJufE1Ur1pKwCfQ1wJ
-xpIjiDiVId4nHXtBdV+1Xyo=
-=lFiJ
------END PGP SIGNATURE-----
-
---=-jxY5ZvHbO7vNNL7nTmsd--
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

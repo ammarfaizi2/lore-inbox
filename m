@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289218AbSA1QGM>; Mon, 28 Jan 2002 11:06:12 -0500
+	id <S289225AbSA1QIm>; Mon, 28 Jan 2002 11:08:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289220AbSA1QFw>; Mon, 28 Jan 2002 11:05:52 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:10446 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289218AbSA1QFo>;
-	Mon, 28 Jan 2002 11:05:44 -0500
-Date: Mon, 28 Jan 2002 19:03:18 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Richard Guenther <rguenth@tat.physik.uni-tuebingen.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] [sched] load-balancer improvements, 2.5.3-pre5
-In-Reply-To: <Pine.LNX.4.33.0201281620210.1120-100000@bellatrix.tat.physik.uni-tuebingen.de>
-Message-ID: <Pine.LNX.4.33.0201281902270.11975-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289226AbSA1QIc>; Mon, 28 Jan 2002 11:08:32 -0500
+Received: from ns.tasking.nl ([195.193.207.2]:9996 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id <S289225AbSA1QIY>;
+	Mon, 28 Jan 2002 11:08:24 -0500
+Date: Mon, 28 Jan 2002 17:07:04 +0100
+From: Frank van Maarseveen <fvm@altium.nl>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: restoring hard linked files from zisofs/iso9660 w. RR
+Message-ID: <20020128170704.A2632@espoo.tasking.nl>
+Reply-To: frank.van.maarseveen@altium.nl
+In-Reply-To: <20020125135545.A28897@espoo.tasking.nl> <a2s67d$8s0$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <a2s67d$8s0$1@cesium.transmeta.com>; from hpa@zytor.com on Fri, Jan 25, 2002 at 09:55:57AM -0800
+X-Subliminal-Message: Use Linux!
+Organization: ALTIUM Software BV
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 25, 2002 at 09:55:57AM -0800, H. Peter Anvin wrote:
+> 
+> WHAT doesn't work?
+> There is, I belive, an inode number RR attribute.  Last I checked I
+> was happily using hard links with RockRidge...
 
-On Mon, 28 Jan 2002, Richard Guenther wrote:
+Try restoring a few hard linked files from such a CD. The links will
+break because the inodes of hard linked objects on CD do not have
+an identical inode number anymore.
 
-> > +	cache_decay_ticks = (long)cacheflush_time/cpu_khz * HZ / 1000;
-> > +
-> >  	printk("per-CPU timeslice cutoff: %ld.%02ld usecs.\n",
-> >  		(long)cacheflush_time/(cpu_khz/1000),
-> >  		((long)cacheflush_time*100/(cpu_khz/1000)) % 100);
-> > +	printk("task migration cache decay timeout: %ld msecs.\n",
-> > +		(cache_decay_ticks + 1) * 1000 / HZ);
-
-> Isnt it better for such randomly(?) choosen numbers like 1000 and 100
-> which you use to divide / modulo to choose them as a near power of
-> two? Like 1024 for / 1000 and 128 for the */% 100 above? For
-> correctness just change cpu_khz to be 1024*hz, not 1000*hz.
-
-it's not randomly chosen numbers. From cacheflush_time i'm calculating the
-time it takes the cache to flush, in timer ticks.
-
-	Ingo
-
+-- 
+Frank

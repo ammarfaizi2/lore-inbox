@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267860AbUHUUq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267823AbUHUUtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267860AbUHUUq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 16:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267859AbUHUUq2
+	id S267823AbUHUUtr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 16:49:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267819AbUHUUqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 16:46:28 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:19927 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267860AbUHUUqO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 16:46:14 -0400
-Subject: RE: Entirely ignoring TCP and UDP checksum in kernel level
-From: Lee Revell <rlrevell@joe-job.com>
-To: Josan Kadett <corporate@superonline.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1093120934.854.155.camel@krustophenia.net>
-References: <1093120934.854.155.camel@krustophenia.net>
-Content-Type: text/plain
-Message-Id: <1093121172.854.157.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 21 Aug 2004 16:46:13 -0400
+	Sat, 21 Aug 2004 16:46:51 -0400
+Received: from [138.15.108.3] ([138.15.108.3]:37096 "EHLO mailer.nec-labs.com")
+	by vger.kernel.org with ESMTP id S267834AbUHUUqX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 16:46:23 -0400
+Message-ID: <4127B49A.6080305@nec-labs.com>
+Date: Sat, 21 Aug 2004 16:46:18 -0400
+From: Lei Yang <leiyang@nec-labs.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Kernel Newbies Mailing List <kernelnewbies@nl.linux.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problems compiling kernel modules
+References: <4127A15C.1010905@nec-labs.com> <20040821214402.GA7266@mars.ravnborg.org> <4127A662.2090708@nec-labs.com> <20040821215055.GB7266@mars.ravnborg.org>
+In-Reply-To: <20040821215055.GB7266@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Aug 2004 20:46:10.0837 (UTC) FILETIME=[E4160C50:01C487BF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-08-21 at 17:41, Josan Kadett wrote:
-> I added the patch, indeed this was just one of the few modifications I tried
-> before. The result is failure, the TCP/IP stack still does the checksum...
-> Perhaps after this modification, the condition that the packet is not
-> "eaten" may not be telling the system that there is a checksum error, but
-> instead, just dropping packets by not igniting the TCP ACK function.
+What about multi-file module?
 
-Please try Kalin's suggestion, instead of my patch.  It's more generic,
-plus my 'patch' didn't handle UDP.
+Say test.c doesn't include stdio.h, while there is some other .c file 
+which is to be compiled and linked into test.ko, include stdio?
 
-Lee
+Would that work?
 
+TIA!
+Lei
+Sam Ravnborg wrote:
+> On Sat, Aug 21, 2004 at 03:45:38PM -0400, Lei Yang wrote:
+> 
+>>You mean I can't use stdio.h at all?
+> 
+> Correct.
+> 
+>>But what if I really need to? Is there anything I can do?
+> 
+> Try to explain what you need. Then maybe someone on the list can help you.
+> 
+> 	Sam

@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130768AbRDWFEH>; Mon, 23 Apr 2001 01:04:07 -0400
+	id <S130820AbRDWFGH>; Mon, 23 Apr 2001 01:06:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130820AbRDWFD5>; Mon, 23 Apr 2001 01:03:57 -0400
-Received: from snowbird.megapath.net ([216.200.176.7]:12554 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S130768AbRDWFDt>;
-	Mon, 23 Apr 2001 01:03:49 -0400
-Date: Sun, 22 Apr 2001 21:59:32 -0700 (PDT)
-From: Miles Lane <miles@megapathdsl.net>
-To: "David S. Miller" <davem@redhat.com>
-cc: Russell King <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: All architecture maintainers: pgd_alloc()
-In-Reply-To: <15075.45847.624767.960502@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.30.0104222156180.6639-100000@aerie.megapathdsl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130900AbRDWFF6>; Mon, 23 Apr 2001 01:05:58 -0400
+Received: from leng.mclure.org ([64.81.48.142]:18440 "EHLO
+	leng.internal.mclure.org") by vger.kernel.org with ESMTP
+	id <S130820AbRDWFFs>; Mon, 23 Apr 2001 01:05:48 -0400
+Date: Sun, 22 Apr 2001 22:05:45 -0700
+From: Manuel McLure <manuel@mclure.org>
+To: whitney@math.berkeley.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with "su -" and kernels 2.4.3-ac11 and higher
+Message-ID: <20010422220545.A982@ulthar.internal.mclure.org>
+In-Reply-To: <20010422102234.A1093@ulthar.internal.mclure.org> <200104222138.XAA00666@kufel.dom> <200104222138.XAA00666@kufel.dom> <20010422192520.A3618@ulthar.internal.mclure.org> <200104230242.f3N2gns08877@adsl-209-76-109-63.dsl.snfc21.pacbell.net> <20010422202158.E970@ulthar.internal.mclure.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20010422202158.E970@ulthar.internal.mclure.org>; from manuel@mclure.org on Sun, Apr 22, 2001 at 20:21:58 -0700
+X-Mailer: Balsa 1.1.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Apr 2001, David S. Miller wrote:
 
-<snip>
+On 2001.04.22 20:21 Manuel McLure wrote:
+> 
+> On 2001.04.22 19:42 Wayne Whitney wrote:
+> > In mailing-lists.linux-kernel, Manuel A. McLure wrote:
+> > 
+> > > Did you try nesting more than one "su -"? The first one after a boot
+> > > works for me - every other one fails.
+> > 
+> > Same here: the first "su -" works OK, but a second nested one hangs:
+> > 
+> >  8825 pts/2    S      0:00 /bin/su -
+> >  8826 pts/2    S      0:00 -bash
+> >  8854 pts/2    T      0:00 stty erase ?
+> >  8855 pts/0    R      0:00 ps ax
+> > 
+> > "kill -CONT 8854" has no effect.  
+> > 
+> > > I'm on RH71 - this may be specific to this release. It's also
+> > > kernel-dependent, I can reboot with ac5 and the problem does not
+> > > happen.  The kernel is compiled with the same compiler as yours.
+> > 
+> > I'm RH-7.1 and kernel 2.4.4-pre6 (with the via 3.23 driver from -ac)
+> 
+> It looks like this may very well be a RH 7.1 interaction with the kernel,
+> since others are not seeing this.
 
-> My main point is that for changes like this, sending stuff to Alan
-> first is often an ineffective mechanism.  If someone were to reply to
-> this "Linus is hard to push changes too, or takes too long" my reply
-> is "if this is really the problem, should the burdon should be
-> entirely placed on Alan's shoulders?"
+Your email made me look closer at my ps output. I also have stty waiting in
+"T" state.
 
-Perhaps Alan could speak to this.
-
-Alan, could you delegate any of this work?  Is it feasible to
-have you redirect some portion of the patch analysis and acceptance
-load to another person, other than Linus?  Obviously, if the rate
-of patch flow increases significantly, others will need to get
-involved more closely with the patch acceptance process.
-
-	Miles
+-- 
+Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
+<manuel@mclure.org>     | and significant law, no man may kill a cat.
+<http://www.mclure.org> |             -- H.P. Lovecraft
 

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262108AbTJJUYe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 16:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbTJJUYe
+	id S262993AbTJJU2W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 16:28:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263081AbTJJU2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 16:24:34 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:24073 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262108AbTJJUYd
+	Fri, 10 Oct 2003 16:28:22 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:63883 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262993AbTJJU2S
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 16:24:33 -0400
-Date: Fri, 10 Oct 2003 22:33:45 +0200
-To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Joel.Becker@oracle.com
-Subject: Re: statfs() / statvfs() syscall ballsup...
-Message-ID: <20031010203345.GA1177@hh.idb.hist.no>
-References: <20031010172001.GA29301@ca-server1.us.oracle.com> <Pine.LNX.4.44.0310101024200.20420-100000@home.osdl.org> <20031010180535.GE29301@ca-server1.us.oracle.com>
+	Fri, 10 Oct 2003 16:28:18 -0400
+Date: Fri, 10 Oct 2003 21:28:15 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Matt Domsch <Matt_Domsch@Dell.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 2.4] EDD 4-byte MBR disk signature for the boot disk
+Message-ID: <20031010202815.GB31006@mail.shareable.org>
+References: <20031010145137.GC28795@mail.shareable.org> <Pine.LNX.4.44.0310101139270.12160-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031010180535.GE29301@ca-server1.us.oracle.com>
-User-Agent: Mutt/1.5.4i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+In-Reply-To: <Pine.LNX.4.44.0310101139270.12160-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 10, 2003 at 11:05:35AM -0700, Joel Becker wrote:
+Matt Domsch wrote:
+> it isn't important exactly what value is used, as long as only 
+> the boot disk has it, and your code knows what to look for.
 
-> 	The problem we have with msync() and friends is not 'quick
-> population', it's "page is in the page cache already; another node
-> writes to the storage; must mark page as !uptodate so as to force a
-> re-read from disk".  I can't find where sys_readahead() checks for
-> uptodate, so perhaps calling sys_readahead() on a range always causes
-> I/O.  Correct me if I missed it.
->
- 
-Wouldn't this be solvable by giving userspace a way of invalidating
-a range of mmapped pages?  I.e. a "minvalidate();" to use when
-the other node tells you it is about to write?
+How can you be sure what's on other disks the code doesn't know about
+at the time it writes to the boot disk?
 
-This will cause the pages to be paged in again on next reference,
-or you can issue a read in advance if you believe you'll need them.
+You could just say the EDD thing is only to be used in very simple
+configurations, but that's not half as useful as it could be - very
+simple configurations don't need EDD anyway.
 
-Helge Hafting
+If we encourage its use, so that it's basically assumed to work and
+boot processes use it by default, then people will be upset if things
+like adding another disk to a system just to read data off it cause
+the boot process to get confused.
+
+-- Jamie

@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268036AbUHVRTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268035AbUHVRTi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268036AbUHVRTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 13:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268038AbUHVRTY
+	id S268035AbUHVRTi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 13:19:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268039AbUHVRTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 13:19:24 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:30434 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S268036AbUHVRSm (ORCPT
+	Sun, 22 Aug 2004 13:19:38 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:35042 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S268035AbUHVRSt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 13:18:42 -0400
-Message-Id: <200408221702.i7MH26Bp004124@localhost.localdomain>
-To: Vincent Hanquez <tab@snarc.org>
-cc: Albert Cahalan <albert@users.sourceforge.net>, benh@kernel.crashing.org,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ppc32 use simplified mmenonics 
-In-Reply-To: Message from Vincent Hanquez <tab@snarc.org> 
-   of "Sun, 22 Aug 2004 16:45:01 +0200." <20040822144501.GA10017@snarc.org> 
+	Sun, 22 Aug 2004 13:18:49 -0400
+Message-Id: <200408221643.i7MGhYT3004043@localhost.localdomain>
+To: Wakko Warner <wakko@animx.eu.org>
+cc: linux@horizon.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux Incompatibility List 
+In-Reply-To: Message from Wakko Warner <wakko@animx.eu.org> 
+   of "Sun, 22 Aug 2004 09:05:51 -0400." <20040822130551.GA10474@animx.eu.org> 
 X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Sun, 22 Aug 2004 13:02:06 -0400
+Date: Sun, 22 Aug 2004 12:43:34 -0400
 From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vincent Hanquez <tab@snarc.org> said:
-> On Sun, Aug 22, 2004 at 06:41:32AM -0400, Albert Cahalan wrote:
-> > The "or" is much easier, because it follows the
-> > standard 3-register pattern. With "mr", which way
-> > does it go? That's one more thing to remember.
-> > In fact I don't know, but the "or" is obvious.
-> > 
-> > The 0 is your hint that the "or" isn't a plain "or".
-> 
-> Sure, but this is about mmenonic. When I see 'or', my mind doesn't make
-> any link with 'move register' but only with 'or'. I have to process
-> another term of the line (the 0) to see that the program want to move a
-> register.
+Wakko Warner <wakko@animx.eu.org> said:
 
-I'd assume somebody familiar with the architecture reads this as a matter
-of course. 
+[...]
+
+> The specific card in my laptop does work with XFree's latest nVidia drivers,
+> just not in 3D mode.  It would be a card I'd stay away from, but unlike
+> broadcom, the cards *DO* work to some extent.  (That card is a GeForce2
+Go)
+
+Mine is a Geforce FX (Toshiba Satellite M30), and Xorg (Fedora Core 2)
+works (sort of). I don't see any use for 3D on a laptop, so just 2D is no
+problem to me. But I haven't been able to get 1280x800 working right (it
+does a distorted 1024x768), so I use nVidia's driver (which has its own
+problems, if you install it for one kernel it breaks for the others).
 -- 
 Dr. Horst H. von Brand                   User #22616 counter.li.org
 Departamento de Informatica                     Fono: +56 32 654431

@@ -1,174 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267377AbUH1QMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267381AbUH1QUl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267377AbUH1QMS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 12:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267372AbUH1QKe
+	id S267381AbUH1QUl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 12:20:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267389AbUH1QMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 12:10:34 -0400
-Received: from lakermmtao05.cox.net ([68.230.240.34]:48084 "EHLO
-	lakermmtao05.cox.net") by vger.kernel.org with ESMTP
-	id S267333AbUH1QJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 12:09:20 -0400
-In-Reply-To: <20040828151716.GC12772@fs.tum.de>
-References: <20040828151137.GA12772@fs.tum.de> <20040828151716.GC12772@fs.tum.de>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <95F4407E-F90C-11D8-A7C9-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [2.6 patch][2/3] kernel/ BUG -> BUG_ON conversions
-Date: Sat, 28 Aug 2004 12:09:05 -0400
-To: Adrian Bunk <bunk@fs.tum.de>
-X-Mailer: Apple Mail (2.619)
+	Sat, 28 Aug 2004 12:12:49 -0400
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:6627 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S267378AbUH1QLp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 12:11:45 -0400
+Date: Sat, 28 Aug 2004 12:11:14 -0400
+To: flx@msu.ru, Christophe Saout <christophe@saout.de>,
+       Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
+       reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins (was: silent semantic changes with reiser4)
+Message-ID: <20040828161113.GA27278@delft.aura.cs.cmu.edu>
+Mail-Followup-To: flx@msu.ru, Christophe Saout <christophe@saout.de>,
+	Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
+	Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
+	reiserfs-list@namesys.com
+References: <412D9FE6.9050307@namesys.com> <20040826014542.4bfe7cc3.akpm@osdl.org> <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de> <1093527307.11694.23.camel@leto.cs.pocnet.net> <20040828111807.GC6746@alias>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040828111807.GC6746@alias>
+User-Agent: Mutt/1.5.6+20040803i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 28, 2004, at 11:17, Adrian Bunk wrote:
-> The patch below does BUG -> BUG_ON conversions in kernel/ .
->
-> --- linux-2.6.9-rc1-mm1-full-3.4/kernel/cpu.c.old	2004-08-28 
-> 16:05:17.000000000 +0200
-> +++ linux-2.6.9-rc1-mm1-full-3.4/kernel/cpu.c	2004-08-28 
-> 16:06:24.000000000 +0200
-> @@ -156,9 +156,8 @@
->  	kthread_bind(p, smp_processor_id());
->
->  	/* CPU is completely dead: tell everyone.  Too late to complain. */
-> -	if (notifier_call_chain(&cpu_chain, CPU_DEAD, (void *)(long)cpu)
-> -	    == NOTIFY_BAD)
-> -		BUG();
-> +	BUG_ON(notifier_call_chain(&cpu_chain, CPU_DEAD, (void *)(long)cpu)
-> +	       == NOTIFY_BAD);
+On Sat, Aug 28, 2004 at 03:18:07PM +0400, Alexander Lyamin wrote:
+> And I honestly dont understand whats the other Christoph's worries are about.
 
-Can't do this, without DEBUG the notifier_call_chain _won't_ be executed
+I honestly don't understand what all this 'grassroot' campaining is all
+about. Very valid technical points have been made and mostly ignored.
 
->  	check_for_tasks(cpu);
->
-> @@ -203,8 +202,7 @@
->  	ret = __cpu_up(cpu);
->  	if (ret != 0)
->  		goto out_notify;
-> -	if (!cpu_online(cpu))
-> -		BUG();
-> +	BUG_ON(!cpu_online(cpu));
+The whole 'it breaks backups' noise is just that, noise.
 
-Does cpu_online() have any side effects?
+- It breaks VFS locking rules.
+- It pretends to provide a uniform way to store streams or metadata.
+  However it only does so files and not for directories, symlinks,
+  fifos, unix domain sockets, or device nodes, which makes it less than
+  uniform.
+- From what I saw in one part of the discussion, it allows for infinite
+  depth recursion (file/metas/metas/metas/...). Some applications are
+  going to have a lot of fun with that.
 
->
->  	/* Now call notifier in preparation. */
->  	notifier_call_chain(&cpu_chain, CPU_ONLINE, hcpu);
-> --- linux-2.6.9-rc1-mm1-full-3.4/kernel/exit.c.old	2004-08-28 
-> 16:05:17.000000000 +0200
-> +++ linux-2.6.9-rc1-mm1-full-3.4/kernel/exit.c	2004-08-28 
-> 16:08:24.000000000 +0200
-> @@ -503,7 +503,7 @@
->  		down_read(&mm->mmap_sem);
->  	}
->  	atomic_inc(&mm->mm_count);
-> -	if (mm != tsk->active_mm) BUG();
-> +	BUG_ON(mm != tsk->active_mm);
->  	/* more a memory barrier than a real lock */
->  	task_lock(tsk);
->  	tsk->mm = NULL;
-> @@ -878,11 +877,9 @@
->  	const struct list_head *tmp, *head = &link->pidptr->task_list;
->
->  #ifdef CONFIG_SMP
-> -	if (!p->sighand)
-> -		BUG();
-> -	if (!spin_is_locked(&p->sighand->siglock) &&
-> -				!rwlock_is_locked(&tasklist_lock))
-> -		BUG();
-> +	BUG_ON(!p->sighand);
-> +	BUG_ON(!spin_is_locked(&p->sighand->siglock) &&
-> +				!rwlock_is_locked(&tasklist_lock));
+And finally,
 
-These _should_ be OK, but I'm not sure if spin_is_locked and 
-rwlock_is_locked
-have any memory barrier guarantees.
+- When reiserfs3 got merged, it introduced iget3 and read_inode2 in the
+  VFS layer. Later on when I started to use them for Coda I almost
+  immediately found serious consistency problems, resulting in the
+  iget4_locked implementation in the 2.5 kernels.
+  
+  I don't think anyone ever fixed that race in reiser3. It should hit
+  occasionally on concurrent lookups on SMP or preempt kernels. In 2.4,
+  Coda needed a semaphore to prevent concurrency during the iget3 lookup
+  until the new inode is actually initialized.
 
->  #endif
->  	tmp = link->pid_chain.next;
->  	if (tmp == head)
-> @@ -1350,8 +1347,7 @@
->  		if (options & __WNOTHREAD)
->  			break;
->  		tsk = next_thread(tsk);
-> -		if (tsk->signal != current->signal)
-> -			BUG();
-> +		BUG_ON(tsk->signal != current->signal);
->  	} while (tsk != current);
->
->  	read_unlock(&tasklist_lock);
-> --- linux-2.6.9-rc1-mm1-full-3.4/kernel/fork.c.old	2004-08-28 
-> 16:05:17.000000000 +0200
-> +++ linux-2.6.9-rc1-mm1-full-3.4/kernel/fork.c	2004-08-28 
-> 16:08:45.000000000 +0200
-> @@ -809,8 +809,7 @@
->  	struct files_struct *files  = current->files;
->  	int rc;
->
-> -	if(!files)
-> -		BUG();
-> +	BUG_ON(!files);
->
->  	/* This can race but the race causes us to copy when we don't
->  	   need to and drop the copy */
-> --- linux-2.6.9-rc1-mm1-full-3.4/kernel/module.c.old	2004-08-28 
-> 16:05:17.000000000 +0200
-> +++ linux-2.6.9-rc1-mm1-full-3.4/kernel/module.c	2004-08-28 
-> 16:13:44.000000000 +0200
-> @@ -655,8 +655,7 @@
->  	const unsigned long *crc;
->
->  	spin_lock_irqsave(&modlist_lock, flags);
-> -	if (!__find_symbol(symbol, &owner, &crc, 1))
-> -		BUG();
-> +	BUG_ON(!__find_symbol(symbol, &owner, &crc, 1));
+> Its got perfomance. Its there. It can emulate "conventional
+> filesystem" behaviour, for legacy apps.
 
-Does __find_symbol have side effects?
+So does ramfs.
 
->  	module_put(owner);
->  	spin_unlock_irqrestore(&modlist_lock, flags);
->  }
-> @@ -667,8 +666,7 @@
->  	unsigned long flags;
->
->  	spin_lock_irqsave(&modlist_lock, flags);
-> -	if (!kernel_text_address((unsigned long)addr))
-> -		BUG();
-> +	BUG_ON(!kernel_text_address((unsigned long)addr));
+> Yes, I think it would be nice to have this infrastructure in VFS.
+> Technically. But its not possible, cause of "committee clusterfuck".
+> Socially. Stupidly.
 
-Side effects?
+It will get there, just consider it constructive criticism. If we can
+help resolve or refute the technical issues, all the better. We might
+even end up with improvements or extensions to the VFS or MM making life
+easier for everyone.
 
->  	module_put(module_text_address((unsigned long)addr));
->  	spin_unlock_irqrestore(&modlist_lock, flags);
-> @@ -905,8 +903,7 @@
->  	const unsigned long *crc;
->  	struct module *owner;
->
-> -	if (!__find_symbol("struct_module", &owner, &crc, 1))
-> -		BUG();
-> +	BUG_ON(!__find_symbol("struct_module", &owner, &crc, 1));
->  	return check_version(sechdrs, versindex, "struct_module", mod,
->  			     crc);
->  }
-
-[Bunch of patch chomped]
-
-Please verify that you don't pull important function calls into 
-BUG_ON() statements.
-
-Cheers,
-Kyle Moffett
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
-
+Jan
 

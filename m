@@ -1,118 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbUCASRy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 13:17:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbUCASRy
+	id S261393AbUCASS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 13:18:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUCASS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 13:17:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:51671 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261392AbUCASRu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 13:17:50 -0500
-Date: Mon, 1 Mar 2004 10:17:06 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Kliment Yanev <Kliment.Yanev@helsinki.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Nokia c110 driver
-Message-Id: <20040301101706.3a606d35.rddunlap@osdl.org>
-In-Reply-To: <40419A1C.5070103@helsinki.fi>
-References: <40408852.8040608@helsinki.fi>
-	<20040228104105.5a699d32.rddunlap@osdl.org>
-	<40419A1C.5070103@helsinki.fi>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
+	Mon, 1 Mar 2004 13:18:59 -0500
+Received: from mail.fdk-filmhaus.de ([212.184.83.66]:24037 "EHLO
+	mail.fdk-filmhaus.de") by vger.kernel.org with ESMTP
+	id S261393AbUCASSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 13:18:51 -0500
+Message-ID: <57977.212.184.83.69.1078165110.squirrel@mail.fdk-filmhaus.de>
+Date: Mon, 1 Mar 2004 19:18:30 +0100 (CET)
+Subject: 2.6.2: drm:drm_init Cannot initialize the agpgart module
+From: "Christoph Terhechte" <ct@fdk-berlin.de>
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Feb 2004 09:51:56 +0200 Kliment Yanev wrote:
+Under 2.4.22 I used to load the "agpgart" and "mga" modules to provide DRI
+support for XFree86. My graphics card is a Matrox G550 AGP.
 
-| -----BEGIN PGP SIGNED MESSAGE-----
-| Hash: SHA1
-| 
-| 
-| 
-| Randy.Dunlap wrote:
-| | All those errors should go away if you build the module correctly.
-| | Please read Documentation/kbuild/m*.txt or see LWN.net article
-| | on building modules:
-| |   http://lwn.net/Articles/21823/
-| 
-| Okay, using a kbuild makefile I still get tons of errors, though most of
-| the original ones are gone:
-| 
-| make -C /lib/modules/2.6.3-rc2-mm1/build
-| SUBDIRS=/home/kliment/Desktop/nokia_c110/src modules
-| make[1]: Entering directory `/usr/src/linux-2.6.3-rc2-mm1'
-| *** Warning: Overriding SUBDIRS on the command line can cause
-| ***          inconsistencies
-| make[2]: `arch/i386/kernel/asm-offsets.s' is up to date.
-| ~  CHK     include/asm-i386/asm_offsets.h
-| ~  CC [M]  /home/kliment/Desktop/nokia_c110/src/dmodule.o
-| In file included from /home/kliment/Desktop/nokia_c110/src/nokia_info.h:89,
-| ~                 from /home/kliment/Desktop/nokia_c110/src/dmodule.c:35:
-| /home/kliment/Desktop/nokia_c110/src/nokia_priv.h:43:1: warning: "HZ"
-| redefined
+Under 2.6.2 this fails. I can load the "agpgart" module, but "mga" refuses
+to load. The message on stderr is:
 
-This shouldn't define HZ -- or make it conditional.
+FATAL: Error inserting mga
+(/lib/modules/2.6.2/kernel/drivers/char/drm/mga.ko): Invalid argument
 
-| In file included from include/linux/sched.h:4,
-| ~                 from include/linux/module.h:10,
-| ~                 from /home/kliment/Desktop/nokia_c110/src/nokia_info.h:42,
-| ~                 from /home/kliment/Desktop/nokia_c110/src/dmodule.c:35:
-| include/asm/param.h:5:1: warning: this is the location of the previous
-| definition
-| /home/kliment/Desktop/nokia_c110/src/dmodule.c:57: warning: static
-| declaration for `cs_error' follows non-static
+In /var/log/kern.log I find:
 
-'cs_error' is a function in the kernel.  Rename this local one.
+[drm:drm_init] *ERROR* Cannot initialize the agpgart module.
 
-| /home/kliment/Desktop/nokia_c110/src/dmodule.c: In function `cs_error':
-| /home/kliment/Desktop/nokia_c110/src/dmodule.c:61: warning: implicit
-| declaration of function `CardServices'
-| /home/kliment/Desktop/nokia_c110/src/dmodule.c: In function `d_init_module':
-| /home/kliment/Desktop/nokia_c110/src/dmodule.c:115: warning: implicit
-| declaration of function `register_pcmcia_driver'
-| /home/kliment/Desktop/nokia_c110/src/dmodule.c: In function
-| `d_cleanup_module':
-| /home/kliment/Desktop/nokia_c110/src/dmodule.c:124: warning: implicit
-| declaration of function `unregister_pccard_driver'
-| /home/kliment/Desktop/nokia_c110/src/dmodule.c: In function
-| `d_driver_attach':
-| /home/kliment/Desktop/nokia_c110/src/dmodule.c:182: error: structure has
-| no member named `release'
-| /home/kliment/Desktop/nokia_c110/src/dmodule.c:183: error: structure has
-| no member named `release'
-| /home/kliment/Desktop/nokia_c110/src/dmodule.c: In function
-| `d_driver_event':
-| /home/kliment/Desktop/nokia_c110/src/dmodule.c:401: error: structure has
-| no member named `release'
-| /home/kliment/Desktop/nokia_c110/src/dmodule.c:402: error: structure has
-| no member named `release'
-| /home/kliment/Desktop/nokia_c110/src/dmodule.c:407: error: structure has
-| no member named `bus'
-| make[2]: *** [/home/kliment/Desktop/nokia_c110/src/dmodule.o] Error 1
-| make[1]: *** [/home/kliment/Desktop/nokia_c110/src] Error 2
-| make[1]: Leaving directory `/usr/src/linux-2.6.3-rc2-mm1'
-| make: *** [default] Error 2
-| 
-| 
-| Other than the param.h error, all the errors related to kernel headers
-| are gone now. Thank you for the suggestion. However, what do I do next?
-| I got the pci-pcmcia converter working btw. It needed its base address
-| entered manually as well as irq scanning disabled and it would hang the
-| machine otherwise...Therefore I can test this now if it compiles.
+There was a hint on this list that "intel_agp" should be loaded, too. I
+have a VIA based board, so I tried "via_agp". It loads alright, but the
+outcame is the same (and it was unnecessary under 2.4.22 anyway).
 
-All of the kernel interface functions to PCMCIA Card Services have
-changed in 2.6 so quite a bit of code will have to be changed here.
-You can ask Nokia for a 2.6 update since it is now released, or
-you can ask for help from the linux-wlan (or wlan-ng) project people,
-or you can compare a 2.4 PCMCIA kernel driver to a 2.6 PCMCIA kernel
-driver to see what changes are required.
+Any idea what might have changed from kernel 2.4 to 2.6?
 
---
-~Randy
+
+Here's my system's lspci output:
+
+00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 [IGD4-1P] System
+Controller (rev 13)
+00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 [IGD4-1P] AGP Bridge
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
+(rev 40)
+00:07.1 IDE interface: VIA Technologies, Inc.
+VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
+00:07.2 USB Controller: VIA Technologies, Inc. USB (rev 16)
+00:07.3 USB Controller: VIA Technologies, Inc. USB (rev 16)
+00:07.4 SMBus: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+00:09.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 08)
+00:0a.0 SCSI storage controller: LSI Logic / Symbios Logic 53c875 (rev 26)
+00:0b.0 Multimedia video controller: Brooktree Corporation Bt878 Video
+Capture (rev 11)
+00:0b.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture
+(rev 11)
+00:0c.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado]
+(rev 74)
+00:0e.0 Unknown mass storage controller: Triones Technologies, Inc.
+HPT366/368/370/370A/372 (rev 04)
+01:05.0 VGA compatible controller: Matrox Graphics, Inc. MGA G550 AGP (rev
+01)
+
+-- 
+Christoph Terhechte <ct@fdk-berlin.de>
+International Forum of New Cinema
+Potsdamer Strasse 2
+D-10785 Berlin
+Tel: +49-30-269.55.200
+Fax: +49-30-269.55.222
+

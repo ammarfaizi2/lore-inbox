@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268162AbUH0ITn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268756AbUH0IR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268162AbUH0ITn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 04:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268892AbUH0ISD
+	id S268756AbUH0IR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 04:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268162AbUH0IQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 04:18:03 -0400
-Received: from ozlabs.org ([203.10.76.45]:19072 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S268162AbUH0IRm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 04:17:42 -0400
-Date: Fri, 27 Aug 2004 18:13:17 +1000
-From: Anton Blanchard <anton@samba.org>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove function prototype inside function
-Message-ID: <20040827081317.GD11731@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040803i
+	Fri, 27 Aug 2004 04:16:26 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:20164 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S268213AbUH0IOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 04:14:05 -0400
+Message-ID: <412EED4C.80803@namesys.com>
+Date: Fri, 27 Aug 2004 01:14:04 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <20040824202521.GA26705@lst.de> <412BA741.4060006@pobox.com> <20040824205343.GE21964@parcelfarce.linux.theplanet.co.uk> <20040824212232.GF21964@parcelfarce.linux.theplanet.co.uk> <412CDA68.7050702@namesys.com> <20040825184523.GA15419@lst.de> <412DA725.4040200@namesys.com> <20040826183838.GE2793@holomorphy.com> <Pine.LNX.4.58.0408261147590.2304@ppc970.osdl.org> <20040826185655.GF2793@holomorphy.com>
+In-Reply-To: <20040826185655.GF2793@holomorphy.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III wrote:
 
-Hi,
-
-I had a problem when compiling a 2.6 kernel with gcc 3.5 CVS. The
-prototype for prio_tree_remove in mm/prio_tree.c is inside another
-function. gcc 3.5 gets upset and removes the function completely.
-Apparently this isnt valid C, so lets fix it up.
-
-Details can be found here:
-
-http://gcc.gnu.org/bugzilla/show_bug.cgi?id=17205
-
-Signed-off-by: Anton Blanchard <anton@samba.org>
-
-===== mm/prio_tree.c 1.7 vs edited =====
---- 1.7/mm/prio_tree.c	Mon Aug 23 18:15:12 2004
-+++ edited/mm/prio_tree.c	Fri Aug 27 16:28:34 2004
-@@ -81,6 +81,8 @@
- 	return index_bits_to_maxindex[bits - 1];
- }
- 
-+static void prio_tree_remove(struct prio_tree_root *, struct prio_tree_node *);
-+
- /*
-  * Extend a priority search tree so that it can store a node with heap_index
-  * max_heap_index. In the worst case, this algorithm takes O((log n)^2).
-@@ -90,8 +92,6 @@
- static struct prio_tree_node *prio_tree_expand(struct prio_tree_root *root,
- 		struct prio_tree_node *node, unsigned long max_heap_index)
- {
--	static void prio_tree_remove(struct prio_tree_root *,
--					struct prio_tree_node *);
- 	struct prio_tree_node *first = NULL, *prev, *last = NULL;
- 
- 	if (max_heap_index > prio_tree_maxindex(root->index_bits))
+>
+>As far as maintenance goes, absolutely. As far as describing it goes,
+>I probably would have said it was short, red, and spiky.
+>
+>  
+>
+Ah, so it was him, is he disowning XFS these days or?

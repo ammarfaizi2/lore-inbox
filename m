@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129060AbQJ3HDR>; Mon, 30 Oct 2000 02:03:17 -0500
+	id <S129030AbQJ3HDr>; Mon, 30 Oct 2000 02:03:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129045AbQJ3HDH>; Mon, 30 Oct 2000 02:03:07 -0500
-Received: from slc1179.modem.xmission.com ([166.70.8.163]:51474 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S129030AbQJ3HCz>; Mon, 30 Oct 2000 02:02:55 -0500
-To: joeja@mindspring.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /proc & xml data
-In-Reply-To: <39FCDB16.B0955558@mindspring.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 29 Oct 2000 23:54:24 -0700
-In-Reply-To: Joe's message of "Sun, 29 Oct 2000 21:21:11 -0500"
-Message-ID: <m1n1fmhl9b.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S129045AbQJ3HDj>; Mon, 30 Oct 2000 02:03:39 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:36102 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S129030AbQJ3HDP>;
+	Mon, 30 Oct 2000 02:03:15 -0500
+Date: Mon, 30 Oct 2000 09:13:02 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+        netdev <netdev@oss.sgi.com>
+Subject: Re: tcp.c::wait_for_tcp_memory() buggy ?
+In-Reply-To: <Pine.LNX.4.21.0010290122050.4224-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0010300905320.1270-100000@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe <joeja@mindspring.com> writes:
 
-> I remember hearing about various debates about the /proc structure.  I
-> was wondering if anyone had ever considered storing some of the data in
-> xml format rather than its current format?  Things like /proc/meminfo
-> and cpuinfo may work good in this format as then it would be easy to
-> write a generic xml parser that could then be used to parse any of the
-> data. "MemTotal:  %8lu kB\n"
-> 
-> In the case of the meminfo it would be a matter of changing the lines in
-> fs/proc/array.c  function get_meminfo(char * buffer) from
-> 
-> "MemTotal:  %8lu kB\n"
-> 
-> to something like
-> 
-> "<memtotal>%8lu kB</memtotal>\n"
+On Sun, 29 Oct 2000, Rik van Riel wrote:
 
-The general consensus is that if we have a major reorganization, in proc
-the rule will be one value per file.  And let directories do the grouping.
+> I can't quite put my finger on what wait_for_tcp_memory() is supposed
+> to do, [...]
 
-Eric
+it's waiting for TCP output packets to be processed. This is a TCP
+protocol detail and is not connected to VM issues. The function name might
+be a bit misleading, it could be 'tcp_write_possible()', or
+'tcp_wmem_free()'.
+
+> [...] but the code looks EXTREMELY suspect and I've had a report of
+> somebody looping in the for(;;) loop in that function without ever
+> exiting and getting his TCP connection stuck there...
+
+as far as i understand, this can happen if another host (for whatever
+reason) does not process the TCP output packets this host has sent.
+
+> Also, the locking inside the loop seems fragile, to say the
+> least.
+> 
+> from tcp.c:
+> 
+>   865         if (tcp_memory_free(sk) && !vm_wait)
+>   866                 break;
+> 
+>   880         release_sock(sk);
+>   881         if (!tcp_memory_free(sk) || vm_wait)
+>   882                 current_timeo = schedule_timeout(current_timeo);
+>   883         lock_sock(sk);
+> 
+> Here we hold the lock for the entire loop (meaning that
+> other people cannot make the exit condition on line 865
+> come true.
+
+we do not keep the lock for the entire loop, we schedule away on line 882
+with the socket lock dropped. This is a pretty standard (and safe) locking
+technique.
+
+> Except for doing a test on tcp_memory_free(sk), where we
+> do NOT hold the lock we're so dutifully clinging to during
+> the rest of the loop...
+
+well, thats the point of the socket lock - we can access socket data
+structures almost only via the socket lock.
+
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,73 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262763AbTGAQzz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 12:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262861AbTGAQzz
+	id S262930AbTGAQ6I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 12:58:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbTGAQ6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 12:55:55 -0400
-Received: from ns.suse.de ([213.95.15.193]:36882 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262763AbTGAQzx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 12:55:53 -0400
-Date: Tue, 1 Jul 2003 19:09:38 +0200
-From: Andi Kleen <ak@suse.de>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: axboe@suse.de, grundler@parisc-linux.org, davem@redhat.com,
-       suparna@in.ibm.com, linux-kernel@vger.kernel.org,
-       alex_williamson@hp.com, bjorn_helgaas@hp.com
-Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode
-Message-Id: <20030701190938.2332f0a8.ak@suse.de>
-In-Reply-To: <1057077975.2135.54.camel@mulgrave>
-References: <1057077975.2135.54.camel@mulgrave>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Jul 2003 12:58:08 -0400
+Received: from adsl-66-120-156-55.dsl.lsan03.pacbell.net ([66.120.156.55]:64765
+	"EHLO river.fishnet") by vger.kernel.org with ESMTP id S262861AbTGAQ6B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 12:58:01 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
+       kuznet@ms2.inr.ac.ru, jmorris@redhat.com
+Subject: Re: negative tcp_tw_count and other TIME_WAIT weirdness?
+References: <200307010025.h610PGmX007656@river.fishnet>
+	<20030701.012107.42800729.davem@redhat.com>
+From: John Salmon <jsalmon@thesalmons.org>
+Date: Tue, 01 Jul 2003 10:12:18 -0700
+In-Reply-To: <20030701.012107.42800729.davem@redhat.com> (David S. Miller's
+ message of "Tue, 01 Jul 2003 01:21:07 -0700 (PDT)")
+Message-ID: <m3brwedvd9.fsf@river.fishnet>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01 Jul 2003 11:46:12 -0500
-James Bottomley <James.Bottomley@steeleye.com> wrote:
 
-> 
-> Some IOMMUs come with a "bypass" mode, where the IOMMU won't try to
-> translate the physical address coming from the device but will instead
-> place it directly on the memory bus. For some machines (ia-64, and
-> possibly x86_64) any address not programmed into the IOMMU for
+Thanks for the tip.  I'll try the patch.
 
-That's the case on x86_64 yes.
+Another question - is there any chance that this bug could be
+responsible for a slowdown in network processing.  Some of my machines
+get themselves into a state in which their ability to serve
+network traffic (they're running squid) is significantly reduced -
+perhaps by a factor of two.  I wish I had more specific data, but at
+this point it's a mystery.  What I'm really wondering is whether
+there's any chance at all that this kernel bug could be behind my
+performance problem, or should I look elsewhere.
 
-
-> The Problem:
-> 
-> At the moment, the block layer assumes segments may be virtually
-> mergeable (i.e. two phsically discondiguous pages may be treated as a
-> single SG entity for DMA because the IOMMU will patch up the
-> discontinuity) if an IOMMU is present in the system.  This effectively
-> stymies using bypass mode, because segments may not be virtually merged
-> in a bypass operation.
-
-I assume on 2.5 has this problem, not 2.4, right?
-
-> 
-> The Solution:
-> 
-> Is to teach the block layer not to virtually merge segments if either
-> segment may be bypassed.  To that end, the block layer has to know what
-> the physical dma mask is (not the bounce limit, which is different) and
-> it must also know the address bits that must be asserted in bypass
-> mode.  To that end, I've introduced a new #define for asm/io.h
-> 
-> BIO_VMERGE_BYPASS_MASK
-
-But a mask is not good for AMD64 because there is no guarantee 
-that the bypass/iommu address is checkable using a mask
-(K8 uses an memory hole for IOMMU purposes and for various
-reasons the hole can be anywhere in the address space)
-
-This means x86_64 needs an function. Also the name is quite weird and 
-the issue is not really BIO  specific. How about just calling it
-iommu_address() ?
+TIA,
+John Salmon
 
 
--Andi
+>>>>> "David" == David S Miller <davem@redhat.com> writes:
+
+David>    From: John Salmon <jsalmon@thesalmons.org>
+David>    Date: Mon, 30 Jun 2003 17:25:16 -0700
+
+David>    I have several fairly busy servers reporting a negative value
+David>    for tcp_tw_count.
+
+David>  I have a sneaking suspicion that this patch (already in 2.4.22-preX)
+David>  will fix your problem.
+
+David> # This is a BitKeeper generated patch for the following project:
+David> # Project Name: Linux kernel tree
+David> # This patch format is intended for GNU patch command version 2.5 or higher.
+David> # This patch includes the following deltas:
+David> #	           ChangeSet	1.930.114.22 -> 1.930.114.23
+David> #	net/ipv4/tcp_minisocks.c	1.13    -> 1.14   
+David> #
+David> # The following is the BitKeeper ChangeSet Log
+David> # --------------------------------------------
+David> # 03/05/07	olof@austin.ibm.com	1.930.114.23
+David> # [TCP]: tcp_twkill leaves death row list in inconsistent state over tcp_timewait_kill.
+David> # --------------------------------------------
+David> #
+David> diff -Nru a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
+David> --- a/net/ipv4/tcp_minisocks.c	Tue Jul  1 01:25:26 2003
+David> +++ b/net/ipv4/tcp_minisocks.c	Tue Jul  1 01:25:26 2003
+David> @@ -447,6 +447,8 @@
+ 
+David>  	while((tw = tcp_tw_death_row[tcp_tw_death_row_slot]) != NULL) {
+David>  		tcp_tw_death_row[tcp_tw_death_row_slot] = tw->next_death;
+David> +		if (tw->next_death)
+David> +			tw->next_death->pprev_death = tw->pprev_death;
+tw-> pprev_death = NULL;
+David>  		spin_unlock(&tw_death_lock);
+ 
+

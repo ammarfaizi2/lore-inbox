@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbTJNOat (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 10:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbTJNOat
+	id S262301AbTJNOc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 10:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTJNOc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 10:30:49 -0400
-Received: from uni02du.unity.ncsu.edu ([152.1.13.102]:40833 "EHLO
-	uni02du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S262202AbTJNOas (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 10:30:48 -0400
-From: jlnance@unity.ncsu.edu
-Date: Tue, 14 Oct 2003 10:30:47 -0400
+	Tue, 14 Oct 2003 10:32:56 -0400
+Received: from eva.fit.vutbr.cz ([147.229.10.14]:24587 "EHLO eva.fit.vutbr.cz")
+	by vger.kernel.org with ESMTP id S262301AbTJNOcz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 10:32:55 -0400
+Date: Tue, 14 Oct 2003 16:32:51 +0200
+From: David Jez <dave.jez@seznam.cz>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
-Message-ID: <20031014143047.GA6332@ncsu.edu>
-References: <HMQWM7$61FA432C2B793029C11F4F77EEAABD1F@libero.it> <Pine.LNX.4.44.0310140917540.3754-100000@chimarrao.boston.redhat.com>
+Subject: Re: hotplug and /etc/init.d/hotplug
+Message-ID: <20031014143250.GC82125@stud.fit.vutbr.cz>
+References: <Sea2-F47xegIqunLOyD000050c7@hotmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310140917540.3754-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Sea2-F47xegIqunLOyD000050c7@hotmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 14, 2003 at 09:24:17AM -0400, Rik van Riel wrote:
-> On Tue, 14 Oct 2003, Marco Fioretti wrote:
+On Tue, Oct 14, 2003 at 01:53:46PM +0200, sting sting wrote:
+> Hello,
+  Hi,
+
+> I am running RedHat 9 with 2.4.20-8  kernel ;
+> Now , I have a questo about hotplug:
+> I have hotplug-2002_04_01-17 installed (rpm);
 > 
-> > There are literally thousands of schools, all over the world, which
-> > simply cannot afford any money on computers. The "HW is cheap" slogan is
-> > very cruel when recited in places where 64 MB of RAM are one month's
-> > salary. I am not kidding.
+> Now , I read the readme of this rpm ;
+> in their "installing"  section , clause 5 , it says:
+> # cp etc/rc.d/init.d/hotplug /etc/rc.d/init.d/hotplug
+> # cd /etc/rc.d/init.d
+> # chkconfig --add hotplug
+> 
+> I checked on my machine and there is no "hotplug" file in that folder.
+> Nevertheless, hotplugin works (because when I plug a USB camera
+> I can see in the kernel log (/var/log/messages)  messages which start with
+> /etc/hotplug/usb.agent
+> 
+> I also looked at the kernel code (method "call_polcy" in usb.c )
+> and it doesn't seems to me that the hotplug in /etc/init.d is needed .
+> 
+> can anybody make some clarifications ?
+  Don't worry about it :-)
+  /etc/init.d/... file is script for bring up hotplug subsytem... for
+usb it means: modprobe module for usb host controller adapter and mount
+/proc/bus/usb ...
+  Hotplugin works because usb subsystem execute /sbin/hotplug binary...
 
-Let me concur with the sentiments on this thread.
-
-When I started using Linux, it was on a 40 MHz 386 with 8Megs of ram and
-a 200 Meg HD.  This was a reasonably typical machine for the time (1993).
-I ran X on this machine, and it was fine running several Xterms and you
-could play the X version of Tetris or gnuchess.  I used this machine to
-write the program I was working on for my Masters degree.
-
-Today, a machine with specs like I quoted above seems hopelessly slow.
-However, I was able to do useful work on it in 1993, and the same sort
-of work would still be useful today.  You of course are not going to be
-able to run mozilla and KDE on it, but lynx, slrn, mutt, and fvwm will
-work fine.  There are many people who will never be able to afford
-to buy a computer but could find someone to give them one of these
-"hopelessy outdated" machines for nothing.  If we can ensure that
-Linux keeps working on these machines, it will be a good thing.
-
-Thanks,
-
-Jim
+  Is that enought?
+> sting
+-- 
+-------------------------------------------------------
+  David "Dave" Jez                Brno, CZ, Europe
+ E-mail: dave.jez@seznam.cz
+PGP key: finger xjezda00@eva.fit.vutbr.cz
+---------=[ ~EOF ]=------------------------------------

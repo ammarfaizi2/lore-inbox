@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290818AbSDDDtw>; Wed, 3 Apr 2002 22:49:52 -0500
+	id <S292130AbSDDDxM>; Wed, 3 Apr 2002 22:53:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291787AbSDDDtm>; Wed, 3 Apr 2002 22:49:42 -0500
-Received: from [202.135.142.194] ([202.135.142.194]:31749 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S290818AbSDDDta>; Wed, 3 Apr 2002 22:49:30 -0500
-Date: Thu, 4 Apr 2002 12:02:09 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andreas Schwab <schwab@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bitops cleanup 2/4
-Message-Id: <20020404120209.4bfd92d0.rusty@rustcorp.com.au>
-In-Reply-To: <jeit79dk3b.fsf@sykes.suse.de>
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S292229AbSDDDxC>; Wed, 3 Apr 2002 22:53:02 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:65201 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S292130AbSDDDwx>;
+	Wed, 3 Apr 2002 22:52:53 -0500
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15531.52715.356246.9467@argo.ozlabs.ibm.com>
+Date: Thu, 4 Apr 2002 13:52:11 +1000 (EST)
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au
+Subject: [PATCH] fix include/linux/smp.h
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 03 Apr 2002 14:48:08 +0200
-Andreas Schwab <schwab@suse.de> wrote:
+Linus,
 
-> gcc is correct.  "&array" and "array" are different.  While they represent
-> the same address, the types are not compatible.  Eg. for "int array[5]"
-> the type of "array" is "int [5]" (decaying to "int *" in most contexts),
-> but the type of "&array" is "int (*)[5]" (pointer to array of 5 ints).
+This patch adds #include <linux/threads.h> to include/linux/smp.h,
+because it (smp.h) needs the definition of NR_CPUS.  (It so happens
+that include/asm-i386/smp.h includes <linux/threads.h>, but IMHO
+include/linux/smp.h shouldn't rely on that).
 
-Ah, of course.  Thankyou the clue contribution.  I should have thought
-harder in the first place.
+Please apply this patch to your 2.5 tree.
 
-(To the audience) Patch, of course, is still correct..
-Rusty.
--- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Paul.
+
+diff -urN linux-2.5/include/linux/smp.h pmac-2.5/include/linux/smp.h
+--- linux-2.5/include/linux/smp.h	Sat Mar  9 22:26:16 2002
++++ pmac-2.5/include/linux/smp.h	Sat Mar 16 11:08:49 2002
+@@ -12,6 +12,7 @@
+ 
+ #include <linux/kernel.h>
+ #include <linux/compiler.h>
++#include <linux/threads.h>
+ #include <asm/smp.h>
+ 
+ /*

@@ -1,56 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbQJ3Grb>; Mon, 30 Oct 2000 01:47:31 -0500
+	id <S129029AbQJ3G5p>; Mon, 30 Oct 2000 01:57:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129029AbQJ3GrW>; Mon, 30 Oct 2000 01:47:22 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:18701 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129026AbQJ3GrC>;
-	Mon, 30 Oct 2000 01:47:02 -0500
-Date: Mon, 30 Oct 2000 07:47:00 +0100
-From: Andi Kleen <ak@suse.de>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-Message-ID: <20001030074700.A31783@gruyere.muc.suse.de>
-In-Reply-To: <39FCB09E.93B657EC@timpanogas.org> <E13q2R7-0006S7-00@the-village.bc.nu> <20001029183531.A7155@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001029183531.A7155@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Sun, Oct 29, 2000 at 06:35:31PM -0700
+	id <S129042AbQJ3G5g>; Mon, 30 Oct 2000 01:57:36 -0500
+Received: from ra.lineo.com ([207.179.37.37]:14021 "EHLO thor.lineo.com")
+	by vger.kernel.org with ESMTP id <S129029AbQJ3G5T>;
+	Mon, 30 Oct 2000 01:57:19 -0500
+Message-ID: <39FD1C89.818B9821@lineo.com>
+Date: Mon, 30 Oct 2000 00:00:26 -0700
+From: pierre@lineo.com
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: eepro100: card reports no resources [was VM-global...]
+In-Reply-To: <20001026193508.A19131@niksula.cs.hut.fi> <20001030142356.A3800@saw.sw.com.sg>
+X-MIMETrack: Serialize by Router on thor/Lineo(Release 5.0.5 |September 22, 2000) at 10/29/2000
+ 11:57:18 PM,
+	Serialize complete at 10/29/2000 11:57:18 PM
+Content-Type: multipart/alternative;
+ boundary="------------29338EB3563DE90613B9FA2A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 29, 2000 at 06:35:31PM -0700, Jeff V. Merkey wrote:
-> On Mon, Oct 30, 2000 at 12:04:23AM +0000, Alan Cox wrote:
-> > > It's still got some problems with NFS (I am seeing a few RPC timeout
-> > > errors) so I am backreving to 2.2.17 for the Ute-NWFS release next week,
-> > > but it's most impressive.
-> > 
-> > Can you send a summary of the NFS reports to nfs-devel@linux.kernel.org
-> 
-> Yes.  I just went home, so I am emailing from my house.  I'll post late 
-> tonight or in the morning.  Performance on 100Mbit with NFS going 
-> Linux->Linux is getting better throughput than IPX NetWare Client -> 
-> NetWare 5.x on the same network by @ 3%.  When you start loading up a 
-> Linux server, it drops off sharply and NetWare keeps scaling, however, 
-> this does indicate that the LAN code paths are equivalent relative to 
-> latency vs. MSM/TSM/HSM in NetWare.  NetWare does better caching 
-> (but we'll fix this in Linux next).  I think the ring transitions to 
-> user space daemons are what are causing the scaling problems 
-> Linux vs. NetWare.
 
-There are no user space daemons involved in the knfsd fast path, only in slow paths
-like mounting.
-The main problem I think in knfsd are the numerous copies of the data (e.g. 2+checksumming for
-RX with fragments, upto 4 in some specific configurations). They're unfortunately 
-not trivial to fix. TX is a bit better, it does only one copy usually out of
-the page cache. For RX it also helps to have a network card that supports hardware
-checksumming.
+--------------29338EB3563DE90613B9FA2A
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+
+Andrey Savochkin wrote:
+
+> > > > Oct 26 16:38:01 ns29 kernel: eth0: card reports no resources.
+> > > >
+> > > let me guess: intel eepro100 or similar??
+> >
+> > > 2.4.0-test9-pre3 it doesnt happen on my machine ...
+
+I run 2.4.0-test10-pre5 and it still does it.
+
+Trick : "ifconfig eth0 down" then "ifconfig eth0 up" stops the problem for me
+when it occurs.
 
 
+                ////\
+                (@ @)
+------------oOOo-(_)-oOOo-------------
+Pierre-Philippe Coupard
+Software Engineer, Lineo, Inc.
+Email : pierre@lineo.com
+Phone : (801) 426-5001 x 208
+--------------------------------------
 
--Andi
+Auribus teneo lupum.
+        [I hold a wolf by the ears.]
+        [Boy, it *sounds* good.  But what does it *mean*?]
+
+
+
+--------------29338EB3563DE90613B9FA2A
+Content-Transfer-Encoding: 7bit
+Content-Type: text/html; charset=us-ascii
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+Andrey Savochkin wrote:
+<blockquote TYPE=CITE>> > > Oct 26 16:38:01 ns29 kernel: eth0: card reports
+no resources.
+<br>> > >
+<br>> > let me guess: intel eepro100 or similar??
+<br>>
+<br>> > 2.4.0-test9-pre3 it doesnt happen on my machine ...</blockquote>
+I run 2.4.0-test10-pre5 and it still does it.
+<p>Trick : "ifconfig eth0 down" then "ifconfig eth0 up" stops the problem
+for me when it occurs.
+<pre>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ////\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (@ @)
+------------oOOo-(_)-oOOo-------------
+Pierre-Philippe Coupard
+Software Engineer, Lineo, Inc.
+Email : pierre@lineo.com
+Phone : (801) 426-5001 x 208
+--------------------------------------
+
+Auribus teneo lupum.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [I hold a wolf by the ears.]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Boy, it *sounds* good.&nbsp; But what does it *mean*?]</pre>
+&nbsp;</html>
+
+--------------29338EB3563DE90613B9FA2A--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

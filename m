@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286179AbSA2XCe>; Tue, 29 Jan 2002 18:02:34 -0500
+	id <S285935AbSA2XCd>; Tue, 29 Jan 2002 18:02:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285692AbSA2XCW>; Tue, 29 Jan 2002 18:02:22 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:6660 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S286263AbSA2XB5>;
-	Tue, 29 Jan 2002 18:01:57 -0500
-Date: Tue, 29 Jan 2002 21:01:40 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-In-Reply-To: <Pine.LNX.4.33.0201291402270.1533-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0201292059440.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S286207AbSA2XCS>; Tue, 29 Jan 2002 18:02:18 -0500
+Received: from bdsl.66.13.29.10.gte.net ([66.13.29.10]:19842 "EHLO
+	Bluesong.NET") by vger.kernel.org with ESMTP id <S285692AbSA2XBu>;
+	Tue, 29 Jan 2002 18:01:50 -0500
+Message-Id: <200201292306.g0TN6Mw18626@Bluesong.NET>
+Content-Type: text/plain; charset=US-ASCII
+From: "Jack F. Vogel" <jfv@trane.bluesong.net>
+Reply-To: jfv@bluesong.net
+To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Schedtune Tuneable Parameter patch on O(1) 2.5.3pre5 J9
+Date: Tue, 29 Jan 2002 15:06:22 -0800
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jan 2002, Linus Torvalds wrote:
-> On Tue, 29 Jan 2002, David S. Miller wrote:
-> >
-> > I like the changes too, but I'd like to see some numbers
-> > as well.
->
-> Absolutely. Even something as simplistic as "lmbench file re-read" changed
-> by 0.1% or something. I definitely believe in the scalability part (as
-> long as the different processes don't all touch the same mapping all the
-> time), so I'm more interested in the "what is the impact of the hash chain
-> lookup/walk vs the radix tree walk" kinds of numbers.
+Ingo,
 
-There's another nice advantage to the radix tree.
+	I have tested and verified that the schedtune patch for 2.5.3-pre5 J7 
+also applies and works with your J9 patch. I dont know if you care to make a 
+symlink for the delta change or not. The same is true of the 2.4.17 based 
+patch.
 
-We can let oracle shared memory segments use 4 MB pages,
-but still use the normal page cache code to look up the
-pages.
+Regards,
 
-With a radix tree there is no overhead in using different
-page sizes since we'll just run into them in the tree.
-
-(as opposed to the horrors of trying a hash lookup with
-multiple page orders)
-
-regards,
-
-Rik
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Jack F. Vogel
+IBM  Linux Solutions
+jfv@us.ibm.com  (work)
+jfv@Bluesong.NET (home)

@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbTLUJO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 04:14:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbTLUJO7
+	id S262356AbTLUJaL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 04:30:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbTLUJaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 04:14:59 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:30922 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262344AbTLUJO6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 04:14:58 -0500
-Date: Sun, 21 Dec 2003 09:57:16 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Christian Meder <chris@onestepahead.de>
+	Sun, 21 Dec 2003 04:30:10 -0500
+Received: from mailgate2.mysql.com ([213.136.52.47]:20140 "EHLO
+	mailgate.mysql.com") by vger.kernel.org with ESMTP id S262356AbTLUJaH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 04:30:07 -0500
+Subject: Re: lot of VM problem with 2.4.23
+From: Peter Zaitsev <peter@mysql.com>
+To: Octave <oles@ovh.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
-Message-ID: <20031221085716.GA21322@elte.hu>
-References: <200312201355.08116.kernel@kolivas.org> <1071891168.1044.256.camel@localhost> <3FE3C6FC.7050401@cyberone.com.au> <1071893802.1363.21.camel@localhost> <3FE3D0CB.603@cyberone.com.au> <1071897314.1363.43.camel@localhost> <20031220111917.GA18267@elte.hu> <1071938978.1025.48.camel@localhost> <20031220174232.GA29189@elte.hu> <1071970825.1025.87.camel@localhost>
+In-Reply-To: <20031221001422.GD25043@ovh.net>
+References: <20031221001422.GD25043@ovh.net>
+Content-Type: text/plain
+Organization: MySQL
+Message-Id: <1071999003.2156.89.camel@abyss.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1071970825.1025.87.camel@localhost>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: SpamAssassin ELTE 1.0
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 21 Dec 2003 12:30:04 +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2003-12-21 at 03:14, Octave wrote:
+> Hi,
+> Since we use 2.4.23 we have lot of crash. I have no kernel panic.
+> All I can report is this kind of syslog's message:
+> __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+> VM: killing process rateup
+> 
+> Mysql doesn't like 2.4.23 either.
+> SQL Error : 1 Can't create/write to file '/tmp/#sql2ec_1acd2_2.MYI' (Errcode: 30)
 
-* Christian Meder <chris@onestepahead.de> wrote:
+Octave,
 
-> I tried to verify your suggestion and found that the P_RTEMS symbol is
-> not defined on Linux. It seems to be some other kind of realtime
-> operating system. So the code in question already uses usleep. Now I'm
-> still digging for other occurances of sched_yield in the pwlib
-> sources.
+This looks like for some reason  your /tmp file-system is read only or
+for any other reason kernel returns this error code. 
 
-could you try to strace -f gnomemeeting? Maybe there's no sched_yield()
-at all. Could you also try to run the non-yielding loop code via:
+Do not you have any more error messages dmesg or logs ? 
 
-	nice -19 ./loop &
+-- 
+Peter Zaitsev, Full-Time Developer
+MySQL AB, www.mysql.com
 
-do a couple of such loops still degrade gnomemeeting?
+Are you MySQL certified?  www.mysql.com/certification
 
-	Ingo

@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285127AbRLQNRD>; Mon, 17 Dec 2001 08:17:03 -0500
+	id <S285128AbRLQNUN>; Mon, 17 Dec 2001 08:20:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285128AbRLQNQy>; Mon, 17 Dec 2001 08:16:54 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:37899 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S285127AbRLQNQt>;
-	Mon, 17 Dec 2001 08:16:49 -0500
-Date: Mon, 17 Dec 2001 14:16:49 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Problem with kernel nfs server in 2.4.17-rc1
-Message-Id: <20011217141649.2ee44a10.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S280027AbRLQNUD>; Mon, 17 Dec 2001 08:20:03 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:6149 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S279798AbRLQNTu>;
+	Mon, 17 Dec 2001 08:19:50 -0500
+To: Jan-Benedict Glaw <jbglaw@microdata-pos.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: xchg and GCC's optimisation:-(
+In-Reply-To: <20011217134526.A31801@microdata-pos.de>
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <20011217134526.A31801@microdata-pos.de>
+Date: 17 Dec 2001 15:18:45 +0200
+Message-ID: <87wuzmq91m.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+>>>>> "Jan-Benedict" == Jan-Benedict Glaw <jbglaw@microdata-pos.de> writes:
+Jan-Benedict> I've looked at ./include/asm-i386/system.h which does some black
+Jan-Benedict> magic with it, and I don't really understand that. However, the
+Jan-Benedict> result is that the xchg gets optimized away, rendering at least
 
-I run constantly in a problem with knfsd (or related) that looks like this:
-After several hours clients cannot mount via nfs any more, they get:
+Can you try with this patch ...
 
-db:/usr/src/packages/SOURCES # mount /backup
-mount: admin:/p2/backup/db failed, reason given by server: Permission denied
-
-On the server I get:
-
-Dec 17 14:09:54 admin rpc.mountd: getfh failed: Operation not permitted 
-
-This issue can always be solved by simply restarting the kernel nfs server.
-Does this sound familiar to anybody? I tend to believe this is yet another
-issue with knfsd getting into troubles with failed allocs. I can test whatever,
-if someone tells me how and what.
-
-Regards,
-Stephan
+--- system.h.orig.0	Mon Dec 17 15:03:38 2001
++++ system.h	Mon Dec 17 15:16:58 2001
+@@ -205,21 +205,15 @@ static inline unsigned long __xchg(unsig
+ 	switch (size) {
+ 		case 1:
+ 			__asm__ __volatile__("xchgb %b0,%1"
+-				:"=q" (x)
+-				:"m" (*__xg(ptr)), "0" (x)
+-				:"memory");
++				     :"+q" (x),"=m" (*__xg(ptr)));
+ 			break;
+ 		case 2:
+ 			__asm__ __volatile__("xchgw %w0,%1"
+-				:"=r" (x)
+-				:"m" (*__xg(ptr)), "0" (x)
+-				:"memory");
++				     :"+r" (x),"=m" (*__xg(ptr)));
+ 			break;
+ 		case 4:
+ 			__asm__ __volatile__("xchgl %0,%1"
+-				:"=r" (x)
+-				:"m" (*__xg(ptr)), "0" (x)
+-				:"memory");
++				     :"+r" (x), "=m" (*__xg(ptr)));
+ 			break;
+ 	}
+ 	return x;

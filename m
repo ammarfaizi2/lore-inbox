@@ -1,29 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264308AbTH1Unm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 16:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264315AbTH1Unl
+	id S264287AbTH1Uhj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 16:37:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264290AbTH1Uhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 16:43:41 -0400
-Received: from crisium.vnl.com ([194.46.8.33]:59399 "EHLO crisium.vnl.com")
-	by vger.kernel.org with ESMTP id S264308AbTH1Unk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 16:43:40 -0400
-Date: Thu, 28 Aug 2003 21:43:35 +0100
-From: Dale Amon <amon@vnl.com>
+	Thu, 28 Aug 2003 16:37:39 -0400
+Received: from smtp-3a.paradise.net.nz ([202.0.32.196]:55683 "EHLO
+	smtp-3.paradise.net.nz") by vger.kernel.org with ESMTP
+	id S264287AbTH1Uhh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 16:37:37 -0400
+Date: Fri, 29 Aug 2003 08:38:32 +1200
 To: linux-kernel@vger.kernel.org
-Subject: Reiserfs, xattr's and selinux
-Message-ID: <20030828204335.GE6898@vnl.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
+Subject: Complete system freeze running test3, should I investiage?
+Message-ID: <20030828203832.GA10153@lakeland.hopto.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux, the choice of a GNU generation
+User-Agent: Mutt/1.5.4i
+From: Corrin Lakeland <lakeland@lakeland.hopto.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I understand someone may have a patch to let reiserfs work with
-selinux in the 2.6.0-test4 kernel. If so, where would I find it, 
-or who should I talk to about it?
+Hi all,
 
+I'm running fairly standard x86 hardware (VIA chipset, athlon, etc.)
+The system was quite stable running 2.4, but since upgrading to 2.6 
+I've had three complete system freezes.  Mouse and keyboard frozen, 
+can't ping, nothing at all in the logs.  I was hoping to submit a bug 
+report but alt-sysrq didn't work.  So, would people like me to 
+investigate further (and if so, how?) or shall I just ignore it?
+
+Corrin

@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318762AbSH1INR>; Wed, 28 Aug 2002 04:13:17 -0400
+	id <S318765AbSH1IQc>; Wed, 28 Aug 2002 04:16:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318765AbSH1INR>; Wed, 28 Aug 2002 04:13:17 -0400
-Received: from c65.h202052108.is.net.tw ([202.52.108.65]:9877 "EHLO
-	webmail.iei.com.tw") by vger.kernel.org with ESMTP
-	id <S318762AbSH1INR>; Wed, 28 Aug 2002 04:13:17 -0400
-Message-ID: <00cf01c24e6b$678127e0$1d0d11ac@ieileb9wqxg5qq>
-From: "Kevin Liao" <kevinliao@iei.com.tw>
-To: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com> <20020828081412.GA1496@spunk>
-Subject: Writing files to remote storage
-Date: Wed, 28 Aug 2002 16:17:50 +0800
-MIME-Version: 1.0
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
-X-MIMETrack: Itemize by SMTP Server on webmail/iei2(Release 5.0.8 |June 18, 2001) at
- 2002/08/28 04:18:12 PM,
-	Serialize by Router on webmail/iei2(Release 5.0.8 |June 18, 2001) at 2002/08/28
- 04:18:19 PM,
-	Serialize complete at 2002/08/28 04:18:19 PM
+	id <S318767AbSH1IQc>; Wed, 28 Aug 2002 04:16:32 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:62870 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318765AbSH1IQb>;
+	Wed, 28 Aug 2002 04:16:31 -0400
+Date: Wed, 28 Aug 2002 01:15:09 -0700 (PDT)
+Message-Id: <20020828.011509.29049124.davem@redhat.com>
+To: sp@scali.com
+Cc: linux-kernel@vger.kernel.org, beowulf@beowulf.org
+Subject: Re: Channel bonding GbE (Tigon3)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0208280933250.9999-100000@sp-laptop.isdn.scali.no>
+References: <Pine.LNX.4.44.0208271934180.18659-100000@sp-laptop.isdn.scali.no>
+	<Pine.LNX.4.44.0208280933250.9999-100000@sp-laptop.isdn.scali.no>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+   From: Steffen Persvold <sp@scali.com>
+   Date: Wed, 28 Aug 2002 10:06:19 +0200 (CEST)
 
-I don't know whether it's proper to post such a problem in this mailing
-list,
-but I guess someone here could help me...
+   > I have an idea that this happens because the packets are comming out of 
+   > order into the receiving node (i.e the bonding device is alternating 
+   > between each interface when sending, and when the receiving node gets the 
+   > packets it is possible that the first interface get packets number 0, 2, 
+   > 4 and 6 in one interrupt and queues it to the network stack before packet 
+   > 1, 3, 5 is handled on the other interface).
 
-If I mount a remote linux partition through smb or nfs and write one file to
-that partition. How could I make sure that that file is really written to
-the remote disk successfully? I know that some cache mechanisms existed in
-linux kernel. So I guess there may be two possibilities as below:
+That is exactly what is happening.  Packets are being reordered.
 
-1. After the call write() returns successfully, the file has been actually
-in the local cache and then submit to remote cache later.
-2. After the call write() returns successfully, the file has been actually
-in the remote cache and then submit to remote disk later.
+Welcome to one of the flaws of round-robin trunking. :-)
 
-Then, no matter which one of the above two situations happens, the data is
-not yet written to the physical storage at that time, right? Should I need
-to call fsync() each time after calling write()? Thanks a lot!
+   > If this is the case, any ideas how to fix this...
 
-Regards,
-Kevin
+Don't use round-robin, choose the output device based upon
+hashing of some bits in the IP/TCP headers :-)
 
-
+You won't get 2Gb/sec for a single TCP stream, but you will
+for 2 or more.

@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268169AbUIPPWD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268336AbUIPP1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268169AbUIPPWD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 11:22:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268292AbUIPPVc
+	id S268336AbUIPP1r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 11:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268348AbUIPP1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 11:21:32 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:387 "EHLO dns.toxicfilms.tv")
-	by vger.kernel.org with ESMTP id S268223AbUIPPIV (ORCPT
+	Thu, 16 Sep 2004 11:27:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:4481 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268268AbUIPP0q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 11:08:21 -0400
-Date: Thu, 16 Sep 2004 17:08:17 +0200
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-X-Mailer: The Bat! (v3.0) UNREG / CD5BF9353B3B7091
-Reply-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-X-Priority: 3 (Normal)
-Message-ID: <1546570702.20040916170817@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Subject: Re[2]: [2.6.8.1-ck7-web100] Badness in cfq_sort_rr_list
-In-Reply-To: <20040916145708.GT9106@holomorphy.com>
-References: <1072359679.20040916142632@dns.toxicfilms.tv>
- <20040916125824.GD3544@suse.de> <569683048.20040916165042@dns.toxicfilms.tv>
- <20040916145708.GT9106@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Sep 2004 11:26:46 -0400
+Date: Thu, 16 Sep 2004 08:21:35 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Adrian Bunk <bunk@fs.tum.de>, mk+lkml@arm.linux.org.uk
+Cc: mgreer@mvista.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: review MPSC driver
+Message-Id: <20040916082135.7cde3b32.rddunlap@osdl.org>
+In-Reply-To: <20040916081017.GA2167@fs.tum.de>
+References: <20040915150247.37706f7c.rddunlap@osdl.org>
+	<20040915214301.53a68379.randy.dunlap@verizon.net>
+	<20040916081017.GA2167@fs.tum.de>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Harmless you say... :-) The machine almost hardlocked. I could only
->> type my username during login and that's all.
->> Maybe it is unrelated but I will try the suggested patch.
+On Thu, 16 Sep 2004 10:10:17 +0200 Adrian Bunk wrote:
 
-> Please use technical terms. "almost hardlocked" is ambiguous at best.
-1. While being logged in with SSH, I typed date to see the today's
-date. Nothing showed up, I tried ctrl+c to break whatever might be
-there to break. I tried ctrl+z to try to push the task to background.
-No reponse was there.
-So I tried logging once more with SSH to my account. I logged in, saw
-the MOTD. Once I typed one command - ls for instance - I had the same as above.
-So I was able to login with SSH.
+| On Wed, Sep 15, 2004 at 09:43:01PM -0700, Randy.Dunlap wrote:
+| > 
+| > | http://www.uwsg.iu.edu/hypermail/linux/kernel/0408.3/1549.html
+| > 
+| > Hi Mark,
+| >...
+| > 3.  + select SERIAL_CORE
+| >     + select SERIAL_CORE_CONSOLE
+| > 
+| > Please don't use "select".  Use "depends on" instead.
+| >...
+| 
+| That's a silly suggestion since none of these options are user visible.
 
-2. When I went to the console, I saw the cfq traces. I switched to the
-other tty (alt+f2) and tried to log in as root, After typing root and
-pressing enter I could not log in this way as with ssh.
+and Russell King wrote about the same text:
+| This is actually (one of the few) correct uses of select.  These two
+| symbols are *not* user visible, and are derived from the configuration
+| settings of the hardware drivers.
 
-3. I tried alt+prn+S to sync. No effects besides the disks sync'd.
-So I unmounted them (alt+prn+U) and rebooted (alt+prn+B) and
-sent the traces I saw.
-
-Anyway that does not give any clues as to the source of it. Or does
-it?
+Thanks for your comments.  Any other comments on the driver?
 
 --
-Regards,
-Maciej
-
-
+~Randy

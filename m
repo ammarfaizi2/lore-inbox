@@ -1,88 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262622AbRFMUTl>; Wed, 13 Jun 2001 16:19:41 -0400
+	id <S263952AbRFMUVb>; Wed, 13 Jun 2001 16:21:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264204AbRFMUTb>; Wed, 13 Jun 2001 16:19:31 -0400
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:24307 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S263952AbRFMUT0>; Wed, 13 Jun 2001 16:19:26 -0400
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE32F@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'Maksim Krasnyanskiy'" <maxk@qualcomm.com>, esr@thyrsus.com,
-        CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: RE: Undocumented configuration symbols in 2.4.6pre2
-Date: Wed, 13 Jun 2001 13:19:03 -0700
+	id <S264204AbRFMUVV>; Wed, 13 Jun 2001 16:21:21 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:7181 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S263952AbRFMUVQ>; Wed, 13 Jun 2001 16:21:16 -0400
+Date: Wed, 13 Jun 2001 17:21:10 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Tom Sightler <ttsig@tuxyturvy.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.6-pre2, pre3 VM Behavior
+In-Reply-To: <992460707.3b27bfa31aa98@eargle.com>
+Message-ID: <Pine.LNX.4.33.0106131716510.1742-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 13 Jun 2001, Tom Sightler wrote:
 
-Could you make these 5 instances of "Not unsure" be more
-palatable and less confusing?
+> 1.  Transfer of the first 100-150MB is very fast (9.8MB/sec via 100Mb Ethernet,
+> close to wire speed).  At this point Linux has yet to write the first byte to
+> disk.  OK, this might be an exaggerated, but very little disk activity has
+> occured on my laptop.
+>
+> 2.  Suddenly it's as if Linux says, "Damn, I've got a lot of data to flush,
+> maybe I should do that" then the hard drive light comes on solid for several
+> seconds.  During this time the ftp transfer drops to about 1/5 of the original
+> speed.
+>
+> 3.  After the initial burst of data is written things seem much more reasonable,
+> and data streams to the disk almost continually while the rest of the transfer
+> completes at near full speed again.
+>
+> Basically, it seems the kernel buffers all of the incoming file up to nearly
+> available memory before it begins to panic and starts flushing the file to disk.
+>  It seems it should start to lazy write somewhat ealier.
+> Perhaps some of this is tuneable from userland and I just don't
+> know how.
 
-E.g., "Not sure" or "If not sure".
-But not the double negative...
+Actually, it already does the lazy write earlier.
 
-As is, it basically says:  "Sure ? say M."
+The page reclaim code scans up to 1/4th of the inactive_dirty
+pages on the first loop, where it does NOT write things to
+disk.
 
-~Randy
+On the second loop, we start asynchronous writeout of data
+to disk and and scan up to 1/2 of the inactive_dirty pages,
+trying to find clean pages to free.
 
-> -----Original Message-----
-> From: Maksim Krasnyanskiy [mailto:maxk@qualcomm.com]
-> 
-> >CONFIG_BLUEZ
-> >CONFIG_BLUEZ_HCIEMU
-> >CONFIG_BLUEZ_HCIUART
-> >CONFIG_BLUEZ_HCIUSB
-> >CONFIG_BLUEZ_L2CAP
-> 
-> Here we go:
-> 
-> CONFIG_BLUEZ
-...
-> 
->    Say Y here to enable Linux Bluetooth support and to build HCI Core 
->    layer.
-> 
-...
-> 
->    Not unsure ? say N.
-> 
-> CONFIG_BLUEZ_L2CAP
-...
-> 
->    Say Y here to compile L2CAP support into the kernel or say 
-> M to compile it 
->    as module (l2cap.o).
-> 
->    Not unsure ? say M.
-> 
-> CONFIG_BLUEZ_HCIUART
-...
-> 
->    Say Y here to compile support for Bluetooth UART devices 
-> into the kernel 
->    or say M to compile it as module (hci_uart.o).
-> 
->    Not unsure ? say M.
-> 
-> 
-> CONFIG_BLUEZ_HCIUSB
-...
-> 
->    Say Y here to compile support for Bluetooth USB devices 
-> into the kernel 
->    or say M to compile it as module (hci_usb.o).
-> 
->    Not unsure ? say M.
-> 
-> CONFIG_BLUEZ_HCIEMU
-...
-> 
->    Not unsure ? say M.
+Only when there simply are no clean pages we resort to
+synchronous IO and the system will wait for pages to be
+cleaned.
+
+After the initial burst, the system should stabilise,
+starting the writeout of pages before we run low on
+memory. How to handle the initial burst is something
+I haven't figured out yet ... ;)
+
+> Anyway, things are still much better, with older kernels things
+> would almost seem locked up during those 10-15 seconds but now
+> my apps stay fairly responsive (I can still type in AbiWord,
+> browse in Mozilla, etc).
+
+This is due to this smarter handling of the flushing of
+dirty pages and due to a more subtle bug where the system
+ended up doing synchronous IO on too many pages, whereas
+now it only does synchronous IO on _1_ page per scan ;)
+
+regards,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

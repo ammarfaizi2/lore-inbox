@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266400AbRGGO65>; Sat, 7 Jul 2001 10:58:57 -0400
+	id <S266493AbRGGPiA>; Sat, 7 Jul 2001 11:38:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266429AbRGGO6r>; Sat, 7 Jul 2001 10:58:47 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:36040 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S266400AbRGGO6h>;
-	Sat, 7 Jul 2001 10:58:37 -0400
-Message-ID: <3B47239B.69E72F18@mandrakesoft.com>
-Date: Sat, 07 Jul 2001 10:58:35 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Filesystem bug?  "sync" hangs...
+	id <S266496AbRGGPhu>; Sat, 7 Jul 2001 11:37:50 -0400
+Received: from adsl-64-109-89-110.chicago.il.ameritech.net ([64.109.89.110]:13390
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S266493AbRGGPhp>; Sat, 7 Jul 2001 11:37:45 -0400
+Message-Id: <200107071537.f67FbcG01719@localhost.localdomain>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: "Paulo" <pmateiro@hotpop.com>
+cc: linux-kernel@vger.kernel.org, james.bottomley@hansenpartnership.com
+Subject: Re: NCR 35XXXX MCA bus and SMP
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sat, 07 Jul 2001 10:37:37 -0500
+From: James Bottomley <James.Bottomley@hansenpartnership.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.4.7-pre3 on alpha.
+> And i have a NCR 3525 with MCA bus and 8 processors and 512MB RAM , i
+> tried Suse 6.4 and Red Hat 7.1 , but nome detected my MCA bus , the 8
+> processors and more than 64MB ... i tried kernel parameter mem=512m ,
+> but no results... only 64MB .... i recompiled the kernel (2.4.2) with
+> MCA=y and SMP =y ... and no results... somebody can help me ?
 
-The initial phase of an RPM build is unpacking a tarball and applying
-patches, which is a bunch of writes followed by a update of read/write
-updates.  A lot of write activity, basically.  RPM build is running at
-normal priority as a normal user.
+Machines like this require a special SMP HAL to get them to work.  You could 
+try the experimental kernels from http://www.hansenpartnership.com/voyager  
+which contain the SMP HAL for the voyager systems (which is what a 3525 is).
 
-In another xterm, su'd in a shell that is renice'd to -14, I run "sync"
-during all this write activity.  It hangs for 17 seconds before I get
-impatient, stop counting, and suspend the RPM build process.  sync
-continues to block, not returning to the command prompt.  I run dmesg
-(generated read activity?), and sync finally returns.
+James Bottomley
 
-The RPM build process continues unpacking/writing files without
-appearing to slow in window 1 while sync blocks in window 2.
 
-I have not seen this behavior before, but I do not recall trying 'sync'
-specifically during heavy write activity before.  This behavior is
-reproducible.
 
--- 
-Jeff Garzik      | A recent study has shown that too much soup
-Building 1024    | can cause malaise in laboratory mice.
-MandrakeSoft     |
+
+

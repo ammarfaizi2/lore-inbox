@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286909AbSABKdA>; Wed, 2 Jan 2002 05:33:00 -0500
+	id <S286913AbSABKmN>; Wed, 2 Jan 2002 05:42:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286913AbSABKcu>; Wed, 2 Jan 2002 05:32:50 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:49675 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S286909AbSABKck>;
-	Wed, 2 Jan 2002 05:32:40 -0500
-Date: Wed, 2 Jan 2002 11:33:11 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Astinus <Astinus@netcabo.pt>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Dual ATHLON MP AND curren linux KERNEL
-In-Reply-To: <000d01c19243$a29ac280$d500a8c0@mshome.net>
-Message-ID: <Pine.LNX.4.33.0201021132390.7044-100000@Expansa.sns.it>
+	id <S286907AbSABKmB>; Wed, 2 Jan 2002 05:42:01 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:41489 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S286913AbSABKlx>;
+	Wed, 2 Jan 2002 05:41:53 -0500
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
+        linuxppc-dev@lists.linuxppc.org
+Subject: Re: [PATCH] C undefined behavior fix
+In-Reply-To: <87g05py8qq.fsf@fadata.bg> <87y9jh3v27.fsf@deneb.enyo.de>
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <87y9jh3v27.fsf@deneb.enyo.de>
+Date: 02 Jan 2002 12:41:28 +0200
+Message-ID: <874rm5yqzr.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Florian" == Florian Weimer <fw@deneb.enyo.de> writes:
 
+Florian> Momchil Velikov <velco@fadata.bg> writes:
+>> -		strcpy(namep, RELOC("linux,phandle"));
+>> +		memcpy (namep, RELOC("linux,phandle"), sizeof("linux,phandle"));
 
-On Mon, 31 Dec 2001, Astinus wrote:
+Florian> Doesn't this still trigger undefined behavior, as far as the C
+Florian> standard is concerned?  It's probably a better idea to fix the linker,
+Florian> so that it performs proper relocation.
 
-> Well i would like if the kernel supportd the AMD 760 MP
-> chipset.
->
-> By the way, will this pc setup bring any obvious problems with linux red hat
-> / suse 7.x???
-I use this chip and no problem with 2.4.13/17.
-which kernel are you using?
->
-> Dual Athlon Mp 1800
-> mobo-- Tyan's Thunder k7 (S2462)
-> seagte scsci ultra 160 cheeta 10k 16 mb cache 73,4 gb
-> no sound
-> ~52x scsi cdrom ( creative )
-> matrox g450(g550)
->
-> regards Astinus
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Well, strictly speaking it _is_ undefined, however adding/subtracting
+__PAGE_OFFSET is far too common operation and one can resonably expect
+to get away with it in the _vast_ majority of cases. IMHO, it is
+better to fix the particular case, which triggers the undefined
+behaviour, as these cases are bound to be _very_ rare.
 
+Regards,
+-velco

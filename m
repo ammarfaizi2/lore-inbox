@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130657AbRAAUZk>; Mon, 1 Jan 2001 15:25:40 -0500
+	id <S130368AbRAAU3v>; Mon, 1 Jan 2001 15:29:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130368AbRAAUZa>; Mon, 1 Jan 2001 15:25:30 -0500
-Received: from kleopatra.acc.umu.se ([130.239.18.150]:31671 "EHLO
-	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
-	id <S130669AbRAAUZW>; Mon, 1 Jan 2001 15:25:22 -0500
-Date: Mon, 1 Jan 2001 20:54:52 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Hal Duston <hald@sound.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PS2ESDI
-Message-ID: <20010101205452.C6552@khan.acc.umu.se>
-In-Reply-To: <Pine.GSO.4.10.10101011318090.5177-100000@sound.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.GSO.4.10.10101011318090.5177-100000@sound.net>; from hald@sound.net on Mon, Jan 01, 2001 at 01:35:18PM -0600
+	id <S130663AbRAAU3l>; Mon, 1 Jan 2001 15:29:41 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:41476 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130368AbRAAU33>; Mon, 1 Jan 2001 15:29:29 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: test13-pre5
+Date: 1 Jan 2001 11:58:39 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <92qnhf$va2$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10012281459150.995-100000@penguin.transmeta.com> <Pine.LNX.4.10.10012301422310.581-100000@cassiopeia.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 01, 2001 at 01:35:18PM -0600, Hal Duston wrote:
-> In moving from 2.2.x to 2.4.x I have found that PS/2 Esdi will no
-> longer boot.  The problem was introduced by what appears to have been
-> a small architectural change that shouldn't have had an impact.  I am
-> looking into it, if anyone has an idea of what could be causing this,
-> please mail me.  The relevant change occured at 2.3.32-pre3 A new
-> parameter was add to xxx_do_request.  The parameter isn't used by
-> ps2esdi_do_request, but I can't see why it should have caused any
-> drive problems.  Hopefully, I will figure the problem out within the
-> next week.
+Followup to:  <Pine.LNX.4.10.10012301422310.581-100000@cassiopeia.home>
+By author:    Geert Uytterhoeven <geert@linux-m68k.org>
+In newsgroup: linux.dev.kernel
+> 
+> What about defining new types for this? Like e.g. `x8', being `u8' on platforms
+> were that's OK, and `u32' on platforms where that's more efficient?
+> 
 
-I'll look into it. Guess I'll have to get my 386 running again...
+You may just want to look at how C99 handles this using <stdint.h>;
+stdint.h defines types of the following format:
 
+	 int, uint		... signed/unsigned
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+	 <size>			... exact size
+	 _least<size>		... no smaller than
+	 _fast<size>		... no smaller than, and efficient
+
+	 _t
+
+E.g. uint32_t, int_least64_t, uint_fast8_t (the latter could easily be
+a 32-bit type, for eaxmple.)
+
+In addition, constructor macros are defined, as well as (u)intmax_t
+and (u)intptr_t; which are defined as the largest
+possible integer and an integer large enough to hold a (void *),
+respectively.
+
+In other words:
+
+	(void *)(uintptr_t)(void *)foo == (void *)foo
+
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

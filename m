@@ -1,64 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268376AbTBYVD6>; Tue, 25 Feb 2003 16:03:58 -0500
+	id <S268315AbTBYVLC>; Tue, 25 Feb 2003 16:11:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268377AbTBYVD6>; Tue, 25 Feb 2003 16:03:58 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:37512 "EHLO
-	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
-	id <S268376AbTBYVD4>; Tue, 25 Feb 2003 16:03:56 -0500
-Date: Tue, 25 Feb 2003 21:15:56 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Jonah Sherman <jsherman@stuy.edu>
-cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] 2.5.63 - NULL pointer dereference in loop device
-In-Reply-To: <20030224212530.GA631@j0nah.ath.cx>
-Message-ID: <Pine.LNX.4.44.0302252059370.1430-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S268326AbTBYVLB>; Tue, 25 Feb 2003 16:11:01 -0500
+Received: from tapu.f00f.org ([202.49.232.129]:65431 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S268315AbTBYVLA>;
+	Tue, 25 Feb 2003 16:11:00 -0500
+Date: Tue, 25 Feb 2003 13:21:15 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030225212115.GB21870@f00f.org>
+References: <20030222195642.GI1407@work.bitmover.com> <2080000.1045947731@[10.10.2.4]> <20030222231552.GA31268@work.bitmover.com> <3610000.1045957443@[10.10.2.4]> <20030224045616.GB4215@work.bitmover.com> <48940000.1046063797@[10.10.2.4]> <20030224065826.GA5665@work.bitmover.com> <1046093309.1246.6.camel@irongate.swansea.linux.org.uk> <20030225051956.GA18302@f00f.org> <20030225052602.GW10411@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030225052602.GW10411@holomorphy.com>
+User-Agent: Mutt/1.3.28i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Feb 2003, Jonah Sherman wrote:
+On Mon, Feb 24, 2003 at 09:26:02PM -0800, William Lee Irwin III wrote:
 
-> I have come across a bug in the loop driver.  To reproduce this bug,
-> simply do:
-> losetup /dev/loop0 /dev/[sh]da(some unused partition)
-> dd if=/dev/zero of=/dev/loop0
-> If you use the count/bs args for dd, or just wait for it to write alot
-> with the above command, you will notice that once it writes more
-> than the free amount of RAM, you will get the following oops.
-> The strange thing is, this ONLY occurs when attaching the loop device 
-> to another block device(well, I only tested with an unused partition); 
-> this bug does NOT occur if the loop target is a regular file on the
-> filesystem.  I'm a very newbie kernel hacker, so I am not able to create
-> a patch to fix this.  However, I did trace the oops to
-> drivers/block/loop.c:loop_get_buffer(): (kernel 2.5.63, however same
-> bug is in 2.5.62, I don't know when it was first introduced)
-> 
-> bio=bio_copy(rbh,GFP_NOIO,rbh->bi_rw & WRITE); // This returns NULL
-> bio->bi_end_io = loop_end_io_transfer; // Making this crash
+> Could you help identify the regressions? Profiles? Workload?
 
-I can't reproduce this, and I don't understand it: please help me!
+I the OSDL data that Cliff White pointed out sufficient to work-with,
+or do you want specific tests run with oprofile outputs?
 
-If you "losetup /dev/loop0 /dev/hdN", then it's LO_FLAGS_BH_REMAP
-and doesn't even call bio_copy: it doesn't copy bio or buffers or
-pages (unless you have highmem, which you don't mention: then its
-pointless wasteful blk_queue_bounce might cause trouble), it's a
-straight route through to disk, which should be using mempools
-to complete i/o even if the rest of the system is out of memory.
 
-Of course the loop driver is wrong to ignore NULL return from bio_copy
-(if you used losetup -e), and there's a lot of unnecessary allocation
-and copying and a lot of opportunity for deadlock, for which I have
-some perpetually unfinished patches.
-
-But the loop to disk is relatively straightforward, pdflush should
-take care of the dirty pages Andrew worries about (though in writing
-to blockdev when there's highmem, pdflush may kick in too late); and
-I couldn't even reproduce your oops using "-e xor".
-
-Can you shed more light on how to reproduce this?
-Thanks,
-Hugh
-
+  --cw

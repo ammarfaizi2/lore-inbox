@@ -1,38 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265248AbSJaRod>; Thu, 31 Oct 2002 12:44:33 -0500
+	id <S262977AbSJaRcj>; Thu, 31 Oct 2002 12:32:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265246AbSJaRod>; Thu, 31 Oct 2002 12:44:33 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:11534 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S265248AbSJaRoc>;
-	Thu, 31 Oct 2002 12:44:32 -0500
-Date: Thu, 31 Oct 2002 18:49:00 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Mark Mielke <mark@mark.mielke.cc>, Adrian Bunk <bunk@fs.tum.de>,
-       Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_TINY
-Message-ID: <20021031174900.GA1210@mars.ravnborg.org>
-Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
-	Mark Mielke <mark@mark.mielke.cc>, Adrian Bunk <bunk@fs.tum.de>,
-	Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
-References: <20021030233605.A32411@jaquet.dk> <Pine.NEB.4.44.0210310145300.20835-100000@mimas.fachschaften.tu-muenchen.de> <20021031011002.GB28191@opus.bloom.county> <20021031053310.GB4780@mark.mielke.cc> <20021031143301.GC28191@opus.bloom.county> <20021031165113.GB8565@mark.mielke.cc> <20021031170420.GA30193@opus.bloom.county> <20021031171240.GE8565@mark.mielke.cc> <20021031172405.GB30193@opus.bloom.county>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021031172405.GB30193@opus.bloom.county>
-User-Agent: Mutt/1.4i
+	id <S262933AbSJaRci>; Thu, 31 Oct 2002 12:32:38 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37383 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262924AbSJaRci>; Thu, 31 Oct 2002 12:32:38 -0500
+Date: Thu, 31 Oct 2002 09:38:41 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Oliver Xymoron <oxymoron@waste.org>
+cc: Alexander Viro <viro@math.psu.edu>, Rusty Russell <rusty@rustcorp.com.au>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: What's left over.
+In-Reply-To: <20021031163650.GC25906@waste.org>
+Message-ID: <Pine.LNX.4.44.0210310937550.1410-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 10:24:05AM -0700, Tom Rini wrote:
-> Yes, and I'm saying that CONFIG_TINY shouldn't exist.  It should be
-> CONFIG_FINE_TUNE (or so), to allow anyone to fine tune the optimization
-> level.
-If the flexibility is wanted then it should be something like:
-CONFIG_TINY_GCCOPTFLAG
-default 2
-It should be a string so the developer can choose freely the optimisation
-level.
 
-	Sam
+Note that as far as ACL's go, enough people have convinced me that we want 
+them, with clear real-life issues. So don't worry about them, I'll merge 
+it.
+
+		Linus
+

@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261655AbTCLPd6>; Wed, 12 Mar 2003 10:33:58 -0500
+	id <S261734AbTCLPi5>; Wed, 12 Mar 2003 10:38:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261731AbTCLPd6>; Wed, 12 Mar 2003 10:33:58 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:60944 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S261655AbTCLPd5>;
-	Wed, 12 Mar 2003 10:33:57 -0500
-Date: Wed, 12 Mar 2003 16:44:40 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       scott thomason <scott-kernel@thomasons.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bio too big device
-Message-ID: <20030312154440.GA4868@win.tue.nl>
-References: <20030312090943.GA3298@suse.de> <Pine.LNX.4.10.10303120205250.391-100000@master.linux-ide.org> <20030312101414.GB3950@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030312101414.GB3950@suse.de>
-User-Agent: Mutt/1.3.25i
+	id <S261736AbTCLPi4>; Wed, 12 Mar 2003 10:38:56 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:64479 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
+	id <S261734AbTCLPiN>; Wed, 12 Mar 2003 10:38:13 -0500
+Date: Wed, 12 Mar 2003 16:48:49 +0100 (CET)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: alan@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][TRIVIAL] Linux 2.4.21pre5-ac3 - change make_config to
+ void
+In-Reply-To: <Pine.LNX.4.51.0303121645130.10932@dns.toxicfilms.tv>
+Message-ID: <Pine.LNX.4.51.0303121647230.10932@dns.toxicfilms.tv>
+References: <200303121500.h2CF0U2F000852@81-2-122-30.bradfords.org.uk>
+ <Pine.LNX.4.51.0303121645130.10932@dns.toxicfilms.tv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 12, 2003 at 11:14:14AM +0100, Jens Axboe wrote:
+> Linux 2.4.21pre5-ac3
 
-> So I still think it's much better stick with the safe choice. Why do you
-> think it's only one drive that has this bug? It basically boils down to
-> whether That Other OS uses 256 sector commands or not. If it doesn't, I
-> wouldn't trust the drives one bit.
-
-I am not quite sure I understand your reasoning.
-We have seen *zero* drives that do not understand 256 sector commands.
-Maybe such drives exist, but so far there is zero evidence.
+scripts/mkconfigs.c:
+make_configs is defined int, but the value is not used, and make_configs
+does not return anything so it warns about: control reaching end of non
+void function.
 
 
-Andries
+--- linux-2.4.20/scripts/mkconfigs.c~	2003-03-12 16:13:42.000000000 +0100
++++ linux-2.4.20/scripts/mkconfigs.c	2003-03-12 16:34:46.000000000 +0100
+@@ -130,7 +130,7 @@
+ 	}
+ }
 
-
-
+-int make_configs (FILE *configfile, FILE *sourcefile)
++void make_configs (FILE *configfile, FILE *sourcefile)
+ {
+ 	make_intro (sourcefile);
+ 	make_lines (configfile, sourcefile);

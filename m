@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313330AbSDLMaY>; Fri, 12 Apr 2002 08:30:24 -0400
+	id <S313452AbSDLMc3>; Fri, 12 Apr 2002 08:32:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313452AbSDLMaX>; Fri, 12 Apr 2002 08:30:23 -0400
-Received: from sv1.valinux.co.jp ([202.221.173.100]:13327 "HELO
-	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S313330AbSDLMaX>;
-	Fri, 12 Apr 2002 08:30:23 -0400
-Date: Fri, 12 Apr 2002 21:30:11 +0900 (JST)
-Message-Id: <20020412.213011.45159995.taka@valinux.co.jp>
-To: davem@redhat.com
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zerocopy NFS updated
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <20020410.234821.122842406.davem@redhat.com>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+	id <S313562AbSDLMc2>; Fri, 12 Apr 2002 08:32:28 -0400
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:54251 "EHLO
+	snipe.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S313452AbSDLMc1>; Fri, 12 Apr 2002 08:32:27 -0400
+Date: Fri, 12 Apr 2002 08:38:30 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: VFS: Unable to mount root fs on 08:06 - 2.4.19-pre6
+Message-ID: <20020412083830.A28260@rushmore>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > Kernel panic: VFS: Unable to mount root fs on 08:06
 
-I wondered if regular truncate() and read() might have the same
-problem, so I tested again and again.
-And I realized it will occur on any local filesystems.
-Sometime I could get partly zero filled data instead of file contents.
+> I had the exact same problem (but much different hardware) with the 2.5.6-pre3 kernel. See:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=101548222601049&w=2
+> 
+> I'd try CONFIG_SMP=n just to change the playing field
 
-I analysis this situation, read systemcall doesn't lock anything
- -- no page lock, no semaphore lock --  while someone truncates
-files partially. 
-It will often happens in case of pagefault in copy_user() to
-copy file data to user space.
+Thanks for the input.  
+With CONFIG_SMP=n, CONFIG_HIGHMEM4G=y (instead of 64G), 
+and the printk from that thread it boots with:
 
-I guess if needed, it should be fixed in VFS.
+megaraid: v1.18 (Release Date: Thu Oct 11 15:02:53 EDT 2001)
+megaraid: no BIOS enabled.
+scsi5 : SCSI host adapter emulation for IDE ATAPI devices
+Attached scsi generic sg2 at scsi0, channel 0, id 6, lun 0,  type 3
+..
+mount had returned -6
+ext3
+VFS: Cannot open root device "806" or 08:06
+Please append a correct "root=" boot option
+Kernel panic: VFS: Unable to mount root fs on 08:06
 
-davem> Consider truncate() to 1 byte left in that page.  To handle mmap()'s
-davem> of this file the kernel will memset() rest of the page to zero.
-davem> 
-davem> Now, in the sendfile() case the NFS client sees some page filled
-davem> mostly of zeros instead of file contents.
-davem> 
-davem> In sendmsg() knfd case, client sees something reasonable.  He will
-davem> see something that was actually in the file at some point in time.
-davem> The sendfile() case sees pure garbage, contents that never were in
-davem> the file at any point in time.
-davem> 
-davem> We could make knfsd take the write semaphore on the inode until client
-davem> is known to get the packet but that is the kind of overhead we'd like
-davem> to avoid.
-
-Thank you,
-Hirokazu Takahashi.
+-- 
+Randy Hron
 

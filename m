@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288113AbSBDU3W>; Mon, 4 Feb 2002 15:29:22 -0500
+	id <S288896AbSBDUlY>; Mon, 4 Feb 2002 15:41:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288174AbSBDU3C>; Mon, 4 Feb 2002 15:29:02 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11524 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S288113AbSBDU26>; Mon, 4 Feb 2002 15:28:58 -0500
-Date: Mon, 4 Feb 2002 15:28:03 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon Optimization Problem
-In-Reply-To: <Pine.LNX.4.33.0201301838520.23104-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.3.96.1020204152614.30424G-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288897AbSBDUlO>; Mon, 4 Feb 2002 15:41:14 -0500
+Received: from vracs001.vrac.iastate.edu ([129.186.232.215]:7205 "EHLO
+	vracs001.vrac.iastate.edu") by vger.kernel.org with ESMTP
+	id <S288896AbSBDUk6>; Mon, 4 Feb 2002 15:40:58 -0500
+Subject: Re: Linux 2.5.3-dj2
+From: "Daniel E. Shipton" <dshipton@vrac.iastate.edu>
+To: Dave Jones <davej@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020204194719.C11789@suse.de>
+In-Reply-To: <20020204154800.A13519@suse.de>
+	<1012841649.8335.6.camel@regatta>  <20020204194719.C11789@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 04 Feb 2002 14:34:58 -0600
+Message-Id: <1012854899.8333.12.camel@regatta>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jan 2002, Mark Hahn wrote:
+close......that worked out....how about this one...
+keep up the good work...
 
-> > > Really?  VIA's own stuff doesn't touch 0x95?  Hmm.  Well is there ever a
-> > > case where touching 0x95 solved ANYTHING?
-> > > 
-> > > What do you think?  Should I change the patch to not touch 0x95?
-> > 
-> > If this is the code I recall, we beat this to death ages ago. Some people
-> > can't run without the fix, period, because user code will crash the
-> > system. I have two like that, and while I could run the kernel as an i686
-> > kernel, I can't protect the user code that way.
-> 
-> you have two kt266 boxes that crash without the fix to 0x95,
-> or are you talking about kt133/kx/etc and their 0x55 fix?
+daniel.e.shipton 
 
-You are so correct, I remembered the byte incorrectly, 0x55 is the one
-needed. It was NOT the code I (almost) recall. 
+gcc -D__KERNEL__ -I/home/kernel/linux-2.5/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=i686   -DKBUILD_BASENAME=iodebug  -c -o iodebug.o iodebug.c
+rm -f lib.a
+ar  rcs lib.a checksum.o old-checksum.o delay.o usercopy.o getuser.o
+memcpy.o strstr.o iodebug.o
+make[2]: Leaving directory `/home/kernel/linux-2.5/arch/i386/lib'
+make[1]: Leaving directory `/home/kernel/linux-2.5/arch/i386/lib'
+ld -m elf_i386 -T /home/kernel/linux-2.5/arch/i386/vmlinux.lds -e stext
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
+init/version.o init/do_mounts.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
+mm/mm.o fs/fs.o ipc/ipc.o \
+        /home/kernel/linux-2.5/arch/i386/lib/lib.a
+/home/kernel/linux-2.5/lib/lib.o
+/home/kernel/linux-2.5/arch/i386/lib/lib.a \
+         drivers/base/base.o drivers/char/char.o drivers/block/block.o
+drivers/misc/misc.o drivers/net/net.o drivers/media/media.o
+drivers/char/drm/drm.o drivers/net/fc/fc.o
+drivers/net/appletalk/appletalk.o drivers/net/tokenring/tr.o
+drivers/net/wan/wan.o drivers/atm/atm.o drivers/ide/idedriver.o
+drivers/cdrom/driver.o drivers/pci/driver.o
+drivers/net/pcmcia/pcmcia_net.o drivers/net/wireless/wireless_net.o
+drivers/pnp/pnp.o drivers/video/video.o drivers/md/mddev.o \
+        net/network.o \
+        --end-group \
+        -o vmlinux
+fs/fs.o: In function `init_iso9660_fs':
+fs/fs.o(.text.init+0xdf1): undefined reference to `zisofs_cleanup'
+make: *** [vmlinux] Error 1
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
 

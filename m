@@ -1,73 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272333AbTHNMfA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 08:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272338AbTHNMfA
+	id S272327AbTHNMsL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 08:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272336AbTHNMsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 08:35:00 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:49344 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S272333AbTHNMe6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 08:34:58 -0400
-Date: Thu, 14 Aug 2003 14:34:54 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: jw schultz <jw@pegasys.ws>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: C99 Initialisers
-In-Reply-To: <20030814105216.GA26892@pegasys.ws>
-Message-ID: <Pine.GSO.4.21.0308141433240.12289-100000@vervain.sonytel.be>
+	Thu, 14 Aug 2003 08:48:11 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:5045 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S272327AbTHNMsK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 08:48:10 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] ide: limit drive capacity to 137GB if host doesn't support LBA48
+Date: Thu, 14 Aug 2003 14:48:27 +0200
+User-Agent: KMail/1.5
+Cc: Andries Brouwer <aebr@win.tue.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200308140324.45524.bzolnier@elka.pw.edu.pl> <1060851207.5535.15.camel@dhcp23.swansea.linux.org.uk>
+In-Reply-To: <1060851207.5535.15.camel@dhcp23.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308141448.27905.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Aug 2003, jw schultz wrote:
-> On Thu, Aug 14, 2003 at 12:05:28PM +0200, Geert Uytterhoeven wrote:
-> > On Wed, 13 Aug 2003, Jeff Garzik wrote:
-> > > > On Wed, Aug 13, 2003 at 03:44:44PM -0400, Jeff Garzik wrote:
-> > > >>enums are easy  putting direct references would be annoying, but I also 
-> > > >>argue it's potentially broken and wrong to store and export that 
-> > > >>information publicly anyway.  The use of enums instead of pointers is 
-> > > >>practically required because there is a many-to-one relationship of ids 
-> > > >>to board information structs.
-> > > > 
-> > > > The hard part is that it's actually many-to-many.  The same card can have
-> > > > multiple drivers.  one driver can support many cards.
-> > > 
-> > > pci_device_tables are (and must be) at per-driver granularity.  Sure the 
-> > > same card can have multiple drivers, but that doesn't really matter in 
-> > > this context, simply because I/we cannot break that per-driver 
-> > > granularity.  Any solution must maintain per-driver granularity.
-> > 
-> > Aren't there any `hidden multi-function in single-function' PCI devices out
-> > there? E.g. cards with a serial and a parallel port?
-> > 
-> > At least for the Zorro bus, these exist. E.g. the Ariadne card contains both
-> > Ethernet and 2 parallel ports, so the Ariadne Ethernet driver and the (still to
-> > be written) Ariadne parallel port driver are both drivers for the same Zorro
-> > device.
-> 
-> I'm not sure but i think most of those look like multiple
-> pci devices rather than one device with multiple functions.
-> I've got an Initio 9520UW: One PCI card with two ini9x00 UW
-> SCSI HBAs sharing one interrupt and one EEPro100 on another
-> interrupt.  During scan it seems to me to be three devices
-> sitting behind a bridge.
+On Thursday 14 of August 2003 10:53, Alan Cox wrote:
+> On Iau, 2003-08-14 at 02:24, Bartlomiej Zolnierkiewicz wrote:
+> >  	hwif->rqsize			= old_hwif.rqsize;
+> > -	hwif->addressing		= old_hwif.addressing;
+> > +	hwif->no_lba48			= old_hwif.no_lba48;
+>
+> This change is a bad idea. Its called "addressing" because that is what
+> it is about (see SATA and ATA specs). In future SATA addressing becomes
+> a 0,1,2 value because 48bits isnt enough, it may get more forms beyond
+> that.
 
-In most cases it is.
+Its hwif->addressing not drive->addressing.  Look at the current usage.
+It is 1 when host doesn't support LBA48, otherwise its 0.  We can add "real"
+hwif->addressing when needed.  IDE driver is already full of unfinished,
+unused "features".
 
-Just found a PCI example myself: there exists iDTV chips that connect to a PCI
-bus. It's one device, but internally it has graphics, video, USB, IDE, ...
-So you'll have different drivers.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+--bartlomiej
 

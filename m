@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbUKAKb3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbUKAKjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbUKAKb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 05:31:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUKAKb3
+	id S261758AbUKAKjL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 05:39:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbUKAKjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 05:31:29 -0500
-Received: from gyre.foreca.com ([193.94.59.26]:35032 "EHLO gyre.weather.fi")
-	by vger.kernel.org with ESMTP id S261745AbUKAKb2 (ORCPT
+	Mon, 1 Nov 2004 05:39:11 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:64942 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261759AbUKAKjH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 05:31:28 -0500
-Date: Mon, 1 Nov 2004 12:31:14 +0200 (EET)
-From: =?ISO-8859-1?Q?Jaakko_Hyv=E4tti?= <jaakko@hyvatti.iki.fi>
-X-X-Sender: jaakko@gyre.weather.fi
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 and nfsd do not work under load (Re: x86_64, LOCKUP on
- CPU0, kjournald)
-In-Reply-To: <20041101013150.2ab0aaa5.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0411011226250.2172@gyre.weather.fi>
-References: <Pine.LNX.4.58.0410260818560.3400@gyre.weather.fi>
- <Pine.LNX.4.58.0411010847180.2172@gyre.weather.fi> <20041101013150.2ab0aaa5.akpm@osdl.org>
+	Mon, 1 Nov 2004 05:39:07 -0500
+Date: Mon, 1 Nov 2004 11:39:01 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: ych43 <ych43@student.canterbury.ac.nz>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: TCP port numbers
+In-Reply-To: <41838517@webmail>
+Message-ID: <Pine.LNX.4.53.0411011138130.11179@yvahk01.tjqt.qr>
+References: <41838517@webmail>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Nov 2004, Andrew Morton wrote:
-> Jaakko Hyv�tti <jaakko@hyvatti.iki.fi> wrote:
-> >
-> >
-> > Here is another oops and lockup, with nfsd now there in the trace also:
-> >
-> > Unable to handle kernel paging request at ffffffff00000808 RIP:
-> > <ffffffff80161b37>{cache_alloc_refill+329}
-> > PML4 103027 PGD 0
-> > Oops: 0002 [1] SMP
-> > CPU 0
-> > Modules linked in: w83627hf i2c_sensor i2c_isa i2c_core nfsd exportfs lockd sunrpc md5 ipv6 parport_pc lp parport tg3 ipt_REJECT ipt_state ip_conntrack iptable_filter ip_tables dm_mod ohci_hcd button battery asus_acpi ac ext3 jbd 3w_xxxx sd_mod scsi_mod
-> > Pid: 1968, comm: nfsd Not tainted 2.6.8-1.521smp
->
-> That's a vendor kernel of some form, yes?
 
-  Fedora core 2 latest, I assumed it is very close to kernel.org or even
-the same kernel.  But I'll try 2.6.9 now.  It might take a week to oops
-though.
+>Hi,
+> I got one question about unix socket functions. I have two machines (called A
+>and B). I use A to telnet B, get the root password of B. Is there any unix
+>socket function I can use to get the port number of A on B. Obviously, the
 
-Jaakko
+The 'struct sockaddr_in' you're filling in on B's site with the call with
+accept() also fills in the port number.
 
+>port number of B is 23. I want to use a socket function implemented on B to
+>get the port number of A because a TCP connection is established between them.
+>  I greatly appreciate it if you help me. Thank you in advance.
+>  Xue
+
+
+Jan Engelhardt
 -- 
-Foreca Ltd                                           Jaakko.Hyvatti@foreca.com
-Pursimiehenkatu 29-31 B, FIN-00150 Helsinki, Finland     http://www.foreca.com
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

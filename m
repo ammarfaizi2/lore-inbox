@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265402AbRF2CTS>; Thu, 28 Jun 2001 22:19:18 -0400
+	id <S265398AbRF2CQs>; Thu, 28 Jun 2001 22:16:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265405AbRF2CTI>; Thu, 28 Jun 2001 22:19:08 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:33028 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S265402AbRF2CS4>;
-	Thu, 28 Jun 2001 22:18:56 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: scole@lanl.gov
-cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5-ac20 problems with drivers/net/Config.in and make xconfig 
-In-Reply-To: Your message of "Thu, 28 Jun 2001 10:05:58 CST."
-             <01062810055901.01131@spc.esa.lanl.gov> 
+	id <S265402AbRF2CQ3>; Thu, 28 Jun 2001 22:16:29 -0400
+Received: from hacksaw.org ([216.41.5.170]:6879 "EHLO
+	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
+	id <S265398AbRF2CQR>; Thu, 28 Jun 2001 22:16:17 -0400
+Message-Id: <200106290216.f5T2GEE16780@habitrail.home.fools-errant.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.3
+To: "J . A . Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
+Subject: Re: Cosmetic JFFS patch. 
+In-Reply-To: Your message of "Fri, 29 Jun 2001 00:04:42 +0200."
+             <20010629000442.A4544@werewolf.able.es> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 29 Jun 2001 12:18:50 +1000
-Message-ID: <16590.993781130@ocs3.ocs-net>
+Date: Thu, 28 Jun 2001 22:16:14 -0400
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jun 2001 10:05:58 -0600, 
-Steven Cole <scole@lanl.gov> wrote:
->[root@spc linux]# make xconfig
->./tkparse < ../arch/i386/config.in >> kconfig.tk
->make[1]: *** [kconfig.tk] Error 139
->make[1]: Leaving directory `/usr/src/linux-2.4.5-ac20/scripts'
+Given that seeing as much as possible on a potentially small screen would be 
+good, maybe tighter would be nice. In example:
 
-Sigh.  I wish people making big changes to config files would check
-that the change works for all the variants of make *config.
+kswapd:    v1.8
+pty        Devices: 256 Unix98 ptys configured
+serial:    v5.05b (2001-05-03) with 
+           Options: MANY_PORTS SHARE_IRQ SERIAL_PCI
+           Devices: ttyS00 at 0x03f8 (irq = 4) is a 16550A
+                    ttyS01 at 0x02f8 (irq = 3) is a 16550A
+rtclock:   v1.10d
+ide:       v6.31
+net:       v4.0 for Linux 2.2, from Swansea University Computer Society 
+NET3.039
+           Unix domain sockets 1.0 for NET4.0.
+           TCP/IP 1.0 for NET4.0
+           IP Protocols: ICMP, UDP, TCP, IGMP
+           TCP: Hash tables configured (ehash 524288 bhash 65536)
+           IPv4 over IPv4 tunneling driver
+           early initialization of device tunl0 is deferred
+           AppleTalk 0.18 for NET4.0
 
-Index: 5.52/drivers/net/Config.in
---- 5.52/drivers/net/Config.in Fri, 29 Jun 2001 11:39:55 +1000 kaos (linux-2.4/l/c/9_Config.in 1.1.2.2.1.4.1.12 644)
-+++ 5.52(w)/drivers/net/Config.in Fri, 29 Jun 2001 12:14:23 +1000 kaos (linux-2.4/l/c/9_Config.in 1.1.2.2.1.4.1.12 644)
-@@ -16,7 +16,7 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; the
- fi
- 
- if [ "$CONFIG_ISAPNP" = "y" ]; then
--   tristate 'General Instruments Surfboard 1000' CONFIG_NET_SB1000 $CONFIG_ISAPNP
-+   tristate 'General Instruments Surfboard 1000' CONFIG_NET_SB1000
- fi
- 
- #
-@@ -204,7 +204,6 @@ bool 'Ethernet (10 or 100Mbit)' CONFIG_N
-       dep_tristate '    D-Link DE600 pocket adapter support' CONFIG_DE600 $CONFIG_ISA
-       dep_tristate '    D-Link DE620 pocket adapter support' CONFIG_DE620 $CONFIG_ISA
-    fi
--fi
- 
- endmenu
- 
+
+My hope would be that the name at the extreme left column would be the name of 
+the module that would be loaded if it were a module, and the name of the main 
+code file of the driver in question. That way, those trying to debug stuff 
+could go right to the appropriate file, and start reading the code or nearby 
+documentation.
+
+Of course, the spacing I have above is optimistic, but just making sure that a 
+new driver prints it's version line against the left margin, and everything 
+else a few spaces out would help readability.
+
+You might note that I eliminated the word Linux in 5 or 6 places. We know the 
+driver works with Linux if it is booting. On the other hand "vX.X for Linux 
+2.X" is useful, since it's part of the version number.
+
+Your opinion may vary.
 

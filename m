@@ -1,143 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262886AbSJWGeH>; Wed, 23 Oct 2002 02:34:07 -0400
+	id <S262884AbSJWGcq>; Wed, 23 Oct 2002 02:32:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262885AbSJWGeF>; Wed, 23 Oct 2002 02:34:05 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:3051 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262886AbSJWGeC>;
-	Wed, 23 Oct 2002 02:34:02 -0400
-Date: Tue, 22 Oct 2002 23:37:11 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Kristis Makris <devcore@freeuk.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] niceness magic numbers, 2.4.20-pre11
-In-Reply-To: <1035349158.491.29.camel@mcmicro>
-Message-ID: <Pine.LNX.4.33L2.0210222332480.15859-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262885AbSJWGcp>; Wed, 23 Oct 2002 02:32:45 -0400
+Received: from dp.samba.org ([66.70.73.150]:49387 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262884AbSJWGcn>;
+	Wed, 23 Oct 2002 02:32:43 -0400
+Date: Wed, 23 Oct 2002 16:37:04 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: peterc@gelato.unsw.edu.au
+Cc: linux-kernel@vger.kernel.org, dhinds@zen.standford.edu
+Subject: Re: Ejecting an orinoco card causes hang
+Message-ID: <20021023063704.GG1198@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	peterc@gelato.unsw.edu.au, linux-kernel@vger.kernel.org,
+	dhinds@zen.standford.edu
+References: <15797.63740.520358.783516@wombat.chubb.wattle.id.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15797.63740.520358.783516@wombat.chubb.wattle.id.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Oct 2002, Kristis Makris wrote:
+On Wed, Oct 23, 2002 at 11:18:52AM +1000, peterc@gelato.unsw.edu.au wrote:
+> 
+> Hi Davids,
+>    I see the following problems with the orinoco plus cardbus plus
+> yenta_socket system on 2.5.44.
+> I'm using a Netgear MA401.
+> 
+> 1.  cardctl reset gives a warning:
+>       orinoco_lock() called with hw_unavailable.
+>     I added a call to dump_stack() where the message was being printed
+>     out --- it's happening when pcmcia_release_configuration() calls
+>     set_socket, which calls yenta_get_socket() which calls set_cis_map
+>     which causes an interrupt, and then orinoco_interrupt reports the
+>     problem.   So it's probably benign.
 
-| This untested patch removes use of process priority magic numbers in
-| sys_nice, sys_setpriority, sys_getpriority, and properly uses their
-| #define'd values.
-|
-| It would be nice if someone tested if it applies against 2.5.
+Yes, that's probably right.  In fact the hw_unavailable flag exists
+specifically to stop orinoco_interrupt() and others doing anything
+worse than giving a warning if called at this sort of time.  It would
+certainly be bad to go ahead and access the hardware at this point.
 
-Nope, it doesn't apply cleanly to 2.5.44:
+We've already cleared the INTEN register at this point, so we're not
+expecting to get an interrupt.  But I guess that interrupt line is
+shared with something else.
 
-[rddunlap@midway linux-2544]$ patch -p1 -b --dry-run <
-~/patches/niceness_magic_numbers.patch
-patching file include/linux/resource.h
-patching file kernel/sched.c
-Hunk #1 FAILED at 870.
-1 out of 1 hunk FAILED -- saving rejects to file kernel/sched.c.rej
-patching file kernel/sys.c
-Hunk #1 succeeded at 236 with fuzz 1 (offset 32 lines).
-Hunk #2 FAILED at 281.
-1 out of 2 hunks FAILED -- saving rejects to file kernel/sys.c.rej
+In the long time that warning should probably disappear (we should
+just do nothing safely and silently).  For now it is still usful for
+tracking down real problems.
 
+> 2.  cardctl eject gives a warning, Bad: scheduling while atomic. I
+>     think this is a generic problem, not orinoco-specific ---
+>     pcmcia_eject_card() disables interrupts, then calls do_shutdown()
+>     which calls cs_sleep(), and cs_sleep() tries to sleep (but with
+>     interrupts disabled, bad)
 
+I think that's correct.
 
-Here is a working version for 2.5.44,
-with a small change so that
-	-(A - (B + 1))
-is written as
-	B - A + 1
+> 3.  Manually ejecting the card (without doing a cardctl eject first)
+>     locks the machine solid.  Nothing in the logs, nothing on the
+>     screen.  I suspect it's disabling interrupts then doing something
+>     silly. 
 
-so go push it. :)
+I suspect this may be another PCMCIA rather than orinoco problem,
+although I'm not sure.  If it's happening in the orinoco driver, I
+have no idea where it could be - I've generally been careful to have
+timeouts and checks to handle the device suddenly disappearing.
 
+Do you get a hang if you ifconfig down the interface, but don't
+cardctl eject the card?  I've also heard that some PCMCIA hardware
+can't reliably cope with hot unplug like this.
 
+> 4.  Transferring lots of data causes the link to collapse, and the
+>     logs to fill up with `eth0: Error -110 writing Tx descriptor to
+>     BAP' messages
 
---- ./include/linux/resource.h.nice	Tue Jun 18 20:10:36 2002
-+++ ./include/linux/resource.h	Sat Oct 19 13:55:10 2002
-@@ -43,7 +43,7 @@
- };
-
- #define	PRIO_MIN	(-20)
--#define	PRIO_MAX	20
-+#define	PRIO_MAX	19
-
- #define	PRIO_PROCESS	0
- #define	PRIO_PGRP	1
---- ./kernel/sys.c.nice	Fri Oct 18 21:01:11 2002
-+++ ./kernel/sys.c	Tue Oct 22 22:57:49 2002
-@@ -236,10 +236,10 @@
-
- 	/* normalize: avoid signed division (rounding problems) */
- 	error = -ESRCH;
--	if (niceval < -20)
--		niceval = -20;
--	if (niceval > 19)
--		niceval = 19;
-+	if (niceval < PRIO_MIN)
-+		niceval = PRIO_MIN;
-+	if (niceval > PRIO_MAX)
-+		niceval = PRIO_MAX;
-
- 	read_lock(&tasklist_lock);
- 	switch (which) {
-@@ -301,7 +301,7 @@
- 				who = current->pid;
- 			p = find_task_by_pid(who);
- 			if (p) {
--				niceval = 20 - task_nice(p);
-+				niceval = PRIO_MAX + 1 - task_nice(p);
- 				if (niceval > retval)
- 					retval = niceval;
- 			}
-@@ -310,7 +310,7 @@
- 			if (!who)
- 				who = current->pgrp;
- 			for_each_task_pid(who, PIDTYPE_PGID, p, l, pid) {
--				niceval = 20 - task_nice(p);
-+				niceval = PRIO_MAX + 1 - task_nice(p);
- 				if (niceval > retval)
- 					retval = niceval;
- 			}
-@@ -326,7 +326,7 @@
-
- 			do_each_thread(g, p)
- 				if (p->uid == who) {
--					niceval = 20 - task_nice(p);
-+					niceval = PRIO_MAX + 1 - task_nice(p);
- 					if (niceval > retval)
- 						retval = niceval;
- 				}
---- ./kernel/sched.c.nice	Fri Oct 18 21:02:28 2002
-+++ ./kernel/sched.c	Tue Oct 22 22:51:43 2002
-@@ -1317,17 +1317,19 @@
- 	if (increment < 0) {
- 		if (!capable(CAP_SYS_NICE))
- 			return -EPERM;
--		if (increment < -40)
--			increment = -40;
-+
-+		/* +1 to account for 0 in min<-->max range */
-+		if (increment < PRIO_MIN - PRIO_MAX + 1)
-+			increment = PRIO_MIN - PRIO_MAX + 1;
- 	}
--	if (increment > 40)
--		increment = 40;
-+	if (increment > (PRIO_MAX - PRIO_MIN + 1))
-+		increment = PRIO_MAX - PRIO_MIN + 1;
-
- 	nice = PRIO_TO_NICE(current->static_prio) + increment;
--	if (nice < -20)
--		nice = -20;
--	if (nice > 19)
--		nice = 19;
-+	if (nice < PRIO_MIN)
-+		nice = PRIO_MIN;
-+	if (nice > PRIO_MAX)
-+		nice = PRIO_MAX;
-
- 	retval = security_ops->task_setnice(current, nice);
- 	if (retval)
+:-( this sounds like one of the perennial problems we've had with some
+cards.  The firmware falls over, and I haven't been able to figure out
+what we've done to upset it.
 
 -- 
-~Randy
-
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

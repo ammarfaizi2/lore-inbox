@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263165AbSJFCLk>; Sat, 5 Oct 2002 22:11:40 -0400
+	id <S263110AbSJFCKW>; Sat, 5 Oct 2002 22:10:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263189AbSJFCLj>; Sat, 5 Oct 2002 22:11:39 -0400
-Received: from fc2.capaccess.org ([151.200.199.52]:47118 "EHLO
-	fc2.capaccess.org") by vger.kernel.org with ESMTP
-	id <S263165AbSJFCLi>; Sat, 5 Oct 2002 22:11:38 -0400
-Message-id: <fc.0010c7b2005e1caa3b9aca001cbef148.5e1cb0@capaccess.org>
-Date: Sat, 05 Oct 2002 22:17:11 -0400
-Subject: Re: an open letter to Geor
-To: jbradford@dial.pipex.com
-Cc: linux-kernel@vger.kernel.org
-From: "Rick A. Hohensee" <rickh@capaccess.org>
-References: <200210050822.g958MGV5000988@darkstar.example.net>
-In-Reply-To: <200210050822.g958MGV5000988@darkstar.example.net>
+	id <S263120AbSJFCKW>; Sat, 5 Oct 2002 22:10:22 -0400
+Received: from packet.digeo.com ([12.110.80.53]:51844 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S263110AbSJFCKV>;
+	Sat, 5 Oct 2002 22:10:21 -0400
+Message-ID: <3D9F9CD5.CEB61219@digeo.com>
+Date: Sat, 05 Oct 2002 19:15:49 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.40 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Rob Landley <landley@trommello.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 - 
+ (NUMA))
+References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com> <200210060130.g961UjY2206214@pimout2-ext.prodigy.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Oct 2002 02:15:51.0202 (UTC) FILETIME=[4AB9B820:01C26CDE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A snippet of the Plan 9 license....
+Rob Landley wrote:
+> 
+> And the work that matters for the desktop is LATENCY work.
 
+100% true.
 
-2.0     GRANT OF RIGHTS
-2.1 Subject to the terms of this Agreement and to third party
-intellectual property claims, Lucent grants to Licensee, a
-royalty-free, nonexclusive, non-transferable, worldwide license to
-use, reproduce, modify, execute, display, perform, distribute and
-sublicense, the Original Software (with or without Modifications) in
-Source Code form and/or Object Code form for commercial and/or
-non-commercial purposes.  This grant includes a nonexclusive and
-non-transferable license under any patents which Lucent has a right to
-license and which, but for this license, are unavoidably and
-necessarily infringed by the execution of the inherent functionality
+You should resist any confusion between IO latency and CPU
+scheduling latency.  They really are worlds apart.
 
+In a stock 2.4 kernel it is hugely rare for the kernel to stall
+a ready-to-run task for longer than a monitor refresh interval,
+so I continue to disbelieve any claims that the low-latency
+and preemptivity patches make any difference in desktop use.
 
-The Plan 9 License was modified to resemble the GPL around Jan 2000 or so,
-as was Kermit. I posted to linux-kernel on the matter at the time. These
-two events changed the open source landscape substantially.
+(And 2.5 improves on this a _lot_.  The now-departed buffer LRU
+and truncate list walks were the main culprits)
 
-Rick Hohensee
+Any attempt to link IO priority with nice is probably doomed
+to confused failure.  It should be a clearly separated concept.
+There are priority inversions everywhere, too.
 
+I disagree with you on the new CPU scheduler.  In my experience
+it is significantly worse than the old one - a `make -j3' is
+still sending interactive applications on extended lunch breaks.
+Not that I have tried to tune this away.
+
+Deadline scheduler is critical.  As is a correct setting for
+/proc/sys/vm/dirty_async_ratio and the soon-to-be-born
+/proc/sys/vm/swappiness.  These will boot up with sane values,
+as much as is humanly possible.
+
+It's not all kernel though.  Application (KDE) startup is *slow*,
+even when zero I/O is performed.  Presumably because of the vtable
+dynamic linking thing.  I'm not sure how the prelinking work is
+getting along, but the initial figures I saw on that indicated
+that the benefit may not be sufficient.

@@ -1,81 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265688AbSJXWXk>; Thu, 24 Oct 2002 18:23:40 -0400
+	id <S265704AbSJXWbm>; Thu, 24 Oct 2002 18:31:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265691AbSJXWXj>; Thu, 24 Oct 2002 18:23:39 -0400
-Received: from packet.digeo.com ([12.110.80.53]:32153 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265688AbSJXWXi>;
-	Thu, 24 Oct 2002 18:23:38 -0400
-Message-ID: <3DB87458.F5C7DABA@digeo.com>
-Date: Thu, 24 Oct 2002 15:29:44 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: cmm@us.ibm.com
-CC: Hugh Dickins <hugh@veritas.com>, manfred@colorfullife.com,
-       linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [PATCH]updated ipc lock patch
-References: <Pine.LNX.4.44.0210211946470.17128-100000@localhost.localdomain> <3DB86B05.447E7410@us.ibm.com>
+	id <S265697AbSJXWbm>; Thu, 24 Oct 2002 18:31:42 -0400
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:25241 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265704AbSJXWbl>;
+	Thu, 24 Oct 2002 18:31:41 -0400
+Date: Thu, 24 Oct 2002 23:37:49 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Dan Maas <dmaas@maasdigital.com>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: sendfile(2) behaviour has changed?
+Message-ID: <20021024223749.GA852@bjl1.asuk.net>
+References: <20021020055020.A3289@morpheus>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Oct 2002 22:29:44.0297 (UTC) FILETIME=[DA118D90:01C27BAC]
+Content-Disposition: inline
+In-Reply-To: <20021020055020.A3289@morpheus>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mingming cao wrote:
+Dan Maas wrote:
+> >> It really needs a new interface for recvfile/copyfile/whatever
+> >> anyway, as you can only specify an off_t for the from fd at
+> >> present.
+> >   
+> > Ummm, you can use lseek() on the 'to' fd perhaps?
 > 
-> Hi Andrew,
-> 
-> Here is the updated ipc lock patch:
+> Wouldn't that be non-atomic and therefore likely to cause problems
+> with concurrent writes?
 
-Well I can get you a bit of testing and attention, but I'm afraid
-my knowledge of the IPC code is negligible.
+sendfile() from a mapped tmpfs file is a nice way to get zero-copy
+writes of program-generated data, for example HTTP headers.
 
-So to be able to commend this change to Linus I'd have to rely on
-assurances from people who _do_ understand IPC (Hugh?) and on lots
-of testing.
+If it were possible to recvfile() _to_ a tmpfs file, you could use
+this to implement zero-copy forwarding between sockets, in userspace,
+while still having a program inspect part of the data and possibly
+change it.  There are lots of proxy services that could potentially
+use this.
 
-So yes, I'll include it, and would solicit success reports from
-people who are actually exercising that code path, thanks.
+This is an example of when you'd want many concurrent writes to the
+same file.  (Naturally, for performance, you'd want to use one large
+tmpfs file and allocate portions of it on the fly, rather then
+multiple opens or lots of small files).
 
-> http://www.osdl.org/projects/dbt1prfrns/results/mingming/index.html
-
-DBT1 is really interesting, and I'm glad the OSDL team have
-put it together.  If people would only stop sending me patches
-I'd be using it ;)
-
-Could someone please help explain the results?  Comparing, say,
-http://www.osdl.org/projects/dbt1prfrns/results/mingming/run.2cpu.42-mm2.r5/index.html
-and
-http://www.osdl.org/projects/dbt1prfrns/results/mingming/run.18.r5/index.html
-
-It would appear that 2.5 completely smoked 2.4 on response time,
-yet the overall bogotransactions/sec is significantly lower.
-What should we conclude from this?
-
-Also I see:
-
-	14.7 minute duration
-and
-	Time for DBT run 19:36
-
-What is the 14.7 minutes referring to?
-
-Also:
-
-	2.5: Time for key creation 1:27
-	2.4: Time for key creation 14:24
-versus:
-	2.5: Time for table creation 16:48
-	2.4: Time for table creation 8:58
-
-So it's all rather confusing.  Masses of numbers usually _are_
-confusing.  What really adds tons of value to such an exercise is
-for the person who ran the test to write up some conclusions.  To
-tell the developers what went well, what went poorly, what areas
-to focus on, etc.  To use your own judgement to tell us what to
-zoom in on.
-
-Is that something which could be added?
+enjoy,
+-- Jamie

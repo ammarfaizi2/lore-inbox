@@ -1,110 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263801AbTIHXtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 19:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263815AbTIHXtZ
+	id S263765AbTIIAMp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 20:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbTIIAMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 19:49:25 -0400
-Received: from bm-2a.paradise.net.nz ([202.0.58.21]:27280 "EHLO
-	linda-2.paradise.net.nz") by vger.kernel.org with ESMTP
-	id S263801AbTIHXtU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 19:49:20 -0400
-Date: Tue, 09 Sep 2003 11:49:17 +1200 (NZST)
-From: Richard Procter <rnp@paradise.net.nz>
-Subject: Re: [PATCH] Fix SMP support on 3c527 net driver, take 2
-In-reply-to: <3F5CDF74.7010406@terra.com.br>
-To: Felipe W Damasio <felipewd@terra.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Mon, 8 Sep 2003 20:12:45 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:48900 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S263765AbTIIAMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 20:12:43 -0400
+Message-ID: <3F5D2007.5030500@techsource.com>
+Date: Mon, 08 Sep 2003 20:34:15 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Lang <david.lang@digitalinsight.com>
+CC: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.21.0309091029230.252-100000@ps2.local>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Use of AI for process scheduling
+References: <Pine.LNX.4.44.0309081651220.22562-100000@dlang.diginsite.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 8 Sep 2003, Felipe W Damasio wrote:
 
-> 	Richard, did you test the driver with this last patch?
+David Lang wrote:
 
-Hey Felipe, 
-
-I've had a good look over your revised patch, and it looks fine to me. I
-didn't manage to get an MCA kernel booting to test it, but I'm not sure if
-it would have added a lot, especially as I don't have an SMP MCA machine.
-
-That said, over the weekend I realised that the need to unroll wait_event
-was a consequence of using the same queue to perform two quite distinct
-functions: serialising the issuing of commands, and waiting for the card
-to complete command execution. This forces us to use a private variable to
-indicate which situation has occured. That's ok on UP, but requires us to
-jump through hoops to use it safely on SMP with spinlocks. 
-
-I've rewritten things using completions (== semaphores?), and it's both
-cleaner and (unexpectedly) smaller (see example below). I'm in the process
-of convincing myself it all works; should have something out there by the
-end of the week.
-
-If there's a merge deadline coming up, please feel free to submit the
-patch, otherwise I'd like to hold off for a couple of days and see where
-we stand then.
-
-best, 
-Richard. 
-
-Object size of the function below: 
-  -- original sti/cli driver: 238 bytes. 
-  -- with spinlocks + inlined wait_event unrolling: 1833 bytes (770% of original)
-  -- using completions: 190 bytes (80% of original, but with
-     three completions structs per card instead of a lock + wait_queue_head)
-
-static int mc32_command(struct net_device *dev, u16 cmd, void *data, int len)
-{
-	struct mc32_local *lp = (struct mc32_local *)dev->priv;
-	int ioaddr = dev->base_addr;
-	int ret = 0;
-	
-	/* (Initially complete) */ 
-
-	wait_for_completion(&lp->current_command); 
-	
-	/*
-	 *     My Turn 
-	 */
-
-	lp->exec_nonblocking=0; 
-	lp->exec_box->mbox=0;
-	lp->exec_box->mbox=cmd;
-	memcpy((void *)lp->exec_box->data, data, len);
-	barrier();	/* the memcpy forgot the volatile so be sure */
-
-	while(!(inb(ioaddr+HOST_STATUS)&HOST_STATUS_CRR));
-	outb(1<<6, ioaddr+HOST_CMD);		
-
-	wait_for_completion(&lp->execution); 
-	
-	if(lp->exec_box->mbox&(1<<13))
-	  ret = -1;
-
-	/* ** on SMP, we could starve the mc_reload wait as 
-	 * other threads waiting for completion could block the reload.
-	 * a problem? solutions? 
-	 */ 
-
-	complete(&lp->current_command); 
-	
-	/*
-	 *	A multicast set got blocked - try it now
-	 */
-		
-	if(lp->mc_reload_wait)
-	{
-		mc32_reset_multicast_list(dev);
-	}
-
-	return ret;
-}
+> 
+> the scheduler is by definition a real-time entity, if it takes twice as
+> long to make a decision that in itself alters what the correct decision
+> should be.
+> 
 
 
+My idea is to have the AI work in real-time just like the expert system 
+would.  And I realize that this alters the situation, but it alters the 
+situation in a constant way.  For a given number of context switches, 
+the same number of scheduling decisions will be made.  That means that 
+if the scheduler takes 100 times as long to decide, then all it will do 
+is affect both the throughput and the latency in a constant way.
 
+The only time it really matters is when the scheduler decision time 
+makes something which would APPEAR to be interactive in the compiled 
+case appear to be non-interactive in the AI case.  But that is no 
+different from using a slower CPU.  There are LOTS of things that will 
+feel smoother on a faster CPU.
+
+So, if we can get a good interactive feel out of the AI case, then you 
+will only get better results out of the compiled case.  Furthermore, 
+good interactive results out of a fast CPU with the AI would imply good 
+results out of a slower CPU in the compiled case.
+
+I do realize that the balance is shifted.  The proportion of scheduler 
+computation to user computation is thrown off.  (Still, same as using a 
+slower CPU.)  But I don't think it matters.  If the scheduler were 100 
+times slower, it would still require far far less than timeslice 
+granularity to compute!
 

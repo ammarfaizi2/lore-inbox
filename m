@@ -1,91 +1,31 @@
 Return-Path: <linux-kernel-owner+ralf=40uni-koblenz.de@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S316628AbSEQRmE>; Fri, 17 May 2002 13:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S316629AbSEQRmD>; Fri, 17 May 2002 13:42:03 -0400
-Received: from [216.52.69.50] ([216.52.69.50]:51465 "EHLO btex01.btol.com") by vger.kernel.org with ESMTP id <S316628AbSEQRmC>; Fri, 17 May 2002 13:42:02 -0400
-Message-ID: <6BE463028E20174B923AA5F7B266BC3701F577B0@btex01.btol.com>
-From: "GroupShield for Exchange (BTEX01)" <NAISomervilleBTEX01@btol.com>
-To: "'linux-kernel'" <linux-kernel@vger.kernel.org>, Electser <electser@btol.com>
-Subject: ALERT -  GroupShield ticket number OA66_1021657306_BTEX01_3 was g enerated
-Date: Fri, 17 May 2002 13:41:53 -0400
-X-MS-TNEF-Correlator: <6BE463028E20174B923AA5F7B266BC3701F577B0@btex01.btol.com>
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: multipart/mixed; boundary="----_=_NextPart_000_01C1FDCA.219C0A20"
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S316820AbSEVBRn>; Tue, 21 May 2002 21:17:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S316822AbSEVBRm>; Tue, 21 May 2002 21:17:42 -0400
+Received: from fwout.nihs.go.jp ([202.241.36.162]:48193 "EHLO smtp") by vger.kernel.org with ESMTP id <S316820AbSEVBRl>; Tue, 21 May 2002 21:17:41 -0400
+Message-ID: <001301c2012e$678be520$f3c4b5cb@k768>
+From: "Takuya Satoh" <taka0038@yahoo.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <joerg@infolinux.de>
+Subject: RE: [PATCHSET] 2.4.19-pre8-jp13
+Date: Wed, 22 May 2002 10:17:11 +0900
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+Errors again:
 
-------_=_NextPart_000_01C1FDCA.219C0A20
-Content-Type: text/plain
-
-Action Taken:
-The attachment was quarantined from the message and replaced with a text
-file informing the recipient of the action taken.
-
-To:
-electser@btol.com <electser@btol.com>
-
-From:
-linux-kernel <linux-kernel@vger.kernel.org>
-
-Sent:
-481694336,29490634
-
-Subject:
-CELLPADDING
-
-Attachment Details:-
-
-Attachment Name: SIZE.scr
-File: SIZE.scr
-Infected? No
-Repaired? No
-Blocked? Yes
-Deleted? No
-Virus Name: 
+init/do_mounts.c:26: conflicting types for `sys_chdir'
+/usr/src/linux-2.4.19-pre8-jp13/include/linux/fs.h:677: previous declaration
+of `sys_chdir'
+init/do_mounts.c:27: conflicting types for `sys_chroot'
+/usr/src/linux-2.4.19-pre8-jp13/include/linux/fs.h:676: previous declaration
+of `sys_chroot'
+init/do_mounts.c:369: warning: `mount_nfs_root' defined but not used
+init/do_mounts.c:400: warning: `change_floppy' defined but not used
+init/do_mounts.c:989: warning: `crd_load' defined but not used
+make: *** [init/do_mounts.o] Error 1
+errors during make bzImage, exiting
 
 
-
-	
-
-------_=_NextPart_000_01C1FDCA.219C0A20
-Content-Type: application/ms-tnef
-Content-Transfer-Encoding: base64
-
-eJ8+IjYRAQaQCAAEAAAAAAABAAEAAQeQBgAIAAAA5AQAAAAAAADoAAEIgAcAGQAAAElQTS5BbnRp
-LVZpcnVzLlJlcG9ydC40NQAnCAEFgAMADgAAANIHBQARAA0AKQA1AAUAXwEBIIADAA4AAADSBwUA
-EQANACkANQAFAF8BAQmAAQAhAAAAQjI3MzM4OTY4MjM1QzI0REE3RTE1QjJDREZFRkQzNkYAWQcB
-BIABAEoAAABBTEVSVCAtICBHcm91cFNoaWVsZCB0aWNrZXQgbnVtYmVyIE9BNjZfMTAyMTY1NzMw
-Nl9CVEVYMDFfMyB3YXMgZ2VuZXJhdGVkAPEWAQ2ABAACAAAAAgACAAEDkAYAMAYAAB8AAABAADkA
-IAqcIcr9wQEDAPE/CQQAAB4AMUABAAAAFAAAAE5BSVNPTUVSVklMTEVCVEVYMDEAAwAaQAAAAAAe
-ADBAAQAAABQAAABOQUlTT01FUlZJTExFQlRFWDAxAAMAGUAAAAAAAgEJEAEAAAC2AQAAsgEAAPAC
-AABMWkZ1JpZ0B4cACgENA0N0ZXh0Aff/AqQD5AXrAoMAUALzBrQCgyYyA8UCAGNoCsBzZdh0MCAH
-EwKAfQqACM9/CdkCgAqECzcSwgHQE+BjhHRpAiAgVGFrCfAGOgqjCoBUaGUgYRsCQADQaAeAAjAg
-d2G5BCBxdQrAAHAX8G4JgDIgA1IgdBkhB4FzYbpnGTFuGuAVQAtRYxrR/wPwG1AZQBtADwEa8AMQ
-GTDTC4ACEHJtC4BnG0MVQM5jBSAIkBnRb2YbQwDQtxfzAZAYYS4YpRimbxiWDmUdwBfgE6ByQGJ0
-rQbwLgWgGzA8Ij8+ILwWRgNhGJZsC4B1eC2fGGAEoCNgI0AmKkB2G+DUci4mhC4FsGckfQZgAwIw
-GJY0ODE2OTQgMzM2LDIqsDkwiDYzNCjddWJqIlEBGJZDRUxMUEFEUERJTkcgvEEZaETDE7ALcGxz
-Oi0uHxmGFE5hB4A6BgBJWkXeLgTxJPYdsTIPSR4AIlHVCYA/B7BvGKVSHGALcGsVQTTpQhTQYxhg
-NNFZXweQGKUvoB3ANLxWNdB1nwehMdMgvDpNAZEgfTvwAAADAP0/5AQAAB4AcAABAAAASgAAAEFM
-RVJUIC0gIEdyb3VwU2hpZWxkIHRpY2tldCBudW1iZXIgT0E2Nl8xMDIxNjU3MzA2X0JURVgwMV8z
-IHdhcyBnZW5lcmF0ZWQAAAACAXEAAQAAABYAAAABwf3KIZ4KEN3kKNlB/r8wA2sUJHFnAAACAUcA
-AQAAADQAAABjPVVTO2E9IDtwPUJha2VyVGF5bG9yIDtsPUJURVgwMS0wMjA1MTcxNzQxNTNaLTU4
-MjMAAgH5PwEAAABnAAAAAAAAANynQMjAQhAatLkIACsv4YIBAAAAAAAAAC9PPUJBS0VSICYgVEFZ
-TE9SLCBJTkMuL09VPVNPTUVSVklMTEUvQ049UkVDSVBJRU5UUy9DTj1OQUlTT01FUlZJTExFQlRF
-WDAxAAAeAPg/AQAAAB4AAABHcm91cFNoaWVsZCBFeGNoYW5nZSAoQlRFWDAxKQAAAB4AOEABAAAA
-FAAAAE5BSVNPTUVSVklMTEVCVEVYMDEAAgH7PwEAAABnAAAAAAAAANynQMjAQhAatLkIACsv4YIB
-AAAAAAAAAC9PPUJBS0VSICYgVEFZTE9SLCBJTkMuL09VPVNPTUVSVklMTEUvQ049UkVDSVBJRU5U
-Uy9DTj1OQUlTT01FUlZJTExFQlRFWDAxAAAeAPo/AQAAACIAAABHcm91cFNoaWVsZCBmb3IgRXhj
-aGFuZ2UgKEJURVgwMSkAAAAeADlAAQAAABQAAABOQUlTT01FUlZJTExFQlRFWDAxAEAABzC4Ypch
-yv3BAUAACDDi16whyv3BAR4APQABAAAAAQAAAAAAAAAeAB0OAQAAAEoAAABBTEVSVCAtICBHcm91
-cFNoaWVsZCB0aWNrZXQgbnVtYmVyIE9BNjZfMTAyMTY1NzMwNl9CVEVYMDFfMyB3YXMgZ2VuZXJh
-dGVkAAAAHgA1EAEAAAA7AAAAPDZCRTQ2MzAyOEUyMDE3NEI5MjNBQTVGN0IyNjZCQzM3MDFGNTc3
-QjBAYnRleDAxLmJ0b2wuY29tPgAAAwA2AAAAAAALACkAAAAAAAsAIwAAAAAAAwAGEDc+PIcDAAcQ
-VgEAAAMAEBAAAAAAAwAREAAAAAAeAAgQAQAAAGUAAABBQ1RJT05UQUtFTjpUSEVBVFRBQ0hNRU5U
-V0FTUVVBUkFOVElORURGUk9NVEhFTUVTU0FHRUFORFJFUExBQ0VEV0lUSEFURVhURklMRUlORk9S
-TUlOR1RIRVJFQ0lQSUVOVE9GAAAAAAIBfwABAAAAOwAAADw2QkU0NjMwMjhFMjAxNzRCOTIzQUE1
-RjdCMjY2QkMzNzAxRjU3N0IwQGJ0ZXgwMS5idG9sLmNvbT4AAAqQ
-
-------_=_NextPart_000_01C1FDCA.219C0A20--

@@ -1,68 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284080AbRLAMNU>; Sat, 1 Dec 2001 07:13:20 -0500
+	id <S284088AbRLAMSB>; Sat, 1 Dec 2001 07:18:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284081AbRLAMNK>; Sat, 1 Dec 2001 07:13:10 -0500
-Received: from pop.gmx.de ([213.165.64.20]:29795 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S284080AbRLAMMy>;
-	Sat, 1 Dec 2001 07:12:54 -0500
-Date: Sat, 1 Dec 2001 13:12:46 +0100
-From: Rene Rebe <rene.rebe@gmx.net>
-To: Niels Kristian Bech Jensen <nkbj@image.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: keyboard: Timeout - AT keyboard not present?(f4)
-Message-Id: <20011201131246.048b7b83.rene.rebe@gmx.net>
-In-Reply-To: <Pine.LNX.4.33.0111300728330.1010-100000@hafnium.nkbj.dk>
-In-Reply-To: <Pine.LNX.4.33.0111300728330.1010-100000@hafnium.nkbj.dk>
-Organization: FreeSourceCommunity ;-)
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S284087AbRLAMRv>; Sat, 1 Dec 2001 07:17:51 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:8457 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S284083AbRLAMRs>; Sat, 1 Dec 2001 07:17:48 -0500
+Date: Sat, 1 Dec 2001 07:11:02 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Nathan G. Grennan" <ngrennan@okcforum.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Unresponiveness of 2.4.16 revisited
+In-Reply-To: <1007057769.1528.7.camel@cygnusx-1.okcforum.org>
+Message-ID: <Pine.LNX.3.96.1011201070846.13057B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Nov 2001 07:32:25 +0100 (CET)
-Niels Kristian Bech Jensen <nkbj@image.dk> wrote:
+On Thu, 29 Nov 2001, Nathan G. Grennan wrote:
 
-> Since linux-2.5.1-pre3 (the first 2.5.x kernel I booted) I get one 
-> or more these warnings in my log:
-> 
-> keyboard: Timeout - AT keyboard not present?(f4)
-> 
-> It's on a pentium-mmx system with a PS/2 keyboard. The keyboard works 
-> OK.
+> On Thu, 2001-11-29 at 12:09, Oktay Akbal wrote:
+> > Why do you think that fstab matters for root-fs ? root-fs needs to be 
+> > mounted to read fstab. So autodetection must be done for root-fs.
+> > And if the fs has a journal it is ext3. If you do not want that  behaviour
+> > you might use a option to lilo, but I don't know of any option to specify
+> > the root-fs-tyoe. Or you need to use an initrd to mount explicit as ext2
+> > and pivot-root it to / ?
+ 
+> Actually, I think it should respect fstab. It does mount it, then fsck
+> it while mounted read-only, then remounts(key point) read-write. IMHO it
+> should remount it with whatever fstab says. I realize this could be a
+> little tricky, but I bet doable.
 
-I get this on a Athlon 1.466 Mhz box with an SiS 735 chipset. No
-PS/2 keyboard pressent I have an USB one. The system freezes for an
-seoncond (even Sound stops playing) when I press NUM-Lock the first time
-- or when pressing NUM-Lock after I switched between X an the Matrox-FB.
-
-> -- 
-> Niels Kristian Bech Jensen -- nkbj@image.dk -- http://www.image.dk/~nkbj/
-> 
-> ----------->>  Stop software piracy --- use free software!  <<-----------
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
-
-k33p h4ck1n6
-  René
+Using the precognition() system call no doubt. It can't read fstab without
+mounting, how can kernel use fstab to mount to read fstab? Original
+response was correct, you need to learn to use initrd.
 
 -- 
-René Rebe (Registered Linux user: #127875 <http://counter.li.org>)
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
-
-Homepage: http://www.tfh-berlin.de/~s712059/index.html
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.

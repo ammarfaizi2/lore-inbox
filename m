@@ -1,47 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264644AbRFYPrO>; Mon, 25 Jun 2001 11:47:14 -0400
+	id <S264651AbRFYPyO>; Mon, 25 Jun 2001 11:54:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264642AbRFYPrE>; Mon, 25 Jun 2001 11:47:04 -0400
-Received: from 64-42-29-14.atgi.net ([64.42.29.14]:47881 "HELO
-	mail.clouddancer.com") by vger.kernel.org with SMTP
-	id <S264650AbRFYPqu>; Mon, 25 Jun 2001 11:46:50 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: What are the VM motivations??
-In-Reply-To: <9h6d6b$509$1@ns1.clouddancer.com>
-In-Reply-To: <20010621190103.A888@jmcmullan.resilience.com>    <9h6916$4og$1@ns1.clouddancer.com>    <20010625034427.65260784D9@mail.clouddancer.com> <01062506044500.16624@starship> <20010625034427.65260784D9@mail.clouddancer.com> <9h6d6b$509$1@ns1.clouddancer.com>
-Reply-To: klink@clouddancer.com
-Message-Id: <20010625154649.820E4784D9@mail.clouddancer.com>
-Date: Mon, 25 Jun 2001 08:46:49 -0700 (PDT)
-From: klink@clouddancer.com (Colonel)
+	id <S264656AbRFYPxy>; Mon, 25 Jun 2001 11:53:54 -0400
+Received: from ns.caldera.de ([212.34.180.1]:17900 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S264642AbRFYPxt>;
+	Mon, 25 Jun 2001 11:53:49 -0400
+Date: Mon, 25 Jun 2001 17:53:00 +0200
+Message-Id: <200106251553.f5PFr0v17268@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: vonbrand@sleipnir.valparaiso.cl (Horst von Brand)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Making a module 2.4 compatible
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <200106241713.f5OHDItV000540@sleipnir.valparaiso.cl>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Horst,
 
->> POST IT.  Give the rest of us some clues and the opportunity to check
->> evaluator's replies.
->
->Well, if you try that strategy you'll find you never get around to posting it 
->because you'll be too worried about getting it right.  The point is not to 
->get it right, it's to get a starting point down on (virtual) paper.  I'd 
->strongly suggest passing something like that around for comment privately 
->first.
+In article <200106241713.f5OHDItV000540@sleipnir.valparaiso.cl> you wrote:
+> Seconded! There are a few users of iBCS around here, who _need_ the
+> functionality and don't get it with 2.4.x (in this case, Red Hat 7.1). Or
+> is there a replacement for it?
 
-Well, it does seem that some ego is involved here...
+Take a look at inux-abi:
 
->
->*Then* post it.
->
->(and convince me you're not just talking)
-
-As a physicist, I learned long ago that if you cannot use the back of
-an envelope and explain your theory to a secretary, you do not
-understand it.  It has only been revealed recently where some VM
-design information may be hidden, and it's apparently out of date.
-Maintenance requires good documentation, especially in critical areas.
-I hope that your suggestion succeeds, and that a document is passed
-around, but I'll bet a large amount that it doesn't happen.
-
-If everyone is in the dark, it gets difficult to criticize the guy
-with a match and leaves the matchholder in charge.  Some matchholders
-want it that way.
+  http://linux-abi.sourceforge.net
+  ftp://ftp.openlinux.org/pub/people/hch/linux-abi

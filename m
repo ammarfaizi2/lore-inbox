@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286263AbSBITwl>; Sat, 9 Feb 2002 14:52:41 -0500
+	id <S286311AbSBITzm>; Sat, 9 Feb 2002 14:55:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286179AbSBITwV>; Sat, 9 Feb 2002 14:52:21 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15369 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286161AbSBITwP>; Sat, 9 Feb 2002 14:52:15 -0500
-Date: Sat, 9 Feb 2002 13:37:59 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Hugh Dickins <hugh@veritas.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] BUG preserve registers
-In-Reply-To: <3C6579DB.E93DAD92@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0202091335340.1196-100000@home.transmeta.com>
+	id <S286161AbSBITzc>; Sat, 9 Feb 2002 14:55:32 -0500
+Received: from pD950EABC.dip.t-dialin.net ([217.80.234.188]:4486 "EHLO
+	oenone.homelinux.org") by vger.kernel.org with ESMTP
+	id <S286311AbSBITzT>; Sat, 9 Feb 2002 14:55:19 -0500
+Message-Id: <200202092053.g19KrSN05200@oenone.homelinux.org>
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.org>
+To: Gerd Knorr <kraxel@bytesex.org>,
+        Kernel List <linux-kernel@vger.kernel.org>,
+        video4linux list <video4linux-list@redhat.com>
+Subject: Re: [PATCH/RFC] videodev.[ch] redesign
+Date: Sat, 9 Feb 2002 21:53:17 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020209194602.A23061@bytesex.org>
+In-Reply-To: <20020209194602.A23061@bytesex.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 9 Feb 2002, Andrew Morton wrote:
-> >
+On Saturday 09 February 2002 19:46, Gerd Knorr wrote:
+>   Hi,
 >
-> Is better, except the filename gets expanded multipe times into
-> the object file.  How about:
+
+> The patch below does part one of the plan -- for 2.4.x kernels.  It adds
+> the fops pointer to struct video_device and makes video_open use it if
+> available, so both old + new style drivers will work.
 >
-> #define BUG()                   \
->         asm(    "ud2\n"         \
->                 "\t.word %0\n"  \
->                 "\t.long %1\n"  \
->                  : : "i" (__LINE__), "i" (__FILE__))
+> It also provides a ioctl wrapper function which handles copying the
+> ioctl args from/to userspace, so we have this at one place can drop all
+> the copy_from/to_user calls within the v4l device driver ioctl handlers.
 
-Even better.
+That is a large improvement.
+But you don't include a lock against reentry, which is bad.
 
-That way you can actually totally remove the "verbose bug" config option,
-because even the verbose BUG's aren't actually using up any noticeable
-amounts of space.
+> Comments?
 
-This is all assuming that gcc doesn't create the string for inline
-functions that aren't used, which it probably cannot, so maybe this
-doesn't work out.
+Could you make a helper for open like for ioctl ?
+And please don't use a pointer to the device descriptor
+in the file structure. It makes live for USB devices much harder.
 
-			Linus
-
+	Regards
+		Oliver

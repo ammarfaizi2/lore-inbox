@@ -1,73 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263578AbTHZKOk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 06:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263616AbTHZKOk
+	id S263667AbTHZKUu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 06:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263670AbTHZKUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 06:14:40 -0400
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:32238 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S263578AbTHZKOi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 06:14:38 -0400
-Message-ID: <3F4B3352.4000703@softhome.net>
-Date: Tue, 26 Aug 2003 12:15:46 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Takao Indoh <indou.takao@soft.fujitsu.com>
-Subject: Re: cache limit
-References: <n7lV.2HA.19@gated-at.bofh.it> <ofAJ.4dx.9@gated-at.bofh.it> <ogZM.5KJ.1@gated-at.bofh.it> <oyDw.5FP.33@gated-at.bofh.it>
-In-Reply-To: <oyDw.5FP.33@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 26 Aug 2003 06:20:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17341 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263667AbTHZKUs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 06:20:48 -0400
+Date: Tue, 26 Aug 2003 03:22:55 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Siim Vahtre <siim@pld.ttu.ee>
+Cc: linux-kernel@vger.kernel.org, James Simmons <jsimmons@infradead.org>
+Subject: Re: 2.6.0-test4-mm1 oopses
+Message-Id: <20030826032255.36273b65.akpm@osdl.org>
+In-Reply-To: <Pine.GSO.4.53.0308261144300.20354@pitsa.pld.ttu.ee>
+References: <Pine.GSO.4.53.0308261144300.20354@pitsa.pld.ttu.ee>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
->>On Mon, Aug 25, 2003 at 11:45:58AM +0900, Takao Indoh wrote:
->>
->>>I need a tuning parameter which can control pagecache
->>>like /proc/sys/vm/pagecache, which RedHat Linux has.
->>>The latest 2.4 or 2.5 standard kernel does not have such a parameter.
->>>2.4.18 kernel or 2.4-aa kernel has a alternative method?
+Siim Vahtre <siim@pld.ttu.ee> wrote:
+>
 > 
-> I doubt that there will be that option in the 2.4 stable series.  I think
-> you are trying to fix the problem without understanding the entire picture.
-> If there is too much pagechache, then the kernel developers need to know
-> about your workload so that they can fix it.  But you have to try -aa first
-> to see if it's already fixed.
+> I did "modprobe i810fb fbcon" and I got two oopses (dmesg attatched).
 > 
+> After that, all VTs (except the first) were locked and unusable.
+>
 
-   Let me give my point of view.
+James is thattaway -->  ;)
 
-   Linux trys to scale up to the limits of given hardware.
 
-   That is _*horribly*_ wrong.
-
-   If I have 1GB of memory and my applications for use only 16MB - it 
-doesn't mean I want to fill 1GB-16MB with garbage like file my momy had 
-viewed two weeks ago.
-
-   That's it: OS should scale for *application* *needs*.
-
-   Can you compare in your mind overhead of managing 1GB of cache with 
-managing e.g. 16MB of cache?
-
-   So IMHO problem is: OS needless overhead.
-
-   It is possible to minimize overhead in several ways:
-   1) Optimize algorithms and data structures.
-   2) Minimize amount of resources.
-   3) As a compromise of 1&2 - teach OS to not use unneeded resource til 
-the time they will be really needed, and free them afterwards.
-
-   1) is already done, 3) is awful heuristics which will never work 
-reliably.
-   And Takao's patch was trying to approach problem from 2) point.
-   So as for me it is justified.
-
-   Comments are welcome.
-
+PCI: Found IRQ 11 for device 0000:00:02.0
+ I810FB: fb0         : Intel(R) 815 (Internal Graphics with AGP) Framebuffer Device v0.9.0
+ I810FB: Video RAM   : 4096K
+ I810FB: Monitor     : H: 30-60 KHz V: 50-100 Hz
+ I810FB: Mode        : 640x480-16bpp@99Hz
+ Unable to handle kernel NULL pointer dereference<1>Unable to handle kernel NULL pointer dereference at virtual address 00000000
+  printing eip:
+ d0971e9a
+ *pde = 00000000
+ Oops: 0000 [#1]
+ PREEMPT 
+ CPU:    0
+ EIP:    0060:[<d0971e9a>]    Not tainted VLI
+ EFLAGS: 00010287
+ EIP is at i810fb_cursor+0x1da/0x240 [i810fb]
+ eax: 00000000   ebx: cf1b6800   ecx: cf7042a0   edx: 00000000
+ esi: 00000000   edi: 00000010   ebp: cf3cfc00   esp: cdddd6f4
+ ds: 007b   es: 007b   ss: 0068
+ Process modprobe (pid: 796, threadinfo=cdddc000 task=ce2bd3a0)
+ Stack: d4979000 00000000 0c000c8c 220f202e 00000010 00000008 d4979000 f0000000 
+        00000001 00000003 00240400 8f0f0087 00000001 00000000 00000000 00000000 
+        00000000 cfda6e80 00000001 cfa476a0 0000007f cdf36c40 0000002e 00000000 
+ Call Trace:
+  [<c02f42d6>] apic_timer_interrupt+0x1a/0x20
+  [<c01585b5>] bh_lru_install+0xb5/0x100
+  [<c0158673>] __find_get_block+0x73/0xf0
+  [<c015871b>] __getblk+0x2b/0x60
+  [<c01c5ccb>] is_tree_node+0x6b/0x70
+  [<c01c63c9>] search_by_key+0x6f9/0xf30
+  [<c01c6dbe>] search_for_position_by_key+0x1be/0x3d0
+  [<c02f42d6>] apic_timer_interrupt+0x1a/0x20
+  [<d4a024ac>] accel_putcs+0x2bc/0x370 [fbcon]
+  [<c0246e65>] move_buf_aligned+0x35/0x50
+  [<d4a038b5>] fbcon_cursor+0x3b5/0x500 [fbcon]
+  [<d4a034f0>] fbcon_putcs+0x90/0xa0 [fbcon]

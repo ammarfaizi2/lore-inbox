@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265133AbRFZWbe>; Tue, 26 Jun 2001 18:31:34 -0400
+	id <S265134AbRFZWgE>; Tue, 26 Jun 2001 18:36:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265134AbRFZWbX>; Tue, 26 Jun 2001 18:31:23 -0400
-Received: from pipt.oz.cc.utah.edu ([155.99.2.7]:20615 "EHLO
-	pipt.oz.cc.utah.edu") by vger.kernel.org with ESMTP
-	id <S265133AbRFZWbL>; Tue, 26 Jun 2001 18:31:11 -0400
-Date: Tue, 26 Jun 2001 16:31:01 -0600 (MDT)
-From: james rich <james.rich@m.cc.utah.edu>
-To: Ilya Konstantinov <lkml@future.galanet.net>
+	id <S265135AbRFZWfn>; Tue, 26 Jun 2001 18:35:43 -0400
+Received: from enhanced.ppp.eticomm.net ([206.228.183.5]:21754 "EHLO
+	intech19.enhanced.com") by vger.kernel.org with ESMTP
+	id <S265134AbRFZWfd>; Tue, 26 Jun 2001 18:35:33 -0400
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Finding out the name behind a /dev/dsp device
-In-Reply-To: <20010626224409.A24182@goblin.sharat.co.il>
-Message-ID: <Pine.GSO.4.05.10106261629210.18831-100000@pipt.oz.cc.utah.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: User space zero copy HOWTO?
+In-Reply-To: <200106260243.f5Q2hfJ177651@saturn.cs.uml.edu>
+From: Camm Maguire <camm@enhanced.com>
+Date: 26 Jun 2001 18:35:28 -0400
+In-Reply-To: "Albert D. Cahalan"'s message of "Mon, 25 Jun 2001 22:43:41 -0400 (EDT)"
+Message-ID: <54d77qg98v.fsf@intech19.enhanced.com>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Jun 2001, Ilya Konstantinov wrote:
+Greetings, and thanks for this.  If I recall, there is some facility
+for this in the tulip cards too, no?  Can one get any benefit with
+100Mbps, or is the copy too fast anyway?  Is the source code for Tux
+available somewhere?  This is probably the best bet.  It seems as
+though the source for X15 is not available.  Any pointers
+appreciated.  I'm investigating implementing something like this for
+the lam MPI libs.
 
-> How can I find out the module name which handles a /dev/dsp* device
-> and/or the full name of the Sound Card I'd be addressing by it?
+Take care,
 
-If you use ALSA this is very simple.  See:
+"Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
 
-http://www.alsa-project.org
+> > Greetings!  Is there any faq/sample code somewhere showing how to get
+> > zero copy tcp/ip with kernel 2.4, and what special hardware if any is
+> > required?  Any information most appreciated.  Kindly cc me directly.
+> 
+> The hardware must do scatter-gather and IP checksuming.
+> 
+> The Alteon-based gigabit cards do this well. They are fully
+> programmable, and even have a developer's kit that can be used
+> to implement non-IP message passing protocols.
+> 
+> 
+> 
+> 
 
-I feel that ALSA provides a superior audio driver.  I understand that the
-it will become the default kernel driver.
-
-James Rich
-james.rich@m.cc.utah.edu
-
+-- 
+Camm Maguire			     			camm@enhanced.com
+==========================================================================
+"The earth is but one country, and mankind its citizens."  --  Baha'u'llah

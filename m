@@ -1,60 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132480AbQLVWpB>; Fri, 22 Dec 2000 17:45:01 -0500
+	id <S132471AbQLVWzd>; Fri, 22 Dec 2000 17:55:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132471AbQLVWov>; Fri, 22 Dec 2000 17:44:51 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:1038 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S132411AbQLVWoe>; Fri, 22 Dec 2000 17:44:34 -0500
-Date: Fri, 22 Dec 2000 18:20:59 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] swap write clustering
-In-Reply-To: <Pine.LNX.4.21.0012210721440.1991-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0012221813490.3382-100000@freak.distro.conectiva>
+	id <S132465AbQLVWzO>; Fri, 22 Dec 2000 17:55:14 -0500
+Received: from smartmail.smartweb.net ([207.202.14.198]:261 "EHLO
+	smartmail.smartweb.net") by vger.kernel.org with ESMTP
+	id <S132411AbQLVWzG>; Fri, 22 Dec 2000 17:55:06 -0500
+Message-ID: <3A43D48D.B1825354@dm.ultramaster.com>
+Date: Fri, 22 Dec 2000 17:24:13 -0500
+From: David Mansfield <lkml@dm.ultramaster.com>
+Organization: Ultramaster Group LLC
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test13-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: cdrom changes in test13-pre2 slow down cdrom access by 70%
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens, 
 
-On Thu, 21 Dec 2000, Marcelo Tosatti wrote:
+The cdrom changes that went into test13-pre2 really kill the performance
+of my cdrom.  I'm using cdparanoia to read audio data, and it normally
+reads at 2-3x.  Since test13-pre2 it's  down to .6 - .7x.  I've reverted
+the following files to the ones from test13-pre1 and it's back to
+normal:
 
-> 
-> On Thu, 21 Dec 2000, Andrew Morton wrote:
-> 
-> > Marcelo Tosatti wrote:
-> > > 
-> > > Hi,
-> > > 
-> > > Basically this new swap_writepage function looks for dirty swapcache pages
-> > > which may be contiguous (reverse and forward searching wrt to the physical
-> > > address of the page being passed to swap_writepage) and builds a page list
-> > > which is written "at once".
-> > > 
-> > > The patch is against test13pre3.
-> > > 
-> > > Comments are welcome. (especially about the __find_page_nolock
-> > > modification)
-> > > 
-> > 
-> > Have you any benchmarks for this?
-> 
-> Not yet. 
-> 
-> Under some stress tests on a 16mb machine, around 30% of the clustered
-> swapouts were reaching the limit of pages, which was 16. 
+drivers/cdrom/cdrom.c
+drivers/ide/ide-cd.c
+drivers/ide/ide-cd.h
+drivers/scsi/sr.c
+drivers/scsi/sr.h
+drivers/scsi/sr-ioctl.c
+drivers/scsi/sr-vendor.c
+include/linux/cdrom.h
 
-While running X, Netscape and dbench (2 threads) on the 16mb machine the
-number of successful write request merges increased by around 1000
-(without the patch it was an average of 4000 write merges).
+My hardware is:
 
-The dbench throughtput increased from 2.0Mb/s to 2.3Mb/s on average.
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+AMD7409: IDE controller on PCI bus 00 dev 39
+AMD7409: chipset revision 3
+AMD7409: not 100% native mode: will probe irqs later
+AMD7409: disabling single-word DMA support (revision < C4)
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
+hda: CREATIVE CD5230E, ATAPI CDROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hda: ATAPI 52X CD-ROM drive, 128kB Cache, DMA
+Uniform CD-ROM driver Revision: 3.11
 
-(Note: the swap partition was on the same disk as the rest of the system)
+The only IDE device (as you can see) is the cdrom drive.
 
+This is a huge patch, is there some way I could break it apart to see
+what the relevant changes are?
 
+David
+
+-- 
+David Mansfield                                           (718) 963-2020
+david@ultramaster.com
+Ultramaster Group, LLC                               www.ultramaster.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264657AbTBEUDs>; Wed, 5 Feb 2003 15:03:48 -0500
+	id <S264739AbTBET7i>; Wed, 5 Feb 2003 14:59:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264836AbTBEUC3>; Wed, 5 Feb 2003 15:02:29 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27140 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264756AbTBEUCK> convert rfc822-to-8bit; Wed, 5 Feb 2003 15:02:10 -0500
-Date: Wed, 5 Feb 2003 12:07:47 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Pavel =?iso-8859-2?q?Jan=EDk?= <Pavel@Janik.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: gcc 2.95 vs 3.21 performance
-In-Reply-To: <m3k7gfjb6f.fsf@Janik.cz>
-Message-ID: <Pine.LNX.4.44.0302051157580.2999-100000@home.transmeta.com>
+	id <S264756AbTBET7h>; Wed, 5 Feb 2003 14:59:37 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:65189 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264739AbTBET7e> convert rfc822-to-8bit; Wed, 5 Feb 2003 14:59:34 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] ide write barriers
+Date: Wed, 5 Feb 2003 20:53:14 +0100
+User-Agent: KMail/1.4.3
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Con Kolivas <conman@kolivas.net>
+References: <20030205151859.GK31566@suse.de> <200302051628.48803.m.c.p@wolk-project.de> <20030205163352.GQ31566@suse.de>
+In-Reply-To: <20030205163352.GQ31566@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id h15KBXF02896
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302052047.11823.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 05 February 2003 17:33, Jens Axboe wrote:
 
-On Wed, 5 Feb 2003, Pavel [iso-8859-2] Janík wrote:
-> 
-> Hi Linus,
-> 
->    > lcc isn't really something I want to use, since the license is so
->    > strange, and thus can't be improved upon if there are issues with it.
-> 
-> what is the difference between compiler and source management system
-> regarding licenses and improvements?
+Hi Jens,
 
-You snipped the part where I said that the intel compiler is likely to be 
-more interesting to a number of people, since it's at a higher level. So 
-no, I'm not religious about licenses.
+> Sure, I had that one already. BTW, I discovered that the default io
+thank you :)
 
-But the real issue is "does it do what we want it to do?" and "do we have
-a choice?". There are no open-source SCM's that work for me. But there
-_is_ an open-source compiler that does work for me. At which point the
-license matters - simply because there is choice in the matter.
+> scheduler forgets to honor the cmd_flags, it's supposed to break like
+> the noop does (see very first hunk in very first file). Must have
+> removed that by mistake some time ago... This applies both to the
+> 2.4.21-pre4 patch posted and this one.
+well, I am impressed, really!
 
-Gcc mostly works. But it's slower then I'd like. And it prioritizes things
-I don't care about. And competition is always good. So I would definitely 
-love to see some alternatives.
+As you described in the patch:
 
-And if you have issues with BK, maybe you can try to encourage the SCM
-people to see why I consider BK to not even have alternatives right now. 
++ *   For journalled file systems, doing ordered writes on a commit
++ *   block instead of explicitly doing wait_on_buffer (which is bad
++ *   for performance) can be a big win. Block drivers supporting this
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-		Linus
+I don't have benchmarks handy yet but as far as I can _feel_, this is a _MUST_ 
+(I repeat: a _MUST_ for 2.4.21). And I am very good in feeling slowdowns for 
+interactivity :)
+
+I am running it for quite some hours now with 2.4.20. Well, maybe the 
+nr_requests = 16 and read/write passovers changes in the elevator code give 
+us more smoothness than w/o but in my theoretical mind, this should drop 
+throughput. I also noticed, these changes aren't in your 2.4.21 patch. Can 
+you explain why it is in 2.4.20 patch or why it isn't in 2.4.21 patch ? :)
+
+Thanks alot.
+
+/ME calls out for Con to do a benchmark with the 2.4.21 patch.
+
+ciao, Marc
+
 

@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310979AbSDQRVh>; Wed, 17 Apr 2002 13:21:37 -0400
+	id <S310953AbSDQRVQ>; Wed, 17 Apr 2002 13:21:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311025AbSDQRVg>; Wed, 17 Apr 2002 13:21:36 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:50194 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S310979AbSDQRVe>; Wed, 17 Apr 2002 13:21:34 -0400
-Date: Wed, 17 Apr 2002 10:21:16 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: "M. R. Brown" <mrbrown@0xd6.org>
-cc: Larry McVoy <lm@work.bitmover.com>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Fbdev Bitkeeper repository
-In-Reply-To: <20020417135215.GA7814@0xd6.org>
-Message-ID: <Pine.LNX.4.10.10204170920050.10940-100000@www.transvirtual.com>
+	id <S311121AbSDQRVP>; Wed, 17 Apr 2002 13:21:15 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:60680 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S310953AbSDQRVO>; Wed, 17 Apr 2002 13:21:14 -0400
+Message-ID: <3CBDA073.6010700@evision-ventures.com>
+Date: Wed, 17 Apr 2002 18:18:59 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 boot enhancements, boot bean counting 8/11
+In-Reply-To: <m1elhegt1c.fsf@frodo.biederman.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric W. Biederman wrote:
+> Linus please apply,
+> 
+> Rework the actual build/link step for kernel images.  
+> - remove the need for objcopy
+> - Kill the ROOT_DEV Makefile variable, the implementation
+>   was only half correct and there are much better ways
+>   to specify your root device than modifying the kernel Makefile.
+> - Don't loose information when the executable is built
 
-Oh my!!!! 
+Coudl you please use sufficiently large fields for kdev_t variables?
+This way if we once have bigger device id spaces one will not have
+to mess with the boot code again.
+Thank you.
 
-    To answer the question are we going to drop CVS drop in support of the
-linux console project. No!! The reasons have nothing to do with politics
-or who is better. The reason for this is some people want to use CVS and
-don't want to spend the time learning bitkeeper. That is their choose. I
-don't want to force anyone to do something they don't want. Have both
-bitkeeper and CVS is a plus in many ways to many people. 
-  
-P.S 
-    I'm just learning bitkeeper so if it is possible to do a drop in
-techique with bitkeeper I would be happy to learn how to do it.
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'_   _/`\
- ___)=(___/
+> +
+> +struct boot_params {
+> +	uint8_t  reserved1[0x1f1];		/* 0x000 */
+> +	uint8_t  setup_sects;			/* 0x1f1 */
+> +	uint16_t mount_root_rdonly;		/* 0x1f2 */
+> +	uint16_t syssize;			/* 0x1f4 */
+> +	uint16_t swapdev;			/* 0x1f6 */
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+this should be uint32_t
 
+> +	uint16_t ramdisk_flags;			/* 0x1f8 */
+> +#define RAMDISK_IMAGE_START_MASK  	0x07FF
+> +#define RAMDISK_PROMPT_FLAG		0x8000
+> +#define RAMDISK_LOAD_FLAG		0x4000	
+> +	uint16_t vid_mode;			/* 0x1fa */
+> +	uint16_t root_dev;			/* 0x1fc */
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+this should be uint32_t
 
 

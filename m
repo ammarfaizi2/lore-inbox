@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263019AbUJ1SIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263036AbUJ1SOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbUJ1SIk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 14:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbUJ1SIj
+	id S263036AbUJ1SOh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 14:14:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbUJ1SOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 14:08:39 -0400
-Received: from siaag2ad.compuserve.com ([149.174.40.134]:33497 "EHLO
-	siaag2ad.compuserve.com") by vger.kernel.org with ESMTP
-	id S263034AbUJ1SHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 14:07:43 -0400
-Date: Thu, 28 Oct 2004 14:04:53 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Swap strangeness: total VIRT ~23mb for all processes
-  [...]
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200410281407_MC3-1-8D69-9F05@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Thu, 28 Oct 2004 14:14:36 -0400
+Received: from main.gmane.org ([80.91.229.2]:26302 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262868AbUJ1SOQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 14:14:16 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: bkbits - "@" question
+Date: Thu, 28 Oct 2004 20:13:49 +0200
+Message-ID: <yw1xpt32lnhe.fsf@inprovide.com>
+References: <200410230426.i9N4Qd9k004757@work.bitmover.com> <20041028174838.GA794@mjfrazer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 154.80-202-166.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:05oGlgqREFTJk3PZq8k5Fwhtfyc=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Oct 2004 at 14:44:53 +0300 Denis Vlasenko wrote:
-> Even if I add up size of every process, *counting libc shared pages
-> once per process* (which will overestimate memory usage), I arrive at
-> 23mb *total memory required by all processes*. How come kernel
-> found 90mb to swap out? There is NOTHING to swap out except those
-> 23mb!
+Mark Frazer <mark@mjfrazer.org> writes:
+
+> Larry McVoy <lm@bitmover.com> [04/10/23 01:31]:
+>> The web pages on bkbits.net contain email addresses.  This is probably
+>> about a 4 year too late question but would it help reduce spam if we
+>> did something like  s/@/ (at) / for all those addresses?
 >
-> (Of course when oom_trigger was running, kernel first swapped out
-> those 23mb and then started swapping out momery taken by oom_trigger
-> itself, but when oom_trigger was killed, its RAM *and* swapspace
-> should be deallocated. Thus I expected to see ~20 mb swap usage).
+> Hi Larry:  I've used this for a while to add email addresses to my web
+> pages and I get almost no spam any more, < 10 per month!
+>
+> [mjfrazer@pacific depictII]$ html-encode mark@mjfrazer.rog
+> &#109;&#97;&#114;&#107;&#64;&#109;&#106;&#102;&#114;&#97;&#122;&#101;&#114;&#46;&#114;&#111;&#103;
+> [mjfrazer@pacific depictII]$ 
+>
+> I've attached the source.
 
+Why not just perl -pe 's/(.)/"&#".ord($1).";"/eg;' ?
 
-I am seeing this with Mozilla in an Xnest session.  Even after I terminate
-Mozilla + Xnest there is a huge amount of swapped-out memory (~100MB).  This
-is on a system with 320MB of memory.  Since the problem goes away when I
-leave X I had assumed it was an X bug (Fedora Core 1, not up-to-date) but
-now I wonder...  Kernel version is 2.6.9 + patches from L-K but problem is
-the same in base 2.6.9.
+-- 
+Måns Rullgård
+mru@inprovide.com
 
-
---Chuck Ebbert  28-Oct-04  10:48:07

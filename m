@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135897AbREBUtU>; Wed, 2 May 2001 16:49:20 -0400
+	id <S135892AbREBUwK>; Wed, 2 May 2001 16:52:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135892AbREBUtK>; Wed, 2 May 2001 16:49:10 -0400
-Received: from zmailer.org ([194.252.70.162]:34823 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S135782AbREBUsw>;
-	Wed, 2 May 2001 16:48:52 -0400
-Date: Wed, 2 May 2001 23:48:38 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: nervlord@iinet.net.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: HPNA
-Message-ID: <20010502234838.Z805@mea-ext.zmailer.org>
-In-Reply-To: <200104300600.OAA11559@localhost.localdomain>
-Mime-Version: 1.0
+	id <S135916AbREBUwB>; Wed, 2 May 2001 16:52:01 -0400
+Received: from chromium11.wia.com ([207.66.214.139]:42763 "EHLO
+	neptune.kirkland.local") by vger.kernel.org with ESMTP
+	id <S135782AbREBUvz>; Wed, 2 May 2001 16:51:55 -0400
+Message-ID: <3AF07459.8D8ECD8E@chromium.com>
+Date: Wed, 02 May 2001 13:55:53 -0700
+From: Fabio Riccardi <fabio@chromium.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
+In-Reply-To: <Pine.LNX.4.33.0104290914260.14261-100000@twinlark.arctic.org> <200104292116.f3TLGhu07016@pachyderm.pa.dec.com> <20010502211800.X805@mea-ext.zmailer.org> <9cpnfj$ms3$1@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200104300600.OAA11559@localhost.localdomain>; from nervlord@iinet.net.au on Mon, Apr 30, 2001 at 02:00:49PM +0800
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 30, 2001 at 02:00:49PM +0800, nervlord@iinet.net.au wrote:
-> Hello sorry to interupt ur work, i was a subscriber to the kernel mailing 
-> list before and realise how much traffic you get.
-> 
-> My friend has a DIAMOND homefree network card using HPNA
-> i was wondering what hte status of HPNA is in the kernel?
-> to refresh HPNA allows you to network ur machines via the phone lines  in 
-> america.
+>From my experience system calls are not an issue.
 
-	The Home-PNA cards look like ethernet cards to the kernel.
-	Does the specification tell something about the PROTOCOLS
-	to be run, that I have not checked.
+What costs a lot is moving data around, since modern CPUs spend most of their
+time in memory/bus wait cycles...
 
-	For example, the Tulip driver (www.scyld.com) understands
-	PHY interface called Home-PNA.
+ - Fabio
 
-	Comparing to the Ethernet (10/100/1000/more Mbit/sec),
-	the Home-PNA runs at 1 Mbit/sec.  (And thus can use
-	in-house CAT-3 telephony cabling.)
+Linus Torvalds wrote:
 
-> Kind Regards
-> Peter Revilll
+> >I think that applies to all really high-performance servers.
+>
+> Note that it is definitely not always true.
+>
+> Linux system calls are reasonably light-weight.  And sometimes trying to
+> avoid them ends up beaing _more_ work - because you might have to worry
+> about synchronization and cache coherency in user mode.
+>
+> So the rule should be "avoid _unnecessary_ system calls".
+>
+>                 Linus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-/Matti Aarnio

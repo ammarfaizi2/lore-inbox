@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270157AbUJTEtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269225AbUJTE4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270157AbUJTEtw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 00:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269885AbUJTEpm
+	id S269225AbUJTE4V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 00:56:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270213AbUJTEu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 00:45:42 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:21922
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S270146AbUJSXdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 19:33:13 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U7
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1098212697.12223.1006.camel@thomas>
-References: <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
-	 <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
-	 <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
-	 <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
-	 <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu>
-	 <20041019180059.GA23113@elte.hu>  <1098212697.12223.1006.camel@thomas>
-Content-Type: multipart/mixed; boundary="=-q0AMdl76pbp5ZPJ+NLg+"
-Organization: linutronix
-Message-Id: <1098228314.12223.1136.camel@thomas>
+	Wed, 20 Oct 2004 00:50:27 -0400
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:39343 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S270219AbUJTEsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 00:48:04 -0400
+X-BrightmailFiltered: true
+Date: Wed, 20 Oct 2004 10:14:44 +0530
+From: Ganesan R <rganesan@myrealbox.com>
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Cc: wes schreiner <wes@infosink.com>
+Subject: Re: [linux-usb-devel] Re: Linux 2.6.x wrongly recognizes USB 2.0 DVD writer (solved)
+Message-ID: <20041020044444.GA11635@cisco.com>
+References: <416E7E39.4040102@myrealbox.com> <Pine.LNX.4.44L0.0410141025360.952-100000@ida.rowland.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 20 Oct 2004 01:25:14 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0410141025360.952-100000@ida.rowland.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-q0AMdl76pbp5ZPJ+NLg+
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Tue, 2004-10-19 at 21:04, Thomas Gleixner wrote:
-> On Tue, 2004-10-19 at 20:00, Ingo Molnar wrote:
-> > i have released the -U7 Real-Time Preemption patch:
+On Thu, Oct 14, 2004 at 10:26:53AM -0400, Alan Stern wrote:
 > 
-Nobrainer typo removal. I'm feeling stupid.
+> On Thu, 14 Oct 2004, Ganesan R wrote:
+> > 
+> > I checked the kernel sources. Sure enough, 
+> > drivers/usb/storage/unusual_devs.h
+> > has a new entry in the 2.6 tree:
+> > 
+> > ========
+> > /* <torsten.scherer@uni-bielefeld.de>: I don't know the name of the bridge
+> >  * manufacturer, but I've got an external USB drive by the Revoltec company
+> >  * that needs this. otherwise the drive is recognized as /dev/sda, but any
+> >  * access to it blocks indefinitely.
+> >  */
+> > UNUSUAL_DEV(  0x0402, 0x5621, 0x0103, 0x0103,
+> >         "Revoltec",
+> >         "USB/IDE Bridge (ATA/ATAPI)",
+> >         US_SC_DEVICE, US_PR_DEVICE, NULL, US_FL_FIX_INQUIRY),
+> > ========
+> > 
+> > I have not yet tested after removing this entry, but this looks to be 
+> > the likely problem. The enclosure actually supports both 3.5 IDE hard 
+> > disks as well as 5.25 CD/DVD drives. I have no clue why this entry 
+> > should cause the drive to be wrongly detected. CCing linux-usb-devel for 
+> > help.
+> 
+> Certainly that entry is the problem.  It has been removed in the latest 
+> development kernels; it may already be gone in 2.6.9-rc4.
 
-tglx
+I removed that entry and recompiled 2.6.8. The drive is now recognized
+properly again in 2.6.8. Thanks to every one who helped.
 
-
-
---=-q0AMdl76pbp5ZPJ+NLg+
-Content-Disposition: attachment; filename=svc.nobrain.diff
-Content-Type: text/x-patch; name=svc.nobrain.diff; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
-
-diff -urN 2.6.9-rc4-mm1-RT-U7/fs/lockd/svc.c 2.6.9-rc4-mm1-RT-U7-work/fs/lockd/svc.c
---- 2.6.9-rc4-mm1-RT-U7/fs/lockd/svc.c	2004-10-19 20:29:43.000000000 +0200
-+++ 2.6.9-rc4-mm1-RT-U7-work/fs/lockd/svc.c	2004-10-20 00:42:20.000000000 +0200
-@@ -306,7 +306,7 @@
- 	 * Wait for the lockd process to exit, but since we're holding
- 	 * the lockd semaphore, we can't wait around forever ...
- 	 */
--	if (!wait_event_interruptible_timeout(lockd_exit, 
-+	if (wait_event_interruptible_timeout(lockd_exit, 
- 					     nlmsvc_pid == 0, HZ) <= 0) {
- 		printk(KERN_WARNING 
- 			"lockd_down: lockd failed to exit, clearing pid\n");
-
---=-q0AMdl76pbp5ZPJ+NLg+--
-
+Ganesan

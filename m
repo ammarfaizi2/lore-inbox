@@ -1,87 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268667AbUJTR3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268670AbUJTRrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268667AbUJTR3l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 13:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268728AbUJTR2m
+	id S268670AbUJTRrk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 13:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268728AbUJTRld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 13:28:42 -0400
-Received: from mail.scitechsoft.com ([63.195.13.67]:51631 "EHLO
-	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S268670AbUJTR1Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 13:27:24 -0400
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: Paulo Marques <pmarques@grupopie.com>
-Date: Wed, 20 Oct 2004 10:27:08 -0700
-MIME-Version: 1.0
-Subject: Re: Generic VESA framebuffer driver and Video card BOOT?
-CC: linux-kernel@vger.kernel.org
-Message-ID: <41763D7C.32014.1B52EDB8@localhost>
-In-reply-to: <417682D5.2020803@grupopie.com>
-References: <416E8322.25700.29ACC2F1@localhost>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Spam-Flag: NO
+	Wed, 20 Oct 2004 13:41:33 -0400
+Received: from gprs214-236.eurotel.cz ([160.218.214.236]:10627 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S268771AbUJTRey (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 13:34:54 -0400
+Date: Wed, 20 Oct 2004 19:31:02 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Kendall Bennett <KendallB@scitechsoft.com>
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
+Message-ID: <20041020173102.GB19940@elf.ucw.cz>
+References: <416E6ADC.3007.294DF20D@localhost> <41763777.27136.1B3B687B@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41763777.27136.1B3B687B@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paulo Marques <pmarques@grupopie.com> wrote:
+Hi!
 
-> >>How big is the module with emulator etc.? 
+> > BTW, does this look like right way to POST VGA BIOS from real
+> > mode? It is what we currently use... and it works on some
+> > machines... 
 > > 
-> > About 150K compiled on x86 (before linking so that has symbol information 
-> > etc in it).
+> >         movw    $0xb800, %ax
+> >         movw    %ax,%fs
+> >         movw    $0x0e00 + 'L', %fs:(0x10)
 > 
-> I searched for the code in the scitech FTP server... If this code
-> is similar to the one found under "../obsolete/.." then it seems
-> that the code is somewhat optimized for speed, whereas for video
-> initialization we probably could rework it to be optimized for
-> code size. 
+> What is this for?
 
-No, the code is not under /obsolete/ but under /scitech/src/x86emu (well 
-at least the x86 emulator portion is). It is active code we are using as 
-well as sharing with the X.org server (time we did a sync actually ;-).
+Debugging.
 
-> If the complete interpreter could fit in 64k (or something like
-> that) then the chances of it getting into the kernel would be
-> probably higher and could solve a lot of problems. 
+> >         cli
+> >         cld
+> > 
+> >         # setup data segment
+> >         movw    %cs, %ax
+> >         movw    %ax, %ds                                        # Make ds:0 point to wakeup_start
+> >         movw    %ax, %ss
+> >         mov     $(wakeup_stack - wakeup_code), %sp              # Private stack is needed for ASUS board
+> >         movw    $0x0e00 + 'S', %fs:(0x12)
+> 
+> We have never needed to set up a private stack. What ASUS board was it 
+> that you had problems with and needed to do this for?
 
-Given the nature of the problems at the fact that most machines where a 
-real video card would be used have more than enough space to add 150K to 
-the kernel, making it smaller would be mostly an academic exercise IMHO.
+This is running at system resume, so it is not normal boot. Some ASUS
+Athlon 900MHz machine needed this; I'm no longer using this one.
 
-For instance the embedded machines that usually run video normally have 
-at least 16M of memory, usually 32M or more. Mostly because once the 
-kernel is up they do a lot of stuff that needs a ton more memory than a 
-measly 150K, such as playing MPEG2 movies, playing MP3 files etc etc.
+> >         pushl   $0                                              # Kill any dangerous flags
+> >         popfl
+> > 
+> >         movl    real_magic - wakeup_code, %eax
+> >         cmpl    $0x12345678, %eax
+> >         jne     bogus_real_magic
+> > 
+> >         testl   $1, video_flags - wakeup_code
+> >         jz      1f
+> >         lcall   $0xc000,$3
+> 
+> The call to 0xC000:0x0003 is the entry point to POST the card. However 
+> for PCI cards you need to make sure that AX is loaded with the bus, slot 
+> and function for the card that is being POST'ed. It will pass this value 
+> to the PCI BIOS Int 0x1A functions in order to find itself, so if this is 
+> not set many BIOS'es will not work.
 
-Although it would certainly be nice if it could be made smaller, I am not 
-sure how much smaller it could be trimmed down to since the code was 
-designed originally for functionality not necessarily speed. But you 
-never know - perhaps some clever rearrangement of the code could make it 
-smaller.
+Ok, this one is bad... ... In case of just one vga adapter, we should
+be able to store its parameters in some well-known place. For more
+than one adapter, we'll definitely need to run BIOS in emulator.
 
-> This is a problem I find somewhat interesting, and would be
-> willing to give it some of my spare time... 
-
-By all means feel free to look and see what you can do. If you do make it 
-smaller, I am sure the X.org folks would also be interested. We don't 
-have the latest version of the emulator code on our ftp site (we are 
-working on that) but the only difference between the code up there and 
-the new code is a few bugs that we have fixed. The structure and 
-functionality is identical.
-
-Regards,
-
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
-
-~ SciTech SNAP - The future of device driver technology! ~
-
-
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

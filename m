@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbQLDW0D>; Mon, 4 Dec 2000 17:26:03 -0500
+	id <S129831AbQLDW0n>; Mon, 4 Dec 2000 17:26:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130083AbQLDWZx>; Mon, 4 Dec 2000 17:25:53 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:7953 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129226AbQLDWZi>;
-	Mon, 4 Dec 2000 17:25:38 -0500
-Date: Mon, 4 Dec 2000 21:53:34 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: John Meikle <linux@procom.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: Using map_user_kiobuf()
-Message-ID: <20001204215334.B9238@redhat.com>
-In-Reply-To: <NEBBIIEABDPEIPKIJFDOEEAMDGAA.linux@procom.demon.co.uk>
+	id <S129183AbQLDW0e>; Mon, 4 Dec 2000 17:26:34 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:57360 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130083AbQLDW0a>;
+	Mon, 4 Dec 2000 17:26:30 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: scole@lanl.gov
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test12-pre4 + cs46xx + KDE 2.0 = frozen system 
+In-Reply-To: Your message of "Mon, 04 Dec 2000 14:27:10 PDT."
+             <00120414271000.01254@spc.esa.lanl.gov> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <NEBBIIEABDPEIPKIJFDOEEAMDGAA.linux@procom.demon.co.uk>; from linux@procom.demon.co.uk on Thu, Nov 30, 2000 at 01:07:37PM -0000
+Date: Tue, 05 Dec 2000 08:55:58 +1100
+Message-ID: <4743.975966958@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 4 Dec 2000 14:27:10 -0700, 
+Steven Cole <scole@lanl.gov> wrote:
+>If I have the cs46xx driver compiled either as a module or into
+>the kernel, then 2.4.0-test12-pre4 locks up when KDE 2.0
+>is started.
+>[snip]
+>When I say the system freezes, I mean it completely locks up, and
+>ALT-SYSRQ-<whatevercommand> does not do a thing.  The magic
+>key combo gives the expected result before freezup.
 
-On Thu, Nov 30, 2000 at 01:07:37PM -0000, John Meikle wrote:
-> I have been experimenting with a module that returns data to either a user
-> space programme or another module.  A memory area is passed in, and the data
-> is written to it.  Because the memory may be allocated either by a module or
-> a user programme, a kiobuf seemed a good way of representing it.  A layer
-> converts user memory to a kiobuf using map_user_kiobuf().
+Try the kdb patch, it is very good at getting data out when a machine
+has hung.  You will need a serial console to see kdb output, it does
+not work with X.
 
-There are a number of fixes pending for 2.4, and released for 2.2, but
-nothing that would explain the sort of kernel corruption you are
-reporting --- it sounds as if you are overrunning the end of the
-kiobuf, but it's hard to know without seeing the real code.
+ftp://oss.sgi.com/projects/kdb/download/ix86/
 
-> The code in the module (without validation and error checking) is:
-> 
-> int test_kiobuf(char* buf)
-> {
->     struct kiobuf *iobuf;
->     int i;
-> 
->     alloc_kiovec(1, &iobuf);
->     map_user_kiobuf(WRITE, iobuf, buf, TEST_SIZE);
+kdb-v1.6-2.4.0-test11-pre7.gz should still fit 2.4.0-test12-pre4.
 
-Careful, you can't touch the buffer for a WRITE map.  The READ/WRITE
-flag is from the point of view of the user, and user write() syscalls
-don't touch the data in memory!  If you want to modify the user
-buffer, you need to use READ instead.
-
-Cheers,
- Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

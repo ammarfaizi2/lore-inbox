@@ -1,85 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263147AbTC1VPx>; Fri, 28 Mar 2003 16:15:53 -0500
+	id <S263148AbTC1VUr>; Fri, 28 Mar 2003 16:20:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263148AbTC1VPx>; Fri, 28 Mar 2003 16:15:53 -0500
-Received: from compaq.com ([161.114.1.205]:1034 "EHLO ztxmail01.ztx.compaq.com")
-	by vger.kernel.org with ESMTP id <S263147AbTC1VPu>;
-	Fri, 28 Mar 2003 16:15:50 -0500
-Date: Fri, 28 Mar 2003 15:28:45 +0600
-From: Stephen Cameron <steve.cameron@hp.com>
-To: linux-kernel@vger.kernel.org
-Subject: PCI question
-Message-ID: <20030328092845.GA1029@zuul.cca.cpqcorp.net>
-Reply-To: steve.cameron@hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S263149AbTC1VUr>; Fri, 28 Mar 2003 16:20:47 -0500
+Received: from tomts11.bellnexxia.net ([209.226.175.55]:5255 "EHLO
+	tomts11-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S263148AbTC1VUq>; Fri, 28 Mar 2003 16:20:46 -0500
+Date: Fri, 28 Mar 2003 16:26:53 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: more details on laptop keyboard problems, 2.5.66-bk4
+Message-ID: <Pine.LNX.4.44.0303281617510.1175-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Is it possible for a driver to know the size of each 
-the BARs which struct pci_dev->resource[x].start corresponds with?
+  ok, here's a little more info.  as i was booting my dell
+laptop with 2.5.66-bk4, just after the "Starting sendmail"
+message, i got a screenful of
 
-(e.g. whether it is a 64 bit BAR, or a 32 bit BAR?)
+  atkbd.c: Unknown key (set 0, scancode 0x0, on isa0060/serio1) pressed.
 
-Why do I need to do this?
+i did in fact build support for an AT keyboard (CONFIG_KEYBOARD_ATKBD)
+directly into the kernel, since it seemed based on the explanation
+that i needed that.  (to refresh your memory, i have both the built-in
+keyboard and a PS/2 keyboard which is plugged into the combo 
+keyboard/mouse port on the back, and under 2.4.18, both are
+functional at the same time.)
 
-Because I have a controller (cciss driver) where some 
-BARS may be sometimes 32 bit, sometimes 64 bit (depending 
-on the board).
+  another interesting symptom is that, as the system was booting,
+i was prompted by kudzu whether or not to remove the configuration
+for the missing Sharp SL series (Zaurus).  i selected yes, and not
+only did i get to the correct dialog screen, but the next button
+i *would* have selected was pressed automatically.  
 
-There's a sequence that you have to go through while init'ing
-the board where you get an offset from PCI BAR 0 to know what
-BAR to use for a certain other bit of memory.
-Rather than reading that BAR directly, I want to use what's
-in struct pci_dev->resource[x].start, but I do not know what
-'x' is.  (I need to find x.)
+  it was as if having pressed CR once translated into two CRs,
+one per screen.  very strange.
 
-Currently the code assumes all the BARs are 32 bits, so it does
-something like this.
+  finally (and probably related to power management), after waiting
+at the "Starting sendmail" prompt for about a minute, the laptop
+simply turned itself off.  not good.
 
-	x = (my_bar_offset  - PCI_BASE_ADDRESS_0)/4;
+  but one step at a time -- any suggestions regarding that "atkbd.c"
+error??  i'm assuming that i really need that option selected, no?
 
-Instead, I need to do something along the lines of:
-
-	offset = 0;
-	for (i=0;i<DEVICE_COUNT_RESOURCES;i++) {
-		if offset == (my_bar_offset - PCI_BASE_ADDRESS_0) {
-			x = offset;
-			break;
-		}
-		if ( BAR i is 32 bit )
-			offset += 4;
-		else if ( BAR i is 64 bit )
-			ofset += 8;
-	}
-	if (i==DEVICE_COUNT_RESOURCES)
-		offset = -1; /* didn't find it */
-
-But I need to be able to figure out how big each BAR is.
-Can I do that without going thru all the rigamarole of 
-writing all 0xfffff's to the BAR, then reading it back, 
-etc?
-
-I didn't see anywhere in struct pci_dev->resource[x] 
-where the size of the bar was saved.  It didn't seem 
-to be encoded in the flags that I could see...	
-
-drivers/pci/pci.c:read_pci_bases() looks like it tests
-to see if BARs are 32 or 64 bit, but does not save this
-information in pci_dev->resource[x], except in the fact that
-if fills in the topmost 32 bits of addr.
-
-Any ideas?
-
-Another idea is to just catalog the boards and
-just "know" which boards have 64 bit BARs and where,
-but I'd rather have more general code.
-
-Thanks,
-
--- steve
+rday
 

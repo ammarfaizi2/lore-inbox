@@ -1,74 +1,150 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbTIOWIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 18:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTIOWII
+	id S261661AbTIOWIp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 18:08:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbTIOWIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 18:08:08 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:32700 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261657AbTIOWIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 18:08:05 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: =?ISO-8859-1?Q?Dani=EBl?= Mantione <daniel@deadlock.et.tudelft.nl>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       "David S. Miller" <davem@redhat.com>, mroos@linux.ee,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Olaf Hering <olh@suse.de>
-In-Reply-To: <Pine.LNX.4.44.0309152320130.24675-100000@deadlock.et.tudelft.nl>
-References: <Pine.LNX.4.44.0309152320130.24675-100000@deadlock.et.tudelft.nl>
-Message-Id: <1063663632.585.61.camel@gaston>
+	Mon, 15 Sep 2003 18:08:45 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:62401 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261661AbTIOWIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 18:08:37 -0400
+Date: Tue, 16 Sep 2003 00:08:29 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>, Scott_Kilau@digi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test5-mm2: dgap driver looks ugly
+Message-ID: <20030915220828.GA17690@fs.tum.de>
+References: <20030914234843.20cea5b3.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 16 Sep 2003 00:07:12 +0200
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-Subject: Re: atyfb still broken on 2.4.23-pre4 (on sparc64)
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030914234843.20cea5b3.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-09-15 at 23:24, Daniël Mantione wrote:
-> On Mon, 15 Sep 2003, Marcelo Tosatti wrote:
+On Sun, Sep 14, 2003 at 11:48:43PM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.0-test5-mm1:
+>...
+> +dgap.patch
 > 
-> > Ben reported it breaks PPC, too...
-> 
-> The patch was tested on ppc, it is propably not PowerPC specific.
-> 
-> Benjamin, on what kind of machine did things break? Can you provide some
-> info?
+>  Digi Acceleport driver
+>...
 
-I reported that I got user reports of breakage... so far, I don't know
-more as I only have one mach64 machine that I couldn't test on yet.
+This driver seems to need a serious cleanup.
 
-At least, iBook1 is broken (M1 chipset) from what Olaf says (in CC
-list).
+The patch below does:
+- remove MIN/MAN
+- remove (unused) userspace program/conffile locations
+- remove a check that compares an ushort witha value it never has on 
+  Linux
 
-There are a few PPC machines for which atyfb is "critical":
+There seem to be more cleanups needed, these should only be some 
+examples.
 
- - PowerBook Wallstreet I (Rage LT-G, that one I can test)
- - PowerBook Wallstreet II (Rage LT-Pro I think)
- - PowerBook 101 (aka Lombard) (Rage LT-Pro)
- - iBook1 (Rage M1)
- - iMac rev A,B and C (not sure which chip, LT-Pro or just 3D Pro)
- - Beige G3 (older XL iirc)
+cu
+Adrian
+
+--- linux-2.6.0-test5-mm2-no-smp/drivers/char/digi/dgap/dgap_driver.h.old	2003-09-15 17:52:47.000000000 +0200
++++ linux-2.6.0-test5-mm2-no-smp/drivers/char/digi/dgap/dgap_driver.h	2003-09-15 23:57:28.000000000 +0200
+@@ -215,7 +215,6 @@
+ #define MYFLIPLEN		N_TTY_BUF_SIZE
  
-Along with some older "performa" I forgot about (5400 I think).
-
-The current driver works at least well enough to get a console on all
-of these. I'm not sure a stable serie should get a new driver if it
-has not been properly validated on these. Unfortunately, I don't have
-access to all of this HW to test with, so...
-
-Why don't you push it to 2.6 first then backport to 2.4 ? That would
-be better imho...
-
-Ben.
+ #define SBREAK_TIME 0x25
+-#define USHRT_MAX   65535
+ #define U2BSIZE 0x400
+ #define dgap_jiffies_from_ms(a) (((a) * HZ) / 1000)
  
-
-Ben.
-
-
+@@ -231,10 +230,6 @@
+ # define DIGI_DGAP_MAJOR         22
+ #endif
+ 
+-/* The default location of the config script. */
+-#define DGAP_CONFIG_PROGRAM	"/usr/sbin/dgap_config"
+-#define DGAP_CONFIG_FILE	"/etc/dgap.conf"
+-
+ /*
+  * The parameters we use to define the periods of the moving averages.
+  */
+@@ -274,20 +269,6 @@
+ #endif
+ 
+ /*
+- * Only define these in case they are not present in the kernel headers.
+- * A grep of /usr/src/linux-<version>/include/linux
+- * show others worry about this as well.
+- */
+-#if !defined(MIN)
+-# define MIN(a,b)	((a) < (b) ? (a) : (b))
+-#endif
+-
+-#if !defined(MAX)
+-# define MAX(a,b)	((a) > (b) ? (a) : (b))
+-#endif
+-
+-
+-/*
+  * All the possible states the driver can be while being loaded.
+  */
+ enum {
+--- linux-2.6.0-test5-mm2-no-smp/drivers/char/digi/dgap/dgap_tty.c.old	2003-09-15 23:47:21.000000000 +0200
++++ linux-2.6.0-test5-mm2-no-smp/drivers/char/digi/dgap/dgap_tty.c	2003-09-15 23:50:54.000000000 +0200
+@@ -1278,8 +1278,8 @@
+ 		flip_len = TTY_FLIPBUF_SIZE - tp->flip.count;
+ 	}
+ 
+-	len = MIN(data_len, flip_len);
+-	len = MIN(len, (N_TTY_BUF_SIZE - 1) - tp->read_cnt);
++	len = min(data_len, flip_len);
++	len = min(len, (N_TTY_BUF_SIZE - 1) - tp->read_cnt);
+ 
+ 	if (len <= 0) {
+ 		writeb(1, &(bs->idata));
+@@ -1315,7 +1315,7 @@
+ 	while (n) {
+ 
+ 		s = ((head >= tail) ? head : ch->ch_rsize) - tail;
+-		s = MIN(s, n);
++		s = min(s, n);
+ 
+ 		if (s <= 0)
+ 			break;
+@@ -2513,7 +2513,7 @@
+ 			cps_limit = 0;
+ 		}
+ 
+-		bytes_available = MIN(cps_limit, bytes_available);
++		bytes_available = min(cps_limit, bytes_available);
+ 	}
+ 
+ 	return (bytes_available);
+@@ -2705,7 +2705,7 @@
+ 	 * Take minimum of what the user wants to send, and the
+ 	 * space available in the FEP buffer.
+ 	 */
+-	count = MIN(count, bufcount);
++	count = min(count, bufcount);
+ 
+ 	/*
+ 	 * Bail if no space left.
+@@ -2743,7 +2743,7 @@
+ 			goto out;
+ 		}
+ 
+-		count = MIN(count, WRITEBUFLEN);
++		count = min(count, WRITEBUFLEN);
+ 
+ 		/*
+ 		 * copy_from_user() returns the number
+@@ -3230,9 +3230,6 @@
+ 	if (ch->ch_digi.digi_bufsize < 10)
+ 		ch->ch_digi.digi_bufsize = 10;
+ 
+-	if (ch->ch_digi.digi_bufsize > 100000)
+-		ch->ch_digi.digi_bufsize = MIN(100000, USHRT_MAX);
+-
+ 	if (ch->ch_digi.digi_maxchar < 1)
+ 		ch->ch_digi.digi_maxchar = 1;
+ 

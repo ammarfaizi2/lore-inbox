@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262819AbUCRRty (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 12:49:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262817AbUCRRty
+	id S262813AbUCRRsF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 12:48:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262815AbUCRRsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 12:49:54 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:4329 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262819AbUCRRs5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 12:48:57 -0500
-Subject: Re: CONFIG_PREEMPT and server workloads
-From: Robert Love <rml@ximian.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, mjy@geizhals.at,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040318145129.GA2246@dualathlon.random>
-References: <40591EC1.1060204@geizhals.at>
-	 <20040318060358.GC29530@dualathlon.random>
-	 <20040318015004.227fddfb.akpm@osdl.org>
-	 <20040318145129.GA2246@dualathlon.random>
-Content-Type: text/plain
-Message-Id: <1079632130.6043.6.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Thu, 18 Mar 2004 12:48:50 -0500
+	Thu, 18 Mar 2004 12:48:05 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:48354 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262813AbUCRRsA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 12:48:00 -0500
+Message-ID: <4059E0B2.4030601@nortelnetworks.com>
+Date: Thu, 18 Mar 2004 12:47:30 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: sched_setaffinity usability -- other issue
+References: <40595842.5070708@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-18 at 09:51, Andrea Arcangeli wrote:
+I have a different issue with setting cpu affinity.  Has anyone 
+considered a "soft" affinity?
 
-> the counter is definitely not optimized away, see:
+I'm thinking of the case where I want to run processes on separate cpus 
+for performance reasons, but in the case that one cpu becomes 
+unavailable (physically removed, hardware fault, etc.) I would like to 
+move those processes back to working cpus (except for maybe the one that 
+was actually running and therefore might be corrupted).  In this case a 
+reduced performance might be preferable to an unplanned failover to 
+backup hardware.
 
-This is because of work Dave Miller and Ingo did - irq count, softirq
-count, and lock count (when PREEMPT=y) are unified into preempt_count. 
+Has this scenario been considered, or will cpu affinity be a "hard" setting.
 
-So it is intended.
-
-The unification makes things cleaner and simpler, using one value in
-place of three and one interface and concept in place of many others. 
-It also gives us a single simple thing to check for an overall notion of
-"atomicity", which is what makes debugging so nice.
-
-	Robert Love
-
+Chris
 

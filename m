@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261410AbSIWVXG>; Mon, 23 Sep 2002 17:23:06 -0400
+	id <S261435AbSIWV0o>; Mon, 23 Sep 2002 17:26:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261426AbSIWVXG>; Mon, 23 Sep 2002 17:23:06 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:28570 "HELO gherkin.frus.com")
-	by vger.kernel.org with SMTP id <S261410AbSIWVXE>;
-	Mon, 23 Sep 2002 17:23:04 -0400
-Message-Id: <m17takZ-0005khC@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy)
-Subject: 2.5.38: modular IDE broken
-To: linux-kernel@vger.kernel.org
-Date: Mon, 23 Sep 2002 16:28:15 -0500 (CDT)
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S261448AbSIWV0n>; Mon, 23 Sep 2002 17:26:43 -0400
+Received: from packet.digeo.com ([12.110.80.53]:25487 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261435AbSIWVZE>;
+	Mon, 23 Sep 2002 17:25:04 -0400
+Message-ID: <3D8F87DD.E330A36E@digeo.com>
+Date: Mon, 23 Sep 2002 14:30:05 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.38bk2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Nuno Monteiro <nuno@itsari.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Sleeping function called from illegal context at slab.c:1378
+References: <3D8F5DB2.A3E36E16@digeo.com> <1032811220.28332.24.camel@spc9.esa.lanl.gov> <3D8F77B4.A8B9DDC4@digeo.com> <20020923204916.GA915@hobbes.itsari.int>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+X-OriginalArrivalTime: 23 Sep 2002 21:30:05.0771 (UTC) FILETIME=[624B91B0:01C26348]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This may well have been broken in earlier versions...  The last one I
-tried to compile before 2.5.38 was 2.5.34.  Quick problem summary:
+Nuno Monteiro wrote:
+> 
+> On 23.09.02 21:21 Andrew Morton wrote:
+> 
+> <snip snip>
+> 
+> I got two more. Its 2.5.38-mm2 too. Just thought I'd throw them in:
+> 
+> Sleeping function called from illegal context at slab.c:1378
+> c2e73f6c c0110251 c020b800 c020faf0 00000562 000001d0 c0129080 c020faf0
+>         00000562 00000060 00000008 0000012c c11e3560 c010ac77 00000080
+> 000001d0
+>         c2e72000 00000000 0000012c bffff948 00000000 c0106ff7 00000060
+> 00000008
+> Call Trace: [<c0110251>] [<c0129080>] [<c010ac77>] [<c0106ff7>]
+> 
+> Trace; c0110251 <__might_sleep+55/64>
+> Trace; c0129080 <kmalloc+4c/130>
+> Trace; c010ac77 <sys_ioperm+7f/124>
+> Trace; c0106ff7 <syscall_call+7/b>
 
-ide-proc.o doesn't get built if CONFIG_BLK_DEV_IDE isn't "y", so
-depmod complains about unresolved symbols.
+sys_ioperm() is calling kmalloc(GFP_KERNEL) inside preempt_disable()
+(via get_cpu()).  That's incorrect because the kmalloc could sleep,
+and switch CPUs.
 
-If I edit linux/drivers/ide/Makefile to force the build, I still end
-up with various depmod errors, some of which would doubtless go away
-if I turned off module versioning.  Anyone got a quick fix that I'm
-too tired to see?  Here's the depmod output with ide-proc.o forced:
+> ...
+> 
+> Trace; c0110251 <__might_sleep+55/64>
+> Trace; c012ba45 <__alloc_pages+25/218>
+> Trace; c012bc60 <__get_free_pages+28/78>
+> Trace; c0143cb7 <__pollwait+33/98>
+> Trace; c4b28deb <[snd-pcm-oss]snd_pcm_oss_poll+47/108>
+> Trace; c0143ec5 <do_select+101/210>
+> Trace; c0144342 <sys_select+346/4a0>
+> Trace; c0143707 <sys_ioctl+23b/294>
+> Trace; c0106ff7 <syscall_call+7/b>
+> 
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.38; fi
-depmod: *** Unresolved symbols in /lib/modules/2.5.38/kernel/drivers/ide/ide-disk.o
-depmod:         proc_ide_read_geometry_R50fed6f7
-depmod: *** Unresolved symbols in /lib/modules/2.5.38/kernel/drivers/ide/ide-floppy.o
-depmod:         proc_ide_read_geometry_R50fed6f7
-depmod: *** Unresolved symbols in /lib/modules/2.5.38/kernel/drivers/ide/ide-probe.o
-depmod:         do_ide_request
-depmod:         ide_add_generic_settings
-depmod:         create_proc_ide_interfaces_Rab2c600e
-depmod:         ide_bus_type
-depmod: *** Unresolved symbols in /lib/modules/2.5.38/kernel/drivers/ide/ide.o
-depmod:         proc_ide_create_Ra8e0f104
-depmod:         ide_remove_proc_entries_R5a5a621b
-depmod:         ide_add_proc_entries_Rce569c25
-depmod:         destroy_proc_ide_drives_Ra54f63e5
-depmod:         proc_ide_destroy_R35e1351c
-depmod:         bus_unregister
-depmod:         proc_ide_read_capacity_R46b2a30d
-depmod:         create_proc_ide_interfaces_Rab2c600e
-depmod:         ide_scan_pcibus
-make: *** [_modinst_post] Error 1
+snd_pcm_oss_poll() calls poll_wait() inside runtime->lock.
+poll_wait() does __get_free_page(GFP_KERNEL).
 
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+This is a bug in snd_pcm_oss_poll().

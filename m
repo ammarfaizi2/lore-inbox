@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272333AbRHXVS2>; Fri, 24 Aug 2001 17:18:28 -0400
+	id <S272330AbRHXVRI>; Fri, 24 Aug 2001 17:17:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272334AbRHXVSW>; Fri, 24 Aug 2001 17:18:22 -0400
-Received: from relay3.zonnet.nl ([62.58.50.52]:48851 "EHLO smtp03.zonnet.nl")
-	by vger.kernel.org with ESMTP id <S272333AbRHXVRg>;
-	Fri, 24 Aug 2001 17:17:36 -0400
-Message-ID: <3B86C472.DBE32E99@linux-m68k.org>
-Date: Fri, 24 Aug 2001 23:17:38 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Bill Pringlemeir <bpringle@sympatico.ca>
-CC: David Woodhouse <dwmw2@infradead.org>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: macro conflict
-In-Reply-To: <6208.998658929@ocs3.ocs-net> <16800.998659058@redhat.com> <m2k7ztwne7.fsf@sympatico.ca>
+	id <S272332AbRHXVQ6>; Fri, 24 Aug 2001 17:16:58 -0400
+Received: from del1.now-india.net.in ([203.195.128.65]:25077 "EHLO
+	dadel1.now-india.net.in") by vger.kernel.org with ESMTP
+	id <S272330AbRHXVQu>; Fri, 24 Aug 2001 17:16:50 -0400
+Date: Sat, 25 Aug 2001 03:00:29 +0530
+From: Sandip Bhattacharya <sandipb@bigfoot.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Digest services anywhere and Re: LKML on Majordomo2 ?
+Message-ID: <20010825030029.A1899@bigfoot.com>
+In-Reply-To: <20010825020453.A1505@bigfoot.com> <20010824234010.X11046@mea-ext.zmailer.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010824234010.X11046@mea-ext.zmailer.org>
+User-Agent: Mutt/1.3.21i
+X-HomePage: http://www.sandipb.net
+X-OS: Linux kajaal.home 2.4.8 i586 unknown
+X-Serialmail-Rcpt: postman@kajaal.home
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Just another question ...
 
-> sizeof() test isn't even needed due to promotion.  Just the signs are
-> important (afaik) and a test for pointer and integral mixing which I
-> cann't think of.  Maybe some clever use of arrays or "+ *x" or
-> something.
+The LKML FAQ does not point out any site providing decent digest
+services ... (by decent I mean it would be easier to split up the
+digest using formail) The yahoogroups/egroups archive has this
+horrible way of digesting mails ... Any pointers would be welcome ...
 
-Try '-W' or '-Wsign-compare'. pointer/integer compare already results in
-a warning without any option.
+I checked the archives. There seems to a long discussion last year on
+making a move to either Majordomo2 or Mailman. Mailman has improved a
+lot over all this time. Is it still worth a go?
 
-bye, Roman
+- Sandip
+
+-- 
+-------------------------------------
+Sandip Bhattacharya 
+sandipb @ bigfoot.com
+http://www.sandipb.net
+-------------------------------------
+

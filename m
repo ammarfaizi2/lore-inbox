@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261282AbTCTAIg>; Wed, 19 Mar 2003 19:08:36 -0500
+	id <S261224AbTCTAKz>; Wed, 19 Mar 2003 19:10:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261283AbTCTAIg>; Wed, 19 Mar 2003 19:08:36 -0500
-Received: from ns0.cobite.com ([208.222.80.10]:29960 "EHLO ns0.cobite.com")
-	by vger.kernel.org with ESMTP id <S261282AbTCTAIf>;
-	Wed, 19 Mar 2003 19:08:35 -0500
-Date: Wed, 19 Mar 2003 19:19:32 -0500 (EST)
-From: David Mansfield <david@cobite.com>
-X-X-Sender: david@admin
-To: Andrea Arcangeli <andrea@suse.de>
-cc: David Mansfield <lkml@dm.cobite.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] cvsps support for parsing BK->CVS kernel tree logs
-In-Reply-To: <20030319223625.GS30541@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0303191837360.19298-100000@admin>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261242AbTCTAKz>; Wed, 19 Mar 2003 19:10:55 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:27777 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S261224AbTCTAKy>; Wed, 19 Mar 2003 19:10:54 -0500
+Date: Thu, 20 Mar 2003 00:21:27 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, mirrors <mirrors@kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Deprecating .gz format on kernel.org
+Message-ID: <20030320002127.GB7887@mail.jlokier.co.uk>
+References: <3E78D0DE.307@zytor.com> <Pine.LNX.4.44.0303192107270.3901-100000@einstein31.homenet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303192107270.3901-100000@einstein31.homenet>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Mar 2003, Andrea Arcangeli wrote:
+On Wed, 19 Mar 2003, H. Peter Anvin wrote:
+> i) Does this sound reasonable to everyone?  In particular, is there any
+> loss in losing the "original" compressed files?
 
-> this is a critical feature for me, note that if Larry agreed of tagging
-> the tree with the atomic-date of the patchset extracting those patchset
-> would be an order of magnitude faster, I would pay for the RTT latency 1
-> per patchset, not once per file and it would be possible to teach cvsps
-> to learn diffing against the tag if it matches. Anyways stuff works now
-> so I'll just wait for the RTT all the time w/o being able to use the
-> real bandwidth provided by my link. As soon as the CVS tarball is
-> available I'll use it for the large patch extractions.
+Personally I fetch the .bz2 tar files for a few base kernel versions,
+but I fetch the .gz patch files.
 
-I just looked briefly at the 'cvs server' protocol.  It looks fairly easy 
-to have a 'keepalive' session with a server where multiple diffs of 
-multiple files are requested.  This isn't a 5 minute fix though, but I've 
-been bothered by the RTT per file as well, because we use 'ssh' to 
-authenticate cvs access here, and each file is a complete ssh handshake 
-which is very slow.
+This is so that I can "zgrep" through the patch files looking for
+which version changed some feature or API.
 
-> One more feature wish (besides the python inteface for a quick gui) is
-> the C^c killing cvsps too during a -g patch extraction, you probably
-> should check the return code of cvs when extracting the patches. Right
-> now I press C^z and then I killall cvsps ;)
+bzgrep exists, but it is way too slow.
 
-Already fixed in my code.  I won't bother you with a diff.
+So if there were only .bz2 patch files, I would fetch them and convert
+them back into .gz files on my local mirror.
 
-> BTW, I think cvsps should be shipped together with cvs and integrated
-> over time in the unstable branch, this is a major feature for any cvs
-> user. Storing metadata locally is the way to go, over time the whole
-> tree should be cached local (as an option). This is actually the major
-> cvs improvement I seen since years. And I'm glad I can contribute to it
-> unlike many kernel developers out there.
+Which is ok of course, but then the signatures don't match any more.
 
-Thanks for your support,
-David
+Well, that's my really weak reason for liking .gz patches.
 
--- 
-/==============================\
-| David Mansfield              |
-| david@cobite.com             |
-\==============================/
-
+enjoy,
+-- Jamie

@@ -1,93 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269436AbUICRB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269416AbUICRD2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269436AbUICRB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 13:01:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269416AbUICRB5
+	id S269416AbUICRD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 13:03:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269466AbUICRD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 13:01:57 -0400
-Received: from cantor.suse.de ([195.135.220.2]:38101 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269515AbUICQ4f (ORCPT
+	Fri, 3 Sep 2004 13:03:28 -0400
+Received: from mail4.utc.com ([192.249.46.193]:21917 "EHLO mail4.utc.com")
+	by vger.kernel.org with ESMTP id S269416AbUICRDS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 12:56:35 -0400
-Subject: Re: The argument for fs assistance in handling archives
-From: Chris Mason <mason@suse.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: David Masover <ninja@slaphack.com>, Steve Bergman <steve@rueb.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Linus Torvalds <torvalds@osdl.org>, Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       reiserfs <reiserfs-list@namesys.com>
-In-Reply-To: <413810B6.7020805@namesys.com>
-References: <20040826150202.GE5733@mail.shareable.org>
-	 <200408282314.i7SNErYv003270@localhost.localdomain>
-	 <20040901200806.GC31934@mail.shareable.org>
-	 <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
-	 <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com>
-	 <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org>
-	 <4136A14E.9010303@slaphack.com>
-	 <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org>
-	 <4136C876.5010806@namesys.com>
-	 <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>
-	 <4136E0B6.4000705@namesys.com>  <14260000.1094149320@flay>
-	 <1094154744.12730.64.camel@voyager.localdomain>
-	 <4137BC3C.4010207@slaphack.com>  <413810B6.7020805@namesys.com>
-Content-Type: text/plain
-Message-Id: <1094227041.6301.21.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 03 Sep 2004 12:02:49 -0400
+	Fri, 3 Sep 2004 13:03:18 -0400
+Message-ID: <4138A397.3060103@cybsft.com>
+Date: Fri, 03 Sep 2004 12:02:15 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@raytheon.com,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <20040902111003.GA4256@elte.hu> <20040902215728.GA28571@elte.hu>
+In-Reply-To: <20040902215728.GA28571@elte.hu>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-03 at 02:35, Hans Reiser wrote:
-
-> All this stuff about how no filesystem should be allowed to have 
-> semantic features others don't, it seems very Bolshevist to me.
+Ingo Molnar wrote:
+> i've released the -R0 patch:
 > 
-> Let Linux have an ecosystem with a diverse ecology of filesystems, and 
-> the features that work will reproduce to other filesystems.  I thought 
-> that was the Linus way?
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-R0
+>  
+> ontop of:
+> 
+>   http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
+> 
+> i've given up on the netdev_backlog_granularity approach, and as a
+> replacement i've modified specific network drivers to return at a safe
+> point if softirq preemption is requested. This gives the same end result
+> but is more robust. For the time being i've fixed 8193too.c and e100.c.
+> (will fix up other drivers too as latencies get reported)
+> 
+> this should fix the crash reported by P.O. Gaillard, and it should solve
+> the packet delay/loss issues reported by Mark H Johnson. I cannot see
+> any problems on my rtl8193 testbox anymore.
+> 
+> 	Ingo
 > 
 
-There's no reason you can't have semantics the other filesystems don't. 
-There's also no reason you shouldn't continue researching in any
-direction you choose.
+OK. I previously reported about the system hanging trying to boot this 
+patch. It may have been a fluke. In any event, it doesn't hang 
+consistently. I have rebooted several times now without problems. I do 
+however still get some of these:
 
-When you submit to the kernel (even just -mm), call the FS stable and
-suggest people start broadly using it, you're telling them the parts you
-have submitted are in fact fixed and reliable.
-
-This implies you are done changing the semantics you have submitted,
-which also implies you would like applications to start seriously using
-it.  Those application writers will want other filesystems to be able to
-support these new semantics, which means they should have a race free
-framework vetted by the kernel community and available for reuse by the
-other filesystems.  In other words, the semantics should be in the VFS,
-without any requirement other FS's implement them, but the possibility
-for every FS to implement them.
-
-If you don't want the framework to be agreed on by the community and
-available for other implementations, you either haven't stabilized the
-semantics, or you don't want anyone else using them.  Either way, it
-precludes inclusion in the kernel.  There are simply higher expectations
-for a filesystem in these cases, and a higher burden for stable
-semantics and interfaces.
-
-This doesn't mean new semantics are impossible, it just means that
-constantly changing semantics of the filesystem core are bad for users
-and applications.  They belong in patches that live outside the kernel
-until they are sufficiently researched to justify their inclusion.
-
-The biggest victim of this discussion is the non-semantic part of
-reiser4.  You've done a huge amount of research that is being held back
-because you haven't separated the semantic research from the storage
-layer areas.  If the storage layers are ready now, please please just
-submit them.
-
--chris
+(ksoftirqd/0/2): new 131 us maximum-latency critical section.
+  => started at: <netif_receive_skb+0x82/0x280>
+  => ended at:   <netif_receive_skb+0x1d7/0x280>
+  [<c0136789>] check_preempt_timing+0x119/0x1f0
+  [<c0255017>] netif_receive_skb+0x1d7/0x280
+  [<c0255017>] netif_receive_skb+0x1d7/0x280
+  [<c013699d>] sub_preempt_count+0x4d/0x70
+  [<c013699d>] sub_preempt_count+0x4d/0x70
+  [<c0255017>] netif_receive_skb+0x1d7/0x280
+  [<d08d40b7>] e100_poll+0x5b7/0x630 [e100]
+  [<c013699d>] sub_preempt_count+0x4d/0x70
+  [<c025527f>] net_rx_action+0x7f/0x110
+  [<c011eb55>] ___do_softirq+0x75/0x90
+  [<c011ec1e>] _do_softirq+0xe/0x20
+  [<c011f034>] ksoftirqd+0x94/0xe0
+  [<c012f8aa>] kthread+0xaa/0xb0
+  [<c011efa0>] ksoftirqd+0x0/0xe0
+  [<c012f800>] kthread+0x0/0xb0
+  [<c0104575>] kernel_thread_helper+0x5/0x10
 
 

@@ -1,58 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270506AbRHWVbH>; Thu, 23 Aug 2001 17:31:07 -0400
+	id <S270571AbRHWVcs>; Thu, 23 Aug 2001 17:32:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270521AbRHWVa5>; Thu, 23 Aug 2001 17:30:57 -0400
-Received: from urc1.cc.kuleuven.ac.be ([134.58.10.3]:55534 "EHLO
-	urc1.cc.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id <S270506AbRHWVam>; Thu, 23 Aug 2001 17:30:42 -0400
-Message-ID: <3B85760B.2A25641F@pandora.be>
-Date: Thu, 23 Aug 2001 23:30:51 +0200
-From: Bart Vandewoestyne <Bart.Vandewoestyne@pandora.be>
-Organization: MyHome
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: nl-BE, nl, en, de
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: assembler -> linux system calls
-In-Reply-To: <Pine.LNX.3.95.1010823170837.23731A-100000@chaos.analogic.com>
+	id <S270528AbRHWVci>; Thu, 23 Aug 2001 17:32:38 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:39819
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S270521AbRHWVc1>; Thu, 23 Aug 2001 17:32:27 -0400
+Date: Thu, 23 Aug 2001 14:32:40 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Samium Gromoff <_deepfire@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
+Message-ID: <20010823143240.E14302@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <E15a1mD-000M4n-00@f10.mail.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E15a1mD-000M4n-00@f10.mail.ru>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> On Thu, 23 Aug 2001, Bart Vandewoestyne wrote:
-> 
-> > I am trying to write a linux device driver for a data acquisition
-> > card.  The little homepage for my project is at
-> > http://mc303.ulyssis.org/heim/
-> > There is already a DOS driver available, and I am trying to port the
-> > DOS code right now.
-> >
-> > Somewhere in the DOS code, there is some assembler code included:
+On Fri, Aug 24, 2001 at 01:12:33AM +0400, Samium Gromoff wrote:
+> > The main reason to include it, is that that's what it was done in.
+> > If you go back and read the archives, ESR goes over why all sorts of
+> > other languages wouldn't work as easily.
+>
+> in such cases the solution is to elaborate, and not to
+> leave things to decay.
 
--> assembler code at: http://mc303.ulyssis.org/heim/downloads/INPL.ASM
+Well, the flames finally died down and everyone forgot about it again
+for a while.
 
-> File:
-> /usr/include/asm/io.h
-> ...contains most of the I/O macros you need.
+> > That wasn't my point at all.  My point was that if you're somehow
+> > transfering the 21mb source .tar.bz2'ed, you can also stand to transport
+> > the 4mb of python 2.0.1 source, tar.gz'ed over as well.  In other words,
+> > having to bring python over any of the methods that Jes mentioned isn't
+> > any more painful than the kernel source.  It's roughly the size of a couple
+> > of vmlinux'es.
+>   i was sarcastic here. actually the fact is that
+>   4MB of tarred sources is more than 10 .c files
+>   doing the same thing 1.5x times faster.
 
-Hmm... I looked through that file, and it only talks about inl and
-outl functions.  I guess the 'inpl' from the assembler code can be
-mapped to 'inl' from /usr/include/asm/io.h and the same for 'outpl',
-but what about 'inplI' and 'outplI' from the assembler code?  My
-assembler skills ar zero, so I don't know if i can also just replace
-those by 'inl' and 'outl' from the linux source...
+Where'd you get 1.5x from? :)  But, go ahead and re-write the CML2 engine
+in C.  There's been some work done on this.  A few people (Al Viro?) even
+said that if this got into 2.5 they'd do a 'C' version.  Many many months
+ago, if i recall correctly.
 
-Greetzzz,
-mc303
+> > Have you tried cml2 on your p166?  ESR went and did much speed tweaking of
+> > the code about 6 months ago it seems like and managed to please some of the
+> > people using a low-end pentium.  Building a kernel on a 386 isn't approcaching
+> > tolerable right now anyhow.  Someone pointed out today or yesterday it takes
+> > ~10 days.
+>   it is not an excuse to make things even worser.
+
+It shouldn't be a consideration at all.  I'd go as far as to say any sort of
+speed bonus on a 486 is gravy.  In other words, how fast something will be
+on 10 year old hardware shouldn't be important (I'm speaking of 386 with
+10 years.)
 
 -- 
-Ing. Bart Vandewoestyne			 Bart.Vandewoestyne@pandora.be
-Hugo Verrieststraat 48			       GSM: +32 (0)478 397 697
-B-8550 Zwevegem			 http://users.pandora.be/vandewoestyne
-----------------------------------------------------------------------
-"Any fool can know, the point is to understand." - Albert Einstein
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

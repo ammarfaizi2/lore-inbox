@@ -1,79 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265773AbRFXWjM>; Sun, 24 Jun 2001 18:39:12 -0400
+	id <S265776AbRFXWpW>; Sun, 24 Jun 2001 18:45:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265772AbRFXWjD>; Sun, 24 Jun 2001 18:39:03 -0400
-Received: from [207.196.96.3] ([207.196.96.3]:32967 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id <S265773AbRFXWiw>; Sun, 24 Jun 2001 18:38:52 -0400
-Date: Sun, 24 Jun 2001 18:41:30 -0400 (EDT)
-From: Chris Meadors <chris@clubneon.com>
-To: Rob Landley <landley@webofficenow.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Microsoft and Xenix.
-In-Reply-To: <01062406364601.01519@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0106241812360.8494-100000@clubneon.clubneon.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265777AbRFXWpN>; Sun, 24 Jun 2001 18:45:13 -0400
+Received: from jalon.able.es ([212.97.163.2]:908 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S265776AbRFXWox>;
+	Sun, 24 Jun 2001 18:44:53 -0400
+Date: Mon, 25 Jun 2001 00:48:22 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Sasi Peter <sape@iq.rulez.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] gcc 2.95.2 vs. 3.0 (fwd)
+Message-ID: <20010625004822.C1799@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.33.0106241143220.30968-100000@iq.rulez.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.33.0106241143220.30968-100000@iq.rulez.org>; from sape@iq.rulez.org on Sun, Jun 24, 2001 at 11:54:25 +0200
+X-Mailer: Balsa 1.1.6-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Jun 2001, Rob Landley wrote:
 
-> I know the geos had nothing to do with digital, it started as a windowing GUI
-> for the commodore 64, if you can believe that...
+On 20010624 Sasi Peter wrote:
+>
+>I know opendivx code is not like kernel code at all, but on the other hand
+>it is well suited for benchmark testing.
+>
+>
+>test file:  (opendivx with postprocessing, this stuff is written in C)
+># mplayer -osdlevel 0 -nosound -benchmark 1800.avi -vo null -pp 15
+>VIDEO:  [divx]  640x352  24bpp  23.98 fps  1865.1 kbps (227.7 kbyte/s)
+>
 
-Not only can I belive it, but I was going to bring it up the first time
-GEOS was mentioned.  Having only used Macs (in school) for file operations
-(I had loaded games off a TSR-80 datasette).  I couldn't follow
-copying/deleting/renaming files by typing commands when my family finally
-got me a C64.  So I relied heavily on GEOS.  I even got one of those touch
-pads to move the cursor around the screen.
+Sure it is opendivx ? I think you are just using gcc compiled code for
+the 'interface' and 'glue' to windows divx decoders (/usr/lib/win32/*.dll)
+that do the real hard work.
 
-When my dad finally got a PC in 1991 it had MS-DOS 5.0 and Windows 3.1 on
-it.  I didn't like Windows too much, but still found DOS awkward (still
-using Macs in school).  I started using dosshell a lot for file
-operations.  But when I saw an ad for GEOS in a computer mag. I was so
-happy.  I ended up using that for a while.  But more and more programs
-required Windows, and that made me mad.
+Redo the tests with am MPEG2 movie.
 
-There was one book that totally changed my life.  I can't remember the
-correct title, but it was something to the effect of Secrets to the DOS
-Gurus.  After reading that book, I fell in love with the command line
-interface.  Everything started making sense.
-
-Somewhere along the line, I think 1994 I started working for the Maryland
-state government at a Healt Department.  They were running Xenix (SCO, the
-2 names were interchanged a lot) on a 386.  A few of the "important"
-people had serial lines run to their Win 3.1 PCs where they'd use Telix to
-run the database programs on the Xenix box.
-
-As I watched people work on in Xenix I recognized a lot of the commands I
-had picked up using the Delphi online service.  I had a neighbor that
-showed me some stuff I could do if I chose the Exit to Shell option.
-
-In 1995 still working for the Health Department I got to go to my first
-trade show, FOSE.  I met and heavily impressed a lot of booth workers.
-One such booth was Microsoft.  I was invited to participate in their beta
-program for the upcoming Windows 95 (I was one of the "lucky" people who
-didn't have to pay for their betas).
-
-I used the Win95 betas for a while.  But something happened that year.  I
-got a Linux Unleashed book from SAMS.  It included a copy of Slackware.  I
-installed that along side my Win95, and when I saw how fast Doom loaded I
-was in love.  I vowed that on August 24, 1995 I would delete Windows from
-my machine and never use it again.  Well I can't say that I have held
-complete faithful to that vow, but I have had Linux on my machine ever
-since then.  Now my computer is Windows free and has been for a year and a
-half.
-
-Okay, I brushed on GEOS, Microsoft, Xenix, and even Linux.  So I'm as on
-topic as the rest of this thread.  I just have never told my story on l-k,
-and this seemed a good place to put a little of it in.  :)
-
--Chris
 -- 
-Two penguins were walking on an iceberg.  The first penguin said to the
-second, "you look like you are wearing a tuxedo."  The second penguin
-said, "I might be..."                         --David Lynch, Twin Peaks
-
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.1 (Cooker) for i586
+Linux werewolf 2.4.5-ac17 #2 SMP Fri Jun 22 01:36:07 CEST 2001 i686

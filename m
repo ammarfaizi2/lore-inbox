@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314403AbSFEKZO>; Wed, 5 Jun 2002 06:25:14 -0400
+	id <S314491AbSFEKYG>; Wed, 5 Jun 2002 06:24:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314422AbSFEKZN>; Wed, 5 Jun 2002 06:25:13 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:59093 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S314403AbSFEKZL>; Wed, 5 Jun 2002 06:25:11 -0400
-Date: Wed, 5 Jun 2002 11:56:15 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Dave Jones <davej@suse.de>
-Cc: Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.20 config forward references to CONFIG_X86_LOCAL_APIC
-In-Reply-To: <20020605121420.F5277@suse.de>
-Message-ID: <Pine.LNX.4.44.0206051155510.26634-100000@netfinity.realnet.co.sz>
+	id <S314529AbSFEKYF>; Wed, 5 Jun 2002 06:24:05 -0400
+Received: from [212.176.239.134] ([212.176.239.134]:40095 "EHLO
+	vzhik.octet.spb.ru") by vger.kernel.org with ESMTP
+	id <S314491AbSFEKYD>; Wed, 5 Jun 2002 06:24:03 -0400
+Message-ID: <000c01c20c7a$a5c527a0$baefb0d4@nick>
+Reply-To: "Nick Evgeniev" <nick@octet.spb.ru>
+From: "Nick Evgeniev" <nick@octet.com>
+To: "Bill Davidsen" <davidsen@tmr.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1020604143643.5024C-100000@gatekeeper.tmr.com>
+Subject: Re: 2.4.19-pre8-ac5 ide & raid0 bugs
+Date: Wed, 5 Jun 2002 14:20:41 +0400
+Organization: Octet Corp.
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Scanner: exiscan *17FXuE-0006uH-00*q6o73JjUhlg* http://duncanthrax.net/exiscan/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jun 2002, Dave Jones wrote:
+Hi,
 
-> On Wed, Jun 05, 2002 at 10:07:15AM +0200, Zwane Mwaikambo wrote:
->  > > The forward references result in incorrect configurations when
->  > > switching config from one cpu type to another or from SMP to UP.
->  > We could move the conditional to preprocessor time by wrapping certain 
->  > bits in #ifdef (urgh), what really is the more elegant way of doing it?
-> 
-> Doing the CONFIG_X86_LOCAL_APIC definition earlier.
+No, I don't have task_file enabled.
 
-... so simple it hurts ...
+> > I wrote about ide problems with 2.4.19-pre8 a few days ago (it just
+trashed
+> > filesystem in a couple hours) & I was told to try 2.4.19-pre8-ac5 it was
+a
+> > little bit better though every 5-8 hours I've got ide errors in log (at
+> > least it didn't crash my reiserfs volumes yet):
+>
+> I see a lot of the 0x58 with taskfile enabled, are you doing that? I even
+> see it mounting an "IDE" compact flash! I ran out of time to try w/o
+> taskfile_io.
 
--- 
-http://function.linuxpower.ca
-		
 

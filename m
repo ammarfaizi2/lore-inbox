@@ -1,150 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129355AbRBAWTX>; Thu, 1 Feb 2001 17:19:23 -0500
+	id <S129529AbRBAWZW>; Thu, 1 Feb 2001 17:25:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129364AbRBAWTO>; Thu, 1 Feb 2001 17:19:14 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:64530
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129355AbRBAWTJ>; Thu, 1 Feb 2001 17:19:09 -0500
-Date: Thu, 1 Feb 2001 14:18:37 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: John Jasen <jjasen1@umbc.edu>
-cc: Michal Jaegermann <michal@ellpspace.math.ualberta.ca>,
-        linux-kernel@vger.kernel.org, axp-list@redhat.com,
-        denis@datafoundation.com
-Subject: Re: 2.4.x/alpha/ALI chipset/IDE problems summary Re: 2.4.1 not fully
- sane on Alpha - file systems
-In-Reply-To: <Pine.SGI.4.31L.02.0102011526200.71788-100000@irix2.gl.umbc.edu>
-Message-ID: <Pine.LNX.4.10.10102011415070.17898-100000@master.linux-ide.org>
+	id <S129550AbRBAWZN>; Thu, 1 Feb 2001 17:25:13 -0500
+Received: from ns1.BayNetworks.COM ([134.177.3.20]:57851 "EHLO
+	baynet.baynetworks.com") by vger.kernel.org with ESMTP
+	id <S129529AbRBAWY7>; Thu, 1 Feb 2001 17:24:59 -0500
+From: "Paul D. Smith" <pausmith@nortelnetworks.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14969.57896.331183.374489@lemming.engeast.baynetworks.com>
+Date: Thu, 1 Feb 2001 17:24:40 -0500
+To: linux-kernel@vger.kernel.org
+Subject: SO_REUSEADDR redux
+X-Mailer: VM 6.89 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+So, I have an application that works fine on Solaris, FreeBSD, etc. and
+fails on Linux.
 
-Sorry, but the ALI code was written based upon ix86 :-(
-Where were you guys during 2.3.X development?
+This application uses SO_REUSEADDR in conjunction with INADDR_ANY.  What
+it does is bind() to INADDR_ANY, then listen().  Then, it proceeds to
+bind (but _not_ listen) various other specific addresses.
 
-On Thu, 1 Feb 2001, John Jasen wrote:
+This works fine on Solaris, but the second, etc. bind fails on Linux.
 
-> 
-> The system in question is an API UP1100 based system, running 4 Maxtor
-> 40gb IDE drives off the ALI M15x3 chipset.
-> 
-> This applies to kernel 2.4.0 and 2.4.1.
-> 
-> The drives are identified as follows from hdparm:
-> 
-> Model=Maxtor 54098H8, FwRev=DAC10SC0, SerialNo=K80F1ZFC
-> 
-> Is also has an Adaptec 29160 SCSI card, running a solid state disk and an
-> AIT tape library.
-> 
-> Upon placing any heavy I/O load on any of the disks (dd if=/dev/*d*
-> of=/dev/null) the screen flashes a  few times, and then the system locks
-> hard -- no sysrq, no control-alt-del, no pings, no nothing.
-> 
-> It will also hang and lock hard on fscking corrupted filesystems under
-> 2.4.0 and 2.4.1.
-> 
-> Interestingly enough, I tried 'dd if=/dev/zero of=/tmp/dd.img bs=4096
-> count=10000' and it also locked hard, after printing messages to the
-> effect of:
-> 
-> EXT2-fs error: (device info) allocating block in system zone -- block
-> (block numbers).
-> 
-> stock RH 2.2.16-3 works peachy.
-> 
-> I've tried various options with compiling in and out the ALI chipset, PCI
-> DMA, drive DMA, and IRQ sharing, but without all four of those enabled,
-> the system freezes at identifying the IDE device partitions, like so:
-> 
->   hda: lost interrupt
-> lost interrupt
-> lost interrupt
-> 
-> I've heard one other report of similar problems on the linux-kernel
-> mailing list, and at least one other on the axp-list.
-> 
-> On Thu, 1 Feb 2001, Michal Jaegermann wrote:
-> 
-> > Date: Thu, 1 Feb 2001 09:23:42 -0700
-> > From: Michal Jaegermann <michal@ellpspace.math.ualberta.ca>
-> > To: John Jasen <jjasen@datafoundation.com>
-> > Cc: linux-kernel@vger.kernel.org
-> > Subject: Re: 2.4.1 not fully sane on Alpha - file systems
-> >
-> > On Thu, Feb 01, 2001 at 10:46:12AM -0500, John Jasen wrote:
-> > > On Wed, 31 Jan 2001, Michal Jaegermann wrote:
-> > >
-> > > > I just tried to boot 2.4.1 kernel on Alpha UP1100.  This machine
-> > > > happens to have two SCSI disks on sym53c875 controller and two IDE
-> > > > drives hooked to a builtin "Acer Laboratories Inc. [ALi] M5229 IDE".
-> > >
-> > > ALI M1535D pci-ide bridge, isn't it? That's what the specs on
-> > > API's webpage seem to indicate.
-> >
-> > 'lspci' claims that this is:
-> >
-> > "07.0  Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV]"
-> >
-> > >
-> > > Try this for fun: dd if=/dev/hda of=/dev/null bs=4096, and see if it
-> > > cronks out.
-> >
-> > Probably.
-> >
-> > > In my case, any serious I/O on the IDE drives quickly results in pretty
-> > > technicolor on the VGA screen, and then a hard lockup.
-> >
-> > No, no technicolor or other sounds effects.  The whole thing just
-> > locks up with a power switch as the only option.
-> >
-> > > Furthermore, after power-reset, 2.4.x, x=0 or 1, cannot successfully fsck
-> > > the drives.  It hangs after about the 2nd-3rd partition, again in a hard
-> > > lockup.
-> >
-> > My box is much healtier than that.  Regardless if I booted into a file
-> > system on a SCSI drive or on an IDE drive (I happen to have those
-> > options although I prefer IDE - I have there something which I can loose
-> > without any real pain :-) I can still fsck drives healthy after the
-> > crash but I did NOT risk fsck under 2.4.1.  Things looks way too screwy
-> > for this.
-> >
-> > >
-> > > My WAG is that there are problems in the ALI driver.
-> >
-> > Possibly, but I crashed the whole thing without mounting anything from
-> > IDE drives at all.  There are still there but unused.  I simply managed
-> > to get something in logs for the case described.  Note that errors
-> > I quoted are from a device 08:05, i.e. SCSI driver (/dev/sda5 to be
-> > more precise).  When my compiler went bonkers and started to read
-> > clearly some random stuff instead of sources then the whole action was
-> > happening on a SCSI drive.
-> >
-> >  Michal
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > Please read the FAQ at http://www.tux.org/lkml/
-> >
-> 
-> -- 
-> --
-> -- John E. Jasen (jjasen1@umbc.edu)
-> -- In theory, theory and practise are the same. In practise, they aren't.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+I found a thread about this from February, 1999, starting here:
 
-Andre Hedrick
-Linux ATA Development
+  http://www.uwsg.indiana.edu/hypermail/linux/kernel/9902.1/0828.html
 
+In this message, George Pajari (George.Pajari@faximum.com) says:
+
+  The original security threat that lead to SO_REUSERADDR being broken in the
+  1.3.60 kernel (incorrect semantics which I think still persist) was the
+  fact that if process A bound to port X using INADDR_ANY and SO_REUSERADDR,
+  a second process could bind to the specific IP addresses and obtain
+  connections intended for process A.
+
+  So the kernel was changed to prevent the second process from completing the
+  bind() call.
+
+Maybe I'm missing something, but it seems to me that having two binds is
+not a security problem: what's really the problem is having two
+_listens_.  As long as you're only listening on the one, I don't see how
+connections/packets could be stolen.
+
+Isn't the correct behavior to fail the second listen(), not the second
+bind()?  This, anyway, is what Solaris and FreeBSD (and maybe others)
+seem to do.
+
+This app does this because it implements peer-to-peer, fully meshed
+connections; it first sets up an INADDR_ANY and listens on it so that
+any other instance of the app can reach it, then it proceeds to try to
+bind to the other instances.  Since we have no idea which one will start
+first, or whether they'll all start together, we don't want to have a
+hole where we might miss a connection from another instance.  Thus, we
+listen first, then proceed to attempt to connect to the other
+instances.
+
+Am I missing something here WRT SO_REUSEADDR vs. INADDR_ANY behavior?
+
+Thanks.
+
+
+PS. CC'ing me is helpful, but I'll follow along either way.  Thx.
+
+-- 
+-------------------------------------------------------------------------------
+ Paul D. Smith <psmith@baynetworks.com>    HASMAT--HA Software Methods & Tools
+ "Please remain calm...I may be mad, but I am a professional." --Mad Scientist
+-------------------------------------------------------------------------------
+   These are my opinions---Nortel Networks takes no responsibility for them.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

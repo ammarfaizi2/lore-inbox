@@ -1,70 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262774AbVA1TYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262701AbVA1TzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262774AbVA1TYd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 14:24:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbVA1TU5
+	id S262701AbVA1TzA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 14:55:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbVA1Ty1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 14:20:57 -0500
-Received: from pat.uio.no ([129.240.130.16]:19141 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262776AbVA1TTe (ORCPT
+	Fri, 28 Jan 2005 14:54:27 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:18305 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262815AbVA1TmA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 14:19:34 -0500
-Subject: Re: Real-time rw-locks (Re: [patch] Real-Time Preemption,
-	-RT-2.6.10-rc2-mm3-V0.7.32-15)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Esben Nielsen <simlo@phys.au.dk>, Rui Nuno Capela <rncbc@rncbc.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       mark_h_johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
-       Lee Revell <rlrevell@joe-job.com>, Shane Shrybman <shrybman@aei.ca>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-In-Reply-To: <20050128073856.GA2186@elte.hu>
-References: <20041214113519.GA21790@elte.hu>
-	 <Pine.OSF.4.05.10412271404440.25730-100000@da410.ifa.au.dk>
-	 <20050128073856.GA2186@elte.hu>
-Content-Type: text/plain
-Date: Fri, 28 Jan 2005 11:18:30 -0800
-Message-Id: <1106939910.14321.37.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Fri, 28 Jan 2005 14:42:00 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Grant Grundler <grundler@parisc-linux.org>
+Subject: Re: Fwd: Patch to control VGA bus routing and active VGA device.
+Date: Fri, 28 Jan 2005 11:41:16 -0800
+User-Agent: KMail/1.7.2
+Cc: Jon Smirl <jonsmirl@gmail.com>, Greg KH <greg@kroah.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>, Matthew Wilcox <matthew@wil.cx>,
+       linux-pci@atrey.karlin.mff.cuni.cz, lkml <linux-kernel@vger.kernel.org>
+References: <9e47339105011719436a9e5038@mail.gmail.com> <200501281041.42016.jbarnes@sgi.com> <20050128193320.GB32135@colo.lackof.org>
+In-Reply-To: <20050128193320.GB32135@colo.lackof.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12,
-	autolearn=disabled)
+Content-Disposition: inline
+Message-Id: <200501281141.16450.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fr den 28.01.2005 Klokka 08:38 (+0100) skreiv Ingo Molnar:
+On Friday, January 28, 2005 11:33 am, Grant Grundler wrote:
+> > But
+> > if you mean being able to access legacy ports at all, then no.  On SGI
+> > machines, there's a per-bus base address that can be used as the base for
+> > port I/O, which is what I was getting at.
+>
+> Ok - my point was "0x3fc" will get routed to exactly one of those
+> IO port address spaces.
 
-> no, it's not a big scalability problem. rwlocks are really a mistake -
-> if you want scalability and spinlocks/semaphores are not enough then one
-> should either use per-CPU locks or lockless structures. rwlocks/rwsems
-> will very unlikely help much.
+Agreed, or it will cause a machine check if legacy I/O remapping isn't 
+supported (like on SGI).
 
-If you do have a highest interrupt case that causes all activity to
-block, then rwsems may indeed fit the bill.
+> > There is no resource for some of the I/O port space that cards respond
+> > to.
+>
+> Yes - I've heard several graphics cards are horrible broken WRT address
+> decoding.  Are PCI quirks supposed to handle that sort of thing?
 
-In the NFS client code we may use rwsems in order to protect stateful
-operations against the (very infrequently used) server reboot recovery
-code. The point is that when the server reboots, the server forces us to
-block *all* requests that involve adding new state (e.g. opening an
-NFSv4 file, or setting up a lock) while our client and others are
-re-establishing their existing state on the server.
+I'm not sure if broken is the right work.  All this stuff predates PCI by 
+quite a bit, so certain device classes claimed certain port ranges way before 
+cards were required to have programmable address decoders.  VGA cards are 
+probably the most tenacious example of this, they respond to certain well 
+known ports after reset, regardless of BAR values.
 
-IOW: If you are planning on converting rwsems into a semaphore, you will
-screw us over most royally, by converting the currently highly
-infrequent scenario of a single task being able to access the server
-into the common case.
+> > I can set the I/O BAR of my VGA card to 0x400 and it'll still respond to
+> > accesses at 0x3bc for example.  That's what I mean by legacy space--space
+> > that cards respond to but don't report in their PCI resources.
+>
+> Can't PCI quirks fix up the resources to reflect this?
 
-Cheers,
-  Trond
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+Not sure, the I/O BAR may correspond to real registers too--and they may not 
+overlap with the ones in the well known space.
 
+> I think one needs to fix up PCI IO Port resources to adjust
+> for "The One" legacy IO port space getting routed to a different
+> PCI segment - assuming no one submits a patch to change current
+> behavior of using hard coded addresses.
+
+I think we might just need a new resource for these well known ports, if my 
+last statement is true.
+
+> Am I making more sense now?
+
+Yeah, I think I understand.  We could probably do the same thing on sn2 as you 
+do on parisc--add a 'segment 0' offset to the port so that it's routed 
+correctly.  I think that's a little less flexible than adding a new resource 
+though, since it makes it harder for drivers to support more than one device 
+or devices on non-segment 0 busses.
+
+Jesse

@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266454AbUBLO3w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 09:29:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266457AbUBLO3w
+	id S266435AbUBLOkc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 09:40:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266445AbUBLOkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 09:29:52 -0500
-Received: from gw-nl6.philips.com ([161.85.127.52]:44518 "EHLO
-	gw-nl6.philips.com") by vger.kernel.org with ESMTP id S266454AbUBLO3v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 09:29:51 -0500
-Message-ID: <402B8E8E.1010607@basmevissen.nl>
-Date: Thu, 12 Feb 2004 15:32:46 +0100
-From: Bas Mevissen <ml@basmevissen.nl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Thu, 12 Feb 2004 09:40:32 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:33731 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S266435AbUBLOkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 09:40:31 -0500
+Date: Thu, 12 Feb 2004 09:40:09 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.3-rc2-mm1
+In-Reply-To: <20040212040910.3de346d4.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0402120937460.32441@montezuma.fsmlabs.com>
+References: <20040212015710.3b0dee67.akpm@osdl.org> <20040212031322.742b29e7.akpm@osdl.org>
+ <20040212115718.GF25922@krispykreme> <20040212040910.3de346d4.akpm@osdl.org>
 MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Kyle <kyle@southa.com>, linux-kernel@vger.kernel.org
-Subject: Re: ICH5 with 2.6.1 very slow
-References: <164601c3ec06$be8bd5a0$b8560a3d@kyle> <40227C20.80404@basmevissen.nl> <167301c3ec0d$4d8508c0$b8560a3d@kyle> <40227D9D.2070704@basmevissen.nl> <168301c3ec0e$24698be0$b8560a3d@kyle> <4023682E.3060809@basmevissen.nl> <001101c3ecf8$b0f50cc0$b8560a3d@kyle> <40274581.4030002@basmevissen.nl> <004501c3f0ae$ecdd2ec0$b8560a3d@kyle> <20040212084110.GB20898@mail.shareable.org>
-In-Reply-To: <20040212084110.GB20898@mail.shareable.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
+On Thu, 12 Feb 2004, Andrew Morton wrote:
+
+> Anton Blanchard <anton@samba.org> wrote:
+> >
+> >
+> > > This kernel and also 2.6.3-rc1-mm1 have a nasty bug which causes
+> > > current->preempt_count to be decremented by one on each hard IRQ.  It
+> > > manifests as a BUG() in the slab code early in boot.
+> > >
+> > > Disabling CONFIG_DEBUG_SPINLOCK_SLEEP will fix this up.  Do not use this
+> > > feature on ia32, for it is bust.
+> >
+> > A few questions spring to mind. Like who wrote that dodgy patch?
 >
-> Have a look at the thread called "[RFC] IDE 80-core cable detect -
-> chipset-specific code to over-ride eighty_ninty_three()".
-> 
-> It specifically deals with ICH5 and is probably the same problem as
-> you're seeing.
-> 
+> The dog wrote my homework?
 
-Ive already pointed Kyle to that thread. But the udma settings seem to 
-be OK.
+I've not managed to trigger this one
 
-So my guess now is that this is not just an issue with the driver only.
+CONFIG_DEBUG_KERNEL=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+# CONFIG_DEBUG_SLAB is not set
+CONFIG_DEBUG_IOVIRT=y
+CONFIG_DEBUG_SPINLOCK=y
+CONFIG_DEBUG_PAGEALLOC=y
+CONFIG_DEBUG_HIGHMEM=y
+CONFIG_DEBUG_INFO=y
+CONFIG_DEBUG_SPINLOCK_SLEEP=y
 
-Regards,
-
-Bas.
-
+> > And any ideas how said person (who will remain nameless) broke ia32?
+>
+> Not really.  I spent a couple of hours debugging the darn thing, then gave
+> up and used binary search to find the offending patch.
+>
+> <looks>
+>
+> include/asm-i386/hardirq.h:IRQ_EXIT_OFFSET needs treatment, I bet.

@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263752AbTFKUhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 16:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbTFKUgv
+	id S264463AbTFKUjX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 16:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264444AbTFKUhR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 16:36:51 -0400
-Received: from 66-122-194-202.ded.pacbell.net ([66.122.194.202]:51376 "HELO
-	mail.keyresearch.com") by vger.kernel.org with SMTP id S264454AbTFKU0v
+	Wed, 11 Jun 2003 16:37:17 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:19331 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264533AbTFKUgi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 16:26:51 -0400
-Subject: Re: Build problems with Linux 2.5
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: Jay Denebeim <denebeim@deepthot.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0306101427260.13724-100000@dent.deepthot.org>
-References: <Pine.LNX.4.44.0306101427260.13724-100000@dent.deepthot.org>
+	Wed, 11 Jun 2003 16:36:38 -0400
+Subject: Re: [PATCH] New x86_64 time code for 2.5.70
+From: john stultz <johnstul@us.ibm.com>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: Andi Kleen <ak@suse.de>, vojtech@suse.cz, discuss@x86-64.org,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1055357432.17154.77.camel@serpentine.internal.keyresearch.com>
+References: <1055357432.17154.77.camel@serpentine.internal.keyresearch.com>
 Content-Type: text/plain
-Message-Id: <1055364034.17154.93.camel@serpentine.internal.keyresearch.com>
+Organization: 
+Message-Id: <1055364287.18643.59.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 11 Jun 2003 13:40:34 -0700
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 11 Jun 2003 13:44:47 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-06-11 at 13:26, Jay Denebeim wrote:
+On Wed, 2003-06-11 at 11:50, Bryan O'Sullivan wrote:
+> I've forward-ported Vojtech's time code from 2.4, fixing some locking
+> along the way.  The new code supports using the AMD8111 HPET for time
+> calculations.  It also works stably with the PIT/TSC on every boot,
+> which is the source of the time problems in current 2.5.
 
->   The problem I'm having seems to be related to modutils.
+Oh drat, you beat me to it! I've been working on the very same thing.
+This is very much needed, so thanks for doing this.
 
-You need to use module-init-tools.
+> Right now, the only known problem is with the fixup of jiffies if a
+> timer interrupt is lost, which I've hence turned off.  There's
+> preliminary support for using HPET for the gettimeofday vsyscall, but
+> since vsyscalls are disabled on x86-64 for now, that's obviously
+> untested.
 
-http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+I'll start testing your patch and I'll see if I can't fixup the lost
+tick compensation.
 
-Read the docs before you build and install it, so that it continues to
-work with modutils.
-
-	<b
+thanks!
+-john
 

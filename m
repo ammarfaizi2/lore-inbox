@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316258AbSFETud>; Wed, 5 Jun 2002 15:50:33 -0400
+	id <S316161AbSFET72>; Wed, 5 Jun 2002 15:59:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316243AbSFETuc>; Wed, 5 Jun 2002 15:50:32 -0400
-Received: from sn13-1-85-251.nap.wideopenwest.com ([64.233.251.85]:6916 "EHLO
-	smtp.linuxnirvana.com") by vger.kernel.org with ESMTP
-	id <S316217AbSFETua>; Wed, 5 Jun 2002 15:50:30 -0400
-Date: Wed, 5 Jun 2002 13:13:22 -0500 (CDT)
-From: Wayne Willson <wwillson@linuxnirvana.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux based VOIP PBX?
-In-Reply-To: <200206051927.g55JRQT10007@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0206051309250.1129-100000@smtp.linuxnirvana.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316167AbSFET71>; Wed, 5 Jun 2002 15:59:27 -0400
+Received: from ns.suse.de ([213.95.15.193]:29711 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316161AbSFET71>;
+	Wed, 5 Jun 2002 15:59:27 -0400
+Date: Wed, 5 Jun 2002 21:59:27 +0200
+From: Dave Jones <davej@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Russell King <rmk@arm.linux.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Allow mpage.c to build
+Message-ID: <20020605215927.I16262@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Andrew Morton <akpm@zip.com.au>, Russell King <rmk@arm.linux.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020605160547.C10293@flint.arm.linux.org.uk> <3CFE6B31.39EC2719@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 05, 2002 at 12:49:05PM -0700, Andrew Morton wrote:
 
-Larry,
+ > /usr/src/25/include/linux/bio.h
+ >  /usr/src/25/include/asm/io.h
+ >   /usr/src/25/include/linux/vmalloc.h
+ >    /usr/src/25/include/linux/mm.h
+                                ^^^^^
+This bugger should be high on the list of include files that need
+feeding through the include-chopper-upper.
 
-Give this site a look.  This is a real VOIP PBX (it scales about as large 
-as you would ever need).  It may be slight overkill as it was made for the 
-carrier-class market.
+ >     /usr/src/25/include/linux/swap.h
+ >      /usr/src/25/include/linux/kdev_t.h
+ > Lovely, isn't it?
 
-http://www.vovida.org/
+Wouldn't be so bad if it were an isolated case..
+Hopefully by the time we get to 2.6, a lot of this
+'include by implication' nonsense can be cleaned up some more.
 
-Wayne
+        Dave.
 
-
-On Wed, 5 Jun 2002, Larry McVoy wrote:
-
-> Hi, sorry for the somewhat off topic question, but I'd love to know if there
-> are any production quality Linux based voice over IP products out there.
-> We currently use a 3com NBX and it sort of sucks.  It works fine on a
-> LAN, it sucks on a WAN.  I'm open to replacing it, but if I did, I'd want
-> to go with a Linux based system, for lots of reasons.  If you know of such
-> a product, or are working on one, please contact me.  I don't want a free
-> product, I want to pay for it and I want it to work.  100% of the time.
-> And we need the voicemail/conferencing/menutree stuf that you get with 
-> a real product.
-> 
-> We have $15K into the 3com, so that gives you some idea of our willingness
-> to spend money.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280016AbRKJIQf>; Sat, 10 Nov 2001 03:16:35 -0500
+	id <S280556AbRKJIgk>; Sat, 10 Nov 2001 03:36:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280508AbRKJIQ0>; Sat, 10 Nov 2001 03:16:26 -0500
-Received: from mailout5-1.nyroc.rr.com ([24.92.226.169]:62817 "EHLO
-	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S280016AbRKJIQS>; Sat, 10 Nov 2001 03:16:18 -0500
-Message-ID: <01bf01c169be$34305510$1a01a8c0@allyourbase>
-From: "Dan Maas" <dmaas@dcine.com>
-To: "Ben Israel" <ben@genesis-one.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <fa.jmrptbv.1dh8ur1@ifi.uio.no>
-Subject: Re: Disk Performance
-Date: Sat, 10 Nov 2001 03:03:37 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S280571AbRKJIga>; Sat, 10 Nov 2001 03:36:30 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:25353 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S280556AbRKJIgM>;
+	Sat, 10 Nov 2001 03:36:12 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Announce: XFS split patches for 2.4.7 to 2.4.14
+Date: Sat, 10 Nov 2001 19:35:59 +1100
+Message-ID: <14840.1005381359@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Why does my 40 Megabyte per second IDE drive, transfer
-> files at best at 1-2 Megabytes per second?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Keep in mind that some disk benchmarks just read/write long contiguous
-regions of the disk, whereas the files you are copying may be fragmented.
-So, while your drive may be able to sustain 40 MB/sec on a contiguous
-region, it might slow down a lot if it has to seek to different parts of a
-fragmented file, or between many files.
+Content-Type: text/plain; charset=us-ascii
 
-Actually while I'm on this subject - does anyone have experience with
-"preallocating" files for low-latency transfers? e.g. if I know I'm going to
-capture several GB of video to disk, will it reduce I/O latency if I
-truncate the destination file to the proper size and fill it with zeros
-beforehand? (I assume it helps for the fs to be as empty as possible) Are
-any filesystems particularly good/bad for cases like this?
+ftp://oss.sgi.com/projects/xfs/download/patches/ 2.4.7 through 2.4.14.
 
-Regards,
-Dan
+For some time the XFS group have been producing split patches for XFS,
+separating the core XFS changes from additional patches such as kdb,
+lvm, acl, kbuild 2.5.  These patches were initially intended for
+internal use and for feeding to Linus but we got no response at all.
+The split patches are now being released to the world with the hope
+that developers and distributors will find them useful.
+
+Read the README in each directory very carefully, the split patch
+format has changed over a few kernel releases.  Any questions that are
+covered by the README will be ignored.  There is even a 2.4.15/README
+for the terminally impatient :).
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE77Obsi4UHNye0ZOoRAnQ1AKD2cXKpRc0o+On2nxyNKnSipTdtBQCg5WFK
+3qte7lgdeHESWh50njfLC/s=
+=uxZg
+-----END PGP SIGNATURE-----
 

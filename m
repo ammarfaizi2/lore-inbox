@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262917AbUDLO0j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 10:26:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262924AbUDLOVN
+	id S262936AbUDLOdA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 10:33:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbUDLOc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 10:21:13 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:23270 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262927AbUDLOT0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 10:19:26 -0400
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Device-Mapper 8/9
-Date: Mon, 12 Apr 2004 09:19:15 -0500
-User-Agent: KMail/1.6
-References: <200404120912.45870.kevcorry@us.ibm.com>
-In-Reply-To: <200404120912.45870.kevcorry@us.ibm.com>
+	Mon, 12 Apr 2004 10:32:59 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:59090 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262981AbUDLOcN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 10:32:13 -0400
+Message-ID: <407AA848.2000008@nortelnetworks.com>
+Date: Mon, 12 Apr 2004 10:31:36 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: want to clarify powerpc assembly conventions in head.S	and	entry.S
+References: <4077A542.8030108@nortelnetworks.com>	 <1081591559.25144.174.camel@gaston>  <4078D42C.1020608@nortelnetworks.com> <1081661150.1380.183.camel@gaston>
+In-Reply-To: <1081661150.1380.183.camel@gaston>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404120919.15378.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dm-ioctl.c::retrieve_status(): Prevent overrunning the ioctl buffer by making
-sure we don't call the target status routine with a buffer size limit of zero.
-[Kevin Corry, Alasdair Kergon]
+Benjamin Herrenschmidt wrote:
+>>You knew this was coming...  What's special about syscalls?  There's the 
+>>r3 thing, but other than that...
+> 
+> The whole codepath is a bit different, there's the syscall trace,
+> we can avoid saving much more registers are syscalls are function
+> calls and so can clobber the non volatiles, etc...
 
---- diff/drivers/md/dm-ioctl.c	2004-04-09 09:42:29.000000000 -0500
-+++ source/drivers/md/dm-ioctl.c	2004-04-09 09:42:44.000000000 -0500
-@@ -800,7 +800,7 @@
- 		struct dm_target *ti = dm_table_get_target(table, i);
- 
- 		remaining = len - (outptr - outbuf);
--		if (remaining < sizeof(struct dm_target_spec)) {
-+		if (remaining <= sizeof(struct dm_target_spec)) {
- 			param->flags |= DM_BUFFER_FULL_FLAG;
- 			break;
- 		}
-@@ -815,6 +815,10 @@
- 
- 		outptr += sizeof(struct dm_target_spec);
- 		remaining = len - (outptr - outbuf);
-+		if (remaining <= 0) {
-+			param->flags |= DM_BUFFER_FULL_FLAG;
-+			break;
-+		}
- 
- 		/* Get the status/table string from the target driver */
- 		if (ti->type->status) {
+It appears that we always enter the kernel via "transfer_to_handler", 
+and return via "ret_from_except".  Is this true? (I'm running on at 
+least a 74xx chip.)
+
+I want to insert two new bits of code, one that gets called before the 
+exception handler when we drop from userspace to kernelspace, and one as 
+late as possible before going back to userspace.  I need to catch 
+syscalls, interrupts, exceptions, everything.
+
+The entry one I planned on putting in "transfer_to_handler", just before 
+"addi   r11,r1,STACK_FRAME_OVERHEAD".
+
+I was planning on putting the exit one just after the "restore_user" 
+label.  Will this catch all possible returns to userspace?
+
+Thanks,
+
+Chris

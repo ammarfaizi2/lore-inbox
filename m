@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268862AbRG0OYg>; Fri, 27 Jul 2001 10:24:36 -0400
+	id <S268861AbRG0O10>; Fri, 27 Jul 2001 10:27:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268864AbRG0OY0>; Fri, 27 Jul 2001 10:24:26 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:4875 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S268862AbRG0OYH>; Fri, 27 Jul 2001 10:24:07 -0400
-Message-ID: <3B61794C.D407B69E@namesys.com>
-Date: Fri, 27 Jul 2001 18:23:08 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
+	id <S268863AbRG0O1Q>; Fri, 27 Jul 2001 10:27:16 -0400
+Received: from jaws.cisco.com ([198.135.0.150]:44439 "EHLO cisco.com")
+	by vger.kernel.org with ESMTP id <S268861AbRG0O1L>;
+	Fri, 27 Jul 2001 10:27:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nick Brown <nicbrown@cisco.com>
+Reply-To: nicbrown@cisco.com
+Organization: Cisco Systems Ltd.
+To: linux-kernel@vger.kernel.org
+Subject: problem configuring for a mips platform
+Date: Fri, 27 Jul 2001 15:23:53 +0000
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: bvermeul@devel.blackstar.nl, Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>,
-        Steve Kieu <haiquy@yahoo.com>,
-        Sam Thompson <samuelt@cervantes.dabney.caltech.edu>,
-        kernel <linux-kernel@vger.kernel.org>, ramon@namesys.com
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <E15Q7eW-0005cP-00@the-village.bc.nu>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Message-Id: <01072715235305.12313@edin-ios-26.cisco.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Alan Cox wrote:
-> 
-> > > and when that hangs the kernel it will also screw up all files touched
-> > > just before it in a edit-make-install-try cycle. Which can be rather
-> > > annoying, because you can start all over again (this effect randomly
-> > > distributes the last touched sectors to the last touched files. Very nice
-> > > effect, but not something I expect from a journalled filesystem).
-> > >
-> > Do you think it is reasonable to ask that a filesystem be designed to
-> > work well with bad drivers?
-> 
-> Its certainly a good idea. 
-I think it is a terrible idea.... at least as a general expectation to meet, there may be specifics
-where things can be done though.... like journaling....
+While trying to configure the 2.4.7 kernel for cross compilation to a new 
+mips platform I get the following errors;
 
-> But it sounds to me like he is describing the
-> normal effect of metadata only logging.
+> ls
+COPYING         MAINTAINERS  REPORTING-BUGS  drivers/  init/    lib/  scripts/
+CREDITS         Makefile     Rules.make      fs/       ipc/     mm/
+Documentation/  README       arch/           include/  kernel/  net/
+> make ARCH=mips xconfig
+rm -f include/asm
+( cd include ; ln -sf asm-mips asm)
+make -C scripts kconfig.tk
+make[1]: Entering directory `/home/nicbrown/cross/linux/scripts'
+gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkparse.o 
+tkparse.cgcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o 
+tkcond.o tkcond.c
+gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkgen.o tkgen.c
+gcc -o tkparse tkparse.o tkcond.o tkgen.o
+cat header.tk >> ./kconfig.tk
+./tkparse < ../arch/mips/config.in >> kconfig.tk
+-: 364: unable to open drivers/message/i2o/Config.in
+make[1]: *** [kconfig.tk] Error 1
+make[1]: Leaving directory `/home/nicbrown/cross/linux/scripts'
+make: *** [xconfig] Error 2
+>
 
-Ah, right you are.  Now I understand him.  Well, data-journaling that doesn't cost a whole lot of
-performance awaits reiser4, and reiser4 is at least a year away, we are doing seminars and
-pseudo-coding now.
+Is this a bug, or am I missing something. This is in a freshly un tarred 
+source directory. Do I need to edit anything or add more to the make command?
 
-> 
-> Putting a sync just before the insmod when developing new drivers is a good
-> idea btw
+Cheers,
+Nick
 
-This makes a lot of sense to me.  Good suggestion.  It should go into our FAQ.  Dad, please put it
-there.
-
-Q: I like to dynamically load buggy drivers into the kernel because that is what kernel developers
-like me do for fun, how can I better avoid data corruption when doing this and using ReiserFS?
-
-A: Do sync before insmod.  (Alan Cox's good suggestion.)
+-- 
+If you don't let go, you can't fall off!
+	-- Jerry Moffat

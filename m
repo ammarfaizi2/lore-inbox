@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318202AbSHZSs6>; Mon, 26 Aug 2002 14:48:58 -0400
+	id <S318224AbSHZSzQ>; Mon, 26 Aug 2002 14:55:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318205AbSHZSs6>; Mon, 26 Aug 2002 14:48:58 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:18697 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318202AbSHZSs5>;
-	Mon, 26 Aug 2002 14:48:57 -0400
-Date: Mon, 26 Aug 2002 11:52:58 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net,
-       Linux-usb-users@lists.sourceforge.net
-Subject: Re: [ANNOUNCE] 2002-08-26 release of hotplug scripts
-Message-ID: <20020826185258.GA18785@kroah.com>
-References: <20020826180730.GA18536@kroah.com>
+	id <S318225AbSHZSzQ>; Mon, 26 Aug 2002 14:55:16 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:18884 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S318224AbSHZSzO>;
+	Mon, 26 Aug 2002 14:55:14 -0400
+Date: Mon, 26 Aug 2002 11:59:30 -0700
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG/PATCH] : bug in tty_default_put_char()
+Message-ID: <20020826185930.GA8749@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20020826180749.GA8630@bougret.hpl.hp.com> <1030388224.2797.2.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020826180730.GA18536@kroah.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <1030388224.2797.2.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 26, 2002 at 07:57:04PM +0100, Alan Cox wrote:
+> On Mon, 2002-08-26 at 19:07, Jean Tourrilhes wrote:
+> > 	Hi,
+> > 
+> > 	Bug : tty_default_put_char() doesn't check the return value of
+> > tty->driver.write(). However, the later may fail if buffers are full.
+> > 
+> > 	Solution : It's not obvious what should be done. The attached
+> > patch is certainly wrong, but gives you an idea of what the problem
+> > is.
+> 
+> Make it an int and return the tty->driver.write value. We know that
+> since its void nobody is currently checking the error code, and now they
+> can where it matters
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+	Just check drivers/char/n_tty.c for every occurence of
+put_char() and be scared. The problem is to find a practical solution.
+	For myself, I've added some clever workaround in IrCOMM to
+accept data before full setup.
 
-On Mon, Aug 26, 2002 at 11:07:30AM -0700, Greg KH wrote:
->=20
-> Or from your favorite kernel.org mirror at:
-> 	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2002_08-26.tar.gz
+	Regards,
 
-Oops, that should be:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2002_08_26.tar.gz
-
-> I've also packaged up a Red Hat 7.3 based rpm:
-> 	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2002_08-26-1.noarch.rpm
-
-and:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2002_08_26-1.noarch.rpm
-
-Thanks to Stephen Gowdy for pointing this out to me.
-
-greg k-h
-
---dDRMvlgZJXvWKvBx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9ankJMUfUDdst+ykRAgiHAKChDyTQnzukojFuwpMItN4XuT3A9QCfc7xD
-U/LsNWxk55rSDWqpCCsLFW8=
-=oCEY
------END PGP SIGNATURE-----
-
---dDRMvlgZJXvWKvBx--
+	Jean

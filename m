@@ -1,80 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316577AbSGQSZW>; Wed, 17 Jul 2002 14:25:22 -0400
+	id <S316598AbSGQSoW>; Wed, 17 Jul 2002 14:44:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316512AbSGQSYO>; Wed, 17 Jul 2002 14:24:14 -0400
-Received: from egil.codesourcery.com ([66.92.14.122]:61063 "EHLO
-	egil.codesourcery.com") by vger.kernel.org with ESMTP
-	id <S316465AbSGQSYE>; Wed, 17 Jul 2002 14:24:04 -0400
-Date: Wed, 17 Jul 2002 11:24:56 -0700
-From: Zack Weinberg <zack@codesourcery.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: close return value (was Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks)
-Message-ID: <20020717182456.GC8656@codesourcery.com>
-References: <20020716232225.GH358@codesourcery.com> <1026867782.1688.108.camel@irongate.swansea.linux.org.uk> <20020717001032.GI358@codesourcery.com> <1026870340.2119.122.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1026870340.2119.122.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+	id <S316599AbSGQSoW>; Wed, 17 Jul 2002 14:44:22 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:61191 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316598AbSGQSoW>; Wed, 17 Jul 2002 14:44:22 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Date: 17 Jul 2002 18:41:59 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <ah4dpn$2tj$1@gatekeeper.tmr.com>
+References: <1026490866.5316.41.camel@thud> <20020715160357.GD442@clusterfs.com> <E17U9x9-0001Dc-00@hofmann> <20020715211448.GI442@clusterfs.com>
+X-Trace: gatekeeper.tmr.com 1026931319 2995 192.168.12.62 (17 Jul 2002 18:41:59 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 17, 2002 at 02:45:40AM +0100, Alan Cox wrote:
-> On Wed, 2002-07-17 at 01:10, Zack Weinberg wrote:
-> > My first point is that a portable application cannot rely on close to
-> > detect any error.  Only fsync guarantees to detect any errors at all
-> > (except ENOSPC/EDQUOT, which should come back on write; yes, I know
-> > about the buggy NFS implementations that report them only on close).
-> 
-> They are not buggy merely inconvenient. The reality of the NFS protocol
-> makes it the only viable way to do it
+In article <20020715211448.GI442@clusterfs.com>,
+Andreas Dilger  <adilger@clusterfs.com> wrote:
 
-You are referring to the way NFSv2 lacks any way to request space
-allocation on the server without also flushing data to disk?  It was
-my understanding that NFSv2 clients that did not accept the
-performance hit and do all writes synchronously were considered
-broken.  (since, for instance, POSIX write-visibility guarantees are
-violated if writes are delayed on the client.)
+| Well, the dump can only be inconsistent for files that are being changed
+| during the dump itself.  As for hanging the system, that would be a bug
+| regardless of whether it was dump or "dd" reading from the block device.
+| A bug related to this was fixed, probably in 2.4.19-preX somewhere.
 
-In v3 or v4, the WRITE/COMMIT separation lets the implementor generate
-prompt ENOSPC and EDQUOT errors without performance penalty.
+Any dump on a live f/s would seem to have the problem that files are
+changing as they are read and may not be consistant. I suppose there
+could be some kind of "fsync and journal lock" on a file, allowing all
+writes to a file to be journaled while the file is backed up. However,
+such things don't scale well for big files with lots of writes, and the
+file, while unchanging, may not be valid.
 
-Another thing to keep in mind is that an application is often in a
-much better position to recover from an error, particularly a
-disk-full error, if it's reported on write rather than on close.
-That's just a quality-of-implementation question, though.
+Backups of running files are best done by the application, like Oracle
+as a for-instance. Neither the o/s nor the backup can be sure when/if
+the data is in a valid state.
 
-> > > If it bothers you close it again 8)
-> > 
-> > And watch it come back with an error again, repeat ad infinitum?
-> 
-> The use of intelligence doesn't help. Come on I know you aren't a cobol
-> programmer. Check for -EBADF ...
+Tar has this problem, although not the same issues with data on the fly
+in buffers.
 
-I wasn't talking about EBADF.  How does the application know the
-kernel will ever succeed in closing the file?
 
-> Disagree. It says
-> 
-> It is quite possible that errors on a  previous  write(2)  operation 
-> are first  reported  at  the  final  close
-> 
-> Not checking the return value when closing the file may lead to silent
-> loss of  data.
-> 
->        A successful close does not guarantee that  the  data  has
->        been  successfully  saved  to  disk,  as the kernel defers
->        writes. It is not common for a  filesystem  to  flush  the
->        buffers  when the stream is closed. If you need to be sure
->        that the data is physically stored use fsync(2).  (It will
->        depend on the disk hardware at this point.)
-> 
-> None of which guarantee what you say, and which agree about the use of
-> fsync being appropriate now and then
-
-That is not the text quoted upthread.  Looks like the manpage did get
-fixed, although I think the current wording is still suboptimal.
-
-zw
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

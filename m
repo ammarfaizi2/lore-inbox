@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266638AbSKLR2p>; Tue, 12 Nov 2002 12:28:45 -0500
+	id <S266676AbSKLRhj>; Tue, 12 Nov 2002 12:37:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266643AbSKLR2p>; Tue, 12 Nov 2002 12:28:45 -0500
-Received: from [198.149.18.6] ([198.149.18.6]:44771 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S266638AbSKLR2o>;
-	Tue, 12 Nov 2002 12:28:44 -0500
-Subject: Re: 2.5-bk AT_GID clash
-From: Steve Lord <lord@sgi.com>
+	id <S266677AbSKLRhi>; Tue, 12 Nov 2002 12:37:38 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:41383 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266655AbSKLRg5>; Tue, 12 Nov 2002 12:36:57 -0500
+Subject: Re: Users locking memory using futexes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Anders Gustafsson <andersg@0x63.nu>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021112172423.91C0C2C2DA@lists.samba.org>
-References: <20021112172423.91C0C2C2DA@lists.samba.org>
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       "'Mark Mielke'" <mark@mark.mielke.cc>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021112172423.6E0322C27F@lists.samba.org>
+References: <20021112172423.6E0322C27F@lists.samba.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1037122398.27014.43.camel@jen.americas.sgi.com>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 12 Nov 2002 18:06:24 +0000
+Message-Id: <1037124384.8321.70.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 12 Nov 2002 11:33:18 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-12 at 11:16, Rusty Russell wrote:
-> In message <20021112011858.GB19877@gagarin> you write:
-> > Hi,
+On Tue, 2002-11-12 at 17:17, Rusty Russell wrote:
+> > Ouch!  It looks to me like userspace can use FUTEX_FD to lock many
+> > pages of memory, achieving the same as mlock() but without the
+> > resource checks.
 > > 
-> > the new module-api making module.h including elf.h have exposed a name clash
-> > in xfs:
-> > 
-> > include/linux/elf.h:175:#define AT_GID    13    /* real gid */
-> > fs/xfs/linux/xfs_vnode.h:547:#define AT_GID             0x00000008
-> > 
-> > Can one be renamed? 
+> > Denial of service attack?
 > 
-> Probably should be.  I don't use AT_GID from memory, maybe somewhere
-> else in the kernel is.
-> 
-> > Maybe module.h shouldn't be including elf.h, that afaik is needed by the
-> > arch-specific module loaders and not by all modules. A split into
-> > module.h for the modules and moduleloader.h for the arch-spec-loaders?
-> 
-> This might be OK too, but in practice I don't think much will be in
-> moduleloader.h: asm/module.h only really defines struct
-> mod_arch_specific, which is embedded in struct module, and struct
-> module needs to be exposed for those inlines...
+> See "pipe".
 
+Thats not an excuse. If the futex stuff allows arbitary memory locking
+and it isnt properly accounted then its a bug, with the added problem
+that its easier to have nasty accidents with than pipes.
 
-But does everyone who wants to implement a module need to be exposed
-to all the details of the elf header?
+We have a per user object nowdays so accounting per user locked memory
+looks rather doable both for mlock, pipe, af_unix socket and for other
+things
 
-Steve
-
--- 
-
-Steve Lord                                      voice: +1-651-683-3511
-Principal Engineer, Filesystem Software         email: lord@sgi.com

@@ -1,42 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130507AbRCINpf>; Fri, 9 Mar 2001 08:45:35 -0500
+	id <S130509AbRCIN5q>; Fri, 9 Mar 2001 08:57:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130512AbRCINpZ>; Fri, 9 Mar 2001 08:45:25 -0500
-Received: from smtp.primusdsl.net ([209.225.164.93]:9740 "EHLO
-	mailhost.digitalselect.net") by vger.kernel.org with ESMTP
-	id <S130507AbRCINpO>; Fri, 9 Mar 2001 08:45:14 -0500
-Date: Fri, 9 Mar 2001 08:46:17 -0500
-From: James Lewis Nance <jlnance@intrex.net>
-To: Manoj Sontakke <manojs@sasken.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: quicksort for linked list
-Message-ID: <20010309084617.B1079@bessie.dyndns.org>
-In-Reply-To: <3AA88891.294C17A0@sasken.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3AA88891.294C17A0@sasken.com>; from manojs@sasken.com on Fri, Mar 09, 2001 at 01:08:57PM +0530
+	id <S130510AbRCIN5Z>; Fri, 9 Mar 2001 08:57:25 -0500
+Received: from pop3.web.de ([212.227.116.81]:40715 "HELO smtp.web.de")
+	by vger.kernel.org with SMTP id <S130509AbRCIN5X>;
+	Fri, 9 Mar 2001 08:57:23 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Tino Keitel <tino.keitel@web.de>
+Organization: German National Research Center for Information Technology
+To: linux-kernel@vger.kernel.org
+Subject: Re: crashes if accassing FAT MO
+Date: Fri, 9 Mar 2001 14:55:53 +0100
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <3AA7B66D.B32E0FF2@darmstadt.gmd.de>
+In-Reply-To: <3AA7B66D.B32E0FF2@darmstadt.gmd.de>
+MIME-Version: 1.0
+Message-Id: <01030914555300.07686@schinkenbrett.home.de>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 09, 2001 at 01:08:57PM +0530, Manoj Sontakke wrote:
-> Hi
-> 	Sorry, these questions do not belog here but i could not find any
-> better place.
-> 
-> 1. Is quicksort on doubly linked list is implemented anywhere? I need it
-> for sk_buff queues.
+On Thursday,  8. March 2001 17:42, Tino Keitel wrote:
+> Hi folks,
+>
+> I use kernel 2.4.2. If I try to access files on a 640 MB MO (2048 bytes
+> hardware sector size) and the MO is using FAT fs I only got messages
+> like these:
+>
+> Unable to handle kernel NULL pointer dereference at virtual address
+> 00000000
+>  printing eip:
+> 00000000
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[<00000000>]
+> EFLAGS: 00010286
+> eax: 00000000   ebx: c798d740   ecx: 00000003   edx: c798d740
+> esi: ffffffea   edi: 00000000   ebp: 00004000   esp: c576bf88
+> ds: 0018   es: 0018   ss: 0018
+> Process cat (pid: 458, stackpage=c576b000)
+> Stack: cc993428 c798d740 0804b220 00004000 c798d760 c012d465 c798d740
+> 0804b220
+>        00004000 c798d760 c576a000 00004000 0804b220 bffff994 c0108d43
+> 00000003
+>        0804b220 00004000 00004000 0804b220 bffff994 00000003 0000002b
+> 0000002b
+> Call Trace: [<cc993428>] [<c012d465>] [<c0108d43>]
+>
+> Code:  Bad EIP value.
+> Segmentation fault
+>
+> There are no problems if I use ext2fs, exept that I can't use them for
+> data exchange with Windows. It also works with 2.2 kernels but the MO
+> drive will be much slower.
+>
+> Tino
 
-I would suggest that you use merge sort.  It is ideally suited for sorting
-linked lists, and it always has N log N running time.  I dont know of an
-existing implementation in the kernel sources, but it should be easy to
-write one.  I did a google search on "merge sort" "linked list" and it
-comes up with lots of links.  Here is a good one:
+Ok, I did some debug work. Here are the results:
 
-    http://www.ddj.com/articles/1998/9805/9805p/9805p.htm?topic=java
+Writing to the MO doesn't cause an "Oops", but the file will contain trash.
+'cat "test" > file' results in a file that contains 0x1a 0xf7 0xa3 0xdb 0x86
 
-Hope this helps,
+The lines
 
-Jim
+printk("fat debug: *i_sb: %u\n", inode->i_sb);
+printk("fat debug: *cvf_file_read: %u\n", 
+MSDOS_SB(inode->i_sb)->cvf_format->cvf_file_read);
+
+in fs/fat/file.c:fat_file_read() shows this:
+
+fat debug: *cvf_format: 3365518688
+fat debug: *cvf_file_read: 0
+
+In fs/fat/cvf.c I found this:
+
+struct cvf_format bigblock_cvf = {
+        0,      /* version - who cares? */      
+        "big_blocks",
+        0,      /* flags - who cares? */
+        NULL,
+        NULL,
+        NULL,
+        bigblock_fat_bread,
+        bigblock_fat_bread,
+        bigblock_fat_brelse,
+        bigblock_fat_mark_buffer_dirty,
+        bigblock_fat_set_uptodate,
+        bigblock_fat_is_uptodate,
+        bigblock_fat_ll_rw_block,
+        default_fat_access,
+        NULL,
+        default_fat_bmap,
+        NULL,
+	^^^^^
+        default_fat_file_write,
+        NULL,
+        NULL
+};
+
+cvf_file_read is set to zero and will be never changed, but cvf_file_write is 
+set to default_fat_file_write.
+
+Tino

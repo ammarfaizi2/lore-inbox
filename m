@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263078AbTCSQ1L>; Wed, 19 Mar 2003 11:27:11 -0500
+	id <S263051AbTCSQYB>; Wed, 19 Mar 2003 11:24:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263084AbTCSQ1K>; Wed, 19 Mar 2003 11:27:10 -0500
-Received: from AGrenoble-101-1-4-153.abo.wanadoo.fr ([217.128.202.153]:33437
-	"EHLO awak") by vger.kernel.org with ESMTP id <S263078AbTCSQ1I>;
-	Wed, 19 Mar 2003 11:27:08 -0500
-Subject: Re: Everything gone!
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Matthias Schniedermeyer <ms@citd.de>
-Cc: "Richard B. Johnson" <johnson@quark.analogic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030319160437.GA22939@citd.de>
-References: <Pine.LNX.4.53.0303191041370.27397@quark.analogic.com>
-	 <20030319160437.GA22939@citd.de>
-Content-Type: text/plain; charset=ISO-8859-15
-Organization: 
-Message-Id: <1048091858.989.10.camel@bip.localdomain.fake>
+	id <S263050AbTCSQYB>; Wed, 19 Mar 2003 11:24:01 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:43268 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S263051AbTCSQYA>; Wed, 19 Mar 2003 11:24:00 -0500
+Date: Wed, 19 Mar 2003 19:34:04 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: David Brownell <david-b@pacbell.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+       usb-devel <linux-usb-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.5.65] ehci-hcd, don't use PCI MWI
+Message-ID: <20030319193404.A1025@jurassic.park.msu.ru>
+References: <3E788B06.4090302@pacbell.net> <20030319153421.GA26181@gtf.org> <3E78927F.4060600@pacbell.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 19 Mar 2003 17:37:38 +0100
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3E78927F.4060600@pacbell.net>; from david-b@pacbell.net on Wed, Mar 19, 2003 at 07:53:35AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mer 19/03/2003 à 17:04, Matthias Schniedermeyer a écrit :
+On Wed, Mar 19, 2003 at 07:53:35AM -0800, David Brownell wrote:
+> Jeff Garzik wrote:
+> > Please don't -- Ivan has a patch for this, let's get that in instead.
+> 
+> I'd be happy with that, except on the 2.4 trees where we haven't
+> seen such a patch yet.  (So Greg -- please hold off on this
+> for 2.5 unless/until it becomes clear Ivan's patch won't happen.)
 
-> rm -rf *
-> Should do the same(*) but with much better speed.
-> 
-> Normaly the system should lockup at sometime while doing it.
-> 
-> 
-> 
-> 
-> *: OK. The version above will "break" in the middle after "/bin/rm" (or
-> "/lib/libc.so.6") got deleted.
+Hopefully I'll post the updated patch tomorrow.
+Right now I'm chasing down weird problem - 2.5.65 broke networking
+on one of my boxes. So far I figured out that reverting serial/core
+changes fixes that. Incredibly...
 
-That would be surprising. Did you actually try it ? :)
-
-	Xav
-
+Ivan.

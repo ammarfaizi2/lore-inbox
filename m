@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263742AbUAYIhj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 03:37:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUAYIhj
+	id S263806AbUAYIpd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 03:45:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbUAYIpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 03:37:39 -0500
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:28551 "HELO
-	cenedra.office") by vger.kernel.org with SMTP id S263742AbUAYIhi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 03:37:38 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: Tomas Ogren <stric@ing.umu.se>, linux-kernel@vger.kernel.org
-Subject: Re: Fried the onboard Broadcom 4401 network...
-Date: Sun, 25 Jan 2004 08:37:36 +0000
-User-Agent: KMail/1.5.4
-References: <20040125024238.GA10424@ing.umu.se>
-In-Reply-To: <20040125024238.GA10424@ing.umu.se>
+	Sun, 25 Jan 2004 03:45:32 -0500
+Received: from k1.dinoex.de ([80.237.200.138]:38094 "EHLO k1.dinoex.de")
+	by vger.kernel.org with ESMTP id S263806AbUAYIpZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 03:45:25 -0500
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [uPATCH] ufs.txt update
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+References: <UTC200401250035.i0P0ZJW13717.aeb@smtp.cwi.nl>
+From: Jochen Hein <jochen@jochen.org>
+X-No-Archive: yes
+Date: Sun, 25 Jan 2004 09:26:21 +0100
+In-Reply-To: <UTC200401250035.i0P0ZJW13717.aeb@smtp.cwi.nl> (Andries
+ Brouwer's message of "Sun, 25 Jan 2004 01:35:19 +0100 (MET)")
+Message-ID: <87u12ksac2.fsf@echidna.jochen.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401250837.36729.andrew@walrond.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 25 Jan 2004 2:42 am, Tomas Ogren wrote:
->
-> Not sure what you can do with this information, but I can probably not
-> do anything more with this NIC at least..
->
-Just a thought, but did you try reseting the switch, or trying another port on 
-the switch?
+Andries.Brouwer@cwi.nl writes:
 
-Also, you don't seem to have gone back to a last known good configuration 
-(unless WinXP covers this?)
+>  	old	old format of ufs
+> -		default value, supported os read-only
+> +		supported os read-only
 
-Andrew Walrond
+s/os/as/ ?
 
+>  	44bsd	used in FreeBSD, NetBSD, OpenBSD
+>  		supported os read-write
+
+s/os/as/ ?
+
+Jochen
+
+-- 
+#include <~/.signature>: permission denied

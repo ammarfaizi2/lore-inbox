@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131517AbRCNUB1>; Wed, 14 Mar 2001 15:01:27 -0500
+	id <S131520AbRCNT6r>; Wed, 14 Mar 2001 14:58:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131530AbRCNUBS>; Wed, 14 Mar 2001 15:01:18 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:22540 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131517AbRCNUBG>; Wed, 14 Mar 2001 15:01:06 -0500
-Date: Thu, 15 Mar 2001 00:13:08 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Boris Dragovic <lynx@falcon.etf.bg.ac.yu>,
-        Oswald Buddenhagen <ob6@inf.tu-dresden.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: static scheduling - SCHED_IDLE?
-In-Reply-To: <20010314141944.A27572@pcep-jamie.cern.ch>
-Message-ID: <Pine.LNX.4.33.0103150012140.21132-100000@duckman.distro.conectiva>
+	id <S131517AbRCNT6j>; Wed, 14 Mar 2001 14:58:39 -0500
+Received: from mg03.austin.ibm.com ([192.35.232.20]:21209 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S131513AbRCNT6c>; Wed, 14 Mar 2001 14:58:32 -0500
+Message-ID: <3AAFCD2E.59A3A809@austin.ibm.com>
+Date: Wed, 14 Mar 2001 13:57:34 -0600
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andreas Dilger <adilger@turbolinux.com>
+CC: Alexander Viro <viro@math.psu.edu>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>,
+        Linux FS development list <linux-fsdevel@vger.kernel.org>
+Subject: Re: (struct dentry *)->vfsmnt;
+In-Reply-To: <200103141945.f2EJjF410285@webber.adilger.int>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Mar 2001, Jamie Lokier wrote:
+Let me start  with a disclaimer stating that it's been a few years since
+I've worked with AIX, but this is what I believe happens.
 
-> > 2. load control, when the VM starts thrashing we can just
-> >    suspend a few processes to make sure the system as a
-> >    whole won't thrash to death
->
-> Surely it would be easier, and more appropriate, to make the
-> processes sleep when they next page fault.
+mount itself doesn't do anything except read /etc/filesytems (AIX's
+version of /etc/fstab).  LVM maintains the information primarily in the
+ODM (yuck).  The utilities such as mkfs, mklv, chfs, etc. modify this
+information in the ODM.  The exportvg command extracts the information
+from the ODM (and /etc/filesystems?) and stores it somewhere in the
+volume group.  Only then can the volume group be imported by another
+system with the importvg command, which then populates the ODM and
+/etc/filesystems.
 
-This should work ...
+Of course, I would NEVER suggest anything resembling AIX's ODM, but I do
+think that the LVM is a reasonable place to store this kind of
+information.
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+Andreas Dilger wrote:
+> 
+> David Kleikamp writes:
+> > AIX stores all of this information in the LVM, not in the filesystem.
+> > The filesystem itself has nothing to do with importing and exporting
+> > volume groups.  Having the information stored as part of LVM's metadata
+> > allows the utilities to only deal with LVM instead of every individual
+> > file system.
+> 
+> So you are saying that mount(8) writes into a field in the LVM LVCB or
+> something?  Might be possible on Linux LVM as well...
+> 
+> Cheers, Andreas
+> --
+> Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+>                  \  would they cancel out, leaving him still hungry?"
+> http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+-- 
+David J. Kleikamp
+IBM Linux Technology Center

@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315699AbSEILSJ>; Thu, 9 May 2002 07:18:09 -0400
+	id <S315695AbSEILSA>; Thu, 9 May 2002 07:18:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315701AbSEILSJ>; Thu, 9 May 2002 07:18:09 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:28164 "EHLO
+	id <S315699AbSEILR7>; Thu, 9 May 2002 07:17:59 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:27908 "EHLO
 	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S315699AbSEILSH>; Thu, 9 May 2002 07:18:07 -0400
-Message-Id: <200205091114.g49BEOX25910@Port.imtp.ilyichevsk.odessa.ua>
+	id <S315695AbSEILR6>; Thu, 9 May 2002 07:17:58 -0400
+Message-Id: <200205091102.g49B2AX25891@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="koi8-r"
 From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
 Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: kill task in TASK_UNINTERRUPTIBLE
-Date: Thu, 9 May 2002 13:21:19 -0200
+To: Paul P Komkoff Jr <i@stingr.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Some useless cleanup
+Date: Thu, 9 May 2002 13:09:04 -0200
 X-Mailer: KMail [version 1.3.2]
-Cc: dal_loma@yahoo.com (Amol Lad), linux-kernel@vger.kernel.org
-In-Reply-To: <E175WFn-000265-00@the-village.bc.nu>
+In-Reply-To: <20020509102841.GA1125@stingr.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 May 2002 16:33, Alan Cox wrote:
-> > > TASK_UNINTERRUPTIBLE state ?
-> >
-> > No. Everytime you see hung task in this state
-> > you see kernel bug.
+On 9 May 2002 08:28, Paul P Komkoff Jr wrote:
+> Look at this very funny cleanup changeset for 2.4
+> avaliable at linux-stingr.bkbits.net/comm
 >
-> Or waiting on a resource that isnt available - that can occur for example
-> with NFS for long periods, or for a few minutes when burning a CD and the
-> IDE bus is locked
+> For those who don't have bk I including it here below.
+>
+> Please give your comments. Maybe it is completely useless and anything
+> should stay as before, or maybe it is somewhat useful and this abstraction
+> will decrease possibility of bugs such as akpm worked around in 8139too
 
-I really prefer interruptible NFS mode (without timeout).
+Well, it isn't bad, but what's the point in multiple
+set_xxxxxx(char *dst, char *src) functions?
 
-If CD burner needs to completely lock IDE, well, that is less than wonderful 
-piece of hardware. I won't blame kernel for this.
+Maybe it makes more sense to have a generic macro
+which copies string into char[N] buffer, avoiding overflow.
+
+Actually, there is similar code in your mail:
+> -šššššššstrncpy (current->comm, dev->name, sizeof(current->comm) - 1);
+> -šššššššcurrent->comm[sizeof(current->comm) - 1] = '\0';
+> +šššššššset_current_title(dev->name);
+
+A macro:
+
+#define STRNCPY(dst,src) \
+	do { \
+		/* todo: put clever check that dst is char[] here */ \
+		strncpy((dst), (src), sizeof(dst)-1); \
+		dst[sizeof(dst)-1] = '\0'; \
+	} while(0)
+
 --
 vda
-

@@ -1,74 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261526AbUCGBFw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 20:05:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbUCGBFv
+	id S261724AbUCGBPt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 20:15:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUCGBPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 20:05:51 -0500
-Received: from main.gmane.org ([80.91.224.249]:64698 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261526AbUCGBFt (ORCPT
+	Sat, 6 Mar 2004 20:15:49 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:30106 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261724AbUCGBPs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 20:05:49 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
-Subject: Re: Strange DMA-errors and system hang with Promise 20268
-Date: Sun, 7 Mar 2004 02:05:46 +0100
-Organization: Technische Universitaet Ilmenau, Germany
-Message-ID: <c2dsha$psd$1@sea.gmane.org>
-References: <1078602426.16591.8.camel@vega>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: p508873bf.dip.t-dialin.net
-User-Agent: slrn/0.9.8.0 (Linux)
+	Sat, 6 Mar 2004 20:15:48 -0500
+Date: Sat, 6 Mar 2004 17:15:35 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: kangur@polcom.net, mmazur@kernel.pl, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.3.0
+Message-Id: <20040306171535.5cbf2494.pj@sgi.com>
+In-Reply-To: <m38yidk3rg.fsf@defiant.pm.waw.pl>
+References: <200402291942.45392.mmazur@kernel.pl>
+	<200403031829.41394.mmazur@kernel.pl>
+	<m3brnc8zun.fsf@defiant.pm.waw.pl>
+	<200403042149.36604.mmazur@kernel.pl>
+	<m3brnb8bxa.fsf@defiant.pm.waw.pl>
+	<Pine.LNX.4.58.0403060022570.5790@alpha.polcom.net>
+	<m38yidk3rg.fsf@defiant.pm.waw.pl>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Henrik Persson <nix@syndicalist.net> wrote:
-> boxes. It is up and running without any problems and then suddently i
-> get this in the syslog:
-> Mar  6 20:29:42 eurisco kernel: hdf: dma_timer_expiry: dma status == 0x61
-> And a few seconds later the system has frozen and I have to reset the
+> Changing kernel config should never change the API.
 
-Same here:
+Linux would be in pretty sad shape if that held.
 
-Mar  4 01:01:06 darkside kernel: hde: dma_timer_expiry: dma status == 0x21
-Mar  5 01:02:00 darkside kernel: hde: dma_timer_expiry: dma status == 0x21
-Mar  6 01:10:22 darkside kernel: hde: dma_timer_expiry: dma status == 0x21
+Incompatible API changes should be rare, but they are an essential part
+of our continuing healthy evolution.  In particular, there's a _long_
+list of hardware devices that have at some time or other worked on
+Linux, but don't anymore - usually because no one is still maintaining
+the driver needed.  But sometimes other API's have to change or
+disappear as well.
 
-Can you somehow correlate this to start of S.M.A.R.T selftests?
+Would you say that a city or county should _never_ raze a building or
+remove a road as part of development?
 
-I suspect it having something to do with 2.4.25 new "One last
-read after the timeout" in ide-iops.c and accessing the drive
-while selftest running (possibly especially short selftest).
-Here, daily at 01:00 smartmontools runs smart short selftests
-and a bit later the machine hangs.
-Today, I disabled that job and the machine stays stable.
+Change happens.  Deal with it.
 
-> error another device, but it's allways a device on the promise
-> controller, fails.
-
-Dito... PDC20269 U133TX2
-CONFIG_BLK_DEV_PDC202XX_NEW=y
-
-And until now it was always hde connected to the promise
-controller.
-
-> I've seen this behaviour with 2.4.25, 2.4.24 and 2.4.23 (I think).
-
-My machine did run at least since:
-Jan 18 09:41:21 darkside kernel: Linux version 2.4.24
-...
-Feb 28 01:43:48 darkside kernel: Linux version 2.4.24
-Feb 28 04:58:47 darkside kernel: Linux version 2.4.25
-
-First time the problem occured was Mar  4 01:01:06.
-
-smartmontools last update was at Feb 14 03:04
-
-
-regards,
-   Mario
 -- 
-I heard, if you play a NT-CD backwards, you get satanic messages...
-That's nothing. If you play it forwards, it installs NT.
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

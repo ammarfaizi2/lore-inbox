@@ -1,62 +1,161 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292356AbSBUMcx>; Thu, 21 Feb 2002 07:32:53 -0500
+	id <S291802AbSBUMnq>; Thu, 21 Feb 2002 07:43:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292357AbSBUMcd>; Thu, 21 Feb 2002 07:32:33 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61447 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292356AbSBUMcT>;
-	Thu, 21 Feb 2002 07:32:19 -0500
-Message-ID: <3C74E8D1.D74BAD5@mandrakesoft.com>
-Date: Thu, 21 Feb 2002 07:32:17 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
+	id <S292359AbSBUMni>; Thu, 21 Feb 2002 07:43:38 -0500
+Received: from [200.180.163.180] ([200.180.163.180]:32606 "EHLO quatroint")
+	by vger.kernel.org with ESMTP id <S292357AbSBUMnX>;
+	Thu, 21 Feb 2002 07:43:23 -0500
+Message-ID: <004a01c1bad5$dd4a02a0$c50016ac@spps.com.br>
+Reply-To: "Fernando Korndorfer" <fernando@quatro.com.br>
+From: "Fernando Korndorfer" <fernando@quatro.com.br>
+To: "LKML" <linux-kernel@vger.kernel.org>
+Subject: SMP problems
+Date: Thu, 21 Feb 2002 09:47:02 -0300
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux kernel config converter
-In-Reply-To: <Pine.LNX.4.21.0202211312510.2318-100000@serv>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed;
+	protocol="application/x-pkcs7-signature";
+	boundary="----=_NextPart_000_0046_01C1BABC.B7229740";
+	micalg=SHA1
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> On Thu, 21 Feb 2002, Jeff Garzik wrote:
-> > FWIW a much better transition path is very close to what your tool does,
-> > and is a suggestion made by mec (kbuild maintainer) near the end of the
-> > recent flamewar:  convert config.in files one at a time, like we did the
-> > old makefiles.
-> 
-> That's possible, as soon as the menu information is added, both formats
-> contain the same information, so a program with two parsers can handle
-> both simultaneously.
+This is a multi-part message in MIME format.
 
-yep
+------=_NextPart_000_0046_01C1BABC.B7229740
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-> > That would imply a rewrite of make [old]config, and an updating of make
-> > menu|xconfig, to handle the new format...
-> 
-> I think we should just dump the old tools and implement a single config
-> library, which exports an interface to access the config information.
+Hail!
 
-I do not think we can -avoid- dumping scripts/Configure[1], replacing
-the existing tools.  In that respect I agree with Eric and the others. 
-So your proposition makes sense.  But the configuration language can and
-should be migrated, IMO.
-
-	Jeff
+        I'm having some problems copiling the latest kernel with SMP (and
+w/o too). If I boot a SMP-enabled kernel, the system hangs after detecting
+the second CPU. and I can't compile the kernel w/o SMP support (it causes a
+lot of 'redefinitions'...). Can anyone help me?
 
 
 
-[1] Sure you could code a replacement parser in bash shell script.  But
-that's just wanking, like a Georgia Tech professor of mine:  he
-implemented a visual Towers of Hanoi solver in vi macros.  We all
-thought it was cool but ultimately CS wanking of no real value :)
 
--- 
-Jeff Garzik      | "Why is it that attractive girls like you
-Building 1024    |  always seem to have a boyfriend?"
-MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
-                 |             - BBC TV show "Coupling"
+
+Tnx, []'s
+-----------------------------------------------
+Fernando Korndorfer
+Novo Hamburgo, RS, Brasil
+-----------------------------------------------
+
+------=_NextPart_000_0046_01C1BABC.B7229740
+Content-Type: application/x-pkcs7-signature;
+	name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="smime.p7s"
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIT9DCCBXsw
+ggRjoAMCAQICClOzuYgAAAAAAVUwDQYJKoZIhvcNAQEFBQAwgaYxJTAjBgkqhkiG9w0BCQEWFnNh
+ZmV3ZWJAc2FmZXdlYi5jb20uYnIxCzAJBgNVBAYTAkJSMQswCQYDVQQIEwJSUzEVMBMGA1UEBxMM
+UG9ydG8gQWxlZ3JlMRAwDgYDVQQKEwdTYWZlV2ViMSAwHgYDVQQLExdVbmlkYWRlIGRlIENlcnRp
+ZmljYWNhbzEYMBYGA1UEAxMPU2FmZVdlYiBDbGFzc2UxMB4XDTAyMDEyNTE4NTkyNVoXDTAyMDMy
+NjE5MDkyNVowgdkxJTAjBgkqhkiG9w0BCQEWFmZlcm5hbmRvQHF1YXRyby5jb20uYnIxCzAJBgNV
+BAYTAkJyMQswCQYDVQQIEwJSUzElMCMGA1UEBx4cAGAATgBvAHYAbwAgAEgAYQBtAGIAdQByAGcA
+bzE5MDcGA1UECh4wAFEAVQBBAFQAUgBPACAASQBuAGYAbwByAG0A4QB0AGkAYwBhACAATAB0AGQA
+YQAuMRAwDgYDVQQLEwdTdXBvcnRlMSIwIAYDVQQDExlGZXJuYW5kbyBPc2NhciBLb3JuZG9yZmVy
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCwMKdqi1A7bNdJuCEitDDGeNacvVhnpTcR7fmm
+MvWZ9P6P5SLo5Z+6j3UMtR1tvoMvNR3PbOJdD9pOEM1ngJKG6rUuMfKcb/7D2ziuAs3Q/zaovPeY
+P9pYJqRmRSf2QNyp0p+yIeS0oK3t5O2TYMbC25KAFWB/OuLjpXaBS1UflwIDAQABo4IB+DCCAfQw
+DgYDVR0PAQH/BAQDAgHwMBMGA1UdJQQMMAoGCCsGAQUFBwMEMB0GA1UdDgQWBBR2mVas7mgUuWFn
+M+qKAFMTY/fKgDCCARMGA1UdIwSCAQowggEGgBQaLScph4Y0jxOg4+mctZ1Q6/rSF6GB4aSB3jCB
+2zEhMB8GCSqGSIb3DQEJARYSbGFic2VjQGluZi51ZnNjLmJyMQswCQYDVQQGEwJCUjELMAkGA1UE
+CBMCU0MxFjAUBgNVBAcTDUZsb3JpYW5vcG9saXMxNjA0BgNVBAoTLVVuaXZlcnNpZGFkZSBGZWRl
+cmFsIGRlIFNhbnRhIENhdGFyaW5hIC0gVUZTQzE4MDYGA1UECxMvTGFib3JhdG9yaW8gZGUgU2Vn
+dXJhbmNhIGVtIENvbXB1dGFjYW8gLSBMYWJTRUMxEjAQBgNVBAMTCVVGU0MgLSBBQ4IKYQ5XmwAB
+AAAAHjBFBgNVHR8EPjA8MDqgOKA2hjRodHRwOi8vd3d3LnNhZmV3ZWIuY29tLmJyL2FjL2NybC9z
+YWZld2ViLWNsYXNzZTEuY3JsMFAGCCsGAQUFBwEBBEQwQjBABggrBgEFBQcwAoY0aHR0cDovL3d3
+dy5zYWZld2ViLmNvbS5ici9hYy9jcnQvc2FmZXdlYi1jbGFzc2UxLmNydDANBgkqhkiG9w0BAQUF
+AAOCAQEADxcZBSc+s12NmsbFzJ9nv3Wm1XR3B8bJcVfP97op2t34ii3TMBBAWPEsJfM1jYE+4n9v
+gCdZop4zfAObZcp/1h2cxVe3SdVjvr6KdrR3fiOYAExvBsF8fMqU5klMO2pKwjXcl9VLrHpOCA3/
+1x8G9hjW3SnSivI0PHvWSgGNVxInD3nEt3SGBiCBHL14gzMKtEQYoQM8G1q6+dKYznzT3fDz55TL
+F3bh8gkP8X+2OtKWkRmbfOkteP+BmjhM7WOX262xVlm12EQ6UgW5trC1tOJP4LOYnubUSKHjG/Q6
+3x4215a+6plcvH8vkhmebdrvvdjd3zl+lSJp1NW9r43KbDCCBwcwggTvoAMCAQICEHGer4568HCd
+TA6YPicXFUUwDQYJKoZIhvcNAQEFBQAwgdsxITAfBgkqhkiG9w0BCQEWEmxhYnNlY0BpbmYudWZz
+Yy5icjELMAkGA1UEBhMCQlIxCzAJBgNVBAgTAlNDMRYwFAYDVQQHEw1GbG9yaWFub3BvbGlzMTYw
+NAYDVQQKEy1Vbml2ZXJzaWRhZGUgRmVkZXJhbCBkZSBTYW50YSBDYXRhcmluYSAtIFVGU0MxODA2
+BgNVBAsTL0xhYm9yYXRvcmlvIGRlIFNlZ3VyYW5jYSBlbSBDb21wdXRhY2FvIC0gTGFiU0VDMRIw
+EAYDVQQDEwlVRlNDIC0gQUMwHhcNMDEwNTA0MTc1NDIxWhcNMDkwNTA0MTc1OTUxWjCB2zEhMB8G
+CSqGSIb3DQEJARYSbGFic2VjQGluZi51ZnNjLmJyMQswCQYDVQQGEwJCUjELMAkGA1UECBMCU0Mx
+FjAUBgNVBAcTDUZsb3JpYW5vcG9saXMxNjA0BgNVBAoTLVVuaXZlcnNpZGFkZSBGZWRlcmFsIGRl
+IFNhbnRhIENhdGFyaW5hIC0gVUZTQzE4MDYGA1UECxMvTGFib3JhdG9yaW8gZGUgU2VndXJhbmNh
+IGVtIENvbXB1dGFjYW8gLSBMYWJTRUMxEjAQBgNVBAMTCVVGU0MgLSBBQzCCAiIwDQYJKoZIhvcN
+AQEBBQADggIPADCCAgoCggIBANGe2Eh0cwViQDo2GdRXYXHckOd729O+1Wu7mLpl1Be/Tj66M3zU
+wU2uYrRAVc0CgV+PXpPRHo0BLUehYLyjd3d6jFn85xzYmpDz5w04x4LPsDhCXK2WoD1DmIiSe/ET
+1YsxC+Kai/EER+OAqQ2iHJL/7iVoTSUJWPU+bMVxXvh8//P6rCmQbv0OoPq3gCr3CvHa4RSFCyWo
+qCNPj0PccTAcI1+eW0vpl2oI1RVoMvwuQTa+Ezwn+8M78j5X9jSUowCk4P9iQvnveNex2L3vpvMV
+8LovWEWalZCRELopkd9hJjzvf8kokbIbLnIPKsGo8tVBKcuarXAoiXkjo3a08cGNrLHSyfTVxMkX
+8XCkJn/lZzN04YHA/RLTtkTf3TByaw+YRLlLkpq9w9ipqFQow1aMPZdf3bpbBYjyOX1bFnPimGFi
+XJplGVcXF3sd8JFee4nXBelQ+JxXYIUKwB+mLfmBRdpgVJeF6vAHk3ncX5H5BWD+E0SJ3wIeVvGz
+F2HCQUU5uN3jGInt1artJDJx+zh8SvlvS+Efvx/KwQKtoPombtulrZn+EdSE/NdqAAmnKXEQ+OXH
+tnKZopgtmPhyqR19WzCoijrSX2l2p/RbW5HRtaFfVwRRaz6izPT6iG156dWvMlhJaUr6zf+QPyMP
+lJB2WmdqVvKSRIAUYUUDvkCDAgMBAAGjgcQwgcEwCwYDVR0PBAQDAgHGMA8GA1UdEwEB/wQFMAMB
+Af8wHQYDVR0OBBYEFObzHpmdz0zcgenlbQSQlrTQsTpCMG4GA1UdHwRnMGUwL6AtoCuGKWh0dHA6
+Ly93d3cuaW5mLnVmc2MuYnIvYWMvY3JsL3Vmc2MtYWMuY3JsMDKgMKAuhixodHRwOi8vd3d3Lmxh
+YnNlYy51ZnNjLmJyL2FjL2NybC91ZnNjLWFjLmNybDASBgkrBgEEAYI3FQEEBQIDAQABMA0GCSqG
+SIb3DQEBBQUAA4ICAQCiFWYVLrQfO4Lvka6A/mYr1BiZgZAOYRxDStiAoYKgDN6oc7BDmDVWmAZa
+t2KcksyHpywrdRepa6wF284ok0liAhzzKw4eVfAlQ2haQPPjVf8WQwBwc5CrZNfd/3Tv8TMXxPRt
+QvS7ufrXKORoRdj8HdIio126Xy4+CQBEly1g1pmBv5wkTe4ywO2PpTkTmjfq16CYe0L2qq86GQie
+1QdukXL1rifwZijSmWjvYMni1I5UIogP39KjEPTR7WbMi0mtWIg0rMseWX+P4yfGHZEUzbtbkzAM
+zMtGWXYE/rWyuWjA446peVSnXApS/X/KX37Ogn/DhTvb306ufSpRUmngUNlwdhK0bj9VNKO/gttO
+JKZhGNeT1d81QQesyvsJ0vFm+QOA2eyp9xAVYeTFcs4m/QoUFsqiFxKM8R8TIy1kcQmA3Azkjltx
+UsQSN7660J+d8lmDUF7e017GIFm69WbZ7Q0VJWCiSDZCcCo4aomMuCJfJ3SLRFmmQmZOS4UC2iLr
+gzvZyNMj+OwjD9MvmGXtyaNIOeArvy2k2AEix2pRlVbmqKfoEme3HVOKQhJK5OZ0ywdkGDLWKdzV
+P0VFhDDhXPMVHKGWCR6VPdLnq5tJv1I4tWHz7GTavr3x4hHGM412X3ZxEWh1ymdYMie0nCrWyoD2
+PqOgLcPeLrzXQrb6TjCCB2YwggVOoAMCAQICCmEOV5sAAQAAAB4wDQYJKoZIhvcNAQEFBQAwgdsx
+ITAfBgkqhkiG9w0BCQEWEmxhYnNlY0BpbmYudWZzYy5icjELMAkGA1UEBhMCQlIxCzAJBgNVBAgT
+AlNDMRYwFAYDVQQHEw1GbG9yaWFub3BvbGlzMTYwNAYDVQQKEy1Vbml2ZXJzaWRhZGUgRmVkZXJh
+bCBkZSBTYW50YSBDYXRhcmluYSAtIFVGU0MxODA2BgNVBAsTL0xhYm9yYXRvcmlvIGRlIFNlZ3Vy
+YW5jYSBlbSBDb21wdXRhY2FvIC0gTGFiU0VDMRIwEAYDVQQDEwlVRlNDIC0gQUMwHhcNMDExMDI2
+MTY0MzMxWhcNMDUxMDI2MTY1MzMxWjCBpjElMCMGCSqGSIb3DQEJARYWc2FmZXdlYkBzYWZld2Vi
+LmNvbS5icjELMAkGA1UEBhMCQlIxCzAJBgNVBAgTAlJTMRUwEwYDVQQHEwxQb3J0byBBbGVncmUx
+EDAOBgNVBAoTB1NhZmVXZWIxIDAeBgNVBAsTF1VuaWRhZGUgZGUgQ2VydGlmaWNhY2FvMRgwFgYD
+VQQDEw9TYWZlV2ViIENsYXNzZTEwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDoPXN8
+vJegpNU+vwUPEseLmeHNX503KXD7Hc327RUJO9bhNKT4WZtB/AVEnKyFNq7ZCkd93+AHi+h1kqNx
+VA+RhELGSOuR38yHzOdjKtjwXythfDq4mqxRDhSqbvj1UZzKy9ZKsLJKVPNyNgUoDr2qlyxmrrek
+MWphQu6hPBUMjMtzy7MEpaudx1UoDtHZMK69Bx+BVe0UT6w0ogPUUkbcTdWNdpQcGOmUM3QQBWi4
+2vY37zra7oz5M0r/gyE/un94WrUlOwUKQzY8uI0SDHVUvGw0mbzlg3L9hOhiaEe5QZMRu/7fW3zt
+cG6nnd2btu4wf6t3CCpkv/702FO6W5U1AgMBAAGjggJdMIICWTAQBgkrBgEEAYI3FQEEAwIBADAd
+BgNVHQ4EFgQUGi0nKYeGNI8ToOPpnLWdUOv60hcwCwYDVR0PBAQDAgHGMA8GA1UdEwEB/wQFMAMB
+Af8wggEZBgNVHSMEggEQMIIBDIAU5vMemZ3PTNyB6eVtBJCWtNCxOkKhgeGkgd4wgdsxITAfBgkq
+hkiG9w0BCQEWEmxhYnNlY0BpbmYudWZzYy5icjELMAkGA1UEBhMCQlIxCzAJBgNVBAgTAlNDMRYw
+FAYDVQQHEw1GbG9yaWFub3BvbGlzMTYwNAYDVQQKEy1Vbml2ZXJzaWRhZGUgRmVkZXJhbCBkZSBT
+YW50YSBDYXRhcmluYSAtIFVGU0MxODA2BgNVBAsTL0xhYm9yYXRvcmlvIGRlIFNlZ3VyYW5jYSBl
+bSBDb21wdXRhY2FvIC0gTGFiU0VDMRIwEAYDVQQDEwlVRlNDIC0gQUOCEHGer4568HCdTA6YPicX
+FUUwbAYDVR0fBGUwYzAwoC6gLIYqaHR0cDovL3d3dy5mZWVzYy5vcmcuYnIvYWMvY3JsL3Vmc2Mt
+YWMuY3JsMC+gLaArhilodHRwOi8vd3d3LmluZi51ZnNjLmJyL2FjL2NybC91ZnNjLWFjLmNybDB9
+BggrBgEFBQcBAQRxMG8wNgYIKwYBBQUHMAKGKmh0dHA6Ly93d3cuZmVlc2Mub3JnLmJyL2FjL2Ny
+dC91ZnNjLWFjLmNydDA1BggrBgEFBQcwAoYpaHR0cDovL3d3dy5pbmYudWZzYy5ici9hYy9jcnQv
+dWZzYy1hYy5jcnQwDQYJKoZIhvcNAQEFBQADggIBAAjKHZGsbcnFqT9Z2CYdN+3AmLCLsnc4X831
+ZEGbPUUpyieic0BATHofqYaImcU+i14ocygxEsyTpEiV8Serq4usNzi6MFNfYNaUBqY0t8tphwhS
+q8WGXDpaGm5l8qt43nUVcVDop9H8Na8IM+YsVObhhiYvPePb/6fA75tg634ecusVu+ntqNF5CuIe
+Z2yeAxlJCImRWHQFn7xX44F2hH5pfMQ8LcoPZHA8DWXMbLz2/lKS0RBqcuNbfVhDOYP18Fu/m9zh
+hADol/FiF5qPGhkiWcWXJpnqytDIRoSNJYpggvwKo1EZOIt6uEdPoio9wLbeU+SoMgLkhYfygzUW
+RJqGzXsynwC70L5/9lJD1oX9u5hTw1SCPpH5mKts3jREbu87EuBb2mpiEXyogZVqtDnWPj0yDGuv
+qyLlS1y1TmnqL3uT5H4L7TzGkq+TbDKl1F0uFdYEyZM+D9nCcV7T7j8I1IIh6JvsqwqZkobOI15o
+DXjvesfiq3RG+yuPmNOgsuQGLMDbTjk5tPQZJv96F6zWnZ0v6Hn6Q7fCLBLusJwA+y4S4hgV29LI
+be479BCAi2G/AA10Mwn0xMF3nEkmJcsSRECGspfCk211Wvtke0P9s4XhrN1RiU+ZNTxSoG3qtQ6I
+kW1SS+ZMEPEga0uwGS+wv5skBaLfdrgWeA30S9gsMYICGTCCAhUCAQEwgbUwgaYxJTAjBgkqhkiG
+9w0BCQEWFnNhZmV3ZWJAc2FmZXdlYi5jb20uYnIxCzAJBgNVBAYTAkJSMQswCQYDVQQIEwJSUzEV
+MBMGA1UEBxMMUG9ydG8gQWxlZ3JlMRAwDgYDVQQKEwdTYWZlV2ViMSAwHgYDVQQLExdVbmlkYWRl
+IGRlIENlcnRpZmljYWNhbzEYMBYGA1UEAxMPU2FmZVdlYiBDbGFzc2UxAgpTs7mIAAAAAAFVMAkG
+BSsOAwIaBQCggbowGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDIw
+MjIxMTI0NzAzWjAjBgkqhkiG9w0BCQQxFgQUXjpJukHIA7VHo5TNGjqjIOBJxvAwWwYJKoZIhvcN
+AQkPMU4wTDAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYFKw4D
+AgcwDQYIKoZIhvcNAwICASgwBwYFKw4DAh0wDQYJKoZIhvcNAQEBBQAEgYBILm0fZFY3L8Uh4DoL
+9Cud8W9wGQSmOU0XgM+45ZT0dhIT5Hf1YziLK4vzwC0q694Lt8w1dJvpWi09fDjjeyYs7z+GqvHu
+sQmsuGkIy2DFRg9OYYIDy1Vk+pu32z4x4bTIu3LkNtWe6n/7Ap1f5kW4GoAISCzBYB6hz2w2n+9J
+CgAAAAAAAA==
+
+------=_NextPart_000_0046_01C1BABC.B7229740--
+

@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287860AbSBCXBA>; Sun, 3 Feb 2002 18:01:00 -0500
+	id <S287858AbSBCW7K>; Sun, 3 Feb 2002 17:59:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287862AbSBCXAu>; Sun, 3 Feb 2002 18:00:50 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:22152 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S287860AbSBCXAc>;
-	Sun, 3 Feb 2002 18:00:32 -0500
-Date: Mon, 4 Feb 2002 00:00:30 +0100
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.17 NFS hangup
-Message-ID: <20020203230030.GA14478@csoma.elte.hu>
-In-Reply-To: <20020203202251.GA22797@csoma.elte.hu> <shsbsf61di3.fsf@charged.uio.no> <20020203213422.GA703@csoma.elte.hu> <15453.48475.123973.610574@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15453.48475.123973.610574@charged.uio.no>
-User-Agent: Mutt/1.3.27i
-X-Accept-Language: en, hu
-From: "=?iso-8859-2?Q?Burj=E1n_G=E1bor?=" 
-	<buga+dated+1013036430.1fd862@elte.hu>
-X-Delivery-Agent: TMDA/0.43 (Python 2.1.1+; linux2)
+	id <S287860AbSBCW7A>; Sun, 3 Feb 2002 17:59:00 -0500
+Received: from femail19.sdc1.sfba.home.com ([24.0.95.128]:55439 "EHLO
+	femail19.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S287858AbSBCW6m>; Sun, 3 Feb 2002 17:58:42 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
+Date: Sun, 3 Feb 2002 17:59:47 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org> <20020203221750.HMXG18301.femail20.sdc1.sfba.home.com@there> <3C5DB8B7.4030304@zytor.com>
+In-Reply-To: <3C5DB8B7.4030304@zytor.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020203225841.IBCK18525.femail19.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 03, Trond Myklebust wrote:
+On Sunday 03 February 2002 05:24 pm, H. Peter Anvin wrote:
+> Rob Landley wrote:
+> > And el-torito bootable CDs basically glue a floppy image onto the front
+> > of the CD and lie to the bios to say "oh yeah, I'm a floppy, boot from
+> > me". Luckily, they can use the old 2.88 "extended density" floppy
+> > standard IBM tried to launch years ago which never got anywhere, but
+> > which most BIOS's recognize.  But that's still a fairly small place to
+> > try to stick a whole system...
+>
+> They can be; they can also run in a mode where they can access arbitrary
+> blocks on the CD (ISOLINUX runs in this mode.)
+>
+> 	-hpa
 
-> Are you seeing any kernel log messages about 'Tx FIFO error!' that
-> might indicate that particular code is getting triggered?
+You can pivot_root after the bios hands control over to the kernel, sure.  
+But if the bios can actually boot from arbitrary blocks on the CD before the 
+kernel takes over, this is news to me.  And for the kernel to read from the 
+CD, it needs its drivers already loaded for it, so they have to be in that 
+2.88 megs somewhere.  (Statically linked, ramdisk, etc.)
 
-No, nothing logged except the NFS related messages.  However, after NFS
-hangup I cannot scp from the host, but ssh works...   I am beginning to
-think that this is not an NFS issue.  Then what could it be?
+I was just pointing out that small boot environments weren't going away any 
+time soon, even if floppy drivers were to finally manage it.  When you 
+install your system, the initial image you bootstrap from is generally tiny.
 
-	buga
+Now I'm not so familiar with that etherboot stuff, intel's whatsis 
+specification (PXE?) for sucking a bootable image through the network.  All 
+I've ever seen that boot is a floppy image, but I don't know if that's a 
+limitation in the spec or just the way people are using it...
+
+And of course you could always do some variant of two kernel monte...
+
+Rob

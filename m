@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129557AbQLHRdo>; Fri, 8 Dec 2000 12:33:44 -0500
+	id <S130190AbQLHRee>; Fri, 8 Dec 2000 12:34:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130190AbQLHRde>; Fri, 8 Dec 2000 12:33:34 -0500
-Received: from service.sh.cvut.cz ([147.32.127.214]:26122 "EHLO
-	service.sh.cvut.cz") by vger.kernel.org with ESMTP
-	id <S129557AbQLHRd2>; Fri, 8 Dec 2000 12:33:28 -0500
-Date: Fri, 8 Dec 2000 18:02:57 +0100 (CET)
-From: Martin Kacer <M.Kacer@sh.cvut.cz>
-To: <linux-kernel@vger.kernel.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: Linux 2.2.18pre25
-In-Reply-To: <20001208012052.A23992@inspiron.random>
-Message-ID: <Pine.LNX.4.30.0012081738140.7409-100000@duck.sh.cvut.cz>
+	id <S132377AbQLHReY>; Fri, 8 Dec 2000 12:34:24 -0500
+Received: from lowell.missioncriticallinux.com ([208.51.139.16]:62248 "EHLO
+	dai.lowell.mclinux.com") by vger.kernel.org with ESMTP
+	id <S130190AbQLHReE>; Fri, 8 Dec 2000 12:34:04 -0500
+Message-ID: <3A3116B4.A80A7882@mclinux.com>
+Date: Fri, 08 Dec 2000 12:13:24 -0500
+From: Peng Dai <dai@mclinux.com>
+X-Mailer: Mozilla 4.61 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: System.map with symbols from discarded sections
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2000, Alan Cox wrote:
+Quite a few functions in the 2.3 kernels and up are marked as __exit.
+This puts the functions in the .text.exit section that is marked as
+DISCARD
+in vmlinux.lds.
 
-# Ok we believe the VM crash looping printing error messages is now fixed.
-# Marcelo finally figured it out and my 8Mb 486 has been running 2.2.18pre
-# with that fix and stably[1].
+It turns out that if the function is static, ld never puts it into the
+symbol
+table of vmlinux; however, if the function is global, ld throws it into
+the
+*ABS* section of vmlinux with an address most likely lower than
+PAGE_OFFSET.
+These symbols are included in System.map since they are not 'a' type but
+'A'
+type. An example of which is 'acpi_exit', as shown below,
 
-   Unfortunately, I don't think it is fixed. We maintain a heavy loaded
-FTP/Samba server here (120+ active connections with very long data
-transfers in rush hours) and it had the "VM: do_try_to_free_pages failed"
-problem since 2.2.17 was first installed (there was FreeBSD before that).
+00000000 A acpi_exit
+c0100000 A _text
+c0100000 t startup_32
+c0100000 T _stext
+...
 
-   We aplied 2.2.18pre25 patch yesterday hoping it could solve it. The
-only difference is that the server reached several hours uptime instead of
-40 minutes (with pre24). After two hours of load between 6.00 and 15.00
-the console was flooded with those unpopular messages ("VM: ..."). The
-system was taken down by generation of these messages so quickly, that
-even none of the messages appeared in syslog! No response to Ctrl-Alt-Del,
-of course... :-( Just trashing...
+It seems rather harmless except it breaks the readprofile utitlity which
+reads
+the System.map. I am wondering if ld is behaving correctly.
 
-
-On Fri, 8 Dec 2000, Andrea Arcangeli wrote:
-
-# > Ok we believe the VM crash looping printing error messages is now fixed.
-# Such bug can't generate crashes. Did you ever reproduced crashes on your 8Mb
-# 486 with 2.2.18pre24?
-
-   Our bug can generate them. :-( Maybe it's a different one? ;-)
-
-
-   Is there any chance to get rid of these VMM failures?
-
-   Sorry if I've missed something important recently mentioned here. I had
-not enough time to follow the lk list carefully. Is there any reliable
-solution?
-
-   It seems we need to return back to 2.2.13 for some time. :-(
-   Martin.
+Regards,
+Peng
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

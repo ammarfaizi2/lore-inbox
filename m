@@ -1,67 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbUCDNlI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 08:41:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbUCDNlI
+	id S261896AbUCDNkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 08:40:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbUCDNkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 08:41:08 -0500
-Received: from mail.math.uni-mannheim.de ([134.155.89.179]:13262 "EHLO
-	mail.math.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S261899AbUCDNkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 08:40:55 -0500
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: linux-kernel@vger.kernel.org
-Subject: GPLv2 or not GPLv2? (no license bashing)
-Date: Thu, 4 Mar 2004 08:38:29 +0100
-User-Agent: KMail/1.6
+	Thu, 4 Mar 2004 08:40:09 -0500
+Received: from kamikaze.scarlet-internet.nl ([213.204.195.165]:1167 "EHLO
+	kamikaze.scarlet-internet.nl") by vger.kernel.org with ESMTP
+	id S261896AbUCDNkD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 08:40:03 -0500
+Message-ID: <1078407599.404731af80bfc@webmail.dds.nl>
+Date: Thu,  4 Mar 2004 14:39:59 +0100
+From: wdebruij@dds.nl
+To: wdebruij@dds.nl
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [UPDATE] Re: [PATCH] 2.6.3 very small patch: libc compatibility for skbuff.h (userspace access to sk_buffs)
+References: <1078404558.404725ceb404c@webmail.dds.nl>
+In-Reply-To: <1078404558.404725ceb404c@webmail.dds.nl>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403040838.31412.eike-kernel@sf-tec.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+new version. Now uses sys/time.h in userspace to resolve timevals. Also, the
+patch mimetype is no longer (erroneously) reported as application/-octet-stream
+(since I just pasted it in below).
 
-just digging a bit in the kernel and found some funny things:
+----begin---
 
--there is a tag only for "GPL v2" but there are some drivers claiming to be 
-v2 and not using this (patch will follow)
--there are some drivers with the comment ", either version 2 of the License." 
-in the header. s/either // ? If so, there are some more files where someone 
-should change MODULE_LICENSE("GPL") to "GPL v2".
--there are some files that have the long warranty warning in the header. This 
-brings up the question if we should see the mainline kernel as one piece of 
-software. If we do so we need this warning only once and this copy should be 
-in the main kernel directory and we should kill the others. The other 
-question is: when I only write down the names of the authors in the header 
-and then add MODULE_LICENSE("GPL") or "GPL v2" is this enough licensing 
-information or is always the long comment needed (would be another nice 
-trick to shrink tons of files)?
--the LINUX_VERSION_CODE line in drivers/message/fusion/isense.c looks bogus, 
-the comment says it is for <2.5.0, but the line itself is for <2.3.0. Is 
-this wanted (fix the comment), bogus (fix the line) or crap (kill it 
-alltogether).
+--- linux-2.6.3-orig/include/linux/skbuff.h	2004-02-18 04:58:26.000000000 +0100
++++ linux-2.6.3/include/linux/skbuff.h	2004-03-04 11:10:49.716489408 +0100
+@@ -14,19 +14,26 @@
+ #ifndef _LINUX_SKBUFF_H
+ #define _LINUX_SKBUFF_H
 
-This are the files where I found "either version 2 of the License.":
++#ifdef __KERNEL__
+ #include <linux/config.h>
+ #include <linux/kernel.h>
+ #include <linux/compiler.h>
+ #include <linux/time.h>
+ #include <linux/cache.h>
+-
+ #include <asm/atomic.h>
++#else
++#include <sys/time.h>
++#endif
++
+ #include <asm/types.h>
+ #include <linux/spinlock.h>
++
++#ifdef __KERNEL__
+ #include <linux/mm.h>
+ #include <linux/highmem.h>
+ #include <linux/poll.h>
+ #include <linux/net.h>
++#endif
 
-arch/arm/mach-integrator/integrator_cp.c
-drivers/serial/8250_pnp.c
-drivers/serial/8250_pci.c
-drivers/input/serio/pcips2.c
-drivers/input/serio/sa1111ps2.c
+ #define HAVE_ALLOC_SKB		/* For the drivers to know */
+ #define HAVE_ALIGNABLE_SKB	/* Ditto 8)		   */
 
-These are some files (there are surely tons of others) with the long warning:
-
-drivers/scsi/3w-xxxx.[ch]
-drivers/message/fusion/mptctl.c
-drivers/message/fusion/mptbase.[ch]
-drivers/message/fusion/mptscsih.c
-drivers/message/fusion/isense.c (*)
-drivers/message/fusion/mptlan.[ch]
-drivers/message/fusion/mptctl.[ch]
-drivers/message/fusion/mptscsih.[ch]
-
-Eike

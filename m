@@ -1,97 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293458AbSCVIiJ>; Fri, 22 Mar 2002 03:38:09 -0500
+	id <S293448AbSCVImt>; Fri, 22 Mar 2002 03:42:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293452AbSCVIiA>; Fri, 22 Mar 2002 03:38:00 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:60292 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S293448AbSCVIhq>; Fri, 22 Mar 2002 03:37:46 -0500
-Date: Fri, 22 Mar 2002 03:37:41 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-scsi@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2 questions about SCSI initialization
-Message-ID: <20020322033741.A8052@devserv.devel.redhat.com>
-In-Reply-To: <20020321000553.A6704@devserv.devel.redhat.com> <3C99E6C7.34F05AE7@torque.net>
+	id <S293452AbSCVImd>; Fri, 22 Mar 2002 03:42:33 -0500
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:42236 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S310241AbSCVImS>; Fri, 22 Mar 2002 03:42:18 -0500
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Fri, 22 Mar 2002 01:42:09 -0700
+To: Michal Jaegermann <michal@harddata.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: max partition size
+Message-ID: <20020322084209.GD3451@turbolinux.com>
+Mail-Followup-To: Michal Jaegermann <michal@harddata.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020322005037.A9256@mail.harddata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.27i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Thu, 21 Mar 2002 08:57:27 -0500
-> From: Douglas Gilbert <dougg@torque.net>
+On Mar 22, 2002  00:50 -0700, Michal Jaegermann wrote:
+> Who knows for sure what is the current upper limit on ext2/ext3
+> file system size (4KiB blocks as this is what tools will accept)?  It
+> definitely is not 1 TB as we were making working partition nearly twice
+> that.  But practice seems to indicate that 2 TB, or whereabout, can be
+> too much.  Is this a property of a file system or we bumping into
+> block device boundaries or this are just tools?
 
-> There has long been a preference in the scsi subsystem
-> for using its own memory management ( scsi_malloc() )
-> or the most conservative mm calls. GFP_ATOMIC may well
-> be overkill in scsi_build_commandblocks(). However it
-> might be wise to check that the calling context is indeed
-> user_space since this can be called from all subsystems 
-> that have a scsi pseudo device driver (e.g. ide-scsi, 
-> usb-storage, 1394/sbp2, ...).
+2TB is the limit for all block devices in 2.2 and 2.4 kernels.  This is
+from 2^32 * 512 byte sectors.  Using LVM or MD devices will not overcome
+this limitation.
 
-OK, I did the legwork, and it seems that Doug is right.
-Unfortunately, this means that, in pinhead's words, I should be
-ashamed to post the fix to a public mailing list. Let's do it
-this way: if Alan or Marcelo pick it - good. Real oops, real fix,
-everyone's happy. Otherwise, I'll ship it with Red Hat kernel under
-my own responsibility [I do not promise a hara-kiri if it blows up,
-but they will point fingers at me at meetings]
+There was a patch floating around which extended the block counts to
+64-bit ints (Jens Axboe and/or Ben LaHaise posted it), and I think at
+least part of it is in 2.5.  Even if you have 64-bit block counts,
+there are other issues which pop up fairly soon - 32-bit page indexes
+and other 32-bit overflows in calculations in the ext2 code.  There
+is definitely a hard limit at 16TB for 4kB block ext2 filesystems,
+but I suspect you will have problems at 8TB even after the 2TB block
+device limit is lifted.
 
-About the second point - we know the module count check is bogus,
-but if the attached band aid gets accepted, it may stay.
+> BTW - mke2fs goes most of the way but gets stuck eventually when
+> writing inode tables if that it is too close to 2 TB.  Yes, there
+> are people who really want that much of a file system or maybe even
+> more. :-)   This was not done for a sake of a record.
 
--- Pete
+You could always try it on a real 64-bit machine to see if that helps.
+You can concievably use 8kB blocks on an Alpha, giving you an upper
+limit of 32TB for the filesystem until the ext2 extent code is
+implemented (which will give us 64-bit block numbers among other things).
 
---- linux-2.4.19-pre2/drivers/scsi/scsi.c	Mon Mar 11 09:20:48 2002
-+++ linux-2.4.19-pre2-p3/drivers/scsi/scsi.c	Thu Mar 21 23:31:35 2002
-@@ -106,6 +106,12 @@
- 				COMMAND_SIZE(SCpnt->cmnd[0]) : SCpnt->cmd_len)
- 
- /*
-+ * This code cannot be detangled, so we resort to band-aid.
-+ * See also gfp_any().
-+ */
-+#define GFP_ANY()	(in_interrupt()? GFP_ATOMIC: GFP_KERNEL)
-+
-+/*
-  * Data declarations.
-  */
- unsigned long scsi_pid;
-@@ -1483,12 +1489,16 @@
- 	SDpnt->device_queue = NULL;
- 
- 	for (j = 0; j < SDpnt->queue_depth; j++) {
-+		spin_unlock_irqrestore(&device_request_lock, flags);
-+
- 		SCpnt = (Scsi_Cmnd *)
- 		    kmalloc(sizeof(Scsi_Cmnd),
--				     GFP_ATOMIC |
-+				GFP_ANY() |
- 				(host->unchecked_isa_dma ? GFP_DMA : 0));
--		if (NULL == SCpnt)
-+		if (NULL == SCpnt) {
-+			spin_lock_irqsave(&device_request_lock, flags);
- 			break;	/* If not, the next line will oops ... */
-+		}
- 		memset(SCpnt, 0, sizeof(Scsi_Cmnd));
- 		SCpnt->host = host;
- 		SCpnt->device = SDpnt;
-@@ -1506,10 +1516,12 @@
- 		SCpnt->serial_number = 0;
- 		SCpnt->serial_number_at_timeout = 0;
- 		SCpnt->host_scribble = NULL;
--		SCpnt->next = SDpnt->device_queue;
--		SDpnt->device_queue = SCpnt;
- 		SCpnt->state = SCSI_STATE_UNUSED;
- 		SCpnt->owner = SCSI_OWNER_NOBODY;
-+
-+		spin_lock_irqsave(&device_request_lock, flags);
-+		SCpnt->next = SDpnt->device_queue;
-+		SDpnt->device_queue = SCpnt;
- 	}
- 	if (j < SDpnt->queue_depth) {	/* low on space (D.Gilbert 990424) */
- 		printk(KERN_WARNING "scsi_build_commandblocks: want=%d, space for=%d blocks\n",
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+

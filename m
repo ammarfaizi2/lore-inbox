@@ -1,63 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264376AbTLKILr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 03:11:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbTLKILr
+	id S264387AbTLKIOy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 03:14:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264395AbTLKIOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 03:11:47 -0500
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:54351 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S264376AbTLKILq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 03:11:46 -0500
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: <rob@landley.net>, "'Larry McVoy'" <lm@bitmover.com>,
-       "'Linus Torvalds'" <torvalds@osdl.org>
-Cc: "'Andre Hedrick'" <andre@linux-ide.org>,
-       "'Arjan van de Ven'" <arjanv@redhat.com>, <Valdis.Kletnieks@vt.edu>,
-       "'Kendall Bennett'" <KendallB@scitechsoft.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: Linux GPL and binary module exception clause?
-Date: Thu, 11 Dec 2003 00:11:40 -0800
-Organization: Cisco Systems
-Message-ID: <014301c3bfbe$67fa1540$d43147ab@amer.cisco.com>
+	Thu, 11 Dec 2003 03:14:53 -0500
+Received: from mail-10.iinet.net.au ([203.59.3.42]:29369 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264387AbTLKIOu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 03:14:50 -0500
+Message-ID: <3FD82775.3050303@cyberone.com.au>
+Date: Thu, 11 Dec 2003 19:14:45 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Rhino <rhino9@terra.com.br>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@redhat.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>,
+       wli@holomorphy.com
+Subject: Re: [CFT][RFC] HT scheduler
+References: <3FD3FD52.7020001@cyberone.com.au>	<20031208155904.GF19412@krispykreme>	<3FD50456.3050003@cyberone.com.au>	<20031209001412.GG19412@krispykreme>	<3FD7F1B9.5080100@cyberone.com.au>	<3FD81BA4.8070602@cyberone.com.au> <20031211060120.4769a0e8.rhino9@terra.com.br>
+In-Reply-To: <20031211060120.4769a0e8.rhino9@terra.com.br>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <200312110143.23422.rob@landley.net>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> For one thing, the plugin was made by someone without access 
-> to Netscape or IE's source code, using a documented interface 
-> that contained sufficient information to do the job without access 
-> to that source code.
+
+
+Rhino wrote:
+
+>On Thu, 11 Dec 2003 18:24:20 +1100
+>Nick Piggin <piggin@cyberone.com.au> wrote:
 >
-> Yes, it matters.
+>
+>>
+>>Nick Piggin wrote:
+>>
+>>
+>>>http://www.kerneltrap.org/~npiggin/w26/
+>>>Against 2.6.0-test11
+>>>
+>>
+>>Oh, this patchset also (mostly) cures my pet hate for the
+>>last few months: VolanoMark on the NUMA.
+>>
+>>http://www.kerneltrap.org/~npiggin/w26/vmark.html
+>>
+>>The "average" plot for w26 I think is a little misleading because
+>>it got an unlucky result on the second last point making it look
+>>like its has a downward curve. It is usually more linear with a
+>>sharp downward spike at 150 rooms like the "maximum" plot.
+>>
+>>Don't ask me why it runs out of steam at 150 rooms. hackbench does
+>>something similar. I think it might be due to some resource running
+>>short, or a scalability problem somewhere else.
+>>
+>
+>i didn't had the time to apply the patches (w26 and C1 from ingo ) 
+>on a vanilla t11, but i merged them with the wli-2,btw this one has really put 
+>my box on steroids ;) .
+>
 
-_What_ matters?
+You won't be able to merge mine with Ingo's. Which one put the box on
+steroids? :)
 
-Open source? (if you write a plugin for an opensource
-kernel/application, you are not plugin anymore and you are derived
-work.) I am sure you don't mean it.
+>
+>none of them finished a hackbench 320 run, the OOM killed all of my
+>agetty's logging me out. the box is a 1way p4(HT) 1gb of ram 
+>and no swap heh.
+>
+>
+>	hackbench:
+>
+>	sched-rollup-w26		sched-SMT-2.6.0-test11-C1
+>		
+>	 50	 4.839			 50	5.200
+>	100	 9.415			100	10.090
+>	150	14.469			150	14.764
+>
+>	
+>
+>	time tar -xvjpf linux-2.6.0-test11.tar.bz2:
+>
+>	sched-rollup-w26		sched-SMT-2.6.0-test11-C1
+>	
+>	real		43.396		real		23.136
+>
+                           ^^^^^^
 
-Documented interface? Hey, there are sources which are the best
-documentation. :-)
+>
+>	user		27.608		user		20.700
+>	sys		 4.039		sys		 4.344
+>
 
-Seriously, even if I accept that there is never an intent to support a
-stable ABI for kernel modules, some vendor can easily claim that "we
-support a stable ABI, so write kernel modules for the kernel we
-distribute".
+Wonder whats going on here? Is this my patch vs Ingo's with nothing else 
+applied?
+How does plain 2.6.0-test11 go?
 
-Anything can prevent that? I cannot see GPL disallow it.
+Thanks for testing.
 
-So OK, Linus and other kernel developers never intended to provide a
-stable ABI, but someone else could. The original author's intent is
-never relevant anymore. This is the goodness of opensource, isn't it?
 

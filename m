@@ -1,105 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266643AbTAINjP>; Thu, 9 Jan 2003 08:39:15 -0500
+	id <S266682AbTAINl6>; Thu, 9 Jan 2003 08:41:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266675AbTAINjP>; Thu, 9 Jan 2003 08:39:15 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:10763 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S266643AbTAINjN>;
-	Thu, 9 Jan 2003 08:39:13 -0500
-Date: Thu, 9 Jan 2003 14:47:55 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Kernel Bug Database V1.10 on-line
-Message-ID: <20030109134755.GE2529@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200301091311.h09DB4Ka001126@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SqEuGDw53xMPnx3c"
-Content-Disposition: inline
-In-Reply-To: <200301091311.h09DB4Ka001126@darkstar.example.net>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
-x-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-x-gpg-key: wwwkeys.de.pgp.net
+	id <S266761AbTAINl6>; Thu, 9 Jan 2003 08:41:58 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:23492 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S266682AbTAINl5>; Thu, 9 Jan 2003 08:41:57 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+Subject: NEED HELP about flush_map() in pageattr.c
+Date: Thu, 9 Jan 2003 14:50:37 +0100
+User-Agent: KMail/1.4.3
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301091450.37918.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---SqEuGDw53xMPnx3c
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+currently I am writing a patch to be able to make TLBs on any IO-devices
+coherent to the CPUs TLBs. So I was looking in the kernel-sources for places
+where not only the local but all TLBs are flushed. So I came up with
+flush_map() in the arch/i386/mm/ and the arch/x86_64/mm/ directories.
 
-On Thu, 2003-01-09 13:11:04 +0000, John Bradford <john@grabjohn.com>
-wrote in message <200301091311.h09DB4Ka001126@darkstar.example.net>:
-> Version 1.10 of my kernel bug database is now on-line at:
->=20
-> http://grabjohn.com/kernelbugdatabase/
+Now my questions:
 
-> If the original submitter of a bug uploaded their config file, you can
-> download a config file with the same options set.
+1. In the x86_64 part of code the flush_kernel_map() does a
+local_flush_tlb_one() but in the i386 parts a local_flush_tlb_all(). Is the
+mentioned athlon bug the cause or can it be changed to work as in the x86_64
+code?
 
-What do I get? His/her config file, or some other?
+2. Can the flush_map() function be replaced by a flush_tlb_all() respective
+flush_tlb_page(). If I can do so, what would be the correct value for the
+first argument 'vma'?
 
-One can watch certain subsystems/drivers. That's a _really_ nice
-feature, and I'd even like to be notified if a file belonging to one of
-"my" choosen subsystems is to be changed on mainstream. However,
-choosing subsystems of interest isn't quite fun because of the entrie's
-order.
+If it is not posible could you please tell me why not...?
 
-I'd do this with three parts (within one list):
+Thank you very much!
 
-ARCH - ALPHA
-ARCH - SPARC
-ARCH - ...
+  Thomas Schlichter
 
-Then important subsystems:
-FS-Core
-INIT
-NET
-NET-IPv4
-NET-IPv6
-NET-xxx
-PCI
-SCSI
-IDE
-=2E..
-
-=2E..and at last, I'd list all chooseable drivers:
-3c509
-cpuid
-ACPI
-APM
-FS - AFS
-FS - EXT2
-FS - EXT3
-FS - codepages
-=2E..
-
-That would really ease finding the interesting parts. Where, for
-example, can I go for sparc?
-
-MfG, JBG
-
-
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet!
-   Shell Script APT-Proxy: http://lug-owl.de/~jbglaw/software/ap2/
-
---SqEuGDw53xMPnx3c
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+HX2LHb1edYOZ4bsRAp+3AJ4xWnOptZUR2LV9BhF/rKmd5TBZTACggIwK
-oyzhy7q61ATl2p9npYM4NQk=
-=8pH9
------END PGP SIGNATURE-----
-
---SqEuGDw53xMPnx3c--

@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbUKELYw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262653AbUKELaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261550AbUKELYw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 06:24:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbUKELYw
+	id S262653AbUKELaq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 06:30:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbUKELaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 06:24:52 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:25556 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261550AbUKELYi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 06:24:38 -0500
-Date: Fri, 5 Nov 2004 12:24:04 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Lorenzo Allegrucci <l_allegrucci@yahoo.it>, Andrew Morton <akpm@osdl.org>,
+	Fri, 5 Nov 2004 06:30:46 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:11734 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262647AbUKELaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 06:30:39 -0500
+Date: Fri, 5 Nov 2004 12:30:33 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Matthias Andree <matthias.andree@gmx.de>, kaber@trash.net,
+       netfilter-devel@lists.netfilter.org, linux-net@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc1-mm3
-Message-ID: <20041105112404.GA32198@elte.hu>
-References: <20041105001328.3ba97e08.akpm@osdl.org> <200411051041.17940.l_allegrucci@yahoo.it> <20041105102204.GA4730@elte.hu> <20041105110951.GA29702@elte.hu> <20041105111751.GC8349@wotan.suse.de>
+Subject: Re: [BK PATCH] Fix ip_conntrack_amanda data corruption bug that breaks amanda dumps
+Message-ID: <20041105113033.GA10276@merlin.emma.line.org>
+Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
+	kaber@trash.net, netfilter-devel@lists.netfilter.org,
+	linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20041104121522.GA16547@merlin.emma.line.org> <418A7B0B.7040803@trash.net> <20041104231734.GA30029@merlin.emma.line.org> <418AC0F2.7020508@trash.net> <20041104160655.1c66b7ef.davem@davemloft.net> <20041105010427.GA2770@merlin.emma.line.org> <20041104165847.2f178d81.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041105111751.GC8349@wotan.suse.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20041104165847.2f178d81.davem@davemloft.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 04 Nov 2004, David S. Miller wrote:
 
-* Andi Kleen <ak@suse.de> wrote:
+> The original ip_conntrack_amanda was correct before
+> my skb_header_pointer() changes.  Patrick's patch, which
+> I'll of course apply, simply reverted those changes back
+> to the original code which uses the amanda_buffer for
+> the UDP control stream always.
 
-> > The solution is to clip both 'first' and 'last' to PML4_SIZE boundary.
-> > Since when we calculate 'first' we add at least +PML4_SIZE to the value,
-> > it is safe to clip 'first'. It is obviously safe to clip 'last'.
-> 
-> It's a bit tricky because on 3level architectures it clips on PGDs,
-> not PML4s, otherwise it would never free any pagetables.  But the
-> if()s check that correctly.
+OK, thanks to both of you for handling this.
 
-indeed ... But in the do_munmap() case we dont even clip to PGD
-boundary. So shouldnt we at least do the patch below?
+One question remains though, where is the SKB stuff documented?  "make
+htmldocs" didn't elucidate me, neither did "grep -r skb_header_pointer
+Documentation"
 
-	Ingo
-
---- linux/mm/mmap.c.orig
-+++ linux/mm/mmap.c
-@@ -1545,7 +1545,7 @@ no_mmaps:
- 	}
- 	if (pml4_index(last) > start_pml4_index ||
- 	    pgd_index(last) > start_pgd_index) {
--		clear_page_range(tlb, first & PML4_MASK, last & PML4_MASK);
-+		clear_page_range(tlb, first & PGDIR_MASK, last & PGDIR_MASK);
- 		flush_tlb_pgtables(mm, first & PML4_MASK, last & PML4_MASK);
- 	}
- }
+-- 
+Matthias Andree

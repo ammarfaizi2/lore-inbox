@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264162AbTLOWCL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 17:02:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264163AbTLOWCL
+	id S264163AbTLOWDr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 17:03:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTLOWDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 17:02:11 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:19875
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264162AbTLOWCI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 17:02:08 -0500
-Date: Mon, 15 Dec 2003 23:02:57 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC - tarball/patch server in BitKeeper
-Message-ID: <20031215220257.GM6730@dualathlon.random>
-References: <20031214172156.GA16554@work.bitmover.com> <2259130000.1071469863@[10.10.2.4]> <20031215151126.3fe6e97a.vsu@altlinux.ru> <20031215132720.GX7308@phunnypharm.org> <20031215192402.528ce066.vsu@altlinux.ru> <20031215183138.GJ6730@dualathlon.random> <20031215185839.GA8130@work.bitmover.com> <20031215194057.GL6730@dualathlon.random> <20031215214452.GB8130@work.bitmover.com>
+	Mon, 15 Dec 2003 17:03:46 -0500
+Received: from fw.osdl.org ([65.172.181.6]:15818 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264163AbTLOWDm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 17:03:42 -0500
+Date: Mon, 15 Dec 2003 14:04:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Olien <dmo@osdl.org>
+Cc: linux-kernel@vger.kernel.org, piggin@cyberone.com.au
+Subject: Re: [PATCH] 2.6.0-test11 DAC960 request queue per disk
+Message-Id: <20031215140438.4371dbdb.akpm@osdl.org>
+In-Reply-To: <20031215214053.GA3308@osdl.org>
+References: <20031215214053.GA3308@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031215214452.GB8130@work.bitmover.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 15, 2003 at 01:44:52PM -0800, Larry McVoy wrote:
-> all.  It's our tool and the use of our tool to export information how the
+Dave Olien <dmo@osdl.org> wrote:
+>
+> 
+> Here's a patch that changes the DAC960 driver from having one request
+> queue for ALL disks on the controller, to having a request queue for
+> each logical disk.  This turns out to make little difference for deadline
+> scheduler, nor for AS scheduler under light IO load.  But under AS
+> scheduler with heavy IO, it makes about a 40% difference on dbt2
+> workload.  Here are the measured numbers:
+> 
+> The 2.6.0-test11-D kernel version includes this mutli-queue patch to the
+> DAC960 driver.
+> 
+> For non-cached dbt2 workload  (heavy IO load)
+> 
+> Scheduler	kernel/driver	NOTPM(bigger is better)
+> AS		2.6.0-test11-D  1598
+> AS		2.6.0-test11     973
+> deadline	2.6.0-test11    1640
+> deadline	2.6.0-test11-D  1645
+> 
+> For cached dbt2 workload (lighter IO load)
+> 
+> AS		2.6.0-test11-D  4993
+> AS		2.6.-test6-mm4  4976, 4890, 4972
+> deadline	2.6.0-test11-D  4998
 
-is the web your tool too?
+Looks nice.
 
-in your previous email you said the information is available via bkbits
-web.  But in an older email you said if we would use the web to fetch
-information you would shut it down (for whatever reason, not relevant
-for this email). Please clarify this single point: is the "web" a tool
-we can use to fetch information? If not (as you claimed months ago),
-then the information exported in the web sure can't be classified as
-information to use for interoperability as you stated a few emails ago
-today.
+> Can this be included in 2.6.0?  I know it's not a "critical patch"
+> in the sense that something won't work without it.  On the other hand,
+> the change is isolated to a driver.
 
-I'm fine with the partial info in bkcvs, not sure why you say I'm not
-happy or why you think my emotions matters at all with this thread. 
+Let's queue it for 2.6.1 please.  The default IO scheduler in 2.6.0 will
+have some (known) efficiency problems anyway.  (I thought those were fixed
+in current -mm but we still seem to have tiobench randread problems).
+
+

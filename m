@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314277AbSD0Q3N>; Sat, 27 Apr 2002 12:29:13 -0400
+	id <S314278AbSD0QaY>; Sat, 27 Apr 2002 12:30:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314278AbSD0Q3M>; Sat, 27 Apr 2002 12:29:12 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:13697 "HELO gherkin.frus.com")
-	by vger.kernel.org with SMTP id <S314277AbSD0Q3M>;
-	Sat, 27 Apr 2002 12:29:12 -0400
-Message-Id: <m171V4A-0005khC@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy)
-Subject: Re: The tainted message
-In-Reply-To: <E171TzX-0008PF-00@the-village.bc.nu> "from Alan Cox at Apr 27,
- 2002 04:20:03 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Sat, 27 Apr 2002 11:28:54 -0500 (CDT)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	id <S314280AbSD0QaY>; Sat, 27 Apr 2002 12:30:24 -0400
+Received: from w226.z064000207.nyc-ny.dsl.cnc.net ([64.0.207.226]:20022 "EHLO
+	carey-server.stronghold.to") by vger.kernel.org with ESMTP
+	id <S314278AbSD0QaW>; Sat, 27 Apr 2002 12:30:22 -0400
+Message-Id: <4.3.2.7.2.20020427120007.03a57800@mail.strongholdtech.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Sat, 27 Apr 2002 12:35:52 -0400
+To: tanner@real-time.com
+From: "Nicolae P. Costescu" <nick@strongholdtech.com>
+Subject: Re: BIOS says MP, kernel says XP was PROBLEM: Dual (2) AMD
+  ATHLON MP 1900+ CPUs gives APIC error on CPU[0]: 00(02)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E171U0D-0008PV-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > I would like to propose that a clearer, more direct message be used. 
-> > Something like "Warning: kernel maintainers may not support your kernel
-> > since you have loaded %s: %s%s\n" would be much more informative and
-> > correct.
-> 
-> More informative but I think too soft. It still implies we might want to
-> hear about it but not reply. That isnt the case.
+The behavior you originally described, and the bootup output (where the 
+kernel reports the CPUs as XPs) might indicate you're really running XPs.
 
-What you say is true enough if you speak for yourself and/or the core
-cadre of kernel maintainers.  On the other hand, the linux-kernel list
-has been and mostly continues to be a good place to get help with
-problems related to kernel changes that affect non-GPL modules.
+Especially the part where the system runs fine when only 1 CPU is 
+installed. That's what a lot of XP users report.
 
-To put it another way, the kernel developers aren't necessarily the
-target audience when a request for assistance is posted to linux-kernel.
-If that was too subtle, kernel developers aren't the only people who
-read linux-kernel.  Is linux-kernel an appropriate venue for such
-assistance requests?  Maybe not the *most* appropriate one, but it's
-often the most efficient.  Let me put it this way: speaking for myself,
-I don't ask linux-kernel list readers for help with a problem if the
-problem isn't the immediate result of a kernel change.
+I know you checked the box, but maybe to be sure you can emove the heatsink 
+(make sure you have spare thermal compound handy for when you replace it) 
+and check on the core, is it a 1900XP or 1900MP.
 
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+I have several Tyan 2466N and 2466N-4M and all report the CPUs as 1900+ MPs 
+when the kernel boots.
+
+Another user reported stability issues that turned out to be his MP CPUs. 
+He was able to move them to other motherboards and cause the stability 
+problems. In the end he had to swap CPUs. I'll ask him to email you 
+directly perhaps he can help. He has your motherboard as well.
+
+
+
+****************************************************
+Nicolae P. Costescu, Ph.D.  / Senior Developer
+Stronghold Technologies
+46040 Center Oak Plaza, Suite 160 / Sterling, Va 20166
+Tel: 571-434-1472 / Fax: 571-434-1478
+

@@ -1,29 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310169AbSB1XvM>; Thu, 28 Feb 2002 18:51:12 -0500
+	id <S292582AbSCABTI>; Thu, 28 Feb 2002 20:19:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310196AbSB1XtV>; Thu, 28 Feb 2002 18:49:21 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62479 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310206AbSB1Xqe>; Thu, 28 Feb 2002 18:46:34 -0500
-Subject: Re: Submissions for 2.4.19-pre [sdmany (Richard Gooch)] [Discuss :) ]
-To: davidsen@tmr.com (Bill Davidsen)
-Date: Thu, 28 Feb 2002 23:58:18 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.LNX.3.96.1020228173303.2006G-100000@gatekeeper.tmr.com> from "Bill Davidsen" at Feb 28, 2002 05:38:31 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310159AbSCABRb>; Thu, 28 Feb 2002 20:17:31 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:23057 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S310291AbSCABOt>;
+	Thu, 28 Feb 2002 20:14:49 -0500
+Date: Thu, 28 Feb 2002 22:14:31 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bill Davidsen <davidsen@tmr.com>, Christoph Hellwig <hch@caldera.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in the
+In-Reply-To: <E16gbTG-0001rM-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33L.0202282214230.2801-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16gaRG-0001aR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hate to say it but 2.5 is not ready for any kind of production use, and
-> some people really need to connect more SCSI devices than are currently
-> supported. That's NOT ivory tower, it's real world "do it with Linux"
-> problem solving.
+On Fri, 1 Mar 2002, Alan Cox wrote:
 
-I'd be interested to know if Al Viro considers devfs production use ready yet
+> > or (c) have proponents of the inclusion of the O(1) scheduler
+> > fix all drivers before having the O(1) scheduler considered
+> > for inclusion.
+>
+> According to find and grep the patch in general use does precisely that
+> except for Andrea's yield loops on init kill funnies that still lurk in
+> the non x86 parts of rmap. If rmap doesnt need them I guess they should go ?
+
+Absolutely.
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

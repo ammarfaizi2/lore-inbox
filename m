@@ -1,130 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbUJYPOm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbUJYPYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbUJYPOm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 11:14:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbUJYPNh
+	id S261971AbUJYPYX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 11:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUJYPYC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 11:13:37 -0400
-Received: from ip22-176.tor.istop.com ([66.11.176.22]:55464 "EHLO
-	crlf.tor.istop.com") by vger.kernel.org with ESMTP id S261854AbUJYOpO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 10:45:14 -0400
-Cc: raven@themaw.net
-Subject: [PATCH 13/28] VFS: Introduce soft reference counts
-In-Reply-To: <10987154731896@sun.com>
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Mon, 25 Oct 2004 10:45:03 -0400
-Message-Id: <10987155032816@sun.com>
-References: <10987154731896@sun.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Mike Waychison <michael.waychison@sun.com>
+	Mon, 25 Oct 2004 11:24:02 -0400
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:21992 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id S261959AbUJYPWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 11:22:19 -0400
+Date: Mon, 25 Oct 2004 11:21:56 -0400
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [PATCH 25/28] VFS: statfs(64) shouldn't follow last component
+ symlink
+In-reply-to: <20041025151405.GA1740@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       raven@themaw.net
+Message-id: <417D1A14.5010601@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <10987158413464@sun.com> <10987158711277@sun.com>
+ <20041025151405.GA1740@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch introduces the concept of a 'soft' reference count for a vfsmount.
-This type of reference count allows for references to be held on mountpoints
-that do not affect their busy states for userland unmounting.  Some might
-argue that this is wrong because 'when I unmount a filesystem, I want the
-resources associated with it to go away too', but this way of thinking was
-deprecated with the addition of namespaces and --bind back in the 2.4 series.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-A future addition may see a callback mechanism so that in kernel users can
-use a given mountpoint and have it deregistered some way (quota and
-accounting come to mind).
+Christoph Hellwig wrote:
+> On Mon, Oct 25, 2004 at 10:51:11AM -0400, Mike Waychison wrote:
+> 
+>>Mount-related userspace tools will require the ability to detect whether what
+>>looks like a regular directory is actually a autofs trigger.  To handle this,
+>>tools can statfs a given directory and check to see if statfs->f_type ==
+>>AUTOFSNG_SUPER_MAGIC before walking into the directory (and causing the a
+>>filesystem to automount).
+>>
+>>To make this happen, we cannot allow statfs to follow_link.
+>>
+>>NOTE: This may break any userspace that assumes it can statfs across a
+>>last-component symlink.  I can't think of any real world breakage however, as
+>>mount(8) will drop the real path in /etc/mtab and /proc/mounts will always
+>>show the true path.
+> 
+> 
+> Which means it's vetoed.  It's a big change in syscall semantics.  And
+> propabably breaks SuS (for statvfs(3) which requires full symlink
+> resolution when it just refers to a path on the filesystem.
+> 
 
-These soft reference counts are used by a later patch that adds an interface
-for holding and manipulating mountpoints using filedescriptors.
+Ya, I figured that would be the case.   What do folks think about a
+lstatfs(64)?
 
-Signed-off-by: Mike Waychison <michael.waychison@sun.com>
----
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
 
- fs/namespace.c        |    4 ++++
- include/linux/mount.h |   28 ++++++++++++++++++++++++++++
- 2 files changed, 32 insertions(+)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Index: linux-2.6.9-quilt/include/linux/mount.h
-===================================================================
---- linux-2.6.9-quilt.orig/include/linux/mount.h	2004-10-22 17:17:38.881553248 -0400
-+++ linux-2.6.9-quilt/include/linux/mount.h	2004-10-22 17:17:40.185355040 -0400
-@@ -30,6 +30,7 @@ struct vfsmount
- 	struct list_head mnt_mounts;	/* list of children, anchored here */
- 	struct list_head mnt_child;	/* and going through their mnt_child */
- 	atomic_t mnt_count;
-+	atomic_t mnt_softcount; 	/* hold reference w/o going busy */
- 	union {
- 		struct vfsmount *base;	/* pointer to root of vfsmount tree */
- 		atomic_t count;		/* user ref count on this tree */
-@@ -104,6 +105,33 @@ static inline void mntput(struct vfsmoun
- 	}
- }
- 
-+static inline struct vfsmount *mntsoftget(struct vfsmount *mnt)
-+{
-+	if (mnt) {
-+		read_lock(&vfsmountref_lock);
-+		atomic_inc(&mnt->mnt_softcount);
-+		mntgroupget(mnt);
-+		read_unlock(&vfsmountref_lock);
-+	}
-+	return mnt;
-+}
-+
-+static inline void mntsoftput(struct vfsmount *mnt)
-+{
-+	struct vfsmount *cleanup;
-+	might_sleep();
-+	if (mnt) {
-+		if (atomic_dec_and_test(&mnt->mnt_count))
-+			__mntput(mnt);
-+		read_lock(&vfsmountref_lock);
-+		cleanup = mntgroupput(mnt);
-+		atomic_dec(&mnt->mnt_softcount);
-+		read_unlock(&vfsmountref_lock);
-+		if (cleanup)
-+			__mntgroupput(cleanup);
-+	}
-+}
-+
- extern void free_vfsmnt(struct vfsmount *mnt);
- extern struct vfsmount *alloc_vfsmnt(const char *name);
- extern struct vfsmount *do_kern_mount(const char *fstype, int flags,
-Index: linux-2.6.9-quilt/fs/namespace.c
-===================================================================
---- linux-2.6.9-quilt.orig/fs/namespace.c	2004-10-22 17:17:39.557450496 -0400
-+++ linux-2.6.9-quilt/fs/namespace.c	2004-10-22 17:17:40.187354736 -0400
-@@ -73,6 +73,7 @@ struct vfsmount *alloc_vfsmnt(const char
- 		memset(mnt, 0, sizeof(struct vfsmount));
- 		mnt->mnt_flags = MNT_ISBASE;
- 		atomic_set(&mnt->mnt_count,1);
-+		atomic_set(&mnt->mnt_softcount,0);
- 		atomic_set(&mnt->mnt_group.count, 1);
- 		INIT_LIST_HEAD(&mnt->mnt_hash);
- 		INIT_LIST_HEAD(&mnt->mnt_child);
-@@ -187,6 +188,7 @@ static void detach_mnt(struct vfsmount *
- 
- 		/* count the total number of refcounts in the sub-tree */
- 		nrefs += atomic_read(&p->mnt_count);
-+		       + atomic_read(&p->mnt_softcount);
- 	}
- 
- 	/*
-@@ -362,6 +364,7 @@ void __mntgroupput(struct vfsmount *mnt)
- 
- 		if (mnt == mnt->mnt_parent) {
- 			WARN_ON(atomic_read(&mnt->mnt_count) != 0);
-+			WARN_ON(atomic_read(&mnt->mnt_softcount) != 0);
- 			list_del_init(&mnt->mnt_list);
- 			__mntput(mnt);
- 		} else {
-@@ -373,6 +376,7 @@ void __mntgroupput(struct vfsmount *mnt)
- 			dput(old_nd.dentry);
- 			atomic_dec(&mnt->mnt_count);
- 			WARN_ON(atomic_read(&mnt->mnt_count) != 0);
-+			WARN_ON(atomic_read(&mnt->mnt_softcount) != 0);
- 			__mntput(mnt);
- 		}
- 	}
-
+iD8DBQFBfRoUdQs4kOxk3/MRAgHoAKCApqvkE2hgLAJKXDkLWWJE7BqevgCfQlh9
+BxBlFSMUPoo1VyOcntae7Y0=
+=rR8G
+-----END PGP SIGNATURE-----

@@ -1,79 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135700AbRD2IsR>; Sun, 29 Apr 2001 04:48:17 -0400
+	id <S135704AbRD2JS1>; Sun, 29 Apr 2001 05:18:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135701AbRD2IsI>; Sun, 29 Apr 2001 04:48:08 -0400
-Received: from mailgw.prontomail.com ([216.163.180.10]:25494 "EHLO
-	c0mailgw03.prontomail.com") by vger.kernel.org with ESMTP
-	id <S135700AbRD2Iru>; Sun, 29 Apr 2001 04:47:50 -0400
-Message-ID: <3AEBD4F7.D5B2517F@mvista.com>
-Date: Sun, 29 Apr 2001 01:46:47 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Galbraith <mikeg@wen-online.de>
-CC: Nigel Gamble <nigel@nrg.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: #define HZ 1024 -- negative effects?
-In-Reply-To: <Pine.LNX.4.33.0104280646140.430-100000@mikeg.weiden.de>
+	id <S135706AbRD2JSS>; Sun, 29 Apr 2001 05:18:18 -0400
+Received: from www.linux.org.uk ([195.92.249.252]:48393 "EHLO www.linux.org.uk")
+	by vger.kernel.org with ESMTP id <S135704AbRD2JSM>;
+	Sun, 29 Apr 2001 05:18:12 -0400
+Date: Sun, 29 Apr 2001 10:17:39 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Zerocopy implementation issues
+Message-ID: <20010429101739.D30243@flint.arm.linux.org.uk>
+Mail-Followup-To: Russell King <rmk@flint.arm.linux.org.uk>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010429005206.J21792@flint.arm.linux.org.uk> <15083.40318.158099.137018@pizda.ninka.net> <20010429072342.B30041@flint.arm.linux.org.uk> <15083.52835.992666.897323@pizda.ninka.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15083.52835.992666.897323@pizda.ninka.net>; from davem@redhat.com on Sun, Apr 29, 2001 at 01:18:43AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> 
-> On Fri, 27 Apr 2001, Nigel Gamble wrote:
-> 
-> > On Fri, 27 Apr 2001, Mike Galbraith wrote:
-> > > On Fri, 27 Apr 2001, Nigel Gamble wrote:
-> > > > > What about SCHED_YIELD and allocating during vm stress times?
-> > >
-> > > snip
-> > >
-> > > > A well-written GUI should not be using SCHED_YIELD.  If it is
-> > >
-> > > I was refering to the gui (or other tasks) allocating memory during
-> > > vm stress periods, and running into the yield in __alloc_pages()..
-> > > not a voluntary yield.
-> >
-> > Oh, I see.  Well, if this were causing the problem, then running the GUI
-> > at a real-time priority would be a better solution than increasing the
-> > clock frequency, since SCHED_YIELD has no effect on real-time tasks
-> > unless there are other runnable real-time tasks at the same priority.
-> > The call to schedule() would just reschedule the real-time GUI task
-> > itself immediately.
-> >
-> > However, in times of vm stress it is more likely that GUI performance
-> > problems would be caused by parts of the GUI having been paged out,
-> > rather than by anything which could be helped by scheduling differences.
-> 
-> Agreed.  I wasn't thinking about swapping, only kswapd not quite keeping
-> up with laundering, and then user tasks having to pick up some of the
-> load.  Anyway, I've been told that for most values of HZ the slice is
-> 50ms, so my reasoning wrt HZ/SCHED_YIELD was wrong.  (begs the question
-> why do some archs use higher HZ values?)
-> 
-Well, almost.  Here is the scaling code:
+On Sun, Apr 29, 2001 at 01:18:43AM -0700, David S. Miller wrote:
+> Occaisionally I find that sparc64 is making a gross error or invalid
+> assumption, and I accept this and fix it up.
 
-#if HZ < 200
-#define TICK_SCALE(x)	((x) >> 2)
-#elif HZ < 400
-#define TICK_SCALE(x)	((x) >> 1)
-#elif HZ < 800
-#define TICK_SCALE(x)	(x)
-#elif HZ < 1600
-#define TICK_SCALE(x)	((x) << 1)
-#else
-#define TICK_SCALE(x)	((x) << 2)
-#endif
+Ok, I see precisely what's going on here now, shame you didn't explain
+about these csum_add stuff in your first mail on this subject, and
+we could've saved going down this path.
 
-#define NICE_TO_TICKS(nice)	(TICK_SCALE(20-(nice))+1)
+I'll fix up the ARM code, but its not going to be nice.
 
-This, by the way, is new with 2.4.x.  As to why, it has more to do with
-timer resolution than anything else.  Timer resolution is 1/HZ so higher
-HZ => better resolution.  Of course, you must pay for it.  Nothing is
-free :)  Higher HZ means more interrupts => higher overhead.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-George

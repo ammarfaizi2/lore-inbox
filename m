@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262208AbSLZDzV>; Wed, 25 Dec 2002 22:55:21 -0500
+	id <S262258AbSLZEAT>; Wed, 25 Dec 2002 23:00:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262258AbSLZDzV>; Wed, 25 Dec 2002 22:55:21 -0500
-Received: from server.ehost4u.biz ([209.51.155.18]:5335 "EHLO host.ehost4u.biz")
-	by vger.kernel.org with ESMTP id <S262208AbSLZDzU>;
-	Wed, 25 Dec 2002 22:55:20 -0500
-From: "Billy Rose" <billyrose@billyrose.net>
-To: user@mail.econolodgetulsa.com
-CC: bp@dynastytech.com, linux-kernel@vger.kernel.org, felipewd@terra.com.br
-Reply-To: billyrose@billyrose.net
-Subject: Re: CPU failures ... or something else ?
-X-Mailer: NeoMail 1.25
-X-IPAddress: 65.132.64.212
+	id <S262324AbSLZEAT>; Wed, 25 Dec 2002 23:00:19 -0500
+Received: from paiol.terra.com.br ([200.176.3.18]:15514 "EHLO
+	paiol.terra.com.br") by vger.kernel.org with ESMTP
+	id <S262258AbSLZEAS>; Wed, 25 Dec 2002 23:00:18 -0500
+Message-ID: <3E0A63F3.8020705@terra.com.br>
+Date: Thu, 26 Dec 2002 02:05:39 +0000
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <E18RPFA-0001ci-00@host.ehost4u.biz>
-Date: Wed, 25 Dec 2002 23:03:36 -0500
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host.ehost4u.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [32076 2072] / [32076 2072]
-X-AntiAbuse: Sender Address Domain - host.ehost4u.biz
+To: Josh Brooks <user@mail.econolodgetulsa.com>
+Cc: Billy Rose <billyrose@billyrose.net>, bp@dynastytech.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: CPU failures ... or something else ?
+References: <20021225200357.U6873-100000@mail.econolodgetulsa.com>
+In-Reply-To: <20021225200357.U6873-100000@mail.econolodgetulsa.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i agree with felipe, sounds like either a stick of ram is bad, or proc
-#1 is fried (possibly its vrm though).
+Josh Brooks wrote:
+> Understood.  Thank you for that diagnosis.
+> 
+> usually it says proc #1 in the error, but the first time it said proc #0 -
+> is that interesting ?
 
-a DRAC is the dell remote assistant card. it sits in a pci slot, has
-an intel i860 proc on it, and has a 10/100 for a net cable. if you
-have no cards, then it is obviously ruled out.
+	It is.
 
-billy
-=====
-"there's some milk in the fridge that's about to go bad...
-and there it goes..." -bobby
+	This would be a stronger evidence of bad RAM, since the instruction 
+fetch error occured "randomly" on both processors.
+
+	Either that or both your processors are going bad :)
+
+	Please run memtest86 to be sure it's a bad RAM problem.
+
+	Kind Regards,
+
+Felipe
+

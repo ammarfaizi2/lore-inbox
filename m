@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263299AbTLXCEa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 21:04:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTLXCEa
+	id S263158AbTLXCQt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 21:16:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTLXCQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 21:04:30 -0500
-Received: from [141.154.95.10] ([141.154.95.10]:26856 "EHLO peabody.ximian.com")
-	by vger.kernel.org with ESMTP id S263299AbTLXCEZ (ORCPT
+	Tue, 23 Dec 2003 21:16:49 -0500
+Received: from amber.ccs.neu.edu ([129.10.116.51]:7879 "EHLO amber.ccs.neu.edu")
+	by vger.kernel.org with ESMTP id S263158AbTLXCQs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 21:04:25 -0500
-Subject: Re: DevFS vs. udev
-From: Rob Love <rml@ximian.com>
-To: Ian Kent <raven@themaw.net>
-Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, "Bradley W. Allen" <ULMO@Q.NET>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0312240938450.890-100000@wombat.indigo.net.au>
-References: <Pine.LNX.4.33.0312240938450.890-100000@wombat.indigo.net.au>
+	Tue, 23 Dec 2003 21:16:48 -0500
+Subject: Re: Question about badblocks on SWAP partitions
+From: Stan Bubrouski <stan@ccs.neu.edu>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031224004108.GA15256@win.tue.nl>
+References: <1072225317.2947.153.camel@duergar>
+	 <20031224004108.GA15256@win.tue.nl>
 Content-Type: text/plain
-Message-Id: <1072231437.3826.3.camel@fur>
+Message-Id: <1072232202.2947.158.camel@duergar>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Tue, 23 Dec 2003 21:03:57 -0500
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 23 Dec 2003 21:16:44 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-12-23 at 20:52, Ian Kent wrote:
+On Tue, 2003-12-23 at 19:41, Andries Brouwer wrote:
+> swapoff?
+> 
 
-> It certainly seems like a good project for a someone, such as myself, that
-> is new to kernel development.
+Ok problem solved, I totally forgot about badblocks.  It's been soooo
+long since I've had a disk with actual physical errors (I've had my
+share of dead disks however!).  Anyways I just ran badblocks and remade
+the swap partition avoiding those blocks.
 
-Please take no offense to this, but it is an awful project for someone
-new to kernel development.  Plenty of knowledgeable/semi-knowledgeable
-kernel hackers looked at devfs and given up on it.  Despite what some
-people say about Richard, he is a good guy, and he did not succeed
-either.
+Thanks to all the people who mailed me off the list to remind of this
+simple solution.
 
-devfs is hard to get right and, worse, you will be starting with a bad
-base of code that I would not want to touch with an 18.72 foot pole.
+Best Regards,
 
-Greg, via udev, has made it so easy to just back up, slowly, and walk
-away from devfs.  devfs is not going anywhere in 2.6, I do not think,
-but let sleeping piles of crap sleep and let's just jettison this thing
-as soon as we can.
-
-Just my two cents - I am warning you ;)
-
-	Rob Love
-
+sb
 

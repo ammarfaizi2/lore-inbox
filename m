@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265443AbRGBWSU>; Mon, 2 Jul 2001 18:18:20 -0400
+	id <S265447AbRGBWWu>; Mon, 2 Jul 2001 18:22:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265441AbRGBWSA>; Mon, 2 Jul 2001 18:18:00 -0400
-Received: from mail.missioncriticallinux.com ([208.51.139.18]:13063 "EHLO
-	missioncriticallinux.com") by vger.kernel.org with ESMTP
-	id <S265440AbRGBWRz>; Mon, 2 Jul 2001 18:17:55 -0400
-Message-ID: <3B40F36D.3080701@missioncriticallinux.com>
-Date: Mon, 02 Jul 2001 18:19:25 -0400
-From: "Patrick O'Rourke" <orourke@missioncriticallinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3 i686; en-US; rv:0.9.1) Gecko/20010607 Netscape6/6.1b1
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: "SATHISH.J" <sathish.j@tatainfotech.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Reg crash utility installation
-In-Reply-To: <Pine.LNX.4.10.10107012004510.30427-100000@blrmail>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265441AbRGBWWk>; Mon, 2 Jul 2001 18:22:40 -0400
+Received: from mail-smtp.socket.net ([216.106.1.32]:3600 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S265451AbRGBWW2>; Mon, 2 Jul 2001 18:22:28 -0400
+Date: Mon, 2 Jul 2001 17:22:17 -0500
+From: "Gregory T. Norris" <haphazard@socket.net>
+To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: usbserial/keyspan module load race [was: 2.4.5 keyspan driver]
+Message-ID: <20010702172217.A2463@glitch.snoozer.net>
+Mail-Followup-To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
+	linux-kernel <linux-kernel@vger.redhat.com>
+In-Reply-To: <20010630003323.A908@glitch.snoozer.net> <20010630133752.A850@glitch.snoozer.net> <20010701154910.A15335@glitch.snoozer.net> <01070200025204.05063@idun>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01070200025204.05063@idun>
+User-Agent: Mutt/1.3.18i
+X-Operating-System: Linux glitch 2.4.5 #1 Sat Jun 30 17:26:00 CDT 2001 i686 unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SATHISH.J wrote:
+It wasn't quite as cooperative today, but after a few attempts I was
+able to reproduce it.
 
-> I installed crash2.6 on my machine. 
-> When I give the command "crash" from the prompt it says "no debugging
-> symbols found in /boot/vmlinux2.2.14-12". Why does this message show.
+     root@glitch[~]# modprobe keyspan
+     Warning: /lib/modules/2.4.5/kernel/drivers/usb/serial/usbserial.o symbol for parameter vendor not found
+     Segmentation fault
 
+     root@glitch[~]# ps -ef|grep "[m]odprobe"
+     root@glitch[~]#
 
-crash relies on debug info and so it needs access to an uncompressed
-vmlinux file which was built using -g.  The following URL offers more
-info:
+     root@glitch[~]# egrep "usb|key" /proc/modules 
+     keyspan                22112 (initializing)
+     usbserial              17296   0 [keyspan]
+     usb-uhci               21200   0 (unused)
+     usbcore                48688   1 [keyspan usbserial usb-uhci]
 
-	http://oss.missioncriticallinux.com/projects/crash/usage.php
+I browsed the full ps output as well, but I didn't find anything
+looking like what you described.
 
-Pat
-
--- 
-Patrick O'Rourke
-orourke@missioncriticallinux.com
-
+On Mon, Jul 02, 2001 at 12:02:52AM +0200, Oliver Neukum wrote:
+> When this happens does the modprobe task hang in __down with state D ?
+> ps can show you this information.
+> 
+> 	Regards
+> 		Oliver

@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265978AbUHFPSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268085AbUHFPRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265978AbUHFPSv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 11:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbUHFPSH
+	id S268085AbUHFPRz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 11:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbUHFPRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 11:18:07 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:29196 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S266009AbUHFPQX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 11:16:23 -0400
-Date: Fri, 6 Aug 2004 17:17:57 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: David Vrabel <dvrabel@arcom.com>, Hollis Blanchard <hollisb@us.ibm.com>,
-       Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: cross-depmod?
-Message-ID: <20040806151757.GA7331@mars.ravnborg.org>
-Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	David Vrabel <dvrabel@arcom.com>,
-	Hollis Blanchard <hollisb@us.ibm.com>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <1091742716.28466.27.camel@localhost> <411343F9.1080301@arcom.com> <Pine.GSO.4.58.0408061540200.26252@waterleaf.sonytel.be>
+	Fri, 6 Aug 2004 11:17:55 -0400
+Received: from colin2.muc.de ([193.149.48.15]:33546 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S268085AbUHFPQ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 11:16:26 -0400
+Date: 6 Aug 2004 17:16:25 +0200
+Date: Fri, 6 Aug 2004 17:16:25 +0200
+From: Andi Kleen <ak@muc.de>
+To: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, suparna@in.ibm.com, shemminger@osdl.org,
+       vamsi_krishna@in.ibm.com
+Subject: Re: [0/3]kprobes-base-268-rc3.patch
+Message-ID: <20040806151625.GA96991@muc.de>
+References: <2pMzT-XA-21@gated-at.bofh.it> <m3hdrhyhuy.fsf@averell.firstfloor.org> <20040806123757.GB3376@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0408061540200.26252@waterleaf.sonytel.be>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040806123757.GB3376@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 03:45:16PM +0200, Geert Uytterhoeven wrote:
-> On Fri, 6 Aug 2004, David Vrabel wrote:
-> > Hollis Blanchard wrote:
-> > > My problem is that I cross-build my kernels, and 'make rpm' is very
-> > > unhappy when it can't use depmod. I know that I can do 'make
-> > > DEPMOD=/bin/true rpm', but can't we figure that out automatically?
-> >
-> > I'd suggest not running depmod when building an RPM but instead run it
-> > as part of the RPMs post-installation script.
+On Fri, Aug 06, 2004 at 06:07:57PM +0530, Prasanna S Panchamukhi wrote:
+> Hi Andi,
 > 
-> I guess Hollis (just like me) is mostly interested in the possible error
-> messages of depmod, due to missing exported symbols.
+> Please find the exception notifiers patch for i386 architecture ported from 
+> x86_64 architecture.
+> Also I would like to mention that:
+> 
+> Earlier Stephen Hemminger ported notifiers to i386. The reason to drop the patch was
+> was, there were some bad interaction issues with using the hooks for NMI (trap
+> 2), locking and oprofile. 
+> 
+> Please review and provide your comments.
 
-This is fixed in modpost so you actually now get a warning when modpost
-is executed.
+The register_i386... names look ugly.  Leave the i386 out.
 
-	Sam
+Other than that it looks ok.
+
+Thanks,
+
+Is it good enough for kprobes?
+
+-Andi
+

@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264542AbTLVXKg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 18:10:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264545AbTLVXKg
+	id S264565AbTLVXIV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 18:08:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264568AbTLVXIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 18:10:36 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:65472 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S264542AbTLVXKd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 18:10:33 -0500
-Date: Tue, 23 Dec 2003 00:10:31 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: John Dee <antitux@antitux.net>, linux-kernel@vger.kernel.org
-Subject: Re: hmm..
-Message-ID: <20031222231031.GA10244@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Linus Torvalds <torvalds@osdl.org>, John Dee <antitux@antitux.net>,
-	linux-kernel@vger.kernel.org
-References: <3FE74FD3.8040807@antitux.net> <Pine.LNX.4.58.0312221316090.6868@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312221316090.6868@home.osdl.org>
-User-Agent: Mutt/1.3.28i
+	Mon, 22 Dec 2003 18:08:21 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22434 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264565AbTLVXIT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 18:08:19 -0500
+Message-ID: <3FE7794D.7000908@pobox.com>
+Date: Mon, 22 Dec 2003 18:07:57 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christophe Saout <christophe@saout.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Fruhwirth Clemens <clemens@endorphin.org>,
+       Joe Thornber <thornber@sistina.com>
+Subject: Re: [PATCH 2/2][RFC] Add dm-crypt target
+References: <1072129379.5570.73.camel@leto.cs.pocnet.net> <20031222215236.GB13103@leto.cs.pocnet.net>
+In-Reply-To: <20031222215236.GB13103@leto.cs.pocnet.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 22, 2003 at 01:31:51PM -0800, Linus Torvalds wrote:
+Christophe Saout wrote:
+> Hi,
+> 
+> this is the actual dm-crypt target. It uses cryptoapi to achive the same
+> goal as cryptoloop.
+> 
+> It uses mempools to ensure not to ever run out of memory and can split
+> large IOs into smaller ones under memory pressure.
+> 
+> Tested by some people, also works on a swap device.
 
->  - yes, Linux obviously has the same signal names and error number names 
->    that UNIX has (so the files certainly have a lot of the same 
->    identifiers)
 
-Even windows errno numbers often match the unix ones, btw.
+I like this.   Nice and clean.
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+May I assume that this is -not- intended as a replacement for 
+cryptoloop?  I hope so, as that would be my recommendation:  new driver, 
+new on-disk format.
+
+cryptoloop predates block layer stacking, and also support files, so I 
+would prefer to emphasize their differences.  A replacement for 
+cryptoloop means you must support cryptoloop's on-disk format.
+
+	Jeff
+
+
+

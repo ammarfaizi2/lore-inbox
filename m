@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbUKICc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbUKICgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbUKICc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 21:32:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbUKICc6
+	id S261354AbUKICgG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 21:36:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbUKICgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 21:32:58 -0500
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:39759 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261353AbUKICct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 21:32:49 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
-Date: Mon, 8 Nov 2004 21:32:46 -0500
-User-Agent: KMail/1.6.2
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, davids@webmaster.com,
-       =?utf-8?q?Rapha=C3=ABl_Rigo_LKML?= <lkml@twilight-hall.net>
-References: <MDEHLPKNGKAHNMBLJOLKIECMPKAA.davids@webmaster.com> <1099954836.14146.0.camel@localhost.localdomain>
-In-Reply-To: <1099954836.14146.0.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
+	Mon, 8 Nov 2004 21:36:06 -0500
+Received: from fw.osdl.org ([65.172.181.6]:5862 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261354AbUKICgC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 21:36:02 -0500
+Date: Mon, 8 Nov 2004 18:35:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages /
+ all_unreclaimable braindamage
+Message-Id: <20041108183552.7caccad1.akpm@osdl.org>
+In-Reply-To: <419029D9.90506@cyberone.com.au>
+References: <20041105200118.GA20321@logos.cnet>
+	<20041108162731.GE2336@logos.cnet>
+	<20041108185546.GA3468@logos.cnet>
+	<419029D9.90506@cyberone.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200411082132.46728.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 08 November 2004 06:00 pm, Alan Cox wrote:
-> On Llu, 2004-11-08 at 20:53, David Schwartz wrote:
-> > > I don't see the problem. If I ship you GPL code then you have no "right"
-> > > to updates from me.
-> > 
-> > 	Correct, but you do have the right to distribute the GPL'd code that you
-> > received.
-> 
-> You do with Sveasoft. 
-> 
-> > 	Can I say, "I'll ship you a copy to my privately-made derivative of the
-> > Linux kernel, but only if you first sign a contract promising not to
-> > distribute it".
-> 
-> No but you can say "if you redistribute this I'm not interested in
-> working with you any more"
-> 
+Nick Piggin <piggin@cyberone.com.au> wrote:
+>
+> I'm not sure... it could also be just be a fluke
+>  due to chaotic effects in the mm, I suppose :|
 
-Well, this is from their web page:
+2.6 scans less than 2.4 before declaring oom.  I looked at the 2.4
+implementation and thought "whoa, that's crazy - let's reduce it and see
+who complains".  My three-year-old memory tells me it was reduced by 2x to
+3x.
 
-"The $20 USD subscription fee includes unlimited priority support,
-full access to the Sveasoft forums, and unlimited access to new
-firmware versions and upgrades."
-
-So it looks like "if you exersize your right for the software in quesion
-I terminate the contract we have entered into" as opposed to "I will not
-extend your contract beyond initial term".
-
-Isn't that an additional restriction? My rights for updates are revoked
-if I distribute GPLed code.
-
--- 
-Dmitry
+We need to find testcases (dammit) and do the analysis.  It could be that
+we're simply not scanning far enough.

@@ -1,61 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbRBHSsk>; Thu, 8 Feb 2001 13:48:40 -0500
+	id <S129149AbRBHSyU>; Thu, 8 Feb 2001 13:54:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129149AbRBHSsa>; Thu, 8 Feb 2001 13:48:30 -0500
-Received: from cmn2.cmn.net ([206.168.145.10]:25436 "EHLO cmn2.cmn.net")
-	by vger.kernel.org with ESMTP id <S129130AbRBHSsY>;
-	Thu, 8 Feb 2001 13:48:24 -0500
-Message-ID: <3A82E9F1.3050208@valinux.com>
-Date: Thu, 08 Feb 2001 11:48:17 -0700
-From: Jeff Hartmann <jhartmann@valinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20smp i686; en-US; 0.7) Gecko/20010126
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alex Deucher <adeucher@UU.NET>
-CC: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org
+	id <S129030AbRBHSyK>; Thu, 8 Feb 2001 13:54:10 -0500
+Received: from clueserver.org ([206.163.47.224]:41733 "HELO clueserver.org")
+	by vger.kernel.org with SMTP id <S129129AbRBHSyA>;
+	Thu, 8 Feb 2001 13:54:00 -0500
+Date: Thu, 8 Feb 2001 11:05:32 -0800 (PST)
+From: Alan Olsen <alan@clueserver.org>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: Alex Deucher <adeucher@UU.NET>, linux-kernel@vger.kernel.org,
+        jhartmann@valinux.com
 Subject: Re: [OT] Re: 2.4.x, drm, g400 and pci_set_master
-In-Reply-To: <14EAB47C173C@vcnet.vc.cvut.cz> <3A82E86C.14217D65@uu.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <14EAB47C173C@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.10.10102081055350.9940-100000@clueserver.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Deucher wrote:
+On Thu, 8 Feb 2001, Petr Vandrovec wrote:
 
-> There is preliminary support for pcigart in the dri tree.  I believe
-> some people have had some success with it.
+> On  8 Feb 01 at 13:14, Alex Deucher wrote:
+> > Jeff Hartmann wrote:
+> > > Petr Vandrovec wrote:
 > 
-> Alex
+> > > It does not use dynamic DMA mapping, because it doesn't do PCI DMA at
+> > > all.  It uses AGP DMA.  Actually, it shouldn't be too hard to get it to
+> > > work on the Alpha (just a few 32/64 bit issues probably.)  Someone just
+> > > needs to get agpgart working on the Alpha, thats the big step.
+> > 
+> > That shouldn't be too hard since many (all?) AGP alpha boards (UP1000's
+> > anyway) are based on the AMD 751 Northbridge? And there is already
+> > support for that in the kernel for x86. 
 > 
-> Petr Vandrovec wrote:
-> 
->> On  8 Feb 01 at 13:14, Alex Deucher wrote:
->> 
->>> Jeff Hartmann wrote:
->>> 
->>>> Petr Vandrovec wrote:
->>> 
->>>> It does not use dynamic DMA mapping, because it doesn't do PCI DMA at
->>>> all.  It uses AGP DMA.  Actually, it shouldn't be too hard to get it to
->>>> work on the Alpha (just a few 32/64 bit issues probably.)  Someone just
->>>> needs to get agpgart working on the Alpha, thats the big step.
->>> 
->>> That shouldn't be too hard since many (all?) AGP alpha boards (UP1000's
->>> anyway) are based on the AMD 751 Northbridge? And there is already
->>> support for that in the kernel for x86.
->> 
->> My AlphaPC 164LX does not have AGP at all - and I want to get G200/G400 PCI
->> working on it with dri, using 21174 features.
->>                                                     Petr Vandrovec
->>                                                     vandrove@vc.cvut.cz
->> 
-pcigart is only for the r128/radeon (and the radeon support is not done 
-yet.)  The has been success using pcigart on the PPC, I would suspect 
-the Alpha will probably be pretty easy to get going.
+> My AlphaPC 164LX does not have AGP at all - and I want to get G200/G400 PCI 
+> working on it with dri, using 21174 features.
 
--Jeff
+After looking into this a little more I have found it is uglier than that.
+The answers I have are not very good.
 
+I assume you are wanting to use this with X.  There is a rather odd driver
+issue involved.
+
+There are two X drivers available for the G400. One from Matrox and one in
+the version of X that you are using.
+
+The Matrox driver will not work under the 2.4.x kernel for DRM due to a
+version conflict.  (It wants version 1.0 and 2.4.x uses version 2.0.)  It
+will also not compile with 4.0.2 and above at the present time.
+
+The XFree86 version has some odd problems in Xinerama, but at least it
+works.  (Ugly artifact borders on the second screen.)
+
+BUT...
+
+Both drivers want Matrox's HALlib. (Which is x86 binary only.) Matrox will
+not release the info on that interface to the chipset.  (Using the
+standard corporate excuse whenever they don't want to do something
+"Intelectual Property concerns".)
+
+Good luck on getting them to make an Alpha version of the library or get
+them to release the underlying library interface specs. 
+
+alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
+Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
+    "In the future, everything will have its 15 minutes of blame."
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,92 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263921AbTD0K64 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 06:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263922AbTD0K64
+	id S263936AbTD0Lnp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 07:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263944AbTD0Lnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 06:58:56 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:18050 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S263921AbTD0K6x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 06:58:53 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 27 Apr 2003 13:11:06 +0200 (MEST)
-Message-Id: <UTC200304271111.h3RBB6M14317.aeb@smtp.cwi.nl>
-To: dgilbert@interlog.com
-Subject: [PATCH] scsi_mid_low_api.txt
-Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
+	Sun, 27 Apr 2003 07:43:45 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:23190 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S263936AbTD0Lno (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 07:43:44 -0400
+Date: Sun, 27 Apr 2003 21:56:44 +1000
+From: CaT <cat@zip.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.68-bk7: Where oh where have my sensors gone? (i2c)
+Message-ID: <20030427115644.GA492@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The specification says that slave_configure() has to call
-scsi_adjust_queue_depth(). This is false, and moreover
-does not always happen in the current tree.
-(I was interested since I plan to add a slave_configure()
-that will not call scsi_adjust_queue_depth().)
+I keep a-lookin but I can't find any data. Have I missed something?
 
-So, the patch below adapts scsi_mid_low_api.txt a little.
+# find | grep -i pii
+./bus/pci/drivers/piix4 smbus
+./bus/pci/drivers/piix4 smbus/00:07.3
+./bus/pci/drivers/PIIX IDE
+./bus/pci/drivers/PIIX IDE/00:07.1
+# find | grep -i i2c
+./bus/i2c
+./bus/i2c/drivers
+./bus/i2c/drivers/lm75
+./bus/i2c/drivers/IT87xx
+./bus/i2c/drivers/dev driver
+./bus/i2c/devices
+./devices/pci0/00:07.3/i2c-0
+./devices/pci0/00:07.3/i2c-0/power
+./devices/pci0/00:07.3/i2c-0/name
+# find | grep -i sensor
+# find | grep -i smbus
+./bus/pci/drivers/piix4 smbus
+./bus/pci/drivers/piix4 smbus/00:07.3
 
-Andries
+# grep '\(SENSORS\|I2C\)' .config | grep -v '^#'
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+CONFIG_I2C_PIIX4=y
+CONFIG_SENSORS_IT87=y
+CONFIG_SENSORS_LM75=y
+CONFIG_I2C_SENSOR=y
 
-----------------------------------------------------------
-
-diff -u --recursive --new-file -X /linux/dontdiff a/Documentation/scsi/scsi_mid_low_api.txt b/Documentation/scsi/scsi_mid_low_api.txt
---- a/Documentation/scsi/scsi_mid_low_api.txt	Mon Feb 24 23:02:44 2003
-+++ b/Documentation/scsi/scsi_mid_low_api.txt	Sun Apr 27 12:58:21 2003
-@@ -134,7 +134,7 @@
-                     slave_configure() -->  scsi_adjust_queue_depth()
- 			 |
- 		    slave_alloc()
--                    slave_configure() -->  scsi_adjust_queue_depth()
-+                    slave_configure()
- 			 |
- 		    slave_alloc()
-                     slave_configure() -->  scsi_adjust_queue_depth()
-@@ -142,8 +142,9 @@
- 		    slave_alloc()   **
-                     slave_destroy() **
- 
--The invocation of scsi_adjust_queue_depth() by the LLD is required
--if slave_configure() is supplied.
-+If the LLD wants to adjust the default queue settings, it can invoke
-+scsi_adjust_queue_depth() in its slave_configure() routine.
-+
- ** For scsi devices that the mid level tries to scan but do not
-    respond, a slave_alloc(), slave_destroy() pair is called.
- 
-@@ -199,7 +200,7 @@
-                             |                scsi_register()
-                             |
- 		      slave_alloc()
--                      slave_configure()  -->  scsi_adjust_queue_depth()
-+                      slave_configure()
- 		      slave_alloc()   **
- 		      slave_destroy() **
-                             |
-@@ -208,9 +209,10 @@
- 		      slave_alloc()   **
- 		      slave_destroy() **
- 
--If the LLD does not supply a slave_configure() then the mid level invokes
--scsi_adjust_queue_depth() itself with tagged queuing off and "cmd_per_lun"
--for that host as the queue length.
-+The mid level invokes scsi_adjust_queue_depth() with tagged queuing off and
-+"cmd_per_lun" for that host as the queue length. These settings can be
-+overridden by a slave_configure() supplied by the LLD.
-+
- ** For scsi devices that the mid level tries to scan but do not
-    respond, a slave_alloc(), slave_destroy() pair is called.
- 
-@@ -903,11 +905,6 @@
-  *      Notes: Allows the driver to inspect the response to the initial
-  *	INQUIRY done by the scanning code and take appropriate action.
-  *	For more details see the hosts.h file.
-- *	If this function is not supplied, the mid level will call
-- *	scsi_adjust_queue_depth() with the struct Scsi_Host::cmd_per_lun
-- *	value on behalf of the given device. If this function is
-- *	supplied then its implementation must call
-- *	scsi_adjust_queue_depth(). 	
-  **/
-     int slave_configure(struct scsi_device *sdp);
- 
+-- 
+Martin's distress was in contrast to the bitter satisfaction of some
+of his fellow marines as they surveyed the scene. "The Iraqis are sick
+people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
+starting to hate this country. Wait till I get hold of a friggin' Iraqi.
+No, I won't get hold of one. I'll just kill him."
+	- http://www.informationclearinghouse.info/article2479.htm

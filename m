@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbULSRgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbULSTi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbULSRgs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 12:36:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbULSRgs
+	id S261325AbULSTi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 14:38:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbULSTi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 12:36:48 -0500
-Received: from gprs215-234.eurotel.cz ([160.218.215.234]:18048 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261323AbULSRgh (ORCPT
+	Sun, 19 Dec 2004 14:38:56 -0500
+Received: from main.gmane.org ([80.91.229.2]:29138 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261325AbULSTiy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 12:36:37 -0500
-Date: Sun, 19 Dec 2004 18:36:13 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Michael Frank <mhf@berlios.de>
-Cc: softwaresuspend-devel@lists.berlios.de,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [SoftwareSuspend-devel] 2.6 Suspend PM issues
-Message-ID: <20041219173613.GB1039@elf.ucw.cz>
-References: <200412171315.50463.mhf@berlios.de> <20041218074202.GG29084@elf.ucw.cz> <20041218075003.GA3015@elf.ucw.cz> <200412191114.25930.mhf@berlios.de>
+	Sun, 19 Dec 2004 14:38:54 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ari Pollak <aripollak@gmail.com>
+Subject: Re: VIA SATA I/O errors
+Date: Sun, 19 Dec 2004 14:38:20 -0500
+Message-ID: <cq4lc3$94g$1@sea.gmane.org>
+References: <cpsb8p$gsd$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412191114.25930.mhf@berlios.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: atlantis.ccs.neu.edu
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+In-Reply-To: <cpsb8p$gsd$1@sea.gmane.org>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Just for the record (in case people see this in the archive and wonder 
+what the solution was) - the drive has had a steadily shorter uptime 
+over the past few days. When I re-ran WD diagnostics, it finally found a 
+problem with the drive, so I'm going to be exchanging it and hopefully a 
+new drive will fix the problem.
 
-> > ...which will not work anyway, swsusp1 or swsusp2. Have you actually
-> > tried it?
+Ari Pollak wrote:
+> Hi.
+> I have an Athlon64 machine running kernel 2.6.10-rc3 (but this problem 
+> has happened on 2.6.9-ac7 as well) with a VIA VT6420 SATA controller. 
+> Every few days (the problem is not chronologically consistent) and/or 
+> when there's heavy disk usage,  the main SATA disk (a Western Digital 
+> model WDC WD1200JD-00G) will just completely stop responding to any I/O, 
+> and a lot of SCSI error messages will be output to the console. After a 
+> few instances of this happening (which requires a hard power-off, then 
+> power-on.. just hitting the reset button causes the SATA controller not 
+> to recognize the drive on boot), I finally managed to capture some of 
+> the kernel messages, since somehow I could still read one of my log 
+> files (cached in memory, I guess). The same set of errors just keep 
+> repeating over and over. I also believe there was an ext3 error that 
+> showed up on the console and not in the log, but I assume this is not an 
+> ext3 problem anyway. The partial log file and the output of lspci -vvv 
+> are attached. I have no idea whether this is a software or hardware 
+> problem. Running Western Digital's diagnostics on the drive turned up no 
+> errors. If anyone has seen this problem before and it turned out to be 
+> hardware-related, I'd like to find out exactly which component is the 
+> culprit.
 > 
-> I put suspend support into 2.4 serial driver and use it. It does work.
-> 
-> 2.6 serial driver suspend was not working a year ago, have not tried since.
-> 
-> > During boot, BIOS is probably going to play with RTS anyway. So no
-> > matter what you do during suspend, you are probably going to screw it
-> > up anyway on the boot just before resume.
-> 
-> Luckily not on several of my machines and the linux 2.4 driver at least 
-> does not turn the lines on until resume tells it to do so...
+> Thanks in advance,
+> Ari
 
-If 2.6 serial does not turn it on boot, there's no reason it should
-turn it on during resume() [and it would be a bug].
-
-Find out what 2.6 serial does, and fix the bug...
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

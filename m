@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289225AbSANMQL>; Mon, 14 Jan 2002 07:16:11 -0500
+	id <S287212AbSANMTB>; Mon, 14 Jan 2002 07:19:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289224AbSANMQC>; Mon, 14 Jan 2002 07:16:02 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:31671 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S289212AbSANMPv>; Mon, 14 Jan 2002 07:15:51 -0500
-Date: Mon, 14 Jan 2002 13:14:43 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-cc: Jim Studt <jim@federated.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with ServerWorks CNB20LE and lost interrupts
-In-Reply-To: <Pine.LNX.4.33.0201141107230.28735-100000@netfinity.realnet.co.sz>
-Message-ID: <Pine.GSO.3.96.1020114130649.10091E-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S287200AbSANMSl>; Mon, 14 Jan 2002 07:18:41 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3858 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274862AbSANMSd>; Mon, 14 Jan 2002 07:18:33 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+To: skraw@ithnet.com (Stephan von Krawczynski)
+Date: Mon, 14 Jan 2002 12:29:53 +0000 (GMT)
+Cc: akpm@zip.com.au (Andrew Morton), alan@lxorguk.ukuu.org.uk,
+        zippel@linux-m68k.org, rml@tech9.net, ken@canit.se,
+        arjan@fenrus.demon.nl, landley@trommello.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020114124755.3b2d6a4d.skraw@ithnet.com> from "Stephan von Krawczynski" at Jan 14, 2002 12:47:55 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Q6FN-0001bD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002, Zwane Mwaikambo wrote:
+> > In eepro100.c, wait_for_cmd_done() can busywait for one millisecond
+> > and is called multiple times under spinlock.
+> 
+> Did I get that right, as long as spinlocked no sense in conditional_schedule()
+> ?
 
-> Alan Cox pointed out this problem to me and hinted that it was an IRQ
-> routing problem, i'm not sure wether it is possible to code workarounds
-> which don't break normal systems though. Anyone want to use Jim as a
-> guinea ping? ;)
+No conditional schedule, no pre-emption. You would need to rewrite that code
+to do something like try for 100uS then queue a 1 tick timer to retry
+asynchronously. That makes the code vastly more complex for an error case and
+for some drivers where irq mask is required during reset waits won't help.
 
- Why to code complicated workarounds for broken firmware?  It's so easy to
-fix, so either bother the vendor for a fix or replace the system with a
-sane one.  Reading and understanding the Intel's MP spec is a day or at
-most two worth of man's work.  I wouldn't trust the vendor that refuses to
-invest in a product even that little.
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+Yet again there are basically 1mS limitations buried in the hardware.

@@ -1,113 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbUKWTcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbUKWTey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbUKWTcm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 14:32:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbUKWTax
+	id S261429AbUKWTey (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 14:34:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbUKWTda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 14:30:53 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:61405 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261525AbUKWT3k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 14:29:40 -0500
-Message-Id: <200411231929.iANJTe4w031449@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
-To: linux-kernel@vger.kernel.org
-Subject: Debugging a memory leak in the 2.6.X kernel - how-to?
-From: Valdis.Kletnieks@vt.edu
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_295658507P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 23 Nov 2004 14:33:30 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:51142 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261429AbUKWTbQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 14:31:16 -0500
+Message-ID: <41A3902C.60004@engr.sgi.com>
+Date: Tue, 23 Nov 2004 11:31:56 -0800
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Guillaume Thouvenin <Guillaume.Thouvenin@Bull.net>
+CC: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Erik Jacobson <erikj@dbear.engr.sgi.com>
+Subject: Re: [PATCH 2.6.9] fork: add a hook in do_fork()
+References: <1101189797.6210.53.camel@frecb000711.frec.bull.fr>	 <20041123090325.GA22114@infradead.org> <1101202407.6210.87.camel@frecb000711.frec.bull.fr>
+In-Reply-To: <1101202407.6210.87.camel@frecb000711.frec.bull.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 23 Nov 2004 14:29:40 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_295658507P
-Content-Type: text/plain; charset=us-ascii
+This is great!
 
-Scenario: Am running 2.6.10-rc2-mm2-V0.7.29-1 - and several times
-in the last few days, *something* has been leaking memory in the kernel:
+We have one more user of PAGG! :)
 
->From a /proc/slabinfo from last night:
-size-16384(DMA)        0      0  16384    1    4 : tunables    8    4    0 : slabdata      0      0      0
-size-16384            10     10  16384    1    4 : tunables    8    4    0 : slabdata     10     10      0
-size-8192(DMA)         0      0   8192    1    2 : tunables    8    4    0 : slabdata      0      0      0
-size-8192          25926  25926   8192    1    2 : tunables    8    4    0 : slabdata  25926  25926      0
-size-4096(DMA)         0      0   4096    1    1 : tunables   16    8    0 : slabdata      0      0      0
-size-4096             50     50   4096    1    1 : tunables   16    8    0 : slabdata     50     50      0
-size-2048(DMA)         0      0   2048    2    1 : tunables   16    8    0 : slabdata      0      0      0
-size-2048             50     50   2048    2    1 : tunables   16    8    0 : slabdata     25     25      0
+Happy Thanksgiving,
+  - jay
 
-That gets pretty painful on a laptop that only has 256M of memory.
 
-This morning, I've got:
+Guillaume Thouvenin wrote:
+> On Tue, 2004-11-23 at 09:03 +0000, Christoph Hellwig wrote:
+> 
+>>On Tue, Nov 23, 2004 at 07:03:17AM +0100, Guillaume Thouvenin wrote:
+>>
+>>>   For a module, I need to execute a function when a fork occurs. My
+>>>solution is to add a pointer to a function (called fork_hook) in the
+>>>do_fork() and if this pointer isn't NULL, I call the function. To update
+>>>the pointer to the function I export a symbol (called trace_fork) that
+>>>defines another function with two parameters (the hook and an
+>>>identifier). This function provides a simple mechanism to manage access
+>>>to the fork_hook variable.
+>>>
+>>
+>>Use SGI's PAGG patches if you want such hooks.  Also this is clearly
+>>a _GPL export.
+> 
+> 
+> PAGG is more intrusive than my patch due to the management of groups of
+> processes. This hook in the fork allows me to provide a solution to do
+> per-group accounting with a module. If PAGG is added in the Linux Kernel
+> Tree it could be the solution, you are right. 
+> 
+> Guillaume 
+> 
 
-size-32768(DMA)        0      0  32768    1    8 : tunables    8    4    0 : slabdata      0      0      0
-size-32768            17     17  32768    1    8 : tunables    8    4    0 : slabdata     17     17      0
-size-16384(DMA)        0      0  16384    1    4 : tunables    8    4    0 : slabdata      0      0      0
-size-16384            11     11  16384    1    4 : tunables    8    4    0 : slabdata     11     11      0
-size-8192(DMA)         0      0   8192    1    2 : tunables    8    4    0 : slabdata      0      0      0
-size-8192          10387  10387   8192    1    2 : tunables    8    4    0 : slabdata  10387  10387      0
-size-4096(DMA)         0      0   4096    1    1 : tunables   16    8    0 : slabdata      0      0      0
-size-4096             54     54   4096    1    1 : tunables   16    8    0 : slabdata     54     54      0
-size-2048(DMA)         0      0   2048    2    1 : tunables   16    8    0 : slabdata      0      0      0
-size-2048            104    118   2048    2    1 : tunables   16    8    0 : slabdata     59     59      0
-
-All I've got so far is that in both cases, repeated looking at slabinfo showed
-that the size-8192 was going up by several entries every few seconds - and that
-when I killed 'gkrellm', the leaking immediately stopped.  However, I don't
-know what gkrellm is doing to tickle the problem.  It *might* be the Dell i8k
-module - gkrellm reads /proc/i8k.  Or it might be i8kfan, which is called by
-gkrellm, and does some odd stuff to set the fan speeds.  Or it might be
-something else.
-
-Whatever it is, it doesn't *immediately* start leaking when gkrellm starts
-up when I log in - this morning, I checked several times when I logged in:
-
-% grep 8192 /proc/slabinfo 
-size-8192(DMA)         0      0   8192    1    2 : tunables    8    4    0 : sla                    bdata      0      0      0
-size-8192            240    240   8192    1    2 : tunables    8    4    0 : sla                    bdata    240    240      0
-
-Repeated checks for 2-3 minutes showed it slowly go up to 252, then drop back to 227.
-
-A bit later:
-
-% grep 8192 /proc/slabinfo 
-size-8192(DMA)         0      0   8192    1    2 : tunables    8    4    0 : sla                    bdata      0      0      0
-size-8192          10170  10171   8192    1    2 : tunables    8    4    0 : sla                    bdata  10170  10171      0
-[~]2 grep 8192 /proc/slabinfo 
-size-8192(DMA)         0      0   8192    1    2 : tunables    8    4    0 : sla                    bdata      0      0      0
-size-8192          10233  10233   8192    1    2 : tunables    8    4    0 : sla                    bdata  10233  10233      0
-[~]2 grep 8192 /proc/slabinfo 
-size-8192(DMA)         0      0   8192    1    2 : tunables    8    4    0 : sla                    bdata      0      0      0
-size-8192          10254  10254   8192    1    2 : tunables    8    4    0 : sla                    bdata  10254  10254      0
-[~]2 grep 8192 /proc/slabinfo 
-size-8192(DMA)         0      0   8192    1    2 : tunables    8    4    0 : sla                    bdata      0      0      0
-size-8192          10266  10266   8192    1    2 : tunables    8    4    0 : sla                    bdata  10266  10266      0
-[~]2 grep 8192 /proc/slabinfo 
-size-8192(DMA)         0      0   8192    1    2 : tunables    8    4    0 : sla                    bdata      0      0      0
-size-8192          10308  10308   8192    1    2 : tunables    8    4    0 : sla                    bdata  10308  10308      0
-
-That's checking every 2-3 seconds - about as fast as I could hit uparrow, enter,
-and read the numbers and repeat.  After I killed gkrellm, it's sat solidly
-in the 10380-10400 range for well over an hour.
-
-*Possibly* related: I'm sitting at about 90% idle, but the load average
-is showing as 1.15 - however, I'm *NOT* seeing any processes stuck in 'D' state
-in the ps output.
-
-Any advice how to shoot this one?
-
---==_Exmh_295658507P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBo4+jcC3lWbTT17ARAuwuAJ9xjF5MADeR2hVm00OnEPi54IyDfgCeNxxx
-mjMCy3F8t+z35D+xl2yefZE=
-=fEZo
------END PGP SIGNATURE-----
-
---==_Exmh_295658507P--

@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130953AbRA2Jn6>; Mon, 29 Jan 2001 04:43:58 -0500
+	id <S131124AbRA2Jye>; Mon, 29 Jan 2001 04:54:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131124AbRA2Jnr>; Mon, 29 Jan 2001 04:43:47 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:36622 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S130953AbRA2Jnl>; Mon, 29 Jan 2001 04:43:41 -0500
-Message-ID: <3A753B1B.579D09A3@idb.hist.no>
-Date: Mon, 29 Jan 2001 10:42:51 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: no, da, en
-MIME-Version: 1.0
-To: "Randal, Phil" <prandal@herefordshire.gov.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: hotmail not dealing with ECN
-In-Reply-To: <AFE36742FF57D411862500508BDE8DD055F6@mail.herefordshire.gov.uk>
+	id <S132542AbRA2JyY>; Mon, 29 Jan 2001 04:54:24 -0500
+Received: from passion.cambridge.redhat.com ([172.16.18.67]:62848 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S131124AbRA2JyN>; Mon, 29 Jan 2001 04:54:13 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3A744820.2C4C94F6@colorfullife.com> 
+In-Reply-To: <3A744820.2C4C94F6@colorfullife.com> 
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: andrewm@uow.edu.au, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: flush_scheduled_tasks() question 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Mon, 29 Jan 2001 09:53:56 +0000
+Message-ID: <30086.980762036@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randal, Phil" wrote:
-> 
-> James Sutherland wrote:
-> 
-> > Except you can't retry without ECN, because DaveM wants to do
-> > a Microsoft and force ECN on everyone, whether they like it
-> > or not. If ECN is so wonderful, why doesn't anybody actually
-> > WANT to use it anyway?
-> 
-> And there's the rub.  Whether ECN is wonderful or not, attempting
-> to force it on everyone, whether they like it or not, whether
-> (for whatever reason) they are able to upgrade their firewalls
-> to handle ECN appropriately or not, is a recipe for a "Great
-> Linux Public Relations Disaster".
-> 
-> Because if we do try to force it, the response which will come
-> back won't be "Linux is wonderful, it conforms to the standards".
-> It will be "Linux sucks, we can't connect to xyz.com with it (or
-> we can't connect because to xyz.com they run it)".
-> 
-> We may be right, "they" may be wrong, but in the real world
-> arrogance rarely wins anyone friends.
 
-This problem doesn't exist, because linux users don't need to
-use ECN if they don't want to.  It is optional!  Those who
-*care* about hotmail etc. can turn it off!  The only ones who get
-ECN turned on is those who compile their own kernels.  They
-have the skill to turn it off if they need.  The
-distributions don't ship kernels with ECN default on.
+manfred@colorfullife.com said:
+> Is is intentional that tummy_task is not initialized? 
 
-Helge Hafting
+It _is_ initialised. To zero :)
+
+> Ok, it won't crash because the current __run_task_queue()
+> implementation doesn't call tq->routine if it's NULL, but IMHO it's
+> ugly.
+
+-static struct tq_struct dummy_task;
++static struct tq_struct dummy_task /* = all zero */;
+
+
+manfred@colorfullife.com said:
+>  Additionally I don't like the loop in flush_scheduled_tasks(), what
+> about replacing it with a locked semaphore (same idea as vfork)?
+
+The reason for doing it that way was because there was no guarantee that 
+scheduled tasks will be called in order. So you can't just stick a new task 
+in the queue and assume that when it's completed the queue is flushed. 
+
+Linus then changed that and made the eventd thread call tasks in order, but 
+I believe the intention is still that we don't make that guarantee, so it 
+may change at any point in the future. 
+
+--
+dwmw2
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

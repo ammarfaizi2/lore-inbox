@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129091AbQKWRu7>; Thu, 23 Nov 2000 12:50:59 -0500
+        id <S129091AbQKWSI3>; Thu, 23 Nov 2000 13:08:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129153AbQKWRuj>; Thu, 23 Nov 2000 12:50:39 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:56839 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S129091AbQKWRu2>; Thu, 23 Nov 2000 12:50:28 -0500
-Date: Thu, 23 Nov 2000 09:20:15 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ragnar Hojland Espinosa <ragnar@jazzfree.com>
-cc: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk,
+        id <S129097AbQKWSIU>; Thu, 23 Nov 2000 13:08:20 -0500
+Received: from 213-120-138-133.btconnect.com ([213.120.138.133]:51976 "EHLO
+        penguin.homenet") by vger.kernel.org with ESMTP id <S129091AbQKWSII>;
+        Thu, 23 Nov 2000 13:08:08 -0500
+Date: Thu, 23 Nov 2000 17:39:28 +0000 (GMT)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andi Kleen <ak@suse.de>, Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk,
         linux-kernel@vger.kernel.org
 Subject: Re: {PATCH} isofs stuff
-In-Reply-To: <20001123175849.A116@macula.net>
-Message-ID: <Pine.LNX.4.10.10011230911200.7992-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10011230825380.7992-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0011231738200.1942-100000@penguin.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 23 Nov 2000, Linus Torvalds wrote:
+> To tie two threads together again: the thread about FS corruption is one
+> of my main worries right now. Do people who see this happen to use a gcc
+> other than egcs-2.91.66? I know Andries apparently has 2.95.2, and he's
+> one of the people who have reported corruption problems...
 
+I am using 2.91.66. Ok, I'll get on with testing Al Viro's latest patch
+now.
 
-On Thu, 23 Nov 2000, Ragnar Hojland Espinosa wrote:
-> 
-> Yup, indeed it solves the dir/namei problem.  
-
-Can you check whether the single patch of _just_ removing the extra "f_pos
->= i_size" test in do_isofs_readdir() fixes it? The other changes of
-Andries patch look like they should not affect code generation at all, but
-I'd still like to verify that it's only that part. If so, it definitely
-looks like a gcc-2.95.2 code generation bug - that single if() statement
-does not actually matter for the end result, it's just a (misguided)
-early-out optimization.
-
-[ Btw, looking at the generated assembly is quite painful. Ugh. It reminds
-  me again why "long long" is to be avoided with gcc. Getting rid of the
-  extra test actually improves and speeds up that function probably
-  simply because the 64-bit arithmetic just cofuses gcc so badly. ]
-
-			Linus
+Regards,
+Tigran
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

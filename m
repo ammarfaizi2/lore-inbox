@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129844AbQLLSJg>; Tue, 12 Dec 2000 13:09:36 -0500
+	id <S130791AbQLLSI5>; Tue, 12 Dec 2000 13:08:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130679AbQLLSJ1>; Tue, 12 Dec 2000 13:09:27 -0500
-Received: from unimur.um.es ([155.54.1.1]:34779 "EHLO unimur.um.es")
-	by vger.kernel.org with ESMTP id <S129844AbQLLSIs>;
-	Tue, 12 Dec 2000 13:08:48 -0500
-Message-ID: <3A366604.7EBE8EBF@ditec.um.es>
-Date: Tue, 12 Dec 2000 18:53:08 +0100
-From: Juan <piernas@ditec.um.es>
-X-Mailer: Mozilla 4.76 [es] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: es-ES, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.0-test12 won't boot in my Pentium 100Mhz,32MB RAM, SIS motherboard 
- computer
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S130679AbQLLSIr>; Tue, 12 Dec 2000 13:08:47 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:27881 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S129844AbQLLSIf>;
+	Tue, 12 Dec 2000 13:08:35 -0500
+Date: Tue, 12 Dec 2000 18:37:19 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200012121737.SAA28304@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] local APIC and NMI watchdog on UP P6 systems
+Cc: kaos@ocs.com.au, macro@ds2.pg.gda.pl, mingo@elte.hu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It hangs after "Booting the kernel.........ok"
+An updated version of the UP-APIC patch for Intel P6 processors
+is now available at:
 
-Bye!!!
--- 
-D. Juan Piernas Cánovas
-Departamento de Ingeniería y Tecnología de Computadores
-Facultad de Informática. Universidad de Murcia
-Campus de Espinardo - 30080 Murcia (SPAIN)
-Tel.: +34968367657    Fax: +34968364151
-email: piernas@ditec.um.es
-PGP public key:
-http://pgp.rediris.es:11371/pks/lookup?search=piernas%40ditec.um.es&op=index
+	http://www.csd.uu.se/~mikpe/linux/upapic/
+
+The current version is intended for 2.4.0-test12 final.
+
+This version is based on Ingo Molnar's upapic-2.4.0-test9-F8 patch,
+with add-on patches from Maciej W. Rozycki and myself. I'm
+intending to maintain it until it gets into 2.4 or 2.5.
+
+I've used it since test10-pre and believe it to be safe for
+general use, but more testers are welcome.
+
+For those unfamiliar with the patch:
+- It enables the local APIC found in most P6 family processors,
+  even on UP systems which often keep it disabled.
+- The NMI watchdog now works on UP systems too. This is interesting
+  primarily for kernel hackers wishing to debug lockups.
+- A properly enabled local APIC is a prerequisite for interrupt-
+  driven use of the performance-monitoring counters.
+
+/Mikael
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

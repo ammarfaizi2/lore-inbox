@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269775AbRHNEJc>; Tue, 14 Aug 2001 00:09:32 -0400
+	id <S270349AbRHNELx>; Tue, 14 Aug 2001 00:11:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269786AbRHNEJW>; Tue, 14 Aug 2001 00:09:22 -0400
-Received: from femail28.sdc1.sfba.home.com ([24.254.60.18]:63382 "EHLO
-	femail28.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S269775AbRHNEJD>; Tue, 14 Aug 2001 00:09:03 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: Adrian Cox <adrian@humboldt.co.uk>, tegeran@home.com
-Subject: Re: via82cxxx_audio driver bug?
-Date: Mon, 13 Aug 2001 21:09:00 -0700
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01081307194201.00276@c779218-a> <3B77EFE6.9020106@humboldt.co.uk>
-In-Reply-To: <3B77EFE6.9020106@humboldt.co.uk>
+	id <S270295AbRHNELm>; Tue, 14 Aug 2001 00:11:42 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:62396 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S269786AbRHNELc>;
+	Tue, 14 Aug 2001 00:11:32 -0400
+Date: Tue, 14 Aug 2001 00:11:44 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] (1/11) fs/super.c fixes
+In-Reply-To: <Pine.LNX.4.33.0108132053270.1227-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0108140004450.10579-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Message-Id: <01081321090000.00204@c779218-a>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 August 2001 08:19 am, Adrian Cox wrote:
-> Nicholas Knight wrote:
-> > I just sent email to the maintainer of the via82cxxx_audio driver
-> > regarding this bug, hopefully I'll hear back from him soon, but I'd
-> > also like to hear from anyone else who has used and/or hacked at this
-> > driver, and if they've seen XMMS or other audio applications with
-> > access to /dev/mixer have strange, temporarily lockups when not in
-> > root/realtime priority. I've yet to be able to test this with other
-> > audio applications besides XMMS.
->
-> Are you using 2.4.7 or 2.4.8? Those kernels have new code to talk to
-> the AC97 codec, which cures lockups on some boards.
 
-Both, and previous kernels back to 2.4.3 have also shown this.
-I also replaced via82cxxx_audio.c in 2.4.8 with the latest (.15, 2.4.8 is 
-".14b") and recompiled, and the problem persists.
 
-Keep in mind, this isn't a *total* lockup, it's a problem of the UI in 
-XMMS and other applications becoming unresponsive. Audio skips from this 
-are rare but not unknown to me.
+On Mon, 13 Aug 2001, Linus Torvalds wrote:
+
+> 
+> On Mon, 13 Aug 2001, Alexander Viro wrote:
+> >
+> > 	Linus, I'm resending the second series of superblock handling
+> > fixes.
+> 
+> Please verify that the patches apply. They don't. Re-sending will not
+> help, as long as the patches do not actually apply in series.
+
+> With these patches, as with the previous batch, the result is:
+> 
+> 	patching file fs/super.c
+> 	patching file fs/super.c
+> 	patching file fs/super.c
+> 	Hunk #1 succeeded at 669 (offset 3 lines).
+> 	Hunk #2 succeeded at 834 with fuzz 1 (offset 1 line).
+> 	Hunk #3 succeeded at 886 with fuzz 2 (offset 1 line).
+> 	Hunk #4 FAILED at 950.
+> 	Hunk #5 FAILED at 986.
+> 	Hunk #6 FAILED at 1041.
+> 	Hunk #7 FAILED at 1070.
+> 	Hunk #8 succeeded at 1050 with fuzz 2 (offset -85 lines).
+> 	4 out of 8 hunks FAILED -- saving rejects to file fs/super.c.rej
+> 	... more failures ..
+> 
+> ie serious failures starting with 3/11.
+
+Oh, hell... Looks like I'm in for downloading the tarball over 56K link ;-/
+Just in case - md5 of fs/super.c (2.4.9-pre3) here is
+3e98e0cc929aebcb186698eae026a0b1.  If it differs from your tree...
+
+_Ouch_.
+

@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280961AbRLDQo1>; Tue, 4 Dec 2001 11:44:27 -0500
+	id <S280975AbRLDQro>; Tue, 4 Dec 2001 11:47:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281047AbRLDQn6>; Tue, 4 Dec 2001 11:43:58 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:25353 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S281129AbRLDQmv>;
-	Tue, 4 Dec 2001 11:42:51 -0500
-Date: Tue, 4 Dec 2001 14:42:28 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Peter Zaitsev <pz@spylog.ru>
-Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>,
-        <theowl@freemail.c3.hu>, <theowl@freemail.hu>,
-        <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re[2]: your mail on mmap() to the kernel list
-In-Reply-To: <16498470022.20011204183624@spylog.ru>
-Message-ID: <Pine.LNX.4.33L.0112041439210.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281184AbRLDQq7>; Tue, 4 Dec 2001 11:46:59 -0500
+Received: from pc-62-30-67-59-az.blueyonder.co.uk ([62.30.67.59]:61166 "EHLO
+	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S281157AbRLDQpm>; Tue, 4 Dec 2001 11:45:42 -0500
+Date: Tue, 4 Dec 2001 16:39:50 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: David Woodhouse <dwmw2@infradead.org>, Christoph Rohland <cr@sap.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Maciej Zenczykowski <maze@druid.if.uj.edu.pl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OT] Wrapping memory.
+Message-ID: <20011204163950.B28839@kushida.jlokier.co.uk>
+In-Reply-To: <m3r8qcagt7.fsf@linux.local> <E16AIZ8-0008Re-00@the-village.bc.nu> <12969.1007315617@redhat.com> <m3r8qcagt7.fsf@linux.local> <25163.1007370678@redhat.com> <20011204104047.A18147@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011204104047.A18147@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Tue, Dec 04, 2001 at 10:40:47AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Dec 2001, Peter Zaitsev wrote:
-> Tuesday, December 04, 2001, 5:15:49 PM, you wrote:
+Russell King wrote:
+> On Mon, Dec 03, 2001 at 09:11:18AM +0000, David Woodhouse wrote:
+> > ARM used to just break, but I pointed it out to Russell a while ago and I 
+> > believe he fixed it. I don't remember what his fix was - it may have been 
+> > just to map the offending page uncached, which is also a fairly effective 
+> > was of avoiding cache aliasing :)
+> 
+> We actually still map the pages as cached, but when update_mmu_cache
+> detects that a page has been mmapped more than once, we ensure that
+> the other mappings in the current mm will fault when accessed.
 
-> AA> You can fix the problem in userspace by using a meaningful 'addr' as
-> AA> hint to mmap(2), or by using MAP_FIXED from userspace, then the kernel
-> AA> won't waste time searching the first available mapping over
-> AA> TASK_UNMAPPED_BASE.
+It should be possible, in a "portable" program, to map the two pages you
+want and then test to see whether they are aliasing correctly.
 
-> Well. Really you can't do this, because you can not really track all of
-> the mappings in user program as glibc and probably other libraries
-> use mmap for their purposes.
+Write to one and read from the other page, and vice versa.  Repeat a few
+thousand times just in case you were interrupted in the middle.
 
-There's no reason we couldn't do this hint in kernel space.
+That is my approach to creating circular buffers (which is the question
+which started this thread).
 
-In arch_get_unmapped_area we can simply keep track of the
-lowest address where we found free space, while on munmap()
-we can adjust this hint if needed.
+Unfortunately, the update_mmu_cache makes aliasing work properly while
+ruining performence, so then it's better to not to use the mapping trick
+at all in that case.  To check for this, I have to call gettimeofday()
+between pairs of accesses, to check whether they are slow.  I don't know
+for sure if this works because I don't have an ARM to try it on.
 
-OTOH, I doubt it would help real-world workloads where the
-application maps and unmaps areas of different sizes and
-actually does something with the memory instead of just
-mapping and unmapping it ;)))
-
-kind regards,
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+-- Jamie
 

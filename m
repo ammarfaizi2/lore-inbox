@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbTINB26 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 21:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262276AbTINB25
+	id S262274AbTINBYD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 21:24:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbTINBYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 21:28:57 -0400
-Received: from keetweej.xs4all.nl ([213.84.46.114]:8172 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S262275AbTINB25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 21:28:57 -0400
-From: Folkert van Heusden <folkert@vanheusden.com>
-Reply-To: folkert@vanheusden.com
-Organization: vanheusdendotcom
-To: linux-kernel@vger.kernel.org
-Subject: logging when SIGSEGV is processed?
-Date: Sun, 14 Sep 2003 03:28:54 +0200
-User-Agent: KMail/1.5.3
-WebSite: http://www.vanheusden.com/
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sat, 13 Sep 2003 21:24:03 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:49630 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262274AbTINBYB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 21:24:01 -0400
+Date: Sat, 13 Sep 2003 21:16:14 -0400
+To: David Schwartz <davids@webmaster.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pascal Schmidt <der.eremit@email.de>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: People, not GPL  [was: Re: Driver Model]
+Message-ID: <20030914011614.GA20119@pimlott.net>
+Mail-Followup-To: David Schwartz <davids@webmaster.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Pascal Schmidt <der.eremit@email.de>,
+	Andre Hedrick <andre@linux-ide.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1063490941.9402.14.camel@dhcp23.swansea.linux.org.uk> <MDEHLPKNGKAHNMBLJOLKMEGJGIAA.davids@webmaster.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309140328.54920.folkert@vanheusden.com>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKMEGJGIAA.davids@webmaster.com>
+User-Agent: Mutt/1.3.28i
+From: Andrew Pimlott <andrew@pimlott.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Sep 13, 2003 at 03:30:35PM -0700, David Schwartz wrote:
+> 	If the work would not have been restricted without it and is restricted
+> with it and you can't remove it, it's an additional restriction. If not,
+> what would an additional restriction be?
 
-I found this patch for kernel 2.2 which logs a message when some process 
-receives SIGSEGV. Imho something very usefull: I could create some script 
-which sends an e-mail if some critical (apache, mysql, etc.) process 
-segfaults. I was wondering: has anyone ported this patch to 2.4 or 2.6? 
+You can remove it.  But if you remove for with the obvious purpose
+of abetting the distribution of non-GPL derived work, don't be
+surprised to get smacked by courts who don't care for your technical
+sophistry.
 
+> > Its merely showing the intent of the author.
+> 
+> 	The intent of the author has no bearing on whether or not a work is
+> derived.
 
-Folkert van Heusden
+I've noticed it's become common to say this, but (NAL) I doubt it's
+true.  I would expect a court to respect the author's intent within
+some narrow range that would otherwise be ambiguous.  Intent and
+community standards play a large role in law.  If enough people wear
+a path across private property, it can become an easement.
 
-+--------------------------------------------------------------------------+
-| UNIX sysop? Then give MultiTail ( http://www.vanheusden.com/multitail/ ) |
-| a try, it brings monitoring logfiles (and such) to a different level!    |
-+---------------------------------------------------= www.vanheusden.com =-+
-
+Andrew

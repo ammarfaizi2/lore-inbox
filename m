@@ -1,88 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267515AbSLEVgF>; Thu, 5 Dec 2002 16:36:05 -0500
+	id <S267394AbSLEU64>; Thu, 5 Dec 2002 15:58:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267514AbSLEVfY>; Thu, 5 Dec 2002 16:35:24 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:28299 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267433AbSLEVeQ>; Thu, 5 Dec 2002 16:34:16 -0500
-Message-ID: <3DEFC6BF.1080104@us.ibm.com>
-Date: Thu, 05 Dec 2002 13:35:59 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Trivial Patch Monkey <trivial@rustcorp.com.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] fix broken topology functions
-References: <3DEE959F.7080600@us.ibm.com> <20021205002023.GC9882@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267396AbSLEU5x>; Thu, 5 Dec 2002 15:57:53 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:6660 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267394AbSLEU46>;
+	Thu, 5 Dec 2002 15:56:58 -0500
+Date: Thu, 5 Dec 2002 11:58:17 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Large block device patch, part 1 of 9
+Message-ID: <20021205105817.GC127@elf.ucw.cz>
+References: <p73u1l7qbxs.fsf@oldwotan.suse.de> <Pine.LNX.4.44.0209030113420.12861-100000@kiwi.transmeta.com> <asgsir$p18$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <asgsir$p18$1@cesium.transmeta.com>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Wed, Dec 04, 2002 at 03:54:07PM -0800, Matthew Dobson wrote:
-> 
->>Linus,
->>	The register_(node|memblk)_driver functions are broken.  Pat Mochel 
->>recently updated sysfs to make sure that when you register a driver that 
->>it's associated devclass is already registered.  The way node/memblk 
->>registration is done now is backwards and causes panic's on NUMA 
->>systems.  Please apply this patch to fix it.
->>Cheers!
-> 
-> 
-> That didn't check the return value of devclass_register():
-> 
-> 
-> 
-> Reorder devclass_register() and driver_register() so these things
-> stop oopsing.
+Hi!
 
-Even better.  Thanks Bill!
-
-Cheers!
-
--Matt
-
-
+> > The printk warnings should be easy to fix once everybody uses the same
+> > types - I think we right now have workarounds exactly for 64-bit machines
+> > where w check BITS_PER_LONG and use different formats for them (exactly
+> > because they historically have _not_ had the same types as the 32-bit
+> > machines).
+> > 
+> > However, if anybody on the list is hacking gcc, the best option really
+> > would be to just allow better control over gcc printf formats. I have
+> > wanted that in user space too at times. And it doesn't matter if it only
+> > happens in new versions of gcc - we can disable the warning altogether for
+> > old gcc's, as long as enough people have the new gcc to catch new
+> > offenders..
+> > 
+> > (I'd _love_ to be able to add printk modifiers for other common types in
+> > the kernel, like doing the NIPQUAD thing etc inside printk() instead of
+> > having it pollute the callers. All of which has been avoided because of
+> > the hardcoded gcc format warning..)
+> > 
 > 
->  memblk.c |    4 ++--
->  node.c   |    4 ++--
->  2 files changed, 4 insertions(+), 4 deletions(-)
-> 
-> 
-> diff -urpN mm1-2.5.50/drivers/base/memblk.c mm1-2.5.50-1/drivers/base/memblk.c
-> --- mm1-2.5.50/drivers/base/memblk.c	2002-11-27 14:36:23.000000000 -0800
-> +++ mm1-2.5.50-1/drivers/base/memblk.c	2002-12-04 12:53:59.000000000 -0800
-> @@ -49,7 +49,7 @@ int __init register_memblk(struct memblk
->  
->  static int __init register_memblk_type(void)
->  {
-> -	driver_register(&memblk_driver);
-> -	return devclass_register(&memblk_devclass);
-> +	int error = devclass_register(&memblk_devclass);
-> +	return error ? error : driver_register(&memblk_driver);
->  }
->  postcore_initcall(register_memblk_type);
-> diff -urpN mm1-2.5.50/drivers/base/node.c mm1-2.5.50-1/drivers/base/node.c
-> --- mm1-2.5.50/drivers/base/node.c	2002-11-27 14:35:50.000000000 -0800
-> +++ mm1-2.5.50-1/drivers/base/node.c	2002-12-04 12:53:05.000000000 -0800
-> @@ -93,7 +93,7 @@ int __init register_node(struct node *no
->  
->  static int __init register_node_type(void)
->  {
-> -	driver_register(&node_driver);
-> -	return devclass_register(&node_devclass);
-> +	int error = devclass_register(&node_devclass);
-> +	return error ? error : driver_register(&node_driver);
->  }
->  postcore_initcall(register_node_type);
-> 
+> While we're talking about printk()... is there any reason *not* to
+> rename it printf()?
 
+I believe printf() is good idea. I put printk() into userland programs
+too many times now, and used printf() too many times from kernel...
 
+								Pavel 
+
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287432AbSAHAB5>; Mon, 7 Jan 2002 19:01:57 -0500
+	id <S287449AbSAHAO7>; Mon, 7 Jan 2002 19:14:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287439AbSAHABr>; Mon, 7 Jan 2002 19:01:47 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:49163 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S287432AbSAHABj>;
-	Mon, 7 Jan 2002 19:01:39 -0500
-Date: Mon, 7 Jan 2002 15:59:41 -0800
-From: Greg KH <greg@kroah.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, mochel@osdl.org
-Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
-Message-ID: <20020107235941.GB10145@kroah.com>
-In-Reply-To: <20020107192903.GB8413@kroah.com> <17b801c197ba$febd13c0$6800000a@brownell.org> <20020107220348.GE9271@kroah.com> <17d401c197ca$a78e66c0$6800000a@brownell.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17d401c197ca$a78e66c0$6800000a@brownell.org>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Mon, 10 Dec 2001 21:51:27 -0800
+	id <S287450AbSAHAOs>; Mon, 7 Jan 2002 19:14:48 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:26376 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S287449AbSAHAOl>; Mon, 7 Jan 2002 19:14:41 -0500
+Date: Mon, 7 Jan 2002 21:01:20 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Error reading multiple large files
+In-Reply-To: <Pine.LNX.4.30.0201071941100.13561-100000@mustard.heime.net>
+Message-ID: <Pine.LNX.4.21.0201072100310.18722-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 07, 2002 at 02:28:38PM -0800, David Brownell wrote:
-> > Hopefully, integration of /sbin/hotplug during the boot process (using
-> > dietHotplug) will reduce the number of things the "coldplug" issue will
-> > have to handle.
+
+Roy,
+
+I suspect this is a use-once effect.
+
+Could you please try http://surriel.com/patches/2.4/2.4.17-pre8-2ndchance
+? 
+
+Thanks
+
+On Mon, 7 Jan 2002, Roy Sigurd Karlsbakk wrote:
+
+> Hi all
 > 
-> Somewhat -- though it only handles the "load a module"
-> subproblem.  When new devices need any more setup
-> than that, "dietHotplug" isn't enough.
+> I've sent this before, but as far as I can see, nothing's changed.
+> 
+> I'm having problems reading multiple large files at once. Reading 100 1GB
+> files at once.
+> 
+> What happens is, when the buffer cache gets filled up, it all stalls, and
+> transfer speed drops from 40-50 MB/s to a mere 2MB/s.
 
-Agreed.  dietHotplug doesn't want to solve that problem right now.  I'll
-leave that up to the main linux-hotplug scripts :)
 
-greg k-h

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRAMUPC>; Sat, 13 Jan 2001 15:15:02 -0500
+	id <S129716AbRAMUWx>; Sat, 13 Jan 2001 15:22:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131153AbRAMUOw>; Sat, 13 Jan 2001 15:14:52 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:59144 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129401AbRAMUOn>;
-	Sat, 13 Jan 2001 15:14:43 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200101132014.f0DKEJh153332@saturn.cs.uml.edu>
-Subject: Re: shmem or swapfs? was: [Patch] make shm filesystem part configurable
-To: cr@sap.com (Christoph Rohland)
-Date: Sat, 13 Jan 2001 15:14:19 -0500 (EST)
-Cc: david+validemail@kalifornia.com, linux-kernel@vger.kernel.org
-In-Reply-To: <m33denk0p2.fsf@linux.local> from "Christoph Rohland" at Jan 13, 2001 03:04:41 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S132061AbRAMUWn>; Sat, 13 Jan 2001 15:22:43 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:38923
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129716AbRAMUWi>; Sat, 13 Jan 2001 15:22:38 -0500
+Date: Sat, 13 Jan 2001 12:22:14 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Werner <werner.lx@verizon.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: HP Pavilion 8290 HANGS on boot 2.4/2.4-test9
+In-Reply-To: <Pine.LNX.4.21.0101131444030.1779-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.10.10101131219340.3339-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Rohland writes:
+On Sat, 13 Jan 2001, Werner wrote:
 
-> I am quite open about naming, but "shm" is not appropriate any more
-> since the fs does a lot more than shared memory. Solaris calles this
-> "tmpfs" but I did not want to 'steal' their name and I also do not
-> think that it's a very good name.
+> The first and last message I get is: 
+> "Uncompressing Linux... OK, booting the kernel"
 
-Admins already know what "tmpfs" means, so you should just call
-your filesystem that. I know it isn't a pretty name, but in the
-interest of reducing confusion, you should use the existing name.
+> # lspci
+> 00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge(rev 02)
+> 00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge(rev 02)
+> 00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
+> 00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
 
-Don't think of it as just "for /tmp". It is for temporary storage.
-The name is a reminder that you shouldn't store archives in tmpfs.
+It is to early to be caught by a DMA engine fault, but you have one of the
+award winning systems that designed flaw in the hardware.  Only if the
+BIOS with INT13 calls are performing DMA stuff until the OS takes over
+could this be a player.
 
-Again for compatibility, Sun's size option would be useful.
+If you disable DMA in the BIOS does that help?
 
--o size=111222333      Size in bytes, rounded up by page size.
--o size=111222k        Size in kilobytes (base-2 or ISO standard?)
--o size=111m           Size in megabytes (base-2 or ISO standard?)
+Regards,
 
-I'd prefer k for ISO standard and K for base-2.
-Of course m isn't millibytes, but that isn't horrible.
+Andre Hedrick
+Linux ATA Development
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

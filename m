@@ -1,237 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267518AbUHaIvL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267487AbUHaIxQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267518AbUHaIvL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 04:51:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUHaIvK
+	id S267487AbUHaIxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 04:53:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267540AbUHaIvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 04:51:10 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:45482 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267518AbUHaIsc (ORCPT
+	Tue, 31 Aug 2004 04:51:39 -0400
+Received: from colin2.muc.de ([193.149.48.15]:44550 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S267487AbUHaIuA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 04:48:32 -0400
-Date: Tue, 31 Aug 2004 10:49:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
-Message-ID: <20040831084928.GA10299@elte.hu>
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com>
+	Tue, 31 Aug 2004 04:50:00 -0400
+Date: 31 Aug 2004 10:49:53 +0200
+Date: Tue, 31 Aug 2004 10:49:53 +0200
+From: Andi Kleen <ak@muc.de>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]atomic_inc_return() for i386/x86_64 (Re: RCU issue with SELinux)
+Message-ID: <20040831084953.GA11113@muc.de>
+References: <2wJxj-7g2-23@gated-at.bofh.it> <2x2JC-3Uu-11@gated-at.bofh.it> <m3k6vjco9e.fsf@averell.firstfloor.org> <01b401c48f33$3fb05000$f97d220a@linux.bs1.fc.nec.co.jp>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="LZvS9be/3tNcYl/X"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com>
+In-Reply-To: <01b401c48f33$3fb05000$f97d220a@linux.bs1.fc.nec.co.jp>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
-
-> VARYING SYSTEM CALL TIMES
-> =========================
+On Tue, Aug 31, 2004 at 05:19:34PM +0900, Kaigai Kohei wrote:
+> Hi Andi, thanks for your comment.
+> Sorry, I have not noticed your mail in the flood of Linux-Kernel ML.
 > 
-> In 2.4, it appears that the duration of the write system call is
-> basically fixed and dependent on the duration of the audio fragment.
-> In 2.6, this behavior is now different. If I look at the chart in
-> detail, it appears the system is queueing up several write operations
-> during the first few seconds of testing. You can see this by
-> consistently low elapsed times for the write system call. Then the
-> elapsed time for the write bounces up / down in a sawtooth pattern
-> over a 1 msec range. Could someone explain the cause of this new
-> behavior and if there is a setting to restore the old behavior? I am
-> concerned that this queueing adds latency to audio operations (when
-> trying to synchronize audio with other real time behavior).
+> > > atomic_inc_return() is not defined for arm,arm26,i386,x86_64 and um archtectures.
+> > > This attached patch adds atomic_inc_return() and atomic_dec_return() to arm,i386 and x86_64.
+> > >
+> > > It is implemented by 'xaddl' operation with LOCK prefix for i386 and x86_64.
+> > > But this operation is permitted after i486 processor only.
+> > > Another implementation may be necessary for i386SX/DX processor.
+> > > But 'xaddl' operation is used in 'include/asm-i386/rwsem.h' unconditionally.
+> > > I think it has agreed on using 'xaddl' operation in past days.
+> > 
+> > We don't support SMP on 386 boxes. What you can do for 386 is to use 
+> > alternative() and just use an non SMP safe version for 386 and xadd 
+> > for 486+ 
+> 
+> We can avoid the problem by the simple solution, since SMP
+> on 386 boxes isn't supported. It is to disable interrupt
+> while updating atomic_t variable.
 
-since the latency tracer does not trigger, we need a modified tracer to
-find out what's happening during such long delays. I've attached the
-'user-latency-tracer' patch ontop of -Q5, which is a modification of the
-latency tracer. This patch enables free-running tracing which includes
-all kernel functions not just critical sections. To activate this, two
-things have to be done. Firstly:
+The patch is wrong.  A CONFIG_M386 kernel can run on non
+386 SMP boxes. Your patch would be racy then. The only thing 
+that's not supported is a real 386 with multiple CPUs.
 
-	echo 2 > /proc/sys/kernel/trace_enabled
+You either have to check boot_cpu_data.x86 == 3 at runtime or 
+use alternative() like I earlier suggested.
 
-this turns off the normal latency tracer and turns on the 'user tracer'. 
-Traces can be generated by userspace via a hack done to
-sys_gettimeofday():
+> By the way, do you know why 'xadd' operation is used
+> unconditionally in 'include/asm-i386/rwsem.h'?
 
-	gettimeofday(0,1); // enable the tracer
-	gettimeofday(0,0); // save current trace and disable the tracer
+386 compatible kernels use a different rwsem implementation
+that doesn't use this include.
 
-this way the tracing can be limited to the suspected codepaths only.
-
-could you try to insert gettimeofday(0,1) into your testsuite just
-before the write() call is done, and right after the write() call, and
-save a couple of representative traces? The patch also ups the # of
-latency entries to 8000 - if that is still insufficient then please
-increase it as needed.
-
-NOTE: on SMP the tracing on/off is strictly per-CPU. So do the enabling
-and disabling of the trace on the same CPU. (doing otherwise wont cause
-problems, but the generated traces will be less useful.)
-
-	Ingo
-
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="user-latency-2.6.9-rc1-bk4-Q5-A0"
-
---- linux/kernel/latency.c.orig
-+++ linux/kernel/latency.c
-@@ -27,7 +27,7 @@ static DECLARE_MUTEX(max_mutex);
- 
- #ifdef CONFIG_LATENCY_TRACE
- 
--#define MAX_TRACE 4000UL
-+#define MAX_TRACE 8000UL
- 
- struct trace_entry {
- 	unsigned long preempt_count;
-@@ -63,14 +63,13 @@ static unsigned long max_nice;
- static unsigned long max_policy;
- static unsigned long max_rt_priority;
- 
--inline void notrace
-+static inline void notrace
- ____trace(struct cpu_trace *tr, unsigned long eip, unsigned long parent_eip)
- {
- 	struct trace_entry *entry;
- 
--	BUG_ON(!irqs_disabled());
--
--	if (tr->trace_idx < MAX_TRACE) {
-+	if ((tr->critical_start || (trace_enabled == 2)) &&
-+			(tr->trace_idx < MAX_TRACE)) {
- 		entry = tr->trace + tr->trace_idx;
- 		entry->eip = eip;
- 		entry->parent_eip = parent_eip;
-@@ -80,7 +79,7 @@ ____trace(struct cpu_trace *tr, unsigned
- 	tr->trace_idx++;
- }
- 
--inline void notrace
-+static inline void notrace
- ___trace(unsigned long eip, unsigned long parent_eip)
- {
- 	unsigned long flags;
-@@ -266,6 +265,18 @@ static int setup_preempt_thresh(char *s)
- }
- __setup("preempt_thresh=", setup_preempt_thresh);
- 
-+static void update_max_trace(struct cpu_trace *tr)
-+{
-+	memcpy(&max_trace, tr, sizeof (max_trace));
-+
-+	memcpy(max_comm, current->comm, 16);
-+	max_pid = current->pid;
-+	max_uid = current->uid;
-+	max_nice = current->static_prio - 20 - MAX_RT_PRIO;
-+	max_policy = current->policy;
-+	max_rt_priority = current->rt_priority;
-+}
-+
- static void notrace check_preempt_timing(struct cpu_trace *tr)
- {
- #ifdef CONFIG_LATENCY_TRACE
-@@ -274,6 +285,10 @@ static void notrace check_preempt_timing
- 	unsigned long parent_eip = (unsigned long)__builtin_return_address(1);
- 	unsigned long latency;
- 
-+#ifdef CONFIG_LATENCY_TRACE
-+	if (trace_enabled == 2)
-+		return;
-+#endif
- 	atomic_inc(&tr->disabled);
- 	latency = cycles_to_usecs(get_cycles() - tr->preempt_timestamp);
- 
-@@ -293,14 +308,7 @@ static void notrace check_preempt_timing
- 
- #ifdef CONFIG_LATENCY_TRACE
- 	____trace(tr, eip, parent_eip);
--	memcpy(&max_trace, tr, sizeof (max_trace));
--
--	memcpy(max_comm, current->comm, 16);
--	max_pid = current->pid;
--	max_uid = current->uid;
--	max_nice = current->static_prio - 20 - MAX_RT_PRIO;
--	max_policy = current->policy;
--	max_rt_priority = current->rt_priority;
-+	update_max_trace(tr);
- #endif
- 
- 	if (preempt_thresh)
-@@ -354,6 +362,10 @@ void notrace add_preempt_count(int val)
- #endif
- 
- 	preempt_count() += val;
-+#ifdef CONFIG_LATENCY_TRACE
-+	if (trace_enabled == 2)
-+		return;
-+#endif
- 	if (preempt_count() == val) {
- 		struct cpu_trace *tr = &__get_cpu_var(trace);
- 
-@@ -383,3 +395,27 @@ void notrace sub_preempt_count(int val)
- 	preempt_count() -= val;
- }
- EXPORT_SYMBOL(sub_preempt_count);
-+
-+void user_trace_start(void)
-+{
-+	struct cpu_trace *tr;
-+
-+	if (trace_enabled != 2)
-+		return;
-+	tr = &get_cpu_var(trace);
-+	tr->trace_idx = 0;
-+	mcount();
-+	put_cpu_var(trace);
-+}
-+
-+void user_trace_stop(void)
-+{
-+	struct cpu_trace *tr;
-+
-+	if (trace_enabled != 2)
-+		return;
-+	tr = &get_cpu_var(trace);
-+	mcount();
-+	update_max_trace(tr);
-+	put_cpu_var(trace);
-+}
---- linux/kernel/time.c.orig2	
-+++ linux/kernel/time.c	
-@@ -90,8 +90,17 @@ asmlinkage long sys_stime(time_t __user 
- 
- #endif /* __ARCH_WANT_SYS_TIME */
- 
-+extern void user_trace_start(void);
-+extern void user_trace_stop(void);
-+
- asmlinkage long sys_gettimeofday(struct timeval __user *tv, struct timezone __user *tz)
- {
-+#ifdef CONFIG_LATENCY_TRACE
-+	if (!tv && ((int)tz == 1))
-+		user_trace_start();
-+	if (!tv && !tz)
-+		user_trace_stop();
-+#endif
- 	if (likely(tv != NULL)) {
- 		struct timeval ktv;
- 		do_gettimeofday(&ktv);
-
---LZvS9be/3tNcYl/X--
+-Andi

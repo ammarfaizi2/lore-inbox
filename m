@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUD0XdD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264444AbUD0XdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264503AbUD0XdD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 19:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264444AbUD0XcH
+	id S264444AbUD0XdE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 19:33:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264468AbUD0Xb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 19:32:07 -0400
-Received: from gate.crashing.org ([63.228.1.57]:1509 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264429AbUD0Xaq (ORCPT
+	Tue, 27 Apr 2004 19:31:59 -0400
+Received: from stokkie.demon.nl ([82.161.49.184]:1173 "HELO stokkie.net")
+	by vger.kernel.org with SMTP id S264444AbUD0XbB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 19:30:46 -0400
-Subject: Re: Bug#234976: kernel-source-2.6.4: Software Suspend doesn't work
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: ncunningham@linuxmail.org
-Cc: Pavel Machek <pavel@suse.cz>, Herbert Xu <herbert@gondor.apana.org.au>,
-       Andrew Morton <akpm@zip.com.au>, seife@suse.de,
-       Nigel Cunningham <ncunningham@linuxmail.com>,
-       Roland Stigge <stigge@antcom.de>, 234976@bugs.debian.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <opr641k5m2shwjtr@laptop-linux.wpcb.org.au>
-References: <20040426104015.GA5772@gondor.apana.org.au>
-	 <opr6193np1ruvnp2@laptop-linux.wpcb.org.au>
-	 <20040426131152.GN2595@openzaurus.ucw.cz>
-	 <1083048985.12517.21.camel@gaston> <20040427102127.GB10593@elf.ucw.cz>
-	 <20040427102344.GA24313@gondor.apana.org.au>
-	 <20040427124837.GK10593@elf.ucw.cz>
-	 <20040427125402.GA16740@gondor.apana.org.au>
-	 <20040427215236.GA469@elf.ucw.cz>
-	 <opr640q9abshwjtr@laptop-linux.wpcb.org.au>
-	 <20040427231626.GA32689@elf.ucw.cz>
-	 <opr641k5m2shwjtr@laptop-linux.wpcb.org.au>
-Content-Type: text/plain
-Message-Id: <1083108250.16475.54.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 28 Apr 2004 09:24:11 +1000
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Apr 2004 19:31:01 -0400
+Date: Wed, 28 Apr 2004 01:30:58 +0200 (CEST)
+From: "Robert M. Stockmann" <stock@stokkie.net>
+To: Tim Hockin <thockin@hockin.org>
+cc: Michael Poole <mdpoole@troilus.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+In-Reply-To: <20040427230545.GA15747@hockin.org>
+Message-ID: <Pine.LNX.4.44.0404280114580.15111-100000@hubble.stokkie.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.2 (ftp://crashrecovery.org/pub/linux/amavis/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ged, anyway...
+On Tue, 27 Apr 2004, Tim Hockin wrote:
+
+> On Wed, Apr 28, 2004 at 12:59:23AM +0200, Robert M. Stockmann wrote:
+> > look i have made complaints about gcc-3.x some time ago, on the gcc
+> > mailinglist. Also there they put my opinions aside, with arguments
+> > like any powerfull feature can be used in a bad and in a good way. 
+> > The powerfull feature here is the C99 coding style, which allows for 
+> > unnamed and anonymous structures and unions. Don't kill our C99 cause it
+> > can do bad things. Of course not.
 > 
-> Could do. And on the top of merging, sorry for the delays I'm getting  
-> there. I figured out yesterday what was holding me back with getting SMP &  
-> HighMem going under 2.6. It was really simple: the compile was using -O2.  
-> A quick change to the Makefile and I can now use a C file as I do with 2.4.
+> > If every major hardware vendor (like e.g. Adaptec, LSI Logic) will change
+> > its policy, to implement its drivers as semi- binary only kernel modules, like
+> > Promise did with its FastTrak line of controllers, like in the example above,
+> > the Open Source lable of the linux kernel can be placed into the computer
+> > museum. Isn't that exactly what a certain Redmond software company wants
+> > to achieve?
+> 
+> What the hell do these two paragraphs have to do with each other?
+> 
 
-Which, as I keep saying, is plain broken ... You simply cannot control
-what side effects the compiler will generate, like touching the stack,
-etc... Such a critical routine _has_ to be written in assembly (and
-properly commented of course). Anything else is asking for trouble.
+C99 coding style, more specific the use of unnamed and anonymous structures
+and unions, allows the kernel programmer to interface, read glue, binary only
+driver modules to interface with any linux kernel source tree.
 
-Ben.
+Using this feature one can link and merge any binary only module.o to any
+kernel source version of your choice. In this way, typically, a OEM vendor,
+releases a semi open-source link kit, which also contains binary only
+components, once. This semi open source link-kit will then work with any 2.6.x
+or 2.4.2x kernel source tree.
+
+The needed header files, which need to be read by the gcc compiler, contain
+unnamed and annonymizes structures and unions. In the worst case scenario,
+only the name of used variables are given and no info about variable type or
+size are inside these headers files. gcc-2.95.3 fails to succesfully link these
+semi open-source link-kits, and gcc-3.x (which supports C99) of course has
+no problems doing this.
+
+Robert
+-- 
+Robert M. Stockmann - RHCE
+Network Engineer - UNIX/Linux Specialist
+crashrecovery.org  stock@stokkie.net
 

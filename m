@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315202AbSEUQp2>; Tue, 21 May 2002 12:45:28 -0400
+	id <S315207AbSEUQvJ>; Tue, 21 May 2002 12:51:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315206AbSEUQp1>; Tue, 21 May 2002 12:45:27 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63245 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315202AbSEUQp1>; Tue, 21 May 2002 12:45:27 -0400
-Date: Tue, 21 May 2002 09:45:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: paulus@samba.org, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.16
-In-Reply-To: <Pine.LNX.4.44.0205210857590.2249-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0205210934340.2471-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315212AbSEUQvI>; Tue, 21 May 2002 12:51:08 -0400
+Received: from ns.suse.de ([213.95.15.193]:63502 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S315207AbSEUQvH>;
+	Tue, 21 May 2002 12:51:07 -0400
+Date: Tue, 21 May 2002 18:51:07 +0200
+From: Dave Jones <davej@suse.de>
+To: Claude Lamy <clamy@sunrisetelecom.com>, linux-kernel@vger.kernel.org
+Subject: Re: Fw: /usr/include/asm/system.h
+Message-ID: <20020521185107.C15417@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Claude Lamy <clamy@sunrisetelecom.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <000d01c200c4$4d0b9570$5132a8c0@AVANSUN.COM> <20020521144833.X15417@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 21, 2002 at 02:48:33PM +0200, Dave Jones wrote:
+ >  > > > I am running a Mandrake 8.1 linux distribution with gcc 2.96.  In
+ >  > > > the file /usr/include/asm/system.h, the function __cmpxchg uses a
+ >  > > > parameter named "new" which is a reserved keyword in C++.
+ > The function is wrapped in an #ifdef __KERNEL__
+ > Kernel code isn't meant to be compiled with a c++ compiler
 
+I was of course, completely wrong about this, that #ifdef doesn't cover
+the whole of <asm/system.h>. 
 
-On Tue, 21 May 2002, Linus Torvalds wrote:
->
-> For example, in the exit_mmap() case, we should tear down the page tables
-> in top-to-bottom order, and that makes all the "tlb->pages[]" stuff
-> entirely unnecessary: we can just remove the _top_ pgd, and once that is
-> done (and the TLB invalidated), we can remove the pmd's and the pte's at
-> our leisure without any fear of races.
+Some of the stuff outside that ifdef will never work in a userspace
+app anyway (like wbinvd). Looking at it, is there anything there at all
+that we should let userspace be seeing, or should that #ifdef cover
+the whole file ?
 
-Hmm.. We could simplify it even further by moving the exit_mmap() from
-mmput() into mmdrop(), at which point we know that we exit the mm only
-after nobody is using the thing any more at all, and it has been flushed
-from the TLB's.
+    Dave.
 
-The only downside of that is that we currently do the mmdrop in the middle
-of the context switch, and we'd have to move it to _after_ the context
-switch. Which is slightly complicated. The other problem is that with lazy
-TLB's, we might delay actually freeing the pages for a longish time
-especially on big SMP machines (if the MM ends up being lazy on an idle
-CPU for long)..
-
-So while this approach would be absolutely wonderful from a TLB behaviour
-approach, it might not be the best approach in some other ways. Ideas?
-
-		Linus
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

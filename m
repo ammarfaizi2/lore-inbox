@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273713AbSISW71>; Thu, 19 Sep 2002 18:59:27 -0400
+	id <S273732AbSISXCg>; Thu, 19 Sep 2002 19:02:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273730AbSISW70>; Thu, 19 Sep 2002 18:59:26 -0400
-Received: from packet.digeo.com ([12.110.80.53]:31400 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S273713AbSISW70>;
-	Thu, 19 Sep 2002 18:59:26 -0400
-Message-ID: <3D8A57F8.AFC627AD@digeo.com>
-Date: Thu, 19 Sep 2002 16:04:24 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ext3 fs: no userspace writes == no disk writes ?
-References: <20020920003058.A4850@verdi.et.tudelft.nl>
-Content-Type: text/plain; charset=us-ascii
+	id <S273733AbSISXCg>; Thu, 19 Sep 2002 19:02:36 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:4601 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S273732AbSISXCa>; Thu, 19 Sep 2002 19:02:30 -0400
+Subject: Re: MediaGX/Geode performance fix, Was: Which processor/board for
+	embedded NTP
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christer Weinigel <christer@weinigel.se>
+Cc: Robert Schwebel <robert@schwebel.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <873cs5vkfb.fsf_-_@zoo.weinigel.se>
+References: <1032354632.23252.14.camel@venus>
+	<87r8frqech.fsf@zoo.weinigel.se> <20020919060218.GD10773@pengutronix.de> 
+	<873cs5vkfb.fsf_-_@zoo.weinigel.se>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Sep 2002 23:04:24.0588 (UTC) FILETIME=[E58F84C0:01C26030]
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 20 Sep 2002 00:11:47 +0100
+Message-Id: <1032477107.29021.4.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob van Nieuwkerk wrote:
-> 
-> Hi all,
-> 
-> I have a question about ext3 write activity.
-> 
-> I am considering using an ext3 fs on a CompactFlash disk for my
-> data-logging application (power can disapear anytime).
-> The quantity & frequency of the data logged itself is not a
-> problem at all considering flash wear.
-> 
-> But I'm a bit worried about the kernel/ext3 doing regular writes
-> by itself even when there are no userspace writes.  (worries are
-> partially caused by memories from long time ago about idle laptop
-> doing regular writes on disk).
+On Thu, 2002-09-19 at 20:39, Christer Weinigel wrote:
+> This mail contains a patch to fix a performance problem with many
+> Cyrix MediaGX/NatSemi Geode platforms.  The register settings have
+> been officially recommended by NatSemi themselves.  The patch is
+> against linux-2.4.20-pre7.  Should this be merged into the mainsteam
+> linux kernel?
 
-Should be OK - it's a matter of careful monitoring and
-tuning of system activity.
+This wont actually make an iota of difference in most cases. The CS5530
+IDE driver will force this value to 0x14 anyway. It also sets MWI on te
+X-bus which is needed too.
 
-There are frequently written areas of an ext3 filesystem - the
-journal, the superblock.  Those would wear out pretty quickly.
+Probably the fixup should be done in the PCI quirks.
 
-Increasing the commit interval to the maximum acceptable time
-would reduce some of this wear and tear.
-
-There seems to be some interest in doing this.  Might be helpful
-to ask on ext3-users: https://listman.redhat.com/mailman/listinfo/ext3-users

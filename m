@@ -1,39 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136338AbRD2Ude>; Sun, 29 Apr 2001 16:33:34 -0400
+	id <S136334AbRD2UeD>; Sun, 29 Apr 2001 16:34:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136334AbRD2UdN>; Sun, 29 Apr 2001 16:33:13 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:11039 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S136330AbRD2UdI>; Sun, 29 Apr 2001 16:33:08 -0400
-Date: Sun, 29 Apr 2001 23:32:51 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: Duncan Gauld <duncan@gauldd.freeserve.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: question regarding cpu selection
-Message-ID: <20010429233250.G3682@niksula.cs.hut.fi>
-In-Reply-To: <01042919075101.01335@pc-62-31-91-135-dn.blueyonder.co.uk> <20010429145608.A703@better.net> <20010429223641.K3529@niksula.cs.hut.fi> <01042921284803.01335@pc-62-31-91-135-dn.blueyonder.co.uk>
-Mime-Version: 1.0
+	id <S136347AbRD2Udy>; Sun, 29 Apr 2001 16:33:54 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:31750 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S136334AbRD2Udi>; Sun, 29 Apr 2001 16:33:38 -0400
+Message-ID: <3AEC7A9F.17EBEE57@transmeta.com>
+Date: Sun, 29 Apr 2001 13:33:35 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+CC: Gregory Maxwell <greg@linuxpower.cx>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Sony Memory stick format funnies...
+In-Reply-To: <200104292027.WAA25283@cave.bitwizard.nl>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01042921284803.01335@pc-62-31-91-135-dn.blueyonder.co.uk>; from duncan@gauldd.freeserve.co.uk on Sun, Apr 29, 2001 at 09:28:48PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 29, 2001 at 09:28:48PM -0400, you [Duncan Gauld] claimed:
+Rogier Wolff wrote:
 > 
-> compiling kernel 2.4.4 on mandrake 8.
-> Just checked - no mention of Celeron II in there-
->    Pentium Pro/Pentium II/Celeron
-> is the only line mentioning the celeron; maybe the PIII line could be changed 
-> to something like "Pentium III/Celeron II"?
-> I would supply a patch, but I don't know how to write such a thing :)
+> H. Peter Anvin wrote:
+> > Gregory Maxwell wrote:
+> > > >
+> > > > I doubt the kernel is seeing it without it being there (it doesn't have
+> > > > much imagination.)  However, it may very well be there in a funny
+> > > > manner.  You do realize, of course, that it's pretty much impossible for
+> > > > us to help you answer that question without a complete dump of the
+> > > > filesystem on hand, I hope?
+> > >
+> > > He gave what he thought was a complete dump of the non-null bytes. The
+> > > obvious answer is that he's looking wrong. :)
+> > >
+> >
+> > Hence the "complete" part...
+> 
+> OK.
+> 
+> The image of the disk (including partition table) is at:
+> 
+>         ftp://ftp.bitwizard.nl/misc_junk/formatted.img.gz
+> 
+> It's 63kb and uncompresses to the 64Mb (almost) that it's sold as.
+> 
 
-It seems Erik Mouw already submitted a patch, altough I agree that "Celeron
-II" might be a better name for the thing than "Celeron (Coppermine)".
+And on at least this kernel (2.4.0) there is nothing funny about it:
 
+: tazenda 13 ; ls -l /mnt
+total 0
+-r-xr-xr-x    1 root     root            0 May 23  2000 memstick.ind*
+: tazenda 14 ; 
 
--- v --
+Mounting msdos, vfat or umsdos, no change.
 
-v@iki.fi
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

@@ -1,59 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263041AbUFJVMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263059AbUFJVO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263041AbUFJVMh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 17:12:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263059AbUFJVMh
+	id S263059AbUFJVO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 17:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUFJVO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 17:12:37 -0400
-Received: from gprs214-205.eurotel.cz ([160.218.214.205]:13185 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263041AbUFJVMe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 17:12:34 -0400
-Date: Thu, 10 Jun 2004 23:12:17 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Pekka Pietikainen <pp@ee.oulu.fi>
-Cc: "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Dealing with buggy hardware (was: b44 and 4g4g)
-Message-ID: <20040610211217.GA6634@elf.ucw.cz>
-References: <20040531202104.GA8301@ee.oulu.fi> <20040605200643.GA2210@ee.oulu.fi> <20040605131923.232f8950.davem@redhat.com> <20040609122905.GA12715@ee.oulu.fi> <20040610200504.GG4507@openzaurus.ucw.cz> <20040610203442.GA27762@ee.oulu.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040610203442.GA27762@ee.oulu.fi>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 10 Jun 2004 17:14:28 -0400
+Received: from mail.inter-page.com ([12.5.23.93]:32782 "EHLO
+	mail.inter-page.com") by vger.kernel.org with ESMTP id S263059AbUFJVOD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 17:14:03 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "'Jesse Pollard'" <jesse@cats-chateau.net>,
+       "'Ingo Molnar'" <mingo@elte.hu>,
+       "'Christoph Hellwig'" <hch@infradead.org>,
+       "'Mike McCormack'" <mike@codeweavers.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+Date: Thu, 10 Jun 2004 14:13:22 -0700
+Organization: Casabyte, Inc.
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAFnNl61uL20Wfr6jkoh79oAEAAAAA@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <04061008351700.11472@tabby>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+You are missing the model:
 
-> > This should hit machines with 2GB ram too, right?
-> > Is it possible to find if it hits me? I get hard lockups on
-> > 2GB machine with b44, but they take ~5min.. few hours to
-> > reproduce...
-> >  
-> > It seems to me like this should hit very quickly.
-> > -- 
-> > 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-> > 
-> Yikes!
-> 
-> With the 4:4 VM split it definately is instantaneous with > 1GB of memory, I
-> triggered it with 1.25G myself and never noticed anything wrong with just
-> 1GB (allocation starts from the top it seems). With the standard 1:3 split I
-> don't think anything > 1GB ever gets used for skbuffs, but maybe there
-> are circumstances where this can happen? 
+To enable executable stack/heap you would:
 
-Okay, this is probably other problem. When the bug hit, what are the symptoms?
+if ((fd = open("/proc/self/NX",O_RDWR)) >= 0) {
+   write(fd,"1",1);
+   close(fd);
+}
 
-> (Or the issue isn't fully understood yet, figuring out what breaks and what
-> doesn't was basically just trial and error :-/ )
+(disabling would be symmetric with "0")
 
-Can you try the driver from broadcom? bcom4400, or how is it
-called. Its extremely ugly, but might get this kind of stuff right...
+Because this is a sequence of specific instructions (that shouldn't exist in the
+default library to prevent stack return hack invocation) these instructions would
+exist only in programs that want to be EX anyway.
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...we turn them into developers, and they seem to like it that way!
+Because it is /proc/self other tasks cannot "do it for you".
+
+You could put together a stack image of these instructions and overflow them into
+place, but if the stack/heap isn't already executable, you couldn't run them.  IF it
+was already executable you wouldn't need to.
+
+Note also that this is about old code and not new code.  In the existing model, one
+"actively secures" his ELF image at compile time.  All the existing code is secure or
+not with a kernel switch.  This proposal relaxes that system wide restriction.
+
+-- The system is NX by default.
+-- ELF marked PT_GNU_STACK apps are NX and are /proc/self/NX resistant.  (This is a
+refinement I guess I didn't fully think about until last night.)
+-- Any app that needs to be EX can leave their ELF unmarked and turn EX on and off by
+tweaking this file.
+-- Legacy apps can be EX enabled on a case-by-case basis with an LD_PRELOAD of a
+shared library that contains the above in its __init().
+
+So now, WINE (for instance) can put the above code in its startup system
+unconditionally (since it is conditional on the presence of /proc/self/NX in the
+first place) and WINE can be run on a system that is "otherwise NX".
+
+The implementation doubles the "flag density" of the implementation because you have
+to keep the ELF-set flag and the /procf/self/NX flag separately.  You would also need
+to be able to alter and reload the segment descriptors in the running application.
+Neither should be terribly onerous.
+
+But now the NX kernel increases security by default even for apps that are already
+existent or that cannot be recompiled due to being non-Open-Source.  This increases
+both portability and security without requiring a complete rebuild of a distro.
+
+So I would guess that this would be a "changeable default plus a hard lock" belt-and
+suspenders approach to backwards compatability.
+
+Rob.
+
+
+
+
+-----Original Message-----
+From: Jesse Pollard [mailto:jesse@cats-chateau.net] 
+Sent: Thursday, June 10, 2004 6:35 AM
+To: Robert White; 'Ingo Molnar'; 'Christoph Hellwig'; 'Mike McCormack';
+linux-kernel@vger.kernel.org
+Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+
+On Wednesday 09 June 2004 15:53, Robert White wrote:
+> Which is why I, later in the same message, wrote:
+>
+> Architecturally the easy-application-accessible switch should be something
+> more than a syscall to prevent a return-address-twiddle invoking the call
+> directly.  I'd make it a /proc/self something, or put it in a separate
+> include-only-if-used shared library or something.  If the minimal distance
+> is opening and writing a normally-untouched file then you get a nice
+> support matrix.  (e.g. no file means no feature, file plus action means
+> executable stack, no action means system default (old can, new cannot),
+> hacks would require a variable (fd) and executing arbitrary code to open
+> and write that file, programs/programmers that want/need the old behavior
+> can achieve it without having to know how to manipulate their ELF headers
+> or tool-chains, etc.)
+>
+> Which is not susceptible to the 1-2 attack you mention below because the
+> open and write cannot be done on a protected stack or heap, since it would
+> then have to be (er... ) executed to perform the hack.
+>
+> Ahhhh, yes...
+
+no. This only means the 1-2 attack must be done in two steps (maybe three).
+
+1. create the file (first buffer overflow)
+2. write? (second buffer overflow - depends on whether file must have value)
+3. disable NX (third)
+
+

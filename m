@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269067AbRHFW1d>; Mon, 6 Aug 2001 18:27:33 -0400
+	id <S268911AbRHFWZX>; Mon, 6 Aug 2001 18:25:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269068AbRHFW1X>; Mon, 6 Aug 2001 18:27:23 -0400
-Received: from femail43.sdc1.sfba.home.com ([24.254.60.37]:54935 "EHLO
-	femail43.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S269067AbRHFW1N>; Mon, 6 Aug 2001 18:27:13 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: Nico Schottelius <nicos@pcsystems.de>, safemode <safemode@speakeasy.net>
-Subject: Re: 3c509: broken(verified)
-Date: Mon, 6 Aug 2001 15:30:12 -0700
-X-Mailer: KMail [version 1.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15TNpL-0007rV-00@the-village.bc.nu> <20010805160035Z269969-28344+1638@vger.kernel.org> <3B6EBDAE.F5D619EB@pcsystems.de>
-In-Reply-To: <3B6EBDAE.F5D619EB@pcsystems.de>
+	id <S269067AbRHFWZN>; Mon, 6 Aug 2001 18:25:13 -0400
+Received: from smtp013.mail.yahoo.com ([216.136.173.57]:48393 "HELO
+	smtp013.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S268911AbRHFWY6>; Mon, 6 Aug 2001 18:24:58 -0400
+X-Apparently-From: <kiwiunixman@yahoo.co.nz>
+Message-ID: <3B6F1941.5000709@yahoo.co.nz>
+Date: Tue, 07 Aug 2001 10:25:05 +1200
+From: Matthew Gardiner <kiwiunixman@yahoo.co.nz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-gb
 MIME-Version: 1.0
-Message-Id: <01080615301200.00599@c779218-a>
-Content-Transfer-Encoding: 7BIT
+To: Keith Owens <kaos@ocs.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.8-pre4, lots of compile warnings
+In-Reply-To: <848.997076771@ocs3.ocs-net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 August 2001 08:54 am, Nico Schottelius wrote:
-> > i was just using a 3c509 in my friend's old 486 and it was working
-> > fine with 2.4.7.   Just modprobed it and set up the ips and it was
-> > able to ping and be pinged.
->
-> Did you use twisted pair or coax (bnc) ?
->
-> This problems occurs (at least ) when trying to use TP.
->
-> Nico
->
-> ps: Alan, do you have an solution ?
+<snype a roo>
 
-For what it's worth, I'm using a 3c509 card on vanilla 2.4.7 right now, 
-using standard twisted pair patch cable, and it works fine. I've used it 
-both as a module and compiled in (using compiled in at the moment) on 
-2.4.5 and 2.4.7, I've also previously used it on 2.4.3, both compiled in 
-and as a module.
+All that is happening is the compiler is saying that variables have been declared, 
+however, they haven't been used, aka, they aren't errors. What is happening is that 
+all variables required have been declared my that particular maintainer, and as the 
+programmers go along, they will gradually use the variables up. This normally occurs 
+when a driver is still development.
 
-The motherboard is a Soyo K7VIA w/single ISA slot, VIA Apollo Pro KX133 
-chipset, using an Athlon processor.
+Matthew Gardiner
 
-The card is connected to a hub and communicates fine with both my other 
-system and my cable modem, using DHCP.
+-- 
+I am the blue screen of death
+no body can hear your screams
 
-You mention the problem is being unable to change the media, I was 
-unaware this was even possible with the current 3c509 driver, and most 
-people do it on 3c509's and other PNP cards of this sort (such as NE2000 
-clones)  by using a DOS boot diskette and the DOS utilities provided by 
-the manufacturer.
+You can't spell Linux with out U N I X
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
+

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132464AbRCZQdD>; Mon, 26 Mar 2001 11:33:03 -0500
+	id <S132465AbRCZQdN>; Mon, 26 Mar 2001 11:33:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132469AbRCZQcx>; Mon, 26 Mar 2001 11:32:53 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:35645 "EHLO
-	amsmta04-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S132464AbRCZQcl>; Mon, 26 Mar 2001 11:32:41 -0500
-Message-Id: <5.0.2.1.2.20010326184036.0251b040@pop.wanadoo.nl>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Mon, 26 Mar 2001 18:42:56 +0200
-To: Tobias Ringstrom <tori@tellus.mine.nu>
-From: Theodoor Scholte <tscholte@wanadoo.nl>
-Subject: Re: Compiling problem kernel 2.4.2
+	id <S132469AbRCZQdE>; Mon, 26 Mar 2001 11:33:04 -0500
+Received: from [204.244.205.25] ([204.244.205.25]:3953 "HELO post.gateone.com")
+	by vger.kernel.org with SMTP id <S132465AbRCZQcs>;
+	Mon, 26 Mar 2001 11:32:48 -0500
+Subject: Re: [PATCH] OOM handling
+From: Michael Peddemors <michael@linuxmagic.com>
+To: matthew@mattshouse.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0103261809390.30156-100000@svea.tellus>
-In-Reply-To: <5.0.2.1.2.20010326175151.01eef100@pop.wanadoo.nl>
+In-Reply-To: <45961.192.168.1.5.985572801.squirrel@matthew.mattshouse.com>
+In-Reply-To: <3ABDF8A6.7580BD7D@evision-ventures.com> 
+	<45961.192.168.1.5.985572801.squirrel@matthew.mattshouse.com>
+Content-Type: text/plain
+X-Mailer: Evolution (0.9 - Preview Release)
+Date: 26 Mar 2001 08:11:05 -0800
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Message-Id: <20010326163254Z132465-407+3478@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Uh... and aside from init, mission critical stuff... crond should never
+get killed, it runs mission critical cleanup tasks..
+If crond dies, might as well make the machine die in a lot of cases.. I
+hate to miss my nightly database exports...
 
-> > Hello,
-> >
-> > I have a problem with compiling kernel-2.4.2. When I want to make a bzImage
-> > on a RedHat Linux 5.2 box,
-> > then I get this error-message:
->
-> > [...]
->
-> >> cpp: /usr/src/linux/include/linux/compile.h: Input/output error
->
->Disk full?  Bad disk?
+Getting to look more and more like we need some way to configure certain
+tasks at the admin level to never die..
 
-No, that is not the problem. The disk is is in a very good health and the 
-disk is certainly not full. I compile the kernel over an nfs-mapping. The 
-mapping is good.
 
+-- 
+"Catch the Magic of Linux..."
+--------------------------------------------------------
+Michael Peddemors - Senior Consultant
+LinuxAdministration - Internet Services
+NetworkServices - Programming - Security
+WizardInternet Services http://www.wizard.ca
+Linux Support Specialist - http://www.linuxmagic.com
+--------------------------------------------------------
+(604)589-0037 Beautiful British Columbia, Canada
 

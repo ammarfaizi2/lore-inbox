@@ -1,54 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265075AbSKAQ0V>; Fri, 1 Nov 2002 11:26:21 -0500
+	id <S265077AbSKAQSE>; Fri, 1 Nov 2002 11:18:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265076AbSKAQ0V>; Fri, 1 Nov 2002 11:26:21 -0500
-Received: from bitmover.com ([192.132.92.2]:26304 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S265075AbSKAQ0U>;
-	Fri, 1 Nov 2002 11:26:20 -0500
-Date: Fri, 1 Nov 2002 08:32:43 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Patrick Finnegan <pat@purdueriots.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What's left over.
-Message-ID: <20021101083243.E22577@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Patrick Finnegan <pat@purdueriots.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.GSO.4.21.0211011004050.20586-100000@weyl.math.psu.edu> <Pine.LNX.4.44.0211011108320.10880-100000@ibm-ps850.purdueriots.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0211011108320.10880-100000@ibm-ps850.purdueriots.com>; from pat@purdueriots.com on Fri, Nov 01, 2002 at 11:16:20AM -0500
-X-MailScanner: Found to be clean
+	id <S265081AbSKAQSE>; Fri, 1 Nov 2002 11:18:04 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:30382 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S265077AbSKAQSC>;
+	Fri, 1 Nov 2002 11:18:02 -0500
+Date: Fri, 1 Nov 2002 11:24:28 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Gerd Knorr <kraxel@bytesex.org>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Re: 2.5.45: initrd broken?
+In-Reply-To: <20021101123132.GA30901@bytesex.org>
+Message-ID: <Pine.GSO.4.21.0211011117450.20793-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 01, 2002 at 11:16:20AM -0500, Patrick Finnegan wrote:
-> On Fri, 1 Nov 2002, Alexander Viro wrote:
-> > It's not a fscking public service.  Linus has full control over his
-> > tree.  You have equally full control over your tree.  Linus can't
-> > tell you what patches to apply in your tree.  You can't tell Linus
-> > what patches he should apply to his.
-> 
-> I'm sorry it _is_ a public service.  Once tens of people started
-> contributing to it, it became one.  
 
-Pat, the public service that Linus provides is doing exactly what he does.
-He's acting as a filter.  You may or may not agree with the things he
-lets in or does not.  That's fine, if you think you can do a better job
-you have that option.  i can imagine your answer is "I think he's doing
-a fine job except for my project which isn't getting in" or something
-like that.  That's a bummer for you but keep the big picture in mind.
-Linus is the glue which keeps the Linux world from turning into the
-BSD mess.  He is the acknowledged leader.  Without him we have a bunch
-of semi-leaders, with him we have a real leader.  The fact that Linus
-is here, leading this herd of cats, is a gift to the world.  Try and
-imagine Linux without him, it's not a pretty picture.
 
-So figure out a way to work with him, don't stress him out, he's a
-critical resource without a viable replacement.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+On Fri, 1 Nov 2002, Gerd Knorr wrote:
+
+> Updated today to the latest bk tree.  Still doesn't boot, but crashes
+> in a different way ...
+
+OK, that's my fuckup in rd.c (not on initrd path, actually) + couple of
+fuckups from Pat (mine: forgot to bump ->bd_count in rd_open(), Pat's:
+dropped reference to gendisk on del_gendisk(), resulting in use of
+kfree'd object + tried to remove a symlink that didn't exit).
+
+Patch below fixes these.  It also changes order of blkdev_put()/del_gendisk()
+in initrd_release() - better safe than sorry.
+
+It got initrd working on my boxen...
+
+diff -urN C45-no-rq_dev/drivers/block/rd.c C45-current/drivers/block/rd.c
+--- C45-no-rq_dev/drivers/block/rd.c	Wed Oct 30 20:15:11 2002
++++ C45-current/drivers/block/rd.c	Fri Nov  1 11:12:33 2002
+@@ -300,6 +300,8 @@
+ {
+ 	extern void free_initrd_mem(unsigned long, unsigned long);
+ 
++	blkdev_put(inode->i_bdev, BDEV_FILE);
++
+ 	spin_lock(&initrd_users_lock);
+ 	if (!--initrd_users) {
+ 		spin_unlock(&initrd_users_lock);
+@@ -309,8 +311,6 @@
+ 	} else {
+ 		spin_unlock(&initrd_users_lock);
+ 	}
+-		
+-	blkdev_put(inode->i_bdev, BDEV_FILE);
+ 	return 0;
+ }
+ 
+@@ -348,6 +348,7 @@
+ 	 */
+ 	if (rd_bdev[unit] == NULL) {
+ 		struct block_device *bdev = inode->i_bdev;
++		atomic_inc(&bdev->bd_count);
+ 		rd_bdev[unit] = bdev;
+ 		bdev->bd_openers++;
+ 		bdev->bd_block_size = rd_blocksize;
+diff -urN C45-no-rq_dev/fs/partitions/check.c C45-current/fs/partitions/check.c
+--- C45-no-rq_dev/fs/partitions/check.c	Fri Nov  1 08:17:14 2002
++++ C45-current/fs/partitions/check.c	Fri Nov  1 10:39:22 2002
+@@ -535,12 +535,13 @@
+ 	disk->time_in_queue = 0;
+ 	disk->stamp = disk->stamp_idle = 0;
+ 	devfs_remove_partitions(disk);
+-	kobject_unregister(&disk->kobj);
+-	sysfs_remove_link(&disk->kobj, "device");
+ 	if (disk->driverfs_dev) {
++		sysfs_remove_link(&disk->kobj, "device");
+ 		sysfs_remove_link(&disk->driverfs_dev->kobj, "block");
+ 		put_device(disk->driverfs_dev);
+ 	}
++	kobject_get(&disk->kobj);	/* kobject model is fucked in head */
++	kobject_unregister(&disk->kobj);
+ }
+ 
+ struct dev_name {
+

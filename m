@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267867AbTBEIjU>; Wed, 5 Feb 2003 03:39:20 -0500
+	id <S267876AbTBEJFC>; Wed, 5 Feb 2003 04:05:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267868AbTBEIjU>; Wed, 5 Feb 2003 03:39:20 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:51719 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267867AbTBEIjT>; Wed, 5 Feb 2003 03:39:19 -0500
-Date: Wed, 5 Feb 2003 08:48:52 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-security-module@wirex.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] LSM changes for 2.5.59
-Message-ID: <20030205084852.B16212@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg KH <greg@kroah.com>, linux-security-module@wirex.com,
-	linux-kernel@vger.kernel.org
-References: <20030205041538.GA16823@kroah.com> <20030205041611.GB16823@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030205041611.GB16823@kroah.com>; from greg@kroah.com on Tue, Feb 04, 2003 at 08:16:11PM -0800
+	id <S267877AbTBEJFB>; Wed, 5 Feb 2003 04:05:01 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:19212 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S267876AbTBEJFB>; Wed, 5 Feb 2003 04:05:01 -0500
+Message-Id: <200302050905.h1595Qs17144@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Thomas =?koi8-r?q?B=3Ftzler?= <t.baetzler@bringe.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: filesystem access slowing system to a crawl
+Date: Wed, 5 Feb 2003 11:03:41 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <A1FE021ABD24D411BE2D0050DA450B925EEA6C@MERKUR>
+In-Reply-To: <A1FE021ABD24D411BE2D0050DA450B925EEA6C@MERKUR>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 04, 2003 at 08:16:11PM -0800, Greg KH wrote:
-> diff -Nru a/fs/super.c b/fs/super.c
-> --- a/fs/super.c	Wed Feb  5 14:58:37 2003
-> +++ b/fs/super.c	Wed Feb  5 14:58:37 2003
-> @@ -610,6 +610,7 @@
->  	struct file_system_type *type = get_fs_type(fstype);
->  	struct super_block *sb = ERR_PTR(-ENOMEM);
->  	struct vfsmount *mnt;
-> +	int error;
->  
->  	if (!type)
->  		return ERR_PTR(-ENODEV);
-> @@ -620,6 +621,13 @@
->  	sb = type->get_sb(type, flags, name, data);
->  	if (IS_ERR(sb))
->  		goto out_mnt;
-> + 	error = security_sb_kern_mount(sb);
-> + 	if (error) {
-> + 		up_write(&sb->s_umount);
-> + 		deactivate_super(sb);
-> + 		sb = ERR_PTR(error);
-> + 		goto out_mnt;
-> + 	}
+On 4 February 2003 11:29, Thomas B?tzler wrote:
+> maybe you could help me out with a really weird problem we're having
+> with a NFS fileserver for a couple of webservers:
+>
+> - Dual Xeon 2.2 GHz
+> - 6 GB RAM
+> - QLogic FCAL Host adapter with about 5.5 TB on a several RAIDs
+> - Debian "woody" w/Kernel 2.4.19
+>
+> Running just "find /" (or ls -R or tar on a large directory) locally
+> slows the box down to absolute unresponsiveness - it takes minutes
+> to just run ps and kill the find process. During that time, kupdated
+> and kswapd gobble up all available CPU time.
+>
+> The system performs great otherwise, so I've ruled out a hardware
+> problem. It can't be a load problem because during normal operation,
+> the system is more or less bored out of its mind (70-90% idle time).
+>
+> I'm really at the end of my wits here :-(
+>
+> Any help would be greatly appreciated!
 
-it would be nice if you could follow the syle in this function/file
-and put the error handling code out of line.  This is a general
-complaint, btw - the LSM hooks seldomly follow the style of the
-code around :(
-
+Canned response: 
+* does non-highmem kernel make any difference?
+* does UP kernel make any difference?
+* can you profile kernel while "time ls -R" is running?
+* try 2.4.20 and/or .21-pre4
+* tell us what you found out
+--
+vda

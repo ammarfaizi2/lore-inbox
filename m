@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267219AbSKPFGB>; Sat, 16 Nov 2002 00:06:01 -0500
+	id <S267221AbSKPFHD>; Sat, 16 Nov 2002 00:07:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267220AbSKPFGB>; Sat, 16 Nov 2002 00:06:01 -0500
-Received: from CPE3236333432363339.cpe.net.cable.rogers.com ([24.114.11.87]:6148
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S267219AbSKPFGA>; Sat, 16 Nov 2002 00:06:00 -0500
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [RFC][PATCH] Fix drivers/acpi/sleep.c compile error if swsusp is disabled
-Date: Sat, 16 Nov 2002 00:12:53 -0500
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200211132304.03608.spstarr@sh0n.net> <20021114225922.GA1334@elf.ucw.cz>
-In-Reply-To: <20021114225922.GA1334@elf.ucw.cz>
+	id <S267222AbSKPFHD>; Sat, 16 Nov 2002 00:07:03 -0500
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:42741 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S267221AbSKPFHC>; Sat, 16 Nov 2002 00:07:02 -0500
+Message-ID: <3DD5D93F.8070505@kegel.com>
+Date: Fri, 15 Nov 2002 21:35:59 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: john slee <indigoid@higherplane.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Why can't Johnny compile?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200211160012.53649.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can fix this, sure. I'll have a fix later today or so.
+john slee <indigoid@higherplane.net> wrote:
+> On Thu, Nov 14, 2002 at 10:58:09PM -0500, Patrick Finnegan wrote:
+>> It'd be nice if people simply tried compiling a patched kernel (all
+>> affected modules) before they submitted the patch, I'm betting you'd catch
+>> a lot of typos.  Also, compiling _everything_, even as a module, at
+>> least once before sumbitting the patch would probably help.
+> 
+> thats fine if there is an all-compiling kernel release out there.  right
+> now 2.5-bk is far from it.  last i checked allmodconfig (a couple of
+> days ago) there was major breakage all over llc, scsi, video, sound, ...
+> which kinda masks any breakages you might have introduced. 
 
-On November 14, 2002 05:59 pm, Pavel Machek wrote:
-> Hi!
->
-> > Hi, this should fix this compile problem (if this is correct).
-> >
-> > Please apply.
->
-> It would silently do nothing, that's bad.
->
-> Could you make it so that CONFIG_ACPI_SLEEP is not selectable without
-> CONFIG_SOFTWARE_SUSPEND  and move CONFIG_SOFTWARE_SUSPEND into "power
-> managment" submenu?
-> 								Pavel
->
-> >                 break;
-> >
-> >         case ACPI_STATE_S2:
-> > +#ifdef CONFIG_SOFTWARE_SUSPEND
-> >         case ACPI_STATE_S3:
-> >                 do_suspend_lowlevel(0);
-> > +#endif
-> >                 break;
-> >         }
-> >         local_irq_restore(flags);
+Hrmph.  Y'know, maybe it's time for us to collectively put our
+feet down, get 2.5-linus to the point where everything compiles,
+and keep it there.  After all, we are supposedly trying to
+*stabilize* 2.5.  It isn't stable if it doesn't compile...
+
+- Dan
 

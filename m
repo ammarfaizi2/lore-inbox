@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131666AbRDWJab>; Mon, 23 Apr 2001 05:30:31 -0400
+	id <S131886AbRDWJgk>; Mon, 23 Apr 2001 05:36:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131986AbRDWJaV>; Mon, 23 Apr 2001 05:30:21 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9988 "EHLO
+	id <S131986AbRDWJgd>; Mon, 23 Apr 2001 05:36:33 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14852 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131669AbRDWJaI>; Mon, 23 Apr 2001 05:30:08 -0400
-Subject: Re: All architecture maintainers: pgd_alloc()
-To: miles@megapathdsl.net (Miles Lane)
-Date: Mon, 23 Apr 2001 10:31:39 +0100 (BST)
-Cc: davem@redhat.com (David S. Miller), rmk@arm.linux.org.uk (Russell King),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0104222156180.6639-100000@aerie.megapathdsl.net> from "Miles Lane" at Apr 22, 2001 09:59:32 PM
+	id <S131886AbRDWJgZ>; Mon, 23 Apr 2001 05:36:25 -0400
+Subject: Re: Kernel hang on multi-threaded X process crash
+To: manuel@mclure.org (Manuel McLure)
+Date: Mon, 23 Apr 2001 10:38:11 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010422230014.A979@ulthar.internal.mclure.org> from "Manuel McLure" at Apr 22, 2001 11:00:14 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14rch4-0007eH-00@the-village.bc.nu>
+Message-Id: <E14rcnO-0007fb-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan, could you delegate any of this work?  Is it feasible to
-> have you redirect some portion of the patch analysis and acceptance
-> load to another person, other than Linus?  Obviously, if the rate
+Strange trace but it looks like a bug in the -ac experimental multithreaded
+core dump patches. I've got a couple of other reports consistent with them
+being broken somewhere 
 
-To be honest I get very little patch material I didnt want to track. I get
-lots of patches that are wrong, misguided, or otherwise flawed. However
-I want to see those patches so I can help get them fixed.
+Does it have to be something like mozilla (xmms also probably breaks it) that
+does this. If so I suspect its specific to multithreaded apps and its a bug
+in the core dump changes.
 
-On the whole people seem to be fairly good at sending stuff to obvious 
-maintainers. Sometimes I bounce a few on. Big global changes to vm/vfs I tend
-to ignore because those kind of things tend to be stuff Linus cares a lot 
-about getting right anyway.
+If so I guess I revert them
 
-Alan
 

@@ -1,87 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265537AbSK1QNU>; Thu, 28 Nov 2002 11:13:20 -0500
+	id <S265636AbSK1QSf>; Thu, 28 Nov 2002 11:18:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265568AbSK1QNU>; Thu, 28 Nov 2002 11:13:20 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:61340 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265537AbSK1QNR>;
-	Thu, 28 Nov 2002 11:13:17 -0500
-Date: Thu, 28 Nov 2002 08:15:02 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Adrian Bunk <bunk@fs.tum.de>, Alan Cox <alan@redhat.com>,
-       johnstul@us.ibm.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-rc4-ac1
-Message-ID: <1568261310.1038471302@[10.10.2.3]>
-In-Reply-To: <20021128130112.GB6981@fs.tum.de>
-References: <20021128130112.GB6981@fs.tum.de>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S265643AbSK1QSf>; Thu, 28 Nov 2002 11:18:35 -0500
+Received: from bitmover.com ([192.132.92.2]:12703 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S265636AbSK1QSe>;
+	Thu, 28 Nov 2002 11:18:34 -0500
+Date: Thu, 28 Nov 2002 08:25:50 -0800
+From: Larry McVoy <lm@bitmover.com>
+Message-Id: <200211281625.gASGPo804227@work.bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: connectivity to bkbits.net?
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Martin, could you please review whether the patch below which does the
-> following is correct?
-> 
-> - kill the last occurence of CLUSTERED_APIC_NUMAQ
-> - only one definition of PCI_CONF1_ADDRESS is needed
->   (#ifndef CONFIG_MULTIQUAD the BUS2LOCAL() has no effect)
-> - fix an #endif comment
+We've been having problems getting out to certain parts of the net for the
+last few days, in particular, we can't get to sgi.com which is unusual.
+If you are having problems getting to bkbits.net, let me know.  We have
+a couple of machines at rackspace and I can push repos over there.
 
-I'm confused at to what made this break recently .... what release 
-did this break on? Either it was something very recent, everyone 
-else is asleep, or you're doing something wierd (like compling with
-MULTIQUAD on?)
-
-CLUSTERED_APIC_NUMAQ is a part of the Summit patch introduction, 
-where John (cc'ed) splits clustered_apic_mode from a boolean into
-a switch (in 2.4 ... I did 2.5 differently). Maybe we merged half
-of a summit patch somehow, and didn't get the define?
-
-Yeah, I have no idea why I redefined PCI_CONF1_ADDRESS (you're
-correct, BUS2LOCAL is a no-op) ... That part of the patch is fine.
-
-M.
-
-> --- linux-2.4.19-full-ac/arch/i386/kernel/pci-pc.c.old	2002-11-28 12:51:01.000000000 +0100
-> +++ linux-2.4.19-full-ac/arch/i386/kernel/pci-pc.c	2002-11-28 13:49:50.000000000 +0100
-> @@ -51,10 +51,10 @@
->  
->  #ifdef CONFIG_PCI_DIRECT
->  
-> -#ifdef CONFIG_MULTIQUAD
->  #define PCI_CONF1_ADDRESS(bus, dev, fn, reg) \
->  	(0x80000000 | (BUS2LOCAL(bus) << 16) | (dev << 11) | (fn << 8) | (reg & ~3))
->  
-> +#ifdef CONFIG_MULTIQUAD
->  static int pci_conf1_mq_read (int seg, int bus, int dev, int fn, int reg, int len, u32 *value) /* CONFIG_MULTIQUAD */
->  {
->  	unsigned long flags;
-> @@ -173,9 +173,7 @@
->  	pci_conf1_write_mq_config_dword
->  };
->  
-> -#endif /* !CONFIG_MULTIQUAD */
-> -#define PCI_CONF1_ADDRESS(bus, dev, fn, reg) \
-> -	(0x80000000 | (bus << 16) | (dev << 11) | (fn << 8) | (reg & ~3))
-> +#endif /* CONFIG_MULTIQUAD */
->  
->  static int pci_conf1_read (int seg, int bus, int dev, int fn, int reg, int len, u32 *value) /* !CONFIG_MULTIQUAD */
->  {
-> @@ -478,7 +476,7 @@
->  
->  #ifdef CONFIG_MULTIQUAD			
->  			/* Multi-Quad has an extended PCI Conf1 */
-> -			if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
-> +			if(clustered_apic_logical)
->  				return &pci_direct_mq_conf1;
->  #endif				
->  			return &pci_direct_conf1;
-> 
-> 
-
-
+traceroute to sgi.com (128.167.58.40), 30 hops max, 38 byte packets
+ 1  bitmover (10.3.9.3)  0.535 ms  0.103 ms  0.100 ms
+ 2  cisco (192.132.92.1)  1.236 ms  1.175 ms  1.228 ms
+ 3  s9-1-1-6-0.ar2.SFO1.gblx.net (64.214.96.229)  3.080 ms  3.205 ms  2.982 ms
+ 4  64.215.195.189 (64.215.195.189)  3.052 ms  3.256 ms  3.114 ms
+ 5  64.211.147.86 (64.211.147.86)  4.592 ms  4.623 ms  4.468 ms
+ 6  so6-0-0-2488M.br2.PAO2.gblx.net (207.136.163.126)  4.586 ms  4.530 ms  4.701 ms
+ 7  p4-0.paix-bi1.bbnplanet.net (4.0.6.81)  4.627 ms  4.467 ms  4.427 ms
+ 8  p6-0.snjpca1-br1.bbnplanet.net (4.24.7.61)  5.179 ms  5.678 ms  5.215 ms
+ 9  p1-0.sjccolo-dbe1.bbnplanet.net (4.24.6.253)  5.431 ms  5.214 ms  5.235 ms
+10  vlan40.sjccolo-isw03-rc1.bbnplanet.net (128.11.200.91)  5.326 ms  5.396 ms  5.464 ms
+11  128.11.16.169 (128.11.16.169)  5.581 ms  5.470 ms  5.654 ms
+12  *

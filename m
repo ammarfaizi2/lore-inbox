@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131126AbRAaTac>; Wed, 31 Jan 2001 14:30:32 -0500
+	id <S131208AbRAaTa7>; Wed, 31 Jan 2001 14:30:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131208AbRAaTaT>; Wed, 31 Jan 2001 14:30:19 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:55317 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S131126AbRAaTaH>; Wed, 31 Jan 2001 14:30:07 -0500
-Message-ID: <3A786758.E607E63D@sgi.com>
-Date: Wed, 31 Jan 2001 11:28:24 -0800
-From: LA Walsh <law@sgi.com>
-Organization: Trust Technology, SGI
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.0 i686)
-X-Accept-Language: fr, en
+	id <S132407AbRAaTau>; Wed, 31 Jan 2001 14:30:50 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:62712 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131208AbRAaTah>; Wed, 31 Jan 2001 14:30:37 -0500
+Date: Wed, 31 Jan 2001 17:30:11 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: linux-mm@kvack.org
+cc: linux-kernel@vger.kernel.org, lwn@lwn.net
+Subject: Linux-MM bugzilla
+Message-ID: <Pine.LNX.4.21.0101311706470.1321-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: Rainer Wiener <rainer@konqui.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: seti@home and es1371
-In-Reply-To: <20010131171130.A1664@mulder.konqui.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try "freeamp".  It uses darn close to 0 CPU and may not be affected by setiathome.
-2nd -- renice setiathome to '19' -- you only want it to use up 'background' cputime
-	anyway
+Hi,
+
+to make the tracking of our bugs and feature requests easier
+I have opened a Bugzilla repository for the Linux-MM subsystem.
+
+If you think you have new Linux MM bugs or want a new feature,
+feel free to enter something in the bugzilla.
+
+The information page about this bugzilla can be found here:
+
+	http://www.linux.eu.org/Linux-MM/bugzilla.shtml
+
+People wanting to see what's happening but don't want to
+look up the bugzilla page every day can subscribe to the
+linux-mm-bugs mailing list, where all bugzilla traffic
+will be sent.
+
+To subscribe, send email to majordomo@nl.linux.org, with
+the text "subscribe linux-mm-bugs" in the body of the message.
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 
-
-Rainer Wiener wrote:
-> 
-> Hi,
-> 
-> I hope you can help me. I have a problem with my on board soundcard and
-> seti. I have a Gigabyte GA-7ZX Creative 5880 sound chip. I use the kernel
-> driver es1371 and it works goot. But when I run seti@home I got some noise
-> in my sound when I play mp3 and other sound. But it is not every time 10s
-> play good than for 2 s bad and than 10s good 2s bad and so on. When I kill
-> seti@home every thing is ok. So what can I do?
-> 
-> I have a Athlon 800 Mhz and 128 MB RAM
-
--- 
-Linda A Walsh                    | Trust Technology, Core Linux, SGI
-law@sgi.com                      | Voice: (650) 933-5338
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

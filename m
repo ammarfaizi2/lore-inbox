@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268007AbUHKJN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268008AbUHKJSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268007AbUHKJN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 05:13:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268008AbUHKJN4
+	id S268008AbUHKJSu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 05:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268010AbUHKJSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 05:13:56 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:52627 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S268007AbUHKJNw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 05:13:52 -0400
-From: Benno <benjl@cse.unsw.edu.au>
+	Wed, 11 Aug 2004 05:18:49 -0400
+Received: from main.gmane.org ([80.91.224.249]:29128 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S268008AbUHKJSs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 05:18:48 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Date: Wed, 11 Aug 2004 19:13:49 +1000
-Subject: Building on platforms other than Linux
-Message-ID: <20040811091349.GX862@cse.unsw.edu.au>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Subject: Re: Allow userspace do something special on overtemp
+Date: Wed, 11 Aug 2004 11:18:49 +0200
+Message-ID: <yw1x657q9gna.fsf@kth.se>
+References: <20040811085326.GA11765@elf.ucw.cz> <1092215024.2816.8.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:fzxmTgs1lXWArnJgV/m9ziQwJDw=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Arjan van de Ven <arjanv@redhat.com> writes:
 
-I was wondering if there were any, in priniciple, objections
-to making the Linux kernel buildable on different Unix-like 
-platforms?
+> On Wed, 2004-08-11 at 10:53, Pavel Machek wrote:
+>> Hi!
+>> 
+>> This patch cleans up thermal.c a bit, and adds possibility to react to
+>> critical overtemp: it tries to call /sbin/overtemp, and only if that
+>> fails calls /sbin/poweroff.
+>
+> why not call /sbin/hotplug ????
 
-I am currently compiling on MacOSX and this, for the most part was
-fairly straightforward and simple. The biggest gotcha I had was
-that libkconfig is compiled as a shared library, and unfortunately shared
-libraries are done quite different on different systems. Specifically MacOSX
-doesn't support gcc -shared.
+Good idea, then udev could create /dev/blowtorch so some other program
+can do ioctl(SCSI_STOP) (or just run cdrecord dev=6,6,6 -eject).
+Besides, it is called HOTplug for a reason.
 
-libkconfig.so appears to be the only shared library created in the
-build system, and given that it is only about 95K, and that you don't
-often run two copies of conf at once, it doesn't seem to buy much.
+Seriously, though, isn't hotplug supposed to handle plugging and
+unplugging of hardware, rather than any random events detected by the
+kernel?
 
-The only other reason for doing it this way is to provide a plugin
-style architecture but this doesn't appear evident. gconf and qconf
-appear to manually load libkconfig.so (rather than linking against
-it), but in both cases it appears to be the very first thing they
-do is explicitly load libconfig.
+-- 
+Måns Rullgård
+mru@kth.se
 
-It would seem that using static libraries would enhance portability,
-and produce a simpler build system, however I expect I am missing some
-other reasons.
-
-In summary two questions:
-
-1: Is portability of the build system a desirable property?
-
-2: If so, is moving to static libraries a valid way of achieving this?
-
-Thanks,
-
-Benno

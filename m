@@ -1,141 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264589AbTIFH6v (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 03:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbTIFH6u
+	id S265411AbTIFIYI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 04:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264533AbTIFIYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 03:58:50 -0400
-Received: from pop.isolation-gagneroy.com ([207.253.199.2]:59914 "EHLO
-	tank2.questzones.com") by vger.kernel.org with ESMTP
-	id S264589AbTIFH6r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 03:58:47 -0400
-Message-ID: <006601c3744c$7e0b1d60$8000a8c0@elbasta>
-From: "Frederic Trudeau" <ftrudeau@zesolution.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel oops with kernel-smp-2.4.20-20.9 (Unable to handle kernel NULL pointer dereference at virtual address 00000000)
-Date: Sat, 6 Sep 2003 03:57:00 -0400
+	Sat, 6 Sep 2003 04:24:08 -0400
+Received: from adsl-66-127-195-58.dsl.snfc21.pacbell.net ([66.127.195.58]:4548
+	"EHLO panda.mostang.com") by vger.kernel.org with ESMTP
+	id S265411AbTIFIYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 04:24:03 -0400
+To: Jan Hubicka <jh@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use -fno-unit-at-a-time if gcc supports it
+References: <sqnW.3zE.13@gated-at.bofh.it> <sqHd.3Yj.1@gated-at.bofh.it> <srtA.53H.1@gated-at.bofh.it> <sFmW.78P.13@gated-at.bofh.it>
+From: David Mosberger-Tang <David.Mosberger@acm.org>
+Date: 06 Sep 2003 01:10:57 -0700
+In-Reply-To: <sFmW.78P.13@gated-at.bofh.it>
+Message-ID: <ugbrty49ri.fsf@panda.mostang.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings all.
+For what it's worth, it was straight-forward to get the ia64 linux
+kernel to compile & boot with the latest gcc snapshot.  I could make a
+patch, if anyone cares, but it was mostly trival stuff: a small
+cleanup in init_task.c and a few changes in init.h/compiler.h to use
+"attribute ((used))".
 
-Im getting the error message "Unable to handle kernel NULL pointer
-dereference at virtual address 00000000" when trying to load (ifup eth1)
-eth1 with kernel-smp-2.4.20-20.9. It works fine with non-smp package from
-RH.
+Even the wait-channels seem to come out right, though I'm not sure
+what's being done there is guaranteed to continue to work as the
+compiler gets more aggressive...
 
-No im not sure if im using the ksymoops tool correctly, but heres the output
-:
+	--david
+--
+Interested in learning more about IA-64 Linux?  Try http://www.lia64.org/book/
 
-[root@localhost oops]# ksymoops -v /boot/vmlinux-2.4.20-20.9smp -m
-/boot/System.map-2.4.20-20.9smp -o /lib/modules/2.4.20-20.9smp < oops.txt
-ksymoops 2.4.5 on i686 2.4.20-20.9smp.  Options used
-     -v /boot/vmlinux-2.4.20-20.9smp (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.20-20.9smp (specified)
-     -m /boot/System.map-2.4.20-20.9smp (specified)
+>>>>> On Sat, 06 Sep 2003 09:10:10 +0200, Jan Hubicka <jh@suse.cz> said:
 
-Error (expand_objects): cannot stat(/lib/ext3.o) for ext3
-ksymoops: No such file or directory
-Error (expand_objects): cannot stat(/lib/jbd.o) for jbd
-ksymoops: No such file or directory
-Error (expand_objects): cannot stat(/lib/aacraid.o) for aacraid
-ksymoops: No such file or directory
-Error (expand_objects): cannot stat(/lib/aic79xx.o) for aic79xx
-ksymoops: No such file or directory
-Error (expand_objects): cannot stat(/lib/sd_mod.o) for sd_mod
-ksymoops: No such file or directory
-Error (expand_objects): cannot stat(/lib/scsi_mod.o) for scsi_mod
-ksymoops: No such file or directory
-Warning (map_ksym_to_module): cannot match loaded module ext3 to a unique
-module object.  Trace may not be reliable.
-Warning (map_ksym_to_module): cannot match loaded module aacraid to a unique
-module object.  Trace may not be reliable.
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-f8b05260
-*pde = 00000000
-Oops: 0000
-CPU:    1
-EIP:    0060:[<f8b05260>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: 00000100   ebx: 00000000   ecx: 00031988   edx: f770b980
-esi: 00000000   edi: 00000000   ebp: 00000000   esp: f54a1e98
-ds: 0068   es: 0068   ss: 0068
-Process ip (pid: 17610, stackpage=f54a1000)
-Stack: c3699400 00001000 f4113000 f770b980 c3699400 00001003 00000000
-f8b051dd
-       f770b980 14000000 f770b800 f770b800 f770b980 00000000 f8b04a26
-f770b980
-       f770b800 c020fa86 f770b800 c02123c7 f770b800 f770b800 00001002
-c021112a
-Call Trace:   [<f8b051dd>] e1000_free_rx_resources [e1000] 0x1d
-(0xf54a1eb4))
-[<f8b04a26>] e1000_open [e1000] 0x46 (0xf54a1ed0))
-[<c020fa86>] dev_open [kernel] 0xa6 (0xf54a1edc))
-[<c02123c7>] dev_mc_upload [kernel] 0x37 (0xf54a1ee4))
-[<c021112a>] dev_change_flags [kernel] 0x12a (0xf54a1ef4))
-[<c020f61e>] dev_get [kernel] 0x1e (0xf54a1f00))
-[<c024f130>] devinet_ioctl [kernel] 0x290 (0xf54a1f14))
-[<c0207ca0>] sock_ioctl [kernel] 0x40 (0xf54a1f80))
-[<c01650b6>] sys_ioctl [kernel] 0xf6 (0xf54a1f94))
-[<c01098cf>] system_call [kernel] 0x33 (0xf54a1fc0))
-Code: 8b 14 1f 85 d2 74 36 8b 42 70 48 74 0b f0 ff 4a 70 0f 94 c0
+  >> On Fri, 2003-09-05 at 11:17, Andreas Jaeger wrote:
+  >> 
+  >> 
+  >> > Since unit-at-a-time has better inlining heuristics the better
+  >> way is > to add the used attribute - but that takes some time.
+  >> The short-term > solution would be to add the compiler flag,
+  >> 
+  >> Won't we get a linker error if a static symbol is used but
+  >> optimized-away?  It shouldn't be hard to fix the n linker errors
+  >> that crop up.
 
+  Jan> Yes, you get linker error.  You may also run into
+  Jan> misscompilation assuiming that function is static and it is
+  Jan> both called by hand in asm and by function call and there is
+  Jan> missing attribute used and asmlinkage definition.  In that case
+  Jan> GCC would conclude to change into register calling convention
+  Jan> on i386 breaking asm code.
 
->>EIP; f8b05260 <[e1000]e1000_clean_rx_ring+30/140>   <=====
+  Jan> I would expect this to be rare as functions tends to be used
+  Jan> either by assembly or by normal code but not by both.
+  >>  And why are we using static symbols in inline assembly outside
+  >> of the compilation scope?
 
->>ecx; 00031988 Before first symbol
->>edx; f770b980 <_end+3728d080/3838e760>
->>esp; f54a1e98 <_end+35023598/3838e760>
+  Jan> The toplevel asm statements are common source of this at least
+  Jan> in glibc.  I didn't look much into the kernel sources.
 
-Trace; f8b051dd <[e1000]e1000_free_rx_resources+1d/70>
-Trace; f8b04a26 <[e1000]e1000_open+46/60>
-Trace; c020fa86 <dev_open+a6/e0>
-Trace; c02123c7 <dev_mc_upload+37/80>
-Trace; c021112a <dev_change_flags+12a/150>
-Trace; c020f61e <dev_get+1e/30>
-Trace; c024f130 <devinet_ioctl+290/610>
-Trace; c0207ca0 <sock_ioctl+40/80>
-Trace; c01650b6 <sys_ioctl+f6/2b0>
-Trace; c01098cf <system_call+33/38>
+  Jan> I would be very happy if someone did look on that.  It may be
+  Jan> well possible that implementing tricks you do currently with
+  Jan> toplevel asm staements would need further extensions in GCC now
+  Jan> and it would be nice to know about that.
 
-Code;  f8b05260 <[e1000]e1000_clean_rx_ring+30/140>
-00000000 <_EIP>:
-Code;  f8b05260 <[e1000]e1000_clean_rx_ring+30/140>   <=====
-   0:   8b 14 1f                  mov    (%edi,%ebx,1),%edx   <=====
-Code;  f8b05263 <[e1000]e1000_clean_rx_ring+33/140>
-   3:   85 d2                     test   %edx,%edx
-Code;  f8b05265 <[e1000]e1000_clean_rx_ring+35/140>
-   5:   74 36                     je     3d <_EIP+0x3d>
-Code;  f8b05267 <[e1000]e1000_clean_rx_ring+37/140>
-   7:   8b 42 70                  mov    0x70(%edx),%eax
-Code;  f8b0526a <[e1000]e1000_clean_rx_ring+3a/140>
-   a:   48                        dec    %eax
-Code;  f8b0526b <[e1000]e1000_clean_rx_ring+3b/140>
-   b:   74 0b                     je     18 <_EIP+0x18>
-Code;  f8b0526d <[e1000]e1000_clean_rx_ring+3d/140>
-   d:   f0 ff 4a 70               lock decl 0x70(%edx)
-Code;  f8b05271 <[e1000]e1000_clean_rx_ring+41/140>
-  11:   0f 94 c0                  sete   %al
+  Jan> For instance it used to be possible to force function to go
+  Jan> into given section by changing the section by hand, but now you
+  Jan> have to use section attribute (that is cleaner anyway)
+  >>  Anyhow, if it generates an error, this isn't hard to fix.
+  >> 
+  >> Here is the start...
+  >> 
+  >> Robert Love
+  >> 
+  >> 
+  >> --- linux-rml/include/linux/compiler.h Fri Sep 5 11:57:56 2003
+  >> +++ linux/include/linux/compiler.h Fri Sep 5 12:02:02 2003 @@
+  >> -74,6 +74,19 @@ #define __attribute_pure__ /* unimplemented */
+  >> #endif
+  >> 
+  >> +/* + * As of gcc 3.2, we can mark a function as 'used' and gcc
+  >> will assume that, + * even if it does not find a reference to it
+  >> in any compilation unit.  We + * need this for gcc 3.4 and
+  >> beyond, which can optimize on a program-wide + * scope, and not
+  >> just one file at a time, to avoid static symbols being + *
+  >> discarded.  + */ +#if (__GNUC__ == 3 && __GNUC_MINOR__ > 1) ||
+  >> __GNUC__ > 3 +#define __attribute_used__ __attribute__((used))
+  >> +#else +#define __attribute_used__ /* unimplemented */ +#endif +
+  Jan> I believe there is little trick - attribute used works either
+  Jan> for variables or functions.  Functions can be marked as used
+  Jan> only for GCC 3.4+ if I am right, so you may need
+  Jan> __attribute_used_function__ and __attribute_used_variable__
+  Jan> macros for that.
 
-
-2 warnings and 6 errors issued.  Results may not be reliable.
-
-===
-
-Please let me know if im missing something, or if you need more info from me
-regarding this issue.
-
-Thanks a lot.
-
-
+  Jan> Honza
+  >> /* This macro obfuscates arithmetic on a variable address so that
+  >> gcc shouldn't recognize the original var, and make assumptions
+  >> about it */ #define RELOC_HIDE(ptr, off) \
+  >> 
+  >> 
+  Jan> - To unsubscribe from this list: send the line "unsubscribe
+  Jan> linux-kernel" in the body of a message to
+  Jan> majordomo@vger.kernel.org More majordomo info at
+  Jan> http://vger.kernel.org/majordomo-info.html Please read the FAQ
+  Jan> at http://www.tux.org/lkml/

@@ -1,67 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbUDECMm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 22:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263033AbUDECMm
+	id S261326AbUDECTN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 22:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbUDECTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 22:12:42 -0400
-Received: from mail.tmr.com ([216.238.38.203]:57100 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S263015AbUDECMj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 22:12:39 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.6.4 : 100% CPU use on EIDE disk operarion, VIA chipset
-Date: Sun, 04 Apr 2004 22:14:57 -0400
-Organization: TMR Associates, Inc
-Message-ID: <c4qf6n$1qj$2@gatekeeper.tmr.com>
-References: <406FC621.1090507@A88da.a.pppool.de> <1081108674.1072.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1081131031 1875 192.168.12.10 (5 Apr 2004 02:10:31 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <1081108674.1072.4.camel@localhost.localdomain>
+	Sun, 4 Apr 2004 22:19:13 -0400
+Received: from mta6.srv.hcvlny.cv.net ([167.206.5.72]:45909 "EHLO
+	mta6.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S261326AbUDECTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 22:19:06 -0400
+Date: Sun, 04 Apr 2004 22:18:57 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: 2.6.5-aa1
+In-reply-to: <20040405002028.GB21069@dualathlon.random>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Marcus Hartig <m.f.h@web.de>, linux-kernel@vger.kernel.org
+Message-id: <200404042219.05212.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.6.1
+References: <40707888.80006@web.de> <200404041859.47940.jeffpc@optonline.net>
+ <20040405002028.GB21069@dualathlon.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikhail Ramendik wrote:
-> Hello,
-> 
-> Andreas Hartmann wrote:
-> 
->>>As recommended there, I have tried 2.6.5-rc3-mm4.
->>>
->>>No change. Still 100% CPU usage; the performance seems teh same.
->>
->>Yes. But it's curious:
->>Take a tar-file, e.g. tar the compiled 2.6 kernel directory. Than, untar 
->>it again - the machine behaves total normaly. 
-> 
-> 
-> Not really. I tried a "simple" tar (no gzib/bzip2) - it was the same as
-> with cp, a near-100% CPU "system" load, most of it iowait.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-??? was it in system or wait-io? One or the other, if you can't tell the 
-difference update your tools, see what's really happening.
-> 
-> If I use bzip2 with tar, then yes, the load is nearly 100% "user",
-> actually it's bzip2. But this is because the disk i/o is done at a *far*
-> slower rate; the bottleneck is the CPU. If we don't read (or write) the
-> disk heavily, naturally the system/iowait load is low.
-> 
-> I tried doing a "cp" in another xterm window, while the tar/bzip2 was
-> running. And sure enough, up the CPU system/iowait usage goes - the
-> "cp"'s disk i/o takes much of the CPU time away from the bz2 task! Looks
-> exactly like a cause of performance problems.
-> 
-> (All of this was done on 2.6.5-rc3-mm4).
+On Sunday 04 April 2004 20:20, Andrea Arcangeli wrote:
+> did you get an oops or just a sigsegv? (see dmesg) 
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+only sigsegv
+
+> If you only got a 
+> sigsegv can you try to keep the segfaulting process under "strace -o
+> /tmp/o -p <pid>" and report the last few syscalls before the segfault?
+
+Sure. I started the process as:
+
+artsdsp -m et
+
+et is a shell script (created during the installation) that changes the 
+working directory and executes et.x86. Then, I attached strace to the actual 
+executable (et.x86.)
+
+Here are last few lines of the output:
+
+ioctl(68, 0xc0104629, 0xbfffda98)       = 0
+munmap(0x47e37000, 1056768)             = 0
+ioctl(68, 0xc0104629, 0xbfffda98)       = 0
+ioctl(70, 0xc0184633, 0xbfffdaa4)       = 0
+ioctl(68, 0xc0104629, 0xbfffdab4)       = 0
+ioctl(71, 0xc01046cf, 0xbfffda88)       = 0
+close(71)                               = 0
+ioctl(68, 0xc0104629, 0xbfffdab4)       = 0
+ioctl(72, 0xc01046cf, 0xbfffda88)       = 0
+close(72)                               = 0
+ioctl(68, 0xc0104629, 0xbfffdab4)       = 0
+ioctl(73, 0xc01046cf, 0xbfffda88)       = 0
+close(73)                               = 0
+ioctl(68, 0xc0104629, 0xbfffdaa4)       = 0
+ioctl(68, 0xc0104629, 0xbfffdaa4)       = 0
+ioctl(68, 0xc0104629, 0xbfffdaa4)       = 0
+ioctl(68, 0xc0104629, 0xbfffda98)       = 0
+ioctl(68, 0xc0104629, 0xbfffda8c)       = 0
+ioctl(68, 0xc0104629, 0xbfffdaa4)       = 0
+ioctl(68, 0xc0104629, 0xbfffdaa4)       = 0
+ioctl(68, 0xc0104629, 0xbfffdaa4)       = 0
+munmap(0x4804b000, 4096)                = 0
+ioctl(68, 0xc0104629, 0xbfffdab4)       = 0
+ioctl(68, 0xc0104629, 0xbfffdab4)       = 0
+close(70)                               = 0
+getpid()                                = 1987
+munmap(0x46b9b000, 378720)              = 0
+munmap(0x46bf8000, 4933916)             = 0
+write(2, "Shutdown tty console\n", 21)  = 21
+ioctl(0, SNDCTL_TMR_TIMEBASE or TCGETS, {B38400 opost isig -icanon -ec
+ho ...}) = 0
+ioctl(0, SNDCTL_TMR_STOP or TCSETSW, {B38400 opost isig icanon echo ..
+.}) = 0
+ioctl(0, SNDCTL_TMR_TIMEBASE or TCGETS, {B38400 opost isig icanon echo
+ ...}) = 0
+munmap(0x4bbd5000, 1210664)             = 0
+munmap(0x4c029000, 46072)               = 0
+munmap(0x4c257000, 344064)              = 0
+munmap(0x4c035000, 2233160)             = 0
+munmap(0x4c2ab000, 1210664)             = 0
+munmap(0x4c3d3000, 46072)               = 0
+munmap(0x489bd000, 4096)                = 0
+exit_group(0)                           = ?
+
+> That should reduce the scope of the problem, I had a look at the
+> diff between rc3 and 2.6.5 final but I found nothing obvious that could
+> explain your problem (yet).
+
+I had to use artsdsp to run et, because it, just like everything else here, 
+hangs when it tries to open /dev/dsp. Even dd if=/dev/dsp of=/dev/null hangs. 
+Interestingly enough, xmms works without any problems via both alsa and oss 
+emulation.
+
+Strace reports shows this:
+open("/dev/dsp", O_RDWR
+and waits forever. While lsof shows NO processes. (Note: the sound issue is 
+not new, I just tested 2.6.2-rc? and it was broken there too.)
+
+Jeff.
+
+- -- 
+Keyboard not found!
+Press F1 to enter Setup
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAcMIXwFP0+seVj/4RAsEoAKCxzeLvcxtmCIk5TDqiBQvFHAcJ4QCdH8yg
+BqvMqoTQvcSEjPC453IJTOs=
+=Fq9B
+-----END PGP SIGNATURE-----

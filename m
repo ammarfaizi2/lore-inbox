@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbVADU0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262101AbVADUbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262137AbVADU0u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 15:26:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVADUXu
+	id S262101AbVADUbN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 15:31:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbVADU1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 15:23:50 -0500
-Received: from colin2.muc.de ([193.149.48.15]:34821 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262107AbVADUVF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 15:21:05 -0500
-Date: 4 Jan 2005 21:21:04 +0100
-Date: Tue, 4 Jan 2005 21:21:04 +0100
-From: Andi Kleen <ak@muc.de>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V14 [5/7]: x86_64 atomic pte operations
-Message-ID: <20050104202104.GA28454@muc.de>
-References: <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org> <Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org> <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0501041137410.805@schroedinger.engr.sgi.com> <m1652ddljp.fsf@muc.de> <Pine.LNX.4.58.0501041154560.1083@schroedinger.engr.sgi.com>
+	Tue, 4 Jan 2005 15:27:35 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:26893 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262135AbVADU0V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 15:26:21 -0500
+Date: Tue, 4 Jan 2005 21:17:50 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
+       davidsen@tmr.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
+       linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-ID: <20050104201750.GB22075@alpha.home.local>
+References: <20050102221534.GG4183@stusta.de> <41D87A64.1070207@tmr.com> <20050103003011.GP29332@holomorphy.com> <20050103004551.GK4183@stusta.de> <20050103011935.GQ29332@holomorphy.com> <20050103053304.GA7048@alpha.home.local> <20050103142412.490239b8.diegocg@teleline.es> <20050103134727.GA2980@stusta.de> <20050104125738.GC2708@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501041154560.1083@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050104125738.GC2708@holomorphy.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 11:58:13AM -0800, Christoph Lameter wrote:
-> On Tue, 4 Jan 2005, Andi Kleen wrote:
+On Tue, Jan 04, 2005 at 04:57:38AM -0800, William Lee Irwin III wrote:
+> On Mon, Jan 03, 2005 at 02:47:27PM +0100, Adrian Bunk wrote:
+> > The 2.6.9 -> 2.6.10 patch is 28 MB, and while the changes that went into 
+> > 2.4 were limited since the most invasive patches were postponed for 2.5, 
+> > now _all_ patches go into 2.6 .
+> > Yes, -mm gives a bit more testing coverage, but it doesn't seem to be 
+> > enough for this vast amount of changes.
 > 
-> > Christoph Lameter <clameter@sgi.com> writes:
-> >
-> > I bet this has been never tested.
-> 
-> I tested this back in October and it worked fine. Would you be able to
-> test your proposed modifications and send me a patch?
+> No amount of testing coverage will ever suffice. You're trying to
+> empirically establish the nonexistence of something, which is only
+> possible to repudiate, and never to verify.
 
-Hmm, I don't think it could have worked this way, except
-if you only tested page faults < 4GB. 
+So how do some distro makers manage to stabilize their 'enterprise' versions,
+stay on a 2.4.21 with hundreds of patches which overall seem to work pretty
+well ? The distro maker I think about has quite a big crunch of the kernel
+developpers, and I suspect that they do this work themselves. If they can
+refrain from putting new features everyday in their employer's product, why
+can't they do the same for the free version ?
 
-> 
-> > > +#define pmd_test_and_populate(mm, pmd, pte) \
-> > > +		(cmpxchg((int *)pmd, PMD_NONE, _PAGE_TABLE | __pa(pte)) == PMD_NONE)
-> > > +#define pud_test_and_populate(mm, pud, pmd) \
-> > > +		(cmpxchg((int *)pgd, PUD_NONE, _PAGE_TABLE | __pa(pmd)) == PUD_NONE)
-> > > +#define pgd_test_and_populate(mm, pgd, pud) \
-> > > +		(cmpxchg((int *)pgd, PGD_NONE, _PAGE_TABLE | __pa(pud)) == PGD_NONE)
-> > > +
-> >
-> > Shouldn't this all be (long *)pmd ? page table entries on x86-64 are 64bit.
-> > Also why do you cast at all? i think the macro should handle an arbitary
-> > pointer.
-> 
-> The macro checks for the size of the pointer and then generates the
-> appropriate cmpxchg instruction. pgd_t is a struct which may be
-> problematic for the cmpxchg macros.
+Other example: look how Alan releases kernels. He posts several updates a week,
+some with very few changes, some with more, but at least, people can say "this
+one works for me" and stick to it for a time. Indeed, I think that if 2.6.11
+would stay a year in -rc version, then Alan would release tens of 2.6.10
+derivatives which would then become far more stable than what the next 2.6.11
+would be.
 
-It just checks sizeof, that should be fine.
+Today, coverage is done by users who are confident in one product and agree to
+test it. The best reputation the tree gets, the more users will try it, and
+the more covered it will be, then the best reputation it will get, etc...
 
--Andi
+Willy
 

@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271678AbRH0Jbw>; Mon, 27 Aug 2001 05:31:52 -0400
+	id <S271682AbRH0Jmx>; Mon, 27 Aug 2001 05:42:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271679AbRH0Jbm>; Mon, 27 Aug 2001 05:31:42 -0400
-Received: from cnxt10002.conexant.com ([198.62.10.2]:63664 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S271678AbRH0Jbi>; Mon, 27 Aug 2001 05:31:38 -0400
-Date: Mon, 27 Aug 2001 11:31:44 +0200 (CEST)
-From: <rui.p.m.sousa@clix.pt>
-X-X-Sender: <rsousa@localhost.localdomain>
-To: Thunder from the hill <schemins@netscape.net>
-cc: <linux-kernel@vger.kernel.org>, <emu10k1-devel@opensource.creative.com>
-Subject: Re: emu10k1 driver breakdown in 2.4.9?
-In-Reply-To: <04F07016.7522E748.00A6DFE2@netscape.net>
-Message-ID: <Pine.LNX.4.33.0108271130130.6839-100000@localhost.localdomain>
+	id <S271679AbRH0Jmn>; Mon, 27 Aug 2001 05:42:43 -0400
+Received: from pf107.gdansk.sdi.tpnet.pl ([213.77.129.107]:62734 "EHLO
+	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
+	id <S271683AbRH0Jmi>; Mon, 27 Aug 2001 05:42:38 -0400
+Subject: Re: [patch] serial.c ALI/SMSC/VIA high speed support
+In-Reply-To: <Pine.LNX.4.30.0108261918450.23071-101000@anime.net>
+ "from Dan Hollis at Aug 26, 2001 07:22:22 pm"
+To: Dan Hollis <goemon@anime.net>
+Date: Mon, 27 Aug 2001 11:41:21 +0200 (CEST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E15bItV-00019J-00@alf.amelek.gda.pl>
+From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Aug 2001, Thunder from the hill wrote:
 
-Can you strace the player giving you trouble?
-Do you see any kernel oops in /var/log/messages?
+OK, I've received a few copies of the VT82C686A datasheet, thanks :)
 
-Rui Sousa
+Last time I checked their web site, there was only a short version
+of the datasheet available, and they talk about large customers,
+non disclosure agreements etc.
 
->
-> ---------4f17ff67523f7284f17ff67523f728
-> Content-Type: text/plain; charset=iso-8859-1
-> Content-Transfer-Encoding: 8bit
-> Content-Disposition: inline
->
-> Hi,
->
-> I am running Linux 2.4.9 compiled on gcc-2.95.2 with K6-II optimization and support for the emu10k1 cards, as I'm using a SB Live!. But whenever I play something that does not go straight to the soundcard (e.g. mp3), the program receives a SIGSEGV. No matter which program.
-> It all worked fine on Linux-2.4.2, so it seems not the players fault.
->
-> config.h appended.
->
-> Thunder
->
+Marek
 

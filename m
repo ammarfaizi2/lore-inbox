@@ -1,58 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266772AbTBTSX3>; Thu, 20 Feb 2003 13:23:29 -0500
+	id <S266733AbTBTSQS>; Thu, 20 Feb 2003 13:16:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266777AbTBTSX3>; Thu, 20 Feb 2003 13:23:29 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:23475 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266772AbTBTSX1>;
-	Thu, 20 Feb 2003 13:23:27 -0500
-Date: Thu, 20 Feb 2003 18:45:25 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Daniel Egger <degger@fhm.edu>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] Enable SSE for AMD Athlon (Thoroughbred) in 2.4.20
-Message-ID: <20030220184525.GA23768@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Daniel Egger <degger@fhm.edu>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <1045266292.12105.41.camel@sonja>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1045266292.12105.41.camel@sonja>
-User-Agent: Mutt/1.5.3i
+	id <S266735AbTBTSQS>; Thu, 20 Feb 2003 13:16:18 -0500
+Received: from dialup-192.130.220.203.acc01-faul-arm.comindico.com.au ([203.220.130.192]:44929
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S266733AbTBTSQQ> convert rfc822-to-8bit; Thu, 20 Feb 2003 13:16:16 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: James Buchanan <jamesbuch@iprimus.com.au>
+Reply-To: jamesbuch@iprimus.com.au
+To: Rik van Riel <riel@imladris.surriel.com>
+Subject: Re: Linux kernel rant
+Date: Fri, 21 Feb 2003 17:25:58 +1100
+User-Agent: KMail/1.4.3
+Cc: Tomas Szepe <szepe@pinerecords.com>, "" <linux-kernel@vger.kernel.org>
+References: <200302211551.28222.jamesbuch@iprimus.com.au> <200302211717.23993.jamesbuch@iprimus.com.au> <Pine.LNX.4.50L.0302201519210.2329-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.50L.0302201519210.2329-100000@imladris.surriel.com>
+X-Memberships: Professional Member, ACM (jamesb.au@acm.org)
+X-Hypothetical: Humans are incapable of original thought. Everything is the result of observation, experimentation, or building on/modifying what already exists.
+X-Location: Australia, NSW
+X-Religion: Athiest, Secular
+X-Operating-System: RedHat Linux/GNU
+X-Message: The Truth Is Out There
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302211725.58197.jamesbuch@iprimus.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 15, 2003 at 12:44:53AM +0100, Daniel Egger wrote:
- > Hija,
- > 
- > please include the obvious oneliner attached in 2.4.21 to help
- > the poor folks having recent Athlons. :)
- > 
- > A similar change for the just released Barton would also be nice but
- > I do not have the model number handy.
+On Fri, 21 Feb 2003 05:19 am, Rik van Riel wrote:
+> No IDE disks or modern SCSI controllers in your machine ?
 
-It's model 10. Somehow they skipped model 9.
-
- > --- arch/i386/kernel/setup.c.orig	2003-02-03 13:26:38.000000000 +0100
- > +++ arch/i386/kernel/setup.c	2003-02-14 14:14:12.000000000 +0100
- > @@ -1421,7 +1421,7 @@
- >  			 * If the BIOS didn't enable it already, enable it
- >  			 * here.
- >  			 */
- > -			if (c->x86_model == 6 || c->x86_model == 7) {
- > +			if (c->x86_model == 6 || c->x86_model == 7 || c->x86_model == 8) {
- >  				if (!test_bit(X86_FEATURE_XMM,
- >  					      &c->x86_capability)) {
- >  					printk(KERN_INFO
-
-if (c->x86_model >= 6 && c->x86_model <= 10) {
-
-should do the right thing on all current models with SSE afaics..
-
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+The ones I use are not forbidden to be seen by me, written under an 
+NDA or otherwise.  No, no modern SCSI controllers.

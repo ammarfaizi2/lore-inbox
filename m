@@ -1,105 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266491AbUJVSm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266459AbUJVSqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266491AbUJVSm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 14:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbUJVSjK
+	id S266459AbUJVSqe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 14:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267164AbUJVSnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 14:39:10 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:34994 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S267338AbUJVSAx
+	Fri, 22 Oct 2004 14:43:18 -0400
+Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:9880 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S266864AbUJVSlr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 14:00:53 -0400
-Date: Fri, 22 Oct 2004 11:01:17 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: akpm@osdl.org, torvalds@osdl.org, benh@kernel.crashing.org,
+	Fri, 22 Oct 2004 14:41:47 -0400
+Message-ID: <41795467.7070003@ru.mvista.com>
+Date: Fri, 22 Oct 2004 22:41:43 +0400
+From: Alexander Batyrshin <abatyrshin@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>,
+       "Ext-Rt-Dev@Mvista. Com" <ext-rt-dev@mvista.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PPC32: Fix cpu voltage change delay
-Message-ID: <20041022180117.GA2162@us.ibm.com>
-References: <16744.45392.781083.565926@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16744.45392.781083.565926@cargo.ozlabs.ibm.com>
-X-Operating-System: Linux 2.6.9-rc4 (i686)
-User-Agent: Mutt/1.5.6+20040722i
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U9.3
+References: <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu>
+In-Reply-To: <20041022133551.GA6954@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Paul,
+   Hi Ingo,
+U9.3 (defconfig) died with trace:
 
-On Sun, Oct 10, 2004 at 01:49:36PM +1000, Paul Mackerras wrote:
-> This patch fixes a problem where my new powerbook would sometimes hang
-> or crash when changing CPU speed.  We had schedule_timeout(HZ/1000) in
-> there, intended to provide a delay of one millisecond.  However, even
-> with HZ=1000, it was (I believe) only waiting for the next jiffy
-> before proceeding, which could be less than a millisecond.  Changing
-> the code to use msleep, and specifying a time of 1 jiffy + 1ms has
-> fixed the problem.  (When I looked at the msleep code, it appeared to
-> me that msleep(1) with HZ=1000 would sleep for between 0 and 1ms.)
+------------[ cut here ]------------
+kernel BUG at kernel/sched.c:784!
+invalid operand: 0000 [#1]
+PREEMPT SMP
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c011873d>]    Not tainted VLI
+EFLAGS: 00010002   (2.6.9-rc4-mm1-RT-U9.3)
+EIP is at resched_task+0x80/0x8a
+eax: 00000001   ebx: c1674000   ecx: dfb578f0   edx: 00000000
+esi: c16712c0   edi: 00000000   ebp: c167bc48   esp: c167bc3c
+ds: 007b   es: 007b   ss: 0068   preempt: 00000003
+Process ksoftirqd/0 (pid: 3, threadinfo=c167a000 task=c1670660)
+Stack: c1403820 c1403820 00000000 c167bc94 c0118b78 c16712c0 c1433820 
+00000000
+        00000000 00000000 00000001 00000100 c1433820 c1433820 00000001 
+00000000
+        00000000 00000001 00000082 00000001 de9d3e60 00000001 c167bcd8 
+c0133c7b
+Call Trace:
+  [<c0118b78>] try_to_wake_up+0x1f3/0x26b (20)
+  [<c0133c7b>] autoremove_wake_function+0x2f/0x57 (76)
+  [<c011a766>] __wake_up_common+0x3f/0x5e (28)
+  [<c011a7d0>] __wake_up+0x4b/0x62 (40)
+  [<c034e08c>] sock_def_readable+0x8e/0x90 (52)
+  [<c0388dbe>] tcp_child_process+0xe6/0xec (28)
+  [<c0384df7>] tcp_v4_do_rcv+0x123/0x162 (36)
+  [<c0134079>] _mutex_lock+0x2c/0x3b (16)
+  [<c0385513>] tcp_v4_rcv+0x6dd/0x92c (16)
+  [<c03c0e30>] svc_revisit+0x27/0x154 (48)
+  [<c0368553>] ip_local_deliver_finish+0x0/0x1b2 (40)
+  [<c0368609>] ip_local_deliver_finish+0xb6/0x1b2 (4)
+  [<c0368553>] ip_local_deliver_finish+0x0/0x1b2 (12)
+  [<c035f607>] nf_hook_slow+0xdc/0x12e (20)
+  [<c0368553>] ip_local_deliver_finish+0x0/0x1b2 (28)
+  [<c0368705>] ip_rcv_finish+0x0/0x2b3 (28)
+  [<c0367fcb>] ip_local_deliver+0x208/0x226 (4)
+  [<c0368553>] ip_local_deliver_finish+0x0/0x1b2 (24)
+  [<c0368828>] ip_rcv_finish+0x123/0x2b3 (20)
+  [<c0368705>] ip_rcv_finish+0x0/0x2b3 (32)
+  [<c035f607>] nf_hook_slow+0xdc/0x12e (20)
+  [<c0368705>] ip_rcv_finish+0x0/0x2b3 (28)
+  [<c036846a>] ip_rcv+0x481/0x56a (32)
+  [<c0368705>] ip_rcv_finish+0x0/0x2b3 (24)
+  [<c0354e68>] netif_receive_skb+0x117/0x1dd (28)
+  [<c0354ff7>] process_backlog+0xc9/0x1cb (36)
+  [<c03551b2>] net_rx_action+0xb9/0x1ed (48)
+  [<c01242d9>] ___do_softirq+0xe1/0x130 (36)
+  [<c0124923>] ksoftirqd+0x0/0xda (40)
+  [<c01243fb>] _do_softirq+0x4b/0x4d (4)
+  [<c01249c5>] ksoftirqd+0xa2/0xda (16)
+  [<c013376d>] kthread+0xb7/0xbd (24)
+  [<c01336b6>] kthread+0x0/0xbd (28)
+  [<c0103375>] kernel_thread_helper+0x5/0xb (16)
+preempt count: 00000004
+. 4-level deep critical section nesting:
+.. entry 1: _spin_lock_irqsave+0x1d/0xa5 [<00000000>] / (0x0 [<00000000>])
+.. entry 2: _spin_lock+0x19/0x6d [<00000000>] / (0x0 [<00000000>])
+.. entry 3: _spin_lock_irqsave+0x1d/0xa5 [<00000000>] / (0x0 [<00000000>])
+.. entry 4: print_traces+0x17/0x4e [<00000000>] / (0x0 [<00000000>])
 
-<snip>
-
-While looking through the latest bk changelogs, I noticed that you had
-submitted this patch using msleep(). When I read the comment, though,
-that you were offsetting the 1 millisecond with a jiffy, I was slightly
-confused as msleep() is designed to sleep for *at least* the time
-requested. So if you just use msleep(1) in these cases, you should have
-the desired effect. msleep() is designed to be independent of HZ (as the
-timeout is specified in non-jiffy units). Not using the
-jiffies_to_msecs() macro would remove some extra instructions... The
-attached patch makes this change (on top of your patch currently in bk7)
-and also changes the other schedule_timeout()s (at least, those that can
-be) to msleep.
-
--Nish
-
-
-
-Description: Uses msleep() instead of schedule_timeout() to guarantee
-the task delays as expected. Two of the changes are reworks of previous
-msleep() calls which unnecessarily added a jiffy to the parameter.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-
-
---- 2.6.9-bk7-vanilla/arch/ppc/platforms/pmac_cpufreq.c	2004-10-22 10:41:49.000000000 -0700
-+++ 2.6.9-bk7/arch/ppc/platforms/pmac_cpufreq.c	2004-10-22 10:57:03.000000000 -0700
-@@ -141,7 +141,7 @@ static int __pmac dfs_set_cpu_speed(int 
- 		/* ramping up, set voltage first */
- 		pmac_call_feature(PMAC_FTR_WRITE_GPIO, NULL, voltage_gpio, 0x05);
- 		/* Make sure we sleep for at least 1ms */
--		msleep(1 + jiffies_to_msecs(1));
-+		msleep(1);
- 	}
- 
- 	/* set frequency */
-@@ -150,7 +150,7 @@ static int __pmac dfs_set_cpu_speed(int 
- 	if (low_speed == 1) {
- 		/* ramping down, set voltage last */
- 		pmac_call_feature(PMAC_FTR_WRITE_GPIO, NULL, voltage_gpio, 0x04);
--		msleep(1 + jiffies_to_msecs(1));
-+		msleep(1);
- 	}
- 
- 	return 0;
-@@ -167,8 +167,7 @@ static int __pmac gpios_set_cpu_speed(in
- 	if (low_speed == 0) {
- 		pmac_call_feature(PMAC_FTR_WRITE_GPIO, NULL, voltage_gpio, 0x05);
- 		/* Delay is way too big but it's ok, we schedule */
--		set_current_state(TASK_UNINTERRUPTIBLE);
--		schedule_timeout(HZ/100);
-+		msleep(10);
- 	}
- 
- 	/* Set frequency */
-@@ -185,8 +184,7 @@ static int __pmac gpios_set_cpu_speed(in
- 	if (low_speed == 1) {
- 		pmac_call_feature(PMAC_FTR_WRITE_GPIO, NULL, voltage_gpio, 0x04);
- 		/* Delay is way too big but it's ok, we schedule */
--		set_current_state(TASK_UNINTERRUPTIBLE);
--		schedule_timeout(HZ/100);
-+		msleep(10);
- 	}
- 
- #ifdef DEBUG_FREQ

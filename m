@@ -1,68 +1,204 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262197AbVATQdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262750AbVATRjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262197AbVATQdr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 11:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbVATQTx
+	id S262750AbVATRjD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 12:39:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbVATRgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 11:19:53 -0500
-Received: from bluebox.CS.Princeton.EDU ([128.112.136.38]:34949 "EHLO
-	bluebox.CS.Princeton.EDU") by vger.kernel.org with ESMTP
-	id S262217AbVATQPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 11:15:12 -0500
-From: "Marc E. Fiuczynski" <mef@CS.Princeton.EDU>
-To: "Peter Williams" <pwil3058@bigpond.net.au>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Cc: "Con Kolivas" <kernel@kolivas.org>, "Chris Han" <xiphux@gmail.com>
-Subject: RE: [ANNOUNCE][RFC] plugsched-2.0 patches ...
-Date: Thu, 20 Jan 2005 11:14:48 -0500
-Message-ID: <NIBBJLJFDHPDIBEEKKLPGELGDHAA.mef@cs.princeton.edu>
+	Thu, 20 Jan 2005 12:36:54 -0500
+Received: from smtp0.libero.it ([193.70.192.33]:12967 "EHLO smtp0.libero.it")
+	by vger.kernel.org with ESMTP id S262221AbVATReW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 12:34:22 -0500
+Message-ID: <41EFBC77.1080006@gmail.com>
+Date: Thu, 20 Jan 2005 15:13:11 +0100
+From: Luca Falavigna <dktrkranz@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: it, it-it, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Greg KH <greg@kroah.com>, vamsi_krishna@in.ibm.com, prasanna@in.ibm.com
+CC: Nathan Lynch <nathanl@austin.ibm.com>, suparna@in.ibm.com,
+       lkml <linux-kernel@vger.kernel.org>,
+       Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [PATCH] Kprobes /proc entry
+References: <41E2AC82.8020909@gmail.com> <20050110181445.GA31209@kroah.com> <1105479077.17592.8.camel@pants.austin.ibm.com> <20050111213400.GB18422@kroah.com> <41E70234.50900@gmail.com> <20050113233446.GA2710@kroah.com> <41EBEE98.7090207@gmail.com> <20050118064401.GA9529@kroah.com>
+In-Reply-To: <20050118064401.GA9529@kroah.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
-Importance: Normal
-In-Reply-To: <41EF080D.7020101@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter, thank you for maintaining Con's plugsched code in light of Linus' and
-Ingo's prior objections to this idea.  On the one hand, I partially agree
-with Linus&Ingo's prior views that when there is only one scheduler that the
-rest of the world + dog will focus on making it better. On the other hand,
-having a clean framework that lets developers in a clean way plug in new
-schedulers is quite useful.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Linus & Ingo, it would be good to have an indepth discussion on this topic.
-I'd argue that the Linux kernel NEEDS a clean pluggable scheduling
-framework.
+Greg KH ha scritto:
+> Also, why not use the seqfile interface for this, to prevent overflowing
+> the read buffer?
+Great idea!
 
-Let me make a case for this NEED by example.  Ingo's scheduler belongs to
-the egalitarian regime of schedulers that do a poor job of isolating
-workloads from each other in multiprogrammed environments such as those
-found on Enterprise servers and in my case on PlanetLab (www.planet-lab.org)
-nodes.  This has been rectified by HP-UX, Solaris, and AIX through the use
-of fair share schedulers that use O(1) schedulers within a share.  Currently
-PlanetLab uses a CKRM modified version of Ingo's scheduler.  Similarly, the
-linux-vserver project also modifies Ingo's scheduler to construct an
-entitlement based scheduling regime. These are not just variants of O(1)
-schedulers in the sense of Con's staircase O(1). Nor is it clear what the
-best type of scheduler is for these environments (i.e., HP-UX, Solaris and
-AIX don't have it fully solved yet either). The ability to dynamically swap
-out schedulers on a production system like PlanetLab would help in
-determining what type of scheduler is the most appropriate.  This is because
-it is non-trivial, if not impossible, to recreate the multiprogrammed
-workloads that we see in a lab.
+> Am I missing where you allocate the space for the data to be put into?
+seq_read does the job now. It manages to allocate PAGE_SIZE bytes.
+Assuming function, hook and module names occupy KSYM_NAME_LEN bytes each,
+maximum length will be 424 bytes for each kprobe. I don't think it would be
+useful to allocate more memory than PAGE_SIZE. Please, let me know your opinion.
 
-For these reasons, it would be useful for plugsched (or something like it)
-to make its way into the mainline kernel as a framework to plug in different
-schedulers.  Alternatively, it would be useful to consider in what way
-Ingo's scheduler needs to support plugins such as the CKRM and Vserver types
-of changes.
 
-Best regards,
-Marc
+
+- --- ./kernel/kprobes.c	2005-01-19 11:03:03.000000000 +0100
++++ ./kernel/kprobes.c	2005-01-20 15:02:47.000000000 +0100
+@@ -33,6 +33,10 @@
+ #include <linux/hash.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/debugfs.h>
++#include <linux/kallsyms.h>
++#include <linux/seq_file.h>
+ #include <asm/cacheflush.h>
+ #include <asm/errno.h>
+ #include <asm/kdebug.h>
+@@ -45,6 +49,13 @@
+ unsigned int kprobe_cpu = NR_CPUS;
+ static DEFINE_SPINLOCK(kprobe_lock);
+
++static char *ktype[] = {
++	"PRE",
++	"POST",
++	"FAULT",
++	"BREAK",
++};
++
+ /* Locks kprobe: irqs must be disabled */
+ void lock_kprobes(void)
+ {
+@@ -131,15 +142,92 @@
+ 	unregister_kprobe(&jp->kp);
+ }
+
++static void kprobes_print(struct seq_file *seq, unsigned long addr,
++			  unsigned long handler, int type)
++{
++	char *module, namebuf[KSYM_NAME_LEN+1];
++	const char *hook, *func;
++	unsigned long off, size;
++
++	func = kallsyms_lookup(addr, &size, &off, &module, namebuf);
++	seq_printf(seq, "%s\t0x%lx(%s+%#lx)\t", ktype[type], addr, func, off);
++	hook = kallsyms_lookup(handler, &size, &off, &module, namebuf);
++	seq_printf(seq, "0x%lx(%s)\t%s\n", handler, hook,
++		   strlen(module) ? module : "[built-in]");
++}
++
++static int kprobes_show(struct seq_file *seq, void *unused)
++{
++	int i;
++	struct kprobe *k;
++	struct hlist_node *node;
++	unsigned long addr, handler;
++		
++	spin_lock(&kprobe_lock);
++	for(i = 0; i < KPROBE_TABLE_SIZE; i++) {
++		hlist_for_each_entry(k, node, &kprobe_table[i], hlist) {
++			if(!k)
++				continue;
++			addr = (unsigned long)k->addr;
++			if(k->pre_handler) {
++				handler = (unsigned long)k->pre_handler;
++				kprobes_print(seq, addr, handler, PRE);
++			}
++			if(k->post_handler) {
++				handler = (unsigned long)k->post_handler;
++				kprobes_print(seq, addr, handler, POST);
++			}
++			if(k->fault_handler) {
++				handler = (unsigned long)k->fault_handler;
++				kprobes_print(seq, addr, handler, FAULT);
++			}
++			if(k->break_handler) {
++				handler = (unsigned long)k->break_handler;
++				kprobes_print(seq, addr, handler, BREAK);
++			}
++		}
++	}
++	spin_unlock(&kprobe_lock);
++	return 0;
++}
++
++static int kprobes_open(struct inode *inode, struct file *file)
++{
++	return single_open(file, kprobes_show, NULL);
++}
++
++static struct file_operations kprobes_fops = {
++	.open = kprobes_open,
++	.read = seq_read,
++	.llseek = seq_lseek,
++	.release = single_release,
++	.owner = THIS_MODULE
++};
++
+ static int __init init_kprobes(void)
+ {
+ 	int i, err = 0;
++	struct dentry *kprobes_dir, *kprobes_list;
+
+ 	/* FIXME allocate the probe table, currently defined statically */
+ 	/* initialize all list heads */
+ 	for (i = 0; i < KPROBE_TABLE_SIZE; i++)
+ 		INIT_HLIST_HEAD(&kprobe_table[i]);
+
++	kprobes_dir = debugfs_create_dir("kprobes", NULL);
++	if(!kprobes_dir) {
++		printk("kprobes: could not create debugfs entry\n");
++		goto finish;
++	}
++	kprobes_list = debugfs_create_file("list", S_IRUGO, kprobes_dir,
++					   NULL, &kprobes_fops);
++	if(!kprobes_list) {		
++		printk("kprobes: could not create debugfs entry\n");
++		debugfs_remove(kprobes_dir);
++		goto finish;
++	}
++
++finish:
+ 	err = register_die_notifier(&kprobe_exceptions_nb);
+ 	return err;
+ }
+- --- ./include/linux/kprobes.h	2005-01-03 20:40:51.000000000 +0100
++++ ./include/linux/kprobes.h	2005-01-20 13:59:27.000000000 +0100
+@@ -82,6 +82,13 @@
+ 	kprobe_opcode_t *entry;	/* probe handling code to jump to */
+ };
+
++enum kprobe_type {
++	PRE=0,
++	POST,
++	FAULT,
++	BREAK,
++};
++
+ #ifdef CONFIG_KPROBES
+ /* Locks kprobe: irq must be disabled */
+ void lock_kprobes(void);
+
+Signed-off-by: Luca Falavigna <dktrkranz@gmail.com>
+
+
+
+Regards,
+
+					Luca
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQEVAwUBQe+8dhZrwl7j21nOAQJDHAf+KOkiM3K7S23ALmOntaobAKykZVzKEB5o
+e7vBZuUhADoG+5VzeUybHiFDP22dvEZ06iVn4O70VuL1fcOsrUNyJri2Vefkc8at
+Krxxd3Qb0a8903ksx2IzO3d+S+lV30gJie8yHZLrFTp8eCJtSEO8wuXXx0BQtT86
+QG1VAxh2hP3ytsbNRNHczeI1yE+PhzdJ2pmJRwTm9tdTWoYznk0QTi/3AUqwvLXE
+WCxG5ED8vUzeywBB1jL0u3Zq9z+Q+ul8BzsnPhAN8v7Zeo9R4YfbK2dgfbMpVW+N
+UHO9AqYYDIJN62h2j+iQmtrNPmILjUmVx4uQtYkjk0MQytdN9lbhCw==
+=paEq
+-----END PGP SIGNATURE-----
 

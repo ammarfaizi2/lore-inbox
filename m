@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130532AbRCPP3L>; Fri, 16 Mar 2001 10:29:11 -0500
+	id <S130552AbRCPPmL>; Fri, 16 Mar 2001 10:42:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130552AbRCPP3B>; Fri, 16 Mar 2001 10:29:01 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:9094 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S130532AbRCPP2q>; Fri, 16 Mar 2001 10:28:46 -0500
-Message-Id: <5.0.2.1.2.20010316152720.00a81960@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Fri, 16 Mar 2001 15:27:59 +0000
-To: "Peter 'Luna' Runestig" <peter@runestig.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: NTFS R/W safe with mount 'ro' ?
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <002601c0ae0e$48a40da0$7201a8c0@bollperuig>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S130565AbRCPPmB>; Fri, 16 Mar 2001 10:42:01 -0500
+Received: from [142.176.139.106] ([142.176.139.106]:3846 "EHLO ve1drg.com")
+	by vger.kernel.org with ESMTP id <S130552AbRCPPlw>;
+	Fri, 16 Mar 2001 10:41:52 -0500
+Date: Fri, 16 Mar 2001 11:40:42 -0400 (AST)
+From: Ted Gervais <ve1drg@ve1drg.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.2-ac20
+Message-ID: <Pine.LNX.4.21.0103161138110.5008-100000@ve1drg.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:43 16/03/01, Peter 'Luna' Runestig wrote:
->I just noticed that one of the major distros ships their kernel with
->NTFS write support turned on. Using such a kernel, am I still safe if I
->mount my NTFS partition 'ro'?
 
-Yes.
+Wondering something about this new installation - kernel 2.4.2-ac20.
 
-Regards,
+I am running soundmodem as a module and when I run 'insmod soundmodem' I
+see this:
 
-         Anton
+unix:/etc# insmod soundmodem
+Using /lib/modules/2.4.2-ac20/kernel/drivers/net/hamradio/soundmodem/soundmodem.o
+/lib/modules/2.4.2-ac20/kernel/drivers/net/hamradio/soundmodem/soundmodem.o: unresolved symbol hdlcdrv_transmitter_Rccccc7c3
+/lib/modules/2.4.2-ac20/kernel/drivers/net/hamradio/soundmodem/soundmodem.o: unresolved symbol hdlcdrv_register_hdlcdrv_R5cc2770d
+/lib/modules/2.4.2-ac20/kernel/drivers/net/hamradio/soundmodem/soundmodem.o: unresolved symbol hdlcdrv_arbitrate_R6954b1ce
+/lib/modules/2.4.2-ac20/kernel/drivers/net/hamradio/soundmodem/soundmodem.o: unresolved symbol hdlcdrv_unregister_hdlcdrv_R2d89fb74
+/lib/modules/2.4.2-ac20/kernel/drivers/net/hamradio/soundmodem/soundmodem.o: unresolved symbol hdlcdrv_receiver_Rde0ac756
 
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Anyone have any thoughts on this?  Why the unresolved symbols??
+ 
+---
+Earth is a beta site. 
+                
+Ted Gervais <ve1drg@ve1drg.com>
+44.135.34.201 linux.ve1drg.ampr.org
+
 

@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316757AbSHHIDa>; Thu, 8 Aug 2002 04:03:30 -0400
+	id <S316684AbSHHIAn>; Thu, 8 Aug 2002 04:00:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316900AbSHHIDa>; Thu, 8 Aug 2002 04:03:30 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:6662 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id <S316757AbSHHID3>;
-	Thu, 8 Aug 2002 04:03:29 -0400
-Date: Thu, 8 Aug 2002 10:06:59 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Giacomo Catenazzi <cate@debian.org>
-Cc: trond.myklebust@fys.uio.no,
-       "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: O_SYNC option doesn't work (2.4.18-3)
-Message-ID: <20020808080659.GC943@alpha.home.local>
-References: <fa.jepn5rv.uiqrqe@ifi.uio.no> <fa.gkqj0av.c661ad@ifi.uio.no> <3D52199C.3030408@debian.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D52199C.3030408@debian.org>
-User-Agent: Mutt/1.4i
+	id <S316757AbSHHIAn>; Thu, 8 Aug 2002 04:00:43 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:23050 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316684AbSHHIAn>; Thu, 8 Aug 2002 04:00:43 -0400
+Message-ID: <3D5224B7.9080604@evision.ag>
+Date: Thu, 08 Aug 2002 09:58:47 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Jesse Barnes <jbarnes@sgi.com>
+CC: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+       jmacd@namesys.com, phillips@arcor.de, rml@tech9.net
+Subject: Re: [PATCH] lock assertion macros for 2.5.30
+References: <20020807210855.GA27182@sgi.com> <Pine.LNX.4.44L.0208071814250.23404-100000@imladris.surriel.com> <20020807213949.GA27258@sgi.com>
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 08, 2002 at 09:11:24AM +0200, Giacomo Catenazzi wrote:
-> ??? You tell us that this list is only made for official kernels?
-> In this case it would not flood my mailing box, no -ac, no -arca/-aa,
-> no -dj, no..., no ide-2.4, no experimental patches... NO DEVELOPMENT!
+Uz.ytkownik Jesse Barnes napisa?:
+> On Wed, Aug 07, 2002 at 06:21:07PM -0300, Rik van Riel wrote:
+> 
+>>On Wed, 7 Aug 2002, Jesse Barnes wrote:
+>>
+>>>macro worked before?  I could just remove all those checks in the scsi
+>>>code I guess.
+>>
+>>That would be a better option.
+> 
+> 
+> Ok.
+> 
+> 
+>>The MUST_NOT_HOLD basically means the kernel will OOPS the
+>>moment the lock is contended.
 
-at least, the kernel and patches you are talking about are *announced*
-here, so that people have a clue about changes between versions.
- 
-> NOO. This list is also for bug report of RH/Debian/SuSE/connectiva... 
-> kernels.
-
-do you remember one of these vendors announcing their kernels with their
-changelog here ? I think that could be a good idea anyway, because that
-would tell us what set of patches they found to be stable, but unfortunately,
-they don't at the moment. So nobody knows what's in without pulling regularly
-their new packages from their respective sites.
-
-> The pourpose of lkml is not only the development but also to find the
-> stablest kernel. The errata of RH (and other) will help Marcelo and Alan
-> to find the right patches to include in the official kernels.
-
-If you want to help, ask these vendors to post their errata here, associated
-with the bug reports, so that anyone can benefit from it.
-
-Cheers,
-Willy
+And for Gods sake ;-) - please call it ASSERT_ and not MUST_THIS
+MUST_THAT MUST_GO_TO_TOILET. For the nonanglosaxons among us the
+personifications already  frequently enough present in english
+nomenclature sound already awfoul enough... Additionally gerp -i assert
+will work as expected, since MUST is a far more frequent term.
 

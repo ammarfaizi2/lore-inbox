@@ -1,126 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264183AbUGIVNn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265181AbUGIVQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264183AbUGIVNn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 17:13:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265181AbUGIVNn
+	id S265181AbUGIVQN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 17:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbUGIVQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 17:13:43 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:56680 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S264183AbUGIVNe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 17:13:34 -0400
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-From: Redeeman <lkml@metanurb.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-In-Reply-To: <20040709182638.GA11310@elte.hu>
-References: <20040709182638.GA11310@elte.hu>
-Content-Type: text/plain
-Date: Fri, 09 Jul 2004 23:13:30 +0200
-Message-Id: <1089407610.10745.5.camel@localhost>
+	Fri, 9 Jul 2004 17:16:13 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:30897 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265181AbUGIVQK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 17:16:10 -0400
+Date: Fri, 9 Jul 2004 22:16:05 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix building on Solaris (and don't break Cygwin)
+Message-ID: <20040709211605.GA6126@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Tom Rini <trini@kernel.crashing.org>, Andrew Morton <akpm@osdl.org>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040709210011.GG28002@smtp.west.cox.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040709210011.GG28002@smtp.west.cox.net>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this all seems pretty cool...
-do you think you could make a patch against mm for this? it would be
-greatly apreciated
+On Fri, Jul 09, 2004 at 02:00:11PM -0700, Tom Rini wrote:
+> The following is from Jean-Christophe Dubois <jdubois@mc.com>.  On
+> Solaris 2.8, <stdint.h> does not exist, but <inttypes.h> does.  However,
+> on cygwin (the other odd place that the kernel is compiled on)
+> <inttypes.h> doesn't exist.  So we end up with something like the
+> following.
+> Signed-off-by: Tom Rini <trini@kernel.crashing.org>
 
-On Fri, 2004-07-09 at 20:26 +0200, Ingo Molnar wrote:
-> as most of you are probably aware of it, there have been complaints on
-> lkml that the 2.6 kernel is not suitable for serious audio work due to
-> high scheduling latencies (e.g. the Jackit people complained). I took a
-> look at latencies and indeed 2.6.7 is pretty bad - latencies up to 50
-> msec (!) can be easily triggered using common workloads, on fast 2GHz+
-> x86 system - even when using the fully preemptible kernel!
-> 
-> to solve this problem, Arjan van de Ven and I went over various kernel
-> functions to determine their preemptability and we re-created from
-> scratch a patch that is equivalent in performance to the 2.4 lowlatency
-> patches but is different in design, impact and approach:
-> 
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.7-bk20-H2
-> 
->   (Note to kernel patch reviewers: the split voluntary_resched type of
->   APIs, the feature #ifdefs and runtime flags are temporary and were
->   only introduced to enable a easy benchmarking/comparisons. I'll split
->   this up into small pieces once there's testing feedback and actual
->   audio users had their say!)
-> 
-> unlike the lowlatency patches, this patch doesn't add a lot of new
-> scheduling points to the source code, it rather reuses a rich but
-> currently inactive set of scheduling points that already exist in the
-> 2.6 tree: the might_sleep() debugging checks. Any code point that does
-> might_sleep() is in fact ready to sleep at that point. So the patch
-> activates these debugging checks to be scheduling points. This reduces
-> complexity and impact quite significantly.
-> 
-> but even using these (over one hundred) might_sleep() points there were
-> still a number of latency sources in the kernel - we identified and
-> fixed them by hand, either via additional might_sleep() checks, or via
-> explicit rescheduling points. Sometimes lock-break was necessary as
-> well.
-> 
-> as a practical goal, this patch aims to fix all latency sources that
-> generate higher than ~1 msec latencies. We'd love to learn about
-> workloads that still cause audio skipping even with this patch applied,
-> but i've been unable to generate any load that creates higher than 1msec
-> latencies. (not counting driver initialization routines.)
-> 
-> this patch is also more configurable than the 2.4 lowlatency patches
-> were: there's a .config option to enable voluntary preemption, and there
-> are runtime /proc/sys knobs and boot-time flags to turn voluntary
-> preemption (CONFIG_VOLUNTARY_PREEMPT) and kernel preemption
-> (CONFIG_PREEMPT) on/off:
-> 
->         # turn on/off voluntary preemption (if CONFIG_VOLUNTARY_PREEMPT)
-> 	echo 1 > /proc/sys/kernel/voluntary_preemption
-> 	echo 0 > /proc/sys/kernel/voluntary_preemption
-> 
->         # turn on/off the preemptible kernel feature (if CONFIG_PREEMPT)
-> 	/proc/sys/kernel/kernel_preemption
-> 	/proc/sys/kernel/kernel_preemption
-> 
-> the 'voluntary-preemption=0/1' and 'kernel-preemption=0/1' boot options
-> can be used to control these flags at boot-time.
-> 
-> all 4 combinations make sense if both CONFIG_PREEMPT and
-> CONFIG_VOLUNTARY_PREEMPT are enabled - great for performance/latency
-> testing and comparisons.
-> 
-> The stock 2.6 kernel is equivalent to:
-> 
->    voluntary_preemption:0 kernel_preemption:0
-> 
-> the 2.6 kernel with voluntary kernel preemption is equivalent to:
-> 
->    voluntary_preemption:1 kernel_preemption:0
-> 
-> the 2.6 kernel with preemptible kernel enabled is:
-> 
->    voluntary_preemption:0 kernel_preemption:1
-> 
-> and the preemptible kernel enhanced with additional lock-breaks is 
-> enabled via:
-> 
->    voluntary_preemption:1 kernel_preemption:1
-> 
-> it is safe to change these flags anytime.
-> 
-> The patch is against 2.6.7-bk20, and it also includes fixes for kernel
-> bugs that were uncovered while developing this patch. While it works for
-> me, be careful when using this patch!
-> 
-> Testreports, comments, suggestions are more than welcome,
-> 
-> 	Ingo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Yikes.  <stdint.h> is mandated by C99, please complain to sun instead or
+write up the header yourself - it's not that difficult anyway.
 

@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313062AbSC0SXo>; Wed, 27 Mar 2002 13:23:44 -0500
+	id <S313064AbSC0S1y>; Wed, 27 Mar 2002 13:27:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313063AbSC0SXe>; Wed, 27 Mar 2002 13:23:34 -0500
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:21681 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id <S313062AbSC0SX0>; Wed, 27 Mar 2002 13:23:26 -0500
-Message-Id: <200203271823.g2RINIM11972@fubini.pci.uni-heidelberg.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Bernd Schubert <bernd-schubert@web.de>
-To: Mark Cooke <mpc@star.sr.bham.ac.uk>
-Subject: Re: time jumps
-Date: Wed, 27 Mar 2002 19:23:17 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0203271729290.15451-100000@pc24.sr.bham.ac.uk>
+	id <S313065AbSC0S1o>; Wed, 27 Mar 2002 13:27:44 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36370 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313064AbSC0S1k>; Wed, 27 Mar 2002 13:27:40 -0500
+Subject: Re: [PATCH][RFC] P4/Xeon Thermal LVT support
+To: macro@ds2.pg.gda.pl (Maciej W. Rozycki)
+Date: Wed, 27 Mar 2002 18:16:16 +0000 (GMT)
+Cc: zwane@linux.realnet.co.sz (Zwane Mwaikambo), davej@suse.de (Dave Jones),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <Pine.GSO.3.96.1020327170918.8602K-100000@delta.ds2.pg.gda.pl> from "Maciej W. Rozycki" at Mar 27, 2002 05:15:07 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16qHy4-0005l7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 March 2002 18:33, Mark Cooke wrote:
-> There is a hardware bug on some via 686a systems where the RTC appears
-> automagically change it's programmed value.
->
-> A patch was originally made against 2.4.2, and some version of this
-> appears to be applied to current kernels (I don't have a vanilla
-> 2.4.17 to check against).  Look in arch/i386/kernel/time.c for mention
-> of 686a.
->
-> It appears to only be used if the kernel's not compiled with
-> CONFIG_X86_TSC though, so if you have that defined you may not see the
-> problem at all...
->
-> Mark
->
+> > handler in fact only displays a warning, by which time the hardware is 
+> > already handling the condition.
+> 
+>  How can't it be critical?  Your system is overheating.  It is about to
+> fail -- depending on the configuration, it'll either crash or be shut down
 
+Neither. It will drop to a much lower clock speed. You can set it to overheat
+and blow up but thats a mostly undocumented mtrr 8) The default behaviour is
+to throttle back hard
 
-Ah, thank you very much. I'll try this first.
-
-Thanks, Bernd
+Alan

@@ -1,37 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316185AbSGQSNq>; Wed, 17 Jul 2002 14:13:46 -0400
+	id <S316397AbSGQSVT>; Wed, 17 Jul 2002 14:21:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316210AbSGQSNp>; Wed, 17 Jul 2002 14:13:45 -0400
-Received: from dsl-213-023-038-064.arcor-ip.net ([213.23.38.64]:33725 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316185AbSGQSNp>;
-	Wed, 17 Jul 2002 14:13:45 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [patch 10/13] remove add_to_page_cache_unique()
-Date: Wed, 17 Jul 2002 20:17:41 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <3D3500E2.9CB994A7@zip.com.au>
-In-Reply-To: <3D3500E2.9CB994A7@zip.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17UtMs-0004Oi-00@starship>
+	id <S316408AbSGQSVS>; Wed, 17 Jul 2002 14:21:18 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:23315 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316397AbSGQSVR>;
+	Wed, 17 Jul 2002 14:21:17 -0400
+Date: Wed, 17 Jul 2002 11:23:05 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: [BK PATCH] LSM setup changes for 2.5.26
+Message-ID: <20020717182305.GB9550@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 17 July 2002 07:30, Andrew Morton wrote:
-> A tasty patch from Hugh Dickens.  radix_tree_insert() fails if something
-> was already present at the target index, so that error can be
-> propagated back through add_to_page_cache().  Hence
-> add_to_page_cache_unique() is obsolete.
-> 
-> Hugh's patch removes add_to_page_cache_unique() and cleans up a bunch of
-> stuff.
+Hi,
 
-:-)  A large bouquet to Hugh, and another to Momchil Velikov for recoring the 
-whole interface in the first place.
+These changesets contain some minor changes that are needed by the LSM
+(lsm.immunix.org) patch, before we start to merge in the LSM patch
+itself.  They move some structures out of a .c file and put them into a
+.h file so other portions of the kernel can reference them.
 
--- 
-Daniel
+Please pull from:  bk://lsm.bkbits.net/linus-2.5
+
+These patches were created by Stephen Smalley <sds@tislabs.com> from the
+main LSM tree.
+
+If anyone has any questions about these changes, please let us know.
+
+thanks,
+
+greg k-h
+
+
+ include/linux/msg.h |   29 +++++++++++++++++++++++++++++
+ include/linux/shm.h |   13 +++++++++++++
+ ipc/msg.c           |   34 ++++------------------------------
+ ipc/sem.c           |    7 ++++---
+ ipc/shm.c           |   21 +++++----------------
+ 5 files changed, 55 insertions(+), 49 deletions(-)
+
+------
+
+ChangeSet@1.639.1.2, 2002-07-15 12:53:35-07:00, greg@kroah.com
+  LSM: move struct shmid_kernel out of ipc/shm.c to include/linux/shm.h
+  
+  Also move where we set sma->sem_perm.mode and .key to before ipc_addid() gets called.
+
+ include/linux/shm.h |   13 +++++++++++++
+ ipc/sem.c           |    7 ++++---
+ ipc/shm.c           |   21 +++++----------------
+ 3 files changed, 22 insertions(+), 19 deletions(-)
+------
+
+ChangeSet@1.639.1.1, 2002-07-15 12:51:26-07:00, greg@kroah.com
+  LSM: move the struct msg_msg and struct msg_queue definitions out of the msg.c file to the msg.h file
+  
+  Also move where the msg->q_perm.mode and .key values get set to before 
+  ipc_addid() gets called to make placing a hook there easier.
+
+ include/linux/msg.h |   29 +++++++++++++++++++++++++++++
+ ipc/msg.c           |   34 ++++------------------------------
+ 2 files changed, 33 insertions(+), 30 deletions(-)
+------

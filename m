@@ -1,60 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbTKGDvz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 22:51:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263853AbTKGDvz
+	id S262009AbTKGBMi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 20:12:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbTKGBMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 22:51:55 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:64016 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S261344AbTKGDvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 22:51:53 -0500
-Date: Fri, 07 Nov 2003 12:52:02 +0900 (JST)
-Message-Id: <20031107.125202.755842752.yoshfuji@linux-ipv6.org>
-To: jeff.zheng@intel.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why size of sockaddr smaller than size of sockaddr_in6?
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <37FBBA5F3A361C41AB7CE44558C3448E011959C7@pdsmsx403.ccr.corp.intel.com>
-References: <37FBBA5F3A361C41AB7CE44558C3448E011959C7@pdsmsx403.ccr.corp.intel.com>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on XEmacs 21.4.6 (Common Lisp)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Nov 2003 20:12:38 -0500
+Received: from 216-147-153-221.globalsat.net ([216.147.153.221]:46344 "HELO
+	216-147-153-221.globalsat.net") by vger.kernel.org with SMTP
+	id S261262AbTKGBMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 20:12:30 -0500
+Message-ID: <9l9$-0j339-v18ran-m7q84@7tvpq>
+From: "Lila Presley" <1cj5iwmhj5b7@juno.com>
+Reply-To: "Lila Presley" <1cj5iwmhj5b7@juno.com>
+To: linux-kernel-owner@vger.kernel.org
+Subject: Valium - Buy Valium Online from No Prescription Needed t qpaudsj xztq
+Date: Fri, 07 Nov 03 03:11:44 GMT
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="C6DC2687_3A_"
+X-Priority: 3
+X-MSMail-Priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <37FBBA5F3A361C41AB7CE44558C3448E011959C7@pdsmsx403.ccr.corp.intel.com> (at Fri, 7 Nov 2003 11:00:55 +0800), "Zheng, Jeff" <jeff.zheng@intel.com> says:
 
-> Is sockaddr_storage part of IPv6? I mean, does sockaddr_storage exist in a system that does not have IPv6? In such system if I use sockaddr_in6, the compile will be failed because there is no sockaddr_in6 structure. 
+--C6DC2687_3A_
+Content-Type: text/plain;
+Content-Transfer-Encoding: quoted-printable
 
-AFAIK, sockaddr_storage{} was introduced because sockaddr_in6{} 
-is too large for sockaddr{}.  However, the use of sockaddr_storage{} 
-is not limited to IPv6. Systems which does not support IPv6 may have 
-sockaddr_storage{}.
+Buy Xanax and Valium Online now
+Best Prices Anywhere.
+US doctor approves you online, no prior prescription needed.
+Overngiht shipping included. Limited Supply available.
 
-BTW, there're little chances for users to use sockaddr_in{} or sockaddr_in6{}.
-Modern and "good" applications never use them.
-
-Use getaddrinfo(3) / getnameinfo(3) (which uses addrinfo{} and sockaddr{}).
-
-If you need a structure to hold socket address, 
-you may use sockaddr_storage{}; i.e. for getsockname(2) / getpeername(2).
-
-If you are UNABLE to avoid touching socket address structure, use it finally;
-This is very rare.
+http://www.shoprxnow.biz/rxplanet
 
 
-Well, this is kernel developmen list. Please change the list.
-Thanks.
 
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+take off list
+http://www.shoprxnow.biz/a.html
+
+
+med
+um ajfvhwynmpieszhx
+bgz 
+j
+aqdo hdxxqhzshfwvkwukvmhviwutfx
+
+--C6DC2687_3A_--
+

@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263566AbTDIQqk (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 12:46:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263599AbTDIQqk (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 12:46:40 -0400
-Received: from toq3-srv.bellnexxia.net ([209.226.175.16]:39406 "EHLO
-	toq3-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S263566AbTDIQqj (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 12:46:39 -0400
-Date: Wed, 9 Apr 2003 12:43:12 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: what means duplicate "config" entries in Kconfig file?
-In-Reply-To: <Pine.LNX.4.44.0304091818470.12110-100000@serv>
-Message-ID: <Pine.LNX.4.44.0304091237490.28112-100000@dell>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S263599AbTDIQsL (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 12:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbTDIQsK (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 12:48:10 -0400
+Received: from 237.oncolt.com ([213.86.99.237]:16874 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id S263599AbTDIQsJ (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 12:48:09 -0400
+Subject: Re: [PATCH] compatmac is not needed
+From: David Woodhouse <dwmw2@infradead.org>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20030409180327.K626@nightmaster.csn.tu-chemnitz.de>
+References: <200304081725.h38HPeSV012611@hera.kernel.org>
+	 <1049877554.31462.24.camel@passion.cambridge.redhat.com>
+	 <20030409180327.K626@nightmaster.csn.tu-chemnitz.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049907586.31462.228.camel@passion.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
+Date: Wed, 09 Apr 2003 17:59:46 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Apr 2003, Roman Zippel wrote:
-
-> On Wed, 9 Apr 2003, Robert P. J. Day wrote:
- 
-> >   i'm not sure what it means to have two config entries with 
-> > identical symbols.  can someone clarify this?  i'm just confused
-> > (which should not come as a surprise at this point).
+On Wed, 2003-04-09 at 17:03, Ingo Oeser wrote:
+> So this is still a valid API? Good to know.
 > 
-> You can have as much entries as you want, the only limit is that you can
-> only have one user prompt per config entry and the type must not conflict.
-> This example could have been done with a single entry and this is usually
-> prefered to keep it more compact, but you don't have to.
+> What I don't know: Can it be product specific? So the net people
+> ship a version for new networking APIs and filesystem people ship
+> new filesystem methods along with their filesystem support.
+> 
+> Reason I ask: There are many such frameworks floating around, but
+> none was complete. Many miss BUG_ON(), likely()/unlikely(),
+> seq_file support and many more interesting stuff.
 
-not to belabor this, but what does it mean when the two dependencies
-are mutually exclusive, as in the example i provided:
+Well, my copy of include/linux/mtd/compatmac.h includes just about
+everything needed to get the CVS MTD code, which is meant for 2.5, to
+build and work on 2.4. 
 
------------------------
+There's definitely some scope for merging the various hacks if you're so
+inclined.
 
-config MCA
-        bool "MCA support"
-        depends on !(X86_VISWS || X86_VOYAGER)
-        help
-          MicroChannel Architecture is found in some IBM PS/2 machines and
-          laptops.  It is a bus system similar to PCI or ISA. See
-          <file:Documentation/mca.txt> (and especially the web page given
-          there) before attempting to build an MCA bus kernel.
-
-config MCA
-        depends on X86_VOYAGER
-        default y if X86_VOYAGER
-
----------------------
-
-  the two options X86_VISWS and X86_VOYAGER are simple "bool"s
-representing the (radio-box) subarchitecture type.
-
-  the first seems to represent a dependency of *neither* of those
-two listed options, while the second config *depends* on one of 
-them.  
-
-  how exactly do you reconcile what looks like contradictory
-dependencies for the same config entry?
-
-rday,
-wondering just how badly he's embarrassing himself by now ...
+-- 
+dwmw2
 

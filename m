@@ -1,50 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264331AbRFVAgb>; Thu, 21 Jun 2001 20:36:31 -0400
+	id <S264916AbRFVAnw>; Thu, 21 Jun 2001 20:43:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264738AbRFVAgV>; Thu, 21 Jun 2001 20:36:21 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:48780 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264331AbRFVAgL>;
-	Thu, 21 Jun 2001 20:36:11 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15154.37624.806402.350346@pizda.ninka.net>
-Date: Thu, 21 Jun 2001 17:36:08 -0700 (PDT)
-To: Mike Mackovitch <macko@asicdesigners.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, root@chaos.analogic.com,
-        linux-kernel@vger.kernel.org
+	id <S264938AbRFVAnn>; Thu, 21 Jun 2001 20:43:43 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:32128 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S264916AbRFVAn0>; Thu, 21 Jun 2001 20:43:26 -0400
+Date: Thu, 21 Jun 2001 20:43:21 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Anders Larsen <anders@alarsen.net>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Is it useful to support user level drivers
-In-Reply-To: <20010621165015.A11197@wacko.asicdesigners.com>
-In-Reply-To: <mailman.993156181.18994.linux-kernel2news@redhat.com>
-	<200106212206.f5LM6dK12282@devserv.devel.redhat.com>
-	<15154.29468.215080.602628@pizda.ninka.net>
-	<20010621160949.A10977@wacko.asicdesigners.com>
-	<15154.33208.744328.463419@pizda.ninka.net>
-	<20010621165015.A11197@wacko.asicdesigners.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+In-Reply-To: <3B3291CE.7BAF5BC3@alarsen.net>
+Message-ID: <Pine.LNX.3.95.1010621203455.6995A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 22 Jun 2001, Anders Larsen wrote:
 
-Mike Mackovitch writes:
- > On Thu, Jun 21, 2001 at 04:22:32PM -0700, David S. Miller wrote:
- > > What the heck is ULI then?  I've actually read the assembly code for
- > > this back when I did my SGI internship.
- > 
- > If my memory serves me correctly, I believe ULI was some
- > hacked up "user-level interrupt" feature.  I have no idea
- > who (if anyone) used it, but it definitely wasn't used by
- > SGI's graphics drivers.
+> "Richard B. Johnson" wrote:
+> > 
+> > QNX does not have any difference between user-space and kernel space.
+> > It's not paged-virtual. It's just one big sheet of address space
+> > with no memory protection (everything is shared). All procedures
+> > to be executed are known at compile time.
+> 
+> That's completely, utterly untrue.
+> QNX does indeed sport paged-virtual memory with memory protection;
+> (although QNX4 does not support swap).
 
-Strange, because taking veritcal retrace interrupts directly in
-userspace was the first thing that came to my mind when I saw
-what ULI was doing.
+Then QNX is not the QNX that I have used.
 
-When IRIX optimizes something to the extreme, it is either for
-big-iron or graphics performance, very few exceptions exist :-)
+> 
+> User-mode interrupts are standard procedure; the deadlock problems
+> Alan has mentioned do not apply, since any running process is
+> always resident in memory.
+> Shared regions have to be explicitly created; access is *not* open
+> to anybody.
+> 
+> Nothing has to be known at "compile time"; QNX is a full-featured
+> OS with dynamic loading.
+>
 
-Later,
-David S. Miller
-davem@redhat.com
+The QNX that I have used, advertised as QNX, and been around since
+32-bit ix86 was available, is EXACTLY as I stated.
+
+ 
+> > Therefore, any piece of code can do anything it wants including
+> > handling hardware directly.
+> 
+> Again not true; only privileged processes can enter kernel mode
+> to execute port I/O instructions directly.
+> 
+
+The QNX that I have used, again is EXACTLY as stated.
+
+> cheers
+> Anders
+
+If you have used a different QNX, then QNX has either changed
+radically, or is a different company/QNX than what I used.
+And, I had a lot of good experiences with it since standard
+I/O was provided, as was boot, but it was an open book otherwise
+in which you were not prevented from doing anything you wanted
+to do, at any instant you wanted to do it.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+

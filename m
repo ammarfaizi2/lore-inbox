@@ -1,52 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274824AbTHKVJa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 17:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272796AbTHKVJa
+	id S272796AbTHKVL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 17:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273028AbTHKVL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 17:09:30 -0400
-Received: from main.gmane.org ([80.91.224.249]:5025 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S274859AbTHKVJ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 17:09:28 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Mon, 11 Aug 2003 17:11:58 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:41467 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S272796AbTHKVL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 17:11:56 -0400
+Date: Mon, 11 Aug 2003 23:11:45 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
 To: linux-kernel@vger.kernel.org
-From: Jens Benecke <usenet@jensbenecke.de>
-Subject: Re: Linux 2.4.22-rc2
-Date: Mon, 11 Aug 2003 22:57:21 +0200
-Message-ID: <bh8vv8$3qc$1@sea.gmane.org>
-References: <Pine.LNX.4.44.0308081751390.10734-100000@logos.cnet>
+Subject: [2.6 patch] add an -Os config option
+Message-ID: <20030811211145.GA569@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="nextPart1474120.dtPh4Wnd94"
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: KNode/0.7.6
-X-No-Archive: Yes
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1474120.dtPh4Wnd94
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+The patch below adds an option OPTIMIZE_FOR_SIZE (depending on EMBEDDED) 
+that changes the optimization from -O2 to -Os.
 
-Marcelo Tosatti wrote:
+cu
+Adrian
 
-> Here goes release candidate 2.
-> It contains yet another bunch of important fixes, detailed below.
-> Nice weekend for all of you!
-
-I'm having problems.  had them with -pre10 as well, posted here, but th=
-ey
-somehow didn't appear in the list.
-
-Here's the short story: No network (3c509) because the card gets IRQ 22=
- (or
-something) and doesn't like it, no USB, no firewire, no X11 (yeah, shou=
-ld
-have recompiled the NVIDIA drivers, duh), and a total crash on shutdown=
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---nextPart1474120.dtPh4Wnd94--
+--- linux-2.6.0-test3/init/Kconfig.old	2003-08-11 01:33:31.000000000 +0200
++++ linux-2.6.0-test3/init/Kconfig	2003-08-11 01:46:48.000000000 +0200
+@@ -118,6 +118,17 @@
+ 	  a "non-standard" kernel.  Only use this if you really know what you
+ 	  are doing.
+ 
++config OPTIMIZE_FOR_SIZE
++	bool "Optimize for size" if EMBEDDED
++	default n
++	help
++	  Enabling this option will pass "-Os" instead of "-O2" to gcc
++	  resulting in a smaller kernel.
++
++	  The resulting kernel might be significantly slower.
++
++	  If unsure, say N.
++
+ config KALLSYMS
+ 	 bool "Load all symbols for debugging/kksymoops" if EMBEDDED
+ 	 default y
+--- linux-2.6.0-test3/Makefile.old	2003-08-11 01:34:41.000000000 +0200
++++ linux-2.6.0-test3/Makefile	2003-08-11 01:37:16.000000000 +0200
+@@ -223,7 +223,7 @@
+ NOSTDINC_FLAGS  = -nostdinc -iwithprefix include
+ 
+ CPPFLAGS	:= -D__KERNEL__ -Iinclude
+-CFLAGS 		:= -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
++CFLAGS 		:= -Wall -Wstrict-prototypes -Wno-trigraphs \
+ 	  	   -fno-strict-aliasing -fno-common
+ AFLAGS		:= -D__ASSEMBLY__
+ 
+@@ -318,6 +318,12 @@
+ 
+ -include .config.cmd
+ 
++ifdef CONFIG_OPTIMIZE_FOR_SIZE
++CFLAGS		+= -Os
++else
++CFLAGS		+= -O2
++endif
++
+ ifndef CONFIG_FRAME_POINTER
+ CFLAGS		+= -fomit-frame-pointer
+ endif

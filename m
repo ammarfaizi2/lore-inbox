@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272011AbRHYDJk>; Fri, 24 Aug 2001 23:09:40 -0400
+	id <S272389AbRHYEPq>; Sat, 25 Aug 2001 00:15:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272385AbRHYDJa>; Fri, 24 Aug 2001 23:09:30 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:15633 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S272013AbRHYDJ0>;
-	Fri, 24 Aug 2001 23:09:26 -0400
-Date: Sat, 25 Aug 2001 00:09:25 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: "Marc A. Lehmann" <pcg@goof.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-In-Reply-To: <20010825012338.B547@cerebro.laendle>
-Message-ID: <Pine.LNX.4.33L.0108250007140.5646-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272390AbRHYEPh>; Sat, 25 Aug 2001 00:15:37 -0400
+Received: from [211.100.87.203] ([211.100.87.203]:25101 "HELO linux.tcpip.cxm")
+	by vger.kernel.org with SMTP id <S272389AbRHYEPU>;
+	Sat, 25 Aug 2001 00:15:20 -0400
+Date: Sat, 25 Aug 2001 12:15:16 +0800
+From: hugang <linuxbest@soul.com.cn>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: test
+Message-Id: <20010825121516.6fc6b48b.linuxbest@soul.com.cn>
+Organization: soul
+X-Mailer: Sylpheed version 0.5.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Aug 2001, Marc A. Lehmann wrote:
-> On Fri, Aug 24, 2001 at 05:19:07PM -0300, Rik van Riel <riel@conectiva.com.br> wrote:
-> > Actually, no.  FIFO would be ok if you had ONE readahead
-> > stream going on, but when you have multiple readahead
->
-> Do we all agree that read-ahead is actually the problem? ATM, I serve
-> ~800 files, read()ing them in turn. When I increase the number of
-> threads I have more reads at the same time in the kernel, but the
-> absolute number of read() requests decreases.
 
-	[snip evidence beyond all doubt]
 
-Earlier today some talking between VM developers resulted
-in us agreeing on trying to fix this problem by implementing
-dynamic window scaling for readahead, using heuristics not
-all that much different from TCP window scaling.
-
-This should make the system able to withstand a higher load
-than currently, while also allowing fast data streams to
-work with more efficiently than currently.
-
-regards,
-
-Rik
 -- 
-IA64: a worthy successor to i860.
+Best Regard!
+礼！
+----------------------------------------------------
+hugang : 胡刚 	GNU/Linux User
+email  : gang_hu@soul.com.cn linuxbest@soul.com.cn
+Tel    : +861068425741/2/3/4
+Web    : http://www.soul.com.cn
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+	Beijing Soul technology Co.Ltd.
+	   北京众志和达科技有限公司
+----------------------------------------------------

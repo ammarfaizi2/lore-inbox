@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264949AbUF1NhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264959AbUF1Nnf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264949AbUF1NhP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 09:37:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbUF1NhP
+	id S264959AbUF1Nnf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 09:43:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264960AbUF1Nnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 09:37:15 -0400
-Received: from web81309.mail.yahoo.com ([206.190.37.84]:6061 "HELO
-	web81309.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264949AbUF1NhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 09:37:14 -0400
-Message-ID: <20040628133714.14671.qmail@web81309.mail.yahoo.com>
-Date: Mon, 28 Jun 2004 06:37:14 -0700 (PDT)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: RE: [PARCH] driver core: add driver_find to find a driver by name
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
+	Mon, 28 Jun 2004 09:43:35 -0400
+Received: from ms-smtp-03-smtplb.ohiordc.rr.com ([65.24.5.137]:4307 "EHLO
+	ms-smtp-03-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S264959AbUF1Nnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 09:43:33 -0400
+From: Rob Couto <rpc@cafe4111.org>
+Reply-To: rpc@cafe4111.org
+Organization: Cafe 41:11
+To: linux-kernel@vger.kernel.org
+Subject: Re: Elastic Quota File System (EQFS)
+Date: Mon, 28 Jun 2004 09:43:28 -0400
+User-Agent: KMail/1.6.2
+References: <004e01c45abd$35f8c0b0$b18309ca@home> <40DDEC76.8060101@capitalgenomix.com> <40DE03DF.7090404@sover.net>
+In-Reply-To: <40DE03DF.7090404@sover.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406280943.28150.rpc@cafe4111.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Sun, Jun 27, 2004 at 09:26:03PM -0500, Dmitry Torokhov wrote:
-> > Hi,
-> >
-> > Here is a patch that adds driver_find() that allows to search for a
-> driver
-> > on a bus by it's name. The function is similar to device_find already
-> present
-> > in the tree. I need it for my serio sysfs patches where user can re-bind
-> > serio port to an alternate driver by echoing driver's name to serio
-> port's
-> > driver attribute.
-> 
-> It looks like it's missing some refcounting, no?
+On Saturday 26 June 2004 07:16 pm, Stephen Wille Padnos wrote:
 
-Actually I think that kset_find_obj is the one that is missing
-refcounting - device/driver can easily go away on return from
-this function as well, no?
+> I think you missed one of the main points - you don't get any extra
+> space until you mark some of your files as elastic.
+> You're right - under this system, nobody would get any space from
+> deletion of your files because you would use the system as a normal hard
+> quota system - you would mark no files as elastic, and would therefore
+> be limited to your quota (in the example you gave, you would not be
+> using 110M, because your quota would have limited you to 100M).  If you
+> were so kind as to mark something as elastic (say, that recently
+> doneloaded install tarball of the Gimp), then you would remove the
+> storage taken by those files from your quota usage and would have more
+> space available, with the risk that the elastic files might not stick
+> around.
+>
+> Under no circumstance would you lose any file that fits under your quota.
 
-Anyway, usage in serio should be fine as the whole thing is
-protected by serio_sem.
+-snip-
 
+> Controlled by you using one of the methods that have been suggested:
+> a .elastic file/directory structure
+> /scratch/ space usage
+> a filesystem that can keep track of these things, and a program like chmod
+> xattrs and other userspace tools
+>
+> etc.
+>
+> - Steve
+
+It looks (to my untrained eyes) like a user-driven caching "algorithm", where 
+I can keep these KDE tarballs around next to the kernel sources, and a few 
+shiny new slackware ISOs, and all are of course  replaceable, but I mark them 
+elastic or put them in /scratch/... to recover my space at the cost of an 
+increased probability that I'll have to download some of them again. I like 
+it.
+
+-- 
+Rob Couto [rpc@cafe4111.org]
+computer safety tip: use only a non-conducting, static-free hammer.
 --
-Dmitry

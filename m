@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262057AbUCJFSa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 00:18:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbUCJFSa
+	id S262089AbUCJF1n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 00:27:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbUCJF1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 00:18:30 -0500
-Received: from smtp1.cwidc.net ([154.33.63.111]:8160 "EHLO smtp1.cwidc.net")
-	by vger.kernel.org with ESMTP id S262057AbUCJFSY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 00:18:24 -0500
-Message-ID: <404EA513.5060703@tequila.co.jp>
-Date: Wed, 10 Mar 2004 14:18:11 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: Tequila \ Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040308
-X-Accept-Language: en-us, en, ja
+	Wed, 10 Mar 2004 00:27:43 -0500
+Received: from mail-08.iinet.net.au ([203.59.3.40]:46533 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S262089AbUCJF1f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 00:27:35 -0500
+Message-ID: <404EA645.8010900@cyberone.com.au>
+Date: Wed, 10 Mar 2004 16:23:17 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ppc64: Fix occasional crash at boot in OF interface
-References: <1078890877.9750.52.camel@gaston>
-In-Reply-To: <1078890877.9750.52.camel@gaston>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: blk_congestion_wait racy?
+References: <OFAAC6B1AC.5886C5F2-ONC1256E52.0061A30B-C1256E52.0062656E@de.ibm.com>
+In-Reply-To: <OFAAC6B1AC.5886C5F2-ONC1256E52.0061A30B-C1256E52.0062656E@de.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Benjamin Herrenschmidt wrote:
 
-is there a reason why you dropped all the comments ?
+Martin Schwidefsky wrote:
 
-eg:
+>
+>
+>
+>Hi Nick,
+>
+>
+>>Another problem is that if there are no requests anywhere in the system,
+>>sleepers in blk_congestion_wait will not get kicked. blk_congestion_wait
+>>could probably have blk_run_queues moved after prepare_to_wait, which
+>>might help.
+>>
+>I tried putting blk_run_queues after prepare_to_wait, it worked but it
+>didn't help. The test still needs close to a minute.
+>
+>
 
-- -	REST_GPR(2, r1)			/* Restore the TOC */
-- -	REST_GPR(13, r1)		/* Restore paca */
-- -	REST_8GPRS(14, r1)		/* Restore the non-volatiles */
-- -	REST_10GPRS(22, r1)		/* ditto */
-- -
-+	/* Restore other registers */
-+	REST_GPR(2, r1)
-+	REST_GPR(13, r1)
-+	REST_8GPRS(14, r1)
-+	REST_10GPRS(22, r1)
+OK. This was *with* the memory barrier changes too, was it? Not that
+they should make that much difference. The test is still racy, but
+the window just gets smaller.
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+But I'm guessing that you have no requests in flight by the time
+blk_congestion_wait gets called, so nothing ever gets kicked.
 
-iD8DBQFATqUSjBz/yQjBxz8RAqJyAJ9hRRsZleuPlZJ/LOqOtGVZDqkR/ACg7EjY
-P88/EX+cR3/OkcH980/pC2M=
-=TDWR
------END PGP SIGNATURE-----
+I prefer something more like this model: if 'current' submits a request
+to a congested queue then it gets put on the congestion waitqueue.
+You can then run blk_congestion_wait afterwards and it won't block if
+the queue you've written to has come out of congestion at any time.
+
+This also means that you can (should, in fact) stop uncongested queues
+from waking up the waiters every time they complete a request. Hmm, I
+like it.
+

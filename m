@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbTFXRMi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 13:12:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbTFXRMi
+	id S262373AbTFXRNc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 13:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbTFXRNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 13:12:38 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:38610 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262153AbTFXRMh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 13:12:37 -0400
-Date: Tue, 24 Jun 2003 19:26:39 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: dwmw2@redhat.com, mtd@infradead.org
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [2.5 patch] two small MTD fixes
-Message-ID: <20030624172639.GR3710@fs.tum.de>
+	Tue, 24 Jun 2003 13:13:32 -0400
+Received: from mail.skjellin.no ([80.239.42.67]:38342 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S262373AbTFXRNa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 13:13:30 -0400
+Subject: bkbits.net web UI oddities after last crash
+From: Andre Tomt <andre@tomt.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: 
+Message-Id: <1056475651.7646.128.camel@slurv.ws.pasop.tomt.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.4- 
+Date: 24 Jun 2003 19:27:31 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below contains the following fixes for MTD in 2.5.73:
-- postfix a constat in mptbase.c with ULL
-- add an extern declaration for a function that is later called in
-  gen_probe.c
+Hi
 
-Please apply
-Adrian
+I noticed some rather strange behavior from
+http://linux.bkbits.net:8080/linux-2.4
 
---- linux-2.5.73-not-full/drivers/message/fusion/mptbase.c.old	2003-06-23 23:07:57.000000000 +0200
-+++ linux-2.5.73-not-full/drivers/message/fusion/mptbase.c	2003-06-23 23:08:27.000000000 +0200
-@@ -1279,7 +1279,7 @@
- 	u32		 psize;
- 	int		 ii;
- 	int		 r = -ENODEV;
--	u64		 mask = 0xffffffffffffffff;
-+	u64		 mask = 0xffffffffffffffffULL;
- 
- 	if (pci_enable_device(pdev))
- 		return r;
---- linux-2.5.73-not-full/drivers/mtd/chips/gen_probe.c.old	2003-06-23 23:16:23.000000000 +0200
-+++ linux-2.5.73-not-full/drivers/mtd/chips/gen_probe.c	2003-06-23 23:16:45.000000000 +0200
-@@ -281,6 +281,7 @@
- 
- extern cfi_cmdset_fn_t cfi_cmdset_0001;
- extern cfi_cmdset_fn_t cfi_cmdset_0002;
-+extern cfi_cmdset_fn_t cfi_cmdset_0020;
- 
- static inline struct mtd_info *cfi_cmdset_unknown(struct map_info *map, 
- 						  int primary)
+Lets say, I go to
+http://linux.bkbits.net:8080/linux-2.4/ChangeSet@-7d?nav=index.html
+
+So far, so good. No oddities here. Then I find "1.1002.3.2" in the list.
+"[IPV4]: Be more verbose about invalid ICMPs sent to broadcast."
+
+I click it. Okay, page comes up nicely, the header seems a little
+strange, though. But that might just be a feature change (I'm not a
+BK-user, yet). It claims I'm looking at ChangeSet
+3ef76015xckdLSammmd1kjiJ7CJY4Q. Isn't ChaneSet's named by a number? Not
+minding that too much, I click on the "all diffs" link. Returns nothing.
+Hmm.. ok, lets click on "diffs" for the single affected file instead,
+and behold, the right diff pops up. I try the same on some other changes
+in the list, the same problems appear.
+
+Whats happening?
+
+-- 
+Cheers,
+André Tomt
+

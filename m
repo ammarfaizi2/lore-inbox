@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266707AbUG0XWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266720AbUG0X1a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266707AbUG0XWh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 19:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266714AbUG0XWg
+	id S266720AbUG0X1a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 19:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUG0X1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 19:22:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:55528 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266707AbUG0XWf (ORCPT
+	Tue, 27 Jul 2004 19:27:30 -0400
+Received: from holomorphy.com ([207.189.100.168]:17287 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266720AbUG0X13 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 19:22:35 -0400
-Date: Tue, 27 Jul 2004 16:02:30 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Ryan Arnold <rsa@us.ibm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, paulus@samba.org
-Subject: Re: [announce][draft3] HVCS for inclusion in 2.6 tree
-Message-Id: <20040727160230.3f5c38dc.rddunlap@osdl.org>
-In-Reply-To: <1090958938.14771.35.camel@localhost>
-References: <1089819720.3385.66.camel@localhost>
-	<16633.55727.513217.364467@cargo.ozlabs.ibm.com>
-	<1090528007.3161.7.camel@localhost>
-	<20040722191637.52ab515a.akpm@osdl.org>
-	<1090958938.14771.35.camel@localhost>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Tue, 27 Jul 2004 19:27:29 -0400
+Date: Tue, 27 Jul 2004 16:27:24 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: raul@pleyades.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The dreadful CLOSE_WAIT
+Message-ID: <20040727232724.GH2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	raul@pleyades.net, linux-kernel@vger.kernel.org
+References: <20040727083947.GB31766@DervishD> <20040727160057.GE2334@holomorphy.com> <20040727171025.GA26146@DervishD>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040727171025.GA26146@DervishD>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jul 2004 15:08:58 -0500 Ryan Arnold wrote:
+* William Lee Irwin III <wli@holomorphy.com> dixit:
+>> Probably best to implement timeouts by hand in your network daemon.
 
-| Ok Andrew, here is draft3 of my patch.  This patch contains fixes for
-| the following items:
-| 
-| 
-| Thanks for the kthread suggestions.  The kthread API is awesome.  My
-| stress tests seem to be going very well.  So, if you don't have any more
-| comments....
+On Tue, Jul 27, 2004 at 07:10:25PM +0200, DervishD wrote:
+>     Of course, this is a bug in the application, but anyway the
+> kernel (IMHO) shouldn't allow this.
 
-No more new comments, must more instances of the same type as in
-the first email.
+I suspect the sysctls controlling this, tcp_fin_timeout, tcp_max_orphans,
+etc., may be useful to you. Check Documentation/networking/ip-sysctl.txt
 
 
---
-~Randy
+-- wli

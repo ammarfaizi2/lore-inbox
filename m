@@ -1,59 +1,227 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267578AbTA3SSB>; Thu, 30 Jan 2003 13:18:01 -0500
+	id <S267575AbTA3SRb>; Thu, 30 Jan 2003 13:17:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267581AbTA3SSA>; Thu, 30 Jan 2003 13:18:00 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:62382 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S267578AbTA3SR7>; Thu, 30 Jan 2003 13:17:59 -0500
-Date: Thu, 30 Jan 2003 10:35:25 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: pci_set_mwi() ... why isn't it used more?
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Anton Blanchard <anton@samba.org>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-Message-id: <3E39706D.6080400@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <3E2C42DF.1010006@pacbell.net> <20030120190055.GA4940@gtf.org>
- <3E2C4FFA.1050603@pacbell.net> <20030130135215.GF6028@krispykreme>
- <3E3951E3.7060806@pacbell.net> <20030130195944.A4966@jurassic.park.msu.ru>
+	id <S267577AbTA3SRb>; Thu, 30 Jan 2003 13:17:31 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:40321 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S267575AbTA3SRZ>;
+	Thu, 30 Jan 2003 13:17:25 -0500
+Date: Thu, 30 Jan 2003 19:26:22 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Stephen Hemminger <shemminger@osdl.org>,
+       Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: frlock and barrier discussion
+Message-ID: <20030130182622.GR18538@dualathlon.random>
+References: <3E396CF1.5000300@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E396CF1.5000300@colorfullife.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky wrote:
+On Thu, Jan 30, 2003 at 07:20:33PM +0100, Manfred Spraul wrote:
+> Stephen wrote:
 > 
-> Hmm, what happens if you boot the kernel configured for 80386
-> on P4 and enable MWI?
+> [snip - memory barrier for fr_write_begin]
+> 
+> >Using mb() is more paranoid than necessary. 
+> 
+> 
+> What about the memory barrier in fr_read_begin?
+> If I understand the Intel documentation correctly, then i386 doesn't need 
+> them:
+> "Writes by a single processor are observed in the same order by all 
+> processors"
+> 
+> I think "smp_read_barrier_depends()" (i.e. a nop for i386) is sufficient. 
 
-Which answer is better?
+I don't see what you mean, there is no dependency we can rely on between
+the read of the sequence number and the critical section reads, the
+critical section reads has nothing to do with the sequence number reads
+and the frlock itself.
 
-  - It works safely:  pci cache line size not less than the real one.
+> Attached is a test app - could someone try it? I don't have access to a SMP 
+> system right now.
+> 
+> 
+> What about permitting arch overrides for the memory barriers? E.g. ia64 has 
+> acquire and release memory barriers - it doesn't map to the Linux 
+> wmb()/rmb() scheme.
+> 
+> --
+> 	Manfred 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
 
-  - There's I/O-pattern dependant breakage caused by that config goof.
+> /*
+>  * frlock: test for Intel memory ordering.
+>  * Copyright (C) 1999,2003 by Manfred Spraul.
+>  * 
+>  * Redistribution of this file is permitted under the terms of the GNU 
+>  * Public License (GPL)
+>  * $Header: /pub/home/manfred/cvs-tree/movopt/frlock.cpp,v 1.2 2003/01/26 10:41:39 manfred Exp $
+>  */
+> #include <stdio.h>
+> #include <stdlib.h>
+> #include <string.h>
+> #include <unistd.h>
+> #include <pthread.h>
+> #include <assert.h>
+> 
+> static volatile int g_val1;
+> static volatile int g_val2;
+> static volatile int g_seq1;
+> static volatile int g_seq2;
+> 
+> static volatile int start;
+> #define MB()	__asm__ __volatile__ ("lock;addl $0,(%%esp)\n\t" \
+> 					:/* no output*/ \
+> 					:/* no input*/:"cc","memory")
+> 
+> #define DELAY()		do { int i; for(i=0;i<1000;i++); } while(0)
+> 
+> void* threadfnc(void* param)
+> {
+> 	while(!start);
+> 	if(1 == (int)param)
+> 		goto cpu1;
+> 	if(2 == (int)param)
+> 		goto cpu2;
+> 	assert(0);
+> cpu1:
+> 	{	// reader:
+> 		for(;;) {
+> 			int x1,x2,val1,val2;
+> 
+> 			x1 = g_seq1;
+> 			val1 = g_val1;
+> 			val2 = g_val2;
+> 			x2 = g_seq2;
+> 			if (x1 == x2) {
+> 				if (val1 != val2) {
+> 					printf("Bad! memory ordering violation with %d/%d: %d/%d.\n", x1, x2, val1, val2);
+> 				}
+> 			}
+> 	    	}
+> 	}
+> cpu2:
+> 	{	// writer:
+> 	    	int target = 0;
+> 		for (;;) {
+> 
+> 			// write 1:
+> 			target++;
+> 			g_seq1 = target;
+> 			g_val1 = target;
+> 			g_val2 = target;
+> 			g_seq2 = target;
+> 			DELAY();
+> 
+> 			// write 2:
+> 			target++;
+> 			g_seq1 = target;
+> 			g_val1 = target;
+> 			MB();
+> 			g_val2 = target;
+> 			g_seq2 = target;
+> 			DELAY();
+> 
+> 			// write 3:
+> 			target++;
+> 			g_seq1 = target;
+> 			g_val2 = target;
+> 			g_val1 = target;
+> 			g_seq2 = target;
+> 			DELAY();
+> 
+> 			// write 4:
+> 			target++;
+> 			g_seq1 = target;
+> 			g_val2 = target;
+> 			MB();
+> 			g_val1 = target;
+> 			g_seq2 = target;
+> 			DELAY();
+> 			
+> 
+> 
+> 			// write 5:
+> 			target++;
+> 			g_seq1 = target;
+> 			g_val1 = target;
+> 			MB(); MB();
+> 			g_val2 = target;
+> 			g_seq2 = target;
+> 			DELAY();
+> 
+> 			// write 6:
+> 			target++;
+> 			g_seq1 = target;
+> 			g_val1 = target;
+> 			MB(); DELAY();
+> 			g_val2 = target;
+> 			g_seq2 = target;
+> 			DELAY();
+> 
+> 			// write 7:
+> 			target++;
+> 			g_seq1 = target;
+> 			g_val2 = target;
+> 			MB(); MB();
+> 			g_val1 = target;
+> 			g_seq2 = target;
+> 			DELAY();
+> 
+> 			// write 8:
+> 			target++;
+> 			g_seq1 = target;
+> 			g_val2 = target;
+> 			MB(); DELAY();
+> 			g_val1 = target;
+> 			g_seq2 = target;
+> 			DELAY();
+> 		}
+> 	}
+> }
+> 
+> void start_thread(int id)
+> {
+> 	pthread_t thread;
+> 	int res;
+> 
+> 	res = pthread_create(&thread,NULL,threadfnc,(void*)id);
+> 	if(res != 0)
+> 		assert(false);
+> }
+> 
+> 
+> 
+> int main()
+> {
+> 	printf("movopt:\n");
+> 	start_thread(1);
+> 	start_thread(2);
+> 	printf(" starting, please wait.\n");
+> 	fflush(stdout);
+> 	start = 1;
+> 	for(;;) sleep(1000);
+> }
 
-I think the first answer is better, but it looks like 2.5.59 will
-set the pci cache line size to 16 bytes not 128 bytes in that case.
-
-The generic pci code to set cacheline size uses SMP_CACHE_BYTES,
-which is usually L1_CACHE_BYTES ... and looks incorrect at least on
-non-SMP ia64.  Only sparc64 seems to have non-generic code to set
-the line size but it's done for all devices, as they're probed.
-
-Maybe i386 should HAVE_ARCH_PCI_MWI, smart enough to use the actual
-CPU's cache line size (boot code saves that, yes?) and maybe even
-check for that particular class of breakage Anton mentioned.
-
-Another option would be to do like SPARC64 and set the cacheline
-sizes as part of DMA enable (which is what I'd first thought of).
-And have the breakage test in the ARCH_PCI_MWI code -- something
-that sparc64 doesn't do, fwiw.
-
-- Dave
 
 
-
-
+Andrea

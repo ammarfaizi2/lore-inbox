@@ -1,34 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269417AbRHaWDn>; Fri, 31 Aug 2001 18:03:43 -0400
+	id <S269428AbRHaWPf>; Fri, 31 Aug 2001 18:15:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269421AbRHaWDX>; Fri, 31 Aug 2001 18:03:23 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:52379 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S269417AbRHaWDQ>;
-	Fri, 31 Aug 2001 18:03:16 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 31 Aug 2001 22:03:27 GMT
-Message-Id: <200108312203.WAA15637@vlet.cwi.nl>
-To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+	id <S269481AbRHaWP1>; Fri, 31 Aug 2001 18:15:27 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:270 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269428AbRHaWPM>; Fri, 31 Aug 2001 18:15:12 -0400
+Subject: Re: [PATCH] usb fix
+To: Andries.Brouwer@cwi.nl
+Date: Fri, 31 Aug 2001 23:19:01 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
         mdharm-usb@one-eyed-alien.net, torvalds@transmeta.com
-Subject: [PATCH] usb fix
+In-Reply-To: <200108312203.WAA15637@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl" at Aug 31, 2001 10:03:27 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15cwcv-000477-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wondering why my USB Compact Flash cardreader works with 2.4.7
-but not with 2.4.9, I noticed that my name was added and some
-constant changed. Changing it back revived my CF reader.
+> but not with 2.4.9, I noticed that my name was added and some
+> constant changed. Changing it back revived my CF reader.
 
-Andries
+Yes you added the entry, someone changed the constant as it didnt work
+for them, now you change it back.
 
---- ../linux-2.4.9/linux/drivers/usb/storage/unusual_devs.h	Sat Aug 11 03:16:46 2001
-+++ ./linux/drivers/usb/storage/unusual_devs.h	Fri Aug 31 23:50:19 2001
-@@ -96,7 +96,7 @@
- #endif
- 
- /* This entry is from Andries.Brouwer@cwi.nl */
--UNUSUAL_DEV(  0x04e6, 0x0005, 0x0100, 0x0205, 
-+UNUSUAL_DEV(  0x04e6, 0x0005, 0x0100, 0x0208,
- 		"SCM Microsystems",
- 		"eUSB SmartMedia / CompactFlash Adapter",
- 		US_SC_SCSI, US_PR_DPCM_USB, NULL, 
+I suspect both constants should be in 8)

@@ -1,36 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264752AbRGHPeZ>; Sun, 8 Jul 2001 11:34:25 -0400
+	id <S266913AbRGHQPF>; Sun, 8 Jul 2001 12:15:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266906AbRGHPeP>; Sun, 8 Jul 2001 11:34:15 -0400
-Received: from ns.suse.de ([213.95.15.193]:58894 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S264752AbRGHPeD>;
-	Sun, 8 Jul 2001 11:34:03 -0400
-Date: Sun, 8 Jul 2001 17:33:59 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Chris Wedgwood <cw@f00f.org>, Vibol Hou <vhou@khmer.cc>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Machine check exception? (2.4.6+SMP+VIA)
-In-Reply-To: <E15JF6k-0000AI-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0107081733320.28660-100000@Appserv.suse.de>
+	id <S266912AbRGHQOz>; Sun, 8 Jul 2001 12:14:55 -0400
+Received: from eax.student.umd.edu ([129.2.236.2]:48656 "EHLO
+	eax.student.umd.edu") by vger.kernel.org with ESMTP
+	id <S266913AbRGHQOq>; Sun, 8 Jul 2001 12:14:46 -0400
+Date: Sun, 8 Jul 2001 12:14:47 -0500 (EST)
+From: Adam <adam@eax.com>
+X-X-Sender: <adam@eax.student.umd.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: recvfrom and sockaddr_in.sin_port
+Message-ID: <Pine.LNX.4.33.0107081155100.1430-200000@eax.student.umd.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="42009324-1390288157-994612487=:1430"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Jul 2001, Alan Cox wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> Only -ac has K7 MCE enabled right now - also MCE is not guaranteed to catch
-> problems.
+--42009324-1390288157-994612487=:1430
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Actually you merged that with Linus a few revisions back iirc.
 
-regards,
+hello,
+	I'm using recvfrom, and upon return it should fill in
+	from argument with sockaddr_in data structure. from
+	ip(7) man page I get that it has format of :
 
-Dave.
+        struct sockaddr_in {
+             sa_family_t    sin_family; /* address family: AF_INET */
+             u_int16_t      sin_port;   /* port in network byte order*/
+             struct in_addr  sin_addr;  /* internet address */
+        };
+
+	for PF_INET type of socket. Now if I run the program the, data in
+	the from field comes out as:
+
+2  0  0  0  192  168  1  4  61  63  140  200  85  214  2
+
+ |         |               |
+
+AF_INET      :2
+IP           :192.168.1.4
+
+	and as show in above example and other repeated test, the port
+	part is always set to 0. Shouldn't that be set to port number?
+
+	on similar token the "padding" part after the IP is always set
+	to the same pattern. Shouldn't it rather be zeroed, or be
+	some random data?
+
+	I have attached a simple program I used for generating those
+	results.
 
 -- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
+Adam
+http://www.eax.com      The Supreme Headquarters of the 32 bit registers
 
+
+--42009324-1390288157-994612487=:1430
+Content-Type: TEXT/x-csrc; name="test.c"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0107081214470.1430@eax.student.umd.edu>
+Content-Description: 
+Content-Disposition: attachment; filename="test.c"
+
+I2luY2x1ZGUgPHN5cy90eXBlcy5oPg0KI2luY2x1ZGUgPHN5cy9zb2NrZXQu
+aD4NCiNpbmNsdWRlIDxuZXRpbmV0L2luLmg+DQojaW5jbHVkZSA8bmV0ZGIu
+aD4NCiNpbmNsdWRlIDxzdGRpby5oPg0KI2luY2x1ZGUgPGVycm5vLmg+DQoj
+aW5jbHVkZSA8c3RyaW5nLmg+DQojaW5jbHVkZSA8c3RkbGliLmg+DQojaW5j
+bHVkZSA8Y3R5cGUuaD4NCg0KaW50IG1haW4gKGludCBhcmdjLCBjaGFyICoq
+YXJndikgew0KDQogIHNpemVfdCBidWZsZW4gPSAxMDI0Ow0KICBjaGFyIGJ1
+ZltidWZsZW5dOw0KICBzdHJ1Y3Qgc29ja2FkZHJfaW4gZnJvbTsNCiAgc29j
+a2xlbl90IGZyb21sZW4gPSBzaXplb2Yoc3RydWN0IHNvY2thZGRyX2luKTsN
+CiAgaW50IGZsYWdzOw0KDQogIGludCByYXdzb2NrOw0KICBpbnQgYnl0ZXNy
+ZWFkOw0KDQogIGludCBpOw0KICB1bnNpZ25lZCBjaGFyICogcHRyOw0KDQoN
+CiAgcmF3c29jayA9IHNvY2tldChQRl9JTkVULFNPQ0tfUkFXLElQUFJPVE9f
+VENQKTsNCg0KICBpZiAocmF3c29jayA9PSAtMSkNCiAgICBwZXJyb3IoInNv
+Y2tldCgpOiIpOw0KDQogIGZsYWdzID0gIE1TR19XQUlUQUxMOw0KICBtZW1z
+ZXQoJmZyb20sMCxmcm9tbGVuKTsNCg0KICBieXRlc3JlYWQgPSByZWN2ZnJv
+bShyYXdzb2NrLCZidWYsYnVmbGVuLGZsYWdzLA0KCQkgICAgICAgKHN0cnVj
+dCBzb2NrYWRkciopKCZmcm9tKSwmZnJvbWxlbik7DQoNCiAgcHRyID0gKHVu
+c2lnbmVkIGNoYXIqKSZmcm9tOw0KICBmb3IoaT0wO2k8ZnJvbWxlbjtpKysp
+IHsNCiAgICAgIHByaW50ZigiJWkgICIsKnB0cik7DQogICAgICBwdHIrKzsN
+CiAgfQ0KICBwcmludGYoIlxuIik7DQoNCiAgaWYgKGJ5dGVzcmVhZCA9PSAt
+MSkgew0KICAgIHByaW50ZigiZXJyICMgOiAlaSBcbiIsZXJybm8pOw0KICAg
+IHBlcnJvcigicmVjdmZyb20oKToiKTsNCiAgICByZXR1cm4gLTE7DQogfQ0K
+DQogDQogICAgaWYgKGFyZ2MgPT0yKSB7DQogICAgICBzdHJ1Y3QgaG9zdGVu
+dCAqaG9zdDsNCg0KICAgICAgcHJpbnRmKCJtc2cgbGVuOiAlaSBcbiIsYnl0
+ZXNyZWFkKTsNCiAgICAgIHByaW50ZigiZnJtIGxlbjogJWkgXG4iLGZyb21s
+ZW4pOw0KICAgICAgcHJpbnRmKCJJUHY0IDogdHlwZTolaSBwb3J0OiVYIGFk
+ZHI6JVggXG4iLCANCgkgICAgIGZyb20uc2luX2ZhbWlseSwNCgkgICAgIG50
+b2hzKGZyb20uc2luX3BvcnQpLA0KCSAgICAgZnJvbS5zaW5fYWRkci5zX2Fk
+ZHIpOw0KDQogICAgICBob3N0PWdldGhvc3RieWFkZHIoJihmcm9tLnNpbl9h
+ZGRyLnNfYWRkciksDQoJCQkgZnJvbWxlbixmcm9tLnNpbl9mYW1pbHkpOw0K
+DQogICAgICBpZiAoaG9zdCA9PSBOVUxMICkgew0KCXByaW50ZigiZXJyICMg
+OiAlaSBcbiIsaF9lcnJubyk7DQoJaGVycm9yKCJnZXRob3N0YnlhZGRyKCk6
+Iik7DQogICAgICB9DQoNCiAgICAgIHByaW50ZigiaG9zdDogKCIpOw0KDQog
+ICAgICBwdHIgPSAodW5zaWduZWQgY2hhciopKCYoZnJvbS5zaW5fYWRkci5z
+X2FkZHIpKTsNCiAgICAgIGZvcihpPTA7aTw0O2krKykgew0KCXByaW50Zigi
+JWkiLCoocHRyKyspKTsNCglpZiAoaTwzKQ0KCSAgcHJpbnRmKCIuIik7DQog
+ICAgICB9DQogICAgICANCiAgICAgIGlmIChob3N0ID09IE5VTEwpDQoJcHJp
+bnRmKCIpIFxuIik7DQogICAgICBlbHNlDQoJcHJpbnRmKCIpICVzIFxuIixo
+b3N0LT5oX25hbWUpOw0KDQoNCiAgICB9DQoNCg0KICByZXR1cm4gMDsNCg0K
+fQ0K
+--42009324-1390288157-994612487=:1430--

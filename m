@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129801AbQJ1KxN>; Sat, 28 Oct 2000 06:53:13 -0400
+	id <S129280AbQJ1K5f>; Sat, 28 Oct 2000 06:57:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129983AbQJ1KxE>; Sat, 28 Oct 2000 06:53:04 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:17285 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129801AbQJ1Kwr>; Sat, 28 Oct 2000 06:52:47 -0400
-Message-ID: <39FAAFF2.200E1860@uow.edu.au>
-Date: Sat, 28 Oct 2000 21:52:34 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Stephen E. Clark" <sclark46@gte.net>
-CC: lk <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>
-Subject: Re: RTNL assert
-In-Reply-To: <39FA4968.62588272@gte.net>
+	id <S129583AbQJ1K5Y>; Sat, 28 Oct 2000 06:57:24 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:18180 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129280AbQJ1K5K>;
+	Sat, 28 Oct 2000 06:57:10 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Markus.Hennig@astaro.de
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0test5 make dep errors 
+In-Reply-To: Your message of "Fri, 27 Oct 2000 13:01:32 +0200."
+             <39F9608C.A329F945@astaro.de> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sat, 28 Oct 2000 21:57:02 +1100
+Message-ID: <7788.972730622@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen E. Clark" wrote:
-> 
-> When I configure in Tunneling I get the following error message. Is this
-> normal? This with 2.4test9pre5
-> 
-> GRE over IPv4 tunneling driver
-> RTNL: assertion failed at devinet.c(775):inetdev_event
+On Fri, 27 Oct 2000 13:01:32 +0200, 
+Markus hennig <hennig@astaro.de> wrote:
+>config.c:311: #error "HiSax: No cards configured"
+>su.c:75: asm/oplib.h: No such file or directory
+>su.c:77: asm/ebus.h: No such file or directory
+>newport.c:11: asm/gfx.h: No such file or directory
+>newport.c:12: asm/ng1.h: No such file or directory
+>tcsyms.c:7: asm/dec/tc.h: No such file or directory
+>zorro.c:20: asm/amigahw.h: No such file or directory
 
-The rtnetlink lock needs to be taken around
-register_netdevice().  There should be a function
-which does these three common steps, but there isn't.
+All (unfortunately) normal because make dep scans all source before any
+generated .h files are created.  Ignore, will be fixed in 2.5.
 
+>/usr/src/linux/Rules.make:145: target `_subdir_sched' given more than
+>once in the same rule.
 
---- linux-2.4.0-test10-pre5/net/ipv4/ip_gre.c	Sat Sep  9 16:19:30 2000
-+++ linux-akpm/net/ipv4/ip_gre.c	Sat Oct 28 21:44:23 2000
-@@ -1266,7 +1266,9 @@
- #ifdef MODULE
- 	register_netdev(&ipgre_fb_tunnel_dev);
- #else
-+	rtnl_lock();
- 	register_netdevice(&ipgre_fb_tunnel_dev);
-+	rtnl_unlock();
- #endif
- 
- 	inet_add_protocol(&ipgre_protocol);
+Annoying but AFAIK it is harmless.  Also to be fixed in 2.5.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbVCIDk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVCIDny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261470AbVCIDk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 22:40:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVCIDk6
+	id S261579AbVCIDny (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 22:43:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVCIDnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 22:40:58 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:52452
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261470AbVCIDky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 22:40:54 -0500
-Date: Tue, 8 Mar 2005 19:40:17 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au, jgarzik@pobox.com,
-       linux-net@vger.kernel.org
-Subject: Re: Fix suspend/resume problems with b44
-Message-Id: <20050308194017.195691f4.davem@davemloft.net>
-In-Reply-To: <20050308215537.GD24188@elf.ucw.cz>
-References: <20050308094655.GA16775@elf.ucw.cz>
-	<20050308101739.371968be.davem@davemloft.net>
-	<20050308215537.GD24188@elf.ucw.cz>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Mar 2005 22:43:53 -0500
+Received: from mta1.mail.tickle.com ([130.94.6.246]:39854 "EHLO
+	ringotouch2.ringo.com") by vger.kernel.org with ESMTP
+	id S261579AbVCIDnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 22:43:50 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+To: linux-kernel@vger.kernel.org
+From: "Gaurav Yadav" <emailtogauravyadav@rediffmail.com>
+Subject: Please help me update my address book on Ringo
+Date: 08 Mar 2005 19:43:49 PST
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+Message-Id: <20050309034349.88420138586@ringotouch2.ringo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Mar 2005 22:55:37 +0100
-Pavel Machek <pavel@ucw.cz> wrote:
+Hi
 
-> Any idea what to do there? I'd say that request_irq is very unlikely
-> to fail given that it worked okay before suspend...
+I'm updating my address book.  Please click on the link below and enter your contact info for me:
 
-What you have is fine for now.
+http://ringo.com/i?uid=k1WylYvS5KZyLvy5&
 
-It is just a general issue that ->resume() has no way to cleanly
-fail.
+I'm using a new, free service where I put in my contact info for you, you put in your contact info for me, and everyone stays up to date automatically.  It's surprisingly easy and useful.
+
+Thanks for your help.
+
+Gaurav

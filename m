@@ -1,76 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbULCDIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbULCDOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbULCDIy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 22:08:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbULCDIy
+	id S261908AbULCDOd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 22:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbULCDOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 22:08:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:44172 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261907AbULCDIv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 22:08:51 -0500
-Date: Thu, 2 Dec 2004 19:08:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: do_posix_clock_monotonic_gettime() returns negative nsec
-Message-Id: <20041202190823.4f287617.akpm@osdl.org>
-In-Reply-To: <20041203020357.GA28468@mail.13thfloor.at>
-References: <20041203020357.GA28468@mail.13thfloor.at>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 2 Dec 2004 22:14:33 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:682 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261908AbULCDOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 22:14:31 -0500
+Subject: Re: APM suspend/resume ceased to work with 2.4.28
+From: Len Brown <len.brown@intel.com>
+To: Philippe Troin <phil@fifi.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-acpi <linux-acpi@intel.com>
+In-Reply-To: <87wtw0i1zb.fsf@ceramic.fifi.org>
+References: <F7DC2337C7631D4386A2DF6E8FB22B300225E3FC@hdsmsx401.amr.corp.intel.com>
+	 <87d5xsjly5.fsf@ceramic.fifi.org> <871xeia26p.fsf@ceramic.fifi.org>
+	 <87zn1amuov.fsf@ceramic.fifi.org><20041122173654.GA31848@logos.cnet>
+	 <87mzx94ekm.fsf@ceramic.fifi.org><20041123070252.GA2712@logos.cnet>
+	 <87wtw0i1zb.fsf@ceramic.fifi.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1102043636.8028.456.camel@d845pe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 02 Dec 2004 22:13:57 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl <herbert@13thfloor.at> wrote:
->
-> 
-> Hi Folks!
-> 
-> recent kernels (tested 2.6.10-rc2 and 2.6.10-rc2-bk15)
-> produce funny output in /proc/uptime like this:
-> 
-> 	# cat /proc/uptime
-> 	  12.4294967218 9.05
-> 	# cat /proc/uptime
-> 	  13.4294967251 10.33
-> 	# cat /proc/uptime
-> 	  14.4294967295 11.73
-> 
-> a short investigation of the issue, ended at
-> do_posix_clock_monotonic_gettime() which can (and 
-> often does) return negative nsec values (within
-> one second), so while the actual 'time' returned
-> is correct, some parts of the kernel assume that
-> those part is within the range (0 - NSEC_PER_SEC)
-> 
->         len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
->                         (unsigned long) uptime.tv_sec,
->                         (uptime.tv_nsec / (NSEC_PER_SEC / 100)),
-> 
-> as the function itself corrects overflows, it would
-> make sense to me to correct underflows too, for 
-> example with the following patch:
-> 
-> --- ./kernel/posix-timers.c.orig	2004-11-19 21:11:05.000000000 +0100
-> +++ ./kernel/posix-timers.c	2004-12-03 02:23:56.000000000 +0100
-> @@ -1208,7 +1208,10 @@ int do_posix_clock_monotonic_gettime(str
->  	tp->tv_sec += wall_to_mono.tv_sec;
->  	tp->tv_nsec += wall_to_mono.tv_nsec;
->  
-> -	if ((tp->tv_nsec - NSEC_PER_SEC) > 0) {
-> +	if (tp->tv_nsec < 0) {
-> +		tp->tv_nsec += NSEC_PER_SEC;
-> +		tp->tv_sec--;
-> +	} else if ((tp->tv_nsec - NSEC_PER_SEC) > 0) {
->  		tp->tv_nsec -= NSEC_PER_SEC;
->  		tp->tv_sec++;
->  	}
+On Thu, 2004-12-02 at 20:50, Philippe Troin wrote:
+> Philippe Troin <phil@fifi.org> writes:
 
-Doesn't this imply that do_posix_clock_monotonic_gettime_parts() is
-returning a negative tv_nsec?
+> This trivial patch makes my laptop suspend-happy.
 
-If so, that would point back at getnstimeofday().  What is your setting of
-CONFIG_TIME_INTERPOLATION?
+Good catch Phil!
+
+My fault -- we fixed this in 2.6 and I failed to backport it to 2.4:-(
+
+I've included your patch w/ minor syntax change to the ACPI patch.
+
+Marcelo, please do a 
+
+	bk pull bk://linux-acpi.bkbits.net/24-latest-release
+
+thanks,
+-Len
+
+ps. a plain patch is also available here:
+ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/24-latest-release/acpi-20040326-24-latest-release.diff.gz
+
+This will update the following files:
+
+ drivers/acpi/bus.c |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
+
+through these ChangeSets:
+
+<len.brown@intel.com> (04/12/02 1.1458.1.9)
+   [ACPI] acpi=off must disable acpi_early_init()
+   
+   Signed-off-by: Philippe Troin <phil@fifi.org>
+   Signed-off-by: Len Brown <len.brown@intel.com>
+
+
+
+

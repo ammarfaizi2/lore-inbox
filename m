@@ -1,37 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266481AbUHYXom@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266242AbUHYXpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266481AbUHYXom (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 19:44:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266525AbUHYXol
+	id S266242AbUHYXpM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 19:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266525AbUHYXpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 19:44:41 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23444 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266481AbUHYXnq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 19:43:46 -0400
-Date: Thu, 26 Aug 2004 00:43:45 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org,
-       bcasavan@sgi.com
-Subject: Re: [PATCH] kallsyms data size reduction / lookup speedup
-Message-ID: <20040825234345.GN21964@parcelfarce.linux.theplanet.co.uk>
-References: <1093406686.412c0fde79d4f@webmail.grupopie.com> <20040825173941.GJ5414@waste.org> <412CDE9D.3090609@grupopie.com> <20040825185854.GP31237@waste.org> <412CE3ED.5000803@grupopie.com> <20040825192922.GH21964@parcelfarce.linux.theplanet.co.uk> <412D236E.3030401@grupopie.com>
+	Wed, 25 Aug 2004 19:45:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20181 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266242AbUHYXof (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 19:44:35 -0400
+Date: Wed, 25 Aug 2004 16:44:01 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Harald Welte <laforge@netfilter.org>
+Cc: joshk@triplehelix.org, linux-kernel@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org
+Subject: Re: Linux 2.6.9-rc1
+Message-Id: <20040825164401.12259308.davem@redhat.com>
+In-Reply-To: <20040825203206.GS5824@sunbeam.de.gnumonks.org>
+References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
+	<412CDFEE.1010505@triplehelix.org>
+	<20040825203206.GS5824@sunbeam.de.gnumonks.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <412D236E.3030401@grupopie.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 12:40:30AM +0100, Paulo Marques wrote:
-> That is why I kept a big *If* in that sentence. I'm quite new to all
-> this, and I'm still reading a lot of source code.
-> 
-> If the culprit is in fact seq_file, and seq_file can be improved in a
-> way that works for everyone (not only kallsyms), then I also agree
-> that is is the way to go. But hunting this down might prove that the
-> problem is somewhere else. It is just too soon to draw conclusions.
+On Wed, 25 Aug 2004 22:32:06 +0200
+Harald Welte <laforge@netfilter.org> wrote:
 
-readprofile(1) ought to narrow it down with that kind of timing difference...
+Harald, a question about this fix.
+
+> +__ip_nat_find_helper(const struct ip_conntrack_tuple *tuple)
+> +{
+> +	return LIST_FIND(&helpers, helper_cmp, struct ip_nat_helper *, tuple);
+> +}
+> +
+> +struct ip_nat_helper *
+>  ip_nat_find_helper(const struct ip_conntrack_tuple *tuple)
+>  {
+>  	struct ip_nat_helper *h;
+>  
+>  	READ_LOCK(&ip_nat_lock);
+> -	h = LIST_FIND(&helpers, helper_cmp, struct ip_nat_helper *, tuple);
+> +	h = __ip_nat_find_helper(tuple);
+>  	READ_UNLOCK(&ip_nat_lock);
+>  
+
+So we're converting over to using __ip_nat_find_helper().
+
+> +EXPORT_SYMBOL(ip_nat_find_helper);
+
+And adding an export of ip_nat_find_helper (ie. without the two underscore
+prefix).  Why?
+
+If we need to export one, then we need to export both.

@@ -1,61 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273464AbRIUMBy>; Fri, 21 Sep 2001 08:01:54 -0400
+	id <S273455AbRIUMCP>; Fri, 21 Sep 2001 08:02:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273463AbRIUMBo>; Fri, 21 Sep 2001 08:01:44 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:58129 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S273455AbRIUMBd>;
-	Fri, 21 Sep 2001 08:01:33 -0400
-Date: Fri, 21 Sep 2001 09:01:42 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Rob Fuller <rfuller@nsisoftware.com>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <m1wv2t7y18.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.33L.0109210859390.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273463AbRIUMCF>; Fri, 21 Sep 2001 08:02:05 -0400
+Received: from mailg.telia.com ([194.22.194.26]:8660 "EHLO mailg.telia.com")
+	by vger.kernel.org with ESMTP id <S273455AbRIUMBw>;
+	Fri, 21 Sep 2001 08:01:52 -0400
+Date: Fri, 21 Sep 2001 14:06:13 +0200
+From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: via82cxxx_audio locking problems
+Message-ID: <20010921140613.A7758@telia.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3BA9AB43.C26366BF@scs.ch> <01092004333500.00182@c779218-a> <3BA9DBED.9020401@humboldt.co.uk> <01092005243800.01369@c779218-a> <20010920154049.A4282@telia.com> <3BAB080A.56DC7775@scs.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3BAB080A.56DC7775@scs.ch>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Sep 2001, Eric W. Biederman wrote:
+Thomas Sailer <sailer@scs.ch> wrote:
 
-> Swapping is an important case.  But 9 times out of 10 you are managing
-> memory in caches, and throwing unused pages into swap.  You aren't
-> busily paging the data back an forth.  But if I have to make a choice
-> in what kind of situation I want to take a performance hit, paging
-> approaching thrashing or a system whose working set size is well
-> within RAM.  I'd rather take the hit in the system that is paging.
+> This is the patch I've tested yesterday. It worked so far.
 
-> Besides I also like to run a lot of shell scripts, which again stress
-> the fork()/exec()/exit() path.
->
-> So no I don't think keeping those paths fast is silly.
+This seams to be against version 1.15 of the VIA driver. -pre13 only seams
+to have 1.14 so I got rejects when I tried to apply it:
 
-Absolutely agreed.
+Hunk #1 FAILED at 12.
+Hunk #2 succeeded at 458 (offset -8 lines).
+Hunk #3 succeeded at 1973 (offset -15 lines).
+Hunk #4 succeeded at 2005 (offset -15 lines).
+Hunk #5 succeeded at 2046 (offset -15 lines).
+Hunk #6 succeeded at 2098 (offset -15 lines).
+Hunk #7 succeeded at 2149 (offset -15 lines).
+Hunk #8 succeeded at 2179 (offset -15 lines).
+Hunk #9 succeeded at 2219 (offset -15 lines).
+Hunk #10 succeeded at 2384 (offset -15 lines).
+Hunk #11 succeeded at 2397 (offset -15 lines).
+Hunk #12 succeeded at 2435 (offset -15 lines).
+Hunk #13 succeeded at 2481 (offset -15 lines).
+1 out of 13 hunks FAILED -- saving rejects to file via82cxxx_audio.c.rej
 
-Ben and I have already been thinking a bit about memory
-objects, so we have both reverse mappings AND we can skip
-copying the page tables at fork() time (needing to clear
-less at the subsequent exec(), too) ...
+The rejects are these harmless ones:
 
-Of course this means I'll throw away my pte-based reverse
-mapping code and will look at an object-based reverse mapping
-scheme like Ben made for 2.1 and DaveM made for 2.3 ;)
-
-regards,
-
-Rik
+***************
+*** 12,21 ****
+   * the driver's Website at
+   * http://gtf.org/garzik/drivers/via82cxxx/
+   *
+   */
+  
+  
+- #define VIA_VERSION	"1.1.15"
+  
+  
+  #include <linux/config.h>
+--- 12,28 ----
+   * the driver's Website at
+   * http://gtf.org/garzik/drivers/via82cxxx/
+   *
++  * Thomas Sailer, 2001-09-20:
++  *   - unlock syscall_sem during sleeping in read/write
++  *   - return byte count in case of partial transfer instead of
++  *     error in read/write syscalls
++  *   - avoid loosing wake_up event
++  *   - nonblocking semaphore down disabled
++  *
+   */
+  
+  
++ #define VIA_VERSION	"1.1.15tsa"
+  
+  
+  #include <linux/config.h>
 -- 
-IA64: a worthy successor to i860.
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+André Dahlqvist <andre.dahlqvist@telia.com>

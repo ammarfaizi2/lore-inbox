@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261721AbSKCJgJ>; Sun, 3 Nov 2002 04:36:09 -0500
+	id <S261728AbSKCJgs>; Sun, 3 Nov 2002 04:36:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261724AbSKCJgJ>; Sun, 3 Nov 2002 04:36:09 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:5033 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261721AbSKCJgI>;
-	Sun, 3 Nov 2002 04:36:08 -0500
-Date: Sun, 3 Nov 2002 10:42:29 +0100
+	id <S261729AbSKCJgs>; Sun, 3 Nov 2002 04:36:48 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:7081 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261728AbSKCJgo>;
+	Sun, 3 Nov 2002 04:36:44 -0500
+Date: Sun, 3 Nov 2002 10:43:06 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Matt Reppert <arashi@arashi.yi.org>
+To: Leopold Gouverneur <lgouv@pi.be>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Working ide-cd burn/rip, 2.5.44
-Message-ID: <20021103094229.GJ3612@suse.de>
-References: <20021102184357.7091fd4d.arashi@arashi.yi.org>
+Subject: Re: Cdrom broken in bk current?
+Message-ID: <20021103094306.GK3612@suse.de>
+References: <20021103080514.GC748@gouv>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ikeVEW9yuYc//A+q"
+Content-Type: multipart/mixed; boundary="3lcZGd9BuhuYXNfi"
 Content-Disposition: inline
-In-Reply-To: <20021102184357.7091fd4d.arashi@arashi.yi.org>
+In-Reply-To: <20021103080514.GC748@gouv>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---ikeVEW9yuYc//A+q
+--3lcZGd9BuhuYXNfi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Sat, Nov 02 2002, Matt Reppert wrote:
-> Just FYI. I tested the ide-cd based CD burning and reading with the
-> cdrtools alpha ... kernel 2.5.44-mm6, cdrtools-1.11a39. If I boot
-> into a clean system, only load ide-cd (none of the ide-scsi-related
-> bits), and "do it", it works well.
+On Sun, Nov 03 2002, Leopold Gouverneur wrote:
+> I see the following during booting:
+> ...
+> end_request: I/O error, dev hdc, sector 0
+> hdc: ATAPI 40X CD-ROM CD-R/RW drive, 2048kB Cache, DMA
+> Uniform CD-ROM driver Revision: 3.12
+> end_request: I/O error, dev hdc, sector 0
+> end_request: I/O error, dev hdd, sector 0
+> end_request: I/O error, dev hdd, sector 0
+> hdd: ATAPI 16X CD-ROM drive, 256kB Cache, DMA
+> ...
+> 
+> If I mount /dev/hd[cd], the system freezes completly.
+> 
+> This was not present in 2.5.42 IRC
+> ny help?
 
-You definitely don't want anything _less_ than 2.5.45 at all, it's a
-miracle it appears to work :-)
-
-Please retest 2.5.45, thanks, and you should probably add this patch to
-fix the cdb output length issue.
+Try with this patch.
 
 -- 
 Jens Axboe
 
 
---ikeVEW9yuYc//A+q
+--3lcZGd9BuhuYXNfi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: attachment; filename=idecd-cdb-size-2
 
@@ -81,4 +88,4 @@ Content-Disposition: attachment; filename=idecd-cdb-size-2
  	/* Send the command to the device. */
  	HWIF(drive)->atapi_output_bytes(drive, cmd_buf, cmd_len);
 
---ikeVEW9yuYc//A+q--
+--3lcZGd9BuhuYXNfi--

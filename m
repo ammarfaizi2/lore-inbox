@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266527AbTA2Qqi>; Wed, 29 Jan 2003 11:46:38 -0500
+	id <S266434AbTA2Q6A>; Wed, 29 Jan 2003 11:58:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266535AbTA2Qqi>; Wed, 29 Jan 2003 11:46:38 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:56259 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266527AbTA2Qqh>;
-	Wed, 29 Jan 2003 11:46:37 -0500
-Date: Wed, 29 Jan 2003 16:52:48 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Stephan von Krawczynski <skraw@ithnet.com>,
-       Mark Hahn <hahn@physics.mcmaster.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: no more MTRRs available ?
-Message-ID: <20030129165248.GC1856@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	Mark Hahn <hahn@physics.mcmaster.ca>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030129162354.55f2ace4.skraw@ithnet.com> <Pine.LNX.4.44.0301291025240.18828-100000@coffee.psychology.mcmaster.ca> <20030129164552.182e0cb8.skraw@ithnet.com> <20030129161446.GB32294@codemonkey.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030129161446.GB32294@codemonkey.org.uk>
-User-Agent: Mutt/1.4i
+	id <S266438AbTA2Q6A>; Wed, 29 Jan 2003 11:58:00 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:45053 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S266434AbTA2Q57>; Wed, 29 Jan 2003 11:57:59 -0500
+Message-Id: <200301291509.h0TF9l5n001521@eeyore.valparaiso.cl>
+To: Balram Adlakha <b_adlakha@softhome.net>
+cc: linux-kernel@vger.kernel.org, brand@eeyore.valparaiso.cl
+Subject: Re: Bootscreen 
+In-Reply-To: Your message of "Wed, 29 Jan 2003 03:18:20 +0530."
+             <200301290318.20817.b_adlakha@softhome.net> 
+Date: Wed, 29 Jan 2003 16:09:47 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 29, 2003 at 04:14:46PM +0000, Dave Jones wrote:
+Balram Adlakha <b_adlakha@softhome.net> said:
+> though i have recently subscribed to this list (OMG, 30 mails/hour!),
+> I've read the whole thread about this bootscreen thing... I see
+> absolutely _no_ reason why it should not be included in the kernel
+> configuration, since there are patches available already to make it work,
+> and there are already soo many useless options that adding another won't
+> make a difference...
 
- >  > # cat /proc/mtrr
- >  > reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
- >  > reg01: base=0x80000000 (2048MB), size=1024MB: write-back, count=1
- >  > reg02: base=0xc0000000 (3072MB), size= 512MB: write-back, count=1
- >  > reg03: base=0xe0000000 (3584MB), size= 256MB: write-back, count=1
- >  > reg04: base=0xf0000000 (3840MB), size= 128MB: write-back, count=1
- >  > reg05: base=0xf7000000 (3952MB), size=  16MB: uncachable, count=1
- > Due to this 16MB hole, your BIOS has to set up a write-back range
- > covering 2048-16 (2032MB).
-
-Dummies guide to maths. This should be 4096-16=4080 of course
-
-		Dave
-
+Patches to clean up the useless options are wellcome... but first check if
+they are really useless or just there for some hardware you happen not to
+have.
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+

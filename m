@@ -1,56 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261318AbTCGDXM>; Thu, 6 Mar 2003 22:23:12 -0500
+	id <S261335AbTCGDjp>; Thu, 6 Mar 2003 22:39:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261335AbTCGDXM>; Thu, 6 Mar 2003 22:23:12 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:39111 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261318AbTCGDXL>; Thu, 6 Mar 2003 22:23:11 -0500
-Date: Thu, 06 Mar 2003 19:33:33 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Steven Cole <elenstev@mesatop.com>, Val Henson <val@nmt.edu>
-cc: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Those ruddy punctuation fixes
-Message-ID: <300890000.1047008011@[10.10.2.4]>
-In-Reply-To: <1047005054.4114.99.camel@spc1.mesatop.com>
-References: <20030305111015.B8883@flint.arm.linux.org.uk><20030305122008.GA4280@suse.de> <1046920285.3786.68.camel@spc1.mesatop.com> <20030307010422.GI26725@boardwalk> <1047005054.4114.99.camel@spc1.mesatop.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S261339AbTCGDjp>; Thu, 6 Mar 2003 22:39:45 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:60809 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S261335AbTCGDjn>;
+	Thu, 6 Mar 2003 22:39:43 -0500
+Date: Thu, 6 Mar 2003 22:52:44 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Jaroslav Kysela <perex@perex.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC][PATCH] PnP/ALSA - Manual Resource Setting Updates (2/3)
+Message-ID: <20030306225244.GA28436@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Jaroslav Kysela <perex@perex.cz>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Wait, this sounds like a conversation with the Mafia:
->> 
->> "Pay us protection money."
->> "Why do we need to pay you for protection?"
->> "So we can protect you from criminals like ourselves."
-> 
-> That's a ridiculous comparison and it weakens your argument.  Leaving a
+Hi Jaroslav,
 
-Reductio ad absurdum is often enlightening.
+This patch updates the manual resource setting code to allow for partial manual 
+setting of resources as needed by ALSA.
 
-> potential problem in place rather than fixing it as I did would be the
-> passive-aggressive approach, not the other way around.
+I would appreciate any comments.
 
-But that's not exactly what you're doing - you're replacing one 
-(very small) problem with another (very real) problem, the breakage 
-of people's patches. Fixing up patches because of spelling
-errors is a total waste of developer's time.
+Thanks,
+Adam
 
->> I'd rather solve this problem by making standalone spelling fixes and
->> other cosmetic changes taboo.  Cosmetic changes combined with actual
->> useful code changes are fine with me.  If you're risking breaking the
->> build, there should be some benefit that justifies the risk.
-> 
-> Breaking the build is a low probability (many hundreds of fixes and one 
-> build break AFAIK) and low consequence failure (a build fix of that
-> nature is obvious and quickly and easily done).
 
-Breaking the build is indeed a low probability (assuming you compile
-test your tree). Breaking other people's patches is a high probablility.
+diff -urN a/drivers/pnp/manager.c b/drivers/pnp/manager.c
+--- a/drivers/pnp/manager.c	Mon Feb 24 19:05:46 2003
++++ b/drivers/pnp/manager.c	Thu Mar  6 15:16:30 2003
+@@ -532,6 +532,39 @@
+ 	return error;
+ }
 
-M.
++static void pnp_process_manual_resources(struct pnp_resource_table * ctab, struct pnp_resource_table * ntab)
++{
++	int idx;
++	for (idx = 0; idx < PNP_MAX_IRQ; idx++) {
++		if (ntab->irq_resource[idx].flags & IORESOURCE_AUTO)
++			continue;
++		ctab->irq_resource[idx].start = ntab->irq_resource[idx].start;
++		ctab->irq_resource[idx].end = ntab->irq_resource[idx].end;
++		ctab->irq_resource[idx].flags = ntab->irq_resource[idx].flags;
++	}
++	for (idx = 0; idx < PNP_MAX_DMA; idx++) {
++		if (ntab->dma_resource[idx].flags & IORESOURCE_AUTO)
++			continue;
++		ctab->dma_resource[idx].start = ntab->dma_resource[idx].start;
++		ctab->dma_resource[idx].end = ntab->dma_resource[idx].end;
++		ctab->dma_resource[idx].flags = ntab->dma_resource[idx].flags;
++	}
++	for (idx = 0; idx < PNP_MAX_PORT; idx++) {
++		if (ntab->port_resource[idx].flags & IORESOURCE_AUTO)
++			continue;
++		ctab->port_resource[idx].start = ntab->port_resource[idx].start;
++		ctab->port_resource[idx].end = ntab->port_resource[idx].end;
++		ctab->port_resource[idx].flags = ntab->port_resource[idx].flags;
++	}
++	for (idx = 0; idx < PNP_MAX_MEM; idx++) {
++		if (ntab->irq_resource[idx].flags & IORESOURCE_AUTO)
++			continue;
++		ctab->irq_resource[idx].start = ntab->mem_resource[idx].start;
++		ctab->irq_resource[idx].end = ntab->mem_resource[idx].end;
++		ctab->irq_resource[idx].flags = ntab->mem_resource[idx].flags;
++	}
++}
++
+ /**
+  * pnp_manual_config_dev - Disables Auto Config and Manually sets the resource table
+  * @dev: pointer to the desired device
+@@ -554,7 +587,7 @@
+ 	*bak = dev->res;
+ 
+ 	spin_lock(&pnp_lock);
+-	dev->res = *res;
++	pnp_process_manual_resources(&dev->res, res);
+ 	if (!(mode & PNP_CONFIG_FORCE)) {
+ 		for (i = 0; i < PNP_MAX_PORT; i++) {
+ 			if(pnp_check_port(dev,i))
+@@ -681,7 +714,7 @@
+ 		return -1;
+ 	}
+ 	dev->active = 0; /* just in case the protocol doesn't do this */
+-	pnp_dbg("the device '%s' has been disabled.", dev->dev.bus_id);
++	pnp_dbg("res: the device '%s' has been disabled.", dev->dev.bus_id);
+ 	return 0;
+ }
+ 
+diff -urN a/drivers/pnp/resource.c b/drivers/pnp/resource.c
+--- a/drivers/pnp/resource.c	Mon Feb 24 19:05:34 2003
++++ b/drivers/pnp/resource.c	Wed Mar  5 21:33:00 2003
+@@ -558,25 +558,25 @@
+ 		table->irq_resource[idx].name = NULL;
+ 		table->irq_resource[idx].start = -1;
+ 		table->irq_resource[idx].end = -1;
+-		table->irq_resource[idx].flags = 0;
++		table->irq_resource[idx].flags = IORESOURCE_AUTO;
+ 	}
+ 	for (idx = 0; idx < PNP_MAX_DMA; idx++) {
+ 		table->dma_resource[idx].name = NULL;
+ 		table->dma_resource[idx].start = -1;
+ 		table->dma_resource[idx].end = -1;
+-		table->dma_resource[idx].flags = 0;
++		table->dma_resource[idx].flags = IORESOURCE_AUTO;
+ 	}
+ 	for (idx = 0; idx < PNP_MAX_PORT; idx++) {
+ 		table->port_resource[idx].name = NULL;
+ 		table->port_resource[idx].start = 0;
+ 		table->port_resource[idx].end = 0;
+-		table->port_resource[idx].flags = 0;
++		table->port_resource[idx].flags = IORESOURCE_AUTO;
+ 	}
+ 	for (idx = 0; idx < PNP_MAX_MEM; idx++) {
+ 		table->mem_resource[idx].name = NULL;
+ 		table->mem_resource[idx].start = 0;
+ 		table->mem_resource[idx].end = 0;
+-		table->mem_resource[idx].flags = 0;
++		table->mem_resource[idx].flags = IORESOURCE_AUTO;
+ 	}
+ }
+ 

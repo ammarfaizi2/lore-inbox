@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbQLOUlj>; Fri, 15 Dec 2000 15:41:39 -0500
+	id <S129652AbQLOUpK>; Fri, 15 Dec 2000 15:45:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129652AbQLOUl3>; Fri, 15 Dec 2000 15:41:29 -0500
-Received: from munchkin.spectacle-pond.org ([209.192.197.45]:11272 "EHLO
-	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
-	id <S129383AbQLOUlX>; Fri, 15 Dec 2000 15:41:23 -0500
-Date: Fri, 15 Dec 2000 15:15:03 -0500
-From: Michael Meissner <meissner@spectacle-pond.org>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: root@chaos.analogic.com, Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Andrea Arcangeli <andrea@suse.de>, Mike Black <mblack@csihq.com>,
+	id <S131308AbQLOUpB>; Fri, 15 Dec 2000 15:45:01 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:47446 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129652AbQLOUos>; Fri, 15 Dec 2000 15:44:48 -0500
+Date: Fri, 15 Dec 2000 21:14:04 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        Mike Black <mblack@csihq.com>,
         "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
 Subject: Re: 2.2.18 signal.h
-Message-ID: <20001215151503.A24830@munchkin.spectacle-pond.org>
-In-Reply-To: <root@chaos.analogic.com> <200012151906.eBFJ6ac28241@pincoya.inf.utfsm.cl>
+Message-ID: <20001215211404.J17781@inspiron.random>
+In-Reply-To: <20001215195433.G17781@inspiron.random> <Pine.LNX.4.21.0012151752421.3596-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <200012151906.eBFJ6ac28241@pincoya.inf.utfsm.cl>; from vonbrand@inf.utfsm.cl on Fri, Dec 15, 2000 at 04:06:36PM -0300
+In-Reply-To: <Pine.LNX.4.21.0012151752421.3596-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Fri, Dec 15, 2000 at 05:55:08PM -0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 15, 2000 at 04:06:36PM -0300, Horst von Brand wrote:
-> "Richard B. Johnson" <root@chaos.analogic.com> said:
+On Fri, Dec 15, 2000 at 05:55:08PM -0200, Rik van Riel wrote:
+> On Fri, 15 Dec 2000, Andrea Arcangeli wrote:
 > 
-> [...]
+> > x()
+> > {
+> > 
+> > 	switch (1) {
+> > 	case 0:
+> > 	case 1:
+> > 	case 2:
+> > 	case 3:
+> > 	;
+> > 	}
+> > }
+> > 
+> > Why am I required to put a `;' only in the last case and not in
+> > all the previous ones?
 > 
-> > 	Both examples allow an extern declaration inside a function scope
-> > 	which is also contrary to any (even old) 'C' standards. 'extern'
-> > 	is always file scope, there's no way to make it otherwise.
+> That `;' above is NOT in just the last one. In your above
+> example, all the labels will execute the same `;' statement.
 > 
-> AFAIR (rather dimly... no K&R at hand here) if you have an extern
-> declaration inside a block, it will be visible only within that block. The
-> object itself certainly is file scope (or larger).
+> In fact, the default behaviour of the switch() operation is
+> to fall through to the next defined label and you have to put
+> in an explicit `break;' if you want to prevent `case 0:' from
+> reaching the `;' below the `case 3:'...
 
-Old K&R allowed the following:
+Are you kidding me?
 
-	foo(){
-	  extern int a;
-
-	  a = 1;
-	}
-
-	bar(){
-	  a = 2;
-	}
-
-Ie, compiler put the definition for a in the file scope symbol table, and not
-the current block's.  The above example is illegal in ISO C.
-
--- 
-Michael Meissner, Red Hat, Inc.  (GCC group)
-PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
-Work:	  meissner@redhat.com		phone: +1 978-486-9304
-Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

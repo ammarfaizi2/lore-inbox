@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265165AbTF2VBD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 17:01:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264792AbTF2U6G
+	id S264449AbTF2U5y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 16:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264279AbTF2U5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 16:58:06 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:41093 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262872AbTF2U5e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 16:57:34 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 29 Jun 2003 14:10:22 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: rmoser <mlmoser@comcast.net>
-cc: Hugo Mills <hugo-lkml@carfax.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: File System conversion -- ideas
-In-Reply-To: <200306291700340120.0257F7AF@smtp.comcast.net>
-Message-ID: <Pine.LNX.4.55.0306291409360.14949@bigblue.dev.mcafeelabs.com>
-References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk>
- <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEF8F.7050607@post.pl>
- <20030629192847.GB26258@mail.jlokier.co.uk> <20030629194215.GG27348@parcelfarce.linux.theplanet.co.uk>
- <200306291545410600.02136814@smtp.comcast.net>
- <20030629200020.GH27348@parcelfarce.linux.theplanet.co.uk>
- <200306291629450990.023BC35E@smtp.comcast.net> <20030629205003.GA4298@carfax.org.uk>
- <200306291700340120.0257F7AF@smtp.comcast.net>
+	Sun, 29 Jun 2003 16:57:53 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:50359 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S265083AbTF2Uye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 16:54:34 -0400
+Message-ID: <3EFF5551.1000600@nortelnetworks.com>
+Date: Sun, 29 Jun 2003 17:08:33 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: rmoser <mlmoser@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: File System conversion -- ideas
+References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk> <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEF8F.7050607@post.pl> <20030629192847.GB26258@mail.jlokier.co.uk> <20030629194215.GG27348@parcelfarce.linux.theplanet.co.uk> <200306291545410600.02136814@smtp.comcast.net> <20030629200020.GH27348@parcelfarce.linux.theplanet.co.uk> <200306291629450990.023BC35E@smtp.comcast.net> <20030629205150.GK27348@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Jun 2003, rmoser wrote:
+viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-> >> I've beaten the O((FS_COUNT)^2) already.  And by the way, it's
-> >> O((FS_COUNT)*(FS_COUNT - 1_).  There's exactly O(2*FS_COUNT)
-> >> and o(2*FS_COUNT) sets of code needed total to be able to convert
-> >> between any two filesystems.
-> >
-> >   There's no such thing as O(x*(x-1)). This is precisely O(x^2).
-> >Similarly, O(2*x) is precisely the same as O(x). If you're going to
-> >try to use mathematics to demonstrate your point, please at least make
-> >sure that you're using it _right_.
-> >
->
-> Big O notation is inappropriate here because it measures time complexity;
-> however, I was following Viro's lead.  We're using it to measure code
-> complexity, sorry.
-
-In which math book O() is a time thingy ?
+> The *SHOW* *THEM*.  You keep repeating that it's simple.  Fine, show that
+> it can be done.  Then we can start talking about the rest - until you can
+> demonstrate (as in, show the working code) that does what you call simple,
+> there is no point in going any further.
+> 
+> _That_ is the point of contention.  And no, saying the word "atom" does
+> not count as proof of feasibility.  Show how to map metadata between different
+> filesystem types.  Hell, show that you know what types of metadata are there.
 
 
-- Davide
+Presumably the in-kernel metadata would need to be a superset of all of 
+the different metadata stored by all the different supported filesystems.
+
+It then needs two converters for each filesystem, to/from the metadata 
+format. When you hit a new filesystem that your metadata doesn't 
+support, you extend that metadata.
+
+Of course, you're screwed if the new filesystem is sufficiently odd that 
+it doesn't map nicely to the metadata organization.
+
+Chris
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

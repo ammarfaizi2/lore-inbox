@@ -1,72 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293492AbSCASOt>; Fri, 1 Mar 2002 13:14:49 -0500
+	id <S293472AbSCASPj>; Fri, 1 Mar 2002 13:15:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293472AbSCASNE>; Fri, 1 Mar 2002 13:13:04 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:17540 "EHLO q-ag.de")
-	by vger.kernel.org with ESMTP id <S293467AbSCASMk>;
-	Fri, 1 Mar 2002 13:12:40 -0500
-Message-ID: <3C7FC488.F5D348DC@colorfullife.com>
-Date: Fri, 01 Mar 2002 19:12:24 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.5-pre1 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Nathan Walp <faceprint@faceprint.com>
-CC: Dave Jones <davej@suse.de>, Benjamin Pharr <ben@benpharr.com>,
-        linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: Re: Linux 2.5.5-dj1 - Bug Reports
-In-Reply-To: <20020221233700.GA512@hst000004380um.kincannon.olemiss.edu> <20020222022149.N5583@suse.de> <20020222063721.GA8879@faceprint.com>
-Content-Type: multipart/mixed;
- boundary="------------68E05C2B8D1A065B4B604276"
+	id <S293469AbSCASPf>; Fri, 1 Mar 2002 13:15:35 -0500
+Received: from ns.suse.de ([213.95.15.193]:62478 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S293491AbSCASOo>;
+	Fri, 1 Mar 2002 13:14:44 -0500
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4.19-pre2] Make max_threads be based on normal zone size
+In-Reply-To: <71650000.1015004327@baldur.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 01 Mar 2002 19:14:41 +0100
+In-Reply-To: Dave McCracken's message of "1 Mar 2002 18:42:55 +0100"
+Message-ID: <p73vgcgjgtq.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------68E05C2B8D1A065B4B604276
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Dave McCracken <dmccr@us.ibm.com> writes:
 
-Nathan Walp wrote:
+> The max_threads config parameter (used to determine how many tasks to
+> allow) is currently calculated based on the total amount of physical memory
+> in the machine.  This is wrong, since the real limiting factor is the
+> amount of memory in the normal zone.
 > 
-> On Fri, Feb 22, 2002 at 02:21:49AM +0100, Dave Jones wrote:
-> >  > It compiled fine. When I booted up everything looked normal with the
-> >  > exception of a
-> >  > eth1: going OOM
-> >  > message that kept scrolling down the screen. My eth1 is a natsemi card.
-> >
-> >  That's interesting. Probably moreso for Manfred. I'll double check
-> >  I didn't goof merging the oom-handling patch tomorrow.
-> 
-> Ditto here on my natsemi.  It hasn't really spit out the error since
-> boot, about 12 hours ago.  Card has been mainly idle, only used to
-> connect via crossover cable to my laptop, which hasn't been used much in
-> that time.
+> This patch fixes the initialization of max_threads by allowing an
+> architecture to specify how much memory is in the normal zone, and using
+> that value to initialize max_threads.
 
-Please apply the attached oneliner, it fixes the problem. The error was
-spotted by Tim or Jeff.
+There are lots of other functions with the same problem (like all the 
+hash table sizing and others). Perhaps these should be fixed too? 
 
---
-	Manfred
---------------68E05C2B8D1A065B4B604276
-Content-Type: text/plain; charset=us-ascii;
- name="patch-natsemi-typo"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-natsemi-typo"
-
---- 2.5/drivers/net/natsemi.c	Fri Mar  1 17:16:38 2002
-+++ build-2.5/drivers/net/natsemi.c	Fri Mar  1 19:11:52 2002
-@@ -1380,7 +1380,7 @@
- 		np->rx_ring[entry].cmd_status =
- 			cpu_to_le32(np->rx_buf_sz);
- 	}
--	if (np->cur_rx - np->dirty_tx == RX_RING_SIZE) {
-+	if (np->cur_rx - np->dirty_rx == RX_RING_SIZE) {
- 		if (debug > 2)
- 			printk(KERN_INFO "%s: going OOM.\n", dev->name);
- 		np->oom = 1;
-
---------------68E05C2B8D1A065B4B604276--
-
-
+-Andi

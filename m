@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316774AbSGVLGz>; Mon, 22 Jul 2002 07:06:55 -0400
+	id <S316792AbSGVLKv>; Mon, 22 Jul 2002 07:10:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316780AbSGVLGz>; Mon, 22 Jul 2002 07:06:55 -0400
-Received: from moutvdomng0.kundenserver.de ([195.20.224.130]:28369 "EHLO
-	moutvdomng0.schlund.de") by vger.kernel.org with ESMTP
-	id <S316774AbSGVLGx>; Mon, 22 Jul 2002 07:06:53 -0400
-Date: Mon, 22 Jul 2002 05:09:59 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Sami Louko <samppa@pleco.mikrolahti.fi>
-cc: Thunder from the hill <thunder@ngforever.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: still troubles with an Alpha-kernel
-In-Reply-To: <20020722110237.GA12719@pleco.mikrolahti.fi>
-Message-ID: <Pine.LNX.4.44.0207220508070.3309-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316795AbSGVLKu>; Mon, 22 Jul 2002 07:10:50 -0400
+Received: from verein.lst.de ([212.34.181.86]:28682 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S316792AbSGVLKt>;
+	Mon, 22 Jul 2002 07:10:49 -0400
+Date: Mon, 22 Jul 2002 13:13:54 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: martin@dalecki.de
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.27 sysctl
+Message-ID: <20020722131354.A17077@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, martin@dalecki.de,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com> <3D3BE17F.3040905@evision.ag> <20020722125347.B16685@lst.de> <3D3BE4C7.2060203@evision.ag>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3D3BE4C7.2060203@evision.ag>; from dalecki@evision.ag on Mon, Jul 22, 2002 at 12:56:07PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jul 22, 2002 at 12:56:07PM +0200, Marcin Dalecki wrote:
+> It's an GNU-ism.
 
-On Mon, 22 Jul 2002, Sami Louko wrote:
-> 	Jul 22 09:07:55 mikrolahti kernel: Error seeking in /dev/kmem
-> 
-> What may be wrong??!
+Actually I've looked it up in my copy of the last C99 draft:
 
-Some of the /proc file mappings. Are the other files in /proc OK? One can 
-always have a 4TiB+ file, you just have to trick the system in thinking 
-the file is that big. Otherwise it's just a plain procfs bug.
+	[#5]  This  edition  replaces  the previous edition, ISO/IEC |
+	9899:1990,   as   amended   and   corrected    by    ISO/IEC |
+	9899/COR1:1994,    ISO/IEC   9899/COR2:1995,   and   ISO/IEC |
+	9899/AMD1:1995.  Major changes  from  the  previous  edition |
+	include:
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+	[some stuff snipped]
+
+  	  -- trailing comma allowed in enum declaration              |
+
+So please let it in.
 

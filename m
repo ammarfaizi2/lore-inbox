@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130146AbQK3VTK>; Thu, 30 Nov 2000 16:19:10 -0500
+	id <S130120AbQK3VUk>; Thu, 30 Nov 2000 16:20:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130154AbQK3VTA>; Thu, 30 Nov 2000 16:19:00 -0500
-Received: from dsl-64-193-169-237.telocity.com ([64.193.169.237]:4740 "EHLO
-	dsl-64-193-169-237.telocity.com") by vger.kernel.org with ESMTP
-	id <S130146AbQK3VSm>; Thu, 30 Nov 2000 16:18:42 -0500
-Date: Thu, 30 Nov 2000 14:47:50 -0600
-To: Dick Streefland <dick.streefland@tasking.com>
-Cc: Robert Schiele <rschiele@uni-mannheim.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test11: es1371 mixer problems
-Message-ID: <20001130144750.A30108@yipyap.net>
-In-Reply-To: <20001124135956.A5842@kemi.tasking.nl> <20001130134725.A12437@kemi.tasking.nl> <20001130182428.A2127@schiele.priv> <20001130184209.A17335@kemi.tasking.nl>
+	id <S130154AbQK3VUa>; Thu, 30 Nov 2000 16:20:30 -0500
+Received: from smtpnotes.altec.com ([209.149.164.10]:47108 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S130120AbQK3VUK>; Thu, 30 Nov 2000 16:20:10 -0500
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: linux-kernel@vger.kernel.org
+Message-ID: <862569A7.00724FA9.00@smtpnotes.altec.com>
+Date: Thu, 30 Nov 2000 14:49:43 -0600
+Subject: Crystal SoundFusion doesn't work under 2.4.0-test12-pre3
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20001130184209.A17335@kemi.tasking.nl>; from dick.streefland@tasking.com on Thu, Nov 30, 2000 at 06:42:09PM +0100
-From: Brian McGroarty <snowfox@yipyap.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2000 at 06:42:09PM +0100, Dick Streefland wrote:
-> On Thursday 2000-11-30 18:24, Robert Schiele wrote:
-> | On Thu, Nov 30, 2000 at 01:47:25PM +0100, Dick Streefland wrote:
-> | > This mixer probably replaces the normal AC97 mixer device. So, in
-> | > what situations do you need CONFIG_SOUND_TVMIXER? It would be nice if
-> | > someone could come up with an entry for Documentation/Configure.help.
-> | 
-> | In fact it does not 'replace' the other mixer device, but it adds
-> | another one. The problem on your system is, that you load the new
-> | module before your sound card module.
-> | This means with only your sound card module, the mixer for your sound
-> | card is major 14/minor 0. With tvmixer module loaded before your sound
-> | card module, major 14/minor 0 is assigned to tvmixer and your sound
-> | card mixer gets major 14/minor 16. This is a problem for some mixer
-> | applications, because they always control the first mixer device.
-> | So you should just make sure, your sound card module is loaded
-> | _before_ the tvmixer module.
-> 
-> OK, that makes it somewhat clearer to me. However, I don't use modules
-> and have everything compiled in, so I can't control the order in which
-> the mixer devices get loaded. Perhaps the initialization order in the
-> kernel should be changed?
-
-Ditto this problem with via82c686a audio - likely all sound cards with
-tvmixer linked in.
-
-If initialization order in the kernel is not changed and you don't
-want modules, you can swap /dev/mixer0 and /dev/mixer1 as an inelegant
-workaround.
 
 
-> Excuse my ignorance, but what exactly is the purpose of the tvmixer?
-> I'm currently controlling the TV audio volume with the ac97 mixer,
-> using an external cable between the TV card and sound card.
+My Crystal CS4624 PCI Audio card in my Thinkpad 600X, which works fine in
+2.4.0-test11, doesn't work under test12-pre2 or -pre3.  (I haven't tried -pre1.)
+The relevant lines from dmesg show the following: for test11:
 
-There exists a mixer for the pass-through on the WinTV bt848 cards at
-least, as well as treble/bass control. Many stations broadcast with
-obscene amounts of bass, and so access to this is nice as you don't
-have to spoil your main EQ.
+Crystal 4280/461x + AC97 Audio, version 0.09, 22:14:35 Nov 28 2000
+cs461x: Card found at 0x50100000 and 0x50000000, IRQ 11
+cs461x: Thinkpad 600X/A20/T20 at 0x50100000/0x50000000, IRQ 11
+ac97_codec: AC97 Audio codec, id: 0x4352:0x5913 (Cirrus Logic CS4297A)
+cs461x: Found 1 audio device(s).
+
+
+and for test12-pre3:
+
+Crystal 4280/461x + AC97 Audio, version 0.14, 11:51:35 Nov 29 2000
+cs461x: Card found at 0x50100000 and 0x50000000, IRQ 11
+cs461x: Unknown card (FFFFFFFF:FFFFFFFF) at 0x50100000/0x50000000, IRQ 11
+cs461x: AC'97 read problem (ACSTS_VSTS), reg = 0x0
+ac97_codec: Primary ac97 codec not present
+
+
+Both of these are with the sound driver built as module.  With all the sound
+stuff compiled into the kernel, I get this result for test12-pre3:
+
+Crystal 4280/461x + AC97 Audio, version 0.14, 07:34:37 Nov 30 2000
+cs461x: Card found at 0x50100000 and 0x50000000, IRQ 11
+cs461x: Unknown card (FFFFFFFF:FFFFFFFF) at 0x50100000/0x50000000, IRQ 11
+cs461x: create - never read ISV3 & ISV4 from AC'97
+
+
+Any ideas?
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129801AbQLAXkq>; Fri, 1 Dec 2000 18:40:46 -0500
+	id <S129724AbQLAXo5>; Fri, 1 Dec 2000 18:44:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129857AbQLAXkg>; Fri, 1 Dec 2000 18:40:36 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:40206 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129801AbQLAXkT>;
-	Fri, 1 Dec 2000 18:40:19 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Al Peat <al_kernel@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: put/get_module_symbol vs. inter_module_register/put/get/etc. 
-In-Reply-To: Your message of "Fri, 01 Dec 2000 10:52:35 -0800."
-             <20001201185235.44106.qmail@web10105.mail.yahoo.com> 
-Mime-Version: 1.0
+	id <S129844AbQLAXor>; Fri, 1 Dec 2000 18:44:47 -0500
+Received: from web9503.mail.yahoo.com ([216.136.129.133]:18961 "HELO
+	web9503.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129724AbQLAXob>; Fri, 1 Dec 2000 18:44:31 -0500
+Message-ID: <20001201231359.94203.qmail@web9503.mail.yahoo.com>
+Date: Fri, 1 Dec 2000 15:13:59 -0800 (PST)
+From: Georgina Russell <sfbebe@yahoo.com>
+Subject: /proc/mounts doesn't resolve user names
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 02 Dec 2000 10:09:47 +1100
-Message-ID: <21319.975712187@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Dec 2000 10:52:35 -0800 (PST), 
-Al Peat <al_kernel@yahoo.com> wrote:
->  I've followed the thread on "Persistent module
->storage" but haven't come across a general explanation
->of the changes to the inter-module symbol stuff
->between 2.4test10 and test11.  Anyone care to comment
->on the differences or on whether this is going to be a
->stable API for 2.4 (it won't be changed again)?
+Hi
+I'm using kernel version 2.2.14.  When the mount
+syscall or mount command is called, the user given
+name of the mount point isn't resolved.  These means
+that /proc/mounts will have entries with symlinks
+while /etc/mtab will have the real directory.
 
-You are confusing two completely different topics.  inter_module_xxx
-replaced get_module_symbol because the latter was a bad interface, it
-violated module layering and broke when symbol versions were turned on.
-inter_module_xxx is clean and stable, it has also been sent to Alan Cox
-for inclusion in 2.2 kernels, although 2.2 will still have
-get_module_symbol for backwards compatibility.
+In the case of smbmnt, chdir is called on the mount
+point, and subsequently, the mount syscall is given
+"." as it's second arguemnt.
 
-Persistent module data is the ability to save module parameters at
-unload time.  It only makes sense for parameters that are changed by
-users after load, e.g. volume controls, TV tuner settings etc.  That
-facility is almost completely in user space and requires very few
-changes to modules.  Watch this space.
+This means "." is in /proc/mounts, and when a samba
+mount is left unmounted at time of shutdown, the
+shutdown routine goes through /proc/mount and tries to
+remove all of the processes in directories which are
+still mounted.   As you might have figured, it tries
+to remove all processes in the cwd, which includes
+itself.   The shutdown hangs forever.
 
+
+I heard this was fixed in 2.40 testx, but I can't use
+that kernel.  Does anyone know of a fix for 2.2.14?
+
+
+Thanks so much,
+Georgina
+
+
+
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Shopping - Thousands of Stores. Millions of Products.
+http://shopping.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

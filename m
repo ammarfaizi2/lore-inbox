@@ -1,97 +1,179 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbUDEXXt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 19:23:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263503AbUDEXXt
+	id S263370AbUDEX2O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 19:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263502AbUDEX2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 19:23:49 -0400
-Received: from mail.tmr.com ([216.238.38.203]:48913 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S263475AbUDEXXl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 19:23:41 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: [2.6.5] A bunch of various minor bugs not fixed since 2.6.4
-Date: Mon, 05 Apr 2004 19:23:54 -0400
-Organization: TMR Associates, Inc
-Message-ID: <c4splr$7ar$1@gatekeeper.tmr.com>
-References: <20040404235411.7ffde014.scriptkiddie@wp.pl> <20040404231219.D17113@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1081207291 7515 192.168.12.100 (5 Apr 2004 23:21:31 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <20040404231219.D17113@flint.arm.linux.org.uk>
+	Mon, 5 Apr 2004 19:28:14 -0400
+Received: from web40504.mail.yahoo.com ([66.218.78.121]:22377 "HELO
+	web40504.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263370AbUDEX2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 19:28:01 -0400
+Message-ID: <20040405232755.93075.qmail@web40504.mail.yahoo.com>
+Date: Mon, 5 Apr 2004 16:27:55 -0700 (PDT)
+From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+Subject: Re: kernel stack challenge
+To: Timothy Miller <miller@techsource.com>
+Cc: John Stoffel <stoffel@lucent.com>, Helge Hafting <helgehaf@aitel.hist.no>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4071DBBB.4010704@techsource.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Sun, Apr 04, 2004 at 11:54:11PM +0200, Marek Szuba wrote:
-> 
->>1. 'make *config' fails with missing header files
-> 
-> 
-> Only people who try to build userspace programs against current
-> kernel header files experience this problem.
+I wanted something higher level than C. Forth looks
+like C to me. I wanted something with build in support
+of complex structures and automatic memory management.
 
-It would solve all these problems if there were a new version of glibc 
-included, or headers for user mode, or something... but in the real 
-world at the moment most people are dropping 2.6.x kernels and selected 
-upgrades to tools onto 2.4 systems. And a lot of user tools don't work 
-unless you use kernel headers. The most obnoxious example is cdrecord, 
-which doesn't seem to use the ATAPI interface unless you have a 2.6 
-kernel in /usr/src/linux, or at least the include files.
+I see no reason to replace one C with another.
 
-I'm not saying that the kernel should program around people who insist 
-on doing things wrong, but there are programs which don't work right 
-unless you use some kernel headers when building (right meaning on 2.6). 
+> Did you separate out the parser out into a
+> user-space daemon?
+
+I didn't. It's possible optimization, but it will not
+give any good. The syntax of LISP is much simpler than
+Forth (this another reason I chose LISP :-), so parser
+is very small.
+
+> >>Why do you choose LISP?  Don't you want to use a
+> >>language that sysadmins 
+> >>will actually KNOW?
+
+At the start of the project I tried to design my own
+small language (just for security system). At this
+point I understood that I didn't want to settle with
+anything less than universal language. The idea to
+invent some language and write VM for it didn't appeal
+to me. I wanted to make a security system, not a new
+language. I wanted language to be as simple as
+possible. LISP had the simpliest syntax from all
+languages. So I found small lisp interpreter (kind of
+real time - without garbage collector which stops
+execution) added string and bit operations, modified
+it to be placed in the kernel.
+
+Ok, it was my marketing claim about sysadmins :-)
+Sysadmins use web interface to configure polices and
+don't deal with LISP at all.
+
+LISP is for those who want to change security Models
+only.
+
+Serge.
+
+--- Timothy Miller <miller@techsource.com> wrote:
+> 
+> 
+> Sergiy Lozovsky wrote:
+> > --- Timothy Miller <miller@techsource.com> wrote:
+> > 
+> >>
+> >>Sergiy Lozovsky wrote:
+> >>
+> >>
+> >>>
+> >>>All LISP errors are incapsulated within LISP VM.
+> >>> 
+> >>
+> >>
+> >>A LISP VM is a big, giant, bloated.... *CHOKE*
+> >>*COUGH* *SPUTTER* 
+> >>*SUFFOCATE* ... thing which SHOULD NEVER be in the
+> >>kernel.
+> > 
+> > 
+> > It is a smallest interpreter (of all purpose
+> language)
+> > I was able to find. My guess is that you refer to
+> the
+> > Common Lisp. it is huge and I don't use it.
+> 
+> Did you separate out the parser out into a
+> user-space daemon?
+> 
+> Also, if you want a regular programming language
+> with an extremely small 
+> interpreter, try Forth.
+> 
+> Learning Forth should be at LEAST as much fun as
+> learning LISP.
+> 
+> > 
+> > 
+> >>If you want to use a more abstract language for
+> >>describing kernel 
+> >>security policies, fine.  Just don't use LISP.
+> > 
+> > 
+> > Point me to ANy langage with VM around 100K.
+> 
+> I bet a Forth interpreter would be smaller.
+> 
+> And for something specialized like security policy,
+> you could probably 
+> develop your own language and interpreter for it,
+> and it would be 
+> smaller (and faster) still.
+> 
+> > 
+> > 
+> >>The right way to do it is this:
+> >>
+> >>- A user space interpreter reads text-based config
+> >>files and converts 
+> >>them into a compact, easy-to-interpret code used
+> by
+> >>the kernel.
+> >>
+> >>- A VERY TINY kernel component is fed the security
+> >>policy and executes it.
+> > 
+> > 
+> > it is exactly the way it is implemented. Not
+> everyone
+> > need to create their own security model (that VERY
+> > TINY kernel component you refer to). But even for
+> > those who want to modify or create their own VERY
+> TINY
+> > kernel component - they don't need to do that in C
+> and
+> > debug it in th kernel crashing it.
+> 
+> You misunderstand.  When I say "VERY TINY kernel
+> component", I'm 
+> referring to the interpreter.  Done properly, the
+> pcode for the policy 
+> itself would be microscopic.
+> 
+> > 
+> > 
+> >>Move as much of the processing as reasonable into
+> >>user space.  It's 
+> >>absolutely unnecessary to have the parser into the
+> >>kernel, because 
+> >>parsing of the config files is done only when the
+> >>ASCII text version 
+> >>changes.
+> >>
+> >>It's absolutely unnecessary to have something as
+> >>complex as LISP to 
+> >>interpret it, when something simple and compact
+> >>could do just as well.
+> >>
+> >>Why do you choose LISP?  Don't you want to use a
+> >>language that sysadmins 
+> >>will actually KNOW?
+> > 
+> > 
+> > It was is) the smallest VM I know of.
+> 
+> Forth.
+> 
+> 
 
 
-> 
-> 
->>2. Platform-specific 'asm' symlink doesn't get created by 'make *config'
-> 
-> 
-> This is only a problem for people trying to build userspace programs
-> against current kernel header files.
-> 
-> 
->>3. 'make clean' seems to remove too much
-> 
-> 
-> See 2.
-
-Unfortunately the sanctimonious "we told you not to do that" approach 
-isn't helpful to the real problem, the 2.6 kernel doesn't exist in a 
-vacuum, and at the moment some applications are built with kernel 
-headers to get full functionality.
-> 
-> These three complaints seem to revolve around your attempt to use
-> the kernels header files for building user space programs against.
-> This is something which hasn't really been supported by the kernel
-> for many versions (since before 2.4) as you will find when searching
-> the LKML archives.
-> 
-> /usr/include/{asm,linux} are supposed to be a copy of the sanitised
-> kernel headers which were used *when glibc was built* (the words
-> between the '*' are the important ones here.)
-
-This purity of approach has only one failing, in some cases it doesn't work.
-
-The useful answer is that you need to be *very* careful about which 
-headers you use and not just use symlinks. There was a set of headers 
-around which worked better with 2.6 and didn't have all these problems, 
-I have solved my problems a case at a time, so I don't have the location 
-handy.
-
-Hope this actually helps, if you're going to bend the rules you have to 
-understand how to do it. As O.P. found.
-
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+__________________________________
+Do you Yahoo!?
+Yahoo! Small Business $15K Web Design Giveaway 
+http://promotions.yahoo.com/design_giveaway/

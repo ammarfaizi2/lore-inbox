@@ -1,93 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261802AbTCaTDP>; Mon, 31 Mar 2003 14:03:15 -0500
+	id <S261835AbTCaTQT>; Mon, 31 Mar 2003 14:16:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261826AbTCaTDO>; Mon, 31 Mar 2003 14:03:14 -0500
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:30102 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S261802AbTCaTCd>; Mon, 31 Mar 2003 14:02:33 -0500
-Date: Mon, 31 Mar 2003 11:13:49 -0800 (PST)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: whitney@math.berkeley.edu
-To: LKML <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [BUG] 2.5.65: Caching MSR_IA32_SYSENTER_CS kills dosemu
-Message-ID: <Pine.LNX.4.44.0303311106560.2060-100000@mf1.private>
+	id <S261831AbTCaTQP>; Mon, 31 Mar 2003 14:16:15 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:61843 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261835AbTCaTQI>; Mon, 31 Mar 2003 14:16:08 -0500
+Date: Mon, 31 Mar 2003 14:29:59 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: attempt to free, allready freed memory .. rfc
+In-Reply-To: <1049134044.945.35.camel@gregs>
+Message-ID: <Pine.LNX.4.53.0303311350190.21451@chaos>
+References: <1049134044.945.35.camel@gregs>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[This is a repost with a more descriptive subject.]
+On Mon, 31 Mar 2003, Grzegorz Jaskiewicz wrote:
 
-I run dosemu 1.0.2.1 on the 2.5.x kernels.  Upgrading from 2.5.64 to
-2.5.65 (or 2.5.66) causes dosemu to no longer work:  it locks up the
-machine shortly after I run it.  Alt-Sysrq still works OK.  I traced the
-problem to the "Cache MSR_IA32_SYSENTER_CS value in the per-CPU TSS"
-changeset introduced in 2.5.65-bk5, which I have included as a patch
-below.  Backing this patch out from 2.5.65-bk5 makes dosemu work again.  
-Any idea what is going on?
+> Hello !
+> As allways, i have a problem. Thus i want ask you for comment.
+>
+> Today i had a strange problem with my customers program. It is very
+> fresh soft, and they are still strugling with it (developing i meant :-)
+> ). But they were stucked on very strange problem.
+>
+> [explanation of problem in program- ommited]
+>
+> Problem it self.
+>
+> this code will be an example.
+>
+> struct doom{
+>         int data1;
+>         int data2;
+>         void *mydata;
+> };
+>
+> doom doomed;
+>
+> void dosomething_with_data(doom *d)
+> {
+> //      .... doing some fancy operations
+> //      then..
+>         if (d->mydata)
+>         {
+>                 free(d->mydata);
+>                 d->mydata=NULL;
+>         }
+> }
+>
+> void main()
+> {
+>         int i,j;
+>         void *t;
+>
+>         // this program is just not doing anything important :-)
+>
+>         t=doomed.mydata=malloc(somenumberofbytes);
 
-Cheers, Wayne
+[Snipped...]
 
+First, this is not the way to make a linked list (if that's what
+is intended). In particular, you need storage for all three data
+elements which you get only in the first (static) allocation.
 
-diff -ru linux-2.5.64-bk4/arch/i386/kernel/sysenter.c linux-2.5.64-bk5/arch/i386/kernel/sysenter.c
---- linux-2.5.64-bk4/arch/i386/kernel/sysenter.c	2003-03-26 21:06:54.000000000 -0800
-+++ linux-2.5.64-bk5/arch/i386/kernel/sysenter.c	2003-03-26 13:55:08.000000000 -0800
-@@ -40,6 +40,7 @@
- 	int cpu = get_cpu();
- 	struct tss_struct *tss = init_tss + cpu;
- 
-+	tss->ss1 = __KERNEL_CS;
- 	wrmsr(MSR_IA32_SYSENTER_CS, __KERNEL_CS, 0);
- 	wrmsr(MSR_IA32_SYSENTER_ESP, tss->esp0, 0);
- 	wrmsr(MSR_IA32_SYSENTER_EIP, (unsigned long) sysenter_entry, 0);
-diff -ru linux-2.5.64-bk4/arch/i386/kernel/vm86.c linux-2.5.64-bk5/arch/i386/kernel/vm86.c
---- linux-2.5.64-bk4/arch/i386/kernel/vm86.c	2003-03-26 21:06:54.000000000 -0800
-+++ linux-2.5.64-bk5/arch/i386/kernel/vm86.c	2003-03-26 13:55:08.000000000 -0800
-@@ -291,7 +291,7 @@
- 
- 	tss = init_tss + smp_processor_id();
- 	tss->esp0 = tsk->thread.esp0 = (unsigned long) &info->VM86_TSS_ESP0;
--	disable_sysenter();
-+	disable_sysenter(tss);
- 
- 	tsk->thread.screen_bitmap = info->screen_bitmap;
- 	if (info->flags & VM86_SCREEN_BITMAP)
-diff -ru linux-2.5.64-bk4/include/asm-i386/processor.h linux-2.5.64-bk5/include/asm-i386/processor.h
---- linux-2.5.64-bk4/include/asm-i386/processor.h	2003-03-26 21:06:55.000000000 -0800
-+++ linux-2.5.64-bk5/include/asm-i386/processor.h	2003-03-26 13:55:09.000000000 -0800
-@@ -347,7 +347,7 @@
- 	unsigned long	esp0;
- 	unsigned short	ss0,__ss0h;
- 	unsigned long	esp1;
--	unsigned short	ss1,__ss1h;
-+	unsigned short	ss1,__ss1h;	/* ss1 is used to cache MSR_IA32_SYSENTER_CS */
- 	unsigned long	esp2;
- 	unsigned short	ss2,__ss2h;
- 	unsigned long	__cr3;
-@@ -413,15 +413,20 @@
- {
- 	tss->esp0 = esp0;
- 	if (cpu_has_sep) {
--		wrmsr(MSR_IA32_SYSENTER_CS, __KERNEL_CS, 0);
-+		if (tss->ss1 != __KERNEL_CS) {
-+			tss->ss1 = __KERNEL_CS;
-+			wrmsr(MSR_IA32_SYSENTER_CS, __KERNEL_CS, 0);
-+		}
- 		wrmsr(MSR_IA32_SYSENTER_ESP, esp0, 0);
- 	}
- }
- 
--static inline void disable_sysenter(void)
-+static inline void disable_sysenter(struct tss_struct *tss)
- {
--	if (cpu_has_sep)  
-+	if (cpu_has_sep)  {
-+		tss->ss1 = 0;
- 		wrmsr(MSR_IA32_SYSENTER_CS, 0, 0);
-+	}
- }
- 
- #define start_thread(regs, new_eip, new_esp) do {		\
+Second, the malloc() that comes with the usual C runtime library
+does not check if you have corrupted data elements by overwriting
+the heap. So, unlike visual C++, you can't rely on that to point
+out coding errors. The only time the operating system will even
+know that you have overwritten something is if you overwrite some
+allocated page. A page is 0x1000 in length for ix86 in Linux so you
+can destroy a lot of stuff before you get a seg-fault.
+
+When writing (or porting) code for Linux/Unix machines, you need
+to carefully use the sizeof() operator and take care to prevent
+overwriting or even over-reading array bounds. Some stuff that you
+can get away with in Visual C++ will get you in Linux/Unix for
+instance, the following looks pretty good:
+
+	double *ft;
+        fp = (double *) malloc(ARRAY_SIZE * sizeof(float));
+
+... actual code that ran for years on some V/C++ stuff. Once it was
+compiled on Linux, there were unrelated problems, like the inability
+to write to files. Some floating-point data was overwriting some
+very important stuff, but nobody knew it. This was very hard to find
+because none of the failures were related to the code being reviewed.
+
+In your program, just instrument it. FYI, the very first function that's
+linked will be the one used, even if there is another one in the 'C'
+runtime library. So think about this...
+
+You can make your own malloc() (real easy). First check to see
+if your C runtime library uses "_" or "__" to mark an alias..
+
+main()
+{
+   __malloc(0);
+   __free(0);
+}
+
+This should compile. If it doesn't, use a single underscore.
+
+Then make your own malloc()
+
+static long long nr_bytes = 0;
+
+void *malloc(size_t len)
+{
+    fprintf(stderr, "malloc called for %u bytes\n", len);
+    nr_bytes += (long long) len;
+    return __malloc(len);
+}
+
+You do the same thing for free(). You can write/save some global
+variable to keep track as shown..
+
+Make a malloc/free object file and link it first with your
+program. You can also put a print statement in either malloc()
+or free() showing the remaining nr_bytes.
+
+This kind of instrumentation is a hell of a lot easier than
+single-stepping through a debugger. You can let your program run
+for a long time and the variable 'nr_bytes' should increase to
+some stable value and remain there. If it doesn't, you can even
+get the address of a caller who called your malloc() and ultimately
+find the culprit that is allocating without subsequent freeing, but
+that's a topic for another lesson.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

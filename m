@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264907AbSJOV3d>; Tue, 15 Oct 2002 17:29:33 -0400
+	id <S264906AbSJOV33>; Tue, 15 Oct 2002 17:29:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264908AbSJOV3d>; Tue, 15 Oct 2002 17:29:33 -0400
-Received: from mta05ps.bigpond.com ([144.135.25.137]:49884 "EHLO
-	mta05ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S264907AbSJOV3a>; Tue, 15 Oct 2002 17:29:30 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: "David S. Miller" <davem@redhat.com>, maxk@qualcomm.com
-Subject: Re: [RFC] Rename _bh to _softirq
-Date: Wed, 16 Oct 2002 07:27:17 +1000
-User-Agent: KMail/1.4.5
+	id <S264908AbSJOV33>; Tue, 15 Oct 2002 17:29:29 -0400
+Received: from zero.aec.at ([193.170.194.10]:40210 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id <S264906AbSJOV32>;
+	Tue, 15 Oct 2002 17:29:28 -0400
+To: Andrea Arcangeli <andrea@suse.de>
 Cc: linux-kernel@vger.kernel.org
-References: <5.1.0.14.2.20021015131839.01c1a008@mail1.qualcomm.com> <5.1.0.14.2.20021015135529.051b49b0@mail1.qualcomm.com> <20021015.135812.111263418.davem@redhat.com>
-In-Reply-To: <20021015.135812.111263418.davem@redhat.com>
+Subject: Re: 2.4.20-pre10-aa1: unresolved symbol in xfs.o
+References: <20021015172558.A3154@pc9391.uni-regensburg.de>
+	<20021015161908.GC2546@dualathlon.random>
+From: Andi Kleen <ak@muc.de>
+Date: 15 Oct 2002 23:35:21 +0200
+In-Reply-To: <20021015161908.GC2546@dualathlon.random>
+Message-ID: <m37kgjl71i.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200210160727.17190.bhards@bigpond.net.au>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Andrea Arcangeli <andrea@suse.de> writes:
 
-On Wed, 16 Oct 2002 06:58, David S. Miller wrote:
->    From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
->    Date: Tue, 15 Oct 2002 14:02:22 -0700
->
->    I guess we should then have some kinda readme that explains what
->    all those things are. And the BH context covers softirqs and tasklets.
->
-> That sounds fine.
-Documentation/DocBook/kernel-hacking.tmpl
+> I logged it so it will be fixed. You can link it into the kernel in the
+> meantime (select Y instead of M). For some reason bleeding edge gcc from
+> CVS generates a flood of symbol errors when I run depmod before
+> rebooting, so I don't easily notice these missing exports anymore (I
+> should run depmod post reboot to notice them). thanks,
 
-It is such a fine idea, Rusty already did it...
+Upgrade your modutils.
 
-Brad
+Newer binutils changes the format of System.map and __ksym* symbols
+have a 'R' now instead of a '?' in the type field. This breaks old modutils 
+which have the '?' hardcoded.
 
-- -- 
-http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9rIg1W6pHgIdAuOMRAv7zAJ95Eo1zgh2LWYxesk+LlWQ+U8O2OACfb8Qa
-Kfx4vfcbofHxfr6muMvi1WE=
-=1Ukc
------END PGP SIGNATURE-----
-
+-Andi

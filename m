@@ -1,159 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261464AbSJADcS>; Mon, 30 Sep 2002 23:32:18 -0400
+	id <S261466AbSJADgZ>; Mon, 30 Sep 2002 23:36:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261466AbSJADcS>; Mon, 30 Sep 2002 23:32:18 -0400
-Received: from ausadmmsrr501.aus.amer.dell.com ([143.166.83.88]:21775 "HELO
-	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S261464AbSJADcP>; Mon, 30 Sep 2002 23:32:15 -0400
-X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
-Message-ID: <20BF5713E14D5B48AA289F72BD372D68C1E8F5@AUSXMPC122.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: mochel@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: RE: [RFC][PATCH] x86 BIOS Enhanced Disk Device (EDD) polling
-Date: Mon, 30 Sep 2002 22:37:37 -0500
+	id <S261467AbSJADgZ>; Mon, 30 Sep 2002 23:36:25 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:38588 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261466AbSJADgX>;
+	Mon, 30 Sep 2002 23:36:23 -0400
+Date: Tue, 1 Oct 2002 05:51:45 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: george anzinger <george@mvista.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: [patch] smptimers, old BH removal, tq-cleanup, 2.5.39
+In-Reply-To: <3D98C60B.9C1EA90B@mvista.com>
+Message-ID: <Pine.LNX.4.44.0210010542240.2564-100000@localhost.localdomain>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 1187C70B1600824-01-01
-Content-Type: text/plain; 
- charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pat, thanks for the feedback and changes, I appreciate it!
 
-> Don't use struct device for the firmware objects. They're not really
-> devices; they're another type of entity that has some sort of magic 
-> ia32 voodoo relationship with real devices. 
+On Mon, 30 Sep 2002, george anzinger wrote:
 
-Ahh, yes, it's not the right abstraction, just the easiest for this pass.
-I'll look at how ACPI does it and make my own object type.  I was wondering
-how to get rid of the superfluous 'power' attribute I didn't need...
+> As the APIC timers are currently set up they are undisciplined WRT the
+> PIT which is still used to drive the clock.  This means that, since this
+> patch drives the "run_timer_list" code from the APIC timers, the actual
+> delay in timer servicing from the requested time will vary with a.) the
+> cpu (since each cpu is set up to have its timer expire at a different
+> time within the 1/HZ tick) and b.) over time as the PIT and the APIC
+> clocks drift.  This may be acceptable with 1/HZ timer resolution
+> (however I don't really think it is), but it is in no way acceptable WRT
+> high resolution timers.
 
-> > $ cat int13_dev80/host_bus
-> > PCI     02:01.0  channel: 0
-> 
-> How about a symlink to the bus's directory? Or the PCI device 
-> that is the controller? 
+the smp_processor_id()/(HZ*num_cpus) 'interleaving' of every APIC clock
+was an SMP scalability issue, and it was done as part of the smptimers
+patch. It just got into the kernel much earlier.
 
-Ok.
+but these days, with the removal of BHs, it might be less of a factor,
+mainly because timers have no global synchronization anymore, so we can
+again try to not interleave the APIC clocks. Only testing will tell,
+because there might be some interaction between timer-generated code
+still.
 
-> > $ cat int13_dev80/interface
-> > SCSI            id: 0  lun: 0
-> 
-> And, a symlink to the device itself? I liked it better the 
-> way you had it before :)
+Dipankar, wli, would it be possible to try the attached simple patch with
+some of the more complex networking loads? The patch gets rid of the APIC
+timer interleaving.
 
-Can I have both? :-)  (I hadn't implemented the symlink before, just faked
-it, but I definitely want a symlink, needed the stuff exported to do it
-right - thanks!}
+	Ingo
 
-> Ugh. Drop the ascii-fying hexdump for one.
-
-I've been over this with Greg privately.  I moved it to raw_data, separate,
-but there.  I know of only one BIOS that implements the spec right, and that
-is pre-release, because I could say "see, here's what you're returning, it's
-wrong these 4 ways..." in a language the BIOS guys understand - the raw
-hexdump of the return struct.  This will be critical to getting the changes
-required to be useful ubiquitous.
-
-> I'd also strongly encourage you to
-> split the data in 'info' to separate files.
-
-Yep, done, with tests such that if the attribute is invalid or for some
-reason shouldn't exist, it doesn't get created.  The default* files for
-example - if the bios puts 0s there, they don't get made.  Likewise if the
-PCI / SCSI info isn't given by bios, those don't get made either.
-
-Here's my tree now.
-.
-|-- bus
-|   `-- system
-|       |-- devices
-|       |   |-- int13_dev80 -> ../../../root/bios/int13_dev80
-|       |   |-- int13_dev81 -> ../../../root/bios/int13_dev81
-|       `-- drivers
-|           |-- edd
-`-- root
-    |-- bios
-    |   |-- int13_dev80
-    |   |   |-- default_cylinders
-    |   |   |-- default_heads
-    |   |   |-- default_sectors_per_track
-    |   |   |-- raw_data
-    |   |   |-- extensions
-    |   |   |-- host_bus
-    |   |   |-- info_flags
-    |   |   |-- interface
-    |   |   |-- name
-    |   |   |-- power
-    |   |   |-- sectors
-    |   |   `-- version
-    |   |-- name
-    |   `-- power
-
-$ cat default_cylinders
-0x0
-
-$ cat default_heads
-0x0
-
-$ cat default_sectors_per_track
-0x0
-
-$ cat raw_data
-int 13h fn 48h return struct:
-
-1e 00 09 00 00 00 00 00 00 00 00 00 00 00 00 00         ................
-3a b9 8b 08 00 00 00 00 00 02 ff ff ff ff be dd         :...............
-2c 00 00 00 50 43 49 00 53 43 53 49 00 00 00 00         ,...PCI.SCSI....
-02 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00         ................
-00 00 00 00 00 00 00 00 00 28                           .........(
-
-Warning: Spec violation.  Key should be 0xBEDD, is 0xDDBE
-Warning: Spec violation.  Padding should be 0x20, is 0x00.
-
-$ cat extensions
-Fixed disk access
-
-$ cat host_bus
-PCI     02:01.0  channel: 0
-
-$ cat info_flags
-DMA boundry error transparent
-write verify
-
-$ cat interface
-SCSI            id: 0  lun: 0
-
-$ cat name
-BIOS int 13h device 80h
-
-$ cat power
-0
-
-$ cat sectors
-0x88bb93a
-
-$ cat version
-0x30
-
-
-I may try walking the disk class device list for matches rather than the
-individual bus type lists - would be slightly faster and possibly less
-intrusive.  That's a helpful abstraction for me.
-
-My current stuff is in BK at http://mdomsch.bkbits.net/linux-2.5-edd.
-
-Thanks,
-Matt
-
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
+--- arch/i386/kernel/apic.c.orig	Tue Oct  1 05:47:34 2002
++++ arch/i386/kernel/apic.c	Tue Oct  1 05:49:23 2002
+@@ -813,24 +813,9 @@
+ 
+ static void setup_APIC_timer(unsigned int clocks)
+ {
+-	unsigned int slice, t0, t1;
+ 	unsigned long flags;
+-	int delta;
+ 
+-	local_save_flags(flags);
+-	local_irq_enable();
+-	/*
+-	 * ok, Intel has some smart code in their APIC that knows
+-	 * if a CPU was in 'hlt' lowpower mode, and this increases
+-	 * its APIC arbitration priority. To avoid the external timer
+-	 * IRQ APIC event being in synchron with the APIC clock we
+-	 * introduce an interrupt skew to spread out timer events.
+-	 *
+-	 * The number of slices within a 'big' timeslice is NR_CPUS+1
+-	 */
+-
+-	slice = clocks / (NR_CPUS+1);
+-	printk("cpu: %d, clocks: %d, slice: %d\n", smp_processor_id(), clocks, slice);
++	local_irq_save(flags);
+ 
+ 	/*
+ 	 * Wait for IRQ0's slice:
+@@ -839,22 +824,6 @@
+ 
+ 	__setup_APIC_LVTT(clocks);
+ 
+-	t0 = apic_read(APIC_TMICT)*APIC_DIVISOR;
+-	/* Wait till TMCCT gets reloaded from TMICT... */
+-	do {
+-		t1 = apic_read(APIC_TMCCT)*APIC_DIVISOR;
+-		delta = (int)(t0 - t1 - slice*(smp_processor_id()+1));
+-	} while (delta >= 0);
+-	/* Now wait for our slice for real. */
+-	do {
+-		t1 = apic_read(APIC_TMCCT)*APIC_DIVISOR;
+-		delta = (int)(t0 - t1 - slice*(smp_processor_id()+1));
+-	} while (delta < 0);
+-
+-	__setup_APIC_LVTT(clocks);
+-
+-	printk("CPU%d<T0:%d,T1:%d,D:%d,S:%d,C:%d>\n", smp_processor_id(), t0, t1, delta, slice, clocks);
+-
+ 	local_irq_restore(flags);
+ }
+ 
 

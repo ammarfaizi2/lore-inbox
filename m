@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268712AbTBZQTc>; Wed, 26 Feb 2003 11:19:32 -0500
+	id <S268804AbTBZQ1i>; Wed, 26 Feb 2003 11:27:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268784AbTBZQTc>; Wed, 26 Feb 2003 11:19:32 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:47303 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S268712AbTBZQTb>; Wed, 26 Feb 2003 11:19:31 -0500
-Date: Wed, 26 Feb 2003 16:29:44 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Alan Cox <alan@redhat.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Tighten up serverworks workaround.
-Message-ID: <20030226162944.GA15163@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Alan Cox <alan@redhat.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-References: <200302261349.h1QDn06X002823@deviant.impure.org.uk> <200302261627.h1QGREw17937@devserv.devel.redhat.com>
+	id <S268805AbTBZQ1i>; Wed, 26 Feb 2003 11:27:38 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:2229 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S268804AbTBZQ1f>; Wed, 26 Feb 2003 11:27:35 -0500
+Date: Wed, 26 Feb 2003 17:37:38 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Use hex numbers in fs/block_dev.c
+Message-ID: <20030226163738.GA15555@wohnheim.fh-wedel.de>
+References: <200302261719.15884@bilbo.math.uni-mannheim.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200302261627.h1QGREw17937@devserv.devel.redhat.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200302261719.15884@bilbo.math.uni-mannheim.de>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 26, 2003 at 11:27:14AM -0500, Alan Cox wrote:
- > > Aparently on rev6 of the LE and above, this workaround
- > > isn't needed. Lets give it a try, and see what happens
- > 
- > Only if serverworks confirm the rumour. This is a corruptor.
+On Wed, 26 February 2003 17:19:15 +0100, Rolf Eike Beer wrote:
+> 
+> We're using hex numbers to identify devices in most places. We should use
+> them in filesystem messages, errors etc. too, this would be much more
+> consistent and avoids things like this where two different naming styles
+> for the same error are used:
+> 
+>      end_request: [...] dev 16:45 (hdd), sector 9175248
+>      EXT3-fs error (device ide1(22,69)): [...] inode=575269, block=1146906
+> 
+> With this patch the second message would look like this:
+> 
+>      EXT3-fs error (device ide1(16:45)): [...] inode=575269, block=1146906
 
-I've reports of people with rev6's who have reported success
-with that workaround commented out.  Could be they never
-pushed the machine hard enough to trigger a bug, but I'd
-have thought this breakage would show up pretty quickly.
+Whis is _horrible_. Am I supposed to guess that ide does not use major
+16, so it will be 0x16 == 22 instead?
 
-My attempts to contact serverworks in the past have fallen on
-deaf ears. maybe you have better luck ?
+Better use the patch below, if at all.
 
-        Dave
+--- linux-2.5.63-eike/fs/block_dev.c.orig	Tue Feb 25 08:15:45 2003
++++ linux-2.5.63-eike/fs/block_dev.c	Wed Feb 26 16:04:28 2003
+@@ -794,7 +794,7 @@
+ 	if (!name)
+ 		name = "unknown-block";
+ 
+-	sprintf(buffer, "%s(%d,%d)", name, MAJOR(dev), MINOR(dev));
++	sprintf(buffer, "%s(0x%x:0x%x)", name, MAJOR(dev), MINOR(dev));
+ 	return buffer;
+ }
 
+Jörn
+
+-- 
+Courage is not the absence of fear, but rather the judgement that
+something else is more important than fear.
+-- Ambrose Redmoon

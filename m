@@ -1,59 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbUEJW2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbUEJW2w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261987AbUEJW2O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 18:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUEJW2O
+	id S261685AbUEJW2w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 18:28:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbUEJW2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 18:28:14 -0400
-Received: from turing-police.cirt.vt.edu ([128.173.54.129]:53679 "EHLO
-	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
-	id S261989AbUEJW2I (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 18:28:08 -0400
-Message-Id: <200405102227.i4AMRZH0005222@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm1 
-In-Reply-To: Your message of "Mon, 10 May 2004 15:02:03 PDT."
-             <20040510150203.3257ccac.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040510024506.1a9023b6.akpm@osdl.org> <20040510223755.A7773@infradead.org>
-            <20040510150203.3257ccac.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1017408894P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 10 May 2004 18:27:35 -0400
+	Mon, 10 May 2004 18:28:52 -0400
+Received: from lisa.JS.Jura.Uni-Goettingen.de ([134.76.166.209]:51645 "EHLO
+	lisa.goe.net") by vger.kernel.org with ESMTP id S261685AbUEJW2u convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 18:28:50 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.6: ALSA sound/ppc/keywest.c:84: tumbler: cannot initialize the
+ MCS
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I am KING BOMBA of Sicily!..I will marry LUCILLE BALL next Friday!
+Date: Tue, 11 May 2004 00:28:47 +0200
+Message-ID: <m3y8nzgbmo.fsf@whitebox.m5r.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1017408894P
-Content-Type: text/plain; charset=us-ascii
+I've never been able to get a working sound with ALSA after booting my
+iBook G3 (dmasound is working fine).  Any idea what's wrong with
+snd-powermac?
 
-On Mon, 10 May 2004 15:02:03 PDT, Andrew Morton said:
+Andreas.
 
-> > These two just introduced a subtile behaviour change during stable series,
-> > possibly (not likely) leading to DoS opportunities from applications running
-> > as gid 0.
-> 
-> mlock_group is likely to go away.
-> 
-> Is an unprivileged user likely to have gid 0?   Easy enough to fix, anyway.
-
-Equally important, is gid 0 (with its other possible overloadings) something that we
-want to put on a user just because they have a need for mlock??
-
-
---==_Exmh_1017408894P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAoAHXcC3lWbTT17ARAhdbAJ9icGvzD48v113hCLtWns3BPgBG2wCg9arS
-ZPeGs8m2xHvmlioxVAoMey8=
-=moXW
------END PGP SIGNATURE-----
-
---==_Exmh_1017408894P--
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,67 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284954AbRLMTUU>; Thu, 13 Dec 2001 14:20:20 -0500
+	id <S284857AbRLMT3v>; Thu, 13 Dec 2001 14:29:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284967AbRLMTUK>; Thu, 13 Dec 2001 14:20:10 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:23053 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S284954AbRLMTUA>; Thu, 13 Dec 2001 14:20:00 -0500
-Message-ID: <3C18FF28.A531BDC4@zip.com.au>
-Date: Thu, 13 Dec 2001 11:19:04 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+	id <S284917AbRLMT3m>; Thu, 13 Dec 2001 14:29:42 -0500
+Received: from [208.46.240.239] ([208.46.240.239]:29626 "EHLO mail.empexis.com")
+	by vger.kernel.org with ESMTP id <S284857AbRLMT3a>;
+	Thu, 13 Dec 2001 14:29:30 -0500
+Message-ID: <3C18F4F3.4EC54A19@empexis.com>
+Date: Thu, 13 Dec 2001 13:35:31 -0500
+From: Joy Almacen <joy@empexis.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Over-enthusiastic OOM killer.
-In-Reply-To: <200112130734.fBD7YXU01306@penguin.transmeta.com> <Pine.LNX.4.33.0112131407250.28164-100000@Appserv.suse.de>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: pivot_root and initrd kernel panic woes
+In-Reply-To: <3C165586.457A26F0@empexis.com> <20011213190750.A4460@redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> 
-> On Wed, 12 Dec 2001, Linus Torvalds wrote:
-> 
-> > >The oom killer just killed a bunch of processes on my workstation.
-> > >What I don't understand, is why this was deemed necessary, when
-> > >there was 400MB of buffer cache sitting around in memory, and 175MB
-> > >of free swap space unused. (66mb of swap was used)
+Stephen,
+
+I have tried every imaginable root device out there but with no success.
+
+Thank you though  for all  your emails.  I gave up on RH 7.1
+and decided to install RH7.2.  SMP is now enabled only after
+configuring the BIOS of Proliant 6000 to "Linux" as the
+OS. Now it is working the way we expect it.     I still
+have issues with my Fiber Channel but that's not critical at the moment.
+
+There is definitely something screwy with the mkinitrd RPM that was
+supplied by RedHat.
+
+Good day,
+
+
+
+"Stephen C. Tweedie" wrote:
+
+> Hi,
+>
+> On Tue, Dec 11, 2001 at 01:50:46PM -0500, Joy Almacen wrote:
+>
+> > After which I added this line  my  /etc/lilo.conf file:
 > >
-> > Ehh.. I bet you didn't have free swap.
-> 
-> Difficult to say after the killing, but even if that were the case,
-> why wasn't buffer cache pruned before the more drastic action ?
-> 
-> After the killing, there was 400MB of real memory, doing absolutely
-> nothing but holding cached data.
-> 
+> > image=/boot/vmlinuz-2.4.9-12smp
+> >         label=2.4.9smp
+> >         append="initrd=/boot/initrd-2.4.9-12smp.img root=/dev/ram0
+> > init=/linuxrc rw"
+>
+> That's your problem.  You need to specify your real root device in the
+> "root=" section; for example, mine looks like
+>
+> image=/boot/vmlinuz-2.4.9-13
+>         label=linux
+>         initrd=/boot/initrd-2.4.9-13.img
+>         read-only
+>         root=/dev/md1
+>
+> The initrd magic happens before the real root gets loaded: you don't
+> need to point root to /dev/ram0 to get a ramdisk.
+>
+> Cheers,
+>  Stephen
 
-It's a well-known (?) bug in 2.4.17-pre VM.  Anon allocations are
-going onto the inactive list, so the inactive list is hugely larger
-than the active list.  So this expression in shrink_caches:
-
-	ratio = (unsigned long) nr_pages * nr_active_pages / ((nr_inactive_pages + 1) * 2);	
-
-Evaluates to sero all the time, so we never move any of the buffercache
-pages onto the inactive list from where they can be freed.
-
-It can be fixed with
-
-	if (ratio == 0)
-		ratio = nr_pages;
-
-It can be fixed by putting anon pages onto the active list in
-do_anonymous_page.
-
-It can probably be fixed with Rik's remove-use-once patch.  I
-haven't tested that.
-
-It is fixed in the latest -aa patch.
-
-The remaining minor detail is that it isn't fixed in Linux :(
-
--

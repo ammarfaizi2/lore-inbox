@@ -1,73 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUJLMTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUJLMVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264726AbUJLMTV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 08:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUJLMTV
+	id S265909AbUJLMVp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 08:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUJLMVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 08:19:21 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:34538 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264726AbUJLMTS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 08:19:18 -0400
-Date: Tue, 12 Oct 2004 14:12:28 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "Ronny V. Vindenes" <s864@ii.uib.no>, ck@vds.kolivas.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: CFQ v2 high cpu load fix(?)
-Message-ID: <20041012121227.GA1754@suse.de>
-References: <1097579760.4086.27.camel@tentacle125.gozu.lan> <416BBF48.4070102@yahoo.com.au>
+	Tue, 12 Oct 2004 08:21:44 -0400
+Received: from dyn3.mc.tuwien.ac.at ([128.130.175.85]:27269 "EHLO
+	mail.13thfloor.at") by vger.kernel.org with ESMTP id S265909AbUJLMVm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 08:21:42 -0400
+Date: Tue, 12 Oct 2004 14:27:33 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       chrisw@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2/3] lsm: add bsdjail module
+Message-ID: <20041012122733.GD8012@DUMA.13thfloor.at>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+	chrisw@osdl.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1097094103.6939.5.camel@serge.austin.ibm.com> <1097094270.6939.9.camel@serge.austin.ibm.com> <20041006162620.4c378320.akpm@osdl.org> <20041007190157.GA3892@IBM-BWN8ZTBWA01.austin.ibm.com> <20041010104113.GC28456@infradead.org> <1097502444.31259.19.camel@localhost.localdomain> <20041012070055.GB7003@DUMA.13thfloor.at> <20041012090057.GA15706@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <416BBF48.4070102@yahoo.com.au>
+In-Reply-To: <20041012090057.GA15706@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 12 2004, Nick Piggin wrote:
-> Ronny V. Vindenes wrote:
-> >CFQ v2 is much better in a lot of cases, but certain situations trigger
-> >a cpu load so high it starves the rest of the system thus completely
-> >ruining the interactive experience. While casually looking at the
-> >problem, I stumbled upon a patch by Arjan van de Ven sent to lkml on
-> >sept. 1 (Subject: block fixes). Part of it is already included in the
-> >CFQ v2 patches and after applying the rest[1] I'm no longer able to
-> >trigger the problem.
-> >
-> >[1] Patch attached against 2.6.9-rc4-ck1 but applies to rc4-mm1 with
-> >some minor fuzz.
-> >
-> >
-> >
-> >------------------------------------------------------------------------
-> >
-> >--- patches/linux-2.6.9-rc4-ck1/drivers/block/ll_rw_blk.c	2004-10-12 
-> >12:25:09.798003278 +0200
-> >+++ linux-2.6.9-rc4-ck1/drivers/block/ll_rw_blk.c	2004-10-12 
-> >12:25:42.959479479 +0200
-> >@@ -100,7 +100,7 @@
-> > 		nr = q->nr_requests;
-> > 	q->nr_congestion_on = nr;
-> > 
-> >-	nr = q->nr_requests - (q->nr_requests / 8) - 1;
-> >+	nr = q->nr_requests - (q->nr_requests / 8) - (q->nr_requests/16)- 1;
-> > 	if (nr < 1)
-> > 		nr = 1;
-> > 	q->nr_congestion_off = nr;
+On Tue, Oct 12, 2004 at 10:00:57AM +0100, Christoph Hellwig wrote:
+> On Tue, Oct 12, 2004 at 09:00:55AM +0200, Herbert Poetzl wrote:
+> > and it works well, because we use it for almost
+> > a year now on linux-vserver ;)
 > 
-> 
-> I thought this first hunk looked like a good idea when Arjan sent the
-> patch. Can you check if it alone helps your problem?
+> Btw, could anyone explain the exact differences between linux-vserver
+> and this jail module?
 
-Yeah agree, it's a good idea to leave a bit of air between congestion on
-and off. Fully explains the cfq v2 excessive sys time for some
-workloads, which is extra nice.
+hmm, okay I'll try ...
 
-> The second hunk should be basically a noop.
+linux-vserver is a combination of kernel patch and
+userspace tools to create 'virtual servers' similar
+to UML, but sharing the resources (and kernel).
 
-I don't see what it is trying to achieve, I like the current code
-better.
+to do this, it uses process isolation, network
+isolation and disk space separation (tagging). 
+in addition it does resource management (accounting
+and limits) for various aspects (CPU, memory, 
+processes, sockets, filehandles, ...)
 
--- 
-Jens Axboe
+the jail module is recreating a limited subset of
+the isolation aspect via LSM (similar to the BSD
+jail) which allows to confine a process (and it's
+children) to a chroot() environment under certain
+limitations (resources)
 
+best,
+Herbert
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,80 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131977AbRBFBT3>; Mon, 5 Feb 2001 20:19:29 -0500
+	id <S131997AbRBFBU1>; Mon, 5 Feb 2001 20:20:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132158AbRBFBTT>; Mon, 5 Feb 2001 20:19:19 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:49412 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S131977AbRBFBTF>; Mon, 5 Feb 2001 20:19:05 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Byron Stanoszek <gandalf@winds.org>
-Date: Tue, 6 Feb 2001 12:18:53 +1100 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14975.20733.827783.777739@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: NFS stop/start problems (related to datagram shutdown bug?)
-In-Reply-To: message from Byron Stanoszek on Monday February 5
-In-Reply-To: <14975.15829.623996.534161@notabene.cse.unsw.edu.au>
-	<Pine.LNX.4.21.0102051935270.1746-100000@winds.org>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	id <S131893AbRBFBUS>; Mon, 5 Feb 2001 20:20:18 -0500
+Received: from mail-smtp.socket.net ([216.106.1.32]:29958 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S132158AbRBFBTw>; Mon, 5 Feb 2001 20:19:52 -0500
+Date: Mon, 5 Feb 2001 19:22:35 -0600
+From: "Gregory T. Norris" <haphazard@socket.net>
+To: axboe@suse.de
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: vmware 2.0.3, kernel 2.4.0 and a cdrom
+Message-ID: <20010205192235.A1567@glitch.snoozer.net>
+Mail-Followup-To: axboe@suse.de,
+	linux-kernel <linux-kernel@vger.redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-Operating-System: Linux glitch 2.4.1 #1 SMP Fri Feb 2 18:11:24 CST 2001 i686 unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday February 5, gandalf@winds.org wrote:
-> On Tue, 6 Feb 2001, Neil Brown wrote:
-> 
-> > How repeatable is this?  Is the server SMP?
-> 
-> I've tested this on two UP Athlons and 2 SMP Pentium 3's and the same problem
-> occurred. I have not tested it more than once on the same system (I left the
-> NFS servers untouched after the reboot).
-> 
-> The Athlon systems running NFS were 2.4.1-ac3 and the Pentiums were running
-> 2.2.19-pre7. All computers exporting the FS had one directory mounted at least
-> once.
-> 
-> In one case, only 1 directory was mounted once and then unmounted before
-> shutting off the NFS server. When I realized I forgot to copy a directory over,
-> I went to restart NFS on the server and found out I was unable to. Probably
-> irrelevant, but this had been after transferring 7 gigs of data over 100 Mbps.
-> 
-> I still have the 'broken' server running, so if you would like me to run a
-> command or two on it I can show you the results.
 
-I don't think that there is much useful that I could look at, thanks.
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> > The attached patch might fix it, so if you are having reproducable
-> > problems, it might be worth applying this patch.
-> 
-> I can try it tomorrow and see if it fixes the problem, but since this problem
-> also occurred on a UP, using spin locks probably will not correct it. Perhaps
-> it's something else.
+On Mon, Jan 15 2001, Jens Axboe wrote:                =20
+> Could you try with this patch, so maybe we can get some hints as to =20
+> what is going on?
 
-On second thoughts, this doesn't need to be SMP related.  I don't know
-much about "bottom halves" but I gather that they get run after an
-interrupt has been handled and interrupts have been re-enabled, but
-before the original process is rescheduled.  If this is the case, then
-the "_bh" part of the "spin_lock_bh" (which does a local_bh_disable)
-could be the bit that is important on a UP system.
+Here's what I got after applying your patch to 2.4.1:
 
-NeilBrown
+----- SNIP -----
+Feb  5 17:25:26 glitch kernel: VFS: Disk change detected on device sr(11,0)
+Feb  5 17:25:26 glitch kernel: VFS: Disk change detected on device sr(11,0)
+Feb  5 17:25:26 glitch kernel: sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
+Feb  5 17:25:26 glitch kernel: Mode Sense (10) 00 0e 00 00 00 00 00 18 00=
+=20
+Feb  5 17:25:26 glitch kernel: [valid=3D0] Info fld=3D0x0, Current sr00:00:=
+ sense key Illegal Request
+Feb  5 17:25:26 glitch kernel: Additional sense indicates Invalid command o=
+peration code
+----- SNIP -----
 
+--XsQoSWH+UP9D9v3l
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> 
-> > [patch snipped]
-> 
->  -Byron
-> 
-> -- 
-> Byron Stanoszek                         Ph: (330) 644-3059
-> Systems Programmer                      Fax: (330) 644-8110
-> Commercial Timesharing Inc.             Email: byron@comtime.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6f1HbgrEMyr8Cx2YRAjuoAJ91JMPOFWvtDC2VuLLcx2b5EHqMPgCbBBy5
+GvpCo+USVaa2eLUHWH2hDco=
+=B5Fz
+-----END PGP SIGNATURE-----
+
+--XsQoSWH+UP9D9v3l--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

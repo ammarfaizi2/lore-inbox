@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129541AbRCBVmG>; Fri, 2 Mar 2001 16:42:06 -0500
+	id <S129535AbRCBVlG>; Fri, 2 Mar 2001 16:41:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129540AbRCBVlw>; Fri, 2 Mar 2001 16:41:52 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:55510 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S129537AbRCBVlT>; Fri, 2 Mar 2001 16:41:19 -0500
-Date: Fri, 2 Mar 2001 21:41:09 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: [PATCH] getname() buffer overflow
-In-Reply-To: <E14YteS-00020L-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0103022139240.1440-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129537AbRCBVk5>; Fri, 2 Mar 2001 16:40:57 -0500
+Received: from palrel3.hp.com ([156.153.255.226]:54276 "HELO palrel3.hp.com")
+	by vger.kernel.org with SMTP id <S129535AbRCBVkv>;
+	Fri, 2 Mar 2001 16:40:51 -0500
+Message-Id: <200103022143.NAA29984@milano.cup.hp.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.4.0 parisc PCI support 
+In-Reply-To: Your message of "Fri, 02 Mar 2001 15:46:12 PST."
+             <3AA00694.7A65A3B2@mandrakesoft.com> 
+Date: Fri, 02 Mar 2001 13:43:55 -0800
+From: Grant Grundler <grundler@cup.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The pathname slab cache size was "reduced" from PAGE_SIZE to
-PATH_MAX + 1 during the 2.4.0-test series, and len similarly
-adjusted in do_getname().  But its "are we near top of task space?"
-test should have been adjusted too: could overflow if page size >4KB.
-Patch below against 2.4.2-ac9, applies equally to 2.4.[012].
+Jeff Garzik wrote:
+> IIRC these "assuming transparent" lines were put in to -fix- PCI-PCI
+> bridges on at least some x86 boxes...  I didn't really understand the
+> bridge code well enough at the time to comment one way or the other on
+> its correctness, but it definitely fixed some problems.
 
-Hugh
+Jeff,
+If someone could clarify, I'd be happy to rework/resubmit the patch.
 
---- 2.4.2-ac9/fs/namei.c	Fri Dec 29 22:07:23 2000
-+++ linux/fs/namei.c	Fri Mar  2 18:23:42 2001
-@@ -113,7 +113,7 @@
- 	if ((unsigned long) filename >= TASK_SIZE) {
- 		if (!segment_eq(get_fs(), KERNEL_DS))
- 			return -EFAULT;
--	} else if (TASK_SIZE - (unsigned long) filename < PAGE_SIZE)
-+	} else if (TASK_SIZE - (unsigned long) filename < PATH_MAX + 1)
- 		len = TASK_SIZE - (unsigned long) filename;
- 
- 	retval = strncpy_from_user((char *)page, filename, len);
+My gut feeling is it was to support something other than a PCI-PCI bridge.
+pci_read_bridge_bases() assumes the device is a PCI-PCI Bridge (layout
+and interpretation of the window registers). Either the code needs to
+be more explicit about the type of bridge being handled or the caller
+(arch specific code) should.
 
+Only x86 and parisc PCI support call this code in my 2.4.0 tree.
+Maybe the right answer is the "assuming transperent" support in
+pci_read_bridge_bases() move to arch/x86.
+
+I'm pretty sure Alpha and parisc/PAT_PDC systems don't use this
+code since the registers programmed in pci_setup_bridge().
+This makes me think none of the other arches attempt to
+support PCI-PCI bridges. Is that correct?
+
+thanks,
+grant
+
+Grant Grundler
+parisc-linux {PCI|IOMMU|SMP} hacker
++1.408.447.7253

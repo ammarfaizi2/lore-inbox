@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265096AbTBEWaX>; Wed, 5 Feb 2003 17:30:23 -0500
+	id <S265097AbTBEWsN>; Wed, 5 Feb 2003 17:48:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265098AbTBEWaX>; Wed, 5 Feb 2003 17:30:23 -0500
-Received: from tsv.sws.net.au ([203.36.46.2]:23057 "EHLO tsv.sws.net.au")
-	by vger.kernel.org with ESMTP id <S265096AbTBEWaW>;
-	Wed, 5 Feb 2003 17:30:22 -0500
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-Date: Wed, 5 Feb 2003 23:39:46 +0100
-User-Agent: KMail/1.5
-Cc: "Stephen D. Smalley" <sds@epoch.ncsc.mil>, torvalds@transmeta.com,
-       linux-security-module@wirex.com, linux-kernel@vger.kernel.org
-References: <200302051647.LAA05940@moss-shockers.ncsc.mil> <20030205220755.GA21652@kroah.com> <20030205223047.A30669@infradead.org>
-In-Reply-To: <20030205223047.A30669@infradead.org>
+	id <S265114AbTBEWsN>; Wed, 5 Feb 2003 17:48:13 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5906 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265097AbTBEWsM>; Wed, 5 Feb 2003 17:48:12 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: klibc update
+Date: 5 Feb 2003 14:57:37 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b1s4t1$ck9$1@cesium.transmeta.com>
+References: <20030205052354.GL15544@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302052339.46279.russell@coker.com.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Feb 2003 23:30, Christoph Hellwig wrote:
-> The main point is that LSM in the current shape, with every single policy
-> detail left to the modules (compare that say to the linux filesystem code
-> where we have lots of very different filesystems and still have as much as
-> possible policy decision in the core code, this is one of the really strong
-> points of Linux!) is a very bad idea and I _really_ don't want to see
-> it in the next major stable release.
+Followup to:  <20030205052354.GL15544@kroah.com>
+By author:    Greg KH <greg@kroah.com>
+In newsgroup: linux.dev.kernel
+>
+> For those wondering what's happening with klibc, here's an update...
+> 
+> I have it building relatively well within the kernel, and have modified
+> the usr/gen_init_cpio.c file to add files to the cpio "blob".  That all
+> seems to work, but I don't seem to be able to extract the files properly
+> (or at least that's what I'm guessing is happening).
+> 
+> If anyone wants to see the current progress, there's a big patch against
+> 2.5.59 at:
+> 	kernel.org/pub/linux/kernel/people/gregkh/klibc/klibc-2.5.59.patch.gz
+> and a bk tree with the different changes broken down into "logical"
+> chunks at:
+> 	bk://kernel.bkbits.net/gregkh/linux/klibc-2.5
+> 
+> Any help with trying to debug init/initramfs.c to figure out what is
+> going wrong would be greatly appreciated.
+> 
 
-My understanding is that LSM was created at the request of Linus because there 
-were several groups of people who had different patches for security policy 
-in "core code".  Linus apparently didn't like that idea and requested a 
-framework so that Linux would not be tied to one particular security model.  
-Someone please correct me if my understanding of LSM history is incorrect.
+Very cool :)
 
-Now as for the issue of code to use the hooks, SE Linux uses almost all the 
-hooks and I'm sure that Steve can send in the appropriate patch at any 
-time...
+I will look at your stuff some time next week when I'm in .se for
+NordU2003.  Until then I'm afraid I'll have my hands full with
+non-Linux work :(
+
+	-hpa
+
+
+P.S. klibc-0.76 removes the much-complained-about Digest::MD5
+dependence.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: cris ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

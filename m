@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263865AbTEOIHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 04:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263866AbTEOIHJ
+	id S263866AbTEOIJT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 04:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263867AbTEOIJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 04:07:09 -0400
-Received: from siaag2aa.compuserve.com ([149.174.40.131]:40633 "EHLO
-	siaag2aa.compuserve.com") by vger.kernel.org with ESMTP
-	id S263865AbTEOIHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 04:07:08 -0400
-Date: Thu, 15 May 2003 04:16:43 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: RE: The disappearing sys_call_table export.
-To: "David Schwartz" <davids@webmaster.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Message-ID: <200305150419_MC3-1-38FE-5583@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Thu, 15 May 2003 04:09:19 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:40382 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263866AbTEOIJS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 04:09:18 -0400
+Date: Thu, 15 May 2003 01:07:37 -0700
+From: Greg KH <greg@kroah.com>
+To: mdharm-usb@one-eyed-alien.net
+Cc: davej@codemonkey.org.uk, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: mysterious shifts in USB storage drivers.
+Message-ID: <20030515080737.GA6669@kroah.com>
+References: <200305150331.h4F3VHID000770@deviant.impure.org.uk> <20030515045637.GB5779@kroah.com> <20030515001459.A2458@one-eyed-alien.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030515001459.A2458@one-eyed-alien.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz wrote:
+On Thu, May 15, 2003 at 12:14:59AM -0700, Matthew Dharm wrote:
+> Hrm... nothing in the logs, but I remember this.  Apparently, the
+> srb->result field actually requires this format.  If you look at other LLDD
+> code in linux/drivers/scsi/ you'll see that the << 1 is common.
+> 
+> This should be in 2.5... I thought it already was.
 
->>   So I think Linux needs these 'fringe' features if it's going to
->> continue to expand its user base in the face of such stupidity.
->
->       I, for one, completely disagree in the strongest way possible. This whole
-> argument style rings entirely hollow with me. I'd much rather say, "We don't
-> do that because it's stupid. We will gladly explain to you why we think it's
-> stupid, what you really want, and how to get that from us."
->
->       Deliberately designing in misfeatures so that dumb people will get what
-> they think they want is architectural suicide. I hope Linux never moves in
-> that direction.
+Nope, care to send me a patch that fixes this, and the other usages of
+this for 2.5?
 
-  Don't get me wrong -- I don't think high-security options are misfeatures.
+thanks,
 
-  I'm just trying to say that such options, even if only rarely used,
-are critical to gaining wide acceptance.  Just because dumb people require
-them on their standard OS doesn't mean the features themselves are stupid...
-
-
+greg k-h

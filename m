@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317576AbSFRT3w>; Tue, 18 Jun 2002 15:29:52 -0400
+	id <S317580AbSFRTaY>; Tue, 18 Jun 2002 15:30:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317578AbSFRT3v>; Tue, 18 Jun 2002 15:29:51 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:41977 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S317576AbSFRT3r>; Tue, 18 Jun 2002 15:29:47 -0400
-Date: Tue, 18 Jun 2002 15:29:49 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: latest linus-2.5 BK broken
-Message-ID: <20020618152949.B16091@redhat.com>
-References: <1024422409.1476.208.camel@sinai> <E17KO4i-0002xn-00@wagner.rustcorp.com.au>
-Mime-Version: 1.0
+	id <S317578AbSFRT3y>; Tue, 18 Jun 2002 15:29:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10245 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317577AbSFRT3t>;
+	Tue, 18 Jun 2002 15:29:49 -0400
+Message-ID: <3D0F89D7.88F741E2@zip.com.au>
+Date: Tue, 18 Jun 2002 12:28:23 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 4/19] stack space reduction (remove MAX_BUF_PER_PAGE)
+References: <3D0DAD69.5C667D63@zip.com.au> <Pine.LNX.4.44.0206181006200.2347-100000@home.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E17KO4i-0002xn-00@wagner.rustcorp.com.au>; from rusty@rustcorp.com.au on Wed, Jun 19, 2002 at 04:51:31AM +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 19, 2002 at 04:51:31AM +1000, Rusty Russell wrote:
-> You could do a loop here, but the real problem is the broken userspace
-> interface.  Can you fix this so it takes a single CPU number please?
+Linus Torvalds wrote:
 > 
-> ie.
-> 	/* -1 = remove affinity */
-> 	sys_sched_setaffinity(pid_t pid, int cpu);
+> On Mon, 17 Jun 2002, Andrew Morton wrote:
+> > Andrew Morton wrote:
+> > >
+> > > ..
+> > > +               do {
+> > > +                       if (buffer_async_read(bh))
+> > > +                               submit_bh(READ, bh);
+> > > +               } while ((bh = bh->b_this_page) != head);
+> >
+> > That's a bug.
 > 
-> This will work everywhere, and doesn't require userspace to know the
-> size of the cpu bitmask etc.
+> I'm just not going to apply this patch.
 
-That doesn't work.  Think of SMT CPU pairs (aka HyperThreading) or 
-quads that share caches.
+Excellent idea.
 
-		-ben
--- 
-"You will be reincarnated as a toad; and you will be much happier."
+There were some patches floating around a while back (Ben and Hugh,
+I think) which gave x86 a 64k soft PAGE_CACHE_SIZE.  They will hit
+this problem.  But they know about it now, and the fix is there.
+
+-

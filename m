@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262860AbUDDWAn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 18:00:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262852AbUDDWAn
+	id S262873AbUDDWLT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 18:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbUDDWLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 18:00:43 -0400
-Received: from paja.kn.vutbr.cz ([147.229.191.135]:7689 "EHLO paja.kn.vutbr.cz")
-	by vger.kernel.org with ESMTP id S262860AbUDDWAl (ORCPT
+	Sun, 4 Apr 2004 18:11:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:56007 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262873AbUDDWLN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 18:00:41 -0400
-Message-ID: <40708569.7060403@stud.feec.vutbr.cz>
-Date: Mon, 05 Apr 2004 00:00:09 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Olivier Bornet <Olivier.Bornet@puck.ch>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.5, ACPI, suspend and ThinkPad R40
-References: <20040404173646.GA15635@puck.ch>
-In-Reply-To: <20040404173646.GA15635@puck.ch>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 4 Apr 2004 18:11:13 -0400
+Date: Sun, 4 Apr 2004 15:10:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: hugh@veritas.com, andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.5-aa1 arch updates
+Message-Id: <20040404151058.5ddc703e.akpm@osdl.org>
+In-Reply-To: <20040404145126.03156a15.akpm@osdl.org>
+References: <Pine.LNX.4.44.0404041446430.22502-100000@localhost.localdomain>
+	<20040404145126.03156a15.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olivier Bornet wrote:
-> Hello,
-> 
-> I have an IBM ThinkPad R40, with kernel 2.6.5 and ACPI enabled. The
-> system is a GNU/Debian testing up-to-date, with acpid debian package
-> 1.0.3-2.
-> 
-
-I have an R40 too (model 2681-HSG).
-
-> I can suspend with Fn-F4, thanks to a acpi config doing:
-> 
->     echo 3 > /proc/acpi/sleep
-> 
-> The laptop goes to sleep as execpted: all the lights goes off, and the
-> light with the moon goes on. All is OK until this. :-)
-> 
-> The problem is that I can't resume it. I have found no way. Pressing Fn
-> don't work. The power button don't work. Closing and opening the display
-> don't work. The only way to re-start the computer is to remove the
-> battery. Of course, this cause a reboot.
+Andrew Morton <akpm@osdl.org> wrote:
 >
-
-I had exactly the same problem.
-
-> Has anyone some suggestion for me ?
+> Hugh Dickins <hugh@veritas.com> wrote:
+>  >
+>  > I notice that's a __GFP_REPEAT allocation, but even those fail when
+>  >  OOM-killed - I find its alias __GFP_NOFAIL very misleading.
 > 
-
-Yes, see:
-   http://bugzilla.kernel.org/show_bug.cgi?id=1415
-There is a patch which worked for me.
-
-> Thanks in advance.
+>  #define __GFP_REPEAT	0x400	/* Retry the allocation.  Might fail */
+>  #define __GFP_NOFAIL	0x800	/* Retry for ever.  Cannot fail */
 > 
-> 		Olivier
+>  __GFP_REPEAT is mainly for higher-order allocations which would otherwise
+>  have given up too early.
 
-Michal Schmidt
+It all comes back to me now.  The reason there is a __GFP_REPEAT in the
+pte_alloc_one() implementations is that lots of architectures used to do
+stuff like this:
+
+static inline pte_t *
+pte_alloc_one_kernel(struct mm_struct *mm, unsigned long addr)
+{
+	int count = 0;
+	pte_t *pte;
+
+	do {
+		pte = (pte_t *)__get_free_page(GFP_KERNEL);
+		if (pte)
+			clear_page(pte);
+		else {
+			current->state = TASK_UNINTERRUPTIBLE;
+			schedule_timeout(HZ);
+		}
+	} while (!pte && (count++ < 10));
+
+	return pte;
+}
+
+That was all removed and the __GFP_REPEAT flag was added instead, as a "try
+really hard" hint to the page allocator.
+

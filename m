@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264692AbUD1IkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264694AbUD1ImU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264692AbUD1IkM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 04:40:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264693AbUD1IkM
+	id S264694AbUD1ImU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 04:42:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264697AbUD1ImU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 04:40:12 -0400
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:2754 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S264692AbUD1IkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 04:40:06 -0400
-Subject: Re: New warnings on NTFS code
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.44.0404281106040.24906-100000@math.ut.ee>
-References: <Pine.GSO.4.44.0404281106040.24906-100000@math.ut.ee>
-Content-Type: text/plain
-Organization: University of Cambridge Computing Service
-Message-Id: <1083141501.2035.25.camel@imp.csi.cam.ac.uk>
+	Wed, 28 Apr 2004 04:42:20 -0400
+Received: from mx2.redhat.com ([66.187.237.31]:982 "EHLO mx2.redhat.com")
+	by vger.kernel.org with ESMTP id S264694AbUD1ImN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 04:42:13 -0400
+Subject: Re: [ACPI x86_64] 2.6.1-rc{1,2} hang while booting on Sun v20z aka
+	Newisys 2100
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Len Brown <len.brown@intel.com>
+Cc: Shantanu Goel <Shantanu.Goel@lehman.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1082667692.16337.400.camel@dhcppc4>
+References: <A6974D8E5F98D511BB910002A50A6647615F976F@hdsmsx403.hd.intel.com>
+	 <1082653547.16336.335.camel@dhcppc4> <408820D7.10400@lehman.com>
+	 <1082666116.16336.391.camel@dhcppc4>  <40882E49.2040705@lehman.com>
+	 <1082667692.16337.400.camel@dhcppc4>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Nov/GbpO+M0KgeQO4Hhc"
+Organization: Red Hat UK
+Message-Id: <1082811291.3918.0.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 28 Apr 2004 09:38:21 +0100
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 28 Apr 2004 04:42:04 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-28 at 09:13, Meelis Roos wrote:
-> This is 2.6.6-rc3 on sparc64. It has recently got some new warnings in
-> NTFS (there was a warning before but now there are more):
-> 
-> fs/ntfs/super.c: In function `parse_ntfs_boot_sector':
-> fs/ntfs/super.c:638: warning: long long unsigned int format, s64 arg (arg 4)
 
-Oops.  A missing cast in a printf().  Now fixed in my tree.
+--=-Nov/GbpO+M0KgeQO4Hhc
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> fs/ntfs/super.c: In function `ntfs_fill_super':
-> fs/ntfs/super.c:1523: warning: cast to pointer from integer of different size
-> fs/ntfs/super.c:1529: warning: cast to pointer from integer of different size
-> fs/ntfs/super.c:1634: warning: cast to pointer from integer of different size
-> 
-> The 3 new warnings are because of this definition:
-> 
-> #define OGIN    ((struct inode*)le32_to_cpu(0x4e49474f))        /* OGIN */
-> 
-> This seems suspicious - hardcoded pointer?
+\
+> Perhaps you can enumerate what kernels do boot on this box.
+> If there is RH special sauce at work, then I'd expect that
+> none of the kernel.org 2.4 kernels boot either.
 
-It is a pointer poison.  Now fixed in my tree.
+we have nothing magic in the acpi code in RHEL3 really; just a patch to
+take it to a slightly newer version from you guys... (one that works on
+both x86_64 and ia64)
 
-I will submit the fixes with the next NTFS release which should be in a
-few weeks.  None of the above indicate anything is broken, so there is
-no hurry...
+--=-Nov/GbpO+M0KgeQO4Hhc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Thanks for the report!
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Best regards,
+iD8DBQBAimOaxULwo51rQBIRAu43AJ4nboS8DjC/91qGzHBTH6t0bxwU3QCaAt7s
+nnqUSiQEwLIqiGcXikBoFC8=
+=lKEg
+-----END PGP SIGNATURE-----
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ &
-http://www-stu.christs.cam.ac.uk/~aia21/
-
+--=-Nov/GbpO+M0KgeQO4Hhc--
 

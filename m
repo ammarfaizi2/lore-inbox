@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265770AbSKKQa1>; Mon, 11 Nov 2002 11:30:27 -0500
+	id <S265815AbSKKQXO>; Mon, 11 Nov 2002 11:23:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265783AbSKKQa0>; Mon, 11 Nov 2002 11:30:26 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:28644 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S265770AbSKKQa0>; Mon, 11 Nov 2002 11:30:26 -0500
-Date: Mon, 11 Nov 2002 16:38:13 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Christoph Hellwig <hch@lst.de>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] loop sendfile retval
-Message-ID: <Pine.LNX.4.44.0211111626160.9968-100000@localhost.localdomain>
+	id <S265816AbSKKQXO>; Mon, 11 Nov 2002 11:23:14 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41034 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S265815AbSKKQXL>; Mon, 11 Nov 2002 11:23:11 -0500
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Werner Almesberger <wa@almesberger.net>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+Subject: Re: [lkcd-devel] Re: What's left over.
+References: <Pine.LNX.4.44.0210310918260.1410-100000@penguin.transmeta.com>
+	<3DC19A4C.40908@pobox.com> <20021031193705.C2599@almesberger.net>
+	<20021105171230.A11443@in.ibm.com>
+	<20021105150048.H1408@almesberger.net>
+	<20021109212103.GA239@elf.ucw.cz>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 11 Nov 2002 09:27:05 -0700
+In-Reply-To: <20021109212103.GA239@elf.ucw.cz>
+Message-ID: <m165v4ax7q.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Buffer I/O error on device loop: its use of sendfile is (trivially)
-broken - retval is usually count done, only an error when negative.
-Nearby spinlocking clearly bogus, delete instead of remarking on it.
+Pavel Machek <pavel@ucw.cz> writes:
 
-Hugh
+> I have very similar problem in swsusp (need to deactivate DMA
+> devices), and driverfs^H^H^H^H^Hsysfs framework seems to be suitable
+> for that.
 
---- 2.5.47/drivers/block/loop.c	Mon Nov 11 12:34:14 2002
-+++ linux/drivers/block/loop.c	Mon Nov 11 15:44:33 2002
-@@ -304,21 +304,16 @@
- {
- 	struct lo_read_data cookie;
- 	struct file *file;
--	int error;
-+	int retval;
- 
- 	cookie.lo = lo;
- 	cookie.data = kmap(bvec->bv_page) + bvec->bv_offset;
- 	cookie.bsize = bsize;
--
--	/* umm, what does this lock actually try to protect? */
--	spin_lock_irq(&lo->lo_lock);
- 	file = lo->lo_backing_file;
--	spin_unlock_irq(&lo->lo_lock);
--
--	error = file->f_op->sendfile(file, &pos, bvec->bv_len,
-+	retval = file->f_op->sendfile(file, &pos, bvec->bv_len,
- 			lo_read_actor, &cookie);
- 	kunmap(bvec->bv_page);
--	return error;
-+	return (retval < 0)? retval: 0;
- }
- 
- static int
+Yes.  The problem and the solutions are very similar.  Because you are
+restoring the kernel code I don't think we can use the same functions,
+but similar work needs to be done.    The correct hook for reboots,
+halts, kexec, and  other cases where the kernel is going away is
+device_shutdown which currently calls device->shutdown().  Since the
+implementation has changed recently to avoid other problems no one
+actually implements the shutdown method at the moment.  Once that
+happens we can probably kill the reboot notifiers.  But there is a lot
+of driver work to do on that score.
 
+Eric

@@ -1,47 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286188AbSBGNsB>; Thu, 7 Feb 2002 08:48:01 -0500
+	id <S287647AbSBGNnK>; Thu, 7 Feb 2002 08:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289159AbSBGNrv>; Thu, 7 Feb 2002 08:47:51 -0500
-Received: from [195.141.66.36] ([195.141.66.36]:56499 "EHLO pink.pearsoft.ch")
-	by vger.kernel.org with ESMTP id <S286188AbSBGNrj>;
-	Thu, 7 Feb 2002 08:47:39 -0500
-Subject: 2.4.17 freezes
-From: Robin Farine <robin.farine@acn-group.ch>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 07 Feb 2002 14:37:12 +0100
-Message-Id: <1013089032.8112.6.camel@halftrack>
-Mime-Version: 1.0
+	id <S289372AbSBGNnA>; Thu, 7 Feb 2002 08:43:00 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:19844 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S287647AbSBGNmm> convert rfc822-to-8bit; Thu, 7 Feb 2002 08:42:42 -0500
+Date: Thu, 7 Feb 2002 08:44:21 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: want opinions on possible glitch in 2.4 network error reporting
+In-Reply-To: <3C61ACDB.6759302F@nortelnetworks.com>
+Message-ID: <Pine.LNX.3.95.1020207084153.4784A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 6 Feb 2002, Chris Friesen wrote:
 
-The mailing-list archive contains some reports of 2.4.17 freezes or
-crashes in the context of specific hardware configuration, such as
-SCSI+ATA and UDMA66 or RAID. In my office however, I had three PCs
-running 2.4.17 from the Debian woody distribution, all of them
-PentiumIII 82371AB PIIX4 chipset but otherwise without anything fancy.
+> "Richard B. Johnson" wrote:
+> 
+> [snip]
+> > Hackers code sendto as:
+> >         sendto(s,...);
+> > Professional programmers use:
+> >         (void)sendto(s,...);
+> > 
+> > checking the return value is useless.
+> > 
+> > Note that the man-page specifically states that ENOBUFS can't happen.
+> 
+> I don't know what your manpage says, but my manpage doesn't say anything about
+> ENOBUFS not being possible.  From the man page: 
+> 
+> "ENOBUFS The system was unable to allocate an internal memory block.  The
+> operation may succeed when buffers become available."
 
-One of those PCs has a SCSI DAT connected to its motherboard builtin
-Adaptec aic7890 SCSI adapter. This PC runs Amanda to backup the three
-PCs 2 times a week on a 10Mbits half-duplex LAN.
 
-Everytime amanda ran (under 2.4.17), at least one of the PCs froze
-completely (without any trace in the logs): unreachable through network,
-black screen and no keyboard response. And sometimes, one of them froze
-during normal day usage.
 
-First, I thought of an ATA DMA or SCSI problem and thus configured one
-of the PCs' ATA interface in default PIO, 16 bits transfers mode. It
-froze as well.
+       ENOBUFS
+              The output queue for a network interface was  full.
+              This  generally  indicates  that  the interface has
+              stopped sending, but may  be  caused  by  transient
+              congestion.   (This  cannot occur in Linux, packets
+              are just silently dropped when a device queue over­
+              flows.)
 
-Hope this can help tracking the problem down or at least save some time
-to people with a similar situation,
 
-Robin
+Linux Man Page              July 1999                           1
+
+Script done on Thu Feb  7 08:35:39 2002
+
+Distributed with RedHat 7
+
+
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
 

@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbTIKQzY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 12:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbTIKQzX
+	id S261413AbTIKRMP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 13:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbTIKRMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 12:55:23 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:44433 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261397AbTIKQzV
+	Thu, 11 Sep 2003 13:12:15 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:50065 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261413AbTIKRMM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 12:55:21 -0400
-Date: Thu, 11 Sep 2003 17:55:15 +0100
+	Thu, 11 Sep 2003 13:12:12 -0400
+Date: Thu, 11 Sep 2003 18:12:05 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: richard.brunner@amd.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Message-ID: <20030911165515.GD29532@mail.jlokier.co.uk>
-References: <99F2150714F93F448942F9A9F112634C0638B197@txexmtae.amd.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: Memory mapped IO vs Port IO
+Message-ID: <20030911171205.GH29532@mail.jlokier.co.uk>
+References: <20030911160116.GI21596@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73oexri9kx.fsf@oldwotan.suse.de> <20030911162504.GL21596@parcelfarce.linux.theplanet.co.uk> <20030911183136.01dfeb53.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <99F2150714F93F448942F9A9F112634C0638B197@txexmtae.amd.com>
+In-Reply-To: <20030911183136.01dfeb53.ak@suse.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-richard.brunner@amd.com wrote:
-> Don't worry! I am pretty certain the patch won't impact the 
-> performance of the 2.6 kernel on processors from other vendors ;-)
+Andi Kleen wrote:
+> Even a memory write is tens to hundres of cycles.
 
-is_prefetch() will slow down programs which depend on lots of SEGV
-signals: those garbage collectors which use mprotect and SIGSEGV to
-track dirty pages.
-
-I wonder how much it will slow them down.
+Not from the CPU's perspective.  It is done in parallel with other
+instructions.
 
 -- Jamie

@@ -1,69 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbUA0Dnn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 22:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbUA0Dnn
+	id S261889AbUA0EM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 23:12:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbUA0EM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 22:43:43 -0500
-Received: from CPE000102d0fe24-CM0f1119830776.cpe.net.cable.rogers.com ([65.49.144.24]:49925
-	"EHLO thorin.norang.ca") by vger.kernel.org with ESMTP
-	id S261539AbUA0Dnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 22:43:41 -0500
-Date: Mon, 26 Jan 2004 22:43:27 -0500
-From: Bernt Hansen <bernt@norang.ca>
-To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-Cc: Mike Fedyk <mfedyk@matchmail.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Might this help with SCO?
-Message-ID: <20040127034327.GA1092@norang.ca>
-Mail-Followup-To: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-	Mike Fedyk <mfedyk@matchmail.com>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20040103232157.GK1882@matchmail.com> <Pine.LNX.4.44.0401031518090.14343-100000@twin.uoregon.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0401031518090.14343-100000@twin.uoregon.edu>
-Organization: Norang Consulting Inc
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 26 Jan 2004 23:12:57 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:50541 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261890AbUA0EMx convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 23:12:53 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: radeonfb problems with 2.6.2-rc2
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 26 Jan 2004 20:12:51 -0800
+In-Reply-To: <Pine.LNX.4.44.0311111019210.30657-100000@home.osdl.org>
+Message-ID: <52y8rughbw.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-OriginalArrivalTime: 27 Jan 2004 04:12:52.0985 (UTC) FILETIME=[D57D4690:01C3E48B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I just decided to give radeonfb a try with a 2.6 kernel (2.6.2-rc2 to
+be specific).  I have a Radeon 9000 Pro with two 1280x1024 LCDs
+connected, one to the DVI connector and one to the CRT connector.
+When it boots, I get a glimpse of the penguin logo for a moment, and
+then the screen goes blank and stays blank.  If I start the Radeon
+XFree86 server then both screens come back to life and work fine.
 
-This may or may not be useful but I've got sets of the "Linux
-Developer's Resource" multi-CD sets put out by InfoMagic.  The earliest
-one I have is March 1995 (which is a 4-CD set).  These include:
-(according to the back of the box)
-  - Complete Linux archives from tsx-11.mit.edu and sunsite.unc.edu
-  - Complete GNU archive from prep.ai.mit.edu
-  - Debian 0.91/3
-  among other things including kernel sources (up to 1.2.1) etc.
+I get the following in my boot log:
 
-The dates on some of the files in the tsx-11 archive go back to 1992.
+    Linux version 2.6.2-rc2 (root@gold) (gcc version 2.95.4 20011002 (Debian prerelease)) #1 Mon Jan 26 11:41:46 PST 2004
 
-If anyone is interested I can provide more information and extracts from
-the archives.
+    [...]
 
-Cheers,
-Bernt.
+    radeonfb_pci_register BEGIN
+    radeonfb: ref_clk=2700, ref_div=12, xclk=27500 from BIOS
+    radeonfb: probed DDR SGRAM 65536k videoram
+    radeon_get_moninfo: bios 4 scratch = a00000a
+    radeonfb: panel ID string: ªhé£
+    radeonfb: detected DFP panel size from BIOS: 1x0
+    radeonfb: detected DFP panel size from registers: 1280x1024
+    radeonfb: ATI Radeon 9000 If DDR SGRAM 64 MB
+    radeonfb: DVI port DFP monitor connected
+    radeonfb: CRT port CRT monitor connected
+    radeonfb_pci_register END
 
-On Sat, Jan 03, 2004 at 03:25:08PM -0800, Joel Jaeggli wrote:
-> On Sat, 3 Jan 2004, Mike Fedyk wrote:
-> 
-> > On Sat, Jan 03, 2004 at 06:03:10PM -0500, Robert L. Harris wrote:
-> > > 
-> > >   I just went digging through my old boxes for something I thought I
-> > > had.  Seems I have an old SLS Linux digribution, Release 0.99.  The date
-> > > on the postmark is June 23, 1993.  It's 30 5.25 Floppies but doesn't
-> > > list what kernel is on the floppies.  If any of the guru's think it
-> > > might be worth getting ahold of any packages on it I can see if I have a
-> > > working 5.25" floppy around somewhere.
-> > 
-> > Probably not.  There are some old versions of Linux Kernel available on the
-> > net.  But it wouldn't it be embarrasing to show just how long some of the
-> > things SCO is claiming have been in the kernel? ;)
-> 
-> What people where looking for is source for early versions of libc. dat 
-> issue where the origin of the contents of ctype.h and errno.h.
-> 
+    [...]
+
+    hStart = 680, hEnd = 960, hTotal = 1056
+    vStart = 482, vEnd = 501, vTotal = 522
+    h_total_disp = 0x4f0083	   hsync_strt_wid = 0xa302a2
+    v_total_disp = 0x1df0209	   vsync_strt_wid = 0x9301e1
+    post div = 0x8
+    fb_div = 0x59
+    ppll_div_3 = 0x30059
+    ron = 828, roff = 19684
+    vclk_freq = 2503, per = 703
+    Console: switching to colour frame buffer device 80x30
+
+I've seen some radeonfb patches floating around, but my impression was
+that 2.6.2-rc2 should work.  If anyone has something for me to try,
+I'd be happy to give it a spin.  Otherwise I guess I'll try to figure
+out what that debugging output is telling me.
+
+Thanks,
+  Roland

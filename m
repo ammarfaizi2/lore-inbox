@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131201AbRAZXN2>; Fri, 26 Jan 2001 18:13:28 -0500
+	id <S131249AbRAZX1R>; Fri, 26 Jan 2001 18:27:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131317AbRAZXNT>; Fri, 26 Jan 2001 18:13:19 -0500
-Received: from arthur.runestig.com ([195.67.47.226]:40964 "EHLO
-	arthur.runestig.com") by vger.kernel.org with ESMTP
-	id <S131201AbRAZXMo>; Fri, 26 Jan 2001 18:12:44 -0500
-Message-ID: <000d01c087ed$82ffb950$0201010a@runestig.com>
-From: "Peter 'Luna' Runestig" <peter@runestig.com>
-To: "Linux Kernel mailing list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.32.0101261611300.791-100000@asdf.capslock.lan>
-Subject: Re: Total loss with 2.4.0 (release)
-Date: Sat, 27 Jan 2001 00:12:53 +0100
+	id <S131253AbRAZX1H>; Fri, 26 Jan 2001 18:27:07 -0500
+Received: from zmamail04.zma.compaq.com ([161.114.64.104]:17671 "HELO
+	zmamail04.zma.compaq.com") by vger.kernel.org with SMTP
+	id <S131249AbRAZX06>; Fri, 26 Jan 2001 18:26:58 -0500
+Message-ID: <8C91B010B3B7994C88A266E1A72184D3116FC1@cceexc19.americas.cpqcorp.net>
+From: "Zink, Dan" <Dan.Zink@COMPAQ.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        linux-hotplug-devel@lists.sourceforge.net
+Cc: LinuxHotplug <LinuxHotplug@COMPAQ.com>
+Subject: [ANNOUNCE] PCI Hot Plug driver and 2.4.0 kernel patches available
+Date: Fri, 26 Jan 2001 17:30:01 -0600
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2652.78)
 Content-Type: text/plain;
 	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>:
-> >> Whwnever you install/upgrade any OS and especially M$ ones on a
-> >> multiboot machine, you should always ensure ahead of time that
-> >> they will play nicely together, agree on geometry translation
-> >> schemes, partitioning schemes, etc, and that any option to take
-> >> over the whole machine is turned off.  Windows NT defaults to
-> >> "fry the whole disk", but I don't know about ME or W2K as they
-> >> are IMHO just bloat + new pictures, etc..
+Compaq would like to announce the availability of the Linux PCI Hot Plug
+driver for the Compaq PCI Hot Plug controller.  This driver is being
+released under the GPL.  It supports hot plug add and remove of nearly any
+PCI adapter in servers with the Compaq PCI Hot Plug controller.  For best
+results, the adapter drivers should support the new probe and remove hooks
+registered with pci_module_init().
 
-In what situation would NT4 default to "fry the whole disk"? I've mixed
-Linux/DOS/Win98/NT4/Win2000 several ways on various hardware (>8 GB disks),
-with no problems at all actually. Maybe "one single person having a problem
-does not mean in any way that this is the way it occurs for 100% of the
-userbase" ?
+The driver, minor kernel patches, userspace tools, and documentation are all
+available at Compaq's sourceforge site:
+http://opensource.compaq.com
 
-----------------------------------------------------------------
-Peter 'Luna' Runestig (fd. Altberg), Sweden <peter@runestig.com>
-PGP Key ID: 0xD07BBE13
-Fingerprint: 7B5C 1F48 2997 C061 DE4B  42EA CB99 A35C D07B BE13
-AOL Instant Messenger Screenname: PRunestig
+This is a fully functional alpha release.  Please send all comments and CC
+replies to mailto://linuxhotplug@compaq.com
 
+If you wish to see a demonstration of PCI Hot Plug on Linux or just talk
+about it, we will be at LinuxWorld in New York City next week.  Stop by the
+Compaq booth and look for us.
 
+Thanks,
+Dan Zink
+____________________________
+dan.zink@compaq.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

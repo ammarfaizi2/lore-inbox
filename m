@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129434AbQKWABG>; Wed, 22 Nov 2000 19:01:06 -0500
+        id <S132187AbQKWAE1>; Wed, 22 Nov 2000 19:04:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132187AbQKWAA5>; Wed, 22 Nov 2000 19:00:57 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:38017 "EHLO
-        vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-        id <S129434AbQKWAAs>; Wed, 22 Nov 2000 19:00:48 -0500
-Date: Wed, 22 Nov 2000 16:30:27 -0700
-Message-Id: <200011222330.eAMNURI08246@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Jes Sorensen <jes@linuxcare.com>
-Cc: Miles Lane <miles@speakeasy.org>, linux-kernel@vger.kernel.org
-Subject: Re: Alan Cox's e-mail address is hosed?
-In-Reply-To: <d3bsv7ll0k.fsf@lxplus015.cern.ch>
-In-Reply-To: <3A1CEBC9.8010109@speakeasy.org>
-        <d3bsv7ll0k.fsf@lxplus015.cern.ch>
+        id <S132208AbQKWAES>; Wed, 22 Nov 2000 19:04:18 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:47113 "EHLO saturn.cs.uml.edu")
+        by vger.kernel.org with ESMTP id <S132187AbQKWAEB>;
+        Wed, 22 Nov 2000 19:04:01 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200011222332.eAMNWZj269304@saturn.cs.uml.edu>
+Subject: Re: silly [< >] and other excess
+To: kaos@ocs.com.au (Keith Owens)
+Date: Wed, 22 Nov 2000 18:32:35 -0500 (EST)
+Cc: christian.gennerat@vz.cit.alcatel.fr (Christian Gennerat),
+        Andries.Brouwer@cwi.nl,
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <3626.974931750@ocs3.ocs-net> from "Keith Owens" at Nov 23, 2000 09:22:30 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen writes:
-> >>>>> "Miles" == Miles Lane <miles@speakeasy.org> writes:
-> 
-> Miles> I attempted to reply to a message from Alan and got the
-> Miles> following response.
-> 
-> No it isn't, Alan uses ORBS and you are obviously black listed there
-> (www.orbs.org).
-> 
-> This one seems to come up every now and then, and always turns into a
-> flamewar. Now it's Alan's choice so if you want to argue over this,
-> take it somewhere else please.
-> 
-> Who is maintaining the FAQ? this might be a good idea to add to
-> under the mailing list section.
+Keith Owens writes:
+> Christian Gennerat <christian.gennerat@vz.cit.alcatel.fr> wrote:
+>> Andries.Brouwer@cwi.nl a =E9crit :
 
-[Raises hand] Send me a patch. And see section 5.14, which has been
-there for some time.
+>>>  I also left something else
+>>> that always annoyed me: valuable screen space (on a 24x80 vt)
+>>> is lost by these silly [< >] around addresses in an Oops.
+>>> They provide no information at all, but on the other hand
+>>> cause loss of information because these lines no longer
+>>> fit in 80 columns causing line wrap and the loss of the
+>>> top of the Oops.]
 
-BTW: you never did get around to sending me a patch for why C++ in the
-kernel was evil ;-)
+> You just broke ksymoops.
 
-				Regards,
+You can fix it. Keeping useful info on the screen is more important.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+> Removing the [< >] is a bad idea, they are
+> one of the few things that identifies the addresses in the log,
+> otherwise they just look like hex numbers.  ksymoops has to scan log
+> files which can contain anything and somehow pick out the interesting
+> lines, you need some identifier on the lines.
+
+If you see register names followed by hex numbers, you have
+some debug data. Scan forward and backward 25 lines, grabbing
+all 8-digit and 16-digit hex numbers. Sort the numbers, then
+look up all of them.
+
+Crude solutions don't break as often as fancy solutions.
+
+> There should be no need to restrict the number of lines printed, it is
+> limited by the top of the kernel stack.  If there are more than 32
+> trace entries on the stack then they should be printed.
+
+It could fill the screen. There is an expansion of 4-to-13 when
+using the silly brackets, and a PC stack can be 6 or 7 kB long,
+or perhaps many megabytes due to stack overflow. The standard
+VGA screen only allows 4000 bytes of data.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

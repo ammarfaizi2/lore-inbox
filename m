@@ -1,35 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269290AbUJVXjs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269294AbUJVXjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269290AbUJVXjs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 19:39:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269251AbUJVXjG
+	id S269294AbUJVXjt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 19:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269281AbUJVXjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 19:39:06 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:6311 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S269293AbUJVXfu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 19:35:50 -0400
-Date: Fri, 22 Oct 2004 16:35:36 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, Jan Kara <jack@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: [PATCH] Quota warnings somewhat broken
-Message-ID: <20041022233536.GA25750@taniwha.stupidest.org>
-References: <Pine.LNX.4.53.0410211807020.12823@yvahk01.tjqt.qr> <20041022093423.GC31932@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.58.0410220804040.2101@ppc970.osdl.org> <1098455105.19459.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098455105.19459.9.camel@localhost.localdomain>
+	Fri, 22 Oct 2004 19:39:02 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:54467 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S269251AbUJVXgY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 19:36:24 -0400
+Message-ID: <417990AE.5050806@drdos.com>
+Date: Fri, 22 Oct 2004 16:58:54 -0600
+From: "Jeff V. Merkey" <jmerkey@drdos.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jonathan@jonmasters.org
+Cc: brian wheeler <bdwheele@indiana.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.6.9 and GPL Buyout
+References: <1098480691.8033.8.camel@wombat.educ.indiana.edu>	 <41797B49.5020809@drdos.com> <35fb2e5904102216038257cb1@mail.gmail.com>
+In-Reply-To: <35fb2e5904102216038257cb1@mail.gmail.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 03:25:06PM +0100, Alan Cox wrote:
+Jon Masters wrote:
 
-> Tradition I guess. It's what every other quota system does,
-> including making annoying messes. In the new world order I guess it
-> should be a netlink message out to dbus and the desktop ;)
+>Jeff,
+>
+>Could you please digitally sign this mail that you are planning to
+>send or otherwise provide notorisation that confirms you definately
+>mean this?
+>
+>I'd love for you to accept liability for this so we can pass all SCO
+>enquiries on to you.
+>
+>Jon.
+>
+>  
+>
+Yes. I can do even better.
 
-it's pretty obnoxious as-is and ideally if people want to preserve
-this it should be sysctl'able off or something
+I met with Darl McBride this afternoon regarding the GrokSmear postings 
+(First time I've ever met him) at SCO's
+request -- they invited me over and were trying to put out some sort of 
+release to correct GrokSmear's attacks.
+He gave me the first list, and I am waiting on the second with all the 
+details. I don't think he likes Linux much but he said he
+supported disclosing the whole thing and he said he wanted "his stuff" 
+out of the Linux tree. I am waiting on Chris Sonntag
+and Blake to get me the "approved" listing. I will have it probably 
+Monday. I'll post it then. Darl gave me the prelimiary
+listing but we need to post the final. I'll upload the listing to 
+ftp.kernel.org://pub/linux/kernel/people/jmerkey
+and everyone can look it over. This would be good since it will give 
+folks the ability to
+challenge/correct/remove/modify whatever and get SCO off Linux's back.
+
+Darl seemed like a nice enough sort, but he doesn't care much for Linux 
+or IBM and he's pretty harsh
+on IBM. We argued for 30 minutes about SMP support in Linux and I think 
+he will just let this one go since
+I pointed out that Novell had disclosed the Unixware SMP stuff at 
+Brainshare and he cannot claim
+it as trade secrete any longer. He would not budge on RCU, NUMA, JFS, or 
+XFS however, and he
+also said any IBM employee who contributed SMP code in his opinion may 
+have misappropriated it
+and he would claim any contribution from any IBM employee in Linux.
+
+I will post to kernel.org the complete listing.
+
+Jeff
+
+
+

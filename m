@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264253AbUDVWbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263963AbUDVWdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264253AbUDVWbV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 18:31:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264663AbUDVWbV
+	id S263963AbUDVWdF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 18:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264663AbUDVWbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 18:31:21 -0400
-Received: from mail.kroah.org ([65.200.24.183]:8112 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264253AbUDVWbD convert rfc822-to-8bit
+	Thu, 22 Apr 2004 18:31:31 -0400
+Received: from mail.kroah.org ([65.200.24.183]:8624 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264270AbUDVWbE convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 18:31:03 -0400
+	Thu, 22 Apr 2004 18:31:04 -0400
 X-Donotread: and you are reading this why?
 Subject: Re: [PATCH] Driver Core fixes for 2.6.6-rc2
-In-Reply-To: <10826730482684@kroah.com>
+In-Reply-To: <10826730481875@kroah.com>
 X-Patch: quite boring stuff, it's just source code...
 Date: Thu, 22 Apr 2004 15:30:48 -0700
-Message-Id: <10826730481875@kroah.com>
+Message-Id: <10826730482148@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,31 +23,44 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1928, 2004/04/22 14:36:55-07:00, lkml@lievin.net
+ChangeSet 1.1929, 2004/04/22 15:11:12-07:00, lxiep@us.ibm.com
 
-[PATCH] tipar char driver: wrong timeout value
+[PATCH] symlink doesn't support kobj name > 20 charaters (KOBJ_NAME_LEN)
 
-this patch (2.4 & 2.6) fixes a bug about the timeout value. The formula
-used to calculate jiffies from timeout is wrong.
-The new formula is ok and takes care of integer computation/rounding.
-There is the same bug in the tiglusb.c module which will be fixed by another
-patch.
-
-
- drivers/char/tipar.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Since symlink.c uses "name" field of a kobj when it calculates the
+length,  it gets a wrong value if the kobj's name  has more than 20
+charathers.  A correct way to do that is to call kobject_name(kobj)
+instead of using kobj->name directly.
 
 
-diff -Nru a/drivers/char/tipar.c b/drivers/char/tipar.c
---- a/drivers/char/tipar.c	Thu Apr 22 15:27:12 2004
-+++ b/drivers/char/tipar.c	Thu Apr 22 15:27:12 2004
-@@ -121,7 +121,7 @@
+ fs/sysfs/symlink.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+
+diff -Nru a/fs/sysfs/symlink.c b/fs/sysfs/symlink.c
+--- a/fs/sysfs/symlink.c	Thu Apr 22 15:27:07 2004
++++ b/fs/sysfs/symlink.c	Thu Apr 22 15:27:07 2004
+@@ -42,7 +42,7 @@
+ 	struct kobject * p = kobj;
+ 	int length = 1;
+ 	do {
+-		length += strlen(p->name) + 1;
++		length += strlen(kobject_name(p)) + 1;
+ 		p = p->parent;
+ 	} while (p);
+ 	return length;
+@@ -54,11 +54,11 @@
  
- /* ----- global defines ----------------------------------------------- */
+ 	--length;
+ 	for (p = kobj; p; p = p->parent) {
+-		int cur = strlen(p->name);
++		int cur = strlen(kobject_name(p));
  
--#define START(x) { x=jiffies+HZ/(timeout/10); }
-+#define START(x) { x = jiffies + (HZ * timeout) / 10; }
- #define WAIT(x)  { \
-   if (time_before((x), jiffies)) return -1; \
-   if (need_resched()) schedule(); }
+ 		/* back up enough to print this bus id with '/' */
+ 		length -= cur;
+-		strncpy(buffer + length,p->name,cur);
++		strncpy(buffer + length,kobject_name(p),cur);
+ 		*(buffer + --length) = '/';
+ 	}
+ }
 

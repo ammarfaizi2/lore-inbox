@@ -1,44 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129311AbRBXRr4>; Sat, 24 Feb 2001 12:47:56 -0500
+	id <S129509AbRBXRzh>; Sat, 24 Feb 2001 12:55:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129466AbRBXRrr>; Sat, 24 Feb 2001 12:47:47 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:48900 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S129311AbRBXRrn>; Sat, 24 Feb 2001 12:47:43 -0500
-Date: Sat, 24 Feb 2001 14:01:18 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Shawn Starr <spstarr@sh0n.net>
-Cc: Mike Galbraith <mikeg@wen-online.de>, lkm <linux-kernel@vger.kernel.org>
-Subject: Re: [ANOMALIES]: 2.4.2 - __alloc_pages: failed - Patch failed
-In-Reply-To: <3A9719FE.D84B70FB@sh0n.net>
-Message-ID: <Pine.LNX.4.21.0102241357220.3684-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129502AbRBXRzR>; Sat, 24 Feb 2001 12:55:17 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:2164 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129491AbRBXRzK>; Sat, 24 Feb 2001 12:55:10 -0500
+Date: Sat, 24 Feb 2001 11:55:07 -0600
+From: Philipp Rumpf <prumpf@mandrakesoft.com>
+To: Jeff Lessem <Jeff.Lessem@Colorado.EDU>
+Cc: linux-kernel@vger.kernel.org,
+        Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+Subject: Re: PCI oddities on Dell Inspiron 5000e w/ 2.4.x
+Message-ID: <20010224115507.B28983@mandrakesoft.mandrakesoft.com>
+In-Reply-To: <200102240941.CAA09708@ibg.colorado.edu> <Pine.LNX.4.10.10102240532030.30331-100000@penguin.transmeta.com> <20010224095447.A28983@mandrakesoft.mandrakesoft.com> <200102241725.KAA19514@ibg.colorado.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <200102241725.KAA19514@ibg.colorado.edu>; from Jeff Lessem on Sat, Feb 24, 2001 at 10:25:42AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 23 Feb 2001, Shawn Starr wrote:
-
-> Feb 23 21:17:47 coredump kernel: __alloc_pages: 3-order allocation failed.
-> Feb 23 21:17:47 coredump kernel: __alloc_pages: 2-order allocation failed.
-> Feb 23 21:17:47 coredump kernel: __alloc_pages: 1-order allocation failed.
-> Feb 23 21:17:47 coredump kernel: __alloc_pages: 3-order allocation failed.
-> Feb 23 21:17:47 coredump kernel: __alloc_pages: 3-order allocation failed.
-> Feb 23 21:17:47 coredump kernel: __alloc_pages: 2-order allocation failed.
-> Feb 23 21:17:47 coredump kernel: __alloc_pages: 1-order allocation failed.
+On Sat, Feb 24, 2001 at 10:25:42AM -0700, Jeff Lessem wrote:
+> In your message of: Sat, 24 Feb 2001 09:54:47 CST, you write:
+> >Jeff, are you using the e820 memory map at all ?  In particular, are you
+> >using grub or some other buggy bootloader that insists on specifying a
+> >mem= option on the kernel command line ?  There should be a kernel command
+> >line message very early on, what does that say ?
 > 
-> didnt, work, still causing this..
+> Yes, I am using grub, the buggy bootloader.  The relevant chunk of
+> kernal messages are:
+> 
+>  BIOS-provided physical RAM map:
+>   BIOS-e820: 000000000009f800 @ 0000000000000000 (usable)
+>   BIOS-e820: 0000000000000800 @ 000000000009f800 (reserved)
+>   BIOS-e820: 0000000000019800 @ 00000000000e6800 (reserved)
+>   BIOS-e820: 0000000013ef0000 @ 0000000000100000 (usable)
+>   BIOS-e820: 000000000000fc00 @ 0000000013ff0000 (ACPI data)
+>   BIOS-e820: 0000000000000400 @ 0000000013fffc00 (ACPI NVS)
+>   BIOS-e820: 0000000000080000 @ 00000000fff80000 (reserved)
+>  On node 0 totalpages: 81904
+>  zone(0): 4096 pages.
+>  zone(1): 77808 pages.
+>  zone(2): 0 pages.
+>  Kernel command line: root=/dev/hda1 mem=327616K
+> 
+> You are dead on, mem= seems a bit small.  Forcing mem=320M on the
+> command line fixes the problem completely.
 
-Ok, could you please add a line with "BUG();" after the
-printk("__alloc_pages: %d-order allocation failed", ..) in mm/page_alloc.c
-function __alloc_pages() ?
+Careful, you're overwriting ACPI data now (and using it as normal RAM).
 
-This will make you get an oops when an allocation fails and if you decode
-it (with ksymoops) we can have a pretty useful backtrace to have more clue
-of what's failing.
+Can you try one of a) LILO b) a fixed version of grub c) this patch ?
 
-TIA
-
-
+diff -ur linux/arch/i386/kernel/setup.c linux-prumpf/arch/i386/kernel/setup.c
+--- linux/arch/i386/kernel/setup.c	Fri Feb 23 13:37:38 2001
++++ linux-prumpf/arch/i386/kernel/setup.c	Sat Feb 24 09:49:50 2001
+@@ -555,30 +555,9 @@
+ 				e820.nr_map = 0;
+ 				usermem = 1;
+ 			} else {
+-				/* If the user specifies memory size, we
+-				 * blow away any automatically generated
+-				 * size
+-				 */
+-				unsigned long start_at, mem_size;
+- 
+-				if (usermem == 0) {
+-					/* first time in: zap the whitelist
+-					 * and reinitialize it with the
+-					 * standard low-memory region.
+-					 */
+-					e820.nr_map = 0;
+-					usermem = 1;
+-					add_memory_region(0, LOWMEMSIZE(), E820_RAM);
+-				}
+-				mem_size = memparse(from+4, &from);
++				memparse(from+4, &from);
+ 				if (*from == '@')
+-					start_at = memparse(from+1, &from);
+-				else {
+-					start_at = HIGH_MEMORY;
+-					mem_size -= HIGH_MEMORY;
+-					usermem=0;
+-				}
+-				add_memory_region(start_at, mem_size, E820_RAM);
++					memparse(from+1, &from);
+ 			}
+ 		}
+ 		c = *(from++);

@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263226AbTDGDgM (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:36:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263228AbTDGDgM (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:36:12 -0400
-Received: from chii.cinet.co.jp ([61.197.228.217]:42881 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP id S263226AbTDGDgL (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 23:36:11 -0400
-Date: Mon, 7 Apr 2003 12:45:53 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5.66-ac2] PC-9800 sub architecture support (1/9) kconfig
-Message-ID: <20030407034553.GA4840@yuzuki.cinet.co.jp>
-References: <20030407033627.GA4798@yuzuki.cinet.co.jp>
+	id S263233AbTDGDiQ (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbTDGDiQ (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:38:16 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:47074 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261405AbTDGDiP (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 23:38:15 -0400
+Date: Mon, 7 Apr 2003 09:21:13 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Janet Morgan <janetmor@us.ibm.com>, akpm@digeo.com, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch 2/2] Retry based aio read - filesystem read changes
+Message-ID: <20030407092113.A2137@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20030305144754.A1600@in.ibm.com> <20030305150026.B1627@in.ibm.com> <20030305024254.7f154afc.akpm@digeo.com> <20030305174452.A1882@in.ibm.com> <3E8889B4.FB716506@us.ibm.com> <20030331191123.GB13178@holomorphy.com> <20030331141629.I20730@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030407033627.GA4798@yuzuki.cinet.co.jp>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030331141629.I20730@redhat.com>; from bcrl@redhat.com on Mon, Mar 31, 2003 at 02:16:29PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.66-ac2. (1/9)
+On Mon, Mar 31, 2003 at 02:16:29PM -0500, Benjamin LaHaise wrote:
+> On Mon, Mar 31, 2003 at 11:11:23AM -0800, William Lee Irwin III wrote:
+> > Can you tell whether these are due to hash collisions or contention on
+> > the same page?
+> 
+> No, they're most likely waiting for io to complete.
+> 
+> To clean this up I've got a patch to move from aio_read/write with all the 
+> parameters to a single parameter based rw-specific iocb.  That makes the 
+> retry for read and write more ameniable to sharing common logic akin to the 
+> wtd_ ops, which we need at the very least for the semaphore operations.
 
-Add selection CONFIG_X86_PC9800.
+Do you also have a patch for handling semaphore operations ?
 
-Regards,
-Osamu Tomita
+Regards
+Suparna
 
-diff -Nru linux-2.5.66-ac2/arch/i386/Kconfig linux98-2.5.66-ac2/arch/i386/Kconfig
---- linux-2.5.66-ac2/arch/i386/Kconfig	2003-04-05 10:06:16.000000000 +0900
-+++ linux98-2.5.66-ac2/arch/i386/Kconfig	2003-04-05 10:16:36.000000000 +0900
-@@ -103,6 +103,12 @@
- 	  A kernel compiled for the Visual Workstation will not run on PCs
- 	  and vice versa. See <file:Documentation/sgi-visws.txt> for details.
- 
-+config X86_PC9800
-+	bool "PC-9800 (NEC)"
-+	help
-+	  To make kernel for NEC PC-9801/PC-9821 sub-architecture, say Y.
-+	  If say Y, kernel works -ONLY- on PC-9800 architecture.
-+
- endchoice
- 
- 
-@@ -1089,7 +1095,7 @@
- 
- config EISA
- 	bool "EISA support"
--	depends on ISA
-+	depends on ISA && !X86_PC9800
- 	---help---
- 	  The Extended Industry Standard Architecture (EISA) bus was
- 	  developed as an open alternative to the IBM MicroChannel bus.
-@@ -1107,7 +1113,7 @@
- 
- config MCA
- 	bool "MCA support"
--	depends on !(X86_VISWS || X86_VOYAGER)
-+	depends on !(X86_VISWS || X86_VOYAGER || X86_PC9800)
- 	help
- 	  MicroChannel Architecture is found in some IBM PS/2 machines and
- 	  laptops.  It is a bus system similar to PCI or ISA. See
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Labs, India
+

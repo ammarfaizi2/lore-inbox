@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264812AbTIDJHV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 05:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264806AbTIDJHU
+	id S264827AbTIDJQz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 05:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264806AbTIDJQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 05:07:20 -0400
-Received: from smtp4.wanadoo.fr ([193.252.22.26]:13775 "EHLO
-	mwinf0503.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S264812AbTIDJHQ convert rfc822-to-8bit (ORCPT
+	Thu, 4 Sep 2003 05:16:54 -0400
+Received: from ns1.questra.com ([64.132.48.186]:60676 "EHLO ns1.questra.com")
+	by vger.kernel.org with ESMTP id S264827AbTIDJP0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 05:07:16 -0400
-From: Laurent =?iso-8859-1?q?Hug=E9?= <laurent.huge@wanadoo.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Call of tty->driver.write provides segmentation fault
-Date: Thu, 4 Sep 2003 11:07:11 +0200
-User-Agent: KMail/1.5.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Thu, 4 Sep 2003 05:15:26 -0400
+Date: Thu, 4 Sep 2003 05:15:25 -0400
+From: Scott Mcdermott <smcdermott@questra.com>
+To: netfilter@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: SNAT interaction with kernel-based IPSEC (in 2.6)
+Message-ID: <20030904091525.GO17837@questra.com>
+Mail-Followup-To: netfilter@lists.netfilter.org,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309041107.12393.laurent.huge@wanadoo.fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I'm having some difficulty doing simple pings over an IPSEC
+tunnel using the implementation in 2.6.0-test4 (with
+Racoon, and successful Phase 1 and 2, I get the IPSEC SA
+fine), in combination with iptables.
 
-I'm currently contriving a network driver using the serial port.
-I've created my own line discipline (and tests prove it reads well), but I
-can't write to the port : I tried to use tty->driver.write(tty, 0, msg,
-strlen(msg)) (the same way that in printk.c, i.e. after testing that
-tty->driver.write exists) but it crashs into a segmentation fault.
-Since the driver implementation is not mine (I'm just using the serial
-module), I can't check the function's address, but I believe the tty is ok (it 
-is the same I use for the line discipline).
+I have SNAT rules on the same machine that is my IPSEC
+tunnel endpoint.  I have RFC1918 IPs on my near side of the
+NAT/IPSEC box, which are SNATted to routable IPs in the
+normal case (where they don't go over the IPSEC tunnel) and
+conntracked.  If they are destined for the remote LAN though
+(at other end of tunnel), they need to go through
+unmolested: I do NOT want them SNATted when they go over the
+IPSEC tunnel, but to instead just bypass the `nat' table
+altogether.  Is this possible? I would like them still to
+traverse the `filter' table (so I can restrict the remote
+LAN), but I would be happy right now if I could get just
+bypass iptables altogether.
 
-Does anyone know in which way I can search a solution ?
-Thanks,
--- 
-Laurent Hugé.
+I am suspecting that when my packets do go over the tunnel,
+get to the other end, and are unwrapped, they have the
+translated IP as the source, and not the original RFC1918
+source IP (which would then allow replies to get routed
+correctly back over the IPSEC tunnel to me).  I am awaiting
+a reply from the other end on whether or not my suspicion is
+true, but in the meantime, I thought I would try to get an
+understanding of how the kernel IPSEC implementation and
+netfilter interact, and if it's even possible to do what I'm
+trying to do (bypass nat rules in the case that the packet
+is destined for the tunnel).  Hopefully this is a common
+procedure that others have attempted already.
 
+Thanks for any information.  Sorry to crosspost, I am not
+sure where to discuss IPSEC issues that regard Netfilter.  I
+tried subscribing to netdev, but it seems to just ignore my
+subscription emails.

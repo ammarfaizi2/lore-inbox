@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293712AbSCPFRH>; Sat, 16 Mar 2002 00:17:07 -0500
+	id <S293713AbSCPFXj>; Sat, 16 Mar 2002 00:23:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293713AbSCPFQ6>; Sat, 16 Mar 2002 00:16:58 -0500
-Received: from THANK.THUNK.ORG ([216.175.175.163]:50072 "EHLO thunk.org")
-	by vger.kernel.org with ESMTP id <S293712AbSCPFQs>;
-	Sat, 16 Mar 2002 00:16:48 -0500
-Date: Fri, 15 Mar 2002 18:23:56 -0500
-From: Theodore Tso <tytso@mit.edu>
-To: David Rees <dbr@greenhydrant.com>, linux-kernel@vger.kernel.org
-Subject: Re: mke2fs (and mkreiserfs) core dumps
-Message-ID: <20020315182355.A1123@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	David Rees <dbr@greenhydrant.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020313123114.A11658@greenhydrant.com> <20020313205537.GC429@turbolinux.com> <20020313133748.A12472@greenhydrant.com> <20020313215420.GD429@turbolinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20020313215420.GD429@turbolinux.com>; from adilger@clusterfs.com on Wed, Mar 13, 2002 at 02:54:20PM -0700
+	id <S293716AbSCPFX3>; Sat, 16 Mar 2002 00:23:29 -0500
+Received: from [203.162.56.202] ([203.162.56.202]:65515 "HELO
+	mail.vnsecurity.net") by vger.kernel.org with SMTP
+	id <S293713AbSCPFXU>; Sat, 16 Mar 2002 00:23:20 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: MrChuoi <MrChuoi@yahoo.com>
+Reply-To: MrChuoi@yahoo.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre3-ac1
+Date: Sat, 16 Mar 2002 12:33:03 +0700
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <E16lgjZ-0002Uh-00@the-village.bc.nu>
+In-Reply-To: <E16lgjZ-0002Uh-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020316052309.9B9F44E51A@mail.vnsecurity.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 13, 2002 at 02:54:20PM -0700, Andreas Dilger wrote:
-> 
-> If you don't have any "ulimit" calls in the login, it should also be OK.
-> It's just that some vendor startup scripts set a ulimit for non-root
-> users.  Trying to set it back to "unlimited" doesn't work.
-> 
+I think there are something wrong in MM of -ac tree. I can't build & run my
+project (~100 source files) from inside JBuilder4 anymore. JBuilder always
+reports that "cannot allocate memory".
 
-Also check your PAM configuration files, since pam_limits can also be
-causing the problem.  (Namely, any attempt to set the filesize to be
-"unlimited" cause it to be capped at 2GB.)  There's also the question
-whether or not filesize limits should really apply to device files,
-since the original point of filesize limits were as a simple-minded
-quota control mechanism, and there seems to be little point to causing
-attempts to access block deivces to fail --- under what circumstances
-would this *ever* be considered a useful thing?
+My system:
+CPU: K6-III 500Mhz
+Mem: 128Mb
+Swap: 64Mb
+Linux From Scratch 3.1
 
-Anyway, as of e2fsprogs 1.27, since I got tired of handling user
-questions about this, e2fsprogs will attempt to unlimit filesize
-unconditionally, if it has the superuser privileges to do so.  Because
-of the fact that in effect, the kernel ABI changed between 2.2 and 2.4
-(the value of "Unlimited" change), in e2fsprogs I had to hard-code the
-value of unlimited, so that it would do the right thing regardless of
-which header files were used to compile e2fsprogs.  (Oh, joy, oh
-rapture.)
+Tested with:
+2.4.19-pre3: OK
+2.4.19-pre2-ac4: cannot allocate memory
+2.4.19-pre3-ac1: cannot allocate memory
+2.4.19-pre2aa*: OK
+2.4.19-pre3aa*: OK
 
-						- Ted
+Regards,
 
+MrChuoi

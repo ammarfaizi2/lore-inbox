@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbUCKThO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 14:37:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbUCKThO
+	id S261671AbUCKTkM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 14:40:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbUCKTkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 14:37:14 -0500
-Received: from main.gmane.org ([80.91.224.249]:16526 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261668AbUCKTbw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 14:31:52 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: LKM rootkits in 2.6.x
-Date: Thu, 11 Mar 2004 20:31:49 +0100
-Message-ID: <yw1xekrz41ui.fsf@kth.se>
-References: <Pine.LNX.4.44.0403111124020.27770-100000@linuxbox.co.uk> <20040311184835.GA21330@redhat.com>
- <1079032587.7517.1.camel@leto.cs.pocnet.net>
+	Thu, 11 Mar 2004 14:40:11 -0500
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:37249 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261671AbUCKTkD (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 14:40:03 -0500
+Message-Id: <200403111939.i2BJdxrx004553@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: pg smith <pete@linuxbox.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: LKM rootkits in 2.6.x 
+In-Reply-To: Your message of "Thu, 11 Mar 2004 11:26:23 PST."
+             <Pine.LNX.4.44.0403111124020.27770-100000@linuxbox.co.uk> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.44.0403111124020.27770-100000@linuxbox.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ti211310a080-2480.bb.online.no
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:nD7yt6PuxonjaHrPjRGNwNlMEbQ=
+Content-Type: multipart/signed; boundary="==_Exmh_770563481P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 11 Mar 2004 14:39:59 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christophe Saout <christophe@saout.de> writes:
+--==_Exmh_770563481P
+Content-Type: text/plain; charset=us-ascii
 
-> Am Do, den 11.03.2004 schrieb Dave Jones um 19:48:
->
->> Don't bet on it.  They'll just start doing what binary-only driver vendors
->> have been doing for months.. If the table isn't exported, they find a symbol
->> that is exported, and grovel around in memory near there until they find
->> something that looks like it, and patch accordingly.
->
-> Ugh... this sounds ugly. This should be forbidden. I mean, what are
-> things like EXPORT_SYMBOL_GPL for if drivers are allowed to patch
-> whatever they want?
+On Thu, 11 Mar 2004 11:26:23 PST, pg smith <pete@linuxbox.co.uk>  said:
+> Any thoughts on the future of LKM rootkits in the 2.6 kernel branch ? In
 
-Who is to stop them?  When running in kernel mode you are god.
+Speak of the devil...
 
--- 
-Måns Rullgård
-mru@kth.se
+Subject: Announcing full functional adore-ng rootkit for 2.6 Kernel
+From: stealth <stealth@segfault.net>
+Date: Thu, 11 Mar 2004 10:27:00 +0000
+To: bugtraq@securityfocus.com
 
+Hi,
+
+At http://stealth.7350.org/rootkits/adore-ng-0.41.tgz you find
+the complete port of adore-ng for the Linux kernel 2.6. All
+of the stuff you know from earlier kernel 2.4 versions such
+as socket-, process- and file-hiding, syslog- and [uw]tmp filtering
+has been ported. Additionally since version 0.32 a buffer overflow has
+been fixed (doh!) which could lead to crashes when a lot of network
+connections exist.
+
+regards,
+stealth-
+
+
+--==_Exmh_770563481P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAUMCPcC3lWbTT17ARApLzAKC/qfe8sdEe0E5LYve3c2qoyDyQfACg9eQj
+Ck2pPeIu8ruYM9ChvZdLITA=
+=4WCj
+-----END PGP SIGNATURE-----
+
+--==_Exmh_770563481P--

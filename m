@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292609AbSBZVLs>; Tue, 26 Feb 2002 16:11:48 -0500
+	id <S293599AbSBZVL6>; Tue, 26 Feb 2002 16:11:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293600AbSBZVLi>; Tue, 26 Feb 2002 16:11:38 -0500
-Received: from relay1.pair.com ([209.68.1.20]:9995 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S292609AbSBZVL2>;
-	Tue, 26 Feb 2002 16:11:28 -0500
-X-pair-Authenticated: 68.5.32.62
-Content-Type: text/plain; charset=US-ASCII
-From: Shane Nay <shane@minirl.com>
-To: linux-kernel@vger.kernel.org
-Subject: Simple cyberjack diff
-Date: Tue, 26 Feb 2002 14:16:35 -0800
-X-Mailer: KMail [version 1.3]
-Cc: linux-usb@sii.li
+	id <S293600AbSBZVLs>; Tue, 26 Feb 2002 16:11:48 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:35979 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S293599AbSBZVL3>; Tue, 26 Feb 2002 16:11:29 -0500
+Date: Tue, 26 Feb 2002 16:14:40 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: schedule()
+In-Reply-To: <Pine.LNX.4.44.0202261218080.1544-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.3.95.1020226161330.7314A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020226211128Z292609-889+7550@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While looking around the usb code I noticed this semaphore problem in
-cyberjack.  Anyway, it's a quicky.
+On Tue, 26 Feb 2002, Davide Libenzi wrote:
+> 
+> In 2.5 yield() maps to sys_sched_yield(). You can handle it in the same
+> way in your includes if version <= 2.4.
 
-Thanks,
-Shane Nay.
+It's not exported as well as not defined in a header! It results in
+an undefined symbol in the module.
 
---- virgin/linux/drivers/usb/serial/cyberjack.c Fri Dec 21 09:41:55 2001
-+++ linux/drivers/usb/serial/cyberjack.c        Tue Feb 26 14:09:31 2002
-@@ -238,7 +238,8 @@
-        if( (count+priv->wrfilled)>sizeof(priv->wrbuf) ) {
-                /* To much data  for buffer. Reset buffer. */
-                priv->wrfilled=0;
--               return (0);
-+               count=0;
-+               goto exit;
-        }
- 
-        /* Copy data */
-@@ -299,7 +300,7 @@
-                        priv->wrsent=0;
-                }
-        }
--
-+exit:
-        up (&port->sem);
-        return (count);
- } 
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+        111,111,111 * 111,111,111 = 12,345,678,987,654,321
+

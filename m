@@ -1,186 +1,143 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315925AbSENRtS>; Tue, 14 May 2002 13:49:18 -0400
+	id <S315927AbSENRss>; Tue, 14 May 2002 13:48:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315929AbSENRs6>; Tue, 14 May 2002 13:48:58 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:30220 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S315926AbSENRrv>; Tue, 14 May 2002 13:47:51 -0400
-Date: Tue, 14 May 2002 14:47:24 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] io wait statistics in /proc
-Message-ID: <Pine.LNX.4.44L.0205141442550.9490-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315929AbSENRsr>; Tue, 14 May 2002 13:48:47 -0400
+Received: from mail.eskimo.com ([204.122.16.4]:15370 "EHLO mail.eskimo.com")
+	by vger.kernel.org with ESMTP id <S315927AbSENRsO>;
+	Tue, 14 May 2002 13:48:14 -0400
+Date: Tue, 14 May 2002 10:47:53 -0700
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: Elladan <elladan@eskimo.com>, Christoph Hellwig <hch@infradead.org>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] ext2 and ext3 block reservations can be bypassed
+Message-ID: <20020514104753.A3070@eskimo.com>
+In-Reply-To: <elladan@eskimo.com> <200205131709.g4DH9Fjv006328@pincoya.inf.utfsm.cl> <20020513105250.A30395@eskimo.com> <20020513185723.A2657@infradead.org> <20020514092254.A2581@eskimo.com> <20020514125536.B22935@mark.mielke.cc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+From: Elladan <elladan@eskimo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+A second method was proposed as well - create a file with a hole in it,
+map it, then dirty the pages in the hole and exit.  This would not
+require suid.
 
-the following patch implements io wait statistics for the
-current 2.5 kernel, the patch works as follows:
+This is basically a documentation issue, unless someone wants to go fix
+it.  I wouldn't bother myself - it's ext[23] only and not really very
+useful.
 
-1) every time a task has to sleep on IO it increments
-   nr_iowait_tasks (in the slow path only)
+The basic problem is this: the documentation states "This is intended to
+allow for the system to continue functioning even if non-priveleged
+users fill up all the space available to them."  This states that it's a
+security feature.  It does not work as intended - all users are
+privileged to do this - so the documentation should be updated.
 
-2) in the timer interrupt we count a jiffy as iowait if
-   it would otherwise have been counted as idle and there
-   is a task sleeping on IO
+I'll send a patch to someone later today.
 
-3) to keep compatability with current procps iowait time
-   is not substracted from idle time, programs like top
-   can do this themselves once they get support for iowait
+-J
 
-Please apply this patch for the next 2.5 kernel.
-
-thank you,
-
-Rik
--- 
-	http://www.linuxsymposium.org/2002/
-"You're one of those condescending OLS attendants"
-"Here's a nickle kid.  Go buy yourself a real t-shirt"
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-
- fs/buffer.c                 |    2 ++
- fs/proc/proc_misc.c         |   13 ++++++++-----
- include/linux/kernel_stat.h |    3 ++-
- include/linux/swap.h        |    1 +
- kernel/sched.c              |    2 ++
- mm/filemap.c                |    5 +++++
- 6 files changed, 20 insertions(+), 6 deletions(-)
-
-
-===== fs/buffer.c 1.96 vs edited =====
---- 1.96/fs/buffer.c	Sat May  4 20:46:31 2002
-+++ edited/fs/buffer.c	Tue May 14 14:06:40 2002
-@@ -142,7 +142,9 @@
- 		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
- 		if (!buffer_locked(bh))
- 			break;
-+		atomic_inc(&nr_iowait_tasks);
- 		schedule();
-+		atomic_dec(&nr_iowait_tasks);
- 	} while (buffer_locked(bh));
- 	tsk->state = TASK_RUNNING;
- 	remove_wait_queue(wq, &wait);
-===== fs/proc/proc_misc.c 1.24 vs edited =====
---- 1.24/fs/proc/proc_misc.c	Fri May  3 02:01:31 2002
-+++ edited/fs/proc/proc_misc.c	Tue May 14 14:06:41 2002
-@@ -282,7 +282,7 @@
- 	int i, len;
- 	extern unsigned long total_forks;
- 	unsigned long jif = jiffies;
--	unsigned int sum = 0, user = 0, nice = 0, system = 0;
-+	unsigned int sum = 0, user = 0, nice = 0, system = 0, iowait = 0;
- 	int major, disk;
-
- 	for (i = 0 ; i < smp_num_cpus; i++) {
-@@ -291,23 +291,26 @@
- 		user += kstat.per_cpu_user[cpu];
- 		nice += kstat.per_cpu_nice[cpu];
- 		system += kstat.per_cpu_system[cpu];
-+		iowait += kstat.per_cpu_iowait[cpu];
- #if !defined(CONFIG_ARCH_S390)
- 		for (j = 0 ; j < NR_IRQS ; j++)
- 			sum += kstat.irqs[cpu][j];
- #endif
- 	}
-
--	len = sprintf(page, "cpu  %u %u %u %lu\n", user, nice, system,
--		      jif * smp_num_cpus - (user + nice + system));
-+	len = sprintf(page, "cpu  %u %u %u %lu %u\n", user, nice, system,
-+		      jif * smp_num_cpus - (user + nice + system),
-+		      iowait);
- 	for (i = 0 ; i < smp_num_cpus; i++)
--		len += sprintf(page + len, "cpu%d %u %u %u %lu\n",
-+		len += sprintf(page + len, "cpu%d %u %u %u %lu %u\n",
- 			i,
- 			kstat.per_cpu_user[cpu_logical_map(i)],
- 			kstat.per_cpu_nice[cpu_logical_map(i)],
- 			kstat.per_cpu_system[cpu_logical_map(i)],
- 			jif - (  kstat.per_cpu_user[cpu_logical_map(i)] \
- 				   + kstat.per_cpu_nice[cpu_logical_map(i)] \
--				   + kstat.per_cpu_system[cpu_logical_map(i)]));
-+				   + kstat.per_cpu_system[cpu_logical_map(i)]),
-+			kstat.per_cpu_iowait[cpu_logical_map(i)]);
- 	len += sprintf(page + len,
- 		"page %u %u\n"
- 		"swap %u %u\n"
-===== include/linux/kernel_stat.h 1.4 vs edited =====
---- 1.4/include/linux/kernel_stat.h	Thu Apr 11 01:25:39 2002
-+++ edited/include/linux/kernel_stat.h	Tue May 14 14:06:44 2002
-@@ -18,7 +18,8 @@
- struct kernel_stat {
- 	unsigned int per_cpu_user[NR_CPUS],
- 	             per_cpu_nice[NR_CPUS],
--	             per_cpu_system[NR_CPUS];
-+	             per_cpu_system[NR_CPUS],
-+	             per_cpu_iowait[NR_CPUS];
- 	unsigned int dk_drive[DK_MAX_MAJOR][DK_MAX_DISK];
- 	unsigned int dk_drive_rio[DK_MAX_MAJOR][DK_MAX_DISK];
- 	unsigned int dk_drive_wio[DK_MAX_MAJOR][DK_MAX_DISK];
-===== include/linux/swap.h 1.42 vs edited =====
---- 1.42/include/linux/swap.h	Sun May  5 13:55:39 2002
-+++ edited/include/linux/swap.h	Tue May 14 14:07:52 2002
-@@ -108,6 +108,7 @@
- extern atomic_t buffermem_pages;
- extern spinlock_t pagecache_lock;
- extern void __remove_inode_page(struct page *);
-+extern atomic_t nr_iowait_tasks;
-
- /* Incomplete types for prototype declarations: */
- struct task_struct;
-===== kernel/sched.c 1.73 vs edited =====
---- 1.73/kernel/sched.c	Mon Apr 29 09:16:24 2002
-+++ edited/kernel/sched.c	Tue May 14 14:10:06 2002
-@@ -679,6 +679,8 @@
- 	if (p == rq->idle) {
- 		if (local_bh_count(cpu) || local_irq_count(cpu) > 1)
- 			kstat.per_cpu_system[cpu] += system;
-+		else if (atomic_read(&nr_iowait_tasks) > 0)
-+			kstat.per_cpu_iowait[cpu] += system;
- #if CONFIG_SMP
- 		idle_tick();
- #endif
-===== mm/filemap.c 1.87 vs edited =====
---- 1.87/mm/filemap.c	Mon May  6 12:12:36 2002
-+++ edited/mm/filemap.c	Tue May 14 14:12:03 2002
-@@ -48,6 +48,7 @@
-  *        ->sb_lock		(fs/fs-writeback.c)
-  */
- spinlock_t pagemap_lru_lock __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
-+atomic_t nr_iowait_tasks = ATOMIC_INIT(0);
-
- /*
-  * Remove a page from the page cache and free it. Caller has to make
-@@ -611,8 +612,10 @@
- 		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
- 		if (!test_bit(bit_nr, &page->flags))
- 			break;
-+		atomic_inc(&nr_iowait_tasks);
- 		sync_page(page);
- 		schedule();
-+		atomic_dec(&nr_iowait_tasks);
- 	} while (test_bit(bit_nr, &page->flags));
- 	__set_task_state(tsk, TASK_RUNNING);
- 	remove_wait_queue(waitqueue, &wait);
-@@ -675,8 +678,10 @@
- 	for (;;) {
- 		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
- 		if (PageLocked(page)) {
-+			atomic_inc(&nr_iowait_tasks);
- 			sync_page(page);
- 			schedule();
-+			atomic_dec(&nr_iowait_tasks);
- 		}
- 		if (!TestSetPageLocked(page))
- 			break;
-
+On Tue, May 14, 2002 at 12:55:36PM -0400, Mark Mielke wrote:
+> Notice how the space can only be filled up if a setuid program is used
+> to actually fill it up. Even if it is a partial 'security feature', every
+> administrator knows that setuid violates security in a non-natural way.
+> 
+> 1) Provide a patch and see if it is accepted.
+> 
+> 2) Convince somebody else that they should put time into features of
+>    questionable value such as this one.
+> 
+> mark
+> 
+> 
+> 
+> On Tue, May 14, 2002 at 09:22:54AM -0700, Elladan wrote:
+> > I went to google and attempted to find information about the root
+> > reserve space for ext2, as a user wondering about the feature would.  I
+> > couldn't find any documentation that states it's purely a fragmentation
+> > and convenience feature.  I did, however, find documents stating
+> > otherwise.  Note how even Documentation/filesystems/ext2.txt states that
+> > it's a security feature?
+> > 
+> > If this is not a security feature, Documentation/filesystems/ext2.txt
+> > needs to be changed.  Eg., 
+> > 
+> > "In ext2, there is a mechanism for reserving a certain number of blocks
+> > for a particular user (normally the super-user).  This is intended to
+> > keep the filesystem from filling up entirely, which helps combat
+> > fragmentation.  The super-user may still use this space.  Note that this
+> > is not a security feature, and is only provided for convenience -
+> > various methods exist where a user may circumvent this reservation and
+> > use the space if they so wish.  Quotas or separate filesystems should be
+> > used if reliable space limits are needed."
+> > 
+> > 
+> > 
+> > 1. http://web.mit.edu/tytso/www/linux/ext2intro.html
+> > 
+> > Design and Implementation of the Second Extended Filesystem
+> > 
+> > [....] Ext2fs reserves some blocks for the super user (root). Normally,
+> > 5% of the blocks are reserved. This allows the administrator to recover
+> > easily from situations where user processes fill up filesystems.
+> > 
+> > 
+> > 2. Documentation/filesystems/ext2.txt
+> > 
+> > Reserved Space
+> > --------------
+> > 
+> > In ext2, there is a mechanism for reserving a certain number of blocks
+> > for a particular user (normally the super-user).  This is intended to
+> > allow for the system to continue functioning even if non-priveleged
+> > users fill up all the space available to them (this is independent of
+> > filesystem quotas).  It also keeps the filesystem from filling up
+> > entirely which helps combat fragmentation.
+> > 
+> > 
+> > 3. Note what mke2fs prints:
+> > 
+> > 3275 blocks (5.00%) reserved for the super user
+> > 
+> > It does not say "reserved to combat fragmentation"
+> > 
+> > 
+> > -J
+> > 
+> > 
+> > On Mon, May 13, 2002 at 06:57:23PM +0100, Christoph Hellwig wrote:
+> > > On Mon, May 13, 2002 at 10:52:50AM -0700, Elladan wrote:
+> > > > > It is _not_ a security feature, it is meant to keep the filesystem from
+> > > > > fragmenting too badly. root can use that space, since root can do whatever
+> > > > > she wants anyway.
+> > > > 
+> > > > But it *appears* to be a security feature.  Thus, someone might
+> > > > incorrectly depend on it, unless it's clearly documented as otherwise.
+> > > 
+> > > So what.  People rely on chroot() as security feature all the time and
+> > > we don't "fix" it either.  If you need security nothing but gaining
+> > > knowledge about all details helps.
+> > > 
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> -- 
+> mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+> .  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+> |\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+> |  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+> 
+>   One ring to rule them all, one ring to find them, one ring to bring them all
+>                        and in the darkness bind them...
+> 
+>                            http://mark.mielke.cc/

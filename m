@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289603AbSAPWAc>; Wed, 16 Jan 2002 17:00:32 -0500
+	id <S289589AbSAPWA7>; Wed, 16 Jan 2002 17:00:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289568AbSAPWAL>; Wed, 16 Jan 2002 17:00:11 -0500
-Received: from quark.didntduck.org ([216.43.55.190]:18445 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S289458AbSAPWAH>; Wed, 16 Jan 2002 17:00:07 -0500
-Message-ID: <3C45F7B6.1BCB4519@didntduck.org>
-Date: Wed, 16 Jan 2002 16:59:18 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Christian Thalinger <e9625286@student.tuwien.ac.at>,
-        Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-        linux-kernel <linux-kernel@vger.kernel.org>, davej@suse.de
-Subject: Re: floating point exception
-In-Reply-To: <Pine.LNX.3.95.1020116161110.15035A-100000@chaos.analogic.com>
+	id <S289568AbSAPWAv>; Wed, 16 Jan 2002 17:00:51 -0500
+Received: from cpe.atm2-0-105125.0x3ef2066b.hrnxx2.customer.tele.dk ([62.242.6.107]:31099
+	"HELO mars.ravnborg.org") by vger.kernel.org with SMTP
+	id <S289833AbSAPWAc>; Wed, 16 Jan 2002 17:00:32 -0500
+Date: Wed, 16 Jan 2002 23:01:31 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ISDN CHANNEL-D
+Message-ID: <20020116230131.B2236@mars.ravnborg.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <001d01c19ec5$b6f8f740$d500a8c0@mshome.net> <3C45E95A.2010802@antefacto.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C45E95A.2010802@antefacto.com>; from padraig@antefacto.com on Wed, Jan 16, 2002 at 08:58:02PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
+On Wed, Jan 16, 2002 at 08:58:02PM +0000, Padraig Brady wrote:
+> AstinusLists wrote:
 > 
-> On 16 Jan 2002, Christian Thalinger wrote:
+> > Hello every one.
+> > 
+> > I've been earing some rumors, that i am quite sure that are turth about the
+> > isdn channel d.
+> > 
+> > As all of u know ( i think ) isdn cards have 3 channels: 2*64 and one time
+> > 16 kbs.
+> > 
+> > This last one is called channel D.
+> > Channel D is used to dial and to reply to tones and minor stuff like that.
 > 
-> > On Wed, 2002-01-16 at 15:32, Zwane Mwaikambo wrote:
-> > > Can you also reproduce _without_ loading NVdriver, just to make everybody
-> > > happy.
-> > >
-> > > Thanks,
-> > >     Zwane Mwaikambo
-> > >
-> >
-> > Sure, same breakdown. Maybe it's really an dual athlon xp issue as dave
-> > jones mentioned. But shouldn't this also occur when i trigger a floating
-> > point exception myself? Is there a way to check which floating point
-> > exception was raised by the seti client?
-> >
-> > Regards.
-> >
+> Yes info is passed across the D channel in messages. There is a message
 > 
-> Maybe you can run it off from gdb? Or `strace` it to a file? Usually
-> these things are caused by invalid 'C' runtime libraries, either
-> corrupt, "installed by just making a sim-link to something that
-> was presumed to be close to what the application was compiled with",
-> or an error in mem-mapping.
-> 
-> Another very-real possibility is that somebody used floating-point
-> within the kernel thus corrupting  the `seti` FPU state. You can
-> check this out by making a program that does lots of FP calculations,
-> perhaps the sine of a large number of values. You put the results
-> into one array. Then you do the exact same thing with the results
-> put into another array.  Then just `memcmp` the arrays! You run
-> this in a loop for an hour. If the kernel is mucking with your FPU,
-> it will certainly show.
+> type called User User information that can be passed, but only with and
+> associated D channel call type, i.e. you must pay for it.
 
-Hmm, that's an interesting idea... An Athlon optimised kernel does use
-the MMX/FPU registers to do mem copies.  Try running a kernel compiled
-for just a Pentium and see if the problem persists.
+What the original author refer to is utilising the D-Channel to support
+LAPB/X.25 traffic. This is done using a special SAPI=16 value.
+I dunno if the ISDN drivers in Linux support this yet.
 
---
+Charging for the above is operator specific, when I worked with this in the past
+the charging was unrealistic high.
 
-				Brian Gerst
+	Sam 

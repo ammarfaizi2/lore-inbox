@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbULBWzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbULBXBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbULBWzU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 17:55:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbULBWzU
+	id S261791AbULBXBe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 18:01:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbULBXBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 17:55:20 -0500
-Received: from gw.goop.org ([64.81.55.164]:41919 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S261358AbULBWzP (ORCPT
+	Thu, 2 Dec 2004 18:01:34 -0500
+Received: from opersys.com ([64.40.108.71]:37903 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261791AbULBXBc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 17:55:15 -0500
-Subject: 32-bit syscalls from 64-bit process on x86-64?
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 02 Dec 2004 08:22:00 -0800
-Message-Id: <1102004520.8707.10.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-0.mozer.2) 
+	Thu, 2 Dec 2004 18:01:32 -0500
+Message-ID: <41AFA09D.3090702@opersys.com>
+Date: Thu, 02 Dec 2004 18:09:17 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Jonathan Corbet <corbet@lwn.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: A new home for LDD2
+References: <20041202214749.2821.qmail@lwn.net>
+In-Reply-To: <20041202214749.2821.qmail@lwn.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi,
 
-Is it possible for a 64-bit process to invoke the 32-bit syscall
-compatibility layer?  I'm thinking this might be useful for Valgrind,
-since if it is running on an x86-64 host, it can take advantage of
-having more registers and a larger address space to do a better
-emulation of plain ia32.  But this is only practical if I can reuse the
-kernel's 32-bit emulation layer, since duplicating it in Valgrind would
-be silly (particularly ioctls).
+Jonathan Corbet wrote:
+> 	http://lwn.net/Kernel/LDD2/
 
->From a quick look at the code, it seems to me that int 0x80 might still
-work in 64-bit mode, but connect to 32-bit syscalls.  Is that right?  If
-not, could it be made to be right?  Alternatively, something like adding
-a constant offset to the syscall numbers would work for me (ie, 0-N are
-64-bit syscalls, 0x10000-N are 32-bit).  Hm, no, it looks like int 0x80
-just calls normal 64-bit syscalls...
+Old as it is, LDD2 remains a good starting point. Thanks for
+making sure it contines to be available.
 
-And does the 32-bit layer keep any private state?  For example, if I
-modify the signal state with 32-syscalls in one place, and 64-bit
-syscalls elsewhere, will that cause a problem or inconsistencies?
+> P.S.  LDD3?  Februaryish.
 
-Thanks,
-	J
+Very much looking forward to get my hands on one of these.
+Meanwhile, I was wondering whether it would have similar
+licensing/availability as LDD2.
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 

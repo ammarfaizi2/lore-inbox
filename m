@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130687AbRA3RLp>; Tue, 30 Jan 2001 12:11:45 -0500
+	id <S130671AbRA3RLP>; Tue, 30 Jan 2001 12:11:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131033AbRA3RLh>; Tue, 30 Jan 2001 12:11:37 -0500
-Received: from mlx3.unm.edu ([129.24.8.189]:43380 "HELO mlx3.unm.edu")
-	by vger.kernel.org with SMTP id <S130687AbRA3RL2>;
-	Tue, 30 Jan 2001 12:11:28 -0500
-Date: Tue, 30 Jan 2001 10:11:19 -0700 (MST)
-From: Todd <todd@unm.edu>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-cc: <linux-kernel@vger.kernel.org>, <jmerkey@timpanogas.org>
-Subject: Re: [ANNOUNCE] Dolphin PCI-SCI RPM Drivers 1.1-4 released
-In-Reply-To: <20010130103208.C18047@vger.timpanogas.org>
-Message-ID: <Pine.A41.4.31.0101301007490.37454-100000@aix01.unm.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130687AbRA3RLF>; Tue, 30 Jan 2001 12:11:05 -0500
+Received: from passion.cambridge.redhat.com ([172.16.18.67]:49285 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S130671AbRA3RK5>; Tue, 30 Jan 2001 12:10:57 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Mdiqd.A.qe.yEvd6@dinero.interactivesi.com> 
+In-Reply-To: <Mdiqd.A.qe.yEvd6@dinero.interactivesi.com>  <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com> <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com> 
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 30 Jan 2001 17:10:39 +0000
+Message-ID: <11875.980874639@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jeff,
 
-On Tue, 30 Jan 2001, Jeff V. Merkey wrote:
+ttabi@interactivesi.com said:
+>  What is wrong with sleep_on()?
 
-> On 32 bit PCI, the average we are seeing going userpace -> userspace is
-> 120-140 MB/S ranges in those systems that have a PCI bus with
-> bridge chipsets that can support these data rates.
->
-> That's 2 x G-Enet.
+Are you asking me? If so, why did I not receive a copy in my inbox? If I 
+want to filter duplicates locally, I can. I don't.
 
-good numbers.  not really 2 x Gig-e, though, is it.  we're getting 993Mbps
-(124Mb/s) on alteon acenic gig-e adapters on 32bit/66MHz pci machines.
-i'm not saying that the nubmers aren't good or that the technology doesn't
-sound promising (SCI is definitely cool stuff).  I'm just trying to put
-the numbers in perspective and show that the targets should be higher.
+It's almost impossible to use it safely, and the few ways you _can_ use it
+safely are frowned upon, because they mostly involve using the BKL, usage of
+which is slowly being phased out in favour of finer-grained locking.
 
-i like your argument about cpu utilization. that's really the key.
-anything that moves significant traffic and can reduce cpu utilization
-will help enormously.  unfortunately, you've not posted any cpu numbers.
+This kind of code is far too common:
 
-this is analogous to transmeta's complaint about battery life and
-processor speed:  no one benchmarks both metrics at the same time.  if
-they did, intel chips would not look nearly as good as they do.
-similarly, most people are still not posting bandwidth numbers along with
-cpu utilization numbers.  if they did, lots of fast networks would be less
-appealing.
+ if (!event) {
+	/* BUT WHAT IF THE EVENT ARRIVES _NOW_? */
+ 	sleep_on(&event_wait);
+ }
 
-todd
+--
+dwmw2
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

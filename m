@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292458AbSCMGbD>; Wed, 13 Mar 2002 01:31:03 -0500
+	id <S292482AbSCMGyO>; Wed, 13 Mar 2002 01:54:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292473AbSCMGaw>; Wed, 13 Mar 2002 01:30:52 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:33762 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S292458AbSCMGai>; Wed, 13 Mar 2002 01:30:38 -0500
-Date: Wed, 13 Mar 2002 08:14:18 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Robert Love <rml@tech9.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Few questions about 2.5.6-pre3
-In-Reply-To: <Pine.LNX.4.44.0203121608400.32078-100000@netfinity.realnet.co.sz>
-Message-ID: <Pine.LNX.4.44.0203130813350.5045-100000@netfinity.realnet.co.sz>
+	id <S292522AbSCMGyF>; Wed, 13 Mar 2002 01:54:05 -0500
+Received: from maillog.promise.com.tw ([210.244.60.166]:30096 "EHLO
+	maillog.promise.com.tw") by vger.kernel.org with ESMTP
+	id <S292482AbSCMGxp>; Wed, 13 Mar 2002 01:53:45 -0500
+Message-ID: <03ca01c1ca5b$b030afe0$59cca8c0@hank>
+From: "Hank Yang" <hanky@promise.com.tw>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>,
+        <arjanv@redhat.com>
+In-Reply-To: <E16jKCT-00068v-00@the-village.bc.nu>
+Subject: Re: [PATCH] Submitting PROMISE IDE Controllers Driver Patch
+Date: Wed, 13 Mar 2002 14:52:48 +0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Mar 2002, Zwane Mwaikambo wrote:
+Hi, Alan.
 
-> On 12 Mar 2002, Robert Love wrote:
-> 
-> > I've never seen this.  I assume the box is SMP since you are hitting a
-> > BUG in the spin_unlock code?  I almost want to think this is an SMP bug
-> > (locking rules not being observed somewhere) and preemption is just
-> > accelerating the race.
-> > 
-> > Ohh wait - this is 2.5.6-pre3 ?
-> > 
-> > Can you try 2.5.6 final (or anything later)?  There is a bug with SMP
-> > and preempt and this could be it.  Let me know..
-> 
-> Its SMP kernel on UP box, i'll be testing 2.5.6 this evening so i'll give 
-> you a heads up tommorrow.
+    The patch-file 'patch-2.4.19-pre2-ac3' needs be modified for pdc202xx.c.
+In pdc202xx.c, pdc202xx_new_tune_chipset()
+switch (speed) to set timing only when UDMA 6 drives exist on ATA-133
+controller (PDC20269 and PDC20275). If there are no any UDMA 6 drives
+exists, we don't need to set timing here.
 
-Ok couldn't reproduce it with -final.
+    Would you please modify this part?
 
-Cheers,
-	Zwane
+Thanks and Regards
+Hank
 
+> >     I saw the 'patch-2.4.19-pre2-ac3' and it has build-in Maxtor 48 bit
+lba
+> > spec. Is these patch will be build into next kernel version 2.4.19?
+> > Do you want us to make a patch for the 'patch-2.4.19-pre2-ac3'?
+>
+> I've submitted the IDE code in 2.4.19-pre2-ac3 to Marcelo and he has
+> accepted it for 2.4.19-pre3. Hopefully that makes your job easier too.
+>
+> Alan
 

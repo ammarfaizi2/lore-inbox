@@ -1,153 +1,313 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVAVJoM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVAVJww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbVAVJoM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 04:44:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262685AbVAVJoM
+	id S261245AbVAVJww (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 04:52:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262685AbVAVJww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 04:44:12 -0500
-Received: from ozlabs.org ([203.10.76.45]:36996 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261234AbVAVJoA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 04:44:00 -0500
+	Sat, 22 Jan 2005 04:52:52 -0500
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:38136 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S261245AbVAVJwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 04:52:24 -0500
+From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] oprofile: falling back on timer interrupt mode
+Date: Sat, 22 Jan 2005 18:55:05 +0900
+User-Agent: KMail/1.5.4
+Cc: "Andrew Morton" <akpm@osdl.org>, Greg Banks <gnb@sgi.com>,
+       John Levon <levon@movementarian.org>,
+       Philippe Elie <phil.el@wanadoo.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16882.8276.537404.194554@cargo.ozlabs.ibm.com>
-Date: Sat, 22 Jan 2005 20:43:48 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Cc: anton@samba.org, nathanl@austin.ibm.com
-Subject: [PATCH] PPC64 sparse fixes for cpu feature constants
-X-Mailer: VM 7.19 under Emacs 21.3.1
+Content-Disposition: inline
+Message-Id: <200501221855.05214.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is originally from Nathan Lynch <nathanl@austin.ibm.com>.
+Hello.
 
-Sparse gives a warning "constant ... is so big it is long" for every
-expression where we check bits in the cur_cpu_spec->cpu_features
-value.  This patch removes the warnings by using the ASM_CONST macro.
+When some hardware setups or architectures do not allow OProfile to use
+performance counters, OProfile operates in timer mode.
 
-Signed-off-by: Nathan Lynch <nathanl@austin.ibm.com>
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+But, from 2.6.11-rc1, we need to specify the module parameter "timer=1"
+to work on timer interrupt mode.  Furthermore we can easily get oops by
+reading /dev/oprofile/cpu_type.
 
-diff -urN linux-2.5/include/asm-ppc64/cacheflush.h test/include/asm-ppc64/cacheflush.h
---- linux-2.5/include/asm-ppc64/cacheflush.h	2004-05-31 19:02:01.000000000 +1000
-+++ test/include/asm-ppc64/cacheflush.h	2005-01-22 20:13:46.000000000 +1100
-@@ -40,7 +40,7 @@
- 
- static inline void flush_icache_range(unsigned long start, unsigned long stop)
- {
--	if (!(cur_cpu_spec->cpu_features & ASM_CONST(CPU_FTR_COHERENT_ICACHE)))
-+	if (!(cur_cpu_spec->cpu_features & CPU_FTR_COHERENT_ICACHE))
- 		__flush_icache_range(start, stop);
+Signed-off-by: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+
+ arch/alpha/oprofile/common.c     |    6 ++++--
+ arch/arm/oprofile/common.c       |    7 +++++--
+ arch/arm/oprofile/init.c         |    8 ++++++--
+ arch/i386/oprofile/init.c        |    4 +++-
+ arch/ia64/oprofile/init.c        |    8 ++++++--
+ arch/m32r/oprofile/init.c        |    3 ++-
+ arch/parisc/oprofile/init.c      |    3 ++-
+ arch/ppc64/oprofile/common.c     |    6 ++++--
+ arch/s390/oprofile/init.c        |    3 ++-
+ arch/sh/oprofile/op_model_null.c |    3 ++-
+ arch/sparc64/oprofile/init.c     |    3 ++-
+ drivers/oprofile/oprof.c         |    6 +++---
+ include/linux/oprofile.h         |    2 +-
+ 13 files changed, 42 insertions(+), 20 deletions(-)
+
+
+diff -rup 2.6-bk.orig/arch/alpha/oprofile/common.c 2.6-bk/arch/alpha/oprofile/common.c
+--- 2.6-bk.orig/arch/alpha/oprofile/common.c	2005-01-15 16:01:59.000000000 +0900
++++ 2.6-bk/arch/alpha/oprofile/common.c	2005-01-15 16:16:16.000000000 +0900
+@@ -138,7 +138,7 @@ op_axp_create_files(struct super_block *
+ 	return 0;
  }
  
-diff -urN linux-2.5/include/asm-ppc64/cputable.h test/include/asm-ppc64/cputable.h
---- linux-2.5/include/asm-ppc64/cputable.h	2004-06-28 14:30:55.000000000 +1000
-+++ test/include/asm-ppc64/cputable.h	2005-01-22 20:13:46.000000000 +1100
-@@ -16,6 +16,7 @@
- #define __ASM_PPC_CPUTABLE_H
- 
- #include <linux/config.h>
-+#include <asm/page.h> /* for ASM_CONST */
- 
- /* Exposed to userland CPU features - Must match ppc32 definitions */
- #define PPC_FEATURE_32			0x80000000
-@@ -103,38 +104,38 @@
- /* CPU kernel features */
- 
- /* Retain the 32b definitions for the time being - use bottom half of word */
--#define CPU_FTR_SPLIT_ID_CACHE		0x0000000000000001
--#define CPU_FTR_L2CR			0x0000000000000002
--#define CPU_FTR_SPEC7450		0x0000000000000004
--#define CPU_FTR_ALTIVEC			0x0000000000000008
--#define CPU_FTR_TAU			0x0000000000000010
--#define CPU_FTR_CAN_DOZE		0x0000000000000020
--#define CPU_FTR_USE_TB			0x0000000000000040
--#define CPU_FTR_604_PERF_MON		0x0000000000000080
--#define CPU_FTR_601			0x0000000000000100
--#define CPU_FTR_HPTE_TABLE		0x0000000000000200
--#define CPU_FTR_CAN_NAP			0x0000000000000400
--#define CPU_FTR_L3CR			0x0000000000000800
--#define CPU_FTR_L3_DISABLE_NAP		0x0000000000001000
--#define CPU_FTR_NAP_DISABLE_L2_PR	0x0000000000002000
--#define CPU_FTR_DUAL_PLL_750FX		0x0000000000004000
-+#define CPU_FTR_SPLIT_ID_CACHE		ASM_CONST(0x0000000000000001)
-+#define CPU_FTR_L2CR			ASM_CONST(0x0000000000000002)
-+#define CPU_FTR_SPEC7450		ASM_CONST(0x0000000000000004)
-+#define CPU_FTR_ALTIVEC			ASM_CONST(0x0000000000000008)
-+#define CPU_FTR_TAU			ASM_CONST(0x0000000000000010)
-+#define CPU_FTR_CAN_DOZE		ASM_CONST(0x0000000000000020)
-+#define CPU_FTR_USE_TB			ASM_CONST(0x0000000000000040)
-+#define CPU_FTR_604_PERF_MON		ASM_CONST(0x0000000000000080)
-+#define CPU_FTR_601			ASM_CONST(0x0000000000000100)
-+#define CPU_FTR_HPTE_TABLE		ASM_CONST(0x0000000000000200)
-+#define CPU_FTR_CAN_NAP			ASM_CONST(0x0000000000000400)
-+#define CPU_FTR_L3CR			ASM_CONST(0x0000000000000800)
-+#define CPU_FTR_L3_DISABLE_NAP		ASM_CONST(0x0000000000001000)
-+#define CPU_FTR_NAP_DISABLE_L2_PR	ASM_CONST(0x0000000000002000)
-+#define CPU_FTR_DUAL_PLL_750FX		ASM_CONST(0x0000000000004000)
- 
- /* Add the 64b processor unique features in the top half of the word */
--#define CPU_FTR_SLB           		0x0000000100000000
--#define CPU_FTR_16M_PAGE      		0x0000000200000000
--#define CPU_FTR_TLBIEL         		0x0000000400000000
--#define CPU_FTR_NOEXECUTE     		0x0000000800000000
--#define CPU_FTR_NODSISRALIGN  		0x0000001000000000
--#define CPU_FTR_IABR  			0x0000002000000000
--#define CPU_FTR_MMCRA  			0x0000004000000000
--#define CPU_FTR_PMC8  			0x0000008000000000
--#define CPU_FTR_SMT  			0x0000010000000000
--#define CPU_FTR_COHERENT_ICACHE  	0x0000020000000000
--#define CPU_FTR_LOCKLESS_TLBIE		0x0000040000000000
--#define CPU_FTR_MMCRA_SIHV		0x0000080000000000
-+#define CPU_FTR_SLB           		ASM_CONST(0x0000000100000000)
-+#define CPU_FTR_16M_PAGE      		ASM_CONST(0x0000000200000000)
-+#define CPU_FTR_TLBIEL         		ASM_CONST(0x0000000400000000)
-+#define CPU_FTR_NOEXECUTE     		ASM_CONST(0x0000000800000000)
-+#define CPU_FTR_NODSISRALIGN  		ASM_CONST(0x0000001000000000)
-+#define CPU_FTR_IABR  			ASM_CONST(0x0000002000000000)
-+#define CPU_FTR_MMCRA  			ASM_CONST(0x0000004000000000)
-+#define CPU_FTR_PMC8  			ASM_CONST(0x0000008000000000)
-+#define CPU_FTR_SMT  			ASM_CONST(0x0000010000000000)
-+#define CPU_FTR_COHERENT_ICACHE  	ASM_CONST(0x0000020000000000)
-+#define CPU_FTR_LOCKLESS_TLBIE		ASM_CONST(0x0000040000000000)
-+#define CPU_FTR_MMCRA_SIHV		ASM_CONST(0x0000080000000000)
- 
- /* Platform firmware features */
--#define FW_FTR_                         0x0000000000000001
-+#define FW_FTR_				ASM_CONST(0x0000000000000001)
- 
- #ifndef __ASSEMBLY__
- #define COMMON_USER_PPC64	(PPC_FEATURE_32 | PPC_FEATURE_64 | \
-diff -urN linux-2.5/include/asm-ppc64/mmu_context.h test/include/asm-ppc64/mmu_context.h
---- linux-2.5/include/asm-ppc64/mmu_context.h	2004-10-04 13:31:02.000000000 +1000
-+++ test/include/asm-ppc64/mmu_context.h	2005-01-22 20:17:08.000000000 +1100
-@@ -51,14 +51,6 @@
- static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next,
- 			     struct task_struct *tsk)
+-void __init
++int __init
+ oprofile_arch_init(struct oprofile_operations *ops)
  {
--#ifdef CONFIG_ALTIVEC
--	asm volatile (
-- BEGIN_FTR_SECTION
--	"dssall;\n"
-- END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
--	 : : );
--#endif /* CONFIG_ALTIVEC */
--
- 	if (!cpu_isset(smp_processor_id(), next->cpu_vm_mask))
- 		cpu_set(smp_processor_id(), next->cpu_vm_mask);
+ 	struct op_axp_model *lmodel = NULL;
+@@ -166,7 +166,7 @@ oprofile_arch_init(struct oprofile_opera
+ 	}
  
-@@ -66,6 +58,11 @@
- 	if (prev == next)
- 		return;
+ 	if (!lmodel)
+-		return;
++		return -ENODEV;
+ 	model = lmodel;
  
-+#ifdef CONFIG_ALTIVEC
-+	if (cur_cpu_spec->cpu_features & CPU_FTR_ALTIVEC)
-+		asm volatile ("dssall");
-+#endif /* CONFIG_ALTIVEC */
+ 	ops->create_files = op_axp_create_files;
+@@ -178,6 +178,8 @@ oprofile_arch_init(struct oprofile_opera
+ 
+ 	printk(KERN_INFO "oprofile: using %s performance monitoring.\n",
+ 	       lmodel->cpu_type);
 +
- 	if (cur_cpu_spec->cpu_features & CPU_FTR_SLB)
- 		switch_slb(tsk, next);
- 	else
++	return 0;
+ }
+ 
+ 
+diff -rup 2.6-bk.orig/arch/arm/oprofile/common.c 2.6-bk/arch/arm/oprofile/common.c
+--- 2.6-bk.orig/arch/arm/oprofile/common.c	2005-01-15 16:02:03.000000000 +0900
++++ 2.6-bk/arch/arm/oprofile/common.c	2005-01-15 16:33:03.000000000 +0900
+@@ -105,12 +105,13 @@ static void pmu_stop(void)
+ 	up(&pmu_sem);
+ }
+ 
+-void __init pmu_init(struct oprofile_operations *ops, struct op_arm_model_spec *spec)
++int __init
++pmu_init(struct oprofile_operations *ops, struct op_arm_model_spec *spec)
+ {
+ 	init_MUTEX(&pmu_sem);
+ 
+ 	if (spec->init() < 0)
+-		return;
++		return -ENODEV;
+ 
+ 	pmu_model = spec;
+ 	init_driverfs();
+@@ -121,6 +122,8 @@ void __init pmu_init(struct oprofile_ope
+ 	ops->stop = pmu_stop;
+ 	ops->cpu_type = pmu_model->name;
+ 	printk(KERN_INFO "oprofile: using %s PMU\n", spec->name);
++
++	return 0;
+ }
+ 
+ void pmu_exit(void)
+diff -rup 2.6-bk.orig/arch/arm/oprofile/init.c 2.6-bk/arch/arm/oprofile/init.c
+--- 2.6-bk.orig/arch/arm/oprofile/init.c	2005-01-15 16:02:03.000000000 +0900
++++ 2.6-bk/arch/arm/oprofile/init.c	2005-01-15 16:33:42.000000000 +0900
+@@ -12,11 +12,15 @@
+ #include <linux/errno.h>
+ #include "op_arm_model.h"
+ 
+-void __init oprofile_arch_init(struct oprofile_operations *ops)
++int __init oprofile_arch_init(struct oprofile_operations *ops)
+ {
++	int ret = -ENODEV;
++
+ #ifdef CONFIG_CPU_XSCALE
+-	pmu_init(ops, &op_xscale_spec);
++	ret = pmu_init(ops, &op_xscale_spec);
+ #endif
++
++	return ret;
+ }
+ 
+ void oprofile_arch_exit(void)
+diff -rup 2.6-bk.orig/arch/i386/oprofile/init.c 2.6-bk/arch/i386/oprofile/init.c
+--- 2.6-bk.orig/arch/i386/oprofile/init.c	2005-01-15 16:01:39.000000000 +0900
++++ 2.6-bk/arch/i386/oprofile/init.c	2005-01-15 16:07:27.000000000 +0900
+@@ -21,7 +21,7 @@ extern void nmi_exit(void);
+ extern void x86_backtrace(struct pt_regs * const regs, unsigned int depth);
+ 
+ 
+-void __init oprofile_arch_init(struct oprofile_operations * ops)
++int __init oprofile_arch_init(struct oprofile_operations * ops)
+ {
+ 	int ret;
+ 
+@@ -35,6 +35,8 @@ void __init oprofile_arch_init(struct op
+ 		ret = nmi_timer_init(ops);
+ #endif
+ 	ops->backtrace = x86_backtrace;
++
++	return ret;
+ }
+ 
+ 
+diff -rup 2.6-bk.orig/arch/ia64/oprofile/init.c 2.6-bk/arch/ia64/oprofile/init.c
+--- 2.6-bk.orig/arch/ia64/oprofile/init.c	2005-01-15 16:01:58.000000000 +0900
++++ 2.6-bk/arch/ia64/oprofile/init.c	2005-01-15 16:23:49.000000000 +0900
+@@ -16,13 +16,17 @@ extern int perfmon_init(struct oprofile_
+ extern void perfmon_exit(void);
+ extern void ia64_backtrace(struct pt_regs * const regs, unsigned int depth);
+ 
+-void __init oprofile_arch_init(struct oprofile_operations * ops)
++int __init oprofile_arch_init(struct oprofile_operations * ops)
+ {
++	int ret = -ENODEV;
++
+ #ifdef CONFIG_PERFMON
+ 	/* perfmon_init() can fail, but we have no way to report it */
+-	perfmon_init(ops);
++	ret = perfmon_init(ops);
+ #endif
+ 	ops->backtrace = ia64_backtrace;
++
++	return ret;
+ }
+ 
+ 
+diff -rup 2.6-bk.orig/arch/m32r/oprofile/init.c 2.6-bk/arch/m32r/oprofile/init.c
+--- 2.6-bk.orig/arch/m32r/oprofile/init.c	2005-01-15 16:02:07.000000000 +0900
++++ 2.6-bk/arch/m32r/oprofile/init.c	2005-01-15 16:24:23.000000000 +0900
+@@ -12,8 +12,9 @@
+ #include <linux/errno.h>
+ #include <linux/init.h>
+ 
+-void __init oprofile_arch_init(struct oprofile_operations * ops)
++int __init oprofile_arch_init(struct oprofile_operations * ops)
+ {
++	return -ENODEV;
+ }
+ 
+ void oprofile_arch_exit(void)
+diff -rup 2.6-bk.orig/arch/parisc/oprofile/init.c 2.6-bk/arch/parisc/oprofile/init.c
+--- 2.6-bk.orig/arch/parisc/oprofile/init.c	2005-01-15 16:02:04.000000000 +0900
++++ 2.6-bk/arch/parisc/oprofile/init.c	2005-01-15 16:24:59.000000000 +0900
+@@ -12,8 +12,9 @@
+ #include <linux/kernel.h>
+ #include <linux/oprofile.h>
+ 
+-void __init oprofile_arch_init(struct oprofile_operations * ops)
++int __init oprofile_arch_init(struct oprofile_operations * ops)
+ {
++	return -ENODEV;
+ }
+ 
+ 
+diff -rup 2.6-bk.orig/arch/ppc64/oprofile/common.c 2.6-bk/arch/ppc64/oprofile/common.c
+--- 2.6-bk.orig/arch/ppc64/oprofile/common.c	2005-01-15 16:02:00.000000000 +0900
++++ 2.6-bk/arch/ppc64/oprofile/common.c	2005-01-15 16:26:01.000000000 +0900
+@@ -125,7 +125,7 @@ static int op_ppc64_create_files(struct 
+ 	return 0;
+ }
+ 
+-void __init oprofile_arch_init(struct oprofile_operations *ops)
++int __init oprofile_arch_init(struct oprofile_operations *ops)
+ {
+ 	unsigned int pvr;
+ 
+@@ -170,7 +170,7 @@ void __init oprofile_arch_init(struct op
+ 			break;
+ 
+ 		default:
+-			return;
++			return -ENODEV;
+ 	}
+ 
+ 	ops->create_files = op_ppc64_create_files;
+@@ -181,6 +181,8 @@ void __init oprofile_arch_init(struct op
+ 
+ 	printk(KERN_INFO "oprofile: using %s performance monitoring.\n",
+ 	       ops->cpu_type);
++
++	return 0;
+ }
+ 
+ void oprofile_arch_exit(void)
+diff -rup 2.6-bk.orig/arch/s390/oprofile/init.c 2.6-bk/arch/s390/oprofile/init.c
+--- 2.6-bk.orig/arch/s390/oprofile/init.c	2005-01-15 16:02:06.000000000 +0900
++++ 2.6-bk/arch/s390/oprofile/init.c	2005-01-15 16:26:19.000000000 +0900
+@@ -12,8 +12,9 @@
+ #include <linux/init.h>
+ #include <linux/errno.h>
+ 
+-void __init oprofile_arch_init(struct oprofile_operations* ops)
++int __init oprofile_arch_init(struct oprofile_operations* ops)
+ {
++	return -ENODEV;
+ }
+ 
+ void oprofile_arch_exit(void)
+diff -rup 2.6-bk.orig/arch/sh/oprofile/op_model_null.c 2.6-bk/arch/sh/oprofile/op_model_null.c
+--- 2.6-bk.orig/arch/sh/oprofile/op_model_null.c	2005-01-15 16:01:52.000000000 +0900
++++ 2.6-bk/arch/sh/oprofile/op_model_null.c	2005-01-15 16:26:41.000000000 +0900
+@@ -12,8 +12,9 @@
+ #include <linux/init.h>
+ #include <linux/errno.h>
+ 
+-void __init oprofile_arch_init(struct oprofile_operations *ops)
++int __init oprofile_arch_init(struct oprofile_operations *ops)
+ {
++	return -ENODEV;
+ }
+ 
+ void oprofile_arch_exit(void)
+diff -rup 2.6-bk.orig/arch/sparc64/oprofile/init.c 2.6-bk/arch/sparc64/oprofile/init.c
+--- 2.6-bk.orig/arch/sparc64/oprofile/init.c	2005-01-15 16:01:40.000000000 +0900
++++ 2.6-bk/arch/sparc64/oprofile/init.c	2005-01-15 16:27:14.000000000 +0900
+@@ -12,8 +12,9 @@
+ #include <linux/errno.h>
+ #include <linux/init.h>
+  
+-void __init oprofile_arch_init(struct oprofile_operations * ops)
++int __init oprofile_arch_init(struct oprofile_operations * ops)
+ {
++	return -ENODEV;
+ }
+ 
+ 
+diff -rup 2.6-bk.orig/drivers/oprofile/oprof.c 2.6-bk/drivers/oprofile/oprof.c
+--- 2.6-bk.orig/drivers/oprofile/oprof.c	2005-01-15 16:02:50.000000000 +0900
++++ 2.6-bk/drivers/oprofile/oprof.c	2005-01-15 16:14:58.000000000 +0900
+@@ -153,11 +153,11 @@ out:
+ 
+ static int __init oprofile_init(void)
+ {
+-	int err = 0;
++	int err;
+ 
+-	oprofile_arch_init(&oprofile_ops);
++	err = oprofile_arch_init(&oprofile_ops);
+ 
+-	if (timer) {
++	if (err < 0 || timer) {
+ 		printk(KERN_INFO "oprofile: using timer interrupt.\n");
+ 		oprofile_timer_init(&oprofile_ops);
+ 	}
+diff -rup 2.6-bk.orig/include/linux/oprofile.h 2.6-bk/include/linux/oprofile.h
+--- 2.6-bk.orig/include/linux/oprofile.h	2005-01-15 16:03:21.000000000 +0900
++++ 2.6-bk/include/linux/oprofile.h	2005-01-15 16:06:27.000000000 +0900
+@@ -48,7 +48,7 @@ struct oprofile_operations {
+  *
+  * If an error occurs, the fields should be left untouched.
+  */
+-void oprofile_arch_init(struct oprofile_operations * ops);
++int oprofile_arch_init(struct oprofile_operations * ops);
+  
+ /**
+  * One-time exit/cleanup for the arch.
+
+
+
+
+

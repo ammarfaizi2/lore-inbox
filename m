@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318806AbSICRLs>; Tue, 3 Sep 2002 13:11:48 -0400
+	id <S318841AbSICRSY>; Tue, 3 Sep 2002 13:18:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318838AbSICRLs>; Tue, 3 Sep 2002 13:11:48 -0400
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:4257 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S318806AbSICRLq>; Tue, 3 Sep 2002 13:11:46 -0400
-Importance: Normal
+	id <S318845AbSICRSX>; Tue, 3 Sep 2002 13:18:23 -0400
+Received: from pD9E23EAA.dip.t-dialin.net ([217.226.62.170]:48512 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318841AbSICRSX>; Tue, 3 Sep 2002 13:18:23 -0400
+Date: Tue, 3 Sep 2002 11:23:01 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Hacksaw <hacksaw@hacksaw.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c 
+In-Reply-To: <200209022233.g82MXXgB015673@habitrail.home.fools-errant.com>
+Message-ID: <Pine.LNX.4.44.0209031118300.3373-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
-Sensitivity: 
-To: Daniel Phillips <phillips@arcor.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel BUG at page_alloc.c:91! (2.4.19)
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF3A6E6F2C.2609CEE7-ONC1256C29.005E7DDC@de.ibm.com>
-From: "Heiko Carstens" <Heiko.Carstens@de.ibm.com>
-Date: Tue, 3 Sep 2002 19:16:01 +0200
-X-MIMETrack: Serialize by Router on D12ML032/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 03/09/2002 19:16:12,
-	Serialize complete at 03/09/2002 19:16:12
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
->> Thanks for the patch but unfortunately it doesn't change the behaviour 
-at
->> all. This BUG is still 100% reproducible by just having 1 process which
->> allocates memory chunks of 256KB and after each allocation writes to 
-each
->> of the pages in order to make them dirty.
->Um, no smp --> no free race anyway.  But try the following instead, to
->start narrowing down the possibilities:
+On Mon, 2 Sep 2002, Hacksaw wrote:
+> 1. It's useful to have a physical disk divided into multiple logical disks.
+> 2. It's therefore important that the bootloader know about them, assuming that 
+> we want to be able to boot from any logical disk.
+> 3. We can either have the bootloader spend time divining the structure of the 
+> logical disks by scanning the physical disk or we can write it down in some 
+> useful place.
+> 4. That useful place is very near the front of the physical disk.
 
-Still the same BUG in __free_pages_ok happens, or in other words both of 
-your
-checks didn't catch the error...
-Any other ideas?
+My "visions" go elsewhere:
 
-Regards,
-Heiko
+The users who still need partition tables shall get theirs in a sane way 
+-- maybe as David Miller proposed, or just simple Sun-styled partition 
+tables (even though I don't think they're _much_ saner than PC partition 
+tables).
+
+And the second thing is about your point one. We have two big raid arrays 
+divided into three racks. Here we have one logical disk divided into many 
+physical disks. If you want to know the constraints, call the controller 
+and ask for it. The rest is bogus -- why should I have a partition table? 
+Maybe divide the raid into smaller disks?!
+
+That's it.
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310487AbSCPRsx>; Sat, 16 Mar 2002 12:48:53 -0500
+	id <S310504AbSCPRxn>; Sat, 16 Mar 2002 12:53:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310488AbSCPRso>; Sat, 16 Mar 2002 12:48:44 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17929 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310487AbSCPRs1>; Sat, 16 Mar 2002 12:48:27 -0500
-Subject: Re: [PATCH] Re: 2.5.7-pre2 -- kernel.o(.data+0x300): undefined
-To: viro@math.psu.edu (Alexander Viro)
-Date: Sat, 16 Mar 2002 18:01:03 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds),
-        linux-kernel@vger.kernel.org (LKML)
-In-Reply-To: <Pine.GSO.4.21.0203161236200.5891-100000@weyl.math.psu.edu> from "Alexander Viro" at Mar 16, 2002 12:39:56 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310506AbSCPRxd>; Sat, 16 Mar 2002 12:53:33 -0500
+Received: from pcls3.std.com ([199.172.62.105]:61874 "EHLO TheWorld.com")
+	by vger.kernel.org with ESMTP id <S310504AbSCPRxa>;
+	Sat, 16 Mar 2002 12:53:30 -0500
+Message-ID: <3C938693.6D29979C@world.std.com>
+Date: Sat, 16 Mar 2002 12:53:23 -0500
+From: Gordon J Lee <gordonl@world.std.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.18-m1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IBM x360 2.2.x boot failure, 2.4.9 works fine
+In-Reply-To: <3C927F3E.7C7FB075@world.std.com> <20020315234333.GH5563@kroah.com> <3C92B1EA.F40BDBD5@world.std.com> <20020316055542.GA8125@kroah.com> <3C938093.D1640CB6@world.std.com> <20020316173434.GB10003@kroah.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16mIUK-0006qJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This is what Linus threw out before - when David wanted to use it to remove
-> > all the intermodule crap.
-> > 
-> > It doesn't work with some architecture binutils
-> 
-> Erm...  In this case we are within statatically linked image.  In which
-> situations it doesn't work?  AFAICS it's as straightforward use of weak
-> aliases as it gets...
+> > 2.4.18  shows two processors
+> > 2.4.19-pre3 shows two processors
+> > 2.4.19-pre3-ac1 shows four processors
+>
+> Great, thanks for testing.  I'd recommend using this hardware :)
 
-Grepping I don't have the original mails on the subject
+>From your earlier post, I presume that the bug here was simply a presentation
+layer bug in /proc/cpuinfo, and that kernel versions previous to 2.4.19-pre3-ac1
+can actually use all of the logical processors.  Is this correct ?
+
+If so, at which 2.4.x kernel did support for hyperthreading show up?
+
+   - GL
+
+

@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275082AbRJVJpb>; Mon, 22 Oct 2001 05:45:31 -0400
+	id <S278449AbRJVJzd>; Mon, 22 Oct 2001 05:55:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278462AbRJVJpO>; Mon, 22 Oct 2001 05:45:14 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:60365 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S278461AbRJVJo7>; Mon, 22 Oct 2001 05:44:59 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Larry McVoy <lm@bitmover.com>, Alexander Viro <viro@math.psu.edu>
-Cc: Jan-Frode Myklebust <janfrode@parallab.uib.no>,
-        ML-linux-kernel <linux-kernel@vger.kernel.org>,
-        Wayne Scott <wscott@bitmover.com>
-Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch
-In-Reply-To: <016a01c15831$ef51c5c0$5c044589@legato.com>
-	<m33d4gjaoa.fsf@linux.local> <20011020171730.A28057@parallab.uib.no>
-	<3BD28673.1060302@sap.com> <20011021093547.A24227@work.bitmover.com>
-Organisation: SAP LinuxLab
-Date: 22 Oct 2001 11:44:04 +0200
-In-Reply-To: <20011021093547.A24227@work.bitmover.com>
-Message-ID: <m3pu7gggbf.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S278464AbRJVJzX>; Mon, 22 Oct 2001 05:55:23 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:65475 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S278449AbRJVJzM>;
+	Mon, 22 Oct 2001 05:55:12 -0400
+Date: Mon, 22 Oct 2001 05:55:47 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12 
+In-Reply-To: <Pine.GSO.4.21.0110220526480.2294-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0110220543140.2294-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Larry,
 
-On Sun, 21 Oct 2001, Larry McVoy wrote:
-> One of the engineers here has also seen this.  The root cause is
-> that readdir() is returning a file multiple times.  We've seen it on
-> tmpfs.  We also have seen in in NFS and had a workaround, the
-> workaround depended that the file would be returned twice right next
-> to each other and that's not the case in tmpfs.  wscott@bitmover.com
-> can provide you with the details of his machine config, here's the
-> mail he sent a while back about it:
+While we are at it, that would also fix the idiocy with "v7 and sysvfs live
+in the same module, need to edit modules.conf to make mount -t v7 ... work".
+I can easily think of many other examples of that sort.  Hell, after a
+look at /etc/modules.conf on a Debian box...  And yes, stuff with default
+options for soundcards... _ouch_
 
-tmpfs does not know anything about directory handling. It uses
-generic_read_dir and dcache_readdir. So this must be a bug in the vfs
-layer. Al, what do you say?
+Is there any chance to get that done in 2.4?  Removal of defaults from
+modprobe binary is a different story, but at least getting rid of
+temptation to add new ones would be a Nice Thing(tm).  Adding relevant
+stuff on the kernel side wouldn't break anything and could be tested
+gradually...
 
-Greetings
-		Christoph
-
+I'm more than willing to help with that; if you start doing something
+of that kind in 2.4 - count me in.  AFAICS it can be done without
+breaking compatibility and it's long overdue.
 

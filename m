@@ -1,80 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286626AbRLVBVS>; Fri, 21 Dec 2001 20:21:18 -0500
+	id <S286631AbRLVBxA>; Fri, 21 Dec 2001 20:53:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286627AbRLVBVI>; Fri, 21 Dec 2001 20:21:08 -0500
-Received: from mysql.sashanet.com ([209.181.82.108]:28032 "EHLO
-	mysql.sashanet.com") by vger.kernel.org with ESMTP
-	id <S286626AbRLVBU5>; Fri, 21 Dec 2001 20:20:57 -0500
-Message-Id: <200112220117.fBM1HLM00755@mysql.sashanet.com>
+	id <S286632AbRLVBwv>; Fri, 21 Dec 2001 20:52:51 -0500
+Received: from svr3.applink.net ([206.50.88.3]:63761 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S286631AbRLVBwg>;
+	Fri, 21 Dec 2001 20:52:36 -0500
+Message-Id: <200112220152.fBM1qJSr022347@svr3.applink.net>
 Content-Type: text/plain; charset=US-ASCII
-From: Sasha Pachev <sasha@mysql.com>
-Organization: MySQL
-To: linux-kernel@vger.kernel.org, riel@conectiva.com.br
-Subject: disabling kswapd
-Date: Fri, 21 Dec 2001 18:17:20 -0700
-X-Mailer: KMail [version 1.3.1]
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: "Per Jessen" <per@computer.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB =?iso-8859-1?q?in	Configure=2Ehelp=2E?=
+Date: Fri, 21 Dec 2001 19:48:36 -0600
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch> (added by     postmaster@bluewin.ch)
+In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik:
+On Friday 21 December 2001 13:55, Per Jessen wrote:
+> On Fri, 21 Dec 2001 11:43:40 -0600, Bob Glamm wrote:
+> >On Fri, Dec 21, 2001 at 03:48:22PM +0000, Mike Jagdis wrote:
+>
+> [snip]
+>
+> >> Go look up "SI binary prefix" and "SI prefix" on Google. You might
+> >> not _like_ the binary prefixes (I don't either) but they're what's
+> >> been standardized and they're unambiguous. It does no good to claim
+> >> that it's enough that *you* know what you mean. This isn't Alice in
+> >> Wonderland (you can look that reference up in your spare time :-) ).
+> >
+> >SI standards have been around for years.  Yet many mechanical
+> >engineers in the US still use English units.  Convention and
+> >economics dictate that they do so; any change in this field is quite
+> >slow.
+>
+> Did the US ever go metric ? Europe (minus the UK of course) did, and rarely
+> looked back. AFAIK (please correct me), the US never went metric. Don't
+> they still use Fahrenheit and all that weird stuff ?
+> Oh, and btw - those non-metric units are not "English units", but "Imperial
+> units", if you want to picky :-)
+>
 
-My original message for some reason did not seem to make it to the list, so I 
-am resending this (with some modifications).
+No, the US never went metric.  That's why $200M Mars probes crash on
+entry due to some idiot using English units as opposed to the NASA standard
+of Metrics.  The funny thing is that Thomas Jefferson, an American President,
+suggested the Metric system to the French while he was ambassador there.
 
-I have noticed that kswapd still runs and in when the memory is low, will do 
-some hard thinking about what to swap even if the system does not have a swap 
-partition. Here is the proof:
 
-sasha@mysql:/usr/src/linux/mm > free
-             total       used       free     shared    buffers     cached
-Mem:        254816     248476       6340          0      27224      48832
--/+ buffers/cache:     172420      82396
-Swap:            0          0          0
-sasha@mysql:/usr/src/linux/mm > ps auxw | grep kswapd
-root         5  0.1  0.0     0    0 ?        SW   Dec19   1:41 [kswapd]
-sasha    25619  0.0  0.2  1552  612 pts/7    S    20:34   0:00 grep kswapd
-
-So in this example kswapd essentially wasted 1 min and 41 sec of CPU time.
-
-I have search through the archive and discovered a patch to disable kswapd 
-through proc at 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0108.0/0675.html. I adapted it 
-to my kernel ( 2.4.17-rc2), disabled kswapd, did some testing and noticed 
-much better performance.
-
-I would like to request that the above patch in some form be officially 
-included in the kernel. While a *perfectly working* kswapd on a system with 
-many different processes behaving in a somewhat unpredicatable manner will be 
-a boon, there are many instances when running kswapd does more harm than 
-good. Below are three reasons why a sysadmin may want to have kswapd disabled:
-
-  * the system is configured in such a way that it has plenty of RAM for 
-buffers,cache, and all the processes it will ever run. For example, a 
-dedicated server machine with lots of RAM, a small server binary, and a set 
-of files it reads that alltogether will fit into RAM - many MySQL 
-installations fit into this category. Running kswapd in this case would only 
-be a waste of CPU
-
- * kswapd has a nasty bug that hogs CPU, causes kernel panic, or swaps out so 
-aggressively that the system becomes unusable.
-
- * some other code in the kernel does not work well with kswapd - the 
-particular problem I've run into, for example, was kswapd going crazy trying 
-to shrink the buffers while find / was causing the kernel to expand them. The 
-result was kswapd taking up 75% of CPU.
-
-The bottom line is that a sysadmin should have a choice ( isn't that what 
-Linux is all about, after all?). If he does not want to run kswapd, he should 
-not have to. If he is really wrong in this, let him find out for himself.
+> >Somehow I expect that the same convention and economics factors will
+> >also dominate the argument over prefixes for bits of information
+> >in this field for years to come as well.
+>
+> That I agree with - although I suspect manufacturers increasing will go for
+> the IEC standards - I used to work for StorageTek where an argument just
+> like this went on about 2 years ago - the IEC side won. Generally the
+> hardware people were all for IEC, and the software side less so.
+>
+>
+> rgds,
+> Per Jessen, Zurich
+>
+> regards,
+> Per Jessen, Zurich
+> http://www.enidan.com - home of the J1 serial console.
+>
+> Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-MySQL Development Team
-For technical support contracts, visit https://order.mysql.com/
-   __  ___     ___ ____  __ 
-  /  |/  /_ __/ __/ __ \/ /   Sasha Pachev <sasha@mysql.com>
- / /|_/ / // /\ \/ /_/ / /__  MySQL AB, http://www.mysql.com/
-/_/  /_/\_, /___/\___\_\___/  Provo, Utah, USA
-       <___/                  
+timothy.covell@ashavan.org.

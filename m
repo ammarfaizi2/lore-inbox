@@ -1,56 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268902AbUJEHKV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268920AbUJEHQD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268902AbUJEHKV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 03:10:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268900AbUJEHKT
+	id S268920AbUJEHQD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 03:16:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268892AbUJEHQD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 03:10:19 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28640 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268902AbUJEHKG (ORCPT
+	Tue, 5 Oct 2004 03:16:03 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:26839 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S268933AbUJEHPr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 03:10:06 -0400
-Date: Tue, 5 Oct 2004 03:09:31 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Con Kolivas <kernel@kolivas.org>
-cc: =?ISO-8859-1?B?Q2hlbiw=?= Kenneth W <kenneth.w.chen@intel.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: bug in sched.c:activate_task()
-In-Reply-To: <cone.1096959567.406629.10082.502@pc.kolivas.org>
-Message-ID: <Pine.LNX.4.58.0410050303280.7299@devserv.devel.redhat.com>
-References: <200410050216.i952Gb620657@unix-os.sc.intel.com>
- <Pine.LNX.4.58.0410050229380.31508@devserv.devel.redhat.com>
- <cone.1096958170.135056.10082.502@pc.kolivas.org>
- <Pine.LNX.4.58.0410050250580.4941@devserv.devel.redhat.com>
- <cone.1096959567.406629.10082.502@pc.kolivas.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 5 Oct 2004 03:15:47 -0400
+Date: Tue, 5 Oct 2004 09:12:46 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Borislav Petkov <petkov@uni-muenster.de>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: Re: 2.6.9-rc2-mm4
+Message-ID: <20041005071245.GB2433@suse.de>
+References: <20040929214637.44e5882f.akpm@osdl.org> <200410042212.32106.petkov@uni-muenster.de> <20041004204214.GB9022@suse.de> <200410042311.55584.petkov@uni-muenster.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410042311.55584.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 04 2004, Borislav Petkov wrote:
+> On Monday 04 October 2004 22:42, Jens Axboe wrote:
+> > On Mon, Oct 04 2004, Borislav Petkov wrote:
+> > > On Monday 04 October 2004 19:36, Jens Axboe wrote:
+> > > > On Mon, Oct 04 2004, Borislav Petkov wrote:
+> > > > > Ok here we go,
+> > > > >
+> > > > > final results:
+> > > > >
+> > > > >  2.6.8-rc1: OK
+> > > > >  2.6.8-rc2: OK
+> > > > >  2.6.8-rc3: OK
+> > > > >  2.6.8-rc3-bk1: OK
+> > > > >  2.6.8-rc3-bk2: OK
+> > > > >  2.6.8-rc3-bk3: OK
+> > > > >  2.6.8-rc3-bk4: OK
+> > > > >  2.6.8-rc4: BUG!
+> > > > >
+> > > > > So, assuming that everything went fine during testing, the bug got
+> > > > > introduced in the transition between 2.6.8-rc3-bk4 and 2.6.8-rc4.
+> > > >
+> > > > That's some nice testing, thank you. Try backing out this hunk:
+> > > >
+> > > > diff -urp linux-2.6.8-rc3-bk4/drivers/block/scsi_ioctl.c
+> > > > linux-2.6.8-rc4/drivers/block/scsi_ioctl.c ---
+> > > > linux-2.6.8-rc3-bk4/drivers/block/scsi_ioctl.c 2004-08-03
+> > > > 23:28:51.000000000 +0200 +++
+> > > > linux-2.6.8-rc4/drivers/block/scsi_ioctl.c 2004-08-10
+> > > > 04:24:08.000000000 +0200 @@ -90,7 +90,7 @@ static int
+> > > > sg_set_reserved_size(request_ if (size < 0)
+> > > >    return -EINVAL;
+> > > >   if (size > (q->max_sectors << 9))
+> > > > -  return -EINVAL;
+> > > > +  size = q->max_sectors << 9;
+> > > >
+> > > >   q->sg_reserved_size = size;
+> > > >   return 0;
+> > > >
+> > > > It's the only thing that sticks out, and it could easily explain it if
+> > > > your cd ripper starts issuing requests that are too big. Maybe even add
+> > > > a printk() here, so it will look like this in the kernel you test:
+> > > >
+> > > >  if (size > (q->sectors << 9)) {
+> > > >   printk("%u rejected\n", size);
+> > > >   return -EINVAL;
+> > > >  }
+> > > >
+> > > > to verify.
+> > >
+> > > Yeah, that was it. Two lines in the log:
+> > >
+> > > Oct 4 22:07:04 zmei kernel: 3145728 rejected
+> > > Oct 4 22:07:04 zmei kernel: 3145728 rejected
+> > >
+> > > Hmm, so this means that my dvd drive is sending too big requests. What do
+> > > we do: firmware upgrade?
+> >
+> > It actually means we have a little discrepancy between what programs
+> > expact of the api. What program are you using? They are supposed to read
+> > back what value has been set with SG_GET_RESERVED_SIZE, I guess this one
+> > does not
+> > 
+> It is called cdda2wav and it is part of the cdrtools package by Joerg 
+> Schilling.  
 
-On Tue, 5 Oct 2004, Con Kolivas wrote:
+Then it's a bug for sure. Not because it's Joerg, but because the
+semantics in the newer kernel is what he wanted. And what sg has been
+doing for a long time. The difference is that if you go through
+sg/ide-scsi, the scsi mid layer will handle requeueing a request for
+you. Most other drivers don't support requests larger than what the
+drive can handle in one operation.
 
-> We used to compare jiffy difference in can_migrate_task by comparing it
-> to cache_decay_ticks. Somewhere in the merging of sched_domains it was
-> changed to task_hot which uses timestamp.
+You don't have an old version or anything like that, do you?
 
-yep, that's fishy. Kenneth, could you try the simple patch below? It gets
-rid of task_hot() in essence. If this works out we could try it - it gets
-rid of some more code from sched.c too. Perhaps SD_WAKE_AFFINE is enough
-control.
+-- 
+Jens Axboe
 
-	Ingo
-
---- kernel/sched.c.orig	2004-10-05 08:28:42.295395160 +0200
-+++ kernel/sched.c	2004-10-05 09:07:44.081389576 +0200
-@@ -180,7 +180,7 @@ static unsigned int task_timeslice(task_
- 	else
- 		return SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
- }
--#define task_hot(p, now, sd) ((now) - (p)->timestamp < (sd)->cache_hot_time)
-+#define task_hot(p, now, sd) 0
- 
- enum idle_type
- {

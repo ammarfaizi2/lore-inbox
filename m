@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283003AbSAMO2e>; Sun, 13 Jan 2002 09:28:34 -0500
+	id <S284732AbSAMOzv>; Sun, 13 Jan 2002 09:55:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284144AbSAMO2P>; Sun, 13 Jan 2002 09:28:15 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10756 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S283003AbSAMO2C>; Sun, 13 Jan 2002 09:28:02 -0500
-Date: Sun, 13 Jan 2002 14:27:56 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: igafb
-Message-ID: <20020113142756.A14469@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	id <S284979AbSAMOzm>; Sun, 13 Jan 2002 09:55:42 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21255 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284732AbSAMOz2>; Sun, 13 Jan 2002 09:55:28 -0500
+Subject: Re: ugly warnings with likely/unlikely
+To: Oliver.Neukum@lrz.uni-muenchen.de
+Date: Sun, 13 Jan 2002 15:07:18 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <16PjOb-0oLbCCC@fwd11.sul.t-online.com> from "Oliver Neukum" at Jan 13, 2002 01:05:13 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16PmEA-0007Ai-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> if (likely(stru->pointer))
+> 
+> results in an ugly warning about using pointer as int.
+> Is there something that could be done against that ?
 
-If anyone is planning work on/uses igafb.c, could they please drop me a
-mail.  I'm looking at the possibility of sucking the support igafb.c
-provides into cyber2000fb.c, and will need testers (esp. Sparc please)
+	if (likely(stru->pointer == NULL))
 
-I believe most of this was done a while ago by various other people
-(Pete Zaitcev?)
-
-Thanks.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Perhaps ?

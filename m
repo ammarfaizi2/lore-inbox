@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265021AbUFANIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265032AbUFANKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265021AbUFANIM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 09:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbUFANIM
+	id S265032AbUFANKI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 09:10:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265031AbUFANKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 09:08:12 -0400
-Received: from zero.aec.at ([193.170.194.10]:64518 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S265021AbUFANIG (ORCPT
+	Tue, 1 Jun 2004 09:10:08 -0400
+Received: from pD952C7EB.dip.t-dialin.net ([217.82.199.235]:40653 "EHLO
+	router.zodiac.dnsalias.org") by vger.kernel.org with ESMTP
+	id S265029AbUFANKC convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 09:08:06 -0400
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org, arnd@arndb.de
-Subject: Re: compat syscall args
-References: <21hGW-h5-5@gated-at.bofh.it> <229Hi-B1-11@gated-at.bofh.it>
-	<22drH-3Bc-47@gated-at.bofh.it> <22dL7-3O8-39@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 01 Jun 2004 15:07:57 +0200
-In-Reply-To: <22dL7-3O8-39@gated-at.bofh.it> (David S. Miller's message of
- "Tue, 01 Jun 2004 11:30:21 +0200")
-Message-ID: <m38yf7juj6.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Tue, 1 Jun 2004 09:10:02 -0400
+From: Alexander Gran <alex@zodiac.dnsalias.org>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH] Enable suspend/resuming of e1000
+Date: Tue, 1 Jun 2004 15:04:37 +0200
+User-Agent: KMail/1.6.2
+References: <200405281404.10538@zodiac.zodiac.dnsalias.org> <20040601125008.GE10233@elf.ucw.cz>
+In-Reply-To: <20040601125008.GE10233@elf.ucw.cz>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+X-Ignorant-User: yes
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200406011504.40549@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Personally I think it makes more sense to do what sparc64 does
-> which is:
+Am Dienstag, 1. Juni 2004 14:50 schrieben Sie:
+> Whitespace damage here (tabs vs. spaces) plus you really should not
+> call procedure before variable declarations. Otherwise looks good.
 >
-> 1) The syscall32 entry code extends each arg in a fixed way.
->    Ie. arg0-3 are zero-extended, arg4-5 are sign-extended
->    or whatever.  I posted the choices we use on sparc64 just
->    the other day.
+> 								Pavel
 
-I don't see where you find that many arguments that need
-sign extension? iirc they are quite rare.
+Was my first patch to the kernel, sorry. However I still have trouble 
+reenabling the card. It is recognized again (Withouth the driver thinks 
+EEPROM is wrong).
+tx is ok, but rx doesn't work. I suppose it's an interrupt problem, as the 
+interrupt doesn't increase on rx. Will dig into it a bit further..
 
+regards
+Alex
 
-> 2) For each syscall where this default set of extensions is
->    not correct, little assembler or C stubs are used to correct
->    the extensions made by the default code.
->
-> It is the most optimal solution.  We only need 13 or so stubs
-> on sparc64 with the defaults we've choosen.
+- -- 
+Encrypted Mails welcome.
+PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-It would be better to do this consistently over all architectures
-and do the sign extension (which is much less common than zero
-extension) always in C code. Then when someone adds a new compat
-handler the chances are high that it will just work over multiple
-architectures (ok minus s390) without much more changes. 
-
-Actually if someone demonstrated that doing sign extension in assembly
-helps a lot then I would not be opposed to doing it on x86-64 
-too just for consistency.
-
-I would be actually not against doing the s390 compat_uptr() changes
-in C too, although it wouldn't help them with the "one handler
-for everybody" goal, since it can be only tested on s390.
-
--Andi
-
+iD8DBQFAvH7n/aHb+2190pERAhSLAJ92ZS1cvWwjjo6oLiVkldpiA5XqhQCeKJDV
+lqooJHS8J8ntBjN4hCw3G+k=
+=/9FQ
+-----END PGP SIGNATURE-----

@@ -1,55 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264359AbUBKUxO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 15:53:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266153AbUBKUxO
+	id S265835AbUBKVKL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 16:10:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266099AbUBKVKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 15:53:14 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:63880 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S264359AbUBKUxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 15:53:08 -0500
-From: Michael Frank <mhf@linuxmail.org>
-To: Rik van Riel <riel@redhat.com>, Jon Burgess <lkml@jburgess.uklinux.net>
-Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interleaved writes
-Date: Thu, 12 Feb 2004 05:02:39 +0800
-User-Agent: KMail/1.5.4
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0402111528140.23220-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0402111528140.23220-100000@chimarrao.boston.redhat.com>
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Feb 2004 16:10:11 -0500
+Received: from nwkea-mail-2.sun.com ([192.18.42.14]:25571 "EHLO
+	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
+	id S265835AbUBKVKG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 16:10:06 -0500
+Date: Wed, 11 Feb 2004 13:09:30 -0800
+From: Tim Hockin <thockin@sun.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: Re: PATCH - raise max_anon limit
+Message-ID: <20040211210930.GJ9155@sun.com>
+Reply-To: thockin@sun.com
+References: <20040206221545.GD9155@sun.com> <20040207005505.784307b8.akpm@osdl.org> <20040207094846.GZ21151@parcelfarce.linux.theplanet.co.uk> <20040211203306.GI9155@sun.com> <Pine.LNX.4.58.0402111236460.2128@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="6CXocAQn8Xbegyxo"
 Content-Disposition: inline
-Message-Id: <200402120502.39300.mhf@linuxmail.org>
+In-Reply-To: <Pine.LNX.4.58.0402111236460.2128@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 February 2004 04:28, Rik van Riel wrote:
-> On Wed, 11 Feb 2004, Jon Burgess wrote:
-> 
-> > Write speed in MB/s using an ext2 filesystem for 1 and 2 streams:
-> > Num streams:     1      2
-> > linux-2.4.22   10.47  6.98
-> > linux-2.6.2     9.71  0.34
-> 
-> > During the disk light is on solid and it really slows any other disk 
-> > access. It looks like the disk is continuously seeking backwards and 
-> > forwards, perhaps re-writing the meta data.
-> 
-> Just for fun, could you also try measuring how long it takes
-> to read back the files in question ?
-> 
-> Both individually and in parallel...
-> 
 
-2.4 has a deadline scheduler. 2.6 default is anticipatory.
+--6CXocAQn8Xbegyxo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Could you please boot with scheduler=deadline to compare apples with apples.
+On Wed, Feb 11, 2004 at 12:38:11PM -0800, Linus Torvalds wrote:
+> > Maybe that is just the simplest answer?  It can be a simple constant that is
+> > changeable at compile time, and leave it at that
+> > 
+> > What's most likely to cause the least argument?
+> 
+> I'd suggest just raising it to 64k or so, that's likely to be acceptable, 
+> and it's a static 8kB array. That's likely not much more than the code 
+> needed to worry about dynamic entries, yet I'd assume that changing it 
+> from 256 to 64k is going to make most people say "enough".
 
-Regards
-Michael
+How's this then?  It doesn't get any simpler..
 
+-- 
+Tim Hockin
+Sun Microsystems, Linux Software Engineering
+thockin@sun.com
+All opinions are my own, not Sun's
 
+--6CXocAQn8Xbegyxo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="max_anon_raise-2.6.2-1.diff"
+
+===== fs/super.c 1.110 vs edited =====
+--- 1.110/fs/super.c	Sun Oct  5 01:07:55 2003
++++ edited/fs/super.c	Wed Feb 11 11:56:02 2004
+@@ -535,7 +535,8 @@
+  * filesystems which don't use real block-devices.  -- jrs
+  */
+ 
+-enum {Max_anon = 256};
++/* you can raise this as high as 2^MINORBITS if you REALLY need more */
++enum {Max_anon = 65536};
+ static unsigned long unnamed_dev_in_use[Max_anon/(8*sizeof(unsigned long))];
+ static spinlock_t unnamed_dev_lock = SPIN_LOCK_UNLOCKED;/* protects the above */
+ 
+
+--6CXocAQn8Xbegyxo--

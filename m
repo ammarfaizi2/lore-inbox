@@ -1,70 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVCRPiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVCRPk5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261652AbVCRPiu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 10:38:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVCRPiu
+	id S261636AbVCRPk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 10:40:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVCRPjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 10:38:50 -0500
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:57473 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S261661AbVCRPaB (ORCPT
+	Fri, 18 Mar 2005 10:39:02 -0500
+Received: from rproxy.gmail.com ([64.233.170.204]:17612 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261636AbVCRPgR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 10:30:01 -0500
-Date: Fri, 18 Mar 2005 16:30:00 +0100
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: ismail =?ISO-8859-1?Q?d=F6nmez?= <ismail.donmez@gmail.com>
+	Fri, 18 Mar 2005 10:36:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Uzl8xQJlfnnGO9iCKdRBH9RXtFYkWJcXCtyKvudVhqDEM+bzjHd9khQH5Ig9xhGWj3f7qfpgDdH8SSZMP4TtK4y19VGPajxiBEbIx4qM3hV8MIoxc44zw/A53Q05QEh4G8Ok/jJfeKR/Br24U+GvYKfZ34QBceHdASXW3CatfWQ=
+Message-ID: <d120d500050318073671f15ad6@mail.gmail.com>
+Date: Fri, 18 Mar 2005 10:36:14 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: dave <dave.m@email.it>
+Subject: Re: PROBLEM: 2.6.11.4 vaio z1xmp mouse click
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11: CDROM_SEND_PACKET as non-root?
-Message-ID: <20050318163000.11fba9fa@phoebee>
-In-Reply-To: <2a4f155d05031807256826bf79@mail.gmail.com>
-References: <20050318154546.41b18776@phoebee>
-	<2a4f155d05031807256826bf79@mail.gmail.com>
-X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
- CPU 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
+In-Reply-To: <200503141916.30252.dave.m@email.it>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
- boundary=Signature_Fri__18_Mar_2005_16_30_00_+0100_fgi7XrggmnPGTBIr;
- protocol="application/pgp-signature"; micalg=pgp-sha1
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <200503141916.30252.dave.m@email.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature_Fri__18_Mar_2005_16_30_00_+0100_fgi7XrggmnPGTBIr
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Mon, 14 Mar 2005 19:16:29 +0100, dave <dave.m@email.it> wrote:
+> 
+> hy,
+> 
+> Upgrading kernel from Linux 2.6.10 (full) to 2.6.11.4(full) the left mouse
+> click get losed (I can not clik).
 
-On Fri, 18 Mar 2005 17:25:35 +0200
-ismail d=F6nmez <ismail.donmez@gmail.com> bubbled:
-
-> growisofs works as a non-root user here.
-
-which version?
-I have:
-growisofs 5.5, front-ending to mkisofs 2.01-unofficial-iconv
-(i686-pc-linux-gnu)
-
-Maybe it's that stupid debian distro my college is using...
-
---=20
-MyExcuse:
-Stubborn processes
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature_Fri__18_Mar_2005_16_30_00_+0100_fgi7XrggmnPGTBIr
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFCOvP4mjLYGS7fcG0RAtT/AJ41M30yJNofGc0KaLTiWatiE4dFNQCdF8mU
-LeW6oe33LU5ASkw5//7cl1g=
-=Y7Mg
------END PGP SIGNATURE-----
-
---Signature_Fri__18_Mar_2005_16_30_00_+0100_fgi7XrggmnPGTBIr--
+Is your touchpad being detected as an ALPS touchpad? There are some
+issues with tapping that should be fixed in 2.6.12. In the meantime
+you could try 2.6.11-mm or force PS/2 compatinbility mode by bootintg
+with psmouse.proto=exps on kernel command line.
+-- 
+Dmitry

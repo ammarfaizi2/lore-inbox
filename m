@@ -1,104 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbTDKWcy (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 18:32:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbTDKWcy (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 18:32:54 -0400
-Received: from [209.195.52.120] ([209.195.52.120]:8343 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S261942AbTDKWcj (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 18:32:39 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Steven Dake <sdake@mvista.com>
-Cc: Greg KH <greg@kroah.com>,
-       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       "'Jeremy Jackson'" <jerj@coplanar.net>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+	id S261892AbTDKWbU (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 18:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbTDKWbU (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 18:31:20 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:28151 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261892AbTDKWbS convert rfc822-to-8bit 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 18:31:18 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780BEBAAB9@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Steven Dake'" <sdake@mvista.com>, "'Greg KH'" <greg@kroah.com>
+Cc: "'Kevin P. Fleming'" <kpfleming@cox.net>,
        "'linux-hotplug-devel@lists.sourceforge.net'" 
-	<linux-hotplug-devel@lists.sourceforge.net>
-Date: Fri, 11 Apr 2003 15:41:13 -0700 (PDT)
-Subject: Re: [ANNOUNCE] udev 0.1 release
-In-Reply-To: <3E974299.3030701@mvista.com>
-Message-ID: <Pine.LNX.4.44.0304111537560.8422-100000@dlang.diginsite.com>
+	<linux-hotplug-devel@lists.sourceforge.net>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'message-bus-list@redhat.com'" <message-bus-list@redhat.com>
+Subject: RE: [ANNOUNCE] udev 0.1 release
+Date: Fri, 11 Apr 2003 15:42:46 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-you can only do this if you use a virtual directory for dev, otherwise you
-have to do something like scanning /dev at shutdown and storing the
-result (this was the famous devfs tar archive of permission issue)
 
-you really ahve two situations.
 
-1. a virtual filesystem for /dev.
+> -----Original Message-----
+> From: Steven Dake [mailto:sdake@mvista.com]
+> 
+> There is no "spec" that states this is a requirement, however, telecom
+> customers require the elapsed time from the time they request the disk
+> to be used, to the disk being usable by the operating system to be 20
+msec.
 
-  this lets you notice all changes to anything in /dev and store it
-apropriatly
+How do you qualify "request"?
 
-2. a real filesystem for /dev with a userspace daemon to update it.
+Is it plug the cable? Insert the disk into the bay? 
+Flip a switch on? Manually? Computer controlled?
 
-  this involves the kernel less, but unless you can convince people to
-stop managing their devices the old way you have the problem of missing
-changes
+I cannot think of a physical action to plug a disk to a system that
+is going to take an amount of time small enough so that 20 msec is
+not noise.
 
-David Lang
+A computer controlled switch might make sense, assuming the disk is
+already powered, spinning and ready to rock - still, I guess SCSI
+would like to enumerate it ... dunno how that works.
 
- On Fri, 11 Apr 2003, Steven Dake wrote:
-
-> Date: Fri, 11 Apr 2003 15:32:57 -0700
-> From: Steven Dake <sdake@mvista.com>
-> To: Greg KH <greg@kroah.com>
-> Cc: David Lang <david.lang@digitalinsight.com>,
->      "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
->      'Jeremy Jackson' <jerj@coplanar.net>,
->      "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
->      "'linux-hotplug-devel@lists.sourceforge.net'"
->     <linux-hotplug-devel@lists.sourceforge.net>
-> Subject: Re: [ANNOUNCE] udev 0.1 release
->
->
->
-> Greg KH wrote:
->
-> >On Fri, Apr 11, 2003 at 01:48:17PM -0700, David Lang wrote:
-> >
-> >
-> >>ant then you also have all the same problems as devfs about default
-> >>permissions, making permissions persistant across reboots, etc.
-> >>
-> >>
-> >
-> >You can store the default permissions in the database you use to store
-> >the naming data.  This solves the reboot problem, as long as you can
-> >convince people to not modify the permissions on their own (well even if
-> >they do, at shutdown, you can always validate that they are the same
-> >before you clean up the node.)
-> >
-> >And provide an easy way for users to change the permissions so they show
-> >up in the database.
-> >
-> >devchmod and devchown anyone?  :)
-> >
-> >
-> Greg,
->
-> I've been thinking of how to solve this particular problem, and believe
-> you could use dnotify in a daemon to track permission and ownership
-> changes and store them in a backing database.  In fact, we do something
-> similiar to this today.  This allows the user to use any type of
-> application for changing permissions/owners, even syscalls directly
-> without having to go "through" any sort of tracking database.
->
-> >thanks,
-> >
-> >greg k-h
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> >
-> >
-> >
-> >
->
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

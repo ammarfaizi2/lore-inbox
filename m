@@ -1,75 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129385AbQK3KdR>; Thu, 30 Nov 2000 05:33:17 -0500
+        id <S129797AbQK3Kja>; Thu, 30 Nov 2000 05:39:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129797AbQK3KdG>; Thu, 30 Nov 2000 05:33:06 -0500
-Received: from 213-120-136-24.btconnect.com ([213.120.136.24]:12293 "EHLO
-        penguin.homenet") by vger.kernel.org with ESMTP id <S129385AbQK3KdB>;
-        Thu, 30 Nov 2000 05:33:01 -0500
-Date: Thu, 30 Nov 2000 10:04:34 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: linux-kernel@vger.kernel.org
-Subject: load_elf_interp()->padzero()->clear_user() + page_fault = hang.
-Message-ID: <Pine.LNX.4.21.0011301003000.846-100000@penguin.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S131595AbQK3KjU>; Thu, 30 Nov 2000 05:39:20 -0500
+Received: from atbode61.informatik.tu-muenchen.de ([131.159.1.165]:54145 "EHLO
+        atbode61.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
+        id <S129797AbQK3KjL>; Thu, 30 Nov 2000 05:39:11 -0500
+Date: Thu, 30 Nov 2000 11:08:40 +0100
+From: Georg Acher <acher@in.tum.de>
+To: linux-usb-devel@lists.sourceforge.net
+Cc: johannes@erdfelt.com, linux-kernel@vger.kernel.org,
+        linux-usb-users@lists.sourceforge.net
+Subject: [patch] usb-uhci.c: fix for PCI-lockups/IRQ problems
+Message-ID: <20001130110840.A2612@in.tum.de>
+Mail-Followup-To: linux-usb-devel@lists.sourceforge.net,
+        johannes@erdfelt.com, linux-kernel@vger.kernel.org,
+        linux-usb-users@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="3V7upXqbjpZ4EhLz"
+X-Mailer: Mutt 1.0pre3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=us-ascii
+
 Hi,
+test12-pre3 had a large set of patches to usb-uhci.c. One small detail of
+this patch can make the driver to lockup the PCI bus with certain UHCI-chips
+(only Intel but not VIA, of course not on my machines...). This patch should 
+fix that.
+It also includes Linus' patch for the IRQ-setup.
+-- 
+         Georg Acher, acher@in.tum.de         
+         http://www.in.tum.de/~acher/
+          "Oh no, not again !" The bowl of petunias          
 
-Interesting stack trace I got here on a 4way SMP machine by just running
-ps -ef which hangs. Any ideas?
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="usb-uhci.patch"
 
-Stack traceback for pid 1078
-    EBP       EIP         Function(args)
-0x40016000 0xc0127fe8 handle_mm_fault+0x204 (0xc7798a80, 0xe9d776a0,
-0x40016848, 0x1, 0xd015c000)
-                               kernel .text 0xc0100000 0xc0127de4
-0xc01281d8
-0xd015dbc8 0xc0115b42 do_page_fault+0x18a (0xd015dbd8, 0x2, 0x7b8, 0x1ee,
-0x1ee)
-                               kernel .text 0xc0100000 0xc01159b8
-0xc0115fa0
-           0xc010c7c0 error_code+0x34
-                               kernel .text 0xc0100000 0xc010c78c
-0xc010c7c8
-Interrupt registers:
-eax = 0x00000000 ebx = 0x000007b8 ecx = 0x000001ee edx = 0x000001ee
-esi = 0x00000000 edi = 0x40016848 esp = 0xd015dc0c eip = 0xc02270e7 
-ebp = 0xd015dc1c xss = 0x00000018 xcs = 0x00000010 eflags = 0x00010246
-xds = 0x00000018 xes = 0x00000018 origeax = 0xffffffff &regs = 0xd015dbd8
-           0xc02270e7 clear_user+0x37 (0x40016848, 0x7b8)
-                               kernel .text 0xc0100000 0xc02270b0
-0xc02270fc
-0xd015dc2c 0xc014f84e padzero+0x1e (0x40016848, 0x0)
-                               kernel .text 0xc0100000 0xc014f830
-0xc014f854
-0xd015dc78 0xc014fdac load_elf_interp+0x24c (0xd015dda8, 0xf71050e0,
-0xd015dd78, 0xc0302ca0, 0xc014ff20)
-                               kernel .text 0xc0100000 0xc014fb60
-0xc014fdfc
-0xd015de10 0xc01507a7 load_elf_binary+0x887 (0xd015de68, 0xd015dfc4,
-0xd015de68)
-                               kernel .text 0xc0100000 0xc014ff20
-0xc0150af8
-0xd015de48 0xc0142918 search_binary_handler+0x68 (0xd015de68, 0xd015dfc4)
-                               kernel .text 0xc0100000 0xc01428b0
-0xc0142a60
-0xd015df9c 0xc0142ba8 do_execve+0x148 (0xc972c000, 0x80f7bcc, 0x80d760c,
-0xd015dfc4)
-                               kernel .text 0xc0100000 0xc0142a60
-0xc0142bfc
-0xd015dfbc 0xc010af6f sys_execve+0x2f (0x80f7aac, 0x80f7bcc, 0x80d760c,
-0x80f7aac, 0x80f7aac)
-                               kernel .text 0xc0100000 0xc010af40
-0xc010af9c
-           0xc010c68b system_call+0x33
-                               kernel .text 0xc0100000 0xc010c658
-0xc010c690
+diff -u linux/drivers/usb/usb-uhci.c linux.afs/drivers/usb/usb-uhci.c
+--- linux/drivers/usb/usb-uhci.c	Thu Nov 30 10:49:54 2000
++++ linux.afs/drivers/usb/usb-uhci.c	Thu Nov 30 10:47:54 2000
+@@ -16,7 +16,7 @@
+  * (C) Copyright 1999 Randy Dunlap
+  * (C) Copyright 1999 Gregory P. Smith
+  *
+- * $Id: usb-uhci.c,v 1.249 2000/11/21 12:03:34 acher Exp $
++ * $Id: usb-uhci.c,v 1.251 2000/11/30 09:47:54 acher Exp $
+  */
+ 
+ #include <linux/config.h>
+@@ -52,7 +52,7 @@
+ /* This enables an extra UHCI slab for memory debugging */
+ #define DEBUG_SLAB
+ 
+-#define VERSTR "$Revision: 1.249 $ time " __TIME__ " " __DATE__
++#define VERSTR "$Revision: 1.251 $ time " __TIME__ " " __DATE__
+ 
+ #include <linux/usb.h>
+ #include "usb-uhci.h"
+@@ -582,6 +582,7 @@
+ 	
+ 	fill_td (td, 0 * TD_CTRL_IOC, 0, 0); // generate 1ms interrupt (enabled on demand)
+ 	insert_td (s, qh, td, 0);
++	qh->hw.qh.element &= ~UHCI_PTR_TERM; // remove TERM bit
+ 	s->td1ms=td;
+ 
+ 	dbg("allocating qh: bulk_chain");
+@@ -2916,6 +2917,9 @@
+ 		return -1;
+ 	}
+ 
++	/* Enable PIRQ */
++	pci_write_config_word (dev, USBLEGSUP, USBLEGSUP_DEFAULT);
++
+ 	s->irq = irq;
+ 
+ 	if(uhci_start_usb (s) < 0) {
+@@ -2951,7 +2955,7 @@
+ 		if (check_region (io_addr, io_size))
+ 			break;
+ 		/* disable legacy emulation */
+-		pci_write_config_word (dev, USBLEGSUP, USBLEGSUP_DEFAULT);
++		pci_write_config_word (dev, USBLEGSUP, 0);
+ 	
+ 		return alloc_uhci(dev, dev->irq, io_addr, io_size);
+ 	}
 
-
-
+--3V7upXqbjpZ4EhLz--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

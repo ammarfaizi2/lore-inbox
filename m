@@ -1,53 +1,237 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267527AbUHaItg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267518AbUHaIvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267527AbUHaItg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 04:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267487AbUHaIsF
+	id S267518AbUHaIvL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 04:51:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUHaIvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 04:48:05 -0400
-Received: from imag.imag.fr ([129.88.30.1]:35056 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S267526AbUHaIrm (ORCPT
+	Tue, 31 Aug 2004 04:51:10 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:45482 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267518AbUHaIsc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 04:47:42 -0400
-Message-ID: <41343B29.4080508@imag.fr>
-Date: Tue, 31 Aug 2004 10:47:37 +0200
-From: Raphael Jacquot <raphael.jacquot@imag.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040809
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: VIA AGPGart problem
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Tue, 31 Aug 2004 10:47:38 +0200 (CEST)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+	Tue, 31 Aug 2004 04:48:32 -0400
+Date: Tue, 31 Aug 2004 10:49:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
+Message-ID: <20040831084928.GA10299@elte.hu>
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="LZvS9be/3tNcYl/X"
+Content-Disposition: inline
+In-Reply-To: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have encountered problems with the following hardware
 
-Via EPIA M-10000 mini itx
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The machine is stable when using either the normal VGA text mode or the 
-Frame buffer mode.
-However, all hell breaks loose whenever X starts.
-The following tests were done :
 
-with agp enabled
-run Xorg with the via driver -> X dies after a couple of seconds
-run Xorg with frame buffer -> X dies after a minute or so
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-with agp disabled
-run Xorg with the via driver -> X dies after a couple minutes
-run Xorg with frame buffer -> machine is useable, but don't push it...
+> VARYING SYSTEM CALL TIMES
+> =========================
+> 
+> In 2.4, it appears that the duration of the write system call is
+> basically fixed and dependent on the duration of the audio fragment.
+> In 2.6, this behavior is now different. If I look at the chart in
+> detail, it appears the system is queueing up several write operations
+> during the first few seconds of testing. You can see this by
+> consistently low elapsed times for the write system call. Then the
+> elapsed time for the write bounces up / down in a sawtooth pattern
+> over a 1 msec range. Could someone explain the cause of this new
+> behavior and if there is a setting to restore the old behavior? I am
+> concerned that this queueing adds latency to audio operations (when
+> trying to synchronize audio with other real time behavior).
 
-in all the above instances, either X dies without cleaning up after 
-itself (and not logging anything useful), yet the machine is available 
-through ssh, or, the machine is completely hanged, probability of each 
-of those occuring seems related to the phases of the moon...
+since the latency tracer does not trigger, we need a modified tracer to
+find out what's happening during such long delays. I've attached the
+'user-latency-tracer' patch ontop of -Q5, which is a modification of the
+latency tracer. This patch enables free-running tracing which includes
+all kernel functions not just critical sections. To activate this, two
+things have to be done. Firstly:
 
-hope this helps
+	echo 2 > /proc/sys/kernel/trace_enabled
 
-Raphael
+this turns off the normal latency tracer and turns on the 'user tracer'. 
+Traces can be generated by userspace via a hack done to
+sys_gettimeofday():
+
+	gettimeofday(0,1); // enable the tracer
+	gettimeofday(0,0); // save current trace and disable the tracer
+
+this way the tracing can be limited to the suspected codepaths only.
+
+could you try to insert gettimeofday(0,1) into your testsuite just
+before the write() call is done, and right after the write() call, and
+save a couple of representative traces? The patch also ups the # of
+latency entries to 8000 - if that is still insufficient then please
+increase it as needed.
+
+NOTE: on SMP the tracing on/off is strictly per-CPU. So do the enabling
+and disabling of the trace on the same CPU. (doing otherwise wont cause
+problems, but the generated traces will be less useful.)
+
+	Ingo
+
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="user-latency-2.6.9-rc1-bk4-Q5-A0"
+
+--- linux/kernel/latency.c.orig
++++ linux/kernel/latency.c
+@@ -27,7 +27,7 @@ static DECLARE_MUTEX(max_mutex);
+ 
+ #ifdef CONFIG_LATENCY_TRACE
+ 
+-#define MAX_TRACE 4000UL
++#define MAX_TRACE 8000UL
+ 
+ struct trace_entry {
+ 	unsigned long preempt_count;
+@@ -63,14 +63,13 @@ static unsigned long max_nice;
+ static unsigned long max_policy;
+ static unsigned long max_rt_priority;
+ 
+-inline void notrace
++static inline void notrace
+ ____trace(struct cpu_trace *tr, unsigned long eip, unsigned long parent_eip)
+ {
+ 	struct trace_entry *entry;
+ 
+-	BUG_ON(!irqs_disabled());
+-
+-	if (tr->trace_idx < MAX_TRACE) {
++	if ((tr->critical_start || (trace_enabled == 2)) &&
++			(tr->trace_idx < MAX_TRACE)) {
+ 		entry = tr->trace + tr->trace_idx;
+ 		entry->eip = eip;
+ 		entry->parent_eip = parent_eip;
+@@ -80,7 +79,7 @@ ____trace(struct cpu_trace *tr, unsigned
+ 	tr->trace_idx++;
+ }
+ 
+-inline void notrace
++static inline void notrace
+ ___trace(unsigned long eip, unsigned long parent_eip)
+ {
+ 	unsigned long flags;
+@@ -266,6 +265,18 @@ static int setup_preempt_thresh(char *s)
+ }
+ __setup("preempt_thresh=", setup_preempt_thresh);
+ 
++static void update_max_trace(struct cpu_trace *tr)
++{
++	memcpy(&max_trace, tr, sizeof (max_trace));
++
++	memcpy(max_comm, current->comm, 16);
++	max_pid = current->pid;
++	max_uid = current->uid;
++	max_nice = current->static_prio - 20 - MAX_RT_PRIO;
++	max_policy = current->policy;
++	max_rt_priority = current->rt_priority;
++}
++
+ static void notrace check_preempt_timing(struct cpu_trace *tr)
+ {
+ #ifdef CONFIG_LATENCY_TRACE
+@@ -274,6 +285,10 @@ static void notrace check_preempt_timing
+ 	unsigned long parent_eip = (unsigned long)__builtin_return_address(1);
+ 	unsigned long latency;
+ 
++#ifdef CONFIG_LATENCY_TRACE
++	if (trace_enabled == 2)
++		return;
++#endif
+ 	atomic_inc(&tr->disabled);
+ 	latency = cycles_to_usecs(get_cycles() - tr->preempt_timestamp);
+ 
+@@ -293,14 +308,7 @@ static void notrace check_preempt_timing
+ 
+ #ifdef CONFIG_LATENCY_TRACE
+ 	____trace(tr, eip, parent_eip);
+-	memcpy(&max_trace, tr, sizeof (max_trace));
+-
+-	memcpy(max_comm, current->comm, 16);
+-	max_pid = current->pid;
+-	max_uid = current->uid;
+-	max_nice = current->static_prio - 20 - MAX_RT_PRIO;
+-	max_policy = current->policy;
+-	max_rt_priority = current->rt_priority;
++	update_max_trace(tr);
+ #endif
+ 
+ 	if (preempt_thresh)
+@@ -354,6 +362,10 @@ void notrace add_preempt_count(int val)
+ #endif
+ 
+ 	preempt_count() += val;
++#ifdef CONFIG_LATENCY_TRACE
++	if (trace_enabled == 2)
++		return;
++#endif
+ 	if (preempt_count() == val) {
+ 		struct cpu_trace *tr = &__get_cpu_var(trace);
+ 
+@@ -383,3 +395,27 @@ void notrace sub_preempt_count(int val)
+ 	preempt_count() -= val;
+ }
+ EXPORT_SYMBOL(sub_preempt_count);
++
++void user_trace_start(void)
++{
++	struct cpu_trace *tr;
++
++	if (trace_enabled != 2)
++		return;
++	tr = &get_cpu_var(trace);
++	tr->trace_idx = 0;
++	mcount();
++	put_cpu_var(trace);
++}
++
++void user_trace_stop(void)
++{
++	struct cpu_trace *tr;
++
++	if (trace_enabled != 2)
++		return;
++	tr = &get_cpu_var(trace);
++	mcount();
++	update_max_trace(tr);
++	put_cpu_var(trace);
++}
+--- linux/kernel/time.c.orig2	
++++ linux/kernel/time.c	
+@@ -90,8 +90,17 @@ asmlinkage long sys_stime(time_t __user 
+ 
+ #endif /* __ARCH_WANT_SYS_TIME */
+ 
++extern void user_trace_start(void);
++extern void user_trace_stop(void);
++
+ asmlinkage long sys_gettimeofday(struct timeval __user *tv, struct timezone __user *tz)
+ {
++#ifdef CONFIG_LATENCY_TRACE
++	if (!tv && ((int)tz == 1))
++		user_trace_start();
++	if (!tv && !tz)
++		user_trace_stop();
++#endif
+ 	if (likely(tv != NULL)) {
+ 		struct timeval ktv;
+ 		do_gettimeofday(&ktv);
+
+--LZvS9be/3tNcYl/X--

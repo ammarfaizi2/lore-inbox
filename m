@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264466AbTLMGKC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 01:10:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264469AbTLMGKC
+	id S264459AbTLMGS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 01:18:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264469AbTLMGS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 01:10:02 -0500
-Received: from h80ad2538.async.vt.edu ([128.173.37.56]:38787 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S264466AbTLMGKA (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 01:10:00 -0500
-Message-Id: <200312130609.hBD69s1j010033@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: aquamodem@ameritech.net
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC/PATCH] FUSYN 5/10: kernel fuqueues 
-In-Reply-To: Your message of "Fri, 12 Dec 2003 17:02:45 CST."
-             <3FDA4915.6080604@ameritech.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <3FDA4915.6080604@ameritech.net>
+	Sat, 13 Dec 2003 01:18:57 -0500
+Received: from [64.65.189.210] ([64.65.189.210]:35235 "EHLO
+	mail.pacrimopen.com") by vger.kernel.org with ESMTP id S264459AbTLMGS4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 01:18:56 -0500
+Subject: Re: PROBLEM: floppy motor spins when floppy module not installed
+From: Joshua Schmidlkofer <kernel@pacrimopen.com>
+To: root@chaos.analogic.com
+Cc: John Bradford <john@grabjohn.com>,
+       =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0312121435570.1356@chaos>
+References: <16345.51504.583427.499297@l.a> <yw1xd6auyvac.fsf@kth.se>
+	 <Pine.LNX.4.53.0312121000150.10423@chaos>
+	 <200312121928.hBCJSLBs000384@81-2-122-30.bradfords.org.uk>
+	 <Pine.LNX.4.53.0312121435570.1356@chaos>
+Content-Type: text/plain
+Message-Id: <1071296320.16407.17.camel@menion.home>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_187049454P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 12 Dec 2003 22:18:41 -0800
 Content-Transfer-Encoding: 7bit
-Date: Sat, 13 Dec 2003 01:09:54 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_187049454P
-Content-Type: text/plain; charset=us-ascii
+> Yes, and I recall we agreed to disagree where the FDC stop must
+> be put, but we both agreed that it must be stopped. I still contend
+> that since the Linux startup code takes control away from the BIOS,
+> it's that codes responsibility to turn OFF things that the BIOS
+> might have left ON.
+> 
+> Funny thing. It's so trivial, anybody/everybody could turn the
+> floppy motor off, but all the fingers point to somebody else's
+> code.
+> 
+> It's a bug in Linux, not in a boot-loader. That bug was covered up
+> until the FDC code got modularized. Once we were able to compile
+> a kernel without the FDC, the bug was exposed. So, I suggest that
+> we just fix the bug and be done with it. It's not a performance
+> problem, the write to the port occurs exactly once during the nest
+> 999 days of up-time. It's just an attempt to make a mountain out
+> of a mole-hill.
 
-On Fri, 12 Dec 2003 17:02:45 CST, watermodem <aquamodem@ameritech.net>  said:
-> Keep it.
->    No corporation will ever admit to creating code with such names.  It 
-> should provide some protection against attempts to steal it.
 
-Andy Tanenbaum quotes the VAX Hardware Handbook, chapter and verse:
+We have had (do have?) several cases of optional "this workaround", or
+"that workaround" as per-hardware config options.  If this is that
+objectionable for genral consumption then someone ought to submit a
+patch to do the dirty deed but put it in as a configurable workaround
+(CONFIG_TURNFLOPPYOFF=Y/N), and leave it at that. [For maximum
+perversity, it could also be a MODULE.] This does not affect everyone
+right?  I have never tried booting w/o the floppy module, so I really
+don't know about my system.   
 
-http://gopher.quux.org:70/Archives/usenet-a-news/NET.general/82.02.11_floyd.76_net.general.txt
 
-(Yes, it's a (possibly accidental) backronym).
+js
 
---==_Exmh_187049454P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/2q0ycC3lWbTT17ARAuKTAJ42R+VD2XpeXnGSagVw7cygpVJLIwCgslwZ
-zSqw6vYLg346F30l5a+2ICw=
-=+7kG
------END PGP SIGNATURE-----
-
---==_Exmh_187049454P--

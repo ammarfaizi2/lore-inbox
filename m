@@ -1,67 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUHQXJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268504AbUHQXJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265395AbUHQXJt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 19:09:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268509AbUHQXJt
+	id S268504AbUHQXJe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 19:09:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268509AbUHQXJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 19:09:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37321 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265395AbUHQXJP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 19:09:15 -0400
-Date: Tue, 17 Aug 2004 16:12:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, mochel@digitalimplant.org,
-       benh@kernel.crashing.org, david-b@pacbell.net
-Subject: Re: [patch] enums to clear suspend-state confusion
-Message-Id: <20040817161245.50dd6b96.akpm@osdl.org>
-In-Reply-To: <20040817223700.GA15046@elf.ucw.cz>
-References: <20040812120220.GA30816@elf.ucw.cz>
-	<20040817212510.GA744@elf.ucw.cz>
-	<20040817152742.17d3449d.akpm@osdl.org>
-	<20040817223700.GA15046@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Aug 2004 19:09:33 -0400
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:64427 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S268504AbUHQXJH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 19:09:07 -0400
+Date: Wed, 18 Aug 2004 01:07:13 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: john stultz <johnstul@us.ibm.com>
+cc: george anzinger <george@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       albert@users.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
+       voland@dmz.com.pl, nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
+       david+powerix@blue-labs.org
+Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
+In-Reply-To: <1092782243.2429.254.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de>
+References: <1087948634.9831.1154.camel@cube>  <87smcf5zx7.fsf@devron.myhome.or.jp>
+  <20040816124136.27646d14.akpm@osdl.org> 
+ <Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de> 
+ <412285A5.9080003@mvista.com> <1092782243.2429.254.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
->
-> > If, at some time in the future you change the suspend state to a struct
-> > then you will want to pass that thing around by reference, not by
-> > value. 
-> 
-> Actually I expect it to become struct of two members, system-state and
-> bus-specific state. That seems small enough to pass by value.
+On Tue, 17 Aug 2004, john stultz wrote:
 
-hm.  Yes, it's hard to see how this structure can grow much larger.
-
-But we'll be stuck for all time with a weird interface, just because once back
-in August of '04 we didn't want to patch 129 files.
-
-> > Hence your new suspend_state_t will need to be typecast to a pointer to
-> > struct, and not a struct.  And that's not a thing which we do in-kernel
-> > much at all.  (There's nothing wrong with the practice per-se, but in the
-> > kernel it does violate the principle of least surprise).
+> On Tue, 2004-08-17 at 15:24, George Anzinger wrote:
+> > I see you think you have the solution, but I guess I am just dense here.  May be 
+> > you could help me to see the error of my ways.  Here is my thinking:
 > > 
-> > So if you really do intend to add more things to the suspend state I'd
-> > suggest that you set the final framework in place immediately.  Do:
-> > 
-> > struct suspend_state {
-> > 	enum system_state state;
-> > }
+> > "now" is from gettimeofday() and as such is ntp corrected.
+> > "uptime" is also corrected.  In fact it is "now" + "wall_to_monotonic".  And 
+> > "wall_to_monotonic" is _only_ changed by do_settime() when the clock is set.
+> > "time_from_boot_to_process_start" is the same as "start_time" restated in 
+> > seconds, i.e. it is a constant.  So, either one or more of the above assumtions 
+> > is wrong, or  somebody is twiddling the clock.  Otherwise I don't see how the 
+> > start time can move at all.
+
+Start time indeed is a constant for each process, and doesn't drift. 
+The problem trather is that a (slightly) wrong start time is assigned
+to newly created processes.
+
+> The problem is start time is derived from task->start_time which is the
+> jiffies value at the time the process started. Thus interval calculated
+> by: (start_time = p->start_time - INITIAL_JIFFIES) or (run_time =
+> get_jiffies_64() - p->start_time) is not NTP adjusted. 
 > 
-> I can do that... but it will break compilation of every driver in the
-> tree. I can fix drivers I use and try to fix some more will sed, but
-> it will be painfull (and pretty big diff, and I'll probably miss some).
+> So both (uptime - run_time) or (boot_time + start_time) will have
+> problems. 
+> 
+> What needs to happen is task->start_time is changed to a timespec which
+> is set at fork time to be do_posix_clock_monotonic_gettime(). Then in
+> proc_pid_stat() we can calculate the appropriate user-jiffies value.
 
-That's OK - it's just an hour's work.  I'd be more concerned about
-irritating people who are maintaining and using out-of-tree drivers.
+Yep.
 
-Can you remind me why we need _any_ of this?  "enums to clear suspend-state
-confusion" sounds like something which is very optional.  I'd be opting to
-go do something else instead ;)
+> task->start_time is used at the following lines:
+> 
+> include/linux/sched.h: 460
+> kernel/fork.c: 964
+> fs/proc/array.h: 359
+> kernel/acct.c: 404
+> mm/oom_kill.c: 64
+> 
+> I'm stuck trying to fix the last two files at the moment. Please let me
+> know if you see any other uses.
 
+Where's the problem with the last two of them?
+I think I can do them if you fix the first three, so that I can see which
+time source is going to replace jiffies here.
+
+
+Tim

@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129625AbQKURCz>; Tue, 21 Nov 2000 12:02:55 -0500
+	id <S129231AbQKURGp>; Tue, 21 Nov 2000 12:06:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129999AbQKURCq>; Tue, 21 Nov 2000 12:02:46 -0500
-Received: from ns1.sevenkings.net ([216.126.141.50]:1799 "EHLO
-	ns1.sevenkings.net") by vger.kernel.org with ESMTP
-	id <S129625AbQKURC3>; Tue, 21 Nov 2000 12:02:29 -0500
-From: Egan <egan@sevenkings.net>
-To: linux-kernel@vger.kernel.org
-Subject: 3c527 driver won't receive packets
-Date: Tue, 21 Nov 2000 11:32:27 -0500
-Message-ID: <7a8l1tcv145omgpmvf02gjsk4p34djjt9f@4ax.com>
-In-Reply-To: <DLECJAOCHAKJBLMJFKPIAEPBCCAA.ruben@trymedia.com> <200011211720.MAA04358@ccure.karaya.com>
-In-Reply-To: <200011211720.MAA04358@ccure.karaya.com>
-X-Mailer: Forte Agent 1.8/32.548
+	id <S129208AbQKURGf>; Tue, 21 Nov 2000 12:06:35 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9290 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129431AbQKURGV>; Tue, 21 Nov 2000 12:06:21 -0500
+Subject: Re: 3c527 driver won't receive packets
+To: egan@sevenkings.net (Egan)
+Date: Tue, 21 Nov 2000 16:36:48 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <7a8l1tcv145omgpmvf02gjsk4p34djjt9f@4ax.com> from "Egan" at Nov 21, 2000 11:32:27 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E13yGPZ-0004tt-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was hoping to use some Etherlink MC/32 cards in my MCA Server 95.
+> The card will transmit packets, I can see them on another machine with
+> tcpdump.  But it will not receive any packets.
 
-The card will transmit packets, I can see them on another machine with
-tcpdump.  But it will not receive any packets.
+I've had a couple of reports like this. Basically I own two MC/32 cards and
+one PS/2 and it 'works for me'
 
-I've already tried 3 different Etherlink MC/32 cards.  Each one passes
-the 3Com diagnostics.  I get the same result with 2.4.0-test11 and
-2.2.18pre5.
+> Any hints on solving the problem?
 
-The same server works fine on the LAN with a 3c529 MCA card.  The
-3c529 is a slower card, so I would prefer to use the MC/32 cards if
-possible.
-
-Any hints on solving the problem?
-
-Egan
-
+Someone sent me an improved 3c527 driver. If you want to become a tester of it
+then drop me a mail off list.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

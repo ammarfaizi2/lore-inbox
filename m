@@ -1,71 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262905AbTIFQCu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 12:02:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbTIFQCu
+	id S261449AbTIFP6x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 11:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbTIFP6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 12:02:50 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:13710 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262905AbTIFQCs
+	Sat, 6 Sep 2003 11:58:53 -0400
+Received: from law12-f92.law12.hotmail.com ([64.4.19.92]:14864 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261449AbTIFP6v
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 12:02:48 -0400
-Date: Sat, 6 Sep 2003 17:02:00 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Greg KH <greg@kroah.com>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Linux usb mailing list 
-	<linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: USB modem no longer detected in -test4
-Message-ID: <20030906160200.GA10723@mail.jlokier.co.uk>
-References: <20030903191701.GA2798@elf.ucw.cz> <20030903223936.GA7418@kroah.com> <20030903224412.GA6822@atrey.karlin.mff.cuni.cz> <20030903233602.GA1416@kroah.com> <20030904212417.GF31590@mail.jlokier.co.uk> <3F57C951.8030606@pacbell.net>
+	Sat, 6 Sep 2003 11:58:51 -0400
+X-Originating-IP: [208.48.228.132]
+X-Originating-Email: [jyau_kernel_dev@hotmail.com]
+From: "John Yau" <jyau_kernel_dev@hotmail.com>
+To: mbuesch@freenet.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
+Date: Sat, 06 Sep 2003 11:58:50 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F57C951.8030606@pacbell.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; format=flowed
+Message-ID: <LAW12-F92KGb2nHutfS00032a92@hotmail.com>
+X-OriginalArrivalTime: 06 Sep 2003 15:58:50.0722 (UTC) FILETIME=[C398C420:01C3748F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
-> >It worked fine in 2.5.75 too.  I have the same problem as Pavel, with
-> >a different USB modem in -test4.
-> 
-> And ... does my suggestion to Pavel then improve things?
->   http://marc.theaimsgroup.com/?l=linux-kernel&m=106263361810553&w=2
->   http://marc.theaimsgroup.com/?l=linux-usb-devel&m=106260875713372&w=2
+Hi Michael,
 
-Yes it does.
+I don't know if really a bug due to xmms, I suspect that's the case.  I'm 
+not familiar with xmms internals, but when I gdb'ed the process after it 
+froze, all the threads either stopped at poll(), write(), select(), or 
+nanosleep().  Some combination of the blocking calls among those is probably 
+causing the stall.  I highly doubt it's due to the kernel since I haven't 
+been experiencing hangs in any other applications.  It could be the socket 
+code though if extensive modifications to it have been made, since I've 
+never experienced hangs like this in the 2.4.18 kernel used by RedHat 8.0.
 
-When loading the controller, these are some of the messages:
 
-	PM: Adding info for usb:1-1:0
-	PM: Adding info for usb:1-1:1
-	drivers/usb/class/cdc-acm.c: need inactive config #2
-	drivers/usb/class/cdc-acm.c: need inactive config #2
+John Yau
 
-On loading cdc_acm:
+>From: Michael Buesch <mbuesch@freenet.de>
+>To: "John Yau" <jyau_kernel_dev@hotmail.com>
+>CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+>Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
+>Date: Sat, 6 Sep 2003 12:03:35 +0200
+>
+>-----BEGIN PGP SIGNED MESSAGE-----
+>Hash: SHA1
+>
+>On Saturday 06 September 2003 11:46, John Yau wrote:
+> > Hi folks,
+>
+>Hi John,
+>
+> > xmms still completely hangs every once in a while for me.  However I
+> > suspect it's due to a bug in xmms that deadlocks.  Anyone else 
+>experiencing
+> > hangs with xmms while tuning into Shoutcast???
+>
+>Yes, that's (was?) a bug of xmms.
+>
+>- --
+>Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+>Animals on this machine: some GNUs and Penguin 2.6.0-test4-bk2
+>
+>-----BEGIN PGP SIGNATURE-----
+>Version: GnuPG v1.2.2 (GNU/Linux)
+>
+>iD8DBQE/WbD/oxoigfggmSgRAs5qAJ99vZeNeMEXhl72VvVlGFMWh55HVgCeLK0R
+>MgWcMSUSdEYL+OeehfDNBCc=
+>=TdCG
+>-----END PGP SIGNATURE-----
+>
 
-	usb 1-1: control timeout on ep0in
+_________________________________________________________________
+Get 10MB of e-mail storage! Sign up for Hotmail Extra Storage.  
+http://join.msn.com/?PAGE=features/es
 
-When I do the echo 2 >/sys/bus/usb/devices/1-1/bConfigurationValue:
-
-	acm: probe of 1-1:1 failed with error -5
-
-I am able to open the modem device and use it after the echo, and not
-before.  (I'm using it now).
-
-> I'll submit a cdc-acm patch later to get rid of the need for the
-> manual workaround.  And meanwhile, a hotplug script could automate
-> this for you, in /etc/hotplug/usb/cdc-acm ...
-
-So many other things don't work automatically for me in 2.6 that one
-little echo for cdc_acm is a little thing.  Besides, hotplug doesn't
-work either - something about the arguments to /sbin/hotplug has
-changed since 2.4 and I am in no rush to install a new version.
-
-Thanks for the modem fix.  I can now test the futex bug without going
-offline :)
-
-Cheers,
--- Jamie

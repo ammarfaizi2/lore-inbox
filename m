@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129656AbQKSSF0>; Sun, 19 Nov 2000 13:05:26 -0500
+	id <S129136AbQKSSS7>; Sun, 19 Nov 2000 13:18:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129653AbQKSSFG>; Sun, 19 Nov 2000 13:05:06 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:43524 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129157AbQKSSE5>;
-	Sun, 19 Nov 2000 13:04:57 -0500
-Message-ID: <3A180F1E.83F6D925@mandrakesoft.com>
-Date: Sun, 19 Nov 2000 12:34:22 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S129157AbQKSSSu>; Sun, 19 Nov 2000 13:18:50 -0500
+Received: from web3403.mail.yahoo.com ([204.71.203.57]:64270 "HELO
+	web3403.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129136AbQKSSSb>; Sun, 19 Nov 2000 13:18:31 -0500
+Message-ID: <20001119174826.16200.qmail@web3403.mail.yahoo.com>
+Date: Sun, 19 Nov 2000 18:48:26 +0100 (CET)
+From: Markus Schoder <markus_schoder@yahoo.de>
+Subject: Re: Freeze on FPU exception with Athlon
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: peter@rottengatter.de
-CC: linux-kernel@vger.kernel.org, perot@arisia.rottengatter.de
-Subject: Re: PROBLEM: 3c509 driver broken in 2.4.0-test10, not in -test9
-In-Reply-To: <E13xYFr-0000FO-00@pausch-111.htp-tel.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Rottengatter wrote:
-> 
-> Sorry for using this address, there does not appear to be a special maintainer
-> for the 3c509 network driver.
-> 
-> 1.
-> 3c509 driver broken in 2.4.0-test10, not in -test9
-> 
-> 2.
-> The 3c509 network driver worked fine for decades almost ;-) that is 2.0.x,
-> 2.2.x, and 2.4.0-test up to 9. In 2.4.0-test10 it ooooopes upon modprobing.
-> lsmod says "initializing" in the 3c509 entry, forever.
-> 
-> 3.
-> 3c509, 3C509, Ethernet, networking, 2.4.0-test10
 
-fixed in test11-preXX
+--- Brian Gerst <bgerst@didntduck.org> wrote: 
+> > Ok, that was it!  It's IRQ 13.  Guess I should
+have
+> > tried that first.  Now everything works perfectly.
+> > Thanks everybody.
+> 
+> What motherboard do you have?  I can't reproduce
+> this on my FIC SD11.
+> 
+> -- 
+> 
+> 				Brian Gerst
 
--- 
-Jeff Garzik             |
-Building 1024           | The chief enemy of creativity is "good" sense
-MandrakeSoft            |          -- Picasso
+It's a ABIT KT7-100 RAID.  And I know somebody else
+who has the same problem with this board.  So it seems
+definitely board related.
+
+--
+Markus
+
+
+__________________________________________________________________
+Do You Yahoo!?
+Gesendet von Yahoo! Mail - http://mail.yahoo.de
+Gratis zum Millionär! - http://10millionenspiel.yahoo.de
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

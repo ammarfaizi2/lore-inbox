@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263946AbUBOEJk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 23:09:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263963AbUBOEJk
+	id S264095AbUBOEWM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 23:22:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUBOEWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 23:09:40 -0500
-Received: from mxsf27.cluster1.charter.net ([209.225.28.227]:12040 "EHLO
-	mxsf27.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S263946AbUBOEJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 23:09:35 -0500
-Date: Sat, 14 Feb 2004 23:05:23 -0500 (EST)
-From: ameer armaly <ameer@charter.net>
-X-X-Sender: ameer@debian
-To: Armen Kaleshian <akaleshian@kriation.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel boot order
-In-Reply-To: <20040214065459.GA18235@sevoog.kriation.com>
-Message-ID: <Pine.LNX.4.58.0402142304520.284@debian>
-References: <Pine.LNX.4.58.0402132237320.14412@debian>
- <20040214065459.GA18235@sevoog.kriation.com>
+	Sat, 14 Feb 2004 23:22:11 -0500
+Received: from [193.226.51.42] ([193.226.51.42]:15119 "HELO al.math.unibuc.ro")
+	by vger.kernel.org with SMTP id S264095AbUBOEWJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 23:22:09 -0500
+Message-ID: <402EF3E9.4090502@al.math.unibuc.ro>
+Date: Sun, 15 Feb 2004 06:22:01 +0200
+From: Mihai Tanasescu <mihai@al.math.unibuc.ro>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.24 bug
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I reffer to the various modules that are linked directly linked into the
-kernel; that are set to y in make config.
+Hello,
 
-On Sat, 14 Feb 2004, Armen Kaleshian wrote:
+I've recently discovered a bug in the conntrack system I think of the 
+linux 2.4.24 kernel:
 
-> What do you mean by what parts? The kernel enables your system devices, and then
-> other services are started based on what you have specified to start at the run
-> level you've set the machine to boot to.
->
-> Please clarify your question so that I may better answer it.
->
-> --Armen
->
-> On Fri, Feb 13, 2004 at 10:39:11PM -0500, ameer armaly wrote:
-> : Hi all.
-> : What determines the order in which parts of the kernel are loaded?  Is it
-> : in main.c or omsething like that or is it in the link order, or something
-> : totally different.
-> : Please reply privately to me at ameer@charter.net since I can't handle 300
-> : msgs a day.
-> : Thanks,
-> :
-> :
-> :
-> : Ameer
-> :
-> : -
-> : To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> : the body of a message to majordomo@vger.kernel.org
-> : More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> : Please read the FAQ at  http://www.tux.org/lkml/
->
+I have the following setup:
+
+eth0      Link encap:Ethernet  HWaddr 00:40:F4:79:11:A3
+           inet addr:213.154.157.242  Bcast:213.154.157.243  \
+
+eth0:0    Link encap:Ethernet  HWaddr 00:40:F4:79:11:A3
+           inet addr:213.154.157.42  Bcast:213.154.157.47  \
+eth0:1    Link encap:Ethernet  HWaddr 00:40:F4:79:11:A3
+           inet addr:213.154.157.43  Bcast:213.154.157.47  \
+
+eth0:2    Link encap:Ethernet  HWaddr 00:40:F4:79:11:A3
+           inet addr:213.154.157.44  Bcast:213.154.157.47  \
+eth0:3    Link encap:Ethernet  HWaddr 00:40:F4:79:11:A3
+           inet addr:213.154.157.45  Bcast:213.154.157.47  \
+
+and I have something like
+SNAT 192.168.40.10,192.168.40.11 to 213.154.157.242
+SNAT 192.168.40.12,192.168.40.13 to 213.154.157.42
+and so on for every alias IP on my external interface eth0
+
+with the 2.4.24 kernel NAT was only working for the first ip of the 
+network interface=213.154.157.242 in my case (for the other ones=the 
+aliases it reacted in the following way ....
+for example an icmp ping from 192.168.40.13 to some site would get seen 
+with tcpdump exiting the server with the correct nated IP ...I would see 
+it come back on the external interface..but no packet would come out the 
+internal interface  in order to reach the private ip that originally 
+sent the ping ..)
+like: tcpdump -n -i eth1
+icmp echo request 192.168.40.13 > 194.102.255.2
+tcpdump -n -i eth0
+icmp echo request 213.154.157.42 > 194.102.255.2
+icmp echo reply 194.102.255.2 > 213.154.157.42
+but I get NO reply like this going to the private/lan station
+tcpdump -n -i eth1
+icmp echo reply 194.102.255.2 > 192.168.40.13
+(it seems the packet gets stuck in the router and doesn't reach the 
+local station that send the initial packet)
+
+		
+

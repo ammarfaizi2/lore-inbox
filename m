@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261783AbSI1PLv>; Sat, 28 Sep 2002 11:11:51 -0400
+	id <S261932AbSI1PR5>; Sat, 28 Sep 2002 11:17:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261865AbSI1PLv>; Sat, 28 Sep 2002 11:11:51 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:26891 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261783AbSI1PLu>; Sat, 28 Sep 2002 11:11:50 -0400
-Date: Sat, 28 Sep 2002 17:15:31 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: linux-kernel@vger.kernel.org,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: Re: linux kernel conf 0.7
-In-Reply-To: <20020928144250.GC3337@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.44.0209281704410.8911-100000@serv>
+	id <S261960AbSI1PR4>; Sat, 28 Sep 2002 11:17:56 -0400
+Received: from mail.uklinux.net ([80.84.72.21]:10000 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S261932AbSI1PRz>;
+	Sat, 28 Sep 2002 11:17:55 -0400
+Envelope-To: linux-kernel@vger.kernel.org
+Date: Sat, 28 Sep 2002 16:02:05 +0100 (BST)
+From: Ken Moffat <ken@kenmoffat.uklinux.net>
+To: jbradford@dial.pipex.com
+cc: Joerg Pommnitz <pommnitz@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Framebuffer still "EXPERIMENTAL"?
+In-Reply-To: <200209271106.g8RB6PDg000759@darkstar.example.net>
+Message-ID: <Pine.LNX.4.21.0209281558290.3427-100000@ppg_penguin.linux.bogus>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 27 Sep 2002 jbradford@dial.pipex.com wrote:
 
-On Sat, 28 Sep 2002, Tomas Szepe wrote:
+> > Hello Listees,
+> > yesterday I compiled 2.5.38 for the first time and noticed that the
+> > framebuffer option is still marked "EXPERIMENTAL". Well, I know for sure
+> > that I used the VESA-FB 3 years ago to get X running on a strange laptop
+> > graphic chip, so it is at least that long available (actually I think it
+> > got introduced for the Sparc port somewhen in 1995??). 
+> > 
+> > I think it's about time to promote the framebuffer code to a full fledged
+> > kernel feature. Comments?
+> 
+> I've noticed a bug with it, but haven't had time to investigate more fully, infact it might not be a kernel bug, but I suspect that it is.  I don't usually use the framebuffer, (I prefer the standard text mode).
+> 
+> On a standard Slackware 8.1 install, (kernel 2.4.18), on a machine with an ATI graphics card, and with the framebuffer enabled, if you type clear, then fill the screen with text so that it scrolls, (e.g. do a find /), the top four lines where the penguin used to be do not scroll, they just keep the text that is originally put there.  If you press shift-pageup, and then shift-pagedown, it fixes it.
+> 
+> If anybody has got the time to look in to this, I'll post more details.
+> 
+> John.
 
-> > At http://www.xs4all.nl/~zippel/lc/ you can find the latest version of the
-> > new config system. Besides the usual archive there is also now a patch
-> > against a 2.5.39 kernel and finally some documentation.
->
-> o  lkc-0.7-2.5.39.diff includes patches to include/linux/autoconf.h
+ Normal operation. Either switch to a different tty, or set a font.
 
-Ok, easily fixed (and the reject can be easily ignored).
+There does seem to be a bug in your mailer, though (excessive line
+length) :->
 
-> o  'make distclean; make oldconfig' produces
->
-> make[1]: Entering directory /usr/src/linux-2.5.39/scripts/lkc'
-> Makefile:42: *** missing separator (did you mean TAB instead of 8 spaces?).  Stop.
-> make[1]: Leaving directory /usr/src/linux-2.5.39/scripts/lkc'
-> make: *** [oldconfig] Error 2
->
-> i.e. the patch seems to have foomed up the tabs
+Ken
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Hmm, my make ignores this and obviously Kai's make too, as I copied this
-from his patch.
+-- 
+ Out of the darkness a voice spake unto me, saying "smile, things could be
+worse". So I smiled, and lo, things became worse.
 
-> o  fix up & continue, 'make distclean; make oldconfig' produces
->
-> kala@kirsi:/usr/src/linux-2.5.39$ make oldconfig
-> make[1]: Entering directory /usr/src/linux-2.5.39/scripts/lkc'
->   cat zconf.tab.h_shipped > zconf.tab.h
->   gcc -Wp,-MD,./.conf.o.d -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer   -c -o conf.o conf.c
-> /bin/sh: /usr/src/linux-2.5.39/scripts/fixdep: No such file or directory
-> make[1]: *** [conf.o] Error 1
-> make[1]: Leaving directory /usr/src/linux-2.5.39/scripts/lkc'
-> make: *** [oldconfig] Error 2
 
-I have to pass on this one to Kai too. Personally I think fixdep shouldn't
-be used for host programs. An "make scripts/fixdep" gets you past this
-for now.
-
-bye, Roman
 

@@ -1,18 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269716AbRHCXvO>; Fri, 3 Aug 2001 19:51:14 -0400
+	id <S269718AbRHCXxz>; Fri, 3 Aug 2001 19:53:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269721AbRHCXvE>; Fri, 3 Aug 2001 19:51:04 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:50186 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S269717AbRHCXuw>; Fri, 3 Aug 2001 19:50:52 -0400
-Date: Fri, 3 Aug 2001 19:21:26 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: BERECZ Szabolcs <szabi@inf.elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kswapd eats the cpu without swap
-In-Reply-To: <Pine.A41.4.31.0108012357130.28452-100000@pandora.inf.elte.hu>
-Message-ID: <Pine.LNX.4.21.0108031920410.8951-100000@freak.distro.conectiva>
+	id <S269719AbRHCXxp>; Fri, 3 Aug 2001 19:53:45 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:51688 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S269718AbRHCXxj>;
+	Fri, 3 Aug 2001 19:53:39 -0400
+Date: Fri, 3 Aug 2001 19:53:41 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Chris Wedgwood <cw@f00f.org>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic
+ change patch)
+In-Reply-To: <20010804114626.B18042@weta.f00f.org>
+Message-ID: <Pine.GSO.4.21.0108031947080.5264-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,24 +22,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thu, 2 Aug 2001, BERECZ Szabolcs wrote:
+On Sat, 4 Aug 2001, Chris Wedgwood wrote:
 
-> Hi!
+> On Fri, Aug 03, 2001 at 07:41:40PM -0400, Alexander Viro wrote:
 > 
-> kernel is 2.4.7-ac3 with the used-once patch.
+>     file->f_cred. Different people opening the same file can have
+>     different credentials (e.g. credentials can be revoked)
+> 
+> Sure, but if I
+> 
+>         f = open("/home/viro/file", ... );
+>         fsync(f);
+> 
+> I only have creds for 'file' --- I have no such thing for 'viro' or
+> 'home', so I can't do anything sensible here.
 
-> I have 160M of ram, and I don't use swap at all, but some minutes before
-> kswapd was eating lot's of cpu (98-100%). the system did not responded for
-> some 10 seconds, then it worked for some seconds, then it did not responded
-> again, until I did a swapon. after adding the swap to the system, it
-> swapped out 148k then everything was ok. kswapd still eat some of the cpu
-> (0.5% of a k6-2/450). then swapoff, and everything is OK, again.
-
-
-Does the problem happen only with the used-once patch ? 
-
-If it also happens without the used-once patch, can you reproduce the
-problem with 2.4.6 ? 
-
-Thanks 
+Credentials are about "I'm foo", not "I'm allowed to do this with that".
+Server decides what you can do.
 

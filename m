@@ -1,30 +1,185 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319159AbSHMXNS>; Tue, 13 Aug 2002 19:13:18 -0400
+	id <S319165AbSHMXBa>; Tue, 13 Aug 2002 19:01:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319174AbSHMXMj>; Tue, 13 Aug 2002 19:12:39 -0400
-Received: from u212-239-155-52.freedom.planetinternet.be ([212.239.155.52]:2820
-	"EHLO jebril.pi.be") by vger.kernel.org with ESMTP
-	id <S319159AbSHMXKC>; Tue, 13 Aug 2002 19:10:02 -0400
-Message-Id: <200208132312.g7DNCP5R002438@jebril.pi.be>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
-To: John Weber <john.weber@linux.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.5.31 and fd 3 
-In-Reply-To: Your message of "Sun, 11 Aug 2002 21:36:37 EDT."
-             <3D571125.9050203@linux.org> 
-Date: Wed, 14 Aug 2002 01:12:25 +0200
-From: "Michel Eyckmans (MCE)" <mce@pi.be>
+	id <S319164AbSHMXAu>; Tue, 13 Aug 2002 19:00:50 -0400
+Received: from donkeykong.gpcc.itd.umich.edu ([141.211.2.163]:33019 "EHLO
+	donkeykong.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
+	id <S319121AbSHMW65>; Tue, 13 Aug 2002 18:58:57 -0400
+Date: Tue, 13 Aug 2002 19:02:46 -0400 (EDT)
+From: "Kendrick M. Smith" <kmsmith@umich.edu>
+X-X-Sender: kmsmith@rastan.gpcc.itd.umich.edu
+To: linux-kernel@vger.kernel.org, <nfs@lists.sourceforge.net>
+Subject: patch 16/38: CLIENT: add ->setup_{write,commit}() for async write,
+ part 1
+Message-ID: <Pine.SOL.4.44.0208131902210.25942-100000@rastan.gpcc.itd.umich.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> I am completely mistified by this problem, but after loading kernel 
-> 2.5.31 I am unable to open an xterm in X windows.  The system complains 
-> about being unable to stat fd 3.
+This is a nontrivial change to the NFS client.
 
-I ran into the same problem while trying to figure out my module
-loading problems with 2.5.31. Turns out that disabling CONFIG_PREEMPT 
-to get modules working also fixes the xterm failure.
+This patch does for the async WRITE and COMMIT paths what patch 14
+did for the async READ path, by changing 'struct nfs_write_data'
+so that the v2- and v3-specific parts are moved into a private area,
+with room for a v4-specific part in parallel.  None of the logic is
+changed.
 
-MCE
+--- old/fs/nfs/write.c	Sat Aug 10 23:12:28 2002
++++ new/fs/nfs/write.c	Sat Aug 10 23:12:22 2002
+@@ -72,12 +72,19 @@ struct nfs_write_data {
+ 	struct rpc_task		task;
+ 	struct inode		*inode;
+ 	struct rpc_cred		*cred;
+-	struct nfs_writeargs	args;		/* argument struct */
+-	struct nfs_writeres	res;		/* result struct */
+ 	struct nfs_fattr	fattr;
+ 	struct nfs_writeverf	verf;
+ 	struct list_head	pages;		/* Coalesced requests we wish to flush */
+ 	struct page		*pagevec[NFS_WRITE_MAXIOV];
++	union {
++		struct {
++			struct nfs_writeargs args;
++			struct nfs_writeres  res;
++		} v3;
++#ifdef CONFIG_NFS_V4
++		/* NFSv4 data to come here... */
++#endif
++	} u;
+ };
+
+ /*
+@@ -106,7 +113,6 @@ static __inline__ struct nfs_write_data
+ 	if (p) {
+ 		memset(p, 0, sizeof(*p));
+ 		INIT_LIST_HEAD(&p->pages);
+-		p->args.pages = p->pagevec;
+ 	}
+ 	return p;
+ }
+@@ -864,10 +870,10 @@ nfs_write_rpcsetup(struct list_head *hea
+ 	/* Set up the RPC argument and reply structs
+ 	 * NB: take care not to mess about with data->commit et al. */
+
+-	pages = data->args.pages;
++	pages = data->pagevec;
+ 	count = 0;
+ 	while (!list_empty(head)) {
+-		struct nfs_page *req = nfs_list_entry(head->next);
++		req = nfs_list_entry(head->next);
+ 		nfs_list_remove_request(req);
+ 		nfs_list_add_request(req, &data->pages);
+ 		*pages++ = req->wb_page;
+@@ -876,13 +882,14 @@ nfs_write_rpcsetup(struct list_head *hea
+ 	req = nfs_list_entry(data->pages.next);
+ 	data->inode = req->wb_inode;
+ 	data->cred = req->wb_cred;
+-	data->args.fh     = NFS_FH(req->wb_inode);
+-	data->args.offset = page_offset(req->wb_page) + req->wb_offset;
+-	data->args.pgbase = req->wb_offset;
+-	data->args.count  = count;
+-	data->res.fattr   = &data->fattr;
+-	data->res.count   = count;
+-	data->res.verf    = &data->verf;
++	data->u.v3.args.fh     = NFS_FH(req->wb_inode);
++	data->u.v3.args.offset = page_offset(req->wb_page) + req->wb_offset;
++	data->u.v3.args.pgbase = req->wb_offset;
++	data->u.v3.args.pages  = pages;
++	data->u.v3.args.count  = count;
++	data->u.v3.res.fattr   = &data->fattr;
++	data->u.v3.res.count   = count;
++	data->u.v3.res.verf    = &data->verf;
+ }
+
+
+@@ -920,14 +927,14 @@ nfs_flush_one(struct list_head *head, st
+ 	/* Set up the argument struct */
+ 	nfs_write_rpcsetup(head, data);
+ 	if (nfsvers < 3)
+-		data->args.stable = NFS_FILE_SYNC;
++		data->u.v3.args.stable = NFS_FILE_SYNC;
+ 	else if (stable) {
+ 		if (!nfsi->ncommit)
+-			data->args.stable = NFS_FILE_SYNC;
++			data->u.v3.args.stable = NFS_FILE_SYNC;
+ 		else
+-			data->args.stable = NFS_DATA_SYNC;
++			data->u.v3.args.stable = NFS_DATA_SYNC;
+ 	} else
+-		data->args.stable = NFS_UNSTABLE;
++		data->u.v3.args.stable = NFS_UNSTABLE;
+
+ 	/* Finalize the task. */
+ 	rpc_init_task(task, clnt, nfs_writeback_done, flags);
+@@ -940,16 +947,16 @@ nfs_flush_one(struct list_head *head, st
+ #else
+ 	msg.rpc_proc = NFSPROC_WRITE;
+ #endif
+-	msg.rpc_argp = &data->args;
+-	msg.rpc_resp = &data->res;
++	msg.rpc_argp = &data->u.v3.args;
++	msg.rpc_resp = &data->u.v3.res;
+ 	msg.rpc_cred = data->cred;
+
+ 	dprintk("NFS: %4d initiated write call (req %s/%Ld, %u bytes @ offset %Lu)\n",
+ 		task->tk_pid,
+ 		inode->i_sb->s_id,
+ 		(long long)NFS_FILEID(inode),
+-		(unsigned int)data->args.count,
+-		(unsigned long long)data->args.offset);
++		(unsigned int)data->u.v3.args.count,
++		(unsigned long long)data->u.v3.args.offset);
+
+ 	rpc_clnt_sigmask(clnt, &oldset);
+ 	rpc_call_setup(task, &msg, 0);
+@@ -1003,8 +1010,8 @@ static void
+ nfs_writeback_done(struct rpc_task *task)
+ {
+ 	struct nfs_write_data	*data = (struct nfs_write_data *) task->tk_calldata;
+-	struct nfs_writeargs	*argp = &data->args;
+-	struct nfs_writeres	*resp = &data->res;
++	struct nfs_writeargs	*argp = &data->u.v3.args;
++	struct nfs_writeres	*resp = &data->u.v3.res;
+ 	struct inode		*inode = data->inode;
+ 	struct nfs_page		*req;
+ 	struct page		*page;
+@@ -1128,11 +1135,11 @@ nfs_commit_rpcsetup(struct list_head *he
+
+ 	data->inode	  = inode;
+ 	data->cred	  = first->wb_cred;
+-	data->args.fh     = NFS_FH(inode);
+-	data->args.offset = start;
+-	data->res.count   = data->args.count = (u32)len;
+-	data->res.fattr   = &data->fattr;
+-	data->res.verf    = &data->verf;
++	data->u.v3.args.fh     = NFS_FH(inode);
++	data->u.v3.args.offset = start;
++	data->u.v3.res.count   = data->u.v3.args.count = (u32)len;
++	data->u.v3.res.fattr   = &data->fattr;
++	data->u.v3.res.verf    = &data->verf;
+ }
+
+ /*
+@@ -1169,8 +1176,8 @@ nfs_commit_list(struct list_head *head,
+ 	task->tk_release = nfs_writedata_release;
+
+ 	msg.rpc_proc = NFS3PROC_COMMIT;
+-	msg.rpc_argp = &data->args;
+-	msg.rpc_resp = &data->res;
++	msg.rpc_argp = &data->u.v3.args;
++	msg.rpc_resp = &data->u.v3.res;
+ 	msg.rpc_cred = data->cred;
+
+ 	dprintk("NFS: %4d initiated commit call\n", task->tk_pid);
+@@ -1198,7 +1205,7 @@ static void
+ nfs_commit_done(struct rpc_task *task)
+ {
+ 	struct nfs_write_data	*data = (struct nfs_write_data *)task->tk_calldata;
+-	struct nfs_writeres	*resp = &data->res;
++	struct nfs_writeres	*resp = &data->u.v3.res;
+ 	struct nfs_page		*req;
+ 	struct inode		*inode = data->inode;
+
+

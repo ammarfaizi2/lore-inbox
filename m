@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263094AbUJ2FAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263103AbUJ2FGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263094AbUJ2FAm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 01:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263103AbUJ2FAg
+	id S263103AbUJ2FGi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 01:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbUJ2FGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 01:00:36 -0400
-Received: from mx15.sac.fedex.com ([199.81.195.17]:9486 "EHLO
-	mx15.sac.fedex.com") by vger.kernel.org with ESMTP id S263094AbUJ2FAc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 01:00:32 -0400
-Date: Fri, 29 Oct 2004 12:58:34 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: jchua@silk.corp.fedex.com
-To: Alasdair G Kergon <agk@redhat.com>
-cc: Jeff Chua <jeffchua@silk.corp.fedex.com>, Andrew Morton <akpm@osdl.org>,
-       Mathieu Segaud <matt@minas-morgul.org>, axboe@suse.de,
-       jfannin1@columbus.rr.com, christophe@saout.de,
-       Linux Kernel <linux-kernel@vger.kernel.org>, bzolnier@gmail.com
-Subject: Re: 2.6.9-mm1: LVM stopped working (dio-handle-eof.patch)
-In-Reply-To: <20041028145604.GA20448@agk.surrey.redhat.com>
-Message-ID: <Pine.LNX.4.61.0410291256200.17690@silk.corp.fedex.com>
-References: <20041026135955.GA9937@agk.surrey.redhat.com>
- <20041026213703.GA6174@rivenstone.net> <20041026151559.041088f1.akpm@osdl.org>
- <87hdogvku7.fsf@barad-dur.crans.org> <20041026222650.596eddd8.akpm@osdl.org>
- <20041027054741.GB15910@suse.de> <20041027064146.GG15910@suse.de>
- <877jpcgolt.fsf@barad-dur.crans.org> <20041027132422.760d5f5e.akpm@osdl.org>
- <Pine.LNX.4.61.0410281245240.31882@silk.corp.fedex.com>
- <20041028145604.GA20448@agk.surrey.redhat.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/29/2004
- 01:00:23 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/29/2004
- 01:00:26 PM,
-	Serialize complete at 10/29/2004 01:00:26 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 29 Oct 2004 01:06:38 -0400
+Received: from cantor.suse.de ([195.135.220.2]:22243 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263112AbUJ2FF5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 01:05:57 -0400
+Date: Fri, 29 Oct 2004 06:58:58 +0200
+From: Andi Kleen <ak@suse.de>
+To: Len Brown <len.brown@intel.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Luming Yu <luming.yu@intel.com>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Robert Moore <robert.moore@intel.com>,
+       Alex Williamson <alex.williamson@hp.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+Subject: Re: Userspace ACPI interpreter ( was RE: [ACPI] [RFC] dev_acpi: support for userspace access to acpi)
+Message-ID: <20041029045858.GL11384@wotan.suse.de>
+References: <3ACA40606221794F80A5670F0AF15F84041ABFFA@pdsmsx403> <418085B0.30208@intel.com> <20041028152404.GB7902@thunk.org> <1099025292.5402.200.camel@d845pe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1099025292.5402.200.camel@d845pe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Oct 2004, Alasdair G Kergon wrote:
+> [ It would be sort of neat if we could built the core ACPI support in
+> some kind of modular way such that that we could have it at boot-time,
+> if we need it, but optionally unload it at run-time if it turned out the
+> target system didn't need it. ]
 
-> On Thu, Oct 28, 2004 at 12:52:20PM +0800, Jeff Chua wrote:
->> I'm using 2.6.10-rc1 and got the following error ...
->> # lvcreate -L 100M -n lv01 vg01
->>   device-mapper ioctl cmd 0 failed: Inappropriate ioctl for device
->>   striped: Required device-mapper target(s) not detected in your kernel
->>   lvcreate: Create a logical volume
->
-> But that's *not* the dio problem we're discussing in this thread.
-> It's saying userspace communication with device-mapper isn't working,
-> most likely because there's something wrong with the way your
-> system creates /dev/mapper/control when booting or the ioctl
-> compatibility code (what architecture?).
+It would be possible with some Makefile hacks. Basically you would need
+to objcopy the ACPI object files and rename .text*/.data* to 
+a different acpi specific name. Then you can give it an special 
+area in the vmlinux.lds and possibly free it.
 
-doesn't make any sense to me. Why would 2.6.9 works then?
-Architecture is Intel running on IBM X31 notebook.
+I agree with you that it's better kept in the kernel.
 
-Never had LVM problem until 2.6.10-rc1. It just went dead.
+> Static Kernel Size:
+>    text    data     bss     dec     hex filename
+>  144533    5608    4920  155061   25db5 drivers/acpi/built-in.o
 
-Jeff.
+Hmm, this used to be smaller, no? Perhaps someone going over
+bloat-o-meter[1] output to an older version would be useful.
+There is probably some low hanging fruit.
+
+-Andi
+
+[1] ftp://ftp.firstfloor.org/pub/ak/perl/bloat-o-meter
+

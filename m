@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265170AbUBOSxf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 13:53:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265181AbUBOSxe
+	id S265148AbUBOTN2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 14:13:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265150AbUBOTN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 13:53:34 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:47108 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265170AbUBOSxe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 13:53:34 -0500
-Date: Sun, 15 Feb 2004 18:53:31 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Christophe Saout <christophe@saout.de>
-Cc: Michal Kwolek <miho@centrum.cz>, jmorris@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Oopsing cryptoapi (or loop device?) on 2.6.*
-Message-ID: <20040215185331.A8719@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Christophe Saout <christophe@saout.de>,
-	Michal Kwolek <miho@centrum.cz>, jmorris@redhat.com,
-	linux-kernel@vger.kernel.org
-References: <402A4B52.1080800@centrum.cz> <1076866470.20140.13.camel@leto.cs.pocnet.net> <20040215180226.A8426@infradead.org> <1076870572.20140.16.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 15 Feb 2004 14:13:27 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:29315 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265148AbUBOTN0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 14:13:26 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Kyle" <kyle@southa.com>
+Subject: Re: ICH5 with 2.6.1 very slow
+Date: Sun, 15 Feb 2004 20:19:34 +0100
+User-Agent: KMail/1.5.3
+Cc: <linux-kernel@vger.kernel.org>
+References: <021801c3f3f4$50f66280$353ffea9@kyle>
+In-Reply-To: <021801c3f3f4$50f66280$353ffea9@kyle>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="big5"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1076870572.20140.16.camel@leto.cs.pocnet.net>; from christophe@saout.de on Sun, Feb 15, 2004 at 07:42:53PM +0100
+Message-Id: <200402152019.34858.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 15, 2004 at 07:42:53PM +0100, Christophe Saout wrote:
-> > What's holding it back?  I'd rather get rid of all the cryptoloop crap
-> > sooner or later.
-> 
-> Well, nothing. It's in the dm-unstable tree for some time now. It
-> depends on when Joe plans to submit it. His last words were "in the next
-> couple of months". I don't know what that means exactly.
+On Sunday 15 of February 2004 19:48, Kyle wrote:
+> today since one of my mirrored harddisk (/dev/hda) failed, I removed it
+> from md-raid1 and now /dev/hdc becomes /dev/hda
+>
+> hdparm -t /dev/hda gets me ~37MB/s now (before: /dev/hda - 30MB/s,
+> /dev/hdc - 37MB/s)
+>
+> maybe there's problem with /dev/hda so it's relatively slower!
+>
+> However, the result still much slower than kernel 2.4.20 (55MB/s)
 
-Is there a technical reason holding it back, e.g. a depency on core DM
-changes?  If not please submit it instead of waiting any longer.
+Please fill bugzilla entry (htp://bugzilla.kernel.org)
+and attach 'dmesg' and 'lspci -vvv -xxx' outputs for 2.4.20 and 2.6.x.
+
+It would be also helpful to narrow down the issue to kernel version when
+this slowdown started (2.4.20 -> 2.6.x means too much changes to anybody
+sane to even start thinking about going through all of them).
+
+--bart
 

@@ -1,59 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbUJ3IxD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263654AbUJ3JD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbUJ3IxD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 04:53:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263652AbUJ3IxD
+	id S263654AbUJ3JD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 05:03:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263652AbUJ3JD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 04:53:03 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:34946 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261720AbUJ3Iw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 04:52:59 -0400
-Date: Sat, 30 Oct 2004 17:58:45 +0900
-From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: Mem issues in 2.6.9 (ever since 2.6.9-rc3) and possible cause
-In-reply-to: <418354C0.3060207@tebibyte.org>
-To: Chris Ross <chris@tebibyte.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
-       kernel@kolivas.org
-Message-id: <418357C5.4070304@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.3)
- Gecko/20040910
-References: <Pine.LNX.4.44.0410251823230.21539-100000@chimarrao.boston.redhat.com>
- <Pine.LNX.4.44.0410251833210.21539-100000@chimarrao.boston.redhat.com>
- <20041028120650.GD5741@logos.cnet> <41824760.7010703@tebibyte.org>
- <41834FE7.5060705@jp.fujitsu.com> <418354C0.3060207@tebibyte.org>
+	Sat, 30 Oct 2004 05:03:29 -0400
+Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:5833 "EHLO
+	safari.iki.fi") by vger.kernel.org with ESMTP id S263654AbUJ3JDK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 05:03:10 -0400
+Date: Sat, 30 Oct 2004 12:03:08 +0300
+From: Sami Farin <7atbggg02@sneakemail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: Linux 2.6.9-ac5 - more stupid FAT filesystems
+Message-ID: <20041030090308.GA6060@m.safari.iki.fi>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Vojtech Pavlik <vojtech@suse.cz>
+References: <1099060831.13098.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1099060831.13098.33.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Ross wrote:
+On Fri, Oct 29, 2004 at 03:40:32PM +0100, Alan Cox wrote:
+> This update adds some of the more minor fixes as well as a fix
+> for a nasty __init bug. Nothing terribly pressing for non-S390 users
+> unless they are hitting one of the bugs described or need the new
+> driver bits.
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.6/2.6.9/
+> 
+> 2.6.9-ac5
+> o	Fix oops in and enable IT8212 driver		(me)
+> o	Minor delkin driver fix				(Mark Lord)
+> o	Fix NFS mount hangs with long FQDN		(Jan Kasprzak)
+> 	| I've used this version as its clearly correct for 2.6.9 
+> 	| although it might not be the right future solution
+> o	Fix overstrict FAT checks stopping reading of	(Vojtech Pavlik)
+> 	some devices like Nokia phones
 
-> 
-> 
-> Hiroyuki KAMEZAWA escreveu:
-> 
->> How about this fix ?
->> I don't know why this is missng ....
-> 
-> 
-> Instead of, or as well as Rik's fix?
-> 
+I guess Canon IXUS 400 is overstupid or something.
 
-Both of Rik's and this will be needed, I think.
+USB Mass Storage device found at 2
+Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+SCSI device sdb: 501760 512-byte hdwr sectors (257 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 00 00 00 00
+sdb: assuming drive cache: write through
+ sdb: sdb1
+Attached scsi removable disk sdb at scsi0, channel 0, id 0, lun 1
+Attached scsi removable disk sdc at scsi0, channel 0, id 0, lun 2
+Attached scsi removable disk sdd at scsi0, channel 0, id 0, lun 3
+FAT: invalid first entry of FAT (0xfff8 != 0xfff8)
+VFS: Can't find a valid FAT filesystem on dev sdb1.
 
-> Regards,
-> Chris R.
-> 
-zone->free_area[order]->nr_free is corrupted, this patch fix it.
+this is 256MB CF plugged into Lacie USB CF-reader,
+Vendor=0aec ProdID=3260 Rev= 1.00.
 
-It looks there is no area->nr_free++ code during freeing pages, now.
+# fdisk -l /dev/sdb
 
+Disk /dev/sdb: 256 MB, 256901120 bytes
+16 heads, 32 sectors/track, 980 cylinders
+Units = cylinders of 512 * 512 = 262144 bytes
 
-Kame <kamezawa.hiroyu@jp.fujitsu.com>
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1               1         979      250608    6  FAT16
+
+CF works in Canon and Windows XP. *shrug*
+I believe it's formatted in Canon.
+
+Feel free to ask more info.
+
+# dosfsck -V fatflash.bin 
+dosfsck 2.8, 28 Feb 2001, FAT32, LFN
+Starting check/repair pass.
+Starting verification pass.
+fatflash.bin: 34 files, 5481/62586 clusters
+
+that was dosfstools-2.8-15 from Fedora.
+So I can't even fsck the stupid thing so it could  be mounted. 
+
+-- 
 

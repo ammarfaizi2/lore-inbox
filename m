@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135364AbRDLWVr>; Thu, 12 Apr 2001 18:21:47 -0400
+	id <S135371AbRDLWY5>; Thu, 12 Apr 2001 18:24:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135366AbRDLWVm>; Thu, 12 Apr 2001 18:21:42 -0400
-Received: from mailgw.prontomail.com ([216.163.180.10]:10918 "EHLO
-	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
-	id <S135364AbRDLWVF>; Thu, 12 Apr 2001 18:21:05 -0400
-Message-ID: <3AD62A18.8AC75605@mvista.com>
-Date: Thu, 12 Apr 2001 15:20:08 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Bret Indrelee <bret@io.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        high-res-timers-discourse@lists.sourceforge.net
-Subject: Re: No 100 HZ timer!
-In-Reply-To: <Pine.LNX.4.21.0104121606360.10006-100000@fnord.io.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S135366AbRDLWYs>; Thu, 12 Apr 2001 18:24:48 -0400
+Received: from foo-bar-baz.cc.vt.edu ([128.173.14.103]:41856 "EHLO
+	foo-bar-baz.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S135372AbRDLWYj>; Thu, 12 Apr 2001 18:24:39 -0400
+Message-Id: <200104122224.f3CMOFB08457@foo-bar-baz.cc.vt.edu>
+X-Mailer: exmh version 2.3.1 01/19/2001 with nmh-1.0.4+dev
+To: Szabolcs Szakacsits <szaka@f-secure.com>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: scheduler went mad? 
+In-Reply-To: Your message of "Fri, 13 Apr 2001 01:02:21 +0200."
+             <Pine.LNX.4.30.0104130009350.19377-100000@fs131-224.f-secure.com> 
+From: Valdis.Kletnieks@vt.edu
+X-Url: http://black-ice.cc.vt.edu/~valdis/
+X-Face-Viewer: See ftp://cs.indiana.edu/pub/faces/index.html to decode picture 
+X-Face: 34C9$Ewd2zeX+\!i1BA\j{ex+$/V'JBG#;3_noWWYPa"|,I#`R"{n@w>#:{)FXyiAS7(8t(
+ ^*w5O*!8O9YTe[r{e%7(yVRb|qxsRYw`7J!`AM}m_SHaj}f8eb@d^L>BrX7iO[<!v4-0bVIpaxF#-)
+ %9#a9h6JXI|T|8o6t\V?kGl]Q!1V]GtNliUtz:3},0"hkPeBuu%E,j(:\iOX-P,t7lRR#
+In-Reply-To: <Pine.LNX.4.30.0104130009350.19377-100000@fs131-224.f-secure.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1181791386P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 12 Apr 2001 18:24:15 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bret Indrelee wrote:
-> 
-> On Thu, 12 Apr 2001, george anzinger wrote:
-> > Bret Indrelee wrote:
-> > > Keep all timers in a sorted double-linked list. Do the insert
-> > > intelligently, adding it from the back or front of the list depending on
-> > > where it is in relation to existing entries.
-> >
-> > I think this is too slow, especially for a busy system, but there are
-> > solutions...
-> 
-> It is better than the current solution.
+--==_Exmh_1181791386P
+Content-Type: text/plain; charset=us-ascii
 
-Uh, where are we talking about.  The current time list insert is real
-close to O(1) and never more than O(5).
-> 
-> The insert takes the most time, having to scan through the list. If you
-> had to scan the whole list it would be O(n) with a simple linked list. If
-> you insert it from the end, it is almost always going to be less than
-> that.
+On Fri, 13 Apr 2001 01:02:21 +0200, Szabolcs Szakacsits said:
 
-Right, but compared to the current O(5) max, this is just too long.
-> 
-> The time to remove is O(1).
-> 
-> Fetching the first element from the list is also O(1), but you may have to
-> fetch several items that have all expired. Here you could do something
-> clever. Just make sure it is O(1) to determine if the list is empty.
-> 
-I would hope to move expired timers to another list or just process
-them.  In any case they should not be a problem here.
+> Not __alloc_pages() calls oom_kill() however do_page_fault(). Not the
+> same. After the system tried *really* hard to get *one* free page and
+> couldn't managed why loop forever? To eat CPU and waiting for
 
-One of the posts that started all this mentioned a tick less system (on
-a 360 I think) that used the current time list.  They had to scan
-forward in time to find the next event and easy 10 ms was a new list to
-look at.  Conclusion: The current list structure is NOT organized for
-tick less time keeping.
+For what it's worth, this *IS NOT* the case I'm getting bit by:
 
-George
+While kswapd was hung, I already had (from /proc/meminfo)
+
+MemFree:         34064 kB
+
+I suspect that kswapd is getting hung spinning on some *specific*
+requirement that it's falling short on?
+
+/Valdis
+
+--==_Exmh_1181791386P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.8
+Comment: Exmh version 2.2 06/16/2000
+
+iQA/AwUBOtYrD3At5Vm009ewEQLr/gCeM4oxoNeeYjdu2/Z+1xPuHWSb2oIAnRJS
+tMimbGIA59+naI7CHPG9cjG5
+=0bVM
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1181791386P--

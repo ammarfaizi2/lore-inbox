@@ -1,79 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316864AbSGSQJX>; Fri, 19 Jul 2002 12:09:23 -0400
+	id <S316043AbSGSQNG>; Fri, 19 Jul 2002 12:13:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316882AbSGSQJX>; Fri, 19 Jul 2002 12:09:23 -0400
-Received: from lockupnat.curl.com ([216.230.83.254]:13821 "EHLO
-	egghead.curl.com") by vger.kernel.org with ESMTP id <S316864AbSGSQJV>;
-	Fri, 19 Jul 2002 12:09:21 -0400
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: linux-kernel@vger.kernel.org
+	id <S316892AbSGSQNG>; Fri, 19 Jul 2002 12:13:06 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:28545 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S316043AbSGSQNF>; Fri, 19 Jul 2002 12:13:05 -0400
+Date: Fri, 19 Jul 2002 12:16:04 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Hildo.Biersma@morganstanley.com
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
 Subject: Re: close return value
-References: <200207182347.g6INlcl47289@saturn.cs.uml.edu>
-From: "Patrick J. LoPresti" <patl@curl.com>
-Date: 19 Jul 2002 12:12:21 -0400
-In-Reply-To: <200207182347.g6INlcl47289@saturn.cs.uml.edu>
-Message-ID: <s5gsn2fr922.fsf@egghead.curl.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+Message-ID: <20020719121604.A11443@devserv.devel.redhat.com>
+References: <1026867782.1688.108.camel@irongate.swansea.linux.org.uk> <20020716.165241.123987278.davem@redhat.com> <1026869741.2119.112.camel@irongate.swansea.linux.org.uk> <20020716.172026.55847426.davem@redhat.com> <mailman.1026868201.10433.linux-kernel2news@redhat.com> <200207180001.g6I015f02681@devserv.devel.redhat.com> <15671.8335.526673.92376@axolotl.ms.com> <20020718195501.A21027@devserv.devel.redhat.com> <15671.63658.675586.540958@axolotl.ms.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <15671.63658.675586.540958@axolotl.ms.com>; from Hildo.Biersma@morganstanley.com on Fri, Jul 19, 2002 at 07:31:54AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
+> Date: Fri, 19 Jul 2002 07:31:54 -0400 (EDT)
+> From: Hildo.Biersma@morganstanley.com
 
-> You check printf() and fprintf() then? Like this?
+> Pete>  1. Make close to block indefinitely, retrying writes.
+> Pete>     Allow overlapping writes, let clients to sort it out.
 > 
-> ///////////////////////////////////////////
-> void err_print(int err){
->   const char *msg;
->   int rc;
+> None of these things work, as security may be denied, a volume may be
+> taken off-line, or hvaing overlppaing writes from clients increases
+> the amount of client<->server interaction.
 > 
->   msg = strerror(err);
->   if(!msg) err_print(errno);
+> Pete>  2. Provide an ioctl to flush writes before close() or
+> Pete>     make fsync() work right. Your "smart" applications have had
+> Pete>     to use that, so that no ambiguity existed between tearing down
+> Pete>     the descriptor and writing out the data.
 > 
->   do{
->     rc = fprintf(stderr,"Problem: %s\n",msg);
->   }while(rc<0 && errno==EINTR);
->   if(rc<0) err_print(errno);
-> }
-> ///////////////////////////////////////////
+> This is provided - sync, fsync, msync all work.
 
-Wow, I hardly know where to begin.
+It is unfair for you to separate 1. and 2. They should work
+together. Remember, you said "return error from close is
+useful BECAUSE my smart application may deal with it."
+If fsync works, the argument does not hold water at all.
+Your smart application can do fsync just as easily.
+If it does, it does not need the return code from close.
 
-I could point out that, at least according to my man page, fprintf()
-returns the number of characters printed; it tells you nothing about
-errors.  Also, fprintf() is a library funciton, not a system call, so
-you cannot expect it to put anything meaningful in errno.  (I am not
-sure whether these mistakes were part of your sarcasm or your
-ignorance.)
+> That's work the trade-offs come in.  The AFS designers found that
+> relaxing the Unix filesystem semantics vastly improves scalability.
 
-Or I could ask, what part of "assertion failure" did you not
-understand?  Yes, the code above is idiotic.  But checking that
-fprintf() did not return zero, and calling abort() otherwise, is often
-the right thing to do.
+I know about the improvements. They are applicable to NFS too.
+What I am trying to tell you is that there was NO reason to break
+close in particular. Even on ancient AIXes without fsync they
+could have used an ioctl.
 
-Yes, I exaggerated.  There are times when you can reasonably skip
-checking a system call for errors; namely, when you have coded
-defensively enough that any error can do no harm.  If you can show
-that the rest of your program operates correctly whether the call
-succeeded or not, then you can skip the error check.
-
-But my main point still holds: You should *not* skip error checks
-because you "know" that the error is "impossible".  It takes little
-experience with real-world systems to learn that the "impossible"
-happens with alarming frequency.  And when it does, aborting
-immediately is much better than proceeding, because your subsequent
-code is unpredictable and therefore dangerous when your assumptions
-have been violated.
-
-Once you have taken the hit of making a system call, the additional
-cost of checking the return value is irrelevant.  So do yourself and
-your users a favor and add the checks.
-
-> Get off your high horse.
-
-Actually, I would rather give others a lift to join me.  The view is
-pretty good from up here.
-
- - Pat
+-- Pete

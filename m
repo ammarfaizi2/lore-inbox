@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262883AbTFJOFF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 10:05:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbTFJOE4
+	id S262931AbTFJOIr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 10:08:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTFJOIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 10:04:56 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:23711 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S262884AbTFJOET (ORCPT
+	Tue, 10 Jun 2003 10:08:47 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:49286 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S262931AbTFJOIp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 10:04:19 -0400
-Date: Tue, 10 Jun 2003 17:17:59 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Large files
-Message-ID: <20030610141759.GU28900@mea-ext.zmailer.org>
-References: <Pine.LNX.4.53.0306100952560.4080@chaos>
-Mime-Version: 1.0
+	Tue, 10 Jun 2003 10:08:45 -0400
+To: Timothy Miller <miller@techsource.com>
+Cc: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
+Subject: Re: select for UNIX sockets?
+References: <MDEHLPKNGKAHNMBLJOLKOEKFDIAA.davids@webmaster.com>
+	<m3isredh4e.fsf@defiant.pm.waw.pl> <3EE5DE7E.4090800@techsource.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 10 Jun 2003 16:21:28 +0200
+In-Reply-To: <3EE5DE7E.4090800@techsource.com>
+Message-ID: <m3k7buxbbr.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0306100952560.4080@chaos>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 10, 2003 at 09:57:57AM -0400, Richard B. Johnson wrote:
-> With 32 bit return values, ix86 Linux has a file-size limitation
-> which is currently about 0x7fffffff. Unfortunately, instead of
-> returning from a write() with a -1 and errno being set, so that
-> a program can do something about it, write() executes a signal(25)
-> which kills the task even if trapped. Is this one of those <expletive
-> deleted> POSIX requirements or is somebody going to fix it?
+Timothy Miller <miller@techsource.com> writes:
 
-  http://www.sas.com/standards/large.file/
+> If you were to use blocking writes, and you sent too much data, then
+> you would block.  If you were to use non-blocking writes, then the
+> socket would take as much data as it could, then return from write()
+> with an indication of how much data actually got sent.  Then you call
+> select() again so as to wait for your next opportunity to send some
+> more of your data.
 
-#define SIGXFSZ    25    /* File size limit exceeded (4.2 BSD). */
-
-from  fs/buffer.c:
-
-        err = -EFBIG;
-        limit = current->rlim[RLIMIT_FSIZE].rlim_cur;
-        if (limit != RLIM_INFINITY && size > (loff_t)limit) {
-                send_sig(SIGXFSZ, current, 0);
-                goto out;
-        }
-        if (size > inode->i_sb->s_maxbytes)
-                goto out;
-
-
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-
-/Matti Aarnio
+This is all true in general but in this particular case of unix datagram
+sockets select (poll) is just buggy.
+-- 
+Krzysztof Halasa
+Network Administrator

@@ -1,81 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbUCDSTT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 13:19:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbUCDSTM
+	id S262062AbUCDSRv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 13:17:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbUCDSRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 13:19:12 -0500
-Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:48362 "EHLO
-	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S262065AbUCDSSX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 13:18:23 -0500
-Date: Thu, 4 Mar 2004 18:18:20 +0000
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: Patrick Petermair <kernel-ml@petermair.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Adaptec 1210SA SATA Controller Performance
-Message-ID: <20040304181820.GA1719@carfax.org.uk>
-Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
-	Patrick Petermair <kernel-ml@petermair.at>,
-	linux-kernel@vger.kernel.org
-References: <403B5B47.2030907@petermair.at> <403DAB74.1000504@pobox.com> <40474DE7.4000505@petermair.at>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
-Content-Disposition: inline
-In-Reply-To: <40474DE7.4000505@petermair.at>
-X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
-X-GPG-Key: 1C335860
-X-Parrot: It is no more. It has joined the choir invisible.
-X-IRC-Nicks: hugo darksatanic
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 4 Mar 2004 13:17:51 -0500
+Received: from ahmler1.mail.eds.com ([192.85.154.71]:40592 "EHLO
+	ahmler1.mail.eds.com") by vger.kernel.org with ESMTP
+	id S262062AbUCDSRS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 13:17:18 -0500
+Message-ID: <7FD257BF8564D4119DA800508BDF07AA0FB51EDD@USAHM012.amer.corp.eds.com>
+From: "Bailey, Scott" <scott.bailey@eds.com>
+To: "'mjacob@feral.com'" <mjacob@feral.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "Bailey, Scott" <scott.bailey@eds.com>
+Subject: RE: [BUG?] Recent feral ISP interaction with alpha dma
+Date: Thu, 4 Mar 2004 13:17:08 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>The scatterlist code in sg_classify isn't quite what you need to look
+>at- this sets up some kind of private scheme in alpha which then gets
+>decoded into an output list in sg_fill where it looks like more
+>dma_length entries get filled than the 'leader'.
 
---2fHTh5uZTiUOsy+g
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Okay, I see that now. I was so busy looking for sg-> stuff that the
+rewriting using out-> went right past me. My head still hurts from trying to
+understand the transformations. :-)
 
-On Thu, Mar 04, 2004 at 04:40:23PM +0100, Patrick Petermair wrote:
-> Hi!
-> 
-> Sorry, for replying so late .. was a busy week and didn't have access to 
-> the server until today.
-> 
-> >Do you have Seagate disks?
-> 
-> Yup, 2 Seagate Barracuda 7200.7 (80GB). Any problems with Seagate and 
-> Adaptec 1210SA?
+Anyway, my kernel built from the Debian kernel-source-2.4.22-5 package with
+I think about the 10/31/2003 release of the feral ISP driver works like a
+dream on my Alphaserver 4100, so everything is definitely okay at that
+point. There appear to have been no intervening changes to pci_iommu.c, so
+that rules any really obvious typos... :-) Thus I wonder if the isp driver
+may be feeding subtly different input to these routines.
 
-   Yes.
+Looking at the current state of affairs with the Debian
+kernel-source-2.4.24-3 package and using the feral driver sources slurped
+from your bitkeeper repository, I get the dma errors:
 
-   There is a known problem with Seagate's SATA drives and the SiI
-3112 controller that is used on the Adaptec 1210SA. The difficulty is
-that certain [common] transfer sizes have to be split up into two
-transfers in order to avoid triggering the erratum (which hangs the
-machine, IIRC). This drops performance drastically. There is currently
-no solution to the low performance of the Seagate/SiI combination.
+	pci_map_sg failed: could not allocate dma page tables
+	isp2: unable to dma map request
 
-   Hugo.
+There are three routines in pci_isp.c that call pci_map_sg:
 
--- 
-=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
-  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
-  --- Prof Brain had been in search of The Truth for 25 years, with ---  
-             the intention of putting it under house arrest.             
+- tdma_mk(). I mentioned this in my first e-mail, but on reflection
+(actually, staring at paper printout) I see it actually is encapsulated in a
+"#ifdef LINUX_ISP_TARGET_MODE" block, and I don't have that defined, so it
+couldn't be this routine.
 
---2fHTh5uZTiUOsy+g
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+- tdma_mkfc(). Except that I believe this is still within the same #ifdef
+block, and appears to be used for fibre channel, which I don't have, so this
+also is eliminated as a suspect.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+- isp_pci_dmasetup(). By process of elimination, I believe the call to
+pci_map_sg() must have come from here. The "unable to dma map request" could
+only have occurred when:
 
-iD8DBQFAR3LsssJ7whwzWGARAlXHAKCFvaCXqQY5vUrZ68e5WGIMTNYZEgCfdEw/
-l1Tk+3j9KI0ARPtNiMm28fI=
-=7f83
------END PGP SIGNATURE-----
+1. pci_isp.c:isp_pci_dmasetup() is called with Cmnd->use_sg != 0
+2. the call to arch/alpha/kernel/pci_iommu.c:pci_map_sg() returns a value of
+0
 
---2fHTh5uZTiUOsy+g--
+So my earlier blather about page counting appears to be totally irrelevant.
+:-)
+
+But I don't see any changes between old (happy) and new (dma-challenged)
+isp_pci_dmasetup() prior to the point of the error, and you do minimal
+transformation of inputs to get arguments for pci_map_sg(), so I get the
+feeling maybe you are getting screwed by bad data coming in.
+
+The only place arch/alpha/kernel/pci_iommu.c:pci_map_sg() displays the
+"could not allocate dma page tables" error message is after a call to
+sg_fill() fails. The circumstances would appear to require that the
+scatterlist contain more than 1 entry, and I see sg_fill() will only be
+called for scatterlist leaders.
+
+Maybe my disk subsystem is the only thing that is generating multisegment
+DMA activity, and this is just a symptom of more general brokenness? I dread
+it, but it looks like I may need to add some instrumentation to (and/or
+enable some of the debugging stuff in) pci_iommu.c.
+
+Any other gratuitous advice is welcomed,
+
+	Scott
+	scott <dot> bailey <at> eds <dot> com

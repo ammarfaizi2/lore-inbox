@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267768AbTAXPu7>; Fri, 24 Jan 2003 10:50:59 -0500
+	id <S267767AbTAXPoI>; Fri, 24 Jan 2003 10:44:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267773AbTAXPu7>; Fri, 24 Jan 2003 10:50:59 -0500
-Received: from dial-ctb05175.webone.com.au ([210.9.245.175]:8964 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id <S267768AbTAXPu7>;
-	Fri, 24 Jan 2003 10:50:59 -0500
-Message-ID: <3E31630E.7070601@cyberone.com.au>
-Date: Sat, 25 Jan 2003 03:00:14 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-MIME-Version: 1.0
-To: Nikita Danilov <Nikita@Namesys.COM>
-CC: Andrew Morton <akpm@digeo.com>,
-       Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.59-mm5
-References: <20030123195044.47c51d39.akpm@digeo.com>	<946253340.1043406208@[192.168.100.5]>	<20030124031632.7e28055f.akpm@digeo.com> <15921.11824.472374.112916@laputa.namesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267765AbTAXPoI>; Fri, 24 Jan 2003 10:44:08 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:57223 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267761AbTAXPoG>;
+	Fri, 24 Jan 2003 10:44:06 -0500
+Date: Fri, 24 Jan 2003 07:53:11 -0800
+From: Dave Olien <dmo@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, markw@osdl.org,
+       cliffw@osdl.org, maryedie@osdl.org, jenny@osdl.org
+Subject: Re: [BUG] BUG_ON in I/O scheduler, bugme # 288
+Message-ID: <20030124075311.B10818@acpi.pdx.osdl.net>
+References: <20030123135448.A8801@acpi.pdx.osdl.net> <20030124075001.GE910@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030124075001.GE910@suse.de>; from axboe@suse.de on Fri, Jan 24, 2003 at 08:50:01AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov wrote:
 
->Andrew Morton writes:
->
->[...]
->
-> > 
-> > In this very common scenario, the only way we'll ever get "lumps" of reads is
-> > if some other processes come in and happen to want to read nearby sectors. 
->
->Or if you have read-ahead for meta-data, which is quite useful. Isn't
->read ahead targeting the same problem as this anticipatory scheduling?
->
-Finesse vs brute force. A bit of readahead is good.
 
+OK, I was able to reproduce at least the problem with I/O apparently
+never completing on my smaller test machine.  I've been assuming this
+was related to whatever was causing the BUG_ON().  But in case it
+isn't, I'm going to continue to look into what's going on on the running
+system and I'll let you know what I find.
+
+In the mean time, once you've generated a patch, I'll give it a try
+as soon as I get it.  I'll also pass it on to the dbt2 workload guys.
+
+On Fri, Jan 24, 2003 at 08:50:01AM +0100, Jens Axboe wrote:
+> 
+> A request got on the fifo, but not in the sort tree. This is most likely
+> an  alias. Ah yes I see it, it can happen when two requests are merged.
+> I'll be back with a fix for this soon.
+> 
+> -- 
+> Jens Axboe
+> 

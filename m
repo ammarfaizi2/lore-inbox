@@ -1,47 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267138AbSKSUQN>; Tue, 19 Nov 2002 15:16:13 -0500
+	id <S267136AbSKSUOJ>; Tue, 19 Nov 2002 15:14:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267139AbSKSUQN>; Tue, 19 Nov 2002 15:16:13 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:14468 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267138AbSKSUQM>; Tue, 19 Nov 2002 15:16:12 -0500
-Date: Tue, 19 Nov 2002 15:22:45 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: Re: [RFC/CFT] Separate obj/src dir
-In-Reply-To: <20021119201110.GA11192@mars.ravnborg.org>
-Message-ID: <Pine.LNX.3.95.1021119151730.5943A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267138AbSKSUOJ>; Tue, 19 Nov 2002 15:14:09 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:19987 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267136AbSKSUOJ>; Tue, 19 Nov 2002 15:14:09 -0500
+Date: Tue, 19 Nov 2002 15:21:08 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200211192021.gAJKL8A29487@devserv.devel.redhat.com>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][TRIVIAL] Add back in <asm/system.h> and <linux/linkage.h> to <linux/interrupt.h>
+In-Reply-To: <mailman.1037736361.32709.linux-kernel2news@redhat.com>
+References: <mailman.1037736361.32709.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Nov 2002, Sam Ravnborg wrote:
+> The following trivial patch adds back <asm/system.h> and
+><linux/kernel.h> to <linux/interrupt.h>.  Without it,
+><linux/interrupt.h> is relying on <asm/system.h> to be implicitly
+> included for smb_mb to be defined, and <linux/linkage.h> to be implicitly
+> included for asmlinkage/FASTCALL/etc.
 
-> Based on some initial work by Kai Germaschewski I have made a
-> working prototype of separate obj/src tree.
-> 
-> Usage example:
-> #src located in ~/bk/linux-2.5.sepobj
-> mkdir ~/compile/v2.5
-> cd ~/compile/v2.5
-> sh ../../kb/v2.5/kbuild
+Right, RMK posted it a couple of days ago, without linkage.h though.
 
-[SNIPPED...]
-
-I have a question; "What problem is this supposed to solve?"
-This looks like a M$ism to me. Real source trees don't
-look like this. If you don't have write access to the source-
-code tree, you are screwed on a real project anyway. That's
-why we have CVS, tar and other tools to provide a local copy.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
-
-
+-- Pete

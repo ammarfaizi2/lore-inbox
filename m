@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262686AbVCJQMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262712AbVCJQLk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262686AbVCJQMU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 11:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVCJQMO
+	id S262712AbVCJQLk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 11:11:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVCJQLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 11:12:14 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:24301 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S262686AbVCJQJL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 11:09:11 -0500
-Message-ID: <42308073.CEA0DF75@tv-sign.ru>
-Date: Thu, 10 Mar 2005 20:14:27 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ram <linuxram@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Steven Pratt <slpratt@austin.ibm.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/2] readahead: improve sequential read detection
-References: <42260F30.BE15B4DA@tv-sign.ru> <1110412324.4816.89.camel@localhost>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Mar 2005 11:11:31 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:63644 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262680AbVCJQJA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 11:09:00 -0500
+Subject: Re: [patch 1/1] /proc/$$/ipaddr and per-task networking bits
+From: Arjan van de Ven <arjan@infradead.org>
+To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1110470430.9190.33.camel@localhost.localdomain>
+References: <1110464202.9190.7.camel@localhost.localdomain>
+	 <1110464782.6291.95.camel@laptopd505.fenrus.org>
+	 <1110468517.9190.24.camel@localhost.localdomain>
+	 <1110469087.6291.103.camel@laptopd505.fenrus.org>
+	 <1110470430.9190.33.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 10 Mar 2005 17:08:55 +0100
+Message-Id: <1110470935.6291.105.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ram wrote:
->
-> On Wed, 2005-03-02 at 11:08, Oleg Nesterov wrote:
-> >
-> >  out:
-> > - return newsize;
-> > + return ra->prev_page + 1;
->
-> This change introduces one key behavioural change in
-> page_cache_readahead(). Instead of returning the number-of-pages
-> successfully read, it now returns the next-page-index which is yet to be
-> read. Was this essential?
+On Thu, 2005-03-10 at 17:00 +0100, Lorenzo Hernández García-Hierro
+wrote: it tries to fill the
+> ipaddr member of the task_struct structure with the IP address
+> associated to the user running @current task/process,if available.
 
-The problem is that with this change:
-+       if (offset == ra->prev_page && --req_size)
-+               ++offset;
-we can't just return newsize.
+but... a use doesn't hane an IP. a host does.
 
-Because the caller of page_cache_readahead(offset, req_size) expects
-that returned value is the number-of-pages successfully read from
-this original offset.
 
-Consider do_generic_mapping_read() reading two pages at offset 10,
-with ra->prev_page == 10.
-
-1st page, index == 10:
-	ret_size = page_cache_readahead(10, 2);		// returns 1
-	next_index += ret_size;				// next_index == 11
-
-2nd page, index == 11:
-	if (index == next_index)			// Yes
-		page_cache_readahead(11, 1);		// BOGUS!
-
-It can be solved without behavioural change of course, but it will be
-more complex.
-
-> At least, a comment towards this effect at the top of the function is
-> worth adding.
-
-Yes, it's my fault. I should have added comment in changelog at least.
-
-Oleg.

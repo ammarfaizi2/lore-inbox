@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315288AbSEACax>; Tue, 30 Apr 2002 22:30:53 -0400
+	id <S315291AbSEADlg>; Tue, 30 Apr 2002 23:41:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315289AbSEACaw>; Tue, 30 Apr 2002 22:30:52 -0400
-Received: from mail.h8.ita.br ([161.24.72.4]:48779 "EHLO mail")
-	by vger.kernel.org with ESMTP id <S315288AbSEACat>;
-	Tue, 30 Apr 2002 22:30:49 -0400
-Date: Tue, 30 Apr 2002 23:35:58 -0300
-From: Carlos Francisco Regis <zeca@h8.ita.br>
-To: linux-kernel@vger.kernel.org
-Subject: smp/dac960/i450gx boot problem
-Message-Id: <20020430233558.51bf6ed2.zeca@h8.ita.br>
-Organization: ITA
-X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S315292AbSEADlg>; Tue, 30 Apr 2002 23:41:36 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:21749 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S315291AbSEADlf>;
+	Tue, 30 Apr 2002 23:41:35 -0400
+Date: Tue, 30 Apr 2002 23:41:34 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] missing checks in exec_permission_light()
+Message-ID: <Pine.GSO.4.21.0204302340340.10523-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Missing checks added...
 
-	
-	Hello all,
-
-	I'm with some troubles on trying to boot a kernel in a dual PPro machine. When a compile the kernel with smp support the machine hungs during the boot, this occurs exactly when the dac960 driver is being loaded. When I remove the smp support the driver is loaded but I have only one processor running.
-
-	I think the problem is the i450kx/gx pci bridge and the pci->apic irq transform. But I can't figure out why this is happening.
-
-	If someone knows some workaround, please let me know.
-
-
-	Thanks in advance,
-
-	Carlos
-
-	
+diff -urN C12-0/fs/namei.c C12-current/fs/namei.c
+--- C12-0/fs/namei.c	Tue Apr 30 20:23:38 2002
++++ C12-current/fs/namei.c	Tue Apr 30 23:37:15 2002
+@@ -324,6 +324,12 @@
+ 	if (mode & MAY_EXEC)
+ 		return 0;
+ 
++	if ((inode->i_mode & S_IXUGO) && capable(CAP_DAC_OVERRIDE))
++		return 0;
++
++	if (S_ISDIR(inode->i_mode) && capable(CAP_DAC_READ_SEARCH))
++		return 0;
++
+ 	return -EACCES;
+ }
+ 
 

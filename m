@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbUK0HeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbUK0G6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbUK0HeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 02:34:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUK0G7p
+	id S261414AbUK0G6l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 01:58:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbUKZTIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 01:59:45 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:18110 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261206AbUKZTHq (ORCPT
+	Fri, 26 Nov 2004 14:08:14 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:32190 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261286AbUKZTGs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:07:46 -0500
-Date: Fri, 26 Nov 2004 01:37:13 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
+	Fri, 26 Nov 2004 14:06:48 -0500
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Priority Inheritance Test (Real-Time Preemption)
-Message-ID: <20041126003713.GA5352@elte.hu>
-References: <20041125165829.GA24121@elte.hu> <Pine.OSF.4.05.10411252305040.25041-100000@da410.ifa.au.dk> <20041126010841.GA3563@elte.hu> <20041126003425.GA5182@elte.hu>
-Mime-Version: 1.0
+Subject: Re: oops with dual xeon 2.8ghz  4gb ram +smp, software raid, lvm,  and xfs
+References: <33rTj-1VZ-13@gated-at.bofh.it> <33wJq-633-25@gated-at.bofh.it>
+	<34fwL-P1-21@gated-at.bofh.it> <34fGp-V2-9@gated-at.bofh.it>
+	<34fGp-V2-7@gated-at.bofh.it> <34lVr-5WH-1@gated-at.bofh.it>
+	<34m5a-61Z-9@gated-at.bofh.it>
+From: Andi Kleen <ak@suse.de>
+Date: 25 Nov 2004 12:07:32 +0100
+In-Reply-To: <34m5a-61Z-9@gated-at.bofh.it>
+Message-ID: <p73vfbuuqyz.fsf@brahms.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041126003425.GA5182@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@osdl.org> writes:
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+> > I can't say I love the idea of adding a bio list structure to the
+> > tasklist, it feels pretty hacky. generic_make_request() doesn't really
+> > use that much stack, if you just kill the BDEVNAME_SIZE struct.
+> 
+> Looks like a sensible thing to do, although it would be tidier to move the
+> whole thing into a separate function, no?
+> 
+> 
+> --- 25/drivers/block/ll_rw_blk.c~generic_make_request-stack-savings	2004-11-24 23:03:06.347778648 -0800
+> +++ 25-akpm/drivers/block/ll_rw_blk.c	2004-11-24 23:07:39.798207864 -0800
+> @@ -2584,6 +2584,20 @@ static inline void block_wait_queue_runn
+>  	}
+>  }
+>  
+> +static void handle_bad_sector(struct bio *bio)
 
-> 
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > the additional +1 msec comes from the fact that 1-deep lock/unlock of
-> > lock1 is an allowed operation too - 2 msec would be the limit if the
-> > only sequence is the 2-deep one.
-> > 
-> > so i think the numbers, at least in the 2-deep case, are quite close
-> > to the theoretical boundary.
-> 
-> in the generic case i think the theoretical boundary should be something
-> like:
-> 
->    sum(i=1...n)(i) == (n+1) * n / 2
-> 
-> 	n=1	limit=1
-> 	n=2	limit=3
-> 	n=3	limit=6
-> 	n=4	limit=10
-> 
-> this is quite close to what you have measured for n=1,2,3, and i think
-> it's becoming exponentially harder to trigger the worst-case with higher
-> N, so the measured results will likely be lower than that.
+You need to mark it noinline, otherwise a unit-at-a-time gcc (3.4+) 
+will happily inline it anyways.
 
-also, you might want to try the simpler N-deep-locking-only variant,
-where the maximum latency should be 'n'. This likely needs some changes
-to the blocker.c code though - i.e. set 'max' always to lock_depth.
-
-	Ingo
+-Andi

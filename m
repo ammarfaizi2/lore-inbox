@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268934AbRIHKqY>; Sat, 8 Sep 2001 06:46:24 -0400
+	id <S268940AbRIHKxe>; Sat, 8 Sep 2001 06:53:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268940AbRIHKqE>; Sat, 8 Sep 2001 06:46:04 -0400
-Received: from imo-d08.mx.aol.com ([205.188.157.40]:14758 "EHLO
-	imo-d08.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S268934AbRIHKqC>; Sat, 8 Sep 2001 06:46:02 -0400
-From: Floydsmith@aol.com
-Message-ID: <51.10cc64a8.28cb50f8@aol.com>
-Date: Sat, 8 Sep 2001 06:46:16 EDT
-Subject: Re2: LOADLIN and 2.4 kernels
-To: tegeran@home.com, linux-kernel@vger.kernel.org
-CC: Floydsmith@aol.com
+	id <S268963AbRIHKxZ>; Sat, 8 Sep 2001 06:53:25 -0400
+Received: from mons.uio.no ([129.240.130.14]:63987 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S268940AbRIHKxN>;
+	Sat, 8 Sep 2001 06:53:13 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: AOL 4.0 for Windows 95 sub 14
+Message-ID: <15257.63655.764646.844202@charged.uio.no>
+Date: Sat, 8 Sep 2001 12:53:27 +0200
+To: "Mike Black" <mblack@csihq.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.8 NFS Problems
+In-Reply-To: <04c301c137b4$34604590$e1de11cc@csihq.com>
+In-Reply-To: <024f01c13601$c763d3c0$e1de11cc@csihq.com>
+	<shsae07md9d.fsf@charged.uio.no>
+	<033a01c1379e$e3514880$e1de11cc@csihq.com>
+	<15256.56528.460569.700469@charged.uio.no>
+	<04c301c137b4$34604590$e1de11cc@csihq.com>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >Hi everyone,
->> >
->> >I got a bug report of LOADLIN not working with recent -ac kernels, and
->> >thought it might have something to do with my recent A20 changes that
->> >were added to -ac.  However, in trying to reproduce this bug, I have
->> >been completely unable to boot *any* 2.4 kernel with LOADLIN-1.6,
->> > trying this from Win98 DOS mode.
->> >
->> >Anyone have any insight into this?  I really don't understand how the
->> >A20 changes could affect LOADLIN, and it's starting to look to me that
->> >there is some other problem going on...
->> >
->> >        -hpa
->>
->
-><snip>
->
->> loads the 2.4.x kernel into a buffer. The kernel then attempts boot
->> just the "boot" sector stuff. This again probes for the total amount of
->> system ram (64MB). But, because of the much greater size of 2.4.x
->> kernels some memory location that himem uses (I think - maybe BIOS
+>>>>> " " == Mike Black <mblack@csihq.com> writes:
 
->Sounds like something booting to Safe Mode Command Prompt Only would fix, 
->as opposed to booting to plain command prompt mode
->command prompt mode will load some drivers (such as himem), better not to 
->load them when using LOADLIN. Safe Mode Command Prompt Only boots 
->straight to the command prompt, very similar to setting init to /bin/sh 
->for a completely bare single-user mode.
+     > The file is being copied from yeti to picard.  Last packet seen
+     > is picard telling yeti "OK" after the commit.  If soft timeouts
+     > were occurring shouldn't we be seeing packets from yeti again
+     > with no response from picard?
 
+You are assuming that the last packet seen is the one that corresponds
+to your read. In doing so, you are neglecting the fact that these are
+asynchronous reads, and that file readahead can muddle the waters for
+you.
 
-Yes, indeed, not loading himem does solve the problem I had. But, do to the 
-fact that I need extented memory (for a DOS ramdisk) and for some TSR(s) 
-(like smartdrv) for a LS-120 boot disk I use as both a Linux and DOS "rescue" 
-disk, I need "himem".
+Look, this is getting us nowhere. The bottom line is: if you are able
+to reproduce the EIO on hard mounts it is a bug, and I'll be happy to
+help you trace it. If it is occuring only on soft mounts, it is user
+error...
 
-Floyd,
+Cheers,
+  Trond

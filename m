@@ -1,42 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319380AbSIFUkO>; Fri, 6 Sep 2002 16:40:14 -0400
+	id <S319381AbSIFUkb>; Fri, 6 Sep 2002 16:40:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319381AbSIFUkO>; Fri, 6 Sep 2002 16:40:14 -0400
-Received: from mnh-1-22.mv.com ([207.22.10.54]:30213 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S319380AbSIFUkN>;
-	Fri, 6 Sep 2002 16:40:13 -0400
-Message-Id: <200209062148.QAA03922@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
-Subject: UML 2.5.33
-Mime-Version: 1.0
+	id <S319382AbSIFUkb>; Fri, 6 Sep 2002 16:40:31 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:24078 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S319381AbSIFUk3>; Fri, 6 Sep 2002 16:40:29 -0400
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] ptrace-fix-2.5.33-A1
+References: <Pine.LNX.4.44.0209060058040.20904-100000@localhost.localdomain>
+	<87vg5j2l5g.fsf@devron.myhome.or.jp>
+	<20020906154508.GA20709@nevyn.them.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sat, 07 Sep 2002 05:44:40 +0900
+In-Reply-To: <20020906154508.GA20709@nevyn.them.org>
+Message-ID: <87heh23l1j.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 06 Sep 2002 16:48:48 -0500
-From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-UML has been updated to 2.5.33 and UML 2.4.19-2.
+Daniel Jacobowitz <dan@debian.org> writes:
 
-Other changes include
-	Fixed a couple of jail mode crashes
-	Fixed a crash caused by not properly copying the fpstate pointer
-during a signal delivery
-	Fixed a stupid typo in uaccess.h.
-	Ethernet devices now are guaranteed to end up with the same names
-that were specified on the command line
+> > 	 * Search them and reparent children.
+> > 	 */
+> > 	list_for_each(_p, &father->children) {
+> > 		p = list_entry(_p,struct task_struct,sibling);
+> > 		reparent_thread(p, reaper, child_reaper);
+> > 	}
+> > 
+> > Looks like that tracer deprive a process from real parent.
+> 
+> Oh - when the tracer exits the original parent may be corrupted, you
+> mean?  I guess you're right.  But I've made so many changes to this bit
+> of code that I'd like to wait until it settles before we fix this -
+> it's not a new problem.
 
-The patch is available at
-	http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.5.33-1.bz2
+Yes, this isn't new problem. However, since other place may be
+affected by this, I think should fix this first.
 
-For the other UML mirrors and other downloads, see 
-	http://user-mode-linux.sourceforge.net/dl-sf.html
+> > 	list_for_each(_p, &father->ptrace_children) {
+> > 		p = list_entry(_p,struct task_struct,ptrace_list);
+> > 		reparent_thread(p, reaper, child_reaper);
+> > 	}
+> > 
+> > Thread group makes the child which links both ->children and
+> > ->ptrace_children.
+> 
+> I don't understand what you mean.
 
-Other links of interest:
+Sorry, forget this.
 
-	The UML project home page : http://user-mode-linux.sourceforge.net
-	The UML Community site : http://usermodelinux.org
+> > >  {
+> > > -	ptrace_unlink(p);
+> > > -	list_del_init(&p->sibling);
+> > > -	p->ptrace = 0;
+> > > +	/* If we were tracing the thread, release it; otherwise preserve the
+> > > +	   ptrace links.  */
+> > > +	if (unlikely(traced)) {
+> > > +		task_t *trace_task = p->parent;
+> > > +		__ptrace_unlink(p);
+> > > +		p->ptrace = 1;
+> > 
+> > Unexpected change of ptrace flag.
+> 
+> I should've caught that, I actually use the ptrace flags here.  But the
+> code that uses them is suffering some other BUG() right now.
 
-				Jeff
-
+I forgot I say another point. This path shouldn't send signal to
+parent.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

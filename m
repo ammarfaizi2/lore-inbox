@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262787AbVCJRgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262796AbVCJRgB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262787AbVCJRgD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 12:36:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbVCJRdD
+	id S262796AbVCJRgB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 12:36:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262791AbVCJRcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 12:33:03 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:978 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262940AbVCJR1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 12:27:34 -0500
-Subject: Re: [RFC] -stable, how it's going to work.
-From: Lee Revell <rlrevell@joe-job.com>
-To: Greg KH <greg@kroah.com>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050310164312.GC16126@kroah.com>
-References: <20050309072833.GA18878@kroah.com>
-	 <16944.6867.858907.990990@cse.unsw.edu.au>
-	 <20050310164312.GC16126@kroah.com>
-Content-Type: text/plain
-Date: Thu, 10 Mar 2005 12:27:23 -0500
-Message-Id: <1110475644.12805.43.camel@mindpipe>
+	Thu, 10 Mar 2005 12:32:55 -0500
+Received: from extgw-uk.mips.com ([62.254.210.129]:44310 "EHLO
+	mail.linux-mips.net") by vger.kernel.org with ESMTP id S262938AbVCJR3O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 12:29:14 -0500
+Date: Thu, 10 Mar 2005 17:28:40 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>
+Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
+Subject: Re: [PATCH] qtronix missing failure handling
+Message-ID: <20050310172840.GD26269@linux-mips.org>
+References: <20050305150844.GA7544@mech.kuleuven.ac.be>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050305150844.GA7544@mech.kuleuven.ac.be>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-10 at 08:43 -0800, Greg KH wrote:
-> That, and a zillion other specific wordings that people suggested fall
-> under the:
-> 	or some "oh, that's not good" issue
-> rule.
+On Sat, Mar 05, 2005 at 04:08:44PM +0100, Panagiotis Issaris wrote:
 
-So just to be 100% clear, no sound with 2.6.N where the sound worked
-with 2.6.N-1 absolutely does qualify.  Right?
+> Hi,
+> 
+> The Qtronix keyboard driver doesn't handle the possible failure of memory
+> allocation.
 
-Lee
+Thanks, applied.
 
+Please copy Linux/MIPS-specific patches to me or linux-mips@linux-mips.org;
+it was more a coincidence that I noticed your patch on this list.
+
+Thanks,
+
+  Ralf

@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264853AbSL0IlT>; Fri, 27 Dec 2002 03:41:19 -0500
+	id <S264844AbSL0Is0>; Fri, 27 Dec 2002 03:48:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264854AbSL0IlT>; Fri, 27 Dec 2002 03:41:19 -0500
-Received: from dp.samba.org ([66.70.73.150]:14568 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S264853AbSL0IlS>;
-	Fri, 27 Dec 2002 03:41:18 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Overzealous permenant mark removed
-Date: Fri, 27 Dec 2002 19:44:41 +1100
-Message-Id: <20021227084936.1DCBD2C10B@lists.samba.org>
+	id <S264854AbSL0Is0>; Fri, 27 Dec 2002 03:48:26 -0500
+Received: from smtp006.mail.tpe.yahoo.com ([202.1.238.137]:1331 "HELO
+	smtp006.mail.tpe.yahoo.com") by vger.kernel.org with SMTP
+	id <S264844AbSL0IsZ>; Fri, 27 Dec 2002 03:48:25 -0500
+Message-ID: <004e01c2ad85$d9eeb2b0$3716a8c0@taipei.via.com.tw>
+From: "Joseph" <jospehchan@yahoo.com.tw>
+To: "Eyal Lebedinsky" <eyal@eyal.emu.id.au>
+Cc: <linux-kernel@vger.kernel.org>
+References: <002801c2acd2$edf6a870$3716a8c0@taipei.via.com.tw> <20021226174653.GA8229@kroah.com> <003d01c2ad4a$54eb09f0$3716a8c0@taipei.via.com.tw> <3E0BC155.5B291F57@eyal.emu.id.au>
+Subject: Re: [USB 2.0 problem] ASUS CD-RW cannot be mounted.
+Date: Fri, 27 Dec 2002 16:55:19 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.
+> Check that you actually have /dev/scd0. I think it should be:
+> # mknod /dev/scd0 b 11 0
+> 
+ I've checked the node as follows.
+#ls -l /dec/scd0
+brw-r----- 1 root  disk 11,  0 Sep 9 13:24 /dev/scd0
 
-Name: Modules without init functions don't need exit functions
-Author: Rusty Russell
-Status: Trivial
+Any idea? Thanks in advance.
+BR,
+ Joseph
 
-D: If modules don't use module_exit(), they cannot be unloaded.  This
-D: safety mechanism should not apply for modules which don't use
-D: module_init() (implying they have nothing to clean up anyway).
-
-diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.52/kernel/module.c working-2.5.52-noexit/kernel/module.c
---- linux-2.5.52/kernel/module.c	Tue Dec 17 08:11:03 2002
-+++ working-2.5.52-noexit/kernel/module.c	Mon Dec 23 11:26:36 2002
-@@ -405,7 +405,8 @@ sys_delete_module(const char *name_user,
- 		}
- 	}
- 
--	if (!mod->exit || mod->unsafe) {
-+	/* If it has an init func, it must have an exit func to unload */
-+	if ((mod->init && !mod->exit) || mod->unsafe) {
- 		forced = try_force(flags);
- 		if (!forced) {
- 			/* This module can't be removed */
-@@ -473,7 +474,7 @@ static void print_unload_info(struct seq
- 	if (mod->unsafe)
- 		seq_printf(m, " [unsafe]");
- 
--	if (!mod->exit)
-+	if (mod->init && !mod->exit)
- 		seq_printf(m, " [permanent]");
- 
- 	seq_printf(m, "\n");
-
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-----------------------------------------------------------------
+< ¨C¤Ñ³£ Yahoo!©_¼¯ >  www.yahoo.com.tw

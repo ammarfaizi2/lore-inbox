@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269888AbUJGXD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269854AbUJGXGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269888AbUJGXD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 19:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269853AbUJGXBk
+	id S269854AbUJGXGV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 19:06:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269915AbUJGXBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 19:01:40 -0400
-Received: from mailfe05.swip.net ([212.247.154.129]:39850 "EHLO
-	mailfe05.swip.net") by vger.kernel.org with ESMTP id S269854AbUJGW4E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:56:04 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Fri, 8 Oct 2004 00:55:59 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
+	Thu, 7 Oct 2004 19:01:08 -0400
+Received: from convulsion.choralone.org ([212.13.208.157]:32772 "EHLO
+	convulsion.choralone.org") by vger.kernel.org with ESMTP
+	id S269853AbUJGWSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 18:18:47 -0400
+Date: Thu, 7 Oct 2004 23:18:26 +0100
+From: Dave Jones <davej@redhat.com>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>,
+       "jmerkey@comcast.net" <jmerkey@comcast.net>, jonathan@jonmasters.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>, sebastien.hinderer@libertysurf.fr
-Subject: Re: [Patch] new serial flow control
-Message-ID: <20041007225559.GE2296@bouh.is-a-geek.org>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
+Message-ID: <20041007221826.GB5302@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Jeff V. Merkey" <jmerkey@drdos.com>,
+	Kyle Moffett <mrmacman_g4@mac.com>,
+	"jmerkey@comcast.net" <jmerkey@comcast.net>,
+	jonathan@jonmasters.org,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Russell King <rmk@arm.linux.org.uk>,
-	sebastien.hinderer@libertysurf.fr
-References: <200410051249_MC3-1-8B8B-5504@compuserve.com> <20041005172522.GA2264@bouh.is-a-geek.org> <1097176130.31557.117.camel@localhost.localdomain> <20041007214330.GB2296@bouh.is-a-geek.org>
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net> <35fb2e590410011509712b7d1@mail.gmail.com> <415DD1ED.6030101@drdos.com> <1096738439.25290.13.camel@localhost.localdomain> <41659748.9090906@drdos.com> <8B592DC4-18A9-11D9-ABEB-000393ACC76E@mac.com> <4165B265.2050506@drdos.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20041007214330.GB2296@bouh.is-a-geek.org>
-User-Agent: Mutt/1.5.6i-nntp
+In-Reply-To: <4165B265.2050506@drdos.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeu 07 oct 2004 à 23:43:30 +0200, Samuel Thibault a écrit:
-> I'm asking because there was some funny bug not that far ago: async
-> ppp people thought that xon/xoff were processed in the serial driver,
+On Thu, Oct 07, 2004 at 03:17:25PM -0600, Jeff V. Merkey wrote:
 
-For some record
-http://groups.google.com/groups?threadm=Pine.LNX.4.10.10112042358240.2290-100000@youpi.residence.ens-lyon.fr#link15
-and
-http://groups.google.com/groups?threadm=Pine.LNX.4.10.10112062257590.1328-100000@youpi.residence.ens-lyon.fr
-(google didn't like the subject change)
+ > Then their code could be removed from the snapshot, and the folks who 
+ > were more
+ > interested in being smart rather than being right would get the $$$. 
+ > That's easy.
 
-Regards,
-Samuel Thibault
+If you want to spend god alone knows how many hours tracking down
+who wrote what and nuking the relevant bits, that's your time to throw
+away. If you want the same featureset a little faster however, I
+believe SCO are still selling Openserver licenses.
+
+		Dave
+

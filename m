@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261983AbSIYOOo>; Wed, 25 Sep 2002 10:14:44 -0400
+	id <S261984AbSIYOW4>; Wed, 25 Sep 2002 10:22:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261984AbSIYOOo>; Wed, 25 Sep 2002 10:14:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4107 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261983AbSIYOOm>;
-	Wed, 25 Sep 2002 10:14:42 -0400
-Date: Wed, 25 Sep 2002 15:19:43 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: gerg@snapgear.com
+	id <S261985AbSIYOW4>; Wed, 25 Sep 2002 10:22:56 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:44382 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S261984AbSIYOWz>; Wed, 25 Sep 2002 10:22:55 -0400
+Date: Wed, 25 Sep 2002 15:27:57 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Steve Underwood <steveu@coppice.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: 2.5.38uc1 (MMU-less support)
-Message-ID: <20020925151943.B25721@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: USB IEEE1284 gadgets and ppdev
+Message-ID: <20020925142757.GL9457@redhat.com>
+References: <3D90831A.7060709@coppice.org> <20020924162130.GE9457@redhat.com> <3D91BF58.8080803@coppice.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8xFSaDOZv3KW7q+m"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D91BF58.8080803@coppice.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Thanks for splitting the patch up, makes it easier to see what's going on.
-Let's have another go at making this better...
+--8xFSaDOZv3KW7q+m
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Motorola 5272 ethernet driver:
-* In Config.in, let's conditionalise it on CONFIG_PPC or something
-* Can you use module_init() so it doesn't need an entry in Space.c?
-* You're defining CONFIG_* variables in the .c file.  I don't know whether
-  this is something we're still trying to avoid doing ... Greg, you seem
-  to be CodingStyle enforcer, what's the word?
-* Why do you need to EXPORT_SYMBOL fec_register_ph and fec_unregister_ph?
-* There's an awful lot of stuff conditionalised on CONFIG_M5272.  In general,
-  having #ifdefs within functions is frowned upon.
+On Wed, Sep 25, 2002 at 09:51:20PM +0800, Steve Underwood wrote:
 
-Motorola 68328 and ColdFire serial drivers:
-* Move to drivers/serial
-* Lose this change from the Makefile:
--			selection.o sonypi.o sysrq.o tty_io.o tty_ioctl.o
-+			selection.o sonypi.o sysrq.o tty_io.o tty_ioctl.o \
-* Drop the custom MIN() definition.
-* Port to new serial driver framework.
+> As far as I can tell there are only two USB drivers for USB-to-IEEE1284=
+=20
+> devices - USS720 for the USS720 device, and usblp for everything else.=20
+> Is usblp supposed to hook into ppdev? Is there some other device driver=
+=20
+> I missed?
 
-MTD driver patches for uClinux supported platforms:
-I don't see any problems.  Submit to Linus via Dave Woodhouse, I guess.
+Not into ppdev; into parport.  It ought to use
+parport_register_port. (It doesn't, currently.)
 
-Motorola 68328 framebuffer:
-Don't see any problems here either.
+Tim.
+*/
 
-uClinux FLAT file format exe loader:
-* Drop the MAX() macro.
-* +#include "../lib/inflate2.c".  Er.  You seem to have missed inflate2.c
-  from your patch, and this really isn't the right way to do it anyway.
-  Can't you share inflate.c these days?
-* I'm also a little unsure about your per-arch #defines.  Could you put
-  comments by each saying why they're necessary?
+--8xFSaDOZv3KW7q+m
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-I haven't reveiwed the other two patches.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
--- 
-Revolutions do not require corporate support.
+iD8DBQE9kcfttO8Ac4jnUq4RAtdVAJ9nbIUrrNOR3cG+SKJP3A77yJUp1QCfUtXa
+iDgSSZd/id48TRrzsLfJsqY=
+=n0Dj
+-----END PGP SIGNATURE-----
+
+--8xFSaDOZv3KW7q+m--

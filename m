@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268689AbTGIXQF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 19:16:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268690AbTGIXQF
+	id S266201AbTGIXVY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 19:21:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266205AbTGIXVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 19:16:05 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:24498
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S268689AbTGIXQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 19:16:02 -0400
-Subject: Re: Fix IDE initialization when we don't probe for interrupts.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-In-Reply-To: <3F0C9251.2010107@pobox.com>
-References: <200307092110.h69LAlgG027527@hera.kernel.org>
-	 <3F0C9251.2010107@pobox.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1057793279.7137.0.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 9 Jul 2003 19:21:23 -0400
+Received: from [213.4.129.129] ([213.4.129.129]:14501 "EHLO tsmtp7.mail.isp")
+	by vger.kernel.org with ESMTP id S266201AbTGIXVW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 19:21:22 -0400
+Date: Thu, 10 Jul 2003 01:36:00 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: linux-kernel@vger.kernel.org
+Subject: benchmark: 2.5 io test regression?
+Message-Id: <20030710013600.1483e80a.diegocg@teleline.es>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 10 Jul 2003 00:28:00 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-07-09 at 23:08, Jeff Garzik wrote:
-> > +		 * Disable device irq if we don't need to
-> > +		 * probe for it. Otherwise we'll get spurious
-> > +		 * interrupts during the identify-phase that
-> > +		 * the irq handler isn't expecting.
-> > +		 */
-> > +		hwif->OUTB(drive->ctl|2, IDE_CONTROL_REG);
-> 
-> 
-> Yeah, my driver does probing with interrupts disabled, too.
-> I'm curious where interrupts are re-enabled, though?
+Hi. I just went to my 2.5 kernel source tree and i did
 
-In the command write. BTW note that there are a few devices
-out there that dont honour the nIEN stuff.
+#time grep foo * -r
 
-IDE is such fun
+in both 2.4 & 2.5
+
+doing this in 2.4 takes:
+real    0m50.614s
+user    0m1.150s
+sys     0m2.560s
+
+2.5.74-mm3 AS:
+real    0m46.207s
+user    0m1.156s
+sys     0m3.161s
+
+2.5.74-mm3 deadline:
+real    0m57.418s
+user    0m1.160s
+sys     0m3.107s
+
+I repeated the tests and they show very similar numbers. One time 2.4 was faster
+than 2.5 with AS.
+Hardware is p3 2x800 UDMA 100 7200 rpm 2 MB ide disk, filesystem ext3 (default
+mount options). DMA was activated in both 2.4 and 2.5.
+
+
+Should 2.5 be faster here, or it's the expected behaviour? I'd
+have expected a bit more of AS, but perhaps AS it isn't good for
+this benchmark?
+
+
 

@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbULASHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbULASID@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbULASHz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 13:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbULASHz
+	id S261403AbULASID (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 13:08:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbULASID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 13:07:55 -0500
-Received: from fw.osdl.org ([65.172.181.6]:15306 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261404AbULASHu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 13:07:50 -0500
-Date: Wed, 1 Dec 2004 10:07:49 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] inotify: a replacement for dnotify
-Message-ID: <20041201100748.L14339@build.pdx.osdl.net>
-References: <1101854070.4493.52.camel@betsy.boston.ximian.com> <20041130150345.K14339@build.pdx.osdl.net> <Pine.LNX.4.53.0412010937500.17975@yvahk01.tjqt.qr>
+	Wed, 1 Dec 2004 13:08:03 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:52885 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261403AbULASH4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 13:07:56 -0500
+Date: Wed, 1 Dec 2004 19:08:19 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Mariusz Mazur <mmazur@kernel.pl>
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Linus Torvalds <torvalds@osdl.org>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Alexandre Oliva <aoliva@redhat.com>, Paul Mackerras <paulus@samba.org>,
+       Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, hch@infradead.org,
+       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+Message-ID: <20041201180819.GA8220@mars.ravnborg.org>
+Mail-Followup-To: Mariusz Mazur <mmazur@kernel.pl>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+	Linus Torvalds <torvalds@osdl.org>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Alexandre Oliva <aoliva@redhat.com>,
+	Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
+	Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
+	hch@infradead.org, linux-kernel@vger.kernel.org,
+	libc-hacker@sources.redhat.com
+References: <19865.1101395592@redhat.com> <200412010008.13572.mmazur@kernel.pl> <20041201052328.GA8157@mars.ravnborg.org> <200412011152.45279.mmazur@kernel.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.53.0412010937500.17975@yvahk01.tjqt.qr>; from jengelh@linux01.gwdg.de on Wed, Dec 01, 2004 at 09:38:17AM +0100
+In-Reply-To: <200412011152.45279.mmazur@kernel.pl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jan Engelhardt (jengelh@linux01.gwdg.de) wrote:
-> >> +	user = find_user(current->user->uid);
-> >> +	if (!user)
-> >> +		return -ENOMEM;
+On Wed, Dec 01, 2004 at 11:52:45AM +0100, Mariusz Mazur wrote:
+> On ?roda 01 grudzie? 2004 06:23, Sam Ravnborg wrote:
+> > > Linked, copied, mount --binded, whatever. Just not under the
+> > > name /usr/include/user, but something more meaningfull.
 > >
-> >Can just be:
-> >
-> >	get_uid(current->user);
+> > Whats wrong with
+> > /lib/modules/`uname -r`/source/include/user
+> > /lib/modules/`uname -r`/source/include/$arch
 > 
-> What about current->euid?
+> Those are supposed to be userland-only headers that don't just change - they 
+> are gradually expanded. I don't see a point in having `uname -r` in there.
+> 
+> And another thing - distribution vendors will *hate* anyone, that encourages 
+> app developers to add an include path based on which kernel is being 
+> currently run. People, that have their headers tied to their kernels are a 
+> *minority*.
+Above shows how this minority could locate headers for running kernel.
+It is not meant to be the general solution.
 
-Not relevant.  There's only one user_struct per task_struct.  The change
-is to simply grab a ref on it and go rather than doing a full look up
-in the uid hash as a method to get a refcount on it.
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+	Sam

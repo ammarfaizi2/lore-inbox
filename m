@@ -1,90 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbTHSS7c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 14:59:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbTHSS7Q
+	id S261176AbTHSS43 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 14:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbTHSSx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 14:59:16 -0400
-Received: from main.gmane.org ([80.91.224.249]:40149 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261214AbTHSS6g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 14:58:36 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [PATCH] O17int
-Date: Tue, 19 Aug 2003 20:58:35 +0200
-Message-ID: <yw1xbrulxyn8.fsf@users.sourceforge.net>
-References: <200308200102.04155.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:RvIH+kdQVbFnD7pOGfra1TC0Gh8=
+	Tue, 19 Aug 2003 14:53:58 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:44542 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S261291AbTHSSv6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 14:51:58 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: <vda@port.imtp.ilyichevsk.odessa.ua>, "Mike Fedyk" <mfedyk@matchmail.com>,
+       "Hank Leininger" <hlein@progressive-comp.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Dumb question: Why are exceptions such as SIGSEGV not logged
+Date: Tue, 19 Aug 2003 11:51:50 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKGEKJFDAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <200308190654.h7J6sIL07040@Port.imtp.ilyichevsk.odessa.ua>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Another XEmacs strangeness:
+> On 19 August 2003 01:39, David Schwartz wrote:
 
-When compiling from xemacs, everything is fine until the compilation
-is done.  Then xemacs starts spinning wildly in some loop doing this:
+> > > And why not just catch the ones sent from the kernel?  That's
+> > > the one that
+> > > is killing the program because it crashed, and that's the one the
+> > > origional
+> > > poster wants logged...
 
-select(1024, [], NULL, NULL, {0, 0})    = 0 (Timeout)
-write(5, "F\v\5\0004\0\0\0017\0\0\1\4\0\223\0008\0\r\0F0\5\0004\0"..., 40) = 40
-write(5, "F\v\5\0004\0\0\0017\0\0\1\4\0\223\0008\0\r\0F0\5\0004\0"..., 40) = 40
-select(1024, [], NULL, NULL, {0, 0})    = 0 (Timeout)
-ioctl(5, 0x541b, [0])                   = 0
-ioctl(5, 0x541b, [0])                   = 0
-gettimeofday({1061288133, 302532}, NULL) = 0
-select(20, [3 5 6 7 9 10 12 13 19], [], [], {0, 0}) = 1 (in [13], left {0, 0})
-gettimeofday({1061288133, 302779}, NULL) = 0
-select(1024, [13], NULL, NULL, {0, 0})  = 1 (in [13], left {0, 0})
-read(13, 0x8dc4b08, 512)                = -1 EIO (Input/output error)
-rt_sigprocmask(SIG_BLOCK, [CHLD], NULL, 8) = 0
-wait4(1703, 0xbfffe80c, WNOHANG, NULL)  = 0
-rt_sigprocmask(SIG_UNBLOCK, [CHLD], NULL, 8) = 0
-rt_sigprocmask(SIG_BLOCK, [CHLD], NULL, 8) = 0
-wait4(1162, 0xbfffe80c, WNOHANG, NULL)  = 0
-rt_sigprocmask(SIG_UNBLOCK, [CHLD], NULL, 8) = 0
-rt_sigprocmask(SIG_BLOCK, [CHLD], NULL, 8) = 0
-wait4(1160, 0xbfffe80c, WNOHANG, NULL)  = 0
-rt_sigprocmask(SIG_UNBLOCK, [CHLD], NULL, 8) = 0
-rt_sigprocmask(SIG_BLOCK, [CHLD], NULL, 8) = 0
-wait4(1003, 0xbfffe80c, WNOHANG, NULL)  = 0
-rt_sigprocmask(SIG_UNBLOCK, [CHLD], NULL, 8) = 0
-select(1024, [], NULL, NULL, {0, 0})    = 0 (Timeout)
-write(5, "F\v\5\0004\0\0\0017\0\0\1\4\0\223\0008\0\r\0F0\5\0004\0"..., 40) = 40
-write(5, "F\v\5\0004\0\0\0017\0\0\1\4\0\223\0008\0\r\0F0\5\0004\0"..., 40) = 40
-select(1024, [], NULL, NULL, {0, 0})    = 0 (Timeout)
-ioctl(5, 0x541b, [0])                   = 0
-ioctl(5, 0x541b, [0])                   = 0
-gettimeofday({1061288133, 304385}, NULL) = 0
-select(20, [3 5 6 7 9 10 12 13 19], [], [], {0, 0}) = 1 (in [13], left {0, 0})
-gettimeofday({1061288133, 304605}, NULL) = 0
-select(1024, [13], NULL, NULL, {0, 0})  = 1 (in [13], left {0, 0})
-read(13, 0x8dc4b08, 512)                = -1 EIO (Input/output error)
-rt_sigprocmask(SIG_BLOCK, [CHLD], NULL, 8) = 0
-wait4(1703, 0xbfffe80c, WNOHANG, NULL)  = 0
-rt_sigprocmask(SIG_UNBLOCK, [CHLD], NULL, 8) = 0
-rt_sigprocmask(SIG_BLOCK, [CHLD], NULL, 8) = 0
-wait4(1162, 0xbfffe80c, WNOHANG, NULL)  = 0
-rt_sigprocmask(SIG_UNBLOCK, [CHLD], NULL, 8) = 0
-rt_sigprocmask(SIG_BLOCK, [CHLD], NULL, 8) = 0
-wait4(1160, 0xbfffe80c, WNOHANG, NULL)  = 0
+> > 	Because sometimes a program wants to terminate. And it is
+> > perfectly legal
+> > for a programmer who needs to terminate his program as quickly
+> > as possible
+> > to do this:
+> >
+> > char *j=NULL;
+> > signal(SIGSEGV, SIG_DFL);
+> > *j++;
 
-This goes on for anything from half a second to several seconds.
-During that time other processes, except X, are starved.
+> > 	This is a perfectly sensible thing for a program to do with
+> > well-defined
+> > semantics. If a program wants to create a child every minute
+> > like this and
+> > kill it, that's perfectly fine. We should be able to do that in
+> > the default
+> > configuration without a sysadmin complaining that we're DoSing
+> > his syslogs.
 
-I saw this first with 2.6.0-test1 vanilla, then it went away in -test2
-and -test3, only to show up again with O16.3int.  My O16.2 kernel
-seems ok, which seems strange to me since the difference from O16.2 to
-O16.3 is very small.
+> I disagree. _exit(2) is the most sensible way to terminate.
 
-Any ideas?
+	Read the documentation for _exit. You will see that it is useless in the
+case of a portable program that needs to terminate as quickly as possible
+and, in fact, isn't guaranteed to cause program termination at all:
 
--- 
-Måns Rullgård
-mru@users.sf.net
+       The function _exit is like exit(), but does not  call  any
+       functions  registered with the ANSI C atexit function, nor
+       any registered signal handlers. Whether it  flushes  stan-
+       dard  I/O buffers and removes temporary files created with
+       tmpfile(3)  is  implementation-dependent.   On  the  other
+       hand, _exit does close open file descriptors, and this may
+       cause an unknown delay, waiting for pending output to fin-
+       ish.  If  the delay is undesired, it may be useful to call
+       functions like tcflush() before calling _exit().   Whether
+       any pending I/O is cancelled, and which pending I/O may be
+       cancelled upon _exit(), is implementation-dependent.
+
+	One major problem with _exit() is that it touches various structures. If
+the program's execution environment is no longer trusted, calling _exit()
+can cause an endless loop. In multithreaded programs, _exit() may need to
+acquire mutexes. This can take an indeterminate amount of time. Portable
+programs cannot rely on _exit() in a case where they need to terminate as
+soon as possible.
+
+	Now, if you have a better way for a portable program that needs to
+terminate immediately to do so, that's fine, tell me what it is. Otherwise,
+you are *forcing* people to DoS your syslog.
+
+	DS
+
 

@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264910AbSK0XOj>; Wed, 27 Nov 2002 18:14:39 -0500
+	id <S264934AbSK0XS0>; Wed, 27 Nov 2002 18:18:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264934AbSK0XOj>; Wed, 27 Nov 2002 18:14:39 -0500
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:2574 "EHLO
-	ns.higherplane.net") by vger.kernel.org with ESMTP
-	id <S264910AbSK0XOi>; Wed, 27 Nov 2002 18:14:38 -0500
-Date: Thu, 28 Nov 2002 10:20:45 +1100
-From: john slee <indigoid@higherplane.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-visws-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ressurection of VISWS support in 2.5-ac
-Message-ID: <20021127232044.GC7915@higherplane.net>
-References: <20021127133809.GD401@pazke.ipt> <1038410268.6390.42.camel@irongate.swansea.linux.org.uk> <20021127150058.GA322@pazke.ipt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264938AbSK0XS0>; Wed, 27 Nov 2002 18:18:26 -0500
+Received: from webmail36.rediffmail.com ([203.199.83.248]:9908 "HELO
+	webmail36.rediffmail.com") by vger.kernel.org with SMTP
+	id <S264934AbSK0XSZ>; Wed, 27 Nov 2002 18:18:25 -0500
+Date: 27 Nov 2002 23:24:31 -0000
+Message-ID: <20021127232431.7188.qmail@webmail36.rediffmail.com>
+MIME-Version: 1.0
+From: "Alex  Ryan" <alexryan1@rediffmail.com>
+Reply-To: "Alex  Ryan" <alexryan1@rediffmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: optimal value for blksize_size
+Content-type: text/plain;
+	format=flowed
 Content-Disposition: inline
-In-Reply-To: <20021127150058.GA322@pazke.ipt>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I'm proud to present updated VISWS support for 2.5.xx kernels.
-> > Ok thats truely demented. Care to port ucLinux to the Amiga 500 next 8)
-> 		  ^^^^^^^^
-> 		  Hmm, why ? And what is Amiga 500 ?
+Hello,
 
-oh come on :P if you can't find that with google you have some pretty
-serious issues :-)
+I am writing a Linux block driver for our RAID firmware, and I am 
+very confused about blksize_size.
 
-j.
+The documentation simply says that blksize_size should be the size 
+of the block used by the device in bytes.
+Now, for my device(hard disk), the only restriction is that calls 
+must be a multiple of 512 bytes(1 sector).
 
--- 
-toyota power: http://indigoid.net/
+I thought the natural choice for blksize_size would be 512, but I 
+saw that if I make it as 512 then the upper layer breaks up all 
+calls into buffer heads , each of size 512.
+I think that is bad for sequential performance, even though my 
+device has scatter gather capability.
+
+And if I make blksize_size of a higher value(e.g 4K), then the 
+upper layer gives calls of 4k size even for 512 byte reads.
+
+Making blksize_size greater than PAGE_SIZE results in kernel 
+panic.
+
+I am really very confused about what  blksize_size really means, 
+and what should be an optimum value to put in there.
+
+One more question about clustering:
+All IO requests for consecutive sectors are clustered in the same 
+request structure, this much I understand.  My question is, does 
+the b_data field of the corresponding bufferheads are also 
+sequential in the physical memory? In other words, can I satisfy a 
+request if I simply transfer req->nr_sectors amount of data to 
+req->buffer?
+
+-Alex

@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262376AbUBXSZm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 13:25:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbUBXSYH
+	id S262387AbUBXS1c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 13:27:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbUBXSZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 13:24:07 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:25298 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S262382AbUBXSXJ (ORCPT
+	Tue, 24 Feb 2004 13:25:53 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:6276 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S262395AbUBXSYS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 13:23:09 -0500
-From: "Nick Warne" <nick@ukfsn.org>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 24 Feb 2004 18:23:06 -0000
+	Tue, 24 Feb 2004 13:24:18 -0500
+Message-ID: <403B9AD0.2050006@softhome.net>
+Date: Tue, 24 Feb 2004 10:41:20 -0800
+From: Plaz McMan <plazmcman@softhome.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: Re: 2.6.3 RT8139too NIC problems
-Cc: Andy Whitcroft <apw@shadowen.org>
-Message-ID: <403B968A.7806.14EEFCEE@localhost>
-In-reply-to: <14539106.1077630890@42.150.104.212.access.eclipse.net.uk>
-References: <40377251.25966.4C15915@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+To: linux-kernel@vger.kernel.org
+Subject: OSS API emulation in 2.6.3
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Ok, the normal step from here is a binary search for the offending patch. 
-> You know it works on 2.6.2 and not on 2.6.3.  There should be daily BK 
-> snapshots for the period from 2.6.2 to 2.6.3.  See if it broke in the first 
-> half/second half and so on.  If you can find the offending patch or day 
-> then I am sure someone can find the issue.
->
+OSS-API emulation does not work properly in 2.6.3 with Loki's 
+UnrealTournament.
 
-Hi Andy,
+When using kernel 2.6.3 with Loki's UT, the sound is too fast. This is 
+_not_ an issue with 2.6.2. Both kernels are compiled with the same 
+options - ALSA with all OSS emulation options enabled. No native OSS 
+support is compiled in.
 
-Thanks for reply.
+OSS emulation seems to work with other programs, such as xmms, under 
+both kernels.
 
-Funnily enough, I looked at this at work today and decided to check 
-against 8139too.c from 2.6.2 and 2.6.3 trees.  There was a lot of 
-changes, but it appeared only to that file (i.e. nothing referencing 
-it) - so I have just built 2.6.3 with the 8139too.c source from 2.6.2 
-just to make sure it isn't code elsewhere (i.e. pci stuff?) that is 
-causing it.
+A workaround is to compile all sound options as modules, and modprobe 
+ALSA out and OSS in before starting UnrealTournament. This is quite 
+clumsy, though.
 
-So far it is running perfectly.  I will wait a while to test, and if 
-it doesn't show any problems, we can presume it is the changes that 
-caused this problem for me on my system.
-
-Enquiries to the HantsLUG seem to be that no-one else gets this 
-problem.
-
-Nick
 -- 
-"I am not Spock", said Leonard Nimoy.
-"And it is highly illogical of humans to assume so."
+x86 processor (AMD K7)
+Slackware 9.1
+SB Live! (emu10k1)
+affected kernel: 2.6.3
+-- 
 

@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274220AbRISWOj>; Wed, 19 Sep 2001 18:14:39 -0400
+	id <S274223AbRISWO3>; Wed, 19 Sep 2001 18:14:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274222AbRISWOa>; Wed, 19 Sep 2001 18:14:30 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:19411 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S274220AbRISWO0>; Wed, 19 Sep 2001 18:14:26 -0400
-Date: Wed, 19 Sep 2001 16:15:55 -0600
-Message-Id: <200109192215.f8JMFtQ26168@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.10-pre11
-In-Reply-To: <Pine.GSO.4.21.0109191655560.901-100000@weyl.math.psu.edu>
-In-Reply-To: <20010919225505.P720@athlon.random>
-	<Pine.GSO.4.21.0109191655560.901-100000@weyl.math.psu.edu>
+	id <S274222AbRISWOT>; Wed, 19 Sep 2001 18:14:19 -0400
+Received: from mail.courier-mta.com ([66.92.103.29]:1200 "EHLO
+	mail.courier-mta.com") by vger.kernel.org with ESMTP
+	id <S274220AbRISWOH>; Wed, 19 Sep 2001 18:14:07 -0400
+In-Reply-To: <fa.ia34bav.ijiuqq@ifi.uio.no>
+            <fa.jbpet1v.q08fo6@ifi.uio.no>
+In-Reply-To: <fa.jbpet1v.q08fo6@ifi.uio.no> 
+From: "Sam Varshavchik" <mrsam@courier-mta.com>
+To: "Mark H. Wood" <mwood@IUPUI.Edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: disregard: Re: ide zip 100 won't mount
+Date: Wed, 19 Sep 2001 22:14:29 GMT
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-ID: <courier.3BA918C5.00006F91@ny.email-scan.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> On Wed, 19 Sep 2001, Andrea Arcangeli wrote:
-> > > > (infact I never had a single report), but well we'll verify that in
-> > > 
-> > > Richard, is that you?  What had you done with real Andrea?
-> > 
-> > You also screwup things sometime (think the few liner you posts to l-k
-> > after your cleanups).  Those are minor bugs, so I'm not going to panic
+Mark H. Wood writes: 
+
+> On Mon, 17 Sep 2001, Sam Varshavchik wrote: 
+>
+>> That's pretty much what the sense codes below did indicate - media problem.
 > 
-> Certainly.
-> 
-> > on them (ramdisk works not by luck), this is what I meant, and they will
-> 
-> Sorry, it just sounded so..., well, familiar... Couldn't resist ;-)
+> For future reference, is there any sort of tool that will decode these
+> magic numbers, since the driver doesn't do it for us?  It ought to cut
+> down on the number of posts beginning, "my IDE driver began speaking in
+> tongues, what is it trying to tell me?"
 
-Oh, yeah. So it seems. "Resistance is futile", eh?
+ftp://ftp.seagate.com/sff/INF-8070.PDF 
 
-> (BTW, Richard, _what_ political whatever could be found in that?)
+You'll have to page through it, it's kind of scattered all over the place. 
 
-Gee, do I have to spell it out? Just today, I saw you complain to Rik
-that he'd dragged you into some issue. And now you take my name in
-vain regarding another issue which I'd not previously been involved
-in.
+This is for removable ATAPI IDE devices.  I don't know how much of that is 
+applicable to plain garden-variety IDE devices. 
 
-No, not exactly the same. But I couldn't help but notice a certain
-parallel...
+-- 
+Sam 
 
-Anyway, this is going nowhere.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

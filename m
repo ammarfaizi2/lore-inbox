@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129232AbQKGMEQ>; Tue, 7 Nov 2000 07:04:16 -0500
+	id <S129246AbQKGMJP>; Tue, 7 Nov 2000 07:09:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129246AbQKGMD4>; Tue, 7 Nov 2000 07:03:56 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61812 "EHLO
+	id <S129662AbQKGMJG>; Tue, 7 Nov 2000 07:09:06 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29045 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129232AbQKGMDu>; Tue, 7 Nov 2000 07:03:50 -0500
-Subject: Re: Pentium 4 and 2.4/2.5
-To: fdavis112@juno.com (Frank Davis)
-Date: Tue, 7 Nov 2000 12:04:48 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001104.183646.-371331.1.fdavis112@juno.com> from "Frank Davis" at Nov 04, 2000 06:36:44 PM
+	id <S129246AbQKGMJD>; Tue, 7 Nov 2000 07:09:03 -0500
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+To: jas88@cam.ac.uk (James A. Sutherland)
+Date: Tue, 7 Nov 2000 12:07:07 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jas88@cam.ac.uk (James A. Sutherland),
+        goemon@anime.net (Dan Hollis), dwmw2@infradead.org (David Woodhouse),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <00110700431704.00940@dax.joh.cam.ac.uk> from "James A. Sutherland" at Nov 07, 2000 12:38:54 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13t7Uh-0007JR-00@the-village.bc.nu>
+Message-Id: <E13t7Wv-0007Jm-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   I noticed that Pentium 4 isn't an config option in 2.4.0-test10. Is
-> someone working on a patch for the the kernel (if needed) to support the
-> Pentium 4 after 2.4.0 is released?
+> When I plug it in and modprobe is triggered to load the driver, a script then
+> runs to feed the device appropriate configuration info. Since the driver only
+> resets the hardware when it is given the correct configuration, there's no
+> problem.
 
-And also for 2.2. 2.2.18pre18/19 should ident the CPU fine. A contributed patch
-should also report the caches correctly in 2.2.18pre20 once I release it.
+Thats another 100 lines of race prone network kernel code you dont need
 
-The big 2.4 issue is that 2.4 won't work with a CPU running at 2GHz or higher
-(2.2.18 will be the first 2.2 kernel handling this). The changes have yet to be
-pushed into 2.4. Thus judging by Intels noises so far it will only be early
-PIV processors that work ;)
+> Hmm... define "identical". I take a laptop home, use a USB NIC to talk to my
 
-Alan
-
+Same Mac address or same serial number.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

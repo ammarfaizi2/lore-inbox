@@ -1,50 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269674AbUISHHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269679AbUISHvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269674AbUISHHb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 03:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269679AbUISHHb
+	id S269679AbUISHvG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 03:51:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269713AbUISHvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 03:07:31 -0400
-Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:63159 "HELO
-	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269674AbUISHHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 03:07:30 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Logitech and Microsoft Tilt Wheel Mice. Driver suggestions wanted.
-Date: Sun, 19 Sep 2004 02:07:27 -0500
-User-Agent: KMail/1.6.2
-Cc: mike cox <mikecoxlinux@yahoo.com>
-References: <20040919032613.96799.qmail@web52805.mail.yahoo.com> <200409182243.37138.dtor_core@ameritech.net>
-In-Reply-To: <200409182243.37138.dtor_core@ameritech.net>
-MIME-Version: 1.0
+	Sun, 19 Sep 2004 03:51:06 -0400
+Received: from cobain.capfed1.sinectis.com.ar ([216.244.192.67]:18084 "EHLO
+	cobain.capfed1.sinectis.com.ar") by vger.kernel.org with ESMTP
+	id S269679AbUISHvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 03:51:00 -0400
+Date: Sun, 19 Sep 2004 04:50:57 -0300
+From: Leandro Santi <lesanti@sinectis.com.ar>
+To: marcelo.tosatti@cyclades.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.4] fix dcache nr_dentry race
+Message-ID: <20040919075057.GA2445@lesanti.hq.sinectis.com.ar>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409190207.27604.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 September 2004 10:43 pm, Dmitry Torokhov wrote:
-> I will try Google for them later. They are pretty new, SuSE 8.2 would
-> not have them. 
 
-Ok, here is what I found:
+Hi Marcelo,
 
-The patch for hid-input to convert tilt events to HWHEEL:
+The dentry_stat.nr_dentry counter isn't being properly protected against
+concurrent access. We've been observing a drift of about 8000 units per
+day on some large MP Maildir++ mailstore nodes.
 
-http://www.t12.jp/~ryuta/misclab/debian/release/hidinput-tiltwheel-quirk-for-linux-2.6.7.patch
+The following (trivial) patch is pretty much a backport from 2.6.
 
-I am not sure who the author is as I do not know Japanese.
-
-The patches for XFree86/XOrg allowing to get data from /dev/input/eventX
-can be extracted from the floowing:
-
-http://cudlug.cudenver.edu/gentoo/distfiles/xorg-x11-6.8.0-patches-0.2.tar.bz2
-
-Look for patches 9000, 9001 and 9002. As far as I can see it will allow using
-wheel to do horizontal scrolling as well.
-
--- 
-Dmitry
+diff -ru linux-2.4.27.orig/fs/dcache.c linux-2.4.27.patched/fs/dcache.c
+--- linux-2.4.27.orig/fs/dcache.c	Fri Jun 13 11:51:37 2003
++++ linux-2.4.27.patched/fs/dcache.c	Thu Sep  9 17:37:56 2004
+@@ -55,7 +55,10 @@
+ /* Statistics gathering. */
+ struct dentry_stat_t dentry_stat = {0, 0, 45, 0,};
+ 
+-/* no dcache_lock, please */
++/*
++ * no dcache_lock, please.  The caller must decrement dentry_stat.nr_dentry
++ * inside dcache_lock.
++ */
+ static inline void d_free(struct dentry *dentry)
+ {
+ 	if (dentry->d_op && dentry->d_op->d_release)
+@@ -63,7 +66,6 @@
+ 	if (dname_external(dentry)) 
+ 		kfree(dentry->d_name.name);
+ 	kmem_cache_free(dentry_cache, dentry); 
+-	dentry_stat.nr_dentry--;
+ }
+ 
+ /*
+@@ -148,6 +150,7 @@
+ kill_it: {
+ 		struct dentry *parent;
+ 		list_del(&dentry->d_child);
++		dentry_stat.nr_dentry--;	/* For d_free, below */
+ 		/* drops the lock, at that point nobody can reach this dentry */
+ 		dentry_iput(dentry);
+ 		parent = dentry->d_parent;
+@@ -297,6 +300,7 @@
+ 
+ 	list_del_init(&dentry->d_hash);
+ 	list_del(&dentry->d_child);
++	dentry_stat.nr_dentry--;	/* For d_free, below */
+ 	dentry_iput(dentry);
+ 	parent = dentry->d_parent;
+ 	d_free(dentry);
+@@ -623,13 +627,15 @@
+ 	if (parent) {
+ 		dentry->d_parent = dget(parent);
+ 		dentry->d_sb = parent->d_sb;
+-		spin_lock(&dcache_lock);
+-		list_add(&dentry->d_child, &parent->d_subdirs);
+-		spin_unlock(&dcache_lock);
+ 	} else
+ 		INIT_LIST_HEAD(&dentry->d_child);
+ 
++	spin_lock(&dcache_lock);
++	if (parent)
++		list_add(&dentry->d_child, &parent->d_subdirs);
+ 	dentry_stat.nr_dentry++;
++	spin_unlock(&dcache_lock);
++
+ 	return dentry;
+ }
+ 
+Bye,
+Leandro.

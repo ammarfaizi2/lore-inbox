@@ -1,90 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288936AbSCKTP2>; Mon, 11 Mar 2002 14:15:28 -0500
+	id <S288921AbSCKTN7>; Mon, 11 Mar 2002 14:13:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288953AbSCKTPS>; Mon, 11 Mar 2002 14:15:18 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:2055 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S288936AbSCKTO5>; Mon, 11 Mar 2002 14:14:57 -0500
-Date: Mon, 11 Mar 2002 11:14:13 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Gunther Mayer <gunther.mayer@gmx.net>
-cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6 IDE 19, return of taskfile
-In-Reply-To: <3C8CFF64.1B55CDBB@gmx.net>
-Message-ID: <Pine.LNX.4.10.10203111112170.10583-100000@master.linux-ide.org>
+	id <S288936AbSCKTNt>; Mon, 11 Mar 2002 14:13:49 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:20747 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S288921AbSCKTNj>; Mon, 11 Mar 2002 14:13:39 -0500
+Message-ID: <3C8D019A.4010507@evision-ventures.com>
+Date: Mon, 11 Mar 2002 20:12:26 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andre Hedrick <andre@linuxdiskcert.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6 IDE 19
+In-Reply-To: <Pine.LNX.4.10.10203111054480.10583-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Deal, will do it.
 
-Gunther,
+I don't expect anymore that you hold your word.
 
-http://www.t13.org/technical/d99114r0.pdf
+>>I can really really understand why Pavel is just ignoring you...
+>>
+>>But you know what? It's really hard to take someone
+>>serious who is publically calling me doing a blow-job on Linus.
+>>You would be surprised: I don't exchange *that* much
+>>with Linus. I send him patches - he applies them that's all.
+>>And that's all that I expect. What's driving me is the
+>>encouragement from other people just that... and of course
+>>the fun at tinkering with the stuff.
+>>
+> 
+> You got in there and give Linus the comsetic changes that were in the
+> works early.  I asked you hold off because there was a transport layer
+> problem.  You agreed.  Next thing I know you turn the flipside on me.
+> You expect me to have warm and fuzzys?
 
-See in working documents we use the terms we all know,
+Maybe your invisible friend wisperid that to you: but
+I DIDN'T AGREE TO HOLD OFF. The changes thus far are quite
+trivial and should be a piece of cake to adjust too
+for an averegely capable programmer wich you are not
+and which is the main problem with you cherishing
+the driver in question. I'm clear enough now? Or does
+one have to be a psychiatrist to talk to you?
 
-Cheers,
+> *****************
+> The ATA/ATAPI-6 letter ballot has closed. The results are 18 votes for the
+> motion, 0 votes against the motion, 0 abstentions, and 2 eligible members
+> did not vote. 2 yes votes had comments. The motion passes.
+> 
+> I have uploaded e01028r0.doc the official announcement of the vote to
+> incoming on the FTP site. I have also uploaded e01143r0.doc the editors
+> proposed resolution of the letter ballot comments. This will be reviewed at
+> the December meeting.
+> *****************
+> 
+> http://www.t13.org/ballots/e01028r0.pdf
+> 
+> I do not see your name on that list for the ballot.
 
-Andre Hedrick
-The Second Linux X-IDE guy
-
-On Mon, 11 Mar 2002, Gunther Mayer wrote:
-
-> Andre Hedrick wrote:
-> 
-> > On Mon, 11 Mar 2002, Martin Dalecki wrote:
-> >
-> > >
-> > > It wasn't a claim but just a suspiction. So this is cleared.
-> > > But apparently there is no special IBM command using taskfile
-> > > to do magic things to it. So therefore it's still valid:
-> > > your example was indeed a mock-up.
-> >
-> > No, mine has there real test base, I goto there Lab people and submit
-> > examples and questions and learn.  I doubt they will listen to you reading
-> > your code base, since you have claimed taskfile is wrong.  It was
-> > developed in concert with IBM.
-> >
-> 
-> The ANSI/NCITS ATA Standard documents lack proper definition what
-> a "task file" or "taskfile" is !  ATA-1, -2, -3 don't mention this (at least acroread
-> didn't find),
-> ATAPI-4 has 3 references but no definition. This is a serious omission for a
-> well-written standard !
-> Andre, will this be corrected in some newer standard you participate? ( Don't know
-> about ata-5/6 yet)
-> 
-> These two meanings certainly explain some confusion about "taskfile":
-> 1) The IDE register set (e.g. 0x1f0-0x1f7) used by a special state-machine (e.g.
-> ATAPI)
-> 2)  Andres implementation to export the "task file" to user mode
->       (as in his patches which were refused by Linus)
-> 
-> Andre, your approach to "parse" the takfile access and let only known commands
-> through
-> must be weighted against a "generic" taskfile ioctl, where _I_ give all needed
-> state-machine information
-> (incl. state-machine as needed) to serve my reuqest.
-> 
-> Currently your taskfile access is hardcoded in tables in your ide patches and this is
-> 
-> inflexible (e.g. cannot support future commands, unknown at the time of your writing)
-> !
-> 
-> Your "case" structures and accompanying code are considered kernel bloat, because
-> it can be done in user code (with a "generic ioctl" and a "generic task file state
-> machine" which surely
-> can be extracted from your patch).
-> 
-> Regards, Gunther
-> 
-> P.S.
-> For some more fun read
-> http://support.microsoft.com/default.aspx?scid=kb;EN-US;q239700
-> 
-> 
-
+I didn't claim too. Your invisible friend was
+apparently talking to you again. But still my question
+remains where the heck is Yours?
 

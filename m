@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275200AbTHGOTH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 10:19:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275278AbTHGOTH
+	id S275331AbTHGOIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 10:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275350AbTHGOIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 10:19:07 -0400
-Received: from www.13thfloor.AT ([212.16.59.250]:37541 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S275200AbTHGOTE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 10:19:04 -0400
-Date: Thu, 7 Aug 2003 16:19:13 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: Dick Streefland <dick.streefland@altium.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Euro-English
-Message-ID: <20030807141913.GA380@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: Dick Streefland <dick.streefland@altium.nl>,
-	linux-kernel@vger.kernel.org
-References: <20030806231403.GF1380@pegasys.ws> <20030805233308.GD928@matchmail.com> <200308052014.31133.gene.heskett@verizon.net> <Pine.LNX.4.51.0308061115400.16005@dns.toxicfilms.tv> <20030806231403.GF1380@pegasys.ws> <Pine.LNX.4.51.0308071159280.32494@dns.toxicfilms.tv> <409a.3f322c49.c82b0@altium.nl>
+	Thu, 7 Aug 2003 10:08:15 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:28803 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S275331AbTHGOHz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 10:07:55 -0400
+Subject: Re: [Dri-devel] Re: any DRM update scheduled for 2.4.23-pre?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Mikael Pettersson <mikpe@csd.uu.se>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mitch@0Bits.COM
+In-Reply-To: <1060264025.875.48.camel@thor.holligenstrasse29.lan>
+References: <Pine.LNX.4.44.0308061357480.4381-100000@logos.cnet>
+	 <1060255207.3123.13.camel@dhcp22.swansea.linux.org.uk>
+	 <1060264025.875.48.camel@thor.holligenstrasse29.lan>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Organization: 
+Message-Id: <1060265022.3168.55.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <409a.3f322c49.c82b0@altium.nl>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 Aug 2003 15:03:42 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07, 2003 at 10:39:05AM -0000, Dick Streefland wrote:
-> Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
-> | Yes, but try going skiing to the Alps. Checkout French, Austrian, Italian
-> | side glaciers. And try to get any response more correct than "we pipl buys
-> | tickets, ski lift not works", and so on.
+On Iau, 2003-08-07 at 14:47, Michel Dänzer wrote:
+> > It doesn't. As discussed on the kernel list and DRI list a while ago.
+> > The -ac tree / Red Hat one does because it has some additional magic to
+> > spot i810 problems.
 > 
-> It depends on the part of Europe. Not incidentally, in the countries
-> you mention, all foreign content shown on televison and in movie
-> theaters is dubbed. In other countries such as the Scandinavian
-> countries, The Netherlands and Belgium, almost everything is
-> sub-titled. I think there is a direct relation between dubbing and the
-> lack of English language skills.
+> That's a bug which can be fixed then, doesn't warrant separate copies in
+> the kernel. I'm sure Dave would happily integrate the fix in DRI CVS.
 
-hmm, there is a joke in Austria, where some
-obviously polyglot person asks two natives in
-several languages for directions ... and gets
-no answer at all, when he has left, one of
-the natives says to the other: "have you
-heard how many languages he spoke?", and the
-other replies: "yeah sure, but did it do him
-any good?"
+I'd have to take a look what DRI CVS does and doesn't currently contain. That's
+something I can't realistically expect time for until October
 
-so not everybody capable of speaking english
-will do so ...
-
-best,
-Herbert
-
-> -- 
-> Dick Streefland                      ////                      Altium BV
-> dick.streefland@altium.nl           (@ @)          http://www.altium.com
-> --------------------------------oOO--(_)--OOo---------------------------
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

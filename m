@@ -1,58 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313070AbSGKVMv>; Thu, 11 Jul 2002 17:12:51 -0400
+	id <S317911AbSGKVRx>; Thu, 11 Jul 2002 17:17:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317909AbSGKVMu>; Thu, 11 Jul 2002 17:12:50 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:9491 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S313070AbSGKVMu>; Thu, 11 Jul 2002 17:12:50 -0400
-Date: Thu, 11 Jul 2002 17:21:24 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
-       "Carter K. George" <carter@polyserve.com>,
-       Don Norton <djn@polyserve.com>, "James S. Tybur" <jtybur@polyserve.com>
-Subject: Re: fsync fixes for 2.4
-In-Reply-To: <20020710202036.GA1342@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0207111710470.21365-100000@freak.distro.conectiva>
+	id <S317912AbSGKVRw>; Thu, 11 Jul 2002 17:17:52 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45581 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317911AbSGKVRw>; Thu, 11 Jul 2002 17:17:52 -0400
+Subject: Re: ATAPI + cdwriter problem
+To: andre@linux-ide.org (Andre Hedrick)
+Date: Thu, 11 Jul 2002 22:38:10 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mistral@stev.org (James Stevenson),
+       linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <Pine.LNX.4.10.10207111021450.16921-100000@master.linux-ide.org> from "Andre Hedrick" at Jul 11, 2002 10:22:42 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17Sldb-0001d4-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> You just broke every system that is not x86 wanting to use the pci card.
 
+I want to find out if Promise stuff fixes the problems people are having. 
+Dealing with a bit of non x86 portability is something to worry about 
+later. Right now both the rc1 and the rc1-ac2 promise IDE suck completely
+for a lot of people. Probably more than own alphas
 
-On Wed, 10 Jul 2002, Andrea Arcangeli wrote:
-
-> At polyserve they found a severe problem with fsync in 2.4.
->
-> In short the write_buffer (ll_rw_block of mainline) is a noop if old I/O
-> is in flight. You know the buffer can be made dirty while I/O is in
-> flight, and in such case fsync would return without flushing the dirty
-> buffers at all. Their proposed fix is strightforward, just a
-> wait_on_buffer before the ll_rw_block will guarantee somebody marked the
-> bh locked _after_ we wrote to it.
-
->From what I can see the problem goes like:
-
-
-thread1				thread2
-				writepage(page) (marks the buffers clean, page is
-				locked for IO)
-
-mark_buffer_dirty()
-
-fsync()
-
-fsync_buffers_list() finds
-the dirtied buffer, but since
-its locked ll_rw_block() returns
-without queueing the data.
-
-fsync_buffers_list() waits on the writepage()'s
-write to return but not on latest data write.
-
-
-Is that what you mean or I'm misunderstanding something?
-
+Alan

@@ -1,77 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265228AbTIJQg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 12:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbTIJQg6
+	id S265269AbTIJQcu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 12:32:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbTIJQct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 12:36:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13780 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265228AbTIJQg4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 12:36:56 -0400
-Message-Id: <200309101636.h8AGam212478@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Con Kolivas <kernel@kolivas.org>
-cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH]O20.1int 
-In-Reply-To: Message from Con Kolivas <kernel@kolivas.org> 
-   of "Wed, 10 Sep 2003 13:00:20 +1000." <200309101300.20634.kernel@kolivas.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 10 Sep 2003 09:36:48 -0700
-From: Cliff White <cliffw@osdl.org>
+	Wed, 10 Sep 2003 12:32:49 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:48885 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S265269AbTIJQcs convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 12:32:48 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: BugReport: USB (ACPI), E100, SWSUSP problems (test5 vs. test3)
+Date: Wed, 10 Sep 2003 09:32:31 -0700
+Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E010124F026@orsmsx402.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: BugReport: USB (ACPI), E100, SWSUSP problems (test5 vs. test3)
+Thread-Index: AcN3nZFUAbtFxDV4QHOLzZSG/H8Q5AAGrAoQ
+From: "Feldman, Scott" <scott.feldman@intel.com>
+To: <tom@qwws.net>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 10 Sep 2003 16:32:31.0425 (UTC) FILETIME=[21AE9310:01C377B9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Should be the last of the O1int patches.
-> 
-> Tiny tweak to keep top two interactive levels round robin at the fastest 
-> (10ms) which keeps X smooth when another interactive task is also using 
-> bursts of cpu (eg web browser).
-> 
-> Credit. Is this too bold?
+> - The e100 driver seems to be broken
+>   The NIC is detected correctly and ifconfig shows eth0 as 
+> usually. But for some reason not a single Byte seems to go over the
+NIC. 
 
-Con,
-Patch is in STP PLM as # 2120. 
-One request - would you mind uploading future patches into PLM, since
-you're already an associate? (http://www.osdl.org/plm-cgi/plm) 
-It's a real simple Web form, and would get the code on the test machines
-a bunch quicker. 
-thanks
-cliffw
+The only change to e100 between test3 and test5 is:
 
-> 
-> Con
-> 
-> --- linux-2.6.0-test5-mm1-O20/kernel/sched.c	2003-09-10 11:15:45.000000000 +1000
-> +++ linux-2.6.0-test5-mm1/kernel/sched.c	2003-09-10 11:51:38.000000000 +1000
-> @@ -14,6 +14,7 @@
->   *		an array-switch method of distributing timeslices
->   *		and per-CPU runqueues.  Cleanups and useful suggestions
->   *		by Davide Libenzi, preemptible kernel bits by Robert Love.
-> + *  2003-09-03	Interactivity tuning by Con Kolivas.
->   */
->  
->  #include <linux/mm.h>
-> @@ -122,12 +123,12 @@
->  		MAX_SLEEP_AVG)
->  
->  #ifdef CONFIG_SMP
-> -#define TIMESLICE_GRANULARITY(p) \
-> -	(MIN_TIMESLICE * (1 << (MAX_BONUS - CURRENT_BONUS(p))) * \
-> -		num_online_cpus())
-> +#define TIMESLICE_GRANULARITY(p)	(MIN_TIMESLICE * \
-> +		(1 << (((MAX_BONUS - CURRENT_BONUS(p)) ? : 1) - 1)) * \
-> +			num_online_cpus())
->  #else
-> -#define TIMESLICE_GRANULARITY(p) \
-> -	(MIN_TIMESLICE * (1 << (MAX_BONUS - CURRENT_BONUS(p))))
-> +#define TIMESLICE_GRANULARITY(p)	(MIN_TIMESLICE * \
-> +		(1 << (((MAX_BONUS - CURRENT_BONUS(p)) ? : 1) - 1)))
->  #endif
->  
->  #define SCALE(v1,v1_max,v2_max) \
-> 
+-       kfree(dev);
++       free_netdev(dev);
 
+But that's only relevant when the driver is unloaded, so I would
+consider the drivers in test3 and test5 the same for your case.
 
+What are you doing with eth0 that worked for test3, but not for test5?
+
+-scott

@@ -1,32 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316831AbSGSPiP>; Fri, 19 Jul 2002 11:38:15 -0400
+	id <S316852AbSGSPnf>; Fri, 19 Jul 2002 11:43:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316852AbSGSPiP>; Fri, 19 Jul 2002 11:38:15 -0400
-Received: from vahti.cc.tut.fi ([130.230.25.10]:17329 "EHLO vahti.cc.tut.fi")
-	by vger.kernel.org with ESMTP id <S316831AbSGSPiO>;
-	Fri, 19 Jul 2002 11:38:14 -0400
-Message-ID: <3D382E3D.4E47B178@students.cc.tut.fi>
-Date: Fri, 19 Jul 2002 18:20:30 +0300
-From: Raimo Leppanen <waari@students.cc.tut.fi>
-Organization: Tampere University of Technology
-X-Mailer: Mozilla 4.76 [en] (Win95; U)
-X-Accept-Language: en
+	id <S316855AbSGSPnf>; Fri, 19 Jul 2002 11:43:35 -0400
+Received: from imeil.udg.es ([130.206.45.97]:695 "EHLO imeil.udg.es")
+	by vger.kernel.org with ESMTP id <S316852AbSGSPne>;
+	Fri, 19 Jul 2002 11:43:34 -0400
+Date: Fri, 19 Jul 2002 17:49:49 +0200 (CEST)
+From: Giro <giro@hades.udg.es>
+To: Raimo Leppanen <waari@students.cc.tut.fi>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: linux 2.4.19-rcx-acx where ??
+In-Reply-To: <3D382E3D.4E47B178@students.cc.tut.fi>
+Message-ID: <Pine.LNX.4.30.0207191748300.17309-100000@hades.udg.es>
 MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-CC: waari@students.cc.tut.fi
-Subject: linux 2.4.19-rcx-acx where ??
-X-Priority: 1 (Highest)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Where is my found Linux 2.4.19-rcx-acx patches ??
-Help me !!
-Thank You.
+On Fri, 19 Jul 2002, Raimo Leppanen wrote:
 
-waari@students.cc.tut.fi
+you need to download 2-4-18 and apply 2 patch
+
+first patch-2.4-19-rcx
+and after patch-2.4.19-rcx-acx
+
+cand download form ftp.kernel.org
+
+
+Giro.
+
+
+> Where is my found Linux 2.4.19-rcx-acx patches ??
+> Help me !!
+> Thank You.
+>
+> waari@students.cc.tut.fi
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+*******************************************************************************
+  David Gironella Casademont
+  Estudiant Informatica de Sistemes - Universitat de Girona
+  Administrador d'Hades root@hades.udg.es
+  Secretari Associació d'Estudiants d'Informàtica de Girona AEIGI
+  AEIGi Web - http://www.aeigi.org
+  Giro Web - http://hades.udg.es/~giro
+*******************************************************************************
+
 
 
 

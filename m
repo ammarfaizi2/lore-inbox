@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264653AbUESX6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUETAGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264653AbUESX6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 19:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUESX6Y
+	id S264639AbUETAGi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 20:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264683AbUETAGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 19:58:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42977 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264653AbUESX6W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 19:58:22 -0400
-Message-ID: <40ABF490.80901@pobox.com>
-Date: Wed, 19 May 2004 19:58:08 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Wed, 19 May 2004 20:06:38 -0400
+Received: from mail-gw.ygnition.net ([66.135.144.21]:23052 "EHLO
+	quirrell.iqcicom.com") by vger.kernel.org with ESMTP
+	id S264639AbUETAG3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 20:06:29 -0400
+Date: Wed, 19 May 2004 16:59:51 -0700 (PDT)
+From: Muthukumar Ratty <muthu@iqmail.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.6.6-mm4 compile fix.
+In-Reply-To: <Pine.LNX.4.33.0405191632190.14047-100000@Muruga.localdomain>
+Message-ID: <Pine.LNX.4.33.0405191657260.14140-100000@Muruga.localdomain>
 MIME-Version: 1.0
-To: Daniele Venzano <webvenza@libero.it>, Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com, Dominik Karall <dominik.karall@gmx.net>
-Subject: Re: [PATCH] Sis900 bug fixes 3/4
-References: <20040518120237.GC23565@picchio.gall.it> <20040518123020.GF23565@picchio.gall.it> <20040519142852.GC798@picchio.gall.it>
-In-Reply-To: <20040519142852.GC798@picchio.gall.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniele Venzano wrote:
-> http://teg.homeunix.org/sis900.html
-> 
-> They are:
-> sis900-maintainers
 
-Let's hold off on this for now...  we can commit this patch anytime, and 
-there is no harm in being "unofficial maintainer" for a while.
+Corrected one :)
 
+>
+> Andrew,
+> Compilation fails for me at drivers/media/radio/radio-cadet.c. Its because
+> of the readq change introduced in -mm4. Patch attached.
+>
+> thanks,
+> Muthu.
 
-> sis900-isa-bridge-id
+--- drivers/media/radio/radio-cadet.c.readq	2004-05-19 16:30:01.444150496 -0700
++++ drivers/media/radio/radio-cadet.c	2004-05-19 16:30:25.672467232 -0700
+@@ -45,7 +45,7 @@ static int users=0;
+ static int curtuner=0;
+ static int tunestat=0;
+ static int sigstrength=0;
+-static wait_queue_head_t readq;
++static wait_queue_head_t radio_readq;
+ struct timer_list tunertimer,rdstimer,readtimer;
+ static __u8 rdsin=0,rdsout=0,rdsstat=0;
+ static unsigned char rdsbuf[RDS_BUFFER];
+@@ -309,7 +309,7 @@ void cadet_handler(unsigned long data)
+ 	 * Service pending read
+ 	 */
+ 	if( rdsin!=rdsout)
+-	        wake_up_interruptible(&readq);
++	        wake_up_interruptible(&radio_readq);
 
-applied, with modifications, to netdev-2.6
-
-
-> sis900-phy-detection (attached below)
-
-I'd like to wait until my netdev-2.6 changes (just pushed to their 
-public BK home, bk://gkernel.bkbits.net/netdev-2.6) are pulled by 
-Andrew, and incorporated into the update of his -mm tree.
-
-This patch will likely need some rediffing.
-
-
-> sis900-header-cleanups
-
-applied, with modifications, to netdev-2.6
-
-Also I applied the sis900-detach found on the web page.
-
-	Jeff
+ 	/*
+ 	 * Clean up and exit
+@@ -343,7 +343,7 @@ static ssize_t cadet_read(struct file *f
+ 	if(rdsin==rdsout) {
+   	        if (file->f_flags & O_NONBLOCK)
+ 		        return -EWOULDBLOCK;
+-	        interruptible_sleep_on(&readq);
++	        interruptible_sleep_on(&radio_readq);
+ 	}
+ 	while( i<count && rdsin!=rdsout)
+ 	        readbuf[i++]=rdsbuf[rdsout++];
+@@ -473,7 +473,7 @@ static int cadet_open(struct inode *inod
+ 	if(users)
+ 		return -EBUSY;
+ 	users++;
+-	init_waitqueue_head(&readq);
++	init_waitqueue_head(&radio_readq);
+ 	return 0;
+ }
 
 
 

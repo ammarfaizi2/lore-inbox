@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288019AbSBIWOG>; Sat, 9 Feb 2002 17:14:06 -0500
+	id <S288047AbSBIWgh>; Sat, 9 Feb 2002 17:36:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288028AbSBIWN4>; Sat, 9 Feb 2002 17:13:56 -0500
-Received: from bs1.dnx.de ([213.252.143.130]:64935 "EHLO bs1.dnx.de")
-	by vger.kernel.org with ESMTP id <S288019AbSBIWNn>;
-	Sat, 9 Feb 2002 17:13:43 -0500
-Date: Sat, 9 Feb 2002 23:13:15 +0100 (CET)
-From: Robert Schwebel <robert@schwebel.de>
-X-X-Sender: <robert@callisto.local>
-Reply-To: <robert@schwebel.de>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: New version of AMD Elan patch available
-Message-ID: <Pine.LNX.4.33.0202092306460.31782-100000@callisto.local>
+	id <S288092AbSBIWg1>; Sat, 9 Feb 2002 17:36:27 -0500
+Received: from mail.gmx.de ([213.165.64.20]:30230 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S288047AbSBIWgY>;
+	Sat, 9 Feb 2002 17:36:24 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Felix Seeger <felix.seeger@gmx.de>
+To: Stelian Pop <stelian.pop@fr.alcove.com>
+Subject: Re: sonypi in 2.4.18-pre9
+Date: Sat, 9 Feb 2002 23:30:06 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020209115453Z288878-13996+19685@vger.kernel.org> <E16ZcwO-0000ee-00@smtp.fr.alcove.com> <20020209200609.GC32401@come.alcove-fr>
+In-Reply-To: <20020209200609.GC32401@come.alcove-fr>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020209223624Z288047-13996+20004@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > There I had the problem that spicctrl always told me and error with ioctl
+> > or so.
+> > Maybe this error is gone because I have compilde the kernel with io
+> > Device support.
+>
+> ???
 
-A new version of the AMD Elan patch is available on
+Maybe my english is bad ;)
+With kernel 2.4.17, spicctrl -p shows an error message:
+ioctl failed: Invalid argument
 
-  http://www.pengutronix.de/software/elan_en.html
 
-This patch against 2.4.18-pre9 - as the last ones as well - consists only
-of a bugfix for the serial driver. All other stuff has been merged into
-the mainstream kernel so far. The implementation of the fix has been
-changed according to a suggestion by Theodore Ts'o in this revision.
+With kernel 2.4.18-pre9 it works fine, the only difference between the config 
+is that I have enabled IO Device Support.
+I don't know what this is and maybe I don' need it.
+I've only activated it because of the error message (ioctl failed)
 
-If you have an AMD Elan processor (SC400, SC410, SC520) please test this
-fix extensively and send me bug reports. You might also want to test it if
-you don't have this special hardware, as the patch now does also affect
-the normal serial driver.
 
-On my todo list is the fix for the /proc/ioports resources which is
-currently not part of the patch as well as a cpufreq driver.
-
-Robert
---
- +--------------------------------------------------------+
- | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
- | Pengutronix - Linux Solutions for Science and Industry |
- |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
- |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
- +--------------------------------------------------------+
-
+have fun
+HAL

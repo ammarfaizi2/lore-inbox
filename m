@@ -1,60 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262709AbVBDUPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265921AbVBDUQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262709AbVBDUPp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 15:15:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263049AbVBDUPo
+	id S265921AbVBDUQx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 15:16:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265719AbVBDUQV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 15:15:44 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:8424 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262709AbVBDUOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 15:14:38 -0500
-Message-ID: <4203D793.1040604@nortel.com>
-Date: Fri, 04 Feb 2005 14:14:11 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Arjan van de Ven <arjan@infradead.org>, linuxppc-dev@ozlabs.org,
-       Linux kernel <linux-kernel@vger.kernel.org>, linuxppc64-dev@ozlabs.org
-Subject: Re: question on symbol exports
-References: <41FECA18.50609@nortelnetworks.com> <1107243398.4208.47.camel@laptopd505.fenrus.org> <41FFA21C.8060203@nortelnetworks.com> <1107273017.4208.132.camel@laptopd505.fenrus.org> <20050204203050.GA5889@dmt.cnet>
-In-Reply-To: <20050204203050.GA5889@dmt.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Feb 2005 15:16:21 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:52934 "EHLO
+	postbox.bitmover.com") by vger.kernel.org with ESMTP
+	id S265605AbVBDUOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 15:14:08 -0500
+Date: Fri, 4 Feb 2005 12:11:57 -0800
+To: Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Message-ID: <20050204201157.GN27707@bitmover.com>
+Mail-Followup-To: lm@bitmover.com, Stelian Pop <stelian@popies.net>,
+	linux-kernel@vger.kernel.org
+References: <20050203033459.GA29409@bitmover.com> <20050203193220.GB29712@sd291.sivit.org> <20050203202049.GC20389@bitmover.com> <20050203220059.GD5028@deep-space-9.dsnet> <20050203222854.GC20914@bitmover.com> <20050204130127.GA3467@crusoe.alcove-fr> <20050204160631.GB26748@bitmover.com> <20050204170306.GB3467@crusoe.alcove-fr> <20050204183922.GC27707@bitmover.com> <20050204200507.GE5028@deep-space-9.dsnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050204200507.GE5028@deep-space-9.dsnet>
+User-Agent: Mutt/1.5.6+20040907i
+From: lm@bitmover.com (Larry McVoy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've added the ppc64 list to the addressees, in case they are interested.
+> > So, do you think you can sign up the usual suspects to being happy with
+> > this answer?
+> 
+> I'll let them answer themselves.
 
+You'll need to rally them to speak up or this is going nowhere.  We
+can't afford to spend engineering dollars one unhappy person at a time
+to try and get you happy.  We need concensus.
 
-Marcelo Tosatti wrote:
-> On Tue, Feb 01, 2005 at 04:50:16PM +0100, Arjan van de Ven wrote:
+> > And do you mind spelling out exactly what it is that you
+> > think is being offered so there is no confusion later?
+> 
+> Informaly, exactly what I said before: Be able to find enough information
+> in the CVS tree which would allow anybody to trace back each change
+> to what was submitted by the author of the change (= patch + comment).
 
->>afaik one doesn't need to do a tlb flush in code that clears the dirty
->>bit, as long as you use the proper vm functions to do so. 
->>(if those need a tlb flush, those are supposed to do that for you
->>afaik).
+Yup, seems reasonable.
 
-> Yep, and "proper VM function" is include/asm-generic/pgtable.h::ptep_clear_flush_dirty(),
-> which on PPC flushes the TLB.
+> How you can make this happen is another problem. The obvious way to
+> implement this is using CVS branches and merges but this could be
+> too much work for you.
 
-It turns out that to call ptep_clear_flush_dirty() on ppc64 from a 
-module I needed to export the following symbols:
+Yeah, that's insane, CVS just isn't up to the task.  We know, we import
+history from CVS to BitKeeper all the time and it is very painful.  We
+probably understand the impedence mismatch better than anyone and it is
+large.
 
-__flush_tlb_pending
-ppc64_tlb_batch
-hpte_update
+> (and know I agreed at the moment), but thinking again about this I'm not
+> sure anymore how "sticking the BK changeset key into the delta history"
+> gives us "BK level granularity". From what I understand (but you are the
+> SCM expert not me so I may be missing something) there is exactly 
+> one delta per 'trunk' changeset, so if you have a file being modified
+> several times on a branch you will end with one single delta which is
+> the merge of the separate patches. I'm not sure how, by adding several
+> 'BK changeset keys' into the log entry of the merged delta you make
+> one able to resplit the delta later.
 
->>Also note that your code isn't dealing with 4 level pagetables.... And
->>pagetable walking in drivers is basically almost always a mistake and a
->>sign that something is wrong.
+First, you have to remember that BK is capturing 96% of the deltas made
+to files.  Some of those deltas get clumped into one CVS commit because
+of the flattening of the graph structure.  If each delta had the
+changeset key for the BK changeset to which it belonged you could 
+split the coarse commit into the sub patches which happened on the
+collapsed branch.  You wouldn't get 100% of the information but you'd
+have 96% of it in a way that could be used for debugging, which is what
+I suspect you are after.  
 
-> Or a sign that the core kernel lacks helper functions :) 
-
-Absolutely.  It'd be so nice if there was a simple va_to_ptep() helper 
-function available.
-
-Chris
+If that's not good enough then I'm not sure there is much point in
+continuing the conversation.
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

@@ -1,34 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261708AbRESIqR>; Sat, 19 May 2001 04:46:17 -0400
+	id <S261709AbRESItH>; Sat, 19 May 2001 04:49:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261709AbRESIqI>; Sat, 19 May 2001 04:46:08 -0400
-Received: from pc1-camb6-0-cust57.cam.cable.ntl.com ([62.253.135.57]:13202
-	"EHLO kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
-	id <S261708AbRESIpr>; Sat, 19 May 2001 04:45:47 -0400
-X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
-To: antonpoon@hongkong.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Using Parallel Port to Receive Signals 
-In-Reply-To: Message from antonpoon@hongkong.com 
-   of "Sat, 19 May 2001 12:55:56 CDT." <0l989480874443.20175@mail1.hongkong.com> 
-In-Reply-To: <0l989480874443.20175@mail1.hongkong.com> 
-Mime-Version: 1.0
+	id <S261715AbRESIs5>; Sat, 19 May 2001 04:48:57 -0400
+Received: from [209.102.21.2] ([209.102.21.2]:55812 "EHLO dragnet.seagull.net")
+	by vger.kernel.org with ESMTP id <S261709AbRESIsq>;
+	Sat, 19 May 2001 04:48:46 -0400
+Message-ID: <3B06338E.81D72C9A@goingware.com>
+Date: Sat, 19 May 2001 04:49:23 -0400
+From: "Michael D. Crawford" <crawford@goingware.com>
+Organization: GoingWare Inc. - Expert Software Development and Consulting
+X-Mailer: Mozilla 4.76 (Macintosh; U; PPC)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: "Why We Should All Test the New Linux Kernel" updated
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 19 May 2001 09:45:43 +0100
-From: Philip Blundell <philb@gnu.org>
-Message-Id: <E1512Mp-0001Jx-00@kings-cross.london.uk.eu.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I am trying to use the data port of parallel port to receive data, so I=
-> set the bit 5 of the control port to enable the bi-directional port, b=
->ut it doesn't work.  My parallel supports SPP/EPP/ECP mode, does it sup=
->port bi-directional mode?  if yes, how can I config it?
+I have updated my article "Why We Should All Test the New Linux Kernel"
+that was originally posted on Advogato just before 2.4.0 was release and
+posted it in a new location:
 
-You might have to play with your BIOS settings.  What mode does it think the 
-port is in?
+http://linuxquality.sunsite.dk/articles/whytestkernel/
 
-p.
+I welcome your comments, please write to crawford@goingware.com
 
+A number of people wrote in with comments and corrections after I wrote
+the original article, but Advogato doesn't provide for editing an
+article once it's posted - one can only make replies.  In this revision
+I could fix things throughout the text and can keep it updated as I
+think of ways to improve it in the future.
 
+It discusses why its important to test the kernel, where to get test
+kernels and how to get started with them, gives the minimum version
+numbers of the programs listed in 
+Documentation/Changes from 2.4.4, with links to where to download
+updates, and ends with an in-depth discussion of why something like a
+kernel needs particularly thorough testing - the reason being that
+disrupting the virtual machine in a kernel has non-local effects on a
+system; screwing up a user-mode program will usually just mess up that
+one program, but screwing up a kernel can make all kinds of weird things happen.
+
+Regards,
+
+Michael D. Crawford
+GoingWare Inc. - Expert Software Development and Consulting
+http://www.goingware.com
+crawford@goingware.com
+
+    Tilting at Windmills for a Better Tomorrow.

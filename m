@@ -1,51 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268094AbUJNWrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268131AbUJNWvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268094AbUJNWrO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 18:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268095AbUJNWnj
+	id S268131AbUJNWvc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 18:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268129AbUJNWvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 18:43:39 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:30700 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S268130AbUJNWio (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 18:38:44 -0400
-Date: Fri, 15 Oct 2004 00:38:21 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: David Howells <dhowells@redhat.com>
-cc: David Woodhouse <dwmw2@infradead.org>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>, Greg KH <greg@kroah.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: signed kernel modules? 
-In-Reply-To: <3401.1097793152@redhat.com>
-Message-ID: <Pine.LNX.4.61.0410150037100.877@scrub.home>
-References: <Pine.LNX.4.61.0410150002540.877@scrub.home> 
- <Pine.LNX.4.61.0410132346080.7182@scrub.home> <1096411448.3230.22.camel@localhost.localdomain>
- <1092403984.29463.11.camel@bach> <26280.1092388799@redhat.com>
- <27175.1095936746@redhat.com> <30591.1096451074@redhat.com>
- <10345.1097507482@redhat.com> <1097507755.318.332.camel@hades.cambridge.redhat.com>
- <1097534090.16153.7.camel@localhost.localdomain>
- <1097570159.5788.1089.camel@baythorne.infradead.org> <27277.1097702318@redhat.com>
- <16349.1097752349@redhat.com> <Pine.LNX.4.61.0410141357380.877@scrub.home>
- <1097755890.318.700.camel@hades.cambridge.redhat.com>
- <Pine.LNX.4.61.0410141554330.877@scrub.home> <1097764251.318.724.camel@hades.cambridge.redhat.com>
- <Pine.LNX.4.61.0410142256360.877@scrub.home> <1097789060.5788.2001.camel@baythorne.infradead.org>
- <Pine.LNX.4.61.0410142331020.877@scrub.home> <1097790753.5788.2031.camel@baythorne.infradead.org>
-  <3401.1097793152@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 14 Oct 2004 18:51:24 -0400
+Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:46555 "EHLO
+	safari.iki.fi") by vger.kernel.org with ESMTP id S268126AbUJNWtR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 18:49:17 -0400
+Date: Fri, 15 Oct 2004 01:49:15 +0300
+From: Sami Farin <7atbggg02@sneakemail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Bjoern Brandenburg <askadar@cs.tu-berlin.de>
+Subject: Re: OOPS in ReiserFS
+Message-ID: <20041014224915.GD31434@m.safari.iki.fi>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Bjoern Brandenburg <askadar@cs.tu-berlin.de>
+References: <20041014223154.GA12089@conde.cs.tu-berlin.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041014223154.GA12089@conde.cs.tu-berlin.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Oct 15, 2004 at 12:31:54AM +0200, Bjoern Brandenburg wrote:
+> Hi gurus, 
+> I encountered an oops in ReiserFS. I hope I can give you some useful
+> information (my first attempt a reporting a kernel-oops). Please cc me if you
+> have questions, I don't usually follow lkml.
+> 
+> Thank you for your time,
+> Bjoern
+> 
+> [1.] 
+> The ReiserFS filesystem locked up with an oops after finding a corrupt
+> partition. Hardware seems to be ok, at least I didn't have problems before.
+...
+> [4.]
+> [askadar@invisible-university ~]$ cat /proc/version
+> Linux version 2.6.8.1 (root@earth) (gcc version 3.4.1) #1 SMP Sun Aug 22 16:44:06 PDT 2004
+> 
+> [5.]
+> Oct 15 00:51:49 invisible-university ReiserFS: warning: is_tree_node: node
+> level 3 does not match to the expected one 1
+> Oct 15 00:51:49 invisible-university ReiserFS: hde5: warning: vs-5150:
+> search_by_key: invalid format found in block 1179648. Fsck?
 
-On Thu, 14 Oct 2004, David Howells wrote:
+I got these, too, when I was using gcc-3.4.1 to compile the 2.6.8-rc2 kernel.
+Using gcc-2.95.3 made all of the Oopses and other mysterious crashes disappear.
 
-> Where do you do it in userspace? glibc? uclibc? insmod is too early and is not
-> the only way modules are loaded.
+So, if you can reproduce these with gcc-2.95.3 it would be nice.
 
-What can the kernel that insmod can't do? How else do you want to load 
-modules?
+Aug  5 12:09:09 safari kernel: ReiserFS: hda6: warning: vs-5150: search_by_key: invalid format found in block 3408369. Fsck?
+Aug  5 12:09:09 safari kernel: ReiserFS: hda6: warning: vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find stat data of [1419453 1419466 0x0 SD]
+Aug  5 12:09:21 safari kernel: ReiserFS: warning: is_tree_node: node level 8 does not match to the expected one 2
+Aug  5 12:09:21 safari kernel: ReiserFS: hda6: warning: vs-5150: search_by_key: invalid format found in block 3408369. Fsck?
 
-bye, Roman
+(And of course, fsck said all is fine.)
+
+> Oct 15 00:51:49 invisible-university ReiserFS: hde5: warning: vs-13050:
+> reiserfs_update_sd: i/o failure occurred trying to update [1154 1504 0x0
+> SD] stat data
+> Oct 15 00:51:49 invisible-university ReiserFS: warning: is_tree_node: node
+> level 3 does not match to the expected one 1
+> Oct 15 00:51:49 invisible-university ReiserFS: hde5: warning: vs-5150:
+> search_by_key: invalid format found in block 1179648. Fsck?
+...
+
+-- 
+

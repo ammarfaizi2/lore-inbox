@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262188AbVAECI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbVAECPT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262188AbVAECI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 21:08:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbVAECI6
+	id S262196AbVAECPT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 21:15:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVAECPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 21:08:58 -0500
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:28112 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262188AbVAECIS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 21:08:18 -0500
-Date: Wed, 5 Jan 2005 03:12:50 +0100 (CET)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Valdis.Kletnieks@vt.edu, 7eggert@gmx.de,
-       Andy Lutomirski <luto@myrealbox.com>, linux-kernel@vger.kernel.org
-Subject: Re: the umount() saga for regular linux desktop users
-In-Reply-To: <1104870524.8346.27.camel@krustophenia.net>
-Message-ID: <Pine.LNX.4.58.0501050257500.10470@be1.lrz>
-References: <fa.iji5lco.m6nrs@ifi.uio.no> <fa.fv0gsro.143iuho@ifi.uio.no> 
- <E1Cl509-0000TI-00@be1.7eggert.dyndns.org>  <200501022243.j02MhANg004075@turing-police.cc.vt.edu>
- <1104870524.8346.27.camel@krustophenia.net>
+	Tue, 4 Jan 2005 21:15:18 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:44398 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262196AbVAECPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 21:15:12 -0500
+Message-ID: <41DB4DAC.8060606@yahoo.com.au>
+Date: Wed, 05 Jan 2005 13:15:08 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Howells <dhowells@redhat.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Exclude PUD/PMD alloc functions if !MMU
+References: <17892.1104868588@redhat.com>
+In-Reply-To: <17892.1104868588@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Aplologies for the indirect reply, I didn't see the cited message yet)
+David Howells wrote:
+> Don't declare pud_alloc() and pmd_alloc() if a nommu kernel is being
+> compiled. These functions require various things that aren't defined for
+> nommu.
+> 
+> Signed-Off-By: David Howells <dhowells@redhat.com>
+> ---
+> warthog>diffstat nommu-exclusions-2610mm1.diff 
+>  mm.h |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff -uNrp /warthog/kernels/linux-2.6.10-mm1/include/linux/mm.h linux-2.6.10-mm1-frv/include/linux/mm.h
+> --- /warthog/kernels/linux-2.6.10-mm1/include/linux/mm.h	2005-01-04 11:15:27.000000000 +0000
+> +++ linux-2.6.10-mm1-frv/include/linux/mm.h	2005-01-04 17:39:56.462745022 +0000
+> @@ -668,7 +668,7 @@ extern void remove_shrinker(struct shrin
+>   * The following ifdef needed to get the 4level-fixup.h header to work.
+>   * Remove it when 4level-fixup.h has been removed.
+>   */
+> -#ifndef __ARCH_HAS_4LEVEL_HACK 
+> +#if defined(CONFIG_MMU) && !defined(__ARCH_HAS_4LEVEL_HACK)
+>  static inline pud_t *pud_alloc(struct mm_struct *mm, pgd_t *pgd, unsigned long address)
+>  {
+>  	if (pgd_none(*pgd))
 
-> On Sun, 2005-01-02 at 17:43 -0500, Valdis.Kletnieks@vt.edu wrote:
-> > On Sun, 02 Jan 2005 13:38:29 +0100, Bodo Eggert said:
-> > 
-> > > Maybe it's possible to extend the semantics of umount -l to change all
-> > > cwds under that mountpoint to be deleted directories which will no
-> > > longer cause the mountpoint to be busy (e.g. by redirecting them to a
-> > > special inode on initramfs). Most applications can cope with that (if
-> > > not, they're buggy),
-> > 
-> > You mean that a program is *buggy* if it does:
-> > 
-> > 	cwd("/home/user");
-> > 	/* do some stuff while we get our cwd ripped out from under us */
-> > 	file = open("./.mycconfrc");
-> > 
-> > and expects the file to be opened in /home/user???
+I think you need to do it in the following way:
 
-If the user was bad, the user directory *will* just vanish ("what was your
-login, please"), and any other directory may vanish, too:
+#ifdef CONFIG_MMU
+#ifndef __ARCH_HAS_4LEVEL_HACK
+static inline pud_t *pud_alloc(struct mm_struct *mm, pgd_t *pgd, unsigned long address)
+{
+          if (pgd_none(*pgd))
+...
+#else /* __ARCH_HAS_4LEVEL_HACK */
+...
+#endif /* __ARCH_HAS_4LEVEL_HACK */
+#endif /* CONFIG_MMU */
 
-$ mkdir /tmp/test;cd /tmp/test
-$ ls -la
-total 0
-drwx------    2 7eggert  users          40 2005-01-05 03:00 .
-drwx------    3 7eggert  users          60 2005-01-05 03:00 ..
-$ # /tmp/test gets removed here
-$ ls -la
-total 0
-$ echo foo>bar
--bash: bar: No such file or directory
-$
+No?

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264181AbTEaHEe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 03:04:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbTEaHEe
+	id S264183AbTEaHKT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 03:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264184AbTEaHKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 03:04:34 -0400
-Received: from quechua.inka.de ([193.197.184.2]:45192 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S264181AbTEaHEd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 03:04:33 -0400
-From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function declarations.
-In-Reply-To: <E19Lzpz-00011a-00@calista.inka.de>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.20-xfs (i686))
-Message-Id: <E19M0cj-0001CK-00@calista.inka.de>
-Date: Sat, 31 May 2003 09:17:53 +0200
+	Sat, 31 May 2003 03:10:19 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:8832
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S264183AbTEaHKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 03:10:18 -0400
+Date: Sat, 31 May 2003 03:13:20 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: RFC Proposal to enable MSI support in Linux kernel
+In-Reply-To: <1054306504.7890.5.camel@ulysse.olympe.o2t>
+Message-ID: <Pine.LNX.4.50.0305310310530.31414-100000@montezuma.mastecende.com>
+References: <1054306504.7890.5.camel@ulysse.olympe.o2t>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E19Lzpz-00011a-00@calista.inka.de> you wrote:
-> /**
-> * foo: - do a foo job
-> * @parameterbar: the bar parameter is used to bar
-> *
-> * Description: This is the long description of the function foo() which
-> *   is closely related to bar()
-> * section header: section description
-> **/
-> int foo(long bar, long baz, struct magic *xyzzy)
+On Fri, 30 May 2003, Nicolas Mailhot wrote:
 
-most likely I made an error here:
+> Hi,
+> 
+> 	Before you say all's well in linux 2.5 edge/level APIC processing take
+> a look at:
+> 
+> http://bugzilla.kernel.org/show_bug.cgi?id=10
+> 
+> (not that I know if it's actually closely related to this thread, but
+> for once there is an APIC guru gathering on linux-kernel...)
 
-/**
-* foo: - do a foo job
-* @bar: the bar parameter is used to bar
-*
-* Description: This is the long description of the function foo() which
-*   is closely related to bar(). @baz may not be 0.
-* section header: section description
-**/
+It doesn't appear to be a edge/level trigger issue, i've posted a comment 
+regarding the possible cause (lack of an MADT causes ACPI to make wrong 
+decision with respect to interrupt controller type). There was a report a 
+couple of weeks back with what appears to be the same symptoms.
 
-Greetings
-Bernd
+	Zwane
 -- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+function.linuxpower.ca

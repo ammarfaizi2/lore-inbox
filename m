@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267409AbUIKEh0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267433AbUIKEoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267409AbUIKEh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 00:37:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267433AbUIKEh0
+	id S267433AbUIKEoP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 00:44:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267482AbUIKEoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 00:37:26 -0400
-Received: from ozlabs.org ([203.10.76.45]:56035 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S267409AbUIKEhZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 00:37:25 -0400
-Date: Sat, 11 Sep 2004 14:33:03 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: paulus@samba.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] [ppc64] Remove -Wno-uninitialized
-Message-ID: <20040911043303.GB6005@krispykreme>
-References: <200409101520.12653.jbarnes@engr.sgi.com>
+	Sat, 11 Sep 2004 00:44:15 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:12192 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S267433AbUIKEoO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 00:44:14 -0400
+Subject: Re: [patch] kernel sysfs events layer
+From: Robert Love <rml@ximian.com>
+To: Daniel Stekloff <dsteklof@us.ibm.com>
+Cc: Greg KH <greg@kroah.com>, Tim Hockin <thockin@hockin.org>,
+       Kay Sievers <kay.sievers@vrfy.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1094865815.2772.67.camel@localhost.localdomain>
+References: <20040831150645.4aa8fd27.akpm@osdl.org>
+	 <1093989924.4815.56.camel@betsy.boston.ximian.com>
+	 <20040902083407.GC3191@kroah.com>
+	 <1094142321.2284.12.camel@betsy.boston.ximian.com>
+	 <20040904005433.GA18229@kroah.com> <1094353088.2591.19.camel@localhost>
+	 <20040905121814.GA1855@vrfy.org> <20040906020601.GA3199@vrfy.org>
+	 <20040910235409.GA32424@kroah.com> <20040911001849.GA321@hockin.org>
+	 <20040911004827.GA8139@kroah.com>
+	 <1094865815.2772.67.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sat, 11 Sep 2004 00:45:26 -0400
+Message-Id: <1094877926.12615.2.camel@lucy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409101520.12653.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.5.6+20040818i
+X-Mailer: Evolution 1.5.94 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-09-10 at 18:23 -0700, Daniel Stekloff wrote:
 
-> Sorry if you already got these fixes, but err may be used uninitialized in 
-> mempolicy.c in both compat_set_mempolicy and compat_mbind.  This patch fixes 
-> that by setting them both to 0.
+> Not to be cheeky, but cpu "overheating" isn't an error event? <grin>
 
-Thanks Jesse, I wonder why I missed this. Yuck, that would explain it.
+I think the key importance is event vs. error.  E.g., "overheating" is a
+state, something that can be handled in user-space.  A driver piping out
+"error 501" is, well, something different.
 
-Andrew: A follow up patch fixing a bunch of ppc64 warnings is on the way.
+Personally, I am not against using kevent for driver events/errors, but
+the exact scope needs to be decided by the community.  You do need a
+kevent, though.
 
-Anton
+	Robert Love
 
-===== arch/ppc64/Makefile 1.47 vs edited =====
---- 1.47/arch/ppc64/Makefile	Mon Aug 23 06:24:25 2004
-+++ edited/arch/ppc64/Makefile	Sat Sep 11 14:30:01 2004
-@@ -26,8 +26,7 @@
- 
- LDFLAGS		:= -m elf64ppc
- LDFLAGS_vmlinux	:= -Bstatic -e $(KERNELLOAD) -Ttext $(KERNELLOAD)
--CFLAGS		+= -msoft-float -pipe -Wno-uninitialized -mminimal-toc \
--		   -mtraceback=none
-+CFLAGS		+= -msoft-float -pipe -mminimal-toc -mtraceback=none
- 
- ifeq ($(CONFIG_POWER4_ONLY),y)
- 	CFLAGS += $(call cc-option,-mcpu=power4)
+

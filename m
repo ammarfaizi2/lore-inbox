@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269958AbRHENdI>; Sun, 5 Aug 2001 09:33:08 -0400
+	id <S269962AbRHEOCZ>; Sun, 5 Aug 2001 10:02:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269959AbRHENc6>; Sun, 5 Aug 2001 09:32:58 -0400
-Received: from dfmail.f-secure.com ([194.252.6.39]:5636 "HELO
-	dfmail.f-secure.com") by vger.kernel.org with SMTP
-	id <S269958AbRHENcz>; Sun, 5 Aug 2001 09:32:55 -0400
-Date: Sun, 5 Aug 2001 16:46:21 +0300 (MET DST)
-From: Szabolcs Szakacsits <szaka@f-secure.com>
-To: <kern@wolf.ericsson.net.nz>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Oops pcnet32 ethernet driver on Compaq Deskpro 5100
-In-Reply-To: <Pine.LNX.4.33.0108041641480.14017-100000@wolf.ericsson.net.nz>
-Message-ID: <Pine.LNX.4.30.0108051626260.29834-100000@fs131-224.f-secure.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269960AbRHEOCF>; Sun, 5 Aug 2001 10:02:05 -0400
+Received: from [144.137.82.31] ([144.137.82.31]:23054 "EHLO localhost")
+	by vger.kernel.org with ESMTP id <S269959AbRHEOB6>;
+	Sun, 5 Aug 2001 10:01:58 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] /proc/ksyms change for IA64 
+In-Reply-To: Your message of "Sun, 05 Aug 2001 17:16:33 +1000."
+             <13470.996995793@ocs3.ocs-net> 
+Date: Mon, 06 Aug 2001 00:02:51 +1000
+Message-Id: <E15TOUV-00012J-00@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <13470.996995793@ocs3.ocs-net> you write:
+> >Eewwww....
+> >
+> >	How about just adding /proc/ksyms-ia64 with the code pointers
+> >which contains the ia64 code addresses required by ksymoops and
+> >debuggers.  These are, after all, less vital than insmod.
+> 
+> That requires changes to every kernel debugger, oops decoder etc.  I
+> don't control all of Linux debugging yet ;).  It is also more work
+> because it requires kernel changes as well as lots of user space.
 
-On Sat, 4 Aug 2001 kern@wolf.ericsson.net.nz wrote:
+For ia64 only.  IMHO, that's a better line to draw.
 
-> I am getting the following oops when I try to insert the pcnet32 ethernet
-> driver on an older Compaq 5100 (Pentium 100 with onboard ethernet
-> controller) and rh7.1
-
-Get the RH 7.1 kernel update
-	http://www.redhat.com/support/errata/RHSA-2001-084.html
-or upgrade your kernel to a recent one. You have an old pcnet32 card
-that needs 16 bit init first but some early 2.4 (and the RH 7.1 shipped)
-kernel did 32 bit init.
-
-	Szaka
-
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

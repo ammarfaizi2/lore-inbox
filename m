@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVCIDnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVCIDqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbVCIDnq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 22:43:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVCIDnq
+	id S261461AbVCIDqE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 22:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVCIDqC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 22:43:46 -0500
-Received: from mta1.mail.tickle.com ([130.94.6.244]:9851 "EHLO
-	ringotouch1.ringo.com") by vger.kernel.org with ESMTP
-	id S261489AbVCIDnn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 22:43:43 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-To: linux-kernel@vger.kernel.org
-From: "Gaurav Yadav" <emailtogauravyadav@rediffmail.com>
-Subject: Please help me update my address book on Ringo
-Date: 08 Mar 2005 19:43:42 PST
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-Message-Id: <20050309034342.4065844858@ringotouch1.ringo.com>
+	Tue, 8 Mar 2005 22:46:02 -0500
+Received: from waste.org ([216.27.176.166]:47269 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261461AbVCIDph (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 22:45:37 -0500
+Date: Tue, 8 Mar 2005 19:44:42 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Andrew Morton <akpm@osdl.org>, paul@linuxaudiosystems.com,
+       cfriesen@nortelnetworks.com, chrisw@osdl.org, hch@infradead.org,
+       rlrevell@joe-job.com, arjanv@redhat.com, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050309034442.GU3120@waste.org>
+References: <20050112185258.GG2940@waste.org> <200501122116.j0CLGK3K022477@localhost.localdomain> <20050307195020.510a1ceb.akpm@osdl.org> <20050308043349.GG3120@waste.org> <20050307204044.23e34019.akpm@osdl.org> <87acpesnzi.fsf@sulphur.joq.us> <20050308063344.GM3120@waste.org> <87zmxd4heb.fsf@sulphur.joq.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87zmxd4heb.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Tue, Mar 08, 2005 at 09:39:24PM -0600, Jack O'Quin wrote:
+> >> 4. is undocumented and has never been tested in any real music studios
+> >
+> > Well you'll have a bit to test it before it goes to Linus.
+> 
+> Only toy tests will be possible without the required userspace tools.
 
-I'm updating my address book.  Please click on the link below and enter your contact info for me:
+Chris posted the requisite change to pam_limits as well.
 
-http://ringo.com/i?uid=k1WylYvS5KZyLvy5&
-
-I'm using a new, free service where I put in my contact info for you, you put in your contact info for me, and everyone stays up to date automatically.  It's surprisingly easy and useful.
-
-Thanks for your help.
-
-Gaurav
+-- 
+Mathematics is the supreme nostalgia of our time.

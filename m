@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262500AbTBXXmy>; Mon, 24 Feb 2003 18:42:54 -0500
+	id <S264688AbTBXXpZ>; Mon, 24 Feb 2003 18:45:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262806AbTBXXmy>; Mon, 24 Feb 2003 18:42:54 -0500
-Received: from otter.mbay.net ([206.55.237.2]:14097 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S262500AbTBXXmx> convert rfc822-to-8bit;
-	Mon, 24 Feb 2003 18:42:53 -0500
-From: John Alvord <jalvo@mbay.net>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Andreas Schwab <schwab@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
-Date: Mon, 24 Feb 2003 15:52:20 -0800
-Message-ID: <rrbl5v47rm3o9ltc4iegc1i6nc9fuqgapk@4ax.com>
-References: <Pine.LNX.4.44.0302241259320.13406-100000@penguin.transmeta.com> <jeznol5plv.fsf@sykes.suse.de> <20030224173934.T3910@devserv.devel.redhat.com>
-In-Reply-To: <20030224173934.T3910@devserv.devel.redhat.com>
-X-Mailer: Forte Agent 1.92/32.570
-MIME-Version: 1.0
+	id <S264697AbTBXXpZ>; Mon, 24 Feb 2003 18:45:25 -0500
+Received: from holomorphy.com ([66.224.33.161]:33203 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S264688AbTBXXpX>;
+	Mon, 24 Feb 2003 18:45:23 -0500
+Date: Mon, 24 Feb 2003 15:54:33 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: yodaiken@fsmlabs.com
+Cc: Andrew Morton <akpm@digeo.com>, Bill Huey <billh@gnuppy.monkey.org>,
+       lm@work.bitmover.com, mbligh@aracnet.com, davidsen@tmr.com,
+       greearb@candelatech.com, linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030224235433.GO27135@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	yodaiken@fsmlabs.com, Andrew Morton <akpm@digeo.com>,
+	Bill Huey <billh@gnuppy.monkey.org>, lm@work.bitmover.com,
+	mbligh@aracnet.com, davidsen@tmr.com, greearb@candelatech.com,
+	linux-kernel@vger.kernel.org
+References: <33350000.1046043468@[10.10.2.4]> <20030224045717.GC4215@work.bitmover.com> <20030224074447.GA4664@gnuppy.monkey.org> <20030224075430.GN10411@holomorphy.com> <20030224080052.GA4764@gnuppy.monkey.org> <20030224004005.5e46758d.akpm@digeo.com> <20030224085031.GP10411@holomorphy.com> <20030224091758.A11805@hq.fsmlabs.com> <20030224231341.GQ10411@holomorphy.com> <20030224162754.A24766@hq.fsmlabs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+In-Reply-To: <20030224162754.A24766@hq.fsmlabs.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Feb 2003 17:39:34 -0500, Jakub Jelinek <jakub@redhat.com>
-wrote:
+On Mon, Feb 24, 2003 at 03:13:41PM -0800, William Lee Irwin III wrote:
+>> Which, if you had bothered reading the rest of my post, is why I asked
+>> for data.
 
->On Mon, Feb 24, 2003 at 10:35:24PM +0100, Andreas Schwab wrote:
->> Linus Torvalds <torvalds@transmeta.com> writes:
->> 
->> |> Does gcc still warn about things like
->> |> 
->> |> 	#define COUNT (sizeof(array)/sizeof(element))
->> |> 
->> |> 	int i;
->> |> 	for (i = 0; i < COUNT; i++)
->> |> 		...
->> |> 
->> |> where COUNT is obviously unsigned (because sizeof is size_t and thus 
->> |> unsigned)?
->> |> 
->> |> Gcc used to complain about things like that, which is a FUCKING DISASTER. 
->> 
->> How can you distinguish that from other occurrences of (int)<(size_t)?
->
->Value range propagation pass, then warn?
+On Mon, Feb 24, 2003 at 04:27:54PM -0700, yodaiken@fsmlabs.com wrote:
+> I'm not sure what you are complaining about. I don't think there is good
+> or even marginal data or explanations of this "effect". 
 
-I know it is stupid/unnecessary etc, but you could do
+I'm complaining about being quoted out of context and the animus against
+unsupported preempt claims being directed against me.
 
-#if COUNT > INT_MAX
-#error you idiot... 
-#endif
+Re-stating preempt's "ostensible purpose" is the purpose of the "vague
+notion", not adding to the pile of speculation.
 
-	int i;
-	for(i =0; i < (int)COUNT; i++)
-	...
+For the data, akpm has apparently tracked scheduling latency, so there
+is a chance he actually knows whether it's serving its ostensible
+purpose as opposed to having a large stockpile of overwrought wisecracks
+and a propensity for quoting out of context.
 
-where the #if was placed in whatever header COUNT was defined.
 
-and have safe code with no runtime overhead and looking only mildly
-idiotic.
-
-john alvord
+-- wli

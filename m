@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273983AbRJKIuM>; Thu, 11 Oct 2001 04:50:12 -0400
+	id <S275178AbRJKIwV>; Thu, 11 Oct 2001 04:52:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273996AbRJKIuD>; Thu, 11 Oct 2001 04:50:03 -0400
-Received: from taifun.devconsult.de ([212.15.193.29]:7181 "EHLO
-	taifun.devconsult.de") by vger.kernel.org with ESMTP
-	id <S273983AbRJKItt>; Thu, 11 Oct 2001 04:49:49 -0400
-Date: Thu, 11 Oct 2001 10:50:16 +0200
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Concerned Programmer <tkhoadfdsaf@hotmail.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Alexander Viro <viro@math.psu.edu>, Keith Owens <kaos@ocs.com.au>,
-        "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Tainted Modules Help Notices
-Message-ID: <20011011105016.C28145@devcon.net>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Concerned Programmer <tkhoadfdsaf@hotmail.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Alexander Viro <viro@math.psu.edu>, Keith Owens <kaos@ocs.com.au>,
-	"Morgan Collins [Ax0n]" <sirmorcant@morcant.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <OE64YU5ts1Tjkw1BzCf0000708c@hotmail.com> <E15rQjC-0000m2-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15rQjC-0000m2-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Oct 10, 2001 at 10:17:22PM +0100
-Organization: dev/consulting GmbH
-X-NCC-RegID: de.devcon
+	id <S274964AbRJKIwN>; Thu, 11 Oct 2001 04:52:13 -0400
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:54155 "EHLO
+	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S274174AbRJKIwF>;
+	Thu, 11 Oct 2001 04:52:05 -0400
+Message-ID: <64157.212.247.172.29.1002790304.squirrel@webmail.stesmi.com>
+Date: Thu, 11 Oct 2001 10:51:44 +0200 (CEST)
+Subject: =?iso-8859-1?Q?Re:_Uhhuh.._2.4.12?=
+From: "=?iso-8859-1?Q?Stefan_Smietanowski?=" <stesmi@stesmi.com>
+To: <twaugh@redhat.com>
+In-Reply-To: <20011011095018.N10562@redhat.com>
+In-Reply-To: <20011011095018.N10562@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: stesmi@stesmi.com
+X-Mailer: SquirrelMail (version 1.2.0 [rc1])
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001 at 10:17:22PM +0100, Alan Cox wrote:
-> 
-> Hardly. Its there to handle maintainability issues. Right now its got some 
-> glitches - and the BSD one is a glitch we need to sort out. Clearly BSD
-> stuff where the source is in the kernel is not harming anyones ability to
-> deubg.
+Hi.
 
-What about simply adding "BSD (included in kernel)" as a possible
-"untainted" MODULE_LICENSE()?
+>> Hmm. Does that mean that 2.4.x-ac will become the standard tree or ?
+>
+> No, it means that I have to write out 'I will not edit patches by hand
+> without testing them' a thousand times, _without_ using cut and
+> paste..
 
-Andreas
--- 
-       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
-     ---------------------------------------------------------
-         +49 521 1365800 - af@devcon.net - www.devcon.net
+Wow. What a job. Why don't you code instead ? :)
+
+// Stefan
+
+
+

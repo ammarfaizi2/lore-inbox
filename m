@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281846AbRK1Ce5>; Tue, 27 Nov 2001 21:34:57 -0500
+	id <S283006AbRK1CtZ>; Tue, 27 Nov 2001 21:49:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283009AbRK1Cer>; Tue, 27 Nov 2001 21:34:47 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:24049
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S281846AbRK1Ceg>; Tue, 27 Nov 2001 21:34:36 -0500
-Date: Tue, 27 Nov 2001 18:34:29 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+	id <S283008AbRK1CtQ>; Tue, 27 Nov 2001 21:49:16 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:32009 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S283006AbRK1CtG>; Tue, 27 Nov 2001 21:49:06 -0500
+Message-ID: <3C045072.36455C6F@zip.com.au>
+Date: Tue, 27 Nov 2001 18:48:18 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
         Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: Unresponiveness of 2.4.16
-Message-ID: <20011127183429.B862@mikef-linux.matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011128013129Z281843-17408+21534@vger.kernel.org> <3C044855.3CF2DCA3@zip.com.au>
-Mime-Version: 1.0
+In-Reply-To: <20011128013129Z281843-17408+21534@vger.kernel.org> <3C044855.3CF2DCA3@zip.com.au>,
+		<3C044855.3CF2DCA3@zip.com.au> <20011127183429.B862@mikef-linux.matchmail.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C044855.3CF2DCA3@zip.com.au>
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 27, 2001 at 06:13:41PM -0800, Andrew Morton wrote:
-> Dieter N?tzel wrote:
-> > Don't forget to tune max-readahead.
+Mike Fedyk wrote:
 > 
-> Yes.  Readahead is fairly critical and there may be additional fixes
-> needed in this area.
+> >       echo file_readahead:N > /proc/ide/ide0/hda/settings
+> >
+> > where N is in kilobytes in 2.4.16 kernels.
 > 
-> Someone recently added the /proc/sys/vm/max_readahead (?) tunable.
-> Beware of this.  It only works for device drivers which do not
-> populate their own readhead table.  For IDE, it *looks* like
-> it works, but it doesn't.   For IDE, the only way to alter VM
-> readahead is via
+> Any idea which drivers it will/won't work on?  ie, "almost all ide" or
+> "almost none of the ide driers"?
+
+It appears that all IDE is controlled with /proc/ide/ide0/hda/settings
+
+> >In earlier kernels
+> > it's kilopages (!).
 > 
-> 	echo file_readahead:N > /proc/ide/ide0/hda/settings
-> 
-> where N is in kilobytes in 2.4.16 kernels.  
+> Isn't this part of the max-readahead patch?
 
-Any idea which drivers it will/won't work on?  ie, "almost all ide" or
-"almost none of the ide driers"?
+No, that fix went in separately.  Roger Larsson created it, then
+I hit the same problem and forwarded Roger's patch to the relevant
+parties.
+ 
+> Does /proc/sys/vm/max_readahead affect scsi in any way?
 
->In earlier kernels
-> it's kilopages (!).
+Well, `grep -r max_readahead drivers/scsi' comes up blank,
+so it looks like the scsi drivers don't implement the
+driver-specific readhead tunable, and so they will fall back
+to the /proc/sys/vm/max_readahead global.  I guess.
 
-Isn't this part of the max-readahead patch?
+> What layer does /proc/sys/vm/max_readahead affect?  Block? FS?
 
-Does /proc/sys/vm/max_readahead affect scsi in any way?
-
-What layer does /proc/sys/vm/max_readahead affect?  Block? FS?
-
-MF
+The generic filesystem library code.  The bit which sits
+on top of the block layer and gets its block mappings from the
+filesystem and does generic_file_readahead().  Variously
+referred to as VFS or VM.  It's neither, and both, really.

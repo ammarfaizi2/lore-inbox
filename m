@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314690AbSECQlz>; Fri, 3 May 2002 12:41:55 -0400
+	id <S314705AbSECQnt>; Fri, 3 May 2002 12:43:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314697AbSECQly>; Fri, 3 May 2002 12:41:54 -0400
-Received: from dsl-213-023-039-070.arcor-ip.net ([213.23.39.70]:3752 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314690AbSECQlw>;
-	Fri, 3 May 2002 12:41:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: Virtual address space exhaustion (was  Discontigmem virt_to_page() )
-Date: Fri, 3 May 2002 18:41:15 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020503103813.K11414@dualathlon.random> <E173fVi-0002Ic-00@starship> <20020503182028.C14505@dualathlon.random>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E173g7P-0002J6-00@starship>
+	id <S314706AbSECQns>; Fri, 3 May 2002 12:43:48 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:11136
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S314705AbSECQnq>; Fri, 3 May 2002 12:43:46 -0400
+Date: Fri, 3 May 2002 09:43:58 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Krzysiek Taraszka <dzimi@ep09.kernel.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PPC and 2.2.21rc3 with modular ide subsystem
+Message-ID: <20020503164358.GC894@opus.bloom.county>
+In-Reply-To: <20020503155313.GA894@opus.bloom.county> <Pine.LNX.4.44.0205031802420.32723-100000@ep09.kernel.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 May 2002 18:20, Andrea Arcangeli wrote:
-> On Fri, May 03, 2002 at 06:02:18PM +0200, Daniel Phillips wrote:
-> > and solves 75% of the problem.  It's not just ia32 numa that will benefit
-> > from it.  For example, MIPS supports 16K pages in software, which will
+On Fri, May 03, 2002 at 06:05:34PM +0200, Krzysiek Taraszka wrote:
+> On Fri, 3 May 2002, Tom Rini wrote:
 > 
-> the whole change would be specific to ia32, I don't see the connection
-> with mips. There would be nothing to share between ia32 2M pages and
-> mips 16K pages.
+> > Date: Fri, 3 May 2002 08:53:13 -0700
+> > From: Tom Rini <trini@kernel.crashing.org>
+> > To: Krzysiek Taraszka <dzimi@ep09.kernel.pl>
+> > Cc: linux-kernel@vger.kernel.org
+> > Subject: Re: PPC and 2.2.21rc3 with modular ide subsystem
+> > 
+> > On Fri, May 03, 2002 at 01:58:49PM +0200, Krzysiek Taraszka wrote:
+> > 
+> > > I tried compile 2.2.21rc3 with modular ide subsystem and i got that 
+> > > messages:
+> > 
+> > Pmac IDE is not able to be built as a module.  If you just have a PCI
+> > IDE card you want to use, you should be able to if you set
+> > CONFIG_BLK_DEV_IDE_PMAC to n.  Otherwise you must compile it in.
+> 
+> What about 2.4/2.5 kernels ? 
 
-The topic here is 'page clustering'.  The idea is to use one struct page for
-every four 4K page frames on ia32.
+The same restrictions apply to 2.4 as well.  It's planned to try and fix
+this issue in 2.5 at some point.
 
 -- 
-Daniel
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

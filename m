@@ -1,112 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVAMUXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVAMUXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVAMUXK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 15:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVAMTh7
+	id S261494AbVAMUXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 15:23:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVAMUTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 14:37:59 -0500
-Received: from grendel.firewall.com ([66.28.58.176]:34977 "EHLO
-	grendel.firewall.com") by vger.kernel.org with ESMTP
-	id S261365AbVAMTgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 14:36:37 -0500
-Date: Thu, 13 Jan 2005 20:36:37 +0100
-From: Marek Habersack <grendel@caudium.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050113193637.GB24970@beowulf.thanes.org>
-Reply-To: grendel@caudium.net
-References: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050113032506.GB1212@redhat.com> <20050113035331.GC9176@beowulf.thanes.org> <1105627951.4664.32.camel@localhost.localdomain>
+	Thu, 13 Jan 2005 15:19:31 -0500
+Received: from mail.suse.de ([195.135.220.2]:6298 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261669AbVAMURp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 15:17:45 -0500
+Date: Thu, 13 Jan 2005 21:17:41 +0100
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andi Kleen <ak@muc.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, hugh@veritas.com,
+       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: Re: page table lock patch V15 [0/7]: overview
+Message-ID: <20050113201741.GE20738@wotan.suse.de>
+References: <41E5AFE6.6000509@yahoo.com.au> <20050112153033.6e2e4c6e.akpm@osdl.org> <41E5B7AD.40304@yahoo.com.au> <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com> <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com> <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com> <20050113180205.GA17600@muc.de> <Pine.LNX.4.58.0501131005280.19097@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gj572EiMnwbLXET9"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1105627951.4664.32.camel@localhost.localdomain>
-Organization: I just...
-X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
-X-message-flag: Outlook - A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.58.0501131005280.19097@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 13, 2005 at 10:16:58AM -0800, Christoph Lameter wrote:
+> On Thu, 13 Jan 2005, Andi Kleen wrote:
+> 
+> > The rule in i386/x86-64 is that you cannot set the PTE in a non atomic way
+> > when its present bit is set (because the hardware could asynchronously
+> > change bits in the PTE that would get lost). Atomic way means clearing
+> > first and then replacing in an atomic operation.
+> 
+> Hmm. I replaced that portion in the swapper with an xchg operation
+> and inspect the result later. Clearing a pte and then setting it to
+> something would open a window for the page fault handler to set up a new
 
---gj572EiMnwbLXET9
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, it usually assumes page table lock hold.
 
-On Thu, Jan 13, 2005 at 03:36:33PM +0000, Alan Cox scribbled:
-> On Iau, 2005-01-13 at 03:53, Marek Habersack wrote:
-> > That might be, but note one thing: not everybody runs vendor kernels (f=
-or various
-> > reasons). Now see what happens when the super-secret vulnerability (with
-> > vendor fixes) is described in an advisory. A person managing a park of =
-machines=20
-> > (let's say 100) with custom, non-vendor, kernels suddenly finds out tha=
-t they=20
-> > have a buggy kernel and 100 machines to upgrade while the exploit and t=
-he
->=20
-> Those running 2.4 non-vendor kernels are just fine because Marcelo
-> chooses to work with vendor-sec while Linus chooses not to. I choose to
-> work with vendor-sec so generally the -ac tree is also fairly prompt on
-> fixing things.=20
-That's fine, but if one isn't on vendor-sec, they are still out in the cold
-until the vulnerability with an embargo is announced - at which point all
-the vendors are ready, but those with non-vendor kernels are in for an
-unpleasant surprise. And as for 2.4, yes, Marcelo does a good job applying
-the fixes asap, but that's not helping. If one runs (as I wrote) a kernel
-with custom code inside, tux and, say, grsecurity - and it's not the latest
-2.4 kernel - he still needs to backport the fixes and make sure they work
-fine with is custom code, all that in a great hurry.  Somebody suggested
-here that perhaps there could be a version of a security fix released for
-X past kernel versions (2? 3?) if it doesn't apply cleanly to them. That
-would be a great help along with earlier notification of a problem - not in
-the way it is done with vendor-sec where you have to wear a pointy hat and
-a beard to be accepted as a member. It's not that I'm whining or bitching,
-hell no, I just think it would be more fair if everybody was treated the
-same - vendors, non-vendors, bad guys, all alike.
+> pte there since it does not take the page_table_lock. That xchg must be
+> atomic for PAE mode to work then.
 
-> Given that base 2.6 kernels are shipped by Linus with known unfixed
-> security holes anyone trying to use them really should be doing some
-> careful thinking. In truth no 2.6 released kernel is suitable for
-> anything but beta testing until you add a few patches anyway.=20
->=20
-> 2.6.9 for example went out with known holes and broken AX.25 (known)=20
-> 2.6.10 went out with the known holes mostly fixed but memory corrupting
-> bugs, AX.25 still broken and the wrong fix applied for the smb holes so
-> SMB doesn't work on it
->=20
-> I still think the 2.6 model works well because its making very good
-> progress and then others are doing testing and quality management on it.
-> Linus is doing the stuff he is good at and other people are doing the
-> stuff he doesn't.
->=20
-> That change of model changes the security model too however.
-yes, definitely. IMHO, it enforces prompt and open security advisory/patch
-releases, just as Linus proposed (with the limited embargo). Of course, one
-can just take a released vendor kernel, patch it with their custom code and
-compile the way they see it fit, but it's not in any way faster or better
-than backporting the fixes to your own kernel.
+You can always use cmpxchg8 for that if you want. Just to make
+it really atomic you may need a LOCK prefix, and with that the
+cost is not much lower than a real spinlock.
 
-regards,
 
-marek
+> 
+> > This helps you because you shouldn't be looking at the pte anyways
+> > when pte_present is false. When it is not false it is always updated
+> > atomically.
+> 
+> so pmd_present, pud_none and pgd_none could be considered atomic even if
+> the pm/u/gd_t is a multi-word entity? In that case the current approach
 
---gj572EiMnwbLXET9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+The optimistic read function I posted would do this.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+But you have to read multiple entries anyways, which could get
+non atomic no? (e.g. to do something on a PTE you always need
+to read PGD/PUD/PMD)
 
-iD8DBQFB5s3Fq3909GIf5uoRAljNAJ45FCDjEcncSDgoFVtmuN11DnKBMACfSYK1
-DT9TFxQMbZG6xRxLrXKLMvM=
-=ppCr
------END PGP SIGNATURE-----
+In theory you could do this lazily with retires too, but it would be probably
+somewhat costly and complicated.
 
---gj572EiMnwbLXET9--
+> would work for higher level entities and in particular S/390 would be in
+> the clear.
+> 
+> But then the issues of replacing multi-word ptes on i386 PAE remain. If no
+> write lock is held on mmap_sem then all writes to pte's must be atomic in
+
+mmap_sem is only for VMAs. The page tables itself are protected by page table 
+lock.
+
+> order for the get_pte_atomic operation to work reliably.
+
+-Andi

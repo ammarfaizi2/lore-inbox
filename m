@@ -1,72 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270239AbTHGQbf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 12:31:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270248AbTHGQbf
+	id S270354AbTHGQho (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 12:37:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270375AbTHGQhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 12:31:35 -0400
-Received: from pdbn-d9bb86f3.pool.mediaWays.net ([217.187.134.243]:6671 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id S270239AbTHGQbd (ORCPT
+	Thu, 7 Aug 2003 12:37:43 -0400
+Received: from mail.kroah.org ([65.200.24.183]:3730 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270354AbTHGQe4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 12:31:33 -0400
-Date: Thu, 7 Aug 2003 18:31:14 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
-To: Oleg Drokin <green@namesys.com>
-Cc: Tomas Szepe <szepe@pinerecords.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
-       Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: reiserfs4
-Message-ID: <20030807163114.GA1699@citd.de>
-References: <200308070305.51868.vlad@lazarenko.net> <20030806230220.I7752@schatzie.adilger.int> <3F31DFCC.6040504@cornell.edu> <20030807072751.GA23912@namesys.com> <20030807132111.GB7094@louise.pinerecords.com> <20030807142312.GA901@citd.de> <20030807142544.GF20639@namesys.com>
+	Thu, 7 Aug 2003 12:34:56 -0400
+Date: Thu, 7 Aug 2003 09:33:37 -0700
+From: Greg KH <greg@kroah.com>
+To: Dagfinn Ilmari =?iso-8859-1?Q?Manns=E5ker?= <ilmari@ilmari.org>
+Cc: linux-kernel@vger.kernel.org, bluez-devel@lists.sourceforge.net,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: Badness in local_bh_enable at kernel/softirq.c:113 (2.6.0-test2, bluetooth)
+Message-ID: <20030807163337.GD11433@kroah.com>
+References: <d8ju18u2w5k.fsf@wirth.ping.uio.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030807142544.GF20639@namesys.com>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <d8ju18u2w5k.fsf@wirth.ping.uio.no>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07, 2003 at 06:25:44PM +0400, Oleg Drokin wrote:
-> Hello!
-> 
-> On Thu, Aug 07, 2003 at 04:23:12PM +0200, Matthias Schniedermeyer wrote:
-> > > > There is sort of "universal" fs convertor for linux that can convert almost
-> > > > any fs to almost any other fs.
-> > > > The only requirement seems to be that both fs types should have read/write support in Linux.
-> > > > http://tzukanov.narod.ru/convertfs/
-> > > I'm afraid I cannot recommend using this tool.
-> > > A test conversion from reiserfs to ext3 (inside a vmware machine)
-> > > screwed up the data real horrorshow: directory structure seems
-> > > ok but file contents are apparently shifted.
-> > That answers the question that poped up in my mind.
-> > "How does the tool know where the blocks are, and in which order it can
-> > 'move' then without corrupting the data.(*)
-> 
-> Well, there is FIBMAP ioctl that does this.
-> 
-> > Seems it doesn't know it.
-> 
-> It does. And our tests were more succesful, I believe.
-> 
-> > But it is possibel(*2) to do what the programm wants to do, you only
-> > have to find out the order in which you have to copy the blocks to
-> > prevent garbage. That's all the magic.
-> 
-> Sure.
+On Thu, Aug 07, 2003 at 01:39:35AM +0200, Dagfinn Ilmari Mannsåker wrote:
+> When unplugging my MSI USB Bluetooth adapter on 2.6.0-test2 I got two
+> instances of the following backtrace:
 
-Ups. Seems i am wrong, i "grep"ed for FIBMAP and the tool uses it. So i
-guess the tool should be able to do everything correctly.
+{sigh, doesn't anyone read the archives anymore...}
 
-I take everything back and claim the opposite. :-)
-(german idiom. "Ich nehm alles zurueck und behaupte das Gegenteil")
+Known issue, fixed in Linus's latest kernel tree, fix will show up in
+2.6.0-test3 (if not, please let us know.)
 
+thanks,
 
-
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
-
+greg k-h

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVBRRMC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVBRROT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbVBRRMC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 12:12:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVBRRLe
+	id S261432AbVBRROT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 12:14:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVBRROS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 12:11:34 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:58024 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261404AbVBRRJ6 (ORCPT
+	Fri, 18 Feb 2005 12:14:18 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:41898 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261426AbVBRRNi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 12:09:58 -0500
-Message-ID: <42161FBF.70200@sgi.com>
-Date: Fri, 18 Feb 2005 11:02:55 -0600
+	Fri, 18 Feb 2005 12:13:38 -0500
+Message-ID: <421621C1.2020500@sgi.com>
+Date: Fri, 18 Feb 2005 11:11:29 -0600
 From: Ray Bryant <raybry@sgi.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
 X-Accept-Language: en-us, en
@@ -28,29 +28,12 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+Andi, et al:
 
-> You and Robin mentioned some problems with "double migration"
-> with that, but it's still not completely clear to me what
-> problem you're solving here. Perhaps that needs to be reexamined.
-> 
-> 
-There is one other case where Robin and I have talked about double
-migration.  That is the case where the set of old nodes and new
-nodes overlap.  If one is not careful, and the system call interface
-is assumed to be something like:
-
-page_migrate(pid, old_node, new_node);
-
-then if one is not careful (and depending on what the complete list
-of old_nodes and new_nodes are), then if one does something like:
-
-page_migrate(pid, 1, 2);
-page_migrate(pid, 2, 3);
-
-then you can end up actually moving pages from node 1 to node 2,
-only to move them again from node 2 to node 3.  This is another
-form of double migration that we have worried about avoiding.
+I see that  several messages have been sent in the interim.
+I apologize for being "out of sync", but today is my last
+day to go skiing and it is gorgeous outside.  I'll try
+to catch up and digest everthing later.
 
 -- 
 -----------------------------------------------
@@ -60,4 +43,3 @@ raybry@sgi.com             raybry@austin.rr.com
 The box said: "Requires Windows 98 or better",
 	 so I installed Linux.
 -----------------------------------------------
-

@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274681AbRKSR5F>; Mon, 19 Nov 2001 12:57:05 -0500
+	id <S276708AbRKSSCF>; Mon, 19 Nov 2001 13:02:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276708AbRKSR4p>; Mon, 19 Nov 2001 12:56:45 -0500
-Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:44931 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S274681AbRKSR4h>;
-	Mon, 19 Nov 2001 12:56:37 -0500
-Date: Mon, 19 Nov 2001 09:56:31 -0800
-From: Simon Kirby <sim@netnation.com>
-To: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VM-related Oops: 2.4.15pre1
-Message-ID: <20011119095631.A24617@netnation.com>
-In-Reply-To: <588.1006159468@redhat.com> <Pine.LNX.4.33.0111190839520.8103-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0111190839520.8103-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.23i
+	id <S280479AbRKSSBz>; Mon, 19 Nov 2001 13:01:55 -0500
+Received: from pop.gmx.de ([213.165.64.20]:27663 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S276708AbRKSSBt> convert rfc822-to-8bit;
+	Mon, 19 Nov 2001 13:01:49 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Sebastian =?iso-8859-1?q?Dr=F6ge?= <sebastian.droege@gmx.de>
+Reply-To: sebastian.droege@gmx.de
+To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [VM] 2.4.14/15-pre4 too "swap-happy"?
+Date: Mon, 19 Nov 2001 19:01:05 +0100
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.LNX.4.33.0111140821120.17217-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0111140821120.17217-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011119180153Z276708-17408+16348@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So, uh, any idea why the server is hitting the page->mapping BUG() thing
-in the first place? :)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The server is still up, and has printed the BUG() line 71 times (up 5
-days).  In all 71 Oopses/stack dumps, eax, ebx, ecx, esi, and edi are the
-same.
+Hi,
+I couldn't answer ealier because I had some problems with my ISP
+the heavy swapping problem while burning a cd is solved in pre6aa1
+but if you want i can do some statistics tommorow
+Thanks and bye
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-It looks like one page is broken and is continually hitting the BUG(). 
-Shouldn't it have been freed after the first BUG(), though?
-
-Is there some way to figure out if this page is special in some way or
-track down how it broke?
-
-Simon-
-
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+iD8DBQE7+UjjvIHrJes3kVIRApxEAKCwoOhYcptcm/1Q2teIY2YkVwNZGwCeNsDR
+pSi5RbK5o5qeYUWzHHYgAj0=
+=1Nvc
+-----END PGP SIGNATURE-----

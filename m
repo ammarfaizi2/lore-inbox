@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263229AbTJKB6R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 21:58:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263230AbTJKB6R
+	id S263211AbTJKCKD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 22:10:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263212AbTJKCKD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 21:58:17 -0400
-Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:53379
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S263229AbTJKB6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 21:58:15 -0400
-Date: Fri, 10 Oct 2003 21:58:00 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: "J.A. Magallon" <jamagallon@able.es>
-cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI year blacklist
-In-Reply-To: <20031010233616.GA2214@werewolf.able.es>
-Message-ID: <Pine.LNX.4.53.0310102156590.15705@montezuma.fsmlabs.com>
-References: <20031010233616.GA2214@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 10 Oct 2003 22:10:03 -0400
+Received: from holomorphy.com ([66.224.33.161]:55430 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263211AbTJKCKA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 22:10:00 -0400
+Date: Fri, 10 Oct 2003 19:13:07 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: --- <grundig@teleline.es>
+Cc: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.7 "thoughts"] V0.3
+Message-ID: <20031011021307.GH727@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	--- <grundig@teleline.es>,
+	"Frederick, Fabian" <Fabian.Frederick@prov-liege.be>,
+	linux-kernel@vger.kernel.org
+References: <D9B4591FDBACD411B01E00508BB33C1B01F24E98@mesadm.epl.prov-liege.be> <20031011040435.299bd3bc.grundig@teleline.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031011040435.299bd3bc.grundig@teleline.es>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Oct 2003, J.A. Magallon wrote:
+On Sat, Oct 11, 2003 at 04:04:35AM +0200, --- wrote:
+> On thing me (as a user) would like to see is more user limits.
+> In particular; a (small) per-user mlock limit would be nice so a normal user
+> can mlock some memory to avoid buffer underruns without needing to give suid
+> permissions to cdrecord (which is what people uses now and guarantees you'll
+> have to update your cdrecord copy some day due to unavoidable security issues).
+> I wonder if this is a good wishlist item or just a stupid idea...
 
-> I have and (oldie...) SuperMicro P6DGU mobo with ACPI, but the kernel says
-> it is too old (before 99, I think...).
-> 
-> Why are this BIOSes blacklisted ?
+cdrecord doesn't make sense because it requires privilege for device
+access anyway.
 
-Because it's a hit and miss affair with the older bioses, so we just play 
-it safe and don't run on them. Microsoft Windows does the same thing iirc.
 
+-- wli

@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVB1AaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVB1Aba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVB1AaN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 19:30:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVB1AaM
+	id S261518AbVB1Aba (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 19:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVB1Aba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 19:30:12 -0500
-Received: from www.rapidforum.com ([80.237.244.2]:41374 "HELO rapidforum.com")
-	by vger.kernel.org with SMTP id S261254AbVB1AaF (ORCPT
+	Sun, 27 Feb 2005 19:31:30 -0500
+Received: from ns1.g-housing.de ([62.75.136.201]:12269 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261518AbVB1AbG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 19:30:05 -0500
-Message-ID: <42226607.6020803@rapidforum.com>
-Date: Mon, 28 Feb 2005 01:29:59 +0100
-From: Christian Schmid <webmaster@rapidforum.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
-X-Accept-Language: de, en
+	Sun, 27 Feb 2005 19:31:06 -0500
+Message-ID: <42226647.4040000@g-house.de>
+Date: Mon, 28 Feb 2005 01:31:03 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050212)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Slowdown on high-load machines with 3000 sockets
-References: <4221FB13.6090908@rapidforum.com> <Pine.LNX.4.61.0502271216050.19979@chimarrao.boston.redhat.com> <Pine.LNX.4.61.0502271606220.19979@chimarrao.boston.redhat.com> <422239A8.1090503@rapidforum.com> <Pine.LNX.4.61.0502271830380.19979@chimarrao.boston.redhat.com> <42225B34.7020104@rapidforum.com> <Pine.LNX.4.61.0502271905270.19979@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.61.0502271905270.19979@chimarrao.boston.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+CC: dhowells@redhat.com
+Subject: unsupported PCI PM caps (again?)
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I already tried with 300 KB and even used a perl-hash as a horrible-slow buffer for a 
-readahead-replacement. It still slowed down on the syswrite to the socket. Thats the strange thing.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Rik van Riel wrote:
-> On Mon, 28 Feb 2005, Christian Schmid wrote:
-> 
-> 
->>No i am only using 4 tasks with Poll-API and non-blocking sockets. Every
->>socket gets a 1 MB read-ahead. This are 4000 MB Max on a 8 GB machine....
->>Shouldnt thrash.
-> 
-> 
-> If nothing else on the system uses any memory, and there
-> were no memory zones and no division into active and
-> inactive memory.
-> 
-> You may want to try a smaller readahead window and see if
-> your system still has trouble with the load.
-> 
+hi,
+
+i'm running 2.6.11-rc2-bk10 and still get my syslog clobbered with
+messages like this:
+
+PCI: 0000:00:0c.0 has unsupported PM cap regs version (1)
+
+$ lspci | grep 0000:00:0c.0
+0000:00:0c.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX
+[Cyclone] (rev 30)
+
+so everytime i "use" my eth0, a few more messages appear. 2.6.11-rc2-bk10
+was released on Feb 2 i think, but "bk changes" reveals:
+
+ChangeSet@1.1966.62.6, 2005-01-14 15:58:36-08:00, dhowells@redhat.com
+  [PATCH] PCI: Downgrade printk that complains about unsupported PCI PM
+          caps
+
+my network card is working fine, what can i do to disable these messages?
+i am NOT using APM or ACPI.
+
+thanks,
+Christian.
+- --
+BOFH excuse #293:
+
+You must've hit the wrong any key.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCImZG+A7rjkF8z0wRAoe/AJ0dwH0rnyI3yl/ksC3gk4WgUHsRTwCeO2xd
+JITpm9r9n+Y+BcAxiuVFiAQ=
+=wF1U
+-----END PGP SIGNATURE-----

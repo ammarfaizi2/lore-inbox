@@ -1,72 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262699AbUCJVSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 16:18:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbUCJVR6
+	id S262844AbUCJVRd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 16:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUCJVPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 16:17:58 -0500
-Received: from 69-90-55-107.fastdsl.ca ([69.90.55.107]:50365 "EHLO
-	TMA-1.brad-x.com") by vger.kernel.org with ESMTP id S262699AbUCJVQH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 16:16:07 -0500
-Message-ID: <404F85A6.6070505@brad-x.com>
-Date: Wed, 10 Mar 2004 16:16:22 -0500
-From: Brad Laue <brad@brad-x.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040307
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ksoftirqd using mysteriously high amounts of CPU time
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Mar 2004 16:15:22 -0500
+Received: from legolas.restena.lu ([158.64.1.34]:63139 "EHLO smtp.restena.lu")
+	by vger.kernel.org with ESMTP id S262835AbUCJVOu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 16:14:50 -0500
+Subject: Re: a7n8x-x & i2c
+From: Craig Bradney <cbradney@zip.com.au>
+To: backblue <backblue@netcabo.pt>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040310195608.54635d8b.backblue@netcabo.pt>
+References: <20040310185047.454779fc.backblue@netcabo.pt>
+	 <1078945499.8828.10.camel@athlonxp.bradney.info>
+	 <20040310195608.54635d8b.backblue@netcabo.pt>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-euddTfmy6osoK2V0NeMA"
+Message-Id: <1078953283.8828.24.camel@athlonxp.bradney.info>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 10 Mar 2004 22:14:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings, all
 
-I'm running into an issue where ksoftirqd/0 consumes a considerably 
-larger amount of CPU time  than it should, and begins to actively 
-consume 99% CPU time during network operations.
+--=-euddTfmy6osoK2V0NeMA
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I've done my best to diagnose this, but it has followed me from kernel 
-2.4.20 to 2.6.3 and all versions in between, on three different server 
-systems with distinct hardware configurations.
+Ok, thought you might have had the nForce2 bug issue as well. Perhaps
+you haave already patched for that.
 
-The latest system to be affected by this takes considerably longer to 
-have trouble, but this is only due to its sheer muscle to begin with (2x 
-MP 2800+), but does indeed appear. After 55 days of uptime:
+Craig
 
-5 root      34  19     0    0    0 S  0.0  0.0   0:21.40 ksoftirqd_CPU0
-6 root      34  19     0    0    0 S  0.0  0.0   0:36.31 ksoftirqd_CPU1
+On Wed, 2004-03-10 at 20:56, backblue wrote:
+> It only crashes with i2c, the kernel it's working nicelly, at the moment,=
+ but without i2c, if i compile it with i2c build in, it crashes.
+>=20
+> On Wed, 10 Mar 2004 20:05:00 +0100
+> Craig Bradney <cbradney@zip.com.au> wrote:
+>=20
+> > Hi,
+> >=20
+> > > I have compiled 2.6.3, with i2c suporte for my chipset "nforce2" to t=
+he board asus a7n8x-x, but, it crashes my box all the time, dont know why!
+> > > But it only crashes after login and a couple of minutes working...
+> > > any one know womething about this?
+> >=20
+> > Is the crash only with i2c or are you just trying linux on this board?
+> >=20
+> > Craig
+> >=20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
+n
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>=20
 
-Compare this to another machine which I don't run myself:
+--=-euddTfmy6osoK2V0NeMA
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-3 root      19  19     0    0    0 S  0.0  0.0   0:09.86 ksoftirqd_CPU0
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-There are peculiarities to my configuration which are shared on all the 
-affected machines - the use of PPPoE to connect is one example. However 
-on one of the affected systems a second network interface was subjected 
-to heavy NFS traffic over simple ethernet and exhibited the same 
-behavior. Another shared trait is a firewall ruleset I've written for 
-the machines, which I can attach if someone would like to see them.
+iD8DBQBAT4VDi+pIEYrr7mQRAnDEAJ9Xld78EJeM/+WJbMHB2Z9DpxLWQwCgnnCO
+70UNyX4gXToizCoy8tcaY2s=
+=yqQ5
+-----END PGP SIGNATURE-----
 
-The three configurations include:
+--=-euddTfmy6osoK2V0NeMA--
 
-K6-2 500MHz
-Ne2K, RealTek 8139
-
-Duron 900MHz
-SiS 900, RealTek 8139
-
-2x Athlon MP 2800+
-3com 3c905b 10/100+
-
-The issue begins with ksoftirqd consuming more time than usual, and ends 
-after four to twelve weeks depending on how powerful the machine, with 
-the machine crippled and unable to sustain network traffic of any kind. 
-Any assistance on where to look for solutions to this kind of problem 
-would be GREATLY appreciated.
-
-Thanks in advance!
-
-Brad

@@ -1,100 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268042AbTBYQyW>; Tue, 25 Feb 2003 11:54:22 -0500
+	id <S268061AbTBYRBk>; Tue, 25 Feb 2003 12:01:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268050AbTBYQyW>; Tue, 25 Feb 2003 11:54:22 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:5854 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S268042AbTBYQyU>; Tue, 25 Feb 2003 11:54:20 -0500
-Date: Tue, 25 Feb 2003 11:04:24 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Replacement for "make SUBDIRS=...." in 2.5.63?
-In-Reply-To: <200302250633.WAA06979@adam.yggdrasil.com>
-Message-ID: <Pine.LNX.4.44.0302251039080.13501-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268050AbTBYRBk>; Tue, 25 Feb 2003 12:01:40 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:16566 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S268091AbTBYRBh>;
+	Tue, 25 Feb 2003 12:01:37 -0500
+Message-Id: <200302251711.h1PHBct16624@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Chris Wedgwood <cw@f00f.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       cliffw@osdl.org
+Subject: Re: Minutes from Feb 21 LSE Call 
+In-Reply-To: Message from "Martin J. Bligh" <mbligh@aracnet.com> 
+   of "Mon, 24 Feb 2003 22:17:05 PST." <13760000.1046153824@[10.10.2.4]> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 25 Feb 2003 09:11:38 -0800
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Feb 2003, Adam J. Richter wrote:
-
-> 	I see that if I do something like "make SUBDIRS=net/ipv4 modules",
-> I get warnings like:
+> >> _If_ it harms performance on small boxes.
+> > 
+> > You mean like the general slowdown from 2.4 - >2.5?
+> > 
+> > It seems to me for small boxes, 2.5.x is margianlly slower at most
+> > things than 2.4.x.
 > 
-> *** Warning: Overriding SUBDIRS on the command line can cause inconsistencies
-> *** Uh-oh, you have stale module entries. You messed with SUBDIRS
+> Can you name a benchmark, or at least do something reproducible between
+> versions, and produce a 2.4 vs 2.5 profile? Let's at least try to fix it ...
+> 
+> M.
 
-The first warning only explicitly states a fact which has always been 
-true: If you hide information from kbuild by not letting it descend into 
-all subdirectories (but only the ones you specified on the command line), 
-you do not get a guarantee that everything is properly up-to-date.
+Well, here's one bit of data. Easy enough to do if you have a web browser.
+LMBench 2.0 on 1-way and 2-way, kernels 2.4.18 and 2.5.60 
+1-way (stp1-003 stp1-002) 
+2.4.18 http://khack.osdl.org/stp/7443/
+2.5.60 http://khack.osdl.org/stp/265622/ 
 
-Simple example: After "make clean", you do "make SUBDIRS=drivers vmlinux" 
-- it'll break, since the final link wants to link in kernel/built-in.o, 
-mm/built-in.o, ... which just don't exist.
+2-way (stp2-003 stp2-000)
+2.4.18 http://khack.osdl.org/stp/3165/
+2.5.60 http://khack.osdl.org/stp/265643/
 
-In that case the breakage is obvious, but it can be more subtle, e.g. when 
-you change CONFIG_PREEMPT and then only do "make SUBDIRS=drivers vmlinux",
-the drivers subtree will be built with CONFIG_PREEMPT set one way and
-the rest will still be around with CONFIG_PREEMPT set the other way. The 
-end result is an inconsistent and most likely broken vmlinux. 
+Interesting items for me are the fork/exec/sh times and some of the file + VM 
+numbers
+LMBench 2.0 Data ( items selected from total of five runs )
 
-So basically, the SUBDIRS warning reminds you that you better know what 
-you're doing, and if you don't, you shouldn't play with the internals of 
-kbuild (which SUBDIRS is). BTW, an entire pass through all dirs takes only 
-about 4 secs here (when there's nothing to do), so the gain you can get 
-from excluding part of the tree is rather limited anyway.
+Processor, Processes - times in microseconds - smaller is better
+----------------------------------------------------------------
+Host                 OS  Mhz null null      open selct sig  sig  fork exec sh
+                             call  I/O stat clos TCP   inst hndl proc proc proc
+--------- ------------- ---- ---- ---- ---- ---- ----- ---- ---- ---- ---- ----
+stp2-003.  Linux 2.4.18 1000 0.39 0.67 3.89 4.99  30.4 0.93 3.06 344. 1403 4465
+stp2-000.  Linux 2.5.60 1000 0.41 0.77 4.34 5.57  32.6 1.15 3.59 245. 1406 5795
 
-> 	What is the proper way to rebuild just one subdirectory?  How
-> about for building externally provided modules?  Is this is a new
-> limitation of kbuild?  If so, I think it will reduce my productivity,
-> and probably developer productivity on average.  I need to rebuild
-> small sets of modules or core kernel subdirectories frequently.  I'd
-> like to know what benefits I get from this so that I can measure
-> whether this really saves me time somehow.
+stp1-003.  Linux 2.4.18 1000 0.32 0.46 2.60 3.21  16.6 0.79 2.52 104. 918. 4460
+stp1-002.  Linux 2.5.60 1000 0.33 0.47 2.83 3.47  16.0 0.94 2.70 143. 1212 5292
 
-The proper way is "make vmlinux/modules". If you are sure that nothing 
-changed outside of that directory, make SUBDIRS=... is fine, but since 
-kbuild cannot know that nothing else changed (you just prohibited checking 
-the other dirs), it'll give the warning.
+Context switching - times in microseconds - smaller is better
+-------------------------------------------------------------
+Host                 OS 2p/0K 2p/16K 2p/64K 8p/16K 8p/64K 16p/16K 16p/64K
+                        ctxsw  ctxsw  ctxsw ctxsw  ctxsw   ctxsw   ctxsw
+--------- ------------- ----- ------ ------ ------ ------ ------- -------
+stp2-003.  Linux 2.4.18 2.680 6.2100   15.8 7.9400  110.7    26.4   111.1
+stp2-000.  Linux 2.5.60 1.590 5.0700   17.6 7.5800   79.8    11.0   113.6
 
-> 	I suspect that this was added to support putting module
-> dependencies into the ".ko" files, which might be underlying issue
-> that needs a cost/benefit review, but perhaps there is some other
-> factor that I'm just unaware of.
+stp1-003.  Linux 2.4.18 0.590 3.4700   11.1 4.8200  134.3    30.8   131.7
+stp1-002.  Linux 2.5.60 1.000 3.5400   11.2 4.1400  129.6    30.4   127.8
 
-As I said, the warning only states what was always true. However, the
-reason it was added now is that the module postprocessing step needs a
-list of all modules to get symbol versioning right (and it needs to be
-sure that all those modules are up-to-date w.r.t the current .config etc).
+*Local* Communication latencies in microseconds - smaller is better
+-------------------------------------------------------------------
+Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
+                        ctxsw       UNIX         UDP         TCP conn
+--------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
+stp2-003.  Linux 2.4.18 2.680 9.071 17.5  26.9  46.2  34.4  60.0 62.9
+stp2-000.  Linux 2.5.60 1.590 8.414 13.2  21.2  43.2  28.3  54.1 97.1
 
-In particular, if you add SUBDIRS=... to the command line, kbuild cannot 
-know about the modules which exist in other subdirectories. So for now, it 
-just re-uses the list of modules from the last time and adds the modules
-built in $(SUBDIRS) to that list. In this case, kbuild has no means
-to verify that the modules from the old list are still up-to-date (.config 
-might have changed). It's even possible that they don't exist anymore. The 
-latter case is detectable, and that's when you get the "Uh-oh, you have 
-stale module entries" warning.
+stp1-003.  Linux 2.4.18 0.590 3.623 6.98  11.7  28.2  17.8  38.4 300K
+stp1-002.  Linux 2.5.60 1.050 4.591 8.54  14.8  31.8  20.0  41.0 67.1
 
-Adding dependency information at this stage just comes for free, as does
-checking for unresolved symbols, that's why it's done as well. It's the
-same thing which happens when running depmod. However, while it's fine for 
-depmod to run at any later time (like the next boot), the module version 
-postprocessing has to happen inside kbuild to guarantee that things are
-up-to-date before recording checksums. Doing modversions within depmod 
-would mean that all checksums always perfectly match, which makes them
-kinda pointless...
+File & VM system latencies in microseconds - smaller is better
+--------------------------------------------------------------
+Host                 OS   0K File      10K File      Mmap    Prot    Page
+                        Create Delete Create Delete  Latency Fault   Fault
+--------- ------------- ------ ------ ------ ------  ------- -----   -----
+stp2-003.  Linux 2.4.18   34.6 7.2490  110.9   17.9   2642.0 0.771 3.00000
+stp2-000.  Linux 2.5.60   40.0 9.2780  113.3   23.3   4592.0 0.543 3.00000
 
-I hope that clarifies things a bit. As I wrote earlier, I'll come up with 
-a proper and simple way to build external modules once I find the time.
+stp1-003.  Linux 2.4.18   28.8 4.8890  107.5   11.3    686.0 0.621 2.00000
+stp1-002.  Linux 2.5.60   32.4 6.4290  112.9   16.2   1455.0 0.465 2.00000
 
---Kai
+*Local* Communication bandwidths in MB/s - bigger is better
+-----------------------------------------------------------
+Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
+                             UNIX      reread reread (libc) (hand) read write
+--------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- -----
+stp2-003.  Linux 2.4.18 563. 277. 263.  437.0  552.8  249.1  180.7 553. 215.2
+stp2-000.  Linux 2.5.60 603. 516. 151.  436.3  549.0  238.0  171.9 548. 233.7
+
+stp1-003.  Linux 2.4.18 1009 820. 404.  414.3  467.0  167.2  154.1 466. 236.2
+stp1-002.  Linux 2.5.60 806. 584. 69.1  408.0  461.7  161.1  149.1 461. 233.5
 
 
+Memory latencies in nanoseconds - smaller is better
+    (WARNING - may not be correct, check graphs)
+---------------------------------------------------
+Host                 OS   Mhz  L1 $   L2 $    Main mem    Guesses
+--------- -------------  ---- ----- ------    --------    -------
+stp2-003.  Linux 2.4.18  1000 3.464 8.0820  110.9
+stp2-000.  Linux 2.5.60  1000 3.545 8.2790  110.6
 
+stp1-003.  Linux 2.4.18  1000 2.994 6.9850  121.4
+stp1-002.  Linux 2.5.60  1000 3.023 7.0530  122.5
+
+------------------
+cliffw
+
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 

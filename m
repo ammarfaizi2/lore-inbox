@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269481AbRIML5Y>; Thu, 13 Sep 2001 07:57:24 -0400
+	id <S269739AbRIMMAx>; Thu, 13 Sep 2001 08:00:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269646AbRIML5N>; Thu, 13 Sep 2001 07:57:13 -0400
-Received: from skiathos.physics.auth.gr ([155.207.123.3]:6720 "EHLO
-	skiathos.physics.auth.gr") by vger.kernel.org with ESMTP
-	id <S269481AbRIML5F>; Thu, 13 Sep 2001 07:57:05 -0400
-Date: Thu, 13 Sep 2001 14:57:26 +0300 (EET DST)
-From: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Stomping on Athlon bug (fwd)
-Message-ID: <Pine.GSO.4.21.0109131456230.10198-100000@skiathos.physics.auth.gr>
+	id <S269726AbRIMMAn>; Thu, 13 Sep 2001 08:00:43 -0400
+Received: from motgate4.mot.com ([144.189.100.102]:36299 "EHLO
+	motgate4.mot.com") by vger.kernel.org with ESMTP id <S269739AbRIMMAh>;
+	Thu, 13 Sep 2001 08:00:37 -0400
+Message-ID: <3BA0A0D0.19E0E76F@mihy.mot.com>
+Date: Thu, 13 Sep 2001 17:34:32 +0530
+From: csaradap <csaradap@mihy.mot.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-india-help@lists.sourceforge.net" 
+	<linux-india-help@lists.sourceforge.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: junk values at ppplogin
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am configuring a ppp link over null modem. When I am trying to login I
+get junk values like
 
+~Ъ}#ю!}!}!} }4}"}&} } } } }%}&*}]щH}'}"}(}"иб~~Ъ}#ю!}!}!} }4}"}&} } } }
+}%}&*}]щH}'}"}(}"иб~~Ъ}#ю!}!}!} }4}"}&} } } }
+}%}&*}]щH}'}"}(}"иб~~Ъ}#ю!}!}!} }4}"}&} } } }
+}%}&*}]щH}'}"}(}"иб~~Ъ}#ю!}!}!} }4}"}&} } } }
+}%}&*}]щH}'}"}(}"иб~~Ъ}#ю!}!}!} }4}"}&} } } }
+}%}&*}]щH}'}"}(}"иб~~Ъ}#ю!}!}!} }4}"}&} } } }
+}%}&*}]щH}'}"}(}"иб~~Ъ}#ю!}!}!} }4}"}&} } } }
+}%}&*}]щH}'}"}(}"иб~~Ъ}#ю!}!}!} }4}"}&} } } }
+}%}&*}]щH}'}"}(}"иб~~Ъ}#ю!}!}!} }4}"}&} } } } }%}&*}]щH}'}"}(}"иб~
 
----------- Forwarded message ----------
-Date: Thu, 13 Sep 2001 13:52:51 +0200 (CEST)
-From: Gergely Tamas <dice@mfa.kfki.hu>
-To: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
-Cc: Gergely Tamas <dice@mfa.kfki.hu>
-Subject: Re: Stomping on Athlon bug
+Can any body tell me what is the problem???
 
-Hi!
+thanx
 
- > What you are still not telling is if you have it working or not with this
- > bios version....
-
-I wrote it in the first mail (I think). 3C works fine for me, but 3R
-freezes the system with memory related error messages at init.
-
-Gergely
-
-
-
-
+cspn
 

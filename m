@@ -1,107 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129740AbQK2HrN>; Wed, 29 Nov 2000 02:47:13 -0500
+        id <S130272AbQK2Hux>; Wed, 29 Nov 2000 02:50:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130272AbQK2HrD>; Wed, 29 Nov 2000 02:47:03 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:61154 "EHLO
-        horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-        id <S129414AbQK2Hq6>; Wed, 29 Nov 2000 02:46:58 -0500
-Message-ID: <3A24AE13.9A27C292@uow.edu.au>
-Date: Wed, 29 Nov 2000 18:19:47 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test11-ac4 i586)
-X-Accept-Language: en
+        id <S130439AbQK2Hun>; Wed, 29 Nov 2000 02:50:43 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:5813 "EHLO cs.columbia.edu")
+        by vger.kernel.org with ESMTP id <S130272AbQK2Hud>;
+        Wed, 29 Nov 2000 02:50:33 -0500
+Date: Tue, 28 Nov 2000 23:20:05 -0800 (PST)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
+In-Reply-To: <3A24AB70.3E9C1B1F@haque.net>
+Message-ID: <Pine.LNX.4.21.0011282316490.29520-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: OOps in exec_usermodehelper
-In-Reply-To: <E29780A2645@vcnet.vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
-> 
-> On 29 Nov 00 at 1:53, Andrew Morton wrote:
-> 
-> > hmm..  Quite a few things fixed here.
-> >
-> > Could you please test this patch?  It's against 2.4.0-test12-pre2,
-> > should be OK against test11.
-> 
-> I upgraded to 12-pre2 already ;-) It looks like that it works.
+On Wed, 29 Nov 2000, Mohammad A. Haque wrote:
 
-Yup.  It works.
+> [mhaque@viper mhaque]$ df
+> Filesystem           1k-blocks      Used Available Use% Mounted on
+> /dev/hda3             12737128   9988400   2101712  83% /
+> /dev/hda2                46668     15106     29153  35% /boot
+> /dev/hdd1             44327416  26319188  15756484  63% /home2
+> none                   8388608     11944   8376664   1% /dev/shm
 
-> > - keventd is now capable of reaping dead children.  I will be all ears
-> >   if someone can tell me how to get a kernel thread to accept signals
-> >   without having to install a handler with
-> >
-> >     sa.sa_handler = (__sighandler_t)100;
-> 
-> Is there any reason why not set sa.sa_handler to SIG_IGN?
+No, you misunderstood me. df is always going to say 1k-blocks, but that
+doesn't mean that the filesystem's allocation unit is actually 1k.
 
-Nope.  SIG_IGN works well for SIGCHLD, which is special-cased
-for the reasons which you identify.  Thanks.
+Try doing a tune2fs -l on the device holding the filesystem and grep for
+"Block size". Although... looking at the numbers above, it's almost
+certainly 4k.
 
-> According
-> to arch/i386/kernel/signal.c:do_signal(), signal manpage and my memory,
-> kernel does automatic child reaping in such configuration. So you
-> could even remove waitpid() loop from keventd. I did not tried it yet,
-> but it looks like obvious solution...
+> Yes, exactly 4096 nulls.
 
-Unfortunately this doesn't work for kernel threads.
+That's what I thought... thanks.
 
-do_signal()
-{
-	...
-        /*
-         * We want the common case to go fast, which
-         * is why we may in certain cases get here from
-         * kernel mode. Just return without doing anything
-         * if so.
-         */
-        if ((regs->xcs & 3) != 3)
-		return 1;
-	...
-	<child reaping code goes here>
+Ion
 
-I suspect all the fancy signal frame assembly would blow up if it
-tried to build a frame on a kernel stack.  Not sure...
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 
-do_signal() could be altered to do the reaping even for kernel
-threads, but that means touching every arch and it's not The Right Way.
-
-Similarly, the kernel thread could be reparented to init via
-REMOVE_LINKS/SET_LINKS but again, I didn't want to commit a
-layering violation just because proper signal and task management
-for kernel threads is tricky.
-
-> BTW, are you sure that kernel does not try to deliver SIGSEGV to
-> keventd() when signal arrives. It looks like that it should, but it
-> probably fails somewhere during way due to non-existent userspace for
-> this process.
-
-Well, the fault handler exception table walker will see we're running
-a kernel thread and will force an oops.  Plus SIGSEGV is blocked...
-
-> > +   sa.sa.sa_handler = (__sighandler_t)100;     /* Surely there's a better way? */
-> > +   sa.sa.sa_flags = 0;
-> 
-> SA_RESTART?
-
-That's handled during signal delivery.  Kernel threads don't get that
-far.
-
-> SA_NOCLDSTOP ?
-
-Kernel threads can block SIGSTOP :)
-
-
-BTW, quite a lot of the modprobe-specific stuff can probably now
-be thrown away - it can use this version of call_usermodehelper().
-But that's not a bug.   Next time..
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

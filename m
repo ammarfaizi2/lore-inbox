@@ -1,50 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264153AbUGHQpS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264697AbUGHQy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264153AbUGHQpS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 12:45:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbUGHQpS
+	id S264697AbUGHQy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 12:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264723AbUGHQy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 12:45:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:35254 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264153AbUGHQpO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 12:45:14 -0400
-Date: Thu, 8 Jul 2004 09:44:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: ck@vds.kolivas.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Autotune swappiness
-Message-Id: <20040708094406.2b0293ea.akpm@osdl.org>
-In-Reply-To: <40ED7534.4010409@kolivas.org>
-References: <40EC13C5.2000101@kolivas.org>
-	<40EC1930.7010805@comcast.net>
-	<40EC1B0A.8090802@kolivas.org>
-	<20040707213822.2682790b.akpm@osdl.org>
-	<cone.1089268800.781084.4554.502@pc.kolivas.org>
-	<20040708001027.7fed0bc4.akpm@osdl.org>
-	<cone.1089273505.418287.4554.502@pc.kolivas.org>
-	<20040708010842.2064a706.akpm@osdl.org>
-	<40ED7534.4010409@kolivas.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 8 Jul 2004 12:54:59 -0400
+Received: from neptune.fsa.ucl.ac.be ([130.104.233.21]:19083 "EHLO
+	neptune.fsa.ucl.ac.be") by vger.kernel.org with ESMTP
+	id S264697AbUGHQy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 12:54:57 -0400
+Message-ID: <40ED7C51.90103@246tNt.com>
+Date: Thu, 08 Jul 2004 18:54:41 +0200
+From: Sylvain Munaut <tnt@246tnt.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040404)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>,
+       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 1/2] Freescale MPC52xx support for 2.6 - Base part
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
-> Here is another try at providing feedback to tune the vm_swappiness.
+This patch adds support for the Freescale MPC5200 and it's LITE5200 platform.
+Only basic boot support is included here.
 
-I spent some time yesterday trying to demonstrate performance improvements
-from those two patches.  Using
+Signed-off-by: Sylvain Munaut <tnt@246tNt.com>
 
-	make -j4 vmlinux with mem=64m
 
-and
+The complete patch set is composed of two parts parts : 
+ - [1/2] The base/core part ( include/asm-ppc & arch/ppc )
+ - [2/2] The serial driver part ( include/linux & driver/serial )
+They have to be applied in order.
 
-	qsbench -p 4 -m 96 with mem=256m
 
-and was not able to do so, which is what I expected.
 
-We do need more quantitative testing on this work.
+Due to the size of the patch (>80k), it's not inlined or attached. It's available from either :
+
+ - bksend generated patch : http://www.246tNt.com/linux-2.5-mpc52xx-pending-main.bksend
+ - diff -urN style patch  : http://www.246tNt.com/linux-2.5-mpc52xx-pending-main.diff
+ - bk tree ( contains both patchs ) : bk://bkbits.246tNt.com/linux-2.5-mpc52xx-pending
+
+
+diffstat is included :
+
+===================================================================
+
+
+ChangeSet@1.1819, 2004-07-08 16:11:09+02:00, tnt@246tNt-laptop.lan.ayanami.246tNt.com
+  Add basic support for the Freescale MPC52xx embedded CPU and the LITE5200 platform.
+
+  Signed-off-by: Sylvain Munaut <tnt@246tNt.com>
+
+
+ Documentation/powerpc/mpc52xx.txt   |   48 +++
+ arch/ppc/Kconfig                    |   28 +-
+ arch/ppc/boot/common/misc-common.c  |   10
+ arch/ppc/boot/simple/Makefile       |    7
+ arch/ppc/boot/simple/mpc52xx_tty.c  |  138 +++++++++++
+ arch/ppc/configs/lite5200_defconfig |  436 ++++++++++++++++++++++++++++++++++++
+ arch/ppc/kernel/cputable.c          |    4
+ arch/ppc/platforms/Makefile         |    1
+ arch/ppc/platforms/lite5200.c       |  152 ++++++++++++
+ arch/ppc/platforms/lite5200.h       |   23 +
+ arch/ppc/platforms/mpc5200.c        |   29 ++
+ arch/ppc/syslib/Makefile            |    1
+ arch/ppc/syslib/mpc52xx_pic.c       |  252 ++++++++++++++++++++
+ arch/ppc/syslib/mpc52xx_setup.c     |  228 ++++++++++++++++++
+ include/asm-ppc/mpc52xx.h           |  380 +++++++++++++++++++++++++++++++
+ include/asm-ppc/mpc52xx_psc.h       |  191 +++++++++++++++
+ include/asm-ppc/ocp_ids.h           |    1
+ include/asm-ppc/ppcboot.h           |    7
+ 18 files changed, 1921 insertions(+), 15 deletions(-)
+

@@ -1,122 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267545AbTBLP4V>; Wed, 12 Feb 2003 10:56:21 -0500
+	id <S267558AbTBLQCF>; Wed, 12 Feb 2003 11:02:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267530AbTBLP4V>; Wed, 12 Feb 2003 10:56:21 -0500
-Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:29206 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S267545AbTBLP4R>;
-	Wed, 12 Feb 2003 10:56:17 -0500
-Message-ID: <3E4A70EA.4020504@mvista.com>
-Date: Wed, 12 Feb 2003 10:06:02 -0600
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
-X-Accept-Language: en-us, en
+	id <S267578AbTBLQCF>; Wed, 12 Feb 2003 11:02:05 -0500
+Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:22400 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S267558AbTBLQCD>; Wed, 12 Feb 2003 11:02:03 -0500
+Date: Wed, 12 Feb 2003 10:11:32 -0600 (CST)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@localhost.localdomain
+To: James Simmons <jsimmons@infradead.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: problems with console configuration
+In-Reply-To: <Pine.LNX.4.44.0302121556090.31435-100000@phoenix.infradead.org>
+Message-ID: <Pine.LNX.4.44.0302121000590.9224-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: suparna@in.ibm.com, Kenneth Sumrall <ken@mvista.com>,
-       linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net
-Subject: Re: Kexec, DMA, and SMP
-References: <3E448745.9040707@mvista.com> <m1isvuzjj2.fsf@frodo.biederman.org>	<3E45661A.90401@mvista.com> <m1d6m1z4bk.fsf@frodo.biederman.org>	<20030210174243.B11250@in.ibm.com>	<m18ywoyq78.fsf@frodo.biederman.org> <20030211182508.A2936@in.ibm.com>	<20030211191027.A2999@in.ibm.com> <3E490374.1060608@mvista.com>	<20030211201029.A3148@in.ibm.com> <3E4914CA.6070408@mvista.com>	<m1of5ixgun.fsf@frodo.biederman.org> <3E4A578C.7000302@mvista.com> <m13cmty2kq.fsf@frodo.biederman.org>
-In-Reply-To: <m13cmty2kq.fsf@frodo.biederman.org>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 12 Feb 2003, James Simmons wrote:
 
-Eric W. Biederman wrote:
+> The console system is layered on top of the input layer. Now all keyboards 
+> are being ported over to one api. This is a plus :-)
 
-|Corey Minyard <cminyard@mvista.com> writes:
-|
-|>Eric W. Biederman wrote:
-|>
-|>|Corey Minyard <cminyard@mvista.com> writes:
-|>|
-|>|>
-|>|>You don't understand.  You don't *want* to set aside a block of 
-memory that's
-|>|>reserved for DMA.  You want to be able to DMA directly into any user 
-address.
-|>|>Consider demand paging.  The performance would suck if you DMA into some
-|>|>fixed region then copied to the user address.  Plus you then have 
-another
-|>|>resource you have to manage in the kernel.  And you still have to 
-change all
-|>|>the drivers, buffer management, etc. to add a flag that says "I'm 
-going to use
-|>
-|>|>this for DMA" to allocations.  You might as well add the quiesce 
-function,
-|>it's
-|>
-|>|>probably easier to do.  And it doesn't help if you DMA to static memory
-|>|>addresses.
-|>|>
-|>|>I, too, would like a simpler solution.  I just don't think this is it.
-|>|
-|>|
-|>|You have it backwards.  It is not about reserving a block of memory
-|>|for DMA.  It is about reserving a block of memory to not do DMA in.
-|>|Something like 4MB or so.  |
-|>|The idea is not to let the original kernel touch the reserved block 
-at all.
-|>|We just put the kernel that kexec will start in that block of memory.
-|>|
-|>|Eric
-|>|
-|>Ah, it makes much more sense now.  Thank you.  I still don't think 
-it's as easy
-|>as you think, though.
-|>Because there's no designation on most memory allocations to give you this
-|>information.  There's
-|>GFP_DMA, but according to the docs that's just for x86 ISA DMA 
-devices.  You
-|>would
-|>have to hunt down all the memory allocations, figure out of they are 
-DMA targets
-|>
-|>or not, and add a
-|>flag for that.  I still say it's easier to just add the function to 
-the drivers.
-|
-|
-|It is trivial if you don't let alloc_pages give the memory to anyone for
-|any purpose.
+All good stuff, but I occasionally have problems seeing the video display 
+as an input device :)  It sometimes turns into an adventure syncing with 
+the latest bk archive and wondering what I need to do to get console and 
+keyboard.
 
-Ok, agreed, if you reserve a section of physical memory just for kexec 
-to copy it's kernel into, it will
-prevent DMA from clobbering something from the time kexec copies the 
-kernel there to the time
-decompressing starts.
-
-Another thought.  If you add a delay with all other processors and 
-interrupts off, the disk devices
-will run out of things to do.
-
-Once you add all the necessary quiesce functions, these can go away.
-
-I do doubt these will make a big difference, though.  The problem we 
-were seeing was with the
-shared control structures in memory.  The new kernel laid memory out a 
-little differently and
-things like buffer pointers were overwritten with new data.  This, in 
-turn, cause the device to
-do random things.  I would guess this is the most likely scenario, since 
-the time you are protecting
-against with the memory layout is small compared to the time spent booting.
-
-- -Corey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE+SnDpmUvlb4BhfF4RAruzAJ9Wts5ovfYf4Ncl+trn755L6JCc6QCfZffG
-xGMlv58qX1v3ue0iLwxMRaw=
-=aH5T
------END PGP SIGNATURE-----
-
+This is in addition to not getting bootup messages past the Uncompressing 
+Linux message.  The extreme weirdness is that when this happens, something 
+happens to the ext3 journal and I get a boot failure next reboot.
 

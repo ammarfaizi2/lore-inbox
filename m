@@ -1,164 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267889AbTAHVTF>; Wed, 8 Jan 2003 16:19:05 -0500
+	id <S267893AbTAHVUy>; Wed, 8 Jan 2003 16:20:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267891AbTAHVTF>; Wed, 8 Jan 2003 16:19:05 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:14744 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S267889AbTAHVTC>; Wed, 8 Jan 2003 16:19:02 -0500
-Date: Wed, 8 Jan 2003 21:27:42 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andi Kleen <ak@suse.de>, Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       Rusty Russell <rusty@rustcorp.com.au>, Daniel Ritz <daniel.ritz@gmx.ch>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH] kallsyms off-by-one and sorting
-Message-ID: <Pine.LNX.4.44.0301082117240.7004-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S267894AbTAHVUx>; Wed, 8 Jan 2003 16:20:53 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:24327 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S267893AbTAHVUw>; Wed, 8 Jan 2003 16:20:52 -0500
+Date: Wed, 8 Jan 2003 22:29:30 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+Message-ID: <20030108212930.GA12083@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200301050802.h0582u4214558@saturn.cs.uml.edu> <E18Vaoa-0002Pm-00@fencepost.gnu.org> <20030106173705.GP1386@work.bitmover.com> <E18Vtxy-0002c2-00@fencepost.gnu.org> <20030107142612.GO17602@work.bitmover.com> <E18WB8R-0004k9-00@fencepost.gnu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E18WB8R-0004k9-00@fencepost.gnu.org>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kallsyms was off-by-one, showing the preceding symbol name.  For
-example, if best index 0, no string was copied into the namebuf.
+On Wed, 08 Jan 2003, Richard Stallman wrote:
 
-And it seems odd to do stem compression on symbols sorted by value:
-save more space sorting by name.  It's harder then to avoid aliases
-for a value: but very few in kernel text, so scrap last_addr check.
+> When you take part of my statement, stretch it, interpret it based on
+> assumptions you know I disagree with, and present the result as
+> something I said, that doesn't prove anything.  It is childish.
+> 
+> There is no ethical obligation to mention secondary contributions
+> incorporated in a large project.  There ethical obligation is to cite
+> the main developer.  In the GNU/Linux system, the GNU Project is the
+> principal contributor; the system is more GNU than anything else,
+> and we started it.
 
-Against current BK: please apply.
+You overestimate your influence. Now please go invest your energy into
+something that a) is more likely to succeed, b) does not happen on this
+list.
 
-Hugh
-
---- 2.5.54-bk/Makefile	Thu Jan  2 09:06:03 2003
-+++ linux/Makefile	Wed Jan  8 20:46:44 2003
-@@ -355,7 +355,7 @@
- kallsyms.o := .tmp_kallsyms2.o
- 
- quiet_cmd_kallsyms = KSYM    $@
--cmd_kallsyms = $(NM) -n $< | scripts/kallsyms > $@
-+cmd_kallsyms = $(NM) $< | scripts/kallsyms > $@
- 
- .tmp_kallsyms1.o .tmp_kallsyms2.o: %.o: %.S scripts FORCE
- 	$(call if_changed_dep,as_o_S)
---- 2.5.54-bk/kernel/kallsyms.c	Wed Jan  8 20:14:29 2003
-+++ linux/kernel/kallsyms.c	Wed Jan  8 20:46:44 2003
-@@ -25,8 +25,6 @@
- 			    unsigned long *offset,
- 			    char **modname, char *namebuf)
- {
--	unsigned long i, best = 0;
--
- 	/* This kernel should never had been booted. */
- 	if ((void *)kallsyms_addresses == &kallsyms_dummy)
- 		BUG();
-@@ -35,32 +33,34 @@
- 	namebuf[0] = 0;
- 
- 	if (addr >= (unsigned long)_stext && addr <= (unsigned long)_etext) {
--		unsigned long symbol_end;
-+		unsigned long below = 0;
-+		unsigned long above = (unsigned long)_etext;
-+		unsigned long i, best = 0;
- 		char *name = kallsyms_names;
- 
--		/* They're sorted, we could be clever here, but who cares? */
- 		for (i = 0; i < kallsyms_num_syms; i++) {
--			if (kallsyms_addresses[i] > kallsyms_addresses[best] &&
--			    kallsyms_addresses[i] <= addr)
--				best = i;
-+			unsigned long kaddr = kallsyms_addresses[i];
-+			if (kaddr <= addr) {
-+				if (kaddr > below) {
-+					below = kaddr;
-+					best = i;
-+				}
-+			} else {
-+				if (kaddr < above)
-+					above = kaddr;
-+			}
- 		}
- 
- 		/* Grab name */
--		for (i = 0; i < best; i++) { 
-+		for (i = 0; i <= best; i++) {
- 			unsigned prefix = *name++;
- 			strncpy(namebuf + prefix, name, 127 - prefix);
- 			name += strlen(name) + 1;
- 		}
- 
--		/* Base symbol size on next symbol. */
--		if (best + 1 < kallsyms_num_syms)
--			symbol_end = kallsyms_addresses[best + 1];
--		else
--			symbol_end = (unsigned long)_etext;
--
--		*symbolsize = symbol_end - kallsyms_addresses[best];
-+		*symbolsize = above - below;
- 		*modname = NULL;
--		*offset = addr - kallsyms_addresses[best];
-+		*offset = addr - below;
- 		return namebuf;
- 	}
- 
---- 2.5.54-bk/scripts/kallsyms.c	Wed Jan  8 20:14:30 2003
-+++ linux/scripts/kallsyms.c	Wed Jan  8 20:46:44 2003
-@@ -5,7 +5,7 @@
-  * This software may be used and distributed according to the terms
-  * of the GNU General Public License, incorporated herein by reference.
-  *
-- * Usage: nm -n vmlinux | scripts/kallsyms > symbols.S
-+ * Usage: nm vmlinux | scripts/kallsyms > symbols.S
-  */
- 
- #include <stdio.h>
-@@ -91,7 +91,6 @@
- static void
- write_src(void)
- {
--	unsigned long long last_addr;
- 	int i, valid = 0;
- 	char *prev;
- 
-@@ -109,16 +108,12 @@
- 	printf(".globl kallsyms_addresses\n");
- 	printf("\tALGN\n");
- 	printf("kallsyms_addresses:\n");
--	for (i = 0, last_addr = 0; i < cnt; i++) {
-+	for (i = 0; i < cnt; i++) {
- 		if (!symbol_valid(&table[i]))
- 			continue;
- 		
--		if (table[i].addr == last_addr)
--			continue;
--
- 		printf("\tPTR\t%#llx\n", table[i].addr);
- 		valid++;
--		last_addr = table[i].addr;
- 	}
- 	printf("\n");
- 
-@@ -132,20 +127,16 @@
- 	printf("\tALGN\n");
- 	printf("kallsyms_names:\n");
- 	prev = ""; 
--	for (i = 0, last_addr = 0; i < cnt; i++) {
-+	for (i = 0; i < cnt; i++) {
- 		int k;
- 
- 		if (!symbol_valid(&table[i]))
- 			continue;
- 		
--		if (table[i].addr == last_addr)
--			continue;
--
- 		for (k = 0; table[i].sym[k] && table[i].sym[k] == prev[k]; ++k)
- 			; 
- 
- 		printf("\t.byte 0x%02x ; .asciz\t\"%s\"\n", k, table[i].sym + k);
--		last_addr = table[i].addr;
- 		prev = table[i].sym;
- 	}
- 	printf("\n");
-
+-- 
+Matthias Andree

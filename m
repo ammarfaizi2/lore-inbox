@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbVCXJm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262753AbVCXJyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262435AbVCXJm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 04:42:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262753AbVCXJm7
+	id S262753AbVCXJyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 04:54:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbVCXJyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 04:42:59 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:24517 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262435AbVCXJm4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 04:42:56 -0500
-Date: Thu, 24 Mar 2005 10:42:55 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: sounak chakraborty <sounakrin@yahoo.co.in>
-cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: sched.c  function
-In-Reply-To: <20050324093352.43916.qmail@web53307.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.61.0503241038530.27454@yvahk01.tjqt.qr>
-References: <20050324093352.43916.qmail@web53307.mail.yahoo.com>
+	Thu, 24 Mar 2005 04:54:16 -0500
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:42959 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S262753AbVCXJyM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 04:54:12 -0500
+Message-ID: <42428FCE.7070901@qazi.f2s.com>
+Date: Thu, 24 Mar 2005 10:00:46 +0000
+From: Asfand Yar Qazi <ay1204@qazi.f2s.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041010
+X-Accept-Language: en-gb, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: How's the nforce4 support in Linux?
+References: <3LwFC-4Ko-15@gated-at.bofh.it> <3LwYW-4Xx-11@gated-at.bofh.it> <3LwYZ-4Xx-25@gated-at.bofh.it>
+In-Reply-To: <3LwYZ-4Xx-25@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan van de Ven wrote:
+>>* "hardware firewall" -- sounds silly.  Pretty sure Linux doesn't support
+>>it in any case.
+>>
+> 
+> 
+> probably just one of those things implemented in the binary drivers in
+> software, just like the "hardware" IDE raid is most of the time (3ware
+> being the positive exception there)
+> 
 
->I had a wild idea to process one function that repeatedly checks the task list
->and find out which process is in which state
+http://www.neoseeker.com/Articles/Hardware/Previews/nvnforce4/3.html
 
-Why do not you do so, then? Note that on uniprocessors, all other tasks are
-suspended, so their state does not change in between.
+You're right there - some semi-hardware support combined with drivers 
+apparently result in lower CPU usage that software firewalls.  Apparently.
 
-Tasks do not change their state without holding a lock. (There is an exception,
-but it is justified.)
+Actually, these people like it:
+http://www.bjorn3d.com/read.php?cID=712&pageID=1096
 
->I can run for_each process after certain interval of time, but rather than
->using timer i thought to set a value or call the function (for_each_process)
->whenever sheduling occurs(that is some process is going to sleep and some are
->awakening) that is i am getting some changes in the task list after that..
+However one feature that you can't laugh at is the fact that it can be 
+made to block packets in the span of time between the OS being loaded 
+up, and the "real" firewall coming up.  This small time span 
+theoretically leaves the PC vulnerable, so I think this is the only 
+use for "ActiveAmor Firewall".
 
-So you want to record task state changes? That is better done at the right
-places in the kernel rather than traversing the task list repeatedly (the
-latter is not that performant).
-
->i am sorry if some of my concepts are wrong as i am new to kernel and would be
->obliged if you correct me thank for your help sounak
-
-I would be interested in the background: what do you need to know the task
-states for?
+However, this doesn't answer my original question (which I suppose I 
+should have made clearer): can I get SATA II NCQ support in Linux with 
+an nForce 4 chipset?
 
 
-
-Jan Engelhardt
--- 

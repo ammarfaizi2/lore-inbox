@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270643AbTG0B0O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 21:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270645AbTG0B0O
+	id S270645AbTG0Bh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 21:37:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270646AbTG0Bh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 21:26:14 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:27841 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S270643AbTG0B0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 21:26:13 -0400
-Date: Sat, 26 Jul 2003 21:41:32 -0400
-From: Chris Heath <chris@heathens.co.nz>
-To: aebr@win.tue.nl
-Subject: Re: i8042 problem
-Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20030726093619.GA973@win.tue.nl>
-Message-Id: <20030726212513.A0BD.CHRIS@heathens.co.nz>
+	Sat, 26 Jul 2003 21:37:57 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:45708
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S270645AbTG0Bh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 21:37:56 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Guillaume Chazarain <gfc@altern.org>
+Subject: Re: [PATCH] O9int for interactivity
+Date: Sun, 27 Jul 2003 11:57:19 +1000
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <C0QOVULH73ONRLIH5282OLOWQJIF01.3f22f0ad@monpc>
+In-Reply-To: <C0QOVULH73ONRLIH5282OLOWQJIF01.3f22f0ad@monpc>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.06.02
-X-Antirelay: Good relay from local net1 127.0.0.1/32
+Content-Disposition: inline
+Message-Id: <200307271157.19010.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [40] 
-> > drivers/input/serio/i8042.c: 60 -> i8042 (command) [50] 
-> > drivers/input/serio/i8042.c: 44 -> i8042 (parameter) [50] 
-> > drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [51] 
-> > serio: i8042 KBD port at 0x60,0x64 irq 1 
-> > <------------- This is it, keyboard is dead. 
-> 
-> 
-> Writing 44 to the command byte disables IRQ1. 
+On Sun, 27 Jul 2003 07:20, Guillaume Chazarain wrote:
+> Hi Con,
+>
+> Strange your activate() function in O9. Isn't it?
+> It doesn't care that much about sleep_time.
+>
+> So here is a very simple trouble maker.
 
-It looks like a timeout problem.  The ack (fa) arrived 11 ticks after
-the byte (00) was sent, but it looks like the timeout is only 10 ticks.
+Yes I know it's a way to make something fairly cpu intensive remain 
+interactive. However since it sleeps long enough (2ms at 1000Hz is just 
+enough), it doesn't bring the machine to a standstill, and is easily 
+killable. I doubt it is worth working around this, but I'm open to your 
+comments about variations on this theme that might be a problem.
 
-Try playing with the timeout in atkbd_sendbyte (line 217 of
-drivers/input/keyboard/atkbd.c).
-
-
-> > drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 1) [109900] 
-> > drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 1) [109921] 
-> > atkbd.c: Unknown key (set 0, scancode 0x2, on isa0060/serio0) pressed. 
-> > input: AT Set 2 keyboard on isa0060/serio0 
-> > <----- Now we are talking! 
-> 
-> 
-> Funny. Looks like the "read scancode set" command got the scancode set 
-> twice, and the second time was seen as unknown key. 
-
-Both keyboards responded to the command, perhaps???
-
-I'd suggest that we don't even ask the keyboard what scancode set it is
-using if we are attempting to use set 2.
-
-Chris
+Con
 

@@ -1,63 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265622AbTIFHI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 03:08:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265633AbTIFHI4
+	id S262888AbTIFHGH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 03:06:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTIFHGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 03:08:56 -0400
-Received: from nikam.ms.mff.cuni.cz ([195.113.18.106]:61895 "EHLO
+	Sat, 6 Sep 2003 03:06:06 -0400
+Received: from nikam.ms.mff.cuni.cz ([195.113.18.106]:43975 "EHLO
 	nikam.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S265622AbTIFHIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 03:08:54 -0400
-Date: Sat, 6 Sep 2003 09:08:54 +0200
+	id S262888AbTIFHGC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 03:06:02 -0400
+Date: Sat, 6 Sep 2003 09:06:01 +0200
 From: Jan Hubicka <jh@suse.cz>
-To: Andi Kleen <ak@colin2.muc.de>
-Cc: Jan Hubicka <jh@suse.cz>, Andi Kleen <ak@muc.de>, torvalds@osdl.org,
-       akpm@osdl.org, rth@redhat.com, linux-kernel@vger.kernel.org
+To: Robert Love <rml@tech9.net>
+Cc: Andreas Jaeger <aj@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andi Kleen <ak@muc.de>, akpm@osdl.org, rth@redhat.com,
+       linux-kernel@vger.kernel.org, jh@suse.cz
 Subject: Re: [PATCH] Use -fno-unit-at-a-time if gcc supports it
-Message-ID: <20030906070854.GF9989@kam.mff.cuni.cz>
-References: <20030905004710.GA31000@averell> <20030905053730.GB24509@kam.mff.cuni.cz> <20030905172715.GA80302@colin2.muc.de>
+Message-ID: <20030906070601.GE9989@kam.mff.cuni.cz>
+References: <Pine.LNX.4.44.0309050735570.25313-100000@home.osdl.org> <ho65k76z9v.fsf@byrd.suse.de> <1062778587.8510.10.camel@boobies.awol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030905172715.GA80302@colin2.muc.de>
+In-Reply-To: <1062778587.8510.10.camel@boobies.awol.org>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > How much work would be to fix kernel in this regard?
+> On Fri, 2003-09-05 at 11:17, Andreas Jaeger wrote:
 > 
-> The big problem is that -funit-at-a-time is not widely used yet,
-> so even if we fix the kernel at some point it would likely 
-> get broken again all the time by people who use older kernels
-> (= most kernel developers currently)
 > 
-> > Are there some cases where this is esential?  Kernel would be nice
-> > target to whole program optimization and GCC is not that far from it
-> > right now.
+> > Since unit-at-a-time has better inlining heuristics the better way is
+> > to add the used attribute - but that takes some time.  The short-term
+> > solution would be to add the compiler flag,
 > 
-> I'm not sure that is that good an idea. When I was still hacking 
-> TCP I especially moved some stuff out-of-line in the fast path to avoid 
-> register pressure. Otherwise gcc would inline rarely used sub functions 
-> and completely mess up the register allocation in the fast path.
-> Of course just a call alone messes up the registers somewhat because
-> of its clobbers, but a full inlining is usually worse.
+> Won't we get a linker error if a static symbol is used but
+> optimized-away?  It shouldn't be hard to fix the n linker errors that
+> crop up.
 
-You can use -O2 and rely on inline done by hand.  I can add option
--fno-inline-functions-called-once.  That should avoid such a problems.
-Anyway it would be nice to mark functions that exist for this reason by
-noinline attribute so compiler knows about it, but that is different
-story.
-> 
-> Also I fear cross module inlining would expose a lot of latent bugs
-> (missing barriers etc.) when the optimizer becomes more aggressive. 
-> I'm not saying this would be a bad thing, just that it may be a lot 
-> of work to fix (both for compiler and kernel people)
+Yes, you get linker error.
+You may also run into misscompilation assuiming that function is static
+and it is both called by hand in asm and by function call and there is
+missing attribute used and asmlinkage definition.  In that case GCC
+would conclude to change into register calling convention on i386
+breaking asm code.
 
-Some of this should be already tested by folks using Intel compiler I
-would hope.
+I would expect this to be rare as functions tends to be used either by
+assembly or by normal code but not by both.
+> 
+> And why are we using static symbols in inline assembly outside of the
+> compilation scope?
+
+The toplevel asm statements are common source of this at least in glibc.
+I didn't look much into the kernel sources.
+
+I would be very happy if someone did look on that.  It may be well
+possible that implementing tricks you do currently with toplevel asm
+staements would need further extensions in GCC now and it would be nice
+to know about that.
+
+For instance it used to be possible to force function to go into given
+section by changing the section by hand, but now you have to use section
+attribute (that is cleaner anyway)
+> 
+> Anyhow, if it generates an error, this isn't hard to fix.
+> 
+> Here is the start...
+> 
+> 	Robert Love
+> 
+> 
+> --- linux-rml/include/linux/compiler.h	Fri Sep  5 11:57:56 2003
+> +++ linux/include/linux/compiler.h	Fri Sep  5 12:02:02 2003
+> @@ -74,6 +74,19 @@
+>  #define __attribute_pure__	/* unimplemented */
+>  #endif
+>  
+> +/*
+> + * As of gcc 3.2, we can mark a function as 'used' and gcc will assume that,
+> + * even if it does not find a reference to it in any compilation unit.  We
+> + * need this for gcc 3.4 and beyond, which can optimize on a program-wide
+> + * scope, and not just one file at a time, to avoid static symbols being
+> + * discarded.
+> + */
+> +#if (__GNUC__ == 3 && __GNUC_MINOR__ > 1) || __GNUC__ > 3
+> +#define __attribute_used__	__attribute__((used))
+> +#else
+> +#define __attribute_used__	/* unimplemented */
+> +#endif
+> +
+I believe there is little trick - attribute used works either for
+variables or functions.  Functions can be marked as used only for GCC
+3.4+ if I am right, so you may need __attribute_used_function__ and
+__attribute_used_variable__ macros for that.
 
 Honza
+>  /* This macro obfuscates arithmetic on a variable address so that gcc
+>     shouldn't recognize the original var, and make assumptions about it */
+>  #define RELOC_HIDE(ptr, off)					\
 > 
-> -Andi
 > 

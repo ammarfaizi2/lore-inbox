@@ -1,64 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUEQMdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbUEQMhi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbUEQMdN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 08:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUEQMdN
+	id S261162AbUEQMhi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 08:37:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUEQMhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 08:33:13 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:35725 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261162AbUEQMdL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 08:33:11 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Mike Kordik <Mike@Kordik.net>
-Subject: Re: HDIO_SET_DMA failed: with nforce2 board
-Date: Mon, 17 May 2004 14:34:24 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <pan.2004.05.17.02.15.01.317598@kordik.net> <200405171313.02675.bzolnier@elka.pw.edu.pl> <1084793981.12242.1.camel@Jacob>
-In-Reply-To: <1084793981.12242.1.camel@Jacob>
+	Mon, 17 May 2004 08:37:38 -0400
+Received: from zork.zork.net ([64.81.246.102]:45457 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S261162AbUEQMhg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 08:37:36 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: davej@redhat.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: i810 AGP fails to initialise (was Re: 2.6.6-mm2)
+References: <20040513032736.40651f8e.akpm@osdl.org>
+	<6usme4v66s.fsf@zork.zork.net> <20040513135308.GA2622@redhat.com>
+	<20040513155841.6022e7b0.ak@suse.de> <6ulljwtoge.fsf@zork.zork.net>
+	<20040513174110.5b397d84.ak@suse.de> <6u8yfvsbd4.fsf@zork.zork.net>
+	<6uk6zeow52.fsf@zork.zork.net> <6u65avmo97.fsf@zork.zork.net>
+	<20040517100159.GC4903@wotan.suse.de> <6ulljrl3gb.fsf@zork.zork.net>
+	<20040517134651.5444eb54.ak@suse.de>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: Andi Kleen <ak@suse.de>, davej@redhat.com,  akpm@osdl.org, 
+ linux-kernel@vger.kernel.org
+Date: Mon, 17 May 2004 13:37:30 +0100
+In-Reply-To: <20040517134651.5444eb54.ak@suse.de> (Andi Kleen's message of
+ "Mon, 17 May 2004 13:46:51 +0200")
+Message-ID: <6ubrknkz5h.fsf@zork.zork.net>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405171434.24417.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: sneakums@zork.net
+X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 of May 2004 13:39, Mike Kordik wrote:
-> On Mon, 2004-05-17 at 07:13, Bartlomiej Zolnierkiewicz wrote:
-> > On Monday 17 of May 2004 04:15, Mike wrote:
-> > > I have an nforce2 based board and I cannot enable dma.
-> >
-> > 'dmesg' output, please
+Andi Kleen <ak@suse.de> writes:
+
+> On Mon, 17 May 2004 12:04:36 +0100
+> Sean Neakums <sneakums@zork.net> wrote:
 >
-> I posted using PAN and I am trying to respond with PAM but todays posts
-> and some of yesterdays are not showing up. I do not know what the
-> problem is but I apologize for responding this way. Here is my dmesg
-> output:
+>> Andi Kleen <ak@suse.de> writes:
+>> 
+>> > On Mon, May 17, 2004 at 09:49:56AM +0100, Sean Neakums wrote:
+>> >> Sean Neakums <sneakums@zork.net> writes:
+>> >> 
+>> >> > Sean Neakums <sneakums@zork.net> writes:
+>> >> >
+>> >> >> Andi Kleen <ak@suse.de> writes:
+>> >> >>
+>> >> >>> Sean, can you double check that when you compile the AGP driver as module
+>> >> >>> that the 7124 PCI ID appears in modinfo intel-agp ? 
+>> >> >>> And does the module also refuse to load ? 
+>> >> >>
+>> >> >> I rebuilt with agpgart, intel-agp and i810 as modules, modprobed them,
+>> >> >> and it works.
+>> >> >
+>> >> > I just realised that I probably forgot to reapply the patch before
+>> >> > doing this test.  Will check Monday.  Sorry about this.
+>> >> 
+>> >> Below is modinfo output.  The module loads but doesn't initialise the
+>> >> AGP.
+>> >
+>> > Someone else reported that it worked modular at least. When you apply
+>> > the following patch what output do you get in the kernel log when you
+>> > load the module?
+>> 
+>>   Linux agpgart interface v0.100 (c) Dave Jones
+>>   agp_intel_init
+>>   agp_intel_probe device 7124
+>>   no cap
+>
+> Thanks for testing.
+>
+> Ok. This patch should fix it then. Revert the debug patch first. 
 
-OK, thanks.
-
-> Linux version 2.6.4-rc1-mm1 (root@cdimage) (gcc version 3.3.3 20040217
-> (Gentoo Linux 3.3.3, propolice-3.3-7)) #3 Mon May 17 00:17:40 EDT 2004
-
-...
-
-> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> ide: Assuming 33MHz system bus speed for PIO modes; override with
-> idebus=xx
-> pnp: the driver 'ide' has been registered
-> hda: Maxtor 6Y120L0, ATA DISK drive
-> hdb: WDC WD1600BB-00HTA0, ATA DISK drive
-> hdc: MATSHITADVD-ROM SR-8582, ATAPI CD/DVD-ROM drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> ide1 at 0x170-0x177,0x376 on irq 15
-
-AMD/nVidia IDE driver didn't recognize the controller
-(or driver wasn't compiled in for some reason).
-
-I need full .config and 'lspci -vvv' output to know more.
-
-Bartlomiej
+This did the trick.  Also applied it to 2.6.6-mm3, built static, works
+fine there also.
 

@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbTLPSYV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 13:24:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbTLPSYV
+	id S262048AbTLPS2k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 13:28:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbTLPS2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 13:24:21 -0500
-Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:9358 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S262030AbTLPSYU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 13:24:20 -0500
-Message-ID: <3FDF4DCF.8090205@backtobasicsmgmt.com>
-Date: Tue, 16 Dec 2003 11:24:15 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back to Basics Network Management
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
+	Tue, 16 Dec 2003 13:28:40 -0500
+Received: from rogue.ncsl.nist.gov ([129.6.101.41]:38067 "EHLO
+	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP id S262048AbTLPS2j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 13:28:39 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Trivial hard lockup, SCSI, 2.4.23
+From: Ian Soboroff <ian.soboroff@nist.gov>
+Date: Tue, 16 Dec 2003 13:28:38 -0500
+Message-ID: <9cfiskgpqg9.fsf@rogue.ncsl.nist.gov>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-To: Shawn <core@enodev.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Mainboard on which X86_UP_IOAPIC works? (mine crashes hard)
-References: <1071597008.2115.23.camel@www.enodev.com>	 <3FDF47F0.7070409@backtobasicsmgmt.com> <1071598789.2115.31.camel@www.enodev.com>
-In-Reply-To: <1071598789.2115.31.camel@www.enodev.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn wrote:
 
-> Would you postulate that since the KV7 is a KT600, that the Asus A7V600
-> would also be "ok"? I ask because my local parts hole has the Asus and
-> not the Abit...
+I've found that I can lock a machine running 2.4.23aa1 by trying to
+access a nonexistent SCSI device.  In other words, if a userspace
+program tries to access /dev/sdd, but no device is attached on any
+SCSI bus using that device node, the machine locks hard.
 
-I'd gamble and say probably yes, since the hardware is pretty much the 
-same. I know that the BIOS can have some impact on this, though.
+We found this when we disconnected a SCSI hardware RAID from a server,
+but forgot to remove the cron job which checked its status.
+
+The lockup leaves no errors whatsoever in the logs.  I finally tracked
+it down with the NMI watchdog.
+
+Ian
+
 

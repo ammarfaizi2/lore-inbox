@@ -1,59 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264280AbTKKJvT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 04:51:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264282AbTKKJvT
+	id S264281AbTKKJ4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 04:56:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264282AbTKKJ4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 04:51:19 -0500
-Received: from natsmtp01.rzone.de ([81.169.145.166]:37822 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S264280AbTKKJvR
+	Tue, 11 Nov 2003 04:56:16 -0500
+Received: from yate.wa.csiro.au ([130.116.131.40]:1284 "EHLO
+	yate.nexus.csiro.au") by vger.kernel.org with ESMTP id S264281AbTKKJ4N
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 04:51:17 -0500
-Message-ID: <3FB0B10E.9060907@softhome.net>
-Date: Tue, 11 Nov 2003 10:51:10 +0100
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Florian Weimer <fw@deneb.enyo.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Valdis.Kletnieks@vt.edu, Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: OT: why no file copy() libc/syscall ??
-References: <Qvw7.5Qf.9@gated-at.bofh.it> <QxRl.17Y.9@gated-at.bofh.it> <Qy0W.1sk.9@gated-at.bofh.it> <QyaB.1GK.17@gated-at.bofh.it> <QzSZ.4x1.1@gated-at.bofh.it> <QCHh.X6.3@gated-at.bofh.it>
-In-Reply-To: <QCHh.X6.3@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 11 Nov 2003 04:56:13 -0500
+Subject: [BUG] 2.4.23-rc1 USB2 (ICH4) ehci-hcd and usb-storage lockups
+From: Frank Horowitz <itsme.mario.fghorow@spamgourmet.com>
+Reply-To: itsme.mario.fghorow@spamgourmet.com
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1068544570.930.38.camel@bonzo.ned.dem.csiro.au>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 11 Nov 2003 17:56:11 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Weimer wrote:
-> Andreas Dilger wrote:
-> 
-> 
->>>This is fast turning into a creeping horror of aggregation.  I defy anybody
->>>to create an API to cover all the options mentioned so far and *not* have it
->>>look like the process_clone horror we so roundly derided a few weeks ago.
->>
->>	int sys_copy(int fd_src, int fd_dst)
-> 
-> 
-> Doesn't work.  You have to set the security attributes while you open
-> fd_dst.
+I'm seeing repeatable lockups with the USB ehci-hcd driver and
+usb-storage under vanilla 2.4.23-rc1. The "magic sys req key" chords do
+not allow recovery. 
 
-   int new_fd = sys_copy( int src_fd );  /* cloned copy, out of any fs */
-   fchmod( new_fd, XXX_WHAT_EVER );      /* do the job. */
-   ...
-   flink(new_fd, "/some/path/some/file/name"); /* commit to fs */
-   close(new_fd);  /* bye-bye */
+Under the usb-uhci driver, all works well (but slowly ;-).
 
-   I beleive this can be more useful. Not only in naive tries to replace 
-cp(1) with kernel ;-)
+Recipe to recreate problem:
+modprobe usb-storage with ehci-hcd already loaded. Mount an ext3
+filesystem in external USB2->IDE case. Try to cp ~15Gb tar file to fs
+mounted on /dev/hdc1 and the messages logged below are written to
+/var/log/debug. After last message, console shows "usb_control/bulk_msg:
+timeout" and system hangs. 
 
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---                                                           _ _ _
-  "... and for $64000 question, could you get yourself       |_|*|_|
-    vaguely familiar with the notion of on-topic posting?"   |_|_|*|
-                                 -- Al Viro @ LKML           |*|*|*|
+Config: SMP. Modularized everything relevant to USB. usb-storage
+compiled with debug enabled (see log).
+Chipset: Intel E7505 (ICH4 controlling USB2)
+Dual Xeon 2.4GHz, 2 Gig RAM (CONFIG_HIGHMEM4G=y)
+
+Relevant portion of logfile:
+
+Nov 11 16:43:20 bonzo kernel: usb-storage: queuecommand() called
+Nov 11 16:43:20 bonzo kernel: usb-storage: *** thread awakened.
+Nov 11 16:43:20 bonzo kernel: usb-storage: Command READ_10 (10 bytes)
+Nov 11 16:43:20 bonzo kernel: usb-storage: 28 00 00 00 00 00 00 00 fe 00
+00 00
+Nov 11 16:43:20 bonzo kernel: usb-storage: Bulk command S 0x43425355 T
+0x6 Trg 0 LUN 0 L 130048 F 128 CL 10
+Nov 11 16:43:20 bonzo kernel: usb-storage: Bulk command transfer
+result=0
+Nov 11 16:43:20 bonzo kernel: usb-storage: usb_stor_transfer_partial():
+xfer 4096 bytes
+Nov 11 16:43:20 bonzo kernel: usb-storage: usb_stor_bulk_msg() returned
+0 xferred 4096/4096
+[***Many duplicates of last 2 messages removed for brevity***]
+Nov 11 16:43:20 bonzo kernel: usb-storage: usb_stor_bulk_msg() returned
+0 xferred 4096/4096
+Nov 11 16:43:20 bonzo kernel: usb-storage: usb_stor_transfer_partial():
+transfer complete
+Nov 11 16:43:20 bonzo kernel: usb-storage: usb_stor_transfer_partial():
+xfer 3072 bytes
+Nov 11 16:43:20 bonzo kernel: usb-storage: usb_stor_bulk_msg() returned
+0 xferred 3072/3072
+Nov 11 16:43:20 bonzo kernel: usb-storage: usb_stor_transfer_partial():
+transfer complete
+Nov 11 16:43:20 bonzo kernel: usb-storage: Bulk data transfer result 0x0
+Nov 11 16:43:20 bonzo kernel: usb-storage: Attempting to get CSW...
+Nov 11 16:43:50 bonzo kernel: usb-storage: command_abort() called
+Nov 11 16:43:50 bonzo kernel: usb-storage: -- transport indicates
+command was aborted
+Nov 11 16:43:50 bonzo kernel: usb-storage: Bulk reset requested
+Nov 11 16:43:55 bonzo kernel: usb-storage: Bulk soft reset failed -110
+Nov 11 16:43:55 bonzo kernel: usb-storage: scsi command aborted
+Nov 11 16:43:55 bonzo kernel: usb-storage: *** thread sleeping.
+Nov 11 16:43:55 bonzo kernel: usb-storage: queuecommand() called
+Nov 11 16:43:55 bonzo kernel: usb-storage: *** thread awakened.
+Nov 11 16:43:55 bonzo kernel: usb-storage: Command TEST_UNIT_READY (6
+bytes)
+Nov 11 16:43:55 bonzo kernel: usb-storage: 00 00 00 00 00 00 00 00 fe 00
+00 00
+Nov 11 16:43:55 bonzo kernel: usb-storage: Bulk command S 0x43425355 T
+0x7 Trg 0 LUN 0 L 0 F 0 CL 6
+Nov 11 16:43:55 bonzo kernel: usb-storage: Bulk command transfer
+result=0
+Nov 11 16:43:55 bonzo kernel: usb-storage: Attempting to get CSW...
+Nov 11 16:44:05 bonzo kernel: usb-storage: command_abort() called
+Nov 11 16:44:05 bonzo kernel: usb-storage: -- transport indicates
+command was aborted
+Nov 11 16:44:05 bonzo kernel: usb-storage: Bulk reset requested
+
+TIA for any help...
+
+	Frank Horowitz
+
 

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbTINJDu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 05:03:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbTINJDu
+	id S262344AbTINJQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 05:16:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbTINJQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 05:03:50 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:62732 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262339AbTINJDt
+	Sun, 14 Sep 2003 05:16:26 -0400
+Received: from mail3-126.ewetel.de ([212.6.122.126]:31941 "EHLO
+	mail3.ewetel.de") by vger.kernel.org with ESMTP id S262344AbTINJQZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 05:03:49 -0400
-Date: Sun, 14 Sep 2003 11:12:12 +0200
-To: Robert Love <rml@tech9.net>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Enabling other oom schemes
-Message-ID: <20030914091212.GA18339@hh.idb.hist.no>
-References: <200309120219.h8C2JANc004514@penguin.co.intel.com> <20030913174825.GB7404@mail.jlokier.co.uk> <1063476152.24473.30.camel@localhost> <20030913220401.GA17528@hh.idb.hist.no> <1063500950.24473.34.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1063500950.24473.34.camel@localhost>
-User-Agent: Mutt/1.5.4i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Sun, 14 Sep 2003 05:16:25 -0400
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: freed_symbols [Re: People, not GPL  [was: Re: Driver Model]]
+In-Reply-To: <vzkY.7cC.7@gated-at.bofh.it>
+References: <vyRY.6te.13@gated-at.bofh.it> <vzkY.7cC.7@gated-at.bofh.it>
+Date: Sun, 14 Sep 2003 11:16:13 +0200
+Message-Id: <E19ySzN-0000Fr-00@neptune.local>
+From: Pascal Schmidt <der.eremit@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 13, 2003 at 08:55:50PM -0400, Robert Love wrote:
-> On Sat, 2003-09-13 at 18:04, Helge Hafting wrote:
-> 
-> > So a "complicated" oom handler need to preallocate all the memory
-> > it might ever need.  Not impossible.
-> 
-> Right.  I was just pointing it out.
-> 
-> Preallocating isn't necessarily possible e.g. you need something
-> dynamically, need to call back into user-space, etc.
->
-The userspace side is solvable by starting a userspace
-oom handler that mlocks all the memory it
-might ever need before it gets scarce.  It won't
-need to run other programs - it can do anything
-other programs do itself.
+On Sun, 14 Sep 2003 09:20:08 +0200, you wrote in linux.kernel:
 
-Helge Hafting 
+> If one reads ./include/linux/module.h
+> It clearly states any license is acceptable.
+
+The problem is that the kernel has many copyright holders for different
+parts of the code, so what the author of module.h wrote can well be
+his own opinion but not that of others. Also, if modules are derived
+works under the terms of the GPL, the header file cannot change that
+fact, no matter what is says exactly.
+
+Once again, it's all up to the lawyers to decide.
+
+-- 
+Ciao,
+Pascal

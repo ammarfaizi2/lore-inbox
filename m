@@ -1,57 +1,147 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265505AbRFVUG4>; Fri, 22 Jun 2001 16:06:56 -0400
+	id <S265351AbRFVUid>; Fri, 22 Jun 2001 16:38:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265504AbRFVUGq>; Fri, 22 Jun 2001 16:06:46 -0400
-Received: from w115.z208177135.sjc-ca.dsl.cnc.net ([208.177.135.115]:4236 "EHLO
-	technolunatic.com") by vger.kernel.org with ESMTP
-	id <S265505AbRFVUGl>; Fri, 22 Jun 2001 16:06:41 -0400
-Date: Fri, 22 Jun 2001 13:06:32 -0700
-From: Dionysius Wilson Almeida <dwilson@technolunatic.com>
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-Cc: dwilson@technologist.com, linux-kernel@vger.kernel.org
-Subject: Re: eepro100: wait_for_cmd_done timeout
-Message-ID: <20010622130632.A31329@technolunatic.com>
-Reply-To: dwilson@technologist.com
-In-Reply-To: <20010620163134.A22173@technolunatic.com> <20010620195134.A6877@saw.sw.com.sg> <20010620170202.B22565@technolunatic.com> <20010621183603.A28081@technolunatic.com> <20010622093158.B2448@saw.sw.com.sg>
+	id <S265387AbRFVUiX>; Fri, 22 Jun 2001 16:38:23 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:45318 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S265351AbRFVUiL>; Fri, 22 Jun 2001 16:38:11 -0400
+Date: Fri, 22 Jun 2001 17:21:06 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Rasmus Andersen <rasmus@jaquet.dk>
+Cc: dwmw2@redhat.com, mtd@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cleanup in drivers/mtd/ftl.c (245-ac16)
+Message-ID: <20010622172106.B3614@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Rasmus Andersen <rasmus@jaquet.dk>, dwmw2@redhat.com,
+	mtd@infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20010622222931.C842@jaquet.dk>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="M9NhX3UHpAaciwkO"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010622093158.B2448@saw.sw.com.sg>; from saw@saw.sw.com.sg on Fri, Jun 22, 2001 at 09:31:58AM -0400
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010622222931.C842@jaquet.dk>; from rasmus@jaquet.dk on Fri, Jun 22, 2001 at 10:29:31PM +0200
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Rasmus,
 
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	I've fixed this ones and its already in 2.4.6-pre5, please take a
+look and see if something is missing.
 
-Hi Andrey,
+- Arnaldo
 
-I'm attaching the log file.. please let me know if u need other
-details.
-
--Wilson
-
-* Andrey Savochkin (saw@saw.sw.com.sg) wrote:
-> On Thu, Jun 21, 2001 at 06:36:03PM -0700, Dionysius Wilson Almeida wrote:
-> > I tried inserting a udelay(1) and increasing the count ..but
-> > the same behaviour.  
-> > 
-> > any clues ? btw, i've been able to compile the redhat 7.1 intel e100
-> > driver and it works fine for my card.
+Em Fri, Jun 22, 2001 at 10:29:31PM +0200, Rasmus Andersen escreveu:
+> Hi.
 > 
-> Your problem is different from anyone else's, as I explained.
-> You see "netdev watchdog" message first.
-> It means that the card just stopped to transmit packets.
-> All other messages printed after that, including wait_for_cmd_done timeout,
-> are irrelevant to this problem.  Your card just doesn't transmit.
+> The patch below adds one instance of vmalloc return code checking
+> and a number of error path resource release cleanups in build_maps. 
+> It is against 245-ac16.
 > 
-> Please send me a complete log of what the kernel prints, since powering up
-> the computer.
+> (The vmalloc non-check was reported by the Stanford team a
+> while back.)
 > 
-> 	Andrey
+> 
+> --- linux-245-ac16-clean/drivers/mtd/ftl.c	Sun May 27 22:15:23 2001
+> +++ linux-245-ac16/drivers/mtd/ftl.c	Fri Jun 22 22:24:09 2001
+> @@ -313,6 +313,7 @@
+>      ssize_t retval;
+>      loff_t offset;
+>  
+> +    ret = -1;
+>      /* Set up erase unit maps */
+>      part->DataUnits = le16_to_cpu(part->header.NumEraseUnits) -
+>  	part->header.NumTransferUnits;
+> @@ -324,7 +325,8 @@
+>      part->XferInfo =
+>  	kmalloc(part->header.NumTransferUnits * sizeof(struct xfer_info_t),
+>  		GFP_KERNEL);
+> -    if (!part->XferInfo) return -1;
+> +    if (!part->XferInfo) 
+> +	    goto err_free_EUInfo;
+>  
+>      xvalid = xtrans = 0;
+>      for (i = 0; i < le16_to_cpu(part->header.NumEraseUnits); i++) {
+> @@ -334,8 +336,9 @@
+>  			      (unsigned char *)&header);
+>  	
+>  	if (ret) 
+> -	    return ret;
+> +	    goto err_free_XferInfo;
+>  
+> +	ret = -1;
+>  	/* Is this a transfer partition? */
+>  	hdr_ok = (strcmp(header.DataOrgTuple+3, "FTL100") == 0);
+>  	if (hdr_ok && (le16_to_cpu(header.LogicalEUN) < part->DataUnits) &&
+> @@ -348,7 +351,7 @@
+>  	    if (xtrans == part->header.NumTransferUnits) {
+>  		printk(KERN_NOTICE "ftl_cs: format error: too many "
+>  		       "transfer units!\n");
+> -		return -1;
+> +		goto err_free_XferInfo;
+>  	    }
+>  	    if (hdr_ok && (le16_to_cpu(header.LogicalEUN) == 0xffff)) {
+>  		part->XferInfo[xtrans].state = XFER_PREPARED;
+> @@ -369,18 +372,21 @@
+>  	(xvalid+xtrans != le16_to_cpu(header.NumEraseUnits))) {
+>  	printk(KERN_NOTICE "ftl_cs: format error: erase units "
+>  	       "don't add up!\n");
+> -	return -1;
+> +	goto err_free_XferInfo;
+>      }
+>      
+>      /* Set up virtual page map */
+>      blocks = le32_to_cpu(header.FormattedSize) >> header.BlockSize;
+>      part->VirtualBlockMap = vmalloc(blocks * sizeof(u_int32_t));
+> +    if (!part->VirtualBlockMap)
+> +	    goto err_free_XferInfo;
+>      memset(part->VirtualBlockMap, 0xff, blocks * sizeof(u_int32_t));
+>      part->BlocksPerUnit = (1 << header.EraseUnitSize) >> header.BlockSize;
+>  
+>      part->bam_cache = kmalloc(part->BlocksPerUnit * sizeof(u_int32_t),
+>  			      GFP_KERNEL);
+> -    if (!part->bam_cache) return -1;
+> +    if (!part->bam_cache) 
+> +	    goto err_free_VirtualBlockMap;
+>  
+>      part->bam_index = 0xffff;
+>      part->FreeTotal = 0;
+> @@ -395,7 +401,7 @@
+>  			      (unsigned char *)part->bam_cache);
+>  	
+>  	if (ret) 
+> -	    return ret;
+> +	    goto err_free_bam_cache;
+>  
+>  	for (j = 0; j < part->BlocksPerUnit; j++) {
+>  	    if (BLOCK_FREE(le32_to_cpu(part->bam_cache[j]))) {
+> @@ -411,7 +417,17 @@
+>      }
+>      
+>      return 0;
+> -    
+> +
+> +err_free_bam_cache:
+> +    kfree(part->bam_cache);
+> +err_free_VirtualBlockMap:
+> +    vfree(part->VirtualBlockMap);
+> +err_free_XferInfo:
+> +    kfree(part->XferInfo);
+> +err_free_EUInfo:
+> +    kfree(part->EUNInfo);
+> +    printk(KERN_ERR "ftl_cs: Out of memory.");
+> +    return ret;
+>  } /* build_maps */
+>  
+>  /*======================================================================
+> 
+> -- 
+> Regards,
+>         Rasmus(rasmus@jaquet.dk)
+> 
+> Open Source. Closed Minds. We are Slashdot. 
+>   --Anonymous Coward
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
@@ -59,131 +149,6 @@ details.
 > Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Boy!  Eucalyptus!
 
---M9NhX3UHpAaciwkO
-Content-Type: application/x-gzip
-Content-Disposition: attachment; filename="kernel.log.gz"
-Content-Transfer-Encoding: base64
 
-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
-3xPX/r75kvwHRr7OPKPhAAA=
-
---M9NhX3UHpAaciwkO--
+                        - Arnaldo

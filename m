@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264305AbTLEXw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 18:52:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264341AbTLEXw0
+	id S264903AbTLEXt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 18:49:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264905AbTLEXt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 18:52:26 -0500
-Received: from [12.177.129.25] ([12.177.129.25]:4292 "EHLO
-	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S264305AbTLEXwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 18:52:25 -0500
-Message-Id: <200312060005.hB605LAv008258@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: "Brad Parker" <parker@citynetwireless.net>
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: Linux 2.6.0-test10 
-In-Reply-To: Your message of "Sun, 23 Nov 2003 21:47:17 CST."
-             <011101c3b23d$aa41e420$fd01000a@bp> 
-References: <Pine.LNX.4.44.0311231804170.17378-100000@home.osdl.org>  <011101c3b23d$aa41e420$fd01000a@bp> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 05 Dec 2003 19:05:21 -0500
-From: Jeff Dike <jdike@addtoit.com>
+	Fri, 5 Dec 2003 18:49:56 -0500
+Received: from mail.gmx.net ([213.165.64.20]:7826 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264903AbTLEXty (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 18:49:54 -0500
+X-Authenticated: #4512188
+Message-ID: <3FD1199E.2030402@gmx.de>
+Date: Sat, 06 Dec 2003 00:49:50 +0100
+From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031116
+X-Accept-Language: de-de, de, en-us, en
+MIME-Version: 1.0
+To: Allen Martin <AMartin@nvidia.com>
+CC: "'Jesse Allen'" <the3dfxdude@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
+References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F87E@mail-sc-6.nvidia.com>
+In-Reply-To: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F87E@mail-sc-6.nvidia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-parker@citynetwireless.net said:
-> I get this trying to compile for the user-mode-linux arch: 
+Hi,
 
-> include/asm/arch/system.h:7: asm/cpufeature.h: No such file or directory 
+*maybe* I found the bugger, at least I got APIC more stable (need to 
+test whether oit is really stable, compiling kernel right now...):
 
-Linus hasn't taken any patches from me in a long time, so you need to apply
-a separate UML patch which brings the Linus tree up to date.  Until I get
-a test10/test11 patch ready, the test9 patch seems to work OK with a small
-tweak.
+It is a problem with CPU disconnect function. I tried various parameters 
+in bios and turned cpu disconnect off, and tada, I could do several 
+subsequent hdparms and machine is running! As CPU disconnect is a ACPI 
+state, if I am not mistkaen, I think there is something broken in ACPI 
+right now or in APIC and cpu disconnect triggers the bug.
 
-				Jeff
+Maybe now my windows environment is stable, as well. It was much more 
+stable with cpu disconnect and apic, nevertheless seldomly locked up.
+
+
+So gals and guys, try disabling cpu disconnect in bios and see whether 
+aopic now runs stable.
+
+I have an Abit NF7-S Rev2.0 with Bios 2.0.
+
+Prakash
 

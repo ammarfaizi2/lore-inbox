@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbTJDMXo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 08:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbTJDMXn
+	id S262030AbTJDNGe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 09:06:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTJDNGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 08:23:43 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:27096 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262009AbTJDMXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 08:23:41 -0400
-Date: Thu, 2 Oct 2003 14:51:42 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test6 APM/IDE double-suspend weirdness
-Message-ID: <20031002125141.GB205@openzaurus.ucw.cz>
-References: <16248.9932.145681.897552@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16248.9932.145681.897552@gargle.gargle.HOWL>
-User-Agent: Mutt/1.3.27i
+	Sat, 4 Oct 2003 09:06:34 -0400
+Received: from dirac.phys.uwm.edu ([129.89.57.19]:31906 "EHLO
+	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S262030AbTJDNGd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 09:06:33 -0400
+Date: Sat, 4 Oct 2003 08:06:32 -0500 (CDT)
+From: Bruce Allen <ballen@gravity.phys.uwm.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Re: CMD680, kernel 2.4.21, and heartache (fwd)
+Message-ID: <Pine.GSO.4.21.0310040757010.6486-100000@dirac.phys.uwm.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> Yeah, it says 196, and that's bizarre.  196 whats?  From looking at other
+> example output, the '1441854' number is usually the true deg. C of the
+> machine.  But I'm reasonably sure that it's not at a million and a half
+> centigrade.
 
-> In test6 (and test5 and possibly earlier), when suspending
-> my aging Latitude with APM, the machine turns off, only to
-> turn itself on again one second later with the disk spinning
-> up. Then it turns itself off again a second later.
-> 
-> The kernel log contains:
-> hda: start_power_step(step: 0)
-> hda: start_power_step(step: 1)
-> hda: complete_power_step(step: 1, stat: 50, err: 0)
-> hda: completing PM request, suspend
-> 
-> Apart from this, both APM suspend and resume work fine.
+You need to use a more recent version of smartctl -- one with better
+documentation and clearer output.  Get smartmontools 5.1-18 from
+http://smartmontools.sourceforge.net/ and read the documentation. Don't
+use the 5.19 release -- it's flawed.
 
-Try removing pm_send_all from apm.c
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+This should answer your questions. If not, post the output from (the
+smartmontools 5.1-18 version of) smartctl -a and I'll comment.
+
+[Regarding the temperature, the Drive ID string in your output was:
+Device: IC35L120AVV207-0 which is an IBM/Hitachi drive, not a Samsung
+drive as you stated in your original post.  If so, the drive stores three
+temperatures internally in six bytes.  smartmontools will display all
+three temperatures (current, lifetime min and lifetime max).  The outdated
+version of smartctl that you are using simply prints the bottom four of
+the six bytes -- hence the very large number] .
+
+Cheers,
+	Bruce
+
 

@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263179AbTCLNvi>; Wed, 12 Mar 2003 08:51:38 -0500
+	id <S261651AbTCLNte>; Wed, 12 Mar 2003 08:49:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263182AbTCLNvi>; Wed, 12 Mar 2003 08:51:38 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:24843 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S263179AbTCLNvh>; Wed, 12 Mar 2003 08:51:37 -0500
-Message-Id: <200303121353.h2CDrhu30117@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: "David Shirley" <dave@cs.curtin.edu.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: Help, eth0: transmit timed out!
-Date: Wed, 12 Mar 2003 15:50:48 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <041b01c2e86a$870822f0$64070786@synack> <200303121340.h2CDe3u30029@Port.imtp.ilyichevsk.odessa.ua> <000a01c2e89e$e9ab9c50$2400a8c0@compaq3>
-In-Reply-To: <000a01c2e89e$e9ab9c50$2400a8c0@compaq3>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S263179AbTCLNte>; Wed, 12 Mar 2003 08:49:34 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:19719 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261651AbTCLNtd>; Wed, 12 Mar 2003 08:49:33 -0500
+Date: Wed, 12 Mar 2003 13:59:54 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Torsten Foertsch <torsten.foertsch@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.19] How to get the path name of a struct dentry
+Message-ID: <20030312135954.A11564@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Torsten Foertsch <torsten.foertsch@gmx.net>,
+	linux-kernel@vger.kernel.org
+References: <200303121033.08560.torsten.foertsch@gmx.net> <20030312104741.A9625@infradead.org> <200303121404.04979.torsten.foertsch@gmx.net> <200303121432.51329.torsten.foertsch@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200303121432.51329.torsten.foertsch@gmx.net>; from torsten.foertsch@gmx.net on Wed, Mar 12, 2003 at 02:32:47PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 March 2003 15:54, David Shirley wrote:
-> Its strange we have another machine, exact same setup,
-> hardware/software and it doesn't have any problems.
+On Wed, Mar 12, 2003 at 02:32:47PM +0100, Torsten Foertsch wrote:
+> 
+> char*
+> full_d_path( struct dentry *dentry,
+> 	     struct vfsmount *vfsmnt,
+> 	     char *buf, int buflen ) {
+>   char *res;
+>   struct vfsmount *rootmnt;
+>   struct dentry *root;
+>   struct namespace *ns;
+> 
+>   ns=current->namespace;
+> /*   get_namespace( ns ); */
 
-Did you try to swap some hardware? NIC would be the first
-to swap.
+you want to keep this.
 
-> The other thing is that sometimes the machine freezes totally,
-> and othertimes it comes back after 30 secs??
+>   rootmnt=mntget( ns->root );
+> /*   put_namespace( ns ); */
 
-If it's a driver problem, anything is possible.
+do the put once you're completly done with it
 
-> FYI: Its not a modular kernel, but ill try the printk thing.
+> 
+>   root = dget(rootmnt->mnt_root);
+> 
+>   spin_lock(&dcache_lock);
+>   res = __d_path(dentry, vfsmnt, root, rootmnt, buf, buflen);
+>   spin_unlock(&dcache_lock);
+> 
+>   dput(root);
+>   mntput(rootmnt);
+>   return res;
 
-Modular one will be far easier (faster) to play with.
-You just unload the module, recompile and reload.
-No reboot cycles.
---
-vda
+looks okay to me otherwise.
+

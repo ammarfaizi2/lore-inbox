@@ -1,48 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135283AbREFKCn>; Sun, 6 May 2001 06:02:43 -0400
+	id <S132526AbREFKKD>; Sun, 6 May 2001 06:10:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135296AbREFKCd>; Sun, 6 May 2001 06:02:33 -0400
-Received: from monster.totalnet.ro ([212.54.96.3]:45072 "HELO
-	monster.totalnet.ro") by vger.kernel.org with SMTP
-	id <S135283AbREFKCY>; Sun, 6 May 2001 06:02:24 -0400
-Date: Sun, 6 May 2001 13:05:09 +0300 (EEST)
-From: Claudiu Constantinescu <klaus@totalnet.ro>
-To: linux-kernel@vger.kernel.org
-Subject: O2Micro PCMCIA card support
-Message-ID: <Pine.LNX.4.21.0105061304120.8055-100000@puzzlewell.totalnet.ro>
+	id <S135325AbREFKJx>; Sun, 6 May 2001 06:09:53 -0400
+Received: from spiral.extreme.ro ([212.93.159.205]:7305 "HELO
+	spiral.extreme.ro") by vger.kernel.org with SMTP id <S132526AbREFKJu>;
+	Sun, 6 May 2001 06:09:50 -0400
+Date: Sun, 6 May 2001 13:10:01 +0300 (EEST)
+From: Dan Podeanu <pdan@spiral.extreme.ro>
+To: =?iso-8859-1?Q?Christian_Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: DISCOVERED! Cause of Athlon/VIA KX133 Instability
+In-Reply-To: <001201c0d60c$a5a3c920$3303a8c0@pnetz>
+Message-ID: <Pine.LNX.4.30.0105061308410.27147-100000@spiral.extreme.ro>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-	I couldn't find info on it in the archives, so I decided to post the
-question on the list. I am using an o2micro pcmcia socket and two pcmcia cards,
-a modem and an Asix AX88190A network card, all of which work fine with kernel
-2.2 and pcmcia-cs, plus the vendor's drivers for the Asix card. On 2.4.4
-however, the i82365 module fails to detect the card (looking through the sources
-it seems that it probes only the ISA bus?), but the yenta module (mistakenly?)
-detects it as an yenta socket, but tries to load two memory_cs modules instead
-of the appropriate card drivers. The output of lspci shows:
+> No matter if I use the mandrake 8 gcc 2.96 or a self compiled gcc 2.95.3.
 
-00:03.0 CardBus bridge: O2 Micro, Inc. 6836 (rev 62)
-00:03.1 CardBus bridge: O2 Micro, Inc. 6836 (rev 62)
-
-	Am I missing something or is the support for this card broken?
-
-	One more thing: Is there any planned support for AX88190 cards? The
-vendor distributed modified version of 8390 driver is available only
-for pcmcia-cs, but sometimes freezes the whole system.
-
-	Please CC to my personal address, since i am not subscribed to the
-list. Thank you.
-
-Regards,
-Claudiu Constantinescu
-
-------
-"Sunt prea ocupat cu pierdutul timpului ca sa am timp de ceva util" - Andrei Panzar
-
+Mandrake 8's kernel comes with i586 CPU support, it is alredy known it
+works. Remember that the instability occurs only when Athlon optimizations
+are used.
 

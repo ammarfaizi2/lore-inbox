@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290444AbSAXWyx>; Thu, 24 Jan 2002 17:54:53 -0500
+	id <S290437AbSAXWxz>; Thu, 24 Jan 2002 17:53:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290261AbSAXWyo>; Thu, 24 Jan 2002 17:54:44 -0500
-Received: from AMontpellier-201-1-1-52.abo.wanadoo.fr ([193.252.31.52]:63237
-	"EHLO awak") by vger.kernel.org with ESMTP id <S290448AbSAXWyd> convert rfc822-to-8bit;
-	Thu, 24 Jan 2002 17:54:33 -0500
-Subject: Re: RFC: booleans and the kernel
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: timothy.covell@ashavan.org
-Cc: Oliver Xymoron <oxymoron@waste.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200201242246.g0OMkML06890@home.ashavan.org.>
-In-Reply-To: <Pine.LNX.4.44.0201241433110.2839-100000@waste.org>
-	<200201242123.g0OLNAL06617@home.ashavan.org.> <1011911622.2631.6.camel@bip>
-	 <200201242246.g0OMkML06890@home.ashavan.org.>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 24 Jan 2002 23:53:46 +0100
-Message-Id: <1011912826.2258.10.camel@bip>
-Mime-Version: 1.0
+	id <S290454AbSAXWxg>; Thu, 24 Jan 2002 17:53:36 -0500
+Received: from ti200710a082-0599.bb.online.no ([148.122.10.87]:8196 "EHLO
+	empire.e") by vger.kernel.org with ESMTP id <S290261AbSAXWxb>;
+	Thu, 24 Jan 2002 17:53:31 -0500
+Message-ID: <3C509067.20108@freenix.no>
+Date: Thu, 24 Jan 2002 23:53:27 +0100
+From: frode <frode@freenix.no>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020113
+MIME-Version: 1.0
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, ext3-users@redhat.com
+Subject: Re: OOPS: kernel BUG at transaction.c:1857 on 2.4.17 while rm'ing 700mb file on ext3 partition.
+In-Reply-To: <3C502E3A.9070909@freenix.no> <20020124191927.A9564@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-le ven 25-01-2002 à 23:47, Timothy Covell a écrit :
-> On Thursday 24 January 2002 16:33, Xavier Bestel wrote:
-> > le ven 25-01-2002 à 22:24, Timothy Covell a écrit :
-> > > On Thursday 24 January 2002 14:39, Oliver Xymoron wrote:
-> > > > The compiler _will_ turn if(a==0) into a test of a with itself rather
-> > > > than a comparison against a constant. Since PDP days, no doubt.
-> > >
-> > > I thought that the whole point of booleans was to stop silly errors
-> > > like
-> > >
-> > > if ( x = 1 )
-> > > {
-> > > 	printf ("\nX is true\n");
-> > > }
-> > > else
-> > > {
-> > > 	// we never get here...
-> > > }
-> >
-> > gcc already warns you about such errors.
-> >
-> > 	Xav
-> 
-> That's funny, I compiled it with "gcc -Wall foo.c" and got no
-> warnings.    Please show me what I'm doing wrong and how
-> it's _my_ mistake and not the compilers.
+Stephen C. Tweedie wrote:
+> On Thu, Jan 24, 2002 at 04:54:34PM +0100, frode wrote:
+>>I got the following error while rm'ing a 700mb file from an ext3 partition:
+>>Assertion failure in journal_unmap_buffer() at transaction.c:1857:
+>>"transaction == journal->j_running_transaction"
+> Hmm --- this is not one I think I've ever seen before.
 
-[xav@bip:~]$ gcc -Wall a.c
-a.c: In function `main':
-a.c:8: warning: suggest parentheses around assignment used as truth value
+[oops trace snipped]
 
-	Xav
+>>NVRM: loading NVIDIA NVdriver Kernel Module  1.0.2313  Tue Nov 27 12:01:24 PST 2001
+> with this driver loaded we really can't make any guarantees about your
+> system stability at all.  If you manage to eliminate other oopses and
+> still get the ext3 one, even without the NVidia driver loaded, then
+> there would be a much better change of debugging things, but right now
+> it sounds like a hardware problem.
+
+OK, I rebooted and gzip'ed the NVdriver in /lib/modules... to make sure the 
+module doesn't load (lsmod now says my kernel isn't tainted). I'll try using the 
+plain 'nv' driver shipped with XFree instead for a while. I tried making another 
+700mb iso image and fool around with it (loopback mount it, umount it, then rm 
+it) but couldn't trigger anything - but I just spent five minutes trying.
+
+As I mentioned I have had quite a few oopses lately, most of them regarding 
+paging etc. (but I'm no kernel expert). See for example
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101096234600708&w=2
+and
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101128528029736&w=2
+
+I'm running linux on an old p100 as well but don't see any problems, so as you 
+say I suspected a hardware problem. I ran MemTest86 for about half an hour 
+without any errors (but of course there's plenty of other things that may be wrong).
+
+Do you have any suggestions on other ways I could try to put my hardware 
+stability on trial, or try to reproduce the bug (to see if it occurs on a 
+non-tainted kernel)?
+
+  - Frode
 

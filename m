@@ -1,29 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271801AbRH1QOX>; Tue, 28 Aug 2001 12:14:23 -0400
+	id <S271799AbRH1QQx>; Tue, 28 Aug 2001 12:16:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271805AbRH1QON>; Tue, 28 Aug 2001 12:14:13 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28688 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271801AbRH1QOF>; Tue, 28 Aug 2001 12:14:05 -0400
-Subject: Re: Size of pointers in sys_call_table?
-To: bgerst@didntduck.org (Brian Gerst)
-Date: Tue, 28 Aug 2001 17:17:24 +0100 (BST)
-Cc: haba@pdc.kth.se (Harald Barth), linux-kernel@vger.kernel.org
-In-Reply-To: <3B8B9C00.4842710D@didntduck.org> from "Brian Gerst" at Aug 28, 2001 09:26:24 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S271802AbRH1QQn>; Tue, 28 Aug 2001 12:16:43 -0400
+Received: from dns1.rz.fh-heilbronn.de ([141.7.1.18]:18762 "EHLO
+	dns1.rz.fh-heilbronn.de") by vger.kernel.org with ESMTP
+	id <S271799AbRH1QQ2>; Tue, 28 Aug 2001 12:16:28 -0400
+Date: Tue, 28 Aug 2001 18:16:34 +0200 (CEST)
+From: Oliver Paukstadt <pstadt@stud.fh-heilbronn.de>
+Reply-To: Oliver Paukstadt <oliver@paukstadt.de>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: NFS Client and SMP
+Message-ID: <Pine.LNX.4.05.10108281806180.20438-100000@lara.stud.fh-heilbronn.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15blYK-0006Fb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The layout of the sys_call_table is totally architecture dependant.  The
-> question to ask here is why do you need to use it?  Modifying it to hook
-> into syscalls is frowned upon.
+HY HY
 
-And potentially unsafe (think about caching, and non atomic writes on
-some platforms)
+I have massive problems using client nfs on SMP boxes.
+I can reproduce it 2.4.[0-7] on s390 and s390x and with 2.4.[0-8] on IA32.
+
+Try to reproduce starting massive IO on an nfs mounted volume, eg. tar it
+to /dev/null.
+I tested it against verious servers, eg Slowlaris, HP-UX, DEC, Linux 2.2,
+Linux 2.4, no tar survived.
+using NFS v2 or v3 caused no differences.
+One Intel we have to identical machines with identical setup and only the
+box locks up running nfs client (we switched the roles of the boxes)
+
+On S390 it took 5 to 30 minutes to lock the system, on Intel sometimes it
+took up to 3 hours.
+
+Running the system with only one cpu caused no hangs, all tars finished.
+
+BYtE Oli
+
++++LINUX++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++Manchmal stehe ich sogar nachts auf und installiere mir eins....+++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+ 
 

@@ -1,178 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbTIOOoI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 10:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbTIOOoI
+	id S261445AbTIOOtn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 10:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbTIOOtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 10:44:08 -0400
-Received: from dsl-46020.solcon.nl ([212.45.46.20]:63129 "HELO taos-it.nl")
-	by vger.kernel.org with SMTP id S261439AbTIOOoA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 10:44:00 -0400
-Message-ID: <006e01c37b98$6580a140$0301a8c0@bpo.nl>
-From: "M.S. Lucas" <mslucas@taos-it.nl>
-To: <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
-       <apcupsd-devel@apcupsd.com>
-Subject: [USB] control queue full when using 2.6.0-test5 and apcupsd
-Date: Mon, 15 Sep 2003 16:48:15 +0200
-Organization: TAOS-IT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Mon, 15 Sep 2003 10:49:43 -0400
+Received: from fed1mtao02.cox.net ([68.6.19.243]:54974 "EHLO
+	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S261445AbTIOOtk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 10:49:40 -0400
+Date: Mon, 15 Sep 2003 07:49:39 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+Cc: linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [patch] 2.6.0-test5: serio config broken?
+Message-ID: <20030915144939.GA29517@ip68-0-152-218.tc.ph.cox.net>
+References: <1aba01c379d0$4d061ab0$2dee4ca5@DIAMONDLX60>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1aba01c379d0$4d061ab0$2dee4ca5@DIAMONDLX60>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sat, Sep 13, 2003 at 05:22:16PM +0900, Norman Diamond wrote:
 
-I'm having problems with my APC UPS using an USB cable and the 2.6.0-test5
-kernel
+> Although I can't keep up with the mailing list, I saw this from Adrian Bunk:
+> > On Thu, Sep 11, 2003 at 04:04:48PM -0700, Tom Rini wrote:
+> > >
+> > > Okay.  The following Kconfig illustrates what I claim to be a bug.
+> > > config A
+> > > bool "This is A"
+> > > select B
+> > > config B
+> > > bool "This is B"
+> > > # Or, depends C=y
+> > > depends C
+> > > config C
+> > > bool "This is C"
+> > >
+> > > Running oldconfig will give:
+> > > This is A (A) [N/y] (NEW) y
+> > > This is C (C) [N/y] (NEW) n
+> > > And in .config:
+> > > CONFIG_A=y
+> > > CONFIG_B=y
+> > > # CONFIG_C is not set
+> 
+> This is a problem.  Proposed solution follows later.
+> 
+> > > I claim that this should in fact be:
+> > > CONFIG_A=y
+> > > CONFIG_B=y
+> > > CONFIG_C=y
+> 
+> Even for this simple case, there are other possibilities.  When we add human
+> logic to the specified sequence of events then we can say that your
+> interpretation is most likely what the user wanted, but in ordinary logic
+> there are other possibilities such as n, n, n.  Proposed solution follows.
+> 
+> > The problem is that select ignores dependencies.
+> > Unfortunately, your proposal wouldn't work easily, consider e.g.
+> > config A
+> > bool "This is A"
+> > select B
+> > config B
+> > bool
+> > depends C || D
+> > config C
+> > bool "This is C"
+> > depends D=n
+> > config D
+> > bool "This is D"
+> > Do you want C or D to be selected?
+> 
+> If neither is selected, then the problem is essentially the same as the one
+> which Mr. Rini pointed out.  And again there are other possible
+> possibilities such as n, n, n, n.
+> 
+> Solution:  Surely plain "make" could start by checking dependencies.  Or
+> maybe "make dep" could be reincarnated.  If there is any inconsistency, then
+> the Makefile could issue an error and refuse to start compiling.
+> 
+> This has the added benefit that if the human has some reason to edit the
+> .config file by hand instead of using a make [...]config command, plain
+> "make" will have a chance of catching editing errors.
+> 
+> This doesn't automate a solution as thoroughly as either of you were hoping
+> for; it honestly admits that it can't read the human's mind  :-)
 
-I hope somebody can help me?
+Yes, even that would work quite nicely, perhaps while saying what the
+specific problem is as well.  Roman, how hard would this be to do?
 
-root@orion:/etc/apcupsd $ uname -a
-Linux orion 2.6.0-test5 #4 SMP Sun Sep 14 20:06:21 CEST 2003 i686 GNU/Linux
-
-root@orion:/etc/apcupsd $ lspci -v
-02:08.0 USB Controller: NEC Corporation USB (rev 41) (prog-if 10 [OHCI])
-        Subsystem: Unknown device 807d:0035
-        Flags: bus master, medium devsel, latency 32, IRQ 19
-        Memory at f7000000 (32-bit, non-prefetchable) [size=4K]
-        Capabilities: [40] Power Management version 2
-
-02:08.1 USB Controller: NEC Corporation USB (rev 41) (prog-if 10 [OHCI])
-        Subsystem: Unknown device 807d:0035
-        Flags: bus master, medium devsel, latency 32, IRQ 16
-        Memory at f6800000 (32-bit, non-prefetchable) [size=4K]
-        Capabilities: [40] Power Management version 2
-
-02:08.2 USB Controller: NEC Corporation USB 2.0 (rev 02) (prog-if 20 [EHCI])
-        Subsystem: Unknown device 807d:1043
-        Flags: bus master, medium devsel, latency 32, IRQ 17
-        Memory at f6000000 (32-bit, non-prefetchable) [size=256]
-        Capabilities: [40] Power Management version 2
-
-Using
-root@orion:/etc/apcupsd $ apcupsd --version
-apcupsd 3.10.6 (05 August 2003) debian
-
-(apcupsd-devel_3.10.6.20030805-05Aug03-3_i386.deb)
-
-
-After
-root@orion:/etc/apcupsd $ modprobe hid
-This is in my logfiles
-Sep 15 15:56:14 orion kernel: drivers/usb/core/usb.c: registered new driver
-hub
-Sep 15 15:56:14 orion kernel: drivers/usb/core/usb.c: registered new driver
-hiddev
-Sep 15 15:56:14 orion kernel: drivers/usb/core/usb.c: registered new driver
-hid
-Sep 15 15:56:14 orion kernel: drivers/usb/input/hid-core.c: v2.0:USB HID
-core driver
-Sep 15 15:56:22 orion last message repeated 3 times
-
-
-After
-root@orion:/etc/apcupsd $ modprobe ohci-hcd
-This is in my logfiles
-Sep 15 15:57:22 orion kernel: ohci-hcd: 2003 Feb 24 USB 1.1 'Open' Host
-Controller (OHCI) Driver (PCI)
-Sep 15 15:57:22 orion kernel: ohci-hcd: block sizes: ed 64 td 64
-Sep 15 15:57:22 orion kernel: ohci-hcd 0000:02:08.0: OHCI Host Controller
-Sep 15 15:57:23 orion kernel: ohci-hcd 0000:02:08.0: irq 19, pci mem
-f0c43000
-Sep 15 15:57:23 orion kernel: ohci-hcd 0000:02:08.0: new USB bus registered,
-assigned bus number 1
-Sep 15 15:57:23 orion kernel: hub 1-0:0: USB hub found
-Sep 15 15:57:23 orion kernel: hub 1-0:0: 3 ports detected
-Sep 15 15:57:23 orion kernel: ohci-hcd 0000:02:08.1: OHCI Host Controller
-Sep 15 15:57:24 orion kernel: ohci-hcd 0000:02:08.1: irq 16, pci mem
-f0c45000
-Sep 15 15:57:24 orion kernel: ohci-hcd 0000:02:08.1: new USB bus registered,
-assigned bus number 2
-Sep 15 15:57:24 orion kernel: hub 2-0:0: USB hub found
-Sep 15 15:57:24 orion kernel: hub 2-0:0: 2 ports detected
-Sep 15 15:57:24 orion kernel: hub 2-0:0: debounce: port 2: delay 100ms
-stable 4 status 0x301
-Sep 15 15:57:24 orion kernel: hub 2-0:0: new USB device on port 2, assigned
-address 2
-Sep 15 15:57:26 orion kernel: hiddev96: USB HID v1.10 Device [American Power
-Conversion Smart-UPS 750 XL FW:630.3.I USB FW:1.] on usb-0000:02:08.1-2
-Sep 15 15:57:30 orion last message repeated 3 times
-
-root@orion:/etc/apcupsd $ ls -al /dev/usb/hid/hiddev0
-crw-r--r--    1 root     root     180,  96 Jan  1  1970 /dev/usb/hid/hiddev0
-
-
-in my /etc/apcupsd/apcupsd.conf i configured the following lines for my UPS
-UPSCABLE usb
-UPSTYPE usb
-
-after
-root@orion:/etc/apcupsd $ /etc/init.d/apcupsd-devel start
-Starting APC UPS power management: apcupsd-devel.
-This is in my logfiles
-Sep 15 16:00:06 orion apcupsd[21908]: apcupsd 3.10.6 (05 August 2003) debian
-startup succeeded
-Sep 15 16:00:07 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:00:38 orion last message repeated 148089 times
-Sep 15 16:00:53 orion last message repeated 84977 times
-Sep 15 16:00:53 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:00:53 orion last message repeated 3163 times
-Sep 15 16:00:53 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:00:53 orion last message repeated 731 times
-Sep 15 16:00:53 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:00:54 orion last message repeated 2922 times
-Sep 15 16:00:54 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:00:59 orion last message repeated 61195 times
-Sep 15 16:00:59 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:00:59 orion last message repeated 13 times
-Sep 15 16:00:59 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:01:00 orion last message repeated 11786 times
-Sep 15 16:01:00 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:01:00 orion last message repeated 11 times
-Sep 15 16:01:00 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:01:00 orion last message repeated 636 times
-Sep 15 16:01:00 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:01:00 orion last message repeated 404 times
-Sep 15 16:01:00 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:01:00 orion last message repeated 282 times
-Sep 15 16:01:00 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:01:01 orion last message repeated 1409 times
-Sep 15 16:01:01 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:01:01 orion last message repeated 284 times
-Sep 15 16:01:01 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:01:01 orion last message repeated 749 times
-Sep 15 16:01:01 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:01:01 orion last message repeated 14 times
-Sep 15 16:01:01 orion kernel: drivers/usb/input/hid-core.c: control queue
-full
-Sep 15 16:01:03 orion last message repeated 20233 times
-Sep 15 16:01:03 orion kernel: ue full
-
-Can somebody please give me a hint where to look.
-
-Thanks in advance
-
-Maurice Lucas
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

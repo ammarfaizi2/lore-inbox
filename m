@@ -1,84 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131906AbRA1Na3>; Sun, 28 Jan 2001 08:30:29 -0500
+	id <S136594AbRA1Nha>; Sun, 28 Jan 2001 08:37:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132362AbRA1NaT>; Sun, 28 Jan 2001 08:30:19 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:63228 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S131906AbRA1NaF>; Sun, 28 Jan 2001 08:30:05 -0500
-Date: Sun, 28 Jan 2001 13:29:52 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: jamal <hadi@cyberus.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ECN: Clearing the air (fwd)
-In-Reply-To: <Pine.GSO.4.30.0101280700580.24762-100000@shell.cyberus.ca>
-Message-ID: <Pine.SOL.4.21.0101281324210.26837-100000@yellow.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136506AbRA1NhV>; Sun, 28 Jan 2001 08:37:21 -0500
+Received: from felix.convergence.de ([212.84.236.131]:39687 "EHLO
+	convergence.de") by vger.kernel.org with ESMTP id <S132290AbRA1NhL>;
+	Sun, 28 Jan 2001 08:37:11 -0500
+Date: Sun, 28 Jan 2001 14:37:48 +0100
+From: Felix von Leitner <leitner@fefe.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
+Message-ID: <20010128143748.A9767@convergence.de>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3A726087.764CC02E@uow.edu.au> <200101271854.VAA02845@ms2.inr.ac.ru> <3A73AF7B.6610B559@uow.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3A73AF7B.6610B559@uow.edu.au>; from andrewm@uow.edu.au on Sun, Jan 28, 2001 at 04:34:51PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Jan 2001, jamal wrote:
-> On Sun, 28 Jan 2001, James Sutherland wrote:
-> 
-> > I'm sure we all know what the IETF is, and where ECN came from. I haven't
-> > seen anyone suggesting ignoring RST, either: DM just imagined that,
-> > AFAICS.
-> 
-> The email was not necessarily intended for you. You just pulled the pin.
-> There were people who made the suggestion that TCP should retry after a
-> RST because it "might be an anti-ECN path"
+Thus spake Andrew Morton (andrewm@uow.edu.au):
+> Conclusions:
 
-That depends what you mean by "retry"; I wanted the ability to attempt a
-non-ECN connection. i.e. if I'm a mailserver, and try connecting to one of
-Hotmail's MX hosts with ECN, I'll get RST every time. I would like to be
-able to retry with ECN disabled for that connection.
+>   For a NIC which cannot do scatter/gather/checksums, the zerocopy
+>   patch makes no change in throughput in all case.
 
-> > The one point I would like to make, though, is that firewalls are NOT
-> > "brain-damaged" for blocking ECN: according to the RFCs governing
-> > firewalls, and the logic behind their design, blocking packets in an
-> > unknown format (i.e. with reserved bits set) is perfectly legitimate.
-> 
-> I dont agree that unknown format == reserved. I think it is bad design to
-> assume that. You may be forgiven if you provide the operator
-> opportunities to reset your assumptions via a config option.
-> It has nothing to do with a paranoia setting, just a bad design. Nothing
-> legit about that.
+>   For a NIC which can do scatter/gather/checksums, sendfile()
+>   efficiency is improved by 40% and send() efficiency is decreased by
+>   10%.  The increase and decrease caused by the zerocopy patch will in
+>   fact be significantly larger than these two figures, because the
+>   measurements here include a constant base load caused by the device
+>   driver.
 
-On the contrary: rejecting weird-looking traffic is perfectly legit. I
-agree RST is the wrong response, but it's too late to tell Cisco that
-now...
+What is missing here is a good authoritative web ressource that tells
+people which NIC to buy.
 
-> > Yes,
-> > those firewalls should be updated to allow ECN-enabled packets
-> > through. However, to break connectivity to such sites deliberately just
-> > because they are not supporting an *experimental* extension to the current
-> > protocols is rather silly.
-> 
-> This is the way it's done with all protocols. or i should say the way it
-> used to be done. How do you expect ECN to be deployed otherwise?
+I have a tulip NIC because a few years ago that apparently was the NIC
+of choice.  It has good multicast (which is important to me), but AFAIK
+it has neither scatter-gather nor hardware checksumming.
 
-The current versions of these firewalls handle ECN OK. I just want Linux
-to degrade gracefully when unable to use ECN: it will be a while before
-all these firewalls have gone.
+Is there such a web page already?
+If not, I volunteer to create amd maintain one.
 
-> The internet is a form of organized chaos, sometimes you gotta make
-> these type of decisions to get things done. Imagine the joy _most_
-> people would get flogging all firewall admins who block all ICMP.
-
-Blocking out ICMP doesn't bother me particularly. I know they should be
-selective, but it doesn't break anything essential.
-
-> There is nothing silly with the decision, davem is simply a modern day
-> internet hero.
-
-No. If it were something essential, perhaps, but it's just a minor
-performance tweak to cut packet loss over congested links. It's not
-IPv6. It's not PMTU. It's not even very useful right now!
-
-
-James.
-
+Felix
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

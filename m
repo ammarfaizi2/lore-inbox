@@ -1,49 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266991AbSKLVxH>; Tue, 12 Nov 2002 16:53:07 -0500
+	id <S266981AbSKLVwV>; Tue, 12 Nov 2002 16:52:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266979AbSKLVwZ>; Tue, 12 Nov 2002 16:52:25 -0500
-Received: from im2.mail.tds.net ([216.170.230.92]:24816 "EHLO im2.sec.tds.net")
-	by vger.kernel.org with ESMTP id <S266970AbSKLVwR>;
-	Tue, 12 Nov 2002 16:52:17 -0500
-Date: Tue, 12 Nov 2002 16:57:43 -0500 (EST)
-From: Jon Portnoy <portnoy@tellink.net>
-X-X-Sender: portnoy@cerberus.localhost
-To: "Theodore Ts'o" <tytso@mit.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] devfs API
-In-Reply-To: <20021112080417.GA11660@think.thunk.org>
-Message-ID: <Pine.LNX.4.44.0211121656230.21234-100000@cerberus.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266979AbSKLVwL>; Tue, 12 Nov 2002 16:52:11 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:40873 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S266970AbSKLVv7>; Tue, 12 Nov 2002 16:51:59 -0500
+Subject: [PATCH] linux-2.5.47_timer-tsc-cleanup_A0.patch
+From: john stultz <johnstul@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 12 Nov 2002 13:54:36 -0800
+Message-Id: <1037138077.28539.21.camel@cog>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus, all
+	Just a resend of my timer_tsc cleanup. This yanks an unused variable
+and pulls fast_gettimeoffset_quotient from the global namespace.
+
+Please apply.
+
+thanks,
+-john
 
 
-On Tue, 12 Nov 2002, Theodore Ts'o wrote:
+diff -Nru a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
+--- a/arch/i386/kernel/smpboot.c	Tue Nov 12 13:50:47 2002
++++ b/arch/i386/kernel/smpboot.c	Tue Nov 12 13:50:47 2002
+@@ -181,8 +181,6 @@
+ 
+ #define NR_LOOPS 5
+ 
+-extern unsigned long fast_gettimeoffset_quotient;
+-
+ /*
+  * accurate 64-bit/32-bit division, expanded to 32-bit divisions and 64-bit
+  * multiplication. Not terribly optimized but we need it at boot time only
+@@ -222,7 +220,8 @@
+ 
+ 	printk("checking TSC synchronization across %u CPUs: ", num_booting_cpus());
+ 
+-	one_usec = ((1<<30)/fast_gettimeoffset_quotient)*(1<<2);
++	/* convert from kcyc/sec to cyc/usec */
++	one_usec = cpu_khz / 1000;
+ 
+ 	atomic_set(&tsc_start_flag, 1);
+ 	wmb();
+diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
+--- a/arch/i386/kernel/timers/timer_tsc.c	Tue Nov 12 13:50:47 2002
++++ b/arch/i386/kernel/timers/timer_tsc.c	Tue Nov 12 13:50:47 2002
+@@ -15,7 +15,6 @@
+ extern int x86_udelay_tsc;
+ extern spinlock_t i8253_lock;
+ 
+-static int use_tsc;
+ /* Number of usecs that the last interrupt was delayed */
+ static int delay_at_last_interrupt;
+ 
+@@ -26,7 +25,7 @@
+  * Equal to 2^32 * (1 / (clocks per usec) ).
+  * Initialized in time_init.
+  */
+-unsigned long fast_gettimeoffset_quotient;
++static unsigned long fast_gettimeoffset_quotient;
+ 
+ static unsigned long get_offset_tsc(void)
+ {
+@@ -260,7 +259,6 @@
+ 		unsigned long tsc_quotient = calibrate_tsc();
+ 		if (tsc_quotient) {
+ 			fast_gettimeoffset_quotient = tsc_quotient;
+-			use_tsc = 1;
+ 			/*
+ 			 *	We could be more selective here I suspect
+ 			 *	and just enable this for the next intel chips ?
 
-> On Mon, Nov 11, 2002 at 08:49:22PM -0500, Alexander Viro wrote:
-[snip]
-> 
-> Hi Al,
-> 
-> It's good that you're trying to clean up the devfs code, but...
-> 
-> How many people are actually using devfs these days?  I don't like it
-> myself, and I've had to add a fair amount of hair to fsck's
-> mount-by-label/uuid code to deal with interesting cases such as
-> kernels where devfs is configured, but not actually mounted (it
-> changes what /proc/partitions exports).  So I'm one of those who have
-> never looked all that kindly on devfs, which shouldn't come as a
-> surprise to most folks.
-> 
-> In any case, if there aren't all that many people using devfs, I can
-> think of a really easy way in which we could simplify and clean up its
-> API by slimming it down by 100%......
-> 
-
-Actually, a lot of people are. Gentoo, at least, uses it by default.
-
-I think devfs is a good idea, as a user of it.
 

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319846AbSINDHM>; Fri, 13 Sep 2002 23:07:12 -0400
+	id <S319848AbSINDbd>; Fri, 13 Sep 2002 23:31:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319847AbSINDHM>; Fri, 13 Sep 2002 23:07:12 -0400
-Received: from tomts14-srv.bellnexxia.net ([209.226.175.35]:6864 "EHLO
-	tomts14-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S319846AbSINDHL>; Fri, 13 Sep 2002 23:07:11 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Slava Polyakov <hackie@misato.prohost.org>
-Reply-To: hackie@misato.prohost.org
-To: linux-kernel@vger.kernel.org
-Subject: kernel BUG at page_alloc.c:102!
-Date: Fri, 13 Sep 2002 23:10:20 -0400
-User-Agent: KMail/1.4.1
+	id <S319849AbSINDbd>; Fri, 13 Sep 2002 23:31:33 -0400
+Received: from mx5.sac.fedex.com ([199.81.194.37]:8205 "EHLO mx5.sac.fedex.com")
+	by vger.kernel.org with ESMTP id <S319848AbSINDbd>;
+	Fri, 13 Sep 2002 23:31:33 -0400
+Date: Sat, 14 Sep 2002 11:35:32 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: jchua@silk.corp.fedex.com
+To: Werner Almesberger <wa@almesberger.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] initrd >24MB corruption (fwd)
+In-Reply-To: <20020914000159.A3352@almesberger.net>
+Message-ID: <Pine.LNX.4.42.0209141130250.30528-100000@silk.corp.fedex.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200209132310.20585.hackie@misato.prohost.org>
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/14/2002
+ 11:36:15 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/14/2002
+ 11:36:21 AM,
+	Serialize complete at 09/14/2002 11:36:21 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux misato 2.4.20-pre2 #1 Wed Aug 14 18:36:46 EDT 2002 i686 unknown
+On Sat, 14 Sep 2002, Werner Almesberger wrote:
 
-kernel BUG at page_alloc.c:102!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c0136c14>]    Not tainted
-EFLAGS: 00010202
-eax: 01000009   ebx: c141677c   ecx: c141677c   edx: c13d6b58
-esi: 00000000   edi: 00000000   ebp: 00215c00   esp: df3c1e28
-ds: 0018   es: 0018   ss: 0018
-Process smbd (pid: 28639, stackpage=df3c1000)
-Stack: c141677c 00215c00 00000000 00215c00 00001000 cb510f00 c141677c c013fad5
-       c141677c c141677c 00000000 c141677c 00215c00 c0137827 c0137998 00215c00
-       00000011 c141677c c013aafa c141677c 00215c00 00000052 c55d7400 c55d7520
-Call Trace:    [<c013fad5>] [<c0137827>] [<c0137998>] [<c013aafa>] 
-[<c013ba1f>]
-  [<c012c6d9>] [<c012c85e>] [<c0119bc8>] [<c0119a68>] [<c01cb32a>] 
-[<c01107e2>]
-  [<c01108a0>] [<c010ab4c>]
+> So, assuming the problem is indeed the kernel overwriting initrd,
+> there are three things you can do to avoid this:
+>
+>  - use a smaller initrd (they were never meant to be quite
+>    *that* big anyway :-)
 
-Code: 0f 0b 66 00 f3 c0 34 c0 8b 43 18 a8 80 74 08 0f 0b 68 00 f3
+First, thanks for replying.
 
-The box is however is up.. and I'm still using it.. It's personal workstation, 
-so no biggie.. if it's up I'm happy.  If anymore info is desired I will 
-provide.... 
+Now, I used "strip" to strip everything including /lib/lib* and managed to
+reduced from 24MB to 12MB uncompressed (8MB to 5MB compressed), and
+avoided the booting problem. Stripping /lib/lib*.so* was the answer!
+
+Thanks,
+Jeff.
+
+

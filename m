@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268133AbRIWPQ5>; Sun, 23 Sep 2001 11:16:57 -0400
+	id <S270774AbRIWPYQ>; Sun, 23 Sep 2001 11:24:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270134AbRIWPQq>; Sun, 23 Sep 2001 11:16:46 -0400
-Received: from stine.vestdata.no ([195.204.68.10]:43685 "EHLO
-	stine.vestdata.no") by vger.kernel.org with ESMTP
-	id <S268133AbRIWPQi>; Sun, 23 Sep 2001 11:16:38 -0400
-Date: Sun, 23 Sep 2001 17:16:38 +0200
-From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-To: rojesh p <rojesh_p@rediffmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: multiple ethernet load balancing
-Message-ID: <20010923171638.C23635@vestdata.no>
-In-Reply-To: <20010923152442.8663.qmail@mailweb23.rediffmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S270992AbRIWPYG>; Sun, 23 Sep 2001 11:24:06 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:40900
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S270774AbRIWPX4>; Sun, 23 Sep 2001 11:23:56 -0400
+Date: Sun, 23 Sep 2001 11:24:00 -0400
+From: Chris Mason <mason@suse.com>
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        Beau Kuiper <kuib-kl@ljbc.wa.edu.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Significant performace improvements on reiserfs
+ systems, kupdated bugfixes
+Message-ID: <1903280000.1001258640@tiny>
+In-Reply-To: <20010922213218.D31000@emma1.emma.line.org>
+In-Reply-To: <20010921152627.C13862@emma1.emma.line.org>
+ <Pine.LNX.4.30.0109230226210.25332-100000@gamma.student.ljbc>
+ <20010922213218.D31000@emma1.emma.line.org>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010923152442.8663.qmail@mailweb23.rediffmail.com>; from rojesh_p@rediffmail.com on Sun, Sep 23, 2001 at 03:24:42PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 23, 2001 at 03:24:42PM -0000, rojesh  p wrote:
-> >>       i am trying to develop a ethernet driver for 
-> >>using more than one ethernet card per machine so that i 
-> >>can increase the speed of the network.i am writing the 
-> >>driver for ne2000 ethernet card. can anyone help in 
-> >>finding the necessary details relating to my project. 
-> >>has anybody written the dirver for multiple ethernet 
-> >>cards which transmit data simultaneously.if so where 
-> >>can i find the source code.
-> >
-> >http://bonding.sourceforge.net/
+
+
+On Saturday, September 22, 2001 09:32:18 PM +0200 Matthias Andree
+<matthias.andree@stud.uni-dortmund.de> wrote:
+> On Sun, 23 Sep 2001, Beau Kuiper wrote:
+>
+>> This code change does not affect the functionality of fsync(), only
+>> kupdated. kupdated is responsible for flushing buffers that have been
+>> sitting around too long to disk.
+
+Correct, fsync is unchanged, but sync() does rely on the super dirty bit.
+If the super isn't dirty, then sync doesn't try to force metadata to disk
+at all.
+
 > 
-> i didnt find anytihng at http://bonding.sourceforge.net/
+> Sorry, I didn't grok that when writing my previous mail in this thread.
+> I thought kupdate was the one that writes ReiserFS transactions, but
+> that's kreiserfsd, I think.
 
-UPS - they didn't make a homepage yet. Try:
-http://sourceforge.net/projects/bonding
+Well, kreiserfsd usually writes the log blocks, when a transaction ends on
+its own (full, or too old).  If someone requests a synchronous commit
+(fsync, any caller of write_super), that process writes the log blocks
+themselves.  So, kupdated ends up writing log blocks too.
 
+Plus, reiserfs uses write_super as a trigger for metadata writeback, so
+kupdate writes those blocks as well.
 
+-chris
 
--- 
-Ragnar Kjørstad
-Big Storage

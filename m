@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266464AbUBLOtT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 09:49:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266471AbUBLOtS
+	id S266471AbUBLOvH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 09:51:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266472AbUBLOvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 09:49:18 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:64628 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S266464AbUBLOtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 09:49:15 -0500
-Message-ID: <402B92A4.7040703@myrealbox.com>
-Date: Thu, 12 Feb 2004 06:50:12 -0800
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.6) Gecko/20040206
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, bcollins@debian.org
-Subject: Re: [2.6.3-rc2 bk]  ieee1394 oops on bootup
-References: <fa.fjveksa.v44uhu@ifi.uio.no>
-In-Reply-To: <fa.fjveksa.v44uhu@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 12 Feb 2004 09:51:06 -0500
+Received: from dp.samba.org ([66.70.73.150]:58521 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266471AbUBLOu4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 09:50:56 -0500
+Date: Fri, 13 Feb 2004 01:47:29 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.3-rc2-mm1
+Message-ID: <20040212144729.GI25922@krispykreme>
+References: <20040212015710.3b0dee67.akpm@osdl.org> <20040212031322.742b29e7.akpm@osdl.org> <20040212115718.GF25922@krispykreme> <20040212040910.3de346d4.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040212040910.3de346d4.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-walt wrote:
-> This problem started with the bk changesets from Linus yesterday (11Feb).
-> 
-> I get the oops below if Firewire is compiled into the kernel or if the
-> modules are loaded at bootime (I'm using hotplug+udev).  The strange
-> thing is that if I load the Firewire modules by hand after bootup then
-> everything is okay....
 
-Sorry, I just discovered that this is wrong.  I can load the ieee1394
-module with no errors.  It is only when I load the ohci1394 module
-that the oops occurs -- even after booting.
+> > A few questions spring to mind. Like who wrote that dodgy patch? 
+> The dog wrote my homework?
 
+> > And any ideas how said person (who will remain nameless) broke ia32?
+> Not really.  I spent a couple of hours debugging the darn thing, then gave
+> up and used binary search to find the offending patch.
+
+Ouch, you'll never get those hours back and you have me to thank for it.
+
+> <looks>
+> include/asm-i386/hardirq.h:IRQ_EXIT_OFFSET needs treatment, I bet.  
+
+Yep. I wonder why DEBUG_SPINLOCK_SLEEP didnt depend on PREEMPT.
+
+Anton

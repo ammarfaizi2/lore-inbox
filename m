@@ -1,11 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132426AbRDFWoz>; Fri, 6 Apr 2001 18:44:55 -0400
+	id <S132427AbRDFXAa>; Fri, 6 Apr 2001 19:00:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132427AbRDFWog>; Fri, 6 Apr 2001 18:44:36 -0400
-Received: from [213.166.15.20] ([213.166.15.20]:779 "EHLO
+	id <S132428AbRDFXAU>; Fri, 6 Apr 2001 19:00:20 -0400
+Received: from [213.166.15.20] ([213.166.15.20]:27918 "EHLO
 	mailth4.byworkwise.com") by vger.kernel.org with ESMTP
-	id <S132426AbRDFWoa>; Fri, 6 Apr 2001 18:44:30 -0400
+	id <S132427AbRDFXAE>; Fri, 6 Apr 2001 19:00:04 -0400
+Message-ID: <3ACE4A43.F1811A5B@FreeNet.co.uk>
+Date: Fri, 06 Apr 2001 23:59:15 +0100
+From: Sid Boyce <sidb@FreeNet.co.uk>
+Reply-To: sidb@FreeNet.co.uk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [Fwd: No USB under 2.4.3 and 2.4.3-ac?]
+Content-Type: multipart/mixed;
+ boundary="------------D42701F4BC3DE5472FCBAF97"
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
+
+This is a multi-part message in MIME format.
+--------------D42701F4BC3DE5472FCBAF97
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+
+-- 
+Sid Boyce ... hamradio G3VBV ... Cessna/Warrior Pilot
+Linux only shop.. Tel. 44-121 422 0375
+--------------D42701F4BC3DE5472FCBAF97
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+X-Mozilla-Status2: 00000000
 Message-ID: <3ACE4694.3FFD3236@FreeNet.co.uk>
 Date: Fri, 06 Apr 2001 23:43:32 +0100
 From: Sid Boyce <sidb@FreeNet.co.uk>
@@ -17,8 +46,6 @@ To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Subject: No USB under 2.4.3 and 2.4.3-ac?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
 
 	This happens on a PIII/GigaByte 6BXE, Athlon 900/ABit KT7 and on a
 friend's Cyrix M-II/333 with PC-Chips PC100 mobo and SIS chipset. The
@@ -59,3 +86,6 @@ Regards
 -- 
 Sid Boyce ... hamradio G3VBV ... Cessna/Warrior Pilot
 Linux only shop.. Tel. 44-121 422 0375
+
+--------------D42701F4BC3DE5472FCBAF97--
+

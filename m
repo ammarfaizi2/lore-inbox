@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272393AbTHIPBk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 11:01:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272395AbTHIPBk
+	id S272390AbTHIO6P (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 10:58:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272392AbTHIO6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 11:01:40 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:15113 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S272393AbTHIPBh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 11:01:37 -0400
-Date: Sat, 9 Aug 2003 17:01:32 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Phoenix <phoenix@comms.engg.susx.ac.uk>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] usb-storage: WIN_SECURITY_UNLOCK
-Message-ID: <20030809170132.A8883@pclin040.win.tue.nl>
-References: <Pine.LNX.4.44.0308091352350.7461-100000@engg101-57.comms.engg.susx.ac.uk>
+	Sat, 9 Aug 2003 10:58:15 -0400
+Received: from washoe.rutgers.edu ([165.230.95.67]:33486 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S272390AbTHIO6N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 10:58:13 -0400
+Date: Sat, 9 Aug 2003 10:58:12 -0400
+From: Yaroslav Halchenko <yoh@onerussian.com>
+To: linux-kernel@vger.kernel.org
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Christian Reichert <c.reichert@resolution.de>
+Subject: Re: unexpected IRQ trap at vector a0
+Message-ID: <20030809145812.GA12036@washoe.rutgers.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Christian Reichert <c.reichert@resolution.de>
+References: <20030809022532.GA6345@washoe.rutgers.edu> <Pine.LNX.4.53.0308090309090.32166@montezuma.mastecende.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0308091352350.7461-100000@engg101-57.comms.engg.susx.ac.uk>; from phoenix@comms.engg.susx.ac.uk on Sat, Aug 09, 2003 at 02:00:06PM +0100
+In-Reply-To: <Pine.LNX.4.53.0308090309090.32166@montezuma.mastecende.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 09, 2003 at 02:00:06PM +0100, Phoenix wrote:
+Thank you guys for problem-pinning-down answers!
 
-> Is it possible to send ATAPI commands to usb-storage hard-disks, like
-> WIN_SECURITY_UNLOCK, through the scsi inteface?
+First I've tried
+acpi=off
+
+the kernel crashed right at the beginning of boot with smth like
+
+oops: 0000[#1]
+
+EOP is at acpi_pci_register_driver + 0x30/0x5c
+
+Call trace: acpiphp_glue_init+0x1b/0x31
+.....
+
+But then,,,,
+
+> > unexpected IRQ trap at vector a0
 > 
-> I have an ALI5621 chipset that supports SCSI transparent command set
-> only and I didn't find anything in SCSI-2 that is related to the ATAPI
-> security features.
+>   9:     100000          0          XT-PIC  acpi
+> 
+> Cute, the interrupt storm monitor caught it dead =) Can you verify whether 
+> booting with the kernel parameter noirqdebug 'fixes' things? Also boot 
+> with the 'debug' kernel parameter as it will print out things like what is 
+> at vector a0.
 
-I think the general answer will be No.
+Uau - noirqdebug seems to "fix" the problem - I don't get complains any
+more at least - will research other weirdness of system behaviour for
+now with -test3 kernel!
 
-A similar question is whether ide-floppy is superfluous and one can
-do everything via ide-scsi. Again I think the answer will be No.
+Thank you!
 
-Indeed, ide-scsi uses the Packet command A0 of ATAPI to send
-SCSI command packets to the ATAPI device. But there is no reason
-to expect that all ATAPI commands are covered this way.
-The first example is already A1: IDENTIFY PACKET DEVICE.
-SCSI has INQUIRY, but that is not the same.
+> Thanks,
+> 	Zwane
+Thank you!
 
-I have some ancient patches to ide-floppy.c that allow one
-to switch an Iomega ZIP drive between large floppy and removable disk.
-I do not know of a way to send these same commands via ide-scsi.
-
-Andries
-
+                                  .-.
+=------------------------------   /v\  ----------------------------=
+Keep in touch                    // \\     (yoh@|www.)onerussian.com
+Yaroslav Halchenko              /(   )\               ICQ#: 60653192
+                   Linux User    ^^-^^    [175555]

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129518AbRBBAd6>; Thu, 1 Feb 2001 19:33:58 -0500
+	id <S129566AbRBBAib>; Thu, 1 Feb 2001 19:38:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129566AbRBBAdt>; Thu, 1 Feb 2001 19:33:49 -0500
-Received: from mdmgrp3-223.accesstoledo.net ([207.43.108.223]:36878 "EHLO
-	rosswinds.net") by vger.kernel.org with ESMTP id <S129518AbRBBAda>;
-	Thu, 1 Feb 2001 19:33:30 -0500
-Date: Wed, 31 Jan 2001 19:32:03 -0500 (EST)
-From: "Michael B. Trausch" <fd0man@crosswinds.net>
-To: Wayne.Brown@altec.com
-cc: "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>,
-        Alan Chandler <alan@chandlerfamily.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: spelling of disc (disk) in /devfs
-In-Reply-To: <862569E6.007EDB83.00@smtpnotes.altec.com>
-Message-ID: <Pine.LNX.4.21.0101311930100.6351-100000@fd0man.accesstoledo.com>
+	id <S131564AbRBBAiV>; Thu, 1 Feb 2001 19:38:21 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:63494 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S129566AbRBBAiG>;
+	Thu, 1 Feb 2001 19:38:06 -0500
+Date: Fri, 2 Feb 2001 01:37:28 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Subject: Re: [PATCH] 2.4.1-ac1 UP-APIC/NMI watchdog fixes
+In-Reply-To: <200102011928.UAA03188@harpo.it.uu.se>
+Message-ID: <Pine.LNX.4.30.0102020135421.4852-100000@elte.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Feb 2001 Wayne.Brown@altec.com wrote:
-> 
-> To confuse things even more, I have a "Hewlett-Packard 9114 Disc Drive," which
-> is really a 720K 3.5-inch diskette drive.
-> 
-> Wayne
-> 
 
-Hrm..  hehehe, well, it may be confusing, but I've accepted the public's
-unwillingness to use the real term.  I am pretty flexible when it comes to
-how people address things and just go with the flow.  If it's disc in
-Linux, let it just stay that way, 'cuz that's what I'll use.  Otherwise,
-it'll break when things start to use disk.
+On Thu, 1 Feb 2001, Mikael Pettersson wrote:
 
-	- Mike
+> This patch (against 2.4.1-ac1) contains the following fixes:
+> * UP-APIC linkage fix: nr_ioapics must be moved from io_apic.c to
+>   mpparse.c to permit linking the kernel in pure UP-APIC configs.
+> * NMI watchdog cleanups: mark setup_apic_nmi_watchdog() as __init,
+>   fix the K7 init code to not leave any perfctr MSR uninitialised,
+>   avoid having to check CPU type in NMI handler.
+>   (Yes, the merged wrmsr(,,-1) is safe for P6.)
 
-===========================================================================
-Michael B. Trausch                                    fd0man@crosswinds.net
-Avid Linux User since April, '96!                           AIM:  ML100Smkr
+thanks Mikael! Did you have a chance to test this on a K7? Does
+UP-APIC-NMI-watchdog code truly 'just work' now on the K7?
 
-              Contactable via IRC (DALNet) or AIM as ML100Smkr
-===========================================================================
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132547AbRCZTTX>; Mon, 26 Mar 2001 14:19:23 -0500
+	id <S132575AbRCZT2X>; Mon, 26 Mar 2001 14:28:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132550AbRCZTTN>; Mon, 26 Mar 2001 14:19:13 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:11392 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S132547AbRCZTS7>;
-	Mon, 26 Mar 2001 14:18:59 -0500
-Message-ID: <3ABF95F8.84508E68@mandrakesoft.com>
-Date: Mon, 26 Mar 2001 14:18:16 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Santiago Garcia Mantinan <manty@udc.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with Wake on LAN
-In-Reply-To: <20010326210846.A1182@manty.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132572AbRCZT2P>; Mon, 26 Mar 2001 14:28:15 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:37436 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S132546AbRCZT1z>; Mon, 26 Mar 2001 14:27:55 -0500
+Date: Mon, 26 Mar 2001 13:26:50 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200103261926.NAA02298@tomcat.admin.navo.hpc.mil>
+To: matthew@wil.cx, LA Walsh <law@sgi.com>
+Subject: Re: 64-bit block sizes on 32-bit systems
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Santiago Garcia Mantinan wrote:
-> 
-> Hi!
-> 
-> I've been trying to get Wake on LAN working under kernel 2.4.2 with a 3COM
-> 3c905C-TX card, standard 2.4.2 drivers, I have manage to get it working, but
-> only if I don't compile ACPI and I don't load the network card driver, as
-> any of this things make the Wake on LAN not work. APM and other features
-> don't seem to affect the card waking, but this two really break it.
-> 
-> Is there any plan on solving any of this for the future?
-> 
-> Is there anything I can do to help get this working?
+---------  Received message begins Here  ---------
 
-Are you using Becker's ftp://www.scyld.com/pub/diag/ether-wake.c ?
+> 
+> On Mon, Mar 26, 2001 at 08:39:21AM -0800, LA Walsh wrote:
+> > I vaguely remember a discussion about this a few months back.
+> > If I remember, the reasoning was it would unnecessarily slow
+> > down smaller systems that would never have block devices in
+> > the 4-28T range attached.  
+> 
+> 4k page size * 2GB = 8TB.
+> 
+> i consider it much more likely on such systems that the page size will
+> be increased to maybe 16 or 64k which would give us 32TB or 128TB.
+> you keep on trying to increase the size of types without looking at
+> what gcc outputs in the way of code that manipulates 64-bit types.
+> seriously, why don't you just try it?  see what the performance is.
+> see what the code size is.  then come back with some numbers.  and i mean
+> numbers, not `it doesn't feel any slower'.
+> 
+> personally, i'm going to see what the situation looks like in 5 years time
+> and try to solve the problem then.  there're enough real problems with the
+> VFS today that i don't feel inclined to fix tomorrow's potential problems.
 
-Did you turn on the enable_wol module option?  Note that might be a new
-option in the 2.4.3-preXX series...
+I don't feel that it is that far away ... IBM has already released a 64 CPU
+intel based system (NUMA). We already have systems in that class (though
+64 bit based) that use 5 TB file systems. The need is coming, and appears
+to be coming fast. It should be resolved during the improvements to the
+VFS.
 
--- 
-Jeff Garzik       | May you have warm words on a cold evening,
-Building 1024     | a full moon on a dark night,
-MandrakeSoft      | and a smooth road all the way to your door.
+A second reason to include it in the VFS is that the low level filesystem
+implementation would NOT be required to use it. If the administrator
+CHOOSES to access a 16TB filesystem from a workstation, then it should
+be possible (likely something like the GFS, where the administrator is
+just monitoring things, would be reasonable for a 32 bit system to do).
+
+As I see it, the VFS itself doesn't really care what the block size is,
+it just carries relatively opaque values that the filesystem implementation
+uses. Most of the overhead should just be copying an extra 4 bytes around.
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

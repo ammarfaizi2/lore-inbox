@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263330AbTKYWzy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 17:55:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263402AbTKYWzy
+	id S263292AbTKYWuH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 17:50:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTKYWuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 17:55:54 -0500
-Received: from Thales.MI.Uni-Koeln.DE ([134.95.213.2]:23465 "EHLO
-	Thales.MI.Uni-Koeln.DE") by vger.kernel.org with ESMTP
-	id S263330AbTKYWzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 17:55:53 -0500
-Date: Tue, 25 Nov 2003 23:55:51 +0100 (MET)
-From: Klaus Niederkrueger <kniederk@math.uni-koeln.de>
-X-X-Sender: kniederk@Thales
+	Tue, 25 Nov 2003 17:50:07 -0500
+Received: from main.gmane.org ([80.91.224.249]:47754 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263292AbTKYWuE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 17:50:04 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: XFree freezes with 2.6.0-pre
-Message-ID: <Pine.GSO.4.44.0311252337500.8898-100000@Thales>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: thomas weidner <3.14159@gmx.net>
+Subject: do_kern_mount return value question
+Date: Tue, 25 Nov 2003 23:36:16 +0100
+Message-ID: <pan.2003.11.25.22.36.10.741477@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-Sorry, if I'm not meant to post on this list.
+this post is no bug or patch, but a simple question about the kernel
+source. Why does do_kern_mount return ENODEV when the given filesystem is
+unknown? EINVAL seems to be better to me. when i change from ENODEV to
+EINVAL (fs/super.c:713 in 2.6.0-test10) the following szenario works as i
+except:
+kernel options: rootfstype=ext3,ext2
+1. load ext2 initrd
+2. try to mount as ext3 -> fails (ext3 is a module in my configuration and
+not in the kernel)
+3. try to mount it as ext2 -> fine
+4. handle initrd
+5. try to mount root as ext3 -> fine (ext3 module now loaded)
 
-I have been noticing the following bug with kernel 2.6.0-pre8 up to pre10.
-My XFree-4.3.0 freezes completely on a very irregular base spontaneously
-or reproducibly if I use "wine" with certain programs.
-
-Since I have no network, I can not try ssh, but the NumLock-key still
-swithces on/off the LED on the keyboard, after X has frozen.
-
-I have tried to switch preemptible kernel on and off, but it does not make
-a big difference.
-
-Starting a (freeware) game called "dink smallwood" under wine, crashes
-XFree reproducibly. Before everything stops, I can see that the shell from
-which I started wine fills with error messages "signal 0 can not be
-handled" (to be honest, I forgot the exact message, but it was something
-like this). Under kernel 2.4.21 everything works (at least X does not
-crash).
-
-My setup is: SMP-Duron (I know, not officially supported, but under 2.4.21
-I have no problems). Asus-board with 768MPX-chipset. Radeon-Card and
-SuSE-8.2 distro with all SuSE-patches installed and the latest wine from
-SuSE-package (people/meissner/...).
-
-I hope this helps, if not I can try to answer questions.
-
-Cheers
-
-	Klaus
+the vanilla kernel stops after 2. because some late boot code thinks the
+initrd is an invalid device (ENODEV).
 

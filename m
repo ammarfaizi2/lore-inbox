@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130093AbQLHO2B>; Fri, 8 Dec 2000 09:28:01 -0500
+	id <S129595AbQLHOaB>; Fri, 8 Dec 2000 09:30:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130465AbQLHO1m>; Fri, 8 Dec 2000 09:27:42 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21520 "EHLO
+	id <S129846AbQLHO3v>; Fri, 8 Dec 2000 09:29:51 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24336 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130093AbQLHO1k>; Fri, 8 Dec 2000 09:27:40 -0500
-Subject: Re: Kernel Development Documentation?
-To: caperry@edolnx.net
-Date: Fri, 8 Dec 2000 13:59:14 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A3066A5.7E173772@edolnx.net> from "Carl Perry" at Dec 07, 2000 10:41:51 PM
+	id <S129595AbQLHO3m>; Fri, 8 Dec 2000 09:29:42 -0500
+Subject: Re: [Fwd: NTFS repair tools]
+To: jmerkey@timpanogas.org (Jeff V. Merkey)
+Date: Fri, 8 Dec 2000 14:00:29 +0000 (GMT)
+Cc: peter@cadcamlab.org (Peter Samuelson), linux-kernel@vger.kernel.org
+In-Reply-To: <3A3066EC.3B657570@timpanogas.org> from "Jeff V. Merkey" at Dec 07, 2000 09:43:24 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E144O3Q-0003vP-00@the-village.bc.nu>
+Message-Id: <E144O4d-0003vd-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there a project underway that documents how things like the VM, the Memory
-> Manger, what a a specific driver needs to do, what it needs to return, how it is
-> called, what do all those files in arch/whatever do?  Are there bits and pieces
+> Agree.  We need to disable it, since folks do not read the docs
+> (obviously).  Of course, we could leave it on, and I could start
+> charging money for these tools -- there's little doubt it would be a
+> lucrative business.  Perhaps this is what I'll do if the numbers of
+> copies keeps growing.  When it hits > 100 per week, it's taking a lot of
+> our time to support, so I will have to start charging for it.
 
-For the kernel stuff there is a project to put documentation about functions
-and what they do inline into the kernel. Its slow progress. Trying to do 
-anything formal and structured isnt going to be productive until the 
-documentation is much much more complete
-
-For syscalls Andries Brouwer maintains a man page collection (and writes many
-of them). He takes submissions.
+I am very firmly against removing something because people do not read manuals,
+what is next fdisk , mkfs ?. 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

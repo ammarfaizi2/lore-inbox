@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbRAXGxV>; Wed, 24 Jan 2001 01:53:21 -0500
+	id <S129441AbRAXGxU>; Wed, 24 Jan 2001 01:53:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129401AbRAXGxL>; Wed, 24 Jan 2001 01:53:11 -0500
-Received: from exit1.i-55.com ([204.27.97.1]:14302 "EHLO exit1.i-55.com")
-	by vger.kernel.org with ESMTP id <S129445AbRAXGug>;
-	Wed, 24 Jan 2001 01:50:36 -0500
-Message-ID: <3A6E79EA.C2AD3806@mailhost.cs.rose-hulman.edu>
-Date: Wed, 24 Jan 2001 00:44:58 -0600
-From: Leslie Donaldson <donaldlf@hermes.cs.rose-hulman.edu>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 alpha)
+	id <S129383AbRAXGxK>; Wed, 24 Jan 2001 01:53:10 -0500
+Received: from mail.iex.net ([192.156.196.5]:37559 "EHLO mail.iex.net")
+	by vger.kernel.org with ESMTP id <S129401AbRAXGne>;
+	Wed, 24 Jan 2001 01:43:34 -0500
+Message-ID: <3A6E7991.6377220F@iex.net>
+Date: Tue, 23 Jan 2001 23:43:29 -0700
+From: Tim Sullivan <tsulliva@iex.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, donaldlf@hermes.cs.rose-hulman.edu
-Subject: Question: Memory change request
+To: Matt_Domsch@Dell.com
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: No SCSI Ultra 160 with Adaptec Controller
+In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9C0C@ausxmrr501.us.dell.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-  I realise this may be a little off topic but I think the kernel is the
-only
-place I will be able to pull this stunt.
+Matt_Domsch@Dell.com wrote:
+> 
+> Yes, that code is still necessary.  There's a new aic7xxx driver by Justin
+> Gibbs at Adaptec which is now being beta tested which corrects this issue.
 
-I need a block of memory that can notify me or even a flag set when
-it has been written to. I was thinking of letting the user code generate
-some sort of page fault... Any random thoughts would be greatly
-appreciated.
+Justin's 6.0.9beta(latest release) hasn't corrected the problem yet.
 
-mmm ... Basically dirty page logic for user space....
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.0.9 BETA
+        <Adaptec 29160 Ultra160 SCSI adapter>
+        aic7892: Wide Channel A, SCSI Id=7, 32/255 SCBs
 
-Leslie Donaldson
+  Vendor: QUANTUM   Model: ATLAS10K2-TY367L  Rev: DDD6
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+(scsi0:A:0): async, 8bit
+scsi0:0:0:0: Tagged Queuing enabled.  Depth 8
+Detected scsi disk sda at scsi0, channel 0, id 0, lun 0
+(scsi0:A:0): async, 16bit
+(scsi0:A:0): synchronous at 80.0MHz DT, offset 0x7f, 16bit
+SCSI device sda: 71721820 512-byte hdwr sectors (36722 MB)
 
--- 
-/----------------------------\ Current Contractor: None
-|    Leslie F. Donaldson     | Current Customer  : None
-|    Computer Contractor     | Skills:
-Unix/OS9/VMS/Linux/SUN-OS/C/C++/assembly
-| Have Computer will travel. | WWW  :
-http://www.cs.rose-hulman.edu/~donaldlf
-\----------------------------/ Email: mail://donaldlf@cs.rose-hulman.edu
-Goth Code V1.1: GoCS$$ TYg(T6,T9) B11Bk!^1 C6b-- P0(1,7) M+ a24 n---
-b++:+
-                H6'11" g m---- w+ r+++ D--~!% h+ s10 k+++ R-- Ssw
-LusCA++
+-tim
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

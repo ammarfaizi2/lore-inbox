@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261593AbTHTAGH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 20:06:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbTHTAGH
+	id S261619AbTHTAJT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 20:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbTHTAJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 20:06:07 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:59009 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261593AbTHTAGD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 20:06:03 -0400
-Date: Wed, 20 Aug 2003 01:05:35 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Russell King <rmk@arm.linux.org.uk>, jonsmirl@yahoo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Standard driver call to enable/disable PCI ROM
-Message-ID: <20030820000535.GD18035@mail.jlokier.co.uk>
-References: <20030819210618.D23670@flint.arm.linux.org.uk> <20030819204643.75442.qmail@web14913.mail.yahoo.com> <20030819215246.H23670@flint.arm.linux.org.uk> <20030819141735.52ffedc7.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Aug 2003 20:09:19 -0400
+Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:21693 "EHLO
+	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id S261619AbTHTAJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 20:09:13 -0400
+From: "Bryan D. Stine" <admin@kentonet.net> (by way of Bryan D. Stine
+	<admin@kentonet.net>)
+Organization: KentoNET Communications
+Subject: Re: DVD ROM on 2.6
+Date: Tue, 19 Aug 2003 20:09:07 -0400
+User-Agent: KMail/1.5.3
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <20030819141735.52ffedc7.davem@redhat.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200308192009.11298.admin@kentonet.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> On Tue, 19 Aug 2003 21:52:46 +0100
-> Russell King <rmk@arm.linux.org.uk> wrote:
-> 
-> >                 new |= res->flags & PCI_ROM_ADDRESS_ENABLE;
-> >                 reg = dev->rom_base_reg;
-> 
-> A word of caution, please do not enable PCI ROMs lightly.
-> 
-> There are many devices which stop responding to MEM and IO
-> space once their ROM is enabled, Qlogic-ISP chips are one
-> such device and there are several others.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I take it the devices do respond to MEM and IO after the ROM is
-disabled again?
+Try passing the -t iso9660 option to mount or (if that doesn't work) you
+ could go so far as to removing the UDF support from the kernel.
 
--- Jamie
+On Tuesday 19 August 2003 07:34 pm, Wakko Warner wrote:
+> I'm trying out 2.6 on one of my test boxes with an IDE dvd drive.  I'm
+> using ide-scsi (I prefer scdx as opposed to hdx).  I noticed that any
+> attempt to mount a DVD movie (lord of the rings comes to mind) it mounts as
+> UDF.  My laptop mounts this same dvd as iso9660.
+>
+> I've also been unable to play DVDs on this machine, but I don't have the
+> same packages installed as I do on my laptop.
+
+- - --
+Bryan D. Stine
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/Qrwl4Cdq/Vbot6MRAjH5AKCHEROGxWCPeBjAW4uj4ODjRj0R7wCfScad
+MJ/UsJIH2oz7wCAXVNTGbE8=
+=VV4C
+-----END PGP SIGNATURE-----
 

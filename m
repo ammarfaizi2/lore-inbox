@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312444AbSDSOhA>; Fri, 19 Apr 2002 10:37:00 -0400
+	id <S312465AbSDSOkv>; Fri, 19 Apr 2002 10:40:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312453AbSDSOg7>; Fri, 19 Apr 2002 10:36:59 -0400
-Received: from firewall.unidec.co.uk ([195.166.19.2]:29751 "EHLO
-	firewall.unidec.co.uk") by vger.kernel.org with ESMTP
-	id <S312444AbSDSOg5>; Fri, 19 Apr 2002 10:36:57 -0400
-Message-Id: <200204191436.g3JEatQ15117@frumious.unidec.co.uk>
-Content-Type: text/plain; charset=US-ASCII
-From: dr john halewood <john@frumious.unidec.co.uk>
-Organization: unidentified sloths
-To: root@chaos.analogic.com, "Dr. Death" <drd@homeworld.ath.cx>
-Subject: Re: A CD with errors (scratches etc.) blocks the whole system while reading damadged files
-Date: Fri, 19 Apr 2002 15:36:55 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1020419100917.724A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S312570AbSDSOku>; Fri, 19 Apr 2002 10:40:50 -0400
+Received: from ns.suse.de ([213.95.15.193]:60686 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312465AbSDSOkt>;
+	Fri, 19 Apr 2002 10:40:49 -0400
+Date: Fri, 19 Apr 2002 16:40:48 +0200
+From: Dave Jones <davej@suse.de>
+To: Jan Slupski <jslupski@email.com>
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: Re: [PATCH] Wrong IRQ for USB on Sony Vaio (dmi_scan.c, pci-irq.c)
+Message-ID: <20020419164048.H15517@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Jan Slupski <jslupski@email.com>, linux-kernel@vger.kernel.org,
+	alan@redhat.com
+In-Reply-To: <Pine.LNX.4.21.0204191553110.6667-100000@venus.ci.uw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19 April 2002 3:14 pm, Richard B. Johnson wrote:
-> So what do you suggest? You can see from the logs that the device
-> is having difficulty  reading your damaged CD. You can do what
-> Windows-95 does (ignore the errors and pretend everything is fine),
-> or what Windows-98 and Windows-2000/Prof does (blue-screen, and re-boot),
-> or you can try like hell to read the files like Linux does. What do you
-> suggest?
->
-Don't put them in an Xbox in the first place? (see 
-http://www.newscientist.com/news/news.jsp?id=ns99992000)
+On Fri, Apr 19, 2002 at 04:02:18PM +0200, Jan Slupski wrote:
 
-cheers
-john
+ > Only problem is I don't have DMI Product names for all involved models.
+ > That's why I left pretty general:
+ >   MATCH(DMI_PRODUCT_NAME, "PCG-")
+
+Too generic. This matches my Z600 for example, which does not have this bug.
+ 
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

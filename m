@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267209AbSLKQoH>; Wed, 11 Dec 2002 11:44:07 -0500
+	id <S267218AbSLKQs0>; Wed, 11 Dec 2002 11:48:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267211AbSLKQoH>; Wed, 11 Dec 2002 11:44:07 -0500
-Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:63682
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267209AbSLKQoG>; Wed, 11 Dec 2002 11:44:06 -0500
-Subject: Re: Linux 2.4.21-pre1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, andre@linux-ide.org
-In-Reply-To: <20021211155650.GU8741@charite.de>
-References: <Pine.LNX.4.50L.0212101834240.23096-100000@freak.distro.conectiva>
-	<20021211090829.GD8741@charite.de>
-	<1039622867.17709.31.camel@irongate.swansea.linux.org.uk>
-	<20021211153414.GQ8741@charite.de>  <20021211155650.GU8741@charite.de>
+	id <S267219AbSLKQs0>; Wed, 11 Dec 2002 11:48:26 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:26562 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267218AbSLKQsV>;
+	Wed, 11 Dec 2002 11:48:21 -0500
+Subject: Re: [lkcd-devel] Re: [PATCH] Notifier for significant events on
+	i386
+From: Stephen Hemminger <shemminger@osdl.org>
+To: vamsi@in.ibm.com
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Kernel List <linux-kernel@vger.kernel.org>,
+       lkcd-devel@lists.sourceforge.net, ak@suse.de, cminyard@mvista.com,
+       vamsi_krishna@in.ibm.com
+In-Reply-To: <20021211171337.A17600@in.ibm.com>
+References: <1039471369.1055.161.camel@dell_ss3.pdx.osdl.net>
+	 <20021211165153.A17546@in.ibm.com> <20021211111639.GJ9882@holomorphy.com>
+	 <20021211171337.A17600@in.ibm.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 17:29:00 +0000
-Message-Id: <1039627740.17709.82.camel@irongate.swansea.linux.org.uk>
+Organization: Open Source Devlopment Lab
+Message-Id: <1039625764.1649.12.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 11 Dec 2002 08:56:04 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok this seems to be the problem
+On Wed, 2002-12-11 at 03:43, Vamsi Krishna S . wrote:
+> On Wed, Dec 11, 2002 at 03:16:39AM -0800, William Lee Irwin III wrote:
+> > On Wed, Dec 11, 2002 at 04:51:53PM +0530, Vamsi Krishna S . wrote:
+> > > <snip>
+> > >
+> > > I am considering using a RCU-based list for notifier chains.
+> > > Corey has done some work on these lines to add NMI notifier
+> > > chain, I think it should be generalised on for all notifiers.
+> > 
+> > A coherent explanation of how notifier locking is supposed to work
+> > would be wonderful to have. I'd like to register notifiers but am
+> > pig ignorant of how to lock my structures down to work with it.
+> > 
+> Unless I am missing something, notifiers have always been racy. 
+> No amount of locking you do in individual modules to prevent
+> races will help as the notifier chain is walked inside 
+> notifier_call_chain() in kernel/sys.c. One would need to
+> add some form of locking there (*) so that users of notifier
+> chains need not worry about races/locking at all.
+> 
+> (*) converting the notifier chain to an RCU-based list guarentees
+> to modules using the notifier chains that their handlers will
+> not be called once the handler is unregistered.
+> 
+> > Bill
+> Vamsi.
 
-00:1f.1 IDE interface: Intel Corp. 82801CAM IDE U100 (rev 02) (prog-if
-8a [Master SecP PriP])
-        Subsystem: Toshiba America Info Systems: Unknown device 0001
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin A routed to IRQ 11
-        Region 0: I/O ports at cff8 [size=8]
-        Region 1: I/O ports at cff4 [size=4]
-        Region 2: I/O ports at cfe8 [size=8]
-        Region 3: I/O ports at cfe4 [size=4]
+There should be a register/unregister interface that uses RCU.  That
+makes sense.  This assumes that this is an uncommon thing that happens
+at init/load and unload. The notifier callback's better not change
+themselves! Especially, since they get called when the system may be in
+a unstable state like in a panic or other error handling.
 
-
-The hardware isnt at the normal ide base addresse, yet the chip is
-reporting that it isnt in native mode. As far as I can see this
-configuration isnt allowed.
-
-We see that the chip isnt in native mode so we defer to the legacy
-scanner. Since the ports are not valid the legacy scanner doesn't find
-them.
-
-Any thoughts on how we should handle this case Andre ?
-
-
-
-Alan
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+Open Source Devlopment Lab
 

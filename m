@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290200AbSBKTKj>; Mon, 11 Feb 2002 14:10:39 -0500
+	id <S290185AbSBKTJj>; Mon, 11 Feb 2002 14:09:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290206AbSBKTKa>; Mon, 11 Feb 2002 14:10:30 -0500
-Received: from adsl-64-168-153-221.dsl.snfc21.pacbell.net ([64.168.153.221]:3728
-	"EHLO unifiedcomputing.com") by vger.kernel.org with ESMTP
-	id <S290200AbSBKTKV>; Mon, 11 Feb 2002 14:10:21 -0500
-Message-Id: <4.2.2.20020211110312.00b0e0c0@10.10.10.29>
-X-Mailer: QUALCOMM Windows Eudora Pro Version 4.2.2 
-Date: Mon, 11 Feb 2002 11:06:44 -0800
-To: Pavel Machek <pavel@suse.cz>
-From: "S. Parker" <linux@sparker.net>
-Subject: Re: Sysrq enhancement: process kill facility
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        marcelo@conectiva.com.br
-In-Reply-To: <20020209201955.GC851@elf.ucw.cz>
-In-Reply-To: <4.2.2.20020208092102.00aa5eb8@10.10.10.29>
- <4.2.2.20020208092102.00aa5eb8@10.10.10.29>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S290125AbSBKTJ3>; Mon, 11 Feb 2002 14:09:29 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:52998 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S290185AbSBKTJL>; Mon, 11 Feb 2002 14:09:11 -0500
+Date: Mon, 11 Feb 2002 14:08:14 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Michael Cohen <lkml@ohdarn.net>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] 2.4.18-pre8-mjc
+In-Reply-To: <B887BD9B.3D6%lkml@ohdarn.net>
+Message-ID: <Pine.LNX.3.96.1020211140641.642B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 7 Feb 2002, Michael Cohen wrote:
 
-I certainly have no particular preference for what this is called.
-Is there support for dropping the existing kIll and me re-submitting
-these changes that way?  (I've never imagined how kIll actually helped.)
+> On 2/7/02 5:03 AM, "Tarkan Erimer" <tarkane@solmaz.com.tr> wrote:
+> 
+> > Your patch list is very nice. Is there any chance to add XFS patch, also?
+> 
+> Shawn Starr has been working on this.
+> 
+> > If so, it would be wonderful for me and the others , I think, who uses XFS
+> > and want to use these patches, too. Because, if i patch my kernel with XFS,
+> > i can't add other patches, like yours.
+> 
+> Personally I think XFS ought to stay in fs/xfs already and stop encroaching
+> on the rest of the kernel.  It's also HUGE.  But hey, if Shawn wants to do
+> it, let him do it.
 
-Cheers,
+The size is less an issue than having hooks all over the kernel, where
+other features can/will break and be broken.
 
-         ~sparker
-
-At 12:19 PM 2/9/2002 , Pavel Machek wrote:
->Hi!
->
-> >
-> > You enter <alt>-<sysrq>-n ("nuke"), and then prompts for the pid.  It
-> > supports
-> > backspace and control-U.  On serial ports, it retains the same semantics:
-> > a break activates this as a sysrq sequence, but if more than 5-seconds pass
-> > without any input, it drops out of processing input as a sysrq.
-> >
-> > Feedback welcome, please cc: me directly.
->
->Looks good to me; (maybe you could reuse from 'kIll' as killing of all
->processes is hardly ever usefull).
->                                                                         Pavel
->--
->(about SSSCA) "I don't say this lightly.  However, I really think that the 
->U.S.
->no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
-
-Cheers,
-
-	~sparker
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

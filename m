@@ -1,93 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264197AbTH1TBi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 15:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbTH1TBi
+	id S264350AbTH1TDr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 15:03:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264357AbTH1TDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 15:01:38 -0400
-Received: from village.ehouse.ru ([193.111.92.18]:43014 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S264197AbTH1TBV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 15:01:21 -0400
-From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-To: "Heikki Tuuri" <Heikki.Tuuri@innodb.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test2-mm3 and mysql
-Date: Thu, 28 Aug 2003 23:01:16 +0400
-User-Agent: KMail/1.5
-References: <046201c36d8e$34669eb0$322bde50@koticompaq>
-In-Reply-To: <046201c36d8e$34669eb0$322bde50@koticompaq>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308282301.16139.rathamahata@php4.ru>
+	Thu, 28 Aug 2003 15:03:47 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:62983 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S264350AbTH1TDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 15:03:36 -0400
+Subject: [PATCH] make voyager work again after the cpumask_t changes
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: wli@holomorphy.com, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-eusK3f4vJfNfVYIQiOyP"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 28 Aug 2003 15:02:55 -0400
+Message-Id: <1062097375.1952.41.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Heikki,
 
-On Thursday 28 August 2003 21:59, Heikki Tuuri wrote:
-> Sergey,
->
-> does it always crash when you start mysqld?
+--=-eusK3f4vJfNfVYIQiOyP
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Yes It was always crashing until I deleted all InnoDB files and restored
-InnoDB tables from backup.
+Most is just simple fixes; however, the needless change from atomic to
+non-atomic operations in smp_invalidate_interrupt() caused me a lot of
+pain to track down since it introduced some very subtle bugs.
 
->
-> It is page number 0 in the InnoDB tablespace. That is, the header page of
-> the whole tablespace!
->
-> The checksums in the page are ok. That shows the page was not corrupted in
-> the Linux file system.
->
-> InnoDB is trying to do an index search, but that of course crashes, because
-> the header page is not any index page.
->
-> The reason for the crash is probably that a page number in a pointer record
-> in the father node of the B-tree has been reset to zero. The corruption has
-> happened in the mysqld process memory, not in the file system of Linux.
-> Otherwise, InnoDB would have complained about page checksum errors.
->
-> No one else has reported this error. I have now added a check to a future
-> version of InnoDB which will catch this particular error earlier and will
-> hex dump the father page.
+I've also taken phys_cpu_present_map out of smp.h.  Since it
+physid_mask_t is defined in mpspec.h anyway, and contains a duplicate
+definition, I don't believe it can hurt anything.
 
-Yes, now it seems for me that this particular crash in not related to linux
-kernel at all.
-The funny thing I've managed to get another InnoDB crash on the same box
-http://sysadminday.org.ru/linux-2.6.0-test4_InnoDB_crash-20030828
-which in turn was posted to linux-kernel over a two hours ago.
-This time the cheksums are different :(
+James
 
->
-> By the way, I noticed that a website http://www.linuxtestproject.org has
-> made an extensive regression test suite for Linux. They have also
-> successfully run big MySQL and DB2 stress tests on their computers, on
-> 2.5.xx kernels. If there is something wrong with 2.5.xx or 2.6.0, it
-> apparently does not concern all computers.
->
-> "
-> The Linux Test Project test suite, ltp-20030807, has been released. The
-> latest version of the testsuite contains 2000+ tests for the Linux OS.
-> "
->
-> The general picture about InnoDB corruption is that reports have almost
-> stopped after I advised people on the mailing list to upgrade to
-> Linux-2.4.20 kernels.
 
-In fact I'm also a happy InnoDB user. It runs fine on 6 of my production
-servers. Thanks for a nice work btw!
+--=-eusK3f4vJfNfVYIQiOyP
+Content-Disposition: attachment; filename=cpumask.diff
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=cpumask.diff; charset=ISO-8859-1
 
-It has worked fine also on our development server until I upgraded it to
-2.6.0-testX. I don't know. It might be just a broken hardware
-which is better stressed with 2.6 than with 2.4...
+=3D=3D=3D=3D=3D arch/i386/mach-voyager/voyager_smp.c 1.15 vs edited =3D=3D=
+=3D=3D=3D
+--- 1.15/arch/i386/mach-voyager/voyager_smp.c	Mon Aug 18 22:46:23 2003
++++ edited/arch/i386/mach-voyager/voyager_smp.c	Thu Aug 28 12:50:04 2003
+@@ -130,7 +130,7 @@
+ {
+ 	int cpu;
+=20
+-	for_each_cpu(cpu, mk_cpumask_const(cpu_online_map)) {
++	for_each_cpu(cpu, cpu_online_map) {
+ 		if(cpuset & (1<<cpu)) {
+ #ifdef VOYAGER_DEBUG
+ 			if(!cpu_isset(cpu, cpu_online_map))
+@@ -874,10 +874,10 @@
+ asmlinkage void=20
+ smp_invalidate_interrupt(void)
+ {
+-	__u8 cpu =3D get_cpu();
++	__u8 cpu =3D smp_processor_id();
+=20
+-	if (!(smp_invalidate_needed & (1UL << cpu)))
+-		goto out;
++	if (!test_bit(cpu, &smp_invalidate_needed))
++		return;
+ 	/* This will flood messages.  Don't uncomment unless you see
+ 	 * Problems with cross cpu invalidation
+ 	VDEBUG(("VOYAGER SMP: CPU%d received INVALIDATE_CPI\n",
+@@ -893,9 +893,9 @@
+ 		} else
+ 			leave_mm(cpu);
+ 	}
+-	smp_invalidate_needed |=3D 1UL << cpu;
+- out:
+-	put_cpu_no_resched();
++	smp_mb__before_clear_bit();
++	clear_bit(cpu, &smp_invalidate_needed);
++	smp_mb__after_clear_bit();
+ }
+=20
+ /* All the new flush operations for 2.4 */
+@@ -929,6 +929,7 @@
+ 	send_CPI(cpumask, VIC_INVALIDATE_CPI);
+=20
+ 	while (smp_invalidate_needed) {
++		mb();
+ 		if(--stuck =3D=3D 0) {
+ 			printk("***WARNING*** Stuck doing invalidate CPI (CPU%d)\n", smp_proces=
+sor_id());
+ 			break;
+@@ -1464,7 +1465,7 @@
+ 	cpuset &=3D 0xff;		/* only first 8 CPUs vaild for VIC CPI */
+ 	if(cpuset =3D=3D 0)
+ 		return;
+-	for_each_cpu(cpu, mk_cpumask_const(cpu_online_map)) {
++	for_each_cpu(cpu, cpu_online_map) {
+ 		if(cpuset & (1<<cpu))
+ 			set_bit(cpi, &vic_cpi_mailbox[cpu]);
+ 	}
+@@ -1578,7 +1579,7 @@
+ 	VDEBUG(("VOYAGER: enable_vic_irq(%d) CPU%d affinity 0x%lx\n",
+ 		irq, cpu, cpu_irq_affinity[cpu]));
+ 	spin_lock_irqsave(&vic_irq_lock, flags);
+-	for_each_cpu(real_cpu, mk_cpumask_const(cpu_online_map)) {
++	for_each_cpu(real_cpu, cpu_online_map) {
+ 		if(!(voyager_extended_vic_processors & (1<<real_cpu)))
+ 			continue;
+ 		if(!(cpu_irq_affinity[real_cpu] & mask)) {
+@@ -1723,7 +1724,7 @@
+=20
+ 			printk("VOYAGER SMP: CPU%d lost interrupt %d\n",
+ 			       cpu, irq);
+-			for_each_cpu(real_cpu, mk_cpumask_const(mask)) {
++			for_each_cpu(real_cpu, mask) {
+=20
+ 				outb(VIC_CPU_MASQUERADE_ENABLE | real_cpu,
+ 				     VIC_PROCESSOR_ID);
+@@ -1808,7 +1809,7 @@
+ 		 * bus) */
+ 		return;
+=20
+-	for_each_cpu(cpu, mk_cpumask_const(cpu_online_map)) {
++	for_each_cpu(cpu, cpu_online_map) {
+ 		unsigned long cpu_mask =3D 1 << cpu;
+ 	=09
+ 		if(cpu_mask & real_mask) {
+@@ -1874,7 +1875,7 @@
+ 	int old_cpu =3D smp_processor_id(), cpu;
+=20
+ 	/* dump the interrupt masks of each processor */
+-	for_each_cpu(cpu, mk_cpumask_const(cpu_online_map)) {
++	for_each_cpu(cpu, cpu_online_map) {
+ 		__u16 imr, isr, irr;
+ 		unsigned long flags;
+=20
+=3D=3D=3D=3D=3D include/asm-i386/smp.h 1.28 vs edited =3D=3D=3D=3D=3D
+--- 1.28/include/asm-i386/smp.h	Mon Aug 18 22:46:23 2003
++++ edited/include/asm-i386/smp.h	Thu Aug 28 08:12:36 2003
+@@ -32,7 +32,6 @@
+  */
+ =20
+ extern void smp_alloc_memory(void);
+-extern physid_mask_t phys_cpu_present_map;
+ extern int pic_mode;
+ extern int smp_num_siblings;
+ extern int cpu_sibling_map[];
 
->
-> With apologies,
->
-> Heikki
-> Innobase Oy
+--=-eusK3f4vJfNfVYIQiOyP--
 

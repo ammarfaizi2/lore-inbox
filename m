@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271929AbRIEJ7Z>; Wed, 5 Sep 2001 05:59:25 -0400
+	id <S271966AbRIEKKD>; Wed, 5 Sep 2001 06:10:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271953AbRIEJ7N>; Wed, 5 Sep 2001 05:59:13 -0400
-Received: from techmonkeys.org ([24.72.12.135]:29880 "EHLO techmonkeys.org")
-	by vger.kernel.org with ESMTP id <S271929AbRIEJ6x>;
-	Wed, 5 Sep 2001 05:58:53 -0400
-Date: Wed, 5 Sep 2001 03:59:10 -0600
-From: "Matthew S . Hallacy" <poptix@techmonkeys.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon doesn't like Athlon optimisation?
-Message-ID: <20010905035910.L20505@techmonkeys.org>
-In-Reply-To: <200109050521.WAA26155@equinox.unr.edu>
-Mime-Version: 1.0
+	id <S271994AbRIEKJo>; Wed, 5 Sep 2001 06:09:44 -0400
+Received: from [209.10.41.242] ([209.10.41.242]:63650 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S271988AbRIEKJe>;
+	Wed, 5 Sep 2001 06:09:34 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: getpeereid() for Linux
+In-Reply-To: <tgsne23sou.fsf@mercury.rus.uni-stuttgart.de.suse.lists.linux.kernel>
+	<oupae0ax8vq.fsf@pigdrop.muc.suse.de>
+From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Date: 05 Sep 2001 12:05:50 +0200
+In-Reply-To: <oupae0ax8vq.fsf@pigdrop.muc.suse.de> (Andi Kleen's message of "05 Sep 2001 11:52:09 +0200")
+Message-ID: <tgu1yi2br5.fsf@mercury.rus.uni-stuttgart.de>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200109050521.WAA26155@equinox.unr.edu>; from ejolson@unr.edu on Tue, Sep 04, 2001 at 10:21:58PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 04, 2001 at 10:21:58PM -0700, Eric Olson wrote:
+Andi Kleen <ak@suse.de> writes:
+
+> Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE> writes:
 > 
-> Robert Redelmeier told me he has written a version of his burnMMX which 
-> uses K7 MMX 3DNow streaming cache bypass load/store instruction sequences
-> similar to what is used in linux/arch/i386/lib/mmx.c
+> > Would anyone like to give me a helping hand in implementing the
+> > getpeereid() syscall for Linux?  See the following page for the
+> > documentation of the OpenBSD implementation:
 > 
+> It is implemented for unix sockets (see unix(7))
 
-I'm happy to report that after leaving these (burnK7, and burnMMX) running for about 
-30 minutes there were no problems, a slight increase in CPU/system temperature, but 
-within safe limits, along with a nice load average.. FYI:
+Hmm, it is not documented in my local copy (?).  getpeereid() is
+different from the standard credential passing mechanism because it
+does not require cooperation of the other end.
 
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 4
-model name      : AMD Athlon(tm) Processor
-stepping        : 4
-cpu MHz         : 1327.702
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips        : 2647.65
+> For TCP it is rather useless because it would work only locally.
 
-note this is the "c" core chip,
-256M DDR RAM,
-PC Chips M830LR motherboard w/ the SiS 735 Chipset,
-(note, my single-chip chipset requires no fan, unlike the VIA chipsets)
+Obviously, we need it only locally. ;-) The interface is useful if you
+are implementing poor man's VPN in user space.
 
-All rather well considering the CPU fan is missing two blades, and only has the little
-pink patch of thermal grease.
+> If you trust the localhost you're probably better off using the
+> ident protocol for it.
 
-
-
-				Matthew S. Hallacy
+This means running just another server, even with root privileges. :-(
 
 -- 
+Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
+University of Stuttgart           http://cert.uni-stuttgart.de/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

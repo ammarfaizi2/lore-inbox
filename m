@@ -1,100 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbUCAXeY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 18:34:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbUCAXeY
+	id S261485AbUCAXfv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 18:35:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbUCAXfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 18:34:24 -0500
-Received: from hal-4.inet.it ([213.92.5.23]:56802 "EHLO hal-4.inet.it")
-	by vger.kernel.org with ESMTP id S261482AbUCAXeV (ORCPT
+	Mon, 1 Mar 2004 18:35:51 -0500
+Received: from illuminari.org ([65.192.43.17]:5249 "EHLO illuminari.org")
+	by vger.kernel.org with ESMTP id S261485AbUCAXfs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 18:34:21 -0500
-From: Fabio Coatti <cova@ferrara.linux.it>
-Organization: FerraraLUG
-To: "Brown, Len" <len.brown@intel.com>
-Subject: Re: 2.6.3-mm1 and aic7xxx
-Date: Tue, 2 Mar 2004 00:33:43 +0100
-User-Agent: KMail/1.6
-Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-References: <BF1FE1855350A0479097B3A0D2A80EE0028B41D7@hdsmsx402.hd.intel.com> <200403010139.28956.cova@ferrara.linux.it>
-In-Reply-To: <200403010139.28956.cova@ferrara.linux.it>
+	Mon, 1 Mar 2004 18:35:48 -0500
+Date: Mon, 1 Mar 2004 18:49:29 -0500 (EST)
+From: Chris Lalancette <clalancette@illuminari.org>
+To: linux-kernel@vger.kernel.org
+Subject: SunPCi / Intel 21555 drivers
+Message-ID: <Pine.LNX.4.44.0403011848490.15323-100000@illuminari.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Message-Id: <200403020033.43356.cova@ferrara.linux.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alle 01:39, lunedì 1 marzo 2004, Fabio Coatti ha scritto:
-> Alle 00:45, lunedì 1 marzo 2004, Brown, Len ha scritto:
-> > To verify with the latest software, please apply the latest ACPI patch
-> > to 2.6.4-rc1:
-> >
-> > http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/
-> > 2.6.4/acpi-20040220-2.6.4.diff.gz
-> >
-> > If it works, then something else in -mm is causing your problem.  If it
-> > fails, then something in the latest ACPI patch (which is included in
-> > -mm1) is causing the failure.
->
-> Tried, and with the patch all works just fine. So it can be something else,
-> applied in -mm tree after 2.6.3-rc3-mm1, tha causes the failure; i'll try
-> to have a look at changes, trying to find which one causes the problem.
+Hi,
 
-I've just tried, as suggested by john stultz <johnstul@us.ibm.com> in  thread 
-"2.6.3-mm3 hangs on  boot x440 (scsi?)":
+We are trying to develop a linux driver (and related software) to use a 
+SunPCi 3 (or SunPCi 2 or even 1, for that matter) card inside a Linux x86 
+box rather than a Solaris/Sparc box.
 
->> Index: arch/i386/kernel/acpi/boot.c
->> ===================================================================
->> RCS file: /var/cvs/linux-2.6/arch/i386/kernel/acpi/boot.c,v
->> retrieving revision 1.10
->> diff -u -p -r1.10 boot.c
->> --- a/arch/i386/kernel/acpi/boot.c    17 Feb 2004 12:51:46 -0000      1.10
->> +++ b/arch/i386/kernel/acpi/boot.c    26 Feb 2004 16:34:12 -0000
->> @@ -506,24 +461,17 @@ acpi_boot_init (void)
->>
->>       acpi_lapic = 1;
->>
->> -#endif /*CONFIG_X86_LOCAL_APIC*/
->> +#endif /* CONFIG_X86_LOCAL_APIC */
->>
->>  #if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI_INTERPRETER)
->>
->>       /*
->>        * I/O APIC
->> -      * --------
->>        */
->>
->> -     /*
->> -      * ACPI interpreter is required to complete interrupt setup,
->> -      * so if it is off, don't enumerate the io-apics with ACPI.
->> -      * If MPS is present, it will handle them,
->> -      * otherwise the system will stay in PIC mode
->> -      */
->> -     if (acpi_disabled || acpi_noirq) {
->> +     if (acpi_noirq) {
->>               return 1;
->> -        }
->> +     }
->>
->>       /*
->>        * if "noapic" boot option, don't look for IO-APICs
->
->
->That chunk shouldn't drop the "if (acpi_disabled ..." bit.
->Adding that check back in fixes it for me.
+SunPCi cards are PCI cards developed by Sun (duh) that contain an almost 
+fully functional x86 pc. The PCI card has a cpu, ram, northbridge, 
+southbridge, serial, parallel, external video, usb, firewire, etc. It 
+connects to the PCI bus of the host computer through an Intel 21555 
+non-transparent PCI bridge.
 
-In fact, this fixes 2.6.4-rc1-mm1 and now I'm writing using that kernel. I 
-don't knoe w if this is a quick hack or a definitive solution, but now mmX 
-series works again for me, and scsi devices seems to be correctly handled.
+On the Solaris side, Sun keeps diskimage files which act as the hard 
+drives for the guest OS. There is an additional 1024 bytes at the front of 
+the file that contains the CMOS required to boot the system and some other 
+(unknown) stuff.
 
+#losetup -o 1024 foo.diskimage /dev/loop0
+will give you a loopback mounted drive from one of their files.
 
+The OS running on the guest has Sun provided block device drivers that 
+interact with the 21555 to present the files on the host side of the 
+bridge as disks. These specialized guest OS drivers allow the guest system 
+to run Linux (redhat 9 based installer), DOS, and a number of flavors of 
+Windows. Mouse and keyboard also come up through the 21555.
 
+All of this is tied together to act like a hardware virtual machine.
+It feels a lot like VMware in some ways. By running the "sunpci" 
+application on Solaris, a window pops up with a different OS running 
+inside it. When you click on the window, the keyboard device goes through 
+the bridge as the guest OS's keyboard. Video comes back down through the 
+bridge to an X application running on solaris (unless you use the -v flag 
+which tells video to go out the external video on the back of the card 
+instead).
 
--- 
-Fabio Coatti       http://www.ferrara.linux.it/members/cova     
-Ferrara Linux Users Group           http://ferrara.linux.it
-GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
-Old SysOps never die... they simply forget their password.
+We have a PCI bus analyzer from Silicon Control to help figure out what is 
+going on on the Solaris side of things. We can also use the "debug" 
+program on DOS and "lspci" (and other tools) on Linux on the guest side to 
+more easily see what is going on from a hardware standpoint there. We are 
+in the beginning stages of developing a Linux driver for the host side.
+
+Has anyone attempted a driver for these cards?
+Is there any existing code out there for these cards or for the Intel 
+21555 chip? Code for the Intel 21554 (previously DEC) chip would also be 
+useful as it was used in SunPCi generations 1 and 2 cards. Any additional 
+tools, resources, or suggestions on how to proceed are most welcome.
+
+Thanks in advance,
+Dan Sturtevant and Chris Lalancette
+

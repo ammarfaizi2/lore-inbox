@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130208AbRAPEUb>; Mon, 15 Jan 2001 23:20:31 -0500
+	id <S130633AbRAPEut>; Mon, 15 Jan 2001 23:50:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130754AbRAPEUL>; Mon, 15 Jan 2001 23:20:11 -0500
-Received: from d147.as5200.mesatop.com ([208.164.122.147]:62087 "HELO
-	localhost.localdomain") by vger.kernel.org with SMTP
-	id <S130208AbRAPEUC>; Mon, 15 Jan 2001 23:20:02 -0500
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-Date: Mon, 15 Jan 2001 21:22:11 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <01011520000900.01250@localhost.localdomain>
-In-Reply-To: <01011520000900.01250@localhost.localdomain>
-Subject: Re: 2.4.1-pre7 build error.
-Cc: torvalds@transmeta.com, mason@suse.com
+	id <S130676AbRAPEuj>; Mon, 15 Jan 2001 23:50:39 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:35344 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130633AbRAPEuc>; Mon, 15 Jan 2001 23:50:32 -0500
+Date: Mon, 15 Jan 2001 20:49:56 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Dunlap, Randy" <randy.dunlap@intel.com>
+cc: pem@informatics.muni.cz, MOLNAR Ingo <mingo@chiara.elte.hu>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: int. assignment on SMP + ServerWorks chipset
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDF24@orsmsx31.jf.intel.com>
+Message-ID: <Pine.LNX.4.10.10101152031110.12667-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Message-Id: <01011521221100.01130@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 January 2001 20:00, Steven Cole wrote:
-> Got this for 2.4.1-pre7
->
-> make[2]: *** No rule to make target `/usr/src/linux/incl', needed by
-> `softirq.o'.  Stop.
-> make[2]: *** Waiting for unfinished jobs....
-> make[2]: Leaving directory `/usr/src/linux-2.4.1-pre7/kernel'
-> make[1]: *** [first_rule] Error 2
 
-I have successfully built 2.4.1-pre7 and am now running same.
-I just finished rebuilding 2.4.1-pre7 using 2.4.1-pre7, so everything
-is looking fine now.
 
-I was incautiously running 2.4.1-pre5 with the newly integrated
-ReiserFS even though I knew that potential problems were being
-worked out.
+On Mon, 15 Jan 2001, Dunlap, Randy wrote:
+> 
+> Thanks for looking into this.  I'll be out of touch for
+> the rest of this week, but Petr (pem@informatics.muni.cz)
+> should be able to test patches that Ingo comes up with.
+> 
+> > Ok. That means that the problem is that we _should_ look at 
+> > the pirq table even if we use the IO-APIC.
+> 
+> How do we know when to do this?
 
-BTW, it looks like I get the same messages when shutting down 2.4.1-pre7 
-associated with having ReiserFS as the root filesystem.  This was fixed with 
-2.4.0-ac1. The patch to fix this was posted to the reiserfs-list. 
+It's kind of nasty. The IO-APIC detection will disable the pirq table
+stuff, see pci-irq.c:
 
-Steven
+                /* If we're using the I/O APIC, avoid using the PCI IRQ routing table */
+                if (io_apic_assign_pci_irqs)
+                        pirq_table = NULL;
+
+now, you could just remove that logic, but I suspect that you'd get
+problems simply because the interrupt will then get routing information,
+but either the IO-APIC re-naming logic has already moved the irq and it
+will be routed to the wrong entry.
+
+So what I _think_ is the correct change is to do roughly this in
+arch/i386/kernel/pci-irq.c:
+
+ - in pcibios_fixup_irqs(), remove the
+
+	#idef CONFIG_X86_IO_APIC
+		...
+	#endif
+
+   section entirely.
+
+ - in pcibios_enable_irq(), at the _end_ (after having enabled the irq
+   with "pcibios_lookup_irq(dev, 1)", do something like
+
+	irq = IO_APIC_get_PCI_irq_vector(dev->bus->number, PCI_SLOT(dev->devfn), pin);
+	if (irq > 0)
+		dev->irq = irq;
+
+and add a LOT of debug printk's, and enable DEBUG in pci-i386.h.
+
+It probably won't work on the first try (even if I explained the above
+well enough), so send me and Ingo dmesg output, and maybe we'll figure out
+something.
+
+And if anybody else understands pirq routing, speak up. It's a black art.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

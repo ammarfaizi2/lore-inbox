@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130405AbRAaGzr>; Wed, 31 Jan 2001 01:55:47 -0500
+	id <S130207AbRAaHAI>; Wed, 31 Jan 2001 02:00:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130420AbRAaGz1>; Wed, 31 Jan 2001 01:55:27 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:46096 "EHLO
+	id <S130417AbRAaG76>; Wed, 31 Jan 2001 01:59:58 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:57874 "EHLO
 	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130405AbRAaGzW>; Wed, 31 Jan 2001 01:55:22 -0500
-Date: Wed, 31 Jan 2001 00:55:19 -0600
-To: Bernd Eckenfels <inka-user@lina.inka.de>
+	id <S130207AbRAaG7k>; Wed, 31 Jan 2001 01:59:40 -0500
+Date: Wed, 31 Jan 2001 00:59:37 -0600
+To: Miles Lane <miles@megapath.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Request: increase in PCI bus limit
-Message-ID: <20010131005519.D18746@cadcamlab.org>
-In-Reply-To: <E14Nm8S-0001P6-00@sites.inka.de>
+Subject: Re: OT: mount/umount doesn't track used resources correctly?
+Message-ID: <20010131005936.E18746@cadcamlab.org>
+In-Reply-To: <3A6CBE53.8050400@megapathdsl.net> <m3elxvnouk.fsf@austin.jhcloos.com> <3A733E33.BEC2174E@cern.ch> <3A73F372.DAA5DFCD@snowbird.megapath.net> <3A73FB0E.DB64D0C0@cern.ch> <m34ryjqefn.fsf@austin.jhcloos.com> <3A750DC4.2ACB4A9F@snowbird.megapath.net> <3A7530A0.8F3D6AEA@cern.ch> <3A77431E.9010605@megapathdsl.net> <3A776890.53BAFBCD@megapath.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.12i
-In-Reply-To: <E14Nm8S-0001P6-00@sites.inka.de>; from inka-user@lina.inka.de on Wed, Jan 31, 2001 at 02:32:36AM +0100
+In-Reply-To: <3A776890.53BAFBCD@megapath.net>; from miles@megapath.net on Tue, Jan 30, 2001 at 05:21:20PM -0800
 From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[Bernd Eckenfels]
-> May even decrease the kernel for systems < 4 busses.
+[Miles Lane]
+> I think the problem may be due to usermode tools not handling the new
+> "mount multiple devices to a single mount point" feature, but I'm not
+> sure.
 
-Be careful, though.  Users may set this thinking "I have a generic
-system with only one PCI bus" without realizing that AGP, cardbus and
-some motherboard devices are all counted.  Pad the CONFIG option by
-about 4 busses and we'll be OK..
+Yes, quite possibly.  Rumor has it that util-linux has recently
+acquired some wisdom in this area.  (I can't confirm or deny.)  Try
+upgrading, or just trust /proc/mounts for the real story..
 
 Peter
 -

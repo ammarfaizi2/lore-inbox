@@ -1,79 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265508AbUE0WJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265593AbUE0WMk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265508AbUE0WJy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 18:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265494AbUE0WJy
+	id S265593AbUE0WMk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 18:12:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265580AbUE0WMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 18:09:54 -0400
-Received: from host171.155.212.251.conversent.net ([155.212.251.171]:32525
-	"EHLO actuality-systems.com") by vger.kernel.org with ESMTP
-	id S265508AbUE0WJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 18:09:38 -0400
-Subject: Re: Can't make XFS work with 2.6.6
-From: David Aubin <daubin@actuality-systems.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200405271925.24650.dj@david-web.co.uk>
-References: <200405271736.08288.dj@david-web.co.uk>
-	 <200405271854.20787.dj@david-web.co.uk> <1085680806.5311.44.camel@buffy>
-	 <200405271925.24650.dj@david-web.co.uk>
-Content-Type: text/plain
-Message-Id: <1085695702.10106.65.camel@buffy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 27 May 2004 18:08:23 -0400
+	Thu, 27 May 2004 18:12:40 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:17551 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S265515AbUE0WMi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 18:12:38 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 May 2004 22:08:05.0140 (UTC) FILETIME=[15B6AD40:01C44437]
+Message-ID: <16566.26579.689594.710403@napali.hpl.hp.com>
+Date: Thu, 27 May 2004 15:12:35 -0700
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: davidm@hpl.hp.com, Andrea Arcangeli <andrea@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Ben LaHaise <bcrl@kvack.org>,
+       linux-mm@kvack.org, Architectures Group <linux-arch@vger.kernel.org>
+Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
+In-Reply-To: <1085695254.7835.126.camel@gaston>
+References: <1085369393.15315.28.camel@gaston>
+	<Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
+	<1085371988.15281.38.camel@gaston>
+	<Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
+	<1085373839.14969.42.camel@gaston>
+	<Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
+	<20040525034326.GT29378@dualathlon.random>
+	<Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
+	<20040525042054.GU29378@dualathlon.random>
+	<16562.52948.981913.814783@napali.hpl.hp.com>
+	<20040525045322.GX29378@dualathlon.random>
+	<16566.25617.363386.115466@napali.hpl.hp.com>
+	<1085695254.7835.126.camel@gaston>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+>>>>> On Fri, 28 May 2004 08:00:54 +1000, Benjamin Herrenschmidt <benh@kernel.crashing.org> said:
 
-  You do not have devfs enabled.  So root=/dev/hda3
-should not work.  Please enable in kernel and retry.
+  Benjamin> Same for PPC, but we still have a race where we can reach
+  Benjamin> that code, see my initial mail (typically, because your
+  Benjamin> low level code, for obvious reasons, doesn't take the mm
+  Benjamin> semaphore, thus the page may have been mapped right after
+  Benjamin> you decide to go to do_page_fault and before it takes the
+  Benjamin> mm sem).
 
-# CONFIG_DEVFS_FS is not set
+Yes; I was only explaining how this works on ia64.
 
-Dave
-
-On Thu, 2004-05-27 at 14:25, David Johnson wrote:
-> On Thursday 27 May 2004 19:00, David Aubin wrote:
-> > Hi Dave,
-> >
-> >   Please include the latest copy of your .config.
-> 
-> Attached.
-> 
-> > Also the boot loader parameter as well.  
-> 
-> >From Grub's menu.lst:
-> 
-> title		Debian GNU/Linux, kernel 2.6.6
-> root		(hd0,0)
-> kernel	/vmlinuz-2.6.6 lapic video=rivafb:mode:1024x768x16 root=/dev/hda3 ro
-> initrd		/initrd.img-2.6.6
-> savedefault
-> boot
-> 
-> > And possibly 
-> > the validation that the root partition is of type XFS?
-> 
-> Here's the mount output from the system running a 2.4 kernel:
-> 
-> lug:/tmp# mount
-> /dev/hda3 on / type xfs (rw)
-> proc on /proc type proc (rw)
-> devpts on /dev/pts type devpts (rw,gid=5,mode=620)
-> tmpfs on /dev/shm type tmpfs (rw)
-> /dev/hda1 on /boot type ext3 (rw)
-> /dev/hda2 on /home type xfs (rw)
-> /dev/sda2 on /var type xfs (rw)
-> usbfs on /proc/bus/usb type usbfs (rw)
-> 
-> >   At a glance it appears that XFS is not compilied in to
-> > your kernel now, if that is your root mount file type.
-> 
-> XFS is compiled in. I really don't know what else to try...
-> 
-> Thanks,
-> David.
-
+	--david

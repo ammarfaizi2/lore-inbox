@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129867AbRAABeH>; Sun, 31 Dec 2000 20:34:07 -0500
+	id <S131337AbRAABfg>; Sun, 31 Dec 2000 20:35:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131197AbRAABd5>; Sun, 31 Dec 2000 20:33:57 -0500
-Received: from sith.mimuw.edu.pl ([193.0.97.1]:15373 "HELO sith.mimuw.edu.pl")
-	by vger.kernel.org with SMTP id <S131179AbRAABdk>;
-	Sun, 31 Dec 2000 20:33:40 -0500
-Date: Mon, 1 Jan 2001 02:05:49 +0100
-From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
-To: torvalds@transmeta.com
+	id <S131332AbRAABfQ>; Sun, 31 Dec 2000 20:35:16 -0500
+Received: from isis.telemach.net ([213.143.65.10]:3339 "HELO isis.telemach.net")
+	by vger.kernel.org with SMTP id <S131197AbRAABfK>;
+	Sun, 31 Dec 2000 20:35:10 -0500
+Message-ID: <3A4FD789.EF4C6125@telemach.net>
+Date: Mon, 01 Jan 2001 02:04:09 +0100
+From: Jure Pecar <pegasus@telemach.net>
+Organization: Select Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: andrea@suse.de, jef@acme.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] ATM LANE modular build
-Message-ID: <20010101020549.A17412@sith.mimuw.edu.pl>
-Mail-Followup-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.4.0-test10 i686
+Subject: Re: linux 2.2.19pre and thttpd (VM-global problem?) 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Due to latest Makefile changes ATM LANE won't build as module.
-The following patch fixes it.
+Hi again,
 
---- linux/net/atm/Makefile.orig	Sun Dec 31 17:57:15 2000
-+++ linux/net/atm/Makefile	Sun Dec 31 19:04:49 2000
-@@ -33,7 +33,13 @@
- obj-y += proc.o
- endif
- 
--obj-$(CONFIG_ATM_LANE) += lec.o lane_mpoa_init.o
-+ifneq ($(CONFIG_ATM_LANE),n)
-+ifneq ($(CONFIG_ATM_LANE),)
-+obj-y += lane_mpoa_init.o
-+endif
-+endif
-+
-+obj-$(CONFIG_ATM_LANE) += lec.o
- obj-$(CONFIG_ATM_MPOA) += mpoa.o
- 
- include $(TOPDIR)/Rules.make
+I can't manage to reproduce the problem on my home box, based on redhat7
+... thttpd runs ok on 2.2.18 with raid patch, 2.2.18-cdhs
+(www.linuxraid.org) and 2.2.19pre3aa4 ... I tought it might be some
+compiler/glibc problem, but even if i get a kernel and a statically
+compiled thttpd from the box that is making problems(rh6.0) and run it
+here, it runs ok ... 
+What more can i try? I'd really like to find out what's going on ... 
 
-Jan
+I checked those bits Alan Cox mentioned and cdhs patch puts them like
+this (include/linux/fs.h btw):
+
+#define BH_LowPrio      7       /* 1 if the buffer is lowprio */
+#define BH_Wait_IO      8       /* 1 if we should throttle on this
+buffer */
+
+Andrea, in your pre3aa4 patch you put them vice versa:
+
+#define BH_Wait_IO      7       /* 1 if we should throttle on this
+buffer */
+#define BH_LowPrio      8       /* 1 if the buffer is lowprio */
+
+I dont think this really matters, but which way should be official? :)
+
+and btw, happy new year to all of you.
+
 -- 
-Jan Rêkorajski            |  ALL SUSPECTS ARE GUILTY. PERIOD!
-baggins<at>mimuw.edu.pl   |  OTHERWISE THEY WOULDN'T BE SUSPECTS, WOULD THEY?
-BOFH, MANIAC              |                   -- TROOPS by Kevin Rubio
+
+
+Pegasus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262786AbSI2QA5>; Sun, 29 Sep 2002 12:00:57 -0400
+	id <S262800AbSI2QOZ>; Sun, 29 Sep 2002 12:14:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262787AbSI2QA5>; Sun, 29 Sep 2002 12:00:57 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:17862 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262786AbSI2QAz>;
-	Sun, 29 Sep 2002 12:00:55 -0400
-Date: Sun, 29 Sep 2002 18:06:01 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Trever L. Adams" <tadams-lists@myrealbox.com>
-Cc: james <jdickens@ameritech.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S262799AbSI2QOY>; Sun, 29 Sep 2002 12:14:24 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:31362 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S262797AbSI2QOW>;
+	Sun, 29 Sep 2002 12:14:22 -0400
+Date: Sun, 29 Sep 2002 17:22:21 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
 Subject: Re: v2.6 vs v3.0
-Message-ID: <20020929160601.GG1014@suse.de>
-References: <Pine.LNX.4.44.0209281826050.2198-100000@home.transmeta.com> <200209290114.15994.jdickens@ameritech.net> <1033312735.1326.3.camel@aurora.localdomain> <20020929154516.GE1014@suse.de> <1033315176.1310.10.camel@aurora.localdomain>
+Message-ID: <20020929162221.GB19948@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Jens Axboe <axboe@suse.de>,
+	"Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <200209290114.15994.jdickens@ameritech.net> <Pine.LNX.4.44.0209290858170.22404-100000@innerfire.net> <20020929134620.GD2153@gallifrey> <20020929154254.GD1014@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1033315176.1310.10.camel@aurora.localdomain>
+In-Reply-To: <20020929154254.GD1014@suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 29 2002, Trever L. Adams wrote:
-> On Sun, 2002-09-29 at 11:45, Jens Axboe wrote:
-> > How many accounts of the new block layer corrupting data have you been
-> > aware of? Since 2.5.1-preX when bio was introduced, I know of one such
-> > bug: floppy, due to the partial completion changes. Hardly critical.
-> > 
-> > -- 
-> > Jens Axboe
-> 
-> Sorry Jens, I never meant to imply I had heard of any since that floppy
-> bug.  I just understand there were some problems at the beginning. 
-> Also, I haven't been able to follow LKM as well as I would have liked
-> lately, but a few months ago, in one of the many IDE bash sessions that
-> have happened in 2.5.x I read a few people blaiming some of the problems
-> on interactions between the new block layer and the IDE layer.
+On Sun, Sep 29, 2002 at 05:42:54PM +0200, Jens Axboe wrote:
 
-No worries. I can understand how people would be weary of block layer
-changes, as they have the potential to corrupt your data.
+ > Has anyone actually sent patches to Linus removing LVM completely from
+ > 2.5 and adding the LVM2 device mapper? If I used LVM, I would have done
+ > exactly that long ago. Linus, what's your oppinion on this?
 
-> Sorry about the worries.  I am just trying to be cautious.  I am
-> guessing you are saying that the block layer is now solid?   If this is
+Joe Thornber sent a patch removing LVM1, but LVM2 has yet to
+make an appearance in 2.5.x patchform afair.  LVM is in one of
+those sneaky positions where they could theoretically cheat
+the feature freeze, as whats in the tree right now is fubar,
+and we need /something/ before going 2.6/3.0.
 
-Nah I'm saying that it's always been solid. Why would I suddenly
-destabilize it now? :-)
+It'd be nice to get /something/ in before the feature freeze so
+people can bang on this after halloween when we ramp up stability
+testing instead of waiting until the last minute.
 
-> the case, it sure knocks a few of my worries out of the ball park and I
-> will be that much closer to trying out 2.5.x myself.
+There are some patches in -dj which make the existing LVM1 code
+compile and 'sort of' work, but they're not fit for inclusion imo.
 
-As always, it's untested territory so a backup may be in order. But I
-don't view testing 2.5 as any more dangerous as testing 2.4-ac.
+		Dave
 
 -- 
-Jens Axboe
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,52 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263961AbRFFRoR>; Wed, 6 Jun 2001 13:44:17 -0400
+	id <S263971AbRFFRwT>; Wed, 6 Jun 2001 13:52:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263962AbRFFRn5>; Wed, 6 Jun 2001 13:43:57 -0400
-Received: from [213.96.124.18] ([213.96.124.18]:33258 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S263961AbRFFRnw>;
-	Wed, 6 Jun 2001 13:43:52 -0400
-Date: Wed, 6 Jun 2001 19:44:32 +0000
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jldomingo@crosswinds.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: temperature standard - global config option?
-Message-ID: <20010606194432.A1858@dardhal.mired.net>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <B74421C0.F6F7%bootc@worldnet.fr>
-User-Agent: Mutt/1.3.18i
+	id <S263968AbRFFRwK>; Wed, 6 Jun 2001 13:52:10 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:47058 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S264019AbRFFRv6>; Wed, 6 Jun 2001 13:51:58 -0400
+Date: Wed, 6 Jun 2001 19:26:59 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Tom Vier <tmv5@home.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        rth@twiddle.net
+Subject: Re: [patch] Re: Linux 2.4.5-ac6
+In-Reply-To: <3B1E42EA.B0AE7F6E@mandrakesoft.com>
+Message-ID: <Pine.GSO.3.96.1010606185833.2113C-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 06 June 2001, at 18:06:56 +0200,
-Chris Boot wrote:
+On Wed, 6 Jun 2001, Jeff Garzik wrote:
 
-> Hi,
+> There are two things you can do here, one is easy:  use linker tricks to
+> make sure that an application built on alpha -- with 64-bit pointers --
+> uses no more than the lower 32 bits of each pointer for addressing. 
+> This should fix a ton of applications which cast pointer values to ints
+> and similar garbage.
+
+ Note we are only writing of executing an OSF/1 netscape binary.  The
+binary is built with the -taso option on OSF/1 and is linked fine with
+respect to 31-bit pointers.  It fails when mmap()ping shared libraries
+after applying my patch that went to -ac series recently.  Since OSF/1
+shared libraries are PIC, there should be no problem to mmap() them into
+the low 2GB provided mmap() know we want it.  And mmap() has already all
+needed bits in place -- it's the ECOFF support on Alpha/Linux that does
+not set the personality as it should. 
+
+> The other option, hacking gcc to output "32-bit alpha" binary code, is a
+> tougher job.
 > 
-> > Please, don't.
-> > 
-> > Use kelvins *0.1, and use them consistently everywhere. This is what
-> > ACPI does, and it is probably right.
-> 
-> I'm sorry, by I don't feel like adding 273 to every number I get just to
-> find the temperature of something.  What I would do is give configuration
->
-What about keeping times with format similar to "06 June 2001, at 18:06:56
-+0200" instead of using miliseconds from 01 Jan 1970 ? ;)
+> I had mentioned this to Richard Henderson a while back, when I was
+> wondering how easy it is to implement -taso under Linux, and IIRC he
+> seemed to think that linker tricks were much easier.
 
-If there is a universally-accepted measure for temperatures, we should use
-it, and let user space applications make the conversions for us.
+ It might be unavoidable to prevent shared libraries from being mmap()ped
+outside the 31-bit address space unless we hint the dynamic linker
+somehow.  Implementing the -taso option is trivial -- all it actually does
+on OSF/1 is mapping program's segments into low 2GB of memory (we may do
+it by selecting a different linker script) and setting the "31-bit address
+space flag" in the program's header so that the dynamic linker mmap()s
+shared libraries appropriately as well.  We do have all the bits in place
+already as well.
 
-Just my 0.02 (eurocents :)
+ Note that personally I'm strongly against the -taso approach -- it's a
+hack to be meant as an excuse for fixing broken programs.  But fixing
+programs is not that difficult (though it might be boring and
+time-consuming).  I've already did a conversion of a moderately sized DOS
+program to *nix.  The program was twisted by far and near pointers and
+casts to ints and longs (depending on the pointer type) scattered over the
+source.  It took me about two weeks worth of full-time work (assuming
+eight hours per day; the actual time elapsed was longer, but I was only
+doing it in my free time) to make the program working on i386/Linux,
+another week to port it to Alpha/Linux (i.e. make it 64-bit clean) and yet
+another day to make it work on SPARC/Solaris (i.e. make it
+endianness-clean).  The program was checked to be running fine on
+MIPS/Ultrix and Alpha/OSF/1 afterwards as well.  Therefore I see no point
+in keeping programs broken.  If a vendor is not willing to fix a
+non-open-sourced broken program, then maybe the program is just not worth
+attention.
 
---
-José Luis Domingo López
-Linux Registered User #189436     Debian GNU/Linux Potato (P166 64 MB RAM)
- 
-jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
-jdomingo AT internautas DOT   org  => Spam at your own risk
+  Maciej
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316878AbSFQKCA>; Mon, 17 Jun 2002 06:02:00 -0400
+	id <S316882AbSFQKKS>; Mon, 17 Jun 2002 06:10:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316880AbSFQKB7>; Mon, 17 Jun 2002 06:01:59 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:18828 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S316878AbSFQKB7>; Mon, 17 Jun 2002 06:01:59 -0400
-Date: Mon, 17 Jun 2002 11:34:33 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Robert Love <rml@mvista.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "David S. Miller" <davem@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Martin Bligh <mbligh@us.ibm.com>
-Subject: Re: [patch] 2.4.19-pre10-ac2: O(1) scheduler merge, -A3.
-In-Reply-To: <Pine.LNX.4.44.0206171050050.9574-100000@e2>
-Message-ID: <Pine.LNX.4.44.0206171101370.1263-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316883AbSFQKKR>; Mon, 17 Jun 2002 06:10:17 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:43760 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S316882AbSFQKKQ>; Mon, 17 Jun 2002 06:10:16 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <UTC200206162041.g5GKfhn13251.aeb@smtp.cwi.nl> 
+References: <UTC200206162041.g5GKfhn13251.aeb@smtp.cwi.nl> 
+To: Andries.Brouwer@cwi.nl
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 17 Jun 2002 11:09:31 +0100
+Message-ID: <20810.1024308571@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<Martin Bligh added to CC>
 
-On Mon, 17 Jun 2002, Ingo Molnar wrote:
++int jffs2_prepare_follow_link(struct dentry *dentry, struct nameidata *nd,
++			      const char **llink, struct page **ppage)
 
-> irqbalance uses the set_ioapic_affinity() method to set affinity. The
-> clustered APIC code is broken if it doesnt handle this properly. (i dont
-> have such hardware so i cant tell, but it indeed doesnt appear to handle
-> this case properly.) By wrapping around at node boundary the irqbalance
-> code will work just fine.
++	nd->flags |= LOOKUP_KFREE_NEEDED;
 
-I agree, Also we have to be careful about the usage of cpu_online_map in 
-balance_irq, there might need to be a bit of reworking of some of the 
-other parts to get this working e.g. being able to determine which node a 
-specific IOAPIC register is on (perhaps there might be 1 or 2 IOAPICs / 
-node) etc etc. Martin?
+Urgh. Don't do that on my behalf - we'll just switch to using 
+page_follow_link, which to be honest I thought we'd already done -- there 
+were definitely patches for it floating around.
 
-> i agree that this could be a problem, but set_ioapic_affinity() can be
-> made dependent on the actual NUMA setup that is used. This is absolutely
-> needed anyway for a proper /proc/irq/*/smp_affinity feature.
-
-Agreed.
-
-Thanks,
-	Zwane
--- 
-http://function.linuxpower.ca
-		
+--
+dwmw2
 
 

@@ -1,91 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265338AbUBFJbD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 04:31:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265346AbUBFJbC
+	id S265326AbUBFJ2E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 04:28:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265321AbUBFJ2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 04:31:02 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:57349
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S265338AbUBFJ3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 04:29:23 -0500
-Date: Fri, 6 Feb 2004 01:24:11 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: hpt366.c-2.4.23.patch
-Message-ID: <Pine.LNX.4.10.10402060123300.11954-200000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; BOUNDARY="1430322656-1970956437-1076059451=:11954"
+	Fri, 6 Feb 2004 04:28:04 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:25554 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S265338AbUBFJ1R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 04:27:17 -0500
+Message-Id: <200402060924.i169OWx30517@owlet.beaverton.ibm.com>
+To: piggin@cyberone.com.au, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, mjbligh@us.ibm.com, dvhltc@us.ibm.com
+Subject: [PATCH] Load balancing problem in 2.6.2-mm1
+Date: Fri, 06 Feb 2004 01:24:32 -0800
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Nick, Andrew --
 
---1430322656-1970956437-1076059451=:11954
-Content-Type: text/plain; charset=us-ascii
+Found a problem in Nick's code which had it way overbalancing much of
+the time.  I've included a patch below.
 
+I had been porting my schedstats patch to the -mm tree and noticed some
+huge imbalances (on the order of 33 million) being "corrected" and at
+first I thought it was a mis-port. But it was right.  We really were
+deciding 33 million processes had to move.  Of course, we never found
+that many, but we still moved as many as can_migrate_task() would allow.
 
-For those suffering highpoint errors.
+In find_busiest_group(), after we exit the do/while, we select our
+imbalance.  But max_load, avg_load, and this_load are all unsigned,
+so min(x,y) will make a bad choice if max_load < avg_load < this_load
+(that is, a choice between two negative [very large] numbers).
 
-Cheers,
+Unfortunately, there is a bug when max_load never gets changed from zero
+(look in the loop and think what happens if the only load on the machine
+is being created by cpu groups of which we are a member). And you have
+a recipe for some really bogus values for imbalance.
 
-Andre Hedrick
-LAD Storage Consulting Group
+Even if you fix the max_load == 0 bug, there will still be times when
+avg_load - this_load will be negative (thus very large) and you'll make
+the decision to move stuff when you shouldn't have.
 
---1430322656-1970956437-1076059451=:11954
-Content-Type: text/plain; charset=us-ascii; name="hpt366.c-2.4.23.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <Pine.LNX.4.10.10402060124110.11954@master.linux-ide.org>
-Content-Description: 
-Content-Disposition: attachment; filename="hpt366.c-2.4.23.patch"
+This patch allows for this_load to set max_load, which if I understand
+the logic properly is correct.  It then adds a check to imbalance to make
+sure a negative number hasn't been coerced into a large positive number.
+With this patch applied, the algorithm is *much* more conservative ...
+maybe *too* conservative but that's for another round of testing ...
 
-LS0tIGxpbnV4LTIuNC4yMy5vcmlnL2RyaXZlcnMvaWRlL3BjaS9ocHQzNjYu
-YwlNb24gQXVnIDI1IDA0OjQ0OjQxIDIwMDMNCisrKyBsaW51eC0yLjQuMjMv
-ZHJpdmVycy9pZGUvcGNpL2hwdDM2Ni5jCUZyaSBKYW4gIDkgMjE6NDQ6NDgg
-MjAwNA0KQEAgLTEsNyArMSw3IEBADQogLyoNCiAgKiBsaW51eC9kcml2ZXJz
-L2lkZS9wY2kvaHB0MzY2LmMJCVZlcnNpb24gMC4zNglBcHJpbCAyNSwgMjAw
-Mw0KICAqDQotICogQ29weXJpZ2h0IChDKSAxOTk5LTIwMDIJCUFuZHJlIEhl
-ZHJpY2sgPGFuZHJlQGxpbnV4LWlkZS5vcmc+DQorICogQ29weXJpZ2h0IChD
-KSAxOTk5LTIwMDMJCUFuZHJlIEhlZHJpY2sgPGFuZHJlQGxpbnV4LWlkZS5v
-cmc+DQogICogUG9ydGlvbnMgQ29weXJpZ2h0IChDKSAyMDAxCSAgICAgICAg
-U3VuIE1pY3Jvc3lzdGVtcywgSW5jLg0KICAqIFBvcnRpb25zIENvcHlyaWdo
-dCAoQykgMjAwMwkJUmVkIEhhdCBJbmMNCiAgKg0KQEAgLTY2OCw2ICs2Njgs
-MzUgQEANCiAJcmV0dXJuIF9faWRlX2RtYV9sb3N0aXJxKGRyaXZlKTsNCiB9
-DQogDQorLyogcmV0dXJucyAxIGlmIGRtYSBpcnEgaXNzdWVkLCAwIG90aGVy
-d2lzZSAqLw0KK3N0YXRpYyBpbnQgaHB0Mzc0X2lkZV9kbWFfdGVzdF9pcnEg
-KGlkZV9kcml2ZV90ICpkcml2ZSkNCit7DQorCQkgICAgICAgIA0KKwlpZGVf
-aHdpZl90ICpod2lmCT0gSFdJRihkcml2ZSk7DQorCXUxNiBiZmlmbwkJPSAw
-Ow0KKwl1OCByZWdpbmZvCQk9IGh3aWYtPmNoYW5uZWwgPyAweDU2IDogMHg1
-MjsNCisJdTggZG1hX3N0YXQJCT0gMDsNCisNCisJcGNpX3JlYWRfY29uZmln
-X3dvcmQoaHdpZi0+cGNpX2RldiwgcmVnaW5mbywgJmJmaWZvKTsNCisJaWYg
-KGJmaWZvICYgMHgxRkYpIHsNCisvLwkJcHJpbnRrKCIlczogJWQgYnl0ZXMg
-aW4gRklGT1xuIiwgZHJpdmUtPm5hbWUsIGJmaWZvKTsNCisJCXJldHVybiAw
-Ow0KKwl9DQorDQorCWRtYV9zdGF0ID0gaHdpZi0+SU5CKGh3aWYtPmRtYV9z
-dGF0dXMpOw0KKwkvKiByZXR1cm4gMSBpZiBJTlRSIGFzc2VydGVkICovDQor
-CWlmICgoZG1hX3N0YXQgJiA0KSA9PSA0KQ0KKwkJcmV0dXJuIDE7DQorDQor
-CWlmICghZHJpdmUtPndhaXRpbmdfZm9yX2RtYSkNCisJCXByaW50ayhLRVJO
-X1dBUk5JTkcgIiVzOiAoJXMpIGNhbGxlZCB3aGlsZSBub3Qgd2FpdGluZ1xu
-IiwNCisJCQkJZHJpdmUtPm5hbWUsIF9fRlVOQ1RJT05fXyk7DQorI2lmIDAN
-CisJZHJpdmUtPndhaXRpbmdfZm9yX2RtYSsrOw0KKyNlbmRpZg0KKwlyZXR1
-cm4gMDsNCit9DQorDQogc3RhdGljIGludCBocHQzNzRfaWRlX2RtYV9lbmQg
-KGlkZV9kcml2ZV90ICpkcml2ZSkNCiB7DQogCXN0cnVjdCBwY2lfZGV2ICpk
-ZXYJPSBIV0lGKGRyaXZlKS0+cGNpX2RldjsNCkBAIC0xMjQ1LDExICsxMjc0
-LDEzIEBADQogCQlod2lmLT51ZG1hX2ZvdXIgPSAoKGF0YTY2ICYgcmVnbWFz
-aykgPyAwIDogMSk7DQogCWh3aWYtPmlkZV9kbWFfY2hlY2sgPSAmaHB0MzY2
-X2NvbmZpZ19kcml2ZV94ZmVyX3JhdGU7DQogDQotCWlmIChocHRfbWluaW11
-bV9yZXZpc2lvbihkZXYsOCkpDQorCWlmIChocHRfbWluaW11bV9yZXZpc2lv
-bihkZXYsOCkpIHsNCisJCWh3aWYtPmlkZV9kbWFfdGVzdF9pcnEgPSAmaHB0
-Mzc0X2lkZV9kbWFfdGVzdF9pcnE7DQogCQlod2lmLT5pZGVfZG1hX2VuZCA9
-ICZocHQzNzRfaWRlX2RtYV9lbmQ7DQotCWVsc2UgaWYgKGhwdF9taW5pbXVt
-X3JldmlzaW9uKGRldiw1KSkNCisJfSBlbHNlIGlmIChocHRfbWluaW11bV9y
-ZXZpc2lvbihkZXYsNSkpIHsNCisJCWh3aWYtPmlkZV9kbWFfdGVzdF9pcnEg
-PSAmaHB0Mzc0X2lkZV9kbWFfdGVzdF9pcnE7DQogCQlod2lmLT5pZGVfZG1h
-X2VuZCA9ICZocHQzNzRfaWRlX2RtYV9lbmQ7DQotCWVsc2UgaWYgKGhwdF9t
-aW5pbXVtX3JldmlzaW9uKGRldiwzKSkgew0KKwl9IGVsc2UgaWYgKGhwdF9t
-aW5pbXVtX3JldmlzaW9uKGRldiwzKSkgew0KIAkJaHdpZi0+aWRlX2RtYV9i
-ZWdpbiA9ICZocHQzNzBfaWRlX2RtYV9iZWdpbjsNCiAJCWh3aWYtPmlkZV9k
-bWFfZW5kID0gJmhwdDM3MF9pZGVfZG1hX2VuZDsNCiAJCWh3aWYtPmlkZV9k
-bWFfdGltZW91dCA9ICZocHQzNzBfaWRlX2RtYV90aW1lb3V0Ow0K
---1430322656-1970956437-1076059451=:11954--
+Rick
+
+diff -rup linux-2.6.2-mm1/kernel/sched.c linux-2.6.2-mm1-fix/kernel/sched.c
+--- linux-2.6.2-mm1/kernel/sched.c	Thu Feb  5 14:47:17 2004
++++ linux-2.6.2-mm1-fix/kernel/sched.c	Thu Feb  5 21:44:04 2004
+@@ -1352,7 +1624,7 @@ static struct sched_group *
+ find_busiest_group(struct sched_domain *domain, int this_cpu,
+ 				unsigned long *imbalance, enum idle_type idle)
+ {
+-	unsigned long max_load, avg_load, total_load, this_load;
++	unsigned long max_load, avg_load, total_load, this_load, load_diff;
+ 	int modify, total_nr_cpus, busiest_nr_cpus = 0;
+ 	enum idle_type package_idle = IDLE;
+ 	struct sched_group *busiest = NULL, *group = domain->groups;
+@@ -1407,14 +1679,13 @@ find_busiest_group(struct sched_domain *
+ 		total_nr_cpus += nr_cpus;
+ 		avg_load /= nr_cpus;
+ 
++		if (avg_load > max_load)
++			max_load = avg_load;
++
+ 		if (local_group) {
+ 			this_load = avg_load;
+-			goto nextgroup;
+-		}
+-
+-		if (avg_load >= max_load) {
++		} else if (avg_load >= max_load) {
+ 			busiest = group;
+-			max_load = avg_load;
+ 			busiest_nr_cpus = nr_cpus;
+ 		}
+ nextgroup:
+@@ -1437,8 +1708,19 @@ nextgroup:
+ 	 * reduce the max loaded cpu below the average load, as either of these
+ 	 * actions would just result in more rebalancing later, and ping-pong
+ 	 * tasks around. Thus we look for the minimum possible imbalance.
++	 * Negative imbalances (*we* are more loaded than anyone else) will
++	 * be counted as no imbalance for these purposes -- we can't fix that
++	 * by pulling tasks to us.  Be careful of negative numbers as they'll
++	 * appear as very large values with unsigned longs.
+ 	 */
+-	*imbalance = min(max_load - avg_load, avg_load - this_load);
++	if (avg_load > this_load)
++		load_diff = avg_load - this_load;
++	else
++		load_diff = 0;
++
++	*imbalance = min(max_load - avg_load, load_diff);
++	if ((long)*imbalance < 0)
++		*imbalance = 0;
+ 
+ 	/* Get rid of the scaling factor now, rounding *up* as we divide */
+ 	*imbalance = (*imbalance + SCHED_LOAD_SCALE - 1) >> SCHED_LOAD_SHIFT;

@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262712AbTI1ULU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 16:11:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTI1ULU
+	id S262718AbTI1U1C (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 16:27:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbTI1U1C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 16:11:20 -0400
-Received: from amsfep12-int.chello.nl ([213.46.243.18]:3683 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262712AbTI1ULT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 16:11:19 -0400
-Date: Sun, 28 Sep 2003 14:55:40 +0200
-Message-Id: <200309281255.h8SCteKK005666@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 333] Zorro include guards
+	Sun, 28 Sep 2003 16:27:02 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5341 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262718AbTI1U07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 16:26:59 -0400
+Date: Sun, 28 Sep 2003 22:26:51 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org, jgarzik@pobox.com, sailer@ife.ee.ethz.ch
+Subject: [patch] 2.6.0-test6: correct hdlcdrv.h prototypes
+Message-ID: <20030928202651.GP15338@fs.tum.de>
+References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zorro: Make closing include guards consistent with opening include guards
+On Sat, Sep 27, 2003 at 06:27:35PM -0700, Linus Torvalds wrote:
+>...
+> Summary of changes from v2.6.0-test5 to v2.6.0-test6
+> ============================================
+>...
+> Stephen Hemminger:
+>...
+>   o (1/4) Update baycom drivers for 2.6
+>...
 
---- linux-2.6.0-test6/include/asm-m68k/zorro.h	Tue Nov  5 10:10:14 2002
-+++ linux-m68k-2.6.0-test6/include/asm-m68k/zorro.h	Sat Sep 27 16:34:10 2003
-@@ -42,4 +42,4 @@
- #define z_iounmap iounmap
- #define z_ioremap z_remap_nocache_ser
+This patch changed two functions but not the corresponding prototypes in 
+the header file resulting in some compile warnings.
+
+The patch below updates hdlcdrv.h .
+
+cu
+Adrian
+
+--- linux-2.6.0-test6-full/include/linux/hdlcdrv.h.old	2003-09-28 21:52:00.000000000 +0200
++++ linux-2.6.0-test6-full/include/linux/hdlcdrv.h	2003-09-28 22:16:37.000000000 +0200
+@@ -359,11 +359,11 @@
+ void hdlcdrv_receiver(struct net_device *, struct hdlcdrv_state *);
+ void hdlcdrv_transmitter(struct net_device *, struct hdlcdrv_state *);
+ void hdlcdrv_arbitrate(struct net_device *, struct hdlcdrv_state *);
+-int hdlcdrv_register_hdlcdrv(struct net_device *dev, const struct hdlcdrv_ops *ops,
+-			     unsigned int privsize, char *ifname,
++struct net_device *hdlcdrv_register(const struct hdlcdrv_ops *ops,
++			     unsigned int privsize, const char *ifname,
+ 			     unsigned int baseaddr, unsigned int irq, 
+ 			     unsigned int dma);
+-int hdlcdrv_unregister_hdlcdrv(struct net_device *dev);
++void hdlcdrv_unregister(struct net_device *dev);
  
--#endif /* _ASM_ZORRO_H */
-+#endif /* _ASM_M68K_ZORRO_H */
---- linux-2.6.0-test6/include/asm-ppc/zorro.h	Mon Apr  1 13:03:12 2002
-+++ linux-m68k-2.6.0-test6/include/asm-ppc/zorro.h	Sat Sep 27 16:34:33 2003
-@@ -27,4 +27,4 @@
- #define z_ioremap ioremap
- #define z_iounmap iounmap
+ /* -------------------------------------------------------------------- */
  
--#endif /* _ASM_ZORRO_H */
-+#endif /* _ASM_PPC_ZORRO_H */
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

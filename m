@@ -1,73 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262602AbSJWB5P>; Tue, 22 Oct 2002 21:57:15 -0400
+	id <S262667AbSJWCAB>; Tue, 22 Oct 2002 22:00:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262631AbSJWB5P>; Tue, 22 Oct 2002 21:57:15 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62477 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262602AbSJWB5N>;
-	Tue, 22 Oct 2002 21:57:13 -0400
-Message-ID: <3DB60363.8040104@pobox.com>
-Date: Tue, 22 Oct 2002 22:03:15 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: lkml <linux-kernel@vger.kernel.org>, andrea <andrea@suse.de>, ak@muc.de,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       george anzinger <george@mvista.com>, Jeff Dike <jdike@karaya.com>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Bill Davidsen <davidsen@tmr.com>
-Subject: Re: [PATCH] linux-2.5.44_vsyscall_A1
-References: <1035336629.954.90.camel@cog>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262697AbSJWCAB>; Tue, 22 Oct 2002 22:00:01 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:28204 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262667AbSJWCAA>; Tue, 22 Oct 2002 22:00:00 -0400
+Date: Wed, 23 Oct 2002 04:05:34 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@zip.com.au>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [patch] generic nonlinear mappings, 2.5.44-mm2-D0
+Message-ID: <20021023020534.GJ11242@dualathlon.random>
+References: <20021022184938.A2395@infradead.org> <Pine.LNX.4.44.0210222204330.21530-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210222204330.21530-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> All,
-> 	Here is the next rev of the i386 vsyscall gettimeofday port I sent
-> earlier. I've added a fix for the linker trouble in the last one, as
-> well as wrapped the whole thing in CONFIG_VSYSCALL. 
-> 
-> 	This patch implements gettimeofday in a user readable page, allowing
-> for calls to gettimeofday to execute completely in userspace, giving a
-> significant performance boost. 
->         
-> 	Changes to glibc are unnecessary, because users that want to use the
-> vsyscall can do so by LD_PRELOADING a library which alias gettimeofday
-> before executing their application. This will not affect any other
-> application and allows the backward compatibility issue to be ignored.
-> I've created an example library (to be attached in a following email)
-> and ran a quick performance test w/ and w/o the preloaded library,
-> giving the following results:
->         
-> Normal gettimeofday
-> gettimeofday ( 1403307us / 1000000runs ) = 1.403306us
-> vsyscall LD_PRELOAD gettimeofday
-> gettimeofday ( 285423us / 1000000runs ) = 0.285423us
-> 
-> Since this code uses the TSC for calculating time of day, this patch
-> will not help systems that suffer from TSC skew (ie: many NUMA systems,
-> etc). However, for UP and SMP boxes this is a pretty major win.
-> Alternative methods to use the cyclone/HPET registers for NUMA boxes are
-> also feasible in the future. 
-> 
-> Please let me know your thoughts about 2.5 integration. 
+On Tue, Oct 22, 2002 at 10:19:37PM +0200, Ingo Molnar wrote:
+> protection bits. It has been clearly established in the past few years
+> empirically that the vma tree approach itself sucks performance-wise for
+> applications that have many different mappings.
 
+if you're talking about get_unmapped_area showing up heavy on the
+profiling then you're on the wrong track with this, if nobody beats me I
+will fix that one soon right, I discussed that some month ago with Claus
+Fisher and it's going to be optimized away completely from all
+profilings out there (at least as much as mmap). The vma ram overhead
+will be still there though, just the cpu overhead will go away, but I
+never heard anybody complaining about finishing ram because of vmas yet
+(while I know several cases where the lack of O(log(N)) in
+get_unmapped_area is a showstopper, the GUI as well suffers badly with
+the hundred of librarians but the guis are otherwise idle so it doesn't
+matter much for them if the cpu is wasted but they will get a bit lower
+latency).
 
-
-In terms of implementation, I think it's way too x86-specific...  some 
-of the vsyscall infrastructure can be more generic, making it easier for 
-other arches to implement the same functionality.  Also use of TSC isn't 
-a terribly good idea...
-
-Overall the idea has existed for a while, and I think it's a good one... 
-  gettimeofday(2) is very definitely a performance bottleneck in 
-databases, in apache [if nothing's changed in that area...], etc.
-
-	Jeff
-
-
-
+Andrea

@@ -1,83 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265041AbUFARD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265127AbUFARJI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265041AbUFARD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 13:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbUFARD6
+	id S265127AbUFARJI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 13:09:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265128AbUFARJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 13:03:58 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52231 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265041AbUFARDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 13:03:44 -0400
-Date: Tue, 1 Jun 2004 18:03:36 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Dave Miller <davem@redhat.com>
-Subject: [PATCH] Fix loop device cache handling
-Message-ID: <20040601180336.C31301@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Dave Miller <davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Tue, 1 Jun 2004 13:09:08 -0400
+Received: from apegate.roma1.infn.it ([141.108.7.31]:52614 "EHLO apona.ape")
+	by vger.kernel.org with ESMTP id S265127AbUFARI6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 13:08:58 -0400
+Message-ID: <40BCB821.5050903@roma1.infn.it>
+Date: Tue, 01 Jun 2004 19:08:49 +0200
+From: Davide Rossetti <davide.rossetti@roma1.infn.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031114
+X-Accept-Language: en-us, en, it
+MIME-Version: 1.0
+To: Markus Lidel <Markus.Lidel@shadowconnect.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problem with ioremap which returns NULL in 2.6 kernel
+References: <40BC788A.3020103@shadowconnect.com> <20040601142122.GA7537@havoc.gtf.org> <40BC9EF7.4060502@shadowconnect.com>
+In-Reply-To: <40BC9EF7.4060502@shadowconnect.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Back in the distant LKML past, davem hinted that the loop block device
-driver was missing some cache handling for aliasing caches:
+Markus Lidel wrote:
 
-	http://lkml.org/lkml/2003/5/29/19
+> Hello,
+>
+> Jeff Garzik wrote:
+>
+>>> could someone help me with a ioremap problem. If there are two 
+>>> controllers plugged in, the ioremap request for the first controller 
+>>> is successfull, but the second returns NULL. Here is the output of 
+>>> the driver:
+>>> i2o: Checking for PCI I2O controllers...
+>>> i2o: I2O controller on bus 0 at 72.
+>>> i2o: PCI I2O controller at 0xD0000000 size=134217728
+>>> I2O: MTRR workaround for Intel i960 processor
+>>> i2o/iop0: Installed at IRQ17
+>>> i2o: I2O controller on bus 0 at 96.
+>>> i2o: PCI I2O controller at 0xD8000000 size=134217728
+>>> i2o: Unable to map controller.
+>>
+>> If "size=xxxx" indicates the size you are remapping, then that's
+>
+I saw the same problem on a PCI card with a 128MB BAR. it is triggered 
+on an Tyan opteron mobo, while on a old Dell P4 mobo it is ok. I 
+followed a bit the source code for ioremap and found two places in which 
+it can fail,
 
-It appears the loop driver has had one flush_dcache_page() call
-added for the case where it writes to the backing device page
-cache pages.
+    area = get_vm_area(size, VM_IOREMAP);
+    if (!area)
+        return NULL;
+    addr = area->addr;
+    if (remap_area_pages(VMALLOC_VMADDR(addr), phys_addr, size, flags)) {
+        vfree(addr);
+        return NULL;
+    }
 
-However, it seems to be missing the call where it writes to its
-own page cache pages.  This patch allows us to clearly demonstrate
-the problem on ARM:
+I had not time to add debug printk and recompila the kernel to check 
+which one is faulty...
 
-> @@ -85,9 +85,10 @@ static int transfer_none(struct loop_dev
->  	char *raw_buf = kmap_atomic(raw_page, KM_USER0) + raw_off;
->  	char *loop_buf = kmap_atomic(loop_page, KM_USER1) + loop_off;
->  
-> -	if (cmd == READ)
-> +	if (cmd == READ) {
-> +int i; for (i = 0; i < PAGE_SIZE; i+=32) ((volatile unsigned char *)loop_buf)[i];
->  		memcpy(loop_buf, raw_buf, size);
-> -	else
-> +	} else
->  		memcpy(raw_buf, loop_buf, size);
->  
->  	kunmap_atomic(raw_buf, KM_USER0);
+The strange thing is that the BARs seems to be laid out correctly, so it 
+does not look like a bios bug...
 
-The effect of this is that we pull the loop device page into cache
-to exhasibate the problem, since newly allocated pages are _not_
-guaranteed to be completely clean of cache lines in their kernel
-space mapping.
+>
+>> probably too large an area to be remapping.  Try remapping only the
+>> memory area needed, and not the entire area.
+>
+>
+> Is there a way, to increase the size, which could be remapped, or is 
+> there a way, to find out what is the maximum size which could be 
+> remapped?
 
-Note that other drivers need to be audited to ensure that any CPU
-writes to page cache pages have a flush_dcache_page() call.
-
-This patch adds the necessary missing flush:
-
---- orig/drivers/block/loop.c	Sun May 30 10:32:32 2004
-+++ linux/drivers/block/loop.c	Tue Jun  1 17:46:47 2004
-@@ -308,7 +308,9 @@ lo_read_actor(read_descriptor_t *desc, s
- 		       page->index);
- 		desc->error = -EINVAL;
- 	}
--	
-+
-+	flush_dcache_page(p->page);
-+
- 	desc->count = count - size;
- 	desc->written += size;
- 	p->offset += size;
+we tried with half and it was ok, then we moved up a bit and found the 
+maximum around 80MB I think...
 
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

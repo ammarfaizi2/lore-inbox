@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbUACCvX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 21:51:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265886AbUACCvX
+	id S262458AbUACD26 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 22:28:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbUACD26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 21:51:23 -0500
-Received: from pD9E56DF6.dip.t-dialin.net ([217.229.109.246]:2713 "EHLO
-	fred.muc.de") by vger.kernel.org with ESMTP id S262328AbUACCvV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 21:51:21 -0500
-Date: Sat, 3 Jan 2004 03:51:19 +0100
-From: Andi Kleen <ak@muc.de>
-To: Srihari Vijayaraghavan <harisri@bigpond.com>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-rc1 compile error
-Message-ID: <20040103025119.GA19647@averell>
-References: <18PmG-40b-9@gated-at.bofh.it> <m3znd7ib1b.fsf@averell.firstfloor.org> <200401031309.10816.harisri@bigpond.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401031309.10816.harisri@bigpond.com>
-User-Agent: Mutt/1.4i
+	Fri, 2 Jan 2004 22:28:58 -0500
+Received: from gizmo06ps.bigpond.com ([144.140.71.16]:50590 "HELO
+	gizmo06ps.bigpond.com") by vger.kernel.org with SMTP
+	id S262458AbUACD24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 22:28:56 -0500
+Mail-Copies-To: never
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: udev - please help me to understand
+References: <microsoft-free.87r7yiinaj.fsf@eicq.dnsalias.org>
+	<20040102202316.GD4992@kroah.com>
+From: Steve Youngs <sryoungs@bigpond.net.au>
+X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
+ N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
+ K{^jU_{&
+Organization: Linux Users - Fanatics Dept.
+X-URL: <http://users.bigpond.net.au/sryoungs/>
+X-Request-PGP: <http://users.bigpond.net.au/sryoungs/pgp/sryoungs.asc>
+X-OpenPGP-Fingerprint: 1659 2093 19D5 C06E D320  3A20 1D27 DB4B A94B 3003
+X-Attribution: SY
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+ linux-hotplug-devel@lists.sf.net
+Date: Sat, 03 Jan 2004 13:28:47 +1000
+In-Reply-To: <20040102202316.GD4992@kroah.com> (Greg KH's message of "Fri,
+ 02 Jan 2004 12:23:16 -0800")
+Message-ID: <microsoft-free.87r7yhk8wg.fsf@eicq.dnsalias.org>
+User-Agent: Gnus/5.1004 (Gnus v5.10.4) XEmacs/21.4 (Reasonable Discussion,
+ linux)
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03, 2004 at 01:09:10PM +1100, Srihari Vijayaraghavan wrote:
-> Hello Andi,
-> 
-> On Friday 02 January 2004 09:01, Andi Kleen wrote:
-> > Srihari Vijayaraghavan <harisri@bigpond.com> writes:
-> > > While "make bzImage", it showed these error messages:
-> > >   CC      arch/x86_64/kernel/io_apic.o
-> >
-> > I already submitted a patch to fix that and Linus merged it.
-> > Use current -bk*
-> 
-> Unfortunately the current -bk* would not apply cleanly. For eg, 
-> patch-2.6.1-rc1-bk3 does not apply to 2.6.1-rc1. Maybe when 2.6.1-rc2 is out 
-> I shall try it out at that time.
+--=-=-=
 
-It applied fine for me. Maybe your trees are corrupted. 
+|--==> "GK" == Greg KH <greg@kroah.com> writes:
 
-> (BTW I have tried 2.6.1-rc1-x8664-1, and all is fine with that.)
+  GK> If you never have any hotpluggable devices, nor any need to move
+  GK> disks around in your system, then you don't need udev.
 
-There's one bug in there that breaks it on some boxes.
+  GK> Hope this helps,
 
--Andi
+Yes it does.  Thanks!
+
+-- 
+|---<Steve Youngs>---------------<GnuPG KeyID: A94B3003>---|
+|              Ashes to ashes, dust to dust.               |
+|      The proof of the pudding, is under the crust.       |
+|------------------------------<sryoungs@bigpond.net.au>---|
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Eicq - The XEmacs ICQ Client <http://eicq.sf.net/>
+
+iEYEABECAAYFAj/2NvIACgkQHSfbS6lLMAManQCfSEWrIiW88dElyCmOl7Y6wh2b
+3HsAn01W0PTKBJmy+RWPe/tkk+JmFRJe
+=c5h3
+-----END PGP SIGNATURE-----
+--=-=-=--

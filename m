@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318118AbSHKHbe>; Sun, 11 Aug 2002 03:31:34 -0400
+	id <S318080AbSHKHbc>; Sun, 11 Aug 2002 03:31:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317978AbSHKHaV>; Sun, 11 Aug 2002 03:30:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41478 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318118AbSHKH0R>;
-	Sun, 11 Aug 2002 03:26:17 -0400
-Message-ID: <3D5614CA.5DDF5576@zip.com.au>
-Date: Sun, 11 Aug 2002 00:39:54 -0700
+	id <S318118AbSHKHaw>; Sun, 11 Aug 2002 03:30:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41990 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318080AbSHKH00>;
+	Sun, 11 Aug 2002 03:26:26 -0400
+Message-ID: <3D5614D2.EDA7A18A@zip.com.au>
+Date: Sun, 11 Aug 2002 00:40:02 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 16/21] remove the zone_t and zonelist_t typedefs
+Subject: [patch 17/21] per-zone LRUs
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,462 +22,681 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-- Remove the zonelist_t typedef.  Rename struct zonelist_struct to
-  struct zonelist and use that everywhere.
+Replace the global page LRUs with per-zone LRUs.
 
-- Remove the zone_t typedef.  Rename struct zone_struct to struct
-  zone and use that everywhere.
+This fixes the failure described at
+http://mail.nl.linux.org/linux-mm/2002-08/msg00049.html
+
+It will also fix the problem wherein a search for a reclaimable
+ZONE_NORMAL page will undesirably move aged ZONE_HIGHMEM pages to the
+head of the inactive list.  (I haven't tried to measure any benefit
+from this aspect).
+
+It will also reduces the amount of CPU spent scanning pages in page
+reclaim. I haven't instrumented this either.
+
+This is a minimal conversion - the aging and reclaim logic is left
+unchanged, as far as is possible.
+
+I was bitten by the "incremental min" logic in __alloc_pages again. 
+There's a state in which the sum-of-mins exceeds zone->pages_high.  So
+we call into try_to_free_pages(), which does nothing at all (all zones
+have free_pages > pages_high).  The incremental min is unchanged and
+the VM locks up.
+
+This was fixed in __alloc_pages: if zone->free_pages is greater than
+zone->pages_high then just go and grab a page.
 
 
 
- fs/buffer.c                |    2 -
- include/linux/dcache.h     |    2 -
- include/linux/gfp.h        |    2 -
- include/linux/mm.h         |    7 ++----
- include/linux/mmzone.h     |   25 ++++++++++++-----------
- include/linux/page-flags.h |    1 
- include/linux/swap.h       |    4 +--
- mm/filemap.c               |    2 -
- mm/page_alloc.c            |   48 +++++++++++++++++++++++----------------------
- mm/vmscan.c                |   20 ++++++++++--------
- 10 files changed, 58 insertions(+), 55 deletions(-)
 
---- 2.5.31/fs/buffer.c~zone-rename	Sat Aug 10 23:45:33 2002
-+++ 2.5.31-akpm/fs/buffer.c	Sat Aug 10 23:45:33 2002
-@@ -469,7 +469,7 @@ void __invalidate_buffers(kdev_t dev, in
-  */
- static void free_more_memory(void)
- {
--	zone_t *zone;
-+	struct zone *zone;
+ fs/proc/proc_misc.c        |    9 +++-
+ include/linux/mm_inline.h  |   40 ++++++++++++++++++
+ include/linux/mmzone.h     |   11 ++++-
+ include/linux/page-flags.h |    2 
+ include/linux/swap.h       |   45 --------------------
+ mm/filemap.c               |    7 +--
+ mm/page_alloc.c            |   54 +++++++++++++++++-------
+ mm/swap.c                  |   26 ++++-------
+ mm/vmscan.c                |   98 ++++++++++++++++++++++++++-------------------
+ 9 files changed, 166 insertions(+), 126 deletions(-)
+
+--- /dev/null	Thu Aug 30 13:30:55 2001
++++ 2.5.31-akpm/include/linux/mm_inline.h	Sun Aug 11 00:20:35 2002
+@@ -0,0 +1,40 @@
++
++static inline void
++add_page_to_active_list(struct zone *zone, struct page *page)
++{
++	list_add(&page->lru, &zone->active_list);
++	zone->nr_active++;
++}
++
++static inline void
++add_page_to_inactive_list(struct zone *zone, struct page *page)
++{
++	list_add(&page->lru, &zone->inactive_list);
++	zone->nr_inactive++;
++}
++
++static inline void
++del_page_from_active_list(struct zone *zone, struct page *page)
++{
++	list_del(&page->lru);
++	zone->nr_active--;
++}
++
++static inline void
++del_page_from_inactive_list(struct zone *zone, struct page *page)
++{
++	list_del(&page->lru);
++	zone->nr_inactive--;
++}
++
++static inline void
++del_page_from_lru(struct zone *zone, struct page *page)
++{
++	list_del(&page->lru);
++	if (PageActive(page)) {
++		ClearPageActive(page);
++		zone->nr_active--;
++	} else {
++		zone->nr_inactive--;
++	}
++}
+--- 2.5.31/include/linux/mmzone.h~per-zone-lru	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/linux/mmzone.h	Sun Aug 11 00:21:00 2002
+@@ -8,6 +8,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
+ #include <linux/wait.h>
++#include <asm/atomic.h>
  
- 	zone = contig_page_data.node_zonelists[GFP_NOFS & GFP_ZONEMASK].zones[0];
+ /*
+  * Free memory management - zoned buddy allocator.
+@@ -43,6 +44,12 @@ struct zone {
+ 	unsigned long		pages_min, pages_low, pages_high;
+ 	int			need_balance;
  
---- 2.5.31/include/linux/dcache.h~zone-rename	Sat Aug 10 23:45:33 2002
-+++ 2.5.31-akpm/include/linux/dcache.h	Sat Aug 10 23:45:33 2002
-@@ -181,8 +181,6 @@ extern void shrink_dcache_parent(struct 
- extern void shrink_dcache_anon(struct list_head *);
- extern int d_invalidate(struct dentry *);
- 
--#define shrink_dcache() prune_dcache(0)
--struct zone_struct;
- /* dcache memory management */
- extern int shrink_dcache_memory(int, unsigned int);
- extern void prune_dcache(int);
---- 2.5.31/include/linux/gfp.h~zone-rename	Sat Aug 10 23:45:33 2002
-+++ 2.5.31-akpm/include/linux/gfp.h	Sat Aug 10 23:45:33 2002
-@@ -40,7 +40,7 @@
-  * virtual kernel addresses to the allocated page(s).
-  */
- extern struct page * FASTCALL(_alloc_pages(unsigned int gfp_mask, unsigned int order));
--extern struct page * FASTCALL(__alloc_pages(unsigned int gfp_mask, unsigned int order, zonelist_t *zonelist));
-+extern struct page * FASTCALL(__alloc_pages(unsigned int gfp_mask, unsigned int order, struct zonelist *zonelist));
- extern struct page * alloc_pages_node(int nid, unsigned int gfp_mask, unsigned int order);
- 
- static inline struct page * alloc_pages(unsigned int gfp_mask, unsigned int order)
---- 2.5.31/include/linux/mm.h~zone-rename	Sat Aug 10 23:45:33 2002
-+++ 2.5.31-akpm/include/linux/mm.h	Sat Aug 10 23:45:33 2002
-@@ -267,10 +267,10 @@ extern void FASTCALL(__page_cache_releas
- #define NODE_SHIFT 4
- #define ZONE_SHIFT (BITS_PER_LONG - 8)
- 
--struct zone_struct;
--extern struct zone_struct *zone_table[];
-+struct zone;
-+extern struct zone *zone_table[];
- 
--static inline zone_t *page_zone(struct page *page)
-+static inline struct zone *page_zone(struct page *page)
- {
- 	return zone_table[page->flags >> ZONE_SHIFT];
- }
-@@ -454,7 +454,6 @@ static inline int can_vma_merge(struct v
- 		return 0;
- }
- 
--struct zone_t;
- /* filemap.c */
- extern unsigned long page_unuse(struct page *);
- extern void truncate_inode_pages(struct address_space *, loff_t);
---- 2.5.31/include/linux/mmzone.h~zone-rename	Sat Aug 10 23:45:33 2002
-+++ 2.5.31-akpm/include/linux/mmzone.h	Sat Aug 10 23:45:33 2002
-@@ -34,7 +34,7 @@ struct pglist_data;
-  * ZONE_NORMAL	16-896 MB	direct mapped by the kernel
-  * ZONE_HIGHMEM	 > 896 MB	only page cache and user processes
-  */
--typedef struct zone_struct {
-+struct zone {
++	struct list_head	active_list;
++	struct list_head	inactive_list;
++	atomic_t		refill_counter;
++	unsigned long		nr_active;
++	unsigned long		nr_inactive;
++
  	/*
- 	 * Commonly accessed fields:
+ 	 * free areas of different sizes
  	 */
-@@ -89,7 +89,7 @@ typedef struct zone_struct {
- 	 */
- 	char			*name;
- 	unsigned long		size;
--} zone_t;
-+};
- 
- #define ZONE_DMA		0
- #define ZONE_NORMAL		1
-@@ -107,16 +107,16 @@ typedef struct zone_struct {
-  * so despite the zonelist table being relatively big, the cache
-  * footprint of this construct is very small.
+@@ -157,10 +164,10 @@ memclass(struct zone *pgzone, struct zon
+  * prototypes for the discontig memory code.
   */
--typedef struct zonelist_struct {
--	zone_t * zones [MAX_NR_ZONES+1]; // NULL delimited
--} zonelist_t;
-+struct zonelist {
-+	struct zone *zones[MAX_NR_ZONES+1]; // NULL delimited
-+};
+ struct page;
+-extern void show_free_areas_core(pg_data_t *pgdat);
+-extern void free_area_init_core(int nid, pg_data_t *pgdat, struct page **gmap,
++void free_area_init_core(int nid, pg_data_t *pgdat, struct page **gmap,
+   unsigned long *zones_size, unsigned long paddr, unsigned long *zholes_size,
+   struct page *pmap);
++void get_zone_counts(unsigned long *active, unsigned long *inactive);
  
- #define GFP_ZONEMASK	0x0f
+ extern pg_data_t contig_page_data;
+ 
+--- 2.5.31/include/linux/swap.h~per-zone-lru	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/linux/swap.h	Sun Aug 11 00:21:00 2002
+@@ -216,51 +216,6 @@ extern spinlock_t _pagemap_lru_lock;
+ 
+ extern void FASTCALL(mark_page_accessed(struct page *));
+ 
+-/*
+- * List add/del helper macros. These must be called
+- * with the pagemap_lru_lock held!
+- */
+-#define DEBUG_LRU_PAGE(page)			\
+-do {						\
+-	if (!PageLRU(page))			\
+-		BUG();				\
+-	if (PageActive(page))			\
+-		BUG();				\
+-} while (0)
+-
+-#define __add_page_to_active_list(page)		\
+-do {						\
+-	list_add(&(page)->lru, &active_list);	\
+-	inc_page_state(nr_active);		\
+-} while (0)
+-
+-#define add_page_to_active_list(page)		\
+-do {						\
+-	DEBUG_LRU_PAGE(page);			\
+-	SetPageActive(page);			\
+-	__add_page_to_active_list(page);	\
+-} while (0)
+-
+-#define add_page_to_inactive_list(page)		\
+-do {						\
+-	DEBUG_LRU_PAGE(page);			\
+-	list_add(&(page)->lru, &inactive_list);	\
+-	inc_page_state(nr_inactive);		\
+-} while (0)
+-
+-#define del_page_from_active_list(page)		\
+-do {						\
+-	list_del(&(page)->lru);			\
+-	ClearPageActive(page);			\
+-	dec_page_state(nr_active);		\
+-} while (0)
+-
+-#define del_page_from_inactive_list(page)	\
+-do {						\
+-	list_del(&(page)->lru);			\
+-	dec_page_state(nr_inactive);		\
+-} while (0)
+-
+ extern spinlock_t swaplock;
+ 
+ #define swap_list_lock()	spin_lock(&swaplock)
+--- 2.5.31/mm/page_alloc.c~per-zone-lru	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/mm/page_alloc.c	Sun Aug 11 00:21:00 2002
+@@ -27,8 +27,6 @@
+ unsigned long totalram_pages;
+ unsigned long totalhigh_pages;
+ int nr_swap_pages;
+-LIST_HEAD(active_list);
+-LIST_HEAD(inactive_list);
+ pg_data_t *pgdat_list;
  
  /*
-  * The pg_data_t structure is used in machines with CONFIG_DISCONTIGMEM
-  * (mostly NUMA machines?) to denote a higher-level memory zone than the
-- * zone_struct denotes.
-+ * zone denotes.
-  *
-  * On NUMA machines, each NUMA node would have a pg_data_t to describe
-  * it's memory layout.
-@@ -126,8 +126,8 @@ typedef struct zonelist_struct {
-  */
- struct bootmem_data;
- typedef struct pglist_data {
--	zone_t node_zones[MAX_NR_ZONES];
--	zonelist_t node_zonelists[GFP_ZONEMASK+1];
-+	struct zone node_zones[MAX_NR_ZONES];
-+	struct zonelist node_zonelists[GFP_ZONEMASK+1];
- 	int nr_zones;
- 	struct page *node_mem_map;
- 	unsigned long *valid_addr_bitmap;
-@@ -142,7 +142,8 @@ typedef struct pglist_data {
- extern int numnodes;
- extern pg_data_t *pgdat_list;
- 
--static inline int memclass(zone_t *pgzone, zone_t *classzone)
-+static inline int
-+memclass(struct zone *pgzone, struct zone *classzone)
- {
- 	if (pgzone->zone_pgdat != classzone->zone_pgdat)
- 		return 0;
-@@ -181,7 +182,7 @@ extern pg_data_t contig_page_data;
-  * next_zone - helper magic for for_each_zone()
-  * Thanks to William Lee Irwin III for this piece of ingenuity.
-  */
--static inline zone_t * next_zone(zone_t * zone)
-+static inline struct zone *next_zone(struct zone *zone)
- {
- 	pg_data_t *pgdat = zone->zone_pgdat;
- 
-@@ -198,7 +199,7 @@ static inline zone_t * next_zone(zone_t 
- 
- /**
-  * for_each_zone - helper macro to iterate over all memory zones
-- * @zone - pointer to zone_t variable
-+ * @zone - pointer to struct zone variable
-  *
-  * The user only needs to declare the zone variable, for_each_zone
-  * fills it in. This basically means for_each_zone() is an
-@@ -206,7 +207,7 @@ static inline zone_t * next_zone(zone_t 
-  *
-  * for (pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
-  * 	for (i = 0; i < MAX_NR_ZONES; ++i) {
-- * 		zone_t * z = pgdat->node_zones + i;
-+ * 		struct zone * z = pgdat->node_zones + i;
-  * 		...
-  * 	}
-  * }
---- 2.5.31/include/linux/page-flags.h~zone-rename	Sat Aug 10 23:45:33 2002
-+++ 2.5.31-akpm/include/linux/page-flags.h	Sat Aug 10 23:45:33 2002
-@@ -161,6 +161,7 @@ extern void get_page_state(struct page_s
- #define SetPageActive(page)	set_bit(PG_active, &(page)->flags)
- #define ClearPageActive(page)	clear_bit(PG_active, &(page)->flags)
- #define TestClearPageActive(page) test_and_clear_bit(PG_active, &(page)->flags)
-+#define TestSetPageActive(page) test_and_set_bit(PG_active, &(page)->flags)
- 
- #define PageSlab(page)		test_bit(PG_slab, &(page)->flags)
- #define SetPageSlab(page)	set_bit(PG_slab, &(page)->flags)
---- 2.5.31/include/linux/swap.h~zone-rename	Sat Aug 10 23:45:33 2002
-+++ 2.5.31-akpm/include/linux/swap.h	Sat Aug 10 23:45:33 2002
-@@ -139,7 +139,7 @@ struct task_struct;
- struct vm_area_struct;
- struct sysinfo;
- struct address_space;
--struct zone_t;
-+struct zone;
- struct pagevec;
- 
- /* linux/mm/rmap.c */
-@@ -166,7 +166,7 @@ extern void swap_setup(void);
- 
- /* linux/mm/vmscan.c */
- extern wait_queue_head_t kswapd_wait;
--extern int FASTCALL(try_to_free_pages(zone_t *, unsigned int, unsigned int));
-+extern int try_to_free_pages(struct zone *, unsigned int, unsigned int);
- 
- /* linux/mm/page_io.c */
- int swap_readpage(struct file *file, struct page *page);
---- 2.5.31/mm/filemap.c~zone-rename	Sat Aug 10 23:45:33 2002
-+++ 2.5.31-akpm/mm/filemap.c	Sat Aug 10 23:45:33 2002
-@@ -618,7 +618,7 @@ static int page_cache_read(struct file *
-  */
- static inline wait_queue_head_t *page_waitqueue(struct page *page)
- {
--	const zone_t *zone = page_zone(page);
-+	const struct zone *zone = page_zone(page);
- 
- 	return &zone->wait_table[hash_ptr(page, zone->wait_table_bits)];
- }
---- 2.5.31/mm/page_alloc.c~zone-rename	Sat Aug 10 23:45:33 2002
-+++ 2.5.31-akpm/mm/page_alloc.c	Sat Aug 10 23:45:33 2002
-@@ -35,7 +35,7 @@ pg_data_t *pgdat_list;
-  * Used by page_zone() to look up the address of the struct zone whose
-  * id is encoded in the upper bits of page->flags
-  */
--zone_t *zone_table[MAX_NR_ZONES*MAX_NR_NODES];
-+struct zone *zone_table[MAX_NR_ZONES*MAX_NR_NODES];
- EXPORT_SYMBOL(zone_table);
- 
- static char *zone_names[MAX_NR_ZONES] = { "DMA", "Normal", "HighMem" };
-@@ -46,7 +46,7 @@ static int zone_balance_max[MAX_NR_ZONES
- /*
-  * Temporary debugging check for pages not lying within a given zone.
-  */
--static inline int bad_range(zone_t *zone, struct page *page)
-+static inline int bad_range(struct zone *zone, struct page *page)
- {
- 	if (page - mem_map >= zone->zone_start_mapnr + zone->size)
- 		return 1;
-@@ -86,7 +86,7 @@ static void __free_pages_ok (struct page
- 	unsigned long index, page_idx, mask, flags;
- 	free_area_t *area;
- 	struct page *base;
--	zone_t *zone;
-+	struct zone *zone;
- 
- 	KERNEL_STAT_ADD(pgfree, 1<<order);
- 
-@@ -156,7 +156,8 @@ out:
- #define MARK_USED(index, order, area) \
- 	__change_bit((index) >> (1+(order)), (area)->map)
- 
--static inline struct page * expand (zone_t *zone, struct page *page,
-+static inline struct page *
-+expand(struct zone *zone, struct page *page,
- 	 unsigned long index, int low, int high, free_area_t * area)
- {
- 	unsigned long size = 1 << high;
-@@ -193,8 +194,7 @@ static inline void prep_new_page(struct 
- 	set_page_count(page, 1);
- }
- 
--static FASTCALL(struct page * rmqueue(zone_t *zone, unsigned int order));
--static struct page * rmqueue(zone_t *zone, unsigned int order)
-+static struct page *rmqueue(struct zone *zone, unsigned int order)
- {
- 	free_area_t * area = zone->free_area + order;
- 	unsigned int curr_order = order;
-@@ -237,7 +237,7 @@ static struct page * rmqueue(zone_t *zon
- #ifdef CONFIG_SOFTWARE_SUSPEND
- int is_head_of_free_region(struct page *page)
- {
--        zone_t *zone = page_zone(page);
-+        struct zone *zone = page_zone(page);
-         unsigned long flags;
- 	int order;
- 	list_t *curr;
-@@ -267,7 +267,7 @@ struct page *_alloc_pages(unsigned int g
+@@ -267,7 +265,7 @@ struct page *_alloc_pages(unsigned int g
  #endif
  
  static /* inline */ struct page *
--balance_classzone(zone_t * classzone, unsigned int gfp_mask,
-+balance_classzone(struct zone *classzone, unsigned int gfp_mask,
+-balance_classzone(struct zone *classzone, unsigned int gfp_mask,
++balance_classzone(struct zone* classzone, unsigned int gfp_mask,
  			unsigned int order, int * freed)
  {
  	struct page * page = NULL;
-@@ -322,10 +322,12 @@ balance_classzone(zone_t * classzone, un
- /*
-  * This is the 'heart' of the zoned buddy allocator:
-  */
--struct page * __alloc_pages(unsigned int gfp_mask, unsigned int order, zonelist_t *zonelist)
-+struct page *
-+__alloc_pages(unsigned int gfp_mask, unsigned int order,
-+		struct zonelist *zonelist)
- {
- 	unsigned long min;
--	zone_t **zones, *classzone;
-+	struct zone **zones, *classzone;
- 	struct page * page;
- 	int freed, i;
- 
-@@ -339,7 +341,7 @@ struct page * __alloc_pages(unsigned int
- 	/* Go through the zonelist once, looking for a zone with enough free */
- 	min = 1UL << order;
- 	for (i = 0; zones[i] != NULL; i++) {
--		zone_t *z = zones[i];
-+		struct zone *z = zones[i];
+@@ -345,7 +343,7 @@ __alloc_pages(unsigned int gfp_mask, uns
  
  		/* the incremental min is allegedly to discourage fallback */
  		min += z->pages_low;
-@@ -360,7 +362,7 @@ struct page * __alloc_pages(unsigned int
- 	min = 1UL << order;
- 	for (i = 0; zones[i] != NULL; i++) {
- 		unsigned long local_min;
--		zone_t *z = zones[i];
-+		struct zone *z = zones[i];
- 
- 		local_min = z->pages_min;
- 		if (gfp_mask & __GFP_HIGH)
-@@ -379,7 +381,7 @@ rebalance:
- 	if (current->flags & (PF_MEMALLOC | PF_MEMDIE)) {
- 		/* go through the zonelist yet again, ignoring mins */
- 		for (i = 0; zones[i] != NULL; i++) {
--			zone_t *z = zones[i];
-+			struct zone *z = zones[i];
- 
+-		if (z->free_pages > min) {
++		if (z->free_pages > min || z->free_pages >= z->pages_high) {
  			page = rmqueue(z, order);
  			if (page)
-@@ -406,7 +408,7 @@ nopage:
- 	/* go through the zonelist yet one more time */
- 	min = 1UL << order;
- 	for (i = 0; zones[i] != NULL; i++) {
--		zone_t *z = zones[i];
-+		struct zone *z = zones[i];
+ 				return page;
+@@ -368,7 +366,7 @@ __alloc_pages(unsigned int gfp_mask, uns
+ 		if (gfp_mask & __GFP_HIGH)
+ 			local_min >>= 2;
+ 		min += local_min;
+-		if (z->free_pages > min) {
++		if (z->free_pages > min || z->free_pages >= z->pages_high) {
+ 			page = rmqueue(z, order);
+ 			if (page)
+ 				return page;
+@@ -411,7 +409,7 @@ nopage:
+ 		struct zone *z = zones[i];
  
  		min += z->pages_min;
- 		if (z->free_pages > min) {
-@@ -479,7 +481,7 @@ void free_pages(unsigned long addr, unsi
- unsigned int nr_free_pages(void)
- {
- 	unsigned int sum = 0;
--	zone_t *zone;
-+	struct zone *zone;
- 
- 	for_each_zone(zone)
- 		sum += zone->free_pages;
-@@ -493,9 +495,9 @@ static unsigned int nr_free_zone_pages(i
- 	unsigned int sum = 0;
- 
- 	for_each_pgdat(pgdat) {
--		zonelist_t *zonelist = pgdat->node_zonelists + offset;
--		zone_t **zonep = zonelist->zones;
--		zone_t *zone;
-+		struct zonelist *zonelist = pgdat->node_zonelists + offset;
-+		struct zone **zonep = zonelist->zones;
-+		struct zone *zone;
- 
- 		for (zone = *zonep++; zone; zone = *zonep++) {
- 			unsigned long size = zone->size;
-@@ -612,7 +614,7 @@ void show_free_areas(void)
- 
- 	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->pgdat_next)
- 		for (type = 0; type < MAX_NR_ZONES; ++type) {
--			zone_t *zone = &pgdat->node_zones[type];
-+			struct zone *zone = &pgdat->node_zones[type];
- 			printk("Zone:%s "
- 				"freepages:%6lukB "
- 				"min:%6lukB "
-@@ -635,7 +637,7 @@ void show_free_areas(void)
- 	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->pgdat_next)
- 		for (type = 0; type < MAX_NR_ZONES; type++) {
- 			list_t *elem;
--			zone_t *zone = &pgdat->node_zones[type];
-+			struct zone *zone = &pgdat->node_zones[type];
-  			unsigned long nr, flags, order, total = 0;
- 
- 			if (!zone->size)
-@@ -664,8 +666,8 @@ static inline void build_zonelists(pg_da
- 	int i, j, k;
- 
- 	for (i = 0; i <= GFP_ZONEMASK; i++) {
--		zonelist_t *zonelist;
--		zone_t *zone;
-+		struct zonelist *zonelist;
-+		struct zone *zone;
- 
- 		zonelist = pgdat->node_zonelists + i;
- 		memset(zonelist, 0, sizeof(*zonelist));
-@@ -798,7 +800,7 @@ void __init free_area_init_core(int nid,
- 
- 	offset = lmem_map - mem_map;	
- 	for (j = 0; j < MAX_NR_ZONES; j++) {
--		zone_t *zone = pgdat->node_zones + j;
-+		struct zone *zone = pgdat->node_zones + j;
- 		unsigned long mask;
- 		unsigned long size, realsize;
- 
---- 2.5.31/mm/vmscan.c~zone-rename	Sat Aug 10 23:45:33 2002
-+++ 2.5.31-akpm/mm/vmscan.c	Sat Aug 10 23:45:33 2002
-@@ -94,8 +94,9 @@ static inline int is_page_cache_freeable
+-		if (z->free_pages > min) {
++		if (z->free_pages > min || z->free_pages >= z->pages_high) {
+ 			page = rmqueue(z, order);
+ 			if (page)
+ 				return page;
+@@ -562,13 +560,23 @@ void get_page_state(struct page_state *r
+ 		ret->nr_dirty += ps->nr_dirty;
+ 		ret->nr_writeback += ps->nr_writeback;
+ 		ret->nr_pagecache += ps->nr_pagecache;
+-		ret->nr_active += ps->nr_active;
+-		ret->nr_inactive += ps->nr_inactive;
+ 		ret->nr_page_table_pages += ps->nr_page_table_pages;
+ 		ret->nr_reverse_maps += ps->nr_reverse_maps;
+ 	}
  }
  
++void get_zone_counts(unsigned long *active, unsigned long *inactive)
++{
++	struct zone *zone;
++
++	*active = 0;
++	*inactive = 0;
++	for_each_zone(zone) {
++		*active += zone->nr_active;
++		*inactive += zone->nr_inactive;
++	}
++}
++
+ unsigned long get_page_cache_size(void)
+ {
+ 	struct page_state ps;
+@@ -605,8 +613,11 @@ void show_free_areas(void)
+ 	pg_data_t *pgdat;
+ 	struct page_state ps;
+ 	int type;
++	unsigned long active;
++	unsigned long inactive;
+ 
+ 	get_page_state(&ps);
++	get_zone_counts(&active, &inactive);
+ 
+ 	printk("Free pages:      %6dkB (%6dkB HighMem)\n",
+ 		K(nr_free_pages()),
+@@ -615,21 +626,27 @@ void show_free_areas(void)
+ 	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->pgdat_next)
+ 		for (type = 0; type < MAX_NR_ZONES; ++type) {
+ 			struct zone *zone = &pgdat->node_zones[type];
+-			printk("Zone:%s "
+-				"freepages:%6lukB "
+-				"min:%6lukB "
+-				"low:%6lukB " 
+-				"high:%6lukB\n", 
++			printk("Zone:%s"
++				" freepages:%6lukB"
++				" min:%6lukB"
++				" low:%6lukB"
++				" high:%6lukB"
++				" active:%6lukB"
++				" inactive:%6lukB"
++				"\n",
+ 				zone->name,
+ 				K(zone->free_pages),
+ 				K(zone->pages_min),
+ 				K(zone->pages_low),
+-				K(zone->pages_high));
++				K(zone->pages_high),
++				K(zone->nr_active),
++				K(zone->nr_inactive)
++				);
+ 		}
+ 
+ 	printk("( Active:%lu inactive:%lu dirty:%lu writeback:%lu free:%u )\n",
+-		ps.nr_active,
+-		ps.nr_inactive,
++		active,
++		inactive,
+ 		ps.nr_dirty,
+ 		ps.nr_writeback,
+ 		nr_free_pages());
+@@ -816,6 +833,11 @@ void __init free_area_init_core(int nid,
+ 		zone->zone_pgdat = pgdat;
+ 		zone->free_pages = 0;
+ 		zone->need_balance = 0;
++		INIT_LIST_HEAD(&zone->active_list);
++		INIT_LIST_HEAD(&zone->inactive_list);
++		atomic_set(&zone->refill_counter, 0);
++		zone->nr_active = 0;
++		zone->nr_inactive = 0;
+ 		if (!size)
+ 			continue;
+ 
+--- 2.5.31/mm/swap.c~per-zone-lru	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/mm/swap.c	Sun Aug 11 00:21:00 2002
+@@ -19,6 +19,7 @@
+ #include <linux/pagemap.h>
+ #include <linux/pagevec.h>
+ #include <linux/init.h>
++#include <linux/mm_inline.h>
+ #include <linux/prefetch.h>
+ 
+ /* How many pages do we try to swap or page in/out together? */
+@@ -31,6 +32,7 @@ static inline void activate_page_nolock(
+ {
+ 	if (PageLRU(page) && !PageActive(page)) {
+ 		del_page_from_inactive_list(page);
++		SetPageActive(page);
+ 		add_page_to_active_list(page);
+ 		KERNEL_STAT_INC(pgactivate);
+ 	}
+@@ -83,10 +85,7 @@ void __page_cache_release(struct page *p
+ 		spin_lock_irqsave(&_pagemap_lru_lock, flags);
+ 		if (!TestClearPageLRU(page))
+ 			BUG();
+-		if (PageActive(page))
+-			del_page_from_active_list(page);
+-		else
+-			del_page_from_inactive_list(page);
++		del_page_from_lru(page);
+ 		spin_unlock_irqrestore(&_pagemap_lru_lock, flags);
+ 	}
+ 	__free_page(page);
+@@ -124,12 +123,8 @@ void __pagevec_release(struct pagevec *p
+ 			lock_held = 1;
+ 		}
+ 
+-		if (TestClearPageLRU(page)) {
+-			if (PageActive(page))
+-				del_page_from_active_list(page);
+-			else
+-				del_page_from_inactive_list(page);
+-		}
++		if (TestClearPageLRU(page))
++			del_page_from_lru(page);
+ 		if (page_count(page) == 0)
+ 			pagevec_add(&pages_to_free, page);
+ 	}
+@@ -182,8 +177,10 @@ void pagevec_deactivate_inactive(struct 
+ 			spin_lock_irq(&_pagemap_lru_lock);
+ 			lock_held = 1;
+ 		}
+-		if (!PageActive(page) && PageLRU(page))
+-			list_move(&page->lru, &inactive_list);
++		if (!PageActive(page) && PageLRU(page)) {
++			struct zone *zone = page_zone(page);
++			list_move(&page->lru, &zone->inactive_list);
++		}
+ 	}
+ 	if (lock_held)
+ 		spin_unlock_irq(&_pagemap_lru_lock);
+@@ -224,10 +221,7 @@ void __pagevec_lru_del(struct pagevec *p
+ 
+ 		if (!TestClearPageLRU(page))
+ 			BUG();
+-		if (PageActive(page))
+-			del_page_from_active_list(page);
+-		else
+-			del_page_from_inactive_list(page);
++		del_page_from_lru(page);
+ 	}
+ 	spin_unlock_irq(&_pagemap_lru_lock);
+ 	pagevec_release(pvec);
+--- 2.5.31/mm/vmscan.c~per-zone-lru	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/mm/vmscan.c	Sun Aug 11 00:21:00 2002
+@@ -23,6 +23,7 @@
+ #include <linux/writeback.h>
+ #include <linux/suspend.h>
+ #include <linux/buffer_head.h>		/* for try_to_release_page() */
++#include <linux/mm_inline.h>
+ #include <linux/pagevec.h>
+ 
+ #include <asm/rmap.h>
+@@ -95,8 +96,7 @@ static inline int is_page_cache_freeable
+ 
  static /* inline */ int
--shrink_list(struct list_head *page_list, int nr_pages, zone_t *classzone,
--		unsigned int gfp_mask, int priority, int *max_scan)
-+shrink_list(struct list_head *page_list, int nr_pages,
-+		struct zone *classzone, unsigned int gfp_mask,
-+		int priority, int *max_scan)
+ shrink_list(struct list_head *page_list, int nr_pages,
+-		struct zone *classzone, unsigned int gfp_mask,
+-		int priority, int *max_scan)
++		unsigned int gfp_mask, int priority, int *max_scan)
  {
  	struct address_space *mapping;
  	LIST_HEAD(ret_pages);
-@@ -276,7 +277,7 @@ keep:
+@@ -112,8 +112,6 @@ shrink_list(struct list_head *page_list,
+ 
+ 		page = list_entry(page_list->prev, struct page, lru);
+ 		list_del(&page->lru);
+-		if (!memclass(page_zone(page), classzone))
+-			goto keep;
+ 
+ 		if (TestSetPageLocked(page))
+ 			goto keep;
+@@ -277,7 +275,7 @@ keep:
   * in the kernel (apart from the copy_*_user functions).
   */
  static /* inline */ int
--shrink_cache(int nr_pages, zone_t *classzone,
-+shrink_cache(int nr_pages, struct zone *classzone,
+-shrink_cache(int nr_pages, struct zone *classzone,
++shrink_cache(int nr_pages, struct zone *zone,
  		unsigned int gfp_mask, int priority, int max_scan)
  {
  	LIST_HEAD(page_list);
-@@ -452,7 +453,7 @@ static /* inline */ void refill_inactive
+@@ -299,10 +297,12 @@ shrink_cache(int nr_pages, struct zone *
+ 		struct page *page;
+ 		int n = 0;
+ 
+-		while (n < nr_to_process && !list_empty(&inactive_list)) {
+-			page = list_entry(inactive_list.prev, struct page, lru);
++		while (n < nr_to_process && !list_empty(&zone->inactive_list)) {
++			page = list_entry(zone->inactive_list.prev,
++					struct page, lru);
+ 
+-			prefetchw_prev_lru_page(page, &inactive_list, flags);
++			prefetchw_prev_lru_page(page,
++						&zone->inactive_list, flags);
+ 
+ 			if (!TestClearPageLRU(page))
+ 				BUG();
+@@ -310,22 +310,22 @@ shrink_cache(int nr_pages, struct zone *
+ 			if (page_count(page) == 0) {
+ 				/* It is currently in pagevec_release() */
+ 				SetPageLRU(page);
+-				list_add(&page->lru, &inactive_list);
++				list_add(&page->lru, &zone->inactive_list);
+ 				continue;
+ 			}
+ 			list_add(&page->lru, &page_list);
+ 			page_cache_get(page);
+ 			n++;
+ 		}
++		zone->nr_inactive -= n;
+ 		spin_unlock_irq(&_pagemap_lru_lock);
+ 
+ 		if (list_empty(&page_list))
+ 			goto done;
+ 
+ 		max_scan -= n;
+-		mod_page_state(nr_inactive, -n);
+ 		KERNEL_STAT_ADD(pgscan, n);
+-		nr_pages = shrink_list(&page_list, nr_pages, classzone,
++		nr_pages = shrink_list(&page_list, nr_pages,
+ 					gfp_mask, priority, &max_scan);
+ 
+ 		if (nr_pages <= 0 && list_empty(&page_list))
+@@ -341,7 +341,7 @@ shrink_cache(int nr_pages, struct zone *
+ 				BUG();
+ 			list_del(&page->lru);
+ 			if (PageActive(page))
+-				__add_page_to_active_list(page);
++				add_page_to_active_list(page);
+ 			else
+ 				add_page_to_inactive_list(page);
+ 			if (!pagevec_add(&pvec, page)) {
+@@ -374,7 +374,8 @@ done:
+  * The downside is that we have to touch page->count against each page.
+  * But we had to alter page->flags anyway.
+  */
+-static /* inline */ void refill_inactive(const int nr_pages_in)
++static /* inline */ void
++refill_inactive_zone(struct zone *zone, const int nr_pages_in)
+ {
+ 	int pgdeactivate = 0;
+ 	int nr_pages = nr_pages_in;
+@@ -388,9 +389,9 @@ static /* inline */ void refill_inactive
+ 
+ 	lru_add_drain();
+ 	spin_lock_irq(&_pagemap_lru_lock);
+-	while (nr_pages && !list_empty(&active_list)) {
+-		page = list_entry(active_list.prev, struct page, lru);
+-		prefetchw_prev_lru_page(page, &active_list, flags);
++	while (nr_pages && !list_empty(&zone->active_list)) {
++		page = list_entry(zone->active_list.prev, struct page, lru);
++		prefetchw_prev_lru_page(page, &zone->active_list, flags);
+ 		if (!TestClearPageLRU(page))
+ 			BUG();
+ 		page_cache_get(page);
+@@ -423,7 +424,7 @@ static /* inline */ void refill_inactive
+ 			BUG();
+ 		if (!TestClearPageActive(page))
+ 			BUG();
+-		list_move(&page->lru, &inactive_list);
++		list_move(&page->lru, &zone->inactive_list);
+ 		if (!pagevec_add(&pvec, page)) {
+ 			spin_unlock_irq(&_pagemap_lru_lock);
+ 			__pagevec_release(&pvec);
+@@ -436,31 +437,30 @@ static /* inline */ void refill_inactive
+ 		if (TestSetPageLRU(page))
+ 			BUG();
+ 		BUG_ON(!PageActive(page));
+-		list_move(&page->lru, &active_list);
++		list_move(&page->lru, &zone->active_list);
+ 		if (!pagevec_add(&pvec, page)) {
+ 			spin_unlock_irq(&_pagemap_lru_lock);
+ 			__pagevec_release(&pvec);
+ 			spin_lock_irq(&_pagemap_lru_lock);
+ 		}
+ 	}
++	zone->nr_active -= pgdeactivate;
++	zone->nr_inactive += pgdeactivate;
+ 	spin_unlock_irq(&_pagemap_lru_lock);
+ 	pagevec_release(&pvec);
+ 
+-	mod_page_state(nr_active, -pgdeactivate);
+-	mod_page_state(nr_inactive, pgdeactivate);
+ 	KERNEL_STAT_ADD(pgscan, nr_pages_in - nr_pages);
+ 	KERNEL_STAT_ADD(pgdeactivate, pgdeactivate);
  }
  
  static /* inline */ int
--shrink_caches(zone_t *classzone, int priority,
-+shrink_caches(struct zone *classzone, int priority,
- 		unsigned int gfp_mask, int nr_pages)
+-shrink_caches(struct zone *classzone, int priority,
+-		unsigned int gfp_mask, int nr_pages)
++shrink_zone(struct zone *zone, int priority,
++	unsigned int gfp_mask, int nr_pages)
  {
  	unsigned long ratio;
-@@ -502,7 +503,8 @@ shrink_caches(zone_t *classzone, int pri
+-	struct page_state ps;
+ 	int max_scan;
+-	static atomic_t nr_to_refill = ATOMIC_INIT(0);
+ 
++	/* This is bogus for ZONE_HIGHMEM? */
+ 	if (kmem_cache_reap(gfp_mask) >= nr_pages)
+   		return 0;
+ 
+@@ -474,17 +474,16 @@ shrink_caches(struct zone *classzone, in
+ 	 * just to make sure that the kernel will slowly sift through the
+ 	 * active list.
+ 	 */
+-	get_page_state(&ps);
+-	ratio = (unsigned long)nr_pages * ps.nr_active /
+-				((ps.nr_inactive | 1) * 2);
+-	atomic_add(ratio+1, &nr_to_refill);
+-	if (atomic_read(&nr_to_refill) > SWAP_CLUSTER_MAX) {
+-		atomic_sub(SWAP_CLUSTER_MAX, &nr_to_refill);
+-		refill_inactive(SWAP_CLUSTER_MAX);
++	ratio = (unsigned long)nr_pages * zone->nr_active /
++				((zone->nr_inactive | 1) * 2);
++	atomic_add(ratio+1, &zone->refill_counter);
++	if (atomic_read(&zone->refill_counter) > SWAP_CLUSTER_MAX) {
++		atomic_sub(SWAP_CLUSTER_MAX, &zone->refill_counter);
++		refill_inactive_zone(zone, SWAP_CLUSTER_MAX);
+ 	}
+ 
+-	max_scan = ps.nr_inactive / priority;
+-	nr_pages = shrink_cache(nr_pages, classzone,
++	max_scan = zone->nr_inactive / priority;
++	nr_pages = shrink_cache(nr_pages, zone,
+ 				gfp_mask, priority, max_scan);
+ 
+ 	if (nr_pages <= 0)
+@@ -503,7 +502,30 @@ shrink_caches(struct zone *classzone, in
  	return nr_pages;
  }
  
--int try_to_free_pages(zone_t *classzone, unsigned int gfp_mask, unsigned int order)
-+int try_to_free_pages(struct zone *classzone,
-+		unsigned int gfp_mask, unsigned int order)
+-int try_to_free_pages(struct zone *classzone,
++static int
++shrink_caches(struct zone *classzone, int priority,
++		int gfp_mask, int nr_pages)
++{
++	struct zone *first_classzone;
++	struct zone *zone;
++
++	first_classzone = classzone->zone_pgdat->node_zones;
++	zone = classzone;
++	while (zone >= first_classzone) {
++		if (zone->free_pages <= zone->pages_high) {
++			nr_pages = shrink_zone(zone, priority,
++					gfp_mask, nr_pages);
++		}
++		zone--;
++	}
++	return nr_pages;
++}
++
++/*
++ * This is the main entry point to page reclaim.
++ */
++int
++try_to_free_pages(struct zone *classzone,
+ 		unsigned int gfp_mask, unsigned int order)
  {
  	int priority = DEF_PRIORITY;
- 	int nr_pages = SWAP_CLUSTER_MAX;
-@@ -525,9 +527,9 @@ int try_to_free_pages(zone_t *classzone,
+@@ -512,15 +534,11 @@ int try_to_free_pages(struct zone *class
+ 	KERNEL_STAT_INC(pageoutrun);
  
- DECLARE_WAIT_QUEUE_HEAD(kswapd_wait);
+ 	do {
+-		nr_pages = shrink_caches(classzone, priority, gfp_mask, nr_pages);
++		nr_pages = shrink_caches(classzone, priority,
++					gfp_mask, nr_pages);
+ 		if (nr_pages <= 0)
+ 			return 1;
+ 	} while (--priority);
+-
+-	/*
+-	 * Hmm.. Cache shrink failed - time to kill something?
+-	 * Mhwahahhaha! This is the part I really like. Giggle.
+-	 */
+ 	out_of_memory();
+ 	return 0;
+ }
+--- 2.5.31/include/linux/page-flags.h~per-zone-lru	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/include/linux/page-flags.h	Sun Aug 11 00:21:00 2002
+@@ -74,8 +74,6 @@ extern struct page_state {
+ 	unsigned long nr_dirty;
+ 	unsigned long nr_writeback;
+ 	unsigned long nr_pagecache;
+-	unsigned long nr_active;	/* on active_list LRU */
+-	unsigned long nr_inactive;	/* on inactive_list LRU */
+ 	unsigned long nr_page_table_pages;
+ 	unsigned long nr_reverse_maps;
+ } ____cacheline_aligned_in_smp page_states[NR_CPUS];
+--- 2.5.31/fs/proc/proc_misc.c~per-zone-lru	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/fs/proc/proc_misc.c	Sun Aug 11 00:20:35 2002
+@@ -27,6 +27,7 @@
+ #include <linux/ioport.h>
+ #include <linux/config.h>
+ #include <linux/mm.h>
++#include <linux/mmzone.h>
+ #include <linux/pagemap.h>
+ #include <linux/swap.h>
+ #include <linux/slab.h>
+@@ -134,8 +135,12 @@ static int meminfo_read_proc(char *page,
+ 	struct sysinfo i;
+ 	int len, committed;
+ 	struct page_state ps;
++	unsigned long inactive;
++	unsigned long active;
  
--static int check_classzone_need_balance(zone_t * classzone)
-+static int check_classzone_need_balance(struct zone *classzone)
+ 	get_page_state(&ps);
++	get_zone_counts(&active, &inactive);
++
+ /*
+  * display in kilobytes.
+  */
+@@ -171,8 +176,8 @@ static int meminfo_read_proc(char *page,
+ 		K(i.sharedram),
+ 		K(ps.nr_pagecache-swapper_space.nrpages),
+ 		K(swapper_space.nrpages),
+-		K(ps.nr_active),
+-		K(ps.nr_inactive),
++		K(active),
++		K(inactive),
+ 		K(i.totalhigh),
+ 		K(i.freehigh),
+ 		K(i.totalram-i.totalhigh),
+--- 2.5.31/mm/filemap.c~per-zone-lru	Sun Aug 11 00:20:35 2002
++++ 2.5.31-akpm/mm/filemap.c	Sun Aug 11 00:21:00 2002
+@@ -1158,14 +1158,15 @@ do_readahead(struct file *file, unsigned
  {
--	zone_t * first_classzone;
-+	struct zone *first_classzone;
+ 	struct address_space *mapping = file->f_dentry->d_inode->i_mapping;
+ 	unsigned long max;
+-	struct page_state ps;
++	unsigned long active;
++	unsigned long inactive;
  
- 	first_classzone = classzone->zone_pgdat->node_zones;
- 	while (classzone >= first_classzone) {
-@@ -541,7 +543,7 @@ static int check_classzone_need_balance(
- static int kswapd_balance_pgdat(pg_data_t * pgdat)
- {
- 	int need_more_balance = 0, i;
--	zone_t * zone;
-+	struct zone *zone;
+ 	if (!mapping || !mapping->a_ops || !mapping->a_ops->readpage)
+ 		return -EINVAL;
  
- 	for (i = pgdat->nr_zones-1; i >= 0; i--) {
- 		zone = pgdat->node_zones + i;
-@@ -579,7 +581,7 @@ static void kswapd_balance(void)
+ 	/* Limit it to a sane percentage of the inactive list.. */
+-	get_page_state(&ps);
+-	max = ps.nr_inactive / 2;
++	get_zone_counts(&active, &inactive);
++	max = inactive / 2;
+ 	if (nr > max)
+ 		nr = max;
  
- static int kswapd_can_sleep_pgdat(pg_data_t * pgdat)
- {
--	zone_t * zone;
-+	struct zone *zone;
- 	int i;
- 
- 	for (i = pgdat->nr_zones-1; i >= 0; i--) {
 
 .

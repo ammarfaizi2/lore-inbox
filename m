@@ -1,115 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbULCWsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbULCWwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262503AbULCWsK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 17:48:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbULCWru
+	id S262450AbULCWwG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 17:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbULCWwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 17:47:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19143 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262457AbULCWr0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 17:47:26 -0500
-Date: Fri, 3 Dec 2004 14:51:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: franz_pletz@t-online.de, axboe@suse.de, linux-kernel@vger.kernel.org,
-       ludoschmidt@web.de
-Subject: Re: [PATCH] loopback device can't act as its backing store
-Message-Id: <20041203145140.002e338f.akpm@osdl.org>
-In-Reply-To: <20041203145056.541308d1.akpm@osdl.org>
-References: <Pine.LNX.4.61.0412032028220.10184@sgx.home>
-	<20041203145056.541308d1.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 3 Dec 2004 17:52:06 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:46208
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S262450AbULCWvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 17:51:52 -0500
+Subject: Re: [PATCH] oom killer (Core)
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       LKML <linux-kernel@vger.kernel.org>, nickpiggin@yahoo.com.au
+In-Reply-To: <1102113437.13353.290.camel@tglx.tec.linutronix.de>
+References: <20041201211638.GB4530@dualathlon.random>
+	 <1101938767.13353.62.camel@tglx.tec.linutronix.de>
+	 <20041202033619.GA32635@dualathlon.random>
+	 <1101985759.13353.102.camel@tglx.tec.linutronix.de>
+	 <1101995280.13353.124.camel@tglx.tec.linutronix.de>
+	 <20041202164725.GB32635@dualathlon.random>
+	 <20041202085518.58e0e8eb.akpm@osdl.org>
+	 <20041202180823.GD32635@dualathlon.random>
+	 <1102013716.13353.226.camel@tglx.tec.linutronix.de>
+	 <20041202233459.GF32635@dualathlon.random>
+	 <20041203022854.GL32635@dualathlon.random>
+	 <1102113437.13353.290.camel@tglx.tec.linutronix.de>
+Content-Type: text/plain
+Date: Fri, 03 Dec 2004 23:51:50 +0100
+Message-Id: <1102114310.13353.298.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> Andries posted such a patch
+Ooops, sorry it did add something to the Log after 10 minutes
+
+On Fri, 2004-12-03 at 23:37 +0100, Thomas Gleixner wrote:
+> You're right. oom-kill() did not do anything wrong. See log below
+> 
+> This is w/o PREEMPT. Is it neccecary to verify w/ PREEMPT too ?
+> 
+> If it would have booted it still would have killed sshd instead of the
+> application which was forking a lot of childs.
+> 
+> Enabling fast FPU save and restore... done.
+> Checking 'hlt' instruction... OK.
+> 
+> END OF LOG
+
+Unable to handle kernel NULL pointer dereference at virtual address
+0000000c
+ printing eip:
+c011fe30
+*pde = 00000000
+Oops: 0000 [#1]
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c011fe30>]    Not tainted VLI
+EFLAGS: 00010082   (2.6.10-rc2)
+EIP is at __queue_work+0x20/0x60
+eax: 00000000   ebx: c032cc80   ecx: 00000000   edx: 00000008
+esi: c03acd14   edi: 00000282   ebp: c035ff64   esp: c035ff34
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=c035e000 task=c02ebb00)
+Stack: c035ffa4 00000000 c03acd14 c035ff64 c011fe99 00000000 c032cc80
+c01dd8b0
+       c0119c20 00000000 00000000 c035ffa4 c035ff64 c035ff64 00000000
+00000001
+       c03a5868 0000000a 003d9007 c0115f3b c03a5868 00000046 00099100
+c039e120
+Call Trace:
+ [<c011fe99>] queue_work+0x29/0x50
+ [<c01dd8b0>] blank_screen_t+0x0/0x20
+ [<c0119c20>] run_timer_softirq+0xb0/0x170
+ [<c0115f3b>] __do_softirq+0x7b/0x90
+ [<c0115f77>] do_softirq+0x27/0x30
+ [<c010411e>] do_IRQ+0x1e/0x30
+ [<c010271e>] common_interrupt+0x1a/0x20
+ [<c0100623>] default_idle+0x23/0x40
+ [<c01006b4>] cpu_idle+0x34/0x40
+ [<c03607d8>] start_kernel+0x168/0x1b0
+ [<c0360370>] unknown_bootoption+0x0/0x1e0
+Code: eb e5 90 90 90 90 90 90 90 90 90 83 ec 10 8b 44 24 14 89 5c 24 04
+8b 5c 2
+ <0>Kernel panic - not syncing: Fatal exception in interrupt
 
 
-
-Begin forwarded message:
-
-Date: Sun, 14 Nov 2004 23:31:21 +0100 (MET)
-From: <Andries.Brouwer@cwi.nl>
-To: akpm@osdl.org, lkml@happyjack.org, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH?] prevent loop infinite recursion
-
-
-After "losetup /dev/loop0 /dev/loop0" I see a hard crash upon
-access of /dev/loop0. And of course the same happens after
-"losetup /dev/loop0 /dev/loop1; "losetup /dev/loop1 /dev/loop0"
-
-Chris Spiegel reports a slightly different crash doing similar things.
-
-The easiest fix is saying "don't do that then".
-
-The patch below adds a (somewhat ugly) test for recursion.
-Maybe someone can think of a nicer version.
-
-Andries
-
-diff -uprN -X /linux/dontdiff a/drivers/block/loop.c b/drivers/block/loop.c
---- a/drivers/block/loop.c	2004-08-26 22:05:15.000000000 +0200
-+++ b/drivers/block/loop.c	2004-11-14 22:43:31.000000000 +0100
-@@ -622,10 +622,17 @@ static int loop_change_fd(struct loop_de
- 	return error;
- }
- 
-+static inline int is_loop_device(struct file *file)
-+{
-+	struct inode *i = file->f_mapping->host;
-+
-+	return i && S_ISBLK(i->i_mode) && MAJOR(i->i_rdev) == LOOP_MAJOR;
-+}
-+
- static int loop_set_fd(struct loop_device *lo, struct file *lo_file,
- 		       struct block_device *bdev, unsigned int arg)
- {
--	struct file	*file;
-+	struct file	*file, *f;
- 	struct inode	*inode;
- 	struct address_space *mapping;
- 	unsigned lo_blocksize;
-@@ -636,15 +643,28 @@ static int loop_set_fd(struct loop_devic
- 	/* This is safe, since we have a reference from open(). */
- 	__module_get(THIS_MODULE);
- 
--	error = -EBUSY;
--	if (lo->lo_state != Lo_unbound)
--		goto out;
--
- 	error = -EBADF;
- 	file = fget(arg);
- 	if (!file)
- 		goto out;
- 
-+	error = -EBUSY;
-+	if (lo->lo_state != Lo_unbound)
-+		goto out_putf;
-+
-+	/* Avoid recursion */
-+	f = file;
-+	while (is_loop_device(f)) {
-+		struct loop_device *l;
-+
-+		if (f->f_mapping->host == lo_file->f_mapping->host)
-+			goto out_putf;
-+		l = f->f_mapping->host->i_bdev->bd_disk->private_data;
-+		if (l->lo_state == Lo_unbound)
-+			break;
-+		f = l->lo_backing_file;
-+	}
-+
- 	mapping = file->f_mapping;
- 	inode = mapping->host;
- 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

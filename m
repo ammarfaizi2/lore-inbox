@@ -1,131 +1,161 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263585AbTDWUld (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 16:41:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263619AbTDWUld
+	id S263510AbTDWVGI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 17:06:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263619AbTDWVGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 16:41:33 -0400
-Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:22540 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S263585AbTDWUla (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 16:41:30 -0400
-Message-ID: <3EA6FD50.2090103@inet6.fr>
-Date: Wed, 23 Apr 2003 22:53:36 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030314
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [RH9 2.4.20-9] SIS based Ibm Aptiva : Invalid EIP
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Apr 2003 17:06:07 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40715 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263510AbTDWVGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 17:06:04 -0400
+Date: Wed, 23 Apr 2003 22:18:10 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Fwd: PCMCIA updates
+Message-ID: <20030423221810.C19573@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Some of the same old updates, without the workqueue change, but with
+another fix (for CIS caching) and a cleanup to cb_release_cis_mem().
 
-one user reported what seemed to be an SiS5513 IDE related bug during 
-kernel loading with the 2.4.20-9 RH9 kernel.
+These bk csets correspond to the patches like so:
 
-# Summary :
+http://patches.arm.linux.org.uk/pcmcia/pcmcia-20030423-2.diff  => 1.1119
+http://patches.arm.linux.org.uk/pcmcia/pcmcia-20030423-3.diff  => 1.1120
+http://patches.arm.linux.org.uk/pcmcia/pcmcia-20030423-4.diff  => 1.1121
+http://patches.arm.linux.org.uk/pcmcia/pcmcia-20030423-5.diff  => 1.1122
+http://patches.arm.linux.org.uk/pcmcia/pcmcia-20030423-6.diff  => 1.1123
 
-- The hardware is a SiS5513 based IBM Aptiva (Pentium 166 with F00F bug)
-- The symptom is an invalid EIP in sis5513.c's config_art_rwp_pio (from 
-the stack trace summary reported) when trying to configure hdc or hdd. 
-The kernel boots if passed hdc=none and hdd=none.
-- Reverting to the 2.4.18-27.8.0 RH8 kernel solves the problem.
-- The problem is 100% reproducible on this hardware.
-- different lspci -vxxx tries show unexpected results, see below
+There are a couple of extra patches.  pcmcia-20030423-7.diff is a
+replacement for the workqueue stuff which should be more to Linus'
+taste (Linus didn't have any really strong objection to the workqueue
+solution, but we mutually agreed that it wasn't as readable as it
+should be.)
 
-# More matter for thought :
+The other patch, pcmcia-20030423-8.diff, is more or less work in
+progress, and is probably fairly dangerous.  However, if you're feeling
+like gambling, you could apply this one as well.  It hasn't changed
+much in the past month (apart from being updated to the latest scheme
+of things) and needs a fair amount of further work to sanely integrate
+the change.  People may still like to look at it though.
 
-What puzzles me is that the sis5513.c driver behaviour at boot time 
-didn't change for this hardware between these 2 kernels !
-I requested lspci -vxxx and dmesg output from fresh cold boots in the 
-following configurations :
+Oh, and pcmcia-20030423-1.diff is a patch which went in a while ago,
+which should be in 2.5.68.  If people are using the released 2.5.67,
+this patch should be applied as well.
 
-RH8   : 2.4.18-27.8.0 without extra parameters
-RH8_2 : 2.4.18-27.8.0 with "hdc=none hdd=none"
-RH9   : 2.4.20-9 with "hdc=none hdd=none"
+----- Forwarded message from Russell King <rmk@arm.linux.org.uk> -----
 
-and found out the following :
+Date: Wed, 23 Apr 2003 22:11:19 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: [BK PULL] PCMCIA updates
 
-1/ Some dmesg differences :
+Linus, please do a
 
-RH9 inits the floppy device earlier (before the ide devices instead of 
-after them),
-RH9 adds "Speakup".
+	bk pull bk://bk.arm.linux.org.uk/linux-2.5-pcmcia
 
-2/ There's a difference in the ISA bridge config registers between the 
-RH8 and the RH8_2 tests :
+to include the latest PCMCIA changes.
 
---- lspci_rh8.txt       2003-04-23 22:19:07.000000000 +0200
-+++ lspci_rh8_hdc=none,hdd=none.txt     2003-04-23 22:19:07.000000000 +0200
-@@ -17,21 +17,21 @@
- 00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513 (rev 01)
-        Flags: bus master, medium devsel, latency 0
- 00: 39 10 08 00 07 00 00 02 01 00 01 06 00 00 80 00
- 10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- 20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- 30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- 40: 0a 0b 0a 80 80 00 00 00 ff ff 10 0f 11 20 04 01
--50: 11 28 02 01 60 00 66 00 9c 2e 12 00 0c e9 00 00
-+50: 11 28 02 01 60 00 62 00 9c 2e 12 00 0c e9 00 00
- 60: 80 80 44 80 82 80 02 00 02 00 04 00 00 00 00 00
- 70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[...]
+This is a set of changes which should not be problematical.
 
-I don't know what these registers are used for but I don't see any 
-reason for these changes. I guess there aren't related to the kernel 
-parameters as previously (without cold boot guarantee) lspci reported 
-once the following register values too (RH8 or RH8_2 type boot) :
+  GNU patches set at:
+     http://patches.arm.linux.org.uk/pcmcia/pcmcia-20030423-[2-6].diff
 
-50: 11 28 02 01 60 00 66 00 9c 2e 12 00 36 06 00 00
+I'm leaving the deadlock fix (pcmcia-20030423-7.diff) out of this until
+I've posted it to LKML; it works for me, but I'd prefer to get some
+feedback from other people on the new solution before submitting it.
 
-3/ lspci couldn't find the IDE I/O ports with the RH9 kernel (on several 
-tries)
+This will update the following files:
 
-00:01.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev 
-08) (prog-if 8a [Mas
-ter SecP PriP])
-        Flags: bus master, fast devsel, latency 0
-        I/O ports at <ignored>
-        I/O ports at <ignored>
-        I/O ports at <ignored>
-        I/O ports at <ignored>
-        I/O ports at fe80 [size=16]
-00: 39 10 13 55 07 00 00 00 08 8a 01 01 00 00 80 00
-10: f1 01 00 00 f5 03 00 00 71 01 00 00 75 03 00 00
-20: 81 fe 00 00 00 00 00 00 00 00 00 00 00 00 80 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00
-40: 02 03 02 03 02 03 02 03 00 00 46 df 00 02 00 02
-50: 02 03 02 03 02 03 02 03 00 00 46 df 00 02 00 02
-60: 02 03 02 03 02 03 02 03 00 00 46 df 00 02 00 02
-70: 02 03 02 03 02 03 02 03 00 00 46 df 00 02 00 02
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 02 03 02 03 02 03 02 03 00 00 46 df 00 02 00 02
-d0: 02 03 02 03 02 03 02 03 00 00 46 df 00 02 00 02
-e0: 02 03 02 03 02 03 02 03 00 00 46 df 00 02 00 02
-f0: 02 03 02 03 02 03 02 03 00 00 46 df 00 02 00 02
+ drivers/net/wireless/orinoco_cs.c |    1 
+ drivers/pcmcia/cardbus.c          |    4 +
+ drivers/pcmcia/cistpl.c           |  108 +++++++++++++++++++++++---------------
+ drivers/pcmcia/cs.c               |    4 -
+ drivers/pcmcia/cs_internal.h      |   20 +++----
+ drivers/pcmcia/rsrc_mgr.c         |   13 ++--
+ include/pcmcia/bus_ops.h          |    2 
+ include/pcmcia/driver_ops.h       |    2 
+ include/pcmcia/ds.h               |    2 
+ 9 files changed, 88 insertions, 68 deletions
 
-With the RH8 kernel lspci reports the following :
-00:01.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev 
-08) (prog-if 8a [Mas
-ter SecP PriP])
-        Flags: bus master, fast devsel, latency 0
-        I/O ports at 01f0
-        I/O ports at 03f4
-        I/O ports at 0170
-        I/O ports at 0374
-        I/O ports at fe80 [size=16]
-[...]
+through these ChangeSets:
 
-I don't know what to think of this one either.
+<rmk@flint.arm.linux.org.uk> (03/04/23 1.1123)
+	[PCMCIA] Make cb_release_cis_mem() local to cardbus.c
+	
+	The cardbus CIS parsing code does not use the PCMCIA resource
+	subsystem, so there isn't any point in freeing its memory when
+	we remove PCMCIA memory resources.  We also free CIS resources
+	immediately prior to calling cb_free().  We might as well move
+	the function call into cb_free(), thereby making all references
+	to cb_release_cis_mem() local to cardbus.c
 
-Hoping this will make some sense for somebody,
+<rmk@flint.arm.linux.org.uk> (03/04/23 1.1122)
+	[PCMCIA] Don't cache CIS bytes found to be invalid.
+	
+	Several PCMCIA cards I have here do not work correctly over a
+	suspend/resume cycle; the PCMCIA code believes that the card has
+	been changed in the slot, and therefore performs a remove/insert
+	cycle.
+	
+	This seems to be because the card returns more or less random data
+	when reading memory space, leading to the CIS cache mismatching
+	the card data.  This in turn is caused because we try to read CIS
+	data from both the attribute and memory spaces, and we add the result
+	to the CIS cache whether or not the returned data was valid.
+	
+	We therefore convert the CIS cache to use a linked list, and provide
+	a way to remove cached data from that list.  We also replace the
+	"s->cis_used=0;" construct with a function "destroy_cis_cache(s)"
+	which clearly describes what we're doing.
 
-LB
+<proski@org.rmk.(none)> (03/04/23 1.1121)
+	[PCMCIA] Fix oops in validate_mem when CONFIG_PCMCIA_PROBE=n
+	
+	If I compile a recent 2.5.x kernel without CONFIG_ISA defined, I get
+	an oops in validate_mem().  Stack trace contains 0x6b6b6b6 - a clear
+	sign that freed memory is being accessed.
+	
+	It's the second validate_mem() in drivers/pcmcia/rsrc_mgr.c - the one
+	used when CONFIG_PCMCIA_PROBE is not defined.  It turns out the memory
+	is freed in do_mem_probe() when it's called from validate_mem().
+	
+	The solution is to use the same trick as in the first validate_mem().
+	This problem is quite serious and it's not specific to the plx9052
+	driver. I see it with yenta_socket as well.
+
+<hch@de.rmk.(none)> (03/04/23 1.1120)
+	[PCMCIA] remove unused files
+	
+	From Christoph Hellwig
+	
+	There's no need to keep the stubs around.
+
+<proski@org.rmk.(none)> (03/04/23 1.1119)
+	[PCMCIA] Fix compilation of cardmgr
+	
+	Patch from Pavel Roskin
+	
+	ds.h should not be including linux/device.h when compiling userspace
+	code.
+
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+
+
+----- End forwarded message -----
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

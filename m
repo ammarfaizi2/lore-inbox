@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265200AbUASPPq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 10:15:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbUASPPq
+	id S265164AbUASPLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 10:11:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265178AbUASPLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 10:15:46 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:38595 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265200AbUASPPp (ORCPT
+	Mon, 19 Jan 2004 10:11:09 -0500
+Received: from colin2.muc.de ([193.149.48.15]:13576 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S265164AbUASPJw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 10:15:45 -0500
-Date: Mon, 19 Jan 2004 16:15:38 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Rik van Riel <riel@redhat.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.25-pre5
-In-Reply-To: <Pine.LNX.4.58L.0401151816320.17528@logos.cnet>
-Message-ID: <Pine.GSO.4.58.0401191611460.551@waterleaf.sonytel.be>
-References: <Pine.LNX.4.58L.0401151816320.17528@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 19 Jan 2004 10:09:52 -0500
+Date: 19 Jan 2004 16:10:32 +0100
+Date: Mon, 19 Jan 2004 16:10:31 +0100
+From: Andi Kleen <ak@colin2.muc.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andi Kleen <ak@muc.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Modernize i386 string.h
+Message-ID: <20040119151031.GA64150@colin2.muc.de>
+References: <20040118200919.GA26573@averell> <400BE923.1020505@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <400BE923.1020505@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Jan 2004, Marcelo Tosatti wrote:
-> Summary of changes from v2.4.25-pre4 to v2.4.25-pre5
-> ============================================
->
-> Rik van Riel:
->   o Reclaim inodes with highmem pages when low on memory
+> ISTR this patch being shot down in the past...
 
-This introduces a warning when compiling fs/inode.c if CONFIG_HIGHMEM is not
-set, since in that case avg_pages is defined but not used.
+I don't remember that.
 
-Gr{oetje,eeting}s,
+> 
+> It seems suboptimal for people with ancient compilers, or for people on 
+> embedded 486's, doesn't it?
 
-						Geert
+It is unlikely to make much difference for them. Kernel str* handling
+is not very time critical (except memset/memcpy, but they are handled
+efficiently on all compilers) The patch is mainly to make the code
+more maintainable.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+-Andi
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

@@ -1,62 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131666AbRDFPJX>; Fri, 6 Apr 2001 11:09:23 -0400
+	id <S131672AbRDFPLO>; Fri, 6 Apr 2001 11:11:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131669AbRDFPJO>; Fri, 6 Apr 2001 11:09:14 -0400
-Received: from krynn.axis.se ([193.13.178.10]:56251 "EHLO krynn.axis.se")
-	by vger.kernel.org with ESMTP id <S131666AbRDFPJB>;
-	Fri, 6 Apr 2001 11:09:01 -0400
-Message-ID: <1d7601c0beab$0cb2bfa0$0a070d0a@axis.se>
-From: "Johan Adolfsson" <johan.adolfsson@axis.com>
-To: "Bernhard Bender" <Bernhard.Bender@ELSA.de>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <41256A26.005733A6.00@elsa.de>
-Subject: Re: ethernet phy link state info
-Date: Fri, 6 Apr 2001 17:05:42 +0200
+	id <S131676AbRDFPLE>; Fri, 6 Apr 2001 11:11:04 -0400
+Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:52670 "EHLO
+	windmill.gghcwest.com") by vger.kernel.org with ESMTP
+	id <S131672AbRDFPKv>; Fri, 6 Apr 2001 11:10:51 -0400
+Date: Fri, 6 Apr 2001 08:09:36 -0700 (PDT)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@heat.gghcwest.com>
+To: <gibbs@scsiguy.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Seems to be a lot of confusion about aic7xxx in linux 2.4.3
+Message-ID: <Pine.LNX.4.33.0104060803450.12216-100000@heat.gghcwest.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2314.1300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't have an answer but a related question:
-Is there any "standard ioctl" to force an interface
-to a certain link state, eg. auto, 10Mbs, 100Mbps,
-half/full duplex etc.?
+I've been seeing a lot of complaints about aic7xxx in the 2.4.3 kernel.  I
+think that people are missing the crucial point: aic7xxx won't compile if
+you patch up from 2.4.2, but if you download the complete 2.4.3 tarball,
+it compiles fine.
 
-If not, can we create a standard ioctl mechanism for it?
+So, I conclude that the patch was created incorrectly, or that something
+changed between cutting the patch and the tarball.
 
-/Johan
-
------ Original Message -----
-From: Bernhard Bender <Bernhard.Bender@ELSA.de>
-To: <linux-kernel@vger.kernel.org>
-Sent: Friday, April 06, 2001 16:54
-Subject: ethernet phy link state info
-
-
->
->
-> Hi all,
->
-> where do I find information about the current link state of the ethernet
-PHY
-> (e.g. 100mbit/s full duplex) ?
-> Something like /proc/sys/net/* ?
->
-> Thanks
-> Bernhard
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-jwb
 

@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVBQXpm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVBQXsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbVBQXpm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 18:45:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVBQXpl
+	id S261247AbVBQXsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 18:48:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVBQXqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 18:45:41 -0500
-Received: from avexch01.qlogic.com ([198.70.193.200]:54161 "EHLO
-	avexch01.qlogic.com") by vger.kernel.org with ESMTP id S261240AbVBQXU1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 18:20:27 -0500
-Date: Thu, 17 Feb 2005 15:20:47 -0800
-From: Andrew Vasquez <andrew.vasquez@qlogic.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jesse Barnes <jbarnes@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] quiet non-x86 option ROM warnings
-Message-ID: <20050217232047.GB15726@plap.qlogic.org>
-Mail-Followup-To: Andrew Vasquez <andrew.vasquez@qlogic.com>,
-	Jon Smirl <jonsmirl@gmail.com>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Jesse Barnes <jbarnes@sgi.com>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <200502151557.06049.jbarnes@sgi.com> <200502170929.54100.jbarnes@sgi.com> <9e47339105021709321dc72ab2@mail.gmail.com> <200502170945.30536.jbarnes@sgi.com> <1108680436.5665.9.camel@gaston> <9e47339105021714593115dacf@mail.gmail.com>
+	Thu, 17 Feb 2005 18:46:10 -0500
+Received: from mail.kroah.org ([69.55.234.183]:19607 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261235AbVBQXUT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 18:20:19 -0500
+Date: Thu, 17 Feb 2005 15:07:39 -0800
+From: Greg KH <greg@kroah.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       tom.l.nguyen@intel.com
+Subject: Re: avoiding pci_disable_device()...
+Message-ID: <20050217230739.GA21999@kroah.com>
+References: <4210021F.7060401@pobox.com> <20050214190619.GA9241@kroah.com> <4211013E.6@pobox.com> <52hdke29sh.fsf@topspin.com> <20050214200043.GA15868@havoc.gtf.org> <52d5v224z3.fsf@topspin.com> <42112544.2030006@pobox.com> <528y5q220h.fsf@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9e47339105021714593115dacf@mail.gmail.com>
-X-Operating-System: Linux 2.6.8-24.11-default
-User-Agent: Mutt/1.5.6i
-X-OriginalArrivalTime: 17 Feb 2005 23:20:21.0595 (UTC) FILETIME=[4052B2B0:01C51547]
+In-Reply-To: <528y5q220h.fsf@topspin.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Feb 2005, Jon Smirl wrote:
-> On Fri, 18 Feb 2005 09:47:15 +1100, Benjamin Herrenschmidt
-> <benh@kernel.crashing.org> wrote:
-> > We could provide additional helpers, like pci_find_rom_partition(),
-> > which takes the architecture code as an argument. It would check the
-> > signature, and iterate all "partitions" til it finds the proper
-> > architecture (or none).
+On Mon, Feb 14, 2005 at 02:46:38PM -0800, Roland Dreier wrote:
+> OK, I'm happy to go along with that (it definitely simplifies my
+> driver code).  Here's the patch.
 > 
-> The spec allows for it but has anyone actually seen a ROM with
-> multiple images in it? I haven't but I only work on x86.
 > 
+> Remove the call to request_mem_region() in msix_capability_init() to
+> grab the MSI-X vector table.  Drivers should be using
+> pci_request_regions() so that they own all of the PCI BARs, and the
+> MSI-X core should trust it's being called by a correct driver.
+> 
+> Signed-off-by: Roland Dreier <roland@topspin.com>
 
-Yes.  Many SCSI and fibre-channel cards carry multiple images.
+Applied, thanks,
 
---
-Andrew Vasquez
+greg k-h

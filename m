@@ -1,29 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314241AbSEBCuT>; Wed, 1 May 2002 22:50:19 -0400
+	id <S314242AbSEBCvI>; Wed, 1 May 2002 22:51:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314242AbSEBCuS>; Wed, 1 May 2002 22:50:18 -0400
-Received: from amdext.amd.com ([139.95.251.1]:37571 "EHLO amdext.amd.com")
-	by vger.kernel.org with ESMTP id <S314241AbSEBCuR>;
-	Wed, 1 May 2002 22:50:17 -0400
-From: harish.vasudeva@amd.com
-X-Server-Uuid: 02753650-11b0-11d5-bbc5-00508bf987eb
-Message-ID: <CB35231B9D59D311B18600508B0EDF2F04F28335@caexmta9.amd.com>
-To: linux-kernel@vger.kernel.org
-Subject: basic SMP question..
-Date: Wed, 1 May 2002 19:50:03 -0700
+	id <S314244AbSEBCvH>; Wed, 1 May 2002 22:51:07 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:63502 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S314242AbSEBCvE>; Wed, 1 May 2002 22:51:04 -0400
+Date: Wed, 1 May 2002 19:50:50 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Sipos Ferenc <sferi@dumballah.tvnet.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: nvidia patch for 2.5.11
+In-Reply-To: <1020235641.1885.0.camel@zeus.city.tvnet.hu>
+Message-ID: <Pine.LNX.4.10.10205011950330.27987-100000@www.transvirtual.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 10CE76E82058081-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
- how do i make my ethernet driver SMP compatible? 
+http://www.transvirtual.com/~jsimmons/fbdev_fixs.diff
 
-thanx
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'_   _/`\
+ ___)=(___/
+
+On 1 May 2002, Sipos Ferenc wrote:
+
+> Hi!
+> 
+> I know, it's a bit offtopic, but could anybody recommend me an url for
+> the above? Thx.
+> 
+> Paco
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

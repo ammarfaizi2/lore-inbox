@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261268AbRFFUlm>; Wed, 6 Jun 2001 16:41:42 -0400
+	id <S261296AbRFFUqC>; Wed, 6 Jun 2001 16:46:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261274AbRFFUlc>; Wed, 6 Jun 2001 16:41:32 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:21267 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S261268AbRFFUla>; Wed, 6 Jun 2001 16:41:30 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: ebiederm@xmission.com (Eric W. Biederman),
-        Derek Glidden <dglidden@illusionary.com>
-Subject: Re: Break 2.4 VM in five easy steps
-Date: Wed, 6 Jun 2001 22:43:35 +0200
-X-Mailer: KMail [version 1.2]
-Cc: John Alvord <jalvo@mbay.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <3B1E4CD0.D16F58A8@illusionary.com> <3B1E5316.F4B10172@illusionary.com> <m1wv6p5uqp.fsf@frodo.biederman.org>
-In-Reply-To: <m1wv6p5uqp.fsf@frodo.biederman.org>
-MIME-Version: 1.0
-Message-Id: <01060622433500.02053@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S264141AbRFFUpw>; Wed, 6 Jun 2001 16:45:52 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:20488 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S261296AbRFFUpl>; Wed, 6 Jun 2001 16:45:41 -0400
+Date: Wed, 6 Jun 2001 22:45:28 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "David N. Welton" <davidw@apache.org>, linux-kernel@vger.kernel.org
+Subject: Re: temperature standard - global config option?
+Message-ID: <20010606224528.A2237@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <87snhdvln9.fsf@apache.org> <E157ifB-0000I8-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <E157ifB-0000I8-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Jun 06, 2001 at 08:08:17PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 June 2001 20:27, Eric W. Biederman wrote:
-> The hard rule will always be that to cover all pathological cases
-> swap must be greater than RAM.  Because in the worse case all RAM
-> will be in thes swap cache.
+Hi!
 
-Could you explain in very simple terms how the worst case comes about?
+> > notice that in some places, Fahrenheit is used, and in some places,
+> > Celsius.  It would seem logical to me to have a global config option,
+> > so that you *know* that you talk devices either in F or C.
+> 
+> The spec is farenheit
 
---
-Daniel
+What specs?
+
+ACPI specs use K *0.1, I'd prefer that.				Pavel
+-- 
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+

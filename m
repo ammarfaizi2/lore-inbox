@@ -1,154 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUJVTYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266914AbUJVTYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbUJVTYb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 15:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265222AbUJVTWn
+	id S266914AbUJVTYc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 15:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266888AbUJVTWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 15:22:43 -0400
-Received: from oss.sgi.com ([192.48.159.27]:44741 "EHLO oss.sgi.com")
-	by vger.kernel.org with ESMTP id S264113AbUJVTUb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 15:20:31 -0400
-Date: Fri, 22 Oct 2004 12:20:40 -0700
-From: John Hawkes <hawkes@oss.sgi.com>
-Message-Id: <200410221920.i9MJKeHm024118@oss.sgi.com>
-To: nickpiggin@yahoo.com.au
-Subject: Re: [PATCH, 2.6.9] improved load_balance() tolerance for pinned tasks
-Cc: akpm@osdl.org, jbarnes@sgi.com, linux-kernel@vger.kernel.org
+	Fri, 22 Oct 2004 15:22:16 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:3968 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266386AbUJVTUv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 15:20:51 -0400
+Date: Fri, 22 Oct 2004 15:20:39 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: =?ISO-8859-15?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
+cc: andre@tomt.net, Kasper Sandberg <lkml@metanurb.dk>,
+       LKML Mailinglist <linux-kernel@vger.kernel.org>, umbrella@cs.aau.dk
+Subject: Re: Gigantic memory leak in linux-2.6.[789]!
+In-Reply-To: <41795E69.9090909@cs.aau.dk>
+Message-ID: <Pine.LNX.4.61.0410221507340.6092@chaos.analogic.com>
+References: <200410221613.35913.ks@cs.aau.dk> <1098455535.12574.1.camel@localhost>
+ <Pine.LNX.4.61.0410221102300.12605@chaos.analogic.com>
+ <41792C36.4070301@users.sourceforge.net> <Pine.LNX.4.61.0410221208230.17016@chaos.analogic.com>
+ <41795E69.9090909@cs.aau.dk>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1678434306-1216637763-1098472839=:6092"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick, your patch doesn't work on my 128p to solve the problem.
-This variation, however, does work.  It's a patch against 2.6.9.
-The difference is in move_tasks().
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--1678434306-1216637763-1098472839=:6092
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+
+On Fri, 22 Oct 2004, [ISO-8859-15] Kristian S=F8rensen wrote:
+
+> Richard B. Johnson wrote:
+>
+>> On Fri, 22 Oct 2004, [ISO-8859-15] Kristian S=F8rensen wrote:
+>>=20
+>>> Richard B. Johnson wrote:
+>>>=20
+>>>> On Fri, 22 Oct 2004, Kasper Sandberg wrote:
+>>>>=20
+>>>>> On Fri, 2004-10-22 at 16:13 +0200, Kristian S=F8rensen wrote:
+>>>>>=20
+>>>>>> Hi all!
+>>>>>>=20
+>>>>>> After some more testing after the previous post of the OOPS in
+>>>>>> generic_delete_inode, we have now found a gigantic memory leak in Li=
+nux=20
+>>>>>> 2.6.
+>>>>>> [789]. The scenario is the same:
+>>>>>>=20
+>>>>>> File system: EXT3
+>>>>>> Unpack and delete linux-2.6.8.1.tar.bz2 with this Bash while loop:
+>>>>>>=20
+>>>>>> let "i =3D 0"
+>>>>>> while [ "$i" -lt 10 ]; do
+>>>>>>    tar jxf linux-2.6.8.1.tar.bz2;
+>>>>>>    rm -fr linux-2.6.8.1;
+>>>>>>    let "i =3D i + 1"
+>>>>>> done
+>>>>>>=20
+>>>>>> When the loop has completed, the system use 124 MB memory more _each=
+_=20
+>>>>>> time....
+>>>>>> so it is pretty easy to make a denial-of-service attack :-(
+>>>>>=20
+>>>>=20
+>>>>=20
+>>>>=20
+>>>> Do something like this with your favorite kernel version.....
+>>>>=20
+>>>> while true ; do tar -xzf linux-2.6.9.tar.gz ; rm -rf linux-2.6.9 ; vms=
+tat=20
+>>>> ; done
+>>>>=20
+>>>> You can watch this for as long as you want. If there is no other
+>>>> activity, the values reported by vmstat remain, on the average, stable=
+=2E
+>>>> If you throw in a `sync` command, the values rapidly converge to
+>>>> little memory usage as the disk-data gets flused to disk.
+>>>=20
+>>> The problem is, that the free memory reported by vmstat is decresing by=
+=20
+>>> 124mb for each 10-iterations....
+>>>=20
+>>> The allocated memory does not get freed even if the system has been lef=
+t=20
+>>> alone for three hours!
+>>>=20
+>>=20
+>> Yes. So?  Why would it be freed? It's left how it was until it
+>> is needed. Freeing it would waste CPU cycles.
+>
+> Okay :-) So it looks like two of you says we have been mistaken :-D (and =
+the=20
+> behaviour has been changed since linux-2.4)
+>
+> Anyway - How does this work in practice? Does the file system implementat=
+ion=20
+> use a wrapper for kfree or?
+> Is there any way to force instant free of kernel memory - when freed? Els=
+e it=20
+> is quite hard testing for possible memory leaks in our Umbrella kernel mo=
+dule=20
+> ... :-/
+>
+>
+> Best regards,
+>
+
+First, you can always execute sync() and flush most of the file-buffers
+to disk. This frees up a lot.
+
+In the kernel....
+If you are doing a lot of kmalloc() allocation and free(), you
+can write out the pointer values using printk(). I use '0' before
+such ... printk("0 %p\n", ptr); do `dmesg | sort >xxx.xxx`. Now
+you can look at the file and see the sorted pointer values. If
+they repeat, chances are pretty good that you are not leaking
+memory.
+
+In user space...
+Periodically look at the break address.
+If it keeps going up, you may have a leak. If it's stable
+you probably are okay.
+
+The only sure way of detecting a memory leak is to use
+some substitute code (maybe a macro) that substitutes
+for (intercepts) the allocator and deallocator. It eventually
+executes the allocator and deallocator after saving information
+somewhere you define (array, file, etc). You can sort that
+information and determine if there are as many (k)mallocs() as
+there are for (z)frees()  (for instance) of the same pointer values.
 
 
-
-
-
-
- linux-2.6-npiggin/kernel/sched.c |   34 +++++++++++++++++++++++-----------
- 1 files changed, 23 insertions(+), 11 deletions(-)
-
-Index: linux/kernel/sched.c
-===================================================================
---- linux.orig/kernel/sched.c	2004-10-22 09:11:12.000000000 -0700
-+++ linux/kernel/sched.c	2004-10-22 11:45:10.000000000 -0700
-@@ -1770,7 +1770,7 @@
-  */
- static inline
- int can_migrate_task(task_t *p, runqueue_t *rq, int this_cpu,
--		     struct sched_domain *sd, enum idle_type idle)
-+		     struct sched_domain *sd, enum idle_type idle, int *pinned)
- {
- 	/*
- 	 * We do not migrate tasks that are:
-@@ -1780,8 +1780,10 @@
- 	 */
- 	if (task_running(rq, p))
- 		return 0;
--	if (!cpu_isset(this_cpu, p->cpus_allowed))
-+	if (!cpu_isset(this_cpu, p->cpus_allowed)) {
-+		*pinned++;
- 		return 0;
-+	}
- 
- 	/* Aggressive migration if we've failed balancing */
- 	if (idle == NEWLY_IDLE ||
-@@ -1802,11 +1804,11 @@
-  */
- static int move_tasks(runqueue_t *this_rq, int this_cpu, runqueue_t *busiest,
- 		      unsigned long max_nr_move, struct sched_domain *sd,
--		      enum idle_type idle)
-+		      enum idle_type idle, int *all_pinned)
- {
- 	prio_array_t *array, *dst_array;
- 	struct list_head *head, *curr;
--	int idx, pulled = 0;
-+	int idx, examined = 0, pulled = 0, pinned = 0;
- 	task_t *tmp;
- 
- 	if (max_nr_move <= 0 || busiest->nr_running <= 1)
-@@ -1850,7 +1852,8 @@
- 
- 	curr = curr->prev;
- 
--	if (!can_migrate_task(tmp, busiest, this_cpu, sd, idle)) {
-+	examined++;
-+	if (!can_migrate_task(tmp, busiest, this_cpu, sd, idle, &pinned)) {
- 		if (curr != head)
- 			goto skip_queue;
- 		idx++;
-@@ -1876,6 +1879,8 @@
- 		goto skip_bitmap;
- 	}
- out:
-+	if (unlikely(examined && examined == pinned))
-+		*all_pinned = 1;
- 	return pulled;
- }
- 
-@@ -2056,7 +2061,7 @@
- 	struct sched_group *group;
- 	runqueue_t *busiest;
- 	unsigned long imbalance;
--	int nr_moved;
-+	int nr_moved, all_pinned;
- 
- 	spin_lock(&this_rq->lock);
- 	schedstat_inc(sd, lb_cnt[idle]);
-@@ -2095,11 +2100,16 @@
- 		 */
- 		double_lock_balance(this_rq, busiest);
- 		nr_moved = move_tasks(this_rq, this_cpu, busiest,
--						imbalance, sd, idle);
-+						imbalance, sd, idle,
-+						&all_pinned);
- 		spin_unlock(&busiest->lock);
- 	}
--	spin_unlock(&this_rq->lock);
-+	/* All tasks on this runqueue were pinned by CPU affinity */
-+	if (unlikely(all_pinned))
-+		goto out_balanced;
- 
-+	spin_unlock(&this_rq->lock);
-+	
- 	if (!nr_moved) {
- 		schedstat_inc(sd, lb_failed[idle]);
- 		sd->nr_balance_failed++;
-@@ -2154,7 +2164,7 @@
- 	struct sched_group *group;
- 	runqueue_t *busiest = NULL;
- 	unsigned long imbalance;
--	int nr_moved = 0;
-+	int nr_moved = 0, all_pinned;
- 
- 	schedstat_inc(sd, lb_cnt[NEWLY_IDLE]);
- 	group = find_busiest_group(sd, this_cpu, &imbalance, NEWLY_IDLE);
-@@ -2174,7 +2184,7 @@
- 
- 	schedstat_add(sd, lb_imbalance[NEWLY_IDLE], imbalance);
- 	nr_moved = move_tasks(this_rq, this_cpu, busiest,
--					imbalance, sd, NEWLY_IDLE);
-+			imbalance, sd, NEWLY_IDLE, &all_pinned);
- 	if (!nr_moved)
- 		schedstat_inc(sd, lb_failed[NEWLY_IDLE]);
- 
-@@ -2236,6 +2246,7 @@
- 		cpumask_t tmp;
- 		runqueue_t *rq;
- 		int push_cpu = 0;
-+		int all_pinned;
- 
- 		if (group == busy_group)
- 			goto next_group;
-@@ -2261,7 +2272,8 @@
- 		if (unlikely(busiest == rq))
- 			goto next_group;
- 		double_lock_balance(busiest, rq);
--		if (move_tasks(rq, push_cpu, busiest, 1, sd, IDLE)) {
-+		if (move_tasks(rq, push_cpu, busiest, 1,
-+				sd, IDLE, &all_pinned)) {
- 			schedstat_inc(busiest, alb_lost);
- 			schedstat_inc(rq, alb_gained);
- 		} else {
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 GrumpyMips).
+                  98.36% of all statistics are fiction.
+--1678434306-1216637763-1098472839=:6092--

@@ -1,112 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262925AbTJGWmb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 18:42:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbTJGWmb
+	id S262994AbTJGXJX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 19:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262997AbTJGXJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 18:42:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:39148 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262925AbTJGWm2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 18:42:28 -0400
-Date: Tue, 7 Oct 2003 15:42:26 -0700
-From: cliff white <cliffw@osdl.org>
-To: linuxppc-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
-Subject: 2.6.0.test6 - ppc - OHCI-1394 - bad: scheduling while atomic!
-Message-Id: <20031007154226.5bd55e43.cliffw@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Oct 2003 19:09:23 -0400
+Received: from mail.inter-page.com ([12.5.23.93]:41990 "EHLO
+	mail.inter-page.com") by vger.kernel.org with ESMTP id S262994AbTJGXJN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 19:09:13 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "'Linus Torvalds'" <torvalds@osdl.org>,
+       "'Albert Cahalan'" <albert@users.sourceforge.net>
+Cc: "'Ulrich Drepper'" <drepper@redhat.com>,
+       "'Mikael Pettersson'" <mikpe@csd.uu.se>,
+       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
+Date: Tue, 7 Oct 2003 16:08:27 -0700
+Organization: Casabyte, Inc.
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAS8Bo1alFyEeioqtYx4I/JwEAAAAA@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.44.0310021720510.7833-100000@home.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Howdy,
+
+All threads within the same process must have the same (single) list of open
+files or bad things will happen.  I understand that CLONE_FILES makes this
+true at the time of the clone but I don't know if that keeps this true
+thereafter (e.g I don't know if this is a copy-that or a share-that
+operation).  If it doesn't, the some mechanism that does needs to be added.
+
+If all the co-joined threads of a process share the same file descriptor
+list then /proc/self/fd/* will have unity for the overall process and the
+bulk of the argument disappears completely.
+
+The reason the threads must share the file descriptor table involves the
+fact that data may, and likely will, flow between the threads.  After the
+open(2) call the file descriptor is just data and it will get shared.
+
+For instance, I have a seriously multi-threaded server application.  The
+listen() operation for new clients happens in one thread.  When a connection
+is accept()ed I take the request (first bit of data) and match it to the
+service (and therefore thread) that it should be attached too.  Then I had
+that socket over to that thread.
+
+Without the shared file descriptors this would break very badly.
+
+Conversely, there is virtually no sane model where having a disjoint file
+descriptor list but otherwise conjoined data space makes sense.  The file
+descriptors are going to be "tarnishing" the data space if you do this, and
+that is just begging for exploits and "surprises".  That is, you will end up
+with little tidbits of data that are conditionally meaningful scattered
+throughout your data space.
+
+Where you need to have the initial data shared but differing descriptor
+tables you *should* be "stuck" with a classic fork() operation.
+
+What possible win could you have in having a variable contain a particular
+integral quantity that is a data file open for reading in one thread, a
+mapped segment of memory in another, and invalid in the rest?  If you don't
+constrain that behavior now the resulting code that "depends" on this
+behavior will plague this platform for years (see Windows Dynamic Data
+Exchange) and lots of existing expectations for thread behavior will be
+violated day-1 of the release.
+
+IMHO of course 8-)
+
+Rob.
 
 
-This has been happening to me since ~9/25/2003, with the
-linuxppc-2.5 bk tree on an iBook. Have not seen this error
-on my Via mini-ITX system, which runs mainline BK, and also
-has OHCI 1394. 
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Linus Torvalds
+Sent: Thursday, October 02, 2003 5:41 PM
+To: Albert Cahalan
+Cc: Ulrich Drepper; Mikael Pettersson; Kernel Mailing List
+Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
 
-Problem: OHCI 1394 puts this error in logs. Happens if
-compiled-in or built as module.
 
-Normally i see this once during boot, and the device(s) runs
-fine. Discovered i can make it happen at will with modular
-driver by plugging/unplugging
-devices, so i finally have a copy of the error message to send :) 
+On 2 Oct 2003, Albert Cahalan wrote:
+> 
+> No. I mean "ban" like we ban CLONE_THREAD w/o CLONE_DETACHED.
 
-Distro: Debian unstable
-Hardware: Mac iBook
-Devices: two Firewire disk drives (Cypress chipset, afaik)
+No. Let's not do that.
 
-Log message:
+We ban only things that do not make sense. That was true of trying to 
+share signal handlers with different address spaces. But it is _not_ true 
+of having separate file descriptors for different threads.
 
-ohci1394: $Rev: 1045 $ Ben Collins <bcollins@debian.org>
-ohci1394_0: Unexpected PCI resource length of 1000!
-ohci1394_0: OHCI-1394 1.0 (PCI): IRQ=[40]  MMIO=[f5000000-f50007ff]  Max Packet=[2048]
-bad: scheduling while atomic!
-Call trace:
- [c0009e88] dump_stack+0x18/0x28
- [c0017624] schedule+0x830/0x834
- [c00061f4] syscall_exit_work+0x120/0x124
- [d796fd48] 0xd796fd48
- [d997dacc] nodemgr_add_host+0xac/0x11c [ieee1394]
- [d9979474] highlevel_add_host+0xac/0xb4 [ieee1394]
- [d9978684] hpsb_add_host+0x80/0xc0 [ieee1394]
- [d993c154] ohci1394_pci_probe+0x38c/0x4f4 [ohci1394]
- [c00fa00c] pci_device_probe_static+0x6c/0x8c
- [c00fa07c] __pci_device_probe+0x50/0x70
- [c00fa0cc] pci_device_probe+0x30/0x60
- [c01445a0] bus_match+0x50/0x8c
- [c0144720] driver_attach+0x88/0xc8
- [c0144a74] bus_add_driver+0x94/0xfc
- [c0144eec] driver_register+0x30/0x40
-raw1394: /dev/raw1394 device initialized
-sbp2: $Rev: 1034 $ Ben Collins <bcollins@debian.org>
-ieee1394: Host added: ID:BUS[0-00:1023]  GUID[000393fffe73cddc]
-Found KeyWest i2c on "mac-io", 1 channel, stepping: 4 bits
-Found KeyWest i2c on "uni-n", 2 channels, stepping: 4 bits
-registering 0-0034
-drivers/usb/core/usb.c: registered new driver snd-usb-audio
-bad: scheduling while atomic!
-Call trace:
- [c0009e88] dump_stack+0x18/0x28
- [c0017624] schedule+0x830/0x834
- [c0017a64] wait_for_completion+0xa8/0x150
- [d997dc08] nodemgr_remove_host+0x60/0x94 [ieee1394]
- [d997952c] highlevel_remove_host+0xb0/0xc4 [ieee1394]
- [d9978760] hpsb_remove_host+0x9c/0xc0 [ieee1394]
- [d993c308] ohci1394_pci_remove+0x4c/0x260 [ohci1394]
- [c00fa15c] pci_device_remove+0x60/0x64
- [c01447e4] device_release_driver+0x84/0x88
- [c0144814] driver_detach+0x2c/0x50
- [c0144b2c] bus_remove_driver+0x50/0xa8
- [c0144f14] driver_unregister+0x18/0x78
- [c00fa3ac] pci_unregister_driver+0x1c/0x34
- [d993c91c] ohci1394_cleanup+0x18/0xf1c [ohci1394]
- [c0033d58] sys_delete_module+0x19c/0x230
-Device 'fw-host0' does not have a release() function, it is broken and must be fixed.
-Badness in device_release at drivers/base/core.c:85
-Call trace:
- [c0009e88] dump_stack+0x18/0x28
- [c0006e9c] check_bug_trap+0x84/0xac
- [c0006ff4] ProgramCheckException+0x130/0x170
- [c00064ec] ret_from_except_full+0x0/0x4c
- [c0142f3c] device_release+0x4c/0x54
- [c00efa18] kobject_cleanup+0x98/0x9c
- [c014330c] put_device+0x14/0x24
- [d997dc18] nodemgr_remove_host+0x70/0x94 [ieee1394]
- [d997952c] highlevel_remove_host+0xb0/0xc4 [ieee1394]
- [d9978760] hpsb_remove_host+0x9c/0xc0 [ieee1394]
- [d993c308] ohci1394_pci_remove+0x4c/0x260 [ohci1394]
- [c00fa15c] pci_device_remove+0x60/0x64
- [c01447e4] device_release_driver+0x84/0x88
- [c0144814] driver_detach+0x2c/0x50
- [c0144b2c] bus_remove_driver+0x50/0xa8
-IN from bad port 61 at c01daadc
-----------------------
+I don't imagine anybody cares _that_ deeply about fuser that it can't 
+afford to recurse into thread directories.
 
-cliffw
+And it may or may not make sense to not have a "/proc/<nn>/task/<yy>/fd"
+directory at all if the thread shares file descriptors with the thread 
+group leader. That would be a fairly easy optimization.
+
+		Linus
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
 

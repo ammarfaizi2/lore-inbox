@@ -1,108 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265464AbTGCWEa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 18:04:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265465AbTGCWE3
+	id S265418AbTGCWGM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 18:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265429AbTGCWGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 18:04:29 -0400
-Received: from mailf.telia.com ([194.22.194.25]:26828 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id S265464AbTGCWES (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 18:04:18 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-To: Mike Keehan <mike_keehan@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Synaptics driver on HP6100 and 2.5.73
-References: <20030626220016.27332.qmail@web12304.mail.yahoo.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 04 Jul 2003 00:15:45 +0200
-In-Reply-To: <20030626220016.27332.qmail@web12304.mail.yahoo.com>
-Message-ID: <m2brwb9rzi.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Thu, 3 Jul 2003 18:06:12 -0400
+Received: from dsl2.external.hp.com ([192.25.206.7]:24591 "EHLO
+	dsl2.external.hp.com") by vger.kernel.org with ESMTP
+	id S265418AbTGCWFA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 18:05:00 -0400
+Date: Thu, 3 Jul 2003 16:19:27 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Grant Grundler <grundler@parisc-linux.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>, axboe@suse.de,
+       davem@redhat.com, suparna@in.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       alex_williamson@hp.com, bjorn_helgaas@hp.com
+Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
+Message-ID: <20030703221927.GC12433@dsl2.external.hp.com>
+References: <1057077975.2135.54.camel@mulgrave> <20030702015701.6007ac26.ak@suse.de> <20030702165510.GC11739@dsl2.external.hp.com> <1057180598.20318.32.camel@dhcp22.swansea.linux.org.uk> <20030702235619.GA21567@wotan.suse.de> <1057263988.21508.18.camel@dhcp22.swansea.linux.org.uk> <20030703212415.GA30277@wotan.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030703212415.GA30277@wotan.suse.de>
+User-Agent: Mutt/1.3.28i
+X-Home-Page: http://www.parisc-linux.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Keehan <mike_keehan@yahoo.com> writes:
+On Thu, Jul 03, 2003 at 11:24:15PM +0200, Andi Kleen wrote:
+...
+> Also it's likely cheaper just submit more segments than to have the IOMMU
+> overhead
 
-> The touchpad is recognised OK when the kernel boots,
-> and my usb
-> connected mouse works fine.  But I get the following
-> message in
-> the syslog when I try to use the mousepad or any of
-> the buttons :-
-> 
->     ... kernel: Synaptics driver lost sync at 1st byte
-> 
-> It worked alright in previous kernels before the
-> Synaptic driver was
-> added.
-> 
-> Relevant /var/log/dmesg content:-
-> 
->  drivers/usb/core/usb.c: registered new driver hid
->  drivers/usb/input/hid-core.c: v2.0:USB HID core
-> driver
->  mice: PS/2 mouse device common for all mice
->  synaptics reset failed
->  synaptics reset failed
->  synaptics reset failed
+It depends on the device. If using something like 8237A to master DMA cycles,
+then CPU cost of merging is relatively cheap. If sending the SG list is
+just a sequence of MMIO space writes, then passing the raw list is cheaper.
+ZX1 and PARISC IOMMUs clearly add some overhead both in terms of CPU
+utilization (manage IOMMU) and DMA latency (IOMMU TLB misses sometimes).
 
-The logs from your other mail show that the touchpad is still in
-relative mode (using 3 byte packets) instead of absolute mode (using 6
-byte packets.) I don't know why this happens, but here are some things
-to investigate:
+...
+> (at least for sane devices, if not it may be worth to artificially limit the
+> dma mask of the device to force IOMMU on IA64 and x86-64) 
 
-* Does the touchpad work with the synaptics XFree driver and a 2.4
-  kernel?
-* Does the Synaptics aware GPM version work?
-  (:pserver:cvs@ar.linux.it:/data/cvs)
-* Can you add some printks to the synaptics_reset() function to see
-  why it fails?
-* Maybe it helps to remove the call to synaptics_reset() in
-  query_hardware(). (I know this helped one user that used the user
-  space XFree driver with a 2.4 kernel.)
+Agreed. We are only doing that until BIO code and IOMMU code can
+agree on how merging works without requiring the IOMMU.
 
->  (**) Option "Device" "/dev/input/mouse1"
->  (EE) xf86OpenSerial: Cannot open device
-> /dev/input/mouse1
->          No such device.
->  Synaptics driver unable to open device
->  (EE) PreInit failed for input device "Mouse1"
->  (II) UnloadModule: "synaptics"
-> 
-> Other device names I tries were /dev/input/mice,
-> /dev/event/event0
-> and /dev/psaux, but none of them work.
-
-You should use /dev/input/eventX, where X is a number that depends on
-your hardware configuration. My config looks like this:
-
-Section "InputDevice"
-        Identifier      "TouchPad"
-        Driver  "synaptics"
-        Option  "Device"        "/dev/input/event2"
-        Option  "Protocol"      "event"
-        Option  "LeftEdge"      "1800"
-        Option  "RightEdge"     "5400"
-        Option  "TopEdge"       "4200"
-        Option  "BottomEdge"    "1500"
-        Option  "FingerLow"     "25"
-        Option  "FingerHigh"    "30"
-        Option  "MaxTapTime"    "180"
-        Option  "MaxTapMove"    "220"
-        Option  "VertScrollDelta"       "100"
-        Option  "HorizScrollDelta"      "100"
-        Option  "EdgeMotionSpeed"       "40"
-        Option  "MinSpeed"      "0.08"
-        Option  "MaxSpeed"      "0.10"
-        Option  "AccelFactor"   "0.0010"
-        Option  "SHMConfig"     "on"
-        Option  "EmulateMidButtonTime" "75"
-#       Option  "UpDownScrolling" "off"
-EndSection
-
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+thanks,
+grant

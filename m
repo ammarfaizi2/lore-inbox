@@ -1,85 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135170AbQL3VKh>; Sat, 30 Dec 2000 16:10:37 -0500
+	id <S135170AbQL3VPR>; Sat, 30 Dec 2000 16:15:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135535AbQL3VK2>; Sat, 30 Dec 2000 16:10:28 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:62219 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135170AbQL3VKT>; Sat, 30 Dec 2000 16:10:19 -0500
-Date: Sat, 30 Dec 2000 12:39:33 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: test13-pre7...
-Message-ID: <Pine.LNX.4.10.10012301237570.1300-100000@penguin.transmeta.com>
+	id <S135535AbQL3VPI>; Sat, 30 Dec 2000 16:15:08 -0500
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:35589 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S135170AbQL3VOv>; Sat, 30 Dec 2000 16:14:51 -0500
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200012302043.VAA10260@green.mif.pg.gda.pl>
+Subject: Re: Bugs in knfsd -- Problem re-exporting an NFS share
+To: Frank.Olsen@stonesoft.com, neilb@cse.unsw.edu.au (Neil Brown)
+Date: Sat, 30 Dec 2000 21:43:56 +0100 (CET)
+Cc: linux-kernel@vger.kernel.org (kernel list)
+X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The LDT fixes in particular fix some potentially random strange behaviour.
-And the alpha memmove() thing was a showstopper bug on alphas.
+> On Friday December 29, Frank.Olsen@stonesoft.com wrote:
+> > Hi -- could you please CC me if you reply to this mail.
+> > 
+> > A:     /exports/A                                 - Redhat 7.0
+> > B1/B2: mount /exports/A on /export/A from A       - Redhat 6.2
+> > C:     mount /exports/A on /mnt/A from B1 or B2   - Redhat 6.2
+> > 
+> > I use knfsd/nfs-utils on each machine.
+> > 
+> > bash# ls /mnt/A
+> > /mnt/A/A.txt: No such file or directory
+> 
+> This is not a supported configuration.  You cannot export NFS mounted
+> filesystems with NFS. The protocol does not cope, and it
+> implementation doesn't even try.
+> NFS is for export local filesystems only.
 
-		Linus
+As I understand problem is somewhere else.
+If this is intentionally unsupported configuration - OK. So why the error
+appears ? The directory should be empty then.
 
-----
+If the configuration is unsupported at the moment and the  A.txt file is
+located on A, some code that attempts to read re-exported files/directories
+should be turned off (eg. #if 0).
 
- - pre7:
-   - x86 LDT handling fixes: revert some cleanups (the LDT really
-     doesn't act like a TLB context)
-   - Richard Henderson: alpha update (working memmove() from Ivan
-     Kokshaysky etc)
-   - Manfred: winbond-840.c net driver update (fix oops on module unload etc)
-   - Alan Cox: more synchronizations (with some fixes from Andrew Morton)
+If the A.txt file is local for B1/B2 hosts, it is (IMHO) an obvious bug.
+Sucgh a file should be hidden at the act of mounting. For both local and
+remote access.
 
- - pre6:
-   - Marc Joosen: BIOS int15/e820 memory query: don't assume %edx
-     unchanged by the BIOS. Fixes at least some IBM ThinkPads.
-   - Alan Cox: synchronize
-   - Marcelo Tosatti & me: properly sync dirty pages
-   - Andreas Dilger: proper ext2 compat flag checking
+Neil, could you tell us where the A.txt file is *really* located ?
 
- - pre5:
-   - NIIBE Yutaka: SuperH update
-   - Geert Uytterhoeven: m68k update
-   - David Miller: TCP RTO calc fix, UDP multicast fix etc
-   - Duncan Laurie: ServerWorks PIRQ routing definition.
-   - mm PageDirty cleanups, added sanity checks, and don't lose the bit. 
+Regards 
+   Andrzej
 
- - pre4:
-   - Christoph Rohland: shmfs cleanup
-   - Nicolas Pitre: don't forget loop.c flags
-   - Geert Uytterhoeven: new-style m68k Makefiles
-   - Neil Brown: knfsd cleanups, raid5 re-org
-   - Andrea Arkangeli: update to LVM-0.9
-   - LC Chang: sis900 driver doc update
-   - David Miller: netfilter oops fix
-   - Andrew Grover: acpi update
+BTW. AFAIR, I observed similar behaviour (files are visible but
+     inaccessible) while mounting a local filesystem at a busy directory
+     (eg.: mount /dev/fd0 .;ls -l) even in 2.2...
 
- - pre3:
-   - Christian Jullien: smc9194: proper dev_kfree_skb_irq
-   - Cort Dougan: new-style PowerPC Makefiles
-   - Andrew Morton, Petr Vandrovec: fix run_task_queue
-   - Christoph Rohland: shmfs for shared memory handling
-
- - pre2:
-   - Kai Germaschewski: ISDN update (including Makefiles)
-   - Jens Axboe: cdrom updates
-   - Petr Vandrovec; Matrox G450 support
-   - Bill Nottingham: fix FAT32 filesystems on 64-bit platforms
-   - David Miller: sparc (and other) Makefile fixup
-   - Andrea Arkangeli: alpha SMP TLB context fix (and cleanups)
-   - Niels Kristian Bech Jensen: checkconfig, USB warnings
-   - Andrew Grover: large ACPI update
-
- - pre1:
-   - me: drop support for old-style Makefiles entirely. Big.
-   - me: check b_end_io at the IO submission path
-   - me: fix "ptep_mkdirty()" (so that swapoff() works correctly)
-   - fix fault case in copy_from_user() with a constant size, where
-     ((size & 3) == 3)
-
-
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

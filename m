@@ -1,74 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262918AbTHZHKO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 03:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbTHZHKO
+	id S263133AbTHZHiT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 03:38:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263284AbTHZHiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 03:10:14 -0400
-Received: from ms-smtp-03.texas.rr.com ([24.93.36.231]:12720 "EHLO
-	ms-smtp-03.texas.rr.com") by vger.kernel.org with ESMTP
-	id S263018AbTHZHKF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 03:10:05 -0400
-Subject: Re: [OOPS] less /proc/net/igmp
-From: Owen Ford <oford@arghblech.com>
-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F4B011B.6080300@lanil.mine.nu>
-References: <20030825163206.GA1340@penguin.penguin>
-	 <3F4B011B.6080300@lanil.mine.nu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hWTPbeYLmD95xVeTRAM/"
-Message-Id: <1061881803.3507.1.camel@spider.hotmonkeyporn.com>
+	Tue, 26 Aug 2003 03:38:19 -0400
+Received: from almesberger.net ([63.105.73.239]:49928 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S263133AbTHZHiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 03:38:17 -0400
+Date: Tue, 26 Aug 2003 04:38:02 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tasklet_kill will always hang for recursive tasklets on a UP
+Message-ID: <20030826043802.D1212@almesberger.net>
+References: <20030826024808.B3448@almesberger.net> <Pine.LNX.4.44.0308260010480.31955-100000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 26 Aug 2003 02:10:04 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308260010480.31955-100000@localhost.localdomain>; from nagendra_tomar@adaptec.com on Tue, Aug 26, 2003 at 12:15:58AM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nagendra Singh Tomar wrote:
+> I fail to understand this. How can we say that its not a bug. If we 
+> support recursive tasklets, we should support killing them also. If we can 
+> do it why not do it. Is there any reason for that.
 
---=-hWTPbeYLmD95xVeTRAM/
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+It's just a question of how you define "to kill" :-) But the
+naming is ambiguous, because people may indeed expect
+tasklet_kill to work like kill(2).
 
-On Tue, 2003-08-26 at 01:41, Christian Axelsson wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->=20
-> I can verify this on 2.6.0-test4-mm1 and 2.6.0-test3-mm4
->=20
-> - --
-> Christan Axelsson
-> smiler@lanil.mine.nu
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.2 (GNU/Linux)
-> Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
->=20
-> iD8DBQE/SwEbyqbmAWw8VdkRAg6SAJ98RVCbWmsVTH/vtg0McK7vSshn4QCffiI9
-> q7B10AWRBqYC64JD0UHG6LQ=3D
-> =3DlpLs
-> -----END PGP SIGNATURE-----
->=20
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
-n
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Obviously, tasklet_kill could set a flag that prevents a
+tasklet from rescheduling itself. But then you'd change
+the semantics of tasklet_schedule, and in many cases, you'd
+still need some flag to tell you what has happened.
 
-It goes back even farther.  I have it with all of the 2.6 series.
---=20
-Owen Ford <oford@arghblech.com>
+Example: if a tasklet allocates some resources, and frees
+them when running the next time, you'd need a flag that
+tells the caller(s) of tasklet_kill whether there are
+still such resources that need freeing.
 
---=-hWTPbeYLmD95xVeTRAM/
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+The current mechanism makes sure that the tasklet will
+execute one last time, if scheduled before tasklet_kill.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+- Werner
 
-iD8DBQA/SwfL4bjUYpnk5/QRAkUBAJ97wvoVwBUBpd9qFAXsiSVvto3LeACgyYZn
-Mf04erAx1IHCotOpY8aIadM=
-=8m1D
------END PGP SIGNATURE-----
-
---=-hWTPbeYLmD95xVeTRAM/--
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

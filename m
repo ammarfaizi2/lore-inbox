@@ -1,36 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263817AbTDHAPK (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 20:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263814AbTDHAM7 (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 20:12:59 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:22913
+	id S263854AbTDHAah (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 20:30:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263855AbTDGXLF (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 19:11:05 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:55168
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263817AbTDGXXL (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 19:23:11 -0400
-Date: Tue, 8 Apr 2003 01:42:06 +0100
+	id S263759AbTDGXDc (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 19:03:32 -0400
+Date: Tue, 8 Apr 2003 01:22:08 +0100
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200304080042.h380g6ku009342@hraefn.swansea.linux.org.uk>
+Message-Id: <200304080022.h380M82Z009071@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: fix ; in mad16
+Subject: PATCH: fix radio-cadet build
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/mad16.c linux-2.5.67-ac1/sound/oss/mad16.c
---- linux-2.5.67/sound/oss/mad16.c	2003-03-26 20:00:02.000000000 +0000
-+++ linux-2.5.67-ac1/sound/oss/mad16.c	2003-04-03 23:45:12.000000000 +0100
-@@ -537,7 +537,7 @@
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/drivers/media/radio/radio-cadet.c linux-2.5.67-ac1/drivers/media/radio/radio-cadet.c
+--- linux-2.5.67/drivers/media/radio/radio-cadet.c	2003-04-08 00:37:36.000000000 +0100
++++ linux-2.5.67-ac1/drivers/media/radio/radio-cadet.c	2003-04-04 18:34:37.000000000 +0100
+@@ -516,7 +516,7 @@
+ 	{.id = ""}
+ };
  
- 	for (i = 0xf8d; i <= 0xf93; i++) {
- 		if (!c924pnp)
--			DDB(printk("port %03x = %02x\n", i, mad_read(i)))
-+			DDB(printk("port %03x = %02x\n", i, mad_read(i)));
- 		else
- 			DDB(printk("port %03x = %02x\n", i-0x80, mad_read(i)));
- 	}
-@@ -600,7 +600,7 @@
+-MODULE_DEVICE_TABLE(pnp, id_table);
++MODULE_DEVICE_TABLE(pnp, cadet_pnp_devices);
  
- 	for (i = 0xf8d; i <= 0xf93; i++) {
- 		if (!c924pnp)
--			DDB(printk("port %03x after init = %02x\n", i, mad_read(i)))
-+			DDB(printk("port %03x after init = %02x\n", i, mad_read(i)));
- 		else
- 			DDB(printk("port %03x after init = %02x\n", i-0x80, mad_read(i)));
- 	}
+ static int cadet_pnp_probe(struct pnp_dev * dev, const struct pnp_device_id *dev_id)
+ {

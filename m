@@ -1,30 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267382AbRGQVbb>; Tue, 17 Jul 2001 17:31:31 -0400
+	id <S267345AbRGQVdB>; Tue, 17 Jul 2001 17:33:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267350AbRGQVbV>; Tue, 17 Jul 2001 17:31:21 -0400
-Received: from arleno1.dsl.sirius.com ([207.44.242.45]:1033 "EHLO
-	altair.dhs.org") by vger.kernel.org with ESMTP id <S267345AbRGQVbK>;
-	Tue, 17 Jul 2001 17:31:10 -0400
-Message-Id: <200107172131.OAA20090@altair.dhs.org>
-Content-Type: text/plain; charset=US-ASCII
-From: Charles Samuels <charles@kde.org>
-Organization: K Desktop Environment
-To: linux-kernel@vger.kernel.org
+	id <S267350AbRGQVcv>; Tue, 17 Jul 2001 17:32:51 -0400
+Received: from mueller.uncooperative.org ([216.254.102.19]:10253 "EHLO
+	mueller.datastacks.com") by vger.kernel.org with ESMTP
+	id <S267345AbRGQVcm>; Tue, 17 Jul 2001 17:32:42 -0400
+Date: Tue, 17 Jul 2001 17:32:44 -0400
+From: Crutcher Dunnavant <crutcher@datastacks.com>
+To: Crutcher Dunnavant <crutcher@datastacks.com>
+Cc: Charles Samuels <charles@kde.org>, linux-kernel@vger.kernel.org
 Subject: Re: Kernel Documentation
-Date: Tue, 17 Jul 2001 14:31:11 -0700
-X-Mailer: KMail [version 1.2.2]
-In-Reply-To: <200107172102.OAA19756@altair.dhs.org> <20010717171843.C21825@mueller.datastacks.com> <200107172125.OAA20013@altair.dhs.org>
-In-Reply-To: <200107172125.OAA20013@altair.dhs.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Message-ID: <20010717173244.D21825@mueller.datastacks.com>
+In-Reply-To: <200107172102.OAA19756@altair.dhs.org> <20010717171843.C21825@mueller.datastacks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010717171843.C21825@mueller.datastacks.com>; from crutcher@datastacks.com on Tue, Jul 17, 2001 at 05:18:43PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 July 2001 02:25 pm, Charles Samuels wrote:
-> BTW:
-Sorry, multitasking: I meant to say I'm on the linux-kernel mailing list now, 
-so you don't need to be CCing me
+++ 17/07/01 17:18 -0400 - Crutcher Dunnavant:
+> ++ 17/07/01 14:02 -0700 - Charles Samuels:
+> the entry point is:
+> http://bama.ua.edu/~dunn001/journeyman/
+oops:
+http://bama.ua.edu/~dunna001/journeyman/
 
-
--Charles
+-- 
+Crutcher        <crutcher@datastacks.com>
+GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
+    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$

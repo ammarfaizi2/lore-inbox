@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266892AbTGOIZU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 04:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266896AbTGOIZU
+	id S266897AbTGOIcW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 04:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266905AbTGOIcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 04:25:20 -0400
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:38531 "EHLO phoebee")
-	by vger.kernel.org with ESMTP id S266892AbTGOIZR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 04:25:17 -0400
-Date: Tue, 15 Jul 2003 10:40:06 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Carl Thompson <cet@carlthompson.net>
+	Tue, 15 Jul 2003 04:32:22 -0400
+Received: from c213-100-44-190.swipnet.se ([213.100.44.190]:48914 "EHLO
+	joelm.2y.net") by vger.kernel.org with ESMTP id S266897AbTGOIcR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 04:32:17 -0400
+Subject: Re: Inspiron 8000 makes high pitch noise only with 2.6.0-test1
+From: Joel Metelius <joel.metelius@home.se>
+To: Daniel.Dorau@alumni.TU-Berlin.DE
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems compiling modules outside of tree in 2.6.0test1
-Message-Id: <20030715104006.79c58435.martin.zwickel@technotrend.de>
-In-Reply-To: <1058251587.eec14da73ec3b@carlthompson.net>
-References: <1058251587.eec14da73ec3b@carlthompson.net>
-Organization: TechnoTrend AG
-X-Mailer: Sylpheed version 0.9.0claws93 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.4.21-rc4 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
+In-Reply-To: <4299.194.175.125.228.1058254785.squirrel@mailbox.TU-Berlin.DE>
+References: <4299.194.175.125.228.1058254785.squirrel@mailbox.TU-Berlin.DE>
+Content-Type: text/plain
+Message-Id: <1058258721.2423.2.camel@joelm.2y.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 15 Jul 2003 10:45:21 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jul 2003 23:46:27 -0700
-Carl Thompson <cet@carlthompson.net> bubbled:
+try turning off 
 
-What about:
+CONFIG_APM_CPU_IDLE
 
-CFLAGS += -I/usr/include/asm/mach-default/
+it help me and others, but it had nothing to do with ethernet drivers...
 
--- 
-MyExcuse:
-Someone is broadcasting pygmy packets and the router doesn't know how to deal
-with them.
+/joel
 
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
+On Tue, 2003-07-15 at 09:39, Daniel.Dorau@alumni.TU-Berlin.DE wrote:
+> Hi there,
+> yesterday I tried the 2.6.0-test1 kernel for the first time.
+> Installation went flawlessly. However I noticed a high pitch
+> noise from my notebook everytime after the ethernet driver
+> was loaded, no matter which one (eepro100 or e100).
+> It is exactly the noise that my notebook only did with 2.4
+> when _actually_ transmitting data on IRDA.
+> I have no clue whatsoever how the same noise is being triggered
+> by the 2.6 kernel. Disabling IRDA (kernel+BIOS) didn't help.
+> Since that noise is somewhat nerving, I would be very happy
+> if someone has an idea how to fix that.
+> This noise does definitely not appear on 2.4 kernel except when
+> IRDA is active. On 2.6 I can hear it all the time one the
+> ethernet driver is loaded. It is only interrupted by heavy disc
+> activity.
+> Does anybody has an idea?
+> 
+> Please CC me on reply.
+> 
+> Thank you
+> Daniel
+> 
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-TechnoTrend AG <http://www.technotrend.de>

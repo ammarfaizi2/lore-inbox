@@ -1,76 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271330AbTHCXyW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 19:54:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271333AbTHCXyW
+	id S271333AbTHDAFa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 20:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271335AbTHDAF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 19:54:22 -0400
-Received: from waste.org ([209.173.204.2]:25236 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S271330AbTHCXyU (ORCPT
+	Sun, 3 Aug 2003 20:05:29 -0400
+Received: from waste.org ([209.173.204.2]:57236 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S271333AbTHDAFY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 19:54:20 -0400
-Date: Sun, 3 Aug 2003 18:54:18 -0500
+	Sun, 3 Aug 2003 20:05:24 -0400
+Date: Sun, 3 Aug 2003 19:05:14 -0500
 From: Matt Mackall <mpm@selenic.com>
-To: Heikki Tuuri <Heikki.Tuuri@innodb.com>
-Cc: linux-kernel@vger.kernel.org
+To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Shane Shrybman <shrybman@sympatico.ca>,
+       linux-kernel@vger.kernel.org
 Subject: Re: 2.6.0-test2-mm3 and mysql
-Message-ID: <20030803235418.GW22824@waste.org>
-References: <009201c3599f$04ff05c0$322bde50@koticompaq> <20030803165522.GS22824@waste.org> <004c01c359e2$47db2110$322bde50@koticompaq>
+Message-ID: <20030804000514.GY22824@waste.org>
+References: <1059871132.2302.33.camel@mars.goatskin.org> <20030802180410.265dfe40.akpm@osdl.org> <200308032258.17450.rathamahata@php4.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <004c01c359e2$47db2110$322bde50@koticompaq>
+In-Reply-To: <200308032258.17450.rathamahata@php4.ru>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 03, 2003 at 08:11:29PM +0300, Heikki Tuuri wrote:
-> Matt,
+On Sun, Aug 03, 2003 at 10:58:17PM +0400, Sergey S. Kostyliov wrote:
+> Hello Andrew,
 > 
-> > On Sun, Aug 03, 2003 at 12:10:01PM +0300, Heikki Tuuri wrote:
-> > >
-> > > What to do? People who write drivers should run heavy, multithreaded
-> file
-> > > i/o tests on their computer using some SQL database which calls fsync().
-> For
-> > > example, run the Perl '/sql-bench/innotest's all concurrently on MySQL.
-> If
-> > > the problems are in drivers, that could help.
+> On Sunday 03 August 2003 05:04, Andrew Morton wrote:
+> > Shane Shrybman <shrybman@sympatico.ca> wrote:
+> 
 > >
-> > Did you know that until test2-mm3, nothing would report errors that
-> > occurred on non-synchronous writes? There was no infrastructure to
-> > propagate the error back to userspace. If you wrote a page, the write
-> > failed on an intermittent I/O error, and then read again, you'd
-> > silently get back the old page.
+> > > One last thing, I have started seeing mysql database corruption
+> > > recently. I am not sure it is a kernel problem. And I don't know the
+> > > exact steps to reproduce it, but I think I started seeing it with
+> > > -test2-mm2. I haven't ever seen db corruption in the 8-12 months I have
+> > > being playing with mysql/php.
+> >
+> > hm, that's a worry.  No additional info available?
 > 
-> we are not using the Linux async i/o. Do you mean that? Or the flush which
-> the Linux kernel does from the file cache to the disk time to time on its
-> own? I assume it will write to the system log an error message if a disk
-> write fails?
+> I also suffer from this problem (I'm speaking about heavy InnoDB corruption
+> here), but with vanilla 2.6.0-test2. I can't blame MySQL/InnoDB because
+> there are a lot of MySQL boxes around of me with the same (in fact the box
+> wich failed is replication slave) or allmost the same database setup.
+> All other boxes (2.4 kernel) works fine up to now.
 
-This has nothing to do with the AIO interface.
+All Linux kernels prior to 2.6.0-test2-mm3-1 would silently fail to
+complete fsync() and msync() operations if they encountered an I/O
+error, resulting in corruption. If a particular disk subsystem was
+producing these errors, the symptoms would likely be:
 
-Any write where the write returns immediately without syncing the file
-is asynchronous. This includes most normal write()s where you're not
-using O_DIRECT, O_SYNC or somesuch, and writes to memory-mapped files.
+- no error reported
+- no messages in logs
+- independent of kernel version, etc.
+- suddenly appear at some point in drive life
+- works flawlessly on other machines 
 
-And no, prior to -mm3, there was absolutely no indication that these
-failed writes occurred. It was simply dropped. Now it should be
-reported in the logs and at the next sync point.
- 
-> The error 5 Shane reported came from a call of fsync(), and apparently he
-> also got that same 5 from a simple file read which CHECK TABLE in MyISAM
-> does.
-
-Not sure what you're referring to here.
-
-> Why would a write in the Linux async i/o fail? I am using aio on Windows,
-> and if the disk space can be allocated, it seems to fail only in the case of
-> a hardware failure.
-
-For various reasons, there was previously no infrastructure for
-transmitting write failure back to the writer after the page cache had
-taken ownership of the write.
+If you can reproduce this corruption, please try running against mm3-1
+and seeing if it reports problems (both to fsync and in logs).
 
 -- 
 Matt Mackall : http://www.selenic.com : of or relating to the moon

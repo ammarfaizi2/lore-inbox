@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319531AbSH3H7k>; Fri, 30 Aug 2002 03:59:40 -0400
+	id <S319478AbSH3H4c>; Fri, 30 Aug 2002 03:56:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319498AbSH3H7k>; Fri, 30 Aug 2002 03:59:40 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:22029 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S319531AbSH3H7k>; Fri, 30 Aug 2002 03:59:40 -0400
-Message-ID: <3D6F2704.A78F0A0@aitel.hist.no>
-Date: Fri, 30 Aug 2002 10:04:20 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.32 i686)
-X-Accept-Language: no, en, en
+	id <S319480AbSH3H4b>; Fri, 30 Aug 2002 03:56:31 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30731 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319478AbSH3H4b>;
+	Fri, 30 Aug 2002 03:56:31 -0400
+Message-ID: <3D6F28F6.71228222@zip.com.au>
+Date: Fri, 30 Aug 2002 01:12:38 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "Pering, Trevor" <trevor.pering@intel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
-References: <C81D8E612E5DD6119653009027AE9D3EE091D0@FMSMSX36>
+To: Ingo Molnar <mingo@elte.hu>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] scheduler fixes, 2.5.32-BK
+References: <Pine.LNX.4.44.0208300939030.8227-100000@localhost.localdomain> <Pine.LNX.4.44.0208300948320.8448-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Pering, Trevor" wrote:
+Ingo Molnar wrote:
+> 
+> >  - changes the migration code to use struct completion. Andrew pointed out
+> >    that there might be a small window in where the up() touches the
+> >    semaphore while the waiting task goes on and frees its stack. And
+> >    completion is more suited for this kind of stuff anyway.
+> 
+> actually, i think the race does not exist. up() is perfectly safely done
+> on the on-stack semaphore, because both the wake_up() done by __up() and
+> the __down() path takes the waitqueue spinlock, so i cannot see where the
+> up() touches the semaphore after the down()-ed task has been woken up.
+> 
 
-> 2) To use MHz or something else? The problem is that the number here is
-> virtually meaningless. It does not translate from machine to machine,
-> processor to processor, or application to application. So, if you have to
-> pick a meaningless metric, what do you use? I would actually argue for % of
-> full capacity instead of MHz, but it doesn't really matter in the end.
+yep, looks like the killing of the semaphore_lock made the race
+go away.
 
-Percentages don't buy you much because they are as meaningless as
-MHz numbers, or even more so.  Percentages don't translate from
-machine to machine either.  One machine might find 50% speed
-useful for power saving, another might want 33%.  A third
-one might work fine with 75% to prevent overheating.
-
-An MHz carries more meaning - it is a measurable frequency.
-Manufacturers tend to specify numbers in MHz.
-Percentage of "full" is more problematic because "full"
-isn't that well-defined.  
-
-Consider things like overclocking.  That isn't merely a
-hack - AMD specifies different max speeds for different
-temperatures.  I.e. they officially support higher
-clock speed when using liquid cooling.  The speed rating
-stored in the cpu is only for the fan-cooling case.
-
-Helge Hafting
+But ia64, sparc and x86_64 use semaphore_lock, so they still are
+exposed.

@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVDDGjy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVDDGkI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbVDDGjy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 02:39:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVDDGjZ
+	id S261561AbVDDGkI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 02:40:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVDDGkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 02:39:25 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:10924 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261561AbVDDGjU (ORCPT
+	Mon, 4 Apr 2005 02:40:08 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:5064 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261561AbVDDGkA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 02:39:20 -0400
-Date: Mon, 4 Apr 2005 08:39:10 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: Paul Jackson <pj@engr.sgi.com>, torvalds@osdl.org, nickpiggin@yahoo.com.au,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db benchmark result on recent 2.6 kernels]
-Message-ID: <20050404063910.GA23094@elte.hu>
-References: <20050403142959.GB22798@elte.hu> <200504040131.j341Vlg31981@unix-os.sc.intel.com> <20050404062414.GA22664@elte.hu>
+	Mon, 4 Apr 2005 02:40:00 -0400
+Date: Sun, 3 Apr 2005 23:38:16 -0700
+From: Paul Jackson <pj@engr.sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: mingo@elte.hu, kenneth.w.chen@intel.com, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
+ benchmark result on recent 2.6 kernels]
+Message-Id: <20050403233816.71a6dd4b.pj@engr.sgi.com>
+In-Reply-To: <1112594184.5077.9.camel@npiggin-nld.site>
+References: <200504020100.j3210fg04870@unix-os.sc.intel.com>
+	<20050402145351.GA11601@elte.hu>
+	<20050402215332.79ff56cc.pj@engr.sgi.com>
+	<20050403070415.GA18893@elte.hu>
+	<20050403043420.212290a8.pj@engr.sgi.com>
+	<20050403071227.666ac33d.pj@engr.sgi.com>
+	<20050403152413.GA26631@elte.hu>
+	<20050403160807.35381385.pj@engr.sgi.com>
+	<4250A195.5030306@yahoo.com.au>
+	<20050403205558.753f2b55.pj@engr.sgi.com>
+	<1112594184.5077.9.camel@npiggin-nld.site>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050404062414.GA22664@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick wrote:
+> In a sense, the information *is* already there - in node_distance.
+> What I think should be done is probably to use node_distance when
+> calculating costs, ...
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+Hmmm ... perhaps I'm confused, but this sure sounds like the alternative
+implementation of cpu_distance using node_distance that I submitted to
+this thread about 16 hours ago.  It was using this alternative that
+got me the more varied matrix:
 
-> > a numa scheduler domain at the top level and cache_hot_time will be 
-> > set to 0 in that case on smp box.  Though this will be a mutt point 
-> > with recent patch from Suresh Siddha for removing the extra bogus 
-> > scheduler domains.  
-> > http://marc.theaimsgroup.com/?t=111240208000001&r=1&w=2
-> 
-> at first sight the dummy domain should not be a problem, [...]
+---------------------
+          [00]    [01]    [02]    [03]    [04]    [05]    [06]    [07]
+[00]:     -     4.0(0) 21.7(1) 21.7(1) 25.2(2) 25.2(2) 25.3(3) 25.3(3)
+[01]:   4.0(0)    -    21.7(1) 21.7(1) 25.2(2) 25.2(2) 25.3(3) 25.3(3)
+[02]:  21.7(1) 21.7(1)    -     4.0(0) 25.3(3) 25.3(3) 25.2(2) 25.2(2)
+[03]:  21.7(1) 21.7(1)  4.0(0)    -    25.3(3) 25.3(3) 25.2(2) 25.2(2)
+[04]:  25.2(2) 25.2(2) 25.3(3) 25.3(3)    -     4.0(0) 21.7(1) 21.7(1)
+[05]:  25.2(2) 25.2(2) 25.3(3) 25.3(3)  4.0(0)    -    21.7(1) 21.7(1)
+[06]:  25.3(3) 25.3(3) 25.2(2) 25.2(2) 21.7(1) 21.7(1)    -     4.0(0)
+[07]:  25.3(3) 25.3(3) 25.2(2) 25.2(2) 21.7(1) 21.7(1)  4.0(0)    -
+---------------------
 
-at second sight, maybe it could be a problem after all. It's safe is 
-load_balance(), where task_hot() should never happen to be called for 
-the dummy domain. (because the dummy domain has only one CPU group on 
-such boxes)
-
-But if the dummy domain has SD_WAKE_AFFINE set then it's being 
-considered for passive migration, and a value of 0 means 'can always 
-migrate', and in situations where other domains signalled 'task is too 
-hot', this domain may still override the decision (incorrectly). So the 
-safe value for dummy domains would a cacheflush time of 'infinity' - to 
-make sure migration decisions are only done via other domains.
-
-I've changed this in my tree - migration_cost[] is now initialized to 
--1LL, which should solve this problem.
-
-	Ingo
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

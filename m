@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268387AbTBSDDC>; Tue, 18 Feb 2003 22:03:02 -0500
+	id <S268394AbTBSDDC>; Tue, 18 Feb 2003 22:03:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268394AbTBSDCQ>; Tue, 18 Feb 2003 22:02:16 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:13200 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S268387AbTBSC74>;
-	Tue, 18 Feb 2003 21:59:56 -0500
-Message-Id: <200302190307.h1J37T225487@w-gaughen.beaverton.ibm.com>
+	id <S268426AbTBSDCE>; Tue, 18 Feb 2003 22:02:04 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:63966 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268394AbTBSC75>; Tue, 18 Feb 2003 21:59:57 -0500
+Message-Id: <200302190307.h1J37WE25499@w-gaughen.beaverton.ibm.com>
 X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
 Reply-to: gone@us.ibm.com
 From: Patricia Gaughen <gone@us.ibm.com>
 To: akpm@zip.com.au
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] (1/2) x440 discontig support on 2.5.62: early, early ioremap
+cc: linux-kernel@vger.kernel.org, andrew.grover@intel.com
+Subject: [PATCH] (2/2) x440 discontig support on 2.5.62: disco
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 18 Feb 2003 19:07:28 -0800
+Date: Tue, 18 Feb 2003 19:07:32 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch was written by Dave Hansen, I just brought it forward to 2.5.62 :-)
+This patch provides discontigmem support for the IBM x440 against 2.5.62.  I 
+sent this patch to the list last week as an [RFC], and have resolved the 
+feedback received. This code has passed through the hands of several 
+developers:  Chandra Seetharaman, James Cleverdon, John Stultz, and last to 
+touch it, me :-)  It also includes code for correctly figuring out zholes_size 
+written by Andy Whitcroft (posted to lkml today).
 
-This patch is used by the x440 discontigmem to map the srat tables into low 
-memory so that the memory can be setup.  This remap function is used very 
-early in the boot process... at the start of setup_arch().
-
-Dave posted this previously to linux-kernel.  Here's a pointer to his email:
-    http://marc.theaimsgroup.com/?l=linux-kernel&m=104515534619345&w=2
+This patch depends on the early, early ioremap patch.  It also requires full 
+acpi support, but to boot the user needs to specify acpi=off at the boot 
+prompt, until Andy Grover's acpi patch for the x440 is merged in.
 
 Please consider applying this patch to your tree.
 
@@ -39,127 +41,620 @@ Patricia Gaughen (gone@us.ibm.com)
 IBM Linux Technology Center
 http://www.ibm.com/linux/ltc/
 
-diff -Nru a/arch/i386/mm/Makefile b/arch/i386/mm/Makefile
---- a/arch/i386/mm/Makefile	Tue Feb 18 16:51:20 2003
-+++ b/arch/i386/mm/Makefile	Tue Feb 18 16:51:20 2003
-@@ -2,7 +2,7 @@
- # Makefile for the linux i386-specific parts of the memory manager.
- #
+diff -Nru a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig	Tue Feb 18 18:53:37 2003
++++ b/arch/i386/Kconfig	Tue Feb 18 18:53:37 2003
+@@ -485,7 +485,7 @@
+ # Common NUMA Features
+ config NUMA
+ 	bool "Numa Memory Allocation Support"
+-	depends on X86_NUMAQ
++	depends on (HIGHMEM64G && (X86_NUMAQ || (X86_SUMMIT && ACPI && 
+!ACPI_HT_ONLY)))
  
--obj-y	:= init.o pgtable.o fault.o ioremap.o extable.o pageattr.o
-+obj-y	:= init.o pgtable.o fault.o ioremap.o extable.o pageattr.o 
-boot_ioremap.o
+ config DISCONTIGMEM
+ 	bool
+diff -Nru a/arch/i386/kernel/Makefile b/arch/i386/kernel/Makefile
+--- a/arch/i386/kernel/Makefile	Tue Feb 18 18:53:37 2003
++++ b/arch/i386/kernel/Makefile	Tue Feb 18 18:53:37 2003
+@@ -28,6 +28,9 @@
+ obj-$(CONFIG_EDD)             	+= edd.o
+ obj-$(CONFIG_MODULES)		+= module.o
+ obj-y				+= sysenter.o
++ifdef CONFIG_NUMA
++obj-$(CONFIG_X86_SUMMIT) 	+= srat.o
++endif
  
- obj-$(CONFIG_DISCONTIGMEM)	+= discontig.o
- obj-$(CONFIG_HUGETLB_PAGE) += hugetlbpage.o
-diff -Nru a/arch/i386/mm/boot_ioremap.c b/arch/i386/mm/boot_ioremap.c
+ EXTRA_AFLAGS   := -traditional
+ 
+diff -Nru a/arch/i386/kernel/srat.c b/arch/i386/kernel/srat.c
 --- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/i386/mm/boot_ioremap.c	Tue Feb 18 16:51:20 2003
-@@ -0,0 +1,94 @@
++++ b/arch/i386/kernel/srat.c	Tue Feb 18 18:53:37 2003
+@@ -0,0 +1,448 @@
 +/*
-+ * arch/i386/mm/boot_ioremap.c
-+ * 
-+ * Re-map functions for early boot-time before paging_init() when the 
-+ * boot-time pagetables are still in use
++ * Some of the code in this file has been gleaned from the 64 bit 
++ * discontigmem support code base.
 + *
-+ * Written by Dave Hansen <haveblue@us.ibm.com>
-+ */
-+
-+
-+/*
-+ * We need to use the 2-level pagetable functions, but CONFIG_X86_PAE
-+ * keeps that from happenning.  If anyone has a better way, I'm listening.
++ * Copyright (C) 2002, IBM Corp.
 + *
-+ * boot_pte_t is defined only if this all works correctly
++ * All rights reserved.          
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Send feedback to Pat Gaughen <gone@us.ibm.com>
 + */
-+
 +#include <linux/config.h>
-+#undef CONFIG_X86_PAE
-+#include <asm/page.h>
-+#include <asm/pgtable.h>
-+#include <linux/init.h>
-+#include <linux/stddef.h>
++#include <linux/mm.h>
++#include <linux/bootmem.h>
++#include <linux/mmzone.h>
++#include <linux/acpi.h>
++#include <asm/srat.h>
 +
-+/* 
-+ * I'm cheating here.  It is known that the two boot PTE pages are 
-+ * allocated next to each other.  I'm pretending that they're just
-+ * one big array. 
++/*
++ * proximity macros and definitions
 + */
++#define NODE_ARRAY_INDEX(x)	((x) / 8)	/* 8 bits/char */
++#define NODE_ARRAY_OFFSET(x)	((x) % 8)	/* 8 bits/char */
++#define BMAP_SET(bmap, bit)	((bmap)[NODE_ARRAY_INDEX(bit)] |= 1 << 
+NODE_ARRAY_OFFSET(bit))
++#define BMAP_TEST(bmap, bit)	((bmap)[NODE_ARRAY_INDEX(bit)] & (1 << 
+NODE_ARRAY_OFFSET(bit)))
++#define MAX_PXM_DOMAINS		256	/* 1 byte and no promises about values */
++/* bitmap length; _PXM is at most 255 */
++#define PXM_BITMAP_LEN (MAX_PXM_DOMAINS / 8) 
++static u8 pxm_bitmap[PXM_BITMAP_LEN];	/* bitmap of proximity domains */
 +
-+#define BOOT_PTE_PTRS (PTRS_PER_PTE*2)
-+#define boot_pte_index(address) \
-+	     (((address) >> PAGE_SHIFT) & (BOOT_PTE_PTRS - 1))
++#define MAX_CHUNKS_PER_NODE	4
++#define MAXCHUNKS		(MAX_CHUNKS_PER_NODE * MAX_NUMNODES)
++struct node_memory_chunk_s {
++	unsigned long	start_pfn;
++	unsigned long	end_pfn;
++	u8	pxm;		// proximity domain of node
++	u8	nid;		// which cnode contains this chunk?
++	u8	bank;		// which mem bank on this node
++};
++static struct node_memory_chunk_s node_memory_chunk[MAXCHUNKS];
 +
-+static inline boot_pte_t* boot_vaddr_to_pte(void *address)
++static int num_memory_chunks;		/* total number of memory chunks */
++static int zholes_size_init;
++static unsigned long zholes_size[MAX_NUMNODES * MAX_NR_ZONES];
++
++unsigned long node_start_pfn[MAX_NUMNODES];
++unsigned long node_end_pfn[MAX_NUMNODES];
++
++extern void * boot_ioremap(unsigned long, unsigned long);
++
++/* Identify CPU proximity domains */
++static void __init parse_cpu_affinity_structure(char *p)
 +{
-+	boot_pte_t* boot_pg = (boot_pte_t*)pg0;
-+	return &boot_pg[boot_pte_index((unsigned long)address)];
++	struct acpi_table_processor_affinity *cpu_affinity = 
++				(struct acpi_table_processor_affinity *) p;
++
++	if (!cpu_affinity->flags.enabled)
++		return;		/* empty entry */
++
++	/* mark this node as "seen" in node bitmap */
++	BMAP_SET(pxm_bitmap, cpu_affinity->proximity_domain);
++
++	printk("CPU 0x%02X in proximity domain 0x%02X\n",
++		cpu_affinity->apic_id, cpu_affinity->proximity_domain);
 +}
 +
 +/*
-+ * This is only for a caller who is clever enough to page-align
-+ * phys_addr and virtual_source, and who also has a preference
-+ * about which virtual address from which to steal ptes
++ * Identify memory proximity domains and hot-remove capabilities.
++ * Fill node memory chunk list structure.
 + */
-+static void __boot_ioremap(unsigned long phys_addr, unsigned long nrpages, 
-+		    void* virtual_source)
++static void __init parse_memory_affinity_structure (char *sratp)
 +{
-+	boot_pte_t* pte;
-+	int i;
++	unsigned long long paddr, size;
++	unsigned long start_pfn, end_pfn; 
++	u8 pxm;
++	struct node_memory_chunk_s *p, *q, *pend;
++	struct acpi_table_memory_affinity *memory_affinity =
++			(struct acpi_table_memory_affinity *) sratp;
 +
-+	pte = boot_vaddr_to_pte(virtual_source);
-+	for (i=0; i < nrpages; i++, phys_addr += PAGE_SIZE, pte++) {
-+		set_pte(pte, pfn_pte(phys_addr>>PAGE_SHIFT, PAGE_KERNEL));
++	if (!memory_affinity->flags.enabled)
++		return;		/* empty entry */
++
++	/* mark this node as "seen" in node bitmap */
++	BMAP_SET(pxm_bitmap, memory_affinity->proximity_domain);
++
++	/* calculate info for memory chunk structure */
++	paddr = memory_affinity->base_addr_hi;
++	paddr = (paddr << 32) | memory_affinity->base_addr_lo;
++	size = memory_affinity->length_hi;
++	size = (size << 32) | memory_affinity->length_lo;
++	
++	start_pfn = paddr >> PAGE_SHIFT;
++	end_pfn = (paddr + size) >> PAGE_SHIFT;
++	
++	pxm = memory_affinity->proximity_domain;
++
++	if (num_memory_chunks >= MAXCHUNKS) {
++		printk("Too many mem chunks in SRAT. Ignoring %lld MBytes at %llx\n",
++			size/(1024*1024), paddr);
++		return;
++	}
++
++	/* Insertion sort based on base address */
++	pend = &node_memory_chunk[num_memory_chunks];
++	for (p = &node_memory_chunk[0]; p < pend; p++) {
++		if (start_pfn < p->start_pfn)
++			break;
++	}
++	if (p < pend) {
++		for (q = pend; q >= p; q--)
++			*(q + 1) = *q;
++	}
++	p->start_pfn = start_pfn;
++	p->end_pfn = end_pfn;
++	p->pxm = pxm;
++
++	num_memory_chunks++;
++
++	printk("Memory range 0x%lX to 0x%lX (type 0x%X) in proximity domain 0x%02X 
+%s\n",
++		start_pfn, end_pfn,
++		memory_affinity->memory_type,
++		memory_affinity->proximity_domain,
++		(memory_affinity->flags.hot_pluggable ?
++		 "enabled and removable" : "enabled" ) );
++}
++
++#if MAX_NR_ZONES != 3
++#error "MAX_NR_ZONES != 3, chunk_to_zone requires review"
++#endif
++/* Take a chunk of pages from page frame cstart to cend and count the number
++ * of pages in each zone, returned via zones[].
++ */
++static __init void chunk_to_zones(unsigned long cstart, unsigned long cend, 
++		unsigned long *zones)
++{
++	unsigned long max_dma;
++	extern unsigned long max_low_pfn;
++
++	int z;
++	unsigned long rend;
++
++	/* FIXME: MAX_DMA_ADDRESS and max_low_pfn are trying to provide
++	 * similarly scoped information and should be handled in a consistant
++	 * manner.
++	 */
++	max_dma = virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT;
++
++	/* Split the hole into the zones in which it falls.  Repeatedly
++	 * take the segment in which the remaining hole starts, round it
++	 * to the end of that zone.
++	 */
++	memset(zones, 0, MAX_NR_ZONES * sizeof(long));
++	while (cstart < cend) {
++		if (cstart < max_dma) {
++			z = ZONE_DMA;
++			rend = (cend < max_dma)? cend : max_dma;
++
++		} else if (cstart < max_low_pfn) {
++			z = ZONE_NORMAL;
++			rend = (cend < max_low_pfn)? cend : max_low_pfn;
++
++		} else {
++			z = ZONE_HIGHMEM;
++			rend = cend;
++		}
++		zones[z] += rend - cstart;
++		cstart = rend;
 +	}
 +}
 +
-+/* the virtual space we're going to remap comes from this array */
-+#define BOOT_IOREMAP_PAGES 4
-+#define BOOT_IOREMAP_SIZE (BOOT_IOREMAP_PAGES*PAGE_SIZE)
-+__init char boot_ioremap_space[BOOT_IOREMAP_SIZE] 
-+		__attribute__ ((aligned (PAGE_SIZE)));
++/*
++ * physnode_map keeps track of the physical memory layout of the
++ * numaq nodes on a 256Mb break (each element of the array will
++ * represent 256Mb of memory and will be marked by the node id.  so,
++ * if the first gig is on node 0, and the second gig is on node 1
++ * physnode_map will contain:
++ * physnode_map[0-3] = 0;
++ * physnode_map[4-7] = 1;
++ * physnode_map[8- ] = -1;
++ */
++int pfnnode_map[MAX_ELEMENTS] = { [0 ... (MAX_ELEMENTS - 1)] = -1};
++EXPORT_SYMBOL(pfnnode_map);
++
++static void __init initialize_pfnnode_map(void)
++{
++	unsigned long topofchunk, cur = 0;
++	int i;
++	
++	for (i = 0; i < num_memory_chunks; i++) {
++		cur = node_memory_chunk[i].start_pfn;
++		topofchunk = node_memory_chunk[i].end_pfn;
++		while (cur < topofchunk) {
++			pfnnode_map[PFN_TO_ELEMENT(cur)] = node_memory_chunk[i].nid;
++			cur ++;
++		}
++	}
++}
++
++/* Parse the ACPI Static Resource Affinity Table */
++static int __init acpi20_parse_srat(struct acpi_table_srat *sratp)
++{
++	u8 *start, *end, *p;
++	int i, j, nid;
++	u8 pxm_to_nid_map[MAX_PXM_DOMAINS];/* _PXM to logical node ID map */
++	u8 nid_to_pxm_map[MAX_NUMNODES];/* logical node ID to _PXM map */
++
++	start = (u8 *)(&(sratp->reserved) + 1);	/* skip header */
++	p = start;
++	end = (u8 *)sratp + sratp->header.length;
++
++	memset(pxm_bitmap, 0, sizeof(pxm_bitmap));	/* init proximity domain bitmap */
++	memset(node_memory_chunk, 0, sizeof(node_memory_chunk));
++	memset(zholes_size, 0, sizeof(zholes_size));
++
++	/* -1 in these maps means not available */
++	memset(pxm_to_nid_map, -1, sizeof(pxm_to_nid_map));
++	memset(nid_to_pxm_map, -1, sizeof(nid_to_pxm_map));
++
++	num_memory_chunks = 0;
++	while (p < end) {
++		switch (*p) {
++		case ACPI_SRAT_PROCESSOR_AFFINITY:
++			parse_cpu_affinity_structure(p);
++			break;
++		case ACPI_SRAT_MEMORY_AFFINITY:
++			parse_memory_affinity_structure(p);
++			break;
++		default:
++			printk("ACPI 2.0 SRAT: unknown entry skipped: type=0x%02X, len=%d\n", 
+p[0], p[1]);
++			break;
++		}
++		p += p[1];
++		if (p[1] == 0) {
++			printk("acpi20_parse_srat: Entry length value is zero;"
++				" can't parse any further!\n");
++			break;
++		}
++	}
++
++	/* Calculate total number of nodes in system from PXM bitmap and create
++	 * a set of sequential node IDs starting at zero.  (ACPI doesn't seem
++	 * to specify the range of _PXM values.)
++	 */
++	numnodes = 0;		/* init total nodes in system */
++	for (i = 0; i < MAX_PXM_DOMAINS; i++) {
++		if (BMAP_TEST(pxm_bitmap, i)) {
++			pxm_to_nid_map[i] = numnodes;
++			nid_to_pxm_map[numnodes] = i;
++			node_set_online(numnodes);
++			++numnodes;
++		}
++	}
++
++	if (numnodes == 0)
++		BUG();
++
++	/* set cnode id in memory chunk structure */
++	for (i = 0; i < num_memory_chunks; i++)
++		node_memory_chunk[i].nid = pxm_to_nid_map[node_memory_chunk[i].pxm];
++
++	initialize_pfnnode_map();
++	
++	printk("pxm bitmap: ");
++	for (i = 0; i < sizeof(pxm_bitmap); i++) {
++		printk("%02X ", pxm_bitmap[i]);
++	}
++	printk("\n");
++	printk("Number of logical nodes in system = %d\n", numnodes);
++	printk("Number of memory chunks in system = %d\n", num_memory_chunks);
++
++	for (j = 0; j < num_memory_chunks; j++){
++		printk("chunk %d nid %d start_pfn %08lx end_pfn %08lx\n",
++		       j, node_memory_chunk[j].nid,
++		       node_memory_chunk[j].start_pfn,
++		       node_memory_chunk[j].end_pfn);
++	}
++ 
++	/*calculate node_start_pfn/node_end_pfn arrays*/
++	for (nid = 0; nid < numnodes; nid++) {
++		int been_here_before = 0;
++
++		for (j = 0; j < num_memory_chunks; j++){
++			if (node_memory_chunk[j].nid == nid) {
++				if (been_here_before == 0) {
++					node_start_pfn[nid] = node_memory_chunk[j].start_pfn;
++					node_end_pfn[nid] = node_memory_chunk[j].end_pfn;
++					been_here_before = 1;
++				} else { /* We've found another chunk of memory for the node */
++					if (node_start_pfn[nid] < node_memory_chunk[j].start_pfn) {
++						node_end_pfn[nid] = node_memory_chunk[j].end_pfn;
++					}
++				}
++			}
++		}
++	}
++	return 0;
++}
++
++void __init get_memcfg_from_srat(void)
++{
++	struct acpi_table_header *header = NULL;
++	struct acpi_table_rsdp *rsdp = NULL;
++	struct acpi_table_rsdt *rsdt = NULL;
++	struct acpi_pointer *rsdp_address = NULL;
++	struct acpi_table_rsdt saved_rsdt;
++	int tables = 0;
++	int i = 0;
++
++	acpi_find_root_pointer(ACPI_PHYSICAL_ADDRESSING, rsdp_address);
++
++	if (rsdp_address->pointer_type == ACPI_PHYSICAL_POINTER) {
++		printk("%s: assigning address to rsdp\n", __FUNCTION__);
++		rsdp = (struct acpi_table_rsdp *)rsdp_address->pointer.physical;
++	} else {
++		printk("%s: rsdp_address is not a physical pointer\n", __FUNCTION__);
++		return;
++	}
++	if (!rsdp) {
++		printk("%s: Didn't find ACPI root!\n", __FUNCTION__);
++		return;
++	}
++
++	printk(KERN_INFO "%.8s v%d [%.6s]\n", rsdp->signature, rsdp->revision,
++		rsdp->oem_id);
++
++	if (strncmp(rsdp->signature, RSDP_SIG,strlen(RSDP_SIG))) {
++		printk(KERN_WARNING "%s: RSDP table signature incorrect\n", __FUNCTION__);
++		return;
++	}
++
++	rsdt = (struct acpi_table_rsdt *)
++	    boot_ioremap(rsdp->rsdt_address, sizeof(struct acpi_table_rsdt));
++
++	if (!rsdt) {
++		printk(KERN_WARNING
++		       "%s: ACPI: Invalid root system description tables (RSDT)\n",
++		       __FUNCTION__);
++		return;
++	}
++
++	header = & rsdt->header;
++
++	if (strncmp(header->signature, RSDT_SIG, strlen(RSDT_SIG))) {
++		printk(KERN_WARNING "ACPI: RSDT signature incorrect\n");
++		return;
++	}
++
++	/* 
++	 * The number of tables is computed by taking the 
++	 * size of all entries (header size minus total 
++	 * size of RSDT) divided by the size of each entry
++	 * (4-byte table pointers).
++	 */
++	tables = (header->length - sizeof(struct acpi_table_header)) / 4;
++
++	memcpy(&saved_rsdt, rsdt, sizeof(saved_rsdt));
++
++	if (saved_rsdt.header.length > sizeof(saved_rsdt)) {
++		printk(KERN_WARNING "ACPI: Too big length in RSDT: %d\n",
++		       saved_rsdt.header.length);
++		return;
++	}
++
++printk("Begin table scan....\n");
++
++	for (i = 0; i < tables; i++) {
++		/* Map in header, then map in full table length. */
++		header = (struct acpi_table_header *)
++			boot_ioremap(saved_rsdt.entry[i], sizeof(struct acpi_table_header));
++		if (!header)
++			break;
++		header = (struct acpi_table_header *)
++			boot_ioremap(saved_rsdt.entry[i], header->length);
++		if (!header)
++			break;
++
++		if (strncmp((char *) &header->signature, "SRAT", 4))
++			continue;
++		acpi20_parse_srat((struct acpi_table_srat *)header);
++		/* we've found the srat table. don't need to look at any more tables */
++		break;
++	}
++}
++
++/* For each node run the memory list to determine whether there are
++ * any memory holes.  For each hole determine which ZONE they fall
++ * into.
++ *
++ * NOTE#1: this requires knowledge of the zone boundries and so
++ * _cannot_ be performed before those are calculated in setup_memory.
++ * 
++ * NOTE#2: we rely on the fact that the memory chunks are ordered by
++ * start pfn number during setup.
++ */
++static void __init get_zholes_init(void)
++{
++	int nid;
++	int c;
++	int first;
++	unsigned long end = 0;
++
++	for (nid = 0; nid < numnodes; nid++) {
++		first = 1;
++		for (c = 0; c < num_memory_chunks; c++){
++			if (node_memory_chunk[c].nid == nid) {
++				if (first) {
++					end = node_memory_chunk[c].end_pfn;
++					first = 0;
++
++				} else {
++					/* Record any gap between this chunk
++					 * and the previous chunk on this node
++					 * against the zones it spans.
++					 */
++					chunk_to_zones(end,
++						node_memory_chunk[c].start_pfn,
++						&zholes_size[nid * MAX_NR_ZONES]);
++				}
++			}
++		}
++	}
++}
++
++unsigned long * __init get_zholes_size(int nid)
++{
++	if (!zholes_size_init) {
++		zholes_size_init++;
++		get_zholes_init();
++	}
++	if((nid >= numnodes) | (nid >= MAX_NUMNODES))
++		printk("%s: nid = %d is invalid. numnodes = %d",
++		       __FUNCTION__, nid, numnodes);
++	return &zholes_size[nid * MAX_NR_ZONES];
++}
+diff -Nru a/arch/i386/mm/discontig.c b/arch/i386/mm/discontig.c
+--- a/arch/i386/mm/discontig.c	Tue Feb 18 18:53:37 2003
++++ b/arch/i386/mm/discontig.c	Tue Feb 18 18:53:37 2003
+@@ -284,6 +284,7 @@
+ 
+ 	for (nid = 0; nid < numnodes; nid++) {
+ 		unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
++		unsigned long *zholes_size;
+ 		unsigned int max_dma;
+ 
+ 		unsigned long low = max_low_pfn;
+@@ -307,6 +308,7 @@
+ #endif
+ 			}
+ 		}
++		zholes_size = get_zholes_size(nid);
+ 		/*
+ 		 * We let the lmem_map for node 0 be allocated from the
+ 		 * normal bootmem allocator, but other nodes come from the
+@@ -315,10 +317,10 @@
+ 		if (nid)
+ 			free_area_init_node(nid, NODE_DATA(nid), 
+ 				node_remap_start_vaddr[nid], zones_size, 
+-				start, 0);
++				start, zholes_size);
+ 		else
+ 			free_area_init_node(nid, NODE_DATA(nid), 0, 
+-				zones_size, start, 0);
++				zones_size, start, zholes_size);
+ 	}
+ 	return;
+ }
+diff -Nru a/include/asm-i386/mmzone.h b/include/asm-i386/mmzone.h
+--- a/include/asm-i386/mmzone.h	Tue Feb 18 18:53:37 2003
++++ b/include/asm-i386/mmzone.h	Tue Feb 18 18:53:37 2003
+@@ -12,6 +12,8 @@
+ 
+ #ifdef CONFIG_X86_NUMAQ
+ #include <asm/numaq.h>
++#elif CONFIG_X86_SUMMIT
++#include <asm/srat.h>
+ #else
+ #define pfn_to_nid(pfn)		(0)
+ #endif /* CONFIG_X86_NUMAQ */
+diff -Nru a/include/asm-i386/numaq.h b/include/asm-i386/numaq.h
+--- a/include/asm-i386/numaq.h	Tue Feb 18 18:53:37 2003
++++ b/include/asm-i386/numaq.h	Tue Feb 18 18:53:37 2003
+@@ -168,6 +168,10 @@
+         struct	eachquadmem eq[MAX_NUMNODES];	/* indexed by quad id */
+ };
+ 
++static inline unsigned long get_zholes_size(int nid)
++{
++	return 0;
++}
+ #endif /* CONFIG_X86_NUMAQ */
+ #endif /* NUMAQ_H */
+ 
+diff -Nru a/include/asm-i386/numnodes.h b/include/asm-i386/numnodes.h
+--- a/include/asm-i386/numnodes.h	Tue Feb 18 18:53:37 2003
++++ b/include/asm-i386/numnodes.h	Tue Feb 18 18:53:37 2003
+@@ -5,6 +5,8 @@
+ 
+ #ifdef CONFIG_X86_NUMAQ
+ #include <asm/numaq.h>
++#elif CONFIG_X86_SUMMIT
++#include <asm/srat.h>
+ #else
+ #define MAX_NUMNODES	1
+ #endif /* CONFIG_X86_NUMAQ */
+diff -Nru a/include/asm-i386/srat.h b/include/asm-i386/srat.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/srat.h	Tue Feb 18 18:53:37 2003
+@@ -0,0 +1,46 @@
++/*
++ * Some of the code in this file has been gleaned from the 64 bit 
++ * discontigmem support code base.
++ *
++ * Copyright (C) 2002, IBM Corp.
++ *
++ * All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Send feedback to Pat Gaughen <gone@us.ibm.com>
++ */
++
++#ifndef _ASM_SRAT_H_
++#define _ASM_SRAT_H_
 +
 +/*
-+ * This only applies to things which need to ioremap before paging_init()
-+ * bt_ioremap() and plain ioremap() are both useless at this point.
-+ * 
-+ * When used, we're still using the boot-time pagetables, which only
-+ * have 2 PTE pages mapping the first 8MB
-+ *
-+ * There is no unmap.  The boot-time PTE pages aren't used after boot.
-+ * If you really want the space back, just remap it yourself.
-+ * boot_ioremap(&ioremap_space-PAGE_OFFSET, BOOT_IOREMAP_SIZE)
++ * each element in pfnnode_map represents 256 MB (2^28) of pages.
++ * so, to represent 64GB we need 256 elements.
 + */
-+__init void* boot_ioremap(unsigned long phys_addr, unsigned long size)
-+{
-+	unsigned long last_addr, offset;
-+	unsigned int nrpages;
-+	
-+	last_addr = phys_addr + size - 1;
++#define MAX_ELEMENTS 256
++#define PFN_TO_ELEMENT(pfn) ((pfn)>>(28 - PAGE_SHIFT))
 +
-+	/* page align the requested address */
-+	offset = phys_addr & ~PAGE_MASK;
-+	phys_addr &= PAGE_MASK;
-+	size = PAGE_ALIGN(last_addr) - phys_addr;
-+	
-+	nrpages = size >> PAGE_SHIFT;
-+	if (nrpages > BOOT_IOREMAP_PAGES)
-+		return NULL;
-+	
-+	__boot_ioremap(phys_addr, nrpages, boot_ioremap_space);
++extern int pfnnode_map[];
++#define pfn_to_nid(pfn) ({ pfnnode_map[PFN_TO_ELEMENT(pfn)]; })
++#define pfn_to_pgdat(pfn) NODE_DATA(pfn_to_nid(pfn))
++#define PHYSADDR_TO_NID(pa) pfn_to_nid(pa >> PAGE_SHIFT)
++#define MAX_NUMNODES		8
++extern void get_memcfg_from_srat(void);
++extern unsigned long *get_zholes_size(int);
++#define get_memcfg_numa() get_memcfg_from_srat()
 +
-+	return &boot_ioremap_space[offset];
-+}
-diff -Nru a/include/asm-i386/page.h b/include/asm-i386/page.h
---- a/include/asm-i386/page.h	Tue Feb 18 16:51:20 2003
-+++ b/include/asm-i386/page.h	Tue Feb 18 16:51:20 2003
-@@ -49,6 +49,7 @@
- typedef struct { unsigned long pte_low; } pte_t;
- typedef struct { unsigned long pmd; } pmd_t;
- typedef struct { unsigned long pgd; } pgd_t;
-+#define boot_pte_t pte_t /* or would you rather have a typedef */
- #define pte_val(x)	((x).pte_low)
- #define HPAGE_SHIFT	22
- #endif
++#endif /* _ASM_SRAT_H_ */
+diff -Nru a/include/linux/acpi.h b/include/linux/acpi.h
+--- a/include/linux/acpi.h	Tue Feb 18 18:53:37 2003
++++ b/include/linux/acpi.h	Tue Feb 18 18:53:37 2003
+@@ -79,7 +79,7 @@
+ 
+ struct acpi_table_rsdt {
+ 	struct acpi_table_header header;
+-	u32			entry[1];
++	u32			entry[8];
+ } __attribute__ ((packed));
+ 
+ /* Extended System Description Table (XSDT) */
+
 
 

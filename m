@@ -1,35 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317312AbSHHDWx>; Wed, 7 Aug 2002 23:22:53 -0400
+	id <S317334AbSHHDxR>; Wed, 7 Aug 2002 23:53:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317328AbSHHDWx>; Wed, 7 Aug 2002 23:22:53 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:14059 "EHLO
-	lists.samba.org") by vger.kernel.org with ESMTP id <S317312AbSHHDWw>;
-	Wed, 7 Aug 2002 23:22:52 -0400
+	id <S317354AbSHHDxR>; Wed, 7 Aug 2002 23:53:17 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:15086 "EHLO
+	lists.samba.org") by vger.kernel.org with ESMTP id <S317334AbSHHDxR>;
+	Wed, 7 Aug 2002 23:53:17 -0400
+Date: Thu, 8 Aug 2002 13:44:07 +1000
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [TRIVIAL] PATCH 2.5: kconfig missing OBSOLETE (1_3) 
-In-reply-to: Your message of "Wed, 07 Aug 2002 13:59:14 -0400."
-             <3D515FF2.3000009@mandrakesoft.com> 
-Date: Thu, 08 Aug 2002 12:44:24 +1000
-Message-Id: <20020808032825.E52AA4170@lists.samba.org>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: driverfs API Updates
+Message-Id: <20020808134407.18fe4041.rusty@rustcorp.com.au>
+In-Reply-To: <Pine.LNX.4.44.0208051216090.1241-100000@cherise.pdx.osdl.net>
+References: <Pine.LNX.4.44.0208051216090.1241-100000@cherise.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3D515FF2.3000009@mandrakesoft.com> you write:
-> >        if [ "$CONFIG_OBSOLETE" = "y" ]; then
-> > -         tristate '    FMV-181/182/183/184 support' CONFIG_FMV18X
-> > +         tristate '    FMV-181/182/183/184 support (OBSOLETE)' CONFIG_FMV18X
-> why bother?
+On Mon, 5 Aug 2002 12:17:13 -0700 (PDT)
+Patrick Mochel <mochel@osdl.org> wrote:
+> I've also created a macro[1] for defining device attributes, that goes
+> like this:
 > 
-> CONFIG_OBSOLETE is not something people can select in 'make config'.
+> DEVICE_ATTR(name,"strname",mode,show,store);
+> 
+> This will create a structure by the name of 'dev_attr_##name', where
+> ##name is the first parameter, which can then be passed to
+> device_create_file(). [2]
 
-At the moment that is true.  But someone who still wants the driver
-can hack it into their own .config, and they should be warned for
-consistency.
+Hi Patrick,
+	I'll grab 2.5.31 when it comes out and play with it.
 
-Of course, a *policy* on depending on CONFIG_OBSOLETE would be nice,
+Personally, I would get rid of the "strname" (make it implied by the variable
+name), and use type instead of show & store, eg:
+
+	DEVICE_ATTR(frobbable, O_RDWR, int);
+
+This means you can (1) check that frobbable is actually an int at compile
+time (__check_int), (2) you can use __show_int and __store_int as standard
+routines, and (3) you can use your own types by:
+
+	#define __check_frobbable_t(x) ((void)((&x) == (frobbable_t *)0)
+	/* Define show_frobbable and store_frobbable here */
+
+	DEVICE_ATTR(frobbable, O_RDWR, frobbable_t);
+
+This ties into alot of other projects such as event logging, etc.
+
 Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+PS.  yeah yeah, I'll send code RSN.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

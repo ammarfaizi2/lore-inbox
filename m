@@ -1,60 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262727AbVAKLiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262729AbVAKMML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262727AbVAKLiq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 06:38:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbVAKLiq
+	id S262729AbVAKMML (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 07:12:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbVAKMML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 06:38:46 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:34932 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S262727AbVAKLio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 06:38:44 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-Message-Id: <5.1.0.14.2.20050111223726.044844e8@171.71.163.14>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 11 Jan 2005 22:38:35 +1100
-To: Neil Brown <neilb@cse.unsw.edu.au>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: Linux NFS vs NetApp
-Cc: Phy Prabab <phyprabab@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <16867.41549.618.539945@cse.unsw.edu.au>
-References: <message from Phy Prabab on Monday January 10>
- <20050111025401.48311.qmail@web51810.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Tue, 11 Jan 2005 07:12:11 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:16090 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262729AbVAKMME (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 07:12:04 -0500
+Date: Tue, 11 Jan 2005 13:11:41 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Chris Wright <chrisw@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: keventd gives exceptional priority to usermode helpers
+In-Reply-To: <Pine.LNX.4.61.0501101249380.4459@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.61.0501111310340.12548@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0501101121370.11128@yvahk01.tjqt.qr>
+ <20050110034202.P469@build.pdx.osdl.net> <Pine.LNX.4.61.0501101249380.4459@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-716779382-1105445501=:12548"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:54 PM 11/01/2005, Neil Brown wrote:
->On Monday January 10, phyprabab@yahoo.com wrote:
-> > Hello!
-> >
-> > I am trying to understand how NetApp can be so much
-> > better at NFS servicing than my quad Opteron 250 SAN
-> > attached machine.  So I need some help and some
-> > pointers to understand how I can make my opteron
-> > machine come on par (or within 70% NFS performance
-> > range) as that of my NetApp R200.  I have run through
-> > the NFS-how-to's and have heard "that is why they cost
-> > so much more", but I really have to consider that
-> > probably most of the ideas that are in the NetApp are
-> > common knowldge (just not in my head).
-> >
-> > Can anyone shed some light on this?
->
->If you want to come anything close to comparable with a Netapp, get a
->few hundred Megabytes of NVRAM (e.g. www.umem.com), and configure it
->as an external journal for your filesystem (I know this can be done
->for ext3, I don't know about other filesystems).  Then make sure your
->filesystem journals all data, not just metadata (data=journal option
->to ext3).
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-NetApp's WAFL only journals metadata in NVRAM ...
-(one of the primary reasons its called WAFL is that the data-write only 
-happens once..).
+--1283855629-716779382-1105445501=:12548
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+Signed-off-by: Jan Engelhardt <jengelh@linux01.gwdg.de>
 
 
-cheers,
+--- linux-2.6.8-20041204030200/kernel/kmod.c	2004-12-06 14:28:44.000000000 +0100
++++ linux-2.6.8-20041204030200/kernel/kmod.c	2005-01-06 11:44:04.130600000 +0100
+@@ -165,6 +165,7 @@ static int ____call_usermodehelper(void 
+ 
+ 	/* We can run anywhere, unlike our parent keventd(). */
+ 	set_cpus_allowed(current, CPU_MASK_ALL);
++	set_user_nice(current, 0);
+ 
+ 	retval = -EPERM;
+ 	if (current->fs->root)
 
-lincoln.
+
+
+
+Jan Engelhardt
+-- 
+ENOSPC
+--1283855629-716779382-1105445501=:12548
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="renice_keventd_usermode.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.61.0501111311410.12548@yvahk01.tjqt.qr>
+Content-Description: 
+Content-Disposition: attachment; filename="renice_keventd_usermode.diff"
+
+Iz09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KIyBMaW51eCAy
+LjYtSFggTU9ESUZJQ0FUSU9ODQojICAgQ29weXJpZ2h0IChDKSBKYW4gRW5n
+ZWxoYXJkdCA8amVuZ2VsaCBbYXRdIGxpbnV4MDEgZ3dkZyBkZT4sIDIwMDQN
+CiMgICAtLSBMaWNlbnNlIHJlc3RyaWN0aW9ucyBhcHBseSAoR1BMMikNCiMg
+ICAtLSBGb3IgZGV0YWlscyBzZWUgZG9jL0dQTDIudHh0Lg0KIyAgIGh0dHA6
+Ly9saW51eDAxLm9yZzoyMjIyL3Byb2ctaHh0b29scy5waHANCiM9PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT0NCiMNCiMgLSB1ZGV2IGFuZCBm
+cmllbmRzIG5lZWQgYSBmYWlyIGFtb3VudCBvZiBDUFUsIGFuZCByZWFsbHkg
+YnJpbmcgZG93biB0aGUNCiMgICBzeXN0ZW0gd2hlbiB0aGV5IHJ1biAtLSB1
+c3VhbGx5IGluIG5pY2UgLTUNCiMgICBGaXggaXQgaW4gdGhhdCB1c2VybW9k
+ZSBoZWxwZXJzIGFsd2F5cyBnZXQgbmljZSAwIGJ5IGRlZmF1bHQNCiMNCiMt
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCmRpZmYgLWRwdSB1
+c3JfQS9zcmMva290ZC9saW51eC0yLjYuOC0yMDA0MTIwNDAzMDIwMC9rZXJu
+ZWwva21vZC5jIHVzcl9CL3NyYy9rb3RkL2xpbnV4LTIuNi44LTIwMDQxMjA0
+MDMwMjAwL2tlcm5lbC9rbW9kLmMNCi0tLSBsaW51eC0yLjYuOC0yMDA0MTIw
+NDAzMDIwMC9rZXJuZWwva21vZC5jCTIwMDQtMTItMDYgMTQ6Mjg6NDQuMDAw
+MDAwMDAwICswMTAwDQorKysgbGludXgtMi42LjgtMjAwNDEyMDQwMzAyMDAv
+a2VybmVsL2ttb2QuYwkyMDA1LTAxLTA2IDExOjQ0OjA0LjEzMDYwMDAwMCAr
+MDEwMA0KQEAgLTE2NSw2ICsxNjUsNyBAQCBzdGF0aWMgaW50IF9fX19jYWxs
+X3VzZXJtb2RlaGVscGVyKHZvaWQgDQogDQogCS8qIFdlIGNhbiBydW4gYW55
+d2hlcmUsIHVubGlrZSBvdXIgcGFyZW50IGtldmVudGQoKS4gKi8NCiAJc2V0
+X2NwdXNfYWxsb3dlZChjdXJyZW50LCBDUFVfTUFTS19BTEwpOw0KKwlzZXRf
+dXNlcl9uaWNlKGN1cnJlbnQsIDApOw0KIA0KIAlyZXR2YWwgPSAtRVBFUk07
+DQogCWlmIChjdXJyZW50LT5mcy0+cm9vdCkNCg==
+
+--1283855629-716779382-1105445501=:12548--

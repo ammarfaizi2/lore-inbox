@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264103AbTEWRNF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 13:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTEWRNE
+	id S264102AbTEWRQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 13:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTEWRQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 13:13:04 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:5767 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S264103AbTEWRNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 13:13:04 -0400
-Date: Fri, 23 May 2003 12:39:41 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Kyuma Ohta <whatisthis@jcom.home.ne.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-rc3 : 1394 : Cannot detect hard drive(s?).
-Message-ID: <20030523163941.GL400@phunnypharm.org>
-References: <20030524.021635.74748205.whatisthis@jcom.home.ne.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030524.021635.74748205.whatisthis@jcom.home.ne.jp>
-User-Agent: Mutt/1.5.4i
+	Fri, 23 May 2003 13:16:25 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:36194 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id S264102AbTEWRQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 13:16:24 -0400
+Date: Fri, 23 May 2003 18:31:45 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Andrew Morton <akpm@digeo.com>, Lothar Wassmann <LW@KARO-electronics.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >= 2.5.30(at
+    least))
+In-Reply-To: <20030523175413.A4584@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0305231821460.1690-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 24, 2003 at 02:16:35AM +0900, Kyuma Ohta wrote:
-> Hi,
-> After 2.4.21-rc2,driver of IEEE1394 storage ( a.k.a. sbp2 ) is not able to
-> detect IEEE1394 Hard Drive.
+On Fri, 23 May 2003, Russell King wrote:
+> 
+> No, I think there is a flush missing somewhere in this path.
+> 
+> What I think is happening is that Lothar is using the PXA with the cache
+> in write allocate write back mode (Xscale is the first ARM-arch cpu to
+> have allocate on write caches.)
+> 
+> This means that when IDE copies the data into the buffer using insw or
+> whatever, it ends up in the VIVT cache rather than memory.  Since we
+> don't seem to be calling flush_dcache_page(), we never write this data
+> back to memory for user space to access it via their mapping.
 
-Please read the SBP-2 info on www.linux1394.org. You can either use the
-rescan-scsi-bus.sh script, or the controversial add_single/remove_single
-patch for the scsi layer.
+I believe (DaveM will speak with authority) that hitherto it has been
+assumed that I/O (well, Input) brings data actually into memory: we use
+flush_dcache_page if kernel memsets or memcpys data, not if it's read in.
 
-SCSI is not hotplug capable per-device in 2.4. Any hint of this being
-possible from the past with SBP-2 is accidental and not supported.
+If this mode+architecture departs from that, then we would need another
+macro, which translates to flush_dcache_page (sufficient?) for that,
+and is a nop for everything else.
 
-If you want real SCSI/SBP-2 hotplug support, use 2.5.69.
+And where would it be placed?  I think not where the flush_page_to_ram
+used to be in filemap_nopage, but after the ->readpage.  Or... would
+this tie in with Martin's s390 request for a SetPageUptodate hook?
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+Hugh
+

@@ -1,59 +1,221 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269853AbUJMVfc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269865AbUJMVh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269853AbUJMVfc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 17:35:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269858AbUJMVfb
+	id S269865AbUJMVh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 17:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269863AbUJMVh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 17:35:31 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:4366 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S269853AbUJMVfW (ORCPT
+	Wed, 13 Oct 2004 17:37:59 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:61649 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S269858AbUJMVgv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 17:35:22 -0400
-Date: Wed, 13 Oct 2004 23:35:19 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.8 Hates DOS partitions
-Message-ID: <20041013213519.GA3379@pclin040.win.tue.nl>
-References: <Pine.LNX.4.61.0410131329110.3818@chaos.analogic.com>
+	Wed, 13 Oct 2004 17:36:51 -0400
+Date: Wed, 13 Oct 2004 16:36:26 -0500
+From: mikem <mikem@beardog.cca.cpqcorp.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: akpm@osdl.org, axboe@suse.de, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: cciss update [1/2] updates our SCSI support to not use deprecated headers
+Message-ID: <20041013213626.GA10273@beardog.cca.cpqcorp.net>
+References: <20041013211302.GA9866@beardog.cca.cpqcorp.net> <20041013212105.GA4438@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0410131329110.3818@chaos.analogic.com>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : 
+In-Reply-To: <20041013212105.GA4438@havoc.gtf.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 13, 2004 at 01:31:34PM -0400, Richard B. Johnson wrote:
-
-> Only the DOS partitions and the swap are used in this new configuration.
-> This is a new "Fedora Linux 2" installation on a completely
-> different IDE hard disk, in which I have to enable boot disks in
-> the BIOS to boot the new system.
+On Wed, Oct 13, 2004 at 05:21:05PM -0400, Jeff Garzik wrote:
+> On Wed, Oct 13, 2004 at 04:13:02PM -0500, mike.miller@hjp.com wrote:
+> > @@ -552,11 +547,12 @@ cciss_scsi_setup(int cntl_num)
+> >  static void
+> >  complete_scsi_command( CommandList_struct *cp, int timeout, __u32 tag)
+> >  {
+> > -	Scsi_Cmnd *cmd;
+> > +	struct scsi_cmnd *cmd;
+> >  	ctlr_info_t *ctlr;
+> >  	u64bit addr64;
+> >  	ErrorInfo_struct *ei;
+> >  
+> > +	cmd = kmalloc(sizeof(struct scsi_cmnd), GFP_KERNEL);
+> >  	ei = cp->err_info;
+> >  
 > 
-> Immediately after installing the new system I reverted (in the BIOS)
-> to the original to make sure that I was still able to boot the old
-> system and the DOS partition. Everything was fine.
+> This can get called from the interrupt handler, so GFP_KERNEL won't
+> work.  GFP_ATOMIC works, but you need to check kmalloc() return for
+> NULL.
 > 
-> Then I installed linux-2.6.8 after building a new kernel with
-> the old ".config" file used as `make oldconfig`. Everything was
-> fine after that, also.
+> 	Jeff
 > 
-> I have now run for about a week and I can't boot the DOS partition
-> anymore!
-> 
-> I can copy everything  from C: and D: from within Linux
-> and then re-do the DOS partitions, BUT.... bad stuff
-> will happen again unless the cause is found.
+Hopefully this addresses this concern. Thanks, Jeff.
 
-Well, if you do and the same thing happens, we know that there is something
-reproducible here. That is always good to know. It might be that you did
-something a week ago and forgot all about it and now have a strange bug.
+mikem
+-------------------------------------------------------------------------------
 
-If this is reproducible, then there are lots of possible explanations.
-
-Have you considered the numbering of the disks? You changed things in
-the BIOS. Did the Linux SCSI disk numbering remain the same?
-
-Andries
+diff -burNp lx269-rc4.orig/drivers/block/cciss_scsi.c lx269-rc4-p001/drivers/block/cciss_scsi.c
+--- lx269-rc4.orig/drivers/block/cciss_scsi.c	2004-08-14 00:36:32.000000000 -0500
++++ lx269-rc4-p001/drivers/block/cciss_scsi.c	2004-10-13 16:32:48.840091288 -0500
+@@ -28,7 +28,9 @@
+    through the array controller.  Note in particular, neither 
+    physical nor logical disks are presented through the scsi layer. */
+ 
+-#include "../scsi/scsi.h" 
++#include <scsi/scsi.h> 
++#include <scsi/scsi_cmnd.h>
++#include <scsi/scsi_device.h>
+ #include <scsi/scsi_host.h> 
+ #include <asm/atomic.h>
+ #include <linux/timer.h>
+@@ -61,15 +63,8 @@ int cciss_scsi_proc_info(
+ 		int length, 	   /* length of data in buffer */
+ 		int func);	   /* 0 == read, 1 == write */
+ 
+-int cciss_scsi_queue_command (Scsi_Cmnd *cmd, void (* done)(Scsi_Cmnd *));
+-#if 0
+-int cciss_scsi_abort(Scsi_Cmnd *cmd);
+-#if defined SCSI_RESET_SYNCHRONOUS && defined SCSI_RESET_ASYNCHRONOUS
+-int cciss_scsi_reset(Scsi_Cmnd *cmd, unsigned int reset_flags);
+-#else
+-int cciss_scsi_reset(Scsi_Cmnd *cmd);
+-#endif
+-#endif
++int cciss_scsi_queue_command (struct scsi_cmnd *cmd, 
++		void (* done)(struct scsi_cmnd *));
+ 
+ static struct cciss_scsi_hba_t ccissscsi[MAX_CTLR] = {
+ 	{ .name = "cciss0", .ndevices = 0 },
+@@ -82,7 +77,7 @@ static struct cciss_scsi_hba_t ccissscsi
+ 	{ .name = "cciss7", .ndevices = 0 },
+ };
+ 
+-static Scsi_Host_Template cciss_driver_template = {
++static struct scsi_host_template cciss_driver_template = {
+ 	.module			= THIS_MODULE,
+ 	.name			= "cciss",
+ 	.proc_name		= "cciss",
+@@ -552,11 +547,15 @@ cciss_scsi_setup(int cntl_num)
+ static void
+ complete_scsi_command( CommandList_struct *cp, int timeout, __u32 tag)
+ {
+-	Scsi_Cmnd *cmd;
++	struct scsi_cmnd *cmd;
+ 	ctlr_info_t *ctlr;
+ 	u64bit addr64;
+ 	ErrorInfo_struct *ei;
+ 
++	if(cmd = kmalloc(sizeof(struct scsi_cmnd), GFP_ATOMIC) == NULL) {
++		printk(KERN_WARNING "out of memory\n");
++		return -ENOMEM;
++	}
+ 	ei = cp->err_info;
+ 
+ 	/* First, see if it was a message rather than a command */
+@@ -565,7 +564,7 @@ complete_scsi_command( CommandList_struc
+ 		return;
+ 	}
+ 
+-	cmd = (Scsi_Cmnd *) cp->scsi_cmd;	
++	cmd = (struct scsi_cmnd *) cp->scsi_cmd;	
+ 	ctlr = hba[cp->ctlr];
+ 
+ 	/* undo the DMA mappings */
+@@ -573,14 +572,14 @@ complete_scsi_command( CommandList_struc
+ 	if (cmd->use_sg) {
+ 		pci_unmap_sg(ctlr->pdev,
+ 			cmd->buffer, cmd->use_sg,
+-				scsi_to_pci_dma_dir(cmd->sc_data_direction)); 
++				cmd->sc_data_direction); 
+ 	}
+ 	else if (cmd->request_bufflen) {
+ 		addr64.val32.lower = cp->SG[0].Addr.lower;
+                 addr64.val32.upper = cp->SG[0].Addr.upper;
+                 pci_unmap_single(ctlr->pdev, (dma_addr_t) addr64.val,
+                 	cmd->request_bufflen, 
+-				scsi_to_pci_dma_dir(cmd->sc_data_direction));
++				cmd->sc_data_direction);
+ 	}
+ 
+ 	cmd->result = (DID_OK << 16); 		/* host byte */
+@@ -783,9 +782,8 @@ cciss_scsi_do_simple_cmd(ctlr_info_t *c,
+ 	cp->Request.Type.Direction = direction;
+ 
+ 	/* Fill in the SG list and do dma mapping */
+-	cciss_map_one(c->pdev, cp, 
+-			(unsigned char *) buf, bufsize,
+-			scsi_to_pci_dma_dir(SCSI_DATA_READ)); 
++	cciss_map_one(c->pdev, cp, (unsigned char *) buf,
++			bufsize, DMA_FROM_DEVICE); 
+ 
+ 	cp->waiting = &wait;
+ 
+@@ -799,9 +797,7 @@ cciss_scsi_do_simple_cmd(ctlr_info_t *c,
+ 	wait_for_completion(&wait);
+ 
+ 	/* undo the dma mapping */
+-	cciss_unmap_one(c->pdev, cp, bufsize,
+-				scsi_to_pci_dma_dir(SCSI_DATA_READ)); 
+-
++	cciss_unmap_one(c->pdev, cp, bufsize, DMA_FROM_DEVICE);
+ 	return(0);
+ }
+ 
+@@ -1180,14 +1176,14 @@ cciss_scsi_info(struct Scsi_Host *sa)
+ }
+ 
+ 
+-/* cciss_scatter_gather takes a Scsi_Cmnd, (cmd), and does the pci 
++/* cciss_scatter_gather takes a struct scsi_cmnd, (cmd), and does the pci 
+    dma mapping  and fills in the scatter gather entries of the 
+    cciss command, cp. */
+ 
+ static void
+ cciss_scatter_gather(struct pci_dev *pdev, 
+ 		CommandList_struct *cp,	
+-		Scsi_Cmnd *cmd)
++		struct scsi_cmnd *cmd)
+ {
+ 	unsigned int use_sg, nsegs=0, len;
+ 	struct scatterlist *scatter = (struct scatterlist *) cmd->buffer;
+@@ -1200,7 +1196,7 @@ cciss_scatter_gather(struct pci_dev *pde
+ 			addr64 = (__u64) pci_map_single(pdev, 
+ 				cmd->request_buffer, 
+ 				cmd->request_bufflen, 
+-				scsi_to_pci_dma_dir(cmd->sc_data_direction)); 
++				cmd->sc_data_direction); 
+ 	
+ 			cp->SG[0].Addr.lower = 
+ 			  (__u32) (addr64 & (__u64) 0x00000000FFFFFFFF);
+@@ -1213,7 +1209,7 @@ cciss_scatter_gather(struct pci_dev *pde
+ 	else if (cmd->use_sg <= MAXSGENTRIES) {	/* not too many addrs? */
+ 
+ 		use_sg = pci_map_sg(pdev, cmd->buffer, cmd->use_sg, 
+-			scsi_to_pci_dma_dir(cmd->sc_data_direction));
++			cmd->sc_data_direction);
+ 
+ 		for (nsegs=0; nsegs < use_sg; nsegs++) {
+ 			addr64 = (__u64) sg_dma_address(&scatter[nsegs]);
+@@ -1234,7 +1230,7 @@ cciss_scatter_gather(struct pci_dev *pde
+ 
+ 
+ int 
+-cciss_scsi_queue_command (Scsi_Cmnd *cmd, void (* done)(Scsi_Cmnd *))
++cciss_scsi_queue_command (struct scsi_cmnd *cmd, void (* done)(struct scsi_cmnd *))
+ {
+ 	ctlr_info_t **c;
+ 	int ctlr, rc;
+@@ -1302,11 +1298,10 @@ cciss_scsi_queue_command (Scsi_Cmnd *cmd
+ 	cp->Request.Type.Attribute = ATTR_SIMPLE;
+ 	switch(cmd->sc_data_direction)
+ 	{
+-	  case SCSI_DATA_WRITE: cp->Request.Type.Direction = XFER_WRITE; break;
+-	  case SCSI_DATA_READ: cp->Request.Type.Direction = XFER_READ; break;
+-	  case SCSI_DATA_NONE: cp->Request.Type.Direction = XFER_NONE; break;
+-
+-	  case SCSI_DATA_UNKNOWN:
++	  case DMA_TO_DEVICE: cp->Request.Type.Direction = XFER_WRITE; break;
++	  case DMA_FROM_DEVICE: cp->Request.Type.Direction = XFER_READ; break;
++	  case DMA_NONE: cp->Request.Type.Direction = XFER_NONE; break;
++	  case DMA_BIDIRECTIONAL:
+ 		// This can happen if a buggy application does a scsi passthru
+ 		// and sets both inlen and outlen to non-zero. ( see
+ 		// ../scsi/scsi_ioctl.c:scsi_ioctl_send_command() )

@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135181AbRDLPmv>; Thu, 12 Apr 2001 11:42:51 -0400
+	id <S135204AbRDLPmv>; Thu, 12 Apr 2001 11:42:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135193AbRDLPmm>; Thu, 12 Apr 2001 11:42:42 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:3233 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S135205AbRDLPma>; Thu, 12 Apr 2001 11:42:30 -0400
-Date: Thu, 12 Apr 2001 16:43:10 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Valdis.Kletnieks@vt.edu
-cc: linux-kernel@vger.kernel.org
-Subject: Re: scheduler went mad?
-In-Reply-To: <200104121457.f3CEv8o09656@foo-bar-baz.cc.vt.edu>
-Message-ID: <Pine.LNX.4.21.0104121622520.1638-100000@localhost.localdomain>
+	id <S135181AbRDLPml>; Thu, 12 Apr 2001 11:42:41 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:35280 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S135204AbRDLPm2>;
+	Thu, 12 Apr 2001 11:42:28 -0400
+Date: Thu, 12 Apr 2001 11:42:25 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Jan Harkes <jaharkes@cs.cmu.edu>, Andreas Dilger <adilger@turbolinux.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: Fwd: Re: memory usage - dentry_cacheg
+In-Reply-To: <Pine.GSO.4.21.0104121113370.19944-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0104121136550.19944-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Apr 2001 Valdis.Kletnieks@vt.edu wrote:
-> I've seen the same scenario about 2-3 times a week.  kswapd and one or
-> more processes all CPU bound, totalling to 100%.  I've had 'esdplay' hung
-> on several occasions, and 2-3 times it's been xscreensaver (3.29) hung.
-> The 'hung' processes are consistently immune to kill -9, even as root, which
-> indicates to me that they're hung inside a kernel call or something.
-[snip]
-> __alloc_pages: 4-order allocation failed.
-> __alloc_pages: 3-order allocation failed.
-[snip]
-> In page_alloc.c, __alloc_pages() has a 'goto try_again;' which will
-> cause it to loop around and try to get more memory.  I'm wondering if
-[snip]
-> I'm running the 2.4.3 kernel
 
-2.4.3-pre6 quietly made a very significant change there:
-it used to say "if (!order) goto try_again;" and now just
-says "goto try_again;".  Which seems very sensible since
-__GFP_WAIT is set, but I do wonder if it was a safe change.
-We have mechanisms for freeing pages (order 0), but whether
-any higher orders come out of that is a matter of chance.
 
-(But of course, this may not be related to your problem,
-and your "N-order allocation failed" messages must have
-been from other instances than stuck in this loop.)
+On Thu, 12 Apr 2001, Alexander Viro wrote:
 
-Hugh
+> Bad idea. If you do loops over directory contents you will almost
+> permanently have almost all dentries freeable. Doesn't make freeing
+> them a good thing - think of the effects it would have.
+> 
+> Simple question: how many of dentries in /usr/src/linux/include/linux
+> are busy at any given moment during the compile? At most 10, I suspect.
+> I.e. ~4%.
+> 
+> I would rather go for active keeping the amount of dirty inodes low,
+> so that freeing would be cheap. Doing massive write_inode when we
+> get low on memory is, indeed, a bad thing, but you don't have to
+> tie that to freeing stuff. Heck, IIRC you are using quite a similar
+> logics for pagecache...
+
+PS: with your approach negative entries are dead meat - they won't be
+caught used unless you look at them exactly at the moment of d_lookup().
+
+Welcome to massive lookups in /bin due to /usr/bin stuff (and no, shell
+own cache doesn't help - it's not shared; think of scripts).
+
+IOW. keeping dcache/icache size low is not a good thing, unless you
+have a memory pressure that requires it. More agressive kupdate _is_
+a good thing, though - possibly kupdate sans flushing buffers, so that
+it would just keep the icache clean and let bdflush do the actual IO.
 

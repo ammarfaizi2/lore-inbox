@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264490AbRFTCuh>; Tue, 19 Jun 2001 22:50:37 -0400
+	id <S264493AbRFTCs5>; Tue, 19 Jun 2001 22:48:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264491AbRFTCuR>; Tue, 19 Jun 2001 22:50:17 -0400
-Received: from marine.sonic.net ([208.201.224.37]:30838 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S264490AbRFTCuP>;
-	Tue, 19 Jun 2001 22:50:15 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Tue, 19 Jun 2001 19:50:04 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to compile on one machine and install on another?
-Message-ID: <20010619195003.B30762@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
+	id <S264491AbRFTCsh>; Tue, 19 Jun 2001 22:48:37 -0400
+Received: from smtp1.Stanford.EDU ([171.64.14.23]:21948 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S264490AbRFTCsa>; Tue, 19 Jun 2001 22:48:30 -0400
+Date: Tue, 19 Jun 2001 19:48:27 -0700
+From: "Zack Weinberg" <zackw@Stanford.EDU>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, tridge@samba.org
+Subject: Re: 2.2 PATCH: check return from copy_*_user in fs/pipe.c
+Message-ID: <20010619194827.F5679@stanford.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3B300933.2090807@nyc.rr.com>
+In-Reply-To: <15152.1911.886630.381952@pizda.ninka.net>
 User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 19, 2001 at 10:23:47PM -0400, John Weber wrote:
-> On a related note... is System.map also necessary?  Anyone care to explain 
+On Tue, Jun 19, 2001 at 07:16:23PM -0700, David S. Miller wrote:
+> 
+> Zack Weinberg writes:
+>  > The anonymous pipe code in 2.2 does not check the return value of
+>  > copy_*_user.  This can lead to silent loss of data.
+> 
+> I remember Andrew Tridgell (cc:'d) spotting this a long time
+> ago, and we didn't fix it, and I forget what the reason was.
 
-Debugging.  ksymoops and klogd can both make use of it.
+It *has* been fixed in 2.4, though.  Some sort of compatibility issue?
 
-mrc
 -- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+zw                       This APT has Super Cow Powers.
+                         	-- apt-get 0.5

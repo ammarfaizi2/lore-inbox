@@ -1,165 +1,308 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264686AbUFLIok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264685AbUFLIoV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264686AbUFLIok (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 04:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264689AbUFLIok
+	id S264685AbUFLIoV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 04:44:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264686AbUFLIoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 04:44:40 -0400
-Received: from [202.125.86.130] ([202.125.86.130]:19087 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S264686AbUFLIoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 04:44:30 -0400
-Content-class: urn:content-classes:message
-Subject: RE: Problem in module loading automatically at boot time
+	Sat, 12 Jun 2004 04:44:21 -0400
+Received: from lucidpixels.com ([66.45.37.187]:1214 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S264685AbUFLIoJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 04:44:09 -0400
+Date: Sat, 12 Jun 2004 04:44:07 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.5 Does Not Handle Jumbo Frames w/Intel GigE NIC - Page Allocation
+ Failures
+Message-ID: <Pine.LNX.4.60.0406120439490.6354@p500>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C45059.8CA46026"
-Date: Sat, 12 Jun 2004 14:15:00 +0530
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Message-ID: <1118873EE1755348B4812EA29C55A9722AF3B7@esnmail.esntechnologies.co.in>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: Problem in module loading automatically at boot time
-Thread-Index: AcRP1ZAnMoGb2mqjQWe1IEkOaz+GQAAgr8eg
-From: "Srinivas G." <srinivasg@esntechnologies.co.in>
-To: <root@chaos.analogic.com>
-Cc: <linux-kernel@vger.kernel.org>,
-       "Surendra I." <surendrai@esntechnologies.co.in>,
-       "Subramanyam B" <subramanyamb@esntechnologies.co.in>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+When I run: ifconfig eth0 mtu 9000
 
-------_=_NextPart_001_01C45059.8CA46026
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Also, I tried to copy a file from 2.6.5 -> 2.4.26 (over NFS) and it did 
+not copy, although I saw my hard disk reading @ 35-40MB/s until it was 
+"ready to copy?" but it never sent any packets over the network.
 
-Hi Johnson,
+On kernel: 2.4.26 I get no errors.
+On kernel: 2.6.5 I get a lot of errors, they are:
 
-I tried with depmod -e option. It showed that printk is unresolved
-symbol. Is it current? Is it(printk) not a kernel symbol? If so, give me
-a suggestion.
+Kernel 2.4.26 Intel Card:
 
-Note: I included the <linux/kernel.h> and <linux/module.h> also. Please
-see the attachments.
+00:0d.0 Ethernet controller: Intel Corp. 82541GI/PI Gigabit Ethernet 
+Controller
+         Subsystem: Intel Corp.: Unknown device 1113
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64 (63750ns min), cache line size 08
+         Interrupt: pin A routed to IRQ 10
+         Region 0: Memory at ff040000 (32-bit, non-prefetchable) 
+[size=128K]
+         Region 1: Memory at ff020000 (32-bit, non-prefetchable) 
+[size=128K]
+         Region 2: I/O ports at cc80 [size=64]
+         Expansion ROM at f9000000 [disabled] [size=128K]
+         Capabilities: [dc] Power Management version 2
+                 Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
+PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                 Status: D0 PME-Enable- DSel=0 DScale=1 PME-
+         Capabilities: [e4] PCI-X non-bridge device.
+                 Command: DPERE- ERO+ RBC=0 OST=0
+                 Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, 
+DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-      Capabilities: [f0] 
+Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
+                 Address: 0000000000000000  Data: 0000
 
-Thanks and regards,
+  Kernel 2.6.5 Intel Card:
 
-Srinivas G
+02:01.0 Ethernet controller: Intel Corp. 82547EI Gigabit Ethernet 
+Controller (LOM)
+         Subsystem: ABIT Computer Corp.: Unknown device 1014
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 0 (63750ns min), cache line size 08
+         Interrupt: pin A routed to IRQ 18
+         Region 0: Memory at fc000000 (32-bit, non-prefetchable) 
+[size=128K]
+         Region 2: I/O ports at a000 [size=32]
+         Capabilities: [dc] Power Management version 2
+                 Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
+PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                 Status: D0 PME-Enable- DSel=0 DScale=1 PME-
 
------Original Message-----
-From: Richard B. Johnson [mailto:root@chaos.analogic.com]=20
-Sent: Friday, June 11, 2004 10:29 PM
-To: Srinivas G.
-Cc: linux-kernel@vger.kernel.org; Surendra I.; Subramanyam B
-Subject: Re: Problem in module loading automatically at boot time
+$ dmesg
+ages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c011a906>] recalc_task_prio+0xdf/0x1c9
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
 
-On Fri, 11 Jun 2004, Srinivas G. wrote:
+printk: 53 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
 
->
-> Hi,
->
-> I have written a small driver program called hello.c.
->
->
-************************************************************************
-> ***************
-> #include <linux/module.h>
->
-> MODULE_LICENSE("GPL");
->
-> int init_module(void)
-> {
->   printk("<1>" "Hello world\n");
->   return 0;
-> }
->
-> void cleanup_module(void)
-> {
->   printk("<1>good bye\n");
-> }
->
->
-************************************************************************
-> ****************
->
-> I compiled the above program with cc -DMODULE -D__KERNEL__
-> -I/usr/src/linux2.4/include -O2 -c hello.c
->
-> I am using Red Hat Linux 7.3 with kernel version of 2.4.18-3.
-> It works fine when I load it with insmod from root prompt.
->
-> Now, I want to make it load automatically at boot time.
-> For that I have used the following steps.
->
-> ---> I copied the hello.o file in the
-> /lib/modules/2.4.18-3/kernel/drivers/block
->
-> ---> I run the depmod command. It included the above path in
-> /lib/modules/2.4.18-3/modules.dep file.
->
-> ---> I added "alias hello1 hello" entry into /etc/modules.conf file.
->
-> When I reboot the machine after the above changes, my driver is not
-> loaded and an error message is printed as follows.
->
-> ---> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.18-3/kernel/drivers/block/hello.o
->
->
-> Could anyone suggest me, if I am missing anything here?
->
-> Srinivas G
->
+printk: 165 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c011a906>] recalc_task_prio+0xdf/0x1c9
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
 
-Maybe `depmod -e ...` would tell you what symbols are missing??
+printk: 94 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c011c8c6>] __wake_up_common+0x38/0x57
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c02d5ed9>] atkbd_interrupt+0x365/0x569
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
 
-Then, after you observe that, try including <linux/kernel.h>,
-and <linux/module.h>, like you are supposed to do.
+printk: 95 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<f8e34b00>] nv_unlock_rm+0x45/0x46 [nvidia]
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
 
+printk: 68 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
+printk: 41 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
 
+printk: 30 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
 
+printk: 46 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c011a906>] recalc_task_prio+0xdf/0x1c9
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
 
-------_=_NextPart_001_01C45059.8CA46026
-Content-Type: application/octet-stream;
-	name="hello.c"
-Content-Transfer-Encoding: base64
-Content-Description: hello.c
-Content-Disposition: attachment;
-	filename="hello.c"
+printk: 33 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c011c8c6>] __wake_up_common+0x38/0x57
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c02d5ed9>] atkbd_interrupt+0x365/0x569
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
 
-LyoKICogU2ltcGxlIGhlbGxvLmMgcHJvZ3JhbQogKi8KCi8qIGtlcm5lbCBoZWFkZXIgZmlsZXMg
-Ki8KI2luY2x1ZGUgPGxpbnV4L2luaXQuaD4gICAgICAgLyogZm9yIGV4cGxpY2l0IGluaXQgJiBl
-eGl0IG1hcmNvIGRlZmluaXRpb25zICovCiNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4gICAgIC8q
-IGZvciBwcmludGsgKi8KI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPiAgICAgLyogZm9yIGV2ZXJ5
-dGhpbmcgLi4uICovCQoKTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOwpNT0RVTEVfQVVUSE9SKCJTUklO
-SVZBUyBHIik7CgovKgogKiBNb2R1bGUgZW50cnkgcG9pbnQKICovIApzdGF0aWMgaW50IApfX2lu
-aXQgaGVsbG9faW5pdCh2b2lkKQp7CglwcmludGsoIkhlbGxvLCBXZWxjb21lIHRvIERldmljZSBE
-cml2ZXIgV29ybGQhXG4iKTsKCXJldHVybiAwOwp9CgovKgogKiBNb2R1bGUgZXhpdCBwb2ludAog
-Ki8Kc3RhdGljIHZvaWQKX19leGl0IGhlbGxvX2V4aXQodm9pZCkKewoJcHJpbnRrKCJHb29kIEJ5
-ZSB0byBEZXZpY2UgRHJpdmVyIFdvcmxkIVxuIik7Cn0KCi8qIG1hY3JvcyB0byBkZWZpbmUgaW5p
-dCBhbmQgZXhpdCBtb2R1bGVzICovCm1vZHVsZV9pbml0KGhlbGxvX2luaXQpOwptb2R1bGVfZXhp
-dChoZWxsb19leGl0KTsKCgo=
+printk: 136 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c011c8c6>] __wake_up_common+0x38/0x57
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c02d5ed9>] atkbd_interrupt+0x365/0x569
+  [<c02d9cb1>] serio_interrupt+0x7c/0xaf
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
 
-------_=_NextPart_001_01C45059.8CA46026
-Content-Type: application/octet-stream;
-	name="Makefile"
-Content-Transfer-Encoding: base64
-Content-Description: Makefile
-Content-Disposition: attachment;
-	filename="Makefile"
-
-IwojIE1ha2UgZmlsZSBmb3IgaGVsbG8uYyBmaWxlCiMKCklOQ0RJUj0vdXNyL3NyYy9saW51eC0y
-LjQvaW5jbHVkZQkjIEluY2x1ZGUgcGF0aCBvbiBSZWRIYXQgNy4zCgpUQVJHRVQ9aGVsbG9kZW1v
-Lm8KT0JKUz1oZWxsby5vCgpDRkxBR1M9LURNT0RVTEUgLURfX0tFUk5FTF9fIC1JJChJTkNESVIp
-IC1PMiAKCiQoVEFSR0VUKTogJChPQkpTKQoJJChMRCkgLXIgLW8gJChUQVJHRVQpICQoT0JKUykK
-CmNsZWFuOgoJJChSTSkgJChUQVJHRVQpICQoT0JKUykKCg==
-
-------_=_NextPart_001_01C45059.8CA46026--

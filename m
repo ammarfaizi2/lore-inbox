@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261228AbSJHPj3>; Tue, 8 Oct 2002 11:39:29 -0400
+	id <S261191AbSJHPoh>; Tue, 8 Oct 2002 11:44:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261246AbSJHPj3>; Tue, 8 Oct 2002 11:39:29 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:33728 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261228AbSJHPj3>; Tue, 8 Oct 2002 11:39:29 -0400
-Date: Tue, 08 Oct 2002 08:42:45 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@digeo.com>
-Subject: might_sleep warning in both 41 and 41-mm1
-Message-ID: <1455194388.1034066565@[10.10.2.3]>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S261186AbSJHPoh>; Tue, 8 Oct 2002 11:44:37 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:2951 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S261191AbSJHPog>; Tue, 8 Oct 2002 11:44:36 -0400
+Date: Tue, 8 Oct 2002 10:49:50 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: James Bottomley <James.Bottomley@HansenPartnership.com>,
+       Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.41-ac1 
+In-Reply-To: <Pine.NEB.4.44.0210081732250.8340-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.44.0210081044360.32256-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This one still happens in both 41 and 41-mm1. I'd mentioned
-it before, and was told it was fixed in a later kernel, but
-still seems to be there.
+On Tue, 8 Oct 2002, Adrian Bunk wrote:
 
-Debug: sleeping function called from illegal context at mm/page_alloc.c:512
-Call Trace:
- [<c0115fb3>] __might_sleep+0x43/0x47
- [<c0134efc>] __alloc_pages+0x24/0x260
- [<c0112638>] pte_alloc_one+0x38/0xfc
- [<c01279cd>] pte_alloc_map+0x2d/0x1b0
- [<c012f6cc>] move_one_page+0x11c/0x2d8
- [<c012f794>] move_one_page+0x1e4/0x2d8
- [<c012f8b7>] move_page_tables+0x2f/0x74
- [<c012fe4d>] do_mremap+0x551/0x6dc
- [<c013002b>] sys_mremap+0x53/0x74
- [<c0106ff7>] syscall_call+0x7/0xb
+> On Tue, 8 Oct 2002, James Bottomley wrote:
+> 
+> > bunk@fs.tum.de said:
+> > > make[1]: *** No rule to make target `arch/i386/mach-voyager/
+> > > trampoline.o', needed by `arch/i386/mach-voyager/built-in.o'.  Stop.
+> > > make: *** [arch/i386/mach-voyager] Error 2
+> >
+> > That one's pulled in from ../kernel by the vpath in mach-voyager (or should
+> > be).  It builds for me, so it could be the version of make you are using?
+> 
+> Ah, then Kai's changes to the build system in 2.5.41 broke it.
+> 
+> Kai, what's the recommended way to get this working again?
+
+Well, don't use vpath in the kernel Makefiles ;)
+
+To restore the previous state, just do
+
+obj-y += ... ../kernel/trampoline.o
+
+However, why don't you just set CONFIG_X86_SMP when CONFIG_VOYAGER is 
+selected, which would be cleaner anyway?
+
+Compiling the same file from different subdirs depending on .config is 
+surely a recipe for confusion.
+
+--Kai
+
 

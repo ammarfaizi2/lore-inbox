@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVBLB7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVBLB76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261961AbVBLB7m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 20:59:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbVBLB7m
+	id S261970AbVBLB76 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 20:59:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbVBLB75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 20:59:42 -0500
-Received: from siaag1ad.compuserve.com ([149.174.40.6]:10221 "EHLO
-	siaag1ad.compuserve.com") by vger.kernel.org with ESMTP
-	id S261961AbVBLB7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 20:59:57 -0500
+Received: from siaag1ae.compuserve.com ([149.174.40.7]:2184 "EHLO
+	siaag1ae.compuserve.com") by vger.kernel.org with ESMTP
+	id S261970AbVBLB7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 11 Feb 2005 20:59:21 -0500
-Date: Fri, 11 Feb 2005 20:55:16 -0500
+Date: Fri, 11 Feb 2005 20:55:18 -0500
 From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: out-of-line x86 "put_user()" implementation
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Manfred Spraul <manfred@colorfullife.com>,
+Subject: Re: [PATCH 2.6.11-rc2 02/04] ide: __ide_do_rw_disk()
+  rewritten ide_write_taskfil
+To: Tejun Heo <htejun@gmail.com>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
-       Richard Henderson <rth@twiddle.net>, Ingo Molnar <mingo@elte.hu>
-Message-ID: <200502112058_MC3-1-95CC-5FF1@compuserve.com>
+       linux-ide <linux-ide@vger.kernel.org>
+Message-ID: <200502112058_MC3-1-95CC-5FF2@compuserve.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
@@ -25,58 +26,37 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Feb 2005 at 18:27:08 -0800, Linus Torvalds wrote:
+On Sun,  6 Feb 2005 at 20:26:55 +0900, Tejun Heo wrote:
 
-> +/*
-> + * Strange magic calling convention: pointer in %ecx,
-> + * value in %eax(:%edx), return value in %eax, no clobbers.
-> + */
-> +extern void __put_user_1(void);
-> +extern void __put_user_2(void);
-> +extern void __put_user_4(void);
-> +extern void __put_user_8(void);
-> +
-> +#define __put_user_1(x, ptr) __asm__ __volatile__("call __put_user_1":"=a" (__ret_pu):"0" ((typeof(*(ptr)))(x)), "c" (ptr))
-> +#define __put_user_2(x, ptr) __asm__ __volatile__("call __put_user_2":"=a" (__ret_pu):"0" ((typeof(*(ptr)))(x)), "c" (ptr))
-> +#define __put_user_4(x, ptr) __asm__ __volatile__("call __put_user_4":"=a" (__ret_pu):"0" ((typeof(*(ptr)))(x)), "c" (ptr))
-> +#define __put_user_8(x, ptr) __asm__ __volatile__("call __put_user_8":"=a" (__ret_pu):"A" ((typeof(*(ptr)))(x)), "c" (ptr))
-> +#define __put_user_X(x, ptr) __asm__ __volatile__("call __put_user_X":"=a" (__ret_pu):"c" (ptr))
-> +
+> +     if (drive->using_dma &&
+> +         !(hwif->no_lba48_dma && block + rq->nr_sectors > 1ULL << 28)) {
+> +             /* DMA */
+> +             if (hwif->dma_setup(drive))
+> +                     goto fallback_to_pio;
+> +             if (rq_data_dir(rq) == READ) {
+> +                     command = lba48 ? WIN_READDMA_EXT : WIN_READDMA;
+> +                     if (drive->vdma)
+> +                             command = lba48 ? WIN_READ_EXT : WIN_READ;
+> +             } else {
+> +                     command = lba48 ? WIN_WRITEDMA_EXT : WIN_WRITEDMA;
+> +                     if (drive->vdma)
+> +                             command = lba48 ? WIN_WRITE_EXT : WIN_WRITE;
+>               }
+> -             /* fallback to PIO */
+> -             ide_init_sg_cmd(drive, rq);
+> +             hwif->dma_exec_cmd(drive, command);
+> +             hwif->dma_start(drive);
+> +             return ide_started;
+>       }
 
-  Should "cc" be on the clobber list since all the called functions alter EFLAGS?
 
-  And in any case is it too much to ask for an 80-column limit? ;)
+  Should that be "block + rq->nr_sectors >= 1ULL << 28"?
 
-#define __put_user_1(x, ptr)                    \
-__asm__ __volatile__(                           \
-        "call __put_user_1"                     \
-        : "=a" (__ret_pu)                       \
-        : "0" ((typeof(*(ptr)))(x)), "c" (ptr)  \
-        : "cc")
-#define __put_user_2(x, ptr)                    \
-__asm__ __volatile__(                           \
-        "call __put_user_2"                     \
-        : "=a" (__ret_pu)                       \
-        : "0" ((typeof(*(ptr)))(x)), "c" (ptr)  \
-        : "cc")
-#define __put_user_4(x, ptr)                    \
-__asm__ __volatile__(                           \
-        "call __put_user_4"                     \
-        : "=a" (__ret_pu)                       \
-        : "0" ((typeof(*(ptr)))(x)), "c" (ptr)  \
-        : "cc")
-#define __put_user_8(x, ptr)                    \
-__asm__ __volatile__(                           \
-        "call __put_user_8"                     \
-        : "=a" (__ret_pu)                       \
-        : "A" ((typeof(*(ptr)))(x)), "c" (ptr)  \
-        : "cc")
-#define __put_user_X(x, ptr)                    \
-__asm__ __volatile__(                           \
-        "call __put_user_X"                     \
-        : "=a" (__ret_pu)                       \
-        : "c" (ptr)                             \
-        : "cc")
+  Legal sector numbers for LBA28 range from 0 thru (1 << 28 - 1).
+
+  LBA28 _capacities_ range from 1 thru (1 << 28) sectors.
+
+  And why is it using 1ULL some places and 1UL in others in the ide driver?
 
 --
 Chuck

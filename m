@@ -1,38 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261541AbUC0BSB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 20:18:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbUC0BSB
+	id S261601AbUC0BV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 20:21:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbUC0BVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 20:18:01 -0500
-Received: from mail.kroah.org ([65.200.24.183]:13214 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261541AbUC0BSA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 20:18:00 -0500
-Date: Fri, 26 Mar 2004 17:14:36 -0800
-From: Greg KH <greg@kroah.com>
-To: "Frank A. Uepping" <Frank.A.Uepping@t-online.de>
-Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: struct device::release issue
-Message-ID: <20040327011436.GB14076@kroah.com>
-References: <200403061247.24251.Frank.A.Uepping@t-online.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403061247.24251.Frank.A.Uepping@t-online.de>
-User-Agent: Mutt/1.5.6i
+	Fri, 26 Mar 2004 20:21:22 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16768 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261567AbUC0BVQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 20:21:16 -0500
+Message-ID: <4064D6FE.7000506@pobox.com>
+Date: Fri, 26 Mar 2004 20:21:02 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Andrew Morton <akpm@osdl.org>, scott.feldman@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add PCI_DMA_{64,32}BIT constants
+References: <20040323052305.GA2287@havoc.gtf.org> <20040327002935.GB13097@kroah.com> <4064CDB2.10001@pobox.com> <20040327004842.GA13611@kroah.com>
+In-Reply-To: <20040327004842.GA13611@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 06, 2004 at 12:47:24PM +0100, Frank A. Uepping wrote:
-> Hi,
-> if device_add fails (e.g. bus_add_device returns an error) then the release 
-> method will be called for the device. Is this a bug or a feature?
+Greg KH wrote:
+> On Fri, Mar 26, 2004 at 07:41:22PM -0500, Jeff Garzik wrote:
+> 
+>>Greg KH wrote:
+>>
+>>>On Tue, Mar 23, 2004 at 12:23:05AM -0500, Jeff Garzik wrote:
+>>>
+>>>
+>>>>Been meaning to do this for ages...
+>>>>
+>>>>Another one for the janitors.
+>>>>
+>>>>Please do a
+>>>>
+>>>>	bk pull bk://kernel.bkbits.net/jgarzik/pci-dma-mask-2.6
+>>>>
+>>>>This will update the following files:
+>>>
+>>>
+>>>Nice, I've pulled this to my pci tree and will forward it on to Linus in
+>>>the next round of pci patches after 2.6.5 is out.
+>>
+>>Yeah well...  in the intervening time, somebody on IRC commented
+>>
+>>"so what is so PCI-specific about those constants?"
+>>
+>>They probably ought to be DMA_{32,64}BIT_MASK or somesuch.
+> 
+> 
+> Heh, ok, care to make up another patch for this?  :)
 
-Are you sure this will happen?  device_initialize() gets a reference
-that is still present after device_add() fails, right?  So release()
-will not get called.
+Yeah, but not at the moment :)  So just drop it for now, I suppose.
 
-thanks,
+	Jeff
 
-greg k-h
+
+
+

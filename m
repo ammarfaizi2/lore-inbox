@@ -1,76 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAIDYm>; Mon, 8 Jan 2001 22:24:42 -0500
+	id <S129562AbRAID2n>; Mon, 8 Jan 2001 22:28:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129561AbRAIDYb>; Mon, 8 Jan 2001 22:24:31 -0500
-Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:37126 "EHLO
-	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with ESMTP
-	id <S129324AbRAIDYZ>; Mon, 8 Jan 2001 22:24:25 -0500
-From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
-Message-Id: <200101090324.TAA05331@cx518206-b.irvn1.occa.home.com>
-Subject: [PATCH] 2.4.0 Changes - add compiler source code URL, minor cleanup
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Mon, 8 Jan 2001 19:24:17 -0800 (PST)
-Cc: kaboom@gatech.edu, chris.ricker@genetics.utah.edu
-Reply-To: barryn@pobox.com
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S129324AbRAID2f>; Mon, 8 Jan 2001 22:28:35 -0500
+Received: from ns.mtu.ru ([195.34.32.10]:51153 "HELO mtu.ru")
+	by vger.kernel.org with SMTP id <S129226AbRAID2V>;
+	Mon, 8 Jan 2001 22:28:21 -0500
+X-Recipient: linux-kernel@vger.kernel.org
+From: Dmitry Potapov <dpotapov@capitalsoft.com>
+Date: Tue, 9 Jan 2001 06:28:00 +0300
+To: linux-kernel@vger.kernel.org
+Subject: AHA1542 driver does not accept command-line options
+Message-ID: <20010109062800.A644@potapov.private>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch:
+When I switch to 2.4 kernel my SCSI card does not detect anymore,
+because AHA1542 driver does not accept kernel command-line options.
 
-(a) Adds a URL for the egcs 1.1.2 source code. This change is both
-low-risk and important IMO.
+I send small patch to fix that.
 
-(b) Fixes two sloppy underlines.
+I'm not subscribed at the kernel mail list, so please send any 
+question/answer to my personal mail address.
 
-Please apply.
+Thanks,
+Dmitry Potapov
 
--Barry K. Nathan <barryn@pobox.com>
-
-
---- linux-2.4.0/Documentation/Changes	Mon Jan  1 10:00:04 2001
-+++ linux-2.4.0bkn1/Documentation/Changes	Mon Jan  8 19:09:44 2001
-@@ -31,7 +31,7 @@
- Eine deutsche Version dieser Datei finden Sie unter
- <http://www.stefan-winter.de/Changes-2.4.0.txt>.
+--- drivers/scsi/aha1542.c.orig	Thu Nov 23 20:33:36 2000
++++ drivers/scsi/aha1542.c	Tue Jan  9 04:45:12 2001
+@@ -947,11 +947,12 @@
+ 	return 0;
+ }
  
--Last updated: December 11, 2000
-+Last updated: January 8, 2001
- 
- Chris Ricker (kaboom@gatech.edu or chris.ricker@genetics.utah.edu).
- 
-@@ -261,12 +261,16 @@
- Compilers
- *********
- 
--egcs 1.1.2 (gcc 2.91.66)
-----------
-+egcs 1.1.2 (gcc 2.91.66) binaries
-+---------------------------------
- o  <ftp://ftp.valinux.com/pub/support/hjl/gcc/egcs-1.1.2/egcs-1.1.2-glibc.x86.tar.bz2>
- o  <ftp://ftp.valinux.com/pub/support/hjl/gcc/egcs-1.1.2/egcs-1.1.2-libc5.x86.tar.bz2>
- o  <ftp://ftp.valinux.com/pub/support/hjl/gcc/egcs-1.1.2/egcs-1.1.2-alpha.tar.bz2>
- 
-+egcs 1.1.2 (gcc 2.91.66) source code
-+------------------------------------
-+o  <ftp://egcs.cygnus.com/pub/egcs/releases/egcs-1.1.2/>
+-/* called from init/main.c */
++#ifndef MODULE
++static int setup_idx = 0;
 +
- Binutils
- ********
+ void __init aha1542_setup(char *str, int *ints)
+ {
+ 	const char *ahausage = "aha1542: usage: aha1542=<PORTBASE>[,<BUSON>,<BUSOFF>[,<DMASPEED>]]\n";
+-	static int setup_idx = 0;
+ 	int setup_portbase;
  
-@@ -275,7 +279,7 @@
- o  <ftp://ftp.valinux.com/pub/support/hjl/binutils/2.9.1/binutils-2.9.1.0.25.tar.gz>
+ 	if (setup_idx >= MAXBOARDS) {
+@@ -1004,6 +1005,21 @@
  
- 2.10 series
--------------
-+-----------
- o  <ftp://ftp.valinux.com/pub/support/hjl/binutils/binutils-2.10.0.24.tar.bz2>
+ 	++setup_idx;
+ }
++
++static int __init do_setup(char *str)
++{
++	int ints[4];
++
++	int count=setup_idx;
++
++	get_options(str, sizeof(ints)/sizeof(int), ints);
++	aha1542_setup(str,ints);
++
++	return count<setup_idx;
++}
++
++__setup("aha1542=",do_setup);
++#endif
  
- System utilities
+ /* return non-zero on detection */
+ int aha1542_detect(Scsi_Host_Template * tpnt)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

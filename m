@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287764AbSANRVC>; Mon, 14 Jan 2002 12:21:02 -0500
+	id <S287784AbSANR0c>; Mon, 14 Jan 2002 12:26:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287794AbSANRUx>; Mon, 14 Jan 2002 12:20:53 -0500
-Received: from mout01.kundenserver.de ([195.20.224.132]:22309 "EHLO
-	mout01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S287764AbSANRUl>; Mon, 14 Jan 2002 12:20:41 -0500
-Date: Mon, 14 Jan 2002 18:20:10 +0100
-From: Heinz Diehl <hd@cavy.de>
-To: linux-kernel@vger.kernel.org
-Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-        mingo@redhat.com
-Subject: Re: slowdown with new scheduler.
-Message-ID: <20020114172010.GA173@elfie.cavy.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>,
-	mingo@redhat.com
-In-Reply-To: <20020114124541.A32412@suse.de>
+	id <S287786AbSANR0W>; Mon, 14 Jan 2002 12:26:22 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:17387 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S287784AbSANR0M>;
+	Mon, 14 Jan 2002 12:26:12 -0500
+Date: Mon, 14 Jan 2002 11:16:08 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Giacomo Catenazzi <cate@debian.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA hardware discovery -- the elegant solution
+Message-ID: <20020114111608.B14332@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Giacomo Catenazzi <cate@debian.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.dardpev.1m1emjp@ifi.uio.no> <3C42AF6B.6050304@debian.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020114124541.A32412@suse.de>
-User-Agent: Mutt/1.3.25-current-20020102i (Linux 2.4.17-h7 i586)
-Organization: private site in Mannheim/Germany
-X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C42AF6B.6050304@debian.org>; from cate@debian.org on Mon, Jan 14, 2002 at 11:14:03AM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Jan 14 2002, Dave Jones wrote:
+Giacomo Catenazzi <cate@debian.org>:
+> > With this change, generating a report on ISA hardware and other
+> > facilities configured in at boot time would be trivial.  This would
+> > make the autoconfigurator much more capable.  Best of all, the only
+> > change required to accomplish this would be safe edits of print format
+> > strings.
+>  
+> Better: create a /proc/driver and every driver will register in it.
+> This file can help some bug report (and not only autoconfigurator).
 
->  After adding H7 to 2.4.18pre3, I noticed that kernel compiles
-> on one of my test boxes got much slower.
-> Uniprocessor system (Cyrix 3) building a 2.4.18pre3 tree,
-> with the same .config, and a distclean before starting the compile.
-> 
-> 2.4.18pre3        13.38s                       
-> 2.4.18pre+H7      17.53s
-
-I did the same; same config, fresh tree, reboot between the test. 
-The machine is a (single-processor) AMD K6-2/400 with 256 MB RAM.
-Here are the results:
-
-2.4.18-pre3	 	    real    7m55.243s
-			    user    6m34.080s
-			    sys     0m27.610s
-
-2.4.18-pre+H7		    real    7m35.962s
-			    user    6m34.270s
-			    sys     0m27.700s
-
-2.4.18-pre3-ac2		    real    7m39.203s
-			    user    6m34.110s
-			    sys     0m28.740s
-
-Ingo's scheduler rocks, it runs like hell (and is absolutely stable here)  ;)
-
+That would be fine with me.  But wouldn't it involve adding a new
+initialization-time call to every driver.
 -- 
-# Heinz Diehl, 68259 Mannheim, Germany
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+The whole of the Bill [of Rights] is a declaration of the right of the
+people at large or considered as individuals...  It establishes some
+rights of the individual as unalienable and which consequently, no
+majority has a right to deprive them of.
+         -- Albert Gallatin, Oct 7 1789

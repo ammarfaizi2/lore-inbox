@@ -1,104 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263322AbUDAVz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 16:55:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbUDAVvk
+	id S263172AbUDAVyG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 16:54:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUDAVwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 16:51:40 -0500
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:23425 "EHLO
+	Thu, 1 Apr 2004 16:52:45 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:21889 "EHLO
 	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S263307AbUDAVtQ convert rfc822-to-8bit (ORCPT
+	id S263301AbUDAVsv convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 16:49:16 -0500
+	Thu, 1 Apr 2004 16:48:51 -0500
 MIME-Version: 1.0
 To: torvalds@osdl.org, marcelo.tosatti@cyclades.com.br
-Subject: lk-changelog.pl 0.258
-Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de
+Subject: BK-kernel-tools/shortlog update
+Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
 From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Thu_Apr__1_21_49_13_UTC_2004_0@merlin.emma.line.org>
+Content-ID: <Thu_Apr__1_21_48_47_UTC_2004_0@merlin.emma.line.org>
 Content-type: text/plain; charset=iso-8859-1
 Content-Description: An object packed by metasend
 Content-Transfer-Encoding: 8BIT
-Message-Id: <20040401214913.BA27D106E@merlin.emma.line.org>
-Date: Thu,  1 Apr 2004 23:49:13 +0200 (CEST)
+Message-Id: <20040401214848.09714106E@merlin.emma.line.org>
+Date: Thu,  1 Apr 2004 23:48:48 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a semi-automatic announcement.
+Hello Linus,
 
-lk-changelog.pl aka. shortlog version 0.258 has been released.
+you can either use "bk receive" to patch with this mail,
+or you can
+Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
+or in cases of dire need, you can apply the patch below.
 
-This script is used by Linus and Marcelo to rearrange and reformat BK
-ChangeSet logs into a more human-readable format, and the official
-repository is Parent repository is http://bktools.bkbits.net/bktools
+BK: Parent repository is http://bktools.bkbits.net/bktools
 
-As the script has grown large, this mail only contains a diff against
-the last released version.
+Patch description:
+ChangeSet@1.148, 2004-04-01 23:48:33+02:00, matthias.andree@gmx.de
+  If a From: header contains a known address, use the known name instead
+  of the name from the From: line, so as to have consistent names that can
+  be grouped.
 
-You can always download the full script and GPG signatures from
-http://home.pages.de/~mandree/linux/kernel/
+Matthias
 
-My thanks go to Vitezslav Samel who has spent a lot of time on digging
-out the real names for addresses sending in BK ChangeSets.
+------------------------------------------------------------------------
 
-Note that your mailer must be MIME-capable to save this mail properly,
-because it is in the "quoted-printable" encoding.
+##### DIFFSTAT #####
+# shortlog |   12 +++++++++---
+# 1 files changed, 9 insertions(+), 3 deletions(-)
 
-= <- if you see just an equality sign, but no "3D", your mailer is fine.
-= <- if you see 3D on this line, then upgrade your mailer or pipe this mail
-= <- into metamail.
-
--- 
-A sh script on behalf of Matthias Andree
--------------------------------------------------------------------------
-Changes since last release:
-
-----------------------------
-revision 0.258
-date: 2004/04/01 21:48:00;  author: emma;  state: Exp;  lines: +9 -3
-If a From: header contains a known address, use the known name instead of the
-name from the From: line, so as to have consistent names that can be grouped.
-This fixes a report by Vita:
-Maximilian Attems:
-  o [NETFILTER]: Add MODULE_AUTHOR to ipchains_core.c
-
-maximilian attems:
-  o add warning to DocBook/Makefile
-----------------------------
-revision 0.257
-date: 2004/03/30 14:04:33;  author: emma;  state: Exp;  lines: +21 -11
-Bugfix: do not abbreviate last name in the presence of ()-style comments
-Bugfix: Ignore ()-style comments in by-surname sort.
-Bugfix: Emit unabbreviated names in could-be-added list.
-Cleanup: Fix warning when abbreviate_name is called with empty input.
-----------------------------
-revision 0.256
-date: 2004/03/30 13:45:30;  author: emma;  state: Exp;  lines: +42 -9
-Feature: harvest unknown addresses from From: lines with the log and
-print them at the end. Suggested by vita.
-Feature: if the name is of the form Last, First (Comment), it will be
-normalized to First Last (Comment); the Comment is optional.
-Feature: Strip double quote marks from addresses in From: lines.
-Commited patch made by vita.
-----------------------------
-revision 0.255
-date: 2004/03/30 01:16:17;  author: emma;  state: Exp;  lines: +37 -21
-Parse From: Firstname Lastname <email@address.invalid> to
-credit (or blame) the right person.
-Add Alain Knaff's address.
-=============================================================================
-Index: lk-changelog.pl
-===================================================================
-RCS file: /var/CVS/lk-changelog/lk-changelog.pl,v
-retrieving revision 0.255
-diff -u -r0.255 lk-changelog.pl
---- lk-changelog.pl	30 Mar 2004 01:16:17 -0000	0.255
-+++ lk-changelog.pl	1 Apr 2004 21:48:14 -0000
+##### GNUPATCH #####
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/04/01 23:48:33+02:00 matthias.andree@gmx.de 
+#   If a From: header contains a known address, use the known name instead
+#   of the name from the From: line, so as to have consistent names that can
+#   be grouped.
+# 
+# shortlog
+#   2004/04/01 23:48:33+02:00 matthias.andree@gmx.de +9 -3
+#   If a From: header contains a known address, use the known name instead
+#   of the name from the From: line, so as to have consistent names that can
+#   be grouped.
+# 
+diff -Nru a/shortlog b/shortlog
+--- a/shortlog	Thu Apr  1 23:48:47 2004
++++ b/shortlog	Thu Apr  1 23:48:47 2004
 @@ -8,7 +8,7 @@
  #			Tomas Szepe <szepe@pinerecords.com>
  #			Vitezslav Samel <samel@mail.cz>
  #
--# $Id: lk-changelog.pl,v 0.255 2004/03/30 01:16:17 emma Exp $
+-# $Id: lk-changelog.pl,v 0.257 2004/03/30 14:04:33 emma Exp $
 +# $Id: lk-changelog.pl,v 0.258 2004/04/01 21:48:00 emma Exp $
  # ----------------------------------------------------------------------
  # Distribution of this script is permitted under the terms of the
@@ -111,170 +82,48 @@ diff -u -r0.255 lk-changelog.pl
  'vberon:mecano.gme.usherb.ca' => 'Vincent Béron',
  'venkatesh.pallipadi:intel.com' => 'Venkatesh Pallipadi',
  'vherva:niksula.hut.fi' => 'Ville Herva',
-@@ -1686,11 +1687,14 @@
- 
- my $myname;
- my %address_unknown;
-+my %address_found_in_from;
- 
- # get name associated with an "email address" formatted
- # BK_USER,BK_HOST tuple
--sub rmap_address($) {
-+sub rmap_address($$) {
-     my $in = shift;
-+    my $markunknown = shift;
-+
-     confess "empty string passed to rmap_address" unless $in;
-     my $key = lc $in;
-     # try hash lookup first, return result if any
-@@ -1707,7 +1711,9 @@
-     # when the address is unknown, return the unchanged input
-     # and mark the address as unknown (so it can be printed in --warn
-     # mode).
--    $address_unknown{$key} = 1;
-+    if ($markunknown) {
-+	$address_unknown{$key} = 1;
-+    }
-     return $in;
- }
- 
-@@ -1723,8 +1729,8 @@
- sub caseicmpbysurname {
-   my $alast = "";
-   my $blast = "";
--  if ($a =~ m/(\S+)\s*(\s\<|$)/) { $alast = $1; }
--  if ($b =~ m/(\S+)\s*(\s\<|$)/) { $blast = $1; }
-+  if ($a =~ m/(\S+)\s*(\(.*\))?(\s\<|$)/) { $alast = $1; }
-+  if ($b =~ m/(\S+)\s*(\(.*\))?(\s\<|$)/) { $blast = $1; }
-   return uc($alast . $a) cmp uc($blast . $b);
- }
- 
-@@ -1976,13 +1982,16 @@
- # Roman numerals form the last component, leave that and the previous
- # component alone.
- sub abbreviate_name($ ) {
-+  return () unless (@_  and $_[0]);
-   my @a = split /\s+/, $_[0];
- 
--  # treat Roman numerals as last part of name
--  my $off = 0;
--  $off = 1 if ($a[$#a] =~ /^[IVXLCMD]+$/);
-+  # dito for comments
- 
--  for (my $i = 0; $i < $#a - $off; $i++) {
-+  for (my $i = 0; $i < $#a; $i++) {
-+    # treat Roman numerals as last part of name
-+    last if ($a[$i] =~ /^[IVXLCMD]+$/);
-+    # do not abbreviate comments
-+    last if ($a[$i+1] =~ /^\(/);
-     $a[$i] =~ s/^(.).*/$1./;
-   }
-   return join(" ", @a);
-@@ -2004,7 +2013,7 @@
-     if (/^<($nre)>:$/) {
-       my $a = $1;
-       if ($a =~ /:/) { $a = unveil($a); }
--      my $name = rmap_address($a);
-+      my $name = rmap_address($a, 1);
-       if ($name ne $a) { # found name
- 	print "$name:\n";
-       } else {
-@@ -2016,7 +2025,7 @@
-     if (/\s+\(($nre)\)$/) {
-       my $a = $1;
-       if ($a =~ /:/) { $a = unveil($a); }
--      my $name = rmap_address($a);
-+      my $name = rmap_address($a, 1);
-       if ($name ne $a) { # found name
- 	s/\($nre\)$/$name/;
-       }
-@@ -2027,7 +2036,7 @@
-     if (/^$indent1($nre): /) {
-       my $a = $1;
-       if ($a =~ /:/) { $a = unveil($a); }
--      my $name = rmap_address($a);
-+      my $name = rmap_address($a, 1);
-       if ($name ne $a) { # found name
- 	s/^$indent1$nre:/$indent1$name:/;
-       }
-@@ -2053,7 +2062,7 @@
-   while ($_ = $fh -> getline) {
-       chomp;
-       if (/($mre)/) {
--	  my $r = rmap_address($1);
-+	  my $r = rmap_address($1, 1);
- 	  s/$mre/$r/;
-       }
-       print "$_\n";
-@@ -2072,6 +2081,17 @@
-     }
- 
-     if ($havename) {
-+	if ($$name =~ /([^,]+),\s*([^(\s]*)\s*(\(.*\))?/) {
-+	    $$name = "$2 $1";
-+	    if (defined $3) { $$name .= " " . $3; }
-+	}
-+	if ($$name =~ /([A-Z]+)\s+([^(\s]*)\s*(\(.*\))?/) {
-+	    my ($u, $f) = ($2, $1);
-+	    my ($ul) = lc $2;
-+	    $ul =~ s/^.//;
-+	    $$name = sprintf "%-.1s%s %s", $u, $ul, $f;
-+	    if (defined $3) { $$name .= " " . $3; }
-+	}
- 	if ($opt{'abbreviate-names'}) {
- 	    $$name = abbreviate_name($$name);
- 	}
-@@ -2141,14 +2161,24 @@
-       append_item(%$log, @cur); @cur = ();
-       $address = lc($1);
-       $address =~ s/\[[^]]+\]$//;
--      $name = rmap_address($address);
-+      $name = rmap_address($address, 1);
-       $author = treat_addr_name($address, $name);
-       print STDERR "AUTHOR $author\n" if $debug;
+@@ -2166,12 +2167,17 @@
        $first = 1;
        $firstpar = 1;
--    } elsif (/^\s+From:\s*(.*)\s+\<(.*)\>\s*$/) {
-+    } elsif (/^\s+From:\s*"?([^"]*)"?\s+\<(.*)\>\s*$/) {
+     } elsif (/^\s+From:\s*"?([^"]*)"?\s+\<(.*)\>\s*$/) {
 +      my $tmp;
        $name = $1;
        $address = lc $2;
+-      if (rmap_address($address, 0) eq $address and $name =~ /\s+/) {
 +      if (($tmp = rmap_address($address, 0)) eq $address) {
 +	if ($name =~ /\s+/) {
-+	  # not found, but only add if two words or more in name.
-+	  $address_found_in_from{$address} = sprintf "'%s' => '%s',",
+ 	  # not found, but only add if two words or more in name.
+ 	  $address_found_in_from{$address} = sprintf "'%s' => '%s',",
+-	    obfuscate $address, $name;
 +	  obfuscate $address, $name;
 +	}
 +      } else {
 +	$name = $tmp;
-+      }
+       }
        $author = treat_addr_name($address, $name);
        print STDERR " FROM  $author\n" if $debug;
-     } elsif ($first) {
-@@ -2379,6 +2409,25 @@
+
+##### BKPATCH #####
+This BitKeeper patch contains the following changesets:
+1.148
+## Wrapped with gzip_uu ##
+
+
+M'XL( #^.;$   ^5576^;,!1]CG_%E1HIK1J(;2 D5%1=UVZ+.FE5J^YITN3 
+M): $G&$G336ZWSY#/KI4ZT.WO0TLX'X=7]]S) [@3F$9M'*A=9H)98LB+A')
+M 7R02@>M2;ZRX]J\D=*8/;50V)MB6>"L=WYEEK4V+"WE3!&3>"UTE,(22Q6T
+MF.WL//IACD'KYO+]W<<W-X2$(;Q-13'!6]00AD3+<BEFL3J;8S%99(6M2U&H
+M'+6P(YE7N]R*4\K-S;A#^]ZPXL.^YU7(T?,BEXFQ/_ QXN39><[6Y]B'<:GC
+M4.92U^,596SHD M@-G,'0-U>O1AP)W '@>,<4QY0"K]'A6,&%B7G\(_/\)9$
+M,$I P+M2Y@&D*&(L(9*%%EFAC']:R/L"1&QZ4:H+AAK0*6[<A<@13)XV909(
+M)DVL\28&K['6P+.LP"XH"4*9(T JEECOHC)36^BFQ 12H2$2A8$:(TQ*N9AC
+M;),K8)Q1<OU$)K%>>1%"!26G3]-+98[/1J=26>J9G*PGY[$!]5V?#2J'^4.O
+M2G HDLBG0T$Q%N/X!9[V4 SM9OZ&;,>IF-/O^XTDMQE[BOSK?EY2XWX_OXBQ
+M;S[78N3LU6(<@N7\MV)LF/P$5GF_JI>U,M+<COD/E'G!&# R:IX'T![%IL&I
+M%36S,XCV?-9= K6Y-X":PRU1K";*4(1Y+N!R-8>VP?"&U*!TED(K$1@^LG%>
+M,]&!\!0ZMV76!."SF:"89&76Z9(19_V!J8'FRA^@K?/Y";G@S&_::MY\$\X2
+M.#RL$R"$,A?SKQLJ#ML[3NC1$> WV#J.X#MIU67MAHCP!_2^J.->[:ZW<#=;
+MN."2%H <)PL5"8WP!-@4GI#6XZ:'1\"9X=W ;B W'>]^ E&*T50M\C 9)SQF
+,?8?\!%??E0V!!@  
  
- # Warn about unknown addresses
- if ($opt{warn}) {
-+  if (scalar keys %address_found_in_from) {
-+      my $havebanner = 0;
-+    foreach (sort caseicmp keys %address_found_in_from) {
-+      if ($address_unknown{$_}) {
-+	  print STDERR "Notice: these address mappings should be added after clean-up:\n" unless $havebanner++;
-+	  print STDERR $address_found_in_from{$_}, "\n" or write_error();
-+	  delete $address_unknown{$_};
-+	  delete $address_found_in_from{$_};
-+      }
-+    }
-+  }
-+  if (scalar keys %address_found_in_from) {
-+    print STDERR "Info: these address mappings could be added after clean-up:\n";
-+    foreach (sort caseicmp keys %address_found_in_from) {
-+      print STDERR $address_found_in_from{$_}, "\n" or write_error();
-+      delete $address_unknown{$_};
-+      delete $address_found_in_from{$_};
-+    }
-+  }
-   foreach (sort caseicmp keys %address_unknown) {
-     print STDERR "Warning: unknown address \"$_\"\n" or write_error();
-   }
 

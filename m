@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261211AbTCJJtU>; Mon, 10 Mar 2003 04:49:20 -0500
+	id <S261223AbTCJJuW>; Mon, 10 Mar 2003 04:50:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261218AbTCJJtU>; Mon, 10 Mar 2003 04:49:20 -0500
-Received: from mx0.gmx.net ([213.165.64.100]:56882 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S261211AbTCJJtT>;
-	Mon, 10 Mar 2003 04:49:19 -0500
-Date: Mon, 10 Mar 2003 10:59:53 +0100 (MET)
-From: Daniel Engelschalt <daniel.engelschalt@gmx.net>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: 2.5.64 boot problems
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0001538274@gmx.net
-X-Authenticated-IP: [62.80.22.130]
-Message-ID: <30022.1047290393@www38.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S261224AbTCJJuV>; Mon, 10 Mar 2003 04:50:21 -0500
+Received: from pop.gmx.net ([213.165.64.20]:60121 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261223AbTCJJuO>;
+	Mon, 10 Mar 2003 04:50:14 -0500
+Message-Id: <5.2.0.9.2.20030310105217.00cd25b0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Mon, 10 Mar 2003 11:05:25 +0100
+To: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: 2.5.64-mm2->4 hangs on contest
+Cc: Andrew Morton <akpm@digeo.com>
+In-Reply-To: <200303102012.32465.kernel@kolivas.org>
+References: <5.2.0.9.2.20030310075720.00c832f8@pop.gmx.net>
+ <5.2.0.9.2.20030310075720.00c832f8@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
+At 08:12 PM 3/10/2003 +1100, Con Kolivas wrote:
+>On Mon, 10 Mar 2003 18:05, Mike Galbraith wrote:
+> > At 01:29 PM 3/10/2003 +1100, you wrote:
+> > >Tried running contest on 2.5.64-mm2 and mm4 and had the same thing happen.
+> > > It will hang reliably during process_load. I tried not running
+> > > process_load but it would still get stuck in one of the other loads
+> > > (either a tar load or list load). I can simply stop contest at that stage
+> > > but then the machine wont work well hanging at the console after a minute
+> > > or so. This started at mm2 (doesn't happen with mm1).
+> > >
+> > >Here is the sysrq-p and sysrq-t output during process_load (which hangs
+> > > every time):
+> >
+> > hmm, the below looks interesting to me...
+> >
+> > >ksoftirqd/0   R C129A000     2      1             3       (L-TLB)
+> > >Call Trace:
+> > >  [<c0118f3e>] ksoftirqd+0x5e/0x9c
+> > >  [<c0118ee0>] ksoftirqd+0x0/0x9c
+> > >  [<c0106f1d>] kernel_thread_helper+0x5/0xc
+> >
+> > I see that too with irman.  You could try renicing the shell you start
+> > contest from to >= +12.  With irman, what appears to be cpu starvation
+> > ceases to be a problem at exactly +12.  I also see kapmd constantly wanting
+> > to run but not being serviced.
+>
+>Contest uses a modified process load from irman so it exhibits similar
+>behaviour. Not sure what +12 actually tells me though :-(
 
-this is the first time i tried to use a 2.5.x kernel. i compiled it
-successfully but at boot time it stops at "ok booting kernel"
+Aha!  No wonder your symptoms look so similar.  +12 is just a magic number 
+that works... found by trusty old trial and error method.  What I wanted to 
+see was if your hang would also go away with the same magic number, or if 
+renicing with any value helped you at all.
 
-this is gentoo 1.2, gcc-2.95.3, 2.5.64 vanilla
-amd athlon 800, 512mb, asus a7v with udma/100 ibm-disk (boot device),
-dvd-rom / cd-burner at udma/66
+>My simplistic understanding is that the pipe task in process_load gets
+>constantly elevated as "interactive" by the new scheduler, and nothing else
+>ever happens.
 
-what shall i do? do you need additional information?
-please cc me.
+Appears so.  I can make it "work" by doing a dinky (butt ugly:) tweak in 
+activate_task().
 
-bye,
-daniel
+         -Mike 
 

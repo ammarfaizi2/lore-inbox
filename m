@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbUK3Vbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262335AbUK3VfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbUK3Vbl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 16:31:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbUK3Vbl
+	id S262335AbUK3VfL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 16:35:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbUK3VfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 16:31:41 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:4255 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262328AbUK3Vbb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 16:31:31 -0500
-Subject: Re: Walking all the physical memory in an x86 system
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-os@analogic.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.53.0411302141080.31175@yvahk01.tjqt.qr>
-References: <C863B68032DED14E8EBA9F71EB8FE4C2057CA977@azsmsx406>
-	 <Pine.LNX.4.53.0411301711140.25731@yvahk01.tjqt.qr>
-	 <41ACADD3.2030206@draigBrady.com>
-	 <Pine.LNX.4.53.0411301832510.11795@yvahk01.tjqt.qr>
-	 <1101840619.25609.107.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0411301519130.4393@chaos.analogic.com>
-	 <Pine.LNX.4.53.0411302141080.31175@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1101846485.25609.173.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 30 Nov 2004 20:28:06 +0000
+	Tue, 30 Nov 2004 16:35:11 -0500
+Received: from mail.dif.dk ([193.138.115.101]:12731 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262335AbUK3Vet (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 16:34:49 -0500
+Date: Tue, 30 Nov 2004 22:44:37 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] net/via-rhine: convert MODULE_PARM to module_param
+In-Reply-To: <20041130140309.GA6568@k3.hellgate.ch>
+Message-ID: <Pine.LNX.4.61.0411302241260.3635@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0411300053190.3432@dragon.hygekrogen.localhost>
+ <20041130140309.GA6568@k3.hellgate.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-11-30 at 20:46, Jan Engelhardt wrote:
-> I want(ed) to find out which I/O port to use for inb() and stuff, and using the
-> BIOS's provided data. If you are referring to "ports", I could not find a
-> device node, but "port" maybe:
+On Tue, 30 Nov 2004, Roger Luethi wrote:
 
-I didn't know that was in the BIOS page. 
+> On Tue, 30 Nov 2004 00:58:58 +0100, Jesper Juhl wrote:
+> > These warnings told me that it was time to move to module_param() :)
+> > 
+> > drivers/net/via-rhine.c:229: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
+> > drivers/net/via-rhine.c:230: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
+> > drivers/net/via-rhine.c:231: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
+> > 
+> > So I made this small patch to do so.
+> > Compile and boot tested on my box, and it seems to work just fine, the 
+> > module works perfectly with my via-rhine card, and the parameters are 
+> > exposed through sysfs as expected : 
+> 
+> IIRC Jeff has already queued such a patch for 2.6.11. 
 
-> Oh, look what /dev/mem found! (I retried haha)
+Hmm, ok. I assume that's what's currently in -mm - I haven't been 
+following -mm lately so I missed the fact that the driver in there had 
+already moved to module_param().  There's one difference though, and I 
+think it matters; my patch sets the permission bits so that the parameters 
+get exposed in sysfs (which I think is very useful), the driver in -mm 
+sets the perms to 0 (zero) so nothing is exposed in sysfs (less useful).
 
-> So, /dev/mem points to "physical" mem in a sense like DOS has. (Where, the
-> BIOS, is blend into, as you can see)
+>Thanks, though.
 
-The kernel also preserves the low 4K because some apps, APM and the like
-turned out to need it. 
+You are very welcome.
+
+ 
+-- 
+Jesper Juhl
 
 

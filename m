@@ -1,74 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316339AbSHBSHH>; Fri, 2 Aug 2002 14:07:07 -0400
+	id <S316545AbSHBSLc>; Fri, 2 Aug 2002 14:11:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316342AbSHBSHH>; Fri, 2 Aug 2002 14:07:07 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:62724 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S316339AbSHBSHE>; Fri, 2 Aug 2002 14:07:04 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15690.51993.704549.209766@laputa.namesys.com>
-Date: Fri, 2 Aug 2002 22:10:33 +0400
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: trond.myklebust@fys.uio.no
-Cc: Hans Reiser <reiser@namesys.com>, Steve Lord <lord@sgi.com>,
-       Jan Harkes <jaharkes@cs.cmu.edu>, Alexander Viro <viro@math.psu.edu>,
-       "Peter J. Braam" <braam@clusterfs.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BIG files & file systems
-In-Reply-To: <15690.50598.11204.868852@charged.uio.no>
-References: <20020731210739.GA15492@ravel.coda.cs.cmu.edu>
-	<Pine.GSO.4.21.0207311711540.8505-100000@weyl.math.psu.edu>
-	<20020801035119.GA21769@ravel.coda.cs.cmu.edu>
-	<1028246981.11223.56.camel@snafu>
-	<20020802135620.GA29534@ravel.coda.cs.cmu.edu>
-	<1028297194.30192.25.camel@jen.americas.sgi.com>
-	<3D4AA0E6.9000904@namesys.com>
-	<shslm7pclrx.fsf@charged.uio.no>
-	<3D4ABAE7.6000709@namesys.com>
-	<15690.49267.930478.333263@laputa.namesys.com>
-	<15690.50598.11204.868852@charged.uio.no>
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-X-Tom-Swifty: "We're all out of flowers," Tom said lackadaisically.
+	id <S316576AbSHBSLc>; Fri, 2 Aug 2002 14:11:32 -0400
+Received: from mta2.srv.hcvlny.cv.net ([167.206.5.5]:12979 "EHLO
+	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S316545AbSHBSLb>; Fri, 2 Aug 2002 14:11:31 -0400
+Date: Fri, 02 Aug 2002 10:45:29 -0400
+From: Nick Orlov <nick.orlov@mail.ru>
+Subject: Re: [PATCH] pdc20265 problem.
+In-reply-to: <Pine.SOL.4.30.0208021557410.3612-100000@mion.elka.pw.edu.pl>
+To: lkml <linux-kernel@vger.kernel.org>
+Mail-followup-to: lkml <linux-kernel@vger.kernel.org>
+Message-id: <20020802144529.GA5336@nikolas.hn.org>
+MIME-version: 1.0
+Content-type: text/plain; charset=koi8-r
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: Mutt/1.4i
+References: <20020802125204.GA4729@nikolas.hn.org>
+ <Pine.SOL.4.30.0208021557410.3612-100000@mion.elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust writes:
- > >>>>> " " == Nikita Danilov <Nikita@Namesys.COM> writes:
- > 
- >      > But there still is a problem with applications (if any) calling
- >      > seekdir/telldir directly...
- > 
- > Agreed. Note however that the semantics for seekdir/telldir as
- > specified by SUSv2 are much weaker than those in our current
- > getdents()+lseek().
- > 
- > >From the Opengroup documentation for seekdir, it states that:
- > 
- >   On systems that conform to the Single UNIX Specification, Version 2,
- >   a subsequent call to readdir() may not be at the desired position if
- >   the value of loc was not obtained from an earlier call to telldir(),
- >   or if a call to rewinddir() occurred between the call to telldir()
- >   and the call to seekdir().
- > 
- > IOW assigning a unique offset to each and every entry in the directory
- > is overkill (unless the user is calling telldir() for all those
- > entries).
+On Fri, Aug 02, 2002 at 04:00:32PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> 
+> On Fri, 2 Aug 2002, Nick Orlov wrote:
+> 
+> > On Fri, Aug 02, 2002 at 01:27:25PM +0100, Alan Cox wrote:
+> > > On Fri, 2002-08-02 at 02:47, Nick Orlov wrote:
+> > > >
+> > > > > <marcelo@plucky.distro.conectiva> (02/07/19 1.646)
+> > > > > 	Fix wrong #ifdef in ide-pci.c: Was causing problems with FastTrak
+> > > >
+> > > > Because of this fix my Promise 20265 became ide0 instead of ide2.
+> > > > Is there any reason to mark pdc20265 as ON_BOARD controller?
+> > >
+> > > How about because it can be and it should be checked. I don't know what
+> > > is going on with the ifdef in your case to cause this but its not as
+> > > simple as it seems
+> >
+> > Why pdc20265 is so special ? All other Promises marked as OFF_BOARD...
+> >
+> > And what determines how id will be assigned to controllers if both of
+> > them are ON_BOARD ?
+> 
+> AFAIR problem is that some vendors included onboard 20265 as primary
+> device (playing tricks for that) and to be consistent we have to treat it as
+> onboard, we have right now no way to check if it is on or offboard.
+> EDD support will probably help here.
+> 
 
-Are you implying some kind of ->telldir() file operation that notifies
-file-system that user has intention to later restart readdir from the
-"current" position and changing glibc to call sys_telldir/sys_seekdir in
-stead of lseek? This will allow file-systems like reiser4 that cannot
-restart readdir from 32bitsful of data to, at least, allocate something
-in kernel on call to ->telldir() and free in ->release().
+Just FYI,
 
- > 
- > Cheers,
- >   Trond
+before these "#ifdef" fixes it was treated as OFF_BOARD unless
+CONFIG_PDC202XX_FORCE is set. (now it's inverted)
 
-Nikita.
+And my point is that it does not matter how physically this controller
+installed - onboard or offboard. Idea is that we should have control
+which controller should be treated as "primary" (ide0/1) and which as
+"secondary" (ide2/3). I don't see/know how we can do it unless we mark
+one of controllers ON_BOARD and another OFF_BOARD and play with
+CONFIG_BLK_DEV_OFFBOARD.
+
+And also I don't believe that this is good idea to treat one of Promises so
+differently.
+
+-- 
+With best wishes,
+	Nick Orlov.
+

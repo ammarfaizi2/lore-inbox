@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbVCaVG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVCaVIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbVCaVG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 16:06:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVCaVG5
+	id S261932AbVCaVIW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 16:08:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVCaVIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 16:06:57 -0500
-Received: from webmail.topspin.com ([12.162.17.3]:57723 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S261936AbVCaVEw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 16:04:52 -0500
-To: Adrian Bunk <bunk@stusta.de>
-Cc: =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       Yum Rayan <yum.rayan@gmail.com>, linux-kernel@vger.kernel.org,
-       mvw@planets.elm.net
-Subject: Re: Stack usage tasks
-X-Message-Flag: Warning: May contain useful information
-References: <df35dfeb05033023394170d6cc@mail.gmail.com>
-	<20050331150548.GC19294@wohnheim.fh-wedel.de>
-	<20050331203010.GF3185@stusta.de>
-From: Roland Dreier <roland@topspin.com>
-Date: Thu, 31 Mar 2005 12:43:38 -0800
-In-Reply-To: <20050331203010.GF3185@stusta.de> (Adrian Bunk's message of
- "Thu, 31 Mar 2005 22:30:10 +0200")
-Message-ID: <52ll83mtqd.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
+	Thu, 31 Mar 2005 16:08:21 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:5903 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261932AbVCaVHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 16:07:51 -0500
+Date: Thu, 31 Mar 2005 23:07:45 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] SCSI: cleanups
+Message-ID: <20050331210745.GH3185@stusta.de>
+References: <20050327202139.GQ4285@stusta.de> <1112023305.5531.2.camel@mulgrave>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 31 Mar 2005 20:43:38.0731 (UTC) FILETIME=[512103B0:01C53632]
+Content-Disposition: inline
+In-Reply-To: <1112023305.5531.2.camel@mulgrave>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    > The task I'm suggesting was therefore:
-    > - remove the -fno-unit-at-a-time in arch/i386/Makefile in your private
-    >   kernel sources
-    > - use gcc 3.4
-    > - reduce the stack usages in call paths > 3kB
+On Mon, Mar 28, 2005 at 09:21:45AM -0600, James Bottomley wrote:
+> On Sun, 2005-03-27 at 22:21 +0200, Adrian Bunk wrote:
+> > This patch contains the following cleanups:
+> [..]
+> 
+> No to all of this:
+> 
+> > - remove the following unused functions:
+> >   - scsi.h: print_driverbyte
+> >   - scsi.h: print_hostbyte
+> > - #if 0 the following unused functions:
+> >   - constants.c: scsi_print_hostbyte
+> >   - constants.c: scsi_print_driverbyte
+> 
+> These are useful to those of us who debug drivers.
+>...
 
-This is a good idea.  However, I might suggest using gcc 4.0 (you'll
-have to use a snapshot now, but the release should only be a few weeks
-away).  A patch went into gcc 4.0 that makes gcc more intelligent
-about sharing stack for variables that cannot be alive at the same
-time, and therefore it may be more feasible to make unit-at-a-time
-work for the i386 kernels.
+Does this really include the legacy print_driverbyte and print_hostbyte 
+wrappers?
 
- - R.
+> James
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

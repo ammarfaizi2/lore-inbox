@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270131AbRIBW53>; Sun, 2 Sep 2001 18:57:29 -0400
+	id <S270154AbRIBXFm>; Sun, 2 Sep 2001 19:05:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270133AbRIBW5U>; Sun, 2 Sep 2001 18:57:20 -0400
-Received: from amsfep13-int.chello.nl ([213.46.243.23]:2350 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S270131AbRIBW5J>; Sun, 2 Sep 2001 18:57:09 -0400
-Message-ID: <3B92B871.9070603@chello.nl>
-Date: Mon, 03 Sep 2001 00:53:37 +0200
-From: Gerbrand van der Zouw <g.vanderzouw@chello.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Status of the VIA KT133a and 2.4.x debacle?
-In-Reply-To: <200109011619480531.23AA844A@scispor.dolphinics.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S270171AbRIBXFd>; Sun, 2 Sep 2001 19:05:33 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:21638 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S270154AbRIBXFZ>;
+	Sun, 2 Sep 2001 19:05:25 -0400
+Date: Sun, 02 Sep 2001 16:05:42 -0700 (PDT)
+Message-Id: <20010902.160542.71088424.davem@redhat.com>
+To: adam@yggdrasil.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pci_alloc_consistent for small allocations?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200109021508.IAA29875@adam.yggdrasil.com>
+In-Reply-To: <200109021508.IAA29875@adam.yggdrasil.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simen Thoresen wrote:
 
-> Does this match the results other people have had? Is anything else known about this problem?
+Read Documentation/DMA-mapping.txt and read about pci_pool.
 
+I don't know why I bother documenting anything if people
+don't even read it. :-)
 
-I have a MSI K7T Turbo board with Athlon 1.2 GHz. Recently I upgraded my 
-Award Bios from 2.7 to 2.9. This new version has "memory bank 
-interleaving". It also improves the stability of my system a lot. I do 
-not know if these are related, but is may be a hint for some of the 
-experts out there.
-
-Cheers,
-
-Gerbrand van der Zouw
-
-
-
-
-
+Later,
+David S. Miller
+davem@redhat.com

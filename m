@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263189AbTJVIyv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 04:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263212AbTJVIyu
+	id S263460AbTJVJZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 05:25:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263461AbTJVJZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 04:54:50 -0400
-Received: from swszl.szkp.uni-miskolc.hu ([193.6.2.24]:20193 "EHLO
-	swszl.szkp.uni-miskolc.hu") by vger.kernel.org with ESMTP
-	id S263189AbTJVIyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 04:54:50 -0400
-Date: Wed, 22 Oct 2003 10:54:49 +0200
-From: Vitez Gabor <gabor@swszl.szkp.uni-miskolc.hu>
+	Wed, 22 Oct 2003 05:25:24 -0400
+Received: from atcmail.atc.tcs.co.in ([203.199.176.98]:33030 "EHLO
+	atcmail.atc.tcs.co.in") by vger.kernel.org with ESMTP
+	id S263460AbTJVJZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 05:25:23 -0400
+Subject: 
+From: Prasad <prasad@atc.tcs.co.in>
+Reply-To: Prasad <prasad@atc.tcs.co.in>
 To: linux-kernel@vger.kernel.org
-Cc: Samuel Kvasnica <samuel.kvasnica@tuwien.ac.at>
-Subject: Re: nforce2 random lockups - still no solution ?
-Message-ID: <20031022085449.GA21393@swszl.szkp.uni-miskolc.hu>
-References: <3F95748E.8020202@tuwien.ac.at> <200310211113.00326.lkml@lpbproductions.com>
+Content-Type: text/plain
+Organization: Tata Consultancy Services
+Message-Id: <1066815147.2340.25.camel@Prasad>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <200310211113.00326.lkml@lpbproductions.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 22 Oct 2003 15:02:27 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 21, 2003 at 11:13:00AM -0700, Matt H. wrote:
-> Turn off apic in the bios.. it should then work well .. 
-> 
-> On Tuesday 21 October 2003 11:01 am, Samuel Kvasnica wrote:
-> > Hello,
-> >
-> > Last few weeks I spent quite much time trying to get working two nforce2
-> > chipset based motherboards with latest linux 2.4.22 - ASUS A7N8 Deluxe
-> > 2.0 and
-> > MSI K7N2 Delta. Althought the latest kernel version already detects
-> ..
 
-If turning off APIC doesn't solve the problem, try a kernel with 
-LOCAL APIC support turned off. 
+hello everyone,
+        For people who might be interested in having a
+boot screen for linux or those interested in the linux
+progress patch for the 2.6 kernels.  I have one that 
+works fine with x86. I have not tested on the other 
+platforms but it should work fine. It has been completely 
+rewritten to suite the changed frame buffer code in 2.6 and
+has been renamed to ELPP, the enhanced linux progress patch.
 
 
-	Gabor
+It can be downloaded from 
+        http://students.iiit.net/~prasad_s/lpp/
+
+
+The features include...
+o Showing customizable number of messages at a time
+o The success/failure/warning status of the scripts
+   Just tryout the theme that comes by default!
+
+The patch was made against 2.6.0-Test5 but should
+perfectly work for the recent ones too.
+
+Comments/Suggestions are welcome.
+
+Prasad
+
+-- 
+Failure is not an Option
+

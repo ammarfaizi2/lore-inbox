@@ -1,105 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264997AbTFUAAp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 20:00:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265043AbTFUAAp
+	id S265043AbTFUAGV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 20:06:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbTFUAGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 20:00:45 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:12980 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264997AbTFUAAn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 20:00:43 -0400
-Subject: Re: 2.5.72: wall-clock time advancing too rapidly?
-From: john stultz <johnstul@us.ibm.com>
-To: Andy Pfiffer <andyp@osdl.org>
-Cc: Andreas Haumer <andreas@xss.co.at>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1056151705.1162.114.camel@andyp.pdx.osdl.net>
-References: <1056039012.3879.5.camel@andyp.pdx.osdl.net>
-	 <1056058206.18644.532.camel@w-jstultz2.beaverton.ibm.com>
-	 <3EF32223.6000207@xss.co.at> <1056151705.1162.114.camel@andyp.pdx.osdl.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056154072.1027.13.camel@w-jstultz2.beaverton.ibm.com>
+	Fri, 20 Jun 2003 20:06:20 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:5649 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S265043AbTFUAGS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 20:06:18 -0400
+Date: Fri, 20 Jun 2003 20:49:11 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] hid-core: fix double kfree of device->rdesc on hid_parse_parse error path
+Message-ID: <20030620234911.GA6246@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	linux-usb-devel@lists.sourceforge.net,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 20 Jun 2003 17:07:52 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alright, I've got a first pass at a patch that might solve this. 
+Hi Vojtech,
 
-This patch detects if we have 100 consecutive interrupts that find lost
-ticks. If that occurs, we assume that the TSC is changing frequency and
-we fall back to the PIT for a time source (equiv to booting w/
-clock=pit). 
+	Please pull from:
 
-I'd like to see this well tested as I don't want to prematurely disable
-the TSC if lost ticks is just doing its job, but I also want to catch
-speedstep cpus before folks notice time going out of control. So the #
-of consecutive interrupts may need adjusting. 
+bk://kernel.bkbits.net/acme/usb-2.5
 
-thanks
--john
+	device->rdesc is freed in hid_free_device.
 
-This patch can also be found under bugme bug #827
-http://bugme.osdl.org/show_bug.cgi?id=827
+Best Regards,
 
-diff -Nru a/arch/i386/kernel/timers/timer.c b/arch/i386/kernel/timers/timer.c
---- a/arch/i386/kernel/timers/timer.c	Fri Jun 20 16:56:05 2003
-+++ b/arch/i386/kernel/timers/timer.c	Fri Jun 20 16:56:05 2003
-@@ -29,6 +29,16 @@
- }
- __setup("clock=", clock_setup);
+- Arnaldo
+
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
+
+===================================================================
+
+
+ChangeSet@1.1363, 2003-06-20 20:30:13-03:00, acme@conectiva.com.br
+  o hid-core: fix double kfree of device->rdesc on hid_parse_parse error path
+
+
+ hid-core.c |    5 -----
+ 1 files changed, 5 deletions(-)
+
+
+diff -Nru a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
+--- a/drivers/usb/input/hid-core.c	Fri Jun 20 20:32:46 2003
++++ b/drivers/usb/input/hid-core.c	Fri Jun 20 20:32:46 2003
+@@ -674,7 +674,6 @@
  
-+
-+/* The chosen timesource has been found to be bad. 
-+ * Fall back to a known good timesource (the PIT)
-+ */
-+extern struct timer_opts *timer;
-+void clock_fallback(void)
-+{
-+	timer = &timer_pit;	
-+}
-+
- /* iterates through the list of timers, returning the first 
-  * one that initializes successfully.
-  */
-diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
---- a/arch/i386/kernel/timers/timer_tsc.c	Fri Jun 20 16:56:05 2003
-+++ b/arch/i386/kernel/timers/timer_tsc.c	Fri Jun 20 16:56:05 2003
-@@ -124,6 +124,7 @@
- 	int countmp;
- 	static int count1 = 0;
- 	unsigned long long this_offset, last_offset;
-+	static int lost_count = 0;
- 	
- 	write_lock(&monotonic_lock);
- 	last_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
-@@ -178,9 +179,19 @@
- 	delta += delay_at_last_interrupt;
- 	lost = delta/(1000000/HZ);
- 	delay = delta%(1000000/HZ);
--	if (lost >= 2)
-+	if (lost >= 2) {
- 		jiffies += lost-1;
+ 		if (item.format != HID_ITEM_FORMAT_SHORT) {
+ 			dbg("unexpected long global item");
+-			kfree(device->rdesc);
+ 			kfree(device->collection);
+ 			hid_free_device(device);
+ 			kfree(parser);
+@@ -684,7 +683,6 @@
+ 		if (dispatch_type[item.type](parser, &item)) {
+ 			dbg("item %u %u %u %u parsing failed\n",
+ 				item.format, (unsigned)item.size, (unsigned)item.type, (unsigned)item.tag);
+-			kfree(device->rdesc);
+ 			kfree(device->collection);
+ 			hid_free_device(device);
+ 			kfree(parser);
+@@ -694,7 +692,6 @@
+ 		if (start == end) {
+ 			if (parser->collection_stack_ptr) {
+ 				dbg("unbalanced collection at end of report description");
+-				kfree(device->rdesc);
+ 				kfree(device->collection);
+ 				hid_free_device(device);
+ 				kfree(parser);
+@@ -702,7 +699,6 @@
+ 			}
+ 			if (parser->local.delimiter_depth) {
+ 				dbg("unbalanced delimiter at end of report description");
+-				kfree(device->rdesc);
+ 				kfree(device->collection);
+ 				hid_free_device(device);
+ 				kfree(parser);
+@@ -714,7 +710,6 @@
+ 	}
  
-+		/* sanity check to ensure we're not always loosing ticks */
-+		if (lost_count++ > 100) {
-+			printk("Loosing too many ticks!\n");
-+			printk("TSC cannot be used as a timesource."
-+					" (Are you running with SpeedStep?)\n");
-+			printk("Falling back to a sane timesource.\n");
-+			clock_fallback();
-+		}
-+	} else
-+		lost_count = 0;
- 	/* update the monotonic base value */
- 	this_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
- 	monotonic_base += cycles_2_ns(this_offset - last_offset);
+ 	dbg("item fetching failed at offset %d\n", (int)(end - start));
+-	kfree(device->rdesc);
+ 	kfree(device->collection);
+ 	hid_free_device(device);
+ 	kfree(parser);
+
+===================================================================
 
 
+This BitKeeper patch contains the following changesets:
+1.1363
+## Wrapped with gzip_uu ##
 
 
-
+M'XL( )Z9\SX  \V4VXK;,!"&KZ.G&-C+8GLDV5)BR))VMP?80D/*7A=%GL0F
+M&RO(3MJ"'[ZR0[/='A*Z]*(^#=:,?\_ALZ_@OB&?CXS=$KN"=ZYI\Y%U-=FV
+M.IC8NFV\],&Q<"XXDM)M*5ENDGVSC$2<L>"9F]:6<"#?Y",>R]-*^W5'^6CQ
+M^NW]^Y<+QJ93N"E-O::/U,)TREKG#^:A:&:F+1]<';?>U,V6VN&=W2FT$X@B
+M[!G7$C/5<86I[BPO.#<IIP)%.E;IHUJ?X#DMB4IP'DX47:8FBK-;X#&72@+*
+M!%4B$ 3F$G,N(Y0Y(O2MF?W<$GC!(4+V"OYM'3?,@H.R*B+K/.6PJKY X?;+
+M!X+-RA.!6T%!A\I2=.T+:D)TW8=_VAG?T/$*Y+WSL L)L3>@4&7([B#32@@V
+M?QP"B_YR8PP-LNL+%1>^ZEGH"4E"8K']H?(4N>[2-"QTA>9<KU9ZJ8N),2K[
+M?9>?J%7U;M\FWWMS%.['B4**<2H[(26F VCGGKK,WC,K8&M/Z]G&.U/^(O.'
+MU+GB$ZD#B5)RG@XD*O&$0S'.TPL<(D39?\_A'1RG\P$B_WDX D_SLX-Z!I^W
+H2FL(7[0:'\UD,!JSP?#^[O1[LB793;/?3L=4:*4EL6^9'"&9"P4     
+ 

@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVDDT4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVDDT5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbVDDT4V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 15:56:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVDDT4V
+	id S261362AbVDDT5p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 15:57:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbVDDT5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 15:56:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19930 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261355AbVDDT4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 15:56:14 -0400
-Message-ID: <42519BCB.2030307@pobox.com>
-Date: Mon, 04 Apr 2005 15:55:55 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: Greg KH <greg@kroah.com>, Sven Luther <sven.luther@wanadoo.fr>,
-       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
-       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org,
-       Jes Sorensen <jes@trained-monkey.org>, linux-acenic@sunsite.dk
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear
- copyright notice.
-References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404183909.GI18349@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20050404183909.GI18349@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Apr 2005 15:57:44 -0400
+Received: from hera.kernel.org ([209.128.68.125]:7875 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261358AbVDDT5e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 15:57:34 -0400
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: kernel.org replaced
+Date: Mon, 4 Apr 2005 19:53:19 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <d2s5vf$la8$1@terminus.zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1112644399 21833 127.0.0.1 (4 Apr 2005 19:53:19 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 4 Apr 2005 19:53:19 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-> On Mon, Apr 04, 2005 at 10:51:30AM -0700, Greg KH wrote:
-> 
->>Then let's see some acts.  We (lkml) are not the ones with the percieved
->>problem, or the ones discussing it.
-> 
-> 
-> Actually, there are some legitimate problems with some of the files in
-> the Linux source base.  Last time this came up, the Acenic firmware was
-> mentioned:
-> 
-> http://lists.debian.org/debian-legal/2004/12/msg00078.html
-> 
-> Seems to me that situation is still not resolved.
+Hello everyone,
 
-And it looks like no one cares enough to make the effort to resolve this...
+HP has most graciously donated a pair of DL585 quad Opteron servers
+with 24 GB of RAM and 10 TB of disk using a pair of MSA-30 arrays for
+each server.  The first ones of these servers was officially put in
+service today; the next one will be put in service next week.  Each
+server is in a different ISC colo, connected to the Internet via
+gigabit fiber links.
 
-I would love an open source acenic firmware.
+Consequently, we should now see incredibly much better performance
+from kernel.org.  Huge thanks to HP for the new hardware, and huge
+thanks to ISC for letting us quadruple our rack space requirements
+from 5U to 2x10U.  We'll be saturating those links in no time :)
 
-	Jeff
-
-
-
+	-hpa

@@ -1,51 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286326AbRLTSik>; Thu, 20 Dec 2001 13:38:40 -0500
+	id <S286322AbRLTSpn>; Thu, 20 Dec 2001 13:45:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286322AbRLTSh5>; Thu, 20 Dec 2001 13:37:57 -0500
-Received: from [198.17.35.35] ([198.17.35.35]:39073 "HELO mx1.peregrine.com")
-	by vger.kernel.org with SMTP id <S286324AbRLTSgp>;
-	Thu, 20 Dec 2001 13:36:45 -0500
-Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2A20@ottonexc1.ottawa.loran.com>
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: "'Matt Bernstein'" <matt@theBachChoir.org.uk>,
-        Steven Cole <scole@lanl.gov>
-Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org
-Subject: RE: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.hel
-	p.
-Date: Thu, 20 Dec 2001 10:36:48 -0800
+	id <S286327AbRLTSp3>; Thu, 20 Dec 2001 13:45:29 -0500
+Received: from schwerin.p4.net ([195.98.200.5]:26174 "EHLO schwerin.p4.net")
+	by vger.kernel.org with ESMTP id <S286322AbRLTSpX>;
+	Thu, 20 Dec 2001 13:45:23 -0500
+Message-ID: <3C223255.5020107@p4all.de>
+Date: Thu, 20 Dec 2001 19:47:49 +0100
+From: Michael Dunsky <michael.dunsky@p4all.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: de, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Matt Bernstein <matt@theBachChoir.org.uk>
+CC: Steven Cole <scole@lanl.gov>, esr@thyrsus.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+In-Reply-To: <Pine.LNX.4.43.0112201810340.16545-100000@nick.dcs.qmul.ac.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I believe that the main purpose of documentation, help etc is 
-> to get the
-> information across in a way that is most easily understood, ie that
-> minimises the number of support questions.. ..and everyone 
-> surely knows
-> what GB, MB and KB stand for. So let's leave it at that. 
-> Where's the "i"
-> in "megabyte" ? Or is 1MiB 1000000 bytes, rather than 1048576?
+Hi!
 
-1 MB isn't 1048576.
+You are close - he uses "MiB" as short for "mebi" - Mega-binary.
+Don't laugh - this is official! It's exactly for what you said:
 
-it's 1000000
+What is 1 MB?
+1.000.000 Byte
+or
+1.048.576 Byte
 
-mega isn't 2^10, it's 10^6
 
-so where are YOU coming from?
+For a short reading I recommend this:
 
-(no, i'm not arguin, i don't particularly care.  but i'm
-pointing out that some people have completely firmly set
-definitions and some other people also have firm definitions
-and neither will agree the other's right.  MiB is the international
-standard for a 2^10 B(yte) specification.  so if you mean
-2^10 bytes, you mean MiB, not MB, even if you don't like it :)
+http://physics.nist.gov/cuu/Units/binary.html
 
-So these are very very good changes :)
 
-Dana Lacoste
-Ottawa, Canada (a metric country :)
+ciao
+
+Michael
+
+
+Matt Bernstein wrote:
+
+  > I believe that the main purpose of documentation, help etc is to get the
+  > information across in a way that is most easily understood, ie that
+  > minimises the number of support questions.. ..and everyone surely knows
+  > what GB, MB and KB stand for. So let's leave it at that. Where's the "i"
+  > in "megabyte" ? Or is 1MiB 1000000 bytes, rather than 1048576?
+  >
+  > It's confusing enough with the 10 "Mb" networking / 1.44 "MB" floppy
+  > distinction already..
+  >
+  > At 11:02 -0700 Steven Cole wrote:
+  >
+  >
+  >>Now, granted that this is the "standard", should there be some
+discussion related to this
+  >>change, or is everyone comfortable with this?  It certainly made me
+do a double take.
+  >>
+  >>Here is a snippet from the diff between versions 2.75 and 2.76 of
+Configure.help:
+  >>
+  >>@@ -344,8 +344,8 @@
+  >>  If you are compiling a kernel which will never run on a machine with
+  >>  more than 960 megabytes of total physical RAM, answer "off" here
+  >>  (default choice and suitable for most users). This will result in a
+  >>-  "3GB/1GB" split: 3GB are mapped so that each process sees a 3GB
+  >>-  virtual memory space and the remaining part of the 4GB virtual memory
+  >>+  "3GiB/1GiB" split: 3GiB are mapped so that each process sees a 3GiB
+  >>+  virtual memory space and the remaining part of the 4GiB virtual 
+memory
+  >>  space is used by the kernel to permanently map as much physical memory
+  >>  as possible.
+  >>
+  >
+  > -
+  > To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
+  > the body of a message to majordomo@vger.kernel.org
+  > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+  > Please read the FAQ at  http://www.tux.org/lkml/
+  >
+  >
+
+
+
+
+

@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270284AbUJTBzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270281AbUJTBzs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270284AbUJTBzy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 21:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270244AbUJTAyN
+	id S270281AbUJTBzs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 21:55:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270246AbUJTBvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 20:54:13 -0400
-Received: from mail.kroah.org ([69.55.234.183]:1460 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266611AbUJTAT2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 20:19:28 -0400
-Subject: Re: [PATCH] I2C update for 2.6.9
-In-Reply-To: <10982315061975@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 19 Oct 2004 17:18:26 -0700
-Message-Id: <1098231506495@kroah.com>
+	Tue, 19 Oct 2004 21:51:04 -0400
+Received: from almesberger.net ([63.105.73.238]:36621 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S266465AbUJTBrh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 21:47:37 -0400
+Date: Tue, 19 Oct 2004 22:47:32 -0300
+From: Werner Almesberger <werner@almesberger.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] boot parameters: quoting of environment variables revisited
+Message-ID: <20041019224732.P18873@almesberger.net>
+References: <20041019192336.K18873@almesberger.net> <20041019180440.1ff780c5.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041019180440.1ff780c5.akpm@osdl.org>; from akpm@osdl.org on Tue, Oct 19, 2004 at 06:04:40PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2072, 2004/10/19 15:21:15-07:00, nacc@us.ibm.com
+Andrew Morton wrote:
+> hm.  The environment string handling and the "command line" string handling
+> appear to be identical in there.  How come only one of them has the
+> problem?  That function makes my eyes bleed.
 
-[PATCH] I2C: replace schedule_timeout() with msleep_interruptible() in i2c-ibm_iic.c
+The joy of "clever" string manipulation, I suppose :-(
 
-Use msleep_interruptible() instead of schedule_timeout() to
-guarantee the task delays as expected. Remove the unnecessary
-set_current_state() following the if, as schedule_timeout() [and thus,
-mlseep_interruptible()] is guaranteed to return in TASK_RUNNING.
+The difference between the two branches is that the "command line"
+thing uses only the parameter name, which cannot be quoted (well,
+at least kernel/params.c doesn't let this happen). So the whole
+problem can't occur.
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+If you quote the parameter name, the quotes will happily end up
+in the argument, thanks to kernel/params.c.
 
+Perhaps a better long-term solution would be to fix all this in
+kernel/params.c, and remove any quote special-casing from
+init/main.c. It just scares me to touch such a highly sensitive
+area of the kernel ... :)
 
- drivers/i2c/busses/i2c-ibm_iic.c |    4 +---
- 1 files changed, 1 insertion(+), 3 deletions(-)
+- Werner
 
-
-diff -Nru a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
---- a/drivers/i2c/busses/i2c-ibm_iic.c	2004-10-19 16:53:58 -07:00
-+++ b/drivers/i2c/busses/i2c-ibm_iic.c	2004-10-19 16:53:58 -07:00
-@@ -416,10 +416,8 @@
-     		init_waitqueue_entry(&wait, current);
- 		
- 		add_wait_queue(&dev->wq, &wait);
--		set_current_state(TASK_INTERRUPTIBLE);
- 		if (in_8(&iic->sts) & STS_PT)
--			schedule_timeout(dev->adap.timeout * HZ);
--		set_current_state(TASK_RUNNING);
-+			msleep_interruptible(dev->adap.timeout * 1000);
- 		remove_wait_queue(&dev->wq, &wait);
- 		
- 		if (unlikely(signal_pending(current))){
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

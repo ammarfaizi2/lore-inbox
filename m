@@ -1,61 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265413AbUAJWse (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 17:48:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265423AbUAJWsd
+	id S265553AbUAJWy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 17:54:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265628AbUAJWy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 17:48:33 -0500
-Received: from [193.138.115.2] ([193.138.115.2]:50188 "HELO
+	Sat, 10 Jan 2004 17:54:27 -0500
+Received: from [193.138.115.2] ([193.138.115.2]:21774 "HELO
 	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S265413AbUAJWs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 17:48:27 -0500
-Date: Sat, 10 Jan 2004 23:45:28 +0100 (CET)
+	id S265553AbUAJWyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 17:54:15 -0500
+Date: Sat, 10 Jan 2004 23:51:08 +0100 (CET)
 From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Maciej Zenczykowski <maze@cela.pl>
-cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] invalid ELF binaries can execute - better sanity
- checking 
-In-Reply-To: <Pine.LNX.4.44.0401102336380.1739-100000@gaia.cela.pl>
-Message-ID: <Pine.LNX.4.56.0401102342290.13633@jju_lnx.backbone.dif.dk>
-References: <Pine.LNX.4.44.0401102336380.1739-100000@gaia.cela.pl>
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 NFS-server low to 0 performance
+In-Reply-To: <Pine.LNX.4.44.0401102338270.7120-100000@poirot.grange>
+Message-ID: <Pine.LNX.4.56.0401102346160.13633@jju_lnx.backbone.dif.dk>
+References: <Pine.LNX.4.44.0401102338270.7120-100000@poirot.grange>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 10 Jan 2004, Maciej Zenczykowski wrote:
+On Sat, 10 Jan 2004, Guennadi Liakhovetski wrote:
 
-> > Do you need smaller than this?  :
-> ...
-> > That's a 100% valid ELF executable, and the entire program is 91 bytes..
-> > Sure, it doesn't do much useful, and the ELF header and program header
-> > table is huge overhead compared to the actual program, but that overhead
-> > is minimal in any program that does any actual work.
-> >
-> > Also, I'm not planning to add anything that disallows anything the ELF
-> > spec allows, so you can still pull funny tricks like have sections overlap
-> > and in the above program put _start inside the unused padding bytes in
-> > e_ident[EI_PAD] if you want.. still a valid program, and not something
-> > that the checks I'm adding will prevent.
-> >
-> ...
+> On Sat, 10 Jan 2004, Trond Myklebust wrote:
 >
-> OK, if that 91 is OK, then no problem, I was thinking the minimum would be
-> around 1-2 KB (now that I think about it, not really sure why I assumed
-> that).  I'm not mad enough to require/want shrinking from 90 to 45
-> bytes :) especially since most useful programs have a little more meat to
-> them than the 80 bytes worth of header :)
+> > P? lau , 10/01/2004 klokka 15:04, skreiv Guennadi Liakhovetski:
+> > > Not change - keep (from 2.4). You see, the problem might be - somebody
+> > > updates the NFS-server from 2.4 to 2.6 and then suddenly some clients fail
+> > > to work with it. Seems a non-obvious fact, that after upgrading the server
+> > > clients' configuration might have to be changed. At the very least this
+> > > must be documented in Kconfig.
+> >
+> > Non-obvious????? You have to change modutils, you have to upgrade
+> > nfs-utils, glibc, gcc... and that's only the beginning of the list.
+> >
+> > 2.6.x is a new kernel it differs from 2.4.x, which again differs from
+> > 2.2.x, ... Get over it! There are workarounds for your problem, so use
+> > them.
 >
-
-If you have any small programs that you worry about and/or some programs
-that try to pull unusual (but valid) stunts, then I'd appreciate it if
-you'd help test out the patches I'm creating and verify that they don't
-cause any trouble - I already posted the first version of the patch to the
-list today and more will follow.
-
+> Please, calm down:-)), I am not fighting, I am just thinking aloud, I have
+> no intention whatsoever to attack your aor anybody else's work / ideas /
+> decisions, etc.
+>
+> The only my doubt was - yes, you upgrade the __server__, so, you look in
+> Changes, upgrade all necessary stuff, or just upgrade blindly (as does
+> happen sometimes, I believe) a distribution - and the server works, fine.
+> What I find non-obvious, is that on updating the server you have to
+> re-configure __clients__, see? Just think about a network somewhere in a
+> uni / company / whatever. Sysadmins update the server, and then
+> NFS-clients suddenly cannot use NFS any more...
+>
+Ever tried upgrading a WinNT server to Win2k or Win2003 Server? Don't
+expect all your Win95, Win98 and WinNT clients to just work the same as
+they did previously...
+Same goes with other OSs.  Software that has requirements on both the client and
+server side naturally has to be kept in sync, and NFS is not the only case
+where not everything is 100% backwards compatible.
+This shouldn't really be surprising.
 
 -- Jesper Juhl
-
 

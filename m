@@ -1,69 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281908AbRLFSOe>; Thu, 6 Dec 2001 13:14:34 -0500
+	id <S281918AbRLFSSE>; Thu, 6 Dec 2001 13:18:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281916AbRLFSOP>; Thu, 6 Dec 2001 13:14:15 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:32518 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S281915AbRLFSON>; Thu, 6 Dec 2001 13:14:13 -0500
-Date: Thu, 6 Dec 2001 10:25:17 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: Mike Kravetz <kravetz@us.ibm.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler Cleanup
-In-Reply-To: <Pine.LNX.4.33.0112061123230.2778-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.40.0112061021080.1603-100000@blue1.dev.mcafeelabs.com>
+	id <S281916AbRLFSRo>; Thu, 6 Dec 2001 13:17:44 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:22276 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S281915AbRLFSRg>; Thu, 6 Dec 2001 13:17:36 -0500
+Message-ID: <3C0FB3D2.A2007377@evision-ventures.com>
+Date: Thu, 06 Dec 2001 19:07:14 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+Reply-To: dalecki@evision.ag
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: John Stoffel <stoffel@casc.com>
+CC: Rik van Riel <riel@conectiva.com.br>, Rob Landley <landley@trommello.org>,
+        "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+In-Reply-To: <20011206001558.OQCD485.femail3.sdc1.sfba.home.com@there>
+		<Pine.LNX.4.33L.0112061447560.1282-100000@duckman.distro.conectiva> <15375.41990.439405.8024@gargle.gargle.HOWL>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Dec 2001, Ingo Molnar wrote:
+John Stoffel wrote:
 
->
-> On Wed, 5 Dec 2001, Mike Kravetz wrote:
->
-> > One thing to note is that possible acquisition of the runqueue lock
-> > was reintroduced in sys_sched_yield().  From looking at the code, it
-> > seems the purpose was to ?add fairness? in the case of multiple
-> > yielders.  Is that correct Ingo?
->
-> yes, it's to add fairness. You might remember that i did this
-> sched_yield() optimization originally to help Volanomark performance. But
-> it turned out that it's very unfair not to move yielded processes to the
-> end of the runqueue - it might even cause livelocks in user-space
-> spinlocks which use sched_yield(). (since the POLICY_YIELD bit prevents
-> the process from running only *once*, so it will handle a two-process lock
-> situation right, but if multiple processes are racing for the lock then
-> they might exclude the real owner of the spinlock for a *long* time.)
->
-> (plus the change also broke sched_yield() for RT-FIFO processes.)
+> The requirement for python2 is a bit of a pain, but hey, for 2.5, it's
+> not a problem.
 
-What about decreasing counter by 1 for each sched_yield() call ?
-Is this case we achieve ( expecially with the counter decay patch ) a
-correct task recycling w/out lock acquiring inside the system call.
-
-
-
-> while i see the point that the multiqueue scheduler improves performance
-> visibly, i'm quite sure you could get an *order of magnitude* faster if
-> the basic threading model (and any possible underlying mechanizm, such as
-> LinuxThreads) was fixed. The current Linux scheduler just magnifies these
-> userspace design problems. LinuxThreads was done when there werent many
-> good mechanizms within the kernel to help threading. Things have changed
-> by today - but if something still cannot be done cleanly and efficiently
-> (such as userspace spinlocks or semaphores) then please let us know so we
-> can fix things, instead of trying to work around the symptoms. But this is
-> just a suggestion.
-
-Ingo, you've to admit that having separate run queue with separate locks
-is just more than a benchmark fix, it's matter of sane design.
-
-
-
-
-- Davide
-
-
+It is just a BIT OF PAIN. It gives me more trouble than the trouble
+I have even with the insufficiencies of the current make system.
+Basta.

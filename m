@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbUK0JcQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUK0JxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbUK0JcQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 04:32:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbUK0JcQ
+	id S261169AbUK0JxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 04:53:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbUK0JxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 04:32:16 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:17412 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261165AbUK0JcN
+	Sat, 27 Nov 2004 04:53:25 -0500
+Received: from mx15.sac.fedex.com ([199.81.195.17]:17678 "EHLO
+	mx15.sac.fedex.com") by vger.kernel.org with ESMTP id S261169AbUK0JxX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 04:32:13 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: pavel@ucw.cz (Pavel Machek)
-Subject: Re: Suspend 2 merge: 9/51: init/* changes.
-Cc: mgarrett@chiark.greenend.org.uk, linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <20041127072224.GM1417@openzaurus.ucw.cz>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1CXyvo-0002LS-00@gondolin.me.apana.org.au>
-Date: Sat, 27 Nov 2004 20:31:52 +1100
+	Sat, 27 Nov 2004 04:53:23 -0500
+Date: Sat, 27 Nov 2004 17:51:34 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: jchua@silk.corp.fedex.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: SD slot on IBM X40
+Message-ID: <Pine.LNX.4.61.0411271748130.22831@silk.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/27/2004
+ 05:53:19 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/27/2004
+ 05:53:21 PM,
+	Serialize complete at 11/27/2004 05:53:21 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
->
->> name_to_dev_t needs to be non-init in order to make it possible to
->> trigger a resume when the block device driver isn't static. Pavel, would
->> you be willing to consider a patch to make it possible to trigger swsusp
->> resume from userspace? That gets things working with initrd kernels.
->> I've been using something along these lines for a few weeks now, and it
->> hasn't eaten my filesystem yet.
-> 
-> Given it is not too intrusive... why not. Send it for comments.
-> I probably will not use this myself, so you'll need to test/maintain
-> it.
 
-This shouldn't be necessary.  Since the resume is being initiated by
-userspace, it can perform the function of name_to_dev_t and just feed
-the numbers to the kernel.  The code to do that is still in Debian's
-initrd-tools.
+I've visited all the posting on linux laptop website and it seems that 
+it's no possible to get the build-in SD slot to work under linux.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+It seems all the new notebooks are shipped with SD as standard (Toshiba, 
+IBM at least), and I wonder whether anyone is working on this?
+
+
+Thanks,
+Jeff

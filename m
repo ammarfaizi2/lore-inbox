@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264903AbTAERNq>; Sun, 5 Jan 2003 12:13:46 -0500
+	id <S264908AbTAER1V>; Sun, 5 Jan 2003 12:27:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264908AbTAERNq>; Sun, 5 Jan 2003 12:13:46 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:41178 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S264903AbTAERNp>; Sun, 5 Jan 2003 12:13:45 -0500
-Date: Sun, 05 Jan 2003 09:27:51 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: ehci-hcd.o still a problem kernels > 2.4.20?
-To: Frank Jacobberger <f1j1@xmission.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3E186B17.8090506@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+	id <S264910AbTAER1V>; Sun, 5 Jan 2003 12:27:21 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:48393 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S264908AbTAER1V>; Sun, 5 Jan 2003 12:27:21 -0500
+Date: Sun, 05 Jan 2003 10:35:47 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Gregoire Favre <greg@ulima.unil.ch>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.54 problem with IDE ICH4 and aic7xxx
+Message-ID: <486950000.1041788147@aslan.scsiguy.com>
+In-Reply-To: <20030105165441.GA8215@ulima.unil.ch>
+References: <20030105165441.GA8215@ulima.unil.ch>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You need to be using this patch if you have Intel hardware,
-and users with VIA hardware will be significantly happier:
+> Under 2.4.20 it boots perfectly...
+> What I found really strange is the time my IDE take to boot. More than
+> five minutes for thoses lines :
 
-   http://marc.theaimsgroup.com/?l=linux-usb-devel&m=104040598627391&w=2
+It's not clear from your report exactly where that delay is occurring.
+Is it just before the Adaptec banner is printed or in the middle
+of the IDE messages?  Does the problem persist if you disable domain
+validation via SCSI-Select on your 29160?
 
-It was also posted to linux-usb-users, and is in the queue
-of fixes I hope will be merged into the next 2.4.21pre patch.
-I got a fair amount of feedback from folk using this patch;
-as expected, it's better all around.
-
-- Dave
-
-
+--
+Justin
 

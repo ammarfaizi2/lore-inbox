@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264426AbUEDPBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264430AbUEDPFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264426AbUEDPBs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 11:01:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264427AbUEDPBr
+	id S264430AbUEDPFe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 11:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264429AbUEDPFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 11:01:47 -0400
-Received: from ns.suse.de ([195.135.220.2]:42887 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264426AbUEDPB0 (ORCPT
+	Tue, 4 May 2004 11:05:34 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:25236 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264428AbUEDPFZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 11:01:26 -0400
-Subject: [PATCH] Invalid notify_change(symlink, [ATTR_MODE]) in nfsd
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Olaf Kirch <okir@suse.de>
+	Tue, 4 May 2004 11:05:25 -0400
+Subject: Re: Random file I/O regressions in 2.6
+From: Ram Pai <linuxram@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nickpiggin@yahoo.com.au, peter@mysql.com, alexeyk@mysql.com,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+In-Reply-To: <20040503232928.1b13037c.akpm@osdl.org>
+References: <200405022357.59415.alexeyk@mysql.com>
+	 <409629A5.8070201@yahoo.com.au> <20040503110854.5abcdc7e.akpm@osdl.org>
+	 <1083615727.7949.40.camel@localhost.localdomain>
+	 <20040503135719.423ded06.akpm@osdl.org>
+	 <1083620245.23042.107.camel@abyss.local>
+	 <20040503145922.5a7dee73.akpm@osdl.org> <4096DC89.5020300@yahoo.com.au>
+	 <20040503171005.1e63a745.akpm@osdl.org> <4096E1A6.2010506@yahoo.com.au>
+	 <1083631804.4544.16.camel@localhost.localdomain>
+	 <20040503232928.1b13037c.akpm@osdl.org>
 Content-Type: text/plain
-Organization: SUSE Labs, SUSE LINUX AG
-Message-Id: <1083682588.1444.24.camel@winden.suse.de>
+Organization: 
+Message-Id: <1083683034.13688.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 04 May 2004 16:56:28 +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 04 May 2004 08:03:55 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-notify_change() gets called with at most the ATTR_MODE flag set for
-symlinks, but it should be called with the ATTR_MODE flag cleared.
-This triggers a bug in fs/reiserfs/xattr_acl.c (reiserfs plus acl
-patches), and perhaps on other file systems, too. (On ext2/ext3 symlinks
-have no ->setattr, there the bug does not trigger.)
-
-	int
-	reiserfs_acl_chmod (struct inode *inode)
-	{
-        	struct posix_acl *acl, *clone;
-	        int error;
-
-==>	        if (S_ISLNK(inode->i_mode))
-==>	                return -EOPNOTSUPP;
-
-
-This is the fix -- please apply.
-
-Index: linux-2.6.6-rc3/fs/nfsd/vfs.c
-===================================================================
---- linux-2.6.6-rc3.orig/fs/nfsd/vfs.c
-+++ linux-2.6.6-rc3/fs/nfsd/vfs.c
-@@ -1212,7 +1212,7 @@ nfsd_symlink(struct svc_rqst *rqstp, str
- 		if (EX_ISSYNC(fhp->fh_export))
- 			nfsd_sync_dir(dentry);
- 		if (iap) {
--			iap->ia_valid &= ATTR_MODE /* ~(ATTR_MODE|ATTR_UID|ATTR_GID)*/;
-+			iap->ia_valid &= ~ATTR_MODE;
- 			if (iap->ia_valid) {
- 				iap->ia_valid |= ATTR_CTIME;
- 				iap->ia_mode = (iap->ia_mode&S_IALLUGO)
+On Mon, 2004-05-03 at 23:29, Andrew Morton wrote:
+ 
+> 
+> Putting a semaphore around do_generic_file_read() or maintaining the state
+> as below fixes it up.
+> 
+> I wonder if we should bother fixing this?  I guess as long as the app is
+> using pread() it is a legitimate thing to be doing, so I guess we should...
+> 
+> 
+> 
+Yes this patch makes sense. I have setup sysbench on my lab machine. Let
+me see how much improvement the patch provides.
 
 
-Cheers,
--- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX AG
+RP
+ 
 

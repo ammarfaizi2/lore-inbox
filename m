@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262158AbSJJTE1>; Thu, 10 Oct 2002 15:04:27 -0400
+	id <S262166AbSJJTRy>; Thu, 10 Oct 2002 15:17:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262159AbSJJTE1>; Thu, 10 Oct 2002 15:04:27 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:9441 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262158AbSJJTEX>;
-	Thu, 10 Oct 2002 15:04:23 -0400
-Message-ID: <3DA5CF9A.8050702@us.ibm.com>
-Date: Thu, 10 Oct 2002 12:06:02 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Arjan van de Ven <arjanv@fenrus.demon.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, LSE <lse-tech@lists.sourceforge.net>,
-       Andrew Morton <akpm@zip.com.au>, Martin Bligh <mjbligh@us.ibm.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: Re: [rfc][patch] Memory Binding API v0.3 2.5.41
-References: <3DA4D3E4.6080401@us.ibm.com> 	<1034244381.3629.8.camel@localhost.localdomain> <1034248971.2044.118.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262167AbSJJTRy>; Thu, 10 Oct 2002 15:17:54 -0400
+Received: from holomorphy.com ([66.224.33.161]:42987 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262166AbSJJTRa>;
+	Thu, 10 Oct 2002 15:17:30 -0400
+Date: Thu, 10 Oct 2002 12:19:54 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [LART] inode mismanagement in hugetlb code
+Message-ID: <20021010191954.GS10722@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+References: <Pine.GSO.4.21.0210101447390.13421-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0210101447390.13421-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Thu, 2002-10-10 at 11:06, Arjan van de Ven wrote:
-> 
->>>+/**
->>>+ * sys_mem_setbinding - set the memory binding of a process
->>>+ * @pid: pid of the process
->>>+ * @memblks: new bitmask of memory blocks
->>>+ * @behavior: new behavior
->>>+ */
->>>+asmlinkage long sys_mem_setbinding(pid_t pid, unsigned long memblks, 
->>>+				    unsigned int behavior)
->>>+{
->>
->>Do you really think exposing low level internals as memory layout / zone
->>split up to userspace is a good idea ? (and worth it given that the VM
->>already has a cpu locality preference?)
-> 
-> At least in the embedded world that level is a good idea. I'm not sure
-> about the syscall interface. An "unsigned long" mask of blocks sounds
-> like a good way to ensure a broken syscall in the future
-Agreed.  This is a first pass (well 3rd, but the first two were long ago),
-and I'll probably immitate the sys_sched_(s|g)etaffinity calls (even more
-than I already have ;) and add a 'length' argument in the next itteration.
+On Thu, Oct 10, 2002 at 03:00:37PM -0400, Alexander Viro wrote:
+> 	a) inodes MUST have an address of valid struct super_block in their
+> ->i_sb.  Had been discussed quite a few times already.
+> 	b) inodes MUST NOT be allocated by code that isn't called from
+> alloc_inode().
+> 	c) inodes SHOULD NOT be kept around for noticable intervals without
+> a dentry pointing to them.
+> 	d) people who choose variable names like htlbpagek SHOULD be sent to
+> produce a street map of R'Lyeh.  On site.
 
-Cheers!
 
--Matt
+A wee bit of neurosurgery is in progress to repair (a) and (b) since
+they're taking out my boxen dead cold and reliably on the first or
+second invocation with Paul Larson's tests. (c) is very unclean, and
+(d) I wholeheartedly agree with (and am amused by the wording of too =).
 
+
+Bill

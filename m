@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266397AbUAOCHi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 21:07:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266398AbUAOCHi
+	id S266343AbUAOCE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 21:04:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266344AbUAOCE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 21:07:38 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:34728 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S266397AbUAOCHf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 21:07:35 -0500
-Message-ID: <4005F4CC.2070104@cyberone.com.au>
-Date: Thu, 15 Jan 2004 13:02:52 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jes Sorensen <jes@trained-monkey.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Jesse Barnes <jbarnes@sgi.com>
-Subject: Re: [patch] 2.6.1-mm3 quiet down SMP boot messages
-References: <16389.21138.564775.207535@gargle.gargle.HOWL>
-In-Reply-To: <16389.21138.564775.207535@gargle.gargle.HOWL>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jan 2004 21:04:26 -0500
+Received: from 10fwd.cistron-office.nl ([62.216.29.197]:10459 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id S266343AbUAOCEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 21:04:25 -0500
+Date: Thu, 15 Jan 2004 03:04:22 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Slow NFS performance over wireless!
+Message-ID: <20040115020422.GE20560@drinkel.cistron.nl>
+References: <Pine.LNX.4.44.0401060055570.1417-100000@poirot.grange> <200401130155.32894.hackeron@dsl.pipex.com> <1074025508.1987.10.camel@lumiere> <1074026758.4524.65.camel@nidelv.trondhjem.org> <bu4pd6$anf$1@news.cistron.nl> <20040115013312.GO1594@srv-lnx2600.matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040115013312.GO1594@srv-lnx2600.matchmail.com> (from mfedyk@matchmail.com on Thu, Jan 15, 2004 at 02:33:12 +0100)
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 15 Jan 2004 02:33:12, Mike Fedyk wrote:
+> On Thu, Jan 15, 2004 at 01:12:07AM +0000, Miquel van Smoorenburg wrote:
+> > On an NFS client (2.6.1-mm3, filesystem mounted with options
+> > udp,nfsvers=3,rsize=32768,wsize=32768) I get for the same share as
+> > write/rewrite/read speeds 36 / 4 / 38 MB/sec. CPU load is also
+> > very high on the client for the rewrite case (80%).
+> > 
+> 
+> What is your throughput on the wire?
 
+Oh, the network is just fine.
 
-Jes Sorensen wrote:
+# tcpspray -n 100000 192.168.29.132
+Transmitted 102400000 bytes in 0.960200 seconds (104144.970 kbytes/s)
 
->Hi,
->
->I'd like to propose the following for 2.6.1-mm/2.6.2. On systems with a
->large number of CPUs the number of printk's flowing by for each CPU
->booting starts becoming a real console hog.
->
->The following patch eliminates a couple of them (already sent a patch to
->David for the ia64 specific ones) as well as changes the 
->"Building zonelist : X" in "Built Y zonelists". IMHO it doesn't make any
->sense to print for each zonelist since it's run in a for loop running
->from 0 to Y-1 anyway.
->
->The patch nukes a few new printk's that were introduced with the
->scheduler changes to the NUMA code in -mm3, if these are still needed
->then I won't fight for that part of the patch.
->
+> And retry with tcp instead of udp...
 
-Thanks, I forgot to remove those printks because I don't have a NUMA
-handy I guess. They're just to make sure the sched domains where being
-initialized properly. They can go.
+I did test with TCP, results are comparable to UDP.
 
-I like the rest of the patch too.
-
-
+Mike.

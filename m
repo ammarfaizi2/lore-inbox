@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbUCBAg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 19:36:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbUCBAg0
+	id S261253AbUCBAdK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 19:33:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbUCBAdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 19:36:26 -0500
-Received: from [212.145.151.1] ([212.145.151.1]:21425 "EHLO oasismp.net")
-	by vger.kernel.org with ESMTP id S261519AbUCBAgX (ORCPT
+	Mon, 1 Mar 2004 19:33:10 -0500
+Received: from hera.kernel.org ([63.209.29.2]:26347 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261253AbUCBAdH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 19:36:23 -0500
-From: Pedro Larroy <piotr@member.fsf.org>
-Reply-To: piotr@oasismp.net
-Organization: larroy.com
+	Mon, 1 Mar 2004 19:33:07 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-rc1-mm1
-Date: Tue, 2 Mar 2004 01:20:04 +0100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403020120.04438.piotr@member.fsf.org>
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: [2.6.3] Sysfs breakage - tun.ko
+Date: Tue, 2 Mar 2004 00:32:59 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c20knr$35r$1@terminus.zytor.com>
+References: <4043938C.9090504@lbsd.net> <40439B03.4000505@backtobasicsmgmt.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1078187579 3260 63.209.29.3 (2 Mar 2004 00:32:59 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Tue, 2 Mar 2004 00:32:59 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <40439B03.4000505@backtobasicsmgmt.com>
+By author:    "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+In newsgroup: linux.dev.kernel
+>
+> Nigel Kukard wrote:
+> 
+> > --- drivers/net/tun.c.old   2004-02-27 18:18:55.000000000 +0200
+> > +++ drivers/net/tun.c       2004-02-27 18:19:02.000000000 +0200
+> > @@ -605,7 +605,7 @@
+> > 
+> >  static struct miscdevice tun_miscdev = {
+> >         .minor = TUN_MINOR,
+> > -       .name = "net/tun",
+> > +       .name = "tun",
+> >         .fops = &tun_fops
+> >  };
+> 
+> This changed back and forth since the tun driver was added to the 
+> kernel; making this change will cause the devfs path to the tun node to 
+> change, and userspace applications expect it to be at /dev/misc/net/tun, 
+> whether that's right or wrong.
+> 
 
- typhoon: Unknown symbol direct_csum_partial_copy_generic
- kobject_register failed for aic7xxx (-17)
- Call Trace:
-  [kobject_register+78/80] kobject_register+0x4e/0x50
-  [bus_add_driver+68/144] bus_add_driver+0x44/0x90
-  [pci_register_driver+48/64] pci_register_driver+0x30/0x40
-  [__crc_sb_min_blocksize+1584399/1735921] ahc_linux_pci_init+0xd/0x20 
-[aic7xxx]
-  [__crc_sb_min_blocksize+1550840/1735921] ahc_linux_detect+0x46/0x90 
-[aic7xxx]
-  [__crc_sb_min_blocksize+1314431/1735921] ahc_linux_init+0xd/0x20 [aic7xxx]
-  [sys_init_module+271/576] sys_init_module+0x10f/0x240
-  [filp_close+79/128] filp_close+0x4f/0x80
-  [syscall_call+7/11] syscall_call+0x7/0xb
+Bullsh*t.
 
+User-space apps expect it to be /dev/net/tun, which is the documented
+path for this device node.  Anything else is a devfs bug (/dev/misc is
+a devfs bug from beginning to end.)
 
-
--- 
-  Pedro Larroy Tovar  |  piotr%member.fsf.org 
-
-Software patents are a threat to innovation in Europe please check: 
-	http://www.eurolinux.org/     
-
+	-hpa

@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264712AbSKOHRG>; Fri, 15 Nov 2002 02:17:06 -0500
+	id <S265647AbSKOHkL>; Fri, 15 Nov 2002 02:40:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264654AbSKOHRG>; Fri, 15 Nov 2002 02:17:06 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:48530 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262882AbSKOHRF>;
-	Fri, 15 Nov 2002 02:17:05 -0500
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
-       Pete Zaitcev <zaitcev@redhat.com>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF17E41902.5E012443-ON85256C72.00253F4E@pok.ibm.com>
-From: "Khoa Huynh" <khoa@us.ibm.com>
-Date: Fri, 15 Nov 2002 01:22:36 -0600
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 11/15/2002 02:23:42 AM
+	id <S265649AbSKOHkL>; Fri, 15 Nov 2002 02:40:11 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:65035
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S265647AbSKOHkL>; Fri, 15 Nov 2002 02:40:11 -0500
+Date: Fri, 15 Nov 2002 02:40:10 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Dipankar Sarma <dipankar@in.ibm.com>
+cc: Corey Minyard <cminyard@mvista.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
+       John Levon <levon@movementarian.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: NMI handling rework for x86
+In-Reply-To: <20021115114012.A5088@in.ibm.com>
+Message-ID: <Pine.LNX.4.44.0211150225490.2750-100000@montezuma.mastecende.com>
+X-Operating-System: Linux 2.4.19-pre5-ac3-zm4
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 15 Nov 2002, Dipankar Sarma wrote:
 
+> The RCU part is fairly simple - you want to avoid having to acquire
+> a lock for every NMI event to walk the handler so you do it
+> lockfree. If a process running in a different CPU tries to
+> free an nmi handler, it removes it from the list, issues an
+> rcu callback (to be invoked after all CPUs have gone through
+> a context switch or executed user-level code ensuring that the
+> deleted nmi handler can't be running) and waits for completion of
 
-Jeff Garzik wrote:
+How are you so sure the handler isn't running? You can get an NMI after 
+any cpu instruction inbetween all of that happening, not to mention that 
+it can happen on multiple processors means since its a shared nmi handler 
+list, you're almost never going to find that list not being traversed at 
+some stage by a processor. Try synchronising the cpus for a removal when 
+they're all handling an NMI every millisecond.
 
->> I'm more interested in contacting the admin to be a component
->> owner for sparc, for instance. Someone is going to have a significant
->> admin load, because Bugzilla is not going to be self-running.
->> Who is that person?
->
->Check out Martin's original announcement, as well as his recent one.
->I'm pretty pleased:  they have staff that will help triage bugs and keep
->the garbage level low.  Hopefully leaving the kernel hackers to do
->nothing more than fix bugs :)
+> the callback. The rcu callback handler wakes it up.
+> It is all hidden under list_add_rcu()/list_del_rcu() and __list_for_each_rcu().
 
-Since people asked, I'd like to introduce myself as part of the
-"staff" that has volunteered some free time devoting to maintaining
-this Bugzilla; i.e., keeping the database well-groomed.  My team
-actually consists of folks in different IBM locations and time zones:
-Austin, Texas; Poughkeepsie, New York; Beaverton, Oregon; Bangalore,
-India, so hopefully, we can keep an "eye" on the database around the
-clock.  For the past two years, my team has been working Linux
-bugs and contributed bug fixes in support of our internal teams,
-and now, we have volunteered to help maintain this kernel bug
-database in our free time.  However, we expect that the bug
-volume logged will be high, so the more people in the community
-volunteer to help us maintain the database, the better.
+I don't think you can rely on completion() to ensure this. Its hardly an 
+atomic operation in this context, whats wrong with spin_trylock(nmi_handler_lock) 
+and do an early bailout on failure?
 
-Please let us know if you like to volunteer and the Bugzilla
-administrator will give you enough "power" to do the job
-(e.g., assigning bugs, closing bugs, screening bugs for
-duplicates, invalid bugs, etc.).
-
-Also if you have already used this kernel Bugzilla database,
-you might have noticed that many components are currently
-owned by Martin or myself.  As Martin pointed out in his
-announcement, this is not because we are "egomaniacs", but
-rather because the rightful owners (or those who know enough
-about these components and want to volunteer to work bugs)
-have not been registered yet.  Martin and I will try our best
-to turn over these components to their rightful "owners"
-as soon as we can.  We are still learning the "ropes" on
-how to do this effectively, so it will take some time
-(not too long we hope).  Thanks.
-
-Khoa Huynh
-
+	Zwane
+-- 
+function.linuxpower.ca
 

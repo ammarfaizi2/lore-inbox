@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318969AbSICXCb>; Tue, 3 Sep 2002 19:02:31 -0400
+	id <S318967AbSICXHV>; Tue, 3 Sep 2002 19:07:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318972AbSICXCa>; Tue, 3 Sep 2002 19:02:30 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:63163 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S318969AbSICXCa>; Tue, 3 Sep 2002 19:02:30 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Date: Wed, 4 Sep 2002 09:06:47 +1000
+	id <S318972AbSICXHV>; Tue, 3 Sep 2002 19:07:21 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55820 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318967AbSICXHU>; Tue, 3 Sep 2002 19:07:20 -0400
+Date: Tue, 3 Sep 2002 16:14:34 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: "David S. Miller" <davem@redhat.com>, <phillips@arcor.de>,
+       <wli@holomorphy.com>, <rml@tech9.net>, <rusty@rustcorp.com.au>,
+       <linux-kernel@vger.kernel.org>, <akpm@zip.com.au>
+Subject: Re: [TRIVIAL PATCH] Remove list_t infection.
+In-Reply-To: <20020903231330.C6848@kushida.apsleyroad.org>
+Message-ID: <Pine.LNX.4.33.0209031610200.10759-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15733.16519.380396.276174@notabene.cse.unsw.edu.au>
-Cc: Benjamin LaHaise <bcrl@redhat.com>, Pavel Machek <pavel@suse.cz>,
-       Peter Chubb <peter@chubb.wattle.id.au>, <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: Large block device patch, part 1 of 9
-In-Reply-To: message from Linus Torvalds on Tuesday September 3
-References: <15732.34929.657481.777572@notabene.cse.unsw.edu.au>
-	<Pine.LNX.4.44.0209030900410.1997-100000@home.transmeta.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday September 3, torvalds@transmeta.com wrote:
+
+On Tue, 3 Sep 2002, Jamie Lokier wrote:
 > 
-> On Tue, 3 Sep 2002, Neil Brown wrote:
-> > 
-> > Effectively, this is a type-safe cast.  You still get the warning, but
-> > it looks more like the C that we are used to.
+>      1. struct list
+>      2. struct list_node
 > 
-> I wonder if the right answer isn't to just make things like "__u64" be
-> "long long" even on 64-bit architectures (at least those on which it is 64
-> bit, of course. I _think_ that's true of all of them). And then just use 
-> "llu" for it all.
+> With these two types, `list_add' et al. can actually _check_ that you
+> got the arguments the right way around.
 
-The thing is that the patch in question wants to print a "sector_t",
-not a "__u64".
-sector_t can be u32 (on 32 bit machines that don't need big devices
-and don't want the performance hit) or can be u64 (elsewhere).  
+Well, the thing is, one of the _advantages_ of "struct list_head" is 
+exactly the fact that the implementation is 100% agnostic about whether a 
+list entry is the head, or just part of the list.
 
-And isn't saying "long long is 64bits" just as bad as all the
-pre-alpha code that thought "long" was 32 bits, or the PDP code that
-knew that "int" was 16 bits?
+This was actually _the_ major design goal for me. I know the "struct
+list_head" interfaces are kind of weird (some people initially really
+didn't like the fact that you had to use magic macros to convert from
+lists to the containing structures etc, and it's funny to think that a few
+years ago that list structure was considered "strange"), but the fact that 
+any list entry can be the head of the list was very important.
 
-NeilBrown
+Some uses of list_head uses "traditional" heads for the linked lists (as
+heads for hashing etc), while many others just build up the list of all
+entries, and each entry is a head in its own right and there is no
+"external head" at all.
+
+That's important. And you'd lose that if list_add() and friends tried to 
+distinguish between a list head and a list entry.
+
+		Linus
+

@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262280AbUKKQb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262278AbUKKQd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262280AbUKKQb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 11:31:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUKKQb0
+	id S262278AbUKKQd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 11:33:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUKKQdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 11:31:26 -0500
-Received: from main.gmane.org ([80.91.229.2]:18910 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262280AbUKKQbV (ORCPT
+	Thu, 11 Nov 2004 11:33:55 -0500
+Received: from paldo.org ([213.202.245.43]:17558 "EHLO buildd1.paldo.org")
+	by vger.kernel.org with ESMTP id S262278AbUKKQdx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 11:31:21 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Thu, 11 Nov 2004 11:33:53 -0500
+Subject: [PATCH RESEND] Don't remove /sys in initramfs
+From: Juerg Billeter <juerg@paldo.org>
 To: linux-kernel@vger.kernel.org
-From: Alexander Fieroch <Fieroch@web.de>
-Subject: SNES gamepad doesn't work with kernel 2.6.x
-Date: Thu, 11 Nov 2004 17:31:08 +0100
-Message-ID: <cn044e$nnk$1@sea.gmane.org>
+Cc: akpm@osdl.org
+Content-Type: text/plain
+Organization: paldo
+Date: Thu, 11 Nov 2004 17:33:48 +0100
+Message-Id: <1100190828.5888.0.camel@juerg-p4.bitron.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: osten.wh.uni-dortmund.de
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: de-de, en-us, en
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Using the "resume" kernel parameter together with an initramfs revealed
+a bug that causes removal of the /sys directory in the initramfs' tmpfs,
+making the system unbootable.
 
-Hello,
+The source of the problem is that the try_name() function removes
+the /sys directory unconditionally, instead of removing it only when it
+has been created by try_name().
 
-I'm using a SNES gamepad at my parallel port. With kernel 2.4.x it
-works, but with kernel 2.6.x I get following error while inserting the
-module:
+The attached patch only removes /sys if it has been created before.
 
-# modprobe gamecon gc=0,1,0,0,0,0
-FATAL: Error inserting gamecon
-(/lib/modules/2.6.9/kernel/drivers/input/joystick/gamecon.ko): No such
-device
+Please CC me, I'm not on lkml.
 
-# modprobe gamecon gamecon.map=0,1,0,0,0,0
-FATAL: Error inserting gamecon
-(/lib/modules/2.6.9/kernel/drivers/input/joystick/gamecon.ko): No such
-device
+	Juerg
 
+--
+Signed-off-by: Juerg Billeter <juerg@paldo.org>
 
-The module lp is not loaded while parport is.
-With kernel 2.4.x there are no problems - so is it a bug?
+diff -upNr linux-2.6.10-rc1-bk15.orig/init/do_mounts.c linux-2.6.10-rc1-bk15/init/do_mounts.c
+--- linux-2.6.10-rc1-bk15.orig/init/do_mounts.c 2004-10-18 23:53:51.000000000 +0200
++++ linux-2.6.10-rc1-bk15/init/do_mounts.c      2004-11-05 16:24:17.816549948 +0100
+@@ -142,7 +142,7 @@ dev_t __init name_to_dev_t(char *name)
+        int part;
 
-Thanks in advance,
-Alexander
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+ #ifdef CONFIG_SYSFS
+-       sys_mkdir("/sys", 0700);
++       int mkdir_err = sys_mkdir("/sys", 0700);
+        if (sys_mount("sysfs", "/sys", "sysfs", 0, NULL) < 0)
+                goto out;
+ #endif
+@@ -197,7 +197,8 @@ done:
+ #ifdef CONFIG_SYSFS
+        sys_umount("/sys", 0);
+ out:
+-       sys_rmdir("/sys");
++       if (!mkdir_err)
++               sys_rmdir("/sys");
+ #endif
+        return res;
+ fail:
 
-iD8DBQFBk5PLlLqZutoTiOMRAu+IAJ9wzegM5+BB7prIRZi626qqHAsVnQCeK/G/
-7LhnIybXM/ogsY5AqC3kMQc=
-=BiN9
------END PGP SIGNATURE-----
 

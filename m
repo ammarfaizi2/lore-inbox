@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261980AbTCLUi1>; Wed, 12 Mar 2003 15:38:27 -0500
+	id <S261952AbTCLUg4>; Wed, 12 Mar 2003 15:36:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261982AbTCLUi1>; Wed, 12 Mar 2003 15:38:27 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:51655
+	id <S261980AbTCLUg4>; Wed, 12 Mar 2003 15:36:56 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:50631
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261980AbTCLUiZ>; Wed, 12 Mar 2003 15:38:25 -0500
-Subject: Re: Linux 2.4.21pre5-ac3
+	id <S261952AbTCLUgy>; Wed, 12 Mar 2003 15:36:54 -0500
+Subject: Re: 2.5.64: i2c-proc kills machine at boot
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: walt <wa1ter@myrealbox.com>
+To: =?unknown-8bit?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E6EF167.50409@myrealbox.com>
-References: <fa.mpr04fi.1a4um8g@ifi.uio.no>  <3E6EF167.50409@myrealbox.com>
+In-Reply-To: <20030312161451.GA30741@wohnheim.fh-wedel.de>
+References: <20030311104721.GA401@elf.ucw.cz>
+	 <20030312125631.GA27966@wohnheim.fh-wedel.de>
+	 <1047484999.22696.7.camel@irongate.swansea.linux.org.uk>
+	 <20030312161451.GA30741@wohnheim.fh-wedel.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1047506225.23725.20.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1047506134.23730.18.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 12 Mar 2003 21:57:06 +0000
+Date: 12 Mar 2003 21:55:35 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-12 at 08:35, walt wrote:
-> No surprise, probably, but I'm still getting the kernel oops when
-> I use swapoff on any partition which is not already mounted as a
-> swap partition (i.e. what 'swapoff -a' attempts to do.)
+On Wed, 2003-03-12 at 16:14, =?unknown-8bit?Q?J=F6rn?= Engel wrote:
+> On Wed, 12 March 2003 16:03:19 +0000, Alan Cox wrote:
+> > 
+> > > It also isn't listed in the current MAINTAINERS file. Is i2o currently
+> > > unmaintained?
+> > 
+> > Its kind of mine. Maintained is an overly strong word for it however, but I 
+> > do take patches 8)
 > 
-> I've already tried using very conservative CFLAGS for compiling
-> both the kernel and util-linux with no improvement.
-> 
-> Any further information I can supply to help fix this?  Any
-> other tricks I can try?
+> All right. The following is against 2.5.64, compiles and reduces the
+> worst stack offender to 0x190 bytes. It is untested though, I don't
+> have any hardware for it.
 
-I've no idea what is going on in your case. The strace you sent me
-only showed swapoff working properly
+I have hardware however so I'll give it a check
 

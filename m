@@ -1,36 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263598AbTDDAUE (for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 19:20:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbTDDAUE (for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 19:20:04 -0500
-Received: from lrsehosting.com ([198.78.66.31]:27410 "EHLO www.geekizoid.com")
-	by vger.kernel.org with ESMTP id S263598AbTDDAT7 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Apr 2003 19:19:59 -0500
-Date: Thu, 3 Apr 2003 16:31:13 -0800 (PST)
-From: William Scott Lockwood III <vlad@geekizoid.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: root@chaos.analogic.com, <linux-kernel@vger.kernel.org>
-Subject: Re: your mail
-In-Reply-To: <20030403.120046.98056137.davem@redhat.com>
-Message-ID: <20030403163038.O49943-100000@www.geekizoid.com>
+	id S263600AbTDDAa2 (for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 19:30:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263607AbTDDAa2 (for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 19:30:28 -0500
+Received: from [12.148.143.187] ([12.148.143.187]:20695 "EHLO
+	sendmail.intrusion.com") by vger.kernel.org with ESMTP
+	id S263600AbTDDAaY (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 19:30:24 -0500
+Message-ID: <636A9B29EA94BC4194D844C27A3B1AAB03FC7D12@mercury.intrusion.com>
+From: "Corbett, David" <corbett@intrusion.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: sis900 driver in 2.4.20
+Date: Thu, 3 Apr 2003 18:40:35 -0600 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Apr 2003, David S. Miller wrote:
->    From: "Richard B. Johnson" <root@chaos.analogic.com>
->    Date: Thu, 3 Apr 2003 15:02:41 -0500 (EST)
->    Well it's not a yahoo users problem because yahoo users can't fix
->    it. Some yahoo users have yahoo "free" mail as their only connection
->    to the internet because of facist network administrators.
-> If you want all the SPAM that will result on Linux-kernel, we
-> can disable the filter if you want.
-> I refuse to sit here and listen to all the "this is the only
-> connection person FOO has to the internet" stories, quite frankly I'm
-> absolutely sick of hearing them.
-> If you don't have properly functioning mail, you can't use these
-> lists.
-> Period.
+I believe that I have found a bug in sis900.c in the 2.4.20 kernel. Who do I
+contact about it? (If this is a breach of netiquette, please be gentle with
+me. This is my first time... :-)
 
-When did that become your call?  I didn't realize you owned LKML.
+Regards,
+
+David Corbett
 

@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261464AbSIZAZ6>; Wed, 25 Sep 2002 20:25:58 -0400
+	id <S261461AbSIZAb4>; Wed, 25 Sep 2002 20:31:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261474AbSIZAZ6>; Wed, 25 Sep 2002 20:25:58 -0400
-Received: from ns.suse.de ([213.95.15.193]:44807 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261464AbSIZAZ5>;
-	Wed, 25 Sep 2002 20:25:57 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: niv@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
-References: <3D924F9D.C2DCF56A@us.ibm.com.suse.lists.linux.kernel> <20020925.170336.77023245.davem@redhat.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 26 Sep 2002 02:31:13 +0200
-In-Reply-To: "David S. Miller"'s message of "26 Sep 2002 02:11:21 +0200"
-Message-ID: <p73n0q5sib2.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S261474AbSIZAb4>; Wed, 25 Sep 2002 20:31:56 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:18437 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261461AbSIZAbx>;
+	Wed, 25 Sep 2002 20:31:53 -0400
+Date: Wed, 25 Sep 2002 17:32:52 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Daniel Egger <degger@fhm.edu>
+cc: <tytso@mit.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+In-Reply-To: <1032996719.19224.29.camel@sonja.de.interearth.com>
+Message-ID: <Pine.LNX.4.33L2.0209251732240.29318-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
->    
-> In fact the exact opposite, such a suggested flow cache is about
-> as parallel as you can make it.
+On 26 Sep 2002, Daniel Egger wrote:
 
-It sounds more like it would include the FIB too.
+| Am Mit, 2002-09-25 um 22.03 schrieb tytso@mit.edu:
+|
+| > I've given this code a good bit of testing, under both 2.4 and 2.5
+| > kernels, and believe that it is ready for prime-time.  Please pull it
+| > from:
+|
+| > 	bk://extfs.bkbits.net/for-linus-htree-2.5
+|
+| Where can one fetch the 2.4 code?
 
-> I don't understand why you think using the routing tables to their
-> full potential would imply serialization.  If you still believe this
-> you have to describe why in more detail.
+As Ted already said:
 
-I guess he's thinking of the FIB, not the routing cache.
+> Can you post a GNU patch too, for public lookover and independent
+> integration?
 
-The current FIBs have a bit heavier locking at least. Fine grain locking
-btrees is also not easy/nice.
+Sure.  The patch is a bit big for e-mail, but you can find it at:
 
--Andi
+	http://thunk.org/tytso/linux/ext3-dxdir/patch-ext3-dxdir-2.5.38
+
+There is also a 2.4.19 patch available as well:
+
+	http://thunk.org/tytso/linux/ext3-dxdir/patch-ext3-dxdir-2.4.19-2
+
+-- 
+~Randy
 

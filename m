@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265214AbTLZTKB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 14:10:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265216AbTLZTKA
+	id S265209AbTLZTDA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 14:03:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265210AbTLZTDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 14:10:00 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:51625 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S265214AbTLZTJ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 14:09:59 -0500
-Date: Fri, 26 Dec 2003 20:09:57 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Apurva Mehta <apurva@gmx.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Oopses on 2.6.0
-Message-ID: <20031226190957.GA1499@louise.pinerecords.com>
-References: <20031226173134.GA14038@home.woodlands>
+	Fri, 26 Dec 2003 14:03:00 -0500
+Received: from gprs214-253.eurotel.cz ([160.218.214.253]:128 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265209AbTLZTC6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 14:02:58 -0500
+Date: Fri, 26 Dec 2003 19:27:40 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 kgdb without serial port
+Message-ID: <20031226182740.GA10397@elf.ucw.cz>
+References: <20031215200640.GA3724@elf.ucw.cz> <20031215223438.196295a8.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031226173134.GA14038@home.woodlands>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031215223438.196295a8.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec-26 2003, Fri, 23:01 +0530
-Apurva Mehta <apurva@gmx.net> wrote:
+Hi!
 
-> I have attached the corresponding Ksymoops outputs as well although
-> I have heard that they are not relevant on 2.6 anymore. 
+> > 2.6 kgdb patches in -mm tree seem to contain kgdb-over-ethernet stuff,
+> > but still require me to fill in serial port interrupt/address. Is
+> > there easy way to make it work without serial port? [This notebook has
+> > none :-(].
 > 
-> Also, I have been using the 2.6 line since test1. I have got these
-> errors while using the Nvidia driver. I must mention, however, that I
-> have been using this same driver since test1 (4496).
+> That's a bit ugly, but things should still work OK?  Give it some random
+> UART address but specify an ethernet connection at boot time - the kgdb
+> stub should never touch the UART.
 
-...
+I found out what was biting me: using 2.95 with kgdb is bad idea. 2.95
+with kgdb means reboot just after uncompressing kernel -- pretty nasty
+to debug. Please apply,
+									Pavel
+PS: kgdb could use some code-style changes. Will you accept such
+patches?
 
-> EIP:    0060:[<c0124338>]    Tainted: PF 
-
-...
-
-You need to reproduce the oops with an untainted kernel
-if you expect lkml people to look into the problem.
+--- tmp/linux/arch/i386/kernel/kgdb_stub.c	2003-12-26 18:50:45.000000000 +0100
++++ linux/arch/i386/kernel/kgdb_stub.c	2003-12-26 18:41:58.000000000 +0100
+@@ -121,6 +121,10 @@
+ #include <linux/inet.h>
+ #include <linux/kallsyms.h>
+ 
++#if __GNUC__ < 3
++#error Sorry, your GCC is too old to work with kgdb. (It works with 3.3.2)
++#endif
++
+ /************************************************************************
+  *
+  * external low-level support routines
 
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

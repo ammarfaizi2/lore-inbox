@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265473AbUAZDZf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 22:25:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265479AbUAZDZf
+	id S265479AbUAZD1f (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 22:27:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265488AbUAZD1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 22:25:35 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:1248 "HELO
+	Sun, 25 Jan 2004 22:27:35 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:49375 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265473AbUAZDZd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 22:25:33 -0500
-Date: Mon, 26 Jan 2004 04:25:30 +0100
+	id S265479AbUAZD1d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 22:27:33 -0500
+Date: Mon, 26 Jan 2004 04:27:15 +0100
 From: Adrian Bunk <bunk@fs.tum.de>
-To: andre@linux-ide.org, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Wilfried Weissmann <wweissmann@gmx.at>,
-       Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.4 patch] small hptraid.c fix
-Message-ID: <20040126032530.GA513@fs.tum.de>
+To: Andi Kleen <ak@muc.de>
+Cc: Fabio Coatti <cova@ferrara.linux.it>, Andrew Morton <akpm@osdl.org>,
+       eric@cisu.net, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
+Message-ID: <20040126032714.GB513@fs.tum.de>
+References: <200401232253.08552.eric@cisu.net> <200401252221.01679.cova@ferrara.linux.it> <20040125214653.GB28576@colin2.muc.de> <200401252308.33005.cova@ferrara.linux.it> <20040125221304.GD28576@colin2.muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20040125221304.GD28576@colin2.muc.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following warning while compileing 2.4.25-pre7:
+On Sun, Jan 25, 2004 at 11:13:04PM +0100, Andi Kleen wrote:
+> On Sun, Jan 25, 2004 at 11:08:33PM +0100, Fabio Coatti wrote:
+> > > does official 2.6.2rc1 (not mm) with -funit-at-a-time enabled in the
+> > > Makefile work?
+> > 
+> > Yes. 
+> 
+> Ok, then it is something in -mm*. I would suspect the new weird CPU
+> configuration stuff. Can you double check you configured your CPU correctly? 
+>...
 
-<--  snip  -->
+The .config's were already sent, and they seemed to be correct.
 
-...
-gcc-2.95 -D__KERNEL__ 
--I/home/bunk/linux/kernel-2.4/linux-2.4.25-pre7-full/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=k6  -I../ 
--nostdinc -iwithprefix include -DKBUILD_BASENAME=hptraid  -c -o 
-hptraid.o hptraid.c
-{standard input}: Assembler messages:
-{standard input}:92: Warning: setting incorrect section attributes for .text.init
-...
-
-<--  snip  -->
-
-The problem is that a struct was marked __init instead of __initdata.
-
-The patch below fixes this issue.
+> -Andi
 
 cu
 Adrian
 
---- linux-2.4.25-pre7-full/drivers/ide/raid/hptraid.c.old	2004-01-26 04:19:37.000000000 +0100
-+++ linux-2.4.25-pre7-full/drivers/ide/raid/hptraid.c	2004-01-26 04:19:53.000000000 +0100
-@@ -146,7 +146,7 @@
- 	make_request:		hptraid01_make_request
- };
- 
--static __init struct {
-+static __initdata struct {
- 	struct raid_device_operations *op;
- 	u_int8_t type;
- 	char label[8];
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

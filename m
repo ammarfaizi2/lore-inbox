@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268511AbRH1UBa>; Tue, 28 Aug 2001 16:01:30 -0400
+	id <S268848AbRH1UBV>; Tue, 28 Aug 2001 16:01:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268954AbRH1UBV>; Tue, 28 Aug 2001 16:01:21 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:15498 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S268511AbRH1UBQ>;
-	Tue, 28 Aug 2001 16:01:16 -0400
-Date: Tue, 28 Aug 2001 13:01:10 -0700 (PDT)
-Message-Id: <20010828.130110.26275634.davem@redhat.com>
-To: ak@suse.de
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: page_launder() on 2.4.9/10 issue
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <oup8zg4j8u0.fsf@pigdrop.muc.suse.de>
-In-Reply-To: <20010828180108Z16193-32383+2058@humbolt.nl.linux.org.suse.lists.linux.kernel>
-	<Pine.LNX.4.33.0108281110540.8754-100000@penguin.transmeta.com.suse.lists.linux.kernel>
-	<oup8zg4j8u0.fsf@pigdrop.muc.suse.de>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S269593AbRH1UBL>; Tue, 28 Aug 2001 16:01:11 -0400
+Received: from darkwing.uoregon.edu ([128.223.142.13]:45213 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S268511AbRH1UA5>; Tue, 28 Aug 2001 16:00:57 -0400
+Date: Tue, 28 Aug 2001 13:01:22 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: <joelja@twin.uoregon.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.rutgers.edu>
+Subject: 2.4.9ac3 fails to boot (due to agpgart)...
+Message-ID: <Pine.LNX.4.33.0108281052590.29611-100000@twin.uoregon.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andi Kleen <ak@suse.de>
-   Date: 28 Aug 2001 21:14:15 +0200
-   
-   At least something seems to be broken in it. I did run some 900MB processes
-   on a 512MB machine with 2.4.9 and kswapd took between 70 and 90% of the CPU
-   time.
+This is an rcc/serverworks IIIHE-sl box (dual pIII-1ghz) with root on a
+aic7xxx controller integrated on the mainboard...
 
-That's all swapmap lookup stupidity, you'll see __get_swap_page()
-near the top of your profiles.  The algorithm is just sucky.
+as soon a the kernel gets to initializing the agpgart. the message:
 
-Later,
-David S. Miller
-davem@redhat.com
+"posted write buffer flush took more than three seconds"
+
+begins scrolling down the screen...
+
+the last line before it happens is:
+
+"maximum memory available for agp is 816MB"
+
+which seems like a reasonable number (the machine has 1GB)
+
+alt-sysrq b will still reboot the machine at that point...
+
+disabling agpgart support eliminaates the issue...
+
+joelja
+
+
+
+-- 
+--------------------------------------------------------------------------
+Joel Jaeggli				       joelja@darkwing.uoregon.edu
+Academic User Services			     consult@gladstone.uoregon.edu
+     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
+--------------------------------------------------------------------------
+It is clear that the arm of criticism cannot replace the criticism of
+arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
+the right, 1843.
+
+
+
+

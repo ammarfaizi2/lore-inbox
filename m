@@ -1,33 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313434AbSC2LeH>; Fri, 29 Mar 2002 06:34:07 -0500
+	id <S313237AbSC2MVC>; Fri, 29 Mar 2002 07:21:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313435AbSC2Ld5>; Fri, 29 Mar 2002 06:33:57 -0500
-Received: from h00403399c977.ne.client2.attbi.com ([24.218.248.214]:21943 "EHLO
-	fred.cambridge.ma.us") by vger.kernel.org with ESMTP
-	id <S313434AbSC2Ldx>; Fri, 29 Mar 2002 06:33:53 -0500
-From: pjd@fred001.dynip.com
-Message-Id: <200203291133.g2TBXsi10506@fred.cambridge.ma.us>
-Subject: Re: Networking with slow CPUs
-To: robert@schwebel.de
-Date: Fri, 29 Mar 2002 06:33:54 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel List)
-In-Reply-To: <Pine.LNX.4.33.0203271944020.16178-100000@callisto.local> from "Robert Schwebel" at Mar 27, 2002 07:46:24 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S313238AbSC2MUx>; Fri, 29 Mar 2002 07:20:53 -0500
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:36228 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S313207AbSC2MUp>; Fri, 29 Mar 2002 07:20:45 -0500
+Message-ID: <3CA45BEC.8030106@antefacto.com>
+Date: Fri, 29 Mar 2002 12:19:56 +0000
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: ANN: NTFS 2.0.1 for kernel 2.5.7 released
+In-Reply-To: <5.1.0.14.2.20020328200457.03dfda90@pop.cus.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Schwebel wrote:
-> 
-> Is there a possibility to "harden" a small machine (33 MHz embedded
-> device) against e.g. flood pings from the outside world?
+Is this a good default?
 
-It *is* bleeding edge, as someone else pointed out, but you should 
-really investigate NAPI.  It's designed to make Linux resiliant against
-non-flow-controlled network loads like routing, which sounds like 
-just the ticket.
- --
- Peter Desnoyers 
+IMHO you usually would not want to execute stuff off NTFS, and
+if you do you can always just explicitly invoke using wine like:
+`wine /ntfs/lookout.exe`
+
+To have all files executable breaks stuff like:
+midnight commander (won't open executable files)
+ls colorizing
+shell tab completion
+...
+
+see:
+http://marc.theaimsgroup.com/?t=100143416100009&r=1&w=2
+
+I think the default should be
+rx for directories and r for files
+
+Padraig.
+
+Anton Altaparmakov wrote:
+> Hi,
+> 
+> NTFS 2.0.1 for kernel 2.5.7 is now available. This is a minor update, 
+> mainly to allow binaries to be executed by changing the default 
+> permissions on files to include the executable bit. This feature has 
+> often been requested by wine users so here it is. (-:
+> 
+> Sorry for the quick succession of releases but the web server hosting 
+> the 2.0.0 patches is now off line so I had to move the location and I 
+> used the opportunity to release this minor update.
+> 
+> Best regards,
+> 
+>         Anton
+

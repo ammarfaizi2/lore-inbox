@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267615AbUG2PLv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267450AbUG2POh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267615AbUG2PLv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 11:11:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268090AbUG2PLt
+	id S267450AbUG2POh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 11:14:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268053AbUG2PNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 11:11:49 -0400
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:36811 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S265799AbUG2OZ5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 10:25:57 -0400
-Date: Thu, 29 Jul 2004 10:25:56 -0400
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: James Morris <jmorris@redhat.com>,
-       lkml List <linux-kernel@vger.kernel.org>
-Subject: Re: Preliminary Linux Key Infrastructure 0.01-alpha1
-Message-ID: <20040729142556.GC17942@fieldses.org>
-References: <Xine.LNX.4.44.0407290116340.13892-100000@dhcp83-76.boston.redhat.com> <D92C5330-E15C-11D8-9EC8-000393ACC76E@mac.com>
+	Thu, 29 Jul 2004 11:13:42 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:21755 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267450AbUG2OgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 10:36:12 -0400
+Date: Thu, 29 Jul 2004 16:36:06 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>, dwmw2@infradead.org
+Cc: linux-kernel@vger.kernel.org, jffs-dev@axis.com
+Subject: Re: 2.6.8-rc2-mm1
+Message-ID: <20040729143606.GB2349@fs.tum.de>
+References: <20040728020444.4dca7e23.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <D92C5330-E15C-11D8-9EC8-000393ACC76E@mac.com>
-User-Agent: Mutt/1.5.6+20040722i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+In-Reply-To: <20040728020444.4dca7e23.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 29, 2004 at 08:43:10AM -0400, Kyle Moffett wrote:
-> On Jul 29, 2004, at 01:58, James Morris wrote:
-> >I think I heard that Greg-KH had some keyring code already, so there 
-> >may
-> >be some existing code floating around.
-> I think that was David Howells, and I've looked at his code extensively.
+The following issue comes from Linus' tree:
 
-Could you summarize the differences?  Would you please consider posting
-patches against his patches instead of starting over from scratch?
+JFFS2_COMPRESSION_OPTIONS is asked even if JFFS2_FS support isn't 
+selected.
 
-I'd really like to start looking at these patches and figure out how
-we'd use them for NFS/rpcsec_gss, but this is made more difficult by
-the fact that there are now 2 or 3 different pieces of code floating
-around now that all claim to do PAG/keyring stuff.
+The patch below adds a dependency on JFFS2_FS to 
+JFFS2_COMPRESSION_OPTIONS.
 
---Bruce Fields
+I've also added a dependency on EXPERIMENTAL which seemed to be logical 
+after reading the description of this option (but even if you disagree 
+with this, please add the dependency on JFFS2_FS).
+
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.8-pre2-mm1/fs/Kconfig.old	2004-07-29 16:24:35.000000000 +0200
++++ linux-2.6.8-pre2-mm1/fs/Kconfig	2004-07-29 16:24:55.000000000 +0200
+@@ -1088,18 +1088,19 @@
+ 	  including a link to the mailing list where details of the remaining
+ 	  work to be completed for NAND flash support can be found, see the 
+ 	  JFFS2 web site at <http://sources.redhat.com/jffs2>.
+ 
+ 	  Say 'N' unless you have NAND flash and you are willing to test and
+ 	  develop JFFS2 support for it.
+ 
+ config JFFS2_COMPRESSION_OPTIONS
+ 	bool "Advanced compression options for JFFS2"
++	depends on JFFS2_FS && EXPERIMENTAL
+ 	default n
+ 	help
+ 	  Enabling this option allows you to explicitly choose which
+ 	  compression modules, if any, are enabled in JFFS2. Removing
+ 	  compressors and mean you cannot read existing file systems,
+ 	  and enabling experimental compressors can mean that you
+ 	  write a file system which cannot be read by a standard kernel.
+ 
+ 	  If unsure, you should _definitely_ say 'N'.

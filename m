@@ -1,84 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVBNPqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVBNQA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbVBNPqz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 10:46:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVBNPqz
+	id S261456AbVBNQA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 11:00:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVBNQAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 10:46:55 -0500
-Received: from dpt60.neoplus.adsl.tpnet.pl ([83.24.153.60]:44500 "EHLO
-	orbiter.attika.ath.cx") by vger.kernel.org with ESMTP
-	id S261452AbVBNPq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 10:46:26 -0500
-Date: Mon, 14 Feb 2005 16:46:20 +0100
-From: Piotr Kaczuba <pepe@attika.ath.cx>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI access mode on x86_64
-Message-ID: <20050214154620.GA13631@attika.ath.cx>
-References: <20050213213117.GA18812@attika.ath.cx> <m1oeenh53g.fsf@muc.de> <20050214094701.GA323@attika.ath.cx> <20050214120205.GA33348@muc.de>
+	Mon, 14 Feb 2005 11:00:25 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:25247
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261456AbVBNQAV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 11:00:21 -0500
+Date: Mon, 14 Feb 2005 07:56:55 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Fruhwirth Clemens <clemens@endorphin.org>
+Cc: jmorris@redhat.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       michal@logix.cz, adam@yggdrasil.com
+Subject: Re: [PATCH 01/04] Adding cipher mode context information to
+ crypto_tfm
+Message-Id: <20050214075655.6dec60cb.davem@davemloft.net>
+In-Reply-To: <1108387234.8086.37.camel@ghanima>
+References: <Xine.LNX.4.44.0502101247390.9159-100000@thoron.boston.redhat.com>
+	<1108387234.8086.37.camel@ghanima>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050214120205.GA33348@muc.de>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 14, 2005 at 01:02:05PM +0100, Andi Kleen wrote:
-> On Mon, Feb 14, 2005 at 10:47:01AM +0100, Piotr Kaczuba wrote:
-> > On Mon, Feb 14, 2005 at 10:18:43AM +0100, Andi Kleen wrote:
-> > > Piotr Kaczuba <pepe@attika.ath.cx> writes:
-> > > > Is there a reason why "PCI access mode" config option isn't available for
-> > > > x86_64? Due to this, PCIE config options aren't available either.
-> > > 
-> > > There is no 64bit PCI BIOS, so access is always direct.
-> > > 
-> > > I assume you mean mmconfig access with "PCIE config options", that is
-> > > a separate config option and available.
-> > 
-> > I mean the PCIEPORTBUS option which depends on PCI_GOMMCONFIG or
-> > PCI_GOANY. I assume that due to PCI_MMCONFIG / PCI_GOMMCONFIG mismatch
-> > it's not available on x86_64.
-> 
-> Ok, that's a bug in PCIEPORTBUS.  Best is probably to 
-> completely remove the dependency, it doesn't make much sense
-> (the code has to handle the case of mmconfig not being available at 
-> runtime anyways) 
-> 
-> -Andi
-> 
-> Remove bogus dependency in PCI Express root driver.
-> 
-> Signed-off-by: Andi Kleen <ak@suse.de>
-> 
-> diff -u linux-2.6.11rc3/drivers/pci/pcie/Kconfig-o linux-2.6.11rc3/drivers/pci/pcie/Kconfig
-> --- linux-2.6.11rc3/drivers/pci/pcie/Kconfig-o	2005-02-04 09:13:10.000000000 +0100
-> +++ linux-2.6.11rc3/drivers/pci/pcie/Kconfig	2005-02-14 12:59:46.000000000 +0100
-> @@ -3,7 +3,6 @@
->  #
->  config PCIEPORTBUS
->  	bool "PCI Express support"
-> -	depends on PCI_GOMMCONFIG || PCI_GOANY
->  	default n
->  
->  	---help---
-> 
+On Mon, 14 Feb 2005 14:20:34 +0100
+Fruhwirth Clemens <clemens@endorphin.org> wrote:
 
-This one is needed, too.
+> Conclusion: The idea of high-mem and low-mem seperation is fundamentally
+> broken. The limitation of page table entries to a fixed set is causing
+> more complications than it solves. Laziness to do things right at memory
+> management shifts the burden to the users of the interface. 
 
-Piotr Kaczuba
+Doing it "at memory management" is what many other OS's do and
+is incredibly costly especially on SMP systems.  Please ponder
+those issues for some time before you blast Linux's MM design
+decisions.  They were not made in a vacuum.
 
-
-
---- linux.old/arch/x86_64/Kconfig       2005-02-14 16:37:33.000000000 +0100
-+++ linux/arch/x86_64/Kconfig   2005-02-14 16:37:18.000000000 +0100
-@@ -399,6 +399,8 @@
-         from i386. Requires that the driver writer used memory barriers
-         properly.
-
-+source "drivers/pci/pcie/Kconfig"
-+
- source "drivers/pci/Kconfig"
-
- source "drivers/pcmcia/Kconfig"
+I used to be heavily against this scheme long ago, but over time
+I've seen more and more how it's the right thing to do.
 

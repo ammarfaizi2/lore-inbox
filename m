@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262942AbTDFLSa (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 07:18:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbTDFLSa (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 07:18:30 -0400
-Received: from modemcable169.130-200-24.mtl.mc.videotron.ca ([24.200.130.169]:16138
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S262942AbTDFLS3 (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 07:18:29 -0400
-Date: Sun, 6 Apr 2003 07:25:09 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Robert Love <rml@tech9.net>,
-       Martin Bligh <mbligh@aracnet.com>
-Subject: Re: 2.5.65-preempt booting on 32way NUMAQ
-In-Reply-To: <20030406112340.GM993@holomorphy.com>
-Message-ID: <Pine.LNX.4.50.0304060723400.2268-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0304060625130.2268-100000@montezuma.mastecende.com>
- <20030406112340.GM993@holomorphy.com>
+	id S262931AbTDFLPf (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 07:15:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbTDFLPf (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 07:15:35 -0400
+Received: from CPE-203-51-32-18.nsw.bigpond.net.au ([203.51.32.18]:3064 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S262931AbTDFLPe (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 07:15:34 -0400
+Message-ID: <3E900F09.18EF30CE@eyal.emu.id.au>
+Date: Sun, 06 Apr 2003 21:27:05 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.21-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "list, linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: 2.4.21-pre7 ipmi unresolved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Apr 2003, William Lee Irwin III wrote:
+all modules. With two small patches to get HPT372N and ac97
+to compile.
 
-> This has had a hard time historically. I'm really glad NUMA-Q's are now
-> immune (in the sense of correctness) to this config; previously it was
-> believed that preemption points in printk(linux_banner) would take out
-> the machine early in boot if preemption was enabled.
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.21-pre7/kernel/drivers/char/ipmi/ipmi_msghandler.o
+depmod:         panic_notifier_list
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.21-pre7/kernel/drivers/char/ipmi/ipmi_watchdog.o
+depmod:         panic_notifier_list
+depmod:         panic_timeout
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.21-pre7/kernel/drivers/net/wan/comx.o
+depmod:         proc_get_inode
 
-Which kernel version was that from? I only recall you mentioning it.
-
-> Congratulations rml!
-
-Indeed =)
-
-> If you're booting without issues on these things, you are a _very_ long
-> way toward being race-free. This is incredibly good news, both for the
-> preemption support, and for the general stability of the i386 bootstrap.
-> 
-> All that's really left is driver and non-i386 arch coverage if I'm right.
-
-I'm going to spend a bit of time generally trying to break things, we'll 
-see what comes out of it.
-
-	Zwane
--- 
-function.linuxpower.ca
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

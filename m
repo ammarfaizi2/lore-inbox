@@ -1,87 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271399AbTHMGml (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 02:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271400AbTHMGml
+	id S271418AbTHMGfa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 02:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271419AbTHMGfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 02:42:41 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:48542
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S271399AbTHMGmj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 02:42:39 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]O14int
-Date: Wed, 13 Aug 2003 16:48:18 +1000
-User-Agent: KMail/1.5.3
-References: <200308090149.25688.kernel@kolivas.org> <200308120033.32391.kernel@kolivas.org> <1060615179.13255.133.camel@workshop.saharacpt.lan>
-In-Reply-To: <1060615179.13255.133.camel@workshop.saharacpt.lan>
+	Wed, 13 Aug 2003 02:35:30 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:5600 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S271418AbTHMGfR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 02:35:17 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Mike Galbraith <efault@gmx.de>,
+       Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+Subject: Re: What is interactivity? Re: [PATCH]O14int [SCHED_SOFTRR  please]
+Date: Tue, 12 Aug 2003 21:43:44 -0400
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <5.2.1.1.2.20030811212837.01975fa0@pop.gmx.net> <5.2.1.1.2.20030812062357.01a102f8@pop.gmx.net>
+In-Reply-To: <5.2.1.1.2.20030812062357.01a102f8@pop.gmx.net>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200308121545.52042.kernel@kolivas.org>
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308122143.44393.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Resent because the lkml spam filter thought this was spam originally]
+On Tuesday 12 August 2003 01:40, Mike Galbraith wrote:
 
-Thanks for detailed description.
+> Well, interactivity can certainly be viewed like one of those tricky
+> philosophy questions (bears farting in the woods, trees falling over etc;),
+> but I consider any task which is connected to a human via any of our senses
+> to be interactive.  Perhaps it's not a 100% accurate use of the term, but
+> for lack of a better term...
 
-On Tue, 12 Aug 2003 01:19, Martin Schlemmer wrote:
-> Normal run of things there is many times 1-3 'make -j6s' running.
-> Yes, sure, for on of them you prob should use -j4, but hey its
-> in the head, right =).  No, it is not kernels, it is a variety
+"Interactivity"  is being used as a proxy for at least two different 
+conditions: smooth spooling and snappy response to (possibly repeated) 
+asynchronous wakeups.
 
-Actually in benchmarking I've found no increase in speed with more than one 
-job per cpu but it's up to you of course.
+The smooth spooler problem is where you're trying to input or output stuff at 
+a constant rate, somewhere below your theoretical maximum capacity.  Sound 
+output is like this.  Whether you're listening or not, the tree in the forest 
+still falls.  A skip is a skip, the output could be being recorded to tape or 
+who knows what.  Correctness here is emprical; if it skips something went 
+wrong.
 
-> of stuff - goes with the distro i guess.  Yes, I have tested
-> runs of 'make -j12' and 'make -j24' (sorry, should have been more
-> precise, but -j{6,12,24) was used as testing, with -j6 default)
-> running dual makes.
+Sound is just one example, and a relatively easy one since the CPU 
+requirements are so low on modern machines.  Personal Video Recorders ala 
+Tivo are a more demanding application (often coming perilously close to your 
+memory or disk bandwidth capacity), and skips or dropouts are saved for 
+posterity there.  A human doesn't even have to be in the room, that task is 
+still "interactive".
+
+Repeated asynchronous wakeups come from typing on the keyboard and wiggling 
+the mouse.  If your mouse is dragging a window, the asynchronous wakeups 
+could provoke a lot of CPU activity.
+
+The difference between these two is that they are different types of waits.  
+Smooth spooling involves waiting for a known period of time, and being woken 
+up by a timer.  Asynchronous wakeups come out of the blue, the application 
+has know way of knowing the mouse is about to move or the keyboard is about 
+to press until it happens.
+
+(Some things combine these behaviors.  First person shooters (30 frames per 
+second, plus responding to the joystick NOW), but that kind of thing could 
+also collapse into the smooth spooler case if the frame rate's high enough 
+and polling for input is cheap...)
+
+True CPU hogs do block, but they only block when they're requesting more work.  
+Any read or write to a block device is a "request more work" type of block, 
+for example.  If the block device gets faster, the app runs faster.
+
+With a CPU hog, there is no system so powerful that this thing won't try to 
+speed to completion as fast as it can.  With an "interactive" task, the speed 
+of the system is not the limiting factor (or at least shouldn't be).
+
+Now there's a lot of fuzzy bits where you can't tell what kind of block you're 
+doing.  Blocking on the network, blocking on pipes, etc.  Could be anything.  
+But I think it's pretty safe to say that a timer is always an interactive 
+wait, and a block device never is.  (And considering that the  I/O scheduler 
+and the CPU scheduler may have to work together in the future to make things 
+like the anticipatory schedulerwork properly, it shouldn't be TOO much of a 
+stretch to distinguish between waiting on a block device and waiting on 
+something else...)
+
+> >I think that the work done this far is great. It is great that the
+> > scheduler almost can handle xmms under all kinds of loads - but enough is
+> > enough.
 >
-> With vanilla the mouse pointer, XMMS, switching desktops or
-> windows is smooth.  If I really hammer the system, it does
-> 'slow down' the general navigation of X a little, but not
-> so that that mouse pointer is jerky, etc.  With the O??int
-> patches things starts to 'stutter' under loads that is fairly
-> under those that vanilla handles fine.  The mouse gets jerky,
-> switching desktops is notably lagging.
+> I don't care if xmms skips or my mouse pointer stalls while I'm testing at
+> the heavy end of the load scale,
 
-Yes what you're describing is the expiring X issue. At this moment in time 
-with my patches with very high loads, it is easy for interactive tasks to 
-expire if used for sustained periods. This means that they will be smoother 
-than vanilla for a burst, then have a nasty blip when falling on the expired 
-array. This doesn't happen at lower loads, and is representative of the hard 
-to optimise for case - the interactive task that behaves occasionally like a 
-cpu hog (ie X). Lots of suggestions for ways around this have been offered, 
-but none address the fact that these will cause starvation of other loads. 
-Note that I say the vanilla scheduler does cause starvation already in the 
-wrong circumstances if you offer that as a solution to go back to it. Suffice 
-to say I'm still working on it as my highest priority.
+I do.  I believe you're in the minority here.
 
-Note that tasks that are never cpu hogs (eg xmms) will never stutter or falter 
-under these circumstances; which is why I stopped mentioning audio ages ago: 
-audio works without problems under normal and extreme circumstances with my 
-patches unless you renice a cpu hog to better priority than your audio app. 
-Note that despite all this, since people are so excited by the idea of 
-soft RR scheduling, I actually wrote a patch that will work with my tweaks a 
-while ago. I've not optimised or improved it at all because that is lower 
-priority to me than getting the general interactivity correct. For those 
-interested, it's in my experimental directory in kernel.kolivas.org/2.5
+> you flat can't have low latency and max
+> throughput at the same time.
 
-> Note that I am not talking about starving XMMS/the make's.
-> I am just talking general navigation of X.  Yes, even with
-> vanilla things do start a bit slower, but the mouse goes
-> where it should, and its not as if the vga struggles to
-> redraw the screen on desktop switch.  I do not expect the
-> system to behave for 'interactive' processes and xmms/whatever
-> as if there is no load - the signs of load is just way more
-> than with vanilla.
+If you're talking about keeping your cache hot, I agree.  But a lot of times, 
+minimizing latency DOES help throughput.  (Anticipatory scheduler, case in 
+point. :)
 
-As discussed above. Thanks for your report.
+What you're saying is that you want your CPU hog loads to complete as quickly 
+as possible at the expense of smooth mouse movement.  This is what "nice" is 
+for, isn't it?  (If you've got a dedicated, throughput-optimized server 
+running X in the first place, you have more fundamental problems.)
 
-Con
+And your uber-optimized configuration is still going to lose out to an 
+unoptimized configuration running on hardware that's three months newer... :)
+
+The linux-kernel gurus focused their optimizations almost exclusively on 
+throughput for almost the first full decade of kernel development.  
+Interactive latency started explicitly showing up as a concern in 2.4, and 
+has only really become a priority in 2.5.  There are a few tradeoffs, but 
+some of them are a bit overdue if you ask me.
+
+If you can document a throughput degredation and give a repeatable benchmark, 
+I'm sure Con and Ingo will be thrilled to address it.  A lot of contest is 
+about throughput, you know.  They're trying very hard to avoid regressions...
+
+>  If xmms skips and the mouse becomes sticks at
+> less than "heavy" though, something is wrong (defining heavy is one of
+> those tricky judgement calls).
+
+You know, I used to beat OS/2 to DEATH, and the mouse never went funky on me.  
+(Of course the mouse was updated directly from an interrupt routine in kernel 
+memory that never swapped out.  But still... :)
+
+> It's the mozilla loading a webpage type of reports that I worry about.
+
+It could be worse.  It could be OpenOffice. :)
+
+>          -Mike
+
+Rob
+
 

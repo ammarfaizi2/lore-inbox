@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264223AbTDJWmH (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 18:42:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264224AbTDJWmH (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 18:42:07 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:31395
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264223AbTDJWmG (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 18:42:06 -0400
-Subject: Re: PATCH: Fixes for ide-disk.c
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Nigel Cunningham <ncunningham@clear.net.nz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030410183839.GC4293@zaurus.ucw.cz>
-References: <1049527877.1865.17.camel@laptop-linux.cunninghams>
-	 <1049561200.25700.7.camel@dhcp22.swansea.linux.org.uk>
-	 <1049570711.3320.2.camel@laptop-linux.cunninghams>
-	 <1049641400.963.18.camel@dhcp22.swansea.linux.org.uk>
-	 <20030410183839.GC4293@zaurus.ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050011724.12930.138.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 10 Apr 2003 22:55:24 +0100
+	id S264226AbTDJWxb (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 18:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264227AbTDJWxb (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 18:53:31 -0400
+Received: from im1.mail.tds.net ([216.170.230.91]:63966 "EHLO im1.sec.tds.net")
+	by vger.kernel.org with ESMTP id S264226AbTDJWxa (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 18:53:30 -0400
+Date: Thu, 10 Apr 2003 19:05:02 -0400 (EDT)
+From: Jon Portnoy <portnoy@tellink.net>
+X-X-Sender: portnoy@cerberus.oppresses.us
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel support for non-english user messages
+In-Reply-To: <Pine.LNX.4.53.0304101638010.4978@chaos>
+Message-ID: <Pine.LNX.4.53.0304101903280.19136@cerberus.oppresses.us>
+References: <3E93A958.80107@si.rr.com> <20030409080803.GC29167@mea-ext.zmailer.org>
+ <20030409080803.GC29167@mea-ext.zmailer.org> <20030409190700.H19288@almesberger.net>
+ <3E94A1B4.6020602@si.rr.com> <Pine.LNX.4.53.0304092126130.992@chaos>
+ <1050001030.12494.1.camel@dhcp22.swansea.linux.org.uk> <shsvfxm157p.fsf@charged.uio.no>
+ <Pine.LNX.4.53.0304101638010.4978@chaos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-04-10 at 19:38, Pavel Machek wrote:
-> Hi!
-> 
-> > > Okay. We need a different solution then, but the problem remains - the
-> > > driver can get multiple, nexted calls to block and unblock. Can it
-> > > become a counting lock?
-> > 
-> > Blocked is a binary power management described state, its not a lock.
-> > What are you actually trying to do ?
-> 
-> He's trying to fix swsusp. Just now it likes
-> to BUG() for some people.
+[CC list trimmed, it was getting ridiculous]
 
-I meant at a slightly lower and more detailed level
+On Thu, 10 Apr 2003, Richard B. Johnson wrote:
 
+> On Thu, 10 Apr 2003, Trond Myklebust wrote:
+> 
+> > >>>>> " " == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> >
+[snip]
+> 
+> When somebody is writing a driver, if they have any experience,
+> they write debugging messages in their native language. But, once
+> the driver is written, these debugging messages should be removed
+> or #defined out. A properly functioning driver should never complain
+> about anything. It shouldn't do anything like you see when you
+> execute `dmesg`. The only time you should see information is
+> if there's trouble. And trouble with software should be fixed
+> immediately so you never have to encounter messages because software
+> didn't work. So, you are left will hardware messages like your
+> SCSI disk didn't come on-line, or you are out of disk-space.
+> For so few messages, you don't need translation, certainly not
+> in the kernel. Just Babel-fish it and away you go.
+> 
+
+A whole lot of users use dmesg output to figure out if their kernel is 
+detecting a piece of hardware. That's a very useful thing to have handy 
+and definitely not something that should be yanked out for the sake of 
+making it look pretty for people who don't know what they're doing with 
+their computer.

@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267633AbSLFWPo>; Fri, 6 Dec 2002 17:15:44 -0500
+	id <S267635AbSLFWTX>; Fri, 6 Dec 2002 17:19:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267635AbSLFWPo>; Fri, 6 Dec 2002 17:15:44 -0500
-Received: from pc-80-195-35-2-ed.blueyonder.co.uk ([80.195.35.2]:9094 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S267633AbSLFWPn>; Fri, 6 Dec 2002 17:15:43 -0500
-Subject: Re: [patch] fix the ext3 data=journal unmount bug
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Chris Mason <mason@suse.com>
-Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-       ext3 users list <ext3-users@redhat.com>
-In-Reply-To: <1039212420.9244.173.camel@tiny>
-References: <3DF0F69E.FF0E513A@digeo.com> <1039203287.9244.97.camel@tiny> 
-	<3DF0FE4F.5F473D5E@digeo.com> 
-	<1039204675.5301.55.camel@sisko.scot.redhat.com> 
-	<1039206858.9244.130.camel@tiny> 
-	<1039209773.5300.84.camel@sisko.scot.redhat.com> 
-	<1039212420.9244.173.camel@tiny>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Dec 2002 22:25:13 +0000
-Message-Id: <1039213513.4189.124.camel@sisko.scot.redhat.com>
+	id <S267636AbSLFWTX>; Fri, 6 Dec 2002 17:19:23 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:13839 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S267635AbSLFWTW>; Fri, 6 Dec 2002 17:19:22 -0500
+Message-Id: <200212062226.gB6MQsr04565@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: willy@debian.org, davem@redhat.com, James.Bottomley@SteelEye.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] generic device DMA implementation 
+In-Reply-To: Message from "Adam J. Richter" <adam@yggdrasil.com> 
+   of "Fri, 06 Dec 2002 14:17:21 PST." <200212062217.OAA07073@adam.yggdrasil.com> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 06 Dec 2002 16:26:54 -0600
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+adam@yggdrasil.com said:
+> 	This makes me lean infinitesmally more toward a parameter to
+> dma_alloc rather than a separate dma_alloc_not_necessarily_consistent
+> function, because if there ever are other dma_alloc variations that we
+> want to support, it is more likely that there may be overlap between
+> the users of those features and then the number of different function
+> calls would have to grow exponentially (or we might then talk about
+> changing the API again, which is not the end of the world, but is
+> certainly more difficult than not having to do so). 
 
-On Fri, 2002-12-06 at 22:07, Chris Mason wrote:
+I think I like this.
 
-> But with data journaling, there's a limited amount data pending that
-> needs to be sent to the log.  It isn't like the data pages in the
-> data=writeback, where there might be gigs and gigs worth of pages.  
+how about dma_alloc to take two flags
 
-That's true right now, but it may not be for other cases.  For example,
-a phase-tree type of filesystem may have huge amounts of data
-accumulated behind the commit, and any filesystem doing deferred block
-allocation will also have a lot of data which needs to be synced
-intelligently, not just by the VM walking the dirty buffer lists itself.
+DRIVER_SUPPORTS_CONSISTENT_ONLY
 
-> It seems like a natural progression to start adding journal address
-> spaces to deal with this instead of extra stuff in the super code, where
-> locking and super flag semantics make things sticky.
+and
 
-Absolutely, and I think an entirely separate ->sync_fs method is the way
-to go, as it doesn't assume any specific semantics about what data
-structure is getting locked in what fashion.
+DRIVER_SUPPORTS_NON_CONSISTENT
 
---Stephen
+The meaning of which are hopefully obvious this time
+
+and dma_alloc_consistent to be equivalent to dma_alloc with  
+DRIVER_SUPPORTS_CONSISTENT_ONLY (and hence equivalent to pci_alloc_consistent)
+
+James
+
 

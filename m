@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263407AbUC3RRV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 12:17:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbUC3RRP
+	id S263758AbUC3RRH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 12:17:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263754AbUC3RPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 12:17:15 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:8072 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263767AbUC3RQR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 12:16:17 -0500
-Subject: Re: how to avoid low memory situation
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Eli Cohen <mlxk@mellanox.co.il>
-Cc: kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <4069A7DC.4060107@mellanox.co.il>
-References: <4069A7DC.4060107@mellanox.co.il>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-2HBHQEpgJ0vz7Qy2K23A"
-Organization: Red Hat, Inc.
-Message-Id: <1080666971.4679.15.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 30 Mar 2004 19:16:11 +0200
+	Tue, 30 Mar 2004 12:15:39 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26567 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263783AbUC3RPZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 12:15:25 -0500
+Message-ID: <4069AB1B.90108@pobox.com>
+Date: Tue, 30 Mar 2004 12:15:07 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org,
+       dm-devel@redhat.com
+Subject: Re: "Enhanced" MD code avaible for review
+References: <760890000.1079727553@aslan.btc.adaptec.com> <200403261315.20213.kevcorry@us.ibm.com> <1644340000.1080333901@aslan.btc.adaptec.com> <200403270939.29164.kevcorry@us.ibm.com> <842610000.1080666235@aslan.btc.adaptec.com>
+In-Reply-To: <842610000.1080666235@aslan.btc.adaptec.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Justin T. Gibbs wrote:
+> The dm-raid1 module also appears to intrinsicly trust its mapping and the
+> contents of its meta-data (simple magic number check).  It seems to me that 
+> the kernel should validate all of its inputs regardless of whether the
+> ioctls that are used to present them are only supposed to be used by a
+> "trusted daemon".
 
---=-2HBHQEpgJ0vz7Qy2K23A
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The kernel should not be validating -trusted- userland inputs.  Root is 
+allowed to scrag the disk, violate limits, and/or crash his own machine.
 
-On Tue, 2004-03-30 at 19:01, Eli Cohen wrote:
-> Hi,
-> Our driver is locking user space memory by calling sys_mlock() while the=20
-> processes are ordinary processes without root priviliges.
+A simple example is requiring userland, when submitting ATA taskfiles 
+via an ioctl, to specify the data phase (pio read, dma write, no-data, 
+etc.).  If the data phase is specified incorrectly, you kill the OS 
+driver's ATA host state machine, and the results are very unpredictable. 
+  Since this is a trusted operation, requiring CAP_RAW_IO, it's up to 
+userland to get the required details right (just like following a spec).
 
-ewwwwwwwwwwwwwwwwwwwwwww
 
---=-2HBHQEpgJ0vz7Qy2K23A
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+> I honestly don't care if the final solution is EMD, DM, or XYZ so long
+> as that solution is correct, supportable, and covers all of the scenarios
+> required for robust RAID support.  That is the crux of the argument, not
+> "please love my code".
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+hehe.  I think we all agree here...
 
-iD8DBQBAaatbxULwo51rQBIRAr9+AJ4hMNGhEaByrQwPjnbjgwQ89BZs8ACeKgDq
-ImIWDkJRustoJ92nBs43Bcg=
-=/OC+
------END PGP SIGNATURE-----
+	Jeff
 
---=-2HBHQEpgJ0vz7Qy2K23A--
+
+
 

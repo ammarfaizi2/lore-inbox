@@ -1,87 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268446AbUIGSoc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268407AbUIGSki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268446AbUIGSoc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 14:44:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268401AbUIGSlE
+	id S268407AbUIGSki (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 14:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268400AbUIGSir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 14:41:04 -0400
-Received: from moutng.kundenserver.de ([212.227.126.176]:32765 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S268413AbUIGSj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 14:39:58 -0400
-Message-ID: <413E0076.9000809@heibler.de>
-Date: Tue, 07 Sep 2004 20:39:50 +0200
-From: Bernhard Heibler <bernhard@heibler.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: de, en-us, en
+	Tue, 7 Sep 2004 14:38:47 -0400
+Received: from pat.uio.no ([129.240.130.16]:60078 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S268401AbUIGSav (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 14:30:51 -0400
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Kasper Sandberg <lkml@metanurb.dk>, Andrew Morton <akpm@osdl.org>,
+       LKML Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc1-mm4
+References: <20040907020831.62390588.akpm@osdl.org>
+	<wxxoekil26x.fsf@nommo.uio.no> <1094567096.11870.0.camel@localhost>
+	<wxxwtz6i1zr.fsf@nommo.uio.no>
+	<20040907170418.GA31407@electric-eye.fr.zoreil.com>
+From: Terje Kvernes <terjekv@math.uio.no>
+Organization: The friends of mr. Tux
+X-URL: http://terje.kvernes.no/
+Date: Tue, 07 Sep 2004 20:30:39 +0200
+In-Reply-To: <20040907170418.GA31407@electric-eye.fr.zoreil.com> (Francois
+ Romieu's message of "Tue, 7 Sep 2004 19:04:18 +0200")
+Message-ID: <wxxzn42nd80.fsf@nommo.uio.no>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.1 (gnu/linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Boot of smp system hangs in wakeup_secondary_cpu
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:919bb675a7ae8654faa974ca0813e2c2
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=-5, required 12,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I try to resolve the following issue. My SMP System hangs during boot. 
+Francois Romieu <romieu@fr.zoreil.com> writes:
 
-Software Environment: 2.6.8.1 but also happens with older 2.6 kernels
-Hardware Environment: 2 x Pentium 4 Xeon 2.8 GHZ Hyper Threading, Tyan 
-Tiger i7505
+> Terje Kvernes <terjekv@math.uio.no> :
+> 
+> > <url: http://www.math.uio.no/~terjekv/kernel/sk98lin_v7.07_2.6.9-rc1-mm4.patch >
+> 
+> Will you consider spliting this stuff into a serie of smaller, self
+> contained patches ?
 
-The hangup doesn't happen always it happens in maybe 33% of boot tries. 
-It seams that the problem doesn't happen if Hyper threading is disabled 
-in the Bios.
+  from the perspective of this driver, I'm a user.  I have very little
+  experience with the code as a whole, it would probably take me
+  longer to understand and split the code then would be practically
+  useful.
 
-The boot process stops at this point:
-
-....
-Booting processor 2/6 eip 3000
-Initializing CPU#2
-masked ExtINT on CPU#2
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Calibrating delay loop... 4767.74 BogoMIPS
-CPU: Trace cache: 12K uops, L1 D cache: 8K
-CPU: L2 cache: 512K
-CPU: Physical Processor ID: 6
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#2.
-CPU#2: Intel P4/Xeon Extended MCE MSRs (12) available
-CPU2: Intel(R) Xeon(TM) CPU 2.40GHz stepping 07
-Booting processor 3/7 eip 3000
-
-
-The hangup doesn't happen all the time at the same CPU. Sometimes it 
-happens at the second sometimes at the third one.
-See my bugreport for a older kernel version for the full boot log file:  
-http://bugme.osdl.org/show_bug.cgi?id=1659
-
-I have add more printouts to the kernel and found out that the boot 
-process gets stuck in the function  wakeup_secondary_cpu in 
-arch/i386/kernel/smpboot.c  In my kernel the WAKE_SECONDARY_VIA_INIT 
-version of wakeup_secondary  is used:
-
-....
-apic_write_around(APIC_ICR, APIC_INT_LEVELTRIG | APIC_INT_ASSERT  | 
-APIC_DM_INIT);
-Dprintk("Waiting for send to finish...\n");
- timeout = 0;
-        do {
-                Dprintk("+");
-                udelay(100);
-                send_status = apic_read(APIC_ICR) & APIC_ICR_BUSY;
-        } while (send_status && (timeout++ < 1000));
-Dprintk("Before wait\n");
-######### STUCK HERE ###############
-mdelay(10);
-Dprintk("Deasserting INIT.\n");
-
-If the problem happens the last thing printed out is my debug output 
-before wait. The strange thing is that the problem doesn't seam to 
-happen so often since I have added the debug printouts. Could this be a 
-timing problem ? Could someone give me some hints how to debug this 
-further ? Any hints are welcome.
-
-Thanks
-Bernhard.
+-- 
+Terje

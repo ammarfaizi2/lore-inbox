@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVCNUAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVCNUCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261848AbVCNUAA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 15:00:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVCNUAA
+	id S261287AbVCNUCt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 15:02:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVCNUCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 15:00:00 -0500
-Received: from mail.aknet.ru ([217.67.122.194]:7945 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S261281AbVCNT7j (ORCPT
+	Mon, 14 Mar 2005 15:02:47 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:28081 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261287AbVCNUCJ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 14:59:39 -0500
-Message-ID: <4235ED35.1000405@aknet.ru>
-Date: Mon, 14 Mar 2005 22:59:49 +0300
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: ru, en-us, en
+	Mon, 14 Mar 2005 15:02:09 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: [patch] x86: fix ESP corruption CPU bug (take 2)
-References: <42348474.7040808@aknet.ru> <20050313201020.GB8231@elf.ucw.cz> <4234A8DD.9080305@aknet.ru> <Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org> <4234B96C.9080901@aknet.ru> <20050314192943.GG18826@devserv.devel.redhat.com>
-In-Reply-To: <20050314192943.GG18826@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 1/6] PCI Express Advanced Error Reporting Driver
+Date: Mon, 14 Mar 2005 12:01:28 -0800
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502408070E2B@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 1/6] PCI Express Advanced Error Reporting Driver
+Thread-Index: AcUm5y8oeCr83W07QzueQEuTc6C94AB6JWew
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Andi Kleen" <ak@muc.de>, "long" <tlnguyen@snoqualmie.dp.intel.com>
+Cc: <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
+       <benh@kernel.crashing.org>, <seto.hidetoshi@jp.fujitsu.com>,
+       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 14 Mar 2005 20:01:30.0277 (UTC) FILETIME=[9D07CD50:01C528D0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Saturday, March 12, 2005 1:38 AM Andi Kleen wrote:
+>I haven't read your code in detail, just a high level remark.
+>
+>> +6. Enabling AER Aware Support in PCI Express Device Driver
+>> +
+>> +To enable AER aware support requires a software driver to configure
+>> +the AER capability structure within its device, to initialize its
+AER
+>> +aware callback handle and to call pcie_aer_register. Sections 6.1,
+>> +6.2, and 6.3 describe how to enable AER aware support in details.
+>
+>There is currently discussion underway for a generic portable PCI 
+>error reporting interface for drivers. This is already being worked
+>on by some PPC64 and IA64 people. I don't think it would be a good idea
+>to add another incompatible PCI-E specific interface.
+>
+>So I would recommend to not apply pcie_aer_register() et.al.
+>and coordinate with the others working on this area on a common
+>interface.
+>
+>This would only impact the device driver interface; having
+>a PCI Express specific interface in sysfs is probably ok.
+>
+>Otherwise we would end up with tons of ifdefs in the drivers
+>supporting multiple error reporting interfaces for different platforms,
 
-Alan Cox wrote:
->> Alan, can you please apply that to an -ac
->> tree?
-> Ask Andrew Morton as it belongs in the -mm tree
-Actually I tried that already. Andrew
-had nothing against that patch personally,
-as well as Linus, but after all that didn't
-work:
-http://lkml.org/lkml/2005/1/3/260
+>which would be bad.
+>
+>Also in general I think the necessary callbacks should
+>be part of the basic device; not provided in a separate structure.
 
-So it can't be applied to -mm, and not
-depending on the kgdb-ga patch allowed for
-some extra optimization.
-So I have to try the -ac as the last resort.
-I realized you won't be pleased with that
-too much. If you are confident it doesn't
-fit the -ac tree by whatever means, I can
-understand that. (In that case I'll much
-appreciate the suggestion what other tree
-should I try.)
+Agree. We will coordinate with the others working on this area on a
+common interface.
+
+Thanks for your suggestions,
+Long
 

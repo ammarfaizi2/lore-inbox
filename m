@@ -1,39 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbTFGNJl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 09:09:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbTFGNJl
+	id S263179AbTFGN1b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 09:27:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbTFGN1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 09:09:41 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:60687 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263185AbTFGNJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 09:09:40 -0400
-Date: Sat, 7 Jun 2003 14:23:05 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: rmk@arm.linux.org.uk, davidm@hpl.hp.com, manfred@colorfullife.com,
-       axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: problem with blk_queue_bounce_limit()
-Message-ID: <20030607142305.A27242@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"David S. Miller" <davem@redhat.com>, rmk@arm.linux.org.uk,
-	davidm@hpl.hp.com, manfred@colorfullife.com, axboe@suse.de,
-	linux-kernel@vger.kernel.org
-References: <20030606.234401.104035537.davem@redhat.com> <16097.37454.827982.278024@napali.hpl.hp.com> <20030607104434.B22665@flint.arm.linux.org.uk> <20030607.024704.13764413.davem@redhat.com>
+	Sat, 7 Jun 2003 09:27:31 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:43734 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263179AbTFGN1a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 09:27:30 -0400
+Date: Sat, 7 Jun 2003 15:41:00 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [patch] 2.5.70-mm5: Compile error if !CONFIG_PROC_FS
+Message-ID: <20030607134100.GJ15311@fs.tum.de>
+References: <20030605021231.2b3ebc59.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030607.024704.13764413.davem@redhat.com>; from davem@redhat.com on Sat, Jun 07, 2003 at 02:47:04AM -0700
+In-Reply-To: <20030605021231.2b3ebc59.akpm@digeo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 07, 2003 at 02:47:04AM -0700, David S. Miller wrote:
-> I agree, the idea at the time that Jens and myself did this
-> work was that the generic device layer would provide interfaces
-> by which we could test this given a struct device.
+It seems the following compile error if !CONFIG_PROC_FS comes from 
+Linus' tree:
 
-Wouldn't that be the dma_is_phys(dev) call I mentioned earlier in
-this thread that you didn't like? :)
+<--  snip  -->
+
+...
+  CC      init/main.o
+In file included from init/main.c:15:
+include/linux/proc_fs.h:238: redefinition of `kclist_add'
+include/linux/proc_fs.h:231: `kclist_add' previously defined here
+include/linux/proc_fs.h:239: redefinition of `kclist_del'
+include/linux/proc_fs.h:234: `kclist_del' previously defined here
+include/linux/proc_fs.h: In function `kclist_del':
+include/linux/proc_fs.h:239: syntax error before '}' token
+include/linux/proc_fs.h:239: warning: no return statement in function 
+returning non-void
+make[1]: *** [init/main.o] Error 1
+
+<--  snip  -->
+
+
+The fis is trivial:
+
+
+--- linux-2.5.70-mm5/include/linux/proc_fs.h.old	2003-06-07 15:33:21.000000000 +0200
++++ linux-2.5.70-mm5/include/linux/proc_fs.h	2003-06-07 15:34:04.000000000 +0200
+@@ -235,8 +235,6 @@
+ 	return NULL;
+ }
+ 
+-static inline void kclist_add(struct kcore_list *new, void *addr, size_t size) {};
+-static inline struct kcore_list * kclist_del(void *addr) {return NULL};
+ #endif /* CONFIG_PROC_FS */
+ 
+ struct proc_inode {
+
+
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

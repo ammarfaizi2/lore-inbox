@@ -1,89 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272285AbRIETQn>; Wed, 5 Sep 2001 15:16:43 -0400
+	id <S272277AbRIETTN>; Wed, 5 Sep 2001 15:19:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272277AbRIETQe>; Wed, 5 Sep 2001 15:16:34 -0400
-Received: from [209.38.98.99] ([209.38.98.99]:21439 "EHLO srvr201.castmark.com")
-	by vger.kernel.org with ESMTP id <S272285AbRIETQN>;
-	Wed, 5 Sep 2001 15:16:13 -0400
-Message-Id: <200109051916.f85JGvf11091@srvr201.castmark.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Fred <fred@arkansaswebs.com>
-To: oscarcvt@galileo.edu, linux-kernel@vger.kernel.org
-Subject: Re: kernel panic, a cry for help
-Date: Wed, 5 Sep 2001 14:16:23 -0500
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <E15efKa-0006Cj-00@the-village.bc.nu> <999707202.3b965242145d5@webmail.galileo.edu>
-In-Reply-To: <999707202.3b965242145d5@webmail.galileo.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S272289AbRIETTF>; Wed, 5 Sep 2001 15:19:05 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:59151 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S272277AbRIETSr>; Wed, 5 Sep 2001 15:18:47 -0400
+Date: Wed, 5 Sep 2001 21:18:52 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Ken Moffat <ken@kenmoffat.uklinux.net>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Patch: fix error in building procfs-guide
+Message-ID: <20010905211851.N22160@arthur.ubicom.tudelft.nl>
+In-Reply-To: <Pine.LNX.4.21.0109051939150.20371-100000@pppg_penguin.linux.bogus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0109051939150.20371-100000@pppg_penguin.linux.bogus>; from ken@kenmoffat.uklinux.net on Wed, Sep 05, 2001 at 07:44:29PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-well, 
-try these:
+On Wed, Sep 05, 2001 at 07:44:29PM +0100, Ken Moffat wrote:
+> Following patch fixes errors which cause building kernel docs to fail
+> (e.g. tulip user guide doesn't get built). Created on 2.4.7 while I was on
+> holiday, applies cleanly to 2.4.9-ac6 and 2.4.10-pre4.
 
-first start with a ckfs of your root filesystem, that'd be:
-# ckfs /dev/hdax 
-for ide systems where x is usually 1-4
- or 
-# ckfs /dev/sdax
-for scsi systems where x is 0-6
+Thanks for spotting the error, the patch is obviously correct. Linus,
+Alan, please apply.
 
-if no troubles reported, the I'd suggest that you check some of the important 
-files for sign of tampering ( /etc/passwd /etc/shadow )
-if no tampering is evident, then check to see if you can boot the machine by 
-giving lilo a command line (right as the machine boots, you get the lilo 
-prompt (or you have to press CTRL-X to get it):
 
-lilo: linux init=/sbin/init 
+Erik
 
-if this boots the machine, then all that is needed is to add this paramater 
-to lilo.conf:
+> diff -urN linux-2.4.7/Documentation/DocBook/procfs-guide.tmpl altered-2.4.7/Documentation/DocBook/procfs-guide.tmpl
+> --- linux-2.4.7/Documentation/DocBook/procfs-guide.tmpl	Sat Jul 21 22:47:23 2001
+> +++ altered-2.4.7/Documentation/DocBook/procfs-guide.tmpl	Wed Aug 22 20:39:44 2001
+> @@ -207,7 +207,7 @@
+>          will return <constant>NULL</constant>. <xref
+>          linkend="userland"> describes how to do something useful with
+>          regular files.
+> -      <para>
+> +      </para>
+>  
+>        <para>
+>          Note that it is specifically supported that you can pass a
+> @@ -577,7 +577,7 @@
+>          the <structfield>owner</structfield> field in the
+>          <structname>struct proc_dir_entry</structname> to
+>          <constant>THIS_MODULE</constant>.
+> -      <para>
+> +      </para>
+>  
+>        <programlisting>
+>  struct proc_dir_entry* entry;
+> 
 
-append = "init=/sbin/init"
-
-and then rerun lilo.
-
-if it's something else, I  need more info.
-good luck
-Fred
-
-__________________________________________________ 
-On Wednesday 05 September 2001 11:26 am, oscarcvt@galileo.edu wrote:
-> ive started with a rescue disk, /sbin/init is present, lilo.conf seems
-> fine, where might i go next?
->
-> thanx to all,
-> oscar
->
-> > > im not sure if this q belongs here but i need all the help i can get.
-> > > the www, dns, mail server at my site mysteriously got corrupted (not
-> >
-> > sure how).
-> >
-> > > Now i boot it up and get
-> > >
-> > > Kernel panic: No init found. Try passing init= option to kernel
-> > >
-> > > what can i do? where should i start? i dont want to break anything so
-> >
-> > please
-> >
-> > > help me,
-> >
-> > I suspect back up tapes. The kernel cannot find an /sbin/init to run
-> > when
-> > it starts up. That could be on of several things
-> >
-> > 	-	Disk failure
-> > 	-	Someone broke in and erased it all
-> > 	-	Misconfiguration
-> >
-> > A rescue disk is probably the starting point
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

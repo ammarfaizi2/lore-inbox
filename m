@@ -1,58 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbUDGWSI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 18:18:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbUDGWSI
+	id S261161AbUDGWTt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 18:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbUDGWTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 18:18:08 -0400
-Received: from ns.suse.de ([195.135.220.2]:53720 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261159AbUDGWSF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 18:18:05 -0400
-Date: Thu, 8 Apr 2004 00:16:29 +0200
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com
+	Wed, 7 Apr 2004 18:19:49 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:11758 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261161AbUDGWTq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 18:19:46 -0400
 Subject: Re: NUMA API for Linux
-Message-Id: <20040408001629.2ff39598.ak@suse.de>
-In-Reply-To: <20040407145130.4b1bdf3e.akpm@osdl.org>
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Andi Kleen <ak@suse.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+In-Reply-To: <20040407234525.4f775c16.ak@suse.de>
 References: <1081373058.9061.16.camel@arrakis>
-	<20040407145130.4b1bdf3e.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	 <20040407232712.2595ac16.ak@suse.de> <1081374061.9061.26.camel@arrakis>
+	 <20040407234525.4f775c16.ak@suse.de>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1081376372.9925.2.camel@arrakis>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 07 Apr 2004 15:19:32 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Apr 2004 14:51:30 -0700
-Andrew Morton <akpm@osdl.org> wrote:
-
+On Wed, 2004-04-07 at 14:45, Andi Kleen wrote:
+> On Wed, 07 Apr 2004 14:41:02 -0700
 > Matthew Dobson <colpatch@us.ibm.com> wrote:
-> >
-> > Just from the patches you posted, I would really disagree that these are
-> > ready for merging into -mm.
 > 
-> I have them all merged up here.  I made a number of small changes -
-> additional CONFIG_NUMA ifdefs, whitespace improvements, remove unneeded
-> arch_hugetlb_fault() implementation.  The core patch created two copies of
-> the same file in mempolicy.h, compile fix in mmap.c and a few other things.
-
-Sorry about the bad patches. I will try to be more careful in the future.
-
-What was the problem in mmap.c ? I compiled in various combinations (with
-and without NUMA on i386 and x86-64) and it worked.
-
-And why was arch_hugetlb_fault() unneeded?
-
-> It builds OK for NUMAQ, although NUMAQ does have a problem:
+> > On Wed, 2004-04-07 at 14:27, Andi Kleen wrote:
+> > > On Wed, 07 Apr 2004 14:24:19 -0700
+> > > Matthew Dobson <colpatch@us.ibm.com> wrote:
+> > > 
+> > > > 	I must be missing something here, but did you not include mempolicy.h
+> > > > and policy.c in these patches?  I can't seem to find them anywhere?!? 
+> > > > It's really hard to evaluate your patches if the core of them is
+> > > > missing!
+> > > 
+> > > It was in the core patch and also in the last patch I sent Andrew.
+> > > See ftp://ftp.suse.com/pub/people/ak/numa/* for the full patches
+> > 
+> > Ok.. I'll check that link, but what you posted didn't have the files
+> > (mempolicy.h & policy.c) in the patch:
 > 
-> drivers/built-in.o: In function `acpi_pci_root_add':
-> drivers/built-in.o(.text+0x22015): undefined reference to `pci_acpi_scan_root'
+> Indeed. Must have gone missing. Here are the files for reference.
 > 
-> ppc64+CONFIG_NUMA compiles OK.
+> The full current broken out patchkit is in 
+> ftp.suse.com:/pub/people/ak/numa/2.6.5mc2/
 
-ppc64 doesn't have the system calls hooked up, but I'm not sure how useful
-it would be for these boxes anyways (afaik they are pretty uniform) 
+Server isn't taking connections right now.  At least for me... :(
 
--Andi
+Your patch still looks broken.  It includes some files twice:
+
+> diff -u linux-2.6.5-mc2-numa/include/linux/mempolicy.h-o linux-2.6.5-mc2-numa/include/linux/mempolicy.h
+> --- linux-2.6.5-mc2-numa/include/linux/mempolicy.h-o	2004-04-07 12:07:18.000000000 +0200
+> +++ linux-2.6.5-mc2-numa/include/linux/mempolicy.h	2004-04-07 12:07:13.000000000 +0200
+> @@ -0,0 +1,219 @@
+
+<snip>
+
+> diff -u linux-2.6.5-mc2-numa/include/linux/mempolicy.h-o linux-2.6.5-mc2-numa/include/linux/mempolicy.h
+> --- linux-2.6.5-mc2-numa/include/linux/mempolicy.h-o	2004-04-07 12:07:18.000000000 +0200
+> +++ linux-2.6.5-mc2-numa/include/linux/mempolicy.h	2004-04-07 12:07:13.000000000 +0200
+> @@ -0,0 +1,219 @@
+
+-Matt
+

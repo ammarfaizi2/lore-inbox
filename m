@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263333AbTARIFa>; Sat, 18 Jan 2003 03:05:30 -0500
+	id <S264644AbTARINc>; Sat, 18 Jan 2003 03:13:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263342AbTARIF3>; Sat, 18 Jan 2003 03:05:29 -0500
-Received: from packet.digeo.com ([12.110.80.53]:1418 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263333AbTARIF1>;
-	Sat, 18 Jan 2003 03:05:27 -0500
-Date: Sat, 18 Jan 2003 00:15:46 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: davidm@hpl.hp.com
-Cc: davidm@napali.hpl.hp.com, anton@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: recent change to exit_mmap
-Message-Id: <20030118001546.7df35e13.akpm@digeo.com>
-In-Reply-To: <15913.2330.891678.16666@napali.hpl.hp.com>
-References: <20030118060522.GE7800@krispykreme>
-	<20030117224444.08c48290.akpm@digeo.com>
-	<15913.1396.22808.83238@napali.hpl.hp.com>
-	<20030117235317.01ad6b7b.akpm@digeo.com>
-	<15913.2330.891678.16666@napali.hpl.hp.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S264630AbTARINc>; Sat, 18 Jan 2003 03:13:32 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:17344 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264628AbTARINb>;
+	Sat, 18 Jan 2003 03:13:31 -0500
+Date: Sat, 18 Jan 2003 00:12:18 -0800 (PST)
+Message-Id: <20030118.001218.52982745.davem@redhat.com>
+To: jamie@shareable.org
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: Bug? Sparc linux defines MAP_LOCKED == MAP_GROWSDOWN
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030118032940.GB18282@bjl1.asuk.net>
+References: <20030118032940.GB18282@bjl1.asuk.net>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Jan 2003 08:14:21.0408 (UTC) FILETIME=[9AC4AE00:01C2BEC9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger <davidm@napali.hpl.hp.com> wrote:
->
-> I don't know why SET_PERSONALITY() came to be where it is now, but it
-> does make some sense to me.  One thing that comes to mind: on ia64, we
-> normally don't map data segments with execute permission but for
-> backwards-compatibility, we need to do that for x86 binaries.  I think
-> there might be a problem with that if SET_PERSONALITY() was done too
-> late.  Certainly something that could be fixed, but I suspect a
-> similar ordering issue (perhaps on SPARC?) might have triggered the
-> current placement of SET_PERSONALITY().
-> 
+   From: Jamie Lokier <jamie@shareable.org>
+   Date: Sat, 18 Jan 2003 03:29:40 +0000
 
-hmm.  Seems that all the activities between the two first SET_PERSONALITY()
-calls and the flush_old_exec() are pretty innocuous.  And no mappings could
-be set up there, because flush_old_exec() would remove them again.
-
-I'll ask Dave about it.
-
-
+   On Sparc and Sparc64, MAP_LOCKED and MAP_GROWSDOWN are both defined
+   as 0x100.  This is a bug, isn't it?
+   
+Unfortunately it's one we're going to have to live with somehow.
+Probably by just saying MAP_GROWSDOWN is totally unsupported.
+I see no real use for it anyways.

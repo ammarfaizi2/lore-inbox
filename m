@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289029AbSAQPFr>; Thu, 17 Jan 2002 10:05:47 -0500
+	id <S289113AbSAQPLH>; Thu, 17 Jan 2002 10:11:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289113AbSAQPFi>; Thu, 17 Jan 2002 10:05:38 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:37000
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S289029AbSAQPFX>; Thu, 17 Jan 2002 10:05:23 -0500
-Date: Thu, 17 Jan 2002 09:49:20 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: CML2-2.1.6
-Message-ID: <20020117094920.A9419@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
+	id <S289136AbSAQPKr>; Thu, 17 Jan 2002 10:10:47 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:5156 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S289113AbSAQPKf>; Thu, 17 Jan 2002 10:10:35 -0500
+Date: Thu, 17 Jan 2002 16:10:55 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
+Subject: clarification about redhat and vm
+Message-ID: <20020117161055.K4847@athlon.random>
+In-Reply-To: <20020116200459.E835@athlon.random> <E16RCYR-0003GW-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <E16RCYR-0003GW-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jan 17, 2002 at 01:26:07PM +0000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at <http://www.tuxedo.org/~esr/cml2/>.
+On Thu, Jan 17, 2002 at 01:26:07PM +0000, Alan Cox wrote:
+> > If redhat doesn't use the -aa VM into their kernels that's either a
+> > political decision or they're not good enough at the VM. I can tell you
+> 
+> If you want to insult the Red Hat people please don't do it from a SuSE
+> address. There are some great people at SuSE and I somehow doubt you speak
+> for the management or major stockholders (ibm etc)
 
-Release 2.1.6: Thu Jan 17 09:42:47 EST 2002
-	* Oops.  Allow rulebases without a prefix declaration.
-	* Autoconfigurator now has MCA-bus test.
+do you plan to sue me as well? :)
 
-Checkpoint release before I go to an SF convention for four days, without
-net access grrrr....ConFusion here I come!
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+"If redhat doesn't use the -aa VM " was a short form of "if redhat
+cannot see the goodness of all the bugfixing work that happened between
+the 2.4.9 VM and any current branch 2.4, and so if they keep shipping
+2.4.9 VM as the best one for DBMS and critical VM apps like the SAP
+benchmark".
 
-As the Founding Fathers knew well, a government that does not trust its honest,
-law-abiding, taxpaying citizens with the means of self-defense is not itself
-worthy of trust. Laws disarming honest citizens proclaim that the government
-is the master, not the servant, of the people.
-        -- Jeff Snyder
+I think it's fair enough to say that if you plan to keep shipping 2.4.9
+VM with all its troubles like I understood yesterday (starting from VM
+highmem deadlocks, to kswapd looping into ZONE_DMA etc..., swap storms
+throwing the realistic SAP benchmark to /dev/null) that was not usable
+on long uptimes on big DBMS with several gigabytes of ram.
+
+Somebody else also complained me about this saying that from what I said
+it looks like the -aa VM is the best thing possible which is obviously
+not true. In such two lines I said -aa VM just to go short. The -aa VM
+in 2.4.18pre2aa2 is obviously certainly not the best that you can make
+and I suggest everybody to try to make things better and invent and try
+new algorithm etc...  that is just the best compromise that _I_ could
+make so far. So it is obvious if anybody doesn't use the -aa VM in
+2.4.18pre2aa2 it doesn't mean he doesn't understand about VM.  as far I
+can tell rmap could be an order of magnitude better of -aa VM in
+2.4.18pre2aa2, it's just I didn't checked it yet (because of all the non
+obvious implication the rmap design adds, see DaveM emails of one year
+back to linux-mm). All my wondering in my previous email was between
+2.4.9 VM with all its known troubles and a sane version of the current
+vm like in 2.4.18pre2aa2. So about the past and the present, not about
+the present and the future. I thought it was obvious from the context of
+the email. I said this in two lines and apparently RedHat didn't like
+it, I'm sorry, but quite frankly I think that was quite fair enough, at
+least with this additional clarification added.
+
+Andrea

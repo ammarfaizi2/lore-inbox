@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262665AbTJAV5B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 17:57:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262667AbTJAV5A
+	id S262555AbTJAWGd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 18:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTJAWGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 17:57:00 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55817 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262665AbTJAV47
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 17:56:59 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.6.0-test6 scheduling(?) oddness
-Date: 1 Oct 2003 21:47:29 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <blfi1h$jd0$1@gatekeeper.tmr.com>
-References: <20031001032238.GB1416@Master> <20030930215512.1df59be3.akpm@osdl.org> <20031001051008.GD1416@Master>
-X-Trace: gatekeeper.tmr.com 1065044849 19872 192.168.12.62 (1 Oct 2003 21:47:29 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Wed, 1 Oct 2003 18:06:33 -0400
+Received: from gprs150-56.eurotel.cz ([160.218.150.56]:24705 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262555AbTJAWG3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 18:06:29 -0400
+Date: Thu, 2 Oct 2003 00:05:34 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Radu Filip <socrate@infoiasi.ro>
+Cc: viro@parcelfarce.linux.theplanet.co.uk,
+       Makan Pourzandi <Makan.Pourzandi@ericsson.ca>,
+       Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
+       Axelle Apvrille <Axelle.Apvrille@ericsson.ca>,
+       Vincent Roy <vincent.roy@ericsson.ca>,
+       David Gordon <davidgordonca@yahoo.ca>
+Subject: Re: [ANNOUNCE] DigSig 0.2: kernel module for digital signature verification for binaries
+Message-ID: <20031001220532.GD5289@elf.ucw.cz>
+References: <20031001182440.GV7665@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0310020043550.16234-100000@shrek.tuiasi.ro>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310020043550.16234-100000@shrek.tuiasi.ro>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031001051008.GD1416@Master>,
-Murray J. Root <murrayr@brain.org> wrote:
-| On Tue, Sep 30, 2003 at 09:55:12PM -0700, Andrew Morton wrote:
-| > "Murray J. Root" <murrayr@brain.org> wrote:
-| > >
-| > > The render finishes in the same 30 minutes, then oowriter starts.
-| > >  oowriter takes about 3 seconds to load if no rendering is going on.
-| > 
-| > OpenOffice uses sched_yield() in strange ways which causes it to
-| > get hopelessly starved on 2.6 kernels.  I think RH have a fixed version,
-| > but I don't know if that has propagated into the upstream yet.
-| > 
-| > So...  Don't worry about OpenOffice too much.  Is the problem reproducible
-| > with other applications?
-| 
-| Nope - even tried it with KDE apps.
-| Write it off to OpenOffice, not test6.
+Hi!
 
-I wish I could just write off programs like that, but if a program is
-running, and doing legitimate system calls, and it stops running
-(totally or usefully), I'd like to be sure that the kernel doesn't have
-some unintended behaviour before I just pass on the program.
+> > <shrug> so in a month rootkits get updated and we are back to square 1,
+> > with additional mess from patch...
+> 
+> Viro, I think you have an attitude problem here. "Don't be ridiculous",
+> "Rubbish", "<shrug>" don't sound very constructive or at least
+> encouraging.
+> 
+> Over the years it was proved that Linux kernel can be tailored for a very
+> large number of unexpected and very strange needs. IBM put it into
+> watches, NASA sent it to space, it is exists in oil wells and so on. I
+> think that the possibilities offered by Linux kernel are limited only by
+> the knowledge, imagination and will of every of us. Linux itself was once
+> a very insignificant and unreliable kernel and many other serious Unix and
+> Unix-like alternative were available. Still, it is prevailing today because
+> some peoples believed in what they did.
+> 
+> Especially to your point, should I mention that there are patches that
+> avoid buffer-overflows? Or that there are patches for gcc that add bound
+> check to arrays in C?
 
-Particularly when OO is what allows lots of people to avoid running that
-other operating system.
+I simply wanted to see valid usage of this. It certainly does not
+prevent attacker to get control of your box. Al seems to be right. It
+may temporarily redirect script-kiddies, through...
 
-| 
-| That doesn't explain the major time increase of the render, though.
-| 200% for 2.5.65 vs 2.6.0-test6 or 150% for 2.6.0-test5 vs 2.6.0-test6 is a 
-| bit extreme.
-
-The vmstat sure didn't show a big increase in contenxt switches, but if
-there's nothing elese wanting the CPU I would expect the render to be
-what's running, and at the same speed as test5.
-
-Suggestion: could you run 'top' in the text output mode to see if for
-some reason the CPU is going to some odd process. The revised nice
-handling can't make a user process lower priority than the idle loop or
-something odd like that, can it?
+There may be some uses like "prevent tivo users from running their own
+software", but I'm not sure I want to encourage some uses. Maybe "its
+neccessary to get our phones approved by FCC" would be better.
+								Pavel
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

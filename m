@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbUKHQwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbUKHQ45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbUKHQwy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 11:52:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbUKHQto
+	id S261869AbUKHQ45 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 11:56:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbUKHQyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 11:49:44 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41121 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261891AbUKHPYx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 10:24:53 -0500
-Date: Mon, 8 Nov 2004 15:24:50 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Li Shaohua <shaohua.li@intel.com>
-Cc: ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>,
-       Greg <greg@kroah.com>, Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: [ACPI] [PATCH/RFC 4/4]An experimental implementation for IDE bus
-Message-ID: <20041108152450.GB32374@parcelfarce.linux.theplanet.co.uk>
-References: <1099887081.1750.249.camel@sli10-desk.sh.intel.com>
+	Mon, 8 Nov 2004 11:54:17 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:49167 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261869AbUKHPfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 10:35:07 -0500
+Date: Mon, 8 Nov 2004 16:34:36 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] kill IN_STRING_C
+Message-ID: <20041108153436.GB9783@stusta.de>
+References: <20041107142445.GH14308@stusta.de> <20041108134448.GA2456@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1099887081.1750.249.camel@sli10-desk.sh.intel.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20041108134448.GA2456@wotan.suse.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 12:11:47PM +0800, Li Shaohua wrote:
-> A sample patch to bind IDE devices. I'm not familar with IDE driver, so
-> the patch possibly is completely wrong, though it can show correct ACPI
-> path in my laptop. This test case just shows the framework works, please
-> don't apply it.
+On Mon, Nov 08, 2004 at 02:44:49PM +0100, Andi Kleen wrote:
 
-> +#ifdef CONFIG_ACPI
-> +#include <linux/acpi.h>
-> +int generic_ide_platform_bind(struct device *dev)
-> +{
-> +	acpi_handle parent_handle = NULL;
-> +	acpi_integer address;
-> +	int i;
-> +
-> +	/* Seems dev->parent->parent is the PCI IDE controller */
-> +        if (dev->parent && dev->parent->parent)
-> +                parent_handle = dev->parent->parent->handle;
+> > Can you still reproduce this problem?
+> > If not, I'll suggest to apply the patch below which saves a few kB in 
+> > lib/string.o .
+> 
+> I would prefer to keep it because there is no guarantee in gcc
+> that it always inlines all string functions unless you pass
+> -minline-all-stringops. And with that the code would
+> be bloated much more than the few out of lined fallback
+> string functions.
 
-An IDE struct device is the gendev embedded in the ide_drive_t.  Its parent
-is the ide_hwif_t, and its parent is the PCI device (or maybe SBUS
-or whatever).  You can see this in /sys:
+If I understand your changelog entry correctly, this wasn't the problem
+(the asm string functions are "static inline").
 
-$ ls /sys/devices/pci0000:00/0000:00:1f.1/ide0/0.0
-block  detach_state  power
+Rethinking it, I don't even understand the sprintf example in your 
+changelog entry - shouldn't an inclusion of kernel.h always get it 
+right?
 
-The '0.0' is the device with an ide_bus_type.  ide0 is the hwif.
-0000:00:1f.1 is a pci_dev.  Or in ACPI terms, ACPI/_SB/PCI0/IDEC
-is ide0 and ACPI/_SB/PCI0/IDEC/PRID is 0.0
+> Even if it works for you with your configuration it's just by luck.
 
-At least, I think that's the mapping.  Are we ever going to do anything
-with /sys/firmware/acpi/namespace/ or will it just stay around consuming
-inodes and dentries for no good reason?
+The two configurations I tried are one configuration with _everything_ 
+except modules enablesd, and the other was _everything_ modular.
+
+That's why I'd like to have an example where it fails to understand the 
+problem.
+
+> -Andi
+
+cu
+Adrian
 
 -- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

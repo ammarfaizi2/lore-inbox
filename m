@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318466AbSGZTrE>; Fri, 26 Jul 2002 15:47:04 -0400
+	id <S318078AbSGZTVV>; Fri, 26 Jul 2002 15:21:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318468AbSGZTrE>; Fri, 26 Jul 2002 15:47:04 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:13303 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S318466AbSGZTrD>; Fri, 26 Jul 2002 15:47:03 -0400
-Subject: Re: [RFC] Scalable statistics counters using kmalloc_percpu
-From: Robert Love <rml@tech9.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Ravikiran G Thirumalai <kiran@in.ibm.com>,
-       linux-kernel@vger.kernel.org, lse <lse-tech@lists.sourceforge.net>,
-       riel@conectiva.com.br, Rusty Russell <rusty@rustcorp.com.au>
-In-Reply-To: <20020726194643.GX2907@holomorphy.com>
-References: <20020726204033.D18570@in.ibm.com>
-	<3D41990A.EDC1A530@zip.com.au>  <20020726194643.GX2907@holomorphy.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8.99 
-Date: 26 Jul 2002 12:50:12 -0700
-Message-Id: <1027713012.2443.49.camel@sinai>
-Mime-Version: 1.0
+	id <S318086AbSGZTVV>; Fri, 26 Jul 2002 15:21:21 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:21632 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S318078AbSGZTVU>; Fri, 26 Jul 2002 15:21:20 -0400
+Date: Fri, 26 Jul 2002 15:25:40 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Russell Lewis <spamhole-2001-07-16@deming-os.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Looking for links: Why Linux Doesn't Page Kernel Memory?
+In-Reply-To: <3D418DFD.8000007@deming-os.org>
+Message-ID: <Pine.LNX.3.95.1020726151940.3338A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-07-26 at 12:46, William Lee Irwin III wrote:
-> On Fri, Jul 26, 2002 at 11:46:34AM -0700, Andrew Morton wrote:
-> > Oh dear.  Most people only have two CPUs.
-> > Rusty, can we *please* fix this?  Really soon?
+On Fri, 26 Jul 2002, Russell Lewis wrote:
+
+> I have spent some time working on AIX, which pages its kernel memory. 
+>  It pins the interrupt handler functions, and any data that they access, 
+> but does not pin the other code.
 > 
-> I'll post the panic triggered by lowering NR_CPUS shortly. There's
-> an ugly showstopping i386 arch code issue here.
+> I'm looking for links as to why (unless I'm mistaken) Linux doesn't do 
+> this, so I can better understand the system.
+> 
+> Thanks, and sorry for the broadcast message.  My web search turned up 
+> nothing.
+> 
+> Russ Lewis
 
-In current 2.5?  I thought Andrew and I fixed all those issues and
-pushed them to Linus...
+You'll probably get a zillion replies on this.
+Paging is expensive. The fastest kernel will not be paged.
+Also, the kernel is very small, you gain a few pages, maybe
+80 to 90 at the expense of paging CPU cycles. 85 * 4096 = 348,160
+1/3 megabyte gained, hardly worth the cost.
 
-The `configurable NR_CPUS' patch works fine for me.  I always boot with
-NR_CPUS=2.
-
-	Robert love
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

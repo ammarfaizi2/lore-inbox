@@ -1,55 +1,282 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbUJWQTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbUJWUyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbUJWQTL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 12:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbUJWQOL
+	id S261309AbUJWUyP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 16:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbUJWUyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 12:14:11 -0400
-Received: from ipcop.bitmover.com ([192.132.92.15]:22963 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261227AbUJWQM7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 12:12:59 -0400
-Date: Sat, 23 Oct 2004 09:12:53 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-Message-ID: <20041023161253.GA17537@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-References: <41752E53.8060103@pobox.com> <20041019153126.GG18939@work.bitmover.com> <41753B99.5090003@pobox.com> <4d8e3fd304101914332979f86a@mail.gmail.com> <20041019213803.GA6994@havoc.gtf.org> <4d8e3fd3041019145469f03527@mail.gmail.com> <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org>
+	Sat, 23 Oct 2004 16:54:15 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:50087 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id S261310AbUJWUwm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 16:52:42 -0400
+Date: Sat, 23 Oct 2004 13:47:28 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, cmm@us.ibm.com, dipankar@us.ibm.com, hugh@veritas.com
+Subject: [PATCH 3/3] RCU: eliminating explicit memory barriers from SysV IPC
+Message-ID: <20041023204728.GA4767@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 19, 2004 at 03:11:55PM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Tue, 19 Oct 2004, Paolo Ciarrocchi wrote:
-> >
-> > I know I'm pedantic but can we all see the list of bk trees ("patches
-> > ready for mainstream" and "patches eventually ready for mainstream")
-> > that we'll be used by Linus ?
-> 
-> Even _I_ don't have that kind of list. 
+This patch uses the rcu_assign_pointer() API to eliminate a number
+of explicit memory barriers from the SysV IPC code that uses RCU.
+It also restructures the ipc_ids structure so that the array size
+is stored in the same memory block as the array itself (see the
+new struct ipc_id_ary).  This prevents the race that the earlier
+code was subject to, where a reader could see a mismatch between
+the size and the actual array.  With the size stored with the array,
+the possibility of mismatch is eliminated -- with out the need for
+careful ordering and explicit memory barriers.  This has been
+tested successfully on i386 and ppc64.
 
-I don't know how you could have that sort of list.  We have some idea
-of the potential size of that list and it's huge.  Based on the lease
-requests back to us (BK is lease based, it connects back to us once a
-month), we estimate that there well over 10,000 clones of the Linux kernel
-in BK.  If even 1/10th of those are going to have a patch for Linus that's
-1,000 potential patches.  Pretty hard to keep that all in your head.
--- 
+Signed-off-by: <paulmck@us.ibm.com>
+
 ---
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+
+ msg.c  |    2 -
+ sem.c  |    2 -
+ util.c |   80 +++++++++++++++++++++++++++++------------------------------------
+ util.h |   13 +++++-----
+ 4 files changed, 45 insertions(+), 52 deletions(-)
+
+diff -urpN -X ../dontdiff linux-2.5-rap/ipc/msg.c linux-2.5-iloi/ipc/msg.c
+--- linux-2.5-rap/ipc/msg.c	Tue Sep  7 10:04:36 2004
++++ linux-2.5-iloi/ipc/msg.c	Fri Sep 10 16:43:10 2004
+@@ -380,7 +380,7 @@ asmlinkage long sys_msgctl (int msqid, i
+ 		int success_return;
+ 		if (!buf)
+ 			return -EFAULT;
+-		if(cmd == MSG_STAT && msqid >= msg_ids.size)
++		if(cmd == MSG_STAT && msqid >= msg_ids.entries->size)
+ 			return -EINVAL;
+ 
+ 		memset(&tbuf,0,sizeof(tbuf));
+diff -urpN -X ../dontdiff linux-2.5-rap/ipc/sem.c linux-2.5-iloi/ipc/sem.c
+--- linux-2.5-rap/ipc/sem.c	Tue Sep  7 10:04:36 2004
++++ linux-2.5-iloi/ipc/sem.c	Fri Sep 10 16:43:33 2004
+@@ -523,7 +523,7 @@ static int semctl_nolock(int semid, int 
+ 		struct semid64_ds tbuf;
+ 		int id;
+ 
+-		if(semid >= sem_ids.size)
++		if(semid >= sem_ids.entries->size)
+ 			return -EINVAL;
+ 
+ 		memset(&tbuf,0,sizeof(tbuf));
+diff -urpN -X ../dontdiff linux-2.5-rap/ipc/util.c linux-2.5-iloi/ipc/util.c
+--- linux-2.5-rap/ipc/util.c	Tue Sep  7 10:04:36 2004
++++ linux-2.5-iloi/ipc/util.c	Fri Sep 10 16:36:23 2004
+@@ -62,7 +62,6 @@ void __init ipc_init_ids(struct ipc_ids*
+ 
+ 	if(size > IPCMNI)
+ 		size = IPCMNI;
+-	ids->size = size;
+ 	ids->in_use = 0;
+ 	ids->max_id = -1;
+ 	ids->seq = 0;
+@@ -74,14 +73,17 @@ void __init ipc_init_ids(struct ipc_ids*
+ 		 	ids->seq_max = seq_limit;
+ 	}
+ 
+-	ids->entries = ipc_rcu_alloc(sizeof(struct ipc_id)*size);
++	ids->entries = ipc_rcu_alloc(sizeof(struct kern_ipc_perm *)*size +
++				     sizeof(struct ipc_id_ary));
+ 
+ 	if(ids->entries == NULL) {
+ 		printk(KERN_ERR "ipc_init_ids() failed, ipc service disabled.\n");
+-		ids->size = 0;
++		size = 0;
++		ids->entries = &ids->nullentry;
+ 	}
+-	for(i=0;i<ids->size;i++)
+-		ids->entries[i].p = NULL;
++	ids->entries->size = size;
++	for(i=0;i<size;i++)
++		ids->entries->p[i] = NULL;
+ }
+ 
+ /**
+@@ -104,7 +106,7 @@ int ipc_findkey(struct ipc_ids* ids, key
+ 	 * since ipc_ids.sem is held
+ 	 */
+ 	for (id = 0; id <= max_id; id++) {
+-		p = ids->entries[id].p;
++		p = ids->entries->p[id];
+ 		if(p==NULL)
+ 			continue;
+ 		if (key == p->key)
+@@ -118,36 +120,36 @@ int ipc_findkey(struct ipc_ids* ids, key
+  */
+ static int grow_ary(struct ipc_ids* ids, int newsize)
+ {
+-	struct ipc_id* new;
+-	struct ipc_id* old;
++	struct ipc_id_ary* new;
++	struct ipc_id_ary* old;
+ 	int i;
++	int size = ids->entries->size;
+ 
+ 	if(newsize > IPCMNI)
+ 		newsize = IPCMNI;
+-	if(newsize <= ids->size)
++	if(newsize <= size)
+ 		return newsize;
+ 
+-	new = ipc_rcu_alloc(sizeof(struct ipc_id)*newsize);
++	new = ipc_rcu_alloc(sizeof(struct kern_ipc_perm *)*newsize +
++			    sizeof(struct ipc_id_ary));
+ 	if(new == NULL)
+-		return ids->size;
+-	memcpy(new, ids->entries, sizeof(struct ipc_id)*ids->size);
+-	for(i=ids->size;i<newsize;i++) {
+-		new[i].p = NULL;
++		return size;
++	new->size = newsize;
++	memcpy(new->p, ids->entries->p, sizeof(struct kern_ipc_perm *)*size +
++					sizeof(struct ipc_id_ary));
++	for(i=size;i<newsize;i++) {
++		new->p[i] = NULL;
+ 	}
+ 	old = ids->entries;
+ 
+ 	/*
+-	 * before setting the ids->entries to the new array, there must be a
+-	 * smp_wmb() to make sure the memcpyed contents of the new array are
+-	 * visible before the new array becomes visible.
++	 * Use rcu_assign_pointer() to make sure the memcpyed contents
++	 * of the new array are visible before the new array becomes visible.
+ 	 */
+-	smp_wmb();	/* prevent seeing new array uninitialized. */
+-	ids->entries = new;
+-	smp_wmb();	/* prevent indexing into old array based on new size. */
+-	ids->size = newsize;
++	rcu_assign_pointer(ids->entries, new);
+ 
+ 	ipc_rcu_putref(old);
+-	return ids->size;
++	return newsize;
+ }
+ 
+ /**
+@@ -175,7 +177,7 @@ int ipc_addid(struct ipc_ids* ids, struc
+ 	 * ipc_ids.sem is held
+ 	 */
+ 	for (id = 0; id < size; id++) {
+-		if(ids->entries[id].p == NULL)
++		if(ids->entries->p[id] == NULL)
+ 			goto found;
+ 	}
+ 	return -1;
+@@ -195,7 +197,7 @@ found:
+ 	new->deleted = 0;
+ 	rcu_read_lock();
+ 	spin_lock(&new->lock);
+-	ids->entries[id].p = new;
++	ids->entries->p[id] = new;
+ 	return id;
+ }
+ 
+@@ -216,15 +218,15 @@ struct kern_ipc_perm* ipc_rmid(struct ip
+ {
+ 	struct kern_ipc_perm* p;
+ 	int lid = id % SEQ_MULTIPLIER;
+-	if(lid >= ids->size)
++	if(lid >= ids->entries->size)
+ 		BUG();
+ 
+ 	/* 
+ 	 * do not need a rcu_dereference()() here to force ordering
+ 	 * on Alpha, since the ipc_ids.sem is held.
+ 	 */	
+-	p = ids->entries[lid].p;
+-	ids->entries[lid].p = NULL;
++	p = ids->entries->p[lid];
++	ids->entries->p[lid] = NULL;
+ 	if(p==NULL)
+ 		BUG();
+ 	ids->in_use--;
+@@ -234,7 +236,7 @@ struct kern_ipc_perm* ipc_rmid(struct ip
+ 			lid--;
+ 			if(lid == -1)
+ 				break;
+-		} while (ids->entries[lid].p == NULL);
++		} while (ids->entries->p[lid] == NULL);
+ 		ids->max_id = lid;
+ 	}
+ 	p->deleted = 1;
+@@ -493,9 +495,9 @@ struct kern_ipc_perm* ipc_get(struct ipc
+ {
+ 	struct kern_ipc_perm* out;
+ 	int lid = id % SEQ_MULTIPLIER;
+-	if(lid >= ids->size)
++	if(lid >= ids->entries->size)
+ 		return NULL;
+-	out = ids->entries[lid].p;
++	out = ids->entries->p[lid];
+ 	return out;
+ }
+ 
+@@ -503,25 +505,15 @@ struct kern_ipc_perm* ipc_lock(struct ip
+ {
+ 	struct kern_ipc_perm* out;
+ 	int lid = id % SEQ_MULTIPLIER;
+-	struct ipc_id* entries;
++	struct ipc_id_ary* entries;
+ 
+ 	rcu_read_lock();
+-	if(lid >= ids->size) {
++	entries = rcu_dereference(ids->entries);
++	if(lid >= entries->size) {
+ 		rcu_read_unlock();
+ 		return NULL;
+ 	}
+-
+-	/* 
+-	 * Note: The following two read barriers are corresponding
+-	 * to the two write barriers in grow_ary(). They guarantee 
+-	 * the writes are seen in the same order on the read side. 
+-	 * smp_rmb() has effect on all CPUs.  rcu_dereference()
+-	 * is used if there are data dependency between two reads, and 
+-	 * has effect only on Alpha.
+-	 */
+-	smp_rmb(); /* prevent indexing old array with new size */
+-	entries = rcu_dereference(ids->entries);
+-	out = entries[lid].p;
++	out = entries->p[lid];
+ 	if(out == NULL) {
+ 		rcu_read_unlock();
+ 		return NULL;
+diff -urpN -X ../dontdiff linux-2.5-rap/ipc/util.h linux-2.5-iloi/ipc/util.h
+--- linux-2.5-rap/ipc/util.h	Tue Sep  7 10:04:36 2004
++++ linux-2.5-iloi/ipc/util.h	Fri Sep 10 17:52:17 2004
+@@ -15,18 +15,19 @@ void sem_init (void);
+ void msg_init (void);
+ void shm_init (void);
+ 
+-struct ipc_ids {
++struct ipc_id_ary {
+ 	int size;
++	struct kern_ipc_perm *p[0];
++};
++
++struct ipc_ids {
+ 	int in_use;
+ 	int max_id;
+ 	unsigned short seq;
+ 	unsigned short seq_max;
+ 	struct semaphore sem;	
+-	struct ipc_id* entries;
+-};
+-
+-struct ipc_id {
+-	struct kern_ipc_perm* p;
++	struct ipc_id_ary nullentry;
++	struct ipc_id_ary* entries;
+ };
+ 
+ void __init ipc_init_ids(struct ipc_ids* ids, int size);

@@ -1,74 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265279AbTFUTRW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 15:17:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265281AbTFUTRW
+	id S265281AbTFUTSl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 15:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265284AbTFUTSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 15:17:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14028 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265279AbTFUTRV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 15:17:21 -0400
-Date: Sat, 21 Jun 2003 20:31:24 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Lou Langholtz <ldl@aros.net>
-Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-       Steven Whitehouse <steve@chygwyn.com>
-Subject: Re: [RFC][PATCH] nbd driver for 2.5.72
-Message-ID: <20030621193124.GK6754@parcelfarce.linux.theplanet.co.uk>
-References: <3EF3F08B.5060305@aros.net> <20030621073224.GJ6754@parcelfarce.linux.theplanet.co.uk> <3EF48A30.3010203@aros.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EF48A30.3010203@aros.net>
-User-Agent: Mutt/1.4.1i
+	Sat, 21 Jun 2003 15:18:41 -0400
+Received: from kuwiserv.folkwang-hochschule.de ([193.175.156.250]:65487 "EHLO
+	kuwiserv.folkwang-hochschule.de") by vger.kernel.org with ESMTP
+	id S265281AbTFUTSk convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 15:18:40 -0400
+Message-ID: <3EF4C0CC.6090100@folkwang-hochschule.de>
+Date: Sat, 21 Jun 2003 22:32:12 +0200
+From: Joern Nettingsmeier <nettings@folkwang-hochschule.de>
+Reply-To: nettings@folkwang-hochschule.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux-audio-dev@music.columbia.edu
+Subject: severe FS corruption w/ reiserfs and 2.5.72-bk3
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 21, 2003 at 10:39:12AM -0600, Lou Langholtz wrote:
-> >Why not put these into nbd_device?
-> >
-> I'd considered that and I'm reconsidering it again now. Not convinced 
-> which way to go... Putting something as large as struct request_queue 
-> within the nbd_device seems unbalanced somehow. Then again, until 2.5 
-> the request_queue was typically shared by multiple devices of the same 
-> MAJOR so part of the way the code is has to do with the legacy code. 
-> Like the nbd_lock spinlock array and the struct request_queue queue_lock 
-> field. Along the lines you're pushing for, why not have struct 
-> requests_queue's queue_lock field then be the spinlock itself instead of 
-> just being a pointer to a spinlock???
+a word of warning:
 
-Because often that lock protects driver-internal objects that are used
-by all queues.
+i just completely and utterly trashed my filesystems with 2.5.72-bk2 and 
+reiserfs. there are metric shitloads of errors on journal replay and i 
+end up in repair mode. did a couple of --rebuild-tree's, but new errors 
+cropped up after every reboot.
+happens both on scsi and ide drives and ate almost all of my machine...
 
-Prefered variant (actually, we'll have to do it in 2.5 anyway) is to
-allocate request_queue dynamically.  Just put a pointer to it into nbd_device.
+my reiserfstools are recent (can't recall the version, but it's better 
+than or equal to the one listed in Documentation/Changes).
 
-BTW, could you please kill the ..._t silliness?  There is nothing wroung
-with using 'struct nbd_device' directly.
- 
-> >>+static uint32_t request_magic;
-> >>   
-> >>
-> >
-> >???  htonl(NBD_REQUEST_MAGIC) is perfectly OK in the place where you
-> >use it and more likely than not will give better code.
-> >
-> > 
-> >
-> >>+static uint32_t reply_magic;
-> >>   
-> >>
-> >
-> >Ditto.
-> >
-> What's wrong with having an explicit cache of this value that we can 
-> rest assured doesn't in the worst case get compiled into multiple calls 
-> to the htonl code?? Possible waste of one 4 byte memory location in the 
-> worst compiler case or is there another problem?
+otoh, it seems i had two versions installed, the one that comes with 
+suse 8.1 in /sbin/ and mine in /usr/local/sbin. after realizing the 
+problem, i moved the current version over to /sbin so that it is invoked 
+on startup... might have made the problem worse.
 
-htonl() honours constants.  If it doesn't, we are in for much more serious
-problems, simply because a lot of codepaths in networking are using it.
-A lot.  IOW, you are obfuscating code for no good reason (and add an extra
-memory access, thus giving actually worse code - it's not an optimisation
-at all).
+unfortunately i did a number of things at once: upgrade the kernel from 
+.72 (which has worked for me quite well), add an ide drive (i didn't 
+have ide in my kernel before, and geez! is that module code broken :)) 
+and shuffle partitions around. which makes the problem hard to pinpoint.
+
+if anyone wants me to do some forensics on the machine, speak up. 
+otherwise i'll swipe it clean and start over from scratch.
+
+best,
+
+jörn
+
+
+(i'd appreciate a cc: of your replies. thanks.)
+
+
+-- 
+All Members shall refrain in their international relations from
+the threat or use of force against the territorial integrity or
+political independence of any state, or in any other manner
+inconsistent with the Purposes of the United Nations.
+	-- Charter of the United Nations, Article 2.4
+
+
+Jörn Nettingsmeier
+Kurfürstenstr 49, 45138 Essen, Germany
+http://spunk.dnsalias.org (my server)
+http://www.linuxdj.com/audio/lad/ (Linux Audio Developers)
+
+

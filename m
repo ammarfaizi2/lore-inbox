@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281812AbRKQTzf>; Sat, 17 Nov 2001 14:55:35 -0500
+	id <S281816AbRKQUUr>; Sat, 17 Nov 2001 15:20:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281813AbRKQTz0>; Sat, 17 Nov 2001 14:55:26 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43277 "EHLO
+	id <S281817AbRKQUUi>; Sat, 17 Nov 2001 15:20:38 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9742 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281812AbRKQTzU>; Sat, 17 Nov 2001 14:55:20 -0500
+	id <S281816AbRKQUUV>; Sat, 17 Nov 2001 15:20:21 -0500
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH][RFC] Re: 2.4.15-pre5: /proc/cpuinfo broken
-Date: 17 Nov 2001 11:54:44 -0800
+Subject: Re: Microsoft IE6 is crashing with Linux 2.4.X
+Date: 17 Nov 2001 12:20:08 -0800
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9t6fa4$ldo$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0111171052060.1458-100000@penguin.transmeta.com> <Pine.GSO.4.21.0111171359410.11475-100000@weyl.math.psu.edu>
+Message-ID: <9t6gpo$lhf$1@cesium.transmeta.com>
+In-Reply-To: <002501c16e0c$d3800550$f5976dcf@nwfs> <1005854832.2730.1.camel@heat> <000001c16e6c$c29061d0$f5976dcf@nwfs>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,43 +21,30 @@ Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.GSO.4.21.0111171359410.11475-100000@weyl.math.psu.edu>
-By author:    Alexander Viro <viro@math.psu.edu>
+Followup to:  <000001c16e6c$c29061d0$f5976dcf@nwfs>
+By author:    "Jeff V. Merkey" <jmerkey@timpanogas.org>
 In newsgroup: linux.dev.kernel
+>
+> According to some folks who responded to this, IE6 is just plain broken.  I
+> apologize for the lateness of responding, but my Linux server crashed with
+> sendmail spawing thread after thread and my /var/spool/mqueue directory
+> filled to bursting with corrupted mail headers.  IE6 got into some kind of
+> braindead loop where it started flooding sendmail with tons of bogus (and
+> garbage) mail headers.
 > 
-> On Sat, 17 Nov 2001, Linus Torvalds wrote:
-> 
-> > 
-> > On Sat, 17 Nov 2001, Alexander Viro wrote:
-> > >
-> > > Frankly, I'd prefer to try (b) before reverting to (a).  Patch doing that
-> > > variant follows.  Linus, your opinion?
-> > 
-> > (d) make seq_file have my originally suggested "subposition" code.
-> > 
-> > Ie make the X low bits of "pos" be the position in the record, with the
-> > high bits of "pos" being the current "record index" kind of thing.
-> > 
-> > That makes lseek() happy.
-> 
-> It will not help.  lseek() in question is relative and crosses the
-> record boundary.  I.e. we have
-> 
-> 	n = read(fd, buf, ...);
-> 	/* process k bytes */
-> 	lseek(fd, k-n, SEEK_CUR);
-> 
-> and that will break just as the current variant does.  It's not about
-> seek to remembered position - it's a relative seek to calculated offset.
-> Calculated from number of bytes returned by read().
+> It's clearly a piece of sh_t browser.  This latest release qualifies as a
+> computer virus.  It's much more destructive that lion every dreamed of
+> being.
 > 
 
-We may really want to consider if we want /proc entries to be
-S_IFREG().  The closest equivalent I can think of is really a
-character device node (S_IFCHR) more so that S_IFIFO.
+Even so, it's a server problem -- replace your IE6 (l)user with a
+malicious hacker, and you still have a problem...
 
-	  -hpa
+Microsoft likes to discard vulnerabilities by "no standard client
+would do this."  No, and no "standard visitor" would apply a crowbar
+to your patio door, either.
 
+	-hpa
 -- 
 <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
 "Unix gives you enough rope to shoot yourself in the foot."

@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129112AbRB1R6h>; Wed, 28 Feb 2001 12:58:37 -0500
+	id <S129078AbRB1Rzr>; Wed, 28 Feb 2001 12:55:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129115AbRB1R6d>; Wed, 28 Feb 2001 12:58:33 -0500
-Received: from www0q.netaddress.usa.net ([204.68.24.46]:3212 "HELO
-	www0q.netaddress.usa.net") by vger.kernel.org with SMTP
-	id <S129112AbRB1R6R> convert rfc822-to-8bit; Wed, 28 Feb 2001 12:58:17 -0500
-Message-ID: <20010228175816.28039.qmail@www0q.netaddress.usa.net>
-Date: 28 Feb 2001 11:58:15 CST
-From: Neelam Saboo <neelam_saboo@usa.net>
-To: linux-kernel@vger.kernel.org
-Subject: paging behavior in Linux
-X-Mailer: USANET web-mailer (34FM.0700.15B.01)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+	id <S129112AbRB1Rzh>; Wed, 28 Feb 2001 12:55:37 -0500
+Received: from oker.escape.de ([194.120.234.254]:29054 "EHLO oker.escape.de")
+	by vger.kernel.org with ESMTP id <S129078AbRB1RzU>;
+	Wed, 28 Feb 2001 12:55:20 -0500
+To: linux-lvm@sistina.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [linux-lvm] Bugs in LVM and ext2: patch for LVM
+In-Reply-To: <200102272007.f1RK7aM27545@webber.adilger.net> <m21ysi3m0z.fsf@isnogud.escape.de>
+From: Urs Thuermann <urs@isnogud.escape.de>
+Date: 28 Feb 2001 18:53:33 +0100
+In-Reply-To: <m21ysi3m0z.fsf@isnogud.escape.de>; from Urs Thuermann on 28 Feb 2001 15:44:12 +0100
+Message-ID: <m21ysik82q.fsf_-_@isnogud.escape.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Urs Thuermann <urs@isnogud.escape.de> writes:
 
-I am a graduate student at Univ Of Illinois at Urbana-Champaign.
-Regarding my thesis, I need some help with running a multithreaded program on
-red hat linux. I am experimenting with paging behavior. I use a machine where
-swap space is large compared to available memory. I run two threads, worker
-thread & prefetch thread.
-prefetch thread prefetches data in memory by accessing it which worker
-thread will use later. Expected result is prefetch thread should take
-most of the page faults leaving worker thread time to do actual work.
-So, paging time in prefetch thread and work time in worker thread should
-overlap and total time taken should be less.
-In a PThreads book I found out that when one thread is waiting on a page
-fault, other thread continues to work.
+> I've read lots of EXT2 and LVM src code and I think it turns out that
+> there is a bug in both.  Andreas has already given the fix for the
+> ext2, a suggestion for LVM is below (sorry, no patch, I really know to
+> little about all the block sizes and buffers of block devices).
 
-When I run my program on a readhat linux machine, I dont get results as
-expected, work thread seems to be stuck when prefetch thread is waiting on
-a page fault. Is it because, when one thread waits on a page fault, page
-table is locked for the other thread also. This is linux specific, as I
-get expected results on solaris. 
+Despite my limited knowledge of the src code for buffering and block
+devices I have made an patch which fixes the LVM problem for me.  I'm
+not 100% sure it is correct and if it is the clean solution.  Some
+kernel god should therefore take a look on it.  At least I have
+running it here in my kernel.
 
-Can you please provide some explanations ?
 
-Thanks
-Neelam  
+--- linux-2.4.2/drivers/md/lvm.c.orig	Wed Feb 28 18:27:40 2001
++++ linux-2.4.2/drivers/md/lvm.c	Wed Feb 28 17:00:25 2001
+@@ -376,6 +376,8 @@
+ static struct hd_struct lvm_hd_struct[MAX_LV];
+ static int lvm_blocksizes[MAX_LV] =
+ {0,};
++static int lvm_hardsizes[MAX_LV] =
++{0,};
+ static int lvm_size[MAX_LV] =
+ {0,};
+ static struct gendisk lvm_gendisk =
+@@ -3035,11 +3037,12 @@
+ 		lvm_gendisk.part[i].start_sect = -1;	/* avoid partition check */
+ 		lvm_size[i] = lvm_gendisk.part[i].nr_sects = 0;
+ 		lvm_blocksizes[i] = BLOCK_SIZE;
++		lvm_hardsizes[i] = BLOCK_SIZE;
+ 	}
  
-
-
-____________________________________________________________________
-Get free email and a permanent address at http://www.netaddress.com/?N=1
+ 	blk_size[MAJOR_NR] = lvm_size;
+ 	blksize_size[MAJOR_NR] = lvm_blocksizes;
+-	hardsect_size[MAJOR_NR] = lvm_blocksizes;
++	hardsect_size[MAJOR_NR] = lvm_hardsizes;
+ 
+ 	return;
+ } /* lvm_gen_init() */

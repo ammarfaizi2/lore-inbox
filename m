@@ -1,77 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313925AbSDZMc1>; Fri, 26 Apr 2002 08:32:27 -0400
+	id <S313946AbSDZM5m>; Fri, 26 Apr 2002 08:57:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313930AbSDZMc0>; Fri, 26 Apr 2002 08:32:26 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:15745 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S313925AbSDZMcZ>; Fri, 26 Apr 2002 08:32:25 -0400
-Date: Fri, 26 Apr 2002 08:34:04 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Gabriel Paubert <paubert@iram.es>
-cc: Mark Zealey <mark@zealos.org>, linux-kernel@vger.kernel.org
-Subject: Re: Assembly question
-In-Reply-To: <3CC93C0A.1030500@iram.es>
-Message-ID: <Pine.LNX.3.95.1020426081723.8083A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313938AbSDZM5m>; Fri, 26 Apr 2002 08:57:42 -0400
+Received: from grobbebol.xs4all.nl ([194.109.248.218]:56647 "EHLO
+	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S313930AbSDZM5l>; Fri, 26 Apr 2002 08:57:41 -0400
+Date: Fri, 26 Apr 2002 12:56:55 +0000
+From: "Roeland Th. Jansen" <scsi@grobbebol.xs4all.nl>
+To: linux-scsi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: BT930 + old scsi disk
+Message-ID: <20020426125655.A1961@grobbebol.xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Apr 2002, Gabriel Paubert wrote:
-
-> Mark Zealey wrote:
-> 
->  > On Thu, Apr 25, 2002 at 10:32:25AM +0200, Szekeres Istvan wrote:
->  >
->  >
->  >> void p_memset_dword( void *d, int b, int l ) { __asm__ ("rep\n\t" 
-> "stosl\n\t"
->  >>
-> 
->  >> : : "D" (d), "a" (b), "c" (l) : "memory","edi", "eax", "ecx"
->  >>
->  >
->  > An input or output operand is implicitly clobbered, so it should be
->       ^^^^^
-> I had expected gcc specialists to jump on that one: if you don't
-> explicitly tell gcc that an input is clobbered, it may reuse it later if
-> it needs the same value. So the clobbers are necessary...
-
-    : : "D" (d), "a" (b), "c" (l) : "memory","edi", "eax", "ecx"
-... is correct. Registers EDI, EAX, and ECX are altered and memory
-is changed. Nothing having to do with the 'input' is altered in
-any meaningful sense. You alter an 'input' by doing something like:
-
-	pushl	%ebx
-	..... code
-	popl	%eax	; Input value of ebx is destroyed
-
-Passed parameters are (usually) passed on the stack. They are
-local and disappear when the call returns, i.e.,
-
-	pushl	string		; 4 - byte address
-	call	puts		; call function
-	addl	$4, esp		; Level stack
-
-GCC may optimize in-line and not bother to push a value that is
-readily accessible to the in-line function. That value is not
-clobbered in any way. The in-line function doesn't have to
-'return' since it's in-line. Therefore the return address isn't
-on the stack either. When setting up 'clobbers', you have
-observe the registers that are used and declare whether or
-not memory is altered. That's all. For instance, we see EAX as
-a clobbered register. GCC may decide that it is a scratch-register
-so it doesn't bother to save/restore its value. On the other hand,
-if you didn't tell GCC that you destroyed EAX, it's a bug and a
-hard-to-find bug because most of the time, the code will work.
+hi *
 
 
-Cheers,
-Dick Johnson
+I have a BT930 controller; works fine for all scsi disks I have ..
+except one..
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
 
-                 Windows-2000/Professional isn't.
+there is one disk that for the second time has killed the system.
+
+
+First time I was not at the system when it happened. This time I was.
+
+I heard the following sound (yep, technical ahum) :
+
+click
+downspin....
+click
+upspin......
+
+it was maybe only 3 seconds. but the system froze completely; numlock
+leds etc were ok, but magic sysrq didn't work (??)
+
+also, no way I could remotely log onto the system anymore.
+
+At this point, as it's a datadisk, I have taken it off the scsi bus to
+prevent further bad things to happen.
+
+unfortunately, there was nothing regarding the scsi controller or disk
+in the log.
+
+
+any ideas what I could do to help preventing this ? (seems somewhere a
+bug in the kernel/bt930 ?)
+
+
+
+Roeland
 

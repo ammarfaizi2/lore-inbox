@@ -1,22 +1,19 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316221AbSEZQtS>; Sun, 26 May 2002 12:49:18 -0400
+	id <S316217AbSEZQsm>; Sun, 26 May 2002 12:48:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316215AbSEZQtO>; Sun, 26 May 2002 12:49:14 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:51611 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316225AbSEZQs7>;
-	Sun, 26 May 2002 12:48:59 -0400
-Date: Sun, 26 May 2002 18:18:52 +0200
+	id <S316221AbSEZQsk>; Sun, 26 May 2002 12:48:40 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:49819 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316217AbSEZQsU>;
+	Sun, 26 May 2002 12:48:20 -0400
+Date: Sun, 26 May 2002 18:43:27 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Andy Pfiffer <andyp@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Keith Mannthey <kmannth@us.ibm.com>,
-        Mohamed Abbas <mohamed.abbas@intel.com>,
-        James P Ketrenos <james.p.ketrenos@intel.com>
-Subject: checkpoint/restart [was Re: [ANNOUNCE] fastboot mailing list at OSDL: fastboot@lists.osdl.org]
-Message-ID: <20020526161852.GA269@elf.ucw.cz>
-In-Reply-To: <1022102395.19870.78.camel@andyp>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Anders Gustafsson <andersg@0x63.nu>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: alloc_struct()? Re: [RFC/PATCH] lvm sanitation in 2.5
+Message-ID: <20020526164327.GB269@elf.ucw.cz>
+In-Reply-To: <20020523011519.GA8521@h55p111.delphi.afb.lu.se> <Pine.GSO.4.21.0205222153040.4507-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,30 +23,46 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
-
-> OSDL has created a mailing list for discussion of various topics
-> relating to "fastboot": reducing enterprise system start & restart time.
+> > I have started cleaning up lvm. The following patch contains the first
+> > steps. It disables a lot of functionallity but the basic things are
+> > there, I'm actually running a kernel with this patch right now, with
+> > /home and /var on lvm. The vg_t/lv_t..-structures are now available in
+> > to versions, one exported to userspace (and that should remain
+> > constant through versions) and one used in kernelspace containing
+> > stuff that should not be exposed to userspace (struct block_device,
+> > kdev_t and such). (this also allows more flexibillity making changes
+> > in the driver without changing the userspace interface). Should i
+> > finish this patch? Would davej accept it?
 > 
-> Topics of discussion are expected to include:
+> That's _very_ nice to see.  I don't know about -dj, but it's definitely
+> a step in right direction for the main tree.
 > 
-> 	- kexec
-> 	- Two Kernel Monty
-> 	- bootimg
-> 	- and other similar technology
+> Other things that need to be done:
 > 
-> Other areas for discussion may include:
+> a) propagate struct block_device * on the kernel side.  It's not a trivial
+> change - unlike kdev_t struct block_device * might leak.  So you will need
+> to add proper refcounting to uses in lvm*.c and from my fighting with
+> lvm code I can say that it won't be easy.
 > 
-> 	- avoiding reprobe of devices,
-> 	- fast system initialization after the kernel boots,
-> 	- system-wide checkpoint/restart.
+> b) check all copy_{from,to}_user() in lvm for buffer overruns.  The damn thing
+> is choke-full of them - e.g. it happily assumes that
+> 	n = <get a number from userland>;
+> 	p = (struct foo *)kmalloc(n * sizeof(struct foo), ...);
+> 	if (!p)
+> 		return -ENOMEM;
+> 	for (i = 0; i<n; i++) {
+> 		copy_from_user(p+i, user_p+i, sizeof(struct foo));
+> 		...
+> 	}
+> is OK.  It isn't - if value of n is slightly above 2^32/sizeof(struct foo)
+> you will get fairly small argument of kmalloc() (multiplication is done
+> modulo 2^32) and kmalloc() succeeds, allocating <small amount> instead of
+> 4Gb + <small amount> assumed by the loop below.
 
-Systemwide checkpoint/restart... seems like suspend-to-disk to me...:
 
-suspend-to-disk, but on the end, do not powerdown, but copy
-swap/filesytems to spare disks, simulate suspend failure and
-continue. On restart, copy back anddo restart. Perhaps with some LVM
-magic this can be made acceptable?
-
+Maybe p = alloc_struct(n, struct foo, GFP_WHATEVER) (and then using
+this macro) is right way to tackle this problem?. Or maybe even
+alloc_struct(p, n, GFP_WHATEVER)?
 									Pavel
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.

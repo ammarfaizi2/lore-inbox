@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261778AbUCKWEl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 17:04:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbUCKWEl
+	id S261784AbUCKWHY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 17:07:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbUCKWHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 17:04:41 -0500
-Received: from agminet03.oracle.com ([141.146.126.230]:26265 "EHLO
-	agminet03.oracle.com") by vger.kernel.org with ESMTP
-	id S261778AbUCKWEi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 17:04:38 -0500
-Date: Thu, 11 Mar 2004 14:02:34 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Joe Thornber <thornber@redhat.com>, Andi Kleen <ak@muc.de>,
-       Mickael Marchand <marchand@kde.org>, linux-kernel@vger.kernel.org,
-       dm@uk.sistina.com
-Subject: Re: 2.6.4-mm1
-Message-ID: <20040311220234.GD18020@ca-server1.us.oracle.com>
-Mail-Followup-To: Joe Thornber <thornber@redhat.com>,
-	Andi Kleen <ak@muc.de>, Mickael Marchand <marchand@kde.org>,
-	linux-kernel@vger.kernel.org, dm@uk.sistina.com
-References: <1ysXv-wm-11@gated-at.bofh.it> <1yxuq-6y6-13@gated-at.bofh.it> <m3hdwnawfi.fsf@averell.firstfloor.org> <200403111445.35075.marchand@kde.org> <20040311144829.GA22284@colin2.muc.de> <20040311214354.GM18345@reti> <20040311215955.GC18020@ca-server1.us.oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040311215955.GC18020@ca-server1.us.oracle.com>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 11 Mar 2004 17:07:23 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:33932 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261784AbUCKWHR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 17:07:17 -0500
+Message-ID: <4050E453.3010809@tmr.com>
+Date: Thu, 11 Mar 2004 17:12:35 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: markw@osdl.org
+CC: linux-lvm@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: lvm2 performance data with linux-2.6
+References: <200403081916.i28JGgE25794@mail.osdl.org>
+In-Reply-To: <200403081916.i28JGgE25794@mail.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 11, 2004 at 01:59:55PM -0800, Joel Becker wrote:
-> On Thu, Mar 11, 2004 at 09:43:54PM +0000, Joe Thornber wrote:
-> > struct dm_ioctl {			0
+markw@osdl.org wrote:
+> I've started collecting various data (including oprofile) using our
+> DBT-2 (OLTP) workload with lvm2 on linux 2.6.2 and 2.6.3 on ia32 and
+> ia64 platforms:
+> 	http://developer.osdl.org/markw/lvm2/
+> 
+> So far I've only varied the stripe width with lvm, from 8 KB to 512 KB,
+> for PostgreSQL that is using 8 KB sized blocks with ext2.  It appears
+> that a stripe width of 16 KB through 128KB on the ia64 system gives the
+> best throughput for the DBT-2 workload on a volume that should be doing
+> mostly sequential writes.
+> 
+> I'm going to run through more tests varying the block size that
+> PostgreSQL uses, but I wanted to share what I had so far in case there
+> were other suggestions or recommendations.
+> 
+Here's one thought: look at the i/o rates on individual drives using 
+each stripe size. You *might* see that one size does far fewer seeks 
+than others, which is a secondary thing to optimize after throughput IMHO.
 
-	Don't mind me, I'm an idiot.
+If you don't have a tool for this I can send you the latest diorate 
+which does stuff like this, io rate perdrive or per partition, something 
+I occasionally find revealing.
 
-Joel
-
--- 
-
-"All alone at the end of the evening
- When the bright lights have faded to blue.
- I was thinking about a woman who had loved me
- And I never knew"
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+		-bill

@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317112AbSGNUnz>; Sun, 14 Jul 2002 16:43:55 -0400
+	id <S317114AbSGNUrX>; Sun, 14 Jul 2002 16:47:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317117AbSGNUny>; Sun, 14 Jul 2002 16:43:54 -0400
-Received: from esteel10.client.dti.net ([209.73.14.10]:54469 "EHLO
-	shookay.newview.com") by vger.kernel.org with ESMTP
-	id <S317112AbSGNUnx>; Sun, 14 Jul 2002 16:43:53 -0400
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Cc: linux-kernel@vger.kernel.org
+	id <S317115AbSGNUrW>; Sun, 14 Jul 2002 16:47:22 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:43509 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317114AbSGNUrV>; Sun, 14 Jul 2002 16:47:21 -0400
 Subject: Re: IDE/ATAPI in 2.5
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mathieu Chouquet-Stringer <mathieu@newview.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <xltn0sujb0v.fsf@shookay.newview.com>
 References: <200207142004.g6EK4LaV019433@burner.fokus.gmd.de>
-	<1026683185.13886.81.camel@irongate.swansea.linux.org.uk>
-From: Mathieu Chouquet-Stringer <mathieu@newview.com>
-Date: 14 Jul 2002 16:45:55 -0400
-In-Reply-To: <1026683185.13886.81.camel@irongate.swansea.linux.org.uk>
-Message-ID: <xltfzymjaws.fsf@shookay.newview.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	<1026683185.13886.81.camel@irongate.swansea.linux.org.uk> 
+	<xltn0sujb0v.fsf@shookay.newview.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 14 Jul 2002 22:59:42 +0100
+Message-Id: <1026683982.13885.85.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forgot to copy lkml... :-(
-
-alan@lxorguk.ukuu.org.uk (Alan Cox) writes:
-> On Sun, 2002-07-14 at 21:21, Mathieu Chouquet-Stringer wrote:
-> > I'm running tar (the regular version not star) right now on an Athlon @
-> > 850. The fs is ext3 and the disk is a scsi drive.
-> > So far, tar has been running for 17 min 25 sec, and that's what top says:
-> > CPU states:  1.7% user, 98.2% system,  0.0% nice,  0.0% idle
->                  ^^^^^^^^^^^^^^^^^^^^^^^^
+On Sun, 2002-07-14 at 21:43, Mathieu Chouquet-Stringer wrote:
+> alan@lxorguk.ukuu.org.uk (Alan Cox) writes:
+> > On Sun, 2002-07-14 at 21:21, Mathieu Chouquet-Stringer wrote:
+> > > I'm running tar (the regular version not star) right now on an Athlon @
+> > > 850. The fs is ext3 and the disk is a scsi drive.
+> > > So far, tar has been running for 17 min 25 sec, and that's what top says:
+> > > CPU states:  1.7% user, 98.2% system,  0.0% nice,  0.0% idle
+> >                  ^^^^^^^^^^^^^^^^^^^^^^^^
+> > 
+> > Why are using PIO mode devices ?
 > 
-> Why are using PIO mode devices ?
+> I'm using SCSI :
+> Jul 13 16:35:50 mcs kernel: SCSI subsystem driver Revision: 1.00
 
-That's a scsi drive so I would guess it uses dma. The interface:
-Jul 13 16:35:50 mcs kernel: sym.0.11.0: setting PCI_COMMAND_PARITY...
-Jul 13 16:35:50 mcs kernel: sym0: <895> rev 0x1 on pci bus 0 device 11 function 0 irq 10
-Jul 13 16:35:50 mcs kernel: sym0: Tekram NVRAM, ID 7, Fast-40, LVD, parity checking
-Jul 13 16:35:50 mcs kernel: sym0: SCSI BUS has been reset.
-Jul 13 16:35:50 mcs kernel: spurious 8259A interrupt: IRQ7.
-Jul 13 16:35:50 mcs kernel: scsi0 : sym-2.1.17a
+Intriguing. Something horrible is happening on your system to see 98%
+system time off a bus mastering DMA controller. It should only look like
+that on things like an AHA152x 
 
-And the drive:
-Jul 13 16:35:50 mcs kernel:   Vendor: IBM       Model: DDYS-T18350N     Rev: S96H
-Jul 13 16:35:50 mcs kernel:   Type:   Direct-Access                     ANSI SCSI revision: 03
-[...]
-Jul 13 16:35:51 mcs kernel: sym0:0:0: tagged command queuing enabled, command queue depth 32.
-[...]
-Jul 13 16:35:51 mcs kernel: Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-[...]
-Jul 13 16:35:51 mcs kernel: sym0:0: FAST-40 WIDE SCSI 80.0 MB/s ST (25.0 ns, offset 31)
--- 
-Mathieu Chouquet-Stringer              E-Mail : mathieu@newview.com
-    It is exactly because a man cannot do a thing that he is a
-                      proper judge of it.
-                      -- Oscar Wilde

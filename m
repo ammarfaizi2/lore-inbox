@@ -1,77 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268015AbUHEWY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268020AbUHEW22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268015AbUHEWY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 18:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268031AbUHEWYf
+	id S268020AbUHEW22 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 18:28:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268006AbUHEW2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 18:24:35 -0400
-Received: from web52902.mail.yahoo.com ([206.190.39.179]:5717 "HELO
-	web52902.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S268025AbUHEWT7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 18:19:59 -0400
-Message-ID: <20040805221952.31315.qmail@web52902.mail.yahoo.com>
-Date: Fri, 6 Aug 2004 00:19:52 +0200 (CEST)
-From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
-Subject: Re: Linux 2.6.8-rc3
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+	Thu, 5 Aug 2004 18:28:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40123 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268031AbUHEW2F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 18:28:05 -0400
+Date: Thu, 5 Aug 2004 15:31:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Rik van Riel <riel@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87657xtyd3.fsf@devron.myhome.or.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH] RSS ulimit enforcement for 2.6.8
+Message-Id: <20040805153116.3e820106.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0408051302330.8229-100000@dhcp83-102.boston.redhat.com>
+References: <Pine.LNX.4.44.0408051302330.8229-100000@dhcp83-102.boston.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> a écrit : 
-> Erik Mouw <erik@harddisk-recovery.com> writes:
+Rik van Riel <riel@redhat.com> wrote:
+>
+> The patch below implements RSS ulimit enforcement for 2.6.8-rc3-mm1.
+> It works in a very simple way: if a process has more resident memory
+> than its RSS limit allows, we pretend it didn't access any of its
+> pages, making it easy for the pageout code to evict the pages.
 > 
-> > >        iocharset=value
-> > >               Character set to use for converting between
-> 8 bit characters and
-> > >               16 bit Unicode characters. The default is
-> iso8859-1.  Long file-
-> > >               names are stored on disk in Unicode format.
-> > > 
-> > > the default is iso8859-1. Has this default gone haywire
-> somewhere?
-> > 
-> > Yes, it's in the hidden in the ChangeLog. You can find it if
-> you know
-> > iocharset is the same as nls:
-> > 
-> >   Hirofumi Ogawa:
-> >     o FAT: kill nls default
-> 
-> Or Documentation/filesystems/vfat.txt
+> In addition to this, we don't allow a process that exceeds its RSS
+> limit to have the swapout protection token.
 
-kernel says
+Thanks.
 
-FAT: codepage or iocharset option didn't specified
-     File name can not access proper (mounted as read-only)
+I'd kinda expected that the patch would try to limit a process to its
+RLIMIT_RSS all the time.  So if a process is set to 16MB and tries to use
+32MB it gets to do a lot of swapping.  But you're not doing that.  Instead,
+the patch is preferentially penalising processes which are over their limit
+when we enter page reclaim.  What are the pros and cons, and what is the
+thinking behind this?
 
-codepage *is* specified:
-my fstab line for mounting the vfat filesystem is:
-/dev/hda1       /mnt/dosc        vfat       
-defaults,user,uid=100,gid=100,codepage=437         1   0
-
-So the message is not correct ;-)
-specifying iocharset works.
-
-Bye
-Calin
-
---
-Yesterday it worked
-today isn't working
-windows is like that 
+Also, I wonder if it would be useful if refill_inactive_zone() were to
+unconditionally move pages from over-rss-limit mm's onto the inactive list,
+ignoring swappiness.  Or if we should explicitly deactivate pages which are
+newly added to the LRU on behalf of an over-rss-limit process.
 
 
-	
-
-	
-		
-Vous manquez d’espace pour stocker vos mails ? 
-Yahoo! Mail vous offre GRATUITEMENT 100 Mo !
-Créez votre Yahoo! Mail sur http://fr.benefits.yahoo.com/
-
-Le nouveau Yahoo! Messenger est arrivé ! Découvrez toutes les nouveautés pour dialoguer instantanément avec vos amis. A télécharger gratuitement sur http://fr.messenger.yahoo.com

@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315415AbSGEFHp>; Fri, 5 Jul 2002 01:07:45 -0400
+	id <S315416AbSGEFNM>; Fri, 5 Jul 2002 01:13:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315416AbSGEFHo>; Fri, 5 Jul 2002 01:07:44 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:47782 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S315415AbSGEFHn>;
-	Fri, 5 Jul 2002 01:07:43 -0400
-Date: Fri, 5 Jul 2002 01:10:16 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] raid kdev_t cleanups (part 1)
-In-Reply-To: <15653.6720.628807.611023@notabene.cse.unsw.edu.au>
-Message-ID: <Pine.GSO.4.21.0207050101230.14718-100000@weyl.math.psu.edu>
+	id <S315417AbSGEFNL>; Fri, 5 Jul 2002 01:13:11 -0400
+Received: from [203.197.61.89] ([203.197.61.89]:3968 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S315416AbSGEFNL>; Fri, 5 Jul 2002 01:13:11 -0400
+Message-ID: <004f01c223e3$24168840$080aa8c0@nodeinfotech>
+From: "Vinolin" <vinolin@nodeinfotech.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel code coverage tool ( GCOV )
+Date: Fri, 5 Jul 2002 10:46:33 +0530
+Organization: NodeInfotech
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6600
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ Hi ,
 
+ I want to do "linux kernel code coverage" for 2.4.6 kernel.GCOV is such a
+kernel code coverage tool.
+Is GCOV exists for linux kernel 2.4.6 ?
+If you know other kernel code coverage tools also, Please let me know.
 
-On Fri, 5 Jul 2002, Neil Brown wrote:
+ Thanks in advance,
+ Vinolin.
 
-> On Friday July 5, viro@math.psu.edu wrote:
-> > 	* ->error_handler() switched to struct block_device *.
-> > 	* md_sync_acct() switched to struct block_device *.
-> > 	* raid5 struct disk_info ->dev is gone - we use ->bdev everywhere.
-> > 	* bunch of kdev_same() when we have corresponding struct block_device *
-> > and can simply compare them is removed from drivers/md/*.c
-> 
-> I've actually got a whole bunch of md stuff pending that covers all
-> this and more...
-
-Eeek... So have I, actually (see subsequent patches).
-
-> could you hold off a few days until I get it
-> submitted so that I don't have to re-merge??
-
-Damn.  I've just sent the last one raid-related one...
-
-OK...  Mind if I do that merge?  Just send them to me, I'll do the merge
-tonight and send them back for your approval ASAP.
 

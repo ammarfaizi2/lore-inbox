@@ -1,54 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263614AbUCUHAa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 02:00:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263615AbUCUHA3
+	id S263616AbUCUHaa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 02:30:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263617AbUCUHaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 02:00:29 -0500
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:33756 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S263614AbUCUHA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 02:00:28 -0500
-Date: Sat, 20 Mar 2004 23:00:16 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-Message-ID: <20040321070016.GB8130@pain.stupidest.org>
-References: <20040320133025.GH9009@dualathlon.random> <Pine.LNX.4.58.0403200937500.1106@ppc970.osdl.org> <20040321031355.GB3930@dingdong.cryptoapps.com> <20040321062322.A5861@infradead.org>
+	Sun, 21 Mar 2004 02:30:30 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:22656 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263616AbUCUHa2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 02:30:28 -0500
+Date: Sun, 21 Mar 2004 08:31:19 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [BENCHMARKS] 2.6.4 vs 2.6.4-mm1
+Message-ID: <20040321073119.GA4165@elte.hu>
+References: <40525C1F.5030705@cyberone.com.au> <20040319095047.GA6301@elte.hu> <405AC456.1070806@cyberone.com.au> <405D1433.4000904@cyberone.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040321062322.A5861@infradead.org>
+In-Reply-To: <405D1433.4000904@cyberone.com.au>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 21, 2004 at 06:23:22AM +0000, Christoph Hellwig wrote:
 
-> Not sure how you get to fetchop here, but that driver does map ram
-> pages so it should take pagefaults and not use remap_page_range().
+your patch looks interesting. 
 
-It's been a while since I looked at this....  the fetchop driver maps
-AMO space which is excluded from the EFI memory map (and any SHub
-aliases) and thus shouldn't be touching anything normally considered
-RAM.
+wrt. making a fully scalable MM read side:
 
-<pause>
+perphaps RCU could be used to make lookup access to the vma tree and
+lookup of the pagetables lockless. This would make futexes (and
+pagefaults) fundamentally scalable.
 
-Checking the source I see:
+another option would be to introduce a rwsem which is read-scalable, but
+this would pessimise writes quite as bad as brlocks did. I'm not sure
+how acceptable that is.
 
-    if (remap_page_range(vm_start, __pa(maddr), PAGE_SIZE, vma->vm_page_prot)) {
-            fetchop_free_pages(vma->vm_private_data);
-            vfree(vdata);
-            fetchop_update_stats(-1, -pages);
-            return -EAGAIN;
-    }
+	Ingo
 
-as part of the drivers 'mmap fop'.  The underlying page is actually
-from region-6 so I'm pretty sure it's safe.  If you think it is doing
-something weird please let me know.
+* Nick Piggin <piggin@cyberone.com.au> wrote:
+
+> 
+> 
+> Nick Piggin wrote:
+> 
+> >
+> >That would be interesting, yes. I have (somewhere) a patch
+> >that wakes up the semaphore's waiters outside its spinlock.
+> >I think that only gave about 5% or so improvement though.
+> >
+> >
+> 
+> Here is a cleaned up patch for comments. It is untested at the
+> moment because I don't have access to the 16-way NUMAQ now. It
+> moves waking of the waiters outside the spinlock.
+> 
+> I think it gave about 5-10% improvement when the rwsem gets
+> really contended. Not as much as I had hoped, but every bit
+> helps.
+> 
+> The rwsem-spinlock.c code could use the same optimisation too.
+> 
 
 
-
-  --cw

@@ -1,47 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263535AbUCTUvC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 15:51:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263536AbUCTUvC
+	id S263542AbUCTVCW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 16:02:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263543AbUCTVCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 15:51:02 -0500
-Received: from holomorphy.com ([207.189.100.168]:24969 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263535AbUCTUvA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 15:51:00 -0500
-Date: Sat, 20 Mar 2004 12:50:53 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-Message-ID: <20040320205053.GJ2045@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org
-References: <20040320133025.GH9009@dualathlon.random> <20040320144022.GC2045@holomorphy.com> <20040320150621.GO9009@dualathlon.random> <20040320121345.2a80e6a0.akpm@osdl.org>
+	Sat, 20 Mar 2004 16:02:21 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:11738
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263542AbUCTVCR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 16:02:17 -0500
+Date: Sat, 20 Mar 2004 22:03:06 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.5-rc1-aa3
+Message-ID: <20040320210306.GA11680@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040320121345.2a80e6a0.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 20, 2004 at 12:13:45PM -0800, Andrew Morton wrote:
-> I agree that ->nopage implementations should not be doing what that driver
-> is doing.  ->nopage is defined to return a page*: it's crazy to be
-> returning someting from there which isn't covered by mem_map[].
-> I just don't think it's important enough to be able to cope with
-> non-mem_map[] "memory" in do_no_page(), so I agree that requiring ->mmap()
-> to synchronously instantiate the pte's and retaining the debug check in
-> do_no_page() is a good idea.
+Fixed the sigbus in nopage and improved the page_t layout per Hugh's
+suggestion. BUG() with discontigmem disabled if somebody returns non-ram
+via do_no_page, that cannot work right on numa anyways.
 
-There are other reasons for doing it, e.g. unusual TLB attributes
-and/or unusual pagetable structures backing the virtual region. I don't
-see anyone standing up and screaming for more functionality than cache
-coherency and/or disablement now, so as far as I'm concerned,
-remap_area_pages() (or rmk's stuff) kills the issue.
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc1-aa3.gz
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc1-aa3/
 
+Diff between 2.6.5-rc1-aa2 and 2.6.5-rc1-aa3.
 
--- wli
+Only in 2.6.5-rc1-aa2: 00000_extraversion-2
+Only in 2.6.5-rc1-aa3: extraversion
+Only in 2.6.5-rc1-aa2: 00100_objrmap-core-1.gz
+Only in 2.6.5-rc1-aa3: objrmap-core.gz
+
+	Rediffed.
+
+Only in 2.6.5-rc1-aa2: 00000_twofish-2.6.gz
+Only in 2.6.5-rc1-aa3: twofish-2.6.gz
+Only in 2.6.5-rc1-aa2: 00200_kgdb-ga-1.gz
+Only in 2.6.5-rc1-aa2: 00201_kgdb-ga-recent-gcc-fix-1.gz
+Only in 2.6.5-rc1-aa2: 00201_kgdb-THREAD_SIZE-fixes-1.gz
+Only in 2.6.5-rc1-aa2: 00201_kgdb-x86_64-support-1.gz
+Only in 2.6.5-rc1-aa3: kgdb-ga.gz
+Only in 2.6.5-rc1-aa3: kgdb-ga-recent-gcc-fix.gz
+Only in 2.6.5-rc1-aa3: kgdb-THREAD_SIZE-fixes.gz
+Only in 2.6.5-rc1-aa3: kgdb-x86_64-support.gz
+
+	Renamed.
+
+Only in 2.6.5-rc1-aa2: 00101_anon_vma-2.gz
+Only in 2.6.5-rc1-aa3: anon_vma.gz
+
+	Change mapcount to an unsigned int, and move it near
+	the atomic_t to save 8 bytes per page on 64bit archs,
+	from Hugh Dickins.
+
+	Fixed a bug in do_no_page that was crashing if
+	->nopage returned a sigbus or oom error.
+
+Only in 2.6.5-rc1-aa3: linus.patch.gz
+
+	Linus's patch from 2.6.5-rc1-mm2.
+
+Only in 2.6.5-rc1-aa3: laptop-mode-2.patch.gz
+
+	laptop mode from 2.6.5-rc1-mm2.
+
+Only in 2.6.5-rc1-aa3: clear_page_dirty_for_io.patch.gz
+Only in 2.6.5-rc1-aa3: compound-pages-stop-using-lru.patch.gz
+Only in 2.6.5-rc1-aa3: hugetlb-stop-using-page-list.patch.gz
+Only in 2.6.5-rc1-aa3: irq-safe-pagecache-lock.patch.gz
+Only in 2.6.5-rc1-aa3: page_alloc-stop-using-page-list.patch.gz
+Only in 2.6.5-rc1-aa3: pageattr-stop-using-page-list.patch.gz
+Only in 2.6.5-rc1-aa3: radix-tree-tagging.patch.gz
+Only in 2.6.5-rc1-aa3: readahead-stop-using-page-list.patch.gz
+Only in 2.6.5-rc1-aa3: remove-page-list.patch.gz
+Only in 2.6.5-rc1-aa3: slab-stop-using-page-list.patch.gz
+Only in 2.6.5-rc1-aa3: stop-using-clean-pages.patch.gz
+Only in 2.6.5-rc1-aa3: stop-using-dirty-pages.patch.gz
+Only in 2.6.5-rc1-aa3: stop-using-io-pages.patch.gz
+Only in 2.6.5-rc1-aa3: stop-using-locked-pages-fix-2.patch.gz
+Only in 2.6.5-rc1-aa3: stop-using-locked-pages-fix.patch.gz
+Only in 2.6.5-rc1-aa3: stop-using-locked-pages.patch.gz
+Only in 2.6.5-rc1-aa3: tag-dirty-pages.patch.gz
+Only in 2.6.5-rc1-aa3: tag-writeback-pages-fix.patch.gz
+Only in 2.6.5-rc1-aa3: tag-writeback-pages-missing-filesystems.patch.gz
+Only in 2.6.5-rc1-aa3: tag-writeback-pages.patch.gz
+Only in 2.6.5-rc1-aa3: unslabify-pgds-and-pmds.patch.gz
+
+	Writeback changes from 2.6.5-rc1-mm2 to reduce the difference
+	with other trees, and to avoid having to maintain significantly
+	different versions of anon_vma.

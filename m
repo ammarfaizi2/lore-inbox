@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261881AbRFWNWh>; Sat, 23 Jun 2001 09:22:37 -0400
+	id <S262076AbRFWNuO>; Sat, 23 Jun 2001 09:50:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263931AbRFWNW1>; Sat, 23 Jun 2001 09:22:27 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:33854
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S261881AbRFWNWL>; Sat, 23 Jun 2001 09:22:11 -0400
-Date: Sat, 23 Jun 2001 15:22:02 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: dhinds@zen.stanford.edu
+	id <S262715AbRFWNuE>; Sat, 23 Jun 2001 09:50:04 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:3538 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S262076AbRFWNt4>; Sat, 23 Jun 2001 09:49:56 -0400
+Date: Sat, 23 Jun 2001 15:50:31 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Ho Chak Hung <hunghochak@netscape.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] add kmalloc check in drviers/pcmcia/rsrc_mgr.c (245-ac16)
-Message-ID: <20010623152202.B840@jaquet.dk>
+Subject: Re: How does ramfs actually fills the page cache with data?
+Message-ID: <20010623155030.Q754@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <65E4C5C3.33174328.0F76C228@netscape.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2i
+In-Reply-To: <65E4C5C3.33174328.0F76C228@netscape.net>; from hunghochak@netscape.net on Fri, Jun 22, 2001 at 05:45:27PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, Jun 22, 2001 at 05:45:27PM -0400, Ho Chak Hung wrote:
+> In fs/ramfs/inode.c, how does ramfs actually fills the page
+> cache with data? In the readpage operation, it only zero-fill
+> the page if it didn't already exist in the page cache. However,
+> how do I actually fill the page with data?
 
-The patch below adds a kmalloc check to drivers/pcmcmia/rsrc_mgr.c.
-Against 245-ac16 but aplies to 256p6 also. Reported a while back 
-by the stanford team.
+The page cache does it itself. 
 
+"readpage" is to move pages from the backing store into the page
+cache. 
 
---- linux-245-ac16-clean/drivers/pcmcia/rsrc_mgr.c	Sat May 19 20:59:21 2001
-+++ linux-245-ac16/drivers/pcmcia/rsrc_mgr.c	Sat Jun 23 15:06:54 2001
-@@ -189,6 +189,11 @@
-     
-     /* First, what does a floating port look like? */
-     b = kmalloc(256, GFP_KERNEL);
-+    if (!b) {
-+	printk(" -- aborting.\n");
-+	printk(KERN_ERR "Out of memory.");
-+	return;
-+    }
-     memset(b, 0, 256);
-     for (i = base, most = 0; i < base+num; i += 8) {
- 	if (check_io_resource(i, 8))
+"writepage" and friends is for updating the backing store with
+the contents of the page cache.
+
+There is no real backing store of ramfs, since ramfs data lives
+completly in page cache. 
+
+But we cannot give the user random memory contents, so we zero it
+out on readpage and prepare_write.
+
+The data is copied with copy_{from,to}_user in the generic file
+operations (look how ramfs_file_operations is defined and look at
+the functions referenced), which read/write through page cache.
+
+Regards
+
+Ingo Oeser
 -- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
-
-"The obvious mathematical breakthrough would be development of an easy way
-to factor large prime numbers." 
-  -- Bill Gates, The Road Ahead, Viking Penguin (1995)
+Use ReiserFS to get a faster fsck and Ext2 to fsck slowly and gently.

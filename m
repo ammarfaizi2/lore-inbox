@@ -1,69 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbUK1WoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbUK1WpL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbUK1WoU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 17:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbUK1WoT
+	id S261319AbUK1WpL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 17:45:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUK1WpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 17:44:19 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:12471 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261598AbUK1Wmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 17:42:55 -0500
-Subject: Re: Suspend 2 merge: 35/51: Code always built in to the kernel.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1CXsB9-00022M-00@chiark.greenend.org.uk>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101298112.5805.330.camel@desktop.cunninghams>
-	 <20041125233243.GB2909@elf.ucw.cz> <20041125233243.GB2909@elf.ucw.cz>
-	 <1101427035.27250.161.camel@desktop.cunninghams>
-	 <E1CXsB9-00022M-00@chiark.greenend.org.uk>
+	Sun, 28 Nov 2004 17:45:10 -0500
+Received: from ozlabs.org ([203.10.76.45]:57021 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261596AbUK1Wm0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 17:42:26 -0500
+Subject: Re: EXPORT_SYMBOL_NOVERS question
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: vlobanov <vlobanov@speakeasy.net>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, lethal@linux-sh.org,
+       kkojima@rr.iij4u.or.jp
+In-Reply-To: <Pine.LNX.4.58.0411030007220.22814@shell2.speakeasy.net>
+References: <Pine.LNX.4.58.0411030007220.22814@shell2.speakeasy.net>
 Content-Type: text/plain
-Message-Id: <1101681564.4343.307.camel@desktop.cunninghams>
+Date: Mon, 29 Nov 2004 09:42:20 +1100
+Message-Id: <1101681740.25347.21.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 29 Nov 2004 09:39:25 +1100
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matthew.
+On Wed, 2004-11-03 at 00:10 -0800, vlobanov wrote:
+> Hi,
+> 
+> I was looking over the /include/linux/module.h file, and the
+> EXPORT_SYMBOL_NOVERS macro caught my eye. To quote the source:
+> 
+>   /* We don't mangle the actual symbol anymore, so no need for
+>    * special casing EXPORT_SYMBOL_NOVERS.  FIXME: Deprecated */
+>   #define EXPORT_SYMBOL_NOVERS(sym) EXPORT_SYMBOL(sym)
+> 
+> A quick grep through the tree brought up no usage cases for this macro.
+> Is there any reason to keep it around, instead of cutting it out, as the
+> FIXME comment seems to suggest?
 
-On Sat, 2004-11-27 at 13:19, Matthew Garrett wrote:
-> We have userspace to do this, surely? Make the standard method of
-> triggering resume involve an initrd, and have a small application that
-> does sanity checks before the resume. In case of failure, have it prompt
-> the user. As long as it doesn't do bad things to the filesystem,
-> there's no danger. There's no reason to do this in the kernel.
+Yep, it's time.
 
-It was originally done in kernel space prior to us having initrd
-support, as a small extension on what was already there. I don't see a
-good reason to move it to working from an initrd because:
+Rusty.
 
-1) We're then assuming that everyone uses an initrd/initramfs, which is
-not true
-2) We need to provide a way for this userspace program to obtain from
-the kernel the signature of the image and information about what we want
-the signature to look like. It will also then need to be able to tell
-the kernel to delete the image.
-3) If you want the userspace program to actually read the signature
-itself, the kernel still needs to tell the userspace program where to
-find that signature (what device, block and blocksize). That device
-can't be mounted/swapon'd to do this; it needs to be a raw read.
-4) This whole method means there's even more code to maintain!
+Name: Remove EXPORT_SYMBOL_NOVERS
+Status: Trivial
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-Regards,
+Vadim Lobanov points out that EXPORT_SYMBOL_NOVERS is no longer used;
+in fact, SH still uses it, but once we fix that, the kernel is clean.
+Remove it.
 
-Nigel
+Index: linux-2.6.10-rc2-bk11-Module/arch/sh/kernel/sh_ksyms.c
+===================================================================
+--- linux-2.6.10-rc2-bk11-Module.orig/arch/sh/kernel/sh_ksyms.c	2004-11-16 15:29:12.000000000 +1100
++++ linux-2.6.10-rc2-bk11-Module/arch/sh/kernel/sh_ksyms.c	2004-11-29 09:38:48.007889896 +1100
+@@ -89,7 +89,7 @@
+ 
+ EXPORT_SYMBOL(__div64_32);
+ 
+-#define DECLARE_EXPORT(name) extern void name(void);EXPORT_SYMBOL_NOVERS(name)
++#define DECLARE_EXPORT(name) extern void name(void);EXPORT_SYMBOL(name)
+ 
+ /* These symbols are generated by the compiler itself */
+ DECLARE_EXPORT(__udivsi3);
+@@ -100,7 +100,7 @@
+ DECLARE_EXPORT(__lshrdi3);
+ DECLARE_EXPORT(__movstr);
+ 
+-EXPORT_SYMBOL_NOVERS(strcpy);
++EXPORT_SYMBOL(strcpy);
+ 
+ #ifdef CONFIG_CPU_SH4
+ DECLARE_EXPORT(__movstr_i4_even);
+Index: linux-2.6.10-rc2-bk11-Module/Makefile
+===================================================================
+--- linux-2.6.10-rc2-bk11-Module.orig/Makefile	2004-11-29 07:48:40.000000000 +1100
++++ linux-2.6.10-rc2-bk11-Module/Makefile	2004-11-29 09:39:06.146132464 +1100
+@@ -1166,7 +1166,7 @@
+ quiet_cmd_tags = MAKE   $@
+ define cmd_tags
+ 	rm -f $@; \
+-	CTAGSF=`ctags --version | grep -i exuberant >/dev/null && echo "-I __initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_NOVERS"`; \
++	CTAGSF=`ctags --version | grep -i exuberant >/dev/null && echo "-I __initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_GPL"`; \
+ 	$(all-sources) | xargs ctags $$CTAGSF -a
+ endef
+ 
+Index: linux-2.6.10-rc2-bk11-Module/include/linux/module.h
+===================================================================
+--- linux-2.6.10-rc2-bk11-Module.orig/include/linux/module.h	2004-11-29 07:48:57.000000000 +1100
++++ linux-2.6.10-rc2-bk11-Module/include/linux/module.h	2004-11-29 09:39:31.970206608 +1100
+@@ -206,10 +206,6 @@
+ 
+ #endif
+ 
+-/* We don't mangle the actual symbol anymore, so no need for
+- * special casing EXPORT_SYMBOL_NOVERS.  FIXME: Deprecated */
+-#define EXPORT_SYMBOL_NOVERS(sym) EXPORT_SYMBOL(sym)
+-
+ struct module_ref
+ {
+ 	local_t count;
+@@ -449,7 +445,6 @@
+ #else /* !CONFIG_MODULES... */
+ #define EXPORT_SYMBOL(sym)
+ #define EXPORT_SYMBOL_GPL(sym)
+-#define EXPORT_SYMBOL_NOVERS(sym)
+ 
+ /* Given an address, look for it in the exception tables. */
+ static inline const struct exception_table_entry *
+
 -- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 

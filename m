@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316878AbSE3VNq>; Thu, 30 May 2002 17:13:46 -0400
+	id <S316882AbSE3VV2>; Thu, 30 May 2002 17:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316881AbSE3VNp>; Thu, 30 May 2002 17:13:45 -0400
-Received: from web14902.mail.yahoo.com ([216.136.225.54]:10392 "HELO
-	web14902.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S316878AbSE3VNo>; Thu, 30 May 2002 17:13:44 -0400
-Message-ID: <20020530211343.15963.qmail@web14902.mail.yahoo.com>
-Date: Thu, 30 May 2002 17:13:43 -0400 (EDT)
-From: Michael Zhu <mylinuxk@yahoo.ca>
-Subject: about genksyms
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S316884AbSE3VV1>; Thu, 30 May 2002 17:21:27 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:158 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316882AbSE3VV1>;
+	Thu, 30 May 2002 17:21:27 -0400
+Date: Thu, 30 May 2002 00:27:06 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Centenary Reached By Trivial Patch Monkey
+Message-ID: <20020530002705.B155@toy.ucw.cz>
+In-Reply-To: <E17CuIW-0006BC-00@wagner.rustcorp.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, everyone, I want to make some specific .ver
-archives for my module. I use the following command.
+Hi!
 
-gcc -E -D__GENKSYMS__ main.c | genksyms -k 2.4.7 >
-main.ver
+> FYI, most patches are: (1) janitorial fixes from new people who can't
+> get Linus or linux-kernel to read their patches (aka. Alan Cox Mode),
+> and (2) one-liners from experienced kernel hackers who wouldn't bother
+> retransmitting themselves (aka. Drop Prevention Mode).
 
-I can create the main.ver file. But when I build my
-module with this .ver file I couldn't load the module
-into the kernel using the insmod command. It said that
-the there are some unresolved symbols in my module. I
-think it is a problem of kernel version confliction.
-My linux is RedHat Linux 7.2 and the kernel version is
-2.4.7-10. How can I specify this kernel function in
-the genksyms command line?
+Just -- thanks for that. "Patch and forget" is very welcome for easy patches.
 
-Thank you very much.
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 
-
-
-______________________________________________________________________ 
-Find, Connect, Date! http://personals.yahoo.ca

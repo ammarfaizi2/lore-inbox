@@ -1,90 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbUCQSNM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 13:13:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbUCQSNM
+	id S261852AbUCQSOm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 13:14:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUCQSOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 13:13:12 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:7166 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261779AbUCQSNG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 13:13:06 -0500
+	Wed, 17 Mar 2004 13:14:42 -0500
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:64519 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S261852AbUCQSOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 13:14:34 -0500
+Message-ID: <405893FC.4030209@hp.com>
+Date: Wed, 17 Mar 2004 13:07:56 -0500
+From: Robert Picco <Robert.Picco@hp.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: davidm@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org, colpatch@us.ibm.com, mbligh@aracnet.com
 Subject: Re: boot time node and memory limit options
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Jesse Barnes <jbarnes@sgi.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Robert Picco <Robert.Picco@hp.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Dobson <colpatch@us.ibm.com>
-In-Reply-To: <20040317175134.GA23153@sgi.com>
-References: <4057392A.8000602@hp.com> <20040316174329.GA29992@sgi.com>
-	 <34060000.1079465992@flay> <405879BC.7060904@hp.com>
-	 <1745150000.1079541412@[10.10.2.4]> <1079543385.5789.152.camel@nighthawk>
-	 <20040317175134.GA23153@sgi.com>
-Content-Type: text/plain
-Message-Id: <1079547171.5789.307.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 17 Mar 2004 10:12:51 -0800
+References: <40573460.9090605@hp.com> <16471.48076.447058.132559@napali.hpl.hp.com>
+In-Reply-To: <16471.48076.447058.132559@napali.hpl.hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-17 at 09:51, Jesse Barnes wrote:
-> In some cases (ia64 for example) there are additional restrictions on
-> each memory chunk.  For example, the EFI memory map may describe a
-> contiguous chunk of memory 28MB in size, but if your kernel page size
-> was set to 64MB, you'd have to throw it away as unusable.  Should that
-> be dealt with in the arch independent code (i.e. is similar stuff done
-> on other platforms?) or is it best to only add sections that are usable?
+Hi David:
 
-I was really hoping that this mechanism can be as stupid about what it
-contains as possible.  It's _just_ there to store the memory layout, and
-wouldn't decide or implement policy for the architecture.
+Well our IA64 "mem=" is used in efi_memmap_walk.  We could change the 
+name to "max_address=".  The X86 "mem=" takes effect before the bootmem 
+allocator is initialized.  My patch eliminates memory before
+mem_init frees all bootmap memory.  My proposed patch doesn't have the 
+same functionality as X86 "mem=".
 
-The "runt" section of memory should be added to the structures and
-tracked.  If, for some random reason, another 36MB of contiguous memory
-got added to it later, you could start to think about coalescing it with
-the runt from before.
+thanks,
 
-The place to ignore the runt is in your architecture code that sets up
-the page tables.  Your arch code would, of course, be reading from this
-layout code.
+Bob
 
-> > What I'd like to do is present a standard way for all of these
-> > architectures to store the information that they need to record at boot
-> > time, plus make something flexible enough that we can use it for stuff
-> > at runtime when hotplug memory is involved.
-> 
-> That would be great, what you have below seems sensible.
+David Mosberger wrote:
 
-Mostly sensible.  I definitely need to make sure that it can cover all
-the cases.  The "section" terminology should probably be removed so that
-we can use it for CONFIG_NONLINEAR, and we need to think about what
-happens when conflicting sections are added.  For instance, it might be
-valid to add RAM from 0-4GB, then reserve 3.75-4GB later on for PCI
-space.  Also, the code currently leaves "undefined" sections instead of
-creating holes.  That can be dealt with later. 
-
-Anyway, I'm not too attached to that code, it just realizes an idea that
-I have.
-
-> > The code I'd like to see go away from boot-time is anything that deals
-> > with arch-specific structures like the e820, functions like
-> > lmb_end_of_DRAM(), or any code that deals with zholes.  I'd like to get
-> > it to a point where we can do a mostly arch-independent mem=.  
-> 
-> So what you have here would be only for boot time setup, while
-> CONFIG_NONLINEAR would be used in lieu of multiple pgdats per node or a
-> virtual memmap in the case of intranode discontiguous memory?
-
-Well, I was hoping that whatever we use at boot-time could stick around
-for runtime.  I'd like to get to the point where the interface for
-bringing up boot-time memory is the same for hotplugging memory.  (for
-2.7, of course)
-
-Just as with the CPU hotplug code, having separate code paths for
-hotplug memory is asking for trouble, because the coverage will never be
-as high as the generic boot case.  
-
--- dave
+>Hi Bob,
+>
+>  
+>
+>>>>>>On Tue, 16 Mar 2004 12:07:44 -0500, Robert Picco <Robert.Picco@hp.com> said:
+>>>>>>            
+>>>>>>
+>
+>  Bob> This patch supports three boot line options.  mem_limit limits
+>  Bob> the amount of physical memory.  node_mem_limit limits the
+>  Bob> amount of physical memory per node on a NUMA machine.
+>  Bob> nodes_limit reduces the number of NUMA nodes to the value
+>  Bob> specified.  On a NUMA machine an eliminated node's CPU(s) are
+>  Bob> removed from the cpu_possible_map.
+>
+>  Bob> The patch has been tested on an IA64 NUMA machine and
+>  Bob> uniprocessor X86 machine.
+>
+>Would it make sense to improve on the consistency of the "mem" option
+>at the same time.  IIRC, "mem=N" on x86 means "limit amount of memory
+>to N", whereas on ia64 it means "ignore memory above N".  In my
+>opinion, it would make sense to change the ia64 "mem" to option to
+>match the behavior on x86 and then to use "mem_limit=N" for the
+>"ignore memory above N" case (which is very useful for testing
+>addressing issues, such as I/O MMU issues).
+>
+>Thanks,
+>
+>	--david
+>
+>  
+>
 

@@ -1,78 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129274AbRAZO64>; Fri, 26 Jan 2001 09:58:56 -0500
+	id <S129184AbRAZPFE>; Fri, 26 Jan 2001 10:05:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129184AbRAZO6p>; Fri, 26 Jan 2001 09:58:45 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:59144 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129274AbRAZO6c>;
-	Fri, 26 Jan 2001 09:58:32 -0500
-Message-ID: <3A719074.CBF3055B@mandrakesoft.com>
-Date: Fri, 26 Jan 2001 09:57:56 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-CC: bero@redhat.de, alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: MatroxFB support can't be compiled into kernel
-In-Reply-To: <20010126153247.A24714@vana.vc.cvut.cz>
+	id <S129390AbRAZPEp>; Fri, 26 Jan 2001 10:04:45 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:43535 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S129184AbRAZPEh>; Fri, 26 Jan 2001 10:04:37 -0500
+Date: Fri, 26 Jan 2001 16:03:42 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: James Sutherland <jas88@cam.ac.uk>, "David S. Miller" <davem@redhat.com>,
+        Matti Aarnio <matti.aarnio@zmailer.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: hotmail not dealing with ECN
+Message-ID: <20010126160342.B7096@pcep-jamie.cern.ch>
+In-Reply-To: <20010126124426.O2360@marowsky-bree.de> <Pine.SOL.4.21.0101261344120.11126-100000@red.csi.cam.ac.uk> <20010126154447.L3849@marowsky-bree.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010126154447.L3849@marowsky-bree.de>; from lmb@suse.de on Fri, Jan 26, 2001 at 03:44:47PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
+Lars Marowsky-Bree wrote:
+> First, you are ignoring a TCP_RST, which means "stop trying". 
+
+That's why we stop when we receive the second TCP RST.
+It's just like dropping due to congestion, which is of course perfectly
+safe in moderation.
+
+> You would have to retry a connection with a new source port. How do
+> you handle cases where the application explicitly bound the socket to
+> a specific source port / source IP ?
+
+Applications tend not to.  Do we care about those that do?
+
+> Caching whether the site is able to speak ECN or not is also
+> suboptimal if the local site is opening lots of outgoing connections,
+> like a proxy server. (Of course, memory has gotten cheap)
 > 
-> On 26 Jan 01 at 14:29, Bernhard Rosenkraenzer wrote:
-> >
-> > Subject says it all - works as a module, but can't be compiled into the
-> > kernel because of duplicate definitions, caused by several files including
-> > matroxfb_base.h which in turn defines global_disp.
-> >
-> > Patch attached.
-> 
-> Oops. I did not tried matroxfb without multihead for so long... But...
-> Should not (1) compiler optimize them out, as global_disp is used only
-> by matroxfb_base.c and (2) linker merge them together? I was under
-> impression that kernel uses common storage for uninitialized variables...
-> I'm sure that it worked sometime in the past...
-> 
-> Anyway, I preffer patch bellow, as global_disp is used only by
-> matroxfb_base.c, and only if CONFIG_FB_MATROX_MULTIHEAD is not set...
-> 
-> Linus, original complaint was against 2.4.0-ac11 - I do not know, whether
-> Alan uses some new linker scripts or what's going on. In any case, can you
-> apply this too? There is no reason why matrox's 'global_disp' should polute
-> global namespace.
+> _And_ it is solving the problem on the wrong end.
 
-If you compile your kernels with -fno-common, this problem would show
-up.  Andrea and a couple of the gcc guys, in a thread ~30 days ago,
-recommended the use of -fno-common to build the kernel.  I started using
-it myself, and have picked up and fixed a few problems such as the one
-that your patch fixes.
+It would not solve the problem at all, if there's no incentive to switch
+to ECN.  But then, why force people to use ECN if there's no advantage
+to it anyway?
 
-I sent a patch to Alan to add -fno-common to the command line of his
-2.4.0-acXX patches, but it got dropped (presumeably too experimental or
-whatever).
+Does ECN provide perceived benefits to the node using it?
 
-In case anyone is curious, here is what 'info gcc' says about
--fno-common:
-
-> `-fno-common'
->      Allocate even uninitialized global variables in the bss section of
->      the object file, rather than generating them as common blocks.
->      This has the effect that if the same variable is declared (without
->      `extern') in two different compilations, you will get an error
->      when you link them.  The only reason this might be useful is if
->      you wish to verify that the program will work on other systems
->      which always work this way.
-
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279839AbRKILgH>; Fri, 9 Nov 2001 06:36:07 -0500
+	id <S279838AbRKILlS>; Fri, 9 Nov 2001 06:41:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279832AbRKILf5>; Fri, 9 Nov 2001 06:35:57 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:19730 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S279839AbRKILfp>; Fri, 9 Nov 2001 06:35:45 -0500
-Date: Fri, 9 Nov 2001 12:35:39 +0100
-From: Jan Kara <jack@suse.cz>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Large files and filesystem block size
-Message-ID: <20011109123538.A20155@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20011109103013.B1734@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.30.0111091231100.6010-100000@mustard.heime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0111091231100.6010-100000@mustard.heime.net>
-User-Agent: Mutt/1.3.20i
+	id <S279832AbRKILlI>; Fri, 9 Nov 2001 06:41:08 -0500
+Received: from mta05ps.bigpond.com ([144.135.25.137]:60123 "EHLO
+	mta05ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S279838AbRKILk5>; Fri, 9 Nov 2001 06:40:57 -0500
+Message-ID: <000d01c16914$195444e0$0c01a8c0@vaio>
+From: "Robert Lowery" <cangela@bigpond.net.au>
+To: <akpm@zip.com.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Assertion failure wth ext3 on standard Redhat 7.2 kernel
+Date: Fri, 9 Nov 2001 22:45:58 +1100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I'm setting up a server serving large >=1GB files. I spoke to this guy
-> > > that just finished his PhD on the subject
-> > > (http://ConfMan.unik.no/~paalh/index2.html) , and he said he'd managed to
-> > > increase the throughput by using a 64kB block size on the files system.
-> > > This testing was done on NetBSD (as far as I can remember).
-> > >
-> > > Does anyone know of a file system that supports large files, large
-> > > filesystems and large block sizes?
-> 
-> > Linux doesn't support larger block size than page size (ie. 4 KB on i386).
-> 
-> Is this limit the indepandant of file system type?
-  Yes it is. But all reasonable filesystems like ext2, ext3, reiserfs etc. support
-4KB block sizes. Maybe you can try XFS which should be designed for large files
-but I have no experience with it..
+> >It looks like memory corruption of some form - a structure
+> >member has an impossible value. Are you using any less-than-mainstream
+> >device drivers in that box?
+P.S. The problem occurs on a completely virgin Redhat 7.2 install as well as
+after I have applied all available updates. (after a few crashes and reboots
+while applying them).
 
-								Honza
+-Robert
+

@@ -1,42 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbVCKWWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVCKWWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261781AbVCKWWw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 17:22:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVCKWTw
+	id S261784AbVCKWWx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 17:22:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVCKWUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 17:19:52 -0500
-Received: from lakshmi.addtoit.com ([198.99.130.6]:35598 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261778AbVCKWSs
+	Fri, 11 Mar 2005 17:20:25 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:12804 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261779AbVCKWSw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 17:18:48 -0500
-Message-Id: <200503112354.j2BNrFJp005237@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: Adrian Bunk <bunk@stusta.de>
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH 4/9] UML - Export gcov symbol based on gcc version 
-In-Reply-To: Your message of "Fri, 11 Mar 2005 17:55:26 +0100."
-             <20050311165526.GA3723@stusta.de> 
-References: <200503100216.j2A2G2DN015232@ccure.user-mode-linux.org> <20050310225340.GD3205@stusta.de> <200503111849.j2BImsJp003370@ccure.user-mode-linux.org>  <20050311165526.GA3723@stusta.de> 
-Mime-Version: 1.0
+	Fri, 11 Mar 2005 17:18:52 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Paul Mackerras <paulus@samba.org>, Dave Jones <davej@redhat.com>,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: AGP bogosities
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
+	<20050311021248.GA20697@redhat.com>
+	<16944.65532.632559.277927@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.58.0503101839530.2530@ppc970.osdl.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sat, 12 Mar 2005 07:18:19 +0900
+In-Reply-To: <Pine.LNX.4.58.0503101839530.2530@ppc970.osdl.org> (Linus
+ Torvalds's message of "Thu, 10 Mar 2005 18:42:10 -0800 (PST)")
+Message-ID: <87vf7xg72s.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 11 Mar 2005 18:53:15 -0500
-From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bunk@stusta.de said:
-> And therefore you added a patch that helps only those distros at the
-> price of breaking other people and distros using sane compilers? 
+Linus Torvalds <torvalds@osdl.org> writes:
 
-Didn't you start this thread by pointing out that SuSE has a gcc 3.3.4
-which isn't?  I would call that a compiler which lies about its version, and
-for the purposes of this argument, I would say that it is not a sane
-compiler.
+> Hmm.. We seem to not have any tests for the counts becoming negative, and
+> this would seem to be an easy mistake to make considering that both I and 
+> Dave did it.
 
-Given this, your original (correct) claim was that my patch would not help
-such compilers.  Are you now claiming that it does help such compilers, and
-no one else?
-
-				Jeff
+I stole this from -mm.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
 
+From: Ingo Molnar <mingo@elte.hu>
+
+The patch below will detect atomic counter underflows.  This has been
+test-driven in the -RT patchset for some time.  qdisc_destroy() triggered
+it sometimes (in a seemingly nonfatal way, during device shutdown) - with
+DaveM suggesting that it is most likely a bug in the networking code.  So
+it would be nice to have this in -mm for some time to validate all atomic
+counters on a broader base.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ 25-akpm/include/asm-i386/atomic.h |    4 ++++
+ 1 files changed, 4 insertions(+)
+
+diff -puN include/asm-i386/atomic.h~detect-atomic-counter-underflows include/asm-i386/atomic.h
+--- 25/include/asm-i386/atomic.h~detect-atomic-counter-underflows	Wed Nov  3 15:27:37 2004
++++ 25-akpm/include/asm-i386/atomic.h	Wed Nov  3 15:27:37 2004
+@@ -132,6 +132,10 @@ static __inline__ int atomic_dec_and_tes
+ {
+ 	unsigned char c;
+ 
++	if (!atomic_read(v)) {
++		printk("BUG: atomic counter underflow at:\n");
++		dump_stack();
++	}
+ 	__asm__ __volatile__(
+ 		LOCK "decl %0; sete %1"
+ 		:"=m" (v->counter), "=qm" (c)
+_

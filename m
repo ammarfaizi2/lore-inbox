@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267507AbSLSBFQ>; Wed, 18 Dec 2002 20:05:16 -0500
+	id <S267567AbSLSBOE>; Wed, 18 Dec 2002 20:14:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267513AbSLSBFP>; Wed, 18 Dec 2002 20:05:15 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:21766
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267507AbSLSBFO>; Wed, 18 Dec 2002 20:05:14 -0500
-Subject: RE: 15000+ processes -- poor performance ?!
-From: Robert Love <rml@tech9.net>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: "'Till Immanuel Patzschke'" <tip@inw.de>,
-       lse-tech <lse-tech@lists.sourceforge.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <A46BBDB345A7D5118EC90002A5072C7806CACA2C@orsmsx116.jf.intel.com>
-References: <A46BBDB345A7D5118EC90002A5072C7806CACA2C@orsmsx116.jf.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1040260387.855.95.camel@phantasy>
+	id <S267569AbSLSBOE>; Wed, 18 Dec 2002 20:14:04 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:40412 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S267567AbSLSBOD>;
+	Wed, 18 Dec 2002 20:14:03 -0500
+Date: Wed, 18 Dec 2002 17:21:28 -0800
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re : Linux 2.4.21-pre2 - unresolved
+Message-ID: <20021219012127.GA1281@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 18 Dec 2002 20:13:07 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-18 at 20:04, Perez-Gonzalez, Inaky wrote:
-> > 
-> > forgot the kernel version (2.4.20aa1)...
+Eyal Lebedinsky wrote :
 > 
-> You need the O(1) scheduler; not sure if aa has it or not; if not, lots of
-> processes will suck your machine. I think -ac has the O(1) scheduler, or try
-> 2.5. The old scheduler is pretty cool but not as scalable as the new one.
-> 
-> If it has it ... well, I have no idea - maybe Robert Love would
-> know.
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.21-pre2/kernel/net/irda/irda.o
+> depmod:         irlmp_lap_tx_queue_full
 
-2.4-aa has the O(1) scheduler, yes.
+	It looks like Marcelo did drop some of my IrDA patches (the
+LAP scheduler to be exact). You can find the necessary patch on my web
+page.
+	I'll compile 21-pre2 and I'll deal with that with Marcelo.
 
-I think 15,000 processes may always suck, though :)
+	Have fun...
 
-	Robert Love
-
-
+	Jean

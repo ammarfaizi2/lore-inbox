@@ -1,53 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267266AbUBSOF3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 09:05:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267261AbUBSOF3
+	id S267215AbUBSOJK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 09:09:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267264AbUBSOJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 09:05:29 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:56218 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S267268AbUBSOFS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 09:05:18 -0500
-Subject: Re: JFS default behavior / UTF-8 filenames
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: kernel@mikebell.org
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040219105913.GE432@tinyvaio.nome.ca>
-References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr>
-	 <20040219105913.GE432@tinyvaio.nome.ca>
-Content-Type: text/plain
-Message-Id: <1077199506.2275.12.camel@shaggy.austin.ibm.com>
+	Thu, 19 Feb 2004 09:09:10 -0500
+Received: from thunk.org ([140.239.227.29]:7557 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S267215AbUBSOJE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 09:09:04 -0500
+Date: Thu, 19 Feb 2004 09:08:47 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: tridge@samba.org
+Cc: Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 and case-insensitivity
+Message-ID: <20040219140847.GA5718@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, tridge@samba.org,
+	Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
+References: <1qHAR-2Wm-49@gated-at.bofh.it> <1qIwr-5GB-11@gated-at.bofh.it> <1qIwr-5GB-9@gated-at.bofh.it> <1qIQ1-5WR-27@gated-at.bofh.it> <1qIZt-6b9-11@gated-at.bofh.it> <1qJsF-6Be-45@gated-at.bofh.it> <E1Atbi7-0004tf-O7@localhost> <16436.2817.900018.285167@samba.org> <20040219024426.GA3901@thunk.org> <16436.11148.231014.822067@samba.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 19 Feb 2004 08:05:06 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16436.11148.231014.822067@samba.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-02-19 at 04:59, kernel@mikebell.org wrote:
-> For filesystems like JFS and NTFS, I think this is the best way in the
-> long run, have the kernel output as UTF-8 by default, assume UTF-8
-> inputs, and reject non-UTF8 filenames because they can't really store
-> the arbitrary string of bytes model anyway.
+On Thu, Feb 19, 2004 at 02:20:44PM +1100, tridge@samba.org wrote:
+> Currently dnotify doesn't give you the filename that is being
+> added/deleted/renamed. It just tells you that something has happened,
+> but not enough to actually maintain a name cache in user space.
+> 
+> That could be changed, so that on a dnotify event you do a fcntl() to
+> ask for the name of the file. Or perhaps we could cram it into the
+> structure the signal handler gets passed? I doubt that would make
+> sense, but maybe some signal guru can tell me otherwise. Maybe we
+> could even invent a new dnotify system where you do a read on a file
+> descriptor to get details on what event happened, and give some
+> "everything has changed" error when you run out of buffers.
 
-Actually, I just submitted a patch to fix the default behavior of JFS to
-always treat the name as an arbitrary string.  The previous default
-depended on the value of CONFIG_NLS_DEFAULT.  Setting the mount option
-iocharset=utf8 will reject non-utf8 filenames as you propose.
+Yes, that's what I was suggesting.  One advantage of such a scheme is
+that it's not just for Windows compatibility.  A more rich directory
+change notification scheme would also be useful for graphical file
+managers, automatic indexing tools, and many, many other applications.
 
-The arbitrary string of bytes is treated as the latin1 charset in that
-it is stored as 0x00nn (in UTF2), but JFS really doesn't care what the
-character set is.
+No, it's not everything you were requesting, but it may very well
+represent three-quarters of a loaf, instead of nothing.
 
-> For others which can, maybe leave it up to the filesystem creator
-> whether to reject non-UTF8 filenames or to accept invalid ones as well?
+> If that happened then we could build our own dcache in user space, but
+> it will be a very second rate dcache, with a racy and slow update
+> mechanism that will in itself chew cpu. Maybe thats the best we can
+> do, or maybe I should be asking distro vendors if they would consider
+> a case-insensitive patch, especially the vendors aiming for
+> "enterprise" scalability which might include serving windows clients.
 
-It's been said before, but a posix-compliant file system should accept
-any bytes other that NUL and '/'.
+I don't know that the update mechanism has to seriously chew that much
+CPU.  It can certainly can be designed to minimize the amount of CPU
+that is consumed, especially if it is read via a file descriptor so
+that multiple updates can be sent via a single read() system call,
+instead of sending a signal every single time a directory entry is
+created, renamed, or deleted.
 
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
+The problem with a case-insentive patch is that for most modern
+filesystems (i.e., any filesystem that does better than O(1) directory
+searches), it will have to involve a format change, since the case
+insensitivity has to be built into the hash function or the tree
+comparison fucture, or both.  At this point, the filesystem author has
+to make the choice of whether to try to solve the Windows-specific
+problem, in which case the fundamental filesystem format would have to
+be tailored to the Windows case mapping table, or try to solve the
+more general I18N case mapping problem.  (Lots of luck!  It's
+constantly changing over time as new character sets are added or
+modified...)  Yes, a few such filesystems might have this support
+already, but I doubt distributions would be willing to accept patches
+that make filesystem format-incompatible changes just for the sake of
+accelerating Samba operations.
 
+I don't know if the distributions would be willing to accept a
+case-insensitive patch, but my suspicions is that it would be
+difficult, and I would argue that it might be more efficient to get a
+richer directory change notification system, for the reasons I argued
+above.
+
+						- Ted

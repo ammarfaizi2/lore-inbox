@@ -1,69 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268138AbUIWCGt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268141AbUIWCHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268138AbUIWCGt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 22:06:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268141AbUIWCGt
+	id S268141AbUIWCHi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 22:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268144AbUIWCHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 22:06:49 -0400
-Received: from pointblue.com.pl ([81.219.144.6]:17678 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S268138AbUIWCG2 (ORCPT
+	Wed, 22 Sep 2004 22:07:38 -0400
+Received: from pointblue.com.pl ([81.219.144.6]:27140 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S268141AbUIWCHR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 22:06:28 -0400
-Message-ID: <41522F91.2010903@pointblue.com.pl>
-Date: Thu, 23 Sep 2004 04:06:09 +0200
+	Wed, 22 Sep 2004 22:07:17 -0400
+Message-ID: <41522FC7.6050500@pointblue.com.pl>
+Date: Thu, 23 Sep 2004 04:07:03 +0200
 From: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
 Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/3] compilation fixes for gcc 4.0
-References: <4151D086.6040708@pointblue.com.pl>
-In-Reply-To: <4151D086.6040708@pointblue.com.pl>
+Subject: Re: [PATCH 3/3] compilation fixes for gcc 4.0
+References: <4151D140.9040600@pointblue.com.pl>
+In-Reply-To: <4151D140.9040600@pointblue.com.pl>
 Content-Type: multipart/mixed;
- boundary="------------080704050706090604070508"
+ boundary="------------060305000904010908020403"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------080704050706090604070508
+--------------060305000904010908020403
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-2nd patch attached.
+Grzegorz Piotr Jaskiewicz wrote:
+
+> This one causes most doubts in me, as it is a function declared inside 
+> body of another function.
+>
+> Is there really a need to have such mad code in reiser4 fs ??
+> This issue was raised already on reiser4 mailing list.
+> Here it's only for reviev and opinions, if no doubts, please apply.
+>
+I need to change email client :-)
+Patch attached.
 
 Signed-off-by: Grzegorz Jaskiewicz <gj at pointblue.com.pl>
 
----
 
 --
 GJ
 
---------------080704050706090604070508
+--------------060305000904010908020403
 Content-Type: text/plain;
- name="3c507.c.patch"
+ name="search.c.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="3c507.c.patch"
+ filename="search.c.patch"
 
-diff -Naur linux-2.6.8/drivers/net/3c507.c linux-2.6.9-rc2-mm1/drivers/net/3c507.c
---- linux-2.6.8/drivers/net/3c507.c	2004-08-14 07:37:38 +0200
-+++ linux-2.6.9-rc2-mm1/drivers/net/3c507.c	2004-09-22 21:15:29 +0200
-@@ -294,6 +294,7 @@
- static void hardware_send_packet(struct net_device *dev, void *buf, short length, short pad);
- static void init_82586_mem(struct net_device *dev);
- static struct ethtool_ops netdev_ethtool_ops;
-+static void init_rx_bufs(struct net_device *); 
+--- a/fs/reiser4/search.c	2004-09-22 20:38:04 +0200
++++ b/fs/reiser4/search.new.c	2004-09-22 20:37:26 +0200
+@@ -1088,6 +1088,20 @@
+ }
+ #endif
  
- static int io = 0x300;
- static int irq;
-@@ -612,7 +613,6 @@
- 	}
++/* true if @key is left delimiting key of @node */
++static int key_is_ld(znode * node, const reiser4_key * key) {
++	int ld;
++
++	 assert("nikita-1716", node != NULL);
++	 assert("nikita-1758", key != NULL);
++
++	 RLOCK_DK(znode_get_tree(node));
++	 assert("nikita-1759", znode_contains_key(node, key));
++	 ld = keyeq(znode_get_ld_key(node), key);
++	 RUNLOCK_DK(znode_get_tree(node));
++	 return ld;
++}
++
+ /* Process one node during tree traversal.
  
- 	if ((status & 0x0070) != 0x0040 && netif_running(dev)) {
--		static void init_rx_bufs(struct net_device *);
- 		/* The Rx unit is not ready, it must be hung.  Restart the receiver by
- 		   initializing the rx buffers, and issuing an Rx start command. */
- 		if (net_debug)
+    This is called by cbk_level_lookup(). */
+@@ -1107,19 +1121,6 @@
+ 	/* result */
+ 	int result;
+ 
+-	/* true if @key is left delimiting key of @node */
+-	static int key_is_ld(znode * node, const reiser4_key * key) {
+-		int ld;
+-
+-		 assert("nikita-1716", node != NULL);
+-		 assert("nikita-1758", key != NULL);
+-
+-		 RLOCK_DK(znode_get_tree(node));
+-		 assert("nikita-1759", znode_contains_key(node, key));
+-		 ld = keyeq(znode_get_ld_key(node), key);
+-		 RUNLOCK_DK(znode_get_tree(node));
+-		 return ld;
+-	}
+ 	assert("nikita-379", h != NULL);
+ 
+ 	active = h->active_lh->node;
 
---------------080704050706090604070508--
+--------------060305000904010908020403--

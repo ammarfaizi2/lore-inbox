@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbTKTBRr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 20:17:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264239AbTKTBRr
+	id S262714AbTKTBlW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 20:41:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263998AbTKTBlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 20:17:47 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:2691 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S261240AbTKTBRq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 20:17:46 -0500
-Date: Thu, 20 Nov 2003 01:12:09 +0000
-From: Dave Jones <davej@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 006 release
-Message-ID: <20031120011209.GA5719@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-	linux-hotplug-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20031119162912.GA20835@kroah.com>
+	Wed, 19 Nov 2003 20:41:22 -0500
+Received: from c-24-6-236-77.client.comcast.net ([24.6.236.77]:37848 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262714AbTKTBlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 20:41:22 -0500
+Date: Wed, 19 Nov 2003 17:34:25 -0500
+From: Christopher Li <lkml@chrisli.org>
+To: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test9-mm4 (only) and vmware
+Message-ID: <20031119223425.GA20549@64m.dyndns.org>
+References: <20031119181518.0a43c673.vmlinuz386@yahoo.com.ar>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031119162912.GA20835@kroah.com>
+In-Reply-To: <20031119181518.0a43c673.vmlinuz386@yahoo.com.ar>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 19, 2003 at 08:29:12AM -0800, Greg KH wrote:
- > I've released the 006 version of udev.  It can be found at:
- > 	kernel.org/pub/linux/utils/kernel/hotplug/udev-006.tar.gz
- > 
- > The udev BitKeeper tree has moved for now, due to kernel.bkbits.net
- > being off the air to:
- > 	bk://linuxusb.bkbits.net/udev
- > 
- > Note, to build using klibc, please read the klibc README in the klibc/
- > directory, and build using 'make -f Makefile.klibc'.
- > 
- > If anyone ever wants a snapshot of the current tree, due to not using
- > BitKeeper, or other reasons, is always available at any time by asking.
+On Wed, Nov 19, 2003 at 06:15:18PM -0300, Gerardo Exequiel Pozzi wrote:
+> Hi Andrew,
+> 
+> With the recent 2.6.0-test9-mm4 i can't start the vmware, it reports in vmware.log (debug ON):
+> 
+> Nov 19 17:27:40: vmx| WSSCAN: Not enough physical memory: req=49152 avail=0 over
+> head=4096 maxRespage=106496
+> Nov 19 17:27:40: vmx| WSSCAN: Not enough physical (in MB): nbVM=3 hostMem=512 ch
+> eckMemory=1
 
-I just changed my sparse snapshotter to a generic bitkeeper repo snapshotting
-script. Daily tarballs of udev as well as a daily unpacked tree can now also
-be found at http://www.codemonkey.org.uk/projects/bitkeeper/udev/
+Can you send me a few more lines of the log file before and after that message? I can take
+a look at what is going on there. Most likely vmmon driver get confused.
 
-		Dave
+> 
+> With linus tree from 2.6.0-test9-mm4/broken-out/linus.patch and 2.6.0-test3-mm3 don't have problem.
+> 
 
+Chris

@@ -1,119 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262205AbUCIVPt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 16:15:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbUCIVPt
+	id S262210AbUCIVRk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 16:17:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbUCIVRk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 16:15:49 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:47096 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262205AbUCIVP0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 16:15:26 -0500
-Date: Tue, 9 Mar 2004 22:15:19 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Thomas Winischhofer <thomas@winischhofer.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.4 patch] agpgart_be.c: remove dupliacte PCI_DEVICE_ID_SI_651 entry (fwd) (fwd)
-Message-ID: <20040309211518.GN14833@fs.tum.de>
+	Tue, 9 Mar 2004 16:17:40 -0500
+Received: from ns.suse.de ([195.135.220.2]:60587 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262218AbUCIVR3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 16:17:29 -0500
+Subject: [PATCH] reading the last block on a bdev
+From: Chris Mason <mason@suse.com>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Content-Type: multipart/mixed; boundary="=-3dP7NffZyaEM5y0NGP1m"
+Message-Id: <1078867189.25064.1449.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 09 Mar 2004 16:19:49 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
 
-the trivial patch forwarded below still applies and compiles against
-2.4.26-rc2.
+--=-3dP7NffZyaEM5y0NGP1m
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Please apply
-Adrian                      
+Hello everyone,
 
+This patch fixes a problem we're hitting on ia64 with page sizes > 4k.  
 
+When the page size is greater than the block size, and parts of the page
+fall past the end of the device, readpage will fail because
+blkdev_get_block returns -EIO for blocks past i_size.
 
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
+The attached patch changes blkdev_get_block to return holes when reading
+past the end of the device, which allows us to read that last valid 4k
+block and then fill the rest of the page with zeros.   Writes will still
+fail with -EIO.
 
-Date:	Fri, 30 Jan 2004 20:53:20 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Thomas Winischhofer <thomas@winischhofer.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.4 patch] agpgart_be.c: remove dupliacte PCI_DEVICE_ID_SI_651 entry (fwd)
+-chris
 
-Hi Marcelo,
+--=-3dP7NffZyaEM5y0NGP1m
+Content-Disposition: attachment; filename=blkdev_get_block-partial
+Content-Type: text/x-patch; name=blkdev_get_block-partial; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-the trivial patch forwarded below still applies and compiles against 
-2.4.25-pre8.
-
-Please apply
-Adrian
-
-
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
-
-Date:	Wed, 30 Jul 2003 23:39:54 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [2.4 patch] agpgart_be.c: remove dupliacte PCI_DEVICE_ID_SI_651 entry
-
-agpgart_be.c contains two entries for PCI_DEVICE_ID_SI_651. The patch 
-below removes one of them.
-
-I've tested the compilation eith 2.4.22-pre9.
-
-cu
-Adrian
-
---- linux-2.4.22-pre9-full/drivers/char/agp/agpgart_be.c.old	2003-07-30 23:34:54.000000000 +0200
-+++ linux-2.4.22-pre9-full/drivers/char/agp/agpgart_be.c	2003-07-30 23:35:43.000000000 +0200
-@@ -4961,30 +4961,24 @@
- 	{ PCI_DEVICE_ID_SI_651,
- 		PCI_VENDOR_ID_SI,
- 		SIS_GENERIC,
- 		"SiS",
- 		"651",
- 		sis_generic_setup },
- 	{ PCI_DEVICE_ID_SI_650,
- 		PCI_VENDOR_ID_SI,
- 		SIS_GENERIC,
- 		"SiS",
- 		"650",
- 		sis_generic_setup },
--	{ PCI_DEVICE_ID_SI_651,
--		PCI_VENDOR_ID_SI,
--		SIS_GENERIC,
--		"SiS",
--		"651",
--		sis_generic_setup },
- 	{ PCI_DEVICE_ID_SI_645,
- 		PCI_VENDOR_ID_SI,
- 		SIS_GENERIC,
- 		"SiS",
- 		"645",
- 		sis_generic_setup },
- 	{ PCI_DEVICE_ID_SI_646,
- 		PCI_VENDOR_ID_SI,
- 		SIS_GENERIC,
- 		"SiS",
- 		"646",
- 		sis_generic_setup },
+Index: linux.t/fs/block_dev.c
+===================================================================
+--- linux.t.orig/fs/block_dev.c	2004-03-08 09:56:06.000000000 -0500
++++ linux.t/fs/block_dev.c	2004-03-09 09:48:15.000000000 -0500
+@@ -116,9 +116,18 @@ static int
+ blkdev_get_block(struct inode *inode, sector_t iblock,
+ 		struct buffer_head *bh, int create)
+ {
+-	if (iblock >= max_block(I_BDEV(inode)))
+-		return -EIO;
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
++	if (iblock >= max_block(I_BDEV(inode))) {
++		if (create)
++			return -EIO;
++
++		/* 
++		 * for reads, we're just trying to fill a partial page.
++		 * return a hole, they will have to call get_block again
++		 * before they can fill it, and they will get -EIO at that
++		 * time
++		 */
++		return 0;
++	}
+ 	bh->b_bdev = I_BDEV(inode);
+ 	bh->b_blocknr = iblock;
+ 	set_buffer_mapped(bh);
 
------ End forwarded message -----
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
+--=-3dP7NffZyaEM5y0NGP1m--
 

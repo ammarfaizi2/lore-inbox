@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261722AbTJMMaO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 08:30:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbTJMMaN
+	id S261705AbTJMMaI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 08:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbTJMMaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 08:30:13 -0400
-Received: from qfep05.superonline.com ([212.252.122.161]:20977 "EHLO
-	qfep05.superonline.com") by vger.kernel.org with ESMTP
-	id S261722AbTJMMaG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 08:30:06 -0400
-Message-ID: <3F8A9A5F.8060300@superonline.com>
-Date: Mon, 13 Oct 2003 15:28:15 +0300
-From: "O.Sezer" <sezero@superonline.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: tr, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23-pre7-pac1
-Content-Type: text/plain; charset=ISO-8859-9; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 13 Oct 2003 08:30:08 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:17562 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261705AbTJMMaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 08:30:02 -0400
+Subject: Re: [RFC][PATCH] Kernel thread signal handling.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20031013051149.29da705a.akpm@osdl.org>
+References: <1066041096.24015.431.camel@hades.cambridge.redhat.com>
+	 <20031013040219.6ad71a57.akpm@osdl.org>
+	 <1066044079.24015.442.camel@hades.cambridge.redhat.com>
+	 <20031013044042.23ab7f69.akpm@osdl.org>
+	 <1066046102.14783.11.camel@hades.cambridge.redhat.com>
+	 <20031013051149.29da705a.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1066048200.14783.25.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
+Date: Mon, 13 Oct 2003 13:30:00 +0100
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: dwmw2@infradead.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <dwmw2@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello;
+On Mon, 2003-10-13 at 05:11 -0700, Andrew Morton wrote:
+> > 	daemonize("jffs2_gcd_mtd%d", c->mtd->index);
+> 
+> And then what?  Parse the output of ps(1)?  Use pidof(8)?
 
-What is the point of this hunk?
+Those work. 
 
---- linux-2.4.23-pre7/drivers/char/Config.in	2003-10-12 14:32:33.000000000 +0200
-+++ linux-2.4.23-pre7-pac1/drivers/char/Config.in	2003-10-12 15:31:44.000000000 +0200
-[...]
-@@ -349,6 +352,7 @@
-       define_bool CONFIG_DRM_NEW y
-       source drivers/char/drm/Config.in
-    fi
-+   bool '  ATI IGP chipset support' CONFIG_AGP_ATI
- fi
- endmenu
+> Insufficient contrition detected :)
 
-OTOH, CONFIG_DRM_GAMMA, CONFIG_DRM_S3 and CONFIG_DRM_VIA are not
-present, while they were available in 22-ac4. This is the first time
-I'm messing with 23-preX and it seems like somethings have changed?
+Hehe.
 
-Regards,
-Özkan Sezer
+> Why cannot a procfs or sysfs control be used?
+
+Mostly because I think that idea sucks, and partly because I think your
+ire is misdirected -- it shouldn't be directed at kernel code which
+handles signals, but rather at kernel code which sleeps in state
+TASK_INTERRUPTIBLE but _doesn't_ handle signals.
+
+On the other hand, if you ever find people actually trying to pass
+_data_ to kernel threads with sys_rt_sigqueueinfo(), I'll be right
+behind you with my own baseball bat waiting to bash the pieces you leave
+behind :)
+
+-- 
+dwmw2
 

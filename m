@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278742AbRKSOXv>; Mon, 19 Nov 2001 09:23:51 -0500
+	id <S279418AbRKSOXW>; Mon, 19 Nov 2001 09:23:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278381AbRKSOXm>; Mon, 19 Nov 2001 09:23:42 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:14355 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S279084AbRKSOXd>; Mon, 19 Nov 2001 09:23:33 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: linux-kernel@vger.kernel.org
-Subject: x bit for dirs: misfeature?
-Date: Mon, 19 Nov 2001 16:22:53 +0000
-X-Mailer: KMail [version 1.2]
+	id <S279261AbRKSOXL>; Mon, 19 Nov 2001 09:23:11 -0500
+Received: from mustard.heime.net ([194.234.65.222]:48587 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S279084AbRKSOXG>; Mon, 19 Nov 2001 09:23:06 -0500
+Date: Mon, 19 Nov 2001 15:22:55 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Remco Post <r.post@sara.nl>
+cc: James A Sutherland <jas88@cam.ac.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: swap? 
+In-Reply-To: <200111191357.OAA04801@zhadum.sara.nl>
+Message-ID: <Pine.LNX.4.30.0111191501560.3669-100000@mustard.heime.net>
 MIME-Version: 1.0
-Message-Id: <01111916225301.00817@nemo>
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Everytime I do 'chmod -R a+rX dir' and wonder are there
-any executables which I don't want to become world executable,
-I think "Whatta hell with this x bit meaning 'can browse'
-for dirs?! Who was that clever guy who invented that? Grrrr"
+> > > What about a tux-only system?
+> > > should I disable swap?
+>
+> On a tux only system, you'll have very little data that is not on a
+> filesystem. Since all other applications running (you'll wind up with at least
+> 20 or so processes like syslogd...) are very small, and those will use very
+> little data-pages, you'll probably see no benefit from having a swappartition.
+> Having enough RAM to be used as a buffer-cache seems more usefull. Unused
+> code-pages of userland apps will be discarded anyway. Leaving you with more
+> memory to be used as a buffer-cache.
 
-Isn't r sufficient? Can we deprecate x for dirs?
-I.e. make it a mirror of r: you set r, you see x set,
-you clear r, you see x cleared, set/clear x = nop?
-
-Benefits:
-chmod -R go-x dir (ensure there is no executables)
-chmod -R a+r dir (make tree world readable)
-mount -t vfat -o umask=644 /dev/xxx dir
-	(I don't want all files to be flagged as executables there)
-
-These commands will do what I want without (sometimes ugly) tricks.
-For mount, I can't even see how to do it with current implementation.
-
-What standards will be broken?
-Any real loss of functionality apart from compat issues?
+What could be the overhead of using swap?
 --
-vda
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+
+

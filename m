@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129990AbRAINSL>; Tue, 9 Jan 2001 08:18:11 -0500
+	id <S130031AbRAIN0D>; Tue, 9 Jan 2001 08:26:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130748AbRAINSB>; Tue, 9 Jan 2001 08:18:01 -0500
-Received: from slc35.modem.xmission.com ([166.70.9.35]:50186 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S129990AbRAINR4>; Tue, 9 Jan 2001 08:17:56 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: zlatko@iskon.hr, Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Subtle MM bug
-In-Reply-To: <Pine.LNX.4.10.10101082322030.1222-100000@penguin.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 09 Jan 2001 04:38:56 -0700
-In-Reply-To: Linus Torvalds's message of "Mon, 8 Jan 2001 23:27:15 -0800 (PST)"
-Message-ID: <m1snmtgdkf.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S130069AbRAINZx>; Tue, 9 Jan 2001 08:25:53 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:8460 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S130031AbRAINZq>;
+	Tue, 9 Jan 2001 08:25:46 -0500
+Date: Tue, 9 Jan 2001 14:24:50 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Stephen Landamore <stephenl@zeus.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <Pine.LNX.4.10.10101091301170.18208-100000@phaedra.cam.zeus.com>
+Message-ID: <Pine.LNX.4.30.0101091418300.3375-100000@e2>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
 
-> On 8 Jan 2001, Eric W. Biederman wrote:
-> 
-> > Zlatko Calusic <zlatko@iskon.hr> writes:> 
-> > > 
-> > > Yes, but a lot more data on the swap also means degraded performance,
-> > > because the disk head has to seek around in the much bigger area. Are
-> > > you sure this is all OK?
-> > 
-> > I don't think we have more data on the swap, just more data has an
-> > allocated home on the swap.
-> 
-> I think Zlatko's point is that because of the extra allocations, we will
-> have worse locality (more seeks etc). 
-> 
-> Clearly we should not actually do any more actual IO. But the sticky
-> allocation _might_ make the IO we do be more spread out.
+On Tue, 9 Jan 2001, Stephen Landamore wrote:
 
-The tradeoff when implemented correctly is that writes will tend to be
-more spread out and reads should be better clustered together. 
+> >> Sure.  But sendfile is not one of the fundamental UNIX operations...
 
-> To offset that, I think the sticky allocation makes us much better able to
-> handle things like clustering etc more intelligently, which is why I think
-> it's very much worth it.  But let's not close our eyes to potential
-> downsides.
+> > Neither were eg. kernel-based semaphores. So what? Unix wasnt
 
-Certainly, keeping ours eyes open is a good a good thing.
+> Ehh, that's not correct. HP-UX was the first to implement sendfile().
 
-But it has been apparent for a long time that by doing allocation as
-we were doing it, that when it came to heavy swapping we were taking a
-performance hit.  So I'm relieved that we are now being more aggressive.
+i dont think we disagree. What i was referring to was the 'original' Unix
+idea, the 30 years old one, which did not include sendfile() :-) We never
+claimed that sendfile() first came up in Linux [that would be a blatant
+lie] - and the Linux API itself was indeed influenced by existing
+sendfile()/copyfile() interfaces. (at the time Linus implemented
+sendfile() there already existed several similar interfaces.)
 
->From the sounds of it what we are currently doing actually sucks worse
-for some heavy loads.  But it still feels like the right direction.
+> For the record, sendfile() exists because we (Zeus) asked HP for it.
 
-It's been my impression that work loads where we are actively swapping
-are a lot different from work loads where we really don't swap.  To
-the extent that it might make sense to make the actively swapping case
-a config option to get our attention in the code.  It would be nice
-to have a linux kernel for once that handles heavy swapping (below
-the level of thrashing) gracefully. :)
+good move :-) [honestly.]
 
-Eric
+> (So of course we agree that sendfile is important!)
+
+:-) I think sendfile() should also have its logical extensions:
+receivefile(). I dont know how the HPUX implementation works, but in
+Linux, right now it's only possible to sendfile() from a file to a socket.
+The logical extension of this is to allow socket->file IO and file->file,
+socket->socket IO as well. (the later one could be interesting for things
+like web proxies.)
+
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

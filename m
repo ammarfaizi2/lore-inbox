@@ -1,45 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263601AbTH1DSH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 23:18:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTH1DSH
+	id S263481AbTH1DRy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 23:17:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263679AbTH1DRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 23:18:07 -0400
-Received: from kone17.procontrol.vip.fi ([212.149.71.178]:20415 "EHLO
-	danu.procontrol.fi") by vger.kernel.org with ESMTP id S263601AbTH1DSE
+	Wed, 27 Aug 2003 23:17:54 -0400
+Received: from bosvwl02.itlinfosys.com ([216.52.49.36]:56581 "HELO
+	bosvwl02.infosys.com") by vger.kernel.org with SMTP id S263481AbTH1DRw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 23:18:04 -0400
-Date: Thu, 28 Aug 2003 06:17:46 +0300
-Subject: Re: Lockless file reading
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: root@chaos.analogic.com, Martin Konold <martin.konold@erfrakon.de>,
-       linux-kernel@vger.kernel.org
-To: Jamie Lokier <jamie@shareable.org>
-From: Timo Sirainen <tss@iki.fi>
-In-Reply-To: <20030828015027.GA4715@mail.jlokier.co.uk>
-Message-Id: <3217CEE6-D906-11D7-A165-000393CC2E90@iki.fi>
+	Wed, 27 Aug 2003 23:17:52 -0400
+Message-ID: <021901c36d13$b174bd90$edbccac6@itlpc5228>
+Reply-To: "Tariq Firoz" <tariq_firoz@infosys.com>
+From: "Tariq Firoz" <tariq_firoz@infosys.com>
+To: "Andrew Morton" <akpm@osdl.org>, "Con Kolivas" <kernel@kolivas.org>
+Cc: <warudkar@vsnl.net>, <linux-kernel@vger.kernel.org>
+References: <200308272138.h7RLciK29987@webmail2.vsnl.net><200308272137.42632.kernel@kolivas.org> <20030827125310.15ebf8f9.akpm@osdl.org>
+Subject: Re: 2.6.0-test4-mm1 - kswap hogs cpu OO takes ages to start!
+Date: Thu, 28 Aug 2003 08:53:04 +0530
+Organization: Infosys
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.552)
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+x-mimeole: Produced By Microsoft MimeOLE V5.50.4910.0300
+X-OriginalArrivalTime: 28 Aug 2003 03:19:24.0368 (UTC) FILETIME=[2E372D00:01C36D13]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, Aug 28, 2003, at 04:50 Europe/Helsinki, Jamie Lokier wrote:
+I faced a similar problem with 2.6.0-test4-mm2 while using unstable kde
+3.1.9x(?)
+In fact I was not able to do anything and my system became unresponsive,
+with kswapd0
+hogging 60% CPU. Later X got killed ... I did not face such a situation in
+any of the previous
+releases (I have been using 2.5 since 2.5.70 )
 
->> 	checksum[0]++;
->> 	xor = buf[0] ^ checksum[0];
+[ I have 256 MB RAM and 256 SWAP with P4 2.0 GHz]
+
+Tariq Firoz
+
+
+----- Original Message -----
+From: "Andrew Morton" <akpm@osdl.org>
+To: "Con Kolivas" <kernel@kolivas.org>
+Cc: <warudkar@vsnl.net>; <linux-kernel@vger.kernel.org>
+Sent: Thursday, August 28, 2003 1:23 AM
+Subject: Re: 2.6.0-test4-mm1 - kswap hogs cpu OO takes ages to start!
+
+
+> Con Kolivas <kernel@kolivas.org> wrote:
+> >
+> > On Thu, 28 Aug 2003 07:38, warudkar@vsnl.net wrote:
+> > > Trying out 2.6.0-test4-mm1. Inside KDE, I start OpenOffice.org,
+Rational
+> > > Rose and Konsole at a time. All of these take extremely long time to
+> > > startup. (approx > 5 minutes). Kswapd hogs the CPU all the time. X
+becomes
+> > > unusable till all of them startup, although I can telnet and run top.
+Same
+> > > thing run under 2.4.18 starts up in 3 minutes, X stays usable and
+kswapd
+> > > never take more than 2% CPU.
+> >
+> > Yes I can reproduce this with a memory heavy load as well on low memory
+> > (linking at the end of a big kernel compile is standard problem).
 >
-> Your algorithm isn't going to work if the new value of xor is the same
-> as the old value of xor.
-
-I was trying to prevent it with the checksum[0]++ .. but yes, you're 
-right.
-
-I'm sure someone has figured out a way to make a checksum of data that 
-can detect if there's even a single bit wrong, if the checksum is 
-allowed to take as much space as the data itself. I should read more 
-about algorithms..
-
-How about checksum[n] = data[n-1] ^ data[n]? That looks like it would 
-work.
+> It could be that recent changes to page reclaim which improve I/O
+> scheduling have exacerbated this.
+>
+> Does this make a difference?
+>
+> diff -puN mm/vmscan.c~a mm/vmscan.c
+> --- 25/mm/vmscan.c~a Wed Aug 27 12:51:36 2003
+> +++ 25-akpm/mm/vmscan.c Wed Aug 27 12:51:48 2003
+> @@ -360,8 +360,6 @@ shrink_list(struct list_head *page_list,
+>   * See swapfile.c:page_queue_congested().
+>   */
+>   if (PageDirty(page)) {
+> - if (referenced)
+> - goto keep_locked;
+>   if (!is_page_cache_freeable(page))
+>   goto keep_locked;
+>   if (!mapping)
+>
+> _
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265895AbSL1VCO>; Sat, 28 Dec 2002 16:02:14 -0500
+	id <S265705AbSL1Uzr>; Sat, 28 Dec 2002 15:55:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265939AbSL1VCO>; Sat, 28 Dec 2002 16:02:14 -0500
-Received: from f158.law7.hotmail.com ([216.33.237.158]:13330 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S265895AbSL1VCN>;
-	Sat, 28 Dec 2002 16:02:13 -0500
-X-Originating-IP: [198.70.228.18]
-From: "Randy S." <hey_randy@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: agpgart and nforce2 -- I need your help!
-Date: Sat, 28 Dec 2002 16:10:28 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F158LsxpTljBOh8s4KW00000063@hotmail.com>
-X-OriginalArrivalTime: 28 Dec 2002 21:10:28.0776 (UTC) FILETIME=[8C686280:01C2AEB5]
+	id <S265713AbSL1Uzr>; Sat, 28 Dec 2002 15:55:47 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:63244 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S265705AbSL1Uzp>; Sat, 28 Dec 2002 15:55:45 -0500
+Date: Sat, 28 Dec 2002 14:02:17 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: James Bottomley <James.Bottomley@steeleye.com>
+cc: Rik van Riel <riel@conectiva.com.br>, Tomas Szepe <szepe@pinerecords.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Samuel Flory <sflory@rackable.com>, Janet Morgan <janetmor@us.ibm.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] aic7xxx bouncing over 4G 
+Message-ID: <775808112.1041109337@aslan.scsiguy.com>
+In-Reply-To: <200212282016.gBSKGrF03354@localhost.localdomain>
+References: <200212282016.gBSKGrF03354@localhost.localdomain>
+X-Mailer: Mulberry/3.0.0b9 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+> gibbs@scsiguy.com said:
+>> That hasn't applied since 6.2.10 or so.  2.5.X is still using 6.2.4. 
+> 
+> The bug report is against 2.5.53 which has 6.2.24 in it, so it still
+> needs  fixing.  At a cursory glance at the code, it looks like you don't
+> call  scsi_set_pci_device early enough in the detect routine.
 
-   I'm currently developing nForce2 support for agpgart and I'm looking for 
-someone who can help me...
+I don't see how this enters into it.  The dma mask should be set on
+the PCI device in aic7xxx_osm_pci.c just after we enable the device
+and set it as a bus master.  The pci device is setup in the host
+structure as it is allocated and before it is registered with the
+SCSI subsystem.  I can't imagine that the merge function (and thereby
+the bounce limit) is selected before the host is even registered.
+My guess is that the original call to setup the PCI mask is not happening
+due to either a logic bug in ahc_linux_get_memsize() or the logic that
+interprets its response in aic7xxx_osm_pci.c.
 
-   Is anybody out there running nvagp with nforce2 chipset and an nvidia 
-video card?
+I'm not in front of a Linux system to debug this, so all I can do is
+inspect the code right now.  Perhaps someone with an affected machine
+can toss in a few printks and figure this out?
 
-   If so, I'd really appreciate it if someone could volunteer to run a 
-couple simple tests for me. I need a couple PCI register dumps for the 
-bridge.
-
-Please CC me in any replies, as I don't currently subscribe (but I do check 
-the archives regularly).
-
-   For those who are interested, I have a patch to agpgart that does detect 
-nforce2 chipset and reads the aperture base/size registers correctly -- I'm 
-now working on the memory mask, control register, and error status 
-registers.  What I have thus far allows me to run a 3rd party video driver 
-(fglrx in my case) with nforce 2. It just doesn't have 3d acceleration yet.
-
-Thanks!
-   Randy Sharo
-   hey_randy@hotmail.com
-
-
-_________________________________________________________________
-MSN 8 limited-time offer: Join now and get 3 months FREE*. 
-http://join.msn.com/?page=dept/dialup&xAPID=42&PS=47575&PI=7324&DI=7474&SU= 
-http://www.hotmail.msn.com/cgi-bin/getmsg&HL=1216hotmailtaglines_newmsn8ishere_3mf
+--
+Justin
 

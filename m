@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbTILIcy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 04:32:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbTILIcy
+	id S261307AbTILIts (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 04:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbTILIts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 04:32:54 -0400
-Received: from d12lmsgate.de.ibm.com ([194.196.100.234]:2189 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S261243AbTILIcx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 04:32:53 -0400
-Subject: Re: [PATCH] s390 (1/7): s390 base.
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OFB18285B0.412F9315-ONC1256D9F.002E62B6-C1256D9F.002EE1EC@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Fri, 12 Sep 2003 10:32:04 +0200
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 12/09/2003 10:32:37
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	Fri, 12 Sep 2003 04:49:48 -0400
+Received: from gate.firmix.at ([80.109.18.208]:52101 "EHLO tara.firmix.at")
+	by vger.kernel.org with ESMTP id S261307AbTILItq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 04:49:46 -0400
+Subject: Re: [BK PATCH] One strdup() to rule them all
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Andries Brouwer <aebr@win.tue.nl>, Jakub Jelinek <jakub@redhat.com>,
+       Dan Aloni <da-x@gmx.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       torvalds@transmeta.com
+In-Reply-To: <20030912050729.331442C11B@lists.samba.org>
+References: <20030912050729.331442C11B@lists.samba.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063356560.29315.4.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 12 Sep 2003 10:49:20 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fre, 2003-09-12 at 06:16, Rusty Russell wrote:
+> In message <3F6139AD.6070603@pobox.com> you write:
+> > Of course, if we DO waste time on it, your implementation Rusty kicks 
+> > ass and takes steroids :)
+> 
+> diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test5-bk2/MAINTAINERS working-2.6.0-test5-bk2-modules_txt_kconfig1/MAINTAINERS
+> --- linux-2.6.0-test5-bk2/MAINTAINERS	2003-09-09 10:34:22.000000000 +1000
+> +++ working-2.6.0-test5-bk2-modules_txt_kconfig1/MAINTAINERS	2003-09-12 14:15:42.000000000 +1000
+> @@ -1102,6 +1102,13 @@ W:	http://nfs.sourceforge.net/
+>  W:	http://www.cse.unsw.edu.au/~neilb/patches/linux-devel/
+>  S:	Maintained
+>  
+> +KSTRDUP
+> +P:	Kstrdup Core Team
+> +M:	kstrdup-core@ozlabs.org
+> +L:	kstrdup@linux.kernel.org
+> +W:	http://kstrdup.sourceforge.net/
+> +S:	Supported
+> +
+>  LANMEDIA WAN CARD DRIVER
+>  P:	Andrew Stanley-Jones
+>  M:	asj@lanmedia.com
+> 
+> Kill me now,
 
-Hi Pete,
+;-)
 
-> For 2.4 I came up with this:
-I will give it a try and if it works better I'll take it.
-
->From your patch:
-
-> +/*
-> + * Return the kernel stack for the current or interrupted thread,
-> + * considering that the async stack is useless for purposes of sysrq.
-> + * All this acrobatics would not be needed if struct pt_regs pointer
-> + * was available when softirq is run, because that is where we printk.
-> + * Alas, it's not feasible.
-> + */
-
-Which pt_regs are you refering to? You can always get a pointer of the
-first pt_regs structure by using __KSTK_PTREGS(tsk). The first pt_regs
-structure is the one that contains the saved psw/registers of the user
-space process. If you want to get the pt_regs structure from the async
-stack it gets ambivalent because there can be more than one pt_regs
-structure on it. One for the first asynchronous interrupt and one from
-a second asynchronous interrupt that hit us while the softirq is executed.
-
-blue skies,
-   Martin
+And kcalloc() [or whatever it should be called] falls probably in the
+same category.
 
 
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services

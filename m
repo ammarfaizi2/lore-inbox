@@ -1,47 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265988AbRF1PXf>; Thu, 28 Jun 2001 11:23:35 -0400
+	id <S265987AbRF1PWq>; Thu, 28 Jun 2001 11:22:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265989AbRF1PXQ>; Thu, 28 Jun 2001 11:23:16 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:57845 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S265988AbRF1PXM>; Thu, 28 Jun 2001 11:23:12 -0400
-Mime-Version: 1.0
-Message-Id: <a05100301b760fb217ddc@[192.168.239.101]>
-In-Reply-To: <01062816393503.00419@starship>
-In-Reply-To: <OF95A43E53.39291B42-ON84256A79.003D421D@urscorp.com>
- <01062816393503.00419@starship>
-Date: Thu, 28 Jun 2001 16:21:58 +0100
-To: Daniel Phillips <phillips@bonn-fries.net>, mike_phillips@urscorp.com,
-        <linux-kernel@vger.kernel.org>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: VM Requirement Document - v0.0
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S265988AbRF1PWg>; Thu, 28 Jun 2001 11:22:36 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25869 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265987AbRF1PW3>; Thu, 28 Jun 2001 11:22:29 -0400
+Subject: Re: A signal fairy tale
+To: dmaas@dcine.com (Dan Maas)
+Date: Thu, 28 Jun 2001 16:21:49 +0100 (BST)
+Cc: vii@users.sourceforge.net (John Fremlin), linux-kernel@vger.kernel.org
+In-Reply-To: <00b101c0ffe2$fb77ad30$0701a8c0@morph> from "Dan Maas" at Jun 28, 2001 10:59:50 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Fdc5-00075e-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->There is a simple change in strategy that will fix up the updatedb case quite
->nicely, it goes something like this: a single access to a page (e.g., reading
->it) isn't enough to bring it to the front of the LRU queue, but accessing it
->twice or more is.  This is being looked at.
+> admit that UNIX has a crappy event model, and implement something like Win32
+> GetMessage =)...
 
-Say, when a page is created due to a page fault, page->age is set to 
-zero instead of whatever it is now.  Then, on the first access, it is 
-incremented to one.  All accesses where page->age was previously zero 
-cause it to be incremented to one, and subsequent accesses where 
-page->age is non-zero cause a doubling rather than an increment. 
-This gives a nice heavy priority boost to frequently-accessed pages...
-
->Note that we don't actually use a LRU queue, we use a more efficient
->approximation called aging, so the above is not a recipe for implementation.
-
-Maybe it is, but in a slightly lateral manner as above.
-
--- 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-website:  http://www.chromatix.uklinux.net/vnc/
-geekcode: GCS$/E dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$
-           V? PS PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
-tagline:  The key to knowledge is not to rely on people to teach you it.
+Thats a subset of the real time signal model already in Linux. Just block the
+signal and wait for it..

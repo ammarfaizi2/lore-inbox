@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129552AbQLAHeG>; Fri, 1 Dec 2000 02:34:06 -0500
+	id <S129460AbQLAHq3>; Fri, 1 Dec 2000 02:46:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129664AbQLAHdr>; Fri, 1 Dec 2000 02:33:47 -0500
-Received: from mail.inconnect.com ([209.140.64.7]:60133 "HELO
-	mail.inconnect.com") by vger.kernel.org with SMTP
-	id <S129552AbQLAHdn>; Fri, 1 Dec 2000 02:33:43 -0500
-Date: Fri, 1 Dec 2000 00:03:17 -0700 (MST)
-From: Dax Kelson <dax@gurulabs.com>
-To: Frank Davis <fdavis112@juno.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: test12-pre3 (FireWire issue)
-In-Reply-To: <391350194.975653957785.JavaMail.root@web425-wra>
-Message-ID: <Pine.SOL.4.30.0012010000280.28037-100000@ultra1.inconnect.com>
+	id <S129639AbQLAHqU>; Fri, 1 Dec 2000 02:46:20 -0500
+Received: from ja.ssi.bg ([193.68.177.189]:23556 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S129460AbQLAHqK>;
+	Fri, 1 Dec 2000 02:46:10 -0500
+Date: Fri, 1 Dec 2000 09:13:38 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+To: Mike Perry <mikepery@fscked.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.17 IP masq bug
+Message-ID: <Pine.LNX.4.21.0012010905400.966-100000@u>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank Davis said once upon a time (Fri, 1 Dec 2000):
 
-> Dax,
->    What is your modutils version? Is this the first test12 that has
-> caused this error?
-> Regards, Frank
+	Hello,
 
-[root@thud security]# depmod --version
-depmod version 2.3.21
+On Fri, 1 Dec 2000, Mike Perry wrote:
 
-I was running 2.4.0-test11-pre3 before I upgraded to test12-pre3.  I
-haven't had problems before test12-pre3.
+> external net, so it can IP masq the other 14 machines. The machines are on a
+> switch, and share a semi-switched network segment with a bunch of other
+> external IP'd machines (we are all in the same lab, actually).
+>
+> The bug:
+> When I make a connection from any internal node to the one of the other
+> externally routed machines in my lab, then close it, this external machine then
+> becomes unreachable to successive connects from that node.
 
-Dax
+	This problem can be caused from the ICMP redirect. Can these
+commands help?
+
+echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects
+echo 0 > /proc/sys/net/ipv4/conf/eth0/send_redirects
+
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

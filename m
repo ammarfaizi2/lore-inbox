@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268023AbUHKKxr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268025AbUHKK4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268023AbUHKKxr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 06:53:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268024AbUHKKxr
+	id S268025AbUHKK4L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 06:56:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268024AbUHKK4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 06:53:47 -0400
-Received: from levante.wiggy.net ([195.85.225.139]:8321 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S268023AbUHKKxq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 06:53:46 -0400
-Date: Wed, 11 Aug 2004 12:53:38 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Christoph Hellwig <hch@infradead.org>,
-       James Ketrenos <jketreno@linux.intel.com>, Pavel Machek <pavel@suse.cz>,
-       Jeff Chua <jeffchua@silk.corp.fedex.com>,
-       Tomas Szepe <szepe@pinerecords.com>, netdev@oss.sgi.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100 wireless driver
-Message-ID: <20040811105337.GC32420@wiggy.net>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Ketrenos <jketreno@linux.intel.com>,
-	Pavel Machek <pavel@suse.cz>,
-	Jeff Chua <jeffchua@silk.corp.fedex.com>,
-	Tomas Szepe <szepe@pinerecords.com>, netdev@oss.sgi.com,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20040714114135.GA25175@elf.ucw.cz> <Pine.LNX.4.60.0407141947270.27995@boston.corp.fedex.com> <20040714115523.GC2269@elf.ucw.cz> <20040809201556.GB9677@louise.pinerecords.com> <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com> <20040810075558.A14154@infradead.org> <20040810101640.GF9034@atrey.karlin.mff.cuni.cz> <4119F203.1070009@linux.intel.com> <20040811114437.A27439@infradead.org>
+	Wed, 11 Aug 2004 06:56:11 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:27856 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268021AbUHKK4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 06:56:08 -0400
+Subject: Re: [PATCH] SCSI midlayer power management
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nathan Bryant <nbryant@optonline.net>
+Cc: "'James Bottomley'" <James.Bottomley@steeleye.com>,
+       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>, jgarzik@pobox.com
+In-Reply-To: <411960C3.5090107@optonline.net>
+References: <411960C3.5090107@optonline.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092218000.18968.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040811114437.A27439@infradead.org>
-User-Agent: Mutt/1.5.6+20040523i
-X-SA-Exim-Connect-IP: <locally generated>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 11 Aug 2004 10:53:25 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Christoph Hellwig wrote:
->  a) yo'ure not using the proper firmware loader but some horrible
->     handcrafted code using sys_open/sys_read & co that's not namespace
->     safe at all
+On Mer, 2004-08-11 at 00:56, Nathan Bryant wrote:
+> This might help SATA drives, too, but I seem to remember that the SATA 
+> layer doesn't properly emulate the SYNCHRONIZE_CACHE command.
 
-It can use standard hotplug firmware load as well.
+That was something Mark Lord reported higher level I suspect - which is
+that the scsi path is disabled before the sync cache command is sent so
+the command is always errored before it hits the drive
 
-Wichert.
-
--- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.

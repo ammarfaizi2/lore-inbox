@@ -1,34 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262831AbRE0RXJ>; Sun, 27 May 2001 13:23:09 -0400
+	id <S262829AbRE0RZ7>; Sun, 27 May 2001 13:25:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262832AbRE0RW7>; Sun, 27 May 2001 13:22:59 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53516 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262831AbRE0RWt>; Sun, 27 May 2001 13:22:49 -0400
-Subject: Re: Problems with ac12 kernels and up
-To: jcwren@jcwren.com
-Date: Sun, 27 May 2001 18:20:04 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <NDBBKBJHGFJMEMHPOPEGAEEACHAA.jcwren@jcwren.com> from "John Chris Wren" at May 27, 2001 10:44:49 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262832AbRE0RZt>; Sun, 27 May 2001 13:25:49 -0400
+Received: from nilpferd.fachschaften.tu-muenchen.de ([129.187.176.79]:61422
+	"HELO nilpferd.fachschaften.tu-muenchen.de") by vger.kernel.org
+	with SMTP id <S262829AbRE0RZj>; Sun, 27 May 2001 13:25:39 -0400
+Date: Sun, 27 May 2001 19:25:33 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: <bunk@mimas.fachschaften.tu-muenchen.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: Inconsistent "#ifdef __KERNEL__" on different architectures
+Message-ID: <Pine.NEB.4.33.0105271903050.4227-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1544Cy-00027I-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Checking root filesystem. /dev/hde13 is mounted.
-> Cannot continue, aboorting.
-> *** An error occurred during the file system check.
-> *** Dropping you to a shell; the system will reboot
-> *** when you leave the shell.
+Hi,
 
-That means the file system was mounted read/write at boot time. That normally
-indicates a lilo misconfiguration however your lilo.conf looks 
-correct.
+while looking for the reason of a build failure of the ALSA libraries on
+ARM [1] I discovered the following strange thing:
 
-Alan
+On some architectures a function is inside an "#ifdef __KERNEL__" in the
+header file and on others not. Is there a reason for this or is this
+inconsistency simply a bug?
+
+In this case the following functions are affected (in 2.4.5):
+
+atomic_read, atomic_inc and atomic_dec in include/asm-*/atomic.h
+
+"#ifdef __KERNEL__" only on arm, mips, mips64 and sparc (but not on
+                                                         sparc64)
+
+
+rmb and wmb in include/asm-*/system.h
+
+"#ifdef __KERNEL__" only on arm and sparc (but not on sparc64)
+
+not defined on parisc although used to define smp_rmb on SMP systems:
+<--  snip  -->
+#ifdef CONFIG_SMP
+#define smp_mb()        mb()
+#define smp_rmb()       rmb()
+#define smp_wmb()       wmb()
+#else
+<--  snip  -->
+
+
+cu
+Adrian
+
+[1] http://bugs.debian.org/97988
+
+
+-- 
+A "No" uttered from deepest conviction is better and greater than a
+"Yes" merely uttered to please, or what is worse, to avoid trouble.
+                -- Mahatma Ghandi
 

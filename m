@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131219AbRAOUQD>; Mon, 15 Jan 2001 15:16:03 -0500
+	id <S131342AbRAOUSd>; Mon, 15 Jan 2001 15:18:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131246AbRAOUPp>; Mon, 15 Jan 2001 15:15:45 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:39951 "EHLO
+	id <S131380AbRAOUSX>; Mon, 15 Jan 2001 15:18:23 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:46607 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131219AbRAOUPi>; Mon, 15 Jan 2001 15:15:38 -0500
+	id <S131383AbRAOUSO>; Mon, 15 Jan 2001 15:18:14 -0500
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: Is sendfile all that sexy?
-Date: 15 Jan 2001 12:15:08 -0800
+Date: 15 Jan 2001 12:17:59 -0800
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <93vloc$keg$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.10.10101141436010.4613-100000@penguin.transmeta.com> <3A622C25.766F3BCE@pobox.com>
+Message-ID: <93vltn$kfd$1@cesium.transmeta.com>
+In-Reply-To: <93t1q7$49c$1@penguin.transmeta.com> <14947.5703.60574.309140@leda.cam.zeus.com> <20010115173607.S25659@mea-ext.zmailer.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,30 +21,26 @@ Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3A622C25.766F3BCE@pobox.com>
-By author:    J Sloan <jjs@pobox.com>
+Followup to:  <20010115173607.S25659@mea-ext.zmailer.org>
+By author:    Matti Aarnio <matti.aarnio@zmailer.org>
 In newsgroup: linux.dev.kernel
->
-> Linus Torvalds wrote:
 > 
-> > Of course, you may be right on wuftpd. It obviously wasn't designed with
-> > security in mind, other alternatives may be better.
+> 	One thing about 'sendfile' (and likely 'sendpath') is that
+> 	current (hammered into running binaries -> unchangeable)
+> 	syscalls support only up to 2GB files at 32 bit systems.
 > 
-> I run proftpd on all my ftp servers - it's fast, configurable
-> and can do all the tricks I need - even red hat seems to
-> agree that proftpd is the way to go.
+> 	Glibc 2.2(9) at RedHat  <sys/sendfile.h>:
 > 
-> Visit any red hat ftp site and they are running proftpd -
+> #ifdef __USE_FILE_OFFSET64
+> # error "<sendfile.h> cannot be used with _FILE_OFFSET_BITS=64"
+> #endif
 > 
-> So, why do they keep shipping us wu-ftpd instead?
-> 
-> That really frosts me.
+> 	I do admit that doing  sendfile()  on some extremely large
+> 	file is unlikely, but still...
 > 
 
-proftpd is not what you want for an FTP server whose main function is
-*non-*anonymous access.  It is very much written for the sole purpose
-of being a great FTP server for a large anonymous FTP site.  If you're
-running a site large enough to matter, you can replace an RPM or two.
+2 GB isn't really that extremely large these days.  This is an
+unpleasant limitation.
 
 	-hpa
 -- 

@@ -1,110 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285338AbSBKAOM>; Sun, 10 Feb 2002 19:14:12 -0500
+	id <S285498AbSBKA2g>; Sun, 10 Feb 2002 19:28:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285369AbSBKAOC>; Sun, 10 Feb 2002 19:14:02 -0500
-Received: from flrtn-4-m1-156.vnnyca.adelphia.net ([24.55.69.156]:38287 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S285338AbSBKANu>;
-	Sun, 10 Feb 2002 19:13:50 -0500
-Message-ID: <3C670CB4.7000005@tmsusa.com>
-Date: Sun, 10 Feb 2002 16:13:40 -0800
-From: J Sloan <joe@tmsusa.com>
-Organization: J S Concepts
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S285589AbSBKA2Z>; Sun, 10 Feb 2002 19:28:25 -0500
+Received: from dsl-213-023-038-214.arcor-ip.net ([213.23.38.214]:43960 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S285498AbSBKA2S>;
+	Sun, 10 Feb 2002 19:28:18 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: How to check the kernel compile options ?
+Date: Mon, 11 Feb 2002 01:29:54 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1020209131301.23246B-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020209131301.23246B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Marek Zawadzki <mzawadzk@cs.stevens-tech.edu>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: TUN/TAP driver doesn't work.
-In-Reply-To: <Pine.NEB.4.33.0202101644050.21436-100000@courage.cs.stevens-tech.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16a4Ly-0000EN-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This program compiles and works here. I'm using
-RH 7.2, but the vtund setup hasn't changed from
-my RH 7.1 setup.
+On February 9, 2002 07:15 pm, Bill Davidsen wrote:
+> On Wed, 6 Feb 2002, Randy.Dunlap wrote:
+> 
+> > I still prefer your suggestion to append it to the kernel image
+> > as __initdata so that it's discarded from memory but can be
+> > read with some tool(s).
+> 
+> The problem is that it make the kernel image larger, which lives in /boot
+> on many systems. Putting it in a module directory, even if not a module,
+> would be a better place for creative boot methods, of which there are
+> many.
 
-Have you successfully installed vtund and tun?
+You don't seem to be clear on the concept of 'option'.
 
-Make sure your kernel-headers package is newer
-than 2.4.7 - maybe grab the rawhide kernel headers
-package which is IIRC 2.4.17 -
-
-The old kernel headers package (2.4.2) won't work
-or allow compiling of current version of vtund.
-
-Joe
-
-Marek Zawadzki wrote:
-
->Hello,
->
->I am trying to use TUN/TAP driver. My OS is RH71, kernel is 2.4.17, with
->tuntap compiled as a module. Module is inserted properly when I try to
->open '/dev/net/tun', and I get kernel message saying "TUN/TAP universal
->driver, (c)...etc.". But ioctls don't work and always return '-1'.
->To test it I was using code from tuntap's documentation (included below this
->message and btw I don't understand dev's name str-copying in this code)
->and pengaol, newest version, which I know works with tuntap. None of these
->2 programs work for me.
->
->Any help would be really greatly appreciated.
->
->-marek
->
->-- test code --
->#include        <sys/fcntl.h>
->#include        <sys/ioctl.h>
->#include        <net/if.h>
->#include        <linux/if_tun.h>
->
->int tun_alloc(char *dev)
->{
->    struct ifreq ifr;
->    int fd, err;
->
->    if( (fd = open("/dev/net/tun", O_RDWR)) < 0 ) {
->       printf("open error\n");
->   	 return 0;
->    }
->
->    memset(&ifr, 0, sizeof(ifr));
->
->    /* Flags: IFF_TUN   - TUN device (no Ethernet headers)
->     *        IFF_TAP   - TAP device
->     *        IFF_NO_PI - Do not provide packet information
->     *
->     */
->    ifr.ifr_flags = IFF_TUN;
->
->    if( *dev )
->        strncpy(ifr.ifr_name, dev, IFNAMSIZ);
->
->    if( (err = ioctl(fd, TUNSETIFF, (void *) &ifr)) < 0 ){
->        printf("ioctl err %d: %s\n", err, strerror(err));
->        close(fd);
->        return err;
->    }
->    strcpy(dev, ifr.ifr_name);
->    return fd;
->}
->
->int main(int argc, char **argv)
->{
->	char test[100] = "1234567890123456";
->	tun_alloc(test);
->	return 0;
->}
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
+-- 
+Daniel

@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266643AbTADDq3>; Fri, 3 Jan 2003 22:46:29 -0500
+	id <S266660AbTADEEG>; Fri, 3 Jan 2003 23:04:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266645AbTADDq3>; Fri, 3 Jan 2003 22:46:29 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:61703
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S266643AbTADDq1>; Fri, 3 Jan 2003 22:46:27 -0500
-Date: Fri, 3 Jan 2003 19:54:14 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Hell.Surfers@cwctv.net
-cc: rms@gnu.org, linux-kernel@vger.kernel.org
-Subject: RE:Gauntlet Set NOW!
-In-Reply-To: <0892d5742030413DTVMAIL2@smtp.cwctv.net>
-Message-ID: <Pine.LNX.4.10.10301031946400.421-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266675AbTADEEG>; Fri, 3 Jan 2003 23:04:06 -0500
+Received: from eriador.apana.org.au ([203.14.152.116]:29192 "EHLO
+	eriador.apana.org.au") by vger.kernel.org with ESMTP
+	id <S266660AbTADEEF>; Fri, 3 Jan 2003 23:04:05 -0500
+Date: Sat, 4 Jan 2003 15:12:19 +1100
+To: viro@math.psu.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5 INITRD + DEVFS crash
+Message-ID: <20030104041219.GA3066@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="/04w6evG8XlLl3ft"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Dean,
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I do not want your help.
-I do not need your help.
-I would not take your help.
-I would never hire you.
-I will never be an associate of yours.
-I will deal with my customer's needs.
+INITRD loading fails when DEVFS is enabled in the kernel as initrd_release
+calls del_gendisk which tries to free DEVFS partitions even though the
+create partitions function was never called.
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
-No, you will not be allowed to be my customer.
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
 
-So do you have the balls to step up and sue me ?
-So do you have the balls to step up and sue others like me ?
-So do you have the balls to step up and sue Silicon Valley embedded ?
+Index: fs/partitions/check.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/fs/partitions/check.c,v
+retrieving revision 1.1.1.3
+diff -u -r1.1.1.3 check.c
+--- fs/partitions/check.c	3 Jan 2003 01:36:55 -0000	1.1.1.3
++++ fs/partitions/check.c	4 Jan 2003 04:04:05 -0000
+@@ -522,7 +522,8 @@
+ 	disk->io_ticks = 0;
+ 	disk->time_in_queue = 0;
+ 	disk->stamp = disk->stamp_idle = 0;
+-	devfs_remove_partitions(disk);
++	if (disk->minors != 1)
++		devfs_remove_partitions(disk);
+ 	if (disk->driverfs_dev) {
+ 		sysfs_remove_link(&disk->kobj, "device");
+ 		sysfs_remove_link(&disk->driverfs_dev->kobj, "block");
 
-Come on big boy, bring it on.
-
-You wrote a TEN DOLLAR check, with only a PENNY ass to cash it with!
-
-On Sat, 4 Jan 2003 Hell.Surfers@cwctv.net wrote:
-
-> If you plan to create a module to allow functions you have created to
-> be used outside the kernel, do. But use only lgpl headers, help legalise
-> the use of proprietary modules, tell you what il help you bugfix the
-> lgpl code, but _remember_ only your f unctions.
-> 
-> Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
-
-See your sig. ??
-
-Please overdose, and do take it personally.
-I really want you to take it personally.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+--/04w6evG8XlLl3ft--

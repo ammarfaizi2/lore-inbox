@@ -1,52 +1,51 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S156759AbPLPGSB>; Thu, 16 Dec 1999 01:18:01 -0500
-Received: by vger.rutgers.edu id <S156541AbPLPGG4>; Thu, 16 Dec 1999 01:06:56 -0500
-Received: from amdext2.amd.com ([163.181.251.1]:37185 "EHLO amdext2.amd.com") by vger.rutgers.edu with ESMTP id <S156528AbPLPF6R>; Thu, 16 Dec 1999 00:58:17 -0500
-From: nathan.zook@amd.com
-Message-ID: <AB4CB1CC6547D21197B00008C7F48FB402C10F17@txexmta0.amd.com>
-To: linux-kernel@vger.rutgers.edu
-Subject: [HUMOR]:  RE: Ok, making ready for pre-2.4 and code-freeze..
-Date: Wed, 15 Dec 1999 23:58:07 -0600
+Received: by vger.rutgers.edu via listexpand id <S156803AbPLQPVR>; Fri, 17 Dec 1999 10:21:17 -0500
+Received: by vger.rutgers.edu id <S156703AbPLQPOp>; Fri, 17 Dec 1999 10:14:45 -0500
+Received: from lsmls02.we.mediaone.net ([24.130.1.15]:49816 "EHLO lsmls02.we.mediaone.net") by vger.rutgers.edu with ESMTP id <S156786AbPLQPCw>; Fri, 17 Dec 1999 10:02:52 -0500
+Message-ID: <385A5068.B4490833@alumni.caltech.edu>
+Date: Fri, 17 Dec 1999 07:02:00 -0800
+From: Dan Kegel <dank@alumni.caltech.edu>
+Organization: Precious Little
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.5-15 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+To: "linux-kernel@vger.rutgers.edu" <linux-kernel@vger.rutgers.edu>
+Cc: raster@rasterman.com
+Subject: re: RasterMan on linux and threads
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-The neophyte stood in wide-eyed wonder, his jaw slack.  He had heard of the
-power of the Great Wizard, but had never seen it.  Whereas before in the
-magical kingdom, the mages and wizards had hissed forth curses against each
-other, or hidden away in their towers so that none knew of their doings,
-there was now assembling a magical army greater than any he had conceived.
-Now every wizard and mage reported in the state of their latest
-incantations, and the drone of their tidings almost matched that of the
-banshees which had wailed before.
+re http://kernelnotes.org/lnxlists/linux-kernel/lk_9912_03/msg00480.html
 
-The neophyte gathered his wits enough to say to the Great Wizard "Where did
-you learn this incantation, and why did you wait so to utter it?  Your
-kingom has suffered these months of stife.  Why not utter it more often?"
-For he knew that it must have been uttered in the past, and that surely it
-would be uttered again.
+Rasterman is wrong in saying that all threads run on the same
+processor, but everything else he says about threads is spot on:
+unless you have a real good reason to create a thread, don't.
+Ousterhout certainly agrees.  See his slides on "Why threads are bad (usually)"
+at http://www.scriptics.com/people/john.ousterhout/
 
-The Great Wizard smiled slightly.  For he knew that this was no ordinary
-incantation.  Powerful in its simplicity, it exhausted the mystic energies
-in the kingdom.  To utter it prematurely would wreck the incantations of
-lesser mages--incantations he needed for this, his latest golem.  The golem
-would have to go into the world to and fight in battle mostly alone.  Once
-unleashed, he dared not aid it with powerful spells, lest the uncertain
-engeries of battle cause the golem to collapse.  Only minor spells and
-cantrips could be added.  So he had waited while all the mages prepared.
-When the time was right, and ONLY when the time was right, might he utter
-the Great Incantation and, summon all the energies in his kingdom, finish
-this, his greatest golem.
+Earlier in his news page, Raster says:
+> The [imlib2] API changed a lot recently - it's now context based (you set
+> the current context) and it uses that current context for almost all
+> calls. It means many fewer parameters to many calls - but it also means
+> Imlib2 is NOT thread-safe as the context is global. If anyone wants to
+> work on making it thread safe - there's source code and send patches -
+> but I don't see much value in it. Do all your graphics work in 1 thread.    
 
-The neophyte was not suprised that the Great Wizard had not answered.  That
-night, however, he wrote down the words, in code, as he was taught, lest he
-unleash some fearful magic on himself.  He had learned enough to discern
-which words were essential to incantations, and which were ornamental.  His
-entry that night was two words:  xlwv uivvav
+Wow, deja vu.  Right on the heels of Jim Gettys' post on the same subject,
+http://kernelnotes.org/lnxlists/linux-kernel/lk_9912_03/msg00096.html
 
-Nathan
+Raster, you might want to read Jim's post.  X calls use lots of context 
+parameters (like old imlib), OpenGL calls use none (like new imlib2), and 
+now they both wish they'd used a single one (i.e. an object oriented approach).
 
+And you might want to modify your statement that threads always run on the same
+CPU...
+- Dan
+
+-- 
+(The above is just my personal opinion; I don't speak for my employer,
+ except on the occasional talk show.)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

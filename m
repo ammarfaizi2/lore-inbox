@@ -1,77 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUJLP0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUJLP3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264571AbUJLP0c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 11:26:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUJLP0c
+	id S265161AbUJLP3r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 11:29:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265127AbUJLP3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 11:26:32 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:46554 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S265978AbUJLPZy (ORCPT
+	Tue, 12 Oct 2004 11:29:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58280 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265161AbUJLP1b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 11:25:54 -0400
-Date: Tue, 12 Oct 2004 17:27:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>,
-       Mark_H_Johnson@Raytheon.com
-Subject: Re: [patch] VP-2.6.9-rc4-mm1-T6
-Message-ID: <20041012152713.GA16393@elte.hu>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <416BF44E.6080309@cybsft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <416BF44E.6080309@cybsft.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 12 Oct 2004 11:27:31 -0400
+Date: Tue, 12 Oct 2004 11:27:20 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Christoph Lameter <clameter@sgi.com>
+cc: linux-kernel@vger.kernel.org, <nickpiggin@yahoo.com.au>,
+       <linux-mm@kvack.org>
+Subject: Re: NUMA: Patch for node based swapping
+In-Reply-To: <Pine.LNX.4.58.0410120751010.11558@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.44.0410121126390.13693-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 12 Oct 2004, Christoph Lameter wrote:
 
-* K.R. Foley <kr@cybsft.com> wrote:
+> The minimum may be controlled through /proc/sys/vm/node_swap.
+> By default node_swap is set to 100 which means that kswapd will be run on
+> a zone if less than 10% are available after allocation.
 
-> OK. This one builds just fine here. Again I tried booting preempt
-> realtime. We were going along fine and then all hell broke loose on
-> the console. Pressed Ctrl-s to stop the scrolling and it then bit the
-> dust.  It did manage to get into the logs this time and I am attaching
-> that.  This is a different SMP system that I use as a workstation at a
-> client site. Dual 2.6GHz Xeons (with HT) 512MB
+That sounds like an extraordinarily bad idea for eg. AMD64
+systems, which have a very low numa factor.
 
-does the patch below make your system bootable? It should fix the two
-most common messages you got.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 
-	Ingo
-
---- linux/kernel/profile.c.orig
-+++ linux/kernel/profile.c
-@@ -169,7 +169,7 @@ int profile_event_unregister(enum profil
- }
- 
- static struct notifier_block * profile_listeners;
--static rwlock_t profile_lock = RW_LOCK_UNLOCKED;
-+static raw_rwlock_t profile_lock = RAW_RW_LOCK_UNLOCKED;
-  
- int register_profile_notifier(struct notifier_block * nb)
- {
---- linux/drivers/net/3c59x.c.orig
-+++ linux/drivers/net/3c59x.c
-@@ -832,8 +832,8 @@ struct vortex_private {
- 	u16 deferred;						/* Resend these interrupts when we
- 										 * bale from the ISR */
- 	u16 io_size;						/* Size of PCI region (for release_region) */
--	spinlock_t lock;					/* Serialise access to device & its vortex_private */
--	spinlock_t mdio_lock;				/* Serialise access to mdio hardware */
-+	raw_spinlock_t lock;					/* Serialise access to device & its vortex_private */
-+	raw_spinlock_t mdio_lock;				/* Serialise access to mdio hardware */
- 	struct mii_if_info mii;				/* MII lib hooks/info */
- };
- 

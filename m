@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265796AbTIJVhj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 17:37:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbTIJVhj
+	id S265714AbTIJVua (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 17:50:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265849AbTIJVua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 17:37:39 -0400
-Received: from fep04-svc.mail.telepac.pt ([194.65.5.203]:64445 "EHLO
-	fep04-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
-	id S265796AbTIJVhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 17:37:34 -0400
-Message-ID: <3F5F99AD.6080502@vgertech.com>
-Date: Wed, 10 Sep 2003 22:37:49 +0100
-From: Nuno Silva <nuno.silva@vgertech.com>
-Organization: VGER, LDA
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en-us, pt
-MIME-Version: 1.0
-To: Aaron Lehmann <aaronl@vitelus.com>
-CC: Misha Nasledov <misha@nasledov.com>, linux-kernel@vger.kernel.org
-Subject: Re: bttv bug
-References: <20030910064158.GA19930@nasledov.com> <20030910074123.GH18280@vitelus.com>
-In-Reply-To: <20030910074123.GH18280@vitelus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Sep 2003 17:50:30 -0400
+Received: from gprs147-211.eurotel.cz ([160.218.147.211]:4736 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265714AbTIJVu3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 17:50:29 -0400
+Date: Wed, 10 Sep 2003 23:50:12 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swsusp: revert to 2.6.0-test3 state
+Message-ID: <20030910215012.GA261@elf.ucw.cz>
+References: <20030904182606.GB27650@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0309041247380.940-100000@localhost.localdomain> <bjkru3$2cs$1@tangens.hometree.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bjkru3$2cs$1@tangens.hometree.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Aaron Lehmann wrote:
-> Can you reproduce it without the nvidia module and produce a call
-> trace that doesn't include nvidia symbols?
-
-Yes, and then try bttv patches from http://bytesex.org/bttv/
-
-2.6.0's bttv driver is misbehaving in my setup for ages... Try bytesex's 
-patches and report back, please.
-
-Regards,
-Nuno Silva
-
+> >> model/swsusp until we have -test3 functionality back, then start
+> >> taking your patches). 
 > 
-> On Tue, Sep 09, 2003 at 11:41:58PM -0700, Misha Nasledov wrote:
+> >That's fine. Do what you want at your own pace, with your own code. 
 > 
->>Hi,
->>
->>After upgrading to -test5, my bt878 card ceased to function properly. My
->>kernel is tainted with the nvidia kernel module but I know for a fact that 
->>bttv worked just fine not too long ago and I have not upgraded my nvidia
->>drivers since.
->>
->>I have the following message in my dmesg:
+> The attitude of the both of you basically means "Windows XP" for
+> anyone wanting to do _anything_ useful with their laptop besides
+> trying to test out new kernels and new any exciting ways to break
+> suspend/resume. You might want to reevaluate your positions to
+> actually accomplish anything.
+> 
+> ATM all I see is "this is my toy" - "no, this is my toy" from both of
+> you.
 
-
-
+Its getting better. If you want to help, write driver support for your
+devices.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,51 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263945AbTHWRUe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 13:20:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbTHWRA4
+	id S263526AbTHWRUf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 13:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbTHWRAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 13:00:56 -0400
-Received: from ns.aratech.co.kr ([61.34.11.200]:30643 "EHLO ns.aratech.co.kr")
-	by vger.kernel.org with ESMTP id S264018AbTHWQee (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 12:34:34 -0400
-Date: Sun, 24 Aug 2003 01:36:27 +0900
-From: TeJun Huh <tejun@aratech.co.kr>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: TeJun Huh <tejun@aratech.co.kr>, linux-kernel@vger.kernel.org
-Subject: Re: Race condition in 2.4 tasklet handling (cli() broken?)
-Message-ID: <20030823163627.GA7226@atj.dyndns.org>
-Mail-Followup-To: Stephan von Krawczynski <skraw@ithnet.com>,
-	TeJun Huh <tejun@aratech.co.kr>, linux-kernel@vger.kernel.org
-References: <20030823025448.GA32547@atj.dyndns.org> <20030823040931.GA3872@atj.dyndns.org> <20030823052633.GA4307@atj.dyndns.org> <20030823122813.0c90e241.skraw@ithnet.com> <20030823151315.GA6781@atj.dyndns.org> <20030823175604.1ddb119d.skraw@ithnet.com>
+	Sat, 23 Aug 2003 13:00:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51218 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263394AbTHWQ56 (ORCPT
+	<rfc822;linux-kernel@vger.redhat.com>);
+	Sat, 23 Aug 2003 12:57:58 -0400
+Date: Sat, 23 Aug 2003 18:59:27 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: LKML <linux-kernel@vger.redhat.com>
+Subject: Re: 2.6.0-test4 - lost ACPI
+Message-ID: <20030823165927.GA1755@irc.pl>
+Mail-Followup-To: Tomasz Torcz <zdzichu@irc.pl>,
+	"Brown, Len" <len.brown@intel.com>,
+	LKML <linux-kernel@vger.redhat.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCC7@hdsmsx402.hd.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030823175604.1ddb119d.skraw@ithnet.com>
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FCC7@hdsmsx402.hd.intel.com>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 23, 2003 at 05:56:04PM +0200, Stephan von Krawczynski wrote:
-> On Sun, 24 Aug 2003 00:13:15 +0900
-> TeJun Huh <tejun@aratech.co.kr> wrote:
-> 
-> >  Hello, Stephan.
-> > 
-> >  The race conditions I'm mentioning in this thread are not likely to
-> > cause real troubles.  The first one does not make any difference on
-> > x86, and AFAIK bh isn't used extensively anymore so the second one
-> > isn't very relevant either.  Only the race condition mentioned in the
-> > other thread is of relvance if there is any :-(.
-> 
-> Are you sure? bh is used in fs subtree to my knowledge ...
-> 
+On Sat, Aug 23, 2003 at 12:47:04PM -0400, Brown, Len wrote:
+ 
+> I didn't see which VIA 693 MB you've got, but it could be that a
+> BIOS upgrade would move it from 09/13/00 to something past 1/1/2001 --
+> the (yes, arbitrary) cutoff for enabling ACPI by default.
 
- Wow, I'm not sure.  Because our application is mostly concerned with
-network and raw DISK I/O, I haven't been paying attention to fs codes.
-If bh can be problematic, I'll try to rethink about the bh
-synchronization and make a patch tomorrow, probably another one or two
-liner.  First thing tomorrow.
+It's Matsonic 7132A (http://www.matsonic.com/ms7132a.htm ; 
+http://206.135.80.155/manual/ms7132a.pdf).
+Pretty nice board. Latest bios for it is dated 09/13/00 and
+there is no upgrade.
+ 
+> Or you could add "acpi=force" to your command line, as suggested in the
+> dmesg output.
+
+Tried this with strange results - kernel halted during boot,
+after displaying:
+
+[... dmesg ...]
+PM: Adding info for ide:1.0
+hda: max request size: 1024KiB
+hda: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=16383/255/63, UDMA(66)
+ /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4
+hdc: ATAPI 32X CD-ROM CD-R/RW drive, 8192kB Cache, DMA
+Uniform CD-ROM driver Revision: 3.12
+mice: PS/2 mouse device common for all mice
+
+HALT. No sysrq, no shift+pgup, no response for power button.
+
+Dmesg _without_ acpi=force: 
+
+hdc: ATAPI 32X CD-ROM CD-R/RW drive, 8192kB Cache, DMA
+Uniform CD-ROM driver Revision: 3.12
+mice: PS/2 mouse device common for all mice
+serio: i8042 AUX port at 0x60,0x64 irq 12
+input: AT Set 2 keyboard on isa0060/serio0
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Advanced Linux Sound Architecture Driver Version 0.9.6 (Wed Aug 20 20:27:13 2003 UTC).
+PCI: Found IRQ 10 for device 0000:00:0b.0
+
+And so on.
+
+> Or you could change the source to alter or disable #define
+> ACPI_BLACKLIST_CUTOFF_YEAR 2001
+
+I will try this next. ACPI was working flawlessly for me almost from
+the beginning.
 
 -- 
-tejun
+Tomasz Torcz                                                       72->|   80->|
+zdzichu@irc.-nie.spam-.pl                                          72->|   80->|

@@ -1,64 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbTJSSJV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 14:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbTJSSJV
+	id S262055AbTJSSV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 14:21:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbTJSSV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 14:09:21 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18400 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262009AbTJSSJG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 14:09:06 -0400
-Date: Sun, 19 Oct 2003 11:07:23 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Emmanuel Fleury <fleury@cs.auc.dk>
+	Sun, 19 Oct 2003 14:21:29 -0400
+Received: from flock1.newmail.ru ([212.48.140.157]:29602 "HELO
+	flock1.newmail.ru") by vger.kernel.org with SMTP id S262055AbTJSSV1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 14:21:27 -0400
+From: Sinelnikov Evgeny <linux4sin@mail.ru>
+Organization: Saratov State University
+To: cpb@log2.net
+Subject: Re: util-linux-2.12: did you find a fix?
+Date: Sun, 19 Oct 2003 22:26:11 +0400
+User-Agent: KMail/1.5.3
+References: <20031019060328.25277.qmail@log2.net>
+In-Reply-To: <20031019060328.25277.qmail@log2.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Porting code from 2.4.x to 2.6.x
-Message-Id: <20031019110723.1cc38fc7.rddunlap@osdl.org>
-In-Reply-To: <1066585811.2738.17.camel@rade7.s.cs.auc.dk>
-References: <1066585811.2738.17.camel@rade7.s.cs.auc.dk>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310192226.11583.linux4sin@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Oct 2003 19:50:11 +0200 Emmanuel Fleury <fleury@cs.auc.dk> wrote:
+>     I read your email on LKML about the problem compiling util-linux-2.12
+> with linux-2.6.0-test5 headers (the problem with _IOC_TYPECHECK).
+> Did you find a way to fix the problem? If you solved it, could you tell
+> me how to fix the util-linux problem?
 
-| Hi all,
-| 
-| I'm trying to port some code from 2.4.x to 2.6.x.
-| I got a very strange error, that I would like to submit here (it might
-| help, we never know).
-| 
-| I am working with a clean 2.6.0-test7 (the test8 is scaring me a little
-| bit with all these reports I saw on the list :).
-| 
-|  irq.h
-| =======
-| 
-| /lib/modules/2.6.0-stable/build/include/asm/irq.h:16:25: irq_vectors.h:
-| No such file or directory
-| 
-| So basically, the "irq_vectors.h" file has disappeared...
-| 
-| But, we still can find it in:
-| ./include/asm-um/irq_vectors.h
-| ./include/asm-i386/mach-default/irq_vectors.h
-| ./include/asm-i386/mach-visws/irq_vectors.h
-| ./include/asm-i386/mach-pc9800/irq_vectors.h
-| ./include/asm-i386/mach-voyager/irq_vectors.h
-| 
-| 
-| Any ideas ????
+I solved it so:
+asm/ioctl.h:
+...............
+/* used to create numbers */
+#define _IO(type,nr)            _IOC(_IOC_NONE,(type),(nr),0)
+#define _IOR(type,nr,size)      
+_IOC(_IOC_READ,(type),(nr),(_IOC_TYPECHECK(size)))
+#define _IOW(type,nr,size)      
+_IOC(_IOC_WRITE,(type),(nr),(_IOC_TYPECHECK(size)))
+#define _IOWR(type,nr,size)     
+_IOC(_IOC_READ|_IOC_WRITE,(type),(nr),(_IOC_TYPECHECK(size)))
+#define _IOR_BAD(type,nr,size)  _IOC(_IOC_READ,(type),(nr),sizeof(size))
+#define _IOW_BAD(type,nr,size)  _IOC(_IOC_WRITE,(type),(nr),sizeof(size))
+#define _IOWR_BAD(type,nr,size) 
+_IOC(_IOC_READ|_IOC_WRITE,(type),(nr),sizeof(size))
+.....................
+I patched all files that contains next defines:
+_IOR, _IOW or _IOWR
+with
+_IOR_BAD, _IOW_BAD, _IOWR_BAD
 
-You are building a module outside of the kernel tree?
+Really it is not right. 
+But it would be so if I complie with 2.4.x headers
 
-Use a Makefile in the form that is documented in
-linux/Documentation/kbuild/{modules,makefiles}.txt
-and it will find that file and work.
+sizeof(sizeof(anymore)) is sizeof(int). And threre was int. Thus it was right 
+only there.
 
---
-~Randy
+Sin (Sinelnikov Evgeny)
+

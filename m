@@ -1,121 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271124AbTHLXbL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 19:31:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271224AbTHLXbL
+	id S271223AbTHLXYW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 19:24:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271224AbTHLXYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 19:31:11 -0400
-Received: from holomorphy.com ([66.224.33.161]:40881 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S271124AbTHLXbG (ORCPT
+	Tue, 12 Aug 2003 19:24:22 -0400
+Received: from [202.20.92.128] ([202.20.92.128]:14992 "EHLO quattro.co.nz")
+	by vger.kernel.org with ESMTP id S271223AbTHLXYV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 19:31:06 -0400
-Date: Tue, 12 Aug 2003 16:32:01 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Timothy Miller <miller@techsource.com>
-Cc: rob@landley.net, Charlie Baylis <cb-lkml@fish.zetnet.co.uk>,
-       linux-kernel@vger.kernel.org, kernel@kolivas.org
-Subject: Re: [PATCH] O12.2int for interactivity
-Message-ID: <20030812233201.GT1715@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Timothy Miller <miller@techsource.com>, rob@landley.net,
-	Charlie Baylis <cb-lkml@fish.zetnet.co.uk>,
-	linux-kernel@vger.kernel.org, kernel@kolivas.org
-References: <20030804195058.GA8267@cray.fish.zetnet.co.uk> <3F303494.3030406@techsource.com> <200308110414.28569.rob@landley.net> <3F382B8B.9000301@techsource.com> <20030812001759.GS1715@holomorphy.com> <3F39020C.6040408@techsource.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F39020C.6040408@techsource.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Tue, 12 Aug 2003 19:24:21 -0400
+Message-ID: <012f01c36128$dfaaba80$0401a8c0@SIMON>
+From: "Simon Garner" <sgarner@expio.co.nz>
+To: "Andi Kleen" <ak@colin2.muc.de>
+Cc: <linux-kernel@vger.kernel.org>
+References: <gC1o.2gU.5@gated-at.bofh.it> <m3k79t7ykk.fsf@averell.firstfloor.org> <028101c35aea$d2753690$0401a8c0@SIMON> <20030805134241.GA63394@colin2.muc.de> <003e01c35f91$08227b40$0401a8c0@SIMON> <20030810225625.GA41619@colin2.muc.de>
+Subject: Re: MSI K8D-Master - GART error 3
+Date: Wed, 13 Aug 2003 11:22:38 +1200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2720.3000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 12, 2003 at 11:04:44AM -0400, Timothy Miller wrote:
-> Ok... this reminds me that there is an aspect of all of this that I 
-> don't understand.  Please pardon my ignorance.  And furthermore, if 
-> there is some document which answers all of my questions, please direct 
-> me to it so I don't waste your time.
+On Monday, August 11, 2003 10:56 AM [GMT+1200=NZT],
+Andi Kleen <ak@colin2.muc.de> wrote:
 
-No trouble at all.
+> On Mon, Aug 11, 2003 at 10:43:57AM +1200, Simon Garner wrote:
+>> These suggest it's just reporting ECC corrections. Why would it do
+>> this
+>
+> Yep. You have faulty DIMMs, consider replacing them.
+>
 
+Well I found that a little hard to stomach (since there's four DIMMs -
+surely they couldn't all be faulty - and I had already been through a
+whole other complete set with the same results, when the supplier sent
+the wrong speed modules), but now that I knew the errors were
+memory-related I did some more experimenting.
 
-On Tue, Aug 12, 2003 at 11:04:44AM -0400, Timothy Miller wrote:
-> I understand that the O(1) scheduler uses two queues.  One is the active 
-> queue, and the other is the expired queue.  When a process has exhausted 
-> its timeslice, it gets put into the expired queue (at the end, I 
-> presume).  If not, it gets put into the active queue.
-> Is this the vanilla scheduler?
+(Here is the memory population chart from the motherboard manual to help
+make sense of this:
+http://www.expio.co.nz/~sgarner/terra/msi9131memorypop.gif)
 
-The equivalent for the 2.4.x scheduler is the "epoch"; essentially what
-2.6.x has implemented is incremental timeslice assignment for epoch
-expiry. The way that goes is that when a timeslice runs out, it's
-recomputed, and the expired queue is used as a placeholder for the
-information about what to run and in what order after the epoch expires
-(i.e. the active queue empties). When the epoch expires/active queue
-empties, the two queues exchange places. The net effect is that the
-duelling queues end up representing a circular list maintained in some
-special order that can have insertions done into the middle of it for
-tasks designated as "interactive", and that priority preemption's
-effectiveness is unclear.
+First I found that if I disabled ECC in the BIOS then the system
+wouldn't even POST. But if I rearranged the modules so that they were in
+single channel operation (using only three DIMMs in slots 2,4,6) then
+the system would boot and I got no errors in SuSE (even after reenabling
+ECC).
 
-Obviously this threatens to degenerate to something RR-like that fails
-to give the desired bonuses to short-running tasks. The way priorities
-are enforced is dynamic timeslice assignment, where longer tasks
-receive shorter timeslices and shorter tasks receive longer timeslices,
-and they're readjusted at various times, which is a somewhat unusual
-design decision (as is the epoch bit). It also deviates from RR where
-interactive tasks can re-enter the active queue at timeslice expiry.
-So in this way, the favoring of short-running tasks is recovered from
-the otherwise atypical design, as the interactive tasks will often be
-re-inserted near the head of the queue as their priorities are high
-and their timeslices are retained while sleeping.
+Then I tried using a different memory population layout, using all four
+DIMMs as dual channel w/ ECC in slots 3,4,5,6 where I had been using
+1,2,5,6. The system booted and again I got no errors in SuSE.
 
+"That's strange," thought I, so I tried putting the memory back as it
+was, in slots 1,2,5,6, with ECC enabled. Booted the system and still no
+errors in SuSE.
 
-On Tue, Aug 12, 2003 at 11:04:44AM -0400, Timothy Miller wrote:
-> One thing I don't understand is, for a given queue, how do priorities 
-> affect running of processes?  Two possibilities come to mind:
-> 1) All pri 10 processes will be run before any pri 11 processes.
-> 2) A pri 10 process will be run SLIGHTLY more often than a pri 11 process.
-> For the former, is the active queue scanned for runnable processes of 
-> the highest priority?  If that's the case, why not have one queue for 
-> each priority level?  Wouldn't that reduce the amount of scanning 
-> through the queue?
+So I'm not sure what I did exactly but the system is now running fine
+and the ECC errors are gone. I'm still using the same DIMMs - the only
+thing that may have changed is the DIMMs may be arranged differently
+among the slots. I have tried swapping them around though and I still
+can't get the ECC errors back. But that's fine because I didn't
+particularly want the errors anyway! :)
 
-(1) is the case. Things differ a bit from what you might read about
-because of the epoch business.
+-Simon
 
-The active queue is scanned, but the queue data structure is organized
-so that it's composed of a separate list for each priority, and a
-bitmap is maintained alongside the array of lists for quicker searches
-for the highest nonempty priority (numerically low), and so scanning is
-an O(1) algorithm and touches very few cachelines (if more than one).
+PS: Under the Northbridge/ECC configuration in the BIOS, the motherboard
+has options for DRAM, L2 and L1 cache "BG Scrub" which are selected as
+times from 40ns through to some microseconds. There are also options for
+"DRAM Scrub REDIRECT" and "ECC Chip Kill". The motherboard manual offers
+no advice as to the preferred values for these settings or what they do.
+Can anyone suggest good values for these? I currently have them
+disabled.
 
-
-On Tue, Aug 12, 2003 at 11:04:44AM -0400, Timothy Miller wrote:
-> What it comes down to that I want to know is if priorities affect 
-> running of processes linearly or exponentially.
-> How do nice levels affect priorities?  (Vanilla and interactive)
-> How do priorities affect processes in the expired queue?
-> In the vanilla scheduler, can a low enough nice value keep an expired 
-> process off the expired queue?  How is that determined?
-> Does the vanilla scheduler have priorities?  If so, how are they determined?
-
-Neither linearly nor exponentially; nice levels assign static
-priorities; dynamic priorities (the ones used for scheduling decisions)
-are restricted to the range where |dynamic_prio - static_prio| <= 5.
-Nice values do not keep tasks off the expired queue. Tasks on the
-expired queue are ordered by priority and not examined until the epoch
-expiry.  The 2.4.x scheduler had static priorities (nice numbers) and
-recomputed what amounted to dynamic priorities (the "goodness" rating)
-on the fly each time a task was examined. 2.4.x also recomputed
-priorities via the infamous for_each_task() loop
-	for_each_task(p)
-		p->count = (p->counter >> 1) + NICE_TO_TICKS(p->nice)
-in the if (unlikely(!c)) case of the repeat_schedule: label where 2.6.x
-merely examines the priority when the task exhausts its timeslice to
-recompute it (and so the expired queue is a useful part of the
-mechanics of the algorithm: it's a placeholder for tasks whose
-timeslices have been recomputed but don't actually deserve to be run).
-
-
--- wli

@@ -1,70 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265254AbUAPGd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 01:33:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265278AbUAPGd0
+	id S265293AbUAPGnW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 01:43:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265296AbUAPGnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 01:33:26 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:61453 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S265254AbUAPGdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 01:33:24 -0500
-Date: Fri, 16 Jan 2004 07:33:21 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Joonas Koivunen <rzei@mbnet.fi>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Duplex setting with pcnet32 driver, help appriciated
-Message-ID: <20040116063321.GJ545@alpha.home.local>
-References: <200401142234.27757.rzei@mbnet.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401142234.27757.rzei@mbnet.fi>
-User-Agent: Mutt/1.4i
+	Fri, 16 Jan 2004 01:43:21 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:21148 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S265293AbUAPGnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 01:43:14 -0500
+Message-ID: <400787F7.4030005@kriminell.com>
+Date: Fri, 16 Jan 2004 07:43:03 +0100
+From: marcel cotta <marcel@kriminell.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+Followup-To: marcel@kriminell.com
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>
+Subject: Re: 2.6.1: kernel BUG at mm/swapfile.c:806
+References: <400751B1.40608@kriminell.com>	<20040115203419.76332f6a.akpm@osdl.org>	<40076B62.9000108@kriminell.com> <20040115204302.2909af64.akpm@osdl.org> <4007751C.9090702@kriminell.com>
+In-Reply-To: <4007751C.9090702@kriminell.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 14, 2004 at 10:34:27PM +0200, Joonas Koivunen wrote:
-> Hey everone,
+marcel cotta wrote:
+> Andrew Morton wrote:
 > 
-> A friend of mine just told me that my Internet connection should be 1024/1024 
-> (full duplex), not 1024(hf) shared by up- and download -- as it is at the 
-> moment. The connection is HomePNA for which I've got this cheap pci card, 
-> can't know who has made it. 
+>> marcel cotta <marcel@kriminell.com> wrote:
+>>
+>>> Andrew Morton wrote:
+>>>
+>>>> marcel cotta <marcel@kriminell.com> wrote:
+>>>>
+>>>>
+>>>>> i got this oops after the box swapped like crazy under X for about 
+>>>>> 5 minutes
+>>>>> while swapping it was nearly unusable (jerky mouse, console 
+>>>>> switching took 10 seconds)
+>>>>> the extreme performance drop is always reproducible when swapping 
+>>>>> starts
+>>>>>
+>>>>>
+>>>>> ------------[ cut here ]------------
+>>>>> kernel BUG at mm/swapfile.c:806!
+>>>>
+>>>>
+>>>>
+>>>> Amazing.  Are you using a swapfile, or are you swapping to a block 
+>>>> device?
+>>>>
+>>>>
+>>>>
+>>>>
+>>>
+>>> hehe, hasnt been reported for a while eh ;)
+>>>
+>>> i used swapfiles, one static 50mb file and the rest in temp 16MB 
+>>> blocks managed by swapd
+>>
+>>
+>>
+>> What is `swapd'?
+>>
+>>
+> 
+> 
+> the box is still running and i just saw another thing
+> 
+> hades:~# cat /proc/swaps
+> Filename                                Type            Size    Used
+>   Priority
+> /swap/linux0.swp                         file           14184   14160   -1
+> /swap/linux1.swp                         file           16184   16036
+>   -22
+> /swap/linux2.swp                         file           16184   15740
+>   -23
+> /swap/linux3.swp                         file           16184   15720
+>   -28
+> /swap/linux4.swp                         file           16184   15960
+>   -43
+> /swap/linux5.swp                         file           16184   13380
+>   -44
+> /swap/linux6.swp                         file           16184   104
+>   -45
+> /swap/linux7.swp                         file           16184   0
+>   -46
+> /swap/linux8.swp                         file           16184   4
+>   -47
+> 
+> 
+> hades:~# free
+>              total       used       free     shared    buffers     cached
+> Mem:        188724     184076       4648          0        328      33176
+> -/+ buffers/cache:     150572      38152
+> Swap:       127476      90528      36948
+> 
+> 
+> have a look at the total swap amount, free reports 127476 but the
+> total should be 143656
+> the /swap/linux0.swp file being 2mb smaller is no error
+> it is caused by setting swapfile size in /etc/swapd.conf to 14184,
+> while only
+> this file being in use, and restarting swapd with 16184 as new
+> swapfile size
+> 
+> 
 
-It's independant of your network card. The full duplex is between your modem,
-router, or I don't know what and your provider. It can fully be half duplex
-between this equipment and your network card.
+another thing as im still playing with this
 
->         Supports auto-negotiation: Yes
->         Advertised link modes:  Not reported
->         Advertised auto-negotiation: No
->         Speed: 10Mb/s
-^^^^^^^^^^^^^^^^^^^^^^^^^
+the swapfiles size is 143656 kb
+/proc/swap reports 127476 kb
 
-Your card is connected at 10 Mbps, so the other end is at 10 Mbps too. There
-are very very very few hardware which support full duplex on 10 Mbps. It is
-automatic for many people to think "half duplex" when they hear "10 Mbps".
-So I really think that your equipment uses half duplex too. Don't worry, a
-fully saturated 10 Mbps half converges to about 3.6 Mbps effective, which
-is clearly enough for your usage.
-
-> Bingo, it seems to support 10baseT/Full but is only at Half at the moment.
-> # ethtool -s eth0 duplex full; ethtool eth0 | grep Duplex
->         Duplex: Half
-> Damn.
-
-It's very likely that the pcnet32 chip doesn't support full duplex on 10 Mbps.
-
-> # ifconfig eth0 down; ethtool -s eth0 duplex full; ifconfig eth0 up; ethtool 
-> eth0 | grep Duplex
->         Duplex: Half
-> Still no change.
-
-You should use ethtool on an up link preferably. Also, you can try to load
-the module with "full_duplex=1" as a modprobe argument if you really want
-to be sure.
-
-Hoping this helps,
-Willy
+thats makes a difference of 16180 kb, so 4 kb must be missing since a 
+swapfile is 16184
+these are exactly the 4 bytes in the /swap/linux8.swp
+i just tried to less it - the process went right into D state :p
 

@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269030AbTCDRQD>; Tue, 4 Mar 2003 12:16:03 -0500
+	id <S269431AbTCDRRQ>; Tue, 4 Mar 2003 12:17:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269430AbTCDRQD>; Tue, 4 Mar 2003 12:16:03 -0500
-Received: from cnq0-9.cablevision.qc.ca ([24.212.0.9]:42245 "EHLO
-	cnqnt02.Cablevision.qc.ca") by vger.kernel.org with ESMTP
-	id <S269030AbTCDRQC>; Tue, 4 Mar 2003 12:16:02 -0500
-Message-ID: <3E64E1C8.9040309@securinet.qc.ca>
-Date: Tue, 04 Mar 2003 12:26:32 -0500
-From: =?ISO-8859-1?Q?David_Lagani=E8re?= <spanska@securinet.qc.ca>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S269435AbTCDRRQ>; Tue, 4 Mar 2003 12:17:16 -0500
+Received: from firewall.francoudi.net.32.27.217.in-addr.arpa ([217.27.32.7]:37995
+	"EHLO news.linux.dom") by vger.kernel.org with ESMTP
+	id <S269431AbTCDRRO>; Tue, 4 Mar 2003 12:17:14 -0500
 To: linux-kernel@vger.kernel.org
-Subject: A suggestion for the netfilter part of the sources
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+From: Leonid Mamchenkov <f.l.linux-admin@news.francoudi.com>
+Subject: Re: Updating the kernel of a RedHat 7.3
+Date: Tue, 4 Mar 2003 17:27:32 +0000 (UTC)
+Organization: Thunderworx Ltd.
+Message-ID: <20030304172732.GA20620@francoudi.com>
+References: <3E64DC09.C15CC287@tid.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+X-Trace: news.linux.dom 1046798852 16761 10.5.10.99 (4 Mar 2003 17:27:32 GMT)
+X-Complaints-To: admins@news.francoudi.com
+Content-Disposition: inline
+In-Reply-To: <3E64DC09.C15CC287@tid.es>
+X-Operating-System: Linux leonid.francoudi.com 2.4.18-19.8.0
+X-Uptime: 7:16pm  up 36 days,  3:02, 11 users,  load average: 0.11, 0.08, 0.07
+X-PGP-Public-Key: http://www.leonid.maks.net/leonid-at-francoudi.com.pub.key
+User-Agent: Mutt/1.5.3i
+Reply-To: Leonid Mamchenkov <leonid@francoudi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Dear Miguel Gonz?lez Casta?os,
 
-Since a couple of new kernel versions already, I use to modify two files 
-related to the netfilter part to be able to add more
-ports for the IRC NAT module. I was wondering if you could definitively 
-apply those modifications to the kernel sources.
-Here are my two modifications:
+Once you wrote about "Updating the kernel of a RedHat 7.3":
+MGlCo>  I have followed the instructions of redhat of how to upgrade a kernel
+MGlCo> downloading from the upgrades.redhat.com web page the corresponding
+MGlCo> RPMs.
 
-In /usr/src/linux-2.4.20/net/ipv4/netfilter:
-I change "#define MAX_PORTS 8" to "#define MAX_PORTS 15" in both 
-"ip_conntrack_irc.c" and "ip_nat_irc.c".
+It looks like you haven't followed all instructions...
 
-I make those modifications to be able to add more ports than only 8 when 
-loading the modules as there are actually
-a lot more IRC ports than 8 (ex: 6660-6669, 7000, that's already 11).
+MGlCo>  I have downloaded the following RPMs for my fresh installation:
+MGlCo>  kernel-2.4.18-24.7.x.i686.rpm
+MGlCo>  kernel-source-2.4.18-24.7.x.i686.rpm
+MGlCo>  kernel-smp-2.4.18-24.7.x.i686.rpm (since its a double proccesor box)
 
-I'd greatly appreciate a reply even though my suggestion is not a good one.
+Sometimes you need a little more then that, like modutils, for example.
 
-Thanks.
+MGlCo>  I did the upgrade of the kernel-source RPM and had to use -ivh --nodeps
+MGlCo> --force options to install the kernel and the kernel-smp RPMs.
 
-David Laganière
-Network/System Administrator
-Securinet Systems
+Using either of --nodeps and --force is asking for troubles... not to
+mention a combination of two.
+
+MGlCo> 
+MGlCo>  I noticed that the kernel progress bar only reached the 50%.
+
+Bad sign.
+
+MGlCo>  Everything seems to be fine, but what could be wrong or everything is
+MGlCo> fine?
+
+If you can run lilo without any complaints, I'd call it a pretty good
+sign.  Otherwise, noone knows. :)
+
+-- 
+Best regards,
+  Leonid Mamtchenkov, RHCE
+  System Administrator
+  Francoudi & Stephanou Ltd.
 

@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262668AbUKXRZq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbUKXRZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262668AbUKXRZq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 12:25:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262789AbUKXRZC
+	id S262722AbUKXRZp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 12:25:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbUKXRZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 12:25:02 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:11271 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262668AbUKXRDc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 12:03:32 -0500
-Date: Wed, 24 Nov 2004 18:03:27 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.9 SCSI driver compile error w/gcc-3.4.2.
-Message-ID: <20041124170327.GB19873@stusta.de>
-References: <Pine.LNX.4.61.0411240812220.19627@p500>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 24 Nov 2004 12:25:18 -0500
+Received: from smtp-out.hotpop.com ([38.113.3.61]:48086 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S262722AbUKXRQH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 12:16:07 -0500
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] fbdev: Fix crash if fb_set_var() called before register_framebuffer()
+Date: Thu, 25 Nov 2004 01:15:50 +0800
+User-Agent: KMail/1.5.4
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411240812220.19627@p500>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200411250115.50895.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 24, 2004 at 08:13:06AM -0500, Justin Piszcz wrote:
-> Under slackware-current, gcc-3.4.2.
-> 
-> root@p500b:/usr/src/linux# make modules
->   CHK     include/linux/version.h
-> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
->   CC [M]  drivers/scsi/cpqfcTScontrol.o
-> drivers/scsi/cpqfcTScontrol.c:609:2: #error This is too much stack
-> drivers/scsi/cpqfcTScontrol.c:721:2: #error This is too much stack
-> make[2]: *** [drivers/scsi/cpqfcTScontrol.o] Error 1
->...
+The field info->modelist is initialized during register_framebuffer.  This
+field is also referred to in fb_set_var().  Thus a call to fb_set_var()
+before register_framebuffer() will cause a crash.  A few drivers do this,
+notably controlfb.  (This might fix reports of controlfb crashing in
+powermacs).
 
-This compile error (as well as the other two compile errors you 
-reported) comes from the fact, that you disabled the option
+Signed-off-by: Antonino Daplas <adaplas@pol.net>
+---
 
-  Code maturity level options
-    Prompt for development and/or incomplete code/drivers
-      Select only drivers expected to compile cleanly
+ fbmem.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletion(-)
+
+diff -Nru a/drivers/video/fbmem.c b/drivers/video/fbmem.c
+--- a/drivers/video/fbmem.c	2004-11-23 21:20:13 +08:00
++++ b/drivers/video/fbmem.c	2004-11-25 01:09:22 +08:00
+@@ -725,7 +725,10 @@
+ 			fb_set_cmap(&info->cmap, info);
+ 
+ 			fb_var_to_videomode(&mode, &info->var);
+-			fb_add_videomode(&mode, &info->modelist);
++
++			if (info->modelist.prev && info->modelist.next &&
++			    !list_empty(&info->modelist))
++				fb_add_videomode(&mode, &info->modelist);
+ 
+ 			if (info->flags & FBINFO_MISC_MODECHANGEUSER) {
+ 				struct fb_event event;
 
 
-It's known that some drivers do not compile and marked in the Kconfig 
-files. But if you choose to try to compile them anyway, they don't 
-compile.
 
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

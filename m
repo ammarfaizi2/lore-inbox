@@ -1,61 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318820AbSHESkN>; Mon, 5 Aug 2002 14:40:13 -0400
+	id <S318811AbSHESps>; Mon, 5 Aug 2002 14:45:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318825AbSHESkN>; Mon, 5 Aug 2002 14:40:13 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:49668 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S318820AbSHESkM>; Mon, 5 Aug 2002 14:40:12 -0400
-Date: Mon, 5 Aug 2002 20:43:33 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-ac4
-Message-ID: <20020805184333.GA27961@louise.pinerecords.com>
-References: <200208051147.g75Blh720012@devserv.devel.redhat.com> <20020805181047.GE25892@louise.pinerecords.com>
+	id <S318825AbSHESpq>; Mon, 5 Aug 2002 14:45:46 -0400
+Received: from unthought.net ([212.97.129.24]:10423 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S318811AbSHESpp>;
+	Mon, 5 Aug 2002 14:45:45 -0400
+Date: Mon, 5 Aug 2002 20:49:21 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: linux-kernel@vger.kernel.org
+Subject: Disk (block) write strangeness
+Message-ID: <20020805184921.GC2671@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20020805181047.GE25892@louise.pinerecords.com>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 62 days, 10:19
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The IDE debugging continues. -ac4 should fix the breakages in ac2/ac3. It
-> > hopefully also fixes the ALi hangs with non ALi north bridges (mostly 
-> > Transmeta boxes).
-> 
-> It is a nice shrubbery, but there is one small problem!!
-> 
-> # depmod -ae -F /boot/System.map-2.4.19-ac4 2.4.19-ac4
-> depmod: *** Unresolved symbols in /lib/modules/2.4.19-ac4/kernel/drivers/ide/ide-mod.o
-> depmod:         pci_enable_device_bars
 
-Why not ask Roger the Shrubber?
+Hello all,
 
+While investigating how various disks handle power-loss during writes, I
+came across something *very* strange.
 
-diff -urN linux-2.4.19-ac4/drivers/ide/ide-pci.c linux-2.4.19-ac4.n/drivers/ide/ide-pci.c
---- linux-2.4.19-ac4/drivers/ide/ide-pci.c	2002-08-05 20:41:59.000000000 +0200
-+++ linux-2.4.19-ac4.n/drivers/ide/ide-pci.c	2002-08-05 20:28:31.000000000 +0200
-@@ -693,7 +693,7 @@
- 	}
- 
- 	if (pci_enable_device(dev)) {
--		if(pci_enable_device_bars(dev, 1<<4))
-+		if (pci_enable_device_bars(dev, 1 << 4))
- 		{
- 			printk(KERN_WARNING "%s: (ide_setup_pci_device:) "
- 				"Could not enable device.\n", d->name);
-diff -urN linux-2.4.19-ac4/drivers/pci/pci.c linux-2.4.19-ac4.n/drivers/pci/pci.c
---- linux-2.4.19-ac4/drivers/pci/pci.c	2002-08-05 20:42:00.000000000 +0200
-+++ linux-2.4.19-ac4.n/drivers/pci/pci.c	2002-08-05 20:28:21.000000000 +0200
-@@ -2082,6 +2082,7 @@
- EXPORT_SYMBOL(pci_write_config_dword);
- EXPORT_SYMBOL(pci_devices);
- EXPORT_SYMBOL(pci_root_buses);
-+EXPORT_SYMBOL(pci_enable_device_bars);
- EXPORT_SYMBOL(pci_enable_device);
- EXPORT_SYMBOL(pci_disable_device);
- EXPORT_SYMBOL(pci_find_capability);
+It seems that
+
+*) Either the disk writes backwards  (no I don't believe that)
+*) Or the kernel is writing 256 B blocks (AFAIK it can't)
+*) The disk has some internal magic that cause a power-loss during
+   a full block write to leave the first half of the block intact with
+   old data, and update the second half of a block correctly with new
+   data.  (And I don't believe that either).
+
+The scenario is:   I wrote a program that will write a 50 MB block with
+O_SYNC to /dev/hdc.  The block is full of 32-bit integers, initialized
+to 0.  For every full block write (the block is written with one single
+write() call), the integers are incremented once.
+
+So first I have 50 MB of 0's. Then 50 MB of 1's. etc.
+
+During this write cycle, I pull the power cable.   I get the machine
+back online and I dump the 50 MB block.
+
+What I found was a 50 MB block holding:
+ 11668992 times "0x00000002"
+   231168 times "0x00000003"
+  1174528 times "0x00000002"
+    32512 times "0x00000003"
+
+Please note that 32512 is *not* a multiple of 512.  And please note that
+the 3's are written *after* the 2's, so actually there is a 512 byte
+block on the disk which contains 2's in the first half, and 3's in the
+second half!
+
+How on earth could that happen ?
+
+Why does the kernel not write from beginning to end ?   Or why doesn't
+the disk ?
+
+And does the elevator cause the writes to be shuffled around like that -
+I would have expected the kernel to write from beginning to end every
+single time...
+
+The kernel is 2.4.18 on some i686 box
+The disk is a Quantum Fireball 1GB IDE (from way back then ;)
+The IDE chipset is an I820 Camino 2
+
+I can submit the test program or do further tests, if anyone is
+interested.
+
+Thank you,
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

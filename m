@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbUCFMnA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 07:43:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbUCFMnA
+	id S261637AbUCFMmr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 07:42:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUCFMmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 07:43:00 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:19626 "EHLO
+	Sat, 6 Mar 2004 07:42:47 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:13226 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261660AbUCFMm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 07:42:57 -0500
-Date: Fri, 5 Mar 2004 19:46:46 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Johannes Stezenbach <js@convergence.de>,
-       Peter Nelson <pnelson@andrew.cmu.edu>, Hans Reiser <reiser@namesys.com>,
-       Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
-       jfs-discussion@oss.software.ibm.com, reiserfs-list@namesys.com,
-       linux-xfs@oss.sgi.com
-Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
-Message-ID: <20040305184643.GA4758@openzaurus.ucw.cz>
-References: <4044119D.6050502@andrew.cmu.edu> <4044366B.3000405@namesys.com> <4044B787.7080301@andrew.cmu.edu> <20040303234104.GD1875@convergence.de>
+	id S261637AbUCFMmq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Mar 2004 07:42:46 -0500
+Date: Thu, 4 Mar 2004 16:08:36 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jean-Luc Cooke <jlcooke@certainkey.com>
+Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
+       James Morris <jmorris@redhat.com>,
+       Christophe Saout <christophe@saout.de>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: dm-crypt, new IV and standards
+Message-ID: <20040304150836.GE531@openzaurus.ucw.cz>
+References: <20040220172237.GA9918@certainkey.com> <Xine.LNX.4.44.0402201624030.7335-100000@thoron.boston.redhat.com> <20040221164821.GA14723@certainkey.com> <Pine.LNX.4.58.0403022352080.12846@twinlark.arctic.org> <20040303150647.GC1586@certainkey.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040303234104.GD1875@convergence.de>
+In-Reply-To: <20040303150647.GC1586@certainkey.com>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> It would be nice if someone with more profound knowledge could comment
-> on this, but my understanding of the problem is:
+> > > Well, CTR mode is not recommended for encrypted file systems because it is very
+> > > easy to corrupt single bits, bytes, blocks, etc without an integrity check.
+> > > If we add a MAC, then any mode of operation except ECB can be used for
+> > > encrypted file systems.
+> > 
+> > what does "easy to corrupt" mean?  i haven't really seen disks generate
+> > bit errors ever.  this MAC means you'll need to write integrity data for
+> > every real write.  that really doesn't seem worth it...
 > 
-> - journaled filesystems can only work when they can enforce that
->   journal data is written to the platters at specifc times wrt
->   normal data writes
-> - IDE write caching makes the disk "lie" to the kernel, i.e. it says
->   "I've written the data" when it was only put in the cache
-> - now if a *power failure* keeps the disk from writing the cache
->   contents to the platter, the fs and journal are inconsistent
->   (a kernel crash would not cause this problem because the disk can
->   still write the cache contents to the platters)
-> - at next mount time the fs will read the journal from the disk
->   and try to use it to bring the fs into a consistent state;
->   however, since the journal on disk is not guaranteed to be up to date
->   this can *fail*  (I have no idea what various fs implementations do
->   to handle this; I suspect they at least refuse to mount and require
->   you to manually run fsck. Or they don't notice and let you work
->   with a corrupt filesystem until they blow up.)
-> 
-> Right?  Or is this just paranoia?
+> The difference between "_1,000,000" and "_8,000,000" is 1 bit.  If an
+> attacker knew enough about the layout of the filesystem (modify times on blocks,
+> etc) they could flip a single bit and change your _1Mil purchase order
+> approved by your boss to a _8Mil order.
 
-Twice a year I fsck my reiser drives, and yes there's some corruption there.
-So you are right, and its not paranoia.
-
+Hmm... long time ago I created crc loop device to catch
+faulty disks. If cryptoloop can do that for me... very good!
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

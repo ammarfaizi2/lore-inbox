@@ -1,186 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262092AbSI3OJb>; Mon, 30 Sep 2002 10:09:31 -0400
+	id <S262120AbSI3OIK>; Mon, 30 Sep 2002 10:08:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262090AbSI3OI2>; Mon, 30 Sep 2002 10:08:28 -0400
-Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:47851 "EHLO
-	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
-	id <S262092AbSI3NoM> convert rfc822-to-8bit; Mon, 30 Sep 2002 09:44:12 -0400
+	id <S262090AbSI3NoG>; Mon, 30 Sep 2002 09:44:06 -0400
+Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:37070 "EHLO
+	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S262068AbSI3Nnl> convert rfc822-to-8bit; Mon, 30 Sep 2002 09:43:41 -0400
 Content-Type: text/plain;
   charset="us-ascii"
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.39 s390 (21/26): synchronous i/o.
-Date: Mon, 30 Sep 2002 15:03:26 +0200
+Subject: [PATCH] 2.5.39 s390 (8/26): xpram driver.
+Date: Mon, 30 Sep 2002 14:53:44 +0200
 X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200209301503.26553.schwidefsky@de.ibm.com>
+Message-Id: <200209301453.44582.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove bogus sanity check from {en,dis}able_sync_isc() and really disable all
-interrupt sub classes except isc 7 in wait_cons_dev.
+Remove reference to xpram_release. Correct calls to bi_end_io and bio_io_error.
 
-diff -urN linux-2.5.39/drivers/s390/cio/cio.c linux-2.5.39-s390/drivers/s390/cio/cio.c
---- linux-2.5.39/drivers/s390/cio/cio.c	Mon Sep 30 13:33:22 2002
-+++ linux-2.5.39-s390/drivers/s390/cio/cio.c	Mon Sep 30 13:33:30 2002
-@@ -1715,7 +1715,7 @@
- 		 */
- 		__ctl_store (cr6, 6, 6);
- 		save_cr6 = cr6;
--		cr6 &= 0x01FFFFFF;
-+		cr6 = 0x01000000;
- 		__ctl_load (cr6, 6, 6);
+diff -urN linux-2.5.39/drivers/s390/block/xpram.c linux-2.5.39-s390/drivers/s390/block/xpram.c
+--- linux-2.5.39/drivers/s390/block/xpram.c	Fri Sep 27 23:50:26 2002
++++ linux-2.5.39-s390/drivers/s390/block/xpram.c	Mon Sep 30 13:31:58 2002
+@@ -15,7 +15,6 @@
+  *   Device specific file operations
+  *        xpram_iotcl
+  *        xpram_open
+- *        xpram_release
+  *
+  * "ad-hoc" partitioning:
+  *    the expanded memory can be partitioned among several devices 
+@@ -36,6 +35,7 @@
+ #include <linux/blkpg.h>
+ #include <linux/hdreg.h>  /* HDIO_GETGEO */
+ #include <linux/device.h>
++#include <linux/bio.h>
+ #include <asm/uaccess.h>
  
- 		do {
-@@ -1855,47 +1855,39 @@
- 
- 	/* This one spins until it can get the sync_isc lock for irq# irq */
- 
--	if ((irq <= highest_subchannel) && 
--	    (ioinfo[irq] != INVALID_STORAGE_AREA) &&
--	    (!ioinfo[irq]->st)) {
--		if (atomic_read (&sync_isc) != irq)
--			atomic_compare_and_swap_spin (-1, irq, &sync_isc);
--
--		sync_isc_cnt++;
--
--		if (sync_isc_cnt > 255) {	/* fixme : magic number */
--			panic ("Too many recursive calls to enable_sync_isc");
--
--		}
--		/*
--		 * we only run the STSCH/MSCH path for the first enablement
--		 */
--		else if (sync_isc_cnt == 1) {
--			ioinfo[irq]->ui.flags.syncio = 1;
--
--			ccode = stsch (irq, &(ioinfo[irq]->schib));
--
--			if (!ccode) {
--				ioinfo[irq]->schib.pmcw.isc = 5;
--				rc = s390_set_isc5(irq, 0);
--
--			} else {
--				rc = -ENODEV;	/* device is not-operational */
--
--			}
--		}
--
--		if (rc) {	/* can only happen if stsch/msch fails */
--			sync_isc_cnt = 0;
--			atomic_set (&sync_isc, -1);
-+	if (atomic_read (&sync_isc) != irq)
-+		atomic_compare_and_swap_spin (-1, irq, &sync_isc);
-+	
-+	sync_isc_cnt++;
-+	
-+	if (sync_isc_cnt > 255) {	/* fixme : magic number */
-+		panic ("Too many recursive calls to enable_sync_isc");
-+		
-+	}
-+	/*
-+	 * we only run the STSCH/MSCH path for the first enablement
-+	 */
-+	else if (sync_isc_cnt == 1) {
-+		ioinfo[irq]->ui.flags.syncio = 1;
-+		
-+		ccode = stsch (irq, &(ioinfo[irq]->schib));
-+		
-+		if (!ccode) {
-+			ioinfo[irq]->schib.pmcw.isc = 5;
-+			rc = s390_set_isc5(irq, 0);
-+			
-+		} else {
-+			rc = -ENODEV;	/* device is not-operational */
-+			
+ #define XPRAM_NAME	"xpram"
+@@ -60,7 +60,7 @@
+ static xpram_device_t xpram_devices[XPRAM_MAX_DEVS];
+ static int xpram_sizes[XPRAM_MAX_DEVS];
+ static struct gendisk xpram_disks[XPRAM_MAX_DEVS];
+-static char xpram_names[XPRAM_MAX_DEV][8];
++static char xpram_names[XPRAM_MAX_DEVS][8];
+ static unsigned long xpram_pages;
+ static int xpram_devs;
+ static devfs_handle_t xpram_devfs_handle;
+@@ -313,10 +313,12 @@
  		}
--	} else {
--
--		rc = -EINVAL;
--
-+	}
-+	
-+	if (rc) {	/* can only happen if stsch/msch fails */
-+		sync_isc_cnt = 0;
-+		atomic_set (&sync_isc, -1);
  	}
- 
--	return (rc);
-+	return rc;
+ 	set_bit(BIO_UPTODATE, &bio->bi_flags);
+-	bio->bi_end_io(bio);
++	bytes = bio->bi_size;
++	bio->bi_size = 0;
++	bio->bi_end_io(bio, bytes, 0);
+ 	return 0;
+ fail:
+-	bio_io_error(bio);
++	bio_io_error(bio, bio->bi_size);
+ 	return 0;
  }
  
- 
-@@ -1910,44 +1902,36 @@
- 	sprintf (dbf_txt, "disisc%x", irq);
- 	CIO_TRACE_EVENT (4, dbf_txt);
- 
--	if ((irq <= highest_subchannel) && 
--	    (ioinfo[irq] != INVALID_STORAGE_AREA) && 
--	    (!ioinfo[irq]->st)) {
--		/*
--		 * We disable if we're the top user only, as we may
--		 *  run recursively ... 
--		 * We must not decrease the count immediately; during
--		 *  msch() processing we may face another pending
--		 *  status we have to process recursively (sync).
--		 */
--
--		if (sync_isc_cnt == 1) {
--			ccode = stsch (irq, &(ioinfo[irq]->schib));
--
--			if (!ccode) {
--
--				ioinfo[irq]->schib.pmcw.isc = 3;
--				rc = s390_set_isc5(irq, 1);
--			} else {
--				rc = -ENODEV;
--			}
--				
--			ioinfo[irq]->ui.flags.syncio = 0;
--
--			sync_isc_cnt = 0;
--			atomic_set (&sync_isc, -1);
--
-+	/*
-+	 * We disable if we're the top user only, as we may
-+	 *  run recursively ... 
-+	 * We must not decrease the count immediately; during
-+	 *  msch() processing we may face another pending
-+	 *  status we have to process recursively (sync).
-+	 */
-+	
-+	if (sync_isc_cnt == 1) {
-+		ccode = stsch (irq, &(ioinfo[irq]->schib));
-+		
-+		if (!ccode) {
-+			
-+			ioinfo[irq]->schib.pmcw.isc = 3;
-+			rc = s390_set_isc5(irq, 1);
- 		} else {
--			sync_isc_cnt--;
--
-+			rc = -ENODEV;
- 		}
-+		
-+		ioinfo[irq]->ui.flags.syncio = 0;
-+		
-+		sync_isc_cnt = 0;
-+		atomic_set (&sync_isc, -1);
-+		
- 	} else {
--
--		rc = -EINVAL;
--
-+		sync_isc_cnt--;
-+		
- 	}
- 
--	return (rc);
-+	return rc;
+@@ -330,7 +332,6 @@
+ 	return 0;
  }
  
- EXPORT_SYMBOL (halt_IO);
+-
+ static int xpram_ioctl (struct inode *inode, struct file *filp,
+ 		 unsigned int cmd, unsigned long arg)
+ {
+@@ -339,7 +340,7 @@
+ 	int idx = minor(inode->i_rdev);
+ 	if (idx >= xpram_devs)
+ 		return -ENODEV;
+-	if (cmd != HDIO_GETGEO)
++ 	if (cmd != HDIO_GETGEO)
+ 		return -EINVAL;
+ 	/*
+ 	 * get geometry: we have to fake one...  trim the size to a
+@@ -356,14 +357,12 @@
+ 	put_user(4, &geo->start);
+ 	return 0;
+ }
+-}
+ 
+ static struct block_device_operations xpram_devops =
+ {
+ 	owner:   THIS_MODULE,
+ 	ioctl:   xpram_ioctl,
+ 	open:    xpram_open,
+-	release: xpram_release,
+ };
+ 
+ /*
 

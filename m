@@ -1,94 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266894AbUHRBTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268540AbUHRBed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266894AbUHRBTO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 21:19:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUHRBTO
+	id S268540AbUHRBed (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 21:34:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268541AbUHRBed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 21:19:14 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:25002 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S266894AbUHRBTL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 21:19:11 -0400
-Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
-From: Albert Cahalan <albert@users.sf.net>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       george anzinger <george@mvista.com>, Andrew Morton OSDL <akpm@osdl.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       lkml <linux-kernel@vger.kernel.org>, voland@dmz.com.pl,
-       nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
-       david+powerix@blue-labs.org
-In-Reply-To: <1092791363.2429.319.camel@cog.beaverton.ibm.com>
-References: <1087948634.9831.1154.camel@cube>
-	 <87smcf5zx7.fsf@devron.myhome.or.jp>
-	 <20040816124136.27646d14.akpm@osdl.org>
-	 <Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de>
-	 <412285A5.9080003@mvista.com>
-	 <1092782243.2429.254.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de>
-	 <1092787863.2429.311.camel@cog.beaverton.ibm.com>
-	 <1092781172.2301.1654.camel@cube>
-	 <1092791363.2429.319.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1092782754.5759.1679.camel@cube>
+	Tue, 17 Aug 2004 21:34:33 -0400
+Received: from mail12.intermedia.net ([206.40.48.197]:56270 "HELO
+	mail12.intermedia.net") by vger.kernel.org with SMTP
+	id S268540AbUHRBe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 21:34:28 -0400
+Date: Tue, 17 Aug 2004 18:46:20 -0700
+From: Ranjeet Shetye <ranjeet.shetye2@zultys.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.8 / 2.6.8.1 flaky for e1000 networking
+Message-ID: <20040818014620.GA8142@ranjeet-pc2.zultys.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 17 Aug 2004 18:45:54 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-17 at 21:09, john stultz wrote:
-> On Tue, 2004-08-17 at 15:19, Albert Cahalan wrote:
-> > On Tue, 2004-08-17 at 20:11, john stultz wrote:
-> > 
-> > > --- 1.62/fs/proc/array.c	2004-08-05 13:36:53 -07:00
-> > > +++ edited/fs/proc/array.c	2004-08-17 17:08:07 -07:00
-> > > @@ -356,7 +356,14 @@
-> > >  	read_unlock(&tasklist_lock);
-> > >  
-> > >  	/* Temporary variable needed for gcc-2.96 */
-> > > -	start_time = jiffies_64_to_clock_t(task->start_time - INITIAL_JIFFIES);
-> > > +	/* convert timespec -> nsec*/
-> > > +	start_time = (unsigned long long)task->start_time.tv_sec * NSEC_PER_SEC 
-> > > +				+ task->start_time.tv_nsec;
-> > > +	/* convert nsec -> ticks */
-> > > +	start_time *= HZ;
-> > > +	do_div(start_time, NSEC_PER_SEC);
-> > > +	/* convert ticks -> USER_HZ ticks */
-> > > +	start_time = jiffies_64_to_clock_t(start_time);
-> > 
-> > This would overflow in about 6 months at 1024 USER_HZ.
-> > Various possible alternatives:
-> 
-> Everybody sing: Thanks, nice catch/Here's an updated patch!
-> 
-> -john
-> 
-> ===== fs/proc/array.c 1.62 vs edited =====
-> --- 1.62/fs/proc/array.c	2004-08-05 13:36:53 -07:00
-> +++ edited/fs/proc/array.c	2004-08-17 18:03:55 -07:00
-> @@ -356,7 +356,13 @@
->  	read_unlock(&tasklist_lock);
->  
->  	/* Temporary variable needed for gcc-2.96 */
-> -	start_time = jiffies_64_to_clock_t(task->start_time - INITIAL_JIFFIES);
-> +	/* convert timespec -> nsec*/
-> +	start_time = (unsigned long long)task->start_time.tv_sec * NSEC_PER_SEC 
-> +				+ task->start_time.tv_nsec;
-> +	/* convert nsec -> ticks */
-> +	do_div(start_time, NSEC_PER_SEC/HZ);
-> +	/* convert ticks -> USER_HZ ticks */
-> +	start_time = jiffies_64_to_clock_t(start_time);
+Hi,
 
-NSEC_PER_SEC/HZ isn't an integer when HZ is 1024.
-Also, you're doing two conversions. You can go directly
-from nanoseconds to USER_HZ, without using HZ at all.
+The following kernels seem flaky w.r.t their e1000 network behaviour
+linux-2.6.8
+linux-2.6.8.1
+linux-2.6.8.1-mm1
+(linux-2.6.8-gentoo)
 
-I think you really need the #if for this.
-It could go in a header if you like, creating
-a timespec_to_clock_t macro for use in proc.
+No modules loaded.
 
+All these kernels seem to download at 10-15 kBytes/sec and come to a
+halt every 100 kBytes or so. Then I have to restart the download manually
+or use "wget -c -T 1" to force quick auto-restarts for downloads. The
+hardware doesn't die, just seems to give up temporarily and restarting
+the process seems to restart the download over the NIC without any issues.
+
+There's no NFS traffic at all in my switched environment, so I dont think
+that's a issue with the 2.6.8 kernels.
+
+I am using a Dell GX260, 2.0 GHz P4 with i810fb, e1000. Gentoo Linux 2004.2
+
+linux-2.6.7 and linux-2.6.7-ck5 are very stable i.e. 150 kBytes/sec download
+speeds.
+
+I am not subscribed to the mailing list so I dont really know if you guys
+have already addressed this issue. A brief googling didn't reveal a solution.
+
+Anyways, let me know if you need additional info.
+
+thanks,
+
+-- 
+Ranjeet Shetye
+Senior Software Engineer
+Zultys Technologies
+Ranjeet dot Shetye at Zultys dot com
+http://www.zultys.com/
+ 
+The views, opinions, and judgements expressed in this message are solely those of
+the author. The message contents have not been reviewed or approved by Zultys.
 

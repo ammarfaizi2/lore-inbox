@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269006AbUINFU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269031AbUINFV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269006AbUINFU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 01:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269031AbUINFU2
+	id S269031AbUINFV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 01:21:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269147AbUINFV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 01:20:28 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:51115 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269006AbUINFU0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 01:20:26 -0400
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-From: Lee Revell <rlrevell@joe-job.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Andrea Arcangeli <andrea@novell.com>,
-       Hugh Dickins <hugh@veritas.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <41460283.3020909@tmr.com>
-References: <20040910153421.GD24434@devserv.devel.redhat.com>
-	 <593560000.1094826651@[10.10.2.4]>
-	 <1095016687.1306.667.camel@krustophenia.net>  <41460283.3020909@tmr.com>
-Content-Type: text/plain
-Message-Id: <1095139224.1752.14.camel@krustophenia.net>
+	Tue, 14 Sep 2004 01:21:59 -0400
+Received: from holomorphy.com ([207.189.100.168]:5009 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269031AbUINFV1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 01:21:27 -0400
+Date: Mon, 13 Sep 2004 22:21:18 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: raybry@sgi.com, jbarnes@engr.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [profile] amortize atomic hit count increments
+Message-ID: <20040914052118.GA9106@holomorphy.com>
+References: <20040913015003.5406abae.akpm@osdl.org> <20040914044748.GZ9106@holomorphy.com> <20040913220521.03d0e539.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 14 Sep 2004 01:20:25 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040913220521.03d0e539.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-09-13 at 16:26, Bill Davidsen wrote:
-> Certainly if you run ppp the serial port won't like being ignored that 
-> long, and if you pull down data on a parallel port that really won't 
-> like it. The soundcard is probably only a problem if you're recording 
-> input, in spite of some posts here about skipping, the world doesn't end 
-> if you get a skip, although 2ms shouldn't cause that anyway.
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> read_proc_profile()
+>>  does not flush the per-cpu hashtables because flushing may cause
+>>  timeslice overrun on the systems where prof_buffer cacheline bounces
+>>  are so problematic as to livelock the timer interrupt.
 
-The world also doesn't end if your web server returns a "Server too
-busy" error either.
+On Mon, Sep 13, 2004 at 10:05:21PM -0700, Andrew Morton wrote:
+> That's a bit of a problem, isn't it?  As we can accumulate an arbitrarily
+> large number of hits within the hash table is it not possible that the
+> /proc/profile results could be grossly inaccurate?
+> If you had two front-ends per cpu to the profiling buffer then the CPU
+> which is running the /proc/profile read could tell all the other CPUs to
+> flip to their alternate buffer and can then perform accumulation at its
+> leisure.
 
-Sorry, wrong answer.
+This is superior to no flushing; I'll implement that and send out an
+incremental update (or if preferred, an update of this patch).
 
-Lee
 
+On Mon, Sep 13, 2004 at 10:05:21PM -0700, Andrew Morton wrote:
+> How does oprofile get around this?  I guess in most modes the CPUs are not
+> synchronised.
+> One wonders how long we should keep flogging the /prof/profile profiling
+> code.  What systems are seeing this livelock?
+
+The original bits were merely a consolidation extracted from a since-
+dropped feature patch and an unrelated feature patch from mingo and
+arjanv; this is an unrelated fix for SGI's stability issue on larger
+Altixen. I personally intend to do no further adjustments.
+
+
+-- wli

@@ -1,88 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbTENNe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 09:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbTENNe0
+	id S262123AbTENNda (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 09:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbTENNd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 09:34:26 -0400
-Received: from c-24-99-36-145.atl.client2.attbi.com ([24.99.36.145]:13583 "EHLO
-	babylon.d2dc.net") by vger.kernel.org with ESMTP id S262170AbTENNeU
+	Wed, 14 May 2003 09:33:29 -0400
+Received: from kiruna.synopsys.com ([204.176.20.18]:15800 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP id S262121AbTENNd0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 09:34:20 -0400
-Date: Wed, 14 May 2003 09:47:04 -0400
-From: "Zephaniah E. Hull" <warp@babylon.d2dc.net>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hdb: dma_timer_expiry: dma status == 0x64 [2.5.69]
-Message-ID: <20030514134704.GA1062@babylon.d2dc.net>
-Mail-Followup-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.51.0305132143570.19932@dns.toxicfilms.tv>
+	Wed, 14 May 2003 09:33:26 -0400
+Date: Wed, 14 May 2003 15:46:00 +0200
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: mikpe@csd.uu.se
+Cc: linux-laptop@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69+bk: oops in apmd after waking up from suspend mode
+Message-ID: <20030514134600.GA16533@Synopsys.COM>
+Reply-To: alexander.riesen@synopsys.COM
+References: <20030514094813.GA14904@Synopsys.COM> <16066.16102.618836.204556@gargle.gargle.HOWL>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.51.0305132143570.19932@dns.toxicfilms.tv>
-X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
-X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
-X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
-X-Notice-4: policy and agree to the fee.
+In-Reply-To: <16066.16102.618836.204556@gargle.gargle.HOWL>
+Organization: Synopsys, Inc.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+mikpe@csd.uu.se, Wed, May 14, 2003 15:04:38 +0200:
+> > I have an old Compaq Armada 1592DT. The thing goes automagically into
+> > suspend mode after being forgotten for a while. And there is this button
+> > to wake it up (the blue one, above the keyboard).
+> > 
+> > Last time i tried to wake it up it produced the attached oops.
+> > "Unknown key"s are probable the blue button.
+> > After printing out the oops, the system went back into suspend.
+> > 
+> > Suspending devices
+> > Suspending device c03219ac
+> > Unable to handle kernel NULL pointer dereference at virtual address 00000090
+...
+> > EIP is at fix_processor_context+0x5f/0x100
+...
+> > Call Trace:
+> >  [<c0114529>] restore_processor_state+0x69/0x80
+> >  [<c01135c8>] suspend+0x138/0x200
+> >  [<c0113845>] check_events+0xf5/0x230
+> >  [<c0113aa4>] apm_mainloop+0x94/0xb0
+> >  [<c0117950>] default_wake_function+0x0/0x20
+> >  [<c0117950>] default_wake_function+0x0/0x20
+> >  [<c01141a0>] apm+0x0/0x280
+> >  [<c0114262>] apm+0xc2/0x280
+> >  [<c0107255>] kernel_thread_helper+0x5/0x10
+> 
+> Since 2.5.69-bk8 or so, apm.c will invoke restore_processor_state()
+> at resume-time. This is needed to reinitialise the SYSENTER MSRs
+> used by 2.5's new system call mechanism.
 
---KsGdsel6WgEHnImy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+and it supposed to go oops?
 
-On Tue, May 13, 2003 at 09:48:13PM +0200, Maciej Soltysiak wrote:
-> Hi,
->=20
-> on 2.5.69-dj1 (so it's a 2.5.69-bk5 kernel) i found these two in my kernel
-> log, which i have not seen before. There are just 2 occurences of that.
-> Is that something about a hardware failure, or something else?
+>  >  <6>note: kapmd[4] exited with preempt_count 2
+> This I don't like. I'm not convinced the resume path is preempt-safe.
+> Please try again, either with CONFIG_PREEMPT disabled, or with a
+> preempt_disable() / preempt_enable() pair around apm.c's suspend code,
+> like in the patch below. (Untested, you may need to stick an #include
+> <preempt.h> somewhere in apm.c to make it compile.)
 
-The first reaction is that this is a hardware thing.
+It changed things a bit. preempt_count is 3 now.
+Oops didn't change.
 
-EXCEPT.
+The system still works, afaict. Didn't notice any ill effects.
 
-I'm seeing it too, only with recent kernels.
-
-May 14 07:43:43 agamemnon kernel: hda: dma_timer_expiry: dma status =3D=3D =
-0x64
-May 14 07:43:43 agamemnon kernel: hda: lost interrupt
-May 14 07:43:43 agamemnon kernel: hda: dma_intr: bad DMA status (dma_stat=
-=3D70)
-May 14 07:43:43 agamemnon kernel: hda: dma_intr: status=3D0x50 { DriveReady=
- SeekComplete }
-
-Happens only with heavy disk IO, running 2.5.69-mm3, happened with a few
-earlier kernels and sadly I don't remember which kernel it started on.
-
---=20
-	1024D/E65A7801 Zephaniah E. Hull <warp@babylon.d2dc.net>
-	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
-	    CCs of replies from mailing lists are requested.
-
-<Electro> LordHavoc: i got black lines on stuff in realtime mode, i'll
-          take a pic, and it runs slow
-<LordHavoc> this is why I LOVE ATI drivers, they're so creative with the
-            geometry I give them...
-<LordHavoc> they turn a refined and very specific standard for the pixel
-            by pixel handling of polygons into an interpretive artform
-
---KsGdsel6WgEHnImy
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+wkjYRFMAi+ZaeAERAoL0AKDwGE8iPvdstZvAK7zT4EqtxiisbACfXK/8
-EqCe2C7uGytl1ZxJEFkACkA=
-=M+NS
------END PGP SIGNATURE-----
-
---KsGdsel6WgEHnImy--
+-alex

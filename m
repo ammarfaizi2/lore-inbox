@@ -1,98 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262608AbTKNPPc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 10:15:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbTKNPPc
+	id S262725AbTKNPUw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 10:20:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTKNPUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 10:15:32 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:16313 "EHLO
-	dagobah.gnumonks.org") by vger.kernel.org with ESMTP
-	id S262608AbTKNPP3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 10:15:29 -0500
-Date: Fri, 14 Nov 2003 16:10:04 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: [2.6] Nonsense-messages from iptables + co.
-Message-ID: <20031114151004.GE2395@obroa-skai.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@gnumonks.org>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>
-References: <20031114132054.GA646@merlin.emma.line.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="aT9PWwzfKXlsBJM1"
+	Fri, 14 Nov 2003 10:20:52 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:45728 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S262725AbTKNPUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 10:20:50 -0500
+Date: Fri, 14 Nov 2003 07:20:42 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 1540] New: Error removing USB Flash hard drive
+Message-ID: <5100000.1068823242@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031114132054.GA646@merlin.emma.line.org>
-X-Operating-System: Linux obroa-skai.de.gnumonks.org 2.4.23-pre7-ben0
-X-Date: Today is Pungenday, the 26th day of The Aftermath in the YOLD 3169
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+http://bugme.osdl.org/show_bug.cgi?id=1540
 
---aT9PWwzfKXlsBJM1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+           Summary: Error removing USB Flash hard drive
+    Kernel Version: 2.6.0-test9-mm2
+            Status: NEW
+          Severity: normal
+             Owner: akpm@digeo.com
+         Submitter: bunnadik@musikhuset.org
 
-On Fri, Nov 14, 2003 at 02:20:54PM +0100, Matthias Andree wrote:
-> Who the heck added these unhelpful
->=20
-> "ipt_hook: happy cracking."
->=20
-> messages to iptables/mangling/connection tracking code? There are three
-> instances.
 
-I guess it was Rusty.  The idea message is a funny way of telling you
-that you are sending incomplete ip headers.  Something that is not
-likely to occur unless you are trying to send corrupt packets via raw ip
-sockets...
+Distribution:Mandrake 9.2-rc1
+Hardware Environment:Dell Optiplex G1
+Software Environment:
+Problem Description:When removing the flash drive (after umount) I get a:
+Badness in atomic_dec_and_test at include/asm/atomic.h:150
+Call Trace:
+ [<c0243b21>] kobject_put+0x71/0x80
+ [<c88d9f9f>] scsi_remove_host+0x5f/0x80 [scsi_mod]
+ [<c88cf978>] storage_disconnect+0x38/0x48 [usb_storage]
+ [<c02c8ad8>] usb_unbind_interface+0x78/0x80
+ [<c0285236>] device_release_driver+0x66/0x70
+ [<c0285375>] bus_remove_device+0x55/0xa0
+ [<c028423d>] device_del+0x5d/0xa0
+ [<c02cf320>] usb_disable_device+0x70/0xb0
+ [<c02c9656>] usb_disconnect+0x96/0xf0
+ [<c02cbeff>] hub_port_connect_change+0x32f/0x340
+ [<c02cb7da>] hub_port_status+0x3a/0xb0
+ [<c02cc246>] hub_events+0x336/0x3a0
+ [<c02cc2e5>] hub_thread+0x35/0xf0
+ [<c0344b72>] ret_from_fork+0x6/0x14
+ [<c011b2b0>] default_wake_function+0x0/0x30
+ [<c02cc2b0>] hub_thread+0x0/0xf0
+ [<c0109299>] kernel_thread_helper+0x5/0xc
 
-> If the kernel has got something to say, it should be clear what the
-> kernel means, say, maximum <whatever> rate exceeded or something, not
-> such junk like this.
+Steps to reproduce:
+Mount flash drive, add some files, umount, remove from computer
 
-There are people who do actually have fun developing linux code.  And
-Rusty has a peculiar sense of humor... for further reference see the
-comments like 'furniture shopping' throughout the netfilter/iptables
-source code.  I sometimes wish I had the same humor like he has.
+Note:Happens _probably_ under Linus' tree as well. Don't have time to check
+right now.
 
-Yes, I know.  Stuff like this is not exactly useful in error messages.
-I'd say it's one of the few remainders of the 2.3.x early development
-time.  Like the "Rusty's brain broke" messages that have recently been
-removed/replaced.
 
-btw: *nix has a long history of funny error messages, like 'printer on
-fire' or others.
-
-> This is IMHO a MUST-FIX before 2.6.0.
-
-It is even in 2.4.x, where it could have been fixed throughout the last
-couple of years.  Nobody else has yet complained.
-
-> Matthias Andree
-
---=20
-- Harald Welte <laforge@gnumonks.org>               http://www.gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-Programming is like sex: One mistake and you have to support it your lifeti=
-me
-
---aT9PWwzfKXlsBJM1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/tPBLXaXGVTD0i/8RAp9AAJ9tTrz2L+rfeXQT3QWC9grEKKtWowCfYMcw
-/5qkkIyHiolD7r3M1ZuRkEk=
-=dXv9
------END PGP SIGNATURE-----
-
---aT9PWwzfKXlsBJM1--

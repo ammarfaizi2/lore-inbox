@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262524AbTFJSUY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 14:20:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbTFJSUY
+	id S261919AbTFJS3W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 14:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbTFJS3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 14:20:24 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:8579
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S262524AbTFJSUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 14:20:20 -0400
-Date: Tue, 10 Jun 2003 14:20:37 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: linux-kernel@vger.kernel.org, "" <willy@w.ods.org>, "" <gibbs@scsiguy.com>,
-       "" <marcelo@conectiva.com.br>, "" <green@namesys.com>
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
-In-Reply-To: <20030610194429.615c0e93.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.50.0306101419590.19137-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
- <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com>
- <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com>
- <20030605181423.GA17277@alpha.home.local> <20030608131901.7cadf9ea.skraw@ithnet.com>
- <20030608134901.363ebe42.skraw@ithnet.com> <20030609171011.7f940545.skraw@ithnet.com>
- <Pine.LNX.4.50.0306092135000.19137-100000@montezuma.mastecende.com>
- <20030610123015.4242716e.skraw@ithnet.com>
- <Pine.LNX.4.50.0306100847580.19137-100000@montezuma.mastecende.com>
- <20030610153815.57f7a563.skraw@ithnet.com>
- <Pine.LNX.4.50.0306100949040.19137-100000@montezuma.mastecende.com>
- <20030610194429.615c0e93.skraw@ithnet.com>
+	Tue, 10 Jun 2003 14:29:22 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:42389 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261919AbTFJS3U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 14:29:20 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 10 Jun 2003 11:41:00 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Jesse Pollard <jesse@cats-chateau.net>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Coding standards. (Was: Re: [PATCH] [2.5] Non-blocking write
+ can block)
+In-Reply-To: <03061013171201.06462@tabby>
+Message-ID: <Pine.LNX.4.55.0306101139470.4859@bigblue.dev.mcafeelabs.com>
+References: <Pine.HPX.4.33L.0306040144400.8930-100000@punch.eng.cam.ac.uk>
+ <3EE4D80A.2050402@techsource.com> <Pine.LNX.4.55.0306091142420.3614@bigblue.dev.mcafeelabs.com>
+ <03061013171201.06462@tabby>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jun 2003, Stephan von Krawczynski wrote:
+On Tue, 10 Jun 2003, Jesse Pollard wrote:
 
-> occured before the test. This setup fails during verify (data corruption).
+> On Monday 09 June 2003 13:58, Davide Libenzi wrote:
+> [snip]
+> >
+> > If you try to define a bad/horrible "whatever" in an *absolute* way you
+> > need either the *absolutely* unanimous consent or you need to prove it
+> > using a logical combination of already proven absolute concepts. Since you
+> > missing both of these requirements you cannot say that something is
+> > bad/wrong in an absolute way. You can say though that something is
+> > wrong/bad when dropped inside a given context, and a coding standard might
+> > work as an example. If you try to approach a developer by saying that he
+> > has to use ABC coding standard because it is better that his XYZ coding
+> > standard you're just wrong and you'll have hard time to have him to
+> > understand why he has to use the suggested standard when coding inside the
+> > project JKL. The coding standard gives you the *rule* to define something
+> > wrong when seen inside a given context, since your personal judgement does
+> > not really matter here.
+>
+> The coding standards were written by people who said
+>
+> "Do it this way because 'I' have to read it and understand it to be able to
+> maintain it."
 
-Can you reproduce this with disks only?
+The whole sub-thread wasn't talking about democracy in coding styles ;)
 
-	Zwane
--- 
-function.linuxpower.ca
+
+
+- Davide
+

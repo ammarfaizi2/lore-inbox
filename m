@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263815AbUHQGko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268125AbUHQG5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263815AbUHQGko (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 02:40:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbUHQGko
+	id S268125AbUHQG5r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 02:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268123AbUHQG5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 02:40:44 -0400
-Received: from dslsmtp.struer.net ([62.242.36.21]:18183 "EHLO
-	dslsmtp.struer.net") by vger.kernel.org with ESMTP id S263815AbUHQGkj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 02:40:39 -0400
-Message-ID: <44401.194.237.142.13.1092724838.squirrel@194.237.142.13>
-In-Reply-To: <20040817062017.GL11200@holomorphy.com>
-References: <20040816143710.1cd0bd2c.akpm@osdl.org>
-    <20040817062017.GL11200@holomorphy.com>
-Date: Tue, 17 Aug 2004 08:40:38 +0200 (CEST)
-Subject: Re: 2.6.8.1-mm1
-From: sam@ravnborg.org
-To: "William Lee Irwin III" <wli@holomorphy.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Tue, 17 Aug 2004 02:57:47 -0400
+Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:27476 "HELO
+	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S268125AbUHQG53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 02:57:29 -0400
+From: Shawn Starr <shawn.starr@rogers.com>
+Organization: sh0n.net
+To: bjorn.helgaas@hp.com
+Subject: 2.6.8.1-mm1 broke USB driver with ACPI pci irq routing... info follows
+Date: Tue, 17 Aug 2004 02:57:20 -0400
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_QxaIB/YUAb3A4go"
+Message-Id: <200408170257.26712.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Aug 16, 2004 at 02:37:10PM -0700, Andrew Morton wrote:
->> handle-undefined-symbols.patch
->>   Fail if vmlinux contains undefined symbols
->> sparc32-ignore-undefined-symbols-with-3-or-more-leading-underscores.patch
->>   sparc32: ignore undefined symbols with 3 or more leading underscores
->
-> Okay, this patch has officially made my shitlist along with whatever
-> introduced the second check. The following appears to be necessary to
-> get sparc64 to link, which of course clashes wildly with the UML
-> changes to get *it* to link.
 
-rmk's ldchk in top-level Makefile needs to be backed out. The check
-for undefined symbols are now moved to the mksysmap script.
-The patch doing this was on top of Linus's tree therefore the confusion.
+--Boundary-00=_QxaIB/YUAb3A4go
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-But I see this check causing almost only pain, so I hope during the
-weekend to come up with something that allow us to specify
-the final link rule in the arch Makefile.
-
-Something like:
-*/built-in.o =>
-  vmlinux.o
-  =>
-    kallsyms steps
-    =>
-      arch specific link rule (vmlinux-arch.o)
-      =>
-        vmlinux
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
-Challenge here is to make it elegant without causing changes for
-architectures that do not need it.
-The arm can have the dreadful "check for undefined symbols" if needed.
+here is the lspci info. If I enable pci=routeirq the driver loads fine.
 
-> This scripting crap is fragile and nightmarish. We should probably be
-> examining the ELF bits directly in C.
-I started looking into this but backed out in fear of doing
-too much duplicated work.
-If we do a kernel elf-tool then it should cover
-also the need for btfixup.
+Shawn.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-   Sam
+iD8DBQFBIaxSsX/SQXZigqcRAqLAAJ9sA5kzCWg7EG3MwEcgo9qQ7IjcUQCeM4Kz
+l7F3kjEODcXFiQAdet1LxTg=
+=1LP/
+-----END PGP SIGNATURE-----
 
+--Boundary-00=_QxaIB/YUAb3A4go
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="lspci.dump"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="lspci.dump"
+
+0000:00:00.0 Host bridge: Intel Corp. 82855PM Processor to I/O Controller (rev 03)
+0000:00:01.0 PCI bridge: Intel Corp. 82855PM Processor to AGP Controller (rev 03)
+0000:00:1d.0 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #1 (rev 01)
+0000:00:1d.1 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #2 (rev 01)
+0000:00:1d.2 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #3 (rev 01)
+0000:00:1d.7 USB Controller: Intel Corp. 82801DB/DBM (ICH4/ICH4-M) USB 2.0 EHCI Controller (rev 01)
+0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev 81)
+0000:00:1f.0 ISA bridge: Intel Corp. 82801DBM LPC Interface Controller (rev 01)
+0000:00:1f.1 IDE interface: Intel Corp. 82801DBM (ICH4) Ultra ATA Storage Controller (rev 01)
+0000:00:1f.3 SMBus: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) SMBus Controller (rev 01)
+0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 01)
+0000:00:1f.6 Modem: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Modem Controller (rev 01)
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc RV350 [Mobility Radeon 9600 M10]
+0000:02:00.0 CardBus bridge: Texas Instruments PCI4520 PC card Cardbus Controller (rev 01)
+0000:02:00.1 CardBus bridge: Texas Instruments PCI4520 PC card Cardbus Controller (rev 01)
+0000:02:01.0 Ethernet controller: Intel Corp. 82540EP Gigabit Ethernet Controller (Mobile) (rev 03)
+0000:02:02.0 Network controller: Intel Corp. PRO/Wireless 2200BG (rev 05)
+
+--Boundary-00=_QxaIB/YUAb3A4go--

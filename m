@@ -1,62 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279955AbRJ3OZu>; Tue, 30 Oct 2001 09:25:50 -0500
+	id <S279958AbRJ3OdU>; Tue, 30 Oct 2001 09:33:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279956AbRJ3OZk>; Tue, 30 Oct 2001 09:25:40 -0500
-Received: from genesis.westend.com ([212.117.67.2]:38280 "EHLO
-	genesis.westend.com") by vger.kernel.org with ESMTP
-	id <S279955AbRJ3OZV>; Tue, 30 Oct 2001 09:25:21 -0500
-Date: Tue, 30 Oct 2001 15:25:49 +0100
-From: Christian Hammers <ch@westend.com>
+	id <S279960AbRJ3OdL>; Tue, 30 Oct 2001 09:33:11 -0500
+Received: from [209.195.52.30] ([209.195.52.30]:57377 "HELO [209.195.52.30]")
+	by vger.kernel.org with SMTP id <S279958AbRJ3Oc6>;
+	Tue, 30 Oct 2001 09:32:58 -0500
+From: David Lang <david.lang@digitalinsight.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: BUG() in asm/pci.h:142 with 2.4.13 (cause found!)
-Message-ID: <20011030152549.A18935@westend.com>
-In-Reply-To: <20011025120701.C6557@westend.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011025120701.C6557@westend.com>; from ch@westend.com on Thu, Oct 25, 2001 at 12:07:01PM +0200
+Date: Tue, 30 Oct 2001 06:09:54 -0800 (PST)
+Subject: Re: ipchains redirect failing in 2.4.5 (and 2.4.13)
+In-Reply-To: <Pine.LNX.4.40.0110300535390.1329-100000@dlang.diginsite.com>
+Message-ID: <Pine.LNX.4.40.0110300608240.1329-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+never mind, there was a http redirect comeing back that was causing this
+test to fail.
 
-The cause for my problems with crashing kernels when accessing the tape
-drive were differences between the original external RAID that belongs
-to the machine and a temporarily, nearly equal, RAID that we attached while
-the original was send away for repair. 
-The temp. RAID was Ultra3 160 and /proc/scsi/aic7xxx/0 showed me a cur.
-speed of 160 while the "old" and working one only did Ultra2 with 80Mbit/s.
+back to the trying to find out why the machine slowed down so drasticly
+:-(
 
-I don't know if it's a hardware incompatibility or if the Linux kernel 
-drivers cannot handle this specific case.
+David Lang
 
-The problem exists in 2.4.11-pre6, 2.4.13, 2.4.12-ac6 and 2.4.13 with
-patched from axboa(?) and D. Miller.
- 
-bye,
+On Tue, 30 Oct 2001, David Lang wrote:
 
- -christian-
-
-
-On Thu, Oct 25, 2001 at 12:07:01PM +0200, Christian Hammers wrote:
-...
-> 2.4.13 was the easiest one to reproduce: when starting the tape backup
-> to a HP DDS3/DAT Streamer (C1537A) via a Adaptec SCSI Controller 
-> (Adaptec 7892A in /proc/pci) on a Gigabyte GA-6VTXD Dual Motherboard with
-> two PIII and 2GB of RAM it crashed immediately with the error attached
-> below. The machine was under "stresstest-simulation" load at this time.
-...
-> kernel: kernel BUG at /usr/local/src/kernel/linux-2.4.13/include/asm/pci.h:142!
-...
-> kernel: scsi0:0:0:0: Attempting to queue an ABORT message
-> kernel: (scsi0:A:0:0): Queuing a recovery SCB
-> kernel: scsi0:0:0:0: Device is disconnected, re-queuing SCB  
-...
-
--- 
-Christian Hammers    WESTEND GmbH - Aachen und Dueren     Tel 0241/701333-0
-ch@westend.com     Internet & Security for Professionals    Fax 0241/911879
-           WESTEND ist CISCO Systems Partner - Premium Certified
-
+> Date: Tue, 30 Oct 2001 05:39:33 -0800 (PST)
+> From: David Lang <david.lang@digitalinsight.com>
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: ipchains redirect failing in 2.4.5 (and 2.4.13)
+>
+> I just confirmed that the problem still happens on 2.4.13.
+>
+> I also confirmed that I can suplicate the problem without multiple
+> simultanious connections. if I do ab -n 50 (50 connections as fast as an
+> athlon 1.2GHz can fire them off) I get the same failure. If the
+> connections arrive at a sufficiantly slow rate the redirect works (no idea
+> yet what that rate is yet)
+>
+> doing the test directly to the proxy port results in ~5
+> connections/second. I don't see any reason that this should be enough to
+> cause problems.
+>
+> David Lang
+>
+>
+>  On Tue, 30 Oct 2001, David Lang wrote:
+>
+> > Date: Tue, 30 Oct 2001 05:04:35 -0800 (PST)
+> > From: David Lang <david.lang@digitalinsight.com>
+> > To: linux-kernel@vger.kernel.org
+> > Subject: ipchains redirect failing in 2.4.5
+> >
+> > I am attempting to track down a problem I have run into with 2.4.5
+> >
+> > I have a firewall that has proxies listening on ports 1433-1437. If I
+> > connect to these proxies on these ports I have no problems, however if I
+> > put in an ipchains rule to redirect port 1433 on a second IP address to
+> > port 1436 (for example) and then hammer the box with ab -n 500 -s 20 the
+> > first 20 or so connections get through and then the rest timeout. doing
+> > repeated netstat -an on the firewall during this process shows an inital
+> > burst of 15 connections that get established, a pause, and then a handfull
+> > more get established, followed by those 20 connections being in TIME_WAIT
+> >
+> > again, connection to the same IP address on the real port the proxy is
+> > listening on has no problems, it's only when going through the redirect
+> > that it fails.
+> >
+> > any suggestions, tuning paramaters I missed, or tests I need to run to
+> > track this down?
+> >
+> > David Lang
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

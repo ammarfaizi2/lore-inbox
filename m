@@ -1,78 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263133AbUCMRQY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 12:16:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263134AbUCMRQY
+	id S263130AbUCMR0l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 12:26:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263132AbUCMR0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 12:16:24 -0500
-Received: from stat1.steeleye.com ([65.114.3.130]:24006 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263133AbUCMRQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 12:16:09 -0500
-Subject: i386 very early memory detection cleanup patch breaks the build
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: hpa@zytor.com, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 13 Mar 2004 12:15:38 -0500
-Message-Id: <1079198139.2512.19.camel@mulgrave>
+	Sat, 13 Mar 2004 12:26:40 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:11682 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263130AbUCMR0i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 12:26:38 -0500
+Subject: Re: finding out the value of HZ from userspace
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Micha Feigin <michf@post.tau.ac.il>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040311141703.GE3053@luna.mooo.com>
+References: <20040311141703.GE3053@luna.mooo.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NPGLn1kdAP7HSy50xpOk"
+Organization: Red Hat, Inc.
+Message-Id: <1079198671.4446.3.camel@laptop.fenrus.com>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sat, 13 Mar 2004 18:24:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached should fix it again.
 
-This tampering with the trampoline was extraneous to the actual patch. 
-The rule should be that if you don't understand what something is doing,
-don't try to fix it.
+--=-NPGLn1kdAP7HSy50xpOk
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-In this case CONFIG_X86_TRAMPOLINE is needed for the subarch's that
-provide their own SMP code but still use the standard trampoline.  I
-always thought the visws used the trampoline even in UP boot, but if it
-doesn't, just take out the X86_VISWS dependency.
+On Thu, 2004-03-11 at 15:17, Micha Feigin wrote:
+> Is it possible to find out what the kernel's notion of HZ is from user
+> space?
+> It seem to change from system to system and between 2.4 (100 on i386)
+> to 2.6 (1000 on i386).
 
-James
+if you can see 1000 from userspace that is a bad kernel bug; can you say
+where you find something in units of 1000 ?
 
-P.S.  I'm still compiling, I'll yell again if the patch breaks at
-runtime too.
+--=-NPGLn1kdAP7HSy50xpOk
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-===== arch/i386/Kconfig 1.108 vs edited =====
---- 1.108/arch/i386/Kconfig	Fri Mar 12 03:33:00 2004
-+++ edited/arch/i386/Kconfig	Sat Mar 13 10:55:36 2004
-@@ -1332,6 +1332,11 @@
- 	depends on !(X86_VISWS || X86_VOYAGER)
- 	default y
- 
-+config X86_TRAMPOLINE
-+	bool
-+	depends on SMP || X86_VISWS
-+	default y
-+
- config PC
- 	bool
- 	depends on X86 && !EMBEDDED
-===== arch/i386/defconfig 1.107 vs edited =====
---- 1.107/arch/i386/defconfig	Fri Mar 12 03:30:22 2004
-+++ edited/arch/i386/defconfig	Sat Mar 13 10:55:37 2004
-@@ -1212,4 +1212,5 @@
- CONFIG_X86_SMP=y
- CONFIG_X86_HT=y
- CONFIG_X86_BIOS_REBOOT=y
-+CONFIG_X86_TRAMPOLINE=y
- CONFIG_PC=y
-===== arch/i386/kernel/Makefile 1.56 vs edited =====
---- 1.56/arch/i386/kernel/Makefile	Fri Mar 12 03:30:22 2004
-+++ edited/arch/i386/kernel/Makefile	Sat Mar 13 10:55:37 2004
-@@ -18,7 +18,8 @@
- obj-$(CONFIG_X86_CPUID)		+= cpuid.o
- obj-$(CONFIG_MICROCODE)		+= microcode.o
- obj-$(CONFIG_APM)		+= apm.o
--obj-$(CONFIG_X86_SMP)		+= smp.o smpboot.o trampoline.o
-+obj-$(CONFIG_X86_SMP)		+= smp.o smpboot.o
-+obj-$(CONFIG_X86_TRAMPOLINE)	+= trampoline.o
- obj-$(CONFIG_X86_MPPARSE)	+= mpparse.o
- obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o nmi.o
- obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD4DBQBAU0PPxULwo51rQBIRAtBWAJ9p6pyFMtuEifJ+PenkjM66R3jSkQCXXUPG
+okQoj6reGqGXK0LAHi9ZrQ==
+=NeQV
+-----END PGP SIGNATURE-----
+
+--=-NPGLn1kdAP7HSy50xpOk--
 

@@ -1,81 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262680AbVAVIPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262683AbVAVIyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262680AbVAVIPf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 03:15:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbVAVIPe
+	id S262683AbVAVIyi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 03:54:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262684AbVAVIyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 03:15:34 -0500
-Received: from mail.kroah.org ([69.55.234.183]:7647 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262680AbVAVIPV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 03:15:21 -0500
-Date: Sat, 22 Jan 2005 00:05:56 -0800
-From: Greg KH <greg@kroah.com>
-To: Mitch Williams <mitch.a.williams@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] disallow seeks and appends on sysfs files
-Message-ID: <20050122080556.GA6999@kroah.com>
-References: <Pine.CYG.4.58.0501211441430.3364@mawilli1-desk2.amr.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.CYG.4.58.0501211441430.3364@mawilli1-desk2.amr.corp.intel.com>
-User-Agent: Mutt/1.5.6i
+	Sat, 22 Jan 2005 03:54:38 -0500
+Received: from mailout.despammed.com ([65.112.71.29]:61666 "EHLO
+	mailout.despammed.com") by vger.kernel.org with ESMTP
+	id S262683AbVAVIyh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 03:54:37 -0500
+Date: Sat, 22 Jan 2005 02:37:42 -0600 (CST)
+Message-Id: <200501220837.j0M8bgk22582@mailout.despammed.com>
+From: ndiamond@despammed.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: negative diskspace usage
+X-Mailer: despammed.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 21, 2005 at 02:49:39PM -0800, Mitch Williams wrote:
-> This patch causes sysfs to return errors if the caller attempts to append
-> to or seek on a sysfs file.
+Wichert Akkerman wrote:
 
-And what happens to it today if you do either of these?
-
-Also, isn't this two different things?
-
+> After cleaning up a bit df suddenly showed interesting results:
 > 
-> Generated from 2.6.11-rc1.
+> Filesystem            Size  Used Avail Use% Mounted on
+> /dev/md4             1019M  -64Z  1.1G 101% /tmp
 > 
-> Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
-> 
-> diff -uprN -X dontdiff linux-2.6.11-clean/fs/sysfs/file.c linux-2.6.11/fs/sysfs/file.c
-> --- linux-2.6.11-clean/fs/sysfs/file.c	2004-12-24 13:33:50.000000000 -0800
-> +++ linux-2.6.11/fs/sysfs/file.c	2005-01-21 13:09:21.000000000 -0800
-> @@ -281,6 +281,11 @@ static int check_perm(struct inode * ino
->  	if (!ops)
->  		goto Eaccess;
-> 
-> +	/* Is the file is open for append?  Sorry, we don't do that. */
-> +	if (file->f_flags & O_APPEND) {
-> +		goto Einval;
-> +	}
+> Filesystem           1K-blocks      Used Available Use% Mounted on
+> /dev/md4               1043168 -73786976294838127736   1068904 101% /tmp
 
-Please, no {} for one line if statements.  Like the one above it :)
+It looks like Windows 95's FDISK
+command created the partitions.
+After that it doesn't matter which
+operating systems you connect the
+drive to when formatting the
+partitions and writing files and
+cleaning whatever you want to clean.
+The partition boundaries still remain
+where Windows 95 put them, and you
+have overlapping partitions.
 
-
-
-> +
->  	/* File needs write support.
->  	 * The inode's perms must say it's ok,
->  	 * and we must have a store method.
-> @@ -312,6 +302,10 @@ static int check_perm(struct inode * ino
->  		file->private_data = buffer;
->  	} else
->  		error = -ENOMEM;
-> +
-> +	/*  Set mode bits to disallow seeking.  */
-> +	file->f_mode &= ~(FMODE_LSEEK | FMODE_PREAD | FMODE_PWRITE);
-> +
->  	goto Done;
-> 
->   Einval:
-> @@ -368,7 +343,7 @@ static int sysfs_release(struct inode *
->  struct file_operations sysfs_file_operations = {
->  	.read		= sysfs_read_file,
->  	.write		= sysfs_write_file,
-> -	.llseek		= generic_file_llseek,
-> +	.llseek		= no_llseek,
->  	.open		= sysfs_open_file,
->  	.release	= sysfs_release,
->  };
-
--- 
+After backing up whatever files you
+can still access (and don't trust
+the contents of the files either),
+zero out the MBR and start over.

@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270021AbRHQJwD>; Fri, 17 Aug 2001 05:52:03 -0400
+	id <S270031AbRHQJxD>; Fri, 17 Aug 2001 05:53:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270025AbRHQJvn>; Fri, 17 Aug 2001 05:51:43 -0400
-Received: from mx6.port.ru ([194.67.57.16]:13071 "EHLO mx6.port.ru")
-	by vger.kernel.org with ESMTP id <S270021AbRHQJve>;
-	Fri, 17 Aug 2001 05:51:34 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.9-irda - compilation failure
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.30.69]
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15XgI6-0003rC-00@f12.port.ru>
-Date: Fri, 17 Aug 2001 13:51:46 +0400
+	id <S270025AbRHQJwx>; Fri, 17 Aug 2001 05:52:53 -0400
+Received: from cnxt10002.conexant.com ([198.62.10.2]:56424 "EHLO
+	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
+	id <S270031AbRHQJwn>; Fri, 17 Aug 2001 05:52:43 -0400
+Date: Fri, 17 Aug 2001 11:52:15 +0200 (CEST)
+From: <rui.p.m.sousa@clix.pt>
+X-X-Sender: <rsousa@sophia-sousar2.nice.mindspeed.com>
+To: Krishnakumar B <kitty@cs.wustl.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: Bass & Treble no longer work with emu10k1 on Linux-2.4.9
+In-Reply-To: <15228.22838.327612.439034@samba.doc.wustl.edu>
+Message-ID: <Pine.LNX.4.33.0108171149120.9296-100000@sophia-sousar2.nice.mindspeed.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc-2.95.3
+On Thu, 16 Aug 2001, Krishnakumar B wrote:
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.9/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586    -c -o smc-ircc.o smc-ircc.c
-smc-ircc.c: In function `smc_access':
-smc-ircc.c:171: smc_access causes a section type conflict
-smc-ircc.c: In function `smc_probe':
-smc-ircc.c:183: smc_probe causes a section type conflict
-smc-ircc.c: In function `smc_superio_fdc':
-smc-ircc.c:343: smc_superio_fdc causes a section type conflict
-smc-ircc.c: In function `smc_superio_lpc':
-smc-ircc.c:357: smc_superio_lpc causes a section type conflict
-smc-ircc.c: In function `ircc_init':
-smc-ircc.c:379: ircc_init causes a section type conflict
-smc-ircc.c: In function `ircc_open':
-smc-ircc.c:420: ircc_open causes a section type conflict
-make[4]: *** [smc-ircc.o] Error 1
-make[4]: Leaving directory `/usr/src/linux-2.4.9/drivers/net/irda'
+> Hi,
+>
+> I upgraded my kernel to Linux-2.4.9. Bass & Treble controls no longer work
+> (I don't see any entry in any of the mixer utils that I have) with my
+> SoundBlaster Live! card.
 
+You need new user space tools to get this going. They are available at:
 
+http://opensource.creative.com/dist.html
 
----
+> It works fine with Linux-2.4.8-ac3 which is the
+> latest -ac series that I have tried. gmix shows TriTech TR????? whereas it
+> used to show Creative SoundBlaster Live! previously.
 
+This is normal. Your card has a TriTech ac97 codec.
 
-cheers,
+> Any help is appreciated.
 
+Rui Sousa
 
-   Samium Gromoff

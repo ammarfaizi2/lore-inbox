@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264481AbUAORld (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 12:41:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265128AbUAORld
+	id S265167AbUAORsN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 12:48:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265176AbUAORsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 12:41:33 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:24488 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264481AbUAORlc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 12:41:32 -0500
-Date: Thu, 15 Jan 2004 18:41:29 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Murilo Pontes <murilo_pontes@yahoo.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] ABNT2 keyboards not work with >= 2.6.1 with or without -mm patchs
-Message-ID: <20040115174129.GA10701@ucw.cz>
-References: <200401142326.21543.murilo_pontes@yahoo.com.br> <200401151126.02722.murilo_pontes@yahoo.com.br> <20040115143252.GA1266@ucw.cz> <200401151426.28510.murilo_pontes@yahoo.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401151426.28510.murilo_pontes@yahoo.com.br>
-User-Agent: Mutt/1.5.4i
+	Thu, 15 Jan 2004 12:48:13 -0500
+Received: from 5.Red-80-32-157.pooles.rima-tde.net ([80.32.157.5]:15109 "EHLO
+	smtp.newipnet.com") by vger.kernel.org with ESMTP id S265167AbUAORsL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 12:48:11 -0500
+Message-ID: <200401151847570144.05F52854@192.168.128.16>
+X-Mailer: Courier 3.50.00.09.1092 (http://www.rosecitysoftware.com) (P)
+Date: Thu, 15 Jan 2004 18:47:57 +0100
+From: "Carlos Velasco" <lkernel@newipnet.com>
+To: linux-kernel@vger.kernel.org
+Subject: iswraid calling modprobe when scsi statically compiled?
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 02:26:28PM +0000, Murilo Pontes wrote:
+Hello,
 
-> I patch original 2.6.1 
-> Ok, your lastest patch work 100%, Thanks :)
-> 
-> It will be present in 2.6.2?
+I'm trying to use Intel Software Raid provided patch in:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=106972332715043&w=2
 
-I hope so, yes.
+However, it seems to be calling modprobe although SCSI support is
+statically configured in the kernel:
 
-> Em Qui 15 Jan 2004 14:32, Vojtech Pavlik escreveu:
-> > On Thu, Jan 15, 2004 at 11:26:02AM +0000, Murilo Pontes wrote:
-> > > I try 2.6.1-mm3 still not working
-> > >
-> > > Em Qui 15 Jan 2004 07:24, voc? escreveu:
-> > > > On Wed, Jan 14, 2004 at 11:26:21PM +0000, Murilo Pontes wrote:
-> > > > > BUG: ABNT2 keyboards not work with >= 2.6.1 with or without -mm
-> > > > > patchs DESCRIPTION: The "/ ?" not work on console-framebuffer
-> > > >
-> > > > Known problem. They should work with recent -mm (if Andrew applied my
-> > > > patch), and that patch should go to 2.6.2 soon. Please test if it works
-> > > > correctly with latest -mm kernel.
-> >
-> > Yes, this patch (attached) is still not in -mm3. Hopefully it'll be in
-> > -mm4.
+modules.conf:
+alias block-major-8 sd_mod
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+.config (kernel):
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=40
+
+Booting:
+
+<6>iswraid: Intel(tm) Software RAID driver Version 0.0.6
+<3>kmod: failed to exec /sbin/modprobe -s -k block-major-8, errno = 2
+       <-- ***
+<7>iswraid: No raid array found
+<6>SCSI subsystem driver Revision: 1.00
+<7>libdata version 0.81 loaded.
+<7>ata_piix version 0.95
+<7>PCI: Setting latency timer of device 00:1f.2 to 64
+<6>ata1: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 18
+<6>ata2: SATA max UDMA/133 cmd 0xC800 ctl 0xC402 bmdma 0xD000 irq 18
+<7>ata1: dev 0 cfg 49:2f00 82:7c69 83:7f09 84:4003 85:7c69 86:3e01
+87:4003 88:407f
+<6>ata1: dev 0 ATA, max UDMA/133, 160086528 sectors (lba48)
+<6>ata1: dev 0 configured for UDMA/133
+<7>ata2: dev 0 cfg 49:2f00 82:7c69 83:7f09 84:4003 85:7c69 86:3e01
+87:4003 88:407f
+<6>ata2: dev 0 ATA, max UDMA/133, 160086528 sectors (lba48)
+<6>ata2: dev 0 configured for UDMA/133
+<6>scsi0 : ata_piix
+<6>scsi1 : ata_piix
+...
+
+It can't succed because I'm booting without modprobe at all (Intel RAID
+card is the only one controller).
+Any help would be apreciated.
+
+Regards,
+Carlos Velasco
+
+

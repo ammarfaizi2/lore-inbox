@@ -1,70 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265329AbRF0NCX>; Wed, 27 Jun 2001 09:02:23 -0400
+	id <S261274AbRF0N2E>; Wed, 27 Jun 2001 09:28:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265345AbRF0NCN>; Wed, 27 Jun 2001 09:02:13 -0400
-Received: from brule.borg.umn.edu ([160.94.232.10]:4361 "EHLO
-	brule.borg.umn.edu") by vger.kernel.org with ESMTP
-	id <S265344AbRF0NB7>; Wed, 27 Jun 2001 09:01:59 -0400
-From: Peter Bergner <bergner@borg.umn.edu>
-Date: Wed, 27 Jun 2001 08:43:55 -0500
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Microsoft and Xenix.
-Message-ID: <20010627084355.A57645@brule.borg>
-In-Reply-To: <E15DZbq-0008D8-00@roo.home> <01062310075401.00696@localhost.localdomain> <83WVxfbXw-B@khms.westfalen.de> <01062611162702.12583@localhost.localdomain> <20010626172654.B588@munchkin.spectacle-pond.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
-In-Reply-To: <20010626172654.B588@munchkin.spectacle-pond.org>
+	id <S261198AbRF0N1z>; Wed, 27 Jun 2001 09:27:55 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:59717 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S261274AbRF0N1p>; Wed, 27 Jun 2001 09:27:45 -0400
+Date: Wed, 27 Jun 2001 08:26:55 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200106271326.IAA03158@tomcat.admin.navo.hpc.mil>
+To: landley@webofficenow.com, <asmith@14inverleith.freeserve.co.uk>,
+        Kai Henningsen <kaih@khms.westfalen.de>
+Subject: Re: [comphist] Re: Microsoft and Xenix.
+In-Reply-To: <01062610445301.12583@localhost.localdomain>
+Cc: <linux-kernel@vger.kernel.org>, <penguicon-comphist@lists.sourceforge.net>
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First off, my apologies for posting this from my non-work email address.
->From my .sig below, you'll see I work for IBM, Rochester.
+Rob Landley <landley@webofficenow.com>:
+> On Monday 25 June 2001 16:19, asmith@14inverleith.freeserve.co.uk wrote:
+...
+> > I learnt my computing on a PDP8/E with papertape punch/reader, RALF,
+> > Fortran II, then later 2.4Mb removable cartridges (RK05 I think).  toggling
+> > in the bootstrap improved your concentration. Much later you could
+> > get a single chip(?) version of this in a wee knee sized box.
+> 
+> "A quarter century of unix" mentions RK05 cartridges several times, but never 
+> says much ABOUT them.
+> 
+> Okay, so they're 2.4 megabyte removable cartridges?  How big?  Are they tapes 
+> or disk packs?  (I.E. can you run off of them or are they just storage?)  I 
+> know lots of early copies of unix were sent out from Bell Labs on RK05 
+> cartidges signed "love, ken"...
 
+Ah, the memories... (apologies for the interruptions, but just had too ...)
 
-Rob Landley wrote:
-: The AS400 seems to be based out of Austin.  We hear a lot about it around 
-: here...
+RK05 cartriges looked very similar to a floppy case the size of an old 78 RPM
+record (about 12 inches across, 2 - 3 inches high). I never used them, but
+I did see them. They were among the first disk drives DEC ever made. Not the
+first (I think that was a DF-32 for PDP 8 systems with 32 K bytes of disk
+space). The raw storage was reported as 2.5 MB, formatted was ~2.4MB, with
+two recording surfaces. The drive looked very similar to a modern CD drive
+that would fit in about a 3U (ummm 4U?) 19 inch rack. It had 2 recording
+surfaces. It did have a write enable/disable switch. If I remember right
+these were originally made for the PDP 11/10-20 systems used for laboratory
+device control - chromatographs were mentioned by the chemistry department
+back in school.
 
-and...
+I may have an old DEC peripheral specification book at home (11/45 version).
+I really liked those books that DEC used to put out. If you ever needed to
+program a DEC interface, that book had everything. It was almost like the
+engineers were bragging about how easy the interfaces were to program.
 
-Michael Meissner wrote:
-: Ummm, the AS/400 was based out of Rochester, Minnesota at least initially.
-[snip]
-: Now that AS/400's are based on special PowerPC's, the home may have moved
-: to Austin, which is the PowerPC/AIX center.
+> What was that big reel to reel tape they always show in movies, anyway?
 
-The AS/400 (now named iSeries) is and always has been produced in
-Rochester Minnesota.  The RS/6000 (now named pSeries) is designed
-in Austin.  Both the AS/400 and the RS/6000 are manufactured in
-Rochester.  As of some model which escapes me now, both AS/400 and
-RS/6000 computers use the *same* PowerPC processor.  The only
-difference is that the AS/400 runs the processor in "tags active"
-mode (ie, the 65th tag bit enabled).  The first PowerPC processors
-used in the AS/400 was designed here in Rochester.  Follow-ons were
-designed in Austin.
+I think they were CDC transports.
 
+> I need a weekend just to collate stuff...
+> 
+> > One summer job was working on a PDP15 analog computer alongside an 11/20
+> > with DECTAPE, trying to compute missile firing angles. [A simple version of
+> > Pres Bush's starwars shield].
+> 
+> Considering that the Mark I was designed to compute tables of artillery 
+> firing angles during World War II...  It's a distinct trend, innit?  And the 
+> source of the game "artillery duel", of course...
 
-Kai Henningsen wrote:
-: ISTR there's a gcc port for the AS/400.
+Or the 11/34 version of the Lunar Lander (load from paper tape, graphics
+display on VT11 - 512x512 8 bit color). It used to be distributed as a
+diagnostic tool (hardware level interrupts, dual A/D conversion via joystick,
+I/O via VT11). Any memory, DMA, or bus configuration errors would hang
+the system with a known diagnostic one-liner message explaining the problem.
 
-Due to the fact that the AS/400 has 1 address space shared by all
-processes, several restrictions have been implemented.  The main
-restriction regarding your statement above is that *all* code that runs
-on the AS/400 is compiled by the "trusted" translator (an exception
-would be our Java JIT).  This means you cannot create a binary with gcc
-and hope to run it on the AS/400.  However, you may use gcc to produce
-MI instructions which can then be passed to the trusted translator.
+I also saw a report of a "terminal warfare" event where the graphics display
+was being used for text editing when two little stick figure men would walk
+onto the display, pick up a line, and then walk off the screen. There was
+nothing the user could do until it finished. The text buffer wasn't touched,
+only the display buffer.
 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-
-Peter
-
---
-Peter Bergner
-SLIC Optimizing Translator Development / Linux PPC64 Kernel Development
-IBM Rochester, MN
-bergner@us.ibm.com
-
-
+Any opinions expressed are solely my own.

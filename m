@@ -1,65 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261860AbTDQS1J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 14:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTDQS1J
+	id S261866AbTDQS15 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 14:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbTDQS14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 14:27:09 -0400
-Received: from watch.techsource.com ([209.208.48.130]:38394 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S261860AbTDQS1I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 14:27:08 -0400
-Message-ID: <3E9EF729.4000101@techsource.com>
-Date: Thu, 17 Apr 2003 14:49:13 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] only use 48-bit lba when necessary
-References: <200304041203_MC3-1-3302-C615@compuserve.com> <20030417142020.GB23277@waste.org> <3E9EC71B.5000901@techsource.com> <20030417160530.GD23277@waste.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 17 Apr 2003 14:27:56 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:53436 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S261866AbTDQS1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 14:27:53 -0400
+Date: Thu, 17 Apr 2003 11:40:16 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Recent changes broke mkinitrd?
+Message-Id: <20030417114016.6b7074f1.akpm@digeo.com>
+In-Reply-To: <20030417111303.706d7246.shemminger@osdl.org>
+References: <20030417111303.706d7246.shemminger@osdl.org>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Apr 2003 18:39:39.0426 (UTC) FILETIME=[B403A820:01C30510]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Matt Mackall wrote:
-
->  
+Stephen Hemminger <shemminger@osdl.org> wrote:
 >
->>>      
->>>
->>What's ugly about them? 
->>    
->>
->
->It doesn't pass the test of "would I use it if I didn't think it was
->faster?"
->
->As I pointed out, your variant is not faster with a reasonable
->compiler, only less obvious. And none of this sort of optimization
->will ever be measurably better in the IO path anyway. But every one of
->these false optimizations is a barrier to the understanding that will
->allow real cleanups to make fundamental improvements.
->
->  
->
-Agreed, but in this case, it's simply a matter of culture.  If some of 
-these things were more common, then they would pass the test, like the 
-use of "!!".
+> Recent (post 2.5.67) versions of the kernel break the creation
+> of the initial ram disk.
 
-One thing for your side of the argument is that if something works, 
-don't mess with it and risk breaking it, especially if it has no 
-practical impact on performance.
+hmm, so it did.  It'll be the ext2 changes.  mkinitrd works OK if you use
+ext3:
 
-If we really wanted to improve readability, we could start doing 
-something like Windows developers are so fond of doing and use Hungarian 
-Notation.  I know it's ugly, and we eschew anything to do with 
-Microsoft, but once you get used to it, it can be very helpful in 
-keeping things straight.
+--- mkinitrd.orig	2003-04-17 11:38:49.000000000 -0700
++++ mkinitrd	2003-04-17 11:39:01.000000000 -0700
+@@ -473,7 +473,7 @@
+ 
+ # We have to "echo y |" so that it doesn't complain about $IMAGE not
+ # being a block device
+-echo y | mke2fs $LODEV $IMAGESIZE >/dev/null 2>/dev/null
++echo y | mke2fs -j $LODEV $IMAGESIZE >/dev/null 2>/dev/null
+ tune2fs -i0 $LODEV >/dev/null
+ 
+ if [ -n "$verbose" ]; then
+@@ -481,7 +481,7 @@
+ fi
+ 
+ mkdir -p $MNTPOINT
+-mount -t ext2 $LODEV $MNTPOINT || {
++mount -t ext3 $LODEV $MNTPOINT || {
+ 	echo "Can't get a loopback device"
+ 	exit 1
+ }
 
-
+I'll take a look...

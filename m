@@ -1,205 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262195AbVCVHhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262263AbVCVHl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262195AbVCVHhH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 02:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbVCVHhG
+	id S262263AbVCVHl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 02:41:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbVCVHl0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 02:37:06 -0500
-Received: from mato.luukku.com ([193.209.83.251]:49298 "EHLO mato.luukku.com")
-	by vger.kernel.org with ESMTP id S262195AbVCVHcc (ORCPT
+	Tue, 22 Mar 2005 02:41:26 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:26802 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S262263AbVCVHk5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 02:32:32 -0500
-Subject: Re: Fusion-MPT much faster as module
-From: Janne Pikkarainen <jaba@mikrobitti.fi>
+	Tue, 22 Mar 2005 02:40:57 -0500
+Date: Tue, 22 Mar 2005 08:41:46 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Holger Kiehl <Holger.Kiehl@dwd.de>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, "Moore, Eric Dean" <emoore@lsil.com>
-In-Reply-To: <20050321152723.4b86dc3a.akpm@osdl.org>
-References: <Pine.LNX.4.61.0503081327560.28812@praktifix.dwd.de>
-	 <20050321152723.4b86dc3a.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 22 Mar 2005 09:32:30 +0200
-Message-Id: <1111476750.9640.56.camel@82-203-174-157.dsl.gohome.fi>
+Cc: Andy Isaacson <adi@hexapodia.org>, linux-kernel@vger.kernel.org,
+       linux-input@atrey.karlin.mff.cuni.cz
+Subject: Re: 2.6.11-rc4: Alps touchpad too slow
+Message-ID: <20050322074146.GA3360@ucw.cz>
+References: <20050304221523.GA32685@hexapodia.org> <20050321144412.5e6d9398.akpm@osdl.org> <20050322061336.GA2809@hexapodia.org> <20050321222514.7f98e255.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050321222514.7f98e255.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone,
+On Mon, Mar 21, 2005 at 10:25:14PM -0800, Andrew Morton wrote:
 
-On Mon, 2005-03-21 at 15:27 -0800, Andrew Morton wrote:
-> > On a four CPU Opteron compiling the Fusion-MPT as module gives much better
-> > performance when compiling it in, here some bonnie++ results:
-> > 
-> > Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
-> >                      -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-> > Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-> > compiled in  15872M 38366 71  65602  22 18348   4 53276 84  57947   7 905.4   2
-> > module       15872M 51246 96 204914  70 57236  14 59779 96 264171  33 923.0   2
-> > 
-> > This happens with 2.6.10, 2.6.11 and 2.6.11-bk2. Controller is a
-> > Symbios Logic 53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI.
-> > 
-> > Why is there such a large difference?
-> > 
+> > With cvsbk rev 423b66b6oJOGN68OhmSrBFxxLOtIEA (rsynced Monday, it claims
+> > to be "2.6.12-rc1"), the situation is much improved.  The AlpsPS/2
+> > driver recognizes the trackpad, tracking speed is back to normal, and
+> > tapping is turned on by default.  (Drat, now I need to figure out how to
+> > turn that off again.)
+
+Setting "MaxTapTime" in XF86Config if you're using the Synaptics X
+driver, or mousedev.maxtaptime=0 if you are using /dev/input.mice, to 0
+should work.
+
+> Wonderful, thanks.
 > 
-> Holger, this problem remains unresolved, does it not?  Have you done any
-> more experimentation?
+> > The kernel output is a bit odd, though:
+> > 
+> > [ 1200.254707] Adding 987988k swap on /dev/hda3.  Priority:-1 extents:1
+> > [ 1200.330453] EXT3 FS on hda2, internal journal
+> > [ 1203.504154] SCSI subsystem initialized
+> > [ 1204.039053]   Enabling hardware tapping
+> > [ 1204.099034] ieee1394: Initialized config rom entry `ip1394'
+> > [ 1204.266077] input: PS/2 Mouse on isa0060/serio1
+> > [ 1204.400583] input: AlpsPS/2 ALPS GlidePoint on isa0060/serio1
+> > [ 1204.779799] sbp2: $Rev: 1219 $ Ben Collins <bcollins@debian.org>
+> > [ 1206.183165] kjournald starting.  Commit interval 5 seconds
+> > 
+> > Note how the "Enabling hardware tapping" message is several lines
+> > earlier than it seems it should be... I don't think I'm supposed to be
+> > tapping on my SCSI hardware.
+> > 
+> > ... ah, I think I'm missing the "ALPS GlidePoint detected" message which
+> > I used to get.  Without it, the "Enabling hardware tapping" message is a
+> > bit opaque.
+> 
+> Yes, alps_init() had a printk removed and now the output looks funny.
 
-Quick summary: 
-- older IBM xSeries 335 + kernel 2.4.26 = surprisingly slow
-- older IBM xSeries 335 + kernel 2.6.8 = pretty fast
-- newer IBM xSeries 335 + kernel 2.6.9 = pretty fast
-- newer IBM xSeries 335 (and a 336) + kernel 2.6.10 = surprisingly slow
+I think just removing the message is better.
 
-Longer story:
-I'm administering bunch of IBM xSeries 335 servers (and one 336, too),
-all equipped with the exactly same SCSI controller than in the case
-above. In every server Fusion MPT module is compiled straight into
-kernel and disk setup is two identical SCSI hard drives in RAID-1 mode.
-For the 2.6.x servers about the same kernel .config file is used.
+> diff -puN drivers/input/mouse/alps.c~alps-printk-tidy drivers/input/mouse/alps.c
+> --- 25/drivers/input/mouse/alps.c~alps-printk-tidy	2005-03-21 22:23:46.000000000 -0800
+> +++ 25-akpm/drivers/input/mouse/alps.c	2005-03-21 22:23:53.000000000 -0800
+> @@ -395,7 +395,7 @@ int alps_init(struct psmouse *psmouse)
+>  	}
+>  
+>  	if (param[0] & 0x04) {
+> -		printk(KERN_INFO "  Enabling hardware tapping\n");
+> +		printk(KERN_INFO "alps.c: Enabling hardware tapping\n");
+>  		if (alps_tap_mode(psmouse, 1))
+>  			printk(KERN_WARNING "alps.c: Failed to enable hardware tapping\n");
+>  	}
+> _
 
-One of the older servers (still using kernel 2.6.8) with P4 Xeon 2.0 GHz
-and ~70 GB U320 SCSI disk gives me pretty good results:
-
----
-hdparm -t /dev/sda
-
-/dev/sda:
- Timing buffered disk reads:  136 MB in  3.02 seconds =  45.01 MB/sec
----
-
-Identical hardware, but with kernel 2.4.25:
-
----
-hdparm -t /dev/sda
-
-/dev/sda:
- Timing buffered disk reads:  64 MB in  3.35 seconds = 19.10 MB/sec
----
-
-A newer generation of x335 (using kernel 2.6.9) with dual P4 Xeon 3.0
-GHz and ~70 GB U320 SCSI disk:
-
----
-hdparm -t /dev/sda
-
-/dev/sda:
- Timing buffered disk reads:  130 MB in  3.07 seconds =  42.35 MB/sec
----
-
-Still a bit newer generation of x335 with P4 Xeon 3.06 GHz and ~140 GB
-U320 SCSI disk, using kernel 2.6.10 is a big disappoitment:
-
----
-hdparm -t /dev/sda
-
-/dev/sda:
- Timing buffered disk reads:   48 MB in  3.11 seconds =  15.43 MB/sec
----
-
-And the latest x336 with dual P4 Xeon 3.2 GHz (using kernel 2.6.10) with
-~140 GB U320 SCSI disk is also very disappointing:
-
----
-hdparm -t /dev/sda
-
-/dev/sda:
- Timing buffered disk reads:   58 MB in  3.02 seconds =  19.20 MB/sec
----
-
-Some info about the oldest x335:
-
----
-mptbase: Initiating ioc0 bringup
-ioc0: 53C1030: Capabilities={Initiator}
-Fusion MPT SCSI Host driver 3.01.09
-scsi0 : ioc0: LSI53C1030, FwRev=01000e00h, Ports=1, MaxQ=222, IRQ=177
-  Vendor: LSILOGIC  Model: 1030 IM           Rev: 1000
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-SCSI device sda: 143372288 512-byte hdwr sectors (73407 MB)
-SCSI device sda: drive cache: write back
- /dev/scsi/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 p8 >
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
-  Vendor: IBM       Model: 25P3495a S320  1  Rev: 1
-  Type:   Processor                          ANSI SCSI revision: 02
----
-
-A bit newer x335 with kernel 2.6.9:
-
----
-mptbase: Initiating ioc0 bringup
-ioc0: 53C1030: Capabilities={Initiator}
-Fusion MPT SCSI Host driver 3.01.16
-scsi0 : ioc0: LSI53C1030, FwRev=01000e00h, Ports=1, MaxQ=222, IRQ=22
-  Vendor: LSILOGIC  Model: 1030 IM           Rev: 1000
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-SCSI device sda: 143372288 512-byte hdwr sectors (73407 MB)
-SCSI device sda: drive cache: write back
- /dev/scsi/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 p8 >
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
-  Vendor: IBM       Model: 25P3495a S320  1  Rev: 1
-  Type:   Processor                          ANSI SCSI revision: 02
-Attached scsi generic sg1 at scsi0, channel 0, id 8, lun 0,  type 3
----
-
-And the latest x335 we have:
-
----
-Fusion MPT base driver 3.01.18
-Copyright (c) 1999-2004 LSI Logic Corporation
-ACPI: PCI interrupt 0000:01:01.0[A] -> GSI 22 (level, low) -> IRQ 169
-mptbase: Initiating ioc0 bringup
-ioc0: 53C1030: Capabilities={Initiator}
-Fusion MPT SCSI Host driver 3.01.18
-scsi0 : ioc0: LSI53C1030, FwRev=01032316h, Ports=1, MaxQ=222, IRQ=169
-  Vendor: LSILOGIC  Model: 1030 IM           Rev: 1000
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-SCSI device sda: 286746624 512-byte hdwr sectors (146814 MB)
-SCSI device sda: drive cache: write back
-SCSI device sda: 286746624 512-byte hdwr sectors (146814 MB)
-SCSI device sda: drive cache: write back
- /dev/scsi/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 p8 >
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
-  Vendor: IBM       Model: 25P3495a S320  1  Rev: 1
-  Type:   Processor                          ANSI SCSI revision: 02
-Attached scsi generic sg1 at scsi0, channel 0, id 8, lun 0,  type 3
----
-
-x336:
-
----
-mptbase: Initiating ioc0 bringup
-ioc0: 53C1030: Capabilities={Initiator}
-Fusion MPT SCSI Host driver 3.01.18
-scsi0 : ioc0: LSI53C1030, FwRev=01032316h, Ports=1, MaxQ=222, IRQ=169
-  Vendor: LSILOGIC  Model: 1030 IM           Rev: 1000
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-SCSI device sda: 286746624 512-byte hdwr sectors (146814 MB)
-SCSI device sda: drive cache: write back
-SCSI device sda: 286746624 512-byte hdwr sectors (146814 MB)
-SCSI device sda: drive cache: write back
- /dev/scsi/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 p8 >
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
-  Vendor: IBM       Model: 25P3495a S320  1  Rev: 1
-  Type:   Processor                          ANSI SCSI revision: 02
-Attached scsi generic sg1 at scsi0, channel 0, id 8, lun 0,  type 3
----
-
-I'll gladly be your test puppet and provide you any further information
-you may need and can also upgrade the 2.6.8 server to be a 2.6.11 one
-and/or test the Fusion MPT as a kernel module. I cannot boot the servers
-at will, though, except the 2.6.8 one which is more or less only a
-testbed server.
-
-
-Best regards,
-
-Janne Pikkarainen
- 
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

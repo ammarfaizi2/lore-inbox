@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262657AbREVQze>; Tue, 22 May 2001 12:55:34 -0400
+	id <S262659AbREVQ5E>; Tue, 22 May 2001 12:57:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262656AbREVQzY>; Tue, 22 May 2001 12:55:24 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:16657 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262643AbREVQzN>; Tue, 22 May 2001 12:55:13 -0400
-Message-ID: <3B0A99E7.467CE534@transmeta.com>
-Date: Tue, 22 May 2001 09:55:03 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
-In-Reply-To: <3B0A28C0.2FFFC935@TeraPort.de> <3B0A3794.15BDF9D6@TeraPort.de>
+	id <S262658AbREVQ4o>; Tue, 22 May 2001 12:56:44 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:30613 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S262656AbREVQ4e>; Tue, 22 May 2001 12:56:34 -0400
+Date: Tue, 22 May 2001 12:56:26 -0400
+To: Ryan Cumming <bodnar42@bodnar42.dhs.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        Jeff Dike <jdike@karaya.com>
+Subject: UML cross-platform build problems (was Re: [PATCH] include/linux/coda.h)
+Message-ID: <20010522125625.A3985@cs.cmu.edu>
+Mail-Followup-To: Ryan Cumming <bodnar42@bodnar42.dhs.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+	Jeff Dike <jdike@karaya.com>
+In-Reply-To: <E152DEZ-0001y7-00@the-village.bc.nu> <Pine.LNX.4.33L2.0105220924560.32368-100000@bodnar42.dhs.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <Pine.LNX.4.33L2.0105220924560.32368-100000@bodnar42.dhs.org>; from bodnar42@bodnar42.dhs.org on Tue, May 22, 2001 at 09:40:19AM -0700
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin.Knoblauch" wrote:
+On Tue, May 22, 2001 at 09:40:19AM -0700, Ryan Cumming wrote:
+> On Tue, 22 May 2001, Alan Cox wrote:
 > 
->  After some checking, I could have made the answer a bit less terse:
+> > If __linux__ is not defined by the cross compiler, then the cross compiler
+> > is broken. A cross compiler has the same environment as the native compiler
+> > for the target. The only stuff that should break (well should as in might) is
+> > tools native built
+> >
+> > Or am I misunderstanding the report ?
 > 
-> - it would require that the kernel is compiled with cpuid [module]
-> support
->   - not everybody may want enable this, just for getting one or two
->     harmless numbers.
+> It is not a cross compiler, it is the FreeBSD native gcc. As I understood
+> it, Linux is a self contained project and should be targetting the
+> native platform, not Linux on that platform. A cross compiler should
+> not be needed unless one is building for another CPU.
 
-If so, then that's their problem.  We're not here to solve the problem of
-stupid system administrators.
+The problem is that the same coda.h header is also used as part of the
+FreeBSD kernel to build a Coda kernel module. Both Linux and FreeBSD
+have different include and typedef requirements for their kernel code.
 
-> - you would need a utility with root permission to analyze the cpuid
-> info. The
->   cahce info does not seem to be there in clear ascii.
+There is no way for an identical coda.h header to recognize whether it
+is built as part of the FreeBSD kernel or as part of a (UML) Linux
+kernel, except if the parts that are OS dependent are not part of the
+same header.
 
-Bullsh*t.  /dev/cpu/%d/cpuid is supposed to be mode 444 (world readable.)
+I agree that a UML kernel on FreeBSD should be a native binary and not
+cross-compiled. However, this could be an UML specific problem and
+-D__linux__ should be added to CFLAGS in arch/uml/Makefile as all
+drivers and filesystems that are developed for different platforms and
+share parts of their code are possibly affected.
 
->   - this limits my script to root users, or you need the setuid-bit on
-> the
->     utility. Not really good for security.
+Jan
 
-See above.
-
-> - the cpuid stuff is i386 specific [today]. So are my changes. But
-> implementing
->   them for other architectures [if there is interest in the info] would
-> not
->   require to also implement the cpuid on other architectures. Which may
-> not make any
->   sense at all.
-> 
->  So, having the numbers in clear text in the cpuinfo file looks simpler
-> and safer to me, although reading /dev/cpu/*/cpuinfo maybe more
-> versatile [on i386] - at some cost.
-> 
->  Question: are there any utilities or other uses for the cpuid device
-> today? Just interested. The kernel seems to work well without it.
-
-That is usually the case with devices -- the kernel doesn't care, why
-would it?
-
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt

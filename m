@@ -1,86 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265564AbUBFSBy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 13:01:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265583AbUBFSBx
+	id S265389AbUBFSDf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 13:03:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265560AbUBFSDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 13:01:53 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:9433 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265564AbUBFSBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 13:01:51 -0500
-Date: Fri, 6 Feb 2004 19:01:44 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, info@formula-n.de,
-       kronos@kronoz.cjb.net
-Cc: linux-kernel@vger.kernel.org, kkeil@suse.de, kai.germaschewski@gmx.de,
-       isdn4linux@listserv.isdn4linux
-Subject: [patch] 2.4.25-rc1: amd7930_fn doesn't compile
-Message-ID: <20040206180144.GF26093@fs.tum.de>
-References: <Pine.LNX.4.58L.0402051037190.9788@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 Feb 2004 13:03:35 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:13198 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S265389AbUBFSDd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 13:03:33 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: psmouse.c, throwing 3 bytes away
+Date: Fri, 6 Feb 2004 19:03:20 +0100
+User-Agent: KMail/1.6.50
+References: <4022BC15.4090502@wanadoo.es> <200402062112.32212.chakkerz@optusnet.com.au> <20040206175248.GE26093@fs.tum.de>
+In-Reply-To: <20040206175248.GE26093@fs.tum.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christian Unger <chakkerz@optusnet.com.au>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0402051037190.9788@logos.cnet>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200402061903.31039.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 05, 2004 at 10:44:31AM -0200, Marcelo Tosatti wrote:
->...
-> Summary of changes from v2.4.25-pre8 to v2.4.25-rc1
-> ============================================
->...
-> Luca Tettamanti:
->...
->   o Fix amd7930_fn.h compilation warning
->...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This causes the following compile error when trying to compile this 
-driver statically into a kernel with CONFIG_HOTPLUG=n :
+On Friday 06 February 2004 18:52, you wrote:
+> gcc 2.95 is usually a good choice.
+> 
+> But although it's unlikely, it would eliminate one possible problem if 
+> someone would check whether the problem still exists with a kernel that 
+> is compiled with e.g. gcc 3.3.2 .
 
-<--  snip  -->
+The problem occured for me a few days ago with a gcc 3.3.2
+compiled linux-2.6.2-rc2
 
-...
-gcc -D__KERNEL__ 
--I/home/bunk/linux/kernel-2.4/linux-2.4.25-rc1-full-no-hotplug/include 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
--fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 
--march=athlon  -DHISAX_MAX_CARDS=8 -nostdinc -iwithprefix include 
--DKBUILD_BASENAME=amd7930_fn  -c -o amd7930_fn.o amd7930_fn.c
-amd7930_fn.c: In function `Amd7930_init':
-amd7930_fn.c:752: error: Amd7930_init causes a section type conflict
-{standard input}: Assembler messages:
-{standard input}:2: Warning: setting incorrect section attributes for .text.init
-make[4]: *** [amd7930_fn.o] Error 1
-make[4]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.25-rc1-full-no-hotplug/drivers/isdn/hisax'
+> cu
+> Adrian
+> 
 
-<--  snip  -->
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-The fix is obvious:
-
-
---- linux-2.4.25-rc1-full-no-hotplug/drivers/isdn/hisax/amd7930_fn.c.old	2004-02-06 00:37:28.000000000 +0100
-+++ linux-2.4.25-rc1-full-no-hotplug/drivers/isdn/hisax/amd7930_fn.c	2004-02-06 00:37:56.000000000 +0100
-@@ -61,7 +61,7 @@
- #include <linux/interrupt.h>
- #include <linux/init.h>
- 
--static WORD initAMD[] __devinit = {
-+static WORD initAMD[] __devinitdata = {
- 	0x0100,
- 
- 	0x00A5, 3, 0x01, 0x40, 0x58,				// LPR, LMR1, LMR2
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+iD8DBQFAI9bxFGK1OIvVOP4RAgRmAKDP8XNSp+cfwmU6KGrffZ0Q8MbkgQCgue7w
+FFUX287kLwBk15juYW1l8RI=
+=SXlV
+-----END PGP SIGNATURE-----

@@ -1,42 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316039AbSFUAJV>; Thu, 20 Jun 2002 20:09:21 -0400
+	id <S316043AbSFUA12>; Thu, 20 Jun 2002 20:27:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316023AbSFUAJU>; Thu, 20 Jun 2002 20:09:20 -0400
-Received: from Campbell.cwx.net ([216.17.176.12]:55821 "EHLO campbell.cwx.net")
-	by vger.kernel.org with ESMTP id <S315993AbSFUAJT>;
-	Thu, 20 Jun 2002 20:09:19 -0400
-Date: Thu, 20 Jun 2002 18:09:07 -0600
-From: Allen Campbell <lkml@campbell.cwx.net>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: latest linus-2.5 BK broken
-Message-ID: <20020620180907.A8704@const.>
-References: <Pine.LNX.4.44.0206201511300.872-100000@home.transmeta.com> <3D125A0C.3000802@evision-ventures.com>
+	id <S316047AbSFUA11>; Thu, 20 Jun 2002 20:27:27 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:28049 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S316043AbSFUA10>; Thu, 20 Jun 2002 20:27:26 -0400
+Subject: [TRIVIAL][PATCH] tsc-cleanup_A0
+From: john stultz <johnstul@us.ibm.com>
+To: marcelo <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-AOxQHMRTk7LqO1yf/RJL"
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 20 Jun 2002 17:20:51 -0700
+Message-Id: <1024618851.5184.186.camel@cog>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3D125A0C.3000802@evision-ventures.com>; from dalecki@evision-ventures.com on Fri, Jun 21, 2002 at 12:41:16AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Perhaps it's just still too deep in to my brain that
-> the overwhelimg part of the PC market is still determined
-> by corporate buyers (70%). And they look for efficiency (well within
-> wide boundaries :-).
 
-Most of those buyers care about cost efficiency, not design
-efficiency.  If a 4 way Dell can just match a 2 way Sun, and for
-half the cost, guess who gets the sale.  Doesn't matter if it's
-"naive" SMP or a beautiful cross-bar design, blessed by MIT.  Yes,
-it's ugly.  Sure, it would be nice if everyone loved computing so
-much that they actually cared enough to make the distinction.  They
-don't.  Get over it.
+--=-AOxQHMRTk7LqO1yf/RJL
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-As long as Linux is true to the market it will thrive.  The moment
-the motivation becomes someone's pedantic notion of "purity", it's
-gone.  I believe Linus understands this, and I'm thankful.  I'm
-guessing that gift of understanding comes from a time when a certain
-programmer couldn't afford to pay for the elegance that was offered
-at the time.
+Marcelo
+	Poking around w/ the tsc-disable patch, I figured I should send out
+this trivial cleanup as well. I got these changes from a post Brian
+Gerst originally released for 2.5.
+
+thanks
+-john
+
+
+
+--=-AOxQHMRTk7LqO1yf/RJL
+Content-Disposition: attachment; filename=linux-2.4.19-pre10_tsc-cleanup_A0.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; name=linux-2.4.19-pre10_tsc-cleanup_A0.patch;
+	charset=ISO-8859-1
+
+diff -Nru a/drivers/char/joystick/analog.c b/drivers/char/joystick/analog.c
+--- a/drivers/char/joystick/analog.c	Thu Jun 20 17:11:02 2002
++++ b/drivers/char/joystick/analog.c	Thu Jun 20 17:11:02 2002
+@@ -137,10 +137,9 @@
+  */
+=20
+ #ifdef __i386__
+-#define TSC_PRESENT	(test_bit(X86_FEATURE_TSC, &boot_cpu_data.x86_capabili=
+ty))
+-#define GET_TIME(x)	do { if (TSC_PRESENT) rdtscl(x); else { outb(0, 0x43);=
+ x =3D inb(0x40); x |=3D inb(0x40) << 8; } } while (0)
+-#define DELTA(x,y)	(TSC_PRESENT?((y)-(x)):((x)-(y)+((x)<(y)?1193180L/HZ:0)=
+))
+-#define TIME_NAME	(TSC_PRESENT?"TSC":"PIT")
++#define GET_TIME(x)	do { if (cpu_has_tsc) rdtscl(x); else { outb(0, 0x43);=
+ x =3D inb(0x40); x |=3D inb(0x40) << 8; } } while (0)
++#define DELTA(x,y)	(cpu_has_tsc?((y)-(x)):((x)-(y)+((x)<(y)?1193180L/HZ:0)=
+))
++#define TIME_NAME	(cpu_has_tsc?"TSC":"PIT")
+ #elif __x86_64__
+ #define GET_TIME(x)	rdtscl(x)
+ #define DELTA(x,y)	((y)-(x))
+diff -Nru a/drivers/char/random.c b/drivers/char/random.c
+--- a/drivers/char/random.c	Thu Jun 20 17:11:02 2002
++++ b/drivers/char/random.c	Thu Jun 20 17:11:02 2002
+@@ -735,7 +735,7 @@
+ 	int		entropy =3D 0;
+=20
+ #if defined (__i386__)
+-	if ( test_bit(X86_FEATURE_TSC, &boot_cpu_data.x86_capability) ) {
++	if (cpu_has_tsc) {
+ 		__u32 high;
+ 		rdtsc(time, high);
+ 		num ^=3D high;
+
+--=-AOxQHMRTk7LqO1yf/RJL--
 

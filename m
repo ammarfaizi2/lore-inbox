@@ -1,124 +1,157 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263883AbSIQIJs>; Tue, 17 Sep 2002 04:09:48 -0400
+	id <S263881AbSIQIHR>; Tue, 17 Sep 2002 04:07:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263887AbSIQIJs>; Tue, 17 Sep 2002 04:09:48 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:32266
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263883AbSIQIJr>; Tue, 17 Sep 2002 04:09:47 -0400
-Subject: Re: [PATCH] BUG(): sched.c: Line 944
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0209162250170.3443-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0209162250170.3443-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 17 Sep 2002 04:12:55 -0400
-Message-Id: <1032250378.969.112.camel@phantasy>
-Mime-Version: 1.0
+	id <S263883AbSIQIHR>; Tue, 17 Sep 2002 04:07:17 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:20484
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S263881AbSIQIHP>; Tue, 17 Sep 2002 04:07:15 -0400
+Date: Tue, 17 Sep 2002 01:09:32 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jens Axboe <axboe@suse.de>
+cc: "Peter T. Breuer" <ptb@it.uc3m.es>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: tagged block requests
+In-Reply-To: <20020917055440.GG3289@suse.de>
+Message-ID: <Pine.LNX.4.10.10209170052140.11597-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-17 at 01:56, Linus Torvalds wrote:
 
-> We have a simple rule:
->  - task->lock_depth = -1 means "no lock held"
->  - task->lock_depth >= 0 means "BKL really held"
+Jens,
+
+Help me out on this new idea of shoving tag management into BLOCK and away
+from the local device.  If I understand the process observed, one has to
+dequeue the request from block and move it to a new listhead?  If so why
+do we not stuff the real queuehead with a bogus place holder?  What I am
+driving to specifically, why must the request be dequeued and not just
+marked as inproccess and left on the queuehead?
+
+If for some reason our device tanks and requires a reset or for some
+unknown reason one needs to blast through the device and hit platter, we
+end up frying all the data and requests with active tags in the device.
+
+Thus one needs to invalidate the new-second listhead of requests moved off
+the queuehead and find a way to stuff them back in the device queue.  Now
+if the device->queue is full, here is where I see us getting beat up.
+
+We have to nuke requests in the queue or nuke the ones we are trying to
+remerge.  I have a real concern about this after tearing appart the
+scsi-mid-layer and becoming ill.  There are parts where the HBA marks the
+hba->queue full and commands still arrive and are not blocked or the queue
+is not unplugged or something.  Thus seeing the cdb formation hitting
+SCpnt->special and jumping the queue.
+
+My question surrounds why remove the requests from the device->queue?
+If we leave them on then if the device goes south and pees on itself, one
+just clears the req->command_is_queued (may not exist yet) and req->tag
+(may not exist yet).
+
+If this is possible then we may be able to mark a series of requests a
+ordered and strenghten the barrier operations, regardless if FUA is set in
+SCSI or IDE (future opcode and messy!).  This would require a group index
+marker w/ associated ordering list, but this may be present already.
+
+Sorry for being block stupid in 2.5 still.
+
+
+
+On Tue, 17 Sep 2002, Jens Axboe wrote:
+
+> On Tue, Sep 17 2002, Peter T. Breuer wrote:
+> > Can someone point me to some documentation or an example
+> > or give me a quick rundown on how I should use the new
+> > tagged block request structure in 2.5.3x?
+> > 
+> > It looks like something I want. I've already tried issuing
+> > "special" requests as (re)ordering barriers, and that works 
+> > fine. How does the tag request interface fit in with that,
+> > if it does?
 > 
-> ... but what does "task->lock_depth < -1" mean?
+> The request tagging is used for hardware that can have multiple commands
+> in flight at any point in time. To do this, we need some sort of cookie
+> to differentiate between the different commands. For SCSI and IDE, we
+> use integer tags to do so. An example:
 > 
-> Yup: "validly nonpreemptable".
+> my_request_fn(q)
+> {
+> 	struct request *rq;
 > 
-> So then you have:
+> next:
+> 	rq = elv_next_request(q);
+> 	if (!rq)
+> 		return;
 > 
-> 	#define kernel_locked()	(current->lock_depth >= 0)
+> 	/*
+> 	 * assuming some tags are already in flight, ending those will
+> 	 * restart queue handling
+> 	 */
+> 	if (blk_queue_start_tag(q, rq))
+> 		return;
 > 
-> 	#define in_atomic() (preempt_count() & ~PREEMPT_ACTIVE) != (current->lock_depth != -1))
+> 	/*
+> 	 * now rq is tagged, rq->tag contains the integer identifier
+> 	 * for this request
+> 	 */
+> 	dma_map_command();
+> 	send_command_to_hw();
+> 	goto next;
+> }
 > 
-> and you're all set - just set lock_depth to -2 when you exit to show that
-> you don't hold the BKL, but that you are validly not preemtable.
+> So request_fn calls blk_queue_start_tag(), which associates rq with a
+> free tag, if available. Then the hardware completes the request:
 > 
-> I get the award for having the most disgusting ideas.
+> my_isr(..., devid, ...)
+> {
+> 	struct my_dev *dev = devid;
+> 	struct request *rq;
+> 	int stat, tag;
+> 
+> 	stat = read_device_stat(dev);
+> 
+> 	/* tag is upper 5 bits */
+> 	tag = (stat >> 3);
+> 
+> 	rq = blk_queue_find_tag(q, tag);
+> 
+> 	if (stat & DEVICE_GOOD_STAT) {
+> 		blk_queue_end_tag(q, rq);
+> 		complete_request(rq, 1);
+> 	} else {
+> 		blk_queue_invalidate_tags(q);
+> 		lock_queue;
+> 		my_request_fn(&dev->queue);
+> 		unlock_queue;
+> 	}
+> }
+> 
+> Tag is either completed normally (blk_queue_end_tag()) for good status,
+> and is ended. Or for bad status, we invalidate the entire pending tag
+> queue because this particular piece of hardware requires us to do so.
+> This makes sure that requests gets moved from the tag queue to the
+> dispatch queue for the device again, so request_fn() gets a chance to
+> start them over.
+> 
+> That's basically the API. In addition to the above,
+> blk_queue_init_tags(q, depth) sets up a queue for tagged operation and
+> blk_queue_free_tags(q) tears it down again.
+> 
+> Now how that fits in with whatever you are trying to do (which
+> apparently isn't tagging in the ordinary sense), I have no idea. But now
+> you should now what the interface does.
+> 
+> -- 
+> Jens Axboe
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Yah, you do.  Good job though.
-
-I implemented exactly what you detailed, with one change: we need to
-check kernel_locked() before setting lock_depth because it is valid to
-exit() while holding the BKL.  Aside from kernel code that does it
-intentionally, crashed code (e.g. modules) would have the same problem.
-
-Anyhow, this works.  Finally.
-
-Except the printk() still causes my system to lockup, but that is
-another (tomorrow's) issue.
-
-Patch is against current BK.  Thanks for the help.
-
-	Robert Love
-
-diff -urN linux-2.5.35/include/asm-i386/hardirq.h linux/include/asm-i386/hardirq.h
---- linux-2.5.35/include/asm-i386/hardirq.h	Sun Sep 15 22:18:46 2002
-+++ linux/include/asm-i386/hardirq.h	Tue Sep 17 03:20:00 2002
-@@ -77,7 +77,8 @@
- #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
- 
- #if CONFIG_PREEMPT
--# define in_atomic()	(preempt_count() != kernel_locked())
-+# define in_atomic() \
-+	((preempt_count() & ~PREEMPT_ACTIVE) != (current->lock_depth != -1))
- # define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
- #else
- # define in_atomic()	(preempt_count() != 0)
-diff -urN linux-2.5.35/kernel/exit.c linux/kernel/exit.c
---- linux-2.5.35/kernel/exit.c	Tue Sep 17 03:18:53 2002
-+++ linux/kernel/exit.c	Tue Sep 17 03:55:12 2002
-@@ -637,6 +637,21 @@
- 	preempt_disable();
- 	if (current->exit_signal == -1)
- 		release_task(current);
-+
-+	/*
-+	 * This little bit of genius comes from the twisted mind of Linus.
-+	 * We need exit() to be atomic but we also want a debugging check
-+	 * in schedule() to whine if we are atomic.  The wickedness is in
-+	 * these rules:
-+	 *	- task->lock_depth = -2 means "validly nonpreemptable"
-+	 * 	- task->lock_depth = -1 means "BKL not held"
-+         * 	- task->lock_depth >= 0 means "BKL held"
-+	 * release_kernel_lock and kernel_locked() check >=0, and
-+	 * in_atomic() checks != -1... the "fake BKL" will "cancel out"
-+	 * the preempt_disable() above and everyone is happy.
-+	 */
-+	if (unlikely(!kernel_locked()))
-+		tsk->lock_depth = -2;
- 	schedule();
- 	BUG();
- /*
-diff -urN linux-2.5.35/kernel/sched.c linux/kernel/sched.c
---- linux-2.5.35/kernel/sched.c	Sun Sep 15 22:18:24 2002
-+++ linux/kernel/sched.c	Tue Sep 17 03:50:04 2002
-@@ -940,8 +940,10 @@
- 	struct list_head *queue;
- 	int idx;
- 
--	if (unlikely(in_atomic()))
--		BUG();
-+	if (unlikely(in_atomic())) {
-+		printk(KERN_ERR "error: scheduling while non-atomic!\n");
-+		dump_stack();
-+	}
- 
- #if CONFIG_DEBUG_HIGHMEM
- 	check_highmem_ptes();
-@@ -959,7 +961,7 @@
- 	 * if entering off of a kernel preemption go straight
- 	 * to picking the next task.
- 	 */
--	if (unlikely(preempt_count() & PREEMPT_ACTIVE))
-+	if (unlikely(preempt_count() == PREEMPT_ACTIVE))
- 		goto pick_next_task;
- 
- 	switch (prev->state) {
+Andre Hedrick
+LAD Storage Consulting Group
 

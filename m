@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313130AbSC1K7z>; Thu, 28 Mar 2002 05:59:55 -0500
+	id <S313133AbSC1LRK>; Thu, 28 Mar 2002 06:17:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313131AbSC1K7q>; Thu, 28 Mar 2002 05:59:46 -0500
-Received: from mail.loewe-komp.de ([62.156.155.230]:18186 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S313130AbSC1K7a>; Thu, 28 Mar 2002 05:59:30 -0500
-Message-ID: <3CA2F78C.1060604@loewe-komp.de>
-Date: Thu, 28 Mar 2002 11:59:24 +0100
-From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010923
-X-Accept-Language: de, en
+	id <S313136AbSC1LRB>; Thu, 28 Mar 2002 06:17:01 -0500
+Received: from mail.gmx.net ([213.165.64.20]:43124 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S313133AbSC1LQv>;
+	Thu, 28 Mar 2002 06:16:51 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Sebastian Roth <xsebbi@gmx.de>
+Reply-To: xsebbi@gmx.de
+Message-Id: <200203281216.32590@xsebbi.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.5.7-dj2] Compile Error
+Date: Thu, 28 Mar 2002 12:17:43 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-To: Robert Schwebel <robert@schwebel.de>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Networking with slow CPUs
-In-Reply-To: <Pine.LNX.4.33.0203271944020.16178-100000@callisto.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Schwebel wrote:
+Hi there,
 
-> Hi,
-> 
-> in the 2.2 series there was a switch for "CPU is too slow to handle full
-> bandwidth" which has gone in 2.4. Can anybody tell me the reason for this?
-> 
-> Is there a possibility to "harden" a small machine (33 MHz embedded
-> device) against e.g. flood pings from the outside world?
-> 
+make bzImage says:
+make[1]: Entering directory `/usr/src/linux-2.5-dj/kernel'
+make all_targets
+make[2]: Entering directory `/usr/src/linux-2.5-dj/kernel'
+gcc -D__KERNEL__ -I/usr/src/linux-2.5-dj/include -Wall 
+-Wstrict-prototypes -Wno-
+trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-pipe -mpref
+erred-stack-boundary=2 -march=i686 -malign-functions=4    
+-DKBUILD_BASENAME=acct
+  -c -o acct.o acct.c
+acct.c:235: parse error before `do'
+acct.c:378: parse error before `do'
+acct.c:384: parse error before `&'
+acct.c:386: warning: type defaults to `int' in declaration of 
+`do_acct_process'
+acct.c:386: warning: parameter names (without types) in function 
+declaration
+acct.c:386: conflicting types for `do_acct_process'
+acct.c:297: previous declaration of `do_acct_process'
+acct.c:386: warning: data definition has no type or storage class
+acct.c:387: warning: type defaults to `int' in declaration of `fput'
+acct.c:387: warning: parameter names (without types) in function 
+declaration
+acct.c:387: conflicting types for `fput'
+/usr/src/linux-2.5-dj/include/linux/file.h:36: previous declaration of 
+`fput'
+acct.c:387: warning: data definition has no type or storage class
+acct.c:388: parse error before `}'
+make[2]: *** [acct.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.5-dj/kernel'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5-dj/kernel'
+make: *** [_dir_kernel] Error 2
 
-AFAIK, there is a mechanism to switch off the interrupts generated
-by the network card, if the load is getting too high. This way the
-packets get overwritten on the nic buffers and do not even reach
-the CPU.
+just for information.
 
-I don't know if this is implemented (in all drivers?)
-
+		Sebastian

@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262606AbUCEO1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 09:27:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbUCEO1Z
+	id S262604AbUCEObL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 09:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbUCEObK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 09:27:25 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:1740 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262606AbUCEO1G (ORCPT
+	Fri, 5 Mar 2004 09:31:10 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:22178 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262604AbUCEObG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 09:27:06 -0500
-Subject: Re: Is there some bug in ext3 in 2.4.25?
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Daniel Fenert <daniel@fenert.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Michelle Konzack <linux4michelle@freenet.de>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <opr4d66wct4evsfm@smtp.pacific.net.th>
-References: <Pine.LNX.4.44.0403051048160.2678-100000@dmt.cyclades>
-	 <opr4d66wct4evsfm@smtp.pacific.net.th>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1078496816.14033.56.camel@sisko.scot.redhat.com>
+	Fri, 5 Mar 2004 09:31:06 -0500
+Date: Fri, 5 Mar 2004 15:32:10 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Peter Zaitsev <peter@mysql.com>, Andrew Morton <akpm@osdl.org>,
+       riel@redhat.com, mbligh@aracnet.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
+Message-ID: <20040305143210.GA11897@elte.hu>
+References: <20040228072926.GR8834@dualathlon.random> <Pine.LNX.4.44.0402280950500.1747-100000@chimarrao.boston.redhat.com> <20040229014357.GW8834@dualathlon.random> <1078370073.3403.759.camel@abyss.local> <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040305103308.GA5092@elte.hu> <20040305141504.GY4922@dualathlon.random>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Mar 2004 14:26:56 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040305141504.GY4922@dualathlon.random>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Fri, 2004-03-05 at 14:14, Michael Frank wrote:
+* Andrea Arcangeli <andrea@suse.de> wrote:
 
-> Although I have nt received a reply from LKML, it is definitively
-> a real kernel bug in 2.4.22 which has been fixed in 2.4.24.
-> 
-> Ein weiterer Fehler trat mehrfach in 'exit.c' auf, der ebenfals
-> nach der Installation von Linux 2.4.24 verschwunden war.
-> 
-> Further bug occuring several times in 'exit.c' has also vanished
-> after installation of 2.4.24.
+> [...] 8/16/32G boxes works perfectly with 3:1 with the stock 2.4 VM
+> (after you nuke rmap).
 
-Sounds like bad memory.  It's quite impossible for a bad memory module
-to show up a problem in one kernel but not in another, simply because
-kernels are storing their active data in slightly different memory
-locations from one release to another (or even from one compiler, or one
-set of config options, to another.)
+the mem_map[] on 32G is 400 MB (using the stock 2.4 struct page). This
+leaves ~500 MB for the lowmem zone. It's ridiculously easy to use up 500
+MB of lowmem. 500 MB is a lowmem:RAM ratio of 1:60. With 4/4 you have 6
+times more lowmem. So starting at 32 GB (but often much earlier) the 3/1
+split breaks down. And you obviously it's a no-go at 64 GB.
 
-I'd definitely be running memtest86 as the next step here.
+inbetween it all depends on the workload. If the 3:1 split works fine
+then sure, use it. There's no one kernel that fits all sizes.
 
-Cheers,
- Stephen
-
+	Ingo

@@ -1,84 +1,215 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266938AbTB0U0k>; Thu, 27 Feb 2003 15:26:40 -0500
+	id <S266981AbTB0U2y>; Thu, 27 Feb 2003 15:28:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266932AbTB0U0Z>; Thu, 27 Feb 2003 15:26:25 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:39941 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S266981AbTB0UYz>; Thu, 27 Feb 2003 15:24:55 -0500
-Date: Thu, 27 Feb 2003 15:34:40 -0500
-From: Ben Collins <bcollins@debian.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: pavel@suse.cz, linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com,
-       ak@suse.de, arnd@bergmann-dalldorf.de
-Subject: Re: ioctl32 consolidation -- call for testing
-Message-ID: <20030227203440.GP21100@phunnypharm.org>
-References: <20030226222606.GA9144@elf.ucw.cz> <20030227195135.GN21100@phunnypharm.org> <20030227202739.GO21100@phunnypharm.org> <20030227.121302.86023203.davem@redhat.com>
+	id <S267013AbTB0U2p>; Thu, 27 Feb 2003 15:28:45 -0500
+Received: from inmail.compaq.com ([161.114.1.205]:1546 "EHLO
+	ztxmail01.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S266981AbTB0U1I>; Thu, 27 Feb 2003 15:27:08 -0500
+Date: Thu, 27 Feb 2003 14:39:53 +0600
+From: Stephen Cameron <steve.cameron@hp.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.63 cciss fix unlikely startup problem
+Message-ID: <20030227083953.GA3992@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="K8nIJk4ghYZn606h"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030227.121302.86023203.davem@redhat.com>
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Another cciss patch for 2.5.63
 
---K8nIJk4ghYZn606h
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Add new big passthrough ioctl to allow large buffers.
+Used by e.g. online array controller firmware flash utility.
 
-On Thu, Feb 27, 2003 at 12:13:02PM -0800, David S. Miller wrote:
->    From: Ben Collins <bcollins@debian.org>
->    Date: Thu, 27 Feb 2003 15:27:39 -0500
->    
->    Here it is. Sparc64's macros for ioctl32's assumed that cmd was u_int
->    instead of u_long. This look ok to you, Dave?
-> 
-> We would love to see that patch :-)
+-- steve
 
-It was real small...so small that it slipped through mutt's open() call
-and never got attached :)
-
-
-
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
-
---K8nIJk4ghYZn606h
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="sparc64-ioctl32.diff"
-
---- arch/sparc64/kernel/ioctl32.c~	2003-02-27 14:54:49.000000000 -0500
-+++ arch/sparc64/kernel/ioctl32.c	2003-02-27 15:19:29.000000000 -0500
-@@ -11,6 +11,7 @@
- #include <linux/config.h>
- #include <linux/types.h>
- #include <linux/compat.h>
-+#include <linux/ioctl32.h>
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/smp.h>
-@@ -4274,10 +4275,14 @@
- #define BNEPGETCONNLIST	_IOR('B', 210, int)
- #define BNEPGETCONNINFO	_IOR('B', 211, int)
- 
--#define COMPATIBLE_IOCTL(cmd) asm volatile(".word %0, sys_ioctl, 0" : : "i" (cmd));
--#define HANDLE_IOCTL(cmd,handler) asm volatile(".word %0, %1, 0" : : "i" (cmd), "i" (handler));
--#define IOCTL_TABLE_START void ioctl32_foo(void) { asm volatile(".data\n.global ioctl_start\nioctl_start:");
--#define IOCTL_TABLE_END asm volatile("\n.global ioctl_end\nioctl_end:\n\t.previous"); }
-+typedef int (* ioctl32_handler_t)(unsigned int, unsigned int, unsigned long, struct file *);
+--- linux-2.5.63/drivers/block/cciss.c~bigioctl	2003-02-27 14:11:56.000000000 +0600
++++ linux-2.5.63-scameron/drivers/block/cciss.c	2003-02-27 14:11:56.000000000 +0600
+@@ -728,7 +728,153 @@ static int cciss_ioctl(struct inode *ino
+ 		cmd_free(h, c, 0);
+                 return(0);
+ 	} 
+-
++	case CCISS_BIG_PASSTHRU: {
++		BIG_IOCTL_Command_struct *ioc;
++		ctlr_info_t *h = hba[ctlr];
++		CommandList_struct *c;
++		unsigned char **buff = NULL;
++		int	*buff_size = NULL;
++		u64bit	temp64;
++		unsigned long flags;
++		BYTE sg_used = 0;
++		int status = 0;
++		int i;
++		DECLARE_COMPLETION(wait);
++		__u32   left;
++		__u32	sz;
++		BYTE    *data_ptr;
 +
-+#define COMPATIBLE_IOCTL(cmd)		HANDLE_IOCTL((cmd),sys_ioctl)
-+#define HANDLE_IOCTL(cmd,handler)	{ (cmd), (ioctl32_handler_t)(handler), NULL },
-+#define IOCTL_TABLE_START \
-+	struct ioctl_trans ioctl_start[] = {
-+#define IOCTL_TABLE_END \
-+	}; struct ioctl_trans ioctl_end[0];
++		if (!arg)
++			return -EINVAL;
++		if (!capable(CAP_SYS_RAWIO))
++			return -EPERM;
++		ioc = (BIG_IOCTL_Command_struct *) 
++			kmalloc(sizeof(*ioc), GFP_KERNEL);
++		if (!ioc) {
++			status = -ENOMEM;
++			goto cleanup1;
++		}
++		if (copy_from_user(ioc, (void *) arg, sizeof(*ioc)))
++			return -EFAULT;
++		if ((ioc->buf_size < 1) &&
++			(ioc->Request.Type.Direction != XFER_NONE))
++				return -EINVAL;
++		/* Check kmalloc limits  using all SGs */
++		if (ioc->malloc_size > MAX_KMALLOC_SIZE)
++			return -EINVAL;
++		if (ioc->buf_size > ioc->malloc_size * MAXSGENTRIES)
++			return -EINVAL;
++		buff = (unsigned char **) kmalloc(MAXSGENTRIES * 
++				sizeof(char *), GFP_KERNEL);
++		if (!buff) {
++			status = -ENOMEM;
++			goto cleanup1;
++		}
++		memset(buff, 0, MAXSGENTRIES);
++		buff_size = (int *) kmalloc(MAXSGENTRIES * sizeof(int), 
++					GFP_KERNEL);
++		if (!buff_size) {
++			status = -ENOMEM;
++			goto cleanup1;
++		}
++		left = ioc->buf_size;
++		data_ptr = (BYTE *) ioc->buf;
++		while (left) {
++			sz = (left > ioc->malloc_size) ? ioc->malloc_size : left;
++			buff_size[sg_used] = sz;
++			buff[sg_used] = kmalloc(sz, GFP_KERNEL);
++			if (buff[sg_used] == NULL) {
++				status = -ENOMEM;
++				goto cleanup1;
++			}
++			if (ioc->Request.Type.Direction == XFER_WRITE &&
++				copy_from_user(buff[sg_used], data_ptr, sz)) {
++					status = -ENOMEM;
++					goto cleanup1;			
++			}
++			left -= sz;
++			data_ptr += sz;
++			sg_used++;
++		}
++		if ((c = cmd_alloc(h , 0)) == NULL) {
++			status = -ENOMEM;
++			goto cleanup1;	
++		}
++		c->cmd_type = CMD_IOCTL_PEND;
++		c->Header.ReplyQueue = 0;
++		
++		if( ioc->buf_size > 0) {
++			c->Header.SGList = sg_used;
++			c->Header.SGTotal= sg_used;
++		} else { 
++			c->Header.SGList = 0;
++			c->Header.SGTotal= 0;
++		}
++		c->Header.LUN = ioc->LUN_info;
++		c->Header.Tag.lower = c->busaddr;
++		
++		c->Request = ioc->Request;
++		if (ioc->buf_size > 0 ) {
++			int i;
++			for(i=0; i<sg_used; i++) {
++				temp64.val = pci_map_single( h->pdev, buff[i],
++					buff_size[i],
++					PCI_DMA_BIDIRECTIONAL);
++				c->SG[i].Addr.lower = temp64.val32.lower;
++				c->SG[i].Addr.upper = temp64.val32.upper;
++				c->SG[i].Len = buff_size[i];
++				c->SG[i].Ext = 0;  /* we are not chaining */
++			}
++		}
++		c->waiting = &wait;
++		/* Put the request on the tail of the request queue */
++		spin_lock_irqsave(CCISS_LOCK(ctlr), flags);
++		addQ(&h->reqQ, c);
++		h->Qdepth++;
++		start_io(h);
++		spin_unlock_irqrestore(CCISS_LOCK(ctlr), flags);
++		wait_for_completion(&wait);
++		/* unlock the buffers from DMA */
++		for(i=0; i<sg_used; i++) {
++			temp64.val32.lower = c->SG[i].Addr.lower;
++			temp64.val32.upper = c->SG[i].Addr.upper;
++			pci_unmap_single( h->pdev, (dma_addr_t) temp64.val,
++				buff_size[i], PCI_DMA_BIDIRECTIONAL);
++		}
++		/* Copy the error information out */
++		ioc->error_info = *(c->err_info);
++		if (copy_to_user((void *) arg, ioc, sizeof(*ioc))) {
++			cmd_free(h, c, 0);
++			status = -EFAULT;
++			goto cleanup1;
++		}
++		if (ioc->Request.Type.Direction == XFER_READ) {
++			/* Copy the data out of the buffer we created */
++			BYTE *ptr = (BYTE  *) ioc->buf;
++	        	for(i=0; i< sg_used; i++) {
++				if (copy_to_user(ptr, buff[i], buff_size[i])) {
++					cmd_free(h, c, 0);
++					status = -EFAULT;
++					goto cleanup1;
++				}
++				ptr += buff_size[i];
++			}
++		}
++		cmd_free(h, c, 0);
++		status = 0;
++cleanup1:
++		if (buff) {
++			for(i=0; i<sg_used; i++)
++				if(buff[i] != NULL)
++					kfree(buff[i]);
++			kfree(buff);
++		}
++		if (buff_size)
++			kfree(buff_size);
++		if (ioc)
++			kfree(ioc);
++		return(status);
++	}
+ 	default:
+ 		return -EBADRQC;
+ 	}
+--- linux-2.5.63/include/linux/cciss_ioctl.h~bigioctl	2003-02-27 14:11:56.000000000 +0600
++++ linux-2.5.63-scameron/include/linux/cciss_ioctl.h	2003-02-27 14:11:56.000000000 +0600
+@@ -33,6 +33,18 @@ typedef __u32 BusTypes_type;
+ typedef char FirmwareVer_type[4];
+ typedef __u32 DriverVer_type;
  
- IOCTL_TABLE_START
- /* List here exlicitly which ioctl's are known to have
++#define MAX_KMALLOC_SIZE 128000
++
++typedef struct _BIG_IOCTL_Command_struct {
++  LUNAddr_struct	   LUN_info;
++  RequestBlock_struct      Request;
++  ErrorInfo_struct  	   error_info; 
++  DWORD			   malloc_size; /* < MAX_KMALLOC_SIZE in cciss.c */
++  DWORD			   buf_size;    /* size in bytes of the buf */
++  				        /* < malloc_size * MAXSGENTRIES */
++  BYTE			   *buf;
++} BIG_IOCTL_Command_struct;
++
+ 
+ #ifndef CCISS_CMD_H
+ // This defines are duplicated in cciss_cmd.h in the driver directory 
+@@ -196,5 +208,6 @@ typedef struct _LogvolInfo_struct{
+ 
+ #define CCISS_REGNEWD	   _IO(CCISS_IOC_MAGIC, 14)
+ #define CCISS_GETLUNINFO   _IOR(CCISS_IOC_MAGIC, 17, LogvolInfo_struct)
++#define CCISS_BIG_PASSTHRU _IOWR(CCISS_IOC_MAGIC, 18, BIG_IOCTL_Command_struct)
+ 
+ #endif  
 
---K8nIJk4ghYZn606h--
+_

@@ -1,36 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292957AbSCMV3t>; Wed, 13 Mar 2002 16:29:49 -0500
+	id <S292942AbSCMVfK>; Wed, 13 Mar 2002 16:35:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292942AbSCMV3j>; Wed, 13 Mar 2002 16:29:39 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:33707 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S292918AbSCMV32>;
-	Wed, 13 Mar 2002 16:29:28 -0500
-Date: Wed, 13 Mar 2002 22:29:26 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200203132129.WAA08883@harpo.it.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: boot_cpu_data.x86_vendor corruption on dual AMD
+	id <S311378AbSCMVe7>; Wed, 13 Mar 2002 16:34:59 -0500
+Received: from fmfdns01.fm.intel.com ([132.233.247.10]:13543 "EHLO
+	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S292942AbSCMVes>; Wed, 13 Mar 2002 16:34:48 -0500
+Message-ID: <794826DE8867D411BAB8009027AE9EB918B05F4B@FMSMSX38>
+From: "Feldman, Scott" <scott.feldman@intel.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: intel driver e100/e1000
+Date: Wed, 13 Mar 2002 13:34:41 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm involved with debugging a driver problem which only appears
-on dual AMD systems. When the driver's module_init() is called,
-boot_cpu_data.x86_vendor is 0 (Intel) instead of 2 (AMD), causing
-incorrect code to be selected and eventually an oops.
+> This driver will be included in 2.4.19/20 ?
 
-We've so far traced it to the call to smp_init() in init/main.c.
-Before this call, boot_cpu_data.x86_vendor is 2 (correct), but
-after the call, the field is 0.
+The goal is to move them back to 2.4 after a final round of valuable
+reviewer updates, check off from Intel QA labs, and of course, Jeff Garzik's
+approval.
 
-I've been looking through the code but haven't found any obvious
-bug candidates, so we've resorted to debug printouts and binary
-search. (I'm giving directions, another person is doing the tests
-at a remote site, so progress is slow.)
-
-The kernel in question is 2.4.18, but we've seen this in other
-2.4 kernels too. Choice of compiler (gcc-2.96-98/egcs-2.91.66)
-and CONFIG_MK7 on or off doesn't seem to make any difference.
-The box (Tyan) is otherwise stable, and the CPUs are Athlon MPs.
-
-/Mikael
+-scott

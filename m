@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262648AbSK1PvE>; Thu, 28 Nov 2002 10:51:04 -0500
+	id <S264637AbSK1QAy>; Thu, 28 Nov 2002 11:00:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262667AbSK1PvE>; Thu, 28 Nov 2002 10:51:04 -0500
-Received: from hermes.dur.ac.uk ([129.234.4.9]:60394 "EHLO hermes.dur.ac.uk")
-	by vger.kernel.org with ESMTP id <S262648AbSK1PvD>;
-	Thu, 28 Nov 2002 10:51:03 -0500
-Message-ID: <3DE63E1C.70404@durham.ac.uk>
-Date: Thu, 28 Nov 2002 16:02:36 +0000
-From: simon farnsworth <simon.farnsworth@durham.ac.uk>
-Reply-To: kernel@farnz.org.uk
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-GB; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-gb, en
-MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: LKCD slides from http://lkcd.sourceforge.net/ in .ppc format
- only?
-References: <200211281559.32056.roy@karlsbakk.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S265378AbSK1QAy>; Thu, 28 Nov 2002 11:00:54 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:11415 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264637AbSK1QAy>; Thu, 28 Nov 2002 11:00:54 -0500
+Subject: Re: how to list pci devices from userpace?  anything better than
+	/proc/bus/pci/devices?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: root@chaos.analogic.com
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.95.1021127163510.4690A-100000@chaos.analogic.com>
+References: <Pine.LNX.3.95.1021127163510.4690A-100000@chaos.analogic.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean, Found to be clean
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 28 Nov 2002 16:37:55 +0000
+Message-Id: <1038501475.10020.9.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
-> hi
-> 
-> at http://lkcd.sourceforge.net/, there's a link to "Slides from the LKCD talk 
-> during LinuxWorld Expo 2000 (OLD)" 
-> (http://lkcd.sourceforge.net/docs/linuxworld2000), and "Slides from the Linux 
-> and RAS talk during LinuxWorld Expo 2002" 
-> (http://lkcd.sourceforge.net/docs/linuxworld2002), but all the slides are in 
-> microsoft powerpoint format. Anyone that cares to convert them into something 
-> readable?
-> 
+On Wed, 2002-11-27 at 21:41, Richard B. Johnson wrote:
+> Red Hat distributions after 7.0 provide `lspci`. You still have
+> to parse ASCII. FYI, it's not hard to write a 'C' program
+> that directly accessed the PCI bus from its ports at 0xCF8 (index)
+> and 0xCFC (data). You need to do 32-bit port accesses and you
+> can set iopl(3) from user-space.
 
-I've placed .pdf versions of the files at 
-http://compsoc.dur.ac.uk/~sf/lkcd/ - the  directory structure mirrors 
-that at http://lkcd.sourceforge.net/docs/
+That wont work portably. lspci comes with a pci access library that uses
+the kernel interfaces and does the job correctly
 

@@ -1,78 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbTD3X52 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 19:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbTD3X52
+	id S262590AbTD3X46 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 19:56:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbTD3X45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 19:57:28 -0400
-Received: from lakemtao02.cox.net ([68.1.17.243]:58294 "EHLO
-	lakemtao02.cox.net") by vger.kernel.org with ESMTP id S262598AbTD3X5X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 19:57:23 -0400
-Message-ID: <3EB065B4.6050309@cox.net>
-Date: Wed, 30 Apr 2003 19:09:24 -0500
-From: David van Hoose <davidvh@cox.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA and 2.4.x
-References: <20030424212508.GI14661@codepoet.org> <200304251401.36430.m.c.p@wolk-project.de> <200304251410.31701.m.c.p@wolk-project.de> <20030430090242.GA15480@codepoet.org> <3EB02D0F.1080101@cox.net> <20030430205021.GA20614@codepoet.org>
-In-Reply-To: <20030430205021.GA20614@codepoet.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 30 Apr 2003 19:56:57 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:33039
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S262590AbTD3X44 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 19:56:56 -0400
+Subject: Re: must-fix list for 2.6.0
+From: Robert Love <rml@tech9.net>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Andrew Morton <akpm@digeo.com>, Rick Lindsley <ricklind@us.ibm.com>,
+       solt@dns.toxicfilms.tv, linux-kernel@vger.kernel.org,
+       frankeh@us.ibm.com
+In-Reply-To: <20030430234746.GW10374@parcelfarce.linux.theplanet.co.uk>
+References: <20030430121105.454daee1.akpm@digeo.com>
+	 <200304302311.h3UNB2H27134@owlet.beaverton.ibm.com>
+	 <20030430162108.09dbd019.akpm@digeo.com>
+	 <20030430234746.GW10374@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Message-Id: <1051747753.17629.44.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.2 (1.3.2-1) (Preview Release)
+Date: 30 Apr 2003 20:09:13 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen wrote:
-> On Wed Apr 30, 2003 at 03:07:43PM -0500, David van Hoose wrote:
-> 
->>I'm getting an unresolved in soundcore.o that is preventing me from 
->>having sound.
->>/lib/modules/2.4.21-rc1/kernel/sound/soundcore.o: unresolved symbol 
->>devfs_remove
->>/lib/modules/2.4.21-rc1/kernel/sound/soundcore.o: insmod 
->>/lib/modules/2.4.21-rc1/kernel/sound/soundcore.o failed
->>/lib/modules/2.4.21-rc1/kernel/sound/soundcore.o: insmod snd-card-0 failed
->>
->>Can that be fixed?
-> 
-> 
-> It looks like this is simply a minor include file problem.
-> sound/sound_core.c needs 
->     #include <sound/driver.h>
-> added to it which should hopefully make this problem go away.
-> 
-> 
->>Also I have problems if I compile USB Audio and USB MIDI from the USB 
->>section AND USB Audio and USB MIDI from the ALSA section. Compilation 
->>fails in that situation. Might want to put the former patch up if this 
->>stuff might take a while to fix.
-> 
-> 
-> This looked trivial enough to fix, I went ahead and
-> regenerated my patch with these changes,
+On Wed, 2003-04-30 at 19:47, viro@parcelfarce.linux.theplanet.co.uk
+wrote:
 
-Got it. I patched sound_core.c and I have sound now. I'm assuming that 
-was the only file that needed to be patched. Correct? Also, should the 
-OSS soundcore option in menuconfig always be 'Y'? It seems to not want 
-to be anything else.
+> Excuse me, but WTF do they spin on the sched_yield() in the first place?
+> _That_ sounds like utterly broken...
 
-I get this warning on almost every file during the compile.
-In file included from /usr/src/linux-2.4.21-rc1/include/sound/driver.h:43,
-                   from hwdep.c:22:
-/usr/src/linux-2.4.21-rc1/include/sound/adriver.h:320:1: warning:
-"vmalloc_to_page" redefined
-In file included from
-/usr/src/linux-2.4.21-rc1/include/linux/modversions.h:185,
-from <command line>:1:
-/usr/src/linux-2.4.21-rc1/include/linux/modules/ksyms.ver:66:1: warning:
-this is the location of the previous definition
+I agree it is broken, but it was considered a method of implementing
+user-space locking for a long time..
 
-Another trivial patch perhaps?
+The problem is in LinuxThreads mostly, I guess, according to Andrew.
 
-Thanks for the patch!
-David
+But the big offender we hear about ten times a day is Open Office, which
+calls sched_yield() after a lot of GUI operations, seemingly in the name
+of interactivity.  It is busted and Red Hat shipped a yield-less Open
+Office in RH9 which works fine.
+
+	Robert Love
 

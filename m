@@ -1,44 +1,424 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264626AbSIWAQV>; Sun, 22 Sep 2002 20:16:21 -0400
+	id <S264631AbSIWAff>; Sun, 22 Sep 2002 20:35:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264630AbSIWAQV>; Sun, 22 Sep 2002 20:16:21 -0400
-Received: from u212-239-154-82.freedom.planetinternet.be ([212.239.154.82]:2564
-	"EHLO jebril.pi.be") by vger.kernel.org with ESMTP
-	id <S264626AbSIWAQV>; Sun, 22 Sep 2002 20:16:21 -0400
-Message-Id: <200209230019.g8N0JmvC003642@jebril.pi.be>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.38 
-In-Reply-To: Your message of "Sat, 21 Sep 2002 21:34:18 PDT."
-             <Pine.LNX.4.33.0209212130360.2433-100000@penguin.transmeta.com> 
-Date: Mon, 23 Sep 2002 02:19:48 +0200
-From: "Michel Eyckmans (MCE)" <mce@pi.be>
+	id <S264638AbSIWAff>; Sun, 22 Sep 2002 20:35:35 -0400
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:27631 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S264631AbSIWAfb>;
+	Sun, 22 Sep 2002 20:35:31 -0400
+Date: Sun, 22 Sep 2002 20:40:36 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.38-mm1
+Message-ID: <20020923004036.GA13921@www.kroptech.com>
+References: <3D8D5F2A.BC057FC4@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3D8D5F2A.BC057FC4@digeo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Trying to boot 2.5.38-mm1 on SMP ppro gives an endless stream of oopses. (Well,
+to be honest I only let it scroll for about 30 seconds before declaring it
+"endless" and hitting the reset button.) Same .config on 2.5.38 stock boots
+fine. 
 
-> Trying to be a bit more timely about releases, especially since some 
-> people couldn't use 2.5.37 due to the X lockup that should hopefully
-> be fixed (no idea _why_ that old bug only started to matter recently, the 
-> bug itself was several months old).
+--Adam
 
-The boot time lock up, that I have indeed encountered intermittently ever 
-since switching to 2.5.3{01}, may indeed be gone, but the one where just 
-moving my mouse around locks things up in a matter of seconds hasn't. 
-This started somewhere in 2.5.3{234}, only the latter of which I was able 
-to compile for my box.
 
-Someone recently reported having similar problems and fixing them by 
-disabling MTRR, but this cannot be the entire story since I never had it 
-enabled in the first place. No wonder, on a dual P5 machine...
+ksymoops 2.4.6 on i686 2.5.37.  Options used
+     -v /usr/src/linux-2.5.38-mm1/vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -O (specified)
+     -m /boot/System.map-2.5.38-mm1 (specified)
 
-By the way, 2.3.38 gives me this:
+c0325f88 c0118c5a c02b9060 0000007e c0316880 c0118ef7 00000001 00000050 
+       00000019 c02f1bc6 0008e000 c0336cc5 c0316880 c02d9585 00000005 00000500 
+       c03d6044 c0336144 c0324000 00098700 c0105000 c03267d8 c038ada0 c02b9755 
+Call Trace: [<c0118c5a>] [<c0118ef7>] [<c0105000>] 
+c0325fa8 c0118c5a c02b9060 0000007e c0314700 c0118ef7 00000000 c0324000 
+       00098700 c0105000 0008e000 c033404f c0314700 c03267d8 c038ada0 c02b9755 
+       c038aea0 c0325ff4 c02b94c0 c038ada0 00000000 c01001b1 
+Call Trace: [<c0118c5a>] [<c0118ef7>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000246 fffff6a3 c0118cd0 000008f2 
+       c02c0f6f 00000000 00000000 00002000 c01301f5 c030b8c0 000001d0 c032f3f5 
+       c02beca0 00026c08 c030b784 00000000 00000000 c030b848 c0330126 c02c0f6f 
+Call Trace: [<c0130c96>] [<c0118cd0>] [<c01301f5>] [<c0105000>] 
+c0325f08 c0133e93 c02c1007 00000146 00000246 fffff52d 000001d0 00000ad2 
+       00000000 000001d0 c030b8c0 00000000 c01340ea 00000000 000001d0 c01308f3 
+       00000001 000001d0 00000018 c0107f9e c0326000 c02d9585 c030b8c0 c030b8c8 
+Call Trace: [<c0133e93>] [<c01340ea>] [<c01308f3>] [<c0107f9e>] [<c0130d9e>] 
+   [<c0118cd0>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 c02beca0 00000000 c030b784 
+       00000000 00000000 c030b848 c0330126 c02c0f6f 00000020 00000020 00002000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0f61 00000000 00000000 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000000 c030b784 00000000 00000000 c030b848 c0330162 c02c0f61 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b784 
+       00000000 00000000 c030b848 c0330162 c02c0f61 00000020 00000020 00006000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0f59 00000008 00000004 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000000 c030b790 00000008 00000004 c030b848 c0330126 c02c0f59 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000020 c030b790 
+       00000008 00000004 c030b848 c0330126 c02c0f59 00000040 00000020 00002000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0f4b 00000008 00000004 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000020 c030b790 00000008 00000004 c030b848 c0330162 c02c0f4b 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000020 c030b790 
+       00000008 00000004 c030b848 c0330162 c02c0f4b 00000040 00000020 00006000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0f43 00000010 00000008 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000020 c030b79c 00000010 00000008 c030b848 c0330126 c02c0f43 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000040 c030b79c 
+       00000010 00000008 c030b848 c0330126 c02c0f43 00000060 00000020 00002000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0f35 00000010 00000008 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000040 c030b79c 00000010 00000008 c030b848 c0330162 c02c0f35 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000040 c030b79c 
+       00000010 00000008 c030b848 c0330162 c02c0f35 00000060 00000020 00006000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0f2c 00000018 0000000c 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000040 c030b7a8 00000018 0000000c c030b848 c0330126 c02c0f2c 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000060 c030b7a8 
+       00000018 0000000c c030b848 c0330126 c02c0f2c 00000080 00000020 00002000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0f1d 00000018 0000000c 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000060 c030b7a8 00000018 0000000c c030b848 c0330162 c02c0f1d 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000060 c030b7a8 
+       00000018 0000000c c030b848 c0330162 c02c0f1d 00000080 00000020 00006000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0f14 00000020 00000010 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000060 c030b7b4 00000020 00000010 c030b848 c0330126 c02c0f14 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000080 c030b7b4 
+       00000020 00000010 c030b848 c0330126 c02c0f14 000000c0 00000020 00002000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0f05 00000020 00000010 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000080 c030b7b4 00000020 00000010 c030b848 c0330162 c02c0f05 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000080 c030b7b4 
+       00000020 00000010 c030b848 c0330162 c02c0f05 000000c0 00000020 00006000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0efc 00000028 00000014 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000080 c030b7c0 00000028 00000014 c030b848 c0330126 c02c0efc 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 000000a0 c030b7c0 
+       00000028 00000014 c030b848 c0330126 c02c0efc 00000100 00000020 00002000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0eed 00000028 00000014 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 000000a0 c030b7c0 00000028 00000014 c030b848 c0330162 c02c0eed 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 000000a0 c030b7c0 
+       00000028 00000014 c030b848 c0330162 c02c0eed 00000100 00000020 00006000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0ee4 00000030 00000018 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 000000a0 c030b7cc 00000030 00000018 c030b848 c0330126 c02c0ee4 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7cc 
+       00000030 00000018 c030b848 c0330126 c02c0ee4 00000200 00000020 00002000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0ed5 00000030 00000018 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000000 c030b7cc 00000030 00000018 c030b848 c0330162 c02c0ed5 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7cc 
+       00000030 00000018 c030b848 c0330162 c02c0ed5 00000200 00000020 00006000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0ecb 00000038 0000001c 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000000 c030b7d8 00000038 0000001c c030b848 c0330126 c02c0ecb 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7d8 
+       00000038 0000001c c030b848 c0330126 c02c0ecb 00000400 00000020 00002000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0ebb 00000038 0000001c 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000000 c030b7d8 00000038 0000001c c030b848 c0330162 c02c0ebb 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7d8 
+       00000038 0000001c c030b848 c0330162 c02c0ebb 00000400 00000020 00006000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0eb1 00000040 00000020 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000000 c030b7e4 00000040 00000020 c030b848 c0330126 c02c0eb1 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7e4 
+       00000040 00000020 c030b848 c0330126 c02c0eb1 00000800 00000020 00002000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0ea1 00000040 00000020 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000000 c030b7e4 00000040 00000020 c030b848 c0330162 c02c0ea1 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f08 c0133e93 c02c1007 00000146 00000246 ffffc0bb 000001d0 00003f44 
+       00000000 000001d0 c030b8c0 00000020 c01340ea 00000000 000001d0 c01308f3 
+       00000001 000001d0 00000018 c0107f9e c0326000 c02d9585 c030b8c0 c030b8c8 
+Call Trace: [<c0133e93>] [<c01340ea>] [<c01308f3>] [<c0107f9e>] [<c0130d9e>] 
+   [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7e4 
+       00000040 00000020 c030b848 c0330162 c02c0ea1 00000800 00000020 00006000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0e97 00000048 00000024 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000000 c030b7f0 00000048 00000024 c030b848 c0330126 c02c0e97 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7f0 
+       00000048 00000024 c030b848 c0330126 c02c0e97 00001000 00000020 00002000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0e87 00000048 00000024 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000000 c030b7f0 00000048 00000024 c030b848 c0330162 c02c0e87 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7f0 
+       00000048 00000024 c030b848 c0330162 c02c0e87 00001000 00000020 00006000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0e7d 00000050 00000028 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000000 c030b7fc 00000050 00000028 c030b848 c0330126 c02c0e7d 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7fc 
+       00000050 00000028 c030b848 c0330126 c02c0e7d 00002000 00000020 00002000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0e6d 00000050 00000028 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000000 c030b7fc 00000050 00000028 c030b848 c0330162 c02c0e6d 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7fc 
+       00000050 00000028 c030b848 c0330162 c02c0e6d 00002000 00000020 00006000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0e62 00000058 0000002c 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000000 c030b808 00000058 0000002c c030b848 c0330126 c02c0e62 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b808 
+       00000058 0000002c c030b848 c0330126 c02c0e62 00004000 00000020 00002000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0e51 00000058 0000002c 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
+       ffffffff 00000000 c030b808 00000058 0000002c c030b848 c0330162 c02c0e51 
+Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
+c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b808 
+       00000058 0000002c c030b848 c0330162 c02c0e51 00004000 00000020 00006000 
+       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
+Call Trace: [<c013041f>] [<c0105000>] 
+c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
+       c02c0e46 00000060 00000030à
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-depmod: *** Unresolved symbols in /lib/modules/2.5.38/kernel/net/ipv4/netfilter/ipt_owner.o
-depmod:         find_task_by_pid
 
-Regards,
+Trace; c0118c5a <acquire_console_sem+2a/50>
+Trace; c0118ef7 <register_console+117/190>
+Trace; c0105000 <_stext+0/0>
+Trace; c0118c5a <acquire_console_sem+2a/50>
+Trace; c0118ef7 <register_console+117/190>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0118cd0 <release_console_sem+50/b0>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0133e93 <__alloc_pages+23/250>
+Trace; c01340ea <__get_free_pages+2a/70>
+Trace; c01308f3 <kmem_cache_grow+b3/260>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c0130d9e <kmem_cache_alloc+12e/150>
+Trace; c0118cd0 <release_console_sem+50/b0>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0133e93 <__alloc_pages+23/250>
+Trace; c01340ea <__get_free_pages+2a/70>
+Trace; c01308f3 <kmem_cache_grow+b3/260>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c0130d9e <kmem_cache_alloc+12e/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0130c96 <kmem_cache_alloc+26/150>
+Trace; c0107f9e <show_stack+6e/80>
+Trace; c01301f5 <kmem_cache_create+75/3a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c013041f <kmem_cache_create+29f/3a0>
+Trace; c0105000 <_stext+0/0>
 
-MCE
+
+1 warning issued.  Results may not be reliable.
+

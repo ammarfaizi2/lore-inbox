@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263079AbUFBO6d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbUFBPBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263079AbUFBO6d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 10:58:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263095AbUFBO6d
+	id S263095AbUFBPBD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 11:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUFBPBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 10:58:33 -0400
-Received: from tag.witbe.net ([81.88.96.48]:49845 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S263079AbUFBO6c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 10:58:32 -0400
-Message-Id: <200406021458.i52EwPX27483@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Andi Kleen'" <ak@muc.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: TCP retransmission : how to detect from an application ?
-Date: Wed, 2 Jun 2004 16:58:21 +0200
-Organization: AS2917
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <m3zn7m5bkt.fsf@averell.firstfloor.org>
-Thread-Index: AcRIpmnM1KX69soqTcqodaQGlTjU6QAC4O3g
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Wed, 2 Jun 2004 11:01:03 -0400
+Received: from smtp2.wanadoo.fr ([193.252.22.29]:27193 "EHLO
+	mwinf0203.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S263095AbUFBPBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 11:01:01 -0400
+Date: Wed, 2 Jun 2004 17:03:04 +0000
+From: Philippe Elie <phil.el@wanadoo.fr>
+To: Jens Schmalzing <j.s@lmu.de>
+Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: Re: [PATCH] OProfile driver in 2.6
+Message-ID: <20040602170304.GA385@zaniah>
+References: <hhwu2qs4eq.fsf@alsvidh.mathematik.uni-muenchen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <hhwu2qs4eq.fsf@alsvidh.mathematik.uni-muenchen.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 02 Jun 2004 at 11:19 +0000, Jens Schmalzing wrote:
 
+> Hi,
 > 
-> RTFM. man tcp -> TCP_INFO 
-> 
-Thanks... It seems that my man pages are quite outdated, but I've found
-the information I was missing.
+> I noticed that the driver for the OProfile profiling system, which
+> existed in the linuxppc-2.5-benh tree, is disabled in the mainline,
+> even though the driver still exists.  Is there a reason for this?  The
+> attached patch re-enables the driver.
 
-Regards,
-Paul
+I don't remember any reason, no test box perhaps ?
 
-Paul Rolland, rol(at)as2917.net
-ex-AS2917 Network administrator and Peering Coordinator
+The patch looks fine
 
---
-
-Please no HTML, I'm not a browser - Pas d'HTML, je ne suis pas un navigateur
-
-"Some people dream of success... while others wake up and work hard at it" 
-
-
-
+regards,
+Phil

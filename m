@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbTFYBKO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 21:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263451AbTFYBKO
+	id S263738AbTFYBTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 21:19:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTFYBTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 21:10:14 -0400
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:61326 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S263452AbTFYBKG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 21:10:06 -0400
-Date: Tue, 24 Jun 2003 20:58:08 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH] PnP Fixes for 2.5.73
-Message-ID: <20030624205808.GB14945@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
+	Tue, 24 Jun 2003 21:19:08 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:50851 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263738AbTFYBS7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 21:18:59 -0400
+Date: Tue, 24 Jun 2003 18:33:02 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: bkbits.net is down
+Message-ID: <20030625013302.GB2525@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
 	linux-kernel@vger.kernel.org
+References: <20030621135812.GE14404@work.bitmover.com> <20030621190944.GA13396@work.bitmover.com> <20030622002614.GA16225@work.bitmover.com> <20030623053713.GA6715@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030623053713.GA6715@work.bitmover.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+And the saga continues (I really want to be a real CEO.  I've done some
+research and I've found that golf isn't the only answer, fly fishing is
+cool now too.  I already know how to do that, I'm even good at it, so
+I should go close some deals :)
 
-This release contains fixes for ALSA compilation and also removes
-a bug in the locking code.
+Anyway, we put 2.5.70 on bkbits.net which is a Tyan dual PII motherboard
+w/ serverworks IDE and we started getting data corruption.  So I just
+installed 2.4.21 and we'll see if that works better.  
 
-Please Pull from: bk://linux-pnp.bkbits.net/pnp-2.5
+Things are going to be a little slow for a while I run through integrity
+checks on all the repos, there are 4.5 million files here so it takes a
+while (you guys do generate a pile of data, I'll give you that).
 
-Thanks,
-Adam
-
- drivers/pnp/interface.c    |    6 +++---
- drivers/pnp/isapnp/core.c  |    4 ++--
- drivers/pnp/manager.c      |   14 ++++++--------
- drivers/pnp/pnpbios/core.c |    2 +-
- drivers/pnp/support.c      |    2 +-
- include/linux/pnp.h        |    4 ++--
- 6 files changed, 15 insertions(+), 17 deletions(-)
-
-through these ChangeSets:
-
-ChangeSet@1.1388, 2003-06-24 20:24:19+00:00, ambx1@neo.rr.com
-  [PNP] Locking Fixes
-  
-  The semaphore in pnp_init_resource_table is not needed and, in some
-  cases, can cause resource management lockups.  This patch removes the
-  improperly placed semaphore.
-
- drivers/pnp/manager.c |    2 --
- 1 files changed, 2 deletions(-)
-
-
-ChangeSet@1.1387, 2003-06-24 20:17:15+00:00, ambx1@neo.rr.com
-  [PNP] pnp_init_resource_table compile fix
-  
-  In the last release, this api was accidently changed and therefore 
-  affected some drivers.  This patch corrects the issue by renaming
-  the api back to pnp_init_resource_table.
-
- drivers/pnp/interface.c    |    6 +++---
- drivers/pnp/isapnp/core.c  |    4 ++--
- drivers/pnp/manager.c      |   12 ++++++------
- drivers/pnp/pnpbios/core.c |    2 +-
- drivers/pnp/support.c      |    2 +-
- include/linux/pnp.h        |    4 ++--
- 6 files changed, 15 insertions(+), 15 deletions(-)
+More status as I have, bkbits is up now and you should be able to use it.
+If you hit problems in specific repos let me know, I already know about
+the ppc problems.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,82 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129344AbRCHSAp>; Thu, 8 Mar 2001 13:00:45 -0500
+	id <S129372AbRCHSJp>; Thu, 8 Mar 2001 13:09:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129363AbRCHSAg>; Thu, 8 Mar 2001 13:00:36 -0500
-Received: from pcsalo.cern.ch ([137.138.213.103]:46094 "EHLO pcsalo.cern.ch")
-	by vger.kernel.org with ESMTP id <S129344AbRCHSAP>;
-	Thu, 8 Mar 2001 13:00:15 -0500
-Message-ID: <3AA7C88B.78BCFE5E@cern.ch>
-Date: Thu, 08 Mar 2001 17:59:39 +0000
-From: Fons Rademakers <Fons.Rademakers@cern.ch>
-Organization: CERN
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S129364AbRCHSJg>; Thu, 8 Mar 2001 13:09:36 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:4480 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129283AbRCHSJP>; Thu, 8 Mar 2001 13:09:15 -0500
+Date: Thu, 8 Mar 2001 13:07:47 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Mohammad A. Haque" <mhaque@haque.net>
+cc: Venkatesh Ramamurthy <Venkateshr@ami.com>,
+        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: RE: Microsoft begining to open source Windows 2000?
+In-Reply-To: <Pine.LNX.4.32.0103081124210.9614-100000@viper.haque.net>
+Message-ID: <Pine.LNX.3.95.1010308125651.2984A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: andrea@suse.de
-CC: linux-kernel@vger.kernel.org
-Subject: Server tuning for maximum I/O performance...
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrea,
+On Thu, 8 Mar 2001, Mohammad A. Haque wrote:
 
-   we are trying to build Linux disk servers. We have the following setup:
+> On Thu, 8 Mar 2001, Venkatesh Ramamurthy wrote:
+> 
+> > My initial thought after seeing this article was that microsoft was testing
+> > its waters on open sourcing. If i have 1500 licenses then i would get the
+> > source. If i find any bug in thier source , i  would report to microsoft or
+> > send a patch and they would put it in thier next version. Is this not the
+> > same way Linux Kernel is developed?. Only thing microsoft does not want to
+> > immediately go full open sourcing and get embarrased at the hands of linux
+> > people.
+> >
+> 
+> making a patch means you've modfied the source which you are not allowed
+> to do. The most you can do is report the bug through normal channels
+> (you dont even have priority in reporting bugs since you have the code).
+> 
+> at least _ANYONE_ was able to contribute to linux. not just people with
+> gobs of money. I'm not even gonna comment on the embarrasement bit. The
+> one consultant quoted in the article summed it pretty nicely.
+> 
+> Also notice that you're now paying MS so you can find their bugs. Very
+> nice.
 
-- L440GX+ intel mobo, 133MHz PCI bus
-- 2 dual PIII 700 MHz, 512 MB ECC
-- 2 system disks 15 GB mirrored in hw
-- 20 data disks IBM 75 GB nominal datarate between 20 and 34 MB/s
-  (seq accesses) used in 10 mirrored hw file systems
-  thus ~ 750 GB available on each system
-- Each disk has its own EIDE channel
-- 3x 8 port 3ware 6800 boards (total 24 channels)
-- 1 GB eth NIC
-- kernel 2.2.18
+Of course Microsoft, being the industry leader and producer of
+the world's most powerful operating system, could not possibly
+have any bugs or even room for improvement. Therefore, revealing
+their exquisite source code is only being done to educate those
+who have not yet achieved Microsoft's pinnacle of perfection.
 
-The machines are used to receive large data files. When the local disks
-get to full files are migrated to tape via a remote tape server. The
-only processes running are several remote file I/O daemons to receive
-the data from GB eth and several migration daemons to send the data
-over GB eth to the tape servers (no interactive users or other processes
-are running on these machines).
+Sorry, I couldn't resist. FYI, I doubt that much actual code
+will be revealed because this could open the door to many lawsuits
+having to do with stolen intellectual property. Instead, they
+will probably define some MACROS like:
 
-Operating in this setup we observe the following behaviour:
+	START_OS();
+	RUN_OS();
+	STOP_OS();
 
-# write streams   # read streams     write performance/stream (MB/s)
---------------------------------------------------------------------
-1                 0                  25
-2                 0                  14.5
-3                 0                  9.3
-1                 1                  13.6
-1                 2                  8.8
-1                 3                  6.3
-2                 1                  9.3
-2                 2                  6.5
-2                 3                  5.1
+These are just dummies. The most important is a callable procedure:
 
-As you can see the write performance is severely reduced as soon as
-a process starts reading. All write and read streams are to separate
-spindles, never will a single disk server more than one stream.
-
-Aggregate datarate for the whole box is only 30-40 MB/s from disk to
-network or vice versa. Although network alone can go up to 60 MB/s (full
-duplex) and disk alone goes up to 100 MB/s, combining the two drops to 
-max 30-40 MB/s.
-
-Are this numbers you expect from the Linux kernel? Are they compatible
-with the current PC hardware architecture? To get better performance
-what would you advice changing (software, hardware, tuning)?
-
-Thanks for any suggestions.
+		make_blue_screen_of_death();
 
 
-Cheers, Fons.
+Cheers,
+Dick Johnson
 
--- 
-Org:    CERN, European Laboratory for Particle Physics.
-Mail:   1211 Geneve 23, Switzerland
-E-Mail: Fons.Rademakers@cern.ch              Phone: +41 22 7679248
-WWW:    http://root.cern.ch/~rdm/            Fax:   +41 22 7677910
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+

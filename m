@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266819AbUHCTod@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266820AbUHCTug@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266819AbUHCTod (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 15:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266825AbUHCTod
+	id S266820AbUHCTug (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 15:50:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266825AbUHCTug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 15:44:33 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15296 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266819AbUHCTob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 15:44:31 -0400
-Date: Tue, 3 Aug 2004 21:44:24 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc2-mm2
-Message-ID: <20040803194424.GD2746@fs.tum.de>
-References: <20040802015527.49088944.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Aug 2004 15:50:36 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:23455 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S266820AbUHCTuf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 15:50:35 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] idt77252.c: add missing pci_enable_device()
+Date: Tue, 3 Aug 2004 13:50:21 -0600
+User-Agent: KMail/1.6.2
+Cc: ecd@atecom.com, chas@cmf.nrl.navy.mil,
+       linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040802015527.49088944.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408031350.21349.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 02, 2004 at 01:55:27AM -0700, Andrew Morton wrote:
->...
-> All 388 patches:
->...
-> gcc35-always-inline.patch
->   gcc-3.5 fixes
->...
-> gcc35-fixmap.h.patch
->   gcc-3.5 fixes
->...
+Add pci_enable_device().  In the past, drivers often worked without
+this, but it is now required in order to route PCI interrupts correctly.
 
-Please drop these patches:
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-I can't see any way how they would fulfill Andi's claim that they would 
-be required for gcc 3.5 .
-
-All they do is to add an __always_inline which is _exactly_ the same as 
-__inline__, __inline and inline .
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+===== drivers/atm/idt77252.c 1.24 vs edited =====
+--- 1.24/drivers/atm/idt77252.c	2004-07-12 02:01:05 -06:00
++++ edited/drivers/atm/idt77252.c	2004-07-30 13:45:42 -06:00
+@@ -3684,6 +3684,11 @@
+ 	int i;
+ 
+ 
++	if (pci_enable_device(pcidev)) {
++		printk("idt77252: can't enable PCI device at %s\n", pci_name(pcidev));
++		return -ENODEV;
++	}
++
+ 	if (pci_read_config_word(pcidev, PCI_REVISION_ID, &revision)) {
+ 		printk("idt77252-%d: can't read PCI_REVISION_ID\n", index);
+ 		return -ENODEV;

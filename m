@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVCGXEi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVCGXL7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbVCGXEi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 18:04:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVCGXBi
+	id S261913AbVCGXL7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 18:11:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVCGXAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 18:01:38 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:38078 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261771AbVCGVRN (ORCPT
+	Mon, 7 Mar 2005 18:00:45 -0500
+Received: from fire.osdl.org ([65.172.181.4]:20125 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261870AbVCGW1G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 16:17:13 -0500
-Subject: Re: 2.6.11-mm1 (x86-abstract-discontigmem-setup.patch)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Alexey Dobriyan <adobriyan@mail.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Andy Whitcroft <apw@shadowen.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200503060121.19354.adobriyan@mail.ru>
-References: <200503051535.24372.adobriyan@mail.ru>
-	 <1110049138.6446.3.camel@localhost>  <200503060121.19354.adobriyan@mail.ru>
-Content-Type: text/plain
-Date: Mon, 07 Mar 2005 13:16:50 -0800
-Message-Id: <1110230210.6446.35.camel@localhost>
+	Mon, 7 Mar 2005 17:27:06 -0500
+Date: Mon, 7 Mar 2005 14:26:58 -0800
+From: cliff white <cliffw@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: Wrong Bogomips on G4 iBook?
+Message-ID: <20050307142658.130fc4c9@es175>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-03-06 at 01:21 +0200, Alexey Dobriyan wrote:
-> On Saturday 05 March 2005 20:58, Dave Hansen wrote:
-> > On Sat, 2005-03-05 at 15:35 +0200, Alexey Dobriyan wrote:
-> > > > +	}
-> > > > +	printk(KERN_DEBUG "\n");
-> > > 	       ^^^^^^^^^^
-> > > > +}
-> > > 
-> > > Too much KERN_DEBUG.
-> > 
-> > On my system, that ends up printing out 4 or 5 lines of output per node,
-> > but it's quite invaluable if you're debugging early memory setup issues.
-> > It is KERN_DEBUG after all.  What does it do on your system?
-> > 
-> > I'm not horribly opposed to removing some of this output, let's just
-> > make sure...
-> 
-> You misundestood. I'm not proposing to remove these printk's altogether. I'm
-> for removing KERN_DEBUG solely in the middle of the line.
-> 
-> Try the following program with and without 3-rd and 4-th KERN_DEBUG.
 
-Yep, I misunderstood :)
+Started running on a G4 iBook, and noticed the bogomips do not look right.
+~$ cat /proc/cpuinfo
+processor       : 0
+cpu             : 7447A, altivec supported
+clock           : 1333MHz
+revision        : 1.2 (pvr 8003 0102)
+bogomips        : 663.55
+machine         : PowerBook6,5
+motherboard     : PowerBook6,5 MacRISC3 Power Macintosh 
+detected as     : 287 (iBook G4)
+pmac flags      : 0000001b
+L2 cache        : 512K unified
+memory          : 768MB
+pmac-generation : NewWorld
+
+I see the with kernels 2.6.9 and greater.  Is this a problem, or just an artifact? 
+More details on request. 
+cliffw
 
 
-
--- Dave
-
+-- 
+"Ive always gone through periods where I bolt upright at four in the morning; 
+now at least theres a reason." -Michael Feldman

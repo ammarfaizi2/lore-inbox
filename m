@@ -1,39 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVACOyG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVACPEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261462AbVACOyG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 09:54:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVACOyG
+	id S261463AbVACPEh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 10:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVACPEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 09:54:06 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:58912 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261462AbVACOyD (ORCPT
+	Mon, 3 Jan 2005 10:04:37 -0500
+Received: from orb.pobox.com ([207.8.226.5]:5869 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261463AbVACPEa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 09:54:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=NZHeCSRMmEofG0jABwSv5miEI+Dl//0YYG1SAyihhpzqrmDLyWqaqkVY3ZmB7T/pWfaWY+80gPORA2VBbNJfQ7Ak/3n2czxFNUUoVRUO2tPIngC2cCWkZkkUZz+hMN3IGE/VvKgQtKM9t0gcnqtOhGgLKCREbHtCDs8cN5rhyGg=
-Message-ID: <5545708d050103065473670d7b@mail.gmail.com>
-Date: Mon, 3 Jan 2005 09:54:03 -0500
-From: Michael Gay <mike2post@gmail.com>
-Reply-To: Michael Gay <mike2post@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: System hang on startup.
+	Mon, 3 Jan 2005 10:04:30 -0500
+Date: Mon, 3 Jan 2005 07:05:05 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Pavel Machek <pavel@ucw.cz>, lindqvist@netstar.se, edi@gmx.de,
+       john@hjsoft.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       torvalds@osdl.org
+Subject: [PATCH] swsusp: properly suspend and resume *all* devices
+Message-ID: <20050103150505.GA4120@ip68-4-98-123.oc.oc.cox.net>
+References: <20041228144741.GA2969@butterfly.hjsoft.com> <20050101172344.GA1355@elf.ucw.cz> <20050102055753.GB7406@ip68-4-98-123.oc.oc.cox.net> <20050102184239.GA21322@butterfly.hjsoft.com> <1104696556.2478.12.camel@pefyra> <20050103051018.GA4413@ip68-4-98-123.oc.oc.cox.net> <20050103084713.GB2099@elf.ucw.cz> <20050103101423.GA4441@ip68-4-98-123.oc.oc.cox.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050103101423.GA4441@ip68-4-98-123.oc.oc.cox.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello-
+swsusp does not suspend and resume *all* devices, including system
+devices. This has been the case since at least 2.6.9, if not earlier.
 
-My system hangs on startup at the following prompt:
+One effect of this is that resuming fails to properly reconfigure
+interrupt routers. In 2.6.9 this was obscured by other kernel code,
+but in 2.6.10 this often causes post-resume APIC errors and near-total
+failure of some PCI devices (e.g. network, sound and USB controllers).
 
-checking file systems
-/dev/sda: recovering journal
+On at least one of my systems, without this patch I also have to "ifdown
+eth0;ifup eth0" to get networking to function after resuming, even after
+working around the interrupt routing problem mentioned above. With this
+patch, networking simply works after a resume, and the ifdown/ifup is
+no longer needed.
 
-I have tried letting it just sit there and "recover" for 2 hours at
-first and then for 24 hours with still no luck. Does anyone have any
-ideas? And/or does anyone know the severity of this problem?
+This patch is against 2.6.10-mm1, although it applies with an offset to
+2.6.10-bk4 as well. I have tested it against 2.6.10-mm1 and 2.6.10-bk4,
+with and without "noapic", with and without "acpi=off". However, I have
+not tested it on a highmem system.
 
--Michael
+I believe this patch fixes a severe problem in swsusp; I would like to
+see this patch (or at least *some* kind of fix for this problem) tested
+more widely and committed to mainline before the 2.6.11 release.
+
+Signed-off-by: Barry K. Nathan <barryn@pobox.com>
+
+--- linux-2.6.10-mm1/kernel/power/swsusp.c	2005-01-03 02:16:15.175265255 -0800
++++ linux-2.6.10-mm1-bkn3/kernel/power/swsusp.c	2005-01-03 06:27:07.753344731 -0800
+@@ -843,11 +843,22 @@
+ 	if ((error = arch_prepare_suspend()))
+ 		return error;
+ 	local_irq_disable();
++	/* At this point, device_suspend() has been called, but *not*
++	 * device_power_down(). We *must* device_power_down() now.
++	 * Otherwise, drivers for some devices (e.g. interrupt controllers)
++	 * become desynchronized with the actual state of the hardware
++	 * at resume time, and evil weirdness ensues.
++	 */
++	if ((error = device_power_down(PM_SUSPEND_DISK))) {
++		local_irq_enable();
++		return error;
++	}
+ 	save_processor_state();
+ 	error = swsusp_arch_suspend();
+ 	/* Restore control flow magically appears here */
+ 	restore_processor_state();
+ 	restore_highmem();
++	device_power_up();
+ 	local_irq_enable();
+ 	return error;
+ }

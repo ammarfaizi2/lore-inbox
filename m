@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVALUPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVALUPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbVALUPI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 15:15:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVALUMW
+	id S261394AbVALUPO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 15:15:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVALULl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 15:12:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:46217 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261362AbVALULL (ORCPT
+	Wed, 12 Jan 2005 15:11:41 -0500
+Received: from coderock.org ([193.77.147.115]:13005 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261368AbVALUGX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 15:11:11 -0500
-Date: Wed, 12 Jan 2005 12:10:59 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: Make pipe data structure be a circular list of pages, rather
- than
-In-Reply-To: <Pine.LNX.4.58.0501121148330.28987@bigblue.dev.mdolabs.com>
-Message-ID: <Pine.LNX.4.58.0501121201140.2310@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0501091946020.3620-100000@localhost.localdomain>
- <Pine.LNX.4.58.0501091713300.2373@ppc970.osdl.org>
- <Pine.LNX.4.58.0501091830120.2373@ppc970.osdl.org>
- <Pine.LNX.4.58.0501121148330.28987@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 12 Jan 2005 15:06:23 -0500
+Date: Wed, 12 Jan 2005 21:06:11 +0100
+From: Domen Puncer <domen@coderock.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: more small fixes
+Message-ID: <20050112200611.GM4978@nd47.coderock.org>
+References: <20050112131010.GA1378@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050112131010.GA1378@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 12 Jan 2005, Davide Libenzi wrote:
-
-> On Sun, 9 Jan 2005, Linus Torvalds wrote:
+On 12/01/05 14:10 +0100, Pavel Machek wrote:
+> Hi!
 > 
-> > On Sun, 9 Jan 2005, Linus Torvalds wrote:
-> > > 
-> > > Since you guys stupidly showed interest, here's a very first-order
-> > > approximation of filling the pipe from some other source.
-> > 
-> > Here's a somewhat fixed and tested version, which actually does something 
-> > on x86.
+> This adds few missing statics to swsusp.c, prints errors even when
+> non-debugging and fixes last "pmdisk: " message. Fixed few comments. 
+> Please apply,
+
+Some nitpicking...
 > 
-> Question. How do you think to splice() skb pages, or any other non page-based
-> format?
+> --- clean/kernel/power/swsusp.c	2005-01-12 11:07:40.000000000 +0100
+> +++ linux/kernel/power/swsusp.c	2005-01-12 11:35:42.000000000 +0100
+> @@ -420,7 +419,7 @@
+>  	struct highmem_page *next;
+>  };
+>  
+> -struct highmem_page *highmem_copy = NULL;
+> +static struct highmem_page *highmem_copy = NULL;
 
-That's why there's an "offset/length" pair. Right now the only limitation 
-is actually
- - that at least the start of the area can be described as a "struct page
-   *" (this means that things like a PCI MMIO mapping cannot be spliced -
-   but that's true for other reasons anyway, since a "memcpy()" doesn't
-   even work on such things on most architectures)
- - that it be mappable with kmap() (this means that if it's a multi-page 
-   thing, it needs to be in low memory currently).
+You could remove explicit initialization (so pointer would go into bss
+instead of data, IIRC).
 
-The second thing would actually going away in a full implementation
-anyway, to be replaced by "map this page in" and "unmap this page" buffer
-operations. We need those "map" operations in order to handle other
-"prepare for copy" situations, notably waiting for disk IO to be finished
-(ie I want to be able to splice pages to the pipe without having to wait
-for them - you'd wait for the contents only when the data itself is
-needed).
 
-My example patch (which I didn't post publicly because it's a
-work-in-progress) already made offset/length be "unsigned int", exactly
-because I foresee the "page" possibly being part of a hugetlb page, or at
-least a bigger multi-page allocation.
+> @@ -753,21 +753,21 @@
+>  		return -ENOSPC;
+>  
+>  	if ((error = alloc_pagedir())) {
+> -		pr_debug("suspend: Allocating pagedir failed.\n");
+> +		printk("suspend: Allocating pagedir failed.\n");
 
-[ Side note: even the first issue - PCI MMIO or other descriptor that 
-  doesn't normally have a "struct page *" associated with it - could 
-  in theory be handled by just creating a fake "struct page", and hiding 
-  the information into it. Then the map/unmap functions would just have to 
-  return the virtual address that is usable for a memcpy - since on _some_ 
-  architectures you can actually do a memcpy on IO space too. That might 
-  be useful for things like AGP or similar that depend on architecture- 
-  specific issues anyway ]
+Missing KERN_ constant.
 
-		Linus
+>  		return error;
+>  	}
+>  	if ((error = alloc_image_pages())) {
+> -		pr_debug("suspend: Allocating image pages failed.\n");
+> +		printk("suspend: Allocating image pages failed.\n");
+
+Same here.
+
+
+	Domen

@@ -1,83 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263472AbUA0MLA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 07:11:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263539AbUA0MLA
+	id S263537AbUA0MHH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 07:07:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263522AbUA0MHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 07:11:00 -0500
-Received: from natsmtp01.rzone.de ([81.169.145.166]:65515 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S263472AbUA0MK5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 07:10:57 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-kernel@vger.kernel.org
-Subject: show_task() is not SMP safe
-Date: Tue, 27 Jan 2004 13:06:37 +0100
-User-Agent: KMail/1.5.4
-Cc: Christian Borntraeger <cborntra@de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200401271306.37209.arnd@arndb.de>
+	Tue, 27 Jan 2004 07:07:07 -0500
+Received: from mail.poliba.it ([193.204.49.50]:17373 "EHLO mail.poliba.it")
+	by vger.kernel.org with ESMTP id S263462AbUA0MHB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 07:07:01 -0500
+Date: Tue, 27 Jan 2004 13:07:09 +0100
+From: "Angelo Dell'Aera" <buffer@antifork.org>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: Linux-Net <linux-net@vger.kernel.org>
+Subject: airo_cs problem - kernel 2.6.1
+Message-Id: <20040127130709.50a3eaae.buffer@antifork.org>
+Organization: Antifork Research, Inc.
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-PGP-Program: GNU Privacy Guard (http://www.gnupg.org)
+X-PGP-PublicKey: http://buffer.antifork.org/privacy/buffer-gpg.asc
+X-PGP-Fingerprint: 48CC B0D8 C394 CD30 355F E36D A4E3 48CF 19C1 5CA2
+X-Operating-System: GNU-Linux
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Bornträger noticed that the kernel can crash after
-<SysRq>-T. It appears that the show_task function gets called
-for all tasks, which does not work if one of the tasks is
-running in a system call on another CPU. In that case the
-result of thread_saved_pc and show_stack is undefined and
-likely to cause a crash.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-For tasks running in user space on other CPUs, show_task()
-is probably harmless, but I'm not sure if that's true on all
-architectures.
 
-The patch below is still racy for tasks that are about to
-sleep, but it demonstrates the problem.
+Today I experienced this problem with a Cisco Aironet 350.
+I just want to point out it's the first time it happens. 
+In fact, I still used this NIC on this kernel (2.6.1) without 
+any kind of problem. Attached is an extract from my log.
 
-In the same function, there is another (harmless) bug that causes 
-the "free stack" indicator to be wrong. It can take any value
-between zero and the intended meaning unless __alloc_thread_info
-is modified to clear newly allocated stack memory.
 
-	Arnd <><
+airo:  Probing for PCI adapters
+Unable to handle kernel paging request at virtual address e0b397b8
+ printing eip:
+c01b524f
+*pde = 1ed80067
+*pte = 00000000
+Oops: 0002 [#1]
+CPU:    0
+EIP:    0060:[<c01b524f>]    Not tainted
+EFLAGS: 00010296
+EIP is at kobject_add+0x6f/0x120
+eax: c0350460   ebx: e0bd379c   ecx: e0b397b8   edx: e0bd37b8
+esi: c0350468   edi: 00000000   ebp: e0bd3784   esp: d90b5f0c
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 3780, threadinfo=d90b4000 task=ca604080)
+Stack: c0350468 e0bd37a0 e0bd379c e0bd379c e0bd379c 00000000 c01b5323 e0bd379c
+       e0bd379c c0350400 e0bd379c c0350400 c0217a5a e0bd379c e0bd01e0 e0bd3760
+       00000000 e0bd37f8 d90b4000 c0217f1f e0bd3784 e0bd10a3 d90b5f8c c017d388
+Call Trace:
+ [<c01b5323>] kobject_register+0x23/0x60
+ [<c0217a5a>] bus_add_driver+0x4a/0xa0
+ [<c0217f1f>] driver_register+0x2f/0x40
+ [<c017d388>] create_proc_entry+0x88/0xd0
+ [<c01bcecc>] pci_register_driver+0x5c/0x90
+ [<e0b2d0d1>] airo_init_module+0xd1/0xf8 [airo]
+ [<c01319bc>] sys_init_module+0x12c/0x250
+ [<c01091a7>] syscall_call+0x7/0xb
 
-Index: kernel/sched.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/kernel/sched.c,v
-retrieving revision 1.56
-diff -u -r1.56 sched.c
---- kernel/sched.c	24 Nov 2003 09:44:34 -0000	1.56
-+++ kernel/sched.c	27 Jan 2004 11:50:55 -0000
-@@ -2457,13 +2457,13 @@
- 	else
- 		printk(" ");
- #if (BITS_PER_LONG == 32)
--	if (p == current)
--		printk(" current  ");
-+	if (state == TASK_RUNNING)
-+		printk(" running ");
- 	else
- 		printk(" %08lX ", thread_saved_pc(p));
- #else
--	if (p == current)
--		printk("   current task   ");
-+	if (state == TASK_RUNNING)
-+		printk("  running task   ");
- 	else
- 		printk(" %016lx ", thread_saved_pc(p));
- #endif
-@@ -2491,7 +2491,8 @@
- 	else
- 		printk(" (NOTLB)\n");
- 
--	show_stack(p, NULL);
-+	if (state != TASK_RUNNING)
-+		show_stack(p, NULL);
- }
- 
- void show_state(void)
+Code: 89 11 89 4a 04 8b 43 28 8b 38 8d 4f 48 89 c8 ba ff ff 00 00
+ <4>airo_cs: Unknown symbol init_airo_card
+airo_cs: Unknown symbol stop_airo_card
+airo_cs: Unknown symbol reset_airo_card
+airo_cs: Unknown symbol init_airo_card
+airo_cs: Unknown symbol stop_airo_card
+airo_cs: Unknown symbol reset_airo_card
 
+
+Regards.
+
+- --
+
+Angelo Dell'Aera 'buffer' 
+Antifork Research, Inc.	  	http://buffer.antifork.org
+
+PGP information in e-mail header
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAFlRtpONIzxnBXKIRAuhkAJ4xsLc4IBE65CPW+2tMG7g0XKbpGwCgixVY
+nES3gWlgWnWlD3KGqM4wv8Q=
+=PN9/
+-----END PGP SIGNATURE-----

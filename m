@@ -1,47 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316530AbSHRXZR>; Sun, 18 Aug 2002 19:25:17 -0400
+	id <S316538AbSHRXpW>; Sun, 18 Aug 2002 19:45:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316535AbSHRXZR>; Sun, 18 Aug 2002 19:25:17 -0400
-Received: from ip68-4-77-172.oc.oc.cox.net ([68.4.77.172]:6650 "HELO
-	ip68-4-77-172.oc.oc.cox.net") by vger.kernel.org with SMTP
-	id <S316530AbSHRXZR>; Sun, 18 Aug 2002 19:25:17 -0400
-Date: Sun, 18 Aug 2002 16:29:18 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4(/2.5?) clarify devfs documentation
-Message-ID: <20020818232918.GC5154@ip68-4-77-172.oc.oc.cox.net>
-Mime-Version: 1.0
+	id <S316541AbSHRXpW>; Sun, 18 Aug 2002 19:45:22 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:38162
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S316538AbSHRXpV>; Sun, 18 Aug 2002 19:45:21 -0400
+Date: Sun, 18 Aug 2002 16:38:42 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, stp@osdl.org
+Subject: Re: IDE?
+In-Reply-To: <200208182249.PAA01041@adam.yggdrasil.com>
+Message-ID: <Pine.LNX.4.10.10208181626580.23171-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The section of the devfs documentation which discusses the ability to
-run a devfs-enabled kernel without devfs mounted is possibly confusing.
-Hopefully this patch will make it easier to understand. It's against
-2.4.20-pre3 but it applies to 2.4.19 and 2.5.31 as well.
 
-For 2.4, please apply or explain any objections. If it's applied for
-2.4, it would be good to apply it for 2.5 as well, although it might be
-moot if devfs is killed during 2.5.
+OSDL does not support IDE.
 
--Barry K. Nathan <barryn@pobox.com>
+See, I asked some time ago about testing raid arrays and a possible thread
+driver.  All you will find there is onboard hosts, and I do not believe
+they stock the all the junk systems out there.
 
-diff -ruN linux-2.4.20-pre3/Documentation/filesystems/devfs/README linux-2.4.20-pre3-bkn1/Documentation/filesystems/devfs/README
---- linux-2.4.20-pre3/Documentation/filesystems/devfs/README	Thu May 16 01:58:33 2002
-+++ linux-2.4.20-pre3-bkn1/Documentation/filesystems/devfs/README	Sun Aug 18 16:16:01 2002
-@@ -727,7 +727,11 @@
- mount(8) programme uses /proc/partitions as part of
- the volume label search process, and the device names it finds are not
- available, because setting CONFIG_DEVFS_FS=y changes the names in
--/proc/partitions, irrespective of whether devfs is mounted.
-+/proc/partitions, irrespective of whether devfs is mounted. Another
-+exception is if the device nodes in the underlying /dev have been
-+deleted. Even if devfs is enabled, it cannot be used if it is not
-+mounted (the on-disk /dev will be used instead, unless/until devfs
-+is mounted).
- 
- Now you've finished all the steps required. You're now ready to boot
- your shiny new kernel. Enjoy.
+150 systems is a not a large enough sample.
+
+500 ++ w/ various add-in cards * (the number of drive models per vendor) *
+the number vendors  eek stop ....
+
+Add in ATAPI devices, CFA, etc ...
+
+You see the combination are of a scale unchecked.
+
+I started at one point trying to have a single drive vendor with at least
+1000 or more systems in one lab to test their product over the host
+hardware base, to run kernel checks.  The task was beyond scale.
+
+All it takes is a bus analyzer and a few systems known to be good to
+perfect the driver.  Then you deal with all the exceptions of the crap
+combinations.
+
+That is how I do it, since I have a code base that has been run over a
+bus analyzer I know it works.
+
+Cheers,
+
+
+On Sun, 18 Aug 2002, Adam J. Richter wrote:
+
+> On 2002-08-17, Alan Cox wrote:
+> >Volunteers willing to run Cerberus test sets on 2.4 boxes with IDE
+> >controllers would also be much appreciated. That way we can get good
+> >coverage tests and catch badness immediately
+> 
+> 	From visiting the osdl.org booth a LinuxWorld, I understand
+> that they have a farm of 150 deliberately differently configured
+> computers on which you are supposed to be able to run your own
+> kernel tests on your own kernels.
+> 
+> 	They have a procedure for adding new tests described at
+> http://www.osdl.org/stp/HOWTO.Port_Tests.html.
+> 
+> 	I think it would be informative to run 2.4 ported code and
+> Martin's stack against IDE tests on this system.  With this, you could
+> not only spot problems, but see problems happening in a certain pattern
+> which could sometimes simplify finding a bug.
+> 
+> Adam J. Richter     __     ______________   575 Oroville Road
+> adam@yggdrasil.com     \ /                  Milpitas, California 95035
+> +1 408 309-6081         | g g d r a s i l   United States of America
+>                          "Free Software For The Rest Of Us."
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
+

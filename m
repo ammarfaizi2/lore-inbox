@@ -1,66 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288954AbSAUB0O>; Sun, 20 Jan 2002 20:26:14 -0500
+	id <S288957AbSAUB3O>; Sun, 20 Jan 2002 20:29:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288957AbSAUB0E>; Sun, 20 Jan 2002 20:26:04 -0500
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:1158 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S288954AbSAUBZ6>;
-	Sun, 20 Jan 2002 20:25:58 -0500
-Message-Id: <5.1.0.14.2.20020121010950.02672870@pop.cus.cam.ac.uk>
+	id <S288979AbSAUB3E>; Sun, 20 Jan 2002 20:29:04 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:15238 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S288957AbSAUB2x>;
+	Sun, 20 Jan 2002 20:28:53 -0500
+Message-Id: <5.1.0.14.2.20020121012849.02675c90@pop.cus.cam.ac.uk>
 X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 21 Jan 2002 01:28:09 +0000
-To: Hans Reiser <reiser@namesys.com>
+Date: Mon, 21 Jan 2002 01:31:20 +0000
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
 From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Possible Idea with filesystem buffering.
-Cc: Matt <matt@progsoc.uts.edu.au>, Rik van Riel <riel@conectiva.com.br>,
-        Shawn <spstarr@sh0n.net>, linux-kernel@vger.kernel.org,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>
-In-Reply-To: <3C4B6778.7040509@namesys.com>
-In-Reply-To: <Pine.LNX.4.33L.0201201936340.32617-100000@imladris.surriel.com>
- <3C4B3B67.60505@namesys.com>
- <20020121111005.F12258@ftoomsh.progsoc.uts.edu.au>
+Subject: Re: Hardwired drivers are going away?
+Cc: Frank van de Pol <fvdpol@home.nl>, Keith Owens <kaos@ocs.com.au>,
+        Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0201202004440.914-100000@filesrv1.baby-drago
+ ns.com>
+In-Reply-To: <5.1.0.14.2.20020121010328.02672020@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[snip]
-At 00:57 21/01/02, Hans Reiser wrote:
-[snip]
- > Would be best if VM told us if we really must write that page.
+At 01:07 21/01/02, Mr. James W. Laferriere wrote:
+>On Mon, 21 Jan 2002, Anton Altaparmakov wrote:
+> > At 23:20 20/01/02, Frank van de Pol wrote:
+> > >On Sat, Jan 19, 2002 at 10:22:43AM +1100, Keith Owens wrote:
+> > > > On Fri, 18 Jan 2002 17:20:02 -0500 (EST),
+> > > > "Mr. James W. Laferriere" <babydr@baby-dragons.com> wrote:
+> > > > >     Linux doesn't have a method to load encrypted & signed modules at
+> > > > >     this time .
+> > > > And never will.  Who loads the module - root.  Who maintains the list
+> > > > of signatures - root.  Who controls the code that verifies the
+> > > > signature - root.
+> > > > Your task Jim, should you choose to accept it, is to make the kernel
+> > > > distinguish between a good use of root and a malicious use by some who
+> > > > has broken in and got root privileges.  When you can do that, then we
+> > > > can add signed modules.
+> > >If you want to secure your box, why don't you simply put a lock on it and
+> > >throw away the key? Really, what might help the paranoid admins in 
+> this case
+> > >is a setting in the kernel which basically disables the ability to load or
+> > >unload modules. Of course once set this setting can not been turned with
+> > >rebooting the box.
+>
+> > Er that sounds like just disabling modules in the kernel altogether (kernel
+> > compile option exists for this since the beginning of time)... I do that on
+> > all servers I control. Not only for security reasons but also because I
+> > suspect it produces smaller and probably faster kernels (I haven't tested
+> > this in any way, just a guess).
+>         This is just what the Heads are trying to do away with .  There
+>         will only be module enabled kernels .  JimL
 
-In theory the VM should never call writepage unless the page must be writen 
-out...
-
-But I agree with you that it would be good to be able to distinguish the 
-two cases. I have been thinking about this a bit in the context of NTFS TNG 
-but I think that it would be better to have a generic solution rather than 
-every fs does their own copy of the same thing. I envisage that there is a 
-flush daemon which just walks around writing pages to disk in the 
-background (there could be one per fs, or a generic one which fs register 
-with, at their option they could have their own of course) in order to keep 
-the number of dirty pages low and in order to minimize data loss on the 
-event of system/power failure.
-
-This demon requires several interfaces though, with regards to journalling 
-fs. The daemon should have an interface where the fs can say "commit pages 
-in this list NOW and do not return before done", also a barrier operation 
-would be required in journalling context. A transactions interface would be 
-ideal, where the fs can submit whole transactions consisting of writing out 
-a list of pages and optional write barriers; e.g. write journal pages x, y, 
-z, barrier, write metadata, perhaps barrier, finally write data pages a, b, 
-c. Simple file systems could just not bother at all and rely on the flush 
-daemon calling the fs to write the pages.
-
-Obviously when this daemon writes pages the pages will continue being 
-there. OTOH, if the VM calls write page because it needs to free memory 
-then writepage must write and clean the page.
-
-So, yes, a parameter to write page would be great in this context. 
-Alternatively we could have ->writepage and ->flushpage (or pick your 
-favourite two names) one being an optional writeout and one a forced 
-writeout... I like the parameter to writepage idea better but in the end it 
-doesn't really matter that much I would suspect...
+Ah! Serves me right for jumping into a thread without reading the previous 
+posts... I better shut up as I have no idea why this is being done. From my 
+unknowledgeable point of view it seems daft but there probably are good 
+reasons... I suppose even non-modular kernels can be modified by the root 
+user to be exploited, it's just a little bit harder...
 
 Best regards,
 

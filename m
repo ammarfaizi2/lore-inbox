@@ -1,35 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264629AbRFTVO0>; Wed, 20 Jun 2001 17:14:26 -0400
+	id <S263748AbRFTVOr>; Wed, 20 Jun 2001 17:14:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263673AbRFTVOQ>; Wed, 20 Jun 2001 17:14:16 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:43296 "EHLO
-	mailsorter1.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S263748AbRFTVOG>; Wed, 20 Jun 2001 17:14:06 -0400
-Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B6BD6@nocmail.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'root@chaos.analogic.com'" <root@chaos.analogic.com>,
-        Daniel Phillips <phillips@bonn-fries.net>
-Cc: Rob Landley <landley@webofficenow.com>,
-        Tony Hoyle <tmh@magenta-netlogic.com>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Russell Leighton <russell.leighton@247media.com>,
-        linux-kernel@vger.kernel.org, Ben Greear <greearb@candelatech.com>
-Subject: RE: [OT] Threads, inelegance, and Java
-Date: Wed, 20 Jun 2001 17:13:07 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S264631AbRFTVOi>; Wed, 20 Jun 2001 17:14:38 -0400
+Received: from vitelus.com ([64.81.36.147]:26895 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S263748AbRFTVO0>;
+	Wed, 20 Jun 2001 17:14:26 -0400
+Date: Wed, 20 Jun 2001 14:14:16 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Ben Greear <greearb@candelatech.com>
+Cc: hps@intermeta.de, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Threads, inelegance, and Java
+Message-ID: <20010620141416.B29618@vitelus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B30BD5D.153A5FE9@candelatech.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 20, 2001 at 08:12:29AM -0700, Ben Greear wrote:
+> When was the last time you wrote a large cross-platform GUI that just
+> worked on other platforms, without any additional tweaking, after you
+> developed it on your Linux machine?
 
-
->The GUI using Turbo Pascal required a lot of RAM.
-
-:o)  Now adays that sounds kind of funny...
-
-Did you have anything to do with the c-64 version as well.  Now that brings
-back memories........
- 
+I'd say that would be the last time I wrote something in GTK. SDL has
+similar portability.

@@ -1,49 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290338AbSBORv0>; Fri, 15 Feb 2002 12:51:26 -0500
+	id <S290356AbSBORxG>; Fri, 15 Feb 2002 12:53:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290344AbSBORvT>; Fri, 15 Feb 2002 12:51:19 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:33808
-	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S290338AbSBORvE>; Fri, 15 Feb 2002 12:51:04 -0500
-Date: Fri, 15 Feb 2002 12:25:36 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux-Kernel list <linux-kernel@vger.kernel.org>, dirk.hohndel@intel.com
-Subject: Re: Disgusted with kbuild developers
-Message-ID: <20020215122536.B8249@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Linux-Kernel list <linux-kernel@vger.kernel.org>,
-	dirk.hohndel@intel.com
-In-Reply-To: <3C6D3D9A.565EC59D@mandrakesoft.com> <20020215115147.A7528@thyrsus.com> <3C6D45E3.59A7D72D@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C6D45E3.59A7D72D@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Feb 15, 2002 at 12:31:15PM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S290361AbSBORxA>; Fri, 15 Feb 2002 12:53:00 -0500
+Received: from smtp-out-1.wanadoo.fr ([193.252.19.188]:52118 "EHLO
+	mel-rto1.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S290356AbSBORwo>; Fri, 15 Feb 2002 12:52:44 -0500
+Message-ID: <3C6D4A58.6070401@wanadoo.fr>
+Date: Fri, 15 Feb 2002 18:50:16 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: lkml <linux-kernel@vger.kernel.org>, linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.5.5-pre1 rmmod usb-uhci hangs
+In-Reply-To: <3C6D2130.1020103@wanadoo.fr> <20020215155636.GB1695@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com>:
-> What I see on linux-kernel is you writing long diatribes, and then
-> promptly ignoring feedback from kernel developers who would actually be
-> using your system.  After months and months of being told that
-> Configure.help needed to be split up, you just continued to whine. 
+Greg KH wrote:
+> On Fri, Feb 15, 2002 at 03:54:40PM +0100, Pierre Rousselet wrote:
+> 
+>>with 2.5.5-pre1 usb-uhci module can't unload. rmmod hangs, leaving the 
+>>system unstable. in one circumstance the box freezed with an oops 
+>>involving swapper pid0 . this doesn't happen with 2.5.4
+>>
+> 
+> Try this (untested, I haven't rebooted yet) patch:
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> 
+> diff -Nru a/drivers/usb/usb.c b/drivers/usb/usb.c
+> --- a/drivers/usb/usb.c	Thu Feb 14 22:47:21 2002
+> +++ b/drivers/usb/usb.c	Thu Feb 14 22:47:21 2002
+> @@ -1979,11 +1979,11 @@
+>  				if (driver->owner)
+>  					__MOD_DEC_USE_COUNT(driver->owner);
+>  				/* if driver->disconnect didn't release the interface */
+> -				if (interface->driver) {
+> -					put_device (&interface->dev);
+> +				if (interface->driver)
+>  					usb_driver_release_interface(driver, interface);
+> -				}
+>  			}
+> +			/* remove our device node for this interface */
+> +			put_device(&interface->dev);
+>  		}
+>  	}
+>  
+> 
+> 
+no, it doesn't solve the problem. i would like to test it whith 
+preemtible kernel not set but it doesn't boot.
 
-I heard Linus say that he wanted Configure.help split up.  I agreed to
-do it, too, in CML2.  But I thought I was not supposed to mess with existing 
-formats -- in fact, I was afraid to, because you and Al Viro beat me up
-so hard about changing *nothing* before cutover.  The CML1 code owns that
-format, and I am not the CML1 maintainer.  In fact mec specifically turned
-me down when I volunteered for that job; he said he wanted me concentrating
-on CML2.
+with both 2.5.4 and 2.5.5-pre1 when loading usb-uhci usb.c reports 2 
+devices :
+device 1 : USB UHCI Root Hub
+device 2 : Alcatel Speed Touch USB (the driver module and firmware are 
+not loaded at this stage)
 
-Neither Linus nor anyone else ever said to me "Eric, it's your job to 
-make that change."  When I asked for guidance, Linus blackholed my mail.
-Was I supposed to be practicing telepathy, here?
+when rmmoding usb-uhci with 2.5.4 usb.c reports:
+usb.c: USB disconnect on device 1
+usb.c: USB disconnect on device 2
+
+with 2.5.5-pre1
+usb.c: USB disconnect on device 1
+  and nothing else.
+Pierre
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+------------------------------------------------
+  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
+

@@ -1,97 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVCFXYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVCFXY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261603AbVCFXYy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 18:24:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVCFXWU
+	id S261591AbVCFXY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 18:24:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVCFXSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 18:22:20 -0500
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:30158 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S261597AbVCFXUz (ORCPT
+	Sun, 6 Mar 2005 18:18:35 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:2022 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261602AbVCFXOS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 18:20:55 -0500
-Date: Mon, 7 Mar 2005 08:20:37 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>,
-       Ralf Baechle <ralf@linux-mips.org>
-Subject: [PATCH 2.6.11-mm1] mips: add spare timer init
-Message-Id: <20050307082037.2c670c29.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 6 Mar 2005 18:14:18 -0500
+Subject: Re: RFD: Kernel release numbering
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andres Salomon <dilinger@voxel.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <pan.2005.03.06.07.53.24.672203@voxel.net>
+References: <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org>
+	 <20050303081958.GA29524@kroah.com> <4226CCFE.2090506@pobox.com>
+	 <20050303090106.GC29955@kroah.com> <4226D655.2040902@pobox.com>
+	 <20050303021506.137ce222.akpm@osdl.org>
+	 <20050303170759.GA17742@ti64.telemetry-investments.com>
+	 <20050303193358.GA29371@redhat.com>
+	 <20050303203808.GA10408@ti64.telemetry-investments.com>
+	 <42278194.7020409@pobox.com> <20050303221503.GS4608@stusta.de>
+	 <pan.2005.03.06.07.53.24.672203@voxel.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1110150758.28860.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 06 Mar 2005 23:12:39 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds spare timer initialization for NEC VR41xx.
+On Sul, 2005-03-06 at 07:53, Andres Salomon wrote:
+> On Thu, 03 Mar 2005 23:15:03 +0100, Adrian Bunk wrote:
+> There's also no other (suitable) place to announce kernel trees.  Debian
+> kernels get announced on various debian-related lists; I'd imagine FC
+> kernels have the same thing.  The only place to announce non-distro trees
+> is lkml (and I've had requests for an -as specific announce list, I
+> haven't haven't found the time to get something going).
 
-Yoichi
+Please keep announcing them here - its useful to see all the trees in
+one place. I certainly look at the others to make sure I don't miss
+stuff. We might not agree on what should be merged but the cross
+checking is valuable.
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-
-diff -urN -X dontdiff a-orig/arch/mips/vr41xx/common/init.c a/arch/mips/vr41xx/common/init.c
---- a-orig/arch/mips/vr41xx/common/init.c	Thu Mar  3 07:26:49 2005
-+++ a/arch/mips/vr41xx/common/init.c	Thu Mar  3 07:30:17 2005
-@@ -19,9 +19,11 @@
-  */
- #include <linux/init.h>
- #include <linux/ioport.h>
-+#include <linux/irq.h>
- #include <linux/string.h>
- 
- #include <asm/bootinfo.h>
-+#include <asm/time.h>
- #include <asm/vr41xx/vr41xx.h>
- 
- #define IO_MEM_RESOURCE_START	0UL
-@@ -33,6 +35,29 @@
- 	iomem_resource.end = IO_MEM_RESOURCE_END;
- }
- 
-+static void __init setup_timer_frequency(void)
-+{
-+	unsigned long tclock;
-+
-+	tclock = vr41xx_get_tclock_frequency();
-+	if (current_cpu_data.processor_id == PRID_VR4131_REV2_0 ||
-+	    current_cpu_data.processor_id == PRID_VR4131_REV2_1)
-+		mips_hpt_frequency = tclock / 2;
-+	else
-+		mips_hpt_frequency = tclock / 4;
-+}
-+
-+static void __init setup_timer_irq(struct irqaction *irq)
-+{
-+	setup_irq(TIMER_IRQ, irq);
-+}
-+
-+static void __init timer_init(void)
-+{
-+	board_time_init = setup_timer_frequency;
-+	board_timer_setup = setup_timer_irq;
-+}
-+
- void __init prom_init(void)
- {
- 	int argc, i;
-@@ -48,6 +73,8 @@
- 	}
- 
- 	vr41xx_calculate_clock_frequency();
-+
-+	timer_init();
- 
- 	iomem_resource_init();
- }
-diff -urN -X dontdiff a-orig/include/asm-mips/vr41xx/vr41xx.h a/include/asm-mips/vr41xx/vr41xx.h
---- a-orig/include/asm-mips/vr41xx/vr41xx.h	Thu Mar  3 07:26:49 2005
-+++ a/include/asm-mips/vr41xx/vr41xx.h	Thu Mar  3 07:29:10 2005
-@@ -84,7 +84,7 @@
- #define INT2_CASCADE_IRQ	MIPS_CPU_IRQ(4)
- #define INT3_CASCADE_IRQ	MIPS_CPU_IRQ(5)
- #define INT4_CASCADE_IRQ	MIPS_CPU_IRQ(6)
--#define MIPS_COUNTER_IRQ	MIPS_CPU_IRQ(7)
-+#define TIMER_IRQ		MIPS_CPU_IRQ(7)
- 
- /* SYINT1 Interrupt Numbers */
- #define SYSINT1_IRQ_BASE	8

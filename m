@@ -1,66 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316903AbSF1Sax>; Fri, 28 Jun 2002 14:30:53 -0400
+	id <S316952AbSF1SbB>; Fri, 28 Jun 2002 14:31:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316952AbSF1Saw>; Fri, 28 Jun 2002 14:30:52 -0400
-Received: from ns.snowman.net ([63.80.4.34]:20740 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S316903AbSF1Sav>;
-	Fri, 28 Jun 2002 14:30:51 -0400
-Date: Fri, 28 Jun 2002 14:32:38 -0400
-From: Stephen Frost <sfrost@snowman.net>
-To: Gerhard Mack <gmack@innerfire.net>
-Cc: Disconnect <lkml@sigkill.net>, linux-kernel@vger.kernel.org
-Subject: Re: #kernelnewbies moves
-Message-ID: <20020628183238.GK9519@ns>
-Mail-Followup-To: Gerhard Mack <gmack@innerfire.net>,
-	Disconnect <lkml@sigkill.net>, linux-kernel@vger.kernel.org
-References: <20020628171252.GJ9519@ns> <Pine.LNX.4.44.0206281421110.7155-100000@innerfire.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EGjwyTcQXITbA3JU"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0206281421110.7155-100000@innerfire.net>
-User-Agent: Mutt/1.3.28i
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.2.16 (i686)
-X-Uptime: 14:31:47 up 233 days, 15:27, 16 users,  load average: 1.00, 1.02, 1.00
+	id <S317058AbSF1SbA>; Fri, 28 Jun 2002 14:31:00 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:50948
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S316952AbSF1Sa6>; Fri, 28 Jun 2002 14:30:58 -0400
+Date: Fri, 28 Jun 2002 11:33:07 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Status of write barrier support for 2.4?
+In-Reply-To: <20020628202053.C777@suse.de>
+Message-ID: <Pine.LNX.4.10.10206281127040.2888-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 28 Jun 2002, Jens Axboe wrote:
 
---EGjwyTcQXITbA3JU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Fri, Jun 28 2002, Andre Hedrick wrote:
+> > 
+> > Jens,
+> > 
+> > I just got crapped all over trying to get us "write barrier" opcodes :-/.
+> > However I do have the start of a draft to submit soon.  I could not piggy
+> > back of FUA by MicroSoft last week.
+> 
+> Basic FUA bit for WRITE command would be good, as long as it also
+> prevents reordering of the writes currently in write cache. I don't
+> think mmc makes any such guarentee, although I would have to check to be
+> sure.
 
-* Gerhard Mack (gmack@innerfire.net) wrote:
-> Not correct.. lilo was actually supprised when he found out it was
-> moderated.
->=20
-> You should have asked lilo directly instead of spreading misinformation.
+Well that is the fuzzy part!
 
-It wasn't misinformation, it's what I felt likely, and still do,
-honestly.
+It bypasses the write cache thus "write barrier" is not doable!
+In tag, it does not nuke the tags outstanding, it just blows threw the
+queue and plunges the meta-data to platter.
 
-> Anyhow one of the other chanops seems to have removed the +m and the
-> channel is functional again.
+Basically worthless unless one is dealing with data-base only.
 
-<Shrug>
 
-	Stephen
+> > So how did the talk go at OLS for the IDE roadmap to destruction go?
+> > I could not attend, as I was doing other stuff associated with the
+> > industry.
+> 
+> I don't think there was such a talk?! If so, I didn't attend.
 
---EGjwyTcQXITbA3JU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Oh, there was one scheduled but no speakers showed up,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+http://www.uzix.org/img_0861.jpg
 
-iD8DBQE9HKvFrzgMPqB3kigRAtJuAJ9zKqny15ZbOcPD/b+gL5lGkw+1OQCeIutW
-ZCbZGznWbLeUjnvVO8VJ4zo=
-=JQpn
------END PGP SIGNATURE-----
+I was in Irvine during that time for a NCITS meeting thus I cancelled
+early thus the name replacement.
 
---EGjwyTcQXITbA3JU--
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+

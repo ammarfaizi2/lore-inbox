@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281028AbRKLV7o>; Mon, 12 Nov 2001 16:59:44 -0500
+	id <S281034AbRKLWBd>; Mon, 12 Nov 2001 17:01:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281030AbRKLV7d>; Mon, 12 Nov 2001 16:59:33 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:2300
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S281028AbRKLV7S>; Mon, 12 Nov 2001 16:59:18 -0500
-Date: Mon, 12 Nov 2001 13:59:12 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Christopher Friesen <cfriesen@nortelnetworks.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: how is processor cache coherency maintained for device drivers
-Message-ID: <20011112135912.A32099@mikef-linux.matchmail.com>
-Mail-Followup-To: James Bottomley <James.Bottomley@steeleye.com>,
-	Christopher Friesen <cfriesen@nortelnetworks.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200111111655.fABGtr610172@localhost.localdomain>
+	id <S281031AbRKLWBX>; Mon, 12 Nov 2001 17:01:23 -0500
+Received: from dsl-64-192-96-25.telocity.com ([64.192.96.25]:23533 "EHLO
+	orr.falooley.org") by vger.kernel.org with ESMTP id <S281030AbRKLWBQ>;
+	Mon, 12 Nov 2001 17:01:16 -0500
+Date: Mon, 12 Nov 2001 17:00:59 -0500
+From: Jason Lunz <j@falooley.org>
+To: Hans-Peter Jansen <hpj@urpla.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: new aic7xxx bug, 2.4.13/6.2.4
+Message-ID: <20011112170059.A23809@orr.falooley.org>
+In-Reply-To: <20011101222455.A5885@orr.falooley.org> <200111021443.fA2EhRY46335@aslan.scsiguy.com> <20011102143545.A30381@trellisinc.com> <20011112184533.1DE6A1027@shrek.lisa.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200111111655.fABGtr610172@localhost.localdomain>
+In-Reply-To: <20011112184533.1DE6A1027@shrek.lisa.de>
 User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 11, 2001 at 08:55:52AM -0800, James Bottomley wrote:
-> I believe (although you should take better advice from the PPC people) that 
-> the powerpc is completely cache coherent, so any coherency problems you may be 
-> having would be due to the hardware, not the kernel.
->
+On Mon, Nov 12, 2001 at  7:45PM +0100, Hans-Peter Jansen wrote:
+> cdrdao read-cd --device /dev/sr0 --driver generic-mmc --buffers 80 -n
+> --eject --paranoia-mode 0 toc
+> [...]
+> ?: Input/output error.  : scsi sendcmd: retryable error
+> CDB:  BE 00 00 04 2C 67 00 00 1A F8 01 00
+> status: 0x0 (GOOD STATUS)
+> cmd finished after 20.101s timeout 20s
+> ?: Input/output error.  : scsi sendcmd: retryable error
+> CDB:  BE 00 00 04 2E 43 00 00 1A F8 01 00
+> status: 0x0 (GOOD STATUS)
+> cmd finished after 20.101s timeout 20s
+> [...]
+> killed with ^c
+> 
+> locked the drive completely. Need to reboot to eject the cd...
+> I suspect some bad interference between DVD firmware, kernel 
+> SCSI error handling and cdrdao. A plextor reader finally 
+> succeeded on this job (wink :)
 
-IIRC (probably wrong though) the PPC is not coherent for one of its caches,
-but is for another.  PPC people would definately know the details, I'm just
-thinking of a thread I read on this a few weeks ago...
+I agree it's the same effect, but I disagree about the cause. It's the
+fault of the scsi mid-layer; it marks the device as dead when a command
+times out and won't allow further accesses to it. The fact that it
+happens to both of us with different drives and different scsi drivers
+(you don't even have scsi, but ide-scsi emulation) shows that the scsi
+midlayer is broken in both cases.
 
-Mike
+And as Justin Gibbs suggested, I'd bet that raising the timeout on the
+failing scsi command in cdrdao would probably fix this for both of us,
+but I haven't had time to try it. If so, it's not a userspace bug
+because it allows any user with cdrom access to disable a cdrom until
+reboot.
+
+Jason

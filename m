@@ -1,46 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267748AbRGQCht>; Mon, 16 Jul 2001 22:37:49 -0400
+	id <S267419AbRGQC2t>; Mon, 16 Jul 2001 22:28:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267749AbRGQChj>; Mon, 16 Jul 2001 22:37:39 -0400
-Received: from c008-h000.c008.snv.cp.net ([209.228.34.63]:41465 "HELO
-	c008.snv.cp.net") by vger.kernel.org with SMTP id <S267748AbRGQChV>;
-	Mon, 16 Jul 2001 22:37:21 -0400
-X-Sent: 17 Jul 2001 02:37:18 GMT
-Message-ID: <3B53A4D8.A9613CFF@acm.org>
-Date: Tue, 17 Jul 2001 12:37:12 +1000
-From: Gareth Hughes <gareth.hughes@acm.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 4.1.0 DRM (was Re: Linux 2.4.6-ac3)
-In-Reply-To: <E15M6jC-0005PK-00@the-village.bc.nu>	<3B532BB7.1050300@valinux.com> <3B533578.A4B6C25F@damncats.org> 	<3B53413A.6060501@valinux.com> <995312089.987.8.camel@nomade> <3B534C1F.8080100@valinux.com>
+	id <S267748AbRGQC2j>; Mon, 16 Jul 2001 22:28:39 -0400
+Received: from alcove.wittsend.com ([130.205.0.20]:13252 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S267419AbRGQC20>; Mon, 16 Jul 2001 22:28:26 -0400
+Date: Mon, 16 Jul 2001 22:22:15 -0400
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: Alex Buell <alex.buell@tahallah.demon.co.uk>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>, Adam <adam@eax.com>,
+        Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Duplicate '..' in /lib
+Message-ID: <20010716222215.A4695@alcove.wittsend.com>
+Mail-Followup-To: Alex Buell <alex.buell@tahallah.demon.co.uk>,
+	Alexander Viro <viro@math.psu.edu>,
+	"Albert D. Cahalan" <acahalan@cs.uml.edu>, Adam <adam@eax.com>,
+	Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0107160128320.26491-100000@weyl.math.psu.edu> <Pine.LNX.4.33.0107160727520.634-100000@tahallah.demon.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.2i
+In-Reply-To: <Pine.LNX.4.33.0107160727520.634-100000@tahallah.demon.co.uk>; from alex.buell@tahallah.demon.co.uk on Mon, Jul 16, 2001 at 07:30:01AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Hartmann wrote:
-> 
-> You have to remember this isn't an API that users program to, it is an
-> API that a specific driver uses.  Each driver is different, and has a
-> different API (at least a subset of it.)  The cards are so different
-> that they can't have the same interfaces and remain competitive.  Each
-> 3D client side driver packages up state and vertex data in a form that
-> only that video card can understand.  Each new drm kernel driver
-> requires a new device specific portion of the API.
+On Mon, Jul 16, 2001 at 07:30:01AM +0100, Alex Buell wrote:
+> On Mon, 16 Jul 2001, Alexander Viro wrote:
 
-Exactly.  I don't think of it as an API in the true meaning of the
-term.  No one other than that specific driver should (can?) even use it.
+> > 	Alex, could you do strace of that? It would clarify the situation.
 
-> If we want to be secure, we have to have an interface which can remain
-> competitive with insecure drivers.
+> Unfortunately there's no working version of strace for the sparc32-linux
+> platform. :o( If anyone knows better, I'd be infinitely grateful - mail me
+> privately.
 
-Exactly.  I know myself and Keith Whitwell in particular have put a lot
-of effort into making the open source drivers at least in the same
-ballpark of performance as their Win32 counterparts.  People will never
-seriously use Linux for 3D if performance just plain sucks.  Now, at
-least they have the option of buying an NVIDIA card...
+> As it turns out, the extraneous '..' is actually a file. I did a rm ..*,
+> which left the original .. directory alone but removed the .. file. Did a
+> e2fsck on reboot, no problems found.
 
--- Gareth
+	That's like the old game of adventure when you wave the wand and
+it replies "Nothing obvious happens" just before you step into quicksand
+(if you waved it an even number of times).
+
+	You got problems.  There should be a reason for that file and it
+ain't good.  It ain't good AT ALL.  It's a stock "cracker" trick for
+hiding something (lame, I know).  You need to go over that system with
+a fine toothed comb.  Boot from secure media, like the LinuxCare BBC
+(Bootable Business Card), and sweep that sucker.  You can use rpm to
+verify the packages to begin with...  Don't trust ANY executable on
+the system itself.
+
+	You HAVE to boot from other media.  Some of these suckers have
+Linux kernel modules (we'll keep it a little on topic here) like Adore
+and KIS that hide processes, connections, services, and files.  You can
+not trust your kernel if you may have been compromised.
+
+> -- 
+> Hey, they *are* out to get you, but it's nothing personal.
+
+	No joke...  And I do believe they done got you.
+
+> http://www.tahallah.demon.co.uk
+
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+

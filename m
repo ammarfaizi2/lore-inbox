@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135494AbRDSAq7>; Wed, 18 Apr 2001 20:46:59 -0400
+	id <S135498AbRDSBCS>; Wed, 18 Apr 2001 21:02:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135493AbRDSAqs>; Wed, 18 Apr 2001 20:46:48 -0400
-Received: from cdsl18.ptld.uswest.net ([209.180.170.18]:21044 "HELO
-	galen.magenet.net") by vger.kernel.org with SMTP id <S135492AbRDSAqh>;
-	Wed, 18 Apr 2001 20:46:37 -0400
-Date: Wed, 18 Apr 2001 17:46:52 -0700
-From: Joseph Carter <knghtbrd@debian.org>
-To: Moses Mcknight <moses@texoma.net>
-Cc: Manuel Ignacio Monge Garcia <ignaciomonge@navegalia.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ATA 100 & VIA and linux-2.4.3ac8
-Message-ID: <20010418174652.E30107@debian.org>
-In-Reply-To: <01041820505300.01783@localhost.localdomain> <3ADDE820.2050103@texoma.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tVmo9FyGdCe4F4YN"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3ADDE820.2050103@texoma.net>; from moses@texoma.net on Wed, Apr 18, 2001 at 02:16:48PM -0500
-X-Operating-System: Linux galen 2.4.3-ac4+lm+bttv
-X-No-Junk-Mail: Spam will solicit a hostile reaction, at the very least.
+	id <S135499AbRDSBB6>; Wed, 18 Apr 2001 21:01:58 -0400
+Received: from fjordland.nl.linux.org ([131.211.28.101]:17670 "EHLO
+	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S135498AbRDSBBi>; Wed, 18 Apr 2001 21:01:38 -0400
+From: Daniel Phillips <phillips@nl.linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][CFT] ext2 directories in pagecache
+Cc: viro@math.psu.edu
+Message-Id: <20010419010122Z92249-1659+6@humbolt.nl.linux.org>
+Date: Thu, 19 Apr 2001 03:01:12 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Al Viro wrote:
+> Folks, IMO ext2-dir-patch got to the stable stage. Currently
+> it's against 2.4.4-pre2, but it should apply to anything starting with
+> 2.4.2 or so.
+> 
+> 	Ted, could you review it for potential inclusion into 2.4 once
+> it gets enough testing? It's ext2-only (the only change outside of
+> ext2 is exporting waitfor_one_page()), it doesn't change fs layout,
+> it seriously simplifies ext2/dir.c and ext2/namei.c and it gives better
+> VM behaviour.
+> 
+> 	Patch is on ftp.math.psu.edu/pub/viro/ext2-dir-patch.gz
+> 
+> 	Folks, please give it a good beating - it works here, but I'd
+> really like it to get wide testing. Help would be very welcome.
 
---tVmo9FyGdCe4F4YN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I'm pretty familiar with this code since I hacked on it pretty extensively
+last  month and it does what it tries to do pretty well.  However it relies
+heavily on the assumption that directory blocks can be grouped into page-sized
+units.  This assumption doesn't hold in my directory indexing code, and I
+don't see any clean way to extend the approach you use in this patch to my
+index design.
 
-On Wed, Apr 18, 2001 at 02:16:48PM -0500, Moses Mcknight wrote:
-> I don't know about other possible problems with the kernel, but you must=
-=20
-> use an 80 wire IDE cable for UDMA66/100 to work.
->=20
-> > -----------------------Primary IDE-------Secondary IDE------
-> > Cable Type:                   40w                 40w
+On the other hand, there is an alternative approach, suggested to me by
+Stephen Tweedie, that will run just as fast as this code and have a lot less
+cruft in it, namely - perform buffer operations on the underlying buffers in
+the page cache.  Now perhaps we should discuss that idea and see if it goes
+anywhere.
 
-My primary cable is detected as a 40w too, and it's most certainly not.
+Aside from the part that's tied to the page cache, your patch is generally a
+whole lot nicer to read that the original, and I have already incorporated
+parts of it in my directory index patch.
 
---=20
-Joseph Carter <knghtbrd@debian.org>                Free software developer
-
-Given some of the recent threads, the interactive discussions might
-need to be conducted on canvas, in the presence of a referee, while
-wearing padded gloves.  ;-)
-        -- Phil Hands
-
-
---tVmo9FyGdCe4F4YN
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: 1024D/DCF9DAB3  20F6 2261 F185 7A3E 79FC  44F9 8FF7 D7A3 DCF9 DAB3
-
-iEYEARECAAYFAjreNXwACgkQj/fXo9z52rMvegCdGXhxN9HzGzideD0rFlIyfPHK
-3XsAn3i+ErZ3Vxy4VHHwzzhthNzuiiMD
-=kK//
------END PGP SIGNATURE-----
-
---tVmo9FyGdCe4F4YN--
+--
+Daniel

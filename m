@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266585AbSKLOPP>; Tue, 12 Nov 2002 09:15:15 -0500
+	id <S266737AbSKLORg>; Tue, 12 Nov 2002 09:17:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266626AbSKLOPP>; Tue, 12 Nov 2002 09:15:15 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:16806 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266585AbSKLOPO>; Tue, 12 Nov 2002 09:15:14 -0500
-Subject: Re: Kernel Memory Errors (Debian Woody 2.4.18-bf2.4)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Lloyd <lloy0076@adam.com.au>
-Cc: Neale Banks <neale@lowendale.com.au>, dlloyd@microbits.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021112213650.35ce0613.lloy0076@adam.com.au>
-References: <20021112094813.602c2dbb.dlloyd@microbits.com.au>
-	<Pine.LNX.4.05.10211122130210.2446-100000@marina.lowendale.com.au> 
-	<20021112213650.35ce0613.lloy0076@adam.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Nov 2002 14:46:45 +0000
-Message-Id: <1037112405.8500.30.camel@irongate.swansea.linux.org.uk>
+	id <S266767AbSKLORg>; Tue, 12 Nov 2002 09:17:36 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:5281 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S266737AbSKLORf>;
+	Tue, 12 Nov 2002 09:17:35 -0500
+Date: Tue, 12 Nov 2002 15:23:54 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: Andrew Morton <akpm@digeo.com>, Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.47{-mm1} with contest
+Message-ID: <20021112142354.GC832@suse.de>
+References: <1037057498.3dd03dda5a8b9@kolivas.net> <20021112030453.GB15812@vitelus.com> <3DD0E037.1FC50147@digeo.com> <20021112142014.GC15812@vitelus.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021112142014.GC15812@vitelus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-12 at 11:06, David Lloyd wrote:
+On Tue, Nov 12 2002, Aaron Lehmann wrote:
+> On Tue, Nov 12, 2002 at 03:04:23AM -0800, Andrew Morton wrote:
+> > It will never be stunningly better than 2.4 for normal workloads on
+> > normal machines, because 2.4 just ain't that bad.
 > 
-> Neale,
-> 
-> > Probably an X issue that's not relevant here.
-> > 
-> > What's the video card?
-> 
-> It's an i810 Intel Card on an all-in-one mainly SiS based board...not
-> there until tomorrow when I can get more details about it.
+> Actually, I am having serious problems with 2.4 (.20-pre5). Copying a
+> file from hda to hdc without really doing anything else goes very
+> slowly and lags the whole system ruthlessly. The load average rises to
+> about three. Any app which tries to touch the disk will hang for
+> several seconds. Yes, DMA is on on both drives (udma5), as well as
+> 32-bit I/O and unmaskirq. Bad IDE controller or driver? I don't know.
+> It's a ServerWorks CSB5. I've been meaning to try 2.5-mm to see if it
+> improves this.
 
-If it is an i810 using the onboard video make sure you are using XFree86
-4.1/4.2 and the -fixed- (using pci_alloc_*) kernel module for it.
-Otherwise you may well get weird happenings
+Testing 2.5 for this would be interesting too indeed, but you should
+also try 2.4.20-rc1. Between -pre3 and -pre8 (iirc) you could have
+awfully slow io. And you should probably do
 
-Marcelo's current tree has the kernel stuff, supporting XFree 4.1/4.2,
-but 4.2 is IMHO a lot better on i810 especially at 3D.
+# elvtune -r512 /dev/hd{a,c}
 
+too, in 2.4.20-rc1
+
+-- 
+Jens Axboe
 

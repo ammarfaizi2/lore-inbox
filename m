@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265038AbTFRBmu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 21:42:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265039AbTFRBmu
+	id S265037AbTFRBj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 21:39:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265038AbTFRBj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 21:42:50 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56840 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S265038AbTFRBmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 21:42:49 -0400
-Message-ID: <3EEFC6A3.5010406@zytor.com>
-Date: Tue, 17 Jun 2003 18:55:47 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en, sv
+	Tue, 17 Jun 2003 21:39:57 -0400
+Received: from [65.39.167.210] ([65.39.167.210]:17794 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id S265037AbTFRBj4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 21:39:56 -0400
+Date: Tue, 17 Jun 2003 21:50:54 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: James Simmons <jsimmons@infradead.org>
+cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.71 - random console corruption
+In-Reply-To: <Pine.LNX.4.44.0306172149490.21214-100000@phoenix.infradead.org>
+Message-ID: <Pine.LNX.4.44.0306172149150.8889-100000@innerfire.net>
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SCM domains [was Re: Linux 2.5.71]
-References: <20030615002153.GA20896@work.bitmover.com> <bcneo1$osd$1@cesium.transmeta.com> <20030618013940.GA19176@work.bitmover.com>
-In-Reply-To: <20030618013940.GA19176@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> 
-> It seems to me that kernel.org is the right place but if hpa is too busy
-> (which I understand and respect) then we need to come up with some sort of
-> domain which is unused, simple, and memorable.  I'm aware of the levels of
-> distrust people have for bitmover but we could pay for it and run the DNS
-> servers and let some set of community agreed on people manage the DNS entries
-> if that makes people feel safe.
-> 
+On Tue, 17 Jun 2003, James Simmons wrote:
 
-I have no problem setting up CNAMEs in kernel.org if people are OK with
-it.  Setting up actual servers is another matter.
+> > > For userland<->kernel transactions we have the console_semaphore to
+> > > protect us. It is also used for console_callback. The console_semaphore is
+> > > not used internally to protect global variables :-( To do this properly
+> > > would take quite a bit of work.
+> >
+> > It looks like all these globals need a lock -- they can race on SMP or
+> > with kernel preemption.
+> >
+> > Is it really going to be that hard to wrap a lock around their access,
+> > because I think this is going to bite SMP users.
+>
+> For things like fg_console and currcon it will be. Those variables are
+> used everyway like mad. That is a whole lot of locks. I doubt this issue
+> will be solved until 2.7.X.
 
-	-hpa
+Interestingly enough it's not console switching that does it.. it's
+scrolling also as I mentioned before it's not just with preempt enabled.
 
+I wonder if theres another problem somewhere?
+
+	Gerhard
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
 

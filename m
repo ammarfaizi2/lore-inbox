@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267175AbUHOWDF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267171AbUHOWIC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267175AbUHOWDF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 18:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267171AbUHOWDF
+	id S267171AbUHOWIC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 18:08:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267176AbUHOWIC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 18:03:05 -0400
-Received: from quechua.inka.de ([193.197.184.2]:31112 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S267175AbUHOWC7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 18:02:59 -0400
-Date: Mon, 16 Aug 2004 00:02:55 +0200
-From: Bernd Eckenfels <be-mail2004@lina.inka.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux SATA RAID FAQ
-Message-ID: <20040815220255.GA23052@lina.inka.de>
-References: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net> <1092315392.21994.52.camel@localhost.localdomain> <411BA7A1.403@pobox.com> <411BA940.5000300@pobox.com> <1092520163.27405.11.camel@localhost.localdomain> <1092603242.7421.6.camel@nomade> <1092603106.18410.0.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1092603106.18410.0.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040722i
+	Sun, 15 Aug 2004 18:08:02 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5003 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267171AbUHOWH6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 18:07:58 -0400
+Message-ID: <411FDEA9.2010802@pobox.com>
+Date: Sun, 15 Aug 2004 18:07:37 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: new tool:  blktool
+References: <411FD744.2090308@pobox.com> <1092603321.18410.5.camel@localhost.localdomain>
+In-Reply-To: <1092603321.18410.5.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 15, 2004 at 09:51:46PM +0100, Alan Cox wrote:
-> True to a point but 2Gb of data going walkies will offend even if the
-> file system is gloriously intact
+Alan Cox wrote:
+> On Sul, 2004-08-15 at 22:36, Jeff Garzik wrote:
+> 
+>>	$ hdparm -c1 /dev/hda
+>>		becomes
+>>	$ blktool /dev/hda pio-data 32-bit
+> 
+> 
+> So you've replaced hdparm's weird but unixish command line with an
+> even more demented non linuxish one that doesn't handle regexps for
+> drive names ?
+> 
+> Whatever happened to
+> 
+> 	blktool /dev/hda --pio-data=32
 
-Especially if the data was already visible in the shared filesystem space.
 
-Greetings
-Bernd
--- 
-  (OO)      -- Bernd_Eckenfels@Mörscher_Strasse_8.76185Karlsruhe.de --
- ( .. )      ecki@{inka.de,linux.de,debian.org}  http://www.eckes.org/
-  o--o     1024D/E383CD7E  eckes@IRCNet  v:+497211603874  f:+497211606754
-(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!
+Yep, it's more like ethtool(8) or cvs(1) in its syntax.  There is big 
+difference in usability (for me anyway) between "command [options]..." 
+and an unordered list of --args.  Especially as the list of commands 
+grows longer.  It provides more structure.
+
+Each command can have options, --foo-bar=baz if you like, I suppose.
+
+	Jeff
+
+

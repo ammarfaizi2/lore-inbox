@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269896AbRHECRs>; Sat, 4 Aug 2001 22:17:48 -0400
+	id <S269897AbRHECT1>; Sat, 4 Aug 2001 22:19:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269897AbRHECRi>; Sat, 4 Aug 2001 22:17:38 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:1806 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S269896AbRHECRb>;
-	Sat, 4 Aug 2001 22:17:31 -0400
-Date: Sat, 4 Aug 2001 23:17:26 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/<n>/maps getting _VERY_ long
-In-Reply-To: <20010805034312.A18996@weta.f00f.org>
-Message-ID: <Pine.LNX.4.33L.0108042316430.2526-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269904AbRHECTR>; Sat, 4 Aug 2001 22:19:17 -0400
+Received: from dns1.synology.com ([202.173.37.131]:43001 "EHLO synology.com")
+	by vger.kernel.org with ESMTP id <S269897AbRHECTD>;
+	Sat, 4 Aug 2001 22:19:03 -0400
+Date: Sun, 5 Aug 2001 10:31:25 +0800
+Message-Id: <200108050231.KAA32115@synology.com>
+To: Simon Trimmer <simon@veritas.com>, kernelnewbies@nl.linux.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel debugging talk
+From: Rex Luo <rexluo@synology.com>
+X-Mailer: TWIG 
+Cc: Simon Trimmer <simon@urbanmyth.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Aug 2001, Chris Wedgwood wrote:
 
-> Some time ago, the logic for merging VMAs was changing (simplified).
-> I noticed a couple of applications, specifically things seemed a bit
-> sluggish when running things that either grow slowly or use lots of
-> shared libraries:
->
-> cw:tty5@tapu(cw)$ wc -l /proc/1368/maps
->    5287 /proc/1368/maps
+It's great and useful. Thanks a lot.
 
-Ouch, what kind of application is this happening with ?
+Sincerely,
 
-regards,
+ --Rex Luo
 
-Rik
+Simon Trimmer <simon@veritas.com> said: 
+> Hi All,
+> I wrote a talk entitled "An Introduction to Linux Kernel Debugging" a while
+> back for the Greater London LUG and thought it might be of general
+> interest.
+> 
+> It runs though the basics like crash recognition, capture, decoding and
+> object dissassembly in a fairly straightforward way targetted at a good
+> sysadmin and developer level.
+> 
+> The Magicpoint slides are online along with html renderings and my crib sheet
+> (i.e. notes) at
+> 
+> 	http://www.urbanmyth.org/linux/oops/
+> 
+> Hope they are of some use :)
+> 
+> Cheers,
+> -Simon
+> 
+> Simon Trimmer <simon@veritas.com>           VERITAS R&D Watford
+> 
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
+
 --
-IA64: a worthy successor to i860.
+Rex Luo
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Tel : 886-2-25521814 Ext. 824
+Fax : 886-2-25521824
+e-mail : rexluo@synology.com
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

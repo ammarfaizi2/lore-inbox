@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315634AbSFCWiK>; Mon, 3 Jun 2002 18:38:10 -0400
+	id <S315690AbSFCWjB>; Mon, 3 Jun 2002 18:39:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315690AbSFCWiJ>; Mon, 3 Jun 2002 18:38:09 -0400
-Received: from 216-42-72-145.ppp.netsville.net ([216.42.72.145]:27265 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S315634AbSFCWiI>; Mon, 3 Jun 2002 18:38:08 -0400
-Subject: Re: [patch 12/16] fix race between writeback and unlink
-From: Chris Mason <mason@suse.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0206031514110.868-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 03 Jun 2002 18:36:23 -0400
-Message-Id: <1023143783.31682.28.camel@tiny>
-Mime-Version: 1.0
+	id <S315708AbSFCWjA>; Mon, 3 Jun 2002 18:39:00 -0400
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:12535 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S315690AbSFCWi6>; Mon, 3 Jun 2002 18:38:58 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Brad Hards <bhards@bigpond.net.au>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] i386 "General Options" - begone [take 2] 
+In-Reply-To: Your message of "Mon, 03 Jun 2002 13:18:09 +1000."
+             <200206031318.09634.bhards@bigpond.net.au> 
+Date: Tue, 04 Jun 2002 08:42:47 +1000
+Message-Id: <E17F0XH-0002ic-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-06-03 at 18:19, Linus Torvalds wrote:
-> 
-> 
-> On 3 Jun 2002, Chris Mason wrote:
-> >
-> > Or am I missing something?
-> 
-> No. I think that in the long run we really would want all of the writeback
-> preallocation should happen in the "struct file", not in "struct inode".
-> And they should be released at file close ("release()"), not at iput()
-> time.
+In message <200206031318.09634.bhards@bigpond.net.au> you write:
+> While moving software suspend, I also took the chance to tweak the Config.help 
+> entry.
 
-reiserfs does preallocation and tail packing in release() right now, but
-do we really need preallocation at all once delayed allocation is
-stable?
+For trivial at least, please split the patches.  It makes it easy for
+me and/or Linus to accept only one.
 
--chris
+Also, please mention clearly if you obsolete a previous trivial patch...
 
+> diff -Naur -X dontdiff linux-2.5.20-clean/arch/i386/Config.help linux-2.5.20-
+config-munging/arch/i386/Config.help
+> --- linux-2.5.20-clean/arch/i386/Config.help	Thu May 30 04:42:46 2002
+> +++ linux-2.5.20-config-munging/arch/i386/Config.help	Mon Jun  3 12:39:48 200
+2
+> @@ -641,7 +641,8 @@
+>    off or put into a power conserving "sleep" mode if they are not
+>    being used.  There are two competing standards for doing this: APM
+>    and ACPI.  If you want to use either one, say Y here and then also
+> -  to the requisite support below.
+> +  to the requisite support below. This option is also required for
+> +  "software suspend", see below.
+>  
+>    Power Management is most important for battery powered laptop
+>    computers; if you have a laptop, check out the Linux Laptop home
 
+Like code, descriptions develop scar tissue when you do the "minimally
+invasive" change.  Consider this classic trap-for-skimmers from the
+glibc "snprintf" man page, and learn:
+
+Return value
+       These  functions  return  the number of characters printed
+       (not including the trailing `\0' used  to  end  output  to
+       strings).   snprintf  and vsnprintf do not write more than
+       size bytes (including the trailing '\0'), and return -1 if
+       the  output  was truncated due to this limit.  (Thus until
+       glibc 2.0.6. Since glibc 2.1 these  functions  follow  the
+       C99  standard and return the number of characters (exclud­
+       ing the trailing '\0') which would have  been  written  to
+       the final string if enough space had been available.)
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267464AbRGLKOy>; Thu, 12 Jul 2001 06:14:54 -0400
+	id <S267465AbRGLKQy>; Thu, 12 Jul 2001 06:16:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267465AbRGLKOo>; Thu, 12 Jul 2001 06:14:44 -0400
-Received: from ns.suse.de ([213.95.15.193]:6419 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S267464AbRGLKOb>;
-	Thu, 12 Jul 2001 06:14:31 -0400
-To: llarsh@oracle.com
-Cc: linux-kernel@vger.kernel.org, mason@suse.com
-Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
-In-Reply-To: <Pine.LNX.4.21.0107111530170.2342-100000@llarsh-pc3.us.oracle.com.suse.lists.linux.kernel>
-From: Andi Kleen <freitag@alancoxonachip.com>
-Date: 12 Jul 2001 12:14:16 +0200
-In-Reply-To: Lance Larsh's message of "12 Jul 2001 00:58:14 +0200"
-Message-ID: <oup8zhue9on.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S267467AbRGLKQo>; Thu, 12 Jul 2001 06:16:44 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:14858 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S267465AbRGLKQe>; Thu, 12 Jul 2001 06:16:34 -0400
+Message-ID: <3B4D78E7.24CF2660@idb.hist.no>
+Date: Thu, 12 Jul 2001 12:16:07 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7-pre6 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
+To: "C. Slater" <cslater@wcnet.org>, linux-kernel@vger.kernel.org
+Subject: Re: Switching Kernels without Rebooting?
+In-Reply-To: <NOEJJDACGOHCKNCOGFOMOEKECGAA.davids@webmaster.com> <001501c10980$f42035a0$fe00000a@cslater> <3B4C180E.D3AE1960@idb.hist.no> <005f01c10a20$03baf5a0$fe00000a@cslater>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lance Larsh <llarsh@oracle.com> writes:
+"C. Slater" wrote:
 > 
-> I ran lots of iozone tests which illustrated a huge difference in write
-> throughput between reiser and ext2.  Chris Mason sent me a patch which
-> improved the reiser case (removing an unnecessary commit), but it was
-> still noticeably slower than ext2.  Therefore I would recommend that
-> at this time reiser should not be used for Oracle database files.
+> Unless we find some other way to do it, i think we will have to limit this
+> to only switching between kernels with the same minor version. We probably
+> would not beable to swap between 2.4 and 2.6 anyways, though it depends on
+> what changes are made.
 
-When I read the 2.4.6 reiserfs code correctly reiserfs does not cause
-any transactions for reads/writes to allocated blocks; i.e. you're not extending
-the file, you're not filling holes and you're not updating atimes.
-My understanding is that this is normally true for Oracle, but probably
-not for iozone so it would be better if you benchmarked random writes
-to an already allocated file. 
-The 2.4 page cache is more or less direct write through in this case.
+Minor versions won't help you.  Different minor versions try to stay
+interface-compatible with each other.  But data structures not
+exposed to interfaces can still be rewritten completely.
 
--Andi
+Lots of nice ideas and implementations have piled up for 2.5.  Those
+who proves immensely successfull in 2.5 may get backported to 2.4
+once they get enough testing.  Try reading a few months worth of
+kernel patches and you'll see that things change in stable kernels
+too.
+
+Helge Hafting

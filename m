@@ -1,39 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316780AbSEUX1Q>; Tue, 21 May 2002 19:27:16 -0400
+	id <S316782AbSEUX2n>; Tue, 21 May 2002 19:28:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316782AbSEUX1Q>; Tue, 21 May 2002 19:27:16 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41741 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316780AbSEUX1P>; Tue, 21 May 2002 19:27:15 -0400
-Date: Tue, 21 May 2002 16:26:44 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Pavel Machek <pavel@suse.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>,
+	id <S316783AbSEUX2m>; Tue, 21 May 2002 19:28:42 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:20890 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316782AbSEUX2k>;
+	Tue, 21 May 2002 19:28:40 -0400
+Date: Wed, 22 May 2002 01:27:33 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
         ACPI mailing list <acpi-devel@lists.sourceforge.net>
 Subject: Re: suspend-to-{RAM,disk} for 2.5.17
-In-Reply-To: <20020521232001.GK22878@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.33.0205211621310.22624-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020521232732.GA16320@elf.ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0205211557410.1307-100000@penguin.transmeta.com> <Pine.LNX.4.33.0205211614200.15094-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Wed, 22 May 2002, Pavel Machek wrote:
-> Do you think I should modify schedule() to do freezing automatically?
-> I wanted to keep my hands off hot paths... I'd rather not do that. 
+> > Applied. Nothing needed but some time for me to look through it.
+> 
+> Well, I may have to revert that.
 
-No, I just suspect you could freeze them _while_ they sleep by just 
-picking up their information from the normal save area.
+Sorry about that. Safety check that should not be needed.
 
-Yeah, I know, Linux tends to save a lot of the process stuff implicitly on
-the stack, so maybe that ends up being harder than it sounds, and you've 
-done it for other tasks with the signal handler code instead, but you 
-_should_ be able to do it without any signal handler hackery by just 
-saving off their kernel stack and the stuff in the thread structure.
+> 	mm/mm.o: In function `rw_swap_page':
+> 	mm/mm.o(.text+0xaeb2): undefined reference to `suspend_device'
+> 
+> Please send me a fix asap.
 
-That's just a gut feeling, not having actually looked at the real details.
+This fixes it. I also broke compilation in ACPI but not SWSUSP case
+(but it ate disks before, so ... :-).
 
-		Linus
+									Pavel
 
+--- linux-swsusp.linus/mm/page_io.c	Tue May 21 23:33:38 2002
++++ linux-swsusp/mm/page_io.c	Wed May 22 01:20:04 2002
+@@ -86,15 +86,11 @@
+  *  - it's marked as being swap-cache
+  *  - it's associated with the swap inode
+  */
+-extern long suspend_device;
+ void rw_swap_page(int rw, struct page *page)
+ {
+ 	swp_entry_t entry;
+ 
+ 	entry.val = page->index;
+-
+-	if (suspend_device)
+-		panic("I refuse to corrupt memory/swap.");
+ 
+ 	if (!PageLocked(page))
+ 		PAGE_BUG(page);
+
+
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

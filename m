@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266838AbUJRQe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUJRQiT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266838AbUJRQe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 12:34:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266839AbUJRQe6
+	id S266864AbUJRQiT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 12:38:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbUJRQh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 12:34:58 -0400
-Received: from mail.kroah.org ([69.55.234.183]:36303 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266838AbUJRQe4 (ORCPT
+	Mon, 18 Oct 2004 12:37:58 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:36296 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S266864AbUJRQfy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 12:34:56 -0400
-Date: Mon, 18 Oct 2004 09:33:46 -0700
-From: Greg KH <greg@kroah.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Lee Revell <rlrevell@joe-job.com>,
-       David Woodhouse <dwmw2@infradead.org>, Josh Boyer <jdub@us.ibm.com>,
-       gene.heskett@verizon.net, Linux kernel <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       David Howells <dhowells@redhat.com>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>
-Subject: Re: Fw: signed kernel modules?
-Message-ID: <20041018163346.GB18169@kroah.com>
-References: <200410151153.08527.gene.heskett@verizon.net> <1097857049.29988.29.camel@weaponx.rchland.ibm.com> <Pine.LNX.4.61.0410151237360.6239@chaos.analogic.com> <1097860121.13633.358.camel@hades.cambridge.redhat.com> <Pine.LNX.4.61.0410151319460.6877@chaos.analogic.com> <1097873791.5119.10.camel@krustophenia.net> <20041015211809.GA27783@kroah.com> <4170426E.5070108@nortelnetworks.com> <Pine.LNX.4.61.0410151744220.3651@chaos.analogic.com> <Pine.LNX.4.61.0410180845040.3512@chaos.analogic.com>
+	Mon, 18 Oct 2004 12:35:54 -0400
+Date: Mon, 18 Oct 2004 11:35:32 -0500
+From: mikem <mikem@beardog.cca.cpqcorp.net>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: cciss update [2/2] fixes for Steeleye Lifekeeper
+Message-ID: <20041018163532.GA24511@beardog.cca.cpqcorp.net>
+References: <20041013212253.GB9866@beardog.cca.cpqcorp.net> <20041014083900.GB7747@infradead.org> <1097764660.2198.11.camel@mulgrave> <20041014183948.GA12325@infradead.org> <1097852716.1718.9.camel@mulgrave>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0410180845040.3512@chaos.analogic.com>
+In-Reply-To: <1097852716.1718.9.camel@mulgrave>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 18, 2004 at 08:53:46AM -0400, Richard B. Johnson wrote:
-> +/*
-> + *  List of acceptable module-license strings.
-> + */
-> +static const char *licok[]= {
-> +    "GPL",
-> +    "GPL v2",
-> +    "CPL and additional rights",
+On Fri, Oct 15, 2004 at 10:05:09AM -0500, James Bottomley wrote:
+> On Thu, 2004-10-14 at 13:39, Christoph Hellwig wrote:
+> > Such a volume has been configured and set up, and although it's still
+> > ugly I'd say it's okay.  But the patch also adds one gendisk per controller
+> > even if no volume is set up.
+> 
+> That's this bit of code:
+> 
+> @@ -2762,7 +2810,9 @@ static int __devinit cciss_init_one(stru
+>                 disk->fops = &cciss_fops;
+>                 disk->queue = hba[i]->queue;
+>                 disk->private_data = drv;
+> -               if( !(drv->nr_blocks))
+> +               /* we must register the controller even if no disks
+> exist */
+> +               /* this is for the online array utilities */
+> +               if(!drv->heads && j)
+>                         continue;
+>                 blk_queue_hardsect_size(hba[i]->queue, drv->block_size);
+>                 set_capacity(disk, drv->nr_blocks);
+> 
+> Mike, is there a way we can only allocate a gendisk when we know there's
+> actually a device there (if owned by another controller currently)?
+> 
+> James
 
-The CPL is very different from the GPL and the two are not compatible,
-so this isn't an acceptable patch.
+This patch only registers the controller if no logical drives are configured. It will not result in all possible logical drives being added. I added printk's to the driver to show me what I'm registering.
+What I see is the controller registers every time, and only drives that are phsically configured are registered. That is true for reserved drives, also.
 
-thanks,
-
-greg k-h
+Thanks,
+mikem

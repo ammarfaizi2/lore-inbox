@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265837AbUGDX1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265840AbUGDX2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265837AbUGDX1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 19:27:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265840AbUGDX1Y
+	id S265840AbUGDX2d (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 19:28:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265841AbUGDX2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 19:27:24 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:51986 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S265837AbUGDX1X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 19:27:23 -0400
-Date: Mon, 5 Jul 2004 01:27:16 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, David Balazic <david.balazic@hermes.si>
-Subject: Re: Weird:  30 sec delay during early boot
-Message-ID: <20040704232716.GA18403@pclin040.win.tue.nl>
-References: <40E83F53.3050006@pobox.com> <Pine.LNX.4.44.0407041536040.19105-100000@humbolt.us.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0407041536040.19105-100000@humbolt.us.dell.com>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+	Sun, 4 Jul 2004 19:28:33 -0400
+Received: from send.it.helsinki.fi ([128.214.205.133]:391 "EHLO
+	send.it.helsinki.fi") by vger.kernel.org with ESMTP id S265840AbUGDX2Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 19:28:24 -0400
+Date: Mon, 5 Jul 2004 02:28:15 +0300 (EEST)
+From: Mikael Johansson <mpjohans@pcu.helsinki.fi>
+X-X-Sender: mpjohans@soul.it.helsinki.fi
+To: Martin Knoblauch <knobi@knobisoft.de>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RAID-0 read perf. decrease after 2.4.20
+In-Reply-To: <20031218143741.25747.qmail@web13908.mail.yahoo.com>
+Message-ID: <Pine.OSF.4.58.0407050216150.208397@soul.it.helsinki.fi>
+References: <20031218143741.25747.qmail@web13908.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 04, 2004 at 03:52:51PM -0500, Matt Domsch wrote:
 
-> Only that it's now probing more than just the first disk, but the
-> first 16 possible BIOS disks.  If the BIOS behaves badly to an int13
-> READ_SECTORS command, that'd be good to know...
+Hello again!
 
-I recall text fragments like
+Finally had time to test this on IDE, "better late than even later"...
 
- "Any device claiming compliance to ATA-3 or later as indicated in
-  IDENTIFY DEVICE or IDENTIFY PACKET DEVICE data should properly
-  release PDIAG- after a power-on or hardware reset upon receiving
-  the first command or after 31 seconds have elapsed since the reset,
-  whichever comes first."
+On Thu, 18 Dec 2003, Martin Knoblauch wrote:
 
-that seem to imply that probing a nonexistent device may take 31 sec
-before one is allowed to conclude that there is nothing there.
+> > >  Just some feedback:
+> > >
+> > > echo 511 > /proc/sys/vm/max-readahead
+> > >
+> > >  brings back the read performance of my 30 disks on 4 controller
+> > > LVM/RAID0.
+> >
+> > Great.
+> >
+>
+>  Indeed :-) Just to clarify - the modification of max-readahead was
+> sufficient to "fix" the observed read performance degradation. I did
+> not apply (or reverse) anything on top of 2.4.22.
+>
+>  Actually 255 would have been sufficient, 511 proved to be a small bit
+> better :-))
 
-Andries
+The "max-readahead" does not seem to affect IDE-RAID, at least not with
+the 2.4.27-pre6 I just compiled on two machines. So the problem still
+exists, read speed on 2.4.20-ac2 is almost twice as fast as on later
+kernels :-/
 
-
-(ide_wait_hwif_ready() used to wait 35 seconds)
-
+Have a nice summer,
+    Mikael J.
+    http://www.helsinki.fi/~mpjohans/

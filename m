@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269186AbRIHTjF>; Sat, 8 Sep 2001 15:39:05 -0400
+	id <S269786AbRIHUGk>; Sat, 8 Sep 2001 16:06:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269221AbRIHTiz>; Sat, 8 Sep 2001 15:38:55 -0400
-Received: from unused ([12.150.234.220]:9469 "EHLO one.isilinux.com")
-	by vger.kernel.org with ESMTP id <S269186AbRIHTiq>;
-	Sat, 8 Sep 2001 15:38:46 -0400
-Message-ID: <3B9A73D5.9020607@interactivesi.com>
-Date: Sat, 08 Sep 2001 14:39:01 -0500
-From: Timur Tabi <ttabi@interactivesi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010815
-X-Accept-Language: en-us
+	id <S270025AbRIHUGb>; Sat, 8 Sep 2001 16:06:31 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:33801 "EHLO
+	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S269786AbRIHUGQ>; Sat, 8 Sep 2001 16:06:16 -0400
+Message-ID: <3B9A7A08.9AF4D0E5@t-online.de>
+Date: Sat, 08 Sep 2001 22:05:28 +0200
+From: SPATZ1@t-online.de (Frank Schneider)
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: kernel hangs in 118th call to vmalloc
-In-Reply-To: <3B8FDA36.5010206@interactivesi.com> <m1ae05h6we.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: MPS 1.1 against MPS 1.4 ?
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+Hello...
 
-> What is wrong with using SPD to detect interesting properties of
-> memory chips?  That should be safer and usually easier then what you
-> are trying now. 
+I just noticed that i can inside my BIOS switch from MPS (Multi
+Processor Specification ?) 1.1 to 1.4, the later is noticed as "for
+future use", but when i enable it, the kernel says in dmesg that he
+found a MPS 1.4...so it seems to work, at least it claims to.
 
-Our hardware does not interface with SPD.  So I can't use SPD to query the 
-properties.  Besides, it wouldn't change anything if I did.  I still need to 
-clear out RAM.
+Question:
+Whats the difference between MPS 1.1 and 1.4 from Kernel-sight, the
+system (ASUS P2B-DS, now Dual PIII/850/100 and 2.4.3, RH7.1) ran 2 years
+with MPS 1.1 and PIII/450/100-CPUs on Kernel 2.2.12, so i see no need to
+flip this switch and go to MPS 1.4...or does it make sense with the
+2.4.x Kernels now ?
 
+Interesting is that with MPS 1.1 the Kernel puts three devices (aic7xxx,
+usb-uhci and eth0) on IRQ 10, with MPS 1.4 it puts the same three
+devices on IRQ 19...so there seems to be difference.
 
+Solong..
+Frank.
+
+--
+Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
+Microsoft isn't the answer.
+Microsoft is the question, and the answer is NO.
+... -.-

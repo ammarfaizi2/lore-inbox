@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131782AbQKKAtN>; Fri, 10 Nov 2000 19:49:13 -0500
+	id <S132002AbQKKBIT>; Fri, 10 Nov 2000 20:08:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131890AbQKKAtD>; Fri, 10 Nov 2000 19:49:03 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:64956 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S131782AbQKKAsx>; Fri, 10 Nov 2000 19:48:53 -0500
-Message-ID: <3A0C9778.E982F55B@uow.edu.au>
-Date: Sat, 11 Nov 2000 11:48:56 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+	id <S132038AbQKKBIJ>; Fri, 10 Nov 2000 20:08:09 -0500
+Received: from cannet.com ([206.156.188.2]:39952 "HELO mail.cannet.com")
+	by vger.kernel.org with SMTP id <S132002AbQKKBIB>;
+	Fri, 10 Nov 2000 20:08:01 -0500
+Message-ID: <3A0C9B74.114053B6@cannet.com>
+Date: Fri, 10 Nov 2000 20:05:56 -0500
+From: root <whtdrgn@mail.cannet.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>,
-        netdev@oss.sgi.com
-Subject: Re: PATCH: 8139too kernel thread
-In-Reply-To: <200011102129.QAA13369@havoc.gtf.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.17 wont compile on AMD k6@-550
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> (note Linus, not for applying...)
-> 
-> Here is a patch, against 2.4.0-test11-pre2, that I wanted to forward
-> to the lists for comment.
-> 
-> Many of the ethernet drivers have timer routines, which are
-> called every three-five seconds or so.  These timer routines
-> typically do stuff related to media selection or checking, and call
-> mdio_{read,write} to interact with the phy.
-> 
+Hello kernel hackers,
 
-I think it's useful.  More generally, I'd like to have
-"process context timers" - the ability to call a function
-from process context at a set time.  Then a single kernel
-thread could handle all things like this.  Pretty simple to do.
+    I am having problems with compiling a kernel on an AMD K62-550.
+I am running Red Hat 6.2, and am getting error messages like this:
 
+cc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer -fno-strict-aliasing -pipe -fno-strength-reduce
+-m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=686   -c
+-o tcp_output.o tcp_output.c
+cc: Internal compiler error: program cc1 got fatal signal 11
+make[3]: *** [tcp_output.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/net/ipv4'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/net/ipv4'
+make[1]: *** [_subdir_ipv4] Error 2
+make[1]: Leaving directory `/usr/src/linux/net'
+make: *** [_dir_net] Error 2
 
-BTW: can the OOM killer possibly kill a kernel thread?
-If it does, yenta_socket_thread() will nuke the machine.
+my cpuinfo is as follows:
+
+processor : 0
+vendor_id : AuthenticAMD
+cpu family : 5
+model  : 8
+model name : AMD-K6(tm) 3D processor
+stepping : 12
+cpu MHz  : 551.243978
+fdiv_bug : no
+hlt_bug  : no
+sep_bug  : no
+f00f_bug : no
+coma_bug : no
+fpu  : yes
+fpu_exception : yes
+cpuid level : 1
+wp  : yes
+flags  : fpu vme de pse tsc msr mce cx8 sep mtrr pge mmx 3dnow
+bogomips : 1101.00
+
+This is the first time I have posted anyting kernel compile related so
+let me know what you need.
+
+Thanks in Advanced,
+
+--
+Kind Regards
+Timothy A. DeWees
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263783AbREYQGx>; Fri, 25 May 2001 12:06:53 -0400
+	id <S263787AbREYQNX>; Fri, 25 May 2001 12:13:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263787AbREYQGn>; Fri, 25 May 2001 12:06:43 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39439 "EHLO
+	id <S263788AbREYQNO>; Fri, 25 May 2001 12:13:14 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:43791 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263783AbREYQGY>; Fri, 25 May 2001 12:06:24 -0400
-Subject: Re: ac15 and 2.4.5-pre6, pwc format conversion
-To: randy.dunlap@intel.com (Dunlap, Randy)
-Date: Fri, 25 May 2001 17:03:11 +0100 (BST)
-Cc: J.A.K.Mouw@ITS.TUDelft.NL ('Erik Mouw'),
-        nemosoft@smcc.demon.nl (Nemosoft Unv.),
-        preining@logic.at (Norbert Preining), linux-kernel@vger.kernel.org
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE2D1@orsmsx31.jf.intel.com> from "Dunlap, Randy" at May 25, 2001 08:37:26 AM
+	id <S263787AbREYQNG>; Fri, 25 May 2001 12:13:06 -0400
+Subject: Re: [PATCH] warning fixes for 2.4.5pre5
+To: richbaum@acm.org (Rich Baum)
+Date: Fri, 25 May 2001 17:10:12 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <873E21525C8@coral.indstate.edu> from "Rich Baum" at May 24, 2001 09:40:11 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E153K3T-0006jJ-00@the-village.bc.nu>
+Message-Id: <E153KAG-0006k7-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Once upon a time there was an agreement (understanding ?) that this
-> was to be a major 2.5 change (moving video conversion from kernel
-> drivers to user space) and that lots of apps would need to be
-> changed for this to be successful.
+> This patch has been tested and the code does compile. 
+> 
+> Rich
+> 
+> diff -urN -X /linux/dontdiff linux/arch/i386/math-emu/fpu_trig.c 
+> rb/arch/i386/math-emu/fpu_trig.c
+> --- linux/arch/i386/math-emu/fpu_trig.c	Fri Apr  6 12:42:47 2001
+> +++ rb/arch/i386/math-emu/fpu_trig.c	Tue May 22 16:44:57 2001
+> @@ -1543,6 +1543,7 @@
+>  	  EXCEPTION(EX_INTERNAL | 0x116);
+>  	  return;
+>  #endif /* PARANOID */
+> +	  return;	
 
-Nope. Its been policy since 2.0. Its both v4l1 and v4l2 policy. In fact its
-fairly nonsensical to handle any format conversions in kernel unless the
-device outputs a unique format of its own.
-
-It breaks apps by doing conversions, and it breaks important apps like H263
-codecs not silly little camera viewers, because you trash the performance
-
+This seems to be a change in behaviour. Have you done a glibc fpu test on
+the changes ?
 

@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267157AbTBQQve>; Mon, 17 Feb 2003 11:51:34 -0500
+	id <S267187AbTBQQyJ>; Mon, 17 Feb 2003 11:54:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267159AbTBQQvd>; Mon, 17 Feb 2003 11:51:33 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:1976 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267157AbTBQQvc>; Mon, 17 Feb 2003 11:51:32 -0500
-Date: Mon, 17 Feb 2003 09:01:25 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: asm-i386/numaq.h fixes
-Message-ID: <4540000.1045501282@[10.10.2.4]>
-In-Reply-To: <20030217075107.GA14324@holomorphy.com>
-References: <20030217075107.GA14324@holomorphy.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267191AbTBQQyJ>; Mon, 17 Feb 2003 11:54:09 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:15366 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267187AbTBQQyI>;
+	Mon, 17 Feb 2003 11:54:08 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302171705.h1HH5Isl010627@darkstar.example.net>
+Subject: Re: Performance of ext3 on large systems
+To: matti.aarnio@zmailer.org (Matti Aarnio)
+Date: Mon, 17 Feb 2003 17:05:17 +0000 (GMT)
+Cc: rml@tech9.net, sneakums@zork.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20030217164740.GS1073@mea-ext.zmailer.org> from "Matti Aarnio" at Feb 17, 2003 06:47:40 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As can be seen from:
+> > Well, yes, but that's not what I was saying - what was saying is that
+> > if you are primarily reading anyway, there isn't much to be gained
+> > from using EXT-3, over EXT-2.
 > 
-> http://www-3.ibm.com/software/data/db2/benchmarks/050300.html
+>   Besides of data robustness.
+
+Well yes, but that only matters if the filesystem isn't unmounted
+cleanly.
+
+> > If you are primarily writing, EXT-3 atime should be faster than EXT-2
+> > noatime.  EXT-3 notime will obviously be even faster.
 > 
-> MAX_NUMNODES is 16 on NUMA-Q, not 8.
+>   No.  For primarily writing the 'noatime' effect disappears in background
+>   noice. Every time you write into file, mtime will be updated, and also
+>   ctime.  Only one of i-node timestamps _not_ updated is atime...
 
-Not unless we have NUM_CPUS > BITS_PER_LONG it's not. Please don't change that.
- 
-> Also, PHYSADDR_TO_NID() needs to parenthesize its argument.
+Well, that's what I was implying, that for primarily writing, EXT-3
+should be better than EXT-2, regardless of the atime configuration.
 
-Fair enough.
+So, we agree :-).
 
-> -- wli
-> 
-> ===== include/asm-i386/numaq.h 1.5 vs edited =====
-> --- 1.5/include/asm-i386/numaq.h	Tue Jan  7 03:11:19 2003
-> +++ edited/include/asm-i386/numaq.h	Sun Feb 16 23:47:34 2003
-> @@ -37,8 +37,8 @@
->  #define PAGES_PER_ELEMENT (16777216/256)
->  
->  #define pfn_to_pgdat(pfn) NODE_DATA(pfn_to_nid(pfn))
-> -#define PHYSADDR_TO_NID(pa) pfn_to_nid(pa >> PAGE_SHIFT)
-> -#define MAX_NUMNODES		8
-> +#define PHYSADDR_TO_NID(pa) pfn_to_nid((pa) >> PAGE_SHIFT)
-> +#define MAX_NUMNODES		16
->  extern int pfn_to_nid(unsigned long);
->  extern void get_memcfg_numaq(void);
->  #define get_memcfg_numa() get_memcfg_numaq()
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-
-
+John.

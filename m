@@ -1,74 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUFUOMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266244AbUFUOOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbUFUOMH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 10:12:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266241AbUFUOMH
+	id S266244AbUFUOOk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 10:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266247AbUFUOOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 10:12:07 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:11908 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264113AbUFUOMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 10:12:01 -0400
-Subject: RE: [PATCH] Handle non-readable binfmt misc executables
-From: Albert Cahalan <albert@users.sf.net>
-To: "Zach, Yoav" <yoav.zach@intel.com>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <2C83850C013A2540861D03054B478C060416C175@hasmsx403.ger.corp.intel.com>
-References: <2C83850C013A2540861D03054B478C060416C175@hasmsx403.ger.corp.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1087818586.8185.1006.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 21 Jun 2004 07:49:46 -0400
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jun 2004 10:14:40 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:6582 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266244AbUFUOOh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 10:14:37 -0400
+Date: Mon, 21 Jun 2004 16:14:14 +0200 (CEST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Adolfo =?ISO-8859-1?Q?Gonz=E1lez_Bl=E1zquez?= 
+	<agblazquez_mailing@telefonica.net>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pdc202xx_old serious bug with DMA on 2.6.x series
+In-Reply-To: <1087782099.2392.7.camel@localhost>
+Message-ID: <Pine.GSO.4.58.0406211518530.5916@mion.elka.pw.edu.pl>
+References: <1087253451.4817.4.camel@localhost>  <200406191846.32983.bzolnier@elka.pw.edu.pl>
+  <1087686048.647.9.camel@localhost>  <200406200247.32303.bzolnier@elka.pw.edu.pl>
+ <1087782099.2392.7.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-06-21 at 07:31, Zach, Yoav wrote:
-> >From: Albert Cahalan [mailto:albert@users.sourceforge.net] 
 
-> >So the content of /proc/*/cmdline is correct?
-> 
-> After the translator fixes it - yes.
-> 
-> >At a minimum, you will have a problem at startup.
-> >The process might be observed before you fix argv.
-> 
-> Right. It might happen once in a (long) while that
-> 'ps -f' doesn't show the correct command line. 
+On Mon, 21 Jun 2004, Adolfo [ISO-8859-1] González Blázquez wrote:
 
-So this is a hole in the emulation.
+> Well, it seems that problem is solved! I'm now using 2.6.7 without
+> problems. Got same perfomance on hard disks as with 2.4.x series.
+>
+> Disabling LBA48 for pdc20265 just made it work. This is the simple patch
+> I applied:
 
-> >It seems cleaner to use some other mechanism.
-> >Assuming your interpreter is ELF, ELF notes are good.
-> 
-> Using ELF notes means changing the binaries, which is not
-> suitable for cases where the use of translator for running
-> the binaries is not 'known' to the binaries. For example,
-> an administrator might start using a translator to enhance
-> performance of existing binaries. In such a case, re-building
-> the binaries will probably be out of the question.
+OK, thanks.  It works but similar patch went into 2.4.23 and you are
+using 2.4.25 without a problems.  Can you try this patch instead?
 
-No. Well, the translator would change. The old i386
-binaries would not.
+--- linux-2.6.7/drivers/ide/ide-probe.c	2004-06-21 15:25:51.000000000 +0200
++++ linux/drivers/ide/ide-probe.c	2004-06-21 15:29:19.901710936 +0200
+@@ -897,7 +897,7 @@
+ 	blk_queue_segment_boundary(q, 0xffff);
 
-ELF notes are supplied by the kernel. They provide
-data like USER_HZ, the UID, a flag to indicate that
-ld.so must take setuid-type precautions, and so on.
-ELF notes are on the stack, beyond the environment.
+ 	if (!hwif->rqsize)
+-		hwif->rqsize = hwif->no_lba48 ? 256 : 65536;
++		hwif->rqsize = 256;
+ 	if (hwif->rqsize < max_sectors)
+ 		max_sectors = hwif->rqsize;
+ 	blk_queue_max_sectors(q, max_sectors);
 
-> >You might use prctl().
-> 
-> Do you mean enhancing sys_prctl to allow for fixing 
-> the argv ? 
-
-No. I mean enhancing sys_prctl to allow asking for
-the file descriptor number. That way, argv doesn't
-need to get mangled in the first place.
-
-I'm sure there are many other good ways to pass the
-file descriptor number to the interpreter.
-
-
+> diff --unified --recursive --new-file
+> linux-2.6.7/drivers/ide/pci/pdc202xx_old.c
+> linux/drivers/ide/pci/pdc202xx_old.c
+> --- linux-2.6.7/drivers/ide/pci/pdc202xx_old.c  2004-06-16
+> 07:20:17.000000000 +0200
+> +++ linux/drivers/ide/pci/pdc202xx_old.c        2004-06-21
+> 02:53:33.000000000 +0200
+> @@ -721,6 +721,10 @@
+>         hwif->tuneproc  = &config_chipset_for_pio;
+>         hwif->quirkproc = &pdc202xx_quirkproc;
+>
+> +       /* This was present on 2.6.0-test4, maybe here is the bug */
+> +       if (hwif->pci_dev->device == PCI_DEVICE_ID_PROMISE_20265)
+> +               hwif->no_lba48 = (hwif->channel) ? 0 : 1;
+> +
+>         if (hwif->pci_dev->device != PCI_DEVICE_ID_PROMISE_20246) {
+>                 hwif->busproc   = &pdc202xx_tristate;
+>                 hwif->resetproc = &pdc202xx_reset;

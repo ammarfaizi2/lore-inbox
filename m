@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264271AbTGIRkq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 13:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbTGIRkq
+	id S268473AbTGIRoE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 13:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268483AbTGIRoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 13:40:46 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:21254 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S264271AbTGIRkp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 13:40:45 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: ->direct_IO API change in current 2.4 BK
-Date: Wed, 9 Jul 2003 19:55:08 +0200
-User-Agent: KMail/1.5.2
-Cc: Andreas Dilger <adilger@clusterfs.com>, Andrea Arcangeli <andrea@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, marcelo@connectiva.com.br,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       lkml <linux-kernel@vger.kernel.org>
-References: <20030709133109.A23587@infradead.org> <200307091943.13680.m.c.p@wolk-project.de> <Pine.LNX.4.55L.0307091445470.27004@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.55L.0307091445470.27004@freak.distro.conectiva>
-MIME-Version: 1.0
+	Wed, 9 Jul 2003 13:44:04 -0400
+Received: from pdbn-d9bb87fd.pool.mediaWays.net ([217.187.135.253]:6923 "EHLO
+	citd.de") by vger.kernel.org with ESMTP id S268473AbTGIRoB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 13:44:01 -0400
+Date: Wed, 9 Jul 2003 19:58:27 +0200
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Milan Roubal <roubm9am@barbora.ms.mff.cuni.cz>
+Cc: linux-kernel@vger.kernel.org, mru@users.sourceforge.net
+Subject: Re: Promise SATA 150 TX2 plus
+Message-ID: <20030709175827.GA412@citd.de>
+References: <Pine.LNX.4.53.0307091413030.683@mx.homelinux.com> <027901c3461e$e023c670$401a71c3@izidor> <yw1xadbnx017.fsf@users.sourceforge.net> <02ff01c34642$5512d7f0$401a71c3@izidor>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307091954.12895.m.c.p@wolk-project.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <02ff01c34642$5512d7f0$401a71c3@izidor>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 July 2003 19:46, Marcelo Tosatti wrote:
+On Wed, Jul 09, 2003 at 04:51:13PM +0200, Milan Roubal wrote:
+> So other question - is there SATA controler that
+> is working in linux multiple controlers (4 cards)
+> and is for better bus than standart PCI? Like PCI-X or
+> PCI 66 MHz like promise is?
 
-Hi Marcelo,
+Highpoint RocketRAID 1540 or 1542.
+(www.highpoint-tech.com)
 
-> > > > > I just got a nice XFS oops due to the direct_IO API change in
-> > > > > 2.4.  Guys, this is a STABLE series and APIs are supposed to be
-> > > > > exactly that, _STABLE_.  If you really think O_DIRECT on NFS is soo
-> > > > > important please add a ->direct_IO2 for NFS like the reiserfs
-> > > > > read_inode2 hack.
-> >
-> > I wonder why -aa and -wolk don't have these problems with O_DIRECT vs.
-> > XFS.
-> Do they have the NFS DIRECT IO patch?
-Yes. If not, my sentence would be superflous ;)
+OK, it's not native SATA but a PATA with converters, but at least for me
+that a none-issue.
 
-ciao, Marc
+
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
 

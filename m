@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289273AbSAGQgA>; Mon, 7 Jan 2002 11:36:00 -0500
+	id <S289272AbSAGQju>; Mon, 7 Jan 2002 11:39:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289253AbSAGQfu>; Mon, 7 Jan 2002 11:35:50 -0500
-Received: from dsl-213-023-038-159.arcor-ip.net ([213.23.38.159]:50959 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289262AbSAGQfl>;
-	Mon, 7 Jan 2002 11:35:41 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, vda@port.imtp.ilyichevsk.odessa.ua
-Subject: Re: swapping,any updates ?? Just wasted money on mem upgrade performance still suck :-(
-Date: Mon, 7 Jan 2002 17:38:33 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: cej@ti.com (christian e), riel@conectiva.com.br (Rik van Riel),
-        andrea@suse.de (Andrea Arcangeli),
+	id <S289264AbSAGQjk>; Mon, 7 Jan 2002 11:39:40 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61703 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289267AbSAGQja>; Mon, 7 Jan 2002 11:39:30 -0500
+Subject: Re: swapping,any updates ?? Just wasted money on mem upgrade
+To: hahn@physics.mcmaster.ca (Mark Hahn)
+Date: Mon, 7 Jan 2002 16:50:35 +0000 (GMT)
+Cc: znmeb@aracnet.com ("M. Edward (Ed) Borasky"),
         linux-kernel@vger.kernel.org (linux kernel)
-In-Reply-To: <E16NcHz-0001dv-00@the-village.bc.nu>
-In-Reply-To: <E16NcHz-0001dv-00@the-village.bc.nu>
+In-Reply-To: <Pine.LNX.4.33.0201071118440.5017-100000@coffee.psychology.mcmaster.ca> from "Mark Hahn" at Jan 07, 2002 11:21:04 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16NcnC-0001RM-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Ncyp-0001m9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 7, 2002 05:06 pm, Alan Cox wrote:
-> > knobs. It just won't happen. Fixing VM behavior is the only way. It has 
-> > to work satisfactorily _without_ tuning.
-> 
-> Thats something you will never achieve. Virtual memory is about heuristics,
-> crystal ball gazing and guesswork. There are always some workloads where you
-> want little caching and some where you want lots of caching - such as a 
-> fileserver.
+> non sequitur: Linus would like an adaptive VM, which recognizes
+> apps with the properties you describe.  there's no theoretical
+> or practical reason this cannot be achieved.
 
-You can get close though.  The fact that we aren't close is no proof of 
-impossibility.  If we do give up and decide to ship only 'manual 
-transmissions', we can be quite sure we'll never get there.
+Oh there is. To compute the correct VM behaviour requires knowledge of
+what the workload will do in the future. Now if you can solve the halting
+problem and/or invent time travel I'm waiting to hear.
 
-> You can make it right for most people but the last few percent you
-> will always get by tuning knobs - either directly or via GUI tools like
-> powertweak
+There are heuristics, and Linus goal is the right one. Its just useful to
+recognize someone will always have a load you get wrong. Most users don't
+understand tweaking vm configurations, yet even windows NT boxes let you do
+so. For the critical jobs there will be someone who is willing to make the
+effort to learn how to tune it.
 
-Except, as you and others have pointed out, we are far from knowing what the 
-knobs should be.
+> you have the source.  whinging about knobs is just whinging.
+> all serious knobs require recompilation anyway.
 
---
-Daniel
+Now that is definitely not the case. I'm not talking 
+
+	Virtual memory system (Andrea, Marcelo, Rik, Rik rmap, Linus) CONFIG_VM
+

@@ -1,81 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbVAOCMI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262115AbVAOCPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbVAOCMI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 21:12:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbVAOCMI
+	id S262115AbVAOCPw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 21:15:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbVAOCPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 21:12:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51436 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262115AbVAOCLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 21:11:48 -0500
-Date: Fri, 14 Jan 2005 21:17:12 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Steffen Moser <lists@steffen-moser.de>
-Cc: linux-kernel@vger.kernel.org, David Dyck <david.dyck@fluke.com>
-Subject: Re: Linux 2.4.29-rc2
-Message-ID: <20050114231712.GH3336@logos.cnet>
-References: <20050112151334.GC32024@logos.cnet> <20050114225555.GA17714@steffen-moser.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050114225555.GA17714@steffen-moser.de>
-User-Agent: Mutt/1.5.5.1i
+	Fri, 14 Jan 2005 21:15:51 -0500
+Received: from host268.ipowerweb.com ([66.235.211.80]:34056 "HELO
+	host268.ipowerweb.com") by vger.kernel.org with SMTP
+	id S262115AbVAOCPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 21:15:16 -0500
+Message-ID: <41E87CB1.30804@galaktika.ru>
+Date: Fri, 14 Jan 2005 18:15:13 -0800
+From: Nick <nick@galaktika.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en, ru
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Can I ask a smbfs question here?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-David, this also fix your problem.
+I am trying to use a W2K share from my laptop. This share is on Fat32 
+(not sure if it matters). So far I am able either to configure it so it 
+is mountable by non-root user or to configure it so it sees 
+international (russian) characters in filenames on this share. I am on 
+FC3 with the stock Samba (updated to samba-3.0.10-1.fc3). Here is what I 
+did:
 
-On Fri, Jan 14, 2005 at 11:55:55PM +0100, Steffen Moser wrote:
-> Hi Marcelo,
-> 
-> * On Wed, Jan 12, 2005 at 01:13 PM (-0200), Marcelo Tosatti wrote:
-> 
-> > Here goes the second release candidate of v2.4.29.
-> 
-> I've just encountered a little problem with both "linux-2.4.29-rc1" 
-> and "linux-2.4.29-rc2" on one of two machines. 
-> 
-> 
-> [1.] One line summary of the problem: 
-> 
-> Kernel module "serial.o" cannot be loaded
-> 
-> 
-> [2.] Full description of the problem/report:
-> 
-> I cannot load the module "serial.o" anymore, so I won't have serial 
-> port support (which is needed to have the machine communicating with
-> the UPS):
-> 
->  | fsa01:~ # modprobe serial
->  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: unresolved symbol tty_ldisc_flush
->  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: unresolved symbol tty_wakeup
->  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: insmod /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o failed
->  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: insmod serial failed
+To make the share user mountable I changed the owner of the mountpoint 
+to the regular user I am using, chmodded one of the binaries (sorry - do 
+not remember which one - found its name in one of FAQs) and specified 
+"users" option in the /etc/fstab for this share.  After all these I am 
+able to mount this share as a regular user (owner of the mount point). 
+Unfortunately, it cannot see russian characters in the file names.
 
-Steffen, 
+To make russian characters visible, I added the following options to the 
+/etc/fstab : codepage=cp866,iocharset=utf8. It works ONLY if I remove 
+users (or user) option for the same share.
 
-Please try this:
+1) 
+username=administrator,password=xxx,fmask=0666,codepage=cp866,iocharset=utf8 
 
---- a/drivers/char/tty_io.c.orig	2005-01-14 21:11:58.002189784 -0200
-+++ b/drivers/char/tty_io.c	2005-01-14 21:12:53.743715784 -0200
-@@ -718,7 +718,7 @@
- 	wake_up_interruptible(&tty->write_wait);
- }
- 
--EXPORT_SYMBOL_GPL(tty_wakeup);
-+EXPORT_SYMBOL(tty_wakeup);
- 
- void tty_ldisc_flush(struct tty_struct *tty)
- {
-@@ -730,7 +730,7 @@
- 	}
- }
- 
--EXPORT_SYMBOL_GPL(tty_ldisc_flush);
-+EXPORT_SYMBOL(tty_ldisc_flush);
- 
- void do_tty_hagup(void *data)
- {
+This line allows me to see russian filenames but I cannot mount it as a 
+regular user - only as root.
+
+2) 
+username=administrator,password=xxx,fmask=0666,codepage=cp866,iocharset=utf8,users 
+
+I am getting the following message in /var/log/messages if I use the 
+second line:
+Jan  9 15:24:09 NS kernel: smbfs: Unrecognized mount option noexec
+The share still mounts but the russian filenames are not visible 
+(russian letters are replaced with question marks ???).
+
+Any ideas if it is possible to fix this? I can "sudo mount" all the time 
+but it does not sound right...
+
+Thanks,
+Nick
+
+

@@ -1,105 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263158AbTLNGy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 01:54:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265362AbTLNGy4
+	id S265362AbTLNHGg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 02:06:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265363AbTLNHGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 01:54:56 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:13024
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S263158AbTLNGyx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 01:54:53 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Andre Hedrick <andre@linux-ide.org>
-Subject: Re: Linux, Inc. (Re: Linux GPL and binary module exception clause?)
-Date: Sun, 14 Dec 2003 00:55:30 -0600
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10312131656220.21491-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10312131656220.21491-100000@master.linux-ide.org>
+	Sun, 14 Dec 2003 02:06:35 -0500
+Received: from real-outmail.cc.huji.ac.il ([132.64.1.18]:64188 "EHLO
+	mail2.cc.huji.ac.il") by vger.kernel.org with ESMTP id S265362AbTLNHGd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 02:06:33 -0500
+Message-ID: <3FDC0BAC.8020909@mscc.huji.ac.il>
+Date: Sun, 14 Dec 2003 09:05:16 +0200
+From: Voicu Liviu <pacman@mscc.huji.ac.il>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031119
+X-Accept-Language: en-us, en, he
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jan Rychter <jan@rychter.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 vs 2.6
+References: <20031201062052.GA2022@frodo> <Pine.LNX.4.44.0312011202330.13692-100000@logos.cnet> <m2r7z8xl2o.fsf_-_@tnuctip.rychter.com>
+In-Reply-To: <m2r7z8xl2o.fsf_-_@tnuctip.rychter.com>
+X-Enigmail-Version: 0.82.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312140055.30511.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 13 December 2003 19:06, Andre Hedrick wrote:
-> Part II ...
->
-> Given the issue of binary module vendors not native to Linux rules and
-> standards, there becomes a need for a review body.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-And thus a new layer of bureaucracy would be added to address a non-problem.
-Study the history of usenix, will you?  Pay special attention to how it killed 
-Atlanta Linux Showcase.  (Ask Peter Salus.)
+Jan Rychter wrote:
 
->  Given the problem of
-> most binary vendors are idiots and clueless, it provides a certification
-> for a given kernel.
+|>>>>> "Marcelo" == Marcelo Tosatti
+|>>>>> <marcelo.tosatti@cyclades.com> writes:
+|
+| [...] Marcelo> 2.6 is already stable enough for people to use it.
+|
+| Yes, that's an old post I'm responding to, but I've just given 2.6
+| a try on my desktop machine, and the above statement seems even
+| more annoying. I hit the following problems:
+|
+| -- I had to wrestle ATI drivers into compiling, they finally did,
+| but the kernel prints scary-looking warnings with call stacks,
+| about "sleeping function called from invalid context at
+| mm/slab.c:1856, -- modules don't autoload for some reason (though
+| I'm sure that could be solved), -- bttv does not compile, so no
+| video input for me, -- drivers for my telephony card (from Digium)
+| are not 2.6-ready, so no telephony support for me, -- I have just
+| frozen the machine hard by copying files over NFS and doing a
+| simulation write to an ATAPI CD-RW at the same time.
+|
+| I haven't even gotten to VMware and user-mode Linux, which I also
+| need, and I'm not even dreaming about getting my scanner to work.
+| Not to mention that on my laptop there would be an entirely
+| different set of issues, and software suspend in 2.6 is, well,
+| still lacking.
+|
+| So, as for me, 2.6 is a definite no-no. I see no advantage
+| whatsoever in running it, it caused me nothing but pain, and there
+| is no improvement that I could see that would justify the upgrade.
+|
+| So please be careful when making statements like that. 2.6 is *NOT*
+|  stable enough nor ready enough for people to use it, unless those
+| people have a narrow range of hardware on which the 2.6 kernel has
+| actually been tested (translation: they have the same hardware as
+| the main developers do).
+|
+| --J.
 
-Sturgeon's law says that 90% of them are going to be clueless idiots, but 
-that's nothing special.  The ones who make the binary modules that we 
-actually care about are the 10% that _aren't_.
 
-Nvidia, specifically, would love to release its code but it can't due to 
-having licensed chunks of it from suppliers.  (Nvidia doesn't own all its own 
-IP, it licenses huge chunks of it.)
+My specs:
+Cpu:Athlon XP 2500+ BARTON {10x190}
+Mobo:EPOX 8RDA3 + NFORCE 2
+Ram:Corsair TWINX 512 3200LL{dual channel/11-3-2-2.0}
+Fan:Cooler Master +7
+Video:Hercules 3D Prophet 9600 PRO Radeon 128MB
 
-> It is short of racketeiring (sp) but it mean nobody gets to use all of
-> our hard work with out paying for it.  This is fair and equitable.
+My Hercules 3D Prophet 9600 PRO Radeon simply freezes my comp. with
+ati-drivers from ati.com so I need to press reset!(so I only can run
+console)
+My sound (nvidia on board) works very shitty and I have no control on
+it (level sound I mean).
+I was running 2.4.23 vanilla + lvm1 so I moved to 2.6 vanilla+lvm2 and
+now I can not move back
 
-If you're mad that people use your hard work without paying for it, you have 
-missed the entire POINT of open source.
+These are my biggest problems with 2.6.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-I, personally, am fairly certain I have never paid you a dime.  My laptop has 
-IDE in it, so I'd guess I'm using your work.  You have my thanks.  You do not 
-have any of my money.  If this really bothers you, put a paypal link on your 
-web page.
+iD8DBQE/3Aurkj4I0Et8EMgRArxCAKDbp0uE5mIhA5/5C+v/71tscWneHQCg0h3R
+RF2NIf4bbQ3XEMjV6eEePJI=
+=7jBp
+-----END PGP SIGNATURE-----
 
-> Oh yeah in order to be invited to the board or advisory board you have to
-> have some time in slavery to the kernel and continue to contribute.  Yeah
-> I am back off the nutter wagon and running around free again!
 
-I've run volunteer organizations.  I co-founded Penguicon, and I'm doing 
-another one called Linucon here in Austin.  I put about $1000 of my own money 
-into Penguicon, and I'm probably going to put more than that into Linucon, 
-yet nobody involved with it actually got paid.  It was entirely volunteer 
-run.  Even our guests of honor didn't get paid.  We flew Terry Pratchett in 
-from England (a man who claims he had to switch banks having "filled the 
-first one up" with book royalties), and although we bought his plane ticket, 
-hotel room, and meals, we didn't actually give the man a dime.  (We did give 
-him a badge ribbon that said "Geek", though, but that was more an award.)  
-And he agreed to do it, and an important part was that nobody ELSE involved 
-with it was paid a dime either, so it was hard to be jealous.
-
-You've never run a volunteer effort.  It shows.  You clearly, profoundly, DO 
-NOT UNDERSTAND how it works.  I admit it's a fairly tough thing to learn 
-about from outside...
-
-Here, this absolutely _sucks_, but it's the closest to a related write-up I've 
-done:
-
-http://www.fool.com/news/foth/2000/foth000731.htm
-http://www.fool.com/news/foth/2000/foth000913.htm
-http://www.fool.com/news/foth/2000/foth000905.htm
-http://www.fool.com/news/foth/2000/foth000918.htm
-http://www.fool.com/news/foth/2000/foth000925.htm
-http://www.fool.com/portfolios/rulemaker/2000/rulemaker000928.htm
-http://www.fool.com/news/foth/2000/foth001002.htm
-
-And some australian woman's follow-up...
-
-http://www.firstmonday.dk/issues/issue6_3/doheny/
-
-I've needed to do a better write-up of this (that isn't stale, wrong in 
-places, profoundly incomplete, and for a business audience) for years.  Bug 
-me off-list if you're interested...
-
-Rob
-
-(Darn it, I ran a PANEL on this at Penguicon, with Jay Maynard of the Hercules 
-project.  I just haven't got a convenient write-up I can point you to...)

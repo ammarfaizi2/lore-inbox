@@ -1,76 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265663AbSJXUlZ>; Thu, 24 Oct 2002 16:41:25 -0400
+	id <S265665AbSJXUmt>; Thu, 24 Oct 2002 16:42:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265664AbSJXUlZ>; Thu, 24 Oct 2002 16:41:25 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:16780 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265663AbSJXUlX>;
-	Thu, 24 Oct 2002 16:41:23 -0400
-Date: Thu, 24 Oct 2002 21:49:06 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [CFT] faster athlon/duron memory copy implementation
-Message-ID: <20021024204906.GC14351@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Ed Sweetman <ed.sweetman@wmich.edu>, Robert Love <rml@tech9.net>,
-	linux-kernel@vger.kernel.org
-References: <3DB82ABF.8030706@colorfullife.com> <200210242048.36859.earny@net4u.de> <3DB85385.6030302@wmich.edu> <1035490431.1501.101.camel@phantasy> <3DB858A3.10104@wmich.edu>
+	id <S265668AbSJXUmt>; Thu, 24 Oct 2002 16:42:49 -0400
+Received: from [202.89.69.154] ([202.89.69.154]:65244 "EHLO manage.24online")
+	by vger.kernel.org with ESMTP id <S265665AbSJXUmr>;
+	Thu, 24 Oct 2002 16:42:47 -0400
+Subject: Re: [vortex-bug] 3Com Cardbus 3CXFE575CT IRQ Problems
+From: Dionysius Wilson Almeida <dwilson@yenveedu.com>
+To: Donald Becker <becker@scyld.com>
+Cc: vortex-bug@scyld.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0210241633550.1190-100000@beohost.scyld.com>
+References: <Pine.LNX.4.44.0210241633550.1190-100000@beohost.scyld.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 25 Oct 2002 02:19:14 +0530
+Message-Id: <1035492554.1407.2.camel@debianlap>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DB858A3.10104@wmich.edu>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 04:31:31PM -0400, Ed Sweetman wrote:
- > which is almost a 30MB/s difference or 6% simply from compiler options 
- > of the same compiler.  It may not mean much in 1 second. But few things 
- > where we care about performance are only run for one second.
+On Fri, 2002-10-25 at 02:11, Donald Becker wrote:
+> On 24 Oct 2002, Dionysius Wilson Almeida wrote:
+> 
+> > I'm running Debian Woody with kernel 2.4.19 with cardbus and hotplug
+> > support.  I've a 3Com 3CXFE575CT pcmcia card and I'm trying to get it to
+> > work on my system. It seems that the card is unable to find a usable
+> > IRQ.
+> 
+> As you likely already know, this is a kernel / BIOS issue, not a 3Com
+> driver issue.  This problem will exist with any CardBus card that uses
+> interrupts (almost every device).
+> 
+> > I've disabled Plug-n-Play in the BIOS of my Sony VAIO PCG-FX140
+> > Laptop but still the card is not able to get any usable IRQs. I also
+> > booted with pci=biosirq but still no progress.
+> 
+> You can also try "noapic", although that's almost never a issue on a
+> laptop.  (It's more likely to be an issue on a desktop with a
+> PCI-CardBus adapter.) 
+I will try this "noapic" and see if that helps.
 
-Looking at the assembly output of both optimised and unoptimised, we
-see quite startling differences in the way the loops are done..
-The unoptimised case..
+> > 00:00.0 Host bridge: Intel Corp. 82815 815 Chipset Host Bridge and
+> > Memory Controller Hub (rev 11)
+> > 	Subsystem: Sony Corporation: Unknown device 80df
+> ...
+> > 00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 03)
+> > (prog-if 00 [Normal decode])
+> > 	Flags: bus master, fast devsel, latency 0
+> > 	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+> ...
+> > 01:00.0 FireWire (IEEE 1394): Texas Instruments TSB43AA22 IEEE-1394
+> 
+> Does the FireWire work properly?  It's sitting on the same secondary PCI
+> bus as the CardBus.
+> 
+Yeah the firewire disk works fine when Plug-n-Play in the BIOS is
+disabled.
 
-    movl    $0, -12(%ebp)
-.L75:
-    cmpl    $63, -12(%ebp)
-    jle .L78
-    jmp .L76
+> > 01:02.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
+> > 	Subsystem: Sony Corporation: Unknown device 80df
+> ...
+> > 	Bus: primary=01, secondary=02, subordinate=05, sec-latency=176
+> > 01:02.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
+> > 	Subsystem: Sony Corporation: Unknown device 80df
+> ..
+> > 01:08.0 Ethernet controller: Intel Corp. 82801BA/BAM/CA/CAM Ethernet
+> > Controller (rev 03)
+> > 	Subsystem: Intel Corp.: Unknown device 3013
+> > 	Flags: bus master, medium devsel, latency 66, IRQ 9
+> 
+> Presumably this is work fine as well.
+Yeah the in-built ethernet controller works fine too.
 
-	...
-	movntq/movq inline asm bits
-	...
-    leal    12(%ebp), %eax
-    addl    $64, (%eax)
-    addl    $64, 8(%ebp)
-    leal    -12(%ebp), %eax
-    incl    (%eax)
-    jmp .L75
+thanks for your inputs...
 
-Note it uses -12(%ebp) to keep track of how much its copied.
-The optimised version is much more sensible..
+regards,
 
-    movl    $63, %ebx
-    .p2align 2
-.L98:
-	...
-    movntq/movq inline asm bits
-    ...
-    addl    $64, %ecx
-    addl    $64, %edx
-    decl    %ebx
-    jns .L98
+-Wilson
 
-Keeping track of the count in an register, no indirect memory references,
-leaving the only memory references to be the actual memory copies, which
-let it achieve the full bandwidth of the memory bus.
 
-Quite surprising. I doubt going over the top with CFLAGS buys you much.
-The above optimisation comes in with just -O2.
-
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk

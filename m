@@ -1,153 +1,189 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265503AbRFVT7g>; Fri, 22 Jun 2001 15:59:36 -0400
+	id <S265505AbRFVUG4>; Fri, 22 Jun 2001 16:06:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265505AbRFVT70>; Fri, 22 Jun 2001 15:59:26 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:26155
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S265504AbRFVT7T>; Fri, 22 Jun 2001 15:59:19 -0400
-Date: Fri, 22 Jun 2001 21:59:11 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: dougm@computone.com
-Cc: linux-computone@lazuli.wittsend.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] cleanup of drivers/char/ip2main.c (245ac16)
-Message-ID: <20010622215911.A842@jaquet.dk>
+	id <S265504AbRFVUGq>; Fri, 22 Jun 2001 16:06:46 -0400
+Received: from w115.z208177135.sjc-ca.dsl.cnc.net ([208.177.135.115]:4236 "EHLO
+	technolunatic.com") by vger.kernel.org with ESMTP
+	id <S265505AbRFVUGl>; Fri, 22 Jun 2001 16:06:41 -0400
+Date: Fri, 22 Jun 2001 13:06:32 -0700
+From: Dionysius Wilson Almeida <dwilson@technolunatic.com>
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+Cc: dwilson@technologist.com, linux-kernel@vger.kernel.org
+Subject: Re: eepro100: wait_for_cmd_done timeout
+Message-ID: <20010622130632.A31329@technolunatic.com>
+Reply-To: dwilson@technologist.com
+In-Reply-To: <20010620163134.A22173@technolunatic.com> <20010620195134.A6877@saw.sw.com.sg> <20010620170202.B22565@technolunatic.com> <20010621183603.A28081@technolunatic.com> <20010622093158.B2448@saw.sw.com.sg>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="M9NhX3UHpAaciwkO"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010622093158.B2448@saw.sw.com.sg>; from saw@saw.sw.com.sg on Fri, Jun 22, 2001 at 09:31:58AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-The following patch #ifdefs a function to be in its preprocessor
-scope and eliminates the use of check_region, adds '\n' to printk's,
-adds checks for kmalloc and does error path resource releasing
-in ip2_init_board. All in drivers/char/ip2main.c and against
-245ac16.
+--M9NhX3UHpAaciwkO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-(The kmalloc part of this was reported by the Stanford team
-a while back.)
+Hi Andrey,
 
+I'm attaching the log file.. please let me know if u need other
+details.
 
---- linux-245-ac16-clean/drivers/char/ip2main.c	Sat May 19 20:58:17 2001
-+++ linux-245-ac16/drivers/char/ip2main.c	Fri Jun 22 21:49:08 2001
-@@ -418,6 +418,7 @@
- 	rirqs[iindx++] = irq;
- }
- 
-+#ifdef MODULE
- static int __init
- clear_requested_irq( char irq )
- {
-@@ -430,6 +431,7 @@
- 	}
- 	return 0;
- }
-+#endif /* MODULE */
- 
- static int __init
- have_requested_irq( char irq )
-@@ -953,7 +955,7 @@
- static void __init
- ip2_init_board( int boardnum )
- {
--	int i,rc;
-+	int i;
- 	int nports = 0, nboxes = 0;
- 	i2ChanStrPtr pCh;
- 	i2eBordStrPtr pB = i2BoardPtrTable[boardnum];
-@@ -961,24 +963,21 @@
- 	if ( !iiInitialize ( pB ) ) {
- 		printk ( KERN_ERR "IP2: Failed to initialize board at 0x%x, error %d\n",
- 			 pB->i2eBase, pB->i2eError );
--		kfree ( pB );
--		i2BoardPtrTable[boardnum] = NULL;
--		return;
-+		goto err_initialize;
- 	}
--	printk(KERN_INFO "Board %d: addr=0x%x irq=%d ", boardnum + 1,
-+	printk(KERN_INFO "Board %d: addr=0x%x irq=%d\n", boardnum + 1,
- 	       ip2config.addr[boardnum], ip2config.irq[boardnum] );
- 
--	if (0 != ( rc = check_region( ip2config.addr[boardnum], 8))) {
--		i2BoardPtrTable[boardnum] = NULL;
--		printk(KERN_ERR "bad addr=0x%x rc = %d\n",
--				ip2config.addr[boardnum], rc );
--		return;
-+	if (!request_region( ip2config.addr[boardnum], 8, pcName )) {
-+		printk(KERN_ERR "bad addr=0x%x\n",
-+				ip2config.addr[boardnum] );
-+		goto err_initialize;
- 	}
--	request_region( ip2config.addr[boardnum], 8, pcName );
- 
- 	if ( iiDownloadAll ( pB, (loadHdrStrPtr)Fip_firmware, 1, Fip_firmware_size )
- 	    != II_DOWN_GOOD ) {
--		printk ( KERN_ERR "IP2:failed to download loadware " );
-+		printk ( KERN_ERR "IP2:failed to download loadware\n" );
-+		goto err_release_region;
- 	} else {
- 		printk ( KERN_INFO "fv=%d.%d.%d lv=%d.%d.%d\n",
- 			 pB->i2ePom.e.porVersion,
-@@ -993,7 +992,7 @@
- 		printk( KERN_ERR "IP2: Unknown board type, ID = %x",
- 				pB->i2ePom.e.porID );
- 		nports = 0;
--		goto ex_exit;
-+		goto err_release_region;
- 		break;
- 
- 	case POR_ID_II_4: /* IntelliPort-II, ISA-4 (4xRJ45) */
-@@ -1028,8 +1027,13 @@
- 		}
- 		DevTableMem[boardnum] = pCh =
- 			kmalloc( sizeof(i2ChanStr) * nports, GFP_KERNEL );
-+		if ( !pCh ) {
-+			printk ( KERN_ERR "(i2_init_channel:) Out of memory.\n");
-+			goto err_release_region;
-+		}
- 		if ( !i2InitChannels( pB, nports, pCh ) ) {
- 			printk(KERN_ERR "i2InitChannels failed: %d\n",pB->i2eError);
-+			goto err_kmalloc;
- 		}
- 		pB->i2eChannelPtr = &DevTable[portnum];
- 		pB->i2eChannelCnt = ABS_MOST_PORTS;
-@@ -1051,6 +1055,10 @@
- 	}
- 	DevTableMem[boardnum] = pCh =
- 		kmalloc ( sizeof (i2ChanStr) * nports, GFP_KERNEL );
-+	if ( !pCh ) {
-+		printk ( KERN_ERR "(i2_init_channel:) Out of memory.\n");
-+		goto err_kmalloc;
-+	}
- 	pB->i2eChannelPtr = pCh;
- 	pB->i2eChannelCnt = nports;
- 	i2InitChannels ( pB, pB->i2eChannelCnt, pCh );
-@@ -1062,7 +1070,17 @@
- 		pCh++;
- 	}
- ex_exit:
--	printk ( KERN_INFO "\n" );
-+	printk ( "\n" );
-+	return;
-+
-+err_kmalloc:
-+	kfree ( pCh );
-+err_release_region:
-+	release_region(ip2config.addr[boardnum], 8);
-+err_initialize:
-+	kfree ( pB );
-+	i2BoardPtrTable[boardnum] = NULL;
-+	return;
- }
- 
- /******************************************************************************/
+-Wilson
+
+* Andrey Savochkin (saw@saw.sw.com.sg) wrote:
+> On Thu, Jun 21, 2001 at 06:36:03PM -0700, Dionysius Wilson Almeida wrote:
+> > I tried inserting a udelay(1) and increasing the count ..but
+> > the same behaviour.  
+> > 
+> > any clues ? btw, i've been able to compile the redhat 7.1 intel e100
+> > driver and it works fine for my card.
+> 
+> Your problem is different from anyone else's, as I explained.
+> You see "netdev watchdog" message first.
+> It means that the card just stopped to transmit packets.
+> All other messages printed after that, including wait_for_cmd_done timeout,
+> are irrelevant to this problem.  Your card just doesn't transmit.
+> 
+> Please send me a complete log of what the kernel prints, since powering up
+> the computer.
+> 
+> 	Andrey
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
 -- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
+Boy!  Eucalyptus!
 
-"The obvious mathematical breakthrough would be development of an easy way
-to factor large prime numbers." 
-  -- Bill Gates, The Road Ahead, Viking Penguin (1995)
+--M9NhX3UHpAaciwkO
+Content-Type: application/x-gzip
+Content-Disposition: attachment; filename="kernel.log.gz"
+Content-Transfer-Encoding: base64
+
+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
+3xPX/r75kvwHRr7OPKPhAAA=
+
+--M9NhX3UHpAaciwkO--

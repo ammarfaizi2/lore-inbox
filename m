@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318270AbSIBKhV>; Mon, 2 Sep 2002 06:37:21 -0400
+	id <S318272AbSIBKhq>; Mon, 2 Sep 2002 06:37:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318272AbSIBKhV>; Mon, 2 Sep 2002 06:37:21 -0400
-Received: from p508EAA3C.dip.t-dialin.net ([80.142.170.60]:62987 "EHLO
-	tigra.home") by vger.kernel.org with ESMTP id <S318270AbSIBKhV>;
-	Mon, 2 Sep 2002 06:37:21 -0400
-Date: Mon, 2 Sep 2002 12:42:02 +0200
-From: Alex Riesen <fork0@users.sf.net>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-pre1-ac1: Filesystem panic attempting to mount ext3
-Message-ID: <20020902104202.GA26326@steel>
-Reply-To: Alex Riesen <fork0@users.sf.net>
-References: <20020901071327.GA404@steel> <20020902113834.E2507@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020902113834.E2507@redhat.com>
-User-Agent: Mutt/1.4i
+	id <S318274AbSIBKhp>; Mon, 2 Sep 2002 06:37:45 -0400
+Received: from dsl-213-023-021-067.arcor-ip.net ([213.23.21.67]:37768 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318272AbSIBKho>;
+	Mon, 2 Sep 2002 06:37:44 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: "Heiko Carstens" <Heiko.Carstens@de.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel BUG at page_alloc.c:91! (2.4.19)
+Date: Mon, 2 Sep 2002 12:44:49 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <OF990F4927.6697D5BE-ONC1256C28.002E59F8@de.ibm.com>
+In-Reply-To: <OF990F4927.6697D5BE-ONC1256C28.002E59F8@de.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17lohO-0004gn-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen C. Tweedie, Mon, Sep 02, 2002 12:38:34 +0200:
-> Hi,
-> 
-> On Sun, Sep 01, 2002 at 09:13:27AM +0200, Alex Riesen wrote:
->  
-> > the problem appeared on the first partition of an ide
-> > IBM-DHEA-36481 with one fat partition on it. I repartioned
-> > the device (4 primaries) and "mke2fs -j" three of them.
-> > 
-> > Than i tried to mount the newly created filesystems and got
-> > this in syslog:
-> > 
-> > Sep  1 08:47:32 steel kernel: FAT: Did not find valid FSINFO signature.
-> 
-> Which version of e2fsprogs?
+On Monday 02 September 2002 10:26, Heiko Carstens wrote:
+> Looks to me that this function itself has a bug: after the drop_pte label 
+> it is
+> checked if the current page has a mapping. If this is true there is a jump 
+> to
+> the drop_pte label, where without any further checking 
+> page_cache_release() gets
+> called which will result in the above described BUG() if page_count(page) 
 
-mke2fs 1.27 (8-Mar-2002)
+It's not a bug in itself.  The pte was cleared just above, so the reference
+being dropped corresponds to the pte that was cleared.  Because the page
+has a mapping, there is still at least one count on the page that got there
+when the page was put in the page cache, so the page won't be freed just
+yet.  (No, this code is not a model of clarity.)
 
-> > Assuming that some garbage was left on the disk event after mke2fs,
-> > i did "dd if=/dev/zero of=/dev/hdd1 bs=512", which cured the problem,
-> > after being followed by mke2fs.
-> 
-> mke2fs from older versions of e2fsprogs didn't clear out all the
-> filesystem and md signatures on a new filesystem.  
-> 
-> The right way to avoid this is to tell the kernel to mount the fs as
-> ext2 or ext3 explicitly, not to rely on the fs-type autodetection in
-> mount().
+Chances are, you've run into the subtle double-free race I've been working
+on for the last few days.  Would you like to try this patch as see if it
+makes a difference?
 
-This works, too. Anyway, not an issue anymore
+   http://nl.linux.org/~phillips/patches/lru.race-2.4.19
 
+
+-- 
+Daniel

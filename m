@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261297AbTCFXuk>; Thu, 6 Mar 2003 18:50:40 -0500
+	id <S261285AbTCFXsc>; Thu, 6 Mar 2003 18:48:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261298AbTCFXuk>; Thu, 6 Mar 2003 18:50:40 -0500
-Received: from mx12.arcor-online.net ([151.189.8.88]:52179 "EHLO
-	mx12.arcor-online.net") by vger.kernel.org with ESMTP
-	id <S261297AbTCFXuj>; Thu, 6 Mar 2003 18:50:39 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-Date: Sat, 8 Mar 2003 01:05:37 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Ingo Molnar <mingo@elte.hu>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@digeo.com>, <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0303060949120.7720-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0303060949120.7720-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030307000112.4C059FB45A@mx12.arcor-online.net>
+	id <S261288AbTCFXsc>; Thu, 6 Mar 2003 18:48:32 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:62479 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S261285AbTCFXsb>; Thu, 6 Mar 2003 18:48:31 -0500
+Date: Thu, 6 Mar 2003 23:59:04 +0000
+From: John Levon <levon@movementarian.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HT and idle = poll
+Message-ID: <20030306235904.GA58512@compsoc.man.ac.uk>
+References: <200303052318.04647.habanero@us.ibm.com> <b487l2$1tn$1@penguin.transmeta.com> <17740000.1046989368@flay>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17740000.1046989368@flay>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18r5GS-0000UK-00*BDL7FOllh6k*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 06 Mar 03 18:55, Linus Torvalds wrote:
-> The thing about wakeups is that it's an "illogical" place to give the
-> bonus ("it's too late to give the server a bonus _now_, I wanted it when I
-> went to sleep"), but it's the _trivial_ place to give it.
->
-> It also (I'm convinced) is actually in the end exactly equivalent to
-> giving the bonus at sleep time - in the steady state picture.
+On Thu, Mar 06, 2003 at 02:22:48PM -0800, Martin J. Bligh wrote:
 
-And anyway, on the first sleep there was no chance to measure the sleep_time, 
-so there was no bonus to give.
+> BTW, could someone give a brief summary of why idle=poll is needed for 
+> oprofile, I'd love to add it do the "documentation for dummies" file I
+> was writing.
 
-Regards,
+Because events like CPU_CLK_UNHALTED don't tick when the cpu is halted,
+so the idle time doesn't show up properly in the kernel profile.
+idle=poll doesn't hlt so the profile for poll_idle() reflects the actual
+idle percentage.
 
-Daniel
+Something like that anyway.
+
+john
